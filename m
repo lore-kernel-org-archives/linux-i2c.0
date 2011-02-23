@@ -1,508 +1,464 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH V2] i2c: add driver for Freescale i.MX28
-Date: Wed, 23 Feb 2011 01:02:44 +0000
-Message-ID: <20110223010244.GY15795@trinity.fluff.org>
-References: <1297859956-13811-1-git-send-email-w.sang@pengutronix.de>
+Subject: Re: [PATCH] i2c/busses: Add support for Aeroflex Gaisler I2CMST
+	controller
+Date: Wed, 23 Feb 2011 01:06:27 +0000
+Message-ID: <20110223010627.GZ15795@trinity.fluff.org>
+References: <1297859448-6621-1-git-send-email-jan@gaisler.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1297859956-13811-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1297859448-6621-1-git-send-email-jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 16, 2011 at 01:39:16PM +0100, Wolfram Sang wrote:
-> Currently only supporting the PIOQUEUE-mode, because DMA-support for
-> this platform is not yet in mainline. When it becomes available and
-> support has been added to this driver, it will also be suitable for
-> i.MX23 and STMP3xxx.
-
-added to -next, will do a full review later. 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+On Wed, Feb 16, 2011 at 01:30:48PM +0100, Jan Andersson wrote:
+> This patch adds support for the I2CMST core found on LEON/GRLIB SoCs.
+> 
+> Signed-off-by: Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
 > ---
+> The I2CMST core is basically the OpenCores I2C master with an AMBA APB
+> interface. This driver re-uses much of i2c-ocores.c. It is submitted as
+> a separate driver since the register interfaces differ sligthly. Also the
+> two IP cores are maintained separately so they may diverge further in
+> the future.
+
+Hmm, some more of that should go above the "---" line.
+
+Going to do a quick review and then get back to this once I've had some
+time to think on it.
+ 
+> The driver is identical in terms of transfer handling and HW control.
+> The original module author string has been kept.
 > 
-> Changes since V1:
-> * remove interruptible from completion (lots of problems with signals)
-> * add modalias
-> * resource failure now returning -ENOENT instead of -ENODEV
-> * improve the comments, explaining functions and TODOs
-> * add kerneldoc
-> * fix bad strncpy
-> * drop __raw-accessors
-> 
-> Note about mxs_i2c_wait_for_data():
-> 
-> I tried twice to use a waitqueue instead, but the interrupt for the wake did not
-> work as I expected. Definately not proud of it, but at leasts it works for now.
-> 
->  drivers/i2c/busses/Kconfig   |   10 +
->  drivers/i2c/busses/Makefile  |    1 +
->  drivers/i2c/busses/i2c-mxs.c |  412 ++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 423 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-mxs.c
+>  drivers/i2c/busses/Kconfig         |   10 +
+>  drivers/i2c/busses/Makefile        |    1 +
+>  drivers/i2c/busses/i2c-gr-i2cmst.c |  371 ++++++++++++++++++++++++++++++++++++
+>  3 files changed, 382 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-gr-i2cmst.c
 > 
 > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 3a6321c..25e2dc7 100644
+> index 113505a..06a3150 100644
 > --- a/drivers/i2c/busses/Kconfig
 > +++ b/drivers/i2c/busses/Kconfig
-> @@ -452,6 +452,16 @@ config I2C_MV64XXX
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-mv64xxx.
+> @@ -646,6 +646,16 @@ config I2C_EG20T
+>            is an IOH(Input/Output Hub) for x86 embedded processor.
+>            This driver can access PCH I2C bus device.
 >  
-> +config I2C_MXS
-> +	tristate "Freescale i.MX28 I2C interface"
-> +	depends on SOC_IMX28
+> +config I2C_GR_I2CMST
+> +	tristate "Aeroflex Gaisler I2CMST I2C Controller"
+> +	depends on SPARC_LEON
 > +	help
-> +	  Say Y here if you want to use the I2C bus controller on
-> +	  the Freescale i.MX28 processors.
+> +	  If you say yes to this option, support will be included for the
+> +	  I2CMST I2C controller present on some LEON/GRLIB SoCs.
 > +
 > +	  This driver can also be built as a module.  If so, the module
-> +	  will be called i2c-mxs.
+> +	  will be called i2c-gr-i2cmst.
 > +
->  config I2C_NOMADIK
->  	tristate "ST-Ericsson Nomadik/Ux500 I2C Controller"
->  	depends on PLAT_NOMADIK
+>  comment "External I2C/SMBus adapter drivers"
+>  
+>  config I2C_PARPORT
 > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 84cb16a..f415132 100644
+> index 9d2d0ec..1e16e66 100644
 > --- a/drivers/i2c/busses/Makefile
 > +++ b/drivers/i2c/busses/Makefile
-> @@ -43,6 +43,7 @@ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
->  obj-$(CONFIG_I2C_IXP2000)	+= i2c-ixp2000.o
->  obj-$(CONFIG_I2C_MPC)		+= i2c-mpc.o
->  obj-$(CONFIG_I2C_MV64XXX)	+= i2c-mv64xxx.o
-> +obj-$(CONFIG_I2C_MXS)		+= i2c-mxs.o
->  obj-$(CONFIG_I2C_NOMADIK)	+= i2c-nomadik.o
->  obj-$(CONFIG_I2C_NUC900)	+= i2c-nuc900.o
->  obj-$(CONFIG_I2C_OCORES)	+= i2c-ocores.o
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+> @@ -62,6 +62,7 @@ obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+>  obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
+>  obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+>  obj-$(CONFIG_I2C_EG20T)         += i2c-eg20t.o
+> +obj-$(CONFIG_I2C_GR_I2CMST)	+= i2c-gr-i2cmst.o
+>  
+>  # External I2C/SMBus adapter drivers
+>  obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+> diff --git a/drivers/i2c/busses/i2c-gr-i2cmst.c b/drivers/i2c/busses/i2c-gr-i2cmst.c
 > new file mode 100644
-> index 0000000..8022e23
+> index 0000000..90b23a8
 > --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -0,0 +1,412 @@
+> +++ b/drivers/i2c/busses/i2c-gr-i2cmst.c
+> @@ -0,0 +1,371 @@
 > +/*
-> + * Freescale MXS I2C bus driver
+> + * i2c-gr-i2cmst.c I2C bus driver for GRLIB I2CMST core
 > + *
-> + * Copyright (C) 2011 Wolfram Sang, Pengutronix e.K.
+> + * Main parts of this driver re-used from:
 > + *
-> + * based on a (non-working) driver which was:
+> + * i2c-ocores.c: I2C bus driver for OpenCores I2C controller
+> + * by Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
 > + *
-> + * Copyright (C) 2009-2010 Freescale Semiconductor, Inc. All Rights Reserved.
+> + * Adaption to GRLIB/I2CMST by Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
 > + *
-> + * TODO: add dma-support if platform-support for it is available
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
+> + * This file is licensed under the terms of the GNU General Public License
+> + * version 2.  This program is licensed "as is" without any warranty of any
+> + * kind, whether express or implied.
 > + */
 > +
-> +#include <linux/slab.h>
-> +#include <linux/device.h>
-> +#include <linux/module.h>
-> +#include <linux/i2c.h>
-> +#include <linux/err.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_device.h>
 > +#include <linux/interrupt.h>
-> +#include <linux/completion.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/jiffies.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/errno.h>
+> +#include <linux/i2c.h>
+> +#include <linux/wait.h>
+> +#include <linux/slab.h>
 > +#include <linux/io.h>
 > +
-> +#include <mach/common.h>
-> +
-> +#define DRIVER_NAME "mxs-i2c"
-> +
-> +#define MXS_I2C_CTRL0		(0x00)
-> +#define MXS_I2C_CTRL0_SET	(0x04)
-> +
-> +#define MXS_I2C_CTRL0_SFTRST			0x80000000
-> +#define MXS_I2C_CTRL0_SEND_NAK_ON_LAST		0x02000000
-> +#define MXS_I2C_CTRL0_RETAIN_CLOCK		0x00200000
-> +#define MXS_I2C_CTRL0_POST_SEND_STOP		0x00100000
-> +#define MXS_I2C_CTRL0_PRE_SEND_START		0x00080000
-> +#define MXS_I2C_CTRL0_MASTER_MODE		0x00020000
-> +#define MXS_I2C_CTRL0_DIRECTION			0x00010000
-> +#define MXS_I2C_CTRL0_XFER_COUNT(v)		((v) & 0x0000FFFF)
-> +
-> +#define MXS_I2C_CTRL1		(0x40)
-> +#define MXS_I2C_CTRL1_SET	(0x44)
-> +#define MXS_I2C_CTRL1_CLR	(0x48)
-> +
-> +#define MXS_I2C_CTRL1_BUS_FREE_IRQ		0x80
-> +#define MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ	0x40
-> +#define MXS_I2C_CTRL1_NO_SLAVE_ACK_IRQ		0x20
-> +#define MXS_I2C_CTRL1_OVERSIZE_XFER_TERM_IRQ	0x10
-> +#define MXS_I2C_CTRL1_EARLY_TERM_IRQ		0x08
-> +#define MXS_I2C_CTRL1_MASTER_LOSS_IRQ		0x04
-> +#define MXS_I2C_CTRL1_SLAVE_STOP_IRQ		0x02
-> +#define MXS_I2C_CTRL1_SLAVE_IRQ			0x01
-> +
-> +#define MXS_I2C_IRQ_MASK	(MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ | \
-> +				 MXS_I2C_CTRL1_NO_SLAVE_ACK_IRQ | \
-> +				 MXS_I2C_CTRL1_EARLY_TERM_IRQ | \
-> +				 MXS_I2C_CTRL1_MASTER_LOSS_IRQ | \
-> +				 MXS_I2C_CTRL1_SLAVE_STOP_IRQ | \
-> +				 MXS_I2C_CTRL1_SLAVE_IRQ)
-> +
-> +#define MXS_I2C_QUEUECTRL	(0x60)
-> +#define MXS_I2C_QUEUECTRL_SET	(0x64)
-> +#define MXS_I2C_QUEUECTRL_CLR	(0x68)
-> +
-> +#define MXS_I2C_QUEUECTRL_QUEUE_RUN		0x20
-> +#define MXS_I2C_QUEUECTRL_PIO_QUEUE_MODE	0x04
-> +
-> +#define MXS_I2C_QUEUESTAT	(0x70)
-> +#define MXS_I2C_QUEUESTAT_RD_QUEUE_EMPTY        0x00002000
-> +
-> +#define MXS_I2C_QUEUECMD	(0x80)
-> +
-> +#define MXS_I2C_QUEUEDATA	(0x90)
-> +
-> +#define MXS_I2C_DATA		(0xa0)
-> +
-> +
-> +#define MXS_CMD_I2C_SELECT	(MXS_I2C_CTRL0_RETAIN_CLOCK |	\
-> +				 MXS_I2C_CTRL0_PRE_SEND_START |	\
-> +				 MXS_I2C_CTRL0_MASTER_MODE |	\
-> +				 MXS_I2C_CTRL0_DIRECTION |	\
-> +				 MXS_I2C_CTRL0_XFER_COUNT(1))
-> +
-> +#define MXS_CMD_I2C_WRITE	(MXS_I2C_CTRL0_PRE_SEND_START |	\
-> +				 MXS_I2C_CTRL0_MASTER_MODE |	\
-> +				 MXS_I2C_CTRL0_DIRECTION)
-> +
-> +#define MXS_CMD_I2C_READ	(MXS_I2C_CTRL0_SEND_NAK_ON_LAST | \
-> +				 MXS_I2C_CTRL0_MASTER_MODE)
-> +
-> +/**
-> + * struct mxs_i2c_dev - per device, private MXS-I2C data
-> + *
-> + * @dev: driver model device node
-> + * @regs: IO registers pointer
-> + * @cmd_complete: completion object for transaction wait
-> + * @cmd_err: error code for last transaction
-> + * @adapter: i2c subsystem adapter node
-> + */
-> +struct mxs_i2c_dev {
-> +	struct device *dev;
-> +	void __iomem *regs;
-> +	struct completion cmd_complete;
-> +	u32 cmd_err;
-> +	struct i2c_adapter adapter;
+> +/* I2CMST APB registers */
+> +struct i2cmst_regs {
+> +	u32 prescaler;
+> +	u32 control;
+> +	u32 data;
+> +	u32 cmdstat; /* Command (write), Status (read) */
+> +};
+
+using structures for memory mapped registers makes me want to go
+EURGH. the compiler is free to pack and order as it feels.
+
+> +struct gr_i2cmst_i2c {
+> +	struct i2cmst_regs *regs;
+> +	wait_queue_head_t wait;
+> +	struct i2c_adapter adap;
+> +	struct i2c_msg *msg;
+> +	int pos;
+> +	int nmsgs;
+> +	int state; /* see STATE_ */
+> +	int clock_khz;
 > +};
 > +
-> +/*
-> + * TODO: check if calls to here are really needed. If not, we could get rid of
-> + * mxs_reset_block and the mach-dependency. Needs an I2C analyzer, probably.
-> + */
-> +static void mxs_i2c_reset(struct mxs_i2c_dev *i2c)
+> +/* register fields and commands */
+> +#define I2CMST_CTRL_IEN		0x40
+> +#define I2CMST_CTRL_EN		0x80
+> +
+> +#define I2CMST_CMD_START	0x91
+> +#define I2CMST_CMD_STOP		0x41
+> +#define I2CMST_CMD_READ		0x21
+> +#define I2CMST_CMD_WRITE	0x11
+> +#define I2CMST_CMD_READ_ACK	0x21
+> +#define I2CMST_CMD_READ_NACK	0x29
+> +#define I2CMST_CMD_IACK		0x01
+> +
+> +#define I2CMST_STAT_IF		0x01
+> +#define I2CMST_STAT_TIP		0x02
+> +#define I2CMST_STAT_ARBLOST	0x20
+> +#define I2CMST_STAT_BUSY	0x40
+> +#define I2CMST_STAT_NACK	0x80
+> +
+> +#define STATE_DONE		0
+> +#define STATE_START		1
+> +#define STATE_WRITE		2
+> +#define STATE_READ		3
+> +#define STATE_ERROR		4
+> +
+> +static inline void i2cmst_setreg(void __iomem *reg, u32 value)
 > +{
-> +	mxs_reset_block(i2c->regs);
-> +	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
+> +	__raw_writel(cpu_to_be32(value), reg);
 > +}
 > +
-> +static void mxs_i2c_pioq_setup_read(struct mxs_i2c_dev *i2c, u8 addr, int len,
-> +					int flags)
+> +static inline u32 i2cmst_getreg(void __iomem *reg)
 > +{
-> +	u32 data;
-> +
-> +	writel(MXS_CMD_I2C_SELECT, i2c->regs + MXS_I2C_QUEUECMD);
-> +
-> +	data = (addr << 1) | I2C_SMBUS_READ;
-> +	writel(data, i2c->regs + MXS_I2C_DATA);
-> +
-> +	data = MXS_CMD_I2C_READ | MXS_I2C_CTRL0_XFER_COUNT(len) | flags;
-> +	writel(data, i2c->regs + MXS_I2C_QUEUECMD);
+> +	return be32_to_cpu(__raw_readl(reg));
 > +}
-> +
-> +static void mxs_i2c_pioq_setup_write(struct mxs_i2c_dev *i2c,
-> +				    u8 addr, u8 *buf, int len, int flags)
+
+do you really need to use the __raw versions of thees calls?
+
+> +static void gr_i2cmst_process(struct gr_i2cmst_i2c *i2c)
 > +{
-> +	u32 data;
-> +	int i, shifts_left;
+> +	struct i2c_msg *msg = i2c->msg;
+> +	u32 stat = i2cmst_getreg(&i2c->regs->cmdstat);
 > +
-> +	data = MXS_CMD_I2C_WRITE | MXS_I2C_CTRL0_XFER_COUNT(len + 1) | flags;
-> +	writel(data, i2c->regs + MXS_I2C_QUEUECMD);
-> +
-> +	/*
-> +	 * We have to copy the slave address (u8) and buffer (arbitrary number
-> +	 * of u8) into the data register (u32). To achieve that, the u8 are put
-> +	 * into the MSBs of 'data' which is then shifted for the next u8. When
-> +	 * apropriate, 'data' is written to MXS_I2C_DATA. So, the first u32
-> +	 * looks like this:
-> +	 *
-> +	 *  3          2          1          0
-> +	 * 10987654|32109876|54321098|76543210
-> +	 * --------+--------+--------+--------
-> +	 * buffer+2|buffer+1|buffer+0|slave_addr
-> +	 */
-> +
-> +	data = ((addr << 1) | I2C_SMBUS_WRITE) << 24;
-> +
-> +	for (i = 0; i < len; i++) {
-> +		data >>= 8;
-> +		data |= buf[i] << 24;
-> +		if ((i & 3) == 2)
-> +			writel(data, i2c->regs + MXS_I2C_DATA);
+> +	if ((i2c->state == STATE_DONE) || (i2c->state == STATE_ERROR)) {
+> +		/* stop has been sent */
+> +		i2cmst_setreg(&i2c->regs->cmdstat, I2CMST_CMD_IACK);
+> +		wake_up(&i2c->wait);
+> +		return;
 > +	}
 > +
-> +	/* Write out the remaining bytes if any */
-> +	shifts_left = 24 - (i & 3) * 8;
-> +	if (shifts_left)
-> +		writel(data >> shifts_left, i2c->regs + MXS_I2C_DATA);
-> +}
-> +
-> +/*
-> + * TODO: should be replaceable with a waitqueue and RD_QUEUE_IRQ (setting the
-> + * rd_threshold to 1). Couldn't get this to work, though.
-> + */
-> +static int mxs_i2c_wait_for_data(struct mxs_i2c_dev *i2c)
-> +{
-> +	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
-> +
-> +	while (readl(i2c->regs + MXS_I2C_QUEUESTAT)
-> +			& MXS_I2C_QUEUESTAT_RD_QUEUE_EMPTY) {
-> +			if (time_after(jiffies, timeout))
-> +				return -ETIMEDOUT;
-> +			cond_resched();
+> +	/* error? */
+> +	if (stat & I2CMST_STAT_ARBLOST) {
+> +		i2c->state = STATE_ERROR;
+> +		i2cmst_setreg(&i2c->regs->cmdstat, I2CMST_CMD_STOP);
+> +		return;
 > +	}
 > +
-> +	return 0;
-> +}
+> +	if ((i2c->state == STATE_START) || (i2c->state == STATE_WRITE)) {
+> +		i2c->state =
+> +			(msg->flags & I2C_M_RD) ? STATE_READ : STATE_WRITE;
 > +
-> +static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf, int len)
-> +{
-> +	u32 data;
-> +	int i;
-> +
-> +	for (i = 0; i < len; i++) {
-> +		if ((i & 3) == 0) {
-> +			if (mxs_i2c_wait_for_data(i2c))
-> +				return -ETIMEDOUT;
-> +			data = readl(i2c->regs + MXS_I2C_QUEUEDATA);
+> +		if (stat & I2CMST_STAT_NACK) {
+> +			i2c->state = STATE_ERROR;
+> +			i2cmst_setreg(&i2c->regs->cmdstat, I2CMST_CMD_STOP);
+> +			return;
 > +		}
-> +		buf[i] = data & 0xff;
-> +		data >>= 8;
+> +	} else
+> +		msg->buf[i2c->pos++] = i2cmst_getreg(&i2c->regs->data);
+> +
+> +	/* end of msg? */
+> +	if (i2c->pos == msg->len) {
+> +		i2c->nmsgs--;
+> +		i2c->msg++;
+> +		i2c->pos = 0;
+> +		msg = i2c->msg;
+> +
+> +		if (i2c->nmsgs) {	/* end? */
+> +			/* send start? */
+> +			if (!(msg->flags & I2C_M_NOSTART)) {
+> +				u8 addr = (msg->addr << 1);
+> +
+> +				if (msg->flags & I2C_M_RD)
+> +					addr |= 1;
+> +
+> +				i2c->state = STATE_START;
+> +
+> +				i2cmst_setreg(&i2c->regs->data, addr);
+> +				i2cmst_setreg(&i2c->regs->cmdstat,
+> +					I2CMST_CMD_START);
+> +				return;
+> +			} else
+> +				i2c->state = (msg->flags & I2C_M_RD)
+> +					? STATE_READ : STATE_WRITE;
+> +		} else {
+> +			i2c->state = STATE_DONE;
+> +			i2cmst_setreg(&i2c->regs->cmdstat, I2CMST_CMD_STOP);
+> +			return;
+> +		}
 > +	}
 > +
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Low level master read/write transaction.
-> + */
-> +static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
-> +				int stop)
-> +{
-> +	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
-> +	int ret;
-> +	int flags;
-> +
-> +	init_completion(&i2c->cmd_complete);
-> +
-> +	dev_dbg(i2c->dev, "addr: 0x%04x, len: %d, flags: 0x%x, stop: %d\n",
-> +		msg->addr, msg->len, msg->flags, stop);
-> +
-> +	if (msg->len == 0)
-> +		return -EINVAL;
-> +
-> +	flags = stop ? MXS_I2C_CTRL0_POST_SEND_STOP : 0;
-> +
-> +	if (msg->flags & I2C_M_RD)
-> +		mxs_i2c_pioq_setup_read(i2c, msg->addr, msg->len, flags);
-> +	else
-> +		mxs_i2c_pioq_setup_write(i2c, msg->addr, msg->buf, msg->len,
-> +					flags);
-> +
-> +	writel(MXS_I2C_QUEUECTRL_QUEUE_RUN,
-> +			i2c->regs + MXS_I2C_QUEUECTRL_SET);
-> +
-> +	ret = wait_for_completion_timeout(&i2c->cmd_complete,
-> +						msecs_to_jiffies(1000));
-> +	if (ret == 0)
-> +		goto timeout;
-> +
-> +	if ((!i2c->cmd_err) && (msg->flags & I2C_M_RD)) {
-> +		ret = mxs_i2c_finish_read(i2c, msg->buf, msg->len);
-> +		if (ret)
-> +			goto timeout;
+> +	if (i2c->state == STATE_READ) {
+> +		i2cmst_setreg(&i2c->regs->cmdstat, i2c->pos == (msg->len-1) ?
+> +			I2CMST_CMD_READ_NACK : I2CMST_CMD_READ_ACK);
+> +	} else {
+> +		i2cmst_setreg(&i2c->regs->data, msg->buf[i2c->pos++]);
+> +		i2cmst_setreg(&i2c->regs->cmdstat, I2CMST_CMD_WRITE);
 > +	}
-> +
-> +	if (i2c->cmd_err == -ENXIO)
-> +		mxs_i2c_reset(i2c);
-> +
-> +	dev_dbg(i2c->dev, "Done with err=%d\n", i2c->cmd_err);
-> +
-> +	return i2c->cmd_err;
-> +
-> +timeout:
-> +	dev_dbg(i2c->dev, "Timeout!\n");
-> +	mxs_i2c_reset(i2c);
-> +	return -ETIMEDOUT;
 > +}
 > +
-> +static int mxs_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
-> +			int num)
+> +static irqreturn_t gr_i2cmst_isr(int irq, void *dev_id)
 > +{
-> +	int i;
-> +	int err;
+> +	struct gr_i2cmst_i2c *i2c = dev_id;
 > +
-> +	for (i = 0; i < num; i++) {
-> +		err = mxs_i2c_xfer_msg(adap, &msgs[i], i == (num - 1));
-> +		if (err)
-> +			return err;
-> +	}
+> +	gr_i2cmst_process(i2c);
 > +
-> +	return num;
-> +}
-> +
-> +static u32 mxs_i2c_func(struct i2c_adapter *adap)
-> +{
-> +	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
-> +}
-> +
-> +static irqreturn_t mxs_i2c_isr(int this_irq, void *dev_id)
-> +{
-> +	struct mxs_i2c_dev *i2c = dev_id;
-> +	u32 stat = readl(i2c->regs + MXS_I2C_CTRL1) & MXS_I2C_IRQ_MASK;
-> +
-> +	if (!stat)
-> +		return IRQ_NONE;
-> +
-> +	if (stat & MXS_I2C_CTRL1_NO_SLAVE_ACK_IRQ)
-> +		i2c->cmd_err = -ENXIO;
-> +	else if (stat & (MXS_I2C_CTRL1_EARLY_TERM_IRQ |
-> +		    MXS_I2C_CTRL1_MASTER_LOSS_IRQ |
-> +		    MXS_I2C_CTRL1_SLAVE_STOP_IRQ | MXS_I2C_CTRL1_SLAVE_IRQ))
-> +		/* MXS_I2C_CTRL1_OVERSIZE_XFER_TERM_IRQ is only for slaves */
-> +		i2c->cmd_err = -EIO;
-> +	else
-> +		i2c->cmd_err = 0;
-> +
-> +	complete(&i2c->cmd_complete);
-> +
-> +	writel(stat, i2c->regs + MXS_I2C_CTRL1_CLR);
 > +	return IRQ_HANDLED;
 > +}
 > +
-> +static const struct i2c_algorithm mxs_i2c_algo = {
-> +	.master_xfer = mxs_i2c_xfer,
-> +	.functionality = mxs_i2c_func,
+> +static int gr_i2cmst_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+> +{
+> +	struct gr_i2cmst_i2c *i2c = i2c_get_adapdata(adap);
+> +
+> +	i2c->msg = msgs;
+> +	i2c->pos = 0;
+> +	i2c->nmsgs = num;
+> +	i2c->state = STATE_START;
+> +
+> +	i2cmst_setreg(&i2c->regs->data, (i2c->msg->addr << 1) |
+> +			((i2c->msg->flags & I2C_M_RD) ? 1 : 0));
+> +
+> +	i2cmst_setreg(&i2c->regs->cmdstat, I2CMST_CMD_START);
+> +
+> +	if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
+> +			       (i2c->state == STATE_DONE), HZ))
+> +		return (i2c->state == STATE_DONE) ? num : -EIO;
+> +	else
+> +		return -ETIMEDOUT;
+> +}
+> +
+> +static void gr_i2cmst_init(struct gr_i2cmst_i2c *i2c)
+> +{
+> +	int prescale;
+> +	u32 ctrl = i2cmst_getreg(&i2c->regs->control);
+> +
+> +	/* make sure the device is disabled */
+> +	i2cmst_setreg(&i2c->regs->control,
+> +			ctrl & ~(I2CMST_CTRL_EN|I2CMST_CTRL_IEN));
+> +
+> +	/* Required prescaler = (AMBAfreq)/(5 * SCLfreq)-1 */
+> +	prescale = (i2c->clock_khz / (5*100)) - 1;
+> +	/* Minimum value of precaler is 3 due to HW sync */
+> +	prescale = prescale < 3 ? 3 : prescale;
+> +	i2cmst_setreg(&i2c->regs->prescaler, prescale);
+> +
+> +	/* Init the device */
+> +	i2cmst_setreg(&i2c->regs->cmdstat, I2CMST_CMD_IACK);
+> +	ctrl |= I2CMST_CTRL_IEN | I2CMST_CTRL_EN;
+> +	i2cmst_setreg(&i2c->regs->control, ctrl);
+> +}
+> +
+> +
+> +static u32 gr_i2cmst_func(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+> +
+> +static const struct i2c_algorithm gr_i2cmst_algorithm = {
+> +	.master_xfer	= gr_i2cmst_xfer,
+> +	.functionality	= gr_i2cmst_func,
 > +};
 > +
-> +static int __devinit mxs_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct mxs_i2c_dev *i2c;
-> +	struct i2c_adapter *adap;
-> +	struct resource *res;
-> +	resource_size_t res_size;
-> +	int err, irq;
+> +static struct i2c_adapter gr_i2cmst_adapter = {
+> +	.owner		= THIS_MODULE,
+> +	.name		= "i2c-gr-i2cmst",
+> +	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+> +	.algo		= &gr_i2cmst_algorithm,
+> +};
 > +
-> +	i2c = devm_kzalloc(dev, sizeof(struct mxs_i2c_dev), GFP_KERNEL);
+> +
+> +static int __devinit gr_i2cmst_of_probe(struct platform_device *ofdev, const struct of_device_id *match)
+
+please avoid line-wrap like this.
+
+> +{
+> +	struct gr_i2cmst_i2c *i2c;
+> +	const unsigned int *busfreq;
+> +	int ret;
+> +
+> +	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
 > +	if (!i2c)
 > +		return -ENOMEM;
+
+would be nice to have an error print here.
+
+> +	/* Get frequency of APB bus that core is attached to */
+> +	busfreq = of_get_property(ofdev->dev.of_node, "freq", NULL);
+> +	if (!busfreq) {
+> +		dev_err(&ofdev->dev, "Missing parameter 'freq'\n");
+> +		return -ENODEV;
+> +	}
+> +	i2c->clock_khz = *busfreq/1000;
 > +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res)
-> +		return -ENOENT;
+> +	i2c->regs = of_ioremap(&ofdev->resource[0], 0,
+> +			resource_size(&ofdev->resource[0]),
+> +			"grlib-i2cmst regs");
+> +	if (!i2c->regs) {
+> +		dev_err(&ofdev->dev, "Unable to map registers\n");
+> +		ret = -EIO;
+> +		goto map_failed;
+> +	}
 > +
-> +	res_size = resource_size(res);
-> +	if (!devm_request_mem_region(dev, res->start, res_size, res->name))
-> +		return -EBUSY;
+> +	gr_i2cmst_init(i2c);
 > +
-> +	i2c->regs = devm_ioremap_nocache(dev, res->start, res_size);
-> +	if (!i2c->regs)
-> +		return -EBUSY;
+> +	init_waitqueue_head(&i2c->wait);
+> +	ret = request_irq(ofdev->archdata.irqs[0], gr_i2cmst_isr, 0,
+> +			ofdev->name, i2c);
+> +	if (ret) {
+> +		dev_err(&ofdev->dev, "Cannot claim IRQ\n");
+> +		goto request_irq_failed;
+> +	}
 > +
-> +	irq = platform_get_irq(pdev, 0);
-> +	if (irq < 0)
-> +		return irq;
+> +	/* hook up driver to tree */
+> +	dev_set_drvdata(&ofdev->dev, i2c);
+> +	i2c->adap = gr_i2cmst_adapter;
+> +	i2c_set_adapdata(&i2c->adap, i2c);
+> +	i2c->adap.dev.parent = &ofdev->dev;
+> +	i2c->adap.dev.of_node = ofdev->dev.of_node;
 > +
-> +	err = devm_request_irq(dev, irq, mxs_i2c_isr, 0, dev_name(dev), i2c);
-> +	if (err)
-> +		return err;
-> +
-> +	i2c->dev = dev;
-> +	platform_set_drvdata(pdev, i2c);
-> +
-> +	/* Do reset to enforce correct startup after pinmuxing */
-> +	mxs_i2c_reset(i2c);
-> +	writel(MXS_I2C_QUEUECTRL_PIO_QUEUE_MODE,
-> +			i2c->regs + MXS_I2C_QUEUECTRL_SET);
-> +
-> +	adap = &i2c->adapter;
-> +	strlcpy(adap->name, "MXS I2C adapter", sizeof(adap->name));
-> +	adap->owner = THIS_MODULE;
-> +	adap->algo = &mxs_i2c_algo;
-> +	adap->dev.parent = dev;
-> +	adap->nr = pdev->id;
-> +	i2c_set_adapdata(adap, i2c);
-> +	err = i2c_add_numbered_adapter(adap);
-> +	if (err) {
-> +		dev_err(dev, "Failed to add adapter (%d)\n", err);
-> +		writel(MXS_I2C_CTRL0_SFTRST,
-> +				i2c->regs + MXS_I2C_CTRL0_SET);
-> +		return err;
+> +	/* add i2c adapter to i2c tree */
+> +	ret = i2c_add_adapter(&i2c->adap);
+> +	if (ret) {
+> +		dev_err(&ofdev->dev, "Failed to add adapter\n");
+> +		goto add_adapter_failed;
 > +	}
 > +
 > +	return 0;
+> +
+> +add_adapter_failed:
+> +	free_irq(ofdev->archdata.irqs[0], i2c);
+> +request_irq_failed:
+> +	of_iounmap(&ofdev->resource[0], i2c->regs,
+> +		resource_size(&ofdev->resource[0]));
+> +map_failed:
+> +	kfree(i2c);
+> +
+> +	return ret;
 > +}
 > +
-> +static int __devexit mxs_i2c_remove(struct platform_device *pdev)
+> +static int __devexit gr_i2cmst_of_remove(struct platform_device *ofdev)
 > +{
-> +	struct mxs_i2c_dev *i2c = platform_get_drvdata(pdev);
-> +	int ret;
+> +	struct gr_i2cmst_i2c *i2c = dev_get_drvdata(&ofdev->dev);
+> +	u32 ctrl = i2cmst_getreg(&i2c->regs->control);
 > +
-> +	ret = i2c_del_adapter(&i2c->adapter);
-> +	if (ret)
-> +		return -EBUSY;
+> +	/* disable i2c logic */
+> +	i2cmst_setreg(&i2c->regs->control,
+> +		ctrl & ~(I2CMST_CTRL_EN|I2CMST_CTRL_IEN));
 > +
-> +	writel(MXS_I2C_QUEUECTRL_QUEUE_RUN,
-> +			i2c->regs + MXS_I2C_QUEUECTRL_CLR);
-> +	writel(MXS_I2C_CTRL0_SFTRST, i2c->regs + MXS_I2C_CTRL0_SET);
+> +	/* remove adapter & data */
+> +	i2c_del_adapter(&i2c->adap);
+> +	dev_set_drvdata(&ofdev->dev, NULL);
 > +
-> +	platform_set_drvdata(pdev, NULL);
+> +	free_irq(ofdev->archdata.irqs[0], i2c);
+> +
+> +	of_iounmap(&ofdev->resource[0], i2c->regs,
+> +		resource_size(&ofdev->resource[0]));
+> +
+> +	kfree(i2c);
 > +
 > +	return 0;
 > +}
 > +
-> +static struct platform_driver mxs_i2c_driver = {
-> +	.driver = {
-> +		   .name = DRIVER_NAME,
-> +		   .owner = THIS_MODULE,
-> +		   },
-> +	.remove = __devexit_p(mxs_i2c_remove),
+> +#ifdef CONFIG_PM
+> +static int gr_i2cmst_suspend(struct platform_device *ofdev, pm_message_t state)
+> +{
+> +	struct gr_i2cmst_i2c *i2c = dev_get_drvdata(&ofdev->dev);
+> +	u32 ctrl = gr_i2cmst_getreg(&i2c->regs->control);
+> +
+> +	/* make sure the device is disabled */
+> +	gr_i2cmst_setreg(&i2c->regs->control,
+> +			ctrl & ~(I2CMST_CTRL_EN|I2CMST_CTRL_IEN));
+> +
+> +	return 0;
+> +}
+> +
+> +static int gr_i2cmst_resume(struct platform_device *ofdev)
+> +{
+> +	struct gr_i2cmst_i2c *i2c = dev_get_drvdata(&ofdev->dev);
+> +
+> +	gr_i2cmst_init(i2c);
+> +
+> +	return 0;
+> +}
+> +#else
+> +#define gr_i2cmst_suspend	NULL
+> +#define gr_i2cmst_resume	NULL
+> +#endif
+> +
+> +static struct of_device_id gr_i2cmst_of_match[] = {
+> +	{ .name = "GAISLER_I2CMST", },
+> +	{ .name = "01_028", },
+> +	{},
 > +};
 > +
-> +static int __init mxs_i2c_init(void)
-> +{
-> +	return platform_driver_probe(&mxs_i2c_driver, mxs_i2c_probe);
-> +}
-> +subsys_initcall(mxs_i2c_init);
+> +MODULE_DEVICE_TABLE(of, gr_i2cmst_of_match);
 > +
-> +static void __exit mxs_i2c_exit(void)
-> +{
-> +	platform_driver_unregister(&mxs_i2c_driver);
-> +}
-> +module_exit(mxs_i2c_exit);
+> +static struct of_platform_driver gr_i2cmst_of_driver = {
+> +	.driver = {
+> +		.name = "grlib-i2cmst",
+> +		.owner = THIS_MODULE,
+> +		.of_match_table = gr_i2cmst_of_match,
+> +	},
+> +	.probe = gr_i2cmst_of_probe,
+> +	.remove = __devexit_p(gr_i2cmst_of_remove),
+> +	.suspend = gr_i2cmst_suspend,
+> +	.resume  = gr_i2cmst_resume,
+> +};
 > +
-> +MODULE_AUTHOR("Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
-> +MODULE_DESCRIPTION("MXS I2C Bus Driver");
+> +
+> +static int __init i2cmst_init(void)
+> +{
+> +	return of_register_platform_driver(&gr_i2cmst_of_driver);
+> +}
+> +
+> +static void __exit i2cmst_exit(void)
+> +{
+> +	of_unregister_platform_driver(&gr_i2cmst_of_driver);
+> +}
+> +
+> +module_init(i2cmst_init);
+> +module_exit(i2cmst_exit);
+> +
+> +MODULE_AUTHOR("Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>");
+> +MODULE_DESCRIPTION("GRLIB I2CMST I2C bus driver");
 > +MODULE_LICENSE("GPL");
-> +MODULE_ALIAS("platform:" DRIVER_NAME);
-> -- 
-> 1.7.2.3
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
