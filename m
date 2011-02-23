@@ -1,65 +1,90 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c/busses: Add support for Aeroflex Gaisler I2CMST
-	controller
-Date: Wed, 23 Feb 2011 01:07:03 +0000
-Message-ID: <20110223010703.GA15795@trinity.fluff.org>
-References: <1297859448-6621-1-git-send-email-jan@gaisler.com> <20110216142708.GA6365@pengutronix.de> <4D5BE45F.5020908@gaisler.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-ocores: register devices on child nodes
+Date: Tue, 22 Feb 2011 18:07:24 -0700
+Message-ID: <AANLkTikCHJoF-KHThge15fCQgsepjpUFdYtUzVpLk6fk@mail.gmail.com>
+References: <1297306314-11483-1-git-send-email-thomas@wytron.com.tw>
+ <20110223001252.GT15795@trinity.fluff.org> <4D645578.3020906@wytron.com.tw>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=Big5
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4D5BE45F.5020908-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <4D645578.3020906-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
+To: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 16, 2011 at 03:51:11PM +0100, Jan Andersson wrote:
-> On 02/16/2011 03:27 PM, Wolfram Sang wrote:
->> Hi Jan,
+On Tue, Feb 22, 2011 at 5:31 PM, Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org> wrote:
+> On 02/23/2011 08:12 AM, Ben Dooks wrote:
 >>
->> On Wed, Feb 16, 2011 at 01:30:48PM +0100, Jan Andersson wrote:
->>> This patch adds support for the I2CMST core found on LEON/GRLIB SoCs.
+>> On Thu, Feb 10, 2011 at 10:51:54AM +0800, Thomas Chou wrote:
 >>>
->>> Signed-off-by: Jan Andersson<jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+>>> This patch registers devices on the devicetree child nodes to the bus.
+>>> Also removes one trailing whitespace.
+>>
+>> Is this required as an urgent fix, or can it queue for next merge window?
+>
+> It is not urgent. An it is fine to queue it for next merge window.
+
+Yes, queue for .39
+
+g.
+
+>
+> - Thomas
+>
+>>
+>>> Signed-off-by: Thomas Chou<thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
 >>> ---
->>> The I2CMST core is basically the OpenCores I2C master with an AMBA APB
->>> interface. This driver re-uses much of i2c-ocores.c. It is submitted as
->>> a separate driver since the register interfaces differ sligthly. Also the
->>> two IP cores are maintained separately so they may diverge further in
->>> the future.
+>>>  drivers/i2c/busses/i2c-ocores.c |    6 +++++-
+>>>  1 files changed, 5 insertions(+), 1 deletions(-)
 >>>
->>> The driver is identical in terms of transfer handling and HW control.
->>> The original module author string has been kept.
+>>> diff --git a/drivers/i2c/busses/i2c-ocores.c
+>>> b/drivers/i2c/busses/i2c-ocores.c
+>>> index ef3bcb1..c63838f 100644
+>>> --- a/drivers/i2c/busses/i2c-ocores.c
+>>> +++ b/drivers/i2c/busses/i2c-ocores.c
+>>> @@ -18,7 +18,7 @@
+>>>   * - interrupts      : interrupt number
+>>>   * - regstep         : size of device registers in bytes
+>>>   * - clock-frequency : frequency of bus clock in Hz
+>>> - *
+>>> + *
+>>>   * Example:
+>>>   *
+>>>   *  i2c0: ocores@a0000000 {
+>>> @@ -55,6 +55,7 @@
+>>>  #include<linux/i2c-ocores.h>
+>>>  #include<linux/slab.h>
+>>>  #include<linux/io.h>
+>>> +#include<linux/of_i2c.h>
+>>>
+>>>  struct ocores_i2c {
+>>>        void __iomem *base;
+>>> @@ -347,6 +348,9 @@ static int __devinit ocores_i2c_probe(struct
+>>> platform_device *pdev)
+>>>                        i2c_new_device(&i2c->adap, pdata->devices + i);
+>>>        }
+>>>
+>>> +       /* Now register all the child nodes */
+>>> +       of_i2c_register_devices(&i2c->adap);
+>>> +
+>>>        return 0;
+>>>  }
+>>>
+>>> --
+>>> 1.7.4
+>>>
+>>> --
+>>> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+>>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 >>
->> Just judging from this message, it seems that algo could be extracted and used
->> by both drivers? Or would this make no sense?
->>
 >
-> Hi Wolfram,
 >
-> The control parts of the *_process, *_isr and *_xfer functions could be  
-> shared by ripping it out and changing the calls used to read/set 
-> registers.
->
-> I considered that change more complex and did not think it to be worth  
-> the trouble for saving ~50 LOC (probably less with added glue). Of  
-> course, it could be beneficial to have the algo part shared if there are  
-> future updates to it. At the same time I suppose that it could be bad to  
-> have the algo part shared if the updates are only valid for one of the  
-> cores.
 
-could at-least the contstants be shared?
 
->
-> Best regards,
->   Jan
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
