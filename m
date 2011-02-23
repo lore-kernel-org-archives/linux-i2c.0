@@ -1,185 +1,35 @@
-From: "Fillod Stephane" <stephane.fillod-IW5+RbcfqPSTtA8H5PvdGFaTQe2KTcn/@public.gmane.org>
-Subject: RE: implementing a slave driver
-Date: Wed, 23 Feb 2011 11:30:09 +0100
-Message-ID: <127CF106CD5B1D4EBD10849ED01511C04A7349@rennsmail06.eu.thmulti.com>
-References: <201102192253.40287.marc.dietrich@ap.physik.uni-giessen.de>
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01CBD344.A68B0D67"
+From: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Subject: I2C support for CE4100, v3
+Date: Wed, 23 Feb 2011 12:38:14 +0100
+Message-ID: <1298461100-14869-1-git-send-email-bigeasy@linutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <201102192253.40287.marc.dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Dietrich <Marc.Dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
+The I2C core inside CE4100 is very much the same as in PXA25x.
+I Cc the ARM folks because patch 2 reorganizes some files so that they
+can be accessed from x86.
+The I2C device is behind a PCI bus. The PCI probe code simply creates
+three platform devices so we don't have much changes to the platform
+driver. There is no clock framework on x86 and the peripherals don't
+support changing their clocks or to enable/disable them. So I provided
+dummy function which keep the driver happy.
 
-------_=_NextPart_001_01CBD344.A68B0D67
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+History:
+v1: Initial post
+v2: - ISAR is still touched if not in SLAVE mode except on X86 where it
+      is not touched at all.
+    - There are no files created in include/asm
+    - register defines are in common code
+    - the PCI controller now requires a device tree. It is used to obtain
+      an id (which is used as device & i2c bus id).
+    - the PCI part now uses ARRAY_SIZE(). As it turns out pci_select_bars()
+      is not useable.
+    - the patch which resetted the chip if the i2c bus was not available
+      has been dropped.
+v3: - rebased against v2.6.38-rc3, fixed conflicts in ARM tree
+    - the dependency on SPI is gone.
 
-Marc Dietrich wrote:
-> the HW I'm using (tegra) can be configured to act as a slave. This
-function is=20
-> needed to communicate with an embedded controller (which is the
-master). I=20
-> like to know if this slave function can/should be implemented in the=20
-> i2c/busses/i2c-tegra.c driver or better outside, e.g. in the driver
-for the=20
-> embedded controller.
-
-Do you need to implement a slave for write-only or also read messages?
-
-> I haven't found any other hw so far which has this function and it
-seems that=20
-> the i2c layer does not provide any interface for the communication
-with a=20
-> master.
-
-In fact, the Freescale's MPC8xxx I2C controllers are also capable of
-slave=20
-operation. I've implemented it, and it's working fine.
-
-Please find attached a patch against 2.6.35.
-
- drivers/i2c/busses/i2c-mpc.c |   79
-+++++++++++++++++++++++++++++++++++++++++--
- drivers/i2c/i2c-dev.c        |    8 +++-
- include/linux/i2c.h          |    1
- 3 files changed, 84 insertions(+), 4 deletions(-)
-
-The proposal sent last year[1] relies on a generic API extension.
-<<
-The i2c-dev subsystem is extended with a new flag I2C_M_SLAVE.
-Basically, a struct i2c_msg holding flag I2C_M_SLAVE will wait
-in slave mode for a write request on specified target address,
-and will report the received content to the user-land application.
-
-An example of driver implementation has been done for i2c-mpc.=20
-There's no support for read request yet, and I'm wondering whether
-it would make sense. The patch has been tested on powerpc MPC8313E.=20
-Note: the present i2c-mpc implementation is RFC and may be improved,
-esp. regarding current timing issues.
-
-[...]
-Talking about i2c-dev, does the I2C_M_SLAVE flag is the appropriate=20
-way of modelling the API extension? Is there any interest for
-this extension to be accepted in the linux kernel?
->>
-
-[1] http://thread.gmane.org/gmane.linux.drivers.i2c/6417
-
-Until now, I have no good proposal for the read request.
-It should be doable to pass a static array and let the kernel read from
-it,
-but I see no easy way to have a user task respond with
-compute-as-you-go.
-
-Still, the write message is satisfactory for my use case.
-
-Comments welcome.
---=20
-Stephane
-
-PS: sorry about my broken MUA, it's about to be changed in the coming
-weeks,
-as well as my e-mail address.
-
-------_=_NextPart_001_01CBD344.A68B0D67
-Content-Type: application/octet-stream;
-	name="mpc-i2c-slave.patch"
-Content-Transfer-Encoding: base64
-Content-Description: mpc-i2c-slave.patch
-Content-Disposition: attachment;
-	filename="mpc-i2c-slave.patch"
-
-U3ViamVjdDogW1BBVENIXSBtcGMtaTJjOiBJMkMgc2xhdmUgaGFuZGxpbmcKCkZyb206IFN0ZXBo
-YW5lIEZpbGxvZCA8c3RlcGhhbmUuZmlsbG9kQHRob21zb24tbmV0d29ya3MuY29tPgoKSTJDIHNs
-YXZlIGhhbmRsaW5nIGZvciBGcmVlc2NhbGUgOHh4eC4KClNpZ25lZC1vZmYtYnk6IFN0ZXBoYW5l
-IEZpbGxvZCA8c3RlcGhhbmUuZmlsbG9kQHRob21zb24tbmV0d29ya3MuY29tPgoKLS0tCgpJMkMg
-aG9zdCBhZGFwdGVyIHNsYXZlIHN1cHBvcnQgd2FzIHJhaXNlZCAyIHllYXJzIGFnbzoKaHR0cDov
-L3RocmVhZC5nbWFuZS5vcmcvZ21hbmUubGludXguZHJpdmVycy5pMmMvNDMvZm9jdXM9NDMKCi0t
-LSBhL2luY2x1ZGUvbGludXgvaTJjLmgJMjQgRmViIDIwMTAgMTg6NTI6MTcgLTAwMDAKKysrIGIv
-aW5jbHVkZS9saW51eC9pMmMuaAkyNiBGZWIgMjAxMCAxNTo1MDo0NiAtMDAwMApAQCAtNDkyLDYg
-KzQ5Miw3IEBAIHN0cnVjdCBpMmNfbXNnIHsKIAlfX3UxNiBmbGFnczsKICNkZWZpbmUgSTJDX01f
-VEVOCQkweDAwMTAJLyogdGhpcyBpcyBhIHRlbiBiaXQgY2hpcCBhZGRyZXNzICovCiAjZGVmaW5l
-IEkyQ19NX1JECQkweDAwMDEJLyogcmVhZCBkYXRhLCBmcm9tIHNsYXZlIHRvIG1hc3RlciAqLwor
-I2RlZmluZSBJMkNfTV9TTEFWRQkJMHgwMDAyCS8qIGZyb20gbWFzdGVyIGNsaWVudCB0byBzbGF2
-ZSBhZGFwICovCiAjZGVmaW5lIEkyQ19NX05PU1RBUlQJCTB4NDAwMAkvKiBpZiBJMkNfRlVOQ19Q
-Uk9UT0NPTF9NQU5HTElORyAqLwogI2RlZmluZSBJMkNfTV9SRVZfRElSX0FERFIJMHgyMDAwCS8q
-IGlmIEkyQ19GVU5DX1BST1RPQ09MX01BTkdMSU5HICovCiAjZGVmaW5lIEkyQ19NX0lHTk9SRV9O
-QUsJMHgxMDAwCS8qIGlmIEkyQ19GVU5DX1BST1RPQ09MX01BTkdMSU5HICovCi0tLSBhL2RyaXZl
-cnMvaTJjL2kyYy1kZXYuYwkyNCBGZWIgMjAxMCAxODo1MjoxNyAtMDAwMAorKysgYi9kcml2ZXJz
-L2kyYy9pMmMtZGV2LmMJMjYgRmViIDIwMTAgMTU6NDk6NTEgLTAwMDAKQEAgLTI3MCwxMiArMjcw
-LDE4IEBAIHN0YXRpYyBub2lubGluZSBpbnQgaTJjZGV2X2lvY3RsX3Jkcncoc3QKIAogCXJlcyA9
-IGkyY190cmFuc2ZlcihjbGllbnQtPmFkYXB0ZXIsIHJkd3JfcGEsIHJkd3JfYXJnLm5tc2dzKTsK
-IAl3aGlsZSAoaS0tID4gMCkgewotCQlpZiAocmVzID49IDAgJiYgKHJkd3JfcGFbaV0uZmxhZ3Mg
-JiBJMkNfTV9SRCkpIHsKKwkJaWYgKHJlcyA+PSAwICYmIChyZHdyX3BhW2ldLmZsYWdzICYgKEky
-Q19NX1JEfEkyQ19NX1NMQVZFKSkpIHsKIAkJCWlmIChjb3B5X3RvX3VzZXIoZGF0YV9wdHJzW2ld
-LCByZHdyX3BhW2ldLmJ1ZiwKIAkJCQkJIHJkd3JfcGFbaV0ubGVuKSkKIAkJCQlyZXMgPSAtRUZB
-VUxUOwogCQl9CiAJCWtmcmVlKHJkd3JfcGFbaV0uYnVmKTsKKwkJaWYgKHJlcyA+PSAwICYmIChy
-ZHdyX3BhW2ldLmZsYWdzICYgSTJDX01fU0xBVkUpKSB7CisJCQlzdHJ1Y3QgaTJjX21zZyBfX3Vz
-ZXIgKnVtc2dzOworCQkJdW1zZ3MgPSAoKHN0cnVjdCBpMmNfcmR3cl9pb2N0bF9kYXRhIF9fdXNl
-ciAqKWFyZyktPm1zZ3M7CisJCQlpZiAocHV0X3VzZXIocmR3cl9wYVtpXS5sZW4sICZ1bXNnc1tp
-XS5sZW4pKQorCQkJCXJlcyA9IC1FRkFVTFQ7CisJCX0KIAl9CiAJa2ZyZWUoZGF0YV9wdHJzKTsK
-IAlrZnJlZShyZHdyX3BhKTsKLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1tcGMuYwkzIERl
-YyAyMDA5IDAzOjUxOjIxIC0wMDAwCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXBjLmMJ
-MjcgQXByIDIwMTAgMTE6MDE6NDcgLTAwMDAKQEAgLTQsNyArNCw3IEBACiAKICAqIFRoaXMgaXMg
-YSBjb21iaW5lZCBpMmMgYWRhcHRlciBhbmQgYWxnb3JpdGhtIGRyaXZlciBmb3IgdGhlCiAgKiBN
-UEMxMDcvVHNpMTA3IFBvd2VyUEMgbm9ydGhicmlkZ2UgYW5kIHByb2Nlc3NvcnMgdGhhdCBpbmNs
-dWRlCi0gKiB0aGUgc2FtZSBJMkMgdW5pdCAoODI0MCwgODI0NSwgODV4eCkuCisgKiB0aGUgc2Ft
-ZSBJMkMgdW5pdCAoODI0MCwgODI0NSwgODN4eCwgODV4eCkuCiAgKgogICogUmVsZWFzZSAwLjgK
-ICAqCkBAIC0zMSw2ICszMSw3IEBACiAKICNkZWZpbmUgRFJWX05BTUUgIm1wYy1pMmMiCiAKKyNk
-ZWZpbmUgTVBDX0kyQ19BRERSICAweDAwCiAjZGVmaW5lIE1QQ19JMkNfRkRSICAgMHgwNAogI2Rl
-ZmluZSBNUENfSTJDX0NSICAgIDB4MDgKICNkZWZpbmUgTVBDX0kyQ19TUiAgICAweDBjCkBAIC03
-Myw2ICs3NCwxMSBAQCBzdHJ1Y3QgbXBjX2kyY19tYXRjaF9kYXRhIHsKIAl1MzIgcHJlc2NhbGVy
-OwogfTsKIAorc3RhdGljIGlubGluZSB2b2lkIHdyaXRlYWRkcihzdHJ1Y3QgbXBjX2kyYyAqaTJj
-LCB1MzIgeCkKK3sKKwl3cml0ZWIoeCwgaTJjLT5iYXNlICsgTVBDX0kyQ19BRERSKTsKK30KKwog
-c3RhdGljIGlubGluZSB2b2lkIHdyaXRlY2NyKHN0cnVjdCBtcGNfaTJjICppMmMsIHUzMiB4KQog
-ewogCXdyaXRlYih4LCBpMmMtPmJhc2UgKyBNUENfSTJDX0NSKTsKQEAgLTQyOCw2ICs0MzQsNjgg
-QEAgc3RhdGljIGludCBtcGNfcmVhZChzdHJ1Y3QgbXBjX2kyYyAqaTJjLAogCXJldHVybiBsZW5n
-dGg7CiB9CiAKK3N0YXRpYyBpbnQgbXBjX3NsYXZlX3hyZWN2KHN0cnVjdCBtcGNfaTJjICppMmMs
-IGludCB0YXJnZXQsCisJCSAgICB1OCAqZGF0YSwgaW50IGxlbmd0aCwgaW50IHJlc3RhcnQpCit7
-CisJdW5zaWduZWQgdGltZW91dCA9IGkyYy0+YWRhcC50aW1lb3V0OworCWludCBpLCByZXN1bHQs
-IHNydzsKKwlpbnQgcmVhZGxlbiA9IDA7CisJdTMyIGZsYWdzOworCisJLyogTGlzdGVuaW5nIGFk
-ZHJlc3MgKi8KKwl3cml0ZWFkZHIoaTJjLCB0YXJnZXQpOworCS8qIFN0YXJ0IHdpdGggTUVOICov
-CisJd3JpdGVjY3IoaTJjLCBDQ1JfTUlFTiB8IENDUl9NRU4gfCBDQ1JfTVRYKTsKKworCS8qIEdp
-dmUgSTJDIHNpZ25hbHMgc3VmZmljZW50IHRpbWUgdG8gc2V0dGxlICovCisJdWRlbGF5KDMwKTsK
-KworCXJlc3VsdCA9IGkyY193YWl0KGkyYywgdGltZW91dCwgMSk7CisJaWYgKHJlc3VsdCA8IDAp
-IHsKKwkJd3JpdGVjY3IoaTJjLCAwKTsKKwkJcmV0dXJuIHJlc3VsdDsKKwl9CisjaWYgMAorCXNy
-dyA9IHJlYWRiKGkyYy0+YmFzZSArIE1QQ19JMkNfU1IpICYgQ1NSX1NSVzsKKyNlbHNlCisJLyog
-VE9ETzogaGFuZGxlIGFuZCB0ZXN0IFNSVyE9MCAqLworCXNydyA9IDA7CisjZW5kaWYKKwlmbGFn
-cyA9IHNydyA/IENDUl9NVFggOiAwOworCisJaWYgKGxlbmd0aCkgeworCQlpZiAobGVuZ3RoID09
-IDEpCisJCQl3cml0ZWNjcihpMmMsIENDUl9NSUVOIHwgQ0NSX01FTiB8IENDUl9UWEFLIHwgZmxh
-Z3MpOworCQllbHNlCisJCQl3cml0ZWNjcihpMmMsIENDUl9NSUVOIHwgQ0NSX01FTiB8IGZsYWdz
-KTsKKwkJLyogRHVtbXkgcmVhZC93cml0ZSAqLworCQlpZiAoc3J3KQorCQkJd3JpdGViKDAsIGky
-Yy0+YmFzZSArIE1QQ19JMkNfRFIpOworCQllbHNlCisJCQlyZWFkYihpMmMtPmJhc2UgKyBNUENf
-STJDX0RSKTsKKwl9CisKKwlmb3IgKGkgPSAwOyBpIDwgbGVuZ3RoOyBpKyspIHsKKwkJcmVzdWx0
-ID0gaTJjX3dhaXQoaTJjLCB0aW1lb3V0LCAwKTsKKwkJaWYgKHJlc3VsdCA8IDApCisJCQlyZXR1
-cm4gaSA+IDAgJiYgcmVzdWx0ID09IC1FVElNRURPVVQgPyBpLTEgOiByZXN1bHQ7CisJCS8qIEdl
-bmVyYXRlIHN0b3Agb24gbGFzdCBieXRlICovCisJCWlmIChpID09IGxlbmd0aCAtIDEpCisJCQl3
-cml0ZWNjcihpMmMsIENDUl9NSUVOIHwgQ0NSX01FTiB8IENDUl9UWEFLIHwgZmxhZ3MpOworCQlk
-YXRhW2ldID0gcmVhZGIoaTJjLT5iYXNlICsgTVBDX0kyQ19EUik7CisJCXJlYWRsZW4rKzsKKwkJ
-LyogY2hlY2sgZWFybHkgU1RPUCBhZnRlciAyIGNsb2NrIGN5Y2xlcyBhdCAxMDAga0h6ICovCisJ
-CXVkZWxheSgyMCk7CisJCWlmICghKHJlYWRiKGkyYy0+YmFzZSArIE1QQ19JMkNfU1IpICYgQ1NS
-X01CQikpCisJCQlicmVhazsKKwl9CisJLyogY2xlYXIgSTJDU1IgcmVnaXN0ZXIgKi8KKwlvdXRf
-OChpMmMtPmJhc2UgKyBNUENfSTJDX1NSLCAwKTsKKwkvKiBoYW5nIHVwICovCisJd3JpdGVjY3Io
-aTJjLCBDQ1JfTUVOKTsKKwlyZXR1cm4gcmVhZGxlbjsKK30KKwogc3RhdGljIGludCBtcGNfeGZl
-cihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHN0cnVjdCBpMmNfbXNnICptc2dzLCBpbnQgbnVt
-KQogewogCXN0cnVjdCBpMmNfbXNnICpwbXNnOwpAQCAtNDU5LDkgKzUyNywxNCBAQCBzdGF0aWMg
-aW50IG1wY194ZmVyKHN0cnVjdCBpMmNfYWRhcHRlciAqCiAJCXBtc2cgPSAmbXNnc1tpXTsKIAkJ
-ZGV2X2RiZyhpMmMtPmRldiwKIAkJCSJEb2luZyAlcyAlZCBieXRlcyB0byAweCUwMnggLSAlZCBv
-ZiAlZCBtZXNzYWdlc1xuIiwKLQkJCXBtc2ctPmZsYWdzICYgSTJDX01fUkQgPyAicmVhZCIgOiAi
-d3JpdGUiLAorCQkJcG1zZy0+ZmxhZ3MgJiBJMkNfTV9TTEFWRSA/ICJyZWN2IiA6CisJCQkJcG1z
-Zy0+ZmxhZ3MgJiBJMkNfTV9SRCA/ICJyZWFkIiA6ICJ3cml0ZSIsCiAJCQlwbXNnLT5sZW4sIHBt
-c2ctPmFkZHIsIGkgKyAxLCBudW0pOwotCQlpZiAocG1zZy0+ZmxhZ3MgJiBJMkNfTV9SRCkKKwkJ
-aWYgKHBtc2ctPmZsYWdzICYgSTJDX01fU0xBVkUpIHsKKwkJCXJldCA9IG1wY19zbGF2ZV94cmVj
-dihpMmMsIHBtc2ctPmFkZHIsIHBtc2ctPmJ1ZiwgcG1zZy0+bGVuLCBpKTsKKwkJCWlmIChyZXQg
-Pj0gMCkKKwkJCQlwbXNnLT5sZW4gPSByZXQ7CisJCX0gZWxzZSBpZiAocG1zZy0+ZmxhZ3MgJiBJ
-MkNfTV9SRCkKIAkJCXJldCA9CiAJCQkgICAgbXBjX3JlYWQoaTJjLCBwbXNnLT5hZGRyLCBwbXNn
-LT5idWYsIHBtc2ctPmxlbiwgaSk7CiAJCWVsc2UK
-
-------_=_NextPart_001_01CBD344.A68B0D67--
+Sebastian
