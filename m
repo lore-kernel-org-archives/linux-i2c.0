@@ -1,66 +1,57 @@
-From: Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c/busses: Add support for Aeroflex Gaisler I2CMST	controller
-Date: Wed, 23 Feb 2011 10:38:52 +0100
-Message-ID: <4D64D5AC.3060301@gaisler.com>
-References: <1297859448-6621-1-git-send-email-jan@gaisler.com> <20110216142708.GA6365@pengutronix.de> <4D5BE45F.5020908@gaisler.com> <20110223010703.GA15795@trinity.fluff.org>
+From: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c: xiic: Use 32bit accesses only
+Date: Wed, 23 Feb 2011 10:37:31 +0100
+Message-ID: <4D64D55B.50405@monstr.eu>
+References: <1298396971-611-1-git-send-email-monstr@monstr.eu> <AANLkTinRVKMdOU-8DYLHe5q92nb3ysKnnG-jq8f++AEs@mail.gmail.com> <4D64C08F.5030604@monstr.eu> <201102230936.09921.arnd@arndb.de>
+Reply-To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110223010703.GA15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <201102230936.09921.arnd-r2nGTMty4D4@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, john.williams-g5w7nrANp4BDPfheJLI6IQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/23/2011 02:07 AM, Ben Dooks wrote:
-> On Wed, Feb 16, 2011 at 03:51:11PM +0100, Jan Andersson wrote:
->> On 02/16/2011 03:27 PM, Wolfram Sang wrote:
->>> Hi Jan,
->>>
->>> On Wed, Feb 16, 2011 at 01:30:48PM +0100, Jan Andersson wrote:
->>>> This patch adds support for the I2CMST core found on LEON/GRLIB SoCs.
->>>>
->>>> Signed-off-by: Jan Andersson<jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
->>>> ---
->>>> The I2CMST core is basically the OpenCores I2C master with an AMBA APB
->>>> interface. This driver re-uses much of i2c-ocores.c. It is submitted as
->>>> a separate driver since the register interfaces differ sligthly. Also the
->>>> two IP cores are maintained separately so they may diverge further in
->>>> the future.
->>>>
->>>> The driver is identical in terms of transfer handling and HW control.
->>>> The original module author string has been kept.
->>>
->>> Just judging from this message, it seems that algo could be extracted and used
->>> by both drivers? Or would this make no sense?
->>>
+Arnd Bergmann wrote:
+> On Wednesday 23 February 2011 09:08:47 Michal Simek wrote:
+>> Grant Likely wrote:
+>>> On Tue, Feb 22, 2011 at 10:49 AM, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org> wrote:
+>>>> i2c driver is used for LE/BE that's why is useful to use
+>>>> 32bit accesses. Then it is not necessary to solve any
+>>>> endian issues.
+>>> Are you sure?  I would expect the BE version needs to use
+>>> io{read,write}32be variants of the accessors.  What platforms have you
+>>> tested on?
+>> iowrite32 is the same with iowrite32be for Microblaze.
+>> I have no problem to change it to iowrite32be if you like.
 >>
->> Hi Wolfram,
->>
->> The control parts of the *_process, *_isr and *_xfer functions could be  
->> shared by ripping it out and changing the calls used to read/set 
->> registers.
->>
->> I considered that change more complex and did not think it to be worth  
->> the trouble for saving ~50 LOC (probably less with added glue). Of  
->> course, it could be beneficial to have the algo part shared if there are  
->> future updates to it. At the same time I suppose that it could be bad to  
->> have the algo part shared if the updates are only valid for one of the  
->> cores.
+>> I have tested it on microblaze big and little endian platforms.
 > 
-> could at-least the contstants be shared?
+> I think what Grant was saying is that iowrite32 being the same as
+> iowrite32be is a bug, because iowrite32 is documented to be little-endian.
+
+Can you pointed me to that documentation?
+
 > 
+> This is probably fine as long as you don't have any PCI devices,
+> but if you ever get PCI support, it won't work.
 
-The register field definitions can currently be shared. The register
-offsets (steps) are different since the two prescaler registers have
-been merged into one register on the i2cmst core.
+Microblaze have PCI support but I don't have the board for testing.
 
-For V2 I will move the register field defines from i2c-ocores.c to
-i2c-ocores.h and include that file in the new driver - unless anyone
-objects.
+> 
+> Also, it heavily confuses other developers such as Grant and me
+> if one architecture defines things to mean something completely
+> different from the other architectures.
 
-Thanks to you both for reviewing!
+As I see will be good to review microblaze io.h and use generic one.
 
-Best regards,
-  Jan
+Thanks,
+Michal
+
+-- 
+Michal Simek, Ing. (M.Eng)
+w: www.monstr.eu p: +42-0-721842854
+Maintainer of Linux kernel 2.6 Microblaze Linux - http://www.monstr.eu/fdt/
+Microblaze U-BOOT custodian
