@@ -1,35 +1,53 @@
-From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Subject: Re: [PATCH] i2c/busses: Add support for Aeroflex Gaisler I2CMST	controller
-Date: Wed, 23 Feb 2011 10:46:39 +0100
-Message-ID: <8739nfytfk.fsf@macbook.be.48ers.dk>
-References: <1297859448-6621-1-git-send-email-jan@gaisler.com>
-	<20110216142708.GA6365@pengutronix.de> <4D5BE45F.5020908@gaisler.com>
-	<20110223010703.GA15795@trinity.fluff.org>
-	<4D64D5AC.3060301@gaisler.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: implementing a slave driver
+Date: Wed, 23 Feb 2011 11:07:14 +0100
+Message-ID: <20110223100714.GA2193@pengutronix.de>
+References: <201102192253.40287.marc.dietrich@ap.physik.uni-giessen.de>
+ <20110223010216.GX15795@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4D64D5AC.3060301-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> (Jan Andersson's message of "Wed,
-	23 Feb 2011 10:38:52 +0100")
+Content-Disposition: inline
+In-Reply-To: <20110223010216.GX15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Marc Dietrich <Marc.Dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Jan" == Jan Andersson <jan-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> writes:
 
-Hi,
+--CE+1k2dSO48ffgeK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- Jan> The register field definitions can currently be shared. The register
- Jan> offsets (steps) are different since the two prescaler registers have
- Jan> been merged into one register on the i2cmst core.
 
- Jan> For V2 I will move the register field defines from i2c-ocores.c to
- Jan> i2c-ocores.h and include that file in the new driver - unless anyone
- Jan> objects.
+> It might be worth doing a simple slave driver, but I'm not sure how
+> many would really want to use it?
 
-Ben, do you really think that's worthwhile? It's just 6 registers with a
-few bits in 3 of them.
+I sense a rising interest in slave support. Sadly, only during
+requirement talks so far, no actual project. But in those talks, a
+generic solution is favoured, because it makes switching SoC easier.
 
--- 
-Bye, Peter Korsgaard
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--CE+1k2dSO48ffgeK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk1k3FIACgkQD27XaX1/VRt4NgCcC1ngLuVxz+amFFF8jaxax96H
+zGYAnR9lAvtH+7siH04Mmv16uQc2+pIn
+=UV9Z
+-----END PGP SIGNATURE-----
+
+--CE+1k2dSO48ffgeK--
