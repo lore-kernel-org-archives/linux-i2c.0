@@ -1,70 +1,62 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: xiic: Use 32bit accesses only
-Date: Wed, 23 Feb 2011 18:49:58 +0100
-Message-ID: <201102231849.58544.arnd@arndb.de>
-References: <1298396971-611-1-git-send-email-monstr@monstr.eu> <201102230936.09921.arnd@arndb.de> <4D64D55B.50405@monstr.eu>
+From: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: tegra: Add i2c support
+Date: Wed, 23 Feb 2011 11:26:42 -0800
+Message-ID: <AANLkTi=wtxzKGHXgtoUsV8J4O3NUYdz9PGHi-sdd-Osy@mail.gmail.com>
+References: <AANLkTim0X=gUwYJmR+EAYjGamiJb7tgiVEjwqCEF0-L0@mail.gmail.com>
+	<1298250861-27094-1-git-send-email-ccross@android.com>
+	<20110223002059.GV15795@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4D64D55B.50405-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, john.williams-g5w7nrANp4BDPfheJLI6IQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110223002059.GV15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 23 February 2011 10:37:31 Michal Simek wrote:
-> Arnd Bergmann wrote:
-> > On Wednesday 23 February 2011 09:08:47 Michal Simek wrote:
-> >> Grant Likely wrote:
-> >>> On Tue, Feb 22, 2011 at 10:49 AM, Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org> wrote:
-> >>>> i2c driver is used for LE/BE that's why is useful to use
-> >>>> 32bit accesses. Then it is not necessary to solve any
-> >>>> endian issues.
-> >>> Are you sure?  I would expect the BE version needs to use
-> >>> io{read,write}32be variants of the accessors.  What platforms have you
-> >>> tested on?
-> >> iowrite32 is the same with iowrite32be for Microblaze.
-> >> I have no problem to change it to iowrite32be if you like.
-> >>
-> >> I have tested it on microblaze big and little endian platforms.
-> > 
-> > I think what Grant was saying is that iowrite32 being the same as
-> > iowrite32be is a bug, because iowrite32 is documented to be little-endian.
-> 
-> Can you pointed me to that documentation?
-
-Documented was maybe a term that is bit too strong in this case ;-)
-
-Documentation/memory-barriers.txt documents that iowrite32 is the same
-as either writel or outl, depending on the source of the mapping.
-
-Both include/asm-generic/io.h and include/asm-generic/iomap.h define
-variants of iowrite32 and iowrite32be, but the definition in io.h is
-actually broken.
-
-> > This is probably fine as long as you don't have any PCI devices,
-> > but if you ever get PCI support, it won't work.
-> 
-> Microblaze have PCI support but I don't have the board for testing.
-
-Ok, I see.
- 
-> > Also, it heavily confuses other developers such as Grant and me
-> > if one architecture defines things to mean something completely
-> > different from the other architectures.
-> 
-> As I see will be good to review microblaze io.h and use generic one.
-
-The generic io.h is lacking in a number of ways and should really
-be improved. Guan Xuetao also fell into the same trap with the
-unicore32 port.
-
-The problem is that I copied asm/io.h from mn10300, which seemed
-generic enough, but it really doesn't work correctly with PCI.
-There is one patch for this that I did in the unicore32 tree,
-I should probably go through it and fix everything else that sticks
-out.
-
-	Arnd
+On Tue, Feb 22, 2011 at 4:20 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> On Sun, Feb 20, 2011 at 05:14:21PM -0800, Colin Cross wrote:
+>> Adds I2C bus driver for nVidia Tegra SoCs. =A0Tegra includes 4 I2C
+>> controllers, one of which is inside the Dynamic Voltage Controller
+>> and has a slightly different register map.
+>>
+>> Signed-off-by: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+>
+> Would have been helpful to start a new thread, missed this the first =
+time
+> around.
+>
+>> + =A0 =A0 i2c_dev =3D kzalloc(sizeof(struct tegra_i2c_dev), GFP_KERN=
+EL);
+>> + =A0 =A0 if (!i2c_dev) {
+>
+> no error print here.
+>
+>> + =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;
+>> + =A0 =A0 =A0 =A0 =A0 =A0 goto err_i2c_clk_put;
+>> + =A0 =A0 }
+>
+>> + =A0 =A0 if (pdev->id =3D=3D 3)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 i2c_dev->is_dvc =3D 1;
+>> + =A0 =A0 init_completion(&i2c_dev->msg_complete);
+>
+> you might want to think about having a seperate platform bus name for
+> this case, and switching the is_dvc field on that. It'll make life mu=
+ch
+> easier if someone decides that what the next tegra i2c needs is 5 i2c
+> controllers.
+>
+> I'll consider putting this (as is) into the -next tree, but would lik=
+e
+> to see the issues with readsl/writesl sorted out and any other review
+> comments sorted.
+>
+Thanks for merging it.  Can I merge your i2c-tegra tree into the tegra
+for-next tree to allow some board changes that depend on the header to
+go on top?
+--
+To unsubscribe from this list: send the line "unsubscribe linux-tegra" =
+in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
