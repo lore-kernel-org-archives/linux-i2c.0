@@ -1,102 +1,259 @@
-From: Thomas Chou <thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
-Subject: Re: [PATCH v5] i2c-gpio: add devicetree support
-Date: Wed, 23 Feb 2011 21:18:15 +0800
-Message-ID: <4D650917.8000201@wytron.com.tw>
-References: <1297304967-3759-1-git-send-email-thomas@wytron.com.tw> <1297650610-12400-1-git-send-email-thomas@wytron.com.tw> <20110223011232.GC15795@trinity.fluff.org>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [RFC PATCH 07/10] i2c: Convert i2c-octeon.c to use device tree.
+Date: Wed, 23 Feb 2011 09:25:38 -0700
+Message-ID: <20110223162538.GB14597@angua.secretlab.ca>
+References: <1298408274-20856-1-git-send-email-ddaney@caviumnetworks.com>
+ <1298408274-20856-8-git-send-email-ddaney@caviumnetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110223011232.GC15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nios2-dev-1eJk0qcHJCcaeqlQEoCUNoJY59XmG8rH@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Albert Herranz <albert_herranz-mRCrAkd8dF0@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1298408274-20856-8-git-send-email-ddaney@caviumnetworks.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Daney <ddaney@caviumnetworks.com>
+Cc: linux-mips@linux-mips.org, ralf@linux-mips.org, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+On Tue, Feb 22, 2011 at 12:57:51PM -0800, David Daney wrote:
+> Signed-off-by: David Daney <ddaney@caviumnetworks.com>
+> Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>
+> Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>
+> Cc: linux-i2c@vger.kernel.org
+> ---
+>  arch/mips/cavium-octeon/octeon-platform.c |   84 ---------------------------
+>  arch/mips/include/asm/octeon/octeon.h     |    5 --
+>  drivers/i2c/busses/i2c-octeon.c           |   88 +++++++++++++---------------
+>  3 files changed, 41 insertions(+), 136 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+> index 56dbe54..99a20c6 100644
+> --- a/drivers/i2c/busses/i2c-octeon.c
+> +++ b/drivers/i2c/busses/i2c-octeon.c
+> @@ -11,17 +11,21 @@
+>   * warranty of any kind, whether express or implied.
+>   */
+>  
+> +#include <linux/platform_device.h>
+> +#include <linux/of_platform.h>
+> +#include <linux/of_address.h>
+> +#include <linux/interrupt.h>
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+> +#include <linux/of_irq.h>
+> +#include <linux/of_i2c.h>
 
-On 02/23/2011 09:12 AM, Ben Dooks wrote:
-> On Mon, Feb 14, 2011 at 10:30:10AM +0800, Thomas Chou wrote:
->> From: Albert Herranz<albert_herranz-mRCrAkd8dF0@public.gmane.org>
->>
->> This patch adds devicetree support to i2c-gpio driver. The allocation
->> of local data is integrated to a private structure, and use devm_*
->> helper for easy cleanup.
->>
->> It is base on an earlier patch for gc-linux from
->> Albert Herranz<albert_herranz-mRCrAkd8dF0@public.gmane.org>.
->>
->> Signed-off-by: Thomas Chou<thomas-SDxUXYEhEBiCuPEqFHbRBg@public.gmane.org>
->> CC: Albert Herranz<albert_herranz-mRCrAkd8dF0@public.gmane.org>
->> Acked-by: Haavard Skinnemoen<hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->> for v2.6.39
->> v2 move of nodes probing to a hook, which will be optimized out
->>       when devicetree is not used.
->>     use linux/gpio.h.
->>     move binding doc to i2c/i2c-gpio.txt.
->> v3 use speed-hz instead of udelay in dts binding.
->>     condition the devicetree probe.
->> v4 simplify private allocation.
->> v5 condition module device table export for of.
->>
+Nit: generally the of_*.h headers are kept together.  Also this patch
+probably won't need of_address.h or of_irq.h after addressing my
+comments below.
 
->> +/* Check if devicetree nodes exist and build platform data */
->> +static int i2c_gpio_of_probe(struct platform_device *pdev,
->> +			     struct i2c_gpio_platform_data *pdata)
->> +{
->> +	struct device_node *np = pdev->dev.of_node;
->> +	const __be32 *prop;
->> +	int sda_pin, scl_pin;
->> +	int len;
->> +
->> +	if (!np || of_gpio_count(np)<  2)
->> +		return -ENXIO;
->
-> Would prefer to see different return code, most bus probe functions
-> tend to drop these without signalling to the user as they assume the
-> device was either never there or totally faulty.
->
->> +	sda_pin = of_get_gpio_flags(np, 0, NULL);
->> +	scl_pin = of_get_gpio_flags(np, 1, NULL);
->> +	if (sda_pin<  0 || scl_pin<  0) {
->> +		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
->> +		       np->full_name, sda_pin, scl_pin);
->> +		return -ENXIO;
->> +	}
->
-> see same as above.
->
->> +	pdata->sda_pin = sda_pin;
->> +	pdata->scl_pin = scl_pin;
->> +	prop = of_get_property(np, "sda-is-open-drain", NULL);
->> +	if (prop)
->> +		pdata->sda_is_open_drain = 1;
->> +	prop = of_get_property(np, "scl-is-open-drain", NULL);
->> +	if (prop)
->> +		pdata->scl_is_open_drain = 1;
->> +	prop = of_get_property(np, "scl-is-output-only", NULL);
->> +	if (prop)
->> +		pdata->scl_is_output_only = 1;
->> +	prop = of_get_property(np, "speed-hz",&len);
->> +	if (prop&&  len>= sizeof(__be32))
->> +		pdata->udelay = DIV_ROUND_UP(1000000, be32_to_cpup(prop) * 2);
->> +	prop = of_get_property(np, "timeout",&len);
->> +	if (prop&&  len>= sizeof(__be32))
->> +		pdata->timeout = msecs_to_jiffies(be32_to_cpup(prop));
->> +
->> +	return 0;
->> +}
->> +#else
->> +static int i2c_gpio_of_probe(struct platform_device *pdev,
->> +			     struct i2c_gpio_platform_data *pdata)
->> +{
->> +	return -ENXIO;
->> +}
->
-> might be valid here, however can we make this NULL if no support?
->
+> +#include <linux/delay.h>
+>  #include <linux/sched.h>
+>  #include <linux/slab.h>
+>  #include <linux/init.h>
+> -
+> -#include <linux/io.h>
+>  #include <linux/i2c.h>
+> -#include <linux/interrupt.h>
+> -#include <linux/delay.h>
+> -#include <linux/platform_device.h>
+> +#include <linux/io.h>
+> +#include <linux/of.h>
+>  
+>  #include <asm/octeon/octeon.h>
+>  
+> @@ -67,9 +71,7 @@ struct octeon_i2c {
+>  	int irq;
+>  	int twsi_freq;
+>  	int sys_freq;
+> -	resource_size_t twsi_phys;
+>  	void __iomem *twsi_base;
+> -	resource_size_t regsize;
+>  	struct device *dev;
+>  };
+>  
+> @@ -511,17 +513,18 @@ static int __devinit octeon_i2c_initlowlevel(struct octeon_i2c *i2c)
+>  	return -EIO;
+>  }
+>  
+> -static int __devinit octeon_i2c_probe(struct platform_device *pdev)
+> +static int __devinit octeon_i2c_probe(struct platform_device *pdev,
+> +				      const struct of_device_id *match)
+>  {
+>  	int irq, result = 0;
+>  	struct octeon_i2c *i2c;
+> -	struct octeon_i2c_data *i2c_data;
+> -	struct resource *res_mem;
+> +	const __be32 *data;
+> +	int len;
+>  
+>  	/* All adaptors have an irq.  */
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0)
+> -		return irq;
+> +	irq = irq_of_parse_and_map(pdev->dev.of_node, 0);
+> +	if (!irq)
+> +		return -ENXIO;
 
-Thanks. How about return NULL if no support, and return pdata if support?
+Platform_get_irq() works for dt registered devices, this hunk can be
+dropped.
 
-- Thomas
+>  
+>  	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
+>  	if (!i2c) {
+> @@ -530,32 +533,16 @@ static int __devinit octeon_i2c_probe(struct platform_device *pdev)
+>  		goto out;
+>  	}
+>  	i2c->dev = &pdev->dev;
+> -	i2c_data = pdev->dev.platform_data;
+> -
+> -	res_mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -
+> -	if (res_mem == NULL) {
+> -		dev_err(i2c->dev, "found no memory resource\n");
+> -		result = -ENXIO;
+> -		goto fail_region;
+> -	}
+
+Ditto for platform_get_resource()
+
+>  
+> -	if (i2c_data == NULL) {
+> -		dev_err(i2c->dev, "no I2C frequency data\n");
+> -		result = -ENXIO;
+> -		goto fail_region;
+> -	}
+> +	data = of_get_property(pdev->dev.of_node, "clock-rate", &len);
+> +	if (data && len == sizeof(*data))
+> +		i2c->twsi_freq = be32_to_cpup(data);
+> +	else
+> +		i2c->twsi_freq = 100000;
+
+Seems to me that if the clock-rate (although it should be called
+clock-frequency) property is not present, the driver should complain
+loudly and refuse to load.  Don't fudge it.
+
+>  
+> -	i2c->twsi_phys = res_mem->start;
+> -	i2c->regsize = resource_size(res_mem);
+> -	i2c->twsi_freq = i2c_data->i2c_freq;
+> -	i2c->sys_freq = i2c_data->sys_freq;
+> +	i2c->sys_freq = octeon_get_io_clock_rate();
+>  
+> -	if (!request_mem_region(i2c->twsi_phys, i2c->regsize, res_mem->name)) {
+> -		dev_err(i2c->dev, "request_mem_region failed\n");
+> -		goto fail_region;
+> -	}
+> -	i2c->twsi_base = ioremap(i2c->twsi_phys, i2c->regsize);
+> +	i2c->twsi_base = of_iomap(pdev->dev.of_node, 0);
+
+This hunk can also be dropped.
+
+>  
+>  	init_waitqueue_head(&i2c->queue);
+>  
+> @@ -581,27 +568,27 @@ static int __devinit octeon_i2c_probe(struct platform_device *pdev)
+>  
+>  	i2c->adap = octeon_i2c_ops;
+>  	i2c->adap.dev.parent = &pdev->dev;
+> -	i2c->adap.nr = pdev->id >= 0 ? pdev->id : 0;
+> +	i2c->adap.dev.of_node = pdev->dev.of_node;
+>  	i2c_set_adapdata(&i2c->adap, i2c);
+>  	platform_set_drvdata(pdev, i2c);
+>  
+> -	result = i2c_add_numbered_adapter(&i2c->adap);
+> +	result = i2c_add_adapter(&i2c->adap);
+>  	if (result < 0) {
+>  		dev_err(i2c->dev, "failed to add adapter\n");
+>  		goto fail_add;
+>  	}
+> -
+>  	dev_info(i2c->dev, "version %s\n", DRV_VERSION);
+>  
+> -	return result;
+> +	of_i2c_register_devices(&i2c->adap);
+> +
+> +	return 0;
+>  
+>  fail_add:
+>  	platform_set_drvdata(pdev, NULL);
+>  	free_irq(i2c->irq, i2c);
+>  fail_irq:
+>  	iounmap(i2c->twsi_base);
+> -	release_mem_region(i2c->twsi_phys, i2c->regsize);
+> -fail_region:
+> +
+>  	kfree(i2c);
+>  out:
+>  	return result;
+> @@ -615,17 +602,25 @@ static int __devexit octeon_i2c_remove(struct platform_device *pdev)
+>  	platform_set_drvdata(pdev, NULL);
+>  	free_irq(i2c->irq, i2c);
+>  	iounmap(i2c->twsi_base);
+> -	release_mem_region(i2c->twsi_phys, i2c->regsize);
+>  	kfree(i2c);
+>  	return 0;
+>  };
+>  
+> -static struct platform_driver octeon_i2c_driver = {
+> +static struct of_device_id octeon_i2c_match[] = {
+> +	{
+> +		.compatible = "octeon,twsi",
+
+Need documentation for this binding added to
+Documentation/devicetree/bindings.  Compatible values for SoC devices
+should generally be in the form "<vendor>,<soc-name>-<device-name>".
+
+> +	},
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, octeon_i2c_match);
+> +
+> +static struct of_platform_driver octeon_i2c_driver = {
+
+of_platform_driver is deprecated.  As long as the .of_match_table is
+populated, a normal platform_driver will just work.
+
+>  	.probe		= octeon_i2c_probe,
+>  	.remove		= __devexit_p(octeon_i2c_remove),
+>  	.driver		= {
+>  		.owner	= THIS_MODULE,
+>  		.name	= DRV_NAME,
+> +		.of_match_table = octeon_i2c_match,
+>  	},
+>  };
+>  
+> @@ -633,20 +628,19 @@ static int __init octeon_i2c_init(void)
+>  {
+>  	int rv;
+>  
+> -	rv = platform_driver_register(&octeon_i2c_driver);
+> +	rv = of_register_platform_driver(&octeon_i2c_driver);
+
+Drop this change.
+
+On that note, this routine is typically simplified to:
++ {
++ 	return platform_driver_register(&octeon_i2c_driver);
++ }
+
+>  
+>  static void __exit octeon_i2c_exit(void)
+>  {
+> -	platform_driver_unregister(&octeon_i2c_driver);
+> +	of_unregister_platform_driver(&octeon_i2c_driver);
+
+Drop this hunk.
+
+>  }
+>  
+>  MODULE_AUTHOR("Michael Lawnick <michael.lawnick.ext@nsn.com>");
+>  MODULE_DESCRIPTION("I2C-Bus adapter for Cavium OCTEON processors");
+>  MODULE_LICENSE("GPL");
+>  MODULE_VERSION(DRV_VERSION);
+> -MODULE_ALIAS("platform:" DRV_NAME);
+>  
+>  module_init(octeon_i2c_init);
+>  module_exit(octeon_i2c_exit);
+> -- 
+> 1.7.2.3
+> 
