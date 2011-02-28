@@ -1,7 +1,7 @@
 From: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Subject: [PATCH RESEND v2] i2c-eg20t: support new device OKI SEMICONDUCTOR ML7213 IOH
-Date: Mon, 28 Feb 2011 15:54:32 +0900
-Message-ID: <1298876072-15452-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+Date: Mon, 28 Feb 2011 16:10:50 +0900
+Message-ID: <1298877050-15448-1-git-send-email-tomoya-linux@dsn.okisemi.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563N0uC3ymp8PA@public.gmane.org>
