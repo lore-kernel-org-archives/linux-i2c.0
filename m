@@ -1,36 +1,42 @@
-From: Dan Carpenter <error27-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RESEND v2] i2c-eg20t: support new device OKI
- SEMICONDUCTOR ML7213 IOH
-Date: Mon, 28 Feb 2011 14:52:25 +0300
-Message-ID: <20110228115225.GB9075@bicker>
-References: <1298876072-15452-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: [PATCH] i2c/ocores: Fix pointer type mismatch error
+Date: Mon, 28 Feb 2011 13:52:32 -0700
+Message-ID: <20110228205232.16329.60773.stgit@localhost6.localdomain6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1298876072-15452-1-git-send-email-tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org
+Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 28, 2011 at 03:54:32PM +0900, Tomoya MORINAGA wrote:
-> -	ret = i2c_add_adapter(&(adap_info->pch_data.pch_adapter));
-> +		pch_adap->dev.parent = &pdev->dev;
->  
-> -	if (ret) {
-> -		pch_pci_err(pdev, "i2c_add_adapter FAILED\n");
-> -		goto err_i2c_add_adapter;
-> -	}
-> +		ret = i2c_add_adapter(pch_adap);
-> +		if (ret) {
-> +			pch_pci_err(pdev, "i2c_add_adapter[ch:%d] FAILED\n", i);
-> +			goto err_i2c_add_adapter;
+ocores_i2c_of_probe needs to use a const __be32 type for handing
+device tree property values.  This patch fixed the following build
+warning:
 
-I think goto err_request_irq was intended here.  On a side note, it's
-always better to name goto destinations after the destination instead
-of the starting point.  In this case, we have two gotos to one
-destination and the label err_request_irq makes no sense.
+ CC      drivers/i2c/busses/i2c-ocores.o
+  drivers/i2c/busses/i2c-ocores.c: In function 'ocores_i2c_of_probe':
+  drivers/i2c/busses/i2c-ocores.c:254: warning: assignment discards qualifiers from pointer target type
+  drivers/i2c/busses/i2c-ocores.c:261: warning: assignment discards qualifiers from pointer target type
 
-regards,
-dan carpenter
+Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+---
+ drivers/i2c/busses/i2c-ocores.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index c2ef5ce..1b46a9d 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -249,7 +249,7 @@ static struct i2c_adapter ocores_adapter = {
+ static int ocores_i2c_of_probe(struct platform_device* pdev,
+ 				struct ocores_i2c* i2c)
+ {
+-	__be32* val;
++	const __be32* val;
+ 
+ 	val = of_get_property(pdev->dev.of_node, "regstep", NULL);
+ 	if (!val) {
