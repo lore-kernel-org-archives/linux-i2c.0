@@ -1,42 +1,63 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH] i2c/ocores: Fix pointer type mismatch error
-Date: Mon, 28 Feb 2011 13:52:32 -0700
-Message-ID: <20110228205232.16329.60773.stgit@localhost6.localdomain6>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] i2c-omap: fix build for !CONFIG_SUSPEND
+Date: Mon, 28 Feb 2011 16:48:35 -0800
+Message-ID: <87bp1vll7g.fsf@ti.com>
+References: <1298357739-5132-1-git-send-email-balajitk@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1298357739-5132-1-git-send-email-balajitk-l0cyMroinI0@public.gmane.org> (Balaji
+	T. K.'s message of "Tue, 22 Feb 2011 12:25:39 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Balaji T K <balajitk-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-ocores_i2c_of_probe needs to use a const __be32 type for handing
-device tree property values.  This patch fixed the following build
-warning:
+Balaji T K <balajitk-l0cyMroinI0@public.gmane.org> writes:
 
- CC      drivers/i2c/busses/i2c-ocores.o
-  drivers/i2c/busses/i2c-ocores.c: In function 'ocores_i2c_of_probe':
-  drivers/i2c/busses/i2c-ocores.c:254: warning: assignment discards qualifiers from pointer target type
-  drivers/i2c/busses/i2c-ocores.c:261: warning: assignment discards qualifiers from pointer target type
+> fix the build break when !CONFIG_SUSPEND
+>
+> drivers/i2c/busses/i2c-omap.c:1173: error: lvalue required as unary '&' operand
+> make[3]: *** [drivers/i2c/busses/i2c-omap.o] Error 1
+> make[2]: *** [drivers/i2c/busses] Error 2
+> make[1]: *** [drivers/i2c] Error 2
+> make: *** [drivers] Error 2
+>
+> Signed-off-by: Balaji T K <balajitk-l0cyMroinI0@public.gmane.org>
 
-Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
- drivers/i2c/busses/i2c-ocores.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Acked-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index c2ef5ce..1b46a9d 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -249,7 +249,7 @@ static struct i2c_adapter ocores_adapter = {
- static int ocores_i2c_of_probe(struct platform_device* pdev,
- 				struct ocores_i2c* i2c)
- {
--	__be32* val;
-+	const __be32* val;
- 
- 	val = of_get_property(pdev->dev.of_node, "regstep", NULL);
- 	if (!val) {
+Ben, feel free to fold into original patch if preferred.
+
+Kevin
+
+> ---
+> introduced by commit f6f98d72575031b0c03416a28a0d580128114b74
+> applies on i2c-fixes branch
+>
+>  drivers/i2c/busses/i2c-omap.c |    5 +++--
+>  1 files changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 0541df9..adc1ee5 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1160,8 +1160,9 @@ static struct dev_pm_ops omap_i2c_pm_ops = {
+>  	.suspend = omap_i2c_suspend,
+>  	.resume = omap_i2c_resume,
+>  };
+> +#define OMAP_I2C_PM_OPS (&omap_i2c_pm_ops)
+>  #else
+> -#define omap_i2c_pm_ops NULL
+> +#define OMAP_I2C_PM_OPS NULL
+>  #endif
+>  
+>  static struct platform_driver omap_i2c_driver = {
+> @@ -1170,7 +1171,7 @@ static struct platform_driver omap_i2c_driver = {
+>  	.driver		= {
+>  		.name	= "omap_i2c",
+>  		.owner	= THIS_MODULE,
+> -		.pm     = &omap_i2c_pm_ops,
+> +		.pm	= OMAP_I2C_PM_OPS,
+>  	},
+>  };
