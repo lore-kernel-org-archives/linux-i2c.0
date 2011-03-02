@@ -1,41 +1,53 @@
-From: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/6] ARM: pxa2xx: reorganize I2C files
-Date: Wed, 2 Mar 2011 11:08:30 +0800
-Message-ID: <AANLkTikPDAtH10gPauq9F54MFSg=XBKt-p-PVXp8J7AW@mail.gmail.com>
-References: <1298461100-14869-1-git-send-email-bigeasy@linutronix.de>
- <1298461100-14869-3-git-send-email-bigeasy@linutronix.de> <4D6D9426.8030905@fluff.org>
+From: "Tomoya MORINAGA" <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Subject: RE: [PATCH v3] i2c-eg20t: support new device OKI SEMICONDUCTOR ML7213 IOH
+Date: Wed, 2 Mar 2011 12:18:35 +0900
+Message-ID: <9B1A3736CA9445A9A96F14E0B8ED18B1@hacdom.okisemi.com>
+References: <1298956583-3734-1-git-send-email-tomoya-linux@dsn.okisemi.com> <4D6D91B7.5070209@fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4D6D9426.8030905-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+In-Reply-To: <4D6D91B7.5070209-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, sodaville-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: 'Ben Dooks' <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Seth Heasley' <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, 'Linus Walleij' <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, 'Samuel Ortiz' <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 2, 2011 at 8:49 AM, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On 23/02/11 11:38, Sebastian Andrzej Siewior wrote:
->>
->> This patch moves the platform data definition from
->> arch/arm/plat-pxa/include/plat/i2c.h to include/linux/i2c/pxa-i2c.h =
-so
->> it can be accessed from x86 the same way as on ARM.
->>
->> This change should make no functional change to the PXA code. The mo=
-ve
->> is verified by building the following defconfigs:
->> =C2=A0 cm_x2xx_defconfig corgi_defconfig em_x270_defconfig ezx_defco=
-nfig
->> =C2=A0 imote2_defconfig pxa3xx_defconfig spitz_defconfig zeus_defcon=
-fig
->> =C2=A0 raumfeld_defconfig magician_defconfig mmp2_defconfig pxa168_d=
-efconfig
->> =C2=A0 pxa910_defconfig
->>
->
-> Russell/others, you OK with this going through my tree?
->
+Hi Ben,
 
-Ben, I'm fine that you take this change. Trivial changes to me, so
-I expect no significant merge conflicts.
+On Wednesday, March 02, 2011 9:39 AM, Ben Dooks wrote:
+> Ok, will apply to i2c-next.
+Thank you for your applying.
+
+> > +/* Definition for ML7213 by OKI SEMICONDUCTOR */
+> > +#define PCI_VENDOR_ID_ROHM		0x10DB
+> > +#define PCI_DEVICE_ID_ML7213_I2C	0x802D
+> 
+> we should get this moved to a pci header file at somepoint.
+Do you mean include/linux/pci_ids ?
+
+
+> > +		strcpy(pch_adap->name, KBUILD_MODNAME);
+> 
+> really should be strlcpy() and ensure that the string length is used.
+OK.
+We will update in next update.
+
+
+> > -	pch_i2c_init(&adap_info->pch_data);
+> > +		pch_i2c_init(&adap_info->pch_data[i]);
+> > +	}
+> >   	ret = request_irq(pdev->irq, pch_i2c_handler, IRQF_SHARED,
+> > -		  KBUILD_MODNAME,&adap_info->pch_data);
+> > +		  KBUILD_MODNAME, adap_info);
+> 
+> how about using dev_name() of the platform device to register 
+> these things?
+Sorry, I can't understand your saying.
+Could you explain in more detail ? 
+
+Thanks,
+-----------------------------------------
+Tomoya MORINAGA
+OKI SEMICONDUCTOR CO., LTD.
