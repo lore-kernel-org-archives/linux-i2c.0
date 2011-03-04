@@ -1,56 +1,42 @@
-From: MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] MAX8997/8966 PMIC: compiler warning removed (incompatible
- pointer)
-Date: Fri, 04 Mar 2011 16:16:56 +0900
-Message-ID: <1299223016-8655-1-git-send-email-myungjoo.ham@samsung.com>
-References: <1299221427-4726-3-git-send-email-myungjoo.ham@samsung.com>
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <1299221427-4726-3-git-send-email-myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Liam Girdwood <lrg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, myungjoo.ham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+From: Rajendra Nayak <rnayak@ti.com>
+Subject: [PATCH] i2c-omap: Program I2C_WE on OMAP4 to enable i2c wakeup
+Date: Fri,  4 Mar 2011 19:02:24 +0530
+Message-ID: <1299245544-23790-1-git-send-email-rnayak@ti.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: ben-linux@fluff.org, paul@pwsan.com, khilman@ti.com, santosh.shilimkar@ti.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Rajendra Nayak <rnayak@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- drivers/regulator/max8997.c |   13 +++++++++++--
- 1 files changed, 11 insertions(+), 2 deletions(-)
+For the I2C module to be wakeup capable, programming I2C_WE
+register (which was skipped for OMAP4430) is needed
+even on OMAP4.
+This fixes i2c controller timeouts which were seen recently
+with the static dependency being cleared between MPU and
+L4PER clockdomains.
 
-diff --git a/drivers/regulator/max8997.c b/drivers/regulator/max8997.c
-index 30778c5..957063a 100644
---- a/drivers/regulator/max8997.c
-+++ b/drivers/regulator/max8997.c
-@@ -790,18 +790,27 @@ static struct regulator_ops max8997_fixedstate_ops = {
- 	.set_voltage		= max8997_set_voltage_charger_cv,
- };
- 
-+static int max8997_set_voltage_ldo_wrap(struct regulator_dev *rdev,
-+		int min_uV, int max_uV)
-+{
-+	unsigned dummy;
-+
-+	return max8997_set_voltage_ldo(rdev, min_uV, max_uV, &dummy);
-+}
-+
-+
- static struct regulator_ops max8997_charger_ops = {
- 	.is_enabled		= max8997_reg_is_enabled,
- 	.enable			= max8997_reg_enable,
- 	.disable		= max8997_reg_disable,
- 	.get_current_limit	= max8997_get_voltage,
--	.set_current_limit	= max8997_set_voltage_ldo,
-+	.set_current_limit	= max8997_set_voltage_ldo_wrap,
- };
- 
- static struct regulator_ops max8997_charger_fixedstate_ops = {
- 	.is_enabled		= max8997_reg_is_enabled,
- 	.get_current_limit	= max8997_get_voltage,
--	.set_current_limit	= max8997_set_voltage_ldo,
-+	.set_current_limit	= max8997_set_voltage_ldo_wrap,
- };
- 
- #define regulator_desc_ldo(num)		{	\
+Signed-off-by: Rajendra Nayak <rnayak@ti.com>
+---
+Patch is based on 2.6.38-rc7 kernel.
+
+ drivers/i2c/busses/i2c-omap.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 829a2a1..58a58c7 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -378,9 +378,7 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 			 * REVISIT: Some wkup sources might not be needed.
+ 			 */
+ 			dev->westate = OMAP_I2C_WE_ALL;
+-			if (dev->rev < OMAP_I2C_REV_ON_4430)
+-				omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
+-								dev->westate);
++			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+ 		}
+ 	}
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
 -- 
-1.7.1
+1.7.0.4
+
