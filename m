@@ -1,7 +1,7 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' for-2639-rc7/i2c-fixes branch
-Date: Tue, 08 Mar 2011 23:16:33 +0000
-Message-ID: <E1Px68n-0006ek-Sw@freya>
+Subject: Please pull bjdooks'  branch
+Date: Tue, 08 Mar 2011 23:16:31 +0000
+Message-ID: <E1Px68l-0006eJ-5c@freya>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
