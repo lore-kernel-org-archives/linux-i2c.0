@@ -1,30 +1,35 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks'  branch
-Date: Tue, 08 Mar 2011 23:16:31 +0000
-Message-ID: <E1Px68l-0006eJ-5c@freya>
+From: Minkyu Kang <promsoft-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] misc: adds support the FSA9480 USB Switch
+Date: Wed, 9 Mar 2011 09:01:17 +0900
+Message-ID: <AANLkTikfQGZwXj52ew1Zh9gc+YeLxevivaBocx8_uOz-@mail.gmail.com>
+References: <4D75D338.9070801@samsung.com>
+	<20110308210227.GA12804@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110308210227.GA12804-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dave Jones <davej-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>, Andrew Morton <akpm@linux-foundat>
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit fb62c00a6d8942775abc23d1621db1252e2d93d1:
-  Linus Torvalds (1):
-        Merge branch 'for-linus' of git://git.kernel.org/.../sage/ceph-client
+Dear Dave Jones,
 
-are available in the git repository at:
+On 9 March 2011 06:02, Dave Jones <davej-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org> wrote:
+> On Tue, Mar 08, 2011 at 03:56:56PM +0900, Minkyu Kang wrote:
+>
+> =A0> +static DEVICE_ATTR(switch, S_IRUGO | S_IWUGO,
+> =A0> + =A0 =A0 =A0 =A0 =A0 =A0fsa9480_show_manualsw, fsa9480_set_manu=
+alsw);
+>
+> This probably shouldn't be world writable if it's writing to hardware=
+=2E
+>
 
-  git://git.fluff.org/bjdooks/linux.git for-2639-rc7/i2c-fixes
+It can be used in user space.
 
-Grant Likely (1):
-      i2c-ocores: Fix pointer type mismatch error
-
-Rajendra Nayak (1):
-      i2c-omap: Program I2C_WE on OMAP4 to enable i2c wakeup
-
-Wolfram Sang (1):
-      i2c-eg20t: include slab.h for memory allocations
-
- drivers/i2c/busses/i2c-eg20t.c  |    1 +
- drivers/i2c/busses/i2c-ocores.c |    2 +-
- drivers/i2c/busses/i2c-omap.c   |    4 +---
- 3 files changed, 3 insertions(+), 4 deletions(-)
+Thanks
+Minkyu Kang
+--=20
+from. prom.
+www.promsoft.net
