@@ -1,63 +1,85 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Thu, 10 Mar 2011 17:20:53 +0100
-Message-ID: <201103101720.53782.arnd@arndb.de>
-References: <1299766808-2535-1-git-send-email-waldemar.rymarkiewicz@tieto.com> <201103101452.54862.arnd@arndb.de> <99B09243E1A5DA4898CDD8B7001114481082EF2A65@EXMB04.eu.tieto.com>
+From: Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org
+Subject: How to put extra clock cycles on i2c cavinci, problems on omapl138 (logic
+ pd som)
+Date: Fri, 11 Mar 2011 13:52:55 +0100
+Message-ID: <OF32D366B1.336E6433-ONC1257850.004650F2-C1257850.0046C1A3@sewerin.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <99B09243E1A5DA4898CDD8B7001114481082EF2A65@EXMB04.eu.tieto.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Waldemar.Rymarkiewicz@tieto.com, matti.j.aaltonen@nokia.com
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, hthebaud@insidefr.com
+Content-Type: text/plain; charset="US-ASCII"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org, Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 10 March 2011, Waldemar.Rymarkiewicz@tieto.com wrote:
+Hello,
 
-> >What I suggest you do is to work with the maintainers of the existing
-> >pn544 driver (Matti and Jari) to create an NFC core library 
-> >that takes care of the character device interface and that can 
-> >be shared between the two drivers. Instead of each driver 
-> >registering a misc device, make it call a 
-> >nfc_device_register() function that is implemented in a common module.
-> 
-> I've been already thinking about that and it's seems like next obvious step.
+we have problems with the davinci-i2c driver on an omapl-138 (Logic PD 
+SOM) in
+conjunction with tps65070 hardware and tps6507x_ts touchscreen driver. 
 
-Ok, cool.
+(The following thread is related to this issue.
+http://www.mail-archive.com/davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org/msg21162.html
+)
 
-> >mdev, rx_waitq and mutex would go into the common module.
-> >I would expect that you also need a tx_waitq. What happens 
-> >when the buffer is full?
-> 
-> Do you mean info->buff ?
+After some action on the touchscreen, there are communication errors
+on the i2c, and the bus stalled.
+In this state the SDA line is hold low and the driver gives repeatedly
+the following messages:
 
-Oh, I see you simply do
+tps6507x 1-0048: ADC result 1 read failed
+i2c_davinci i2c_davinci.1: controller timed out
+i2c_davinci i2c_davinci.1: initiating i2c bus recovery
+i2c_davinci i2c_davinci.1: controller timed out
+i2c_davinci i2c_davinci.1: initiating i2c bus recovery
+tps6507x 1-0048: TSC mode read failed
+i2c_davinci i2c_davinci.1: controller timed out
+i2c_davinci i2c_davinci.1: initiating i2c bus recovery
+i2c_davinci i2c_davinci.1: controller timed out
+i2c_davinci i2c_davinci.1: initiating i2c bus recovery
+tps6507x 1-0048: TSC mode read failed
+[...]
 
-       ret = i2c_master_send(client, info->buf, len);
-       usleep_range(1000, 10000);
+When giving a short low impulse on the SCL wire by shortcutting
+this line with ground, the i2c is running again. 
 
-and assume that the buffer can always be written within a milisecond,
-so you just slow down output enough to never have to worry about it,
-right?
+Under http://processors.wiki.ti.com/index.php/I2C_Tips 
+there is article about : External Slave Device Hanging the Bus by
+Holding SDA Low
 
-A nicer solution would be to have an interrupt driven output
-so you know when the i2c buffers have been flushed.
+Option 1: For devices that mux the SCL/SDA pins with GPIO, the easiest
+thing is to configure the pins for GPIO operation and toggle SCL until
+the slave releases SDA. At this point you should be able to resume
+normal operation.
 
-> >Note that the microread_is_busy() logic does not protect you 
-> >from having multiple concurrent readers, because multiple 
-> >threads may share a single file descriptor.
-> 
-> It's just used to ensure that only one reader can open the device.
-> It's called only in open callback.
-> The mutex actually secures concurrent read operations. 
+Option 2: Many devices don't mux SCL/SDA with GPIO since the I2C I/O
+cells are often special open drain cells. A workaround has been
+reported to work even on these devices. By configuring the I2C for
+"free data format" and then reading a byte the I2C will immediately
+start sending clocks to input data (rather than trying to send an
+address). This can be used to free up the bus.
 
-So if having multiple readers is safe (though possibly not
-meaningful), I guess you don't really need the microread_is_busy()
-logic.
+We would like to have some extra SCL pulses in the function 
+static void i2c_recover_bus(struct davinci_i2c_dev *dev).
 
-I suppose it doesn't hurt either, it just seems a bit pointless
-when it does the right thing most of the time, but not always.
+We tried to put the I2C in "free data format" and read one byte with
+the following lines:
 
-	Arnd
+            flag |= DAVINCI_I2C_MDR_FDF;// free data format mode
+            flag &= ~DAVINCI_I2C_MDR_TRX;// receive byte
+            // Set STT to begin transmit now DXR is loaded
+            flag |= DAVINCI_I2C_MDR_STT;
+            davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag); 
+
+But that doesn`t work that way.
+
+We have problems to use the GPIO variant to toggle SCL or using the 
+generic_i2c_clock_pulse function, too.
+
+Please tell me how to get extra clock cycles on i2c?
+
+Thank you, regards,
+
+Bastian Ruppert.
+
+P.S.
+
+[please put me on cc, i am not on the vger.kernel.org list, thx] 
