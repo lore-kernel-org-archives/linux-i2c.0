@@ -1,85 +1,92 @@
-From: Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org
-Subject: How to put extra clock cycles on i2c cavinci, problems on omapl138 (logic
- pd som)
-Date: Fri, 11 Mar 2011 13:52:55 +0100
-Message-ID: <OF32D366B1.336E6433-ONC1257850.004650F2-C1257850.0046C1A3@sewerin.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org, Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org
+From: dirk.brandewie@gmail.com
+Subject: [PATCH 00/13]  V3 Split i2c-designware.c to support PCI drivers.
+Date: Sat, 12 Mar 2011 12:23:14 -0800
+Message-ID: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Dirk Brandewie <dirk.brandewie@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+From: Dirk Brandewie <dirk.brandewie@gmail.com>
 
-we have problems with the davinci-i2c driver on an omapl-138 (Logic PD 
-SOM) in
-conjunction with tps65070 hardware and tps6507x_ts touchscreen driver. 
+This patch set reworks i2c-designware.c to enable supporting multiple
+instances of the driver in the system and adds support for Designware
+I2C IP cores behind PCI devices.
 
-(The following thread is related to this issue.
-http://www.mail-archive.com/davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org/msg21162.html
-)
+The patch set has been refactored to hopefully make it easier to
+review.
 
-After some action on the touchscreen, there are communication errors
-on the i2c, and the bus stalled.
-In this state the SDA line is hold low and the driver gives repeatedly
-the following messages:
+TODO:
+Ben disliked the module names, they haven't changed yet waiting for
+feedback on the list.
 
-tps6507x 1-0048: ADC result 1 read failed
-i2c_davinci i2c_davinci.1: controller timed out
-i2c_davinci i2c_davinci.1: initiating i2c bus recovery
-i2c_davinci i2c_davinci.1: controller timed out
-i2c_davinci i2c_davinci.1: initiating i2c bus recovery
-tps6507x 1-0048: TSC mode read failed
-i2c_davinci i2c_davinci.1: controller timed out
-i2c_davinci i2c_davinci.1: initiating i2c bus recovery
-i2c_davinci i2c_davinci.1: controller timed out
-i2c_davinci i2c_davinci.1: initiating i2c bus recovery
-tps6507x 1-0048: TSC mode read failed
-[...]
+Changes since V2:
 
-When giving a short low impulse on the SCL wire by shortcutting
-this line with ground, the i2c is running again. 
+Fixed bug that kept PCI driver from compiling :-(
 
-Under http://processors.wiki.ti.com/index.php/I2C_Tips 
-there is article about : External Slave Device Hanging the Bus by
-Holding SDA Low
+PCI Runtime power mangement code changed to remove warning at probe
+time and remove device.
 
-Option 1: For devices that mux the SCL/SDA pins with GPIO, the easiest
-thing is to configure the pins for GPIO operation and toggle SCL until
-the slave releases SDA. At this point you should be able to resume
-normal operation.
+Fix checking of component version on big endian machine to work
+correctly.
+ 
+Changes since V1 of the patch set:
 
-Option 2: Many devices don't mux SCL/SDA with GPIO since the I2C I/O
-cells are often special open drain cells. A workaround has been
-reported to work even on these devices. By configuring the I2C for
-"free data format" and then reading a byte the I2C will immediately
-start sending clocks to input data (rather than trying to send an
-address). This can be used to free up the bus.
+Patches 1-3 are now Jean-Hugues Deschenes patches unmodified from
+http://www.spinics.net/lists/linux-i2c/msg02421.html
 
-We would like to have some extra SCL pulses in the function 
-static void i2c_recover_bus(struct davinci_i2c_dev *dev).
+Patch 4 moves the version checking introduced in Jean's code to the
+core init function.
 
-We tried to put the I2C in "free data format" and read one byte with
-the following lines:
+Patch 5 splits i2c-designware.c into IP core and bus specific files.
 
-            flag |= DAVINCI_I2C_MDR_FDF;// free data format mode
-            flag &= ~DAVINCI_I2C_MDR_TRX;// receive byte
-            // Set STT to begin transmit now DXR is loaded
-            flag |= DAVINCI_I2C_MDR_STT;
-            davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag); 
+Patch 6-9 rework i2c-designware-core.c and i2c-designware-platdrv.c to
+add the ability to support multiple instances of the driver.
 
-But that doesn`t work that way.
+Patch 10 Finishes moving all register access and associated offset and
+bit definitions into the core.
 
-We have problems to use the GPIO variant to toggle SCL or using the 
-generic_i2c_clock_pulse function, too.
+Patch 11 Adds support for designware I2C IP cores behind PCI
+devices on the Moorestown and Medfield platforms. removed change to
+authors name.
 
-Please tell me how to get extra clock cycles on i2c?
+Patch 12 Adds runtime power management to the PCI driver.    
 
-Thank you, regards,
 
-Bastian Ruppert.
+Dirk Brandewie (10):
+  i2c-designware: Move checking of IP core version to i2c_dw_init()
+  i2c-designware: split of i2c-designware.c into core and bus specific
+    parts
+  i2c-designware: Move retriveving the clock speed out of core code.
+  i2c-designware: move i2c functionality bit field to be adapter
+    specific
+  i2c-designware: move controller config to bus specific portion of
+    driver
+  i2c-designware: Support multiple cores using same ISR
+  i2c-designware: Push all register reads/writes into the core code.
+  i2c-designware: Add support for Designware core behind PCI devices.
+  i2c-designware: Add runtime power management support
+  i2c-intel-mid.c: Remove i2c-intel-mid.c
 
-P.S.
+Jean-Hugues Deschenes (3):
+  i2c-designware: Use local version of readl & writel
+  i2c-designware: Check component type register
+  i2c-designware: Allow mixed endianness accesses
 
-[please put me on cc, i am not on the vger.kernel.org list, thx] 
+ drivers/i2c/busses/Kconfig                         |   25 +-
+ drivers/i2c/busses/Makefile                        |    6 +-
+ .../{i2c-designware.c => i2c-designware-core.c}    |  383 ++-----
+ drivers/i2c/busses/i2c-designware-core.h           |  106 ++
+ drivers/i2c/busses/i2c-designware-pcidrv.c         |  405 +++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c        |  215 ++++
+ drivers/i2c/busses/i2c-intel-mid.c                 | 1135 --------------------
+ 7 files changed, 862 insertions(+), 1413 deletions(-)
+ rename drivers/i2c/busses/{i2c-designware.c => i2c-designware-core.c} (65%)
+ create mode 100644 drivers/i2c/busses/i2c-designware-core.h
+ create mode 100644 drivers/i2c/busses/i2c-designware-pcidrv.c
+ create mode 100644 drivers/i2c/busses/i2c-designware-platdrv.c
+ delete mode 100644 drivers/i2c/busses/i2c-intel-mid.c
+
+-- 
+1.7.3.4
