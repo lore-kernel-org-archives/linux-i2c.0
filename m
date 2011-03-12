@@ -1,68 +1,76 @@
-From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH 02/13] i2c-designware: Check component type register
-Date: Sat, 12 Mar 2011 12:23:16 -0800
-Message-ID: <1299961407-26852-3-git-send-email-dirk.brandewie@gmail.com>
+From: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH 05/13] i2c-designware: split of i2c-designware.c into
+ core and bus specific parts
+Date: Sat, 12 Mar 2011 13:00:28 -0800
+Message-ID: <20110312130028.8cf8973b.rdunlap@xenotime.net>
 References: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com>
+	<1299961407-26852-6-git-send-email-dirk.brandewie@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1299961407-26852-1-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1299961407-26852-6-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
+On Sat, 12 Mar 2011 12:23:19 -0800 dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
 
-Designware component type register is checked before attaching to the device.
+> From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> 
+> This patch splits i2c-designware.c into three pieces:
+>      i2c-designware-core.c, contains the code that interacts directly
+>      with the core.
+> 
+>      i2c-designware-platdrv.c, contains the code specific to the
+>      platform driver using the core.
+> 
+>      i2c-designware-core.h contains the definitions and declareations
+>      shared by i2c-designware-core.c and i2c-designware-platdrv.c.
+> 
+> This patch is the first in a set to allow multiple instances of the
+> designware I2C core in the system.
+> 
+> Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/Kconfig                         |    6 +-
+>  drivers/i2c/busses/Makefile                        |    3 +-
+>  .../{i2c-designware.c => i2c-designware-core.c}    |  353 +-------------------
+>  drivers/i2c/busses/i2c-designware-core.h           |  194 +++++++++++
+>  drivers/i2c/busses/i2c-designware-platdrv.c        |  199 +++++++++++
+>  5 files changed, 412 insertions(+), 343 deletions(-)
+>  rename drivers/i2c/busses/{i2c-designware.c => i2c-designware-core.c} (60%)
+>  create mode 100644 drivers/i2c/busses/i2c-designware-core.h
+>  create mode 100644 drivers/i2c/busses/i2c-designware-platdrv.c
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 113505a..35b5e6b 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -347,15 +347,15 @@ config I2C_DAVINCI
+>  	  devices such as DaVinci NIC.
+>  	  For details please see http://www.ti.com/davinci
+>  
+> -config I2C_DESIGNWARE
+> -	tristate "Synopsys DesignWare"
+> +config I2C_DESIGNWARE_PLATFORM
+> +	tristate "Synopsys DesignWare Platfrom"
 
-Signed-off-by: Jean-Hugues Deschenes <jean-hugues.deschenes-YGVykHU+fedBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+	                              Platform
+
+>  	depends on HAVE_CLK
+>  	help
+>  	  If you say yes to this option, support will be included for the
+>  	  Synopsys DesignWare I2C adapter. Only master mode is supported.
+>  
+>  	  This driver can also be built as a module.  If so, the module
+> -	  will be called i2c-designware.
+> +	  will be called i2c-designware-platform.
+>  
+>  config I2C_GPIO
+>  	tristate "GPIO-based bitbanging I2C"
+
 ---
- drivers/i2c/busses/i2c-designware.c |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index 040cf51..b2b2a19 100644
---- a/drivers/i2c/busses/i2c-designware.c
-+++ b/drivers/i2c/busses/i2c-designware.c
-@@ -69,6 +69,7 @@
- #define DW_IC_TXFLR		0x74
- #define DW_IC_RXFLR		0x78
- #define DW_IC_COMP_PARAM_1	0xf4
-+#define DW_IC_COMP_TYPE		0xfc
- #define DW_IC_TX_ABRT_SOURCE	0x80
- 
- #define DW_IC_CON_MASTER		0x1
-@@ -710,6 +711,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct resource *mem, *ioarea;
- 	int irq, r;
-+	u32 reg;
- 
- 	/* NOTE: driver uses the static register mapping */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -756,12 +758,19 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 		r = -EBUSY;
- 		goto err_unuse_clocks;
- 	}
--	{
--		u32 param1 = dw_readl(dev, DW_IC_COMP_PARAM_1);
- 
--		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
--		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-+	reg = dw_readl(dev, DW_IC_COMP_TYPE);
-+	if (reg != 0x44570140) {
-+		dev_err(&pdev->dev, "Unknown Synopsys component type: "
-+				"0x%08x\n",	reg);
-+		r = -ENODEV;
-+		goto err_iounmap;
- 	}
-+
-+	reg = dw_readl(dev, DW_IC_COMP_PARAM_1);
-+	dev->tx_fifo_depth = ((reg >> 16) & 0xff) + 1;
-+	dev->rx_fifo_depth = ((reg >> 8)  & 0xff) + 1;
-+
- 	i2c_dw_init(dev);
- 
- 	dw_writel(dev, 0, DW_IC_INTR_MASK); /* disable IRQ */
--- 
-1.7.3.4
+~Randy
+*** Remember to use Documentation/SubmitChecklist when testing your code ***
