@@ -1,92 +1,87 @@
-From: dirk.brandewie@gmail.com
-Subject: [PATCH 00/13]  V3 Split i2c-designware.c to support PCI drivers.
-Date: Sat, 12 Mar 2011 12:23:14 -0800
-Message-ID: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: Dirk Brandewie <dirk.brandewie@gmail.com>
+From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: [PATCH 04/13] i2c-designware: Move checking of IP core version to i2c_dw_init()
+Date: Sat, 12 Mar 2011 12:23:18 -0800
+Message-ID: <1299961407-26852-5-git-send-email-dirk.brandewie@gmail.com>
+References: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1299961407-26852-1-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Dirk Brandewie <dirk.brandewie@gmail.com>
+From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-This patch set reworks i2c-designware.c to enable supporting multiple
-instances of the driver in the system and adds support for Designware
-I2C IP cores behind PCI devices.
+Move checking IP core version to i2c_dw_init() in preparation for
+splitting i2c-designware.c into core and bus specific portions.
 
-The patch set has been refactored to hopefully make it easier to
-review.
+Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware.c |   30 +++++++++++++++++++-----------
+ 1 files changed, 19 insertions(+), 11 deletions(-)
 
-TODO:
-Ben disliked the module names, they haven't changed yet waiting for
-feedback on the list.
-
-Changes since V2:
-
-Fixed bug that kept PCI driver from compiling :-(
-
-PCI Runtime power mangement code changed to remove warning at probe
-time and remove device.
-
-Fix checking of component version on big endian machine to work
-correctly.
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index f58f05d..85517c5 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -305,10 +305,24 @@ static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
+  * This function is called during I2C init function, and in case of timeout at
+  * run time.
+  */
+-static void i2c_dw_init(struct dw_i2c_dev *dev)
++static int i2c_dw_init(struct dw_i2c_dev *dev)
+ {
+ 	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
+ 	u32 ic_con, hcnt, lcnt;
++	u32 reg;
++
++	/* Configure register endianess access */
++	reg = dw_readl(dev, DW_IC_COMP_TYPE);
++	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
++		dev->swab = 1;
++		reg = DW_IC_COMP_TYPE_VALUE;
++	}
++
++	if (reg != DW_IC_COMP_TYPE_VALUE) {
++		dev_err(dev->dev, "Unknown Synopsys component type: "
++			"0x%08x\n", reg);
++		return -ENODEV;
++	}
  
-Changes since V1 of the patch set:
-
-Patches 1-3 are now Jean-Hugues Deschenes patches unmodified from
-http://www.spinics.net/lists/linux-i2c/msg02421.html
-
-Patch 4 moves the version checking introduced in Jean's code to the
-core init function.
-
-Patch 5 splits i2c-designware.c into IP core and bus specific files.
-
-Patch 6-9 rework i2c-designware-core.c and i2c-designware-platdrv.c to
-add the ability to support multiple instances of the driver.
-
-Patch 10 Finishes moving all register access and associated offset and
-bit definitions into the core.
-
-Patch 11 Adds support for designware I2C IP cores behind PCI
-devices on the Moorestown and Medfield platforms. removed change to
-authors name.
-
-Patch 12 Adds runtime power management to the PCI driver.    
-
-
-Dirk Brandewie (10):
-  i2c-designware: Move checking of IP core version to i2c_dw_init()
-  i2c-designware: split of i2c-designware.c into core and bus specific
-    parts
-  i2c-designware: Move retriveving the clock speed out of core code.
-  i2c-designware: move i2c functionality bit field to be adapter
-    specific
-  i2c-designware: move controller config to bus specific portion of
-    driver
-  i2c-designware: Support multiple cores using same ISR
-  i2c-designware: Push all register reads/writes into the core code.
-  i2c-designware: Add support for Designware core behind PCI devices.
-  i2c-designware: Add runtime power management support
-  i2c-intel-mid.c: Remove i2c-intel-mid.c
-
-Jean-Hugues Deschenes (3):
-  i2c-designware: Use local version of readl & writel
-  i2c-designware: Check component type register
-  i2c-designware: Allow mixed endianness accesses
-
- drivers/i2c/busses/Kconfig                         |   25 +-
- drivers/i2c/busses/Makefile                        |    6 +-
- .../{i2c-designware.c => i2c-designware-core.c}    |  383 ++-----
- drivers/i2c/busses/i2c-designware-core.h           |  106 ++
- drivers/i2c/busses/i2c-designware-pcidrv.c         |  405 +++++++
- drivers/i2c/busses/i2c-designware-platdrv.c        |  215 ++++
- drivers/i2c/busses/i2c-intel-mid.c                 | 1135 --------------------
- 7 files changed, 862 insertions(+), 1413 deletions(-)
- rename drivers/i2c/busses/{i2c-designware.c => i2c-designware-core.c} (65%)
- create mode 100644 drivers/i2c/busses/i2c-designware-core.h
- create mode 100644 drivers/i2c/busses/i2c-designware-pcidrv.c
- create mode 100644 drivers/i2c/busses/i2c-designware-platdrv.c
- delete mode 100644 drivers/i2c/busses/i2c-intel-mid.c
-
+ 	/* Disable the adapter */
+ 	dw_writel(dev, 0, DW_IC_ENABLE);
+@@ -351,6 +365,7 @@ static void i2c_dw_init(struct dw_i2c_dev *dev)
+ 	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+ 	dw_writel(dev, ic_con, DW_IC_CON);
++	return 0;
+ }
+ 
+ /*
+@@ -770,21 +785,14 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 		goto err_unuse_clocks;
+ 	}
+ 
+-	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+-	if (reg == ___constant_swab32(0x44570140))
+-		dev->swab = 1;
+-	else if (reg != 0x44570140) {
+-		dev_err(&pdev->dev, "Unknown Synopsys component type: "
+-				"0x%08x\n",	reg);
+-		r = -ENODEV;
+-		goto err_iounmap;
+-	}
++	r = i2c_dw_init(dev);
++	if (r)
++		goto err_unuse_clocks;
+ 
+ 	reg = dw_readl(dev, DW_IC_COMP_PARAM_1);
+ 	dev->tx_fifo_depth = ((reg >> 16) & 0xff) + 1;
+ 	dev->rx_fifo_depth = ((reg >> 8)  & 0xff) + 1;
+ 
+-	i2c_dw_init(dev);
+ 
+ 	dw_writel(dev, 0, DW_IC_INTR_MASK); /* disable IRQ */
+ 	r = request_irq(dev->irq, i2c_dw_isr, IRQF_DISABLED, pdev->name, dev);
 -- 
 1.7.3.4
