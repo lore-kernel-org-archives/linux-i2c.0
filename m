@@ -1,209 +1,267 @@
-From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH 12/13] i2c-designware: Add runtime power management support
-Date: Sat, 12 Mar 2011 12:23:26 -0800
-Message-ID: <1299961407-26852-13-git-send-email-dirk.brandewie@gmail.com>
+From: dirk.brandewie@gmail.com
+Subject: [PATCH 01/13] i2c-designware: Use local version of readl & writel
+Date: Sat, 12 Mar 2011 12:23:15 -0800
+Message-ID: <1299961407-26852-2-git-send-email-dirk.brandewie@gmail.com>
 References: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1299961407-26852-1-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>, Dirk Brandewie <dirk.brandewie@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>
 
-Add runtime power management to the PCI driver.
+Use local versions of readl & writel, so per-access manipulations may be performed
 
-Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>
+Signed-off-by: Dirk Brandewie <dirk.brandewie@gmail.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c   |   10 +++-
- drivers/i2c/busses/i2c-designware-core.h   |    1 +
- drivers/i2c/busses/i2c-designware-pcidrv.c |   89 ++++++++++++++++++++++++++++
- 3 files changed, 98 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware.c |   88 +++++++++++++++++++---------------
+ 1 files changed, 49 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index b22a2c5..299e717 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -31,6 +31,7 @@
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
-+#include <linux/pm_runtime.h>
- #include "i2c-designware-core.h"
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index b664ed8..040cf51 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -220,6 +220,16 @@ struct dw_i2c_dev {
+ 	unsigned int		rx_fifo_depth;
+ };
  
- /*
-@@ -500,6 +501,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
++static u32 dw_readl(struct dw_i2c_dev *dev, int offset)
++{
++	return readl(dev->base + offset);
++}
++
++static void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
++{
++	writel(b, dev->base + offset);
++}
++
+ static u32
+ i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
+ {
+@@ -289,7 +299,7 @@ static void i2c_dw_init(struct dw_i2c_dev *dev)
+ 	u32 ic_con, hcnt, lcnt;
  
- 	mutex_lock(&dev->lock);
-+	pm_runtime_get_sync(dev->dev);
+ 	/* Disable the adapter */
+-	writel(0, dev->base + DW_IC_ENABLE);
++	dw_writel(dev, 0, DW_IC_ENABLE);
  
- 	INIT_COMPLETION(dev->cmd_complete);
- 	dev->msgs = msgs;
-@@ -549,6 +551,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	ret = -EIO;
+ 	/* set standard and fast speed deviders for high/low periods */
  
- done:
-+	pm_runtime_put(dev->dev);
- 	mutex_unlock(&dev->lock);
+@@ -303,8 +313,8 @@ static void i2c_dw_init(struct dw_i2c_dev *dev)
+ 				47,	/* tLOW = 4.7 us */
+ 				3,	/* tf = 0.3 us */
+ 				0);	/* No offset */
+-	writel(hcnt, dev->base + DW_IC_SS_SCL_HCNT);
+-	writel(lcnt, dev->base + DW_IC_SS_SCL_LCNT);
++	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
++	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
  
- 	return ret;
-@@ -670,10 +673,13 @@ void i2c_dw_enable(struct dw_i2c_dev *dev)
- 	dw_writel(dev, 1, DW_IC_ENABLE);
+ 	/* Fast-mode */
+@@ -317,18 +327,18 @@ static void i2c_dw_init(struct dw_i2c_dev *dev)
+ 				13,	/* tLOW = 1.3 us */
+ 				3,	/* tf = 0.3 us */
+ 				0);	/* No offset */
+-	writel(hcnt, dev->base + DW_IC_FS_SCL_HCNT);
+-	writel(lcnt, dev->base + DW_IC_FS_SCL_LCNT);
++	dw_writel(dev, hcnt, DW_IC_FS_SCL_HCNT);
++	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+ 
+ 	/* Configure Tx/Rx FIFO threshold levels */
+-	writel(dev->tx_fifo_depth - 1, dev->base + DW_IC_TX_TL);
+-	writel(0, dev->base + DW_IC_RX_TL);
++	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
++	dw_writel(dev, 0, DW_IC_RX_TL);
+ 
+ 	/* configure the i2c master */
+ 	ic_con = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+-	writel(ic_con, dev->base + DW_IC_CON);
++	dw_writel(dev, ic_con, DW_IC_CON);
  }
  
--void i2c_dw_disable(struct dw_i2c_dev *dev)
-+u32 i2c_dw_is_enabled(struct dw_i2c_dev *dev)
+ /*
+@@ -338,7 +348,7 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
  {
--	int ret;
-+	return dw_readl(dev, DW_IC_ENABLE);
-+}
+ 	int timeout = TIMEOUT;
  
-+void i2c_dw_disable(struct dw_i2c_dev *dev)
-+{
- 	/* Disable controller */
- 	dw_writel(dev, 0, DW_IC_ENABLE);
+-	while (readl(dev->base + DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
++	while (dw_readl(dev, DW_IC_STATUS) & DW_IC_STATUS_ACTIVITY) {
+ 		if (timeout <= 0) {
+ 			dev_warn(dev->dev, "timeout waiting for bus ready\n");
+ 			return -ETIMEDOUT;
+@@ -356,24 +366,24 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	u32 ic_con;
  
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 6450a6a..4a75888 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -98,6 +98,7 @@ extern int i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- extern u32 i2c_dw_func(struct i2c_adapter *adap);
- extern irqreturn_t i2c_dw_isr(int this_irq, void *dev_id);
- extern void i2c_dw_enable(struct dw_i2c_dev *dev);
-+extern u32 i2c_dw_is_enabled(struct dw_i2c_dev *dev);
- extern void i2c_dw_disable(struct dw_i2c_dev *dev);
- extern void i2c_dw_clear_int(struct dw_i2c_dev *dev);
- extern void i2c_dw_disable_int(struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 83307ef..d2223b5 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -38,6 +38,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/pci.h>
-+#include <linux/pm_runtime.h>
- #include "i2c-designware-core.h"
+ 	/* Disable the adapter */
+-	writel(0, dev->base + DW_IC_ENABLE);
++	dw_writel(dev, 0, DW_IC_ENABLE);
  
- #define DRIVER_NAME "i2c-designware-pci"
-@@ -137,6 +138,82 @@ static struct i2c_algorithm i2c_dw_algo = {
- 	.functionality	= i2c_dw_func,
- };
+ 	/* set the slave (target) address */
+-	writel(msgs[dev->msg_write_idx].addr, dev->base + DW_IC_TAR);
++	dw_writel(dev, msgs[dev->msg_write_idx].addr, DW_IC_TAR);
  
-+static int i2c_dw_pci_suspend(struct pci_dev *pdev, pm_message_t mesg)
-+{
-+	struct dw_i2c_dev *i2c = pci_get_drvdata(pdev);
-+	int err;
-+
-+
-+	i2c_dw_disable(i2c);
-+
-+	err = pci_save_state(pdev);
-+	if (err) {
-+		dev_err(&pdev->dev, "pci_save_state failed\n");
-+		return err;
-+	}
-+
-+	err = pci_set_power_state(pdev, PCI_D3hot);
-+	if (err) {
-+		dev_err(&pdev->dev, "pci_set_power_state failed\n");
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+static int i2c_dw_pci_runtime_suspend(struct device *dev)
-+{
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	dev_dbg(dev, "PCI suspend called\n");
-+	return i2c_dw_pci_suspend(pdev, PMSG_SUSPEND);
-+}
-+
-+static int i2c_dw_pci_resume(struct pci_dev *pdev)
-+{
-+	struct dw_i2c_dev *i2c = pci_get_drvdata(pdev);
-+	int err;
-+	u32 enabled;
-+
-+	enabled = i2c_dw_is_enabled(i2c);
-+	if (enabled)
-+		return 0;
-+
-+	err = pci_set_power_state(pdev, PCI_D0);
-+	if (err) {
-+		dev_err(&pdev->dev, "pci_set_power_state() failed\n");
-+		return err;
-+	}
-+
-+	pci_restore_state(pdev);
-+
-+	i2c_dw_init(i2c);
-+	i2c_dw_enable(i2c);
-+	return 0;
-+}
-+
-+static int i2c_dw_pci_runtime_resume(struct device *dev)
-+{
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	dev_dbg(dev, "runtime_resume called\n");
-+	return i2c_dw_pci_resume(pdev);
-+}
-+
-+static int i2c_dw_pci_runtime_idle(struct device *dev)
-+{
-+	int err = pm_schedule_suspend(dev, 500);
-+	dev_dbg(dev, "runtime_idle called\n");
-+
-+	if (err != 0)
-+		return 0;
-+	return -EBUSY;
-+}
-+
-+static const struct dev_pm_ops i2c_dw_pm_ops = {
-+	.runtime_suspend = i2c_dw_pci_runtime_suspend,
-+	.runtime_resume = i2c_dw_pci_runtime_resume,
-+	.runtime_idle = i2c_dw_pci_runtime_idle,
-+};
-+
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- {
- 	return dev->controller->clk_khz;
-@@ -245,6 +322,9 @@ const struct pci_device_id *id)
- 		goto err_free_irq;
+ 	/* if the slave address is ten bit address, enable 10BITADDR */
+-	ic_con = readl(dev->base + DW_IC_CON);
++	ic_con = dw_readl(dev, DW_IC_CON);
+ 	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
+ 		ic_con |= DW_IC_CON_10BITADDR_MASTER;
+ 	else
+ 		ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
+-	writel(ic_con, dev->base + DW_IC_CON);
++	dw_writel(dev, ic_con, DW_IC_CON);
+ 
+ 	/* Enable the adapter */
+-	writel(1, dev->base + DW_IC_ENABLE);
++	dw_writel(dev, 1, DW_IC_ENABLE);
+ 
+ 	/* Enable interrupts */
+-	writel(DW_IC_INTR_DEFAULT_MASK, dev->base + DW_IC_INTR_MASK);
++	dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
+ }
+ 
+ /*
+@@ -420,15 +430,15 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 			buf_len = msgs[dev->msg_write_idx].len;
+ 		}
+ 
+-		tx_limit = dev->tx_fifo_depth - readl(dev->base + DW_IC_TXFLR);
+-		rx_limit = dev->rx_fifo_depth - readl(dev->base + DW_IC_RXFLR);
++		tx_limit = dev->tx_fifo_depth - dw_readl(dev, DW_IC_TXFLR);
++		rx_limit = dev->rx_fifo_depth - dw_readl(dev, DW_IC_RXFLR);
+ 
+ 		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
+ 			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
+-				writel(0x100, dev->base + DW_IC_DATA_CMD);
++				dw_writel(dev, 0x100, DW_IC_DATA_CMD);
+ 				rx_limit--;
+ 			} else
+-				writel(*buf++, dev->base + DW_IC_DATA_CMD);
++				dw_writel(dev, *buf++, DW_IC_DATA_CMD);
+ 			tx_limit--; buf_len--;
+ 		}
+ 
+@@ -453,7 +463,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 	if (dev->msg_err)
+ 		intr_mask = 0;
+ 
+-	writel(intr_mask, dev->base + DW_IC_INTR_MASK);
++	dw_writel(dev, intr_mask, DW_IC_INTR_MASK);
+ }
+ 
+ static void
+@@ -477,10 +487,10 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+ 			buf = dev->rx_buf;
+ 		}
+ 
+-		rx_valid = readl(dev->base + DW_IC_RXFLR);
++		rx_valid = dw_readl(dev, DW_IC_RXFLR);
+ 
+ 		for (; len > 0 && rx_valid > 0; len--, rx_valid--)
+-			*buf++ = readl(dev->base + DW_IC_DATA_CMD);
++			*buf++ = dw_readl(dev, DW_IC_DATA_CMD);
+ 
+ 		if (len > 0) {
+ 			dev->status |= STATUS_READ_IN_PROGRESS;
+@@ -563,7 +573,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	/* no error */
+ 	if (likely(!dev->cmd_err)) {
+ 		/* Disable the adapter */
+-		writel(0, dev->base + DW_IC_ENABLE);
++		dw_writel(dev, 0, DW_IC_ENABLE);
+ 		ret = num;
+ 		goto done;
+ 	}
+@@ -607,7 +617,7 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+ 	 *
+ 	 * The raw version might be useful for debugging purposes.
+ 	 */
+-	stat = readl(dev->base + DW_IC_INTR_STAT);
++	stat = dw_readl(dev, DW_IC_INTR_STAT);
+ 
+ 	/*
+ 	 * Do not use the IC_CLR_INTR register to clear interrupts, or
+@@ -617,31 +627,31 @@ static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
+ 	 * Instead, use the separately-prepared IC_CLR_* registers.
+ 	 */
+ 	if (stat & DW_IC_INTR_RX_UNDER)
+-		readl(dev->base + DW_IC_CLR_RX_UNDER);
++		dw_readl(dev, DW_IC_CLR_RX_UNDER);
+ 	if (stat & DW_IC_INTR_RX_OVER)
+-		readl(dev->base + DW_IC_CLR_RX_OVER);
++		dw_readl(dev, DW_IC_CLR_RX_OVER);
+ 	if (stat & DW_IC_INTR_TX_OVER)
+-		readl(dev->base + DW_IC_CLR_TX_OVER);
++		dw_readl(dev, DW_IC_CLR_TX_OVER);
+ 	if (stat & DW_IC_INTR_RD_REQ)
+-		readl(dev->base + DW_IC_CLR_RD_REQ);
++		dw_readl(dev, DW_IC_CLR_RD_REQ);
+ 	if (stat & DW_IC_INTR_TX_ABRT) {
+ 		/*
+ 		 * The IC_TX_ABRT_SOURCE register is cleared whenever
+ 		 * the IC_CLR_TX_ABRT is read.  Preserve it beforehand.
+ 		 */
+-		dev->abort_source = readl(dev->base + DW_IC_TX_ABRT_SOURCE);
+-		readl(dev->base + DW_IC_CLR_TX_ABRT);
++		dev->abort_source = dw_readl(dev, DW_IC_TX_ABRT_SOURCE);
++		dw_readl(dev, DW_IC_CLR_TX_ABRT);
+ 	}
+ 	if (stat & DW_IC_INTR_RX_DONE)
+-		readl(dev->base + DW_IC_CLR_RX_DONE);
++		dw_readl(dev, DW_IC_CLR_RX_DONE);
+ 	if (stat & DW_IC_INTR_ACTIVITY)
+-		readl(dev->base + DW_IC_CLR_ACTIVITY);
++		dw_readl(dev, DW_IC_CLR_ACTIVITY);
+ 	if (stat & DW_IC_INTR_STOP_DET)
+-		readl(dev->base + DW_IC_CLR_STOP_DET);
++		dw_readl(dev, DW_IC_CLR_STOP_DET);
+ 	if (stat & DW_IC_INTR_START_DET)
+-		readl(dev->base + DW_IC_CLR_START_DET);
++		dw_readl(dev, DW_IC_CLR_START_DET);
+ 	if (stat & DW_IC_INTR_GEN_CALL)
+-		readl(dev->base + DW_IC_CLR_GEN_CALL);
++		dw_readl(dev, DW_IC_CLR_GEN_CALL);
+ 
+ 	return stat;
+ }
+@@ -666,7 +676,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
+ 		 * Anytime TX_ABRT is set, the contents of the tx/rx
+ 		 * buffers are flushed.  Make sure to skip them.
+ 		 */
+-		writel(0, dev->base + DW_IC_INTR_MASK);
++		dw_writel(dev, 0, DW_IC_INTR_MASK);
+ 		goto tx_aborted;
  	}
  
-+	pm_runtime_put_noidle(&pdev->dev);
-+	pm_runtime_allow(&pdev->dev);
-+
- 	return 0;
+@@ -747,14 +757,14 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 		goto err_unuse_clocks;
+ 	}
+ 	{
+-		u32 param1 = readl(dev->base + DW_IC_COMP_PARAM_1);
++		u32 param1 = dw_readl(dev, DW_IC_COMP_PARAM_1);
  
- err_free_irq:
-@@ -264,6 +344,10 @@ static void __devexit i2c_dw_pci_remove(struct pci_dev *pdev)
- {
- 	struct dw_i2c_dev *dev = pci_get_drvdata(pdev);
+ 		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
+ 		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
+ 	}
+ 	i2c_dw_init(dev);
  
-+	i2c_dw_disable(dev);
-+	pm_runtime_forbid(&pdev->dev);
-+	pm_runtime_get_noresume(&pdev->dev);
-+
- 	pci_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
-@@ -297,6 +381,11 @@ static struct pci_driver dw_i2c_driver = {
- 	.id_table	= i2_designware_pci_ids,
- 	.probe		= i2c_dw_pci_probe,
- 	.remove		= __devexit_p(i2c_dw_pci_remove),
-+	.resume         = i2c_dw_pci_resume,
-+	.suspend        = i2c_dw_pci_suspend,
-+	.driver         = {
-+		.pm     = &i2c_dw_pm_ops,
-+	},
- };
+-	writel(0, dev->base + DW_IC_INTR_MASK); /* disable IRQ */
++	dw_writel(dev, 0, DW_IC_INTR_MASK); /* disable IRQ */
+ 	r = request_irq(dev->irq, i2c_dw_isr, IRQF_DISABLED, pdev->name, dev);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+@@ -810,7 +820,7 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
+ 	clk_put(dev->clk);
+ 	dev->clk = NULL;
  
- static int __init dw_i2c_init_driver(void)
+-	writel(0, dev->base + DW_IC_ENABLE);
++	dw_writel(dev, 0, DW_IC_ENABLE);
+ 	free_irq(dev->irq, dev);
+ 	kfree(dev);
+ 
 -- 
 1.7.3.4
