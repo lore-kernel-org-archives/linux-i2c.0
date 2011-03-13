@@ -1,76 +1,46 @@
-From: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH 05/13] i2c-designware: split of i2c-designware.c into
- core and bus specific parts
-Date: Sat, 12 Mar 2011 13:00:28 -0800
-Message-ID: <20110312130028.8cf8973b.rdunlap@xenotime.net>
-References: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com>
-	<1299961407-26852-6-git-send-email-dirk.brandewie@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Vasily Khoruzhick <anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 2/2] i2c-pxa2xx: Don't clear isr bits too early
+Date: Sun, 13 Mar 2011 15:53:29 +0200
+Message-ID: <1300024409-32587-2-git-send-email-anarsoul@gmail.com>
+References: <1300024409-32587-1-git-send-email-anarsoul@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1299961407-26852-6-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1300024409-32587-1-git-send-email-anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Vasily Khoruzhick <anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 12 Mar 2011 12:23:19 -0800 dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+isr is passed later into i2c_pxa_irq_txempty and
+i2c_pxa_irq_rxfull and they may use some other bits
+than irq sources.
 
-> From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> 
-> This patch splits i2c-designware.c into three pieces:
->      i2c-designware-core.c, contains the code that interacts directly
->      with the core.
-> 
->      i2c-designware-platdrv.c, contains the code specific to the
->      platform driver using the core.
-> 
->      i2c-designware-core.h contains the definitions and declareations
->      shared by i2c-designware-core.c and i2c-designware-platdrv.c.
-> 
-> This patch is the first in a set to allow multiple instances of the
-> designware I2C core in the system.
-> 
-> Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig                         |    6 +-
->  drivers/i2c/busses/Makefile                        |    3 +-
->  .../{i2c-designware.c => i2c-designware-core.c}    |  353 +-------------------
->  drivers/i2c/busses/i2c-designware-core.h           |  194 +++++++++++
->  drivers/i2c/busses/i2c-designware-platdrv.c        |  199 +++++++++++
->  5 files changed, 412 insertions(+), 343 deletions(-)
->  rename drivers/i2c/busses/{i2c-designware.c => i2c-designware-core.c} (60%)
->  create mode 100644 drivers/i2c/busses/i2c-designware-core.h
->  create mode 100644 drivers/i2c/busses/i2c-designware-platdrv.c
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 113505a..35b5e6b 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -347,15 +347,15 @@ config I2C_DAVINCI
->  	  devices such as DaVinci NIC.
->  	  For details please see http://www.ti.com/davinci
->  
-> -config I2C_DESIGNWARE
-> -	tristate "Synopsys DesignWare"
-> +config I2C_DESIGNWARE_PLATFORM
-> +	tristate "Synopsys DesignWare Platfrom"
-
-	                              Platform
-
->  	depends on HAVE_CLK
->  	help
->  	  If you say yes to this option, support will be included for the
->  	  Synopsys DesignWare I2C adapter. Only master mode is supported.
->  
->  	  This driver can also be built as a module.  If so, the module
-> -	  will be called i2c-designware.
-> +	  will be called i2c-designware-platform.
->  
->  config I2C_GPIO
->  	tristate "GPIO-based bitbanging I2C"
-
+Signed-off-by: Vasily Khoruzhick <anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
-~Randy
-*** Remember to use Documentation/SubmitChecklist when testing your code ***
+ drivers/i2c/busses/i2c-pxa.c |    5 ++---
+ 1 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 312d369..cab529d 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -966,8 +966,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
+ 	struct pxa_i2c *i2c = dev_id;
+ 	u32 isr = readl(_ISR(i2c));
+ 
+-	isr &= VALID_INT_SOURCE;
+-	if (!isr)
++	if (!(isr & VALID_INT_SOURCE))
+ 		return IRQ_NONE;
+ 
+ 	if (i2c_debug > 2 && 0) {
+@@ -984,7 +983,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
+ 	/*
+ 	 * Always clear all pending IRQs.
+ 	 */
+-	writel(isr, _ISR(i2c));
++	writel(isr & VALID_INT_SOURCE, _ISR(i2c));
+ 
+ 	if (isr & ISR_SAD)
+ 		i2c_pxa_slave_start(i2c, isr);
+-- 
+1.7.4.1
