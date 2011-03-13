@@ -1,46 +1,49 @@
 From: Vasily Khoruzhick <anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] i2c-pxa2xx: Don't clear isr bits too early
-Date: Sun, 13 Mar 2011 15:53:29 +0200
-Message-ID: <1300024409-32587-2-git-send-email-anarsoul@gmail.com>
-References: <1300024409-32587-1-git-send-email-anarsoul@gmail.com>
+Subject: [PATCH 1/2] i2c-pxa2xx: Fix register offsets
+Date: Sun, 13 Mar 2011 15:53:28 +0200
+Message-ID: <1300024409-32587-1-git-send-email-anarsoul@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1300024409-32587-1-git-send-email-anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: Vasily Khoruzhick <anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-isr is passed later into i2c_pxa_irq_txempty and
-i2c_pxa_irq_rxfull and they may use some other bits
-than irq sources.
+Fix regression that was introduced by dynamic register layout.
 
 Signed-off-by: Vasily Khoruzhick <anarsoul-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-pxa.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c |   14 +++++++-------
+ 1 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 312d369..cab529d 100644
+index a90739b..312d369 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -966,8 +966,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
- 	struct pxa_i2c *i2c = dev_id;
- 	u32 isr = readl(_ISR(i2c));
- 
--	isr &= VALID_INT_SOURCE;
--	if (!isr)
-+	if (!(isr & VALID_INT_SOURCE))
- 		return IRQ_NONE;
- 
- 	if (i2c_debug > 2 && 0) {
-@@ -984,7 +983,7 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
- 	/*
- 	 * Always clear all pending IRQs.
- 	 */
--	writel(isr, _ISR(i2c));
-+	writel(isr & VALID_INT_SOURCE, _ISR(i2c));
- 
- 	if (isr & ISR_SAD)
- 		i2c_pxa_slave_start(i2c, isr);
+@@ -66,18 +66,18 @@ enum pxa_i2c_types {
+ static struct pxa_reg_layout pxa_reg_layout[] = {
+ 	[REGS_PXA2XX] = {
+ 		.ibmr =	0x00,
+-		.idbr =	0x10,
+-		.icr =	0x20,
+-		.isr =	0x30,
+-		.isar =	0x40,
+-	},
+-	[REGS_PXA3XX] = {
+-		.ibmr =	0x00,
+ 		.idbr =	0x08,
+ 		.icr =	0x10,
+ 		.isr =	0x18,
+ 		.isar =	0x20,
+ 	},
++	[REGS_PXA3XX] = {
++		.ibmr =	0x00,
++		.idbr =	0x04,
++		.icr =	0x08,
++		.isr =	0x0c,
++		.isar =	0x10,
++	},
+ 	[REGS_CE4100] = {
+ 		.ibmr =	0x14,
+ 		.idbr =	0x0c,
 -- 
 1.7.4.1
