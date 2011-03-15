@@ -1,51 +1,57 @@
-From: Ben Dooks <ben-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: Add support for 64bit system
-Date: Tue, 15 Mar 2011 16:12:01 +0000
-Message-ID: <20110315161201.GJ17460@trinity.fluff.org>
-References: <1300204963-15855-1-git-send-email-galak@kernel.crashing.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [RFC PATCH 0/5] hwmon: lis3 patches
+Date: Tue, 15 Mar 2011 17:16:54 +0100
+Message-ID: <20110315171654.0d87b7da@endymion.delvare>
+References: <1300204965-7209-1-git-send-email-ilkka.koskinen@nokia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1300204963-15855-1-git-send-email-galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <1300204965-7209-1-git-send-email-ilkka.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B33228-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: Ilkka Koskinen <ilkka.koskinen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org>
+Cc: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, eric.piel-VkQ1JFuSMpfAbQlEx87xDw@public.gmane.org, samu.p.onkalo-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 15, 2011 at 11:02:43AM -0500, Kumar Gala wrote:
-> Currently i2c-mpc supports 32bit system only, this modification makes it
-> supported on both 32-bit and 64-bit systems.  The P5020 is the first
-> 64-bit PPC system with the i2c-mpc controller.
+On Tue, 15 Mar 2011 18:02:40 +0200, Ilkka Koskinen wrote:
+> The first patch fixes a bug in lis3 i2c driver when probe() fails.
 > 
-> Based in patch from Xulei <B33228-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> The rest of the patches converts statically allocated lis3 device
+> to dynamically allocated one, which enables support for
+> multiple lis3 devices on board. In addition, this patch set makes
+> it possible to load both i2c and spi drivers so that they don't
+> disturb each other. hp_accel is hacked to work and, thus, doesn't
+> support multiple devices.
 > 
-> Signed-off-by: Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> I have tested the i2c based driver on target device, but haven't
+> the other two. 
+> 
+> The patches apply on top of hwmon-staging branch in 
+> git://localhost/pub/scm/linux/kernel/git/groeck/staging.git
 
-ok, will add to -next
+I already have patches pending, which kick lis3lv02d out of
+drivers/hwmon:
+ftp://ftp.kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-hwmon/
 
-> ---
->  drivers/i2c/busses/Kconfig |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
+I'll get this tree merged into Linus' tree at the end of the week. Then
+you will have to rebase your patches and send them again (but not to
+the lm-sensors list, we do NOT want to see them there.) Thanks.
+
+> Ilkka Koskinen (5):
+>   hwmon: lis3: Free regulators if probe() fails.
+>   hwmon: lis3: Change naming to consistent
+>   hwmon: lis3: Change exported function to use given device
+>   hwmon: lis3: Remove the referencies to the global variable in core
+>     driver
+>   hwmon: lis3: Register hwif and remove references to global variable
 > 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 113505a..107d5c2 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -433,7 +433,7 @@ config I2C_IXP2000
->  
->  config I2C_MPC
->  	tristate "MPC107/824x/85xx/512x/52xx/83xx/86xx"
-> -	depends on PPC32
-> +	depends on PPC
->  	help
->  	  If you say yes to this option, support will be included for the
->  	  built-in I2C interface on the MPC107, Tsi107, MPC512x, MPC52xx,
-> -- 
-> 1.7.2.3
-> 
+>  drivers/hwmon/hp_accel.c      |   52 ++++---
+>  drivers/hwmon/lis3lv02d.c     |  392 +++++++++++++++++++++++------------------
+>  drivers/hwmon/lis3lv02d.h     |   11 +-
+>  drivers/hwmon/lis3lv02d_i2c.c |   67 ++++---
+>  drivers/hwmon/lis3lv02d_spi.c |   35 +++--
+>  5 files changed, 319 insertions(+), 238 deletions(-)
+
 
 -- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+Jean Delvare
