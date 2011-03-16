@@ -1,98 +1,54 @@
-From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Subject: (unknown)
-Date: Tue, 15 Mar 2011 17:08:37 -0400
-Message-ID: <1300223318-31450-1-git-send-email-bengardiner@nanometrics.ca>
-References: <AANLkTi=opkM3WW2v3xV=ox9HwD__WjqQuh3sM6Vh7fLj@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: octeon: Make the timeout independent of CONFIG_HZ
+Date: Wed, 16 Mar 2011 14:32:56 +0100
+Message-ID: <20110316143256.1353b0a9@endymion.delvare>
+References: <4D3D7290.9050203@corscience.de>
+	<1295872826-22129-1-git-send-email-walle@corscience.de>
+	<20110124150005.577b0235@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-Subject: 
-In-Reply-To: <AANLkTi=opkM3WW2v3xV=ox9HwD__WjqQuh3sM6Vh7fLj-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110124150005.577b0235-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>, ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I tried the following patch based on the description of the steps you took to 
-recover the bus. Is there anything you can add? I still get lots of 
-'controller timed out' errors.
+On Mon, 24 Jan 2011 15:00:05 +0100, Jean Delvare wrote:
+> On Mon, 24 Jan 2011 13:40:26 +0100, Bernhard Walle wrote:
+> > Since the timeout in the struct i2c_adapter use jiffies as unit and a
+> > timeout should be independent of CONFIG_HZ, use a value of HZ/50 which
+> > is equal to the current value 2 for CONFIG_HZ=100.
+> > 
+> > Signed-off-by: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>
+> 
+> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> 
+> Ben, please apply.
 
-Best Regards,
+Ben, I can't see this fix in your tree, it seems it got lost?
 
-Ben Gardiner
+> > ---
+> >  drivers/i2c/busses/i2c-octeon.c |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+> > index 4cffda5..d07e5c7 100644
+> > --- a/drivers/i2c/busses/i2c-octeon.c
+> > +++ b/drivers/i2c/busses/i2c-octeon.c
+> > @@ -469,7 +469,7 @@ static struct i2c_adapter octeon_i2c_ops = {
+> >  	.owner = THIS_MODULE,
+> >  	.name = "OCTEON adapter",
+> >  	.algo = &octeon_i2c_algo,
+> > -	.timeout = 2,
+> > +	.timeout = HZ/50,
+> >  };
+> >  
+> >  /**
+> 
+> 
 
-Nanometrics Inc.
-http://www.nanometrics.ca
 
----
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 5795c83..52e5e60 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -89,6 +89,7 @@
- #define DAVINCI_I2C_MDR_XA	BIT(8)
- #define DAVINCI_I2C_MDR_RM	BIT(7)
- #define DAVINCI_I2C_MDR_IRS	BIT(5)
-+#define DAVINCI_I2C_MDR_FDF	BIT(3)
- 
- #define DAVINCI_I2C_IMR_AAS	BIT(6)
- #define DAVINCI_I2C_IMR_SCD	BIT(5)
-@@ -149,6 +150,36 @@ static void generic_i2c_clock_pulse(unsigned int scl_pin)
- 	}
- }
- 
-+static void alternate_i2c_clock_pulse(struct davinci_i2c_dev *dev)
-+{
-+	u32 flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
-+	/* free data format mode */
-+	flag |= DAVINCI_I2C_MDR_FDF;
-+	/* receive byte */
-+	flag &= ~DAVINCI_I2C_MDR_TRX;
-+	/* repeat */
-+	flag |= DAVINCI_I2C_MDR_RM;
-+
-+	/*
-+	 * Write mode register first as needed for correct behaviour
-+	 * on OMAP-L138, but don't set STT yet to avoid a race with XRDY
-+	 * occuring before we have loaded DXR
-+	 */
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-+
-+	/* Disable receive and transmit interrupts */
-+	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_IMR_REG);
-+	flag &= ~DAVINCI_I2C_IMR_RRDY;
-+	flag &= ~DAVINCI_I2C_IMR_XRDY;
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_IMR_REG, flag);
-+
-+	/* Set STT to begin transmit now DXR is loaded */
-+	flag |= DAVINCI_I2C_MDR_STT;
-+	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
-+
-+	udelay(40*9);
-+}
-+
- /* This routine does i2c bus recovery as specified in the
-  * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
-  */
-@@ -163,8 +194,10 @@ static void i2c_recover_bus(struct davinci_i2c_dev *dev)
- 	flag |=  DAVINCI_I2C_MDR_NACK;
- 	/* write the data into mode register */
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
--	if (pdata)
-+	if (pdata->scl_pin)
- 		generic_i2c_clock_pulse(pdata->scl_pin);
-+	else
-+		alternate_i2c_clock_pulse(dev);
- 	/* Send STOP */
- 	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
- 	flag |= DAVINCI_I2C_MDR_STP;
+-- 
+Jean Delvare
