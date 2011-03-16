@@ -1,54 +1,39 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: octeon: Make the timeout independent of CONFIG_HZ
-Date: Wed, 16 Mar 2011 14:32:56 +0100
-Message-ID: <20110316143256.1353b0a9@endymion.delvare>
-References: <4D3D7290.9050203@corscience.de>
-	<1295872826-22129-1-git-send-email-walle@corscience.de>
-	<20110124150005.577b0235@endymion.delvare>
+From: Randy Dunlap <randy.dunlap@oracle.com>
+Subject: [PATCH -next] i2c: designware-pcidrv depends on PCI
+Date: Wed, 16 Mar 2011 11:38:55 -0700
+Message-ID: <20110316113855.ec5410c7.randy.dunlap@oracle.com>
+References: <20110316191444.d91a3263.sfr@canb.auug.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110124150005.577b0235-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>, ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20110316191444.d91a3263.sfr@canb.auug.org.au>
+Sender: linux-next-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>, Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org
+Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, khali@linux-fr.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 24 Jan 2011 15:00:05 +0100, Jean Delvare wrote:
-> On Mon, 24 Jan 2011 13:40:26 +0100, Bernhard Walle wrote:
-> > Since the timeout in the struct i2c_adapter use jiffies as unit and a
-> > timeout should be independent of CONFIG_HZ, use a value of HZ/50 which
-> > is equal to the current value 2 for CONFIG_HZ=100.
-> > 
-> > Signed-off-by: Bernhard Walle <walle-pDveNdigDaDu9UdzE1sIFA@public.gmane.org>
-> 
-> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> 
-> Ben, please apply.
+From: Randy Dunlap <randy.dunlap@oracle.com>
 
-Ben, I can't see this fix in your tree, it seems it got lost?
+i2c-designware-pcidrv is a PCI driver and should depend on PCI.
+Fixes these build errors:
 
-> > ---
-> >  drivers/i2c/busses/i2c-octeon.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
-> > index 4cffda5..d07e5c7 100644
-> > --- a/drivers/i2c/busses/i2c-octeon.c
-> > +++ b/drivers/i2c/busses/i2c-octeon.c
-> > @@ -469,7 +469,7 @@ static struct i2c_adapter octeon_i2c_ops = {
-> >  	.owner = THIS_MODULE,
-> >  	.name = "OCTEON adapter",
-> >  	.algo = &octeon_i2c_algo,
-> > -	.timeout = 2,
-> > +	.timeout = HZ/50,
-> >  };
-> >  
-> >  /**
-> 
-> 
+drivers/i2c/busses/i2c-designware-pcidrv.c:256: error: implicit declaration of function 'pci_request_region'
+drivers/i2c/busses/i2c-designware-pcidrv.c:338: error: implicit declaration of function 'pci_release_region'
 
+Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+Cc: Baruch Siach <baruch@tkos.co.il>
+---
+ drivers/i2c/busses/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
--- 
-Jean Delvare
+--- linux-next-20110316.orig/drivers/i2c/busses/Kconfig
++++ linux-next-20110316/drivers/i2c/busses/Kconfig
+@@ -359,6 +359,7 @@ config I2C_DESIGNWARE_PLATFORM
+ 
+ config I2C_DESIGNWARE_PCI
+ 	tristate "Synopsys DesignWare PCI"
++	depends on PCI
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  Synopsys DesignWare I2C adapter. Only master mode is supported.
