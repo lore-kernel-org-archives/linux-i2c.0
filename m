@@ -1,91 +1,73 @@
-From: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
-Subject: RE: How to put extra clock cycles on i2c cavinci, problems on
-	omapl138 (logic pd som)
-Date: Thu, 17 Mar 2011 19:58:57 +0530
-Message-ID: <B85A65D85D7EB246BE421B3FB0FBB593024C30830A@dbde02.ent.ti.com>
+From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Subject: Re: How to put extra clock cycles on i2c cavinci, problems on
+ omapl138 (logic pd som)
+Date: Thu, 17 Mar 2011 10:36:35 -0400
+Message-ID: <AANLkTinLBASU07dYNnYoRCbgPHGxtkx4-nzVMFgztOD7@mail.gmail.com>
 References: <OF32D366B1.336E6433-ONC1257850.004650F2-C1257850.0046C1A3@sewerin.de>
 	<AANLkTi=cRYbLWn9YKQFtABjg-NZ0tM1y9JHyb1QiuNVs@mail.gmail.com>
 	<OFCCCD2C6E.D899BA32-ONC1257856.00307955-C1257856.00323B2B@sewerin.de>
 	<AANLkTinAgDKe8GD5GQoKaJ3p2s1Pj_DWduEnp6deZu=f@mail.gmail.com>
+	<OF533CF913.E277EFE5-ONC1257856.004C0321-C1257856.004E1D46@sewerin.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <AANLkTinAgDKe8GD5GQoKaJ3p2s1Pj_DWduEnp6deZu=f@mail.gmail.com>
-Content-Language: en-US
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, "Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org" <Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org>
-Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org" <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <OF533CF913.E277EFE5-ONC1257856.004C0321-C1257856.004E1D46-qHSRieSIjQqELgA04lAiVw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 17, 2011 at 18:55:00, Ben Gardiner wrote:
+On Thu, Mar 17, 2011 at 10:13 AM,  <Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org> wrote:
+> [...]
+>> I wonder if there is YA hardware problem with i2c on the LogicPD
+>> boards. I've noticed that when I don't have the UBI board connected
+>> then I don't get the controller timeouts.
+>>
+>
+> I have some effects here, too.
+> We have a i2c repeater solded on our board (PCA9515AD). With this repeater
+>
+> i can reproduce the errer pretty fast.
+> Without this repeater solded on, the mean time before failure is much
+> higher.
+>
+> I can produce the error pretty fast with the ts_test tool. Without any
+> userland
+> tool using the touchscreen info or with the tool evtest, i can see the i2c
+>
+> action on the oscilloscope but it is hard to produce the error.
+> What does this indicate to?
+> Is it possible that userland can influence the kernel driver timing to
+> promote
+> the error?
 
-> I noticed on the e2e forums that there is a reason why the PSP uses a
-> bitbanging i2c interface -- since the 1.0v OPP makes the i2c
-> controller unusable [1] (I've added Sekhar to the CC since he pointed
-> out the problem in that post).
+I don't think that userland can influence the kernel driver timing;
+based on my understanding of the driver [1] polling occurs from the
+moment the device is probe()'d. Are you modprob'ing the driver right
+before ts_test? Where can I see the ts_test source?
 
-There was a problem with the way I2C was implemented on the SoM. Here is
-the information I have for the modifications required on the SoM.
+>> Have you tried using the bitbanging i2c driver? I suppose that using
+>> the bitbanging i2c driver would be too much CPU overhead for polling
+>> your touchscreen...
+>>
+>
+> Yes, the bitbanging driver gives me "boiled NACK" errors or so sometimes,
+> but the system do not stall. (In my opinion, bitbanging is not the elegant
+> way
+> to do i2c).
+>
+>> Have you asked about how to implement this FDF-SCL-toggle method on
+>> the e2e forums?
+>
+> No, i did not.
 
-"
-It is likely that the errors seen were a result of the buffer on the I2C clock.  The hardware fix for this issue is to remove U24 and R161 and short U24 pins 2 to 4.
-"
+Ok. I'll post then.
 
-There should be an EVM with these fixes already, though I have not
-tested it myself.
+Best Regards,
+Ben Gardiner
 
-Also, recently a bug in the I2C driver was brought to my attention.
-In the bus busy function:
+[1] http://lxr.linux.no/linux+v2.6.38/drivers/input/touchscreen/tps6507x-ts.c
 
-/*
- * Waiting for bus not busy
- */
-static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
-					 char allow_sleep)
-{
-	unsigned long timeout;
-	static u16 to_cnt;
-
-	timeout = jiffies + dev->adapter.timeout;
-	while (davinci_i2c_read_reg(dev, DAVINCI_I2C_STR_REG)
-	       & DAVINCI_I2C_STR_BB) {
-		if (to_cnt <= DAVINCI_I2C_MAX_TRIES) {
-			if (time_after(jiffies, timeout)) {
-				dev_warn(dev->dev,
-				"timeout waiting for bus ready\n");
-				to_cnt++;
-				return -ETIMEDOUT;
-			} else {
-				to_cnt = 0;
-				i2c_recover_bus(dev);
-				i2c_davinci_init(dev);
-			}
-		}
-		if (allow_sleep)
-			schedule_timeout(1);
-	}
-
-	return 0;
-}
-
-If there is a context switch immediately after the while statement,
-the loop can return a timeout error while there is none. The
-simple solution would be to check for bus busy again if the
-timeout condition occurs. There should be a more elegant way
-to write the loop, but it is too late in the evening to think
-about it :)
-
-I doubt if this is related to the errors you guys are seeing,
-but it is worth trying anyway.
-
-Thanks,
-Sekhar
+---
+Nanometrics Inc.
+http://www.nanometrics.ca
