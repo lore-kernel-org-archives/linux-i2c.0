@@ -1,67 +1,40 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: Please pull bjdooks' for-linus/2639/i2c-1 branch
-Date: Thu, 17 Mar 2011 11:45:43 +0100
-Message-ID: <20110317104542.GC2546@pengutronix.de>
-References: <E1Q0AYq-00041e-Mp@freya>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [next] i2c-designware build errors
+Date: Thu, 17 Mar 2011 11:58:07 +0100
+Message-ID: <AANLkTikWRAOAzPgwmzn8UrbKZx4r90smruAayWTPd68t@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UFHRwCdBEJvubb2X"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <E1Q0AYq-00041e-Mp@freya>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-next-owner@vger.kernel.org>
+Sender: linux-next-owner@vger.kernel.org
+To: Dirk Brandewie <dirk.brandewie@gmail.com>, Ben Dooks <ben-linux@fluff.org>
+Cc: linux-i2c@vger.kernel.org, Linux-Next <linux-next@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+http://kisskb.ellerman.id.au/kisskb/buildresult/4002561/:
 
---UFHRwCdBEJvubb2X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+drivers/i2c/busses/i2c-designware-core.c:321: error: implicit
+declaration of function 'mdelay'
+drivers/i2c/busses/i2c-designware-pcidrv.c:256: error: implicit
+declaration of function 'pci_request_region'
+drivers/i2c/busses/i2c-designware-pcidrv.c:338: error: implicit
+declaration of function 'pci_release_region'
 
-On Thu, Mar 17, 2011 at 10:36:08AM +0000, Ben Dooks wrote:
-> The following changes since commit 78f9bbb5a6f41fcb7934848c7821b99718f7e3=
-38:
->   Linus Torvalds (1):
->         Merge git://git.kernel.org/.../davem/net-2.6
->=20
-> are available in the git repository at:
->=20
->   git://git.fluff.org/bjdooks/linux.git for-linus/2639/i2c-1
->=20
-> Ben Dooks (1):
->       Merge branches 'for-2639/i2c/i2c-tegra', 'for-2639/i2c/i2c-mpc' and=
- 'for-2639/i2c/i2c-imx' into for-linus/2639/i2c-1
->=20
-> Colin Cross (1):
->       i2c: tegra: Add i2c support
->=20
-> Kumar Gala (1):
->       i2c-mpc: Add support for 64bit system
->=20
-> Wolfram Sang (1):
->       i2c: add driver for Freescale i.MX28
+i2c-designware-core.c needs to include <linux/delay.h>
+CONFIG_I2C_DESIGNWARE_PCI should depend on CONFIG_PCI
 
-Your forgot this one?
+Gr{oetje,eeting}s,
 
-http://www.spinics.net/lists/linux-i2c/msg05152.html
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 Geert
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-=
+m68k.org
 
---UFHRwCdBEJvubb2X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk2B5lYACgkQD27XaX1/VRu0OwCfUI4sXy98Z2GjxIpPUU5QnEGy
-ivQAn3wZyGQ6GFLxEe7jHqT8mF4pDIgX
-=ntti
------END PGP SIGNATURE-----
-
---UFHRwCdBEJvubb2X--
+In personal conversations with technical people, I call myself a hacker=
+=2E But
+when I'm talking to journalists I just say "programmer" or something li=
+ke that.
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0=C2=A0 -- Linus Torvalds
