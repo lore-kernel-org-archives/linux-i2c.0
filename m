@@ -1,56 +1,28 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Drop i2c_adapter.id
-Date: Fri, 18 Mar 2011 10:22:08 +0100
-Message-ID: <20110318102208.3c9c45aa@endymion.delvare>
+From: Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
+Date: Fri, 18 Mar 2011 11:40:23 +0100
+Message-ID: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: arnd-r2nGTMty4D4@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-There is no user left of i2c_adapter.id, so we can get rid of it.
-Finally! :)
+Updated patch after Arnd's comments.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-3 months earlier than planned, isn't it nice :)
+Waldek
 
- Documentation/feature-removal-schedule.txt |   10 ----------
- include/linux/i2c.h                        |    1 -
- 2 files changed, 11 deletions(-)
+Waldemar Rymarkiewicz (1):
+  NFC: Driver for Inside Secure MicroRead NFC chip
 
---- linux-2.6.39-rc0.orig/include/linux/i2c.h	2011-03-17 16:57:49.000000000 +0100
-+++ linux-2.6.39-rc0/include/linux/i2c.h	2011-03-17 16:57:53.000000000 +0100
-@@ -353,7 +353,6 @@ struct i2c_algorithm {
-  */
- struct i2c_adapter {
- 	struct module *owner;
--	unsigned int id __deprecated;
- 	unsigned int class;		  /* classes to allow probing for */
- 	const struct i2c_algorithm *algo; /* the algorithm to access the bus */
- 	void *algo_data;
---- linux-2.6.39-rc0.orig/Documentation/feature-removal-schedule.txt	2011-03-17 16:57:49.000000000 +0100
-+++ linux-2.6.39-rc0/Documentation/feature-removal-schedule.txt	2011-03-17 16:57:53.000000000 +0100
-@@ -585,16 +585,6 @@ Who:    NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org>
- 
- ----------------------------
- 
--What:	i2c_adapter.id
--When:	June 2011
--Why:	This field is deprecated. I2C device drivers shouldn't change their
--	behavior based on the underlying I2C adapter. Instead, the I2C
--	adapter driver should instantiate the I2C devices and provide the
--	needed platform-specific information.
--Who:	Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
--
------------------------------
--
- What:	cancel_rearming_delayed_work[queue]()
- When:	2.6.39
- 
-
-
--- 
-Jean Delvare
+ Documentation/nfc/nfc-microread.txt |   46 ++++
+ drivers/nfc/Kconfig                 |   10 +
+ drivers/nfc/Makefile                |    1 +
+ drivers/nfc/microread.c             |  465 +++++++++++++++++++++++++++++++++++
+ include/linux/nfc/microread.h       |   31 +++
+ 5 files changed, 553 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/nfc/nfc-microread.txt
+ create mode 100644 drivers/nfc/microread.c
+ create mode 100644 include/linux/nfc/microread.h
