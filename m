@@ -1,48 +1,367 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Fri, 18 Mar 2011 15:20:14 +0100
-Message-ID: <201103181520.14315.arnd@arndb.de>
-References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com> <201103181319.54191.arnd@arndb.de> <20110318125150.GD27129@sirena.org.uk>
+From: <Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
+Date: Fri, 18 Mar 2011 17:00:04 +0200
+Message-ID: <99B09243E1A5DA4898CDD8B7001114481085881963@EXMB04.eu.tieto.com>
+References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
+	<1300444824-13713-2-git-send-email-waldemar.rymarkiewicz@tieto.com>
+ <20110318110348.728f6036@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110318125150.GD27129-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+In-Reply-To: <20110318110348.728f6036-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+To: alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 18 March 2011, Mark Brown wrote:
-> On Fri, Mar 18, 2011 at 01:19:53PM +0100, Arnd Bergmann wrote:
-> > On Friday 18 March 2011, Waldemar Rymarkiewicz wrote:
-> 
-> > > +
-> > > +   mutex_lock(&info->rx_mutex);
-> > > +   info->irq_state = 1;
-> > > +   mutex_unlock(&info->rx_mutex);
-> > > +
-> > > +   wake_up_interruptible(&info->rx_waitq);
-> > > +
-> > > +   return IRQ_HANDLED;
-> > > +}
-> 
-> > You cannot take a mutex from interrupt context, that may
-> > cause deadlocks.
-> 
-> This is a threaded IRQ handler so mutexes are fine.
+Alan,
 
-Ah, right. I've never seen one of these used in the field,
-so I didn't think of this.
+>Ok we now have two devices and they have differing APIs and 
+>own device names and both from the same company. This has to 
+>stop right now and the existing one wants sorting out 
+>accordingly (while you are it fix the fact any user can blow 
+>the kernel log away in that one by issuing bogus ioctls at it, 
+>thats not a good thing)
+>
+>NAK to this in its current form.
+>
+>If we are going to have multiple nfc devices (and we are) then 
+>we need a /dev/nfc%d device range to dump them in and we need 
+>some API commonality.
+>
+>Your API seems fairly sane (except your nfc-microread.txt 
+>needs to document or point properly to the HCI messages in question
+>
+>> +The application can use ioctl(MICROREAD_IOC_RESET)to reset 
+>the hardware.
+>
+>And a reset is a generic sort of interface so we should 
+>probably have NFC_IOC_RESET to go with /dev/nfc%d naming.
 
-Looking at the mutexes though: The read function does
-not hold the rx_mutex when reading the irq_state
-variable, so that is potentially racy.
 
-The read function seems to have another problem regarding
-the user space buffer: it bails out if the provided buffer
-is larger than the available data, which is pointless,
-but it does not check if the user buffer is too short.
+I see your point and agree with your and Arnd's opinion on that concept. Will, then, think how to approach to this and try to propose a resonable skeleton first.
 
-	Arnd
+
+
+>> +	if (microread_is_busy(info)) {
+>> +		dev_err(&client->dev, "%s: info %p: device is 
+>busy.", __func__,
+>> +				info);
+>
+>So a process spinning trying to open it can spew all over the 
+>log - looks bogus to me (similar problems in the existing driver)
+
+
+All potential spewing logs have been removed.
+
+>
+>What is the intended behaviour on a reset while I am polling ?
+
+Good question :|.  I will answare soon.
+ 
+
+>
+>Ermm nope.. why do we have do nothing ioctls ?
+>
+
+onfc stack requires those ones, but they are only valid for a specific test enviroment.
+This should not be a case for driver and the stack should care about it if it needs this. Then will remove it.
+
+
+>> +	if (irq != client->irq)
+>> +		return IRQ_NONE;
+>
+>How can this occur - why is this test needed ????
+
+
+It's not needed. Removed.
+
+
+>> +
+>> +	mutex_lock(&info->rx_mutex);
+>> +	info->irq_state = 1;
+>> +	mutex_unlock(&info->rx_mutex);
+>
+>Would it not be lighter to use atomic bit ops ?
+
+Do you mean  in order to remove rx_mutex? 
+
+mutex_lock(&info->rx_mutex);
+atomic_set(info->irq_state ,1);
+mutex_unlock(&info->rx_mutex);
+
+looks a bit strange. I still need the rx_mutex to protect irq_state while reading i2c.
+
+	mutex_lock(&info->rx_mutex);
+	ret = i2c_master_recv(client, info->buf, info->buflen);
+	info->irq_state = 0;
+	mutex_unlock(&info->rx_mutex);
+
+
+
+>> +	info->mdev.minor = MISC_DYNAMIC_MINOR;
+>> +	info->mdev.name = MICROREAD_DEV_NAME;
+>> +	info->mdev.fops = &microread_fops;
+>> +	info->mdev.parent = &client->dev;
+>> +
+>> +	ret = misc_register(&info->mdev);
+>> +	if (ret < 0) {
+>> +		dev_err(&client->dev, "%s: register chr dev 
+>failed (ret %d)",
+>> +			__func__, ret);
+>> +			goto free_irq;
+>> +	}
+>
+>And at this point you want a thing to hand out nfc%d names not 
+>to use misc device with random per device API. The same app 
+>ought to be able to work with many nfc readers.
+
+Sure. Will fix this as well.
+
+
+>> +static int microread_suspend(struct i2c_client *client, 
+>pm_message_t 
+>> +mesg) {
+>> +	return -ENOSYS;
+>> +}
+>> +
+>> +static int microread_resume(struct i2c_client *client) {
+>> +	return -ENOSYS;
+>> +}
+>
+>So why provide them ??
+
+I've supposed to implement later on (need more hw specific input on that topic). Anyway... 
+I can add this when it's completed at all.  Removed for now. 
+
+>-----Original Message-----
+>From: Alan Cox [mailto:alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org] 
+>Sent: Friday, March 18, 2011 12:04 PM
+>To: Rymarkiewicz Waldemar
+>Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; arnd-r2nGTMty4D4@public.gmane.org; 
+>sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; 
+>hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org; matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+>Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
+>
+>On Fri, 18 Mar 2011 11:40:24 +0100
+>Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org> wrote:
+>
+>> Add new driver for MicroRead NFC chip connected to i2c bus.
+>
+>Ok we now have two devices and they have differing APIs and 
+>own device names and both from the same company. This has to 
+>stop right now and the existing one wants sorting out 
+>accordingly (while you are it fix the fact any user can blow 
+>the kernel log away in that one by issuing bogus ioctls at it, 
+>thats not a good thing)
+>
+>NAK to this in its current form.
+>
+>If we are going to have multiple nfc devices (and we are) then 
+>we need a /dev/nfc%d device range to dump them in and we need 
+>some API commonality.
+>
+>Your API seems fairly sane (except your nfc-microread.txt 
+>needs to document or point properly to the HCI messages in question
+>
+>> +The application can use ioctl(MICROREAD_IOC_RESET)to reset 
+>the hardware.
+>
+>And a reset is a generic sort of interface so we should 
+>probably have NFC_IOC_RESET to go with /dev/nfc%d naming.
+>
+>> +static int microread_open(struct inode *inode, struct file *file) {
+>> +	struct microread_info *info = container_of(file->private_data,
+>> +					struct microread_info, mdev);
+>> +	struct i2c_client *client = info->i2c_dev;
+>> +	int ret = 0;
+>> +
+>> +	dev_vdbg(&client->dev, "%s: info: %p", __func__, info);
+>> +
+>> +	mutex_lock(&info->mutex);
+>> +
+>> +	if (microread_is_busy(info)) {
+>> +		dev_err(&client->dev, "%s: info %p: device is 
+>busy.", __func__,
+>> +				info);
+>
+>So a process spinning trying to open it can spew all over the 
+>log - looks bogus to me (similar problems in the existing driver)
+>
+>
+>
+>> +	if (count > info->buflen) {
+>> +		dev_err(&client->dev, "%s: no enough space in 
+>read buffer.",
+>> +				__func__);
+>> +		ret = -ENOMEM;
+>> +		goto done;
+>
+>More bogus log spewing and an odd error code for good measure
+>
+>> +	lrc = calc_lrc(info->buf, len + 1);
+>> +	if (lrc != info->buf[len + 1]) {
+>> +		dev_err(&client->dev, "%s: incorrect i2c 
+>frame.", __func__);
+>> +		ret = -EFAULT;
+>> +		goto done;
+>
+>So I can also spew all over the log by putting a deliberately 
+>busted sender next to it.
+>
+>> +	}
+>> +
+>> +	ret = len + 2;
+>> +
+>> +	if (copy_to_user(buf, info->buf, len + 2)) {
+>> +		dev_err(&client->dev, "%s: error copying to 
+>user.", __func__);
+>> +		ret = -EFAULT;
+>
+>And another one.
+>
+>> +static ssize_t microread_write(struct file *file, const 
+>char __user *buf,
+>> +			size_t count, loff_t *f_pos)
+>> +{
+>> +	struct microread_info *info = container_of(file->private_data,
+>> +					struct microread_info, mdev);
+>> +	struct i2c_client *client = info->i2c_dev;
+>> +	int ret;
+>> +	u16 len;
+>> +
+>> +	dev_dbg(&client->dev, "%s: info: %p, size %d (bytes).", 
+>__func__,
+>> +					info, count);
+>> +
+>> +	if (count > info->buflen) {
+>> +		dev_err(&client->dev, "%s: no enought space in 
+>TX buffer.",
+>> +				__func__);
+>> +		return -EINVAL;
+>> +	}
+>
+>And another
+>
+>> +
+>> +	len = min_t(u16, count, info->buflen);
+>> +
+>> +	mutex_lock(&info->mutex);
+>> +	if (copy_from_user(info->buf, buf, len)) {
+>> +		dev_err(&client->dev, "%s: error copying from user.",
+>> +				__func__);
+>
+>Etc - these all want cleaning up
+>
+>
+>> +static unsigned int microread_poll(struct file *file, poll_table 
+>> +*wait) {
+>> +	struct microread_info *info = container_of(file->private_data,
+>> +					struct microread_info, mdev);
+>> +	struct i2c_client *client = info->i2c_dev;
+>> +	int ret = (POLLOUT | POLLWRNORM);
+>> +
+>> +	dev_vdbg(&client->dev, "%s: info: %p client %p", __func__, info,
+>> +			client);
+>> +
+>> +	mutex_lock(&info->mutex);
+>> +	poll_wait(file, &info->rx_waitq, wait);
+>> +
+>> +	mutex_lock(&info->rx_mutex);
+>> +	if (info->irq_state)
+>> +		ret |= (POLLIN | POLLRDNORM);
+>> +	mutex_unlock(&info->rx_mutex);
+>> +	mutex_unlock(&info->mutex);
+>
+>What is the intended behaviour on a reset while I am polling ?
+>
+>> +static long microread_ioctl(struct file *file, unsigned int cmd,
+>> +							
+>unsigned long arg)
+>> +{
+>> +	struct microread_info *info = container_of(file->private_data,
+>> +					struct microread_info, mdev);
+>> +	struct i2c_client *client = info->i2c_dev;
+>> +	struct microread_nfc_platform_data *pdata =
+>> +				dev_get_platdata(&client->dev);
+>> +	int ret = 0;
+>> +
+>> +	dev_dbg(&client->dev, "%s: info: %p cmd %d", __func__, 
+>info, cmd);
+>> +
+>> +	mutex_lock(&info->mutex);
+>> +
+>> +	switch (cmd) {
+>> +	case MICROREAD_IOC_CONFIGURE:
+>> +	case MICROREAD_IOC_CONNECT:
+>> +		goto done;
+>
+>Ermm nope.. why do we have do nothing ioctls ?
+>
+>> +	case MICROREAD_IOC_RESET:
+>> +		microread_reset_hw(pdata);
+>
+>> +	default:
+>> +		dev_err(&client->dev, "%s; not supported ioctl 
+>0x%x", __func__,
+>> +			cmd);
+>
+>And more spewage
+>
+>
+>> +static irqreturn_t microread_irq(int irq, void *dev) {
+>> +	struct microread_info *info = dev;
+>> +	struct i2c_client *client = info->i2c_dev;
+>> +
+>> +	dev_dbg(&client->dev, "irq: info %p client %p ", info,	client);
+>> +
+>> +	if (irq != client->irq)
+>> +		return IRQ_NONE;
+>
+>How can this occur - why is this test needed ????
+>
+>> +
+>> +	mutex_lock(&info->rx_mutex);
+>> +	info->irq_state = 1;
+>> +	mutex_unlock(&info->rx_mutex);
+>
+>Would it not be lighter to use atomic bit ops ?
+>
+>
+>> +	info->mdev.minor = MISC_DYNAMIC_MINOR;
+>> +	info->mdev.name = MICROREAD_DEV_NAME;
+>> +	info->mdev.fops = &microread_fops;
+>> +	info->mdev.parent = &client->dev;
+>> +
+>> +	ret = misc_register(&info->mdev);
+>> +	if (ret < 0) {
+>> +		dev_err(&client->dev, "%s: register chr dev 
+>failed (ret %d)",
+>> +			__func__, ret);
+>> +			goto free_irq;
+>> +	}
+>
+>And at this point you want a thing to hand out nfc%d names not 
+>to use misc device with random per device API. The same app 
+>ought to be able to work with many nfc readers.
+>
+>> +static int microread_suspend(struct i2c_client *client, 
+>pm_message_t 
+>> +mesg) {
+>> +	return -ENOSYS;
+>> +}
+>> +
+>> +static int microread_resume(struct i2c_client *client) {
+>> +	return -ENOSYS;
+>> +}
+>
+>So why provide them ??
+>
+>
+>Alan
+>--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
