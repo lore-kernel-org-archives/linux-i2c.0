@@ -1,621 +1,221 @@
-From: Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Fri, 18 Mar 2011 11:40:24 +0100
-Message-ID: <1300444824-13713-2-git-send-email-waldemar.rymarkiewicz@tieto.com>
+From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
+Date: Fri, 18 Mar 2011 11:03:48 +0000
+Message-ID: <20110318110348.728f6036@lxorguk.ukuu.org.uk>
 References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
+	<1300444824-13713-2-git-send-email-waldemar.rymarkiewicz@tieto.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1300444824-13713-2-git-send-email-waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: arnd-r2nGTMty4D4@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
+To: Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add new driver for MicroRead NFC chip connected to i2c bus.
+On Fri, 18 Mar 2011 11:40:24 +0100
+Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org> wrote:
 
-See Documentation/nfc/nfc-microread.txt.
+> Add new driver for MicroRead NFC chip connected to i2c bus.
 
-Signed-off-by: Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
----
- Documentation/nfc/nfc-microread.txt |   46 ++++
- drivers/nfc/Kconfig                 |   10 +
- drivers/nfc/Makefile                |    1 +
- drivers/nfc/microread.c             |  465 +++++++++++++++++++++++++++++++++++
- include/linux/nfc/microread.h       |   31 +++
- 5 files changed, 553 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/nfc/nfc-microread.txt
- create mode 100644 drivers/nfc/microread.c
- create mode 100644 include/linux/nfc/microread.h
+Ok we now have two devices and they have differing APIs and own device
+names and both from the same company. This has to stop right now and the
+existing one wants sorting out accordingly (while you are it fix the fact
+any user can blow the kernel log away in that one by issuing bogus ioctls
+at it, thats not a good thing)
 
-diff --git a/Documentation/nfc/nfc-microread.txt b/Documentation/nfc/nfc-microread.txt
-new file mode 100644
-index 0000000..e15c49c
---- /dev/null
-+++ b/Documentation/nfc/nfc-microread.txt
-@@ -0,0 +1,46 @@
-+Kernel driver for Inside Secure MicroRead Near Field Communication chip
-+
-+General
-+-------
-+
-+microread is the RF chip that uses Near Field Communication (NFC) for proximity
-+transactions and interactions.
-+
-+Please visit Inside Secure webside for microread specification:
-+http://www.insidesecure.com/eng/Products/NFC-Products/MicroRead
-+
-+
-+The Driver
-+----------
-+
-+The microread driver can be found under drivers/nfc/microread.c and it's
-+compiled as a module named "microread".
-+
-+The driver supports i2c interface only.
-+
-+The userspace application can use /dev/microread device to control the chip by
-+HCI messages. In a typical scenario application will open() /dev/microread,
-+reset the chip useing ioctl() interface then poll() the device to check if
-+writing/reaing is possible.Finally, will read/write data (HCI) from/to the chip.
-+
-+Note that only one application can use the /dev/microread at the time.
-+
-+The driver waits for microread chip interrupt which occures if there are some
-+data to be read. Then, poll() will indicate that fact to the userspace.
-+
-+The application can use ioctl(MICROREAD_IOC_RESET)to reset the hardware.
-+
-+
-+Platform Data
-+-------------
-+
-+The below platform data should be set when configuring board.
-+
-+struct microread_nfc_platform_data {
-+	unsigned int rst_gpio;
-+	unsigned int irq_gpio;
-+	unsigned int ioh_gpio;
-+	int (*request_hardware) (struct i2c_client *client);
-+	void (*release_hardware) (void);
-+};
-+
-diff --git a/drivers/nfc/Kconfig b/drivers/nfc/Kconfig
-index ea15800..a805615 100644
---- a/drivers/nfc/Kconfig
-+++ b/drivers/nfc/Kconfig
-@@ -26,5 +26,15 @@ config PN544_NFC
- 	  To compile this driver as a module, choose m here. The module will
- 	  be called pn544.
- 
-+config MICROREAD_NFC
-+	tristate "MICROREAD NFC driver"
-+	depends on I2C
-+	default n
-+	---help---
-+	  Say yes if you want Inside Secure Microread Near Field Communication
-+	  driver. This is for i2c connected version. If unsure, say N here.
-+
-+	  To compile this driver as a module, choose m here. The module will
-+	  be called microread.
- 
- endif # NFC_DEVICES
-diff --git a/drivers/nfc/Makefile b/drivers/nfc/Makefile
-index a4efb16..974f5cb 100644
---- a/drivers/nfc/Makefile
-+++ b/drivers/nfc/Makefile
-@@ -3,3 +3,4 @@
- #
- 
- obj-$(CONFIG_PN544_NFC)		+= pn544.o
-+obj-$(CONFIG_MICROREAD_NFC)	+= microread.o
-diff --git a/drivers/nfc/microread.c b/drivers/nfc/microread.c
-new file mode 100644
-index 0000000..bcbdbad
---- /dev/null
-+++ b/drivers/nfc/microread.c
-@@ -0,0 +1,465 @@
-+/*
-+ *  Driver for Microread NFC chip
-+ *
-+ *  Copyright (C) 2011 Tieto Poland
-+ *
-+ *  Author: Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+#include <linux/interrupt.h>
-+#include <linux/i2c.h>
-+#include <linux/fs.h>
-+#include <linux/slab.h>
-+#include <linux/poll.h>
-+#include <linux/gpio.h>
-+#include <linux/delay.h>
-+#include <linux/miscdevice.h>
-+#include <linux/nfc/microread.h>
-+#include <linux/uaccess.h>
-+#include <linux/pm.h>
-+
-+#define MICROREAD_DEV_NAME	"microread"
-+#define MICROREAD_MAX_BUF_SIZE	0x20
-+
-+#define MICROREAD_STATE_BUSY	0x00
-+#define MICROREAD_STATE_READY	0x01
-+
-+struct microread_info {
-+	struct i2c_client *i2c_dev;
-+	struct miscdevice mdev;
-+
-+	u8 state;
-+	u8 irq_state;
-+	int irq;
-+	u16 buflen;
-+	u8 *buf;
-+	wait_queue_head_t rx_waitq;
-+	struct mutex rx_mutex;
-+	struct mutex mutex;
-+};
-+
-+static void microread_reset_hw(struct microread_nfc_platform_data *pdata)
-+{
-+	gpio_set_value(pdata->rst_gpio, 1);
-+	usleep_range(1000, 2000);
-+	gpio_set_value(pdata->rst_gpio, 0);
-+	usleep_range(5000, 10000);
-+}
-+
-+static u8 calc_lrc(u8 *buf, int len)
-+{
-+	int i;
-+	u8 lrc = 0;
-+	for (i = 0; i < len; i++)
-+		lrc = lrc ^ buf[i];
-+	return lrc;
-+}
-+
-+static inline int microread_is_busy(struct microread_info *info)
-+{
-+	return (info->state == MICROREAD_STATE_BUSY);
-+}
-+
-+static int microread_open(struct inode *inode, struct file *file)
-+{
-+	struct microread_info *info = container_of(file->private_data,
-+					struct microread_info, mdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	int ret = 0;
-+
-+	dev_vdbg(&client->dev, "%s: info: %p", __func__, info);
-+
-+	mutex_lock(&info->mutex);
-+
-+	if (microread_is_busy(info)) {
-+		dev_err(&client->dev, "%s: info %p: device is busy.", __func__,
-+				info);
-+		ret = -EBUSY;
-+		goto done;
-+	}
-+
-+	info->state = MICROREAD_STATE_BUSY;
-+done:
-+	mutex_unlock(&info->mutex);
-+	return ret;
-+}
-+
-+static int microread_release(struct inode *inode, struct file *file)
-+{
-+	struct microread_info *info = container_of(file->private_data,
-+					struct microread_info, mdev);
-+	struct i2c_client *client = info->i2c_dev;
-+
-+	dev_vdbg(&client->dev, "%s: info: %p, client %p\n", __func__, info,
-+					client);
-+
-+	mutex_lock(&info->mutex);
-+	info->state = MICROREAD_STATE_READY;
-+	mutex_unlock(&info->mutex);
-+
-+	return 0;
-+}
-+
-+static ssize_t microread_read(struct file *file, char __user *buf, size_t count,
-+								loff_t *f_pos)
-+{
-+	struct microread_info *info = container_of(file->private_data,
-+					struct microread_info, mdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	struct microread_nfc_platform_data *pdata =
-+				dev_get_platdata(&client->dev);
-+	int ret;
-+	u8 len, lrc;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, size: %d (bytes).", __func__,
-+						info, count);
-+	mutex_lock(&info->mutex);
-+
-+	if (!info->irq_state && !gpio_get_value(pdata->irq_gpio)) {
-+		if (file->f_flags & O_NONBLOCK) {
-+			ret = -EAGAIN;
-+			goto done;
-+		}
-+
-+		if (wait_event_interruptible(info->rx_waitq,
-+				(info->irq_state == 1))) {
-+			ret = -EINTR;
-+			goto done;
-+		}
-+	}
-+
-+	if (count > info->buflen) {
-+		dev_err(&client->dev, "%s: no enough space in read buffer.",
-+				__func__);
-+		ret = -ENOMEM;
-+		goto done;
-+	}
-+
-+	mutex_lock(&info->rx_mutex);
-+	ret = i2c_master_recv(client, info->buf, info->buflen);
-+	info->irq_state = 0;
-+	mutex_unlock(&info->rx_mutex);
-+
-+	if (ret < 0) {
-+		dev_err(&client->dev, "%s: i2c read (data) failed (err %d).",
-+				__func__, ret);
-+		ret = -EREMOTEIO;
-+		goto done;
-+	}
-+
-+#ifdef VERBOSE_DEBUG
-+		print_hex_dump(KERN_DEBUG, "rx: ", DUMP_PREFIX_NONE,
-+				16, 1, info->buf, ret, false);
-+#endif
-+	len = info->buf[0];
-+
-+	lrc = calc_lrc(info->buf, len + 1);
-+	if (lrc != info->buf[len + 1]) {
-+		dev_err(&client->dev, "%s: incorrect i2c frame.", __func__);
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+
-+	ret = len + 2;
-+
-+	if (copy_to_user(buf, info->buf, len + 2)) {
-+		dev_err(&client->dev, "%s: error copying to user.", __func__);
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+done:
-+	mutex_unlock(&info->mutex);
-+
-+	return ret;
-+}
-+
-+static ssize_t microread_write(struct file *file, const char __user *buf,
-+			size_t count, loff_t *f_pos)
-+{
-+	struct microread_info *info = container_of(file->private_data,
-+					struct microread_info, mdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	int ret;
-+	u16 len;
-+
-+	dev_dbg(&client->dev, "%s: info: %p, size %d (bytes).", __func__,
-+					info, count);
-+
-+	if (count > info->buflen) {
-+		dev_err(&client->dev, "%s: no enought space in TX buffer.",
-+				__func__);
-+		return -EINVAL;
-+	}
-+
-+	len = min_t(u16, count, info->buflen);
-+
-+	mutex_lock(&info->mutex);
-+	if (copy_from_user(info->buf, buf, len)) {
-+		dev_err(&client->dev, "%s: error copying from user.",
-+				__func__);
-+		ret = -EFAULT;
-+		goto done;
-+	}
-+
-+#ifdef VERBOSE_DEBUG
-+	print_hex_dump(KERN_DEBUG, "tx: ", DUMP_PREFIX_NONE, 16, 1, info->buf,
-+			len, false);
-+#endif
-+	ret = i2c_master_send(client, info->buf, len);
-+	if (ret < 0)
-+		dev_err(&client->dev, "%s: i2c write failed (err %d).",
-+			__func__, ret);
-+
-+done:
-+	mutex_unlock(&info->mutex);
-+	return ret;
-+
-+}
-+
-+static unsigned int microread_poll(struct file *file, poll_table *wait)
-+{
-+	struct microread_info *info = container_of(file->private_data,
-+					struct microread_info, mdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	int ret = (POLLOUT | POLLWRNORM);
-+
-+	dev_vdbg(&client->dev, "%s: info: %p client %p", __func__, info,
-+			client);
-+
-+	mutex_lock(&info->mutex);
-+	poll_wait(file, &info->rx_waitq, wait);
-+
-+	mutex_lock(&info->rx_mutex);
-+	if (info->irq_state)
-+		ret |= (POLLIN | POLLRDNORM);
-+	mutex_unlock(&info->rx_mutex);
-+	mutex_unlock(&info->mutex);
-+
-+	return ret;
-+}
-+
-+static long microread_ioctl(struct file *file, unsigned int cmd,
-+							unsigned long arg)
-+{
-+	struct microread_info *info = container_of(file->private_data,
-+					struct microread_info, mdev);
-+	struct i2c_client *client = info->i2c_dev;
-+	struct microread_nfc_platform_data *pdata =
-+				dev_get_platdata(&client->dev);
-+	int ret = 0;
-+
-+	dev_dbg(&client->dev, "%s: info: %p cmd %d", __func__, info, cmd);
-+
-+	mutex_lock(&info->mutex);
-+
-+	switch (cmd) {
-+	case MICROREAD_IOC_CONFIGURE:
-+	case MICROREAD_IOC_CONNECT:
-+		goto done;
-+
-+	case MICROREAD_IOC_RESET:
-+		microread_reset_hw(pdata);
-+		goto done;
-+
-+	default:
-+		dev_err(&client->dev, "%s; not supported ioctl 0x%x", __func__,
-+			cmd);
-+		ret = -ENOIOCTLCMD;
-+		goto done;
-+	}
-+
-+done:
-+	mutex_unlock(&info->mutex);
-+	return ret;
-+}
-+
-+const struct file_operations microread_fops = {
-+	.owner		= THIS_MODULE,
-+	.open		= microread_open,
-+	.release	= microread_release,
-+	.read		= microread_read,
-+	.write		= microread_write,
-+	.poll		= microread_poll,
-+	.unlocked_ioctl	= microread_ioctl,
-+};
-+
-+static irqreturn_t microread_irq(int irq, void *dev)
-+{
-+	struct microread_info *info = dev;
-+	struct i2c_client *client = info->i2c_dev;
-+
-+	dev_dbg(&client->dev, "irq: info %p client %p ", info,	client);
-+
-+	if (irq != client->irq)
-+		return IRQ_NONE;
-+
-+	mutex_lock(&info->rx_mutex);
-+	info->irq_state = 1;
-+	mutex_unlock(&info->rx_mutex);
-+
-+	wake_up_interruptible(&info->rx_waitq);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int __devinit microread_probe(struct i2c_client *client,
-+				 const struct i2c_device_id *id)
-+{
-+	struct microread_info *info;
-+	struct microread_nfc_platform_data *pdata =
-+				dev_get_platdata(&client->dev);
-+	int ret = 0;
-+
-+	dev_dbg(&client->dev, "%s: client %p", __func__, client);
-+
-+	if (!pdata) {
-+		dev_err(&client->dev, "%s: client %p: missing platform data.",
-+				__func__, client);
-+		return -EINVAL;
-+	}
-+
-+	info = kzalloc(sizeof(struct microread_info), GFP_KERNEL);
-+	if (!info) {
-+		dev_err(&client->dev, "%s: can't allocate microread_info.",
-+				__func__);
-+		return -ENOMEM;
-+	}
-+
-+	info->buflen = (u16) MICROREAD_MAX_BUF_SIZE;
-+	info->buf = kzalloc(info->buflen, GFP_KERNEL);
-+	if (!info->buf) {
-+		dev_err(&client->dev, "%s: can't allocate buf. (len %d)",
-+			__func__, info->buflen);
-+		ret = -ENOMEM;
-+		goto free_info;
-+	}
-+
-+	mutex_init(&info->mutex);
-+	mutex_init(&info->rx_mutex);
-+	init_waitqueue_head(&info->rx_waitq);
-+	i2c_set_clientdata(client, info);
-+	info->i2c_dev = client;
-+	info->irq_state = 0;
-+	info->state = MICROREAD_STATE_READY;
-+
-+	ret = request_threaded_irq(client->irq, NULL, microread_irq,
-+		IRQF_SHARED|IRQF_TRIGGER_RISING, MICROREAD_DRIVER_NAME, info);
-+	if (ret) {
-+		dev_err(&client->dev, "%s: can't request irq. (ret %d, irq %d)",
-+			__func__, ret, client->irq);
-+		goto free_buf;
-+	}
-+
-+	info->mdev.minor = MISC_DYNAMIC_MINOR;
-+	info->mdev.name = MICROREAD_DEV_NAME;
-+	info->mdev.fops = &microread_fops;
-+	info->mdev.parent = &client->dev;
-+
-+	ret = misc_register(&info->mdev);
-+	if (ret < 0) {
-+		dev_err(&client->dev, "%s: register chr dev failed (ret %d)",
-+			__func__, ret);
-+			goto free_irq;
-+	}
-+
-+	dev_info(&client->dev, "Probed.[/dev/%s]", MICROREAD_DEV_NAME);
-+	return 0;
-+
-+free_irq:
-+	free_irq(client->irq, info);
-+free_buf:
-+	kfree(info->buf);
-+free_info:
-+	kfree(info);
-+
-+	dev_info(&client->dev, "Not probed.");
-+	return ret;
-+}
-+
-+static __devexit int microread_remove(struct i2c_client *client)
-+{
-+	struct microread_info *info = i2c_get_clientdata(client);
-+
-+	dev_dbg(&client->dev, "%s", __func__);
-+
-+	misc_deregister(&info->mdev);
-+	free_irq(client->irq, info);
-+	kfree(info->buf);
-+	kfree(info);
-+
-+	dev_info(&client->dev, "%s: Removed.", __func__);
-+	return 0;
-+}
-+
-+static int microread_suspend(struct i2c_client *client, pm_message_t mesg)
-+{
-+	return -ENOSYS;
-+}
-+
-+static int microread_resume(struct i2c_client *client)
-+{
-+	return -ENOSYS;
-+}
-+
-+static struct i2c_device_id microread_id[] = {
-+	{ MICROREAD_DRIVER_NAME, 0},
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(i2c, microread_id);
-+
-+static struct i2c_driver microread_driver = {
-+	.driver = {
-+		.name = MICROREAD_DRIVER_NAME,
-+	},
-+	.probe		= microread_probe,
-+	.remove		= __devexit_p(microread_remove),
-+	.suspend	= microread_suspend,
-+	.resume		= microread_resume,
-+	.id_table	= microread_id,
-+};
-+
-+static int __init microread_init(void)
-+{
-+	int ret;
-+
-+	pr_debug(MICROREAD_DRIVER_NAME ": %s", __func__);
-+
-+	ret = i2c_add_driver(&microread_driver);
-+	if (ret) {
-+		pr_err(MICROREAD_DRIVER_NAME ": driver registration failed");
-+		return ret;
-+	}
-+	pr_info(MICROREAD_DRIVER_NAME ": Loaded.");
-+	return 0;
-+}
-+
-+static void __exit microread_exit(void)
-+{
-+	pr_debug(MICROREAD_DRIVER_NAME ": %s", __func__);
-+	i2c_del_driver(&microread_driver);
-+	pr_info(MICROREAD_DRIVER_NAME ": Unloaded");
-+}
-+
-+module_init(microread_init);
-+module_exit(microread_exit);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Waldemar Rymarkiewicz <waldemar.rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>");
-+MODULE_DESCRIPTION("Driver for Microread NFC chip");
-diff --git a/include/linux/nfc/microread.h b/include/linux/nfc/microread.h
-new file mode 100644
-index 0000000..a0ad68e
---- /dev/null
-+++ b/include/linux/nfc/microread.h
-@@ -0,0 +1,31 @@
-+#ifndef _MICROREAD_H
-+#define _MICROREAD_H
-+
-+#include <linux/i2c.h>
-+
-+#define MICROREAD_DRIVER_NAME	"microread"
-+
-+#define MICROREAD_IOC_MAGIC	'o'
-+#define MICROREAD_IOC_MAX_CONFIG_LENGTH	16
-+
-+struct microread_ioc_configure {
-+	int length;
-+	unsigned char buffer[MICROREAD_IOC_MAX_CONFIG_LENGTH];
-+};
-+
-+/* ioctl cmds */
-+#define MICROREAD_IOC_CONFIGURE	_IOW(MICROREAD_IOC_MAGIC, 0, \
-+					struct microread_ioc_configure)
-+#define MICROREAD_IOC_CONNECT	_IO(MICROREAD_IOC_MAGIC, 1)
-+#define MICROREAD_IOC_RESET	_IO(MICROREAD_IOC_MAGIC, 2)
-+
-+#ifdef __KERNEL__
-+/* board config platform data for microread */
-+struct microread_nfc_platform_data {
-+	unsigned int rst_gpio;
-+	unsigned int irq_gpio;
-+	unsigned int ioh_gpio;
-+};
-+#endif /* __KERNEL__ */
-+
-+#endif /* _MICROREAD_H */
--- 
-1.7.1
+NAK to this in its current form.
+
+If we are going to have multiple nfc devices (and we are) then we need
+a /dev/nfc%d device range to dump them in and we need some API
+commonality.
+
+Your API seems fairly sane (except your nfc-microread.txt needs to
+document or point properly to the HCI messages in question
+
+> +The application can use ioctl(MICROREAD_IOC_RESET)to reset the hardware.
+
+And a reset is a generic sort of interface so we should probably have
+NFC_IOC_RESET to go with /dev/nfc%d naming.
+
+> +static int microread_open(struct inode *inode, struct file *file)
+> +{
+> +	struct microread_info *info = container_of(file->private_data,
+> +					struct microread_info, mdev);
+> +	struct i2c_client *client = info->i2c_dev;
+> +	int ret = 0;
+> +
+> +	dev_vdbg(&client->dev, "%s: info: %p", __func__, info);
+> +
+> +	mutex_lock(&info->mutex);
+> +
+> +	if (microread_is_busy(info)) {
+> +		dev_err(&client->dev, "%s: info %p: device is busy.", __func__,
+> +				info);
+
+So a process spinning trying to open it can spew all over the log - looks
+bogus to me (similar problems in the existing driver)
+
+
+
+> +	if (count > info->buflen) {
+> +		dev_err(&client->dev, "%s: no enough space in read buffer.",
+> +				__func__);
+> +		ret = -ENOMEM;
+> +		goto done;
+
+More bogus log spewing and an odd error code for good measure
+
+> +	lrc = calc_lrc(info->buf, len + 1);
+> +	if (lrc != info->buf[len + 1]) {
+> +		dev_err(&client->dev, "%s: incorrect i2c frame.", __func__);
+> +		ret = -EFAULT;
+> +		goto done;
+
+So I can also spew all over the log by putting a deliberately busted
+sender next to it.
+
+> +	}
+> +
+> +	ret = len + 2;
+> +
+> +	if (copy_to_user(buf, info->buf, len + 2)) {
+> +		dev_err(&client->dev, "%s: error copying to user.", __func__);
+> +		ret = -EFAULT;
+
+And another one.
+
+> +static ssize_t microread_write(struct file *file, const char __user *buf,
+> +			size_t count, loff_t *f_pos)
+> +{
+> +	struct microread_info *info = container_of(file->private_data,
+> +					struct microread_info, mdev);
+> +	struct i2c_client *client = info->i2c_dev;
+> +	int ret;
+> +	u16 len;
+> +
+> +	dev_dbg(&client->dev, "%s: info: %p, size %d (bytes).", __func__,
+> +					info, count);
+> +
+> +	if (count > info->buflen) {
+> +		dev_err(&client->dev, "%s: no enought space in TX buffer.",
+> +				__func__);
+> +		return -EINVAL;
+> +	}
+
+And another
+
+> +
+> +	len = min_t(u16, count, info->buflen);
+> +
+> +	mutex_lock(&info->mutex);
+> +	if (copy_from_user(info->buf, buf, len)) {
+> +		dev_err(&client->dev, "%s: error copying from user.",
+> +				__func__);
+
+Etc - these all want cleaning up
+
+
+> +static unsigned int microread_poll(struct file *file, poll_table *wait)
+> +{
+> +	struct microread_info *info = container_of(file->private_data,
+> +					struct microread_info, mdev);
+> +	struct i2c_client *client = info->i2c_dev;
+> +	int ret = (POLLOUT | POLLWRNORM);
+> +
+> +	dev_vdbg(&client->dev, "%s: info: %p client %p", __func__, info,
+> +			client);
+> +
+> +	mutex_lock(&info->mutex);
+> +	poll_wait(file, &info->rx_waitq, wait);
+> +
+> +	mutex_lock(&info->rx_mutex);
+> +	if (info->irq_state)
+> +		ret |= (POLLIN | POLLRDNORM);
+> +	mutex_unlock(&info->rx_mutex);
+> +	mutex_unlock(&info->mutex);
+
+What is the intended behaviour on a reset while I am polling ?
+
+> +static long microread_ioctl(struct file *file, unsigned int cmd,
+> +							unsigned long arg)
+> +{
+> +	struct microread_info *info = container_of(file->private_data,
+> +					struct microread_info, mdev);
+> +	struct i2c_client *client = info->i2c_dev;
+> +	struct microread_nfc_platform_data *pdata =
+> +				dev_get_platdata(&client->dev);
+> +	int ret = 0;
+> +
+> +	dev_dbg(&client->dev, "%s: info: %p cmd %d", __func__, info, cmd);
+> +
+> +	mutex_lock(&info->mutex);
+> +
+> +	switch (cmd) {
+> +	case MICROREAD_IOC_CONFIGURE:
+> +	case MICROREAD_IOC_CONNECT:
+> +		goto done;
+
+Ermm nope.. why do we have do nothing ioctls ?
+
+> +	case MICROREAD_IOC_RESET:
+> +		microread_reset_hw(pdata);
+
+> +	default:
+> +		dev_err(&client->dev, "%s; not supported ioctl 0x%x", __func__,
+> +			cmd);
+
+And more spewage
+
+
+> +static irqreturn_t microread_irq(int irq, void *dev)
+> +{
+> +	struct microread_info *info = dev;
+> +	struct i2c_client *client = info->i2c_dev;
+> +
+> +	dev_dbg(&client->dev, "irq: info %p client %p ", info,	client);
+> +
+> +	if (irq != client->irq)
+> +		return IRQ_NONE;
+
+How can this occur - why is this test needed ????
+
+> +
+> +	mutex_lock(&info->rx_mutex);
+> +	info->irq_state = 1;
+> +	mutex_unlock(&info->rx_mutex);
+
+Would it not be lighter to use atomic bit ops ?
+
+
+> +	info->mdev.minor = MISC_DYNAMIC_MINOR;
+> +	info->mdev.name = MICROREAD_DEV_NAME;
+> +	info->mdev.fops = &microread_fops;
+> +	info->mdev.parent = &client->dev;
+> +
+> +	ret = misc_register(&info->mdev);
+> +	if (ret < 0) {
+> +		dev_err(&client->dev, "%s: register chr dev failed (ret %d)",
+> +			__func__, ret);
+> +			goto free_irq;
+> +	}
+
+And at this point you want a thing to hand out nfc%d names not to use
+misc device with random per device API. The same app ought to be able to
+work with many nfc readers.
+
+> +static int microread_suspend(struct i2c_client *client, pm_message_t mesg)
+> +{
+> +	return -ENOSYS;
+> +}
+> +
+> +static int microread_resume(struct i2c_client *client)
+> +{
+> +	return -ENOSYS;
+> +}
+
+So why provide them ??
+
+
+Alan
