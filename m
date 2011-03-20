@@ -1,36 +1,59 @@
-From: <Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
-Subject: RE: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Fri, 18 Mar 2011 18:43:24 +0200
-Message-ID: <99B09243E1A5DA4898CDD8B70011144810858819A7@EXMB04.eu.tieto.com>
-References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
- <1300444824-13713-2-git-send-email-waldemar.rymarkiewicz@tieto.com>
- <20110318114931.GA2155@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c updates for 2.6.39
+Date: Sun, 20 Mar 2011 15:41:43 +0100
+Message-ID: <20110320154143.2f0d6e4d@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110318114931.GA2155-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->> +free_irq:
->> +	free_irq(client->irq, info);
->> +free_buf:
->> +	kfree(info->buf);
->> +free_info:
->> +	kfree(info);
->> +
->> +	dev_info(&client->dev, "Not probed.");
->> +	return ret;
->> +}
->
->When respinning, you could consider using managed devices 
->(devm_*); this error path could completely go then.
+Hi Linus,
 
-Well, to be honest I did't know about that 'feature' :), but now I see it's pretty nice. Will start to use it.
+Please pull i2c subsystem updates for Linux 2.6.39 from:
+
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+
+Mostly core clean-ups this time.
+
+ Documentation/feature-removal-schedule.txt |   19 ++++-----
+ Documentation/i2c/busses/i2c-i801          |    3 +-
+ Documentation/i2c/instantiating-devices    |    2 +-
+ Documentation/i2c/upgrading-clients        |   18 ++++----
+ Documentation/video4linux/Zoran            |    2 +-
+ drivers/i2c/Makefile                       |    1 +
+ drivers/i2c/busses/Kconfig                 |    3 +-
+ drivers/i2c/busses/i2c-i801.c              |    4 +-
+ drivers/i2c/i2c-boardinfo.c                |    2 +-
+ drivers/i2c/i2c-core.c                     |   28 +++++++++----
+ drivers/i2c/i2c-dev.c                      |   60 ++++++++++++++++++----------
+ include/linux/i2c-id.h                     |   37 -----------------
+ include/linux/i2c.h                        |   18 ++++----
+ 13 files changed, 97 insertions(+), 100 deletions(-)
+ delete mode 100644 include/linux/i2c-id.h
+
+---------------
+
+Jean Delvare (7):
+      i2c: make i2c_get_adapter prototype clearer
+      i2c: Minor fixes to upgrading-clients document
+      i2c: Get rid of <linux/i2c-id.h>
+      i2c: Export i2c_for_each_dev
+      i2c-dev: Use standard bus notification mechanism
+      i2c: Deprecate i2c_driver.attach_adapter and .detach_adapter
+      i2c: Drop i2c_adapter.id
+
+Roman Fietze (1):
+      i2c: Fix typo in instantiating-devices document
+
+Seth Heasley (1):
+      i2c-i801: SMBus patch for Intel DH89xxCC DeviceIDs
+
+Wolfram Sang (1):
+      i2c-boardinfo: Fix typo in comment
 
 Thanks,
-Waldek
+-- 
+Jean Delvare
