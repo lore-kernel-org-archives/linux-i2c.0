@@ -1,59 +1,94 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c updates for 2.6.39
-Date: Sun, 20 Mar 2011 15:41:43 +0100
-Message-ID: <20110320154143.2f0d6e4d@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Please pull bjdooks' for-linus/2639/i2c-2 branch
+Date: Mon, 21 Mar 2011 22:58:04 +0000
+Message-ID: <E1Q1o32-0007kE-0x@freya>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+The following changes since commit a952baa034ae7c2e4a66932005cbc7ebbccfe28d:
+  Linus Torvalds (1):
+        Merge branch 'for-linus' of git://git.kernel.org/.../dtor/input
 
-Please pull i2c subsystem updates for Linux 2.6.39 from:
+are available in the git repository at:
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+  git://git.fluff.org/bjdooks/linux.git for-linus/2639/i2c-2
 
-Mostly core clean-ups this time.
+Ben Dooks (2):
+      Merge branch 'for-2639/i2c/i2c-u2c12' into for-linus/2639/i2c-12
+      Merge branches 'for-2639/i2c/i2c-ce4100-v6', 'for-2639/i2c/i2c-eg20t-v3' and 'for-2639/i2c/i2c-imx' into for-linus/2639/i2c-2
 
- Documentation/feature-removal-schedule.txt |   19 ++++-----
- Documentation/i2c/busses/i2c-i801          |    3 +-
- Documentation/i2c/instantiating-devices    |    2 +-
- Documentation/i2c/upgrading-clients        |   18 ++++----
- Documentation/video4linux/Zoran            |    2 +-
- drivers/i2c/Makefile                       |    1 +
- drivers/i2c/busses/Kconfig                 |    3 +-
- drivers/i2c/busses/i2c-i801.c              |    4 +-
- drivers/i2c/i2c-boardinfo.c                |    2 +-
- drivers/i2c/i2c-core.c                     |   28 +++++++++----
- drivers/i2c/i2c-dev.c                      |   60 ++++++++++++++++++----------
- include/linux/i2c-id.h                     |   37 -----------------
- include/linux/i2c.h                        |   18 ++++----
- 13 files changed, 97 insertions(+), 100 deletions(-)
- delete mode 100644 include/linux/i2c-id.h
+Guenter Roeck (1):
+      i2c/busses: Add support for Diolan U2C-12 USB-I2C adapter
 
----------------
+Sascha Hauer (1):
+      i2c-mxs: set controller to pio queue mode after reset
 
-Jean Delvare (7):
-      i2c: make i2c_get_adapter prototype clearer
-      i2c: Minor fixes to upgrading-clients document
-      i2c: Get rid of <linux/i2c-id.h>
-      i2c: Export i2c_for_each_dev
-      i2c-dev: Use standard bus notification mechanism
-      i2c: Deprecate i2c_driver.attach_adapter and .detach_adapter
-      i2c: Drop i2c_adapter.id
+Sebastian Andrzej Siewior (6):
+      i2c-pxa2xx: use dynamic register layout
+      ARM: pxa2xx: reorganize I2C files
+      i2c-pxa2xx: Add PCI support for PXA I2C controller
+      i2c-pxa2xx: add support for shared IRQ handler
+      i2c-pxa2xx: check timeout correctly
+      i2c-pxa2xx: pass of_node from platform driver to adapter and publish
 
-Roman Fietze (1):
-      i2c: Fix typo in instantiating-devices document
+Tomoya MORINAGA (1):
+      i2c-eg20t: support new device OKI SEMICONDUCTOR ML7213 IOH
 
-Seth Heasley (1):
-      i2c-i801: SMBus patch for Intel DH89xxCC DeviceIDs
+Vasily Khoruzhick (1):
+      i2c-pxa2xx: Fix register offsets
 
-Wolfram Sang (1):
-      i2c-boardinfo: Fix typo in comment
-
-Thanks,
--- 
-Jean Delvare
+ Documentation/i2c/busses/i2c-diolan-u2c            |   26 +
+ MAINTAINERS                                        |    6 +
+ arch/arm/mach-mmp/include/mach/mmp2.h              |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa168.h            |    2 +-
+ arch/arm/mach-mmp/include/mach/pxa910.h            |    2 +-
+ arch/arm/mach-pxa/balloon3.c                       |    3 +-
+ arch/arm/mach-pxa/cm-x300.c                        |    2 +-
+ arch/arm/mach-pxa/colibri-evalboard.c              |    3 +-
+ arch/arm/mach-pxa/colibri-pxa270-income.c          |    3 +-
+ arch/arm/mach-pxa/corgi.c                          |    2 +-
+ arch/arm/mach-pxa/csb726.c                         |    2 +-
+ arch/arm/mach-pxa/devices.c                        |    2 +-
+ arch/arm/mach-pxa/em-x270.c                        |    2 +-
+ arch/arm/mach-pxa/ezx.c                            |    2 +-
+ arch/arm/mach-pxa/hx4700.c                         |    2 +-
+ arch/arm/mach-pxa/littleton.c                      |    2 +-
+ arch/arm/mach-pxa/magician.c                       |    2 +-
+ arch/arm/mach-pxa/mainstone.c                      |    2 +-
+ arch/arm/mach-pxa/mioa701.c                        |    2 +-
+ arch/arm/mach-pxa/mxm8x10.c                        |    2 +-
+ arch/arm/mach-pxa/palm27x.c                        |    3 +-
+ arch/arm/mach-pxa/pcm990-baseboard.c               |    2 +-
+ arch/arm/mach-pxa/poodle.c                         |    2 +-
+ arch/arm/mach-pxa/pxa27x.c                         |    3 +-
+ arch/arm/mach-pxa/pxa3xx.c                         |    2 +-
+ arch/arm/mach-pxa/pxa95x.c                         |    2 +-
+ arch/arm/mach-pxa/raumfeld.c                       |    2 +-
+ arch/arm/mach-pxa/saar.c                           |    2 +-
+ arch/arm/mach-pxa/saarb.c                          |    3 +-
+ arch/arm/mach-pxa/spitz.c                          |    3 +-
+ arch/arm/mach-pxa/stargate2.c                      |    2 +-
+ arch/arm/mach-pxa/tavorevb3.c                      |    3 +-
+ arch/arm/mach-pxa/tosa.c                           |    2 +-
+ arch/arm/mach-pxa/trizeps4.c                       |    2 +-
+ arch/arm/mach-pxa/viper.c                          |    2 +-
+ arch/arm/mach-pxa/vpac270.c                        |    3 +-
+ arch/arm/mach-pxa/xcep.c                           |    3 +-
+ arch/arm/mach-pxa/z2.c                             |    3 +-
+ arch/arm/mach-pxa/zeus.c                           |    3 +-
+ arch/arm/mach-pxa/zylonite_pxa300.c                |    2 +-
+ drivers/i2c/busses/Kconfig                         |   32 +-
+ drivers/i2c/busses/Makefile                        |    2 +
+ drivers/i2c/busses/i2c-diolan-u2c.c                |  535 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-eg20t.c                     |  161 ++++---
+ drivers/i2c/busses/i2c-mxs.c                       |    4 +-
+ drivers/i2c/busses/i2c-pxa-pci.c                   |  176 +++++++
+ drivers/i2c/busses/i2c-pxa.c                       |  116 ++++-
+ .../plat/i2c.h => include/linux/i2c/pxa-i2c.h      |    0
+ 48 files changed, 998 insertions(+), 148 deletions(-)
+ create mode 100644 Documentation/i2c/busses/i2c-diolan-u2c
+ create mode 100644 drivers/i2c/busses/i2c-diolan-u2c.c
+ create mode 100644 drivers/i2c/busses/i2c-pxa-pci.c
+ rename arch/arm/plat-pxa/include/plat/i2c.h => include/linux/i2c/pxa-i2c.h (100%)
