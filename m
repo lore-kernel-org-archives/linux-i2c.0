@@ -1,30 +1,32 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
-Date: Tue, 22 Mar 2011 23:33:07 +0900
-Message-ID: <20110322143307.GB24004@linux-sh.org>
-References: <20110322142619.1109.89105.sendpatchset@t400s> <20110322142855.GB2202@sirena.org.uk>
+From: "Information Technology" <laura.miehlich-uH5lfz/BaCI@public.gmane.org>
+Subject: Update Your E-Mail Details Account
+Date: Tue, 22 Mar 2011 15:38:38 +0100
+Message-ID: <201103221438.p2MEceu2031319__38884.7599308521$1300805010$gmane$org@auth3.smtp.vt.edu>
+Reply-To: <financialcons729-YDxpq3io04c@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110322142855.GB2202@sirena.org.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Magnus Damm <magnus.damm@gmail.com>, dmitry.torokhov@gmail.com, srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain;
+	charset="Windows-1251"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 22, 2011 at 02:28:55PM +0000, Mark Brown wrote:
-> On Tue, Mar 22, 2011 at 11:26:19PM +0900, Magnus Damm wrote:
-> 
-> > The tca6416 driver makes use of the I2C bus for chatting
-> > with the actual hardware device. Without this patch both
-> > the I2C bus driver and the tca6416 driver are initialized
-> > at the subsys_initcall() level. This may lead to problems
-> > with the tca6416 driver being initialized before the I2C
-> > bus driver.
-> 
-> While this change seems reasonable I'm curious what the problems caused
-> by out of order registration are?
+Confirm Your E-Mail Details
+                                     
+Dear Email User
+This message is from Information Technology Services of This EMAIL to all our Staff. We are currently upgrading our database and e-mail center and this is our final notification to you.we have sent several messages to you without response.
+We are deleting all unused Mail account to create space for new accounts. In order not to be suspended, you will have to update your account by providing the information listed below:
 
-I'm also curious as to why link order isn't a sufficient gaurantee like
-it is for everyone else?
+Confirm Your E-Mail Details..
+Email.......................
+User name: ..................
+Password:..............
+Re Confirm Password:.............
+
+If you fail to confirm your continuous usage of our services by confirming your email password now, your account will be disable and you will not be able to access your email.
+
+You should immediately reply this email:  upgrading2010-AHGGWQXwnF0@public.gmane.org   and enter your password in the above password column.
+Thanks for your understanding.
+
+Regard,
+IT Services
