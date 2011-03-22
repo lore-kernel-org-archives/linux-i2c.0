@@ -1,94 +1,52 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' for-linus/2639/i2c-2 branch
-Date: Mon, 21 Mar 2011 22:58:04 +0000
-Message-ID: <E1Q1o32-0007kE-0x@freya>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] Input: tca6416-keypad: Change to module_init()
+Date: Tue, 22 Mar 2011 23:26:19 +0900
+Message-ID: <20110322142619.1109.89105.sendpatchset@t400s>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit a952baa034ae7c2e4a66932005cbc7ebbccfe28d:
-  Linus Torvalds (1):
-        Merge branch 'for-linus' of git://git.kernel.org/.../dtor/input
+From: Magnus Damm <damm@opensource.se>
 
-are available in the git repository at:
+The tca6416 driver makes use of the I2C bus for chatting
+with the actual hardware device. Without this patch both
+the I2C bus driver and the tca6416 driver are initialized
+at the subsys_initcall() level. This may lead to problems
+with the tca6416 driver being initialized before the I2C
+bus driver.
 
-  git://git.fluff.org/bjdooks/linux.git for-linus/2639/i2c-2
+By using module_init() in the tca6416 driver we make sure
+the I2C bus driver always is initialized before the keypad
+driver.
 
-Ben Dooks (2):
-      Merge branch 'for-2639/i2c/i2c-u2c12' into for-linus/2639/i2c-12
-      Merge branches 'for-2639/i2c/i2c-ce4100-v6', 'for-2639/i2c/i2c-eg20t-v3' and 'for-2639/i2c/i2c-imx' into for-linus/2639/i2c-2
+With this patch applied the boot order becomes:
+ - arch_initcall: the ARM architecture ->init_machine()
+ - arch_initcall: i2c_register_board_info()
+ - arch_initcall: I2C bus device registration
+ - subsys_initcall: I2C bus driver probe()
+ - module_init: tca6416 driver probe()
 
-Guenter Roeck (1):
-      i2c/busses: Add support for Diolan U2C-12 USB-I2C adapter
+Affects the following in-tree platforms:
+ - arch/arm/mach-davinci/board-da850-evm.c
+ - arch/arm/mach-omap2/board-am3517evm.c
+ - arch/arm/mach-shmobile/board-mackerel.c
 
-Sascha Hauer (1):
-      i2c-mxs: set controller to pio queue mode after reset
+Signed-off-by: Magnus Damm <damm@opensource.se>
+---
 
-Sebastian Andrzej Siewior (6):
-      i2c-pxa2xx: use dynamic register layout
-      ARM: pxa2xx: reorganize I2C files
-      i2c-pxa2xx: Add PCI support for PXA I2C controller
-      i2c-pxa2xx: add support for shared IRQ handler
-      i2c-pxa2xx: check timeout correctly
-      i2c-pxa2xx: pass of_node from platform driver to adapter and publish
+ drivers/input/keyboard/tca6416-keypad.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Tomoya MORINAGA (1):
-      i2c-eg20t: support new device OKI SEMICONDUCTOR ML7213 IOH
-
-Vasily Khoruzhick (1):
-      i2c-pxa2xx: Fix register offsets
-
- Documentation/i2c/busses/i2c-diolan-u2c            |   26 +
- MAINTAINERS                                        |    6 +
- arch/arm/mach-mmp/include/mach/mmp2.h              |    2 +-
- arch/arm/mach-mmp/include/mach/pxa168.h            |    2 +-
- arch/arm/mach-mmp/include/mach/pxa910.h            |    2 +-
- arch/arm/mach-pxa/balloon3.c                       |    3 +-
- arch/arm/mach-pxa/cm-x300.c                        |    2 +-
- arch/arm/mach-pxa/colibri-evalboard.c              |    3 +-
- arch/arm/mach-pxa/colibri-pxa270-income.c          |    3 +-
- arch/arm/mach-pxa/corgi.c                          |    2 +-
- arch/arm/mach-pxa/csb726.c                         |    2 +-
- arch/arm/mach-pxa/devices.c                        |    2 +-
- arch/arm/mach-pxa/em-x270.c                        |    2 +-
- arch/arm/mach-pxa/ezx.c                            |    2 +-
- arch/arm/mach-pxa/hx4700.c                         |    2 +-
- arch/arm/mach-pxa/littleton.c                      |    2 +-
- arch/arm/mach-pxa/magician.c                       |    2 +-
- arch/arm/mach-pxa/mainstone.c                      |    2 +-
- arch/arm/mach-pxa/mioa701.c                        |    2 +-
- arch/arm/mach-pxa/mxm8x10.c                        |    2 +-
- arch/arm/mach-pxa/palm27x.c                        |    3 +-
- arch/arm/mach-pxa/pcm990-baseboard.c               |    2 +-
- arch/arm/mach-pxa/poodle.c                         |    2 +-
- arch/arm/mach-pxa/pxa27x.c                         |    3 +-
- arch/arm/mach-pxa/pxa3xx.c                         |    2 +-
- arch/arm/mach-pxa/pxa95x.c                         |    2 +-
- arch/arm/mach-pxa/raumfeld.c                       |    2 +-
- arch/arm/mach-pxa/saar.c                           |    2 +-
- arch/arm/mach-pxa/saarb.c                          |    3 +-
- arch/arm/mach-pxa/spitz.c                          |    3 +-
- arch/arm/mach-pxa/stargate2.c                      |    2 +-
- arch/arm/mach-pxa/tavorevb3.c                      |    3 +-
- arch/arm/mach-pxa/tosa.c                           |    2 +-
- arch/arm/mach-pxa/trizeps4.c                       |    2 +-
- arch/arm/mach-pxa/viper.c                          |    2 +-
- arch/arm/mach-pxa/vpac270.c                        |    3 +-
- arch/arm/mach-pxa/xcep.c                           |    3 +-
- arch/arm/mach-pxa/z2.c                             |    3 +-
- arch/arm/mach-pxa/zeus.c                           |    3 +-
- arch/arm/mach-pxa/zylonite_pxa300.c                |    2 +-
- drivers/i2c/busses/Kconfig                         |   32 +-
- drivers/i2c/busses/Makefile                        |    2 +
- drivers/i2c/busses/i2c-diolan-u2c.c                |  535 ++++++++++++++++++++
- drivers/i2c/busses/i2c-eg20t.c                     |  161 ++++---
- drivers/i2c/busses/i2c-mxs.c                       |    4 +-
- drivers/i2c/busses/i2c-pxa-pci.c                   |  176 +++++++
- drivers/i2c/busses/i2c-pxa.c                       |  116 ++++-
- .../plat/i2c.h => include/linux/i2c/pxa-i2c.h      |    0
- 48 files changed, 998 insertions(+), 148 deletions(-)
- create mode 100644 Documentation/i2c/busses/i2c-diolan-u2c
- create mode 100644 drivers/i2c/busses/i2c-diolan-u2c.c
- create mode 100644 drivers/i2c/busses/i2c-pxa-pci.c
- rename arch/arm/plat-pxa/include/plat/i2c.h => include/linux/i2c/pxa-i2c.h (100%)
+--- 0001/drivers/input/keyboard/tca6416-keypad.c
++++ work/drivers/input/keyboard/tca6416-keypad.c	2011-03-22 22:44:26.000000000 +0900
+@@ -369,7 +369,7 @@ static int __init tca6416_keypad_init(vo
+ 	return i2c_add_driver(&tca6416_keypad_driver);
+ }
+ 
+-subsys_initcall(tca6416_keypad_init);
++module_init(tca6416_keypad_init);
+ 
+ static void __exit tca6416_keypad_exit(void)
+ {
