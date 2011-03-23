@@ -1,59 +1,603 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
-Date: Tue, 22 Mar 2011 16:59:07 +0000
-Message-ID: <20110322165907.GG22583@opensource.wolfsonmicro.com>
-References: <20110322142619.1109.89105.sendpatchset@t400s>
- <20110322142855.GB2202@sirena.org.uk>
- <20110322143307.GB24004@linux-sh.org>
- <AANLkTimRV9vzOE7+VPX48y3KebLJSvBOkqxoM--9gqGb@mail.gmail.com>
- <20110322153226.GC30303@linux-sh.org>
- <AANLkTimyxdcJ-eEke9x7X1zdiJNbFtncfv0=NzKjtAme@mail.gmail.com>
- <20110322155730.GD30303@linux-sh.org>
- <AANLkTi=Fjc2f837ifH152Rh8W0PfiZvViYaLe=8XZo4Z@mail.gmail.com>
- <20110322163144.GC2202@sirena.org.uk>
- <AANLkTiniBVWhSiNZMRYbO857D_Vj03KxH4qYqkVo-11J@mail.gmail.com>
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Subject: [PATCH] i2c/busses: Driver for Devantech USB-ISS I2C adapter
+Date: Tue, 22 Mar 2011 20:43:47 -0700
+Message-ID: <1300851827-13627-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <AANLkTiniBVWhSiNZMRYbO857D_Vj03KxH4qYqkVo-11J@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: Paul Mundt <lethal@linux-sh.org>, dmitry.torokhov@gmail.com, srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org, linux-doc@vger.kernel.org, Guenter Roeck <guenter.roeck@ericsson.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 23, 2011 at 01:51:02AM +0900, Magnus Damm wrote:
+This patch adds support for the I2C interface of the Devantech USB-ISS
+Multifunction adapter.
 
-> I'm not sure if this is i2c specific though - in general you probably
-> need to register the parent bus driver first.
+Signed-off-by: Guenter Roeck <guenter.roeck@ericsson.com>
+---
+The driver has one problem: It competes with the cdc_acm driver for device
+access. Copying the usb mailing list in the hope that someone can tell me
+if there is a way to prevent this from happening.
 
-This was my original question - I'm not aware of any reason why you
-should need to register the driver for the specific bus first, it seems
-odd.
+ Documentation/i2c/busses/i2c-devantech-iss |   31 ++
+ drivers/i2c/busses/Kconfig                 |   10 +
+ drivers/i2c/busses/Makefile                |    1 +
+ drivers/i2c/busses/i2c-devantech-iss.c     |  495 ++++++++++++++++++++++++++++
+ 4 files changed, 537 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/i2c/busses/i2c-devantech-iss
+ create mode 100644 drivers/i2c/busses/i2c-devantech-iss.c
 
-> I've seen some SH-Mobile designs with PMICs, and they all use a
-> dedicated i2c bus.
+diff --git a/Documentation/i2c/busses/i2c-devantech-iss b/Documentation/i2c/busses/i2c-devantech-iss
+new file mode 100644
+index 0000000..f8199fd
+--- /dev/null
++++ b/Documentation/i2c/busses/i2c-devantech-iss
+@@ -0,0 +1,31 @@
++Kernel driver i2c-devantech-iss
++
++Supported adapters:
++  * Devantech USB-ISS Multifunction USB Communications Module
++    Documentation:
++        http://www.robot-electronics.co.uk/htm/usb_iss_tech.htm
++
++Author: Guenter Roeck <guenter.roeck@ericsson.com>
++
++
++Description
++-----------
++
++This is the driver for the Devantech USB-ISS Multifunction USB Communications
++Module.
++
++The USB-ISS Multifunction USB Communications Module provides an interface
++to I2C, SPI, Serial port, and general purpose Analogue Input or Digital I/O.
++The module is powered from USB.
++
++The driver only supports the I2C interface of USB-ISS. The driver does not use
++interrupts.
++
++Clock stretching is supported for bus frequencies of 100,000 Hz and above.
++
++
++Module parameters
++-----------------
++
++* frequency: I2C bus frequency in Hz
++  Supported frequencies are 20,000, 50,000, 100,000, 400,000, and 1,000,000 Hz.
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 230601e..0bffacd 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -676,6 +676,16 @@ config I2C_EG20T
+ 
+ comment "External I2C/SMBus adapter drivers"
+ 
++config I2C_DEVANTECH
++	tristate "Devantech USB-ISS"
++	select I2C_SMBUS
++	help
++	  This supports the I2C interface of the Devantech USB-ISS Multifunction
++	  Communications Module.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-devantech-iss.
++
+ config I2C_PARPORT
+ 	tristate "Parallel port adapter"
+ 	depends on PARPORT
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 3878c95..5ecec28 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -67,6 +67,7 @@ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+ obj-$(CONFIG_I2C_EG20T)         += i2c-eg20t.o
+ 
+ # External I2C/SMBus adapter drivers
++obj-$(CONFIG_I2C_DEVANTECH)	+= i2c-devantech-iss.o
+ obj-$(CONFIG_I2C_PARPORT)	+= i2c-parport.o
+ obj-$(CONFIG_I2C_PARPORT_LIGHT)	+= i2c-parport-light.o
+ obj-$(CONFIG_I2C_TAOS_EVM)	+= i2c-taos-evm.o
+diff --git a/drivers/i2c/busses/i2c-devantech-iss.c b/drivers/i2c/busses/i2c-devantech-iss.c
+new file mode 100644
+index 0000000..b14daa6
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-devantech-iss.c
+@@ -0,0 +1,495 @@
++/*
++ * Driver for the Devantech USB-ISS Multifunction Communications Module
++ *
++ * Copyright (c) 2011 Ericsson AB
++ *
++ * Derived from:
++ *  i2c-diolan-u2c.c
++ *  Copyright (c) 2010-2011 Ericsson AB
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation, version 2.
++ */
++
++#include <linux/kernel.h>
++#include <linux/errno.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/slab.h>
++#include <linux/usb.h>
++#include <linux/i2c.h>
++
++#define DRIVER_NAME		"i2c-devantech-iss"
++
++#define USB_VENDOR_ID_DEVANTECH	0x04d8
++#define USB_DEVICE_ID_ISS	0xffee
++
++/* commands */
++#define ISS_CMD_I2C_DIRECT	0x57	/* Custom I2C sequence */
++#define ISS_CMD_I2C_INTERNAL	0x5a	/* internal commands */
++
++/* direct commands */
++#define ISS_I2C_START		0x01
++#define ISS_I2C_RESTART		0x02
++#define ISS_I2C_STOP		0x03
++#define ISS_I2C_NACK		0x04
++#define ISS_I2C_READ(n)		(0x20 + (n) - 1)
++#define ISS_I2C_WRITE(n)	(0x30 + (n) - 1)
++
++/* internal commands */
++#define ISS_GET_VERSION		0x01
++#define ISS_MODE		0x02
++#define ISS_GET_SERIAL		0x03
++
++/* modes */
++#define ISS_MODE_I2C_S_20KHZ	0x20	/* I2C, SW (bitbang), 20 kHz clock */
++#define ISS_MODE_I2C_S_50KHZ	0x30	/* I2C, SW (bitbang), 50 kHz clock */
++#define ISS_MODE_I2C_S_100KHZ	0x40	/* I2C, SW (bitbang), 100 kHz clock */
++#define ISS_MODE_I2C_S_400KHZ	0x50	/* I2C, SW (bitbang), 400 kHz clock */
++#define ISS_MODE_I2C_H_100KHZ	0x60	/* I2C, HW (PIC), 100 kHz clock */
++#define ISS_MODE_I2C_H_400KHZ	0x70	/* I2C, HW (PIC), 400 kHz clock */
++#define ISS_MODE_I2C_H_1000KHZ	0x80	/* I2C, HW (PIC), 1000 kHz clock */
++
++/* response codes */
++
++#define ISS_RESP_ACK		0xff
++#define ISS_RESP_NACK		0x00
++
++#define ISS_RESP_OK		0x00
++#define ISS_RESP_DEV_ERROR	0x01
++#define ISS_RESP_OVERFLOW	0x02
++#define ISS_RESP_UNDERFLOW	0x03
++#define ISS_RESP_UNKNOWN_CMD	0x04
++
++#define ISS_USB_TIMEOUT		100	/* in ms */
++
++#define ISS_MAX_TRANSFER_LEN	60
++
++/* Structure to hold all of our device specific stuff */
++struct i2c_devantech_iss {
++	u8 buffer[ISS_MAX_TRANSFER_LEN];/* rx and tx buffer */
++	struct usb_interface *usb_if;	/* device data interface */
++	struct usb_interface *interface;/* device control interface */
++	struct usb_device *usb_dev;	/* the usb device for this interface */
++	struct i2c_adapter adapter;	/* i2c related things */
++	int ep_out, ep_in;
++};
++
++static uint frequency = 100000;	/* I2C clock frequency in Hz */
++module_param(frequency, uint, S_IRUGO | S_IWUSR);
++MODULE_PARM_DESC(frequency, "I2C clock frequency in hertz");
++
++static struct usb_driver devantech_iss_driver;
++
++/* usb layer */
++
++/* Send command to device, and get response. */
++static int devantech_usb_transfer(struct i2c_devantech_iss *dev, int len)
++{
++	int ret, actual;
++
++	if (len <= 0 || len > ISS_MAX_TRANSFER_LEN)
++		return -EINVAL;
++
++	ret = usb_bulk_msg(dev->usb_dev,
++			   usb_sndbulkpipe(dev->usb_dev, dev->ep_out),
++			   dev->buffer, len, &actual,
++			   ISS_USB_TIMEOUT);
++
++	if (!ret) {
++		ret = usb_bulk_msg(dev->usb_dev,
++				   usb_rcvbulkpipe(dev->usb_dev, dev->ep_in),
++				   dev->buffer, sizeof(dev->buffer),
++				   &actual, ISS_USB_TIMEOUT);
++		if (!ret && actual > 0)
++			ret = actual;
++	}
++	return ret;
++}
++
++static int devantech_set_speed(struct i2c_devantech_iss *dev, int speed)
++{
++	int ret;
++
++	dev->buffer[0] = ISS_CMD_I2C_INTERNAL;
++	dev->buffer[1] = ISS_MODE;
++	dev->buffer[2] = speed;
++	dev->buffer[3] = 0x04;
++
++	ret = devantech_usb_transfer(dev, 4);
++	if (ret < 0)
++		return ret;
++	if (!dev->buffer[0])
++		return -EINVAL;
++	return 0;
++}
++
++static void devantech_fw_version(struct i2c_devantech_iss *dev)
++{
++	int ret;
++
++	dev->buffer[0] = ISS_CMD_I2C_INTERNAL;
++	dev->buffer[1] = ISS_GET_VERSION;
++
++	ret = devantech_usb_transfer(dev, 2);
++	if (ret >= 3)
++		dev_info(&dev->interface->dev,
++			 "Devantech USB-ISS firmware version %u.%u\n",
++			 dev->buffer[0], dev->buffer[1]);
++	else
++		dev_err(&dev->interface->dev,
++			"Failed to get firmware version, error %d\n", ret);
++}
++
++static void devantech_get_serial(struct i2c_devantech_iss *dev)
++{
++	int ret;
++
++	dev->buffer[0] = ISS_CMD_I2C_INTERNAL;
++	dev->buffer[1] = ISS_GET_SERIAL;
++
++	ret = devantech_usb_transfer(dev, 2);
++	if (ret >= 8) {
++		dev->buffer[ret] = '\0';
++		dev_info(&dev->interface->dev,
++			 "Devantech USS-ISS serial number %s\n", dev->buffer);
++	} else {
++		dev_err(&dev->interface->dev,
++			"Failed to get serial number, error %d\n", ret);
++	}
++}
++
++static int devantech_init(struct i2c_devantech_iss *dev)
++{
++	int speed;
++
++	/*
++	 * Software (bit-bang) I2C implementation does not support I2C clock
++	 * stretching, at least not with firmware version 7.2. The PIC hardware
++	 * implementation supports it, so select the hardware protocol if
++	 * available for a given bus speed.
++	 * If the bus speed is not configured or set to 0, select 100kHz.
++	 */
++	if (frequency >= 1000000) {
++		speed = ISS_MODE_I2C_H_1000KHZ;
++		frequency = 1000000;
++	} else if (frequency >= 400000) {
++		speed = ISS_MODE_I2C_H_400KHZ;
++		frequency = 400000;
++	} else if (frequency >= 100000 || frequency == 0) {
++		speed = ISS_MODE_I2C_H_100KHZ;
++		frequency = 100000;
++	} else if (frequency >= 50000) {
++		speed = ISS_MODE_I2C_S_50KHZ;
++		frequency = 50000;
++	} else {
++		speed = ISS_MODE_I2C_S_20KHZ;
++		frequency = 20000;
++	}
++
++	dev_info(&dev->interface->dev,
++		 "Devantech USB-ISS at USB bus %03d address %03d speed %d Hz\n",
++		 dev->usb_dev->bus->busnum, dev->usb_dev->devnum, frequency);
++
++	devantech_fw_version(dev);
++	devantech_get_serial(dev);
++
++	return devantech_set_speed(dev, speed);
++}
++
++/* i2c layer */
++
++static int devantech_usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
++			      int num)
++{
++	struct i2c_devantech_iss *dev = i2c_get_adapdata(adapter);
++	struct i2c_msg *pmsg = NULL;
++	int i, j, len, rlen;
++	int ret;
++
++	len = 0;
++	dev->buffer[len++] = ISS_CMD_I2C_DIRECT;
++	dev->buffer[len++] = ISS_I2C_START;
++
++	for (i = 0; i < num; i++) {
++		pmsg = &msgs[i];
++		if (i)
++			dev->buffer[len++] = ISS_I2C_RESTART;
++
++		if (pmsg->flags & I2C_M_RD) {
++			dev->buffer[len++] = ISS_I2C_WRITE(1);
++			dev->buffer[len++] = (pmsg->addr << 1) | 1;
++			if (pmsg->flags & I2C_M_RECV_LEN) {
++				/*
++				 * Block read returns receive length in 1st
++				 * byte. We must read up to 33 bytes of data
++				 * (len + 32) to avoid adapter hangup.
++				 */
++				dev->buffer[len++] = ISS_I2C_READ(16);
++				dev->buffer[len++] = ISS_I2C_READ(16);
++				dev->buffer[len++] = ISS_I2C_NACK;
++				dev->buffer[len++] = ISS_I2C_READ(1);
++			} else {
++				rlen = pmsg->len;
++				/*
++				 * repeat read sequence until done or out of
++				 * buffer
++				 */
++				if (rlen > ISS_MAX_TRANSFER_LEN - 8)
++					rlen = ISS_MAX_TRANSFER_LEN - 8;
++				while (rlen > 16) {
++					dev->buffer[len++] = ISS_I2C_READ(16);
++					rlen -= 16;
++				}
++				if (rlen > 1)
++					dev->buffer[len++]
++					  = ISS_I2C_READ(rlen - 1);
++				dev->buffer[len++] = ISS_I2C_NACK;
++				dev->buffer[len++] = ISS_I2C_READ(1);
++			}
++		} else {
++			dev->buffer[len++] = ISS_I2C_WRITE(1);
++			dev->buffer[len++] = pmsg->addr << 1;
++			/* Repeat write sequence until done */
++			for (rlen = 0; rlen < pmsg->len; rlen += 16) {
++				int clen = min(pmsg->len - rlen, 16);
++				/*
++				 * Make sure we have enough buffer space. We
++				 * need two additional bytes, one for the write
++				 * command itself and one for the STOP command.
++				 */
++				if (len + clen > ISS_MAX_TRANSFER_LEN - 2) {
++					ret = -EINVAL;
++					goto error;
++				}
++				dev->buffer[len++] = ISS_I2C_WRITE(clen);
++				for (j = 0; j < clen; j++)
++					dev->buffer[len++]
++					  = pmsg->buf[rlen + j];
++			}
++		}
++	}
++	dev->buffer[len++] = ISS_I2C_STOP;
++
++	ret = devantech_usb_transfer(dev, len);
++	if (ret < 0)
++		goto error;
++
++	if (ret < 2) {
++		ret = -EIO;
++		goto error;
++	}
++
++	if (dev->buffer[0] == ISS_RESP_NACK) {
++		ret = dev->buffer[1] == ISS_RESP_DEV_ERROR ? -ENXIO : -EIO;
++		goto error;
++	}
++
++	/*
++	 * Copy received data back into receive buffer. pmsg points to it.
++	 */
++	if (pmsg->flags & I2C_M_RD) {
++		if (pmsg->flags & I2C_M_RECV_LEN) {
++			rlen = dev->buffer[2];
++			if (rlen == 0 || rlen > I2C_SMBUS_BLOCK_MAX ||
++			    rlen > ret - 2) {
++				ret = -EPROTO;
++				goto error;
++			}
++			pmsg->len += rlen;
++			len = pmsg->len;
++		} else {
++			len = ret - 2;
++		}
++		for (i = 0; i < len; i++)
++			pmsg->buf[i] = dev->buffer[i + 2];
++	}
++	ret = 0;
++error:
++	return ret;
++}
++
++/*
++ * Return list of supported functionality.
++ */
++static u32 devantech_usb_func(struct i2c_adapter *a)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
++	       I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_SMBUS_BLOCK_PROC_CALL;
++}
++
++static const struct i2c_algorithm devantech_usb_algorithm = {
++	.master_xfer = devantech_usb_xfer,
++	.functionality = devantech_usb_func,
++};
++
++/* device layer */
++
++static const struct usb_device_id devantech_iss_table[] = {
++	{ USB_DEVICE(USB_VENDOR_ID_DEVANTECH, USB_DEVICE_ID_ISS) },
++	{ }
++};
++
++MODULE_DEVICE_TABLE(usb, devantech_iss_table);
++
++static void devantech_iss_free(struct i2c_devantech_iss *dev)
++{
++	usb_put_dev(dev->usb_dev);
++	kfree(dev);
++}
++
++static int devantech_iss_probe(struct usb_interface *interface,
++			       const struct usb_device_id *id)
++{
++	struct i2c_devantech_iss *dev;
++	int ret;
++	struct usb_interface *usb_if;
++	struct usb_host_endpoint *ep_out, *ep_in;
++
++	/* allocate memory for our device state and initialize it */
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
++	if (dev == NULL) {
++		dev_err(&interface->dev, "no memory for device state\n");
++		ret = -ENOMEM;
++		goto error;
++	}
++
++	dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
++	dev->interface = interface;
++
++	/* setup i2c adapter description */
++	dev->adapter.owner = THIS_MODULE;
++	dev->adapter.class = I2C_CLASS_HWMON;
++	dev->adapter.algo = &devantech_usb_algorithm;
++	i2c_set_adapdata(&dev->adapter, dev);
++
++	snprintf(dev->adapter.name, sizeof(dev->adapter.name),
++		 DRIVER_NAME " at bus %03d device %03d",
++		 dev->usb_dev->bus->busnum, dev->usb_dev->devnum);
++
++	dev->adapter.dev.parent = &dev->interface->dev;
++
++	/* Only accept probe on control interface */
++	usb_if = usb_ifnum_to_if(dev->usb_dev, 0);
++	if (usb_if != interface) {
++		dev_err(&interface->dev, "not on control interface\n");
++		ret = -ENODEV;
++		goto error_free;
++	}
++
++	usb_if = usb_ifnum_to_if(dev->usb_dev, 1);
++	if (!usb_if) {
++		dev_err(&interface->dev, "no USB interface\n");
++		ret = -ENODEV;
++		goto error_free;
++	}
++	if (usb_interface_claimed(usb_if)) {
++		dev_err(&interface->dev, "USB interface busy\n");
++		ret = -EBUSY;
++		goto error_free;
++	}
++	if (usb_if->cur_altsetting->desc.bNumEndpoints < 2) {
++		dev_err(&interface->dev,
++			"insufficient number of USB endpoints\n");
++		ret = -EINVAL;
++		goto error_free;
++	}
++
++	ep_out = &usb_if->cur_altsetting->endpoint[0];
++	ep_in = &usb_if->cur_altsetting->endpoint[1];
++	if (!ep_out || !ep_in) {
++		dev_err(&interface->dev, "missing USB endpoints\n");
++		ret = -EINVAL;
++		goto error_free;
++	}
++	dev->ep_out = ep_out->desc.bEndpointAddress;
++	dev->ep_in = ep_in->desc.bEndpointAddress;
++	dev->usb_if = usb_get_intf(usb_if);
++
++	/*
++	 * We need to claim the data interface to prevent other drivers
++	 * from accessing and registering it.
++	 */
++	ret = usb_driver_claim_interface(&devantech_iss_driver,
++					 dev->usb_if, dev);
++	if (ret < 0) {
++		dev_err(&usb_if->dev, "failed to claim interface\n");
++		goto error_put;
++	}
++
++	/* save our data pointer in this interface device */
++	usb_set_intfdata(interface, dev);
++
++	/* initialize devantech i2c interface */
++	ret = devantech_init(dev);
++	if (ret < 0) {
++		dev_err(&interface->dev, "failed to initialize adapter\n");
++		goto error_release;
++	}
++
++	/* and finally attach to i2c layer */
++	ret = i2c_add_adapter(&dev->adapter);
++	if (ret < 0) {
++		dev_err(&interface->dev, "failed to add I2C adapter\n");
++		goto error_release;
++	}
++
++	dev_info(&interface->dev, "connected\n");
++	return 0;
++
++error_release:
++	usb_set_intfdata(interface, NULL);
++	usb_set_intfdata(dev->usb_if, NULL);
++	usb_driver_release_interface(&devantech_iss_driver, dev->usb_if);
++error_put:
++	usb_put_intf(dev->usb_if);
++error_free:
++	devantech_iss_free(dev);
++error:
++	return ret;
++}
++
++static void devantech_iss_disconnect(struct usb_interface *interface)
++{
++	struct i2c_devantech_iss *dev = usb_get_intfdata(interface);
++	struct usb_host_interface *alt = interface->cur_altsetting;
++
++	if (alt->desc.bInterfaceNumber)
++		return;
++
++	i2c_del_adapter(&dev->adapter);
++	usb_set_intfdata(interface, NULL);
++	usb_set_intfdata(dev->usb_if, NULL);
++	usb_driver_release_interface(&devantech_iss_driver, dev->usb_if);
++	usb_put_intf(dev->usb_if);
++	devantech_iss_free(dev);
++
++	dev_info(&interface->dev, "disconnected\n");
++}
++
++static struct usb_driver devantech_iss_driver = {
++	.name = DRIVER_NAME,
++	.probe = devantech_iss_probe,
++	.disconnect = devantech_iss_disconnect,
++	.id_table = devantech_iss_table,
++};
++
++static int __init devantech_iss_init(void)
++{
++	/* register this driver with the USB subsystem */
++	return usb_register(&devantech_iss_driver);
++}
++
++static void __exit devantech_iss_exit(void)
++{
++	/* deregister this driver with the USB subsystem */
++	usb_deregister(&devantech_iss_driver);
++}
++
++module_init(devantech_iss_init);
++module_exit(devantech_iss_exit);
++
++MODULE_AUTHOR("Guenter Roeck <guenter.roeck@ericsson.com>");
++MODULE_DESCRIPTION(DRIVER_NAME " driver");
++MODULE_LICENSE("GPL");
+-- 
+1.7.3.1
 
-It's the most common bus for PMICs but some use SPI for performance
-reasons, especially if they integrate other mixed signal functionality
-such as touchscreen controllers that might be high volume.
-
-> > In general embedded platforms register I2C early as things like PMI=
-Cs
-> > typically hang off them. =A0Grant was trying to push people to use
-> > deferred registration for this stuff but it didn't happen yet and I=
-'d
-> > personally be more comfortable with more infastructure supporting t=
-hat.
-
-> The dependency tracking is a bit primitive with only initcalls. I
-> wouldn't mind something like this:
-
-That's not a general solution as it doesn't cover things like cross
-dependencies between devices on the same bus type.  You really want to
-be able to say "I depend on this set of other devices" somehow, the
-proposal from Grant that I'm talking about was to only register devices
-once their dependencies had appeared which solves the issue but is a bi=
-t
-manual for the board files.
