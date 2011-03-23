@@ -1,86 +1,106 @@
-From: "Tomoya MORINAGA" <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: RE: [PATCH 5/7] I2C: eg20t, remove unused variable
-Date: Wed, 23 Mar 2011 19:50:31 +0900
-Message-ID: <3DCFFD98C696488F94CB1A74F2998DF9@hacdom.okisemi.com>
-References: <1300870200-24405-1-git-send-email-jslaby@suse.cz> <1300870200-24405-5-git-send-email-jslaby@suse.cz>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH] i2c/busses: Driver for Devantech USB-ISS I2C adapter
+Date: Wed, 23 Mar 2011 06:46:50 -0700
+Message-ID: <20110323134650.GA11492@ericsson.com>
+References: <1300851827-13627-1-git-send-email-guenter.roeck@ericsson.com>
+ <20110323092829.25d42e27@lxorguk.ukuu.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1300870200-24405-5-git-send-email-jslaby-AlSwsSmVLrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20110323092829.25d42e27-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Jiri Slaby' <jslaby-AlSwsSmVLrQ@public.gmane.org>, jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jiri,
+On Wed, Mar 23, 2011 at 05:28:29AM -0400, Alan Cox wrote:
+> On Tue, 22 Mar 2011 20:43:47 -0700
+> Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org> wrote:
+> 
+> > This patch adds support for the I2C interface of the Devantech USB-ISS
+> > Multifunction adapter.
+> > 
+> > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+> > ---
+> > The driver has one problem: It competes with the cdc_acm driver for device
+> > access. Copying the usb mailing list in the hope that someone can tell me
+> > if there is a way to prevent this from happening.
+> 
+> From the look of the code you actually want to be sitting on top of
+> cdc_acm. 
+> 
+Ok, I'll see if I can do that.
 
-It looks OK.
+> 
+> > +/* Send command to device, and get response. */
+> > +static int devantech_usb_transfer(struct i2c_devantech_iss *dev, int len)
+> > +{
+> > +	int ret, actual;
+> > +
+> > +	if (len <= 0 || len > ISS_MAX_TRANSFER_LEN)
+> > +		return -EINVAL;
+> > +
+> > +	ret = usb_bulk_msg(dev->usb_dev,
+> > +			   usb_sndbulkpipe(dev->usb_dev, dev->ep_out),
+> > +			   dev->buffer, len, &actual,
+> > +			   ISS_USB_TIMEOUT);
+> > +
+> > +	if (!ret) {
+> > +		ret = usb_bulk_msg(dev->usb_dev,
+> > +				   usb_rcvbulkpipe(dev->usb_dev, dev->ep_in),
+> > +				   dev->buffer, sizeof(dev->buffer),
+> > +				   &actual, ISS_USB_TIMEOUT);
+> > +		if (!ret && actual > 0)
+> > +			ret = actual;
+> > +	}
+> > +	return ret;
+> > +}
+> 
+> The whole driver seems to boil down to sending and receiving message
+> blocks to the bulk endpoint - yes ?
+> 
+Yes
 
-Signed-off-by: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org> 
+> > +	dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
+> > +	dev->interface = interface;
+> > +
+> > +	/* setup i2c adapter description */
+> > +	dev->adapter.owner = THIS_MODULE;
+> > +	dev->adapter.class = I2C_CLASS_HWMON;
+> 
+> Doesn't seem to be HWMON ?
+> 
+You lost me there. Why not ? Many if not all I2C bus drivers register as
+I2C_CLASS_HWMON.
+
+> 
+> The rest looks like the device doesn't pretend to be CDC ACM class, but
+> is CDC-ACM class with the "device" the other end talking to the other end
+> of the serial port.
+> 
+> In fact it would be an interesting test to open the serial port and write
+> your commands to it from user space to see what happens. If I read the
+> code right it'll work fine.
+> 
+Yes, it should work. That is what is done in Windows.
+
+> From a tty perspective it would probably make sense to adjust the driver
+> to be a line discipline sat on CDC-ACM.
+> 
+> I am *very* wary of removing it from the CDC_ACM side because people may
+> be using the CDC-ACM userspace directly for existing projects and would
+> get a nasty surprise and breakage.
+> 
+Same here. Not likely for existing projects (the device is brand new),
+but at some point someone might want to use it.
+
+> If setting the tty to raw 8bit noecho and firing commands over the
+> virtual interface works then turning your driver into an ldisc is pretty
+> trivial. The ldisc interfaces provide data received and allow data writes
+> through the relevant tty.
+> 
+I'll try.
 
 Thanks,
------------------------------------------
-Tomoya MORINAGA
-OKI SEMICONDUCTOR CO., LTD.
-
-> -----Original Message-----
-> From: linux-kernel-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org 
-> [mailto:linux-kernel-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Jiri Slaby
-> Sent: Wednesday, March 23, 2011 5:50 PM
-> To: jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-> Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jiri Slaby; Jean Delvare; 
-> linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: [PATCH 5/7] I2C: eg20t, remove unused variable
-> 
-> drivers/i2c/busses/i2c-eg20t.c:684:2: warning: Value stored 
-> to 'msglen' is never read msglen = (pmsg->len) - (subaddrlen + 1);
-> ^        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> 
-> Signed-off-by: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> ---
->  drivers/i2c/busses/i2c-eg20t.c |    8 --------
->  1 files changed, 0 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-eg20t.c 
-> b/drivers/i2c/busses/i2c-eg20t.c index 878a120..ea73252 100644
-> --- a/drivers/i2c/busses/i2c-eg20t.c
-> +++ b/drivers/i2c/busses/i2c-eg20t.c
-> @@ -651,8 +651,6 @@ static s32 pch_i2c_xfer(struct 
-> i2c_adapter *i2c_adap,
->  	struct i2c_msg *pmsg;
->  	u32 i = 0;
->  	u32 status;
-> -	u32 msglen;
-> -	u32 subaddrlen;
->  	s32 ret;
->  
->  	struct i2c_algo_pch_data *adap = i2c_adap->algo_data; 
-> @@ -676,12 +674,6 @@ static s32 pch_i2c_xfer(struct 
-> i2c_adapter *i2c_adap,
->  	status = pmsg->flags;
->  	pch_dbg(adap,
->  		"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
-> -	/* calculate sub address length and message length */
-> -	/* these are applicable only for buffer mode */
-> -	subaddrlen = pmsg->buf[0];
-> -	/* calculate actual message length excluding
-> -	 * the sub address fields */
-> -	msglen = (pmsg->len) - (subaddrlen + 1);
->  	if (status & (I2C_M_RD)) {
->  		pch_dbg(adap, "invoking pch_i2c_readbytes\n");
->  		ret = pch_i2c_readbytes(i2c_adap, pmsg, (i + 1 == num),
-> --
-> 1.7.4.1
-> 
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Guenter
