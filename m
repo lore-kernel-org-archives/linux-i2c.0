@@ -1,45 +1,51 @@
-From: Oliver Neukum <oneukum@suse.de>
-Subject: Re: [PATCH] i2c/busses: Driver for Devantech USB-ISS I2C adapter
-Date: Wed, 23 Mar 2011 08:17:29 +0100
-Message-ID: <201103230817.29984.oneukum@suse.de>
-References: <1300851827-13627-1-git-send-email-guenter.roeck@ericsson.com> <20110323045058.GA13606@kroah.com> <20110323054153.GA10275@regiomontanus>
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20110323054153.GA10275@regiomontanus>
-Sender: linux-doc-owner@vger.kernel.org
-To: Bernhard Walle <bernhard@bwalle.de>
-Cc: Greg KH <greg@kroah.com>, Guenter Roeck <guenter.roeck@ericsson.com>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Randy Dunlap <rdunlap@xenotime.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+From: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
+Subject: [PATCH 5/7] I2C: eg20t, remove unused variable
+Date: Wed, 23 Mar 2011 09:49:58 +0100
+Message-ID: <1300870200-24405-5-git-send-email-jslaby@suse.cz>
+References: <1300870200-24405-1-git-send-email-jslaby@suse.cz>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1300870200-24405-1-git-send-email-jslaby-AlSwsSmVLrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am Mittwoch, 23. M=E4rz 2011, 06:41:53 schrieb Bernhard Walle:
-> * Greg KH <greg@kroah.com> [2011-03-23 05:50]:
-> >=20
-> > It should, you can talk to the device from userspace using that vir=
-tual
-> > serial port, right?  Isn't that what you need to do here?
-> >=20
-> > Why try to create a new type of interface to the device from what i=
-t was
-> > supposed to be by the manufacturer?
->=20
-> The device is multi-function. It's quite common to use some (extended=
-)
-> USB-to-serial-converters also for serial busses like I=B2C or SPI. I =
-know
-> that from the FT2232C chip.
->=20
-> Using such a device as normal Linux I=B2C device makes perfectly sens=
-e,
-> IMO.
+drivers/i2c/busses/i2c-eg20t.c:684:2: warning: Value stored to 'msglen' is never read
+msglen = (pmsg->len) - (subaddrlen + 1);
+^        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Yes, but not the approach of kicking off the class driver. As those dev=
-ices
-presumably use some form of I2C over Serial, you ought to handle them i=
-n the
-way PPP handles IP over Serial, especially if thy use a common encapsul=
-ation.
+Signed-off-by: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+---
+ drivers/i2c/busses/i2c-eg20t.c |    8 --------
+ 1 files changed, 0 insertions(+), 8 deletions(-)
 
-	Regards
-		Oliver
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index 878a120..ea73252 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -651,8 +651,6 @@ static s32 pch_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	struct i2c_msg *pmsg;
+ 	u32 i = 0;
+ 	u32 status;
+-	u32 msglen;
+-	u32 subaddrlen;
+ 	s32 ret;
+ 
+ 	struct i2c_algo_pch_data *adap = i2c_adap->algo_data;
+@@ -676,12 +674,6 @@ static s32 pch_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	status = pmsg->flags;
+ 	pch_dbg(adap,
+ 		"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
+-	/* calculate sub address length and message length */
+-	/* these are applicable only for buffer mode */
+-	subaddrlen = pmsg->buf[0];
+-	/* calculate actual message length excluding
+-	 * the sub address fields */
+-	msglen = (pmsg->len) - (subaddrlen + 1);
+ 	if (status & (I2C_M_RD)) {
+ 		pch_dbg(adap, "invoking pch_i2c_readbytes\n");
+ 		ret = pch_i2c_readbytes(i2c_adap, pmsg, (i + 1 == num),
+-- 
+1.7.4.1
