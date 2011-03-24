@@ -1,52 +1,62 @@
-From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
-Date: Thu, 24 Mar 2011 12:38:21 +0900
-Message-ID: <AANLkTincDenFBzk0sF48c=oJknAVnNnXjNr-uFOj5KQ7@mail.gmail.com>
-References: <20110322143307.GB24004@linux-sh.org>
-	<AANLkTimRV9vzOE7+VPX48y3KebLJSvBOkqxoM--9gqGb@mail.gmail.com>
-	<20110322153226.GC30303@linux-sh.org>
-	<AANLkTimyxdcJ-eEke9x7X1zdiJNbFtncfv0=NzKjtAme@mail.gmail.com>
-	<20110322155730.GD30303@linux-sh.org>
-	<AANLkTi=Fjc2f837ifH152Rh8W0PfiZvViYaLe=8XZo4Z@mail.gmail.com>
-	<20110322163144.GC2202@sirena.org.uk>
-	<AANLkTiniBVWhSiNZMRYbO857D_Vj03KxH4qYqkVo-11J@mail.gmail.com>
-	<20110322165907.GG22583@opensource.wolfsonmicro.com>
-	<AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
-	<20110323162021.GA26594@opensource.wolfsonmicro.com>
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Subject: Re: [PATCH] i2c/busses: Driver for Devantech USB-ISS I2C adapter
+Date: Wed, 23 Mar 2011 21:31:57 -0700
+Message-ID: <20110324043157.GD15395@ericsson.com>
+References: <1300851827-13627-1-git-send-email-guenter.roeck@ericsson.com>
+ <20110323034524.GA11675@kroah.com>
+ <20110323042507.GA9173@ericsson.com>
+ <20110323045058.GA13606@kroah.com>
+ <20110323054153.GA10275@regiomontanus>
+ <20110323060746.GA9673@ericsson.com>
+ <20110323150014.GB6284@kroah.com>
+ <20110323151021.53e187bb@lxorguk.ukuu.org.uk>
+ <20110323153115.GB7106@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110323162021.GA26594-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, srk-l0cyMroinI0@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, chinyeow.sim.xt-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110323153115.GB7106@kroah.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Greg KH <greg@kroah.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Bernhard Walle <bernhard@bwalle.de>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Randy Dunlap <rdunlap@xenotime.net>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 24, 2011 at 1:20 AM, Mark Brown
-<broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org> wrote:
-> On Thu, Mar 24, 2011 at 01:04:31AM +0900, Magnus Damm wrote:
->
->> Sounds nice. Hopefully that will allow us to use module_init() in
->> drivers instead of other initcall levels depending on bus type.
->
-> None of this is anything to do with the bus type - it's to do with th=
-e
-> function of the devices within the system. =A0Things that are require=
-d for
-> early init of the kernel get bumped up the list.
+On Wed, Mar 23, 2011 at 11:31:15AM -0400, Greg KH wrote:
+> On Wed, Mar 23, 2011 at 03:10:21PM +0000, Alan Cox wrote:
+> > > But, if this just duplicates the cdc-acm interface, and it looks =
+like it
+> > > does, I don't think you need a kernel driver at all for it.  Just=
+ use
+> > > userspace commands to the serial port, like you do on Windows, an=
+d all
+> > > should be fine, right?
+> >=20
+> > You want a kernel driver because you've got kernel I=B2C drivers wa=
+nting to
+> > talk to the devices down the link in question. Just needs to be an =
+ldisc
+> > and then it call comes together nicely.
+>=20
+> Ah, ok, that makes more sense.
+>=20
+> Odd that windows does it all from userspace, but I guess it doesn't h=
+ave
+> an I2C driver subsystem.
+>=20
+Converting the driver to a line discipline as Alan suggested would mean=
+ to add=20
+a new line discipline to linux/tty.h.
 
-Hm, sorry for being unclear - I should have used the words "other
-initcall levels depending on the init order of the parent hardware
-bus". I'm referring to the state of things now without any patches
-from Grant.
+Doing this would be purely for the benefit of the community, since the =
+driver
+works just fine for my purpose.
 
-I understand that early init code often are using different initcall
-levels to make sure they are getting initialized before other code.
-Initcalls can also be used to work around link order issues.
+So before I spend any more time on it, I'll need to know ... is there a=
+ny
+interest in an i2c bus driver for this device, and would a new line dis=
+cipline
+be accepted into the kernel ?
 
-I can't however see the reason why a keypad driver needs to be
-initialized early on. I may be wrong, but I thought user space was the
-only consumer of input devices?
-
-/ magnus
+Thanks,
+Guenter
