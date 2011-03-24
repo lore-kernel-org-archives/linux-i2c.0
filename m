@@ -1,36 +1,30 @@
-From: Tushar Behera <tushar.behera@linaro.org>
-Subject: [PATCH] I2C:SAMSUNG:Select I2C_S3C2410 if HAVE_S3C2410_I2C
-Date: Thu, 24 Mar 2011 14:36:13 +0530
-Message-ID: <1300957573-2622-1-git-send-email-tushar.behera@linaro.org>
-Content-Transfer-Encoding: 7BIT
+From: Ben Dooks <ben-i2c@fluff.org>
+Subject: Re: [PATCH] I2C:SAMSUNG:Select I2C_S3C2410 if HAVE_S3C2410_I2C
+Date: Thu, 24 Mar 2011 10:47:51 +0000
+Message-ID: <20110324104751.GS15795@trinity.fluff.org>
+References: <1300957573-2622-1-git-send-email-tushar.behera@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1300957573-2622-1-git-send-email-tushar.behera@linaro.org>
 Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: kgene.kim@samsung.com, ben-linux@fluff.org
+To: Tushar Behera <tushar.behera@linaro.org>
+Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, kgene.kim@samsung.com, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Samsung Kconfig files, HAVE_S3C2410_I2C is selected if we want
-to enable support for I2C. But the I2C controller is selected only
-if I2C_S3C2410 is defined.
+On Thu, Mar 24, 2011 at 02:36:13PM +0530, Tushar Behera wrote:
+> On Samsung Kconfig files, HAVE_S3C2410_I2C is selected if we want
+> to enable support for I2C. But the I2C controller is selected only
+> if I2C_S3C2410 is defined.
+> 
+> This patch selects I2C_S3C2410 when I2C and HAVE_S3C2410 are selected.
 
-This patch selects I2C_S3C2410 when I2C and HAVE_S3C2410 are selected.
+No. Do not do this, just having the device on the board does not mean
+you want it forced into the kernel. A user may want to build it as a
+module or not build it at-all.
 
-Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
----
- drivers/i2c/busses/Kconfig |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 113505a..410846c 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -549,6 +549,7 @@ config HAVE_S3C2410_I2C
- config I2C_S3C2410
- 	tristate "S3C2410 I2C Driver"
- 	depends on HAVE_S3C2410_I2C
-+	default y
- 	help
- 	  Say Y here to include support for I2C controller in the
- 	  Samsung SoCs.
 -- 
-1.7.1
+Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
+
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
