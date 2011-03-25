@@ -1,41 +1,52 @@
-From: Tushar Behera <tushar.behera@linaro.org>
-Subject: Re: [PATCH] I2C:SAMSUNG:Select I2C_S3C2410 if HAVE_S3C2410_I2C
-Date: Fri, 25 Mar 2011 08:12:06 +0530
-Message-ID: <AANLkTinw2uMdoy_ugKjhuVWC=cUMNgy-mv+ezUzPPkke@mail.gmail.com>
-References: <1300957573-2622-1-git-send-email-tushar.behera@linaro.org>
-	<20110324104751.GS15795@trinity.fluff.org>
+From: Samuel Ortiz <sameo@linux.intel.com>
+Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
+Date: Fri, 25 Mar 2011 15:26:49 +0100
+Message-ID: <20110325142648.GC3879@sortiz-mobl>
+References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
+ <1300444824-13713-2-git-send-email-waldemar.rymarkiewicz@tieto.com>
+ <201103181319.54191.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20110324104751.GS15795@trinity.fluff.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Ben Dooks <ben-i2c@fluff.org>
-Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, kgene.kim@samsung.com, ben-linux@fluff.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201103181319.54191.arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Waldemar Rymarkiewicz <waldemar.rymarkiewicz@tieto.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, hthebaud@insidefr.com, matti.j.aaltonen@nokia.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+On Fri, Mar 18, 2011 at 01:19:53PM +0100, Arnd Bergmann wrote:
+> On Friday 18 March 2011, Waldemar Rymarkiewicz wrote:
+> > Add new driver for MicroRead NFC chip connected to i2c bus.
+> > 
+> > See Documentation/nfc/nfc-microread.txt.
+> 
+> As I said in my first review and Alan also pointed out now, the
+> most important change will be to add a common NFC core layer,
+> before adding more hardware drivers.
+> 
+> Also, regarding the user interface, we need to be really sure
+> that this is the best way of talking to NFC devices. The interface
+> you have today is a simple character device read/write kind,
+> which may be the best thing if the protocol stack on top is
+> really simple and there is never the need to have multiple
+> applications talking to different endpoints on the wireless
+> interface, and if there are no protocol headers being
+> send over the character device interface.
+> 
+> Otherwise, a better interface is probably to add a new network
+> socket family and abstract the protocol layers in the kernel.
 
-On 24 March 2011 16:17, Ben Dooks <ben-i2c@fluff.org> wrote:
-> On Thu, Mar 24, 2011 at 02:36:13PM +0530, Tushar Behera wrote:
->> On Samsung Kconfig files, HAVE_S3C2410_I2C is selected if we want
->> to enable support for I2C. But the I2C controller is selected only
->> if I2C_S3C2410 is defined.
->>
->> This patch selects I2C_S3C2410 when I2C and HAVE_S3C2410 are selected.
->
-> No. Do not do this, just having the device on the board does not mean
-> you want it forced into the kernel. A user may want to build it as a
-> module or not build it at-all.
->
-Thanks for your comments.
-> --
-> Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
->
-> Large Hadron Colada: A large Pina Colada that makes the universe disappear.
->
->
+Yes, NFC seems to be a good fit for a new socket family. Especially if we ever
+want to have a proper NFC p2p support from the kernel.
+Sending HCI commands should be done through a dedicated netlink socket too.
 
+I am currently strting to work on such solution, and I hope to be able to come
+up with a basic prototype for it in a few weeks.
 
+Cheers,
+Samuel.
 
 -- 
-Tushar Behera
+Intel Open Source Technology Centre
+http://oss.intel.com/
