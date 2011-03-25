@@ -1,52 +1,63 @@
-From: Samuel Ortiz <sameo@linux.intel.com>
-Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Fri, 25 Mar 2011 15:26:49 +0100
-Message-ID: <20110325142648.GC3879@sortiz-mobl>
-References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
- <1300444824-13713-2-git-send-email-waldemar.rymarkiewicz@tieto.com>
- <201103181319.54191.arnd@arndb.de>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: pxa2xx: remove ifdef CONFIG_OF
+Date: Fri, 25 Mar 2011 08:56:14 -0600
+Message-ID: <AANLkTimyX7dcsON49uKrX55BqM3R0w5PTUCLPHdBKp5w@mail.gmail.com>
+References: <1301060286-30353-1-git-send-email-bigeasy@linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <201103181319.54191.arnd@arndb.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Waldemar Rymarkiewicz <waldemar.rymarkiewicz@tieto.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, hthebaud@insidefr.com, matti.j.aaltonen@nokia.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1301060286-30353-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 18, 2011 at 01:19:53PM +0100, Arnd Bergmann wrote:
-> On Friday 18 March 2011, Waldemar Rymarkiewicz wrote:
-> > Add new driver for MicroRead NFC chip connected to i2c bus.
-> > 
-> > See Documentation/nfc/nfc-microread.txt.
-> 
-> As I said in my first review and Alan also pointed out now, the
-> most important change will be to add a common NFC core layer,
-> before adding more hardware drivers.
-> 
-> Also, regarding the user interface, we need to be really sure
-> that this is the best way of talking to NFC devices. The interface
-> you have today is a simple character device read/write kind,
-> which may be the best thing if the protocol stack on top is
-> really simple and there is never the need to have multiple
-> applications talking to different endpoints on the wireless
-> interface, and if there are no protocol headers being
-> send over the character device interface.
-> 
-> Otherwise, a better interface is probably to add a new network
-> socket family and abstract the protocol layers in the kernel.
+On Fri, Mar 25, 2011 at 7:38 AM, Sebastian Andrzej Siewior
+<bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org> wrote:
+> Since commit c9e358d ("driver-core: remove conditionals around
+> devicetree pointers") there is no need for CONFIG_OF around of_node a=
+nd
+> of_match_table. Grant removed this ifdefs from all driver which were =
+in
+> tree at the time, this one was merged later.
+>
+> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 
-Yes, NFC seems to be a good fit for a new socket family. Especially if we ever
-want to have a proper NFC p2p support from the kernel.
-Sending HCI commands should be done through a dedicated netlink socket too.
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 
-I am currently strting to work on such solution, and I hope to be able to come
-up with a basic prototype for it in a few weeks.
+This should go via the i2c tree since there are no device tree patches
+depending on it.
 
-Cheers,
-Samuel.
+g.
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+> ---
+> =A0drivers/i2c/busses/i2c-pxa.c | =A0 =A02 --
+> =A01 files changed, 0 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-px=
+a.c
+> index f59224a..91c4c15 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -1138,9 +1138,7 @@ static int i2c_pxa_probe(struct platform_device=
+ *dev)
+>
+> =A0 =A0 =A0 =A0i2c->adap.algo_data =3D i2c;
+> =A0 =A0 =A0 =A0i2c->adap.dev.parent =3D &dev->dev;
+> -#ifdef CONFIG_OF
+> =A0 =A0 =A0 =A0i2c->adap.dev.of_node =3D dev->dev.of_node;
+> -#endif
+>
+> =A0 =A0 =A0 =A0if (i2c_type =3D=3D REGS_CE4100)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ret =3D i2c_add_adapter(&i2c->adap);
+> --
+> 1.7.4
+>
+>
+
+
+
+--=20
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
