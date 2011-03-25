@@ -1,63 +1,42 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: pxa2xx: remove ifdef CONFIG_OF
-Date: Fri, 25 Mar 2011 08:56:14 -0600
-Message-ID: <AANLkTimyX7dcsON49uKrX55BqM3R0w5PTUCLPHdBKp5w@mail.gmail.com>
-References: <1301060286-30353-1-git-send-email-bigeasy@linutronix.de>
+From: Ben Dooks <ben-i2c@fluff.org>
+Subject: Re: [PATCH] I2C:SAMSUNG:Select I2C_S3C2410 if HAVE_S3C2410_I2C
+Date: Fri, 25 Mar 2011 21:32:15 +0000
+Message-ID: <20110325213214.GT15795@trinity.fluff.org>
+References: <1300957573-2622-1-git-send-email-tushar.behera@linaro.org> <20110324104751.GS15795@trinity.fluff.org> <AANLkTinw2uMdoy_ugKjhuVWC=cUMNgy-mv+ezUzPPkke@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1301060286-30353-1-git-send-email-bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <AANLkTinw2uMdoy_ugKjhuVWC=cUMNgy-mv+ezUzPPkke@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Tushar Behera <tushar.behera@linaro.org>
+Cc: Ben Dooks <ben-i2c@fluff.org>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, kgene.kim@samsung.com, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 25, 2011 at 7:38 AM, Sebastian Andrzej Siewior
-<bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org> wrote:
-> Since commit c9e358d ("driver-core: remove conditionals around
-> devicetree pointers") there is no need for CONFIG_OF around of_node a=
-nd
-> of_match_table. Grant removed this ifdefs from all driver which were =
-in
-> tree at the time, this one was merged later.
->
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+On Fri, Mar 25, 2011 at 08:12:06AM +0530, Tushar Behera wrote:
+> Hi Ben,
+> 
+> On 24 March 2011 16:17, Ben Dooks <ben-i2c@fluff.org> wrote:
+> > On Thu, Mar 24, 2011 at 02:36:13PM +0530, Tushar Behera wrote:
+> >> On Samsung Kconfig files, HAVE_S3C2410_I2C is selected if we want
+> >> to enable support for I2C. But the I2C controller is selected only
+> >> if I2C_S3C2410 is defined.
+> >>
+> >> This patch selects I2C_S3C2410 when I2C and HAVE_S3C2410 are selected.
+> >
+> > No. Do not do this, just having the device on the board does not mean
+> > you want it forced into the kernel. A user may want to build it as a
+> > module or not build it at-all.
+> >
+> Thanks for your comments.
 
-Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Sorry, default should be fine... it's select that is something that
+shouldn't be done. I'll test and apply tomorrow.
 
-This should go via the i2c tree since there are no device tree patches
-depending on it.
+That'll teach me to go reviewing stuff before the first proper coffee
+of the morning.
 
-g.
+-- 
+Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
 
-> ---
-> =A0drivers/i2c/busses/i2c-pxa.c | =A0 =A02 --
-> =A01 files changed, 0 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-px=
-a.c
-> index f59224a..91c4c15 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -1138,9 +1138,7 @@ static int i2c_pxa_probe(struct platform_device=
- *dev)
->
-> =A0 =A0 =A0 =A0i2c->adap.algo_data =3D i2c;
-> =A0 =A0 =A0 =A0i2c->adap.dev.parent =3D &dev->dev;
-> -#ifdef CONFIG_OF
-> =A0 =A0 =A0 =A0i2c->adap.dev.of_node =3D dev->dev.of_node;
-> -#endif
->
-> =A0 =A0 =A0 =A0if (i2c_type =3D=3D REGS_CE4100)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0ret =3D i2c_add_adapter(&i2c->adap);
-> --
-> 1.7.4
->
->
-
-
-
---=20
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
