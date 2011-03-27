@@ -1,42 +1,185 @@
-From: Ben Dooks <ben-i2c@fluff.org>
-Subject: Re: [PATCH] I2C:SAMSUNG:Select I2C_S3C2410 if HAVE_S3C2410_I2C
-Date: Fri, 25 Mar 2011 21:32:15 +0000
-Message-ID: <20110325213214.GT15795@trinity.fluff.org>
-References: <1300957573-2622-1-git-send-email-tushar.behera@linaro.org> <20110324104751.GS15795@trinity.fluff.org> <AANLkTinw2uMdoy_ugKjhuVWC=cUMNgy-mv+ezUzPPkke@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Amit Daniel Kachhap <amit.kachhap@linaro.org>
+Subject: [PATCH] I2C: Samsung: Add support for PM_runtime in the I2C driver.
+Date: Sun, 27 Mar 2011 16:32:43 -0400
+Message-ID: <1301257963-17196-1-git-send-email-amit.kachhap@linaro.org>
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <AANLkTinw2uMdoy_ugKjhuVWC=cUMNgy-mv+ezUzPPkke@mail.gmail.com>
 Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Tushar Behera <tushar.behera@linaro.org>
-Cc: Ben Dooks <ben-i2c@fluff.org>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, kgene.kim@samsung.com, ben-linux@fluff.org
+To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, kgene.kim@samsung.com, amit.kachhap@linaro.org, patches@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 25, 2011 at 08:12:06AM +0530, Tushar Behera wrote:
-> Hi Ben,
-> 
-> On 24 March 2011 16:17, Ben Dooks <ben-i2c@fluff.org> wrote:
-> > On Thu, Mar 24, 2011 at 02:36:13PM +0530, Tushar Behera wrote:
-> >> On Samsung Kconfig files, HAVE_S3C2410_I2C is selected if we want
-> >> to enable support for I2C. But the I2C controller is selected only
-> >> if I2C_S3C2410 is defined.
-> >>
-> >> This patch selects I2C_S3C2410 when I2C and HAVE_S3C2410 are selected.
-> >
-> > No. Do not do this, just having the device on the board does not mean
-> > you want it forced into the kernel. A user may want to build it as a
-> > module or not build it at-all.
-> >
-> Thanks for your comments.
+This patch adds PM runtime management support in the I2C driver.
+The functionality of the driver is not modified much but some extra I2C
+states are added for PM runtime. The runtime suspend keeps the interrupt
+for the I2C interface disabled.
 
-Sorry, default should be fine... it's select that is something that
-shouldn't be done. I'll test and apply tomorrow.
+Signed-off-by:  Amit Daniel Kachhap <amit.kachhap@linaro.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |   61 +++++++++++++++++++++++++++++++++-----
+ 1 files changed, 53 insertions(+), 8 deletions(-)
 
-That'll teach me to go reviewing stuff before the first proper coffee
-of the morning.
-
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 6c00c10..8ebe621 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -35,6 +35,7 @@
+ #include <linux/cpufreq.h>
+ #include <linux/slab.h>
+ #include <linux/io.h>
++#include <linux/pm_runtime.h>
+ 
+ #include <asm/irq.h>
+ 
+@@ -48,7 +49,9 @@ enum s3c24xx_i2c_state {
+ 	STATE_START,
+ 	STATE_READ,
+ 	STATE_WRITE,
+-	STATE_STOP
++	STATE_STOP,
++	STATE_STANDBY,
++	STATE_SUSPEND
+ };
+ 
+ enum s3c24xx_i2c_type {
+@@ -59,7 +62,6 @@ enum s3c24xx_i2c_type {
+ struct s3c24xx_i2c {
+ 	spinlock_t		lock;
+ 	wait_queue_head_t	wait;
+-	unsigned int		suspended:1;
+ 
+ 	struct i2c_msg		*msg;
+ 	unsigned int		msg_num;
+@@ -400,8 +402,13 @@ static int i2s_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
+ 				i2c->msg++;
+ 			}
+ 		}
++		break;
+ 
++	default:
++		dev_err(i2c->dev, "%s: called with invalid state\n", __func__);
++		goto out;
+ 		break;
++
+ 	}
+ 
+ 	/* acknowlegde the IRQ and get back on with the work */
+@@ -485,7 +492,7 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
+ 	int spins = 20;
+ 	int ret;
+ 
+-	if (i2c->suspended)
++	if (i2c->state == STATE_SUSPEND)
+ 		return -EIO;
+ 
+ 	ret = s3c24xx_i2c_set_master(i2c);
+@@ -555,12 +562,14 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	int ret;
+ 
+ 	clk_enable(i2c->clk);
++	pm_runtime_get_sync(i2c->dev);
+ 
+ 	for (retry = 0; retry < adap->retries; retry++) {
+ 
+ 		ret = s3c24xx_i2c_doxfer(i2c, msgs, num);
+ 
+ 		if (ret != -EAGAIN) {
++			pm_runtime_put_sync(i2c->dev);
+ 			clk_disable(i2c->clk);
+ 			return ret;
+ 		}
+@@ -570,6 +579,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 		udelay(100);
+ 	}
+ 
++	pm_runtime_put_sync(i2c->dev);
+ 	clk_disable(i2c->clk);
+ 	return -EREMOTEIO;
+ }
+@@ -912,10 +922,14 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		goto err_cpufreq;
+ 	}
+ 
++	/*Set Initial I2C state*/
++	i2c->state = STATE_STANDBY;
++
+ 	platform_set_drvdata(pdev, i2c);
+ 
+ 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
+ 	clk_disable(i2c->clk);
++	pm_runtime_enable(&pdev->dev);
+ 	return 0;
+ 
+  err_cpufreq:
+@@ -956,6 +970,7 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 
+ 	clk_disable(i2c->clk);
+ 	clk_put(i2c->clk);
++	pm_runtime_disable(&pdev->dev);
+ 
+ 	iounmap(i2c->regs);
+ 
+@@ -972,9 +987,9 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+ 
+-	i2c->suspended = 1;
+-
++	i2c->state = STATE_SUSPEND;
+ 	return 0;
++
+ }
+ 
+ static int s3c24xx_i2c_resume(struct device *dev)
+@@ -982,17 +997,47 @@ static int s3c24xx_i2c_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+ 
+-	i2c->suspended = 0;
+ 	clk_enable(i2c->clk);
+ 	s3c24xx_i2c_init(i2c);
++	i2c->state = STATE_STANDBY;
+ 	clk_disable(i2c->clk);
+ 
+ 	return 0;
+ }
+ 
++static int s3c_i2c_runtime_suspend(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
++
++	i2c->state = STATE_STANDBY;
++	s3c24xx_i2c_disable_irq(i2c);
++	s3c24xx_i2c_disable_ack(i2c);
++
++	return 0;
++}
++
++static int s3c_i2c_runtime_resume(struct device *dev)
++{
++	struct platform_device *pdev = to_platform_device(dev);
++	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
++
++	if (i2c->state != STATE_STANDBY)
++		return 0;
++
++	/*No major activity in runtime resume because all the registers are
++	re-initialised for each i2c transfer, so just changing the state*/
++	i2c->state = STATE_IDLE;
++
++	return 0;
++}
++
++
+ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+-	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
+-	.resume = s3c24xx_i2c_resume,
++	.suspend_noirq		= s3c24xx_i2c_suspend_noirq,
++	.resume			= s3c24xx_i2c_resume,
++	.runtime_suspend	= s3c_i2c_runtime_suspend,
++	.runtime_resume		= s3c_i2c_runtime_resume,
+ };
+ 
+ #define S3C24XX_DEV_PM_OPS (&s3c24xx_i2c_dev_pm_ops)
 -- 
-Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+1.7.1
