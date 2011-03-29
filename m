@@ -1,76 +1,33 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH] Input: tca6416-keypad: Change to module_init()
-Date: Tue, 29 Mar 2011 16:11:12 +0900
-Message-ID: <AANLkTimX+SQHaFjc=zARjuvdzX8OisQMHCBUgcR4V7sa@mail.gmail.com>
-References: <20110322142619.1109.89105.sendpatchset@t400s>
-	<20110322142855.GB2202@sirena.org.uk>
-	<20110322143307.GB24004@linux-sh.org>
-	<AANLkTimRV9vzOE7+VPX48y3KebLJSvBOkqxoM--9gqGb@mail.gmail.com>
-	<20110322153226.GC30303@linux-sh.org>
-	<AANLkTimyxdcJ-eEke9x7X1zdiJNbFtncfv0=NzKjtAme@mail.gmail.com>
-	<20110322155730.GD30303@linux-sh.org>
-	<AANLkTi=Fjc2f837ifH152Rh8W0PfiZvViYaLe=8XZo4Z@mail.gmail.com>
-	<20110322163144.GC2202@sirena.org.uk>
-	<AANLkTiniBVWhSiNZMRYbO857D_Vj03KxH4qYqkVo-11J@mail.gmail.com>
-	<20110322165907.GG22583@opensource.wolfsonmicro.com>
-	<AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
+From: <Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
+Date: Tue, 29 Mar 2011 11:00:59 +0300
+Message-ID: <99B09243E1A5DA4898CDD8B7001114481085E2375D@EXMB04.eu.tieto.com>
+References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
+ <1300444824-13713-2-git-send-email-waldemar.rymarkiewicz@tieto.com>
+ <201103181319.54191.arnd@arndb.de> <20110325142648.GC3879@sortiz-mobl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <AANLkTin1jG36-EsvAk9o-KxdxaBBhx=5Rf+JMidjYqsT@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Paul Mundt <lethal@linux-sh.org>, dmitry.torokhov@gmail.com, srk@ti.com, khilman@ti.com, chinyeow.sim.xt@renesas.com, linux-sh@vger.kernel.org, tony@atomide.com, nsekhar@ti.com, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110325142648.GC3879@sortiz-mobl>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Mar 24, 2011 at 1:04 AM, Magnus Damm <magnus.damm@gmail.com> wrote:
-> On Wed, Mar 23, 2011 at 1:59 AM, Mark Brown
-> <broonie@opensource.wolfsonmicro.com> wrote:
->> On Wed, Mar 23, 2011 at 01:51:02AM +0900, Magnus Damm wrote:
->>
->>> I'm not sure if this is i2c specific though - in general you probably
->>> need to register the parent bus driver first.
->>
->> This was my original question - I'm not aware of any reason why you
->> should need to register the driver for the specific bus first, it seems
->> odd.
+>Yes, NFC seems to be a good fit for a new socket family. 
+>Especially if we ever want to have a proper NFC p2p support 
+>from the kernel.
+>Sending HCI commands should be done through a dedicated 
+>netlink socket too.
 >
-> Can't see why it wouldn't work - in theory at least. I'll have a look tomorrow.
+>I am currently strting to work on such solution, and I hope to 
+>be able to come up with a basic prototype for it in a few weeks.
 
-Ok, it seems like the I2C bus registration is working as expected.
-After digging into this a bit more I've discovered that the root cause
-seems to be related to clocks. On sh7372 the I2C controller and the
-serial console share the parent clock, and the setup order is
-affecting the serial console.
+What about common drivers interface in this case.  Should we go for common /dev/nfcX interface as well?
 
-Without this patch, if subsys_init() is used for tca6416-keypad then
-the I2C controller will be used at probe() time from the function
-tca6416_setup_registers() - this before the serial console driver has
-been initialized properly. The I2C controller used by tca6416 will
-stop the parent clock when the I2C bus access is finished. The serial
-console driver is driven early using earlyprintk at this time, and the
-clock is assumed to be enabled until the real driver is installed at
-module_init() time. So with subsys_init() in tca6416 the I2C
-controller stops the clock while the earlyprintk code assumes it to be
-on. This is causing delays.
-
-If the tca6416 driver is changed to module_init() then the serial
-console driver will be initialized before the tca6416 driver due to
-the linking order and all is working fine.
-
-As we already knew, the clock framework code in drivers/sh/clk should
-be updated to turn off unused clocks. To fix the issue in this mail
-thread we should also update the code to force the console clock to be
-enabled early on to make sure the serial console clock isn't turned
-off by accident.
-
-I propose that we convert the tca6416 driver to module_init() as a
-short term fix _and_ at the same time work on improving the clock
-framework code.
-
-Can anyone think of a reason why the tca6416 driver shouldn't be
-changed to module_init()?
-
-Thanks,
-
-/ magnus
+Waldek--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
