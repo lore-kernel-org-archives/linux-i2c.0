@@ -1,29 +1,35 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Tue, 29 Mar 2011 15:22:56 +0200
-Message-ID: <201103291522.56667.arnd@arndb.de>
-References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com> <201103291404.39023.arnd@arndb.de> <20110329132305.7aa065a1@lxorguk.ukuu.org.uk>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] i2c: pnx: Fix crash due to wrong init of timer->data
+Date: Tue, 29 Mar 2011 16:15:54 +0200
+Message-ID: <1301408154-16027-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110329132305.7aa065a1-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
-Cc: Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 29 March 2011, Alan Cox wrote:
-> > I was under the impression that NFC was peer-to-peer, so the driver
-> > would already be handling both sides potentially.
-> 
-> Your security requirements each side are going to be very different. A
-> phone or handheld device is generally single user at a time, the other
-> end may well be interacting with many devices at once each with their own
-> security context and potentially handling sensitive data (payment
-> authorisations for example).
+alg_data is already a pointer which must be passed directly.
 
-Yes, good point.
+Reported-by: Dieter Ripp <ripp-24OduB8/I+bby3iVrkZq2A@public.gmane.org>
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pnx.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-	Arnd
+diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+index 4d2168f..30365f3 100644
+--- a/drivers/i2c/busses/i2c-pnx.c
++++ b/drivers/i2c/busses/i2c-pnx.c
+@@ -66,7 +66,7 @@ static inline void i2c_pnx_arm_timer(struct i2c_pnx_algo_data *alg_data)
+ 		jiffies, expires);
+ 
+ 	timer->expires = jiffies + expires;
+-	timer->data = (unsigned long)&alg_data;
++	timer->data = (unsigned long)alg_data;
+ 
+ 	add_timer(timer);
+ }
+-- 
+1.7.2.3
