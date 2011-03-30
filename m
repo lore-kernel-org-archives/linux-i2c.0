@@ -1,35 +1,28 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] i2c: pnx: Fix crash due to wrong init of timer->data
-Date: Tue, 29 Mar 2011 16:15:54 +0200
-Message-ID: <1301408154-16027-1-git-send-email-w.sang@pengutronix.de>
+From: Sir Mark Thompson <atmclaims-RzzYuMmYZDU@public.gmane.org>
+Subject: ATM DEBIT CARD
+Date: Wed, 30 Mar 2011 03:55:13 +0300
+Message-ID: <71d5d895408fca6593be876e6e434d63@upatras.gr>
+Reply-To: sirmarkthompson-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-alg_data is already a pointer which must be passed directly.
 
-Reported-by: Dieter Ripp <ripp-24OduB8/I+bby3iVrkZq2A@public.gmane.org>
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
----
- drivers/i2c/busses/i2c-pnx.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-index 4d2168f..30365f3 100644
---- a/drivers/i2c/busses/i2c-pnx.c
-+++ b/drivers/i2c/busses/i2c-pnx.c
-@@ -66,7 +66,7 @@ static inline void i2c_pnx_arm_timer(struct i2c_pnx_algo_data *alg_data)
- 		jiffies, expires);
- 
- 	timer->expires = jiffies + expires;
--	timer->data = (unsigned long)&alg_data;
-+	timer->data = (unsigned long)alg_data;
- 
- 	add_timer(timer);
- }
 -- 
-1.7.2.3
+This officially inform you that the ATM card number 4278763100030014 with
+stock worth 6.8 million dollars has been accredited in your favour.Please
+contact Mr. Tony Kings with the following.
+Full Name:
+Delivery Address:
+Age:
+Occupation:
+Phone Number:
+Skype ID:
+Foreign passport:
+
+Best wishes.
+Sir Mark Thompson
