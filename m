@@ -1,419 +1,108 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 07/19] timberdale: mfd_cell is now implicitly available
- to drivers
-Date: Thu, 31 Mar 2011 17:05:22 -0600
-Message-ID: <20110331230522.GI437@ponder.secretlab.ca>
-References: <20110202195417.228e2656@queued.net>
- <20110202200812.3d8d6cba@queued.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Poulsbo I2C - /dev/i2c not seen when loading i2c-dev
+Date: Fri, 1 Apr 2011 12:10:27 +0200
+Message-ID: <20110401121027.49ce012b@endymion.delvare>
+References: <fb407773c6a76f3ffef06ff357df2118.squirrel@host171.canaca.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110202200812.3d8d6cba@queued.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andres Salomon <dilinger@queued.net>
-Cc: Samuel Ortiz <sameo@linux.intel.com>, linux-kernel@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, khali@linux-fr.org, ben-linux@fluff.org, Peter Korsgaard <jacmet@sunsite.dk>, Mauro Carvalho Chehab <mchehab@infradead.org>, David Brownell <dbrownell@users.sourceforge.net>, linux-i2c@vger.kernel.org, linux-media@vger.kernel.org, netdev@vger.kernel.org, spi-devel-general@lists.sourceforge.net, Mocean Laboratories <info@mocean-labs.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <fb407773c6a76f3ffef06ff357df2118.squirrel-N82HvsEaY4mscnXkh+DeetBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Feb 02, 2011 at 08:08:12PM -0800, Andres Salomon wrote:
-> 
-> No need to explicitly set the cell's platform_data/data_size.
-> 
-> In this case, move the various platform_data pointers
-> to driver_data.  All of the clients which make use of it
-> are also changed.
-> 
-> Signed-off-by: Andres Salomon <dilinger@queued.net>
-> ---
->  drivers/dma/timb_dma.c           |    2 +-
->  drivers/gpio/timbgpio.c          |    5 +-
->  drivers/i2c/busses/i2c-ocores.c  |    2 +-
->  drivers/i2c/busses/i2c-xiic.c    |    2 +-
->  drivers/media/radio/radio-timb.c |    2 +-
->  drivers/media/video/timblogiw.c  |    2 +-
->  drivers/mfd/timberdale.c         |   81 +++++++++++++-------------------------
->  drivers/net/ks8842.c             |    2 +-
->  drivers/spi/xilinx_spi.c         |    2 +-
->  9 files changed, 36 insertions(+), 64 deletions(-)
-> 
-> diff --git a/drivers/dma/timb_dma.c b/drivers/dma/timb_dma.c
-> index 3b88a4e..aa06ca4 100644
-> --- a/drivers/dma/timb_dma.c
-> +++ b/drivers/dma/timb_dma.c
-> @@ -684,7 +684,7 @@ static irqreturn_t td_irq(int irq, void *devid)
->  
->  static int __devinit td_probe(struct platform_device *pdev)
->  {
-> -	struct timb_dma_platform_data *pdata = pdev->dev.platform_data;
-> +	struct timb_dma_platform_data *pdata = platform_get_drvdata(pdev);
+On Thu, 31 Mar 2011 18:07:26 -0400, simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org wrote:
+> Hi all,
+> I'm hoping that someone here can help. I am trying to get userland ac=
+cess
+> to the I2C bus(es) on an embedded system, however recent kernels (ie.
+> 2.6.38) are not 'loading' any buses when I 'modprobe i2c-dev'.
+>=20
+> Going back to =E2=80=9C2.6.32=E2=80=9D I am able to see 1 bus, and 'i=
+2cdetect 0' shows a
 
-Hold the phone.  I know this has already been merged, but this isn't correct.
+This is a problem on your system and not a general issue with i2c-dev
+in kernel 2.6.38. i2c-dev merely creates the device nodes in /dev, it
+doesn't create the buses themselves. So, if loading i2c-dev doesn't
+create the device nodes, odds are that the i2c buses are missing in the
+first place. Check in /sys/bus/i2c.
 
-drvdata is under the ownership of the driver, which means it should
-*not* be set when .probe() gets called.  It is for driver private data
-to do with as it needs, usually for internal state.
+> single device sitting at address 0x69 (which I believe to EEPROM on t=
+he
+> wifi card... not confirmed).
 
-Gah.  Not all devices instantiated via mfd will be an mfd device,
-which means that the driver may very well expect an *entirely
-different* platform_device pointer; which further means a very high
-potential of incorrectly dereferenced structures (as evidenced by a
-patch series that is not bisectable).  For instance, the xilinx ip
-cores are used by more than just mfd.
+Very unlikely. EEPROMs typically live in the 0x50-0x57 address range.
+At 0x69 is almost always a clock chip.
 
-This is really bad.  Since this is new in .39-rc1, I really think this
-series needs to be reverted.  Samuel, can you look at this please?
+> The board is built around the Poulsbo and therefore using the 'i2c-is=
+ch'
+> driver.
 
-g.
+Check for error messages when you load the i2c-isch driver. Note that
+in kernel 2.6.34 the structure of the i2c-isch driver was changed, from
+a standalone PCI driver to a MFD driver. Please make sure that you have
+CONFIG_LPC_SCH installed and driver lpc_sch loaded, otherwise i2c-isch
+will never see the platform device it is looking for.
 
+>=20
+> Reviewing the schematic I see that there are several buses, each goin=
+g to
+> individual components:
+> IT8516 U5/110+111 -> LTC1760 U6/18+22 [battery charger =E2=80=93 0x1A=
+/0x12]
+> IT8516 U5/115+116 -> W83L771 U60/8+7 [thermal sensor =E2=80=93 0x18??=
+]
+> IT8516 U5/117+118 -> LSM303DLH U64/19+20 [accel/compass =E2=80=93 0x1=
+9]
+> POULSBO U2/G37+H38 -> PCI Express Socket
 
->  	struct timb_dma *td;
->  	struct resource *iomem;
->  	int irq;
-> diff --git a/drivers/gpio/timbgpio.c b/drivers/gpio/timbgpio.c
-> index 58c8f30..e404487 100644
-> --- a/drivers/gpio/timbgpio.c
-> +++ b/drivers/gpio/timbgpio.c
-> @@ -228,7 +228,7 @@ static int __devinit timbgpio_probe(struct platform_device *pdev)
->  	struct gpio_chip *gc;
->  	struct timbgpio *tgpio;
->  	struct resource *iomem;
-> -	struct timbgpio_platform_data *pdata = pdev->dev.platform_data;
-> +	struct timbgpio_platform_data *pdata = platform_get_drvdata(pdev);
->  	int irq = platform_get_irq(pdev, 0);
->  
->  	if (!pdata || pdata->nr_pins > 32) {
-> @@ -319,14 +319,13 @@ err_mem:
->  static int __devexit timbgpio_remove(struct platform_device *pdev)
->  {
->  	int err;
-> -	struct timbgpio_platform_data *pdata = pdev->dev.platform_data;
->  	struct timbgpio *tgpio = platform_get_drvdata(pdev);
->  	struct resource *iomem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	int irq = platform_get_irq(pdev, 0);
->  
->  	if (irq >= 0 && tgpio->irq_base > 0) {
->  		int i;
-> -		for (i = 0; i < pdata->nr_pins; i++) {
-> +		for (i = 0; i < tgpio->gpio.ngpio; i++) {
->  			set_irq_chip(tgpio->irq_base + i, NULL);
->  			set_irq_chip_data(tgpio->irq_base + i, NULL);
->  		}
-> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-> index ef3bcb1..dc203ec 100644
-> --- a/drivers/i2c/busses/i2c-ocores.c
-> +++ b/drivers/i2c/busses/i2c-ocores.c
-> @@ -305,7 +305,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
->  		return -EIO;
->  	}
->  
-> -	pdata = pdev->dev.platform_data;
-> +	pdata = platform_get_drvdata(pdev);
->  	if (pdata) {
->  		i2c->regstep = pdata->regstep;
->  		i2c->clock_khz = pdata->clock_khz;
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index a9c419e..830b8c1 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -704,7 +704,7 @@ static int __devinit xiic_i2c_probe(struct platform_device *pdev)
->  	if (irq < 0)
->  		goto resource_missing;
->  
-> -	pdata = (struct xiic_i2c_platform_data *) pdev->dev.platform_data;
-> +	pdata = platform_get_drvdata(pdev);
->  	if (!pdata)
->  		return -EINVAL;
->  
-> diff --git a/drivers/media/radio/radio-timb.c b/drivers/media/radio/radio-timb.c
-> index a185610..e7baf26 100644
-> --- a/drivers/media/radio/radio-timb.c
-> +++ b/drivers/media/radio/radio-timb.c
-> @@ -148,7 +148,7 @@ static const struct v4l2_file_operations timbradio_fops = {
->  
->  static int __devinit timbradio_probe(struct platform_device *pdev)
->  {
-> -	struct timb_radio_platform_data *pdata = pdev->dev.platform_data;
-> +	struct timb_radio_platform_data *pdata = platform_get_drvdata(pdev);
->  	struct timbradio *tr;
->  	int err;
->  
-> diff --git a/drivers/media/video/timblogiw.c b/drivers/media/video/timblogiw.c
-> index fc611eb..61aa67a 100644
-> --- a/drivers/media/video/timblogiw.c
-> +++ b/drivers/media/video/timblogiw.c
-> @@ -790,7 +790,7 @@ static int __devinit timblogiw_probe(struct platform_device *pdev)
->  {
->  	int err;
->  	struct timblogiw *lw = NULL;
-> -	struct timb_video_platform_data *pdata = pdev->dev.platform_data;
-> +	struct timb_video_platform_data *pdata = platform_get_drvdata(pdev);
->  
->  	if (!pdata) {
->  		dev_err(&pdev->dev, "No platform data\n");
-> diff --git a/drivers/mfd/timberdale.c b/drivers/mfd/timberdale.c
-> index 6ad8a7f..e9ae162 100644
-> --- a/drivers/mfd/timberdale.c
-> +++ b/drivers/mfd/timberdale.c
-> @@ -384,8 +384,7 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg0[] = {
->  		.name = "timb-dma",
->  		.num_resources = ARRAY_SIZE(timberdale_dma_resources),
->  		.resources = timberdale_dma_resources,
-> -		.platform_data = &timb_dma_platform_data,
-> -		.data_size = sizeof(timb_dma_platform_data),
-> +		.driver_data = &timb_dma_platform_data,
->  	},
->  	{
->  		.name = "timb-uart",
-> @@ -396,43 +395,37 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg0[] = {
->  		.name = "xiic-i2c",
->  		.num_resources = ARRAY_SIZE(timberdale_xiic_resources),
->  		.resources = timberdale_xiic_resources,
-> -		.platform_data = &timberdale_xiic_platform_data,
-> -		.data_size = sizeof(timberdale_xiic_platform_data),
-> +		.driver_data = &timberdale_xiic_platform_data,
->  	},
->  	{
->  		.name = "timb-gpio",
->  		.num_resources = ARRAY_SIZE(timberdale_gpio_resources),
->  		.resources = timberdale_gpio_resources,
-> -		.platform_data = &timberdale_gpio_platform_data,
-> -		.data_size = sizeof(timberdale_gpio_platform_data),
-> +		.driver_data = &timberdale_gpio_platform_data,
->  	},
->  	{
->  		.name = "timb-video",
->  		.num_resources = ARRAY_SIZE(timberdale_video_resources),
->  		.resources = timberdale_video_resources,
-> -		.platform_data = &timberdale_video_platform_data,
-> -		.data_size = sizeof(timberdale_video_platform_data),
-> +		.driver_data = &timberdale_video_platform_data,
->  	},
->  	{
->  		.name = "timb-radio",
->  		.num_resources = ARRAY_SIZE(timberdale_radio_resources),
->  		.resources = timberdale_radio_resources,
-> -		.platform_data = &timberdale_radio_platform_data,
-> -		.data_size = sizeof(timberdale_radio_platform_data),
-> +		.driver_data = &timberdale_radio_platform_data,
->  	},
->  	{
->  		.name = "xilinx_spi",
->  		.num_resources = ARRAY_SIZE(timberdale_spi_resources),
->  		.resources = timberdale_spi_resources,
-> -		.platform_data = &timberdale_xspi_platform_data,
-> -		.data_size = sizeof(timberdale_xspi_platform_data),
-> +		.driver_data = &timberdale_xspi_platform_data,
->  	},
->  	{
->  		.name = "ks8842",
->  		.num_resources = ARRAY_SIZE(timberdale_eth_resources),
->  		.resources = timberdale_eth_resources,
-> -		.platform_data = &timberdale_ks8842_platform_data,
-> -		.data_size = sizeof(timberdale_ks8842_platform_data)
-> +		.driver_data = &timberdale_ks8842_platform_data,
->  	},
->  };
->  
-> @@ -441,8 +434,7 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg1[] = {
->  		.name = "timb-dma",
->  		.num_resources = ARRAY_SIZE(timberdale_dma_resources),
->  		.resources = timberdale_dma_resources,
-> -		.platform_data = &timb_dma_platform_data,
-> -		.data_size = sizeof(timb_dma_platform_data),
-> +		.driver_data = &timb_dma_platform_data,
->  	},
->  	{
->  		.name = "timb-uart",
-> @@ -458,15 +450,13 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg1[] = {
->  		.name = "xiic-i2c",
->  		.num_resources = ARRAY_SIZE(timberdale_xiic_resources),
->  		.resources = timberdale_xiic_resources,
-> -		.platform_data = &timberdale_xiic_platform_data,
-> -		.data_size = sizeof(timberdale_xiic_platform_data),
-> +		.driver_data = &timberdale_xiic_platform_data,
->  	},
->  	{
->  		.name = "timb-gpio",
->  		.num_resources = ARRAY_SIZE(timberdale_gpio_resources),
->  		.resources = timberdale_gpio_resources,
-> -		.platform_data = &timberdale_gpio_platform_data,
-> -		.data_size = sizeof(timberdale_gpio_platform_data),
-> +		.driver_data = &timberdale_gpio_platform_data,
->  	},
->  	{
->  		.name = "timb-mlogicore",
-> @@ -477,29 +467,25 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg1[] = {
->  		.name = "timb-video",
->  		.num_resources = ARRAY_SIZE(timberdale_video_resources),
->  		.resources = timberdale_video_resources,
-> -		.platform_data = &timberdale_video_platform_data,
-> -		.data_size = sizeof(timberdale_video_platform_data),
-> +		.driver_data = &timberdale_video_platform_data,
->  	},
->  	{
->  		.name = "timb-radio",
->  		.num_resources = ARRAY_SIZE(timberdale_radio_resources),
->  		.resources = timberdale_radio_resources,
-> -		.platform_data = &timberdale_radio_platform_data,
-> -		.data_size = sizeof(timberdale_radio_platform_data),
-> +		.driver_data = &timberdale_radio_platform_data,
->  	},
->  	{
->  		.name = "xilinx_spi",
->  		.num_resources = ARRAY_SIZE(timberdale_spi_resources),
->  		.resources = timberdale_spi_resources,
-> -		.platform_data = &timberdale_xspi_platform_data,
-> -		.data_size = sizeof(timberdale_xspi_platform_data),
-> +		.driver_data = &timberdale_xspi_platform_data,
->  	},
->  	{
->  		.name = "ks8842",
->  		.num_resources = ARRAY_SIZE(timberdale_eth_resources),
->  		.resources = timberdale_eth_resources,
-> -		.platform_data = &timberdale_ks8842_platform_data,
-> -		.data_size = sizeof(timberdale_ks8842_platform_data)
-> +		.driver_data = &timberdale_ks8842_platform_data,
->  	},
->  };
->  
-> @@ -508,8 +494,7 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg2[] = {
->  		.name = "timb-dma",
->  		.num_resources = ARRAY_SIZE(timberdale_dma_resources),
->  		.resources = timberdale_dma_resources,
-> -		.platform_data = &timb_dma_platform_data,
-> -		.data_size = sizeof(timb_dma_platform_data),
-> +		.driver_data = &timb_dma_platform_data,
->  	},
->  	{
->  		.name = "timb-uart",
-> @@ -520,36 +505,31 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg2[] = {
->  		.name = "xiic-i2c",
->  		.num_resources = ARRAY_SIZE(timberdale_xiic_resources),
->  		.resources = timberdale_xiic_resources,
-> -		.platform_data = &timberdale_xiic_platform_data,
-> -		.data_size = sizeof(timberdale_xiic_platform_data),
-> +		.driver_data = &timberdale_xiic_platform_data,
->  	},
->  	{
->  		.name = "timb-gpio",
->  		.num_resources = ARRAY_SIZE(timberdale_gpio_resources),
->  		.resources = timberdale_gpio_resources,
-> -		.platform_data = &timberdale_gpio_platform_data,
-> -		.data_size = sizeof(timberdale_gpio_platform_data),
-> +		.driver_data = &timberdale_gpio_platform_data,
->  	},
->  	{
->  		.name = "timb-video",
->  		.num_resources = ARRAY_SIZE(timberdale_video_resources),
->  		.resources = timberdale_video_resources,
-> -		.platform_data = &timberdale_video_platform_data,
-> -		.data_size = sizeof(timberdale_video_platform_data),
-> +		.driver_data = &timberdale_video_platform_data,
->  	},
->  	{
->  		.name = "timb-radio",
->  		.num_resources = ARRAY_SIZE(timberdale_radio_resources),
->  		.resources = timberdale_radio_resources,
-> -		.platform_data = &timberdale_radio_platform_data,
-> -		.data_size = sizeof(timberdale_radio_platform_data),
-> +		.driver_data = &timberdale_radio_platform_data,
->  	},
->  	{
->  		.name = "xilinx_spi",
->  		.num_resources = ARRAY_SIZE(timberdale_spi_resources),
->  		.resources = timberdale_spi_resources,
-> -		.platform_data = &timberdale_xspi_platform_data,
-> -		.data_size = sizeof(timberdale_xspi_platform_data),
-> +		.driver_data = &timberdale_xspi_platform_data,
->  	},
->  };
->  
-> @@ -558,8 +538,7 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg3[] = {
->  		.name = "timb-dma",
->  		.num_resources = ARRAY_SIZE(timberdale_dma_resources),
->  		.resources = timberdale_dma_resources,
-> -		.platform_data = &timb_dma_platform_data,
-> -		.data_size = sizeof(timb_dma_platform_data),
-> +		.driver_data = &timb_dma_platform_data,
->  	},
->  	{
->  		.name = "timb-uart",
-> @@ -570,43 +549,37 @@ static __devinitdata struct mfd_cell timberdale_cells_bar0_cfg3[] = {
->  		.name = "ocores-i2c",
->  		.num_resources = ARRAY_SIZE(timberdale_ocores_resources),
->  		.resources = timberdale_ocores_resources,
-> -		.platform_data = &timberdale_ocores_platform_data,
-> -		.data_size = sizeof(timberdale_ocores_platform_data),
-> +		.driver_data = &timberdale_ocores_platform_data,
->  	},
->  	{
->  		.name = "timb-gpio",
->  		.num_resources = ARRAY_SIZE(timberdale_gpio_resources),
->  		.resources = timberdale_gpio_resources,
-> -		.platform_data = &timberdale_gpio_platform_data,
-> -		.data_size = sizeof(timberdale_gpio_platform_data),
-> +		.driver_data = &timberdale_gpio_platform_data,
->  	},
->  	{
->  		.name = "timb-video",
->  		.num_resources = ARRAY_SIZE(timberdale_video_resources),
->  		.resources = timberdale_video_resources,
-> -		.platform_data = &timberdale_video_platform_data,
-> -		.data_size = sizeof(timberdale_video_platform_data),
-> +		.driver_data = &timberdale_video_platform_data,
->  	},
->  	{
->  		.name = "timb-radio",
->  		.num_resources = ARRAY_SIZE(timberdale_radio_resources),
->  		.resources = timberdale_radio_resources,
-> -		.platform_data = &timberdale_radio_platform_data,
-> -		.data_size = sizeof(timberdale_radio_platform_data),
-> +		.driver_data = &timberdale_radio_platform_data,
->  	},
->  	{
->  		.name = "xilinx_spi",
->  		.num_resources = ARRAY_SIZE(timberdale_spi_resources),
->  		.resources = timberdale_spi_resources,
-> -		.platform_data = &timberdale_xspi_platform_data,
-> -		.data_size = sizeof(timberdale_xspi_platform_data),
-> +		.driver_data = &timberdale_xspi_platform_data,
->  	},
->  	{
->  		.name = "ks8842",
->  		.num_resources = ARRAY_SIZE(timberdale_eth_resources),
->  		.resources = timberdale_eth_resources,
-> -		.platform_data = &timberdale_ks8842_platform_data,
-> -		.data_size = sizeof(timberdale_ks8842_platform_data)
-> +		.driver_data = &timberdale_ks8842_platform_data,
->  	},
->  };
->  
-> diff --git a/drivers/net/ks8842.c b/drivers/net/ks8842.c
-> index 928b2b8..7f0f51f 100644
-> --- a/drivers/net/ks8842.c
-> +++ b/drivers/net/ks8842.c
-> @@ -1145,7 +1145,7 @@ static int __devinit ks8842_probe(struct platform_device *pdev)
->  	struct resource *iomem;
->  	struct net_device *netdev;
->  	struct ks8842_adapter *adapter;
-> -	struct ks8842_platform_data *pdata = pdev->dev.platform_data;
-> +	struct ks8842_platform_data *pdata = platform_get_drvdata(pdev);
->  	u16 id;
->  	unsigned i;
->  
-> diff --git a/drivers/spi/xilinx_spi.c b/drivers/spi/xilinx_spi.c
-> index 7adaef6..2926dec 100644
-> --- a/drivers/spi/xilinx_spi.c
-> +++ b/drivers/spi/xilinx_spi.c
-> @@ -474,7 +474,7 @@ static int __devinit xilinx_spi_probe(struct platform_device *dev)
->  	struct spi_master *master;
->  	u8 i;
->  
-> -	pdata = dev->dev.platform_data;
-> +	pdata = platform_get_drvdata(dev);
->  	if (pdata) {
->  		num_cs = pdata->num_chipselect;
->  		little_endian = pdata->little_endian;
-> -- 
-> 1.7.2.3
-> 
+This suggests that the board uses the SMBus controllers in the ITE IT85=
+16
+Super-I/O chip rather than the Intel SCH south bridge. Unfortunately we
+have no support for the SMBus controllers of the IT8516, and I doubt we
+get support anytime soon as I was unable to find a datasheet for the
+ITE IT8516.
+
+> I am a little dismayed by the comment in 'i2c-isch.c' which suggest i=
+t can
+> handle only one i2c bus at any time.
+> --
+> /*
+>    Supports:
+> 	Intel SCH chipsets (AF82US15W, AF82US15L, AF82UL11L)
+>    Note: we assume there can only be one device, with one SMBus inter=
+face.
+> */
+> --
+
+This is a limitation due to the driver design. The i2c-i801 driver has
+a similar limitation, but is was solved when needed:
+http://git.kernel.org/?p=3Dlinux/kernel/git/torvalds/linux-2.6.git;a=3D=
+commitdiff;h=3D0cd96eb0a74791cacb27ace902b991cfd0e72abe
+
+But according to the information you provided above, this is all
+irrelevant anyway, as the Intel SCH SMBus isn't used on your system
+(other than for a clock chip you do not care about.)
+
+>=20
+> This seems to correlate to these comments:
+> http://www.linuxforums.org/forum/programming-scripting/175147-smbus-i=
+ntel-sch-us15w.html
+
+I can't see anything interesting in this post.
+
+> Can anyone confirm whether this is actually the case, and whether it =
+is
+> possible to configure it to use a different controller address. One w=
+ould
+> expect this to be a module option I guess, however it doesn't seem to=
+ take
+> any.
+
+A module option to specify an address? Come on, ISA sound cards are
+gone! :p
+
+--=20
+Jean Delvare
