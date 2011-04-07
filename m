@@ -1,31 +1,68 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [RFC][PATCH] Enable async suspend/resume of i2c devices
-Date: Thu, 7 Apr 2011 09:00:43 +0100
-Message-ID: <20110407080042.GF14519@opensource.wolfsonmicro.com>
-References: <20110406095240.410b4e7e@endymion.delvare> <Pine.LNX.4.44L0.1104061043220.1907-100000@iolanthe.rowland.org> <20110406223123.GA5297@opensource.wolfsonmicro.com> <20110407095513.4c0b708e@endymion.delvare>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH 07/19] timberdale: mfd_cell is now implicitly available
+ to drivers
+Date: Thu, 7 Apr 2011 01:04:04 -0700
+Message-ID: <20110407080404.GF6427@angua.secretlab.ca>
+References: <20110401235239.GE29397@sortiz-mobl>
+ <BANLkTi=bq=OGzXFp7qiBr7x_BnGOWf=DRQ@mail.gmail.com>
+ <20110404100314.GC2751@sortiz-mobl>
+ <20110405030428.GB29522@ponder.secretlab.ca>
+ <20110406152322.GA2757@sortiz-mobl>
+ <20110406155805.GA20095@suse.de>
+ <20110406170537.GB2757@sortiz-mobl>
+ <20110406175647.GA8048@suse.de>
+ <20110406112557.5c4c9bfe@debxo>
+ <20110406183854.GA10058@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20110407095513.4c0b708e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20110406183854.GA10058-l3A5Bk7waGM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Sonny Rao <sonnyrao-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>
+Cc: Andres Salomon <dilinger-pFFUokh25LWsTnJN9+BGXg@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, David Brownell <dbrownell-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Mocean Laboratories <info-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 07, 2011 at 09:55:13AM +0200, Jean Delvare wrote:
-> On Thu, 7 Apr 2011 07:31:24 +0900, Mark Brown wrote:
+On Wed, Apr 06, 2011 at 11:38:54AM -0700, Greg KH wrote:
+> On Wed, Apr 06, 2011 at 11:25:57AM -0700, Andres Salomon wrote:
+> > > > We've been faced with the problem of being able to pass both MFD
+> > > > related data and a platform_data pointer to some of those drivers.
+> > > > Squeezing the MFD bits in the sub driver platform_data pointer
+> > > > doesn't work for drivers that know nothing about MFDs. It also adds
+> > > > an additional dependency on the MFD API to all MFD sub drivers.
+> > > > That prevents any of those drivers to eventually be used as plain
+> > > > platform device drivers.
+> > > 
+> > > Then they shouldn't be "plain" platform drivers, that should only be
+> > > reserved for drivers that are the "lowest" type.  Just make them MFD
+> > > devices and go from there.
+> > 
+> > 
+> > The problem is of mixing "plain" platform devices and MFD devices.
+> 
+> Then don't do that.
 
-> > You definitely don't know *anything* about the relationships for I2C,
-> > especially in embedded systems.
+>From my perspective, MFD devices are little more than a bag of
+platform_devices, with the MFD layer provides infrastructure for
+managing it.  It isn't that there are 'plain' platform device and
+'mfd' devices.  There are only platform_devices, but some of the
+drivers use additional data stored in a struct mfd.
 
-> Can you please elaborate? The i2c subsystem uses a standard
-> parent-children relationship. It seems fairly similar to USB for
-> example. The only special case I can think of is with bus multiplexing,
-> but it would be easy enough to switch off async suspend/resume in this
-> case.
+Personally, I'm not thrilled with the approach of using struct mfd, or
+more specifically making it available to drivers, but on the ugly
+scale it isn't very high.
 
-For I2C itself that's the case but for power and GPIO (which are very
-common in conjunction with I2C in the embedded context) we loose the
-tree.  This is much less of an issue with buses like PCI where
-everything is bundled into the bus.
+However, the changes on how struct mfd is passed that were merged in
+2.6.39 were actively dangerous and are going to be reverted.  Yet
+a method is still needed to pass the struct mfd in a safe way.  I
+don't have a problem with adding the mfd pointer to struct
+platform_device, even if it should just be a stop gap to something
+better.
+
+Independently, I have been experimenting with typesafe methods for
+attaching data to devices which may very well be the long term
+approach, but for the short term I see no problem with adding the mfd
+pointer, particularly because it is by far safer than any of the other
+immediately available options.
+
+g.
