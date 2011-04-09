@@ -1,41 +1,18 @@
-From: simon-wM4F9T/ekXmXDw4h08c5KA@public.gmane.org
-Subject: Re: Poulsbo I2C - /dev/i2c not seen when loading i2c-dev
-Date: Fri, 8 Apr 2011 16:11:48 -0400
-Message-ID: <0bd85f87b0023c4c1cd417a732789f36.squirrel@host171.canaca.com>
-References: <fb407773c6a76f3ffef06ff357df2118.squirrel@host171.canaca.com>
-    <20110401121027.49ce012b@endymion.delvare>
-    <b9ff3e86cbf2aa2c34f614adf80e7ffb.squirrel@host171.canaca.com>
-    <22a6003c213a91452d2a7312e4e5ad32.squirrel@host171.canaca.com>
-    <20110406192059.369c3143@endymion.delvare>
+From: "=?ISO-8859-1?Q?MRS=20BINTU=20MAHMUD?="
+	<regina-eVDTk5LvV9cd2E9S8oBK5zf3LNKNG0CT@public.gmane.org>
+Subject: (unknown)
+Date: Sat,  9 Apr 2011 07:23:41 -0300
+Message-ID: <20110409102341.9AB3C43BA70@mx01.locaweb.com.br>
+Reply-To: barrsariman1-YDxpq3io04c@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110406192059.369c3143-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Subject: 
+References: 
+In-Reply-To: 
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Good Day,
 
->> I got a bit further, if I boot the device with the 'acpi=off' kernel
->> option then I can modprobe both lpc_sch and i2c_dev, at which point
->> i2c-detect works fine.
->
-> As expected. but acpi=off is a little harsh. acpi_enforce_resources=no
-> would work too, and is less risky.
-
-Jean & I both (independantly) knocked up quick patches to 'lpc_sch' to
-allow it to load should any of the subsystems (GPIO or SMBus) load OK - it
-was previously failing at the first subsystem failure. This gave me access
-to the I2C controller whilst ACPI was active.
-
-Start discussion on whether this is a good idea...
-
-> * As I seem to understand that the board is developed by your own
->   company, you should ask the BIOS developers what they are up to. They
->   should be able to tell you if the ACPI code above is intended and
->   needed, or if it can be dropped (together with the PHO operation
->   region.)
-
-It's nice that you assume some level of competence here ;-)
-Simon.
+I am Mrs. Bintu Mahmud. Am presently in the hospital suffering from Cancerous disease,I need a trustworthy and God fearing fellow to help me build and manage an orphanage home in your Country,If interested kindly get back to me for more details on (BARRSARIMAN1-sZYbRm74+0k@public.gmane.org).
