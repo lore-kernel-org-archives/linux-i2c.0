@@ -1,59 +1,70 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] i2c: QUP based bus driver for Qualcomm MSM chipsets
-Date: Tue, 12 Apr 2011 05:57:34 +0100
-Message-ID: <20110412045733.GA21059@sirena.org.uk>
-References: <1302573749-15647-1-git-send-email-kheitke@codeaurora.org>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH -next reresend] i2c: designware-pcidrv depends on PCI
+Date: Tue, 12 Apr 2011 11:47:22 +0200
+Message-ID: <20110412114722.0f2e67d6@endymion.delvare>
+References: <20110408083215.6b3b0bfe.randy.dunlap@oracle.com>
+	<BANLkTikX_rG+6Eg4owary1YRGRG8NzyrGQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1302573749-15647-1-git-send-email-kheitke@codeaurora.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Kenneth Heitke <kheitke@codeaurora.org>
-Cc: davidb@codeaurora.org, dwalker@fifo99.com, ben-linux@fluff.org, tsoni@codeaurora.org, linux@arm.linux.org.uk, linus.walleij@stericsson.com, linux-arm-msm@vger.kernel.org, seth.heasley@intel.com, w.sang@pengutronix.de, tomoya-linux@dsn.okisemi.com, arve@android.com, "open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>, swetland@google.com, khali@linux-fr.org, open list <linux-kernel@vger.kernel.org>, bryanh@codeaurora.org, sdharia@codeaurora.org, "open list:ARM PORT" <linux-arm-kernel@lists.infradead.org>, guenter.roeck@ericsson.com
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <BANLkTikX_rG+6Eg4owary1YRGRG8NzyrGQ@mail.gmail.com>
+Sender: linux-next-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>, Randy Dunlap <randy.dunlap@oracle.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Ben Dooks <ben-linux@fluff.org>
+Cc: Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 11, 2011 at 08:02:27PM -0600, Kenneth Heitke wrote:
+Geert, Randy,
 
-> mini-core. The driver supports FIFO mode (for low bandwidth applications)
-> and block mode (interrupt generated for each block-size data transfer).
-> The driver currently does not support DMA transfers.
+On Sat, 9 Apr 2011 13:34:49 +0200, Geert Uytterhoeven wrote:
+> On Fri, Apr 8, 2011 at 17:32, Randy Dunlap <randy.dunlap@oracle.com> =
+wrote:
+> > From: Randy Dunlap <randy.dunlap@oracle.com>
+> >
+> > i2c-designware-pcidrv is a PCI driver and should depend on PCI.
+> > Fixes these build errors:
+> >
+> > drivers/i2c/busses/i2c-designware-pcidrv.c:256: error: implicit dec=
+laration of function 'pci_request_region'
+> > drivers/i2c/busses/i2c-designware-pcidrv.c:338: error: implicit dec=
+laration of function 'pci_release_region'
+> >
+> > Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
+> > Cc: Baruch Siach <baruch@tkos.co.il>
+> > ---
+> > =A0drivers/i2c/busses/Kconfig | =A0 =A01 +
+> > =A01 file changed, 1 insertion(+)
+> >
+> > Does anybody merge i2c patches???
+>=20
+> Yes please, it's been there since Mar 17, reported several times, and=
+ probably
+> masking other build failures.
 
-> +static inline void qup_i2c_pwr_disable(struct qup_i2c_dev *dev)
-> +{
-> +	dev_dbg(dev->dev, "%s\n", __func__);
-> +
-> +	if (pm_runtime_enabled(dev->dev)) {
-> +		pm_runtime_mark_last_busy(dev->dev);
-> +		pm_runtime_put_sync(dev->dev);
-> +	} else
-> +		qup_i2c_clk_disable(dev);
-> +}
+This bug only exists in linux-next, as the code in question wasn't
+merged in Linus's tree yet. It is drawn into linux-next from Ben
+Dooks's next-i2c branch:
+  http://git.fluff.org/gitweb?p=3Dbjdooks/linux.git;a=3Dshortlog;h=3Dre=
+fs/heads/next-i2c
 
-What happens if someone changes the pm_runtime configuration in between
-a pwr_disable() and the corresponding enable?
+This is where it has to be fixed, so only Ben can do it. Ben, please?
 
-> +static void
-> +qup_issue_read(struct qup_i2c_dev *dev, struct i2c_msg *msg, int *idx,
-> +		uint32_t carry_over)
-> +{
-> +	uint16_t addr = (msg->addr << 1) | 1;
-> +	/*
-> +	 * QUP limit 256 bytes per read. By HW design, 0 in the 8-bit field
-> +	 * is treated as 256 byte read.
-> +	 */
-> +	uint16_t rd_len = ((dev->cnt == 256) ? 0 : dev->cnt);
+Meanwhile, it should be possible to apply a hot fix to linux-next
+directly, Stephen does it pretty often. Stephen, could you please apply
+this fix temporarily until Ben wakes up and applies it to his tree?
 
-This is a substantila incompatibility with most I2C ccontrollers i the
-kernel.  Is it possible for the driver to deal with this transparently,
-for example by expanding into a number of continued transfers?  If not
-we should add support to the I2C core for determining transfer limits,
-the 256 bytes limit is pretty low.
+> > --- linux-next-20110316.orig/drivers/i2c/busses/Kconfig
+> > +++ linux-next-20110316/drivers/i2c/busses/Kconfig
+> > @@ -359,6 +359,7 @@ config I2C_DESIGNWARE_PLATFORM
+> >
+> > =A0config I2C_DESIGNWARE_PCI
+> > =A0 =A0 =A0 =A0tristate "Synopsys DesignWare PCI"
+> > + =A0 =A0 =A0 depends on PCI
+> > =A0 =A0 =A0 =A0help
+> > =A0 =A0 =A0 =A0 =A0If you say yes to this option, support will be i=
+ncluded for the
+> > =A0 =A0 =A0 =A0 =A0Synopsys DesignWare I2C adapter. Only master mod=
+e is supported.
 
-> +		/* HW limits Read upto 256 bytes in 1 read without stop */
-> +		if (dev->msg->flags & I2C_M_RD) {
-> +			qup_set_read_mode(dev, dev->cnt);
-> +			if (dev->cnt > 256)
-> +				dev->cnt = 256;
-
-This definitely seems buggy - there's no error returned to the caller?
+--=20
+Jean Delvare
