@@ -1,39 +1,83 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: Decode dimms on dual socket machines
-Date: Thu, 14 Apr 2011 13:42:19 +0200
-Message-ID: <4DA6DD9B.40208@gmx.de>
-References: <4DA4250A.3060907@fuckner.net>	<20110412132611.045ace21@endymion.delvare>	<4DA44B05.906@fuckner.net>	<20110412155345.4644e51c@endymion.delvare>	<4DA53F22.5020105@gmx.de> <20110413103952.68bdb6fa@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-algo-bit: make sure to call pre/post_xfer for bit_test
+Date: Thu, 14 Apr 2011 19:47:06 -0400
+Message-ID: <1302824827-7348-1-git-send-email-alexdeucher@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110413103952.68bdb6fa-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Michael Fuckner <michael-iWcS09LKDTLR7s880joybQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: airlied-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare said the following:
-> On Wed, 13 Apr 2011 08:13:54 +0200, Michael Lawnick wrote:
->> I would expect a
->> #> echo "<deviceName> 0x70" > /sys/bus/i2c/devices/i2c-0/new_device
->> to span new buses, their numbers taken by random, even without platform
->> data (not tried by myself yet, but will have to do it soon).
-> 
-> Hmm, you're right, my memory that we has made platform data mandatory
-> was wrong, sorry.
-> 
->> The challenge will be to detect which of the 8 supported devices (
->> pca_9540, pca_9542, pca_9543, pca_9544, pca_9545, pca_9546, pca_9547,
->> pca_9548) is actually to be used.
-> 
-> In Michael's case it is irrelevant anyway, as the information he found
-> meanwhile clearly indicates that bus multiplexing is achieved by GPIOs
-> (most certainly on the ICH10) and not an PCA954x chip. The chip at 0x70
-> is probably the Intel 5500 IOH.
-> 
-Well, if he implements a multiplexer code for it, he is done :-)
+Apparently some distros set i2c-algo-bit.bit_test to 1 by
+default.  In some cases this causes i2c_bit_add_bus
+to fail and prevents the i2c bus from being added.  In the
+radeon case, we fail to add the ddc i2c buses which prevents
+the driver from being able to detect attached monitors.
+The i2c bus works fine even if bit_test fails.  This is likely
+due to gpio switching that is required and handled in the
+pre/post_xfer hooks, so call the pre/post_xfer hooks in the
+bit test as well.
 
+Fixes:
+https://bugs.freedesktop.org/show_bug.cgi?id=36221
+
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/algos/i2c-algo-bit.c |   21 ++++++++++++++++++---
+ 1 files changed, 18 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index 38319a6..e2740e6 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -232,9 +232,16 @@ static int i2c_inb(struct i2c_adapter *i2c_adap)
+  * Sanity check for the adapter hardware - check the reaction of
+  * the bus lines only if it seems to be idle.
+  */
+-static int test_bus(struct i2c_algo_bit_data *adap, char *name)
++static int test_bus(struct i2c_adapter *i2c_adap, char *name)
+ {
+-	int scl, sda;
++	struct i2c_algo_bit_data *adap = i2c_adap->algo_data;
++	int scl, sda, ret;
++
++	if (adap->pre_xfer) {
++		ret = adap->pre_xfer(i2c_adap);
++		if (ret < 0)
++			return -ENODEV;
++	}
+ 
+ 	if (adap->getscl == NULL)
+ 		pr_info("%s: Testing SDA only, SCL is not readable\n", name);
+@@ -297,11 +304,19 @@ static int test_bus(struct i2c_algo_bit_data *adap, char *name)
+ 		       "while pulling SCL high!\n", name);
+ 		goto bailout;
+ 	}
++
++	if (adap->post_xfer)
++		adap->post_xfer(i2c_adap);
++
+ 	pr_info("%s: Test OK\n", name);
+ 	return 0;
+ bailout:
+ 	sdahi(adap);
+ 	sclhi(adap);
++
++	if (adap->post_xfer)
++		adap->post_xfer(i2c_adap);
++
+ 	return -ENODEV;
+ }
+ 
+@@ -607,7 +622,7 @@ static int __i2c_bit_add_bus(struct i2c_adapter *adap,
+ 	int ret;
+ 
+ 	if (bit_test) {
+-		ret = test_bus(bit_adap, adap->name);
++		ret = test_bus(adap, adap->name);
+ 		if (ret < 0)
+ 			return -ENODEV;
+ 	}
 -- 
-KR
-Michael
+1.7.1.1
