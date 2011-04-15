@@ -1,34 +1,33 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-algo-bit: Cleanup bus_test calling convention
-Date: Fri, 15 Apr 2011 18:07:53 +0200
-Message-ID: <20110415180753.288b8ed7@endymion.delvare>
-References: <20110415111323.51bef2ac@endymion.delvare>
-	<BANLkTikBTN-3n0AUUxM2bgMKzME8zznycg@mail.gmail.com>
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: [PATCH] i2c: add a module alias to the sh-mobile driver
+Date: Fri, 15 Apr 2011 20:18:57 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1104152017400.18593@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BANLkTikBTN-3n0AUUxM2bgMKzME8zznycg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <damm@opensource.se>, Simon Horman <horms@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 15 Apr 2011 11:57:46 -0400, Alex Deucher wrote:
-> On Fri, Apr 15, 2011 at 5:13 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> > Now that we pass the i2c_adapter as the first parameter, it makes
-> > little sense to pass its name separately as the second.
-> >
-> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > ---
-> > Alex, I think it would make sense to merge this into your own patch?
-> >
-> 
-> Yeah, looks good to me.  Do you want to merge them or do you want me
-> to send new patch?
+This patch enables I2C driver autoloading on sh-mobile systems.
 
-I'll take care, no problem.
+Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: Simon Horman <horms@verge.net.au>
+Cc: Magnus Damm <damm@opensource.se>
+---
+ drivers/i2c/busses/i2c-sh_mobile.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index 2707f5e..81ccd78 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -729,3 +729,4 @@ module_exit(sh_mobile_i2c_adap_exit);
+ MODULE_DESCRIPTION("SuperH Mobile I2C Bus Controller driver");
+ MODULE_AUTHOR("Magnus Damm");
+ MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:i2c-sh_mobile");
 -- 
-Jean Delvare
+1.7.2.5
+
