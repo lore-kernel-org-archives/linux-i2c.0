@@ -1,33 +1,34 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: [PATCH] i2c: add a module alias to the sh-mobile driver
-Date: Fri, 15 Apr 2011 20:18:57 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1104152017400.18593@axis700.grange>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PULL] i2c fixes for 2.6.39
+Date: Sun, 17 Apr 2011 11:01:36 +0200
+Message-ID: <20110417110136.71b78b85@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, Magnus Damm <damm@opensource.se>, Simon Horman <horms@verge.net.au>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch enables I2C driver autoloading on sh-mobile systems.
+Hi Linus,
 
-Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: Simon Horman <horms@verge.net.au>
-Cc: Magnus Damm <damm@opensource.se>
----
- drivers/i2c/busses/i2c-sh_mobile.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Please pull i2c subsystem fixes for Linux 2.6.39 from:
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 2707f5e..81ccd78 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -729,3 +729,4 @@ module_exit(sh_mobile_i2c_adap_exit);
- MODULE_DESCRIPTION("SuperH Mobile I2C Bus Controller driver");
- MODULE_AUTHOR("Magnus Damm");
- MODULE_LICENSE("GPL v2");
-+MODULE_ALIAS("platform:i2c-sh_mobile");
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+
+ drivers/i2c/algos/i2c-algo-bit.c |   22 +++++++++++++++++++---
+ drivers/i2c/i2c-core.c           |    6 ++++--
+ 2 files changed, 23 insertions(+), 5 deletions(-)
+
+---------------
+
+Alex Deucher (1):
+      i2c-algo-bit: Call pre/post_xfer for bit_test
+
+Jean Delvare (1):
+      i2c: Improve deprecation warnings
+
+Thanks,
 -- 
-1.7.2.5
-
+Jean Delvare
