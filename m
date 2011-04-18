@@ -1,34 +1,25 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: [GIT PULL] i2c fixes for 2.6.39
-Date: Sun, 17 Apr 2011 11:01:36 +0200
-Message-ID: <20110417110136.71b78b85@endymion.delvare>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH] i2c: add a module alias to the sh-mobile driver
+Date: Mon, 18 Apr 2011 16:25:02 +0800
+Message-ID: <20110418082502.GE3720@verge.net.au>
+References: <Pine.LNX.4.64.1104152017400.18593@axis700.grange>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Linux I2C <linux-i2c@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.1104152017400.18593@axis700.grange>
+Sender: linux-sh-owner@vger.kernel.org
+To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, Magnus Damm <damm@opensource.se>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On Fri, Apr 15, 2011 at 08:18:57PM +0200, Guennadi Liakhovetski wrote:
+> This patch enables I2C driver autoloading on sh-mobile systems.
+> 
+> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+> Cc: Simon Horman <horms@verge.net.au>
+> Cc: Magnus Damm <damm@opensource.se>
 
-Please pull i2c subsystem fixes for Linux 2.6.39 from:
+This appears correct to me.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
-
- drivers/i2c/algos/i2c-algo-bit.c |   22 +++++++++++++++++++---
- drivers/i2c/i2c-core.c           |    6 ++++--
- 2 files changed, 23 insertions(+), 5 deletions(-)
-
----------------
-
-Alex Deucher (1):
-      i2c-algo-bit: Call pre/post_xfer for bit_test
-
-Jean Delvare (1):
-      i2c: Improve deprecation warnings
-
-Thanks,
--- 
-Jean Delvare
+Reviewed-by: Simon Horman <horms@verge.net.au>
