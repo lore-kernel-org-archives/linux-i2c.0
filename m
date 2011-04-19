@@ -1,53 +1,66 @@
-From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Subject: Re: [PATCH 0/6] i2c-davinci gpio pulsed SCL recovery with ICPFUNC
-Date: Tue, 19 Apr 2011 08:20:09 -0400
-Message-ID: <BANLkTinTMi76GmgO6HJ0+ifCXsHE3Mjsvg@mail.gmail.com>
-References: <BANLkTi=7DbMrbo0nQU+268LC_2258q-_DA@mail.gmail.com>
-	<70E876B0EA86DD4BAF101844BC814DFE093FB40998@Cloud.RL.local>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Decode dimms on dual socket machines
+Date: Tue, 19 Apr 2011 14:24:37 +0200
+Message-ID: <20110419142437.5eaac154@endymion.delvare>
+References: <4DA4250A.3060907@fuckner.net>
+	<20110412132611.045ace21@endymion.delvare>
+	<4DA44B05.906@fuckner.net>
+	<20110412155345.4644e51c@endymion.delvare>
+	<4DA53F22.5020105@gmx.de>
+	<20110413103952.68bdb6fa@endymion.delvare>
+	<4DA575C3.1050100@fuckner.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <70E876B0EA86DD4BAF101844BC814DFE093FB40998-lPJtnb2sqtq44ywRPIzf9A@public.gmane.org>
+In-Reply-To: <4DA575C3.1050100-iWcS09LKDTLR7s880joybQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
-Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Bastian Ruppert <Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org>, "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>, Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+To: Michael Fuckner <michael-iWcS09LKDTLR7s880joybQ@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jon,
+Hi Michael,
 
-On Mon, Apr 18, 2011 at 9:47 PM, Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org> wrote:
-> Ben Gardiner wrote:
->
->>>> When creating this series I noticed that there are obvious
->>>> similarities between the existing recovery routine implemented by
->>>> Philby John and John Povey
->
->> I'm not sure how the 20us in the existing method was derived -- I
->> wonder if Philby John or John Povey could comment?
->
-> I've been a little bemused about why I am getting credited for I2C
-> bus recovery work. I don't remember doing any work on that.
+On Wed, 13 Apr 2011 12:06:59 +0200, Michael Fuckner wrote:
+> On 04/13/2011 10:39 AM, Jean Delvare wrote:
+> 
+> >> The challenge will be to detect which of the 8 supported devices (
+> >> pca_9540, pca_9542, pca_9543, pca_9544, pca_9545, pca_9546, pca_9547,
+> >> pca_9548) is actually to be used.
+> >
+> > In Michael's case it is irrelevant anyway, as the information he found
+> > meanwhile clearly indicates that bus multiplexing is achieved by GPIOs
+> > (most certainly on the ICH10) and not an PCA954x chip. The chip at 0x70
+> > is probably the Intel 5500 IOH.
+> 
+> 
+> Supermicro just gave me the following information:
+> 
+> To access all SPDs, you have to pull low GPIO49 (IO_0x528 bit 17) first. 
+> Then pull low GPIO52 (IO_0x528 bit 20) to access first CPU 
+> memory(0x50~0x55); pull high GPIO52 to access 2nd CPU memory(0x50~0x55).
+> 
+> 
+> I can't find anything about GPIO49/52,53 in Datasheet for 5500/5520 chipset
+> http://www.intel.com/assets/pdf/datasheet/321328.pdf
+> 
+> So it is probably connected to ICH10
+> http://www.intel.com/Assets/PDF/datasheet/319973.pdf
+> 
+> but I don't know how to use this information
 
-My mistake -- sorry. Also sorry for getting your name wrong repeatedly.
+I've written a kernel driver to gain access to the GPIO pins of the
+ICH10 (and previous ICH chips too.) It's available here:
+http://khali.linux-fr.org/devel/misc/i801_gpio/
 
-> I did a couple of patches to fix a race when setting up a TX, but
-> those are, afaik, unrelated.
+Generic instructions for standalone drivers are here:
+http://khali.linux-fr.org/devel/misc/INSTALL
 
-In "i2c-davinci: Fix race when setting up for TX" and "i2c-davinci:
-Fix TX setup for more SoCs" you mention testing on DM355 -- is there
-any you have hardware on which the recovery procedure is executed on
-occasion and that you would be available to test modifications to the
-current implementation?
+I would appreciate if you could give it a try on your system and report
+everything in the kernel log after loading the driver. By default it
+won't change the GPIO values so it should be totally safe.
 
-> All I know about the bus recovery stuff is looking at it a while back
-> and thinking hmm, that seems to wiggle gpio without changing the
-> pinmuxing, so it can't possibly work.
-
-:) Probably not then.
-
-Best Regards,
-Ben Gardiner
-
----
-Nanometrics Inc.
-http://www.nanometrics.ca
+Thanks,
+-- 
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
