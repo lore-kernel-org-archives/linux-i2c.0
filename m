@@ -1,75 +1,581 @@
-From: "Peter Korsgaard" <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-Subject: Re: Warning with gpio-i2cmux
-Date: Tue, 19 Apr 2011 17:51:24 +0200
-Message-ID: <87d3kitf2b.fsf@thor.barco.com>
-References: <20110419172501.5f37e46f@endymion.delvare>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] misc: Driver for Silicon Labs Si570 and compatibles
+Date: Tue, 19 Apr 2011 13:30:22 -0700
+Message-ID: <1303245022-5765-1-git-send-email-guenter.roeck@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20110419172501.5f37e46f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org> (Jean Delvare'smessage of "Tue, 19 Apr 2011 17:25:01 +0200")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "JD" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
+This driver adds support for Si570, Si571, Si598, and Si599
+programmable XO/VCXO.
 
-Hi,
+Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+---
+ Documentation/misc-devices/si570 |   61 ++++++
+ MAINTAINERS                      |    7 +
+ drivers/misc/Kconfig             |   10 +
+ drivers/misc/Makefile            |    1 +
+ drivers/misc/si570.c             |  398 ++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/si570.h        |   23 +++
+ 6 files changed, 500 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/misc-devices/si570
+ create mode 100644 drivers/misc/si570.c
+ create mode 100644 include/linux/i2c/si570.h
 
-JD> I presume you are using gpio-i2cmux on some of your systems? I tried to
-JD> use it and I get the following warning when I rmmod the underlying I2C
-JD> controller driver:
-
-Pulling the rug under the driver is not something I normally do, but it
-should work.
-
-JD> WARNING: at drivers/base/core.c:143 device_release+0x82/0x90()
-JD> Hardware name: System Product Name
-JD> Device 'gpio-i2cmux.0' does not have a release() function, it is broken and must be fixed.
-JD> Modules linked in: i2c_mux i2c_i801(-) jc42 snd_pcm_oss
-JD> snd_mixer_oss snd_seq w83795 snd_seq_device coretemp edd nfsd lockd
-JD> nfs_acl auth_rpcgss sunrpc cpufreq_conservative cpufreq_userspace
-JD> cpufreq_powersave acpi_cpufreq mperf fuse nls_utf8 loop dm_mod
-JD> mt2060 dvb_usb_dib0700 snd_hda_codec_hdmi dib7000p
-JD> snd_hda_codec_realtek dib0090 dib7000m dib0070 snd_hda_intel
-JD> ir_lirc_codec dvb_usb snd_hda_codec lirc_dev dib8000 ir_sony_decoder
-JD> ir_jvc_decoder dvb_core snd_hwdep ir_rc6_decoder ir_rc5_decoder
-JD> snd_pcm dib3000mc ir_nec_decoder rc_core snd_timer ioatdma e1000e
-JD> snd iTCO_wdt dibx000_common sg iTCO_vendor_support i7core_edac
-JD> soundcore i2c_tiny_usb i801_gpio edac_core snd_page_alloc dca pcspkr
-JD> button radeon ttm sd_mod drm_kms_helper drm i2c_algo_bit fan
-JD> processor ata_generic ata_piix ahci libahci libata sym53c8xx
-JD> scsi_transport_spi scsi_mod thermal thermal_sys [last unloaded:
-JD> gpio_i2cmux]
-JD> Pid: 29946, comm: rmmod Not tainted 2.6.39-rc3-git8 #77
-JD> Call Trace:
-JD>  [<ffffffff8105052a>] warn_slowpath_common+0x7a/0xb0
-JD>  [<ffffffff81050601>] warn_slowpath_fmt+0x41/0x50
-JD>  [<ffffffff8119f6a6>] ? remove_dir+0x36/0x40
-JD>  [<ffffffff812ee3c2>] device_release+0x82/0x90
-JD>  [<ffffffff81231e8d>] kobject_release+0x8d/0x1d0
-JD>  [<ffffffff81231e00>] ? kobject_del+0x80/0x80
-JD>  [<ffffffff81233817>] kref_put+0x37/0x70
-JD>  [<ffffffff81231d27>] kobject_put+0x27/0x60
-JD>  [<ffffffff812ee0f2>] put_device+0x12/0x20
-JD>  [<ffffffff812f42f2>] platform_device_put+0x12/0x20
-JD>  [<ffffffff812f44a9>] platform_device_unregister+0x19/0x20
-
-So you tweaked the i801 driver to create and register a platform device
-for gpio-i2cmux which you then forcibly unregister in the i801 remove
-handler without providing a release() function on the platform device?
-
-That's afaik wrong as the platform_device might be in use (E.G. someone
-has the sysfs entry open or similar, and you need to use
-platform_device_alloc() which ensures that the device only gets freed
-when nobody is using it anymore.
-
+diff --git a/Documentation/misc-devices/si570 b/Documentation/misc-devices/si570
+new file mode 100644
+index 0000000..f5ee9e1
+--- /dev/null
++++ b/Documentation/misc-devices/si570
+@@ -0,0 +1,61 @@
++Kernel driver si570
++=====================
++
++Supported chips:
++  * Silicon Labs Si570/Si571
++    Prefix: 'si570'
++    Addresses scanned: None (see below)
++    Datasheets:
++        http://www.silabs.com/Support%20Documents/TechnicalDocs/si570.pdf
++  * Silicon Labs Si598/Si599
++    Prefix: 'si598'
++    Addresses scanned: None (see below)
++    Datasheets:
++	http://www.silabs.com/Support%20Documents/TechnicalDocs/si598-99.pdf
++
++Author: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
++
++
++Description
++-----------
++
++The Si570/Si598 XO and Si571/Si599 VCXO provide a low-jitter clock at any
++frequency.
++
++The Si570/Si571 are user-programmable to any output frequency from 10 to 945 MHz
++and select frequencies to 1400 MHz with <1 ppb resolution.
++
++The Si598/Si599 are user programmable to any output frequency from 10 to 525 MHz
++with 28 parts per trillion (ppt) resolution.
++
++See the datasheets for more information.
++
++
++Sysfs entries
++-------------
++
++frequency	- Selected frequency
++
++
++General Remarks
++---------------
++
++The chips support all valid 7-bit I2C addresses. I2C addresses are assigned
++during the ordering process.
++
++This driver does not auto-detect devices. You will have to instantiate the
++devices explicitly. Please see Documentation/i2c/instantiating-devices for
++details.
++
++
++Platform data
++-------------
++
++The devices can be provided with platform data to select the factory default
++output frequency. If platform data is not specified, the driver will assume a
++default factory output frequency of 125 MHz for Si570/Si571 and 10 MHz for
++Si598/Si599.
++
++struct si570_platform_data {
++	unsigned long fout;	/* Factory default output frequency */
++};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index ec36003..6747cb0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -5406,6 +5406,13 @@ L:	linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+ S:	Maintained
+ F:	drivers/tty/serial
+ 
++SI570 DRIVER
++M:	Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
++L:	linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
++S:	Maintained
++F:	drivers/misc/si570.c
++F:	include/linux/i2c/si570.h
++
+ TIMEKEEPING, NTP
+ M:	John Stultz <johnstul-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>
+ M:	Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
+index 4e007c6..c7041c9 100644
+--- a/drivers/misc/Kconfig
++++ b/drivers/misc/Kconfig
+@@ -475,6 +475,16 @@ config PCH_PHUB
+ 	  To compile this driver as a module, choose M here: the module will
+ 	  be called pch_phub.
+ 
++config SI570
++	tristate "Silicon Labs Si570/Si571/Si598/Si599"
++	depends on I2C && SYSFS && EXPERIMENTAL
++	help
++	  This is a driver for Silicon Labs Si570/Si571/Si598/Si599 programmable
++	  XO/VCXO.
++
++	  To compile this driver as a module, choose M here: the module will
++	  be called si570.
++
+ source "drivers/misc/c2port/Kconfig"
+ source "drivers/misc/eeprom/Kconfig"
+ source "drivers/misc/cb710/Kconfig"
+diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
+index f546860..a2397c6 100644
+--- a/drivers/misc/Makefile
++++ b/drivers/misc/Makefile
+@@ -41,6 +41,7 @@ obj-$(CONFIG_SPEAR13XX_PCIE_GADGET)	+= spear13xx_pcie_gadget.o
+ obj-$(CONFIG_VMWARE_BALLOON)	+= vmw_balloon.o
+ obj-$(CONFIG_ARM_CHARLCD)	+= arm-charlcd.o
+ obj-$(CONFIG_PCH_PHUB)		+= pch_phub.o
++obj-$(CONFIG_SI570)		+= si570.o
+ obj-y				+= ti-st/
+ obj-$(CONFIG_AB8500_PWM)	+= ab8500-pwm.o
+ obj-y				+= lis3lv02d/
+diff --git a/drivers/misc/si570.c b/drivers/misc/si570.c
+new file mode 100644
+index 0000000..aa723fc
+--- /dev/null
++++ b/drivers/misc/si570.c
+@@ -0,0 +1,398 @@
++/*
++ * Driver for Silicon Labs Si570/Si571 Programmable XO/VCXO
++ *
++ * Copyright (C) 2011 Ericsson AB.
++ *
++ * Author: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/module.h>
++#include <linux/jiffies.h>
++#include <linux/i2c.h>
++#include <linux/err.h>
++#include <linux/mutex.h>
++#include <linux/delay.h>
++#include <linux/log2.h>
++#include <linux/slab.h>
++#include <linux/i2c/si570.h>
++
++/* Si570 registers */
++#define SI570_REG_HS_N1		7
++#define SI570_REG_N1_RFREQ0	8
++#define SI570_REG_RFREQ1	9
++#define SI570_REG_RFREQ2	10
++#define SI570_REG_RFREQ3	11
++#define SI570_REG_RFREQ4	12
++#define SI570_REG_CONTROL	135
++#define SI570_REG_FREEZE_DCO	137
++
++#define HS_DIV_SHIFT		5
++#define HS_DIV_MASK		0xe0
++#define HS_DIV_OFFSET		4
++#define N1_6_2_MASK		0x1f
++#define N1_1_0_MASK		0xc0
++#define RFREQ_37_32_MASK	0x3f
++
++#define SI570_FOUT_FACTORY_DFLT	125000000LL
++#define SI598_FOUT_FACTORY_DFLT	10000000LL
++
++#define SI570_MIN_FREQ		10000000L
++#define SI570_MAX_FREQ		1417500000L
++#define SI598_MAX_FREQ		525000000L
++
++#define FDCO_MIN		4850000000LL
++#define FDCO_MAX		5670000000LL
++#define FDCO_CENTER		((FDCO_MIN + FDCO_MAX) / 2)
++
++#define SI570_CNTRL_RECALL	(1 << 0)
++#define SI570_CNTRL_FREEZE_ADC	(1 << 4)
++#define SI570_CNTRL_FREEZE_M	(1 << 5)
++#define SI570_CNTRL_NEWFREQ	(1 << 6)
++#define SI570_CNTRL_RESET	(1 << 7)
++
++#define SI570_FREEZE_DCO	(1 << 4)
++
++struct si570_data {
++	struct attribute_group attrs;
++	struct mutex lock;
++	u64 max_freq;
++	u64 fout;		/* Factory default frequency */
++	u64 fxtal;		/* Factory xtal frequency */
++	unsigned int n1;
++	unsigned int hs_div;
++	u64 rfreq;
++	u64 frequency;
++};
++
++static int si570_get_defaults(struct i2c_client *client)
++{
++	struct si570_data *data = i2c_get_clientdata(client);
++	int reg1, reg2, reg3, reg4, reg5, reg6;
++	u64 fdco;
++
++	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL,
++				  SI570_CNTRL_RECALL);
++
++	reg1 = i2c_smbus_read_byte_data(client, SI570_REG_HS_N1);
++	if (reg1 < 0)
++		return reg1;
++	reg2 = i2c_smbus_read_byte_data(client, SI570_REG_N1_RFREQ0);
++	if (reg2 < 0)
++		return reg2;
++	reg3 = i2c_smbus_read_byte_data(client, SI570_REG_RFREQ1);
++	if (reg3 < 0)
++		return reg3;
++	reg4 = i2c_smbus_read_byte_data(client, SI570_REG_RFREQ2);
++	if (reg4 < 0)
++		return reg4;
++	reg5 = i2c_smbus_read_byte_data(client, SI570_REG_RFREQ3);
++	if (reg5 < 0)
++		return reg5;
++	reg6 = i2c_smbus_read_byte_data(client, SI570_REG_RFREQ4);
++	if (reg6 < 0)
++		return reg6;
++
++	data->hs_div = ((reg1 & HS_DIV_MASK) >> HS_DIV_SHIFT) + HS_DIV_OFFSET;
++	data->n1 = ((reg1 & N1_6_2_MASK) << 2) + ((reg2 & N1_1_0_MASK) >> 6)
++	  + 1;
++	/* Handle invalid cases */
++	if (data->n1 > 1)
++		data->n1 &= ~1;
++
++	data->rfreq = reg2 & RFREQ_37_32_MASK;
++	data->rfreq = (data->rfreq << 8) + reg3;
++	data->rfreq = (data->rfreq << 8) + reg4;
++	data->rfreq = (data->rfreq << 8) + reg5;
++	data->rfreq = (data->rfreq << 8) + reg6;
++
++	/*
++	 * Accept optional precision loss to avoid arithmetic overflows.
++	 * Acceptable per Silicon Labs Application Note AN334.
++	 */
++	fdco = data->fout * data->n1 * data->hs_div;
++	if (fdco >= (1LL << 36))
++		data->fxtal = (fdco << 24) / (data->rfreq >> 4);
++	else
++		data->fxtal = (fdco << 28) / data->rfreq;
++
++	data->frequency = data->fout;
++
++	return 0;
++}
++
++/*
++ * Update rfreq registers
++ * This function must be called with update mutex lock held.
++ */
++static void si570_update_rfreq(struct i2c_client *client,
++			       struct si570_data *data)
++{
++	i2c_smbus_write_byte_data(client, SI570_REG_N1_RFREQ0,
++				  ((data->n1 - 1) << 6)
++				  | ((data->rfreq >> 32) & RFREQ_37_32_MASK));
++	i2c_smbus_write_byte_data(client, SI570_REG_RFREQ1,
++				  (data->rfreq >> 24) & 0xff);
++	i2c_smbus_write_byte_data(client, SI570_REG_RFREQ2,
++				  (data->rfreq >> 16) & 0xff);
++	i2c_smbus_write_byte_data(client, SI570_REG_RFREQ3,
++				  (data->rfreq >> 8) & 0xff);
++	i2c_smbus_write_byte_data(client, SI570_REG_RFREQ4,
++				  data->rfreq & 0xff);
++}
++
++/*
++ * Update si570 frequency for small frequency changes (< 3,500 ppm)
++ * This function must be called with update mutex lock held.
++ */
++static int si570_set_frequency_small(struct i2c_client *client,
++				     struct si570_data *data,
++				     unsigned long frequency)
++{
++	data->frequency = frequency;
++	data->rfreq = DIV_ROUND_CLOSEST(data->rfreq * frequency,
++					data->frequency);
++	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL,
++				  SI570_CNTRL_FREEZE_M);
++	si570_update_rfreq(client, data);
++	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL, 0);
++
++	return 0;
++}
++
++const uint8_t si570_hs_div_values[] = { 11, 9, 7, 6, 5, 4 };
++
++/*
++ * Set si570 frequency.
++ * This function must be called with update mutex lock held.
++ */
++static int si570_set_frequency(struct i2c_client *client,
++			       struct si570_data *data,
++			       unsigned long frequency)
++{
++	int i, n1, hs_div;
++	u64 fdco, best_fdco = ULLONG_MAX;
++
++	for (i = 0; i < ARRAY_SIZE(si570_hs_div_values); i++) {
++		hs_div = si570_hs_div_values[i];
++		/* Calculate lowest possible value for n1 */
++		n1 = FDCO_MIN / (u64)hs_div / (u64)frequency;
++		if (!n1 || (n1 & 1))
++			n1++;
++		while (n1 <= 128) {
++			fdco = (u64)frequency * (u64)hs_div * (u64)n1;
++			if (fdco > FDCO_MAX)
++				break;
++			if (fdco >= FDCO_MIN && fdco < best_fdco) {
++				data->n1 = n1;
++				data->hs_div = hs_div;
++				data->frequency = frequency;
++				data->rfreq = (fdco << 28) / data->fxtal;
++				best_fdco = fdco;
++			}
++			n1 += (n1 == 1 ? 1 : 2);
++		}
++	}
++	if (best_fdco == ULLONG_MAX)
++		return -EINVAL;
++
++	i2c_smbus_write_byte_data(client, SI570_REG_FREEZE_DCO,
++				  SI570_FREEZE_DCO);
++	i2c_smbus_write_byte_data(client, SI570_REG_HS_N1,
++				  ((data->hs_div - HS_DIV_OFFSET) <<
++				   HS_DIV_SHIFT)
++				  | (((data->n1 - 1) >> 2) & N1_6_2_MASK));
++	si570_update_rfreq(client, data);
++	i2c_smbus_write_byte_data(client, SI570_REG_FREEZE_DCO,
++				  0);
++	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL,
++				  SI570_CNTRL_NEWFREQ);
++	return 0;
++}
++
++/*
++ * Reset chip.
++ * This function must be called with update mutex lock held.
++ */
++static int si570_reset(struct i2c_client *client, struct si570_data *data)
++{
++	i2c_smbus_write_byte_data(client, SI570_REG_CONTROL,
++				  SI570_CNTRL_RESET);
++	msleep(1);
++	return si570_set_frequency(client, data, data->frequency);
++}
++
++static ssize_t show_frequency(struct device *dev,
++			      struct device_attribute *devattr,
++			      char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct si570_data *data = i2c_get_clientdata(client);
++
++	return sprintf(buf, "%llu\n", data->frequency);
++}
++
++static ssize_t set_frequency(struct device *dev,
++			     struct device_attribute *attr,
++			     const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct si570_data *data = i2c_get_clientdata(client);
++	unsigned long val;
++	int err;
++
++	err = strict_strtoul(buf, 10, &val);
++	if (err)
++		return err;
++
++	if (val < SI570_MIN_FREQ || val > data->max_freq)
++		return -EINVAL;
++
++	mutex_lock(&data->lock);
++	if (abs(val - data->frequency) * 10000LL / data->frequency < 35)
++		err = si570_set_frequency_small(client, data, val);
++	else 
++		err = si570_set_frequency(client, data, val);
++	mutex_unlock(&data->lock);
++	if (err)
++		return err;
++
++	return count;
++}
++static ssize_t show_reset(struct device *dev,
++			  struct device_attribute *devattr,
++			  char *buf)
++{
++	return sprintf(buf, "%d\n", 0);
++}
++
++static ssize_t set_reset(struct device *dev,
++			 struct device_attribute *attr,
++			 const char *buf, size_t count)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct si570_data *data = i2c_get_clientdata(client);
++	unsigned long val;
++	int err;
++
++	err = strict_strtoul(buf, 10, &val);
++	if (err)
++		return err;
++	if (val == 0)
++		goto done;
++
++	mutex_lock(&data->lock);
++	err = si570_reset(client, data);
++	mutex_unlock(&data->lock);
++	if (err)
++		return err;
++done:
++	return count;
++}
++
++static DEVICE_ATTR(frequency, S_IWUSR | S_IRUGO, show_frequency, set_frequency);
++static DEVICE_ATTR(reset, S_IWUSR | S_IRUGO, show_reset, set_reset);
++
++static struct attribute *si570_attr[] = {
++	&dev_attr_frequency.attr,
++	&dev_attr_reset.attr,
++	NULL
++};
++
++static const struct i2c_device_id si570_id[] = {
++	{ "si570", 0 },
++	{ "si571", 0 },
++	{ "si598", 1 },
++	{ "si599", 1 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, si570_id);
++
++static int si570_probe(struct i2c_client *client,
++		       const struct i2c_device_id *id)
++{
++	struct si570_platform_data *pdata = client->dev.platform_data;
++	struct si570_data *data;
++	int err;
++
++	data = kzalloc(sizeof(struct si570_data), GFP_KERNEL);
++	if (!data) {
++		err = -ENOMEM;
++		goto exit;
++	}
++
++	if (id->driver_data) {
++		data->fout = SI598_FOUT_FACTORY_DFLT;
++		data->max_freq = SI598_MAX_FREQ;
++	} else {
++		data->fout = SI570_FOUT_FACTORY_DFLT;
++		data->max_freq = SI570_MAX_FREQ;
++	}
++
++	if (pdata && pdata->fout)
++		data->fout = pdata->fout;
++
++	i2c_set_clientdata(client, data);
++	err = si570_get_defaults(client);
++	if (err < 0)
++		goto exit_free;
++
++	mutex_init(&data->lock);
++
++	/* Register sysfs hooks */
++	data->attrs.attrs = si570_attr;
++	err = sysfs_create_group(&client->dev.kobj, &data->attrs);
++	if (err)
++		goto exit_free;
++
++	return 0;
++
++exit_free:
++	kfree(data);
++exit:
++	return err;
++}
++
++static int si570_remove(struct i2c_client *client)
++{
++	struct si570_data *data = i2c_get_clientdata(client);
++
++	sysfs_remove_group(&client->dev.kobj, &data->attrs);
++	kfree(data);
++	return 0;
++}
++
++static struct i2c_driver si570_driver = {
++	.driver = {
++		.name	= "si570",
++	},
++	.probe		= si570_probe,
++	.remove		= si570_remove,
++	.id_table	= si570_id,
++};
++
++static int __init si570_init(void)
++{
++	return i2c_add_driver(&si570_driver);
++}
++
++static void __exit si570_exit(void)
++{
++	i2c_del_driver(&si570_driver);
++}
++
++MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
++MODULE_DESCRIPTION("Si570 driver");
++MODULE_LICENSE("GPL");
++
++module_init(si570_init);
++module_exit(si570_exit);
+diff --git a/include/linux/i2c/si570.h b/include/linux/i2c/si570.h
+new file mode 100644
+index 0000000..22ec865
+--- /dev/null
++++ b/include/linux/i2c/si570.h
+@@ -0,0 +1,23 @@
++/*
++ * si570.h - Configuration for si570 misc driver.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation (version 2 of the License only).
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef __LINUX_SI570_H
++#define __LINUX_SI570_H
++
++#include <linux/types.h>
++
++struct si570_platform_data {
++	unsigned long fout;	/* Factory default output frequency */
++};
++
++#endif /* __LINUX_SI570_H */
 -- 
-Bye, Peter Korsgaard
-
-
-DISCLAIMER:
-Unless indicated otherwise, the information contained in this message is privileged and confidential, and is intended only for the use of the addressee(s) named above and others who have been specifically authorized to receive it. If you are not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this message and/or attachments is strictly prohibited. The company accepts no liability for any damage caused by any virus transmitted by this email. Furthermore, the company does not warrant a proper and complete transmission of this information, nor does it accept liability for any delays. If you have received this message in error, please contact the sender and delete the message. Thank you.
+1.7.3.1
