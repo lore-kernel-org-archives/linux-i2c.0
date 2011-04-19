@@ -1,134 +1,52 @@
-From: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
-Subject: Re: [PATCH 0/6] i2c-davinci gpio pulsed SCL recovery with ICPFUNC
-Date: Mon, 18 Apr 2011 17:36:38 -0400
-Message-ID: <BANLkTi=7DbMrbo0nQU+268LC_2258q-_DA@mail.gmail.com>
-References: <cover.1302031487.git.bengardiner@nanometrics.ca>
-	<B85A65D85D7EB246BE421B3FB0FBB593024C8B3CD6@dbde02.ent.ti.com>
+From: Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: RE: [PATCH 0/6] i2c-davinci gpio pulsed SCL recovery with ICPFUNC
+Date: Tue, 19 Apr 2011 02:47:53 +0100
+Message-ID: <70E876B0EA86DD4BAF101844BC814DFE093FB40998@Cloud.RL.local>
+References: <BANLkTi=7DbMrbo0nQU+268LC_2258q-_DA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <B85A65D85D7EB246BE421B3FB0FBB593024C8B3CD6-/tLxBxkBPtCIQmiDNMet8wC/G2K4zDHf@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
-Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Bastian Ruppert <Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org>, "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>, Jon Povey <jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>, Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Content-Class: urn:content-classes:message
+In-Reply-To: <BANLkTi=7DbMrbo0nQU+268LC_2258q-_DA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>, "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Bastian Ruppert <Bastian.Ruppert-qHSRieSIjQqELgA04lAiVw@public.gmane.org>, Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sekhar,
+Ben Gardiner wrote:
 
-Thank you for reviewing the series.
+>>> When creating this series I noticed that there are obvious
+>>> similarities between the existing recovery routine implemented by
+>>> Philby John and John Povey
 
-On Wed, Apr 13, 2011 at 12:25 PM, Nori, Sekhar <nsekhar-l0cyMroinI0@public.gmane.org> wrote:
-> Hi Ben,
->
-> On Wed, Apr 06, 2011 at 03:08:03, Ben Gardiner wrote:
->> This series for the i2c-davinci driver implements both a register dump and
->> a pulsed-SCL recovery of the bus on those controllers that have ICPFUNC
->> registers which is, so far, the da850 and da830 based platforms.
->>
->> I2C "controller timed out" messages were being observed by both myself on the
->> da850evm and Bastian Ruppert on some custom da850 hardware [1]. Originally I
->> thought it was the existing pulse-SCL routine but was quickly proven wrong; my
->> apologies to John Povey and Philby John for jumping to conclusions.
->>
->> A discussion was spawned on the e2e forums [2] where Brad Griffis was
->> instrumental in the development of the recovery routine proposed by this patch
->> series. It was pointed out by him that the da850's i2c controller has the
->> ability to control the SDA and SCL pins as GPIOS through its ICPFUNC registers.
->> The recovery routine implemented by the patch series toggles the SCL pin and
->> reads the SDA state using the ICPFUNC registers.
->
-> [...]
->
->>
->> When creating this series I noticed that there are obvious similarities between
->> the existing recovery routine implemented by Philby John and John Povey and the
->> recovery routine proposed in this series. Testing was performed using the
->> ICPFUNC regsiters to toggle SCL as prescribed by the existing routine and it
->> was found that the recovery did not work. The method described initially by Brad
->> Griffis had the initial state of SCL high and delays of 5us with a maximum
-> of
->> 8 pulses with a check of SDA each time as compared to the existing routine with
->> undetermined SCL initial state, 20us delays and a maximum of 8 pulses. I tested
->
-> I wonder how these values (5us or 20us) are derived. The document[1]
-> referred to in the existing code says that "the master should send
-> 9 clock pulses". I think 5us suggested by Brad assumes a 100KHz
-> bus. If that is so, this number should be derived out of the bus_freq
-> platform data.
->
-> [1] http://www.nxp.com/documents/user_manual/UM10204.pdf
+> I'm not sure how the 20us in the existing method was derived -- I
+> wonder if Philby John or John Povey could comment?
 
-I'm not sure how the 20us in the existing method was derived -- I
-wonder if Philby John or John Povey could comment? I agree that the
-5us suggested by Brad assumes a 100KHz bus -- I could certainly derive
-this delay from the bus_freq platform data for the new recovery
-procedure since board-da850-evm.c sets bus_freq to 100 kHz.
+I've been a little bemused about why I am getting credited for I2C
+bus recovery work. I don't remember doing any work on that.
 
-But I was apprehensive to do so for the existing recovery procedure
-since the two (in-tree) boards that are assigning the scl_pin member
-are dm355 and dm644x which assign bus_freq values of 400kHz and 20kHz,
-respectively. These would require delays of 1.25us and 25us,
-respectively; neither of which is the hard-coded 20us. To complicate
-matters further, dm644x (20kHz) sets bus_delay to 100us with a comment
-that "the msp430 uses a slow bitbanged i2c implementation [...] which
-requires 100us of idle after i2c writes [...]." If I derived the
-clock-pulse delays from bus_freq the dm644x would probably still work
-but if the clock-pulse width was at all important for dm355 then the
-recovery procedure could fail there. I don't want to introduce
-instabilities into other platforms.
+I did a couple of patches to fix a race when setting up a TX, but
+those are, afaik, unrelated.
 
->> and found that if I changed the initial state of SCL or the number of pulses
->> (Bastian had success with 16) that the recovery did not occur as expected;
->
-> Was this testing done with the original PinMuxed GPIO based approach or with
-> the new internal GPIO based approach?
+All I know about the bus recovery stuff is looking at it a while back
+and thinking hmm, that seems to wiggle gpio without changing the
+pinmuxing, so it can't possibly work.
 
-This testing was performed using the 'new' ICPFUNC-based GPIO toggling.
+--
+Jon Povey
+jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org
 
->> furthermore Brad pointed out that it was important to check the state of SDA
->> after each pulse to see if the slave had released the line. Indeed, adding the
->> check of SDA resulted in a quicker recovery. On my da850evm, at least, the
->> recovery took only one SCL pulse every time.
->
-> Yes, the document referred to above suggests this too.
->
-> I guess the existing recovery mechanism and the new ICPFUNC
-> based approach shouldn't be functionally different - correct?
+Racelogic is a limited company registered in England. Registered number 2743719 .
+Registered Office Unit 10, Swan Business Centre, Osier Way, Buckingham, Bucks, MK18 1TB .
 
-At the outset I had hoped so too; but what we have in the result is a
-method proven to work on the problem hardware here that is now
-different than the existing method.
-
-> In that case, it would really be worthwhile to fix the existing
-> recovery method as well.
->
->>
->> It would be nice to consolidate the two recovery routines and -- since they
->> are gpio-based -- put the shared recovery routine in i2c-algo-bit so it can
->> also be used by bitbanging i2c masters. I did not undertake the former because
->> I don't have access to the hardware on which the existing recovery routine was
->> tested.
->
-> I think if you see issues with existing code, you should just
-> go ahead and fix. AFAICT, the existing approach should have
-> worked for you. You can test on your hardware and those with
-> other hardware can test your patches as well and send their
-> acks.
-
-Ok -- I did not want to break behaviour on other hardware with my
-changes --but I respect your expert opinion coming from the experience
-you have in merging patches as a kernel mach maintainer. I will
-re-spin (not immeadiately -- I don't expect to be able to return to
-development of this patch series for another couple weeks) another
-version, this time replacing the existing recovery procedure with the
-tested method here. Also, allowing the individual da8xx boards to
-specify whether they enable the recovery procedure as you requested in
-reviewing 6/6 of this series. I would still prefer to do the
-extraction to i2c-algo-bit in a separate series.
-
-Best Regards,
-Ben Gardiner
-
----
-Nanometrics Inc.
-http://www.nanometrics.ca
+The information contained in this electronic mail transmission is intended by Racelogic Ltd for the use of the named individual or entity to which it is directed and may contain information that is confidential or privileged. If you have received this electronic mail transmission in error, please delete it from your system without copying or forwarding it, and notify the sender of the error by reply email so that the sender's address records can be corrected. The views expressed by the sender of this communication do not necessarily represent those of Racelogic Ltd. Please note that Racelogic reserves the right to monitor e-mail communications passing through its network
