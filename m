@@ -1,66 +1,93 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Decode dimms on dual socket machines
-Date: Tue, 19 Apr 2011 14:24:37 +0200
-Message-ID: <20110419142437.5eaac154@endymion.delvare>
-References: <4DA4250A.3060907@fuckner.net>
-	<20110412132611.045ace21@endymion.delvare>
-	<4DA44B05.906@fuckner.net>
-	<20110412155345.4644e51c@endymion.delvare>
-	<4DA53F22.5020105@gmx.de>
-	<20110413103952.68bdb6fa@endymion.delvare>
-	<4DA575C3.1050100@fuckner.net>
+From: Jiri Slaby <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 5/7] I2C: eg20t, remove unused variable
+Date: Tue, 19 Apr 2011 17:06:00 +0200
+Message-ID: <4DADA4D8.4080602@gmail.com>
+References: <1300870200-24405-1-git-send-email-jslaby@suse.cz> <1300870200-24405-5-git-send-email-jslaby@suse.cz> <3DCFFD98C696488F94CB1A74F2998DF9@hacdom.okisemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4DA575C3.1050100-iWcS09LKDTLR7s880joybQ@public.gmane.org>
+In-Reply-To: <3DCFFD98C696488F94CB1A74F2998DF9-c0cKtqp5df7I9507bXv2FdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Fuckner <michael-iWcS09LKDTLR7s880joybQ@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: 'Jiri Slaby' <jslaby-AlSwsSmVLrQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michael,
+On 03/23/2011 11:50 AM, Tomoya MORINAGA wrote:
+> Hi Jiri,
+> 
+> It looks OK.
+> 
+> Signed-off-by: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org> 
 
-On Wed, 13 Apr 2011 12:06:59 +0200, Michael Fuckner wrote:
-> On 04/13/2011 10:39 AM, Jean Delvare wrote:
-> 
-> >> The challenge will be to detect which of the 8 supported devices (
-> >> pca_9540, pca_9542, pca_9543, pca_9544, pca_9545, pca_9546, pca_9547,
-> >> pca_9548) is actually to be used.
-> >
-> > In Michael's case it is irrelevant anyway, as the information he found
-> > meanwhile clearly indicates that bus multiplexing is achieved by GPIOs
-> > (most certainly on the ICH10) and not an PCA954x chip. The chip at 0x70
-> > is probably the Intel 5500 IOH.
-> 
-> 
-> Supermicro just gave me the following information:
-> 
-> To access all SPDs, you have to pull low GPIO49 (IO_0x528 bit 17) first. 
-> Then pull low GPIO52 (IO_0x528 bit 20) to access first CPU 
-> memory(0x50~0x55); pull high GPIO52 to access 2nd CPU memory(0x50~0x55).
-> 
-> 
-> I can't find anything about GPIO49/52,53 in Datasheet for 5500/5520 chipset
-> http://www.intel.com/assets/pdf/datasheet/321328.pdf
-> 
-> So it is probably connected to ICH10
-> http://www.intel.com/Assets/PDF/datasheet/319973.pdf
-> 
-> but I don't know how to use this information
+Hi, will somebody take it or should I resubmit?
 
-I've written a kernel driver to gain access to the GPIO pins of the
-ICH10 (and previous ICH chips too.) It's available here:
-http://khali.linux-fr.org/devel/misc/i801_gpio/
+> Thanks,
+> -----------------------------------------
+> Tomoya MORINAGA
+> OKI SEMICONDUCTOR CO., LTD.
+> 
+>> -----Original Message-----
+>> From: linux-kernel-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org 
+>> [mailto:linux-kernel-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Jiri Slaby
+>> Sent: Wednesday, March 23, 2011 5:50 PM
+>> To: jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+>> Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jiri Slaby; Jean Delvare; 
+>> linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> Subject: [PATCH 5/7] I2C: eg20t, remove unused variable
+>>
+>> drivers/i2c/busses/i2c-eg20t.c:684:2: warning: Value stored 
+>> to 'msglen' is never read msglen = (pmsg->len) - (subaddrlen + 1);
+>> ^        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+>>
+>> Signed-off-by: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
+>> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> ---
+>>  drivers/i2c/busses/i2c-eg20t.c |    8 --------
+>>  1 files changed, 0 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-eg20t.c 
+>> b/drivers/i2c/busses/i2c-eg20t.c index 878a120..ea73252 100644
+>> --- a/drivers/i2c/busses/i2c-eg20t.c
+>> +++ b/drivers/i2c/busses/i2c-eg20t.c
+>> @@ -651,8 +651,6 @@ static s32 pch_i2c_xfer(struct 
+>> i2c_adapter *i2c_adap,
+>>  	struct i2c_msg *pmsg;
+>>  	u32 i = 0;
+>>  	u32 status;
+>> -	u32 msglen;
+>> -	u32 subaddrlen;
+>>  	s32 ret;
+>>  
+>>  	struct i2c_algo_pch_data *adap = i2c_adap->algo_data; 
+>> @@ -676,12 +674,6 @@ static s32 pch_i2c_xfer(struct 
+>> i2c_adapter *i2c_adap,
+>>  	status = pmsg->flags;
+>>  	pch_dbg(adap,
+>>  		"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
+>> -	/* calculate sub address length and message length */
+>> -	/* these are applicable only for buffer mode */
+>> -	subaddrlen = pmsg->buf[0];
+>> -	/* calculate actual message length excluding
+>> -	 * the sub address fields */
+>> -	msglen = (pmsg->len) - (subaddrlen + 1);
+>>  	if (status & (I2C_M_RD)) {
+>>  		pch_dbg(adap, "invoking pch_i2c_readbytes\n");
+>>  		ret = pch_i2c_readbytes(i2c_adap, pmsg, (i + 1 == num),
+>> --
+>> 1.7.4.1
+>>
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe 
+>> linux-kernel" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>> Please read the FAQ at  http://www.tux.org/lkml/
+>>
+> 
 
-Generic instructions for standalone drivers are here:
-http://khali.linux-fr.org/devel/misc/INSTALL
 
-I would appreciate if you could give it a try on your system and report
-everything in the kernel log after loading the driver. By default it
-won't change the GPIO values so it should be totally safe.
-
-Thanks,
 -- 
-Jean Delvare
-http://khali.linux-fr.org/wishlist.html
+js
