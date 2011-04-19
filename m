@@ -1,41 +1,32 @@
-From: Greg KH <gregkh-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] misc: Driver for Silicon Labs Si570 and compatibles
-Date: Tue, 19 Apr 2011 13:19:50 -0700
-Message-ID: <20110419201950.GA9725@suse.de>
-References: <1303245022-5765-1-git-send-email-guenter.roeck@ericsson.com>
+From: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: i2c-gpio performance issue w/MPC8xx @ 50 MHz
+Date: Tue, 19 Apr 2011 23:53:11 +0300
+Message-ID: <BANLkTikaS8yOTcO+OChvutB0syWdVBsh8g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1303245022-5765-1-git-send-email-guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 19, 2011 at 01:30:22PM -0700, Guenter Roeck wrote:
-> This driver adds support for Si570, Si571, Si598, and Si599
-> programmable XO/VCXO.
-> 
-> Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> ---
->  Documentation/misc-devices/si570 |   61 ++++++
->  MAINTAINERS                      |    7 +
->  drivers/misc/Kconfig             |   10 +
->  drivers/misc/Makefile            |    1 +
->  drivers/misc/si570.c             |  398 ++++++++++++++++++++++++++++++++++++++
->  include/linux/i2c/si570.h        |   23 +++
+Hey list
 
-This file should be in include/linux/platform_data/, right?
+I needed to bit bang I2C on an ancient MPC875 running at a blazing 50
+MHz. I started by initializing the generic i2c-gpio bus but quickly
+found it could not bit bang @ 100 kHz. The most I was able to get it
+was ~50 kHz by setting udelay to 0 and patching around i2c-gpio.c to
+make sure it doesn't modify this value.
 
-And as you have created sysfs files, you need to also provide the proper
-Documentation/ABI/ files. Please add them in your next resend of this
-patch.
+I then implemented a bus driver of my own, based on i2c-gpio. The only
+difference was that it simply implemented set/get sda/scl by directly
+writing to hardware. Using this I was able to reach around 150 kHz.
 
-Also, please run your patch through scripts/checkpatch.pl before sending
-it out, and fix the issues it finds, otherwise people will just repeat
-them here, which is boring...
+1) Any comments on the above? Could I have done something differently?
+2) I thought perhaps a thin adapter could be implemented that exported
+a platform data structure holding callbacks: set sda/scl dir/val, get
+sda/scl. By registering such a bus driver and supplying these
+callbacks in the platform module, one could avoid having to
+re-implement a bus driver like I did. Comments?
 
-thanks,
-
-greg k-h
+Thanks
+Eran
