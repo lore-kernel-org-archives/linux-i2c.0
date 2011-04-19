@@ -1,81 +1,185 @@
-From: Ben Dooks <ben-i2c@fluff.org>
-Subject: Re: [PATCH -next reresend] i2c: designware-pcidrv depends on PCI
-Date: Tue, 19 Apr 2011 22:45:04 +0100
-Message-ID: <20110419214504.GU15795@trinity.fluff.org>
-References: <20110408083215.6b3b0bfe.randy.dunlap@oracle.com> <BANLkTikX_rG+6Eg4owary1YRGRG8NzyrGQ@mail.gmail.com> <20110412114722.0f2e67d6@endymion.delvare> <20110413083855.c37ddadc.sfr@canb.auug.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Vincent Palatin <vpalatin@chromium.org>
+Subject: [PATCH] i2c: i2c-tegra: fix possible race condition after tx
+Date: Tue, 19 Apr 2011 18:14:36 -0400
+Message-ID: <1303251276-18768-1-git-send-email-vpalatin@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110413083855.c37ddadc.sfr@canb.auug.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Geert Uytterhoeven <geert@linux-m68k.org>, Randy Dunlap <randy.dunlap@oracle.com>, Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org, linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org
+Cc: Olof Johansson <olofj@chromium.org>, linux-kernel@vger.kernel.org, Colin Cross <ccross@android.com>, linux-tegra@vger.kernel.org, Vincent Palatin <vpalatin@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 13, 2011 at 08:38:55AM +1000, Stephen Rothwell wrote:
-> Hi Jean, Ben,
->=20
-> On Tue, 12 Apr 2011 11:47:22 +0200 Jean Delvare <khali@linux-fr.org> =
-wrote:
-> >
-> > On Sat, 9 Apr 2011 13:34:49 +0200, Geert Uytterhoeven wrote:
-> > > On Fri, Apr 8, 2011 at 17:32, Randy Dunlap <randy.dunlap@oracle.c=
-om> wrote:
-> > > > From: Randy Dunlap <randy.dunlap@oracle.com>
-> > > >
-> > > > i2c-designware-pcidrv is a PCI driver and should depend on PCI.
-> > > > Fixes these build errors:
-> > > >
-> > > > drivers/i2c/busses/i2c-designware-pcidrv.c:256: error: implicit=
- declaration of function 'pci_request_region'
-> > > > drivers/i2c/busses/i2c-designware-pcidrv.c:338: error: implicit=
- declaration of function 'pci_release_region'
-> > > >
-> > > > Signed-off-by: Randy Dunlap <randy.dunlap@oracle.com>
-> > > > Cc: Baruch Siach <baruch@tkos.co.il>
-> > > > ---
-> > > > =A0drivers/i2c/busses/Kconfig | =A0 =A01 +
-> > > > =A01 file changed, 1 insertion(+)
-> > > >
-> > > > Does anybody merge i2c patches???
-> > >=20
-> > > Yes please, it's been there since Mar 17, reported several times,=
- and probably
-> > > masking other build failures.
-> >=20
-> > This bug only exists in linux-next, as the code in question wasn't
-> > merged in Linus's tree yet. It is drawn into linux-next from Ben
-> > Dooks's next-i2c branch:
-> >   http://git.fluff.org/gitweb?p=3Dbjdooks/linux.git;a=3Dshortlog;h=3D=
-refs/heads/next-i2c
-> >=20
-> > This is where it has to be fixed, so only Ben can do it. Ben, pleas=
-e?
-> >=20
-> > Meanwhile, it should be possible to apply a hot fix to linux-next
-> > directly, Stephen does it pretty often. Stephen, could you please a=
-pply
-> > this fix temporarily until Ben wakes up and applies it to his tree?
->=20
-> I will apply this patch as a merge fixup from today (if it is still
-> needed).  I also have a patch being applied to that tree to add an
-> include of linux/delay.h to drivers/i2c/busses/i2c-designware-core.c =
-=2E
+In tegra_i2c_fill_tx_fifo, once we have finished pushing all the bytes
+to the I2C hardware controller, the interrupt might happen before we
+have updated i2c_dev->msg_buf_remaining at the end of the function.
+Then, in tegra_i2c_isr, we will call again tegra_i2c_fill_tx_fifo
+triggering weird behaviour.
+Of course, this is unlikely since the I2C bus is slow and thus the ISR
+is called several hundreds of microseconds after the last register
+write.
 
-I've not gotten around to fixing the rebase of the driver to the
-latest source code, I'll try and get around to it in the next few
-days unless someone sends a new copy of the patch.
-=20
-> Ben?
-> --=20
-> Cheers,
-> Stephen Rothwell                    sfr@canb.auug.org.au
-> http://www.canb.auug.org.au/~sfr/
+Signed-off-by: Vincent Palatin <vpalatin@chromium.org>
+---
+ drivers/i2c/busses/i2c-tegra.c |   54 ++++++++++++++++++++++-----------------
+ 1 files changed, 30 insertions(+), 24 deletions(-)
 
---=20
-Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disapp=
-ear.
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index b4ab39b..c1b119b 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -125,7 +125,7 @@ struct tegra_i2c_dev {
+ 	struct completion msg_complete;
+ 	int msg_err;
+ 	u8 *msg_buf;
+-	size_t msg_buf_remaining;
++	atomic_t msg_buf_remaining;
+ 	int msg_read;
+ 	unsigned long bus_clk_rate;
+ 	bool is_suspended;
+@@ -213,38 +213,41 @@ static int tegra_i2c_empty_rx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	u32 val;
+ 	int rx_fifo_avail;
+ 	u8 *buf = i2c_dev->msg_buf;
+-	size_t buf_remaining = i2c_dev->msg_buf_remaining;
+ 	int words_to_transfer;
++	int bytes_to_transfer;
+ 
+ 	val = i2c_readl(i2c_dev, I2C_FIFO_STATUS);
+ 	rx_fifo_avail = (val & I2C_FIFO_STATUS_RX_MASK) >>
+ 		I2C_FIFO_STATUS_RX_SHIFT;
+ 
+ 	/* Rounds down to not include partial word at the end of buf */
+-	words_to_transfer = buf_remaining / BYTES_PER_FIFO_WORD;
++	words_to_transfer = atomic_read(&i2c_dev->msg_buf_remaining) /
++		BYTES_PER_FIFO_WORD;
+ 	if (words_to_transfer > rx_fifo_avail)
+ 		words_to_transfer = rx_fifo_avail;
+ 
++	atomic_sub(words_to_transfer * BYTES_PER_FIFO_WORD,
++		&i2c_dev->msg_buf_remaining);
+ 	i2c_readsl(i2c_dev, buf, I2C_RX_FIFO, words_to_transfer);
+ 
+ 	buf += words_to_transfer * BYTES_PER_FIFO_WORD;
+-	buf_remaining -= words_to_transfer * BYTES_PER_FIFO_WORD;
+ 	rx_fifo_avail -= words_to_transfer;
+ 
+ 	/*
+ 	 * If there is a partial word at the end of buf, handle it manually to
+ 	 * prevent overwriting past the end of buf
+ 	 */
+-	if (rx_fifo_avail > 0 && buf_remaining > 0) {
+-		BUG_ON(buf_remaining > 3);
++	bytes_to_transfer = atomic_read(&i2c_dev->msg_buf_remaining);
++	if (rx_fifo_avail > 0 && bytes_to_transfer > 0) {
++		BUG_ON(bytes_to_transfer > 3);
++		atomic_set(&i2c_dev->msg_buf_remaining, 0);
+ 		val = i2c_readl(i2c_dev, I2C_RX_FIFO);
+-		memcpy(buf, &val, buf_remaining);
+-		buf_remaining = 0;
++		memcpy(buf, &val, bytes_to_transfer);
+ 		rx_fifo_avail--;
+ 	}
+ 
+-	BUG_ON(rx_fifo_avail > 0 && buf_remaining > 0);
+-	i2c_dev->msg_buf_remaining = buf_remaining;
++	BUG_ON(rx_fifo_avail > 0 &&
++		atomic_read(&i2c_dev->msg_buf_remaining) > 0);
+ 	i2c_dev->msg_buf = buf;
+ 	return 0;
+ }
+@@ -254,22 +257,24 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	u32 val;
+ 	int tx_fifo_avail;
+ 	u8 *buf = i2c_dev->msg_buf;
+-	size_t buf_remaining = i2c_dev->msg_buf_remaining;
+ 	int words_to_transfer;
++	int bytes_to_transfer;
+ 
+ 	val = i2c_readl(i2c_dev, I2C_FIFO_STATUS);
+ 	tx_fifo_avail = (val & I2C_FIFO_STATUS_TX_MASK) >>
+ 		I2C_FIFO_STATUS_TX_SHIFT;
+ 
+ 	/* Rounds down to not include partial word at the end of buf */
+-	words_to_transfer = buf_remaining / BYTES_PER_FIFO_WORD;
++	words_to_transfer = atomic_read(&i2c_dev->msg_buf_remaining) /
++		BYTES_PER_FIFO_WORD;
+ 	if (words_to_transfer > tx_fifo_avail)
+ 		words_to_transfer = tx_fifo_avail;
+ 
++	atomic_sub(words_to_transfer * BYTES_PER_FIFO_WORD,
++		&i2c_dev->msg_buf_remaining);
+ 	i2c_writesl(i2c_dev, buf, I2C_TX_FIFO, words_to_transfer);
+ 
+ 	buf += words_to_transfer * BYTES_PER_FIFO_WORD;
+-	buf_remaining -= words_to_transfer * BYTES_PER_FIFO_WORD;
+ 	tx_fifo_avail -= words_to_transfer;
+ 
+ 	/*
+@@ -277,16 +282,17 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
+ 	 * prevent reading past the end of buf, which could cross a page
+ 	 * boundary and fault.
+ 	 */
+-	if (tx_fifo_avail > 0 && buf_remaining > 0) {
+-		BUG_ON(buf_remaining > 3);
+-		memcpy(&val, buf, buf_remaining);
++	bytes_to_transfer = atomic_read(&i2c_dev->msg_buf_remaining);
++	if (tx_fifo_avail > 0 && bytes_to_transfer > 0) {
++		BUG_ON(bytes_to_transfer > 3);
++		memcpy(&val, buf, bytes_to_transfer);
++		atomic_set(&i2c_dev->msg_buf_remaining, 0);
+ 		i2c_writel(i2c_dev, val, I2C_TX_FIFO);
+-		buf_remaining = 0;
+ 		tx_fifo_avail--;
+ 	}
+ 
+-	BUG_ON(tx_fifo_avail > 0 && buf_remaining > 0);
+-	i2c_dev->msg_buf_remaining = buf_remaining;
++	BUG_ON(tx_fifo_avail > 0 &&
++		atomic_read(&i2c_dev->msg_buf_remaining) > 0);
+ 	i2c_dev->msg_buf = buf;
+ 	return 0;
+ }
+@@ -364,21 +370,21 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	}
+ 
+ 	if (i2c_dev->msg_read && (status & I2C_INT_RX_FIFO_DATA_REQ)) {
+-		if (i2c_dev->msg_buf_remaining)
++		if (atomic_read(&i2c_dev->msg_buf_remaining))
+ 			tegra_i2c_empty_rx_fifo(i2c_dev);
+ 		else
+ 			BUG();
+ 	}
+ 
+ 	if (!i2c_dev->msg_read && (status & I2C_INT_TX_FIFO_DATA_REQ)) {
+-		if (i2c_dev->msg_buf_remaining)
++		if (atomic_read(&i2c_dev->msg_buf_remaining))
+ 			tegra_i2c_fill_tx_fifo(i2c_dev);
+ 		else
+ 			tegra_i2c_mask_irq(i2c_dev, I2C_INT_TX_FIFO_DATA_REQ);
+ 	}
+ 
+ 	if ((status & I2C_INT_PACKET_XFER_COMPLETE) &&
+-			!i2c_dev->msg_buf_remaining)
++			!atomic_read(&i2c_dev->msg_buf_remaining))
+ 		complete(&i2c_dev->msg_complete);
+ 
+ 	i2c_writel(i2c_dev, status, I2C_INT_STATUS);
+@@ -408,7 +414,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		return -EINVAL;
+ 
+ 	i2c_dev->msg_buf = msg->buf;
+-	i2c_dev->msg_buf_remaining = msg->len;
++	atomic_set(&i2c_dev->msg_buf_remaining, msg->len);
+ 	i2c_dev->msg_err = I2C_ERR_NONE;
+ 	i2c_dev->msg_read = (msg->flags & I2C_M_RD);
+ 	INIT_COMPLETION(i2c_dev->msg_complete);
+@@ -440,7 +446,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
+ 	if (msg->flags & I2C_M_RD)
+ 		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
+-	else if (i2c_dev->msg_buf_remaining)
++	else if (atomic_read(&i2c_dev->msg_buf_remaining))
+ 		int_mask |= I2C_INT_TX_FIFO_DATA_REQ;
+ 	tegra_i2c_unmask_irq(i2c_dev, int_mask);
+ 	dev_dbg(i2c_dev->dev, "unmasked irq: %02x\n",
+-- 
+1.7.3.1
