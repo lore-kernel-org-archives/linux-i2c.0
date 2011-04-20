@@ -1,114 +1,34 @@
-From: "Tomoya MORINAGA" <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: RE: [PATCH 5/7] I2C: eg20t, remove unused variable
-Date: Wed, 20 Apr 2011 09:04:27 +0900
-Message-ID: <8E3665F04B674455AC81C533493D964F@hacdom.okisemi.com>
-References: <1300870200-24405-1-git-send-email-jslaby@suse.cz> <1300870200-24405-5-git-send-email-jslaby@suse.cz> <3DCFFD98C696488F94CB1A74F2998DF9@hacdom.okisemi.com> <4DADA4D8.4080602@gmail.com>
+From: Jon Povey <Jon.Povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org>
+Subject: RE: [PATCH 0/6] i2c-davinci gpio pulsed SCL recovery with ICPFUNC
+Date: Wed, 20 Apr 2011 02:34:47 +0100
+Message-ID: <70E876B0EA86DD4BAF101844BC814DFE093FB40BBD@Cloud.RL.local>
+References: <BANLkTinTMi76GmgO6HJ0+ifCXsHE3Mjsvg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="Windows-1252"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4DADA4D8.4080602-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Class: urn:content-classes:message
+In-Reply-To: <BANLkTinTMi76GmgO6HJ0+ifCXsHE3Mjsvg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Jiri Slaby' <jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: 'Jiri Slaby' <jslaby-AlSwsSmVLrQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Ben Gardiner <bengardiner-ScDXFp4xN3PN+rMO2ozGnw@public.gmane.org>
+Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Griffis, Brad" <bgriffis-l0cyMroinI0@public.gmane.org>, Philby John <pjohn-k0rHJ+Hhz/SB+jHODAdFcQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
- Hi Jiri
+Ben Gardiner wrote:
+> In "i2c-davinci: Fix race when setting up for TX" and "i2c-davinci:
+> Fix TX setup for more SoCs" you mention testing on DM355 -- is there
+> any you have hardware on which the recovery procedure is executed on
+> occasion and that you would be available to test modifications to the
+> current implementation?
 
-Until now, this driver have been reviewed / accepted by Ben Dooks [ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org].
-Thus, I think he will review / accept with sooner or later.
+Nope, sorry. I've never seen the bus lock up.
 
-Thanks,
------------------------------------------
-Tomoya MORINAGA
-OKI SEMICONDUCTOR CO., LTD.
+--
+Jon Povey
+jon.povey-Ean/AyPsLtfkYMGBc/C6ZA@public.gmane.org
 
+Racelogic is a limited company registered in England. Registered number 2743719 .
+Registered Office Unit 10, Swan Business Centre, Osier Way, Buckingham, Bucks, MK18 1TB .
 
-> -----Original Message-----
-> From: Jiri Slaby [mailto:jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] 
-> Sent: Wednesday, April 20, 2011 12:06 AM
-> To: Tomoya MORINAGA
-> Cc: 'Jiri Slaby'; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; 'Jean 
-> Delvare'; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Re: [PATCH 5/7] I2C: eg20t, remove unused variable
-> 
-> On 03/23/2011 11:50 AM, Tomoya MORINAGA wrote:
-> > Hi Jiri,
-> > 
-> > It looks OK.
-> > 
-> > Signed-off-by: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-> 
-> Hi, will somebody take it or should I resubmit?
-> 
-> > Thanks,
-> > -----------------------------------------
-> > Tomoya MORINAGA
-> > OKI SEMICONDUCTOR CO., LTD.
-> > 
-> >> -----Original Message-----
-> >> From: linux-kernel-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> >> [mailto:linux-kernel-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Jiri Slaby
-> >> Sent: Wednesday, March 23, 2011 5:50 PM
-> >> To: jirislaby-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-> >> Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jiri Slaby; Jean Delvare; 
-> >> linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> >> Subject: [PATCH 5/7] I2C: eg20t, remove unused variable
-> >>
-> >> drivers/i2c/busses/i2c-eg20t.c:684:2: warning: Value stored to 
-> >> 'msglen' is never read msglen = (pmsg->len) - (subaddrlen + 1);
-> >> ^        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >>
-> >> Signed-off-by: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
-> >> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> >> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> >> ---
-> >>  drivers/i2c/busses/i2c-eg20t.c |    8 --------
-> >>  1 files changed, 0 insertions(+), 8 deletions(-)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-eg20t.c 
-> >> b/drivers/i2c/busses/i2c-eg20t.c index 878a120..ea73252 100644
-> >> --- a/drivers/i2c/busses/i2c-eg20t.c
-> >> +++ b/drivers/i2c/busses/i2c-eg20t.c
-> >> @@ -651,8 +651,6 @@ static s32 pch_i2c_xfer(struct i2c_adapter 
-> >> *i2c_adap,
-> >>  	struct i2c_msg *pmsg;
-> >>  	u32 i = 0;
-> >>  	u32 status;
-> >> -	u32 msglen;
-> >> -	u32 subaddrlen;
-> >>  	s32 ret;
-> >>  
-> >>  	struct i2c_algo_pch_data *adap = i2c_adap->algo_data; 
-> @@ -676,12 
-> >> +674,6 @@ static s32 pch_i2c_xfer(struct i2c_adapter *i2c_adap,
-> >>  	status = pmsg->flags;
-> >>  	pch_dbg(adap,
-> >>  		"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
-> >> -	/* calculate sub address length and message length */
-> >> -	/* these are applicable only for buffer mode */
-> >> -	subaddrlen = pmsg->buf[0];
-> >> -	/* calculate actual message length excluding
-> >> -	 * the sub address fields */
-> >> -	msglen = (pmsg->len) - (subaddrlen + 1);
-> >>  	if (status & (I2C_M_RD)) {
-> >>  		pch_dbg(adap, "invoking pch_i2c_readbytes\n");
-> >>  		ret = pch_i2c_readbytes(i2c_adap, pmsg, (i + 1 == num),
-> >> --
-> >> 1.7.4.1
-> >>
-> >>
-> >> --
-> >> To unsubscribe from this list: send the line "unsubscribe 
-> >> linux-kernel" in the body of a message to 
-> majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org 
-> >> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> >> Please read the FAQ at  http://www.tux.org/lkml/
-> >>
-> > 
-> 
-> 
-> --
-> js
-> 
+The information contained in this electronic mail transmission is intended by Racelogic Ltd for the use of the named individual or entity to which it is directed and may contain information that is confidential or privileged. If you have received this electronic mail transmission in error, please delete it from your system without copying or forwarding it, and notify the sender of the error by reply email so that the sender's address records can be corrected. The views expressed by the sender of this communication do not necessarily represent those of Racelogic Ltd. Please note that Racelogic reserves the right to monitor e-mail communications passing through its network
