@@ -1,25 +1,69 @@
-From: Yermandu Patapitafious <yermandu.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: falling back to bit banging on pin 7 freeze boot
-Date: Wed, 20 Apr 2011 14:12:16 -0300
-Message-ID: <BANLkTim7xsZ5D7ifatLS7ifmOXxi9DG5Ug@mail.gmail.com>
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Subject: Re: [PATCH v2] misc: Driver for Silicon Labs Si570 and compatibles
+Date: Wed, 20 Apr 2011 11:16:52 -0700
+Message-ID: <20110420181652.GA23298@ericsson.com>
+References: <1303248968-5069-1-git-send-email-guenter.roeck@ericsson.com>
+ <201104201844.30919.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201104201844.30919.arnd@arndb.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <kernel@jic23.retrosnub.co.uk>, Randy Dunlap <rdunlap@xenotime.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In .39 Im getting freeze on boot.
+On Wed, Apr 20, 2011 at 12:44:30PM -0400, Arnd Bergmann wrote:
+> On Tuesday 19 April 2011, Guenter Roeck wrote:
+> > This driver adds support for Si570, Si571, Si598, and Si599
+> > programmable XO/VCXO.
+> > 
+> > Signed-off-by: Guenter Roeck <guenter.roeck@ericsson.com>
+> 
+> This needs some more explanation of what the hardware is there for,
+> and why it's unlike everything else that we support in Linux.
+> 
+This is a generic configurable clock device. I'll be happy to add
+some text such as "The device can be used for any application requiring
+a static or a dynamically configurable clock, such as serdes clocks".
+Not sure if that would add much value, though.
 
-Stoped at
-[drm] GMBUS timed out, falling back to bit banging on pin 0 [i915
-gmbus disabled]
-[drm] GMBUS timed out, falling back to bit banging on pin 6 [i915
-gmbus reserved]
-[drm] GMBUS timed out, falling back to bit banging on pin 7 [i915 gmbus dpd]
-i2c.i2c-5 master_xfer[0]
-arch_local_irq_disable
+Regarding "unlike everything else", not sure if that is really correct.
+The DDS chips Jonathan mentioned do get pretty close, and there are
+other drivers providing support for clock chips, though typically more
+dedicated.  ics932s401 in misc is one example, and then there are all
+the tuner chips in media/common/tuners/.
 
+> We try not to have too many things in drivers/misc that are
+> one-off interfaces, so if the hardware is related to something
+> else, it should probably go into one subsystem.
+> 
+> My impression from readin the source code is that this is
+> simply a clock device that would be used in combination with
+> some other device in practice that consumes the clock.
 
--- 
-yermandu
+Exactly. Point here is that it can be _any_ other device.
+
+> If that is true, it should probably not have a user-visible
+> interface, but only an interface that can be used by other
+> kernel drivers.
+> 
+Depends. In our case, turns out the devices consuming the clock
+have user mode drivers. Lots of history there, but the chip vendors 
+provide those user mode drivers, and the teams responsible for
+integrating the drivers decided to not rewrite it to kernel mode drivers.
+Also, for special purposes such as margining, it is necessary to control
+the clock from userspace. So, for our use case, I need the user-visible
+interface. I _don't_ need the kernel interface, at least not right now,
+which is why I did not add it.
+
+Browsing through the web, it seems the chip is somewhat popular with
+Amateur Radio. No idea if it would ever be controlled for such a purpose
+from Linux, but if so, it would also require a user configurable frequency.
+
+If there is a better place for such a driver than misc, please let me know.
+
+Thanks,
+Guenter
+
