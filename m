@@ -1,37 +1,25 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2] misc: Driver for Silicon Labs Si570 and compatibles
-Date: Wed, 20 Apr 2011 18:44:30 +0200
-Message-ID: <201104201844.30919.arnd@arndb.de>
-References: <1303248968-5069-1-git-send-email-guenter.roeck@ericsson.com>
+From: Yermandu Patapitafious <yermandu.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: falling back to bit banging on pin 7 freeze boot
+Date: Wed, 20 Apr 2011 14:12:16 -0300
+Message-ID: <BANLkTim7xsZ5D7ifatLS7ifmOXxi9DG5Ug@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1303248968-5069-1-git-send-email-guenter.roeck@ericsson.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <guenter.roeck@ericsson.com>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <kernel@jic23.retrosnub.co.uk>, Randy Dunlap <rdunlap@xenotime.net>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 19 April 2011, Guenter Roeck wrote:
-> This driver adds support for Si570, Si571, Si598, and Si599
-> programmable XO/VCXO.
-> 
-> Signed-off-by: Guenter Roeck <guenter.roeck@ericsson.com>
+In .39 Im getting freeze on boot.
 
-This needs some more explanation of what the hardware is there for,
-and why it's unlike everything else that we support in Linux.
+Stoped at
+[drm] GMBUS timed out, falling back to bit banging on pin 0 [i915
+gmbus disabled]
+[drm] GMBUS timed out, falling back to bit banging on pin 6 [i915
+gmbus reserved]
+[drm] GMBUS timed out, falling back to bit banging on pin 7 [i915 gmbus dpd]
+i2c.i2c-5 master_xfer[0]
+arch_local_irq_disable
 
-We try not to have too many things in drivers/misc that are
-one-off interfaces, so if the hardware is related to something
-else, it should probably go into one subsystem.
 
-My impression from readin the source code is that this is
-simply a clock device that would be used in combination with
-some other device in practice that consumes the clock.
-If that is true, it should probably not have a user-visible
-interface, but only an interface that can be used by other
-kernel drivers.
-
-	Arnd
+-- 
+yermandu
