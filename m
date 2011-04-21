@@ -1,92 +1,75 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: [PATCH] i2c: i2c-sh_mobile bus speed platform data
-Date: Thu, 21 Apr 2011 22:22:54 +0900
-Message-ID: <20110421132254.3725.84300.sendpatchset@t400s>
-Return-path: <linux-sh-owner@vger.kernel.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-sh@vger.kernel.org, lethal@linux-sh.org, simon@horms.net, ben-linux@fluff.org, khali@linux-fr.org, Magnus Damm <magnus.damm@gmail.com>
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Subject: Re: [PATCH v2] misc: Driver for Silicon Labs Si570 and compatibles
+Date: Thu, 21 Apr 2011 08:56:58 -0700
+Message-ID: <20110421155658.GA28245@ericsson.com>
+References: <1303248968-5069-1-git-send-email-guenter.roeck@ericsson.com>
+ <201104201844.30919.arnd@arndb.de>
+ <20110420181652.GA23298@ericsson.com>
+ <201104211311.25988.arnd@arndb.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201104211311.25988.arnd@arndb.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "Hans J. Koch" <hjk@hansjkoch.de>, Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <kernel@jic23.retrosnub.co.uk>, Randy Dunlap <rdunlap@xenotime.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Magnus Damm <damm@opensource.se>
+On Thu, Apr 21, 2011 at 07:11:25AM -0400, Arnd Bergmann wrote:
+> On Wednesday 20 April 2011, Guenter Roeck wrote:
+> > On Wed, Apr 20, 2011 at 12:44:30PM -0400, Arnd Bergmann wrote:
+> > > On Tuesday 19 April 2011, Guenter Roeck wrote:
+> > > > This driver adds support for Si570, Si571, Si598, and Si599
+> > > > programmable XO/VCXO.
+> > > > 
+> > > > Signed-off-by: Guenter Roeck <guenter.roeck@ericsson.com>
+> > > 
+> > > This needs some more explanation of what the hardware is there for,
+> > > and why it's unlike everything else that we support in Linux.
+> > > 
+> > This is a generic configurable clock device. I'll be happy to add
+> > some text such as "The device can be used for any application requiring
+> > a static or a dynamically configurable clock, such as serdes clocks".
+> > Not sure if that would add much value, though.
+> > 
+> > Regarding "unlike everything else", not sure if that is really correct.
+> > The DDS chips Jonathan mentioned do get pretty close, and there are
+> > other drivers providing support for clock chips, though typically more
+> > dedicated.  ics932s401 in misc is one example, and then there are all
+> > the tuner chips in media/common/tuners/.
+> 
+> Isn't that what you'd normally call a 'struct clk' then?
+> 
+Yes, it would be nice to have that as part of the kernel and not architecture
+specific.
 
-Add support to the i2c-sh_mobile driver for setting
-the I2C bus speed using platform data.
+> > > If that is true, it should probably not have a user-visible
+> > > interface, but only an interface that can be used by other
+> > > kernel drivers.
+> > > 
+> > Depends. In our case, turns out the devices consuming the clock
+> > have user mode drivers. Lots of history there, but the chip vendors 
+> > provide those user mode drivers, and the teams responsible for
+> > integrating the drivers decided to not rewrite it to kernel mode drivers.
+> > Also, for special purposes such as margining, it is necessary to control
+> > the clock from userspace. So, for our use case, I need the user-visible
+> > interface. I _don't_ need the kernel interface, at least not right now,
+> > which is why I did not add it.
+> > 
+> > Browsing through the web, it seems the chip is somewhat popular with
+> > Amateur Radio. No idea if it would ever be controlled for such a purpose
+> > from Linux, but if so, it would also require a user configurable frequency.
+> > 
+> > If there is a better place for such a driver than misc, please let me know.
+> 
+> When you say user mode driver, do you mean as in drivers/uio? (taking Hans
+> on Cc for these)
+> 
+> Those already have generic support for memory and interrupt resources,
+> maybe we can just add a common way to associate a uio device with a struct clk
+> and provide a sysfs or ioctl interface to set a clock for a given device.
+> 
+... and provide the clk infrastructure for x86, which is where I need it.
 
-Signed-off-by: Magnus Damm <damm@opensource.se>
----
-
- drivers/i2c/busses/i2c-sh_mobile.c |   13 +++++++++++--
- include/linux/i2c-sh_mobile.h      |   10 ++++++++++
- 2 files changed, 21 insertions(+), 2 deletions(-)
-
---- 0013/drivers/i2c/busses/i2c-sh_mobile.c
-+++ work/drivers/i2c/busses/i2c-sh_mobile.c	2011-04-21 20:20:23.000000000 +0900
-@@ -32,6 +32,7 @@
- #include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/slab.h>
-+#include <linux/i2c-sh_mobile.h>
- 
- /* Transmit operation:                                                      */
- /*                                                                          */
-@@ -117,7 +118,7 @@ struct sh_mobile_i2c_data {
- 	struct device *dev;
- 	void __iomem *reg;
- 	struct i2c_adapter adap;
--
-+	unsigned long bus_speed;
- 	struct clk *clk;
- 	u_int8_t icic;
- 	u_int8_t iccl;
-@@ -205,7 +206,7 @@ static void activate_ch(struct sh_mobile
- 	 * We also round off the result.
- 	 */
- 	num = i2c_clk * 5;
--	denom = NORMAL_SPEED * 9;
-+	denom = pd->bus_speed * 9;
- 	tmp = num * 10 / denom;
- 	if (tmp % 10 >= 5)
- 		pd->iccl = (u_int8_t)((num/denom) + 1);
-@@ -574,6 +575,7 @@ static int sh_mobile_i2c_hook_irqs(struc
- 
- static int sh_mobile_i2c_probe(struct platform_device *dev)
- {
-+	struct i2c_sh_mobile_platform_data *pdata = dev->dev.platform_data;
- 	struct sh_mobile_i2c_data *pd;
- 	struct i2c_adapter *adap;
- 	struct resource *res;
-@@ -618,6 +620,11 @@ static int sh_mobile_i2c_probe(struct pl
- 		goto err_irq;
- 	}
- 
-+	/* Use platformd data bus speed or NORMAL_SPEED */
-+	pd->bus_speed = NORMAL_SPEED;
-+	if (pdata && pdata->bus_speed)
-+		pd->bus_speed = pdata->bus_speed;
-+
- 	/* The IIC blocks on SH-Mobile ARM processors
- 	 * come with two new bits in ICIC.
- 	 */
-@@ -658,6 +665,8 @@ static int sh_mobile_i2c_probe(struct pl
- 		goto err_all;
- 	}
- 
-+	dev_info(&dev->dev, "I2C adapter %d with bus speed %lu Hz\n",
-+		 adap->nr, pd->bus_speed);
- 	return 0;
- 
-  err_all:
---- /dev/null
-+++ work/include/linux/i2c-sh_mobile.h	2011-04-21 20:06:59.000000000 +0900
-@@ -0,0 +1,10 @@
-+#ifndef __I2C_SH_MOBILE_H__
-+#define __I2C_SH_MOBILE_H__
-+
-+#include <linux/platform_device.h>
-+
-+struct i2c_sh_mobile_platform_data {
-+	unsigned long bus_speed;
-+};
-+
-+#endif /* __I2C_SH_MOBILE_H__ */
+Guenter
