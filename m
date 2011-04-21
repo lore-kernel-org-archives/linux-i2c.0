@@ -1,67 +1,44 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2] misc: Driver for Silicon Labs Si570 and compatibles
-Date: Thu, 21 Apr 2011 13:11:25 +0200
-Message-ID: <201104211311.25988.arnd@arndb.de>
-References: <1303248968-5069-1-git-send-email-guenter.roeck@ericsson.com> <201104201844.30919.arnd@arndb.de> <20110420181652.GA23298@ericsson.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20110420181652.GA23298@ericsson.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Guenter Roeck <guenter.roeck@ericsson.com>, "Hans J. Koch" <hjk@hansjkoch.de>
-Cc: Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@linux-foundation.org>, Jonathan Cameron <kernel@jic23.retrosnub.co.uk>, Randy Dunlap <rdunlap@xenotime.net>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] i2c: i2c-sh_mobile clock string removal
+Date: Thu, 21 Apr 2011 22:20:39 +0900
+Message-ID: <20110421132039.3717.13185.sendpatchset@t400s>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, lethal@linux-sh.org, simon@horms.net, ben-linux@fluff.org, khali@linux-fr.org, Magnus Damm <magnus.damm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 20 April 2011, Guenter Roeck wrote:
-> On Wed, Apr 20, 2011 at 12:44:30PM -0400, Arnd Bergmann wrote:
-> > On Tuesday 19 April 2011, Guenter Roeck wrote:
-> > > This driver adds support for Si570, Si571, Si598, and Si599
-> > > programmable XO/VCXO.
-> > > 
-> > > Signed-off-by: Guenter Roeck <guenter.roeck@ericsson.com>
-> > 
-> > This needs some more explanation of what the hardware is there for,
-> > and why it's unlike everything else that we support in Linux.
-> > 
-> This is a generic configurable clock device. I'll be happy to add
-> some text such as "The device can be used for any application requiring
-> a static or a dynamically configurable clock, such as serdes clocks".
-> Not sure if that would add much value, though.
-> 
-> Regarding "unlike everything else", not sure if that is really correct.
-> The DDS chips Jonathan mentioned do get pretty close, and there are
-> other drivers providing support for clock chips, though typically more
-> dedicated.  ics932s401 in misc is one example, and then there are all
-> the tuner chips in media/common/tuners/.
+From: Magnus Damm <damm@opensource.se>
 
-Isn't that what you'd normally call a 'struct clk' then?
+Remove the clock string magic from the i2c-sh_mobile driver
+now when all platforms support clkdev properly.
 
-> > If that is true, it should probably not have a user-visible
-> > interface, but only an interface that can be used by other
-> > kernel drivers.
-> > 
-> Depends. In our case, turns out the devices consuming the clock
-> have user mode drivers. Lots of history there, but the chip vendors 
-> provide those user mode drivers, and the teams responsible for
-> integrating the drivers decided to not rewrite it to kernel mode drivers.
-> Also, for special purposes such as margining, it is necessary to control
-> the clock from userspace. So, for our use case, I need the user-visible
-> interface. I _don't_ need the kernel interface, at least not right now,
-> which is why I did not add it.
-> 
-> Browsing through the web, it seems the chip is somewhat popular with
-> Amateur Radio. No idea if it would ever be controlled for such a purpose
-> from Linux, but if so, it would also require a user configurable frequency.
-> 
-> If there is a better place for such a driver than misc, please let me know.
+Signed-off-by: Magnus Damm <damm@opensource.se>
+---
 
-When you say user mode driver, do you mean as in drivers/uio? (taking Hans
-on Cc for these)
+ drivers/i2c/busses/i2c-sh_mobile.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Those already have generic support for memory and interrupt resources,
-maybe we can just add a common way to associate a uio device with a struct clk
-and provide a sysfs or ioctl interface to set a clock for a given device.
-
-	Arnd
+--- 0005/drivers/i2c/busses/i2c-sh_mobile.c
++++ work/drivers/i2c/busses/i2c-sh_mobile.c	2011-04-21 19:53:51.000000000 +0900
+@@ -577,7 +577,6 @@ static int sh_mobile_i2c_probe(struct pl
+ 	struct sh_mobile_i2c_data *pd;
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+-	char clk_name[8];
+ 	int size;
+ 	int ret;
+ 
+@@ -587,10 +586,9 @@ static int sh_mobile_i2c_probe(struct pl
+ 		return -ENOMEM;
+ 	}
+ 
+-	snprintf(clk_name, sizeof(clk_name), "i2c%d", dev->id);
+-	pd->clk = clk_get(&dev->dev, clk_name);
++	pd->clk = clk_get(&dev->dev, NULL);
+ 	if (IS_ERR(pd->clk)) {
+-		dev_err(&dev->dev, "cannot get clock \"%s\"\n", clk_name);
++		dev_err(&dev->dev, "cannot get clock\n");
+ 		ret = PTR_ERR(pd->clk);
+ 		goto err;
+ 	}
