@@ -1,86 +1,76 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v2] misc: Driver for Silicon Labs Si570 and compatibles
-Date: Fri, 22 Apr 2011 12:40:13 -0700
-Message-ID: <1303501213.31666.27.camel@groeck-laptop>
-References: <1303248968-5069-1-git-send-email-guenter.roeck@ericsson.com>
-	 <201104201844.30919.arnd@arndb.de> <20110420181652.GA23298@ericsson.com>
-	 <201104211311.25988.arnd@arndb.de>  <20110421233415.GC2786@local>
-Reply-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-i801: Move device ID definitions to driver
+Date: Sat, 23 Apr 2011 09:58:08 +0200
+Message-ID: <20110423095808.6f6ee01d@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110421233415.GC2786@local>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Hans J. Koch" <hjk-vqZO0P4V72/QD6PfKP4TzA@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Jonathan Cameron <kernel-tko9wxEg+fIOOJlXag/Snyp2UmYkHbXO@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jesse Barnes <jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2011-04-21 at 19:34 -0400, Hans J. Koch wrote:
-> On Thu, Apr 21, 2011 at 01:11:25PM +0200, Arnd Bergmann wrote:
-> > On Wednesday 20 April 2011, Guenter Roeck wrote:
-> > > On Wed, Apr 20, 2011 at 12:44:30PM -0400, Arnd Bergmann wrote:
-> > > > On Tuesday 19 April 2011, Guenter Roeck wrote:
-> > > > > This driver adds support for Si570, Si571, Si598, and Si599
-> > > > > programmable XO/VCXO.
-> > > > > 
-> > > > > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> > > > 
-> > > > This needs some more explanation of what the hardware is there for,
-> > > > and why it's unlike everything else that we support in Linux.
-> > > > 
-> > > This is a generic configurable clock device. I'll be happy to add
-> > > some text such as "The device can be used for any application requiring
-> > > a static or a dynamically configurable clock, such as serdes clocks".
-> > > Not sure if that would add much value, though.
-> > > 
-> > > Regarding "unlike everything else", not sure if that is really correct.
-> > > The DDS chips Jonathan mentioned do get pretty close, and there are
-> > > other drivers providing support for clock chips, though typically more
-> > > dedicated.  ics932s401 in misc is one example, and then there are all
-> > > the tuner chips in media/common/tuners/.
-> > 
-> > Isn't that what you'd normally call a 'struct clk' then?
-> > 
-> > > > If that is true, it should probably not have a user-visible
-> > > > interface, but only an interface that can be used by other
-> > > > kernel drivers.
-> > > > 
-> > > Depends. In our case, turns out the devices consuming the clock
-> > > have user mode drivers. Lots of history there, but the chip vendors 
-> > > provide those user mode drivers, and the teams responsible for
-> > > integrating the drivers decided to not rewrite it to kernel mode drivers.
-> > > Also, for special purposes such as margining, it is necessary to control
-> > > the clock from userspace. So, for our use case, I need the user-visible
-> > > interface. I _don't_ need the kernel interface, at least not right now,
-> > > which is why I did not add it.
-> > > 
-> > > Browsing through the web, it seems the chip is somewhat popular with
-> > > Amateur Radio. No idea if it would ever be controlled for such a purpose
-> > > from Linux, but if so, it would also require a user configurable frequency.
-> > > 
-> > > If there is a better place for such a driver than misc, please let me know.
-> > 
-> > When you say user mode driver, do you mean as in drivers/uio? (taking Hans
-> > on Cc for these)
-> 
-> No UIO driver like that ever reached me.
-> 
-> > 
-> > Those already have generic support for memory and interrupt resources,
-> > maybe we can just add a common way to associate a uio device with a struct clk
-> > and provide a sysfs or ioctl interface to set a clock for a given device.
-> 
-> I don't think the UIO framework is the right place for such a thing. If it's
-> just this one driver that needs modification of a clock from userspace, then
-> a sysfs attribute could be added to that driver. If there are several drivers
-> that need this, then the clock framework should be extended.
+Move the SMBus device ID definitions of recent devices from pci_ids.h
+to the i2c-i801.c driver file. They don't have to be shared, as they
+are clearly identified and only used in this driver. In the future,
+such IDs will go to i2c-i801 directly. This will make adding support
+for new devices much faster and easier, as it will avoid cross-
+subsystem patch sets and merge conflicts.
 
-Agreed. Also, the desire to control the clock frequency _through_ such a
-driver (user mode or not) seems odd. Such an approach would be
-inherently non-scalable (for my part I would have to support two drivers
-already). Voltage regulators are not controlled through the drivers of
-the chips they are providing power to either, but have an independent
-existence.
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Jesse Barnes <jbarnes-Y1mF5jBUw70BENJcbMCuUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-i801.c |    5 +++++
+ include/linux/pci_ids.h       |    4 ----
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-Guenter
+--- linux-2.6.39-rc4.orig/drivers/i2c/busses/i2c-i801.c	2011-04-23 09:51:18.000000000 +0200
++++ linux-2.6.39-rc4/drivers/i2c/busses/i2c-i801.c	2011-04-23 09:51:49.000000000 +0200
+@@ -134,10 +134,15 @@
+ 				 SMBHSTSTS_BUS_ERR | SMBHSTSTS_DEV_ERR | \
+ 				 SMBHSTSTS_INTR)
+ 
++/* Older devices have their ID defined in <linux/pci_ids.h> */
++#define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
++#define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS	0x1d22
+ /* Patsburg also has three 'Integrated Device Function' SMBus controllers */
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0	0x1d70
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1	0x1d71
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2	0x1d72
++#define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
++#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+ 
+ struct i801_priv {
+ 	struct i2c_adapter adapter;
+--- linux-2.6.39-rc4.orig/include/linux/pci_ids.h	2011-04-23 09:51:18.000000000 +0200
++++ linux-2.6.39-rc4/include/linux/pci_ids.h	2011-04-23 09:51:49.000000000 +0200
+@@ -2477,15 +2477,12 @@
+ #define PCI_DEVICE_ID_INTEL_82840_HB	0x1a21
+ #define PCI_DEVICE_ID_INTEL_82845_HB	0x1a30
+ #define PCI_DEVICE_ID_INTEL_IOAT	0x1a38
+-#define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
+ #define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MIN	0x1c41
+ #define PCI_DEVICE_ID_INTEL_COUGARPOINT_LPC_MAX	0x1c5f
+-#define PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS	0x1d22
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_LPC_0	0x1d40
+ #define PCI_DEVICE_ID_INTEL_PATSBURG_LPC_1	0x1d41
+ #define PCI_DEVICE_ID_INTEL_DH89XXCC_LPC_MIN	0x2310
+ #define PCI_DEVICE_ID_INTEL_DH89XXCC_LPC_MAX	0x231f
+-#define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
+ #define PCI_DEVICE_ID_INTEL_82801AA_0	0x2410
+ #define PCI_DEVICE_ID_INTEL_82801AA_1	0x2411
+ #define PCI_DEVICE_ID_INTEL_82801AA_3	0x2413
+@@ -2696,7 +2693,6 @@
+ #define PCI_DEVICE_ID_INTEL_ICH10_5	0x3a60
+ #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MIN	0x3b00
+ #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_LPC_MAX	0x3b1f
+-#define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+ #define PCI_DEVICE_ID_INTEL_IOAT_SNB	0x402f
+ #define PCI_DEVICE_ID_INTEL_5100_16	0x65f0
+ #define PCI_DEVICE_ID_INTEL_5100_21	0x65f5
+
+
+-- 
+Jean Delvare
