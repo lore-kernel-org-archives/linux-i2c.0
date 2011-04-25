@@ -1,68 +1,55 @@
-From: Michael Williamson <michael.williamson-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>
-Subject: [PATCH] i2c: davinci: Fix null dereference bug in i2c_davinci_calc_clk_dividers
-Date: Sat, 23 Apr 2011 13:31:35 -0400
-Message-ID: <1303579895-9441-1-git-send-email-michael.williamson@criticallink.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, chaithrika-l0cyMroinI0@public.gmane.org, Michael Williamson <michael.williamson-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c: tegra: Enable new slave mode.
+Date: Mon, 25 Apr 2011 12:29:54 -0600
+Message-ID: <1303756194-6253-1-git-send-email-swarren@nvidia.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kenneth Waters <kwaters-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, stable <stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The davinci-i2c bus driver currently supports being probed with a NULL
-platform_data structure by using a default configuration when none is
-provided.  However, the i2c_davinci_calc_clk_dividers does not
-check the provided platform_data for NULL prior to using it, so
-the support is incomplete.
+From: Kenneth Waters <kwaters-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
-Rather than have each runtime call check for NULL and avoid future
-problems, copy a pointer to the default data to the device structure
-during the probe.  This should be OK, as the information in this
-structure is not modified by the driver.
+For Tegra i2c controller to function properly new slave mode must be
+enabled.
 
-Tested on a MityDSP-L138 module (OMAP-L138 based SOM).
+swarren notes:
 
-Signed-off-by: Micahel Williamson <michael.williamson-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>
+In particular, I found this was needed when working on enabling the
+Tegra audio driver on the Seaboard board. There are two different PCB
+layouts for this board; a "clamshell" version, which works just fine
+without this change, and the original non-clamshell version, which needs
+this change in order for I2C to operate correctly. Without it, I2C
+probing fails for some devices, e.g. with:
+
+wm8903 0-001a: Device with ID register 0 is not a WM8903
+wm8903 0-001a: asoc: failed to probe CODEC wm8903.0-001a: -19
+asoc: failed to instantiate card tegra-wm8903: -19
+ALSA device list:
+  No soundcards found.
+
+Signed-off-by: Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: stable <stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-davinci.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 5795c83..1db8fc9 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -163,8 +163,7 @@ static void i2c_recover_bus(struct davinci_i2c_dev *dev)
- 	flag |=  DAVINCI_I2C_MDR_NACK;
- 	/* write the data into mode register */
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
--	if (pdata)
--		generic_i2c_clock_pulse(pdata->scl_pin);
-+	generic_i2c_clock_pulse(pdata->scl_pin);
- 	/* Send STOP */
- 	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
- 	flag |= DAVINCI_I2C_MDR_STP;
-@@ -235,10 +234,11 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
-  */
- static int i2c_davinci_init(struct davinci_i2c_dev *dev)
- {
--	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-+	struct davinci_i2c_platform_data *pdata;
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index b4ab39b..5f1b92c 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -330,6 +330,11 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
+ 	clk_set_rate(i2c_dev->clk, i2c_dev->bus_clk_rate * 8);
  
--	if (!pdata)
--		pdata = &davinci_i2c_platform_data_default;
-+	if (!dev->dev->platform_data)
-+		dev->dev->platform_data = &davinci_i2c_platform_data_default;
-+	pdata = dev->dev->platform_data;
- 
- 	/* put I2C into reset */
- 	davinci_i2c_reset_ctrl(dev, 0);
-@@ -313,8 +313,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- 	u16 w;
- 	int r;
- 
--	if (!pdata)
--		pdata = &davinci_i2c_platform_data_default;
- 	/* Introduce a delay, required for some boards (e.g Davinci EVM) */
- 	if (pdata->bus_delay)
- 		udelay(pdata->bus_delay);
++	if (!i2c_dev->is_dvc) {
++		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
++		i2c_writel(i2c_dev, sl_cfg | I2C_SL_CNFG_NEWSL, I2C_SL_CNFG);
++	}
++
+ 	val = 7 << I2C_FIFO_CONTROL_TX_TRIG_SHIFT |
+ 		0 << I2C_FIFO_CONTROL_RX_TRIG_SHIFT;
+ 	i2c_writel(i2c_dev, val, I2C_FIFO_CONTROL);
 -- 
 1.7.0.4
