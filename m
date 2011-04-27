@@ -1,65 +1,109 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH 0/2] i2c: tegra: add some new features for tegra i2c
-Date: Wed, 27 Apr 2011 09:29:19 -0700
-Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF0497F1AAC4@HQMAIL01.nvidia.com>
-References: <1303301312-15302-1-git-send-email-wni@nvidia.com>
- <6B4D417B830BC44B8026029FD256F7F1C2CB3DD4DB@HKMAIL01.nvidia.com>
+From: Simon Horman <horms@verge.net.au>
+Subject: Re: [PATCH] i2c: i2c-sh_mobile bus speed platform data
+Date: Thu, 28 Apr 2011 07:14:10 +0900
+Message-ID: <20110427221357.GA12273@verge.net.au>
+References: <20110421132254.3725.84300.sendpatchset@t400s>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6B4D417B830BC44B8026029FD256F7F1C2CB3DD4DB-Q4EWCATADntDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
-Content-Language: en-US
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org" <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, "ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org" <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Olof Johansson (olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org)" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20110421132254.3725.84300.sendpatchset@t400s>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, lethal@linux-sh.org, ben-linux@fluff.org, khali@linux-fr.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wei Ni wrote at Wednesday, April 27, 2011 4:26 AM:
-> Hi, all
-> Could anyone review these changes?
+Hi Magnus,
 
-Wei,
+On Thu, Apr 21, 2011 at 10:22:54PM +0900, Magnus Damm wrote:
+> From: Magnus Damm <damm@opensource.se>
+> 
+> Add support to the i2c-sh_mobile driver for setting
+> the I2C bus speed using platform data.
+> 
+> Signed-off-by: Magnus Damm <damm@opensource.se>
+> ---
+> 
+>  drivers/i2c/busses/i2c-sh_mobile.c |   13 +++++++++++--
+>  include/linux/i2c-sh_mobile.h      |   10 ++++++++++
+>  2 files changed, 21 insertions(+), 2 deletions(-)
+> 
+> --- 0013/drivers/i2c/busses/i2c-sh_mobile.c
+> +++ work/drivers/i2c/busses/i2c-sh_mobile.c	2011-04-21 20:20:23.000000000 +0900
+> @@ -32,6 +32,7 @@
+>  #include <linux/clk.h>
+>  #include <linux/io.h>
+>  #include <linux/slab.h>
+> +#include <linux/i2c-sh_mobile.h>
+>  
+>  /* Transmit operation:                                                      */
+>  /*                                                                          */
+> @@ -117,7 +118,7 @@ struct sh_mobile_i2c_data {
+>  	struct device *dev;
+>  	void __iomem *reg;
+>  	struct i2c_adapter adap;
+> -
+> +	unsigned long bus_speed;
+>  	struct clk *clk;
+>  	u_int8_t icic;
+>  	u_int8_t iccl;
+> @@ -205,7 +206,7 @@ static void activate_ch(struct sh_mobile
+>  	 * We also round off the result.
+>  	 */
+>  	num = i2c_clk * 5;
+> -	denom = NORMAL_SPEED * 9;
+> +	denom = pd->bus_speed * 9;
 
-It looks like some of the patches I recently posted address the same
-issues as the patches you had already posted. Sorry for the potential
-conflicts.
+I believe that on the sh73a0 and so far only the sh73a0
+denom needs to be doubled.
 
-Can you please take a look at the patches I posted and comment on which
-of those are still relevant given your patches. Even for the cases where
-we both posted patches to address the same issue (e.g. use new slave
-mode), there are differences in the patches. I simply took the changes
-from the chromeos-2.6.37 kernel and cherry-picked them into the mainline
-kernel. Are the changes you posted re-written to address issues that
-weren't solved in the ChromeOS kernel?
-
-Thanks for any feedback on this.
-
+>  	tmp = num * 10 / denom;
+>  	if (tmp % 10 >= 5)
+>  		pd->iccl = (u_int8_t)((num/denom) + 1);
+> @@ -574,6 +575,7 @@ static int sh_mobile_i2c_hook_irqs(struc
+>  
+>  static int sh_mobile_i2c_probe(struct platform_device *dev)
+>  {
+> +	struct i2c_sh_mobile_platform_data *pdata = dev->dev.platform_data;
+>  	struct sh_mobile_i2c_data *pd;
+>  	struct i2c_adapter *adap;
+>  	struct resource *res;
+> @@ -618,6 +620,11 @@ static int sh_mobile_i2c_probe(struct pl
+>  		goto err_irq;
+>  	}
+>  
+> +	/* Use platformd data bus speed or NORMAL_SPEED */
+> +	pd->bus_speed = NORMAL_SPEED;
+> +	if (pdata && pdata->bus_speed)
+> +		pd->bus_speed = pdata->bus_speed;
+> +
+>  	/* The IIC blocks on SH-Mobile ARM processors
+>  	 * come with two new bits in ICIC.
+>  	 */
+> @@ -658,6 +665,8 @@ static int sh_mobile_i2c_probe(struct pl
+>  		goto err_all;
+>  	}
+>  
+> +	dev_info(&dev->dev, "I2C adapter %d with bus speed %lu Hz\n",
+> +		 adap->nr, pd->bus_speed);
+>  	return 0;
+>  
+>   err_all:
+> --- /dev/null
+> +++ work/include/linux/i2c-sh_mobile.h	2011-04-21 20:06:59.000000000 +0900
+> @@ -0,0 +1,10 @@
+> +#ifndef __I2C_SH_MOBILE_H__
+> +#define __I2C_SH_MOBILE_H__
+> +
+> +#include <linux/platform_device.h>
+> +
+> +struct i2c_sh_mobile_platform_data {
+> +	unsigned long bus_speed;
+> +};
+> +
+> +#endif /* __I2C_SH_MOBILE_H__ */
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 > 
-> Thanks
-> Wei.
-> 
-> -----Original Message-----
-> From: Wei Ni
-> Sent: Wednesday, April 20, 2011 8:09 PM
-> To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org;
-> lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org; ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org; linux-
-> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Wei Ni
-> Subject: [PATCH 0/2] i2c: tegra: add some new features for tegra i2c
-> 
-> From: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> 
-> *** BLURB HERE ***
-> 
-> Wei Ni (2):
->   i2c: tegra: Retry transfer when unexpected/no_ack status is detected
->   i2c: tegra: use new i2c slave controller
-> 
->  drivers/i2c/busses/i2c-tegra.c |   57
-> +++++++++++++++++++++++++++++++++++++--
->  include/linux/i2c-tegra.h      |    3 ++
->  2 files changed, 57 insertions(+), 3 deletions(-)
-
--- 
-nvpublic
