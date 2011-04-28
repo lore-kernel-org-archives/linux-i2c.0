@@ -1,156 +1,95 @@
-From: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 3/3] ARM: mmp: add hardware lock support in PXA910
-Date: Thu, 28 Apr 2011 12:02:38 +0800
-Message-ID: <1303963358-4652-3-git-send-email-haojian.zhuang@gmail.com>
-References: <2011042801>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <2011042801>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Magnus Damm <magnus.damm@gmail.com>
+Subject: [PATCH] i2c: i2c-sh_mobile bus speed platform data V2
+Date: Thu, 28 Apr 2011 13:25:36 +0900
+Message-ID: <20110428042536.2877.12805.sendpatchset@t400s>
+Return-path: <linux-sh-owner@vger.kernel.org>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, lethal@linux-sh.org, simon@horms.net, ben-linux@fluff.org, khali@linux-fr.org, Magnus Damm <magnus.damm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-RIPC register is used to implement hardware lock between CP and
-AP in Marvell PXA910.
+From: Magnus Damm <damm@opensource.se>
 
-Signed-off-by: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Add support to the i2c-sh_mobile driver for setting
+the I2C bus speed using platform data.
+
+Signed-off-by: Magnus Damm <damm@opensource.se>
 ---
- arch/arm/mach-mmp/include/mach/pxa910.h |    3 ++
- arch/arm/mach-mmp/pxa910.c              |   21 +++++++++++++-
- arch/arm/mach-mmp/ttc_dkb.c             |   45 +++++++++++++++++++++++++++++++
- 3 files changed, 68 insertions(+), 1 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/include/mach/pxa910.h b/arch/arm/mach-mmp/include/mach/pxa910.h
-index 91be755..e7659a1 100644
---- a/arch/arm/mach-mmp/include/mach/pxa910.h
-+++ b/arch/arm/mach-mmp/include/mach/pxa910.h
-@@ -5,6 +5,9 @@ struct sys_timer;
+ Changes since V1:
+ - Moved header file from include/linux/ to include/linux/i2c/
+
+ drivers/i2c/busses/i2c-sh_mobile.c |   13 +++++++++++--
+ include/linux/i2c/i2c-sh_mobile.h  |   10 ++++++++++
+ 2 files changed, 21 insertions(+), 2 deletions(-)
+
+--- 0003/drivers/i2c/busses/i2c-sh_mobile.c
++++ work/drivers/i2c/busses/i2c-sh_mobile.c	2011-04-28 13:21:51.000000000 +0900
+@@ -32,6 +32,7 @@
+ #include <linux/clk.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#include <linux/i2c/i2c-sh_mobile.h>
  
- extern struct sys_timer pxa910_timer;
- extern void __init pxa910_init_irq(void);
-+extern void pxa910_ripc_lock(void);
-+extern void pxa910_ripc_unlock(void);
-+extern int pxa910_ripc_trylock(void);
+ /* Transmit operation:                                                      */
+ /*                                                                          */
+@@ -117,7 +118,7 @@ struct sh_mobile_i2c_data {
+ 	struct device *dev;
+ 	void __iomem *reg;
+ 	struct i2c_adapter adap;
+-
++	unsigned long bus_speed;
+ 	struct clk *clk;
+ 	u_int8_t icic;
+ 	u_int8_t iccl;
+@@ -205,7 +206,7 @@ static void activate_ch(struct sh_mobile
+ 	 * We also round off the result.
+ 	 */
+ 	num = i2c_clk * 5;
+-	denom = NORMAL_SPEED * 9;
++	denom = pd->bus_speed * 9;
+ 	tmp = num * 10 / denom;
+ 	if (tmp % 10 >= 5)
+ 		pd->iccl = (u_int8_t)((num/denom) + 1);
+@@ -574,6 +575,7 @@ static int sh_mobile_i2c_hook_irqs(struc
  
- #include <linux/i2c.h>
- #include <linux/i2c/pxa-i2c.h>
-diff --git a/arch/arm/mach-mmp/pxa910.c b/arch/arm/mach-mmp/pxa910.c
-index 8f92ccd..3190257 100644
---- a/arch/arm/mach-mmp/pxa910.c
-+++ b/arch/arm/mach-mmp/pxa910.c
-@@ -28,7 +28,10 @@
- #include "common.h"
- #include "clock.h"
- 
--#define MFPR_VIRT_BASE	(APB_VIRT_BASE + 0x1e000)
-+#define MFPR_VIRT_BASE		(APB_VIRT_BASE + 0x1e000)
-+
-+#define RIPC0_VIRT_BASE		(APB_VIRT_BASE + 0x3D000)
-+#define RIPC0_STATUS		(RIPC0_VIRT_BASE + 0x00)
- 
- static struct mfp_addr_map pxa910_mfp_addr_map[] __initdata =
+ static int sh_mobile_i2c_probe(struct platform_device *dev)
  {
-@@ -100,6 +103,22 @@ void __init pxa910_init_irq(void)
- 	pxa910_init_gpio();
- }
++	struct i2c_sh_mobile_platform_data *pdata = dev->dev.platform_data;
+ 	struct sh_mobile_i2c_data *pd;
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+@@ -618,6 +620,11 @@ static int sh_mobile_i2c_probe(struct pl
+ 		goto err_irq;
+ 	}
  
-+void pxa910_ripc_lock(void)
-+{
-+	while (__raw_readl(RIPC0_STATUS))
-+		cpu_relax();
-+}
++	/* Use platformd data bus speed or NORMAL_SPEED */
++	pd->bus_speed = NORMAL_SPEED;
++	if (pdata && pdata->bus_speed)
++		pd->bus_speed = pdata->bus_speed;
 +
-+int pxa910_ripc_trylock(void)
-+{
-+	return (!__raw_readl(RIPC0_STATUS));
-+}
-+
-+void pxa910_ripc_unlock(void)
-+{
-+	__raw_writel(1, RIPC0_STATUS);
-+}
-+
- /* APB peripheral clocks */
- static APBC_CLK(uart1, PXA910_UART0, 1, 14745600);
- static APBC_CLK(uart2, PXA910_UART1, 1, 14745600);
-diff --git a/arch/arm/mach-mmp/ttc_dkb.c b/arch/arm/mach-mmp/ttc_dkb.c
-index e411039..c6af021 100644
---- a/arch/arm/mach-mmp/ttc_dkb.c
-+++ b/arch/arm/mach-mmp/ttc_dkb.c
-@@ -15,6 +15,7 @@
- #include <linux/mtd/partitions.h>
- #include <linux/mtd/onenand.h>
- #include <linux/interrupt.h>
-+#include <linux/mfd/88pm860x.h>
+ 	/* The IIC blocks on SH-Mobile ARM processors
+ 	 * come with two new bits in ICIC.
+ 	 */
+@@ -658,6 +665,8 @@ static int sh_mobile_i2c_probe(struct pl
+ 		goto err_all;
+ 	}
  
- #include <asm/mach-types.h>
- #include <asm/mach/arch.h>
-@@ -32,6 +33,10 @@ static unsigned long ttc_dkb_pin_config[] __initdata = {
- 	GPIO47_UART2_RXD,
- 	GPIO48_UART2_TXD,
++	dev_info(&dev->dev, "I2C adapter %d with bus speed %lu Hz\n",
++		 adap->nr, pd->bus_speed);
+ 	return 0;
  
-+	/* I2C */
-+	GPIO53_CI2C_SCL,
-+	GPIO54_CI2C_SDA,
+  err_all:
+--- /dev/null
++++ work/include/linux/i2c/i2c-sh_mobile.h	2011-04-28 12:21:45.000000000 +0900
+@@ -0,0 +1,10 @@
++#ifndef __I2C_SH_MOBILE_H__
++#define __I2C_SH_MOBILE_H__
 +
- 	/* DFI */
- 	DF_IO0_ND_IO0,
- 	DF_IO1_ND_IO1,
-@@ -113,12 +118,52 @@ static struct platform_device *ttc_dkb_devices[] = {
- 	&ttc_dkb_device_onenand,
- };
- 
-+static struct pm860x_led_pdata dkb_pm860x_led[] = {
-+	{
-+		.id		= PM8606_ID_LED,
-+		.iset		= PM8606_LED_CURRENT(12),
-+		.flags		= PM8606_LED1_RED,
-+	}, {
-+		.id		= PM8606_ID_LED,
-+		.iset		= PM8606_LED_CURRENT(12),
-+		.flags		= PM8606_LED1_GREEN,
-+	}, {
-+		.id		= PM8606_ID_LED,
-+		.iset		= PM8606_LED_CURRENT(12),
-+		.flags		= PM8606_LED1_BLUE,
-+	},
++#include <linux/platform_device.h>
++
++struct i2c_sh_mobile_platform_data {
++	unsigned long bus_speed;
 +};
 +
-+static struct pm860x_platform_data dkb_pm8607_info = {
-+	.led			= &dkb_pm860x_led[0],
-+	.i2c_port		= GI2C_PORT,
-+	.companion_addr		= 0x11,
-+	.irq_mode		= 0,
-+	.irq_base		= IRQ_BOARD_START,
-+};
-+
-+static struct i2c_board_info dkb_i2c_info[] = {
-+	{
-+		.type		= "88PM860x",
-+		.addr		= 0x34,
-+		.platform_data	= &dkb_pm8607_info,
-+		.irq		= IRQ_PXA910_PMIC_INT,
-+	},
-+};
-+
-+static struct i2c_pxa_platform_data dkb_i2c_pdata = {
-+	.hardware_lock		= pxa910_ripc_lock,
-+	.hardware_unlock	= pxa910_ripc_unlock,
-+	.hardware_trylock	= pxa910_ripc_trylock,
-+};
-+
- static void __init ttc_dkb_init(void)
- {
- 	mfp_config(ARRAY_AND_SIZE(ttc_dkb_pin_config));
- 
- 	/* on-chip devices */
- 	pxa910_add_uart(1);
-+	pxa910_add_twsi(0, &dkb_i2c_pdata, ARRAY_AND_SIZE(dkb_i2c_info));
- 
- 	/* off-chip devices */
- 	platform_add_devices(ARRAY_AND_SIZE(ttc_dkb_devices));
--- 
-1.7.1
++#endif /* __I2C_SH_MOBILE_H__ */
