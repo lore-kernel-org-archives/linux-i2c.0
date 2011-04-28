@@ -1,82 +1,94 @@
-From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-sh_mobile bus speed platform data
-Date: Thu, 28 Apr 2011 12:25:30 +0900
-Message-ID: <BANLkTi=bcWyKR-DrgHgYPtU8Xcw2gYqT8g@mail.gmail.com>
-References: <20110421132254.3725.84300.sendpatchset@t400s>
-	<20110427221357.GA12273@verge.net.au>
-	<BANLkTi=YbtWYKLdcEkv6TDRfm-BbXGXa4w@mail.gmail.com>
-	<20110428011757.GB15883@verge.net.au>
-	<20110428022214.GB13539@linux-sh.org>
-	<BANLkTimSM-9XYy0UrwoWK8CGjp0qAqeF4A@mail.gmail.com>
-	<20110428031115.GD13539@linux-sh.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/3] i2c: append hardware lock with bus lock
+Date: Thu, 28 Apr 2011 12:02:36 +0800
+Message-ID: <1303963358-4652-1-git-send-email-haojian.zhuang@gmail.com>
+References: <2011042801>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110428031115.GD13539-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <2011042801>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
-Cc: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+To: haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 28, 2011 at 12:11 PM, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org> wrote:
-> On Thu, Apr 28, 2011 at 11:46:37AM +0900, Magnus Damm wrote:
->> On Thu, Apr 28, 2011 at 11:22 AM, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org> wrote:
->> > On Thu, Apr 28, 2011 at 10:18:01AM +0900, Simon Horman wrote:
->> >> On Thu, Apr 28, 2011 at 10:06:38AM +0900, Magnus Damm wrote:
->> >> > On Thu, Apr 28, 2011 at 7:14 AM, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org> wrote:
->> >> > > I believe that on the sh73a0 and so far only the sh73a0
->> >> > > denom needs to be doubled.
->> >> >
->> >> > Uhm, I don't think this patch is specific to any SoC type. It may of
->> >> > course be used on sh73a0 to adjust the denom value, but setting the
->> >> > I2C bus speed is something that can be used on any SoC. So I'd say
->> >> > that this is a fairly generic feature.
->> >>
->> >> I'm just saying that that I've observed the value being doubled for sh73a0.
->> >>
->> > The general rule of thumb is that whatever unusual behaviour is observed
->> > in the latest CPU we will see become the standard for future ones.
->>
->> This may also be an attempt to simply double the I2C bus speed on that
->> particular platform for that particular application. So in the end it
->> may have nothing to do with sh73a0. Actually, now when I think about
->> it, I recall hacking up a prototype to control the LCD backlight via
->> I2C on sh73a0 and AG5EVM, and I did not have to modify any part of the
->> I2C bus driver to get that going as expected.
->>
-> Ok, that bit of information was missing from your patch. That's obviously
-> a bit more dodgy. We don't want to have the default behaviour out of spec
-> for some specific application.
+Both AP and CP are contained in Marvell PXA910 silicon. These two ARM
+cores are sharing one pair of I2C pins.
 
-I suspect that I may have chosen my words poorly. By writing "This may
-also be an attempt to simply double the I2C bus speed on that
-particular platform for that particular application." I am not
-referring to this patch. I am commenting on something Simon may see
-when he is going though kernel source that has been mangled by people
-doing integration.
+In order to keep I2C transaction operated with atomic, hardware lock
+(RIPC) is required. Because of this, bus lock in AP side can't afford
+this requirement. Now hardware lock is appended.
 
-As for configuring the i2c bus speed, I wouldn't call it dodgy. It is
-something that is fairly common but of course needs to be handled with
-care. Other drivers handle this through module parameters, but since
-we want to configure this with per-device instance granularity
-platform data is a better fit.
+Signed-off-by: Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |   22 ++++++++++++++++++----
+ include/linux/i2c.h    |    3 +++
+ 2 files changed, 21 insertions(+), 4 deletions(-)
 
->> > Abstracting the denom value seems reasonable as a cautionary measure, and
->> > it does do the NORMAL_SPEED as a default fallback so there is no adverse
->> > impact for normalized platforms.
->> >
->> > This really should be going in to include/linux/i2c/ or so though, no
->> > need to dump these tiny stubs in to include/linux/ directly.
->>
->> I guess I just followed what other i2c drivers do, but yes, putting
->> the header file in include/linux/i2c/ makes more sense.
->>
-> Other i2c drivers put things in include/linux/i2c, too. There's also an
-> include/linux/platform_data/ now as well for things that don't fit
-> anywhere else. "This is the way we used to do it" tends to be a pretty
-> pointless argument going forward.
-
-I looks like I have been unclear in my writing once again. I'm not
-arguing that the header should be kept in include/linux/.
-
-/ magnus
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 045ba6e..412c7a5 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -448,8 +448,11 @@ void i2c_lock_adapter(struct i2c_adapter *adapter)
+ 
+ 	if (parent)
+ 		i2c_lock_adapter(parent);
+-	else
++	else {
+ 		rt_mutex_lock(&adapter->bus_lock);
++		if (adapter->hardware_lock)
++			adapter->hardware_lock();
++	}
+ }
+ EXPORT_SYMBOL_GPL(i2c_lock_adapter);
+ 
+@@ -460,11 +463,19 @@ EXPORT_SYMBOL_GPL(i2c_lock_adapter);
+ static int i2c_trylock_adapter(struct i2c_adapter *adapter)
+ {
+ 	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
++	int ret = 0;
+ 
+ 	if (parent)
+ 		return i2c_trylock_adapter(parent);
+-	else
+-		return rt_mutex_trylock(&adapter->bus_lock);
++	else {
++		ret = rt_mutex_trylock(&adapter->bus_lock);
++		if (ret && adapter->hardware_trylock) {
++			ret = adapter->hardware_trylock();
++			if (!ret)
++				i2c_unlock_adapter(adapter);
++		}
++		return ret;
++	}
+ }
+ 
+ /**
+@@ -477,8 +488,11 @@ void i2c_unlock_adapter(struct i2c_adapter *adapter)
+ 
+ 	if (parent)
+ 		i2c_unlock_adapter(parent);
+-	else
++	else {
++		if (adapter->hardware_unlock)
++			adapter->hardware_unlock();
+ 		rt_mutex_unlock(&adapter->bus_lock);
++	}
+ }
+ EXPORT_SYMBOL_GPL(i2c_unlock_adapter);
+ 
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 06a8d9c..b283b4e 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -361,6 +361,9 @@ struct i2c_adapter {
+ 
+ 	/* data fields that are valid for all devices	*/
+ 	struct rt_mutex bus_lock;
++	void (*hardware_lock)(void);
++	void (*hardware_unlock)(void);
++	int (*hardware_trylock)(void);
+ 
+ 	int timeout;			/* in jiffies */
+ 	int retries;
+-- 
+1.7.1
