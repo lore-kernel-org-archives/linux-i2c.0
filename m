@@ -1,181 +1,106 @@
-From: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 3/3] ARM: mmp: add hardware lock support in PXA910
-Date: Thu, 28 Apr 2011 23:15:46 +0800
-Message-ID: <1304003746-12127-3-git-send-email-haojian.zhuang@gmail.com>
-References: <2011042801>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-parport: Fix adapter list handling
+Date: Thu, 28 Apr 2011 17:56:53 +0200
+Message-ID: <20110428175653.213f4fac@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <2011042801>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-RIPC register is used to implement hardware lock between CP and
-AP in Marvell PXA910.
+Use a standard list with proper locking to handle the list of
+adapters. Thankfully it only matters on systems with more than one
+parallel port, which are very rare.
 
-Signed-off-by: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Thanks to Lukasz Kapiec for reporting the problem to me.
+
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 ---
- arch/arm/mach-mmp/include/mach/pxa910.h |   13 +++++---
- arch/arm/mach-mmp/pxa910.c              |   23 +++++++++++++++-
- arch/arm/mach-mmp/ttc_dkb.c             |   45 +++++++++++++++++++++++++++++++
- 3 files changed, 75 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-parport.c |   27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm/mach-mmp/include/mach/pxa910.h b/arch/arm/mach-mmp/include/mach/pxa910.h
-index 91be755..2973466 100644
---- a/arch/arm/mach-mmp/include/mach/pxa910.h
-+++ b/arch/arm/mach-mmp/include/mach/pxa910.h
-@@ -1,16 +1,19 @@
- #ifndef __ASM_MACH_PXA910_H
- #define __ASM_MACH_PXA910_H
+--- linux-2.6.39-rc5.orig/drivers/i2c/busses/i2c-parport.c	2010-08-02 00:11:14.000000000 +0200
++++ linux-2.6.39-rc5/drivers/i2c/busses/i2c-parport.c	2011-04-28 17:15:43.000000000 +0200
+@@ -1,7 +1,7 @@
+ /* ------------------------------------------------------------------------ *
+  * i2c-parport.c I2C bus over parallel port                                 *
+  * ------------------------------------------------------------------------ *
+-   Copyright (C) 2003-2010 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++   Copyright (C) 2003-2011 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+    
+    Based on older i2c-philips-par.c driver
+    Copyright (C) 1995-2000 Simon G. Vogl
+@@ -33,6 +33,8 @@
+ #include <linux/i2c-algo-bit.h>
+ #include <linux/i2c-smbus.h>
+ #include <linux/slab.h>
++#include <linux/list.h>
++#include <linux/mutex.h>
+ #include "i2c-parport.h"
  
--struct sys_timer;
--
--extern struct sys_timer pxa910_timer;
--extern void __init pxa910_init_irq(void);
--
- #include <linux/i2c.h>
- #include <linux/i2c/pxa-i2c.h>
- #include <mach/devices.h>
- #include <plat/pxa3xx_nand.h>
- 
-+struct sys_timer;
-+
-+extern struct sys_timer pxa910_timer;
-+extern void __init pxa910_init_irq(void);
-+extern void pxa910_ripc_lock(struct i2c_adapter *);
-+extern void pxa910_ripc_unlock(struct i2c_adapter *);
-+extern int pxa910_ripc_trylock(struct i2c_adapter *);
-+
- extern struct pxa_device_desc pxa910_device_uart1;
- extern struct pxa_device_desc pxa910_device_uart2;
- extern struct pxa_device_desc pxa910_device_twsi0;
-diff --git a/arch/arm/mach-mmp/pxa910.c b/arch/arm/mach-mmp/pxa910.c
-index 8f92ccd..4fbe485 100644
---- a/arch/arm/mach-mmp/pxa910.c
-+++ b/arch/arm/mach-mmp/pxa910.c
-@@ -13,6 +13,7 @@
- #include <linux/init.h>
- #include <linux/list.h>
- #include <linux/io.h>
-+#include <linux/i2c.h>
- 
- #include <asm/mach/time.h>
- #include <mach/addr-map.h>
-@@ -28,7 +29,10 @@
- #include "common.h"
- #include "clock.h"
- 
--#define MFPR_VIRT_BASE	(APB_VIRT_BASE + 0x1e000)
-+#define MFPR_VIRT_BASE		(APB_VIRT_BASE + 0x1e000)
-+
-+#define RIPC0_VIRT_BASE		(APB_VIRT_BASE + 0x3D000)
-+#define RIPC0_STATUS		(RIPC0_VIRT_BASE + 0x00)
- 
- static struct mfp_addr_map pxa910_mfp_addr_map[] __initdata =
- {
-@@ -100,6 +104,23 @@ void __init pxa910_init_irq(void)
- 	pxa910_init_gpio();
- }
- 
-+void pxa910_ripc_lock(struct i2c_adapter *adap)
-+{
-+	while (__raw_readl(RIPC0_STATUS))
-+		cpu_relax();
-+}
-+
-+/* return 1 -- succeed to get lock; 0 -- fail to get lock */
-+int pxa910_ripc_trylock(struct i2c_adapter *adap)
-+{
-+	return (!__raw_readl(RIPC0_STATUS));
-+}
-+
-+void pxa910_ripc_unlock(struct i2c_adapter *adap)
-+{
-+	__raw_writel(1, RIPC0_STATUS);
-+}
-+
- /* APB peripheral clocks */
- static APBC_CLK(uart1, PXA910_UART0, 1, 14745600);
- static APBC_CLK(uart2, PXA910_UART1, 1, 14745600);
-diff --git a/arch/arm/mach-mmp/ttc_dkb.c b/arch/arm/mach-mmp/ttc_dkb.c
-index e411039..c6af021 100644
---- a/arch/arm/mach-mmp/ttc_dkb.c
-+++ b/arch/arm/mach-mmp/ttc_dkb.c
-@@ -15,6 +15,7 @@
- #include <linux/mtd/partitions.h>
- #include <linux/mtd/onenand.h>
- #include <linux/interrupt.h>
-+#include <linux/mfd/88pm860x.h>
- 
- #include <asm/mach-types.h>
- #include <asm/mach/arch.h>
-@@ -32,6 +33,10 @@ static unsigned long ttc_dkb_pin_config[] __initdata = {
- 	GPIO47_UART2_RXD,
- 	GPIO48_UART2_TXD,
- 
-+	/* I2C */
-+	GPIO53_CI2C_SCL,
-+	GPIO54_CI2C_SDA,
-+
- 	/* DFI */
- 	DF_IO0_ND_IO0,
- 	DF_IO1_ND_IO1,
-@@ -113,12 +118,52 @@ static struct platform_device *ttc_dkb_devices[] = {
- 	&ttc_dkb_device_onenand,
+ /* ----- Device list ------------------------------------------------------ */
+@@ -43,10 +45,11 @@ struct i2c_par {
+ 	struct i2c_algo_bit_data algo_data;
+ 	struct i2c_smbus_alert_setup alert_data;
+ 	struct i2c_client *ara;
+-	struct i2c_par *next;
++	struct list_head node;
  };
  
-+static struct pm860x_led_pdata dkb_pm860x_led[] = {
-+	{
-+		.id		= PM8606_ID_LED,
-+		.iset		= PM8606_LED_CURRENT(12),
-+		.flags		= PM8606_LED1_RED,
-+	}, {
-+		.id		= PM8606_ID_LED,
-+		.iset		= PM8606_LED_CURRENT(12),
-+		.flags		= PM8606_LED1_GREEN,
-+	}, {
-+		.id		= PM8606_ID_LED,
-+		.iset		= PM8606_LED_CURRENT(12),
-+		.flags		= PM8606_LED1_BLUE,
-+	},
-+};
-+
-+static struct pm860x_platform_data dkb_pm8607_info = {
-+	.led			= &dkb_pm860x_led[0],
-+	.i2c_port		= GI2C_PORT,
-+	.companion_addr		= 0x11,
-+	.irq_mode		= 0,
-+	.irq_base		= IRQ_BOARD_START,
-+};
-+
-+static struct i2c_board_info dkb_i2c_info[] = {
-+	{
-+		.type		= "88PM860x",
-+		.addr		= 0x34,
-+		.platform_data	= &dkb_pm8607_info,
-+		.irq		= IRQ_PXA910_PMIC_INT,
-+	},
-+};
-+
-+static struct i2c_pxa_platform_data dkb_i2c_pdata = {
-+	.hardware_lock		= pxa910_ripc_lock,
-+	.hardware_unlock	= pxa910_ripc_unlock,
-+	.hardware_trylock	= pxa910_ripc_trylock,
-+};
-+
- static void __init ttc_dkb_init(void)
+-static struct i2c_par *adapter_list;
++static LIST_HEAD(adapter_list);
++static DEFINE_MUTEX(adapter_list_lock);
+ 
+ /* ----- Low-level parallel port access ----------------------------------- */
+ 
+@@ -228,8 +231,9 @@ static void i2c_parport_attach (struct p
+ 	}
+ 
+ 	/* Add the new adapter to the list */
+-	adapter->next = adapter_list;
+-	adapter_list = adapter;
++	mutex_lock(&adapter_list_lock);
++	list_add_tail(&adapter->node, &adapter_list);
++	mutex_unlock(&adapter_list_lock);
+         return;
+ 
+ ERROR1:
+@@ -241,11 +245,11 @@ ERROR0:
+ 
+ static void i2c_parport_detach (struct parport *port)
  {
- 	mfp_config(ARRAY_AND_SIZE(ttc_dkb_pin_config));
+-	struct i2c_par *adapter, *prev;
++	struct i2c_par *adapter, *_n;
  
- 	/* on-chip devices */
- 	pxa910_add_uart(1);
-+	pxa910_add_twsi(0, &dkb_i2c_pdata, ARRAY_AND_SIZE(dkb_i2c_info));
+ 	/* Walk the list */
+-	for (prev = NULL, adapter = adapter_list; adapter;
+-	     prev = adapter, adapter = adapter->next) {
++	mutex_lock(&adapter_list_lock);
++	list_for_each_entry_safe(adapter, _n, &adapter_list, node) {
+ 		if (adapter->pdev->port == port) {
+ 			if (adapter->ara) {
+ 				parport_disable_irq(port);
+@@ -259,14 +263,11 @@ static void i2c_parport_detach (struct p
+ 				
+ 			parport_release(adapter->pdev);
+ 			parport_unregister_device(adapter->pdev);
+-			if (prev)
+-				prev->next = adapter->next;
+-			else
+-				adapter_list = adapter->next;
++			list_del(&adapter->node);
+ 			kfree(adapter);
+-			return;
+ 		}
+ 	}
++	mutex_unlock(&adapter_list_lock);
+ }
  
- 	/* off-chip devices */
- 	platform_add_devices(ARRAY_AND_SIZE(ttc_dkb_devices));
+ static struct parport_driver i2c_parport_driver = {
+
+
 -- 
-1.7.1
+Jean Delvare
