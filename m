@@ -1,39 +1,71 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH RESEND] i2c: pnx: Fix crash due to wrong init of timer->data
-Date: Fri, 29 Apr 2011 15:30:02 +0200
-Message-ID: <1304083802-18122-1-git-send-email-w.sang@pengutronix.de>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH 0/2] i2c: tegra: add some new features for tegra i2c
+Date: Fri, 29 Apr 2011 08:20:25 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF0497F1AEEF@HQMAIL01.nvidia.com>
+References: <1303301312-15302-1-git-send-email-wni@nvidia.com>
+ <6B4D417B830BC44B8026029FD256F7F1C2CB3DD4DB@HKMAIL01.nvidia.com>
+ <74CDBE0F657A3D45AFBB94109FB122FF0497F1AAC4@HQMAIL01.nvidia.com>
+ <6B4D417B830BC44B8026029FD256F7F1C2CB3DD4E2@HKMAIL01.nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <6B4D417B830BC44B8026029FD256F7F1C2CB3DD4E2-Q4EWCATADntDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org" <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, "ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org" <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Olof Johansson (olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org)" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-alg_data is already a pointer which must be passed directly.
+Wei Ni wrote at Friday, April 29, 2011 12:08 AM:
+> Stephen Warren wrote at Thursday, April 28, 2011 12:29 AM:
+> > 
+> > Wei Ni wrote at Wednesday, April 27, 2011 4:26 AM:
+> > > Hi, all
+> > > Could anyone review these changes?
+> > 
+> > Wei,
+> > 
+> > It looks like some of the patches I recently posted address the same
+> > issues as the patches you had already posted. Sorry for the potential
+> > conflicts.
+>
+> Hi, Stephen
+> I think your patches address the different issues with my patches.
+> My patches are used for retry transfer and new slave controller.
 
-Reported-by: Dieter Ripp <ripp-24OduB8/I+bby3iVrkZq2A@public.gmane.org>
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
----
+Wei, aren't the following two patches basically the same thing,
+except that yours also sets the slave address register, and is a bit
+more wordy:
 
-Ben, will there be another i2c update for 2.6.39? This fixes a crash,
-so I think it is even stable-material.
+http://www.spinics.net/lists/linux-i2c/msg05464.html
+http://www.spinics.net/lists/linux-i2c/msg05437.html
 
- drivers/i2c/busses/i2c-pnx.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Upon further inspection, I don't think any of the other patches I
+posted conflict with the other patch you posted.
 
-diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-index 4d2168f..30365f3 100644
---- a/drivers/i2c/busses/i2c-pnx.c
-+++ b/drivers/i2c/busses/i2c-pnx.c
-@@ -66,7 +66,7 @@ static inline void i2c_pnx_arm_timer(struct i2c_pnx_algo_data *alg_data)
- 		jiffies, expires);
- 
- 	timer->expires = jiffies + expires;
--	timer->data = (unsigned long)&alg_data;
-+	timer->data = (unsigned long)alg_data;
- 
- 	add_timer(timer);
- }
+> > Can you please take a look at the patches I posted and comment on which
+> > of those are still relevant given your patches. Even for the cases where
+> > we both posted patches to address the same issue (e.g. use new slave
+> > mode), there are differences in the patches. I simply took the changes
+> > from the chromeos-2.6.37 kernel and cherry-picked them into the mainline
+> > kernel. Are the changes you posted re-written to address issues that
+> > weren't solved in the ChromeOS kernel?
+> > 
+> > Thanks for any feedback on this.
+
+Wei Ni wrote at Wednesday, April 20, 2011 8:09 PM:
+> From: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>
+> *** BLURB HERE ***
+>
+> Wei Ni (2):
+>   i2c: tegra: Retry transfer when unexpected/no_ack status is detected
+>   i2c: tegra: use new i2c slave controller
+>
+>  drivers/i2c/busses/i2c-tegra.c |   57 +++++++++++++++++++++++++++++++++++++--
+>  include/linux/i2c-tegra.h      |    3 ++
+>  2 files changed, 57 insertions(+), 3 deletions(-)
+
 -- 
-1.7.2.3
+nvpublic
