@@ -1,107 +1,87 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: append hardware lock with bus lock
-Date: Mon, 2 May 2011 10:27:34 +0100
-Message-ID: <20110502092734.GV15795@trinity.fluff.org>
-References: <1304003746-12127-1-git-send-email-haojian.zhuang@gmail.com>
+Subject: Re: [PATCH] i2c: davinci: Fix null dereference bug in
+	i2c_davinci_calc_clk_dividers
+Date: Mon, 2 May 2011 10:36:01 +0100
+Message-ID: <20110502093601.GW15795@trinity.fluff.org>
+References: <1303579895-9441-1-git-send-email-michael.williamson@criticallink.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1304003746-12127-1-git-send-email-haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1303579895-9441-1-git-send-email-michael.williamson-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Michael Williamson <michael.williamson-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, chaithrika-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 28, 2011 at 11:15:44PM +0800, Haojian Zhuang wrote:
-> Both AP and CP are contained in Marvell PXA910 silicon. These two ARM
-> cores are sharing one pair of I2C pins.
+On Sat, Apr 23, 2011 at 01:31:35PM -0400, Michael Williamson wrote:
+> The davinci-i2c bus driver currently supports being probed with a NULL
+> platform_data structure by using a default configuration when none is
+> provided.  However, the i2c_davinci_calc_clk_dividers does not
+> check the provided platform_data for NULL prior to using it, so
+> the support is incomplete.
 > 
-> In order to keep I2C transaction operated with atomic, hardware lock
-> (RIPC) is required. Because of this, bus lock in AP side can't afford
-> this requirement. Now hardware lock is appended.
+> Rather than have each runtime call check for NULL and avoid future
+> problems, copy a pointer to the default data to the device structure
+> during the probe.  This should be OK, as the information in this
+> structure is not modified by the driver.
 > 
-> Signed-off-by: Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-Right, this looks like a reasonable explanation of what is going on here
-and if Jean is happy with the core changes I'll look at where the driver
-change can go.
-
+> Tested on a MityDSP-L138 module (OMAP-L138 based SOM).
+> 
+> Signed-off-by: Micahel Williamson <michael.williamson-wZX4cNJlHJ2sVWG7oymsAA@public.gmane.org>
 > ---
->  drivers/i2c/i2c-core.c |   22 ++++++++++++++++++----
->  include/linux/i2c.h    |    3 +++
->  2 files changed, 21 insertions(+), 4 deletions(-)
+>  drivers/i2c/busses/i2c-davinci.c |   12 +++++-------
+>  1 files changed, 5 insertions(+), 7 deletions(-)
 > 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 045ba6e..132d46c 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -448,8 +448,11 @@ void i2c_lock_adapter(struct i2c_adapter *adapter)
->  
->  	if (parent)
->  		i2c_lock_adapter(parent);
-> -	else
-> +	else {
->  		rt_mutex_lock(&adapter->bus_lock);
-> +		if (adapter->hardware_lock)
-> +			adapter->hardware_lock(adapter);
-> +	}
->  }
->  EXPORT_SYMBOL_GPL(i2c_lock_adapter);
->  
-> @@ -460,11 +463,19 @@ EXPORT_SYMBOL_GPL(i2c_lock_adapter);
->  static int i2c_trylock_adapter(struct i2c_adapter *adapter)
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 5795c83..1db8fc9 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -163,8 +163,7 @@ static void i2c_recover_bus(struct davinci_i2c_dev *dev)
+>  	flag |=  DAVINCI_I2C_MDR_NACK;
+>  	/* write the data into mode register */
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
+> -	if (pdata)
+> -		generic_i2c_clock_pulse(pdata->scl_pin);
+> +	generic_i2c_clock_pulse(pdata->scl_pin);
+
+This looks like a change in the behaviour of the code, since if there was
+no pdata supplied we now can try generic_i2c_clock_pulse() with what is
+probably gpio pin 0.
+
+>  	/* Send STOP */
+>  	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
+>  	flag |= DAVINCI_I2C_MDR_STP;
+> @@ -235,10 +234,11 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
+>   */
+>  static int i2c_davinci_init(struct davinci_i2c_dev *dev)
 >  {
->  	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
-> +	int ret = 0;
+> -	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
+> +	struct davinci_i2c_platform_data *pdata;
 >  
->  	if (parent)
->  		return i2c_trylock_adapter(parent);
-> -	else
-> -		return rt_mutex_trylock(&adapter->bus_lock);
-> +	else {
-> +		ret = rt_mutex_trylock(&adapter->bus_lock);
-> +		if (ret && adapter->hardware_trylock) {
-> +			ret = adapter->hardware_trylock(adapter);
-> +			if (!ret)
-> +				i2c_unlock_adapter(adapter);
-> +		}
-> +		return ret;
-> +	}
->  }
+> -	if (!pdata)
+> -		pdata = &davinci_i2c_platform_data_default;
+> +	if (!dev->dev->platform_data)
+> +		dev->dev->platform_data = &davinci_i2c_platform_data_default;
+> +	pdata = dev->dev->platform_data;
+
+Hmm, not going to work well if the driver is a module, as you'll unload
+the module, leave the default pointer in and then re-load later at a
+possibly different address with the old pointer in.
+  
+>  	/* put I2C into reset */
+>  	davinci_i2c_reset_ctrl(dev, 0);
+> @@ -313,8 +313,6 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+>  	u16 w;
+>  	int r;
 >  
->  /**
-> @@ -477,8 +488,11 @@ void i2c_unlock_adapter(struct i2c_adapter *adapter)
->  
->  	if (parent)
->  		i2c_unlock_adapter(parent);
-> -	else
-> +	else {
-> +		if (adapter->hardware_unlock)
-> +			adapter->hardware_unlock(adapter);
->  		rt_mutex_unlock(&adapter->bus_lock);
-> +	}
->  }
->  EXPORT_SYMBOL_GPL(i2c_unlock_adapter);
->  
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 06a8d9c..f4ef5b0 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -361,6 +361,9 @@ struct i2c_adapter {
->  
->  	/* data fields that are valid for all devices	*/
->  	struct rt_mutex bus_lock;
-> +	void (*hardware_lock)(struct i2c_adapter *);
-> +	void (*hardware_unlock)(struct i2c_adapter *);
-> +	int (*hardware_trylock)(struct i2c_adapter *);
->  
->  	int timeout;			/* in jiffies */
->  	int retries;
+> -	if (!pdata)
+> -		pdata = &davinci_i2c_platform_data_default;
+>  	/* Introduce a delay, required for some boards (e.g Davinci EVM) */
+>  	if (pdata->bus_delay)
+>  		udelay(pdata->bus_delay);
 > -- 
-> 1.7.1
+> 1.7.0.4
 > 
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
