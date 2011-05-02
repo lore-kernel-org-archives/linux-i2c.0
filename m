@@ -1,62 +1,114 @@
-From: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-gpio performance issue w/MPC8xx @ 50 MHz
-Date: Mon, 2 May 2011 11:48:00 +0300
-Message-ID: <BANLkTi=+JxbLfvjrh8A_KQ58CeJJB0wKjw@mail.gmail.com>
-References: <BANLkTikaS8yOTcO+OChvutB0syWdVBsh8g@mail.gmail.com>
-	<20110501102603.7993da58@endymion.delvare>
-	<BANLkTik_mBMHJt-MzcSQfdnAhseBM5KwFg@mail.gmail.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: append hardware lock with bus lock
+Date: Mon, 2 May 2011 10:27:34 +0100
+Message-ID: <20110502092734.GV15795@trinity.fluff.org>
+References: <1304003746-12127-1-git-send-email-haojian.zhuang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BANLkTik_mBMHJt-MzcSQfdnAhseBM5KwFg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1304003746-12127-1-git-send-email-haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+To: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hey guys,
+On Thu, Apr 28, 2011 at 11:15:44PM +0800, Haojian Zhuang wrote:
+> Both AP and CP are contained in Marvell PXA910 silicon. These two ARM
+> cores are sharing one pair of I2C pins.
+> 
+> In order to keep I2C transaction operated with atomic, hardware lock
+> (RIPC) is required. Because of this, bus lock in AP side can't afford
+> this requirement. Now hardware lock is appended.
+> 
+> Signed-off-by: Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-Thanks for taking a look.
+Right, this looks like a reasonable explanation of what is going on here
+and if Jean is happy with the core changes I'll look at where the driver
+change can go.
 
-> Hmm. i2c-gpio overrides the udelay specified by the platform? That
-> shouldn't happen. It does try to come up with some reasonable defaults
-> if the platform doesn't specify any though.
+> ---
+>  drivers/i2c/i2c-core.c |   22 ++++++++++++++++++----
+>  include/linux/i2c.h    |    3 +++
+>  2 files changed, 21 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 045ba6e..132d46c 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -448,8 +448,11 @@ void i2c_lock_adapter(struct i2c_adapter *adapter)
+>  
+>  	if (parent)
+>  		i2c_lock_adapter(parent);
+> -	else
+> +	else {
+>  		rt_mutex_lock(&adapter->bus_lock);
+> +		if (adapter->hardware_lock)
+> +			adapter->hardware_lock(adapter);
+> +	}
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_lock_adapter);
+>  
+> @@ -460,11 +463,19 @@ EXPORT_SYMBOL_GPL(i2c_lock_adapter);
+>  static int i2c_trylock_adapter(struct i2c_adapter *adapter)
+>  {
+>  	struct i2c_adapter *parent = i2c_parent_is_i2c_adapter(adapter);
+> +	int ret = 0;
+>  
+>  	if (parent)
+>  		return i2c_trylock_adapter(parent);
+> -	else
+> -		return rt_mutex_trylock(&adapter->bus_lock);
+> +	else {
+> +		ret = rt_mutex_trylock(&adapter->bus_lock);
+> +		if (ret && adapter->hardware_trylock) {
+> +			ret = adapter->hardware_trylock(adapter);
+> +			if (!ret)
+> +				i2c_unlock_adapter(adapter);
+> +		}
+> +		return ret;
+> +	}
+>  }
+>  
+>  /**
+> @@ -477,8 +488,11 @@ void i2c_unlock_adapter(struct i2c_adapter *adapter)
+>  
+>  	if (parent)
+>  		i2c_unlock_adapter(parent);
+> -	else
+> +	else {
+> +		if (adapter->hardware_unlock)
+> +			adapter->hardware_unlock(adapter);
+>  		rt_mutex_unlock(&adapter->bus_lock);
+> +	}
+>  }
+>  EXPORT_SYMBOL_GPL(i2c_unlock_adapter);
+>  
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 06a8d9c..f4ef5b0 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -361,6 +361,9 @@ struct i2c_adapter {
+>  
+>  	/* data fields that are valid for all devices	*/
+>  	struct rt_mutex bus_lock;
+> +	void (*hardware_lock)(struct i2c_adapter *);
+> +	void (*hardware_unlock)(struct i2c_adapter *);
+> +	int (*hardware_trylock)(struct i2c_adapter *);
+>  
+>  	int timeout;			/* in jiffies */
+>  	int retries;
+> -- 
+> 1.7.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Yep, only this scheme explicitly disallows a udelay of 0. It's not too
-problematic, I guess, seeing how close 1 is to 0 in terms of timing.
+-- 
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
 
-> I haven't investigated this in depth, but I'd say it's probably caused
-> by the extra indirection added by gpiolib, assuming the gpio framework
-> on your platform uses it. I guess it's one of the downsides of greatly
-> reducing the amount of platform-specific code.
-
-Indeed. Tracing the platform gpio code does not show it to be overly
-complex at all; simply a matter of mapping the gpio # to a chip (which
-is mapped to a port bank), mapping to the specific bit in the bank,
-some locking, setting and unlocking. The only problem is that while
-this is straightforward, it does introduce unwanted latency. I did not
-get to profiling the code, though.
-
->> While I don't expect all users of i2c-algo-bit to be converted to such
->> a platform driver, it may indeed be useful in some cases, so I have no
->> objection.
-
-Nor would I expect this to be the case. i2c-algo-bit obviously works
-well on most platforms when paired to the gpio facility. It just isn't
-tight enough for environments low on processing power.
-
-> You can probably create a minimal i2c-platform driver which just
-> passes the platform-specific callbacks to i2c-algo-bit. I think it
-> should be a new bus driver though...
-
-This is where I kind of lost you. I implemented a bus driver specific
-to my platform (compiled in in drivers/i2c/busses) and then
-instantiated it in my platform module. I thought about adding a
-generic bus driver that would receive callbacks from the platform
-module (for example, drivers/i2c/busses/i2c-gpio-direct, or something)
-and simply pass these on to i2c-bit-algo. This would allow other
-platforms to do the same without having to create a platform specific
-bus driver each time like I did. I can submit something generic like
-this, if you think this it conforms to the model.
-
-Eran
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
