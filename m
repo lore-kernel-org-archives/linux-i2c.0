@@ -1,44 +1,33 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter
-	functionality
-Date: Wed, 4 May 2011 22:51:33 +0100
-Message-ID: <20110504215133.GY15795@trinity.fluff.org>
-References: <1302691521-19096-1-git-send-email-mike@compulab.co.il> <4DBFBEAD.2080103@compulab.co.il>
+Subject: Re: [REPOST PATCH] i2c: pxa2xx: remove ifdef CONFIG_OF
+Date: Wed, 4 May 2011 22:52:02 +0100
+Message-ID: <20110504215202.GZ15795@trinity.fluff.org>
+References: <20110411083447.GB4018@linutronix.de> <20110503135826.GA4966@ponder.secretlab.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4DBFBEAD.2080103-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+In-Reply-To: <20110503135826.GA4966-e0URQFbLeQY2iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 03, 2011 at 11:37:01AM +0300, Mike Rapoport wrote:
-> Hi Ben,
-> Any comments on this?
+On Tue, May 03, 2011 at 07:58:26AM -0600, Grant Likely wrote:
+> On Mon, Apr 11, 2011 at 10:34:47AM +0200, Sebastian Andrzej Siewior wrote:
+> > Since commit c9e358d ("driver-core: remove conditionals around
+> > devicetree pointers") there is no need for CONFIG_OF around of_node and
+> > of_match_table. Grant removed this ifdefs from all driver which were in
+> > tree at the time, this one was merged later.
+> > 
+> > Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> > Signed-off-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 > 
-> On 04/13/11 13:45, Mike Rapoport wrote:
-> > as there are a lot of i2c device drivers that require it.
-> > 
-> > Signed-off-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-tegra.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> > index b4ab39b..7e68f2c 100644
-> > --- a/drivers/i2c/busses/i2c-tegra.c
-> > +++ b/drivers/i2c/busses/i2c-tegra.c
-> > @@ -495,7 +495,7 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
-> >  
-> >  static u32 tegra_i2c_func(struct i2c_adapter *adap)
-> >  {
-> > -	return I2C_FUNC_I2C;
-> > +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> >  }
+> Hey Ben,
+> 
+> Can you pick up this patch?
 
-I think this is ok, but will check tomorrow
+ok, will sort this out.
 
 -- 
 Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
