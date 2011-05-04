@@ -1,144 +1,59 @@
-From: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH 0/2] i2c: tegra: add some new features for tegra i2c
-Date: Wed, 4 May 2011 17:19:41 +0800
-Message-ID: <6B4D417B830BC44B8026029FD256F7F1C2CB3DD4EA@HKMAIL01.nvidia.com>
-References: <1303301312-15302-1-git-send-email-wni@nvidia.com>
- <74CDBE0F657A3D45AFBB94109FB122FF0497F1AEEF@HQMAIL01.nvidia.com>
- <6B4D417B830BC44B8026029FD256F7F1C2CB3DD4E6@HKMAIL01.nvidia.com>
- <201105041028.09316.marc.dietrich@ap.physik.uni-giessen.de>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: i2c-gpio performance issue w/MPC8xx @ 50 MHz
+Date: Wed, 4 May 2011 22:50:49 +0100
+Message-ID: <20110504215049.GX15795@trinity.fluff.org>
+References: <BANLkTikaS8yOTcO+OChvutB0syWdVBsh8g@mail.gmail.com> <20110501102603.7993da58@endymion.delvare> <BANLkTik_mBMHJt-MzcSQfdnAhseBM5KwFg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201105041028.09316.marc.dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <BANLkTik_mBMHJt-MzcSQfdnAhseBM5KwFg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Marc Dietrich' <Marc.Dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org>
-Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org" <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, "ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org" <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Olof Johansson (olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org)" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+To: =?iso-8859-1?Q?H=E5vard?= Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, Marc
-I think no other implementation.
-
-Thanks
-Wei.
-
------Original Message-----
-=46rom: Marc Dietrich [mailto:Marc.Dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org]=20
-Sent: Wednesday, May 04, 2011 4:28 PM
-To: Wei Ni
-Cc: Stephen Warren; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; lucas.dema=
-rchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org; ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; lin=
-ux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Olof Johansson =
-(olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org)
-Subject: Re: [PATCH 0/2] i2c: tegra: add some new features for tegra i2=
-c
-
-
-Wei, Stephen,
-
-> Hi, Stephen
-> I think if doesn't need to apply the slave address codes, we can use =
-your
-> patch.
-
-we use the slave address as part of our nvec mfd driver in the ac100 pr=
-oject, so=20
-it would be nice to have this merged. Is there any other implemenation =
-for a=20
-driver which actually use "is_slave"? (beside the one from the older an=
-droid=20
-kernels)?
-
-Regards,
-
-Marc
-
-
-> Thanks
-> Wei.
+On Sun, May 01, 2011 at 03:04:21PM -0700, H=E5vard Skinnemoen wrote:
+> Hi Eran,
 >=20
-> -----Original Message-----
-> From: Stephen Warren
-> Sent: Friday, April 29, 2011 11:20 PM
-> To: Wei Ni
-> Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; lucas.demarchi@profusion=
-=2Emobi;
-> ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Olof Johan=
-sson
-> (olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org) Subject: RE: [PATCH 0/2] i2c: tegra: add some new
-> features for tegra i2c
->=20
-> Wei Ni wrote at Friday, April 29, 2011 12:08 AM:
-> > Stephen Warren wrote at Thursday, April 28, 2011 12:29 AM:
-> > > Wei Ni wrote at Wednesday, April 27, 2011 4:26 AM:
-> > > > Hi, all
-> > > > Could anyone review these changes?
-> > >=20
-> > > Wei,
-> > >=20
-> > > It looks like some of the patches I recently posted address the s=
-ame
-> > > issues as the patches you had already posted. Sorry for the poten=
-tial
-> > > conflicts.
-> >=20
-> > Hi, Stephen
-> > I think your patches address the different issues with my patches.
-> > My patches are used for retry transfer and new slave controller.
->=20
-> Wei, aren't the following two patches basically the same thing,
-> except that yours also sets the slave address register, and is a bit
-> more wordy:
->=20
-> http://www.spinics.net/lists/linux-i2c/msg05464.html
-> http://www.spinics.net/lists/linux-i2c/msg05437.html
->=20
-> Upon further inspection, I don't think any of the other patches I
-> posted conflict with the other patch you posted.
->=20
-> > > Can you please take a look at the patches I posted and comment on=
- which
-> > > of those are still relevant given your patches. Even for the case=
+> Hmm. i2c-gpio overrides the udelay specified by the platform? That
+> shouldn't happen. It does try to come up with some reasonable default=
 s
-> > > where we both posted patches to address the same issue (e.g. use =
-new
-> > > slave mode), there are differences in the patches. I simply took =
-the
-> > > changes from the chromeos-2.6.37 kernel and cherry-picked them in=
-to
-> > > the mainline kernel. Are the changes you posted re-written to add=
-ress
-> > > issues that weren't solved in the ChromeOS kernel?
-> > >=20
-> > > Thanks for any feedback on this.
->=20
-> Wei Ni wrote at Wednesday, April 20, 2011 8:09 PM:
-> > From: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> >=20
-> > *** BLURB HERE ***
-> >=20
-> > Wei Ni (2):
-> >   i2c: tegra: Retry transfer when unexpected/no_ack status is detec=
-ted
-> >   i2c: tegra: use new i2c slave controller
-> > =20
-> >  drivers/i2c/busses/i2c-tegra.c |   57
-> >  +++++++++++++++++++++++++++++++++++++-- include/linux/i2c-tegra.h =
-   =20
-> >  |    3 ++
-> >  2 files changed, 57 insertions(+), 3 deletions(-)
---=20
-Dipl. Phys. Marc Dietrich
-Institut f=FCr Angewandte Physik
-- AG Kleink=FChler -
-Justus-Liebig-Universit=E4t Gie=DFen
-Heinrich-Buff-Ring 16
-D-35392 Gie=DFen
-Germany
+> if the platform doesn't specify any though.
 
-Tel. +49 641 99 33462
-=46ax. +49 641 99 33409
-email: marc.dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org
-www: http://www.uni-giessen.de/cms/iap/
+[snip]
+
+> You can probably create a minimal i2c-platform driver which just
+> passes the platform-specific callbacks to i2c-algo-bit. I think it
+> should be a new bus driver though...passing those callbacks to
+> i2c-gpio would basically eliminate the very small amount of
+> functionality this driver provides while making it more complex.
+>=20
+> i2c-gpio currently has 225 lines of code. I think it should be
+> possible to write a i2c-platform driver in less than 100 lines.
+> Probably worthwhile for 3x performance, although probably not if the
+> GPIO hardware has concurrency issues.
+
+I suppose this would work, but is it worth the additional code for what
+may not be much of a win?
+=20
+> > That being said, if you use GPIOs, it would certainly be better to =
+find
+> > out whether the extra delay you've been observing could be removed.
+> > Properly requesting the GPIOs you need is definitely cleaner than
+> > accessing the I/O port (or whatever) directly. Direct access can be
+> > unreliable if other code is using GPIOs nearby.
+>=20
+> If your hardware allows you to control individual pins without
+> affecting others, it's probably ok to bypass the GPIO layer (although
+> you should probably still request the pins to prevent others from
+> using them). If not, you should expect a lot of trouble.
+
+yeuck.
+
+--=20
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
+
+Large Hadron Colada: A large Pina Colada that makes the universe disapp=
+ear.
