@@ -1,32 +1,77 @@
 From: =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: i2c-gpio performance issue w/MPC8xx @ 50 MHz
-Date: Thu, 5 May 2011 11:42:52 -0700
-Message-ID: <BANLkTi=JVadKgX_Lk8kCjSG=ycRB=pZcVg@mail.gmail.com>
+Date: Thu, 5 May 2011 11:54:44 -0700
+Message-ID: <BANLkTikaifXi9+G-3=QAihqxZqPAuBSuGw@mail.gmail.com>
 References: <BANLkTikaS8yOTcO+OChvutB0syWdVBsh8g@mail.gmail.com>
 	<20110501102603.7993da58@endymion.delvare>
 	<BANLkTik_mBMHJt-MzcSQfdnAhseBM5KwFg@mail.gmail.com>
-	<20110504215049.GX15795@trinity.fluff.org>
+	<BANLkTi=+JxbLfvjrh8A_KQ58CeJJB0wKjw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110504215049.GX15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <BANLkTi=+JxbLfvjrh8A_KQ58CeJJB0wKjw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+To: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 4, 2011 at 2:50 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Sun, May 01, 2011 at 03:04:21PM -0700, H=E5vard Skinnemoen wrote:
->> i2c-gpio currently has 225 lines of code. I think it should be
->> possible to write a i2c-platform driver in less than 100 lines.
->> Probably worthwhile for 3x performance, although probably not if the
->> GPIO hardware has concurrency issues.
+On Mon, May 2, 2011 at 1:48 AM, Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+>> Hmm. i2c-gpio overrides the udelay specified by the platform? That
+>> shouldn't happen. It does try to come up with some reasonable defaults
+>> if the platform doesn't specify any though.
 >
-> I suppose this would work, but is it worth the additional code for wh=
-at
-> may not be much of a win?
+> Yep, only this scheme explicitly disallows a udelay of 0. It's not too
+> problematic, I guess, seeing how close 1 is to 0 in terms of timing.
 
-3x performance is not much of a win?
+Hmm, yeah. Not sure how to allow 0 while still being backwards compatible.
+
+>> I haven't investigated this in depth, but I'd say it's probably caused
+>> by the extra indirection added by gpiolib, assuming the gpio framework
+>> on your platform uses it. I guess it's one of the downsides of greatly
+>> reducing the amount of platform-specific code.
+>
+> Indeed. Tracing the platform gpio code does not show it to be overly
+> complex at all; simply a matter of mapping the gpio # to a chip (which
+> is mapped to a port bank), mapping to the specific bit in the bank,
+> some locking, setting and unlocking. The only problem is that while
+> this is straightforward, it does introduce unwanted latency. I did not
+> get to profiling the code, though.
+
+Well, not really complex as such, but when you want to do all that
+every 10 microseconds, it adds up really quickly.
+
+>>> While I don't expect all users of i2c-algo-bit to be converted to such
+>>> a platform driver, it may indeed be useful in some cases, so I have no
+>>> objection.
+>
+> Nor would I expect this to be the case. i2c-algo-bit obviously works
+> well on most platforms when paired to the gpio facility. It just isn't
+> tight enough for environments low on processing power.
+>
+>> You can probably create a minimal i2c-platform driver which just
+>> passes the platform-specific callbacks to i2c-algo-bit. I think it
+>> should be a new bus driver though...
+>
+> This is where I kind of lost you. I implemented a bus driver specific
+> to my platform (compiled in in drivers/i2c/busses) and then
+> instantiated it in my platform module. I thought about adding a
+> generic bus driver that would receive callbacks from the platform
+> module (for example, drivers/i2c/busses/i2c-gpio-direct, or something)
+> and simply pass these on to i2c-bit-algo. This would allow other
+> platforms to do the same without having to create a platform specific
+> bus driver each time like I did. I can submit something generic like
+> this, if you think this it conforms to the model.
+
+That sounds exactly like what I had in mind, except for the naming. If
+the driver doesn't use the generic GPIO facilities at all, I don't
+think it should have "gpio" in its name. What the driver does,
+however, is taking platform-specific callbacks and passes them to
+i2c-algo-bit. So I think "i2c-platform" would be a better name.
+
+I don't really know whether it conforms to the "model" (or which model
+we're talking about for that matter), but I can't see any problems
+with it. Platforms for which i2c-gpio doesn't perform well enough can
+get better performance at the cost of a little bit more
+platform-specific code if they switch to i2c-platform.
 
 Havard
