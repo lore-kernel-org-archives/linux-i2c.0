@@ -1,61 +1,90 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 13/13] mach-ux500: set proper I2C platform data from MOP500s
-Date: Mon,  9 May 2011 23:39:34 +0200
-Message-ID: <1304977174-31834-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 10/13] i2c/i2c-nomadik: change the TX and RX threshold
+Date: Mon,  9 May 2011 23:38:38 +0200
+Message-ID: <1304977118-31728-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This specifies the new per-platform timeout per I2C bus and
-switches the I2C buses to fast mode, and increase the FIFO
-depth to 8 for reads and writes.
+From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
+1) Increase RX FIFO threshold so that there is a reduction in
+the number of interrupts handled to complete a transaction.
+
+2) Fill TX FIFO in the write function.
+
+Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Reviewed-by: Jonas Aberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- arch/arm/mach-ux500/board-mop500.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |   39 +++++++++++++++++++++++++------------
+ 1 files changed, 26 insertions(+), 13 deletions(-)
 
-diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
-index 6e1907fa..bb26f40 100644
---- a/arch/arm/mach-ux500/board-mop500.c
-+++ b/arch/arm/mach-ux500/board-mop500.c
-@@ -204,7 +204,7 @@ static struct i2c_board_info __initdata mop500_i2c2_devices[] = {
- 	},
- };
- 
--#define U8500_I2C_CONTROLLER(id, _slsu, _tft, _rft, clk, _sm) \
-+#define U8500_I2C_CONTROLLER(id, _slsu, _tft, _rft, clk, t_out, _sm)	\
- static struct nmk_i2c_controller u8500_i2c##id##_data = { \
- 	/*				\
- 	 * slave data setup time, which is	\
-@@ -219,19 +219,21 @@ static struct nmk_i2c_controller u8500_i2c##id##_data = { \
- 	.rft		= _rft,		\
- 	/* std. mode operation */	\
- 	.clk_freq	= clk,		\
-+	/* Slave response timeout(ms) */\
-+	.timeout	= t_out,	\
- 	.sm		= _sm,		\
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index bf061e1..916e4db 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -447,6 +447,24 @@ static int read_i2c(struct nmk_i2c_dev *dev)
+ 	return status;
  }
  
- /*
-  * The board uses 4 i2c controllers, initialize all of
-  * them with slave data setup time of 250 ns,
-- * Tx & Rx FIFO threshold values as 1 and standard
-+ * Tx & Rx FIFO threshold values as 8 and standard
-  * mode of operation
-  */
--U8500_I2C_CONTROLLER(0, 0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
--U8500_I2C_CONTROLLER(1, 0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
--U8500_I2C_CONTROLLER(2,	0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
--U8500_I2C_CONTROLLER(3,	0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
-+U8500_I2C_CONTROLLER(0, 0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
-+U8500_I2C_CONTROLLER(1, 0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
-+U8500_I2C_CONTROLLER(2,	0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
-+U8500_I2C_CONTROLLER(3,	0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
++static void fill_tx_fifo(struct nmk_i2c_dev *dev, int no_bytes)
++{
++	int count;
++
++	for (count = (no_bytes - 2);
++			(count > 0) &&
++			(dev->cli.count != 0);
++			count--) {
++		/* write to the Tx FIFO */
++		writeb(*dev->cli.buffer,
++			dev->virtbase + I2C_TFR);
++		dev->cli.buffer++;
++		dev->cli.count--;
++		dev->cli.xfer_bytes++;
++	}
++
++}
++
+ /**
+  * write_i2c() - Write data to I2C client.
+  * @dev: private data of I2C Driver
+@@ -474,8 +492,13 @@ static int write_i2c(struct nmk_i2c_dev *dev)
+ 	init_completion(&dev->xfer_complete);
  
- static void __init mop500_i2c_init(void)
- {
+ 	/* enable interrupts by settings the masks */
+-	irq_mask = (I2C_IT_TXFNE | I2C_IT_TXFOVR |
+-			I2C_IT_MAL | I2C_IT_BERR);
++	irq_mask = (I2C_IT_TXFOVR | I2C_IT_MAL | I2C_IT_BERR);
++
++	/* Fill the TX FIFO with transmit data */
++	fill_tx_fifo(dev, MAX_I2C_FIFO_THRESHOLD);
++
++	if (dev->cli.count != 0)
++		irq_mask |= I2C_IT_TXFNE;
+ 
+ 	/*
+ 	 * check if we want to transfer a single or multiple bytes, if so
+@@ -702,17 +725,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 			 */
+ 			disable_interrupts(dev, I2C_IT_TXFNE);
+ 		} else {
+-			for (count = (MAX_I2C_FIFO_THRESHOLD - tft - 2);
+-					(count > 0) &&
+-					(dev->cli.count != 0);
+-					count--) {
+-				/* write to the Tx FIFO */
+-				writeb(*dev->cli.buffer,
+-					dev->virtbase + I2C_TFR);
+-				dev->cli.buffer++;
+-				dev->cli.count--;
+-				dev->cli.xfer_bytes++;
+-			}
++			fill_tx_fifo(dev, (MAX_I2C_FIFO_THRESHOLD - tft));
+ 			/*
+ 			 * if done, close the transfer by disabling the
+ 			 * corresponding TXFNE interrupt
 -- 
 1.7.5.1
