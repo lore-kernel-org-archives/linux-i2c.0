@@ -1,96 +1,50 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 02/13] i2c/i2c-nomadik: make i2c timeout specific per i2c bus
-Date: Mon,  9 May 2011 23:35:25 +0200
-Message-ID: <1304976925-31440-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 00/13] Various updates to the Nomadik I2C controller
+Date: Mon,  9 May 2011 23:34:37 +0200
+Message-ID: <1304976877-31366-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+A lot of internal refining of this driver has happened on this
+driver inside ST-Ericsson since last kernel cycle. Here are the
+accumulated changes. I have NOT squashed any development history
+this time, since I was severely beat up about it last time.
 
-Add option to have different i2c timeout delay for different i2c buses
-specified in platform data. Default to the old value unless specified.
+The last patch in the series for mach-ux500 shall go into my ux500
+tree, it is not required for the driver to function, so the rest
+of the patches can be applied to the I2C tree without causing any
+problems with the platforms using the driver.
 
-Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- arch/arm/plat-nomadik/include/plat/i2c.h |    6 ++++--
- drivers/i2c/busses/i2c-nomadik.c         |   10 ++++------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+Jonas Aberg (1):
+  i2c/i2c-nomadik: add regulator support
 
-diff --git a/arch/arm/plat-nomadik/include/plat/i2c.h b/arch/arm/plat-nomadik/include/plat/i2c.h
-index 1621db6..4ed4e27 100644
---- a/arch/arm/plat-nomadik/include/plat/i2c.h
-+++ b/arch/arm/plat-nomadik/include/plat/i2c.h
-@@ -24,13 +24,15 @@ enum i2c_freq_mode {
-  *		to the values of 14, 6, 2 for a 48 MHz i2c clk
-  * @tft:	Tx FIFO Threshold in bytes
-  * @rft:	Rx FIFO Threshold in bytes
-+ * @timeout	Slave response timeout(ms)
-  * @sm:		speed mode
-  */
- struct nmk_i2c_controller {
- 	unsigned long	clk_freq;
- 	unsigned short	slsu;
--	unsigned char 	tft;
--	unsigned char 	rft;
-+	unsigned char	tft;
-+	unsigned char	rft;
-+	int timeout;
- 	enum i2c_freq_mode	sm;
- };
- 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 182761e..3bf95b9 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -121,9 +121,6 @@ enum i2c_operation {
- 	I2C_READ = 0x01
- };
- 
--/* controller response timeout in ms */
--#define I2C_TIMEOUT_MS	2000
--
- /**
-  * struct i2c_nmk_client - client specific data
-  * @slave_adr: 7-bit slave address
-@@ -213,7 +210,7 @@ static int flush_i2c_fifo(struct nmk_i2c_dev *dev)
- 	writel((I2C_CR_FTX | I2C_CR_FRX), dev->virtbase + I2C_CR);
- 
- 	for (i = 0; i < LOOP_ATTEMPTS; i++) {
--		timeout = jiffies + msecs_to_jiffies(I2C_TIMEOUT_MS);
-+		timeout = jiffies + msecs_to_jiffies(dev->adap.timeout);
- 
- 		while (!time_after(jiffies, timeout)) {
- 			if ((readl(dev->virtbase + I2C_CR) &
-@@ -434,7 +431,7 @@ static int read_i2c(struct nmk_i2c_dev *dev)
- 			dev->virtbase + I2C_IMSCR);
- 
- 	timeout = wait_for_completion_interruptible_timeout(
--		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
-+		&dev->xfer_complete, msecs_to_jiffies(dev->adap.timeout));
- 
- 	if (timeout < 0) {
- 		dev_err(&dev->pdev->dev,
-@@ -498,7 +495,7 @@ static int write_i2c(struct nmk_i2c_dev *dev)
- 			dev->virtbase + I2C_IMSCR);
- 
- 	timeout = wait_for_completion_interruptible_timeout(
--		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
-+		&dev->xfer_complete, msecs_to_jiffies(dev->adap.timeout));
- 
- 	if (timeout < 0) {
- 		dev_err(&dev->pdev->dev,
-@@ -917,6 +914,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- 	adap->owner	= THIS_MODULE;
- 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	adap->algo	= &nmk_i2c_algo;
-+	adap->timeout	= pdata->timeout ? pdata->timeout : 20000;
- 	snprintf(adap->name, sizeof(adap->name),
- 		 "Nomadik I2C%d at %lx", pdev->id, (unsigned long)res->start);
- 
+Linus Walleij (2):
+  i2c/i2c-nomadik: fix speed enumerator
+  mach-ux500: set proper I2C platform data from MOP500s
+
+Rabin Vincent (1):
+  i2c/i2c-nomadik: use pm_runtime API
+
+Virupax Sadashivpetimath (8):
+  i2c/i2c-nomadik: make i2c timeout specific per i2c bus
+  i2c/i2c-nomadik: corrrect returned error numbers
+  i2c/i2c-nomadik: correct adapter timeout initialization
+  i2c/i2c-nomadik: print abort cause only on abort tag
+  i2c/i2c-nomadik: add code to retry on timeout failure
+  i2c/i2c-nomadik: change the TX and RX threshold
+  i2c/i2c-nomadik: remove the unnecessary delay
+  i2c/i2c-nomadik: reset the hw after status check
+
+srinidhi kasagar (1):
+  i2c/i2c-nomadik: remove the redundant error message
+
+ arch/arm/mach-ux500/board-mop500.c       |   14 +-
+ arch/arm/plat-nomadik/include/plat/i2c.h |    8 +-
+ drivers/i2c/busses/i2c-nomadik.c         |  272 ++++++++++++++++++++----------
+ 3 files changed, 194 insertions(+), 100 deletions(-)
+
 -- 
 1.7.5.1
