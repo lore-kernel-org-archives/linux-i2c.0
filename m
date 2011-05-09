@@ -1,7 +1,7 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 10/13] i2c/i2c-nomadik: change the TX and RX threshold
-Date: Mon,  9 May 2011 23:38:38 +0200
-Message-ID: <1304977118-31728-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 07/13] i2c/i2c-nomadik: print abort cause only on abort tag
+Date: Mon,  9 May 2011 23:37:37 +0200
+Message-ID: <1304977057-31621-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -10,81 +10,78 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-1) Increase RX FIFO threshold so that there is a reduction in
-the number of interrupts handled to complete a transaction.
-
-2) Fill TX FIFO in the write function.
+Modify the code to:
+1)Print the cause of i2c failure only if the status is set to ABORT.
+2)Print slave address on send/receive fail, will help in which slave
+failed.
 
 Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Reviewed-by: Jonas Aberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   39 +++++++++++++++++++++++++------------
- 1 files changed, 26 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |   27 +++++++++++++++++++--------
+ 1 files changed, 19 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index bf061e1..916e4db 100644
+index 28389c2..c8bf81a 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -447,6 +447,24 @@ static int read_i2c(struct nmk_i2c_dev *dev)
- 	return status;
- }
+@@ -442,7 +442,8 @@ static int read_i2c(struct nmk_i2c_dev *dev)
  
-+static void fill_tx_fifo(struct nmk_i2c_dev *dev, int no_bytes)
-+{
-+	int count;
-+
-+	for (count = (no_bytes - 2);
-+			(count > 0) &&
-+			(dev->cli.count != 0);
-+			count--) {
-+		/* write to the Tx FIFO */
-+		writeb(*dev->cli.buffer,
-+			dev->virtbase + I2C_TFR);
-+		dev->cli.buffer++;
-+		dev->cli.count--;
-+		dev->cli.xfer_bytes++;
-+	}
-+
-+}
-+
- /**
-  * write_i2c() - Write data to I2C client.
-  * @dev: private data of I2C Driver
-@@ -474,8 +492,13 @@ static int write_i2c(struct nmk_i2c_dev *dev)
- 	init_completion(&dev->xfer_complete);
+ 	if (timeout == 0) {
+ 		/* controller has timedout, re-init the h/w */
+-		dev_err(&dev->pdev->dev, "controller timed out, re-init h/w\n");
++		dev_err(&dev->pdev->dev, "read from slave 0x%x timed out\n",
++				dev->cli.slave_adr);
+ 		(void) init_hw(dev);
+ 		status = -ETIMEDOUT;
+ 	}
+@@ -506,7 +507,8 @@ static int write_i2c(struct nmk_i2c_dev *dev)
  
- 	/* enable interrupts by settings the masks */
--	irq_mask = (I2C_IT_TXFNE | I2C_IT_TXFOVR |
--			I2C_IT_MAL | I2C_IT_BERR);
-+	irq_mask = (I2C_IT_TXFOVR | I2C_IT_MAL | I2C_IT_BERR);
-+
-+	/* Fill the TX FIFO with transmit data */
-+	fill_tx_fifo(dev, MAX_I2C_FIFO_THRESHOLD);
-+
-+	if (dev->cli.count != 0)
-+		irq_mask |= I2C_IT_TXFNE;
+ 	if (timeout == 0) {
+ 		/* controller has timedout, re-init the h/w */
+-		dev_err(&dev->pdev->dev, "controller timed out, re-init h/w\n");
++		dev_err(&dev->pdev->dev, "write to slave 0x%x timed out\n",
++				dev->cli.slave_adr);
+ 		(void) init_hw(dev);
+ 		status = -ETIMEDOUT;
+ 	}
+@@ -568,6 +570,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	int i;
+ 	u32 cause;
+ 	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
++	u32 i2c_sr;
  
- 	/*
- 	 * check if we want to transfer a single or multiple bytes, if so
-@@ -702,17 +725,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 			 */
- 			disable_interrupts(dev, I2C_IT_TXFNE);
- 		} else {
--			for (count = (MAX_I2C_FIFO_THRESHOLD - tft - 2);
--					(count > 0) &&
--					(dev->cli.count != 0);
--					count--) {
--				/* write to the Tx FIFO */
--				writeb(*dev->cli.buffer,
--					dev->virtbase + I2C_TFR);
--				dev->cli.buffer++;
--				dev->cli.count--;
--				dev->cli.xfer_bytes++;
--			}
-+			fill_tx_fifo(dev, (MAX_I2C_FIFO_THRESHOLD - tft));
- 			/*
- 			 * if done, close the transfer by disabling the
- 			 * corresponding TXFNE interrupt
+ 	dev->busy = true;
+ 
+@@ -607,14 +610,22 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 			status = write_i2c(dev);
+ 		}
+ 		if (status || (dev->result)) {
+-			/* get the abort cause */
+-			cause =	(readl(dev->virtbase + I2C_SR) >> 4) & 0x7;
+-			dev_err(&dev->pdev->dev, "%s\n",
+-				cause >= ARRAY_SIZE(abort_causes)
+-				? "unknown reason" : abort_causes[cause]);
++			i2c_sr = readl(dev->virtbase + I2C_SR);
++			/*
++			 * Check if the controller I2C operation status is set
++			 * to ABORT(11b).
++			 */
++			if (((i2c_sr >> 2) & 0x3) == 0x3) {
++				/* get the abort cause */
++				cause =	(i2c_sr >> 4)
++					& 0x7;
++				dev_err(&dev->pdev->dev, "%s\n", cause >=
++						ARRAY_SIZE(abort_causes) ?
++						"unknown reason" :
++						abort_causes[cause]);
++			}
+ 
+ 			status = status ? status : dev->result;
+-
+ 			goto out;
+ 		}
+ 		udelay(I2C_DELAY);
 -- 
 1.7.5.1
