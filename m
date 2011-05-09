@@ -1,7 +1,7 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 11/13] i2c/i2c-nomadik: remove the unnecessary delay
-Date: Mon,  9 May 2011 23:38:57 +0200
-Message-ID: <1304977137-31767-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 09/13] i2c/i2c-nomadik: add code to retry on timeout failure
+Date: Mon,  9 May 2011 23:38:19 +0200
+Message-ID: <1304977099-31694-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -10,76 +10,158 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-The delay in the driver seems to be not needed, so remove it.
+It is seen that i2c-nomadik controller randomly stops generating the
+interrupts leading to a i2c timeout. As a workaround to this problem,
+add retries to the on going transfer on failure.
 
 Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Markus Grape <markus.grape-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Tested-by: Per Persson <per.xb.persson-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Tested-by: Chethan Krishna N <chethan.krishna-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Reviewed-by: Jonas ABERG <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   20 ++------------------
- 1 files changed, 2 insertions(+), 18 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |   97 +++++++++++++++++++-------------------
+ 1 files changed, 49 insertions(+), 48 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 916e4db..a94445e 100644
+index f3a0af0..bf061e1 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -15,7 +15,6 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
--#include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/i2c.h>
-@@ -105,9 +104,6 @@
- /* maximum threshold value */
- #define MAX_I2C_FIFO_THRESHOLD	15
+@@ -255,8 +255,6 @@ static int init_hw(struct nmk_i2c_dev *dev)
+ {
+ 	int stat;
  
--/* per-transfer delay, required for the hardware to stabilize */
--#define I2C_DELAY		150
+-	clk_enable(dev->clk);
 -
- enum i2c_status {
- 	I2C_NOP,
- 	I2C_ON_GOING,
-@@ -269,12 +265,6 @@ static int init_hw(struct nmk_i2c_dev *dev)
+ 	stat = flush_i2c_fifo(dev);
+ 	if (stat)
+ 		goto exit;
+@@ -271,8 +269,6 @@ static int init_hw(struct nmk_i2c_dev *dev)
  	dev->cli.operation = I2C_NO_OPERATION;
  
  exit:
--	/*
--	 * TODO: What is this delay for?
--	 * Must be pretty pointless since the hw block
--	 * is frozen. Or?
--	 */
--	udelay(I2C_DELAY);
- 	return stat;
- }
+-	/* TODO: Why disable clocks after init hw? */
+-	clk_disable(dev->clk);
+ 	/*
+ 	 * TODO: What is this delay for?
+ 	 * Must be pretty pointless since the hw block
+@@ -572,6 +568,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	u32 cause;
+ 	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
+ 	u32 i2c_sr;
++	int j;
  
-@@ -652,7 +642,6 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 	dev->busy = true;
  
- 				break;
- 			}
--			udelay(I2C_DELAY);
- 		}
- 		if (status == 0)
- 			break;
-@@ -778,13 +767,8 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 			}
- 		}
+@@ -579,63 +576,67 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 		regulator_enable(dev->regulator);
+ 	pm_runtime_get_sync(&dev->pdev->dev);
  
--		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MTD);
--		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MTDWS);
++	clk_enable(dev->clk);
++
+ 	status = init_hw(dev);
+ 	if (status)
+-		goto out2;
++		goto out;
+ 
+-	clk_enable(dev->clk);
 -
--		disable_interrupts(dev,
--				(I2C_IT_TXFNE | I2C_IT_TXFE | I2C_IT_TXFF
--					| I2C_IT_TXFOVR | I2C_IT_RXFNF
--					| I2C_IT_RXFF | I2C_IT_RXFE));
-+		disable_all_interrupts(dev);
-+		clear_all_interrupts(dev);
+-	/* setup the i2c controller */
+-	setup_i2c_controller(dev);
++	for (j = 0; j < 3; j++) {
++		/* setup the i2c controller */
++		setup_i2c_controller(dev);
  
- 		if (dev->cli.count) {
- 			dev->result = -EIO;
+-	for (i = 0; i < num_msgs; i++) {
+-		if (unlikely(msgs[i].flags & I2C_M_TEN)) {
+-			dev_err(&dev->pdev->dev, "10 bit addressing"
+-					"not supported\n");
++		for (i = 0; i < num_msgs; i++) {
++			if (unlikely(msgs[i].flags & I2C_M_TEN)) {
++				dev_err(&dev->pdev->dev, "10 bit addressing"
++						"not supported\n");
+ 
+-			status = -EINVAL;
+-			goto out;
+-		}
+-		dev->cli.slave_adr	= msgs[i].addr;
+-		dev->cli.buffer		= msgs[i].buf;
+-		dev->cli.count		= msgs[i].len;
+-		dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
+-		dev->result = 0;
+-
+-		if (msgs[i].flags & I2C_M_RD) {
+-			/* it is a read operation */
+-			dev->cli.operation = I2C_READ;
+-			status = read_i2c(dev);
+-		} else {
+-			/* write operation */
+-			dev->cli.operation = I2C_WRITE;
+-			status = write_i2c(dev);
+-		}
+-		if (status || (dev->result)) {
+-			i2c_sr = readl(dev->virtbase + I2C_SR);
+-			/*
+-			 * Check if the controller I2C operation status is set
+-			 * to ABORT(11b).
+-			 */
+-			if (((i2c_sr >> 2) & 0x3) == 0x3) {
+-				/* get the abort cause */
+-				cause =	(i2c_sr >> 4)
+-					& 0x7;
+-				dev_err(&dev->pdev->dev, "%s\n", cause >=
+-						ARRAY_SIZE(abort_causes) ?
++				status = -EINVAL;
++				goto out;
++			}
++			dev->cli.slave_adr	= msgs[i].addr;
++			dev->cli.buffer		= msgs[i].buf;
++			dev->cli.count		= msgs[i].len;
++			dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
++			dev->result = 0;
++
++			if (msgs[i].flags & I2C_M_RD) {
++				/* it is a read operation */
++				dev->cli.operation = I2C_READ;
++				status = read_i2c(dev);
++			} else {
++				/* write operation */
++				dev->cli.operation = I2C_WRITE;
++				status = write_i2c(dev);
++			}
++			if (status || (dev->result)) {
++				i2c_sr = readl(dev->virtbase + I2C_SR);
++				/*
++				 * Check if the controller I2C operation status
++				 * is set to ABORT(11b).
++				 */
++				if (((i2c_sr >> 2) & 0x3) == 0x3) {
++					/* get the abort cause */
++					cause =	(i2c_sr >> 4)
++						& 0x7;
++					dev_err(&dev->pdev->dev, "%s\n", cause
++						>= ARRAY_SIZE(abort_causes) ?
+ 						"unknown reason" :
+ 						abort_causes[cause]);
+-			}
++				}
+ 
+-			status = status ? status : dev->result;
+-			goto out;
++				status = status ? status : dev->result;
++
++				break;
++			}
++			udelay(I2C_DELAY);
+ 		}
+-		udelay(I2C_DELAY);
++		if (status == 0)
++			break;
+ 	}
+ 
+ out:
+ 	clk_disable(dev->clk);
+-out2:
+ 	pm_runtime_put_sync(&dev->pdev->dev);
+ 	if (dev->regulator)
+ 		regulator_disable(dev->regulator);
 -- 
 1.7.5.1
