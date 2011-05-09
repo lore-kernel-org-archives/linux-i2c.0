@@ -1,7 +1,7 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 09/13] i2c/i2c-nomadik: add code to retry on timeout failure
-Date: Mon,  9 May 2011 23:38:19 +0200
-Message-ID: <1304977099-31694-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 06/13] i2c/i2c-nomadik: correct adapter timeout initialization
+Date: Mon,  9 May 2011 23:37:07 +0200
+Message-ID: <1304977027-31587-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -10,158 +10,56 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-It is seen that i2c-nomadik controller randomly stops generating the
-interrupts leading to a i2c timeout. As a workaround to this problem,
-add retries to the on going transfer on failure.
+Correct the incorrect initialization of adapter timeout not to be
+in milliseconds, as it needs to be done in jiffies.
 
 Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Jonas ABERG <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   97 +++++++++++++++++++-------------------
- 1 files changed, 49 insertions(+), 48 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |    9 +++++----
+ 1 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index f3a0af0..bf061e1 100644
+index dbd93b2..28389c2 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -255,8 +255,6 @@ static int init_hw(struct nmk_i2c_dev *dev)
- {
- 	int stat;
+@@ -210,7 +210,7 @@ static int flush_i2c_fifo(struct nmk_i2c_dev *dev)
+ 	writel((I2C_CR_FTX | I2C_CR_FRX), dev->virtbase + I2C_CR);
  
--	clk_enable(dev->clk);
--
- 	stat = flush_i2c_fifo(dev);
- 	if (stat)
- 		goto exit;
-@@ -271,8 +269,6 @@ static int init_hw(struct nmk_i2c_dev *dev)
- 	dev->cli.operation = I2C_NO_OPERATION;
+ 	for (i = 0; i < LOOP_ATTEMPTS; i++) {
+-		timeout = jiffies + msecs_to_jiffies(dev->adap.timeout);
++		timeout = jiffies + dev->adap.timeout;
  
- exit:
--	/* TODO: Why disable clocks after init hw? */
--	clk_disable(dev->clk);
- 	/*
- 	 * TODO: What is this delay for?
- 	 * Must be pretty pointless since the hw block
-@@ -572,6 +568,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	u32 cause;
- 	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
- 	u32 i2c_sr;
-+	int j;
+ 		while (!time_after(jiffies, timeout)) {
+ 			if ((readl(dev->virtbase + I2C_CR) &
+@@ -431,7 +431,7 @@ static int read_i2c(struct nmk_i2c_dev *dev)
+ 			dev->virtbase + I2C_IMSCR);
  
- 	dev->busy = true;
+ 	timeout = wait_for_completion_interruptible_timeout(
+-		&dev->xfer_complete, msecs_to_jiffies(dev->adap.timeout));
++		&dev->xfer_complete, dev->adap.timeout);
  
-@@ -579,63 +576,67 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 		regulator_enable(dev->regulator);
- 	pm_runtime_get_sync(&dev->pdev->dev);
+ 	if (timeout < 0) {
+ 		dev_err(&dev->pdev->dev,
+@@ -495,7 +495,7 @@ static int write_i2c(struct nmk_i2c_dev *dev)
+ 			dev->virtbase + I2C_IMSCR);
  
-+	clk_enable(dev->clk);
-+
- 	status = init_hw(dev);
- 	if (status)
--		goto out2;
-+		goto out;
+ 	timeout = wait_for_completion_interruptible_timeout(
+-		&dev->xfer_complete, msecs_to_jiffies(dev->adap.timeout));
++		&dev->xfer_complete, dev->adap.timeout);
  
--	clk_enable(dev->clk);
--
--	/* setup the i2c controller */
--	setup_i2c_controller(dev);
-+	for (j = 0; j < 3; j++) {
-+		/* setup the i2c controller */
-+		setup_i2c_controller(dev);
+ 	if (timeout < 0) {
+ 		dev_err(&dev->pdev->dev,
+@@ -914,7 +914,8 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ 	adap->owner	= THIS_MODULE;
+ 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->algo	= &nmk_i2c_algo;
+-	adap->timeout	= pdata->timeout ? pdata->timeout : 20000;
++	adap->timeout	= pdata->timeout ? msecs_to_jiffies(pdata->timeout) :
++		msecs_to_jiffies(20000);
+ 	snprintf(adap->name, sizeof(adap->name),
+ 		 "Nomadik I2C%d at %lx", pdev->id, (unsigned long)res->start);
  
--	for (i = 0; i < num_msgs; i++) {
--		if (unlikely(msgs[i].flags & I2C_M_TEN)) {
--			dev_err(&dev->pdev->dev, "10 bit addressing"
--					"not supported\n");
-+		for (i = 0; i < num_msgs; i++) {
-+			if (unlikely(msgs[i].flags & I2C_M_TEN)) {
-+				dev_err(&dev->pdev->dev, "10 bit addressing"
-+						"not supported\n");
- 
--			status = -EINVAL;
--			goto out;
--		}
--		dev->cli.slave_adr	= msgs[i].addr;
--		dev->cli.buffer		= msgs[i].buf;
--		dev->cli.count		= msgs[i].len;
--		dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
--		dev->result = 0;
--
--		if (msgs[i].flags & I2C_M_RD) {
--			/* it is a read operation */
--			dev->cli.operation = I2C_READ;
--			status = read_i2c(dev);
--		} else {
--			/* write operation */
--			dev->cli.operation = I2C_WRITE;
--			status = write_i2c(dev);
--		}
--		if (status || (dev->result)) {
--			i2c_sr = readl(dev->virtbase + I2C_SR);
--			/*
--			 * Check if the controller I2C operation status is set
--			 * to ABORT(11b).
--			 */
--			if (((i2c_sr >> 2) & 0x3) == 0x3) {
--				/* get the abort cause */
--				cause =	(i2c_sr >> 4)
--					& 0x7;
--				dev_err(&dev->pdev->dev, "%s\n", cause >=
--						ARRAY_SIZE(abort_causes) ?
-+				status = -EINVAL;
-+				goto out;
-+			}
-+			dev->cli.slave_adr	= msgs[i].addr;
-+			dev->cli.buffer		= msgs[i].buf;
-+			dev->cli.count		= msgs[i].len;
-+			dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
-+			dev->result = 0;
-+
-+			if (msgs[i].flags & I2C_M_RD) {
-+				/* it is a read operation */
-+				dev->cli.operation = I2C_READ;
-+				status = read_i2c(dev);
-+			} else {
-+				/* write operation */
-+				dev->cli.operation = I2C_WRITE;
-+				status = write_i2c(dev);
-+			}
-+			if (status || (dev->result)) {
-+				i2c_sr = readl(dev->virtbase + I2C_SR);
-+				/*
-+				 * Check if the controller I2C operation status
-+				 * is set to ABORT(11b).
-+				 */
-+				if (((i2c_sr >> 2) & 0x3) == 0x3) {
-+					/* get the abort cause */
-+					cause =	(i2c_sr >> 4)
-+						& 0x7;
-+					dev_err(&dev->pdev->dev, "%s\n", cause
-+						>= ARRAY_SIZE(abort_causes) ?
- 						"unknown reason" :
- 						abort_causes[cause]);
--			}
-+				}
- 
--			status = status ? status : dev->result;
--			goto out;
-+				status = status ? status : dev->result;
-+
-+				break;
-+			}
-+			udelay(I2C_DELAY);
- 		}
--		udelay(I2C_DELAY);
-+		if (status == 0)
-+			break;
- 	}
- 
- out:
- 	clk_disable(dev->clk);
--out2:
- 	pm_runtime_put_sync(&dev->pdev->dev);
- 	if (dev->regulator)
- 		regulator_disable(dev->regulator);
 -- 
 1.7.5.1
