@@ -1,146 +1,61 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 08/13] i2c/i2c-nomadik: use pm_runtime API
-Date: Mon,  9 May 2011 23:37:57 +0200
-Message-ID: <1304977077-31661-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 13/13] mach-ux500: set proper I2C platform data from MOP500s
+Date: Mon,  9 May 2011 23:39:34 +0200
+Message-ID: <1304977174-31834-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+This specifies the new per-platform timeout per I2C bus and
+switches the I2C buses to fast mode, and increase the FIFO
+depth to 8 for reads and writes.
 
-Use the pm_runtime API for pins control.
-
-Signed-off-by: Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Jonas Aberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   51 +++++++++++++++++++++++++++++++++----
- 1 files changed, 45 insertions(+), 6 deletions(-)
+ arch/arm/mach-ux500/board-mop500.c |   14 ++++++++------
+ 1 files changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index c8bf81a..f3a0af0 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -23,6 +23,7 @@
- #include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/regulator/consumer.h>
-+#include <linux/pm_runtime.h>
- 
- #include <plat/i2c.h>
- 
-@@ -576,6 +577,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 
- 	if (dev->regulator)
- 		regulator_enable(dev->regulator);
-+	pm_runtime_get_sync(&dev->pdev->dev);
- 
- 	status = init_hw(dev);
- 	if (status)
-@@ -634,6 +636,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- out:
- 	clk_disable(dev->clk);
- out2:
-+	pm_runtime_put_sync(&dev->pdev->dev);
- 	if (dev->regulator)
- 		regulator_disable(dev->regulator);
- 
-@@ -839,19 +842,50 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 
- 
- #ifdef CONFIG_PM
--static int nmk_i2c_suspend(struct platform_device *pdev, pm_message_t mesg)
-+static int nmk_i2c_suspend(struct device *dev)
- {
--	struct nmk_i2c_dev *dev = platform_get_drvdata(pdev);
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct nmk_i2c_dev *nmk_i2c = platform_get_drvdata(pdev);
- 
--	if (dev->busy)
-+	if (nmk_i2c->busy)
- 		return -EBUSY;
--	else
--		return 0;
-+
-+	/*
-+	 * During system suspend, runtime suspend transitions are disabled.
-+	 * This check and direct call are here so that even if some driver
-+	 * performs i2c transactions in its suspend rountine, we would properly
-+	 * runtime suspend the i2c driver.
-+	 */
-+	if (!pm_runtime_suspended(dev))
-+		if (dev->bus && dev->bus->pm && dev->bus->pm->runtime_suspend)
-+			dev->bus->pm->runtime_suspend(dev);
-+
-+	return 0;
-+}
-+
-+static int nmk_i2c_resume(struct device *dev)
-+{
-+	if (!pm_runtime_suspended(dev))
-+		if (dev->bus && dev->bus->pm && dev->bus->pm->runtime_resume)
-+			dev->bus->pm->runtime_resume(dev);
-+
-+	return 0;
- }
- #else
- #define nmk_i2c_suspend	NULL
-+#define nmk_i2c_resume	NULL
- #endif
- 
-+/*
-+ * We use noirq so that we suspend late and resume before the wakeup interrupt
-+ * to ensure that we do the !pm_runtime_suspended() check in resume before
-+ * there has been a regular pm runtime resume (via pm_runtime_get_sync()).
-+ */
-+static const struct dev_pm_ops nmk_i2c_pm = {
-+	.suspend_noirq	= nmk_i2c_suspend,
-+	.resume_noirq	= nmk_i2c_resume,
-+};
-+
- static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-@@ -913,6 +947,9 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- 		dev->regulator = NULL;
- 	}
- 
-+	pm_suspend_ignore_children(&pdev->dev, true);
-+	pm_runtime_enable(&pdev->dev);
-+
- 	dev->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(dev->clk)) {
- 		dev_err(&pdev->dev, "could not get i2c clock\n");
-@@ -958,6 +995,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
-  err_no_clk:
- 	if (dev->regulator)
- 		regulator_put(dev->regulator);
-+	pm_runtime_disable(&pdev->dev);
- 	free_irq(dev->irq, dev);
-  err_irq:
- 	iounmap(dev->virtbase);
-@@ -990,6 +1028,7 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
- 	clk_put(dev->clk);
- 	if (dev->regulator)
- 		regulator_put(dev->regulator);
-+	pm_runtime_disable(&pdev->dev);
- 	platform_set_drvdata(pdev, NULL);
- 	kfree(dev);
- 
-@@ -1000,10 +1039,10 @@ static struct platform_driver nmk_i2c_driver = {
- 	.driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
-+		.pm = &nmk_i2c_pm,
+diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
+index 6e1907fa..bb26f40 100644
+--- a/arch/arm/mach-ux500/board-mop500.c
++++ b/arch/arm/mach-ux500/board-mop500.c
+@@ -204,7 +204,7 @@ static struct i2c_board_info __initdata mop500_i2c2_devices[] = {
  	},
- 	.probe = nmk_i2c_probe,
- 	.remove = __devexit_p(nmk_i2c_remove),
--	.suspend = nmk_i2c_suspend,
  };
  
- static int __init nmk_i2c_init(void)
+-#define U8500_I2C_CONTROLLER(id, _slsu, _tft, _rft, clk, _sm) \
++#define U8500_I2C_CONTROLLER(id, _slsu, _tft, _rft, clk, t_out, _sm)	\
+ static struct nmk_i2c_controller u8500_i2c##id##_data = { \
+ 	/*				\
+ 	 * slave data setup time, which is	\
+@@ -219,19 +219,21 @@ static struct nmk_i2c_controller u8500_i2c##id##_data = { \
+ 	.rft		= _rft,		\
+ 	/* std. mode operation */	\
+ 	.clk_freq	= clk,		\
++	/* Slave response timeout(ms) */\
++	.timeout	= t_out,	\
+ 	.sm		= _sm,		\
+ }
+ 
+ /*
+  * The board uses 4 i2c controllers, initialize all of
+  * them with slave data setup time of 250 ns,
+- * Tx & Rx FIFO threshold values as 1 and standard
++ * Tx & Rx FIFO threshold values as 8 and standard
+  * mode of operation
+  */
+-U8500_I2C_CONTROLLER(0, 0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
+-U8500_I2C_CONTROLLER(1, 0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
+-U8500_I2C_CONTROLLER(2,	0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
+-U8500_I2C_CONTROLLER(3,	0xe, 1, 1, 100000, I2C_FREQ_MODE_STANDARD);
++U8500_I2C_CONTROLLER(0, 0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
++U8500_I2C_CONTROLLER(1, 0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
++U8500_I2C_CONTROLLER(2,	0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
++U8500_I2C_CONTROLLER(3,	0xe, 1, 8, 100000, 200, I2C_FREQ_MODE_FAST);
+ 
+ static void __init mop500_i2c_init(void)
+ {
 -- 
 1.7.5.1
