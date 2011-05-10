@@ -1,56 +1,42 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH 00/13] Various updates to the Nomadik I2C controller
-Date: Tue, 10 May 2011 23:24:48 +0100
-Message-ID: <20110510222448.GC634@freya.fluff.org>
-References: <1304976877-31366-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/3] i2c: append hardware lock with bus lock
+Date: Wed, 11 May 2011 00:08:32 +0100
+Message-ID: <20110510230832.GE634@freya.fluff.org>
+References: <1304003746-12127-1-git-send-email-haojian.zhuang@gmail.com>
+ <20110502092734.GV15795@trinity.fluff.org>
+ <20110502114616.7813da79@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1304976877-31366-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20110502114616.7813da79-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 09, 2011 at 11:34:37PM +0200, Linus Walleij wrote:
-> A lot of internal refining of this driver has happened on this
-> driver inside ST-Ericsson since last kernel cycle. Here are the
-> accumulated changes. I have NOT squashed any development history
-> this time, since I was severely beat up about it last time.
+On Mon, May 02, 2011 at 11:46:16AM +0200, Jean Delvare wrote:
+> On Mon, 2 May 2011 10:27:34 +0100, Ben Dooks wrote:
+> > On Thu, Apr 28, 2011 at 11:15:44PM +0800, Haojian Zhuang wrote:
+> > > Both AP and CP are contained in Marvell PXA910 silicon. These two ARM
+> > > cores are sharing one pair of I2C pins.
+> > > 
+> > > In order to keep I2C transaction operated with atomic, hardware lock
+> > > (RIPC) is required. Because of this, bus lock in AP side can't afford
+> > > this requirement. Now hardware lock is appended.
+> > > 
+> > > Signed-off-by: Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> > > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> > > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > 
+> > Right, this looks like a reasonable explanation of what is going on here
+> > and if Jean is happy with the core changes I'll look at where the driver
+> > change can go.
 > 
-> The last patch in the series for mach-ux500 shall go into my ux500
-> tree, it is not required for the driver to function, so the rest
-> of the patches can be applied to the I2C tree without causing any
-> problems with the platforms using the driver.
+> Yes I am!
 > 
-> Jonas Aberg (1):
->   i2c/i2c-nomadik: add regulator support
-> 
-> Linus Walleij (2):
->   i2c/i2c-nomadik: fix speed enumerator
->   mach-ux500: set proper I2C platform data from MOP500s
-> 
-> Rabin Vincent (1):
->   i2c/i2c-nomadik: use pm_runtime API
-> 
-> Virupax Sadashivpetimath (8):
->   i2c/i2c-nomadik: make i2c timeout specific per i2c bus
->   i2c/i2c-nomadik: corrrect returned error numbers
->   i2c/i2c-nomadik: correct adapter timeout initialization
->   i2c/i2c-nomadik: print abort cause only on abort tag
->   i2c/i2c-nomadik: add code to retry on timeout failure
->   i2c/i2c-nomadik: change the TX and RX threshold
->   i2c/i2c-nomadik: remove the unnecessary delay
->   i2c/i2c-nomadik: reset the hw after status check
-> 
-> srinidhi kasagar (1):
->   i2c/i2c-nomadik: remove the redundant error message
-> 
->  arch/arm/mach-ux500/board-mop500.c       |   14 +-
->  arch/arm/plat-nomadik/include/plat/i2c.h |    8 +-
->  drivers/i2c/busses/i2c-nomadik.c         |  272 ++++++++++++++++++++----------
->  3 files changed, 194 insertions(+), 100 deletions(-)
+> Let me know if you want me to take the core change in my tree or if you
+> prefer to have it in yours to avoid a dependency.
 
-right, mostly looks fine, just one or two bits
-that could do with looking at if possible.
+if it'll go in my tree ok, then yes.
+Will publish a new tree soon.
