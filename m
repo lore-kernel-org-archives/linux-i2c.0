@@ -1,87 +1,108 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 07/13] i2c/i2c-nomadik: print abort cause only on abort tag
-Date: Mon,  9 May 2011 23:37:37 +0200
-Message-ID: <1304977057-31621-1-git-send-email-linus.walleij@linaro.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-i801: Don't probe for slaves on IDF channels
+Date: Tue, 10 May 2011 16:08:35 +0200
+Message-ID: <20110510160835.37bea352@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Woodhouse <David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+I don't know if Fujitsu is ever going to produce Patsburg-based
+machines, but if they do, I'd rather not probe the secondary (IDF)
+SMBus channels. At least not until we have a good reason for doing so.
 
-Modify the code to:
-1)Print the cause of i2c failure only if the status is set to ABORT.
-2)Print slave address on send/receive fail, will help in which slave
-failed.
+On a side note, I'm not even sure if it is right to enable detection
+of HWMON and DDC devices on the IDF channels. Time will tell...
 
-Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Jonas Aberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+CC: David Woodhouse <David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   27 +++++++++++++++++++--------
- 1 files changed, 19 insertions(+), 8 deletions(-)
+Hans, David, what do you think?
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 28389c2..c8bf81a 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -442,7 +442,8 @@ static int read_i2c(struct nmk_i2c_dev *dev)
+ drivers/i2c/busses/i2c-i801.c |   45 +++++++++++++++++++++++++++--------------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
+
+--- linux-2.6.39-rc7.orig/drivers/i2c/busses/i2c-i801.c	2011-05-10 09:39:07.000000000 +0200
++++ linux-2.6.39-rc7/drivers/i2c/busses/i2c-i801.c	2011-05-10 15:03:52.000000000 +0200
+@@ -158,6 +158,7 @@ static struct pci_driver i801_driver;
+ #define FEATURE_BLOCK_BUFFER	(1 << 1)
+ #define FEATURE_BLOCK_PROC	(1 << 2)
+ #define FEATURE_I2C_BLOCK_READ	(1 << 3)
++#define FEATURE_IDF		(1 << 4)
  
- 	if (timeout == 0) {
- 		/* controller has timedout, re-init the h/w */
--		dev_err(&dev->pdev->dev, "controller timed out, re-init h/w\n");
-+		dev_err(&dev->pdev->dev, "read from slave 0x%x timed out\n",
-+				dev->cli.slave_adr);
- 		(void) init_hw(dev);
- 		status = -ETIMEDOUT;
+ static const char *i801_feature_names[] = {
+ 	"SMBus PEC",
+@@ -735,6 +736,29 @@ static void __devinit dmi_check_onboard_
+ }
+ #endif
+ 
++/* Register optional slaves */
++static void __devinit i801_probe_optional_slaves(struct i801_priv *priv)
++{
++	/* Only register slaves on main SMBus channel */
++	if (priv->features & FEATURE_IDF)
++		return;
++
++#if defined CONFIG_INPUT_APANEL || defined CONFIG_INPUT_APANEL_MODULE
++	if (apanel_addr) {
++		struct i2c_board_info info;
++
++		memset(&info, 0, sizeof(struct i2c_board_info));
++		info.addr = apanel_addr;
++		strlcpy(info.type, "fujitsu_apanel", I2C_NAME_SIZE);
++		i2c_new_device(&priv->adapter, &info);
++	}
++#endif
++#if defined CONFIG_SENSORS_FSCHMD || defined CONFIG_SENSORS_FSCHMD_MODULE
++	if (dmi_name_in_vendors("FUJITSU"))
++		dmi_walk(dmi_check_onboard_devices, &priv->adapter);
++#endif
++}
++
+ static int __devinit i801_probe(struct pci_dev *dev,
+ 				const struct pci_device_id *id)
+ {
+@@ -753,6 +777,11 @@ static int __devinit i801_probe(struct p
+ 
+ 	priv->pci_dev = dev;
+ 	switch (dev->device) {
++	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF0:
++	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF1:
++	case PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2:
++		priv->features |= FEATURE_IDF;
++		/* fall through */
+ 	default:
+ 		priv->features |= FEATURE_I2C_BLOCK_READ;
+ 		/* fall through */
+@@ -838,21 +867,7 @@ static int __devinit i801_probe(struct p
+ 		goto exit_release;
  	}
-@@ -506,7 +507,8 @@ static int write_i2c(struct nmk_i2c_dev *dev)
  
- 	if (timeout == 0) {
- 		/* controller has timedout, re-init the h/w */
--		dev_err(&dev->pdev->dev, "controller timed out, re-init h/w\n");
-+		dev_err(&dev->pdev->dev, "write to slave 0x%x timed out\n",
-+				dev->cli.slave_adr);
- 		(void) init_hw(dev);
- 		status = -ETIMEDOUT;
- 	}
-@@ -568,6 +570,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	int i;
- 	u32 cause;
- 	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
-+	u32 i2c_sr;
- 
- 	dev->busy = true;
- 
-@@ -607,14 +610,22 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 			status = write_i2c(dev);
- 		}
- 		if (status || (dev->result)) {
--			/* get the abort cause */
--			cause =	(readl(dev->virtbase + I2C_SR) >> 4) & 0x7;
--			dev_err(&dev->pdev->dev, "%s\n",
--				cause >= ARRAY_SIZE(abort_causes)
--				? "unknown reason" : abort_causes[cause]);
-+			i2c_sr = readl(dev->virtbase + I2C_SR);
-+			/*
-+			 * Check if the controller I2C operation status is set
-+			 * to ABORT(11b).
-+			 */
-+			if (((i2c_sr >> 2) & 0x3) == 0x3) {
-+				/* get the abort cause */
-+				cause =	(i2c_sr >> 4)
-+					& 0x7;
-+				dev_err(&dev->pdev->dev, "%s\n", cause >=
-+						ARRAY_SIZE(abort_causes) ?
-+						"unknown reason" :
-+						abort_causes[cause]);
-+			}
- 
- 			status = status ? status : dev->result;
+-	/* Register optional slaves */
+-#if defined CONFIG_INPUT_APANEL || defined CONFIG_INPUT_APANEL_MODULE
+-	if (apanel_addr) {
+-		struct i2c_board_info info;
 -
- 			goto out;
- 		}
- 		udelay(I2C_DELAY);
+-		memset(&info, 0, sizeof(struct i2c_board_info));
+-		info.addr = apanel_addr;
+-		strlcpy(info.type, "fujitsu_apanel", I2C_NAME_SIZE);
+-		i2c_new_device(&priv->adapter, &info);
+-	}
+-#endif
+-#if defined CONFIG_SENSORS_FSCHMD || defined CONFIG_SENSORS_FSCHMD_MODULE
+-	if (dmi_name_in_vendors("FUJITSU"))
+-		dmi_walk(dmi_check_onboard_devices, &priv->adapter);
+-#endif
++	i801_probe_optional_slaves(priv);
+ 
+ 	pci_set_drvdata(dev, priv);
+ 	return 0;
+
+
 -- 
-1.7.5.1
+Jean Delvare
