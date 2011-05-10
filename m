@@ -1,334 +1,216 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH v2] i2c-parport: Various cleanups
-Date: Tue, 10 May 2011 20:30:00 +0200
-Message-ID: <20110510203000.2fba6a55@endymion.delvare>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c: Adding the i2c-bit-platform bus
+Date: Tue, 10 May 2011 23:35:56 +0100
+Message-ID: <20110510223556.GD634@freya.fluff.org>
+References: <BANLkTi=JtYdJr+0Dv32r-sCTgE-Eom2CJQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <BANLkTi=JtYdJr+0Dv32r-sCTgE-Eom2CJQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: =?iso-8859-1?Q?H=E5vard?= Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Fix white space.
-* Rename labels to something meaningful.
-* Prefix defines with PORT_ to avoid collision with macros from
-  <linux/parport.h>.
-* Add const markers where possible.
+On Sat, May 07, 2011 at 02:53:05PM +0300, Eran Duchan wrote:
+> Hi guys,
+> 
+> Following the discussion on the matter of i2c-gpio performance, I'm
+> submitting this very simple patch which adds i2c-bit-platform. Using
+> this driver, a platform can register callbacks called by i2c-bit-algo
+> so that it can modify GPIO pins directly or do pretty much anything
+> else. Besides style, I see 2 points for discussion:
+> 
+> 1) Should the i2c-bit-platform call setscl/setsda passing state to 1
+> (so that SDA/SCL are explicitly pulled high) on probe or should this
+> be implemented in the platforms which mandate this? In the patch I
+> left it up to the platform.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
----
-Changes since v1:
-* Renamed labels to something meaningful.
+I'd check it isn't done by the algobit driver already.
+ 
+> 2) Which platform_data structure is passed to the driver? There are
+> three options:
+> 2.a) Currently in the patch - just expect a i2c_algo_bit_data
+> structure. No new structures introduced, but this does expose some
+> underlying bit-algo detail to the platform and does not elegantly
+> support passing any future i2c-bit-platform specific fields, should
+> they be required.
+> 2.b) Declare a new platform structure which has a i2c_algo_bit_data
+> member (for supporting future i2c-bit-platform fields). Solves the
+> future field issue but still exposes so bit-algo stuff to the platform
+> 2.c) Declare a new platform structure with members similar to
+> i2c_algo_bit_data, but only those who should be exposed to the
+> platform. The only downside to this is that any future change to
+> i2c_algo_bit_data may require change to this new platform structure.
+> 
+> Tested on an MPC875 running @ 50MHz to achieve near perfect 100kHz I2C.
 
- drivers/i2c/busses/i2c-parport-light.c |   10 ++--
- drivers/i2c/busses/i2c-parport.c       |   30 ++++++------
- drivers/i2c/busses/i2c-parport.h       |   74 +++++++++++++++---------=
---------
- 3 files changed, 55 insertions(+), 59 deletions(-)
+I'd probably go for the 'c' option and copy them across on probe so
+that if the driver gets changed the whole system doesn't have to get
+re-compiled.
+ 
+> Eran
+> 
+> Signed-off-by: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/Kconfig            |   10 +++
+>  drivers/i2c/busses/Makefile           |    1 +
+>  drivers/i2c/busses/i2c-bit-platform.c |  105 +++++++++++++++++++++++++++++++++
+>  3 files changed, 116 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-bit-platform.c
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 3a6321c..f6c6b8c 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -365,6 +365,16 @@ config I2C_GPIO
+>  	  This is a very simple bitbanging I2C driver utilizing the
+>  	  arch-neutral GPIO API to control the SCL and SDA lines.
+> 
+> +config I2C_BIT_PLATFORM
+> +	tristate "I2c-bit-algo as platform device"
+> +	select I2C_ALGOBIT
+> +	help
+> +	  An I2C bus adapter which delegates the bit-algo callback registration
+> +	  to the platform. Useful in cases where existing adapters such as
+> +	  i2c-gpio are too slow. Keep in mind that no resource locking of any kind
+> +	  is performed by the adapter or algo, so any such contention must be
+> +	  handled by the platform.
+> +
+>  config I2C_HIGHLANDER
+>  	tristate "Highlander FPGA SMBus interface"
+>  	depends on SH_HIGHLANDER
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index 84cb16a..65bced4 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -35,6 +35,7 @@ obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
+>  obj-$(CONFIG_I2C_DAVINCI)	+= i2c-davinci.o
+>  obj-$(CONFIG_I2C_DESIGNWARE)	+= i2c-designware.o
+>  obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
+> +obj-$(CONFIG_I2C_BIT_PLATFORM)	+= i2c-bit-platform.o
+>  obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
+>  obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
+>  obj-$(CONFIG_I2C_IMX)		+= i2c-imx.o
+> diff --git a/drivers/i2c/busses/i2c-bit-platform.c
+> b/drivers/i2c/busses/i2c-bit-platform.c
+> new file mode 100644
+> index 0000000..cb98006
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-bit-platform.c
+> @@ -0,0 +1,105 @@
+> +/*
+> +    i2c-bit-algo as platform device
+> +    Delegates the bit-algo callback registration to the platform
+> +
+> +    Copyright (C) 2011 Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> +
+> +    This program is free software; you can redistribute it and/or modify
+> +    it under the terms of the GNU General Public License as published by
+> +    the Free Software Foundation; either version 2 of the License, or
+> +    (at your option) any later version.
+> +*/
+> +
+> +#include <linux/i2c.h>
+> +#include <linux/i2c-algo-bit.h>
+> +#include <linux/slab.h>
+> +
+> +static int __devinit i2c_bit_platform_probe(struct platform_device *pdev)
+> +{
+> +	struct i2c_algo_bit_data *bit_data;
+> +	struct i2c_adapter *adap;
+> +	int ret;
+> +
+> +	if (pdev->dev.platform_data == NULL)
+> +		ret = -ENXIO;
 
---- linux-2.6.39-rc5.orig/drivers/i2c/busses/i2c-parport.c	2011-05-03 0=
-8:45:48.000000000 +0200
-+++ linux-2.6.39-rc5/drivers/i2c/busses/i2c-parport.c	2011-05-04 09:06:=
-52.000000000 +0200
-@@ -2,13 +2,13 @@
-  * i2c-parport.c I2C bus over parallel port                           =
-      *
-  * -------------------------------------------------------------------=
------ *
-    Copyright (C) 2003-2011 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
--  =20
-+
-    Based on older i2c-philips-par.c driver
-    Copyright (C) 1995-2000 Simon G. Vogl
-    With some changes from:
-    Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>
-    Ky=F6sti M=E4lkki <kmalkki-kf+aQKke1yb1KXRcyAk9cg@public.gmane.org>
--  =20
-+
-    This program is free software; you can redistribute it and/or modif=
-y
-    it under the terms of the GNU General Public License as published b=
-y
-    the Free Software Foundation; either version 2 of the License, or
-@@ -78,13 +78,13 @@ static unsigned char port_read_control(s
- 	return parport_read_control(p);
- }
-=20
--static void (*port_write[])(struct parport *, unsigned char) =3D {
-+static void (* const port_write[])(struct parport *, unsigned char) =3D=
- {
- 	port_write_data,
- 	NULL,
- 	port_write_control,
- };
-=20
--static unsigned char (*port_read[])(struct parport *) =3D {
-+static unsigned char (* const port_read[])(struct parport *) =3D {
- 	port_read_data,
- 	port_read_status,
- 	port_read_control,
-@@ -147,7 +147,7 @@ static const struct i2c_algo_bit_data pa
- 	.getscl		=3D parport_getscl,
- 	.udelay		=3D 10, /* ~50 kbps */
- 	.timeout	=3D HZ,
--};=20
-+};
-=20
- /* ----- I2c and parallel port call-back functions and structures ----=
------ */
-=20
-@@ -164,10 +164,10 @@ void i2c_parport_irq(void *data)
- 			"SMBus alert received but no ARA client!\n");
- }
-=20
--static void i2c_parport_attach (struct parport *port)
-+static void i2c_parport_attach(struct parport *port)
- {
- 	struct i2c_par *adapter;
--=09
-+
- 	adapter =3D kzalloc(sizeof(struct i2c_par), GFP_KERNEL);
- 	if (adapter =3D=3D NULL) {
- 		printk(KERN_ERR "i2c-parport: Failed to kzalloc\n");
-@@ -180,7 +180,7 @@ static void i2c_parport_attach (struct p
- 		NULL, NULL, i2c_parport_irq, PARPORT_FLAG_EXCL, adapter);
- 	if (!adapter->pdev) {
- 		printk(KERN_ERR "i2c-parport: Unable to register with parport\n");
--		goto ERROR0;
-+		goto err_free;
- 	}
-=20
- 	/* Fill the rest of the structure */
-@@ -200,7 +200,7 @@ static void i2c_parport_attach (struct p
-=20
- 	if (parport_claim_or_block(adapter->pdev) < 0) {
- 		printk(KERN_ERR "i2c-parport: Could not claim parallel port\n");
--		goto ERROR1;
-+		goto err_unregister;
- 	}
-=20
- 	/* Reset hardware to a sane state (SCL and SDA high) */
-@@ -215,7 +215,7 @@ static void i2c_parport_attach (struct p
-=20
- 	if (i2c_bit_add_bus(&adapter->adapter) < 0) {
- 		printk(KERN_ERR "i2c-parport: Unable to register with I2C\n");
--		goto ERROR1;
-+		goto err_unregister;
- 	}
-=20
- 	/* Setup SMBus alert if supported */
-@@ -234,16 +234,16 @@ static void i2c_parport_attach (struct p
- 	mutex_lock(&adapter_list_lock);
- 	list_add_tail(&adapter->node, &adapter_list);
- 	mutex_unlock(&adapter_list_lock);
--        return;
-+	return;
-=20
--ERROR1:
-+ err_unregister:
- 	parport_release(adapter->pdev);
- 	parport_unregister_device(adapter->pdev);
--ERROR0:
-+ err_free:
- 	kfree(adapter);
- }
-=20
--static void i2c_parport_detach (struct parport *port)
-+static void i2c_parport_detach(struct parport *port)
- {
- 	struct i2c_par *adapter, *_n;
-=20
-@@ -260,7 +260,7 @@ static void i2c_parport_detach (struct p
- 			/* Un-init if needed (power off...) */
- 			if (adapter_parm[type].init.val)
- 				line_set(port, 0, &adapter_parm[type].init);
--			=09
-+
- 			parport_release(adapter->pdev);
- 			parport_unregister_device(adapter->pdev);
- 			list_del(&adapter->node);
---- linux-2.6.39-rc5.orig/drivers/i2c/busses/i2c-parport.h	2011-05-03 0=
-8:45:34.000000000 +0200
-+++ linux-2.6.39-rc5/drivers/i2c/busses/i2c-parport.h	2011-05-03 21:22:=
-42.000000000 +0200
-@@ -2,7 +2,7 @@
-  * i2c-parport.h I2C bus over parallel port                           =
-      *
-  * -------------------------------------------------------------------=
------ *
-    Copyright (C) 2003-2010 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
--  =20
-+
-    This program is free software; you can redistribute it and/or modif=
-y
-    it under the terms of the GNU General Public License as published b=
-y
-    the Free Software Foundation; either version 2 of the License, or
-@@ -18,13 +18,9 @@
-    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  * -------------------------------------------------------------------=
------ */
-=20
--#ifdef DATA
--#undef DATA
--#endif
--
--#define DATA	0
--#define STAT	1
--#define CTRL	2
-+#define PORT_DATA	0
-+#define PORT_STAT	1
-+#define PORT_CTRL	2
-=20
- struct lineop {
- 	u8 val;
-@@ -41,61 +37,61 @@ struct adapter_parm {
- 	unsigned int smbus_alert:1;
- };
-=20
--static struct adapter_parm adapter_parm[] =3D {
-+static const struct adapter_parm adapter_parm[] =3D {
- 	/* type 0: Philips adapter */
- 	{
--		.setsda	=3D { 0x80, DATA, 1 },
--		.setscl	=3D { 0x08, CTRL, 0 },
--		.getsda	=3D { 0x80, STAT, 0 },
--		.getscl	=3D { 0x08, STAT, 0 },
-+		.setsda	=3D { 0x80, PORT_DATA, 1 },
-+		.setscl	=3D { 0x08, PORT_CTRL, 0 },
-+		.getsda	=3D { 0x80, PORT_STAT, 0 },
-+		.getscl	=3D { 0x08, PORT_STAT, 0 },
- 	},
- 	/* type 1: home brew teletext adapter */
- 	{
--		.setsda	=3D { 0x02, DATA, 0 },
--		.setscl	=3D { 0x01, DATA, 0 },
--		.getsda	=3D { 0x80, STAT, 1 },
-+		.setsda	=3D { 0x02, PORT_DATA, 0 },
-+		.setscl	=3D { 0x01, PORT_DATA, 0 },
-+		.getsda	=3D { 0x80, PORT_STAT, 1 },
- 	},
- 	/* type 2: Velleman K8000 adapter */
- 	{
--		.setsda	=3D { 0x02, CTRL, 1 },
--		.setscl	=3D { 0x08, CTRL, 1 },
--		.getsda	=3D { 0x10, STAT, 0 },
-+		.setsda	=3D { 0x02, PORT_CTRL, 1 },
-+		.setscl	=3D { 0x08, PORT_CTRL, 1 },
-+		.getsda	=3D { 0x10, PORT_STAT, 0 },
- 	},
- 	/* type 3: ELV adapter */
- 	{
--		.setsda	=3D { 0x02, DATA, 1 },
--		.setscl	=3D { 0x01, DATA, 1 },
--		.getsda	=3D { 0x40, STAT, 1 },
--		.getscl	=3D { 0x08, STAT, 1 },
-+		.setsda	=3D { 0x02, PORT_DATA, 1 },
-+		.setscl	=3D { 0x01, PORT_DATA, 1 },
-+		.getsda	=3D { 0x40, PORT_STAT, 1 },
-+		.getscl	=3D { 0x08, PORT_STAT, 1 },
- 	},
- 	/* type 4: ADM1032 evaluation board */
- 	{
--		.setsda	=3D { 0x02, DATA, 1 },
--		.setscl	=3D { 0x01, DATA, 1 },
--		.getsda	=3D { 0x10, STAT, 1 },
--		.init	=3D { 0xf0, DATA, 0 },
-+		.setsda	=3D { 0x02, PORT_DATA, 1 },
-+		.setscl	=3D { 0x01, PORT_DATA, 1 },
-+		.getsda	=3D { 0x10, PORT_STAT, 1 },
-+		.init	=3D { 0xf0, PORT_DATA, 0 },
- 		.smbus_alert =3D 1,
- 	},
- 	/* type 5: ADM1025, ADM1030 and ADM1031 evaluation boards */
- 	{
--		.setsda	=3D { 0x02, DATA, 1 },
--		.setscl	=3D { 0x01, DATA, 1 },
--		.getsda	=3D { 0x10, STAT, 1 },
-+		.setsda	=3D { 0x02, PORT_DATA, 1 },
-+		.setscl	=3D { 0x01, PORT_DATA, 1 },
-+		.getsda	=3D { 0x10, PORT_STAT, 1 },
- 	},
- 	/* type 6: Barco LPT->DVI (K5800236) adapter */
- 	{
--		.setsda	=3D { 0x02, DATA, 1 },
--		.setscl	=3D { 0x01, DATA, 1 },
--		.getsda	=3D { 0x20, STAT, 0 },
--		.getscl	=3D { 0x40, STAT, 0 },
--		.init	=3D { 0xfc, DATA, 0 },
-+		.setsda	=3D { 0x02, PORT_DATA, 1 },
-+		.setscl	=3D { 0x01, PORT_DATA, 1 },
-+		.getsda	=3D { 0x20, PORT_STAT, 0 },
-+		.getscl	=3D { 0x40, PORT_STAT, 0 },
-+		.init	=3D { 0xfc, PORT_DATA, 0 },
- 	},
- 	/* type 7: One For All JP1 parallel port adapter */
- 	{
--		.setsda	=3D { 0x01, DATA, 0 },
--		.setscl	=3D { 0x02, DATA, 0 },
--		.getsda	=3D { 0x80, STAT, 1 },
--		.init	=3D { 0x04, DATA, 1 },
-+		.setsda	=3D { 0x01, PORT_DATA, 0 },
-+		.setscl	=3D { 0x02, PORT_DATA, 0 },
-+		.getsda	=3D { 0x80, PORT_STAT, 1 },
-+		.init	=3D { 0x04, PORT_DATA, 1 },
- 	},
- };
-=20
---- linux-2.6.39-rc5.orig/drivers/i2c/busses/i2c-parport-light.c	2011-0=
-5-03 08:45:34.000000000 +0200
-+++ linux-2.6.39-rc5/drivers/i2c/busses/i2c-parport-light.c	2011-05-03 =
-21:22:42.000000000 +0200
-@@ -2,13 +2,13 @@
-  * i2c-parport-light.c I2C bus over parallel port                     =
-      *
-  * -------------------------------------------------------------------=
------ *
-    Copyright (C) 2003-2010 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
--  =20
-+
-    Based on older i2c-velleman.c driver
-    Copyright (C) 1995-2000 Simon G. Vogl
-    With some changes from:
-    Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>
-    Ky=F6sti M=E4lkki <kmalkki-kf+aQKke1yb1KXRcyAk9cg@public.gmane.org>
--  =20
-+
-    This program is free software; you can redistribute it and/or modif=
-y
-    it under the terms of the GNU General Public License as published b=
-y
-    the Free Software Foundation; either version 2 of the License, or
-@@ -114,7 +114,7 @@ static struct i2c_algo_bit_data parport_
- 	.getscl		=3D parport_getscl,
- 	.udelay		=3D 50,
- 	.timeout	=3D HZ,
--};=20
-+};
-=20
- /* ----- Driver registration -----------------------------------------=
------ */
-=20
-@@ -132,7 +132,7 @@ static struct i2c_smbus_alert_setup aler
- static struct i2c_client *ara;
- static struct lineop parport_ctrl_irq =3D {
- 	.val		=3D (1 << 4),
--	.port		=3D CTRL,
-+	.port		=3D PORT_CTRL,
- };
-=20
- static int __devinit i2c_parport_probe(struct platform_device *pdev)
-@@ -245,7 +245,7 @@ static int __init i2c_parport_init(void)
- 	if (irq !=3D 0)
- 		pr_info(DRVNAME ": using irq %d\n", irq);
-=20
--        if (!adapter_parm[type].getscl.val)
-+	if (!adapter_parm[type].getscl.val)
- 		parport_algo_data.getscl =3D NULL;
-=20
- 	/* Sets global pdev as a side effect */
+minor point, this will probably not get shown by the bus layer.
+Not sure what's best here, some people don't like -ENOENT here.
 
-
---=20
-Jean Delvare
+> +	bit_data = pdev->dev.platform_data;
+> +
+> +	ret = -ENOMEM;
+> +	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+> +	if (adap == NULL)
+> +		goto err_alloc_adap;
+> +
+> +	adap->owner = THIS_MODULE;
+> +	adap->algo_data = bit_data;
+> +	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> +	adap->dev.parent = &pdev->dev;
+> +
+> +	snprintf(adap->name, sizeof(adap->name), "i2c-bit-platform%d",
+> +			 pdev->id);
+> +	adap->name[sizeof(adap->name) - 1] = '\0';
+> +
+> +	/*
+> +	 * If "dev->id" is negative we consider it as zero.
+> +	 * The reason to do so is to avoid sysfs names that only make
+> +	 * sense when there are multiple adapters.
+> +	 */
+> +	adap->nr = (pdev->id != -1) ? pdev->id : 0;
+> +	ret = i2c_bit_add_numbered_bus(adap);
+> +	if (ret)
+> +		goto err_add_bus;
+> +
+> +	platform_set_drvdata(pdev, adap);
+> +
+> +	return 0;
+> +
+> +err_add_bus:
+> +err_alloc_adap:
+> +
+> +	kfree(adap);
+> +
+> +	return ret;
+> +}
+> +
+> +static int __devexit i2c_bit_platform_remove(struct platform_device *pdev)
+> +{
+> +	struct i2c_adapter *adap;
+> +
+> +	adap = platform_get_drvdata(pdev);
+> +
+> +	i2c_del_adapter(adap);
+> +	kfree(adap);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver i2c_bit_platform_driver = {
+> +	.driver		= {
+> +		.name	= "i2c-bit-platform",
+> +		.owner	= THIS_MODULE,
+> +	},
+> +	.probe		= i2c_bit_platform_probe,
+> +	.remove		= __devexit_p(i2c_bit_platform_remove),
+> +};
+> +
+> +static int __init i2c_bit_platform_init(void)
+> +{
+> +	int ret;
+> +
+> +	ret = platform_driver_register(&i2c_bit_platform_driver);
+> +	if (ret)
+> +		printk(KERN_ERR "i2c-bit-platform: probe failed: %d\n", ret);
+> +
+> +	return ret;
+> +}
+> +subsys_initcall(i2c_bit_platform_init);
+> +
+> +static void __exit i2c_bit_platform_exit(void)
+> +{
+> +	platform_driver_unregister(&i2c_bit_platform_driver);
+> +}
+> +module_exit(i2c_bit_platform_exit);
+> +
+> +MODULE_AUTHOR("Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>");
+> +MODULE_DESCRIPTION("Thin platform adapter for i2c-bit-algo");
+> +MODULE_LICENSE("GPL");
+> -- 
+> 1.7.0.4
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
