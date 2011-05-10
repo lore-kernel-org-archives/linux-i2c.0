@@ -1,162 +1,89 @@
-From: "Woodhouse, David" <david.woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH] i2c-i801: Don't probe for slaves on IDF channels
-Date: Tue, 10 May 2011 15:50:12 +0100
-Message-ID: <1305039012.30435.85.camel@i7.infradead.org>
+Date: Tue, 10 May 2011 17:31:28 +0200
+Message-ID: <20110510173128.1499ed2c@endymion.delvare>
 References: <20110510160835.37bea352@endymion.delvare>
+	<1305039012.30435.85.camel@i7.infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=sha1;
-	protocol="application/x-pkcs7-signature"; boundary="=-xUO4dGDjLnKXyQnZJ8kP"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110510160835.37bea352-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <1305039012.30435.85.camel-W2I5cNIroUsVm/YvaOjsyQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: "Woodhouse, David" <david.woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---=-xUO4dGDjLnKXyQnZJ8kP
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Hi David,
 
-On Tue, 2011-05-10 at 15:08 +0100, Jean Delvare wrote:
-> I don't know if Fujitsu is ever going to produce Patsburg-based
-> machines, but if they do, I'd rather not probe the secondary (IDF)
-> SMBus channels. At least not until we have a good reason for doing so.
+On Tue, 10 May 2011 15:50:12 +0100, Woodhouse, David wrote:
+> On Tue, 2011-05-10 at 15:08 +0100, Jean Delvare wrote:
+> > I don't know if Fujitsu is ever going to produce Patsburg-based
+> > machines, but if they do, I'd rather not probe the secondary (IDF)
+> > SMBus channels. At least not until we have a good reason for doing so.
+> 
+> Seems reasonable in principle.
 
-Seems reasonable in principle.
+OK, I'll push this change upstream then, thanks.
 
-> +#if defined CONFIG_INPUT_APANEL || defined CONFIG_INPUT_APANEL_MODULE
+Any opinion on the detection class flags for the IDF channels? Do you
+have any idea what these IDF channels are supposed to be dedicated to?
 
-> +#if defined CONFIG_SENSORS_FSCHMD || defined CONFIG_SENSORS_FSCHMD_MODUL=
-E
+> > +#if defined CONFIG_INPUT_APANEL || defined CONFIG_INPUT_APANEL_MODULE
+> 
+> > +#if defined CONFIG_SENSORS_FSCHMD || defined CONFIG_SENSORS_FSCHMD_MODULE
+> 
+> This kind of ifdef is horrid though, and should be avoided at all costs.
+> A setting of CONFIG_xxx_MODULE should not affect the *static* kernel
+> image. You should be able to enable an additional module, build it and
+> use it without having to rebuild/reboot the kernel.
 
-This kind of ifdef is horrid though, and should be avoided at all costs.
-A setting of CONFIG_xxx_MODULE should not affect the *static* kernel
-image. You should be able to enable an additional module, build it and
-use it without having to rebuild/reboot the kernel.
+In general, the i2c-i801 driver will be built as a module, so that
+won't affect the kernel image. While I understand your point, there was
+a reason for the horrid ifdefs. The idea was that we don't want to bloat
+the kernel (or the i2c-i801 module) with hardware system specific code
+if the builder knows upfront that the kernel will never run on the
+relevant hardware system. So, if the builder doesn't select the apanel
+and fschmd drivers, we build the i2c-i801 driver without the specific
+code for systems with these devices. The fact is that i2c-i801 is a very
+popular driver when apanel and fschmd are only used on a few systems.
 
-I know there are *some* cases where we violate that rule, but that
-doesn't make it any nicer.
+Of course this would go wrong if a user was to build the apanel or
+fschmd driver out of tree, but we couldn't find any reason why anybody
+would be doing so.
 
---=20
-David Woodhouse                            Open Source Technology Centre
-David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org                              Intel Corporation
+With x86 becoming an embedded architecture, it seemed relevant to let
+people build as small an x86 kernel as possible, thus the decision to
+go for the horrid ifdefs.
 
---=-xUO4dGDjLnKXyQnZJ8kP
-Content-Type: application/x-pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
+> I know there are *some* cases where we violate that rule, but that
+> doesn't make it any nicer.
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIVTDCCAz0w
-ggKmoAMCAQICAwWw/zANBgkqhkiG9w0BAQUFADBOMQswCQYDVQQGEwJVUzEQMA4GA1UEChMHRXF1
-aWZheDEtMCsGA1UECxMkRXF1aWZheCBTZWN1cmUgQ2VydGlmaWNhdGUgQXV0aG9yaXR5MB4XDTA2
-MDIxNjE4MDEzMFoXDTE2MDIxOTE4MDEzMFowUjELMAkGA1UEBhMCVVMxGjAYBgNVBAoTEUludGVs
-IENvcnBvcmF0aW9uMScwJQYDVQQDEx5JbnRlbCBFeHRlcm5hbCBCYXNpYyBQb2xpY3kgQ0EwggEi
-MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDBpd/XOb9QVqEZ8mQ1042TdOIq3ATDIsV2xDyt
-30yLyMR5Wjtus0bn3B+he89BiNO/LP6+rFzEwlD55PlX+HLGIKeNNG97dqyc30FElEUjZzTZFq2N
-4e3kVJ/XAEEgANzV8v9qp7qWwxugPgfc3z9BkYot+CifozexHLb/hEZj+yISCU61kRZvuSQ0E11y
-YL4dRgcglJeaHo3oX57rvIckaLsYV5/1Aj+R8DM1Ppk965XQAKsHfnyT7C4S50T4lVn4lz36wOdN
-Zn/zegG1zp41lnoTFfT4KuKVJH5x7YD1p6KbgJCKLovnujGuohquBNfdXKpZkvz6pGv+iC1HawJd
-AgMBAAGjgaAwgZ0wDgYDVR0PAQH/BAQDAgEGMB0GA1UdDgQWBBQaxgxKxEdvqNutK/D0Vgaj7TdU
-DDA6BgNVHR8EMzAxMC+gLaArhilodHRwOi8vY3JsLmdlb3RydXN0LmNvbS9jcmxzL3NlY3VyZWNh
-LmNybDAfBgNVHSMEGDAWgBRI5mj5K9KylddH2CMgEE8zmJCf1DAPBgNVHRMBAf8EBTADAQH/MA0G
-CSqGSIb3DQEBBQUAA4GBABMQOK2kVKVIlUWwLTdywJ+e2O+PC/uQltK2F3lRyrPfBn69tOkIP4Sg
-DJOfsxyobIrPLe75kBLw+Dom13OBDp/EMZJZ1CglQfVV8co9mT3aZMjSGGQiMgkJLR3jMfr900fX
-ZKj5XeqCJ+JP0mEhJGEdVCY+FFlksJjV86fDrq1QMIIFijCCBHKgAwIBAgIKYR6AtwAAAAAABzAN
-BgkqhkiG9w0BAQUFADBSMQswCQYDVQQGEwJVUzEaMBgGA1UEChMRSW50ZWwgQ29ycG9yYXRpb24x
-JzAlBgNVBAMTHkludGVsIEV4dGVybmFsIEJhc2ljIFBvbGljeSBDQTAeFw0wOTA1MTUxOTI1MTNa
-Fw0xNTA1MTUxOTM1MTNaMFYxCzAJBgNVBAYTAlVTMRowGAYDVQQKExFJbnRlbCBDb3Jwb3JhdGlv
-bjErMCkGA1UEAxMiSW50ZWwgRXh0ZXJuYWwgQmFzaWMgSXNzdWluZyBDQSAzQTCCASIwDQYJKoZI
-hvcNAQEBBQADggEPADCCAQoCggEBAMGPgGLnOO5IOzlHRfr1XfCVb97V4BR2QVpPZ7CrcIQ+FGa2
-KHD/6dPjwxOIrtFTdfW4BYikdFmxUZVBWRWZ5Vye2cCdGzFWqIEOE1e17nNx1jM8Z6GZEqbDUS+v
-BuPlBFHKQoVm5BaNIHpyn2XZxqwjV9j5/crIfPrCGstk+2ztUhVS8OHEgzO784PgD9pOgBnnAbZH
-mEM1FYYmQ6ibS+gVCHzobDYG+YReRiHpFKWBxpUuP+X0WYFw/Ja1JW7N8pELAFDw0UFBWFgiv1QI
-usdLvSy8mcsLJ5wy050OVcxShqoUxhw/wvyuuoQxvmEPjhRa1C2oSCmGN0003GMhQWMCAwEAAaOC
-AlwwggJYMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFKoWZq+3PVZTYK4Nwu3z7gfLUWB+MAsG
-A1UdDwQEAwIBhjASBgkrBgEEAYI3FQEEBQIDAQABMCMGCSsGAQQBgjcVAgQWBBTCKwhTx+hdMsKC
-gOmWwLgjQsAV+TAZBgkrBgEEAYI3FAIEDB4KAFMAdQBiAEMAQTAfBgNVHSMEGDAWgBQaxgxKxEdv
-qNutK/D0Vgaj7TdUDDCBvQYDVR0fBIG1MIGyMIGvoIGsoIGphk5odHRwOi8vd3d3LmludGVsLmNv
-bS9yZXBvc2l0b3J5L0NSTC9JbnRlbCUyMEV4dGVybmFsJTIwQmFzaWMlMjBQb2xpY3klMjBDQS5j
-cmyGV2h0dHA6Ly9jZXJ0aWZpY2F0ZXMuaW50ZWwuY29tL3JlcG9zaXRvcnkvQ1JML0ludGVsJTIw
-RXh0ZXJuYWwlMjBCYXNpYyUyMFBvbGljeSUyMENBLmNybDCB4wYIKwYBBQUHAQEEgdYwgdMwYwYI
-KwYBBQUHMAKGV2h0dHA6Ly93d3cuaW50ZWwuY29tL3JlcG9zaXRvcnkvY2VydGlmaWNhdGVzL0lu
-dGVsJTIwRXh0ZXJuYWwlMjBCYXNpYyUyMFBvbGljeSUyMENBLmNydDBsBggrBgEFBQcwAoZgaHR0
-cDovL2NlcnRpZmljYXRlcy5pbnRlbC5jb20vcmVwb3NpdG9yeS9jZXJ0aWZpY2F0ZXMvSW50ZWwl
-MjBFeHRlcm5hbCUyMEJhc2ljJTIwUG9saWN5JTIwQ0EuY3J0MA0GCSqGSIb3DQEBBQUAA4IBAQCU
-Y/1d0MS6VPTlIcOho1XWh193PD5kJDJSPdphLHQdM1oKA+whMdIBoY1VzTDDK+C+Ey4Jcyna7fpC
-8uVmn/Rz/i9MZtyc7qezPtZTn9UyORvJmddH+Ox/RycGwe3ags8jUdspECorYOkJyZksnDIlTVUv
-bR7wyY+gGJYqxWXqrcVFEiMsWu8/OIlf7F2gAYMBw1kZ55dn4lWBIM0WqvReWpPvhYeN7Y+3MKEd
-SMkQ7TZiNbfdZ5D/8KfWNMTJ4VHltOgCL1lA5tx/F4R1920skpL5eu3Sj650RUe3rOXsaV5NyJzB
-wB31+1zsmleVdFD0k/Fw9HxXbAQE35ucN/7CMIIGFzCCBP+gAwIBAgIKEIhPUAABAABfaTANBgkq
-hkiG9w0BAQUFADBWMQswCQYDVQQGEwJVUzEaMBgGA1UEChMRSW50ZWwgQ29ycG9yYXRpb24xKzAp
-BgNVBAMTIkludGVsIEV4dGVybmFsIEJhc2ljIElzc3VpbmcgQ0EgM0EwHhcNMTEwNDEyMTIzMzQx
-WhcNMTQwMzI3MTIzMzQxWjBFMRkwFwYDVQQDExBXb29kaG91c2UsIERhdmlkMSgwJgYJKoZIhvcN
-AQkBFhlkYXZpZC53b29kaG91c2VAaW50ZWwuY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB
-CgKCAQEAvxW1JMLaZUeM6Cg2OVV1nfsZOt9x/CjVJ7SBlapefSjUoNT48n58zLK+Q00YxPkIxnwl
-m57dAxSUf/Dqg+C6DOdLknVQILrGeWNSZdC8GQ8HlHz+D5ldgTDY9L1vDM65p1wbXW4R5QfMbooZ
-IQKlyUivGkggwBUpTeeXDOfz5f4m2UW5aCnyG8yhiBUHISAQyXLwQg+iVhBpTqsVvvojybQY8lGF
-Z7U+kgbgBY0HCqOuEmT7Iz/tm4W3dpfh8mFluZUn1fMBvCaC+cdKVV/1lpeUdtMNREH+jKUU49lt
-BblH1qXmEViOvMT4itbfkUSWeWgeI9umMOK4eL31LLepCQIDAQABo4IC9jCCAvIwCwYDVR0PBAQD
-AgeAMDwGCSsGAQQBgjcVBwQvMC0GJSsGAQQBgjcVCIbDjHWEmeVRg/2BKIWOn1OCkcAJZ4HevTmV
-8EMCAWQCAQgwHQYDVR0OBBYEFMcuq9ocKJ7EbWcVlAWTYVXwOsrHMB8GA1UdIwQYMBaAFKoWZq+3
-PVZTYK4Nwu3z7gfLUWB+MIHPBgNVHR8EgccwgcQwgcGggb6ggbuGV2h0dHA6Ly93d3cuaW50ZWwu
-Y29tL3JlcG9zaXRvcnkvQ1JML0ludGVsJTIwRXh0ZXJuYWwlMjBCYXNpYyUyMElzc3VpbmclMjBD
-QSUyMDNBKDEpLmNybIZgaHR0cDovL2NlcnRpZmljYXRlcy5pbnRlbC5jb20vcmVwb3NpdG9yeS9D
-UkwvSW50ZWwlMjBFeHRlcm5hbCUyMEJhc2ljJTIwSXNzdWluZyUyMENBJTIwM0EoMSkuY3JsMIH1
-BggrBgEFBQcBAQSB6DCB5TBsBggrBgEFBQcwAoZgaHR0cDovL3d3dy5pbnRlbC5jb20vcmVwb3Np
-dG9yeS9jZXJ0aWZpY2F0ZXMvSW50ZWwlMjBFeHRlcm5hbCUyMEJhc2ljJTIwSXNzdWluZyUyMENB
-JTIwM0EoMSkuY3J0MHUGCCsGAQUFBzAChmlodHRwOi8vY2VydGlmaWNhdGVzLmludGVsLmNvbS9y
-ZXBvc2l0b3J5L2NlcnRpZmljYXRlcy9JbnRlbCUyMEV4dGVybmFsJTIwQmFzaWMlMjBJc3N1aW5n
-JTIwQ0ElMjAzQSgxKS5jcnQwHwYDVR0lBBgwFgYIKwYBBQUHAwQGCisGAQQBgjcKAwwwKQYJKwYB
-BAGCNxUKBBwwGjAKBggrBgEFBQcDBDAMBgorBgEEAYI3CgMMME8GA1UdEQRIMEagKQYKKwYBBAGC
-NxQCA6AbDBlkYXZpZC53b29kaG91c2VAaW50ZWwuY29tgRlkYXZpZC53b29kaG91c2VAaW50ZWwu
-Y29tMA0GCSqGSIb3DQEBBQUAA4IBAQBxLiiAAGnWEDYYtUaje48WjSbMx8O+TsKX2x1sgi/ilnUR
-evhznvvFGx9hRrTtQ4Sz+hU7nWvoxbSLDVx6vDQ7+wyGo6SzE0MYqwB3EzwO/P8MnpgZTlEmgDeP
-GjYX2IFzp5fG7NNvc6byf8pLjXgn+2wqRLUqrh2PZZ5KKIiicVNT+UOlRIbB2T1WuSVHBMQxhQBr
-rzwwYuyoawJCHHo+eKUE51cSSzkT95K+m0Q6XYGC8tQ3i94nBIaLMIg/GM6K2cYKH3vdu/otvGPl
-j9/HEKo+mktp2A2S5sIwCKlw8nYOaYKe1dpmYtXKfVoOIIZ/LaVEB/XEIEC1x/oPbrH/MIIGXjCC
-BUagAwIBAgIKEI638AABAABfajANBgkqhkiG9w0BAQUFADBWMQswCQYDVQQGEwJVUzEaMBgGA1UE
-ChMRSW50ZWwgQ29ycG9yYXRpb24xKzApBgNVBAMTIkludGVsIEV4dGVybmFsIEJhc2ljIElzc3Vp
-bmcgQ0EgM0EwHhcNMTEwNDEyMTI0MDM5WhcNMTQwMzI3MTI0MDM5WjBFMRkwFwYDVQQDExBXb29k
-aG91c2UsIERhdmlkMSgwJgYJKoZIhvcNAQkBFhlkYXZpZC53b29kaG91c2VAaW50ZWwuY29tMIIB
-IjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsm0RhbzQLRYFSlgFDKSsMvzFctyPQbT8P55g
-gj3ZQuklaFo8CLXd3rODycyKauFT/IxEq8udUyanZXLSWdWQuuhrkG9bMnkDy1+KQSaEqgKPHMUT
-1sYMyGFoDr4YDnmGLfpQWrBHUT+hwFuBUAqQRndQZbZK8TaOAX55hjNJEVWzXzaJNFb0ZFiaJ8Tl
-SY+RA7NS0jv7gsCvV2LamrDZJ0Ht0YZLOenhDzVjph4dUY/2XFv2ceGZSUOyrMiVdkC7hpira+4e
-CY5BKboFZluzg+URRnRd/EH08ilHzGxEaKheC99QVCgVl6qI0GguHnTReIU+QBN6D6Aj3kTbUZSw
-ywIDAQABo4IDPTCCAzkwCwYDVR0PBAQDAgQwMD0GCSsGAQQBgjcVBwQwMC4GJisGAQQBgjcVCIbD
-jHWEmeVRg/2BKIWOn1OCkcAJZ4S52UGHhP9OAgFkAgEMMEQGCSqGSIb3DQEJDwQ3MDUwDgYIKoZI
-hvcNAwICAgCAMA4GCCqGSIb3DQMEAgIAgDAHBgUrDgMCBzAKBggqhkiG9w0DBzAdBgNVHQ4EFgQU
-anqVzAq92pn3diJlPhvbx6wENA0wHwYDVR0jBBgwFoAUqhZmr7c9VlNgrg3C7fPuB8tRYH4wgc8G
-A1UdHwSBxzCBxDCBwaCBvqCBu4ZXaHR0cDovL3d3dy5pbnRlbC5jb20vcmVwb3NpdG9yeS9DUkwv
-SW50ZWwlMjBFeHRlcm5hbCUyMEJhc2ljJTIwSXNzdWluZyUyMENBJTIwM0EoMSkuY3JshmBodHRw
-Oi8vY2VydGlmaWNhdGVzLmludGVsLmNvbS9yZXBvc2l0b3J5L0NSTC9JbnRlbCUyMEV4dGVybmFs
-JTIwQmFzaWMlMjBJc3N1aW5nJTIwQ0ElMjAzQSgxKS5jcmwwgfUGCCsGAQUFBwEBBIHoMIHlMGwG
-CCsGAQUFBzAChmBodHRwOi8vd3d3LmludGVsLmNvbS9yZXBvc2l0b3J5L2NlcnRpZmljYXRlcy9J
-bnRlbCUyMEV4dGVybmFsJTIwQmFzaWMlMjBJc3N1aW5nJTIwQ0ElMjAzQSgxKS5jcnQwdQYIKwYB
-BQUHMAKGaWh0dHA6Ly9jZXJ0aWZpY2F0ZXMuaW50ZWwuY29tL3JlcG9zaXRvcnkvY2VydGlmaWNh
-dGVzL0ludGVsJTIwRXh0ZXJuYWwlMjBCYXNpYyUyMElzc3VpbmclMjBDQSUyMDNBKDEpLmNydDAf
-BgNVHSUEGDAWBggrBgEFBQcDBAYKKwYBBAGCNwoDBDApBgkrBgEEAYI3FQoEHDAaMAoGCCsGAQUF
-BwMEMAwGCisGAQQBgjcKAwQwTwYDVR0RBEgwRqApBgorBgEEAYI3FAIDoBsMGWRhdmlkLndvb2Ro
-b3VzZUBpbnRlbC5jb22BGWRhdmlkLndvb2Rob3VzZUBpbnRlbC5jb20wDQYJKoZIhvcNAQEFBQAD
-ggEBAIPoSUpUKiFzHvdhFZZAOQkn8UkNJu7E2TWKvlry/gpFf9Ra257sBA4s15nUGuS59M3bmnCe
-n9C36IDHuQS3PQeY/DQ2lq26ZVZIiQScz/5hREJ1ZgvSlBJqwwdWEiy6BCKRInFpLfE7fMo3PmML
-UcRaFDmYby1BcigEZP14fwa5kGZMOEJGicqeG76jftkAN03RXy0fQaTe2AdvSR/oAYbuY4hn6w8V
-3XBcAxUHN9DIzgawtAnj5X5Lal9nOoq3jgAYGGL0upc5dEMNvygjFwzVVFnow1qaT8os8+UP/hla
-Y33P2418t7KgL8M0AjtGOE1kUKZmGaV3ppkHI4ms9s4xggLYMIIC1AIBATBkMFYxCzAJBgNVBAYT
-AlVTMRowGAYDVQQKExFJbnRlbCBDb3Jwb3JhdGlvbjErMCkGA1UEAxMiSW50ZWwgRXh0ZXJuYWwg
-QmFzaWMgSXNzdWluZyBDQSAzQQIKEIhPUAABAABfaTAJBgUrDgMCGgUAoIIBSTAYBgkqhkiG9w0B
-CQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xMTA1MTAxNDUwMTJaMCMGCSqGSIb3DQEJ
-BDEWBBQ0vd3ZyGQBwqG3hM8H8Mv4hOChyTBzBgkrBgEEAYI3EAQxZjBkMFYxCzAJBgNVBAYTAlVT
-MRowGAYDVQQKExFJbnRlbCBDb3Jwb3JhdGlvbjErMCkGA1UEAxMiSW50ZWwgRXh0ZXJuYWwgQmFz
-aWMgSXNzdWluZyBDQSAzQQIKEI638AABAABfajB1BgsqhkiG9w0BCRACCzFmoGQwVjELMAkGA1UE
-BhMCVVMxGjAYBgNVBAoTEUludGVsIENvcnBvcmF0aW9uMSswKQYDVQQDEyJJbnRlbCBFeHRlcm5h
-bCBCYXNpYyBJc3N1aW5nIENBIDNBAgoQjrfwAAEAAF9qMA0GCSqGSIb3DQEBAQUABIIBALNX2N9H
-XqnAqg+gWg7PmFQsJdBmczOXqPDByeQ2gXmdEq2dX1QA+59qFfAv4vZdtp+kLc6Ouqufv3IQXEwi
-XBD7F/oYlZ+NygoALbIQBTy3UIa0XkTieHazepKhexuDYpi7NogPzF7wV+iy9IqIIcttx0+8RdV4
-MziJH1JaJk6Zm5Ze4A5yo2bnKObKBVBqXlZxNpmMgnMvAjPK3wwszLTf9G9si9uruRBi6oOirgrd
-oFZFBgID0jOCIPy6DTi6mdvthQ7Vhuni7797YbJPZpQIX9YdjmnGAhfLNQYEV2EGNLkGFHw8qiQE
-ivMHaqs+2C9aalGEXF42ewljmyVQZCoAAAAAAAA=
+Note that my patch is merely moving this code around, it's not
+introducing it.
 
+If you really think we should change this, then maybe a good compromise
+would be to use #ifdef CONFIG_X86 instead of the module-specific ones.
+This would let at least non-x86 systems built the i2c-i801 driver
+without the hardware specific code. But OTOH I'm not even sure if
+there's any non-x86 system out there using an Intel 82801 chipset,
+so maybe that would be exactly equivalent to dropping the ifdefs
+altogether. Or IA64 systems maybe...?
 
---=-xUO4dGDjLnKXyQnZJ8kP--
+Yet another possibility would be a dedicated Kconfig option
+(CONFIG_I2C_I801_POPULATE or even CONFIG_I2C_POPULATE and make it
+cross-driver) that would be hidden and enabled by default, and visible
+only when CONFIG_EMBEDDED is set?
+
+In both cases, that would be an all-or-nothing setting, but I guess
+that people who care about the size of i2c-i801 have a proper way to
+declare their I2C devices on the SMBus. Or at least I hope so...
+
+I'm glad we're discussing this now, as I am on my way to add even more
+such hardware-specific code to the i2c-i801 driver. All in all this
+really shows how much x86 lacks proper description for the hardware
+setup at the firmware or platform code level, but fixing this is out of
+scope for me.
+
+-- 
+Jean Delvare
