@@ -1,62 +1,35 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 08/13] i2c/i2c-nomadik: use pm_runtime API
-Date: Wed, 11 May 2011 14:35:07 +0200
-Message-ID: <BANLkTi=bxZn4-ePopBXmNTpfX6dCeMstug@mail.gmail.com>
-References: <1304977077-31661-1-git-send-email-linus.walleij@linaro.org>
-	<20110510221948.GA634@freya.fluff.org>
-	<BANLkTinQn5dQWXM12zUqWp-u1gF0Y-6nEA@mail.gmail.com>
+From: =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: Adding the i2c-bit-platform bus
+Date: Wed, 11 May 2011 10:10:33 -0700
+Message-ID: <BANLkTi=OFhMwRRnYiHZyDBKB1QiG-0T6Tw@mail.gmail.com>
+References: <BANLkTi=JtYdJr+0Dv32r-sCTgE-Eom2CJQ@mail.gmail.com>
+	<20110510223556.GD634@freya.fluff.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BANLkTinQn5dQWXM12zUqWp-u1gF0Y-6nEA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20110510223556.GD634-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2011/5/11 Rabin Vincent <rabin-66gdRtMMWGc@public.gmane.org>:
-> On Wed, May 11, 2011 at 03:49, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
->> On Mon, May 09, 2011 at 11:37:57PM +0200, Linus Walleij wrote:
->>> + =A0 =A0 /*
->>> + =A0 =A0 =A0* During system suspend, runtime suspend transitions a=
-re disabled.
->>> + =A0 =A0 =A0* This check and direct call are here so that even if =
-some driver
->>> + =A0 =A0 =A0* performs i2c transactions in its suspend rountine, w=
-e would properly
->>> + =A0 =A0 =A0* runtime suspend the i2c driver.
->>> + =A0 =A0 =A0*/
->>> + =A0 =A0 if (!pm_runtime_suspended(dev))
->>> + =A0 =A0 =A0 =A0 =A0 =A0 if (dev->bus && dev->bus->pm && dev->bus-=
->pm->runtime_suspend)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->bus->pm->runtime_sus=
-pend(dev);
->>> +
->>
->> surely there must be better way of calling this?
+On Tue, May 10, 2011 at 3:35 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> On Sat, May 07, 2011 at 02:53:05PM +0300, Eran Duchan wrote:
+>> +static int __devinit i2c_bit_platform_probe(struct platform_device =
+*pdev)
+>> +{
+>> + =A0 =A0 struct i2c_algo_bit_data *bit_data;
+>> + =A0 =A0 struct i2c_adapter *adap;
+>> + =A0 =A0 int ret;
+>> +
+>> + =A0 =A0 if (pdev->dev.platform_data =3D=3D NULL)
+>> + =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENXIO;
 >
-> This is not needed and can be removed.
->
->>
->>> + =A0 =A0 return 0;
->>> +}
->>
->>> +static int nmk_i2c_resume(struct device *dev)
->>> +{
->>> + =A0 =A0 if (!pm_runtime_suspended(dev))
->>> + =A0 =A0 =A0 =A0 =A0 =A0 if (dev->bus && dev->bus->pm && dev->bus-=
->pm->runtime_resume)
->>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->bus->pm->runtime_res=
-ume(dev);
->>> +
->>> + =A0 =A0 return 0;
->>
->> ditto.
->
-> This too.
+> minor point, this will probably not get shown by the bus layer.
+> Not sure what's best here, some people don't like -ENOENT here.
 
-Cool, I'll cut it out of this patch and rebase the patch set.
+I think ENXIO is fine though. Many drivers use it to indicate "I don't
+have enough information to initialize this device".
 
-Yours,
-Linus Walleij
+Havard
