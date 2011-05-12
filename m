@@ -1,35 +1,45 @@
-From: =?ISO-8859-1?Q?H=E5vard_Skinnemoen?= <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: Adding the i2c-bit-platform bus
-Date: Wed, 11 May 2011 10:10:33 -0700
-Message-ID: <BANLkTi=OFhMwRRnYiHZyDBKB1QiG-0T6Tw@mail.gmail.com>
-References: <BANLkTi=JtYdJr+0Dv32r-sCTgE-Eom2CJQ@mail.gmail.com>
-	<20110510223556.GD634@freya.fluff.org>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Tegra I2C slave address patches
+Date: Thu, 12 May 2011 11:15:08 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF04986AA399@HQMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110510223556.GD634-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Eran Duchan <pavius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "marc.dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org" <marc.dietrich-wkdnK3oF/XPYtB+G+YtuwQgYPMzSbZxj@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 10, 2011 at 3:35 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Sat, May 07, 2011 at 02:53:05PM +0300, Eran Duchan wrote:
->> +static int __devinit i2c_bit_platform_probe(struct platform_device =
-*pdev)
->> +{
->> + =A0 =A0 struct i2c_algo_bit_data *bit_data;
->> + =A0 =A0 struct i2c_adapter *adap;
->> + =A0 =A0 int ret;
->> +
->> + =A0 =A0 if (pdev->dev.platform_data =3D=3D NULL)
->> + =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENXIO;
->
-> minor point, this will probably not get shown by the bus layer.
-> Not sure what's best here, some people don't like -ENOENT here.
+Wei,
 
-I think ENXIO is fine though. Many drivers use it to indicate "I don't
-have enough information to initialize this device".
+I'm trying to consolidate the two Tegra I2C slave mode patches we posted
+to the mailing lists:
 
-Havard
+Yours: http://www.spinics.net/lists/linux-i2c/msg05437.html
+Mine: http://www.spinics.net/lists/linux-i2c/msg05464.html
+
+I had some questions:
+
+1) Why does your patch enable I2C_SL_CNFG_NACK. According to the Tegra
+documentation, this prevents the slave I2C controller from ACKing any
+transfers. Doesn't this prevent the slave functionality from working at
+all?
+
+2) Your patch sets up the slave_addr registers based on platform data.
+However, I don't see any code in i2c-tegra.c to actually act as a slave
+device. Hence, it seems pointless to configure the slave address.
+
+Are those two things bug workarounds or something?
+
+I know that Marc said he'd like to see the slave address configuration
+code merged, since the AC100 uses it. However, I'm having a hard time
+seeing how it'll make any difference to the driver right now; it seems
+if/when slave mode is actually implemented, the slave_addr setup should
+be part of that patch.
+
+Thanks for any feedback.
+
+-- 
+nvpublic
