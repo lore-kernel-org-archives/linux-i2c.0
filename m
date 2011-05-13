@@ -1,133 +1,96 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 08/14] i2c/i2c-nomadik: use pm_runtime API
-Date: Fri, 13 May 2011 12:30:07 +0200
-Message-ID: <1305282607-20769-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 02/14] i2c/i2c-nomadik: make i2c timeout specific per i2c bus
+Date: Fri, 13 May 2011 12:29:12 +0200
+Message-ID: <1305282552-20568-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-Use the pm_runtime API for pins control.
+Add option to have different i2c timeout delay for different i2c buses
+specified in platform data. Default to the old value unless specified.
 
-Signed-off-by: Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Jonas Aberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-[deleted some surplus runtime PM code]
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   37 +++++++++++++++++++++++++++++++------
- 1 files changed, 31 insertions(+), 6 deletions(-)
+ arch/arm/plat-nomadik/include/plat/i2c.h |    6 ++++--
+ drivers/i2c/busses/i2c-nomadik.c         |   10 ++++------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index c8bf81a..234e4a9 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -23,6 +23,7 @@
- #include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/regulator/consumer.h>
-+#include <linux/pm_runtime.h>
- 
- #include <plat/i2c.h>
- 
-@@ -576,6 +577,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 
- 	if (dev->regulator)
- 		regulator_enable(dev->regulator);
-+	pm_runtime_get_sync(&dev->pdev->dev);
- 
- 	status = init_hw(dev);
- 	if (status)
-@@ -634,6 +636,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- out:
- 	clk_disable(dev->clk);
- out2:
-+	pm_runtime_put_sync(&dev->pdev->dev);
- 	if (dev->regulator)
- 		regulator_disable(dev->regulator);
- 
-@@ -839,19 +842,36 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 
- 
- #ifdef CONFIG_PM
--static int nmk_i2c_suspend(struct platform_device *pdev, pm_message_t mesg)
-+static int nmk_i2c_suspend(struct device *dev)
- {
--	struct nmk_i2c_dev *dev = platform_get_drvdata(pdev);
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct nmk_i2c_dev *nmk_i2c = platform_get_drvdata(pdev);
- 
--	if (dev->busy)
-+	if (nmk_i2c->busy)
- 		return -EBUSY;
--	else
--		return 0;
-+
-+	return 0;
-+}
-+
-+static int nmk_i2c_resume(struct device *dev)
-+{
-+	return 0;
- }
- #else
- #define nmk_i2c_suspend	NULL
-+#define nmk_i2c_resume	NULL
- #endif
- 
-+/*
-+ * We use noirq so that we suspend late and resume before the wakeup interrupt
-+ * to ensure that we do the !pm_runtime_suspended() check in resume before
-+ * there has been a regular pm runtime resume (via pm_runtime_get_sync()).
-+ */
-+static const struct dev_pm_ops nmk_i2c_pm = {
-+	.suspend_noirq	= nmk_i2c_suspend,
-+	.resume_noirq	= nmk_i2c_resume,
-+};
-+
- static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
- {
- 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-@@ -913,6 +933,9 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- 		dev->regulator = NULL;
- 	}
- 
-+	pm_suspend_ignore_children(&pdev->dev, true);
-+	pm_runtime_enable(&pdev->dev);
-+
- 	dev->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(dev->clk)) {
- 		dev_err(&pdev->dev, "could not get i2c clock\n");
-@@ -958,6 +981,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
-  err_no_clk:
- 	if (dev->regulator)
- 		regulator_put(dev->regulator);
-+	pm_runtime_disable(&pdev->dev);
- 	free_irq(dev->irq, dev);
-  err_irq:
- 	iounmap(dev->virtbase);
-@@ -990,6 +1014,7 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
- 	clk_put(dev->clk);
- 	if (dev->regulator)
- 		regulator_put(dev->regulator);
-+	pm_runtime_disable(&pdev->dev);
- 	platform_set_drvdata(pdev, NULL);
- 	kfree(dev);
- 
-@@ -1000,10 +1025,10 @@ static struct platform_driver nmk_i2c_driver = {
- 	.driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
-+		.pm = &nmk_i2c_pm,
- 	},
- 	.probe = nmk_i2c_probe,
- 	.remove = __devexit_p(nmk_i2c_remove),
--	.suspend = nmk_i2c_suspend,
+diff --git a/arch/arm/plat-nomadik/include/plat/i2c.h b/arch/arm/plat-nomadik/include/plat/i2c.h
+index 1621db6..4ed4e27 100644
+--- a/arch/arm/plat-nomadik/include/plat/i2c.h
++++ b/arch/arm/plat-nomadik/include/plat/i2c.h
+@@ -24,13 +24,15 @@ enum i2c_freq_mode {
+  *		to the values of 14, 6, 2 for a 48 MHz i2c clk
+  * @tft:	Tx FIFO Threshold in bytes
+  * @rft:	Rx FIFO Threshold in bytes
++ * @timeout	Slave response timeout(ms)
+  * @sm:		speed mode
+  */
+ struct nmk_i2c_controller {
+ 	unsigned long	clk_freq;
+ 	unsigned short	slsu;
+-	unsigned char 	tft;
+-	unsigned char 	rft;
++	unsigned char	tft;
++	unsigned char	rft;
++	int timeout;
+ 	enum i2c_freq_mode	sm;
  };
  
- static int __init nmk_i2c_init(void)
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 182761e..3bf95b9 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -121,9 +121,6 @@ enum i2c_operation {
+ 	I2C_READ = 0x01
+ };
+ 
+-/* controller response timeout in ms */
+-#define I2C_TIMEOUT_MS	2000
+-
+ /**
+  * struct i2c_nmk_client - client specific data
+  * @slave_adr: 7-bit slave address
+@@ -213,7 +210,7 @@ static int flush_i2c_fifo(struct nmk_i2c_dev *dev)
+ 	writel((I2C_CR_FTX | I2C_CR_FRX), dev->virtbase + I2C_CR);
+ 
+ 	for (i = 0; i < LOOP_ATTEMPTS; i++) {
+-		timeout = jiffies + msecs_to_jiffies(I2C_TIMEOUT_MS);
++		timeout = jiffies + msecs_to_jiffies(dev->adap.timeout);
+ 
+ 		while (!time_after(jiffies, timeout)) {
+ 			if ((readl(dev->virtbase + I2C_CR) &
+@@ -434,7 +431,7 @@ static int read_i2c(struct nmk_i2c_dev *dev)
+ 			dev->virtbase + I2C_IMSCR);
+ 
+ 	timeout = wait_for_completion_interruptible_timeout(
+-		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
++		&dev->xfer_complete, msecs_to_jiffies(dev->adap.timeout));
+ 
+ 	if (timeout < 0) {
+ 		dev_err(&dev->pdev->dev,
+@@ -498,7 +495,7 @@ static int write_i2c(struct nmk_i2c_dev *dev)
+ 			dev->virtbase + I2C_IMSCR);
+ 
+ 	timeout = wait_for_completion_interruptible_timeout(
+-		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
++		&dev->xfer_complete, msecs_to_jiffies(dev->adap.timeout));
+ 
+ 	if (timeout < 0) {
+ 		dev_err(&dev->pdev->dev,
+@@ -917,6 +914,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ 	adap->owner	= THIS_MODULE;
+ 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->algo	= &nmk_i2c_algo;
++	adap->timeout	= pdata->timeout ? pdata->timeout : 20000;
+ 	snprintf(adap->name, sizeof(adap->name),
+ 		 "Nomadik I2C%d at %lx", pdev->id, (unsigned long)res->start);
+ 
 -- 
 1.7.5.1
