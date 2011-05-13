@@ -1,7 +1,7 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 09/14] i2c/i2c-nomadik: add code to retry on timeout failure
-Date: Fri, 13 May 2011 12:30:23 +0200
-Message-ID: <1305282623-20802-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 04/14] i2c/i2c-nomadik: corrrect returned error numbers
+Date: Fri, 13 May 2011 12:29:28 +0200
+Message-ID: <1305282568-20630-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -10,158 +10,63 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-It is seen that i2c-nomadik controller randomly stops generating the
-interrupts leading to a i2c timeout. As a workaround to this problem,
-add retries to the on going transfer on failure.
+The code was returning bad error numbers or just -1 in some cases.
 
 Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Jonas ABERG <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   97 +++++++++++++++++++-------------------
- 1 files changed, 49 insertions(+), 48 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |   10 ++++++----
+ 1 files changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 234e4a9..b49ff25 100644
+index 3bf95b9..a02141a 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -255,8 +255,6 @@ static int init_hw(struct nmk_i2c_dev *dev)
- {
- 	int stat;
+@@ -615,6 +615,8 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 				cause >= ARRAY_SIZE(abort_causes)
+ 				? "unknown reason" : abort_causes[cause]);
  
--	clk_enable(dev->clk);
--
- 	stat = flush_i2c_fifo(dev);
- 	if (stat)
- 		goto exit;
-@@ -271,8 +269,6 @@ static int init_hw(struct nmk_i2c_dev *dev)
- 	dev->cli.operation = I2C_NO_OPERATION;
- 
- exit:
--	/* TODO: Why disable clocks after init hw? */
--	clk_disable(dev->clk);
- 	/*
- 	 * TODO: What is this delay for?
- 	 * Must be pretty pointless since the hw block
-@@ -572,6 +568,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	u32 cause;
- 	struct nmk_i2c_dev *dev = i2c_get_adapdata(i2c_adap);
- 	u32 i2c_sr;
-+	int j;
- 
- 	dev->busy = true;
- 
-@@ -579,63 +576,67 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 		regulator_enable(dev->regulator);
- 	pm_runtime_get_sync(&dev->pdev->dev);
- 
-+	clk_enable(dev->clk);
++			status = status ? status : dev->result;
 +
- 	status = init_hw(dev);
- 	if (status)
--		goto out2;
-+		goto out;
- 
--	clk_enable(dev->clk);
--
--	/* setup the i2c controller */
--	setup_i2c_controller(dev);
-+	for (j = 0; j < 3; j++) {
-+		/* setup the i2c controller */
-+		setup_i2c_controller(dev);
- 
--	for (i = 0; i < num_msgs; i++) {
--		if (unlikely(msgs[i].flags & I2C_M_TEN)) {
--			dev_err(&dev->pdev->dev, "10 bit addressing"
--					"not supported\n");
-+		for (i = 0; i < num_msgs; i++) {
-+			if (unlikely(msgs[i].flags & I2C_M_TEN)) {
-+				dev_err(&dev->pdev->dev, "10 bit addressing"
-+						"not supported\n");
- 
--			status = -EINVAL;
--			goto out;
--		}
--		dev->cli.slave_adr	= msgs[i].addr;
--		dev->cli.buffer		= msgs[i].buf;
--		dev->cli.count		= msgs[i].len;
--		dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
--		dev->result = 0;
--
--		if (msgs[i].flags & I2C_M_RD) {
--			/* it is a read operation */
--			dev->cli.operation = I2C_READ;
--			status = read_i2c(dev);
--		} else {
--			/* write operation */
--			dev->cli.operation = I2C_WRITE;
--			status = write_i2c(dev);
--		}
--		if (status || (dev->result)) {
--			i2c_sr = readl(dev->virtbase + I2C_SR);
--			/*
--			 * Check if the controller I2C operation status is set
--			 * to ABORT(11b).
--			 */
--			if (((i2c_sr >> 2) & 0x3) == 0x3) {
--				/* get the abort cause */
--				cause =	(i2c_sr >> 4)
--					& 0x7;
--				dev_err(&dev->pdev->dev, "%s\n", cause >=
--						ARRAY_SIZE(abort_causes) ?
-+				status = -EINVAL;
-+				goto out;
-+			}
-+			dev->cli.slave_adr	= msgs[i].addr;
-+			dev->cli.buffer		= msgs[i].buf;
-+			dev->cli.count		= msgs[i].len;
-+			dev->stop = (i < (num_msgs - 1)) ? 0 : 1;
-+			dev->result = 0;
-+
-+			if (msgs[i].flags & I2C_M_RD) {
-+				/* it is a read operation */
-+				dev->cli.operation = I2C_READ;
-+				status = read_i2c(dev);
-+			} else {
-+				/* write operation */
-+				dev->cli.operation = I2C_WRITE;
-+				status = write_i2c(dev);
-+			}
-+			if (status || (dev->result)) {
-+				i2c_sr = readl(dev->virtbase + I2C_SR);
-+				/*
-+				 * Check if the controller I2C operation status
-+				 * is set to ABORT(11b).
-+				 */
-+				if (((i2c_sr >> 2) & 0x3) == 0x3) {
-+					/* get the abort cause */
-+					cause =	(i2c_sr >> 4)
-+						& 0x7;
-+					dev_err(&dev->pdev->dev, "%s\n", cause
-+						>= ARRAY_SIZE(abort_causes) ?
- 						"unknown reason" :
- 						abort_causes[cause]);
--			}
-+				}
- 
--			status = status ? status : dev->result;
--			goto out;
-+				status = status ? status : dev->result;
-+
-+				break;
-+			}
-+			udelay(I2C_DELAY);
+ 			goto out;
  		}
--		udelay(I2C_DELAY);
-+		if (status == 0)
-+			break;
- 	}
+ 		udelay(I2C_DELAY);
+@@ -759,7 +761,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 					| I2C_IT_RXFF | I2C_IT_RXFE));
  
- out:
- 	clk_disable(dev->clk);
--out2:
- 	pm_runtime_put_sync(&dev->pdev->dev);
- 	if (dev->regulator)
- 		regulator_disable(dev->regulator);
+ 		if (dev->cli.count) {
+-			dev->result = -1;
++			dev->result = -EIO;
+ 			dev_err(&dev->pdev->dev, "%lu bytes still remain to be"
+ 					"xfered\n", dev->cli.count);
+ 			(void) init_hw(dev);
+@@ -770,7 +772,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 
+ 	/* Master Arbitration lost interrupt */
+ 	case I2C_IT_MAL:
+-		dev->result = -1;
++		dev->result = -EIO;
+ 		(void) init_hw(dev);
+ 
+ 		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MAL);
+@@ -784,7 +786,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 	 * during the transaction.
+ 	 */
+ 	case I2C_IT_BERR:
+-		dev->result = -1;
++		dev->result = -EIO;
+ 		/* get the status */
+ 		if (((readl(dev->virtbase + I2C_SR) >> 2) & 0x3) == I2C_ABORT)
+ 			(void) init_hw(dev);
+@@ -800,7 +802,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 	 * the Tx FIFO is full.
+ 	 */
+ 	case I2C_IT_TXFOVR:
+-		dev->result = -1;
++		dev->result = -EIO;
+ 		(void) init_hw(dev);
+ 
+ 		dev_err(&dev->pdev->dev, "Tx Fifo Over run\n");
 -- 
 1.7.5.1
