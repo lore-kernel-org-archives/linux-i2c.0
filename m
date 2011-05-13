@@ -1,62 +1,37 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 12/14] i2c/i2c-nomadik: reset the hw after status check
-Date: Fri, 13 May 2011 12:30:53 +0200
-Message-ID: <1305282653-20901-1-git-send-email-linus.walleij@linaro.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Mohan Pallaka <mpallaka@codeaurora.org>
+Subject: [PATCH 0/2] Support for isa1200 haptic chip
+Date: Fri, 13 May 2011 18:13:20 +0530
+Message-ID: <1305290602-29859-1-git-send-email-mpallaka@codeaurora.org>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: dmitry.torokhov@gmail.com
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.intradead.org, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, rmk@dyn-67.arm.linux.org.uk, Mohan Pallaka <mpallaka@codeaurora.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+This patchset includes a __weak attributed pwm apis in pwm.h and
+a ff-memless based isa1200 driver.
 
-In case of I2C timeout, reset the HW only after the HW status
-is read, otherwise the staus will be lost.
+ISA1200 chip can operate in two modes and if the chip has been
+configured for pwm-generation mode, which doesn't use pwm standard
+apis then it'd encounter compilation errors if the host doesn't
+support PWM. This driver is based on Park's isa1200 driver that uses
+haptic class.
 
-Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Jonas Aberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+Kyungmin Park (1):
+  input: misc: Add support for isa1200 chip
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index b2de1a5..fa7b106 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -428,10 +428,9 @@ static int read_i2c(struct nmk_i2c_dev *dev)
- 	}
- 
- 	if (timeout == 0) {
--		/* controller has timedout, re-init the h/w */
-+		/* Controller timed out */
- 		dev_err(&dev->pdev->dev, "read from slave 0x%x timed out\n",
- 				dev->cli.slave_adr);
--		(void) init_hw(dev);
- 		status = -ETIMEDOUT;
- 	}
- 	return status;
-@@ -516,10 +515,9 @@ static int write_i2c(struct nmk_i2c_dev *dev)
- 	}
- 
- 	if (timeout == 0) {
--		/* controller has timedout, re-init the h/w */
-+		/* Controller timed out */
- 		dev_err(&dev->pdev->dev, "write to slave 0x%x timed out\n",
- 				dev->cli.slave_adr);
--		(void) init_hw(dev);
- 		status = -ETIMEDOUT;
- 	}
- 
-@@ -638,6 +636,8 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 						abort_causes[cause]);
- 				}
- 
-+				(void) init_hw(dev);
-+
- 				status = status ? status : dev->result;
- 
- 				break;
+Mohan Pallaka (1):
+  pwm: Add __weak attributed functions for pwm operations
+
+ drivers/input/misc/Kconfig    |   12 +
+ drivers/input/misc/Makefile   |    1 +
+ drivers/input/misc/isa1200.c  |  442 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/input/isa1200.h |   46 +++++
+ include/linux/pwm.h           |   12 +-
+ 5 files changed, 508 insertions(+), 5 deletions(-)
+ create mode 100644 drivers/input/misc/isa1200.c
+ create mode 100644 include/linux/input/isa1200.h
+
 -- 
-1.7.5.1
+Sent by a consultant of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
