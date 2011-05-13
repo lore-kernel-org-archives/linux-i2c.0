@@ -1,72 +1,133 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 04/14] i2c/i2c-nomadik: corrrect returned error numbers
-Date: Fri, 13 May 2011 12:29:28 +0200
-Message-ID: <1305282568-20630-1-git-send-email-linus.walleij@linaro.org>
+Subject: [PATCH 08/14] i2c/i2c-nomadik: use pm_runtime API
+Date: Fri, 13 May 2011 12:30:07 +0200
+Message-ID: <1305282607-20769-1-git-send-email-linus.walleij@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+From: Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-The code was returning bad error numbers or just -1 in some cases.
+Use the pm_runtime API for pins control.
 
-Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Signed-off-by: Rabin Vincent <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Reviewed-by: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Reviewed-by: Jonas Aberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+[deleted some surplus runtime PM code]
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   10 ++++++----
- 1 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-nomadik.c |   37 +++++++++++++++++++++++++++++++------
+ 1 files changed, 31 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 3bf95b9..a02141a 100644
+index c8bf81a..234e4a9 100644
 --- a/drivers/i2c/busses/i2c-nomadik.c
 +++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -615,6 +615,8 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 				cause >= ARRAY_SIZE(abort_causes)
- 				? "unknown reason" : abort_causes[cause]);
+@@ -23,6 +23,7 @@
+ #include <linux/clk.h>
+ #include <linux/io.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/pm_runtime.h>
  
-+			status = status ? status : dev->result;
+ #include <plat/i2c.h>
+ 
+@@ -576,6 +577,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 
+ 	if (dev->regulator)
+ 		regulator_enable(dev->regulator);
++	pm_runtime_get_sync(&dev->pdev->dev);
+ 
+ 	status = init_hw(dev);
+ 	if (status)
+@@ -634,6 +636,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ out:
+ 	clk_disable(dev->clk);
+ out2:
++	pm_runtime_put_sync(&dev->pdev->dev);
+ 	if (dev->regulator)
+ 		regulator_disable(dev->regulator);
+ 
+@@ -839,19 +842,36 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 
+ 
+ #ifdef CONFIG_PM
+-static int nmk_i2c_suspend(struct platform_device *pdev, pm_message_t mesg)
++static int nmk_i2c_suspend(struct device *dev)
+ {
+-	struct nmk_i2c_dev *dev = platform_get_drvdata(pdev);
++	struct platform_device *pdev = to_platform_device(dev);
++	struct nmk_i2c_dev *nmk_i2c = platform_get_drvdata(pdev);
+ 
+-	if (dev->busy)
++	if (nmk_i2c->busy)
+ 		return -EBUSY;
+-	else
+-		return 0;
 +
- 			goto out;
- 		}
- 		udelay(I2C_DELAY);
-@@ -759,7 +761,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 					| I2C_IT_RXFF | I2C_IT_RXFE));
++	return 0;
++}
++
++static int nmk_i2c_resume(struct device *dev)
++{
++	return 0;
+ }
+ #else
+ #define nmk_i2c_suspend	NULL
++#define nmk_i2c_resume	NULL
+ #endif
  
- 		if (dev->cli.count) {
--			dev->result = -1;
-+			dev->result = -EIO;
- 			dev_err(&dev->pdev->dev, "%lu bytes still remain to be"
- 					"xfered\n", dev->cli.count);
- 			(void) init_hw(dev);
-@@ -770,7 +772,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
++/*
++ * We use noirq so that we suspend late and resume before the wakeup interrupt
++ * to ensure that we do the !pm_runtime_suspended() check in resume before
++ * there has been a regular pm runtime resume (via pm_runtime_get_sync()).
++ */
++static const struct dev_pm_ops nmk_i2c_pm = {
++	.suspend_noirq	= nmk_i2c_suspend,
++	.resume_noirq	= nmk_i2c_resume,
++};
++
+ static unsigned int nmk_i2c_functionality(struct i2c_adapter *adap)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+@@ -913,6 +933,9 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ 		dev->regulator = NULL;
+ 	}
  
- 	/* Master Arbitration lost interrupt */
- 	case I2C_IT_MAL:
--		dev->result = -1;
-+		dev->result = -EIO;
- 		(void) init_hw(dev);
++	pm_suspend_ignore_children(&pdev->dev, true);
++	pm_runtime_enable(&pdev->dev);
++
+ 	dev->clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dev->clk)) {
+ 		dev_err(&pdev->dev, "could not get i2c clock\n");
+@@ -958,6 +981,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+  err_no_clk:
+ 	if (dev->regulator)
+ 		regulator_put(dev->regulator);
++	pm_runtime_disable(&pdev->dev);
+ 	free_irq(dev->irq, dev);
+  err_irq:
+ 	iounmap(dev->virtbase);
+@@ -990,6 +1014,7 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
+ 	clk_put(dev->clk);
+ 	if (dev->regulator)
+ 		regulator_put(dev->regulator);
++	pm_runtime_disable(&pdev->dev);
+ 	platform_set_drvdata(pdev, NULL);
+ 	kfree(dev);
  
- 		i2c_set_bit(dev->virtbase + I2C_ICR, I2C_IT_MAL);
-@@ -784,7 +786,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 	 * during the transaction.
- 	 */
- 	case I2C_IT_BERR:
--		dev->result = -1;
-+		dev->result = -EIO;
- 		/* get the status */
- 		if (((readl(dev->virtbase + I2C_SR) >> 2) & 0x3) == I2C_ABORT)
- 			(void) init_hw(dev);
-@@ -800,7 +802,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
- 	 * the Tx FIFO is full.
- 	 */
- 	case I2C_IT_TXFOVR:
--		dev->result = -1;
-+		dev->result = -EIO;
- 		(void) init_hw(dev);
+@@ -1000,10 +1025,10 @@ static struct platform_driver nmk_i2c_driver = {
+ 	.driver = {
+ 		.owner = THIS_MODULE,
+ 		.name = DRIVER_NAME,
++		.pm = &nmk_i2c_pm,
+ 	},
+ 	.probe = nmk_i2c_probe,
+ 	.remove = __devexit_p(nmk_i2c_remove),
+-	.suspend = nmk_i2c_suspend,
+ };
  
- 		dev_err(&dev->pdev->dev, "Tx Fifo Over run\n");
+ static int __init nmk_i2c_init(void)
 -- 
 1.7.5.1
