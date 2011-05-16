@@ -1,93 +1,105 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH v2 2/2] i2c-i801: Don't depend on other kernel driver config
- options
-Date: Sun, 15 May 2011 22:14:07 +0200
-Message-ID: <20110515221407.06761823@endymion.delvare>
+From: Lars Michael <lh_post-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Subject: How to use one I2C device from two modules?
+Date: Mon, 16 May 2011 01:10:22 -0700 (PDT)
+Message-ID: <184526.31465.qm@web30201.mail.mud.yahoo.com>
+References: <20110513104650.3d1b3ea6@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110513104650.3d1b3ea6-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: David Woodhouse <david.woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Don't let other driver config options influence us, as it makes the
-code more complex and fragile for a small benefit. There's nothing
-wrong with instantiating I2C devices even if they don't have a driver.
-And we're talking about 835 extra bytes in the binary on x86-64,
-that's hardly worth arguing about.
+--- On Fri, 13/5/11, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> On Fri, 13 May 2011 00:47:37 -0700 (PDT), Lars Michael
+> wrote:
+> > --- On Sat, 7/5/11, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> wrote:
+> > > On Fri, 6 May 2011 04:30:33 -0700 (PDT), Lars
+> Michael
+> > > wrote:
+> > > > But how do I access the same I2C device from
+> several
+> > > modules? Ideally I want to specify the adapter
+> and slave
+> > > address. If a client is found, I get the
+> i2c_client
+> > > otherwise I have to create it by i2c_new_device
+> (or probe
+> > > it). Is it possible?
+> > > > 
+> > > 
+> > > In general I would have pointed you to
+> drivers/mfd and told
+> > > you to
+> > > write a mfd core driver for your chip. However in
+> your case
+> > > I don't
+> > > think you have a multifunction device. You have a
+> single
+> > > function
+> > > device (GPIO) with multiple users. So I suggest
+> that you
+> > > simply write a
+> > > proper gpio driver for your chip, and get the
+> device
+> > > registered as an
+> > > I2C GPIO device. Then, in your function drivers
+> (power
+> > > supply control
+> > > and button control) get a reference to the gpio
+> device in
+> > > question, and
+> > > use it.
+> > 
+> > Thanks for the advice. I wrote a simple driver for my
+> chip and
+> > instantiated it in the platform code. In order to
+> access the
+> 
+> Please submit your driver for integration in the upstream
+> kernel.
+> Others are certainly using the same device!
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: David Woodhouse <david.woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Hans de Goede <hdegoede-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
----
-Changes since v1:
-* Make the optional code depend on CONFIG_DMI too.
-* Exclude i801_probe_optional_slaves() completely if the optional code
-  is missing, result is the same and this makes the code clearer.
+Please note that my driver has no device specific functions. It
+only allows the device to be registered so that my function
+modules can use the smbus commands and the i2c client handle to
+use the device. The GPIO device/lib is not supported. So, I don't
+think it's worth submitting it at this point...
+ 
+> > device from the function modules, I exported an
+> i2c_client get
+> > function, in order to get a reference to the client:
+> > 
+> > struct i2c_client *pca950x_get_i2c_client(void)
+> > .....
+> > EXPORT_SYMBOL(pca950x_get_i2c_client);
+> > 
+> > Not sure this is the perfect way to do it, but it
+> works.
+> 
+> No, this doesn't seem right. A given system may have more
+> than one
+> PCA950x chip. And symbol dependencies are a hell to handle
+> as soon as
+> things get more complex. Such an export will never be
+> accepted upstream.
 
- drivers/i2c/busses/i2c-i801.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+You are right, and this quick solution was not meant to be submitted.
+ 
+> I can think of 2 ways to handle your problem.
+> 
+> If neither works for you for whatever reason, maybe we can
+> add a helper
+> function to i2c-core to retrieve an i2c_client by bus
+> number and
+> address. Maybe others would find it useful as well.
 
---- linux-2.6.39-rc7.orig/drivers/i2c/busses/i2c-i801.c	2011-05-15 21:31:42.000000000 +0200
-+++ linux-2.6.39-rc7/drivers/i2c/busses/i2c-i801.c	2011-05-15 22:07:58.000000000 +0200
-@@ -638,7 +638,7 @@ static const struct pci_device_id i801_i
- 
- MODULE_DEVICE_TABLE(pci, i801_ids);
- 
--#if defined CONFIG_INPUT_APANEL || defined CONFIG_INPUT_APANEL_MODULE
-+#if defined CONFIG_X86 && defined CONFIG_DMI
- static unsigned char apanel_addr;
- 
- /* Scan the system ROM for the signature "FJKEYINF" */
-@@ -668,11 +668,7 @@ static void __init input_apanel_init(voi
- 	}
- 	iounmap(bios);
- }
--#else
--static void __init input_apanel_init(void) {}
--#endif
- 
--#if defined CONFIG_SENSORS_FSCHMD || defined CONFIG_SENSORS_FSCHMD_MODULE
- struct dmi_onboard_device_info {
- 	const char *name;
- 	u8 type;
-@@ -738,7 +734,6 @@ static void __devinit dmi_check_onboard_
- 		dmi_check_onboard_device(type, name, adap);
- 	}
- }
--#endif
- 
- /* Register optional slaves */
- static void __devinit i801_probe_optional_slaves(struct i801_priv *priv)
-@@ -747,7 +742,6 @@ static void __devinit i801_probe_optiona
- 	if (priv->features & FEATURE_IDF)
- 		return;
- 
--#if defined CONFIG_INPUT_APANEL || defined CONFIG_INPUT_APANEL_MODULE
- 	if (apanel_addr) {
- 		struct i2c_board_info info;
- 
-@@ -756,12 +750,14 @@ static void __devinit i801_probe_optiona
- 		strlcpy(info.type, "fujitsu_apanel", I2C_NAME_SIZE);
- 		i2c_new_device(&priv->adapter, &info);
- 	}
--#endif
--#if defined CONFIG_SENSORS_FSCHMD || defined CONFIG_SENSORS_FSCHMD_MODULE
-+
- 	if (dmi_name_in_vendors("FUJITSU"))
- 		dmi_walk(dmi_check_onboard_devices, &priv->adapter);
--#endif
- }
-+#else
-+static void __init input_apanel_init(void) {}
-+static void __devinit i801_probe_optional_slaves(struct i801_priv *priv) {}
-+#endif	/* CONFIG_X86 && CONFIG_DMI */
- 
- static int __devinit i801_probe(struct pci_dev *dev,
- 				const struct pci_device_id *id)
+I was looking for such a function, it could be very handy. And btw
+a get adapter by id already exists. 
 
-
--- 
-Jean Delvare
+Thanks and regards,
+- Lars 
