@@ -1,35 +1,77 @@
-From: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] pwm: Add __weak attributed functions for pwm	operations
-Date: Tue, 17 May 2011 10:12:27 +0530
-Message-ID: <4DD1FCB3.8040700@codeaurora.org>
-References: <1305290602-29859-1-git-send-email-mpallaka@codeaurora.org> <1305290602-29859-2-git-send-email-mpallaka@codeaurora.org> <20110515080031.GA12911@core.coreip.homeip.net> <20110515105850.GH30539@n2100.arm.linux.org.uk>
+From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Subject: i80 (Intel 8080-like) command interface to LCDs - how to implement
+Date: Tue, 17 May 2011 13:59:40 +0200
+Message-ID: <201105171359.43658.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110515105850.GH30539-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWNrRvHsEVmBkkB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Heiko =?iso-8859-1?q?St=FCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-  On 5/15/2011 4:28 PM, Russell King - ARM Linux wrote:
-> On Sun, May 15, 2011 at 01:00:31AM -0700, Dmitry Torokhov wrote:
->> On Fri, May 13, 2011 at 06:13:21PM +0530, Mohan Pallaka wrote:
->>> For chip drivers that support both pwm and non-pwm modes
->>> would encounter compilation errors if the platform doesn't
->>> have support for pwm though the chip is programmed to work
->>> in non-pwm mode. Add __weak attributed pwm functions to avoid
->>> compilation issues in these scenarios.
->>>
->> Russell,
->>
->> You seem to have authored pwm.h, do you have any objections to this
->> change?
-> This seems to be a recipe for an oops.  Have a look at how
-> linux/regulator/consumer.h deals with this kind of problem, and notice
-> that we have CONFIG_HAVE_PWM to indicate whether this interface is
-> supported or not.
-Thanks for the suggestion. I'll upload a new patch.
+Hi,
 
---Mohan.
+I'm trying to find the best way on implementing an i80 interface (especially 
+the command mode) between a s3c2416 and an AUO-K1900 (epaper controller).
+
+On the host side it is usable at least in all Samsung SoCs following the 
+S3C2443 and on the device side I've found, apart from the K1900, for example 
+the ili9320 and STM32F10xxx displays controllers using this interface.
+
+It looks a bit like a cross between SPI and I2C but fits neither category - at 
+least for my understanding.
+
+pins/pins consist of:
+CS ... chip-select
+RS ... control or data register select
+WE ... write enable
+RE ... read enable
+D0-Dn ... data 0-n for variing values of n
+(I've seen up to 18 data bits)
+
+
+commands can look like:
+(* set command mode)
+* set chip-select
+
+* set RS to control (mostly low)
+* set WE to high
+* write command to D
+* unset WE
+* set RS to data
+
+* set WE
+* write data to D
+* unset WE
+* set WE
+* write data to D
+* unset WE
+...
+* set RE
+* read data from D
+* unset RE
+...
+* unset chip-select
+(* unset command mode)
+
+the fourth possible state (read-control) is also used by the ili9320.
+
+looks a lot like an i2c-transfer, i.e. something like
+{
+  { WC, 6001 }, //for write-control
+  { WD, 576 }, //for write-data
+  { WD, 12 }, //for write-data
+  { RD, *buf } //for read-data
+}
+could represent the above command-sequence.
+
+
+So, is this a new bus type or does it fit somehow into spi or i2c or some other 
+bus-type I don't know yet? Or, does code for i80 exist somewhere I haven't 
+looked yet?
+
+Thanks in advance
+Heiko
