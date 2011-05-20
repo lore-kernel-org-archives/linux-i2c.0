@@ -1,63 +1,45 @@
-From: Mohan Pallaka <mpallaka@codeaurora.org>
-Subject: [PATCH 1/2] pwm: Add stubs for pwm operations
-Date: Fri, 20 May 2011 10:29:44 +0530
-Message-ID: <1305867584-31929-1-git-send-email-mpallaka@codeaurora.org>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: dmitry.torokhov@gmail.com, linux@arm.linux.org.uk, rmk+kernel@arm.linux.org.uk
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, rmk@dyn-67.arm.linux.org.uk, Mohan Pallaka <mpallaka@codeaurora.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: How to use one I2C device from two modules?
+Date: Fri, 20 May 2011 10:07:19 +0200
+Message-ID: <20110520100719.4107397a@endymion.delvare>
+References: <20110513104650.3d1b3ea6@endymion.delvare>
+	<184526.31465.qm@web30201.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <184526.31465.qm-hgS9n0fW3jyvuULXzWHTWIglqE1Y4D90QQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars Michael <lh_post-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Chip drivers that support both pwm and non-pwm modes
-would encounter compilation errors if the platform doesn't
-have support for pwm, even though the chip is programmed
-to work in non-pwm mode. Add stubs for pwm functions to
-avoid compilation errors in these scenarios.
+Hi Lars,
 
-Signed-off-by: Mohan Pallaka <mpallaka@codeaurora.org>
----
- include/linux/pwm.h |   23 +++++++++++++++++++++++
- 1 files changed, 23 insertions(+), 0 deletions(-)
+On Mon, 16 May 2011 01:10:22 -0700 (PDT), Lars Michael wrote:
+> --- On Fri, 13/5/11, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > No, this doesn't seem right. A given system may have more
+> > than one PCA950x chip. And symbol dependencies are a hell
+> > to handle as soon as things get more complex. Such an export
+> > will never be accepted upstream.
+> 
+> You are right, and this quick solution was not meant to be submitted.
+>  
+> > I can think of 2 ways to handle your problem.
+> > 
+> > If neither works for you for whatever reason, maybe we can
+> > add a helper function to i2c-core to retrieve an i2c_client
+> > by bus number and address. Maybe others would find it useful
+> > as well.
+> 
+> I was looking for such a function, it could be very handy. And btw
+> a get adapter by id already exists. 
 
-diff --git a/include/linux/pwm.h b/include/linux/pwm.h
-index 7c77575..54877f6 100644
---- a/include/linux/pwm.h
-+++ b/include/linux/pwm.h
-@@ -3,6 +3,7 @@
- 
- struct pwm_device;
- 
-+#if defined(CONFIG_HAVE_PWM)
- /*
-  * pwm_request - request a PWM device
-  */
-@@ -28,4 +29,26 @@ int pwm_enable(struct pwm_device *pwm);
-  */
- void pwm_disable(struct pwm_device *pwm);
- 
-+#else
-+
-+struct pwm_device *pwm_request(int pwm_id, const char *label)
-+{
-+	return NULL;
-+}
-+
-+void pwm_free(struct pwm_device *pwm) { }
-+
-+int pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns)
-+{
-+	return -EINVAL;
-+}
-+
-+int pwm_enable(struct pwm_device *pwm)
-+{
-+	return -EINVAL;
-+}
-+
-+void pwm_disable(struct pwm_device *pwm) { }
-+
-+#endif /* CONFIG_HAVE_PWM */
- #endif /* __LINUX_PWM_H */
---
-Sent by a consultant of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+This function could certainly be added if someone ever really needs it.
+But in your case, it seems better to write a proper gpio driver for your
+device and then have your subdrivers cleanly request the GPIO pins they
+need. And you don't need to access the i2c_client from the subdrivers
+if you do this.
+
+-- 
+Jean Delvare
