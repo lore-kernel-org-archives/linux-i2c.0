@@ -1,39 +1,35 @@
-From: "western101-CuihnPlyLifQT0dZR+AlfA@public.gmane.org" <bybrasil-jaxaV4Dn0uVfyO9Q7EP/yw@public.gmane.org>
-Subject: (unknown)
-Date: Sat, 21 May 2011 09:50:52 -0300
-Message-ID: <20110521095052.20152dy30epya05c@webmail.ism.com.br>
+From: Yermandu Patapitafious <yermandu.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: i195 and boot freeze
+Date: Mon, 23 May 2011 19:33:15 -0300
+Message-ID: <BANLkTimZC9vOUu8On5DHkz5qxo8EfLKYYQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=ISO-8859-1;
- DelSp="Yes";
- format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Subject: 
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+since kernel .39 i can not boot, when kernel go to gmbus start the issue.
+I try capture a dump with kexec, but no success, so i have the idea to
+make video booting,
+kernel version 2.6.39-02745-g0b26d47 and 2.6.39 vanilla same problem.
 
-My associate has helped me to send your first payment
-of $7,500 USD to you as instructed by Mr. David Cameron
-the United Kingdom prime minister after the last G20
-meeting that was held in United Kingdom, making you one
-of the beneficiaries. Here is the information below.
+http://www.vimeo.com/24138372
 
-MTCN Numbers: 6096147516
-Sender First Name Is = Johannes
-Second Name = Davis
+lspci -v
+00:02.0 VGA compatible controller: Intel Corporation Mobile 4 Series
+Chipset Integrated Graphics Controller (rev 09) (prog-if 00 [VGA
+controller])
+	Subsystem: Elitegroup Computer Systems Device 995b
+	Flags: bus master, fast devsel, latency 0, IRQ 44
+	Memory at f8000000 (64-bit, non-prefetchable) [size=4M]
+	Memory at d0000000 (64-bit, prefetchable) [size=256M]
+	I/O ports at 1800 [size=8]
+	Expansion ROM at <unassigned> [disabled]
+	Capabilities: [90] MSI: Enable+ Count=1/1 Maskable- 64bit-
+	Capabilities: [d0] Power Management version 3
+	Kernel driver in use: i915
 
-I told him to keep sending you $7,500 USD twice a week
-until the FULL payment of ($820000.00 United State Dollars)
-is completed.
-
-A certificate will be made to change the Receiver Name as
-stated by the British prime minister, send your Full Names
-and address via Email to: Mr Garry Moore
-
-You cannot pickup the money until the certificate is issued to you.
-
-Regards
-Mr. Garry Moore.
+att
+-- 
+yermandu
