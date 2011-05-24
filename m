@@ -1,35 +1,59 @@
-From: Yermandu Patapitafious <yermandu.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i195 and boot freeze
-Date: Mon, 23 May 2011 19:33:15 -0300
-Message-ID: <BANLkTimZC9vOUu8On5DHkz5qxo8EfLKYYQ@mail.gmail.com>
+From: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: [PATCH] i2c-nomadik: Do not use _interruptible_ variant call
+Date: Tue, 24 May 2011 10:49:47 +0530
+Message-ID: <1306214387-15997-1-git-send-email-srinidhi.kasagar@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-since kernel .39 i can not boot, when kernel go to gmbus start the issue.
-I try capture a dump with kexec, but no success, so i have the idea to
-make video booting,
-kernel version 2.6.39-02745-g0b26d47 and 2.6.39 vanilla same problem.
+If there is a signal pending and wait_for_completion_interruptible_timeout
+exited because of the -ERESTARTSYS error we are unable to send any more
+i2c messages.
 
-http://www.vimeo.com/24138372
+So, deprecate this _interruptible_ variant call.
 
-lspci -v
-00:02.0 VGA compatible controller: Intel Corporation Mobile 4 Series
-Chipset Integrated Graphics Controller (rev 09) (prog-if 00 [VGA
-controller])
-	Subsystem: Elitegroup Computer Systems Device 995b
-	Flags: bus master, fast devsel, latency 0, IRQ 44
-	Memory at f8000000 (64-bit, non-prefetchable) [size=4M]
-	Memory at d0000000 (64-bit, prefetchable) [size=256M]
-	I/O ports at 1800 [size=8]
-	Expansion ROM at <unassigned> [disabled]
-	Capabilities: [90] MSI: Enable+ Count=1/1 Maskable- 64bit-
-	Capabilities: [d0] Power Management version 3
-	Kernel driver in use: i915
+Signed-off-by: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-nomadik.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-att
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index e10e5cf..5b7753e 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -423,12 +423,12 @@ static int read_i2c(struct nmk_i2c_dev *dev)
+ 	writel(readl(dev->virtbase + I2C_IMSCR) | irq_mask,
+ 			dev->virtbase + I2C_IMSCR);
+ 
+-	timeout = wait_for_completion_interruptible_timeout(
++	timeout = wait_for_completion_timeout(
+ 		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
+ 
+ 	if (timeout < 0) {
+ 		dev_err(&dev->pdev->dev,
+-			"wait_for_completion_interruptible_timeout"
++			"wait_for_completion_timeout "
+ 			"returned %d waiting for event\n", timeout);
+ 		status = timeout;
+ 	}
+@@ -487,12 +487,12 @@ static int write_i2c(struct nmk_i2c_dev *dev)
+ 	writel(readl(dev->virtbase + I2C_IMSCR) | irq_mask,
+ 			dev->virtbase + I2C_IMSCR);
+ 
+-	timeout = wait_for_completion_interruptible_timeout(
++	timeout = wait_for_completion_timeout(
+ 		&dev->xfer_complete, msecs_to_jiffies(I2C_TIMEOUT_MS));
+ 
+ 	if (timeout < 0) {
+ 		dev_err(&dev->pdev->dev,
+-			"wait_for_completion_interruptible_timeout"
++			"wait_for_completion_timeout "
+ 			"returned %d waiting for event\n", timeout);
+ 		status = timeout;
+ 	}
 -- 
-yermandu
+1.7.4.3
