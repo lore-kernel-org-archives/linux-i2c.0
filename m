@@ -1,48 +1,39 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c updates for 2.6.40 (or whatever)
-Date: Tue, 24 May 2011 23:25:38 +0200
-Message-ID: <20110524232538.4b2f4b8c@endymion.delvare>
+From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 00/13]  V3 Split i2c-designware.c to support PCI drivers.
+Date: Tue, 24 May 2011 15:00:39 -0700
+Message-ID: <4DDC2A87.2090108@gmail.com>
+References: <1299961407-26852-1-git-send-email-dirk.brandewie@gmail.com> <20110314234337.GN15795@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110314234337.GN15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On 03/14/2011 04:43 PM, Ben Dooks wrote:
+> On Sat, Mar 12, 2011 at 12:23:14PM -0800, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
+>> From: Dirk Brandewie<dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>>
+>> This patch set reworks i2c-designware.c to enable supporting multiple
+>> instances of the driver in the system and adds support for Designware
+>> I2C IP cores behind PCI devices.
+>>
+>> The patch set has been refactored to hopefully make it easier to
+>> review.
+>>
+>> TODO:
+>> Ben disliked the module names, they haven't changed yet waiting for
+>> feedback on the list.
+>
+> Right, merged into next-i2c pending any further feedback.
+>
 
-Please pull i2c subsystem updates for Linux 2.6.39 from:
+Ben,
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+Is this patch set going to make it into 2.6.40 merge window?
 
-Most changes are cleanups and improvements to the Intel 82801 SMBus
-controller driver.
-
- Documentation/i2c/busses/i2c-i801      |    1 +
- Documentation/i2c/writing-clients      |    2 +-
- drivers/i2c/busses/Kconfig             |    2 +
- drivers/i2c/busses/i2c-i801.c          |   61 ++++++++++++++++----------
- drivers/i2c/busses/i2c-parport-light.c |   10 ++--
- drivers/i2c/busses/i2c-parport.c       |   30 ++++++------
- drivers/i2c/busses/i2c-parport.h       |   74 +++++++++++++++-----------------
- 7 files changed, 97 insertions(+), 83 deletions(-)
-
----------------
-
-Jean Delvare (4):
-      i2c-i801: Don't probe for slaves on IDF channels
-      i2c-i801: Check for vendor Fujitsu before probing for apanel
-      i2c-i801: Don't depend on other kernel driver config options
-      i2c-parport: Various cleanups
-
-Seth Heasley (1):
-      i2c-i801: SMBus patch for Intel Panther Point DeviceIDs
-
-Vikram Narayanan (1):
-      i2c/writing-clients: Fix foo_driver.id_table
-
-Thanks,
--- 
-Jean Delvare
+TIA
+--Dirk
