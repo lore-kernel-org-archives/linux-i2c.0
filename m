@@ -1,91 +1,60 @@
-From: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] pwm: Add stubs for pwm operations
-Date: Thu, 26 May 2011 17:01:13 +0530
-Message-ID: <4DDE3A01.7010100@codeaurora.org>
-References: <1305867584-31929-1-git-send-email-mpallaka@codeaurora.org> <4DD7CC83.1020700@codeaurora.org> <4DDB90D9.1020902@codeaurora.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: i915 and boot freeze
+Date: Fri, 27 May 2011 11:31:06 +0200
+Message-ID: <20110527113106.56c7d755@endymion.delvare>
+References: <BANLkTimZC9vOUu8On5DHkz5qxo8EfLKYYQ@mail.gmail.com>
+	<20110524093051.5682e769@endymion.delvare>
+	<BANLkTime7ZT2UEeG=T=JqZKZBYa77fi0_Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4DDB90D9.1020902-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
+In-Reply-To: <BANLkTime7ZT2UEeG=T=JqZKZBYa77fi0_Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mohan Pallaka <mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yermandu Patapitafious <yermandu.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-  Hi Russell, please let me know if this patch looks okay for you.
+On Wed, 25 May 2011 10:38:59 -0300, Yermandu Patapitafious wrote:
+> Hello Jean,
+> 
+> Thanks for answer, i will take more atention in subjects,
+> 
+> > What is the last kernel that works for you?
+> >
+> > Are you running self-built or distribution kernels?
+> > Can we please see the kernel configuration file?
+> 
+> My Last kernel working from git repository was 2.6.38-rc8+, the stable
+> line .38.X work fines.
 
-Thanks, Mohan.
+OK, this is good, it means the bisection domain isn't too big.
 
-On 5/24/2011 4:34 PM, Mohan Pallaka wrote:
->  Ping.
->
-> Hi Russell, please take sometime to review this patch.
->
-> Thanks, Mohan.
->
-> On 5/21/2011 8:00 PM, Mohan Pallaka wrote:
->>  On 5/20/2011 10:29 AM, Mohan Pallaka wrote:
->>> Chip drivers that support both pwm and non-pwm modes
->>> would encounter compilation errors if the platform doesn't
->>> have support for pwm, even though the chip is programmed
->>> to work in non-pwm mode. Add stubs for pwm functions to
->>> avoid compilation errors in these scenarios.
->>>
->>> Signed-off-by: Mohan Pallaka<mpallaka-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
->>> ---
->>>   include/linux/pwm.h |   23 +++++++++++++++++++++++
->>>   1 files changed, 23 insertions(+), 0 deletions(-)
->>>
->>> diff --git a/include/linux/pwm.h b/include/linux/pwm.h
->>> index 7c77575..54877f6 100644
->>> --- a/include/linux/pwm.h
->>> +++ b/include/linux/pwm.h
->>> @@ -3,6 +3,7 @@
->>>
->>>   struct pwm_device;
->>>
->>> +#if defined(CONFIG_HAVE_PWM)
->>>   /*
->>>    * pwm_request - request a PWM device
->>>    */
->>> @@ -28,4 +29,26 @@ int pwm_enable(struct pwm_device *pwm);
->>>    */
->>>   void pwm_disable(struct pwm_device *pwm);
->>>
->>> +#else
->>> +
->>> +struct pwm_device *pwm_request(int pwm_id, const char *label)
->>> +{
->>> +    return NULL;
->>> +}
->>> +
->>> +void pwm_free(struct pwm_device *pwm) { }
->>> +
->>> +int pwm_config(struct pwm_device *pwm, int duty_ns, int period_ns)
->>> +{
->>> +    return -EINVAL;
->>> +}
->>> +
->>> +int pwm_enable(struct pwm_device *pwm)
->>> +{
->>> +    return -EINVAL;
->>> +}
->>> +
->>> +void pwm_disable(struct pwm_device *pwm) { }
->>> +
->>> +#endif /* CONFIG_HAVE_PWM */
->>>   #endif /* __LINUX_PWM_H */
->>> -- 
->>> Sent by a consultant of the Qualcomm Innovation Center, Inc.
->>> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
->>> Forum.
->> Hi Russell, please review this patch.
->>
->> --Mohan
->> -- 
->> To unsubscribe from this list: send the line "unsubscribe 
->> linux-arm-msm" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Can you remember if you made any kernel configuration change between
+2.6.38 and 2.6.39?
+
+> I use the git version from kernel.org site pull and build manually be
+> me. The Latest Stable Kernel is from gentoo-sources, and i always
+> compile manually too.
+> I have attached .config kernel in mail.
+
+I see you have many debug options enabled. I suggest you try building a
+kernel without these and see if it makes a difference.
+
+> > It would be great
+> > if you were able to get us the kernel logs in a text form, using some
+> > form of serial console.
+> 
+> Removing the CONFIG_I2C_CHARDEV has not effect, the panic continues
+> happing I looking for some way to send panic log in text, but no
+> success yet.
+
+If you can't get a serial console to capture the complete error log,
+the other approach is to bisect between kernels 2.6.38 and 2.6.39, to
+find the faulty commit. If you're used to building your kernel
+yourself, it shouldn't be too difficult. Just clone Linus' kernel tree
+and follow the git bisect manual page:
+http://www.kernel.org/pub/software/scm/git/docs/git-bisect.html
+
+-- 
+Jean Delvare
