@@ -1,48 +1,100 @@
-From: mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org
-Subject: Re: [PATCH] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter
- functionality
-Date: Sun, 29 May 2011 23:57:02 +0300
-Message-ID: <20110529205702.GA5252@gentoodev.compulab.local>
-References: <1302691521-19096-1-git-send-email-mike@compulab.co.il>
- <4DBFBEAD.2080103@compulab.co.il>
- <20110504215133.GY15795@trinity.fluff.org>
-Reply-To: mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org
+From: Yermandu Patapitafious <yermandu.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i915 and boot freeze
+Date: Sun, 29 May 2011 18:33:24 -0300
+Message-ID: <BANLkTinBgmQXGVyJ5AK-WR-xy-ndv9f+-A@mail.gmail.com>
+References: <BANLkTimZC9vOUu8On5DHkz5qxo8EfLKYYQ@mail.gmail.com>
+	<20110524093051.5682e769@endymion.delvare>
+	<BANLkTime7ZT2UEeG=T=JqZKZBYa77fi0_Q@mail.gmail.com>
+	<20110527113106.56c7d755@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary=bcaec554e018ad116004a470ebf8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110504215133.GY15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <20110527113106.56c7d755-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+--bcaec554e018ad116004a470ebf8
+Content-Type: text/plain; charset=ISO-8859-1
 
-On Wed, May 04, 2011 at 10:51:33PM +0100, Ben Dooks wrote:
-> On Tue, May 03, 2011 at 11:37:01AM +0300, Mike Rapoport wrote:
-> > Hi Ben,
-> > Any comments on this?
-> > 
-> > On 04/13/11 13:45, Mike Rapoport wrote:
-> > > as there are a lot of i2c device drivers that require it.
-> > > 
-> > > Signed-off-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-> > > ---
-> > >  drivers/i2c/busses/i2c-tegra.c |    2 +-
-> > >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > > 
-> 
-> I think this is ok, but will check tomorrow
+> Can you remember if you made any kernel configuration change between
+> 2.6.38 and 2.6.39?
 
-Can you please merge this patch? So that it can hit the mainline at
-leaset at 2.6.41?
+At begin not, I reutilize the config file when the issue start.
+I do the bisect session, in the end i receive the message:
 
-> -- 
-> Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-> 
-> Large Hadron Colada: A large Pina Colada that makes the universe disappear.
-> 
---
-Sincerely yours,
-Mike
+674479124f8cbc4b5507d914ccd63ad08fd5326e was both good and bad
+
+Bisect log attached.
+
+I try config file removing some set, and fight with console. I m back
+if i get log.
+
+-- 
+yermandu
+
+--bcaec554e018ad116004a470ebf8
+Content-Type: text/plain; charset=US-ASCII; name="bisect-kernel.log"
+Content-Disposition: attachment; filename="bisect-kernel.log"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_goafm3jg0
+
+Z2l0IGJpc2VjdCBzdGFydAojIGJhZDogWzc3NTZmNDRjYzc1ZGM0MmRlNjNiMDFiMDlmY2M4MDc4
+NzhlZGFkMzBdIE1lcmdlIGJyYW5jaCAnbWFzdGVyJyBvZiBnaXQ6Ly9naXQua2VybmVsLm9yZy9w
+dWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvdG9ydmFsZHMvbGludXgtMi42CmdpdCBiaXNlY3QgYmFk
+IDc3NTZmNDRjYzc1ZGM0MmRlNjNiMDFiMDlmY2M4MDc4NzhlZGFkMzAKIyBnb29kOiBbZGQ5YzE1
+NDllZGVmMDIyOTBlZGNlZDYzOWY2N2I1NGEyNWFiYmUwZV0gTGludXggMi42LjM4LXJjNwpnaXQg
+YmlzZWN0IGdvb2QgZGQ5YzE1NDllZGVmMDIyOTBlZGNlZDYzOWY2N2I1NGEyNWFiYmUwZQojIGdv
+b2Q6IFszNGMyN2E0OTdhYjBlOWNhMjhlYjFiZDU3MjkwN2JhOGExNTRhZDUwXSBNZXJnZSBicmFu
+Y2ggJ2Zvci1saW51cycgb2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5kay9saW51eC0yLjYtYmxvY2sKZ2l0
+IGJpc2VjdCBnb29kIDM0YzI3YTQ5N2FiMGU5Y2EyOGViMWJkNTcyOTA3YmE4YTE1NGFkNTAKIyBn
+b29kOiBbMDZmNGU5MjZkMjU2ZDkwMmRkOWE1M2RjYjQwMGZkNzQ5NzRjZTA4N10gTWVyZ2UgZ2l0
+Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2RhdmVtL25ldC1uZXh0
+LTIuNgpnaXQgYmlzZWN0IGdvb2QgMDZmNGU5MjZkMjU2ZDkwMmRkOWE1M2RjYjQwMGZkNzQ5NzRj
+ZTA4NwojIGJhZDogWzUzMWQyODk1OTE3NTY2YWIwZDgyZmFhMDY5NmQwNTc2NTY5ZjEwNTNdIG02
+OGtub21tdTogVXNlIGdlbmVyaWMgc2hvd19pbnRlcnJ1cHRzKCkKZ2l0IGJpc2VjdCBiYWQgNTMx
+ZDI4OTU5MTc1NjZhYjBkODJmYWEwNjk2ZDA1NzY1NjlmMTA1MwojIGJhZDogW2M0NGRlYWQ3MGE4
+NDFkOTBkZGMwMTk2ODAxMmYzMjNjMzMyMTdjOWVdIE1lcmdlIGJyYW5jaCAndXNiLW5leHQnIG9m
+IGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9ncmVna2gvdXNi
+LTIuNgpnaXQgYmlzZWN0IGJhZCBjNDRkZWFkNzBhODQxZDkwZGRjMDE5NjgwMTJmMzIzYzMzMjE3
+YzllCiMgYmFkOiBbNzEwNDIxY2M3ZDI5NWNjNTllYjI2NzZmZTJiYTNiYzMyNTJjMTI0ZV0gTWVy
+Z2UgYnJhbmNoICdmb3ItbGludXMnIG9mIGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGlu
+dXgva2VybmVsL2dpdC90aXdhaS9zb3VuZC0yLjYKZ2l0IGJpc2VjdCBiYWQgNzEwNDIxY2M3ZDI5
+NWNjNTllYjI2NzZmZTJiYTNiYzMyNTJjMTI0ZQojIGJhZDogW2Y2ODZjNzRjYzNlNzgzNDlkMTZk
+NDZmYzcyODA3MzU0NTc0YjE1MTZdIE1lcmdlIGJyYW5jaCAndG9waWMvaGRhJyBpbnRvIGZvci1s
+aW51cwpnaXQgYmlzZWN0IGJhZCBmNjg2Yzc0Y2MzZTc4MzQ5ZDE2ZDQ2ZmM3MjgwNzM1NDU3NGIx
+NTE2CiMgYmFkOiBbMDBkMjcwMTA3MGM5MTcyODk4OGJiZmE0MTRhMzQ2YTIzYWNkODI3NV0gQVNv
+QzogQXNhaGkgS2FzZWkgQUs0NjQxIGNvZGVjIGRyaXZlcgpnaXQgYmlzZWN0IGJhZCAwMGQyNzAx
+MDcwYzkxNzI4OTg4YmJmYTQxNGEzNDZhMjNhY2Q4Mjc1CiMgc2tpcDogW2YwMzBkNjBiMzA4NTVl
+MThhYzViZjA4MGZhOWU1NzYxNDc2MjNkMThdIE1lcmdlIGJyYW5jaCAnZm9yLTIuNi4zOScgaW50
+byBmb3ItMi42LjQwCmdpdCBiaXNlY3Qgc2tpcCBmMDMwZDYwYjMwODU1ZTE4YWM1YmYwODBmYTll
+NTc2MTQ3NjIzZDE4CiMgc2tpcDogW2I3YTVkMTRjNjA3MDkzZGUxYTAzMGU5OTMzYmM4Yzk1YWIy
+YWZkM2ZdIEFTb0M6IE1hcmsgU3BleXNpZGUgd2lkZ2V0cyBhcyBpZ25vcmluZyBzdXNwZW5kCmdp
+dCBiaXNlY3Qgc2tpcCBiN2E1ZDE0YzYwNzA5M2RlMWEwMzBlOTkzM2JjOGM5NWFiMmFmZDNmCiMg
+c2tpcDogWzIwMzE0MDAwNjE3M2VjMWRmNDJhMDVkOGViNzA1MWQ4MmViNjFjMjVdIEFTb0M6IFVz
+ZSBkYXRhIGJhc2VkIGluaXQgZm9yIHdtODcxMSBEQVBNCmdpdCBiaXNlY3Qgc2tpcCAyMDMxNDAw
+MDYxNzNlYzFkZjQyYTA1ZDhlYjcwNTFkODJlYjYxYzI1CiMgYmFkOiBbZGMwYTUwYWZhNjdjM2Ri
+ZDUxMjExODgxYjc1Njg5MTdkYmJjNjg2MV0gQVNvQzogVGVncmE6IFJlbmFtZSBoYXJtb255LmMg
+dG8gdGVncmFfd204OTAzLmMKZ2l0IGJpc2VjdCBiYWQgZGMwYTUwYWZhNjdjM2RiZDUxMjExODgx
+Yjc1Njg5MTdkYmJjNjg2MQojIGdvb2Q6IFszNjM2MThmMDEzZjJmMTFhMTA4OWI2MTA3NDhiZWI1
+ZGU5M2I4NjMwXSBBU29DOiBOYW1lIGphY2sgR1BJT3MgYmFzZWQgb24gamFjayBub3QgY29kZWMK
+Z2l0IGJpc2VjdCBnb29kIDM2MzYxOGYwMTNmMmYxMWExMDg5YjYxMDc0OGJlYjVkZTkzYjg2MzAK
+IyBnb29kOiBbMDY3MWZkOGVmNGIzMjIwMGU3NTM5NmNkMjk5ZjA4NTMwMDJmYzExZV0gQVNvQzog
+QWRkIHNvY19yZW1vdmVfZGFpX2xpbmtzCmdpdCBiaXNlY3QgZ29vZCAwNjcxZmQ4ZWY0YjMyMjAw
+ZTc1Mzk2Y2QyOTlmMDg1MzAwMmZjMTFlCiMgZ29vZDogWzEzMzE5Njk5MTEzYTc4ZTkwNjI1ZWNl
+MTI0NjY2ZDNlZTUzMDMzZjZdIEFTb0M6IEpaNDc0MDogQ29udmVydCBxaV9sYjYwIGNvZGVjIHRv
+IHRhYmxlIGJhc2VkIERBUE0gc2V0dXAKZ2l0IGJpc2VjdCBnb29kIDEzMzE5Njk5MTEzYTc4ZTkw
+NjI1ZWNlMTI0NjY2ZDNlZTUzMDMzZjYKIyBiYWQ6IFtkNTM4MWU0MmY2NGNhMTlmMDVjNTc5OWZm
+YWU1NzA4YWNiNmVkNDExXSBBU29DOiBNZXJnZSBicmFuY2ggJ2Zvci0yLjYuMzknIGludG8gZm9y
+LTIuNi40MApnaXQgYmlzZWN0IGJhZCBkNTM4MWU0MmY2NGNhMTlmMDVjNTc5OWZmYWU1NzA4YWNi
+NmVkNDExCiMgZ29vZDogWzYyMTIwNmI3NjgyNWYyNGNjYjY1MGI5ZjU5YzE4YzE3ZjY3NjBhNGNd
+IEFTb0M6IEpaNDc0MDogcWlfbGI2MDogVXNlIHRoZSBTTkRfU09DX0RBUE1fRVZFTlRfT0ZGIGZv
+ciB0aGUgc3BlYWtlcnMgc3RhdHVzCmdpdCBiaXNlY3QgZ29vZCA2MjEyMDZiNzY4MjVmMjRjY2I2
+NTBiOWY1OWMxOGMxN2Y2NzYwYTRjCiMgYmFkOiBbNjc0NDc5MTI0ZjhjYmM0YjU1MDdkOTE0Y2Nk
+NjNhZDA4ZmQ1MzI2ZV0gQVNvQzogY29kZWNzOiBKWjQ3NDA6IENvbnZlcnQgdG8gdGFibGUgYmFz
+ZWQgY29udHJvbHMgYW5kIERBUE0gc2V0dXAKZ2l0IGJpc2VjdCBiYWQgNjc0NDc5MTI0ZjhjYmM0
+YjU1MDdkOTE0Y2NkNjNhZDA4ZmQ1MzI2ZQojIGdvb2Q6IFs2NzQ0NzkxMjRmOGNiYzRiNTUwN2Q5
+MTRjY2Q2M2FkMDhmZDUzMjZlXSBBU29DOiBjb2RlY3M6IEpaNDc0MDogQ29udmVydCB0byB0YWJs
+ZSBiYXNlZCBjb250cm9scyBhbmQgREFQTSBzZXR1cApnaXQgYmlzZWN0IGdvb2QgNjc0NDc5MTI0
+ZjhjYmM0YjU1MDdkOTE0Y2NkNjNhZDA4ZmQ1MzI2ZQo=
+--bcaec554e018ad116004a470ebf8--
