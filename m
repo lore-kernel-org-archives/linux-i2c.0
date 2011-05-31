@@ -1,100 +1,252 @@
-From: Yermandu Patapitafious <yermandu.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i915 and boot freeze
-Date: Sun, 29 May 2011 18:33:24 -0300
-Message-ID: <BANLkTinBgmQXGVyJ5AK-WR-xy-ndv9f+-A@mail.gmail.com>
-References: <BANLkTimZC9vOUu8On5DHkz5qxo8EfLKYYQ@mail.gmail.com>
-	<20110524093051.5682e769@endymion.delvare>
-	<BANLkTime7ZT2UEeG=T=JqZKZBYa77fi0_Q@mail.gmail.com>
-	<20110527113106.56c7d755@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary=bcaec554e018ad116004a470ebf8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110527113106.56c7d755-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Prarit Bhargava <prarit@redhat.com>
+Subject: [RFC PATCH 12/35] drivers/i2c changes for SMBIOS and System Firmware
+Date: Tue, 31 May 2011 11:52:00 -0400
+Message-ID: <20110531155200.3524.52833.sendpatchset@prarit.bos.redhat.com>
+Content-Type: text/x-c; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Prarit Bhargava <prarit@redhat.com>
 List-Id: linux-i2c@vger.kernel.org
 
---bcaec554e018ad116004a470ebf8
-Content-Type: text/plain; charset=ISO-8859-1
+drivers/i2c changes for SMBIOS and System Firmware
 
-> Can you remember if you made any kernel configuration change between
-> 2.6.38 and 2.6.39?
+---
+ drivers/i2c/busses/i2c-i801.c    |   76 ++++++++++---------------------------
+ drivers/i2c/busses/i2c-nforce2.c |   12 +++---
+ drivers/i2c/busses/i2c-piix4.c   |   22 +++++-----
+ 3 files changed, 38 insertions(+), 72 deletions(-)
 
-At begin not, I reutilize the config file when the issue start.
-I do the bisect session, in the end i receive the message:
-
-674479124f8cbc4b5507d914ccd63ad08fd5326e was both good and bad
-
-Bisect log attached.
-
-I try config file removing some set, and fight with console. I m back
-if i get log.
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index ab26840d..7e19ea2 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -73,7 +73,8 @@
+ #include <linux/i2c.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+-#include <linux/dmi.h>
++#include <linux/smbios.h>
++#include <linux/sysfw.h>
+ #include <linux/slab.h>
+ 
+ /* I801 SMBus address offsets */
+@@ -669,69 +670,34 @@ static void __init input_apanel_init(void)
+ 	iounmap(bios);
+ }
+ 
+-struct dmi_onboard_device_info {
++struct smbios_onboard_device_info {
+ 	const char *name;
+-	u8 type;
+ 	unsigned short i2c_addr;
+ 	const char *i2c_type;
+ };
+ 
+-static struct dmi_onboard_device_info __devinitdata dmi_devices[] = {
+-	{ "Syleus", DMI_DEV_TYPE_OTHER, 0x73, "fscsyl" },
+-	{ "Hermes", DMI_DEV_TYPE_OTHER, 0x73, "fscher" },
+-	{ "Hades",  DMI_DEV_TYPE_OTHER, 0x73, "fschds" },
++static struct smbios_onboard_device_info __devinitdata smbios_devices[] = {
++	{ "Syleus", 0x73, "fscsyl" },
++	{ "SYLEUS", 0x73, "fscsyl" },
++	{ "Hermes", 0x73, "fscher" },
++	{ "HERMES", 0x73, "fscher" },
++	{ "Hades", 0x73, "fschds" },
++	{ "HADES", 0x73, "fschds" },
+ };
+ 
+-static void __devinit dmi_check_onboard_device(u8 type, const char *name,
+-					       struct i2c_adapter *adap)
++static void __devinit smbios_check_fschmd(struct i2c_adapter *adap)
+ {
+ 	int i;
+ 	struct i2c_board_info info;
+ 
+-	for (i = 0; i < ARRAY_SIZE(dmi_devices); i++) {
+-		/* & ~0x80, ignore enabled/disabled bit */
+-		if ((type & ~0x80) != dmi_devices[i].type)
+-			continue;
+-		if (strcasecmp(name, dmi_devices[i].name))
+-			continue;
+-
+-		memset(&info, 0, sizeof(struct i2c_board_info));
+-		info.addr = dmi_devices[i].i2c_addr;
+-		strlcpy(info.type, dmi_devices[i].i2c_type, I2C_NAME_SIZE);
+-		i2c_new_device(adap, &info);
+-		break;
+-	}
+-}
+-
+-/* We use our own function to check for onboard devices instead of
+-   dmi_find_device() as some buggy BIOS's have the devices we are interested
+-   in marked as disabled */
+-static void __devinit dmi_check_onboard_devices(const struct dmi_header *dm,
+-						void *adap)
+-{
+-	int i, count;
+-
+-	if (dm->type != 10)
+-		return;
+-
+-	count = (dm->length - sizeof(struct dmi_header)) / 2;
+-	for (i = 0; i < count; i++) {
+-		const u8 *d = (char *)(dm + 1) + (i * 2);
+-		const char *name = ((char *) dm) + dm->length;
+-		u8 type = d[0];
+-		u8 s = d[1];
+-
+-		if (!s)
+-			continue;
+-		s--;
+-		while (s > 0 && name[0]) {
+-			name += strlen(name) + 1;
+-			s--;
++	for (i = 0; i < ARRAY_SIZE(onboard); i++) {
++		/* some buggy BIOSes have the devices disabled */
++		if (smbios_is_onboard_device(onboard[i].name, 1)) {
++			memset(&info, 0, sizeof(struct i2c_board_info));
++			info.addr = onboard[i].i2c_addr;
++			strlcpy(info.type, onboard[i].i2c_type,	I2C_NAME_SIZE);
++			i2c_new_device(adap, &info);
+ 		}
+-		if (name[0] == 0) /* Bogus string reference */
+-			continue;
+-
+-		dmi_check_onboard_device(type, name, adap);
+ 	}
+ }
+ 
+@@ -751,8 +717,8 @@ static void __devinit i801_probe_optional_slaves(struct i801_priv *priv)
+ 		i2c_new_device(&priv->adapter, &info);
+ 	}
+ 
+-	if (dmi_name_in_vendors("FUJITSU"))
+-		dmi_walk(dmi_check_onboard_devices, &priv->adapter);
++	if (sysfw_vendor_is("FUJITSU"))
++		smbios_check_fschmd(&priv->adapter);
+ }
+ #else
+ static void __init input_apanel_init(void) {}
+@@ -927,7 +893,7 @@ static struct pci_driver i801_driver = {
+ 
+ static int __init i2c_i801_init(void)
+ {
+-	if (dmi_name_in_vendors("FUJITSU"))
++	if (sysfw_vendor_is("FUJITSU"))
+ 		input_apanel_init();
+ 	return pci_register_driver(&i801_driver);
+ }
+diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+index ff1e127..458623e 100644
+--- a/drivers/i2c/busses/i2c-nforce2.c
++++ b/drivers/i2c/busses/i2c-nforce2.c
+@@ -54,7 +54,7 @@
+ #include <linux/init.h>
+ #include <linux/i2c.h>
+ #include <linux/delay.h>
+-#include <linux/dmi.h>
++#include <linux/sysfw.h>
+ #include <linux/acpi.h>
+ #include <linux/slab.h>
+ #include <linux/io.h>
+@@ -117,15 +117,15 @@ struct nforce2_smbus {
+ #define MAX_TIMEOUT	100
+ 
+ /* We disable the second SMBus channel on these boards */
+-static struct dmi_system_id __devinitdata nforce2_dmi_blacklist2[] = {
++static struct sysfw_id __devinitdata nforce2_id_blacklist2[] = {
+ 	{
+ 		.ident = "DFI Lanparty NF4 Expert",
+ 		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "DFI Corp,LTD"),
+-			DMI_MATCH(DMI_BOARD_NAME, "LP UT NF4 Expert"),
++			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "DFI Corp,LTD"),
++			SYSFW_MATCH(SYSFW_BOARD_NAME, "LP UT NF4 Expert"),
+ 		},
+ 	},
+-	{ }
++	{}
+ };
+ 
+ static struct pci_driver nforce2_driver;
+@@ -408,7 +408,7 @@ static int __devinit nforce2_probe(struct pci_dev *dev, const struct pci_device_
+ 		smbuses[0].base = 0;	/* to have a check value */
+ 
+ 	/* SMBus adapter 2 */
+-	if (dmi_check_system(nforce2_dmi_blacklist2)) {
++	if (sysfw_callback(nforce2_id_blacklist2)) {
+ 		dev_err(&dev->dev, "Disabling SMB2 for safety reasons.\n");
+ 		res2 = -EPERM;
+ 		smbuses[1].base = 0;
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 6d14ac2..fa9d8a0 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -37,7 +37,7 @@
+ #include <linux/ioport.h>
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+-#include <linux/dmi.h>
++#include <linux/sysfw.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
+ 
+@@ -99,30 +99,30 @@ static int srvrworks_csb5_delay;
+ static struct pci_driver piix4_driver;
+ static struct i2c_adapter piix4_adapter;
+ 
+-static struct dmi_system_id __devinitdata piix4_dmi_blacklist[] = {
++static struct sysfw_id __devinitdata piix4_id_blacklist[] = {
+ 	{
+ 		.ident = "Sapphire AM2RD790",
+ 		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "SAPPHIRE Inc."),
+-			DMI_MATCH(DMI_BOARD_NAME, "PC-AM2RD790"),
++			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "SAPPHIRE Inc."),
++			SYSFW_MATCH(SYSFW_BOARD_NAME, "PC-AM2RD790"),
+ 		},
+ 	},
+ 	{
+ 		.ident = "DFI Lanparty UT 790FX",
+ 		.matches = {
+-			DMI_MATCH(DMI_BOARD_VENDOR, "DFI Inc."),
+-			DMI_MATCH(DMI_BOARD_NAME, "LP UT 790FX"),
++			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "DFI Inc."),
++			SYSFW_MATCH(SYSFW_BOARD_NAME, "LP UT 790FX"),
+ 		},
+ 	},
+-	{ }
++	{}
+ };
+ 
+ /* The IBM entry is in a separate table because we only check it
+    on Intel-based systems */
+-static struct dmi_system_id __devinitdata piix4_dmi_ibm[] = {
++static struct sysfw_id __devinitdata piix4_id_ibm[] = {
+ 	{
+ 		.ident = "IBM",
+-		.matches = { DMI_MATCH(DMI_SYS_VENDOR, "IBM"), },
++		.matches = { SYSFW_MATCH(SYSFW_SYS_VENDOR, "IBM"), },
+ 	},
+ 	{ },
+ };
+@@ -138,14 +138,14 @@ static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
+ 
+ 	/* On some motherboards, it was reported that accessing the SMBus
+ 	   caused severe hardware problems */
+-	if (dmi_check_system(piix4_dmi_blacklist)) {
++	if (sysfw_callback(piix4_id_blacklist)) {
+ 		dev_err(&PIIX4_dev->dev,
+ 			"Accessing the SMBus on this system is unsafe!\n");
+ 		return -EPERM;
+ 	}
+ 
+ 	/* Don't access SMBus on IBM systems which get corrupted eeproms */
+-	if (dmi_check_system(piix4_dmi_ibm) &&
++	if (sysfw_callback(piix4_id_ibm) &&
+ 			PIIX4_dev->vendor == PCI_VENDOR_ID_INTEL) {
+ 		dev_err(&PIIX4_dev->dev, "IBM system detected; this module "
+ 			"may corrupt your serial eeprom! Refusing to load "
 -- 
-yermandu
-
---bcaec554e018ad116004a470ebf8
-Content-Type: text/plain; charset=US-ASCII; name="bisect-kernel.log"
-Content-Disposition: attachment; filename="bisect-kernel.log"
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_goafm3jg0
-
-Z2l0IGJpc2VjdCBzdGFydAojIGJhZDogWzc3NTZmNDRjYzc1ZGM0MmRlNjNiMDFiMDlmY2M4MDc4
-NzhlZGFkMzBdIE1lcmdlIGJyYW5jaCAnbWFzdGVyJyBvZiBnaXQ6Ly9naXQua2VybmVsLm9yZy9w
-dWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvdG9ydmFsZHMvbGludXgtMi42CmdpdCBiaXNlY3QgYmFk
-IDc3NTZmNDRjYzc1ZGM0MmRlNjNiMDFiMDlmY2M4MDc4NzhlZGFkMzAKIyBnb29kOiBbZGQ5YzE1
-NDllZGVmMDIyOTBlZGNlZDYzOWY2N2I1NGEyNWFiYmUwZV0gTGludXggMi42LjM4LXJjNwpnaXQg
-YmlzZWN0IGdvb2QgZGQ5YzE1NDllZGVmMDIyOTBlZGNlZDYzOWY2N2I1NGEyNWFiYmUwZQojIGdv
-b2Q6IFszNGMyN2E0OTdhYjBlOWNhMjhlYjFiZDU3MjkwN2JhOGExNTRhZDUwXSBNZXJnZSBicmFu
-Y2ggJ2Zvci1saW51cycgb2YgZ2l0Oi8vZ2l0Lmtlcm5lbC5kay9saW51eC0yLjYtYmxvY2sKZ2l0
-IGJpc2VjdCBnb29kIDM0YzI3YTQ5N2FiMGU5Y2EyOGViMWJkNTcyOTA3YmE4YTE1NGFkNTAKIyBn
-b29kOiBbMDZmNGU5MjZkMjU2ZDkwMmRkOWE1M2RjYjQwMGZkNzQ5NzRjZTA4N10gTWVyZ2UgZ2l0
-Oi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L2RhdmVtL25ldC1uZXh0
-LTIuNgpnaXQgYmlzZWN0IGdvb2QgMDZmNGU5MjZkMjU2ZDkwMmRkOWE1M2RjYjQwMGZkNzQ5NzRj
-ZTA4NwojIGJhZDogWzUzMWQyODk1OTE3NTY2YWIwZDgyZmFhMDY5NmQwNTc2NTY5ZjEwNTNdIG02
-OGtub21tdTogVXNlIGdlbmVyaWMgc2hvd19pbnRlcnJ1cHRzKCkKZ2l0IGJpc2VjdCBiYWQgNTMx
-ZDI4OTU5MTc1NjZhYjBkODJmYWEwNjk2ZDA1NzY1NjlmMTA1MwojIGJhZDogW2M0NGRlYWQ3MGE4
-NDFkOTBkZGMwMTk2ODAxMmYzMjNjMzMyMTdjOWVdIE1lcmdlIGJyYW5jaCAndXNiLW5leHQnIG9m
-IGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9ncmVna2gvdXNi
-LTIuNgpnaXQgYmlzZWN0IGJhZCBjNDRkZWFkNzBhODQxZDkwZGRjMDE5NjgwMTJmMzIzYzMzMjE3
-YzllCiMgYmFkOiBbNzEwNDIxY2M3ZDI5NWNjNTllYjI2NzZmZTJiYTNiYzMyNTJjMTI0ZV0gTWVy
-Z2UgYnJhbmNoICdmb3ItbGludXMnIG9mIGdpdDovL2dpdC5rZXJuZWwub3JnL3B1Yi9zY20vbGlu
-dXgva2VybmVsL2dpdC90aXdhaS9zb3VuZC0yLjYKZ2l0IGJpc2VjdCBiYWQgNzEwNDIxY2M3ZDI5
-NWNjNTllYjI2NzZmZTJiYTNiYzMyNTJjMTI0ZQojIGJhZDogW2Y2ODZjNzRjYzNlNzgzNDlkMTZk
-NDZmYzcyODA3MzU0NTc0YjE1MTZdIE1lcmdlIGJyYW5jaCAndG9waWMvaGRhJyBpbnRvIGZvci1s
-aW51cwpnaXQgYmlzZWN0IGJhZCBmNjg2Yzc0Y2MzZTc4MzQ5ZDE2ZDQ2ZmM3MjgwNzM1NDU3NGIx
-NTE2CiMgYmFkOiBbMDBkMjcwMTA3MGM5MTcyODk4OGJiZmE0MTRhMzQ2YTIzYWNkODI3NV0gQVNv
-QzogQXNhaGkgS2FzZWkgQUs0NjQxIGNvZGVjIGRyaXZlcgpnaXQgYmlzZWN0IGJhZCAwMGQyNzAx
-MDcwYzkxNzI4OTg4YmJmYTQxNGEzNDZhMjNhY2Q4Mjc1CiMgc2tpcDogW2YwMzBkNjBiMzA4NTVl
-MThhYzViZjA4MGZhOWU1NzYxNDc2MjNkMThdIE1lcmdlIGJyYW5jaCAnZm9yLTIuNi4zOScgaW50
-byBmb3ItMi42LjQwCmdpdCBiaXNlY3Qgc2tpcCBmMDMwZDYwYjMwODU1ZTE4YWM1YmYwODBmYTll
-NTc2MTQ3NjIzZDE4CiMgc2tpcDogW2I3YTVkMTRjNjA3MDkzZGUxYTAzMGU5OTMzYmM4Yzk1YWIy
-YWZkM2ZdIEFTb0M6IE1hcmsgU3BleXNpZGUgd2lkZ2V0cyBhcyBpZ25vcmluZyBzdXNwZW5kCmdp
-dCBiaXNlY3Qgc2tpcCBiN2E1ZDE0YzYwNzA5M2RlMWEwMzBlOTkzM2JjOGM5NWFiMmFmZDNmCiMg
-c2tpcDogWzIwMzE0MDAwNjE3M2VjMWRmNDJhMDVkOGViNzA1MWQ4MmViNjFjMjVdIEFTb0M6IFVz
-ZSBkYXRhIGJhc2VkIGluaXQgZm9yIHdtODcxMSBEQVBNCmdpdCBiaXNlY3Qgc2tpcCAyMDMxNDAw
-MDYxNzNlYzFkZjQyYTA1ZDhlYjcwNTFkODJlYjYxYzI1CiMgYmFkOiBbZGMwYTUwYWZhNjdjM2Ri
-ZDUxMjExODgxYjc1Njg5MTdkYmJjNjg2MV0gQVNvQzogVGVncmE6IFJlbmFtZSBoYXJtb255LmMg
-dG8gdGVncmFfd204OTAzLmMKZ2l0IGJpc2VjdCBiYWQgZGMwYTUwYWZhNjdjM2RiZDUxMjExODgx
-Yjc1Njg5MTdkYmJjNjg2MQojIGdvb2Q6IFszNjM2MThmMDEzZjJmMTFhMTA4OWI2MTA3NDhiZWI1
-ZGU5M2I4NjMwXSBBU29DOiBOYW1lIGphY2sgR1BJT3MgYmFzZWQgb24gamFjayBub3QgY29kZWMK
-Z2l0IGJpc2VjdCBnb29kIDM2MzYxOGYwMTNmMmYxMWExMDg5YjYxMDc0OGJlYjVkZTkzYjg2MzAK
-IyBnb29kOiBbMDY3MWZkOGVmNGIzMjIwMGU3NTM5NmNkMjk5ZjA4NTMwMDJmYzExZV0gQVNvQzog
-QWRkIHNvY19yZW1vdmVfZGFpX2xpbmtzCmdpdCBiaXNlY3QgZ29vZCAwNjcxZmQ4ZWY0YjMyMjAw
-ZTc1Mzk2Y2QyOTlmMDg1MzAwMmZjMTFlCiMgZ29vZDogWzEzMzE5Njk5MTEzYTc4ZTkwNjI1ZWNl
-MTI0NjY2ZDNlZTUzMDMzZjZdIEFTb0M6IEpaNDc0MDogQ29udmVydCBxaV9sYjYwIGNvZGVjIHRv
-IHRhYmxlIGJhc2VkIERBUE0gc2V0dXAKZ2l0IGJpc2VjdCBnb29kIDEzMzE5Njk5MTEzYTc4ZTkw
-NjI1ZWNlMTI0NjY2ZDNlZTUzMDMzZjYKIyBiYWQ6IFtkNTM4MWU0MmY2NGNhMTlmMDVjNTc5OWZm
-YWU1NzA4YWNiNmVkNDExXSBBU29DOiBNZXJnZSBicmFuY2ggJ2Zvci0yLjYuMzknIGludG8gZm9y
-LTIuNi40MApnaXQgYmlzZWN0IGJhZCBkNTM4MWU0MmY2NGNhMTlmMDVjNTc5OWZmYWU1NzA4YWNi
-NmVkNDExCiMgZ29vZDogWzYyMTIwNmI3NjgyNWYyNGNjYjY1MGI5ZjU5YzE4YzE3ZjY3NjBhNGNd
-IEFTb0M6IEpaNDc0MDogcWlfbGI2MDogVXNlIHRoZSBTTkRfU09DX0RBUE1fRVZFTlRfT0ZGIGZv
-ciB0aGUgc3BlYWtlcnMgc3RhdHVzCmdpdCBiaXNlY3QgZ29vZCA2MjEyMDZiNzY4MjVmMjRjY2I2
-NTBiOWY1OWMxOGMxN2Y2NzYwYTRjCiMgYmFkOiBbNjc0NDc5MTI0ZjhjYmM0YjU1MDdkOTE0Y2Nk
-NjNhZDA4ZmQ1MzI2ZV0gQVNvQzogY29kZWNzOiBKWjQ3NDA6IENvbnZlcnQgdG8gdGFibGUgYmFz
-ZWQgY29udHJvbHMgYW5kIERBUE0gc2V0dXAKZ2l0IGJpc2VjdCBiYWQgNjc0NDc5MTI0ZjhjYmM0
-YjU1MDdkOTE0Y2NkNjNhZDA4ZmQ1MzI2ZQojIGdvb2Q6IFs2NzQ0NzkxMjRmOGNiYzRiNTUwN2Q5
-MTRjY2Q2M2FkMDhmZDUzMjZlXSBBU29DOiBjb2RlY3M6IEpaNDc0MDogQ29udmVydCB0byB0YWJs
-ZSBiYXNlZCBjb250cm9scyBhbmQgREFQTSBzZXR1cApnaXQgYmlzZWN0IGdvb2QgNjc0NDc5MTI0
-ZjhjYmM0YjU1MDdkOTE0Y2NkNjNhZDA4ZmQ1MzI2ZQo=
---bcaec554e018ad116004a470ebf8--
+1.7.5.1
