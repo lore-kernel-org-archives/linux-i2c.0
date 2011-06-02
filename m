@@ -1,7 +1,7 @@
 From: Kevin Hilman <khilman@ti.com>
-Subject: [PATCH v4 16/18] I2C: OMAP1: set i2c unit feature implementation flags in platform data
-Date: Wed,  1 Jun 2011 17:19:42 -0700
-Message-ID: <1306973984-15165-17-git-send-email-khilman@ti.com>
+Subject: [PATCH v4 09/18] I2C: OMAP2+: Solve array bounds overflow error on i2c idle
+Date: Wed,  1 Jun 2011 17:19:35 -0700
+Message-ID: <1306973984-15165-10-git-send-email-khilman@ti.com>
 References: <1306973984-15165-1-git-send-email-khilman@ti.com>
 Return-path: <linux-omap-owner@vger.kernel.org>
 In-Reply-To: <1306973984-15165-1-git-send-email-khilman@ti.com>
@@ -12,8 +12,18 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Andy Green <andy@warmcat.com>
 
-Most of the OMAP1 implementation flags are set statically, with the
-exception that omap7xx has its data bus wired up differently.
+This solves the main problem the patch series is about.  Prior
+to this patch on OMAP3530 the driver wrongly interprets the I2C
+peripheral unit's own reported revision as meaning it is running
+on an IP V2 device and must use the extended registers.
+
+In fact OMAP3530 is IP V1 with the smaller register set, the
+reason for the confusion is that the hardware does in fact report
+having the same IP revision index as is found on an OMAP4430,
+which really is IP V2 and has the extended registers.
+
+This corrects the test for which registers to use so that it
+decides using hwmod knowledge found in the platform_data.
 
 Cc: patches@linaro.org
 Cc: Ben Dooks <ben-linux@fluff.org>
@@ -22,33 +32,22 @@ Signed-off-by: Andy Green <andy.green@linaro.org>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Kevin Hilman <khilman@ti.com>
 ---
- arch/arm/plat-omap/i2c.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
-index 9098669..2388b8e 100644
---- a/arch/arm/plat-omap/i2c.c
-+++ b/arch/arm/plat-omap/i2c.c
-@@ -111,6 +111,19 @@ static inline int omap1_i2c_add_bus(int bus_id)
- 	/* all OMAP1 have IP version 1 register set */
- 	pdata->rev = OMAP_I2C_IP_VERSION_1;
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index fbd4ec4..f7196f3 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -309,7 +309,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ 	pdata = pdev->dev.platform_data;
  
-+	/* all OMAP1 I2C are implemented like this */
-+	pdata->flags = OMAP_I2C_FLAG_NO_FIFO |
-+		       OMAP_I2C_FLAG_SIMPLE_CLOCK |
-+		       OMAP_I2C_FLAG_16BIT_DATA_REG |
-+		       OMAP_I2C_FLAG_ALWAYS_ARMXOR_CLK;
-+
-+	/* how the cpu bus is wired up differs for 7xx only */
-+
-+	if (cpu_is_omap7xx())
-+		pdata->flags |= OMAP_I2C_FLAG_BUS_SHIFT_1;
-+	else
-+		pdata->flags |= OMAP_I2C_FLAG_BUS_SHIFT_2;
-+
- 	return platform_device_register(pdev);
- }
- 
+ 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
+-	if (dev->rev >= OMAP_I2C_REV_ON_4430)
++	if (pdata->rev == OMAP_I2C_IP_VERSION_2)
+ 		omap_i2c_write_reg(dev, OMAP_I2C_IP_V2_IRQENABLE_CLR, 1);
+ 	else
+ 		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
 -- 
 1.7.4
 
