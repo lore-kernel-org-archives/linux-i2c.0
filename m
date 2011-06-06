@@ -1,80 +1,61 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: Assign unused slave address
-Date: Mon,  6 Jun 2011 11:25:19 -0600
-Message-ID: <1307381119-26079-1-git-send-email-swarren@nvidia.com>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, bnihalani-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+From: Pavan Savoy <pavan_savoy@sify.com>
+Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
+Date: Mon, 6 Jun 2011 15:22:01 -0500
+Message-ID: <BANLkTimsZeqvSWj+kKWLSmFOQc70KWodcw@mail.gmail.com>
+References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
+	<20110325142648.GC3879@sortiz-mobl>
+	<99B09243E1A5DA4898CDD8B7001114481085E2375D@EXMB04.eu.tieto.com>
+	<201103291305.02293.arnd@arndb.de>
+	<20110331141650.GB2704@sortiz-mobl>
+	<99B09243E1A5DA4898CDD8B7001114481085F0FE7C@EXMB04.eu.tieto.com>
+	<20110331153010.GD2704@sortiz-mobl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20110331153010.GD2704@sortiz-mobl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Samuel Ortiz <sameo@linux.intel.com>
+Cc: Waldemar.Rymarkiewicz@tieto.com, arnd@arndb.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, hthebaud@insidefr.com, matti.j.aaltonen@nokia.com, alan@lxorguk.ukuu.org.uk, Sebastian.Chlad@tieto.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Tegra, we should always use the "new" I2C slave controller, to avoid
-issues with the old controller. This was implemented in commit 65a1a0a
-"i2c: tegra: Enable new slave mode."
+On Thu, Mar 31, 2011 at 9:30 AM, Samuel Ortiz <sameo@linux.intel.com> w=
+rote:
+> On Thu, Mar 31, 2011 at 06:24:50PM +0300, Waldemar.Rymarkiewicz@tieto=
+=2Ecom wrote:
+>> Hi Samuel,
+>>
+>> >That's the Bluetooth approach, and it works just fine as well.
+>> >However, the netlink option for sending commands and receiving
+>> >answers to/from a subsystem sounds more appropriate, at least to me=
+=2E
+>>
+>> I haven't used netlink in practice, so just wondering why netlink. I=
+ assume, then, it's more suitable :)
+>>
+> Have a look at the wireless nl80211.c implementation. It's a good exa=
+mple for
+> that sort of usage.
 
-There is currently no driver for the Tegra I2C slave controller upstream.
-Additionally, the controller cannot be completely disabled. Instead, we
-need to:
+So, why was the network interface 'ala eth0 or the netlink interface dr=
+opped?
+I saw these patches recently "NFC: add nfc subsystem core" - which
+seem to add just the device /dev/nfc - am I correct ?
+Or missing something ?
 
-a) Set I2C_SL_CNFG_NACK to make the controller automatically NACK any
-incoming transactions.
-
-b) The controller's definition of NACK isn't identical to the I2C
-protocol's definition. Specifically, it will perform a standard NACK, but
-*also* continue to hold the clock line low in expectation of receiving
-more data. This can hang the bus, or at least cause transaction timeouts,
-if something starts a transaction that matches the controller's slave
-address. Since the default address is 0x00, the general call address,
-this does occur in practice.
-
-To avoid this, we explicitly program a slave address that is reserved for
-future expansion. For current boards, this guarantees the address will
-never be used. If a future board ever needs to use this address, we can
-add platform data to determine a board-specific safe address. 0xfc is
-picked by this patch.
-
-This patch is based on a change previously posted by: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-http://www.spinics.net/lists/linux-i2c/msg05437.html
-In turned based on internal changes by: Bharat Nihalani <bnihalani-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-
-A semantically equivalent change has been contained in the various
-ChromeOS kernels for a while.
-
-I tested this change on top of 3.0-rc2 on Harmony, and interacted with
-the WM8903 I2C-based audio codec.
-
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4d93196..fb3b4f8 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -40,8 +40,10 @@
- #define I2C_CNFG_NEW_MASTER_FSM			(1<<11)
- #define I2C_STATUS				0x01C
- #define I2C_SL_CNFG				0x020
-+#define I2C_SL_CNFG_NACK			(1<<1)
- #define I2C_SL_CNFG_NEWSL			(1<<2)
- #define I2C_SL_ADDR1				0x02c
-+#define I2C_SL_ADDR2				0x030
- #define I2C_TX_FIFO				0x050
- #define I2C_RX_FIFO				0x054
- #define I2C_PACKET_TRANSFER_STATUS		0x058
-@@ -337,7 +339,11 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 
- 	if (!i2c_dev->is_dvc) {
- 		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
--		i2c_writel(i2c_dev, sl_cfg | I2C_SL_CNFG_NEWSL, I2C_SL_CNFG);
-+		sl_cfg |= I2C_SL_CNFG_NACK | I2C_SL_CNFG_NEWSL;
-+		i2c_writel(i2c_dev, sl_cfg, I2C_SL_CNFG);
-+		i2c_writel(i2c_dev, 0xfc, I2C_SL_ADDR1);
-+		i2c_writel(i2c_dev, 0x00, I2C_SL_ADDR2);
-+
- 	}
- 
- 	val = 7 << I2C_FIFO_CONTROL_TX_TRIG_SHIFT |
--- 
-1.7.0.4
+> Cheers,
+> Samuel.
+>
+> --
+> Intel Open Source Technology Centre
+> http://oss.intel.com/
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
+l" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.ht=
+ml
+> Please read the FAQ at =C2=A0http://www.tux.org/lkml/
+>
+>
+>
