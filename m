@@ -1,30 +1,57 @@
-From: Aloisio Almeida <aloisio.almeida-430g2QfJUUCGglJvpFV4uA@public.gmane.org>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Mon, 6 Jun 2011 17:46:08 -0300
-Message-ID: <BANLkTimmj_SgdSWh8yvXzPGa1LvxqcMj1g@mail.gmail.com>
+Date: Mon, 6 Jun 2011 22:50:00 +0200
+Message-ID: <20110606205000.GB2880@sortiz-mobl>
 References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
- <20110325142648.GC3879@sortiz-mobl> <99B09243E1A5DA4898CDD8B7001114481085E2375D@EXMB04.eu.tieto.com>
- <201103291305.02293.arnd@arndb.de> <20110331141650.GB2704@sortiz-mobl>
+ <20110325142648.GC3879@sortiz-mobl>
+ <99B09243E1A5DA4898CDD8B7001114481085E2375D@EXMB04.eu.tieto.com>
+ <201103291305.02293.arnd@arndb.de>
+ <20110331141650.GB2704@sortiz-mobl>
  <99B09243E1A5DA4898CDD8B7001114481085F0FE7C@EXMB04.eu.tieto.com>
- <20110331153010.GD2704@sortiz-mobl> <BANLkTimsZeqvSWj+kKWLSmFOQc70KWodcw@mail.gmail.com>
- <BANLkTim9tyZXhLUxzHL2K-nWtujsJTB0fw@mail.gmail.com>
+ <20110331153010.GD2704@sortiz-mobl>
+ <BANLkTimsZeqvSWj+kKWLSmFOQc70KWodcw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BANLkTim9tyZXhLUxzHL2K-nWtujsJTB0fw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <BANLkTimsZeqvSWj+kKWLSmFOQc70KWodcw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Pavan Savoy <pavan_savoy-OuV/mKzhOIQ@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org, Sebastian.Chlad-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org
+Cc: Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org, Sebastian.Chlad-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 6, 2011 at 5:30 PM, Pavan Savoy <pavan_savoy-OuV/mKzhOIQ@public.gmane.org> wrote:
-> Yes apparently I did miss a whole of patches in the series.
-> So, for anyone who is interested on the list - this is the proposed
-> architecture,
->
-> http://code.openbossa.org/?p=nfc/linux-nfc.git;a=blob;f=Documentation/networking/nfc.txt;h=e17ac191ca958235db99da23786c46c4c60082e9;hb=f8d3349352063626240ad1c1a15e2361dab81ef4
+Hi Pavan,
 
-Yes, the patch series was submitted to linux-wireless and there is an
-on going discussion over there.
+On Mon, Jun 06, 2011 at 03:22:01PM -0500, Pavan Savoy wrote:
+> On Thu, Mar 31, 2011 at 9:30 AM, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> > On Thu, Mar 31, 2011 at 06:24:50PM +0300, Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org wrote:
+> >> Hi Samuel,
+> >>
+> >> >That's the Bluetooth approach, and it works just fine as well.
+> >> >However, the netlink option for sending commands and receiving
+> >> >answers to/from a subsystem sounds more appropriate, at least to me.
+> >>
+> >> I haven't used netlink in practice, so just wondering why netlink. I assume, then, it's more suitable :)
+> >>
+> > Have a look at the wireless nl80211.c implementation. It's a good example for
+> > that sort of usage.
+> 
+> So, why was the network interface 'ala eth0 or the netlink interface dropped?
+The netlink interface was not dropped. See:
+http://marc.info/?l=linux-wireless&m=130705125228073&w=2
 
-Aloisio
+> I saw these patches recently "NFC: add nfc subsystem core" - which
+> seem to add just the device /dev/nfc - am I correct ?
+No, the /dev/nfc interface is gone with this subsystem. Instead you will talk
+to an AF_NFC socket, or to the NFC generic netlink socket for some NFC high
+level commands and events. See:
+http://marc.info/?l=linux-wireless&m=130705125728090&w=2
+
+for more details.
+
+Cheers,
+Samuel.
+
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/
