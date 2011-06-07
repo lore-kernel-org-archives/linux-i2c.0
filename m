@@ -1,57 +1,50 @@
-From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] NFC: Driver for Inside Secure MicroRead NFC chip
-Date: Mon, 6 Jun 2011 22:50:00 +0200
-Message-ID: <20110606205000.GB2880@sortiz-mobl>
-References: <1300444824-13713-1-git-send-email-waldemar.rymarkiewicz@tieto.com>
- <20110325142648.GC3879@sortiz-mobl>
- <99B09243E1A5DA4898CDD8B7001114481085E2375D@EXMB04.eu.tieto.com>
- <201103291305.02293.arnd@arndb.de>
- <20110331141650.GB2704@sortiz-mobl>
- <99B09243E1A5DA4898CDD8B7001114481085F0FE7C@EXMB04.eu.tieto.com>
- <20110331153010.GD2704@sortiz-mobl>
- <BANLkTimsZeqvSWj+kKWLSmFOQc70KWodcw@mail.gmail.com>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: Re: [PATCH] staging iio: Replace kmalloc with local variable
+Date: Tue, 07 Jun 2011 14:00:23 +0100
+Message-ID: <4DEE20E7.4020008@cam.ac.uk>
+References: <1307450354.1516.23.camel@anish-desktop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <BANLkTimsZeqvSWj+kKWLSmFOQc70KWodcw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Pavan Savoy <pavan_savoy-OuV/mKzhOIQ@public.gmane.org>
-Cc: Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hthebaud-Umy9UjvE/gtWk0Htik3J/w@public.gmane.org, matti.j.aaltonen-xNZwKgViW5gAvxtiuMwx3w@public.gmane.org, alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org, Sebastian.Chlad-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1307450354.1516.23.camel@anish-desktop>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: anish <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: gregkh-l3A5Bk7waGM@public.gmane.org, manuel.stahl-GeUHRtUQU7nSyEMIgutvibNAH6kLmebB@public.gmane.org, lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Pavan,
-
-On Mon, Jun 06, 2011 at 03:22:01PM -0500, Pavan Savoy wrote:
-> On Thu, Mar 31, 2011 at 9:30 AM, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> > On Thu, Mar 31, 2011 at 06:24:50PM +0300, Waldemar.Rymarkiewicz-++hxYGjEMp0AvxtiuMwx3w@public.gmane.org wrote:
-> >> Hi Samuel,
-> >>
-> >> >That's the Bluetooth approach, and it works just fine as well.
-> >> >However, the netlink option for sending commands and receiving
-> >> >answers to/from a subsystem sounds more appropriate, at least to me.
-> >>
-> >> I haven't used netlink in practice, so just wondering why netlink. I assume, then, it's more suitable :)
-> >>
-> > Have a look at the wireless nl80211.c implementation. It's a good example for
-> > that sort of usage.
+On 06/07/11 13:39, anish wrote:
+> From: anish kumar <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > 
-> So, why was the network interface 'ala eth0 or the netlink interface dropped?
-The netlink interface was not dropped. See:
-http://marc.info/?l=linux-wireless&m=130705125228073&w=2
-
-> I saw these patches recently "NFC: add nfc subsystem core" - which
-> seem to add just the device /dev/nfc - am I correct ?
-No, the /dev/nfc interface is gone with this subsystem. Instead you will talk
-to an AF_NFC socket, or to the NFC generic netlink socket for some NFC high
-level commands and events. See:
-http://marc.info/?l=linux-wireless&m=130705125728090&w=2
-
-for more details.
-
-Cheers,
-Samuel.
-
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+> replaced kmalloc with local variable as I2C(in this case) doesn't require
+> kmalloc memory it can do with stack memory.
+I've cc'd linux-i2c just to check I'm right about the whole i2c doesn't need
+dma safe buffers bit...
+> 
+> Signed-off-by: anish kumar <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+> ---
+>  drivers/staging/iio/adc/max1363_core.c |    5 +----
+>  1 files changed, 1 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/staging/iio/adc/max1363_core.c b/drivers/staging/iio/adc/max1363_core.c
+> index 1037087..9462230 100644
+> --- a/drivers/staging/iio/adc/max1363_core.c
+> +++ b/drivers/staging/iio/adc/max1363_core.c
+> @@ -207,15 +207,12 @@ static int max1363_write_basic_config(struct i2c_client *client,
+>  				      unsigned char d2)
+>  {
+>  	int ret;
+> -	u8 *tx_buf = kmalloc(2, GFP_KERNEL);
+> +	u8 tx_buf[2];
+>  
+> -	if (!tx_buf)
+> -		return -ENOMEM;
+>  	tx_buf[0] = d1;
+>  	tx_buf[1] = d2;
+>  
+>  	ret = i2c_master_send(client, tx_buf, 2);
+> -	kfree(tx_buf);
+>  
+>  	return (ret > 0) ? 0 : ret;
+>  }
