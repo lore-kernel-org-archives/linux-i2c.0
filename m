@@ -1,59 +1,63 @@
-From: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Subject: i2c gpio expander on hotplug i2c-adapter
-Date: Tue, 07 Jun 2011 23:59:17 +0200
-Message-ID: <4DEE9F35.9020606@gmx.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-taos-evm: Fix log messages
+Date: Wed, 8 Jun 2011 18:24:14 +0200
+Message-ID: <20110608182414.352cd131@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi there,
-I'm a bit puzzled. My desired setup is something like this: Linux
-station => usb i2c-adapter (i2c tiny usb) => i2c switch (pca9548) => i2c
-gpio expander (pca9555)
-So far, instantiation works for the i2c switch using the sysfs method
-(echo pca9548 0x70 > /sys/bus/i2c....). What's really causing me
-troubles is instantiating the pca9555. What I found so far indicates
-that it has to be defined in the machine specific file. So that is what
-I already added:
+* Print all error and information messages even when debugging is
+  disabled.
+* Don't use adapter device to log messages before it is ready.
 
-static struct pca953x_platform_data pca9555_0 = {
-    .gpio_base = 32,
-};
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-taos-evm.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-static struct i2c_board_info __initdata i2c_tiny_board_info[] = {
-  {
-    I2C_BOARD_INFO("pca9555",0x21),
-    .platform_data = &pca9555_0,
-  }
-};
+--- linux-3.0-rc2.orig/drivers/i2c/busses/i2c-taos-evm.c	2010-08-02 00:11:14.000000000 +0200
++++ linux-3.0-rc2/drivers/i2c/busses/i2c-taos-evm.c	2011-06-08 18:06:32.000000000 +0200
+@@ -234,7 +234,7 @@ static int taos_connect(struct serio *se
+ 
+ 	if (taos->state != TAOS_STATE_IDLE) {
+ 		err = -ENODEV;
+-		dev_dbg(&serio->dev, "TAOS EVM reset failed (state=%d, "
++		dev_err(&serio->dev, "TAOS EVM reset failed (state=%d, "
+ 			"pos=%d)\n", taos->state, taos->pos);
+ 		goto exit_close;
+ 	}
+@@ -255,7 +255,7 @@ static int taos_connect(struct serio *se
+ 					 msecs_to_jiffies(250));
+ 	if (taos->state != TAOS_STATE_IDLE) {
+ 		err = -ENODEV;
+-		dev_err(&adapter->dev, "Echo off failed "
++		dev_err(&serio->dev, "TAOS EVM echo off failed "
+ 			"(state=%d)\n", taos->state);
+ 		goto exit_close;
+ 	}
+@@ -263,7 +263,7 @@ static int taos_connect(struct serio *se
+ 	err = i2c_add_adapter(adapter);
+ 	if (err)
+ 		goto exit_close;
+-	dev_dbg(&serio->dev, "Connected to TAOS EVM\n");
++	dev_info(&serio->dev, "Connected to TAOS EVM\n");
+ 
+ 	taos->client = taos_instantiate_device(adapter);
+ 	return 0;
+@@ -288,7 +288,7 @@ static void taos_disconnect(struct serio
+ 	serio_set_drvdata(serio, NULL);
+ 	kfree(taos);
+ 
+-	dev_dbg(&serio->dev, "Disconnected from TAOS EVM\n");
++	dev_info(&serio->dev, "Disconnected from TAOS EVM\n");
+ }
+ 
+ static struct serio_device_id taos_serio_ids[] = {
 
-Now I'm struggling how to declare my i2c tiny usb adapter to be the bus
-where the pca9555 should live on (leaving out the i2c switch for the
-moment). What I tried so far did not work (obviously):
 
-static struct platform_device i2c_tiny_usb_device = {
-  .name    = "i2c-tiny-usb",
-  .id    = 0,
-};
-static void __devinit i2c_tiny_usb_init(void)
-{
- i2c_register_board_info(0,i2c_tiny_board_info,
-ARRAY_SIZE(i2c_tiny_board_info));
- platform_device_register(&i2c_tiny_usb_device);
-};
-
-The i2c_tiny_usb_init() funciton gets called in the init section. It
-compiles without errors, but with this kernel, the i2c-adapter now gets
-registered as i2c-1. How would a proper declaration of that i2c-adapter
-look like? Or would there even be a chance to do that instantiation from
-a userspace program? I saw that the symbol "pca9555_0" is listed in the
-system.map file of that kernel. So, would there even be a chance to just
-declare the gpio platform data in the kernel and do the instantiation in
-userspace?
-Thanks in advance,
-
-Hartmut
+-- 
+Jean Delvare
