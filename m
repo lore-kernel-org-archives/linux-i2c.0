@@ -1,70 +1,40 @@
-From: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: [PATCH] i2c-eg20t : Support Combined R/W transfer mode
-Date: Thu,  9 Jun 2011 11:29:29 +0900
-Message-ID: <1307586569-14050-1-git-send-email-tomoya-linux@dsn.okisemi.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org, Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] staging iio: Replace kmalloc with local variable
+Date: Thu, 9 Jun 2011 10:29:48 +0200
+Message-ID: <20110609102948.7a3f8d57@endymion.delvare>
+References: <1307450354.1516.23.camel@anish-desktop>
+	<4DEE20E7.4020008@cam.ac.uk>
+	<20110607134135.GD15795@trinity.fluff.org>
+	<20110607160206.6cb3168d@endymion.delvare>
+	<BANLkTim5-ZKXtDkSQyHAJ9-iKtOPsJ917A@mail.gmail.com>
+	<BANLkTi=e0A2G-d+t4VF5V0gj+eNoh3KRnQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <BANLkTi=e0A2G-d+t4VF5V0gj+eNoh3KRnQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: anish singh <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, gregkh-l3A5Bk7waGM@public.gmane.org, manuel.stahl-GeUHRtUQU7nSyEMIgutvibNAH6kLmebB@public.gmane.org, lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, Combined R/W transfer mode is not supported.
-This patch enables Combined R/W transfer mode.
+On Thu, 9 Jun 2011 13:53:09 +0530, anish singh wrote:
+> On Wed, Jun 8, 2011 at 10:41 AM, anish singh <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>wrote:
+> >  On Tue, Jun 7, 2011 at 7:32 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> >> To be clearer, it is down to the i2c BUS (adapter) driver, NOT the i2c
+> >> device driver. So the patch is correct.
+> >>
+> > I think i can take Jean ack on this?If yes then Joanthan kindly apply
+> > this patch and i think you didn't lead me in wrong way as whatever
+> > said by you is corroborated by jean also i.e. it is I2C bus driver
+> > responsiblity
+> > to care about DMA.
+> >
+> Sorry to ping you again.Can i take your ack on this?
 
-Signed-off-by: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
----
- drivers/i2c/busses/i2c-eg20t.c |   39 ++++++++++++++++++++-------------------
- 1 files changed, 20 insertions(+), 19 deletions(-)
+Yes of course.
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 838c21f..b2f94dc 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -672,25 +672,26 @@ static s32 pch_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	/* transfer not completed */
- 	adap->pch_i2c_xfer_in_progress = true;
- 
--	pmsg = &msgs[0];
--	pmsg->flags |= adap->pch_buff_mode_en;
--	status = pmsg->flags;
--	pch_dbg(adap,
--		"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
--	/* calculate sub address length and message length */
--	/* these are applicable only for buffer mode */
--	subaddrlen = pmsg->buf[0];
--	/* calculate actual message length excluding
--	 * the sub address fields */
--	msglen = (pmsg->len) - (subaddrlen + 1);
--	if (status & (I2C_M_RD)) {
--		pch_dbg(adap, "invoking pch_i2c_readbytes\n");
--		ret = pch_i2c_readbytes(i2c_adap, pmsg, (i + 1 == num),
--				   (i == 0));
--	} else {
--		pch_dbg(adap, "invoking pch_i2c_writebytes\n");
--		ret = pch_i2c_writebytes(i2c_adap, pmsg, (i + 1 == num),
--				    (i == 0));
-+	for (i = 0; i < num; i++) {
-+		pmsg = &msgs[i];
-+		pmsg->flags |= adap->pch_buff_mode_en;
-+		status = pmsg->flags;
-+		pch_dbg(adap,
-+			"After invoking I2C_MODE_SEL :flag= 0x%x\n", status);
-+		/* calculate sub address length and message length */
-+		/* these are applicable only for buffer mode */
-+		subaddrlen = pmsg->buf[0];
-+		/* calculate actual message length excluding
-+		 * the sub address fields */
-+		msglen = (pmsg->len) - (subaddrlen + 1);
-+
-+		if ((status & (I2C_M_RD)) != false) {
-+			ret = pch_i2c_readbytes(i2c_adap, pmsg, (i + 1 == num),
-+						(i == 0));
-+		} else {
-+			ret = pch_i2c_writebytes(i2c_adap, pmsg, (i + 1 == num),
-+						 (i == 0));
-+		}
- 	}
- 
- 	adap->pch_i2c_xfer_in_progress = false;	/* transfer completed */
+Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+
 -- 
-1.7.4
+Jean Delvare
