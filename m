@@ -1,69 +1,83 @@
-From: dirk.brandewie@gmail.com
-Subject: [PATCH 02/13] i2c-designware: Check component type register
-Date: Thu,  9 Jun 2011 12:21:39 -0700
-Message-ID: <1307647310-24332-3-git-send-email-dirk.brandewie@gmail.com>
+From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: [PATCH 06/13] i2c-designware: Move retriveving the clock speed out of core code.
+Date: Thu,  9 Jun 2011 12:21:43 -0700
+Message-ID: <1307647310-24332-7-git-send-email-dirk.brandewie@gmail.com>
 References: <1307647310-24332-1-git-send-email-dirk.brandewie@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1307647310-24332-1-git-send-email-dirk.brandewie@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>, Dirk Brandewie <dirk.brandewie@gmail.com>, Ben Dooks <ben-linux@fluff.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1307647310-24332-1-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>
+From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Designware component type register is checked before attaching to the device.
+The clock frequecy supplied to the IP core is specific to a single
+instance of the driver.  This patch makes it possible to have multiple
+Designware I2C cores in the system possibly running at different core
+frequencies.
 
-Signed-off-by: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>
-Signed-off-by: Dirk Brandewie <dirk.brandewie@gmail.com>
-Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware.c |   17 +++++++++++++----
- 1 files changed, 13 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-designware-core.c    |    4 +++-
+ drivers/i2c/busses/i2c-designware-core.h    |    1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c |    6 ++++++
+ 3 files changed, 10 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index 1afb8c0..4be9297 100644
---- a/drivers/i2c/busses/i2c-designware.c
-+++ b/drivers/i2c/busses/i2c-designware.c
-@@ -69,6 +69,7 @@
- #define DW_IC_TXFLR		0x74
- #define DW_IC_RXFLR		0x78
- #define DW_IC_COMP_PARAM_1	0xf4
-+#define DW_IC_COMP_TYPE		0xfc
- #define DW_IC_TX_ABRT_SOURCE	0x80
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index fcb3473..d3b71f2 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -142,10 +142,12 @@ static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
+  */
+ int i2c_dw_init(struct dw_i2c_dev *dev)
+ {
+-	u32 input_clock_khz = clk_get_rate(dev->clk) / 1000;
++	u32 input_clock_khz;
+ 	u32 ic_con, hcnt, lcnt;
+ 	u32 reg;
  
- #define DW_IC_CON_MASTER		0x1
-@@ -710,6 +711,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct resource *mem, *ioarea;
- 	int irq, r;
-+	u32 reg;
- 
- 	/* NOTE: driver uses the static register mapping */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -756,12 +758,19 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 		r = -EBUSY;
- 		goto err_unuse_clocks;
- 	}
--	{
--		u32 param1 = dw_readl(dev, DW_IC_COMP_PARAM_1);
- 
--		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
--		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-+	reg = dw_readl(dev, DW_IC_COMP_TYPE);
-+	if (reg != 0x44570140) {
-+		dev_err(&pdev->dev, "Unknown Synopsys component type: "
-+				"0x%08x\n",	reg);
-+		r = -ENODEV;
-+		goto err_iounmap;
- 	}
++	input_clock_khz = dev->get_clk_rate_khz(dev);
 +
-+	reg = dw_readl(dev, DW_IC_COMP_PARAM_1);
-+	dev->tx_fifo_depth = ((reg >> 16) & 0xff) + 1;
-+	dev->rx_fifo_depth = ((reg >> 8)  & 0xff) + 1;
-+
- 	i2c_dw_init(dev);
+ 	/* Configure register endianess access */
+ 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+ 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 4e37031..43de340 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -166,6 +166,7 @@ struct dw_i2c_dev {
+ 	struct completion	cmd_complete;
+ 	struct mutex		lock;
+ 	struct clk		*clk;
++	u32			(*get_clk_rate_khz) (struct dw_i2c_dev *dev);
+ 	int			cmd_err;
+ 	struct i2c_msg		*msgs;
+ 	int			msgs_num;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 9d10ae8..08783a6 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -43,6 +43,10 @@ static struct i2c_algorithm i2c_dw_algo = {
+ 	.master_xfer	= i2c_dw_xfer,
+ 	.functionality	= i2c_dw_func,
+ };
++static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
++{
++	return clk_get_rate(dev->clk)/1000;
++}
  
- 	dw_writel(dev, 0, DW_IC_INTR_MASK); /* disable IRQ */
+ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ {
+@@ -84,6 +88,8 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, dev);
+ 
+ 	dev->clk = clk_get(&pdev->dev, NULL);
++	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
++
+ 	if (IS_ERR(dev->clk)) {
+ 		r = -ENODEV;
+ 		goto err_free_mem;
 -- 
 1.7.3.4
