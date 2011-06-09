@@ -1,62 +1,91 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Subject: Re: [PATCH] staging iio: Replace kmalloc with local variable
-Date: Thu, 09 Jun 2011 15:51:06 +0100
-Message-ID: <4DF0DDDA.40105@cam.ac.uk>
-References: <1307450354.1516.23.camel@anish-desktop>	<4DEE20E7.4020008@cam.ac.uk>	<20110607134135.GD15795@trinity.fluff.org>	<20110607160206.6cb3168d@endymion.delvare>	<BANLkTim5-ZKXtDkSQyHAJ9-iKtOPsJ917A@mail.gmail.com>	<BANLkTi=e0A2G-d+t4VF5V0gj+eNoh3KRnQ@mail.gmail.com>	<20110609102948.7a3f8d57@endymion.delvare>	<BANLkTimq_5rmB+UkaxZwrOtV-ZF3+fEOgQ@mail.gmail.com>	<4DF088E5.5000408@cam.ac.uk>	<4DF0A48B.6040802@cam.ac.uk> <BANLkTik4Tfd73iKcDsXK-sfy6_ADVX4oYA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: [PATCH 00/13]  V4 Split i2c-designware.c to support PCI drivers.
+Date: Thu,  9 Jun 2011 12:21:37 -0700
+Message-ID: <1307647310-24332-1-git-send-email-dirk.brandewie@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BANLkTik4Tfd73iKcDsXK-sfy6_ADVX4oYA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: anish singh <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, gregkh-l3A5Bk7waGM@public.gmane.org, manuel.stahl-GeUHRtUQU7nSyEMIgutvibNAH6kLmebB@public.gmane.org, lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/09/11 15:29, anish singh wrote:
-> 
-> 
-> On Thu, Jun 9, 2011 at 7:46 PM, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org <mailto:jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>> wrote:
-> 
->     On 06/09/11 09:48, Jonathan Cameron wrote:
->     > On 06/09/11 09:34, anish singh wrote:
->     >>
->     >>
->     >> On Thu, Jun 9, 2011 at 1:59 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>>> wrote:
->     >>
->     >>     On Thu, 9 Jun 2011 13:53:09 +0530, anish singh wrote:
->     >>     > On Wed, Jun 8, 2011 at 10:41 AM, anish singh <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org <mailto:anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> <mailto:anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org <mailto:anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>>>wrote:
->     >>     > >  On Tue, Jun 7, 2011 at 7:32 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>>> wrote:
->     >>     > >> To be clearer, it is down to the i2c BUS (adapter) driver, NOT the i2c
->     >>     > >> device driver. So the patch is correct.
->     >>     > >>
->     >>     > > I think i can take Jean ack on this?If yes then Joanthan kindly apply
->     >>     > > this patch and i think you didn't lead me in wrong way as whatever
->     >>     > > said by you is corroborated by jean also i.e. it is I2C bus driver
->     >>     > > responsiblity
->     >>     > > to care about DMA.
->     >>     > >
->     >>     > Sorry to ping you again.Can i take your ack on this?
->     >>
->     >>     Yes of course.
->     >>
->     >>     Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org <mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>>>
->     >>
->     >> Thanks a ton.Jonathan kindly apply it now :)
->     > Greg, I'll send this one on to you with the set I currently have out for review.
->     >
->     Doh, after all this, I just tried to apply this to find the code in question has already
->     gone.  Anish, what tree are you working against?
-> 
-> I am using linux-next.Is it not the right tree for staging?
-Something curious is going on then because this code is no longer in linux-next either.
-> 
->     Looks like I did an equivalent clean up
->     (with a load of others) back in May then forgot about it.
-> 
->     Sorry all. I should have actually have checked it was still relevant rather than reviewing
->     purely on basis of content of patch...
-> 
->     Jonathan
-> 
-> 
+From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+
+This patch set reworks i2c-designware.c to enable supporting multiple
+instances of the driver in the system and adds support for Designware
+I2C IP cores behind PCI devices.
+
+Previous discussion thread:
+   https://lkml.org/lkml/2011/3/12/70
+
+Changes since V3:
+   commits 330d1c^..5c7d3e from linux-next rebased onto v3.0-rc2
+
+Changes since V2:
+   Fixed bug that kept PCI driver from compiling :-(
+
+   PCI Runtime power mangement code changed to remove warning at probe
+   time and remove device.
+
+   Fix checking of component version on big endian machine to work
+   correctly.
+ 
+Changes since V1 of the patch set:
+
+   Patches 1-3 are now Jean-Hugues Deschenes patches unmodified from
+   http://www.spinics.net/lists/linux-i2c/msg02421.html
+
+   Patch 4 moves the version checking introduced in Jean's code to the
+   core init function.
+
+   Patch 5 splits i2c-designware.c into IP core and bus specific files.
+
+   Patch 6-9 rework i2c-designware-core.c and i2c-designware-platdrv.c to
+   add the ability to support multiple instances of the driver.
+
+   Patch 10 Finishes moving all register access and associated offset and
+   bit definitions into the core.
+
+   Patch 11 Adds support for designware I2C IP cores behind PCI
+   devices on the Moorestown and Medfield platforms. removed change to
+   authors name.
+
+   Patch 12 Adds runtime power management to the PCI driver.    
+
+Dirk Brandewie (10):
+  i2c-designware: Move checking of IP core version to i2c_dw_init()
+  i2c-designware: split of i2c-designware.c into core and bus specific
+    parts
+  i2c-designware: Move retriveving the clock speed out of core code.
+  i2c-designware: move i2c functionality bit field to be adapter
+    specific
+  i2c-designware: move controller config to bus specific portion of
+    driver
+  i2c-designware: Support multiple cores using same ISR
+  i2c-designware: Push all register reads/writes into the core code.
+  i2c-designware: Add support for Designware core behind PCI devices.
+  i2c-designware: Add runtime power management support
+  i2c-intel-mid.c: Remove i2c-intel-mid.c
+
+Jean-Hugues Deschenes (3):
+  i2c-designware: Use local version of readl & writel
+  i2c-designware: Check component type register
+  i2c-designware: Allow mixed endianness accesses
+
+ drivers/i2c/busses/Kconfig                  |   26 +-
+ drivers/i2c/busses/Makefile                 |    6 +-
+ drivers/i2c/busses/i2c-designware-core.c    |  705 +++++++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h    |  106 +++
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |  405 ++++++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c |  215 +++++
+ drivers/i2c/busses/i2c-designware.c         |  847 --------------------
+ drivers/i2c/busses/i2c-intel-mid.c          | 1140 ---------------------------
+ 8 files changed, 1448 insertions(+), 2002 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-core.c
+ create mode 100644 drivers/i2c/busses/i2c-designware-core.h
+ create mode 100644 drivers/i2c/busses/i2c-designware-pcidrv.c
+ create mode 100644 drivers/i2c/busses/i2c-designware-platdrv.c
+ delete mode 100644 drivers/i2c/busses/i2c-designware.c
+ delete mode 100644 drivers/i2c/busses/i2c-intel-mid.c
+
+-- 
+1.7.3.4
