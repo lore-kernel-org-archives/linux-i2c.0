@@ -1,46 +1,104 @@
-From: Kassey Lee <kassey1216-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: static s32 i2c_smbus_xfer_emulated
-Date: Tue, 14 Jun 2011 14:39:24 +0800
-Message-ID: <BANLkTinS1RA6iQfjZaVOE-q4qCtbt17LPg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: base64
+From: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c: imx: choose the better clock divider
+Date: Tue, 14 Jun 2011 15:17:05 +0800
+Message-ID: <1308035825-22410-1-git-send-email-eric.miao@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-aGksIEplYW46CgoKaGVyZSBpcyB0aGUgc3RydWN0dXIgb2YgaTJjX21zZywKCqCgoKCgoKCgIHN0
-cnVjdCBpMmNfbXNnIHsKoKCgoKCgoCBfX3UxNiBhZGRyO6CgoKAgLyogc2xhdmUgYWRkcmVzc6Cg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgICovCqCgoKCgoKAgX191MTYgZmxhZ3M7CiNkZWZpbmUgSTJD
-X01fVEVOoKCgoKCgoKCgoKCgoKAgMHgwMDEwoCAvKiB0aGlzIGlzIGEgdGVuIGJpdCBjaGlwIGFk
-ZHJlc3MgKi8KI2RlZmluZSBJMkNfTV9SRKCgoKCgoKCgoKCgoKCgoCAweDAwMDGgIC8qIHJlYWQg
-ZGF0YSwgZnJvbSBzbGF2ZSB0byBtYXN0ZXIgKi8KI2RlZmluZSBJMkNfTV9OT1NUQVJUoKCgoKCg
-oKCgoCAweDQwMDCgIC8qIGlmIEkyQ19GVU5DX1BST1RPQ09MX01BTkdMSU5HICovCiNkZWZpbmUg
-STJDX01fUkVWX0RJUl9BRERSoKCgoKAgMHgyMDAwoCAvKiBpZiBJMkNfRlVOQ19QUk9UT0NPTF9N
-QU5HTElORyAqLwojZGVmaW5lIEkyQ19NX0lHTk9SRV9OQUugoKCgoKCgIDB4MTAwMKAgLyogaWYg
-STJDX0ZVTkNfUFJPVE9DT0xfTUFOR0xJTkcgKi8KI2RlZmluZSBJMkNfTV9OT19SRF9BQ0ugoKCg
-oKCgoCAweDA4MDCgIC8qIGlmIEkyQ19GVU5DX1BST1RPQ09MX01BTkdMSU5HICovCiNkZWZpbmUg
-STJDX01fUkVDVl9MRU6goKCgoKCgoKAgMHgwNDAwoCAvKiBsZW5ndGggd2lsbCBiZSBmaXJzdCBy
-ZWNlaXZlZCBieXRlICovCqCgoKCgoKAgX191MTYgbGVuO6CgoKCgoKCgoKCgoKAgLyogbXNnIGxl
-bmd0aKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgICovCqCgoKCgoKAgX191OCAqYnVmO6CgoKCg
-oKCgoKCgoKAgLyogcG9pbnRlciB0byBtc2cgZGF0YaCgoKCgoKCgoKCgoKCgoKCgICovCn07Cgpk
-byB5b3UgdGhpbmsgaXQgaXMgYmV0dGVyIHRvIHVzZSBfX3U4IG90aGVyIHRoYW4gdW5zaWduZWQg
-Y2hhciBoZXJlID8KdGhhbmtzCgpzdGF0aWMgczMyIGkyY19zbWJ1c194ZmVyX2VtdWxhdGVkKHN0
-cnVjdCBpMmNfYWRhcHRlciAqYWRhcHRlciwgdTE2IGFkZHIsCqCgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgoKCgoKAgdW5zaWduZWQgc2hvcnQgZmxhZ3MsCqCgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgoKCgoKAgY2hhciByZWFkX3dyaXRlLCB1OCBjb21tYW5kLCBpbnQgc2l6ZSwKoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoCB1bmlvbiBpMmNfc21idXNfZGF0YSAqZGF0
-YSkKewqgoKCgoKCgIC8qIFNvIHdlIG5lZWQgdG8gZ2VuZXJhdGUgYSBzZXJpZXMgb2YgbXNncy4g
-SW4gdGhlIGNhc2Ugb2Ygd3JpdGluZywgd2UKoKCgoKCgoKCgIG5lZWQgdG8gdXNlIG9ubHkgb25l
-IG1lc3NhZ2U7IHdoZW4gcmVhZGluZywgd2UgbmVlZCB0d28uIFdlIGluaXRpYWxpemUKoKCgoKCg
-oKCgIG1vc3QgdGhpbmdzIHdpdGggc2FuZSBkZWZhdWx0cywgdG8ga2VlcCB0aGUgY29kZSBiZWxv
-dyBzb21ld2hhdAqgoKCgoKCgoKAgc2ltcGxlci4gKi8KoKCgoKCgoCB1bnNpZ25lZCBjaGFyIG1z
-Z2J1ZjBbSTJDX1NNQlVTX0JMT0NLX01BWCszXTsKoKCgoKCgoCB1bnNpZ25lZCBjaGFyIG1zZ2J1
-ZjFbSTJDX1NNQlVTX0JMT0NLX01BWCsyXTsKCqCgoKCgoKAgaW50IG51bSA9IHJlYWRfd3JpdGUg
-PT0gSTJDX1NNQlVTX1JFQUQgPyAyIDogMTsKoKCgoKCgoCBzdHJ1Y3QgaTJjX21zZyBtc2dbMl0g
-PSB7IHsgYWRkciwgZmxhZ3MsIDEsIG1zZ2J1ZjAgfSwKoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCg
-oKCgoKCgoKCgIHsgYWRkciwgZmxhZ3MgfCBJMkNfTV9SRCwgMCwgbXNnYnVmMSB9CqCgoKCgoKCg
-oKCgoKCgoKCgoKCgoKCgoKCgoKCgoKAgfTsKCgotLQpCZXN0IHJlZ2FyZHMKS2Fzc2V5CkFwcGxp
-Y2F0aW9uIFByb2Nlc3NvciBTeXN0ZW1zIEVuZ2luZWVyaW5nLCBNYXJ2ZWxsIFRlY2hub2xvZ3kg
-R3JvdXAgTHRkLgpTaGFuZ2hhaSwgQ2hpbmEuCg==
+The original algorithm doesn't perform very well in some cases, e.g.
+
+  When the source clock of the I2C controller is 66MHz, and the
+  requested rate is 100KHz, it gives a divider of 768 instead of
+  the better 640.
+
+Choose a better clock divider so the final clock rate is closer to
+the requested one by comparing the rate distances calculated by
+two adjacent dividers.
+
+Cc: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-imx.c |   46 ++++++++++++++++++++++++++++-------------
+ 1 files changed, 31 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 4c2a62b..cd640ff 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -112,6 +112,8 @@ static u16 __initdata i2c_clk_div[50][2] = {
+ 	{ 3072,	0x1E }, { 3840,	0x1F }
+ };
+ 
++#define I2C_CLK_DIV_NUM		ARRAY_SIZE(i2c_clk_div)
++
+ struct imx_i2c_struct {
+ 	struct i2c_adapter	adapter;
+ 	struct resource		*res;
+@@ -240,22 +242,37 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 	clk_disable(i2c_imx->clk);
+ }
+ 
+-static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+-							unsigned int rate)
++/* find the index into i2c_clk_div[] array, compare with the two
++ * dividers found, return the one with smaller error
++ */
++static int find_div(unsigned long i2c_clk_rate, unsigned long rate)
+ {
+-	unsigned int i2c_clk_rate;
+-	unsigned int div;
++	unsigned long div, delta_l, delta_h;
+ 	int i;
+ 
+-	/* Divider value calculation */
+-	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
+ 	div = (i2c_clk_rate + rate - 1) / rate;
++
+ 	if (div < i2c_clk_div[0][0])
+-		i = 0;
+-	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
+-		i = ARRAY_SIZE(i2c_clk_div) - 1;
+-	else
+-		for (i = 0; i2c_clk_div[i][0] < div; i++);
++		return 0;
++
++	if (div > i2c_clk_div[I2C_CLK_DIV_NUM - 1][0])
++		return I2C_CLK_DIV_NUM;
++
++	for (i = 0; i < I2C_CLK_DIV_NUM; i++)
++		if (i2c_clk_div[i][0] > div)
++			break;
++
++	delta_h = (i2c_clk_rate / i2c_clk_div[i - 1][0]) - rate;
++	delta_l = rate - (i2c_clk_rate / i2c_clk_div[i][0]);
++
++	return (delta_l < delta_h) ? i : i - 1;
++}
++
++static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
++				   unsigned int rate)
++{
++	unsigned long i2c_clk_rate = clk_get_rate(i2c_imx->clk);
++	int i = find_div(i2c_clk_rate, rate);
+ 
+ 	/* Store divider value */
+ 	i2c_imx->ifdr = i2c_clk_div[i][1];
+@@ -271,10 +288,9 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+ 
+ 	/* dev_dbg() can't be used, because adapter is not yet registered */
+ #ifdef CONFIG_I2C_DEBUG_BUS
+-	printk(KERN_DEBUG "I2C: <%s> I2C_CLK=%d, REQ DIV=%d\n",
+-		__func__, i2c_clk_rate, div);
+-	printk(KERN_DEBUG "I2C: <%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
+-		__func__, i2c_clk_div[i][1], i2c_clk_div[i][0]);
++	pr_debug("<%s> I2C_CLK=%ld, REQ RATE=%d, DIV=%d, IFDR[IC]=0x%x\n",
++		__func__, i2c_clk_rate, rate,
++		i2c_clk_div[i][0], i2c_clk_div[i][1]);
+ #endif
+ }
+ 
+-- 
+1.7.4.1
