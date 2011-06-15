@@ -1,97 +1,105 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v4 00/18] I2C: OMAP: I2C fixes, removal of cpu_is...
-	from driver
-Date: Wed, 15 Jun 2011 22:36:37 +0100
-Message-ID: <20110615213637.GH15795@trinity.fluff.org>
-References: <1306973984-15165-1-git-send-email-khilman@ti.com>
+Subject: Re: [PATCH] i2c: tegra: Assign unused slave address
+Date: Wed, 15 Jun 2011 22:37:40 +0100
+Message-ID: <20110615213740.GI15795@trinity.fluff.org>
+References: <1307381119-26079-1-git-send-email-swarren@nvidia.com> <74CDBE0F657A3D45AFBB94109FB122FF04992C01A0@HQMAIL01.nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1306973984-15165-1-git-send-email-khilman-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andy Green <andy.green-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF04992C01A0-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Bharat Nihalani <bnihalani-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 01, 2011 at 05:19:26PM -0700, Kevin Hilman wrote:
-> Ben, 
+On Mon, Jun 13, 2011 at 09:03:52AM -0700, Stephen Warren wrote:
+> Stephen Warren wrote at Monday, June 06, 2011 11:25 AM:
+> > On Tegra, we should always use the "new" I2C slave controller, to avoid
+> > issues with the old controller. This was implemented in commit 65a1a0a
+> > "i2c: tegra: Enable new slave mode."
+> > 
+> > There is currently no driver for the Tegra I2C slave controller upstream.
+> > Additionally, the controller cannot be completely disabled. Instead, we
+> > need to:
+> > 
+> > a) Set I2C_SL_CNFG_NACK to make the controller automatically NACK any
+> > incoming transactions.
+> > 
+> > b) The controller's definition of NACK isn't identical to the I2C
+> > protocol's definition. Specifically, it will perform a standard NACK, but
+> > *also* continue to hold the clock line low in expectation of receiving
+> > more data. This can hang the bus, or at least cause transaction timeouts,
+> > if something starts a transaction that matches the controller's slave
+> > address. Since the default address is 0x00, the general call address,
+> > this does occur in practice.
+> > 
+> > To avoid this, we explicitly program a slave address that is reserved for
+> > future expansion. For current boards, this guarantees the address will
+> > never be used. If a future board ever needs to use this address, we can
+> > add platform data to determine a board-specific safe address. 0xfc is
+> > picked by this patch.
 > 
-> Please pull in this series from Andy Green for the next merge window.
+> Ben,
 > 
-> v4 is simply a rebase of Andy's v3 against v3.0-rc1 with some basic
-> sanity testing against with the latest kernel.
+> Does this patch look OK? I'd categorize it as a bug-fix. Could it go into
+> 3.0?
 
-These look much more like functionality changes than actual fixes, and
-are much more suited for inclusion into -next for once the next stable
-release is out.
+Ok, it looks small enough, will consider it for the next -rc
  
-> It's also available here for pulling:
+> Thanks.
 > 
-> git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap-pm.git for_3.1/i2c-andy
-> 
-> Original cover letter from Andy below:
-> 
-> The following series removes cpu_...() usage completely from the
-> omap-i2c driver by having decisions about functional implementation
-> choices in the SoC held in cpu-specific hwmod tables that are
-> already established, or for OMAP1 where there is no hwmod, set at
-> OMAP1-specific i2c bus addition time.
-> 
-> Along the way it solves two issues with the existing implementation,
-> that only 16-bit accesses are documented to be allowed to the I2C
-> peripheral unit, and that due to a confusion in the existing driver
-> about whether it is faced with a newer IP version on OMAP3530, currently
-> it writes to a random non-existent I2C register at times on that
-> platform.
-
-As noted above there's rather lot of functionality change to go in
-with fixing bugs. Is there a possibility of just fixing as many problems
-without making a pile of changes?
- 
-> The patch series is quite extended from the first try thanks to
-> comments from Benoit Cousson.
-> 
-> This 3rd try is based on 2.6.38-rc8 as requested.
-> 
-> Andy Green (18):
->   I2C: OMAP2+: Set hwmod flags to only allow 16-bit accesses to i2c
->   I2C: OMAP2+: Name registers in I2C IP V2 only accordingly
->   I2C: OMAP2+: Introduce I2C IP versioning constants
->   I2C: OMAP2+: Tag all OMAP2+ hwmod defintions with I2C IP revision
->   I2C: OMAP: add rev to omap i2c platform data
->   I2C: OMAP1: set IP revision in platform data
->   I2C: OMAP2+: Pass hwmod rev knowledge via platform_data when i2c bus
->     added
->   I2C: OMAP2+: use platform_data ip revision to select register map
->   I2C: OMAP2+: Solve array bounds overflow error on i2c idle
->   I2C: OMAP2+: address confused probed version naming
->   I2C: OMAP2+: increase omap_i2c_dev_attr flags from u8 to u32
->   I2C: OMAP1/OMAP2+: add flags field to omap i2c platform data
->   I2C: OMAP2+: Pass flags up to omap i2c platform_data as well
->   I2C: OMAP1/OMAP2+: create omap I2C functionality flags for each
->     cpu_... test
->   I2C: OMAP2+: add correct functionality flags to all omap2plus i2c
->     dev_attr
->   I2C: OMAP1: set i2c unit feature implementation flags in platform
->     data
->   I2C: OMAP2+: Convert omap I2C driver to use feature implementation
->     flags from platform data
->   I2C: OMAP1/OMAP2+: prepend I2C IP version to probed version shown in
->     dev_info
-> 
->  arch/arm/mach-omap2/omap_hwmod_2420_data.c |    8 ++-
->  arch/arm/mach-omap2/omap_hwmod_2430_data.c |    6 ++
->  arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |   13 ++++
->  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |   18 ++++-
->  arch/arm/plat-omap/i2c.c                   |   27 ++++++++
->  arch/arm/plat-omap/include/plat/i2c.h      |    3 +-
->  drivers/i2c/busses/i2c-omap.c              |  100 +++++++++++++++-------------
->  include/linux/i2c-omap.h                   |   29 ++++++++
->  8 files changed, 153 insertions(+), 51 deletions(-)
+> > This patch is based on a change previously posted by: Wei Ni <wni-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> > http://www.spinics.net/lists/linux-i2c/msg05437.html
+> > In turned based on internal changes by: Bharat Nihalani
+> > <bnihalani-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> > 
+> > A semantically equivalent change has been contained in the various
+> > ChromeOS kernels for a while.
+> > 
+> > I tested this change on top of 3.0-rc2 on Harmony, and interacted with
+> > the WM8903 I2C-based audio codec.
+> > 
+> > Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-tegra.c |    8 +++++++-
+> >  1 files changed, 7 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-
+> > tegra.c
+> > index 4d93196..fb3b4f8 100644
+> > --- a/drivers/i2c/busses/i2c-tegra.c
+> > +++ b/drivers/i2c/busses/i2c-tegra.c
+> > @@ -40,8 +40,10 @@
+> >  #define I2C_CNFG_NEW_MASTER_FSM			(1<<11)
+> >  #define I2C_STATUS				0x01C
+> >  #define I2C_SL_CNFG				0x020
+> > +#define I2C_SL_CNFG_NACK			(1<<1)
+> >  #define I2C_SL_CNFG_NEWSL			(1<<2)
+> >  #define I2C_SL_ADDR1				0x02c
+> > +#define I2C_SL_ADDR2				0x030
+> >  #define I2C_TX_FIFO				0x050
+> >  #define I2C_RX_FIFO				0x054
+> >  #define I2C_PACKET_TRANSFER_STATUS		0x058
+> > @@ -337,7 +339,11 @@ static int tegra_i2c_init(struct tegra_i2c_dev
+> > *i2c_dev)
+> > 
+> >  	if (!i2c_dev->is_dvc) {
+> >  		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
+> > -		i2c_writel(i2c_dev, sl_cfg | I2C_SL_CNFG_NEWSL, I2C_SL_CNFG);
+> > +		sl_cfg |= I2C_SL_CNFG_NACK | I2C_SL_CNFG_NEWSL;
+> > +		i2c_writel(i2c_dev, sl_cfg, I2C_SL_CNFG);
+> > +		i2c_writel(i2c_dev, 0xfc, I2C_SL_ADDR1);
+> > +		i2c_writel(i2c_dev, 0x00, I2C_SL_ADDR2);
+> > +
+> >  	}
+> > 
+> >  	val = 7 << I2C_FIFO_CONTROL_TX_TRIG_SHIFT |
+> > --
+> > 1.7.0.4
 > 
 > -- 
-> 1.7.4
+> nvpublic
 > 
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
