@@ -1,203 +1,144 @@
-From: Andrew Worsley <amworsley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c-ocores timeout bug
-Date: Wed, 15 Jun 2011 08:33:45 +1000
-Message-ID: <BANLkTikEESnV9+hc=VFg=qFGOXeg4o0sOQ@mail.gmail.com>
+From: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] i2c: imx: choose the better clock divider
+Date: Wed, 15 Jun 2011 16:34:31 +0800
+Message-ID: <BANLkTi=1hMNNWeq_4bcCr_ynT8osY3efaA@mail.gmail.com>
+References: <1308035825-22410-1-git-send-email-eric.miao@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1308035825-22410-1-git-send-email-eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, I have hit upon a bug in this driver in the 2.6.32 which caused
-memory corrupt and crash in my kernel. It appears to be still present
-in 3.0-rc3 so as you are listed as the current  kernel i2c maintainers
-which covers i2c-ocores I thought you could comment on it and the
-proposed fix I enclose below.
+Sorry forgot to include Ben.
 
-Basically the i2c-ocores xfer function, kicks off an interrupt driven
-array of i2c_msg transfers and waits 1second for it to complete and
-just
-returns -ETIMEDOUT if it times out. The interrupt driven transfer is
-*not* stopped on a time out and continues referencing the i2c_msg
-structure. In my
-case an i2c read the interrupt handler keeps adding bytes to the
-structure. Unfortunately after the time out the structure was released
-and it's length field was changed to a large number and the interrupt
-driver kept happily writing bytes way past the end of the original
-buffer until the kernel crashed or locked up!
+Ben, any ideas?
 
-Below is a fix that works for me in 2.6.32 which removes the i2c_msg
-buffer from the interrupt handler and changes the handler to check for
-it's removal.
-
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 8dee246..21e57a0 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -137,6 +137,12 @@ static void ocores_process(struct ocores_i2c *i2c)
-                wake_up(&i2c->wait);
-                return;
-        }
-+       if (msg == 0) {
-+       /* Caller has with drawn the request, buffer no longer available */
-+           i2c->state = STATE_ERROR;
-+           oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_STOP);
-+           return;
-+       }
-
-        /* error? */
-        if (stat & OCI2C_STAT_ARBLOST) {
-@@ -223,8 +229,13 @@ static int ocores_xfer(struct i2c_adapter *adap,
-struct i2c_msg *msgs, int num)
-        if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
-                               (i2c->state == STATE_DONE), HZ))
-                return (i2c->state == STATE_DONE) ? num : -EIO;
--       else
-+       else {
-+               printk(KERN_NOTICE
-+               "ocores_xfer() i2c transfer to %d-%#x timed out\n",
-+                       i2c_adapter_id(adap), msgs->addr);
-+               i2c->msg = 0; /* remove the caller's request which
-will be re-used */
-                return -ETIMEDOUT;
-+       }
- }
-
- static void ocores_init(struct ocores_i2c *i2c)
-
-Andrew
-
-Some more details of the failure -
-
-Here's the user space command that causes the lock up:
-
-   i2cdump -y 4 0x50 i
-
-Note: With out the i, it performs one byte transfers and is fine. It
-seems my i2c-ocores i2c transfers go *very* slowly and in order to get
-the above command to not time out I had to bump up the i2c-ocores time
-out value to 3s. I suspect that's not necessary for normal situation
-which is why this bug may not have been noticed before. Also most
-other transactions are usually one byte device probes which don't get
-a response. In my case the interrupts appear to be slow - taking some
-15 bytes over one second and there is plenty more data if the
-interrupt driver wants to keep reading.
-
-Here's the transfer function and you can see how it just waits for
-1sec and then fails the request with out stopping the interrupt driver
-from continuing to reference the request data:
-
- static int ocores_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-{
-	struct ocores_i2c *i2c = i2c_get_adapdata(adap);
-
-	i2c->msg = msgs;
-	i2c->pos = 0;
-	i2c->nmsgs = num;
-	i2c->state = STATE_START;
-
-	oc_setreg(i2c, OCI2C_DATA,
-			(i2c->msg->addr << 1) |
-			((i2c->msg->flags & I2C_M_RD) ? 1:0));
-
-	oc_setreg(i2c, OCI2C_CMD, OCI2C_CMD_START);
-
-	if (wait_event_timeout(i2c->wait, (i2c->state == STATE_ERROR) ||
-			       (i2c->state == STATE_DONE), HZ))
-		return (i2c->state == STATE_DONE) ? num : -EIO;
-	else
-		return -ETIMEDOUT;
-}
-
-My kernel would crash with various faults including:  "Thread overran
-stack, or stack corrupted".
-I added in some debugging into the i2c-ocores module and traced things
-down to apparently a corruption of the len field of the i2c transfer
-i2c_msg structure:
-
-The above i2cdump command generates an i2c_msg read transfer for 32
-bytes of data. At the 16th byte of read data the length field is
-over-written with 49844 :
-
-Read finished 1 xfers left
-ocores_process() state=1 status=0x41
-ocores_process() Read addr=0x50 len=32
-ocores_process() state=3 status=0x41
-Read [0] = 0x6 len=32
-ocores_process() state=3 status=0x41
-Read [1] = 0x40 len=32
-ocores_process() state=3 status=0x41
-Read [2] = 0x55 len=32
-ocores_process() state=3 status=0x41
-Read [3] = 0x0 len=32
-ocores_process() state=3 status=0x41
-Read [4] = 0xfb len=32
-ocores_process() state=3 status=0x41
-Read [5] = 0x0 len=32
-ocores_process() state=3 status=0x41
-Read [6] = 0x50 len=32
-ocores_process() state=3 status=0x41
-Read [7] = 0x0 len=32
-ocores_process() state=3 status=0x41
-Read [8] = 0x0 len=32
-ocores_process() state=3 status=0x41
-Read [9] = 0x0 len=32
-ocores_process() state=3 status=0x41
-Read [10] = 0xcf len=32
-ocores_process() state=3 status=0x41
-Read [11] = 0xde len=32
-ocores_process() state=3 status=0x41
-Read [12] = 0xe6 len=32
-ocores_process() state=3 status=0x41
-Read [13] = 0xdc len=32
-ocores_process() state=3 status=0x41
-Read [14] = 0xea len=32
-ocores_process() state=3 status=0x41
-Read [15] = 0xff len=49844
-ocores_process() state=3 status=0x41
-Read [16] = 0x96 len=49844
-ocores_process() state=3 status=0x41
-....
-
-        It happily continues past the end of the buffer at 32 ...
-
-Read [28] = 0x18 len=49844
-ocores_process() state=3 status=0x41
-Read [29] = 0xa5 len=49844
-ocores_process() state=3 status=0x41
-Read [30] = 0x31 len=49844
-ocores_process() state=3 status=0x41
-Read [31] = 0x27 len=49844
-ocores_process() state=3 status=0x41
-Read [32] = 0x1f len=49844
-ocores_process() state=3 status=0x41
-Read [33] = 0x7 len=49844
-ocores_process() state=3 status=0x41
-Read [34] = 0x3d len=49844
-ocores_process() state=3 status=0x41
-Read [35] = 0xe6 len=49844
-ocores_process() state=3 status=0x41
-Read [36] = 0x0 len=49844
-ocores_process() state=3 status=0x41
-Read [37] = 0x64 len=49844
-.....
-
-   It then continues till it stomps on something and gets some sort of fault....
-
-Read [220] = 0x8 len=58644
-ocores_process() state=3 status=0x41
-Read [221] = 0x60 len=58644
-ocores_process() state=3 status=0x41
-Read [222] = 0x43 len=58644
-ocores_process() state=3 status=0x41
-Read [223] = 0x49 len=58644
-ocores_process() state=3 status=0x41
-Read [224] = 0x0 len=58644
-PANIC: double fault, gdt at c1400000 [255 bytes]
-double fault, tss at c1404300
-eip = c032b5a3, esp = c03fa000
-eax = c03fa020, ebx = df16e4e0, ecx = 0000007b, edx = 00000009
-esi = de545580, edi = c0119427
-Read [28] = 0x18 len=49844
+On Tue, Jun 14, 2011 at 3:17 PM, Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote=
+:
+> The original algorithm doesn't perform very well in some cases, e.g.
+>
+> =C2=A0When the source clock of the I2C controller is 66MHz, and the
+> =C2=A0requested rate is 100KHz, it gives a divider of 768 instead of
+> =C2=A0the better 640.
+>
+> Choose a better clock divider so the final clock rate is closer to
+> the requested one by comparing the rate distances calculated by
+> two adjacent dividers.
+>
+> Cc: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+> =C2=A0drivers/i2c/busses/i2c-imx.c | =C2=A0 46 ++++++++++++++++++++++=
+++++++-------------
+> =C2=A01 files changed, 31 insertions(+), 15 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-im=
+x.c
+> index 4c2a62b..cd640ff 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -112,6 +112,8 @@ static u16 __initdata i2c_clk_div[50][2] =3D {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0{ 3072, 0x1E }, { 3840, 0x1F }
+> =C2=A0};
+>
+> +#define I2C_CLK_DIV_NUM =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0ARRAY_SIZE(i2c_clk_div)
+> +
+> =C2=A0struct imx_i2c_struct {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct i2c_adapter =C2=A0 =C2=A0 =C2=A0ada=
+pter;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct resource =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ *res;
+> @@ -240,22 +242,37 @@ static void i2c_imx_stop(struct imx_i2c_struct =
+*i2c_imx)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0clk_disable(i2c_imx->clk);
+> =C2=A0}
+>
+> -static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 unsigned int rate)
+> +/* find the index into i2c_clk_div[] array, compare with the two
+> + * dividers found, return the one with smaller error
+> + */
+> +static int find_div(unsigned long i2c_clk_rate, unsigned long rate)
+> =C2=A0{
+> - =C2=A0 =C2=A0 =C2=A0 unsigned int i2c_clk_rate;
+> - =C2=A0 =C2=A0 =C2=A0 unsigned int div;
+> + =C2=A0 =C2=A0 =C2=A0 unsigned long div, delta_l, delta_h;
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0int i;
+>
+> - =C2=A0 =C2=A0 =C2=A0 /* Divider value calculation */
+> - =C2=A0 =C2=A0 =C2=A0 i2c_clk_rate =3D clk_get_rate(i2c_imx->clk);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0div =3D (i2c_clk_rate + rate - 1) / rate;
+> +
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (div < i2c_clk_div[0][0])
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 i =3D 0;
+> - =C2=A0 =C2=A0 =C2=A0 else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_=
+div) - 1][0])
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 i =3D ARRAY_SIZE(i=
+2c_clk_div) - 1;
+> - =C2=A0 =C2=A0 =C2=A0 else
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 for (i =3D 0; i2c_=
+clk_div[i][0] < div; i++);
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return 0;
+> +
+> + =C2=A0 =C2=A0 =C2=A0 if (div > i2c_clk_div[I2C_CLK_DIV_NUM - 1][0])
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return I2C_CLK_DIV=
+_NUM;
+> +
+> + =C2=A0 =C2=A0 =C2=A0 for (i =3D 0; i < I2C_CLK_DIV_NUM; i++)
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (i2c_clk_div[i]=
+[0] > div)
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 break;
+> +
+> + =C2=A0 =C2=A0 =C2=A0 delta_h =3D (i2c_clk_rate / i2c_clk_div[i - 1]=
+[0]) - rate;
+> + =C2=A0 =C2=A0 =C2=A0 delta_l =3D rate - (i2c_clk_rate / i2c_clk_div=
+[i][0]);
+> +
+> + =C2=A0 =C2=A0 =C2=A0 return (delta_l < delta_h) ? i : i - 1;
+> +}
+> +
+> +static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0unsigned int rate)
+> +{
+> + =C2=A0 =C2=A0 =C2=A0 unsigned long i2c_clk_rate =3D clk_get_rate(i2=
+c_imx->clk);
+> + =C2=A0 =C2=A0 =C2=A0 int i =3D find_div(i2c_clk_rate, rate);
+>
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Store divider value */
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0i2c_imx->ifdr =3D i2c_clk_div[i][1];
+> @@ -271,10 +288,9 @@ static void __init i2c_imx_set_clk(struct imx_i2=
+c_struct *i2c_imx,
+>
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0/* dev_dbg() can't be used, because adapte=
+r is not yet registered */
+> =C2=A0#ifdef CONFIG_I2C_DEBUG_BUS
+> - =C2=A0 =C2=A0 =C2=A0 printk(KERN_DEBUG "I2C: <%s> I2C_CLK=3D%d, REQ=
+ DIV=3D%d\n",
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __func__, i2c_clk_=
+rate, div);
+> - =C2=A0 =C2=A0 =C2=A0 printk(KERN_DEBUG "I2C: <%s> IFDR[IC]=3D0x%x, =
+REAL DIV=3D%d\n",
+> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __func__, i2c_clk_=
+div[i][1], i2c_clk_div[i][0]);
+> + =C2=A0 =C2=A0 =C2=A0 pr_debug("<%s> I2C_CLK=3D%ld, REQ RATE=3D%d, D=
+IV=3D%d, IFDR[IC]=3D0x%x\n",
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 __func__, i2c_clk_=
+rate, rate,
+> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 i2c_clk_div[i][0],=
+ i2c_clk_div[i][1]);
+> =C2=A0#endif
+> =C2=A0}
+>
+> --
+> 1.7.4.1
+>
+>
