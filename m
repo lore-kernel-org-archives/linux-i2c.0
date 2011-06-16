@@ -1,37 +1,59 @@
-From: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: [PATCH] i2c-au1550: increase timeout waiting for transactions to finish
-Date: Thu, 16 Jun 2011 08:00:47 +0200
-Message-ID: <BANLkTi=T7C07ybWqXLmuYPqpjHtohewKrw@mail.gmail.com>
-References: <1307881887-12676-1-git-send-email-manuel.lauss@googlemail.com>
-	<20110615214009.GJ15795@trinity.fluff.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: [PATCH] i2c-isch: Add module parameter which actually set the clock divider
+Date: Thu, 16 Jun 2011 15:24:38 +0200
+Message-ID: <1308230678-28861-1-git-send-email-alexander.stein@systec-electronic.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110615214009.GJ15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 15, 2011 at 11:40 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Sun, Jun 12, 2011 at 02:31:27PM +0200, Manuel Lauss wrote:
->> Wait a bit longer for the I2C master transaction to finish.
->> With this change the WM8731 codec on the DB1300 board is now
->> reliably initialized.
->>
->> Tested on Db1200 and Db1300.
->>
->> Signed-off-by: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
->
-> If no-one else can think of a better fix, then this can go into -rc.
->
-> Is there no register that could be read to find out if the system is
-> busy?
+It was observed the Host Clock Divider was not written by the driver. It
+was still set to (default) 0 which caused garbage on SMBus.
+This driver adds 2 parameters which are used to calculate the divider
+appropriately.
 
-That's what the function in the patch does: polls for the "master done"
-bit to be set.  The timeout around it is just too short for some systems.
+Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-isch.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-Next merge window is fine for this too.  For the current in-tree users this
-driver actually works fine.
-
-Manuel Lauss
+diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
+index 0682f8f..520bbd5 100644
+--- a/drivers/i2c/busses/i2c-isch.c
++++ b/drivers/i2c/busses/i2c-isch.c
+@@ -40,6 +40,7 @@
+ /* SCH SMBus address offsets */
+ #define SMBHSTCNT	(0 + sch_smba)
+ #define SMBHSTSTS	(1 + sch_smba)
++#define SMBHSTCLK	(2 + sch_smba)
+ #define SMBHSTADD	(4 + sch_smba) /* TSA */
+ #define SMBHSTCMD	(5 + sch_smba)
+ #define SMBHSTDAT0	(6 + sch_smba)
+@@ -58,6 +59,8 @@
+ 
+ static unsigned short sch_smba;
+ static struct i2c_adapter sch_adapter;
++static int smbus_speed = 100; /* SMBus bus speed in Kbps */
++static int backbone_speed = 33000; /* backbone speed in KHz */
+ 
+ /*
+  * Start the i2c transaction -- the i2c_access will prepare the transaction
+@@ -156,6 +159,9 @@ static s32 sch_access(struct i2c_adapter *adap, u16 addr,
+ 		dev_dbg(&sch_adapter.dev, "SMBus busy (%02x)\n", temp);
+ 		return -EAGAIN;
+ 	}
++	dev_dbg(&sch_adapter.dev, "access speed: %d KHz\n", smbus_speed);
++	outb((backbone_speed / 4) / smbus_speed, SMBHSTCLK);
++
+ 	dev_dbg(&sch_adapter.dev, "access size: %d %s\n", size,
+ 		(read_write)?"READ":"WRITE");
+ 	switch (size) {
+@@ -323,3 +329,5 @@ MODULE_LICENSE("GPL");
+ module_init(i2c_sch_init);
+ module_exit(i2c_sch_exit);
+ MODULE_ALIAS("platform:isch_smbus");
++module_param(smbus_speed, int, (S_IRUSR | S_IWUSR));
++module_param(backbone_speed, int, (S_IRUSR | S_IWUSR));
+-- 
+1.7.3.4
