@@ -1,45 +1,37 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v4 00/18] I2C: OMAP: I2C fixes, removal of cpu_is... from driver
-Date: Wed, 15 Jun 2011 16:33:48 -0700
-Message-ID: <87k4cm1xgj.fsf@ti.com>
-References: <1306973984-15165-1-git-send-email-khilman@ti.com>
-	<20110615213637.GH15795@trinity.fluff.org>
+From: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: Re: [PATCH] i2c-au1550: increase timeout waiting for transactions to finish
+Date: Thu, 16 Jun 2011 08:00:47 +0200
+Message-ID: <BANLkTi=T7C07ybWqXLmuYPqpjHtohewKrw@mail.gmail.com>
+References: <1307881887-12676-1-git-send-email-manuel.lauss@googlemail.com>
+	<20110615214009.GJ15795@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110615213637.GH15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org> (Ben Dooks's message
-	of "Wed, 15 Jun 2011 22:36:37 +0100")
+In-Reply-To: <20110615214009.GJ15795-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andy Green <andy.green-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
-
-Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
-
-> On Wed, Jun 01, 2011 at 05:19:26PM -0700, Kevin Hilman wrote:
->> Ben, 
->> 
->> Please pull in this series from Andy Green for the next merge window.
->> 
->> v4 is simply a rebase of Andy's v3 against v3.0-rc1 with some basic
->> sanity testing against with the latest kernel.
+On Wed, Jun 15, 2011 at 11:40 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> On Sun, Jun 12, 2011 at 02:31:27PM +0200, Manuel Lauss wrote:
+>> Wait a bit longer for the I2C master transaction to finish.
+>> With this change the WM8731 codec on the DB1300 board is now
+>> reliably initialized.
+>>
+>> Tested on Db1200 and Db1300.
+>>
+>> Signed-off-by: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
 >
-> These look much more like functionality changes than actual fixes, and
-> are much more suited for inclusion into -next for once the next stable
-> release is out.
+> If no-one else can think of a better fix, then this can go into -rc.
+>
+> Is there no register that could be read to find out if the system is
+> busy?
 
-Correct, this is a rework of functionality, not a set of fixes.  This
-series is targeted for the next release (v3.1), not for fixes
-(v3.0-rc).  
+That's what the function in the patch does: polls for the "master done"
+bit to be set.  The timeout around it is just too short for some systems.
 
-I was requesting for it to be included in your queue for -next and for
-the next merge window.
+Next merge window is fine for this too.  For the current in-tree users this
+driver actually works fine.
 
-Tony has already been merging this in his omap-testing branch so it is
-has been getting lots of testing on OMAP platforms already.
-
-Thanks,
-
-Kevin
+Manuel Lauss
