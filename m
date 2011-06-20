@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] OMAP: I2C: Making dev_pm_ops constant
-Date: Mon, 20 Jun 2011 16:04:25 +0530
-Message-ID: <1308566065-31061-1-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH][RFC] OMAP:I2C : optimisation
+Date: Mon, 20 Jun 2011 16:41:02 +0530
+Message-ID: <1308568262-32108-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
@@ -10,8 +10,8 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The dev_pm_ops is not modified runtime so making it
-const.
+omap_i2c_remove function is called at remove making it devexit
+to reclaim the memory.
 
 Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
@@ -19,17 +19,17 @@ Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
  1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index abd9a8e..60dc148 100644
+index 60dc148..e074884 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1168,7 +1168,7 @@ static int omap_i2c_resume(struct device *dev)
- 	return 0;
+@@ -1131,7 +1131,7 @@ err_release_region:
+ 	return r;
  }
  
--static struct dev_pm_ops omap_i2c_pm_ops = {
-+static const struct dev_pm_ops omap_i2c_pm_ops = {
- 	.suspend = omap_i2c_suspend,
- 	.resume = omap_i2c_resume,
- };
+-static int
++static int __devexit
+ omap_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct omap_i2c_dev	*dev = platform_get_drvdata(pdev);
 -- 
 1.7.1
