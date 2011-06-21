@@ -1,77 +1,47 @@
-From: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH] ARM: Tegra: i2c driver
-Date: Mon, 20 Jun 2011 17:23:18 -0700
-Message-ID: <20110621002318.8086.48367.stgit@riker>
+From: Kenneth Heitke <kheitke@codeaurora.org>
+Subject: Re: [PATCH v2] i2c: QUP based bus driver for Qualcomm MSM chipsets
+Date: Mon, 20 Jun 2011 21:50:51 -0600
+Message-ID: <4E00151B.90308@codeaurora.org>
+References: <1308018114-19709-1-git-send-email-kheitke@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: kradtke-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <1308018114-19709-1-git-send-email-kheitke@codeaurora.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: ben-linux@fluff.org
+Cc: Kenneth Heitke <kheitke@codeaurora.org>, khali@linux-fr.org, davidb@codeaurora.org, dwalker@fifo99.com, linux-arm-msm@vger.kernel.org, bryanh@codeaurora.org, tsoni@codeaurora.org, arve@android.com, swetland@google.com, sdharia@codeaurora.org, linux-arm-kernel@lists.infradead.org, seth.heasley@intel.com, tomoya-linux@dsn.okisemi.com, guenter.roeck@ericsson.com, linus.walleij@stericsson.com, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch modifies the tegra i2c driver so that it can be initiailized
-using the device tree along with the devices connected to the i2c bus.
+On 06/13/2011 08:21 PM, Kenneth Heitke wrote:
+> This bus driver supports the QUP i2c hardware controller in the Qualcomm
+> MSM SOCs.  The Qualcomm Universal Peripheral Engine (QUP) is a general
+> purpose data path engine with input/output FIFOs and an embedded i2c
+> mini-core. The driver supports FIFO mode (for low bandwidth applications)
+> and block mode (interrupt generated for each block-size data transfer).
+> The driver currently does not support DMA transfers.
+>
+> Signed-off-by: Kenneth Heitke<kheitke@codeaurora.org>
+> ---
+> v2: updates to runtime PM calls (addresses comments from Mark Brown).
+>      Disable interrupts before setting completion object to NULL (bug fix).
+> ---
+>   drivers/i2c/busses/Kconfig                |   11 +
+>   drivers/i2c/busses/Makefile               |    1 +
+>   drivers/i2c/busses/i2c-qup.c              | 1175 +++++++++++++++++++++++++++++
+>   include/linux/platform_data/msm_qup_i2c.h |   24 +
+>   4 files changed, 1211 insertions(+), 0 deletions(-)
+>   create mode 100644 drivers/i2c/busses/i2c-qup.c
+>   create mode 100644 include/linux/platform_data/msm_qup_i2c.h
 
-Signed-off-by: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
----
+Hi Ben,
 
- drivers/i2c/busses/i2c-tegra.c |   17 ++++++++++++++++-
- 1 files changed, 16 insertions(+), 1 deletions(-)
+If there are no objections to this i2c driver, can it be pulled into 
+your -next tree?
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4d93196..d2393e6 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -26,6 +26,7 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/i2c-tegra.h>
-+#include <linux/of_i2c.h>
- 
- #include <asm/unaligned.h>
- 
-@@ -540,6 +541,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	struct resource *iomem;
- 	struct clk *clk;
- 	struct clk *i2c_clk;
-+	const unsigned int *prop;
- 	void *base;
- 	int irq;
- 	int ret = 0;
-@@ -597,7 +599,17 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->irq = irq;
- 	i2c_dev->cont_id = pdev->id;
- 	i2c_dev->dev = &pdev->dev;
--	i2c_dev->bus_clk_rate = pdata ? pdata->bus_clk_rate : 100000;
-+
-+	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
-+	if (pdata) {
-+		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
-+
-+	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... */
-+		prop = of_get_property(i2c_dev->dev->of_node,
-+				"clock-frequency", NULL);
-+		if (prop)
-+			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
-+	}
- 
- 	if (pdev->id == 3)
- 		i2c_dev->is_dvc = 1;
-@@ -627,6 +639,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
- 	i2c_dev->adapter.dev.parent = &pdev->dev;
- 	i2c_dev->adapter.nr = pdev->id;
-+	i2c_dev->adapter.dev.of_node = pdev->dev.of_node;
- 
- 	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
- 	if (ret) {
-@@ -634,6 +647,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		goto err_free_irq;
- 	}
- 
-+	of_i2c_register_devices(&i2c_dev->adapter);
-+
- 	return 0;
- err_free_irq:
- 	free_irq(i2c_dev->irq, i2c_dev);
+thank you,
+Ken
+
+-- 
+Sent by an employee of the Qualcomm Innovation Center, Inc.
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
