@@ -1,33 +1,51 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH] input/keyboard: Remove obsolete cleanup for clientdata
-Date: Tue, 21 Jun 2011 03:40:10 -0700
-Message-ID: <20110621104008.GA8468@core.coreip.homeip.net>
-References: <1308603674-19264-1-git-send-email-w.sang@pengutronix.de>
- <20110621105532.540dbf7b@endymion.delvare>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Need to use a I2C EEPROM on normal x86 architecture
+Date: Tue, 21 Jun 2011 13:54:52 +0200
+Message-ID: <BANLkTimfbe4ntzzTu0SXJothK1N56m1ghA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20110621105532.540dbf7b@endymion.delvare>
-Sender: linux-input-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, Bo Shen <voice.shen@atmel.com>, Axel Lin <axel.lin@gmail.com>, linux-input@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 21, 2011 at 10:55:32AM +0200, Jean Delvare wrote:
-> On Mon, 20 Jun 2011 23:01:12 +0200, Wolfram Sang wrote:
-> > A few new i2c-drivers came into the kernel which clear the clientdata-pointer
-> > on exit or error. This is obsolete meanwhile, the core will do it.
-> > 
-> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Cc: Bo Shen <voice.shen@atmel.com>
-> > Cc: Axel Lin <axel.lin@gmail.com>
-> 
-> Acked-by: Jean Delvare <khali@linux-fr.org>
-> 
+Hi community,
 
-Applied, thanks Wolfram.
+I am working on an embedded x86 device, which has an at24 based
+eeprom. I am using
+the i2c_eg20t driver to access the i2c bus. To be able to access the
+eeprom in a separated
+driver I did this:
 
--- 
-Dmitry
+/* technical description of our used EEPROM */
+static struct at24_platform_data custom_i2c_eeprom_info = {
+	.byte_len	= EEPROM_BYTE_LEN,
+	.page_size	= 16,
+	.flags		= 0,
+	.setup		= content_read,
+	.context	= NULL,
+};
+
+/* EEPROM at24 */
+static struct i2c_board_info __initdata i2c_info[] =  {
+	{
+		I2C_BOARD_INFO("24c04", 0x50),
+		.platform_data	= &custom_i2c_eeprom_info,
+	},
+};
+
+In the init function of my custom driver I do this:
+
+	/* register known devices on i2c bus */
+	status = i2c_register_board_info(0, i2c_info, ARRAY_SIZE(i2c_info))
+
+Now I run in some troubles... see
+http://www.spinics.net/lists/linux-i2c/msg02022.html
+
+What options do I have to get this running? I could use
+i2c_add_numbered_adapter, but I don''t
+want to touch too much from mainline kernel sources.
+
+Thanks
+--
+Christian Gmeiner, MSc
