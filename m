@@ -1,48 +1,33 @@
-From: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH] i2c-bfin-twi: abort transfer is MEM bit is reset unexpectedly
-Date: Thu, 23 Jun 2011 17:07:54 -0400
-Message-ID: <1308863274-29189-1-git-send-email-vapier@gentoo.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 00/35]: System Firmware and SMBIOS Support
+Date: Fri, 24 Jun 2011 15:40:57 +0200
+Message-ID: <201106241540.57952.arnd@arndb.de>
+References: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <20110623172206.27602.34306.sendpatchset@prarit.bos.redhat.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Prarit Bhargava <prarit@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, x86@kernel.org, linux-acpi@vger.kernel.org, linux-ide@vger.kernel.org, openipmi-developer@lists.sourceforge.net, platform-driver-x86@vger.kernel.org, linux-crypto@vger.kernel.org, dri-devel@lists.freedesktop.org, lm-sensors@lm-sensors.org, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-mmc@vger.kernel.org, netdev@vger.kernel.org, linux-pci@vger.kernel.org, rtc-linux@googlegroups.com, evel@driverdev.osuosl.org, linux-usb@vger.kernel.org, device-drivers-devel@blackfin.uclinux.org, linux-watchdog@vger.kernel.org, grant.likely@secretlab.ca, dz@debian.org, rpurdie@rpsys.net, eric.piel@tremplin-utc.net, abelay@mit.edu, johnpol@2ka.mipt.ru
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Thursday 23 June 2011 19:22:06 Prarit Bhargava wrote:
+> This new patchset reworks the existing DMI code into two separate layers.  It is
+> based off of the feedback I received previously when discussing the SMBIOS
+> version patch on LKML.
 
-Sometimes, the first I2C transmit interrupt is not serviced in time (like
-when higher priority interrupts take too long).  Since the RESTART bit is
-not set before the next I2C clock, when the TWI handler is finally called,
-the I2C session is aborted (MEM bit is reset) and both SMITSERV and MCOMP
-int status bits are set.
+Hi Prarit,
 
-So when this happens, abort the transfer.
+No objections to the patches, but when you send out a series as long as
+this one, please ensure that all patches are sent as replies to the
+introductory mail. Also, do not repeat the one-line patch summary in the
+body of the email.
 
-Reported-by: Isabelle Leonardi <i.leonardi-EsGXWSsajDBWj0EZb7rXcA@public.gmane.org>
-Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Mike Frysinger <vapier-aBrp7R+bbdUdnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-bfin-twi.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletions(-)
+When using "git send-email --thread --no-chain-reply", this works
+automatically. It will also let you put the Cc list into the
+patch description and work out where to send each patch.
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index f2628a7..fcb041d 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -201,7 +201,13 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 		return;
- 	}
- 	if (twi_int_status & MCOMP) {
--		if (iface->cur_mode == TWI_I2C_MODE_COMBINED) {
-+		if ((read_MASTER_CTL(iface) & MEN) == 0 &&
-+			(iface->cur_mode == TWI_I2C_MODE_REPEAT ||
-+			iface->cur_mode == TWI_I2C_MODE_COMBINED)) {
-+			iface->result = -1;
-+			write_INT_MASK(iface, 0);
-+			write_MASTER_CTL(iface, 0);
-+		} else if (iface->cur_mode == TWI_I2C_MODE_COMBINED) {
- 			if (iface->readNum == 0) {
- 				/* set the read number to 1 and ask for manual
- 				 * stop in block combine mode
--- 
-1.7.5.3
+	Arnd
