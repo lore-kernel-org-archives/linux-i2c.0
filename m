@@ -1,60 +1,108 @@
-From: "Zhang, Shijie" <shijie.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: Question about i2c_xxx function on CONFIG_I2C
-Date: Mon, 27 Jun 2011 22:04:01 +0800
-Message-ID: <6D7A567890E70E4BA49B8A9B365980FA12D97F9A0E@shsmsx501.ccr.corp.intel.com>
-References: <87aad3bvyf.wl%kuninori.morimoto.gx@renesas.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: [PATCH] i2c: Allow i2c_add_numbered_adapter() to assign a bus id.
+Date: Mon, 27 Jun 2011 12:55:05 -0600
+Message-ID: <20110627185505.19423.64214.stgit@ponder>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87aad3bvyf.wl%kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org" <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, I think you can config the kernel using make menuconfig command, go to Device Driver--->I2C Suppport
+Currently, if an i2c bus driver supports both static and dynamic bus
+ids, it needs to choose between calling i2c_add_numbered_adapter() and
+i2c_add_adapter().  This patch makes i2c_add_numbered_adapter()
+redirect to i2c_add_adapter() if the requested bus id is -1.
 
-Check what you want to disselect. 
-
-
------Original Message-----
-From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
-Sent: Monday, June 27, 2011 3:00 PM
-To: Linux-I2C
-Subject: Question about i2c_xxx function on CONFIG_I2C
-
-
-Dear all
-
-I'm using i2c_xxx function on some board.
-And sometimes I need very small kernel which doesn't need CONFIG_I2C.
-
-But then (.config doesn't have CONFIG_I2C), the compile will fail.
-like this
-
-error: implicit declaration of function 'i2c_get_adapter'
-error: implicit declaration of function 'i2c_transfer'
-
-In this case, should I use #ifdef CONFIG_I2C in my code to solve this compile issue ?
-Or is below #else in i2c.h good idea ?
-
---- i2c.h ---------
-#if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
-...
-extern struct i2c_adapter *i2c_get_adapter(int nr);
-...
-#else
-...
-#define i2c_get_adapter(nr) NULL
-...
-#endif
-
-
-Best regards
+Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 ---
-Kuninori Morimoto
---
-To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/i2c/busses/i2c-cpm.c   |    7 ++-----
+ drivers/i2c/busses/i2c-pxa.c   |    7 ++-----
+ drivers/i2c/busses/i2c-s6000.c |    5 +----
+ drivers/i2c/i2c-core.c         |    5 +++++
+ 4 files changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+index 3a20961..b1d9cd2 100644
+--- a/drivers/i2c/busses/i2c-cpm.c
++++ b/drivers/i2c/busses/i2c-cpm.c
+@@ -662,11 +662,8 @@ static int __devinit cpm_i2c_probe(struct platform_device *ofdev)
+ 	/* register new adapter to i2c module... */
+ 
+ 	data = of_get_property(ofdev->dev.of_node, "linux,i2c-index", &len);
+-	if (data && len == 4) {
+-		cpm->adap.nr = *data;
+-		result = i2c_add_numbered_adapter(&cpm->adap);
+-	} else
+-		result = i2c_add_adapter(&cpm->adap);
++	cpm->adap.nr = (data && len == 4) ? be32_to_cpup(data) : -1;
++	result = i2c_add_numbered_adapter(&cpm->adap);
+ 
+ 	if (result < 0) {
+ 		dev_err(&ofdev->dev, "Unable to register with I2C\n");
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index f59224a..d603646 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1079,7 +1079,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	 * The reason to do so is to avoid sysfs names that only make
+ 	 * sense when there are multiple adapters.
+ 	 */
+-	i2c->adap.nr = dev->id != -1 ? dev->id : 0;
++	i2c->adap.nr = dev->id;
+ 	snprintf(i2c->adap.name, sizeof(i2c->adap.name), "pxa_i2c-i2c.%u",
+ 		 i2c->adap.nr);
+ 
+@@ -1142,10 +1142,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	i2c->adap.dev.of_node = dev->dev.of_node;
+ #endif
+ 
+-	if (i2c_type == REGS_CE4100)
+-		ret = i2c_add_adapter(&i2c->adap);
+-	else
+-		ret = i2c_add_numbered_adapter(&i2c->adap);
++	ret = i2c_add_numbered_adapter(&i2c->adap);
+ 	if (ret < 0) {
+ 		printk(KERN_INFO "I2C: Failed to add bus\n");
+ 		goto eadapt;
+diff --git a/drivers/i2c/busses/i2c-s6000.c b/drivers/i2c/busses/i2c-s6000.c
+index cb5d01e..c64ba73 100644
+--- a/drivers/i2c/busses/i2c-s6000.c
++++ b/drivers/i2c/busses/i2c-s6000.c
+@@ -341,10 +341,7 @@ static int __devinit s6i2c_probe(struct platform_device *dev)
+ 	i2c_wr16(iface, S6_I2C_TXTL, 0);
+ 
+ 	platform_set_drvdata(dev, iface);
+-	if (bus_num < 0)
+-		rc = i2c_add_adapter(p_adap);
+-	else
+-		rc = i2c_add_numbered_adapter(p_adap);
++	rc = i2c_add_numbered_adapter(p_adap);
+ 	if (rc)
+ 		goto err_irq_free;
+ 	return 0;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 9a58994..131079a 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -925,6 +925,9 @@ EXPORT_SYMBOL(i2c_add_adapter);
+  * or otherwise built in to the system's mainboard, and where i2c_board_info
+  * is used to properly configure I2C devices.
+  *
++ * If the requested bus number is set to -1, then this function will behave
++ * identically to i2c_add_adapter, and will dynamically assign a bus number.
++ *
+  * If no devices have pre-been declared for this bus, then be sure to
+  * register the adapter before any dynamically allocated ones.  Otherwise
+  * the required bus ID may not be available.
+@@ -940,6 +943,8 @@ int i2c_add_numbered_adapter(struct i2c_adapter *adap)
+ 	int	id;
+ 	int	status;
+ 
++	if (adap->nr == -1) /* -1 means dynamically assign bus id */
++		return i2c_add_adapter(adap);
+ 	if (adap->nr & ~MAX_ID_MASK)
+ 		return -EINVAL;
+ 
