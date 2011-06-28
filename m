@@ -1,115 +1,87 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Tegra: Add DeviceTree support
-Date: Tue, 28 Jun 2011 16:16:31 -0600
-Message-ID: <BANLkTim3_3SA3-F2qLhMdGns2sPijh07Yw@mail.gmail.com>
-References: <20110622161656.30052.33366.stgit@riker>
+From: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: [PATCH] i2c: Tegra: Add DeviceTree support
+Date: Tue, 28 Jun 2011 16:22:24 -0700
+Message-ID: <20110628232224.8010.87215.stgit@riker>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110622161656.30052.33366.stgit@riker>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: kradtke-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+To: kradtke-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 22, 2011 at 10:16 AM, John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org> wro=
-te:
-> This patch modifies the tegra i2c driver so that it can be initiailiz=
-ed
-> using the device tree along with the devices connected to the i2c bus=
-=2E
->
-> Signed-off-by: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Acked-by: OIof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+This patch modifies the tegra i2c driver so that it can be initiailized
+using the device tree along with the devices connected to the i2c bus.
 
-I just noticed something.  This patch is incomplete because it does
-not have the of_match_table addition (that bit showed up in the 'fill
-in' patch that you sent me privately.)  Please respin and include the
-of_match_table hunk.
+Signed-off-by: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Acked-by: OIof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+---
 
-Thanks,
-g.
+ drivers/i2c/busses/i2c-tegra.c |   18 +++++++++++++++++-
+ 1 files changed, 17 insertions(+), 1 deletions(-)
 
-> ---
->
-> =A0drivers/i2c/busses/i2c-tegra.c | =A0 17 ++++++++++++++++-
-> =A01 files changed, 16 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-=
-tegra.c
-> index 4d93196..d2393e6 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -26,6 +26,7 @@
-> =A0#include <linux/delay.h>
-> =A0#include <linux/slab.h>
-> =A0#include <linux/i2c-tegra.h>
-> +#include <linux/of_i2c.h>
->
-> =A0#include <asm/unaligned.h>
->
-> @@ -540,6 +541,7 @@ static int tegra_i2c_probe(struct platform_device=
- *pdev)
-> =A0 =A0 =A0 =A0struct resource *iomem;
-> =A0 =A0 =A0 =A0struct clk *clk;
-> =A0 =A0 =A0 =A0struct clk *i2c_clk;
-> + =A0 =A0 =A0 const unsigned int *prop;
-> =A0 =A0 =A0 =A0void *base;
-> =A0 =A0 =A0 =A0int irq;
-> =A0 =A0 =A0 =A0int ret =3D 0;
-> @@ -597,7 +599,17 @@ static int tegra_i2c_probe(struct platform_devic=
-e *pdev)
-> =A0 =A0 =A0 =A0i2c_dev->irq =3D irq;
-> =A0 =A0 =A0 =A0i2c_dev->cont_id =3D pdev->id;
-> =A0 =A0 =A0 =A0i2c_dev->dev =3D &pdev->dev;
-> - =A0 =A0 =A0 i2c_dev->bus_clk_rate =3D pdata ? pdata->bus_clk_rate :=
- 100000;
-> +
-> + =A0 =A0 =A0 i2c_dev->bus_clk_rate =3D 100000; /* default clock rate=
- */
-> + =A0 =A0 =A0 if (pdata) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_dev->bus_clk_rate =3D pdata->bus_cl=
-k_rate;
-> +
-> + =A0 =A0 =A0 } else if (i2c_dev->dev->of_node) { =A0 =A0/* if there =
-is a device tree node ... */
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 prop =3D of_get_property(i2c_dev->dev->=
-of_node,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 "clock-=
-frequency", NULL);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (prop)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 i2c_dev->bus_clk_rate =3D=
- be32_to_cpup(prop);
-> + =A0 =A0 =A0 }
->
-> =A0 =A0 =A0 =A0if (pdev->id =3D=3D 3)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_dev->is_dvc =3D 1;
-> @@ -627,6 +639,7 @@ static int tegra_i2c_probe(struct platform_device=
- *pdev)
-> =A0 =A0 =A0 =A0i2c_dev->adapter.algo =3D &tegra_i2c_algo;
-> =A0 =A0 =A0 =A0i2c_dev->adapter.dev.parent =3D &pdev->dev;
-> =A0 =A0 =A0 =A0i2c_dev->adapter.nr =3D pdev->id;
-> + =A0 =A0 =A0 i2c_dev->adapter.dev.of_node =3D pdev->dev.of_node;
->
-> =A0 =A0 =A0 =A0ret =3D i2c_add_numbered_adapter(&i2c_dev->adapter);
-> =A0 =A0 =A0 =A0if (ret) {
-> @@ -634,6 +647,8 @@ static int tegra_i2c_probe(struct platform_device=
- *pdev)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_free_irq;
-> =A0 =A0 =A0 =A0}
->
-> + =A0 =A0 =A0 of_i2c_register_devices(&i2c_dev->adapter);
-> +
-> =A0 =A0 =A0 =A0return 0;
-> =A0err_free_irq:
-> =A0 =A0 =A0 =A0free_irq(i2c_dev->irq, i2c_dev);
->
->
-
-
-
---=20
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 4d93196..48bb250 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -26,6 +26,7 @@
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/i2c-tegra.h>
++#include <linux/of_i2c.h>
+ 
+ #include <asm/unaligned.h>
+ 
+@@ -540,6 +541,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	struct resource *iomem;
+ 	struct clk *clk;
+ 	struct clk *i2c_clk;
++	const unsigned int *prop;
+ 	void *base;
+ 	int irq;
+ 	int ret = 0;
+@@ -597,7 +599,17 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->irq = irq;
+ 	i2c_dev->cont_id = pdev->id;
+ 	i2c_dev->dev = &pdev->dev;
+-	i2c_dev->bus_clk_rate = pdata ? pdata->bus_clk_rate : 100000;
++
++	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
++	if (pdata) {
++		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
++
++	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... */
++		prop = of_get_property(i2c_dev->dev->of_node,
++				"clock-frequency", NULL);
++		if (prop)
++			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
++	}
+ 
+ 	if (pdev->id == 3)
+ 		i2c_dev->is_dvc = 1;
+@@ -627,6 +639,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->adapter.algo = &tegra_i2c_algo;
+ 	i2c_dev->adapter.dev.parent = &pdev->dev;
+ 	i2c_dev->adapter.nr = pdev->id;
++	i2c_dev->adapter.dev.of_node = pdev->dev.of_node;
+ 
+ 	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
+ 	if (ret) {
+@@ -634,6 +647,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 		goto err_free_irq;
+ 	}
+ 
++	of_i2c_register_devices(&i2c_dev->adapter);
++
+ 	return 0;
+ err_free_irq:
+ 	free_irq(i2c_dev->irq, i2c_dev);
+@@ -708,6 +723,7 @@ static struct platform_driver tegra_i2c_driver = {
+ 	.driver  = {
+ 		.name  = "tegra-i2c",
+ 		.owner = THIS_MODULE,
++		.of_match_table = tegra_i2c_of_match,
+ 	},
+ };
+ 
