@@ -1,7 +1,7 @@
 From: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH] i2c: Tegra: Add DeviceTree support
-Date: Tue, 28 Jun 2011 16:22:24 -0700
-Message-ID: <20110628232224.8010.87215.stgit@riker>
+Subject: [PATCH v3] i2c: Tegra: Add DeviceTree support
+Date: Tue, 28 Jun 2011 16:51:19 -0700
+Message-ID: <20110628234958.10494.25196.stgit@riker>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
@@ -18,11 +18,15 @@ Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 Acked-by: OIof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 ---
 
- drivers/i2c/busses/i2c-tegra.c |   18 +++++++++++++++++-
- 1 files changed, 17 insertions(+), 1 deletions(-)
+Sorry about the previous patch. It's not complete. This is the right one.
+
+- John
+
+ drivers/i2c/busses/i2c-tegra.c |   29 ++++++++++++++++++++++++++++-
+ 1 files changed, 28 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4d93196..48bb250 100644
+index 4d93196..b1d1456 100644
 --- a/drivers/i2c/busses/i2c-tegra.c
 +++ b/drivers/i2c/busses/i2c-tegra.c
 @@ -26,6 +26,7 @@
@@ -77,7 +81,25 @@ index 4d93196..48bb250 100644
  	return 0;
  err_free_irq:
  	free_irq(i2c_dev->irq, i2c_dev);
-@@ -708,6 +723,7 @@ static struct platform_driver tegra_i2c_driver = {
+@@ -698,6 +713,17 @@ static int tegra_i2c_resume(struct platform_device *pdev)
+ }
+ #endif
+ 
++#if defined(CONFIG_OF)
++/* Match table for of_platform binding */
++static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
++        { .compatible = "nvidia,tegra250-i2c", },
++        {},
++};
++MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
++#else
++#define tegra_i2c_of_match NULL
++#endif
++
+ static struct platform_driver tegra_i2c_driver = {
+ 	.probe   = tegra_i2c_probe,
+ 	.remove  = tegra_i2c_remove,
+@@ -708,6 +734,7 @@ static struct platform_driver tegra_i2c_driver = {
  	.driver  = {
  		.name  = "tegra-i2c",
  		.owner = THIS_MODULE,
