@@ -1,109 +1,46 @@
-From: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: [PATCH v3] i2c: Tegra: Add DeviceTree support
-Date: Tue, 28 Jun 2011 16:51:19 -0700
-Message-ID: <20110628234958.10494.25196.stgit@riker>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] OMAP4: I2C: Enable FIFO usage for OMAP4
+Date: Wed, 29 Jun 2011 11:30:21 +0530
+Message-ID: <1309327221-4121-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: kradtke-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch modifies the tegra i2c driver so that it can be initiailized
-using the device tree along with the devices connected to the i2c bus.
+Currently the fifo depth is set to zero for OMAP4 which disables
+the FIFO usage. This patch enables the FIFO usage for I2C transactions
+on OMAP4 also.
 
-Signed-off-by: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Acked-by: OIof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Reported-By:Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
+ drivers/i2c/busses/i2c-omap.c |    9 ++++-----
+ 1 files changed, 4 insertions(+), 5 deletions(-)
 
-Sorry about the previous patch. It's not complete. This is the right one.
-
-- John
-
- drivers/i2c/busses/i2c-tegra.c |   29 ++++++++++++++++++++++++++++-
- 1 files changed, 28 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 4d93196..b1d1456 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -26,6 +26,7 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/i2c-tegra.h>
-+#include <linux/of_i2c.h>
- 
- #include <asm/unaligned.h>
- 
-@@ -540,6 +541,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	struct resource *iomem;
- 	struct clk *clk;
- 	struct clk *i2c_clk;
-+	const unsigned int *prop;
- 	void *base;
- 	int irq;
- 	int ret = 0;
-@@ -597,7 +599,17 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->irq = irq;
- 	i2c_dev->cont_id = pdev->id;
- 	i2c_dev->dev = &pdev->dev;
--	i2c_dev->bus_clk_rate = pdata ? pdata->bus_clk_rate : 100000;
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 58a58c7..934b52c 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1059,13 +1059,12 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		 * size. This is to ensure that we can handle the status on int
+ 		 * call back latencies.
+ 		 */
+-		if (dev->rev >= OMAP_I2C_REV_ON_4430) {
+-			dev->fifo_size = 0;
++		dev->fifo_size = (dev->fifo_size / 2);
++		if (dev->rev >= OMAP_I2C_REV_ON_4430)
+ 			dev->b_hw = 0; /* Disable hardware fixes */
+-		} else {
+-			dev->fifo_size = (dev->fifo_size / 2);
++		else
+ 			dev->b_hw = 1; /* Enable hardware fixes */
+-		}
 +
-+	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
-+	if (pdata) {
-+		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
-+
-+	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... */
-+		prop = of_get_property(i2c_dev->dev->of_node,
-+				"clock-frequency", NULL);
-+		if (prop)
-+			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
-+	}
- 
- 	if (pdev->id == 3)
- 		i2c_dev->is_dvc = 1;
-@@ -627,6 +639,7 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
- 	i2c_dev->adapter.dev.parent = &pdev->dev;
- 	i2c_dev->adapter.nr = pdev->id;
-+	i2c_dev->adapter.dev.of_node = pdev->dev.of_node;
- 
- 	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
- 	if (ret) {
-@@ -634,6 +647,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		goto err_free_irq;
- 	}
- 
-+	of_i2c_register_devices(&i2c_dev->adapter);
-+
- 	return 0;
- err_free_irq:
- 	free_irq(i2c_dev->irq, i2c_dev);
-@@ -698,6 +713,17 @@ static int tegra_i2c_resume(struct platform_device *pdev)
- }
- #endif
- 
-+#if defined(CONFIG_OF)
-+/* Match table for of_platform binding */
-+static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
-+        { .compatible = "nvidia,tegra250-i2c", },
-+        {},
-+};
-+MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
-+#else
-+#define tegra_i2c_of_match NULL
-+#endif
-+
- static struct platform_driver tegra_i2c_driver = {
- 	.probe   = tegra_i2c_probe,
- 	.remove  = tegra_i2c_remove,
-@@ -708,6 +734,7 @@ static struct platform_driver tegra_i2c_driver = {
- 	.driver  = {
- 		.name  = "tegra-i2c",
- 		.owner = THIS_MODULE,
-+		.of_match_table = tegra_i2c_of_match,
- 	},
- };
- 
+ 		/* calculate wakeup latency constraint for MPU */
+ 		if (dev->set_mpu_wkup_lat != NULL)
+ 			dev->latency = (1000000 * dev->fifo_size) /
+-- 
+1.7.1
