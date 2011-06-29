@@ -1,34 +1,36 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PULL] i2c fixes for 3.0
-Date: Wed, 29 Jun 2011 13:13:22 +0200
-Message-ID: <20110629131322.20bf7c5f@endymion.delvare>
+From: Andrew Worsley <amworsley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c-ocores timeout bug
+Date: Thu, 30 Jun 2011 08:55:42 +1000
+Message-ID: <BANLkTino1RYuDDjcXZYdJ1LyeSHz6h=ACw@mail.gmail.com>
+References: <BANLkTikEESnV9+hc=VFg=qFGOXeg4o0sOQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <BANLkTikEESnV9+hc=VFg=qFGOXeg4o0sOQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+So far no response on this bug I reported about 2 weeks ago that
+includes a proposed fix.
 
-Please pull i2c subsystem fixes for Linux 3.0 from:
+Could some one consider adding in the fix into the relevant tree?
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+On 15 June 2011 08:33, Andrew Worsley <amworsley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> Hi, I have hit upon a bug in this driver in the 2.6.32 which caused
+> memory corrupt and crash in my kernel. It appears to be still present
+> in 3.0-rc3
 
- drivers/i2c/busses/i2c-taos-evm.c |    8 ++++----
- drivers/i2c/muxes/pca954x.c       |    7 ++++---
- 2 files changed, 8 insertions(+), 7 deletions(-)
+http://thread.gmane.org/gmane.linux.drivers.i2c/8543
 
----------------
+I have since identified the cause of the problem was the wrong clock
+frequency for the FPGA. I mis-understood the clock frequency to
+be the i2c bus frequency - but it is actually an FPGA clock frequency.
+Perhaps others will make the same mistake as well.
 
-Jean Delvare (1):
-      i2c-taos-evm: Fix log messages
+In fact as it stands there is no module parameter to change your i2c
+bus frequency - other than by fiddling your FPGA clock frequency.
+Better would be a separate parameters for each with a clearer names.
 
-Petri Gynther (1):
-      i2c/pca954x: Initialize the mux to disconnected state
-
-Thanks,
--- 
-Jean Delvare
+Andrew
