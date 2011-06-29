@@ -1,36 +1,42 @@
-From: Andrew Worsley <amworsley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-ocores timeout bug
-Date: Thu, 30 Jun 2011 08:55:42 +1000
-Message-ID: <BANLkTino1RYuDDjcXZYdJ1LyeSHz6h=ACw@mail.gmail.com>
-References: <BANLkTikEESnV9+hc=VFg=qFGOXeg4o0sOQ@mail.gmail.com>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: [PATCH] OMAP4: I2C: Enable FIFO usage for OMAP4
+Date: Wed, 29 Jun 2011 16:23:57 -0700
+Message-ID: <871uycql0y.fsf@ti.com>
+References: <1309327221-4121-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BANLkTikEESnV9+hc=VFg=qFGOXeg4o0sOQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1309327221-4121-1-git-send-email-shubhrajyoti@ti.com>
+	(Shubhrajyoti D.'s message of "Wed, 29 Jun 2011 11:30:21 +0530")
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti D <shubhrajyoti@ti.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-So far no response on this bug I reported about 2 weeks ago that
-includes a proposed fix.
+Shubhrajyoti D <shubhrajyoti@ti.com> writes:
 
-Could some one consider adding in the fix into the relevant tree?
+> Currently the fifo depth is set to zero for OMAP4 which disables
+> the FIFO usage. This patch enables the FIFO usage for I2C transactions
+> on OMAP4 also.
 
-On 15 June 2011 08:33, Andrew Worsley <amworsley-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> Hi, I have hit upon a bug in this driver in the 2.6.32 which caused
-> memory corrupt and crash in my kernel. It appears to be still present
-> in 3.0-rc3
+Do you know the history of why the FIFO depth was set to zero?  A
+summary of that history would greatly help reviewers.
 
-http://thread.gmane.org/gmane.linux.drivers.i2c/8543
+> Reported-By:Nishanth Menon <nm@ti.com>
 
-I have since identified the cause of the problem was the wrong clock
-frequency for the FPGA. I mis-understood the clock frequency to
-be the i2c bus frequency - but it is actually an FPGA clock frequency.
-Perhaps others will make the same mistake as well.
+minor: missing space after ':'
 
-In fact as it stands there is no module parameter to change your i2c
-bus frequency - other than by fiddling your FPGA clock frequency.
-Better would be a separate parameters for each with a clearer names.
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 
-Andrew
+Tested on what platforms?   OMAP3 also?
+
+Could you please rebase this onto my for_3.1/i2c-andy branch[1] where we
+have a large series of I2C patches queued up for the v3.1 merge window
+already? 
+
+Thanks,
+
+Kevin
+
+[1] git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap-pm.git
+
