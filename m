@@ -1,28 +1,45 @@
-From: "PROF.MAURICE IWU" <iwumaurice900-OuV/mKzhOIQ@public.gmane.org>
-Subject: Equity Business Investment
-Date: Thu, 30 Jun 2011 17:44:46 +0200
-Message-ID: <EXCHANGE03YW8BYXifW0000054a__31955.2091569223$1309448709$gmane$org@exchange03.2besource.com>
-Reply-To: <profmauriceiwu2221-/E1597aS9LR3+QwDJ9on6Q@public.gmane.org>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: [PATCH] OMAP4: I2C: Enable FIFO usage for OMAP4
+Date: Thu, 30 Jun 2011 15:50:19 -0700
+Message-ID: <874o37djdg.fsf@ti.com>
+References: <1309327221-4121-1-git-send-email-shubhrajyoti@ti.com>
+	<871uycql0y.fsf@ti.com> <4E0C24A5.5020905@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <4E0C24A5.5020905@ti.com> (shubhrajyoti@ti.com's message of "Thu,
+	30 Jun 2011 12:54:21 +0530")
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti <shubhrajyoti@ti.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Equity Business Investment
->From Prof. Maurice Iwu 
+Shubhrajyoti <shubhrajyoti@ti.com> writes:
 
-Dear Friend,
+> On Thursday 30 June 2011 04:53 AM, Kevin Hilman wrote:
+>> Shubhrajyoti D<shubhrajyoti@ti.com>  writes:
+>>
+>>> Currently the fifo depth is set to zero for OMAP4 which disables
+>>> the FIFO usage. This patch enables the FIFO usage for I2C transactions
+>>> on OMAP4 also.
+>> Do you know the history of why the FIFO depth was set to zero?  A
+>> summary of that history would greatly help reviewers.
+>>
+>>> Reported-By:Nishanth Menon<nm@ti.com>
+>> minor: missing space after ':'
+>>
+>>> Signed-off-by: Shubhrajyoti D<shubhrajyoti@ti.com>
+>> Tested on what platforms?   OMAP3 also?
+> OMAP4 and OMAP3
 
-I am Prof. Maurice M. Iwu, Former Chairman Independent Electoral Commission 
-(INEC).Currently, I am on compulsory terminal leave presently in UK , 
-leading up to my final retirement from public service.
+Please add a brief summary of what platforms it was tested on in the
+changelog.
 
-I am seeking your partnership in a mutual benefit project involving 
-investing into your company and secondly on properties and to be precise Estate Development or any other profitable venture of your great idea for our mutual benefit of Equity Market Investment.,
+>> Could you please rebase this onto my for_3.1/i2c-andy branch[1] where we
+>> have a large series of I2C patches queued up for the v3.1 merge window
+>> already?
+> OK will rebase and resend.
 
-Sincerely,
-Prof. Maurice M.Iwu.
-{INEC.}
+Thanks,
+
+Kevin
