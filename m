@@ -1,71 +1,60 @@
-From: Tim Nelson <tnelson-f4DZ+GDyDBaakBO8gow8eQ@public.gmane.org>
-Subject: Re: Winbond W83L604G
-Date: Tue, 5 Jul 2011 12:06:13 -0500 (CDT)
-Message-ID: <8829587.204.1309885573653.JavaMail.root@zmail.rockbochs.com>
-References: <6D7A567890E70E4BA49B8A9B365980FA12D99C14BE@shsmsx501.ccr.corp.intel.com>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH][RFC] OMAP4: I2C : I2C context save
+Date: Tue, 05 Jul 2011 11:31:23 -0700
+Message-ID: <87y60cr344.fsf@ti.com>
+References: <1308559552-24028-1-git-send-email-shubhrajyoti@ti.com>
+	<87ips08qis.fsf@ti.com> <4DFF6A9E.5050209@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6D7A567890E70E4BA49B8A9B365980FA12D99C14BE-QQHDSDV1ERZpB2pF5aRoyrfspsVTdybXVpNB7YpNyf8@public.gmane.org>
+In-Reply-To: <4DFF6A9E.5050209-l0cyMroinI0@public.gmane.org> (shubhrajyoti-l0cyMroinI0@public.gmane.org's message of "Mon,
+	20 Jun 2011 21:13:26 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, andy.green-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-I've done that:
+Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
 
-root@aaa:~# lsmod | grep i2c
-i2c_dev                 3382  0
-i2c_core               12703  1 i2c_dev
+> On Monday 20 June 2011 09:05 PM, Kevin Hilman wrote:
+>> shubhrajyoti-l0cyMroinI0@public.gmane.org writes:
+>>
+>>> From: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
+>>>
+>>> Currently the OMAP4 doesnot hit device off still the
+>>> driver may have support for it.Adding support for the
+>>> same.
+>>>
+>>> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
+>> Please Cc linux-omap as this change to the hwmod data would go through
+>> Tony.
+> Yes , missed out.
+>> Also, please describe why this hwmod data change affects the problem
+>> described in the changelog.
+>>
+> After Andy's patch set
+> <code snippet>
+> static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+> {
+> <snip>
+>
+>         pm_runtime_get_sync(&pdev->dev);
+>
+>         if (pdata->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
+>                 omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+>                 omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+>         }
+>         dev->idle = 0;
+>
+> This is dependent on the flag, I am making it true for OMAP4 also.
 
-But, nothing of interest in dmesg other than:
+What I meant was: please describe this in the changelog.  Without more
+detail, the hwmod change itself is not understandable.
 
-[108414.944722] i2c /dev entries driver
-
-and running i2cdetect still turns up nothing:
-
-root@aaa:~# i2cdetect -l
-
-Any thoughts? Does this specific Winbond chip require a device specific kernel module to operate such as those found in /lib/modules/2.6.32-5-486/kernel/drivers/i2c/busses  ?
-
-Tim Nelson
-Systems/Network Support
-Rockbochs Inc.
-(218)727-4332 x105
-
------ Original Message -----
-> You have to install i2c-dev.ko with "insmod i2c-dev.ko". Good luck :)
-> 
-> BR
-> 
-> Shijie
-> 
-> -----Original Message-----
-> From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Tim Nelson
-> Sent: Tuesday, July 05, 2011 10:46 PM
-> To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Winbond W83L604G
-> 
-> Greetings-
-> 
-> I've got a board with a Winbond W83L604G GPIO controller and I'd like
-> to use it with Debian 6.x for controlling attached LEDs. However,
-> using i2cdetect, I'm not seeing any I2C busses on the system, nor any
-> I2C devices. Does this controller require a specific kernel module for
-> operation? Any tips or pointers on how to make it available for
-> control using I2C?
-> 
-> I've not found a current kernel module for this chip, nor found any
-> reference when grep'ing through the current source tarball. Maybe
-> there simply isn't a module available to use it?
-> 
-> Thanks!
-> 
-> --Tim
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c"
-> in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at http://vger.kernel.org/majordomo-info.html
+Kevin
