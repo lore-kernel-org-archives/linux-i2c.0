@@ -1,63 +1,41 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Allow i2c_add_numbered_adapter() to assign a bus
- id.
-Date: Tue, 5 Jul 2011 10:53:30 +0200
-Message-ID: <20110705105330.63c113c8@endymion.delvare>
-References: <20110627185505.19423.64214.stgit@ponder>
-	<BANLkTi=6zxPUwGZ5JHhRGRHHaEgvNgiaHQ@mail.gmail.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH][RFC] OMAP4: I2C : I2C context save
+Date: Tue, 5 Jul 2011 14:50:46 +0530
+Message-ID: <1309857646-29401-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <BANLkTi=6zxPUwGZ5JHhRGRHHaEgvNgiaHQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Stephen Warren <SWarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Grant,
+Currently the OMAP4 doesnot hit device off still the
+driver may have support for it.Adding support for the
+same.
 
-Sorry for the late answer.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+Applies on top of patches from Andy Green
+http://www.spinics.net/lists/linux-i2c/msg05632.html
+Tested on OMAP4430
 
-On Mon, 27 Jun 2011 13:02:45 -0600, Grant Likely wrote:
-> On Mon, Jun 27, 2011 at 12:55 PM, Grant Likely
-> <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org> wrote:
-> > Currently, if an i2c bus driver supports both static and dynamic bu=
-s
-> > ids, it needs to choose between calling i2c_add_numbered_adapter() =
-and
-> > i2c_add_adapter(). =A0This patch makes i2c_add_numbered_adapter()
-> > redirect to i2c_add_adapter() if the requested bus id is -1.
-> >
-> > Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
->=20
-> Oops, forgot to edit the email before sending the patch.
->=20
-> This patch is as-yet untested other than build testing, but I want to
-> get feedback.  With the move to DT on ARM, there are going to be a lo=
-t
-> more i2c bus drivers that need to support both static and dynamically
-> allocated busses, and it is very likely that it will be needed in the
-> v3.1 merge window.
->=20
-> Ben/Jean, *IF* this patch tests out okay, and *IF* I get an ack from
-> you, it will probably need to have this commit in my devicetree/next
-> branch.  If so, then I'll either need to commit it myself, or have it
-> put into a separate topic branch that both of us can merge into our
-> trees.  What is your preference.
->=20
-> John: this is the patch that I asked you to write earlier today, but =
-I
-> think one of the TI folks will run into the same issue, so I wanted t=
-o
-> get it drafted and onto the list ASAP.
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-If this makes your life easier then I have no objection, you can go
-ahead. I don't expect any conflict with my tree as there is no i2c-core
-work going on on my end at the moment. So you can just take it in your
-tree and merge it yourself as you see fit.
-
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
---=20
-Jean Delvare
+diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+index 0fe9556..5e2c748 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+@@ -2130,7 +2130,8 @@ static struct omap_hwmod_class omap44xx_i2c_hwmod_class = {
+ };
+ 
+ static struct omap_i2c_dev_attr i2c_dev_attr = {
+-	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE,
++	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE |
++			OMAP_I2C_FLAG_RESET_REGS_POSTIDLE,
+ };
+ 
+ /* i2c1 */
+-- 
+1.7.1
