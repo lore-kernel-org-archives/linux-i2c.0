@@ -1,35 +1,28 @@
-From: "Zhang, Shijie" <shijie.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: RE: Winbond W83L604G
-Date: Tue, 5 Jul 2011 22:59:56 +0800
-Message-ID: <6D7A567890E70E4BA49B8A9B365980FA12D99C14BE@shsmsx501.ccr.corp.intel.com>
-References: <30480104.171.1309877177809.JavaMail.root@zmail.rockbochs.com>
+From: Christian Kujau <lists-AanptEQQ3TL9uQeqpI+JUg@public.gmane.org>
+Subject: Re: therm_adt746x: attach_adapter method is deprecated (fwd)
+Date: Tue, 5 Jul 2011 09:14:49 -0700 (PDT)
+Message-ID: <alpine.DEB.2.01.1107050913520.9183@trent.utfs.org>
+References: <alpine.DEB.2.01.1104211758220.18728@trent.utfs.org> <20110422103147.24c79768@endymion.delvare> <alpine.DEB.2.01.1104221057160.18728@trent.utfs.org> <20110422201803.6886669d@endymion.delvare> <1309850440.14501.275.camel@pasglop>
+ <20110705102752.1251361c@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <30480104.171.1309877177809.JavaMail.root-N94c1vXlnCs/q/FG96+aB0EOCMrvLtNR@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <20110705102752.1251361c-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tim Nelson <tnelson-f4DZ+GDyDBaakBO8gow8eQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-WW91IGhhdmUgdG8gaW5zdGFsbCBpMmMtZGV2LmtvIHdpdGggImluc21vZCBpMmMtZGV2LmtvIi4g
-R29vZCBsdWNrIDopDQoNCkJSDQoNClNoaWppZQ0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0t
-LQ0KRnJvbTogbGludXgtaTJjLW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmxpbnV4LWky
-Yy1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBUaW0gTmVsc29uDQpTZW50OiBU
-dWVzZGF5LCBKdWx5IDA1LCAyMDExIDEwOjQ2IFBNDQpUbzogbGludXgtaTJjQHZnZXIua2VybmVs
-Lm9yZw0KU3ViamVjdDogV2luYm9uZCBXODNMNjA0Rw0KDQpHcmVldGluZ3MtDQoNCkkndmUgZ290
-IGEgYm9hcmQgd2l0aCBhIFdpbmJvbmQgVzgzTDYwNEcgR1BJTyBjb250cm9sbGVyIGFuZCBJJ2Qg
-bGlrZSB0byB1c2UgaXQgd2l0aCBEZWJpYW4gNi54IGZvciBjb250cm9sbGluZyBhdHRhY2hlZCBM
-RURzLiBIb3dldmVyLCB1c2luZyBpMmNkZXRlY3QsIEknbSBub3Qgc2VlaW5nIGFueSBJMkMgYnVz
-c2VzIG9uIHRoZSBzeXN0ZW0sIG5vciBhbnkgSTJDIGRldmljZXMuIERvZXMgdGhpcyBjb250cm9s
-bGVyIHJlcXVpcmUgYSBzcGVjaWZpYyBrZXJuZWwgbW9kdWxlIGZvciBvcGVyYXRpb24/IEFueSB0
-aXBzIG9yIHBvaW50ZXJzIG9uIGhvdyB0byBtYWtlIGl0IGF2YWlsYWJsZSBmb3IgY29udHJvbCB1
-c2luZyBJMkM/DQoNCkkndmUgbm90IGZvdW5kIGEgY3VycmVudCBrZXJuZWwgbW9kdWxlIGZvciB0
-aGlzIGNoaXAsIG5vciBmb3VuZCBhbnkgcmVmZXJlbmNlIHdoZW4gZ3JlcCdpbmcgdGhyb3VnaCB0
-aGUgY3VycmVudCBzb3VyY2UgdGFyYmFsbC4gTWF5YmUgdGhlcmUgc2ltcGx5IGlzbid0IGEgbW9k
-dWxlIGF2YWlsYWJsZSB0byB1c2UgaXQ/DQoNClRoYW5rcyENCg0KLS1UaW0NCg0KLS0NClRvIHVu
-c3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBsaW51
-eC1pMmMiIGluDQp0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVs
-Lm9yZw0KTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpv
-cmRvbW8taW5mby5odG1sDQo=
+On Tue, 5 Jul 2011 at 10:27, Jean Delvare wrote:
+> > I hope to have something before the end of the week for you to review.
+> 
+> Sure, as soon as you have anything ready, I'll be happy to review it.
+
+...and I'll be happy to test (on my Powerbook G4) :-)
+
+Thanks,
+Christian.
+-- 
+BOFH excuse #149:
+
+Dew on the telephone lines.
