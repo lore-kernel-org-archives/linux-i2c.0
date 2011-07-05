@@ -1,65 +1,63 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: therm_adt746x: attach_adapter method is deprecated (fwd)
-Date: Tue, 5 Jul 2011 10:27:52 +0200
-Message-ID: <20110705102752.1251361c@endymion.delvare>
-References: <alpine.DEB.2.01.1104211758220.18728@trent.utfs.org>
-	<20110422103147.24c79768@endymion.delvare>
-	<alpine.DEB.2.01.1104221057160.18728@trent.utfs.org>
-	<20110422201803.6886669d@endymion.delvare>
-	<1309850440.14501.275.camel@pasglop>
+Subject: Re: [PATCH] i2c: Allow i2c_add_numbered_adapter() to assign a bus
+ id.
+Date: Tue, 5 Jul 2011 10:53:30 +0200
+Message-ID: <20110705105330.63c113c8@endymion.delvare>
+References: <20110627185505.19423.64214.stgit@ponder>
+	<BANLkTi=6zxPUwGZ5JHhRGRHHaEgvNgiaHQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1309850440.14501.275.camel@pasglop>
+In-Reply-To: <BANLkTi=6zxPUwGZ5JHhRGRHHaEgvNgiaHQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
-Cc: Christian Kujau <lists-AanptEQQ3TL9uQeqpI+JUg@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Stephen Warren <SWarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Benjamin,
+Hi Grant,
 
-On Tue, 05 Jul 2011 17:20:40 +1000, Benjamin Herrenschmidt wrote:
-> On Fri, 2011-04-22 at 20:18 +0200, Jean Delvare wrote:
-> > Note that I think it would make a lot of sense to expose all the
-> > monitored values at least read-only through a hwmon-style interface in
-> > all these powermac specific drivers. This would let these values be
-> > reported to users by all standard monitoring tools.
-> > 
-> > Independent from the warnings you were reported, though.
-> 
-> Ok, I've finally decided to dedicate a couple of days in fixing them,
-> it's non-trivial, but I'm getting there slowly. In some cases (windfarm)
-> it's easy and actually removes significant amounts of code from the
-> drivers. In other cases, it's harder because the drivers are pretty
-> awful in the first place (therm_adt746x).
+Sorry for the late answer.
 
-I am glad to hear that the change will simplify the code in at least
-some cases.
+On Mon, 27 Jun 2011 13:02:45 -0600, Grant Likely wrote:
+> On Mon, Jun 27, 2011 at 12:55 PM, Grant Likely
+> <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org> wrote:
+> > Currently, if an i2c bus driver supports both static and dynamic bu=
+s
+> > ids, it needs to choose between calling i2c_add_numbered_adapter() =
+and
+> > i2c_add_adapter(). =A0This patch makes i2c_add_numbered_adapter()
+> > redirect to i2c_add_adapter() if the requested bus id is -1.
+> >
+> > Signed-off-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+>=20
+> Oops, forgot to edit the email before sending the patch.
+>=20
+> This patch is as-yet untested other than build testing, but I want to
+> get feedback.  With the move to DT on ARM, there are going to be a lo=
+t
+> more i2c bus drivers that need to support both static and dynamically
+> allocated busses, and it is very likely that it will be needed in the
+> v3.1 merge window.
+>=20
+> Ben/Jean, *IF* this patch tests out okay, and *IF* I get an ack from
+> you, it will probably need to have this commit in my devicetree/next
+> branch.  If so, then I'll either need to commit it myself, or have it
+> put into a separate topic branch that both of us can merge into our
+> trees.  What is your preference.
+>=20
+> John: this is the patch that I asked you to write earlier today, but =
+I
+> think one of the TI folks will run into the same issue, so I wanted t=
+o
+> get it drafted and onto the list ASAP.
 
-> I might completely replace therm_pm72 with a windfarm implementation for
-> those older G5's which would be more consistent (all G5's would thus use
-> windfarm) since it's cleaner (therm_pm72 hard code i2c addresses etc...
-> while windfarm is meant for more dynamic probing of the sensors).
-> 
-> Regarding the hwmon interface, well, that's a whole different issue...
-> 
-> Windfarm generically creates sysfs files for all sensors so I suppose it
-> -could- start exposing them in a more standard interface.
-> 
-> therm_adt746x creates its own special /sys/devices/temperatures with all
-> the files in it. I don't want to remove it for now but it might be
-> worthwhile adding an hwmon interface to it, at least I can still test
-> on it.
+If this makes your life easier then I have no objection, you can go
+ahead. I don't expect any conflict with my tree as there is no i2c-core
+work going on on my end at the moment. So you can just take it in your
+tree and merge it yourself as you see fit.
 
-Sounds good.
+Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-> therm_windtunnel is similar but I don't have the HW to test so that's
-> going to be a bit nastier.
-> 
-> I hope to have something before the end of the week for you to review.
-
-Sure, as soon as you have anything ready, I'll be happy to review it.
-
--- 
+--=20
 Jean Delvare
