@@ -1,21 +1,35 @@
-From: Tim Nelson <tnelson-f4DZ+GDyDBaakBO8gow8eQ@public.gmane.org>
-Subject: Winbond W83L604G
-Date: Tue, 5 Jul 2011 09:46:17 -0500 (CDT)
-Message-ID: <30480104.171.1309877177809.JavaMail.root@zmail.rockbochs.com>
+From: "Zhang, Shijie" <shijie.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: Winbond W83L604G
+Date: Tue, 5 Jul 2011 22:59:56 +0800
+Message-ID: <6D7A567890E70E4BA49B8A9B365980FA12D99C14BE@shsmsx501.ccr.corp.intel.com>
+References: <30480104.171.1309877177809.JavaMail.root@zmail.rockbochs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <30480104.171.1309877177809.JavaMail.root-N94c1vXlnCs/q/FG96+aB0EOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tim Nelson <tnelson-f4DZ+GDyDBaakBO8gow8eQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Greetings-
-
-I've got a board with a Winbond W83L604G GPIO controller and I'd like to use it with Debian 6.x for controlling attached LEDs. However, using i2cdetect, I'm not seeing any I2C busses on the system, nor any I2C devices. Does this controller require a specific kernel module for operation? Any tips or pointers on how to make it available for control using I2C?
-
-I've not found a current kernel module for this chip, nor found any reference when grep'ing through the current source tarball. Maybe there simply isn't a module available to use it?
-
-Thanks!
-
---Tim
+WW91IGhhdmUgdG8gaW5zdGFsbCBpMmMtZGV2LmtvIHdpdGggImluc21vZCBpMmMtZGV2LmtvIi4g
+R29vZCBsdWNrIDopDQoNCkJSDQoNClNoaWppZQ0KDQotLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0t
+LQ0KRnJvbTogbGludXgtaTJjLW93bmVyQHZnZXIua2VybmVsLm9yZyBbbWFpbHRvOmxpbnV4LWky
+Yy1vd25lckB2Z2VyLmtlcm5lbC5vcmddIE9uIEJlaGFsZiBPZiBUaW0gTmVsc29uDQpTZW50OiBU
+dWVzZGF5LCBKdWx5IDA1LCAyMDExIDEwOjQ2IFBNDQpUbzogbGludXgtaTJjQHZnZXIua2VybmVs
+Lm9yZw0KU3ViamVjdDogV2luYm9uZCBXODNMNjA0Rw0KDQpHcmVldGluZ3MtDQoNCkkndmUgZ290
+IGEgYm9hcmQgd2l0aCBhIFdpbmJvbmQgVzgzTDYwNEcgR1BJTyBjb250cm9sbGVyIGFuZCBJJ2Qg
+bGlrZSB0byB1c2UgaXQgd2l0aCBEZWJpYW4gNi54IGZvciBjb250cm9sbGluZyBhdHRhY2hlZCBM
+RURzLiBIb3dldmVyLCB1c2luZyBpMmNkZXRlY3QsIEknbSBub3Qgc2VlaW5nIGFueSBJMkMgYnVz
+c2VzIG9uIHRoZSBzeXN0ZW0sIG5vciBhbnkgSTJDIGRldmljZXMuIERvZXMgdGhpcyBjb250cm9s
+bGVyIHJlcXVpcmUgYSBzcGVjaWZpYyBrZXJuZWwgbW9kdWxlIGZvciBvcGVyYXRpb24/IEFueSB0
+aXBzIG9yIHBvaW50ZXJzIG9uIGhvdyB0byBtYWtlIGl0IGF2YWlsYWJsZSBmb3IgY29udHJvbCB1
+c2luZyBJMkM/DQoNCkkndmUgbm90IGZvdW5kIGEgY3VycmVudCBrZXJuZWwgbW9kdWxlIGZvciB0
+aGlzIGNoaXAsIG5vciBmb3VuZCBhbnkgcmVmZXJlbmNlIHdoZW4gZ3JlcCdpbmcgdGhyb3VnaCB0
+aGUgY3VycmVudCBzb3VyY2UgdGFyYmFsbC4gTWF5YmUgdGhlcmUgc2ltcGx5IGlzbid0IGEgbW9k
+dWxlIGF2YWlsYWJsZSB0byB1c2UgaXQ/DQoNClRoYW5rcyENCg0KLS1UaW0NCg0KLS0NClRvIHVu
+c3Vic2NyaWJlIGZyb20gdGhpcyBsaXN0OiBzZW5kIHRoZSBsaW5lICJ1bnN1YnNjcmliZSBsaW51
+eC1pMmMiIGluDQp0aGUgYm9keSBvZiBhIG1lc3NhZ2UgdG8gbWFqb3Jkb21vQHZnZXIua2VybmVs
+Lm9yZw0KTW9yZSBtYWpvcmRvbW8gaW5mbyBhdCAgaHR0cDovL3ZnZXIua2VybmVsLm9yZy9tYWpv
+cmRvbW8taW5mby5odG1sDQo=
