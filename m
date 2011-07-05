@@ -1,60 +1,53 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH][RFC] OMAP4: I2C : I2C context save
-Date: Tue, 05 Jul 2011 11:31:23 -0700
-Message-ID: <87y60cr344.fsf@ti.com>
-References: <1308559552-24028-1-git-send-email-shubhrajyoti@ti.com>
-	<87ips08qis.fsf@ti.com> <4DFF6A9E.5050209@ti.com>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: [PATCH v4 00/18] I2C: OMAP: I2C fixes, removal of cpu_is...
+ from driver
+Date: Tue, 05 Jul 2011 12:00:56 -0700
+Message-ID: <1309892457.3077.8.camel@vence>
+References: <1306973984-15165-1-git-send-email-khilman@ti.com>
+	 <20110615213637.GH15795@trinity.fluff.org>  <87k4cm1xgj.fsf@ti.com>
+	 <1309212726.6231.14.camel@vence>  <1309212918.6231.16.camel@vence>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4DFF6A9E.5050209-l0cyMroinI0@public.gmane.org> (shubhrajyoti-l0cyMroinI0@public.gmane.org's message of "Mon,
-	20 Jun 2011 21:13:26 +0530")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, andy.green-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1309212918.6231.16.camel@vence>
+Sender: linux-omap-owner@vger.kernel.org
+To: Ben Dooks <ben-i2c@fluff.org>
+Cc: Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, Andy Green <andy.green@linaro.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
+Hi Ben,
 
-> On Monday 20 June 2011 09:05 PM, Kevin Hilman wrote:
->> shubhrajyoti-l0cyMroinI0@public.gmane.org writes:
->>
->>> From: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
->>>
->>> Currently the OMAP4 doesnot hit device off still the
->>> driver may have support for it.Adding support for the
->>> same.
->>>
->>> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> Please Cc linux-omap as this change to the hwmod data would go through
->> Tony.
-> Yes , missed out.
->> Also, please describe why this hwmod data change affects the problem
->> described in the changelog.
->>
-> After Andy's patch set
-> <code snippet>
-> static void omap_i2c_unidle(struct omap_i2c_dev *dev)
-> {
-> <snip>
->
->         pm_runtime_get_sync(&pdev->dev);
->
->         if (pdata->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
->                 omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
->                 omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
->                 omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
->                 omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
->                 omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
->                 omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
->                 omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
->                 omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
->         }
->         dev->idle = 0;
->
-> This is dependent on the flag, I am making it true for OMAP4 also.
+On Mon, 2011-06-27 at 15:15 -0700, Kevin Hilman wrote:
+> On Mon, 2011-06-27 at 15:12 -0700, Kevin Hilman wrote:
+> 
+> > Ping.  I don't see this in linux-next yet.
+> > 
+> > Are you planning to queue this for v3.1?
+> > 
+> 
+> Oops, pushed send too soon on this...
+> 
+> As this series touches various data files in arch/arm/mach-omap2/* and
+> we have a handful of other changes to that data for this merge window, I
+> think it would be better for conflict avoidance if this series is merged
+> via Tony's linux-omap tree.
+> 
+> With your Ack, we'll merge it via OMAP.
 
-What I meant was: please describe this in the changelog.  Without more
-detail, the hwmod change itself is not understandable.
+I see that the same day I sent this, you merged it into your next-i2c
+branch.  Guess I was too late with my request.
+
+As I mentioned above, we will have several conflicts with the
+arch/arm/mach-omap2 changes in this series, so we would prefer to merge
+them via the OMAP tree if at all possible so we can properly handle the
+conflicts.
+
+Do you mind dropping it from your next-i2c so we can merge it via
+linux-omap (with your Ack.)
+
+Thanks,
 
 Kevin
+
+
