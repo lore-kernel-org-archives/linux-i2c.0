@@ -1,53 +1,36 @@
-From: Kevin Hilman <khilman@ti.com>
-Subject: Re: [PATCH v4 00/18] I2C: OMAP: I2C fixes, removal of cpu_is...
- from driver
-Date: Tue, 05 Jul 2011 12:00:56 -0700
-Message-ID: <1309892457.3077.8.camel@vence>
-References: <1306973984-15165-1-git-send-email-khilman@ti.com>
-	 <20110615213637.GH15795@trinity.fluff.org>  <87k4cm1xgj.fsf@ti.com>
-	 <1309212726.6231.14.camel@vence>  <1309212918.6231.16.camel@vence>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1309212918.6231.16.camel@vence>
-Sender: linux-omap-owner@vger.kernel.org
-To: Ben Dooks <ben-i2c@fluff.org>
-Cc: Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, Andy Green <andy.green@linaro.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c: tegra: Use engineering names in DT compatible property
+Date: Tue,  5 Jul 2011 14:21:46 -0600
+Message-ID: <1309897306-22953-1-git-send-email-swarren@nvidia.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+Engineering names are more stable than marketing names. Hence, use them
+for Device Tree compatible properties instead.
 
-On Mon, 2011-06-27 at 15:15 -0700, Kevin Hilman wrote:
-> On Mon, 2011-06-27 at 15:12 -0700, Kevin Hilman wrote:
-> 
-> > Ping.  I don't see this in linux-next yet.
-> > 
-> > Are you planning to queue this for v3.1?
-> > 
-> 
-> Oops, pushed send too soon on this...
-> 
-> As this series touches various data files in arch/arm/mach-omap2/* and
-> we have a handful of other changes to that data for this merge window, I
-> think it would be better for conflict avoidance if this series is merged
-> via Tony's linux-omap tree.
-> 
-> With your Ack, we'll merge it via OMAP.
+Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+Grant, this is against devicetree/arm and also makes sense for
+devicetree/test.
 
-I see that the same day I sent this, you merged it into your next-i2c
-branch.  Guess I was too late with my request.
+ drivers/i2c/busses/i2c-tegra.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-As I mentioned above, we will have several conflicts with the
-arch/arm/mach-omap2 changes in this series, so we would prefer to merge
-them via the OMAP tree if at all possible so we can properly handle the
-conflicts.
-
-Do you mind dropping it from your next-i2c so we can merge it via
-linux-omap (with your Ack.)
-
-Thanks,
-
-Kevin
-
-
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 8914bd1..99b1b6d 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -716,7 +716,7 @@ static int tegra_i2c_resume(struct platform_device *pdev)
+ #if defined(CONFIG_OF)
+ /* Match table for of_platform binding */
+ static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
+-	{ .compatible = "nvidia,tegra250-i2c", },
++	{ .compatible = "nvidia,tegra20-i2c", },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
+-- 
+1.7.0.4
