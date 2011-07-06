@@ -1,36 +1,65 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: Use engineering names in DT compatible property
-Date: Tue,  5 Jul 2011 14:21:46 -0600
-Message-ID: <1309897306-22953-1-git-send-email-swarren@nvidia.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: [PATCH] OMAP4: I2C: Enable FIFO usage for OMAP4
+Date: Tue, 05 Jul 2011 17:01:01 -0700
+Message-ID: <8739ikp9aa.fsf@ti.com>
+References: <1309849870-25660-1-git-send-email-shubhrajyoti@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1309849870-25660-1-git-send-email-shubhrajyoti@ti.com>
+	(Shubhrajyoti D.'s message of "Tue, 5 Jul 2011 12:41:10 +0530")
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti D <shubhrajyoti@ti.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Engineering names are more stable than marketing names. Hence, use them
-for Device Tree compatible properties instead.
+Shubhrajyoti D <shubhrajyoti@ti.com> writes:
 
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-Grant, this is against devicetree/arm and also makes sense for
-devicetree/test.
+> Currently the fifo depth is set to zero for OMAP4 which disables
+> the FIFO usage. This patch enables the FIFO usage for I2C transactions
+> on OMAP4 also.
+>
+> Tested on omap4430 and 3430.
+>
+> Reported-By: Nishanth Menon <nm@ti.com>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+> ---
+> Rebased on top of the series by Andy Green
+> http://www.spinics.net/lists/linux-i2c/msg05632.html
 
- drivers/i2c/busses/i2c-tegra.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Thanks.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 8914bd1..99b1b6d 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -716,7 +716,7 @@ static int tegra_i2c_resume(struct platform_device *pdev)
- #if defined(CONFIG_OF)
- /* Match table for of_platform binding */
- static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
--	{ .compatible = "nvidia,tegra250-i2c", },
-+	{ .compatible = "nvidia,tegra20-i2c", },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
--- 
-1.7.0.4
+This is v3.1 material, but would be nice to see a couple tested-by or
+acked-by tags from folks that are more actively using the I2C driver
+before merging
+
+Kevin
+
+
+>  drivers/i2c/busses/i2c-omap.c |   11 ++++++-----
+>  1 files changed, 6 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index d53cd61..8f87a37 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1068,13 +1068,14 @@ omap_i2c_probe(struct platform_device *pdev)
+>  		 * size. This is to ensure that we can handle the status on int
+>  		 * call back latencies.
+>  		 */
+> -		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430) {
+> -			dev->fifo_size = 0;
+> +
+> +		dev->fifo_size = (dev->fifo_size / 2);
+> +
+> +		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430)
+>  			dev->b_hw = 0; /* Disable hardware fixes */
+> -		} else {
+> -			dev->fifo_size = (dev->fifo_size / 2);
+> +		else
+>  			dev->b_hw = 1; /* Enable hardware fixes */
+> -		}
+> +
+>  		/* calculate wakeup latency constraint for MPU */
+>  		if (dev->set_mpu_wkup_lat != NULL)
+>  			dev->latency = (1000000 * dev->fifo_size) /
