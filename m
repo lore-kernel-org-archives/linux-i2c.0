@@ -1,7 +1,7 @@
 From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Subject: [PULL] Please pull i2c fixes
-Date: Fri, 08 Jul 2011 00:07:03 +0100
-Message-ID: <E1Qexex-0007jg-Ai@freya>
+Date: Fri, 08 Jul 2011 00:06:41 +0100
+Message-ID: <E1Qexeb-0007iz-Vo@freya>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
@@ -13,7 +13,7 @@ The following changes since commit af4087e0e682df12bdffec5cfafc2fec9208716e:
 
 are available in the git repository at:
 
-  git://git.fluff.org/bjdooks/linux.git for-30-rc5/all-i2c
+  git://git.fluff.org/bjdooks/linux.git ..BRANCH.NOT.VERIFIED..
 
 Ben Dooks (1):
       Merge branches 'for-30-rc4/i2c-bfin', 'for-30-rc4/i2c-omap', 'for-30-rc4/i2c-s3c' and 'for-30-rc4/i2c-tegra' into for-30-rc5/all-i2c
