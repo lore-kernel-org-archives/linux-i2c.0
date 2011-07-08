@@ -1,61 +1,61 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] power: Remove obsolete cleanup for clientdata
-Date: Fri, 8 Jul 2011 15:40:50 +0200
-Message-ID: <20110708134050.GJ2048@pengutronix.de>
-References: <1308603674-19264-1-git-send-email-w.sang@pengutronix.de>
- <1308603674-19264-3-git-send-email-w.sang@pengutronix.de>
- <20110708131049.GD29056@oksana.dev.rtsoft.ru>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: [PATCH v4 00/18] I2C: OMAP: I2C fixes, removal of cpu_is... from driver
+Date: Fri, 08 Jul 2011 08:14:31 -0700
+Message-ID: <87box4by94.fsf@ti.com>
+References: <1306973984-15165-1-git-send-email-khilman@ti.com>
+	<20110615213637.GH15795@trinity.fluff.org> <87k4cm1xgj.fsf@ti.com>
+	<1309212726.6231.14.camel@vence> <1309212918.6231.16.camel@vence>
+	<1309892457.3077.8.camel@vence>
+	<20110707230122.GM15795@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6iqOn7HZPWKXx18"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110708131049.GD29056-wnGakbxT3iijyJ0x5qLZdcN33GVbZNy3@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20110707230122.GM15795@trinity.fluff.org> (Ben Dooks's message
+	of "Fri, 8 Jul 2011 00:01:22 +0100")
+Sender: linux-omap-owner@vger.kernel.org
+To: Ben Dooks <ben-i2c@fluff.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, Andy Green <andy.green@linaro.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Ben Dooks <ben-i2c@fluff.org> writes:
 
---d6iqOn7HZPWKXx18
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, Jul 05, 2011 at 12:00:56PM -0700, Kevin Hilman wrote:
+>> Hi Ben,
+>> 
+>> On Mon, 2011-06-27 at 15:15 -0700, Kevin Hilman wrote:
+>> > On Mon, 2011-06-27 at 15:12 -0700, Kevin Hilman wrote:
+>> > 
+>> > > Ping.  I don't see this in linux-next yet.
+>> > > 
+>> > > Are you planning to queue this for v3.1?
+>> > > 
+>> > 
+>> > Oops, pushed send too soon on this...
+>> > 
+>> > As this series touches various data files in arch/arm/mach-omap2/* and
+>> > we have a handful of other changes to that data for this merge window, I
+>> > think it would be better for conflict avoidance if this series is merged
+>> > via Tony's linux-omap tree.
+>> > 
+>> > With your Ack, we'll merge it via OMAP.
+>> 
+>> I see that the same day I sent this, you merged it into your next-i2c
+>> branch.  Guess I was too late with my request.
+>> 
+>> As I mentioned above, we will have several conflicts with the
+>> arch/arm/mach-omap2 changes in this series, so we would prefer to merge
+>> them via the OMAP tree if at all possible so we can properly handle the
+>> conflicts.
+>> 
+>> Do you mind dropping it from your next-i2c so we can merge it via
+>> linux-omap (with your Ack.)
+>
+> Yes, and if you could indicate all the other omap i2c patches and I'll
+> add my ack to yours.
+>
+> Acked-by: Ben Dooks <ben-linux@fluff.org>
 
-On Fri, Jul 08, 2011 at 05:10:49PM +0400, Anton Vorontsov wrote:
-> On Mon, Jun 20, 2011 at 11:01:14PM +0200, Wolfram Sang wrote:
-> > A few new i2c-drivers came into the kernel which clear the clientdata-p=
-ointer
-> > on exit or error. This is obsolete meanwhile, the core will do it.
-> >=20
-> > Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > Cc: MyungJoo Ham <myungjoo.ham-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > Cc: Anton Vorontsov <cbouatmailru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > Cc: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > ---
-> >=20
-> > This is more a cleanup than a bugfix. Still, would be happy to have this
-> > obsolete programming style largely removed in 3.0 if possible.
->=20
-> Applied for 3.1, sorry. This is not a regression fix.
+Thanks, I will refresh/repost any remaining OMAP I2C patches today and
+let you know.
 
-3.1 is fine, too. Thanks!
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---d6iqOn7HZPWKXx18
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk4XCOIACgkQD27XaX1/VRvj4QCgq5K0NZN8tQCH/ALSzKyYWyUW
-n6EAnR2lWHAFLcrZ7Y7V6d8l0mm3LqYY
-=MXue
------END PGP SIGNATURE-----
-
---d6iqOn7HZPWKXx18--
+Kevin
