@@ -1,93 +1,49 @@
-From: Tim Nelson <tnelson-f4DZ+GDyDBaakBO8gow8eQ@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: Winbond W83L604G
-Date: Fri, 8 Jul 2011 16:48:50 -0500 (CDT)
-Message-ID: <21511805.221.1310161730242.JavaMail.root@zmail.rockbochs.com>
+Date: Sat, 9 Jul 2011 09:23:34 +0200
+Message-ID: <20110709092334.566e6dcd@endymion.delvare>
 References: <20110707182315.6e28f62a@endymion.delvare>
+	<21511805.221.1310161730242.JavaMail.root@zmail.rockbochs.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110707182315.6e28f62a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <21511805.221.1310161730242.JavaMail.root-N94c1vXlnCs/q/FG96+aB0EOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tim Nelson <tnelson-f4DZ+GDyDBaakBO8gow8eQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
------ Original Message -----
-> Your binary->hex is correct, and the command as well, but the chip did
-> not like the write for some reason. You should look at the kernel logs
-> when it failed, there may be a hint. You could also just retry to
-> check
-> if this was maybe a transient error.
+Hi Tim,
+
+On Fri, 8 Jul 2011 16:48:50 -0500 (CDT), Tim Nelson wrote:
+> ----- Original Message -----
+> > To test the reliability of the SMBus you could dump the whole register
+> > map:
+> > # i2cdump -y -r 0x00-0x22 0 0x19
+> > and look for XX's.
 > 
-> To test the reliability of the SMBus you could dump the whole register
-> map:
-> # i2cdump -y -r 0x00-0x22 0 0x19
-> and look for XX's.
+> I'm seeing a *lot* of 'XX's present. Here are ten samples:
 > 
+> root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
+> No size specified (using byte-data access)
+>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
+> 00: XX XX XX XX XX XX 00 XX 55 XX XX XX XX ff XX XX    XXXXXX.XUXXXX.XX
+> 10: 3f XX XX XX 00 XX XX XX XX XX ff XX XX XX XX XX    ?XXX.XXXXX.XXXXX
+> 20: 95 92 XX                                           ??X
+> (...)
+> 
+> What does this mean? Unstable SMBus?
 
-I'm seeing a *lot* of 'XX's present. Here are ten samples:
+Yes. For whatever reason your SMBus misbehaves severely. Maybe a
+hardware problem. You should try a few dumps from your other device at
+0x4c to confirm that this is a bus-wide issue and not only the W83L604G
+device.
 
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX XX XX XX XX 00 XX 55 XX XX XX XX ff XX XX    XXXXXX.XUXXXX.XX
-10: 3f XX XX XX 00 XX XX XX XX XX ff XX XX XX XX XX    ?XXX.XXXXX.XXXXX
-20: 95 92 XX                                           ??X
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX XX XX XX XX XX XX 55 XX XX XX XX ff XX XX    XXXXXXXXUXXXX.XX
-10: XX XX 00 XX XX XX XX XX XX XX XX XX XX XX XX XX    XX.XXXXXXXXXXXXX
-20: XX 92 XX                                           X?X
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: 9f 00 XX XX XX XX XX XX XX XX XX XX XX XX XX XX    ?.XXXXXXXXXXXXXX
-10: XX XX XX 3f XX XX XX XX XX ff XX XX XX XX XX XX    XXX?XXXXX.XXXXXX
-20: XX 92 XX                                           X?X
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX XX XX XX XX 00 00 XX XX XX XX XX XX XX XX    XXXXXX..XXXXXXXX
-10: XX XX XX XX XX XX 00 XX XX XX XX XX XX ff ff ff    XXXXXX.XXXXXX...
-20: XX XX XX                                           XXX
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX 00 ff XX XX XX XX XX XX XX XX XX ff XX XX    XX..XXXXXXXXX.XX
-10: XX XX 00 XX XX XX XX XX XX XX XX ff ff XX ff XX    XX.XXXXXXXX..X.X
-20: XX XX XX                                           XXX
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX 00 XX 00 XX XX XX XX XX XX XX XX XX XX XX    XX.X.XXXXXXXXXXX
-10: XX XX XX XX XX XX XX XX XX ff XX XX XX XX XX XX    XXXXXXXXX.XXXXXX
-20: XX 92 XX                                           X?X
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX XX XX XX XX 00 00 XX XX XX XX XX ff XX XX    XXXXXX..XXXXX.XX
-10: XX XX 00 XX XX XX XX XX XX XX XX ff XX ff XX XX    XX.XXXXXXXX.X.XX
-20: 95 XX XX                                           ?XX
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: 9f XX XX XX XX XX XX XX 55 XX XX ff XX XX XX XX    ?XXXXXXXUXX.XXXX
-10: XX 00 XX XX XX XX XX XX XX ff XX XX XX XX XX XX    X.XXXXXXX.XXXXXX
-20: XX XX 00                                           XX.
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX XX XX 00 XX XX XX XX XX XX XX ff XX XX XX    XXXX.XXXXXXX.XXX
-10: XX XX 00 XX 00 XX 00 XX XX XX XX XX XX ff XX XX    XX.X.X.XXXXXX.XX
-20: XX XX XX                                           XXX
-root@aaa:~# i2cdump -y -r 0x00-0x22 0 0x19
-No size specified (using byte-data access)
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f    0123456789abcdef
-00: XX XX XX XX XX XX XX XX XX 9e XX XX ff XX XX XX    XXXXXXXXX?XX.XXX
-10: XX 00 00 XX XX XX XX XX XX XX ff ff XX XX XX ff    X..XXXXXXX..XXX.
-20: XX XX XX                                           XXX
+Note that there exists an alternative driver for the I2C bus on SCx200,
+named scx200_i2c. I seem to remember that it is needed in some cases
+where the scx200_acb driver doesn't work. Maybe this is your case.
 
-What does this mean? Unstable SMBus?
-
---Tim
+-- 
+Jean Delvare
+http://khali.linux-fr.org/wishlist.html
