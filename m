@@ -1,46 +1,52 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [RESEND] [PATCH] i2c: Support for Netlogic XLR/XLS on-chip I2C
- controller.
-Date: Mon, 11 Jul 2011 16:14:15 +0900
-Message-ID: <20110711071412.GB5092@opensource.wolfsonmicro.com>
-References: <20110623135057.GA26772@jayachandranc.netlogicmicro.com>
- <20110709093742.GA9247@sirena.org.uk>
- <20110711070202.GB31303@jayachandranc.netlogicmicro.com>
+From: mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org
+Subject: [PATCH RESEND] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter
+ functionality
+Date: Mon, 11 Jul 2011 10:37:55 +0300
+Message-ID: <20110711073755.GA8665@gentoodev.compulab.local>
+Reply-To: mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20110711070202.GB31303-l4W0uAg2RDvWG0bvociYJ/An/qbn1+6FOui0OUZsNXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jayachandran C." <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>"@mike-pc.compulab.local
+Cc: "Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>"@mike-pc.compulab.local, "Stephen Warren swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org"@mike-pc.compulab.local, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 11, 2011 at 12:32:03PM +0530, Jayachandran C. wrote:
-> On Sat, Jul 09, 2011 at 10:37:42AM +0100, Mark Brown wrote:
-> > On Fri, Jul 08, 2011 at 03:42:04PM +0530, Jayachandran C. wrote:
+Hi Ben,
+This patch has been waiting for quite a long time and I've got no response
+from you concerning it.
+Can you _please_ at last merge it so it'll make to 3.1?
 
-> > > +	if (bus == 0)
-> > > +		mmio = netlogic_io_mmio(NETLOGIC_IO_I2C_0_OFFSET);
-> > > +	else
-> > > +		mmio = netlogic_io_mmio(NETLOGIC_IO_I2C_1_OFFSET);
+--
+Sincerely yours,
+Mike,
 
-> > > +	return (u32 *)mmio;
 
-> > Functions like this should be static, though in this case the memory
-> > region should be passed in as a resource rather than being embedded in
-> > the driver.
+>From 5ac2b2824d2d49954aa9897344481e32f2368749 Mon Sep 17 00:00:00 2001
+From: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+Date: Mon, 11 Jul 2011 10:28:57 +0300
+Subject: [PATCH] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter functionality
 
-> Since it is a SoC device, the address will not change at all. But yes, the
-> right way is to use the platform_device resource pointer for this.
+as there are a lot of i2c device drivers that require it
 
-That doesn't follow at all - while the address won't change for a
-particular SoC the same IP may be used in multiple SoCs.
+Signed-off-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-tegra.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-> > This is going to loop infinitely if the bus locks up for some reason.
-> > There should be some limit on how long we try for.  It also looks like
-> > we're busy waiting here which isn't terribly good.
-
-> Can add a udelay here, and a loop count.
-
-udelay() still busy waits, and I2C transactions take a *long* time.
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 4d93196..2fe4951 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -524,7 +524,7 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 
+ static u32 tegra_i2c_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+ }
+ 
+ static const struct i2c_algorithm tegra_i2c_algo = {
+-- 
+1.7.3.1
