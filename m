@@ -1,32 +1,40 @@
-From: Christian Gmeiner <christian.gmeiner@gmail.com>
-Subject: Re: [PATCH] i2c-eg20t : Fix the issue of Combined R/W transfer mode
-Date: Mon, 11 Jul 2011 12:36:31 +0200
-Message-ID: <CAH9NwWdpEVQQYqSiCOD9pnjpYJFH2fJnDudtJQgzK9ySGUyc=g@mail.gmail.com>
-References: <1308813430-2697-1-git-send-email-tomoya-linux@dsn.okisemi.com>
- <201106230952.09286.alexander.stein@systec-electronic.com>
- <4E02FD74.8020503@dsn.okisemi.com> <BANLkTi=zDMnwX5xYFazM3qb17wa6yY4LZw@mail.gmail.com>
- <BANLkTi=y43pWQC9wxjSPCEbr47hTYbJF6w@mail.gmail.com> <4E0D66E7.7070409@dsn.okisemi.com>
- <CAH9NwWf2Mr2tY_SU30etHzD0Ogqsg7sdPgR2pV7DQpBB-aFz0A@mail.gmail.com>
+From: Tim Nelson <tnelson-f4DZ+GDyDBaakBO8gow8eQ@public.gmane.org>
+Subject: Re: Winbond W83L604G
+Date: Mon, 11 Jul 2011 12:31:54 -0500 (CDT)
+Message-ID: <2607557.175.1310405514456.JavaMail.root@zmail.rockbochs.com>
+References: <20110709092334.566e6dcd@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAH9NwWf2Mr2tY_SU30etHzD0Ogqsg7sdPgR2pV7DQpBB-aFz0A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
-Cc: Alexander Stein <alexander.stein@systec-electronic.com>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Qi Wang <qi.wang@intel.com>, Linus Walleij <linus.walleij@stericsson.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, yong.y.wang@intel.com, joel.clark@intel.com, kok.howg.ewe@intel.com, toshiharu-linux@dsn.okisemi.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110709092334.566e6dcd-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Any updates?
+----- Original Message -----
+> Yes. For whatever reason your SMBus misbehaves severely. Maybe a
+> hardware problem. You should try a few dumps from your other device at
+> 0x4c to confirm that this is a bus-wide issue and not only the
+> W83L604G
+> device.
+> 
+> Note that there exists an alternative driver for the I2C bus on
+> SCx200,
+> named scx200_i2c. I seem to remember that it is needed in some cases
+> where the scx200_acb driver doesn't work. Maybe this is your case.
+> 
 
---
-Christian Gmeiner, MSc
+Greetings Jean-
 
+When attempting a dump of the device at 0x4c, I do *not* get any 'XX' output. What is interesting is that when running 'i2cdetect -y 0', the device at 0x19 shows up only sporadically. It is not present in every run of i2cdetect. The other device at 0x4c shows up every time, and does not contain 'XX' output. Is it safe to assume there is a problem with the Winbond controller? Or, it's usage on this board (hardware problem?) ?
 
+I attempted to load the scx200_i2c module but I'm greeted with:
 
-2011/7/5 Christian Gmeiner <christian.gmeiner@gmail.com>:
-> Is there a git repository with all i2c-eg20t patches, which are not
-> yet in mainline?
->
-> --
-> Christian Gmeiner, MSc
->
+FATAL: Error inserting scx200_i2c (/lib/modules/2.6.26-2-486/kernel/drivers/i2c/busses/scx200_i2c.ko): No such device
+
+I've tried with and without having the scx200_acb module loaded.
+
+Thoughts?
+
+--Tim
