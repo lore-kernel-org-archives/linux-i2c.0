@@ -1,39 +1,23 @@
-From: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: Re: [PATCH] i2c-eg20t : Fix the issue of Combined R/W transfer mode
-Date: Tue, 12 Jul 2011 09:58:35 +0900
-Message-ID: <4E1B9C3B.6000506@dsn.okisemi.com>
-References: <1308813430-2697-1-git-send-email-tomoya-linux@dsn.okisemi.com> <201106230952.09286.alexander.stein@systec-electronic.com> <4E02FD74.8020503@dsn.okisemi.com> <BANLkTi=zDMnwX5xYFazM3qb17wa6yY4LZw@mail.gmail.com> <BANLkTi=y43pWQC9wxjSPCEbr47hTYbJF6w@mail.gmail.com> <4E0D66E7.7070409@dsn.okisemi.com> <CAH9NwWf2Mr2tY_SU30etHzD0Ogqsg7sdPgR2pV7DQpBB-aFz0A@mail.gmail.com> <CAH9NwWdpEVQQYqSiCOD9pnjpYJFH2fJnDudtJQgzK9ySGUyc=g@mail.gmail.com>
+From: julietbaby_1-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
+Subject: =?UTF-8?Q?HI?=
+Date: Tue, 12 Jul 2011 10:23:15 +0200
+Message-ID: <5025365794.77@euromail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/plain; CHARSET=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAH9NwWdpEVQQYqSiCOD9pnjpYJFH2fJnDudtJQgzK9ySGUyc=g@mail.gmail.com>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org
+To: julietbaby_1-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-(2011/07/11 19:36), Christian Gmeiner wrote:
-> Any updates?
->
-> --
-> Christian Gmeiner, MSc
->
->
->
-> 2011/7/5 Christian Gmeiner<christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->> Is there a git repository with all i2c-eg20t patches, which are not
->> yet in mainline?
->>
->> --
->> Christian Gmeiner, MSc
->>
-
-No update now.
-Unfortunately, We haven't started yet.
-Because we've recently got another task.
-
-
--- 
-tomoya
-OKI SEMICONDUCTOR CO., LTD.
+Hello
+My name is Miss Juliet.a 23 yrs old girl .I am average in height and fair in
+complexion ,am a loving and caring angel.I fine your mail contact
+(today)truly is quiet interesting to me then , i decide to contact you.i
+really want to have a good relationship with you. Beside i have a special
+something i want to discuses with you,so you can reach me through this
+my(julietbaby_1-/E1597aS9LQAvxtiuMwx3w@public.gmane.org)Hope to hear from you soon.i will send my
+beautiful pictures to you and also tell you more about my self. I know age
+will not be a barer to our relationship, what i need is just your love and
+caring. I will give you my best,
+bye for now. care from
+Miss Juliet
