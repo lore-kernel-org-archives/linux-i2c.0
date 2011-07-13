@@ -1,83 +1,87 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH RESEND] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter
- functionality
-Date: Wed, 13 Jul 2011 22:58:20 +0100
-Message-ID: <20110713215820.GG3369@freya.fluff.org>
-References: <20110711073755.GA8665@gentoodev.compulab.local>
- <CAMbhsRS-REFiAiEnukVtarTx7PRrzLT0BHAHdmuPGqDRRppGtw@mail.gmail.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: Fix compile when !CONFIG_OF
+Date: Thu, 14 Jul 2011 07:48:25 +0900
+Message-ID: <CACxGe6sVmpSTAxan3zRz-hQ=uoiVuekm-7r0L9_F5EWPPhS_3A@mail.gmail.com>
+References: <1310589418-15821-1-git-send-email-swarren@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAMbhsRS-REFiAiEnukVtarTx7PRrzLT0BHAHdmuPGqDRRppGtw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1310589418-15821-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-Cc: mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org, "Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>"@google.com, "Stephen Warren swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org"@google.com, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 11, 2011 at 12:49:33AM -0700, Colin Cross wrote:
-> On Mon, Jul 11, 2011 at 12:37 AM,  <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org> wrote:
-> > Hi Ben,
-> > This patch has been waiting for quite a long time and I've got no r=
-esponse
-> > from you concerning it.
-> > Can you _please_ at last merge it so it'll make to 3.1?
-> >
-> > --
-> > Sincerely yours,
-> > Mike,
-> >
-> >
-> > From 5ac2b2824d2d49954aa9897344481e32f2368749 Mon Sep 17 00:00:00 2=
-001
-> > From: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-> > Date: Mon, 11 Jul 2011 10:28:57 +0300
-> > Subject: [PATCH] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter fun=
-ctionality
-> >
-> > as there are a lot of i2c device drivers that require it
-> >
-> > Signed-off-by: Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>
-> > ---
-> > =A0drivers/i2c/busses/i2c-tegra.c | =A0 =A02 +-
-> > =A01 files changed, 1 insertions(+), 1 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2=
-c-tegra.c
-> > index 4d93196..2fe4951 100644
-> > --- a/drivers/i2c/busses/i2c-tegra.c
-> > +++ b/drivers/i2c/busses/i2c-tegra.c
-> > @@ -524,7 +524,7 @@ static int tegra_i2c_xfer(struct i2c_adapter *a=
-dap, struct i2c_msg msgs[],
-> >
-> > =A0static u32 tegra_i2c_func(struct i2c_adapter *adap)
-> > =A0{
-> > - =A0 =A0 =A0 return I2C_FUNC_I2C;
-> > + =A0 =A0 =A0 return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> > =A0}
+On Thu, Jul 14, 2011 at 5:36 AM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wr=
+ote:
+> When !CONFIG_OF, <linux/of.h> doesn't prototype of_get_property(), wh=
+ich
+> causes i2c-tegra.c to fail to compile. Make the references to this
+> function conditional to solve this.
+>
+> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+> Grant, is this the correct way to solve this? Other solutions I can s=
+ee are:
+> a) Make ARM or Tegra select CONFIG_OF, now that ARM is moving to Devi=
+ce Tree.
+> b) Make <linux/of.h> provide dummy inline versions of its functions w=
+hen
+> =A0 !CONFIG_OF.
 
-I'll add it to the -next tree tomorrow
+The solution you chose is sufficient for now, but turning on CONFIG_OF
+unconditionally for Tegra would be fine too since I hope to get the
+tegra board-dt patch merged for 3.1 (I hope to have the patch cleaned
+up and posted in the next 24 hrs).  I've been avoiding creating a
+dummy inline of of_get_property(), but not for any particularly strong
+reason other than to avoid bloating linux/of.h.  I probably would
+accept a patch that added it.
 
-> > =A0static const struct i2c_algorithm tegra_i2c_algo =3D {
-> > --
-> > 1.7.3.1
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-teg=
-ra" in
-> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > More majordomo info at =A0http://vger.kernel.org/majordomo-info.htm=
-l
-> >
->=20
-> Your mailer added @mike-pc.compulab.local to all of the addresses.
->=20
-> Acked-by: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
->=20
-> It should go in through Ben's tree.
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+
+g.
+
+>
+> =A0drivers/i2c/busses/i2c-tegra.c | =A0 =A05 ++++-
+> =A01 files changed, 4 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-=
+tegra.c
+> index 2440b74..5a18d6d 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -610,12 +610,15 @@ static int tegra_i2c_probe(struct platform_devi=
+ce *pdev)
+> =A0 =A0 =A0 =A0if (pdata) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_dev->bus_clk_rate =3D pdata->bus_c=
+lk_rate;
+>
+> - =A0 =A0 =A0 } else if (i2c_dev->dev->of_node) { =A0 =A0/* if there =
+is a device tree node ... */
+> + =A0 =A0 =A0 }
+> +#ifdef CONFIG_OF
+> + =A0 =A0 =A0 else if (i2c_dev->dev->of_node) { =A0 =A0/* if there is=
+ a device tree node ... */
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prop =3D of_get_property(i2c_dev->dev-=
+>of_node,
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"clock=
+-frequency", NULL);
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (prop)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_dev->bus_clk_rate =
+=3D be32_to_cpup(prop);
+> =A0 =A0 =A0 =A0}
+> +#endif
+>
+> =A0 =A0 =A0 =A0if (pdev->id =3D=3D 3)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_dev->is_dvc =3D 1;
 > --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
-in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 1.7.0.4
+>
+>
+
+
+
+--=20
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
