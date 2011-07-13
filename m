@@ -1,82 +1,78 @@
 From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: Fix compile when !CONFIG_OF
-Date: Thu, 14 Jul 2011 07:48:25 +0900
-Message-ID: <CACxGe6sVmpSTAxan3zRz-hQ=uoiVuekm-7r0L9_F5EWPPhS_3A@mail.gmail.com>
-References: <1310589418-15821-1-git-send-email-swarren@nvidia.com>
+Subject: Re: [PATCH] i2c: tegra: Use engineering names in DT compatible property
+Date: Thu, 14 Jul 2011 08:33:38 +0900
+Message-ID: <CACxGe6tojgLSmHTxzGn3hZZVqiR_z6xbWrazYekm0TwQoWK5eA@mail.gmail.com>
+References: <1309897306-22953-1-git-send-email-swarren@nvidia.com>
+ <20110706053941.GE9978@ponder.secretlab.ca> <74CDBE0F657A3D45AFBB94109FB122FF049E834757@HQMAIL01.nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1310589418-15821-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF049E834757-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 14, 2011 at 5:36 AM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wr=
+On Thu, Jul 14, 2011 at 2:59 AM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wr=
 ote:
-> When !CONFIG_OF, <linux/of.h> doesn't prototype of_get_property(), wh=
-ich
-> causes i2c-tegra.c to fail to compile. Make the references to this
-> function conditional to solve this.
+> Grant Likely wrote at Tuesday, July 05, 2011 11:40 PM:
+>> On Tue, Jul 05, 2011 at 02:21:46PM -0600, Stephen Warren wrote:
+>> > Engineering names are more stable than marketing names. Hence, use=
+ them
+>> > for Device Tree compatible properties instead.
+>> >
+>> > Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>> > ---
+>> > Grant, this is against devicetree/arm and also makes sense for
+>> > devicetree/test.
+>>
+>> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+>>
+>> Ben is the one to pick up this patch.
 >
-> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> ---
-> Grant, is this the correct way to solve this? Other solutions I can s=
-ee are:
-> a) Make ARM or Tegra select CONFIG_OF, now that ARM is moving to Devi=
-ce Tree.
-> b) Make <linux/of.h> provide dummy inline versions of its functions w=
-hen
-> =A0 !CONFIG_OF.
+> I don't believe anyone ever sent a patch to Ben to add tegra_i2c_of_m=
+atch
+> to the driver; the OF support patch didn't include that part of the c=
+ode.
+> As such, Ben can't yet apply this to his tree. (Although I note this =
+patch
+> is in Grant's /arm and /test trees, which is probably good enough for=
+ now).
 
-The solution you chose is sufficient for now, but turning on CONFIG_OF
-unconditionally for Tegra would be fine too since I hope to get the
-tegra board-dt patch merged for 3.1 (I hope to have the patch cleaned
-up and posted in the next 24 hrs).  I've been avoiding creating a
-dummy inline of of_get_property(), but not for any particularly strong
-reason other than to avoid bloating linux/of.h.  I probably would
-accept a patch that added it.
-
-Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Hmmm, I thought it had been done.  It certainly is ready to go in.  Do
+you want to put together a roll-up patch that includes all the
+required changes and post it again? (although double check linux-next
+first).
 
 g.
 
 >
-> =A0drivers/i2c/busses/i2c-tegra.c | =A0 =A05 ++++-
-> =A01 files changed, 4 insertions(+), 1 deletions(-)
+>> > =A0drivers/i2c/busses/i2c-tegra.c | =A0 =A02 +-
+>> > =A01 files changed, 1 insertions(+), 1 deletions(-)
+>> >
+>> > diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i=
+2c-tegra.c
+>> > index 8914bd1..99b1b6d 100644
+>> > --- a/drivers/i2c/busses/i2c-tegra.c
+>> > +++ b/drivers/i2c/busses/i2c-tegra.c
+>> > @@ -716,7 +716,7 @@ static int tegra_i2c_resume(struct platform_de=
+vice *pdev)
+>> > =A0#if defined(CONFIG_OF)
+>> > =A0/* Match table for of_platform binding */
+>> > =A0static const struct of_device_id tegra_i2c_of_match[] __devinit=
+const =3D {
+>> > - =A0 { .compatible =3D "nvidia,tegra250-i2c", },
+>> > + =A0 { .compatible =3D "nvidia,tegra20-i2c", },
+>> > =A0 =A0 {},
+>> > =A0};
+>> > =A0MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
+>> > --
+>> > 1.7.0.4
+>> >
 >
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-=
-tegra.c
-> index 2440b74..5a18d6d 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -610,12 +610,15 @@ static int tegra_i2c_probe(struct platform_devi=
-ce *pdev)
-> =A0 =A0 =A0 =A0if (pdata) {
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_dev->bus_clk_rate =3D pdata->bus_c=
-lk_rate;
->
-> - =A0 =A0 =A0 } else if (i2c_dev->dev->of_node) { =A0 =A0/* if there =
-is a device tree node ... */
-> + =A0 =A0 =A0 }
-> +#ifdef CONFIG_OF
-> + =A0 =A0 =A0 else if (i2c_dev->dev->of_node) { =A0 =A0/* if there is=
- a device tree node ... */
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0prop =3D of_get_property(i2c_dev->dev-=
->of_node,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0"clock=
--frequency", NULL);
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0if (prop)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_dev->bus_clk_rate =
-=3D be32_to_cpup(prop);
-> =A0 =A0 =A0 =A0}
-> +#endif
->
-> =A0 =A0 =A0 =A0if (pdev->id =3D=3D 3)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0i2c_dev->is_dvc =3D 1;
 > --
-> 1.7.0.4
+> nvpublic
 >
 >
 
