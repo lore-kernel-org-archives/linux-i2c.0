@@ -1,58 +1,43 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: ack/nack in write operation
-Date: Thu, 14 Jul 2011 18:26:07 +0200
-Message-ID: <20110714182607.3a3d710f@endymion.delvare>
-References: <4E1F10B9.3080507@ecsproject.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v3] OMAP4:hwmod: I2C : I2C context save
+Date: Thu, 14 Jul 2011 22:03:38 +0530
+Message-ID: <1310661218-3819-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4E1F10B9.3080507-jTUIOkKm3KASWr57yraSmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michele Da Rold <michele.darold-jTUIOkKm3KASWr57yraSmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 14 Jul 2011 17:52:25 +0200, Michele Da Rold wrote:
-> Hello everybody,
-> I'm new to i2c development some don't kill me if my questions are stupid!!
-> 
-> I'm using bitbanging i2c driver for an AT91 devices,
-> the AT91 is master and I have a slave that reply, during a write, with a 
-> NAK after last byte.
-> The i2c specification permit this solution but i2c linux driver no.
+Restore of context is not done for OMAP4. This patch 
+adds the OMAP_I2C_FLAG_RESET_REGS_POSTIDLE in the OMAP4
+hwmod data which activates the restore for OMAP4.
+Currently the OMAP4 does not hit device off still the
+driver may have support for it.
 
-Can you please quote the part of the I2C specification which you think
-says this? I read it differently (page 10 of I2C 2.1 specification,
-section 7.2: Acknowledge):
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+Applies on top of patches from Andy Green
+http://www.spinics.net/lists/linux-i2c/msg05632.html
+Tested on OMAP4430
 
-"Usually, a receiver which has been addressed is obliged to
-generate an acknowledge after each byte has been
-received, except when the message starts with a CBUS
-address."
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-"If a master-receiver is involved in a transfer, it must signal
-the end of data to the slave-transmitter by not generating
-an acknowledge on the last byte that was clocked out of
-the slave. The slave-transmitter must release the data line
-to allow the master to generate a STOP or repeated
-START condition."
-
-So, a master-receiver must nack the last byte, but a slave-receiver must
-not. So your slave device is misbehaving - or you are actually trying
-to write more bytes to it than it can handle.
-
-> (i have see the possibility to set the I2C_M_IGNORE_NAK but ignore all 
-> NAK and isn't right!)
-
-This should indeed be avoided unless you really have to use it.
-
-> There is a solution or I have to modify the code?
-
-First ensure that you are sending the right number of bytes to the
-device, with the correct sequence. If you think you're really doing the
-right think, get in touch with the vendor of the slave device and ask
-them why their device misbehaves.
-
+diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+index 0fe9556..5e2c748 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+@@ -2130,7 +2130,8 @@ static struct omap_hwmod_class omap44xx_i2c_hwmod_class = {
+ };
+ 
+ static struct omap_i2c_dev_attr i2c_dev_attr = {
+-	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE,
++	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE |
++			OMAP_I2C_FLAG_RESET_REGS_POSTIDLE,
+ };
+ 
+ /* i2c1 */
 -- 
-Jean Delvare
+1.7.1
