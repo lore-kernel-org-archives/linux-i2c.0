@@ -1,77 +1,81 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Tegra: Add of_match_table
-Date: Fri, 15 Jul 2011 03:52:57 +0900
-Message-ID: <CACxGe6vU3gKVpDBwBr7UcLSk1VNsBaGTuJTWKPR8pRurdqiQqw@mail.gmail.com>
-References: <1310668465-2535-1-git-send-email-swarren@nvidia.com>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: [PATCH 2/7] at91/i2c: move register header to drivers
+Date: Fri, 15 Jul 2011 01:52:00 +0200
+Message-ID: <1310687525-22486-2-git-send-email-plagnioj@jcrosoft.com>
+References: <1310687525-22486-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1310668465-2535-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1310687525-22486-1-git-send-email-plagnioj@jcrosoft.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, July 14, 2011, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
-> From: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
->
-> This patch was intended to be part of 7ca2d1a105a239e300b937e9c41a10a=
-4bd08f569
-> "i2c: Tegra: Add DeviceTree support". However, an early version of th=
-at patch,
-> which was missing a chunk, was applied to next-i2c. This change is th=
-at
-> missing chunk.
->
-> Signed-off-by: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: linux-i2c@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-at91.c                      |    3 ++-
+ .../at91_twi.h => drivers/i2c/busses/i2c-at91.h    |    7 +++----
+ 2 files changed, 5 insertions(+), 5 deletions(-)
+ rename arch/arm/mach-at91/include/mach/at91_twi.h => drivers/i2c/busses/i2c-at91.h (97%)
 
-Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-
-> ---
-> =A0drivers/i2c/busses/i2c-tegra.c | =A0 12 ++++++++++++
-> =A01 files changed, 12 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-=
-tegra.c
-> index 5a18d6d..f2156de 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -722,6 +722,17 @@ static int tegra_i2c_resume(struct platform_devi=
-ce *pdev)
-> =A0}
-> =A0#endif
->
-> +#if defined(CONFIG_OF)
-> +/* Match table for of_platform binding */
-> +static const struct of_device_id tegra_i2c_of_match[] __devinitconst=
- =3D {
-> + =A0 =A0 =A0 { .compatible =3D "nvidia,tegra20-i2c", },
-> + =A0 =A0 =A0 {},
-> +};
-> +MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
-> +#else
-> +#define tegra_i2c_of_match NULL
-> +#endif
-> +
-> =A0static struct platform_driver tegra_i2c_driver =3D {
->  =A0 =A0 =A0 =A0.probe =A0 =3D tegra_i2c_probe,
->  =A0 =A0 =A0 =A0.remove =A0=3D tegra_i2c_remove,
-> @@ -732,6 +743,7 @@ static struct platform_driver tegra_i2c_driver =3D=
- {
->  =A0 =A0 =A0 =A0.driver =A0=3D {
->  =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.name =A0=3D "tegra-i2c",
->  =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.owner =3D THIS_MODULE,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .of_match_table =3D tegra_i2c_of_match,
->  =A0 =A0 =A0 =A0},
-> =A0};
->
-> --
-> 1.7.0.4
->
->
-
---=20
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 305c075..7402fed 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -25,10 +25,11 @@
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ 
+-#include <mach/at91_twi.h>
+ #include <mach/board.h>
+ #include <mach/cpu.h>
+ 
++#include "i2c_at91.h"
++
+ #define TWI_CLOCK		100000		/* Hz. max 400 Kbits/sec */
+ 
+ 
+diff --git a/arch/arm/mach-at91/include/mach/at91_twi.h b/drivers/i2c/busses/i2c-at91.h
+similarity index 97%
+rename from arch/arm/mach-at91/include/mach/at91_twi.h
+rename to drivers/i2c/busses/i2c-at91.h
+index bb2880f..0f33ec7 100644
+--- a/arch/arm/mach-at91/include/mach/at91_twi.h
++++ b/drivers/i2c/busses/i2c-at91.h
+@@ -1,5 +1,5 @@
+ /*
+- * arch/arm/mach-at91/include/mach/at91_twi.h
++ * drivers/i2c/busses/i2c-at91.h
+  *
+  * Copyright (C) 2005 Ivan Kokshaysky
+  * Copyright (C) SAN People
+@@ -13,8 +13,8 @@
+  * (at your option) any later version.
+  */
+ 
+-#ifndef AT91_TWI_H
+-#define AT91_TWI_H
++#ifndef I2C_AT91_H
++#define I2C_AT91_H
+ 
+ #define	AT91_TWI_CR		0x00		/* Control Register */
+ #define		AT91_TWI_START		(1 <<  0)	/* Send a Start Condition */
+@@ -65,4 +65,3 @@
+ #define	AT91_TWI_THR		0x34		/* Transmit Holding Register */
+ 
+ #endif
+-
+-- 
+1.7.5.4
