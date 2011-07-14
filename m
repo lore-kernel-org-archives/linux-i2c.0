@@ -1,35 +1,41 @@
 From: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: [PATCH 0/4] i2c: i2c-au1550 updates
-Date: Thu, 14 Jul 2011 10:56:51 +0200
-Message-ID: <1310633815-18817-1-git-send-email-manuel.lauss@googlemail.com>
+Subject: [PATCH 2/4] i2c/au1550: remove unused ack_timeout
+Date: Thu, 14 Jul 2011 10:56:53 +0200
+Message-ID: <1310633815-18817-3-git-send-email-manuel.lauss@googlemail.com>
+References: <1310633815-18817-1-git-send-email-manuel.lauss@googlemail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1310633815-18817-1-git-send-email-manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Cc: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The following patches remove some bit-rot from the i2c-au1550 driver.
-(Patch #3 supersedes the one I sent on 2011-06-12:
- "i2c-au1550: increase timeout waiting for transactions to finish").
+The ack_timeout context member is unused, get rid of it.
 
-#1 gets rid of all instances of the "volatile" keyword,
-#2 removes an unused context member,
-#3 fixes i2c on the db1300 board
-#4 updates PM methods.
+Signed-off-by: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-au1550.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-All run- and pm-tested on db1200 and db1300 hardware.
-
-Please consider for 3.1.
-
-Manuel Lauss (4):
-  i2c/au1550: remove usage of volatile keyword
-  i2c/au1550: remove unused ack_timeout
-  i2c/au1550: increase timeout limit
-  i2c/au1550: dev_pm_ops conversion
-
- arch/mips/include/asm/mach-au1x00/au1xxx_psc.h |   13 -
- drivers/i2c/busses/i2c-au1550.c                |  280 ++++++++++--------------
- 2 files changed, 114 insertions(+), 179 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
+index 70b027c..98ee11a 100644
+--- a/drivers/i2c/busses/i2c-au1550.c
++++ b/drivers/i2c/busses/i2c-au1550.c
+@@ -52,7 +52,6 @@
+ struct i2c_au1550_data {
+ 	void __iomem *psc_base;
+ 	int	xfer_timeout;
+-	int	ack_timeout;
+ 	struct i2c_adapter adap;
+ 	struct resource *ioarea;
+ };
+@@ -346,7 +345,6 @@ i2c_au1550_probe(struct platform_device *pdev)
+ 		goto out_map;
+ 	}
+ 	priv->xfer_timeout = 200;
+-	priv->ack_timeout = 200;
+ 
+ 	priv->adap.nr = pdev->id;
+ 	priv->adap.algo = &au1550_algo;
 -- 
 1.7.6
