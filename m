@@ -1,67 +1,26 @@
-From: Kevin Hilman <khilman@ti.com>
-Subject: Re: [PATCH] OMAP4: I2C : I2C context save
-Date: Thu, 14 Jul 2011 08:52:46 -0700
-Message-ID: <87zkkgoo4x.fsf@ti.com>
+From: Michele Da Rold <michele.darold-jTUIOkKm3KASWr57yraSmw@public.gmane.org>
+Subject: ack/nack in write operation
+Date: Thu, 14 Jul 2011 17:52:25 +0200
+Message-ID: <4E1F10B9.3080507@ecsproject.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-References: 
-In-Reply-To: 1309933145-8825-1-git-send-email-shubhrajyoti@ti.com
-	(Shubhrajyoti D.'s message of "2011-07-06 6:31:05")
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti D <shubhrajyoti@ti.com> writes:
+Hello everybody,
+I'm new to i2c development some don't kill me if my questions are stupid!!
 
-> Restore of context is not done for OMAP4. This patch 
+I'm using bitbanging i2c driver for an AT91 devices,
+the AT91 is master and I have a slave that reply, during a write, with a 
+NAK after last byte.
+The i2c specification permit this solution but i2c linux driver no.
+(i have see the possibility to set the I2C_M_IGNORE_NAK but ignore all 
+NAK and isn't right!)
 
-Subject says context *save*, here says context *restore.*
+There is a solution or I have to modify the code?
 
-> adds the OMAP_I2C_FLAG_RESET_REGS_POSTIDLE in the OMAP4
-> hwmod which activates the restore for OMAP4.
-
-s/hwmod/hwmod data/
-
-> Currently the OMAP4 doesnot hit device off still the
-
-s/doesnot/does not/
-
-> driver may have support for it.
-
-Also, since this is a patch to the hwmod data, the subject
-prefix should be something like:
-
-OMAP4: hwmod_data: I2C: set flag to restore context
-
-or something similar.
-
-Also, this is the 2nd (or maybe 3rd) version of this patch posted.
-Please version the patch using [PATCH vN].
-
-Kevin
-
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-> ---
-> Applies on top of patches from Andy Green
-> http://www.spinics.net/lists/linux-i2c/msg05632.html
-> Tested on OMAP4430
->
->  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
->
-> diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-> index 0fe9556..5e2c748 100644
-> --- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-> +++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-> @@ -2130,7 +2130,8 @@ static struct omap_hwmod_class omap44xx_i2c_hwmod_class = {
->  };
->  
->  static struct omap_i2c_dev_attr i2c_dev_attr = {
-> -	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE,
-> +	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE |
-> +			OMAP_I2C_FLAG_RESET_REGS_POSTIDLE,
->  };
->  
->  /* i2c1 */
+Thank you
+Michele
