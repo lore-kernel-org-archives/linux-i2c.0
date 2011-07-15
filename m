@@ -1,23 +1,36 @@
-From: "Zhang, Shijie" <shijie.zhang@intel.com>
-Subject: How to get the handler of a device that has been open
-Date: Fri, 15 Jul 2011 22:28:23 +0800
-Message-ID: <6D7A567890E70E4BA49B8A9B365980FA12D9B1F5BD@shsmsx501.ccr.corp.intel.com>
-References: <1310661218-3819-1-git-send-email-shubhrajyoti@ti.com>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 2/7] at91/i2c: move register header to drivers
+Date: Fri, 15 Jul 2011 17:49:31 +0200
+Message-ID: <20110715154931.GB20678@game.jcrosoft.org>
+References: <1310687525-22486-1-git-send-email-plagnioj@jcrosoft.com>
+ <1310687525-22486-2-git-send-email-plagnioj@jcrosoft.com>
+ <20110715092314.215043d5@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1310661218-3819-1-git-send-email-shubhrajyoti@ti.com>
-Content-Language: en-US
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "khilman@ti.com" <khilman@ti.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20110715092314.215043d5-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all:
+On 09:23 Fri 15 Jul     , Jean Delvare wrote:
+> Hi Jean-Christophe,
+> 
+> On Fri, 15 Jul 2011 01:52:00 +0200, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+> > Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > ---
+> >  drivers/i2c/busses/i2c-at91.c                      |    3 ++-
+> >  .../at91_twi.h => drivers/i2c/busses/i2c-at91.h    |    7 +++----
+> >  2 files changed, 5 insertions(+), 5 deletions(-)
+> >  rename arch/arm/mach-at91/include/mach/at91_twi.h => drivers/i2c/busses/i2c-at91.h (97%)
+> 
+> Why don't you just merge i2c-at91.h into i2c-at91.c then, if it's the
+> only user?
+I prefer to keep the define in a seperate file
 
-I have got a problem while I want to open a mutex device, which has been opened by another process. such as /dev/apls9802als, which is opened while the system boot up. But I have to do some test to its read function in its driver provided to the user space. Is there a way that I can close the handler that has been opened and reopen it by the test program I write? Any hacking way for this? Thanks.
-
-Best Regards
-
-Shijie
+Best Regards,
+J.
