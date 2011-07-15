@@ -1,36 +1,56 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 2/7] at91/i2c: move register header to drivers
-Date: Fri, 15 Jul 2011 17:49:31 +0200
-Message-ID: <20110715154931.GB20678@game.jcrosoft.org>
-References: <1310687525-22486-1-git-send-email-plagnioj@jcrosoft.com>
- <1310687525-22486-2-git-send-email-plagnioj@jcrosoft.com>
- <20110715092314.215043d5@endymion.delvare>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v4] OMAP4: hwmod data: I2C: add flag for context restore
+Date: Fri, 15 Jul 2011 14:55:21 -0700
+Message-ID: <871uxrnr92.fsf@ti.com>
+References: <1310709714-3295-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110715092314.215043d5-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1310709714-3295-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+	(Shubhrajyoti D.'s message of "Fri, 15 Jul 2011 11:31:54 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09:23 Fri 15 Jul     , Jean Delvare wrote:
-> Hi Jean-Christophe,
-> 
-> On Fri, 15 Jul 2011 01:52:00 +0200, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-> > Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > ---
-> >  drivers/i2c/busses/i2c-at91.c                      |    3 ++-
-> >  .../at91_twi.h => drivers/i2c/busses/i2c-at91.h    |    7 +++----
-> >  2 files changed, 5 insertions(+), 5 deletions(-)
-> >  rename arch/arm/mach-at91/include/mach/at91_twi.h => drivers/i2c/busses/i2c-at91.h (97%)
-> 
-> Why don't you just merge i2c-at91.h into i2c-at91.c then, if it's the
-> only user?
-I prefer to keep the define in a seperate file
+Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
 
-Best Regards,
-J.
+> Restore of context is not done for OMAP4. This patch 
+> adds the OMAP_I2C_FLAG_RESET_REGS_POSTIDLE in the OMAP4
+> hwmod data which activates the restore for OMAP4.
+> Currently the OMAP4 does not hit device off still the
+> driver may have support for it.
+>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+
+Reviewed-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+
+Please repost one more time with the linux-arm-kernel list Cc'd (and you
+can add my reviewed-by tag.)
+
+Paul can then probably queue this for v3.1-rc
+
+Kevin
+
+> ---
+> Applies on top of patches from Andy Green
+> http://www.spinics.net/lists/linux-i2c/msg05632.html
+> Tested on OMAP4430
+>
+>  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 ++-
+>  1 files changed, 2 insertions(+), 1 deletions(-)
+>
+> diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+> index 0fe9556..5e2c748 100644
+> --- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+> +++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+> @@ -2130,7 +2130,8 @@ static struct omap_hwmod_class omap44xx_i2c_hwmod_class = {
+>  };
+>  
+>  static struct omap_i2c_dev_attr i2c_dev_attr = {
+> -	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE,
+> +	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE |
+> +			OMAP_I2C_FLAG_RESET_REGS_POSTIDLE,
+>  };
+>  
+>  /* i2c1 */
