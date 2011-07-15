@@ -1,124 +1,66 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c/imx: remove init/exit hooks from platform data
-Date: Fri, 15 Jul 2011 10:00:43 +0200
-Message-ID: <20110715080043.GJ26347@pengutronix.de>
-References: <1310659425-17499-1-git-send-email-shawn.guo@linaro.org>
- <1310659425-17499-2-git-send-email-shawn.guo@linaro.org>
+From: Michele Da Rold <michele.darold-jTUIOkKm3KASWr57yraSmw@public.gmane.org>
+Subject: Re: ack/nack in write operation
+Date: Fri, 15 Jul 2011 10:03:44 +0200
+Message-ID: <4E1FF460.1000908@ecsproject.com>
+References: <4E1F10B9.3080507@ecsproject.com> <20110714182607.3a3d710f@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1310659425-17499-2-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20110714182607.3a3d710f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 15, 2011 at 12:03:44AM +0800, Shawn Guo wrote:
-> The init/exit hooks in platform data are being used nowhere, so can
-> be removed.
-> 
-> Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Il 14/07/2011 18:26, Jean Delvare ha scritto:
+> On Thu, 14 Jul 2011 17:52:25 +0200, Michele Da Rold wrote:
+>> Hello everybody,
+>> I'm new to i2c development some don't kill me if my questions are stupid!!
+>>
+>> I'm using bitbanging i2c driver for an AT91 devices,
+>> the AT91 is master and I have a slave that reply, during a write, with a
+>> NAK after last byte.
+>> The i2c specification permit this solution but i2c linux driver no.
+>
+> Can you please quote the part of the I2C specification which you think
+> says this? I read it differently (page 10 of I2C 2.1 specification,
+> section 7.2: Acknowledge):
+>
+> "Usually, a receiver which has been addressed is obliged to
+> generate an acknowledge after each byte has been
+> received, except when the message starts with a CBUS
+> address."
+>
+> "If a master-receiver is involved in a transfer, it must signal
+> the end of data to the slave-transmitter by not generating
+> an acknowledge on the last byte that was clocked out of
+> the slave. The slave-transmitter must release the data line
+> to allow the master to generate a STOP or repeated
+> START condition."
+>
+> So, a master-receiver must nack the last byte, but a slave-receiver must
+> not. So your slave device is misbehaving - or you are actually trying
+> to write more bytes to it than it can handle.
+>
 
-Can safely go via the i2c tree.
+Refer to fig.11 of specification 2.1.
+But I think that I was wrong. I agree with your opinion.
 
-Acked-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+>> (i have see the possibility to set the I2C_M_IGNORE_NAK but ignore all
+>> NAK and isn't right!)
+>
+> This should indeed be avoided unless you really have to use it.
+>
+>> There is a solution or I have to modify the code?
+>
+> First ensure that you are sending the right number of bytes to the
+> device, with the correct sequence. If you think you're really doing the
+> right think, get in touch with the vendor of the slave device and ask
+> them why their device misbehaves.
+>
 
+I'm in touch with vendor, I'm waiting for his reply.
 
-> ---
->  arch/arm/plat-mxc/include/mach/i2c.h |    4 ----
->  drivers/i2c/busses/i2c-imx.c         |   21 +++------------------
->  2 files changed, 3 insertions(+), 22 deletions(-)
-> 
-> diff --git a/arch/arm/plat-mxc/include/mach/i2c.h b/arch/arm/plat-mxc/include/mach/i2c.h
-> index 4a5dc5c..375cdd0 100644
-> --- a/arch/arm/plat-mxc/include/mach/i2c.h
-> +++ b/arch/arm/plat-mxc/include/mach/i2c.h
-> @@ -11,14 +11,10 @@
->  
->  /**
->   * struct imxi2c_platform_data - structure of platform data for MXC I2C driver
-> - * @init:	Initialise gpio's and other board specific things
-> - * @exit:	Free everything initialised by @init
->   * @bitrate:	Bus speed measured in Hz
->   *
->   **/
->  struct imxi2c_platform_data {
-> -	int (*init)(struct device *dev);
-> -	void (*exit)(struct device *dev);
->  	int bitrate;
->  };
->  
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 4c2a62b..54d809e 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -466,7 +466,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  {
->  	struct imx_i2c_struct *i2c_imx;
->  	struct resource *res;
-> -	struct imxi2c_platform_data *pdata;
-> +	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
->  	void __iomem *base;
->  	resource_size_t res_size;
->  	int irq;
-> @@ -485,19 +485,11 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  		return -ENOENT;
->  	}
->  
-> -	pdata = pdev->dev.platform_data;
-> -
-> -	if (pdata && pdata->init) {
-> -		ret = pdata->init(&pdev->dev);
-> -		if (ret)
-> -			return ret;
-> -	}
-> -
->  	res_size = resource_size(res);
->  
->  	if (!request_mem_region(res->start, res_size, DRIVER_NAME)) {
-> -		ret = -EBUSY;
-> -		goto fail0;
-> +		dev_err(&pdev->dev, "request_mem_region failed\n");
-> +		return -EBUSY;
->  	}
->  
->  	base = ioremap(res->start, res_size);
-> @@ -586,9 +578,6 @@ fail2:
->  	iounmap(base);
->  fail1:
->  	release_mem_region(res->start, resource_size(res));
-> -fail0:
-> -	if (pdata && pdata->exit)
-> -		pdata->exit(&pdev->dev);
->  	return ret; /* Return error number */
->  }
->  
-> @@ -611,10 +600,6 @@ static int __exit i2c_imx_remove(struct platform_device *pdev)
->  	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
->  	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
->  
-> -	/* Shut down hardware */
-> -	if (pdata && pdata->exit)
-> -		pdata->exit(&pdev->dev);
-> -
->  	clk_put(i2c_imx->clk);
->  
->  	iounmap(i2c_imx->base);
-> -- 
-> 1.7.4.1
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Thank you
+Michele
