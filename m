@@ -1,56 +1,39 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v4] OMAP4: hwmod data: I2C: add flag for context restore
-Date: Fri, 15 Jul 2011 14:55:21 -0700
-Message-ID: <871uxrnr92.fsf@ti.com>
-References: <1310709714-3295-1-git-send-email-shubhrajyoti@ti.com>
+From: Felix Rubinstein <felixru-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: PCH lost arbitration
+Date: Sun, 17 Jul 2011 11:03:42 +0300
+Message-ID: <CA+VPmgdsdVmv12oaSHerQ6DUN0nJ8FnpRpFGS8w4W__OO192Yg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1310709714-3295-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-	(Shubhrajyoti D.'s message of "Fri, 15 Jul 2011 11:31:54 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
+Hi Jean,
 
-> Restore of context is not done for OMAP4. This patch 
-> adds the OMAP_I2C_FLAG_RESET_REGS_POSTIDLE in the OMAP4
-> hwmod data which activates the restore for OMAP4.
-> Currently the OMAP4 does not hit device off still the
-> driver may have support for it.
->
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Consider a hardware with ~20-30 i2c devices which must be configured
+as quick as possible on boot.
+Each device gets its own configuration which contains 40 register writes.
+In order to minimize the configuration time, I've replaced simple
+script with i2cset to C code i2c_smbus_write_byte_data.
 
-Reviewed-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Now, once in a long while, i2c_smbus_write_byte_data returns -EAGAIN
+PCH driver code issues the following:
 
-Please repost one more time with the linux-arm-kernel list Cc'd (and you
-can add my reviewed-by tag.)
+       /* Retry up to 3 times on lost arbitration */
+        priv->adapter.retries = 3;
 
-Paul can then probably queue this for v3.1-rc
+I've used I2C_RETRIES ioctl to increase it to 100 and it has solved an error.
+After running 52 hours test I'm confident that in my case it solved an error.
 
-Kevin
+Why is it set to 3? The data sheet doesn't say anything about the
+value, is it an empirical value?
+Have you ever considered lots of i2c back to back transactions?
+To make things even worse, consider the case when 4 hardware CPUs
+(each with different affinity) configure may i2c devices.
+No doubt retries set to 3 will not be enough in this case too.
 
-> ---
-> Applies on top of patches from Andy Green
-> http://www.spinics.net/lists/linux-i2c/msg05632.html
-> Tested on OMAP4430
->
->  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
->
-> diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-> index 0fe9556..5e2c748 100644
-> --- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-> +++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-> @@ -2130,7 +2130,8 @@ static struct omap_hwmod_class omap44xx_i2c_hwmod_class = {
->  };
->  
->  static struct omap_i2c_dev_attr i2c_dev_attr = {
-> -	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE,
-> +	.flags  = OMAP_I2C_FLAG_BUS_SHIFT_NONE |
-> +			OMAP_I2C_FLAG_RESET_REGS_POSTIDLE,
->  };
->  
->  /* i2c1 */
+
+Thanks,
+Felix R.
