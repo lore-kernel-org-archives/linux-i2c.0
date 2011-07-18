@@ -1,262 +1,103 @@
-From: Prarit Bhargava <prarit@redhat.com>
-Subject: [PATCH 12/34] drivers/i2c changes for SMBIOS and System Firmware
-Date: Mon, 18 Jul 2011 09:08:26 -0400
-Message-ID: <1310994528-26276-13-git-send-email-prarit@redhat.com>
-References: <1310994528-26276-1-git-send-email-prarit@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1310994528-26276-1-git-send-email-prarit@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Prarit Bhargava <prarit@redhat.com>, linux-i2c@vger.kernel.org
+From: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] drivers: i2c: s3c2410: add support for HDMIPHY dedicated
+ controller
+Date: Mon, 18 Jul 2011 15:46:04 +0200
+Message-ID: <1310996764-23595-1-git-send-email-m.szyprowski@samsung.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Tomasz Stanislawski <t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-As part of the new SMBIOS and System Firmware code:
+From: Tomasz Stanislawski <t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-- Replace old dmi* structures and functions with new sysfw* and smbios*
-structures and functions in individual drivers
-- cleanup sysfw_id lookup tables
+This patch adds support for I2C HDMIPHY dedicated controller. It has
+different timeout handling and reset conditions.
 
-Cc: linux-i2c@vger.kernel.org
-Signed-off-by: Prarit Bhargava <prarit@redhat.com>
+Signed-off-by: Tomasz Stanislawski <t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-i801.c    |   76 ++++++++++---------------------------
- drivers/i2c/busses/i2c-nforce2.c |   12 +++---
- drivers/i2c/busses/i2c-piix4.c   |   24 ++++++------
- 3 files changed, 39 insertions(+), 73 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c |   36 +++++++++++++++++++++++++++++++++++-
+ 1 files changed, 35 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index ab26840..7e19ea2 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -73,7 +73,8 @@
- #include <linux/i2c.h>
- #include <linux/acpi.h>
- #include <linux/io.h>
--#include <linux/dmi.h>
-+#include <linux/smbios.h>
-+#include <linux/sysfw.h>
- #include <linux/slab.h>
- 
- /* I801 SMBus address offsets */
-@@ -669,69 +670,34 @@ static void __init input_apanel_init(void)
- 	iounmap(bios);
- }
- 
--struct dmi_onboard_device_info {
-+struct smbios_onboard_device_info {
- 	const char *name;
--	u8 type;
- 	unsigned short i2c_addr;
- 	const char *i2c_type;
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index f84a63c..e456cf9 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -54,6 +54,7 @@ enum s3c24xx_i2c_state {
+ enum s3c24xx_i2c_type {
+ 	TYPE_S3C2410,
+ 	TYPE_S3C2440,
++	TYPE_S3C2440_HDMIPHY,
  };
  
--static struct dmi_onboard_device_info __devinitdata dmi_devices[] = {
--	{ "Syleus", DMI_DEV_TYPE_OTHER, 0x73, "fscsyl" },
--	{ "Hermes", DMI_DEV_TYPE_OTHER, 0x73, "fscher" },
--	{ "Hades",  DMI_DEV_TYPE_OTHER, 0x73, "fschds" },
-+static struct smbios_onboard_device_info __devinitdata smbios_devices[] = {
-+	{ "Syleus", 0x73, "fscsyl" },
-+	{ "SYLEUS", 0x73, "fscsyl" },
-+	{ "Hermes", 0x73, "fscher" },
-+	{ "HERMES", 0x73, "fscher" },
-+	{ "Hades", 0x73, "fschds" },
-+	{ "HADES", 0x73, "fschds" },
- };
+ struct s3c24xx_i2c {
+@@ -96,7 +97,21 @@ static inline int s3c24xx_i2c_is2440(struct s3c24xx_i2c *i2c)
+ 	enum s3c24xx_i2c_type type;
  
--static void __devinit dmi_check_onboard_device(u8 type, const char *name,
--					       struct i2c_adapter *adap)
-+static void __devinit smbios_check_fschmd(struct i2c_adapter *adap)
- {
- 	int i;
- 	struct i2c_board_info info;
- 
--	for (i = 0; i < ARRAY_SIZE(dmi_devices); i++) {
--		/* & ~0x80, ignore enabled/disabled bit */
--		if ((type & ~0x80) != dmi_devices[i].type)
--			continue;
--		if (strcasecmp(name, dmi_devices[i].name))
--			continue;
--
--		memset(&info, 0, sizeof(struct i2c_board_info));
--		info.addr = dmi_devices[i].i2c_addr;
--		strlcpy(info.type, dmi_devices[i].i2c_type, I2C_NAME_SIZE);
--		i2c_new_device(adap, &info);
--		break;
--	}
--}
--
--/* We use our own function to check for onboard devices instead of
--   dmi_find_device() as some buggy BIOS's have the devices we are interested
--   in marked as disabled */
--static void __devinit dmi_check_onboard_devices(const struct dmi_header *dm,
--						void *adap)
--{
--	int i, count;
--
--	if (dm->type != 10)
--		return;
--
--	count = (dm->length - sizeof(struct dmi_header)) / 2;
--	for (i = 0; i < count; i++) {
--		const u8 *d = (char *)(dm + 1) + (i * 2);
--		const char *name = ((char *) dm) + dm->length;
--		u8 type = d[0];
--		u8 s = d[1];
--
--		if (!s)
--			continue;
--		s--;
--		while (s > 0 && name[0]) {
--			name += strlen(name) + 1;
--			s--;
-+	for (i = 0; i < ARRAY_SIZE(onboard); i++) {
-+		/* some buggy BIOSes have the devices disabled */
-+		if (smbios_is_onboard_device(onboard[i].name, 1)) {
-+			memset(&info, 0, sizeof(struct i2c_board_info));
-+			info.addr = onboard[i].i2c_addr;
-+			strlcpy(info.type, onboard[i].i2c_type,	I2C_NAME_SIZE);
-+			i2c_new_device(adap, &info);
- 		}
--		if (name[0] == 0) /* Bogus string reference */
--			continue;
--
--		dmi_check_onboard_device(type, name, adap);
- 	}
+ 	type = platform_get_device_id(pdev)->driver_data;
+-	return type == TYPE_S3C2440;
++	return type == TYPE_S3C2440 || type == TYPE_S3C2440_HDMIPHY;
++}
++
++/* s3c24xx_i2c_is2440_hdmiphy()
++ *
++ * return true is this is an s3c2440 dedicated for HDMIPHY interface
++*/
++
++static inline int s3c24xx_i2c_is2440_hdmiphy(struct s3c24xx_i2c *i2c)
++{
++	struct platform_device *pdev = to_platform_device(i2c->dev);
++	enum s3c24xx_i2c_type type;
++
++	type = platform_get_device_id(pdev)->driver_data;
++	return type == TYPE_S3C2440_HDMIPHY;
  }
  
-@@ -751,8 +717,8 @@ static void __devinit i801_probe_optional_slaves(struct i801_priv *priv)
- 		i2c_new_device(&priv->adapter, &info);
+ /* s3c24xx_i2c_master_complete
+@@ -460,6 +475,13 @@ static int s3c24xx_i2c_set_master(struct s3c24xx_i2c *i2c)
+ 	unsigned long iicstat;
+ 	int timeout = 400;
+ 
++	/* if hang-up of HDMIPHY occured reduce timeout
++	 * The controller will work after reset, so waiting
++	 * 400 ms will cause unneccessary system hangup
++	 */
++	if (s3c24xx_i2c_is2440_hdmiphy(i2c))
++		timeout = 10;
++
+ 	while (timeout-- > 0) {
+ 		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+ 
+@@ -469,6 +491,15 @@ static int s3c24xx_i2c_set_master(struct s3c24xx_i2c *i2c)
+ 		msleep(1);
  	}
  
--	if (dmi_name_in_vendors("FUJITSU"))
--		dmi_walk(dmi_check_onboard_devices, &priv->adapter);
-+	if (sysfw_vendor_is("FUJITSU"))
-+		smbios_check_fschmd(&priv->adapter);
++	/* hang-up of bus dedicated for HDMIPHY occured, resetting */
++	if (s3c24xx_i2c_is2440_hdmiphy(i2c)) {
++		writel(0, i2c->regs + S3C2410_IICCON);
++		writel(0, i2c->regs + S3C2410_IICSTAT);
++		writel(0, i2c->regs + S3C2410_IICDS);
++
++		return 0;
++	}
++
+ 	return -ETIMEDOUT;
  }
- #else
- static void __init input_apanel_init(void) {}
-@@ -927,7 +893,7 @@ static struct pci_driver i801_driver = {
  
- static int __init i2c_i801_init(void)
- {
--	if (dmi_name_in_vendors("FUJITSU"))
-+	if (sysfw_vendor_is("FUJITSU"))
- 		input_apanel_init();
- 	return pci_register_driver(&i801_driver);
- }
-diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
-index ff1e127..458623e 100644
---- a/drivers/i2c/busses/i2c-nforce2.c
-+++ b/drivers/i2c/busses/i2c-nforce2.c
-@@ -54,7 +54,7 @@
- #include <linux/init.h>
- #include <linux/i2c.h>
- #include <linux/delay.h>
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
- #include <linux/acpi.h>
- #include <linux/slab.h>
- #include <linux/io.h>
-@@ -117,15 +117,15 @@ struct nforce2_smbus {
- #define MAX_TIMEOUT	100
- 
- /* We disable the second SMBus channel on these boards */
--static struct dmi_system_id __devinitdata nforce2_dmi_blacklist2[] = {
-+static struct sysfw_id __devinitdata nforce2_id_blacklist2[] = {
- 	{
- 		.ident = "DFI Lanparty NF4 Expert",
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "DFI Corp,LTD"),
--			DMI_MATCH(DMI_BOARD_NAME, "LP UT NF4 Expert"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "DFI Corp,LTD"),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "LP UT NF4 Expert"),
- 		},
- 	},
--	{ }
-+	{}
+@@ -1008,6 +1039,9 @@ static struct platform_device_id s3c24xx_driver_ids[] = {
+ 	}, {
+ 		.name		= "s3c2440-i2c",
+ 		.driver_data	= TYPE_S3C2440,
++	}, {
++		.name		= "s3c2440-hdmiphy-i2c",
++		.driver_data	= TYPE_S3C2440_HDMIPHY,
+ 	}, { },
  };
- 
- static struct pci_driver nforce2_driver;
-@@ -408,7 +408,7 @@ static int __devinit nforce2_probe(struct pci_dev *dev, const struct pci_device_
- 		smbuses[0].base = 0;	/* to have a check value */
- 
- 	/* SMBus adapter 2 */
--	if (dmi_check_system(nforce2_dmi_blacklist2)) {
-+	if (sysfw_callback(nforce2_id_blacklist2)) {
- 		dev_err(&dev->dev, "Disabling SMB2 for safety reasons.\n");
- 		res2 = -EPERM;
- 		smbuses[1].base = 0;
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 6d14ac2..12b4019 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -37,7 +37,7 @@
- #include <linux/ioport.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
--#include <linux/dmi.h>
-+#include <linux/sysfw.h>
- #include <linux/acpi.h>
- #include <linux/io.h>
- 
-@@ -99,32 +99,32 @@ static int srvrworks_csb5_delay;
- static struct pci_driver piix4_driver;
- static struct i2c_adapter piix4_adapter;
- 
--static struct dmi_system_id __devinitdata piix4_dmi_blacklist[] = {
-+static struct sysfw_id __devinitdata piix4_id_blacklist[] = {
- 	{
- 		.ident = "Sapphire AM2RD790",
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "SAPPHIRE Inc."),
--			DMI_MATCH(DMI_BOARD_NAME, "PC-AM2RD790"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "SAPPHIRE Inc."),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "PC-AM2RD790"),
- 		},
- 	},
- 	{
- 		.ident = "DFI Lanparty UT 790FX",
- 		.matches = {
--			DMI_MATCH(DMI_BOARD_VENDOR, "DFI Inc."),
--			DMI_MATCH(DMI_BOARD_NAME, "LP UT 790FX"),
-+			SYSFW_MATCH(SYSFW_BOARD_VENDOR, "DFI Inc."),
-+			SYSFW_MATCH(SYSFW_BOARD_NAME, "LP UT 790FX"),
- 		},
- 	},
--	{ }
-+	{}
- };
- 
- /* The IBM entry is in a separate table because we only check it
-    on Intel-based systems */
--static struct dmi_system_id __devinitdata piix4_dmi_ibm[] = {
-+static struct sysfw_id __devinitdata piix4_id_ibm[] = {
- 	{
- 		.ident = "IBM",
--		.matches = { DMI_MATCH(DMI_SYS_VENDOR, "IBM"), },
-+		.matches = { SYSFW_MATCH(SYSFW_SYS_VENDOR, "IBM"), },
- 	},
--	{ },
-+	{},
- };
- 
- static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
-@@ -138,14 +138,14 @@ static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
- 
- 	/* On some motherboards, it was reported that accessing the SMBus
- 	   caused severe hardware problems */
--	if (dmi_check_system(piix4_dmi_blacklist)) {
-+	if (sysfw_callback(piix4_id_blacklist)) {
- 		dev_err(&PIIX4_dev->dev,
- 			"Accessing the SMBus on this system is unsafe!\n");
- 		return -EPERM;
- 	}
- 
- 	/* Don't access SMBus on IBM systems which get corrupted eeproms */
--	if (dmi_check_system(piix4_dmi_ibm) &&
-+	if (sysfw_callback(piix4_id_ibm) &&
- 			PIIX4_dev->vendor == PCI_VENDOR_ID_INTEL) {
- 		dev_err(&PIIX4_dev->dev, "IBM system detected; this module "
- 			"may corrupt your serial eeprom! Refusing to load "
+ MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
 -- 
-1.6.5.2
+1.7.1.569.g6f426
