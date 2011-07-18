@@ -1,66 +1,25 @@
-From: Mike Rapoport <mike.rapoport-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RESEND] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter functionality
-Date: Sun, 17 Jul 2011 23:22:11 +0300
-Message-ID: <CABpLfogpP=q23xnqqaaNSCxKdQkLiQSif-qz+9DLxcVvbrN2rw@mail.gmail.com>
-References: <20110711073755.GA8665@gentoodev.compulab.local>
-	<CAMbhsRS-REFiAiEnukVtarTx7PRrzLT0BHAHdmuPGqDRRppGtw@mail.gmail.com>
-	<20110713215820.GG3369@freya.fluff.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110713215820.GG3369-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Thomas Abraham <thomas.abraham@linaro.org>
+Subject: [PATCH 0/2] Add device tree support for Samsung's I2C driver.
+Date: Mon, 18 Jul 2011 06:20:39 +0530
+Message-ID: <1310950241-13602-1-git-send-email-thomas.abraham@linaro.org>
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: devicetree-discuss@lists.ozlabs.org
+Cc: linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-samsung-soc@vger.kernel.org, patches@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+This patchset adds device tree support for Samsung's I2C driver. The Exynos4 DT
+enabled machine is updated to support device tree based probe for I2C instance 1.
 
-On Thu, Jul 14, 2011 at 12:58 AM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
-> On Mon, Jul 11, 2011 at 12:49:33AM -0700, Colin Cross wrote:
->> On Mon, Jul 11, 2011 at 12:37 AM, =A0<mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org> wrote:
->> > Hi Ben,
->> > This patch has been waiting for quite a long time and I've got no =
-response
->> > from you concerning it.
->> > Can you _please_ at last merge it so it'll make to 3.1?
->
-> I'll add it to the -next tree tomorrow
+Thomas Abraham (2):
+  i2c: s3c24xx: Add device tree support
+  arm: dt: Add device tree support for i2c instance 1 on exynos4 dt machine
 
-Any updates on this?
-
->> > =A0static const struct i2c_algorithm tegra_i2c_algo =3D {
->> > --
->> > 1.7.3.1
->> >
->> > --
->> > To unsubscribe from this list: send the line "unsubscribe linux-te=
-gra" in
->> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> > More majordomo info at =A0http://vger.kernel.org/majordomo-info.ht=
-ml
->> >
->>
->> Your mailer added @mike-pc.compulab.local to all of the addresses.
->>
->> Acked-by: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
->>
->> It should go in through Ben's tree.
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c"=
- in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-tegra=
-" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
-
-
-
---=20
-Sincerely Yours,
-Mike.
+ .../devicetree/bindings/i2c/samsung-i2c.txt        |   43 ++++++++++
+ arch/arm/boot/dts/exynos4-smdkv310.dts             |   19 ++++-
+ arch/arm/mach-exynos4/Kconfig                      |    1 +
+ arch/arm/mach-exynos4/mach-exynos4-dt.c            |    9 ++
+ drivers/i2c/busses/i2c-s3c2410.c                   |   87 ++++++++++++++++----
+ 5 files changed, 143 insertions(+), 16 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/samsung-i2c.txt
