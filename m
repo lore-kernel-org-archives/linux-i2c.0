@@ -1,467 +1,711 @@
-From: Ganesan Ramalingam <ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Subject: [PATCH v2] i2c: Support for Netlogic XLR/XLS on-chip I2C controller.
-Date: Tue, 19 Jul 2011 23:18:11 +0530
-Message-ID: <20110719174802.GA1952@jayachandranc.netlogicmicro.com>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 1/2 v2] i2c: i2c-riic: add support for Renesas RIIC
+Date: Wed, 20 Jul 2011 16:59:49 +0900
+Message-ID: <4E268AF5.4070000@renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-platform.c : add i2c platform device
-i2c-xlr.c : algorithm and i2c adaptor for Netlogic I2C controller
-Kconfig/Makefile: add CONFIG_I2C_XLR option
+This driver supports the RIIC module. The SH7757 has it.
+The driver doesn't use any IRQ handler. This is because the module
+has errata in interrupts of TXI and RXI. So, we cannot use
+the interrupts for transfer.
 
-Changes since v1:
- - Use master_xfer in place of smbus_xfer
- - Fixes for the comments from Ben Dooks and Mark Brown
-
-Signed-off-by: Ganesan Ramalingam <ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 ---
- arch/mips/configs/nlm_xlr_defconfig |    4 +
- arch/mips/netlogic/xlr/platform.c   |   52 ++++++
- drivers/i2c/busses/Kconfig          |   11 ++
- drivers/i2c/busses/Makefile         |    1 +
- drivers/i2c/busses/i2c-xlr.c        |  303 +++++++++++++++++++++++++++++++++++
- 5 files changed, 371 insertions(+), 0 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-xlr.c
+ about v2:
+  - fix Makefile for the list alphabetically sorted
+  - fix ICMR1_BC
+  - fix riic_[clear,set]_bit
+  - add error indication in riic_set_clock()
+  - add more comment about no IRQ in git log
+  - fix return value and some error log in riic_probe()
 
-diff --git a/arch/mips/configs/nlm_xlr_defconfig b/arch/mips/configs/nlm_xlr_defconfig
-index e4b399f..6431fd3 100644
---- a/arch/mips/configs/nlm_xlr_defconfig
-+++ b/arch/mips/configs/nlm_xlr_defconfig
-@@ -365,6 +365,10 @@ CONFIG_SERIAL_8250_RSA=y
- CONFIG_HW_RANDOM=y
- CONFIG_HW_RANDOM_TIMERIOMEM=m
- CONFIG_RAW_DRIVER=m
-+CONFIG_I2C=y
-+CONFIG_I2C_XLR=y
-+CONFIG_RTC_CLASS=y
-+CONFIG_RTC_DRV_DS1374=y
- # CONFIG_HWMON is not set
- # CONFIG_VGA_CONSOLE is not set
- # CONFIG_HID_SUPPORT is not set
-diff --git a/arch/mips/netlogic/xlr/platform.c b/arch/mips/netlogic/xlr/platform.c
-index 609ec25..f48fc6d 100644
---- a/arch/mips/netlogic/xlr/platform.c
-+++ b/arch/mips/netlogic/xlr/platform.c
-@@ -14,11 +14,15 @@
- #include <linux/resource.h>
- #include <linux/serial_8250.h>
- #include <linux/serial_reg.h>
-+#include <linux/i2c.h>
- 
- #include <asm/netlogic/xlr/iomap.h>
- #include <asm/netlogic/xlr/pic.h>
- #include <asm/netlogic/xlr/xlr.h>
- 
-+#define NETLOGIC_IO_I2C_OFFSET(x)          ((x == 0) ? \
-+	NETLOGIC_IO_I2C_0_OFFSET : NETLOGIC_IO_I2C_1_OFFSET)
-+
- unsigned int nlm_xlr_uart_in(struct uart_port *p, int offset)
- {
- 	nlm_reg_t *mmio;
-@@ -66,6 +70,54 @@ void nlm_xlr_uart_out(struct uart_port *p, int offset, int value)
- 		.serial_out	= nlm_xlr_uart_out,	\
- 	}
- 
-+#ifdef CONFIG_I2C
-+static struct i2c_board_info nlm_i2c_board_info1[] __initdata = {
-+	/* All XLR boards have this RTC and Max6657 Temp Chip */
-+	[0] = {
-+		.type	= "ds1374",
-+		.addr	= 0x68
-+	},
-+	[1] = {
-+		.type	= "lm90",
-+		.addr	= 0x4c
-+	},
-+};
-+
-+static struct resource i2c_resources[] = {
-+	[0] = {
-+		.start	= 0,	/* filled at init */
-+		.end	= 0,
-+		.flags	= IORESOURCE_MEM,
-+	},
-+};
-+
-+static struct platform_device nlm_xlr_i2c_1 = {
-+	.name           = "xlr-i2cbus",
-+	.id             = 1,
-+	.num_resources	= 1,
-+	.resource	= i2c_resources,
-+};
-+
-+static int __init nlm_i2c_init(void)
-+{
-+	int err = 0;
-+	unsigned int offset = NETLOGIC_IO_I2C_OFFSET(nlm_xlr_i2c_1.id);
-+
-+	nlm_xlr_i2c_1.resource[0].start = CPHYSADDR(netlogic_io_mmio(offset));
-+	nlm_xlr_i2c_1.resource[0].end = nlm_xlr_i2c_1.resource[0].start + 0xfff;
-+
-+	platform_device_register(&nlm_xlr_i2c_1);
-+
-+	err = i2c_register_board_info(1, nlm_i2c_board_info1,
-+				ARRAY_SIZE(nlm_i2c_board_info1));
-+	if (err < 0)
-+		pr_err("nlm-i2c: cannot register board I2C devices\n");
-+	return err;
-+}
-+
-+arch_initcall(nlm_i2c_init);
-+#endif
-+
- static struct plat_serial8250_port xlr_uart_data[] = {
- 	PORT(PIC_UART_0_IRQ),
- 	PORT(PIC_UART_1_IRQ),
+ drivers/i2c/busses/Kconfig    |    9 +
+ drivers/i2c/busses/Makefile   |    1 +
+ drivers/i2c/busses/i2c-riic.c |  600 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c/riic.h      |   29 ++
+ 4 files changed, 639 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-riic.c
+ create mode 100644 include/linux/i2c/riic.h
+
 diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 646068e..4ac63f5 100644
+index 646068e..e057344 100644
 --- a/drivers/i2c/busses/Kconfig
 +++ b/drivers/i2c/busses/Kconfig
-@@ -309,6 +309,17 @@ config I2C_AU1550
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-au1550.
- 
-+config I2C_XLR
-+	tristate "XLR I2C support"
-+	depends on CPU_XLR
+@@ -687,6 +687,15 @@ config I2C_EG20T
+ 	  ML7213/ML7223 is companion chip for Intel Atom E6xx series.
+ 	  ML7213/ML7223 is completely compatible for Intel EG20T PCH.
+
++config I2C_RIIC
++	tristate "Renesas RIIC controller"
++	depends on SUPERH
 +	help
-+	  This driver enables support for the on-chip I2C interface of
-+	  the Netlogic XLR/XLS MIPS processors.
++	  This driver supports the RIIC module of the Renesas SH7757.
 +
-+	  Say yes to this option if you have a Netlogic XLR/XLS based
-+	  board and you need to access the I2C devices (typically the
-+	  RTC, sensors, EEPROM) connected to this interface.
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-riic.
 +
- config I2C_BLACKFIN_TWI
- 	tristate "Blackfin TWI I2C support"
- 	depends on BLACKFIN
+ comment "External I2C/SMBus adapter drivers"
+
+ config I2C_DIOLAN_U2C
 diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index e6cf294..14e7a76 100644
+index e6cf294..93ca34f 100644
 --- a/drivers/i2c/busses/Makefile
 +++ b/drivers/i2c/busses/Makefile
-@@ -65,6 +65,7 @@ obj-$(CONFIG_I2C_TEGRA)		+= i2c-tegra.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
-+obj-$(CONFIG_I2C_XLR)           += i2c-xlr.o
- obj-$(CONFIG_I2C_EG20T)         += i2c-eg20t.o
- 
- # External I2C/SMBus adapter drivers
-diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
+@@ -55,6 +55,7 @@ obj-$(CONFIG_I2C_PNX)		+= i2c-pnx.o
+ obj-$(CONFIG_I2C_PUV3)		+= i2c-puv3.o
+ obj-$(CONFIG_I2C_PXA)		+= i2c-pxa.o
+ obj-$(CONFIG_I2C_PXA_PCI)	+= i2c-pxa-pci.o
++obj-$(CONFIG_I2C_RIIC)          += i2c-riic.o
+ obj-$(CONFIG_I2C_S3C2410)	+= i2c-s3c2410.o
+ obj-$(CONFIG_I2C_S6000)		+= i2c-s6000.o
+ obj-$(CONFIG_I2C_SH7760)	+= i2c-sh7760.o
+diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
 new file mode 100644
-index 0000000..d433b2f
+index 0000000..791a659
 --- /dev/null
-+++ b/drivers/i2c/busses/i2c-xlr.c
-@@ -0,0 +1,303 @@
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -0,0 +1,600 @@
 +/*
-+ * Copyright 2011, Netlogic Microsystems Inc.
-+ * Copyright 2004, Matt Porter <mporter-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
++ * RIIC bus driver
 + *
-+ * This file is licensed under the terms of the GNU General Public
-+ * License version 2.  This program is licensed "as is" without any
-+ * warranty of any kind, whether express or implied.
++ * Copyright (C) 2011  Renesas Solutions Corp.
++ *
++ * Based on i2c-sh_mobile.c
++ * Portion Copyright (C) 2008 Magnus Damm
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ *
 + */
 +
 +#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/init.h>
-+#include <linux/ioport.h>
-+#include <linux/delay.h>
-+#include <linux/errno.h>
-+#include <linux/i2c.h>
-+#include <linux/io.h>
 +#include <linux/platform_device.h>
-+#include <asm/netlogic/xlr/iomap.h>
++#include <linux/interrupt.h>
++#include <linux/i2c.h>
++#include <linux/i2c/riic.h>
++#include <linux/io.h>
++#include <linux/timer.h>
++#include <linux/delay.h>
++#include <linux/slab.h>
 +
-+/* XLR I2C REGISTERS */
-+#define XLR_I2C_CFG		0x00
-+#define XLR_I2C_CLKDIV		0x01
-+#define XLR_I2C_DEVADDR		0x02
-+#define XLR_I2C_ADDR		0x03
-+#define XLR_I2C_DATAOUT		0x04
-+#define XLR_I2C_DATAIN		0x05
-+#define XLR_I2C_STATUS		0x06
-+#define XLR_I2C_STARTXFR	0x07
-+#define XLR_I2C_BYTECNT		0x08
-+#define XLR_I2C_HDSTATIM	0x09
++#define RIIC_ICCR1	0x00
++#define RIIC_ICCR2	0x01
++#define RIIC_ICMR1	0x02
++#define RIIC_ICMR2	0x03
++#define RIIC_ICMR3	0x04
++#define RIIC_ICFER	0x05
++#define RIIC_ICSER	0x06
++#define RIIC_ICIER	0x07
++#define RIIC_ICSR1	0x08
++#define RIIC_ICSR2	0x09
++#define RIIC_SARL0	0x0a
++#define RIIC_SARU0	0x0b
++#define RIIC_SARL1	0x0c
++#define RIIC_SARU1	0x0d
++#define RIIC_SARL2	0x0e
++#define RIIC_SARU2	0x0f
++#define RIIC_ICBRL	0x10
++#define RIIC_ICBRH	0x11
++#define RIIC_ICDRT	0x12
++#define RIIC_ICDRR	0x13
 +
-+/* XLR I2C REGISTERS FLAGS */
-+#define XLR_I2C_BUS_BUSY	0x01
-+#define XLR_I2C_SDOEMPTY	0x02
-+#define XLR_I2C_RXRDY		0x04
-+#define XLR_I2C_ACK_ERR		0x08
-+#define XLR_I2C_ARB_STARTERR	0x30
++/* ICCR1 */
++#define ICCR1_ICE	0x80
++#define ICCR1_IICRST	0x40
++#define ICCR1_CLO	0x20
++#define ICCR1_SOWP	0x10
++#define ICCR1_SCLO	0x08
++#define ICCR1_SDAO	0x04
++#define ICCR1_SCLI	0x02
++#define ICCR1_SDAI	0x01
 +
-+/* Register Programming Values!! Change as required */
-+#define XLR_I2C_CFG_ADDR	0xF8    /* 8-Bit dev Addr + POR Values */
-+#define XLR_I2C_CFG_NOADDR	0xFA    /* 8-Bit reg Addr + POR Values */
-+#define XLR_I2C_STARTXFR_ND	0x02    /* No data , only addr */
-+#define XLR_I2C_STARTXFR_RD	0x01    /* Read */
-+#define XLR_I2C_STARTXFR_WR	0x00    /* Write */
-+#define XLR_I2C_CLKDIV_DEF	0x14A   /* 0x00000052 */
-+#define XLR_I2C_HDSTATIM_DEF	0x107   /* 0x00000000 */
++/* ICCR2 */
++#define ICCR2_BBSY	0x80
++#define ICCR2_MST	0x40
++#define ICCR2_TRS	0x20
++#define ICCR2_SP	0x08
++#define ICCR2_RS	0x04
++#define ICCR2_ST	0x02
 +
-+#define XLR_I2C_IO_SIZE		0x1000
++/* ICMR1 */
++#define ICMR1_MTWP	0x80
++#define ICMR1_CKS_MASK	0x70
++#define ICMR1_BCWP	0x08
++#define ICMR1_BC_MASK	0x07
 +
-+struct xlr_i2c_private {
++#define ICMR1_CKS(_x)	((_x << 4) & ICMR1_CKS_MASK)
++#define ICMR1_BC(_x)	((_x) & ICMR1_BC_MASK)
++
++/* ICMR2 */
++#define ICMR2_DLCS	0x80
++#define ICMR2_SDDL_MASK	0x70
++#define ICMR2_TMOH	0x04
++#define ICMR2_TMOL	0x02
++#define ICMR2_TMOS	0x01
++
++/* ICMR3 */
++#define ICMR3_SMBS	0x80
++#define ICMR3_WAIT	0x40
++#define ICMR3_RDRFS	0x20
++#define ICMR3_ACKWP	0x10
++#define ICMR3_ACKBT	0x08
++#define ICMR3_ACKBR	0x04
++#define ICMR3_NF_MASK	0x03
++
++/* ICFER */
++#define ICFER_FMPE	0x80
++#define ICFER_SCLE	0x40
++#define ICFER_NFE	0x20
++#define ICFER_NACKE	0x10
++#define ICFER_SALE	0x08
++#define ICFER_NALE	0x04
++#define ICFER_MALE	0x02
++#define ICFER_TMOE	0x01
++
++/* ICSER */
++#define ICSER_HOAE	0x80
++#define ICSER_DIDE	0x20
++#define ICSER_GCAE	0x08
++#define ICSER_SAR2E	0x04
++#define ICSER_SAR1E	0x02
++#define ICSER_SAR0E	0x01
++
++/* ICIER */
++#define ICIER_TIE	0x80
++#define ICIER_TEIE	0x40
++#define ICIER_RIE	0x20
++#define ICIER_NAKIE	0x10
++#define ICIER_SPIE	0x08
++#define ICIER_STIE	0x04
++#define ICIER_ALIE	0x02
++#define ICIER_TMOIE	0x01
++
++/* ICSR1 */
++#define ICSR1_HOA	0x80
++#define ICSR1_DID	0x20
++#define ICSR1_GCA	0x08
++#define ICSR1_AAS2	0x04
++#define ICSR1_AAS1	0x02
++#define ICSR1_AAS0	0x01
++
++/* ICSR2 */
++#define ICSR2_TDRE	0x80
++#define ICSR2_TEND	0x40
++#define ICSR2_RDRF	0x20
++#define ICSR2_NACKF	0x10
++#define ICSR2_STOP	0x08
++#define ICSR2_START	0x04
++#define ICSR2_AL	0x02
++#define ICSR2_TMOF	0x01
++
++/* SARLn */
++#define SARL_SVA_MASK	0xfe	/* SVA[7:1] */
++#define SARL_SVA	0x01
++
++/* SARUn */
++#define SARU_SVA_MASK	0x06	/* SVA[9:8] */
++#define SARU_FS		0x01
++
++/* ICBRH */
++#define ICBRH_RESERVED	0xe0	/* The write value shoud always be 1 */
++#define ICBRH_BRH_MASK	0x1f
++
++/* ICBRL */
++#define ICBRL_RESERVED	0xe0	/* The write value shoud always be 1 */
++#define ICBRL_BRL_MASK	0x1f
++
++#define RIIC_TIMEOUT	10000	/* 100msec (unit = 10usec) */
++
++struct riic_data {
++	struct device *dev;
++	void __iomem *reg;
 +	struct i2c_adapter adap;
-+	u32 __iomem *iobase;
-+};
-+
-+static int xlr_i2c_tx(struct xlr_i2c_private *priv,  u16 len,
-+		u8 *buf, u16 addr)
-+{
-+	u32 i2c_status = 0x00;
-+	u8 nb;
-+	int pos, timeout = 0;
-+	struct i2c_adapter *adap = &priv->adap;
-+	u8 offset = buf[0];
-+
-+	netlogic_write_reg(priv->iobase, XLR_I2C_ADDR, offset);
-+	netlogic_write_reg(priv->iobase, XLR_I2C_DEVADDR, addr);
-+	netlogic_write_reg(priv->iobase, XLR_I2C_CFG, XLR_I2C_CFG_ADDR);
-+	netlogic_write_reg(priv->iobase, XLR_I2C_BYTECNT, len-1);
-+
-+retry:
-+	timeout = 0;
-+	pos = 1;
-+	if (len == 1) {
-+		netlogic_write_reg(priv->iobase, XLR_I2C_STARTXFR,
-+				XLR_I2C_STARTXFR_ND);
-+	} else {
-+		netlogic_write_reg(priv->iobase, XLR_I2C_DATAOUT, buf[pos]);
-+		netlogic_write_reg(priv->iobase, XLR_I2C_STARTXFR,
-+				XLR_I2C_STARTXFR_WR);
-+	}
-+
-+	while (1) {
-+		if (timeout++ > 0x1000) {
-+			dev_err(&adap->dev, "XLR_I2C_STARTXFR_RD Rx Timeout\n");
-+			return -ETIMEDOUT;
-+		}
-+
-+		i2c_status = netlogic_read_reg(priv->iobase, XLR_I2C_STATUS);
-+
-+		if (i2c_status & XLR_I2C_SDOEMPTY) {
-+			pos++;
-+			nb = (pos < len) ? buf[pos] : 0;
-+			netlogic_write_reg(priv->iobase, XLR_I2C_DATAOUT, nb);
-+		}
-+
-+		if (i2c_status & XLR_I2C_ARB_STARTERR)
-+			goto retry;
-+
-+		if (i2c_status & XLR_I2C_ACK_ERR) {
-+			dev_err(&priv->adap.dev, "Tx ACK ERR\n");
-+			return -EIO;
-+		}
-+
-+		if (i2c_status & XLR_I2C_BUS_BUSY) {
-+			udelay(1);
-+			continue;
-+		}
-+
-+		if (pos >= len)
-+			break;
-+	}
-+
-+	return 0;
-+}
-+
-+static int xlr_i2c_rx(struct xlr_i2c_private *priv, u16 len,
-+		u8 *buf, u16 addr)
-+{
-+	u32 i2c_status = 0x00;
-+	int pos = 0;
-+	int timeout = 0;
-+	struct i2c_adapter *adap = &priv->adap;
-+
-+	netlogic_write_reg(priv->iobase, XLR_I2C_CFG, XLR_I2C_CFG_NOADDR);
-+	netlogic_write_reg(priv->iobase, XLR_I2C_BYTECNT, len);
-+	netlogic_write_reg(priv->iobase, XLR_I2C_DEVADDR, addr);
-+
-+retry:
-+	timeout = 0;
-+	netlogic_write_reg(priv->iobase, XLR_I2C_STARTXFR,
-+			XLR_I2C_STARTXFR_RD);
-+
-+	while (1) {
-+		if (timeout++ > 0x1000) {
-+			dev_err(&adap->dev, "XLR_I2C_STARTXFR_RD Rx Timeout\n");
-+			return -ETIMEDOUT;
-+		}
-+
-+		i2c_status = netlogic_read_reg(priv->iobase,
-+				XLR_I2C_STATUS);
-+		if (i2c_status & XLR_I2C_RXRDY) {
-+			buf[pos++] = (u8)netlogic_read_reg(priv->iobase,
-+					XLR_I2C_DATAIN);
-+		}
-+
-+		if (i2c_status & XLR_I2C_ARB_STARTERR)
-+			goto retry;
-+
-+		if (i2c_status & XLR_I2C_ACK_ERR) {
-+			dev_err(&adap->dev, "XLR_I2C_STARTXFR_RD ACK ERR\n");
-+			return -EIO;
-+		}
-+
-+		if ((i2c_status & XLR_I2C_BUS_BUSY) == 0)
-+			break;
-+		udelay(1);
-+	}
-+	return 0;
-+}
-+
-+static int xlr_i2c_xfer(struct i2c_adapter *adap,
-+		struct i2c_msg *msgs, int num)
-+{
 +	struct i2c_msg *msg;
-+	int i;
-+	int ret = 0;
-+	struct xlr_i2c_private *priv = i2c_get_adapdata(adap);
-+
-+	for (i = 0; ret == 0 && i < num; i++) {
-+		msg = &msgs[i];
-+		if (msg->flags & I2C_M_RD)
-+			ret = xlr_i2c_rx(priv, msg->len, &msg->buf[0],
-+					msg->addr);
-+		else
-+			ret = xlr_i2c_tx(priv, msg->len, &msg->buf[0],
-+					msg->addr);
-+	}
-+
-+	return (ret != 0) ? ret : num;
-+}
-+
-+static u32 xlr_func(struct i2c_adapter *adap)
-+{
-+	/* Emulate SMBUS over I2C */
-+	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_I2C;
-+}
-+
-+static struct i2c_algorithm xlr_i2c_algo = {
-+	.master_xfer	= xlr_i2c_xfer,
-+	.functionality	= xlr_func,
 +};
 +
-+static int xlr_i2c_add_bus(struct xlr_i2c_private *priv)
++#define DRIVER_VERSION	"2011-07-14"
++
++static unsigned char riic_read(struct riic_data *pd, unsigned long addr)
 +{
-+	priv->adap.owner	= THIS_MODULE;
-+	priv->adap.algo_data	= priv;
-+	priv->adap.nr		= 1;
-+	priv->adap.algo		= &xlr_i2c_algo;
-+	priv->adap.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
-+	snprintf(priv->adap.name, sizeof(priv->adap.name),
-+			"SMBus XLR I2C Adapter");
-+	i2c_set_adapdata(&priv->adap, priv);
-+	/* register new adapter to i2c module... */
-+	if (i2c_add_numbered_adapter(&priv->adap))
-+		return -1;
++	return ioread8(pd->reg + addr);
++}
++
++static void riic_write(struct riic_data *pd, unsigned char data,
++		       unsigned long addr)
++{
++	iowrite8(data, pd->reg + addr);
++}
++
++static void riic_set_bit(struct riic_data *pd, unsigned char val,
++			 unsigned long offset)
++{
++	unsigned char tmp;
++
++	tmp = riic_read(pd, offset) | val;
++	riic_write(pd, tmp, offset);
++}
++
++static void riic_clear_bit(struct riic_data *pd, unsigned char val,
++			   unsigned long offset)
++{
++	unsigned char tmp;
++
++	tmp = riic_read(pd, offset) & ~val;
++	riic_write(pd, tmp, offset);
++}
++
++static int riic_set_clock(struct riic_data *pd, int clock)
++{
++	switch (clock) {
++	case 100:
++		riic_clear_bit(pd, ICFER_FMPE, RIIC_ICFER);
++		riic_clear_bit(pd, ICMR1_CKS_MASK, RIIC_ICMR1);
++		riic_set_bit(pd, ICMR1_CKS(3), RIIC_ICMR1);
++		riic_write(pd, ICBRH_RESERVED | 23, RIIC_ICBRH);
++		riic_write(pd, ICBRL_RESERVED | 23, RIIC_ICBRL);
++		break;
++	case 400:
++		riic_clear_bit(pd, ICFER_FMPE, RIIC_ICFER);
++		riic_clear_bit(pd, ICMR1_CKS_MASK, RIIC_ICMR1);
++		riic_set_bit(pd, ICMR1_CKS(1), RIIC_ICMR1);
++		riic_write(pd, ICBRH_RESERVED | 20, RIIC_ICBRH);
++		riic_write(pd, ICBRL_RESERVED | 19, RIIC_ICBRL);
++		break;
++	case 1000:
++		riic_set_bit(pd, ICFER_FMPE, RIIC_ICFER);
++		riic_clear_bit(pd, ICMR1_CKS_MASK, RIIC_ICMR1);
++		riic_set_bit(pd, ICMR1_CKS(0), RIIC_ICMR1);
++		riic_write(pd, ICBRH_RESERVED | 14, RIIC_ICBRH);
++		riic_write(pd, ICBRL_RESERVED | 14, RIIC_ICBRL);
++		break;
++
++	default:
++		dev_err(pd->dev, "unsupported clock (%dkHz)\n", clock);
++		return -EINVAL;
++	}
 +
 +	return 0;
 +}
 +
-+static int __devinit xlr_i2c_probe(struct platform_device *pdev)
++static int riic_init_setting(struct riic_data *pd, int clock)
 +{
-+	struct xlr_i2c_private  *priv;
-+	struct resource *res;
 +	int ret;
 +
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	riic_clear_bit(pd, ICCR1_ICE, RIIC_ICCR1);
++	riic_set_bit(pd, ICCR1_IICRST, RIIC_ICCR1);
++	riic_clear_bit(pd, ICCR1_IICRST, RIIC_ICCR1);
 +
-+	if (!res) {
-+		ret = -ENXIO;
-+		goto err1;
-+	}
++	riic_write(pd, 0, RIIC_SARL0);
++	riic_write(pd, 0, RIIC_SARU0);
++	riic_write(pd, ICSER_SAR0E, RIIC_ICSER);
 +
-+	if (!request_mem_region(res->start, XLR_I2C_IO_SIZE, pdev->name)) {
-+		dev_err(&pdev->dev, "request_mem_region failed\n");
-+		ret = -ENOMEM;
-+		goto err1;
-+	}
++	riic_write(pd, ICMR1_BC(7), RIIC_ICMR1);
++	ret = riic_set_clock(pd, clock);
++	if (ret < 0)
++		return ret;
 +
-+	priv = kzalloc(sizeof(struct xlr_i2c_private), GFP_KERNEL);
-+	if (!priv) {
-+		ret = -ENOMEM;
-+		goto err2;
-+	}
-+
-+	priv->adap.dev.parent = &pdev->dev;
-+	priv->iobase = (u32 *) ioremap(res->start, XLR_I2C_IO_SIZE);
-+	if (!priv->iobase) {
-+		ret = -ENOMEM;
-+		goto err3;
-+	}
-+
-+	platform_set_drvdata(pdev, priv);
-+	ret = xlr_i2c_add_bus(priv);
-+
-+	if (ret < 0) {
-+		dev_err(&priv->adap.dev, "Failed to add i2c bus\n");
-+		ret = -ENXIO;
-+		goto err4;
-+	} else
-+		dev_info(&priv->adap.dev, "Added I2C Bus.\n");
++	riic_set_bit(pd, ICCR1_ICE, RIIC_ICCR1);	/* Enable RIIC */
++	riic_set_bit(pd, ICMR3_RDRFS | ICMR3_WAIT | ICMR3_ACKWP, RIIC_ICMR3);
 +
 +	return 0;
-+err4:
-+	iounmap(priv->iobase);
-+	platform_set_drvdata(pdev, NULL);
-+err3:
-+	kfree(priv);
-+err2:
-+	release_mem_region(res->start, IORESOURCE_MEM);
-+err1:
++}
++
++static int riic_check_busy(struct riic_data *pd)
++{
++	if (riic_read(pd, RIIC_ICCR2) & ICCR2_BBSY) {
++		dev_err(pd->dev, "i2c bus is busy.\n");
++		return -EBUSY;
++	}
++
++	return 0;
++}
++
++static int riic_wait_for_icsr2(struct riic_data *pd, unsigned short bit)
++{
++	unsigned char icsr2;
++	int timeout = RIIC_TIMEOUT;
++
++	while (timeout-- > 0) {
++		icsr2 = riic_read(pd, RIIC_ICSR2);
++		if (icsr2 & ICSR2_NACKF)
++			return -EIO;
++		if (icsr2 & bit)
++			return 0;
++		udelay(10);
++	}
++
++	dev_err(pd->dev, "%s: bit = %x icsr2 = %x, iccr2 = %x\n", __func__,
++		bit, riic_read(pd, RIIC_ICSR2), riic_read(pd, RIIC_ICCR2));
++
++	return -ETIMEDOUT;
++}
++
++static int riic_send_slave_address(struct riic_data *pd, int read)
++{
++	unsigned char sa_rw[2];
++	int ret;
++
++	if (pd->msg->flags & I2C_M_TEN) {
++		sa_rw[0] = ((((pd->msg->addr & 0x300) >> 8) | 0x78) << 1);
++		sa_rw[0] |= read;
++		sa_rw[1] = pd->msg->addr & 0xff;
++		ret = riic_wait_for_icsr2(pd, ICSR2_TDRE);
++		if (ret < 0)
++			return ret;
++		riic_write(pd, sa_rw[0], RIIC_ICDRT);
++		ret = riic_wait_for_icsr2(pd, ICSR2_TDRE);
++		if (ret < 0)
++			return ret;
++		riic_write(pd, sa_rw[1], RIIC_ICDRT);
++	} else {
++		sa_rw[0] = (pd->msg->addr << 1) | read;
++		ret = riic_wait_for_icsr2(pd, ICSR2_TDRE);
++		if (ret < 0)
++			return ret;
++		riic_write(pd, sa_rw[0], RIIC_ICDRT);
++	}
++	return 0;
++}
++
++static int riic_master_transmit(struct riic_data *pd, int stop)
++{
++	int ret = 0;
++	int index;
++
++	riic_set_bit(pd, ICCR2_ST, RIIC_ICCR2);
++	ret = riic_wait_for_icsr2(pd, ICSR2_START);
++	if (ret < 0)
++		goto force_exit;
++	riic_clear_bit(pd, ICSR2_START, RIIC_ICSR2);
++
++	ret = riic_send_slave_address(pd, 0);
++	if (ret < 0)
++		goto force_exit;
++
++	/* transmit data */
++	index = 0;
++	do {
++		ret = riic_wait_for_icsr2(pd, ICSR2_TDRE);
++		if (ret < 0)
++			goto force_exit;
++
++		riic_write(pd, pd->msg->buf[index], RIIC_ICDRT);
++		index++;
++	} while (pd->msg->len > index);
++
++	ret = riic_wait_for_icsr2(pd, ICSR2_TEND);
++	if (ret < 0)
++		goto force_exit;
++
++force_exit:
++	if (stop) {
++		riic_clear_bit(pd, ICSR2_STOP | ICSR2_NACKF, RIIC_ICSR2);
++		riic_set_bit(pd, ICCR2_SP, RIIC_ICCR2);
++		riic_wait_for_icsr2(pd, ICSR2_STOP);
++	}
++	riic_clear_bit(pd, ICSR2_STOP | ICSR2_NACKF, RIIC_ICSR2);
++
 +	return ret;
 +}
 +
-+static int __devexit xlr_i2c_remove(struct platform_device *pdev)
++static void riic_set_receive_ack(struct riic_data *pd, int ack)
 +{
-+	struct xlr_i2c_private *priv = platform_get_drvdata(pdev);
-+	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (ack)
++		riic_clear_bit(pd, ICMR3_ACKBT, RIIC_ICMR3);
++	else
++		riic_set_bit(pd, ICMR3_ACKBT, RIIC_ICMR3);
++}
 +
-+	i2c_del_adapter(&priv->adap);
-+	iounmap(priv->iobase);
-+	kfree(priv);
-+	release_mem_region(res->start, IORESOURCE_MEM);
-+	platform_set_drvdata(pdev, NULL);
++static int riic_master_receive(struct riic_data *pd, int restart)
++{
++	int dummy_read = 1;
++	int ret = 0;
++	int index;
++
++	if (restart)
++		riic_set_bit(pd, ICCR2_RS, RIIC_ICCR2);
++	else
++		riic_set_bit(pd, ICCR2_ST, RIIC_ICCR2);
++
++	ret = riic_wait_for_icsr2(pd, ICSR2_START);
++	if (ret < 0)
++		return ret;
++	riic_clear_bit(pd, ICSR2_START, RIIC_ICSR2);
++
++	/* send slave address */
++	ret = riic_send_slave_address(pd, 1);
++	if (ret < 0)
++		return ret;
++
++	ret = riic_wait_for_icsr2(pd, ICSR2_RDRF);
++	if (ret < 0)
++		return ret;
++
++	if (riic_read(pd, RIIC_ICSR2) & ICSR2_NACKF) {
++		/* received NACK */
++		riic_clear_bit(pd, ICSR2_STOP, RIIC_ICSR2);
++		riic_set_bit(pd, ICCR2_SP, RIIC_ICCR2);
++		riic_read(pd, RIIC_ICDRR);	/* dummy read */
++		goto force_exit;
++	}
++
++	/* receive data */
++	index = 0;
++	while ((pd->msg->len - 1) > index) {
++		ret = riic_wait_for_icsr2(pd, ICSR2_RDRF);
++		if (ret < 0)
++			return ret;
++
++		if ((index + 1) >= (pd->msg->len - 1))
++			break;
++
++		if (dummy_read) {
++			riic_read(pd, RIIC_ICDRR);
++			dummy_read = 0;
++		} else {
++			pd->msg->buf[index] = riic_read(pd, RIIC_ICDRR);
++			index++;
++			riic_set_receive_ack(pd, 1);
++		}
++	}
++
++	/* step 6 */
++	ret = riic_wait_for_icsr2(pd, ICSR2_RDRF);
++	if (ret < 0)
++		return ret;
++
++	/* step 7 */
++	if (dummy_read) {
++		riic_read(pd, RIIC_ICDRR);
++		dummy_read = 0;
++	} else {
++		pd->msg->buf[index] = riic_read(pd, RIIC_ICDRR);
++		index++;
++	}
++	riic_set_receive_ack(pd, 1);
++
++	ret = riic_wait_for_icsr2(pd, ICSR2_RDRF);
++	if (ret < 0)
++		return ret;
++
++	riic_clear_bit(pd, ICSR2_STOP, RIIC_ICSR2);
++	riic_set_bit(pd, ICCR2_SP, RIIC_ICCR2);
++
++	pd->msg->buf[index] = riic_read(pd, RIIC_ICDRR);
++	index++;
++	riic_set_receive_ack(pd, 0);
++
++force_exit:
++	ret = riic_wait_for_icsr2(pd, ICSR2_STOP);
++	if (ret < 0)
++		return ret;
++
++	riic_clear_bit(pd, ICSR2_STOP | ICSR2_NACKF, RIIC_ICSR2);
++
++	return ret;
++}
++
++static int riic_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
++		     int num)
++{
++	struct riic_data *pd = i2c_get_adapdata(adapter);
++	int i, ret = 0;
++	int restart = num > 1 ? 1 : 0;
++	int stop;
++
++	if (riic_check_busy(pd))
++		return -EBUSY;
++
++	for (i = 0; (i < num) && !ret; i++) {
++		pd->msg = &msgs[i];
++		stop = (i == num - 1);
++
++		if (pd->msg->flags & I2C_M_RD)
++			ret = riic_master_receive(pd, restart);
++		else
++			ret = riic_master_transmit(pd, stop);
++	}
++
++	return !ret ? num : ret;
++}
++
++static u32 riic_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_10BIT_ADDR | I2C_FUNC_SMBUS_EMUL;
++}
++
++static struct i2c_algorithm riic_algorithm = {
++	.functionality	= riic_func,
++	.master_xfer	= riic_xfer,
++};
++
++static int __devexit riic_remove(struct platform_device *pdev)
++{
++	struct riic_data *pd = platform_get_drvdata(pdev);
++
++	if (!pd)
++		return 0;
++
++	i2c_del_adapter(&pd->adap);
++	iounmap(pd->reg);
++	kfree(pd);
++
 +	return 0;
 +}
 +
-+static struct platform_driver xlr_i2c_driver = {
-+	.probe  = xlr_i2c_probe,
-+	.remove = __devexit_p(xlr_i2c_remove),
-+	.driver = {
-+		.owner  = THIS_MODULE,
-+		.name   = "xlr-i2cbus",
++static int __devinit riic_probe(struct platform_device *pdev)
++{
++	struct resource *res = NULL;
++	struct riic_data *pd = NULL;
++	struct riic_platform_data *riic_data = NULL;
++	struct i2c_adapter *adap;
++	void __iomem *reg = NULL;
++	int ret = 0;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!res) {
++		ret = -ENOENT;
++		dev_err(&pdev->dev, "platform_get_resource failed.\n");
++		goto clean_up;
++	}
++
++	if (!pdev->dev.platform_data) {
++		ret = -ENOENT;
++		dev_err(&pdev->dev, "no platform data\n");
++		goto clean_up;
++	}
++	riic_data = pdev->dev.platform_data;
++
++	reg = ioremap(res->start, resource_size(res));
++	if (reg == NULL) {
++		ret = -ENXIO;
++		dev_err(&pdev->dev, "ioremap failed.\n");
++		goto clean_up;
++	}
++
++	pd = kzalloc(sizeof(struct riic_data), GFP_KERNEL);
++	if (pd == NULL) {
++		ret = -ENOMEM;
++		dev_err(&pdev->dev, "kzalloc failed.\n");
++		goto clean_up;
++	}
++
++	pd->dev = &pdev->dev;
++	pd->reg = reg;
++	platform_set_drvdata(pdev, pd);
++
++	adap = &pd->adap;
++	i2c_set_adapdata(adap, pd);
++
++	adap->owner = THIS_MODULE;
++	adap->algo = &riic_algorithm;
++	adap->dev.parent = &pdev->dev;
++	adap->retries = 5;
++	adap->nr = pdev->id;
++
++	strlcpy(adap->name, dev_name(&pdev->dev), sizeof(adap->name));
++
++	ret = riic_init_setting(pd, riic_data->clock);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "riic_init_setting failed.\n");
++		goto clean_up;
++	}
++
++	ret = i2c_add_numbered_adapter(adap);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "i2c_add_numbered_adapter failed.\n");
++		goto clean_up;
++	}
++
++	dev_info(&pdev->dev, "version %s\n", DRIVER_VERSION);
++	return ret;
++
++clean_up:
++	if (reg)
++		iounmap(reg);
++	kfree(pd);
++	platform_set_drvdata(pdev, NULL);
++
++	return ret;
++}
++
++static struct platform_driver riic_driver = {
++	.probe =	riic_probe,
++	.remove =	__devexit_p(riic_remove),
++	.driver		= {
++		.name	= "i2c-riic",
++		.owner	= THIS_MODULE,
 +	},
 +};
 +
-+static int __init xlr_i2c_init(void)
++static int __init riic_init(void)
 +{
-+	return platform_driver_register(&xlr_i2c_driver);
++	return platform_driver_register(&riic_driver);
 +}
++module_init(riic_init);
 +
-+static void __exit xlr_i2c_exit(void)
++static void __exit riic_cleanup(void)
 +{
-+	platform_driver_unregister(&xlr_i2c_driver);
++	platform_driver_unregister(&riic_driver);
 +}
++module_exit(riic_cleanup);
 +
-+MODULE_AUTHOR("Ganesan Ramalingam <ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>");
-+MODULE_DESCRIPTION("XLR I2C SMBus driver");
++MODULE_DESCRIPTION("Renesas RIIC Driver");
 +MODULE_LICENSE("GPL");
-+MODULE_ALIAS("platform:xlr-i2cbus");
++MODULE_AUTHOR("Yoshihiro Shimoda");
++MODULE_ALIAS("platform:i2c-riic");
 +
-+module_init(xlr_i2c_init);
-+module_exit(xlr_i2c_exit);
+diff --git a/include/linux/i2c/riic.h b/include/linux/i2c/riic.h
+new file mode 100644
+index 0000000..5839381
+--- /dev/null
++++ b/include/linux/i2c/riic.h
+@@ -0,0 +1,29 @@
++/*
++ * RIIC bus driver
++ *
++ * Copyright (C) 2011  Renesas Solutions Corp.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ *
++ */
++
++#ifndef _RIIC_H_
++#define _RIIC_H_
++
++struct riic_platform_data {
++	int	clock;		/* i2c clock (kHZ) */
++};
++
++#endif
++
 -- 
-1.7.4.1
+1.7.1
