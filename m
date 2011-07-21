@@ -1,59 +1,47 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHV2 2/5] OMAP: I2C: Reset support
-Date: Thu, 21 Jul 2011 16:39:11 +0530
-Message-ID: <1311246554-22975-3-git-send-email-shubhrajyoti@ti.com>
-References: <1311246554-22975-1-git-send-email-shubhrajyoti@ti.com>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH] i2c: tegra: Fix compile when !CONFIG_OF
+Date: Thu, 21 Jul 2011 08:42:06 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF049EBDF141@HQMAIL01.nvidia.com>
+References: <1310589418-15821-1-git-send-email-swarren@nvidia.com>
+	<CACxGe6sVmpSTAxan3zRz-hQ=uoiVuekm-7r0L9_F5EWPPhS_3A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1311246554-22975-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, rnayak-l0cyMroinI0@public.gmane.org, balajitk-l0cyMroinI0@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <CACxGe6sVmpSTAxan3zRz-hQ=uoiVuekm-7r0L9_F5EWPPhS_3A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Under some error conditions the i2c  driver may do a reset
-adding support in the platform.
+Grant Likely wrote at Wednesday, July 13, 2011 4:48 PM:
+> On Thu, Jul 14, 2011 at 5:36 AM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
+> > When !CONFIG_OF, <linux/of.h> doesn't prototype of_get_property(), which
+> > causes i2c-tegra.c to fail to compile. Make the references to this
+> > function conditional to solve this.
+> >
+> > Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+...
+> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
- arch/arm/plat-omap/i2c.c |   17 +++++++++++++++++
- 1 files changed, 17 insertions(+), 0 deletions(-)
+Ben, please can this patch be applied in time for 3.1? Currently, the
+linux-next and next-i2c tree won't compile on Tegra without CONFIG_OF
+enabled.
 
-diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
-index 2388b8e..98a97b0 100644
---- a/arch/arm/plat-omap/i2c.c
-+++ b/arch/arm/plat-omap/i2c.c
-@@ -146,6 +146,22 @@ static struct omap_device_pm_latency omap_i2c_latency[] = {
- 		.flags			= OMAP_DEVICE_LATENCY_AUTO_ADJUST,
- 	},
- };
-+/**
-+ * omap2_i2c_reset - reset the omap i2c module.
-+ * @dev: struct device*
-+ */
-+
-+static int omap2_i2c_reset(struct device *dev)
-+{
-+	int r = 0;
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct omap_device *odev = to_omap_device(pdev);
-+	struct omap_hwmod *oh;
-+
-+	oh = odev->hwmods[0];
-+	r = omap_hwmod_reset(oh);
-+	return r;
-+}
- 
- static inline int omap2_i2c_add_bus(int bus_id)
- {
-@@ -187,6 +203,7 @@ static inline int omap2_i2c_add_bus(int bus_id)
- 	 */
- 	if (cpu_is_omap34xx())
- 		pdata->set_mpu_wkup_lat = omap_pm_set_max_mpu_wakeup_lat_compat;
-+	pdata->device_reset = omap2_i2c_reset;
- 	od = omap_device_build(name, bus_id, oh, pdata,
- 			sizeof(struct omap_i2c_bus_platform_data),
- 			omap_i2c_latency, ARRAY_SIZE(omap_i2c_latency), 0);
+Also, the other patch I posted titled "i2c: Tegra: Add of_match_table"
+is required for Tegra I2C Device Tree support to be useful. Can that go
+into 3.1 as well?
+
+Thanks very much!
+
 -- 
-1.7.1
+nvpublic
