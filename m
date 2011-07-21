@@ -1,24 +1,15 @@
 From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHV4 3/4] OMAP: I2C: Remove the SYSC register definition
-Date: Thu, 21 Jul 2011 20:53:37 +0530
-Message-ID: <1311261818-25784-4-git-send-email-shubhrajyoti@ti.com>
-References: <1311261818-25784-1-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCHV3 3/4] OMAP: I2C: Remove the SYSC register definition
+Date: Thu, 21 Jul 2011 19:23:00 +0530
+Message-ID: <1311256381-25548-4-git-send-email-shubhrajyoti@ti.com>
+References: <1311256381-25548-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1311261818-25784-1-git-send-email-shubhrajyoti@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1311256381-25548-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
 To: linux-omap@vger.kernel.org
-Cc: khilman@ti.com, balajitk@ti.com, rnayak@ti.com, santosh.shilimkar@ti.com, linux-i2c@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>, linux-arm-kernel@lists.infradead.org
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, rnayak@ti.com, balajitk@ti.com, santosh.shilimkar@ti.com, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
 The SYSC register should not accessed in the driver removing the
@@ -68,3 +59,4 @@ index 8dc54d5..75bb62d 100644
  	}
 -- 
 1.7.1
+
