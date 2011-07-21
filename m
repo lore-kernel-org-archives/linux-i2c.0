@@ -1,44 +1,108 @@
 From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHV4 0/4] I2C: driver updates
-Date: Thu, 21 Jul 2011 20:53:34 +0530
-Message-ID: <1311261818-25784-1-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH 5/5] OMAP: I2C: Restore only if context is lost
+Date: Thu, 21 Jul 2011 12:23:05 +0530
+Message-ID: <1311231185-5503-6-git-send-email-shubhrajyoti@ti.com>
+References: <1311231185-5503-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1311231185-5503-1-git-send-email-shubhrajyoti@ti.com>
 Sender: linux-omap-owner@vger.kernel.org
 To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, rnayak@ti.com, balajitk@ti.com, santosh.shilimkar@ti.com, Shubhrajyoti D <shubhrajyoti@ti.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, rnayak@ti.com, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The series attempts to do the following
+Currently restore is done always.
+Adding conditional restore.The restore is done only if the context is lost.
 
-- The reset should not be done in the driver 
-  have support for the same.
-- Remove the sysc register access in the driver.
-- Restore the context only if the context is lost.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ drivers/i2c/busses/i2c-omap.c |   29 +++++++++++++++++++++--------
+ 1 files changed, 21 insertions(+), 8 deletions(-)
 
-version 2
- - Fix the indentation.
- - Restore in the error path is not needed as we are
-   doing a init.
-
-version 3
- - Combine the patch 1 and 2 as i2c-omap.h isn't a generic header
-
-version 4
- - Adding the description of patch 2.	
-
-Acknowledge Balaji and Santosh for the review comments.
-Tested on sdp4430 and on omap3430
-
-Shubhrajyoti D (4):
-  OMAP: I2C: Reset support
-  OMAP: I2C: Remove the reset in the init path
-  OMAP: I2C: Remove the SYSC register definition
-  OMAP: I2C: I2C register restore only if context is lost
-
- arch/arm/plat-omap/i2c.c      |   17 +++++++
- drivers/i2c/busses/i2c-omap.c |  101 ++++++++++++++++-------------------------
- include/linux/i2c-omap.h      |    1 +
- 3 files changed, 57 insertions(+), 62 deletions(-)
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 07e5a64..06fa457 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -40,6 +40,7 @@
+ #include <linux/slab.h>
+ #include <linux/i2c-omap.h>
+ #include <linux/pm_runtime.h>
++#include <plat/omap_device.h>
+ 
+ /* I2C controller revisions */
+ #define OMAP_I2C_OMAP1_REV_2		0x20
+@@ -201,6 +202,7 @@ struct omap_i2c_dev {
+ 	u16			syscstate;
+ 	u16			westate;
+ 	u16			errata;
++	u32			dev_lost_count;
+ };
+ 
+ const static u8 reg_map_ip_v1[] = {
+@@ -261,6 +263,18 @@ static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
+ 				(i2c_dev->regs[reg] << i2c_dev->reg_shift));
+ }
+ 
++
++static void omap_i2c_restore(struct omap_i2c_dev *dev)
++{
++	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
++	omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
++	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
++}
++
+ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+ {
+ 	struct platform_device *pdev;
+@@ -274,14 +288,11 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
+ 	pm_runtime_get_sync(&pdev->dev);
+ 
+ 	if (pdata->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
+-		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+-		omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
+-		omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
+-		omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
+-		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
+-		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
+-		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
++		u32 loss_cnt = omap_device_get_context_loss_count(pdev);
++		if (dev->dev_lost_count != loss_cnt)
++			omap_i2c_restore(dev);
+ 	}
++
+ 	dev->idle = 0;
+ 
+ 	/*
+@@ -318,7 +329,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ 		omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
+ 	}
+ 	dev->idle = 1;
+-
++	dev->dev_lost_count = omap_device_get_context_loss_count(pdev);
+ 	pm_runtime_put_sync(&pdev->dev);
+ }
+ 
+@@ -574,6 +585,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 			r = dev->device_reset(dev->dev);
+ 			if (r < 0)
+ 				dev_err(dev->dev, "reset failed\n");
++			omap_i2c_restore(dev);
+ 		}
+ 		omap_i2c_init(dev);
+ 		return -ETIMEDOUT;
+@@ -589,6 +601,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 			r = dev->device_reset(dev->dev);
+ 			if (r < 0)
+ 				dev_err(dev->dev, "reset failed\n");
++			omap_i2c_restore(dev);
+ 		}
+ 		omap_i2c_init(dev);
+ 		return -EIO;
+-- 
+1.7.1
 
