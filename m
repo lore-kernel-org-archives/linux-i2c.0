@@ -1,13 +1,13 @@
 From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCH 0/5] I2C: driver updates
-Date: Thu, 21 Jul 2011 12:23:00 +0530
-Message-ID: <1311231185-5503-1-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCHV2 0/5] I2C: driver updates
+Date: Thu, 21 Jul 2011 16:39:09 +0530
+Message-ID: <1311246554-22975-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-omap-owner@vger.kernel.org>
 Sender: linux-omap-owner@vger.kernel.org
 To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, rnayak@ti.com, Shubhrajyoti D <shubhrajyoti@ti.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, rnayak@ti.com, balajitk@ti.com, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
 The series attempts to do the following
@@ -16,6 +16,13 @@ The series attempts to do the following
 - Remove the sysc register access in the driver.
 - Restore the context only if the context is lost.
 
+version 2
+ - Fix the indentation.
+ - Restore in the error path is not needed as we are
+   doing a init.
+
+Tested on sdp4430 and on omap3430
+
 Shubhrajyoti D (5):
   OMAP: I2C: Add a device reset field to platform data
   OMAP: I2C: Reset support
@@ -23,8 +30,8 @@ Shubhrajyoti D (5):
   OMAP: I2C: Remove the SYSC register definition
   OMAP: I2C: Restore only if context is lost
 
- arch/arm/plat-omap/i2c.c      |   18 ++++++++
- drivers/i2c/busses/i2c-omap.c |   90 ++++++++++++++++------------------------
+ arch/arm/plat-omap/i2c.c      |   17 +++++++
+ drivers/i2c/busses/i2c-omap.c |  101 ++++++++++++++++-------------------------
  include/linux/i2c-omap.h      |    1 +
- 3 files changed, 55 insertions(+), 54 deletions(-)
+ 3 files changed, 57 insertions(+), 62 deletions(-)
 
