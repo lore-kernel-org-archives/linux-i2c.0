@@ -1,26 +1,30 @@
-From: Santosh Shilimkar <santosh.shilimkar@ti.com>
-Subject: Re: [PATCHV2 5/5] OMAP: I2C: Restore only if context is lost
-Date: Thu, 21 Jul 2011 17:00:33 +0530
-Message-ID: <4E280DD9.4020304@ti.com>
-References: <1311246554-22975-1-git-send-email-shubhrajyoti@ti.com> <1311246554-22975-6-git-send-email-shubhrajyoti@ti.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCH 0/5] I2C: driver updates
+Date: Thu, 21 Jul 2011 12:23:00 +0530
+Message-ID: <1311231185-5503-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1311246554-22975-6-git-send-email-shubhrajyoti@ti.com>
 Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, rnayak@ti.com, balajitk@ti.com
+To: linux-omap@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, rnayak@ti.com, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/21/2011 4:39 PM, Shubhrajyoti D wrote:
-> Currently restore is done always.
-> Adding conditional restore. The restore is done only if the context is lost.
->
-Minor comment. You may want to say 'i2c register restore'
-instead of just 'restore'
+The series attempts to do the following
+- The reset should not be done in the driver 
+  have support for the same.
+- Remove the sysc register access in the driver.
+- Restore the context only if the context is lost.
 
-> Signed-off-by: Shubhrajyoti D<shubhrajyoti@ti.com>
-o.w
-Acked-by: Santosh Shilimkar <santosh.shilimkar@ti.com>	
+Shubhrajyoti D (5):
+  OMAP: I2C: Add a device reset field to platform data
+  OMAP: I2C: Reset support
+  OMAP: I2C: Remove the reset in the init path
+  OMAP: I2C: Remove the SYSC register definition
+  OMAP: I2C: Restore only if context is lost
+
+ arch/arm/plat-omap/i2c.c      |   18 ++++++++
+ drivers/i2c/busses/i2c-omap.c |   90 ++++++++++++++++------------------------
+ include/linux/i2c-omap.h      |    1 +
+ 3 files changed, 55 insertions(+), 54 deletions(-)
 
