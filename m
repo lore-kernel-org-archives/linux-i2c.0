@@ -1,57 +1,73 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH 2/2] arm: dt: Add device tree support for i2c instance
- 1 on exynos4 dt machine
-Date: Fri, 22 Jul 2011 00:12:49 -0700
-Message-ID: <20110722071249.GK5783@atomide.com>
-References: <1310950241-13602-1-git-send-email-thomas.abraham@linaro.org>
- <1310950241-13602-3-git-send-email-thomas.abraham@linaro.org>
- <CAP6yH7dUnqhvSA8AYx2R9ZZ1mBL=YMz6oMiJVpphA1FhgLHOvw@mail.gmail.com>
- <CACxGe6v+-H+W4H-5-gvEP+8j91NsGpVZkS595zSt8Lju74taWw@mail.gmail.com>
- <CAC63_iQcia64iBq653S+3_Yj8mgfbGSfHdGXevFe8urj9RpF-w@mail.gmail.com>
+From: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2 1/3] i2c: s3c2410: Keep a copy of platform data and use it.
+Date: Fri, 22 Jul 2011 15:48:36 +0530
+Message-ID: <1311329918-8105-2-git-send-email-thomas.abraham@linaro.org>
+References: <1311329918-8105-1-git-send-email-thomas.abraham@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAC63_iQcia64iBq653S+3_Yj8mgfbGSfHdGXevFe8urj9RpF-w@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: "G, Manjunath Kondaiah" <manjugk@ti.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, "G, Manjunath Kondaiah" <manjugk@linaro.org>, Thomas Abraham <thomas.abraham@linaro.org>, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, patches@linaro.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-reply-to: <1311329918-8105-1-git-send-email-thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+	<mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* G, Manjunath Kondaiah <manjugk@ti.com> [110719 09:59]:
-> On Tue, Jul 19, 2011 at 2:00 AM, Grant Likely <grant.likely@secretlab=
-=2Eca> wrote:
-> >
-> > No, the i2c bus node should still appear in the SoC .dtsi file. =C2=
-=A0If a
-> > board doesn't use a particular i2c bus, then the board.dts file can
-> > add a status =3D "disabled"; property to the i2c bus node to disabl=
-e it.
->=20
-> that's right. I am referring to I2C slave devices. For a given SoC,
-> two different
-> boards can have different i2c slave devices with different slave
-> address. In that case,
-> it is better to have i2c child/slave nodes in board .dts file.
+The platform data is copied into driver's private data and the copy is
+used for all access to the platform data. This simpifies the addition
+of device tree support for the i2c-s3c2410 driver.
 
-This is OK for now, but from bus/hwmod point of view we need to reset a=
-ll
-the unused devices as otherwise PM will never work properly.
+Signed-off-by: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    7 +++++--
+ 1 files changed, 5 insertions(+), 2 deletions(-)
 
-Disabling each device in the board .dts file will never be done correct=
-ly
-for most boards.. And on each board, probably 2/3 of the devices are un=
-used
-because of the pin limitations :)
-
-So the disabling of unused devices should be done with a late_initcall =
-and
-controlled by kernel cmdline. We were thinking hwmod.disable=3D[0|1].
-
-The late_initcall to disable unused device tree devices could also be
-added later on to device tree core code.
-
-Regards,
-
-Tony
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 6c00c10..e132168 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -78,6 +78,7 @@ struct s3c24xx_i2c {
+ 	struct resource		*ioarea;
+ 	struct i2c_adapter	adap;
+ 
++	struct s3c2410_platform_i2c	pdata;
+ #ifdef CONFIG_CPU_FREQ
+ 	struct notifier_block	freq_transition;
+ #endif
+@@ -626,7 +627,7 @@ static int s3c24xx_i2c_calcdivisor(unsigned long clkin, unsigned int wanted,
+ 
+ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
+ {
+-	struct s3c2410_platform_i2c *pdata = i2c->dev->platform_data;
++	struct s3c2410_platform_i2c *pdata = &i2c->pdata;
+ 	unsigned long clkin = clk_get_rate(i2c->clk);
+ 	unsigned int divs, div1;
+ 	unsigned long target_frequency;
+@@ -755,7 +756,7 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+ 
+ 	/* get the plafrom data */
+ 
+-	pdata = i2c->dev->platform_data;
++	pdata = &i2c->pdata;
+ 
+ 	/* inititalise the gpio */
+ 
+@@ -810,6 +811,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
++	memcpy(&i2c->pdata, pdata, sizeof(*pdata));
++
+ 	strlcpy(i2c->adap.name, "s3c2410-i2c", sizeof(i2c->adap.name));
+ 	i2c->adap.owner   = THIS_MODULE;
+ 	i2c->adap.algo    = &s3c24xx_i2c_algorithm;
+-- 
+1.6.6.rc2
