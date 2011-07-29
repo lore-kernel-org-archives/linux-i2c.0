@@ -1,55 +1,51 @@
-From: Ben Dooks <ben-i2c@fluff.org>
-Subject: Re: [PATCH v2 0/3] Add device tree support for Samsung's I2C driver
-Date: Wed, 27 Jul 2011 23:06:22 +0100
-Message-ID: <20110727220622.GO15795@trinity.fluff.org>
-References: <1311329918-8105-1-git-send-email-thomas.abraham@linaro.org>
+From: Shawn Guo <shawn.guo@freescale.com>
+Subject: Re: [PATCH 0/2] Add device tree probe for i2c-imx driver
+Date: Fri, 29 Jul 2011 09:51:18 +0800
+Message-ID: <20110729015116.GA1946@S2100-06.ap.freescale.net>
+References: <1310659425-17499-1-git-send-email-shawn.guo@linaro.org>
+	<20110722021524.GG26837@S2100-06.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1311329918-8105-1-git-send-email-thomas.abraham@linaro.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Thomas Abraham <thomas.abraham@linaro.org>
-Cc: devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org, grant.likely@secretlab.ca, ben-linux@fluff.org, linux-samsung-soc@vger.kernel.org
+In-Reply-To: <20110722021524.GG26837@S2100-06.ap.freescale.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, patches@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 22, 2011 at 03:48:35PM +0530, Thomas Abraham wrote:
-> This patchset adds device tree support for Samsung's I2C driver. The
-> Exynos4 DT enabled machine is updated to support device tree based probe
-> for I2C instance 0 and 1.
+Ping ...
 
-I'll look at taking the i2c specific changes for either this or the next
-release depending on how I feel.
- 
-> Changes since v1:
+On Fri, Jul 22, 2011 at 10:15:25AM +0800, Shawn Guo wrote:
+> Hi Ben,
 > 
-> - Addressed all comments from Grant Likely
->     - s3c24xx_i2c_is2440 function is simpler now.
->     - Consolidated all the scatterd dt support code into a single function.
->     - but the dependency on i2c pinmux handler function passed from the
->       platform data is retained. It would be removed eventually when the
->       new pinmux api is finalized and the i2c driver is modified to
->       support the pinmux settings using the pinmux api.
+> Any comments, or it's been good for you to queue them for v3.1 window?
 > 
-> Thomas Abraham (3):
->   i2c: s3c2410: Keep a copy of platform data and use it.
->   i2c: s3c2410: Add device tree support
->   arm: dt: Add device tree support for i2c instance 0 and 1 on exynos4 dt machine
+> Regards,
+> Shawn
 > 
->  .../devicetree/bindings/i2c/samsung-i2c.txt        |   44 +++++++++++++++
->  arch/arm/boot/dts/exynos4-smdkv310.dts             |   45 +++++++++++++++
->  arch/arm/mach-exynos4/Kconfig                      |    2 +
->  arch/arm/mach-exynos4/mach-exynos4-dt.c            |   23 ++++++++
->  drivers/i2c/busses/i2c-s3c2410.c                   |   58 +++++++++++++++++++-
->  5 files changed, 169 insertions(+), 3 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> On Fri, Jul 15, 2011 at 12:03:43AM +0800, Shawn Guo wrote:
+> > The first patch removes unused init/exit hooks from platform data,
+> > and the second one actually adds the actual device tree probe support.
+> > 
+> > Shawn Guo (2):
+> >       i2c/imx: remove init/exit hooks from platform data
+> >       i2c/imx: add device tree probe support
+> > 
+> >  .../devicetree/bindings/i2c/fsl-imx-i2c.txt        |   25 +++++++++++
+> >  arch/arm/plat-mxc/include/mach/i2c.h               |    4 --
+> >  drivers/i2c/busses/i2c-imx.c                       |   46 +++++++++----------
+> >  3 files changed, 47 insertions(+), 28 deletions(-)
 
 -- 
-Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+Regards,
+Shawn
