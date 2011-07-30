@@ -1,55 +1,35 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv2] OMAP4: I2C: Enable the wakeup in I2C_WE
-Date: Fri, 29 Jul 2011 20:54:52 +0530
-Message-ID: <1311953092-12506-1-git-send-email-shubhrajyoti@ti.com>
+From: Randy Dunlap <rdunlap@xenotime.net>
+Subject: [PATCH -next] i2c: i2c-pxa-pci.c needs module.h
+Date: Fri, 29 Jul 2011 21:14:30 -0700
+Message-ID: <20110729211430.6c4830bd.rdunlap@xenotime.net>
+References: <20110729173827.716f57ff6e00095a3efc6449@canb.auug.org.au>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, santosh.shilimkar-l0cyMroinI0@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <20110729173827.716f57ff6e00095a3efc6449@canb.auug.org.au>
+Sender: linux-next-owner@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>, linux-i2c@vger.kernel.org, akpm <akpm@linux-foundation.org>
+Cc: linux-next@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, khali@linux-fr.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-Currently for OMAP4 the I2C_WE is not programmed.
-This patch enables the programming for OMAP4.
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-This patch fixes a bad conflict resolution.
-This effectively restores the following commit
+i2c-pxa-pci.c uses interfaces from linux/module.h, so it should
+include that file.  This fixes build errors.
 
-Commit 120bdaa47[i2c-omap: Program I2C_WE on OMAP4 to enable i2c wakeup] 
-
-which got changed by
-
-Commit a3a7acbc[I2C: OMAP2+: address confused probed version naming] 
-
-Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Reported-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 ---
-TODO:
-Currently all the wakeup sources are enabled.
-There is scope of optimising the same. Will revisit it.
-Rebased on Kevin's wip/i2c branch
-Tested on OMAP4430.
+ drivers/i2c/busses/i2c-pxa-pci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
- drivers/i2c/busses/i2c-omap.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index d05efe7..18cc0af 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -313,9 +313,8 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 		 * REVISIT: Some wakeup sources might not be needed.
- 		 */
- 		dev->westate = OMAP_I2C_WE_ALL;
--		if (dev->rev < OMAP_I2C_REV_ON_3530_4430)
--			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
--							dev->westate);
-+		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
-+						dev->westate);
- 	}
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 
--- 
-1.7.1
+--- linux-next-20110729.orig/drivers/i2c/busses/i2c-pxa-pci.c
++++ linux-next-20110729/drivers/i2c/busses/i2c-pxa-pci.c
+@@ -3,6 +3,7 @@
+  * It does not support slave mode, the register slightly moved. This PCI
+  * device provides three bars, every contains a single I2C controller.
+  */
++#include <linux/module.h>
+ #include <linux/pci.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c/pxa-i2c.h>
