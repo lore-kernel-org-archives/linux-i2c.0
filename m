@@ -1,51 +1,19 @@
-From: Paul Gortmaker <paul.gortmaker-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH -next] i2c: i2c-pxa-pci.c needs module.h
-Date: Sat, 30 Jul 2011 15:09:32 -0400
-Message-ID: <CAP=VYLrtumuSM_ncO6sEr7=HciiKcOsB=yN4NZnAxesjSSOgMw@mail.gmail.com>
-References: <20110729173827.716f57ff6e00095a3efc6449@canb.auug.org.au>
-	<20110729211430.6c4830bd.rdunlap@xenotime.net>
+From: zarani ozuahm <zarani1ozuahm-rPJ70gsktP8@public.gmane.org>
+Subject: Good Day,
+Date: Sun, 31 Jul 2011 03:59:55 +0800 (CST)
+Message-ID: <1312055995.70783.YahooMailClassic@web92105.mail.cnh.yahoo.com>
+Reply-To: zaranozuahm-rPJ70gsktP8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110729211430.6c4830bd.rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-Cc: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jul 30, 2011 at 12:14 AM, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org> w=
-rote:
-> From: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
->
-> i2c-pxa-pci.c uses interfaces from linux/module.h, so it should
-> include that file. =A0This fixes build errors.
 
-Applied to module.h-split, thanks.
+Good Day,
 
-P.
+How are you and your family,i am sorry for bagging in to your privacy.I am Miss Sukura Zarani Ozuahm.am 22yrs, a student and only child of Mr.& Mrs.Ibrahim Mohammed Ozuahm.please i am seeking for your assistance in retrieval and transfer of my inherited fund to your country and to further my studies.(USD$9.300.000) dollas i wait for your reply for more information thank you and GOD bless you.
 
->
-> Signed-off-by: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-> ---
-> =A0drivers/i2c/busses/i2c-pxa-pci.c | =A0 =A01 +
-> =A01 file changed, 1 insertion(+)
->
-> --- linux-next-20110729.orig/drivers/i2c/busses/i2c-pxa-pci.c
-> +++ linux-next-20110729/drivers/i2c/busses/i2c-pxa-pci.c
-> @@ -3,6 +3,7 @@
-> =A0* It does not support slave mode, the register slightly moved. Thi=
-s PCI
-> =A0* device provides three bars, every contains a single I2C controll=
-er.
-> =A0*/
-> +#include <linux/module.h>
-> =A0#include <linux/pci.h>
-> =A0#include <linux/platform_device.h>
-> =A0#include <linux/i2c/pxa-i2c.h>
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-next"=
- in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+Yours Sincerely,
+Miss Sukura Zarani Ozuahm.
