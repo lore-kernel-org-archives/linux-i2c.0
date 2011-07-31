@@ -1,59 +1,81 @@
-From: Mike Rapoport <mike.rapoport-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH RESEND] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter functionality
-Date: Sat, 30 Jul 2011 23:19:53 +0300
-Message-ID: <CABpLfog3nbHMaUuQGAiLfZPmr9Hs4re7LbiNhPhqw0S9be4DbA@mail.gmail.com>
-References: <20110711073755.GA8665@gentoodev.compulab.local>
-	<CAMbhsRS-REFiAiEnukVtarTx7PRrzLT0BHAHdmuPGqDRRppGtw@mail.gmail.com>
-	<20110713215820.GG3369@freya.fluff.org>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v2 1/3] i2c: s3c2410: Keep a copy of platform data and
+ use it.
+Date: Sat, 30 Jul 2011 21:51:05 -0600
+Message-ID: <20110731035105.GG24334@ponder.secretlab.ca>
+References: <1311329918-8105-1-git-send-email-thomas.abraham@linaro.org>
+ <1311329918-8105-2-git-send-email-thomas.abraham@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110713215820.GG3369-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1311329918-8105-2-git-send-email-thomas.abraham@linaro.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Thomas Abraham <thomas.abraham@linaro.org>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+On Fri, Jul 22, 2011 at 03:48:36PM +0530, Thomas Abraham wrote:
+> The platform data is copied into driver's private data and the copy is
+> used for all access to the platform data. This simpifies the addition
+> of device tree support for the i2c-s3c2410 driver.
+> 
+> Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |    7 +++++--
+>  1 files changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 6c00c10..e132168 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -78,6 +78,7 @@ struct s3c24xx_i2c {
+>  	struct resource		*ioarea;
+>  	struct i2c_adapter	adap;
+>  
+> +	struct s3c2410_platform_i2c	pdata;
 
-On Thu, Jul 14, 2011 at 12:58 AM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
->
-> I'll add it to the -next tree tomorrow
+After looking at a bunch of patches, there is another way do do this
+I think.  Instead of copying pdata into the private data structure, it
+can remain as a pointer if the DT code uses devm_kzmalloc to allocate
+a s3c2410_platform_i2c structure when needed.
 
-Can you add the patch at last ?!
+I leave it up to you (and Ben) though as to which you prefer.  I'm
+okay either way, and you can add:
 
->> > =A0static const struct i2c_algorithm tegra_i2c_algo =3D {
->> > --
->> > 1.7.3.1
->> >
->> > --
->> > To unsubscribe from this list: send the line "unsubscribe linux-te=
-gra" in
->> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> > More majordomo info at =A0http://vger.kernel.org/majordomo-info.ht=
-ml
->> >
->>
->> Your mailer added @mike-pc.compulab.local to all of the addresses.
->>
->> Acked-by: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
->>
->> It should go in through Ben's tree.
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c"=
- in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-tegra=
-" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
->
+Acked-by: Grant Likely <grant.likely@secretlab.ca>
 
 
-
---=20
-Sincerely Yours,
-Mike.
+>  #ifdef CONFIG_CPU_FREQ
+>  	struct notifier_block	freq_transition;
+>  #endif
+> @@ -626,7 +627,7 @@ static int s3c24xx_i2c_calcdivisor(unsigned long clkin, unsigned int wanted,
+>  
+>  static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
+>  {
+> -	struct s3c2410_platform_i2c *pdata = i2c->dev->platform_data;
+> +	struct s3c2410_platform_i2c *pdata = &i2c->pdata;
+>  	unsigned long clkin = clk_get_rate(i2c->clk);
+>  	unsigned int divs, div1;
+>  	unsigned long target_frequency;
+> @@ -755,7 +756,7 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+>  
+>  	/* get the plafrom data */
+>  
+> -	pdata = i2c->dev->platform_data;
+> +	pdata = &i2c->pdata;
+>  
+>  	/* inititalise the gpio */
+>  
+> @@ -810,6 +811,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+>  		return -ENOMEM;
+>  	}
+>  
+> +	memcpy(&i2c->pdata, pdata, sizeof(*pdata));
+> +
+>  	strlcpy(i2c->adap.name, "s3c2410-i2c", sizeof(i2c->adap.name));
+>  	i2c->adap.owner   = THIS_MODULE;
+>  	i2c->adap.algo    = &s3c24xx_i2c_algorithm;
+> -- 
+> 1.6.6.rc2
+> 
