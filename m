@@ -1,45 +1,108 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv3] OMAP4: I2C: Enable the wakeup in I2C_WE
-Date: Wed, 03 Aug 2011 11:26:26 -0700
-Message-ID: <87ty9y5p2l.fsf@ti.com>
-References: <1312360088-3117-1-git-send-email-shubhrajyoti@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-designware: add OF binding support
+Date: Wed,  3 Aug 2011 15:04:23 -0500
+Message-ID: <1312401863-25822-1-git-send-email-robherring2@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1312360088-3117-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-	(Shubhrajyoti D.'s message of "Wed, 3 Aug 2011 13:58:08 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, santosh.shilimkar-l0cyMroinI0@public.gmane.org
+To: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-[adding Ben Dooks, in the future, please be sure to put maintainers To/Cc]
+From: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 
-Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
+Add of_match_table and DT style i2c registration to designware i2c
+driver.
 
-> Currently for OMAP4 the I2C_WE is not programmed.
-> This patch enables the programming for OMAP4.
->
-> This patch fixes a bad conflict resolution.
-> This effectively restores the following commit
->
-> Commit 120bdaa47[i2c-omap: Program I2C_WE on OMAP4 to enable i2c wakeup]
->
-> which got changed by
->
-> Commit a3a7acbc[I2C: OMAP2+: address confused probed version naming]
->
-> Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-> Reported-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
-> TODO:
-> Currently all the wakeup sources are enabled.
-> There is scope of optimising the same. Will revisit it.
-> Rebased on for_3.1/i2c-andy
+Signed-off-by: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+---
+ Documentation/devicetree/bindings/i2c/dw-i2c.txt |   23 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware.c              |   13 ++++++++++++
+ 2 files changed, 36 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/dw-i2c.txt
 
-Thanks, adding to my for_3.1/i2c-fixes queue for v3.1-rc.
-
-Ben, with your ack, I'm willing to queue these.
-
-Kevin
+diff --git a/Documentation/devicetree/bindings/i2c/dw-i2c.txt b/Documentation/devicetree/bindings/i2c/dw-i2c.txt
+new file mode 100644
+index 0000000..cbcb404
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/dw-i2c.txt
+@@ -0,0 +1,23 @@
++* Synopsys DesignWare I2C
++
++Required properties :
++
++ - compatible : should be "snps,designware-i2c"
++ - reg : Offset and length of the register set for the device
++ - interrupts : <IRQ> where IRQ is the interrupt number.
++
++Recommended properties :
++
++ - clock-frequency : desired I2C bus clock frequency in Hz.
++
++Example :
++
++	i2c@f0000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "snps,designware-i2c";
++		reg = <0xf0000 0x1000>;
++		interrupts = <11>;
++		clock-frequency = <400000>;
++	};
++
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index b7a51c4..2911a49 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -37,6 +37,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#include <linux/of_i2c.h>
+ 
+ /*
+  * Registers offset
+@@ -770,12 +771,17 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 	adap->algo = &i2c_dw_algo;
+ 	adap->dev.parent = &pdev->dev;
+ 
++#ifdef CONFIG_OF
++	r = i2c_add_adapter(adap);
++#else
+ 	adap->nr = pdev->id;
+ 	r = i2c_add_numbered_adapter(adap);
++#endif
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure adding adapter\n");
+ 		goto err_free_irq;
+ 	}
++	of_i2c_register_devices(adap);
+ 
+ 	return 0;
+ 
+@@ -819,6 +825,12 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct of_device_id dw_i2c_of_match[] = {
++	{ .compatible = "snps,designware-i2c", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
++
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:i2c_designware");
+ 
+@@ -827,6 +839,7 @@ static struct platform_driver dw_i2c_driver = {
+ 	.driver		= {
+ 		.name	= "i2c_designware",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = dw_i2c_of_match,
+ 	},
+ };
+ 
+-- 
+1.7.4.1
