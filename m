@@ -1,108 +1,32 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c-designware: add OF binding support
-Date: Wed,  3 Aug 2011 15:04:23 -0500
-Message-ID: <1312401863-25822-1-git-send-email-robherring2@gmail.com>
+From: s l u =?iso-8859-2?Q?=BE_b_a?= <info-1e9Tv9cGMjE@public.gmane.org>
+Subject: =?iso-8859-2?Q?V=E1=B9_webmail_kv=F3tu_p=F8ekro=E8ila_stanoven=E9_kv=F3ty?=
+Date: Wed, 3 Aug 2011 20:42:58 +0300 (EEST)
+Message-ID: <22774.41.206.15.43.1312393378.squirrel@webmail3.cc.jyu.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 
-Add of_match_table and DT style i2c registration to designware i2c
-driver.
 
-Signed-off-by: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
- Documentation/devicetree/bindings/i2c/dw-i2c.txt |   23 ++++++++++++++++++++++
- drivers/i2c/busses/i2c-designware.c              |   13 ++++++++++++
- 2 files changed, 36 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/dw-i2c.txt
+V=E1=B9 webmail kv=F3tu p=F8ekro=E8ila stanoven=E9 kv=F3ty, kter=E1 je =
+2 GB. Nach=E1z=EDte se
+v sou=E8asn=E9 dob=EC b=EC=BE=ED na 2,3 GB.
 
-diff --git a/Documentation/devicetree/bindings/i2c/dw-i2c.txt b/Documentation/devicetree/bindings/i2c/dw-i2c.txt
-new file mode 100644
-index 0000000..cbcb404
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/dw-i2c.txt
-@@ -0,0 +1,23 @@
-+* Synopsys DesignWare I2C
-+
-+Required properties :
-+
-+ - compatible : should be "snps,designware-i2c"
-+ - reg : Offset and length of the register set for the device
-+ - interrupts : <IRQ> where IRQ is the interrupt number.
-+
-+Recommended properties :
-+
-+ - clock-frequency : desired I2C bus clock frequency in Hz.
-+
-+Example :
-+
-+	i2c@f0000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "snps,designware-i2c";
-+		reg = <0xf0000 0x1000>;
-+		interrupts = <11>;
-+		clock-frequency = <400000>;
-+	};
-+
-diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index b7a51c4..2911a49 100644
---- a/drivers/i2c/busses/i2c-designware.c
-+++ b/drivers/i2c/busses/i2c-designware.c
-@@ -37,6 +37,7 @@
- #include <linux/platform_device.h>
- #include <linux/io.h>
- #include <linux/slab.h>
-+#include <linux/of_i2c.h>
- 
- /*
-  * Registers offset
-@@ -770,12 +771,17 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	adap->algo = &i2c_dw_algo;
- 	adap->dev.parent = &pdev->dev;
- 
-+#ifdef CONFIG_OF
-+	r = i2c_add_adapter(adap);
-+#else
- 	adap->nr = pdev->id;
- 	r = i2c_add_numbered_adapter(adap);
-+#endif
- 	if (r) {
- 		dev_err(&pdev->dev, "failure adding adapter\n");
- 		goto err_free_irq;
- 	}
-+	of_i2c_register_devices(adap);
- 
- 	return 0;
- 
-@@ -819,6 +825,12 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id dw_i2c_of_match[] = {
-+	{ .compatible = "snps,designware-i2c", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
-+
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:i2c_designware");
- 
-@@ -827,6 +839,7 @@ static struct platform_driver dw_i2c_driver = {
- 	.driver		= {
- 		.name	= "i2c_designware",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = dw_i2c_of_match,
- 	},
- };
- 
--- 
-1.7.4.1
+Chcete-li znovu aktivovat a zv=FD=B9it sv=E9 kv=F3ty, webmail, pros=EDm=
+ ov=EC=F8it a
+aktualizovat webmail =FA=E8et
+
+Ve snaze znovu aktivovat a zv=FD=B9it sv=E9 kv=F3ty webmail klikn=ECte =
+na odkaz n=ED=BEe.
+
+http://fd8.formdesk.com/cunicz/statsqq
+
+Pokud tak neu=E8in=EDte, m=F9=BEe m=EDt za n=E1sledek zru=B9en=ED va=B9=
+eho =FA=E8tu webmail.
+
+D=EDky, a omlouv=E1m se za nep=F8=EDjemnosti
+
+Admin / webmaster / M=EDstn=ED host
