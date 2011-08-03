@@ -1,55 +1,74 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv3] OMAP4: I2C: Enable the wakeup in I2C_WE
-Date: Wed, 3 Aug 2011 13:58:08 +0530
-Message-ID: <1312360088-3117-1-git-send-email-shubhrajyoti@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] Revert "i2c-omap: fix static suspend vs. runtime suspend"
+Date: Wed,  3 Aug 2011 10:59:39 -0700
+Message-ID: <1312394379-21516-1-git-send-email-khilman@ti.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, santosh.shilimkar-l0cyMroinI0@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently for OMAP4 the I2C_WE is not programmed.
-This patch enables the programming for OMAP4.
+This reverts commit adf6e07922255937c8bfeea777d19502b4c9a2be.
 
-This patch fixes a bad conflict resolution.
-This effectively restores the following commit
+Remove system PM methods which can race with runtime PM methods.
 
-Commit 120bdaa47[i2c-omap: Program I2C_WE on OMAP4 to enable i2c wakeup]
+Also, as of v3.1, the PM domain level code for OMAP handles device
+power state transistions automatically for devices, so calling them
+from
 
-which got changed by
-
-Commit a3a7acbc[I2C: OMAP2+: address confused probed version naming]
-
-Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Reported-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
 ---
-TODO:
-Currently all the wakeup sources are enabled.
-There is scope of optimising the same. Will revisit it.
-Rebased on for_3.1/i2c-andy
-Tested on OMAP4430.
+Ben, with your ack, I'll queue this up with a couple other fixes to
+this driver for v3.1-rc.  Thanks.
 
- drivers/i2c/busses/i2c-omap.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |   29 -----------------------------
+ 1 files changed, 0 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index d53cd61..84df53f 100644
+index 84df53f..e854be0 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -384,9 +384,8 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
- 			 * REVISIT: Some wkup sources might not be needed.
- 			 */
- 			dev->westate = OMAP_I2C_WE_ALL;
--			if (dev->rev < OMAP_I2C_REV_ON_3530_4430)
--				omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
--								dev->westate);
-+			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
-+							dev->westate);
- 		}
- 	}
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+@@ -1148,41 +1148,12 @@ omap_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_SUSPEND
+-static int omap_i2c_suspend(struct device *dev)
+-{
+-	if (!pm_runtime_suspended(dev))
+-		if (dev->bus && dev->bus->pm && dev->bus->pm->runtime_suspend)
+-			dev->bus->pm->runtime_suspend(dev);
+-
+-	return 0;
+-}
+-
+-static int omap_i2c_resume(struct device *dev)
+-{
+-	if (!pm_runtime_suspended(dev))
+-		if (dev->bus && dev->bus->pm && dev->bus->pm->runtime_resume)
+-			dev->bus->pm->runtime_resume(dev);
+-
+-	return 0;
+-}
+-
+-static struct dev_pm_ops omap_i2c_pm_ops = {
+-	.suspend = omap_i2c_suspend,
+-	.resume = omap_i2c_resume,
+-};
+-#define OMAP_I2C_PM_OPS (&omap_i2c_pm_ops)
+-#else
+-#define OMAP_I2C_PM_OPS NULL
+-#endif
+-
+ static struct platform_driver omap_i2c_driver = {
+ 	.probe		= omap_i2c_probe,
+ 	.remove		= omap_i2c_remove,
+ 	.driver		= {
+ 		.name	= "omap_i2c",
+ 		.owner	= THIS_MODULE,
+-		.pm	= OMAP_I2C_PM_OPS,
+ 	},
+ };
+ 
 -- 
-1.7.1
+1.7.6
