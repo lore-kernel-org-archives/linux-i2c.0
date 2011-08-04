@@ -1,191 +1,123 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv5 2/3] OMAP: I2C: Remove the reset in the init path
-Date: Thu, 04 Aug 2011 22:11:18 +0530
-Message-ID: <4E3ACBAE.5020708@ti.com>
-References: <1311935813-8481-1-git-send-email-shubhrajyoti@ti.com>	<1311935813-8481-3-git-send-email-shubhrajyoti@ti.com> <87d3gn75sh.fsf@ti.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c: imx: choose the better clock divider
+Date: Thu, 4 Aug 2011 17:51:46 +0100
+Message-ID: <20110804165146.GB19115@trinity.fluff.org>
+References: <1308035825-22410-1-git-send-email-eric.miao@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87d3gn75sh.fsf-l0cyMroinI0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1308035825-22410-1-git-send-email-eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, rnayak-l0cyMroinI0@public.gmane.org, balajitk-l0cyMroinI0@public.gmane.org, santosh.shilimkar-l0cyMroinI0@public.gmane.org
+To: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 03 August 2011 04:57 AM, Kevin Hilman wrote:
-> Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>  writes:
->
->> -  The reset in the driver at init is not needed anymore as the
->>     hwmod framework takes care of reseting it.
->> -  Reset is removed from omap_i2c_init, which was called
->>     not only during probe, but also after time out and error handling.
->>     device_reset were added in those places to effect the reset.
-> Not specifically related to this patch, as the reset behavior was
-> already there, but do you know why the reset is needed after timeout and
-> error handling?
->
-> IOW, was the reset truly required in those cases, or was just the
-> re-init necessary?
->
-> To me doing a full reset of the IP in those cases sounds like a hack for
-> a buggy driver.
-My idea, there have been errata workaround that recommend reset in case 
-of a
-lockup that may happen after a warmreset.
+On Tue, Jun 14, 2011 at 03:17:05PM +0800, Eric Miao wrote:
+> The original algorithm doesn't perform very well in some cases, e.g.
+> 
+>   When the source clock of the I2C controller is 66MHz, and the
+>   requested rate is 100KHz, it gives a divider of 768 instead of
+>   the better 640.
+> 
+> Choose a better clock divider so the final clock rate is closer to
+> the requested one by comparing the rate distances calculated by
+> two adjacent dividers.
+> 
+> Cc: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-imx.c |   46 ++++++++++++++++++++++++++++-------------
+>  1 files changed, 31 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 4c2a62b..cd640ff 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -112,6 +112,8 @@ static u16 __initdata i2c_clk_div[50][2] = {
+>  	{ 3072,	0x1E }, { 3840,	0x1F }
+>  };
+>  
+> +#define I2C_CLK_DIV_NUM		ARRAY_SIZE(i2c_clk_div)
+> +
+>  struct imx_i2c_struct {
+>  	struct i2c_adapter	adapter;
+>  	struct resource		*res;
+> @@ -240,22 +242,37 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+>  	clk_disable(i2c_imx->clk);
+>  }
+>  
+> -static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+> -							unsigned int rate)
+> +/* find the index into i2c_clk_div[] array, compare with the two
+> + * dividers found, return the one with smaller error
+> + */
+> +static int find_div(unsigned long i2c_clk_rate, unsigned long rate)
+>  {
+> -	unsigned int i2c_clk_rate;
+> -	unsigned int div;
+> +	unsigned long div, delta_l, delta_h;
+>  	int i;
+>  
+> -	/* Divider value calculation */
+> -	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
+>  	div = (i2c_clk_rate + rate - 1) / rate;
+> +
+>  	if (div < i2c_clk_div[0][0])
+> -		i = 0;
+> -	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
+> -		i = ARRAY_SIZE(i2c_clk_div) - 1;
+> -	else
+> -		for (i = 0; i2c_clk_div[i][0] < div; i++);
+> +		return 0;
+> +
+> +	if (div > i2c_clk_div[I2C_CLK_DIV_NUM - 1][0])
+> +		return I2C_CLK_DIV_NUM;
+> +
+> +	for (i = 0; i < I2C_CLK_DIV_NUM; i++)
+> +		if (i2c_clk_div[i][0] > div)
+> +			break;
+> +
+> +	delta_h = (i2c_clk_rate / i2c_clk_div[i - 1][0]) - rate;
+> +	delta_l = rate - (i2c_clk_rate / i2c_clk_div[i][0]);
 
->> -  Earlier the hwmod SYSC settings were over-written in the driver.
->>     Removing the same and letting the hwmod take care of the settings.
->> -  Clean up the SYSS_RESETDONE_MASK macro as it is no longer needed.
->> -  Clean up the SYSCONFIG SYSC bit defination macros.
->> -  Fix the typos in wakeup.
->>
->> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> ---
->>   drivers/i2c/busses/i2c-omap.c |   83 +++++++++++------------------------------
->>   1 files changed, 22 insertions(+), 61 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->> index 4e3256f..d8f4470 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -155,19 +155,6 @@ enum {
->>   #define OMAP_I2C_SYSTEST_SDA_O		(1<<  0)	/* SDA line drive out */
->>   #endif
->>
->> -/* OCP_SYSSTATUS bit definitions */
->> -#define SYSS_RESETDONE_MASK		(1<<  0)
->> -
->> -/* OCP_SYSCONFIG bit definitions */
->> -#define SYSC_CLOCKACTIVITY_MASK		(0x3<<  8)
->> -#define SYSC_SIDLEMODE_MASK		(0x3<<  3)
->> -#define SYSC_ENAWAKEUP_MASK		(1<<  2)
->> -#define SYSC_SOFTRESET_MASK		(1<<  1)
->> -#define SYSC_AUTOIDLE_MASK		(1<<  0)
->> -
->> -#define SYSC_IDLEMODE_SMART		0x2
->> -#define SYSC_CLOCKACTIVITY_FCLK		0x2
->> -
->>   /* Errata definitions */
->>   #define I2C_OMAP_ERRATA_I207		(1<<  0)
->>   #define I2C_OMAP3_1P153			(1<<  1)
->> @@ -182,6 +169,7 @@ struct omap_i2c_dev {
->>   	u32			latency;	/* maximum mpu wkup latency */
->>   	void			(*set_mpu_wkup_lat)(struct device *dev,
->>   						    long latency);
->> +	int			(*device_reset)(struct device *dev);
->>   	u32			speed;		/* Speed of bus in Khz */
->>   	u16			cmd_err;
->>   	u8			*buf;
->> @@ -317,60 +305,22 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
->>   	u16 psc = 0, scll = 0, sclh = 0, buf = 0;
->>   	u16 fsscll = 0, fssclh = 0, hsscll = 0, hssclh = 0;
->>   	unsigned long fclk_rate = 12000000;
->> -	unsigned long timeout;
->>   	unsigned long internal_clk = 0;
->>   	struct clk *fclk;
->>   	struct omap_i2c_bus_platform_data *pdata;
->>
->>   	pdata = dev->dev->platform_data;
->>
->> -	if (dev->rev>= OMAP_I2C_OMAP1_REV_2) {
->> -		/* Disable I2C controller before soft reset */
->> -		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG,
->> -			omap_i2c_read_reg(dev, OMAP_I2C_CON_REG)&
->> -				~(OMAP_I2C_CON_EN));
->> -
->> -		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, SYSC_SOFTRESET_MASK);
->> -		/* For some reason we need to set the EN bit before the
->> -		 * reset done bit gets set. */
->> -		timeout = jiffies + OMAP_I2C_TIMEOUT;
->> -		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
->> -		while (!(omap_i2c_read_reg(dev, OMAP_I2C_SYSS_REG)&
->> -			 SYSS_RESETDONE_MASK)) {
->> -			if (time_after(jiffies, timeout)) {
->> -				dev_warn(dev->dev, "timeout waiting "
->> -						"for controller reset\n");
->> -				return -ETIMEDOUT;
->> -			}
->> -			msleep(1);
->> -		}
->> -
->> -		/* SYSC register is cleared by the reset; rewrite it */
->> -		if (dev->rev == OMAP_I2C_REV_ON_2430) {
->> -
->> -			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
->> -					   SYSC_AUTOIDLE_MASK);
->> -
->> -		} else if (dev->rev>= OMAP_I2C_REV_ON_3430) {
->> -			dev->syscstate = SYSC_AUTOIDLE_MASK;
->> -			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
->> -			dev->syscstate |= (SYSC_IDLEMODE_SMART<<
->> -			      __ffs(SYSC_SIDLEMODE_MASK));
->> -			dev->syscstate |= (SYSC_CLOCKACTIVITY_FCLK<<
->> -			      __ffs(SYSC_CLOCKACTIVITY_MASK));
->> -
->> -			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
->> -							dev->syscstate);
->> -			/*
->> -			 * Enabling all wakup sources to stop I2C freezing on
->> -			 * WFI instruction.
->> -			 * REVISIT: Some wkup sources might not be needed.
->> -			 */
->> -			dev->westate = OMAP_I2C_WE_ALL;
->> -			if (dev->rev<  OMAP_I2C_REV_ON_3530_4430)
->> -				omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
->> -								dev->westate);
->> -		}
->> +	if (dev->rev>= OMAP_I2C_REV_ON_3430) {
->> +		/*
->> +		 * Enabling all wakeup sources to stop I2C freezing on
->> +		 * WFI instruction.
->> +		 * REVISIT: Some wakeup sources might not be needed.
->> +		 */
->> +		dev->westate = OMAP_I2C_WE_ALL;
->> +		if (dev->rev<  OMAP_I2C_REV_ON_3530_4430)
->> +			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
->> +							dev->westate);
->>   	}
->>   	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
->>
->> @@ -595,6 +545,11 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
->>   		return r;
->>   	if (r == 0) {
->>   		dev_err(dev->dev, "controller timed out\n");
->> +		if (dev->device_reset != NULL) {
-> No need for the '!= NULL'
->
->                  if (dev->device_reset)
->
-> is more typical.
->
-> And based on my comments in 1/3, this would become device_shutdown.
->
->> +			r = dev->device_reset(dev->dev);
->> +			if (r<  0)
->> +				dev_err(dev->dev, "reset failed\n");
->> +		}
->>   		omap_i2c_init(dev);
->>   		return -ETIMEDOUT;
->>   	}
->> @@ -605,6 +560,11 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
->>   	/* We have an error */
->>   	if (dev->cmd_err&  (OMAP_I2C_STAT_AL | OMAP_I2C_STAT_ROVR |
->>   			    OMAP_I2C_STAT_XUDF)) {
->> +		if (dev->device_reset != NULL) {
->> +			r = dev->device_reset(dev->dev);
->> +			if (r<  0)
->> +				dev_err(dev->dev, "reset failed\n");
->> +		}
->>   		omap_i2c_init(dev);
->>   		return -EIO;
->>   	}
->> @@ -1005,6 +965,7 @@ omap_i2c_probe(struct platform_device *pdev)
->>   	if (pdata != NULL) {
->>   		speed = pdata->clkrate;
->>   		dev->set_mpu_wkup_lat = pdata->set_mpu_wkup_lat;
->> +		dev->device_reset = pdata->device_reset;
->>   	} else {
->>   		speed = 100;	/* Default speed */
->>   		dev->set_mpu_wkup_lat = NULL;
-> Kevin
+hmm, what happens for the case of i being zero?
+
+> +
+> +	return (delta_l < delta_h) ? i : i - 1;
+> +}
+> +
+> +static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+> +				   unsigned int rate)
+> +{
+> +	unsigned long i2c_clk_rate = clk_get_rate(i2c_imx->clk);
+> +	int i = find_div(i2c_clk_rate, rate);
+>  
+>  	/* Store divider value */
+>  	i2c_imx->ifdr = i2c_clk_div[i][1];
+> @@ -271,10 +288,9 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+>  
+>  	/* dev_dbg() can't be used, because adapter is not yet registered */
+>  #ifdef CONFIG_I2C_DEBUG_BUS
+> -	printk(KERN_DEBUG "I2C: <%s> I2C_CLK=%d, REQ DIV=%d\n",
+> -		__func__, i2c_clk_rate, div);
+> -	printk(KERN_DEBUG "I2C: <%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
+> -		__func__, i2c_clk_div[i][1], i2c_clk_div[i][0]);
+> +	pr_debug("<%s> I2C_CLK=%ld, REQ RATE=%d, DIV=%d, IFDR[IC]=0x%x\n",
+> +		__func__, i2c_clk_rate, rate,
+> +		i2c_clk_div[i][0], i2c_clk_div[i][1]);
+>  #endif
+>  }
+>  
+> -- 
+> 1.7.4.1
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+-- 
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
+
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
