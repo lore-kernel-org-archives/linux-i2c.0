@@ -1,123 +1,388 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c: imx: choose the better clock divider
-Date: Thu, 4 Aug 2011 17:51:46 +0100
-Message-ID: <20110804165146.GB19115@trinity.fluff.org>
-References: <1308035825-22410-1-git-send-email-eric.miao@linaro.org>
+From: Ganesan Ramalingam <ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Subject: [PATCH v3] i2c: Support for Netlogic XLR/XLS on-chip I2C controller.
+Date: Fri, 5 Aug 2011 00:45:48 +0530
+Message-ID: <20110804191540.GA13917@jayachandranc.netlogicmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1308035825-22410-1-git-send-email-eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 14, 2011 at 03:17:05PM +0800, Eric Miao wrote:
-> The original algorithm doesn't perform very well in some cases, e.g.
-> 
->   When the source clock of the I2C controller is 66MHz, and the
->   requested rate is 100KHz, it gives a divider of 768 instead of
->   the better 640.
-> 
-> Choose a better clock divider so the final clock rate is closer to
-> the requested one by comparing the rate distances calculated by
-> two adjacent dividers.
-> 
-> Cc: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Signed-off-by: Eric Miao <eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-imx.c |   46 ++++++++++++++++++++++++++++-------------
->  1 files changed, 31 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 4c2a62b..cd640ff 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -112,6 +112,8 @@ static u16 __initdata i2c_clk_div[50][2] = {
->  	{ 3072,	0x1E }, { 3840,	0x1F }
->  };
->  
-> +#define I2C_CLK_DIV_NUM		ARRAY_SIZE(i2c_clk_div)
-> +
->  struct imx_i2c_struct {
->  	struct i2c_adapter	adapter;
->  	struct resource		*res;
-> @@ -240,22 +242,37 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
->  	clk_disable(i2c_imx->clk);
->  }
->  
-> -static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
-> -							unsigned int rate)
-> +/* find the index into i2c_clk_div[] array, compare with the two
-> + * dividers found, return the one with smaller error
-> + */
-> +static int find_div(unsigned long i2c_clk_rate, unsigned long rate)
->  {
-> -	unsigned int i2c_clk_rate;
-> -	unsigned int div;
-> +	unsigned long div, delta_l, delta_h;
->  	int i;
->  
-> -	/* Divider value calculation */
-> -	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
->  	div = (i2c_clk_rate + rate - 1) / rate;
-> +
->  	if (div < i2c_clk_div[0][0])
-> -		i = 0;
-> -	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
-> -		i = ARRAY_SIZE(i2c_clk_div) - 1;
-> -	else
-> -		for (i = 0; i2c_clk_div[i][0] < div; i++);
-> +		return 0;
-> +
-> +	if (div > i2c_clk_div[I2C_CLK_DIV_NUM - 1][0])
-> +		return I2C_CLK_DIV_NUM;
-> +
-> +	for (i = 0; i < I2C_CLK_DIV_NUM; i++)
-> +		if (i2c_clk_div[i][0] > div)
-> +			break;
-> +
-> +	delta_h = (i2c_clk_rate / i2c_clk_div[i - 1][0]) - rate;
-> +	delta_l = rate - (i2c_clk_rate / i2c_clk_div[i][0]);
+Add support for on chip I2C bus controller on Netlogic XLR/XLS family
+of MIPS64 SoCs. The changes are:
 
-hmm, what happens for the case of i being zero?
+Kconfig/Makefile: add CONFIG_I2C_XLR option
+busses/i2c-xlr.c : driver for Netlogic XLR/XLS on-chip I2C controller
 
-> +
-> +	return (delta_l < delta_h) ? i : i - 1;
-> +}
-> +
-> +static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
-> +				   unsigned int rate)
-> +{
-> +	unsigned long i2c_clk_rate = clk_get_rate(i2c_imx->clk);
-> +	int i = find_div(i2c_clk_rate, rate);
->  
->  	/* Store divider value */
->  	i2c_imx->ifdr = i2c_clk_div[i][1];
-> @@ -271,10 +288,9 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
->  
->  	/* dev_dbg() can't be used, because adapter is not yet registered */
->  #ifdef CONFIG_I2C_DEBUG_BUS
-> -	printk(KERN_DEBUG "I2C: <%s> I2C_CLK=%d, REQ DIV=%d\n",
-> -		__func__, i2c_clk_rate, div);
-> -	printk(KERN_DEBUG "I2C: <%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
-> -		__func__, i2c_clk_div[i][1], i2c_clk_div[i][0]);
-> +	pr_debug("<%s> I2C_CLK=%ld, REQ RATE=%d, DIV=%d, IFDR[IC]=0x%x\n",
-> +		__func__, i2c_clk_rate, rate,
-> +		i2c_clk_div[i][0], i2c_clk_div[i][1]);
->  #endif
->  }
->  
-> -- 
-> 1.7.4.1
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Signed-off-by: Ganesan Ramalingam <ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+---
+[Posting this again, comments and suggestions welcome]
+
+Changes since v2:
+ - Remove platform related code changes to a different patch that will be 
+   submitted later thru linux-mips
+Changes since v1:                                                                                                      
+ - Use master_xfer in place of smbus_xfer                                                                              
+ - Fixes for the comments from Ben Dooks and Mark Brown                                                                
+
+ drivers/i2c/busses/Kconfig   |   11 ++
+ drivers/i2c/busses/Makefile  |    1 +
+ drivers/i2c/busses/i2c-xlr.c |  303 ++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 315 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-xlr.c
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 646068e..4ac63f5 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -309,6 +309,17 @@ config I2C_AU1550
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-au1550.
+ 
++config I2C_XLR
++	tristate "XLR I2C support"
++	depends on CPU_XLR
++	help
++	  This driver enables support for the on-chip I2C interface of
++	  the Netlogic XLR/XLS MIPS processors.
++
++	  Say yes to this option if you have a Netlogic XLR/XLS based
++	  board and you need to access the I2C devices (typically the
++	  RTC, sensors, EEPROM) connected to this interface.
++
+ config I2C_BLACKFIN_TWI
+ 	tristate "Blackfin TWI I2C support"
+ 	depends on BLACKFIN
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index e6cf294..14e7a76 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -65,6 +65,7 @@ obj-$(CONFIG_I2C_TEGRA)		+= i2c-tegra.o
+ obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
+ obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
+ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
++obj-$(CONFIG_I2C_XLR)           += i2c-xlr.o
+ obj-$(CONFIG_I2C_EG20T)         += i2c-eg20t.o
+ 
+ # External I2C/SMBus adapter drivers
+diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
+new file mode 100644
+index 0000000..d433b2f
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-xlr.c
+@@ -0,0 +1,303 @@
++/*
++ * Copyright 2011, Netlogic Microsystems Inc.
++ * Copyright 2004, Matt Porter <mporter-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
++ *
++ * This file is licensed under the terms of the GNU General Public
++ * License version 2.  This program is licensed "as is" without any
++ * warranty of any kind, whether express or implied.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/init.h>
++#include <linux/ioport.h>
++#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/i2c.h>
++#include <linux/io.h>
++#include <linux/platform_device.h>
++#include <asm/netlogic/xlr/iomap.h>
++
++/* XLR I2C REGISTERS */
++#define XLR_I2C_CFG		0x00
++#define XLR_I2C_CLKDIV		0x01
++#define XLR_I2C_DEVADDR		0x02
++#define XLR_I2C_ADDR		0x03
++#define XLR_I2C_DATAOUT		0x04
++#define XLR_I2C_DATAIN		0x05
++#define XLR_I2C_STATUS		0x06
++#define XLR_I2C_STARTXFR	0x07
++#define XLR_I2C_BYTECNT		0x08
++#define XLR_I2C_HDSTATIM	0x09
++
++/* XLR I2C REGISTERS FLAGS */
++#define XLR_I2C_BUS_BUSY	0x01
++#define XLR_I2C_SDOEMPTY	0x02
++#define XLR_I2C_RXRDY		0x04
++#define XLR_I2C_ACK_ERR		0x08
++#define XLR_I2C_ARB_STARTERR	0x30
++
++/* Register Programming Values!! Change as required */
++#define XLR_I2C_CFG_ADDR	0xF8    /* 8-Bit dev Addr + POR Values */
++#define XLR_I2C_CFG_NOADDR	0xFA    /* 8-Bit reg Addr + POR Values */
++#define XLR_I2C_STARTXFR_ND	0x02    /* No data , only addr */
++#define XLR_I2C_STARTXFR_RD	0x01    /* Read */
++#define XLR_I2C_STARTXFR_WR	0x00    /* Write */
++#define XLR_I2C_CLKDIV_DEF	0x14A   /* 0x00000052 */
++#define XLR_I2C_HDSTATIM_DEF	0x107   /* 0x00000000 */
++
++#define XLR_I2C_IO_SIZE		0x1000
++
++struct xlr_i2c_private {
++	struct i2c_adapter adap;
++	u32 __iomem *iobase;
++};
++
++static int xlr_i2c_tx(struct xlr_i2c_private *priv,  u16 len,
++		u8 *buf, u16 addr)
++{
++	u32 i2c_status = 0x00;
++	u8 nb;
++	int pos, timeout = 0;
++	struct i2c_adapter *adap = &priv->adap;
++	u8 offset = buf[0];
++
++	netlogic_write_reg(priv->iobase, XLR_I2C_ADDR, offset);
++	netlogic_write_reg(priv->iobase, XLR_I2C_DEVADDR, addr);
++	netlogic_write_reg(priv->iobase, XLR_I2C_CFG, XLR_I2C_CFG_ADDR);
++	netlogic_write_reg(priv->iobase, XLR_I2C_BYTECNT, len-1);
++
++retry:
++	timeout = 0;
++	pos = 1;
++	if (len == 1) {
++		netlogic_write_reg(priv->iobase, XLR_I2C_STARTXFR,
++				XLR_I2C_STARTXFR_ND);
++	} else {
++		netlogic_write_reg(priv->iobase, XLR_I2C_DATAOUT, buf[pos]);
++		netlogic_write_reg(priv->iobase, XLR_I2C_STARTXFR,
++				XLR_I2C_STARTXFR_WR);
++	}
++
++	while (1) {
++		if (timeout++ > 0x1000) {
++			dev_err(&adap->dev, "XLR_I2C_STARTXFR_RD Rx Timeout\n");
++			return -ETIMEDOUT;
++		}
++
++		i2c_status = netlogic_read_reg(priv->iobase, XLR_I2C_STATUS);
++
++		if (i2c_status & XLR_I2C_SDOEMPTY) {
++			pos++;
++			nb = (pos < len) ? buf[pos] : 0;
++			netlogic_write_reg(priv->iobase, XLR_I2C_DATAOUT, nb);
++		}
++
++		if (i2c_status & XLR_I2C_ARB_STARTERR)
++			goto retry;
++
++		if (i2c_status & XLR_I2C_ACK_ERR) {
++			dev_err(&priv->adap.dev, "Tx ACK ERR\n");
++			return -EIO;
++		}
++
++		if (i2c_status & XLR_I2C_BUS_BUSY) {
++			udelay(1);
++			continue;
++		}
++
++		if (pos >= len)
++			break;
++	}
++
++	return 0;
++}
++
++static int xlr_i2c_rx(struct xlr_i2c_private *priv, u16 len,
++		u8 *buf, u16 addr)
++{
++	u32 i2c_status = 0x00;
++	int pos = 0;
++	int timeout = 0;
++	struct i2c_adapter *adap = &priv->adap;
++
++	netlogic_write_reg(priv->iobase, XLR_I2C_CFG, XLR_I2C_CFG_NOADDR);
++	netlogic_write_reg(priv->iobase, XLR_I2C_BYTECNT, len);
++	netlogic_write_reg(priv->iobase, XLR_I2C_DEVADDR, addr);
++
++retry:
++	timeout = 0;
++	netlogic_write_reg(priv->iobase, XLR_I2C_STARTXFR,
++			XLR_I2C_STARTXFR_RD);
++
++	while (1) {
++		if (timeout++ > 0x1000) {
++			dev_err(&adap->dev, "XLR_I2C_STARTXFR_RD Rx Timeout\n");
++			return -ETIMEDOUT;
++		}
++
++		i2c_status = netlogic_read_reg(priv->iobase,
++				XLR_I2C_STATUS);
++		if (i2c_status & XLR_I2C_RXRDY) {
++			buf[pos++] = (u8)netlogic_read_reg(priv->iobase,
++					XLR_I2C_DATAIN);
++		}
++
++		if (i2c_status & XLR_I2C_ARB_STARTERR)
++			goto retry;
++
++		if (i2c_status & XLR_I2C_ACK_ERR) {
++			dev_err(&adap->dev, "XLR_I2C_STARTXFR_RD ACK ERR\n");
++			return -EIO;
++		}
++
++		if ((i2c_status & XLR_I2C_BUS_BUSY) == 0)
++			break;
++		udelay(1);
++	}
++	return 0;
++}
++
++static int xlr_i2c_xfer(struct i2c_adapter *adap,
++		struct i2c_msg *msgs, int num)
++{
++	struct i2c_msg *msg;
++	int i;
++	int ret = 0;
++	struct xlr_i2c_private *priv = i2c_get_adapdata(adap);
++
++	for (i = 0; ret == 0 && i < num; i++) {
++		msg = &msgs[i];
++		if (msg->flags & I2C_M_RD)
++			ret = xlr_i2c_rx(priv, msg->len, &msg->buf[0],
++					msg->addr);
++		else
++			ret = xlr_i2c_tx(priv, msg->len, &msg->buf[0],
++					msg->addr);
++	}
++
++	return (ret != 0) ? ret : num;
++}
++
++static u32 xlr_func(struct i2c_adapter *adap)
++{
++	/* Emulate SMBUS over I2C */
++	return I2C_FUNC_SMBUS_EMUL | I2C_FUNC_I2C;
++}
++
++static struct i2c_algorithm xlr_i2c_algo = {
++	.master_xfer	= xlr_i2c_xfer,
++	.functionality	= xlr_func,
++};
++
++static int xlr_i2c_add_bus(struct xlr_i2c_private *priv)
++{
++	priv->adap.owner	= THIS_MODULE;
++	priv->adap.algo_data	= priv;
++	priv->adap.nr		= 1;
++	priv->adap.algo		= &xlr_i2c_algo;
++	priv->adap.class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
++	snprintf(priv->adap.name, sizeof(priv->adap.name),
++			"SMBus XLR I2C Adapter");
++	i2c_set_adapdata(&priv->adap, priv);
++	/* register new adapter to i2c module... */
++	if (i2c_add_numbered_adapter(&priv->adap))
++		return -1;
++
++	return 0;
++}
++
++static int __devinit xlr_i2c_probe(struct platform_device *pdev)
++{
++	struct xlr_i2c_private  *priv;
++	struct resource *res;
++	int ret;
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++
++	if (!res) {
++		ret = -ENXIO;
++		goto err1;
++	}
++
++	if (!request_mem_region(res->start, XLR_I2C_IO_SIZE, pdev->name)) {
++		dev_err(&pdev->dev, "request_mem_region failed\n");
++		ret = -ENOMEM;
++		goto err1;
++	}
++
++	priv = kzalloc(sizeof(struct xlr_i2c_private), GFP_KERNEL);
++	if (!priv) {
++		ret = -ENOMEM;
++		goto err2;
++	}
++
++	priv->adap.dev.parent = &pdev->dev;
++	priv->iobase = (u32 *) ioremap(res->start, XLR_I2C_IO_SIZE);
++	if (!priv->iobase) {
++		ret = -ENOMEM;
++		goto err3;
++	}
++
++	platform_set_drvdata(pdev, priv);
++	ret = xlr_i2c_add_bus(priv);
++
++	if (ret < 0) {
++		dev_err(&priv->adap.dev, "Failed to add i2c bus\n");
++		ret = -ENXIO;
++		goto err4;
++	} else
++		dev_info(&priv->adap.dev, "Added I2C Bus.\n");
++
++	return 0;
++err4:
++	iounmap(priv->iobase);
++	platform_set_drvdata(pdev, NULL);
++err3:
++	kfree(priv);
++err2:
++	release_mem_region(res->start, IORESOURCE_MEM);
++err1:
++	return ret;
++}
++
++static int __devexit xlr_i2c_remove(struct platform_device *pdev)
++{
++	struct xlr_i2c_private *priv = platform_get_drvdata(pdev);
++	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++
++	i2c_del_adapter(&priv->adap);
++	iounmap(priv->iobase);
++	kfree(priv);
++	release_mem_region(res->start, IORESOURCE_MEM);
++	platform_set_drvdata(pdev, NULL);
++	return 0;
++}
++
++static struct platform_driver xlr_i2c_driver = {
++	.probe  = xlr_i2c_probe,
++	.remove = __devexit_p(xlr_i2c_remove),
++	.driver = {
++		.owner  = THIS_MODULE,
++		.name   = "xlr-i2cbus",
++	},
++};
++
++static int __init xlr_i2c_init(void)
++{
++	return platform_driver_register(&xlr_i2c_driver);
++}
++
++static void __exit xlr_i2c_exit(void)
++{
++	platform_driver_unregister(&xlr_i2c_driver);
++}
++
++MODULE_AUTHOR("Ganesan Ramalingam <ganesanr-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>");
++MODULE_DESCRIPTION("XLR I2C SMBus driver");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:xlr-i2cbus");
++
++module_init(xlr_i2c_init);
++module_exit(xlr_i2c_exit);
+-- 
+1.7.4.1
+
 
 -- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+Jayachandran C.
+jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org                  (Netlogic Microsystems)
+jchandra-h+KGxgPPiopAfugRpC6u6w@public.gmane.org                               (The FreeBSD Project)
