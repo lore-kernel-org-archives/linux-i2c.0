@@ -1,7 +1,7 @@
-From: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 Subject: Re: [PATCH] i2c: tegra: Add CONFIG_OF guards for device tree bits
-Date: Fri, 5 Aug 2011 09:24:40 +0200
-Message-ID: <20110805072440.GA15063@merkur.ravnborg.org>
+Date: Fri, 5 Aug 2011 09:14:44 +0100
+Message-ID: <20110805081444.GC19115@trinity.fluff.org>
 References: <1312527921.21955.2.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -21,6 +21,11 @@ On Fri, Aug 05, 2011 at 03:05:21PM +0800, Axel Lin wrote:
 > drivers/i2c/busses/i2c-tegra.c: In function 'tegra_i2c_probe':
 > drivers/i2c/busses/i2c-tegra.c:615: error: implicit declaration of function 'of_get_property'
 > drivers/i2c/busses/i2c-tegra.c:616: warning: assignment makes pointer from integer without a cast
+
+It might be worth asking Grant if providing stubs for the of_ calls are
+as good idea, I'd like to avoid having #ifdef CONFIG_OF splattered around
+the place (it leads to errors).
+
 > make[3]: *** [drivers/i2c/busses/i2c-tegra.o] Error 1
 > make[2]: *** [drivers/i2c/busses] Error 2
 > make[1]: *** [drivers/i2c] Error 2
@@ -59,8 +64,17 @@ On Fri, Aug 05, 2011 at 03:05:21PM +0800, Axel Lin wrote:
 >  	}
 >  
 >  	if (pdev->id == 3)
+> -- 
+> 1.7.4.1
+> 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-It would be better to add a dummy implementation of of_get_property() in of.h.
-Thus we do not need the ifdeffery and all users benefits from this.
+-- 
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
 
-	Sam
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
