@@ -1,55 +1,184 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [RESEND PATCH] i2c: Tegra: Add of_match_table
-Date: Fri,  5 Aug 2011 16:53:48 -0600
-Message-ID: <1312584828-23474-1-git-send-email-swarren@nvidia.com>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: move of_i2c_register_devices call into core
+Date: Fri, 5 Aug 2011 23:54:35 +0100
+Message-ID: <20110805225435.GA6404@ponder.secretlab.ca>
+References: <1312579468-19365-1-git-send-email-robherring2@gmail.com>
+ <1312579468-19365-2-git-send-email-robherring2@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1312579468-19365-2-git-send-email-robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+On Fri, Aug 05, 2011 at 04:24:26PM -0500, Rob Herring wrote:
+> From: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+> 
+> All callers of of_i2c_register_devices are immediately preceded by a call
+> to i2c_add_adapter or i2c_add_numbered_adapter. Add call to
+> of_i2c_register_devices and remove all other callers.
+> 
+> This causes a module dependency loop that is resolved by the next commit.
 
-This patch was intended to be part of 7ca2d1a105a239e300b937e9c41a10a4bd08f569
-"i2c: Tegra: Add DeviceTree support". However, an early version of that patch,
-which was missing a chunk, was applied to next-i2c. This change is that
-missing chunk.
+Wrong way around.  Don't break bisectability.  I'll leave it up to Ben
+and Jean on weather or not they want to move this code.  I intend to
+do the same thing for spi/gpio, but I maintain those subsystems so I
+get to choose.  i2c is not up to me.
 
-Signed-off-by: John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+), 0 deletions(-)
+g.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 0c6e840..dd1f21b 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -720,6 +720,17 @@ static int tegra_i2c_resume(struct platform_device *pdev)
- }
- #endif
- 
-+#if defined(CONFIG_OF)
-+/* Match table for of_platform binding */
-+static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
-+	{ .compatible = "nvidia,tegra20-i2c", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
-+#else
-+#define tegra_i2c_of_match NULL
-+#endif
-+
- static struct platform_driver tegra_i2c_driver = {
- 	.probe   = tegra_i2c_probe,
- 	.remove  = tegra_i2c_remove,
-@@ -730,6 +741,7 @@ static struct platform_driver tegra_i2c_driver = {
- 	.driver  = {
- 		.name  = "tegra-i2c",
- 		.owner = THIS_MODULE,
-+		.of_match_table = tegra_i2c_of_match,
- 	},
- };
- 
--- 
-1.7.0.4
+> 
+> Signed-off-by: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> Cc: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+> Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Cc: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> ---
+>  drivers/i2c/busses/i2c-cpm.c     |    6 ------
+>  drivers/i2c/busses/i2c-ibm_iic.c |    4 ----
+>  drivers/i2c/busses/i2c-mpc.c     |    2 --
+>  drivers/i2c/busses/i2c-pxa.c     |    2 --
+>  drivers/i2c/busses/i2c-tegra.c   |    3 ---
+>  drivers/i2c/i2c-core.c           |    4 ++++
+>  6 files changed, 4 insertions(+), 17 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
+> index b1d9cd2..7cbc82a 100644
+> --- a/drivers/i2c/busses/i2c-cpm.c
+> +++ b/drivers/i2c/busses/i2c-cpm.c
+> @@ -42,7 +42,6 @@
+>  #include <linux/dma-mapping.h>
+>  #include <linux/of_device.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/of_i2c.h>
+>  #include <sysdev/fsl_soc.h>
+>  #include <asm/cpm.h>
+>  
+> @@ -673,11 +672,6 @@ static int __devinit cpm_i2c_probe(struct platform_device *ofdev)
+>  	dev_dbg(&ofdev->dev, "hw routines for %s registered.\n",
+>  		cpm->adap.name);
+>  
+> -	/*
+> -	 * register OF I2C devices
+> -	 */
+> -	of_i2c_register_devices(&cpm->adap);
+> -
+>  	return 0;
+>  out_shut:
+>  	cpm_i2c_shutdown(cpm);
+> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
+> index 3c110fb..5ba15ba 100644
+> --- a/drivers/i2c/busses/i2c-ibm_iic.c
+> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
+> @@ -42,7 +42,6 @@
+>  #include <linux/io.h>
+>  #include <linux/i2c.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/of_i2c.h>
+>  
+>  #include "i2c-ibm_iic.h"
+>  
+> @@ -759,9 +758,6 @@ static int __devinit iic_probe(struct platform_device *ofdev)
+>  	dev_info(&ofdev->dev, "using %s mode\n",
+>  		 dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
+>  
+> -	/* Now register all the child nodes */
+> -	of_i2c_register_devices(adap);
+> -
+>  	return 0;
+>  
+>  error_cleanup:
+> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> index 107397a..a433f59 100644
+> --- a/drivers/i2c/busses/i2c-mpc.c
+> +++ b/drivers/i2c/busses/i2c-mpc.c
+> @@ -18,7 +18,6 @@
+>  #include <linux/sched.h>
+>  #include <linux/init.h>
+>  #include <linux/of_platform.h>
+> -#include <linux/of_i2c.h>
+>  #include <linux/slab.h>
+>  
+>  #include <linux/io.h>
+> @@ -637,7 +636,6 @@ static int __devinit fsl_i2c_probe(struct platform_device *op)
+>  		dev_err(i2c->dev, "failed to add adapter\n");
+>  		goto fail_add;
+>  	}
+> -	of_i2c_register_devices(&i2c->adap);
+>  
+>  	return result;
+>  
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> index d603646..c1c2885 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -29,7 +29,6 @@
+>  #include <linux/errno.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/i2c-pxa.h>
+> -#include <linux/of_i2c.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/err.h>
+>  #include <linux/clk.h>
+> @@ -1147,7 +1146,6 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>  		printk(KERN_INFO "I2C: Failed to add bus\n");
+>  		goto eadapt;
+>  	}
+> -	of_i2c_register_devices(&i2c->adap);
+>  
+>  	platform_set_drvdata(dev, i2c);
+>  
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 2440b74..9ec0a58 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -26,7 +26,6 @@
+>  #include <linux/delay.h>
+>  #include <linux/slab.h>
+>  #include <linux/i2c-tegra.h>
+> -#include <linux/of_i2c.h>
+>  
+>  #include <asm/unaligned.h>
+>  
+> @@ -653,8 +652,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+>  		goto err_free_irq;
+>  	}
+>  
+> -	of_i2c_register_devices(&i2c_dev->adapter);
+> -
+>  	return 0;
+>  err_free_irq:
+>  	free_irq(i2c_dev->irq, i2c_dev);
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 131079a..011e195 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -32,6 +32,7 @@
+>  #include <linux/init.h>
+>  #include <linux/idr.h>
+>  #include <linux/mutex.h>
+> +#include <linux/of_i2c.h>
+>  #include <linux/of_device.h>
+>  #include <linux/completion.h>
+>  #include <linux/hardirq.h>
+> @@ -863,6 +864,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>  	if (adap->nr < __i2c_first_dynamic_bus_num)
+>  		i2c_scan_static_board_info(adap);
+>  
+> +	/* Register devices from the device tree */
+> +	of_i2c_register_devices(adap);
+> +
+>  	/* Notify drivers */
+>  	mutex_lock(&core_lock);
+>  	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
+> -- 
+> 1.7.4.1
+> 
