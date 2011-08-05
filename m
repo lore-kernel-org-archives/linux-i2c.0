@@ -1,70 +1,60 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv6 3/3] OMAP: I2C: Remove the SYSC register definition
-Date: Fri, 5 Aug 2011 11:30:35 +0530
-Message-ID: <1312524035-5549-3-git-send-email-shubhrajyoti@ti.com>
-References: <1312524035-5549-1-git-send-email-shubhrajyoti@ti.com>
+From: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: tegra: Add CONFIG_OF guards for device tree bits
+Date: Fri, 05 Aug 2011 15:05:21 +0800
+Message-ID: <1312527921.21955.2.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1312524035-5549-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, rnayak-l0cyMroinI0@public.gmane.org, balajitk-l0cyMroinI0@public.gmane.org, santosh.shilimkar-l0cyMroinI0@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The SYSC register should not accessed in the driver removing the
-define from the driver.
-Also clean up the syscstate from the omap_i2c_dev struct.
+The device tree bits need to be protected by CONFIG_OF guards.
+This patch fixes below build error with "make tegra_defconfig;make".
 
-Acked-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+  CC      drivers/i2c/busses/i2c-tegra.o
+drivers/i2c/busses/i2c-tegra.c: In function 'tegra_i2c_probe':
+drivers/i2c/busses/i2c-tegra.c:615: error: implicit declaration of function 'of_get_property'
+drivers/i2c/busses/i2c-tegra.c:616: warning: assignment makes pointer from integer without a cast
+make[3]: *** [drivers/i2c/busses/i2c-tegra.o] Error 1
+make[2]: *** [drivers/i2c/busses] Error 2
+make[1]: *** [drivers/i2c] Error 2
+make: *** [drivers] Error 2
+
+Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index d8f4470..d05efe7 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -63,7 +63,6 @@ enum {
- 	OMAP_I2C_BUF_REG,
- 	OMAP_I2C_CNT_REG,
- 	OMAP_I2C_DATA_REG,
--	OMAP_I2C_SYSC_REG,
- 	OMAP_I2C_CON_REG,
- 	OMAP_I2C_OA_REG,
- 	OMAP_I2C_SA_REG,
-@@ -187,7 +186,6 @@ struct omap_i2c_dev {
- 	u16			scllstate;
- 	u16			sclhstate;
- 	u16			bufstate;
--	u16			syscstate;
- 	u16			westate;
- 	u16			errata;
- };
-@@ -202,7 +200,6 @@ const static u8 reg_map_ip_v1[] = {
- 	[OMAP_I2C_BUF_REG] = 0x05,
- 	[OMAP_I2C_CNT_REG] = 0x06,
- 	[OMAP_I2C_DATA_REG] = 0x07,
--	[OMAP_I2C_SYSC_REG] = 0x08,
- 	[OMAP_I2C_CON_REG] = 0x09,
- 	[OMAP_I2C_OA_REG] = 0x0a,
- 	[OMAP_I2C_SA_REG] = 0x0b,
-@@ -223,7 +220,6 @@ const static u8 reg_map_ip_v2[] = {
- 	[OMAP_I2C_BUF_REG] = 0x94,
- 	[OMAP_I2C_CNT_REG] = 0x98,
- 	[OMAP_I2C_DATA_REG] = 0x9c,
--	[OMAP_I2C_SYSC_REG] = 0x20,
- 	[OMAP_I2C_CON_REG] = 0xa4,
- 	[OMAP_I2C_OA_REG] = 0xa8,
- 	[OMAP_I2C_SA_REG] = 0xac,
-@@ -264,7 +260,6 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
- 		omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
--		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 0c6e840..1bfe85e 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -548,7 +548,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	struct resource *iomem;
+ 	struct clk *clk;
+ 	struct clk *i2c_clk;
+-	const unsigned int *prop;
+ 	void *base;
+ 	int irq;
+ 	int ret = 0;
+@@ -611,11 +610,15 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	if (pdata) {
+ 		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
+ 
++#ifdef CONFIG_OF
+ 	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... */
++		const unsigned int *prop;
++
+ 		prop = of_get_property(i2c_dev->dev->of_node,
+ 				"clock-frequency", NULL);
+ 		if (prop)
+ 			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
++#endif
  	}
+ 
+ 	if (pdev->id == 3)
 -- 
-1.7.1
+1.7.4.1
