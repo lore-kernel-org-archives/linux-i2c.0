@@ -1,202 +1,124 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: move of_i2c_register_devices call into core
-Date: Fri, 05 Aug 2011 18:22:36 -0500
-Message-ID: <4E3C7B3C.1090100@gmail.com>
-References: <1312579468-19365-1-git-send-email-robherring2@gmail.com> <1312579468-19365-2-git-send-email-robherring2@gmail.com> <20110805225435.GA6404@ponder.secretlab.ca>
+From: Colin Cross <ccross@google.com>
+Subject: Re: [PATCH] i2c/tegra: I2C driver uses the suspend_noirq/resume_noirq
+Date: Fri, 5 Aug 2011 21:33:31 -0700
+Message-ID: <CAMbhsRScgMaTZ2e3a__OgOrrA6HN9_dkGuuNGaEfP+iqRdjyNQ@mail.gmail.com>
+References: <1312586102-27907-1-git-send-email-swarren@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110805225435.GA6404-e0URQFbLeQY2iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1312586102-27907-1-git-send-email-swarren@nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stephen Warren <swarren@nvidia.com>
+Cc: Ben Dooks <ben-linux@fluff.org>, Dilan Lee <dilee@nvidia.com>, linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Grant,
+On Fri, Aug 5, 2011 at 4:15 PM, Stephen Warren <swarren@nvidia.com> wro=
+te:
+> From: Dilan Lee <dilee@nvidia.com>
+>
+> We found the register settings of wm8903(an audio codec) can't be mod=
+ified
+> in snd_soc_suspend since I2C bus has been suspended before snd_soc_su=
+spend.
+>
+> Pop noise will occur when system resume from LP0 if the register sett=
+ings of wm8903
+> haven't be modified correctly in snd_soc_suspend.
+>
+> So, we use the suspend_noirq/resume_noirq callbacks to make sure I2C =
+bus still
+> operates while running snd_soc_suspend.
+>
+> Signed-off-by: Dilan Lee <dilee@nvidia.com>
+> Signed-off-by: Stephen Warren <swarren@nvidia.com>
+> ---
+> When applying this, you'll get a trivial merge conflict with the othe=
+r
+> i2c-tegra.c patch I just reposted titled "i2c: Tegra: Add of_match_ta=
+ble".
+> Just add the two lines to tegra_i2c_driver.driver in whichever order =
+you
+> prefer:-).
+>
+> =A0drivers/i2c/busses/i2c-tegra.c | =A0 19 +++++++++++++------
+> =A01 files changed, 13 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-=
+tegra.c
+> index 0c6e840..3d2bf19 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -687,8 +687,9 @@ static int tegra_i2c_remove(struct platform_devic=
+e *pdev)
+> =A0}
+>
+> =A0#ifdef CONFIG_PM
+> -static int tegra_i2c_suspend(struct platform_device *pdev, pm_messag=
+e_t state)
+> +static int tegra_i2c_suspend_noirq(struct device *dev)
+> =A0{
+> + =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev=
+);
+> =A0 =A0 =A0 =A0struct tegra_i2c_dev *i2c_dev =3D platform_get_drvdata=
+(pdev);
+>
+> =A0 =A0 =A0 =A0i2c_lock_adapter(&i2c_dev->adapter);
+> @@ -698,8 +699,9 @@ static int tegra_i2c_suspend(struct platform_devi=
+ce *pdev, pm_message_t state)
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
+>
+> -static int tegra_i2c_resume(struct platform_device *pdev)
+> +static int tegra_i2c_resume_noirq(struct device *dev)
+> =A0{
+> + =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev=
+);
+> =A0 =A0 =A0 =A0struct tegra_i2c_dev *i2c_dev =3D platform_get_drvdata=
+(pdev);
+> =A0 =A0 =A0 =A0int ret;
+>
+> @@ -718,18 +720,23 @@ static int tegra_i2c_resume(struct platform_dev=
+ice *pdev)
+>
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
+> +
+> +static const struct dev_pm_ops tegra_i2c_dev_pm_ops =3D {
+> + =A0 =A0 =A0 .suspend_noirq =3D tegra_i2c_suspend_noirq,
+> + =A0 =A0 =A0 .resume_noirq =3D tegra_i2c_resume_noirq,
+> +};
+> +#define TEGRA_I2C_DEV_PM_OPS (&tegra_i2c_dev_pm_ops)
+> +#else
+> +#define TEGRA_I2C_DEV_PM_OPS NULL
+> =A0#endif
+>
+> =A0static struct platform_driver tegra_i2c_driver =3D {
+> =A0 =A0 =A0 =A0.probe =A0 =3D tegra_i2c_probe,
+> =A0 =A0 =A0 =A0.remove =A0=3D tegra_i2c_remove,
+> -#ifdef CONFIG_PM
+> - =A0 =A0 =A0 .suspend =3D tegra_i2c_suspend,
+> - =A0 =A0 =A0 .resume =A0=3D tegra_i2c_resume,
+> -#endif
+> =A0 =A0 =A0 =A0.driver =A0=3D {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.name =A0=3D "tegra-i2c",
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.owner =3D THIS_MODULE,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .pm =A0 =A0=3D TEGRA_I2C_DEV_PM_OPS,
+> =A0 =A0 =A0 =A0},
+> =A0};
+>
+> --
+> 1.7.0.4
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-tegra=
+" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>
 
-On 08/05/2011 05:54 PM, Grant Likely wrote:
-> On Fri, Aug 05, 2011 at 04:24:26PM -0500, Rob Herring wrote:
->> From: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
->>
->> All callers of of_i2c_register_devices are immediately preceded by a call
->> to i2c_add_adapter or i2c_add_numbered_adapter. Add call to
->> of_i2c_register_devices and remove all other callers.
->>
->> This causes a module dependency loop that is resolved by the next commit.
-> 
-> Wrong way around.  Don't break bisectability.  I'll leave it up to Ben
-> and Jean on weather or not they want to move this code.  I intend to
-> do the same thing for spi/gpio, but I maintain those subsystems so I
-> get to choose.  i2c is not up to me.
-> 
-
-Well, I know, but it's only broken for bisect in the case of both being
-modules. So it's only run-time brokenness. That's better than the 3
-months it was broken before. I couldn't come up with a better way. The
-choices I thought of were:
-
--temporarily exporting and adding of_i2c_register_devices to i2c.h and
-then removing it. I'm not a fan of adding that churn.
--just combining it all into 1 patch.
--reverse the order and leave i2c device registration broken for 1
-commit. Thinking some more about it, perhaps that is a bit better than
-broken module loading. Guess it depends if you are doing modules or
-built-in.
-
-Rob
-
-> g.
-> 
->>
->> Signed-off-by: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
->> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
->> Cc: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
->> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
->> Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
->> Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->> Cc: linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
->> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> ---
->>  drivers/i2c/busses/i2c-cpm.c     |    6 ------
->>  drivers/i2c/busses/i2c-ibm_iic.c |    4 ----
->>  drivers/i2c/busses/i2c-mpc.c     |    2 --
->>  drivers/i2c/busses/i2c-pxa.c     |    2 --
->>  drivers/i2c/busses/i2c-tegra.c   |    3 ---
->>  drivers/i2c/i2c-core.c           |    4 ++++
->>  6 files changed, 4 insertions(+), 17 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
->> index b1d9cd2..7cbc82a 100644
->> --- a/drivers/i2c/busses/i2c-cpm.c
->> +++ b/drivers/i2c/busses/i2c-cpm.c
->> @@ -42,7 +42,6 @@
->>  #include <linux/dma-mapping.h>
->>  #include <linux/of_device.h>
->>  #include <linux/of_platform.h>
->> -#include <linux/of_i2c.h>
->>  #include <sysdev/fsl_soc.h>
->>  #include <asm/cpm.h>
->>  
->> @@ -673,11 +672,6 @@ static int __devinit cpm_i2c_probe(struct platform_device *ofdev)
->>  	dev_dbg(&ofdev->dev, "hw routines for %s registered.\n",
->>  		cpm->adap.name);
->>  
->> -	/*
->> -	 * register OF I2C devices
->> -	 */
->> -	of_i2c_register_devices(&cpm->adap);
->> -
->>  	return 0;
->>  out_shut:
->>  	cpm_i2c_shutdown(cpm);
->> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
->> index 3c110fb..5ba15ba 100644
->> --- a/drivers/i2c/busses/i2c-ibm_iic.c
->> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
->> @@ -42,7 +42,6 @@
->>  #include <linux/io.h>
->>  #include <linux/i2c.h>
->>  #include <linux/of_platform.h>
->> -#include <linux/of_i2c.h>
->>  
->>  #include "i2c-ibm_iic.h"
->>  
->> @@ -759,9 +758,6 @@ static int __devinit iic_probe(struct platform_device *ofdev)
->>  	dev_info(&ofdev->dev, "using %s mode\n",
->>  		 dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
->>  
->> -	/* Now register all the child nodes */
->> -	of_i2c_register_devices(adap);
->> -
->>  	return 0;
->>  
->>  error_cleanup:
->> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
->> index 107397a..a433f59 100644
->> --- a/drivers/i2c/busses/i2c-mpc.c
->> +++ b/drivers/i2c/busses/i2c-mpc.c
->> @@ -18,7 +18,6 @@
->>  #include <linux/sched.h>
->>  #include <linux/init.h>
->>  #include <linux/of_platform.h>
->> -#include <linux/of_i2c.h>
->>  #include <linux/slab.h>
->>  
->>  #include <linux/io.h>
->> @@ -637,7 +636,6 @@ static int __devinit fsl_i2c_probe(struct platform_device *op)
->>  		dev_err(i2c->dev, "failed to add adapter\n");
->>  		goto fail_add;
->>  	}
->> -	of_i2c_register_devices(&i2c->adap);
->>  
->>  	return result;
->>  
->> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
->> index d603646..c1c2885 100644
->> --- a/drivers/i2c/busses/i2c-pxa.c
->> +++ b/drivers/i2c/busses/i2c-pxa.c
->> @@ -29,7 +29,6 @@
->>  #include <linux/errno.h>
->>  #include <linux/interrupt.h>
->>  #include <linux/i2c-pxa.h>
->> -#include <linux/of_i2c.h>
->>  #include <linux/platform_device.h>
->>  #include <linux/err.h>
->>  #include <linux/clk.h>
->> @@ -1147,7 +1146,6 @@ static int i2c_pxa_probe(struct platform_device *dev)
->>  		printk(KERN_INFO "I2C: Failed to add bus\n");
->>  		goto eadapt;
->>  	}
->> -	of_i2c_register_devices(&i2c->adap);
->>  
->>  	platform_set_drvdata(dev, i2c);
->>  
->> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
->> index 2440b74..9ec0a58 100644
->> --- a/drivers/i2c/busses/i2c-tegra.c
->> +++ b/drivers/i2c/busses/i2c-tegra.c
->> @@ -26,7 +26,6 @@
->>  #include <linux/delay.h>
->>  #include <linux/slab.h>
->>  #include <linux/i2c-tegra.h>
->> -#include <linux/of_i2c.h>
->>  
->>  #include <asm/unaligned.h>
->>  
->> @@ -653,8 +652,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
->>  		goto err_free_irq;
->>  	}
->>  
->> -	of_i2c_register_devices(&i2c_dev->adapter);
->> -
->>  	return 0;
->>  err_free_irq:
->>  	free_irq(i2c_dev->irq, i2c_dev);
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> index 131079a..011e195 100644
->> --- a/drivers/i2c/i2c-core.c
->> +++ b/drivers/i2c/i2c-core.c
->> @@ -32,6 +32,7 @@
->>  #include <linux/init.h>
->>  #include <linux/idr.h>
->>  #include <linux/mutex.h>
->> +#include <linux/of_i2c.h>
->>  #include <linux/of_device.h>
->>  #include <linux/completion.h>
->>  #include <linux/hardirq.h>
->> @@ -863,6 +864,9 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
->>  	if (adap->nr < __i2c_first_dynamic_bus_num)
->>  		i2c_scan_static_board_info(adap);
->>  
->> +	/* Register devices from the device tree */
->> +	of_i2c_register_devices(adap);
->> +
->>  	/* Notify drivers */
->>  	mutex_lock(&core_lock);
->>  	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
->> -- 
->> 1.7.4.1
->>
+NAK - moving the suspend order around is not the correct way to solve
+this.  If wm8903 needs to talk to the i2c bus in its suspend handler,
+it needs to be child device on the i2c bus.  suspend_noirq is for
+devices that must suspend with system irqs turned off, not for
+ordering suspend handlers.
