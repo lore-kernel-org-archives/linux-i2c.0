@@ -1,52 +1,45 @@
-From: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
-Subject: [PATCH] i2c: I2C_ELEKTOR should depend on HAS_IOPORT
-Date: Mon,  8 Aug 2011 13:20:46 +0200
-Message-ID: <1312802446-19154-1-git-send-email-geert@linux-m68k.org>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH] dt: add empty of_get_property for non-dt
+Date: Mon, 8 Aug 2011 12:26:04 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF049F172239@HQMAIL01.nvidia.com>
+References: <1312584630-23371-1-git-send-email-swarren@nvidia.com>
+ <4E3EA340.2010100@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Hans Berglund <hb-wBUg6WsUcUgXWF+eFR7m5Q@public.gmane.org>
-Cc: Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4E3EA340.2010100-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On m68k, I get:
+Rob Herring wrote at Sunday, August 07, 2011 8:38 AM:
+> On 08/05/2011 05:50 PM, Stephen Warren wrote:
+> > The patch adds empty function of_get_property for non-dt build, so that
+> > drivers migrating to dt can save some '#ifdef CONFIG_OF'.
+> >
+> > This also fixes the current Tegra compile problem in linux-next.
+>
+> You could just use of_property_read_u32 in the driver. It already has
+> empty version and will simplify the driver code some.
 
-drivers/i2c/busses/i2c-elektor.c: In function =E2=80=98pcf_isa_init=E2=80=
-=99:
-drivers/i2c/busses/i2c-elektor.c:153: error: implicit declaration of fu=
-nction =E2=80=98ioport_map=E2=80=99
-drivers/i2c/busses/i2c-elektor.c:153: warning: assignment makes pointer=
- from integer without a cast
-drivers/i2c/busses/i2c-elektor.c: In function =E2=80=98elektor_probe=E2=
-=80=99:
-drivers/i2c/busses/i2c-elektor.c:287: error: implicit declaration of fu=
-nction =E2=80=98ioport_unmap=E2=80=99
+Yes, that would also work.
 
-Since commit 82ed223c264def2b15ee4bec2e8c3048092ceb5f ("iomap: make IOP=
-ORT/PCI
-mapping functions conditional"), ioport_map() is only available on plat=
-forms
-that set HAS_IOPORT.
+Grant, Ben, do you have a preference for which option to choose?
 
-Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
----
- drivers/i2c/busses/Kconfig |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Thanks.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 646068e..d1fc5cf 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -789,7 +789,7 @@ config I2C_ACORN
-=20
- config I2C_ELEKTOR
- 	tristate "Elektor ISA card"
--	depends on ISA && BROKEN_ON_SMP
-+	depends on ISA && HAS_IOPORT && BROKEN_ON_SMP
- 	select I2C_ALGOPCF
- 	help
- 	  This supports the PCF8584 ISA bus I2C adapter.  Say Y if you own
---=20
-1.7.0.4
+> > diff --git a/include/linux/of.h b/include/linux/of.h
+...
+> > +static inline const void *of_get_property(const struct device_node *node,
+> > +				const char *name,
+> > +				int *lenp)
+> > +{
+> > +	return NULL;
+> > +}
+> > +
+
+-- 
+nvpublic
