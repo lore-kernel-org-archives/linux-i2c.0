@@ -1,81 +1,38 @@
-From: Jim Cromie <jim.cromie@gmail.com>
-Subject: dynamic-debug not built into scx200_acb, scx200_i2c
-Date: Wed, 10 Aug 2011 15:06:49 -0600
-Message-ID: <CAJfuBxwq3xw3MZU01rwzg0NAnnxNoLrC2x0QXnj+2pD-6gkR4g@mail.gmail.com>
+From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: dynamic-debug not built into scx200_acb, scx200_i2c
+Date: Wed, 10 Aug 2011 16:50:16 -0700
+Message-ID: <1313020216.11924.129.camel@Joe-Laptop>
+References: <CAJfuBxwq3xw3MZU01rwzg0NAnnxNoLrC2x0QXnj+2pD-6gkR4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAJfuBxwq3xw3MZU01rwzg0NAnnxNoLrC2x0QXnj+2pD-6gkR4g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-scx200_acb has several pr_debugs, but theyre not available via dynamic-debug
+On Wed, 2011-08-10 at 15:06 -0600, Jim Cromie wrote:
+> scx200_acb has several pr_debugs, but theyre not available via dynamic-debug
+> 
+> Ive been unable to figure out why.
+> Any ideas ?
 
-Ive been unable to figure out why.
-Any ideas ?
+-DDEBUG forces pr_debug to be output and doesn't
+allow dynamic_debug for those outputs.
 
-jimc@chumly:~/projects/lx/linux-2.6$ grep debug drivers/i2c/busses/scx200_*
-drivers/i2c/busses/scx200_acb.c:		pr_debug(NAME ": ACBCTL2 readback failed\n");
-drivers/i2c/busses/scx200_acb.c:		pr_debug(NAME ": disabled, but
-ACBCTL1=0x%02x\n",
-drivers/i2c/busses/scx200_acb.c:		pr_debug(NAME ": enabled, but NMINTE
-won't be set, "
-drivers/i2c/busses/scx200_acb.c:	pr_debug(NAME ": NatSemi SCx200
-ACCESS.bus Driver\n");
-drivers/i2c/busses/scx200_i2c.c:	pr_debug(NAME ": NatSemi SCx200 I2C Driver\n");
-drivers/i2c/busses/scx200_i2c.c:	pr_debug(NAME ": SCL=GPIO%02u,
-SDA=GPIO%02u\n", scl, sda);
+from drivers/i2c/busses/Makefile:
 
+ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
 
-jimc@chumly:~/projects/lx/build-skc$ for k in `find drivers -name
-\*.ko`; do echo $k; readelf -S $k |grep __verbose; done
-drivers/i2c/busses/i2c-stub.ko
-drivers/i2c/busses/i2c-gpio.ko
-drivers/i2c/busses/scx200_i2c.ko
-drivers/i2c/busses/scx200_acb.ko
-drivers/i2c/muxes/gpio-i2cmux.ko
-drivers/i2c/i2c-mux.ko
-drivers/i2c/i2c-dev.ko
-  [15] __verbose         PROGBITS        00000000 0018c8 0000c0 00  WA  0   0  8
-  [16] .rel__verbose     REL             00000000 0024cc 000100 08     23  15  4
-drivers/i2c/i2c-core.ko
-  [24] __verbose         PROGBITS        00000000 003e58 000198 00  WA  0   0  8
-  [25] .rel__verbose     REL             00000000 0058c8 000220 08     32  24  4
+from printk.h:
 
-
-drivers/gpio/nsc_gpio.ko
-  [18] __verbose         PROGBITS        00000000 000850 000090 00  WA  0   0  8
-  [19] .rel__verbose     REL             00000000 0011bc 0000c0 08     26  18  4
-drivers/gpio/pcf857x.ko
-  [14] __verbose         PROGBITS        00000000 000e80 000048 00  WA  0   0  8
-  [15] .rel__verbose     REL             00000000 001710 000060 08     22  14  4
-drivers/gpio/pc8736x_gpio.ko
-  [17] __verbose         PROGBITS        00000000 001140 0000a8 00  WA  0   0  8
-  [18] .rel__verbose     REL             00000000 001da0 0000e0 08     25  17  4
-drivers/gpio/scx200_gpio.ko
-drivers/bluetooth/bfusb.ko
-  [14] __verbose         PROGBITS        00000000 002160 000198 00  WA  0   0  8
-  [15] .rel__verbose     REL             00000000 003108 000220 08     22  14  4
-drivers/bluetooth/btusb.ko
-  [16] __verbose         PROGBITS        00000000 002ca8 0001c8 00  WA  0   0  8
-  [17] .rel__verbose     REL             00000000 003e44 000260 08     24  16  4
-drivers/bluetooth/bcm203x.ko
-  [15] __verbose         PROGBITS        00000000 000f78 000078 00  WA  0   0  8
-  [16] .rel__verbose     REL             00000000 001a04 0000a0 08     23  15  4
-drivers/bluetooth/hci_uart.ko
-  [17] __verbose         PROGBITS        00000000 004068 000510 00  WA  0   0  8
-  [18] .rel__verbose     REL             00000000 0060a4 0006c0 08     25  17  4
-drivers/bluetooth/bpa10x.ko
-  [14] __verbose         PROGBITS        00000000 0014f0 000120 00  WA  0   0  8
-  [15] .rel__verbose     REL             00000000 002130 000180 08     22  14  4
-drivers/connector/cn.ko
-drivers/cpufreq/cpufreq_userspace.ko
-  [16] __verbose         PROGBITS        00000000 0008b8 000078 00  WA  0   0  8
-  [17] .rel__verbose     REL             00000000 001258 0000a0 08     24  16  4
-drivers/cpufreq/gx-suspmod.ko
-  [16] __verbose         PROGBITS        00000000 000f80 0000d8 00  WA  0   0  8
-  [17] .rel__verbose     REL             00000000 001ae8 000120 08     25  16  4
-drivers/cpufreq/cpufreq_ondemand.ko
-drivers/cpufreq/cpufreq_performance.ko
-  [14] __verbose         PROGBITS        00000000 000388 000018 00  WA  0   0  8
-  [15] .rel__verbose     REL             00000000 000a30 000020 08     22  14  4
+/* If you are writing a driver, please use dev_dbg instead */
+#if defined(DEBUG)
+#define pr_debug(fmt, ...) \
+	printk(KERN_DEBUG pr_fmt(fmt), ##__VA_ARGS__)
+#elif defined(CONFIG_DYNAMIC_DEBUG)
+/* dynamic_pr_debug() uses pr_fmt() internally so we don't need it here */
+#define pr_debug(fmt, ...) \
+	dynamic_pr_debug(fmt, ##__VA_ARGS__)
