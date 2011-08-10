@@ -1,38 +1,81 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: omap patches
-Date: Wed, 10 Aug 2011 05:37:07 -0700
-Message-ID: <20110810123707.GL1939@atomide.com>
-References: <20110801213006.GD22243@freya.fluff.org>
+From: Jim Cromie <jim.cromie@gmail.com>
+Subject: dynamic-debug not built into scx200_acb, scx200_i2c
+Date: Wed, 10 Aug 2011 15:06:49 -0600
+Message-ID: <CAJfuBxwq3xw3MZU01rwzg0NAnnxNoLrC2x0QXnj+2pD-6gkR4g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110801213006.GD22243-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+scx200_acb has several pr_debugs, but theyre not available via dynamic-debug
 
-Sorry for the delay, I've been on vacation.
+Ive been unable to figure out why.
+Any ideas ?
 
-* Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> [110802 01:01]:
-> Hi, should I have been queing these, or is someone else
-> dealing with the dependencies between the omap arch and
-> these driver updates?
+jimc@chumly:~/projects/lx/linux-2.6$ grep debug drivers/i2c/busses/scx200_*
+drivers/i2c/busses/scx200_acb.c:		pr_debug(NAME ": ACBCTL2 readback failed\n");
+drivers/i2c/busses/scx200_acb.c:		pr_debug(NAME ": disabled, but
+ACBCTL1=0x%02x\n",
+drivers/i2c/busses/scx200_acb.c:		pr_debug(NAME ": enabled, but NMINTE
+won't be set, "
+drivers/i2c/busses/scx200_acb.c:	pr_debug(NAME ": NatSemi SCx200
+ACCESS.bus Driver\n");
+drivers/i2c/busses/scx200_i2c.c:	pr_debug(NAME ": NatSemi SCx200 I2C Driver\n");
+drivers/i2c/busses/scx200_i2c.c:	pr_debug(NAME ": SCL=GPIO%02u,
+SDA=GPIO%02u\n", scl, sda);
 
-Yes please. The following fix should go in during the -rc
-cycle:
 
-https://patchwork.kernel.org/patch/878772/
+jimc@chumly:~/projects/lx/build-skc$ for k in `find drivers -name
+\*.ko`; do echo $k; readelf -S $k |grep __verbose; done
+drivers/i2c/busses/i2c-stub.ko
+drivers/i2c/busses/i2c-gpio.ko
+drivers/i2c/busses/scx200_i2c.ko
+drivers/i2c/busses/scx200_acb.ko
+drivers/i2c/muxes/gpio-i2cmux.ko
+drivers/i2c/i2c-mux.ko
+drivers/i2c/i2c-dev.ko
+  [15] __verbose         PROGBITS        00000000 0018c8 0000c0 00  WA  0   0  8
+  [16] .rel__verbose     REL             00000000 0024cc 000100 08     23  15  4
+drivers/i2c/i2c-core.ko
+  [24] __verbose         PROGBITS        00000000 003e58 000198 00  WA  0   0  8
+  [25] .rel__verbose     REL             00000000 0058c8 000220 08     32  24  4
 
-And then there's the i2c-omap.c series that you acked that
-no longer has dependencies to the arch/arm/*omap*/* code.
-So either I or Kevin will send a pull request for that for
-the next merge window after some minor updates so it merges
-cleanly.
 
-Regards,
-
-Tony
+drivers/gpio/nsc_gpio.ko
+  [18] __verbose         PROGBITS        00000000 000850 000090 00  WA  0   0  8
+  [19] .rel__verbose     REL             00000000 0011bc 0000c0 08     26  18  4
+drivers/gpio/pcf857x.ko
+  [14] __verbose         PROGBITS        00000000 000e80 000048 00  WA  0   0  8
+  [15] .rel__verbose     REL             00000000 001710 000060 08     22  14  4
+drivers/gpio/pc8736x_gpio.ko
+  [17] __verbose         PROGBITS        00000000 001140 0000a8 00  WA  0   0  8
+  [18] .rel__verbose     REL             00000000 001da0 0000e0 08     25  17  4
+drivers/gpio/scx200_gpio.ko
+drivers/bluetooth/bfusb.ko
+  [14] __verbose         PROGBITS        00000000 002160 000198 00  WA  0   0  8
+  [15] .rel__verbose     REL             00000000 003108 000220 08     22  14  4
+drivers/bluetooth/btusb.ko
+  [16] __verbose         PROGBITS        00000000 002ca8 0001c8 00  WA  0   0  8
+  [17] .rel__verbose     REL             00000000 003e44 000260 08     24  16  4
+drivers/bluetooth/bcm203x.ko
+  [15] __verbose         PROGBITS        00000000 000f78 000078 00  WA  0   0  8
+  [16] .rel__verbose     REL             00000000 001a04 0000a0 08     23  15  4
+drivers/bluetooth/hci_uart.ko
+  [17] __verbose         PROGBITS        00000000 004068 000510 00  WA  0   0  8
+  [18] .rel__verbose     REL             00000000 0060a4 0006c0 08     25  17  4
+drivers/bluetooth/bpa10x.ko
+  [14] __verbose         PROGBITS        00000000 0014f0 000120 00  WA  0   0  8
+  [15] .rel__verbose     REL             00000000 002130 000180 08     22  14  4
+drivers/connector/cn.ko
+drivers/cpufreq/cpufreq_userspace.ko
+  [16] __verbose         PROGBITS        00000000 0008b8 000078 00  WA  0   0  8
+  [17] .rel__verbose     REL             00000000 001258 0000a0 08     24  16  4
+drivers/cpufreq/gx-suspmod.ko
+  [16] __verbose         PROGBITS        00000000 000f80 0000d8 00  WA  0   0  8
+  [17] .rel__verbose     REL             00000000 001ae8 000120 08     25  16  4
+drivers/cpufreq/cpufreq_ondemand.ko
+drivers/cpufreq/cpufreq_performance.ko
+  [14] __verbose         PROGBITS        00000000 000388 000018 00  WA  0   0  8
+  [15] .rel__verbose     REL             00000000 000a30 000020 08     22  14  4
