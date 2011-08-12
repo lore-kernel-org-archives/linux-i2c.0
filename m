@@ -1,43 +1,58 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH] i2c/tegra: I2C driver uses the suspend_noirq/resume_noirq
-Date: Fri, 12 Aug 2011 12:14:35 +0900
-Message-ID: <20110812031433.GE10218@opensource.wolfsonmicro.com>
-References: <1312586102-27907-1-git-send-email-swarren@nvidia.com>
- <CAMbhsRScgMaTZ2e3a__OgOrrA6HN9_dkGuuNGaEfP+iqRdjyNQ@mail.gmail.com>
- <20110806084805.GA18098@sirena.org.uk>
- <74CDBE0F657A3D45AFBB94109FB122FF04AEA24CC8@HQMAIL01.nvidia.com>
- <CAMbhsRR2+bhpjhGfUSt9M5tDk1EW2d70yC-tZy27zEgVqtkfSg@mail.gmail.com>
- <74CDBE0F657A3D45AFBB94109FB122FF04AEA24D09@HQMAIL01.nvidia.com>
- <CAMbhsRTVm+dUODDgqiekpTrrNnpo9trJNNvOQ2ETCNkneh-L-g@mail.gmail.com>
- <1313109916.19990.28.camel@finisterre.wolfsonmicro.main>
- <CAMbhsRShLvyc2XKJAL8PwR0Uj4Pnp9rVt7QyK1qAVxJ-R2PSdQ@mail.gmail.com>
+From: Guenter Roeck <guenter.roeck@ericsson.com>
+Subject: Re: How can I use two command bytes for a block read?
+Date: Fri, 12 Aug 2011 07:29:51 -0700
+Message-ID: <20110812142951.GA23938@ericsson.com>
+References: <CAN=k24me3-OrpzHBww2J2_x62+iDtSRBTHwGH7pZ4RMqxSgpFA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <lm-sensors-bounces@lm-sensors.org>
 Content-Disposition: inline
-In-Reply-To: <CAMbhsRShLvyc2XKJAL8PwR0Uj4Pnp9rVt7QyK1qAVxJ-R2PSdQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Colin Cross <ccross-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAN=k24me3-OrpzHBww2J2_x62+iDtSRBTHwGH7pZ4RMqxSgpFA@mail.gmail.com>
+List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
+List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
+List-Post: <mailto:lm-sensors@lm-sensors.org>
+List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
+List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
+	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
+Sender: lm-sensors-bounces@lm-sensors.org
+Errors-To: lm-sensors-bounces@lm-sensors.org
+To: Wayne Tams <wayne.tams@gmail.com>
+Cc: linux-i2c@vger.kernel.org, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 11, 2011 at 07:59:27PM -0700, Colin Cross wrote:
-> On Thu, Aug 11, 2011 at 5:45 PM, Mark Brown
+On Fri, Aug 12, 2011 at 05:21:15AM -0400, Wayne Tams wrote:
+> Hi,
+> 
+> I am having a little bother interfacing with a device that requires two command
+> bytes for both reads and writes. I can perform a successful write using I2C
+> writes but I would rather use the user-space i2c_smbus_ functions from
+> i2c-dev.h. In the i2c-dev documentation (http://lxr.free-electrons.com/source/
+> Documentation/i2c/smbus-protocol?v=2.6.35;a=arm#L225) there is a mention of a
+> two byte command block read but there does not appear to be any supporting
+> function in i2c-dev.h. Is there a patch available to add this functionality or
+> could there be another approach?
+> 
+> Just to clarify I need my smbus read transaction to look like this:
+> 
+> 
+> 
+>  S Addr Wr [A] Comm1 [A] Comm2 [A] S Addr Rd [A] [Data] A [Data] A ... A [Data] NA P
+> 
+> Thanks
+> 
+> Wayne
 
-> > For example with ASoC we'd sort all the components before the ASoC card
-> > without regard for their bus dependencies or any other dependencies they
-> > have (eg, their regulators). Since the ASoC card is a platform device
-> > it's likely to have registered early with no regard for where the buses
-> > the card needs are registered. I'd expect there's a reasonable chance
-> > it'll actually make things worse in the short term.
+Wrong mailing list. Try linux-i2c@vger.kernel.org (copied).
 
-> You can't just move everything after the card, you have to move
-> everything after the last device that was probed, and it only works if
-> nothing depends on any of the devices that are moved.
+As a general hint, eeprom drivers such as drivers/misc/eeprom/at24.c do this;
+you might want to have a look.
 
-Sorry, I said that the wrong way round due to trying to reply quickly -
-the card would be the thing that moves since that's the thing that
-actually does the suspend but we've *no* idea which device we need to
-move it after.  Since all the function does is a direct move after or
-before a single device all we can do is pick one and pray that it's the
-right device.
+Guenter
+
+
+_______________________________________________
+lm-sensors mailing list
+lm-sensors@lm-sensors.org
+http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
