@@ -1,118 +1,40 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: fix possible race condition after tx
-Date: Fri, 12 Aug 2011 01:46:09 +0100
-Message-ID: <20110812004609.GD19115@trinity.fluff.org>
-References: <1313093946-24559-1-git-send-email-dianders@chromium.org>
+Subject: Re: [PATCH 0/2] lost i2c-nomadik patches
+Date: Fri, 12 Aug 2011 01:46:27 +0100
+Message-ID: <20110812004627.GE19115@trinity.fluff.org>
+References: <1312913828-8229-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1313093946-24559-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1312913828-8229-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 11, 2011 at 01:19:06PM -0700, Doug Anderson wrote:
-> In tegra_i2c_fill_tx_fifo, once we have finished pushing all the bytes
-> to the I2C hardware controller, the interrupt might happen before we
-> have updated i2c_dev->msg_buf_remaining at the end of the function.
-> Then, in tegra_i2c_isr, we will call again tegra_i2c_fill_tx_fifo
-> triggering weird behaviour. This has been shown to happen under real
-> conditions.
+On Tue, Aug 09, 2011 at 08:17:08PM +0200, Linus Walleij wrote:
+> From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 > 
-> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> These two must have been missed somewhere between the last merge
+> window and 3.1-rc1. If you think they are -rc material then by
+> all means please merge them, else we'll wait for the next merge
+> window...
 
-ok, it seems enough acks for this to make it in to the next i2c fixes
-pull I'll send at the weekend.
-
-> ---
->  drivers/i2c/busses/i2c-tegra.c |   46 +++++++++++++++++++++++++++------------
->  1 files changed, 32 insertions(+), 14 deletions(-)
+ok, will queue them for the weekend's fix push. thanks.
+ 
+> Linus Walleij (1):
+>   i2c-nomadik: fix kerneldoc warning
 > 
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index 2440b74..9c5fb75 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -270,14 +270,30 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
->  
->  	/* Rounds down to not include partial word at the end of buf */
->  	words_to_transfer = buf_remaining / BYTES_PER_FIFO_WORD;
-> -	if (words_to_transfer > tx_fifo_avail)
-> -		words_to_transfer = tx_fifo_avail;
->  
-> -	i2c_writesl(i2c_dev, buf, I2C_TX_FIFO, words_to_transfer);
-> -
-> -	buf += words_to_transfer * BYTES_PER_FIFO_WORD;
-> -	buf_remaining -= words_to_transfer * BYTES_PER_FIFO_WORD;
-> -	tx_fifo_avail -= words_to_transfer;
-> +	/* It's very common to have < 4 bytes, so optimize that case. */
-> +	if (words_to_transfer) {
-> +		if (words_to_transfer > tx_fifo_avail)
-> +			words_to_transfer = tx_fifo_avail;
-> +
-> +		/*
-> +		 * Update state before writing to FIFO.  If this casues us
-> +		 * to finish writing all bytes (AKA buf_remaining goes to 0) we
-> +		 * have a potential for an interrupt (PACKET_XFER_COMPLETE is
-> +		 * not maskable).  We need to make sure that the isr sees
-> +		 * buf_remaining as 0 and doesn't call us back re-entrantly.
-> +		 */
-> +		buf_remaining -= words_to_transfer * BYTES_PER_FIFO_WORD;
-> +		tx_fifo_avail -= words_to_transfer;
-> +		i2c_dev->msg_buf_remaining = buf_remaining;
-> +		i2c_dev->msg_buf = buf +
-> +			words_to_transfer * BYTES_PER_FIFO_WORD;
-> +		barrier();
-> +
-> +		i2c_writesl(i2c_dev, buf, I2C_TX_FIFO, words_to_transfer);
-> +
-> +		buf += words_to_transfer * BYTES_PER_FIFO_WORD;
-> +	}
->  
->  	/*
->  	 * If there is a partial word at the end of buf, handle it manually to
-> @@ -287,14 +303,15 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
->  	if (tx_fifo_avail > 0 && buf_remaining > 0) {
->  		BUG_ON(buf_remaining > 3);
->  		memcpy(&val, buf, buf_remaining);
-> +
-> +		/* Again update before writing to FIFO to make sure isr sees. */
-> +		i2c_dev->msg_buf_remaining = 0;
-> +		i2c_dev->msg_buf = NULL;
-> +		barrier();
-> +
->  		i2c_writel(i2c_dev, val, I2C_TX_FIFO);
-> -		buf_remaining = 0;
-> -		tx_fifo_avail--;
->  	}
->  
-> -	BUG_ON(tx_fifo_avail > 0 && buf_remaining > 0);
-> -	i2c_dev->msg_buf_remaining = buf_remaining;
-> -	i2c_dev->msg_buf = buf;
->  	return 0;
->  }
->  
-> @@ -411,9 +428,10 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
->  			tegra_i2c_mask_irq(i2c_dev, I2C_INT_TX_FIFO_DATA_REQ);
->  	}
->  
-> -	if ((status & I2C_INT_PACKET_XFER_COMPLETE) &&
-> -			!i2c_dev->msg_buf_remaining)
-> +	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
-> +		BUG_ON(i2c_dev->msg_buf_remaining);
->  		complete(&i2c_dev->msg_complete);
-> +	}
->  
->  	i2c_writel(i2c_dev, status, I2C_INT_STATUS);
->  	if (i2c_dev->is_dvc)
+> srinidhi kasagar (1):
+>   i2c-nomadik: Do not use _interruptible_ variant call
+> 
+>  drivers/i2c/busses/i2c-nomadik.c |    9 +++++----
+>  1 files changed, 5 insertions(+), 4 deletions(-)
+> 
 > -- 
-> 1.7.3.1
+> 1.7.3.2
 > 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
 Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
