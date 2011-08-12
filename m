@@ -1,146 +1,81 @@
-From: Wayne Tams <wayne.tams@gmail.com>
-Subject: Re: How can I use two command bytes for a block read?
-Date: Fri, 12 Aug 2011 15:53:50 +0100
-Message-ID: <CAN=k24=VfcbWZqWLo_yaaSs-GKrMAAdU=SH1G060ABG-4RE_gw@mail.gmail.com>
-References: <CAN=k24me3-OrpzHBww2J2_x62+iDtSRBTHwGH7pZ4RMqxSgpFA@mail.gmail.com>
-	<20110812142951.GA23938@ericsson.com>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: Tegra I2C driver compilation failure (was: RE: [PATCH] dt: add
+	empty of_get_property for non-dt)
+Date: Fri, 12 Aug 2011 14:08:52 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF04AEA24F41@HQMAIL01.nvidia.com>
+References: <74CDBE0F657A3D45AFBB94109FB122FF04A0687289@HQMAIL01.nvidia.com>
+ <20110812004732.GF19115@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4117647274644727637=="
-Return-path: <lm-sensors-bounces@lm-sensors.org>
-In-Reply-To: <20110812142951.GA23938@ericsson.com>
-List-Unsubscribe: <http://lists.lm-sensors.org/mailman/options/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=unsubscribe>
-List-Archive: <http://lists.lm-sensors.org/pipermail/lm-sensors/>
-List-Post: <mailto:lm-sensors@lm-sensors.org>
-List-Help: <mailto:lm-sensors-request@lm-sensors.org?subject=help>
-List-Subscribe: <http://lists.lm-sensors.org/mailman/listinfo/lm-sensors>,
-	<mailto:lm-sensors-request@lm-sensors.org?subject=subscribe>
-Sender: lm-sensors-bounces@lm-sensors.org
-Errors-To: lm-sensors-bounces@lm-sensors.org
-To: Guenter Roeck <guenter.roeck@ericsson.com>
-Cc: linux-i2c@vger.kernel.org, "lm-sensors@lm-sensors.org" <lm-sensors@lm-sensors.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20110812004732.GF19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "marc.zyngier-5wv7dgnIgG8@public.gmane.org" <marc.zyngier-5wv7dgnIgG8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============4117647274644727637==
-Content-Type: multipart/alternative; boundary=0016e6471b281196e004aa5016c3
-
---0016e6471b281196e004aa5016c3
-Content-Type: text/plain; charset=ISO-8859-1
-
-Oops apologies, though your advice helped, problem solved.
-
-Thanks
-
-Wayne
-
-On Fri, Aug 12, 2011 at 3:29 PM, Guenter Roeck
-<guenter.roeck@ericsson.com>wrote:
-
-> On Fri, Aug 12, 2011 at 05:21:15AM -0400, Wayne Tams wrote:
-> > Hi,
+Ben Dooks wrote at Thursday, August 11, 2011 6:48 PM:
+> On Tue, Aug 09, 2011 at 09:21:31AM -0700, Stephen Warren wrote:
+> > Stephen Warren wrote at Monday, August 08, 2011 1:26 PM:
+> > > Rob Herring wrote at Sunday, August 07, 2011 8:38 AM:
+> > > > On 08/05/2011 05:50 PM, Stephen Warren wrote:
+> > > > > The patch adds empty function of_get_property for non-dt build, so that
+> > > > > drivers migrating to dt can save some '#ifdef CONFIG_OF'.
+> > > > >
+> > > > > This also fixes the current Tegra compile problem in linux-next.
+> > > >
+> > > > You could just use of_property_read_u32 in the driver. It already has
+> > > > empty version and will simplify the driver code some.
+> > >
+> > > Yes, that would also work.
+> > >
+> > > Grant, Ben, do you have a preference for which option to choose?
 > >
-> > I am having a little bother interfacing with a device that requires two
-> command
-> > bytes for both reads and writes. I can perform a successful write using
-> I2C
-> > writes but I would rather use the user-space i2c_smbus_ functions from
-> > i2c-dev.h. In the i2c-dev documentation (
-> http://lxr.free-electrons.com/source/
-> > Documentation/i2c/smbus-protocol?v=2.6.35;a=arm#L225) there is a mention
-> of a
-> > two byte command block read but there does not appear to be any
-> supporting
-> > function in i2c-dev.h. Is there a patch available to add this
-> functionality or
-> > could there be another approach?
+> > Well, all three possible fixes have been posted now:
 > >
-> > Just to clarify I need my smbus read transaction to look like this:
+> > Add ifdef to i2c driver:
+> > http://www.spinics.net/lists/linux-tegra/msg01720.html
 > >
+> > Implement empty of_get_property:
+> > http://www.spinics.net/lists/linux-tegra/msg01881.html
 > >
+> > Switch i2c driver to use of_property_read_u32:
+> > http://permalink.gmane.org/gmane.linux.ports.arm.kernel/127807
 > >
-> >  S Addr Wr [A] Comm1 [A] Comm2 [A] S Addr Rd [A] [Data] A [Data] A ... A
-> [Data] NA P
-> >
-> > Thanks
-> >
-> > Wayne
->
-> Wrong mailing list. Try linux-i2c@vger.kernel.org (copied).
->
-> As a general hint, eeprom drivers such as drivers/misc/eeprom/at24.c do
-> this;
-> you might want to have a look.
->
-> Guenter
->
->
+> > Ben, please could you please pick one of the changes and apply it, so
+> > that linux-next compiles for Tegra? Thanks!
+> 
+> I'll look into this at the weekend, of_property_read_u32 is probably
+> a better function to call.
 
---0016e6471b281196e004aa5016c3
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Ben,
 
-Oops apologies, though your advice helped, problem solved.<div><br></div><d=
-iv>Thanks</div><div><br></div><div>Wayne<br><br><div class=3D"gmail_quote">=
-On Fri, Aug 12, 2011 at 3:29 PM, Guenter Roeck <span dir=3D"ltr">&lt;<a hre=
-f=3D"mailto:guenter.roeck@ericsson.com">guenter.roeck@ericsson.com</a>&gt;<=
-/span> wrote:<br>
+Grant said he has merged the following solution:
 
-<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
-x #ccc solid;padding-left:1ex;"><div><div></div><div class=3D"h5">On Fri, A=
-ug 12, 2011 at 05:21:15AM -0400, Wayne Tams wrote:<br>
-&gt; Hi,<br>
-&gt;<br>
-&gt; I am having a little bother interfacing with a device that requires tw=
-o command<br>
-&gt; bytes for both reads and writes. I can perform a successful write usin=
-g I2C<br>
-&gt; writes but I would rather use the user-space i2c_smbus_ functions from=
-<br>
-&gt; i2c-dev.h. In the i2c-dev documentation (<a href=3D"http://lxr.free-el=
-ectrons.com/source/" target=3D"_blank">http://lxr.free-electrons.com/source=
-/</a><br>
-&gt; Documentation/i2c/smbus-protocol?v=3D2.6.35;a=3Darm#L225) there is a m=
-ention of a<br>
-&gt; two byte command block read but there does not appear to be any suppor=
-ting<br>
-&gt; function in i2c-dev.h. Is there a patch available to add this function=
-ality or<br>
-&gt; could there be another approach?<br>
-&gt;<br>
-&gt; Just to clarify I need my smbus read transaction to look like this:<br=
->
-&gt;<br>
-&gt;<br>
-&gt;<br>
-&gt; =A0S Addr Wr [A] Comm1 [A] Comm2 [A] S Addr Rd [A] [Data] A [Data] A .=
-.. A [Data] NA P<br>
-&gt;<br>
-&gt; Thanks<br>
-&gt;<br>
-&gt; Wayne<br>
-<br>
-</div></div>Wrong mailing list. Try <a href=3D"mailto:linux-i2c@vger.kernel=
-.org">linux-i2c@vger.kernel.org</a> (copied).<br>
-<br>
-As a general hint, eeprom drivers such as drivers/misc/eeprom/at24.c do thi=
-s;<br>
-you might want to have a look.<br>
-<font color=3D"#888888"><br>
-Guenter<br>
-<br>
-</font></blockquote></div><br></div>
+> > Implement empty of_get_property:
+> > http://www.spinics.net/lists/linux-tegra/msg01881.html
 
---0016e6471b281196e004aa5016c3--
+... although it's not in linux-next yet.
 
+If you do still want to go ahead with using of_property_read_u32, the
+patch to do that will need a fixup to avoid the unsafe cast; let me know
+if you want me to update the patch for that or not.
 
---===============4117647274644727637==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Related, here's the list of outstanding patches for i2c-tegra.c that I'm
+aware of:
 
-_______________________________________________
-lm-sensors mailing list
-lm-sensors@lm-sensors.org
-http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
---===============4117647274644727637==--
+[PATCH] i2c: Tegra: Add of_match_table
+http://www.spinics.net/lists/linux-i2c/msg05898.html
+
+[PATCH] i2c: tegra: add I2C_FUNC_SMBUS_EMUL to adapter functionality
+http://www.spinics.net/lists/linux-i2c/msg05396.html
+
+[PATCH] i2c: tegra: fix possible race condition after tx
+http://www.spinics.net/lists/linux-i2c/msg06103.html
+
+Hope this helps! Thanks.
+
+-- 
+nvpublic
