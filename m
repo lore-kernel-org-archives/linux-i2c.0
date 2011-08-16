@@ -1,65 +1,60 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: tegra: Check for overflow errors with BUG_ON.
-Date: Tue, 16 Aug 2011 09:34:40 +0300
-Message-ID: <20110816063439.GB2223@legolas.emea.dhcp.ti.com>
-References: <1313434172-18319-1-git-send-email-dianders@chromium.org>
- <1313458336-31456-1-git-send-email-dianders@chromium.org>
-Reply-To: balbi-l0cyMroinI0@public.gmane.org
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: I2C_ELEKTOR should depend on HAS_IOPORT
+Date: Tue, 16 Aug 2011 19:50:33 +0200
+Message-ID: <20110816195033.014f302b@endymion.delvare>
+References: <1312802446-19154-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="K8nIJk4ghYZn606h"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1313458336-31456-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1312802446-19154-1-git-send-email-geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
+Cc: Hans Berglund <hb-wBUg6WsUcUgXWF+eFR7m5Q@public.gmane.org>, Jonas Bonn <jonas-A9uVI2HLR7kOP4wsBPIw7w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Geert,
 
---K8nIJk4ghYZn606h
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Aug 15, 2011 at 06:32:16PM -0700, Doug Anderson wrote:
-> This change doesn't fix any known problems but turns
-> on the overflow detection feature of the i2c controller
-> in the hopes of flushing out any current (or future)
-> bugs in the i2c driver.
+On Mon,  8 Aug 2011 13:20:46 +0200, Geert Uytterhoeven wrote:
+> On m68k, I get:
 >=20
-> Inspired by a change on nvidia's git server:
->   http://nv-tegra.nvidia.com/gitweb/?p=3Dlinux-2.6.git;a=3Dcommit;h=3D266=
-d1b7397284505e55d06254b497cb32be07b69
+> drivers/i2c/busses/i2c-elektor.c: In function =E2=80=98pcf_isa_init=E2=
+=80=99:
+> drivers/i2c/busses/i2c-elektor.c:153: error: implicit declaration of =
+function =E2=80=98ioport_map=E2=80=99
+> drivers/i2c/busses/i2c-elektor.c:153: warning: assignment makes point=
+er from integer without a cast
+> drivers/i2c/busses/i2c-elektor.c: In function =E2=80=98elektor_probe=E2=
+=80=99:
+> drivers/i2c/busses/i2c-elektor.c:287: error: implicit declaration of =
+function =E2=80=98ioport_unmap=E2=80=99
 >=20
-> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-
-Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-
+> Since commit 82ed223c264def2b15ee4bec2e8c3048092ceb5f ("iomap: make I=
+OPORT/PCI
+> mapping functions conditional"), ioport_map() is only available on pl=
+atforms
+> that set HAS_IOPORT.
+>=20
+> Signed-off-by: Geert Uytterhoeven <geert-Td1EMuHUCqxL1ZNQvxDV9g@public.gmane.org>
 > ---
-> This takes Felipe Balbi's suggestion of making the overflow
-> error non-fatal.
+>  drivers/i2c/busses/Kconfig |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 646068e..d1fc5cf 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -789,7 +789,7 @@ config I2C_ACORN
+> =20
+>  config I2C_ELEKTOR
+>  	tristate "Elektor ISA card"
+> -	depends on ISA && BROKEN_ON_SMP
+> +	depends on ISA && HAS_IOPORT && BROKEN_ON_SMP
+>  	select I2C_ALGOPCF
+>  	help
+>  	  This supports the PCF8584 ISA bus I2C adapter.  Say Y if you own
 
-the WARN() was very nice idea, I was thinking of just returning an error
-to the client, but the adition of WARN() will make it really bold ;-)
+How can ISA be set if HAS_IOPORT is not? This shouldn't be allowed.
 
 --=20
-balbi
-
---K8nIJk4ghYZn606h
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAEBAgAGBQJOSg9/AAoJEAv8Txj19kN12jkIAIdVeYQmxKoZcQTedYVoImCV
-YdDBXPLi6q7Sw4/+0czLcOcWCo4GNXdO41uEayjfsgd0rZEzHKODLOos2tXjJDvp
-tLHG958miHMPQYL6YKTdrwmw1yafP/QncYC/BMTVw286TJO3dyJfdsThTSfVvjan
-VbiTkPkxUgj7RGXiFBbQzdjWFOPHovswzAMtOWCb6J0sMsq6bPbhuTTNdcd4fE4f
-0g8CDbnHTHd1vAHivrZQvLCCoJcVOmppPY5ob9CF1UMpG7mtmc+1glW7hyQDXex7
-p8IM+4huaRkh38wtDJBmkBDyzlg+S4rowgLwnMs5TqSAkflrMJ7j3kiTMNnRYuI=
-=3mdt
------END PGP SIGNATURE-----
-
---K8nIJk4ghYZn606h--
+Jean Delvare
