@@ -1,75 +1,86 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH] i2c: tegra: Check for overflow errors with BUG_ON.
-Date: Mon, 15 Aug 2011 23:03:50 +0300
-Message-ID: <20110815200349.GA2616@legolas.emea.dhcp.ti.com>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH v2] i2c: tegra: Check for overflow errors with BUG_ON.
+Date: Mon, 15 Aug 2011 18:32:16 -0700
+Message-ID: <1313458336-31456-1-git-send-email-dianders@chromium.org>
 References: <1313434172-18319-1-git-send-email-dianders@chromium.org>
- <20110815191745.GA7178@legolas.emea.dhcp.ti.com>
- <CAD=FV=Xd67iw=GXV9i4O5LKnJd20=BkYyfVuxPgxQ5GZRJEy4A@mail.gmail.com>
-Reply-To: balbi@ti.com
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAD=FV=Xd67iw=GXV9i4O5LKnJd20=BkYyfVuxPgxQ5GZRJEy4A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: balbi@ti.com, Ben Dooks <ben-linux@fluff.org>, Stephen Warren <swarren@nvidia.com>, Vincent Palatin <vpalatin@chromium.org>, Rhyland Klein <rklein@nvidia.com>, Jean Delvare <khali@linux-fr.org>, Rakesh Iyer <riyer@nvidia.com>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1313434172-18319-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Rakesh Iyer <riyer-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+This change doesn't fix any known problems but turns
+on the overflow detection feature of the i2c controller
+in the hopes of flushing out any current (or future)
+bugs in the i2c driver.
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Inspired by a change on nvidia's git server:
+  http://nv-tegra.nvidia.com/gitweb/?p=linux-2.6.git;a=commit;h=266d1b7397284505e55d06254b497cb32be07b69
 
-HI,
+Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+---
+This takes Felipe Balbi's suggestion of making the overflow
+error non-fatal.
 
-On Mon, Aug 15, 2011 at 12:52:36PM -0700, Doug Anderson wrote:
-> Felipe,
->=20
-> On Mon, Aug 15, 2011 at 12:17 PM, Felipe Balbi <balbi@ti.com> wrote:
-> > so due to a FIFO overflow you lock up the whole system ? Can't you e.g.
-> > reset the controller and reconfigure it rather than locking up the
-> > system ?
->=20
-> Certainly we could try to be more proactive and reset / retry / return
-> the error to the client.  However, since the only expected situation
-> where this BUG_ON should hit is due to a bug in this driver itself
-> (AKA: i2c clients shouldn't be able to do anything to cause the BUG_ON
-> to hit), that seems like a lot of added complexity.
+ drivers/i2c/busses/i2c-tegra.c |   17 ++++++++++++++---
+ 1 files changed, 14 insertions(+), 3 deletions(-)
 
-so at least just pass an error to the client, but hanging the entire
-system seems a bit too much, dont you think ?
-
-> Also: if there is an arbitrary software bug that causing an overflow
-> condition to occur, I'm not sure how stable the system will be.
-> Specifically, the i2c controller is used (among other things) to talk
-> to the PMU and adjust voltages in the system.  If we just sent it a
-> random command, I'd rather report the bug right away so we don't get
-> hard to find/reproduce failures in other parts of the system.
-
-that's a good point, I still think that e.g. making a cellphone
-unresponsive until a watchdog reset triggers just because you got a FIFO
-overflow on the I2C controller is too much.
-
---=20
-balbi
-
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQEcBAEBAgAGBQJOSXukAAoJEAv8Txj19kN11pQIAJlIJw+kHOicIT917XAJFY6E
-ozSUe9rSBTkr7/jyBub7VGHWyMw5dJE6QvOOyuyl0Z+BMjcmEwRqTdRuX1rIM0AD
-RHCh5BsPa16mnO9v3CVCt+Jn0Cu96j+iNM730rduUMc1cJRDDA0cCLjwBye4DCUp
-u+7p+QfilZHuIsnlnuSOjMLdglE3FUszlhbcr58YObtc8F+tmqNuaNJdBtB6ZrHI
-vbX5xCXOV9TPm5ZBCDa+vvWv4wVbWd7qxUJKKjs1+eGXvMG1E4MjiE6V+6D5hwsc
-DJAumuKbeYPytN04liYsvhZIDrjzb9qolxMro+JN3NjdIPMPNxkBK2g/R3Rld8w=
-=WPkP
------END PGP SIGNATURE-----
-
---zhXaljGHf11kAtnf--
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 2440b74..34634b7 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -83,6 +83,7 @@
+ #define I2C_ERR_NO_ACK				0x01
+ #define I2C_ERR_ARBITRATION_LOST		0x02
+ #define I2C_ERR_UNKNOWN_INTERRUPT		0x04
++#define I2C_ERR_FIFO_OVERFLOW			0x08
+ 
+ #define PACKET_HEADER0_HEADER_SIZE_SHIFT	28
+ #define PACKET_HEADER0_PACKET_ID_SHIFT		16
+@@ -367,7 +368,8 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ {
+ 	u32 status;
+-	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
++	const u32 status_err = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST |
++		I2C_INT_TX_FIFO_OVERFLOW;
+ 	struct tegra_i2c_dev *i2c_dev = dev_id;
+ 
+ 	status = i2c_readl(i2c_dev, I2C_INT_STATUS);
+@@ -389,6 +391,14 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
+ 	}
+ 
+ 	if (unlikely(status & status_err)) {
++		/*
++		 * Overflow should be impossible unless we've got a
++		 * bug in the driver, but check anyway.
++		 */
++		if (status & I2C_INT_TX_FIFO_OVERFLOW) {
++			WARN_ON(1);
++			i2c_dev->msg_err |= I2C_ERR_FIFO_OVERFLOW;
++		}
+ 		if (status & I2C_INT_NO_ACK)
+ 			i2c_dev->msg_err |= I2C_ERR_NO_ACK;
+ 		if (status & I2C_INT_ARBITRATION_LOST)
+@@ -423,7 +433,7 @@ err:
+ 	/* An error occurred, mask all interrupts */
+ 	tegra_i2c_mask_irq(i2c_dev, I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST |
+ 		I2C_INT_PACKET_XFER_COMPLETE | I2C_INT_TX_FIFO_DATA_REQ |
+-		I2C_INT_RX_FIFO_DATA_REQ);
++		I2C_INT_RX_FIFO_DATA_REQ | I2C_INT_TX_FIFO_OVERFLOW);
+ 	i2c_writel(i2c_dev, status, I2C_INT_STATUS);
+ 	if (i2c_dev->is_dvc)
+ 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
+@@ -473,7 +483,8 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	if (!(msg->flags & I2C_M_RD))
+ 		tegra_i2c_fill_tx_fifo(i2c_dev);
+ 
+-	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
++	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST |
++		I2C_INT_TX_FIFO_OVERFLOW;
+ 	if (msg->flags & I2C_M_RD)
+ 		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
+ 	else if (i2c_dev->msg_buf_remaining)
+-- 
+1.7.3.1
