@@ -1,121 +1,441 @@
-From: Marc Dietich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [RFC PATCH] add slave mode support to tegra's i2c controller
-Date: Thu, 18 Aug 2011 09:49:04 +0200
-Message-ID: <201108180949.05586.marvin24@gmx.de>
-References: <201108172101.27170.marvin24@gmx.de> <74CDBE0F657A3D45AFBB94109FB122FF04AF6F3066@HQMAIL01.nvidia.com>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF04AF6F3066-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org" <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+From: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] I2C: SiByte: Convert the driver to make use of interrupts
+Date: Thu, 18 Aug 2011 19:43:11 -0400
+Message-ID: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Stephen,
+From: Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
 
-> Marc Dietrich wrote at Wednesday, August 17, 2011 1:01 PM:
-> > the patch below adds slave mode to tegra's i2c controller. I tried to
-> > make it as small as possible. It is needed to allow the nvec driver to
-> > deligate the initialization to the i2c-tegra driver as part of its
-> > cleanup. Patch is tested with our version of nvec. Patch is against
-> > arm-soc + boards-3.2. Please review and consider it for merge.
-> 
-> Forgive my lack of familiarity with the Tegra HW, but is the slave
-> controller completely autonomous? I'm curious what data slave transactions
-> access, since there's no actual code here to respond to transactions
-> directed at the slave address and provide data in response.
-> 
-> Or put another way, is this patch really adding slave mode support, or
-> is it just providing a way to program the slave controller's I2C address?
+This is a rewrite of large parts of the driver mainly so that it uses
+SMBus interrupts to offload the CPU from busy-waiting on status inputs.
+As a part of the overhaul of the init and exit calls, all accesses to the
+hardware got converted to use accessory functions via an ioremap() cookie.
 
-well, documentation still hasn't spontanously materialized here, so I cannot 
-answer you questions regarding hw. What I understood is that slave and master 
-sit on the same bus, so either of them needs to be shut down. Sorry for my poor 
-wording.
+[mattst88] Added BCM1480 interrupts and rebased minimally.
 
-We (the AC100 team) wrote a simple driver for dealing with the communication. 
-You may find the latest version at 
-http://gitorious.org/~marvin24/ac100/marvin24s-kernel/trees/chromeos-
-ac100-2.6.38/drivers/staging/nvec which I'm trying to push to mainline kernel. 
-The changes to i2c-tegra are required to make some progress on our side. I'm 
-also planing to reuse more of i2c-tegra init stuff.
+Signed-off-by: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+---
+This is the second version of this patch that I've sent. This version
+fixes the problem with the ENXIO return.
 
-> Some comments below.
-> 
-> > diff --git a/drivers/i2c/busses/i2c-tegra.c
-> > b/drivers/i2c/busses/i2c-tegra.c
-> 
-> ...
-> 
-> > -struct tegra_i2c_dev {
-> > -	struct device *dev;
-> > -	struct i2c_adapter adapter;
-> 
-> ...
-> 
-> > -};
-> 
-> Nothing got added that needed that struct definition in a header file;
-> was there meant to be a new file included in the patch that implements
-> the slave driver (and makefile and perhaps Kconfig changes?)
+ drivers/i2c/busses/i2c-sibyte.c |  296 +++++++++++++++++++++++++++++---------
+ 1 files changed, 226 insertions(+), 70 deletions(-)
 
-it is added, but not to i2c-tegra, but nvec.c in drivers/staging/nvec. I think 
-it's better to split these functions because a master can be anything so there 
-is no common protocol which can be implemented in i2c-tegra.
-
-> 
-> > +	int slave_addr = i2c_dev->is_slave ? 0xfc : i2c_dev->slave_addr;
-> 
-> Isn't that backwards; don't you want to hard-code the slave address as 0xfc
-> only when the controller isn't intended to be used in slave mode?
-
-Doh, yes. I think I just didn't noticed in my testing because we still reprogram 
-the slave address in our init (which should be removed in the near future).
-
-> >  	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
-> >  	if (pdata) {
-> >  	
-> >  		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
-> > 
-> > +		i2c_dev->is_slave = pdata->is_slave;
-> > +		i2c_dev->slave_addr = pdata->slave_addr;
-> 
-> Maybe store a pointer to pdata itself rather than having to copy this
-> manually; it'll be one less thing to worry about when adding fields to
-> pdata.
-
-well, pdata is normally freed after init so we cannot use it. The current code 
-in chromeos also adds a slave_addr so I just bodly added it here. It won't have 
-any effect on the board files because all field are normally initilized with 
-zeros which is a fine default.
-
-> 
-> ...
-> 
-> > -	ret = request_irq(i2c_dev->irq, tegra_i2c_isr, 0, pdev->name, i2c_dev);
-> > -	if (ret) {
-> > -		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
-> > -		goto err_free;
-> > +	if (!i2c_dev->is_slave) {
-> > +		ret = request_irq(i2c_dev->irq, tegra_i2c_isr, 0, pdev->name,
-> > i2c_dev); +		if (ret) {
-> > +			dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
-> > +			goto err_free;
-> > +		}
-> > 
-> >  	}
-> 
-> This appears to make master and slave mode mutually exclusive. Doesn't
-> the HW allow use of both controllers on the same bus?
-
-I cannot think of how both modes can exist at the same time (maybe isr can 
-detect what was meant), but well, as I said already, I'm also not familar with 
-the hw. But you may be right that the i2c master mode should be disabled somehow 
-if we are in slave mode (like slave is normally disabled via I2C_SL_CNFG_NACK). 
-
-Thanks
-
-Marc
+diff --git a/drivers/i2c/busses/i2c-sibyte.c b/drivers/i2c/busses/i2c-sibyte.c
+index 0fe505d..d2f1cf1 100644
+--- a/drivers/i2c/busses/i2c-sibyte.c
++++ b/drivers/i2c/busses/i2c-sibyte.c
+@@ -2,6 +2,7 @@
+  * Copyright (C) 2004 Steven J. Hill
+  * Copyright (C) 2001,2002,2003 Broadcom Corporation
+  * Copyright (C) 1995-2000 Simon G. Vogl
++ * Copyright (C) 2008 Maciej W. Rozycki
+  *
+  * This program is free software; you can redistribute it and/or
+  * modify it under the terms of the GNU General Public License
+@@ -18,104 +19,164 @@
+  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+  */
+ 
++#include <linux/errno.h>
++#include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+ #include <linux/i2c.h>
++#include <linux/param.h>
++#include <linux/spinlock.h>
++#include <linux/types.h>
++#include <linux/wait.h>
+ #include <linux/io.h>
++#include <asm/sibyte/sb1250_int.h>
+ #include <asm/sibyte/sb1250_regs.h>
+ #include <asm/sibyte/sb1250_smbus.h>
++#include <asm/sibyte/bcm1480_int.h>
+ 
+ 
+ struct i2c_algo_sibyte_data {
+-	void *data;		/* private data */
+-	int   bus;		/* which bus */
+-	void *reg_base;		/* CSR base */
++	wait_queue_head_t	wait;		/* IRQ queue */
++	void __iomem		*csr;		/* mapped CSR handle */
++	phys_t			base;		/* physical CSR base */
++	char			*name;		/* IRQ handler name */
++	spinlock_t		lock;		/* atomiser */
++	int			irq;		/* IRQ line */
++	int			status;		/* IRQ status */
+ };
+ 
+-/* ----- global defines ----------------------------------------------- */
+-#define SMB_CSR(a,r) ((long)(a->reg_base + r))
+ 
++static irqreturn_t i2c_sibyte_interrupt(int irq, void *dev_id)
++{
++	struct i2c_adapter *i2c_adap = dev_id;
++	struct i2c_algo_sibyte_data *adap = i2c_adap->algo_data;
++	void __iomem *csr = adap->csr;
++	u8 status;
++
++	/*
++	 * Ugh, no way to detect the finish interrupt,
++	 * but if busy it is obviously not one.
++	 */
++	status = __raw_readq(csr + R_SMB_STATUS);
++	if ((status & (M_SMB_ERROR | M_SMB_BUSY)) == M_SMB_BUSY)
++		return IRQ_NONE;
++
++	/*
++	 * Clear the error interrupt (write 1 to clear);
++	 * the finish interrupt was cleared by the read above.
++	 */
++	__raw_writeq(status, csr + R_SMB_STATUS);
++
++	/* Post the status. */
++	spin_lock(&adap->lock);
++	adap->status = status & (M_SMB_ERROR_TYPE | M_SMB_ERROR | M_SMB_BUSY);
++	wake_up(&adap->wait);
++	spin_unlock(&adap->lock);
++
++	return IRQ_HANDLED;
++}
+ 
+-static int smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
+-		      unsigned short flags, char read_write,
+-		      u8 command, int size, union i2c_smbus_data * data)
++static s32 i2c_sibyte_smbus_xfer(struct i2c_adapter *i2c_adap, u16 addr,
++				 unsigned short cflags,
++				 char read_write, u8 command, int size,
++				 union i2c_smbus_data *data)
+ {
+ 	struct i2c_algo_sibyte_data *adap = i2c_adap->algo_data;
++	void __iomem *csr = adap->csr;
++	unsigned long flags;
+ 	int data_bytes = 0;
+ 	int error;
+ 
+-	while (csr_in32(SMB_CSR(adap, R_SMB_STATUS)) & M_SMB_BUSY)
+-		;
++	spin_lock_irqsave(&adap->lock, flags);
++
++	if (adap->status < 0) {
++		error = -EIO;
++		goto out_unlock;
++	}
+ 
+ 	switch (size) {
+ 	case I2C_SMBUS_QUICK:
+-		csr_out32((V_SMB_ADDR(addr) |
+-			   (read_write == I2C_SMBUS_READ ? M_SMB_QDATA : 0) |
+-			   V_SMB_TT_QUICKCMD), SMB_CSR(adap, R_SMB_START));
++		__raw_writeq(V_SMB_ADDR(addr) |
++			     (read_write == I2C_SMBUS_READ ? M_SMB_QDATA : 0) |
++			     V_SMB_TT_QUICKCMD,
++			     csr + R_SMB_START);
+ 		break;
+ 	case I2C_SMBUS_BYTE:
+ 		if (read_write == I2C_SMBUS_READ) {
+-			csr_out32((V_SMB_ADDR(addr) | V_SMB_TT_RD1BYTE),
+-				  SMB_CSR(adap, R_SMB_START));
++			__raw_writeq(V_SMB_ADDR(addr) | V_SMB_TT_RD1BYTE,
++				     csr + R_SMB_START);
+ 			data_bytes = 1;
+ 		} else {
+-			csr_out32(V_SMB_CMD(command), SMB_CSR(adap, R_SMB_CMD));
+-			csr_out32((V_SMB_ADDR(addr) | V_SMB_TT_WR1BYTE),
+-				  SMB_CSR(adap, R_SMB_START));
++			__raw_writeq(V_SMB_CMD(command), csr + R_SMB_CMD);
++			__raw_writeq(V_SMB_ADDR(addr) | V_SMB_TT_WR1BYTE,
++				     csr + R_SMB_START);
+ 		}
+ 		break;
+ 	case I2C_SMBUS_BYTE_DATA:
+-		csr_out32(V_SMB_CMD(command), SMB_CSR(adap, R_SMB_CMD));
++		__raw_writeq(V_SMB_CMD(command), csr + R_SMB_CMD);
+ 		if (read_write == I2C_SMBUS_READ) {
+-			csr_out32((V_SMB_ADDR(addr) | V_SMB_TT_CMD_RD1BYTE),
+-				  SMB_CSR(adap, R_SMB_START));
++			__raw_writeq(V_SMB_ADDR(addr) | V_SMB_TT_CMD_RD1BYTE,
++				     csr + R_SMB_START);
+ 			data_bytes = 1;
+ 		} else {
+-			csr_out32(V_SMB_LB(data->byte),
+-				  SMB_CSR(adap, R_SMB_DATA));
+-			csr_out32((V_SMB_ADDR(addr) | V_SMB_TT_WR2BYTE),
+-				  SMB_CSR(adap, R_SMB_START));
++			__raw_writeq(V_SMB_LB(data->byte), csr + R_SMB_DATA);
++			__raw_writeq(V_SMB_ADDR(addr) | V_SMB_TT_WR2BYTE,
++				     csr + R_SMB_START);
+ 		}
+ 		break;
+ 	case I2C_SMBUS_WORD_DATA:
+-		csr_out32(V_SMB_CMD(command), SMB_CSR(adap, R_SMB_CMD));
++		__raw_writeq(V_SMB_CMD(command), csr + R_SMB_CMD);
+ 		if (read_write == I2C_SMBUS_READ) {
+-			csr_out32((V_SMB_ADDR(addr) | V_SMB_TT_CMD_RD2BYTE),
+-				  SMB_CSR(adap, R_SMB_START));
++			__raw_writeq(V_SMB_ADDR(addr) | V_SMB_TT_CMD_RD2BYTE,
++				     csr + R_SMB_START);
+ 			data_bytes = 2;
+ 		} else {
+-			csr_out32(V_SMB_LB(data->word & 0xff),
+-				  SMB_CSR(adap, R_SMB_DATA));
+-			csr_out32(V_SMB_MB(data->word >> 8),
+-				  SMB_CSR(adap, R_SMB_DATA));
+-			csr_out32((V_SMB_ADDR(addr) | V_SMB_TT_WR2BYTE),
+-				  SMB_CSR(adap, R_SMB_START));
++			__raw_writeq(V_SMB_LB(data->word & 0xff),
++				     csr + R_SMB_DATA);
++			__raw_writeq(V_SMB_MB(data->word >> 8),
++				     csr + R_SMB_DATA);
++			__raw_writeq(V_SMB_ADDR(addr) | V_SMB_TT_WR2BYTE,
++				     csr + R_SMB_START);
+ 		}
+ 		break;
+ 	default:
+-		return -EOPNOTSUPP;
++		error = -EOPNOTSUPP;
++		goto out_unlock;
+ 	}
++	mmiowb();
++	__raw_readq(csr + R_SMB_START);
++	adap->status = -1;
++
++	spin_unlock_irqrestore(&adap->lock, flags);
+ 
+-	while (csr_in32(SMB_CSR(adap, R_SMB_STATUS)) & M_SMB_BUSY)
+-		;
++	wait_event_timeout(adap->wait, (adap->status >= 0), HZ);
+ 
+-	error = csr_in32(SMB_CSR(adap, R_SMB_STATUS));
+-	if (error & M_SMB_ERROR) {
+-		/* Clear error bit by writing a 1 */
+-		csr_out32(M_SMB_ERROR, SMB_CSR(adap, R_SMB_STATUS));
+-		return (error & M_SMB_ERROR_TYPE) ? -EIO : -ENXIO;
++	spin_lock_irqsave(&adap->lock, flags);
++
++	if (adap->status > 0 && ((adap->status & (M_SMB_ERROR | M_SMB_ERROR_TYPE)) == M_SMB_ERROR)) {
++		error = -ENXIO;
++		goto out_unlock;
++	}
++	if (adap->status < 0 || (adap->status & (M_SMB_ERROR | M_SMB_BUSY))) {
++		error = -EIO;
++		goto out_unlock;
+ 	}
+ 
+ 	if (data_bytes == 1)
+-		data->byte = csr_in32(SMB_CSR(adap, R_SMB_DATA)) & 0xff;
++		data->byte = __raw_readq(csr + R_SMB_DATA) & 0xff;
+ 	if (data_bytes == 2)
+-		data->word = csr_in32(SMB_CSR(adap, R_SMB_DATA)) & 0xffff;
++		data->word = __raw_readq(csr + R_SMB_DATA) & 0xffff;
+ 
+-	return 0;
++	error = 0;
++
++out_unlock:
++	spin_unlock_irqrestore(&adap->lock, flags);
++
++	return error;
+ }
+ 
+-static u32 bit_func(struct i2c_adapter *adap)
++static u32 i2c_sibyte_bit_func(struct i2c_adapter *adap)
+ {
+ 	return (I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+ 		I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA);
+@@ -125,8 +186,8 @@ static u32 bit_func(struct i2c_adapter *adap)
+ /* -----exported algorithm data: -------------------------------------	*/
+ 
+ static const struct i2c_algorithm i2c_sibyte_algo = {
+-	.smbus_xfer	= smbus_xfer,
+-	.functionality	= bit_func,
++	.smbus_xfer	= i2c_sibyte_smbus_xfer,
++	.functionality	= i2c_sibyte_bit_func,
+ };
+ 
+ /*
+@@ -135,37 +196,121 @@ static const struct i2c_algorithm i2c_sibyte_algo = {
+ static int __init i2c_sibyte_add_bus(struct i2c_adapter *i2c_adap, int speed)
+ {
+ 	struct i2c_algo_sibyte_data *adap = i2c_adap->algo_data;
++	void __iomem *csr;
++	int err;
+ 
+-	/* Register new adapter to i2c module... */
+-	i2c_adap->algo = &i2c_sibyte_algo;
++	adap->status = 0;
++	init_waitqueue_head(&adap->wait);
++	spin_lock_init(&adap->lock);
++
++	csr = ioremap(adap->base, R_SMB_PEC + SMB_REGISTER_SPACING);
++	if (!csr) {
++		err = -ENOMEM;
++		goto out;
++	}
++	adap->csr = csr;
+ 
+ 	/* Set the requested frequency. */
+-	csr_out32(speed, SMB_CSR(adap,R_SMB_FREQ));
+-	csr_out32(0, SMB_CSR(adap,R_SMB_CONTROL));
++	__raw_writeq(speed, csr + R_SMB_FREQ);
++
++	/* Clear any pending error interrupt. */
++	__raw_writeq(__raw_readq(csr + R_SMB_STATUS), csr + R_SMB_STATUS);
++	/* Disable interrupts. */
++	__raw_writeq(0, csr + R_SMB_CONTROL);
++	mmiowb();
++	__raw_readq(csr + R_SMB_CONTROL);
++
++	err = request_irq(adap->irq, i2c_sibyte_interrupt, IRQF_SHARED,
++			  adap->name, i2c_adap);
++	if (err < 0)
++		goto out_unmap;
++
++	/* Enable finish and error interrupts. */
++	__raw_writeq(M_SMB_FINISH_INTR | M_SMB_ERR_INTR, csr + R_SMB_CONTROL);
++
++	/* Register new adapter to i2c module... */
++	err = i2c_add_numbered_adapter(i2c_adap);
++	if (err < 0)
++		goto out_unirq;
++
++	return 0;
+ 
+-	return i2c_add_numbered_adapter(i2c_adap);
++out_unirq:
++	/* Disable interrupts. */
++	__raw_writeq(0, csr + R_SMB_CONTROL);
++	mmiowb();
++	__raw_readq(csr + R_SMB_CONTROL);
++
++	free_irq(adap->irq, i2c_adap);
++
++	/* Clear any pending error interrupt. */
++	__raw_writeq(__raw_readq(csr + R_SMB_STATUS), csr + R_SMB_STATUS);
++out_unmap:
++	iounmap(csr);
++out:
++	return err;
+ }
+ 
++static void i2c_sibyte_remove_bus(struct i2c_adapter *i2c_adap)
++{
++	struct i2c_algo_sibyte_data *adap = i2c_adap->algo_data;
++	void __iomem *csr = adap->csr;
++
++	i2c_del_adapter(i2c_adap);
++
++	/* Disable interrupts. */
++	__raw_writeq(0, csr + R_SMB_CONTROL);
++	mmiowb();
++	__raw_readq(csr + R_SMB_CONTROL);
+ 
+-static struct i2c_algo_sibyte_data sibyte_board_data[2] = {
+-	{ NULL, 0, (void *) (CKSEG1+A_SMB_BASE(0)) },
+-	{ NULL, 1, (void *) (CKSEG1+A_SMB_BASE(1)) }
++	free_irq(adap->irq, i2c_adap);
++
++	/* Clear any pending error interrupt. */
++	__raw_writeq(__raw_readq(csr + R_SMB_STATUS), csr + R_SMB_STATUS);
++
++	iounmap(csr);
++}
++
++static struct i2c_algo_sibyte_data i2c_sibyte_board_data[2] = {
++#ifdef CONFIG_SIBYTE_SB1250
++	{
++		.name	= "sb1250-smbus-0",
++		.base	= A_SMB_0,
++		.irq	= K_INT_SMB_0,
++	},
++	{
++		.name	= "sb1250-smbus-1",
++		.base	= A_SMB_1,
++		.irq	= K_INT_SMB_1,
++	}
++#else
++	{
++		.name	= "bcm1480-smbus-0",
++		.base	= A_SMB_0,
++		.irq	= K_BCM1480_INT_SMB_0,
++	},
++	{
++		.name	= "bcm1480-smbus-1",
++		.base	= A_SMB_1,
++		.irq	= K_BCM1480_INT_SMB_1,
++	}
++#endif
+ };
+ 
+-static struct i2c_adapter sibyte_board_adapter[2] = {
++static struct i2c_adapter i2c_sibyte_board_adapter[2] = {
+ 	{
+ 		.owner		= THIS_MODULE,
+ 		.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+-		.algo		= NULL,
+-		.algo_data	= &sibyte_board_data[0],
++		.algo		= &i2c_sibyte_algo,
++		.algo_data	= &i2c_sibyte_board_data[0],
+ 		.nr		= 0,
+ 		.name		= "SiByte SMBus 0",
+ 	},
+ 	{
+ 		.owner		= THIS_MODULE,
+ 		.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+-		.algo		= NULL,
+-		.algo_data	= &sibyte_board_data[1],
++		.algo		= &i2c_sibyte_algo,
++		.algo_data	= &i2c_sibyte_board_data[1],
+ 		.nr		= 1,
+ 		.name		= "SiByte SMBus 1",
+ 	},
+@@ -173,21 +318,32 @@ static struct i2c_adapter sibyte_board_adapter[2] = {
+ 
+ static int __init i2c_sibyte_init(void)
+ {
++	int err;
++
+ 	pr_info("i2c-sibyte: i2c SMBus adapter module for SiByte board\n");
+-	if (i2c_sibyte_add_bus(&sibyte_board_adapter[0], K_SMB_FREQ_100KHZ) < 0)
+-		return -ENODEV;
+-	if (i2c_sibyte_add_bus(&sibyte_board_adapter[1],
+-			       K_SMB_FREQ_400KHZ) < 0) {
+-		i2c_del_adapter(&sibyte_board_adapter[0]);
+-		return -ENODEV;
+-	}
++
++	err = i2c_sibyte_add_bus(&i2c_sibyte_board_adapter[0],
++				 K_SMB_FREQ_100KHZ);
++	if (err < 0)
++		goto out;
++
++	err = i2c_sibyte_add_bus(&i2c_sibyte_board_adapter[1],
++				 K_SMB_FREQ_400KHZ);
++	if (err < 0)
++		goto out_remove;
++
+ 	return 0;
++
++out_remove:
++	i2c_sibyte_remove_bus(&i2c_sibyte_board_adapter[0]);
++out:
++	return err;
+ }
+ 
+ static void __exit i2c_sibyte_exit(void)
+ {
+-	i2c_del_adapter(&sibyte_board_adapter[0]);
+-	i2c_del_adapter(&sibyte_board_adapter[1]);
++	i2c_sibyte_remove_bus(&i2c_sibyte_board_adapter[1]);
++	i2c_sibyte_remove_bus(&i2c_sibyte_board_adapter[0]);
+ }
+ 
+ module_init(i2c_sibyte_init);
+-- 
+1.7.3.4
