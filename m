@@ -1,195 +1,59 @@
-From: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Subject: [RFC PATCH] add slave mode support to tegra's i2c controller
-Date: Wed, 17 Aug 2011 21:01:26 +0200
-Message-ID: <201108172101.27170.marvin24@gmx.de>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [RFC PATCH] add slave mode support to tegra's i2c controller
+Date: Wed, 17 Aug 2011 23:57:14 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF04AF6F3066@HQMAIL01.nvidia.com>
+References: <201108172101.27170.marvin24@gmx.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201108172101.27170.marvin24-Mmb7MZpHnFY@public.gmane.org>
+Content-Language: en-US
 Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org" <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-the patch below adds slave mode to tegra's i2c controller. I tried to make it as 
-small as possible. It is needed to allow the nvec driver to deligate the 
-initialization to the i2c-tegra driver as part of its cleanup. Patch is tested 
-with our version of nvec. Patch is against arm-soc + boards-3.2. Please review 
-and consider it for merge. 
-
-Thanks
-
-Marc
-
-===
-
-    ARM: tegra: add slave mode support to tegra's i2c controller
-    
-    This adds support for tegra's i2c-controller slave mode operation.
-    It programs the slave address provided by the platform data and skips
-    the interrupt registration which is deligated to the master device
-    driver. Additionaly, the i2c device structure definition is moved to
-    the header file, so it can be used by the master device driver.
-
-	Signed-off-by: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 2440b74..b4c23d5 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -99,45 +99,6 @@
- #define I2C_HEADER_MASTER_ADDR_SHIFT		12
- #define I2C_HEADER_SLAVE_ADDR_SHIFT		1
- 
--/**
-- * struct tegra_i2c_dev	- per device i2c context
-- * @dev: device reference for power management
-- * @adapter: core i2c layer adapter information
-- * @clk: clock reference for i2c controller
-- * @i2c_clk: clock reference for i2c bus
-- * @iomem: memory resource for registers
-- * @base: ioremapped registers cookie
-- * @cont_id: i2c controller id, used for for packet header
-- * @irq: irq number of transfer complete interrupt
-- * @is_dvc: identifies the DVC i2c controller, has a different register layout
-- * @msg_complete: transfer completion notifier
-- * @msg_err: error code for completed message
-- * @msg_buf: pointer to current message data
-- * @msg_buf_remaining: size of unsent data in the message buffer
-- * @msg_read: identifies read transfers
-- * @bus_clk_rate: current i2c bus clock rate
-- * @is_suspended: prevents i2c controller accesses after suspend is called
-- */
--struct tegra_i2c_dev {
--	struct device *dev;
--	struct i2c_adapter adapter;
--	struct clk *clk;
--	struct clk *i2c_clk;
--	struct resource *iomem;
--	void __iomem *base;
--	int cont_id;
--	int irq;
--	bool irq_disabled;
--	int is_dvc;
--	struct completion msg_complete;
--	int msg_err;
--	u8 *msg_buf;
--	size_t msg_buf_remaining;
--	int msg_read;
--	unsigned long bus_clk_rate;
--	bool is_suspended;
--};
--
- static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned long 
-reg)
- {
- 	writel(val, i2c_dev->base + reg);
-@@ -322,6 +283,7 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
- 	int err = 0;
-+	int slave_addr = i2c_dev->is_slave ? 0xfc : i2c_dev->slave_addr;
- 
- 	clk_enable(i2c_dev->clk);
- 
-@@ -342,8 +304,8 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
- 		sl_cfg |= I2C_SL_CNFG_NACK | I2C_SL_CNFG_NEWSL;
- 		i2c_writel(i2c_dev, sl_cfg, I2C_SL_CNFG);
--		i2c_writel(i2c_dev, 0xfc, I2C_SL_ADDR1);
--		i2c_writel(i2c_dev, 0x00, I2C_SL_ADDR2);
-+		i2c_writel(i2c_dev, slave_addr & 0xff, I2C_SL_ADDR1);
-+		i2c_writel(i2c_dev, slave_addr >> 8, I2C_SL_ADDR2);
- 
- 	}
- 
-@@ -609,6 +571,8 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
- 	if (pdata) {
- 		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
-+		i2c_dev->is_slave = pdata->is_slave;
-+		i2c_dev->slave_addr = pdata->slave_addr;
- 
- 	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... 
-*/
- 		prop = of_get_property(i2c_dev->dev->of_node,
-@@ -629,10 +593,12 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		goto err_free;
- 	}
- 
--	ret = request_irq(i2c_dev->irq, tegra_i2c_isr, 0, pdev->name, i2c_dev);
--	if (ret) {
--		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
--		goto err_free;
-+	if (!i2c_dev->is_slave) {
-+		ret = request_irq(i2c_dev->irq, tegra_i2c_isr, 0, pdev->name, i2c_dev);
-+		if (ret) {
-+			dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
-+			goto err_free;
-+		}
- 	}
- 
- 	clk_enable(i2c_dev->i2c_clk);
-diff --git a/include/linux/i2c-tegra.h b/include/linux/i2c-tegra.h
-index 9c85da4..2729863 100644
---- a/include/linux/i2c-tegra.h
-+++ b/include/linux/i2c-tegra.h
-@@ -18,8 +18,55 @@
- #ifndef _LINUX_I2C_TEGRA_H
- #define _LINUX_I2C_TEGRA_H
- 
-+#include <linux/i2c.h>
-+
- struct tegra_i2c_platform_data {
- 	unsigned long bus_clk_rate;
-+	bool is_slave;
-+	u16 slave_addr;
-+};
-+
-+/**
-+ * struct tegra_i2c_dev	- per device i2c context
-+ * @dev: device reference for power management
-+ * @adapter: core i2c layer adapter information
-+ * @clk: clock reference for i2c controller
-+ * @i2c_clk: clock reference for i2c bus
-+ * @iomem: memory resource for registers
-+ * @base: ioremapped registers cookie
-+ * @cont_id: i2c controller id, used for for packet header
-+ * @irq: irq number of transfer complete interrupt
-+ * @is_dvc: identifies the DVC i2c controller, has a different register layout
-+ * @is_slave: identifies a controller in slave mode operation
-+ * @slave_addr: the slave address if in slave mode
-+ * @msg_complete: transfer completion notifier
-+ * @msg_err: error code for completed message
-+ * @msg_buf: pointer to current message data
-+ * @msg_buf_remaining: size of unsent data in the message buffer
-+ * @msg_read: identifies read transfers
-+ * @bus_clk_rate: current i2c bus clock rate
-+ * @is_suspended: prevents i2c controller accesses after suspend is called
-+ */
-+struct tegra_i2c_dev {
-+	struct device *dev;
-+	struct i2c_adapter adapter;
-+	struct clk *clk;
-+	struct clk *i2c_clk;
-+	struct resource *iomem;
-+	void __iomem *base;
-+	int cont_id;
-+	int irq;
-+	u16 slave_addr;
-+	bool irq_disabled;
-+	bool is_dvc;
-+	bool is_slave;
-+	struct completion msg_complete;
-+	int msg_err;
-+	u8 *msg_buf;
-+	size_t msg_buf_remaining;
-+	int msg_read;
-+	unsigned long bus_clk_rate;
-+	bool is_suspended;
- };
- 
- #endif /* _LINUX_I2C_TEGRA_H */
+TWFyYyBEaWV0cmljaCB3cm90ZSBhdCBXZWRuZXNkYXksIEF1Z3VzdCAxNywgMjAxMSAxOjAxIFBN
+Og0KPiB0aGUgcGF0Y2ggYmVsb3cgYWRkcyBzbGF2ZSBtb2RlIHRvIHRlZ3JhJ3MgaTJjIGNvbnRy
+b2xsZXIuIEkgdHJpZWQgdG8gbWFrZSBpdCBhcw0KPiBzbWFsbCBhcyBwb3NzaWJsZS4gSXQgaXMg
+bmVlZGVkIHRvIGFsbG93IHRoZSBudmVjIGRyaXZlciB0byBkZWxpZ2F0ZSB0aGUNCj4gaW5pdGlh
+bGl6YXRpb24gdG8gdGhlIGkyYy10ZWdyYSBkcml2ZXIgYXMgcGFydCBvZiBpdHMgY2xlYW51cC4g
+UGF0Y2ggaXMgdGVzdGVkDQo+IHdpdGggb3VyIHZlcnNpb24gb2YgbnZlYy4gUGF0Y2ggaXMgYWdh
+aW5zdCBhcm0tc29jICsgYm9hcmRzLTMuMi4gUGxlYXNlIHJldmlldw0KPiBhbmQgY29uc2lkZXIg
+aXQgZm9yIG1lcmdlLg0KDQpGb3JnaXZlIG15IGxhY2sgb2YgZmFtaWxpYXJpdHkgd2l0aCB0aGUg
+VGVncmEgSFcsIGJ1dCBpcyB0aGUgc2xhdmUNCmNvbnRyb2xsZXIgY29tcGxldGVseSBhdXRvbm9t
+b3VzPyBJJ20gY3VyaW91cyB3aGF0IGRhdGEgc2xhdmUgdHJhbnNhY3Rpb25zDQphY2Nlc3MsIHNp
+bmNlIHRoZXJlJ3Mgbm8gYWN0dWFsIGNvZGUgaGVyZSB0byByZXNwb25kIHRvIHRyYW5zYWN0aW9u
+cw0KZGlyZWN0ZWQgYXQgdGhlIHNsYXZlIGFkZHJlc3MgYW5kIHByb3ZpZGUgZGF0YSBpbiByZXNw
+b25zZS4NCg0KT3IgcHV0IGFub3RoZXIgd2F5LCBpcyB0aGlzIHBhdGNoIHJlYWxseSBhZGRpbmcg
+c2xhdmUgbW9kZSBzdXBwb3J0LCBvcg0KaXMgaXQganVzdCBwcm92aWRpbmcgYSB3YXkgdG8gcHJv
+Z3JhbSB0aGUgc2xhdmUgY29udHJvbGxlcidzIEkyQyBhZGRyZXNzPw0KDQpTb21lIGNvbW1lbnRz
+IGJlbG93Lg0KDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmMg
+Yi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXRlZ3JhLmMNCi4uLg0KPiAtc3RydWN0IHRlZ3JhX2ky
+Y19kZXYgew0KPiAtCXN0cnVjdCBkZXZpY2UgKmRldjsNCj4gLQlzdHJ1Y3QgaTJjX2FkYXB0ZXIg
+YWRhcHRlcjsNCi4uLg0KPiAtfTsNCg0KTm90aGluZyBnb3QgYWRkZWQgdGhhdCBuZWVkZWQgdGhh
+dCBzdHJ1Y3QgZGVmaW5pdGlvbiBpbiBhIGhlYWRlciBmaWxlOw0Kd2FzIHRoZXJlIG1lYW50IHRv
+IGJlIGEgbmV3IGZpbGUgaW5jbHVkZWQgaW4gdGhlIHBhdGNoIHRoYXQgaW1wbGVtZW50cw0KdGhl
+IHNsYXZlIGRyaXZlciAoYW5kIG1ha2VmaWxlIGFuZCBwZXJoYXBzIEtjb25maWcgY2hhbmdlcz8p
+DQoNCj4gKwlpbnQgc2xhdmVfYWRkciA9IGkyY19kZXYtPmlzX3NsYXZlID8gMHhmYyA6IGkyY19k
+ZXYtPnNsYXZlX2FkZHI7DQoNCklzbid0IHRoYXQgYmFja3dhcmRzOyBkb24ndCB5b3Ugd2FudCB0
+byBoYXJkLWNvZGUgdGhlIHNsYXZlIGFkZHJlc3MgYXMgMHhmYyBvbmx5DQp3aGVuIHRoZSBjb250
+cm9sbGVyIGlzbid0IGludGVuZGVkIHRvIGJlIHVzZWQgaW4gc2xhdmUgbW9kZT8NCg0KPiAgCWky
+Y19kZXYtPmJ1c19jbGtfcmF0ZSA9IDEwMDAwMDsgLyogZGVmYXVsdCBjbG9jayByYXRlICovDQo+
+ICAJaWYgKHBkYXRhKSB7DQo+ICAJCWkyY19kZXYtPmJ1c19jbGtfcmF0ZSA9IHBkYXRhLT5idXNf
+Y2xrX3JhdGU7DQo+ICsJCWkyY19kZXYtPmlzX3NsYXZlID0gcGRhdGEtPmlzX3NsYXZlOw0KPiAr
+CQlpMmNfZGV2LT5zbGF2ZV9hZGRyID0gcGRhdGEtPnNsYXZlX2FkZHI7DQoNCk1heWJlIHN0b3Jl
+IGEgcG9pbnRlciB0byBwZGF0YSBpdHNlbGYgcmF0aGVyIHRoYW4gaGF2aW5nIHRvIGNvcHkgdGhp
+cw0KbWFudWFsbHk7IGl0J2xsIGJlIG9uZSBsZXNzIHRoaW5nIHRvIHdvcnJ5IGFib3V0IHdoZW4g
+YWRkaW5nIGZpZWxkcyB0bw0KcGRhdGEuDQoNCi4uLg0KPiAtCXJldCA9IHJlcXVlc3RfaXJxKGky
+Y19kZXYtPmlycSwgdGVncmFfaTJjX2lzciwgMCwgcGRldi0+bmFtZSwgaTJjX2Rldik7DQo+IC0J
+aWYgKHJldCkgew0KPiAtCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJGYWlsZWQgdG8gcmVxdWVzdCBp
+cnEgJWlcbiIsIGkyY19kZXYtPmlycSk7DQo+IC0JCWdvdG8gZXJyX2ZyZWU7DQo+ICsJaWYgKCFp
+MmNfZGV2LT5pc19zbGF2ZSkgew0KPiArCQlyZXQgPSByZXF1ZXN0X2lycShpMmNfZGV2LT5pcnEs
+IHRlZ3JhX2kyY19pc3IsIDAsIHBkZXYtPm5hbWUsIGkyY19kZXYpOw0KPiArCQlpZiAocmV0KSB7
+DQo+ICsJCQlkZXZfZXJyKCZwZGV2LT5kZXYsICJGYWlsZWQgdG8gcmVxdWVzdCBpcnEgJWlcbiIs
+IGkyY19kZXYtPmlycSk7DQo+ICsJCQlnb3RvIGVycl9mcmVlOw0KPiArCQl9DQo+ICAJfQ0KDQpU
+aGlzIGFwcGVhcnMgdG8gbWFrZSBtYXN0ZXIgYW5kIHNsYXZlIG1vZGUgbXV0dWFsbHkgZXhjbHVz
+aXZlLiBEb2Vzbid0DQp0aGUgSFcgYWxsb3cgdXNlIG9mIGJvdGggY29udHJvbGxlcnMgb24gdGhl
+IHNhbWUgYnVzPw0KDQotLSANCm52cHVibGljDQoNCg==
