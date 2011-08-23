@@ -1,45 +1,30 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of
- interrupts
-Date: Mon, 22 Aug 2011 13:02:56 -0700
-Message-ID: <1314043376.3235.105.camel@groeck-laptop>
-References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
-Reply-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 0/2] lost i2c-nomadik patches
+Date: Tue, 23 Aug 2011 16:21:29 +0200
+Message-ID: <CACRpkdZEnLYhn=9oxGHjBxBPG=0jERaKBX_3gB-pyAi4xQu1qQ@mail.gmail.com>
+References: <1312913828-8229-1-git-send-email-linus.walleij@stericsson.com>
+	<20110812004627.GE19115@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1313710991-3596-1-git-send-email-mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20110812004627.GE19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 2011-08-18 at 19:43 -0400, Matt Turner wrote:
-> From: Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
-> 
-> This is a rewrite of large parts of the driver mainly so that it uses
-> SMBus interrupts to offload the CPU from busy-waiting on status inputs.
-> As a part of the overhaul of the init and exit calls, all accesses to the
-> hardware got converted to use accessory functions via an ioremap() cookie.
-> 
-> [mattst88] Added BCM1480 interrupts and rebased minimally.
-> 
-> Signed-off-by: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Signed-off-by: Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+On Fri, Aug 12, 2011 at 2:46 AM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
+> On Tue, Aug 09, 2011 at 08:17:08PM +0200, Linus Walleij wrote:
+>> From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>>
+>> These two must have been missed somewhere between the last merge
+>> window and 3.1-rc1. If you think they are -rc material then by
+>> all means please merge them, else we'll wait for the next merge
+>> window...
+>
+> ok, will queue them for the weekend's fix push. thanks.
 
-Patch works fine on our target, and shows significant speed improvements
-for i2c accesses.
+Ping on this...
 
-Linux version 3.0.3-428-g17c1f3f (groeck@rbos-pc-13) (gcc version 4.4.1
-(Debian 4.4.1-1) ) #2 SMP Mon Aug 22 12:56:41 PDT 2011
-bootconsole [early0] enabled
-CPU revision is: 01041100 (SiByte SB1A)
-FPU revision is: 000f0103
-Checking for the multiply/shift bug... no.
-Checking for the daddiu bug... no.
-Broadcom SiByte BCM1480 B1 (pass2) @ 900 MHz (SB-1A rev 0)
-
-Tested-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-
-Guenter
+Thanks!
+Linus Walleij
