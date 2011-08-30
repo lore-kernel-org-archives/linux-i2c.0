@@ -1,64 +1,48 @@
-From: Kyungmin Park <kmpark-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Subject: Re: [PATCH] misc: Remove obsolete cleanup for clientdata
-Date: Tue, 30 Aug 2011 09:47:56 +0900
-Message-ID: <CAH9JG2XD_8_Vj9t-yN57VsPtCgo84FDLD7VmVwTM3+cNzKvAug@mail.gmail.com>
-References: <1314269645-18607-1-git-send-email-w.sang@pengutronix.de>
+From: =?utf-8?B?5q+P5aSp6YO95pyJ5paw5Lmw5a62?= <admin-5f9NOZtWkn3zHCZZHnFgRw@public.gmane.org>
+Subject: =?utf-8?B?5pyA5paw5bm/5Lqk5Lya5Lmw5a625bqTKzUwMOS4h+a1t+WkluS5sOWutui1hOa6kCs=?=
+	=?utf-8?B?6YKu5Lu25Y+R6YCB5pa55qGIPeavj+WkqemDveacieaWsOS5sOWutuWbnuWkje+8gQ==?=
+Date: Tue, 30 Aug 2011 03:57:04 +0000 (UTC)
+Message-ID: <20111002115717524885@altoria.com.ua>
+Reply-To: <1339625218-9uewiaClKEY@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1314269645-18607-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Date: Sun, 2 Oct 2011 11:57:07 +0800
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Donggeun Kim <dg77.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Acked-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-
-On Thu, Aug 25, 2011 at 7:54 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> w=
-rote:
-> A few new i2c-drivers came into the kernel which clear the clientdata=
--pointer
-> on exit or error. This is obsolete meanwhile, the core will do it.
->
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-> Cc: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Cc: Minkyu Kang <mk7.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Cc: Donggeun Kim <dg77.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
-> =A0drivers/misc/fsa9480.c | =A0 =A02 --
-> =A01 files changed, 0 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/misc/fsa9480.c b/drivers/misc/fsa9480.c
-> index 5325a7e..22e22ad 100644
-> --- a/drivers/misc/fsa9480.c
-> +++ b/drivers/misc/fsa9480.c
-> @@ -457,7 +457,6 @@ fail2:
-> =A0 =A0 =A0 =A0if (client->irq)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0free_irq(client->irq, NULL);
-> =A0fail1:
-> - =A0 =A0 =A0 i2c_set_clientdata(client, NULL);
-> =A0 =A0 =A0 =A0kfree(usbsw);
-> =A0 =A0 =A0 =A0return ret;
-> =A0}
-> @@ -467,7 +466,6 @@ static int __devexit fsa9480_remove(struct i2c_cl=
-ient *client)
-> =A0 =A0 =A0 =A0struct fsa9480_usbsw *usbsw =3D i2c_get_clientdata(cli=
-ent);
-> =A0 =A0 =A0 =A0if (client->irq)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0free_irq(client->irq, NULL);
-> - =A0 =A0 =A0 i2c_set_clientdata(client, NULL);
->
-> =A0 =A0 =A0 =A0sysfs_remove_group(&client->dev.kobj, &fsa9480_group);
-> =A0 =A0 =A0 =A0device_init_wakeup(&client->dev, 0);
-> --
-> 1.7.5.4
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at =A0http://www.tux.org/lkml/
->
+NTAw5LiH5rW35aSW5Lmw5a626LWE5rqQK+mCruS7tuWPkemAgeaWueahiCvmtbflpJbkubDlrrZF
+bWFpbOaQnOe0ouacuj3mr4/lpKnpg73mnInlrqLmiLflm57lpI3vvIENCjUwMOS4h+a1t+WkluS5
+sOWutui1hOa6kCvpgq7ku7blj5HpgIHmlrnmoYgr5rW35aSW5Lmw5a62RW1haWzmkJzntKLmnLo9
+5q+P5aSp6YO95pyJ5a6i5oi35Zue5aSN77yBDQoNCjHjgIE1MDDkuIfkubDlrrbotYTmupDvvJog
+6LWg6YCB55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5pu05pawICjlj6/ku6XmjInnhafmgqjn
+moTkuqflk4Hmj5Dlj5blh7rmnaXvvIzmm7Tnsr7lh4blvIDlj5Ep44CCIA0KMuOAgei2hee6p+a1
+t+WkluS5sOWutkVtYWls5pCc57Si5py677yaIOWGhee9ruS6hjYwMOS4h+ihjOS4muWFs+mUruiv
+je+8jOagueaNrumVv+WwvuivjeaQnOe0ou+8jOe7k+aenOabtOeyvuehruWMuemFje+8m+avj+Wk
+qeiDveaQnOe0ojEtMuS4h+S7peS4iuS5sOWutuecn+WunkVNQUlM77yM5oiQ5Y2V546H6auY44CC
+IA0KM+OAgee+pOWPkei9r+S7tu+8miDmk43kvZznroDljZXvvIzlip/og73lvLrlpKfvvIzmqKHk
+u7/kurrlt6Xmk43kvZzmqKHlvI/vvIzliLDovr7njofpq5jvvIzml6Xlj5HpgIE15LiH5bCB5Lul
+5LiK44CCIA0KIA0K5pSv5oyB5pSv5LuY5a6d5ouF5L+d5Lqk5piTICjlhYjlj5HotKflubblrono
+o4Xorr7nva7nvqTlj5Hova/ku7bvvIznhLblkI7ku5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDp
+ob7omZHjgIINCg0K6K+36IGU57O777yaDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUy
+MThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUTox
+MzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1h
+aWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThA
+cXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQoNCuWFjei0
+uei1oOmAgToNCjHjgIHotoXnuqfmtbflpJbkubDlrrbmkJzntKLmnLos5Y+v5Lul6L275p2+5omr
+5o+P5Ye6IDUwMC0xMDAw5LiH5Lmw5a62RW1haWzvvIzlu7rnq4voh6rlt7HnmoTokKXplIDmlbDm
+ja7lupPjgIINCjLjgIEyMDA55bm05rW35YWz5o+Q5Y2V5pWw5o2ucGllcnPniYjmlbDmja4gMeWN
+g+S4h+OAgg0KM+OAgTIwMTHmmKXlraMxMDnlsYrlub/kuqTkvJrkubDlrrbnjrDlnLror6Lnm5jm
+lbDmja7lupPmlrDpspzlh7rngonvvIzotoXnuqfmlrDpspzkubDlrrbvvIzmlrDpspzmlbDmja7v
+vIzlrrnmmJPmiJDljZXvvIEgDQo044CBMjAwOOW5tOiHszIwMTDlubQg5pil5a2jK+eni+Wto+W5
+v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEwNiAxMDcgMTA4IOWFseWFreWxiu+8
+jOWFsTEyMC425LiH5pWw5o2u44CCIA0KNeOAgeacgOaWsOWFqOeQg+S5sOWutuW6kyzlhbE0NTE2
+NjDmnaHmlbDmja7vvIzmr4/kuKrlnYfmnIlFbWFpbOOAgg0KNuOAgTIwMTDlubTlm73pmYXkv4Pp
+lIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3RvcnnvvIzp
+nZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjfjgIEyMDEw5bm05Yiw6aaZ5riv6YeH6LSt55qE
+5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLkuIfmlbDm
+ja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjjjgIExMDDkuIfmnaHlm73lpJbotLjmmJPo
+r6Lnm5jvvIzmr4/kuKrlnYfmnIlFbWFpbOOAgg0KOeOAgeS5sOWutui1hOa6kOabtOaWsOS4reOA
+guOAguOAgg0K5YWo6YOo6YO95pyJ44CCDQogDQo=
