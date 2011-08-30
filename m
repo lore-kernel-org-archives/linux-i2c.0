@@ -1,48 +1,48 @@
-From: =?utf-8?B?5q+P5aSp6YO95pyJ5paw5Lmw5a62?= <admin-5f9NOZtWkn3zHCZZHnFgRw@public.gmane.org>
-Subject: =?utf-8?B?5pyA5paw5bm/5Lqk5Lya5Lmw5a625bqTKzUwMOS4h+a1t+WkluS5sOWutui1hOa6kCs=?=
-	=?utf-8?B?6YKu5Lu25Y+R6YCB5pa55qGIPeavj+WkqemDveacieaWsOS5sOWutuWbnuWkje+8gQ==?=
-Date: Tue, 30 Aug 2011 03:57:04 +0000 (UTC)
-Message-ID: <20111002115717524885@altoria.com.ua>
-Reply-To: <1339625218-9uewiaClKEY@public.gmane.org>
+From: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH RESEND] i2c-pxa2xx: return proper error code in
+ ce4100_i2c_probe error paths
+Date: Tue, 30 Aug 2011 14:37:37 +0800
+Message-ID: <1314686257.3270.2.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Date: Sun, 2 Oct 2011 11:57:07 +0800
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-NTAw5LiH5rW35aSW5Lmw5a626LWE5rqQK+mCruS7tuWPkemAgeaWueahiCvmtbflpJbkubDlrrZF
-bWFpbOaQnOe0ouacuj3mr4/lpKnpg73mnInlrqLmiLflm57lpI3vvIENCjUwMOS4h+a1t+WkluS5
-sOWutui1hOa6kCvpgq7ku7blj5HpgIHmlrnmoYgr5rW35aSW5Lmw5a62RW1haWzmkJzntKLmnLo9
-5q+P5aSp6YO95pyJ5a6i5oi35Zue5aSN77yBDQoNCjHjgIE1MDDkuIfkubDlrrbotYTmupDvvJog
-6LWg6YCB55qENTAw5LiH5Lmw5a626LWE5rqQ5bqT77yM5pu05pawICjlj6/ku6XmjInnhafmgqjn
-moTkuqflk4Hmj5Dlj5blh7rmnaXvvIzmm7Tnsr7lh4blvIDlj5Ep44CCIA0KMuOAgei2hee6p+a1
-t+WkluS5sOWutkVtYWls5pCc57Si5py677yaIOWGhee9ruS6hjYwMOS4h+ihjOS4muWFs+mUruiv
-je+8jOagueaNrumVv+WwvuivjeaQnOe0ou+8jOe7k+aenOabtOeyvuehruWMuemFje+8m+avj+Wk
-qeiDveaQnOe0ojEtMuS4h+S7peS4iuS5sOWutuecn+WunkVNQUlM77yM5oiQ5Y2V546H6auY44CC
-IA0KM+OAgee+pOWPkei9r+S7tu+8miDmk43kvZznroDljZXvvIzlip/og73lvLrlpKfvvIzmqKHk
-u7/kurrlt6Xmk43kvZzmqKHlvI/vvIzliLDovr7njofpq5jvvIzml6Xlj5HpgIE15LiH5bCB5Lul
-5LiK44CCIA0KIA0K5pSv5oyB5pSv5LuY5a6d5ouF5L+d5Lqk5piTICjlhYjlj5HotKflubblrono
-o4Xorr7nva7nvqTlj5Hova/ku7bvvIznhLblkI7ku5jmrL4pIOW9u+W6leaJk+a2iOaCqOeahCDp
-ob7omZHjgIINCg0K6K+36IGU57O777yaDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUy
-MThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUTox
-MzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1h
-aWw6IDEzMzk2MjUyMThAcXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThA
-cXEuY29tDQpRUToxMzM5NjI1MjE4ICAgZW1haWw6IDEzMzk2MjUyMThAcXEuY29tDQoNCuWFjei0
-uei1oOmAgToNCjHjgIHotoXnuqfmtbflpJbkubDlrrbmkJzntKLmnLos5Y+v5Lul6L275p2+5omr
-5o+P5Ye6IDUwMC0xMDAw5LiH5Lmw5a62RW1haWzvvIzlu7rnq4voh6rlt7HnmoTokKXplIDmlbDm
-ja7lupPjgIINCjLjgIEyMDA55bm05rW35YWz5o+Q5Y2V5pWw5o2ucGllcnPniYjmlbDmja4gMeWN
-g+S4h+OAgg0KM+OAgTIwMTHmmKXlraMxMDnlsYrlub/kuqTkvJrkubDlrrbnjrDlnLror6Lnm5jm
-lbDmja7lupPmlrDpspzlh7rngonvvIzotoXnuqfmlrDpspzkubDlrrbvvIzmlrDpspzmlbDmja7v
-vIzlrrnmmJPmiJDljZXvvIEgDQo044CBMjAwOOW5tOiHszIwMTDlubQg5pil5a2jK+eni+Wto+W5
-v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEwNiAxMDcgMTA4IOWFseWFreWxiu+8
-jOWFsTEyMC425LiH5pWw5o2u44CCIA0KNeOAgeacgOaWsOWFqOeQg+S5sOWutuW6kyzlhbE0NTE2
-NjDmnaHmlbDmja7vvIzmr4/kuKrlnYfmnIlFbWFpbOOAgg0KNuOAgTIwMTDlubTlm73pmYXkv4Pp
-lIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3RvcnnvvIzp
-nZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjfjgIEyMDEw5bm05Yiw6aaZ5riv6YeH6LSt55qE
-5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLkuIfmlbDm
-ja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjjjgIExMDDkuIfmnaHlm73lpJbotLjmmJPo
-r6Lnm5jvvIzmr4/kuKrlnYfmnIlFbWFpbOOAgg0KOeOAgeS5sOWutui1hOa6kOabtOaWsOS4reOA
-guOAguOAgg0K5YWo6YOo6YO95pyJ44CCDQogDQo=
+Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Acked-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+---
+Hi Ben,
+Seems this patch is not yet upstream. Here is the resend.
+
+Axel
+
+ drivers/i2c/busses/i2c-pxa-pci.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+index 6659d26..b73da6c 100644
+--- a/drivers/i2c/busses/i2c-pxa-pci.c
++++ b/drivers/i2c/busses/i2c-pxa-pci.c
+@@ -109,12 +109,15 @@ static int __devinit ce4100_i2c_probe(struct pci_dev *dev,
+ 		return -EINVAL;
+ 	}
+ 	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
+-	if (!sds)
++	if (!sds) {
++		ret = -ENOMEM;
+ 		goto err_mem;
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
+ 		sds->pdev[i] = add_i2c_device(dev, i);
+ 		if (IS_ERR(sds->pdev[i])) {
++			ret = PTR_ERR(sds->pdev[i]);
+ 			while (--i >= 0)
+ 				platform_device_unregister(sds->pdev[i]);
+ 			goto err_dev_add;
+-- 
+1.7.4.1
