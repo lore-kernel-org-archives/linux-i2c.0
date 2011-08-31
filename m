@@ -1,108 +1,73 @@
 From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH REPOST 3/3] i2c: tegra: fix possible race condition after tx
-Date: Tue, 30 Aug 2011 11:46:10 -0600
-Message-ID: <1314726370-8193-4-git-send-email-swarren@nvidia.com>
-References: <1314726370-8193-1-git-send-email-swarren@nvidia.com>
+Subject: RE: [RFC PATCH] add slave mode support to tegra's i2c controller
+Date: Tue, 30 Aug 2011 17:00:06 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF04B3279F23@HQMAIL01.nvidia.com>
+References: <201108172101.27170.marvin24@gmx.de>
+ <201108180949.05586.marvin24@gmx.de>
+ <74CDBE0F657A3D45AFBB94109FB122FF04B24A366D@HQMAIL01.nvidia.com>
+ <201108281802.00822.marvin24@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1314726370-8193-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <201108281802.00822.marvin24-Mmb7MZpHnFY@public.gmane.org>
+Content-Language: en-US
 Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Cc: "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org" <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Marc Dietrich wrote at Sunday, August 28, 2011 10:02 AM:
+> On Monday 22 August 2011 21:23:52 Stephen Warren wrote:
+> > Marc Dietich wrote at Thursday, August 18, 2011 1:49 AM:
+...
+> > > We (the AC100 team) wrote a simple driver for dealing with the
+> > > communication. You may find the latest version at
+> > > http://gitorious.org/~marvin24/ac100/marvin24s-kernel/trees/chromeos-
+> > > ac100-2.6.38/drivers/staging/nvec which I'm trying to push to mainline
+> > > kernel. The changes to i2c-tegra are required to make some progress on
+> > > our side. I'm also planing to reuse more of i2c-tegra init stuff.
+> >
+> > It looks like part of the nvec code (e.g. i2c_interrupt()) is simply a
+> > driver for the slave I2C controller; this should really be moved into
+> > drivers/i2c/busses/i2c-tegra.c rather than exposing the internals of that
+> > driver for use by the nvec driver. The nvec driver could then wrap this
+> > and implement the GPIO-related logic and higher-level protocol.
+...
+> A clean solution (longterm) on the other hand would try to split out the
+> master/slave protocol out of the ISR and make it as minimal as possible,
+> leaving the protocol to the nvec driver. I'm not sure if this is possible
+> or would work at all.
+...
+> Well, the ISR could look for the I2C_SL_IRQ (1<<3) status flag in the
+> I2C_SL_STATUS (0x28) register and branch accordingly. But again, I don't
+> want to bloat the i2c-tegra code with our experimental/unstable driver.
+> 
+> Any ideas on how to proceed?
 
-In tegra_i2c_fill_tx_fifo, once we have finished pushing all the bytes
-to the I2C hardware controller, the interrupt might happen before we
-have updated i2c_dev->msg_buf_remaining at the end of the function.
-Then, in tegra_i2c_isr, we will call again tegra_i2c_fill_tx_fifo
-triggering weird behaviour. This has been shown to happen under real
-conditions.
+I was assuming that the I2C core already had some infra-structure in
+place for abstracting I2C slave controllers. A quick look implies that
+isn't actually the case.
 
-Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Tested-by: Vincent Palatin <vpalatin-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Acked-by: Rhyland Klein <rklein-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |   46 +++++++++++++++++++++++++++------------
- 1 files changed, 32 insertions(+), 14 deletions(-)
+However, I do see that the PXA I2C driver does implement slave mode,
+such that the I2C controller implements all the register twiddling,
+and some callback implements the protocol required by the system. Take
+a look at:
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 8848a4b..b402435 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -271,14 +271,30 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 
- 	/* Rounds down to not include partial word at the end of buf */
- 	words_to_transfer = buf_remaining / BYTES_PER_FIFO_WORD;
--	if (words_to_transfer > tx_fifo_avail)
--		words_to_transfer = tx_fifo_avail;
- 
--	i2c_writesl(i2c_dev, buf, I2C_TX_FIFO, words_to_transfer);
--
--	buf += words_to_transfer * BYTES_PER_FIFO_WORD;
--	buf_remaining -= words_to_transfer * BYTES_PER_FIFO_WORD;
--	tx_fifo_avail -= words_to_transfer;
-+	/* It's very common to have < 4 bytes, so optimize that case. */
-+	if (words_to_transfer) {
-+		if (words_to_transfer > tx_fifo_avail)
-+			words_to_transfer = tx_fifo_avail;
-+
-+		/*
-+		 * Update state before writing to FIFO.  If this casues us
-+		 * to finish writing all bytes (AKA buf_remaining goes to 0) we
-+		 * have a potential for an interrupt (PACKET_XFER_COMPLETE is
-+		 * not maskable).  We need to make sure that the isr sees
-+		 * buf_remaining as 0 and doesn't call us back re-entrantly.
-+		 */
-+		buf_remaining -= words_to_transfer * BYTES_PER_FIFO_WORD;
-+		tx_fifo_avail -= words_to_transfer;
-+		i2c_dev->msg_buf_remaining = buf_remaining;
-+		i2c_dev->msg_buf = buf +
-+			words_to_transfer * BYTES_PER_FIFO_WORD;
-+		barrier();
-+
-+		i2c_writesl(i2c_dev, buf, I2C_TX_FIFO, words_to_transfer);
-+
-+		buf += words_to_transfer * BYTES_PER_FIFO_WORD;
-+	}
- 
- 	/*
- 	 * If there is a partial word at the end of buf, handle it manually to
-@@ -288,14 +304,15 @@ static int tegra_i2c_fill_tx_fifo(struct tegra_i2c_dev *i2c_dev)
- 	if (tx_fifo_avail > 0 && buf_remaining > 0) {
- 		BUG_ON(buf_remaining > 3);
- 		memcpy(&val, buf, buf_remaining);
-+
-+		/* Again update before writing to FIFO to make sure isr sees. */
-+		i2c_dev->msg_buf_remaining = 0;
-+		i2c_dev->msg_buf = NULL;
-+		barrier();
-+
- 		i2c_writel(i2c_dev, val, I2C_TX_FIFO);
--		buf_remaining = 0;
--		tx_fifo_avail--;
- 	}
- 
--	BUG_ON(tx_fifo_avail > 0 && buf_remaining > 0);
--	i2c_dev->msg_buf_remaining = buf_remaining;
--	i2c_dev->msg_buf = buf;
- 	return 0;
- }
- 
-@@ -412,9 +429,10 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 			tegra_i2c_mask_irq(i2c_dev, I2C_INT_TX_FIFO_DATA_REQ);
- 	}
- 
--	if ((status & I2C_INT_PACKET_XFER_COMPLETE) &&
--			!i2c_dev->msg_buf_remaining)
-+	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
-+		BUG_ON(i2c_dev->msg_buf_remaining);
- 		complete(&i2c_dev->msg_complete);
-+	}
- 
- 	i2c_writel(i2c_dev, status, I2C_INT_STATUS);
- 	if (i2c_dev->is_dvc)
+include/linux/i2c-pxa.h (struct i2c_slave_client)
+
+drivers/i2c/busses/i2c-pxa.c (i2c_pxa_slave_*())
+
+I'm not sure how the callback model will fit into devicetree, but PAZ00
+isn't devicetree-enabled (yet) anyway, and various other drivers need
+that problem solved anyway, so I wouldn't let that stop you.
+
+I think even without HW documentation or much experience, it shouldn't be
+that big a deal to take the existing slave code from the nvec staging
+driver and integrate it into the existing I2C master driver. I suppose
+making master vs. slave mode exclusive as a first step actually wouldn't
+be so bad. I can test any such patches for regressions on Harmony,
+Seaboard, and Trimslice, if you need.
+
 -- 
-1.7.0.4
+nvpublic
