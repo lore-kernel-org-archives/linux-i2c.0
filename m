@@ -1,61 +1,55 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c: remove deprecated callbacks
-Date: Thu, 1 Sep 2011 15:01:05 +0200
-Message-ID: <20110901150105.31111b67@endymion.delvare>
-References: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
-	<20110901105226.0d8dd8b2@endymion.delvare>
-	<CAM_iQpVGO6Jfcdy4wWN7O-ZpTha2SbfK6xeaf8g9DRGuh=xcbg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <CAM_iQpVGO6Jfcdy4wWN7O-ZpTha2SbfK6xeaf8g9DRGuh=xcbg@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: =?ISO-8859-1?B?QW3pcmljbw==?= Wang <xiyou.wangcong@gmail.com>
-Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Randy Dunlap <rdunlap@xenotime.net>, Ben Dooks <ben-linux@fluff.org>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V2 1/4] i2c: Add irq_gpio field to struct i2c_client.
+Date: Thu,  1 Sep 2011 10:52:37 -0600
+Message-ID: <1314895964-15964-1-git-send-email-swarren@nvidia.com>
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Andrew Chew <achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 1 Sep 2011 17:12:00 +0800, Am=E9rico Wang wrote:
-> On Thu, Sep 1, 2011 at 4:52 PM, Jean Delvare <khali@linux-fr.org> wro=
-te:
-> > Furthermore, you didn't even check if the deprecated callbacks were
-> > still in use. It turns out that there are 9 drivers still using one=
- of
-> > them (6 macintosh drivers and 3 sound drivers) so plain removing it
-> > will cause build breakages. We obviously don't want to do that, so =
-I am
-> > not going to apply your patch (nor mine) for now.
->=20
-> Hmm, sorry that I didn't know this, maybe we can defer the removal
-> of these callbacks?
+Some devices use a single pin as both an IRQ and a GPIO. In that case,
+irq_gpio is the GPIO ID for that pin. Not all drivers use this feature.
+Where they do, and the use of this feature is optional, and the system
+wishes to disable this feature, this field must be explicitly set to a
+defined invalid GPIO ID, such as -1.
 
-We have to, obviously. And given that this is 50% of the patch, there's
-little point in applying the rest now.
+Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+v2: This patch is new. This updated series based on Arnd's comments that
+this solution was a good idea.
 
-> > (...)
-> > If you want to help, then instead of sending a patch which I alread=
-y
-> > have and virtually everybody could have written, please get the
-> > remaining 3 drivers converted to the current i2c binding model:
-> > =A0sound/ppc/keywest.c
-> > =A0sound/aoa/codecs/onyx.c
-> > =A0sound/aoa/codecs/tas.c
->=20
-> Sure, if I can... so how do we convert them? Any examples?
+Note that I leave on vacation for 2 weeks starting Friday afternoon. I
+may have some email capabilities during this time, but will certainly be
+slow to respond.
 
-If it was trivial, someone would have done it already... I converted
-most drivers a couple years ago, but the remaining ones only run on
-systems I don't have and converting them properly would take intimate
-knowledge of the systems in question and preferably actual hardware for
-testing.
+ include/linux/i2c.h |    7 +++++++
+ 1 files changed, 7 insertions(+), 0 deletions(-)
 
-You can read the possible replacements for the current deprecated
-implementations:
-  Documentation/i2c/instantiating-devices
-
-At the moment I am essentially waiting to see when Ben is headed, as
-hopefully the sound drivers can follow the same path. If you want to
-help Ben with code review or testing (if you can) this would be great.
-
---=20
-Jean Delvare
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 3fad485..b368097 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -192,6 +192,12 @@ struct i2c_driver {
+  * @driver: device's driver, hence pointer to access routines
+  * @dev: Driver model device node for the slave.
+  * @irq: indicates the IRQ generated by this device (if any)
++ * @irq_gpio: some devices use a single pin as both an IRQ and a GPIO. In
++ *	that case, irq_gpio is the GPIO ID for that pin. Not all drivers
++ *	use this feature. Where they do, and the use of this feature is
++ *	optional, and the system wishes to disable this feature, this
++ *	field must be explicitly set to a defined invalid GPIO ID, such
++ *	as -1.
+  * @detected: member of an i2c_driver.clients list or i2c-core's
+  *	userspace_devices list
+  *
+@@ -209,6 +215,7 @@ struct i2c_client {
+ 	struct i2c_driver *driver;	/* and our access routines	*/
+ 	struct device dev;		/* the device structure		*/
+ 	int irq;			/* irq issued by device		*/
++	int irq_gpio;			/* gpio corresponding to irq	*/
+ 	struct list_head detected;
+ };
+ #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+-- 
+1.7.0.4
