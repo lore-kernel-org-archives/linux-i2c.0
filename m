@@ -1,77 +1,68 @@
-From: =?UTF-8?Q?Am=C3=A9rico_Wang?= <xiyou.wangcong@gmail.com>
-Subject: Re: [PATCH] i2c: remove deprecated callbacks
-Date: Thu, 1 Sep 2011 17:12:00 +0800
-Message-ID: <CAM_iQpVGO6Jfcdy4wWN7O-ZpTha2SbfK6xeaf8g9DRGuh=xcbg@mail.gmail.com>
-References: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
-	<20110901105226.0d8dd8b2@endymion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/1] drivers/i2c/busses/scx200_acb.c: Fix section
+ mismatch warning in scx200_pci_drv
+Date: Thu, 1 Sep 2011 14:19:44 +0200
+Message-ID: <20110901141944.4f7ce096@endymion.delvare>
+References: <1314870029-28541-1-git-send-email-harvey.huawei.yang@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20110901105226.0d8dd8b2@endymion.delvare>
-Sender: linux-doc-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Randy Dunlap <rdunlap@xenotime.net>, Ben Dooks <ben-linux@fluff.org>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1314870029-28541-1-git-send-email-harvey.huawei.yang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Harvey Yang <harvey.huawei.yang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 1, 2011 at 4:52 PM, Jean Delvare <khali@linux-fr.org> wrote=
-:
-> Hi Cong,
->
-> On Thu, =C2=A01 Sep 2011 12:40:27 +0800, WANG Cong wrote:
->> i2c_driver.attach_adapter and i2c_driver.detach_adapter are deprecat=
-ed
->> and scheduled to be removed in Sep 2011.
->>
->> Cc: Jean Delvare <khali@linux-fr.org>
->> Signed-off-by: WANG Cong <xiyou.wangcong@gmail.com>
->
-> I'm not sure what you are trying to achieve here.
+Hi Harvey,
 
-I just want to make feature-removal-schedule.txt working. :)
+Please send i2c-related patches to the i2c list rather than LKML.
 
->
-> I am obviously aware of these functions being deprecated, I am the on=
-e
-> who added the entry in feature-removal-schedule.txt. And as a matter =
-of
-> fact, I have a patch ready for months now.
->
-> I could understand you sending a patch if the entry had expired long
-> ago, but this isn't the case: it is marked for September 2011 and you
-> send a patch on September 1st. Hardly a coincidence. While there
-> certainly is a benefit in people reading feature-removal-schedule.txt
-> and trying to clean it up by closing old (presumably forgotten)
-> entries, this doesn't apply here.
->
-> Furthermore, you didn't even check if the deprecated callbacks were
-> still in use. It turns out that there are 9 drivers still using one o=
-f
-> them (6 macintosh drivers and 3 sound drivers) so plain removing it
-> will cause build breakages. We obviously don't want to do that, so I =
-am
-> not going to apply your patch (nor mine) for now.
+On Thu,  1 Sep 2011 17:40:29 +0800, Harvey Yang wrote:
+> WARNING: drivers/i2c/busses/built-in.o(.data+0x47c8): Section mismatch in reference from the variable scx200_pci_drv to the function .devinit.text:scx200_probe()
+> The variable scx200_pci_drv references
+> the function __devinit scx200_probe()
+> If the reference is valid then annotate the
+> variable with __init* or __refdata (see linux/init.h) or name the variable:
+> *driver, *_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+> 
+> Signed-off-by: Harvey Yang <harvey.huawei.yang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/scx200_acb.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
+> index 986e5f6..91e349c 100644
+> --- a/drivers/i2c/busses/scx200_acb.c
+> +++ b/drivers/i2c/busses/scx200_acb.c
+> @@ -550,7 +550,7 @@ static int __devexit scx200_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> -static struct platform_driver scx200_pci_drv = {
+> +static struct platform_driver scx200_pci_driver = {
+>  	.driver = {
+>  		.name = "cs5535-smb",
+>  		.owner = THIS_MODULE,
+> @@ -593,14 +593,14 @@ static int __init scx200_acb_init(void)
+>  		return 0;
+>  
+>  	/* No ISA devices; register the platform driver for PCI-based devices */
+> -	return platform_driver_register(&scx200_pci_drv);
+> +	return platform_driver_register(&scx200_pci_driver);
+>  }
+>  
+>  static void __exit scx200_acb_cleanup(void)
+>  {
+>  	struct scx200_acb_iface *iface;
+>  
+> -	platform_driver_unregister(&scx200_pci_drv);
+> +	platform_driver_unregister(&scx200_pci_driver);
+>  
+>  	mutex_lock(&scx200_acb_list_mutex);
+>  	while ((iface = scx200_acb_list) != NULL) {
 
-Hmm, sorry that I didn't know this, maybe we can defer the removal
-of these callbacks?
+Applied, thanks.
 
->
-> I know that Benjamin Herrenschmidt is working on converting (some of)
-> the macintosh drivers. I don't have any news for some time though. Be=
-n,
-> are you done with the conversion by now? It would be great to get it
-> merged in kernel 3.2.
->
-> Cong, do you have a specific interest in these callbacks being remove=
-d?
->
-> If you want to help, then instead of sending a patch which I already
-> have and virtually everybody could have written, please get the
-> remaining 3 drivers converted to the current i2c binding model:
-> =C2=A0sound/ppc/keywest.c
-> =C2=A0sound/aoa/codecs/onyx.c
-> =C2=A0sound/aoa/codecs/tas.c
-
-Sure, if I can... so how do we convert them? Any examples?
-
-Thanks!
+-- 
+Jean Delvare
