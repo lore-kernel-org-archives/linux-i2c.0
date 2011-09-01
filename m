@@ -1,138 +1,111 @@
-From: David Daney <david.daney@cavium.com>
-Subject: [PATCH 2/2] i2c/of: Automatically populate i2c mux busses from device tree data.
-Date: Wed, 31 Aug 2011 14:44:39 -0700
-Message-ID: <1314827079-21245-3-git-send-email-david.daney@cavium.com>
-References: <1314827079-21245-1-git-send-email-david.daney@cavium.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1314827079-21245-1-git-send-email-david.daney@cavium.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: khali@linux-fr.org, ben-linux@fluff.org, peter.korsgaard@barco.com, guenter.roeck@ericsson.com, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca
-Cc: linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>
+From: WANG Cong <xiyou.wangcong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: remove deprecated callbacks
+Date: Thu,  1 Sep 2011 12:40:27 +0800
+Message-ID: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, WANG Cong <xiyou.wangcong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-For 'normal' i2c bus drivers, we can call of_i2c_register_devices()
-and have the device tree framework automatically populate the bus with
-the devices specified in the device tree.
+i2c_driver.attach_adapter and i2c_driver.detach_adapter are deprecated
+and scheduled to be removed in Sep 2011.
 
-This patch adds a common code to the i2c mux framework to have the mux
-sub-busses be populated by the of_i2c_register_devices() too.  If the
-mux device has an of_node, we populate the sub-bus' of_node so that
-the subsequent call to of_i2c_register_devices() will find the
-corresponding devices.
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: WANG Cong <xiyou.wangcong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-It seemed better to put this logic in i2c_add_mux_adapter() rather
-than the individual mux drivers, as they will all probably want to do
-the same thing.
-
-Signed-off-by: David Daney <david.daney@cavium.com>
 ---
- Documentation/devicetree/bindings/i2c/mux.txt |   54 +++++++++++++++++++++++++
- drivers/i2c/i2c-mux.c                         |   25 +++++++++++
- 2 files changed, 79 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/mux.txt
-
-diff --git a/Documentation/devicetree/bindings/i2c/mux.txt b/Documentation/devicetree/bindings/i2c/mux.txt
-new file mode 100644
-index 0000000..7bd9192
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/mux.txt
-@@ -0,0 +1,54 @@
-+Common i2c bus multiplexer/switch properties.
-+
-+An i2c bus multiplexer/switch will have several child busses that are
-+numbered uniquely in a device dependent manner.  The nodes for an i2c bus
-+multiplexer/switch will have one child node for each child
-+bus.
-+
-+Required properties for child nodes:
-+- #address-cells = <1>;
-+- #size-cells = <0>;
-+- cell-index : The sub-bus number.
-+
-+Optional properties for child nodes:
-+- Other properties specific to the multiplexer/switch hardware.
-+- Child nodes conforming to i2c bus binding
-+
-+
-+Example :
-+
-+	/*
-+	   An NXP pca9548 8 channel I2C multiplexer at address 0x70
-+	   with two NXP pca8574 GPIO expanders attached, one each to
-+	   ports 3 and 4.
-+	 */
-+
-+	mux@70 {
-+		compatible = "nxp,pca9548";
-+		reg = <0x70>;
-+
-+		i2c@3 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			cell-index = <3>;
-+
-+			gpio1: gpio@38 {
-+				compatible = "nxp,pca8574";
-+				reg = <0x38>;
-+				#gpio-cells = <2>;
-+				gpio-controller;
-+			};
-+		};
-+		i2c@4 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			cell-index = <4>;
-+
-+			gpio2: gpio@38 {
-+				compatible = "nxp,pca8574";
-+				reg = <0x38>;
-+				#gpio-cells = <2>;
-+				gpio-controller;
-+			};
-+		};
-+	};
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 26ab31d..0d0fd96 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -24,6 +24,8 @@
- #include <linux/slab.h>
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
-+#include <linux/of.h>
-+#include <linux/of_i2c.h>
+diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+index c4a6e14..89a9695 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -486,15 +486,6 @@ Files:	include/linux/netfilter_ipv4/ipt_addrtype.h
  
- /* multiplexer per channel data */
- struct i2c_mux_priv {
-@@ -142,6 +144,29 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
- 		 i2c_adapter_id(&priv->adap));
+ ----------------------------
  
-+#ifdef CONFIG_OF
-+	/* Try to get populate the mux adapter's of_node */
-+	if (mux_dev->of_node) {
-+		struct device_node *child = NULL;
-+		const __be32 *cell_index;
-+		int len;
-+
-+		for (;;) {
-+			child = of_get_next_child(mux_dev->of_node, child);
-+			if (!child)
-+				break;
-+			cell_index = of_get_property(child, "cell-index", &len);
-+			if (!cell_index || (len < sizeof(__be32)))
-+				continue;
-+			if (chan_id == be32_to_cpup(cell_index)) {
-+				priv->adap.dev.of_node = child;
-+				break;
-+			}
-+		}
-+	}
-+	of_i2c_register_devices(&priv->adap);
-+#endif
-+
- 	return &priv->adap;
+-What:	i2c_driver.attach_adapter
+-	i2c_driver.detach_adapter
+-When:	September 2011
+-Why:	These legacy callbacks should no longer be used as i2c-core offers
+-	a variety of preferable alternative ways to instantiate I2C devices.
+-Who:	Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+-
+-----------------------------
+-
+ What:	Support for UVCIOC_CTRL_ADD in the uvcvideo driver
+ When:	3.2
+ Why:	The information passed to the driver by this ioctl is now queried
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 131079a..c833c53 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -44,8 +44,8 @@
+ 
+ 
+ /* core_lock protects i2c_adapter_idr, and guarantees
+-   that device detection, deletion of detected devices, and attach_adapter
+-   and detach_adapter calls are serialized */
++   that device detection, deletion of detected devices
++   calls are serialized */
+ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
+ 
+@@ -795,15 +795,6 @@ static int i2c_do_add_adapter(struct i2c_driver *driver,
+ 	/* Detect supported devices on that bus, and instantiate them */
+ 	i2c_detect(adap, driver);
+ 
+-	/* Let legacy drivers scan this bus for matching devices */
+-	if (driver->attach_adapter) {
+-		dev_warn(&adap->dev, "%s: attach_adapter method is deprecated\n",
+-			 driver->driver.name);
+-		dev_warn(&adap->dev, "Please use another way to instantiate "
+-			 "your i2c_client\n");
+-		/* We ignore the return code; if it fails, too bad */
+-		driver->attach_adapter(adap);
+-	}
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
--- 
-1.7.2.3
+ 
+@@ -975,7 +966,6 @@ static int i2c_do_del_adapter(struct i2c_driver *driver,
+ 			      struct i2c_adapter *adapter)
+ {
+ 	struct i2c_client *client, *_n;
+-	int res;
+ 
+ 	/* Remove the devices we created ourselves as the result of hardware
+ 	 * probing (using a driver's detect method) */
+@@ -988,15 +978,7 @@ static int i2c_do_del_adapter(struct i2c_driver *driver,
+ 		}
+ 	}
+ 
+-	if (!driver->detach_adapter)
+-		return 0;
+-	dev_warn(&adapter->dev, "%s: detach_adapter method is deprecated\n",
+-		 driver->driver.name);
+-	res = driver->detach_adapter(adapter);
+-	if (res)
+-		dev_err(&adapter->dev, "detach_adapter failed (%d) "
+-			"for driver [%s]\n", res, driver->driver.name);
+-	return res;
++	return 0;
+ }
+ 
+ static int __unregister_client(struct device *dev, void *dummy)
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a6c652e..25c2c87 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -142,13 +142,6 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
+ struct i2c_driver {
+ 	unsigned int class;
+ 
+-	/* Notifies the driver that a new bus has appeared or is about to be
+-	 * removed. You should avoid using this, it will be removed in a
+-	 * near future.
+-	 */
+-	int (*attach_adapter)(struct i2c_adapter *) __deprecated;
+-	int (*detach_adapter)(struct i2c_adapter *) __deprecated;
+-
+ 	/* Standard driver model interfaces */
+ 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+ 	int (*remove)(struct i2c_client *);
