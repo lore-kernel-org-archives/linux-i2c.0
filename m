@@ -1,111 +1,83 @@
-From: WANG Cong <xiyou.wangcong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: remove deprecated callbacks
-Date: Thu,  1 Sep 2011 12:40:27 +0800
-Message-ID: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, WANG Cong <xiyou.wangcong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] i2c: remove deprecated callbacks
+Date: Thu, 1 Sep 2011 10:52:26 +0200
+Message-ID: <20110901105226.0d8dd8b2@endymion.delvare>
+References: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: WANG Cong <xiyou.wangcong@gmail.com>
+Cc: linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Randy Dunlap <rdunlap@xenotime.net>, Ben Dooks <ben-linux@fluff.org>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>
 List-Id: linux-i2c@vger.kernel.org
 
-i2c_driver.attach_adapter and i2c_driver.detach_adapter are deprecated
-and scheduled to be removed in Sep 2011.
+Hi Cong,
 
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: WANG Cong <xiyou.wangcong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+On Thu,  1 Sep 2011 12:40:27 +0800, WANG Cong wrote:
+> i2c_driver.attach_adapter and i2c_driver.detach_adapter are deprecated
+> and scheduled to be removed in Sep 2011.
+> 
+> Cc: Jean Delvare <khali@linux-fr.org>
+> Signed-off-by: WANG Cong <xiyou.wangcong@gmail.com>
 
----
-diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-index c4a6e14..89a9695 100644
---- a/Documentation/feature-removal-schedule.txt
-+++ b/Documentation/feature-removal-schedule.txt
-@@ -486,15 +486,6 @@ Files:	include/linux/netfilter_ipv4/ipt_addrtype.h
- 
- ----------------------------
- 
--What:	i2c_driver.attach_adapter
--	i2c_driver.detach_adapter
--When:	September 2011
--Why:	These legacy callbacks should no longer be used as i2c-core offers
--	a variety of preferable alternative ways to instantiate I2C devices.
--Who:	Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
--
------------------------------
--
- What:	Support for UVCIOC_CTRL_ADD in the uvcvideo driver
- When:	3.2
- Why:	The information passed to the driver by this ioctl is now queried
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 131079a..c833c53 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -44,8 +44,8 @@
- 
- 
- /* core_lock protects i2c_adapter_idr, and guarantees
--   that device detection, deletion of detected devices, and attach_adapter
--   and detach_adapter calls are serialized */
-+   that device detection, deletion of detected devices
-+   calls are serialized */
- static DEFINE_MUTEX(core_lock);
- static DEFINE_IDR(i2c_adapter_idr);
- 
-@@ -795,15 +795,6 @@ static int i2c_do_add_adapter(struct i2c_driver *driver,
- 	/* Detect supported devices on that bus, and instantiate them */
- 	i2c_detect(adap, driver);
- 
--	/* Let legacy drivers scan this bus for matching devices */
--	if (driver->attach_adapter) {
--		dev_warn(&adap->dev, "%s: attach_adapter method is deprecated\n",
--			 driver->driver.name);
--		dev_warn(&adap->dev, "Please use another way to instantiate "
--			 "your i2c_client\n");
--		/* We ignore the return code; if it fails, too bad */
--		driver->attach_adapter(adap);
--	}
- 	return 0;
- }
- 
-@@ -975,7 +966,6 @@ static int i2c_do_del_adapter(struct i2c_driver *driver,
- 			      struct i2c_adapter *adapter)
- {
- 	struct i2c_client *client, *_n;
--	int res;
- 
- 	/* Remove the devices we created ourselves as the result of hardware
- 	 * probing (using a driver's detect method) */
-@@ -988,15 +978,7 @@ static int i2c_do_del_adapter(struct i2c_driver *driver,
- 		}
- 	}
- 
--	if (!driver->detach_adapter)
--		return 0;
--	dev_warn(&adapter->dev, "%s: detach_adapter method is deprecated\n",
--		 driver->driver.name);
--	res = driver->detach_adapter(adapter);
--	if (res)
--		dev_err(&adapter->dev, "detach_adapter failed (%d) "
--			"for driver [%s]\n", res, driver->driver.name);
--	return res;
-+	return 0;
- }
- 
- static int __unregister_client(struct device *dev, void *dummy)
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index a6c652e..25c2c87 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -142,13 +142,6 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
- struct i2c_driver {
- 	unsigned int class;
- 
--	/* Notifies the driver that a new bus has appeared or is about to be
--	 * removed. You should avoid using this, it will be removed in a
--	 * near future.
--	 */
--	int (*attach_adapter)(struct i2c_adapter *) __deprecated;
--	int (*detach_adapter)(struct i2c_adapter *) __deprecated;
--
- 	/* Standard driver model interfaces */
- 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
- 	int (*remove)(struct i2c_client *);
+I'm not sure what you are trying to achieve here.
+
+I am obviously aware of these functions being deprecated, I am the one
+who added the entry in feature-removal-schedule.txt. And as a matter of
+fact, I have a patch ready for months now.
+
+I could understand you sending a patch if the entry had expired long
+ago, but this isn't the case: it is marked for September 2011 and you
+send a patch on September 1st. Hardly a coincidence. While there
+certainly is a benefit in people reading feature-removal-schedule.txt
+and trying to clean it up by closing old (presumably forgotten)
+entries, this doesn't apply here.
+
+Furthermore, you didn't even check if the deprecated callbacks were
+still in use. It turns out that there are 9 drivers still using one of
+them (6 macintosh drivers and 3 sound drivers) so plain removing it
+will cause build breakages. We obviously don't want to do that, so I am
+not going to apply your patch (nor mine) for now.
+
+I know that Benjamin Herrenschmidt is working on converting (some of)
+the macintosh drivers. I don't have any news for some time though. Ben,
+are you done with the conversion by now? It would be great to get it
+merged in kernel 3.2.
+
+Cong, do you have a specific interest in these callbacks being removed?
+
+If you want to help, then instead of sending a patch which I already
+have and virtually everybody could have written, please get the
+remaining 3 drivers converted to the current i2c binding model:
+  sound/ppc/keywest.c
+  sound/aoa/codecs/onyx.c
+  sound/aoa/codecs/tas.c
+THAT would be helpful. At the moment, it only looks like you are trying
+to get your name on a trivial patch, i.e. getting credit for work you
+didn't really do.
+
+> 
+> ---
+> diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+> index c4a6e14..89a9695 100644
+> --- a/Documentation/feature-removal-schedule.txt
+> +++ b/Documentation/feature-removal-schedule.txt
+> @@ -486,15 +486,6 @@ Files:	include/linux/netfilter_ipv4/ipt_addrtype.h
+>  
+>  ----------------------------
+>  
+> -What:	i2c_driver.attach_adapter
+> -	i2c_driver.detach_adapter
+> -When:	September 2011
+> -Why:	These legacy callbacks should no longer be used as i2c-core offers
+> -	a variety of preferable alternative ways to instantiate I2C devices.
+> -Who:	Jean Delvare <khali@linux-fr.org>
+> -
+> -----------------------------
+> -
+> (...)
+
+-- 
+Jean Delvare
