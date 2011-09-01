@@ -1,49 +1,104 @@
-From: Stephen Warren <swarren@nvidia.com>
-Subject: [PATCH V3 3/5] staging:iio:magnetometer:ak8975 Don't use irq_to_gpio()
-Date: Thu,  1 Sep 2011 16:04:34 -0600
-Message-ID: <1314914676-28397-8-git-send-email-swarren@nvidia.com>
-References: <1314914676-28397-1-git-send-email-swarren@nvidia.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [PATCH] i2c: remove deprecated callbacks
+Date: Fri, 02 Sep 2011 09:24:18 +1000
+Message-ID: <1314919458.4145.23.camel@pasglop>
+References: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
+	 <20110901105226.0d8dd8b2@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1314914676-28397-1-git-send-email-swarren@nvidia.com>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
-	<mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: devel-bounces@linuxdriverproject.org
-To: Greg Kroah-Hartman <gregkh@suse.de>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>
-Cc: devel@driverdev.osuosl.org, Andrew Chew <achew@nvidia.com>, Stephen Warren <swarren@nvidia.com>, linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org, Jonathan Cameron <jic23@cam.ac.uk>, spi-devel-general@lists.sourceforge.net, linux-tegra@vger.kernel.org, Russell King <linux@arm.linux.org.uk>, linux-i2c@vger.kernel.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20110901105226.0d8dd8b2@endymion.delvare>
+Sender: linux-doc-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: WANG Cong <xiyou.wangcong@gmail.com>, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Randy Dunlap <rdunlap@xenotime.net>, Ben Dooks <ben-linux@fluff.org>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Tegra doesn't have irq_to_gpio() any more, and ak8975 is included in
-tegra_defconfig. This causes a build failure.
+On Thu, 2011-09-01 at 10:52 +0200, Jean Delvare wrote:
+> Hi Cong,
+> 
+> On Thu,  1 Sep 2011 12:40:27 +0800, WANG Cong wrote:
+> > i2c_driver.attach_adapter and i2c_driver.detach_adapter are deprecated
+> > and scheduled to be removed in Sep 2011.
+> > 
+> > Cc: Jean Delvare <khali@linux-fr.org>
+> > Signed-off-by: WANG Cong <xiyou.wangcong@gmail.com>
+> 
+> I'm not sure what you are trying to achieve here.
+> 
+> I am obviously aware of these functions being deprecated, I am the one
+> who added the entry in feature-removal-schedule.txt. And as a matter of
+> fact, I have a patch ready for months now.
+> 
+> I could understand you sending a patch if the entry had expired long
+> ago, but this isn't the case: it is marked for September 2011 and you
+> send a patch on September 1st. Hardly a coincidence. While there
+> certainly is a benefit in people reading feature-removal-schedule.txt
+> and trying to clean it up by closing old (presumably forgotten)
+> entries, this doesn't apply here.
 
-Instead, obtain the GPIO ID corresponding to the chip's IRQ from the new
-i2c_client field irq_gpio.
+Unfortunately I'm not finished converting the Mac drivers...
 
-Signed-off-by: Stephen Warren <swarren@nvidia.com>
----
- drivers/staging/iio/magnetometer/ak8975.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> Furthermore, you didn't even check if the deprecated callbacks were
+> still in use. It turns out that there are 9 drivers still using one of
+> them (6 macintosh drivers and 3 sound drivers) so plain removing it
+> will cause build breakages. We obviously don't want to do that, so I am
+> not going to apply your patch (nor mine) for now.
+> 
+> I know that Benjamin Herrenschmidt is working on converting (some of)
+> the macintosh drivers. I don't have any news for some time though. Ben,
+> are you done with the conversion by now? It would be great to get it
+> merged in kernel 3.2.
 
-diff --git a/drivers/staging/iio/magnetometer/ak8975.c b/drivers/staging/iio/magnetometer/ak8975.c
-index a17fa9f..14076da 100644
---- a/drivers/staging/iio/magnetometer/ak8975.c
-+++ b/drivers/staging/iio/magnetometer/ak8975.c
-@@ -477,7 +477,7 @@ static int ak8975_probe(struct i2c_client *client,
- 	int err;
+I'm just bogged down by too many things, including quite a bit of travel
+lately. I have some mostly untested patches converting part of windfarm
+(not all of it yet), and therm_adt746x and a patch to add the generic
+code to register i2c devices from device-tree properly on powermacs.
+
+I'm missing a couple more drivers & bits of windfarm and therm_pm72
+which I'd like to use the opportunity to convert into a windfarm module.
+
+Then there's some sound drivers etc...
+
+I am travelling again tomorrow for 2 weeks, and after that a month in
+europe, tho I'll have 10 days in the middle where I _might_ be able to
+make progress on that. Else it will have to wait for november.
  
- 	/* Grab and set up the supplied GPIO. */
--	eoc_gpio = irq_to_gpio(client->irq);
-+	eoc_gpio = client->irq_gpio;
- 
- 	/* We may not have a GPIO based IRQ to scan, that is fine, we will
- 	   poll if so */
--- 
-1.7.0.4
+> Cong, do you have a specific interest in these callbacks being removed?
+> 
+> If you want to help, then instead of sending a patch which I already
+> have and virtually everybody could have written, please get the
+> remaining 3 drivers converted to the current i2c binding model:
+>   sound/ppc/keywest.c
+>   sound/aoa/codecs/onyx.c
+>   sound/aoa/codecs/tas.c
+> THAT would be helpful. At the moment, it only looks like you are trying
+> to get your name on a trivial patch, i.e. getting credit for work you
+> didn't really do.
+
+Cheers,
+Ben.
+
+> > 
+> > ---
+> > diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+> > index c4a6e14..89a9695 100644
+> > --- a/Documentation/feature-removal-schedule.txt
+> > +++ b/Documentation/feature-removal-schedule.txt
+> > @@ -486,15 +486,6 @@ Files:	include/linux/netfilter_ipv4/ipt_addrtype.h
+> >  
+> >  ----------------------------
+> >  
+> > -What:	i2c_driver.attach_adapter
+> > -	i2c_driver.detach_adapter
+> > -When:	September 2011
+> > -Why:	These legacy callbacks should no longer be used as i2c-core offers
+> > -	a variety of preferable alternative ways to instantiate I2C devices.
+> > -Who:	Jean Delvare <khali@linux-fr.org>
+> > -
+> > -----------------------------
+> > -
+> > (...)
+> 
+
+
