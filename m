@@ -1,55 +1,101 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c: remove deprecated callbacks
-Date: Fri, 2 Sep 2011 08:28:13 +0200
-Message-ID: <20110902082813.310454af@endymion.delvare>
-References: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
-	<20110901105226.0d8dd8b2@endymion.delvare>
-	<1314919458.4145.23.camel@pasglop>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH V3 1/5] i2c: Add irq_gpio field to struct i2c_client,
+ i2c_board_info.
+Date: Fri, 2 Sep 2011 08:56:20 +0200
+Message-ID: <20110902085620.4ad918c4@endymion.delvare>
+References: <1314914676-28397-1-git-send-email-swarren@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1314919458.4145.23.camel@pasglop>
-Sender: linux-doc-owner@vger.kernel.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: WANG Cong <xiyou.wangcong@gmail.com>, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Randy Dunlap <rdunlap@xenotime.net>, Ben Dooks <ben-linux@fluff.org>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1314914676-28397-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Andrew Chew <achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 02 Sep 2011 09:24:18 +1000, Benjamin Herrenschmidt wrote:
-> On Thu, 2011-09-01 at 10:52 +0200, Jean Delvare wrote:
-> > Furthermore, you didn't even check if the deprecated callbacks were
-> > still in use. It turns out that there are 9 drivers still using one of
-> > them (6 macintosh drivers and 3 sound drivers) so plain removing it
-> > will cause build breakages. We obviously don't want to do that, so I am
-> > not going to apply your patch (nor mine) for now.
-> > 
-> > I know that Benjamin Herrenschmidt is working on converting (some of)
-> > the macintosh drivers. I don't have any news for some time though. Ben,
-> > are you done with the conversion by now? It would be great to get it
-> > merged in kernel 3.2.
-> 
-> I'm just bogged down by too many things, including quite a bit of travel
-> lately. I have some mostly untested patches converting part of windfarm
-> (not all of it yet), and therm_adt746x and a patch to add the generic
-> code to register i2c devices from device-tree properly on powermacs.
-> 
-> I'm missing a couple more drivers & bits of windfarm and therm_pm72
-> which I'd like to use the opportunity to convert into a windfarm module.
-> 
-> Then there's some sound drivers etc...
-> 
-> I am travelling again tomorrow for 2 weeks, and after that a month in
-> europe, tho I'll have 10 days in the middle where I _might_ be able to
-> make progress on that. Else it will have to wait for november.
+Stephen,
 
-Thanks for the update, Ben. November is totally fine with me, the i2c
-subsystem conversion started 5 years ago or so, we can wait a couple
-additional months ;) I definitely prefer that you take the time to do
-it properly and we can apply the same for the remaining drivers.
+Can you please fix your e-mail client / system / whatever so that your
+patch series are no longer sent duplicated?
 
-If you want, we may be able to spend half an hour face to face in
-Prague in October to check what you've done and if there are blocking
-issues remaining.
+On Thu,  1 Sep 2011 16:04:27 -0600, Stephen Warren wrote:
+> Some devices use a single pin as both an IRQ and a GPIO. In that case,
+> irq_gpio is the GPIO ID for that pin. Not all drivers use this feature.
+> Where they do, and the use of this feature is optional, and the system
+> wishes to disable this feature, this field must be explicitly set to a
+> defined invalid GPIO ID, such as -1.
+> 
+> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+> v3: Also add the field to i2c_board_info, and copy the field from
+>     i2c_board_info to i2c_client upon instantiation
+
+I don't get the idea. The i2c core doesn't make any use of the field,
+and that field will only be used by a few drivers amongst the 420+
+i2c drivers in the tree. This looks like a waste of memory. What's wrong
+with including the new field in the private platform or arch data
+structure for drivers which need it?
+
+> 
+>  drivers/i2c/i2c-core.c |    1 +
+>  include/linux/i2c.h    |    9 +++++++++
+>  2 files changed, 10 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 131079a..da12540 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -518,6 +518,7 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+>  	client->flags = info->flags;
+>  	client->addr = info->addr;
+>  	client->irq = info->irq;
+> +	client->irq_gpio = info->irq_gpio;
+>  
+>  	strlcpy(client->name, info->type, sizeof(client->name));
+>  
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 3fad485..49e2e36 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -192,6 +192,12 @@ struct i2c_driver {
+>   * @driver: device's driver, hence pointer to access routines
+>   * @dev: Driver model device node for the slave.
+>   * @irq: indicates the IRQ generated by this device (if any)
+> + * @irq_gpio: some devices use a single pin as both an IRQ and a GPIO. In
+> + *	that case, irq_gpio is the GPIO ID for that pin. Not all drivers
+> + *	use this feature. Where they do, and the use of this feature is
+> + *	optional, and the system wishes to disable this feature, this
+> + *	field must be explicitly set to a defined invalid GPIO ID, such
+> + *	as -1.
+>   * @detected: member of an i2c_driver.clients list or i2c-core's
+>   *	userspace_devices list
+>   *
+> @@ -209,6 +215,7 @@ struct i2c_client {
+>  	struct i2c_driver *driver;	/* and our access routines	*/
+>  	struct device dev;		/* the device structure		*/
+>  	int irq;			/* irq issued by device		*/
+> +	int irq_gpio;			/* gpio corresponding to irq	*/
+>  	struct list_head detected;
+>  };
+>  #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+> @@ -240,6 +247,7 @@ static inline void i2c_set_clientdata(struct i2c_client *dev, void *data)
+>   * @archdata: copied into i2c_client.dev.archdata
+>   * @of_node: pointer to OpenFirmware device node
+>   * @irq: stored in i2c_client.irq
+> + * @irq_gpio: stored in i2c_client.irq_gpio
+>   *
+>   * I2C doesn't actually support hardware probing, although controllers and
+>   * devices may be able to use I2C_SMBUS_QUICK to tell whether or not there's
+> @@ -260,6 +268,7 @@ struct i2c_board_info {
+>  	struct dev_archdata	*archdata;
+>  	struct device_node *of_node;
+>  	int		irq;
+> +	int		irq_gpio;
+>  };
+>  
+>  /**
+
 
 -- 
 Jean Delvare
