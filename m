@@ -1,34 +1,43 @@
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of
- interrupts
-Date: Fri, 2 Sep 2011 14:35:44 +0100 (BST)
-Message-ID: <alpine.LFD.2.00.1109021432060.4855@eddie.linux-mips.org>
-References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>        <CAEdQ38E6qqVAKC1MkAWto5yeU9N2uoyGY1Y5431kNUNL_yc8EA@mail.gmail.com> <20110902152104.1cc3e2c6@endymion.delvare>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH V2 1/4] i2c: Add irq_gpio field to struct i2c_client.
+Date: Fri, 2 Sep 2011 08:30:31 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF04B327A55D@HQMAIL01.nvidia.com>
+References: <1314895964-15964-1-git-send-email-swarren@nvidia.com>
+ <1314895964-15964-5-git-send-email-swarren@nvidia.com>
+ <4E60985B.6010901@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-mips-bounce@linux-mips.org>
-In-Reply-To: <20110902152104.1cc3e2c6@endymion.delvare>
-Sender: linux-mips-bounce@linux-mips.org
-Errors-to: linux-mips-bounce@linux-mips.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Matt Turner <mattst88@gmail.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>, Guenter Roeck <guenter.roeck@ericsson.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4E60985B.6010901-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Content-Language: en-US
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Andrew Chew <AChew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org" <devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2 Sep 2011, Jean Delvare wrote:
-
-> > > Signed-off-by: Matt Turner <mattst88@gmail.com>
-> > > Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
-> > 
-> > Do you want to take this patch, or should Ralf through his tree?
+Jonathan Cameron wrote at Friday, September 02, 2011 2:48 AM:
+> On 09/01/11 17:52, Stephen Warren wrote:
+> > Some devices use a single pin as both an IRQ and a GPIO. In that case,
+> > irq_gpio is the GPIO ID for that pin. Not all drivers use this feature.
+> > Where they do, and the use of this feature is optional, and the system
+> > wishes to disable this feature, this field must be explicitly set to a
+> > defined invalid GPIO ID, such as -1.
+>
+> Why make it specifically an irq related gpio?  Might as well just call it
+> gpio then it can be used for cases where it never corresponds to an irq
+> such as capture trigger pins.
 > 
-> My tree is fine, unless Ralf has a specific reason to pick it. Just
-> give me a couple hours to review the patch.
+> Otherwise I'd be happy to see this go in.
 
- As a side note I do really need to get back to this series and see if 
-there's anything else that needs reviving.  Hopefully within the next 
-couple of weeks.
+The idea was specifically to replace the need to call irq_to_gpio(i2c->irq).
+If we did just rename it plain "gpio" and allow it to be used for anything,
+then that does indeed start looking more like device-specific platform data.
 
- Thanks, Matt, for taking care of this patch.  I reckon I've got some 
-other old SWARM stuff that needs digging up too.
+I guess it sounds like consensus is to go that way. It does seem like that
+will end up creating a bunch more device-specific platform-data files though.
+I wonder if adding IORESOURCE_GPIO would make sense so this could be handled
+in a generic way without custom platform data types?
 
-  Maciej
+-- 
+nvpublic
