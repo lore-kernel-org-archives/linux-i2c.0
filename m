@@ -1,29 +1,34 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
 Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of
  interrupts
-Date: Fri, 2 Sep 2011 15:21:04 +0200
-Message-ID: <20110902152104.1cc3e2c6@endymion.delvare>
-References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
-	<CAEdQ38E6qqVAKC1MkAWto5yeU9N2uoyGY1Y5431kNUNL_yc8EA@mail.gmail.com>
+Date: Fri, 2 Sep 2011 14:35:44 +0100 (BST)
+Message-ID: <alpine.LFD.2.00.1109021432060.4855@eddie.linux-mips.org>
+References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>        <CAEdQ38E6qqVAKC1MkAWto5yeU9N2uoyGY1Y5431kNUNL_yc8EA@mail.gmail.com> <20110902152104.1cc3e2c6@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAEdQ38E6qqVAKC1MkAWto5yeU9N2uoyGY1Y5431kNUNL_yc8EA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-mips-bounce@linux-mips.org>
+In-Reply-To: <20110902152104.1cc3e2c6@endymion.delvare>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Matt Turner <mattst88@gmail.com>, linux-i2c@vger.kernel.org, linux-mips@linux-mips.org, Ralf Baechle <ralf@linux-mips.org>, Guenter Roeck <guenter.roeck@ericsson.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 24 Aug 2011 11:36:48 -0400, Matt Turner wrote:
-> On Thu, Aug 18, 2011 at 7:43 PM, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > Signed-off-by: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > Signed-off-by: Maciej W. Rozycki <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+On Fri, 2 Sep 2011, Jean Delvare wrote:
+
+> > > Signed-off-by: Matt Turner <mattst88@gmail.com>
+> > > Signed-off-by: Maciej W. Rozycki <macro@linux-mips.org>
+> > 
+> > Do you want to take this patch, or should Ralf through his tree?
 > 
-> Do you want to take this patch, or should Ralf through his tree?
+> My tree is fine, unless Ralf has a specific reason to pick it. Just
+> give me a couple hours to review the patch.
 
-My tree is fine, unless Ralf has a specific reason to pick it. Just
-give me a couple hours to review the patch.
+ As a side note I do really need to get back to this series and see if 
+there's anything else that needs reviving.  Hopefully within the next 
+couple of weeks.
 
--- 
-Jean Delvare
+ Thanks, Matt, for taking care of this patch.  I reckon I've got some 
+other old SWARM stuff that needs digging up too.
+
+  Maciej
