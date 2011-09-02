@@ -1,25 +1,33 @@
-From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [PATCH] i2c: remove deprecated callbacks
-Date: Fri, 02 Sep 2011 09:32:07 +1000
-Message-ID: <1314919927.4145.24.camel@pasglop>
+Date: Fri, 2 Sep 2011 08:28:13 +0200
+Message-ID: <20110902082813.310454af@endymion.delvare>
 References: <1314852027-9523-1-git-send-email-xiyou.wangcong@gmail.com>
-	 <20110901105226.0d8dd8b2@endymion.delvare>
-	 <1314919458.4145.23.camel@pasglop>
+	<20110901105226.0d8dd8b2@endymion.delvare>
+	<1314919458.4145.23.camel@pasglop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <1314919458.4145.23.camel@pasglop>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: WANG Cong <xiyou.wangcong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-doc-owner@vger.kernel.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: WANG Cong <xiyou.wangcong@gmail.com>, linux-kernel@vger.kernel.org, akpm@linux-foundation.org, Randy Dunlap <rdunlap@xenotime.net>, Ben Dooks <ben-linux@fluff.org>, linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 2011-09-02 at 09:24 +1000, Benjamin Herrenschmidt wrote:
-
-
- .../...
-
+On Fri, 02 Sep 2011 09:24:18 +1000, Benjamin Herrenschmidt wrote:
+> On Thu, 2011-09-01 at 10:52 +0200, Jean Delvare wrote:
+> > Furthermore, you didn't even check if the deprecated callbacks were
+> > still in use. It turns out that there are 9 drivers still using one of
+> > them (6 macintosh drivers and 3 sound drivers) so plain removing it
+> > will cause build breakages. We obviously don't want to do that, so I am
+> > not going to apply your patch (nor mine) for now.
+> > 
+> > I know that Benjamin Herrenschmidt is working on converting (some of)
+> > the macintosh drivers. I don't have any news for some time though. Ben,
+> > are you done with the conversion by now? It would be great to get it
+> > merged in kernel 3.2.
+> 
 > I'm just bogged down by too many things, including quite a bit of travel
 > lately. I have some mostly untested patches converting part of windfarm
 > (not all of it yet), and therm_adt746x and a patch to add the generic
@@ -27,53 +35,21 @@ On Fri, 2011-09-02 at 09:24 +1000, Benjamin Herrenschmidt wrote:
 > 
 > I'm missing a couple more drivers & bits of windfarm and therm_pm72
 > which I'd like to use the opportunity to convert into a windfarm module.
-
-I'll push out my WIP to a branch on powerpc.git on k.org when hera is
-back online so those who want can help.
-
-Cheers,
-Ben.
-
+> 
 > Then there's some sound drivers etc...
 > 
 > I am travelling again tomorrow for 2 weeks, and after that a month in
 > europe, tho I'll have 10 days in the middle where I _might_ be able to
 > make progress on that. Else it will have to wait for november.
->  
-> > Cong, do you have a specific interest in these callbacks being removed?
-> > 
-> > If you want to help, then instead of sending a patch which I already
-> > have and virtually everybody could have written, please get the
-> > remaining 3 drivers converted to the current i2c binding model:
-> >   sound/ppc/keywest.c
-> >   sound/aoa/codecs/onyx.c
-> >   sound/aoa/codecs/tas.c
-> > THAT would be helpful. At the moment, it only looks like you are trying
-> > to get your name on a trivial patch, i.e. getting credit for work you
-> > didn't really do.
-> 
-> Cheers,
-> Ben.
-> 
-> > > 
-> > > ---
-> > > diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-> > > index c4a6e14..89a9695 100644
-> > > --- a/Documentation/feature-removal-schedule.txt
-> > > +++ b/Documentation/feature-removal-schedule.txt
-> > > @@ -486,15 +486,6 @@ Files:	include/linux/netfilter_ipv4/ipt_addrtype.h
-> > >  
-> > >  ----------------------------
-> > >  
-> > > -What:	i2c_driver.attach_adapter
-> > > -	i2c_driver.detach_adapter
-> > > -When:	September 2011
-> > > -Why:	These legacy callbacks should no longer be used as i2c-core offers
-> > > -	a variety of preferable alternative ways to instantiate I2C devices.
-> > > -Who:	Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > > -
-> > > -----------------------------
-> > > -
-> > > (...)
-> > 
-> 
+
+Thanks for the update, Ben. November is totally fine with me, the i2c
+subsystem conversion started 5 years ago or so, we can wait a couple
+additional months ;) I definitely prefer that you take the time to do
+it properly and we can apply the same for the remaining drivers.
+
+If you want, we may be able to spend half an hour face to face in
+Prague in October to check what you've done and if there are blocking
+issues remaining.
+
+-- 
+Jean Delvare
