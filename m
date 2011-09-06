@@ -1,65 +1,63 @@
-From: Greg KH <greg-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V3 1/5] i2c: Add irq_gpio field to struct i2c_client,
- i2c_board_info.
-Date: Tue, 6 Sep 2011 15:57:08 -0700
-Message-ID: <20110906225708.GA28957@kroah.com>
-References: <1314914676-28397-1-git-send-email-swarren@nvidia.com>
- <20110902085620.4ad918c4@endymion.delvare>
- <4E609F9C.5020403@cam.ac.uk>
- <20110902112435.69c9e8f7@endymion.delvare>
- <74CDBE0F657A3D45AFBB94109FB122FF04B327A628@HQMAIL01.nvidia.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH RESEND] i2c-pxa2xx: return proper error code in
+ ce4100_i2c_probe error paths
+Date: Wed, 7 Sep 2011 00:09:01 +0100
+Message-ID: <20110906230901.GA25655@freya.fluff.org>
+References: <1314686257.3270.2.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF04B327A628-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1314686257.3270.2.camel@phoenix>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, "devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org" <devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org>, Andrew Chew <AChew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org" <spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+To: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 02, 2011 at 11:24:04AM -0700, Stephen Warren wrote:
-> Jean Delvare wrote at Friday, September 02, 2011 3:25 AM:
-> > Hi Jonathan,
-> > 
-> > On Fri, 02 Sep 2011 10:19:24 +0100, Jonathan Cameron wrote:
-> > > On 09/02/11 07:56, Jean Delvare wrote:
-> > > > Stephen,
-> > > >
-> > > > Can you please fix your e-mail client / system / whatever so that your
-> > > > patch series are no longer sent duplicated?
-> > > >
-> > > > On Thu,  1 Sep 2011 16:04:27 -0600, Stephen Warren wrote:
-> > > >> Some devices use a single pin as both an IRQ and a GPIO. In that case,
-> > > >> irq_gpio is the GPIO ID for that pin. Not all drivers use this feature.
-> > > >> Where they do, and the use of this feature is optional, and the system
-> > > >> wishes to disable this feature, this field must be explicitly set to a
-> > > >> defined invalid GPIO ID, such as -1.
-> > > >>
-> > > >> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> > > >> ---
-> > > >> v3: Also add the field to i2c_board_info, and copy the field from
-> > > >>     i2c_board_info to i2c_client upon instantiation
-> > > >
-> > > > I don't get the idea. The i2c core doesn't make any use of the field,
-> > > > and that field will only be used by a few drivers amongst the 420+
-> > > > i2c drivers in the tree. This looks like a waste of memory. What's wrong
-> > > > with including the new field in the private platform or arch data
-> > > > structure for drivers which need it?
-> > >
-> > > Why not make it platform data for now and 'if' it becomes way more common
-> > > (probably won't) we can always propose adding as a general field at a later
-> > > date.
-> > 
-> > Yes, this sounds like a much more reasonable approach.
+On Tue, Aug 30, 2011 at 02:37:37PM +0800, Axel Lin wrote:
+> Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Acked-by: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+
+A message in the patch description body is always useful.
+
+Will apply.
+
+> ---
+> Hi Ben,
+> Seems this patch is not yet upstream. Here is the resend.
 > 
-> BTW, if that's the direction that's decided, just take the first version
-> of the patchset I posted, plus Jonathan Cameron's subsequent patch to
-> modify ak8975 to accept GPIO ID through platform data.
-
-I don't know which patchset that would be, can you please just resend
-what you want applied so that I know I get the correct one?
-
-thanks,
-
-greg k-h
+> Axel
+> 
+>  drivers/i2c/busses/i2c-pxa-pci.c |    5 ++++-
+>  1 files changed, 4 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
+> index 6659d26..b73da6c 100644
+> --- a/drivers/i2c/busses/i2c-pxa-pci.c
+> +++ b/drivers/i2c/busses/i2c-pxa-pci.c
+> @@ -109,12 +109,15 @@ static int __devinit ce4100_i2c_probe(struct pci_dev *dev,
+>  		return -EINVAL;
+>  	}
+>  	sds = kzalloc(sizeof(*sds), GFP_KERNEL);
+> -	if (!sds)
+> +	if (!sds) {
+> +		ret = -ENOMEM;
+>  		goto err_mem;
+> +	}
+>  
+>  	for (i = 0; i < ARRAY_SIZE(sds->pdev); i++) {
+>  		sds->pdev[i] = add_i2c_device(dev, i);
+>  		if (IS_ERR(sds->pdev[i])) {
+> +			ret = PTR_ERR(sds->pdev[i]);
+>  			while (--i >= 0)
+>  				platform_device_unregister(sds->pdev[i]);
+>  			goto err_dev_add;
+> -- 
+> 1.7.4.1
+> 
+> 
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
