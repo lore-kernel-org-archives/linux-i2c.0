@@ -1,41 +1,180 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH REPOST 0/3] i2c: tegra: Outstanding patches
-Date: Wed, 7 Sep 2011 00:15:20 +0100
-Message-ID: <20110906231520.GB25655@freya.fluff.org>
-References: <1314726370-8193-1-git-send-email-swarren@nvidia.com>
+From: Yong Zhang <yong.zhang0@gmail.com>
+Subject: [PATCH 36/62] i2c: irq: Remove IRQF_DISABLED
+Date: Wed,  7 Sep 2011 16:10:33 +0800
+Message-ID: <1315383059-3673-37-git-send-email-yong.zhang0@gmail.com>
+References: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1314726370-8193-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, John Bonesio <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Mike Rapoport <mike-UTxiZqZC01RS1MOuV/RT9w@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-kernel@vger.kernel.org
+Cc: Dave Airlie <airlied@linux.ie>, linux-i2c@vger.kernel.org, Sonic Zhang <sonic.zhang@analog.com>, Kukjin Kim <kgene.kim@samsung.com>, Joe Perches <joe@perches.com>, mingo@elte.hu, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, Alessandro Rubini <rubini@unipv.it>, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Yong Zhang <yong.zhang0@gmail.com>, Magnus Damm <damm@opensource.se>, Simon Horman <horms@verge.net.au>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, Linus Walleij <linus.walleij@stericsson.com>, Jiri Kosina <jkosina@suse.cz>, Paul Mundt <lethal@linux-sh.org>, STEricsson <STEricsson_nomadik_linux@list.st.com>, uclinux-dist-devel@blackfin.uclinux.org, Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 30, 2011 at 11:46:07AM -0600, Stephen Warren wrote:
-> For convenience, here's a repost of the outstanding patches for the Tegra
-> I2C driver.
+This flag is a NOOP and can be removed now.
 
-applied all of them.
+Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
+---
+ drivers/i2c/busses/i2c-bfin-twi.c   |    4 ++--
+ drivers/i2c/busses/i2c-designware.c |    2 +-
+ drivers/i2c/busses/i2c-highlander.c |    2 +-
+ drivers/i2c/busses/i2c-nomadik.c    |    2 +-
+ drivers/i2c/busses/i2c-nuc900.c     |    2 +-
+ drivers/i2c/busses/i2c-pmcmsp.c     |    2 +-
+ drivers/i2c/busses/i2c-s3c2410.c    |    2 +-
+ drivers/i2c/busses/i2c-sh7760.c     |    2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c  |    2 +-
+ drivers/i2c/busses/i2c-stu300.c     |    2 +-
+ 10 files changed, 11 insertions(+), 11 deletions(-)
 
-in future, it would be helpful to have just i2c-tegra on the
-front of the subject. fixed these up and put them in pull req
-to linus
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index cbc98ae..cdb59e5 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -631,7 +631,7 @@ static int i2c_bfin_twi_resume(struct platform_device *pdev)
+ 	struct bfin_twi_iface *iface = platform_get_drvdata(pdev);
  
-> Doug Anderson (1):
->   i2c: tegra: fix possible race condition after tx
-> 
-> John Bonesio (1):
->   i2c: Tegra: Add of_match_table
-> 
-> Mike Rapoport (1):
->   i2c: i2c-tegra: add I2C_FUNC_SMBUS_EMUL
-> 
->  drivers/i2c/busses/i2c-tegra.c |   60 ++++++++++++++++++++++++++++++----------
->  1 files changed, 45 insertions(+), 15 deletions(-)
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ 	int rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
+-		IRQF_DISABLED, pdev->name, iface);
++		0, pdev->name, iface);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
+ 		return -ENODEV;
+@@ -702,7 +702,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
+-		IRQF_DISABLED, pdev->name, iface);
++		0, pdev->name, iface);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
+ 		rc = -ENODEV;
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index b7a51c4..4538d16 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -755,7 +755,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 	i2c_dw_init(dev);
+ 
+ 	writel(0, dev->base + DW_IC_INTR_MASK); /* disable IRQ */
+-	r = request_irq(dev->irq, i2c_dw_isr, IRQF_DISABLED, pdev->name, dev);
++	r = request_irq(dev->irq, i2c_dw_isr, 0, pdev->name, dev);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+ 		goto err_iounmap;
+diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
+index 3876a24..63bb1cc 100644
+--- a/drivers/i2c/busses/i2c-highlander.c
++++ b/drivers/i2c/busses/i2c-highlander.c
+@@ -387,7 +387,7 @@ static int __devinit highlander_i2c_probe(struct platform_device *pdev)
+ 		dev->irq = 0;
+ 
+ 	if (dev->irq) {
+-		ret = request_irq(dev->irq, highlander_i2c_irq, IRQF_DISABLED,
++		ret = request_irq(dev->irq, highlander_i2c_irq, 0,
+ 				  pdev->name, dev);
+ 		if (unlikely(ret))
+ 			goto err_unmap;
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index b228e09..40702e8 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -935,7 +935,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	dev->irq = platform_get_irq(pdev, 0);
+-	ret = request_irq(dev->irq, i2c_irq_handler, IRQF_DISABLED,
++	ret = request_irq(dev->irq, i2c_irq_handler, 0,
+ 				DRIVER_NAME, dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "cannot claim the irq %d\n", dev->irq);
+diff --git a/drivers/i2c/busses/i2c-nuc900.c b/drivers/i2c/busses/i2c-nuc900.c
+index 7243426..835e47b 100644
+--- a/drivers/i2c/busses/i2c-nuc900.c
++++ b/drivers/i2c/busses/i2c-nuc900.c
+@@ -610,7 +610,7 @@ static int __devinit nuc900_i2c_probe(struct platform_device *pdev)
+ 		goto err_iomap;
+ 	}
+ 
+-	ret = request_irq(i2c->irq, nuc900_i2c_irq, IRQF_DISABLED | IRQF_SHARED,
++	ret = request_irq(i2c->irq, nuc900_i2c_irq, IRQF_SHARED,
+ 			  dev_name(&pdev->dev), i2c);
+ 
+ 	if (ret != 0) {
+diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
+index dfa7ae9..127051b 100644
+--- a/drivers/i2c/busses/i2c-pmcmsp.c
++++ b/drivers/i2c/busses/i2c-pmcmsp.c
+@@ -306,7 +306,7 @@ static int __devinit pmcmsptwi_probe(struct platform_device *pldev)
+ 	pmcmsptwi_data.irq = platform_get_irq(pldev, 0);
+ 	if (pmcmsptwi_data.irq) {
+ 		rc = request_irq(pmcmsptwi_data.irq, &pmcmsptwi_interrupt,
+-			IRQF_SHARED | IRQF_DISABLED | IRQF_SAMPLE_RANDOM,
++			IRQF_SHARED | IRQF_SAMPLE_RANDOM,
+ 			pldev->name, &pmcmsptwi_data);
+ 		if (rc == 0) {
+ 			/*
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index f84a63c..545ca88 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -883,7 +883,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		goto err_iomap;
+ 	}
+ 
+-	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, IRQF_DISABLED,
++	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, 0,
+ 			  dev_name(&pdev->dev), i2c);
+ 
+ 	if (ret != 0) {
+diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
+index 3cad8fe..c418c41 100644
+--- a/drivers/i2c/busses/i2c-sh7760.c
++++ b/drivers/i2c/busses/i2c-sh7760.c
+@@ -502,7 +502,7 @@ static int __devinit sh7760_i2c_probe(struct platform_device *pdev)
+ 	}
+ 	OUT32(id, I2CCCR, ret);
+ 
+-	if (request_irq(id->irq, sh7760_i2c_irq, IRQF_DISABLED,
++	if (request_irq(id->irq, sh7760_i2c_irq, 0,
+ 			SH7760_I2C_DEVNAME, id)) {
+ 		dev_err(&pdev->dev, "cannot get irq %d\n", id->irq);
+ 		ret = -EBUSY;
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index f633a53..675c969 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -543,7 +543,7 @@ static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, int hook)
+ 
+ 	while ((res = platform_get_resource(dev, IORESOURCE_IRQ, k))) {
+ 		for (n = res->start; hook && n <= res->end; n++) {
+-			if (request_irq(n, sh_mobile_i2c_isr, IRQF_DISABLED,
++			if (request_irq(n, sh_mobile_i2c_isr, 0,
+ 					dev_name(&dev->dev), dev)) {
+ 				for (n--; n >= res->start; n--)
+ 					free_irq(n, dev);
+diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+index 9987961..4d44af1 100644
+--- a/drivers/i2c/busses/i2c-stu300.c
++++ b/drivers/i2c/busses/i2c-stu300.c
+@@ -916,7 +916,7 @@ stu300_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	dev->irq = platform_get_irq(pdev, 0);
+-	if (request_irq(dev->irq, stu300_irh, IRQF_DISABLED,
++	if (request_irq(dev->irq, stu300_irh, 0,
+ 			NAME, dev)) {
+ 		ret = -EIO;
+ 		goto err_no_irq;
+-- 
+1.7.4.1
