@@ -1,180 +1,25 @@
-From: Yong Zhang <yong.zhang0@gmail.com>
-Subject: [PATCH 36/62] i2c: irq: Remove IRQF_DISABLED
-Date: Wed,  7 Sep 2011 16:10:33 +0800
-Message-ID: <1315383059-3673-37-git-send-email-yong.zhang0@gmail.com>
-References: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH V2 1/4] i2c: Add irq_gpio field to struct i2c_client.
+Date: Wed, 7 Sep 2011 20:07:52 +0100
+Message-ID: <20110907190752.GB24703@sirena.org.uk>
+References: <1314895964-15964-1-git-send-email-swarren@nvidia.com>
+ <4E60985B.6010901@cam.ac.uk>
+ <74CDBE0F657A3D45AFBB94109FB122FF04B327A55D@HQMAIL01.nvidia.com>
+ <201109021805.27569.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1315383059-3673-1-git-send-email-yong.zhang0@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-kernel@vger.kernel.org
-Cc: Dave Airlie <airlied@linux.ie>, linux-i2c@vger.kernel.org, Sonic Zhang <sonic.zhang@analog.com>, Kukjin Kim <kgene.kim@samsung.com>, Joe Perches <joe@perches.com>, mingo@elte.hu, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, Alessandro Rubini <rubini@unipv.it>, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Yong Zhang <yong.zhang0@gmail.com>, Magnus Damm <damm@opensource.se>, Simon Horman <horms@verge.net.au>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, tglx@linutronix.de, linux-arm-kernel@lists.infradead.org, Linus Walleij <linus.walleij@stericsson.com>, Jiri Kosina <jkosina@suse.cz>, Paul Mundt <lethal@linux-sh.org>, STEricsson <STEricsson_nomadik_linux@list.st.com>, uclinux-dist-devel@blackfin.uclinux.org, Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201109021805.27569.arnd-r2nGTMty4D4@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Andrew Chew <AChew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org" <devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This flag is a NOOP and can be removed now.
+On Fri, Sep 02, 2011 at 06:05:27PM +0200, Arnd Bergmann wrote:
 
-Signed-off-by: Yong Zhang <yong.zhang0@gmail.com>
----
- drivers/i2c/busses/i2c-bfin-twi.c   |    4 ++--
- drivers/i2c/busses/i2c-designware.c |    2 +-
- drivers/i2c/busses/i2c-highlander.c |    2 +-
- drivers/i2c/busses/i2c-nomadik.c    |    2 +-
- drivers/i2c/busses/i2c-nuc900.c     |    2 +-
- drivers/i2c/busses/i2c-pmcmsp.c     |    2 +-
- drivers/i2c/busses/i2c-s3c2410.c    |    2 +-
- drivers/i2c/busses/i2c-sh7760.c     |    2 +-
- drivers/i2c/busses/i2c-sh_mobile.c  |    2 +-
- drivers/i2c/busses/i2c-stu300.c     |    2 +-
- 10 files changed, 11 insertions(+), 11 deletions(-)
+> It would not fit well if we expect gpio numbers to be local to
+> a gpio controller, with no unique global identifier for them, similar
+> to how dma channels in the dma-engine subsystem are handled.
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index cbc98ae..cdb59e5 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -631,7 +631,7 @@ static int i2c_bfin_twi_resume(struct platform_device *pdev)
- 	struct bfin_twi_iface *iface = platform_get_drvdata(pdev);
- 
- 	int rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
--		IRQF_DISABLED, pdev->name, iface);
-+		0, pdev->name, iface);
- 	if (rc) {
- 		dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
- 		return -ENODEV;
-@@ -702,7 +702,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	}
- 
- 	rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
--		IRQF_DISABLED, pdev->name, iface);
-+		0, pdev->name, iface);
- 	if (rc) {
- 		dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
- 		rc = -ENODEV;
-diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-index b7a51c4..4538d16 100644
---- a/drivers/i2c/busses/i2c-designware.c
-+++ b/drivers/i2c/busses/i2c-designware.c
-@@ -755,7 +755,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	i2c_dw_init(dev);
- 
- 	writel(0, dev->base + DW_IC_INTR_MASK); /* disable IRQ */
--	r = request_irq(dev->irq, i2c_dw_isr, IRQF_DISABLED, pdev->name, dev);
-+	r = request_irq(dev->irq, i2c_dw_isr, 0, pdev->name, dev);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
- 		goto err_iounmap;
-diff --git a/drivers/i2c/busses/i2c-highlander.c b/drivers/i2c/busses/i2c-highlander.c
-index 3876a24..63bb1cc 100644
---- a/drivers/i2c/busses/i2c-highlander.c
-+++ b/drivers/i2c/busses/i2c-highlander.c
-@@ -387,7 +387,7 @@ static int __devinit highlander_i2c_probe(struct platform_device *pdev)
- 		dev->irq = 0;
- 
- 	if (dev->irq) {
--		ret = request_irq(dev->irq, highlander_i2c_irq, IRQF_DISABLED,
-+		ret = request_irq(dev->irq, highlander_i2c_irq, 0,
- 				  pdev->name, dev);
- 		if (unlikely(ret))
- 			goto err_unmap;
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index b228e09..40702e8 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -935,7 +935,7 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	dev->irq = platform_get_irq(pdev, 0);
--	ret = request_irq(dev->irq, i2c_irq_handler, IRQF_DISABLED,
-+	ret = request_irq(dev->irq, i2c_irq_handler, 0,
- 				DRIVER_NAME, dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "cannot claim the irq %d\n", dev->irq);
-diff --git a/drivers/i2c/busses/i2c-nuc900.c b/drivers/i2c/busses/i2c-nuc900.c
-index 7243426..835e47b 100644
---- a/drivers/i2c/busses/i2c-nuc900.c
-+++ b/drivers/i2c/busses/i2c-nuc900.c
-@@ -610,7 +610,7 @@ static int __devinit nuc900_i2c_probe(struct platform_device *pdev)
- 		goto err_iomap;
- 	}
- 
--	ret = request_irq(i2c->irq, nuc900_i2c_irq, IRQF_DISABLED | IRQF_SHARED,
-+	ret = request_irq(i2c->irq, nuc900_i2c_irq, IRQF_SHARED,
- 			  dev_name(&pdev->dev), i2c);
- 
- 	if (ret != 0) {
-diff --git a/drivers/i2c/busses/i2c-pmcmsp.c b/drivers/i2c/busses/i2c-pmcmsp.c
-index dfa7ae9..127051b 100644
---- a/drivers/i2c/busses/i2c-pmcmsp.c
-+++ b/drivers/i2c/busses/i2c-pmcmsp.c
-@@ -306,7 +306,7 @@ static int __devinit pmcmsptwi_probe(struct platform_device *pldev)
- 	pmcmsptwi_data.irq = platform_get_irq(pldev, 0);
- 	if (pmcmsptwi_data.irq) {
- 		rc = request_irq(pmcmsptwi_data.irq, &pmcmsptwi_interrupt,
--			IRQF_SHARED | IRQF_DISABLED | IRQF_SAMPLE_RANDOM,
-+			IRQF_SHARED | IRQF_SAMPLE_RANDOM,
- 			pldev->name, &pmcmsptwi_data);
- 		if (rc == 0) {
- 			/*
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index f84a63c..545ca88 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -883,7 +883,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 		goto err_iomap;
- 	}
- 
--	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, IRQF_DISABLED,
-+	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, 0,
- 			  dev_name(&pdev->dev), i2c);
- 
- 	if (ret != 0) {
-diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
-index 3cad8fe..c418c41 100644
---- a/drivers/i2c/busses/i2c-sh7760.c
-+++ b/drivers/i2c/busses/i2c-sh7760.c
-@@ -502,7 +502,7 @@ static int __devinit sh7760_i2c_probe(struct platform_device *pdev)
- 	}
- 	OUT32(id, I2CCCR, ret);
- 
--	if (request_irq(id->irq, sh7760_i2c_irq, IRQF_DISABLED,
-+	if (request_irq(id->irq, sh7760_i2c_irq, 0,
- 			SH7760_I2C_DEVNAME, id)) {
- 		dev_err(&pdev->dev, "cannot get irq %d\n", id->irq);
- 		ret = -EBUSY;
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index f633a53..675c969 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -543,7 +543,7 @@ static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, int hook)
- 
- 	while ((res = platform_get_resource(dev, IORESOURCE_IRQ, k))) {
- 		for (n = res->start; hook && n <= res->end; n++) {
--			if (request_irq(n, sh_mobile_i2c_isr, IRQF_DISABLED,
-+			if (request_irq(n, sh_mobile_i2c_isr, 0,
- 					dev_name(&dev->dev), dev)) {
- 				for (n--; n >= res->start; n--)
- 					free_irq(n, dev);
-diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index 9987961..4d44af1 100644
---- a/drivers/i2c/busses/i2c-stu300.c
-+++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -916,7 +916,7 @@ stu300_probe(struct platform_device *pdev)
- 	}
- 
- 	dev->irq = platform_get_irq(pdev, 0);
--	if (request_irq(dev->irq, stu300_irh, IRQF_DISABLED,
-+	if (request_irq(dev->irq, stu300_irh, 0,
- 			NAME, dev)) {
- 		ret = -EIO;
- 		goto err_no_irq;
--- 
-1.7.4.1
+Or perhaps moving to a clk API style lookup?
