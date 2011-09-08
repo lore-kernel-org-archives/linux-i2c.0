@@ -1,11 +1,11 @@
 From: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
-Subject: [PATCH] i2c: Add Device Tree support to versatile-i2c driver
-Date: Thu,  8 Sep 2011 10:34:55 +0100
-Message-ID: <1315474495-9630-1-git-send-email-pawel.moll@arm.com>
+Subject: [PATCH v2] i2c: Add Device Tree support to versatile-i2c driver
+Date: Thu,  8 Sep 2011 10:43:39 +0100
+Message-ID: <1315475019-10088-1-git-send-email-pawel.moll@arm.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
-Cc: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 This patch adds Device Tree binding ("arm,versatile-i2c") and
@@ -18,7 +18,7 @@ Signed-off-by: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
  1 files changed, 10 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-versatile.c b/drivers/i2c/busses/i2c-versatile.c
-index 6055601..f41abbb 100644
+index 6055601..7bfdf40 100644
 --- a/drivers/i2c/busses/i2c-versatile.c
 +++ b/drivers/i2c/busses/i2c-versatile.c
 @@ -16,6 +16,7 @@
@@ -53,7 +53,7 @@ index 6055601..f41abbb 100644
 +	{ .compatible = "arm,versatile-i2c", },
 +	{},
 +};
-+MODULE_DEVICE_TABLE(of, pata_of_platform_match);
++MODULE_DEVICE_TABLE(of, i2c_versatile_match);
 +
  static struct platform_driver i2c_versatile_driver = {
  	.probe		= i2c_versatile_probe,
