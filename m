@@ -1,155 +1,51 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Subject: Re: [PATCH REPOST 2/2] i2c-imx: add device tree probe support
-Date: Fri, 09 Sep 2011 00:14:22 -0500
-Message-ID: <4E69A0AE.1060004@gmail.com>
-References: <1315465775-31335-1-git-send-email-shawn.guo@linaro.org> <1315465775-31335-3-git-send-email-shawn.guo@linaro.org>
+Date: Fri, 9 Sep 2011 09:18:45 +0200
+Message-ID: <20110909071845.GI28816@pengutronix.de>
+References: <1315465775-31335-1-git-send-email-shawn.guo@linaro.org>
+ <1315465775-31335-3-git-send-email-shawn.guo@linaro.org>
+ <4E69A0AE.1060004@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1315465775-31335-3-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4E69A0AE.1060004-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Shawn,
+Hello Rob,
 
-On 09/08/2011 02:09 AM, Shawn Guo wrote:
-> It adds device tree probe support for i2c-imx driver.
-> 
-> Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/fsl-imx-i2c.txt        |   25 ++++++++++++++++++++
->  drivers/i2c/busses/i2c-imx.c                       |   25 +++++++++++++++----
->  2 files changed, 44 insertions(+), 6 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt b/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt
-> new file mode 100644
-> index 0000000..f3cf43b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt
-> @@ -0,0 +1,25 @@
-> +* Freescale Inter IC (I2C) and High Speed Inter IC (HS-I2C) for i.MX
-> +
-> +Required properties:
-> +- compatible : Should be "fsl,<chip>-i2c"
-> +- reg : Should contain I2C/HS-I2C registers location and length
-> +- interrupts : Should contain I2C/HS-I2C interrupt
-> +
-> +Optional properties:
-> +- clock-frequency : Constains desired I2C/HS-I2C bus clock frequency in Hz.
-> +  The absence of the propoerty indicates the default frequency 100 kHz.
-> +
-> +Examples:
-> +
-> +i2c@83fc4000 { /* I2C2 on i.MX51 */
-> +	compatible = "fsl,imx51-i2c", "fsl,imx1-i2c";
-> +	reg = <0x83fc4000 0x4000>;
-> +	interrupts = <63>;
-> +};
-> +
-> +i2c@70038000 { /* HS-I2C on i.MX51 */
+On Fri, Sep 09, 2011 at 12:14:22AM -0500, Rob Herring wrote:
+> > +i2c@83fc4000 { /* I2C2 on i.MX51 */
+> > +	compatible =3D "fsl,imx51-i2c", "fsl,imx1-i2c";
+> > +	reg =3D <0x83fc4000 0x4000>;
+> > +	interrupts =3D <63>;
+> > +};
+> > +
+> > +i2c@70038000 { /* HS-I2C on i.MX51 */
+>=20
+> The mainline driver doesn't support the HS-I2C block does it?
+>=20
+> The high speed and "old" i2c blocks on MX51 are basically different
+> blocks, so the compatible property should be different.
+I stumbled about that recently, too and found in
+arch/arm/plat-mxc/devices/platform-imx-i2c.c that the third device
+description for imx51 is a normal "imx-i2c" one using
+MX51_HSI2C_DMA_BASE_ADDR. So I concluded it's different but compatible.
 
-The mainline driver doesn't support the HS-I2C block does it?
+board-mx51_babbage.c uses imx51_add_hsi2c but doesn't add a bus
+description. So It might not attract attention if the driver doesn't
+match the device.
 
-The high speed and "old" i2c blocks on MX51 are basically different
-blocks, so the compatible property should be different.
+Best regards
+Uwe
 
-Rob
-
-> +	compatible = "fsl,imx51-i2c", "fsl,imx1-i2c";
-> +	reg = <0x70038000 0x4000>;
-> +	interrupts = <64>;
-> +	clock-frequency = <400000>;
-> +};
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 54d809e..58832e5 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -48,6 +48,9 @@
->  #include <linux/platform_device.h>
->  #include <linux/clk.h>
->  #include <linux/slab.h>
-> +#include <linux/of.h>
-> +#include <linux/of_device.h>
-> +#include <linux/of_i2c.h>
->  
->  #include <mach/irqs.h>
->  #include <mach/hardware.h>
-> @@ -125,6 +128,11 @@ struct imx_i2c_struct {
->  	unsigned int		ifdr; /* IMX_I2C_IFDR */
->  };
->  
-> +static const struct of_device_id i2c_imx_dt_ids[] = {
-> +	{ .compatible = "fsl,imx1-i2c", },
-> +	{ /* sentinel */ }
-> +};
-> +
->  /** Functions for IMX I2C adapter driver ***************************************
->  *******************************************************************************/
->  
-> @@ -469,7 +477,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
->  	void __iomem *base;
->  	resource_size_t res_size;
-> -	int irq;
-> +	int irq, bitrate;
->  	int ret;
->  
->  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
-> @@ -512,6 +520,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	i2c_imx->adapter.algo		= &i2c_imx_algo;
->  	i2c_imx->adapter.dev.parent	= &pdev->dev;
->  	i2c_imx->adapter.nr 		= pdev->id;
-> +	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
->  	i2c_imx->irq			= irq;
->  	i2c_imx->base			= base;
->  	i2c_imx->res			= res;
-> @@ -538,10 +547,12 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	i2c_set_adapdata(&i2c_imx->adapter, i2c_imx);
->  
->  	/* Set up clock divider */
-> -	if (pdata && pdata->bitrate)
-> -		i2c_imx_set_clk(i2c_imx, pdata->bitrate);
-> -	else
-> -		i2c_imx_set_clk(i2c_imx, IMX_I2C_BIT_RATE);
-> +	bitrate = IMX_I2C_BIT_RATE;
-> +	ret = of_property_read_u32(pdev->dev.of_node,
-> +				   "clock-frequency", &bitrate);
-> +	if (ret < 0 && pdata && pdata->bitrate)
-> +		bitrate = pdata->bitrate;
-> +	i2c_imx_set_clk(i2c_imx, bitrate);
->  
->  	/* Set up chip registers to defaults */
->  	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
-> @@ -554,6 +565,8 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  		goto fail5;
->  	}
->  
-> +	of_i2c_register_devices(&i2c_imx->adapter);
-> +
->  	/* Set up platform driver data */
->  	platform_set_drvdata(pdev, i2c_imx);
->  
-> @@ -584,7 +597,6 @@ fail1:
->  static int __exit i2c_imx_remove(struct platform_device *pdev)
->  {
->  	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
-> -	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
->  
->  	/* remove adapter */
->  	dev_dbg(&i2c_imx->adapter.dev, "adapter removed\n");
-> @@ -613,6 +625,7 @@ static struct platform_driver i2c_imx_driver = {
->  	.driver	= {
->  		.name	= DRIVER_NAME,
->  		.owner	= THIS_MODULE,
-> +		.of_match_table = i2c_imx_dt_ids,
->  	}
->  };
->  
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
