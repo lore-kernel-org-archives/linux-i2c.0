@@ -1,52 +1,67 @@
-From: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: =?utf-8?Q?Lothar_Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 Subject: Re: [PATCH REPOST 2/2] i2c-imx: add device tree probe support
-Date: Fri, 9 Sep 2011 19:04:34 +0800
-Message-ID: <20110909110433.GH31581@S2100-06.ap.freescale.net>
+Date: Fri, 9 Sep 2011 13:10:59 +0200
+Message-ID: <20073.62531.113012.793381@ipc1.ka-ro>
 References: <1315465775-31335-1-git-send-email-shawn.guo@linaro.org>
- <1315465775-31335-3-git-send-email-shawn.guo@linaro.org>
- <4E69A0AE.1060004@gmail.com>
- <20110909071845.GI28816@pengutronix.de>
+	<1315465775-31335-3-git-send-email-shawn.guo@linaro.org>
+	<4E69A0AE.1060004@gmail.com>
+	<20110909071845.GI28816@pengutronix.de>
+	<20110909110433.GH31581@S2100-06.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110909071845.GI28816-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Darius Augulis <augulis.darius-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20110909110433.GH31581@S2100-06.ap.freescale.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Shawn Guo <shawn.guo@freescale.com>
+Cc: patches@linaro.org, devicetree-discuss@lists.ozlabs.org, Ben Dooks <ben-i2c@fluff.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Darius Augulis <augulis.darius@gmail.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 09, 2011 at 09:18:45AM +0200, Uwe Kleine-K=F6nig wrote:
-> Hello Rob,
->=20
-> On Fri, Sep 09, 2011 at 12:14:22AM -0500, Rob Herring wrote:
-> > > +i2c@83fc4000 { /* I2C2 on i.MX51 */
-> > > +	compatible =3D "fsl,imx51-i2c", "fsl,imx1-i2c";
-> > > +	reg =3D <0x83fc4000 0x4000>;
-> > > +	interrupts =3D <63>;
-> > > +};
-> > > +
-> > > +i2c@70038000 { /* HS-I2C on i.MX51 */
-> >=20
-> > The mainline driver doesn't support the HS-I2C block does it?
-> >=20
-> > The high speed and "old" i2c blocks on MX51 are basically different
-> > blocks, so the compatible property should be different.
-> I stumbled about that recently, too and found in
-> arch/arm/plat-mxc/devices/platform-imx-i2c.c that the third device
-> description for imx51 is a normal "imx-i2c" one using
-> MX51_HSI2C_DMA_BASE_ADDR. So I concluded it's different but compatibl=
-e.
->=20
-> board-mx51_babbage.c uses imx51_add_hsi2c but doesn't add a bus
-> description. So It might not attract attention if the driver doesn't
-> match the device.
->=20
-Aha, I was confused by the platform codes.  Will drop HSI2C.
-
-Thanks for catching this, Rob.
-
---=20
-Regards,
-Shawn
+SGksCgpTaGF3biBHdW8gd3JpdGVzOgo+IE9uIEZyaSwgU2VwIDA5LCAyMDExIGF0IDA5OjE4OjQ1
+QU0gKzAyMDAsIFV3ZSBLbGVpbmUtS8O2bmlnIHdyb3RlOgo+ID4gSGVsbG8gUm9iLAo+ID4gCj4g
+PiBPbiBGcmksIFNlcCAwOSwgMjAxMSBhdCAxMjoxNDoyMkFNIC0wNTAwLCBSb2IgSGVycmluZyB3
+cm90ZToKPiA+ID4gPiAraTJjQDgzZmM0MDAwIHsgLyogSTJDMiBvbiBpLk1YNTEgKi8KPiA+ID4g
+PiArCWNvbXBhdGlibGUgPSAiZnNsLGlteDUxLWkyYyIsICJmc2wsaW14MS1pMmMiOwo+ID4gPiA+
+ICsJcmVnID0gPDB4ODNmYzQwMDAgMHg0MDAwPjsKPiA+ID4gPiArCWludGVycnVwdHMgPSA8NjM+
+Owo+ID4gPiA+ICt9Owo+ID4gPiA+ICsKPiA+ID4gPiAraTJjQDcwMDM4MDAwIHsgLyogSFMtSTJD
+IG9uIGkuTVg1MSAqLwo+ID4gPiAKPiA+ID4gVGhlIG1haW5saW5lIGRyaXZlciBkb2Vzbid0IHN1
+cHBvcnQgdGhlIEhTLUkyQyBibG9jayBkb2VzIGl0Pwo+ID4gPiAKPiA+ID4gVGhlIGhpZ2ggc3Bl
+ZWQgYW5kICJvbGQiIGkyYyBibG9ja3Mgb24gTVg1MSBhcmUgYmFzaWNhbGx5IGRpZmZlcmVudAo+
+ID4gPiBibG9ja3MsIHNvIHRoZSBjb21wYXRpYmxlIHByb3BlcnR5IHNob3VsZCBiZSBkaWZmZXJl
+bnQuCj4gPiBJIHN0dW1ibGVkIGFib3V0IHRoYXQgcmVjZW50bHksIHRvbyBhbmQgZm91bmQgaW4K
+PiA+IGFyY2gvYXJtL3BsYXQtbXhjL2RldmljZXMvcGxhdGZvcm0taW14LWkyYy5jIHRoYXQgdGhl
+IHRoaXJkIGRldmljZQo+ID4gZGVzY3JpcHRpb24gZm9yIGlteDUxIGlzIGEgbm9ybWFsICJpbXgt
+aTJjIiBvbmUgdXNpbmcKPiA+IE1YNTFfSFNJMkNfRE1BX0JBU0VfQUREUi4gU28gSSBjb25jbHVk
+ZWQgaXQncyBkaWZmZXJlbnQgYnV0IGNvbXBhdGlibGUuCj4gPiAKPiA+IGJvYXJkLW14NTFfYmFi
+YmFnZS5jIHVzZXMgaW14NTFfYWRkX2hzaTJjIGJ1dCBkb2Vzbid0IGFkZCBhIGJ1cwo+ID4gZGVz
+Y3JpcHRpb24uIFNvIEl0IG1pZ2h0IG5vdCBhdHRyYWN0IGF0dGVudGlvbiBpZiB0aGUgZHJpdmVy
+IGRvZXNuJ3QKPiA+IG1hdGNoIHRoZSBkZXZpY2UuCj4gPiAKPiBBaGEsIEkgd2FzIGNvbmZ1c2Vk
+IGJ5IHRoZSBwbGF0Zm9ybSBjb2Rlcy4gIFdpbGwgZHJvcCBIU0kyQy4KPiAKQWNjb3JkaW5nIHRv
+IHRoZSBpLk1YNTEgUmVmLiBNYW51YWwgaXQncyBzbyBidWdneSB0aGF0IGl0IHNob3VsZCBub3Qg
+ZXZlbgpiZSB1c2VkOgp8Q2hhcHRlciAzOQp8SGlnaCBTcGVlZCBJbnRlciBJQyAoSFMtSTJDKQp8
+MzkuMSBJbnRyb2R1Y3Rpb24KWy4uLl0KfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgTk9URQp8RHVlIHRvIGxpbWl0ZWQgZnVuY3Rpb25hbGl0eSwgRnJlZXNjYWxlIGRvZXMgbm90
+IHJlY29tbWVuZCB1c2Vycwp8aW5jb3Jwb3JhdGUgdGhlIEhTLUkyQyBtb2R1bGUgaW4gZnV0dXJl
+IGRlc2lnbnMuIEZvciBkZXRhaWxzIG9uIHRoZQp8bGltaXRhdGlvbnMsIHJlZmVyIHRvIHRoZSBN
+WDUxIElDIEVycmF0YS4gVXNlcnMgc2hvdWxkIGNvbnNpZGVyIHVzaW5nIHRoZQp8dHdvIHN0YW5k
+YXJkIEkyQyBtb2R1bGVzLCB3aGljaCBoYXZlIG5vIGVycmF0YS4KCkZvcnR1bmF0ZWx5IHRoZXJl
+IGlzIGFuIGkyYy1ncGlvIGRyaXZlciB0aGF0IGNhbiBiZSB1c2VkIG9uIHRoZQpjb3JyZXNwb25k
+aW5nIHBpbnMuIDstKQoKCkxvdGhhciBXYcOfbWFubgotLSAKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KCkthLVJvIGVsZWN0cm9uaWNz
+IEdtYkggfCBQYXNjYWxzdHJhw59lIDIyIHwgRCAtIDUyMDc2IEFhY2hlbgpQaG9uZTogKzQ5IDI0
+MDggMTQwMi0wIHwgRmF4OiArNDkgMjQwOCAxNDAyLTEwCkdlc2Now6RmdHNmw7xocmVyOiBNYXR0
+aGlhcyBLYXVzc2VuCkhhbmRlbHNyZWdpc3RlcmVpbnRyYWc6IEFtdHNnZXJpY2h0IEFhY2hlbiwg
+SFJCIDQ5OTYKCnd3dy5rYXJvLWVsZWN0cm9uaWNzLmRlIHwgaW5mb0BrYXJvLWVsZWN0cm9uaWNz
+LmRlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwps
+aW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJh
+ZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51
+eC1hcm0ta2VybmVsCg==
