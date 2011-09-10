@@ -1,67 +1,26 @@
-From: =?utf-8?Q?Lothar_Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: Re: [PATCH REPOST 2/2] i2c-imx: add device tree probe support
-Date: Fri, 9 Sep 2011 13:10:59 +0200
-Message-ID: <20073.62531.113012.793381@ipc1.ka-ro>
-References: <1315465775-31335-1-git-send-email-shawn.guo@linaro.org>
-	<1315465775-31335-3-git-send-email-shawn.guo@linaro.org>
-	<4E69A0AE.1060004@gmail.com>
-	<20110909071845.GI28816@pengutronix.de>
-	<20110909110433.GH31581@S2100-06.ap.freescale.net>
+From: "Michal Zatloukal" <myxal.mxl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Can't read DIMM SPD info (DDR2)
+Date: Sat, 10 Sep 2011 21:19:30 +0200
+Message-ID: <op.v1lxasq616tawo@esprimo>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20110909110433.GH31581@S2100-06.ap.freescale.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
-	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Shawn Guo <shawn.guo@freescale.com>
-Cc: patches@linaro.org, devicetree-discuss@lists.ozlabs.org, Ben Dooks <ben-i2c@fluff.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Darius Augulis <augulis.darius@gmail.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=utf-8; format=flowed; delsp=yes
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGksCgpTaGF3biBHdW8gd3JpdGVzOgo+IE9uIEZyaSwgU2VwIDA5LCAyMDExIGF0IDA5OjE4OjQ1
-QU0gKzAyMDAsIFV3ZSBLbGVpbmUtS8O2bmlnIHdyb3RlOgo+ID4gSGVsbG8gUm9iLAo+ID4gCj4g
-PiBPbiBGcmksIFNlcCAwOSwgMjAxMSBhdCAxMjoxNDoyMkFNIC0wNTAwLCBSb2IgSGVycmluZyB3
-cm90ZToKPiA+ID4gPiAraTJjQDgzZmM0MDAwIHsgLyogSTJDMiBvbiBpLk1YNTEgKi8KPiA+ID4g
-PiArCWNvbXBhdGlibGUgPSAiZnNsLGlteDUxLWkyYyIsICJmc2wsaW14MS1pMmMiOwo+ID4gPiA+
-ICsJcmVnID0gPDB4ODNmYzQwMDAgMHg0MDAwPjsKPiA+ID4gPiArCWludGVycnVwdHMgPSA8NjM+
-Owo+ID4gPiA+ICt9Owo+ID4gPiA+ICsKPiA+ID4gPiAraTJjQDcwMDM4MDAwIHsgLyogSFMtSTJD
-IG9uIGkuTVg1MSAqLwo+ID4gPiAKPiA+ID4gVGhlIG1haW5saW5lIGRyaXZlciBkb2Vzbid0IHN1
-cHBvcnQgdGhlIEhTLUkyQyBibG9jayBkb2VzIGl0Pwo+ID4gPiAKPiA+ID4gVGhlIGhpZ2ggc3Bl
-ZWQgYW5kICJvbGQiIGkyYyBibG9ja3Mgb24gTVg1MSBhcmUgYmFzaWNhbGx5IGRpZmZlcmVudAo+
-ID4gPiBibG9ja3MsIHNvIHRoZSBjb21wYXRpYmxlIHByb3BlcnR5IHNob3VsZCBiZSBkaWZmZXJl
-bnQuCj4gPiBJIHN0dW1ibGVkIGFib3V0IHRoYXQgcmVjZW50bHksIHRvbyBhbmQgZm91bmQgaW4K
-PiA+IGFyY2gvYXJtL3BsYXQtbXhjL2RldmljZXMvcGxhdGZvcm0taW14LWkyYy5jIHRoYXQgdGhl
-IHRoaXJkIGRldmljZQo+ID4gZGVzY3JpcHRpb24gZm9yIGlteDUxIGlzIGEgbm9ybWFsICJpbXgt
-aTJjIiBvbmUgdXNpbmcKPiA+IE1YNTFfSFNJMkNfRE1BX0JBU0VfQUREUi4gU28gSSBjb25jbHVk
-ZWQgaXQncyBkaWZmZXJlbnQgYnV0IGNvbXBhdGlibGUuCj4gPiAKPiA+IGJvYXJkLW14NTFfYmFi
-YmFnZS5jIHVzZXMgaW14NTFfYWRkX2hzaTJjIGJ1dCBkb2Vzbid0IGFkZCBhIGJ1cwo+ID4gZGVz
-Y3JpcHRpb24uIFNvIEl0IG1pZ2h0IG5vdCBhdHRyYWN0IGF0dGVudGlvbiBpZiB0aGUgZHJpdmVy
-IGRvZXNuJ3QKPiA+IG1hdGNoIHRoZSBkZXZpY2UuCj4gPiAKPiBBaGEsIEkgd2FzIGNvbmZ1c2Vk
-IGJ5IHRoZSBwbGF0Zm9ybSBjb2Rlcy4gIFdpbGwgZHJvcCBIU0kyQy4KPiAKQWNjb3JkaW5nIHRv
-IHRoZSBpLk1YNTEgUmVmLiBNYW51YWwgaXQncyBzbyBidWdneSB0aGF0IGl0IHNob3VsZCBub3Qg
-ZXZlbgpiZSB1c2VkOgp8Q2hhcHRlciAzOQp8SGlnaCBTcGVlZCBJbnRlciBJQyAoSFMtSTJDKQp8
-MzkuMSBJbnRyb2R1Y3Rpb24KWy4uLl0KfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgTk9URQp8RHVlIHRvIGxpbWl0ZWQgZnVuY3Rpb25hbGl0eSwgRnJlZXNjYWxlIGRvZXMgbm90
-IHJlY29tbWVuZCB1c2Vycwp8aW5jb3Jwb3JhdGUgdGhlIEhTLUkyQyBtb2R1bGUgaW4gZnV0dXJl
-IGRlc2lnbnMuIEZvciBkZXRhaWxzIG9uIHRoZQp8bGltaXRhdGlvbnMsIHJlZmVyIHRvIHRoZSBN
-WDUxIElDIEVycmF0YS4gVXNlcnMgc2hvdWxkIGNvbnNpZGVyIHVzaW5nIHRoZQp8dHdvIHN0YW5k
-YXJkIEkyQyBtb2R1bGVzLCB3aGljaCBoYXZlIG5vIGVycmF0YS4KCkZvcnR1bmF0ZWx5IHRoZXJl
-IGlzIGFuIGkyYy1ncGlvIGRyaXZlciB0aGF0IGNhbiBiZSB1c2VkIG9uIHRoZQpjb3JyZXNwb25k
-aW5nIHBpbnMuIDstKQoKCkxvdGhhciBXYcOfbWFubgotLSAKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KCkthLVJvIGVsZWN0cm9uaWNz
-IEdtYkggfCBQYXNjYWxzdHJhw59lIDIyIHwgRCAtIDUyMDc2IEFhY2hlbgpQaG9uZTogKzQ5IDI0
-MDggMTQwMi0wIHwgRmF4OiArNDkgMjQwOCAxNDAyLTEwCkdlc2Now6RmdHNmw7xocmVyOiBNYXR0
-aGlhcyBLYXVzc2VuCkhhbmRlbHNyZWdpc3RlcmVpbnRyYWc6IEFtdHNnZXJpY2h0IEFhY2hlbiwg
-SFJCIDQ5OTYKCnd3dy5rYXJvLWVsZWN0cm9uaWNzLmRlIHwgaW5mb0BrYXJvLWVsZWN0cm9uaWNz
-LmRlCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwps
-aW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJh
-ZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5vcmcvbWFpbG1hbi9saXN0aW5mby9saW51
-eC1hcm0ta2VybmVsCg==
+Hi,
+I'm unable to get decode-dimms to display SPD info from my memory modules.
+Can someone please advise on finding the problem? The eeprom module is
+loaded. This is on both my main system (Kubuntu 10.10) - 2.6.35 kernel,
+i2c-tools 3.0.3-5 - and "latest" (Kubuntu 11.10 daily) - linux 3.0,
+lm-sensors 3.3.0-4 and i2c-tools 3.0.3-5). The HW is a Fujitsu Esprimo
+Mobile U9200 laptop (intel GM965). FWIW, the memtest that ships with
+'buntu 11.10 (4.20 I think) reads the SPD info successfully.
+
+Cheers and TIA,
+MZ
+
+-- 
+Using Opera's revolutionary email client: http://www.opera.com/mail/
