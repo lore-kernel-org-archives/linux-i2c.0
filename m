@@ -1,66 +1,73 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Can't read DIMM SPD info (DDR2)
-Date: Sun, 11 Sep 2011 14:40:15 +0200
-Message-ID: <20110911144015.7379de9b@endymion.delvare>
-References: <op.v1lxasq616tawo@esprimo>
-	<20110911100945.73fffa6a@endymion.delvare>
-	<op.v1m1lvea16tawo@esprimo>
-	<20110911130823.2dff3fab@endymion.delvare>
-	<op.v1m740q616tawo@esprimo>
+Subject: Re: I2C Combined Transactions in Linux
+Date: Sun, 11 Sep 2011 14:59:05 +0200
+Message-ID: <20110911145905.65659433@endymion.delvare>
+References: <CAFfjFp1KAmr2w=0Nwt1FtvYSNb7CJ59AHJtXmnnpat-PdyvHzA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <op.v1m740q616tawo@esprimo>
+In-Reply-To: <CAFfjFp1KAmr2w=0Nwt1FtvYSNb7CJ59AHJtXmnnpat-PdyvHzA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michal Zatloukal <myxal.mxl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Henri Kjellberg <henrikjellberg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 11 Sep 2011 14:11:14 +0200, Michal Zatloukal wrote:
-> On Sun, 11 Sep 2011 13:08:23 +0200, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> wrote:
-> 
-> 
-> <snip>
-> > No SMBus I801 adapter. Is the i2c-i801 driver loaded? Do you see any
-> > complaints in the kernel log (e.g. ACPI resource conflict) when reloading
-> > the i2c-i801 driver?
-> 
-> D'oh, that's the whole problem! After loading the i2c-i801 driver, it
-> works perfectly. Laptop and server. :)
-> There's no problem loading the driver that I can see, it's simply not
-> loaded by default.
+Hi Henri,
 
-Ah! Now I remember. Ubuntu? I think they _blacklist_ i2c-i801 for every
-machine in the world because it caused problems on one single machine
-years ago. Try:
-$ /sbin/modprobe -c | grep i801
-and I'm sure you'll find a blacklist statement.
-
-So, either delete the blacklist statement in /etc/modprobe.d/* (but it
-may come back on system update) or manually load the driver at boot
-time (no idea how this is done on Ubuntu, sorry).
-
-And (if I am right) please report this as a BUG to Ubuntu maintainers.
-Blacklisting a perfectly working driver needed by millions of users
-simply makes no sense. Whatever the problem was, I bet it is solved by
-now anyway.
-
-> $ decode-dimms
-> # decode-dimms version 5733 (2009-06-09 13:13:41 +0200)
+On Sat, 10 Sep 2011 14:45:37 -0500, Henri Kjellberg wrote:
+> Greetings Friends,
+> I am looking for a way to perform combined transactions over I2C in
+> Linux. The structure of the message I need to send is as follows. The
+> slave responds in the brackets.
 > 
-> Memory Serial Presence Detect Decoder
-> By Philip Edelbrock, Christian Zuckschwerdt, Burkart Lingner,
-> Jean Delvare, Trent Piepho and others
-> 
-> Decoding EEPROM: /sys/bus/i2c/drivers/eeprom/15-0050
-> Guessing DIMM is in                             bank 1
-> 
-> <snip>
-> Number of SDRAM DIMMs detected and decoded: 2
+> START
+> Slave Address, Write
+> [ACK]
+> Data
+> [ACK]
+> Data
+> [ACK]
+> ...
+> FEND
 
-Great! Glad I could help :)
+Without a [ACK] or [NACK] here, your transaction is not valid I2C. Is
+it really not there, or did you omit to mention it?
+
+> START
+
+Plain Start cannot happen in the middle of a transaction. Did you mean
+Repeated Start?
+
+> Slave Address, Write
+> [Data]
+> ACK
+> [Data]
+> ACK
+> ...
+> [FEND]
+> ACK
+> STOP
+> 
+> Here, FEND is a special end of message byte defined in a manner
+> similar to the SLIP encapsulation. It does not appear that I can use
+
+I have no idea what "SLIP encapsulation" is. Can you just explain what
+FEND is without external references? Is it simply a special byte value
+which means the end of the message?
+
+> the i2c_smbus_block_process_call because it requires the first data
+> byte to be the message length. Is there any way to send these sorts of
+> combined transaction in Linux without using the smbus interface?
+
+The above doesn't look like any standard SMBus transaction, as you
+found out, so there is no way to achieve it with i2c_smbus_*(). If it
+can be done, that would be with i2c_transfer() (in the kernel) or
+ioctl(I2C_RDWR) (from user-space).
+
+But even that may not be doable with the current infrastructure, if
+FEND can happen at any point of the transaction and thus the initial
+length of the transaction is unknown.
 
 -- 
 Jean Delvare
