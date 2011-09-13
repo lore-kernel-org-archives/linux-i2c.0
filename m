@@ -1,42 +1,38 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [GIT PULL] I2C: OMAP: misc. cleanup for v3.2
-Date: Mon, 12 Sep 2011 10:39:57 -0700
-Message-ID: <4E6E43ED.9080600@ti.com>
-References: <871uwbhdoj.fsf@ti.com> <4E669F36.2070008@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4E669F36.2070008-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+From: Thomas Abraham <thomas.abraham@linaro.org>
+Subject: [PATCH v3 0/2] Add device tree support for Samsung's I2C driver
+Date: Tue, 13 Sep 2011 09:46:03 +0530
+Message-ID: <1315887365-30532-1-git-send-email-thomas.abraham@linaro.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: devicetree-discuss@lists.ozlabs.org
+Cc: linux-i2c@vger.kernel.org, grant.likely@secretlab.ca, ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, kgene.kim@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
-ping
+This patchset adds device tree support for Samsung's I2C driver.
 
-On 09/06/2011 03:31 PM, Kevin Hilman wrote:
-> Hi Ben,
->
-> On 08/23/2011 05:10 PM, Kevin Hilman wrote:
->> Ben,
->>
->> Here's one more I2C cleanup series for v3.2.
->>
->> It applies on top of my for_3.2/i2c-fixes branch just submitted.
->>
->> Please pull into your tree for linux-next.
->
-> I see you pulled the other two, can you pull this one as well?
->
-> Since master.kernel.org is still down, I pushed a (backup) copy of these
-> branches to my gitorious repo[1]. It should pull cleanly into what
-> you've already pulled since this branch is based on my for_3.2/i2c-fixes
-> which you've already pulled.
->
-> Thanks,
->
-> Kevin
->
->
-> [1] git://gitorious.org/khilman/linux-omap-pm.git
+Changes since v2:
+- Addressed all comments from Grant Likely
+    - Used dev_kzalloc to allocate memory for platform data.
+    - Removed redundant check while adding i2c adapter.
+- Added support to retrieve gpio pin information from dt and request
+  gpio pins (retained Grant's Ack even though this is a new addition
+  in this version of the patch).
+
+Changes since v1:
+- Addressed all comments from Grant Likely
+    - s3c24xx_i2c_is2440 function is simpler now.
+    - Consolidated all the scatterd dt support code into a single function
+      to make the dt support code non-invasive.
+    - but the dependency on i2c pinmux handler function passed from the
+      platform data is retained. It would be removed eventually when the
+      new pinmux api is finalized and the i2c driver is modified to
+      support the pinmux settings using the pinmux api.
+
+Thomas Abraham (2):
+  i2c: s3c2410: Keep a copy of platform data and use it
+  i2c: s3c2410: Add device tree support
+
+ .../devicetree/bindings/i2c/samsung-i2c.txt        |   39 ++++++
+ drivers/i2c/busses/i2c-s3c2410.c                   |  128 ++++++++++++++++++--
+ 2 files changed, 159 insertions(+), 8 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/samsung-i2c.txt
