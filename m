@@ -1,49 +1,29 @@
-From: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: QUP based bus driver for Qualcomm MSM chipsets
-Date: Wed, 14 Sep 2011 12:39:53 -0600
-Message-ID: <4E70F4F9.2000707@codeaurora.org>
-References: <1308018114-19709-1-git-send-email-kheitke@codeaurora.org>
+From: Ben Dooks <ben-i2c@fluff.org>
+Subject: Re: [PATCH v3 0/2] Add device tree support for Samsung's I2C driver
+Date: Wed, 14 Sep 2011 22:13:38 +0100
+Message-ID: <20110914211338.GA2146@freya.fluff.org>
+References: <1315887365-30532-1-git-send-email-thomas.abraham@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1308018114-19709-1-git-send-email-kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: Kenneth Heitke <kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, davidb-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, dwalker-zu3NM2574RrQT0dZR+AlfA@public.gmane.org, tsoni-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, arve-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org, bryanh-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, swetland-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <1315887365-30532-1-git-send-email-thomas.abraham@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Thomas Abraham <thomas.abraham@linaro.org>
+Cc: linux-samsung-soc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca, kgene.kim@samsung.com, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/13/2011 08:21 PM, Kenneth Heitke wrote:
-> This bus driver supports the QUP i2c hardware controller in the Qualcomm
-> MSM SOCs.  The Qualcomm Universal Peripheral Engine (QUP) is a general
-> purpose data path engine with input/output FIFOs and an embedded i2c
-> mini-core. The driver supports FIFO mode (for low bandwidth applications)
-> and block mode (interrupt generated for each block-size data transfer).
-> The driver currently does not support DMA transfers.
->
-> Signed-off-by: Kenneth Heitke<kheitke-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>
-> ---
-> v2: updates to runtime PM calls (addresses comments from Mark Brown).
->      Disable interrupts before setting completion object to NULL (bug fix).
-> ---
->   drivers/i2c/busses/Kconfig                |   11 +
->   drivers/i2c/busses/Makefile               |    1 +
->   drivers/i2c/busses/i2c-qup.c              | 1175 +++++++++++++++++++++++++++++
->   include/linux/platform_data/msm_qup_i2c.h |   24 +
->   4 files changed, 1211 insertions(+), 0 deletions(-)
->   create mode 100644 drivers/i2c/busses/i2c-qup.c
->   create mode 100644 include/linux/platform_data/msm_qup_i2c.h
->
+On Tue, Sep 13, 2011 at 09:46:03AM +0530, Thomas Abraham wrote:
+> This patchset adds device tree support for Samsung's I2C driver.
 
-Hi Ben,
-
-Would it be possible to pull this driver into your tree?  If not, please 
-let me know of any concerns that need to be addresses.
-
-thanks,
-Ken
-
-
--- 
-Sent by an employee of the Qualcomm Innovation Center, Inc.
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum.
+I've applied these after a brief review. I'll give them a better
+review before the weekend.
