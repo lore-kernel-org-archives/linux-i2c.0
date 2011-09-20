@@ -1,65 +1,112 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Subject: Re: [PATCH V3 1/5] i2c: Add irq_gpio field to struct i2c_client,
- i2c_board_info.
-Date: Tue, 20 Sep 2011 09:54:48 +0100
-Message-ID: <4E7854D8.7000603@cam.ac.uk>
-References: <1314914676-28397-1-git-send-email-swarren@nvidia.com> <20110902085620.4ad918c4@endymion.delvare> <20110920041629.GC30517@ponder.secretlab.ca>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH] i2c/tegra: I2C driver uses the
+ suspend_noirq/resume_noirq
+Date: Tue, 20 Sep 2011 09:51:08 -0700
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF04B73215C9@HQMAIL01.nvidia.com>
+References: <1312586102-27907-1-git-send-email-swarren@nvidia.com>
+	<CAMbhsRScgMaTZ2e3a__OgOrrA6HN9_dkGuuNGaEfP+iqRdjyNQ@mail.gmail.com>
+	<20110806084805.GA18098@sirena.org.uk>
+	<74CDBE0F657A3D45AFBB94109FB122FF04AEA24CC8@HQMAIL01.nvidia.com>
+	<CAMbhsRR2+bhpjhGfUSt9M5tDk1EW2d70yC-tZy27zEgVqtkfSg@mail.gmail.com>
+	<74CDBE0F657A3D45AFBB94109FB122FF04AEA24D09@HQMAIL01.nvidia.com>
+	<CAMbhsRTVm+dUODDgqiekpTrrNnpo9trJNNvOQ2ETCNkneh-L-g@mail.gmail.com>
+	<1313109916.19990.28.camel@finisterre.wolfsonmicro.main>
+	<CAMbhsRShLvyc2XKJAL8PwR0Uj4Pnp9rVt7QyK1qAVxJ-R2PSdQ@mail.gmail.com>
+	<20110812031433.GE10218@opensource.wolfsonmicro.com>
+	<74CDBE0F657A3D45AFBB94109FB122FF04B24A3CA6@HQMAIL01.nvidia.com>
+ <CAMbhsRRRa_JV8_LHEvsM2h3e8Hbf1GAcpXz8gdU3wCc8Jgz5gw@mail.gmail.com>
+ <74CDBE0F657A3D45AFBB94109FB122FF04B3279D4F@HQMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20110920041629.GC30517-e0URQFbLeQY2iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Andrew Chew <achew-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF04B3279D4F-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Colin Cross <ccross-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/20/11 05:16, Grant Likely wrote:
-> On Fri, Sep 02, 2011 at 08:56:20AM +0200, Jean Delvare wrote:
->> Stephen,
->>
->> Can you please fix your e-mail client / system / whatever so that your
->> patch series are no longer sent duplicated?
->>
->> On Thu,  1 Sep 2011 16:04:27 -0600, Stephen Warren wrote:
->>> Some devices use a single pin as both an IRQ and a GPIO. In that case,
->>> irq_gpio is the GPIO ID for that pin. Not all drivers use this feature.
->>> Where they do, and the use of this feature is optional, and the system
->>> wishes to disable this feature, this field must be explicitly set to a
->>> defined invalid GPIO ID, such as -1.
->>>
->>> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->>> ---
->>> v3: Also add the field to i2c_board_info, and copy the field from
->>>     i2c_board_info to i2c_client upon instantiation
->>
->> I don't get the idea. The i2c core doesn't make any use of the field,
->> and that field will only be used by a few drivers amongst the 420+
->> i2c drivers in the tree. This looks like a waste of memory. What's wrong
->> with including the new field in the private platform or arch data
->> structure for drivers which need it?
-> 
-> I have to second the concern; but for a different reason.  This
-> shouldn't even remotely be necessary.  If the pin is used as an
-> interrupt, then interrupt controller driver (which I would assume is
-> also the gpio controller driver) should be responsible for setting up
-> the pin so that it can be used correctly as a irq line.  Why does the
-> gpio number need to be explicitly passed?
-The particular driver covered here is somewhat of a false positive.
-It really ought to be rewritten to do everything 'properly' with
-interrupts.  Right now no one with the inclination has the hardware
-to fix it up.
+Stephen Warren wrote at Tuesday, August 30, 2011 10:25 AM:
+> Ben, Arnd,
+>=20
+> Could you please ack/nack the patch at the start of this thread for C=
+olin;
+> see below.
 
-The nasty case we are trying to cover is peripherals that use level
-interrupts talking to gpio chips that only do edge triggered ones.
-We use the pin as an irq but have to query it as a gpio to discover
-if the sneaky chip raised it again without it actually going low.
+Ben, can you please comment on the acceptability of this patch?
 
-There are sometimes work arounds involving polling registers on
-the device to check if the interrupt is active, but give the bus is
-slow, pinging the gpio to find out it's state is often much faster.
+Or Arnd, did Mark's most recent explanation of the situation provide en=
+ough
+context for you to ack/nak it?
 
-So it's a dirty hack for dirty hardware.  Having said that I agree
-that it's a niche case and certainly shouldn't be part of any core
-code, unless it is done right at the core in the generic interrupt
-code and previous discussions suggest that is tricky to say the least!
+Thanks.
+
+> Thanks.
+>=20
+> Colin Cross wrote at Wednesday, August 24, 2011 3:34 PM:
+> > On Wed, Aug 24, 2011 at 2:28 PM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org=
+> wrote:
+> > > Mark Brown wrote at Thursday, August 11, 2011 9:15 PM:
+> > >> On Thu, Aug 11, 2011 at 07:59:27PM -0700, Colin Cross wrote:
+> > >> > On Thu, Aug 11, 2011 at 5:45 PM, Mark Brown
+> > >>
+> > >> > > For example with ASoC we'd sort all the components before th=
+e ASoC card
+> > >> > > without regard for their bus dependencies or any other depen=
+dencies they
+> > >> > > have (eg, their regulators). Since the ASoC card is a platfo=
+rm device
+> > >> > > it's likely to have registered early with no regard for wher=
+e the buses
+> > >> > > the card needs are registered. I'd expect there's a reasonab=
+le chance
+> > >> > > it'll actually make things worse in the short term.
+> > >>
+> > >> > You can't just move everything after the card, you have to mov=
+e
+> > >> > everything after the last device that was probed, and it only =
+works if
+> > >> > nothing depends on any of the devices that are moved.
+> > >>
+> > >> Sorry, I said that the wrong way round due to trying to reply qu=
+ickly -
+> > >> the card would be the thing that moves since that's the thing th=
+at
+> > >> actually does the suspend but we've *no* idea which device we ne=
+ed to
+> > >> move it after. =A0Since all the function does is a direct move a=
+fter or
+> > >> before a single device all we can do is pick one and pray that i=
+t's the
+> > >> right device.
+> > >
+> > > Colin,
+> > >
+> > > This thread seems to have died down; how should we make progress?
+> > >
+> > > It sounds like the suspend_irq solution is the current de-facto s=
+tandard;
+> > > not optimal, but all we really have right now and already in use.=
+ I could
+> > > certainly see avoiding this solution if it was the first time it =
+was
+> > > employed, but re-using it seems reasonable to me?
+> > >
+> > > Alternatively, are you attending either Linux Plumbers Conference=
+ or the
+> > > Kernel Summit? Mark implied this topic might well come up for dis=
+cussion
+> > > there. Unfortunately, I won't be able to make LPC due to a confli=
+ct.
+> > I don't think I'll be able to make it.
+> >
+> > > (and you'd mentioned having the subsystem maintainers weigh in on=
+ this;
+> > > which sub-system; IRQ, power, I2C, ...?)
+> >
+> > If Ben says its OK, its fine with me.  Or maybe Arnd wants to weigh=
+ in?
+
+--
+nvpublic
