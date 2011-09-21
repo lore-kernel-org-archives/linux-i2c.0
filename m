@@ -1,35 +1,42 @@
-From: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Subject: [PATCH 1/7] i2c-eg20t: Fix bus-idle waiting issue
-Date: Wed, 21 Sep 2011 16:51:43 +0900
-Message-ID: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org, Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+From: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
+Subject: [PATCH 2/7] i2c-eg20t: Modify returned value s32 to long
+Date: Wed, 21 Sep 2011 16:51:44 +0900
+Message-ID: <1316591509-4433-2-git-send-email-tomoya-linux@dsn.okisemi.com>
+References: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Qi Wang <qi.wang@intel.com>, yong.y.wang@intel.com, joel.clark@intel.com, kok.howg.ewe@intel.com, toshiharu-linux@dsn.okisemi.com, Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, when checking whether bus is idle or not,
-if timeout occurs,
-this function always returns success(zero).
-This patch fixes the issue.
+Type of wait_event_timeout is long not s32.
+This patch replaces s32 with long.
+Additionally, delete negative processing(ret < 0).
 
-Signed-off-by: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Signed-off-by: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
 ---
- drivers/i2c/busses/i2c-eg20t.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-eg20t.c |    6 +-----
+ 1 files changed, 1 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 6565009..6add59f 100644
+index 6add59f..21ade63 100644
 --- a/drivers/i2c/busses/i2c-eg20t.c
 +++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -286,7 +286,7 @@ static s32 pch_i2c_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
+@@ -313,13 +313,9 @@ static void pch_i2c_start(struct i2c_algo_pch_data *adap)
+  */
+ static s32 pch_i2c_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
+ {
+-	s32 ret;
++	long ret;
+ 	ret = wait_event_timeout(pch_event,
+ 			(adap->pch_event_flag != 0), msecs_to_jiffies(50));
+-	if (ret < 0) {
+-		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
+-		return ret;
+-	}
  
- 	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
- 
--	if (timeout == 0) {
-+	if (!ktime_lt(ktime_get(), ns_val)) {
- 		pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
- 		return -ETIME;
- 	}
+ 	if (ret == 0) {
+ 		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
 -- 
 1.7.4.4
