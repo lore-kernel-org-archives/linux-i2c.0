@@ -1,112 +1,228 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH] i2c/tegra: I2C driver uses the
- suspend_noirq/resume_noirq
-Date: Tue, 20 Sep 2011 09:51:08 -0700
-Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF04B73215C9@HQMAIL01.nvidia.com>
-References: <1312586102-27907-1-git-send-email-swarren@nvidia.com>
-	<CAMbhsRScgMaTZ2e3a__OgOrrA6HN9_dkGuuNGaEfP+iqRdjyNQ@mail.gmail.com>
-	<20110806084805.GA18098@sirena.org.uk>
-	<74CDBE0F657A3D45AFBB94109FB122FF04AEA24CC8@HQMAIL01.nvidia.com>
-	<CAMbhsRR2+bhpjhGfUSt9M5tDk1EW2d70yC-tZy27zEgVqtkfSg@mail.gmail.com>
-	<74CDBE0F657A3D45AFBB94109FB122FF04AEA24D09@HQMAIL01.nvidia.com>
-	<CAMbhsRTVm+dUODDgqiekpTrrNnpo9trJNNvOQ2ETCNkneh-L-g@mail.gmail.com>
-	<1313109916.19990.28.camel@finisterre.wolfsonmicro.main>
-	<CAMbhsRShLvyc2XKJAL8PwR0Uj4Pnp9rVt7QyK1qAVxJ-R2PSdQ@mail.gmail.com>
-	<20110812031433.GE10218@opensource.wolfsonmicro.com>
-	<74CDBE0F657A3D45AFBB94109FB122FF04B24A3CA6@HQMAIL01.nvidia.com>
- <CAMbhsRRRa_JV8_LHEvsM2h3e8Hbf1GAcpXz8gdU3wCc8Jgz5gw@mail.gmail.com>
- <74CDBE0F657A3D45AFBB94109FB122FF04B3279D4F@HQMAIL01.nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF04B3279D4F-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
-Content-Language: en-US
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Colin Cross <ccross-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+From: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
+Subject: [PATCH 4/7] i2c-eg20t: Separate error processing
+Date: Wed, 21 Sep 2011 16:51:46 +0900
+Message-ID: <1316591509-4433-4-git-send-email-tomoya-linux@dsn.okisemi.com>
+References: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Qi Wang <qi.wang@intel.com>, yong.y.wang@intel.com, joel.clark@intel.com, kok.howg.ewe@intel.com, toshiharu-linux@dsn.okisemi.com, Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Stephen Warren wrote at Tuesday, August 30, 2011 10:25 AM:
-> Ben, Arnd,
->=20
-> Could you please ack/nack the patch at the start of this thread for C=
-olin;
-> see below.
+Error processing for NACK or wait-event must be precessed separately.
+So divide wait-event error processing into NACK-receiving and timeout.
+Add arbitration lost processing.
 
-Ben, can you please comment on the acceptability of this patch?
+Signed-off-by: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
+---
+ drivers/i2c/busses/i2c-eg20t.c |  154 +++++++++++++++++++++++++--------------
+ 1 files changed, 99 insertions(+), 55 deletions(-)
 
-Or Arnd, did Mark's most recent explanation of the situation provide en=
-ough
-context for you to ack/nak it?
-
-Thanks.
-
-> Thanks.
->=20
-> Colin Cross wrote at Wednesday, August 24, 2011 3:34 PM:
-> > On Wed, Aug 24, 2011 at 2:28 PM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org=
-> wrote:
-> > > Mark Brown wrote at Thursday, August 11, 2011 9:15 PM:
-> > >> On Thu, Aug 11, 2011 at 07:59:27PM -0700, Colin Cross wrote:
-> > >> > On Thu, Aug 11, 2011 at 5:45 PM, Mark Brown
-> > >>
-> > >> > > For example with ASoC we'd sort all the components before th=
-e ASoC card
-> > >> > > without regard for their bus dependencies or any other depen=
-dencies they
-> > >> > > have (eg, their regulators). Since the ASoC card is a platfo=
-rm device
-> > >> > > it's likely to have registered early with no regard for wher=
-e the buses
-> > >> > > the card needs are registered. I'd expect there's a reasonab=
-le chance
-> > >> > > it'll actually make things worse in the short term.
-> > >>
-> > >> > You can't just move everything after the card, you have to mov=
-e
-> > >> > everything after the last device that was probed, and it only =
-works if
-> > >> > nothing depends on any of the devices that are moved.
-> > >>
-> > >> Sorry, I said that the wrong way round due to trying to reply qu=
-ickly -
-> > >> the card would be the thing that moves since that's the thing th=
-at
-> > >> actually does the suspend but we've *no* idea which device we ne=
-ed to
-> > >> move it after. =A0Since all the function does is a direct move a=
-fter or
-> > >> before a single device all we can do is pick one and pray that i=
-t's the
-> > >> right device.
-> > >
-> > > Colin,
-> > >
-> > > This thread seems to have died down; how should we make progress?
-> > >
-> > > It sounds like the suspend_irq solution is the current de-facto s=
-tandard;
-> > > not optimal, but all we really have right now and already in use.=
- I could
-> > > certainly see avoiding this solution if it was the first time it =
-was
-> > > employed, but re-using it seems reasonable to me?
-> > >
-> > > Alternatively, are you attending either Linux Plumbers Conference=
- or the
-> > > Kernel Summit? Mark implied this topic might well come up for dis=
-cussion
-> > > there. Unfortunately, I won't be able to make LPC due to a confli=
-ct.
-> > I don't think I'll be able to make it.
-> >
-> > > (and you'd mentioned having the subsystem maintainers weigh in on=
- this;
-> > > which sub-system; IRQ, power, I2C, ...?)
-> >
-> > If Ben says its OK, its fine with me.  Or maybe Arnd wants to weigh=
- in?
-
---
-nvpublic
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index a87a878..b6d910d 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -390,6 +390,7 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+ 	u32 length;
+ 	u32 addr;
+ 	s32 wrcount;
++	s32 rtn;
+ 	void __iomem *p = adap->pch_base_address;
+ 
+ 	length = msgs->len;
+@@ -418,30 +419,48 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+ 	if (first)
+ 		pch_i2c_start(adap);
+ 
+-	if ((pch_i2c_wait_for_xfer_complete(adap) == 0) &&
+-	    (pch_i2c_getack(adap) == 0)) {
+-		for (wrcount = 0; wrcount < length; ++wrcount) {
+-			/* write buffer value to I2C data register */
+-			iowrite32(buf[wrcount], p + PCH_I2CDR);
+-			pch_dbg(adap, "writing %x to Data register\n",
+-				buf[wrcount]);
++	rtn = pch_i2c_wait_for_xfer_complete(adap);
++	if (rtn == 0) {
++		if (pch_i2c_getack(adap) == 1) {
++			pch_err(adap, "Receive NACK for slave address\
++				setting\n");
++			return -EIO;
++		}
++	} else if (rtn == -EIO) { /* Arbitration Lost */
++		pch_err(adap, "Lost Arbitration\n");
++		pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMAL_BIT);
++		pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMIF_BIT);
++		return -EAGAIN;
++	} else { /* wait-event timeout */
++		return -ETIME;
++	}
+ 
+-			if (pch_i2c_wait_for_xfer_complete(adap) != 0)
+-				return -ETIME;
++	for (wrcount = 0; wrcount < length; ++wrcount) {
++		/* write buffer value to I2C data register */
++		iowrite32(buf[wrcount], p + PCH_I2CDR);
++		pch_dbg(adap, "writing %x to Data register\n", buf[wrcount]);
+ 
+-			if (pch_i2c_getack(adap))
++		rtn = pch_i2c_wait_for_xfer_complete(adap);
++		if (rtn == 0) {
++			if (pch_i2c_getack(adap) == 1) {
++				pch_err(adap, "Receive NACK for slave address\
++					setting\n");
+ 				return -EIO;
++			}
++			pch_clrbit(adap->pch_base_address, PCH_I2CSR,
++				   I2CMCF_BIT);
++			pch_clrbit(adap->pch_base_address, PCH_I2CSR,
++				   I2CMIF_BIT);
++		} else { /* wait-event timeout */
++			return -ETIME;
+ 		}
++	}
+ 
+-		/* check if this is the last message */
+-		if (last)
+-			pch_i2c_stop(adap);
+-		else
+-			pch_i2c_repstart(adap);
+-	} else {
++	/* check if this is the last message */
++	if (last)
+ 		pch_i2c_stop(adap);
+-		return -EIO;
+-	}
++	else
++		pch_i2c_repstart(adap);
+ 
+ 	pch_dbg(adap, "return=%d\n", wrcount);
+ 
+@@ -487,6 +506,7 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 	u32 length;
+ 	u32 addr;
+ 	void __iomem *p = adap->pch_base_address;
++	s32 rtn;
+ 
+ 	length = msgs->len;
+ 	buf = msgs->buf;
+@@ -513,56 +533,80 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 	if (first)
+ 		pch_i2c_start(adap);
+ 
+-	if ((pch_i2c_wait_for_xfer_complete(adap) == 0) &&
+-	    (pch_i2c_getack(adap) == 0)) {
+-		pch_dbg(adap, "return %d\n", 0);
++	rtn = pch_i2c_wait_for_xfer_complete(adap);
++	if (rtn == 0) {
++		if (pch_i2c_getack(adap) == 1) {
++			pch_err(adap, "Receive NACK for slave address\
++				setting\n");
++			return -EIO;
++		}
++	} else if (rtn == -EIO) { /* Arbitration Lost */
++		pch_err(adap, "Lost Arbitration\n");
++		pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMAL_BIT);
++		pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMIF_BIT);
++		return -EAGAIN;
++	} else { /* wait-event timeout */
++		pch_i2c_stop(adap);
++		return -ETIME;
++	}
+ 
+-		if (length == 0) {
+-			pch_i2c_stop(adap);
+-			ioread32(p + PCH_I2CDR); /* Dummy read needs */
++	if (length == 0) {
++		pch_i2c_stop(adap);
++		ioread32(p + PCH_I2CDR); /* Dummy read needs */
+ 
+-			count = length;
+-		} else {
+-			int read_index;
+-			int loop;
+-			pch_i2c_sendack(adap);
++		count = length;
++	} else {
++		int read_index;
++		int loop;
++		pch_i2c_sendack(adap);
+ 
+-			/* Dummy read */
+-			for (loop = 1, read_index = 0; loop < length; loop++) {
+-				buf[read_index] = ioread32(p + PCH_I2CDR);
++		/* Dummy read */
++		for (loop = 1, read_index = 0; loop < length; loop++) {
++			buf[read_index] = ioread32(p + PCH_I2CDR);
+ 
+-				if (loop != 1)
+-					read_index++;
++			if (loop != 1)
++				read_index++;
+ 
+-				if (pch_i2c_wait_for_xfer_complete(adap) != 0) {
+-					pch_i2c_stop(adap);
+-					return -ETIME;
++			rtn = pch_i2c_wait_for_xfer_complete(adap);
++			if (rtn == 0) {
++				if (pch_i2c_getack(adap) == 1) {
++					pch_err(adap, "Receive NACK for slave\
++						address setting\n");
++					return -EIO;
+ 				}
+-			}	/* end for */
++			} else { /* wait-event timeout */
++				pch_i2c_stop(adap);
++				return -ETIME;
++			}
+ 
+-			pch_i2c_sendnack(adap);
++		}	/* end for */
+ 
+-			buf[read_index] = ioread32(p + PCH_I2CDR);
++		pch_i2c_sendnack(adap);
+ 
+-			if (length != 1)
+-				read_index++;
++		buf[read_index] = ioread32(p + PCH_I2CDR); /* Read final - 1 */
+ 
+-			if (pch_i2c_wait_for_xfer_complete(adap) == 0) {
+-				if (last)
+-					pch_i2c_stop(adap);
+-				else
+-					pch_i2c_repstart(adap);
++		if (length != 1)
++			read_index++;
+ 
+-				buf[read_index++] = ioread32(p + PCH_I2CDR);
+-				count = read_index;
+-			} else {
+-				count = -ETIME;
++		rtn = pch_i2c_wait_for_xfer_complete(adap);
++		if (rtn == 0) {
++			if (pch_i2c_getack(adap) == 1) {
++				pch_err(adap, "Receive NACK for slave\
++					address setting\n");
++				return -EIO;
+ 			}
+-
++		} else { /* wait-event timeout */
++			pch_i2c_stop(adap);
++			return -ETIME;
+ 		}
+-	} else {
+-		count = -ETIME;
+-		pch_i2c_stop(adap);
++
++		if (last)
++			pch_i2c_stop(adap);
++		else
++			pch_i2c_repstart(adap);
++
++		buf[read_index++] = ioread32(p + PCH_I2CDR); /* Read Final */
++		count = read_index;
+ 	}
+ 
+ 	return count;
+-- 
+1.7.4.4
