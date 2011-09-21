@@ -1,42 +1,35 @@
-From: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
-Subject: [PATCH 5/7] i2c-eg20t: add stop sequence in case wait-event timeout occurs
-Date: Wed, 21 Sep 2011 16:51:47 +0900
-Message-ID: <1316591509-4433-5-git-send-email-tomoya-linux@dsn.okisemi.com>
-References: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: Qi Wang <qi.wang@intel.com>, yong.y.wang@intel.com, joel.clark@intel.com, kok.howg.ewe@intel.com, toshiharu-linux@dsn.okisemi.com, Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
+From: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Subject: [PATCH 1/7] i2c-eg20t: Fix bus-idle waiting issue
+Date: Wed, 21 Sep 2011 16:51:43 +0900
+Message-ID: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org, Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-add stop sequence in case wait-event timeout in write processing.
-(read processing already had it)
+Currently, when checking whether bus is idle or not,
+if timeout occurs,
+this function always returns success(zero).
+This patch fixes the issue.
 
-Signed-off-by: Tomoya MORINAGA <tomoya-linux@dsn.okisemi.com>
+Signed-off-by: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-eg20t.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-eg20t.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index b6d910d..ab93d73 100644
+index 6565009..6add59f 100644
 --- a/drivers/i2c/busses/i2c-eg20t.c
 +++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -432,6 +432,7 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
- 		pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMIF_BIT);
- 		return -EAGAIN;
- 	} else { /* wait-event timeout */
-+		pch_i2c_stop(adap);
- 		return -ETIME;
- 	}
+@@ -286,7 +286,7 @@ static s32 pch_i2c_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
  
-@@ -452,6 +453,7 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
- 			pch_clrbit(adap->pch_base_address, PCH_I2CSR,
- 				   I2CMIF_BIT);
- 		} else { /* wait-event timeout */
-+			pch_i2c_stop(adap);
- 			return -ETIME;
- 		}
+ 	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
+ 
+-	if (timeout == 0) {
++	if (!ktime_lt(ktime_get(), ns_val)) {
+ 		pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
+ 		return -ETIME;
  	}
 -- 
 1.7.4.4
