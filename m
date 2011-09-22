@@ -1,103 +1,111 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: [PATCH RESEND] drivers: i2c: s3c2410: add support for HDMIPHY
- dedicated controller
-Date: Thu, 22 Sep 2011 12:24:56 +0200
-Message-ID: <1316687096-18307-1-git-send-email-m.szyprowski@samsung.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Tomasz Stanislawski <t.stanislaws@samsung.com>
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: [PATCH] i2c: boilerplate function for byte swapped smbus_write/read_word_data
+Date: Thu, 22 Sep 2011 14:48:14 +0100
+Message-ID: <1316699294-6936-1-git-send-email-jic23@cam.ac.uk>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Tomasz Stanislawski <t.stanislaws@samsung.com>
+Reimplemented at least 17 times discounting error mangling cases
+where it could be used.
 
-This patch adds support for I2C HDMIPHY dedicated controller. It has
-different timeout handling and reset conditions.
-
-Signed-off-by: Tomasz Stanislawski <t.stanislaws@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-s3c2410.c |   36 +++++++++++++++++++++++++++++++++++-
- 1 files changed, 35 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index f84a63c..e456cf9 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -54,6 +54,7 @@ enum s3c24xx_i2c_state {
- enum s3c24xx_i2c_type {
- 	TYPE_S3C2410,
- 	TYPE_S3C2440,
-+	TYPE_S3C2440_HDMIPHY,
- };
+Hi All,
+
+Quite a number of devices rather unhelpfully handle smbus read/write word
+commands but return the result byte swapped.  Hence drivers swap it back
+again.
+
+Examples based on quick grep or read users that byte swap(write is completely trivial)
+
+drivers/hwmon/ad7418.c - no error handling so trivial
+drivers/hwmon/ads1015.c - correct
+drivers/hwmon/asb100.c - no error handling so trivial
+drivers/hwmon/ds1621.c - correct
+drivers/hwmon/ds620.c - no error handling so trivial
+drivers/hwmon/gl518sm.c - no error handling so trivial
+drivers/hwmon/gl520sm.c - no error handling so trivial
+drivers/hwmon/jc42.c - correct
+drivers/hwmon/lm73.c - no error handling
+drivers/hwmon/lm75.c - correct
+drivers/hwmon/lm92.c - some are byte swapped. Implementation doesn't handle errors
+drivers/hwmon/tmp102.c - correct
+drivers/hwmon/w83781.c - no error handling.
+drivers/input/touchscreen/ad7879-i2c.c - no error handling
+drivers/media/video/mt9m001.c - correct
+drivers/media/video/mt9m111.c - no error handling
+drivers/media/video/mt9t031.c - correct
+drivers/media/video/mt9v022.c - correct
+drivers/media/video/mt9v032.c - correct
+drivers/media/video/vpx3220.c - correct
+drivers/staging/iio/adc/ad7150.c - correct
+drivers/staging/iio/adc/ad7152.c - correct
+drivers/staging/iio/adc/ad7291.c - correct
+drivers/staging/iio/adc/ad7746.c - correct
+drivers/staging/iio/adc/ad799x_core.c - correct
+drivers/staging/iio/adc/adt7410.c - correct
+drivers/staging/iio/adc/adt75.c - correct
+
+'correct' are those that need handle or at least pass on the error code without
+mangling it.  The others typically just shove an error into some local
+cache without taking any notice.
+
+Just for the curious this is based on greping for i2c_smbus_write_word_data and
+looking to see if the read does the swab16 as well.
+
+Anyhow, so to the proposal.  Introduce a couple of inline static functions into
+i2c.h.
+
+My only use examples done so far are on top of unpublished iio
+changes, so I'll leave the reader to take a look and decided
+whether or not this is interesting enough to do.
+
+Even if the driver uses equivalent functions we are saving about
+6 lines per user.  I'm happy to do a series converting the easy
+ones from the above if people don't mind the patch.
+
+ include/linux/i2c.h |   18 ++++++++++++++++++
+ 1 files changed, 18 insertions(+), 0 deletions(-)
+
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a6c652e..59ae02b 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -34,6 +34,7 @@
+ #include <linux/sched.h>	/* for completion */
+ #include <linux/mutex.h>
+ #include <linux/of.h>		/* for struct device_node */
++#include <linux/swab.h>
  
- struct s3c24xx_i2c {
-@@ -96,7 +97,21 @@ static inline int s3c24xx_i2c_is2440(struct s3c24xx_i2c *i2c)
- 	enum s3c24xx_i2c_type type;
- 
- 	type = platform_get_device_id(pdev)->driver_data;
--	return type == TYPE_S3C2440;
-+	return type == TYPE_S3C2440 || type == TYPE_S3C2440_HDMIPHY;
+ extern struct bus_type i2c_bus_type;
+ extern struct device_type i2c_adapter_type;
+@@ -88,6 +89,23 @@ extern s32 i2c_smbus_read_word_data(const struct i2c_client *client,
+ 				    u8 command);
+ extern s32 i2c_smbus_write_word_data(const struct i2c_client *client,
+ 				     u8 command, u16 value);
++
++static inline s32
++i2c_smbus_read_word_data_swapped(const struct i2c_client *client,
++				 u8 command)
++{
++	s32 value = i2c_smbus_read_word_data(client, command);
++
++	return (value < 0) ? value : swab16(value);
 +}
 +
-+/* s3c24xx_i2c_is2440_hdmiphy()
-+ *
-+ * return true is this is an s3c2440 dedicated for HDMIPHY interface
-+*/
-+
-+static inline int s3c24xx_i2c_is2440_hdmiphy(struct s3c24xx_i2c *i2c)
++static inline s32
++i2c_smbus_write_word_data_swapped(const struct i2c_client *client,
++				  u8 command, u16 value)
 +{
-+	struct platform_device *pdev = to_platform_device(i2c->dev);
-+	enum s3c24xx_i2c_type type;
++	return i2c_smbus_write_word_data(client, command, swab16(value));
++}
 +
-+	type = platform_get_device_id(pdev)->driver_data;
-+	return type == TYPE_S3C2440_HDMIPHY;
- }
- 
- /* s3c24xx_i2c_master_complete
-@@ -460,6 +475,13 @@ static int s3c24xx_i2c_set_master(struct s3c24xx_i2c *i2c)
- 	unsigned long iicstat;
- 	int timeout = 400;
- 
-+	/* if hang-up of HDMIPHY occured reduce timeout
-+	 * The controller will work after reset, so waiting
-+	 * 400 ms will cause unneccessary system hangup
-+	 */
-+	if (s3c24xx_i2c_is2440_hdmiphy(i2c))
-+		timeout = 10;
-+
- 	while (timeout-- > 0) {
- 		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
- 
-@@ -469,6 +491,15 @@ static int s3c24xx_i2c_set_master(struct s3c24xx_i2c *i2c)
- 		msleep(1);
- 	}
- 
-+	/* hang-up of bus dedicated for HDMIPHY occured, resetting */
-+	if (s3c24xx_i2c_is2440_hdmiphy(i2c)) {
-+		writel(0, i2c->regs + S3C2410_IICCON);
-+		writel(0, i2c->regs + S3C2410_IICSTAT);
-+		writel(0, i2c->regs + S3C2410_IICDS);
-+
-+		return 0;
-+	}
-+
- 	return -ETIMEDOUT;
- }
- 
-@@ -1008,6 +1039,9 @@ static struct platform_device_id s3c24xx_driver_ids[] = {
- 	}, {
- 		.name		= "s3c2440-i2c",
- 		.driver_data	= TYPE_S3C2440,
-+	}, {
-+		.name		= "s3c2440-hdmiphy-i2c",
-+		.driver_data	= TYPE_S3C2440_HDMIPHY,
- 	}, { },
- };
- MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
+ /* Returns the number of read bytes */
+ extern s32 i2c_smbus_read_block_data(const struct i2c_client *client,
+ 				     u8 command, u8 *values);
 -- 
-1.7.1.569.g6f426
+1.7.3.4
