@@ -1,34 +1,59 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH] i2c/tegra: I2C driver uses the
- suspend_noirq/resume_noirq
-Date: Thu, 22 Sep 2011 18:01:54 +0100
-Message-ID: <20110922170154.GD1045@sirena.org.uk>
-References: <1312586102-27907-1-git-send-email-swarren@nvidia.com>
+From: "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: RE: [PATCH 3/7] i2c-eg20t: delete 10bit access processing
+Date: Thu, 22 Sep 2011 10:49:39 -0700
+Message-ID: <B6A520E9CD57404AAFC0831E4FB39541A98073AF26@IRVEXCHCCR02.corp.ad.broadcom.com>
+References: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
+ <1316591509-4433-3-git-send-email-tomoya-linux@dsn.okisemi.com>
+ <B6A520E9CD57404AAFC0831E4FB39541A98073AC7E@IRVEXCHCCR02.corp.ad.broadcom.com>
+ <4E7A7DBA.3020406@dsn.okisemi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1312586102-27907-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <4E7A7DBA.3020406-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org" <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Aaron Smith <aarons-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 05, 2011 at 05:15:02PM -0600, Stephen Warren wrote:
-> From: Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> 
-> We found the register settings of wm8903(an audio codec) can't be modified
-> in snd_soc_suspend since I2C bus has been suspended before snd_soc_suspend.
-> 
-> Pop noise will occur when system resume from LP0 if the register settings of wm8903
-> haven't be modified correctly in snd_soc_suspend.
-> 
-> So, we use the suspend_noirq/resume_noirq callbacks to make sure I2C bus still
-> operates while running snd_soc_suspend.
-> 
-> Signed-off-by: Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-
-At Stephen's request
-
-Reviewed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+VGhlIGRldmljZSBpcyBCQ00yMDc5MS4gIFBsZWFzZSBjb250YWN0IEFhcm9uIFNtaXRoIChhYXJv
+bnNAYnJvYWRjb20uY29tKSBmb3IgZXZhbHVhdGlvbi4gIA0KDQpCeSB0aGUgd2F5LCB0aGUgZXhp
+c3RpbmcgaGFuZGxpbmcgb2YgMTAtYml0IGFkZHJlc3MgaW4gdGhlIHBhdGNoIHlvdSBpbnRlbmRl
+ZCB0byBkZWxldGUgZG9lcyBub3Qgd29yay4gIFlvdSdsbCBuZWVkIHRvIGZpeCB0aGF0IGJlZm9y
+ZSB5b3UgY2FuIHRlc3Qgd2l0aCB0aGUgZGV2aWNlIHN1Y2Nlc3NmdWxseS4gDQoNCkZvciB0aGUg
+d3JpdGUgb3BlcmF0aW9uLCBpdCdzIGEgZWFzeSBmaXg6DQoNCkBAIC00MTAsMjUgKzQwOCwxNiBA
+QCBzdGF0aWMgczMyIHBjaF9pMmNfd3JpdGVieXRlcyhzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmkyY19h
+ZGFwLA0KIAl9DQogDQogCWlmIChtc2dzLT5mbGFncyAmIEkyQ19NX1RFTikgew0KLQkJYWRkcl8y
+X21zYiA9ICgoYWRkciAmIEkyQ19NU0JfMkJfTVNLKSA+PiA3KTsNCisJCWFkZHJfMl9tc2IgPSAo
+KGFkZHIgJiBJMkNfTVNCXzJCX01TSykgPj4gNykgJiAweDA2Ow0KDQoNCkZvciB0aGUgcmVhZCBv
+cGVyYXRpb24sIHN0YXRpYyBzMzIgcGNoX2kyY19yZWFkYnl0ZXMoKSwgeW91J2xsIG5lZWQgdG8g
+ZG8gYSB3cml0ZSBmb2xsb3dlZCBieSBhIHJlc3RhcnQgYW5kIGEgcmVhZC4uLiAgcGxlYXNlIHJl
+ZmVyIHRvIHRoZSBpMmMgc3BlYy4uLg0KDQpSZWdhcmRzLA0KDQotSmVmZnJleQ0KDQotLS0tLU9y
+aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogVG9tb3lhIE1PUklOQUdBIFttYWlsdG86dG9tb3lh
+LWxpbnV4QGRzbi5va2lzZW1pLmNvbV0gDQpTZW50OiBXZWRuZXNkYXksIFNlcHRlbWJlciAyMSwg
+MjAxMSA4OjE0IFBNDQpUbzogSmVmZnJleSAoU2hlbmctSHVpKSBDaHUNCkNjOiBKZWFuIERlbHZh
+cmU7IEJlbiBEb29rczsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZn
+ZXIua2VybmVsLm9yZzsgUWkgV2FuZzsgeW9uZy55LndhbmdAaW50ZWwuY29tOyBqb2VsLmNsYXJr
+QGludGVsLmNvbTsga29rLmhvd2cuZXdlQGludGVsLmNvbTsgdG9zaGloYXJ1LWxpbnV4QGRzbi5v
+a2lzZW1pLmNvbQ0KU3ViamVjdDogUmU6IFtQQVRDSCAzLzddIGkyYy1lZzIwdDogZGVsZXRlIDEw
+Yml0IGFjY2VzcyBwcm9jZXNzaW5nDQoNCigyMDExLzA5LzIyIDA6NDIpLCBKZWZmcmV5IChTaGVu
+Zy1IdWkpIENodSB3cm90ZToNCg0KID4gVGhlcmUgaXMgaTJjIGRldmljZSBjb21pbmcgb3V0IHRo
+YXQgdXNlcyAxMC1iaXQgYWRkcmVzcy4NClRoYW5rIHlvdSBmb3IgeW91ciBpbmZvcm1hdGlvbi4N
+CldlIHdhbnQgdG8gdGVzdCAxMC1iaXQgbW9kZSB1c2luZyB0aGUgZGV2aWNlLg0KU28gbGV0IG1l
+IGtub3cgdGhlIGRldmljZSBpbmZvcm1hdGlvbiA/DQoNCkFueXdheSwgTm93LCBrZXJuZWwgaTJj
+LWNvcmUgaXMgRVhQRVJJTUVOVEFMIHN0YWdlIGZvciAxMC1iaXQgbW9kZSBsaWtlIGJlbG93Lg0K
+DQogICAoRG9jdW1lbnRhdGlvbi9pMmMvdGVuLWJpdC1hZGRyZXNzZXMpDQogICAgV0FSTklORyEg
+VGhlIGN1cnJlbnQgMTAgYml0IGFkZHJlc3Mgc3VwcG9ydCBpcyBFWFBFUklNRU5UQUwuIFRoZXJl
+DQogICBhcmUgc2V2ZXJhbCBwbGFjZXMgaW4gdGhlIGNvZGUgdGhhdCB3aWxsIGNhdXNlIFNFVkVS
+RSBQUk9CTEVNUyB3aXRoDQogICAxMCBiaXQgYWRkcmVzc2VzLCBldmVuIHRob3VnaCB0aGVyZSBp
+cyBzb21lIGJhc2ljIGhhbmRsaW5nIGFuZA0KICAgaG9va3MuIEFsc28sDQogICBhbG1vc3Qgbm8g
+c3VwcG9ydGVkIGFkYXB0ZXIgaGFuZGxlcyB0aGUgMTAgYml0IGFkZHJlc3NlcyBjb3JyZWN0bHku
+DQoNCiAgIEFzIHNvb24gYXMgYSByZWFsIDEwIGJpdCBhZGRyZXNzIGRldmljZSBpcyBzcG90dGVk
+ICdpbiB0aGUgd2lsZCcsIHdlDQogICBjYW4gYW5kIHdpbGwgYWRkIHByb3BlciBzdXBwb3J0LiBS
+aWdodCBub3csIDEwIGJpdCBhZGRyZXNzIGRldmljZXMNCiAgIGFyZSBkZWZpbmVkIGJ5IHRoZSBJ
+MkMgcHJvdG9jb2wsIGJ1dCB3ZSBoYXZlIG5ldmVyIHNlZW4gYSBzaW5nbGUNCiAgIGRldmljZSB3
+aGljaCBzdXBwb3J0cyB0aGVtLg0KDQpBZnRlciBrZXJuZWwgc3VwcG9ydHMgMTBiaXQtbW9kZSBm
+b3JtYWxseSwgd2Ugd2lsbCBhZGQgdGhlIGZ1bmN0aW9uICB0byBpMmMtZWcyMHQgYWdhaW4uDQoN
+ClRoYW5rcywNCnRvbW95YQ0KDQo=
