@@ -1,59 +1,128 @@
-From: "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Subject: RE: [PATCH 3/7] i2c-eg20t: delete 10bit access processing
-Date: Thu, 22 Sep 2011 10:49:39 -0700
-Message-ID: <B6A520E9CD57404AAFC0831E4FB39541A98073AF26@IRVEXCHCCR02.corp.ad.broadcom.com>
-References: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
- <1316591509-4433-3-git-send-email-tomoya-linux@dsn.okisemi.com>
- <B6A520E9CD57404AAFC0831E4FB39541A98073AC7E@IRVEXCHCCR02.corp.ad.broadcom.com>
- <4E7A7DBA.3020406@dsn.okisemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4E7A7DBA.3020406-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org" <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Aaron Smith <aarons-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v2] i2c-tegra: Use the suspend_noirq/resume_noirq not suspend/resume
+Date: Thu, 22 Sep 2011 11:51:32 -0600
+Message-ID: <1316713892-357-1-git-send-email-swarren@nvidia.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Colin Cross <ccross-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Erik Gilling <konkers-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-VGhlIGRldmljZSBpcyBCQ00yMDc5MS4gIFBsZWFzZSBjb250YWN0IEFhcm9uIFNtaXRoIChhYXJv
-bnNAYnJvYWRjb20uY29tKSBmb3IgZXZhbHVhdGlvbi4gIA0KDQpCeSB0aGUgd2F5LCB0aGUgZXhp
-c3RpbmcgaGFuZGxpbmcgb2YgMTAtYml0IGFkZHJlc3MgaW4gdGhlIHBhdGNoIHlvdSBpbnRlbmRl
-ZCB0byBkZWxldGUgZG9lcyBub3Qgd29yay4gIFlvdSdsbCBuZWVkIHRvIGZpeCB0aGF0IGJlZm9y
-ZSB5b3UgY2FuIHRlc3Qgd2l0aCB0aGUgZGV2aWNlIHN1Y2Nlc3NmdWxseS4gDQoNCkZvciB0aGUg
-d3JpdGUgb3BlcmF0aW9uLCBpdCdzIGEgZWFzeSBmaXg6DQoNCkBAIC00MTAsMjUgKzQwOCwxNiBA
-QCBzdGF0aWMgczMyIHBjaF9pMmNfd3JpdGVieXRlcyhzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmkyY19h
-ZGFwLA0KIAl9DQogDQogCWlmIChtc2dzLT5mbGFncyAmIEkyQ19NX1RFTikgew0KLQkJYWRkcl8y
-X21zYiA9ICgoYWRkciAmIEkyQ19NU0JfMkJfTVNLKSA+PiA3KTsNCisJCWFkZHJfMl9tc2IgPSAo
-KGFkZHIgJiBJMkNfTVNCXzJCX01TSykgPj4gNykgJiAweDA2Ow0KDQoNCkZvciB0aGUgcmVhZCBv
-cGVyYXRpb24sIHN0YXRpYyBzMzIgcGNoX2kyY19yZWFkYnl0ZXMoKSwgeW91J2xsIG5lZWQgdG8g
-ZG8gYSB3cml0ZSBmb2xsb3dlZCBieSBhIHJlc3RhcnQgYW5kIGEgcmVhZC4uLiAgcGxlYXNlIHJl
-ZmVyIHRvIHRoZSBpMmMgc3BlYy4uLg0KDQpSZWdhcmRzLA0KDQotSmVmZnJleQ0KDQotLS0tLU9y
-aWdpbmFsIE1lc3NhZ2UtLS0tLQ0KRnJvbTogVG9tb3lhIE1PUklOQUdBIFttYWlsdG86dG9tb3lh
-LWxpbnV4QGRzbi5va2lzZW1pLmNvbV0gDQpTZW50OiBXZWRuZXNkYXksIFNlcHRlbWJlciAyMSwg
-MjAxMSA4OjE0IFBNDQpUbzogSmVmZnJleSAoU2hlbmctSHVpKSBDaHUNCkNjOiBKZWFuIERlbHZh
-cmU7IEJlbiBEb29rczsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZn
-ZXIua2VybmVsLm9yZzsgUWkgV2FuZzsgeW9uZy55LndhbmdAaW50ZWwuY29tOyBqb2VsLmNsYXJr
-QGludGVsLmNvbTsga29rLmhvd2cuZXdlQGludGVsLmNvbTsgdG9zaGloYXJ1LWxpbnV4QGRzbi5v
-a2lzZW1pLmNvbQ0KU3ViamVjdDogUmU6IFtQQVRDSCAzLzddIGkyYy1lZzIwdDogZGVsZXRlIDEw
-Yml0IGFjY2VzcyBwcm9jZXNzaW5nDQoNCigyMDExLzA5LzIyIDA6NDIpLCBKZWZmcmV5IChTaGVu
-Zy1IdWkpIENodSB3cm90ZToNCg0KID4gVGhlcmUgaXMgaTJjIGRldmljZSBjb21pbmcgb3V0IHRo
-YXQgdXNlcyAxMC1iaXQgYWRkcmVzcy4NClRoYW5rIHlvdSBmb3IgeW91ciBpbmZvcm1hdGlvbi4N
-CldlIHdhbnQgdG8gdGVzdCAxMC1iaXQgbW9kZSB1c2luZyB0aGUgZGV2aWNlLg0KU28gbGV0IG1l
-IGtub3cgdGhlIGRldmljZSBpbmZvcm1hdGlvbiA/DQoNCkFueXdheSwgTm93LCBrZXJuZWwgaTJj
-LWNvcmUgaXMgRVhQRVJJTUVOVEFMIHN0YWdlIGZvciAxMC1iaXQgbW9kZSBsaWtlIGJlbG93Lg0K
-DQogICAoRG9jdW1lbnRhdGlvbi9pMmMvdGVuLWJpdC1hZGRyZXNzZXMpDQogICAgV0FSTklORyEg
-VGhlIGN1cnJlbnQgMTAgYml0IGFkZHJlc3Mgc3VwcG9ydCBpcyBFWFBFUklNRU5UQUwuIFRoZXJl
-DQogICBhcmUgc2V2ZXJhbCBwbGFjZXMgaW4gdGhlIGNvZGUgdGhhdCB3aWxsIGNhdXNlIFNFVkVS
-RSBQUk9CTEVNUyB3aXRoDQogICAxMCBiaXQgYWRkcmVzc2VzLCBldmVuIHRob3VnaCB0aGVyZSBp
-cyBzb21lIGJhc2ljIGhhbmRsaW5nIGFuZA0KICAgaG9va3MuIEFsc28sDQogICBhbG1vc3Qgbm8g
-c3VwcG9ydGVkIGFkYXB0ZXIgaGFuZGxlcyB0aGUgMTAgYml0IGFkZHJlc3NlcyBjb3JyZWN0bHku
-DQoNCiAgIEFzIHNvb24gYXMgYSByZWFsIDEwIGJpdCBhZGRyZXNzIGRldmljZSBpcyBzcG90dGVk
-ICdpbiB0aGUgd2lsZCcsIHdlDQogICBjYW4gYW5kIHdpbGwgYWRkIHByb3BlciBzdXBwb3J0LiBS
-aWdodCBub3csIDEwIGJpdCBhZGRyZXNzIGRldmljZXMNCiAgIGFyZSBkZWZpbmVkIGJ5IHRoZSBJ
-MkMgcHJvdG9jb2wsIGJ1dCB3ZSBoYXZlIG5ldmVyIHNlZW4gYSBzaW5nbGUNCiAgIGRldmljZSB3
-aGljaCBzdXBwb3J0cyB0aGVtLg0KDQpBZnRlciBrZXJuZWwgc3VwcG9ydHMgMTBiaXQtbW9kZSBm
-b3JtYWxseSwgd2Ugd2lsbCBhZGQgdGhlIGZ1bmN0aW9uICB0byBpMmMtZWcyMHQgYWdhaW4uDQoN
-ClRoYW5rcywNCnRvbW95YQ0KDQo=
+From: Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+
+Various drivers need to use the I2C bus during suspend. Generally, this
+is already supported, since devices are suspended based on (the inverse of)
+probe order, and an I2C-based device can't probe until the I2C bus upon
+which it sits has been probed first.
+
+However, some subsystems, notably ASoC, do not enjoy such simple bus/child
+probing relationships. In particular, an ASoC machine driver (and hence a
+sound card) may probe very early on before all its required resources are
+available. After all required resources become available, the overall
+machine driver initialization is performed. Suspend of a sound card occurs
+based on the machine driver's probe timing, which may mean suspend occurs
+after an I2C bus has been suspended. In turn, components within the sound
+card suspend when the overall card suspends. If one of those components
+is an I2C device, this may mean the device attempts to suspend after the
+I2C bus it sits upon. Conversely, resume may occur before the I2C bus is
+available. Consequently, I2C accesses during suspend/resume will fail.
+
+This causes the following issue:
+
+  We found the register settings of wm8903(an audio codec) can't be modified
+  in snd_soc_suspend since I2C bus has been suspended before snd_soc_suspend.
+
+  Pop noise will occur when system resume from LP0 if the register settings
+  of wm8903 haven't be modified correctly in snd_soc_suspend.
+
+To solve this, the I2C bus driver is modified to use suspend_noirq and
+resume_noirq instead of suspend and resume. This delays the I2C bus suspend
+until after the ASoC card-level suspend, and everything works.
+
+It is acknowledged that this is not an ideal solution. However, this solution
+is the best currently available within the kernel.
+
+Suggested alternatives are:
+
+* Implement an explicit dependency management system within the kernel for
+  device suspend/resume, such that I2C bus would not be suspended before
+  the sound card that requires it. It is reported that Linus rejected this
+  proposal since he wanted suspend ordering to be based on probe ordering.
+
+* Enhance device probing such that the ASoC sound card device could defer
+  its probing until all required resources were available. This would
+  then cause the overall sound card suspend to occur at an appropriate early
+  time. Grant Likely was reported to have been working towards this goal.
+
+[swarren: Rewrote patch description to reflect upstream discussion]
+
+Signed-off-by: Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Acked-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Reviewed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+---
+v2: Summarized the email thread in patch description.
+    Added Arnd/Mark's ack/review tags
+
+ drivers/i2c/busses/i2c-tegra.c |   19 +++++++++++++------
+ 1 files changed, 13 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index b402435..15ad866 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -705,8 +705,9 @@ static int tegra_i2c_remove(struct platform_device *pdev)
+ }
+ 
+ #ifdef CONFIG_PM
+-static int tegra_i2c_suspend(struct platform_device *pdev, pm_message_t state)
++static int tegra_i2c_suspend_noirq(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+ 
+ 	i2c_lock_adapter(&i2c_dev->adapter);
+@@ -716,8 +717,9 @@ static int tegra_i2c_suspend(struct platform_device *pdev, pm_message_t state)
+ 	return 0;
+ }
+ 
+-static int tegra_i2c_resume(struct platform_device *pdev)
++static int tegra_i2c_resume_noirq(struct device *dev)
+ {
++	struct platform_device *pdev = to_platform_device(dev);
+ 	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+ 	int ret;
+ 
+@@ -736,6 +738,14 @@ static int tegra_i2c_resume(struct platform_device *pdev)
+ 
+ 	return 0;
+ }
++
++static const struct dev_pm_ops tegra_i2c_dev_pm_ops = {
++	.suspend_noirq = tegra_i2c_suspend_noirq,
++	.resume_noirq = tegra_i2c_resume_noirq,
++};
++#define TEGRA_I2C_DEV_PM_OPS (&tegra_i2c_dev_pm_ops)
++#else
++#define TEGRA_I2C_DEV_PM_OPS NULL
+ #endif
+ 
+ #if defined(CONFIG_OF)
+@@ -752,14 +762,11 @@ MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
+ static struct platform_driver tegra_i2c_driver = {
+ 	.probe   = tegra_i2c_probe,
+ 	.remove  = tegra_i2c_remove,
+-#ifdef CONFIG_PM
+-	.suspend = tegra_i2c_suspend,
+-	.resume  = tegra_i2c_resume,
+-#endif
+ 	.driver  = {
+ 		.name  = "tegra-i2c",
+ 		.owner = THIS_MODULE,
+ 		.of_match_table = tegra_i2c_of_match,
++		.pm    = TEGRA_I2C_DEV_PM_OPS,
+ 	},
+ };
+ 
+-- 
+1.7.0.4
