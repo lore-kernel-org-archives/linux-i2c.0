@@ -1,51 +1,133 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-tegra: Use the suspend_noirq/resume_noirq not
- suspend/resume
-Date: Thu, 22 Sep 2011 19:13:13 +0100
-Message-ID: <20110922181313.GG5173@opensource.wolfsonmicro.com>
-References: <1316713892-357-1-git-send-email-swarren@nvidia.com>
- <20110922180335.GQ17168@ponder.secretlab.ca>
+From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c:i2c-bfin-twi: TWI controller fails to restart next transfer in high system load.
+Date: Fri, 23 Sep 2011 14:25:53 +0800
+Message-ID: <1316759153-17608-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20110922180335.GQ17168-e0URQFbLeQY2iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Colin Cross <ccross-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Erik Gilling <konkers-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dilan Lee <dilee-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 22, 2011 at 12:03:35PM -0600, Grant Likely wrote:
-> On Thu, Sep 22, 2011 at 11:51:32AM -0600, Stephen Warren wrote:
+From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-> > * Implement an explicit dependency management system within the kernel for
-> >   device suspend/resume, such that I2C bus would not be suspended before
-> >   the sound card that requires it. It is reported that Linus rejected this
-> >   proposal since he wanted suspend ordering to be based on probe ordering.
+Current driver was developed based on BF537 0.2 HRM. In high system load, BUFRDERR error
+interrupt may be raised if XMTSERV interrupt of last TX byte is not served in time
+(set RSTART bit), which breaks restart tranfer as expected.
 
-> This really should be revisted.  That was in the context of full
-> system suspend, but we're now in a world of runtime suspend which
-> absolutely does need dependency tracking or reference counting to get
-> the ordering right.
+"Buffer Read Error (BUFRDERR)" description in Blackfin HRM only applys to BF537
+rev. < 0.3. In later rev. and later announced Blackfin chips, such as BF527 and
+BF548, a new TWI master feature "Clock Stretching" is added into the TWI controller,
+BUFRDERR interrupt is not triggered after TX FIFO is empty.
 
-FWIW this was one of the bigger issues in the PM miniconference in Santa
-Rosa, though a lot of the discission involved explaining the issues to
-some of the x86 guys and there wasn't mssive progress on solutions.
+This patch sets RSTART bit at the beginning of the first transfer. The SCL and SDA
+is hold till XMTSERV interrupt of last TX byte is served. Restart transfer is not broken
+in high system load.
 
-> > * Enhance device probing such that the ASoC sound card device could defer
-> >   its probing until all required resources were available. This would
-> >   then cause the overall sound card suspend to occur at an appropriate early
-> >   time. Grant Likely was reported to have been working towards this goal.
+Reported-by: Lukas Weiss <lukas.weiss-o7FnQhZdtX+ELgA04lAiVw@public.gmane.org>
+Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-bfin-twi.c |   42 +++++++++++++++++++++---------------
+ 1 files changed, 24 insertions(+), 18 deletions(-)
 
-> Yes, I'll send you my current patch for you to look at.  One of the
-> engineers from Linaro is going to be pushing that patch set forward.
-> However, I don't know if it helps with this problem because I believe
-> that the suspend order is based on the implicit probe order of
-> devices, but my patch allows drivers to cause the probe order to get
-> rearranged at runtime.  I don't believe there is a global list showing
-> the order that devices successfully got probed, but I may be wrong
-> here.
-
-Yes, I'm not convinced it'll change anything here.  Though I guess it
-should be a simple matter of programming to move devices around the list
-depending on when they probe.
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index cbc98ae..5887ca4 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -99,7 +99,7 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 		 */
+ 		else if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
+ 			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) | MDIR | RSTART);
++				read_MASTER_CTL(iface) | MDIR);
+ 		else if (iface->manual_stop)
+ 			write_MASTER_CTL(iface,
+ 				read_MASTER_CTL(iface) | STOP);
+@@ -107,10 +107,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 		         iface->cur_msg + 1 < iface->msg_num) {
+ 			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
+ 				write_MASTER_CTL(iface,
+-					read_MASTER_CTL(iface) | RSTART | MDIR);
++					read_MASTER_CTL(iface) | MDIR);
+ 			else
+ 				write_MASTER_CTL(iface,
+-					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
++					read_MASTER_CTL(iface) & ~MDIR);
+ 		}
+ 	}
+ 	if (twi_int_status & RCVSERV) {
+@@ -130,17 +130,20 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 			}
+ 			iface->transPtr++;
+ 			iface->readNum--;
+-		} else if (iface->manual_stop) {
+-			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) | STOP);
+-		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
+-		           iface->cur_msg + 1 < iface->msg_num) {
+-			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
+-				write_MASTER_CTL(iface,
+-					read_MASTER_CTL(iface) | RSTART | MDIR);
+-			else
++		}
++		if (iface->readNum == 0) {
++			if (iface->manual_stop) {
+ 				write_MASTER_CTL(iface,
+-					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
++					read_MASTER_CTL(iface) | STOP);
++			} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
++			           iface->cur_msg + 1 < iface->msg_num) {
++				if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
++					write_MASTER_CTL(iface,
++						read_MASTER_CTL(iface) | MDIR);
++				else
++					write_MASTER_CTL(iface,
++						read_MASTER_CTL(iface) & ~MDIR);
++			}
+ 		}
+ 	}
+ 	if (twi_int_status & MERR) {
+@@ -252,9 +255,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 					(0xff << 6)));
+ 				iface->manual_stop = 1;
+ 			}
+-			/* remove restart bit and enable master receive */
+-			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) & ~RSTART);
++			/* remove restart bit before last message */
++			if (iface->cur_msg+1 == iface->msg_num)
++				write_MASTER_CTL(iface,
++					read_MASTER_CTL(iface) & ~RSTART);
+ 		} else {
+ 			iface->result = 1;
+ 			write_INT_MASK(iface, 0);
+@@ -311,7 +315,8 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
+ 		return -EINVAL;
+ 	}
+ 
+-	iface->cur_mode = TWI_I2C_MODE_REPEAT;
++	if (iface->msg_num > 1)
++		iface->cur_mode = TWI_I2C_MODE_REPEAT;
+ 	iface->manual_stop = 0;
+ 	iface->transPtr = pmsg->buf;
+ 	iface->writeNum = iface->readNum = pmsg->len;
+@@ -356,6 +361,7 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
+ 
+ 	/* Master enable */
+ 	write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
++		(iface->msg_num > 1 ? RSTART : 0) |
+ 		((iface->read_write == I2C_SMBUS_READ) ? MDIR : 0) |
+ 		((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ > 100) ? FAST : 0));
+ 	SSYNC();
+@@ -520,7 +526,7 @@ int bfin_twi_do_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 		else
+ 			write_MASTER_CTL(iface, 0x1 << 6);
+ 		/* Master enable */
+-		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
++		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN | RSTART |
+ 			((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ>100) ? FAST : 0));
+ 		break;
+ 	default:
+-- 
+1.7.0.4
