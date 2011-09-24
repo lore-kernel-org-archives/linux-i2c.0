@@ -1,133 +1,48 @@
-From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c:i2c-bfin-twi: TWI controller fails to restart next transfer in high system load.
-Date: Fri, 23 Sep 2011 14:25:53 +0800
-Message-ID: <1316759153-17608-1-git-send-email-sonic.adi@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 32/55] i2c: irq: Remove IRQF_DISABLED
+Date: Sat, 24 Sep 2011 13:53:35 +0200
+Message-ID: <20110924135335.2be8d1be@endymion.delvare>
+References: <1316681962-8217-1-git-send-email-yong.zhang0@gmail.com>
+	<1316681962-8217-33-git-send-email-yong.zhang0@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1316681962-8217-33-git-send-email-yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Yong Zhang <yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arch-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, STEricsson <STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, "Justin P. Mattock" <justinmattock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Dave Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Paul Gortmaker <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>, Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>, Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+On Thu, 22 Sep 2011 16:58:59 +0800, Yong Zhang wrote:
+> Since commit [e58aa3d2: genirq: Run irq handlers with interrupts disabled],
+> We run all interrupt handlers with interrupts disabled
+> and we even check and yell when an interrupt handler
+> returns with interrupts enabled (see commit [b738a50a:
+> genirq: Warn when handler enables interrupts]).
+> 
+> So now this flag is a NOOP and can be removed.
+> 
+> Signed-off-by: Yong Zhang <yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Acked-by: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-bfin-twi.c   |    4 ++--
+>  drivers/i2c/busses/i2c-designware.c |    2 +-
+>  drivers/i2c/busses/i2c-highlander.c |    2 +-
+>  drivers/i2c/busses/i2c-nomadik.c    |    2 +-
+>  drivers/i2c/busses/i2c-nuc900.c     |    2 +-
+>  drivers/i2c/busses/i2c-pmcmsp.c     |    2 +-
+>  drivers/i2c/busses/i2c-s3c2410.c    |    2 +-
+>  drivers/i2c/busses/i2c-sh7760.c     |    2 +-
+>  drivers/i2c/busses/i2c-sh_mobile.c  |    2 +-
+>  drivers/i2c/busses/i2c-stu300.c     |    2 +-
+>  10 files changed, 11 insertions(+), 11 deletions(-)
 
-Current driver was developed based on BF537 0.2 HRM. In high system load, BUFRDERR error
-interrupt may be raised if XMTSERV interrupt of last TX byte is not served in time
-(set RSTART bit), which breaks restart tranfer as expected.
+Ben, I'll let you pick this patch as it only touches drivers which are
+under your responsibility. This will limit the risk of conflicts
+between our trees.
 
-"Buffer Read Error (BUFRDERR)" description in Blackfin HRM only applys to BF537
-rev. < 0.3. In later rev. and later announced Blackfin chips, such as BF527 and
-BF548, a new TWI master feature "Clock Stretching" is added into the TWI controller,
-BUFRDERR interrupt is not triggered after TX FIFO is empty.
-
-This patch sets RSTART bit at the beginning of the first transfer. The SCL and SDA
-is hold till XMTSERV interrupt of last TX byte is served. Restart transfer is not broken
-in high system load.
-
-Reported-by: Lukas Weiss <lukas.weiss-o7FnQhZdtX+ELgA04lAiVw@public.gmane.org>
-Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-bfin-twi.c |   42 +++++++++++++++++++++---------------
- 1 files changed, 24 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index cbc98ae..5887ca4 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -99,7 +99,7 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 		 */
- 		else if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
- 			write_MASTER_CTL(iface,
--				read_MASTER_CTL(iface) | MDIR | RSTART);
-+				read_MASTER_CTL(iface) | MDIR);
- 		else if (iface->manual_stop)
- 			write_MASTER_CTL(iface,
- 				read_MASTER_CTL(iface) | STOP);
-@@ -107,10 +107,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 		         iface->cur_msg + 1 < iface->msg_num) {
- 			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
- 				write_MASTER_CTL(iface,
--					read_MASTER_CTL(iface) | RSTART | MDIR);
-+					read_MASTER_CTL(iface) | MDIR);
- 			else
- 				write_MASTER_CTL(iface,
--					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
-+					read_MASTER_CTL(iface) & ~MDIR);
- 		}
- 	}
- 	if (twi_int_status & RCVSERV) {
-@@ -130,17 +130,20 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 			}
- 			iface->transPtr++;
- 			iface->readNum--;
--		} else if (iface->manual_stop) {
--			write_MASTER_CTL(iface,
--				read_MASTER_CTL(iface) | STOP);
--		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
--		           iface->cur_msg + 1 < iface->msg_num) {
--			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
--				write_MASTER_CTL(iface,
--					read_MASTER_CTL(iface) | RSTART | MDIR);
--			else
-+		}
-+		if (iface->readNum == 0) {
-+			if (iface->manual_stop) {
- 				write_MASTER_CTL(iface,
--					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
-+					read_MASTER_CTL(iface) | STOP);
-+			} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
-+			           iface->cur_msg + 1 < iface->msg_num) {
-+				if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
-+					write_MASTER_CTL(iface,
-+						read_MASTER_CTL(iface) | MDIR);
-+				else
-+					write_MASTER_CTL(iface,
-+						read_MASTER_CTL(iface) & ~MDIR);
-+			}
- 		}
- 	}
- 	if (twi_int_status & MERR) {
-@@ -252,9 +255,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 					(0xff << 6)));
- 				iface->manual_stop = 1;
- 			}
--			/* remove restart bit and enable master receive */
--			write_MASTER_CTL(iface,
--				read_MASTER_CTL(iface) & ~RSTART);
-+			/* remove restart bit before last message */
-+			if (iface->cur_msg+1 == iface->msg_num)
-+				write_MASTER_CTL(iface,
-+					read_MASTER_CTL(iface) & ~RSTART);
- 		} else {
- 			iface->result = 1;
- 			write_INT_MASK(iface, 0);
-@@ -311,7 +315,8 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
- 		return -EINVAL;
- 	}
- 
--	iface->cur_mode = TWI_I2C_MODE_REPEAT;
-+	if (iface->msg_num > 1)
-+		iface->cur_mode = TWI_I2C_MODE_REPEAT;
- 	iface->manual_stop = 0;
- 	iface->transPtr = pmsg->buf;
- 	iface->writeNum = iface->readNum = pmsg->len;
-@@ -356,6 +361,7 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
- 
- 	/* Master enable */
- 	write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
-+		(iface->msg_num > 1 ? RSTART : 0) |
- 		((iface->read_write == I2C_SMBUS_READ) ? MDIR : 0) |
- 		((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ > 100) ? FAST : 0));
- 	SSYNC();
-@@ -520,7 +526,7 @@ int bfin_twi_do_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 		else
- 			write_MASTER_CTL(iface, 0x1 << 6);
- 		/* Master enable */
--		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
-+		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN | RSTART |
- 			((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ>100) ? FAST : 0));
- 		break;
- 	default:
 -- 
-1.7.0.4
+Jean Delvare
