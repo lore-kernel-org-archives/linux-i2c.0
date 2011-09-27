@@ -1,49 +1,41 @@
-From: "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Subject: RE: [PATCH 3/7] i2c-eg20t: delete 10bit access processing
-Date: Tue, 27 Sep 2011 06:06:46 -0700
-Message-ID: <B6A520E9CD57404AAFC0831E4FB39541A98073B6D2@IRVEXCHCCR02.corp.ad.broadcom.com>
-References: <1316591509-4433-1-git-send-email-tomoya-linux@dsn.okisemi.com>
- <1316591509-4433-3-git-send-email-tomoya-linux@dsn.okisemi.com>
- <B6A520E9CD57404AAFC0831E4FB39541A98073AC7E@IRVEXCHCCR02.corp.ad.broadcom.com>
- <4E7A7DBA.3020406@dsn.okisemi.com>
- <B6A520E9CD57404AAFC0831E4FB39541A98073AF26@IRVEXCHCCR02.corp.ad.broadcom.com>
- <4E811338.2030005@dsn.okisemi.com>
-Mime-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4E811338.2030005-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org" <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, Aaron Smith <aarons-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+From: David Daney <david.daney@cavium.com>
+Subject: [PATCH v2 0/2] i2c/of: Populate multiplexed i2c busses from the device tree.
+Date: Tue, 27 Sep 2011 16:16:22 -0700
+Message-ID: <1317165384-20390-1-git-send-email-david.daney@cavium.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org, ben-linux@fluff.org, peter.korsgaard@barco.com, guenter.roeck@ericsson.com, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca
+Cc: linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-aHR0cDovL3d3dy5lbmdhZGdldC5jb20vMjAxMS8wOS8yNi9icm9hZGNvbS11bnZlaWxzLXNtYWxs
-ZXItbW9yZS1wb3dlci1lZmZpY2llbnQtNDBubS1uZmMtY2hpcHMvIA0KDQotLS0tLU9yaWdpbmFs
-IE1lc3NhZ2UtLS0tLQ0KRnJvbTogVG9tb3lhIE1PUklOQUdBIFttYWlsdG86dG9tb3lhLWxpbnV4
-QGRzbi5va2lzZW1pLmNvbV0gDQpTZW50OiBNb25kYXksIFNlcHRlbWJlciAyNiwgMjAxMSA4OjA1
-IFBNDQpUbzogSmVmZnJleSAoU2hlbmctSHVpKSBDaHUNCkNjOiBKZWFuIERlbHZhcmU7IEJlbiBE
-b29rczsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsgbGludXgta2VybmVsQHZnZXIua2VybmVs
-Lm9yZzsgUWkgV2FuZzsgeW9uZy55LndhbmdAaW50ZWwuY29tOyBqb2VsLmNsYXJrQGludGVsLmNv
-bTsga29rLmhvd2cuZXdlQGludGVsLmNvbTsgdG9zaGloYXJ1LWxpbnV4QGRzbi5va2lzZW1pLmNv
-bTsgQWFyb24gU21pdGgNClN1YmplY3Q6IFJlOiBbUEFUQ0ggMy83XSBpMmMtZWcyMHQ6IGRlbGV0
-ZSAxMGJpdCBhY2Nlc3MgcHJvY2Vzc2luZw0KDQooMjAxMS8wOS8yMyAyOjQ5KSwgSmVmZnJleSAo
-U2hlbmctSHVpKSBDaHUgd3JvdGU6DQo+IFRoZSBkZXZpY2UgaXMgQkNNMjA3OTEuICBQbGVhc2Ug
-Y29udGFjdCBBYXJvbiBTbWl0aCAoYWFyb25zQGJyb2FkY29tLmNvbSkgZm9yIGV2YWx1YXRpb24u
-DQpUaG91Z2ggZ29vZ2xpbmcgdGhlIGRldmljZSwgSSBjYW4ndCBmaW5kIHRoZSBkZXZpY2UuDQpC
-cm9hZGNvbSB3ZWJzaXRlIHRvby4NCg0KPg0KPiBCeSB0aGUgd2F5LCB0aGUgZXhpc3RpbmcgaGFu
-ZGxpbmcgb2YgMTAtYml0IGFkZHJlc3MgaW4gdGhlIHBhdGNoIHlvdSBpbnRlbmRlZCB0byBkZWxl
-dGUgZG9lcyBub3Qgd29yay4gIFlvdSdsbCBuZWVkIHRvIGZpeCB0aGF0IGJlZm9yZSB5b3UgY2Fu
-IHRlc3Qgd2l0aCB0aGUgZGV2aWNlIHN1Y2Nlc3NmdWxseS4NCj4NCj4gRm9yIHRoZSB3cml0ZSBv
-cGVyYXRpb24sIGl0J3MgYSBlYXN5IGZpeDoNCj4NCj4gQEAgLTQxMCwyNSArNDA4LDE2IEBAIHN0
-YXRpYyBzMzIgcGNoX2kyY193cml0ZWJ5dGVzKHN0cnVjdCBpMmNfYWRhcHRlciAqaTJjX2FkYXAs
-DQo+ICAgCX0NCj4NCj4gICAJaWYgKG1zZ3MtPmZsYWdzJiAgSTJDX01fVEVOKSB7DQo+IC0JCWFk
-ZHJfMl9tc2IgPSAoKGFkZHImICBJMkNfTVNCXzJCX01TSyk+PiAgNyk7DQo+ICsJCWFkZHJfMl9t
-c2IgPSAoKGFkZHImICBJMkNfTVNCXzJCX01TSyk+PiAgNykmICAweDA2Ow0KPg0KPg0KPiBGb3Ig
-dGhlIHJlYWQgb3BlcmF0aW9uLCBzdGF0aWMgczMyIHBjaF9pMmNfcmVhZGJ5dGVzKCksIHlvdSds
-bCBuZWVkIHRvIGRvIGEgd3JpdGUgZm9sbG93ZWQgYnkgYSByZXN0YXJ0IGFuZCBhIHJlYWQuLi4g
-IHBsZWFzZSByZWZlciB0byB0aGUgaTJjIHNwZWMuLi4NCj4NCj4gUmVnYXJkcywNCg0KVGhhbmsg
-eW91IGZvciB5b3VyIGluZGljYXRpb24uDQpXZSB3aWxsIHVwZGF0ZSB0aGlzIGFmdGVyIHN1cHBv
-cnRpbmcgMTBiaXQgYWNjZXNzLg0KDQpUaGFua3MsDQp0b21veWENCg0K
+v2: Update bindings to use "reg" insutead of "cell-index"
+
+v1:
+Unchanged from the original RFC where I said:
+
+  We need to populate our I2C devices from the device tree, but some
+  of our systems have multiplexers which currently break this process.
+
+  The basic idea is to have the generic i2c-mux framework propagate
+  the device_node for the child bus into the corresponding
+  i2c_adapter, and then call of_i2c_register_devices().  This means
+  that the device tree bindings for *all* i2c muxes must have some
+  common properties.  I try to document these in mux.txt.
+
+This is now tested against 3.1.0-rc6 and seems to be working well.
+
+David Daney (2):
+  i2c: Add a struct device * parameter to i2c_add_mux_adapter()
+  i2c/of: Automatically populate i2c mux busses from device tree data.
+
+ Documentation/devicetree/bindings/i2c/mux.txt |   60 +++++++++++++++++++++++++
+ drivers/i2c/i2c-mux.c                         |   44 ++++++++++++++----
+ drivers/i2c/muxes/gpio-i2cmux.c               |    3 +-
+ drivers/i2c/muxes/pca9541.c                   |    3 +-
+ drivers/i2c/muxes/pca954x.c                   |    2 +-
+ include/linux/i2c-mux.h                       |    3 +-
+ 6 files changed, 102 insertions(+), 13 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/mux.txt
+
+-- 
+1.7.2.3
