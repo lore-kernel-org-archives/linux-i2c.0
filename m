@@ -1,59 +1,64 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: V2 API
-Date: Fri, 30 Sep 2011 14:13:45 +0200
-Message-ID: <20110930141345.3e3bc00d@endymion.delvare>
-References: <201109281559.45060.david.goodenough@linkchoose.co.uk>
-	<201109301134.38697.david.goodenough@linkchoose.co.uk>
-	<20110930130645.5ff8576b@endymion.delvare>
-	<201109301228.07248.david.goodenough@linkchoose.co.uk>
+From: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
+Subject: [PATCH]1/1 gpio-pca953x.c dynamic assignment and higher verbosity
+Date: Mon, 03 Oct 2011 23:53:44 +0200
+Message-ID: <4E8A2EE8.5090408@gmx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201109301228.07248.david.goodenough-hd8OpYRHSlec/75gGNOK3g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Goodenough <david.goodenough-hd8OpYRHSlec/75gGNOK3g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 30 Sep 2011 12:28:06 +0100, David Goodenough wrote:
-> On Friday 30 Sep 2011, Jean Delvare wrote:
-> > On Fri, 30 Sep 2011 11:34:38 +0100, David Goodenough wrote:
-> > > On Wednesday 28 Sep 2011, David Goodenough wrote:
-> > > > Doing a Google search looking to see if there was userland support
-> > > > for SMBALERT messages I saw references to the V2 API which last year
-> > > > was "being developed".  Did this happen, and is it defined anywhere?
-> > > 
-> > > I take it from the fact that no-one has replied, that the V2 API is
-> > > not being worked on or has stalled.
-> > 
-> > I take it from the fact that no-one has replied, that "V2 API" is an
-> > awfully vague subject line, so odds are that nobody read your post in
-> > the first place. Try to come up with a better subject line next time.
-> It was the only name I found for any effort to address this problem.
+Hi there,
+this patch adds the following features to gpio-pca953x.c:
+- set gpiobase to auto (-1) in case no platform data or openfirmware
+config are provided
+- show some details about the registered gpio-chip in kernel log (highly
+inspired by gpio-pcf857x.c)
+Successfully tested on ar71xx (TL-WR1043ND). Please let me know if there
+is anything wrong. Otherwise, please add to kernel.
 
-And...? You couldn't come up with a subject line at least mentioning
-"SMBus" and/or "alert"?
+Signed-off-by: Hartmut Knaack <knaack.h [at] gmx.de>
 
-> And that was from a message which I think was on this mailing list about
-> a year ago.
-> > 
-> > > Is there any way using the
-> > > existing API for userland code to be notified of an incomming
-> > > SMBALERT?
-> > 
-> > Not that I know of, and I wasn't even aware that efforts had ever been
-> > ongoing to achieve this.
-> So I take it that the only way to do this would be to write a kernel
-> driver?
+*** /home/mbs/kerneltest/gpio-pca953x.c	2011-10-02 23:33:22.743267705 +0200
+---
+build_dir/linux-ar71xx_generic/linux-2.6.39.4/drivers/gpio/pca953x.c
+2011-10-03 23:32:35.283870191 +0200
+*************** pca953x_get_alt_pdata(struct i2c_client
+*** 577,582 ****
+--- 577,583 ----
+  void
+  pca953x_get_alt_pdata(struct i2c_client *client, int *gpio_base, int
+*invert)
+  {
++   *gpio_base = -1;	
+  }
+  #endif
 
-At the moment, yes. It would technically be possible to do it in
-user-space, I presume, by extending the i2c-dev driver to register a
-proper driver with alert callback. But this would require a significant
-redesign of the i2c-dev driver, which I am not up to for the time
-being. An alternative would be a simple sysfs attribute in the i2c
-adapter's directory in the device tree, which user-space could poll
-until an event triggers. I don't know what the plan was.
+*************** static int __devinit pca953x_probe(struc
+*** 685,692 ****
+  	ret = gpiochip_add(&chip->gpio_chip);
+  	if (ret)
+  		goto out_failed_irq;
 
--- 
-Jean Delvare
+! 	if (pdata && pdata->setup) {
+  		ret = pdata->setup(client, chip->gpio_chip.base,
+  				chip->gpio_chip.ngpio, pdata->context);
+  		if (ret < 0)
+--- 686,700 ----
+  	ret = gpiochip_add(&chip->gpio_chip);
+  	if (ret)
+  		goto out_failed_irq;
++ 	
++ 	dev_info(&client->dev, "gpios %d..%d added on a %s%s\n",
++ 		chip->gpio_chip.base,
++ 		chip->gpio_chip.base + chip->gpio_chip.ngpio - 1,
++ 		client->name,
++ 		client->irq ? " (irq ignored)" : "");
+
+!
+! if (pdata && pdata->setup) {
+  		ret = pdata->setup(client, chip->gpio_chip.base,
+  				chip->gpio_chip.ngpio, pdata->context);
+  		if (ret < 0)
