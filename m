@@ -1,41 +1,26 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [GIT PULL] I2C: OMAP: misc. cleanup for v3.2
-Date: Tue, 4 Oct 2011 22:08:32 +0100
-Message-ID: <20111004210832.GC13323@freya.fluff.org>
-References: <871uwbhdoj.fsf@ti.com>
- <4E669F36.2070008@ti.com>
- <4E80FD1A.5040006@deeprootsystems.com>
+From: Ben Dooks <ben-i2c@fluff.org>
+Subject: Re: [PATCH 1/2 v3] i2c: i2c-riic: add support for Renesas RIIC
+Date: Tue, 4 Oct 2011 22:19:02 +0100
+Message-ID: <20111004211902.GD13323@freya.fluff.org>
+References: <4E803ACC.3030403@renesas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4E80FD1A.5040006-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+In-Reply-To: <4E803ACC.3030403@renesas.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc: ben-linux@fluff.org, linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 26, 2011 at 03:30:50PM -0700, Kevin Hilman wrote:
-> ping
-> 
-> On 09/06/2011 03:31 PM, Kevin Hilman wrote:
-> >Hi Ben,
-> >
-> >On 08/23/2011 05:10 PM, Kevin Hilman wrote:
-> >>Ben,
-> >>
-> >>Here's one more I2C cleanup series for v3.2.
-> >>
-> >>It applies on top of my for_3.2/i2c-fixes branch just submitted.
-> >>
-> >>Please pull into your tree for linux-next.
-> >
-> >I see you pulled the other two, can you pull this one as well?
+On Mon, Sep 26, 2011 at 05:41:48PM +0900, Yoshihiro Shimoda wrote:
+> This driver supports the RIIC module. The SH7757 has it.
+> The driver doesn't use any IRQ handler. This is because the module
+> has errata in an interrupt. So, we cannot use the interrupt for
+> transfer.
 
-I've tried, but it seems to note that everything is up to date.
-
-Is this a suitable branch to pull onto latest so I can reset
-my next tree?
+anyone care to comment on this driver? will add to next -next release.
 
 -- 
 Ben
+
