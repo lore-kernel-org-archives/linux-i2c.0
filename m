@@ -1,77 +1,30 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH]1/1 gpio-pca953x.c dynamic assignment and higher verbosity
-Date: Tue, 4 Oct 2011 21:58:23 +0100
-Message-ID: <20111004205823.GB13323@freya.fluff.org>
-References: <4E8A2EE8.5090408@gmx.de>
+From: Ben Dooks <ben-i2c@fluff.org>
+Subject: Re: [PATCH 32/55] i2c: irq: Remove IRQF_DISABLED
+Date: Tue, 4 Oct 2011 21:59:41 +0100
+Message-ID: <20111004205941.GJ19115@trinity.fluff.org>
+References: <1316681962-8217-1-git-send-email-yong.zhang0@gmail.com> <1316681962-8217-33-git-send-email-yong.zhang0@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-arch-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <4E8A2EE8.5090408-Mmb7MZpHnFY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1316681962-8217-33-git-send-email-yong.zhang0@gmail.com>
+Sender: linux-arch-owner@vger.kernel.org
+To: Yong Zhang <yong.zhang0@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, tglx@linutronix.de, Sonic Zhang <sonic.zhang@analog.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@stericsson.com>, STEricsson <STEricsson_nomadik_linux@list.st.com>, Kukjin Kim <kgene.kim@samsung.com>, Wolfram Sang <w.sang@pengutronix.de>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Barry Song <21cnbao@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "Justin P. Mattock" <justinmattock@gmail.com>, Joe Perches <joe@perches.com>, Dave Airlie <airlied@linux.ie>, Paul Gortmaker <paul.gortmaker@windriver.com>, Paul Mundt <lethal@linux-sh.org>, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>, Magnus Damm <damm@opensource.se>, uclinux-dist-devel@blackfin.uclinux.org, linux-i2c@vger.kernel.o
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 03, 2011 at 11:53:44PM +0200, Hartmut Knaack wrote:
-> Hi there,
-> this patch adds the following features to gpio-pca953x.c:
-> - set gpiobase to auto (-1) in case no platform data or openfirmware
-> config are provided
-> - show some details about the registered gpio-chip in kernel log (highly
-> inspired by gpio-pcf857x.c)
-> Successfully tested on ar71xx (TL-WR1043ND). Please let me know if there
-> is anything wrong. Otherwise, please add to kernel.
+On Thu, Sep 22, 2011 at 04:58:59PM +0800, Yong Zhang wrote:
+> Since commit [e58aa3d2: genirq: Run irq handlers with interrupts disabled],
+> We run all interrupt handlers with interrupts disabled
+> and we even check and yell when an interrupt handler
+> returns with interrupts enabled (see commit [b738a50a:
+> genirq: Warn when handler enables interrupts]).
+> 
+> So now this flag is a NOOP and can be removed.
 
-Please read Documentation/SubmittingPatches please. The patch is in the wrong
-format and your Signed-off-by line seems to have an invalid email address.
+ok, applied thanks.
 
-Also, this is not the right list for drivers/gpio.
- 
-> Signed-off-by: Hartmut Knaack <knaack.h [at] gmx.de>
-> 
-> *** /home/mbs/kerneltest/gpio-pca953x.c	2011-10-02 23:33:22.743267705 +0200
-> ---
-> build_dir/linux-ar71xx_generic/linux-2.6.39.4/drivers/gpio/pca953x.c
-> 2011-10-03 23:32:35.283870191 +0200
-> *************** pca953x_get_alt_pdata(struct i2c_client
-> *** 577,582 ****
-> --- 577,583 ----
->   void
->   pca953x_get_alt_pdata(struct i2c_client *client, int *gpio_base, int
-> *invert)
->   {
-> +   *gpio_base = -1;	
->   }
->   #endif
-> 
-> *************** static int __devinit pca953x_probe(struc
-> *** 685,692 ****
->   	ret = gpiochip_add(&chip->gpio_chip);
->   	if (ret)
->   		goto out_failed_irq;
-> 
-> ! 	if (pdata && pdata->setup) {
->   		ret = pdata->setup(client, chip->gpio_chip.base,
->   				chip->gpio_chip.ngpio, pdata->context);
->   		if (ret < 0)
-> --- 686,700 ----
->   	ret = gpiochip_add(&chip->gpio_chip);
->   	if (ret)
->   		goto out_failed_irq;
-> + 	
-> + 	dev_info(&client->dev, "gpios %d..%d added on a %s%s\n",
-> + 		chip->gpio_chip.base,
-> + 		chip->gpio_chip.base + chip->gpio_chip.ngpio - 1,
-> + 		client->name,
-> + 		client->irq ? " (irq ignored)" : "");
-> 
-> !
-> ! if (pdata && pdata->setup) {
->   		ret = pdata->setup(client, chip->gpio_chip.base,
->   				chip->gpio_chip.ngpio, pdata->context);
->   		if (ret < 0)
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+-- 
+Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
+
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
