@@ -1,64 +1,54 @@
-From: Hartmut Knaack <knaack.h-Mmb7MZpHnFY@public.gmane.org>
-Subject: [PATCH]1/1 gpio-pca953x.c dynamic assignment and higher verbosity
-Date: Mon, 03 Oct 2011 23:53:44 +0200
-Message-ID: <4E8A2EE8.5090408@gmx.de>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: [PATCH 1/2] i2c-algo-bit: Let user test buses without failing
+Date: Tue, 4 Oct 2011 14:44:50 +0200
+Message-ID: <201110041444.51029.jdelvare@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi there,
-this patch adds the following features to gpio-pca953x.c:
-- set gpiobase to auto (-1) in case no platform data or openfirmware
-config are provided
-- show some details about the registered gpio-chip in kernel log (highly
-inspired by gpio-pcf857x.c)
-Successfully tested on ar71xx (TL-WR1043ND). Please let me know if there
-is anything wrong. Otherwise, please add to kernel.
+Always failing to register I2C buses when the line testing fails is a
+little harsh. While such a failure is definitely a bug in the driver
+that exposes the affected I2C bus, things may still work fine if the
+missing initialization steps are done later, before the I2C bus is
+used. So it seems a better debugging tool to just report the test
+failure by default. I introduce bit_test=2 if anyone really misses the
+original behavior of bit_test=1.
 
-Signed-off-by: Hartmut Knaack <knaack.h [at] gmx.de>
-
-*** /home/mbs/kerneltest/gpio-pca953x.c	2011-10-02 23:33:22.743267705 +0200
+Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
-build_dir/linux-ar71xx_generic/linux-2.6.39.4/drivers/gpio/pca953x.c
-2011-10-03 23:32:35.283870191 +0200
-*************** pca953x_get_alt_pdata(struct i2c_client
-*** 577,582 ****
---- 577,583 ----
-  void
-  pca953x_get_alt_pdata(struct i2c_client *client, int *gpio_base, int
-*invert)
-  {
-+   *gpio_base = -1;	
-  }
-  #endif
+ drivers/i2c/algos/i2c-algo-bit.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-*************** static int __devinit pca953x_probe(struc
-*** 685,692 ****
-  	ret = gpiochip_add(&chip->gpio_chip);
-  	if (ret)
-  		goto out_failed_irq;
+--- linux-3.0.orig/drivers/i2c/algos/i2c-algo-bit.c	2011-07-22 04:17:23.000000000 +0200
++++ linux-3.0/drivers/i2c/algos/i2c-algo-bit.c	2011-10-02 10:29:51.000000000 +0200
+@@ -47,8 +47,8 @@
+ /* ----- global variables ---------------------------------------------	*/
+ 
+ static int bit_test;	/* see if the line-setting functions work	*/
+-module_param(bit_test, bool, 0);
+-MODULE_PARM_DESC(bit_test, "Test the lines of the bus to see if it is stuck");
++module_param(bit_test, bool, S_IRUGO);
++MODULE_PARM_DESC(bit_test, "lines testing - 0 off; 1 report; 2 fail if stuck");
+ 
+ #ifdef DEBUG
+ static int i2c_debug = 1;
+@@ -624,7 +624,7 @@ static int __i2c_bit_add_bus(struct i2c_
+ 
+ 	if (bit_test) {
+ 		ret = test_bus(adap);
+-		if (ret < 0)
++		if (bit_test >= 2 && ret < 0)
+ 			return -ENODEV;
+ 	}
+ 
 
-! 	if (pdata && pdata->setup) {
-  		ret = pdata->setup(client, chip->gpio_chip.base,
-  				chip->gpio_chip.ngpio, pdata->context);
-  		if (ret < 0)
---- 686,700 ----
-  	ret = gpiochip_add(&chip->gpio_chip);
-  	if (ret)
-  		goto out_failed_irq;
-+ 	
-+ 	dev_info(&client->dev, "gpios %d..%d added on a %s%s\n",
-+ 		chip->gpio_chip.base,
-+ 		chip->gpio_chip.base + chip->gpio_chip.ngpio - 1,
-+ 		client->name,
-+ 		client->irq ? " (irq ignored)" : "");
-
-!
-! if (pdata && pdata->setup) {
-  		ret = pdata->setup(client, chip->gpio_chip.base,
-  				chip->gpio_chip.ngpio, pdata->context);
-  		if (ret < 0)
+-- 
+Jean Delvare
+Suse L3
