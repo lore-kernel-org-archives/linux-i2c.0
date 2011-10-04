@@ -1,30 +1,41 @@
-From: Ben Dooks <ben-i2c@fluff.org>
-Subject: Re: [PATCH 32/55] i2c: irq: Remove IRQF_DISABLED
-Date: Tue, 4 Oct 2011 21:59:41 +0100
-Message-ID: <20111004205941.GJ19115@trinity.fluff.org>
-References: <1316681962-8217-1-git-send-email-yong.zhang0@gmail.com> <1316681962-8217-33-git-send-email-yong.zhang0@gmail.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [GIT PULL] I2C: OMAP: misc. cleanup for v3.2
+Date: Tue, 4 Oct 2011 22:08:32 +0100
+Message-ID: <20111004210832.GC13323@freya.fluff.org>
+References: <871uwbhdoj.fsf@ti.com>
+ <4E669F36.2070008@ti.com>
+ <4E80FD1A.5040006@deeprootsystems.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arch-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1316681962-8217-33-git-send-email-yong.zhang0@gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-To: Yong Zhang <yong.zhang0@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org, tglx@linutronix.de, Sonic Zhang <sonic.zhang@analog.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Alessandro Rubini <rubini@unipv.it>, Linus Walleij <linus.walleij@stericsson.com>, STEricsson <STEricsson_nomadik_linux@list.st.com>, Kukjin Kim <kgene.kim@samsung.com>, Wolfram Sang <w.sang@pengutronix.de>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Barry Song <21cnbao@gmail.com>, Jiri Kosina <jkosina@suse.cz>, "Justin P. Mattock" <justinmattock@gmail.com>, Joe Perches <joe@perches.com>, Dave Airlie <airlied@linux.ie>, Paul Gortmaker <paul.gortmaker@windriver.com>, Paul Mundt <lethal@linux-sh.org>, Nobuhiro Iwamatsu <iwamatsu@nigauri.org>, Magnus Damm <damm@opensource.se>, uclinux-dist-devel@blackfin.uclinux.org, linux-i2c@vger.kernel.o
+In-Reply-To: <4E80FD1A.5040006-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 22, 2011 at 04:58:59PM +0800, Yong Zhang wrote:
-> Since commit [e58aa3d2: genirq: Run irq handlers with interrupts disabled],
-> We run all interrupt handlers with interrupts disabled
-> and we even check and yell when an interrupt handler
-> returns with interrupts enabled (see commit [b738a50a:
-> genirq: Warn when handler enables interrupts]).
+On Mon, Sep 26, 2011 at 03:30:50PM -0700, Kevin Hilman wrote:
+> ping
 > 
-> So now this flag is a NOOP and can be removed.
+> On 09/06/2011 03:31 PM, Kevin Hilman wrote:
+> >Hi Ben,
+> >
+> >On 08/23/2011 05:10 PM, Kevin Hilman wrote:
+> >>Ben,
+> >>
+> >>Here's one more I2C cleanup series for v3.2.
+> >>
+> >>It applies on top of my for_3.2/i2c-fixes branch just submitted.
+> >>
+> >>Please pull into your tree for linux-next.
+> >
+> >I see you pulled the other two, can you pull this one as well?
 
-ok, applied thanks.
+I've tried, but it seems to note that everything is up to date.
+
+Is this a suitable branch to pull onto latest so I can reset
+my next tree?
 
 -- 
-Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+Ben
