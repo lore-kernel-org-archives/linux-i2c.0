@@ -1,50 +1,107 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [GIT PULL] I2C: OMAP: misc. cleanup for v3.2
-Date: Wed, 05 Oct 2011 09:11:00 -0700
-Message-ID: <87aa9f771n.fsf@ti.com>
-References: <871uwbhdoj.fsf@ti.com> <4E669F36.2070008@ti.com>
-	<4E80FD1A.5040006@deeprootsystems.com>
-	<20111004210832.GC13323@freya.fluff.org>
+From: "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: RE: [PATCH 2/7 v2] i2c-eg20t: delete 10bit access processing
+Date: Wed, 5 Oct 2011 10:29:52 -0700
+Message-ID: <B6A520E9CD57404AAFC0831E4FB39541A9807DDCB7@IRVEXCHCCR02.corp.ad.broadcom.com>
+References: <1317788264-13118-1-git-send-email-tomoya-linux@dsn.lapis-semi.com>
+ <1317788264-13118-2-git-send-email-tomoya-linux@dsn.lapis-semi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111004210832.GC13323-RazCHl0VsYgkUSuvROHNpA@public.gmane.org> (Ben Dooks's message of
-	"Tue, 4 Oct 2011 22:08:32 +0100")
+In-Reply-To: <1317788264-13118-2-git-send-email-tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wan>
+Cc: "yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "toshiharu-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org" <toshiharu-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> writes:
+Is there any way I can help getting the code fixed instead of removed?
 
-> On Mon, Sep 26, 2011 at 03:30:50PM -0700, Kevin Hilman wrote:
->> ping
->> 
->> On 09/06/2011 03:31 PM, Kevin Hilman wrote:
->> >Hi Ben,
->> >
->> >On 08/23/2011 05:10 PM, Kevin Hilman wrote:
->> >>Ben,
->> >>
->> >>Here's one more I2C cleanup series for v3.2.
->> >>
->> >>It applies on top of my for_3.2/i2c-fixes branch just submitted.
->> >>
->> >>Please pull into your tree for linux-next.
->> >
->> >I see you pulled the other two, can you pull this one as well?
->
-> I've tried, but it seems to note that everything is up to date.
->
-> Is this a suitable branch to pull onto latest so I can reset
-> my next tree?
+Regards,
 
-Yes.
+-Jeffrey
 
-The i2c-cleanup branch[1] is based on top of the previous two (i2c-andy
-and i2c-fixes) so if you reset your next-i2c branch and just pull
-i2c-cleanup, you'll get all three.
+-----Original Message-----
+From: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org] On Behalf Of Tomoya MORINAGA
+Sent: Wednesday, October 05, 2011 12:18 AM
+To: Jean Delvare; Ben Dooks; Wolfram Sang; Qi Wang; Linus Walleij; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org; joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org; kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org; toshiharu-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org; Tomoya MORINAGA
+Subject: [PATCH 2/7 v2] i2c-eg20t: delete 10bit access processing
 
-Kevin
+Linux I2C core doesn't support 10bit access formally.
+Additionally, we can't test with 10bit mode.
+This patch deletes the 10bit access processing.
 
-[1] git://github.com/khilman/linux-omap-pm.git for_3.2/i2c-cleanup
+Signed-off-by: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-eg20t.c |   27 +++++++--------------------
+ 1 files changed, 7 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c index f8ccdec..c18210e 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -387,8 +387,6 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+ 	u8 *buf;
+ 	u32 length;
+ 	u32 addr;
+-	u32 addr_2_msb;
+-	u32 addr_8_lsb;
+ 	s32 wrcount;
+ 	void __iomem *p = adap->pch_base_address;
+ 
+@@ -408,25 +406,16 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+ 	}
+ 
+ 	if (msgs->flags & I2C_M_TEN) {
+-		addr_2_msb = ((addr & I2C_MSB_2B_MSK) >> 7);
+-		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
+-		if (first)
+-			pch_i2c_start(adap);
+-		if (pch_i2c_wait_for_xfer_complete(adap) == 0 &&
+-		    pch_i2c_getack(adap) == 0) {
+-			addr_8_lsb = (addr & I2C_ADDR_MSK);
+-			iowrite32(addr_8_lsb, p + PCH_I2CDR);
+-		} else {
+-			pch_i2c_stop(adap);
+-			return -ETIME;
+-		}
++		pch_err(adap, "10Bit access is not supported\n");
++		return -EINVAL;
+ 	} else {
+ 		/* set 7 bit slave address and R/W bit as 0 */
+ 		iowrite32(addr << 1, p + PCH_I2CDR);
+-		if (first)
+-			pch_i2c_start(adap);
+ 	}
+ 
++	if (first)
++		pch_i2c_start(adap);
++
+ 	if ((pch_i2c_wait_for_xfer_complete(adap) == 0) &&
+ 	    (pch_i2c_getack(adap) == 0)) {
+ 		for (wrcount = 0; wrcount < length; ++wrcount) { @@ -495,7 +484,6 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 	u32 count;
+ 	u32 length;
+ 	u32 addr;
+-	u32 addr_2_msb;
+ 	void __iomem *p = adap->pch_base_address;
+ 
+ 	length = msgs->len;
+@@ -511,9 +499,8 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 	}
+ 
+ 	if (msgs->flags & I2C_M_TEN) {
+-		addr_2_msb = (((addr & I2C_MSB_2B_MSK) >> 7) | (I2C_RD));
+-		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
+-
++		pch_err(adap, "10Bit access is not supported\n");
++		return -EINVAL;
+ 	} else {
+ 		/* 7 address bits + R/W bit */
+ 		addr = (((addr) << 1) | (I2C_RD));
+--
+1.7.6.4
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
