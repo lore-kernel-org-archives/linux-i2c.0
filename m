@@ -1,60 +1,57 @@
-From: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 3/7 v3] i2c-eg20t: delete 10bit access processing
-Date: Thu, 06 Oct 2011 16:00:22 +0900
-Message-ID: <4E8D5206.4080608@dsn.lapis-semi.com>
-References: <1317884192-10694-1-git-send-email-tomoya-linux@dsn.lapis-semi.com> <1317884192-10694-4-git-send-email-tomoya-linux@dsn.lapis-semi.com>
+From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Subject: [PATCH v2] i2c-algo-bit: Let user test buses without failing
+Date: Thu, 6 Oct 2011 16:11:30 +0200
+Message-ID: <201110061611.31035.jdelvare@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-2022-JP
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1317884192-10694-4-git-send-email-tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-(2011/10/06 15:56), Tomoya MORINAGA wrote:
+Always failing to register I2C buses when the line testing fails is a
+little harsh. While such a failure is definitely a bug in the driver
+that exposes the affected I2C bus, things may still work fine if the
+missing initialization steps are done later, before the I2C bus is
+used. So it seems a better debugging tool to just report the test
+failure by default. I introduce bit_test=2 if anyone really misses the
+original behavior of bit_test=1.
 
-Previous [PATCH 3/7] is duplicated like below.
-  [PATCH 3/7 v3] i2c-eg20t: delete 10bit access processing
-  [PATCH 3/7 v1] i2c-eg20t: Fix 10bit access issue
+Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Reviewed-by: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+Once more, this time with bit_test turned from type bool to int so that
+it is actually possible to give it value 2.
 
-Please ignore "[PATCH 3/7 v3] i2c-eg20t: delete 10bit access processing"
-Sorry for the in inconvenience.
+ drivers/i2c/algos/i2c-algo-bit.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- linux-3.1-rc4.orig/drivers/i2c/algos/i2c-algo-bit.c	2011-07-22 04:17:23.000000000 +0200
++++ linux-3.1-rc4/drivers/i2c/algos/i2c-algo-bit.c	2011-10-06 16:08:20.000000000 +0200
+@@ -47,8 +47,8 @@
+ /* ----- global variables ---------------------------------------------	*/
+ 
+ static int bit_test;	/* see if the line-setting functions work	*/
+-module_param(bit_test, bool, 0);
+-MODULE_PARM_DESC(bit_test, "Test the lines of the bus to see if it is stuck");
++module_param(bit_test, int, S_IRUGO);
++MODULE_PARM_DESC(bit_test, "lines testing - 0 off; 1 report; 2 fail if stuck");
+ 
+ #ifdef DEBUG
+ static int i2c_debug = 1;
+@@ -624,7 +624,7 @@ static int __i2c_bit_add_bus(struct i2c_
+ 
+ 	if (bit_test) {
+ 		ret = test_bus(adap);
+-		if (ret < 0)
++		if (bit_test >= 2 && ret < 0)
+ 			return -ENODEV;
+ 	}
+ 
 
 -- 
-tomoya
-ROHM Co., Ltd.
-
-> From: Tomoya MORINAGA<tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
-> 
-> Linux I2C core doesn't support 10bit access formally.
-> Additionally, we can't test with 10bit mode.
-> This patch deletes the 10bit access processing.
-> 
-> Signed-off-by: Tomoya MORINAGA<tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-eg20t.c |    3 +--
->   1 files changed, 1 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-> index c5b9924..aa1705e 100644
-> --- a/drivers/i2c/busses/i2c-eg20t.c
-> +++ b/drivers/i2c/busses/i2c-eg20t.c
-> @@ -410,7 +410,7 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
->   	}
-> 
->   	if (msgs->flags&  I2C_M_TEN) {
-> -		addr_2_msb = ((addr&  I2C_MSB_2B_MSK)>>  7);
-> +		addr_2_msb = ((addr&  I2C_MSB_2B_MSK)>>  7)&  0x06;
->   		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
->   		if (first)
->   			pch_i2c_start(adap);
-> @@ -515,7 +515,6 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
->   	if (msgs->flags&  I2C_M_TEN) {
->   		addr_2_msb = (((addr&  I2C_MSB_2B_MSK)>>  7) | (I2C_RD));
->   		iowrite32(addr_2_msb | TEN_BIT_ADDR_MASK, p + PCH_I2CDR);
-> -
->   	} else {
->   		/* 7 address bits + R/W bit */
->   		addr = (((addr)<<  1) | (I2C_RD));
+Jean Delvare
+Suse L3
