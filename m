@@ -1,77 +1,87 @@
-From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH 07/13] i2c-designware: move i2c functionality bit field to be adapter specific
-Date: Thu,  6 Oct 2011 11:26:31 -0700
-Message-ID: <1317925597-32245-8-git-send-email-dirk.brandewie@gmail.com>
+From: dirk.brandewie@gmail.com
+Subject: [PATCH 03/13] i2c-designware: Allow mixed endianness accesses
+Date: Thu,  6 Oct 2011 11:26:27 -0700
+Message-ID: <1317925597-32245-4-git-send-email-dirk.brandewie@gmail.com>
 References: <1317925597-32245-1-git-send-email-dirk.brandewie@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1317925597-32245-1-git-send-email-dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1317925597-32245-1-git-send-email-dirk.brandewie@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: ben-linux@fluff.org, Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>, Dirk Brandewie <dirk.brandewie@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>
 
-The functionality of the adapter depends on the configuration of the
-IP block at silicon compile time and is adapter specific.
+Allows CPUs of a given endianness to access a dw controller of a different
+endianness. Endianncess difference is detected at run time through the dw
+component type register.
 
-Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Signed-off-by: Jean-Hugues Deschenes <jean-hugues.deschenes@octasic.com>
+Signed-off-by: Dirk Brandewie <dirk.brandewie@gmail.com>
+Signed-off-by: Ben Dooks <ben-linux@fluff.org>
 ---
- drivers/i2c/busses/i2c-designware-core.c    |    8 ++------
- drivers/i2c/busses/i2c-designware-core.h    |    1 +
- drivers/i2c/busses/i2c-designware-platdrv.c |    8 ++++++++
- 3 files changed, 11 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-designware.c |   17 +++++++++++++++--
+ 1 files changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index cd52f17..7105511 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -457,12 +457,8 @@ done:
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index 4be9297..680f7c9 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -37,6 +37,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#include <linux/swab.h>
  
- u32 i2c_dw_func(struct i2c_adapter *adap)
- {
--	return	I2C_FUNC_I2C |
--		I2C_FUNC_10BIT_ADDR |
--		I2C_FUNC_SMBUS_BYTE |
--		I2C_FUNC_SMBUS_BYTE_DATA |
--		I2C_FUNC_SMBUS_WORD_DATA |
--		I2C_FUNC_SMBUS_I2C_BLOCK;
-+	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-+	return dev->functionality;
- }
- 
- static u32 i2c_dw_read_clear_intrbits(struct dw_i2c_dev *dev)
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 43de340..ab4e655 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -182,6 +182,7 @@ struct dw_i2c_dev {
+ /*
+  * Registers offset
+@@ -193,6 +194,7 @@ static char *abort_sources[] = {
+  * @status: i2c master status, one of STATUS_*
+  * @abort_source: copy of the TX_ABRT_SOURCE register
+  * @irq: interrupt number for the i2c master
++ * @swab: true if the instantiated IP is of different endianess
+  * @adapter: i2c subsystem adapter node
+  * @tx_fifo_depth: depth of the hardware tx fifo
+  * @rx_fifo_depth: depth of the hardware rx fifo
+@@ -216,6 +218,7 @@ struct dw_i2c_dev {
+ 	unsigned int		status;
+ 	u32			abort_source;
  	int			irq;
- 	int			swab;
++	int			swab;
  	struct i2c_adapter	adapter;
-+	u32			functionality;
  	unsigned int		tx_fifo_depth;
  	unsigned int		rx_fifo_depth;
- };
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 08783a6..36db7a8 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -96,6 +96,14 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	}
- 	clk_enable(dev->clk);
+@@ -223,11 +226,19 @@ struct dw_i2c_dev {
  
-+	dev->functionality =
-+		I2C_FUNC_I2C |
-+		I2C_FUNC_10BIT_ADDR |
-+		I2C_FUNC_SMBUS_BYTE |
-+		I2C_FUNC_SMBUS_BYTE_DATA |
-+		I2C_FUNC_SMBUS_WORD_DATA |
-+		I2C_FUNC_SMBUS_I2C_BLOCK;
+ static u32 dw_readl(struct dw_i2c_dev *dev, int offset)
+ {
+-	return readl(dev->base + offset);
++	u32 value = readl(dev->base + offset);
 +
- 	dev->base = ioremap(mem->start, resource_size(mem));
- 	if (dev->base == NULL) {
- 		dev_err(&pdev->dev, "failure mapping io resources\n");
++	if (dev->swab)
++		return swab32(value);
++	else
++		return value;
+ }
+ 
+ static void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
+ {
++	if (dev->swab)
++		b = swab32(b);
++
+ 	writel(b, dev->base + offset);
+ }
+ 
+@@ -760,7 +771,9 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+-	if (reg != 0x44570140) {
++	if (reg == ___constant_swab32(0x44570140))
++		dev->swab = 1;
++	else if (reg != 0x44570140) {
+ 		dev_err(&pdev->dev, "Unknown Synopsys component type: "
+ 				"0x%08x\n",	reg);
+ 		r = -ENODEV;
 -- 
 1.7.3.4
