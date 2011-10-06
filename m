@@ -1,57 +1,100 @@
-From: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH v2] i2c-algo-bit: Let user test buses without failing
-Date: Thu, 6 Oct 2011 16:11:30 +0200
-Message-ID: <201110061611.31035.jdelvare@suse.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Subject: [PATCH 00/13] V5 Split i2c-designware.c to support PCI drivers.
+Date: Thu,  6 Oct 2011 11:26:24 -0700
+Message-ID: <1317925597-32245-1-git-send-email-dirk.brandewie@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Always failing to register I2C buses when the line testing fails is a
-little harsh. While such a failure is definitely a bug in the driver
-that exposes the affected I2C bus, things may still work fine if the
-missing initialization steps are done later, before the I2C bus is
-used. So it seems a better debugging tool to just report the test
-failure by default. I introduce bit_test=2 if anyone really misses the
-original behavior of bit_test=1.
+From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
-Reviewed-by: Alex Deucher <alexdeucher-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-Once more, this time with bit_test turned from type bool to int so that
-it is actually possible to give it value 2.
+This patch set reworks i2c-designware.c to enable supporting multiple
+instances of the driver in the system and adds support for Designware
+I2C IP cores behind PCI devices.
 
- drivers/i2c/algos/i2c-algo-bit.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Previous discussion thread:
+   https://lkml.org/lkml/2011/3/12/70
 
---- linux-3.1-rc4.orig/drivers/i2c/algos/i2c-algo-bit.c	2011-07-22 04:17:23.000000000 +0200
-+++ linux-3.1-rc4/drivers/i2c/algos/i2c-algo-bit.c	2011-10-06 16:08:20.000000000 +0200
-@@ -47,8 +47,8 @@
- /* ----- global variables ---------------------------------------------	*/
+Changes since V4:
+   rebased onto v3.1-rc9.
+   cleanup of whitespace errors
+   Fix warning from PCI core during suspend/resume.
+   Dropped patch removing i2c-intel-mid.c
+
+Changes since V3:
+   commits 330d1c^..5c7d3e from linux-next rebased onto v3.0-rc2
+
+Changes since V2:
+   Fixed bug that kept PCI driver from compiling :-(
+
+   PCI Runtime power mangement code changed to remove warning at probe
+   time and remove device.
+
+   Fix checking of component version on big endian machine to work
+   correctly.
  
- static int bit_test;	/* see if the line-setting functions work	*/
--module_param(bit_test, bool, 0);
--MODULE_PARM_DESC(bit_test, "Test the lines of the bus to see if it is stuck");
-+module_param(bit_test, int, S_IRUGO);
-+MODULE_PARM_DESC(bit_test, "lines testing - 0 off; 1 report; 2 fail if stuck");
- 
- #ifdef DEBUG
- static int i2c_debug = 1;
-@@ -624,7 +624,7 @@ static int __i2c_bit_add_bus(struct i2c_
- 
- 	if (bit_test) {
- 		ret = test_bus(adap);
--		if (ret < 0)
-+		if (bit_test >= 2 && ret < 0)
- 			return -ENODEV;
- 	}
- 
+Changes since V1 of the patch set:
+
+   Patches 1-3 are now Jean-Hugues Deschenes patches unmodified from
+   http://www.spinics.net/lists/linux-i2c/msg02421.html
+
+   Patch 4 moves the version checking introduced in Jean's code to the
+   core init function.
+
+   Patch 5 splits i2c-designware.c into IP core and bus specific files.
+
+   Patch 6-9 rework i2c-designware-core.c and i2c-designware-platdrv.c to
+   add the ability to support multiple instances of the driver.
+
+   Patch 10 Finishes moving all register access and associated offset and
+   bit definitions into the core.
+
+   Patch 11 Adds support for designware I2C IP cores behind PCI
+   devices on the Moorestown and Medfield platforms. removed change to
+   authors name.
+
+   Patch 12 Adds runtime power management to the PCI driver.    
+
+   Patch 13 Fixs a warning from the PCI core during suspend/resume.
+
+
+Dirk Brandewie (9):
+  i2c-designware: Move checking of IP core version to i2c_dw_init()
+  i2c-designware: split of i2c-designware.c into core and bus specific
+    parts
+  i2c-designware: Move retriveving the clock speed out of core code.
+  i2c-designware: move i2c functionality bit field to be adapter
+    specific
+  i2c-designware: move controller config to bus specific portion of
+    driver
+  i2c-designware: Support multiple cores using same ISR
+  i2c-designware: Push all register reads/writes into the core code.
+  i2c-designware: Add support for Designware core behind PCI devices.
+  i2c-designware: Add runtime power management support
+
+Jean-Hugues Deschenes (3):
+  i2c-designware: Use local version of readl & writel
+  i2c-designware: Check component type register
+  i2c-designware: Allow mixed endianness accesses
+
+Octavian Purdila (1):
+  i2c-designware: Fix PCI core warning on suspend/resume
+
+ drivers/i2c/busses/Kconfig                  |   16 +-
+ drivers/i2c/busses/Makefile                 |    5 +-
+ drivers/i2c/busses/i2c-designware-core.c    |  705 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h    |  105 ++++
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |  392 +++++++++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c |  215 +++++++
+ drivers/i2c/busses/i2c-designware.c         |  847 ---------------------------
+ 7 files changed, 1434 insertions(+), 851 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-designware-core.c
+ create mode 100644 drivers/i2c/busses/i2c-designware-core.h
+ create mode 100644 drivers/i2c/busses/i2c-designware-pcidrv.c
+ create mode 100644 drivers/i2c/busses/i2c-designware-platdrv.c
+ delete mode 100644 drivers/i2c/busses/i2c-designware.c
 
 -- 
-Jean Delvare
-Suse L3
+1.7.3.4
