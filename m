@@ -1,27 +1,59 @@
 From: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 2/7 v2] i2c-eg20t: delete 10bit access processing
-Date: Thu, 06 Oct 2011 15:42:13 +0900
-Message-ID: <4E8D4DC5.3070701@dsn.lapis-semi.com>
-References: <1317788264-13118-1-git-send-email-tomoya-linux@dsn.lapis-semi.com> <1317788264-13118-2-git-send-email-tomoya-linux@dsn.lapis-semi.com> <B6A520E9CD57404AAFC0831E4FB39541A9807DDCB7@IRVEXCHCCR02.corp.ad.broadcom.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 1/7 v3] i2c-eg20t: Fix bus-idle waiting issue
+Date: Thu,  6 Oct 2011 15:56:25 +0900
+Message-ID: <1317884192-10694-1-git-send-email-tomoya-linux@dsn.lapis-semi.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <B6A520E9CD57404AAFC0831E4FB39541A9807DDCB7-4wnuKdaqIVJdD26/7+am4baTQr+y5IJFqs7JOtOhHmkAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-(2011/10/06 2:29), Jeffrey (Sheng-Hui) Chu wrote:
-> Is there any way I can help getting the code fixed instead of removed?
->
+Currently, when checking whether bus is idle or not,
+if timeout occurs,
+this function always returns success(zero).
+This patch fixes the issue.
 
-OK.
-I will add a 10bit access code again.
-I will post v3 patch series soon.
-Please check the code.
+Signed-off-by: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-eg20t.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index 6565009..35d819a 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -275,23 +275,23 @@ static s32 pch_i2c_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
+ 				     s32 timeout)
+ {
+ 	void __iomem *p = adap->pch_base_address;
++	ktime_t ns_val;
++
++	if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
++		return 0;
+ 
+ 	/* MAX timeout value is timeout*1000*1000nsec */
+-	ktime_t ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
++	ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
+ 	do {
+-		if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+-			break;
+ 		msleep(20);
++		if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
++			return 0;
+ 	} while (ktime_lt(ktime_get(), ns_val));
+ 
+ 	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
++	pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
+ 
+-	if (timeout == 0) {
+-		pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
+-		return -ETIME;
+-	}
+-
+-	return 0;
++	return -ETIME;
+ }
+ 
+ /**
 -- 
-tomoya
-ROHM Co., Ltd.
+1.7.4.4
