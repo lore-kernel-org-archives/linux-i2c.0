@@ -1,57 +1,133 @@
-From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <admin-f2mNNMdJNd8@public.gmane.org>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuivmnIDmlrDlub/kuqTkvJrkubDlrrbjgIHmtbc=?=
-	=?utf-8?B?5YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Sat, 8 Oct 2011 05:57:17 +0000 (UTC)
-Message-ID: <20121008134231483664@hxstp.cn>
-Reply-To: <1339625218-9uewiaClKEY@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: boilerplate function for byte swapped
+ smbus_write/read_word_data
+Date: Sat, 8 Oct 2011 23:10:05 +0200
+Message-ID: <20111008231005.41161836@endymion.delvare>
+References: <1316699294-6936-1-git-send-email-jic23@cam.ac.uk>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Date: Mon, 8 Oct 2012 13:42:26 +0800
+In-Reply-To: <1316699294-6936-1-git-send-email-jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linleling8888-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org, linpf-bP8SH3hLe562pva1Viq4DH2eZZfXdZYo@public.gmane.org, linsham-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, lintakoon-EMRzualFZlQ@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linxiao1117-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org
+To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrbjgIHlsZXk
-vJrkubDlrrbjgIHmtbflhbPmlbDmja4sQjJC6K+i55uY5Lmw5a62NTAw5LiH44CCDQoNCuS4gOWF
-sTjkuKrljIUo5pWw5o2u5piv5YWo6KGM5Lia55qE77yM5oyJ54Wn6KGM5Lia5YiG5aW957G777yM
-5bm25LiU5Y+v5Lul5oyJ54Wn5YWz6ZSu6K+N5p+l6K+i55qEKe+8miANCjHvvIwyMDEx5pil5a2j
-MTA55bGK5bm/5Lqk5Lya5Lmw5a625pWw5o2u5bqT5paw6bKc5Ye654KJ77yM6LaF57qn5paw6bKc
-5Lmw5a6277yM5paw6bKc5pWw5o2u77yM5a655piT5oiQ5Y2V77yBIA0KMu+8jOacgOaWsOWFqOeQ
-g+S5sOWutuW6kyzlhbE0NTE2NjDmnaHmlbDmja7jgIIgDQoz77yMMjAwOOW5tCwyMDA55bm0LDIw
-MTDlubQg5pil5a2jK+eni+Wto+W5v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEw
-NiAxMDcgMTA4IOWFseWFreWxiiDlhbExMjAuNuS4h+aVsOaNruOAgg0KNO+8jDIwMTDlubTlm73p
-mYXkv4PplIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3Rv
-cnnvvIzpnZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjXvvIwyMDEw5bm05Yiw6aaZ5riv6YeH
-6LSt55qE5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLk
-uIfmlbDmja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjbvvIw2MC445LiH5p2h5pyA5paw
-5Zu95aSWQjJC5Lmw5a626K+i55uY44CCDQo377yMMjAwOeW5tOa1t+WFs+aPkOWNleaVsOaNrnBp
-ZXJz54mI5pWw5o2uIDHljYPkuIfjgIINCjjvvIznvqTlj5Hova/ku7bvvIznvqTlj5Hova/ku7bn
-moTpg6jnvbLkuI7lronoo4XjgIINCg0K5YWxIDUwMOS4h+S4quS5sOWutu+8jOavj+S4quWdh+ac
-iUVtYWlsLiANCg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/l
-pKnpg73mnInkubDlrrblm57lpI3jgIINCg0K6KaB55qE5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUy
-MTggICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0K6KaB55qE
-5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICAg5oiW6ICF56uL5Y2z5Zue5aSN6YKu566xOiAx
-MzM5NjI1MjE4QHFxLmNvbQ0K6KaB55qE5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUyMTggICAg5oiW
-6ICF56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0KDQror5rkv6HkuLrmnKzv
-vIzlpoLmnpzkuI3kv6Hku7vmnKzkuros5Y+v5Lul6LWw5reY5a6d5Lqk5piTLOaUtui0p+mqjOiv
-geWQjuWGjeS7mOasvizov5nmmK/lr7nmgqjmnIDlpb3nmoTkv53pmpzkuobjgIIgDQoNCuS/neiv
-geavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue
-5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCg0KDQoNCg0K5bm/5Lqk
-5Lya5Lmw5a625oyJ5Lqn5ZOB57G75Yir5YiG57G777yM5YiG5Li65Lul5LiL5Yeg57G777yaDQox
-IOWKnuWFrOiuvuWkhw0KMiDnvJbnu4flj4rol6Tpk4Hlt6Xoibrlk4ENCjMg546755KDDQo0IOmk
-kOWOqOeUqOWFtw0KNSDovabovoYNCjYg5aSn5Z6L5py65qKw5Y+K6K6+5aSHDQo3IOeUteWtkOeU
-teawlA0KOCDnlLXlrZDmtojotLnlk4ENCjkg57q657uHDQoxMCDmnI3oo4UNCjExIOS4quS6uuaK
-pOeQhg0KMTIg5bel56iL5py65qKwDQoxMyDlt6XlhbcNCjE0IOWMluW3pQ0KMTUg6K6h566X5py6
-5Y+K6YCa6K6vDQoxNiDlrrblsYXnlKjlk4ENCjE3IOWutuWxheijhemlsA0KMTgg5a625YW3DQox
-OSDlrrbnlKjnlLXlmagNCjIwIOW7uuetkeWPiuijhemlsOadkOaWmQ0KMjEg6IqC5pel55So5ZOB
-DQoyMiDnpLzlk4Hlj4rotaDlk4ENCjIzIOaRqeaJmOi9pg0KMjQg5rG96L2m6YWN5Lu2DQoyNSDp
-o5/lk4ENCjI2IOmZtueTtw0KMjcg6ZOB55+zDQoyOCDnjqnlhbcNCjI5IOWNq+a1tA0KMzAg5LqU
-6YeRDQozMSDlsI/lnovmnLrmorANCjMyIOmeiw0KMzMg5LyR6Zey55So5ZOBDQozNCDljLvnlpcN
-CjM1IOa1tOWupOS6p+WTgQ0KMzYg5Zut5p6XDQozNyDnhafmmI7kuqflk4ENCjM4IOmSn+ihqOec
-vOmVnA0KMzkg6Ieq6KGM6L2mDQo0MCDljIUNCg0KDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrbl
-m57lpI3jgIINCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp
-6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIIN
-CuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K
+Hi Jonathan,
+
+On Thu, 22 Sep 2011 14:48:14 +0100, Jonathan Cameron wrote:
+> Reimplemented at least 17 times discounting error mangling cases
+> where it could be used.
+> 
+> Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+> ---
+> 
+> Hi All,
+> 
+> Quite a number of devices rather unhelpfully handle smbus read/write word
+> commands but return the result byte swapped.  Hence drivers swap it back
+> again.
+> 
+> Examples based on quick grep or read users that byte swap(write is completely trivial)
+> 
+> drivers/hwmon/ad7418.c - no error handling so trivial
+> drivers/hwmon/ads1015.c - correct
+> drivers/hwmon/asb100.c - no error handling so trivial
+> drivers/hwmon/ds1621.c - correct
+> drivers/hwmon/ds620.c - no error handling so trivial
+> drivers/hwmon/gl518sm.c - no error handling so trivial
+> drivers/hwmon/gl520sm.c - no error handling so trivial
+> drivers/hwmon/jc42.c - correct
+> drivers/hwmon/lm73.c - no error handling
+> drivers/hwmon/lm75.c - correct
+> drivers/hwmon/lm92.c - some are byte swapped. Implementation doesn't handle errors
+> drivers/hwmon/tmp102.c - correct
+> drivers/hwmon/w83781.c - no error handling.
+> drivers/input/touchscreen/ad7879-i2c.c - no error handling
+> drivers/media/video/mt9m001.c - correct
+> drivers/media/video/mt9m111.c - no error handling
+> drivers/media/video/mt9t031.c - correct
+> drivers/media/video/mt9v022.c - correct
+> drivers/media/video/mt9v032.c - correct
+> drivers/media/video/vpx3220.c - correct
+> drivers/staging/iio/adc/ad7150.c - correct
+> drivers/staging/iio/adc/ad7152.c - correct
+> drivers/staging/iio/adc/ad7291.c - correct
+> drivers/staging/iio/adc/ad7746.c - correct
+> drivers/staging/iio/adc/ad799x_core.c - correct
+> drivers/staging/iio/adc/adt7410.c - correct
+> drivers/staging/iio/adc/adt75.c - correct
+> 
+> 'correct' are those that need handle or at least pass on the error code without
+> mangling it.  The others typically just shove an error into some local
+> cache without taking any notice.
+> 
+> Just for the curious this is based on greping for i2c_smbus_write_word_data and
+> looking to see if the read does the swab16 as well.
+> 
+> Anyhow, so to the proposal.  Introduce a couple of inline static functions into
+> i2c.h.
+> 
+> My only use examples done so far are on top of unpublished iio
+> changes, so I'll leave the reader to take a look and decided
+> whether or not this is interesting enough to do.
+> 
+> Even if the driver uses equivalent functions we are saving about
+> 6 lines per user.  I'm happy to do a series converting the easy
+> ones from the above if people don't mind the patch.
+> 
+>  include/linux/i2c.h |   18 ++++++++++++++++++
+>  1 files changed, 18 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index a6c652e..59ae02b 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -34,6 +34,7 @@
+>  #include <linux/sched.h>	/* for completion */
+>  #include <linux/mutex.h>
+>  #include <linux/of.h>		/* for struct device_node */
+> +#include <linux/swab.h>
+
+Maybe add /* for swab16 */ for consistency with other comments above.
+
+>  
+>  extern struct bus_type i2c_bus_type;
+>  extern struct device_type i2c_adapter_type;
+> @@ -88,6 +89,23 @@ extern s32 i2c_smbus_read_word_data(const struct i2c_client *client,
+>  				    u8 command);
+>  extern s32 i2c_smbus_write_word_data(const struct i2c_client *client,
+>  				     u8 command, u16 value);
+> +
+> +static inline s32
+> +i2c_smbus_read_word_data_swapped(const struct i2c_client *client,
+> +				 u8 command)
+> +{
+> +	s32 value = i2c_smbus_read_word_data(client, command);
+> +
+> +	return (value < 0) ? value : swab16(value);
+> +}
+> +
+> +static inline s32
+> +i2c_smbus_write_word_data_swapped(const struct i2c_client *client,
+> +				  u8 command, u16 value)
+> +{
+> +	return i2c_smbus_write_word_data(client, command, swab16(value));
+> +}
+> +
+>  /* Returns the number of read bytes */
+>  extern s32 i2c_smbus_read_block_data(const struct i2c_client *client,
+>  				     u8 command, u8 *values);
+
+It might make sense to change the _data_swapped suffix to just
+_swapped, for the sake of avoiding overly long function names (_data
+was never meaningful for the original functions anyway as there is no
+ambiguity.)
+
+Other than these minor details, I like the patch very much, I tested if
+with 9 hwmon drivers and it indeed makes the drivers cleaner/smaller.
+I'll be happy to commit it when I am able to do this again.
+
+-- 
+Jean Delvare
