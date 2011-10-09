@@ -1,61 +1,67 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: boilerplate function for byte swapped
- smbus_write/read_word_data
-Date: Sun, 9 Oct 2011 09:41:18 +0200
-Message-ID: <20111009094118.44b616bf@endymion.delvare>
-References: <1316699294-6936-1-git-send-email-jic23@cam.ac.uk>
-	<20111008231005.41161836@endymion.delvare>
+From: Ming Lei <tom.leiming@gmail.com>
+Subject: Re: [GIT PULL] I2C: OMAP: misc. cleanup for v3.2
+Date: Sun, 9 Oct 2011 19:35:50 +0800
+Message-ID: <CACVXFVP85gS=FdWcecGZYWSN+U5q0Z9h9zURNmFOiM2sWOPmNw@mail.gmail.com>
+References: <871uwbhdoj.fsf@ti.com> <4E669F36.2070008@ti.com>
+	<4E80FD1A.5040006@deeprootsystems.com>
+	<20111004210832.GC13323@freya.fluff.org> <87aa9f771n.fsf@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111008231005.41161836-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <87aa9f771n.fsf@ti.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+	<mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Kevin Hilman <khilman@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Ben Dooks <ben-i2c@fluff.org>, Ben Dooks <ben-linux@fluff.org>, linux-omap <linux-omap@vger.kernel.org>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 8 Oct 2011 23:10:05 +0200, Jean Delvare wrote:
-> On Thu, 22 Sep 2011 14:48:14 +0100, Jonathan Cameron wrote:
-> > @@ -88,6 +89,23 @@ extern s32 i2c_smbus_read_word_data(const struct i2c_client *client,
-> >  				    u8 command);
-> >  extern s32 i2c_smbus_write_word_data(const struct i2c_client *client,
-> >  				     u8 command, u16 value);
-> > +
-> > +static inline s32
-> > +i2c_smbus_read_word_data_swapped(const struct i2c_client *client,
-> > +				 u8 command)
-> > +{
-> > +	s32 value = i2c_smbus_read_word_data(client, command);
-> > +
-> > +	return (value < 0) ? value : swab16(value);
-> > +}
-> > +
-> > +static inline s32
-> > +i2c_smbus_write_word_data_swapped(const struct i2c_client *client,
-> > +				  u8 command, u16 value)
-> > +{
-> > +	return i2c_smbus_write_word_data(client, command, swab16(value));
-> > +}
-> > +
-> >  /* Returns the number of read bytes */
-> >  extern s32 i2c_smbus_read_block_data(const struct i2c_client *client,
-> >  				     u8 command, u8 *values);
-> 
-> It might make sense to change the _data_swapped suffix to just
-> _swapped, for the sake of avoiding overly long function names (_data
-> was never meaningful for the original functions anyway as there is no
-> ambiguity.)
-> 
-> Other than these minor details, I like the patch very much, I tested if
-> with 9 hwmon drivers and it indeed makes the drivers cleaner/smaller.
-> I'll be happy to commit it when I am able to do this again.
+On Thu, Oct 6, 2011 at 12:11 AM, Kevin Hilman <khilman@ti.com> wrote:
+> Ben Dooks <ben-i2c@fluff.org> writes:
+>
+>> On Mon, Sep 26, 2011 at 03:30:50PM -0700, Kevin Hilman wrote:
+>>> ping
+>>>
+>>> On 09/06/2011 03:31 PM, Kevin Hilman wrote:
+>>> >Hi Ben,
+>>> >
+>>> >On 08/23/2011 05:10 PM, Kevin Hilman wrote:
+>>> >>Ben,
+>>> >>
+>>> >>Here's one more I2C cleanup series for v3.2.
+>>> >>
+>>> >>It applies on top of my for_3.2/i2c-fixes branch just submitted.
+>>> >>
+>>> >>Please pull into your tree for linux-next.
+>>> >
+>>> >I see you pulled the other two, can you pull this one as well?
+>>
+>> I've tried, but it seems to note that everything is up to date.
+>>
+>> Is this a suitable branch to pull onto latest so I can reset
+>> my next tree?
+>
+> Yes.
+>
+> The i2c-cleanup branch[1] is based on top of the previous two (i2c-andy
+> and i2c-fixes) so if you reset your next-i2c branch and just pull
+> i2c-cleanup, you'll get all three.
 
-Oh, and I think the new functions should be listed in
-Documentation/i2c/smbus-protocol. Maybe not as separate entries, as
-they are not new fundamental types, nor part of the SMBus protocol, but
-at least as as notes in the SMBus Read Word and SMBus Write Word
-sections.
+BTW:
 
+The patch[1] is a fix patch, which fix the OOPS[2] during system resume, so
+should CC -stable tree.
+
+[1], I2C: OMAP: remove dev->idle, use usage counting provided by runtime PM
+[2], http://marc.info/?l=linux-omap&m=131658936429671&w=2
+
+thanks,
 -- 
-Jean Delvare
+Ming Lei
