@@ -1,57 +1,84 @@
-From: =?utf-8?B?5LuFMTDlhYPmr4/lpKk=?= <admin-MvTaqqhz46BZAJ6ja5/IqtBPR1lH4CV8@public.gmane.org>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrY=?=
-	=?utf-8?B?44CB5rW35YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Sun, 9 Oct 2011 18:15:05 +0000 (UTC)
-Message-ID: <20121010020756327585@mayfairpacific.com>
-Reply-To: <1339625218-9uewiaClKEY@public.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Subject: [PATCH] i2c: boilerplate function for byte swapped smbus_write/read_word_data
+Date: Mon, 10 Oct 2011 10:07:43 +0100
+Message-ID: <1318237663-13937-2-git-send-email-jic23@cam.ac.uk>
+References: <20111009094118.44b616bf@endymion.delvare>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Date: Wed, 10 Oct 2012 02:07:50 +0800
+In-Reply-To: <20111009094118.44b616bf-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linncook-EMRzualFZlQ@public.gmane.org, lintat-rdc5FV7LByhBDgjK7y7TUQ@public.gmane.org, linterl8207-PkbjNfxxIARBDgjK7y7TUQ@public.gmane.org, lintexenquire-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linuo-ekfrKjSt+hh7YGS17jhuJQ@public.gmane.org, linusd2nd-/E1597aS9LQAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ne
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-576k5Y+R6L2v5Lu2KzEwOeWxiuW5v+S6pOS8muS5sOWutuOAgea1t+WFs+aVsOaNruOAgeaQnOe0
-ouW8leaTjuS5sOWutixCMkLor6Lnm5jkubDlrrblhbE1MDDkuIcs5LuFMTDlhYPmr4/lpKnjgIIg
-DQrnvqTlj5Hova/ku7YrMTA55bGK5bm/5Lqk5Lya5Lmw5a6244CB5rW35YWz5pWw5o2u44CB5pCc
-57Si5byV5pOO5Lmw5a62LEIyQuivouebmOS5sOWutuWFsTUwMOS4hyzku4UxMOWFg+avj+WkqeOA
-giANCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO95pyJ
-5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCg0KMeOA
-gee+pOWPkei9r+S7tu+8miDmk43kvZznroDljZXvvIzlip/og73lvLrlpKfvvIzmqKHku7/kurrl
-t6Xmk43kvZzmqKHlvI/vvIzliLDovr7njofpq5jvvIzml6Xlj5HpgIE15LiH5bCB5Lul5LiK44CC
-IA0KMuOAgTUwMOS4h+S5sOWutui1hOa6kO+8miDotaDpgIHnmoQ1MDDkuIfkubDlrrbotYTmupDl
-upPvvIzmm7TmlrAgKOWPr+S7peaMieeFp+aCqOeahOS6p+WTgeaPkOWPluWHuuadpe+8jOabtOey
-vuWHhuW8gOWPkSnjgIIgDQoz44CB6LaF57qn5rW35aSW5Lmw5a62RW1haWzmkJzntKLmnLrvvJog
-5YaF572u5LqGNjAw5LiH6KGM5Lia5YWz6ZSu6K+N77yM5qC55o2u6ZW/5bC+6K+N5pCc57Si77yM
-57uT5p6c5pu057K+56Gu5Yy56YWN77yb5q+P5aSp6IO95pCc57SiMS0y5LiH5Lul5LiK5Lmw5a62
-55yf5a6eRU1BSUzvvIzmiJDljZXnjofpq5jjgIIgDQogDQoNCuimgeeahOaKk+e0p+iBlOezu1FR
-OiAxMzM5NjI1MjE4ICAgIOaIluiAheeri+WNs+WbnuWkjemCrueusTogMTMzOTYyNTIxOEBxcS5j
-b20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5NjI1MjE4ICAgIOaIluiAheeri+WNs+WbnuWk
-jemCrueusTogMTMzOTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5NjI1
-MjE4ICAgIOaIluiAheeri+WNs+WbnuWkjemCrueusTogMTMzOTYyNTIxOEBxcS5jb20NCiANCuWF
-jei0uei1oOmAgToNCuS4gOWFsTjkuKrljIUo5pWw5o2u5piv5YWo6KGM5Lia55qE77yM5oyJ54Wn
-6KGM5Lia5YiG5aW957G777yM5bm25LiU5Y+v5Lul5oyJ54Wn5YWz6ZSu6K+N5p+l6K+i55qEKe+8
-miANCjHvvIwyMDEx5pil5a2jMTA55bGK5bm/5Lqk5Lya5Lmw5a62546w5Zy66K+i55uY5pWw5o2u
-5bqT5paw6bKc5Ye654KJ77yM6LaF57qn5paw6bKc5Lmw5a6277yM5paw6bKc5pWw5o2u77yM5a65
-5piT5oiQ5Y2V77yBIA0KMu+8jOi0reS5sOWQjuWPr+S7peWFjei0ueabtOaWsDIwMTHnp4vlraPl
-ub/kuqTkvJorMjAxMuaYpeWto+W5v+S6pOS8muS5sOWutuaVsOaNruOAguWkqui2heWAvOS6huOA
-gg0KM++8jOacgOaWsOWFqOeQg+S5sOWutuW6kyzlhbE0NTE2NjDmnaHmlbDmja7jgIIgKOacgOaW
-sOabtOaWsOaXpeacnyAyMDExLTA1LTE25pelKQ0KNO+8jDIwMDjlubQsMjAwOeW5tCwyMDEw5bm0
-IOaYpeWtoyvnp4vlraPlub/kuqTkvJrkubDlrrblkI3lvZXvvIwxMDMgMTA0IDEwNSAxMDYgMTA3
-IDEwOCDlhbHlha3lsYog5YWxMTIwLjbkuIfmlbDmja7jgIINCjXvvIwyMDEw5bm05Zu96ZmF5L+D
-6ZSA5Y2P5Lya77yIUFBBSe+8ieaIkOWRmOWQjeWNlSBQUEFJIE1lbWJlcnMgRGlyZWN0b3J577yM
-6Z2e5bi46YeN6KaB55qE5aSn5Lmw5a6244CCDQo277yMMjAxMOW5tOWIsOmmmea4r+mHh+i0reea
-hOWbveWkluWuouS6uuWQjeW9lSjpppnmuK/otLjlj5HlsYDmj5Dkvpsp77yM5YWxNy4y5LiH5pWw
-5o2u77yM6LaF57qn6YeN6KaB55qE5Lmw5a6244CCDQo377yMNDguNjjkuIfmnaHmnIDmlrDkubDl
-rrbor6Lnm5jvvIzotK3kubDlkI7mr4/mnIjmm7TmlrAgMS0y5LiH5p2h77yM5YyF5ousMumDqOWI
-hu+8jDHvvIzmnIDmlrDnmoTor6Lnm5ggMu+8jOacgOaWsOeahOWxleS8muS5sOWutuOAguWFjei0
-ueabtOaWsDM25Liq5pyI44CCDQo477yMMjAwOeW5tOa1t+WFs+aPkOWNleaVsOaNrnBpZXJz54mI
-5pWw5o2uIDHljYPkuIfjgIINCg0KDQror5rkv6HkuLrmnKzvvIzmlK/mjIHmlK/ku5jlrp3mi4Xk
-v53kuqTmmJMgKOWFiOWPkei0p+W5tuWuieijheiuvue9rue+pOWPkei9r+S7tu+8jOeEtuWQjuS7
-mOasvikg5b275bqV5omT5raI5oKo55qEIOmhvuiZkeOAgg0KDQogDQoNCg0KIA0KDQrnsr7lh4bm
-lbDmja4t5oiQ5Y2V546H5p6B6auYDQrnsr7lh4bmlbDmja4t5oiQ5Y2V546H5p6B6auYDQrnsr7l
-h4bmlbDmja4t5oiQ5Y2V546H5p6B6auYDQrnsr7lh4bmlbDmja4t5oiQ5Y2V546H5p6B6auYDQrn
-sr7lh4bmlbDmja4t5oiQ5Y2V546H5p6B6auYDQo=
+Reimplemented at least 17 times discounting error mangling cases
+where it could be used.
+
+Signed-off-by: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+---
+ Documentation/i2c/smbus-protocol |    8 ++++++++
+ include/linux/i2c.h              |   17 +++++++++++++++++
+ 2 files changed, 25 insertions(+), 0 deletions(-)
+
+diff --git a/Documentation/i2c/smbus-protocol b/Documentation/i2c/smbus-protocol
+index 7c19d1a..5003539 100644
+--- a/Documentation/i2c/smbus-protocol
++++ b/Documentation/i2c/smbus-protocol
+@@ -88,6 +88,10 @@ byte. But this time, the data is a complete word (16 bits).
+ 
+ S Addr Wr [A] Comm [A] S Addr Rd [A] [DataLow] A [DataHigh] NA P
+ 
++Note the convenience function i2c_smbus_read_word_swapped is
++available for reads where the two data bytes are the other way
++around. (not smbus compliant)
++
+ 
+ SMBus Write Byte:  i2c_smbus_write_byte_data()
+ ==============================================
+@@ -108,6 +112,10 @@ specified through the Comm byte.
+ 
+ S Addr Wr [A] Comm [A] DataLow [A] DataHigh [A] P
+ 
++Note the convenience function i2c_smbus_write_word_swapped is
++available for writes where the two data bytes are the other way
++around. (not smbus compliant)
++
+ 
+ SMBus Process Call:  i2c_smbus_process_call()
+ =============================================
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index a6c652e..38a21c3 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -34,6 +34,7 @@
+ #include <linux/sched.h>	/* for completion */
+ #include <linux/mutex.h>
+ #include <linux/of.h>		/* for struct device_node */
++#include <linux/swab.h>		/* for swab16 */
+ 
+ extern struct bus_type i2c_bus_type;
+ extern struct device_type i2c_adapter_type;
+@@ -88,6 +89,22 @@ extern s32 i2c_smbus_read_word_data(const struct i2c_client *client,
+ 				    u8 command);
+ extern s32 i2c_smbus_write_word_data(const struct i2c_client *client,
+ 				     u8 command, u16 value);
++
++static inline s32
++i2c_smbus_read_word_swapped(const struct i2c_client *client, u8 command)
++{
++	s32 value = i2c_smbus_read_word_data(client, command);
++
++	return (value < 0) ? value : swab16(value);
++}
++
++static inline s32
++i2c_smbus_write_word_swapped(const struct i2c_client *client,
++			     u8 command, u16 value)
++{
++	return i2c_smbus_write_word_data(client, command, swab16(value));
++}
++
+ /* Returns the number of read bytes */
+ extern s32 i2c_smbus_read_block_data(const struct i2c_client *client,
+ 				     u8 command, u8 *values);
+-- 
+1.7.3.4
