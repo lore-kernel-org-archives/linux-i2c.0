@@ -1,57 +1,90 @@
-From: =?utf-8?B?5L+d6K+B5pyJ5Lmw5a625Zue5aSN?= <admin-qq0RO5KkQLAnDS1+zs4M5A@public.gmane.org>
-Subject: =?utf-8?B?576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuivmnIDmlrDlub/kuqTkvJrkubDlrrbjgIHmtbc=?=
-	=?utf-8?B?5YWz5pWw5o2uLEIyQuivouebmOS5sOWutjUwMOS4h+OAgg==?=
-Date: Fri, 14 Oct 2011 16:40:28 +0000 (UTC)
-Message-ID: <20121015003341035232@aitrans.cn>
-Reply-To: <1339625218-9uewiaClKEY@public.gmane.org>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Problems with i2c_eg20t
+Date: Tue, 18 Oct 2011 13:16:15 +0200
+Message-ID: <CAH9NwWdogRey=hmzjebP9qhX5iOw3rTzdyt2fTWq5C4Z31t=cA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Date: Mon, 15 Oct 2012 00:33:31 +0800
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: lintonglintong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linusyau-RuTGJwh49Ls+Va1GwOuvDg@public.gmane.org, linux-Mh2kDNroomiRr6p6N9mNYvTk9JMpQmCpXqFh9Ls21Oc@public.gmane.org, linux-rrhWm+ijIE8@public.gmane.org, linux_mantra-hHKSG33TihhbjbujkaE4pw@public.gmane.org, linux-arm-kernel-xIg/pKzrS19vn6HldHNs0ANdhmdF6hFW@public.gmane.org
+To: Tomoya MORINAGA <tomoya-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-576k5Y+R6L2v5Lu2K+S5sOWutuaQnOe0ouacuisxMDnlsYrlub/kuqTkvJrkubDlrrbjgIHlsZXk
-vJrkubDlrrbjgIHmtbflhbPmlbDmja4sQjJC6K+i55uY5Lmw5a62NTAw5LiH44CCDQoNCuS4gOWF
-sTjkuKrljIUo5pWw5o2u5piv5YWo6KGM5Lia55qE77yM5oyJ54Wn6KGM5Lia5YiG5aW957G777yM
-5bm25LiU5Y+v5Lul5oyJ54Wn5YWz6ZSu6K+N5p+l6K+i55qEKe+8miANCjHvvIwyMDEx5pil5a2j
-MTA55bGK5bm/5Lqk5Lya5Lmw5a625pWw5o2u5bqT5paw6bKc5Ye654KJ77yM6LaF57qn5paw6bKc
-5Lmw5a6277yM5paw6bKc5pWw5o2u77yM5a655piT5oiQ5Y2V77yBIA0KMu+8jOacgOaWsOWFqOeQ
-g+S5sOWutuW6kyzlhbE0NTE2NjDmnaHmlbDmja7jgIIgDQoz77yMMjAwOOW5tCwyMDA55bm0LDIw
-MTDlubQg5pil5a2jK+eni+Wto+W5v+S6pOS8muS5sOWutuWQjeW9le+8jDEwMyAxMDQgMTA1IDEw
-NiAxMDcgMTA4IOWFseWFreWxiiDlhbExMjAuNuS4h+aVsOaNruOAgg0KNO+8jDIwMTDlubTlm73p
-mYXkv4PplIDljY/kvJrvvIhQUEFJ77yJ5oiQ5ZGY5ZCN5Y2VIFBQQUkgTWVtYmVycyBEaXJlY3Rv
-cnnvvIzpnZ7luLjph43opoHnmoTlpKfkubDlrrbjgIINCjXvvIwyMDEw5bm05Yiw6aaZ5riv6YeH
-6LSt55qE5Zu95aSW5a6i5Lq65ZCN5b2VKOmmmea4r+i0uOWPkeWxgOaPkOS+mynvvIzlhbE3LjLk
-uIfmlbDmja7vvIzotoXnuqfph43opoHnmoTkubDlrrbjgIINCjbvvIw2MC445LiH5p2h5pyA5paw
-5Zu95aSWQjJC5Lmw5a626K+i55uY44CCDQo377yMMjAwOeW5tOa1t+WFs+aPkOWNleaVsOaNrnBp
-ZXJz54mI5pWw5o2uIDHljYPkuIfjgIINCjjvvIznvqTlj5Hova/ku7bvvIznvqTlj5Hova/ku7bn
-moTpg6jnvbLkuI7lronoo4XjgIINCg0K5YWxIDUwMOS4h+S4quS5sOWutu+8jOavj+S4quWdh+ac
-iUVtYWlsLiANCg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/l
-pKnpg73mnInkubDlrrblm57lpI3jgIINCg0K6KaB55qE5oqT57Sn6IGU57O7UVE6IDEzMzk2MjUy
-MTggICDmiJbogIXnq4vljbPlm57lpI3pgq7nrrE6IDEzMzk2MjUyMThAcXEuY29tDQropoHnmoTm
-ipPntKfogZTns7tRUTogMTMzOTYyNTIxOCAgIOaIluiAheeri+WNs+WbnuWkjemCrueusTogMTMz
-OTYyNTIxOEBxcS5jb20NCuimgeeahOaKk+e0p+iBlOezu1FROiAxMzM5NjI1MjE4ICAg5oiW6ICF
-56uL5Y2z5Zue5aSN6YKu566xOiAxMzM5NjI1MjE4QHFxLmNvbQ0KDQror5rkv6HkuLrmnKzvvIzl
-poLmnpzkuI3kv6Hku7vmnKzkuros5Y+v5Lul6LWw5reY5a6d5Lqk5piTLOaUtui0p+mqjOivgeWQ
-juWGjeS7mOasvizov5nmmK/lr7nmgqjmnIDlpb3nmoTkv53pmpzkuobjgIIgDQoNCuS/neivgeav
-j+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO95pyJ5Lmw5a625Zue5aSN
-44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCg0KDQoNCg0K5bm/5Lqk5Lya
-5Lmw5a625oyJ5Lqn5ZOB57G75Yir5YiG57G777yM5YiG5Li65Lul5LiL5Yeg57G777yaDQoxIOWK
-nuWFrOiuvuWkhw0KMiDnvJbnu4flj4rol6Tpk4Hlt6Xoibrlk4ENCjMg546755KDDQo0IOmkkOWO
-qOeUqOWFtw0KNSDovabovoYNCjYg5aSn5Z6L5py65qKw5Y+K6K6+5aSHDQo3IOeUteWtkOeUteaw
-lA0KOCDnlLXlrZDmtojotLnlk4ENCjkg57q657uHDQoxMCDmnI3oo4UNCjExIOS4quS6uuaKpOeQ
-hg0KMTIg5bel56iL5py65qKwDQoxMyDlt6XlhbcNCjE0IOWMluW3pQ0KMTUg6K6h566X5py65Y+K
-6YCa6K6vDQoxNiDlrrblsYXnlKjlk4ENCjE3IOWutuWxheijhemlsA0KMTgg5a625YW3DQoxOSDl
-rrbnlKjnlLXlmagNCjIwIOW7uuetkeWPiuijhemlsOadkOaWmQ0KMjEg6IqC5pel55So5ZOBDQoy
-MiDnpLzlk4Hlj4rotaDlk4ENCjIzIOaRqeaJmOi9pg0KMjQg5rG96L2m6YWN5Lu2DQoyNSDpo5/l
-k4ENCjI2IOmZtueTtw0KMjcg6ZOB55+zDQoyOCDnjqnlhbcNCjI5IOWNq+a1tA0KMzAg5LqU6YeR
-DQozMSDlsI/lnovmnLrmorANCjMyIOmeiw0KMzMg5LyR6Zey55So5ZOBDQozNCDljLvnlpcNCjM1
-IOa1tOWupOS6p+WTgQ0KMzYg5Zut5p6XDQozNyDnhafmmI7kuqflk4ENCjM4IOmSn+ihqOecvOmV
-nA0KMzkg6Ieq6KGM6L2mDQo0MCDljIUNCg0KDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57l
-pI3jgIINCuS/neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K5L+d6K+B5q+P5aSp6YO9
-5pyJ5Lmw5a625Zue5aSN44CCDQrkv53or4Hmr4/lpKnpg73mnInkubDlrrblm57lpI3jgIINCuS/
-neivgeavj+WkqemDveacieS5sOWutuWbnuWkjeOAgg0K
+Hi all
+
+I am using a 3.0.7 linux kernel with "[PATCH x/7 v4] i2c-eg20t: ..."
+from 12. October on top of
+it.
+
+...
+...
+[    1.439115] i2c_eg20t 0000:02:0c.2: pch_i2c_probe :Entered.
+[    1.439163] i2c_eg20t 0000:02:0c.2: PCI INT C -> GSI 18 (level,
+low) -> IRQ 18
+[    1.439602] i2c-dev: adapter [i2c_eg20t] registered as minor 0
+[    1.439738] i2c i2c-0: adapter [i2c_eg20t] registered
+[    1.460041] i2c_eg20t 0000:02:0c.2: pch_i2c_init :I2CCTL=380
+pch_i2cbc=fc0 pch_i2ctmr=186a Enable interrupts
+[    1.460097] i2c_eg20t 0000:02:0c.2: pch_i2c_probe :returns 0.
+...
+...
+[    2.098641] i2c 0-0050: uevent
+[    2.098823] at24 0-0050: probe
+[    2.098874] i2c 0-0051: uevent
+[    2.099070] dummy 0-0051: probe
+[    2.099084] i2c i2c-0: client [dummy] registered with bus id 0-0051
+[    2.099099] at24 0-0050: 512 byte 24c04 EEPROM, writable, 16 bytes/write
+[    2.099130] i2c i2c-0: master_xfer[0] W, addr=0x50, len=1
+[    2.099140] i2c i2c-0: master_xfer[1] R, addr=0x50, len=24
+[    2.099151] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
+:adap->p_adapter_info->pch_i2c_suspended is 0
+[    2.099161] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invoking
+I2C_MODE_SEL :flag= 0x0
+[    2.099171] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :invoking pch_i2c_writebytes
+[    2.099187] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CCTL =
+390 msgs->len = 1
+[    2.099202] i2c_eg20t 0000:02:0c.2: pch_i2c_start :I2CCTL = 390
+[    2.099559] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+[    2.099586] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writing 0
+to Data register
+[    2.099872] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+[    2.099903] i2c_eg20t 0000:02:0c.2: pch_i2c_repstart :I2CCTL = 3b0
+[    2.099915] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :return=1
+[    2.101095] i2c i2c-0: master_xfer[0] W, addr=0x50, len=1
+[    2.101107] i2c i2c-0: master_xfer[1] R, addr=0x50, len=24
+[    2.101118] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
+:adap->p_adapter_info->pch_i2c_suspended is 0
+[    2.101128] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invoking
+I2C_MODE_SEL :flag= 0x0
+[    2.101138] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :invoking pch_i2c_writebytes
+[    2.101153] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CCTL =
+3b4 msgs->len = 1
+[    2.122099] i2c_eg20t 0000:02:0c.2: pch_i2c_wait_for_bus_idle :I2CSR = 28
+[    2.122116] i2c_eg20t 0000:02:0c.2: pch_i2c_wait_for_bus_idle
+:pch_i2c_wait_for_bus_idle: Timeout Error.return-62
+[    2.143103] i2c_eg20t 0000:02:0c.2: pch_i2c_init :I2CCTL=380
+pch_i2cbc=fc0 pch_i2ctmr=186a Enable interrupts
+[    2.145097] i2c i2c-0: master_xfer[0] W, addr=0x50, len=1
+[    2.145112] i2c i2c-0: master_xfer[1] R, addr=0x50, len=24
+[    2.145124] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
+:adap->p_adapter_info->pch_i2c_suspended is 0
+[    2.145135] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invoking
+I2C_MODE_SEL :flag= 0x0
+[    2.145145] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :invoking pch_i2c_writebytes
+[    2.145160] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CCTL =
+390 msgs->len = 1
+[    2.145174] i2c_eg20t 0000:02:0c.2: pch_i2c_start :I2CCTL = 390
+[    2.145530] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+[    2.145556] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writing 0
+to Data register
+[    2.145843] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+[    2.145874] i2c_eg20t 0000:02:0c.2: pch_i2c_repstart :I2CCTL = 3b0
+[    2.145886] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :return=1
+[    2.147055] failed to read eeprom
+
+Any hints? Btw. the eg20t i2c driver works much better with the patch
+series from 12. October.
+
+greets
+--
+Christian Gmeiner, MSc
