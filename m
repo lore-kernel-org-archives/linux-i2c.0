@@ -1,144 +1,115 @@
-From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] i2c-designware: add OF binding support
-Date: Thu, 20 Oct 2011 13:55:27 -0700
-Message-ID: <4EA08ABF.9030400@gmail.com>
-References: <1319135390-11131-1-git-send-email-robherring2@gmail.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: Problems with i2c_eg20t
+Date: Fri, 21 Oct 2011 00:27:01 +0100
+Message-ID: <20111020232701.GK19115@trinity.fluff.org>
+References: <CAH9NwWdogRey=hmzjebP9qhX5iOw3rTzdyt2fTWq5C4Z31t=cA@mail.gmail.com> <4E9D6F9A.2060406@dsn.lapis-semi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1319135390-11131-1-git-send-email-robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4E9D6F9A.2060406-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
+Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/20/2011 11:29 AM, Rob Herring wrote:
-> From: Rob Herring<rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+On Tue, Oct 18, 2011 at 09:22:50PM +0900, Tomoya MORINAGA wrote:
+> (2011/10/18 20:16), Christian Gmeiner wrote:
 >
-> Add of_match_table and DT style i2c registration to designware i2c
-> driver.
+> Hi, Christian
 >
-> Signed-off-by: Rob Herring<rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-> Acked-by: Grant Likely<grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> Cc: Ben Dooks<ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> ---
-> Ben,
+>> Hi all
+>>
+>> I am using a 3.0.7 linux kernel with "[PATCH x/7 v4] i2c-eg20t: ..."
+>> from 12. October on top of
+>> it.
+
+Shall I leave v4 on the list of things to submit?
+
+>> ...
+>> ...
+>> [    1.439115] i2c_eg20t 0000:02:0c.2: pch_i2c_probe :Entered.
+>> [    1.439163] i2c_eg20t 0000:02:0c.2: PCI INT C ->  GSI 18 (level,
+>> low) ->  IRQ 18
+>> [    1.439602] i2c-dev: adapter [i2c_eg20t] registered as minor 0
+>> [    1.439738] i2c i2c-0: adapter [i2c_eg20t] registered
+>> [    1.460041] i2c_eg20t 0000:02:0c.2: pch_i2c_init :I2CCTL=380
+>> pch_i2cbc=fc0 pch_i2ctmr=186a Enable interrupts
+>> [    1.460097] i2c_eg20t 0000:02:0c.2: pch_i2c_probe :returns 0.
+>> ...
+>> ...
+>> [    2.098641] i2c 0-0050: uevent
+>> [    2.098823] at24 0-0050: probe
+>> [    2.098874] i2c 0-0051: uevent
+>> [    2.099070] dummy 0-0051: probe
+>> [    2.099084] i2c i2c-0: client [dummy] registered with bus id 0-0051
+>> [    2.099099] at24 0-0050: 512 byte 24c04 EEPROM, writable, 16 bytes/write
+>> [    2.099130] i2c i2c-0: master_xfer[0] W, addr=0x50, len=1
+>> [    2.099140] i2c i2c-0: master_xfer[1] R, addr=0x50, len=24
+>> [    2.099151] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
+>> :adap->p_adapter_info->pch_i2c_suspended is 0
+>> [    2.099161] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invoking
+>> I2C_MODE_SEL :flag= 0x0
+>> [    2.099171] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :invoking pch_i2c_writebytes
+>> [    2.099187] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CCTL =
+>> 390 msgs->len = 1
+>> [    2.099202] i2c_eg20t 0000:02:0c.2: pch_i2c_start :I2CCTL = 390
+>> [    2.099559] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+>> [    2.099586] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writing 0
+>> to Data register
+>> [    2.099872] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+>> [    2.099903] i2c_eg20t 0000:02:0c.2: pch_i2c_repstart :I2CCTL = 3b0
+>> [    2.099915] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :return=1
+>> [    2.101095] i2c i2c-0: master_xfer[0] W, addr=0x50, len=1
+>> [    2.101107] i2c i2c-0: master_xfer[1] R, addr=0x50, len=24
+>> [    2.101118] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
+>> :adap->p_adapter_info->pch_i2c_suspended is 0
+>> [    2.101128] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invoking
+>> I2C_MODE_SEL :flag= 0x0
+>> [    2.101138] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :invoking pch_i2c_writebytes
+>> [    2.101153] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CCTL =
+>> 3b4 msgs->len = 1
+>> [    2.122099] i2c_eg20t 0000:02:0c.2: pch_i2c_wait_for_bus_idle :I2CSR = 28
+>> [    2.122116] i2c_eg20t 0000:02:0c.2: pch_i2c_wait_for_bus_idle
+>> :pch_i2c_wait_for_bus_idle: Timeout Error.return-62
+>> [    2.143103] i2c_eg20t 0000:02:0c.2: pch_i2c_init :I2CCTL=380
+>> pch_i2cbc=fc0 pch_i2ctmr=186a Enable interrupts
+>> [    2.145097] i2c i2c-0: master_xfer[0] W, addr=0x50, len=1
+>> [    2.145112] i2c i2c-0: master_xfer[1] R, addr=0x50, len=24
+>> [    2.145124] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
+>> :adap->p_adapter_info->pch_i2c_suspended is 0
+>> [    2.145135] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invoking
+>> I2C_MODE_SEL :flag= 0x0
+>> [    2.145145] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :invoking pch_i2c_writebytes
+>> [    2.145160] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CCTL =
+>> 390 msgs->len = 1
+>> [    2.145174] i2c_eg20t 0000:02:0c.2: pch_i2c_start :I2CCTL = 390
+>> [    2.145530] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+>> [    2.145556] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writing 0
+>> to Data register
+>> [    2.145843] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR = 28
+>> [    2.145874] i2c_eg20t 0000:02:0c.2: pch_i2c_repstart :I2CCTL = 3b0
+>> [    2.145886] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :return=1
+>> [    2.147055] failed to read eeprom
+>>
+>> Any hints? Btw. the eg20t i2c driver works much better with the patch
+>> series from 12. October.
+>>
 >
-> Please apply. I've dropped moving of i2c functions into i2c core and
-> reverted back to my original patch and addressed your's and Grant's
-> comments:
+> We tested again for I2C EEPROM access using Linux-3.1.0-rc9.
+> As a result, the test is OK.
 >
-> - use of_match_ptr()
-> - always call i2c_add_numbered_adapter and drop ifdef
+> Let me know how to do your test ?
 >
-> Rob
->
+> -- 
+> tomoya
+> ROHM Co., Ltd.
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-This patch moves Rob's changes to apply on top of my patch series to split the 
-designware i2c driver into core, platform and PCI parts.
+-- 
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
 
-LKML thread: https://lkml.org/lkml/2011/10/6/287
-
-The only changes to Rob's patch is the file names changed.
------- SNIP SNIP -----
-
-i2c-designware: Add devicetree i2c registration
-
-From: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-
-Add of_match_table and DT style i2c registration to designware i2c
-driver.
-
-Signed-off-by: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-  .../devicetree/bindings/i2c/i2c-designware.txt     |   23 ++++++++++++++++++++
-  drivers/i2c/busses/i2c-designware-platdrv.c        |   12 ++++++++++
-  2 files changed, 35 insertions(+), 0 deletions(-)
-  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-designware.txt
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt 
-b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-new file mode 100644
-index 0000000..cbcb404
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -0,0 +1,23 @@
-+* Synopsys DesignWare I2C
-+
-+Required properties :
-+
-+ - compatible : should be "snps,designware-i2c"
-+ - reg : Offset and length of the register set for the device
-+ - interrupts : <IRQ> where IRQ is the interrupt number.
-+
-+Recommended properties :
-+
-+ - clock-frequency : desired I2C bus clock frequency in Hz.
-+
-+Example :
-+
-+	i2c@f0000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "snps,designware-i2c";
-+		reg = <0xf0000 0x1000>;
-+		interrupts = <11>;
-+		clock-frequency = <400000>;
-+	};
-+
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c 
-b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 2d3657a..5244c47 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -34,6 +34,7 @@
-  #include <linux/sched.h>
-  #include <linux/err.h>
-  #include <linux/interrupt.h>
-+#include <linux/of_i2c.h>
-  #include <linux/platform_device.h>
-  #include <linux/io.h>
-  #include <linux/slab.h>
-@@ -137,6 +138,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
-  			sizeof(adap->name));
-  	adap->algo = &i2c_dw_algo;
-  	adap->dev.parent = &pdev->dev;
-+	adap->dev.of_node = pdev->dev.of_node;
-
-  	adap->nr = pdev->id;
-  	r = i2c_add_numbered_adapter(adap);
-@@ -144,6 +146,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
-  		dev_err(&pdev->dev, "failure adding adapter\n");
-  		goto err_free_irq;
-  	}
-+	of_i2c_register_devices(adap);
-
-  	return 0;
-
-@@ -187,6 +190,14 @@ static int __devexit dw_i2c_remove(struct platform_device 
-*pdev)
-  	return 0;
-  }
-
-+#ifdef CONFIG_OF
-+static const struct of_device_id dw_i2c_of_match[] = {
-+	{ .compatible = "snps,designware-i2c", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
-+#endif
-+
-  /* work with hotplug and coldplug */
-  MODULE_ALIAS("platform:i2c_designware");
-
-@@ -195,6 +206,7 @@ static struct platform_driver dw_i2c_driver = {
-  	.driver		= {
-  		.name	= "i2c_designware",
-  		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(dw_i2c_of_match),
-  	},
-  };
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
