@@ -1,89 +1,118 @@
-From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c/nomadik: runtime PM support
-Date: Fri, 21 Oct 2011 01:44:40 +0900
-Message-ID: <CANqRtoSxHHKxLaKd-qPjCDomp5o-iiij8hqLCs7GNhs4xCV-jg@mail.gmail.com>
-References: <1319127798-13395-1-git-send-email-linus.walleij@stericsson.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3] i2c-designware: add OF binding support
+Date: Thu, 20 Oct 2011 13:29:50 -0500
+Message-ID: <1319135390-11131-1-git-send-email-robherring2@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1319127798-13395-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 21, 2011 at 1:23 AM, Linus Walleij
-<linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org> wrote:
-> From: Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
->
-> Turn off the clock and regulator to the I2C block using runtime
-> PM.
->
-> Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
-> Signed-off-by: Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
-> =A0drivers/i2c/busses/i2c-nomadik.c | =A0 53 ++++++++++++++++++++++++=
-++++----------
-> =A01 files changed, 39 insertions(+), 14 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2=
-c-nomadik.c
-> index ce4fd80..9ac9870 100644
-> --- a/drivers/i2c/busses/i2c-nomadik.c
-> +++ b/drivers/i2c/busses/i2c-nomadik.c
+From: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 
-[snip]
+Add of_match_table and DT style i2c registration to designware i2c
+driver.
 
-> +static int nmk_i2c_runtime_suspend(struct device *dev)
-> +{
-> + =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev=
-);
-> + =A0 =A0 =A0 struct nmk_i2c_dev *nmk_i2c =3D platform_get_drvdata(pd=
-ev);
-> +
-> + =A0 =A0 =A0 clk_disable(nmk_i2c->clk);
-> + =A0 =A0 =A0 if (nmk_i2c->regulator)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_disable(nmk_i2c->regulator);
-> + =A0 =A0 =A0 return 0;
-> +}
-> +
-> +static int nmk_i2c_runtime_resume(struct device *dev)
-> +{
-> + =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev=
-);
-> + =A0 =A0 =A0 struct nmk_i2c_dev *nmk_i2c =3D platform_get_drvdata(pd=
-ev);
-> +
-> + =A0 =A0 =A0 if (nmk_i2c->regulator)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 regulator_enable(nmk_i2c->regulator);
-> + =A0 =A0 =A0 clk_enable(nmk_i2c->clk);
-> + =A0 =A0 =A0 return 0;
-> +}
-> +
+Signed-off-by: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+---
+Ben,
 
-Hm, on SH-Mobile ARM we never control any clocks from the driver
-runtime pm callbacks.
+Please apply. I've dropped moving of i2c functions into i2c core and
+reverted back to my original patch and addressed your's and Grant's
+comments:
 
-In our case the SoC code may associate various clocks with the struct
-device and those clocks will be disabled and enabled automatically
-when the driver does runtime pm put() and get() touch zero use count
-for the device. The driver is happily unaware how many and which
-clocks that are associated with the struct device.
+- use of_match_ptr()
+- always call i2c_add_numbered_adapter and drop ifdef
 
-So the clocks are started and stopped depending on the use count value
-for a single device, but the actual driver callbacks are not however
-invoked. In our case the runtime suspend callbacks are only invoked
-when all the devices in the power domain happen to have a zero runtime
-pm use count. So if you control your clocks from those callbacks then
-they will be mostly left on which may not be what you want.
+Rob
 
-Perhaps your soc-specific code invokes the runtime pm suspend / resume
-callbacks regardless of the state of all devices in a certain power
-domain?
+ Documentation/devicetree/bindings/i2c/dw-i2c.txt |   23 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware.c              |   12 +++++++++++
+ 2 files changed, 35 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/dw-i2c.txt
 
-Cheers,
-
-/ magnus
+diff --git a/Documentation/devicetree/bindings/i2c/dw-i2c.txt b/Documentation/devicetree/bindings/i2c/dw-i2c.txt
+new file mode 100644
+index 0000000..cbcb404
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/dw-i2c.txt
+@@ -0,0 +1,23 @@
++* Synopsys DesignWare I2C
++
++Required properties :
++
++ - compatible : should be "snps,designware-i2c"
++ - reg : Offset and length of the register set for the device
++ - interrupts : <IRQ> where IRQ is the interrupt number.
++
++Recommended properties :
++
++ - clock-frequency : desired I2C bus clock frequency in Hz.
++
++Example :
++
++	i2c@f0000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "snps,designware-i2c";
++		reg = <0xf0000 0x1000>;
++		interrupts = <11>;
++		clock-frequency = <400000>;
++	};
++
+diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+index b7a51c4..9047bfd 100644
+--- a/drivers/i2c/busses/i2c-designware.c
++++ b/drivers/i2c/busses/i2c-designware.c
+@@ -34,6 +34,7 @@
+ #include <linux/sched.h>
+ #include <linux/err.h>
+ #include <linux/interrupt.h>
++#include <linux/of_i2c.h>
+ #include <linux/platform_device.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
+@@ -769,6 +770,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 			sizeof(adap->name));
+ 	adap->algo = &i2c_dw_algo;
+ 	adap->dev.parent = &pdev->dev;
++	adap->dev.of_node = pdev->dev.of_node;
+ 
+ 	adap->nr = pdev->id;
+ 	r = i2c_add_numbered_adapter(adap);
+@@ -776,6 +778,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "failure adding adapter\n");
+ 		goto err_free_irq;
+ 	}
++	of_i2c_register_devices(adap);
+ 
+ 	return 0;
+ 
+@@ -819,6 +822,14 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id dw_i2c_of_match[] = {
++	{ .compatible = "snps,designware-i2c", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
++#endif
++
+ /* work with hotplug and coldplug */
+ MODULE_ALIAS("platform:i2c_designware");
+ 
+@@ -827,6 +838,7 @@ static struct platform_driver dw_i2c_driver = {
+ 	.driver		= {
+ 		.name	= "i2c_designware",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(dw_i2c_of_match),
+ 	},
+ };
+ 
+-- 
+1.7.5.4
