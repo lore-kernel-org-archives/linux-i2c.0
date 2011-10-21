@@ -1,63 +1,40 @@
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: [PATCH V2] input:ad7879-i2c use swapped varient of
- i2c_smbus_read_word_data
-Date: Fri, 21 Oct 2011 09:21:00 -0700
-Message-ID: <20111021162059.GB19153@core.coreip.homeip.net>
-References: <544AC56F16B56944AEC3BD4E3D59177146E75C18DC@LIMKCMBX1.ad.analog.com>
- <1319198236-2085-1-git-send-email-jic23@cam.ac.uk>
- <20111021160923.GA19153@core.coreip.homeip.net>
- <4EA19A75.6010907@cam.ac.uk>
+From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] i2c: mxs: Let i2c-mxs be built for MX23
+Date: Fri, 21 Oct 2011 16:06:19 -0200
+Message-ID: <1319220379-2960-1-git-send-email-fabio.estevam@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-input-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4EA19A75.6010907@cam.ac.uk>
-Sender: linux-input-owner@vger.kernel.org
-To: Jonathan Cameron <jic23@cam.ac.uk>
-Cc: linux-input@vger.kernel.org, Michael.Hennerich@analog.com, Linux I2C <linux-i2c@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 21, 2011 at 05:14:45PM +0100, Jonathan Cameron wrote:
-> On 10/21/11 17:09, Dmitry Torokhov wrote:
-> > On Fri, Oct 21, 2011 at 12:57:16PM +0100, Jonathan Cameron wrote:
-> >> This varient was introduced in
-> >> i2c: boilerplate function for byte swapped smbus_write/read_word_data
-> >>
-> >> This also has the side effect of ensuring any errors from the i2c
-> >> read and no longer mangled.
-> >>
-> >> Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
-> >> ---
-> >> V2: include the write function as pointed out by Michael Hennerich.
-> >>
-> >> The patch introducing this swapped function is working its way through the i2c
-> >> tree.
-> >>
-> >>  drivers/input/touchscreen/ad7879-i2c.c |    4 ++--
-> >>  1 files changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
-> >> index 4e4e58c..cc51392 100644
-> >> --- a/drivers/input/touchscreen/ad7879-i2c.c
-> >> +++ b/drivers/input/touchscreen/ad7879-i2c.c
-> >> @@ -47,7 +47,7 @@ static int ad7879_i2c_read(struct device *dev, u8 reg)
-> >>  {
-> >>  	struct i2c_client *client = to_i2c_client(dev);
-> >>  
-> >> -	return swab16(i2c_smbus_read_word_data(client, reg));
-> >> +	return i2c_smbus_read_word_swapped(client, reg);
-> > 
-> > This is still not endian-safe. I wonder if introducing
-> > i2c_smbus_read_word_swapped() just makes the metter worse by hiding
-> > this...
-> > 
-> > I'd prefer if we had i2c_smbus_read_be16() instead.
-> smbus spec says that all transfers must be little endian.
-> Hence it is type safe because the smbus controllers are guaranteed to have made
-> that assumption and converted to cpu endianess.  If not they are buggy.
-> Hence, this is endian safe.
+MX23 and MX28 share the same I2C block, so let i2c-mxs be built for MX23 too.
 
-Ah, right... OK then.
+Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 646068e..08748db 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -456,11 +456,11 @@ config I2C_MV64XXX
+ 	  will be called i2c-mv64xxx.
+ 
+ config I2C_MXS
+-	tristate "Freescale i.MX28 I2C interface"
+-	depends on SOC_IMX28
++	tristate "Freescale i.MXS I2C interface"
++	depends on (SOC_IMX28 || SOC_IMX23)
+ 	help
+ 	  Say Y here if you want to use the I2C bus controller on
+-	  the Freescale i.MX28 processors.
++	  the Freescale i.MXS processors.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mxs.
 -- 
-Dmitry
+1.7.1
