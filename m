@@ -1,95 +1,58 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c/nomadik: runtime PM support
-Date: Fri, 21 Oct 2011 13:19:02 +0200
-Message-ID: <CACRpkdZmifrV3o59JrWx2Z6DAqHO80W4d=7NJ6OipAOrbazgXg@mail.gmail.com>
-References: <1319127798-13395-1-git-send-email-linus.walleij@stericsson.com>
-	<CANqRtoSxHHKxLaKd-qPjCDomp5o-iiij8hqLCs7GNhs4xCV-jg@mail.gmail.com>
+From: Jonathan Cameron <jic23@cam.ac.uk>
+Subject: Re: [PATCH V2] input:ad7879-i2c use swapped varient of i2c_smbus_read_word_data
+Date: Fri, 21 Oct 2011 17:14:45 +0100
+Message-ID: <4EA19A75.6010907@cam.ac.uk>
+References: <544AC56F16B56944AEC3BD4E3D59177146E75C18DC@LIMKCMBX1.ad.analog.com> <1319198236-2085-1-git-send-email-jic23@cam.ac.uk> <20111021160923.GA19153@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANqRtoSxHHKxLaKd-qPjCDomp5o-iiij8hqLCs7GNhs4xCV-jg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20111021160923.GA19153@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, Michael.Hennerich@analog.com, Linux I2C <linux-i2c@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Oct 20, 2011 at 6:44 PM, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wr=
-ote:
-> On Fri, Oct 21, 2011 at 1:23 AM, Linus Walleij
-> <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org> wrote:
->> From: Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-=2E..
->> +static int nmk_i2c_runtime_suspend(struct device *dev)
->> +{
->> + =A0 =A0 =A0 clk_disable(nmk_i2c->clk);
-(...)
->> +}
->> +
->> +static int nmk_i2c_runtime_resume(struct device *dev)
->> +{
-(...)
->> + =A0 =A0 =A0 clk_enable(nmk_i2c->clk);
->> + =A0 =A0 =A0 return 0;
->> +}
->> +
->
-> Hm, on SH-Mobile ARM we never control any clocks from the driver
-> runtime pm callbacks.
+On 10/21/11 17:09, Dmitry Torokhov wrote:
+> On Fri, Oct 21, 2011 at 12:57:16PM +0100, Jonathan Cameron wrote:
+>> This varient was introduced in
+>> i2c: boilerplate function for byte swapped smbus_write/read_word_data
+>>
+>> This also has the side effect of ensuring any errors from the i2c
+>> read and no longer mangled.
+>>
+>> Signed-off-by: Jonathan Cameron <jic23@cam.ac.uk>
+>> ---
+>> V2: include the write function as pointed out by Michael Hennerich.
+>>
+>> The patch introducing this swapped function is working its way through the i2c
+>> tree.
+>>
+>>  drivers/input/touchscreen/ad7879-i2c.c |    4 ++--
+>>  1 files changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
+>> index 4e4e58c..cc51392 100644
+>> --- a/drivers/input/touchscreen/ad7879-i2c.c
+>> +++ b/drivers/input/touchscreen/ad7879-i2c.c
+>> @@ -47,7 +47,7 @@ static int ad7879_i2c_read(struct device *dev, u8 reg)
+>>  {
+>>  	struct i2c_client *client = to_i2c_client(dev);
+>>  
+>> -	return swab16(i2c_smbus_read_word_data(client, reg));
+>> +	return i2c_smbus_read_word_swapped(client, reg);
+> 
+> This is still not endian-safe. I wonder if introducing
+> i2c_smbus_read_word_swapped() just makes the metter worse by hiding
+> this...
+> 
+> I'd prefer if we had i2c_smbus_read_be16() instead.
+smbus spec says that all transfers must be little endian.
+Hence it is type safe because the smbus controllers are guaranteed to have made
+that assumption and converted to cpu endianess.  If not they are buggy.
+Hence, this is endian safe.
 
-OK so you're using pm_clk_add_notifier() and the standard
-implementation from drivers/base/power/clock_ops.c?
+Unfortunately numerous devices do the exact opposite (for successive approximation
+ADCs it would be silly to do otherwise.) Hence they use the smbus protocol, but
+then have to flip the bytes.
 
-> (...) In our case the runtime suspend callbacks are only invoked
-> when all the devices in the power domain happen to have a zero runtim=
-e
-> pm use count. So if you control your clocks from those callbacks then
-> they will be mostly left on which may not be what you want.
-
-We have power domains implemented as well, but currently these
-handle power domain regulators and pin control only,
-not clocking.
-
-They are registered to the platform and amba bus using
-bus_register_notifier() rather than pm_*() notifiers though,
-but we listen to the same events
-BUS_NOTIFY_[BIND|UNBOUND]_DRIVER
-
-So your suggestion is to move clock control for all
-platform devices to the overarching platform code where
-we also handle the power domain regulators and pin
-control?
-
-Currently we have something similar for the AMBA
-bus here, since it actually has code in place to grab
-the block clock on probe() and its own runtime PM
-callbacks. Since the bus driver holds the actual reference
-to the clock, we have to call down into the bus callbacks
-from the platform runtime PM implementation since our
-implementation takes precedence. I guess this is expected
-way of doing it?
-
-I see three possible paradigms here:
-
-(A) dev_power_domain implementation in
-  platform/board code handle silicon clocks and regulators.
-
-(B) Bus (as AMBA) driver handle silicon clocks and
-  regulators
-
-(C) Devices handle clocks and regulators in their runtime
-  PM callbacks themselves
-
-So now ARM SHmobile does (A), PrimeCell drivers do
-(B) and this patch attempted to do (C).
-
-And our way of handling AMBA is a mixture calling
-the bus callbacks from the platform like (A)+(B)
-
-I guess (A) and (C) won't mix very well since both
-handle platform devices and things will screw up if
-say our platform and SHmobile would use the same
-driver.
-
-Yours,
-Linus Walleij
