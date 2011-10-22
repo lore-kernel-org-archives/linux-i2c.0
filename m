@@ -1,81 +1,57 @@
-From: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: [PATCH RESEND V2 4/4] i2c/au1550: dev_pm_ops conversion
-Date: Sat, 22 Oct 2011 13:34:39 +0200
-Message-ID: <1319283279-2296-5-git-send-email-manuel.lauss@googlemail.com>
-References: <1319283279-2296-1-git-send-email-manuel.lauss@googlemail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: mxs: Let i2c-mxs be built for MX23
+Date: Sat, 22 Oct 2011 16:57:15 +0200
+Message-ID: <20111022145715.GA10469@pengutronix.de>
+References: <1319221664-3018-1-git-send-email-fabio.estevam@freescale.com>
+ <20111021184822.GJ15299@pengutronix.de>
+ <4EA1C128.106@freescale.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1319283279-2296-1-git-send-email-manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4EA1C128.106-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+To: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-use newer dev_pm_ops for PM
 
-Signed-off-by: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
----
-V2: no changes
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- drivers/i2c/busses/i2c-au1550.c |   24 ++++++++++++++----------
- 1 files changed, 14 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
-index 4f5150c..4f757a2 100644
---- a/drivers/i2c/busses/i2c-au1550.c
-+++ b/drivers/i2c/busses/i2c-au1550.c
-@@ -387,39 +387,43 @@ static int __devexit i2c_au1550_remove(struct platform_device *pdev)
- }
- 
- #ifdef CONFIG_PM
--static int
--i2c_au1550_suspend(struct platform_device *pdev, pm_message_t state)
-+static int i2c_au1550_suspend(struct device *dev)
- {
--	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
-+	struct i2c_au1550_data *priv = dev_get_drvdata(dev);
- 
- 	i2c_au1550_disable(priv);
- 
- 	return 0;
- }
- 
--static int
--i2c_au1550_resume(struct platform_device *pdev)
-+static int i2c_au1550_resume(struct device *dev)
- {
--	struct i2c_au1550_data *priv = platform_get_drvdata(pdev);
-+	struct i2c_au1550_data *priv = dev_get_drvdata(dev);
- 
- 	i2c_au1550_setup(priv);
- 
- 	return 0;
- }
-+
-+static const struct dev_pm_ops i2c_au1550_pmops = {
-+	.suspend	= i2c_au1550_suspend,
-+	.resume		= i2c_au1550_resume,
-+};
-+
-+#define AU1XPSC_SMBUS_PMOPS (&i2c_au1550_pmops)
-+
- #else
--#define i2c_au1550_suspend	NULL
--#define i2c_au1550_resume	NULL
-+#define AU1XPSC_SMBUS_PMOPS NULL
- #endif
- 
- static struct platform_driver au1xpsc_smbus_driver = {
- 	.driver = {
- 		.name	= "au1xpsc_smbus",
- 		.owner	= THIS_MODULE,
-+		.pm	= AU1XPSC_SMBUS_PMOPS,
- 	},
- 	.probe		= i2c_au1550_probe,
- 	.remove		= __devexit_p(i2c_au1550_remove),
--	.suspend	= i2c_au1550_suspend,
--	.resume		= i2c_au1550_resume,
- };
- 
- static int __init i2c_au1550_init(void)
--- 
-1.7.6.1
+> >> MX23 and MX28 share the same I2C block, so let i2c-mxs be built for MX=
+23 too.
+> >>
+> >> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > arch/arm/mach-mxs/devices/platform-mxs-i2c.c doesn't support i.MX23 yet,
+> > but still I think the change is correct.
+>=20
+> Yes, I know. I plan to submit the I2C arch/arm/mach-mxs related patches n=
+ext week.=20
+> =20
+> > Acked-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+
+Still NACK (unless somebody can explain to me how PIOQUEUE could work on MX=
+23).
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk6i2csACgkQD27XaX1/VRvCXwCfaC4NiO/EHtznPT+Yr0ANTfeA
+pawAnipYYYox/P29+5tiFrs+YNEKKl8n
+=pXh9
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--
