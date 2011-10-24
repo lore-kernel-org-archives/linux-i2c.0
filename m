@@ -1,37 +1,40 @@
 From: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH ] i2c: omap: recover from Bus Busy condition
-Date: Mon, 24 Oct 2011 12:40:55 +0530
-Message-ID: <4EA50F7F.6000400@st.com>
-References: <1319439118-3800-1-git-send-email-shubhrajyoti@ti.com>
+Subject: Re: [PATCH] i2c-designware: Change readl to readw and writel to writew
+Date: Mon, 24 Oct 2011 15:27:20 +0530
+Message-ID: <4EA53680.4040401@st.com>
+References: <1319430293-2624-1-git-send-email-rajeev-dlh.kumar@st.com> <20111024050308.GA26649@sapphire.tkos.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1319439118-3800-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20111024050308.GA26649-MwjkAAnuF3khR1HGirfZ1z4kX+cae0hd@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+To: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Cc: Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/24/2011 12:21 PM, Shubhrajyoti D wrote:
-> From: Vikram Pandita<vikram.pandita-l0cyMroinI0@public.gmane.org>
->
->      In case a peripheral is holding the DATA bus low, provide a 400Khz
->      constant clock output using the TEST register.
->
->      Also soft reset the I2C controller so that there is no stale state
->      left in the HW state machine.
->
->      A WARN_ON() will be generated when a BB timeout happens.
->
-> Signed-off-by: Vikram Pandita<vikram.pandita-l0cyMroinI0@public.gmane.org>
-> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-omap.c |   15 +++++++++++++--
->   1 files changed, 13 insertions(+), 2 deletions(-)
+Hello Baruch
 
+On 10/24/2011 10:33 AM, Baruch Siach wrote:
+> Hi Rajeev,
+>
+> On Mon, Oct 24, 2011 at 09:54:53AM +0530, Rajeev Kumar wrote:
+>> Since I2C designware registers are 16 bit wide and so we should use
+>> readw/writew.
+>>
+>> Signed-off-by: Rajeev Kumar<rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+>> ---
+>
+> For completeness I think you should also change the width of written/read
+> values, e.g. ic_con, hcnt, lcnt.
+>
+> I don't have hardware to test these changes though. Shinya, can you test this?
+>
+> baruch
+>
+Good catch
 
-Reviewed-by: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+I will circulate patch v2 for this.
 
-
-~Rajeev
+~Regards
+Rajeev
