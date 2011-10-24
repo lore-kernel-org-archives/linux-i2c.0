@@ -1,36 +1,74 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: Change readl to readw and writel to
- writew
-Date: Mon, 24 Oct 2011 07:03:09 +0200
-Message-ID: <20111024050308.GA26649@sapphire.tkos.co.il>
-References: <1319430293-2624-1-git-send-email-rajeev-dlh.kumar@st.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH ] i2c: omap: recover from Bus Busy condition
+Date: Mon, 24 Oct 2011 12:21:58 +0530
+Message-ID: <1319439118-3800-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1319430293-2624-1-git-send-email-rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>, Shinya Kuribayashi <shinya.kuribayashi-jaWZhaxaiAMAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, shiraz.hashim-qxv4g6HH51o@public.gmane.org, viresh.kumar-qxv4g6HH51o@public.gmane.org, bhupesh.sharma-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, vipin.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, amit.virdi-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, armando.visconti-qxv4g6HH51o@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rajeev,
+From: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
 
-On Mon, Oct 24, 2011 at 09:54:53AM +0530, Rajeev Kumar wrote:
-> Since I2C designware registers are 16 bit wide and so we should use
-> readw/writew.
-> 
-> Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-> ---
+    In case a peripheral is holding the DATA bus low, provide a 400Khz
+    constant clock output using the TEST register.
 
-For completeness I think you should also change the width of written/read 
-values, e.g. ic_con, hcnt, lcnt.
+    Also soft reset the I2C controller so that there is no stale state
+    left in the HW state machine.
 
-I don't have hardware to test these changes though. Shinya, can you test this?
+    A WARN_ON() will be generated when a BB timeout happens.
 
-baruch
+Signed-off-by: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 2dfb631..b6fcd08 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -143,7 +143,6 @@ enum {
+ #define OMAP_I2C_SCLH_HSSCLH	8
+ 
+ /* I2C System Test Register (OMAP_I2C_SYSTEST): */
+-#ifdef DEBUG
+ #define OMAP_I2C_SYSTEST_ST_EN		(1 << 15)	/* System test enable */
+ #define OMAP_I2C_SYSTEST_FREE		(1 << 14)	/* Free running mode */
+ #define OMAP_I2C_SYSTEST_TMODE_MASK	(3 << 12)	/* Test mode select */
+@@ -152,7 +151,6 @@ enum {
+ #define OMAP_I2C_SYSTEST_SCL_O		(1 << 2)	/* SCL line drive out */
+ #define OMAP_I2C_SYSTEST_SDA_I		(1 << 1)	/* SDA line sense in */
+ #define OMAP_I2C_SYSTEST_SDA_O		(1 << 0)	/* SDA line drive out */
+-#endif
+ 
+ /* OCP_SYSSTATUS bit definitions */
+ #define SYSS_RESETDONE_MASK		(1 << 0)
+@@ -641,10 +639,23 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	struct omap_i2c_dev *dev = i2c_get_adapdata(adap);
+ 	int i;
+ 	int r;
++	u16 val;
+ 
+ 	omap_i2c_unidle(dev);
+ 
+ 	r = omap_i2c_wait_for_bb(dev);
++	/* If timeout, try to again check after soft reset of I2C block */
++	if (WARN_ON(r == -ETIMEDOUT)) {
++		/* Provide a permanent clock to recover the peripheral */
++		val = omap_i2c_read_reg(dev, OMAP_I2C_SYSTEST_REG);
++		val |= (OMAP_I2C_SYSTEST_ST_EN |
++				OMAP_I2C_SYSTEST_FREE |
++				(2 << OMAP_I2C_SYSTEST_TMODE_SHIFT));
++		omap_i2c_write_reg(dev, OMAP_I2C_SYSTEST_REG, val);
++		msleep(1);
++		omap_i2c_init(dev);
++		r = omap_i2c_wait_for_bb(dev);
++	}
+ 	if (r < 0)
+ 		goto out;
+ 
 -- 
-                                                     ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
+1.7.1
