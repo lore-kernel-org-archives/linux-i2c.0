@@ -1,40 +1,42 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH ] i2c: omap: recover from Bus Busy condition
-Date: Tue, 25 Oct 2011 18:39:35 +0530
-Message-ID: <4EA6B50F.40805@ti.com>
-References: <1319439118-3800-1-git-send-email-shubhrajyoti@ti.com> <4EA50F7F.6000400@st.com>
+From: Austin Boyle <Austin.Boyle@aviatnet.com>
+Subject: Zarlink ZL30143 DPLL Driver
+Date: Wed, 26 Oct 2011 11:21:51 +1300
+Message-ID: <1319581311.3172.48.camel@pc786-ubu.gnet.global.vpn>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4EA50F7F.6000400-qxv4g6HH51o@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 24 October 2011 12:40 PM, Rajeev kumar wrote:
-> On 10/24/2011 12:21 PM, Shubhrajyoti D wrote:
->> From: Vikram Pandita<vikram.pandita-l0cyMroinI0@public.gmane.org>
->>
->>      In case a peripheral is holding the DATA bus low, provide a 400Khz
->>      constant clock output using the TEST register.
->>
->>      Also soft reset the I2C controller so that there is no stale state
->>      left in the HW state machine.
->>
->>      A WARN_ON() will be generated when a BB timeout happens.
->>
->> Signed-off-by: Vikram Pandita<vikram.pandita-l0cyMroinI0@public.gmane.org>
->> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> ---
->>   drivers/i2c/busses/i2c-omap.c |   15 +++++++++++++--
->>   1 files changed, 13 insertions(+), 2 deletions(-)
->
->
-> Reviewed-by: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+Hello,
 
-Thanks for your review.
->
->
-> ~Rajeev
+I have written a driver for the Zarlink ZL30143 DPLL. It would typically
+be used in an embedded system as part of Sync-E support. The device is
+accessed via an I2C interface. In general the driver just exports
+register read/write functions, but I have also added some ioctl's to
+get/set various settings that require multiple register writes (e.g.
+selecting references, setting up priorities) and interrupt support.
+
+I can't find any similar drivers, but I can see that most of the
+configuration for this device could just be done using i2c-tools in user
+space. I would imagine there are too many generic I2C devices to include
+a separate driver for each of them in the kernel. Is there any point
+submitting a patch for this? In what system would this kind of device
+belong?
+
+Kind regards,
+Austin
+
+....................................................................
+
+Austin Boyle
+Software Engineer
+AVIAT NETWORKS
+Direct: + 64 577 8711
+Mobile: + 64 27 488 0221
+Email:  Austin.Boyle@aviatnet.com
+Web:    www.aviatnetworks.com 
+Skype:  boyle.austin
