@@ -1,137 +1,68 @@
-From: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+From: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH] rtc-isl1208: Use SMBus functions if I2C isn't available
-Date: Wed, 26 Oct 2011 09:40:34 +0100
-Message-ID: <4EA7C782.205@cam.ac.uk>
+Date: Wed, 26 Oct 2011 07:55:22 -0500
+Message-ID: <CAE7DoPZCC5H3C_5BP2f9PDEXgEqga2pqcVR5ANrRF=NpPQo3Ug@mail.gmail.com>
 References: <1319596228-23318-1-git-send-email-gardner.ben@gmail.com>
+	<4EA7C782.205@cam.ac.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1319596228-23318-1-git-send-email-gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <4EA7C782.205-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Gardner <public-gardner.ben-Re5JQEeQqe8AvxtiuMwx3w-wOFGN7rlS/M9smdsby/KFg@public.gmane.org>
-Cc: public-linux-i2c-u79uwXL29TY76Z2rM5mHXA-wOFGN7rlS/M9smdsby/KFg@public.gmane.org, public-linux-kernel-u79uwXL29TY76Z2rM5mHXA-wOFGN7rlS/M9smdsby/KFg@public.gmane.org
+To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Jonathan,
 
+Thanks for the review.
 
-On 10/26/11 03:30, Ben Gardner wrote:
-> The rtc-isl1208 driver currently depends on raw I2C functionality.
-> This patch adds a fall-back to SMBus functions so that the driver can be 
-> used on a SMBus-only platforms, such as i2c-isch.
-> 
-Perhaps a summary of how bad things would be if smbus were all that is used?
-Afterall it is emulated on i2c buses if they don't support it directly.
+On Wed, Oct 26, 2011 at 3:40 AM, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org> wro=
+te:
+> On 10/26/11 03:30, Ben Gardner wrote:
+>> The rtc-isl1208 driver currently depends on raw I2C functionality.
+>> This patch adds a fall-back to SMBus functions so that the driver ca=
+n be
+>> used on a SMBus-only platforms, such as i2c-isch.
+>>
+> Perhaps a summary of how bad things would be if smbus were all that i=
+s used?
+> Afterall it is emulated on i2c buses if they don't support it directl=
+y.
 
-> Signed-off-by: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org>
-> ---
->  drivers/rtc/rtc-isl1208.c |   68 +++++++++++++++++++++++++++++++-------------
->  1 files changed, 48 insertions(+), 20 deletions(-)
-> 
-> diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-> index ea10736..c553c7b 100644
-> --- a/drivers/rtc/rtc-isl1208.c
-> +++ b/drivers/rtc/rtc-isl1208.c
-> @@ -66,20 +66,35 @@ static int
->  isl1208_i2c_read_regs(struct i2c_client *client, u8 reg, u8 buf[],
->  		      unsigned len)
->  {
-> -	u8 reg_addr[1] = { reg };
-> -	struct i2c_msg msgs[2] = {
-> -		{client->addr, 0, sizeof(reg_addr), reg_addr}
-> -		,
-> -		{client->addr, I2C_M_RD, len, buf}
-> -	};
->  	int ret;
->  
->  	BUG_ON(reg > ISL1208_REG_USR2);
->  	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
->  
-> -	ret = i2c_transfer(client->adapter, msgs, 2);
-> -	if (ret > 0)
-> -		ret = 0;
-It's a bit early in the morning, but at least at first glance I think
-this is an i2c_smbus_i2c_read_block_data reimplementation?
+Read and writes to the RTC chip should be a very rare thing, so saving
+a few cycles by using the native I2C block read/write seems less
+important than being compatible.
+Perhaps I should just switch it to using SMBus functions and eliminate
+the I2C block ops altogether?
 
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> +		u8 reg_addr[1] = { reg };
-> +		struct i2c_msg msgs[2] = {
-> +			{client->addr, 0, sizeof(reg_addr), reg_addr}
-> +			,
-Odd spacing.
-> +			{client->addr, I2C_M_RD, len, buf}
-> +		};
-> +
-> +		ret = i2c_transfer(client->adapter, msgs, 2);
-> +		if (ret > 0)
-> +			ret = 0;
-> +	} else {
-> +		int idx;
-> +		ret = i2c_smbus_read_byte_data(client, reg);
-> +		if (ret < 0)
-> +			return ret;
-> +		buf[0] = ret;
-> +		for (idx = 1; idx < len; idx++) {
-> +			ret = i2c_smbus_read_byte(client);
-> +			if (ret < 0)
-> +				return ret;
-> +			buf[idx] = ret;
-> +		}
-> +	}
->  	return ret;
->  }
->  
-> @@ -88,21 +103,32 @@ static int
->  isl1208_i2c_set_regs(struct i2c_client *client, u8 reg, u8 const buf[],
->  		     unsigned len)
->  {
-> -	u8 i2c_buf[ISL1208_REG_USR2 + 2];
-> -	struct i2c_msg msgs[1] = {
-> -		{client->addr, 0, len + 1, i2c_buf}
-> -	};
-> -	int ret;
-> +	int ret = 0;
->  
->  	BUG_ON(reg > ISL1208_REG_USR2);
->  	BUG_ON(reg + len > ISL1208_REG_USR2 + 1);
->  
-> -	i2c_buf[0] = reg;
-> -	memcpy(&i2c_buf[1], &buf[0], len);
-> +	if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-> +		u8 i2c_buf[ISL1208_REG_USR2 + 2];
-> +		struct i2c_msg msgs[1] = {
-> +			{client->addr, 0, len + 1, i2c_buf}
-> +		};
-> +
-> +		i2c_buf[0] = reg;
-> +		memcpy(&i2c_buf[1], &buf[0], len);
->  
-> -	ret = i2c_transfer(client->adapter, msgs, 1);
-> -	if (ret > 0)
-> -		ret = 0;
-> +		ret = i2c_transfer(client->adapter, msgs, 1);
-> +		if (ret > 0)
-> +			ret = 0;
-> +	} else {
-> +		int idx;
-> +		for (idx = 0; idx < len; idx++) {
-> +			ret = i2c_smbus_write_byte_data(client, reg + idx,
-> +							buf[idx]);
-> +			if (ret < 0)
-> +				return ret;
-> +		}
-> +	}
->  	return ret;
->  }
->  
-> @@ -622,7 +648,9 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
->  	int rc = 0;
->  	struct rtc_device *rtc;
->  
-> -	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C))
-> +	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C) &&
-> +	    !i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_BYTE |
-> +				     I2C_FUNC_SMBUS_BYTE_DATA))
->  		return -ENODEV;
->  
->  	if (isl1208_i2c_validate_client(client) < 0)
+Anyone else have an opinion on this?
+
+>> - =A0 =A0 ret =3D i2c_transfer(client->adapter, msgs, 2);
+>> - =A0 =A0 if (ret > 0)
+>> - =A0 =A0 =A0 =A0 =A0 =A0 ret =3D 0;
+> It's a bit early in the morning, but at least at first glance I think
+> this is an i2c_smbus_i2c_read_block_data reimplementation?
+
+Do you mean i2c_smbus_read_i2c_block_data()?
+That function is a bit different - it uses i2c_transfer() to emulate
+the SMBus block read.
+I'm not aware of any SMBus emulation of a I2C block read.
+
+>> + =A0 =A0 if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)=
+) {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 u8 reg_addr[1] =3D { reg };
+>> + =A0 =A0 =A0 =A0 =A0 =A0 struct i2c_msg msgs[2] =3D {
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 {client->addr, 0, sizeof(r=
+eg_addr), reg_addr}
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ,
+> Odd spacing.
+
+Sure is. It was that way in the original, but I guess I'll fix it. Or
+eliminate it, if I remove I2C ops in the next version.
+
+I'll await further comments and then repost in a day or so.
+
+Thanks,
+Ben
