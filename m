@@ -1,42 +1,33 @@
-From: Austin Boyle <Austin.Boyle@aviatnet.com>
-Subject: Zarlink ZL30143 DPLL Driver
-Date: Wed, 26 Oct 2011 11:21:51 +1300
-Message-ID: <1319581311.3172.48.camel@pc786-ubu.gnet.global.vpn>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+From: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] rtc-isl1208: Add support for the ISL1218
+Date: Tue, 25 Oct 2011 21:30:06 -0500
+Message-ID: <1319596206-23266-1-git-send-email-gardner.ben@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+The ISL1218 chip is identical to the ISL1208, except that it has 6
+additional user-storage registers. This patch does not enable access 
+to those additional registers, but only adds the chip name to the list.
 
-I have written a driver for the Zarlink ZL30143 DPLL. It would typically
-be used in an embedded system as part of Sync-E support. The device is
-accessed via an I2C interface. In general the driver just exports
-register read/write functions, but I have also added some ioctl's to
-get/set various settings that require multiple register writes (e.g.
-selecting references, setting up priorities) and interrupt support.
+Signed-off-by: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/rtc/rtc-isl1208.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-I can't find any similar drivers, but I can see that most of the
-configuration for this device could just be done using i2c-tools in user
-space. I would imagine there are too many generic I2C devices to include
-a separate driver for each of them in the kernel. Is there any point
-submitting a patch for this? In what system would this kind of device
-belong?
-
-Kind regards,
-Austin
-
-....................................................................
-
-Austin Boyle
-Software Engineer
-AVIAT NETWORKS
-Direct: + 64 577 8711
-Mobile: + 64 27 488 0221
-Email:  Austin.Boyle@aviatnet.com
-Web:    www.aviatnetworks.com 
-Skype:  boyle.austin
+diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
+index da8beb8..ea10736 100644
+--- a/drivers/rtc/rtc-isl1208.c
++++ b/drivers/rtc/rtc-isl1208.c
+@@ -697,6 +697,7 @@ isl1208_remove(struct i2c_client *client)
+ 
+ static const struct i2c_device_id isl1208_id[] = {
+ 	{ "isl1208", 0 },
++	{ "isl1218", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, isl1208_id);
+-- 
+1.7.7
