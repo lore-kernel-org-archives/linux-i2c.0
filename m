@@ -1,68 +1,70 @@
-From: Ben Gardner <gardner.ben-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] rtc-isl1208: Use SMBus functions if I2C isn't available
-Date: Wed, 26 Oct 2011 07:55:22 -0500
-Message-ID: <CAE7DoPZCC5H3C_5BP2f9PDEXgEqga2pqcVR5ANrRF=NpPQo3Ug@mail.gmail.com>
-References: <1319596228-23318-1-git-send-email-gardner.ben@gmail.com>
-	<4EA7C782.205@cam.ac.uk>
+From: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH V2] i2c-designware: Change readl to readw and writel to
+ writew
+Date: Thu, 27 Oct 2011 11:01:34 +0530
+Message-ID: <4EA8ECB6.50600@st.com>
+References: <1319450282-914-1-git-send-email-rajeev-dlh.kumar@st.com> <20111024103316.GC26649@sapphire.tkos.co.il> <4EA5472A.1000400@st.com> <20111024122349.GD26649@sapphire.tkos.co.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4EA7C782.205-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
+In-Reply-To: <20111024122349.GD26649-MwjkAAnuF3khR1HGirfZ1z4kX+cae0hd@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jonathan,
+Hello Baruch
 
-Thanks for the review.
-
-On Wed, Oct 26, 2011 at 3:40 AM, Jonathan Cameron <jic23-KWPb1pKIrIJaa/9Udqfwiw@public.gmane.org> wro=
-te:
-> On 10/26/11 03:30, Ben Gardner wrote:
->> The rtc-isl1208 driver currently depends on raw I2C functionality.
->> This patch adds a fall-back to SMBus functions so that the driver ca=
-n be
->> used on a SMBus-only platforms, such as i2c-isch.
+On 10/24/2011 5:53 PM, Baruch Siach wrote:
+> Hi Rajeev,
+>
+> On Mon, Oct 24, 2011 at 04:38:26PM +0530, Rajeev kumar wrote:
+>> On 10/24/2011 4:03 PM, Baruch Siach wrote:
+>>> On Mon, Oct 24, 2011 at 03:28:02PM +0530, Rajeev Kumar wrote:
+>>>> Since I2C designware registers are 16 bit wide and so we should use
+>>>> readw/writew.
+>>>>
+>>>> Signed-off-by: Rajeev Kumar<rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+>>>> ---
+>>>>   drivers/i2c/busses/i2c-designware.c |  104 +++++++++++++++++-----------------
+>>>>   1 files changed, 52 insertions(+), 52 deletions(-)
+>>>>
+>>>> diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
+>>>> index 6eaa681..5149a10 100644
+>>>> --- a/drivers/i2c/busses/i2c-designware.c
+>>>> +++ b/drivers/i2c/busses/i2c-designware.c
+>>>> @@ -216,11 +216,11 @@ struct dw_i2c_dev {
+>>>>   	u32			abort_source;
+>>>>   	int			irq;
+>>>>   	struct i2c_adapter	adapter;
+>>>> -	unsigned int		tx_fifo_depth;
+>>>> -	unsigned int		rx_fifo_depth;
+>>>> +	u16			tx_fifo_depth;
+>>>> +	u16			rx_fifo_depth;
+>>>>   };
+>>>
+>>> This looks wrong. The {tx,rx}_fifo_depth fields do not represent bit fields,
+>>> but numbers. So unsigned int should be better here.
 >>
-> Perhaps a summary of how bad things would be if smbus were all that i=
-s used?
-> Afterall it is emulated on i2c buses if they don't support it directl=
-y.
+>> Yes, I agree with you, but I do not see any possibility of value of
+>> {tx,rx}_fifo_depth fields greater than 2^^16 - 1. So, would not it
+>> be better to keep them as u16 and save just 4 bytes.
+>
+> Well, if you are after these 4 bytes just make them 'unsigned short'.
+>
 
-Read and writes to the RTC chip should be a very rare thing, so saving
-a few cycles by using the native I2C block read/write seems less
-important than being compatible.
-Perhaps I should just switch it to using SMBus functions and eliminate
-the I2C block ops altogether?
+Sorry, I could not understand preference of unsigned short over u16.
 
-Anyone else have an opinion on this?
+Although, its not a big deal to keep either unsigned short or u16 or
+unsigned int. More or less all are fine. But, should we not keep what is 
+most appropriate?
 
->> - =A0 =A0 ret =3D i2c_transfer(client->adapter, msgs, 2);
->> - =A0 =A0 if (ret > 0)
->> - =A0 =A0 =A0 =A0 =A0 =A0 ret =3D 0;
-> It's a bit early in the morning, but at least at first glance I think
-> this is an i2c_smbus_i2c_read_block_data reimplementation?
+Is it not correct that u16 will always be 16 bit , but unsigned short
+may not be guaranteed to be 16 bit on every platform?
 
-Do you mean i2c_smbus_read_i2c_block_data()?
-That function is a bit different - it uses i2c_transfer() to emulate
-the SMBus block read.
-I'm not aware of any SMBus emulation of a I2C block read.
+Regards
+~Rajeev 	
 
->> + =A0 =A0 if (i2c_check_functionality(client->adapter, I2C_FUNC_I2C)=
-) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 u8 reg_addr[1] =3D { reg };
->> + =A0 =A0 =A0 =A0 =A0 =A0 struct i2c_msg msgs[2] =3D {
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 {client->addr, 0, sizeof(r=
-eg_addr), reg_addr}
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ,
-> Odd spacing.
-
-Sure is. It was that way in the original, but I guess I'll fix it. Or
-eliminate it, if I remove I2C ops in the next version.
-
-I'll await further comments and then repost in a day or so.
-
-Thanks,
-Ben
+> baruch
+>
