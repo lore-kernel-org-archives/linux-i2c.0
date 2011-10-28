@@ -1,80 +1,77 @@
-From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Subject: Re: [PATCH V2] i2c-designware: Change readl to readw and writel to
- writew
-Date: Thu, 27 Oct 2011 08:51:47 +0200
-Message-ID: <20111027065147.GB1077@sapphire.tkos.co.il>
-References: <1319450282-914-1-git-send-email-rajeev-dlh.kumar@st.com>
- <20111024103316.GC26649@sapphire.tkos.co.il>
- <4EA5472A.1000400@st.com>
- <20111024122349.GD26649@sapphire.tkos.co.il>
- <4EA8ECB6.50600@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH 1/2] i2c-eg20t: Support new device LAPIS Semiconductor ML7831 IOH
+Date: Fri, 28 Oct 2011 09:40:10 +0900
+Message-ID: <1319762411-7174-1-git-send-email-tomoya-linux@dsn.lapis-semi.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4EA8ECB6.50600-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Rajeev,
+ML7831 is companion chip for Intel Atom E6xx series.
 
-On Thu, Oct 27, 2011 at 11:01:34AM +0530, Rajeev kumar wrote:
-> On 10/24/2011 5:53 PM, Baruch Siach wrote:
-> >On Mon, Oct 24, 2011 at 04:38:26PM +0530, Rajeev kumar wrote:
-> >>On 10/24/2011 4:03 PM, Baruch Siach wrote:
-> >>>On Mon, Oct 24, 2011 at 03:28:02PM +0530, Rajeev Kumar wrote:
-> >>>>Since I2C designware registers are 16 bit wide and so we should use
-> >>>>readw/writew.
-> >>>>
-> >>>>Signed-off-by: Rajeev Kumar<rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-> >>>>---
-> >>>>  drivers/i2c/busses/i2c-designware.c |  104 +++++++++++++++++-----------------
-> >>>>  1 files changed, 52 insertions(+), 52 deletions(-)
-> >>>>
-> >>>>diff --git a/drivers/i2c/busses/i2c-designware.c b/drivers/i2c/busses/i2c-designware.c
-> >>>>index 6eaa681..5149a10 100644
-> >>>>--- a/drivers/i2c/busses/i2c-designware.c
-> >>>>+++ b/drivers/i2c/busses/i2c-designware.c
-> >>>>@@ -216,11 +216,11 @@ struct dw_i2c_dev {
-> >>>>  	u32			abort_source;
-> >>>>  	int			irq;
-> >>>>  	struct i2c_adapter	adapter;
-> >>>>-	unsigned int		tx_fifo_depth;
-> >>>>-	unsigned int		rx_fifo_depth;
-> >>>>+	u16			tx_fifo_depth;
-> >>>>+	u16			rx_fifo_depth;
-> >>>>  };
-> >>>
-> >>>This looks wrong. The {tx,rx}_fifo_depth fields do not represent bit fields,
-> >>>but numbers. So unsigned int should be better here.
-> >>
-> >>Yes, I agree with you, but I do not see any possibility of value of
-> >>{tx,rx}_fifo_depth fields greater than 2^^16 - 1. So, would not it
-> >>be better to keep them as u16 and save just 4 bytes.
-> >
-> >Well, if you are after these 4 bytes just make them 'unsigned short'.
-> 
-> Sorry, I could not understand preference of unsigned short over u16.
-> 
-> Although, its not a big deal to keep either unsigned short or u16 or
-> unsigned int. More or less all are fine. But, should we not keep
-> what is most appropriate?
-> 
-> Is it not correct that u16 will always be 16 bit , but unsigned short
-> may not be guaranteed to be 16 bit on every platform?
+Signed-off-by: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig     |   14 +++++++-------
+ drivers/i2c/busses/i2c-eg20t.c |    3 +++
+ 2 files changed, 10 insertions(+), 7 deletions(-)
 
-Since this patch deals with matching variables width to registers size of the 
-hardware, changes for reducing the size of struct dw_i2c_dev shouldn't be part 
-of it, in my opinion.  But this is just nitpicking, I don't feel too strongly 
-about it.
-
-Acked-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-
-baruch
-
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index a3afac4..72509a0 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -682,19 +682,19 @@ config I2C_XILINX
+ 	  will be called xilinx_i2c.
+ 
+ config I2C_EG20T
+-	tristate "Intel EG20T PCH / OKI SEMICONDUCTOR IOH(ML7213/ML7223)"
++	tristate "Intel EG20T PCH/LAPIS Semicon IOH(ML7213/ML7223/ML7831) I2C"
+ 	depends on PCI
+ 	help
+ 	  This driver is for PCH(Platform controller Hub) I2C of EG20T which
+ 	  is an IOH(Input/Output Hub) for x86 embedded processor.
+ 	  This driver can access PCH I2C bus device.
+ 
+-	  This driver also can be used for OKI SEMICONDUCTOR IOH(Input/
+-	  Output Hub), ML7213 and ML7223.
+-	  ML7213 IOH is for IVI(In-Vehicle Infotainment) use and ML7223 IOH is
+-	  for MP(Media Phone) use.
+-	  ML7213/ML7223 is companion chip for Intel Atom E6xx series.
+-	  ML7213/ML7223 is completely compatible for Intel EG20T PCH.
++	  This driver also can be used for LAPIS Semiconductor IOH(Input/
++	  Output Hub), ML7213, ML7223 and ML7831.
++	  ML7213 IOH is for IVI(In-Vehicle Infotainment) use, ML7223 IOH is
++	  for MP(Media Phone) use and ML7831 IOH is for general purpose use.
++	  ML7213/ML7223/ML7831 is companion chip for Intel Atom E6xx series.
++	  ML7213/ML7223/ML7831 is completely compatible for Intel EG20T PCH.
+ 
+ comment "External I2C/SMBus adapter drivers"
+ 
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index ce1a32b..62135bc 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -136,6 +136,7 @@
+ Set the number of I2C instance max
+ Intel EG20T PCH :		1ch
+ OKI SEMICONDUCTOR ML7213 IOH :	2ch
++OKI SEMICONDUCTOR ML7831 IOH :	1ch
+ */
+ #define PCH_I2C_MAX_DEV			2
+ 
+@@ -183,11 +184,13 @@ static DEFINE_MUTEX(pch_mutex);
+ #define PCI_VENDOR_ID_ROHM		0x10DB
+ #define PCI_DEVICE_ID_ML7213_I2C	0x802D
+ #define PCI_DEVICE_ID_ML7223_I2C	0x8010
++#define PCI_DEVICE_ID_ML7831_I2C	0x8817
+ 
+ static struct pci_device_id __devinitdata pch_pcidev_id[] = {
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PCH_I2C),   1, },
+ 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7213_I2C), 2, },
+ 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7223_I2C), 1, },
++	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7831_I2C), 1, },
+ 	{0,}
+ };
+ 
 -- 
-                                                     ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
+1.7.4.4
