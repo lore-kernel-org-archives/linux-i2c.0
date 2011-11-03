@@ -1,34 +1,72 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
-Date: Wed, 2 Nov 2011 10:52:10 +0000
-Message-ID: <20111102105210.GZ19187@n2100.arm.linux.org.uk>
-References: <1320228610-18129-1-git-send-email-Barry.Song@csr.com> <20111102103904.GB4937@totoro>
+From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] OMAP4: I2C: Enable FIFO usage for OMAP4
+Date: Thu, 03 Nov 2011 16:49:32 +0530
+Message-ID: <4EB278C4.6030006@ti.com>
+References: <1309849870-25660-1-git-send-email-shubhrajyoti@ti.com> <8739ikp9aa.fsf@ti.com> <20110713192055.GC3369@freya.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20111102103904.GB4937@totoro>
+In-Reply-To: <20110713192055.GC3369-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jamie Iles <jamie-wmLquQDDieKakBO8gow8eQ@public.gmane.org>
-Cc: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 02, 2011 at 10:39:04AM +0000, Jamie Iles wrote:
-> > +	clk = clk_get(&pdev->dev, NULL);
-> > +	if (IS_ERR(clk)) {
-> > +		err = PTR_ERR(clk);
-> > +		dev_err(&pdev->dev, "Clock get failed\n");
-> > +		goto out;
-> > +	}
-> > +
-> > +	clk_enable(clk);
-> 
-> The return value of clk_enable() should really be checked.
+On Thursday 14 July 2011 12:50 AM, Ben Dooks wrote:
+> On Tue, Jul 05, 2011 at 05:01:01PM -0700, Kevin Hilman wrote:
+>> Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
+>>
+>>> Currently the fifo depth is set to zero for OMAP4 which disables
+>>> the FIFO usage. This patch enables the FIFO usage for I2C transactions
+>>> on OMAP4 also.
+>>>
+>>> Tested on omap4430 and 3430.
+>>>
+>>> Reported-By: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+>>> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+>>> ---
+>>> Rebased on top of the series by Andy Green
+>>> http://www.spinics.net/lists/linux-i2c/msg05632.html
+>> Thanks.
+>>
+>> This is v3.1 material, but would be nice to see a couple tested-by or
+>> acked-by tags from folks that are more actively using the I2C driver
+>> before merging
+>>
+>> Kevin
+> guess you'll be picking these up?
 
-Now that the clk_prepare() patch has been enabled, new drivers should be
-written assuming that clk_prepare() will be necessary before clk_enable().
-
-And one may query why it's not possible to use clk_enable()...clk_disable()
-around the transfer itself, so the clock can be turned off while the device
-is idle.  Obviously if its expecting to be operated in slave mode as well
-then you may need to keep the clock enabled.
+Ben Could this patch be lined up as well?
+>  
+>>>  drivers/i2c/busses/i2c-omap.c |   11 ++++++-----
+>>>  1 files changed, 6 insertions(+), 5 deletions(-)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>>> index d53cd61..8f87a37 100644
+>>> --- a/drivers/i2c/busses/i2c-omap.c
+>>> +++ b/drivers/i2c/busses/i2c-omap.c
+>>> @@ -1068,13 +1068,14 @@ omap_i2c_probe(struct platform_device *pdev)
+>>>  		 * size. This is to ensure that we can handle the status on int
+>>>  		 * call back latencies.
+>>>  		 */
+>>> -		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430) {
+>>> -			dev->fifo_size = 0;
+>>> +
+>>> +		dev->fifo_size = (dev->fifo_size / 2);
+>>> +
+>>> +		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430)
+>>>  			dev->b_hw = 0; /* Disable hardware fixes */
+>>> -		} else {
+>>> -			dev->fifo_size = (dev->fifo_size / 2);
+>>> +		else
+>>>  			dev->b_hw = 1; /* Enable hardware fixes */
+>>> -		}
+>>> +
+>>>  		/* calculate wakeup latency constraint for MPU */
+>>>  		if (dev->set_mpu_wkup_lat != NULL)
+>>>  			dev->latency = (1000000 * dev->fifo_size) /
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+>> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
