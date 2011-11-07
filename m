@@ -1,40 +1,35 @@
-From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V2] drivers/i2c/busses/i2c-at91.c: fix brokeness
-Date: Mon, 07 Nov 2011 13:49:04 +0100
-Message-ID: <4EB7D3C0.9070706@atmel.com>
-References: <alpine.DEB.2.00.1111071019560.21431@gatekeeper.vosshq.de> <20111107094701.GF4265@legolas.emea.dhcp.ti.com> <EF2E73589CA71846A15D0B2CDF79505D087B38B21C@wm021.weinmann.com> <20111107100446.GG4265@legolas.emea.dhcp.ti.com> <EF2E73589CA71846A15D0B2CDF79505D087B38B2AB@wm021.weinmann.com> <20111107130432.3309ffd6@endymion.delvare>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: 10-bit address support in i2c-omap and i2c-davinci
+Date: Mon, 07 Nov 2011 07:09:38 -0800
+Message-ID: <87hb2g0y19.fsf@ti.com>
+References: <20111107094614.0062a3f7@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111107130432.3309ffd6-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>, balbi-l0cyMroinI0@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20111107094614.0062a3f7@endymion.delvare> (Jean Delvare's
+	message of "Mon, 7 Nov 2011 09:46:14 +0100")
+Sender: linux-omap-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Ben Dooks <ben-linux@fluff.org>, Tony Lindgren <tony@atomide.com>, Andy Green <andy.green@linaro.org>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Linux I2C <linux-i2c@vger.kernel.org>, linux-omap@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/07/2011 01:04 PM, Jean Delvare :
-> On Mon, 7 Nov 2011 12:06:52 +0100, Voss, Nikolaus wrote:
->>>>> IMHO, you should split this patch into three or more smaller patches.
->>>>> You're doing lots of different things in one commit and it'll be a
->>>>> pain to bisect should this cause any issues to anyone.
->>>>
->>>> I didn't split the patch because it is virtually a complete rewrite.
->>>> Due to the severe limitations of the old driver, I think it should
->>>> replace the old driver.
->>>
->>> The final decision is up to Ben and/or Jean but I think we should always have
->>> incremental patches, not sure if we should allow big patches for the reasons
->>> above.
-> 
-> The final call is obviously to Ben, not me, as this driver falls under
-> his jurisdiction. But for what it's worth, I consider the small-steps
-> rule void when it comes to fixing a plain broken driver by almost fully
-> rewriting it. The reviewer should really review the resulting code
-> rather than the patch. If it makes everybody happier, then killing the
-> old code completely first is certainly an option.
+Adding linux-omap and linux-davinci lists
 
-I agree with this.
+Jean Delvare <khali@linux-fr.org> writes:
 
--- 
-Nicolas Ferre
+> Both bus drivers i2c-omap and i2c-davinci apparently handle 10-bit addresses:
+>
+> (i2c-omap.c)
+> 	if (msg->flags & I2C_M_TEN)
+> 		w |= OMAP_I2C_CON_XA;
+>
+> (i2c-davinci.c)
+> 	/* if the slave address is ten bit address, enable XA bit */
+> 	if (msg->flags & I2C_M_TEN)
+> 		flag |= DAVINCI_I2C_MDR_XA;
+>
+> However neither driver declares functionality flag I2C_FUNC_10BIT_ADDR,
+> so chip drivers would normally refuse to bind to these buses. If 10-bit
+> address support is incomplete or broken then it should be removed
+> completely. If it works then these drivers should declare so by adding
+> I2C_FUNC_10BIT_ADDR to the functionality flags they return.
