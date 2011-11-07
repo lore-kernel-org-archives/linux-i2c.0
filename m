@@ -1,20 +1,20 @@
-From: David Anders <x0132446@ti.com>
-Subject: [PATCH] omap4: i2c: add post idle reset registers flag
-Date: Mon, 7 Nov 2011 14:49:49 -0600
-Message-ID: <1320698989-13361-1-git-send-email-x0132446@ti.com>
+From: David Anders <x0132446-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v2] omap4: i2c: add post idle reset registers flag
+Date: Mon, 7 Nov 2011 15:31:40 -0600
+Message-ID: <1320701500-14535-1-git-send-email-x0132446@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: danders.dev@gmail.com, linux-omap@vger.kernel.org, tony@atomide.com, aneesh@ti.com, jayabharath@ti.com, andy.green@linaro.org, khilman@ti.com, linux-i2c@vger.kernel.org
-Cc: ben-linux@fluff.org, David Anders <x0132446@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: danders.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, aneesh-l0cyMroinI0@public.gmane.org, jayabharath-l0cyMroinI0@public.gmane.org, andy.green-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, David Anders <x0132446-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 omap44xx i2c devices need to have the registers reset post idle
 similar to omap3xxx devices. this adds the additional flag for
 OMAP_I2C_FLAG_RESET_REGS_POSTIDLE to the omap44xx i2c_dev_attr.
 
-Signed-off-by: David Anders <x0132446@ti.com>
+Signed-off-by: David Anders <x0132446-l0cyMroinI0@public.gmane.org>
 ---
  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 ++-
  1 files changed, 2 insertions(+), 1 deletions(-)
@@ -28,11 +28,10 @@ index 7695e5d..e93dc40 100644
  
  static struct omap_i2c_dev_attr i2c_dev_attr = {
 -	.flags	= OMAP_I2C_FLAG_BUS_SHIFT_NONE,
-+	.flags	=  OMAP_I2C_FLAG_RESET_REGS_POSTIDLE |
-+			OMAP_I2C_FLAG_BUS_SHIFT_NONE,
++	.flags	= OMAP_I2C_FLAG_RESET_REGS_POSTIDLE |
++		  OMAP_I2C_FLAG_BUS_SHIFT_NONE,
  };
  
  /* i2c1 */
 -- 
 1.7.0.4
-
