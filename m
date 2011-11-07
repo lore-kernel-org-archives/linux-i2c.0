@@ -1,49 +1,32 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
-Date: Mon, 7 Nov 2011 13:36:24 +0800
-Message-ID: <CAGsJ_4wPmNXxQ3aDNasj17YBRJ-iXyQoYYPQwfCWK5dQBWF5PQ@mail.gmail.com>
-References: <1320228610-18129-1-git-send-email-Barry.Song@csr.com>
- <20111102103904.GB4937@totoro> <20111102105210.GZ19187@n2100.arm.linux.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: 10-bit address support in i2c-omap and i2c-davinci
+Date: Mon, 7 Nov 2011 09:46:14 +0100
+Message-ID: <20111107094614.0062a3f7@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111102105210.GZ19187-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Jamie Iles <jamie-wmLquQDDieKakBO8gow8eQ@public.gmane.org>, Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Andy Green <andy.green-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2011/11/2 Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>:
-> On Wed, Nov 02, 2011 at 10:39:04AM +0000, Jamie Iles wrote:
->> > + =C2=A0 clk =3D clk_get(&pdev->dev, NULL);
->> > + =C2=A0 if (IS_ERR(clk)) {
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 err =3D PTR_ERR(clk);
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 dev_err(&pdev->dev, "Clock ge=
-t failed\n");
->> > + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto out;
->> > + =C2=A0 }
->> > +
->> > + =C2=A0 clk_enable(clk);
->>
->> The return value of clk_enable() should really be checked.
->
-> Now that the clk_prepare() patch has been enabled, new drivers should=
- be
-> written assuming that clk_prepare() will be necessary before clk_enab=
-le().
->
-> And one may query why it's not possible to use clk_enable()...clk_dis=
-able()
-> around the transfer itself, so the clock can be turned off while the =
-device
-> is idle. =C2=A0Obviously if its expecting to be operated in slave mod=
-e as well
-> then you may need to keep the clock enabled.
+Both bus drivers i2c-omap and i2c-davinci apparently handle 10-bit addresses:
 
-yes. we can have a clk_enable at the beginning of i2c_sirfsoc_xfer and
-clk_disable at the end.
-i need some tests to check the hardware is robust enough.
-actually, i can add runtime pm as well.
+(i2c-omap.c)
+	if (msg->flags & I2C_M_TEN)
+		w |= OMAP_I2C_CON_XA;
 
--barry
+(i2c-davinci.c)
+	/* if the slave address is ten bit address, enable XA bit */
+	if (msg->flags & I2C_M_TEN)
+		flag |= DAVINCI_I2C_MDR_XA;
+
+However neither driver declares functionality flag I2C_FUNC_10BIT_ADDR,
+so chip drivers would normally refuse to bind to these buses. If 10-bit
+address support is incomplete or broken then it should be removed
+completely. If it works then these drivers should declare so by adding
+I2C_FUNC_10BIT_ADDR to the functionality flags they return.
+
+-- 
+Jean Delvare
