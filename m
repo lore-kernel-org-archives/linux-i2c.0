@@ -1,35 +1,22 @@
-From: Kevin Hilman <khilman@ti.com>
-Subject: Re: 10-bit address support in i2c-omap and i2c-davinci
-Date: Mon, 07 Nov 2011 07:09:38 -0800
-Message-ID: <87hb2g0y19.fsf@ti.com>
-References: <20111107094614.0062a3f7@endymion.delvare>
+From: Hubert Feurstein <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V2] drivers/i2c/busses/i2c-at91.c: fix brokeness
+Date: Mon, 7 Nov 2011 17:36:39 +0100
+Message-ID: <CAFfN3gXdqb7aKF1MiE8XAbu=seTy+9Giqs5SZcMbF2rfoDmX_Q@mail.gmail.com>
+References: <alpine.DEB.2.00.1111071019560.21431@gatekeeper.vosshq.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20111107094614.0062a3f7@endymion.delvare> (Jean Delvare's
-	message of "Mon, 7 Nov 2011 09:46:14 +0100")
-Sender: linux-omap-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Ben Dooks <ben-linux@fluff.org>, Tony Lindgren <tony@atomide.com>, Andy Green <andy.green@linaro.org>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Linux I2C <linux-i2c@vger.kernel.org>, linux-omap@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <alpine.DEB.2.00.1111071019560.21431-vb1CFJ/PVqUnDeILM3HATdG/hX4sBvbD@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Adding linux-omap and linux-davinci lists
+Hi,
 
-Jean Delvare <khali@linux-fr.org> writes:
+sorry, but your patch still does not apply. You fixed the tab issue,
+but it seems that there are still some bad whitespaces left which
+corrupt your patch.
 
-> Both bus drivers i2c-omap and i2c-davinci apparently handle 10-bit addresses:
->
-> (i2c-omap.c)
-> 	if (msg->flags & I2C_M_TEN)
-> 		w |= OMAP_I2C_CON_XA;
->
-> (i2c-davinci.c)
-> 	/* if the slave address is ten bit address, enable XA bit */
-> 	if (msg->flags & I2C_M_TEN)
-> 		flag |= DAVINCI_I2C_MDR_XA;
->
-> However neither driver declares functionality flag I2C_FUNC_10BIT_ADDR,
-> so chip drivers would normally refuse to bind to these buses. If 10-bit
-> address support is incomplete or broken then it should be removed
-> completely. If it works then these drivers should declare so by adding
-> I2C_FUNC_10BIT_ADDR to the functionality flags they return.
+Regards
+Hubert
