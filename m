@@ -1,61 +1,57 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] Generate correct i2c address sequence for 10-bit
- target.
-Date: Mon, 7 Nov 2011 10:30:30 +0100
-Message-ID: <20111107103030.78ed7a28@endymion.delvare>
-References: <B6A520E9CD57404AAFC0831E4FB39541AE6855A097@IRVEXCHCCR02.corp.ad.broadcom.com>
+From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: RE: [PATCH V2] drivers/i2c/busses/i2c-at91.c: fix brokeness
+Date: Mon, 7 Nov 2011 11:01:27 +0100
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D087B38B21C@wm021.weinmann.com>
+References: <alpine.DEB.2.00.1111071019560.21431@gatekeeper.vosshq.de>
+ <20111107094701.GF4265@legolas.emea.dhcp.ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <B6A520E9CD57404AAFC0831E4FB39541AE6855A097-4wnuKdaqIVJdD26/7+am4baTQr+y5IJFqs7JOtOhHmkAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20111107094701.GF4265-UiBtZHVXSwEVvW8u9ZQWYwjfymiNCTlR@public.gmane.org>
+Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "'balbi-l0cyMroinI0@public.gmane.org'" <balbi-l0cyMroinI0@public.gmane.org>
+Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'>, "'nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "'plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org'" <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sheng-Hui,
+Hi,
 
-On Thu, 3 Nov 2011 12:15:12 -0700, Jeffrey (Sheng-Hui) Chu wrote:
-> From 31eb33a1b648f380db284a59d7fa5b4c1a321651 Mon Sep 17 00:00:00 2001
-> From: Sheng-Hui J. Chu <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> Date: Thu, 3 Nov 2011 14:24:06 -0400
-> Subject: [PATCH] Generate correct i2c address sequence for 10-bit target.
+> IMHO, you should split this patch into three or more smaller patches.
+> You're doing lots of different things in one commit and it'll be a pain to
+> bisect should this cause any issues to anyone.
+
+I didn't split the patch because it is virtually a complete rewrite.
+Due to the severe limitations of the old driver, I think it should
+replace the old driver.
+
+> > +/* -*- linux-c -*-
 > 
-> Signed-off-by: Sheng-Hui J. Chu <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> ---
->  drivers/i2c/algos/i2c-algo-bit.c |    4 ++--
->  1 files changed, 2 insertions(+), 2 deletions(-)
+> you shouldn't add this editor hooks to linux source files.
+
+Ok.
+
+
+> > -static int at91_i2c_resume(struct platform_device *pdev)
+> > +static int at91_i2c_resume(struct device *dev)
+> >  {
+> > -	return clk_enable(twi_clk);
+> > +	struct platform_device *pdev = to_platform_device(dev);
+> > +	struct at91_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
 > 
-> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-> index 85584a5..525c734 100644
-> --- a/drivers/i2c/algos/i2c-algo-bit.c
-> +++ b/drivers/i2c/algos/i2c-algo-bit.c
-> @@ -488,7 +488,7 @@ static int bit_doAddress(struct i2c_adapter *i2c_adap, struct i2c_msg *msg)
->  
->  	if (flags & I2C_M_TEN) {
->  		/* a ten bit address */
-> -		addr = 0xf0 | ((msg->addr >> 7) & 0x03);
-> +		addr = 0xf0 | ((msg->addr >> 7) & 0x06);
->  		bit_dbg(2, &i2c_adap->dev, "addr0: %d\n", addr);
->  		/* try extended address code...*/
->  		ret = try_address(i2c_adap, addr, retries);
-> @@ -498,7 +498,7 @@ static int bit_doAddress(struct i2c_adapter *i2c_adap, struct i2c_msg *msg)
->  			return -ENXIO;
->  		}
->  		/* the remaining 8 bit address */
-> -		ret = i2c_outb(i2c_adap, msg->addr & 0x7f);
-> +		ret = i2c_outb(i2c_adap, msg->addr & 0xff);
->  		if ((ret != 1) && !nak_ok) {
->  			/* the chip did not ack / xmission error occurred */
->  			dev_err(&i2c_adap->dev, "died at 2nd address code\n");
+> dev_get_drvdata(dev) will do the same of two above lines. You don't need to
+> fetch the platform_device...
 
-Applied, thanks. I wanted to apply it before, but couldn't retrieve it
-from bugzilla before it went down. Thanks for resending it.
+Ok.
 
-Note that i2c-core will need some adjustment to properly deal with
-7-bit and 10-bit addresses domains (their bus_id currently collide.)
-I'll post a proposal for this later today.
+> > -MODULE_AUTHOR("Rick Bronson");
+> > +MODULE_AUTHOR("Nikolaus Voss");
+> 
+> wow... are you sure ? Rick will always be the original author, no ?
 
--- 
-Jean Delvare
+Yes, of course, but I don't want to declare him responsible for my
+own mistakes. The new driver has almost nothing to do with the old.
+
+Thanks for your *very* fast reply and review.
+
+Niko
