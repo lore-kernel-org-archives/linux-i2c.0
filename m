@@ -1,8 +1,7 @@
 From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: [PATCH v8 7/7] i2c-at91: make ckdiv bug a property of the
- platform_device
-Date: Mon, 28 Nov 2011 12:12:05 +0100
-Message-ID: <92ee310a6e5161954d60357cd6f71993f6dad616.1322479017.git.n.voss@weinmann.de>
+Subject: [PATCH v8 3/7] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Tue, 8 Nov 2011 11:49:46 +0100
+Message-ID: <39afdf321bb2d34d572fabdc88d05e6e01e29ab8.1322479017.git.n.voss@weinmann.de>
 References: <cover.1322479017.git.n.voss@weinmann.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <cover.1322479017.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
@@ -11,230 +10,569 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCv
 Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The twi IP of AT91RM9200 has a bug which limits ckdiv to be
-less than or equal to 5. Previously, this was checked in the
-driver with cpu_is_rm9200(). This patch moves this information
-into the platform_device as suggested by Arnd Bergmann.
+This driver has the following properties compared to the old driver:
+1. Support for multiple interfaces.
+2. Interrupt driven I/O as opposed to polling/busy waiting.
+3. Support for _one_ repeated start (Sr) condition, which is enough
+   for most real-world applications including all SMBus transfer types.
+   (The hardware does not support issuing arbitrary Sr conditions on the
+    bus.)
+
+Tested on Atmel G45 with BQ20Z80 battery SMBus client.
 
 Signed-off-by: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 ---
- arch/arm/mach-at91/at91cap9_devices.c    |    9 +++++++++
- arch/arm/mach-at91/at91rm9200_devices.c  |    9 +++++++++
- arch/arm/mach-at91/at91sam9260_devices.c |    9 +++++++++
- arch/arm/mach-at91/at91sam9261_devices.c |    9 +++++++++
- arch/arm/mach-at91/at91sam9263_devices.c |    9 +++++++++
- arch/arm/mach-at91/at91sam9g45_devices.c |   10 ++++++++++
- arch/arm/mach-at91/at91sam9rl_devices.c  |    9 +++++++++
- drivers/i2c/busses/i2c-at91.c            |    7 ++++---
- 8 files changed, 68 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/Kconfig    |   11 +-
+ drivers/i2c/busses/Makefile   |    1 +
+ drivers/i2c/busses/i2c-at91.c |  412 +++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-at91.h |   80 ++++++++
+ 4 files changed, 497 insertions(+), 7 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-at91.c
+ create mode 100644 drivers/i2c/busses/i2c-at91.h
 
-diff --git a/arch/arm/mach-at91/at91cap9_devices.c b/arch/arm/mach-at91/at91cap9_devices.c
-index adad70d..495fd24 100644
---- a/arch/arm/mach-at91/at91cap9_devices.c
-+++ b/arch/arm/mach-at91/at91cap9_devices.c
-@@ -496,9 +496,18 @@ static struct resource twi_resources[] = {
- 	},
- };
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index a3afac4..2ef618d 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -285,18 +285,15 @@ comment "I2C system bus drivers (mostly embedded / system-on-chip)"
  
-+static const struct platform_device_id twi_id = {
-+	/*
-+	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-+	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-+	 */
-+	.driver_data	= 0,
-+};
-+
- static struct platform_device at91cap9_twi_device = {
- 	.name		= "at91_i2c",
- 	.id		= -1,
-+	.id_entry	= &twi_id,
- 	.resource	= twi_resources,
- 	.num_resources	= ARRAY_SIZE(twi_resources),
- };
-diff --git a/arch/arm/mach-at91/at91rm9200_devices.c b/arch/arm/mach-at91/at91rm9200_devices.c
-index 66591fa..8db7383 100644
---- a/arch/arm/mach-at91/at91rm9200_devices.c
-+++ b/arch/arm/mach-at91/at91rm9200_devices.c
-@@ -493,9 +493,18 @@ static struct resource twi_resources[] = {
- 	},
- };
+ config I2C_AT91
+ 	tristate "Atmel AT91 I2C Two-Wire interface (TWI)"
+-	depends on ARCH_AT91 && EXPERIMENTAL && BROKEN
++	depends on ARCH_AT91 && EXPERIMENTAL
+ 	help
+ 	  This supports the use of the I2C interface on Atmel AT91
+ 	  processors.
  
-+static const struct platform_device_id twi_id = {
-+	/*
-+	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-+	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-+	 */
-+	.driver_data	= 1,
-+};
-+
- static struct platform_device at91rm9200_twi_device = {
- 	.name		= "at91_i2c",
- 	.id		= -1,
-+	.id_entry	= &twi_id,
- 	.resource	= twi_resources,
- 	.num_resources	= ARRAY_SIZE(twi_resources),
- };
-diff --git a/arch/arm/mach-at91/at91sam9260_devices.c b/arch/arm/mach-at91/at91sam9260_devices.c
-index 25e3464..1e9a075 100644
---- a/arch/arm/mach-at91/at91sam9260_devices.c
-+++ b/arch/arm/mach-at91/at91sam9260_devices.c
-@@ -498,9 +498,18 @@ static struct resource twi_resources[] = {
- 	},
- };
+-	  This driver is BROKEN because the controller which it uses
+-	  will easily trigger RX overrun and TX underrun errors.  Using
+-	  low I2C clock rates may partially work around those issues
+-	  on some systems.  Another serious problem is that there is no
+-	  documented way to issue repeated START conditions, as needed
++	  A serious problem is that there is no documented way to issue
++	  repeated START conditions for more than two messages, as needed
+ 	  to support combined I2C messages.  Use the i2c-gpio driver
+-	  unless your system can cope with those limitations.
++	  unless your system can cope with this limitation.
  
-+static const struct platform_device_id twi_id = {
-+	/*
-+	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-+	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-+	 */
-+	.driver_data	= 0,
-+};
-+
- static struct platform_device at91sam9260_twi_device = {
- 	.name		= "at91_i2c",
- 	.id		= -1,
-+	.id_entry	= &twi_id,
- 	.resource	= twi_resources,
- 	.num_resources	= ARRAY_SIZE(twi_resources),
- };
-diff --git a/arch/arm/mach-at91/at91sam9261_devices.c b/arch/arm/mach-at91/at91sam9261_devices.c
-index ae78f4d..16f22b7 100644
---- a/arch/arm/mach-at91/at91sam9261_devices.c
-+++ b/arch/arm/mach-at91/at91sam9261_devices.c
-@@ -315,9 +315,18 @@ static struct resource twi_resources[] = {
- 	},
- };
+ config I2C_AU1550
+ 	tristate "Au1550/Au1200 SMBus interface"
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index e8a1852..fba6da6 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -28,6 +28,7 @@ obj-$(CONFIG_I2C_HYDRA)		+= i2c-hydra.o
+ obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
  
-+static const struct platform_device_id twi_id = {
-+	/*
-+	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-+	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-+	 */
-+	.driver_data	= 0,
-+};
-+
- static struct platform_device at91sam9261_twi_device = {
- 	.name		= "at91_i2c",
- 	.id		= -1,
-+	.id_entry	= &twi_id,
- 	.resource	= twi_resources,
- 	.num_resources	= ARRAY_SIZE(twi_resources),
- };
-diff --git a/arch/arm/mach-at91/at91sam9263_devices.c b/arch/arm/mach-at91/at91sam9263_devices.c
-index ad017eb..346d258 100644
---- a/arch/arm/mach-at91/at91sam9263_devices.c
-+++ b/arch/arm/mach-at91/at91sam9263_devices.c
-@@ -571,9 +571,18 @@ static struct resource twi_resources[] = {
- 	},
- };
- 
-+static const struct platform_device_id twi_id = {
-+	/*
-+	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-+	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-+	 */
-+	.driver_data	= 0,
-+};
-+
- static struct platform_device at91sam9263_twi_device = {
- 	.name		= "at91_i2c",
- 	.id		= -1,
-+	.id_entry	= &twi_id,
- 	.resource	= twi_resources,
- 	.num_resources	= ARRAY_SIZE(twi_resources),
- };
-diff --git a/arch/arm/mach-at91/at91sam9g45_devices.c b/arch/arm/mach-at91/at91sam9g45_devices.c
-index 8743b14..5916f0e 100644
---- a/arch/arm/mach-at91/at91sam9g45_devices.c
-+++ b/arch/arm/mach-at91/at91sam9g45_devices.c
-@@ -650,9 +650,18 @@ static struct resource twi0_resources[] = {
- 	},
- };
- 
-+static const struct platform_device_id twi_id = {
-+	/*
-+	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-+	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-+	 */
-+	.driver_data	= 0,
-+};
-+
- static struct platform_device at91sam9g45_twi0_device = {
- 	.name		= "at91_i2c",
- 	.id		= 0,
-+	.id_entry	= &twi_id,
- 	.resource	= twi0_resources,
- 	.num_resources	= ARRAY_SIZE(twi0_resources),
- };
-@@ -673,6 +682,7 @@ static struct resource twi1_resources[] = {
- static struct platform_device at91sam9g45_twi1_device = {
- 	.name		= "at91_i2c",
- 	.id		= 1,
-+	.id_entry	= &twi_id,
- 	.resource	= twi1_resources,
- 	.num_resources	= ARRAY_SIZE(twi1_resources),
- };
-diff --git a/arch/arm/mach-at91/at91sam9rl_devices.c b/arch/arm/mach-at91/at91sam9rl_devices.c
-index 628eb56..bec28b5 100644
---- a/arch/arm/mach-at91/at91sam9rl_devices.c
-+++ b/arch/arm/mach-at91/at91sam9rl_devices.c
-@@ -350,9 +350,18 @@ static struct resource twi_resources[] = {
- 	},
- };
- 
-+static const struct platform_device_id twi_id = {
-+	/*
-+	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-+	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-+	 */
-+	.driver_data	= 0,
-+};
-+
- static struct platform_device at91sam9rl_twi_device = {
- 	.name		= "at91_i2c",
- 	.id		= -1,
-+	.id_entry	= &twi_id,
- 	.resource	= twi_resources,
- 	.num_resources	= ARRAY_SIZE(twi_resources),
- };
+ # Embedded system I2C/SMBus host controller drivers
++obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
+ obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
+ obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
+ obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
 diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 34deef4..4364dd1 100644
---- a/drivers/i2c/busses/i2c-at91.c
+new file mode 100644
+index 0000000..1c9d329
+--- /dev/null
 +++ b/drivers/i2c/busses/i2c-at91.c
-@@ -27,8 +27,6 @@
- #include <linux/platform_device.h>
- #include <linux/slab.h>
- 
--#include <mach/cpu.h>
--
- #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
- #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
- 
-@@ -74,6 +72,7 @@ struct at91_twi_dev {
- 	int			irq;
- 	unsigned		transfer_status;
- 	struct i2c_adapter	adapter;
-+	bool			has_ckdiv_limit_bug;
- };
- 
- static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
-@@ -110,7 +109,7 @@ static void __devinit at91_set_twi_clock(struct at91_twi_dev *dev, int twi_clk)
- 	int ckdiv = fls(div >> 8);
- 	const int cdiv = div >> ckdiv;
- 
--	if (cpu_is_at91rm9200() && (ckdiv > 5)) {
-+	if (dev->has_ckdiv_limit_bug && (ckdiv > 5)) {
- 		dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
- 		ckdiv = 5;
- 	}
-@@ -314,6 +313,8 @@ static int __devinit at91_twi_probe(struct platform_device *pdev)
- 		goto err_release_region;
- 	}
- 
-+	dev->has_ckdiv_limit_bug = pdev->id_entry->driver_data == 1;
+@@ -0,0 +1,412 @@
++/*
++ *  i2c Support for Atmel's AT91 Two-Wire Interface (TWI)
++ *
++ *  Copyright (C) 2011 Weinmann Medical GmbH
++ *  Author: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
++ *
++ *  Evolved from original work by:
++ *  Copyright (C) 2004 Rick Bronson
++ *  Converted to 2.6 by Andrew Victor <andrew-eS41wJS13H5l57MIdRCFDg@public.gmane.org>
++ *
++ *  Borrowed heavily from original work by:
++ *  Copyright (C) 2000 Philip Edelbrock <phil-LT64U7CwzWEZMC/lefXSXFaTQe2KTcn/@public.gmane.org>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ */
 +
- 	init_completion(&dev->cmd_complete);
- 
- 	dev->dev = &pdev->dev;
++#include <linux/clk.h>
++#include <linux/completion.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++
++#include <mach/cpu.h>
++
++#include "i2c-at91.h"
++
++#define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
++#define AT91_I2C_TIMEOUT	msecs_to_jiffies(10)	/* transfer timeout */
++
++struct at91_twi_dev {
++	struct device		*dev;
++	void __iomem		*base;
++	struct completion	cmd_complete;
++	struct clk		*clk;
++	u8			*buf;
++	size_t			buf_len;
++	int			irq;
++	unsigned		transfer_status;
++	struct i2c_adapter	adapter;
++};
++
++static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
++{
++	return readl_relaxed(dev->base + reg);
++}
++
++static void at91_twi_write(struct at91_twi_dev *dev, unsigned reg, unsigned val)
++{
++	writel_relaxed(val, dev->base + reg);
++}
++
++static void at91_disable_twi_interrupts(struct at91_twi_dev *dev)
++{
++	at91_twi_write(dev, AT91_TWI_IDR,
++		       AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY);
++}
++
++static void at91_init_twi_bus(struct at91_twi_dev *dev)
++{
++	at91_disable_twi_interrupts(dev);
++	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_SWRST);
++	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_MSEN);
++	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_SVDIS);
++}
++
++/*
++ * Calculate and set symmetric clock as stated in datasheet:
++ * twi_clk = F_MAIN / (2 * cdiv * (1 << ckdiv) + 4)
++ */
++static void __devinit at91_set_twi_clock(struct at91_twi_dev *dev, int twi_clk)
++{
++	const int div = DIV_ROUND_UP(clk_get_rate(dev->clk), 2 * twi_clk) - 2;
++	int ckdiv = fls(div >> 8);
++	const int cdiv = div >> ckdiv;
++
++	if (cpu_is_at91rm9200() && (ckdiv > 5)) {
++		dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
++		ckdiv = 5;
++	}
++
++	at91_twi_write(dev, AT91_TWI_CWGR, (ckdiv << 16) | (cdiv << 8) | cdiv);
++}
++
++static void __devinit at91_twi_hwinit(struct at91_twi_dev *dev, int twi_clk)
++{
++	at91_init_twi_bus(dev);
++	at91_set_twi_clock(dev, twi_clk);
++}
++
++static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
++{
++	if (dev->buf_len <= 0)
++		return;
++
++	at91_twi_write(dev, AT91_TWI_THR, *dev->buf);
++
++	/* send stop when last byte has been written */
++	if (--dev->buf_len == 0)
++		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
++
++	dev_dbg(dev->dev, "wrote 0x%x, to go %d\n", *dev->buf, dev->buf_len);
++
++	++dev->buf;
++}
++
++static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
++{
++	*dev->buf = at91_twi_read(dev, AT91_TWI_RHR) & 0xff;
++
++	/* send stop if second but last byte has been read */
++	if (--dev->buf_len == 1)
++		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
++
++	dev_dbg(dev->dev, "read 0x%x, to go %d\n", *dev->buf, dev->buf_len);
++
++	++dev->buf;
++}
++
++static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
++{
++	struct at91_twi_dev *dev = dev_id;
++	const unsigned status = at91_twi_read(dev, AT91_TWI_SR);
++	const unsigned irqstatus = status & at91_twi_read(dev, AT91_TWI_IMR);
++
++	if (irqstatus & AT91_TWI_TXCOMP) {
++		at91_disable_twi_interrupts(dev);
++		dev->transfer_status = status;
++		complete(&dev->cmd_complete);
++	} else if (irqstatus & AT91_TWI_RXRDY) {
++		at91_twi_read_next_byte(dev);
++	} else if (irqstatus & AT91_TWI_TXRDY) {
++		at91_twi_write_next_byte(dev);
++	} else {
++		return IRQ_NONE;
++	}
++
++	return IRQ_HANDLED;
++}
++
++static int at91_do_twi_transfer(struct at91_twi_dev *dev, bool is_read)
++{
++	int ret;
++
++	INIT_COMPLETION(dev->cmd_complete);
++	if (is_read) {
++		if (dev->buf_len <= 1)
++			at91_twi_write(dev, AT91_TWI_CR,
++				       AT91_TWI_START | AT91_TWI_STOP);
++		else
++			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_START);
++		at91_twi_write(dev, AT91_TWI_IER,
++			       AT91_TWI_TXCOMP | AT91_TWI_RXRDY);
++	} else {
++		at91_twi_write_next_byte(dev);
++		at91_twi_write(dev, AT91_TWI_IER,
++			       AT91_TWI_TXCOMP | AT91_TWI_TXRDY);
++	}
++
++	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
++							dev->adapter.timeout);
++	if (ret == 0) {
++		dev_err(dev->dev, "controller timed out\n");
++		at91_init_twi_bus(dev);
++		return -ETIMEDOUT;
++	}
++	if (dev->transfer_status & AT91_TWI_NACK) {
++		dev_dbg(dev->dev, "received nack\n");
++		return -EREMOTEIO;
++	}
++	if (dev->transfer_status & AT91_TWI_OVRE) {
++		dev_err(dev->dev, "overrun while reading\n");
++		return -EIO;
++	}
++	dev_dbg(dev->dev, "transfer complete\n");
++
++	return 0;
++}
++
++static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
++{
++	struct at91_twi_dev *dev = i2c_get_adapdata(adap);
++	int ret;
++	unsigned int_addr_flag = 0;
++	struct i2c_msg *m_start = msg;
++
++	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
++
++	/*
++	 * The hardware can handle at most two messages concatenated by a
++	 * repeated start via it's internal address feature.
++	 */
++	if (num > 2) {
++		dev_err(dev->dev,
++			"cannot handle more than two concatenated messages.\n");
++		return 0;
++	} else if (num == 2) {
++		int internal_address = 0;
++		int i;
++
++		if (msg->flags & I2C_M_RD) {
++			dev_err(dev->dev, "first transfer must be write.\n");
++			return -EINVAL;
++		}
++		if (msg->len > 3) {
++			dev_err(dev->dev, "first message size must be <= 3.\n");
++			return -EINVAL;
++		}
++
++		/* 1st msg is put into the internal address, start with 2nd */
++		m_start = &msg[1];
++		for (i = 0; i < msg->len; ++i) {
++			const unsigned addr = msg->buf[msg->len - 1 - i];
++
++			internal_address |= addr << (8 * i);
++			int_addr_flag += AT91_TWI_IADRSZ_1;
++		}
++		at91_twi_write(dev, AT91_TWI_IADR, internal_address);
++	}
++
++	at91_twi_write(dev, AT91_TWI_MMR, (m_start->addr << 16) | int_addr_flag
++		       | ((m_start->flags & I2C_M_RD) ? AT91_TWI_MREAD : 0));
++
++	dev->buf_len = m_start->len;
++	dev->buf = m_start->buf;
++
++	ret = at91_do_twi_transfer(dev, m_start->flags & I2C_M_RD);
++	if (ret < 0)
++		return ret;
++
++	return num;
++}
++
++static u32 at91_twi_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static struct i2c_algorithm at91_twi_algorithm = {
++	.master_xfer	= at91_twi_xfer,
++	.functionality	= at91_twi_func,
++};
++
++static int __devinit at91_twi_probe(struct platform_device *pdev)
++{
++	struct at91_twi_dev *dev;
++	struct resource *mem, *ioarea;
++	int irq, rc;
++
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!mem)
++		return -ENODEV;
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0)
++		return irq;
++
++	ioarea = request_mem_region(mem->start, resource_size(mem), pdev->name);
++	if (!ioarea)
++		return -EBUSY;
++
++	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
++	if (!dev) {
++		rc = -ENOMEM;
++		goto err_release_region;
++	}
++
++	init_completion(&dev->cmd_complete);
++
++	dev->dev = &pdev->dev;
++	dev->irq = irq;
++	platform_set_drvdata(pdev, dev);
++
++	dev->clk = clk_get(dev->dev, NULL);
++	if (IS_ERR(dev->clk)) {
++		dev_err(dev->dev, "no clock defined\n");
++		rc = -ENODEV;
++		goto err_free_mem;
++	}
++	clk_prepare(dev->clk);
++	clk_enable(dev->clk);
++
++	dev->base = ioremap(mem->start, resource_size(mem));
++	if (!dev->base) {
++		rc = -EBUSY;
++		goto err_mem_ioremap;
++	}
++
++	at91_twi_hwinit(dev, TWI_CLK_HZ);
++
++	rc = request_irq(dev->irq, atmel_twi_interrupt, 0,
++			 dev_name(dev->dev), dev);
++	if (rc) {
++		dev_err(dev->dev, "Cannot get irq %d: %d\n", dev->irq, rc);
++		goto err_unuse_clocks;
++	}
++
++	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
++	i2c_set_adapdata(&dev->adapter, dev);
++	dev->adapter.owner = THIS_MODULE;
++	dev->adapter.class = I2C_CLASS_HWMON;
++	dev->adapter.algo = &at91_twi_algorithm;
++	dev->adapter.dev.parent = dev->dev;
++	dev->adapter.nr = pdev->id;
++	dev->adapter.timeout = AT91_I2C_TIMEOUT;
++
++	rc = i2c_add_numbered_adapter(&dev->adapter);
++	if (rc) {
++		dev_err(dev->dev, "Adapter %s registration failed\n",
++			dev->adapter.name);
++		goto err_free_irq;
++	}
++
++	dev_info(dev->dev, "AT91 i2c bus driver.\n");
++	return 0;
++
++err_free_irq:
++	free_irq(dev->irq, dev);
++err_unuse_clocks:
++	iounmap(dev->base);
++err_mem_ioremap:
++	clk_disable(dev->clk);
++	clk_put(dev->clk);
++err_free_mem:
++	kfree(dev);
++err_release_region:
++	release_mem_region(mem->start, resource_size(mem));
++
++	return rc;
++}
++
++static int __devexit at91_twi_remove(struct platform_device *pdev)
++{
++	struct at91_twi_dev *dev = platform_get_drvdata(pdev);
++	struct resource *mem;
++	int rc;
++
++	rc = i2c_del_adapter(&dev->adapter);
++	clk_disable(dev->clk);
++	clk_put(dev->clk);
++	free_irq(dev->irq, dev);
++	iounmap(dev->base);
++	kfree(dev);
++
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	release_mem_region(mem->start, resource_size(mem));
++
++	return rc;
++}
++
++#ifdef CONFIG_PM
++
++static int at91_twi_suspend(struct device *dev)
++{
++	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
++
++	clk_disable(twi_dev->clk);
++
++	return 0;
++}
++
++static int at91_twi_resume(struct device *dev)
++{
++	struct at91_twi_dev *twi_dev = dev_get_drvdata(dev);
++
++	return clk_enable(twi_dev->clk);
++}
++
++static const struct dev_pm_ops at91_twi_pm = {
++	.suspend	= at91_twi_suspend,
++	.resume		= at91_twi_resume,
++};
++
++#define at91_twi_pm_ops (&at91_twi_pm)
++#else
++#define at91_twi_pm_ops NULL
++#endif
++
++MODULE_ALIAS("platform:at91_i2c");
++
++static struct platform_driver at91_twi_driver = {
++	.probe		= at91_twi_probe,
++	.remove		= __devexit_p(at91_twi_remove),
++	.driver		= {
++		.name	= "at91_i2c",
++		.owner	= THIS_MODULE,
++		.pm	= at91_twi_pm_ops,
++	},
++};
++
++static int __init at91_twi_init(void)
++{
++	return platform_driver_register(&at91_twi_driver);
++}
++
++static void __exit at91_twi_exit(void)
++{
++	platform_driver_unregister(&at91_twi_driver);
++}
++
++module_init(at91_twi_init);
++module_exit(at91_twi_exit);
++
++MODULE_AUTHOR("Nikolaus Voss");
++MODULE_DESCRIPTION("I2C (TWI) driver for Atmel AT91");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+new file mode 100644
+index 0000000..a898159
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-at91.h
+@@ -0,0 +1,80 @@
++/*
++ * Copyright (C) 2005 Ivan Kokshaysky
++ * Copyright (C) SAN People
++ *
++ * Two-wire Interface (TWI) registers.
++ * Based on AT91RM9200 datasheet revision E.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++
++#ifndef AT91_TWI_H
++#define AT91_TWI_H
++
++#define	AT91_TWI_CR		0x00		/* Control Register */
++#define	AT91_TWI_START		(1 <<  0)	/* Send a Start Condition */
++#define	AT91_TWI_STOP		(1 <<  1)	/* Send a Stop Condition */
++#define	AT91_TWI_MSEN		(1 <<  2)	/* Master Transfer Enable */
++#define	AT91_TWI_MSDIS		(1 <<  3)	/* Master Transfer Disable */
++#define	AT91_TWI_SVEN		(1 <<  4)	/* Slave Transfer Enable
++						 *  [SAM9260 only] */
++#define	AT91_TWI_SVDIS		(1 <<  5)	/* Slave Transfer Disable
++						 *  [SAM9260 only] */
++#define	AT91_TWI_SWRST		(1 <<  7)	/* Software Reset */
++
++#define	AT91_TWI_MMR		0x04		/* Master Mode Register */
++#define	AT91_TWI_IADRSZ		(3    <<  8)	/* Internal Device Address
++						 *  Size */
++#define	AT91_TWI_IADRSZ_NO	(0 << 8)
++#define	AT91_TWI_IADRSZ_1	(1 << 8)
++#define	AT91_TWI_IADRSZ_2	(2 << 8)
++#define	AT91_TWI_IADRSZ_3	(3 << 8)
++#define	AT91_TWI_MREAD		(1    << 12)	/* Master Read Direction */
++#define	AT91_TWI_DADR		(0x7f << 16)	/* Device Address */
++
++#define	AT91_TWI_SMR		0x08		/* Slave Mode Register
++						 *  [SAM9260 only] */
++#define	AT91_TWI_SADR		(0x7f << 16)	/* Slave Address */
++
++#define	AT91_TWI_IADR		0x0c		/* Internal Address Register */
++
++#define	AT91_TWI_CWGR		0x10		/* Clock Waveform Generator
++						 *  Register */
++#define	AT91_TWI_CLDIV		(0xff <<  0)	/* Clock Low Divisor */
++#define	AT91_TWI_CHDIV		(0xff <<  8)	/* Clock High Divisor */
++#define	AT91_TWI_CKDIV		(7    << 16)	/* Clock Divider */
++
++#define	AT91_TWI_SR		0x20		/* Status Register */
++#define	AT91_TWI_TXCOMP		(1 <<  0)	/* Transmission Complete */
++#define	AT91_TWI_RXRDY		(1 <<  1)	/* Receive Holding Register
++						 *  Ready */
++#define	AT91_TWI_TXRDY		(1 <<  2)	/* Transmit Holding Register
++						 *  Ready */
++#define	AT91_TWI_SVREAD		(1 <<  3)	/* Slave Read [SAM9260 only] */
++#define	AT91_TWI_SVACC		(1 <<  4)	/* Slave Access
++						 *  [SAM9260 only] */
++#define	AT91_TWI_GACC		(1 <<  5)	/* General Call Access
++						 *  [SAM9260 only] */
++#define	AT91_TWI_OVRE		(1 <<  6)	/* Overrun Error
++						 *  [AT91RM9200 only] */
++#define	AT91_TWI_UNRE		(1 <<  7)	/* Underrun Error
++						 *  [AT91RM9200 only] */
++#define	AT91_TWI_NACK		(1 <<  8)	/* Not Acknowledged */
++#define	AT91_TWI_ARBLST		(1 <<  9)	/* Arbitration Lost
++						 *  [SAM9260 only] */
++#define	AT91_TWI_SCLWS		(1 << 10)	/* Clock Wait State
++						 *  [SAM9260 only] */
++#define	AT91_TWI_EOSACC		(1 << 11)	/* End of Slave Address
++						 *  [SAM9260 only] */
++
++#define	AT91_TWI_IER		0x24		/* Interrupt Enable Register */
++#define	AT91_TWI_IDR		0x28		/* Interrupt Disable Register */
++#define	AT91_TWI_IMR		0x2c		/* Interrupt Mask Register */
++#define	AT91_TWI_RHR		0x30		/* Receive Holding Register */
++#define	AT91_TWI_THR		0x34		/* Transmit Holding Register */
++
++#endif
++
 -- 
 1.7.5.4
