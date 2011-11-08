@@ -1,112 +1,39 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH V3 2/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Tue, 8 Nov 2011 21:58:55 +0200
-Message-ID: <20111108195854.GD24399@legolas.emea.dhcp.ti.com>
-References: <cover.1320753142.git.n.voss@weinmann.de>
- <7bdd6b456b0e055441cb25634c8cb6d483718f6c.1320753142.git.n.voss@weinmann.de>
- <20111108144115.GH20728@legolas.emea.dhcp.ti.com>
- <4EB9477E.8070002@atmel.com>
- <20111108152343.GJ20728@legolas.emea.dhcp.ti.com>
- <20111108182955.GH12913@n2100.arm.linux.org.uk>
- <20111108184447.GB24399@legolas.emea.dhcp.ti.com>
- <20111108185525.GI12913@n2100.arm.linux.org.uk>
- <20111108190200.GC24399@legolas.emea.dhcp.ti.com>
- <20111108193930.GJ12913@n2100.arm.linux.org.uk>
-Reply-To: balbi-l0cyMroinI0@public.gmane.org
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] OMAP4: I2C: Enable FIFO usage for OMAP4
+Date: Tue, 08 Nov 2011 12:01:38 -0800
+Message-ID: <8762iu1izh.fsf@ti.com>
+References: <1320333428-23532-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DrWhICOqskFTAXiy"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20111108193930.GJ12913-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+In-Reply-To: <1320333428-23532-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+	(Shubhrajyoti D.'s message of "Thu, 3 Nov 2011 20:47:08 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
++Ben Dooks
 
---DrWhICOqskFTAXiy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
 
-Hi,
+> Currently the fifo depth is set to zero for OMAP4 which disables
+> the FIFO usage. This patch enables the FIFO usage for I2C transactions
+> on OMAP4 also.
+>
+> Tested on omap4430 and 3430.
+>
+> Tested-and-Reported-by: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 
-On Tue, Nov 08, 2011 at 07:39:30PM +0000, Russell King - ARM Linux wrote:
-> But, that's something very different from your statement in your previous
-> message about my alleged stance on *all* asm/*.h includes in drivers,
-> which is FALSE.
+Acked-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
 
-http://marc.info/?l=3Dlinux-arm-kernel&m=3D132077795410718&w=3D2
+Ben, please queue as a fix for the v3.2-rc.  It applies cleanly to
+v3.2-rc1.
 
-I don't see me complaining about *all* headers anywhere in that message.
-I did generalize, but I didn't stated you were complaining about *all*
-headers. Go back and read it for yourself.
+If you prefer a branch:
+https://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap-pm.git for_3.2/fixes/i2c
 
-> > Now, all the other topics I agree and, in fact, have been pushing for
-> > that as I can. Specially with regards to IP cores being shared among
-> > several architectures (see drivers/usb/dwc3 where I have a core driver
-> > shared between ARM and PCI/x86).
->=20
-> Good, so you've just taken back most of what you said in your previous
-> message.
+Thanks,
 
-of course not... maybe you misunderstood me. My whole point was to avoid
-using cpu_is_* exactly because it would prevent this driver from
-compiling anywhere outside of ARM builds.
-
-here's where you chiped in:
-
-http://marc.info/?l=3Dlinux-kernel&m=3D132077706910296&w=3D2
-
-And a small quote:
-
-| On Tue, Nov 08, 2011 at 05:23:46PM +0200, Felipe Balbi wrote:
-| > On Tue, Nov 08, 2011 at 04:15:10PM +0100, Nicolas Ferre wrote:
-| > > -----BEGIN PGP SIGNED MESSAGE-----
-| > > Hash: SHA1
-| > >=20
-| > > On 11/08/2011 03:41 PM, Felipe Balbi :
-| > >=20
-| > > >> +	if (cpu_is_at91rm9200()) {			/*  AT91RM9200 Errata #22 */
-| > > >=20
-| > > > I don't think you should be using cpu_is_* on drivers.
-| > >=20
-| > > It is a common pattern in at91 drivers and has worked for ages.
-| > > Do you think it is related to the need to be able to compile the
-| > > driver for any SoC in the case of multi-SoC zImage support?
-| >=20
-| > we have drivers compiling on multiple OMAP versions without those
-| > hacks.
-| > Generally, we check the IP revision for that. Don't you have a
-| > Revision register of some sort ?
-
-You see ? I was asking $author to try and use some revision register in
-order to apply erratas instead of using cpu_is_at91rm9200().
-
---=20
-balbi
-
---DrWhICOqskFTAXiy
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJOuYn+AAoJEIaOsuA1yqREmpQQAJxm/v/PRk7H0O69Nq3Z45jj
-GjWNy2pcgHlWytkGoWEQzjYfz2anqowCRCRl4uABu5T/Uj/u6i+Mkf2CKDAK8nYM
-EIs0wfARPaOcdXxCL84g+XZRJGwzjQ5yx2uJJ/sJZJ7AlyuAMg52wiASThJzTzXZ
-filWw/k1EfOJc7C6+ReUCkkKkHvg54K7NpeNnGm6zIi70ZmVvXAtdz24wt9CwB/D
-y3vwxWO8ER+9SVaY3N0I8fnuWAmt2BrNhgOEYVbvNyNwHEZPYZVdYhOY91v2vk3h
-NtE5ZZ5YLRrC3KG1tNn/2AhyYDlbsrTJ0aJkmV8ebQ9dzuR9WzAn2v1jcfQu0LKl
-sjBCdlIoD/T4aBLLLee293MJOyDDh8falW6QeHn+h+b88tFa8/7JFFx3wpzYKdbh
-eR56v6kmirVIh3b7Z4IPrkNPm9nqawWNN29kQBnTXjSfMXGkjwyHDjbxWJsoFKdK
-EbrrWMC5cW5vJelqKUER7Kkb128m9EwjlK+xz4yjXyIze79vSlREDEDj+nrYICLf
-zcRcTFJ/bQc4XeXl9tX14RU+R+sjoPjVoc87r4myM2DT/jJ/QHYa8U1rkiG7Hwyp
-9Mg5HMGaUCdalQEAjV+R3F7/BeyqV9VjntbYkwdiy0gVB3wbLlsaXyPDV0lfEzA9
-Wv9tBi334ksMIC9p7+pz
-=3cwg
------END PGP SIGNATURE-----
-
---DrWhICOqskFTAXiy--
+Kevin
