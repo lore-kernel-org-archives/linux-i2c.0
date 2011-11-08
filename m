@@ -1,45 +1,113 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 Subject: Re: [PATCH V3 2/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Tue, 8 Nov 2011 18:29:55 +0000
-Message-ID: <20111108182955.GH12913@n2100.arm.linux.org.uk>
-References: <cover.1320753142.git.n.voss@weinmann.de> <7bdd6b456b0e055441cb25634c8cb6d483718f6c.1320753142.git.n.voss@weinmann.de> <20111108144115.GH20728@legolas.emea.dhcp.ti.com> <4EB9477E.8070002@atmel.com> <20111108152343.GJ20728@legolas.emea.dhcp.ti.com>
+Date: Tue, 8 Nov 2011 20:44:48 +0200
+Message-ID: <20111108184447.GB24399@legolas.emea.dhcp.ti.com>
+References: <cover.1320753142.git.n.voss@weinmann.de>
+ <7bdd6b456b0e055441cb25634c8cb6d483718f6c.1320753142.git.n.voss@weinmann.de>
+ <20111108144115.GH20728@legolas.emea.dhcp.ti.com>
+ <4EB9477E.8070002@atmel.com>
+ <20111108152343.GJ20728@legolas.emea.dhcp.ti.com>
+ <20111108182955.GH12913@n2100.arm.linux.org.uk>
+Reply-To: balbi-l0cyMroinI0@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20111108152343.GJ20728-UiBtZHVXSwEVvW8u9ZQWYwjfymiNCTlR@public.gmane.org>
+In-Reply-To: <20111108182955.GH12913-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Nov 08, 2011 at 05:23:46PM +0200, Felipe Balbi wrote:
-> On Tue, Nov 08, 2011 at 04:15:10PM +0100, Nicolas Ferre wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> > 
-> > On 11/08/2011 03:41 PM, Felipe Balbi :
-> > 
-> > >> +	if (cpu_is_at91rm9200()) {			/* AT91RM9200 Errata #22 */
-> > > 
-> > > I don't think you should be using cpu_is_* on drivers.
-> > 
-> > It is a common pattern in at91 drivers and has worked for ages.
-> > Do you think it is related to the need to be able to compile the
-> > driver for any SoC in the case of multi-SoC zImage support?
-> 
-> we have drivers compiling on multiple OMAP versions without those hacks.
-> Generally, we check the IP revision for that. Don't you have a Revision
-> register of some sort ?
 
-I'm not sure what your objection is - this is no different from what
-happens with OMAP when detecting OMAP1,2,3,4 etc.  E.g.:
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-drivers/mfd/twl-core.c:     if (cpu_is_omap2430())
-drivers/media/video/omap3isp/isp.c: if (cpu_is_omap3630())
-drivers/media/video/omap/omap_vout.c:               if (cpu_is_omap24xx() || cpu_is_omap34xx())
-drivers/media/video/omap/omap_voutlib.c:    if (cpu_is_omap24xx()) {
-drivers/media/video/omap/omap_voutlib.c:    } else if (cpu_is_omap34xx()) {
-drivers/media/video/omap/omap_voutlib.c:    if (cpu_is_omap24xx()) {
+hi,
 
-for a small selection.
+On Tue, Nov 08, 2011 at 06:29:55PM +0000, Russell King - ARM Linux wrote:
+> On Tue, Nov 08, 2011 at 05:23:46PM +0200, Felipe Balbi wrote:
+> > On Tue, Nov 08, 2011 at 04:15:10PM +0100, Nicolas Ferre wrote:
+> > > -----BEGIN PGP SIGNED MESSAGE-----
+> > > Hash: SHA1
+> > >=20
+> > > On 11/08/2011 03:41 PM, Felipe Balbi :
+> > >=20
+> > > >> +	if (cpu_is_at91rm9200()) {			/* AT91RM9200 Errata #22 */
+> > > >=20
+> > > > I don't think you should be using cpu_is_* on drivers.
+> > >=20
+> > > It is a common pattern in at91 drivers and has worked for ages.
+> > > Do you think it is related to the need to be able to compile the
+> > > driver for any SoC in the case of multi-SoC zImage support?
+> >=20
+> > we have drivers compiling on multiple OMAP versions without those hacks.
+> > Generally, we check the IP revision for that. Don't you have a Revision
+> > register of some sort ?
+>=20
+> I'm not sure what your objection is - this is no different from what
+> happens with OMAP when detecting OMAP1,2,3,4 etc.  E.g.:
+
+so ? Instead of saying this to me, you should contact the
+authors/maintainers of those drivers and ask them to clean that up.
+
+Moreover, just because there are a bunch of drivers with such silly
+mistakes, is it really enough argument to perpetuate the problem ?
+
+You were (actually still is) one of the biggest source of complaints for
+drivers using <mach/*> and <asm/*> includes and now you're changing your
+mind ?
+
+Also, instead of taking bad examples take the ones which are activelly
+improving with regards to those details. I have been fighting against
+those on the USB drivers, at least. And, except for
+drivers/usb/musb/davinci.c you won't find those on MUSB driver or its
+glue layers. Similarly, I have been asking all USB Peripheral Controller
+drivers to make their driver buildable on all arches, which will get rid
+of bad usage of <mach/*> and <asm/*> headers while also allowing for a
+better coverage of compile tests on linux-next.
+
+Now, if you really think those aren't problematic, refrain from
+complaining next time someone adds a machine_is_* or cpu_is_* check on a
+driver.
+
+> drivers/mfd/twl-core.c:     if (cpu_is_omap2430())
+> drivers/media/video/omap3isp/isp.c: if (cpu_is_omap3630())
+> drivers/media/video/omap/omap_vout.c:               if (cpu_is_omap24xx()=
+ || cpu_is_omap34xx())
+> drivers/media/video/omap/omap_voutlib.c:    if (cpu_is_omap24xx()) {
+> drivers/media/video/omap/omap_voutlib.c:    } else if (cpu_is_omap34xx())=
+ {
+> drivers/media/video/omap/omap_voutlib.c:    if (cpu_is_omap24xx()) {
+
+at least vout and voutlib haven't been touched since january.
+
+--=20
+balbi
+
+--rJwd6BRFiFCcLxzm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJOuXifAAoJEIaOsuA1yqREC74QAJgD975RQCu8+AeTtyJZ+YJ5
+flt8iPjNuzb1WC+8P+w3P+oMQv0A5p5GnsnEbLuWDGqbu+VdEjc+/GkcVyRyMvyp
+Uv7GsNgdcK3wKTf1FRu2zOxFwkNxUOfrHVaClNneJozQoUGy8Z9PrtpktrhjmdkN
+qwAAB3njFfUYnxMkIDYSVutujAs88Qpuejsm75JpWWXdvm7IVPgRZv1AZu9wQhbW
+Yer92nU5cYb6pvLmWzXkaarFkoOtJYgEljbHJf6WighSBCqZHB+72/s2NUhBVPsb
+iIH/cYWddd3pIPWBktZwCNzQvodJKydMVFyOftAsaKbjtn95JrCbWXYeJCX/LGWt
+SR0Ndwp3yybcfMLwEhzM0JjLoPaqb/kHJCBS2FZdqNSbdEQnDg7hxW3P2tJ292hw
+wRNt/X5KHR2g/xWZdG5lBuLxSWcdqybpf6QFqlhW8ae7YImtb/YbfG6stcuQkKlj
+MvaVjLDYeNfnIiVyJs59cfilB5bMTYiPAp71d9t2jNTTzaqA6OeqJCOaKAEbBZ1y
+81XE/B46lCRAGnDRsn8l1OFdGZhaNyS33S75MSruKw+b7LGzqLkVv5dJhCF0AXVP
+2YF8qNOqp4IkaU0996UoyI6dvCW/TbSQ+lojNm9JkOgVJ1GT1nj8OZJaHJ7REDuH
+CQBnTIBnOXW5s7b2xT0Y
+=MhnF
+-----END PGP SIGNATURE-----
+
+--rJwd6BRFiFCcLxzm--
