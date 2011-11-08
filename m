@@ -1,51 +1,46 @@
-From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: [PATCH v11 0/4] AT91: replace old i2c-at91.c TWI driver
-Date: Wed, 29 Aug 2012 09:28:41 +0200
-Message-ID: <cover.1346225321.git.n.voss@weinmann.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adrian.yanes-uOixanVlb7U@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org
+From: Nikolaus Voss <n.voss@weinmann.de>
+Subject: [PATCH v11 4/4] G45 TWI: remove open drain setting for twi function
+ gpios
+Date: Tue, 8 Nov 2011 12:11:03 +0100
+Message-ID: <b56adb1bfd2c2188d759ee9cbd5f38208e561667.1346225321.git.n.voss@weinmann.de>
+References: <cover.1346225321.git.n.voss@weinmann.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1346225321.git.n.voss@weinmann.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: nicolas.ferre@atmel.com, ben-linux@fluff.org, balbi@ti.com, h.feurstein@gmail.com, rmallon@gmail.com, adrian.yanes@aalto.fi, ludovic.desroches@atmel.com, carsten.behling@garz-fricke.com
 List-Id: linux-i2c@vger.kernel.org
 
-The old driver has two main deficencies:
-i)  No repeated start (Sr) condiction is possible, this makes it unusable
-    e.g. for most SMBus transfers.
-ii) I/O was done with polling/busy waiting what caused over-/underruns
-    even at light system loads and clock speeds.
+The G45 datasheets explicitly states that setting the open drain property
+on peripheral function gpios is not allowed. (How about other A91 chips?)
 
-The new driver overcomes these deficencies and in addition allows for
-more than one TWI interface.
+Signed-off-by: Nikolaus Voss <n.voss@weinmann.de>
+---
+ arch/arm/mach-at91/at91sam9g45_devices.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
-A remaining limitation is the fact, that only one repeated start is
-possible (two concatenated messages). This limitation is imposed by
-the hardware. However, this should not be a problem as all common
-i2c-client communication does not rely on more than one repeated start.
-
-Changes since v11:
-- corrected wrong id_entry on sam9261 twi gpio pdev
-
-Nikolaus Voss (4):
-  drivers/i2c/busses/i2c-at91.c: remove old polling driver
-  Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
-  drivers/i2c/busses/i2c-at91.c: add new driver
-  G45 TWI: remove open drain setting for twi function gpios
-
- arch/arm/mach-at91/at91rm9200.c            |    1 +
- arch/arm/mach-at91/at91rm9200_devices.c    |    9 +
- arch/arm/mach-at91/at91sam9260.c           |    1 +
- arch/arm/mach-at91/at91sam9261.c           |    1 +
- arch/arm/mach-at91/at91sam9261_devices.c   |    9 +
- arch/arm/mach-at91/at91sam9263.c           |    1 +
- arch/arm/mach-at91/at91sam9g45.c           |    2 +
- arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
- arch/arm/mach-at91/at91sam9rl.c            |    2 +
- arch/arm/mach-at91/at91sam9x5.c            |    3 +
- arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
- drivers/i2c/busses/Kconfig                 |   11 +-
- drivers/i2c/busses/i2c-at91.c              |  591 ++++++++++++++++++----------
- 13 files changed, 418 insertions(+), 287 deletions(-)
- delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
-
+diff --git a/arch/arm/mach-at91/at91sam9g45_devices.c b/arch/arm/mach-at91/at91sam9g45_devices.c
+index eec5eb6..2134663 100644
+--- a/arch/arm/mach-at91/at91sam9g45_devices.c
++++ b/arch/arm/mach-at91/at91sam9g45_devices.c
+@@ -686,18 +686,12 @@ void __init at91_add_device_i2c(short i2c_id, struct i2c_board_info *devices, in
+ 	/* pins used for TWI interface */
+ 	if (i2c_id == 0) {
+ 		at91_set_A_periph(AT91_PIN_PA20, 0);		/* TWD */
+-		at91_set_multi_drive(AT91_PIN_PA20, 1);
+-
+ 		at91_set_A_periph(AT91_PIN_PA21, 0);		/* TWCK */
+-		at91_set_multi_drive(AT91_PIN_PA21, 1);
+ 
+ 		platform_device_register(&at91sam9g45_twi0_device);
+ 	} else {
+ 		at91_set_A_periph(AT91_PIN_PB10, 0);		/* TWD */
+-		at91_set_multi_drive(AT91_PIN_PB10, 1);
+-
+ 		at91_set_A_periph(AT91_PIN_PB11, 0);		/* TWCK */
+-		at91_set_multi_drive(AT91_PIN_PB11, 1);
+ 
+ 		platform_device_register(&at91sam9g45_twi1_device);
+ 	}
 -- 
 1.7.9.5
