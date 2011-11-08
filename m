@@ -1,49 +1,47 @@
-From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: [PATCH v4 0/4] AT91: replace broken TWI driver i2c-at91.c
-Date: Wed, 9 Nov 2011 16:52:01 +0100
-Message-ID: <cover.1320853921.git.n.voss@weinmann.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org
+From: Nikolaus Voss <n.voss@weinmann.de>
+Subject: [PATCH v4 4/4] Add lookup entries for twi_clk for devices with more
+ than one TWI port
+Date: Tue, 8 Nov 2011 12:09:30 +0100
+Message-ID: <69bc65e1b8f367175d211002042a24895f87b1ee.1320853921.git.n.voss@weinmann.de>
+References: <cover.1320853921.git.n.voss@weinmann.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1320853921.git.n.voss@weinmann.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: ben-linux@fluff.org, khali@linux-fr.org, nicolas.ferre@atmel.com, rmallon@gmail.com, balbi@ti.com
 List-Id: linux-i2c@vger.kernel.org
 
-The old driver has two main deficencies:
-i)  No repeated start (Sr) condiction is possible, this makes it unusable
-    e.g. for most SMBus transfers.
-ii) I/O was done with polling/busy waiting what caused over-/underruns
-    even at light system loads and clock speeds.
+Signed-off-by: Nikolaus Voss <n.voss@weinmann.de>
+---
+ arch/arm/mach-at91/at91sam9g45.c |    2 ++
+ arch/arm/mach-at91/at91sam9rl.c  |    2 ++
+ 2 files changed, 4 insertions(+), 0 deletions(-)
 
-The new driver overcomes these deficencies and in addition allows for
-more than one TWI interface.
-
-A remaining limitation is the fact, that only one repeated start is
-possible (two concatenated messages). This limitation is imposed by
-the hardware. However, this should not be a problem as all common
-i2c-client communication does not rely on more than one repeated start.
-
-v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
-    Moved register include file to local include, code cleanups
-v3: Integrated review comments from Ryan Mallon and Felipe Balbi
-v2: Fixed whitespace issue
-
-Nikolaus Voss (4):
-  drivers/i2c/busses/i2c-at91.c: remove broken driver
-  drivers/i2c/busses/i2c-at91.c: add new driver
-  G45 TWI: remove open drain setting for twi function gpios
-  Add lookup entries for twi_clk for devices with more than one TWI
-    port
-
- arch/arm/mach-at91/at91sam9g45.c           |    2 +
- arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
- arch/arm/mach-at91/at91sam9rl.c            |    2 +
- arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
- drivers/i2c/busses/Kconfig                 |   11 +-
- drivers/i2c/busses/i2c-at91.c              |  476 +++++++++++++++++-----------
- drivers/i2c/busses/i2c-at91.h              |   80 +++++
- 7 files changed, 371 insertions(+), 274 deletions(-)
- delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
- create mode 100644 drivers/i2c/busses/i2c-at91.h
-
+diff --git a/arch/arm/mach-at91/at91sam9g45.c b/arch/arm/mach-at91/at91sam9g45.c
+index 318b040..a374899 100644
+--- a/arch/arm/mach-at91/at91sam9g45.c
++++ b/arch/arm/mach-at91/at91sam9g45.c
+@@ -220,6 +220,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.1", &spi1_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb0_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.1", &tcb0_clk),
++	CLKDEV_CON_DEV_ID("twi_clk", "at91_i2c.0", &twi0_clk),
++	CLKDEV_CON_DEV_ID("twi_clk", "at91_i2c.1", &twi1_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "atmel-trng", &trng_clk),
+diff --git a/arch/arm/mach-at91/at91sam9rl.c b/arch/arm/mach-at91/at91sam9rl.c
+index a238105..ab81223 100644
+--- a/arch/arm/mach-at91/at91sam9rl.c
++++ b/arch/arm/mach-at91/at91sam9rl.c
+@@ -184,6 +184,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t2_clk", "atmel_tcb.0", &tc2_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
++	CLKDEV_CON_DEV_ID("twi_clk", "at91_i2c.0", &twi0_clk),
++	CLKDEV_CON_DEV_ID("twi_clk", "at91_i2c.1", &twi1_clk),
+ };
+ 
+ static struct clk_lookup usart_clocks_lookups[] = {
 -- 
 1.7.5.4
