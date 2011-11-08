@@ -1,320 +1,115 @@
-From: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
-Subject: [PATCH v5] i2c: Add device tree support to i2c-pnx.c
-Date: Fri, 20 Apr 2012 11:22:35 +0200
-Message-ID: <1334913755-10466-1-git-send-email-stigge@antcom.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org
-Cc: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: [PATCH v10 2/4] Replace clk_lookup.con_id with clk_lookup.dev_id entries
+ for twi clk
+Date: Tue, 8 Nov 2011 12:09:30 +0100
+Message-ID: <b9d32fc38e2e1c3ec21f402f3b8967b136e7a0ff.1334916810.git.n.voss@weinmann.de>
+References: <cover.1334916810.git.n.voss@weinmann.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1334916810.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adrian.yanes-uOixanVlb7U@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds device tree support to the pnx-i2c driver by using platform
-resources for memory region and irq and removing dependency on mach includes.
+The old driver used con_id clock entries. Convert to use dev_id
+for clock lookup via standard method.
 
-The following platforms are affected:
-
-* PNX
-* LPC31xx (WIP)
-* LPC32xx
-
-The patch is based on a patch by Jon Smirl, working on lpc31xx integration
-
-Signed-off-by: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
-Reviewed-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
+Signed-off-by: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
 ---
+ arch/arm/mach-at91/at91cap9.c    |    1 +
+ arch/arm/mach-at91/at91rm9200.c  |    1 +
+ arch/arm/mach-at91/at91sam9260.c |    1 +
+ arch/arm/mach-at91/at91sam9261.c |    1 +
+ arch/arm/mach-at91/at91sam9263.c |    1 +
+ arch/arm/mach-at91/at91sam9g45.c |    2 ++
+ arch/arm/mach-at91/at91sam9rl.c  |    2 ++
+ 7 files changed, 9 insertions(+), 0 deletions(-)
 
-Applies to v3.4-rc3 + already applied i2c-pnx.c patches from this series
-
-NOTE: I separated out this patch from the first patch series of the LPC32xx
-device tree conversion because most of those patches are already applied to
--next. This is the last patch of this first series, a precondition for the
-LPC32xx device tree switch.
-
-Changes since v4:
-* Removed OF timeout property (to be added later when there is consensus about
-  how to call and handle it)
-* Changed clock-frequency example to decimal
-
- Documentation/devicetree/bindings/i2c/pnx.txt |   38 +++++++++++++
- drivers/i2c/busses/i2c-pnx.c                  |   71 +++++++++++++++++++-------
- include/linux/i2c-pnx.h                       |    1 
- 3 files changed, 93 insertions(+), 17 deletions(-)
-
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/i2c/pnx.txt
-@@ -0,0 +1,38 @@
-+* NXP PNX I2C Controller
-+
-+Required properties:
-+
-+ - reg: Offset and length of the register set for the device
-+ - compatible: should be "nxp,pnx-i2c"
-+ - interrupts: configure one interrupt line
-+ - #address-cells: always 1 (for i2c addresses)
-+ - #size-cells: always 0
-+ - interrupt-parent: the phandle for the interrupt controller that
-+   services interrupts for this device.
-+
-+Optional properties:
-+
-+ - clock-frequency: desired I2C bus clock frequency in Hz, Default: 100000 Hz
-+ - slave-addr: Address used by the controller, Hardware default: 0x6e
-+
-+Examples:
-+
-+	i2c1: i2c@400a0000 {
-+		compatible = "nxp,pnx-i2c";
-+		reg = <0x400a0000 0x100>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <51 0>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+	};
-+
-+	i2c2: i2c@400a8000 {
-+		compatible = "nxp,pnx-i2c";
-+		reg = <0x400a8000 0x100>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <50 0>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clock-frequency = <100000>;
-+		slave-addr = <0x11>;
-+	};
---- linux-2.6.orig/drivers/i2c/busses/i2c-pnx.c
-+++ linux-2.6/drivers/i2c/busses/i2c-pnx.c
-@@ -23,10 +23,11 @@
- #include <linux/err.h>
- #include <linux/clk.h>
- #include <linux/slab.h>
-+#include <linux/of_i2c.h>
- 
--#define I2C_PNX_TIMEOUT		10 /* msec */
--#define I2C_PNX_SPEED_KHZ	100
--#define I2C_PNX_REGION_SIZE	0x100
-+#define I2C_PNX_TIMEOUT_DEFAULT		10 /* msec */
-+#define I2C_PNX_SPEED_KHZ_DEFAULT	100
-+#define I2C_PNX_REGION_SIZE		0x100
- 
- enum {
- 	mstatus_tdi = 0x00000001,
-@@ -74,8 +75,9 @@ enum {
- #define I2C_REG_TXS(a)	((a)->ioaddr + 0x28)	/* Tx slave FIFO (RO) */
- #define I2C_REG_STFL(a)	((a)->ioaddr + 0x2c)	/* Tx slave FIFO level (RO) */
- 
--static inline int wait_timeout(long timeout, struct i2c_pnx_algo_data *data)
-+static inline int wait_timeout(struct i2c_pnx_algo_data *data)
- {
-+	long timeout = data->timeout;
- 	while (timeout > 0 &&
- 			(ioread32(I2C_REG_STS(data)) & mstatus_active)) {
- 		mdelay(1);
-@@ -84,8 +86,9 @@ static inline int wait_timeout(long time
- 	return (timeout <= 0);
- }
- 
--static inline int wait_reset(long timeout, struct i2c_pnx_algo_data *data)
-+static inline int wait_reset(struct i2c_pnx_algo_data *data)
- {
-+	long timeout = data->timeout;
- 	while (timeout > 0 &&
- 			(ioread32(I2C_REG_CTL(data)) & mcntrl_reset)) {
- 		mdelay(1);
-@@ -97,7 +100,7 @@ static inline int wait_reset(long timeou
- static inline void i2c_pnx_arm_timer(struct i2c_pnx_algo_data *alg_data)
- {
- 	struct timer_list *timer = &alg_data->mif.timer;
--	unsigned long expires = msecs_to_jiffies(I2C_PNX_TIMEOUT);
-+	unsigned long expires = msecs_to_jiffies(alg_data->timeout);
- 
- 	if (expires <= 1)
- 		expires = 2;
-@@ -135,7 +138,7 @@ static int i2c_pnx_start(unsigned char s
- 	}
- 
- 	/* First, make sure bus is idle */
--	if (wait_timeout(I2C_PNX_TIMEOUT, alg_data)) {
-+	if (wait_timeout(alg_data)) {
- 		/* Somebody else is monopolizing the bus */
- 		dev_err(&alg_data->adapter.dev,
- 			"%s: Bus busy. Slave addr = %02x, cntrl = %x, stat = %x\n",
-@@ -228,7 +231,7 @@ static int i2c_pnx_master_xmit(struct i2
- 		if (alg_data->mif.len == 0) {
- 			if (alg_data->last) {
- 				/* Wait until the STOP is seen. */
--				if (wait_timeout(I2C_PNX_TIMEOUT, alg_data))
-+				if (wait_timeout(alg_data))
- 					dev_err(&alg_data->adapter.dev,
- 						"The bus is still active after timeout\n");
- 			}
-@@ -326,7 +329,7 @@ static int i2c_pnx_master_rcv(struct i2c
- 		if (alg_data->mif.len == 0) {
- 			if (alg_data->last)
- 				/* Wait until the STOP is seen. */
--				if (wait_timeout(I2C_PNX_TIMEOUT, alg_data))
-+				if (wait_timeout(alg_data))
- 					dev_err(&alg_data->adapter.dev,
- 						"The bus is still active after timeout\n");
- 
-@@ -442,7 +445,7 @@ static void i2c_pnx_timeout(unsigned lon
- 
- 	ctl |= mcntrl_reset;
- 	iowrite32(ctl, I2C_REG_CTL(alg_data));
--	wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+	wait_reset(alg_data);
- 	alg_data->mif.ret = -EIO;
- 	complete(&alg_data->mif.complete);
- }
-@@ -457,18 +460,18 @@ static inline void bus_reset_if_active(s
- 			alg_data->adapter.name);
- 		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_reset,
- 			  I2C_REG_CTL(alg_data));
--		wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+		wait_reset(alg_data);
- 	} else if (!(stat & mstatus_rfe) || !(stat & mstatus_tfe)) {
- 		/* If there is data in the fifo's after transfer,
- 		 * flush fifo's by reset.
- 		 */
- 		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_reset,
- 			  I2C_REG_CTL(alg_data));
--		wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+		wait_reset(alg_data);
- 	} else if (stat & mstatus_nai) {
- 		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_reset,
- 			  I2C_REG_CTL(alg_data));
--		wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+		wait_reset(alg_data);
- 	}
- }
- 
-@@ -612,6 +615,8 @@ static int __devinit i2c_pnx_probe(struc
- 	struct i2c_pnx_algo_data *alg_data;
- 	unsigned long freq;
- 	struct resource *res;
-+	u32 speed = I2C_PNX_SPEED_KHZ_DEFAULT * 1000;
-+	u32 slave_addr = ~0;
- 
- 	alg_data = kzalloc(sizeof(*alg_data), GFP_KERNEL);
- 	if (!alg_data) {
-@@ -626,6 +631,24 @@ static int __devinit i2c_pnx_probe(struc
- 	alg_data->adapter.algo_data = alg_data;
- 	alg_data->adapter.nr = pdev->id;
- 
-+	alg_data->timeout = I2C_PNX_TIMEOUT_DEFAULT;
-+#ifdef CONFIG_OF
-+	alg_data->adapter.dev.of_node = of_node_get(pdev->dev.of_node);
-+	if (pdev->dev.of_node) {
-+		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-+				     &speed);
-+		of_property_read_u32(pdev->dev.of_node, "slave-addr",
-+				     &slave_addr);
-+		/*
-+		 * At this point, it is planned to add an OF timeout property.
-+		 * As soon as there is a consensus about how to call and handle
-+		 * this, sth. like the following can be put here:
-+		 *
-+		 * of_property_read_u32(pdev->dev.of_node, "timeout",
-+		 *                      &alg_data->timeout);
-+		 */
-+	}
-+#endif
- 	alg_data->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(alg_data->clk)) {
- 		ret = PTR_ERR(alg_data->clk);
-@@ -651,7 +674,7 @@ static int __devinit i2c_pnx_probe(struc
- 		dev_err(&pdev->dev,
- 		       "I/O region 0x%08x for I2C already in use.\n",
- 		       res->start);
--		ret = -ENODEV;
-+		ret = -ENOMEM;
- 		goto out_clkget;
- 	}
- 
-@@ -667,6 +690,9 @@ static int __devinit i2c_pnx_probe(struc
- 	if (ret)
- 		goto out_unmap;
- 
-+	if (slave_addr != ~0)
-+		iowrite32(slave_addr, I2C_REG_ADR(alg_data));
-+
- 	freq = clk_get_rate(alg_data->clk);
- 
- 	/*
-@@ -680,14 +706,14 @@ static int __devinit i2c_pnx_probe(struc
- 	 * the deglitching filter length.
- 	 */
- 
--	tmp = ((freq / 1000) / I2C_PNX_SPEED_KHZ) / 2 - 2;
-+	tmp = (freq / speed) / 2 - 2;
- 	if (tmp > 0x3FF)
- 		tmp = 0x3FF;
- 	iowrite32(tmp, I2C_REG_CKH(alg_data));
- 	iowrite32(tmp, I2C_REG_CKL(alg_data));
- 
- 	iowrite32(mcntrl_reset, I2C_REG_CTL(alg_data));
--	if (wait_reset(I2C_PNX_TIMEOUT, alg_data)) {
-+	if (wait_reset(alg_data)) {
- 		ret = -ENODEV;
- 		goto out_clock;
- 	}
-@@ -699,7 +725,7 @@ static int __devinit i2c_pnx_probe(struc
- 		goto out_irq;
- 	}
- 	ret = request_irq(alg_data->irq, i2c_pnx_interrupt,
--			0, pdev->name, alg_data);
-+			  0, pdev->name, alg_data);
- 	if (ret)
- 		goto out_clock;
- 
-@@ -710,6 +736,8 @@ static int __devinit i2c_pnx_probe(struc
- 		goto out_irq;
- 	}
- 
-+	of_i2c_register_devices(&alg_data->adapter);
-+
- 	dev_dbg(&pdev->dev, "%s: Master at %#8x, irq %d.\n",
- 		alg_data->adapter.name, res->start, alg_data->irq);
- 
-@@ -748,10 +776,19 @@ static int __devexit i2c_pnx_remove(stru
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id i2c_pnx_of_match[] = {
-+	{ .compatible = "nxp,pnx-i2c" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, i2c_pnx_of_match);
-+#endif
-+
- static struct platform_driver i2c_pnx_driver = {
- 	.driver = {
- 		.name = "pnx-i2c",
- 		.owner = THIS_MODULE,
-+		.of_match_table = of_match_ptr(i2c_pnx_of_match),
- 	},
- 	.probe = i2c_pnx_probe,
- 	.remove = __devexit_p(i2c_pnx_remove),
---- linux-2.6.orig/include/linux/i2c-pnx.h
-+++ linux-2.6/include/linux/i2c-pnx.h
-@@ -32,6 +32,7 @@ struct i2c_pnx_algo_data {
- 	struct i2c_adapter	adapter;
- 	phys_addr_t		base;
- 	int			irq;
-+	u32			timeout;
- };
- 
- #endif /* __I2C_PNX_H__ */
+diff --git a/arch/arm/mach-at91/at91cap9.c b/arch/arm/mach-at91/at91cap9.c
+index a42edc2..676d6cf 100644
+--- a/arch/arm/mach-at91/at91cap9.c
++++ b/arch/arm/mach-at91/at91cap9.c
+@@ -219,6 +219,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioABCD_clk),
+diff --git a/arch/arm/mach-at91/at91rm9200.c b/arch/arm/mach-at91/at91rm9200.c
+index 99c3174..7c597e5 100644
+--- a/arch/arm/mach-at91/at91rm9200.c
++++ b/arch/arm/mach-at91/at91rm9200.c
+@@ -194,6 +194,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.2", &ssc2_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+diff --git a/arch/arm/mach-at91/at91sam9260.c b/arch/arm/mach-at91/at91sam9260.c
+index d4036ba..e21a3dc 100644
+--- a/arch/arm/mach-at91/at91sam9260.c
++++ b/arch/arm/mach-at91/at91sam9260.c
+@@ -200,6 +200,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t1_clk", "atmel_tcb.1", &tc4_clk),
+ 	CLKDEV_CON_DEV_ID("t2_clk", "atmel_tcb.1", &tc5_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* more usart lookup table for DT entries */
+ 	CLKDEV_CON_DEV_ID("usart", "fffff200.serial", &mck),
+ 	CLKDEV_CON_DEV_ID("usart", "fffb0000.serial", &usart0_clk),
+diff --git a/arch/arm/mach-at91/at91sam9261.c b/arch/arm/mach-at91/at91sam9261.c
+index 023c2ff..b84d882 100644
+--- a/arch/arm/mach-at91/at91sam9261.c
++++ b/arch/arm/mach-at91/at91sam9261.c
+@@ -175,6 +175,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.2", &ssc2_clk),
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &hck0),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+ 	CLKDEV_CON_ID("pioB", &pioB_clk),
+ 	CLKDEV_CON_ID("pioC", &pioC_clk),
+diff --git a/arch/arm/mach-at91/at91sam9263.c b/arch/arm/mach-at91/at91sam9263.c
+index 75e876c..e6e6a80 100644
+--- a/arch/arm/mach-at91/at91sam9263.c
++++ b/arch/arm/mach-at91/at91sam9263.c
+@@ -190,6 +190,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.0", &spi0_clk),
+ 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.1", &spi1_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+diff --git a/arch/arm/mach-at91/at91sam9g45.c b/arch/arm/mach-at91/at91sam9g45.c
+index 1cb6a96..9e7ca32 100644
+--- a/arch/arm/mach-at91/at91sam9g45.c
++++ b/arch/arm/mach-at91/at91sam9g45.c
+@@ -220,6 +220,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.1", &spi1_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb0_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.1", &tcb0_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "atmel-trng", &trng_clk),
+diff --git a/arch/arm/mach-at91/at91sam9rl.c b/arch/arm/mach-at91/at91sam9rl.c
+index d2c91a8..2c88b94 100644
+--- a/arch/arm/mach-at91/at91sam9rl.c
++++ b/arch/arm/mach-at91/at91sam9rl.c
+@@ -183,6 +183,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t2_clk", "atmel_tcb.0", &tc2_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+ 	CLKDEV_CON_ID("pioB", &pioB_clk),
+ 	CLKDEV_CON_ID("pioC", &pioC_clk),
+-- 
+1.7.5.4
