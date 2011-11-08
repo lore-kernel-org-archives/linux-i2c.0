@@ -1,84 +1,115 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: add optional regulator support
-Date: Mon, 19 Mar 2012 17:41:30 +0200
-Message-ID: <20120319154130.GX32276@intel.com>
-References: <1332161180-32502-1-git-send-email-mika.westerberg@linux.intel.com>
- <20120319142807.GA9334@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: [PATCH v9 2/4] Replace clk_lookup.con_id with clk_lookup.dev_id entries
+ for twi clk
+Date: Tue, 8 Nov 2011 12:09:30 +0100
+Message-ID: <201203191534.q2JFYlUP012739@gatekeeper.vosshq.de>
+References: <cover.1322479017a.git.n.voss@weinmann.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120319142807.GA9334-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+In-Reply-To: <cover.1322479017a.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Jani Nikula <jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 19, 2012 at 02:28:07PM +0000, Mark Brown wrote:
-> On Mon, Mar 19, 2012 at 02:46:20PM +0200, Mika Westerberg wrote:
-> 
-> > It is possible that some of the i2c busses are supplied by a separate
-> > regulator which needs to be enabled before we can access the bus. Thus add
-> > support for an optional regulator.
-> 
-> No, support for critical supplies should not be optional.  I'm getting
-> rather fed up with having to point this out.  There's always a regulator
-> there supplying the bus, the driver should just assume that the system
-> provides it.
+The old driver used con_id clock entries. Convert to use dev_id
+for clock lookup via standard method.
 
-Right, but not all platforms have regulator for this. That's why we made it
-optional.
+Signed-off-by: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+---
+ arch/arm/mach-at91/at91cap9.c    |    1 +
+ arch/arm/mach-at91/at91rm9200.c  |    1 +
+ arch/arm/mach-at91/at91sam9260.c |    1 +
+ arch/arm/mach-at91/at91sam9261.c |    1 +
+ arch/arm/mach-at91/at91sam9263.c |    1 +
+ arch/arm/mach-at91/at91sam9g45.c |    2 ++
+ arch/arm/mach-at91/at91sam9rl.c  |    2 ++
+ 7 files changed, 9 insertions(+), 0 deletions(-)
 
-On the other hand if we assume it is always provided by the system then I
-guess there is no way to turn it off for example during system sleep which
-might result unneeded power consumption.
-
-> > We also implement enabling/disabling the regulator on system and runtime PM
-> > hooks.
-> 
-> This is suspicious too...
-> 
-> If this is just the external buffer/reference voltage for the bus then
-> I'd really not expect the controller to have to worry about it, the
-> drivers for the target devices ought to be making sure they've powered
-> up the devices prior to trying to talk to them anyway (and most of the
-> time will need the supplies on for *much* longer than just the time
-> spent doing I2C transactions).  There's no harm in having support in the
-> controller driver but I'd be surprised if the clients were happy with
-> having their I/O voltage bounced on them...
-
-It is meant for controlling bus voltage for given I2C bus in case some
-other platform using designware I2C controller might have use for such.
-
-Having the controller controlling the bus voltage should not cause problems
-for its clients as they get suspended before the bus itself and vice versa
-in case of resume. Or have I misunderstood something?
-
-On one Medfield platform we actually have a LCD panel which misbehaves when
-its supply voltage is cut off (it drives the I2C lines low). This made the
-whole bus unusable.
-
-So we worked it around by adding an artificial regulator to I2C controller
-which then drives LCD supply voltage as well (it is shared with LCD driver
-and I2C controller driver). This way we were able to make sure that the bus
-is functional when any I2C transactions are performed.
-
-In our case we really want to turn off the LCD voltage when not needed as
-it consumes ~500mW power.
-
-> > +	if (i2c->controller->regulator)
-> > +		regulator_enable(i2c->controller->regulator);
-> 
-> > +	controller->regulator = regulator_get(&pdev->dev, "v-i2c");
-> > +	if (IS_ERR(controller->regulator))
-> > +		controller->regulator = NULL;
-> > +	else
-> > +		regulator_enable(controller->regulator);
-> 
-> There's no error checking at all in this ccode - if it fails to request
-> the supply the driver silently ignores the error and if the regulator is
-> there but fails to enable the error will also be silently ignored.
-
-The first case is because the regulator is optional - if we don't get it we
-don't try to use it. The other case is overlook from our side and should be
-fixed to handle the errors correctly.
+diff --git a/arch/arm/mach-at91/at91cap9.c b/arch/arm/mach-at91/at91cap9.c
+index a42edc2..676d6cf 100644
+--- a/arch/arm/mach-at91/at91cap9.c
++++ b/arch/arm/mach-at91/at91cap9.c
+@@ -219,6 +219,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioABCD_clk),
+diff --git a/arch/arm/mach-at91/at91rm9200.c b/arch/arm/mach-at91/at91rm9200.c
+index 99c3174..7c597e5 100644
+--- a/arch/arm/mach-at91/at91rm9200.c
++++ b/arch/arm/mach-at91/at91rm9200.c
+@@ -194,6 +194,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.2", &ssc2_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+diff --git a/arch/arm/mach-at91/at91sam9260.c b/arch/arm/mach-at91/at91sam9260.c
+index d4036ba..e21a3dc 100644
+--- a/arch/arm/mach-at91/at91sam9260.c
++++ b/arch/arm/mach-at91/at91sam9260.c
+@@ -200,6 +200,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t1_clk", "atmel_tcb.1", &tc4_clk),
+ 	CLKDEV_CON_DEV_ID("t2_clk", "atmel_tcb.1", &tc5_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* more usart lookup table for DT entries */
+ 	CLKDEV_CON_DEV_ID("usart", "fffff200.serial", &mck),
+ 	CLKDEV_CON_DEV_ID("usart", "fffb0000.serial", &usart0_clk),
+diff --git a/arch/arm/mach-at91/at91sam9261.c b/arch/arm/mach-at91/at91sam9261.c
+index 023c2ff..b84d882 100644
+--- a/arch/arm/mach-at91/at91sam9261.c
++++ b/arch/arm/mach-at91/at91sam9261.c
+@@ -175,6 +175,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.2", &ssc2_clk),
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &hck0),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+ 	CLKDEV_CON_ID("pioB", &pioB_clk),
+ 	CLKDEV_CON_ID("pioC", &pioC_clk),
+diff --git a/arch/arm/mach-at91/at91sam9263.c b/arch/arm/mach-at91/at91sam9263.c
+index 75e876c..e6e6a80 100644
+--- a/arch/arm/mach-at91/at91sam9263.c
++++ b/arch/arm/mach-at91/at91sam9263.c
+@@ -190,6 +190,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.0", &spi0_clk),
+ 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.1", &spi1_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
+ 	/* fake hclk clock */
+ 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+diff --git a/arch/arm/mach-at91/at91sam9g45.c b/arch/arm/mach-at91/at91sam9g45.c
+index 1cb6a96..9e7ca32 100644
+--- a/arch/arm/mach-at91/at91sam9g45.c
++++ b/arch/arm/mach-at91/at91sam9g45.c
+@@ -220,6 +220,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.1", &spi1_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb0_clk),
+ 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.1", &tcb0_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
+ 	CLKDEV_CON_DEV_ID(NULL, "atmel-trng", &trng_clk),
+diff --git a/arch/arm/mach-at91/at91sam9rl.c b/arch/arm/mach-at91/at91sam9rl.c
+index d2c91a8..2c88b94 100644
+--- a/arch/arm/mach-at91/at91sam9rl.c
++++ b/arch/arm/mach-at91/at91sam9rl.c
+@@ -183,6 +183,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
+ 	CLKDEV_CON_DEV_ID("t2_clk", "atmel_tcb.0", &tc2_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
+ 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
++	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
+ 	CLKDEV_CON_ID("pioA", &pioA_clk),
+ 	CLKDEV_CON_ID("pioB", &pioB_clk),
+ 	CLKDEV_CON_ID("pioC", &pioC_clk),
+-- 
+1.7.5.4
