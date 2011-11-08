@@ -1,87 +1,34 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH V3 2/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Tue, 8 Nov 2011 19:39:30 +0000
-Message-ID: <20111108193930.GJ12913@n2100.arm.linux.org.uk>
-References: <cover.1320753142.git.n.voss@weinmann.de> <7bdd6b456b0e055441cb25634c8cb6d483718f6c.1320753142.git.n.voss@weinmann.de> <20111108144115.GH20728@legolas.emea.dhcp.ti.com> <4EB9477E.8070002@atmel.com> <20111108152343.GJ20728@legolas.emea.dhcp.ti.com> <20111108182955.GH12913@n2100.arm.linux.org.uk> <20111108184447.GB24399@legolas.emea.dhcp.ti.com> <20111108185525.GI12913@n2100.arm.linux.org.uk> <20111108190200.GC24399@legolas.emea.dhcp.ti.com>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v2] omap4: i2c: add post idle reset registers flag
+Date: Tue, 08 Nov 2011 11:55:10 -0800
+Message-ID: <87hb2e1ja9.fsf@ti.com>
+References: <1320701500-14535-1-git-send-email-x0132446@ti.com>
+	<4EB8E445.4050604@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20111108190200.GC24399@legolas.emea.dhcp.ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, rmallon@gmail.com, Nikolaus Voss <n.voss@weinmann.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, khali@linux-fr.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4EB8E445.4050604-l0cyMroinI0@public.gmane.org> (shubhrajyoti-l0cyMroinI0@public.gmane.org's message of "Tue,
+	08 Nov 2011 13:41:49 +0530")
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: David Anders <x0132446-l0cyMroinI0@public.gmane.org>, danders.dev-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, aneesh-l0cyMroinI0@public.gmane.org, jayabharath-l0cyMroinI0@public.gmane.org, andy.green-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Nov 08, 2011 at 09:02:02PM +0200, Felipe Balbi wrote:
-> Hi,
-> 
-> On Tue, Nov 08, 2011 at 06:55:25PM +0000, Russell King - ARM Linux wrote:
-> > > so ? Instead of saying this to me, you should contact the
-> > > authors/maintainers of those drivers and ask them to clean that up.
-> > 
-> > Oh for god sake, I was just asking you to clarify your statement in
-> > light of what is currently being done.
-> > 
-> > Now, let me set something straight.  I've been saying that machine_is_xxx()
-> > should not be used in drivers.  That's a platform thing and platform
-> > specifics should not be in drivers - it should be passed in via DT or
-> > platform data.  That's enforced by the way DT works (Grant's decision
-> > not mine) - with DT you don't have any kind of testable machine ID for
-> > machine_is_xxx() to use.
-> > 
-> > I've never said that cpu_is_xxx() should not - that's something *other*
-> > people are saying (and quite rightly so) because if we're going to start
-> > sharing drivers between different SoCs (or even architectures - eg, PXA
-> > IP appearing on x86) then it doesn't make sense for the type of SoC to
-> > be tested.  It makes more sense for the revision of the IP implementation
-> > to be checked IFF such information is available.  If not, some other way
-> > of controlling the 'features' needs to be sought.
-> > 
-> > As far as the use of asm/*.h includes, I've NEVER made any statement
-> > about the use of those in drivers.  In fact, I don't see any reason to
-> > avoid them _provided_ they're standard cross-arch includes.
-> > 
-> > As for mach/*.h includes, I don't think that I've made any statement
-> > about those either, but at this point - given that we're working towards
-> > a single zImage on ARM - it is _sensible_ to avoid such includes in
-> > drivers.
-> > 
-> > So, I think your reaction to my statement is way off mark, and you're
-> > attributing statements (that it seems you personally don't agree with)
-> > to me.
-> 
-> If I did, then it's really my fault. But I _do_ remember you complaining
-> about uses of <asm/gpio.h> instead of <linux/gpio.h>, for example.
+Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
 
-Yes, I do complain about those with _good_ reason:
-1. it's a strict checkpatch thing.
-2. it's a correctness thing which matters as linux/gpio.h is the top-level
-   include for gpio stuff, and at some point may have stuff pulled up
-   from asm/gpio.h into it (or new stuff added to it.)
+> On Tuesday 08 November 2011 03:01 AM, David Anders wrote:
+>> omap44xx i2c devices need to have the registers reset post idle
+>> similar to omap3xxx devices. this adds the additional flag for
+>> OMAP_I2C_FLAG_RESET_REGS_POSTIDLE to the omap44xx i2c_dev_attr.
+>
+> Hello Anders a similar patch is already posted
+> http://www.spinics.net/lists/linux-i2c/msg05913.html
 
-Same reasoning for linux/io.h - things get moved out of asm/io.h into
-linux/io.h.  One such example is check_signature() which used to be
-declared at the asm/io.h level but is now at the linux/io.h level.
+Benoit/Paul,
 
-And the overriding reason: if I can get them fixed _now_ they won't have
-to be fixed in some massive patch in the future when we've got a few
-thousand of them to deal with and tonnes of breakage because something
-cross-arch changed there.
+Can one of you queue the original hwmod data fix from Shubhrajyoti (link
+above) for v3.2-rc1?
 
-That point has been *well* proven by my recent clean ups to the mach/gpio.h
-includes - which necessitated changing tonnes of mach/gpio.h includes
-across the kernel tree.  Had people paid more attention to getting these
-includes right, that cleanup would have been much easier.
+Thanks,
 
-But, that's something very different from your statement in your previous
-message about my alleged stance on *all* asm/*.h includes in drivers,
-which is FALSE.
-
-> Now, all the other topics I agree and, in fact, have been pushing for
-> that as I can. Specially with regards to IP cores being shared among
-> several architectures (see drivers/usb/dwc3 where I have a core driver
-> shared between ARM and PCI/x86).
-
-Good, so you've just taken back most of what you said in your previous
-message.
+Kevin
