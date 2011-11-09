@@ -1,46 +1,38 @@
-From: Nikolaus Voss <n.voss@weinmann.de>
-Subject: [PATCH v4 3/4] G45 TWI: remove open drain setting for twi function
- gpios
-Date: Tue, 8 Nov 2011 12:11:03 +0100
-Message-ID: <00c26b4bb1276d9e421d8ad1d309588182c133d2.1320853921.git.n.voss@weinmann.de>
-References: <cover.1320853921.git.n.voss@weinmann.de>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: Re: [PATCH V3 2/4] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Wed, 9 Nov 2011 19:11:36 +0000
+Message-ID: <20111109191136.GP12913@n2100.arm.linux.org.uk>
+References: <cover.1320753142.git.n.voss@weinmann.de> <7bdd6b456b0e055441cb25634c8cb6d483718f6c.1320753142.git.n.voss@weinmann.de> <4EB9B24A.5040809@gmail.com> <EF2E73589CA71846A15D0B2CDF79505D087B3C9440@wm021.weinmann.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1320853921.git.n.voss@weinmann.de>
+Content-Disposition: inline
+In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D087B3C9440@wm021.weinmann.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: ben-linux@fluff.org, khali@linux-fr.org, nicolas.ferre@atmel.com, rmallon@gmail.com, balbi@ti.com
+To: "Voss, Nikolaus" <N.Voss@weinmann.de>
+Cc: 'Ryan Mallon' <rmallon@gmail.com>, "'nicolas.ferre@atmel.com'" <nicolas.ferre@atmel.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'balbi@ti.com'" <balbi@ti.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'khali@linux-fr.org'" <khali@linux-fr.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The G45 datasheets explicitly states that setting the open drain property
-on peripheral function gpios is not allowed. (How about other A91 chips?)
+On Wed, Nov 09, 2011 at 05:01:07PM +0100, Voss, Nikolaus wrote:
+> Hi Ryan,
+> > 
+> > > +	dev->irq = irq->start;
+> > > +	platform_set_drvdata(pdev, dev);
+> > > +
+> > > +	dev->clk = clk_get(&pdev->dev, "twi_clk");
+> > 
+> > 
+> > This didn't get answered. Can't you just do:
+> > 
+> > 	dev->clk = clk_get(&pdev->dev, NULL);
+> > 
+> > and clkdev should figure out the correct clock based on the device pointer?
+> 
+> No, this doesn't work on at91 since the clocks have no dev_id property
+> but only con_id. I cannot see a reason for this, but that's the way it's
+> done. Multiple hardware interfaces are handled via a lookup table.
 
-Signed-off-by: Nikolaus Voss <n.voss@weinmann.de>
----
- arch/arm/mach-at91/at91sam9g45_devices.c |    6 ------
- 1 files changed, 0 insertions(+), 6 deletions(-)
+If you can, you could move over to doing this via the standard method
+and start switching some of this stuff over to using dev_id.
 
-diff --git a/arch/arm/mach-at91/at91sam9g45_devices.c b/arch/arm/mach-at91/at91sam9g45_devices.c
-index 000b5e1..e0f67e7 100644
---- a/arch/arm/mach-at91/at91sam9g45_devices.c
-+++ b/arch/arm/mach-at91/at91sam9g45_devices.c
-@@ -684,18 +684,12 @@ void __init at91_add_device_i2c(short i2c_id, struct i2c_board_info *devices, in
- 	/* pins used for TWI interface */
- 	if (i2c_id == 0) {
- 		at91_set_A_periph(AT91_PIN_PA20, 0);		/* TWD */
--		at91_set_multi_drive(AT91_PIN_PA20, 1);
--
- 		at91_set_A_periph(AT91_PIN_PA21, 0);		/* TWCK */
--		at91_set_multi_drive(AT91_PIN_PA21, 1);
- 
- 		platform_device_register(&at91sam9g45_twi0_device);
- 	} else {
- 		at91_set_A_periph(AT91_PIN_PB10, 0);		/* TWD */
--		at91_set_multi_drive(AT91_PIN_PB10, 1);
--
- 		at91_set_A_periph(AT91_PIN_PB11, 0);		/* TWCK */
--		at91_set_multi_drive(AT91_PIN_PB11, 1);
- 
- 		platform_device_register(&at91sam9g45_twi1_device);
- 	}
--- 
-1.7.5.4
+We'll then have another platform starting to use this stuff correctly.
