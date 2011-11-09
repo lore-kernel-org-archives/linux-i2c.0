@@ -1,76 +1,49 @@
-From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: RE: [PATCH V3 2/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Wed, 9 Nov 2011 17:01:07 +0100
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D087B3C9440@wm021.weinmann.com>
-References: <cover.1320753142.git.n.voss@weinmann.de>
- <7bdd6b456b0e055441cb25634c8cb6d483718f6c.1320753142.git.n.voss@weinmann.de>
- <4EB9B24A.5040809@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: [PATCH v4 0/4] AT91: replace broken TWI driver i2c-at91.c
+Date: Wed, 9 Nov 2011 16:52:01 +0100
+Message-ID: <cover.1320853921.git.n.voss@weinmann.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4EB9B24A.5040809-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Ryan Mallon' <rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org'" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "'nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "'balbi-l0cyMroinI0@public.gmane.org'" <balbi-l0cyMroinI0@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ryan,
+The old driver has two main deficencies:
+i)  No repeated start (Sr) condiction is possible, this makes it unusable
+    e.g. for most SMBus transfers.
+ii) I/O was done with polling/busy waiting what caused over-/underruns
+    even at light system loads and clock speeds.
 
-> > +#include <mach/at91_twi.h>
-> 
-> 
-> This include file looks like it only contains register definitions which
-> are used in this file. Would be good to either move them directly into
-> this driver or move the header file to this directory and make it a
-> local include.
+The new driver overcomes these deficencies and in addition allows for
+more than one TWI interface.
 
-Ok.
+A remaining limitation is the fact, that only one repeated start is
+possible (two concatenated messages). This limitation is imposed by
+the hardware. However, this should not be a problem as all common
+i2c-client communication does not rely on more than one repeated start.
 
-> > +
-> > +	dev->dev = get_device(&pdev->dev);
-> 
-> 
-> Is this (and the put_device(&pdev->dev) in the exit code) necessary? I
-> see that some other i2c drivers do this also, but I'm not familiar with
-> using it in other device drivers. Isn't the reference count for
-> pdev->dev already incremented by the fact we are probing the device?
+v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
+    Moved register include file to local include, code cleanups
+v3: Integrated review comments from Ryan Mallon and Felipe Balbi
+v2: Fixed whitespace issue
 
-It is incremented by the platform_device_register() which does a
-device_add(). This seems to be enough, I removed the get-/put_device().
+Nikolaus Voss (4):
+  drivers/i2c/busses/i2c-at91.c: remove broken driver
+  drivers/i2c/busses/i2c-at91.c: add new driver
+  G45 TWI: remove open drain setting for twi function gpios
+  Add lookup entries for twi_clk for devices with more than one TWI
+    port
 
+ arch/arm/mach-at91/at91sam9g45.c           |    2 +
+ arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
+ arch/arm/mach-at91/at91sam9rl.c            |    2 +
+ arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
+ drivers/i2c/busses/Kconfig                 |   11 +-
+ drivers/i2c/busses/i2c-at91.c              |  476 +++++++++++++++++-----------
+ drivers/i2c/busses/i2c-at91.h              |   80 +++++
+ 7 files changed, 371 insertions(+), 274 deletions(-)
+ delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
+ create mode 100644 drivers/i2c/busses/i2c-at91.h
 
-> 
-> > +	dev->irq = irq->start;
-> > +	platform_set_drvdata(pdev, dev);
-> > +
-> > +	dev->clk = clk_get(&pdev->dev, "twi_clk");
-> 
-> 
-> This didn't get answered. Can't you just do:
-> 
-> 	dev->clk = clk_get(&pdev->dev, NULL);
-> 
-> and clkdev should figure out the correct clock based on the device pointer?
-
-No, this doesn't work on at91 since the clocks have no dev_id property
-but only con_id. I cannot see a reason for this, but that's the way it's
-done. Multiple hardware interfaces are handled via a lookup table.
-
-
-> > +	rc = i2c_del_adapter(&dev->adapter);
-> 
-> 
-> Most of the other i2c drivers don't check the return code for
-> i2c_del_adapter. If this fails then you will unload the module, but
-> potentially leak resources that i2c_del_adapter failed to free up. Not
-> sure what the correct answer is here.
-
-I don't really check the value but use it has exit code for the remove()-
-function to indicate something went wrong. Just ignoring it wouldn't heal
-the resource leakage.
-
-Thanks for reviewing,
-
-Niko
+-- 
+1.7.5.4
