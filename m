@@ -1,39 +1,55 @@
-From: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/1] i2c: imx: convert clk_prepare/clk_unprepare
-Date: Thu, 10 Nov 2011 13:04:19 +0800
-Message-ID: <1320901459-13208-1-git-send-email-richard.zhao@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: [PATCH v5 0/4] AT91: replace broken TWI driver i2c-at91.c
+Date: Thu, 10 Nov 2011 15:08:06 +0100
+Message-ID: <cover.1320934086.git.n.voss@weinmann.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+The old driver has two main deficencies:
+i)  No repeated start (Sr) condiction is possible, this makes it unusable
+    e.g. for most SMBus transfers.
+ii) I/O was done with polling/busy waiting what caused over-/underruns
+    even at light system loads and clock speeds.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 58832e5..aad623b 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -196,6 +196,7 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
- 
-+	clk_prepare(i2c_imx->clk);
- 	clk_enable(i2c_imx->clk);
- 	writeb(i2c_imx->ifdr, i2c_imx->base + IMX_I2C_IFDR);
- 	/* Enable I2C controller */
-@@ -246,6 +247,7 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
- 	/* Disable I2C controller */
- 	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
- 	clk_disable(i2c_imx->clk);
-+	clk_unprepare(i2c_imx->clk);
- }
- 
- static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+The new driver overcomes these deficencies and in addition allows for
+more than one TWI interface.
+
+A remaining limitation is the fact, that only one repeated start is
+possible (two concatenated messages). This limitation is imposed by
+the hardware. However, this should not be a problem as all common
+i2c-client communication does not rely on more than one repeated start.
+
+v5: Another round of review comments from Ryan Mallon, Felipe Balbi
+    and Russell King: convert twi clk to use .dev_id, cleanups
+v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
+    Moved register include file to local include, code cleanups
+v3: Integrated review comments from Ryan Mallon and Felipe Balbi
+v2: Fixed whitespace issue
+
+Nikolaus Voss (4):
+  drivers/i2c/busses/i2c-at91.c: remove broken driver
+  Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
+  drivers/i2c/busses/i2c-at91.c: add new driver
+  G45 TWI: remove open drain setting for twi function gpios
+
+ arch/arm/mach-at91/at91cap9.c              |    1 +
+ arch/arm/mach-at91/at91rm9200.c            |    1 +
+ arch/arm/mach-at91/at91sam9260.c           |    1 +
+ arch/arm/mach-at91/at91sam9261.c           |    1 +
+ arch/arm/mach-at91/at91sam9263.c           |    1 +
+ arch/arm/mach-at91/at91sam9g45.c           |    2 +
+ arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
+ arch/arm/mach-at91/at91sam9rl.c            |    2 +
+ arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
+ drivers/i2c/busses/Kconfig                 |   11 +-
+ drivers/i2c/busses/i2c-at91.c              |  511 ++++++++++++++++------------
+ drivers/i2c/busses/i2c-at91.h              |   80 +++++
+ 12 files changed, 390 insertions(+), 295 deletions(-)
+ delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
+ create mode 100644 drivers/i2c/busses/i2c-at91.h
+
 -- 
 1.7.5.4
