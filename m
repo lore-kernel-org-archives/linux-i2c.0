@@ -1,77 +1,39 @@
-From: Ryan Mallon <rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4 2/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Thu, 10 Nov 2011 09:22:54 +1100
-Message-ID: <4EBAFD3E.5070609@gmail.com>
-References: <cover.1320853921.git.n.voss@weinmann.de> <fc7ccca66f0ffea1aa9c0409162b4a66974c46b3.1320853921.git.n.voss@weinmann.de> <20111109195925.GB17406@legolas.emea.dhcp.ti.com>
+From: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/1] i2c: imx: convert clk_prepare/clk_unprepare
+Date: Thu, 10 Nov 2011 13:04:19 +0800
+Message-ID: <1320901459-13208-1-git-send-email-richard.zhao@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111109195925.GB17406-UiBtZHVXSwEVvW8u9ZQWYwjfymiNCTlR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: balbi-l0cyMroinI0@public.gmane.org
-Cc: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, eric.miao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/11/11 06:59, Felipe Balbi wrote:
+Signed-off-by: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-imx.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-> Hi,
-> 
-> On Tue, Nov 08, 2011 at 11:49:46AM +0100, Nikolaus Voss wrote:
->> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
->> index e8a1852..fba6da6 100644
-
->> +	ckdiv = 0;
->> +	while (cdiv > 255) {
->> +		ckdiv++;
->> +		cdiv = cdiv >> 1;
->> +	}
->> +
->> +	if (cpu_is_at91rm9200() && (ckdiv > 5)) {
->> +		dev_err(dev->dev, "AT91RM9200 Erratum #22: using ckdiv = 5.\n");
-> 
-> is it really an error ? Or would it be enough as dev_dbg() ?
-
-
-dev_warn is probably appropriate.
-
-> 
->> +static int at91_do_twi_transfer(struct at91_twi_dev *dev, bool is_read)
->> +{
->> +	int ret;
->> +
->> +	INIT_COMPLETION(dev->cmd_complete);
->> +	if (is_read) {
->> +		if (!dev->buf_len)
->> +			at91_twi_write(dev, AT91_TWI_CR,
->> +				       AT91_TWI_START | AT91_TWI_STOP);
->> +		else
->> +			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_START);
->> +		at91_twi_write(dev, AT91_TWI_IER,
->> +			       AT91_TWI_TXCOMP | AT91_TWI_RXRDY);
->> +	} else {
->> +		at91_twi_write_next_byte(dev);
->> +		at91_twi_write(dev, AT91_TWI_IER,
->> +			       AT91_TWI_TXCOMP | AT91_TWI_TXRDY);
->> +	}
->> +
->> +	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
->> +							dev->adapter.timeout);
->> +	if (ret == 0) {
->> +		dev_err(dev->dev, "controller timed out\n");
->> +		at91_init_twi_bus(dev);
->> +		return -ETIMEDOUT;
->> +	}
->> +	if (dev->transfer_status & AT91_TWI_NACK) {
->> +		dev_dbg(dev->dev, "received nack\n");
->> +		return -ENODEV;
-> 
-> not sure error code matches here. If the HW replies with NACK you tell
-> your users there's no I2C adapter ? Sounds a bit weird to me...
-
-
-I think -ENODEV was used because a NACK can mean that there is no device
-at the address you are trying to talk to. Other drivers appear to use
--EIO or -EREMOTEIO. The latter is possibly more correct.
-
-~Ryan
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 58832e5..aad623b 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -196,6 +196,7 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
+ 
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s>\n", __func__);
+ 
++	clk_prepare(i2c_imx->clk);
+ 	clk_enable(i2c_imx->clk);
+ 	writeb(i2c_imx->ifdr, i2c_imx->base + IMX_I2C_IFDR);
+ 	/* Enable I2C controller */
+@@ -246,6 +247,7 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 	/* Disable I2C controller */
+ 	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
+ 	clk_disable(i2c_imx->clk);
++	clk_unprepare(i2c_imx->clk);
+ }
+ 
+ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+-- 
+1.7.5.4
