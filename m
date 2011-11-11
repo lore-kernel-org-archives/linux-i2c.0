@@ -1,7 +1,7 @@
 From: Administrative Department <deanmedicine-+E0nr1z8EDY@public.gmane.org>
 Subject: mailbox storage limit/quota exceeded
-Date: Fri, 11 Nov 2011 15:52:30 +0300 (EAT)
-Message-ID: <fc26378d-0fd1-4f68-9454-2d57957c0948__5482.49243661321$1321027327$gmane$org@mail.mu.ac.ke>
+Date: Fri, 11 Nov 2011 15:50:57 +0300 (EAT)
+Message-ID: <1f482263-a31f-4632-abeb-e11926ccb88c@mail.mu.ac.ke>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
