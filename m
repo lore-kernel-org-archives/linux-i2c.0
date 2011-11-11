@@ -1,49 +1,68 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH V2 01/14] clk: add helper functions clk_prepare_enable
-	and clk_disable_unprepare
-Date: Fri, 11 Nov 2011 10:27:27 +0000
-Message-ID: <20111111102727.GC12913@n2100.arm.linux.org.uk>
-References: <1320973829-4388-1-git-send-email-richard.zhao@linaro.org> <1320973829-4388-2-git-send-email-richard.zhao@linaro.org> <20111111084950.GH16886@pengutronix.de> <20111111090546.GC14617@b20223-02.ap.freescale.net> <20111111091556.GI16886@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: 10-bit address support
+Date: Fri, 11 Nov 2011 11:43:35 +0100
+Message-ID: <20111111104335.GC2493@pengutronix.de>
+References: <20111110160739.540cda37@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mmc-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ctP54qlpMx3WjD+/"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20111111091556.GI16886@pengutronix.de>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Richard Zhao <richard.zhao@linaro.org>, amit.kucheria@canonical.com, kernel@pengutronix.de, netdev@vger.kernel.org, linux-mmc@vger.kernel.org, ben-linux@fluff.org, eric.miao@linaro.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, cjb@laptop.org, linux-arm-kernel@lists.infradead.org, alan@linux.intel.com
+In-Reply-To: <20111110160739.540cda37-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 11, 2011 at 10:15:56AM +0100, Sascha Hauer wrote:
-> On Fri, Nov 11, 2011 at 05:05:47PM +0800, Richard Zhao wrote:
-> > {
-> > 	int ret;
-> > 
-> > 	ret = clk_prepare(clk);
-> > 	if (ret)
-> > 		return ret;
-> > 	ret = clk_enable(clk);
-> > 	if (ret)
-> > 		clk_unprepare(clk);
-> > 	return ret;
-> 
-> Yes, looks good.
 
-While this looks like a nice easy solution for converting existing
-drivers, I'd suggest thinking about this a little more...
+--ctP54qlpMx3WjD+/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I would suggest some thought is given to the placement of clk_enable()
-and clk_disable() when adding clk_prepare(), especially if your existing
-clk_enable() function can only be called from non-atomic contexts.
+Hi Jean,
 
-Obviously, the transition path needs to be along these lines:
+> I can think of 2 different ways of addressing the problem.
+>=20
+> First way is to use a different device name format for 10-bit address
+> devices, for example %d-10bit-%04x. This has the drawback that some
+> user-space applications and libraries may not recognize these as valid
+> i2c device names. libsensors and sensors-detect would be amongst these.
 
-1. add clk_prepare() to drivers
-2. implement clk_prepare() and make clk_enable() callable from non-atomic
-   contexts
-3. move clk_enable() in drivers to places it can be called from non-atomic
-   contexts to achieve greater power savings (maybe via the runtime pm)
+Wouldn't the cleanest solution be
 
-and where a driver is shared between different sub-architectures which
-have non-atomic clk_enable()s, (3) can only happen when all those sub-
-architectures have been updated to step (2).
+"%d-%02x" for 7 bit
+"%d-%04x" for 10 bit?
+
+Yeah, I know that would really break userspace.
+
+> I'd rather go with a larger offset such as 0x1000. This translates 0x2d
+> to 0x102d which is more obviously "10-bit address 0x2d". We have 16
+> bits to store the address so it shouldn't be an issue. Another possible
+> offset would be 0xa000 (as 0xa is 10.)
+
+I like 0xa000 a tad better than 0x1000, but well... Then again, those
+devices are probably rare enough to take a non-intrusive approach.
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--ctP54qlpMx3WjD+/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk68/FcACgkQD27XaX1/VRs0kACgzM9nPIju91JfTxbVxr4rsgji
+yYoAn13aZBPE9F0lwd2P0AgcK9pqh4Iq
+=whei
+-----END PGP SIGNATURE-----
+
+--ctP54qlpMx3WjD+/--
