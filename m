@@ -1,24 +1,23 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-Date: Wed, 16 Nov 2011 09:36:08 -0800
-Message-ID: <1321464968.2309.384.camel@groeck-laptop>
+Date: Wed, 16 Nov 2011 18:38:06 +0100
+Message-ID: <20111116183806.6130f0fb@endymion.delvare>
 References: <1321338462-6138-1-git-send-email-guenter.roeck@ericsson.com>
-	 <CAOZdJXUPO5PyMkAw-2EPvy_qSUuqsgUA7Gr8mKUX7HyShoXk3g@mail.gmail.com>
-	 <E6AF40B3BFC8A9428EACB47497F0F4B62DC687@039-SN1MPN1-002.039d.mgd.msft.net>
-	 <ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
-	 <1321464509.7847.41.camel@oslab-l1>
-Reply-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+	<CAOZdJXUPO5PyMkAw-2EPvy_qSUuqsgUA7Gr8mKUX7HyShoXk3g@mail.gmail.com>
+	<E6AF40B3BFC8A9428EACB47497F0F4B62DC687@039-SN1MPN1-002.039d.mgd.msft.net>
+	<ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
+	<1321464509.7847.41.camel@oslab-l1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1321464509.7847.41.camel@oslab-l1>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2011-11-16 at 12:28 -0500, York Sun wrote:
+On Wed, 16 Nov 2011 09:28:29 -0800, York Sun wrote:
 > I am not sure if this mail will reach the list as I am not subscribed.
 > 
 > In the v2 patch (actually both version), you wrote
@@ -46,169 +45,16 @@ On Wed, 2011-11-16 at 12:28 -0500, York Sun wrote:
 > I2C bus on multiple byte. The first data is byte count vs slave data for
 > I2C. So you will receive all data preceded by the byte count, which is
 > one more than your loop.
-> 
-York,
 
-The calling code expects the data length in data[0], and the actual data
-in data[1] .. data[<byte_count>]. The initial value for length is 1; the
-byte count is added to it, so <byte count + 1> bytes are placed into the
-buffer.
+That's why he wrote
 
-Thanks,
-Guenter
+	length += byte;
 
-> York
-> 
-> 
-> 
-> On Wed, 2011-11-16 at 08:56 -0600, Timur Tabi wrote:
-> > 
-> > On Nov 16, 2011, at 12:01 AM, sun york-R58495 <R58495-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
-> > 
-> > > Timur,
-> > > 
-> > > Which silicon has the i2c-mpc? Without the user's manual, I can only guess from the code. It looks like the code is going to deal with a block transaction with the first byte is the length. If that's true, there might be a problem with 
-> > > 
-> > > data[i]=byte
-> > > 
-> > > if the block is true. Since the first byte is the length, it shouldn't be the data at the same time, right?
-> > 
-> > Can you check thr mailing list thread?  It should explain everything.
-> > 
-> > 
-> > > 
-> > > York
-> > > 
-> > > ________________________________________
-> > > From: Tabi Timur-B04825
-> > > Sent: Tuesday, November 15, 2011 11:04 AM
-> > > To: sun york-R58495
-> > > Subject: Fwd: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-> > > 
-> > > York,
-> > > 
-> > > If you have a moment, can you take a look at this patch?  I don't know
-> > > enough about I2C to really understand it.
-> > > 
-> > > ---------- Forwarded message ----------
-> > > From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> > > Date: Tue, Nov 15, 2011 at 12:27 AM
-> > > Subject: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-> > > To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> > > Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>,
-> > > linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck
-> > > <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Tang Yuantian <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > 
-> > > 
-> > > Add support for SMBUS_READ_BLOCK_DATA to the i2c-mpc bus driver.
-> > > Required to support the PMBus zl6100 driver with i2c-mpc.
-> > > 
-> > > Reported-by: Tang Yuantian <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > Cc: Tang Yuantian <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> > > ---
-> > > drivers/i2c/busses/i2c-mpc.c |   33 +++++++++++++++++++++++++--------
-> > > 1 files changed, 25 insertions(+), 8 deletions(-)
-> > > 
-> > > diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> > > index 107397a..77aade7 100644
-> > > --- a/drivers/i2c/busses/i2c-mpc.c
-> > > +++ b/drivers/i2c/busses/i2c-mpc.c
-> > > @@ -454,7 +454,7 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
-> > > }
-> > > 
-> > > static int mpc_read(struct mpc_i2c *i2c, int target,
-> > > -                   u8 *data, int length, int restart)
-> > > +                   u8 *data, int length, int restart, bool block)
-> > > {
-> > >       unsigned timeout = i2c->adap.timeout;
-> > >       int i, result;
-> > > @@ -470,7 +470,7 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
-> > >               return result;
-> > > 
-> > >       if (length) {
-> > > -               if (length == 1)
-> > > +               if (length == 1 && !block)
-> > >                       writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
-> > >               else
-> > >                       writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA);
-> > > @@ -479,17 +479,28 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
-> > >       }
-> > > 
-> > >       for (i = 0; i < length; i++) {
-> > > +               u8 byte;
-> > > +
-> > >               result = i2c_wait(i2c, timeout, 0);
-> > >               if (result < 0)
-> > >                       return result;
-> > > 
-> > > +               byte = readb(i2c->base + MPC_I2C_DR);
-> > > +               /*
-> > > +                * Adjust length if first received byte is length
-> > > +                */
-> > > +               if (i == 0 && block) {
-> > > +                       if (byte == 0 || byte > I2C_SMBUS_BLOCK_MAX)
-> > > +                               return -EPROTO;
-> > > +                       length += byte;
-> > > +               }
-> > > +               data[i] = byte;
-> > >               /* Generate txack on next to last byte */
-> > >               if (i == length - 2)
-> > >                       writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
-> > >               /* Do not generate stop on last byte */
-> > >               if (i == length - 1)
-> > >                       writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX);
-> > > -               data[i] = readb(i2c->base + MPC_I2C_DR);
-> > >       }
-> > > 
-> > >       return length;
-> > > @@ -532,12 +543,17 @@ static int mpc_xfer(struct i2c_adapter *adap,
-> > > struct i2c_msg *msgs, int num)
-> > >                       "Doing %s %d bytes to 0x%02x - %d of %d messages\n",
-> > >                       pmsg->flags & I2C_M_RD ? "read" : "write",
-> > >                       pmsg->len, pmsg->addr, i + 1, num);
-> > > -               if (pmsg->flags & I2C_M_RD)
-> > > -                       ret =
-> > > -                           mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
-> > > -               else
-> > > +               if (pmsg->flags & I2C_M_RD) {
-> > > +                       bool block = pmsg->flags & I2C_M_RECV_LEN;
-> > > +
-> > > +                       ret = mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i,
-> > > +                                      block);
-> > > +                       if (block && ret > 0)
-> > > +                               pmsg->len = ret;
-> > > +               } else {
-> > >                       ret =
-> > >                           mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
-> > > +               }
-> > >       }
-> > >       mpc_i2c_stop(i2c);
-> > >       return (ret < 0) ? ret : num;
-> > > @@ -545,7 +561,8 @@ static int mpc_xfer(struct i2c_adapter *adap,
-> > > struct i2c_msg *msgs, int num)
-> > > 
-> > > static u32 mpc_functionality(struct i2c_adapter *adap)
-> > > {
-> > > -       return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> > > +       return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-> > > +         | I2C_FUNC_SMBUS_READ_BLOCK_DATA;
-> > > }
-> > > 
-> > > static const struct i2c_algorithm mpc_algo = {
-> > > --
-> > > 1.7.3.1
-> > > 
-> > > --
-> > > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> > > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > 
-> > > 
-> > > 
-> > > --
-> > > Timur Tabi
-> > > Linux kernel developer at Freescale
-> 
-> 
-> 
+and not
+
+	length = byte;
+
+length is initialized to 1 for SMBus block reads.
+
+-- 
+Jean Delvare
