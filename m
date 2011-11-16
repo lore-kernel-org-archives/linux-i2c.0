@@ -1,93 +1,51 @@
-From: York Sun <yorksun@freescale.com>
-Subject: Re: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-Date: Wed, 16 Nov 2011 11:24:33 -0800
-Message-ID: <1321471473.7847.126.camel@oslab-l1>
-References: <1321338462-6138-1-git-send-email-guenter.roeck@ericsson.com>
-	 <CAOZdJXUPO5PyMkAw-2EPvy_qSUuqsgUA7Gr8mKUX7HyShoXk3g@mail.gmail.com>
-	 <E6AF40B3BFC8A9428EACB47497F0F4B62DC687@039-SN1MPN1-002.039d.mgd.msft.net>
-	 <ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
-	 <1321464509.7847.41.camel@oslab-l1>
-	 <1321464968.2309.384.camel@groeck-laptop>
-	 <1321466135.7847.55.camel@oslab-l1>
-	 <20111116190954.67c846fc@endymion.delvare>
-	 <1321467638.7847.73.camel@oslab-l1>
-	 <20111116201048.4b7877dd@endymion.delvare>
-	 <1321470915.7847.122.camel@oslab-l1>
-	 <20111116201847.6b11dc7f@endymion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 0/5] Generalize module_platform_driver
+Date: Wed, 16 Nov 2011 21:14:42 +0100
+Message-ID: <20111116201442.GC8843@pengutronix.de>
+References: <1321434819-23678-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111116201847.6b11dc7f@endymion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: guenter.roeck@ericsson.com, Tabi Timur-B04825 <B04825@freescale.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, B29983@freescale.com
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="yVhtmJPUSI46BTXb"
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1321434819-23678-1-git-send-email-lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Michael Hennerich <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2011-11-16 at 20:18 +0100, Jean Delvare wrote:
-> On Wed, 16 Nov 2011 11:15:15 -0800, York Sun wrote:
-> > On Wed, 2011-11-16 at 20:10 +0100, Jean Delvare wrote:
-> > > On Wed, 16 Nov 2011 10:20:38 -0800, York Sun wrote:
-> > > > On Wed, 2011-11-16 at 19:09 +0100, Jean Delvare wrote:
-> > > > > Your thinking is too focused on I2C block reads (or even block read of
-> > > > > data over the network or on disk). SMBus block read is something
-> > > > > completely different. It's not about reading 200 bytes of data and
-> > > > > receiving it in 16-byte chunks (I2C block read works that way, on
-> > > > > EEPROMs in particular.) There is no "data length" and "block size" to
-> > > > > compare to each other. It's about reading the value of _one_ register
-> > > > > and this value happens to be multi-byte. There is typically _no_
-> > > > > register pointer increment (automatic or not) involved as can happen
-> > > > > with EEPROMs. If an SMBus block read from register N returns 10 bytes,
-> > > > > you're not going to read the next 10 bytes from register N+10. There
-> > > > > are no "next 10 bytes" to read, and register N+10 is something
-> > > > > completely unrelated.
-> > > > > 
-> > > > > And for this reason, it is not possible to mix SMBus block reads with
-> > > > > byte reads, as can be done with I2C block reads.
-> > > > > 
-> > > > > Also note that there is a limit of 32 bytes for SMBus block transfers,
-> > > > > per SMBus specification. All slaves and masters must comply with it.
-> > > > > 
-> > > > > I hope I managed to clarify the case this time...
-> > > > 
-> > > > You have made it much clear. If block size is fixed and block read
-> > > > cannot mix with byte read, shall we do this
-> > > > 
-> > > > if length < block_size
-> > > >    read block_size
-> > > > else {
-> > > >    while (length) {
-> > > >        read block_size
-> > > >        length -= block_size
-> > > >    }
-> > > 
-> > > Which part of
-> > > 
-> > >   There is no "data length" and "block size" to compare to each other.
-> > > 
-> > > did you not understand?
-> > 
-> > For example, if the length is 40 and the block size is 32, are you going
-> > to read 32, 72 byte or 64 byte?
-> 
-> The length is not 40. Which part of
-> 
->   Also note that there is a limit of 32 bytes for SMBus block transfers,
->   per SMBus specification. All slaves and masters must comply with it.
-> 
-> did you now understand?
-> 
-> Really, please. I understand you're only trying to help and understand
-> the patch, but at some point, if you have zero knowledge about the
-> topic, you're not the right person to review the patch, period. You are
-> still welcome to test the patch if you can and want, that's a
-> completely different task.
-> 
 
-That's the point. Your patch doesn't check if the length is valid. You
-rely on the caller to know no more than 32 bytes can be transferred. It
-shouldn't limit the subfunction to transfer more than 32 bytes if
-hardware can support it by multiple transactions. If not, print out an
-error message.
+--yVhtmJPUSI46BTXb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-York
+On Wed, Nov 16, 2011 at 10:13:34AM +0100, Lars-Peter Clausen wrote:
+> Grant Likely recently introduced the module_platform_driver macro which c=
+an be
+> used to eliminate a few lines on boilerplate code in platform driver modu=
+les.
+> The same approach can be used to do the same for other bus type drivers.
+
+Cool, had the same thought when I saw Grant's series back then. Series looks
+good to me, so for all patches:
+
+Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--yVhtmJPUSI46BTXb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk7EGbIACgkQD27XaX1/VRvblgCfREYCxlSSFIl+/BPnzHL8LlHp
+7w4An2jLa1lYnfpjuP7zrDKwWlmF3JFL
+=gR2n
+-----END PGP SIGNATURE-----
+
+--yVhtmJPUSI46BTXb--
