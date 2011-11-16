@@ -1,60 +1,75 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Subject: Re: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-Date: Wed, 16 Nov 2011 18:38:06 +0100
-Message-ID: <20111116183806.6130f0fb@endymion.delvare>
+Date: Wed, 16 Nov 2011 09:55:35 -0800
+Message-ID: <1321466135.7847.55.camel@oslab-l1>
 References: <1321338462-6138-1-git-send-email-guenter.roeck@ericsson.com>
-	<CAOZdJXUPO5PyMkAw-2EPvy_qSUuqsgUA7Gr8mKUX7HyShoXk3g@mail.gmail.com>
-	<E6AF40B3BFC8A9428EACB47497F0F4B62DC687@039-SN1MPN1-002.039d.mgd.msft.net>
-	<ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
-	<1321464509.7847.41.camel@oslab-l1>
+	 <CAOZdJXUPO5PyMkAw-2EPvy_qSUuqsgUA7Gr8mKUX7HyShoXk3g@mail.gmail.com>
+	 <E6AF40B3BFC8A9428EACB47497F0F4B62DC687@039-SN1MPN1-002.039d.mgd.msft.net>
+	 <ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
+	 <1321464509.7847.41.camel@oslab-l1>
+	 <1321464968.2309.384.camel@groeck-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1321464509.7847.41.camel@oslab-l1>
+In-Reply-To: <1321464968.2309.384.camel@groeck-laptop>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+Cc: Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org" <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 16 Nov 2011 09:28:29 -0800, York Sun wrote:
-> I am not sure if this mail will reach the list as I am not subscribed.
+On Wed, 2011-11-16 at 09:36 -0800, Guenter Roeck wrote:
+> On Wed, 2011-11-16 at 12:28 -0500, York Sun wrote:
+> > I am not sure if this mail will reach the list as I am not subscribed.
+> > 
+> > In the v2 patch (actually both version), you wrote
+> > 
+> > > +		byte = readb(i2c->base + MPC_I2C_DR);
+> > > +
+> > > +		/* Adjust length if first received byte is length */
+> > > +		if (i == 0 && recv_len) {
+> > > +			if (byte == 0 || byte > I2C_SMBUS_BLOCK_MAX)
+> > > +				return -EPROTO;
+> > > +			length += byte;
+> > > +			/*
+> > > +			 * For block reads, generate txack here if data length
+> > > +			 * is 1 byte (total length is 2 bytes).
+> > > +			 */
+> > > +			if (length == 2)
+> > > +				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
+> > > +					 | CCR_TXAK);
+> > > +		}
+> > > +		data[i] = byte;
+> > 
+> > I am wondering if the first byte should be left out for data[] if the
+> > recv_len is non-zero. If I understand correctly, this patch is to
+> > support of SMBus with multiple byte read. The SMBus is different from
+> > I2C bus on multiple byte. The first data is byte count vs slave data for
+> > I2C. So you will receive all data preceded by the byte count, which is
+> > one more than your loop.
+> > 
+> York,
 > 
-> In the v2 patch (actually both version), you wrote
+> The calling code expects the data length in data[0], and the actual data
+> in data[1] .. data[<byte_count>]. The initial value for length is 1; the
+> byte count is added to it, so <byte count + 1> bytes are placed into the
+> buffer.
 > 
-> > +		byte = readb(i2c->base + MPC_I2C_DR);
-> > +
-> > +		/* Adjust length if first received byte is length */
-> > +		if (i == 0 && recv_len) {
-> > +			if (byte == 0 || byte > I2C_SMBUS_BLOCK_MAX)
-> > +				return -EPROTO;
-> > +			length += byte;
-> > +			/*
-> > +			 * For block reads, generate txack here if data length
-> > +			 * is 1 byte (total length is 2 bytes).
-> > +			 */
-> > +			if (length == 2)
-> > +				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
-> > +					 | CCR_TXAK);
-> > +		}
-> > +		data[i] = byte;
-> 
-> I am wondering if the first byte should be left out for data[] if the
-> recv_len is non-zero. If I understand correctly, this patch is to
-> support of SMBus with multiple byte read. The SMBus is different from
-> I2C bus on multiple byte. The first data is byte count vs slave data for
-> I2C. So you will receive all data preceded by the byte count, which is
-> one more than your loop.
+> Thanks,
+> Guenter
 
-That's why he wrote
+Thanks for explanation. I am more confused by the length += byte now.
+For I2C bus, if you need length of byte, just keep reading until you get
+all of them. Of course you need to deal with the ACK. For SMBus, it is
+similar but you shouldn't read more after the byte count which is in the
+first data. If you want to read length of data but the block size is
+bigger than length, you should call block read at first place. If the
+block size is smaller than length, why increase the length? Does your
+SMBus controller only support fixed block size and not support single
+byte read? If it does, I would do
 
-	length += byte;
+Block, Block, Block, byte, byte... until length of data
 
-and not
+Regards,
 
-	length = byte;
-
-length is initialized to 1 for SMBus block reads.
-
--- 
-Jean Delvare
+York
