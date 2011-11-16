@@ -1,36 +1,52 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] I2C: OMAP: fix the clearing of interrupts
-Date: Wed, 16 Nov 2011 12:16:32 +0530
-Message-ID: <1321425992-6189-1-git-send-email-shubhrajyoti@ti.com>
+From: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Subject: Re: [PATCH] i2c/designware: dw_i2c_init_driver as subsys initcall
+Date: Wed, 16 Nov 2011 10:22:34 +0200
+Message-ID: <20111116082233.GB10335@sapphire.tkos.co.il>
+References: <1321419487-2353-1-git-send-email-pratyush.anand@st.com>
+ <20111116051440.GA3142@sapphire.tkos.co.il>
+ <20111116052718.GE2286@DLH10011>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20111116052718.GE2286@DLH10011>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+To: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Cc: Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Rajeev KUMAR <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, Bhavna YADAV <bhavna.yadav-qxv4g6HH51o@public.gmane.org>, Vincenzo FRASCINO <Vincenzo.FRASCINO-qxv4g6HH51o@public.gmane.org>, Mirko GARDI <mirko.gardi-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The register IRQENABLE_CLR is a bit map of interrupt events.
-All the bits have to be cleared to clear the interrupts.
+Hi Shiraz,
 
-Signed-off-by: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Wed, Nov 16, 2011 at 10:57:19AM +0530, Shiraz Hashim wrote:
+> On Wed, Nov 16, 2011 at 01:14:41PM +0800, Baruch Siach wrote:
+> > Hi Pratyush Anand,
+> > 
+> > On Wed, Nov 16, 2011 at 10:28:07AM +0530, Pratyush Anand wrote:
+> > > There are few drivers(for example stmpe-gpio) which are available on i2c
+> > > bus but has been initialized as subsys initcall. Therefore i2c driver
+> > > must also be initialized as subsys initcall.
+> > > 
+> > > Signed-off-by: Pratyush Anand <pratyush.anand-qxv4g6HH51o@public.gmane.org>
+> > > ---
+> > 
+> > NAK.
+> > 
+> > Dependency problem like this one should be solved using the probe deferral 
+> > mechanism, when it's merged 
+> > (http://thread.gmane.org/gmane.linux.ports.arm.omap/65436). Sprinkling those 
+> > really_really_early_initcall() all over the place is unreasonable IMO.
+> 
+> Being a bus driver in this particular case, don't you think that it
+> should explicitly appear before devices using this bus.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 2dfb631..c7c6bb2 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -309,7 +309,7 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
- 
- 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
- 	if (dev->rev >= OMAP_I2C_REV_ON_4430)
--		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR, 1);
-+		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR, 0x6FFF);
- 	else
- 		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
- 
+Dependencies should be stated explicitly. Since this subsys_initcall thing is 
+quite common among the i2c masters I'm willing to ack this one for now. But 
+the real solution is to make the dependencies between devices clear and 
+explicit.
+
+baruch
+
 -- 
-1.7.1
+                                                     ~. .~   Tk Open Systems
+=}------------------------------------------------ooO--U--Ooo------------{=
+   - baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org - tel: +972.2.679.5364, http://www.tkos.co.il -
