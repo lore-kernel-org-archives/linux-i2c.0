@@ -1,99 +1,631 @@
-From: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/5] drivercore: Generalize module_platform_driver
-Date: Thu, 17 Nov 2011 06:51:35 +0000
-Message-ID: <4EC4AEF7.7030803@kernel.org>
-References: <1321434819-23678-1-git-send-email-lars@metafoo.de> <1321434819-23678-2-git-send-email-lars@metafoo.de> <CACxGe6twCU9Nb+b00ei83jxaz0YnVa6nT0ra6Kp0c4PO7hjT6Q@mail.gmail.com>
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
+Date: Thu, 17 Nov 2011 23:39:14 +0800
+Message-ID: <1321544354-3084-1-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACxGe6twCU9Nb+b00ei83jxaz0YnVa6nT0ra6Kp0c4PO7hjT6Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Michael Hennerich <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/16/2011 05:11 PM, Grant Likely wrote:
-> On Wed, Nov 16, 2011 at 2:13 AM, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org> wrote:
->> This patch generalizes the module_platform_driver macro and introduces a new
->> module_driver macro. The module_driver macro takes a driver name, a register
->> and a unregister function for this driver type. Using these it construct the
->> module init and exit sections which register and unregister the driver. Since
->> such init/exit sections are commonly found in drivers this macro can be used
->> to eliminate a lot of boilerplate code.
->>
->> The macro is not intended to be used by driver modules directly, instead it
->> should be used to generate bus specific macros for registering drivers like
->> the module_platform_driver macro.
->>
->> Signed-off-by: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-> 
-> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Acked-by: Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> 
->> ---
->>  include/linux/init.h            |   21 +++++++++++++++++++++
->>  include/linux/platform_device.h |   12 ++----------
->>  2 files changed, 23 insertions(+), 10 deletions(-)
->>
->> diff --git a/include/linux/init.h b/include/linux/init.h
->> index 9146f39..3e2d238 100644
->> --- a/include/linux/init.h
->> +++ b/include/linux/init.h
->> @@ -346,4 +346,25 @@ void __init parse_early_options(char *cmdline);
->>  #define __exit_p(x) NULL
->>  #endif
->>
->> +/**
->> + * module_driver() - Helper macro for drivers that don't do anything
->> + * special in module init/exit. This eliminates a lot of boilerplate.
->> + * Each module may only use this macro once, and calling it replaces
->> + * module_init() and module_exit().
->> + * Use this macro to construct bus specific macros for registering
->> + * drivers.
->> + */
->> +#define module_driver(__driver, __register, __unregister) \
->> +static int __init __driver##_init(void) \
->> +{ \
->> +       return __register(&(__driver)); \
->> +} \
->> +module_init(__driver##_init); \
->> +static void __exit __driver##_exit(void) \
->> +{ \
->> +       __unregister(&(__driver)); \
->> +} \
->> +module_exit(__driver##_exit);
->> +
->>  #endif /* _LINUX_INIT_H */
->> +
->> diff --git a/include/linux/platform_device.h b/include/linux/platform_device.h
->> index 2a23f7d..165a8d1 100644
->> --- a/include/linux/platform_device.h
->> +++ b/include/linux/platform_device.h
->> @@ -196,16 +196,8 @@ static inline void platform_set_drvdata(struct platform_device *pdev, void *data
->>  * calling it replaces module_init() and module_exit()
->>  */
->>  #define module_platform_driver(__platform_driver) \
->> -static int __init __platform_driver##_init(void) \
->> -{ \
->> -       return platform_driver_register(&(__platform_driver)); \
->> -} \
->> -module_init(__platform_driver##_init); \
->> -static void __exit __platform_driver##_exit(void) \
->> -{ \
->> -       platform_driver_unregister(&(__platform_driver)); \
->> -} \
->> -module_exit(__platform_driver##_exit);
->> +       module_driver(__platform_driver, platform_driver_register, \
->> +                       platform_driver_unregister)
->>
->>  extern struct platform_device *platform_create_bundle(struct platform_driver *driver,
->>                                        int (*probe)(struct platform_device *),
->> --
->> 1.7.7.1
->>
->>
->>
-> 
-> 
-> 
+=46rom: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+
+SiRFprimaII is the latest generation application processor from CSR=E2=80=
+=99s
+multi-function SoC product family.
+The SoC support codes are in arch/arm/mach-prima2 from Linux mainline
+3.0.
+There are two I2C controllers on primaII, features include:
+=E2=96=A0 Two I2C controller modules are on chip
+=E2=96=A0 RISC I/O bus read write register
+=E2=96=A0 Up to 16 bytes data buffer for issuing commands and writing d=
+ata
+  at the same time
+=E2=96=A0 Up to 16 commands, and receiving read data 16 bytes at a time
+=E2=96=A0 Error INT report (ACK check)
+=E2=96=A0 No-ACK bus protocols (SCCB bus protocols)
+
+Signed-off-by: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+Signed-off-by: Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>
+Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+---
+ -v3:
+ add lost clk_enable/disable in suspend/resume function while reading/
+ writing i2c controller registers.
+ without this, suspend will hang.
+
+ arch/arm/mach-prima2/pm.c     |    1 +
+ arch/arm/mach-prima2/prima2.c |    1 +
+ drivers/i2c/busses/Kconfig    |    7 +
+ drivers/i2c/busses/Makefile   |    1 +
+ drivers/i2c/busses/i2c-sirf.c |  438 +++++++++++++++++++++++++++++++++=
+++++++++
+ drivers/i2c/busses/i2c-sirf.h |   61 ++++++
+ 6 files changed, 509 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/i2c/busses/i2c-sirf.c
+ create mode 100644 drivers/i2c/busses/i2c-sirf.h
+
+diff --git a/arch/arm/mach-prima2/pm.c b/arch/arm/mach-prima2/pm.c
+index cb53160..26ebb57 100644
+--- a/arch/arm/mach-prima2/pm.c
++++ b/arch/arm/mach-prima2/pm.c
+@@ -9,6 +9,7 @@
+ #include <linux/kernel.h>
+ #include <linux/suspend.h>
+ #include <linux/slab.h>
++#include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/of_address.h>
+ #include <linux/of_device.h>
+diff --git a/arch/arm/mach-prima2/prima2.c b/arch/arm/mach-prima2/prima=
+2.c
+index ef555c0..a12b689 100644
+--- a/arch/arm/mach-prima2/prima2.c
++++ b/arch/arm/mach-prima2/prima2.c
+@@ -8,6 +8,7 @@
+=20
+ #include <linux/init.h>
+ #include <linux/kernel.h>
++#include <asm/sizes.h>
+ #include <asm/mach-types.h>
+ #include <asm/mach/arch.h>
+ #include <linux/of.h>
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index a3afac4..add079b 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -618,6 +618,13 @@ config I2C_SH_MOBILE
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-sh_mobile.
+=20
++config I2C_SIRF
++	tristate "CSR SiRFprimaII I2C interface"
++	depends on ARCH_PRIMA2
++	help
++	  If you say yes to this option, support will be included for the
++	  CSR SiRFprimaII I2C interface.
++
+ config I2C_SIMTEC
+ 	tristate "Simtec Generic I2C interface"
+ 	select I2C_ALGOBIT
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index fba6da6..c30db66 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -62,6 +62,7 @@ obj-$(CONFIG_I2C_S3C2410)	+=3D i2c-s3c2410.o
+ obj-$(CONFIG_I2C_S6000)		+=3D i2c-s6000.o
+ obj-$(CONFIG_I2C_SH7760)	+=3D i2c-sh7760.o
+ obj-$(CONFIG_I2C_SH_MOBILE)	+=3D i2c-sh_mobile.o
++obj-$(CONFIG_I2C_SIRF)		+=3D i2c-sirf.o
+ obj-$(CONFIG_I2C_SIMTEC)	+=3D i2c-simtec.o
+ obj-$(CONFIG_I2C_STU300)	+=3D i2c-stu300.o
+ obj-$(CONFIG_I2C_TEGRA)		+=3D i2c-tegra.o
+diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sir=
+f.c
+new file mode 100644
+index 0000000..2988124
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-sirf.c
+@@ -0,0 +1,438 @@
++/*
++ * I2C bus driver for CSR SiRFprimaII
++ *
++ * Copyright (c) 2011 Cambridge Silicon Radio Limited, a CSR plc group=
+ company.
++ *
++ * Licensed under GPLv2 or later.
++ */
++
++#include <linux/interrupt.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/init.h>
++#include <linux/sched.h>
++#include <linux/platform_device.h>
++#include <linux/i2c.h>
++#include <linux/clk.h>
++#include <linux/err.h>
++#include <linux/io.h>
++
++#include "i2c-sirf.h"
++
++#define SIRFSOC_I2C_DEFAULT_SPEED  100000
++
++struct sirfsoc_i2c {
++	void __iomem *base;
++	struct clk *clk;
++	unsigned long speed;	/* I2C SCL frequency */
++	int irq;
++	u32 cmd_ptr;		/* Current position in CMD buffer */
++	u8 *buf;		/* Buffer passed by user */
++	u32 msg_len;		/* Message length */
++	u32 finished_len;	/* number of bytes read/written */
++	u32 read_cmd_len;	/* number of read cmd sent */
++	int msg_read;		/* 1 indicates a read message */
++	int err_status;		/* 1 indicates an error on bus */
++
++	u32 sda_delay;		/* For suspend/resume */
++	u32 clk_div;
++	int last;		/* Last message in transfer, STOP cmd can be sent */
++
++	struct completion done;	/* indicates completion of message transfer *=
+/
++	struct i2c_adapter *adapter;
++};
++
++static void i2c_sirfsoc_read_data(struct sirfsoc_i2c *siic)
++{
++	u32 data =3D 0;
++	int i =3D 0;
++
++	for (i =3D 0; i < siic->read_cmd_len; i++) {
++		if (!(i & 0x3))
++			data =3D readl(siic->base + SIRFSOC_I2C_DATA_BUF + i);
++		siic->buf[siic->finished_len++] =3D
++			(unsigned char)((data & SIRFSOC_I2C_DATA_MASK(i)) >>
++				SIRFSOC_I2C_DATA_SHIFT(i));
++
++		BUG_ON(siic->finished_len > siic->msg_len);
++	}
++}
++
++static void i2c_sirfsoc_queue_cmd(struct sirfsoc_i2c *siic)
++{
++	u32 regval;
++	int i =3D 0;
++
++	if (siic->msg_read) {
++		while (((siic->finished_len + i) < siic->msg_len)
++			&& (siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX)) {
++			regval =3D SIRFSOC_I2C_READ | SIRFSOC_I2C_CMD_RP(0);
++			if (((siic->finished_len + i) =3D=3D
++					(siic->msg_len - 1)) && siic->last)
++				regval |=3D SIRFSOC_I2C_STOP | SIRFSOC_I2C_NACK;
++			writel(regval,
++				siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
++			i++;
++		}
++
++		siic->read_cmd_len =3D i;
++	} else {
++		while ((siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX - 1)
++			&& (siic->finished_len < siic->msg_len)) {
++			regval =3D SIRFSOC_I2C_WRITE | SIRFSOC_I2C_CMD_RP(0);
++			if ((siic->finished_len =3D=3D (siic->msg_len - 1))
++				&& siic->last)
++				regval |=3D SIRFSOC_I2C_STOP;
++			writel(regval,
++				siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
++			writel(siic->buf[siic->finished_len++],
++				siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
++		}
++	}
++	siic->cmd_ptr =3D 0;
++
++	/* Trigger the transfer */
++	writel(SIRFSOC_I2C_START_CMD, siic->base + SIRFSOC_I2C_CMD_START);
++}
++
++static irqreturn_t i2c_sirfsoc_irq(int irq, void *dev_id)
++{
++	struct sirfsoc_i2c *siic =3D (struct sirfsoc_i2c *)dev_id;
++	u32 i2c_stat =3D readl(siic->base + SIRFSOC_I2C_STATUS);
++
++	if (i2c_stat & SIRFSOC_I2C_STAT_ERR) {
++		/* Error conditions */
++		siic->err_status =3D 1;
++		writel(SIRFSOC_I2C_STAT_ERR, siic->base + SIRFSOC_I2C_STATUS);
++
++		if (i2c_stat & SIRFSOC_I2C_STAT_NACK)
++			dev_err(&siic->adapter->dev, "ACK not received\n");
++		else
++			dev_err(&siic->adapter->dev, "I2C error\n");
++
++		complete(&siic->done);
++	} else if (i2c_stat & SIRFSOC_I2C_STAT_CMD_DONE) {
++		/* CMD buffer execution complete */
++		if (siic->msg_read)
++			i2c_sirfsoc_read_data(siic);
++		if (siic->finished_len =3D=3D siic->msg_len)
++			complete(&siic->done);
++		else /* Fill a new CMD buffer for left data */
++			i2c_sirfsoc_queue_cmd(siic);
++
++		writel(SIRFSOC_I2C_STAT_CMD_DONE, siic->base + SIRFSOC_I2C_STATUS);
++	}
++
++	return IRQ_HANDLED;
++}
++
++static void i2c_sirfsoc_set_address(struct sirfsoc_i2c *siic,
++	struct i2c_msg *msg)
++{
++	unsigned char addr;
++	u32 regval =3D SIRFSOC_I2C_START | SIRFSOC_I2C_CMD_RP(0) | SIRFSOC_I2=
+C_WRITE;
++
++	/* no data and last message -> add STOP */
++	if (siic->last && (msg->len =3D=3D 0))
++		regval |=3D SIRFSOC_I2C_STOP;
++
++	writel(regval, siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
++
++	addr =3D msg->addr << 1;	/* Generate address */
++	if (msg->flags & I2C_M_RD)
++		addr |=3D 1;
++	if (msg->flags & I2C_M_REV_DIR_ADDR)	/* Reverse direction bit */
++		addr ^=3D 1;
++
++	writel(addr, siic->base + SIRFSOC_I2C_CMD(siic->cmd_ptr++));
++}
++
++static int i2c_sirfsoc_xfer_msg(struct sirfsoc_i2c *siic, struct i2c_m=
+sg *msg)
++{
++	u32 regval =3D readl(siic->base + SIRFSOC_I2C_CTRL);
++	int timeout =3D (msg->len + 1) * 50;
++	int ret =3D 0;
++
++	i2c_sirfsoc_set_address(siic, msg);
++
++	writel(regval | SIRFSOC_I2C_CMD_DONE_EN | SIRFSOC_I2C_ERR_INT_EN,
++		siic->base + SIRFSOC_I2C_CTRL);
++	i2c_sirfsoc_queue_cmd(siic);
++
++	if (wait_for_completion_timeout(&siic->done, timeout) =3D=3D 0) {
++		siic->err_status =3D 1;
++		dev_err(&siic->adapter->dev, "Transfer timeout\n");
++	}
++
++	writel(regval & ~(SIRFSOC_I2C_CMD_DONE_EN | SIRFSOC_I2C_ERR_INT_EN),
++		siic->base + SIRFSOC_I2C_CTRL);
++	writel(0, siic->base + SIRFSOC_I2C_CMD_START);
++
++	if (siic->err_status) {
++		writel(readl(siic->base + SIRFSOC_I2C_CTRL) | SIRFSOC_I2C_RESET,
++			siic->base + SIRFSOC_I2C_CTRL);
++		while (readl(siic->base + SIRFSOC_I2C_CTRL) & SIRFSOC_I2C_RESET)
++			cpu_relax();
++
++		ret =3D -EIO;
++	}
++
++	return ret;
++}
++
++static u32 i2c_sirfsoc_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static int i2c_sirfsoc_xfer(struct i2c_adapter *adap, struct i2c_msg *=
+msgs,
++	int num)
++{
++	struct sirfsoc_i2c *siic =3D adap->algo_data;
++	int i, ret;
++
++	clk_enable(siic->clk);
++
++	for (i =3D 0; i < num; i++) {
++		siic->buf =3D msgs[i].buf;
++		siic->msg_len =3D msgs[i].len;
++
++		if (msgs[i].flags & I2C_M_RD)
++			siic->msg_read =3D 1;
++		else
++			siic->msg_read =3D 0;
++
++		siic->err_status =3D 0;
++		siic->cmd_ptr =3D 0;
++		siic->finished_len =3D 0;
++		if (i =3D=3D (num - 1))
++			siic->last =3D 1;
++		else
++			siic->last =3D 0;
++
++		ret =3D i2c_sirfsoc_xfer_msg(siic, &msgs[i]);
++		if (ret) {
++			clk_disable(siic->clk);
++			return ret;
++		}
++	}
++
++	clk_disable(siic->clk);
++	return num;
++}
++
++/* I2C algorithms associated with this master controller driver */
++static const struct i2c_algorithm i2c_sirfsoc_algo =3D {
++	.master_xfer =3D i2c_sirfsoc_xfer,
++	.functionality =3D i2c_sirfsoc_func,
++};
++
++static int __devinit i2c_sirfsoc_probe(struct platform_device *pdev)
++{
++	struct sirfsoc_i2c *siic;
++	struct i2c_adapter *new_adapter;
++	struct resource *mem_res;
++	struct clk *clk;
++	int ctrl_speed;
++
++	int err;
++	u32 regval;
++
++	clk =3D clk_get(&pdev->dev, NULL);
++	if (IS_ERR(clk)) {
++		err =3D PTR_ERR(clk);
++		dev_err(&pdev->dev, "Clock get failed\n");
++		goto err_get_clk;
++	}
++
++	err =3D clk_prepare(clk);
++	if (err) {
++		dev_err(&pdev->dev, "Clock prepare failed\n");
++		goto  err_clk_prep;
++	}
++
++	err =3D clk_enable(clk);
++	if (err) {
++		dev_err(&pdev->dev, "Clock enable failed\n");
++		goto  err_clk_en;
++	}
++
++	ctrl_speed =3D clk_get_rate(clk);
++
++	new_adapter =3D devm_kzalloc(&pdev->dev, sizeof(*new_adapter), GFP_KE=
+RNEL);
++	if (!new_adapter) {
++		dev_err(&pdev->dev,
++			"Can't allocate new i2c adapter!\n");
++		err =3D -ENOMEM;
++		goto out;
++	}
++
++	siic =3D devm_kzalloc(&pdev->dev, sizeof(*siic), GFP_KERNEL);
++	if (!siic) {
++		dev_err(&pdev->dev, "Can't allocate driver data\n");
++		err =3D -ENOMEM;
++		goto out;
++	}
++	new_adapter->class =3D I2C_CLASS_HWMON | I2C_CLASS_DDC | I2C_CLASS_SP=
+D;
++	siic->adapter =3D new_adapter;
++
++	mem_res =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (mem_res =3D=3D NULL) {
++		dev_err(&pdev->dev, "Unable to get MEM resource\n");
++		err =3D -EINVAL;
++		goto out;
++	}
++
++	siic->base =3D
++		devm_ioremap(&pdev->dev, mem_res->start, (mem_res->end - mem_res->st=
+art + 1));
++	if (siic->base =3D=3D NULL) {
++		dev_err(&pdev->dev, "IO remap failed!\n");
++		err =3D -ENOMEM;
++		goto out;
++	}
++
++	siic->irq =3D platform_get_irq(pdev, 0);
++	if (!siic->irq) {
++		err =3D -EINVAL;
++		goto out;
++	}
++	err =3D devm_request_irq(&pdev->dev, siic->irq, i2c_sirfsoc_irq, 0,
++		dev_name(&pdev->dev), siic);
++	if (err)
++		goto out;
++
++	new_adapter->algo =3D &i2c_sirfsoc_algo;
++	new_adapter->algo_data =3D siic;
++
++	new_adapter->dev.parent =3D &pdev->dev;
++	new_adapter->nr =3D pdev->id;
++
++	strlcpy(new_adapter->name, "sirfsoc-i2c", sizeof(new_adapter->name));
++
++	platform_set_drvdata(pdev, new_adapter);
++	init_completion(&siic->done);
++
++	/* Controller Initalisation */
++
++	writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL);
++	while (readl(siic->base + SIRFSOC_I2C_CTRL) & SIRFSOC_I2C_RESET)
++		cpu_relax();
++	writel(SIRFSOC_I2C_CORE_EN | SIRFSOC_I2C_MASTER_MODE,
++		siic->base + SIRFSOC_I2C_CTRL);
++
++	siic->clk =3D clk;
++	siic->speed =3D SIRFSOC_I2C_DEFAULT_SPEED;
++	if (siic->speed < 100000)
++		regval =3D
++			(2 * ctrl_speed) / (2 * siic->speed * 11);
++	else
++		regval =3D ctrl_speed / (siic->speed * 5);
++
++	writel(regval, siic->base + SIRFSOC_I2C_CLK_CTRL);
++	if (regval > 0xFF)
++		writel(0xFF, siic->base + SIRFSOC_I2C_SDA_DELAY);
++	else
++		writel(regval, siic->base + SIRFSOC_I2C_SDA_DELAY);
++
++	err =3D i2c_add_numbered_adapter(new_adapter);
++	if (err < 0) {
++		dev_err(&pdev->dev, "Can't add new i2c adapter\n");
++		goto out;
++	}
++
++	clk_disable(clk);
++
++	dev_info(&pdev->dev, " I2C adapter ready to operate\n");
++
++	return 0;
++
++out:
++	clk_disable(clk);
++err_clk_en:
++	clk_unprepare(clk);
++err_clk_prep:
++	clk_put(clk);
++err_get_clk:
++	return err;
++}
++
++static int __devexit i2c_sirfsoc_remove(struct platform_device *pdev)
++{
++	struct i2c_adapter *adapter =3D platform_get_drvdata(pdev);
++	struct sirfsoc_i2c *siic =3D adapter->algo_data;
++
++	writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL);
++	i2c_del_adapter(adapter);
++	clk_disable(siic->clk);
++	clk_unprepare(siic->clk);
++	clk_put(siic->clk);
++	return 0;
++}
++
++#ifdef CONFIG_PM
++static int i2c_sirfsoc_suspend(struct platform_device *pdev, pm_messag=
+e_t msg)
++{
++	struct i2c_adapter *adapter =3D platform_get_drvdata(pdev);
++	struct sirfsoc_i2c *siic =3D adapter->algo_data;
++
++	clk_enable(siic->clk);
++	siic->sda_delay =3D readl(siic->base + SIRFSOC_I2C_SDA_DELAY);
++	siic->clk_div =3D readl(siic->base + SIRFSOC_I2C_CLK_CTRL);
++	clk_disable(siic->clk);
++	return 0;
++}
++
++static int i2c_sirfsoc_resume(struct platform_device *pdev)
++{
++	struct i2c_adapter *adapter =3D platform_get_drvdata(pdev);
++	struct sirfsoc_i2c *siic =3D adapter->algo_data;
++
++	clk_enable(siic->clk);
++	writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL);
++	writel(SIRFSOC_I2C_CORE_EN | SIRFSOC_I2C_MASTER_MODE,
++		siic->base + SIRFSOC_I2C_CTRL);
++	writel(siic->clk_div, siic->base + SIRFSOC_I2C_CLK_CTRL);
++	writel(siic->sda_delay, siic->base + SIRFSOC_I2C_SDA_DELAY);
++	clk_disable(siic->clk);
++	return 0;
++}
++#else
++#define i2c_sirfsoc_suspend	NULL
++#define i2c_sirfsoc_resume	NULL
++#endif
++
++static const struct of_device_id sirfsoc_i2c_of_match[] __devinitconst=
+ =3D {
++	{ .compatible =3D "sirf,prima2-i2c", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, sirfsoc_i2c_of_match);
++
++static struct platform_driver i2c_sirfsoc_driver =3D {
++	.driver =3D {
++		.name =3D "sirfsoc_i2c",
++		.owner =3D THIS_MODULE,
++		.of_match_table =3D sirfsoc_i2c_of_match,
++	},
++	.probe =3D i2c_sirfsoc_probe,
++	.remove =3D __devexit_p(i2c_sirfsoc_remove),
++	.suspend =3D i2c_sirfsoc_suspend,
++	.resume =3D i2c_sirfsoc_resume,
++};
++
++static int __init i2c_sirfsoc_init(void)
++{
++	return platform_driver_register(&i2c_sirfsoc_driver);
++}
++arch_initcall(i2c_sirfsoc_init);
++
++static void __exit i2c_sirfsoc_exit(void)
++{
++	platform_driver_unregister(&i2c_sirfsoc_driver);
++}
++module_exit(i2c_sirfsoc_exit);
++
++MODULE_DESCRIPTION("SiRF SoC I2C master controller driver");
++MODULE_AUTHOR("Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, "
++	"Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>");
++MODULE_LICENSE("GPL v2");
+diff --git a/drivers/i2c/busses/i2c-sirf.h b/drivers/i2c/busses/i2c-sir=
+f.h
+new file mode 100644
+index 0000000..f79c019
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-sirf.h
+@@ -0,0 +1,61 @@
++/*
++ * I2C bus drivers for CSR SiRFprimaII
++ *
++ * Copyright (c) 2011 Cambridge Silicon Radio Limited, a CSR plc group=
+ company.
++ *
++ * Licensed under GPLv2 or later.
++ */
++
++#ifndef _SIRFSOC_I2C_BUS_H_
++#define _SIRFSOC_I2C_BUS_H_
++
++#include <linux/bitops.h>
++
++#define SIRFSOC_I2C_CLK_CTRL		0x00
++#define SIRFSOC_I2C_STATUS			0x0C
++#define SIRFSOC_I2C_CTRL			0x10
++#define SIRFSOC_I2C_IO_CTRL			0x14
++#define SIRFSOC_I2C_SDA_DELAY		0x18
++#define SIRFSOC_I2C_CMD_START		0x1C
++#define SIRFSOC_I2C_CMD_BUF			0x30
++#define SIRFSOC_I2C_DATA_BUF		0x80
++
++#define SIRFSOC_I2C_CMD_BUF_MAX		16
++#define SIRFSOC_I2C_DATA_BUF_MAX	16
++
++#define SIRFSOC_I2C_CMD(x)		(SIRFSOC_I2C_CMD_BUF + (x)*0x04)
++#define SIRFSOC_I2C_DATA_MASK(x)        (0xFF<<(((x)&3)*8))
++#define SIRFSOC_I2C_DATA_SHIFT(x)       (((x)&3)*8)
++
++#define SIRFSOC_I2C_DIV_MASK		(0xFFFF)
++
++/* I2C status flags */
++#define SIRFSOC_I2C_STAT_BUSY		BIT(0)
++#define SIRFSOC_I2C_STAT_TIP		BIT(1)
++#define SIRFSOC_I2C_STAT_NACK		BIT(2)
++#define SIRFSOC_I2C_STAT_TR_INT		BIT(4)
++#define SIRFSOC_I2C_STAT_STOP		BIT(6)
++#define SIRFSOC_I2C_STAT_CMD_DONE	BIT(8)
++#define SIRFSOC_I2C_STAT_ERR		BIT(9)
++#define SIRFSOC_I2C_CMD_INDEX		(0x1F<<16)
++
++/* I2C control flags */
++#define SIRFSOC_I2C_RESET			BIT(0)
++#define SIRFSOC_I2C_CORE_EN			BIT(1)
++#define SIRFSOC_I2C_MASTER_MODE		BIT(2)
++#define SIRFSOC_I2C_CMD_DONE_EN		BIT(11)
++#define SIRFSOC_I2C_ERR_INT_EN		BIT(12)
++
++#define SIRFSOC_I2C_SDA_DELAY_MASK	(0xFF)
++#define SIRFSOC_I2C_SCLF_FILTER		(3<<8)
++
++#define SIRFSOC_I2C_START_CMD		BIT(0)
++
++#define SIRFSOC_I2C_CMD_RP(x)		((x)&0x7)
++#define SIRFSOC_I2C_NACK		BIT(3)
++#define SIRFSOC_I2C_WRITE		BIT(4)
++#define SIRFSOC_I2C_READ		BIT(5)
++#define SIRFSOC_I2C_STOP		BIT(6)
++#define SIRFSOC_I2C_START		BIT(7)
++
++#endif
+--=20
+1.7.0.4
