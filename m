@@ -1,60 +1,31 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCH v2] OMAP: I2C: Fix the interrupt clearing in OMAP4
-Date: Mon, 21 Nov 2011 12:46:42 +0530
-Message-ID: <1321859802-5386-1-git-send-email-shubhrajyoti@ti.com>
+From: Jason Hui <jason.hui-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: About one i2c failure issue after system reset
+Date: Mon, 21 Nov 2011 15:35:59 +0800
+Message-ID: <CAFQ4atSRapXvhBnm=nH__zz2U=XRjxN4GK-JsXT=AEcKybANZA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, khilman@ti.com, ben-linux@fluff.org, Shubhrajyoti D <shubhrajyoti@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-For OMAP4 Interrupt enable register is a legacy register.
-To clear the interrupts we were writing 0 to it. However on OMAP4
-we were writing 1 to  IRQENABLE_CLR which clears only the arbitration
-lost interrupt. The patch intends to fix the same by writing 1
-to all the bits.
+Hi, Ben, Jean,
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- drivers/i2c/busses/i2c-omap.c |   15 ++++++++++++++-
- 1 files changed, 14 insertions(+), 1 deletions(-)
+I have one issue about the i2c failure: there will be on-going i2c
+transfer while system get reset.
+At the time when the reset happens, the slave may pull the SDA to
+LOW.After reset, the i2c master may reset, but
+the slave may still pull the SDA to LOW since there is no reset pin
+for the slave device to do i2c reset, thus
+result in the further i2c access failure forever unless we completely
+power off the system by pulling out
+the battery.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 2dfb631..bf4376f 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -167,6 +167,10 @@ enum {
- #define SYSC_IDLEMODE_SMART		0x2
- #define SYSC_CLOCKACTIVITY_FCLK		0x2
- 
-+
-+/* Mask to clear all the interrupts */
-+#define OMAP_I2C_IRQENABLE_CLR_ALL	0x6FFF
-+
- /* Errata definitions */
- #define I2C_OMAP_ERRATA_I207		(1 << 0)
- #define I2C_OMAP3_1P153			(1 << 1)
-@@ -308,8 +312,17 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
- 	pdata = pdev->dev.platform_data;
- 
- 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
-+
-+	/*
-+	 * The Interrupt enable register is a legacy register for OMAP4.
-+	 * However to clear all the interrupts we could write 0 to Interrupt
-+	 * enable reg  or  should write 1 to all the bits of the
-+	 * I2C_IRQENABLE_CLR register.
-+	 */
-+
- 	if (dev->rev >= OMAP_I2C_REV_ON_4430)
--		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR, 1);
-+		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR,
-+					OMAP_I2C_IRQENABLE_CLR_ALL);
- 	else
- 		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
- 
--- 
-1.7.1
+I know we have the shutdown member function, but as I know there is
+very less i2c master has implemented this
+function correctly. I think we need take seriously about this issue,
+do you have any comments? Thanks,
 
+
+Jason Liu
