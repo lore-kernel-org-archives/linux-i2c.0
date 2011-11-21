@@ -1,131 +1,54 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: reorganize muxes to a standard pattern
-Date: Mon, 21 Nov 2011 13:52:43 +0100
-Message-ID: <20111121125243.GA4768@pengutronix.de>
-References: <1321220474-11378-1-git-send-email-w.sang@pengutronix.de>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH v2] OMAP: I2C: Fix the interrupt clearing in OMAP4
+Date: Mon, 21 Nov 2011 10:35:07 -0800
+Message-ID: <871ut1s4ro.fsf@ti.com>
+References: <1321859802-5386-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1321220474-11378-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <1321859802-5386-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+	(Shubhrajyoti D.'s message of "Mon, 21 Nov 2011 12:46:42 +0530")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, "Pandita, Vikram" <vikram.pandita-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> For OMAP4 Interrupt enable register is a legacy register.
 
-On Sun, Nov 13, 2011 at 10:41:14PM +0100, Wolfram Sang wrote:
-> Analog to ca632f5 (spi: reorganize drivers), introduce a standard pattern
-> for naming the muxes. This is done for the rest of the I2C subsystem alre=
-ady, so
-> we stay in sync with that.
->=20
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
+I don't see anything in the docs mentioning this is legacy.  In fact,
+that register is used extensivly throughout the driver, even for OMAP4.
 
-Ping.
+I think the CLR/SET registers were added to aid atomically
+setting/clearing specific interrupts, but when disabling all, I don't
+see why I2C_IE cannot be used.
 
->=20
-> Only build tested.
->=20
->  drivers/i2c/muxes/Kconfig                          |    9 ---------
->  drivers/i2c/muxes/Makefile                         |    6 +++---
->  .../i2c/muxes/{gpio-i2cmux.c =3D> i2c-mux-gpio.c}    |    0
->  drivers/i2c/muxes/{pca9541.c =3D> i2c-mux-pca9541.c} |    0
->  drivers/i2c/muxes/{pca954x.c =3D> i2c-mux-pca954x.c} |    0
->  5 files changed, 3 insertions(+), 12 deletions(-)
->  rename drivers/i2c/muxes/{gpio-i2cmux.c =3D> i2c-mux-gpio.c} (100%)
->  rename drivers/i2c/muxes/{pca9541.c =3D> i2c-mux-pca9541.c} (100%)
->  rename drivers/i2c/muxes/{pca954x.c =3D> i2c-mux-pca954x.c} (100%)
->=20
-> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-> index 90b7a01..a112d9d 100644
-> --- a/drivers/i2c/muxes/Kconfig
-> +++ b/drivers/i2c/muxes/Kconfig
-> @@ -14,9 +14,6 @@ config I2C_MUX_GPIO
->  	  I2C busses connected through a MUX, which is controlled
->  	  through GPIO pins.
-> =20
-> -	  This driver can also be built as a module.  If so, the module
-> -	  will be called gpio-i2cmux.
-> -
->  config I2C_MUX_PCA9541
->  	tristate "NXP PCA9541 I2C Master Selector"
->  	depends on EXPERIMENTAL
-> @@ -24,9 +21,6 @@ config I2C_MUX_PCA9541
->  	  If you say yes here you get support for the NXP PCA9541
->  	  I2C Master Selector.
-> =20
-> -	  This driver can also be built as a module.  If so, the module
-> -	  will be called pca9541.
-> -
->  config I2C_MUX_PCA954x
->  	tristate "Philips PCA954x I2C Mux/switches"
->  	depends on EXPERIMENTAL
-> @@ -34,7 +28,4 @@ config I2C_MUX_PCA954x
->  	  If you say yes here you get support for the Philips PCA954x
->  	  I2C mux/switch devices.
-> =20
-> -	  This driver can also be built as a module.  If so, the module
-> -	  will be called pca954x.
-> -
->  endmenu
-> diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-> index 4640436..5826249 100644
-> --- a/drivers/i2c/muxes/Makefile
-> +++ b/drivers/i2c/muxes/Makefile
-> @@ -1,8 +1,8 @@
->  #
->  # Makefile for multiplexer I2C chip drivers.
-> =20
-> -obj-$(CONFIG_I2C_MUX_GPIO)	+=3D gpio-i2cmux.o
-> -obj-$(CONFIG_I2C_MUX_PCA9541)	+=3D pca9541.o
-> -obj-$(CONFIG_I2C_MUX_PCA954x)	+=3D pca954x.o
-> +obj-$(CONFIG_I2C_MUX_GPIO)	+=3D i2c-mux-gpio.o
-> +obj-$(CONFIG_I2C_MUX_PCA9541)	+=3D i2c-mux-pca9541.o
-> +obj-$(CONFIG_I2C_MUX_PCA954x)	+=3D i2c-mux-pca954x.o
-> =20
->  ccflags-$(CONFIG_I2C_DEBUG_BUS) :=3D -DDEBUG
-> diff --git a/drivers/i2c/muxes/gpio-i2cmux.c b/drivers/i2c/muxes/i2c-mux-=
-gpio.c
-> similarity index 100%
-> rename from drivers/i2c/muxes/gpio-i2cmux.c
-> rename to drivers/i2c/muxes/i2c-mux-gpio.c
-> diff --git a/drivers/i2c/muxes/pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9=
-541.c
-> similarity index 100%
-> rename from drivers/i2c/muxes/pca9541.c
-> rename to drivers/i2c/muxes/i2c-mux-pca9541.c
-> diff --git a/drivers/i2c/muxes/pca954x.c b/drivers/i2c/muxes/i2c-mux-pca9=
-54x.c
-> similarity index 100%
-> rename from drivers/i2c/muxes/pca954x.c
-> rename to drivers/i2c/muxes/i2c-mux-pca954x.c
-> --=20
-> 1.7.2.5
->=20
+For that reason, any reason why the 4430-specific check cannot simply be
+removed to fix this interrupt clearing bug?
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> To clear the interrupts we were writing 0 to it. 
 
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+This patch still writes 0 to it, so I'm not seeing the point of this comment.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+> However on OMAP4 we were writing 1 to IRQENABLE_CLR which clears only
+> the arbitration lost interrupt. The patch intends to fix the same by
+> writing 1 to all the bits.
 
-iEYEARECAAYFAk7KSZsACgkQD27XaX1/VRvphACfV/lSac3jWxnqI7TxDZ2VjqVF
-aGEAoKoqCnoqNrILN+hocsPOz6wBYynE
-=4zEV
------END PGP SIGNATURE-----
+This is the bug, and should come first in the changelog so readers know
+what the problem is.
 
---7JfCtLOvnd9MIVvH--
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+
+I believe this patch was originally from a fix by Vikram Pandita.  Even
+if you've now changed the implementation, please credit the original
+author (and Cc them) in the changelog.  It's common practice (and common
+courtesy) to say something like "Based on an a patch originally from
+Author <email>".  Thanks.
+
+Also, this patch doesn't apply to mainline or linux-omap master.  Can
+you please update?
+
+Thanks,
+
+Kevin
