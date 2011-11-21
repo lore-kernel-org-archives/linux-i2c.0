@@ -1,46 +1,60 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2] I2C: Make i2cdev_notifier_call static
-Date: Fri, 18 Nov 2011 17:54:25 +0100
-Message-ID: <20111118175425.77941c9a@endymion.delvare>
-References: <1321631251-4438-1-git-send-email-shubhrajyoti@ti.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCH v2] OMAP: I2C: Fix the interrupt clearing in OMAP4
+Date: Mon, 21 Nov 2011 12:46:42 +0530
+Message-ID: <1321859802-5386-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1321631251-4438-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, khilman@ti.com, ben-linux@fluff.org, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 18 Nov 2011 21:17:31 +0530, Shubhrajyoti D wrote:
-> The function i2cdev_notifier_call is used only in i2c-dev file
-> making it static.
-> Also removes the following sparse warning
-> 
-> drivers/i2c/i2c-dev.c:582:5: warning: symbol 'i2cdev_notifier_call'
-> was not declared. Should it be static?
-> 
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/i2c-dev.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> index c90ce50..57a45ce 100644
-> --- a/drivers/i2c/i2c-dev.c
-> +++ b/drivers/i2c/i2c-dev.c
-> @@ -579,7 +579,7 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
->  	return 0;
->  }
->  
-> -int i2cdev_notifier_call(struct notifier_block *nb, unsigned long action,
-> +static int i2cdev_notifier_call(struct notifier_block *nb, unsigned long action,
->  			 void *data)
->  {
->  	struct device *dev = data;
+For OMAP4 Interrupt enable register is a legacy register.
+To clear the interrupts we were writing 0 to it. However on OMAP4
+we were writing 1 to  IRQENABLE_CLR which clears only the arbitration
+lost interrupt. The patch intends to fix the same by writing 1
+to all the bits.
 
-Applied, thanks.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ drivers/i2c/busses/i2c-omap.c |   15 ++++++++++++++-
+ 1 files changed, 14 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 2dfb631..bf4376f 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -167,6 +167,10 @@ enum {
+ #define SYSC_IDLEMODE_SMART		0x2
+ #define SYSC_CLOCKACTIVITY_FCLK		0x2
+ 
++
++/* Mask to clear all the interrupts */
++#define OMAP_I2C_IRQENABLE_CLR_ALL	0x6FFF
++
+ /* Errata definitions */
+ #define I2C_OMAP_ERRATA_I207		(1 << 0)
+ #define I2C_OMAP3_1P153			(1 << 1)
+@@ -308,8 +312,17 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ 	pdata = pdev->dev.platform_data;
+ 
+ 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
++
++	/*
++	 * The Interrupt enable register is a legacy register for OMAP4.
++	 * However to clear all the interrupts we could write 0 to Interrupt
++	 * enable reg  or  should write 1 to all the bits of the
++	 * I2C_IRQENABLE_CLR register.
++	 */
++
+ 	if (dev->rev >= OMAP_I2C_REV_ON_4430)
+-		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR, 1);
++		omap_i2c_write_reg(dev, OMAP_I2C_IRQENABLE_CLR,
++					OMAP_I2C_IRQENABLE_CLR_ALL);
+ 	else
+ 		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
+ 
 -- 
-Jean Delvare
+1.7.1
+
