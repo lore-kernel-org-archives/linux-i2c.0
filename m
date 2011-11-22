@@ -1,203 +1,117 @@
 From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Still problems wit egt20 i2c driver
-Date: Tue, 22 Nov 2011 11:22:57 +0100
-Message-ID: <CAH9NwWf9PpRN6zMp+TPkiRpwLvLZZ-ukiOBHGb22qaFaypn91A@mail.gmail.com>
-References: <CAH9NwWf-Dgme+SBR4vwrVux5C12nTTe5sJuCpusdw8LqeVD+xA@mail.gmail.com>
- <CANKRQnhPW3n6X29x1hrn+tpNapoi_d6Dk0zykQ8sNHioMC0K_A@mail.gmail.com>
+Subject: Waiting until probe of i2c driver is done
+Date: Tue, 22 Nov 2011 11:32:06 +0100
+Message-ID: <CAH9NwWdLH32zMqzr8qsEb-HaW9sBAGHxHiBVdpTdhGsnjzwQZg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANKRQnhPW3n6X29x1hrn+tpNapoi_d6Dk0zykQ8sNHioMC0K_A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> Hi Christian,
->
-> I attached the latest our i2c-eg20t source file.
-> Is your source file the same as this?
+Hi ml,
 
-Hi,
+I run into a little problem, which I don't know how to solve it.
+I am using the eg20t i2c bus and a custom platform init
+driver, which gets started after eg20t is ready.
 
-the file is the same... but I have some good news for you :) After
-hooking up an oszi
-to the i2c bus we found a problem with our custom hardware. It works
-now as required.
-Sorry for for all this noise. Whats the sate of your i2c patches? Will
-they go into v3.3?
-I am willing to add my signed off line if needed/wanted.
+And there I do the following:
 
-thanks
+/* buzzer and relay */
+static struct gpio_led _gpio[] = {
+	{
+		.name = "relay",
+		.gpio = 0,
+		.active_low = 0,
+		.default_state = LEDS_GPIO_DEFSTATE_OFF,
+		.default_trigger = "timer",
+	}
+};
+
+static struct gpio_led_platform_data _gpio_data = {
+	.num_leds = ARRAY_SIZE(_gpio),
+	.leds = _gpio,
+};
+
+static struct platform_device _gpio_hw = {
+	.name = "leds-gpio",
+	.dev.platform_data = &_gpio_data,
+};
+
+static struct platform_device *devices_tc[] = {
+	&ot1300_gpio_hw,
+};
+
+
+int tunnelcreek_init(void)
+{
+	struct i2c_adapter *i2c_adap;
+
+	/* we use the integrated i2c adapter */
+	i2c_adap = i2c_get_adapter(0);
+
+	if (!i2c_adap)
+		return -EIO;
+
+	eeprom =  i2c_new_device(i2c_adap, &i2c_eeprom);
+	pca953x = i2c_new_device(i2c_adap, &pca9555_info);
+	lm75 = i2c_new_device(i2c_adap, &lm75_info);
+
+	platform_add_devices(devices_tc, ARRAY_SIZE(devices_tc));
+
+	return 0;
+}
+
+If I run this code I get following messages:
+
+[    1.552122] i2c 0-0050: uevent
+[    1.552307] at24 0-0050: probe
+[    1.552361] i2c 0-0051: uevent
+[    1.552530] dummy 0-0051: probe
+[    1.552544] i2c i2c-0: client [dummy] registered with bus id 0-0051
+[    1.552559] at24 0-0050: 512 byte 24c04 EEPROM, writable, 16 bytes/write
+[    1.552644] i2c i2c-0: master_xfer[0] W, addr=0x50, len=1
+[    1.552655] i2c i2c-0: master_xfer[1] R, addr=0x50, len=24
+[    1.557235] i2c i2c-0: master_xfer[0] W, addr=0x51, len=1
+[    1.557248] i2c i2c-0: master_xfer[1] R, addr=0x51, len=20
+[    1.560820] i2c i2c-0: client [24c04] registered with bus id 0-0050
+[    1.560944] i2c 0-0021: uevent
+[    1.561136] i2c i2c-0: client [pca9555] registered with bus id 0-0021
+[    1.561197] i2c 0-0048: uevent
+[    1.561357] i2c i2c-0: client [lm75] registered with bus id 0-0048
+[    1.561638] leds-gpio: probe of leds-gpio.0 failed with error -22
+[    1.568354] VFS: Mounted root (ext2 filesystem) readonly on device 8:2.
+[    1.569161] devtmpfs: mounted
+[    1.569307] Freeing unused kernel memory: 284k freed
+[    1.569725] Write protecting the kernel text: 2096k
+[    1.569880] Write protecting the kernel read-only data: 1008k
+[    1.577121] hub 1-1:1.0: USB hub found
+[    1.579246] hub 1-1:1.0: 3 ports detected
+[    1.795723] udev[1136]: starting version 164
+[    1.951100] usb 5-1: new low speed USB device number 2 using ohci_hcd
+[    1.968166] i2c 0-0021: uevent
+[    1.968284] i2c 0-0048: uevent
+[    1.968400] at24 0-0050: uevent
+[    1.968510] dummy 0-0051: uevent
+[    2.206885] i2c 0-0021: uevent
+[    2.208069] i2c 0-0048: uevent
+[    2.209305] at24 0-0050: uevent
+[    2.209928] at24 0-0050: uevent
+[    2.210459] dummy 0-0051: uevent
+[    2.211089] dummy 0-0051: uevent
+[    2.245582] pca953x 0-0021: probe
+[    2.245607] i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
+[    2.245624] i2c i2c-0: master_xfer[1] R, addr=0x21, len=2
+[    2.250589] i2c i2c-0: master_xfer[0] W, addr=0x21, len=1
+[    2.250607] i2c i2c-0: master_xfer[1] R, addr=0x21, len=2
+[    2.251338] i2c i2c-0: master_xfer[0] W, addr=0x21, len=3
+[    2.251900] pca953x 0-0021: interrupt support not compiled in
+[    2.252236] i2c-core: driver [pca953x] registered
+[
+
+The problem is that leds-gpio gets loaded before pca953x driver
+is ready. So no gpio's are available. Whats the best way to fix this?
+
+Thanks
 --
 Christian Gmeiner, MSc
-
-
-
-2011/11/22 Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> Hi Christian,
->
-> I attached the latest our i2c-eg20t source file.
-> Is your source file the same as this?
->
-> Regards,
-> ---
-> tomoya
-> ROHM Co., Ltd
->
-> 2011/11/21 Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->> Hi all,
->>
->> I still have some problems with the egt20 i2c driver. I am running a
->> 3.1.1 kernel with the following
->> patches applied to it:
->>
->> * [PATCH 1/7 v4] i2c-eg20t: Fix bus-idle waiting issue -
->> https://lkml.org/lkml/2011/10/12/3
->> * [PATCH 2/7 v4] i2c-eg20t: Modify returned value s32 to long -
->> https://lkml.org/lkml/2011/10/12/1
->> * [PATCH 3/7 v2] i2c-eg20t: Fix 10bit access issue -
->> https://lkml.org/lkml/2011/10/12/7
->> * [PATCH 4/7 v4] i2c-eg20t: Separate error processing -
->> https://lkml.org/lkml/2011/10/12/6
->> * [PATCH 5/7 v4] i2c-eg20t: add stop sequence in case wait-event
->> timeout occurs - https://lkml.org/lkml/2011/10/12/5
->> * [PATCH 6/7 v4] i2c-eg20t: Fix flag setting issue -
->> https://lkml.org/lkml/2011/10/12/2
->> * [PATCH 7/7 v4] i2c-eg20t: Add initialize processing in case
->> i2c-error occurs - https://lkml.org/lkml/2011/10/12/4
->> * [PATCH] i2c-eg20t: modified the setting of transfer rate. -
->> http://marc.info/?l=3Dlinux-i2c&m=3D131702145913299&w=3D2
->>
->> I have a PCA9555 (drivers/gpio/gpio-pca953x.c) at i2c addr 0x48.
->>
->> [ =C2=A0 21.505138] pca953x 0-0048: probe
->> [ =C2=A0 21.505157] i2c i2c-0: master_xfer[0] W, addr=3D0x48, len=3D=
-1
->> [ =C2=A0 21.505168] i2c i2c-0: master_xfer[1] R, addr=3D0x48, len=3D=
-2
->> [ =C2=A0 21.505180] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
->> :adap->p_adapter_info->pch_i2c_suspended is 0
->> [ =C2=A0 21.505190] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invo=
-king
->> I2C_MODE_SEL :flag=3D 0x0
->> [ =C2=A0 21.505206] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CC=
-TL =3D
->> 390 msgs->len =3D 1
->> [ =C2=A0 21.505220] i2c_eg20t 0000:02:0c.2: pch_i2c_start :I2CCTL =3D=
- 390
->> [ =C2=A0 21.505353] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.508667] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writ=
-ing 2
->> to Data register
->> [ =C2=A0 21.508772] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.510043] i2c_eg20t 0000:02:0c.2: pch_i2c_repstart :I2CCTL=
- =3D 3b0
->> [ =C2=A0 21.510058] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :retu=
-rn=3D1
->> [ =C2=A0 21.510068] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invo=
-king
->> I2C_MODE_SEL :flag=3D 0x1
->> [ =C2=A0 21.510209] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.517833] i2c_eg20t 0000:02:0c.2: pch_i2c_sendack :I2CCTL =
-=3D 3a0
->> [ =C2=A0 21.517962] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.517992] i2c_eg20t 0000:02:0c.2: pch_i2c_sendnack :I2CCTL=
- =3D 3a0
->> [ =C2=A0 21.518114] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.518230] i2c_eg20t 0000:02:0c.2: pch_i2c_stop :I2CCTL =3D=
- 3a8
->> [ =C2=A0 21.518251] i2c i2c-0: master_xfer[0] W, addr=3D0x48, len=3D=
-1
->> [ =C2=A0 21.518261] i2c i2c-0: master_xfer[1] R, addr=3D0x48, len=3D=
-2
->> [ =C2=A0 21.518271] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
->> :adap->p_adapter_info->pch_i2c_suspended is 0
->> [ =C2=A0 21.518281] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invo=
-king
->> I2C_MODE_SEL :flag=3D 0x0
->> [ =C2=A0 21.518296] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CC=
-TL =3D
->> 398 msgs->len =3D 1
->> [ =C2=A0 21.518311] i2c_eg20t 0000:02:0c.2: pch_i2c_start :I2CCTL =3D=
- 398
->> [ =C2=A0 21.518442] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.520533] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writ=
-ing 6
->> to Data register
->> [ =C2=A0 21.520627] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.520709] i2c_eg20t 0000:02:0c.2: pch_i2c_repstart :I2CCTL=
- =3D 3b8
->> [ =C2=A0 21.520721] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :retu=
-rn=3D1
->> [ =C2=A0 21.520731] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invo=
-king
->> I2C_MODE_SEL :flag=3D 0x1
->> [ =C2=A0 21.520868] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.522841] i2c_eg20t 0000:02:0c.2: pch_i2c_sendack :I2CCTL =
-=3D 3a8
->> [ =C2=A0 21.522968] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.523533] i2c_eg20t 0000:02:0c.2: pch_i2c_sendnack :I2CCTL=
- =3D 3a0
->> [ =C2=A0 21.523660] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.523785] i2c_eg20t 0000:02:0c.2: pch_i2c_stop :I2CCTL =3D=
- 3a8
->> [ =C2=A0 21.523807] i2c i2c-0: master_xfer[0] W, addr=3D0x48, len=3D=
-3
->> [ =C2=A0 21.523817] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer
->> :adap->p_adapter_info->pch_i2c_suspended is 0
->> [ =C2=A0 21.523827] i2c_eg20t 0000:02:0c.2: pch_i2c_xfer :After invo=
-king
->> I2C_MODE_SEL :flag=3D 0x0
->> [ =C2=A0 21.523842] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :I2CC=
-TL =3D
->> 398 msgs->len =3D 3
->> [ =C2=A0 21.523856] i2c_eg20t 0000:02:0c.2: pch_i2c_start :I2CCTL =3D=
- 398
->> [ =C2=A0 21.523988] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.524570] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writ=
-ing 4
->> to Data register
->> [ =C2=A0 21.524677] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.524791] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writ=
-ing 0
->> to Data register
->> [ =C2=A0 21.524899] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 28
->> [ =C2=A0 21.524948] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :writ=
-ing 0
->> to Data register
->> [ =C2=A0 21.525056] i2c_eg20t 0000:02:0c.2: pch_i2c_cb :PCH_I2CSR =3D=
- 9
->> [ =C2=A0 21.525666] i2c_eg20t 0000:02:0c.2: pch_i2c_getack :return-7=
-1
->> [ =C2=A0 21.525746] i2c_eg20t 0000:02:0c.2: pch_i2c_writebytes :Rece=
-ive
->> NACK for slave addresssetting
->> [ =C2=A0 21.525760] pca953x 0-0048: failed writing register
->> [ =C2=A0 21.525829] pca953x 0-0048: interrupt support not compiled i=
-n
->> [ =C2=A0 21.526029] i2c-core: driver [pca953x] registered
->> [ =C2=A0 21.526380] pca953x 0-0048: uevent
->>
->>
->> What informations do you need to get this fixed?
->>
->> thanks
->> --
->> Christian Gmeiner, MSc
->>
->
