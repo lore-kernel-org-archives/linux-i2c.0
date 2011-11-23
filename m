@@ -1,38 +1,62 @@
-From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: RE: [PATCH v5 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Wed, 23 Nov 2011 15:34:42 +0100
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D087B44FC83@wm021.weinmann.com>
-References: <D99582E5322435468A77E74BB0039E7B1D1655BF4D@SRV02.hamburg.garz-fricke.de>
- <EF2E73589CA71846A15D0B2CDF79505D087B40D16B@wm021.weinmann.com>
- <D99582E5322435468A77E74BB0039E7B1D1655BFBB@SRV02.hamburg.garz-fricke.de>
- <EF2E73589CA71846A15D0B2CDF79505D087B40D349@wm021.weinmann.com>
- <D99582E5322435468A77E74BB0039E7B1D1655C047@SRV02.hamburg.garz-fricke.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
+Date: Wed, 23 Nov 2011 16:35:55 +0100
+Message-ID: <cover.1322062555.git.n.voss@weinmann.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <D99582E5322435468A77E74BB0039E7B1D1655C047-6hi2BFpdtA3X4XV0xjfKZxOngtiEHj0sqGK+G5UkneY@public.gmane.org>
-Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Carsten Behling' <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
-Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Carsten,
+The old driver has two main deficencies:
+i)  No repeated start (Sr) condiction is possible, this makes it unusable
+    e.g. for most SMBus transfers.
+ii) I/O was done with polling/busy waiting what caused over-/underruns
+    even at light system loads and clock speeds.
 
-Carsten Behling wrote on 2011-11-23:
-> I think it must be:
-> 
-> +		for (i = 0; i < msg->len; ++i) {
-> +			internal_address |= ((unsigned)msg->buf[msg->len-1-i]) << (8 * i);
-> +			int_addr_flag += AT91_TWI_IADRSZ_1;
-> +		}
-> +		at91_twi_write(dev, AT91_TWI_IADR, internal_address);
+The new driver overcomes these deficencies and in addition allows for
+more than one TWI interface.
 
-yes, I think you're right. I tested only with 8 bit addresses
-(msg->len = 1), so I haven't seen this error.
+A remaining limitation is the fact, that only one repeated start is
+possible (two concatenated messages). This limitation is imposed by
+the hardware. However, this should not be a problem as all common
+i2c-client communication does not rely on more than one repeated start.
 
-I will modify the patch and post it later today.
+v7: Patch 4/5: i)  fix bug if internal address > 1 byte
+               ii) send stop when len == 1
+                   (both reported by Carsten Behling)
+v6: Patch 5/5: support for I2C_SMBUS_BLOCK_DATA transfers.
+    Better use of clk_(un)prepare().
+    More sensible transfer timeout.
+v5: Another round of review comments from Ryan Mallon, Felipe Balbi
+    and Russell King: convert twi clk to use .dev_id, cleanups
+v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
+    Moved register include file to local include, code cleanups
+v3: Integrated review comments from Ryan Mallon and Felipe Balbi
+v2: Fixed whitespace issue
 
-Thanks for this feedback,
-Niko
+Nikolaus Voss (5):
+  drivers/i2c/busses/i2c-at91.c: remove broken driver
+  Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
+  drivers/i2c/busses/i2c-at91.c: add new driver
+  G45 TWI: remove open drain setting for twi function gpios
+  i2c-at91.c: add SMBUS_READ_BLOCK_DATA functionality
+
+ arch/arm/mach-at91/at91cap9.c              |    1 +
+ arch/arm/mach-at91/at91rm9200.c            |    1 +
+ arch/arm/mach-at91/at91sam9260.c           |    1 +
+ arch/arm/mach-at91/at91sam9261.c           |    1 +
+ arch/arm/mach-at91/at91sam9263.c           |    1 +
+ arch/arm/mach-at91/at91sam9g45.c           |    2 +
+ arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
+ arch/arm/mach-at91/at91sam9rl.c            |    2 +
+ arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
+ drivers/i2c/busses/Kconfig                 |   11 +-
+ drivers/i2c/busses/i2c-at91.c              |  529 +++++++++++++++++-----------
+ drivers/i2c/busses/i2c-at91.h              |   80 +++++
+ 12 files changed, 408 insertions(+), 295 deletions(-)
+ delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
+ create mode 100644 drivers/i2c/busses/i2c-at91.h
+
+-- 
+1.7.5.4
