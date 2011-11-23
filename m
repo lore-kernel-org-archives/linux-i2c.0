@@ -1,84 +1,83 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH v7 3/5] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Wed, 23 Nov 2011 16:18:45 +0000
-Message-ID: <201111231618.45951.arnd@arndb.de>
-References: <cover.1322062555.git.n.voss@weinmann.de> <ee23c49c5a190a2cce0859f7828c2dc771ff3207.1322062555.git.n.voss@weinmann.de>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
+Date: Wed, 23 Nov 2011 23:32:38 +0000
+Message-ID: <20111123233238.GL19115@trinity.fluff.org>
+References: <cover.1322062555.git.n.voss@weinmann.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <ee23c49c5a190a2cce0859f7828c2dc771ff3207.1322062555.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1322062555.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 08 November 2011, Nikolaus Voss wrote:
 
+On Wed, Nov 23, 2011 at 04:35:55PM +0100, Nikolaus Voss wrote:
+> The old driver has two main deficencies:
+> i)  No repeated start (Sr) condiction is possible, this makes it unusable
+>     e.g. for most SMBus transfers.
+> ii) I/O was done with polling/busy waiting what caused over-/underruns
+>     even at light system loads and clock speeds.
+> 
+> The new driver overcomes these deficencies and in addition allows for
+> more than one TWI interface.
+> 
+> A remaining limitation is the fact, that only one repeated start is
+> possible (two concatenated messages). This limitation is imposed by
+> the hardware. However, this should not be a problem as all common
+> i2c-client communication does not rely on more than one repeated start.
+> 
+> v7: Patch 4/5: i)  fix bug if internal address > 1 byte
+>                ii) send stop when len == 1
+>                    (both reported by Carsten Behling)
+> v6: Patch 5/5: support for I2C_SMBUS_BLOCK_DATA transfers.
+>     Better use of clk_(un)prepare().
+>     More sensible transfer timeout.
+> v5: Another round of review comments from Ryan Mallon, Felipe Balbi
+>     and Russell King: convert twi clk to use .dev_id, cleanups
+> v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
+>     Moved register include file to local include, code cleanups
+> v3: Integrated review comments from Ryan Mallon and Felipe Balbi
+> v2: Fixed whitespace issue
+> 
+> Nikolaus Voss (5):
+>   drivers/i2c/busses/i2c-at91.c: remove broken driver
+>   Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
+>   drivers/i2c/busses/i2c-at91.c: add new driver
+>   G45 TWI: remove open drain setting for twi function gpios
+>   i2c-at91.c: add SMBUS_READ_BLOCK_DATA functionality
 
-> +
-> +static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
-> +{
-> +	return __raw_readl(dev->base + reg);
-> +}
-> +
-> +static void at91_twi_write(struct at91_twi_dev *dev, unsigned reg, unsigned val)
-> +{
-> +	__raw_writel(val, dev->base + reg);
-> +}
+Is the original driver so broken that the two could not co-exist, or are
+we making so many changes that there's no point in keeping the original
+one?
+ 
+>  arch/arm/mach-at91/at91cap9.c              |    1 +
+>  arch/arm/mach-at91/at91rm9200.c            |    1 +
+>  arch/arm/mach-at91/at91sam9260.c           |    1 +
+>  arch/arm/mach-at91/at91sam9261.c           |    1 +
+>  arch/arm/mach-at91/at91sam9263.c           |    1 +
+>  arch/arm/mach-at91/at91sam9g45.c           |    2 +
+>  arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
+>  arch/arm/mach-at91/at91sam9rl.c            |    2 +
+>  arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
+>  drivers/i2c/busses/Kconfig                 |   11 +-
+>  drivers/i2c/busses/i2c-at91.c              |  529 +++++++++++++++++-----------
+>  drivers/i2c/busses/i2c-at91.h              |   80 +++++
+>  12 files changed, 408 insertions(+), 295 deletions(-)
+>  delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
+>  create mode 100644 drivers/i2c/busses/i2c-at91.h
+> 
+> -- 
+> 1.7.5.4
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-Better use readl/writel or readl_relaxed/writel_relaxed.
+-- 
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
 
-> +/*
-> + * Calculate and set symmetric clock as stated in datasheet:
-> + * twi_clk = F_MAIN / (2 * cdiv * (1 << ckdiv) + 4)
-> + */
-> +static void __devinit at91_set_twi_clock(struct at91_twi_dev *dev, int twi_clk)
-> +{
-> +	const int div = DIV_ROUND_UP(clk_get_rate(dev->clk), 2 * twi_clk) - 2;
-> +	int ckdiv = fls(div >> 8);
-> +	const int cdiv = div >> ckdiv;
-> +
-> +	if (cpu_is_at91rm9200() && (ckdiv > 5)) {
-> +		dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
-> +		ckdiv = 5;
-> +	}
-
-Don't check a global property like this locally in the driver. Instead,
-make it a property of the device that you check here and set it based on
-the the device name set by the platform, or by a device tree property.
-
-> diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-> new file mode 100644
-> index 0000000..a898159
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-at91.h
-> @@ -0,0 +1,80 @@
-> +
-> +#ifndef AT91_TWI_H
-> +#define AT91_TWI_H
-> +
-
-No need for a header file if all the values in it are used in only one
-source file. Just move everything to i2c_at91.c
-
-> +#define	AT91_TWI_MMR		0x04		/* Master Mode Register */
-> +#define	AT91_TWI_IADRSZ		(3    <<  8)	/* Internal Device Address
-> +						 *  Size */
-> +#define	AT91_TWI_IADRSZ_NO	(0 << 8)
-> +#define	AT91_TWI_IADRSZ_1	(1 << 8)
-> +#define	AT91_TWI_IADRSZ_2	(2 << 8)
-> +#define	AT91_TWI_IADRSZ_3	(3 << 8)
-> +#define	AT91_TWI_MREAD		(1    << 12)	/* Master Read Direction */
-> +#define	AT91_TWI_DADR		(0x7f << 16)	/* Device Address */
-
-These are harder to read than just using hexadecimal bitmasks:
-
-#define	AT91_TWI_MMR		0x00000004
-#define	AT91_TWI_IADRSZ		0x00000300
-#define	AT91_TWI_IADRSZ_NO	0x00000000
-#define	AT91_TWI_IADRSZ_1	0x00000100
-...
-
-	Arnd
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
