@@ -1,107 +1,67 @@
-From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: RE: [PATCH v7 3/5] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Thu, 24 Nov 2011 11:33:41 +0100
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D087B44FEAF@wm021.weinmann.com>
-References: <cover.1322062555.git.n.voss@weinmann.de>
- <ee23c49c5a190a2cce0859f7828c2dc771ff3207.1322062555.git.n.voss@weinmann.de>
- <201111231618.45951.arnd@arndb.de>
+From: David Jander <david.jander-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org>
+Subject: RFC: I2C bus fault recovery and I2C reset
+Date: Thu, 24 Nov 2011 12:02:07 +0100
+Message-ID: <20111124120207.3e78e34b@archvile>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201111231618.45951.arnd-r2nGTMty4D4@public.gmane.org>
-Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Arnd Bergmann' <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org'" <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Darius Augulis <darius.augulis-Ft0m5Q12RQ9xBelEqimL3w@public.gmane.org>, giometti-k2GhghHVRtY@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-Arnd Bergmann wrote on 2011-11-23:
-> On Tuesday 08 November 2011, Nikolaus Voss wrote:
-> 
-> 
-> > +
-> > +static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
-> > +{
-> > +	return __raw_readl(dev->base + reg);
-> > +}
-> > +
-> > +static void at91_twi_write(struct at91_twi_dev *dev, unsigned reg, unsigned
-> val)
-> > +{
-> > +	__raw_writel(val, dev->base + reg);
-> > +}
-> 
-> Better use readl/writel or readl_relaxed/writel_relaxed.
+Hi all,
 
-ok, changed.
+I was debugging an I2C bus connected to a i2c-imx peripheral as master, with
+several slaves connected to it, when I realized that this driver (and many
+(all?) others) cannot recover from a bus fault in a graceful manner.
+If, for instance, one slave device misses one (or more) clock pulses for
+whatever reason during a slave->master transmission (read), during a
+0-data bit, this slave may eventually keep the SDA line active in low-state.
+Most I2C master peripherals, and particularly i2c-imx will not be able to
+continue operating. Any operation will just timeout with a "busy bus" error.
+The simplest and most often used way of recovering from such a situation is
+"resetting" the I2C bus, by toggling SCL a few times (maximum 9) until SDA is
+released again. After that a START sequence can successfully reset the state
+of any slave device.
 
-> 
-> > +/*
-> > + * Calculate and set symmetric clock as stated in datasheet:
-> > + * twi_clk = F_MAIN / (2 * cdiv * (1 << ckdiv) + 4)
-> > + */
-> > +static void __devinit at91_set_twi_clock(struct at91_twi_dev *dev, int
-> twi_clk)
-> > +{
-> > +	const int div = DIV_ROUND_UP(clk_get_rate(dev->clk), 2 * twi_clk) - 2;
-> > +	int ckdiv = fls(div >> 8);
-> > +	const int cdiv = div >> ckdiv;
-> > +
-> > +	if (cpu_is_at91rm9200() && (ckdiv > 5)) {
-> > +		dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
-> > +		ckdiv = 5;
-> > +	}
-> 
-> Don't check a global property like this locally in the driver. Instead,
-> make it a property of the device that you check here and set it based on
-> the the device name set by the platform, or by a device tree property.
+One can argue whether it may or may not be accepted that this happens under
+normal circumstances, but it definitely can happen at any moment (heavy EMC
+interference, bad bus design, long bus, misbehaving slave... you name it), and
+IMHO a linux-driver should always have the ability to try to recover gracefully
+from such an event. Whether the system this bus takes part of can tolerate
+such a situation or not is not up to the driver to decide either... it should
+just try to recover.
 
-Yes, this is a known problem and was discussed in
-https://lkml.org/lkml/2011/11/8/217 . The main problem is that there a no
-revisions for specific at91 IP devices but the revision is implicitly
-defined by the cpu type and version. Changing this would need to add some
-arch infrastructure which I think is beyond the scope of this driver.
+This issue seems to have been discussed before in this thread:
 
-> > diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
-> > new file mode 100644
-> > index 0000000..a898159
-> > --- /dev/null
-> > +++ b/drivers/i2c/busses/i2c-at91.h
-> > @@ -0,0 +1,80 @@
-> > +
-> > +#ifndef AT91_TWI_H
-> > +#define AT91_TWI_H
-> > +
-> 
-> No need for a header file if all the values in it are used in only one
-> source file. Just move everything to i2c_at91.c
-> 
-> > +#define	AT91_TWI_MMR		0x04		/* Master Mode Register */
-> > +#define	AT91_TWI_IADRSZ		(3    <<  8)	/* Internal Device Address
-> > +						 *  Size */
-> > +#define	AT91_TWI_IADRSZ_NO	(0 << 8)
-> > +#define	AT91_TWI_IADRSZ_1	(1 << 8)
-> > +#define	AT91_TWI_IADRSZ_2	(2 << 8)
-> > +#define	AT91_TWI_IADRSZ_3	(3 << 8)
-> > +#define	AT91_TWI_MREAD		(1    << 12)	/* Master Read Direction
-> */
-> > +#define	AT91_TWI_DADR		(0x7f << 16)	/* Device Address */
-> 
-> These are harder to read than just using hexadecimal bitmasks:
-> 
-> #define	AT91_TWI_MMR		0x00000004
-> #define	AT91_TWI_IADRSZ		0x00000300
-> #define	AT91_TWI_IADRSZ_NO	0x00000000
-> #define	AT91_TWI_IADRSZ_1	0x00000100
-> ...
+http://article.gmane.org/gmane.linux.drivers.i2c/3010
 
-I agree, but this header file was already used by the old driver and
-converting would add possible errors to register definitions which are
-not (yet) used. That's why I've left it as is and just made it a local
-include.
+The proposed solution back then was to issue a reset sequence "by hand" via a
+sysfs interface. This may be useful for debugging, but IMHO an I2C driver
+needs to do this automatically.
 
-Thanks,
-Niko
+For many peripherals in order to support this, a special function would be
+needed, that reconfigures the SDA/SCL pins as GPIO and manually toggles SCL a
+few times. This would probably need to be implemented in
+board-support-/platform code...?
+
+In my specific situation, there was no way of recovering other than
+power-cycling the device, which is completely unacceptable, specially for an
+industrial control system. A temporary bus-lockup with automatic recovery via a
+proper I2C bus reset OTOH, wouldn't have any significant impact even if
+occurring sporadically.
+Individually resetting I2C slaves is also not a real solution because it may
+not be possible to determine which is the I2C slave that misbehaved.
+
+Any idea on how to solve this problem?
+Should each driver implement support for it and implement optional callback
+functions in platform-data?
+
+Best regards,
+
+-- 
+David Jander
+Protonic Holland.
