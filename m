@@ -1,53 +1,66 @@
-From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Still problems wit egt20 i2c driver
-Date: Thu, 24 Nov 2011 11:24:21 +0900
-Message-ID: <CANKRQngiX55p0VTzV63mpRfxgcqov-izDbivqwbgFyeAXZc=kQ@mail.gmail.com>
-References: <CAH9NwWf-Dgme+SBR4vwrVux5C12nTTe5sJuCpusdw8LqeVD+xA@mail.gmail.com>
-	<CANKRQnhPW3n6X29x1hrn+tpNapoi_d6Dk0zykQ8sNHioMC0K_A@mail.gmail.com>
-	<CAH9NwWf9PpRN6zMp+TPkiRpwLvLZZ-ukiOBHGb22qaFaypn91A@mail.gmail.com>
-	<CANKRQniAsE-S_v15hRci8tXZpmaymL-7Sg=dyPxdnjGZm5=7fA@mail.gmail.com>
-	<20111124001120.GM19115@trinity.fluff.org>
+From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: RE: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
+Date: Thu, 24 Nov 2011 07:33:09 +0100
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D087B44FD63@wm021.weinmann.com>
+References: <cover.1322062555.git.n.voss@weinmann.de>
+ <20111123233238.GL19115@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111124001120.GM19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+In-Reply-To: <20111123233238.GL19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Ben Dooks' <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org'" <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben
+Hi,
 
-It seems the following patches are not reviewed yet.
-[PATCH] i2c-eg20t: modified the setting of transfer rate (Mon, 26 Sep
-2011 16:16:23 +0900)
-[PATCH 1/2] i2c-eg20t: Support new device LAPIS Semiconductor ML7831
-IOH (Fri, 28 Oct 2011 09:40:10 +0900)
-[PATCH 2/2] i2c-eg20t: Change-company-name-OKI-SEMICONDUCTOR to LAPIS
-Semiconductor
+Ben Dooks wrote on 2011-11-24:
+> On Wed, Nov 23, 2011 at 04:35:55PM +0100, Nikolaus Voss wrote:
+> > The old driver has two main deficencies:
+> > i)  No repeated start (Sr) condiction is possible, this makes it unusable
+> >     e.g. for most SMBus transfers.
+> > ii) I/O was done with polling/busy waiting what caused over-/underruns
+> >     even at light system loads and clock speeds.
+> >
+> > The new driver overcomes these deficencies and in addition allows for
+> > more than one TWI interface.
+> >
+> > A remaining limitation is the fact, that only one repeated start is
+> > possible (two concatenated messages). This limitation is imposed by
+> > the hardware. However, this should not be a problem as all common
+> > i2c-client communication does not rely on more than one repeated start.
+> >
+> > v7: Patch 4/5: i)  fix bug if internal address > 1 byte
+> >                ii) send stop when len == 1
+> >                    (both reported by Carsten Behling)
+> > v6: Patch 5/5: support for I2C_SMBUS_BLOCK_DATA transfers.
+> >     Better use of clk_(un)prepare().
+> >     More sensible transfer timeout.
+> > v5: Another round of review comments from Ryan Mallon, Felipe Balbi
+> >     and Russell King: convert twi clk to use .dev_id, cleanups
+> > v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
+> >     Moved register include file to local include, code cleanups
+> > v3: Integrated review comments from Ryan Mallon and Felipe Balbi
+> > v2: Fixed whitespace issue
+> >
+> > Nikolaus Voss (5):
+> >   drivers/i2c/busses/i2c-at91.c: remove broken driver
+> >   Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
+> >   drivers/i2c/busses/i2c-at91.c: add new driver
+> >   G45 TWI: remove open drain setting for twi function gpios
+> >   i2c-at91.c: add SMBUS_READ_BLOCK_DATA functionality
+> 
+> Is the original driver so broken that the two could not co-exist, or are
+> we making so many changes that there's no point in keeping the original
+> one?
 
-Thanks in advance.
+The old driver was marked as broken for the above reasons and I can hardly
+imagine any setup in which it would be preferable to i2c-gpio. So it does
+not make any sense to keep the old driver alive. Though inspired by the old
+driver, the new one is almost a rewrite from scratch, so for better reviewing,
+I removed the old instead of doing a diff.
 
----
-tomoya
-ROHM Co., Ltd
-
-2011/11/24 Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>:
-> On Tue, Nov 22, 2011 at 07:52:57PM +0900, Tomoya MORINAGA wrote:
->> Hi Christian,
->>
->> Good news!
->>
->> Except "[PATCH] i2c-eg20t: modified the setting of transfer rate",
->> all patches already accepted.
->> So, they will got into linux-3.3.
->
-> If there's anything that been missed, let me know as I intend on
-> starting -next up again at the weekend.
->
-> --
-> Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
->
-> Large Hadron Colada: A large Pina Colada that makes the universe disappear.
->
->
+Niko
