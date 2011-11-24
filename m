@@ -1,77 +1,59 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
-Date: Thu, 24 Nov 2011 09:37:47 +0100
-Message-ID: <20111124083747.GE8439@pengutronix.de>
+From: Dong Aisheng-B29396 <B29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
+Date: Thu, 24 Nov 2011 09:02:21 +0000
+Message-ID: <65EE16ACC360FA4D99C96DC085B3F77233A4E4@039-SN1MPN1-002.039d.mgd.msft.net>
 References: <1322121140-5216-1-git-send-email-shawn.guo@linaro.org>
  <20111124082903.GV19986@pengutronix.de>
+ <20111124083747.GE8439@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="phCU5ROyZO6kBE05"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20111124082903.GV19986-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20111124083747.GE8439-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, =?utf-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---phCU5ROyZO6kBE05
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Nov 24, 2011 at 09:29:03AM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> Hello Shawn,
->=20
-> On Thu, Nov 24, 2011 at 03:52:20PM +0800, Shawn Guo wrote:
-> >   CC      drivers/i2c/busses/i2c-mxs.o
-> > drivers/i2c/busses/i2c-mxs.c: In function =E2=80=98mxs_i2c_xfer=E2=80=
-=99:
-> > drivers/i2c/busses/i2c-mxs.c:196:6: warning: =E2=80=98data=E2=80=99 may=
- be used uninitialized in this function
-> >=20
-> > Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-mxs.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
-> >=20
-> > diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> > index 7e78f7c..00f098f 100644
-> > --- a/drivers/i2c/busses/i2c-mxs.c
-> > +++ b/drivers/i2c/busses/i2c-mxs.c
-> > @@ -193,7 +193,7 @@ static int mxs_i2c_wait_for_data(struct mxs_i2c_dev=
- *i2c)
-> > =20
-> >  static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf, int l=
-en)
-> >  {
-> > -	u32 data;
-> > +	u32 data =3D 0;
-> >  	int i;
-> > =20
-> >  	for (i =3D 0; i < len; i++) {
-> Looks like a stupid compiler. Then better use=20
->=20
-> 	u32 uninitialized_var(data);
-
-Leave it as it is and fix the compiler? Will do another test later to make
-sure.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---phCU5ROyZO6kBE05
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk7OAlsACgkQD27XaX1/VRtE2QCcCAv0h/YnzmZ7HRrOdIYqkFlC
-BI0An1dgbfupuq9g2I0KsGRFxluursMq
-=sR8B
------END PGP SIGNATURE-----
-
---phCU5ROyZO6kBE05--
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBsaW51eC1hcm0ta2VybmVsLWJv
+dW5jZXNAbGlzdHMuaW5mcmFkZWFkLm9yZyBbbWFpbHRvOmxpbnV4LWFybS0NCj4ga2VybmVsLWJv
+dW5jZXNAbGlzdHMuaW5mcmFkZWFkLm9yZ10gT24gQmVoYWxmIE9mIFdvbGZyYW0gU2FuZw0KPiBT
+ZW50OiBUaHVyc2RheSwgTm92ZW1iZXIgMjQsIDIwMTEgNDozOCBQTQ0KPiBUbzogVXdlIEtsZWlu
+ZS1Lw7ZuaWcNCj4gQ2M6IFNoYXduIEd1bzsgbGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRl
+YWQub3JnOyBCZW4gRG9va3M7IGxpbnV4LQ0KPiBpMmNAdmdlci5rZXJuZWwub3JnDQo+IFN1Ympl
+Y3Q6IFJlOiBbUEFUQ0hdIGkyYy1teHM6IGZpeCBjb21waWxlIHdhcm5pbmcgaW4gbXhzX2kyY194
+ZmVyKCkNCj4gDQo+IE9uIFRodSwgTm92IDI0LCAyMDExIGF0IDA5OjI5OjAzQU0gKzAxMDAsIFV3
+ZSBLbGVpbmUtS8O2bmlnIHdyb3RlOg0KPiA+IEhlbGxvIFNoYXduLA0KPiA+DQo+ID4gT24gVGh1
+LCBOb3YgMjQsIDIwMTEgYXQgMDM6NTI6MjBQTSArMDgwMCwgU2hhd24gR3VvIHdyb3RlOg0KPiA+
+ID4gICBDQyAgICAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLm8NCj4gPiA+IGRyaXZlcnMv
+aTJjL2J1c3Nlcy9pMmMtbXhzLmM6IEluIGZ1bmN0aW9uIOKAmG14c19pMmNfeGZlcuKAmToNCj4g
+PiA+IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLmM6MTk2OjY6IHdhcm5pbmc6IOKAmGRhdGHi
+gJkgbWF5IGJlIHVzZWQNCj4gPiA+IHVuaW5pdGlhbGl6ZWQgaW4gdGhpcyBmdW5jdGlvbg0KPiA+
+ID4NCj4gPiA+IFNpZ25lZC1vZmYtYnk6IFNoYXduIEd1byA8c2hhd24uZ3VvQGxpbmFyby5vcmc+
+DQo+ID4gPiAtLS0NCj4gPiA+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW14cy5jIHwgICAgMiAr
+LQ0KPiA+ID4gIDEgZmlsZXMgY2hhbmdlZCwgMSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9ucygt
+KQ0KPiA+ID4NCj4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW14cy5j
+DQo+ID4gPiBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLmMgaW5kZXggN2U3OGY3Yy4uMDBm
+MDk4ZiAxMDA2NDQNCj4gPiA+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLmMNCj4g
+PiA+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLmMNCj4gPiA+IEBAIC0xOTMsNyAr
+MTkzLDcgQEAgc3RhdGljIGludCBteHNfaTJjX3dhaXRfZm9yX2RhdGEoc3RydWN0DQo+ID4gPiBt
+eHNfaTJjX2RldiAqaTJjKQ0KPiA+ID4NCj4gPiA+ICBzdGF0aWMgaW50IG14c19pMmNfZmluaXNo
+X3JlYWQoc3RydWN0IG14c19pMmNfZGV2ICppMmMsIHU4ICpidWYsDQo+ID4gPiBpbnQgbGVuKSAg
+ew0KPiA+ID4gLQl1MzIgZGF0YTsNCj4gPiA+ICsJdTMyIGRhdGEgPSAwOw0KPiA+ID4gIAlpbnQg
+aTsNCj4gPiA+DQo+ID4gPiAgCWZvciAoaSA9IDA7IGkgPCBsZW47IGkrKykgew0KPiA+IExvb2tz
+IGxpa2UgYSBzdHVwaWQgY29tcGlsZXIuIFRoZW4gYmV0dGVyIHVzZQ0KPiA+DQo+ID4gCXUzMiB1
+bmluaXRpYWxpemVkX3ZhcihkYXRhKTsNCj4gDQo+IExlYXZlIGl0IGFzIGl0IGlzIGFuZCBmaXgg
+dGhlIGNvbXBpbGVyPyBXaWxsIGRvIGFub3RoZXIgdGVzdCBsYXRlciB0bw0KPiBtYWtlIHN1cmUu
+DQo+IA0KDQpDb21waWxlciBpcyB3cm9uZz8NCkp1c3QgZnJvbSB0aGUgY29kZSB0aGF0IGl0IHNl
+ZW1zIHRvIGJlIHJpZ2h0IHRoZSAnZGF0YScgbWlnaHQgYmUgdXNlZA0KdW5pbml0aWFsaXplZC4N
+Cg0KU29tZXRoaW5nIEkgbWlzc2VkPw0KDQpzdGF0aWMgaW50IG14c19pMmNfZmluaXNoX3JlYWQo
+c3RydWN0IG14c19pMmNfZGV2ICppMmMsIHU4ICpidWYsIGludCBsZW4pDQp7DQogICAgICAgIHUz
+MiBkYXRhOw0KICAgICAgICBpbnQgaTsNCg0KICAgICAgICBmb3IgKGkgPSAwOyBpIDwgbGVuOyBp
+KyspIHsNCiAgICAgICAgICAgICAgICBpZiAoKGkgJiAzKSA9PSAwKSB7DQogICAgICAgICAgICAg
+ICAgICAgICAgICBpZiAobXhzX2kyY193YWl0X2Zvcl9kYXRhKGkyYykpDQogICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgIHJldHVybiAtRVRJTUVET1VUOw0KICAgICAgICAgICAgICAgICAg
+ICAgICAgZGF0YSA9IHJlYWRsKGkyYy0+cmVncyArIE1YU19JMkNfUVVFVUVEQVRBKTsNCiAgICAg
+ICAgICAgICAgICB9DQogICAgICAgICAgICAgICAgYnVmW2ldID0gZGF0YSAmIDB4ZmY7DQogICAg
+ICAgICAgICAgICAgZGF0YSA+Pj0gODsNCiAgICAgICAgfQ0KDQogICAgICAgIHJldHVybiAwOw0K
+fQ0KDQpSZWdhcmRzDQpEb25nIEFpc2hlbmcNCg==
