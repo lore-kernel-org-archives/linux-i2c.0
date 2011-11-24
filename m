@@ -1,89 +1,70 @@
-From: Dong Aisheng-B29396 <B29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: =?utf-8?Q?Lothar_Wa=C3=9Fmann?= <LW@KARO-electronics.de>
 Subject: RE: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
-Date: Thu, 24 Nov 2011 09:09:15 +0000
-Message-ID: <65EE16ACC360FA4D99C96DC085B3F77233A509@039-SN1MPN1-002.039d.mgd.msft.net>
+Date: Thu, 24 Nov 2011 10:11:47 +0100
+Message-ID: <20174.2643.823394.322927@ipc1.ka-ro>
 References: <1322121140-5216-1-git-send-email-shawn.guo@linaro.org>
  <20111124082903.GV19986@pengutronix.de>
  <20111124083747.GE8439@pengutronix.de>
  <65EE16ACC360FA4D99C96DC085B3F77233A4E4@039-SN1MPN1-002.039d.mgd.msft.net>
- <20111124090653.GX19986@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111124090653.GX19986-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?iso-8859-1?Q?Uwe_Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <65EE16ACC360FA4D99C96DC085B3F77233A4E4@039-SN1MPN1-002.039d.mgd.msft.net>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Dong Aisheng-B29396 <B29396@freescale.com>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Uwe Kleine-K=F6nig [mailto:u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
-> Sent: Thursday, November 24, 2011 5:07 PM
-> To: Dong Aisheng-B29396
-> Cc: Wolfram Sang; Shawn Guo; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; Be=
-n
-> Dooks; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: Re: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
->=20
-> Hello,
->=20
-> On Thu, Nov 24, 2011 at 09:02:21AM +0000, Dong Aisheng-B29396 wrote:
-> > > > > diff --git a/drivers/i2c/busses/i2c-mxs.c
-> > > > > b/drivers/i2c/busses/i2c-mxs.c index 7e78f7c..00f098f 100644
-> > > > > --- a/drivers/i2c/busses/i2c-mxs.c
-> > > > > +++ b/drivers/i2c/busses/i2c-mxs.c
-> > > > > @@ -193,7 +193,7 @@ static int mxs_i2c_wait_for_data(struct
-> > > > > mxs_i2c_dev *i2c)
-> > > > >
-> > > > >  static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8
-> > > > > *buf, int len)  {
-> > > > > -	u32 data;
-> > > > > +	u32 data =3D 0;
-> > > > >  	int i;
-> > > > >
-> > > > >  	for (i =3D 0; i < len; i++) {
-> > > > Looks like a stupid compiler. Then better use
-> > > >
-> > > > 	u32 uninitialized_var(data);
-> > >
-> > > Leave it as it is and fix the compiler? Will do another test late=
-r
-> > > to make sure.
-> > >
-> >
-> > Compiler is wrong?
-> > Just from the code that it seems to be right the 'data' might be us=
-ed
-> > uninitialized.
-> >
-> > Something I missed?
-> >
-> > static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf, in=
-t
-> > len) {
-> >         u32 data;
-> >         int i;
-> >
-> >         for (i =3D 0; i < len; i++) {
-> >                 if ((i & 3) =3D=3D 0) {
-> >                         if (mxs_i2c_wait_for_data(i2c))
-> >                                 return -ETIMEDOUT;
-> >                         data =3D readl(i2c->regs + MXS_I2C_QUEUEDAT=
-A);
-> >                 }
-> >                 buf[i] =3D data & 0xff;
-> >                 data >>=3D 8;
-> >         }
-> When data is used the first time, i is 0, so it went through the body=
- of
-> the if above before which assigned data. So no, data is initialized w=
-hen
-> used to assign buf[i].
->=20
-Ok, Thanks for the info.
-So the compiler should do intelligent checking.
-
-Regards
-Dong Aisheng
+SGksCgpEb25nIEFpc2hlbmctQjI5Mzk2IHdyaXRlczoKPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
+ZS0tLS0tCj4gPiBGcm9tOiBsaW51eC1hcm0ta2VybmVsLWJvdW5jZXNAbGlzdHMuaW5mcmFkZWFk
+Lm9yZyBbbWFpbHRvOmxpbnV4LWFybS0KPiA+IGtlcm5lbC1ib3VuY2VzQGxpc3RzLmluZnJhZGVh
+ZC5vcmddIE9uIEJlaGFsZiBPZiBXb2xmcmFtIFNhbmcKPiA+IFNlbnQ6IFRodXJzZGF5LCBOb3Zl
+bWJlciAyNCwgMjAxMSA0OjM4IFBNCj4gPiBUbzogVXdlIEtsZWluZS1Lw7ZuaWcKPiA+IENjOiBT
+aGF3biBHdW87IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgQmVuIERvb2tz
+OyBsaW51eC0KPiA+IGkyY0B2Z2VyLmtlcm5lbC5vcmcKPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0hd
+IGkyYy1teHM6IGZpeCBjb21waWxlIHdhcm5pbmcgaW4gbXhzX2kyY194ZmVyKCkKPiA+IAo+ID4g
+T24gVGh1LCBOb3YgMjQsIDIwMTEgYXQgMDk6Mjk6MDNBTSArMDEwMCwgVXdlIEtsZWluZS1Lw7Zu
+aWcgd3JvdGU6Cj4gPiA+IEhlbGxvIFNoYXduLAo+ID4gPgo+ID4gPiBPbiBUaHUsIE5vdiAyNCwg
+MjAxMSBhdCAwMzo1MjoyMFBNICswODAwLCBTaGF3biBHdW8gd3JvdGU6Cj4gPiA+ID4gICBDQyAg
+ICAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLm8KPiA+ID4gPiBkcml2ZXJzL2kyYy9idXNz
+ZXMvaTJjLW14cy5jOiBJbiBmdW5jdGlvbiDigJhteHNfaTJjX3hmZXLigJk6Cj4gPiA+ID4gZHJp
+dmVycy9pMmMvYnVzc2VzL2kyYy1teHMuYzoxOTY6Njogd2FybmluZzog4oCYZGF0YeKAmSBtYXkg
+YmUgdXNlZAo+ID4gPiA+IHVuaW5pdGlhbGl6ZWQgaW4gdGhpcyBmdW5jdGlvbgo+ID4gPiA+Cj4g
+PiA+ID4gU2lnbmVkLW9mZi1ieTogU2hhd24gR3VvIDxzaGF3bi5ndW9AbGluYXJvLm9yZz4KPiA+
+ID4gPiAtLS0KPiA+ID4gPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1teHMuYyB8ICAgIDIgKy0K
+PiA+ID4gPiAgMSBmaWxlcyBjaGFuZ2VkLCAxIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb25zKC0p
+Cj4gPiA+ID4KPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1teHMu
+Ywo+ID4gPiA+IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1teHMuYyBpbmRleCA3ZTc4ZjdjLi4w
+MGYwOThmIDEwMDY0NAo+ID4gPiA+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLmMK
+PiA+ID4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW14cy5jCj4gPiA+ID4gQEAgLTE5
+Myw3ICsxOTMsNyBAQCBzdGF0aWMgaW50IG14c19pMmNfd2FpdF9mb3JfZGF0YShzdHJ1Y3QKPiA+
+ID4gPiBteHNfaTJjX2RldiAqaTJjKQo+ID4gPiA+Cj4gPiA+ID4gIHN0YXRpYyBpbnQgbXhzX2ky
+Y19maW5pc2hfcmVhZChzdHJ1Y3QgbXhzX2kyY19kZXYgKmkyYywgdTggKmJ1ZiwKPiA+ID4gPiBp
+bnQgbGVuKSAgewo+ID4gPiA+IC0JdTMyIGRhdGE7Cj4gPiA+ID4gKwl1MzIgZGF0YSA9IDA7Cj4g
+PiA+ID4gIAlpbnQgaTsKPiA+ID4gPgo+ID4gPiA+ICAJZm9yIChpID0gMDsgaSA8IGxlbjsgaSsr
+KSB7Cj4gPiA+IExvb2tzIGxpa2UgYSBzdHVwaWQgY29tcGlsZXIuIFRoZW4gYmV0dGVyIHVzZQo+
+ID4gPgo+ID4gPiAJdTMyIHVuaW5pdGlhbGl6ZWRfdmFyKGRhdGEpOwo+ID4gCj4gPiBMZWF2ZSBp
+dCBhcyBpdCBpcyBhbmQgZml4IHRoZSBjb21waWxlcj8gV2lsbCBkbyBhbm90aGVyIHRlc3QgbGF0
+ZXIgdG8KPiA+IG1ha2Ugc3VyZS4KPiA+IAo+IAo+IENvbXBpbGVyIGlzIHdyb25nPwo+IEp1c3Qg
+ZnJvbSB0aGUgY29kZSB0aGF0IGl0IHNlZW1zIHRvIGJlIHJpZ2h0IHRoZSAnZGF0YScgbWlnaHQg
+YmUgdXNlZAo+IHVuaW5pdGlhbGl6ZWQuCj4gCk9ubHkgaWZmIHlvdSBhc3N1bWUgdGhhdCAoMCAm
+IDMpIGNvdWxkIGJlICE9IDAuLi4KCgpMb3RoYXIgV2HDn21hbm4KLS0gCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCgpLYS1SbyBlbGVj
+dHJvbmljcyBHbWJIIHwgUGFzY2Fsc3RyYcOfZSAyMiB8IEQgLSA1MjA3NiBBYWNoZW4KUGhvbmU6
+ICs0OSAyNDA4IDE0MDItMCB8IEZheDogKzQ5IDI0MDggMTQwMi0xMApHZXNjaMOkZnRzZsO8aHJl
+cjogTWF0dGhpYXMgS2F1c3NlbgpIYW5kZWxzcmVnaXN0ZXJlaW50cmFnOiBBbXRzZ2VyaWNodCBB
+YWNoZW4sIEhSQiA0OTk2Cgp3d3cua2Fyby1lbGVjdHJvbmljcy5kZSB8IGluZm9Aa2Fyby1lbGVj
+dHJvbmljcy5kZQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0
+cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGlu
+Zm8vbGludXgtYXJtLWtlcm5lbAo=
