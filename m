@@ -1,81 +1,29 @@
 From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
-Date: Wed, 23 Nov 2011 23:32:38 +0000
-Message-ID: <20111123233238.GL19115@trinity.fluff.org>
-References: <cover.1322062555.git.n.voss@weinmann.de>
+Subject: Re: Still problems wit egt20 i2c driver
+Date: Thu, 24 Nov 2011 00:11:20 +0000
+Message-ID: <20111124001120.GM19115@trinity.fluff.org>
+References: <CAH9NwWf-Dgme+SBR4vwrVux5C12nTTe5sJuCpusdw8LqeVD+xA@mail.gmail.com> <CANKRQnhPW3n6X29x1hrn+tpNapoi_d6Dk0zykQ8sNHioMC0K_A@mail.gmail.com> <CAH9NwWf9PpRN6zMp+TPkiRpwLvLZZ-ukiOBHGb22qaFaypn91A@mail.gmail.com> <CANKRQniAsE-S_v15hRci8tXZpmaymL-7Sg=dyPxdnjGZm5=7fA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <cover.1322062555.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+In-Reply-To: <CANKRQniAsE-S_v15hRci8tXZpmaymL-7Sg=dyPxdnjGZm5=7fA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org
+To: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Nov 22, 2011 at 07:52:57PM +0900, Tomoya MORINAGA wrote:
+> Hi Christian,
+> 
+> Good news!
+> 
+> Except "[PATCH] i2c-eg20t: modified the setting of transfer rate",
+> all patches already accepted.
+> So, they will got into linux-3.3.
 
-On Wed, Nov 23, 2011 at 04:35:55PM +0100, Nikolaus Voss wrote:
-> The old driver has two main deficencies:
-> i)  No repeated start (Sr) condiction is possible, this makes it unusable
->     e.g. for most SMBus transfers.
-> ii) I/O was done with polling/busy waiting what caused over-/underruns
->     even at light system loads and clock speeds.
-> 
-> The new driver overcomes these deficencies and in addition allows for
-> more than one TWI interface.
-> 
-> A remaining limitation is the fact, that only one repeated start is
-> possible (two concatenated messages). This limitation is imposed by
-> the hardware. However, this should not be a problem as all common
-> i2c-client communication does not rely on more than one repeated start.
-> 
-> v7: Patch 4/5: i)  fix bug if internal address > 1 byte
->                ii) send stop when len == 1
->                    (both reported by Carsten Behling)
-> v6: Patch 5/5: support for I2C_SMBUS_BLOCK_DATA transfers.
->     Better use of clk_(un)prepare().
->     More sensible transfer timeout.
-> v5: Another round of review comments from Ryan Mallon, Felipe Balbi
->     and Russell King: convert twi clk to use .dev_id, cleanups
-> v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
->     Moved register include file to local include, code cleanups
-> v3: Integrated review comments from Ryan Mallon and Felipe Balbi
-> v2: Fixed whitespace issue
-> 
-> Nikolaus Voss (5):
->   drivers/i2c/busses/i2c-at91.c: remove broken driver
->   Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
->   drivers/i2c/busses/i2c-at91.c: add new driver
->   G45 TWI: remove open drain setting for twi function gpios
->   i2c-at91.c: add SMBUS_READ_BLOCK_DATA functionality
-
-Is the original driver so broken that the two could not co-exist, or are
-we making so many changes that there's no point in keeping the original
-one?
- 
->  arch/arm/mach-at91/at91cap9.c              |    1 +
->  arch/arm/mach-at91/at91rm9200.c            |    1 +
->  arch/arm/mach-at91/at91sam9260.c           |    1 +
->  arch/arm/mach-at91/at91sam9261.c           |    1 +
->  arch/arm/mach-at91/at91sam9263.c           |    1 +
->  arch/arm/mach-at91/at91sam9g45.c           |    2 +
->  arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
->  arch/arm/mach-at91/at91sam9rl.c            |    2 +
->  arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
->  drivers/i2c/busses/Kconfig                 |   11 +-
->  drivers/i2c/busses/i2c-at91.c              |  529 +++++++++++++++++-----------
->  drivers/i2c/busses/i2c-at91.h              |   80 +++++
->  12 files changed, 408 insertions(+), 295 deletions(-)
->  delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
->  create mode 100644 drivers/i2c/busses/i2c-at91.h
-> 
-> -- 
-> 1.7.5.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+If there's anything that been missed, let me know as I intend on
+starting -next up again at the weekend.
 
 -- 
 Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
