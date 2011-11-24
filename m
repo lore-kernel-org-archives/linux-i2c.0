@@ -1,67 +1,98 @@
-From: David Jander <david.jander-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org>
-Subject: RFC: I2C bus fault recovery and I2C reset
-Date: Thu, 24 Nov 2011 12:02:07 +0100
-Message-ID: <20111124120207.3e78e34b@archvile>
+From: "corentin.labbe" <corentin.labbe@geomatys.fr>
+Subject: [PATCH] i2c-ali1535: enable SPARC support
+Date: Thu, 24 Nov 2011 12:01:36 +0100
+Message-ID: <4ECE2410.7040608@geomatys.fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Darius Augulis <darius.augulis-Ft0m5Q12RQ9xBelEqimL3w@public.gmane.org>, giometti-k2GhghHVRtY@public.gmane.org
+Return-path: <sparclinux-owner@vger.kernel.org>
+Sender: sparclinux-owner@vger.kernel.org
+To: sparclinux@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello
 
-Hi all,
+The i2c-ali1535 driver don't work on SPARC, this is because it assumes that ioport address are 16bits wide (address stored with an unsigned short).
+But on SPARC arch, ioports are mapped in memory and so are stored with an unsigned long.
 
-I was debugging an I2C bus connected to a i2c-imx peripheral as master, with
-several slaves connected to it, when I realized that this driver (and many
-(all?) others) cannot recover from a bus fault in a graceful manner.
-If, for instance, one slave device misses one (or more) clock pulses for
-whatever reason during a slave->master transmission (read), during a
-0-data bit, this slave may eventually keep the SDA line active in low-state.
-Most I2C master peripherals, and particularly i2c-imx will not be able to
-continue operating. Any operation will just timeout with a "busy bus" error.
-The simplest and most often used way of recovering from such a situation is
-"resetting" the I2C bus, by toggling SCL a few times (maximum 9) until SDA is
-released again. After that a START sequence can successfully reset the state
-of any slave device.
+This patch corrects this by using pci_resource_start for getting IOMEM base address, then reading the SMBBA of the i2c busse and using together for I/O access.
 
-One can argue whether it may or may not be accepted that this happens under
-normal circumstances, but it definitely can happen at any moment (heavy EMC
-interference, bad bus design, long bus, misbehaving slave... you name it), and
-IMHO a linux-driver should always have the ability to try to recover gracefully
-from such an event. Whether the system this bus takes part of can tolerate
-such a situation or not is not up to the driver to decide either... it should
-just try to recover.
+I like to thanks Jean DELVARE for reviewing of my patch.
 
-This issue seems to have been discussed before in this thread:
+Thanks
 
-http://article.gmane.org/gmane.linux.drivers.i2c/3010
+Signed-off-by: LABBE Corentin <corentin.labbe@geomatys.fr>
 
-The proposed solution back then was to issue a reset sequence "by hand" via a
-sysfs interface. This may be useful for debugging, but IMHO an I2C driver
-needs to do this automatically.
+---
+--- drivers/i2c/busses/i2c-ali1535.c.orig	2011-06-15 18:02:56.000000000 +0200
++++ drivers/i2c/busses/i2c-ali1535.c	2011-11-24 12:00:05.000000000 +0100
+@@ -132,7 +132,8 @@
+ #define	ALI1535_SMBIO_EN	0x04	/* SMB I/O Space enable		*/
 
-For many peripherals in order to support this, a special function would be
-needed, that reconfigures the SDA/SCL pins as GPIO and manually toggles SCL a
-few times. This would probably need to be implemented in
-board-support-/platform code...?
+ static struct pci_driver ali1535_driver;
+-static unsigned short ali1535_smba;
++static unsigned long ali1535_smba;
++static unsigned short ali1535_offset;
 
-In my specific situation, there was no way of recovering other than
-power-cycling the device, which is completely unacceptable, specially for an
-industrial control system. A temporary bus-lockup with automatic recovery via a
-proper I2C bus reset OTOH, wouldn't have any significant impact even if
-occurring sporadically.
-Individually resetting I2C slaves is also not a real solution because it may
-not be possible to determine which is the I2C slave that misbehaved.
+ /* Detect whether a ALI1535 can be found, and initialize it, where necessary.
+    Note the differences between kernels with the old PCI BIOS interface and
+@@ -149,15 +150,28 @@ static int __devinit ali1535_setup(struc
+ 		- We can use the addresses
+ 	*/
 
-Any idea on how to solve this problem?
-Should each driver implement support for it and implement optional callback
-functions in platform-data?
++	retval = pci_enable_device(dev);
++	if (retval) {
++		dev_err(&dev->dev, "ALI1535_smb can't enable device\n");
++		goto exit;
++	}
++
+ 	/* Determine the address of the SMBus area */
+-	pci_read_config_word(dev, SMBBA, &ali1535_smba);
+-	ali1535_smba &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
+-	if (ali1535_smba == 0) {
++	pci_read_config_word(dev, SMBBA, &ali1535_offset);
++	dev_info(&dev->dev, "ALI1535_smb is at offset 0x%04x\n", ali1535_offset);
++	ali1535_offset &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
++	if (ali1535_offset == 0) {
+ 		dev_warn(&dev->dev,
+ 			"ALI1535_smb region uninitialized - upgrade BIOS?\n");
+ 		goto exit;
+ 	}
 
-Best regards,
++	if ((pci_resource_flags(dev, 0) & IORESOURCE_IO) == 0) {
++		dev_err(&dev->dev, "ALI1535_smb bar 0 is not IORESOURCE_IO\n");
++		goto exit;
++	}
++	ali1535_smba = pci_resource_start(dev, 0) + ali1535_offset;
++	
+ 	retval = acpi_check_region(ali1535_smba, ALI1535_SMB_IOSIZE,
+ 				   ali1535_driver.name);
+ 	if (retval)
+@@ -165,7 +179,7 @@ static int __devinit ali1535_setup(struc
 
--- 
-David Jander
-Protonic Holland.
+ 	if (!request_region(ali1535_smba, ALI1535_SMB_IOSIZE,
+ 			    ali1535_driver.name)) {
+-		dev_err(&dev->dev, "ALI1535_smb region 0x%x already in use!\n",
++		dev_err(&dev->dev, "ALI1535_smb region 0x%lx already in use!\n",
+ 			ali1535_smba);
+ 		goto exit;
+ 	}
+@@ -196,7 +210,7 @@ static int __devinit ali1535_setup(struc
+ 	*/
+ 	pci_read_config_byte(dev, SMBREV, &temp);
+ 	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
+-	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
++	dev_dbg(&dev->dev, "ALI1535_smba = 0x%lx\n", ali1535_smba);
+
+ 	retval = 0;
+ exit:
+@@ -499,7 +513,7 @@ static int __devinit ali1535_probe(struc
+ 	ali1535_adapter.dev.parent = &dev->dev;
+
+ 	snprintf(ali1535_adapter.name, sizeof(ali1535_adapter.name),
+-		"SMBus ALI1535 adapter at %04x", ali1535_smba);
++		"SMBus ALI1535 adapter at %04x", ali1535_offset);
+ 	return i2c_add_adapter(&ali1535_adapter);
+ }
+
