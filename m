@@ -1,98 +1,98 @@
-From: "corentin.labbe" <corentin.labbe@geomatys.fr>
-Subject: [PATCH] i2c-ali1535: enable SPARC support
-Date: Thu, 24 Nov 2011 12:01:36 +0100
-Message-ID: <4ECE2410.7040608@geomatys.fr>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH v7 3/5] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Thu, 24 Nov 2011 15:39:06 +0000
+Message-ID: <201111241539.06990.arnd@arndb.de>
+References: <cover.1322062555.git.n.voss@weinmann.de> <201111231618.45951.arnd@arndb.de> <EF2E73589CA71846A15D0B2CDF79505D087B44FEAF@wm021.weinmann.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <sparclinux-owner@vger.kernel.org>
-Sender: sparclinux-owner@vger.kernel.org
-To: sparclinux@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D087B44FEAF-qhZVaJ2D3XF9OWT4OSQXE9BPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org'" <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello
+On Thursday 24 November 2011, Voss, Nikolaus wrote:
+> > 
+> > > +/*
+> > > + * Calculate and set symmetric clock as stated in datasheet:
+> > > + * twi_clk = F_MAIN / (2 * cdiv * (1 << ckdiv) + 4)
+> > > + */
+> > > +static void __devinit at91_set_twi_clock(struct at91_twi_dev *dev, int
+> > twi_clk)
+> > > +{
+> > > +   const int div = DIV_ROUND_UP(clk_get_rate(dev->clk), 2 * twi_clk) - 2;
+> > > +   int ckdiv = fls(div >> 8);
+> > > +   const int cdiv = div >> ckdiv;
+> > > +
+> > > +   if (cpu_is_at91rm9200() && (ckdiv > 5)) {
+> > > +           dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
+> > > +           ckdiv = 5;
+> > > +   }
+> > 
+> > Don't check a global property like this locally in the driver. Instead,
+> > make it a property of the device that you check here and set it based on
+> > the the device name set by the platform, or by a device tree property.
+> 
+> Yes, this is a known problem and was discussed in
+> https://lkml.org/lkml/2011/11/8/217 . The main problem is that there a no
+> revisions for specific at91 IP devices but the revision is implicitly
+> defined by the cpu type and version. Changing this would need to add some
+> arch infrastructure which I think is beyond the scope of this driver.
 
-The i2c-ali1535 driver don't work on SPARC, this is because it assumes that ioport address are 16bits wide (address stored with an unsigned short).
-But on SPARC arch, ioports are mapped in memory and so are stored with an unsigned long.
+Aside from the flamewar in that thread, my impression is that in general
+people (me certainly) prefer to have driver-local workarounds be expressed
+in a driver specific way, not in a platform or architecture specific way
+because that makes the driver less portable.
 
-This patch corrects this by using pci_resource_start for getting IOMEM base address, then reading the SMBBA of the i2c busse and using together for I/O access.
+Anyway, I don't see this point as a show-stopper since the driver is already
+platform specific, but it's generally a good idea to write code like this
+defensively, if only to avoid getting comments about it.
 
-I like to thanks Jean DELVARE for reviewing of my patch.
+> > > diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+> > > new file mode 100644
+> > > index 0000000..a898159
+> > > --- /dev/null
+> > > +++ b/drivers/i2c/busses/i2c-at91.h
+> > > @@ -0,0 +1,80 @@
+> > > +
+> > > +#ifndef AT91_TWI_H
+> > > +#define AT91_TWI_H
+> > > +
+> > 
+> > No need for a header file if all the values in it are used in only one
+> > source file. Just move everything to i2c_at91.c
+> > 
+> > > +#define    AT91_TWI_MMR            0x04            /* Master Mode Register */
+> > > +#define    AT91_TWI_IADRSZ         (3    <<  8)    /* Internal Device Address
+> > > +                                            *  Size */
+> > > +#define    AT91_TWI_IADRSZ_NO      (0 << 8)
+> > > +#define    AT91_TWI_IADRSZ_1       (1 << 8)
+> > > +#define    AT91_TWI_IADRSZ_2       (2 << 8)
+> > > +#define    AT91_TWI_IADRSZ_3       (3 << 8)
+> > > +#define    AT91_TWI_MREAD          (1    << 12)    /* Master Read Direction
+> > */
+> > > +#define    AT91_TWI_DADR           (0x7f << 16)    /* Device Address */
+> > 
+> > These are harder to read than just using hexadecimal bitmasks:
+> > 
+> > #define       AT91_TWI_MMR            0x00000004
+> > #define       AT91_TWI_IADRSZ         0x00000300
+> > #define       AT91_TWI_IADRSZ_NO      0x00000000
+> > #define       AT91_TWI_IADRSZ_1       0x00000100
+> > ...
+> 
+> I agree, but this header file was already used by the old driver and
+> converting would add possible errors to register definitions which are
+> not (yet) used. That's why I've left it as is and just made it a local
+> include.
 
-Thanks
+But you are presenting the driver as a new one, so you should be
+prepared to get review comments like any other new code.
 
-Signed-off-by: LABBE Corentin <corentin.labbe@geomatys.fr>
+Please at least move the data into the main driver file to get rid of
+the header file.
 
----
---- drivers/i2c/busses/i2c-ali1535.c.orig	2011-06-15 18:02:56.000000000 +0200
-+++ drivers/i2c/busses/i2c-ali1535.c	2011-11-24 12:00:05.000000000 +0100
-@@ -132,7 +132,8 @@
- #define	ALI1535_SMBIO_EN	0x04	/* SMB I/O Space enable		*/
-
- static struct pci_driver ali1535_driver;
--static unsigned short ali1535_smba;
-+static unsigned long ali1535_smba;
-+static unsigned short ali1535_offset;
-
- /* Detect whether a ALI1535 can be found, and initialize it, where necessary.
-    Note the differences between kernels with the old PCI BIOS interface and
-@@ -149,15 +150,28 @@ static int __devinit ali1535_setup(struc
- 		- We can use the addresses
- 	*/
-
-+	retval = pci_enable_device(dev);
-+	if (retval) {
-+		dev_err(&dev->dev, "ALI1535_smb can't enable device\n");
-+		goto exit;
-+	}
-+
- 	/* Determine the address of the SMBus area */
--	pci_read_config_word(dev, SMBBA, &ali1535_smba);
--	ali1535_smba &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
--	if (ali1535_smba == 0) {
-+	pci_read_config_word(dev, SMBBA, &ali1535_offset);
-+	dev_info(&dev->dev, "ALI1535_smb is at offset 0x%04x\n", ali1535_offset);
-+	ali1535_offset &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
-+	if (ali1535_offset == 0) {
- 		dev_warn(&dev->dev,
- 			"ALI1535_smb region uninitialized - upgrade BIOS?\n");
- 		goto exit;
- 	}
-
-+	if ((pci_resource_flags(dev, 0) & IORESOURCE_IO) == 0) {
-+		dev_err(&dev->dev, "ALI1535_smb bar 0 is not IORESOURCE_IO\n");
-+		goto exit;
-+	}
-+	ali1535_smba = pci_resource_start(dev, 0) + ali1535_offset;
-+	
- 	retval = acpi_check_region(ali1535_smba, ALI1535_SMB_IOSIZE,
- 				   ali1535_driver.name);
- 	if (retval)
-@@ -165,7 +179,7 @@ static int __devinit ali1535_setup(struc
-
- 	if (!request_region(ali1535_smba, ALI1535_SMB_IOSIZE,
- 			    ali1535_driver.name)) {
--		dev_err(&dev->dev, "ALI1535_smb region 0x%x already in use!\n",
-+		dev_err(&dev->dev, "ALI1535_smb region 0x%lx already in use!\n",
- 			ali1535_smba);
- 		goto exit;
- 	}
-@@ -196,7 +210,7 @@ static int __devinit ali1535_setup(struc
- 	*/
- 	pci_read_config_byte(dev, SMBREV, &temp);
- 	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
--	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
-+	dev_dbg(&dev->dev, "ALI1535_smba = 0x%lx\n", ali1535_smba);
-
- 	retval = 0;
- exit:
-@@ -499,7 +513,7 @@ static int __devinit ali1535_probe(struc
- 	ali1535_adapter.dev.parent = &dev->dev;
-
- 	snprintf(ali1535_adapter.name, sizeof(ali1535_adapter.name),
--		"SMBus ALI1535 adapter at %04x", ali1535_smba);
-+		"SMBus ALI1535 adapter at %04x", ali1535_offset);
- 	return i2c_add_adapter(&ali1535_adapter);
- }
-
+	Arnd
