@@ -1,61 +1,124 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH v7 3/5] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Thu, 24 Nov 2011 16:47:35 +0000
-Message-ID: <201111241647.35818.arnd@arndb.de>
-References: <cover.1322062555.git.n.voss@weinmann.de> <201111241539.06990.arnd@arndb.de> <EF2E73589CA71846A15D0B2CDF79505D087B45007C@wm021.weinmann.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] i2c-ali1535: enable SPARC support
+Date: Thu, 24 Nov 2011 19:50:10 +0100
+Message-ID: <20111124195010.61f7770b@endymion.delvare>
+References: <4ECE2410.7040608@geomatys.fr>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D087B45007C-qhZVaJ2D3XF9OWT4OSQXE9BPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Return-path: <sparclinux-owner@vger.kernel.org>
+In-Reply-To: <4ECE2410.7040608@geomatys.fr>
+Sender: sparclinux-owner@vger.kernel.org
+To: "corentin.labbe" <corentin.labbe@geomatys.fr>
+Cc: sparclinux@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 24 November 2011, Voss, Nikolaus wrote:
-> > Aside from the flamewar in that thread, my impression is that in general
-> > people (me certainly) prefer to have driver-local workarounds be expressed
-> > in a driver specific way, not in a platform or architecture specific way
-> > because that makes the driver less portable.
+Hi Corentin,
+
+On Thu, 24 Nov 2011 12:01:36 +0100, corentin.labbe wrote:
+> Hello
 > 
-> I guess I see your point now. So you want something like pdev.has_bugX to be
-> set by mach setup and later check this flag in the driver?
-
-Yes, that would be the idea. I would not introduce platform_data for one
-driver just for this though, because we are generally moving away from
-platform_data towards device tree probing.
-
-You can do it with a match table that has two entries with different
-names for the two kinds of device that you need to distinguish and
-set the platform_device_id->driver_data field to '1' for the type
-that needs the fixup.
-
-> > > > #define       AT91_TWI_MMR            0x00000004
-> > > > #define       AT91_TWI_IADRSZ         0x00000300
-> > > > #define       AT91_TWI_IADRSZ_NO      0x00000000
-> > > > #define       AT91_TWI_IADRSZ_1       0x00000100
-> > > > ...
-> > >
-> > > I agree, but this header file was already used by the old driver and
-> > > converting would add possible errors to register definitions which are
-> > > not (yet) used. That's why I've left it as is and just made it a local
-> > > include.
-> > 
-> > But you are presenting the driver as a new one, so you should be
-> > prepared to get review comments like any other new code.
-> > 
-> > Please at least move the data into the main driver file to get rid of
-> > the header file.
+> The i2c-ali1535 driver don't work on SPARC, this is because it assumes that ioport address are 16bits wide (address stored with an unsigned short).
+> But on SPARC arch, ioports are mapped in memory and so are stored with an unsigned long.
 > 
-> I didn't want to appear ignorant about this, I actually appreciate your
-> comment. I just wanted to point out that there might be a reason to keep
-> the old file which you weren't aware of (because I presented this as a new
-> driver). So, I will move the register definitions to the main driver.
+> This patch corrects this by using pci_resource_start for getting IOMEM base address, then reading the SMBBA of the i2c busse and using together for I/O access.
+> 
+> I like to thanks Jean DELVARE for reviewing of my patch.
 
-Ok, good. Moving it into the driver is really the important part anyway,
-and I understand your reasoning for not wanting to modify the definitions,
-it just didn't apply to the one of the two comments I made about the header.
+Apparently I wasn't good enough, see below :(
 
-	Arnd
+> 
+> Thanks
+> 
+> Signed-off-by: LABBE Corentin <corentin.labbe@geomatys.fr>
+> 
+> ---
+> --- drivers/i2c/busses/i2c-ali1535.c.orig	2011-06-15 18:02:56.000000000 +0200
+> +++ drivers/i2c/busses/i2c-ali1535.c	2011-11-24 12:00:05.000000000 +0100
+> @@ -132,7 +132,8 @@
+>  #define	ALI1535_SMBIO_EN	0x04	/* SMB I/O Space enable		*/
+> 
+>  static struct pci_driver ali1535_driver;
+> -static unsigned short ali1535_smba;
+> +static unsigned long ali1535_smba;
+> +static unsigned short ali1535_offset;
+> 
+>  /* Detect whether a ALI1535 can be found, and initialize it, where necessary.
+>     Note the differences between kernels with the old PCI BIOS interface and
+> @@ -149,15 +150,28 @@ static int __devinit ali1535_setup(struc
+>  		- We can use the addresses
+>  	*/
+> 
+> +	retval = pci_enable_device(dev);
+> +	if (retval) {
+> +		dev_err(&dev->dev, "ALI1535_smb can't enable device\n");
+> +		goto exit;
+> +	}
+
+This overrides the initialization of retval to -ENODEV, which other
+error paths below were relying on. I'm sorry for asking you to return
+the error value from pci_enable_device(), I did not realize it would
+have this side effect.
+
+OTOH I am just seeing that the call to acpi_check_region() already
+broke this months ago... So it needs to be fixed anyway.
+
+> +
+>  	/* Determine the address of the SMBus area */
+> -	pci_read_config_word(dev, SMBBA, &ali1535_smba);
+> -	ali1535_smba &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
+> -	if (ali1535_smba == 0) {
+> +	pci_read_config_word(dev, SMBBA, &ali1535_offset);
+> +	dev_info(&dev->dev, "ALI1535_smb is at offset 0x%04x\n", ali1535_offset);
+
+Was it really meant as dev_info, not dev_dbg?
+
+> +	ali1535_offset &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
+> +	if (ali1535_offset == 0) {
+>  		dev_warn(&dev->dev,
+>  			"ALI1535_smb region uninitialized - upgrade BIOS?\n");
+>  		goto exit;
+>  	}
+> 
+> +	if ((pci_resource_flags(dev, 0) & IORESOURCE_IO) == 0) {
+> +		dev_err(&dev->dev, "ALI1535_smb bar 0 is not IORESOURCE_IO\n");
+> +		goto exit;
+> +	}
+> +	ali1535_smba = pci_resource_start(dev, 0) + ali1535_offset;
+> +	
+>  	retval = acpi_check_region(ali1535_smba, ALI1535_SMB_IOSIZE,
+>  				   ali1535_driver.name);
+>  	if (retval)
+> @@ -165,7 +179,7 @@ static int __devinit ali1535_setup(struc
+> 
+>  	if (!request_region(ali1535_smba, ALI1535_SMB_IOSIZE,
+>  			    ali1535_driver.name)) {
+> -		dev_err(&dev->dev, "ALI1535_smb region 0x%x already in use!\n",
+> +		dev_err(&dev->dev, "ALI1535_smb region 0x%lx already in use!\n",
+>  			ali1535_smba);
+>  		goto exit;
+>  	}
+> @@ -196,7 +210,7 @@ static int __devinit ali1535_setup(struc
+>  	*/
+>  	pci_read_config_byte(dev, SMBREV, &temp);
+>  	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
+> -	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
+> +	dev_dbg(&dev->dev, "ALI1535_smba = 0x%lx\n", ali1535_smba);
+> 
+>  	retval = 0;
+>  exit:
+> @@ -499,7 +513,7 @@ static int __devinit ali1535_probe(struc
+>  	ali1535_adapter.dev.parent = &dev->dev;
+> 
+>  	snprintf(ali1535_adapter.name, sizeof(ali1535_adapter.name),
+> -		"SMBus ALI1535 adapter at %04x", ali1535_smba);
+> +		"SMBus ALI1535 adapter at %04x", ali1535_offset);
+>  	return i2c_add_adapter(&ali1535_adapter);
+>  }
+> 
+
+Other than this, the code looks OK. I'll fix the retval issue and
+adjust your patch accordingly.
+
+-- 
+Jean Delvare
