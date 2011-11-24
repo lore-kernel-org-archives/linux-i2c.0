@@ -1,70 +1,107 @@
-From: =?utf-8?Q?Lothar_Wa=C3=9Fmann?= <LW@KARO-electronics.de>
-Subject: RE: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
-Date: Thu, 24 Nov 2011 10:11:47 +0100
-Message-ID: <20174.2643.823394.322927@ipc1.ka-ro>
-References: <1322121140-5216-1-git-send-email-shawn.guo@linaro.org>
- <20111124082903.GV19986@pengutronix.de>
- <20111124083747.GE8439@pengutronix.de>
- <65EE16ACC360FA4D99C96DC085B3F77233A4E4@039-SN1MPN1-002.039d.mgd.msft.net>
+From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: RE: [PATCH v7 3/5] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Thu, 24 Nov 2011 11:33:41 +0100
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D087B44FEAF@wm021.weinmann.com>
+References: <cover.1322062555.git.n.voss@weinmann.de>
+ <ee23c49c5a190a2cce0859f7828c2dc771ff3207.1322062555.git.n.voss@weinmann.de>
+ <201111231618.45951.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <65EE16ACC360FA4D99C96DC085B3F77233A4E4@039-SN1MPN1-002.039d.mgd.msft.net>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Dong Aisheng-B29396 <B29396@freescale.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>, Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <201111231618.45951.arnd-r2nGTMty4D4@public.gmane.org>
+Content-Language: de-DE
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Arnd Bergmann' <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org'" <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SGksCgpEb25nIEFpc2hlbmctQjI5Mzk2IHdyaXRlczoKPiA+IC0tLS0tT3JpZ2luYWwgTWVzc2Fn
-ZS0tLS0tCj4gPiBGcm9tOiBsaW51eC1hcm0ta2VybmVsLWJvdW5jZXNAbGlzdHMuaW5mcmFkZWFk
-Lm9yZyBbbWFpbHRvOmxpbnV4LWFybS0KPiA+IGtlcm5lbC1ib3VuY2VzQGxpc3RzLmluZnJhZGVh
-ZC5vcmddIE9uIEJlaGFsZiBPZiBXb2xmcmFtIFNhbmcKPiA+IFNlbnQ6IFRodXJzZGF5LCBOb3Zl
-bWJlciAyNCwgMjAxMSA0OjM4IFBNCj4gPiBUbzogVXdlIEtsZWluZS1Lw7ZuaWcKPiA+IENjOiBT
-aGF3biBHdW87IGxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZzsgQmVuIERvb2tz
-OyBsaW51eC0KPiA+IGkyY0B2Z2VyLmtlcm5lbC5vcmcKPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0hd
-IGkyYy1teHM6IGZpeCBjb21waWxlIHdhcm5pbmcgaW4gbXhzX2kyY194ZmVyKCkKPiA+IAo+ID4g
-T24gVGh1LCBOb3YgMjQsIDIwMTEgYXQgMDk6Mjk6MDNBTSArMDEwMCwgVXdlIEtsZWluZS1Lw7Zu
-aWcgd3JvdGU6Cj4gPiA+IEhlbGxvIFNoYXduLAo+ID4gPgo+ID4gPiBPbiBUaHUsIE5vdiAyNCwg
-MjAxMSBhdCAwMzo1MjoyMFBNICswODAwLCBTaGF3biBHdW8gd3JvdGU6Cj4gPiA+ID4gICBDQyAg
-ICAgIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLm8KPiA+ID4gPiBkcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLW14cy5jOiBJbiBmdW5jdGlvbiDigJhteHNfaTJjX3hmZXLigJk6Cj4gPiA+ID4gZHJp
-dmVycy9pMmMvYnVzc2VzL2kyYy1teHMuYzoxOTY6Njogd2FybmluZzog4oCYZGF0YeKAmSBtYXkg
-YmUgdXNlZAo+ID4gPiA+IHVuaW5pdGlhbGl6ZWQgaW4gdGhpcyBmdW5jdGlvbgo+ID4gPiA+Cj4g
-PiA+ID4gU2lnbmVkLW9mZi1ieTogU2hhd24gR3VvIDxzaGF3bi5ndW9AbGluYXJvLm9yZz4KPiA+
-ID4gPiAtLS0KPiA+ID4gPiAgZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1teHMuYyB8ICAgIDIgKy0K
-PiA+ID4gPiAgMSBmaWxlcyBjaGFuZ2VkLCAxIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb25zKC0p
-Cj4gPiA+ID4KPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1teHMu
-Ywo+ID4gPiA+IGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1teHMuYyBpbmRleCA3ZTc4ZjdjLi4w
-MGYwOThmIDEwMDY0NAo+ID4gPiA+IC0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtbXhzLmMK
-PiA+ID4gPiArKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW14cy5jCj4gPiA+ID4gQEAgLTE5
-Myw3ICsxOTMsNyBAQCBzdGF0aWMgaW50IG14c19pMmNfd2FpdF9mb3JfZGF0YShzdHJ1Y3QKPiA+
-ID4gPiBteHNfaTJjX2RldiAqaTJjKQo+ID4gPiA+Cj4gPiA+ID4gIHN0YXRpYyBpbnQgbXhzX2ky
-Y19maW5pc2hfcmVhZChzdHJ1Y3QgbXhzX2kyY19kZXYgKmkyYywgdTggKmJ1ZiwKPiA+ID4gPiBp
-bnQgbGVuKSAgewo+ID4gPiA+IC0JdTMyIGRhdGE7Cj4gPiA+ID4gKwl1MzIgZGF0YSA9IDA7Cj4g
-PiA+ID4gIAlpbnQgaTsKPiA+ID4gPgo+ID4gPiA+ICAJZm9yIChpID0gMDsgaSA8IGxlbjsgaSsr
-KSB7Cj4gPiA+IExvb2tzIGxpa2UgYSBzdHVwaWQgY29tcGlsZXIuIFRoZW4gYmV0dGVyIHVzZQo+
-ID4gPgo+ID4gPiAJdTMyIHVuaW5pdGlhbGl6ZWRfdmFyKGRhdGEpOwo+ID4gCj4gPiBMZWF2ZSBp
-dCBhcyBpdCBpcyBhbmQgZml4IHRoZSBjb21waWxlcj8gV2lsbCBkbyBhbm90aGVyIHRlc3QgbGF0
-ZXIgdG8KPiA+IG1ha2Ugc3VyZS4KPiA+IAo+IAo+IENvbXBpbGVyIGlzIHdyb25nPwo+IEp1c3Qg
-ZnJvbSB0aGUgY29kZSB0aGF0IGl0IHNlZW1zIHRvIGJlIHJpZ2h0IHRoZSAnZGF0YScgbWlnaHQg
-YmUgdXNlZAo+IHVuaW5pdGlhbGl6ZWQuCj4gCk9ubHkgaWZmIHlvdSBhc3N1bWUgdGhhdCAoMCAm
-IDMpIGNvdWxkIGJlICE9IDAuLi4KCgpMb3RoYXIgV2HDn21hbm4KLS0gCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCgpLYS1SbyBlbGVj
-dHJvbmljcyBHbWJIIHwgUGFzY2Fsc3RyYcOfZSAyMiB8IEQgLSA1MjA3NiBBYWNoZW4KUGhvbmU6
-ICs0OSAyNDA4IDE0MDItMCB8IEZheDogKzQ5IDI0MDggMTQwMi0xMApHZXNjaMOkZnRzZsO8aHJl
-cjogTWF0dGhpYXMgS2F1c3NlbgpIYW5kZWxzcmVnaXN0ZXJlaW50cmFnOiBBbXRzZ2VyaWNodCBB
-YWNoZW4sIEhSQiA0OTk2Cgp3d3cua2Fyby1lbGVjdHJvbmljcy5kZSB8IGluZm9Aa2Fyby1lbGVj
-dHJvbmljcy5kZQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fXwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5lbEBsaXN0
-cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4vbGlzdGlu
-Zm8vbGludXgtYXJtLWtlcm5lbAo=
+Hi,
+
+Arnd Bergmann wrote on 2011-11-23:
+> On Tuesday 08 November 2011, Nikolaus Voss wrote:
+> 
+> 
+> > +
+> > +static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
+> > +{
+> > +	return __raw_readl(dev->base + reg);
+> > +}
+> > +
+> > +static void at91_twi_write(struct at91_twi_dev *dev, unsigned reg, unsigned
+> val)
+> > +{
+> > +	__raw_writel(val, dev->base + reg);
+> > +}
+> 
+> Better use readl/writel or readl_relaxed/writel_relaxed.
+
+ok, changed.
+
+> 
+> > +/*
+> > + * Calculate and set symmetric clock as stated in datasheet:
+> > + * twi_clk = F_MAIN / (2 * cdiv * (1 << ckdiv) + 4)
+> > + */
+> > +static void __devinit at91_set_twi_clock(struct at91_twi_dev *dev, int
+> twi_clk)
+> > +{
+> > +	const int div = DIV_ROUND_UP(clk_get_rate(dev->clk), 2 * twi_clk) - 2;
+> > +	int ckdiv = fls(div >> 8);
+> > +	const int cdiv = div >> ckdiv;
+> > +
+> > +	if (cpu_is_at91rm9200() && (ckdiv > 5)) {
+> > +		dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
+> > +		ckdiv = 5;
+> > +	}
+> 
+> Don't check a global property like this locally in the driver. Instead,
+> make it a property of the device that you check here and set it based on
+> the the device name set by the platform, or by a device tree property.
+
+Yes, this is a known problem and was discussed in
+https://lkml.org/lkml/2011/11/8/217 . The main problem is that there a no
+revisions for specific at91 IP devices but the revision is implicitly
+defined by the cpu type and version. Changing this would need to add some
+arch infrastructure which I think is beyond the scope of this driver.
+
+> > diff --git a/drivers/i2c/busses/i2c-at91.h b/drivers/i2c/busses/i2c-at91.h
+> > new file mode 100644
+> > index 0000000..a898159
+> > --- /dev/null
+> > +++ b/drivers/i2c/busses/i2c-at91.h
+> > @@ -0,0 +1,80 @@
+> > +
+> > +#ifndef AT91_TWI_H
+> > +#define AT91_TWI_H
+> > +
+> 
+> No need for a header file if all the values in it are used in only one
+> source file. Just move everything to i2c_at91.c
+> 
+> > +#define	AT91_TWI_MMR		0x04		/* Master Mode Register */
+> > +#define	AT91_TWI_IADRSZ		(3    <<  8)	/* Internal Device Address
+> > +						 *  Size */
+> > +#define	AT91_TWI_IADRSZ_NO	(0 << 8)
+> > +#define	AT91_TWI_IADRSZ_1	(1 << 8)
+> > +#define	AT91_TWI_IADRSZ_2	(2 << 8)
+> > +#define	AT91_TWI_IADRSZ_3	(3 << 8)
+> > +#define	AT91_TWI_MREAD		(1    << 12)	/* Master Read Direction
+> */
+> > +#define	AT91_TWI_DADR		(0x7f << 16)	/* Device Address */
+> 
+> These are harder to read than just using hexadecimal bitmasks:
+> 
+> #define	AT91_TWI_MMR		0x00000004
+> #define	AT91_TWI_IADRSZ		0x00000300
+> #define	AT91_TWI_IADRSZ_NO	0x00000000
+> #define	AT91_TWI_IADRSZ_1	0x00000100
+> ...
+
+I agree, but this header file was already used by the old driver and
+converting would add possible errors to register definitions which are
+not (yet) used. That's why I've left it as is and just made it a local
+include.
+
+Thanks,
+Niko
