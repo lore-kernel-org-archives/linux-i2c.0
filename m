@@ -1,66 +1,39 @@
-From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: RE: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
-Date: Thu, 24 Nov 2011 07:33:09 +0100
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D087B44FD63@wm021.weinmann.com>
-References: <cover.1322062555.git.n.voss@weinmann.de>
- <20111123233238.GL19115@trinity.fluff.org>
+From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Subject: Re: [PATCH 3/5] SPI: Add helper macro for spi_driver boilerplate
+Date: Thu, 24 Nov 2011 08:29:36 +0100
+Message-ID: <4ECDF260.5030907@metafoo.de>
+References: <1321434819-23678-1-git-send-email-lars@metafoo.de> <1321434819-23678-4-git-send-email-lars@metafoo.de> <CACxGe6tz0ppZj=a_e4rkgNxzhQ4MSCtXKXGk_dPov80QDU4MCg@mail.gmail.com> <20111124001342.GN19115@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111123233238.GL19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Content-Language: de-DE
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Ben Dooks' <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org'" <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20111124001342.GN19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
+Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Michael Hennerich <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-
-Ben Dooks wrote on 2011-11-24:
-> On Wed, Nov 23, 2011 at 04:35:55PM +0100, Nikolaus Voss wrote:
-> > The old driver has two main deficencies:
-> > i)  No repeated start (Sr) condiction is possible, this makes it unusable
-> >     e.g. for most SMBus transfers.
-> > ii) I/O was done with polling/busy waiting what caused over-/underruns
-> >     even at light system loads and clock speeds.
-> >
-> > The new driver overcomes these deficencies and in addition allows for
-> > more than one TWI interface.
-> >
-> > A remaining limitation is the fact, that only one repeated start is
-> > possible (two concatenated messages). This limitation is imposed by
-> > the hardware. However, this should not be a problem as all common
-> > i2c-client communication does not rely on more than one repeated start.
-> >
-> > v7: Patch 4/5: i)  fix bug if internal address > 1 byte
-> >                ii) send stop when len == 1
-> >                    (both reported by Carsten Behling)
-> > v6: Patch 5/5: support for I2C_SMBUS_BLOCK_DATA transfers.
-> >     Better use of clk_(un)prepare().
-> >     More sensible transfer timeout.
-> > v5: Another round of review comments from Ryan Mallon, Felipe Balbi
-> >     and Russell King: convert twi clk to use .dev_id, cleanups
-> > v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
-> >     Moved register include file to local include, code cleanups
-> > v3: Integrated review comments from Ryan Mallon and Felipe Balbi
-> > v2: Fixed whitespace issue
-> >
-> > Nikolaus Voss (5):
-> >   drivers/i2c/busses/i2c-at91.c: remove broken driver
-> >   Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
-> >   drivers/i2c/busses/i2c-at91.c: add new driver
-> >   G45 TWI: remove open drain setting for twi function gpios
-> >   i2c-at91.c: add SMBUS_READ_BLOCK_DATA functionality
+On 11/24/2011 01:13 AM, Ben Dooks wrote:
+> On Wed, Nov 16, 2011 at 10:12:54AM -0700, Grant Likely wrote:
+>> On Wed, Nov 16, 2011 at 2:13 AM, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org> wrote:
+>>> This patch introduces the module_spi_driver macro which is a convenience macro
+>>> for SPI driver modules similar to module_platform_driver. It is intended to be
+>>> used by drivers which init/exit section does nothing but register/unregister
+>>> the SPI driver. By using this macro it is possible to eliminate a few lines of
+>>> boilerplate code per SPI driver.
+>>>
+>>> Signed-off-by: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+>>
+>> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 > 
-> Is the original driver so broken that the two could not co-exist, or are
-> we making so many changes that there's no point in keeping the original
-> one?
+> I'm begining to think we need to make some of these driver and device
+> bits more generic... there seems to be so much similar but not quite
+> the same code.
+> 
 
-The old driver was marked as broken for the above reasons and I can hardly
-imagine any setup in which it would be preferable to i2c-gpio. So it does
-not make any sense to keep the old driver alive. Though inspired by the old
-driver, the new one is almost a rewrite from scratch, so for better reviewing,
-I removed the old instead of doing a diff.
+I've been thinking the same. A good start would probably be consolidating
+the platform/spi/i2c device id handling code. Since those are all name based
+ids the code for handling them looks rather similar, though there are some
+minor differences.
 
-Niko
+- Lars
