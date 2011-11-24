@@ -1,39 +1,42 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: Re: [PATCH 3/5] SPI: Add helper macro for spi_driver boilerplate
-Date: Thu, 24 Nov 2011 08:29:36 +0100
-Message-ID: <4ECDF260.5030907@metafoo.de>
-References: <1321434819-23678-1-git-send-email-lars@metafoo.de> <1321434819-23678-4-git-send-email-lars@metafoo.de> <CACxGe6tz0ppZj=a_e4rkgNxzhQ4MSCtXKXGk_dPov80QDU4MCg@mail.gmail.com> <20111124001342.GN19115@trinity.fluff.org>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
+Date: Thu, 24 Nov 2011 15:52:20 +0800
+Message-ID: <1322121140-5216-1-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111124001342.GN19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Sender: linux-iio-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-l3A5Bk7waGM@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Michael Hennerich <Michael.Hennerich-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/24/2011 01:13 AM, Ben Dooks wrote:
-> On Wed, Nov 16, 2011 at 10:12:54AM -0700, Grant Likely wrote:
->> On Wed, Nov 16, 2011 at 2:13 AM, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org> wrote:
->>> This patch introduces the module_spi_driver macro which is a convenience macro
->>> for SPI driver modules similar to module_platform_driver. It is intended to be
->>> used by drivers which init/exit section does nothing but register/unregister
->>> the SPI driver. By using this macro it is possible to eliminate a few lines of
->>> boilerplate code per SPI driver.
->>>
->>> Signed-off-by: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
->>
->> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> 
-> I'm begining to think we need to make some of these driver and device
-> bits more generic... there seems to be so much similar but not quite
-> the same code.
-> 
+  CC      drivers/i2c/busses/i2c-mxs.o
+drivers/i2c/busses/i2c-mxs.c: In function =E2=80=98mxs_i2c_xfer=E2=80=99=
+:
+drivers/i2c/busses/i2c-mxs.c:196:6: warning: =E2=80=98data=E2=80=99 may=
+ be used uninitialized in this function
 
-I've been thinking the same. A good start would probably be consolidating
-the platform/spi/i2c device id handling code. Since those are all name based
-ids the code for handling them looks rather similar, though there are some
-minor differences.
+Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mxs.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-- Lars
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.=
+c
+index 7e78f7c..00f098f 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -193,7 +193,7 @@ static int mxs_i2c_wait_for_data(struct mxs_i2c_dev=
+ *i2c)
+=20
+ static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf, int l=
+en)
+ {
+-	u32 data;
++	u32 data =3D 0;
+ 	int i;
+=20
+ 	for (i =3D 0; i < len; i++) {
+--=20
+1.7.4.1
