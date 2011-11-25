@@ -1,89 +1,82 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
-Date: Fri, 25 Nov 2011 10:08:06 +0100
-Message-ID: <20111125090806.GA2535@pengutronix.de>
-References: <1322121140-5216-1-git-send-email-shawn.guo@linaro.org>
- <20111124082903.GV19986@pengutronix.de>
- <20111124083747.GE8439@pengutronix.de>
- <20111125011519.GA18403@S2100-06.ap.freescale.net>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: RFC: I2C bus fault recovery and I2C reset
+Date: Fri, 25 Nov 2011 11:27:44 +0100
+Message-ID: <4ECF6DA0.5080006@gmx.de>
+References: <20111124120207.3e78e34b@archvile>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20111125011519.GA18403-+NayF8gZjK2ctlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
+In-Reply-To: <20111124120207.3e78e34b@archvile>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Jander <david.jander-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Darius Augulis <darius.augulis-Ft0m5Q12RQ9xBelEqimL3w@public.gmane.org>, giometti-k2GhghHVRtY@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Am 24.11.2011 12:02, schrieb David Jander:
+> 
+> Hi all,
+> 
+> I was debugging an I2C bus connected to a i2c-imx peripheral as master, with
+> several slaves connected to it, when I realized that this driver (and many
+> (all?) others) cannot recover from a bus fault in a graceful manner.
+> If, for instance, one slave device misses one (or more) clock pulses for
+> whatever reason during a slave->master transmission (read), during a
+> 0-data bit, this slave may eventually keep the SDA line active in low-state.
+> Most I2C master peripherals, and particularly i2c-imx will not be able to
+> continue operating. Any operation will just timeout with a "busy bus" error.
+> The simplest and most often used way of recovering from such a situation is
+> "resetting" the I2C bus, by toggling SCL a few times (maximum 9) until SDA is
+> released again. After that a START sequence can successfully reset the state
+> of any slave device.
+> 
+> One can argue whether it may or may not be accepted that this happens under
+> normal circumstances, but it definitely can happen at any moment (heavy EMC
+> interference, bad bus design, long bus, misbehaving slave... you name it), and
+> IMHO a linux-driver should always have the ability to try to recover gracefully
+> from such an event. Whether the system this bus takes part of can tolerate
+> such a situation or not is not up to the driver to decide either... it should
+> just try to recover.
+> 
+> This issue seems to have been discussed before in this thread:
+> 
+> http://article.gmane.org/gmane.linux.drivers.i2c/3010
+> 
+> The proposed solution back then was to issue a reset sequence "by hand" via a
+> sysfs interface. This may be useful for debugging, but IMHO an I2C driver
+> needs to do this automatically.
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ACK
 
-On Fri, Nov 25, 2011 at 09:15:20AM +0800, Shawn Guo wrote:
-> On Thu, Nov 24, 2011 at 09:37:47AM +0100, Wolfram Sang wrote:
-> > On Thu, Nov 24, 2011 at 09:29:03AM +0100, Uwe Kleine-K=C3=B6nig wrote:
-> > > Hello Shawn,
-> > >=20
-> > > On Thu, Nov 24, 2011 at 03:52:20PM +0800, Shawn Guo wrote:
-> > > >   CC      drivers/i2c/busses/i2c-mxs.o
-> > > > drivers/i2c/busses/i2c-mxs.c: In function =E2=80=98mxs_i2c_xfer=E2=
-=80=99:
-> > > > drivers/i2c/busses/i2c-mxs.c:196:6: warning: =E2=80=98data=E2=80=99=
- may be used uninitialized in this function
-> > > >=20
-> > > > Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > > > ---
-> > > >  drivers/i2c/busses/i2c-mxs.c |    2 +-
-> > > >  1 files changed, 1 insertions(+), 1 deletions(-)
-> > > >=20
-> > > > diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-=
-mxs.c
-> > > > index 7e78f7c..00f098f 100644
-> > > > --- a/drivers/i2c/busses/i2c-mxs.c
-> > > > +++ b/drivers/i2c/busses/i2c-mxs.c
-> > > > @@ -193,7 +193,7 @@ static int mxs_i2c_wait_for_data(struct mxs_i2c=
-_dev *i2c)
-> > > > =20
-> > > >  static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf, i=
-nt len)
-> > > >  {
-> > > > -	u32 data;
-> > > > +	u32 data =3D 0;
-> > > >  	int i;
-> > > > =20
-> > > >  	for (i =3D 0; i < len; i++) {
-> > > Looks like a stupid compiler. Then better use=20
-> > >=20
-> > > 	u32 uninitialized_var(data);
-> >=20
-> > Leave it as it is and fix the compiler? Will do another test later to m=
-ake
-> > sure.
-> >=20
-> Ben, do you have an opinion on this, leave it there or fix it?
+> For many peripherals in order to support this, a special function would be
+> needed, that reconfigures the SDA/SCL pins as GPIO and manually toggles SCL a
+> few times. This would probably need to be implemented in
+> board-support-/platform code...?
 
-Sorry, forgot the tests yesterday. I don't like random annotations
-because of faulty compilers. Please fix that one. NACK from me.
+Needs to be part of recover function which in turn is part of driver code.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> In my specific situation, there was no way of recovering other than
+> power-cycling the device, which is completely unacceptable, specially for an
+> industrial control system. A temporary bus-lockup with automatic recovery via a
+> proper I2C bus reset OTOH, wouldn't have any significant impact even if
+> occurring sporadically.
+> Individually resetting I2C slaves is also not a real solution because it may
+> not be possible to determine which is the I2C slave that misbehaved.
 
---X1bOJ3K7DJ5YkBrT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+Most I2C slaves haven't got any reset line.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+> Any idea on how to solve this problem?
+> Should each driver implement support for it and implement optional callback
+> functions in platform-data?
 
-iEYEARECAAYFAk7PWvYACgkQD27XaX1/VRs7ZgCfWJEI3RVaCukfB2SRb3YC7Ywj
-1TMAoI9ploYiowjv+RAjzChjJfJiiLLs
-=NOgb
------END PGP SIGNATURE-----
+IMHO this typically is adapter driver's job. It strongly depends on
+particular H/W whether controller can return information on busy/blocked
+bus and whether it is able to manually toggle the clock line. On single
+master systems, the driver code should automatically try to recover when
+not being able to send start flag. On multi master systems the situation
+is more complex.
 
---X1bOJ3K7DJ5YkBrT--
+JM2C
+-- 
+KR
+Michael
