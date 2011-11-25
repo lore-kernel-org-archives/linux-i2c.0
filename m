@@ -1,78 +1,64 @@
-From: Ryan Mallon <rmallon@gmail.com>
-Subject: Re: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
-Date: Fri, 25 Nov 2011 09:13:02 +1100
-Message-ID: <4ECEC16E.5080806@gmail.com>
-References: <cover.1322062555.git.n.voss@weinmann.de> <20111123233238.GL19115@trinity.fluff.org> <EF2E73589CA71846A15D0B2CDF79505D087B44FD63@wm021.weinmann.com>
+From: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c-mxs: fix compile warning in mxs_i2c_xfer()
+Date: Fri, 25 Nov 2011 09:15:20 +0800
+Message-ID: <20111125011519.GA18403@S2100-06.ap.freescale.net>
+References: <1322121140-5216-1-git-send-email-shawn.guo@linaro.org>
+ <20111124082903.GV19986@pengutronix.de>
+ <20111124083747.GE8439@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D087B44FD63@wm021.weinmann.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Voss, Nikolaus" <N.Voss@weinmann.de>
-Cc: 'Ben Dooks' <ben-i2c@fluff.org>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'carsten.behling@garz-fricke.com'" <carsten.behling@garz-fricke.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20111124083747.GE8439-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 24/11/11 17:33, Voss, Nikolaus wrote:
+On Thu, Nov 24, 2011 at 09:37:47AM +0100, Wolfram Sang wrote:
+> On Thu, Nov 24, 2011 at 09:29:03AM +0100, Uwe Kleine-K=C3=B6nig wrote=
+:
+> > Hello Shawn,
+> >=20
+> > On Thu, Nov 24, 2011 at 03:52:20PM +0800, Shawn Guo wrote:
+> > >   CC      drivers/i2c/busses/i2c-mxs.o
+> > > drivers/i2c/busses/i2c-mxs.c: In function =E2=80=98mxs_i2c_xfer=E2=
+=80=99:
+> > > drivers/i2c/busses/i2c-mxs.c:196:6: warning: =E2=80=98data=E2=80=99=
+ may be used uninitialized in this function
+> > >=20
+> > > Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > > ---
+> > >  drivers/i2c/busses/i2c-mxs.c |    2 +-
+> > >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > >=20
+> > > diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2=
+c-mxs.c
+> > > index 7e78f7c..00f098f 100644
+> > > --- a/drivers/i2c/busses/i2c-mxs.c
+> > > +++ b/drivers/i2c/busses/i2c-mxs.c
+> > > @@ -193,7 +193,7 @@ static int mxs_i2c_wait_for_data(struct mxs_i=
+2c_dev *i2c)
+> > > =20
+> > >  static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf,=
+ int len)
+> > >  {
+> > > -	u32 data;
+> > > +	u32 data =3D 0;
+> > >  	int i;
+> > > =20
+> > >  	for (i =3D 0; i < len; i++) {
+> > Looks like a stupid compiler. Then better use=20
+> >=20
+> > 	u32 uninitialized_var(data);
+>=20
+> Leave it as it is and fix the compiler? Will do another test later to=
+ make
+> sure.
+>=20
+Ben, do you have an opinion on this, leave it there or fix it?
 
-> Hi,
-> 
-> Ben Dooks wrote on 2011-11-24:
->> On Wed, Nov 23, 2011 at 04:35:55PM +0100, Nikolaus Voss wrote:
->>> The old driver has two main deficencies:
->>> i)  No repeated start (Sr) condiction is possible, this makes it unusable
->>>     e.g. for most SMBus transfers.
->>> ii) I/O was done with polling/busy waiting what caused over-/underruns
->>>     even at light system loads and clock speeds.
->>>
->>> The new driver overcomes these deficencies and in addition allows for
->>> more than one TWI interface.
->>>
->>> A remaining limitation is the fact, that only one repeated start is
->>> possible (two concatenated messages). This limitation is imposed by
->>> the hardware. However, this should not be a problem as all common
->>> i2c-client communication does not rely on more than one repeated start.
->>>
->>> v7: Patch 4/5: i)  fix bug if internal address > 1 byte
->>>                ii) send stop when len == 1
->>>                    (both reported by Carsten Behling)
->>> v6: Patch 5/5: support for I2C_SMBUS_BLOCK_DATA transfers.
->>>     Better use of clk_(un)prepare().
->>>     More sensible transfer timeout.
->>> v5: Another round of review comments from Ryan Mallon, Felipe Balbi
->>>     and Russell King: convert twi clk to use .dev_id, cleanups
->>> v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
->>>     Moved register include file to local include, code cleanups
->>> v3: Integrated review comments from Ryan Mallon and Felipe Balbi
->>> v2: Fixed whitespace issue
->>>
->>> Nikolaus Voss (5):
->>>   drivers/i2c/busses/i2c-at91.c: remove broken driver
->>>   Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
->>>   drivers/i2c/busses/i2c-at91.c: add new driver
->>>   G45 TWI: remove open drain setting for twi function gpios
->>>   i2c-at91.c: add SMBUS_READ_BLOCK_DATA functionality
->>
->> Is the original driver so broken that the two could not co-exist, or are
->> we making so many changes that there's no point in keeping the original
->> one?
-> 
-> The old driver was marked as broken for the above reasons and I can hardly
-> imagine any setup in which it would be preferable to i2c-gpio. So it does
-> not make any sense to keep the old driver alive. Though inspired by the old
-> driver, the new one is almost a rewrite from scratch, so for better reviewing,
-> I removed the old instead of doing a diff.
-
-
-I can confirm this. I worked on a number of AT91 based platforms with
-several different i2c client devices and we always had to use the
-i2c-gpio driver because the at91-i2c driver would not reliably work with
-our client devices.
-
-None of the at91 defconfigs select I2C_AT91, so it should be fairly safe
-to remove the old driver. Getting this driver into linux-next (if it
-isn't already) would be good so we can see if it does cause problems for
-anybody.
-
-Thanks,
-~Ryan
+--=20
+Regards,
+Shawn
