@@ -1,82 +1,198 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: RFC: I2C bus fault recovery and I2C reset
-Date: Fri, 25 Nov 2011 11:27:44 +0100
-Message-ID: <4ECF6DA0.5080006@gmx.de>
-References: <20111124120207.3e78e34b@archvile>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c: Fix error value returned by several bus drivers
+Date: Fri, 25 Nov 2011 14:05:11 +0100
+Message-ID: <20111125140511.6411d949@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111124120207.3e78e34b@archvile>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: David Jander <david.jander-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Darius Augulis <darius.augulis-Ft0m5Q12RQ9xBelEqimL3w@public.gmane.org>, giometti-k2GhghHVRtY@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Pierre-Yves Rofes <py.rofes-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Corentin Labbe <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 24.11.2011 12:02, schrieb David Jander:
-> 
-> Hi all,
-> 
-> I was debugging an I2C bus connected to a i2c-imx peripheral as master, with
-> several slaves connected to it, when I realized that this driver (and many
-> (all?) others) cannot recover from a bus fault in a graceful manner.
-> If, for instance, one slave device misses one (or more) clock pulses for
-> whatever reason during a slave->master transmission (read), during a
-> 0-data bit, this slave may eventually keep the SDA line active in low-state.
-> Most I2C master peripherals, and particularly i2c-imx will not be able to
-> continue operating. Any operation will just timeout with a "busy bus" error.
-> The simplest and most often used way of recovering from such a situation is
-> "resetting" the I2C bus, by toggling SCL a few times (maximum 9) until SDA is
-> released again. After that a START sequence can successfully reset the state
-> of any slave device.
-> 
-> One can argue whether it may or may not be accepted that this happens under
-> normal circumstances, but it definitely can happen at any moment (heavy EMC
-> interference, bad bus design, long bus, misbehaving slave... you name it), and
-> IMHO a linux-driver should always have the ability to try to recover gracefully
-> from such an event. Whether the system this bus takes part of can tolerate
-> such a situation or not is not up to the driver to decide either... it should
-> just try to recover.
-> 
-> This issue seems to have been discussed before in this thread:
-> 
-> http://article.gmane.org/gmane.linux.drivers.i2c/3010
-> 
-> The proposed solution back then was to issue a reset sequence "by hand" via a
-> sysfs interface. This may be useful for debugging, but IMHO an I2C driver
-> needs to do this automatically.
+When adding checks for ACPI resource conflicts to many bus drivers,
+not enough attention was paid to the error paths, and for several
+drivers this causes 0 to be returned on error in some cases. Fix this
+by properly returning a non-zero value on every error.
 
-ACK
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
+---
+Problem was noticed while reviewing Corentin's i2c-ali1535 patch.
+Anyone using these drivers is welcome to test and confirm that I did
+not break anything. I'll rebase Corentin's patch on top of this.
 
-> For many peripherals in order to support this, a special function would be
-> needed, that reconfigures the SDA/SCL pins as GPIO and manually toggles SCL a
-> few times. This would probably need to be implemented in
-> board-support-/platform code...?
+ drivers/i2c/busses/i2c-ali1535.c |   11 +++++++----
+ drivers/i2c/busses/i2c-nforce2.c |    2 +-
+ drivers/i2c/busses/i2c-sis5595.c |    4 ++--
+ drivers/i2c/busses/i2c-sis630.c  |    6 +++++-
+ drivers/i2c/busses/i2c-viapro.c  |    7 +++++--
+ 5 files changed, 20 insertions(+), 10 deletions(-)
 
-Needs to be part of recover function which in turn is part of driver code.
+--- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-ali1535.c	2011-11-25 09:03:07.000000000 +0100
++++ linux-3.2-rc3/drivers/i2c/busses/i2c-ali1535.c	2011-11-25 09:05:32.000000000 +0100
+@@ -140,7 +140,7 @@ static unsigned short ali1535_smba;
+    defined to make the transition easier. */
+ static int __devinit ali1535_setup(struct pci_dev *dev)
+ {
+-	int retval = -ENODEV;
++	int retval;
+ 	unsigned char temp;
+ 
+ 	/* Check the following things:
+@@ -155,6 +155,7 @@ static int __devinit ali1535_setup(struc
+ 	if (ali1535_smba == 0) {
+ 		dev_warn(&dev->dev,
+ 			"ALI1535_smb region uninitialized - upgrade BIOS?\n");
++		retval = -ENODEV;
+ 		goto exit;
+ 	}
+ 
+@@ -167,6 +168,7 @@ static int __devinit ali1535_setup(struc
+ 			    ali1535_driver.name)) {
+ 		dev_err(&dev->dev, "ALI1535_smb region 0x%x already in use!\n",
+ 			ali1535_smba);
++		retval = -EBUSY;
+ 		goto exit;
+ 	}
+ 
+@@ -174,6 +176,7 @@ static int __devinit ali1535_setup(struc
+ 	pci_read_config_byte(dev, SMBCFG, &temp);
+ 	if ((temp & ALI1535_SMBIO_EN) == 0) {
+ 		dev_err(&dev->dev, "SMB device not enabled - upgrade BIOS?\n");
++		retval = -ENODEV;
+ 		goto exit_free;
+ 	}
+ 
+@@ -181,6 +184,7 @@ static int __devinit ali1535_setup(struc
+ 	pci_read_config_byte(dev, SMBHSTCFG, &temp);
+ 	if ((temp & 1) == 0) {
+ 		dev_err(&dev->dev, "SMBus controller not enabled - upgrade BIOS?\n");
++		retval = -ENODEV;
+ 		goto exit_free;
+ 	}
+ 
+@@ -198,12 +202,11 @@ static int __devinit ali1535_setup(struc
+ 	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
+ 	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
+ 
+-	retval = 0;
+-exit:
+-	return retval;
++	return 0;
+ 
+ exit_free:
+ 	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
++exit:
+ 	return retval;
+ }
+ 
+--- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-nforce2.c	2011-07-22 04:17:23.000000000 +0200
++++ linux-3.2-rc3/drivers/i2c/busses/i2c-nforce2.c	2011-11-25 09:10:48.000000000 +0100
+@@ -356,7 +356,7 @@ static int __devinit nforce2_probe_smb (
+ 	error = acpi_check_region(smbus->base, smbus->size,
+ 				  nforce2_driver.name);
+ 	if (error)
+-		return -1;
++		return error;
+ 
+ 	if (!request_region(smbus->base, smbus->size, nforce2_driver.name)) {
+ 		dev_err(&smbus->adapter.dev, "Error requesting region %02x .. %02X for %s\n",
+--- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-sis5595.c	2011-07-22 04:17:23.000000000 +0200
++++ linux-3.2-rc3/drivers/i2c/busses/i2c-sis5595.c	2011-11-25 09:12:44.000000000 +0100
+@@ -147,7 +147,7 @@ static int __devinit sis5595_setup(struc
+ 	u16 a;
+ 	u8 val;
+ 	int *i;
+-	int retval = -ENODEV;
++	int retval;
+ 
+ 	/* Look for imposters */
+ 	for (i = blacklist; *i != 0; i++) {
+@@ -223,7 +223,7 @@ static int __devinit sis5595_setup(struc
+ 
+ error:
+ 	release_region(sis5595_base + SMB_INDEX, 2);
+-	return retval;
++	return -ENODEV;
+ }
+ 
+ static int sis5595_transaction(struct i2c_adapter *adap)
+--- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-sis630.c	2011-07-22 04:17:23.000000000 +0200
++++ linux-3.2-rc3/drivers/i2c/busses/i2c-sis630.c	2011-11-25 09:17:46.000000000 +0100
+@@ -393,7 +393,7 @@ static int __devinit sis630_setup(struct
+ {
+ 	unsigned char b;
+ 	struct pci_dev *dummy = NULL;
+-	int retval = -ENODEV, i;
++	int retval, i;
+ 
+ 	/* check for supported SiS devices */
+ 	for (i=0; supported[i] > 0 ; i++) {
+@@ -418,18 +418,21 @@ static int __devinit sis630_setup(struct
+ 	*/
+ 	if (pci_read_config_byte(sis630_dev, SIS630_BIOS_CTL_REG,&b)) {
+ 		dev_err(&sis630_dev->dev, "Error: Can't read bios ctl reg\n");
++		retval = -ENODEV;
+ 		goto exit;
+ 	}
+ 	/* if ACPI already enabled , do nothing */
+ 	if (!(b & 0x80) &&
+ 	    pci_write_config_byte(sis630_dev, SIS630_BIOS_CTL_REG, b | 0x80)) {
+ 		dev_err(&sis630_dev->dev, "Error: Can't enable ACPI\n");
++		retval = -ENODEV;
+ 		goto exit;
+ 	}
+ 
+ 	/* Determine the ACPI base address */
+ 	if (pci_read_config_word(sis630_dev,SIS630_ACPI_BASE_REG,&acpi_base)) {
+ 		dev_err(&sis630_dev->dev, "Error: Can't determine ACPI base address\n");
++		retval = -ENODEV;
+ 		goto exit;
+ 	}
+ 
+@@ -445,6 +448,7 @@ static int __devinit sis630_setup(struct
+ 			    sis630_driver.name)) {
+ 		dev_err(&sis630_dev->dev, "SMBus registers 0x%04x-0x%04x already "
+ 			"in use!\n", acpi_base + SMB_STS, acpi_base + SMB_SAA);
++		retval = -EBUSY;
+ 		goto exit;
+ 	}
+ 
+--- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-viapro.c	2011-07-22 04:17:23.000000000 +0200
++++ linux-3.2-rc3/drivers/i2c/busses/i2c-viapro.c	2011-11-25 09:22:31.000000000 +0100
+@@ -324,7 +324,7 @@ static int __devinit vt596_probe(struct
+ 				 const struct pci_device_id *id)
+ {
+ 	unsigned char temp;
+-	int error = -ENODEV;
++	int error;
+ 
+ 	/* Determine the address of the SMBus areas */
+ 	if (force_addr) {
+@@ -390,6 +390,7 @@ found:
+ 			dev_err(&pdev->dev, "SMBUS: Error: Host SMBus "
+ 				"controller not enabled! - upgrade BIOS or "
+ 				"use force=1\n");
++			error = -ENODEV;
+ 			goto release_region;
+ 		}
+ 	}
+@@ -422,9 +423,11 @@ found:
+ 		 "SMBus Via Pro adapter at %04x", vt596_smba);
+ 
+ 	vt596_pdev = pci_dev_get(pdev);
+-	if (i2c_add_adapter(&vt596_adapter)) {
++	error = i2c_add_adapter(&vt596_adapter);
++	if (error) {
+ 		pci_dev_put(vt596_pdev);
+ 		vt596_pdev = NULL;
++		goto release_region;
+ 	}
+ 
+ 	/* Always return failure here.  This is to allow other drivers to bind
 
-> In my specific situation, there was no way of recovering other than
-> power-cycling the device, which is completely unacceptable, specially for an
-> industrial control system. A temporary bus-lockup with automatic recovery via a
-> proper I2C bus reset OTOH, wouldn't have any significant impact even if
-> occurring sporadically.
-> Individually resetting I2C slaves is also not a real solution because it may
-> not be possible to determine which is the I2C slave that misbehaved.
 
-Most I2C slaves haven't got any reset line.
-
-> Any idea on how to solve this problem?
-> Should each driver implement support for it and implement optional callback
-> functions in platform-data?
-
-IMHO this typically is adapter driver's job. It strongly depends on
-particular H/W whether controller can return information on busy/blocked
-bus and whether it is able to manually toggle the clock line. On single
-master systems, the driver code should automatically try to recover when
-not being able to send start flag. On multi master systems the situation
-is more complex.
-
-JM2C
 -- 
-KR
-Michael
+Jean Delvare
