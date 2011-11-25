@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c: Fix error value returned by several bus drivers
-Date: Fri, 25 Nov 2011 14:05:11 +0100
-Message-ID: <20111125140511.6411d949@endymion.delvare>
+Subject: [PATCH v3] i2c-ali1535: enable SPARC support
+Date: Fri, 25 Nov 2011 14:23:51 +0100
+Message-ID: <20111125142351.739f6b89@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -11,187 +11,105 @@ To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Cc: Pierre-Yves Rofes <py.rofes-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Corentin Labbe <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When adding checks for ACPI resource conflicts to many bus drivers,
-not enough attention was paid to the error paths, and for several
-drivers this causes 0 to be returned on error in some cases. Fix this
-by properly returning a non-zero value on every error.
+From: "corentin.labbe" <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
 
+The i2c-ali1535 driver don't work on SPARC, this is because it assumes that ioport address are 16bits wide (address stored with an unsigned short).
+But on SPARC arch, ioports are mapped in memory and so are stored with an unsigned long.
+
+This patch corrects this by using pci_resource_start for getting IOMEM base address, then reading the SMBBA of the i2c busse and using together for I/O access.
+
+I like to thanks Jean DELVARE for reviewing of my patch.
+
+Signed-off-by: LABBE Corentin <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: stable-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org
 ---
-Problem was noticed while reviewing Corentin's i2c-ali1535 patch.
-Anyone using these drivers is welcome to test and confirm that I did
-not break anything. I'll rebase Corentin's patch on top of this.
+Corentin, I rebased your patch so that it applies on top of the fix I
+just sent. I also turned one dev_info into dev_dbg, and relaxed the
+check on the PCI resource flags: I have no idea if the resource is
+always defined, in particular on x86, and as it will be difficult to
+find testers, I want to play it safe and guarantee that the driver will
+behave the same way it used to before your patch.
 
- drivers/i2c/busses/i2c-ali1535.c |   11 +++++++----
- drivers/i2c/busses/i2c-nforce2.c |    2 +-
- drivers/i2c/busses/i2c-sis5595.c |    4 ++--
- drivers/i2c/busses/i2c-sis630.c  |    6 +++++-
- drivers/i2c/busses/i2c-viapro.c  |    7 +++++--
- 5 files changed, 20 insertions(+), 10 deletions(-)
+Corentin, Pierre-Yves, please test this version of the patch on top of
+the fix I just sent, and confirm that it works for you.
 
---- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-ali1535.c	2011-11-25 09:03:07.000000000 +0100
-+++ linux-3.2-rc3/drivers/i2c/busses/i2c-ali1535.c	2011-11-25 09:05:32.000000000 +0100
-@@ -140,7 +140,7 @@ static unsigned short ali1535_smba;
-    defined to make the transition easier. */
- static int __devinit ali1535_setup(struct pci_dev *dev)
- {
--	int retval = -ENODEV;
-+	int retval;
- 	unsigned char temp;
+If anybody is using the i2c-ali1535 driver on x86, please test too and
+report. I can provide a standalone driver if needed.
+
+ drivers/i2c/busses/i2c-ali1535.c |   27 ++++++++++++++++++++-------
+ 1 file changed, 20 insertions(+), 7 deletions(-)
+
+--- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-ali1535.c	2011-11-25 13:54:48.000000000 +0100
++++ linux-3.2-rc3/drivers/i2c/busses/i2c-ali1535.c	2011-11-25 14:12:46.000000000 +0100
+@@ -132,7 +132,8 @@
+ #define	ALI1535_SMBIO_EN	0x04	/* SMB I/O Space enable		*/
  
- 	/* Check the following things:
-@@ -155,6 +155,7 @@ static int __devinit ali1535_setup(struc
- 	if (ali1535_smba == 0) {
+ static struct pci_driver ali1535_driver;
+-static unsigned short ali1535_smba;
++static unsigned long ali1535_smba;
++static unsigned short ali1535_offset;
+ 
+ /* Detect whether a ALI1535 can be found, and initialize it, where necessary.
+    Note the differences between kernels with the old PCI BIOS interface and
+@@ -149,16 +150,28 @@ static int __devinit ali1535_setup(struc
+ 		- We can use the addresses
+ 	*/
+ 
++	retval = pci_enable_device(dev);
++	if (retval) {
++		dev_err(&dev->dev, "ALI1535_smb can't enable device\n");
++		goto exit;
++	}
++
+ 	/* Determine the address of the SMBus area */
+-	pci_read_config_word(dev, SMBBA, &ali1535_smba);
+-	ali1535_smba &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
+-	if (ali1535_smba == 0) {
++	pci_read_config_word(dev, SMBBA, &ali1535_offset);
++	dev_dbg(&dev->dev, "ALI1535_smb is at offset 0x%04x\n", ali1535_offset);
++	ali1535_offset &= (0xffff & ~(ALI1535_SMB_IOSIZE - 1));
++	if (ali1535_offset == 0) {
  		dev_warn(&dev->dev,
  			"ALI1535_smb region uninitialized - upgrade BIOS?\n");
-+		retval = -ENODEV;
+ 		retval = -ENODEV;
  		goto exit;
  	}
  
-@@ -167,6 +168,7 @@ static int __devinit ali1535_setup(struc
++	if (pci_resource_flags(dev, 0) & IORESOURCE_IO)
++		ali1535_smba = pci_resource_start(dev, 0) + ali1535_offset;
++	else
++		ali1535_smba = ali1535_offset;
++
+ 	retval = acpi_check_region(ali1535_smba, ALI1535_SMB_IOSIZE,
+ 				   ali1535_driver.name);
+ 	if (retval)
+@@ -166,7 +179,7 @@ static int __devinit ali1535_setup(struc
+ 
+ 	if (!request_region(ali1535_smba, ALI1535_SMB_IOSIZE,
  			    ali1535_driver.name)) {
- 		dev_err(&dev->dev, "ALI1535_smb region 0x%x already in use!\n",
+-		dev_err(&dev->dev, "ALI1535_smb region 0x%x already in use!\n",
++		dev_err(&dev->dev, "ALI1535_smb region 0x%lx already in use!\n",
  			ali1535_smba);
-+		retval = -EBUSY;
+ 		retval = -EBUSY;
  		goto exit;
- 	}
- 
-@@ -174,6 +176,7 @@ static int __devinit ali1535_setup(struc
- 	pci_read_config_byte(dev, SMBCFG, &temp);
- 	if ((temp & ALI1535_SMBIO_EN) == 0) {
- 		dev_err(&dev->dev, "SMB device not enabled - upgrade BIOS?\n");
-+		retval = -ENODEV;
- 		goto exit_free;
- 	}
- 
-@@ -181,6 +184,7 @@ static int __devinit ali1535_setup(struc
- 	pci_read_config_byte(dev, SMBHSTCFG, &temp);
- 	if ((temp & 1) == 0) {
- 		dev_err(&dev->dev, "SMBus controller not enabled - upgrade BIOS?\n");
-+		retval = -ENODEV;
- 		goto exit_free;
- 	}
- 
-@@ -198,12 +202,11 @@ static int __devinit ali1535_setup(struc
- 	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
- 	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
- 
--	retval = 0;
--exit:
--	return retval;
-+	return 0;
- 
- exit_free:
- 	release_region(ali1535_smba, ALI1535_SMB_IOSIZE);
-+exit:
- 	return retval;
- }
- 
---- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-nforce2.c	2011-07-22 04:17:23.000000000 +0200
-+++ linux-3.2-rc3/drivers/i2c/busses/i2c-nforce2.c	2011-11-25 09:10:48.000000000 +0100
-@@ -356,7 +356,7 @@ static int __devinit nforce2_probe_smb (
- 	error = acpi_check_region(smbus->base, smbus->size,
- 				  nforce2_driver.name);
- 	if (error)
--		return -1;
-+		return error;
- 
- 	if (!request_region(smbus->base, smbus->size, nforce2_driver.name)) {
- 		dev_err(&smbus->adapter.dev, "Error requesting region %02x .. %02X for %s\n",
---- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-sis5595.c	2011-07-22 04:17:23.000000000 +0200
-+++ linux-3.2-rc3/drivers/i2c/busses/i2c-sis5595.c	2011-11-25 09:12:44.000000000 +0100
-@@ -147,7 +147,7 @@ static int __devinit sis5595_setup(struc
- 	u16 a;
- 	u8 val;
- 	int *i;
--	int retval = -ENODEV;
-+	int retval;
- 
- 	/* Look for imposters */
- 	for (i = blacklist; *i != 0; i++) {
-@@ -223,7 +223,7 @@ static int __devinit sis5595_setup(struc
- 
- error:
- 	release_region(sis5595_base + SMB_INDEX, 2);
--	return retval;
-+	return -ENODEV;
- }
- 
- static int sis5595_transaction(struct i2c_adapter *adap)
---- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-sis630.c	2011-07-22 04:17:23.000000000 +0200
-+++ linux-3.2-rc3/drivers/i2c/busses/i2c-sis630.c	2011-11-25 09:17:46.000000000 +0100
-@@ -393,7 +393,7 @@ static int __devinit sis630_setup(struct
- {
- 	unsigned char b;
- 	struct pci_dev *dummy = NULL;
--	int retval = -ENODEV, i;
-+	int retval, i;
- 
- 	/* check for supported SiS devices */
- 	for (i=0; supported[i] > 0 ; i++) {
-@@ -418,18 +418,21 @@ static int __devinit sis630_setup(struct
+@@ -200,7 +213,7 @@ static int __devinit ali1535_setup(struc
  	*/
- 	if (pci_read_config_byte(sis630_dev, SIS630_BIOS_CTL_REG,&b)) {
- 		dev_err(&sis630_dev->dev, "Error: Can't read bios ctl reg\n");
-+		retval = -ENODEV;
- 		goto exit;
- 	}
- 	/* if ACPI already enabled , do nothing */
- 	if (!(b & 0x80) &&
- 	    pci_write_config_byte(sis630_dev, SIS630_BIOS_CTL_REG, b | 0x80)) {
- 		dev_err(&sis630_dev->dev, "Error: Can't enable ACPI\n");
-+		retval = -ENODEV;
- 		goto exit;
- 	}
+ 	pci_read_config_byte(dev, SMBREV, &temp);
+ 	dev_dbg(&dev->dev, "SMBREV = 0x%X\n", temp);
+-	dev_dbg(&dev->dev, "ALI1535_smba = 0x%X\n", ali1535_smba);
++	dev_dbg(&dev->dev, "ALI1535_smba = 0x%lx\n", ali1535_smba);
  
- 	/* Determine the ACPI base address */
- 	if (pci_read_config_word(sis630_dev,SIS630_ACPI_BASE_REG,&acpi_base)) {
- 		dev_err(&sis630_dev->dev, "Error: Can't determine ACPI base address\n");
-+		retval = -ENODEV;
- 		goto exit;
- 	}
+ 	return 0;
  
-@@ -445,6 +448,7 @@ static int __devinit sis630_setup(struct
- 			    sis630_driver.name)) {
- 		dev_err(&sis630_dev->dev, "SMBus registers 0x%04x-0x%04x already "
- 			"in use!\n", acpi_base + SMB_STS, acpi_base + SMB_SAA);
-+		retval = -EBUSY;
- 		goto exit;
- 	}
+@@ -501,7 +514,7 @@ static int __devinit ali1535_probe(struc
+ 	ali1535_adapter.dev.parent = &dev->dev;
  
---- linux-3.2-rc3.orig/drivers/i2c/busses/i2c-viapro.c	2011-07-22 04:17:23.000000000 +0200
-+++ linux-3.2-rc3/drivers/i2c/busses/i2c-viapro.c	2011-11-25 09:22:31.000000000 +0100
-@@ -324,7 +324,7 @@ static int __devinit vt596_probe(struct
- 				 const struct pci_device_id *id)
- {
- 	unsigned char temp;
--	int error = -ENODEV;
-+	int error;
+ 	snprintf(ali1535_adapter.name, sizeof(ali1535_adapter.name),
+-		"SMBus ALI1535 adapter at %04x", ali1535_smba);
++		"SMBus ALI1535 adapter at %04x", ali1535_offset);
+ 	return i2c_add_adapter(&ali1535_adapter);
+ }
  
- 	/* Determine the address of the SMBus areas */
- 	if (force_addr) {
-@@ -390,6 +390,7 @@ found:
- 			dev_err(&pdev->dev, "SMBUS: Error: Host SMBus "
- 				"controller not enabled! - upgrade BIOS or "
- 				"use force=1\n");
-+			error = -ENODEV;
- 			goto release_region;
- 		}
- 	}
-@@ -422,9 +423,11 @@ found:
- 		 "SMBus Via Pro adapter at %04x", vt596_smba);
- 
- 	vt596_pdev = pci_dev_get(pdev);
--	if (i2c_add_adapter(&vt596_adapter)) {
-+	error = i2c_add_adapter(&vt596_adapter);
-+	if (error) {
- 		pci_dev_put(vt596_pdev);
- 		vt596_pdev = NULL;
-+		goto release_region;
- 	}
- 
- 	/* Always return failure here.  This is to allow other drivers to bind
 
 
 -- 
