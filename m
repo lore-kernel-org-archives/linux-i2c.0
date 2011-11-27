@@ -1,53 +1,37 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH] i2c: convert drivers/i2c/* to use
  module_platform_driver()
-Date: Sun, 27 Nov 2011 20:46:48 +0100
-Message-ID: <20111127194648.GA26533@pengutronix.de>
+Date: Sun, 27 Nov 2011 20:50:28 +0100
+Message-ID: <20111127205028.708ea59f@endymion.delvare>
 References: <1322374332.2226.1.camel@phoenix>
- <20111127202212.44ebf4c4@endymion.delvare>
+	<20111127202212.44ebf4c4@endymion.delvare>
+	<20111127194648.GA26533@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20111127202212.44ebf4c4@endymion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Axel Lin <axel.lin@gmail.com>, linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Jochen Friedrich <jochen@scram.de>, Peter Korsgaard <jacmet@sunsite.dk>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Manuel Lauss <manuel.lauss@googlemail.com>, Barry Song <21cnbao@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Yong Zhang <yong.zhang0@gmail.com>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Grant Likely <grant.likely@secretlab.ca>, Samuel Ortiz <sameo@linux.intel.com>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20111127194648.GA26533-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Yong Zhang <yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Sun, 27 Nov 2011 20:46:48 +0100, Wolfram Sang wrote:
+> 
+> > > -module_init(gpiomux_init);
+> > > -module_exit(gpiomux_exit);
+> > > +module_platform_driver(gpiomux_driver);
+> > 
+> > This one would be better as a separate patch, as it touches a different
+> > subdirectory, which I am responsible for.
+> 
+> ... which has a patch pending[1], hint ;)
+> 
+> [1] http://comments.gmane.org/gmane.linux.drivers.i2c/9432
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, that's one of the reasons why I think a separate patch would be
+more appropriate. It might be difficult to avoid patch collisions
+otherwise.
 
-
-> > -module_init(gpiomux_init);
-> > -module_exit(gpiomux_exit);
-> > +module_platform_driver(gpiomux_driver);
->=20
-> This one would be better as a separate patch, as it touches a different
-> subdirectory, which I am responsible for.
-
-=2E.. which has a patch pending[1], hint ;)
-
-[1] http://comments.gmane.org/gmane.linux.drivers.i2c/9432
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk7Sk6gACgkQD27XaX1/VRthcQCfX6xFM4dYGfJ1LiHUKe2wFeVo
-03IAn3S70moncL+O2Fa/I6qx+n1FPFUJ
-=bpz7
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--
+-- 
+Jean Delvare
