@@ -1,52 +1,71 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: reorganize muxes to a standard pattern
-Date: Mon, 28 Nov 2011 09:22:27 +0100
-Message-ID: <20111128092227.3d5d6a25@endymion.delvare>
-References: <1321220474-11378-1-git-send-email-w.sang@pengutronix.de>
-	<20111127214847.547542fb@endymion.delvare>
-	<87sjl9gtcv.fsf@macbook.be.48ers.dk>
+Subject: Re: [PATCH v2] i2c: convert drivers/i2c/* to use
+ module_platform_driver()
+Date: Mon, 28 Nov 2011 09:27:21 +0100
+Message-ID: <20111128092721.15ac7b7d@endymion.delvare>
+References: <1322439206.2709.2.camel@phoenix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87sjl9gtcv.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
+In-Reply-To: <1322439206.2709.2.camel@phoenix>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+To: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Yong Zhang <yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 27 Nov 2011 22:15:12 +0100, Peter Korsgaard wrote:
-> >>>>> "Jean" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
-> 
-> Hi,
-> 
->  >> rename drivers/i2c/muxes/{gpio-i2cmux.c => i2c-mux-gpio.c} (100%)
->  >> rename drivers/i2c/muxes/{pca9541.c => i2c-mux-pca9541.c} (100%)
->  >> rename drivers/i2c/muxes/{pca954x.c => i2c-mux-pca954x.c} (100%)
-> 
->  Jean> You forgot to rename Documentation/i2c/muxes/gpio-i2cmux.
-> 
->  Jean> I thought the naming had been discussed before, but I can't find the
->  Jean> references, and to be honest the new names please me, so I have no
->  Jean> reason to decline your proposal. I would have appreciated an ack from
->  Jean> the driver authors (Cc'd) though. I'll apply your patch as soon as I
->  Jean> receive an updated version, unless I get an objection before then.
-> 
-> Are you referring to this?
-> 
-> http://thread.gmane.org/gmane.linux.drivers.i2c/7171/focus=7244
+On Mon, 28 Nov 2011 08:13:26 +0800, Axel Lin wrote:
+> This patch converts the drivers in drivers/i2c/* to use the
 
-Ah, yes, that's the discussion I was looking for, thanks for digging it
-out. My point wasn't totally wrong back then, but Wolfram's is simply
-better, I admit.
+Now drivers/i2c/busses/* even.
 
-> I originally called it i2c-gpiomux.c, and renamed it to gpio-i2cmux.c on
-> request of you.
+> module_platform_driver() macro which makes the code smaller and a bit
+> simpler.
 > 
-> I don't mind the new name though, so:
-> 
-> Acked-by: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> Cc: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
+> Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
+> Cc: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+> Cc: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: Yong Zhang <yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Cc: Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>
+> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+> Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Acked-by: Jochen Friedrich<jochen-NIgtFMG+Po8@public.gmane.org>
+> Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-at91.c         |   17 ++---------------
+>  drivers/i2c/busses/i2c-au1550.c       |   13 +------------
+>  drivers/i2c/busses/i2c-cpm.c          |   13 +------------
+>  drivers/i2c/busses/i2c-highlander.c   |   13 +------------
+>  drivers/i2c/busses/i2c-ibm_iic.c      |   13 +------------
+>  drivers/i2c/busses/i2c-iop3xx.c       |   16 +---------------
+>  drivers/i2c/busses/i2c-isch.c         |   13 +------------
+>  drivers/i2c/busses/i2c-ixp2000.c      |   13 +------------
+>  drivers/i2c/busses/i2c-mpc.c          |   13 +------------
+>  drivers/i2c/busses/i2c-mv64xxx.c      |   15 +--------------
+>  drivers/i2c/busses/i2c-ocores.c       |   17 ++---------------
+>  drivers/i2c/busses/i2c-octeon.c       |   16 +---------------
+>  drivers/i2c/busses/i2c-pca-platform.c |   14 +-------------
+>  drivers/i2c/busses/i2c-pmcmsp.c       |   17 ++---------------
+>  drivers/i2c/busses/i2c-powermac.c     |   19 ++-----------------
+>  drivers/i2c/busses/i2c-puv3.c         |   16 ++--------------
+>  drivers/i2c/busses/i2c-sh7760.c       |   13 +------------
+>  drivers/i2c/busses/i2c-simtec.c       |   18 ++----------------
+>  drivers/i2c/busses/i2c-xiic.c         |   18 ++----------------
+>  19 files changed, 26 insertions(+), 261 deletions(-)
+> (...)
 
-Thanks,
+Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+
+As said before, I'll let Ben pick the patch in his tree to minimize the
+risks of merge conflicts.
+
 -- 
 Jean Delvare
