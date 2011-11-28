@@ -1,136 +1,46 @@
-From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: [PATCH v8 5/7] i2c-at91.c: add SMBUS_READ_BLOCK_DATA functionality
-Date: Fri, 18 Nov 2011 12:38:00 +0100
-Message-ID: <56373b3ee7f4973ee4f505ee3f947f64b3de1089.1322479017.git.n.voss@weinmann.de>
-References: <cover.1322479017.git.n.voss@weinmann.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: reorganize muxes to a standard pattern
+Date: Mon, 28 Nov 2011 12:57:51 +0100
+Message-ID: <20111128125751.3d6a3ca7@endymion.delvare>
+References: <1321220474-11378-1-git-send-email-w.sang@pengutronix.de>
+	<20111127214847.547542fb@endymion.delvare>
+	<87sjl9gtcv.fsf@macbook.be.48ers.dk>
+	<20111128092227.3d5d6a25@endymion.delvare>
+	<20111128093835.GA4243@pengutronix.de>
+	<874nxoh8l5.fsf@macbook.be.48ers.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1322479017.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+In-Reply-To: <874nxoh8l5.fsf-uXGAPMMVk8amE9MCos8gUmSdvHPH+/yF@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-SMBus emulation uses I2C_M_RECV_LEN flag to indicate a SMBus block
-read operation in which the length of a transfer is inicated by the
-first received byte.
+On Mon, 28 Nov 2011 10:58:30 +0100, Peter Korsgaard wrote:
+> >>>>> "Wolfram" == Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> writes:
+> 
+>  >> > http://thread.gmane.org/gmane.linux.drivers.i2c/7171/focus=7244
+>  >> 
+>  >> Ah, yes, that's the discussion I was looking for, thanks for digging it
+>  >> out. My point wasn't totally wrong back then, but Wolfram's is simply
+>  >> better, I admit.
+> 
+>  Wolfram> I agree :) Okay, so I'll update the documentation as well. What about
+>  Wolfram> include/linux/gpio-i2cmux.h and its users? I'd like consistency, but
+>  Wolfram> renaming header files is not too nice...
+> 
+> Indeed. If we were to rename it we should also rename struct
+> gpio_i2cmux_platform_data.
+> 
+> I don't feel strongly about it - It will break for existing users, but
+> there's probably not too many of those. Your call.
 
-Make better use of clk_prepare()/clk_unprepare().
+I see exactly 1 user of <linux/gpio-i2cmux.h> in the upstream kernel
+tree, and that is gpio-i2cmux itself. So I'd say no big deal renaming
+it, and actually if we intend to rename header files and/or structures,
+the sooner the better.
 
-More sensible transfer timeout.
-
-Signed-off-by: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
----
- drivers/i2c/busses/i2c-at91.c |   44 +++++++++++++++++++++++++++-------------
- 1 files changed, 30 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 1c9d329..3ef89e9 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -32,7 +32,7 @@
- #include "i2c-at91.h"
- 
- #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
--#define AT91_I2C_TIMEOUT	msecs_to_jiffies(10)	/* transfer timeout */
-+#define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
- 
- struct at91_twi_dev {
- 	struct device		*dev;
-@@ -41,6 +41,7 @@ struct at91_twi_dev {
- 	struct clk		*clk;
- 	u8			*buf;
- 	size_t			buf_len;
-+	struct i2c_msg		*msg;
- 	int			irq;
- 	unsigned		transfer_status;
- 	struct i2c_adapter	adapter;
-@@ -113,9 +114,18 @@ static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
- static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
- {
- 	*dev->buf = at91_twi_read(dev, AT91_TWI_RHR) & 0xff;
-+	--dev->buf_len;
-+
-+	/* handle I2C_SMBUS_BLOCK_DATA */
-+	if (unlikely(dev->msg->flags & I2C_M_RECV_LEN)) {
-+		dev->msg->flags &= ~I2C_M_RECV_LEN;
-+		dev->buf_len += *dev->buf;
-+		dev->msg->len = dev->buf_len + 1;
-+		dev_dbg(dev->dev, "received block length %d\n", dev->buf_len);
-+	}
- 
- 	/* send stop if second but last byte has been read */
--	if (--dev->buf_len == 1)
-+	if (dev->buf_len == 1)
- 		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
- 
- 	dev_dbg(dev->dev, "read 0x%x, to go %d\n", *dev->buf, dev->buf_len);
-@@ -144,17 +154,21 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
--static int at91_do_twi_transfer(struct at91_twi_dev *dev, bool is_read)
-+static int at91_do_twi_transfer(struct at91_twi_dev *dev)
- {
- 	int ret;
- 
-+	dev_dbg(dev->dev, "transfer: %s %d bytes.\n",
-+		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
-+
- 	INIT_COMPLETION(dev->cmd_complete);
--	if (is_read) {
--		if (dev->buf_len <= 1)
--			at91_twi_write(dev, AT91_TWI_CR,
--				       AT91_TWI_START | AT91_TWI_STOP);
--		else
--			at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_START);
-+	if (dev->msg->flags & I2C_M_RD) {
-+		unsigned start_flags = AT91_TWI_START;
-+
-+		/* if only one byte is to be read, immediately stop transfer */
-+		if (dev->buf_len <= 1 && !(dev->msg->flags & I2C_M_RECV_LEN))
-+			start_flags |= AT91_TWI_STOP;
-+		at91_twi_write(dev, AT91_TWI_CR, start_flags);
- 		at91_twi_write(dev, AT91_TWI_IER,
- 			       AT91_TWI_TXCOMP | AT91_TWI_RXRDY);
- 	} else {
-@@ -229,17 +243,17 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
- 
- 	dev->buf_len = m_start->len;
- 	dev->buf = m_start->buf;
-+	dev->msg = m_start;
- 
--	ret = at91_do_twi_transfer(dev, m_start->flags & I2C_M_RD);
--	if (ret < 0)
--		return ret;
-+	ret = at91_do_twi_transfer(dev);
- 
--	return num;
-+	return (ret < 0) ? ret : num;
- }
- 
- static u32 at91_twi_func(struct i2c_adapter *adapter)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-+		| I2C_FUNC_SMBUS_READ_BLOCK_DATA;
- }
- 
- static struct i2c_algorithm at91_twi_algorithm = {
-@@ -326,6 +340,7 @@ err_unuse_clocks:
- 	iounmap(dev->base);
- err_mem_ioremap:
- 	clk_disable(dev->clk);
-+	clk_unprepare(dev->clk);
- 	clk_put(dev->clk);
- err_free_mem:
- 	kfree(dev);
-@@ -343,6 +358,7 @@ static int __devexit at91_twi_remove(struct platform_device *pdev)
- 
- 	rc = i2c_del_adapter(&dev->adapter);
- 	clk_disable(dev->clk);
-+	clk_unprepare(dev->clk);
- 	clk_put(dev->clk);
- 	free_irq(dev->irq, dev);
- 	iounmap(dev->base);
 -- 
-1.7.5.4
+Jean Delvare
