@@ -1,71 +1,58 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: convert drivers/i2c/* to use
- module_platform_driver()
-Date: Mon, 28 Nov 2011 09:27:21 +0100
-Message-ID: <20111128092721.15ac7b7d@endymion.delvare>
-References: <1322439206.2709.2.camel@phoenix>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: reorganize muxes to a standard pattern
+Date: Mon, 28 Nov 2011 10:38:35 +0100
+Message-ID: <20111128093835.GA4243@pengutronix.de>
+References: <1321220474-11378-1-git-send-email-w.sang@pengutronix.de>
+ <20111127214847.547542fb@endymion.delvare>
+ <87sjl9gtcv.fsf@macbook.be.48ers.dk>
+ <20111128092227.3d5d6a25@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1322439206.2709.2.camel@phoenix>
+Content-Disposition: inline
+In-Reply-To: <20111128092227.3d5d6a25-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Yong Zhang <yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 28 Nov 2011 08:13:26 +0800, Axel Lin wrote:
-> This patch converts the drivers in drivers/i2c/* to use the
 
-Now drivers/i2c/busses/* even.
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> module_platform_driver() macro which makes the code smaller and a bit
-> simpler.
-> 
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>
-> Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
-> Cc: Manuel Lauss <manuel.lauss-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-> Cc: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Yong Zhang <yong.zhang0-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Cc: Lucas De Marchi <lucas.demarchi-Y3ZbgMPKUGA34EUeqzHoZw@public.gmane.org>
-> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-> Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Acked-by: Jochen Friedrich<jochen-NIgtFMG+Po8@public.gmane.org>
-> Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-at91.c         |   17 ++---------------
->  drivers/i2c/busses/i2c-au1550.c       |   13 +------------
->  drivers/i2c/busses/i2c-cpm.c          |   13 +------------
->  drivers/i2c/busses/i2c-highlander.c   |   13 +------------
->  drivers/i2c/busses/i2c-ibm_iic.c      |   13 +------------
->  drivers/i2c/busses/i2c-iop3xx.c       |   16 +---------------
->  drivers/i2c/busses/i2c-isch.c         |   13 +------------
->  drivers/i2c/busses/i2c-ixp2000.c      |   13 +------------
->  drivers/i2c/busses/i2c-mpc.c          |   13 +------------
->  drivers/i2c/busses/i2c-mv64xxx.c      |   15 +--------------
->  drivers/i2c/busses/i2c-ocores.c       |   17 ++---------------
->  drivers/i2c/busses/i2c-octeon.c       |   16 +---------------
->  drivers/i2c/busses/i2c-pca-platform.c |   14 +-------------
->  drivers/i2c/busses/i2c-pmcmsp.c       |   17 ++---------------
->  drivers/i2c/busses/i2c-powermac.c     |   19 ++-----------------
->  drivers/i2c/busses/i2c-puv3.c         |   16 ++--------------
->  drivers/i2c/busses/i2c-sh7760.c       |   13 +------------
->  drivers/i2c/busses/i2c-simtec.c       |   18 ++----------------
->  drivers/i2c/busses/i2c-xiic.c         |   18 ++----------------
->  19 files changed, 26 insertions(+), 261 deletions(-)
-> (...)
 
-Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > http://thread.gmane.org/gmane.linux.drivers.i2c/7171/focus=3D7244
+>=20
+> Ah, yes, that's the discussion I was looking for, thanks for digging it
+> out. My point wasn't totally wrong back then, but Wolfram's is simply
+> better, I admit.
 
-As said before, I'll let Ben pick the patch in his tree to minimize the
-risks of merge conflicts.
+I agree :) Okay, so I'll update the documentation as well. What about
+include/linux/gpio-i2cmux.h and its users? I'd like consistency, but
+renaming header files is not too nice...
 
--- 
-Jean Delvare
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk7TVpsACgkQD27XaX1/VRvoywCgpEId8VQC/L/vsa0MsUcXCXDy
+KfgAoIzdwx6h4bmisKwn94Q44UANwaH/
+=M3GK
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--
