@@ -1,38 +1,40 @@
-From: Feng Tang <feng.tang@intel.com>
-Subject: [PATCH 2/2] i2c-eg20t: use i2c_add_numbered_adapter to get a fixed bus number
-Date: Tue, 29 Nov 2011 15:19:11 +0800
-Message-ID: <1322551151-28580-2-git-send-email-feng.tang@intel.com>
-References: <1322551151-28580-1-git-send-email-feng.tang@intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1322551151-28580-1-git-send-email-feng.tang@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: ben-linux@fluff.org, khali@linux-fr.org, tomoya-linux@dsn.lapis-semi.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: joel.clark@intel.com, Feng Tang <feng.tang@intel.com>
+From: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: Add Device Tree support to versatile-i2c driver
+Date: Tue, 29 Nov 2011 09:23:04 +0000
+Message-ID: <1322558584.3164.78.camel@hornet.cambridge.arm.com>
+References: <1315475019-10088-1-git-send-email-pawel.moll@arm.com>
+	 <1320139394.3287.121.camel@hornet.cambridge.arm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1320139394.3287.121.camel-okZbbLrgpR/YkXV2EHHjLW3o5bpOHsLO@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-For EG20T and ML7213 IOH, the i2c controller numbers are fixed, using
-fixed bus number will make it much easier for platform code to use
-i2c_register_board_info() to register i2c devices.
+Morning,
 
-Signed-off-by: Feng Tang <feng.tang@intel.com>
----
- drivers/i2c/busses/i2c-eg20t.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+On Tue, 2011-11-01 at 09:23 +0000, Pawel Moll wrote:
+> Hi Ben,
+>=20
+> On Thu, 2011-09-08 at 10:43 +0100, Pawel Moll wrote:
+> > This patch adds Device Tree binding ("arm,versatile-i2c") and
+> > basic support (bus population) to versatile-i2c driver.
+> >=20
+> > Cc: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+> > Signed-off-by: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-versatile.c |   10 ++++++++++
+> >  1 files changed, 10 insertions(+), 0 deletions(-)
+>=20
+> I guess I missed the 3.2 bus? Any chance to get it in later, around r=
+c1
+> maybe?
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 18936ac..079435b 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -918,7 +918,9 @@ static int __devinit pch_i2c_probe(struct pci_dev *pdev,
- 		pch_adap->dev.parent = &pdev->dev;
- 
- 		pch_i2c_init(&adap_info->pch_data[i]);
--		ret = i2c_add_adapter(pch_adap);
-+
-+		pch_adap->nr = i;
-+		ret = i2c_add_numbered_adapter(pch_adap);
- 		if (ret) {
- 			pch_pci_err(pdev, "i2c_add_adapter[ch:%d] FAILED\n", i);
- 			goto err_add_adapter;
--- 
-1.7.1
+How about 3.3 then? ;-)
+
+Cheers!
+
+Pawe=C5=82
