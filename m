@@ -1,89 +1,23 @@
-From: Christoph Fritz <chf.fritz-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: [BUG] i2c-designware: (allyesconfig) error: multiple definition
-Date: Tue, 29 Nov 2011 15:40:04 +0100
-Message-ID: <1322577604.2182.28.camel@mars>
-References: <1322567933.2182.16.camel@mars>
-	 <CAE1zotJy6eYMOuNqQx7eiFPnnJ5raDRSDqTaLcV8iie5MJ0wbg@mail.gmail.com>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Timing for new release of i2c-tools
+Date: Wed, 30 Nov 2011 11:00:01 -0800
+Message-ID: <1322679601.23607.54.camel@groeck-laptop>
+Reply-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAE1zotJy6eYMOuNqQx7eiFPnnJ5raDRSDqTaLcV8iie5MJ0wbg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Purdila, Octavian" <octavian.purdila-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 2011-11-29 at 15:35 +0200, Purdila, Octavian wrote:
-> On Tue, Nov 29, 2011 at 1:58 PM, Christoph Fritz
-> <chf.fritz-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org> wrote:
-> > Hi,
-> >
-> >  I just hit this bug with allyesconfig:
-> >
-> > make[2]: `include/generated/mach-types.h' is up to date.
-> >  CALL    /xxx/linux-2.6/scripts/checksyscalls.sh
-> >  CHK     include/generated/compile.h
-> >  CHK     kernel/config_data.h
-> >  CHECK   /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c
-> >  CC      drivers/i2c/busses/i2c-designware-core.o
-> >  CHECK   /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-pcidrv.c
-> >  CC      drivers/i2c/busses/i2c-designware-pcidrv.o
-> >  CHECK   /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-platdrv.c
-> >  CC      drivers/i2c/busses/i2c-designware-platdrv.o
-> >  LD      drivers/i2c/busses/i2c-designware-pci.o
-> >  LD      drivers/i2c/busses/i2c-designware-platform.o
-> >  LD      drivers/i2c/busses/built-in.o
-> > drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_clear_int':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:694: multiple definition of `i2c_dw_clear_int'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:694: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_init':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:247: multiple definition of `i2c_dw_init'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:247: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `dw_readl':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:169: multiple definition of `dw_readl'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:169: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_isr':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:627: multiple definition of `i2c_dw_isr'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:627: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_xfer':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:498: multiple definition of `i2c_dw_xfer'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:498: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_is_enabled':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:679: multiple definition of `i2c_dw_is_enabled'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:679: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `dw_writel':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:177: multiple definition of `dw_writel'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:177: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_xfer_msg':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:362: multiple definition of `i2c_dw_xfer_msg'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:362: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_enable':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:674: multiple definition of `i2c_dw_enable'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:674: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_read_comp_param':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:704: multiple definition of `i2c_dw_read_comp_param'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:704: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_disable':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:683: multiple definition of `i2c_dw_disable'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:683: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_func':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:562: multiple definition of `i2c_dw_func'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:562: first defined here drivers/i2c/busses/i2c-designware-pci.o: In function `i2c_dw_disable_int':
-> > /xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:699: multiple definition of `i2c_dw_disable_int'
-> > drivers/i2c/busses/i2c-designware-platform.o:/xxx/linux-2.6/drivers/i2c/busses/i2c-designware-core.c:699: first defined here make[4]: *** [drivers/i2c/busses/built-in.o] Error 1
-> > make[3]: *** [drivers/i2c/busses] Error 2
-> > make[2]: *** [drivers/i2c] Error 2
-> > make[1]: *** [drivers] Error 2
-> > make: *** [sub-make] Error 2
-> >
-> >
-> 
-> Hi Christoph,
-> 
-> What tree are you using? I tried the following on Linus's tree (head
-> at 8748dfae379573cdbea4e765b55e608a1764f918):
+Hi Jean,
 
-I'm using the same, but compile for arm:
-
-ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make O=../o_test allyesconfig
-ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make O=../o_test oldconfig
-
-in .config change to:
-# CONFIG_DYNAMIC_DEBUG is not set
-# CONFIG_DEBUG_INFO_REDUCED is not set
-
-ARCH=arm CROSS_COMPILE=arm-linux-gnueabi- make -j4 O=../o_test drivers/i2c/busses/
-
+do you have any plans to release a new version of i2c-tools anytime
+soon ? We need to have the recent extensions to the i2cset command in a
+shipping release, and it would be helpful if we can get it from a
+released version.
 
 Thanks,
-  -- Christoph
+Guenter
