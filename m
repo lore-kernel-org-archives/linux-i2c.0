@@ -1,105 +1,40 @@
-From: Tang Yuantian-B29983 <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-Date: Thu, 1 Dec 2011 07:06:20 +0000
-Message-ID: <3C06C26914DACA4BB3A368F78CA0B3A712FE70@039-SN1MPN1-004.039d.mgd.msft.net>
-References: <1321338462-6138-1-git-send-email-guenter.roeck@ericsson.com>
-	<CAOZdJXUPO5PyMkAw-2EPvy_qSUuqsgUA7Gr8mKUX7HyShoXk3g@mail.gmail.com>
-	<E6AF40B3BFC8A9428EACB47497F0F4B62DC687@039-SN1MPN1-002.039d.mgd.msft.net>
-	<ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
-	<1321464509.7847.41.camel@oslab-l1>
-	<1321464968.2309.384.camel@groeck-laptop>
-	<1321466135.7847.55.camel@oslab-l1>
-	<20111116190954.67c846fc@endymion.delvare>
-	<1321467638.7847.73.camel@oslab-l1>
-	<20111116201048.4b7877dd@endymion.delvare>
-	<1321470915.7847.122.camel@oslab-l1>
- <20111116201847.6b11dc7f@endymion.delvare>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Timing for new release of i2c-tools
+Date: Fri, 2 Dec 2011 08:24:08 +0100
+Message-ID: <20111202082408.4610a10b@endymion.delvare>
+References: <1322679601.23607.54.camel@groeck-laptop>
+	<20111130212004.36b7667e@endymion.delvare>
+	<1322685121.23607.72.camel@groeck-laptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-2022-jp"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111116201847.6b11dc7f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <1322685121.23607.72.camel@groeck-laptop>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org" <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Huang Changming-R66093 <r66093-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Wed, 30 Nov 2011 12:32:01 -0800, Guenter Roeck wrote:
+> On Wed, 2011-11-30 at 15:20 -0500, Jean Delvare wrote:
+> > Hi Guenter,
+> > 
+> > On Wed, 30 Nov 2011 11:00:01 -0800, Guenter Roeck wrote:
+> > > do you have any plans to release a new version of i2c-tools anytime
+> > > soon ? We need to have the recent extensions to the i2cset command in a
+> > > shipping release, and it would be helpful if we can get it from a
+> > > released version.
+> > 
+> > I had no plan to do so, but if it makes your life easier, I can
+> > certainly reconsider and release a new version next Sunday. Would that
+> > be OK for you?
+> > 
+> Yes, that would be great.
+> 
+> Thanks a lot!
 
-Has the patch been accepted?
+No problem. BTW, feel free to test the current SVN version meanwhile,
+to make sure everything works as intended.
 
-Regards,
-Yuantian
-
-> -----Original Message-----
-> From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]
-> Sent: 2011年11月17日 3:19
-> To: sun york-R58495
-> Cc: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org; Tabi Timur-B04825; linux-
-> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Tang Yuantian-B29983
-> Subject: Re: [PATCH] i2c/busses: (mpc) Add support for
-> SMBUS_READ_BLOCK_DATA
-> 
-> On Wed, 16 Nov 2011 11:15:15 -0800, York Sun wrote:
-> > On Wed, 2011-11-16 at 20:10 +0100, Jean Delvare wrote:
-> > > On Wed, 16 Nov 2011 10:20:38 -0800, York Sun wrote:
-> > > > On Wed, 2011-11-16 at 19:09 +0100, Jean Delvare wrote:
-> > > > > Your thinking is too focused on I2C block reads (or even block
-> > > > > read of data over the network or on disk). SMBus block read is
-> > > > > something completely different. It's not about reading 200 bytes
-> > > > > of data and receiving it in 16-byte chunks (I2C block read works
-> > > > > that way, on EEPROMs in particular.) There is no "data length"
-> > > > > and "block size" to compare to each other. It's about reading
-> > > > > the value of _one_ register and this value happens to be
-> > > > > multi-byte. There is typically _no_ register pointer increment
-> > > > > (automatic or not) involved as can happen with EEPROMs. If an
-> > > > > SMBus block read from register N returns 10 bytes, you're not
-> > > > > going to read the next 10 bytes from register N+10. There are no
-> > > > > "next 10 bytes" to read, and register N+10 is something
-> completely unrelated.
-> > > > >
-> > > > > And for this reason, it is not possible to mix SMBus block reads
-> > > > > with byte reads, as can be done with I2C block reads.
-> > > > >
-> > > > > Also note that there is a limit of 32 bytes for SMBus block
-> > > > > transfers, per SMBus specification. All slaves and masters must
-> comply with it.
-> > > > >
-> > > > > I hope I managed to clarify the case this time...
-> > > >
-> > > > You have made it much clear. If block size is fixed and block read
-> > > > cannot mix with byte read, shall we do this
-> > > >
-> > > > if length < block_size
-> > > >    read block_size
-> > > > else {
-> > > >    while (length) {
-> > > >        read block_size
-> > > >        length -= block_size
-> > > >    }
-> > >
-> > > Which part of
-> > >
-> > >   There is no "data length" and "block size" to compare to each other.
-> > >
-> > > did you not understand?
-> >
-> > For example, if the length is 40 and the block size is 32, are you
-> > going to read 32, 72 byte or 64 byte?
-> 
-> The length is not 40. Which part of
-> 
->   Also note that there is a limit of 32 bytes for SMBus block transfers,
->   per SMBus specification. All slaves and masters must comply with it.
-> 
-> did you now understand?
-> 
-> Really, please. I understand you're only trying to help and understand
-> the patch, but at some point, if you have zero knowledge about the topic,
-> you're not the right person to review the patch, period. You are still
-> welcome to test the patch if you can and want, that's a completely
-> different task.
-> 
-> --
-> Jean Delvare
+-- 
+Jean Delvare
