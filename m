@@ -1,40 +1,74 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Timing for new release of i2c-tools
-Date: Fri, 2 Dec 2011 08:24:08 +0100
-Message-ID: <20111202082408.4610a10b@endymion.delvare>
-References: <1322679601.23607.54.camel@groeck-laptop>
-	<20111130212004.36b7667e@endymion.delvare>
-	<1322685121.23607.72.camel@groeck-laptop>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCHv7 1/3] OMAP: I2C: Reset support
+Date: Fri, 2 Dec 2011 14:51:12 +0530
+Message-ID: <1322817674-25384-2-git-send-email-shubhrajyoti@ti.com>
+References: <1322817674-25384-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1322685121.23607.72.camel@groeck-laptop>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1322817674-25384-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, ben-linux@fluff.org, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 30 Nov 2011 12:32:01 -0800, Guenter Roeck wrote:
-> On Wed, 2011-11-30 at 15:20 -0500, Jean Delvare wrote:
-> > Hi Guenter,
-> > 
-> > On Wed, 30 Nov 2011 11:00:01 -0800, Guenter Roeck wrote:
-> > > do you have any plans to release a new version of i2c-tools anytime
-> > > soon ? We need to have the recent extensions to the i2cset command in a
-> > > shipping release, and it would be helpful if we can get it from a
-> > > released version.
-> > 
-> > I had no plan to do so, but if it makes your life easier, I can
-> > certainly reconsider and release a new version next Sunday. Would that
-> > be OK for you?
-> > 
-> Yes, that would be great.
-> 
-> Thanks a lot!
+Under some error conditions the i2c driver may do a reset.
+Adding a reset field and support in the device-specific code.
 
-No problem. BTW, feel free to test the current SVN version meanwhile,
-to make sure everything works as intended.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ arch/arm/plat-omap/i2c.c |   18 ++++++++++++++++++
+ include/linux/i2c-omap.h |    1 +
+ 2 files changed, 19 insertions(+), 0 deletions(-)
 
+diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
+index db071bc..883229c 100644
+--- a/arch/arm/plat-omap/i2c.c
++++ b/arch/arm/plat-omap/i2c.c
+@@ -74,6 +74,22 @@ static struct omap_i2c_bus_platform_data i2c_pdata[OMAP_I2C_MAX_CONTROLLERS];
+ static struct platform_device omap_i2c_devices[] = {
+ 	I2C_DEV_BUILDER(1, i2c_resources[0], &i2c_pdata[0]),
+ };
++/**
++ * omap2_i2c_reset - reset the omap i2c module.
++ * @dev: struct device*
++ */
++
++static int omap2_i2c_reset(struct device *dev)
++{
++	int r = 0;
++	struct platform_device *pdev = to_platform_device(dev);
++	struct omap_device *odev = to_omap_device(pdev);
++	struct omap_hwmod *oh;
++
++	oh = odev->hwmods[0];
++	r = omap_hwmod_reset(oh);
++	return r;
++}
+ 
+ #define OMAP_I2C_CMDLINE_SETUP	(BIT(31))
+ 
+@@ -179,6 +195,8 @@ static inline int omap2_i2c_add_bus(int bus_id)
+ 	 */
+ 	if (cpu_is_omap34xx())
+ 		pdata->set_mpu_wkup_lat = omap_pm_set_max_mpu_wakeup_lat_compat;
++
++	pdata->device_reset = omap2_i2c_reset;
+ 	pdev = omap_device_build(name, bus_id, oh, pdata,
+ 			sizeof(struct omap_i2c_bus_platform_data),
+ 			NULL, 0, 0);
+diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
+index 92a0dc7..fd38249 100644
+--- a/include/linux/i2c-omap.h
++++ b/include/linux/i2c-omap.h
+@@ -35,6 +35,7 @@ struct omap_i2c_bus_platform_data {
+ 	u32		rev;
+ 	u32		flags;
+ 	void		(*set_mpu_wkup_lat)(struct device *dev, long set);
++	int		(*device_reset) (struct device *dev);
+ };
+ 
+ #endif
 -- 
-Jean Delvare
+1.7.1
+
