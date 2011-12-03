@@ -1,199 +1,472 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv7 2/3] OMAP: I2C: Remove the reset in the init path
-Date: Sat, 03 Dec 2011 16:29:24 +0530
-Message-ID: <4EDA010C.70507@ti.com>
-References: <1322817674-25384-1-git-send-email-shubhrajyoti@ti.com> <1322817674-25384-3-git-send-email-shubhrajyoti@ti.com> <4ED94536.2080307@ti.com>
+From: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
+Date: Sat, 3 Dec 2011 16:31:30 +0100
+Message-ID: <CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
+References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
+ <20111127225514.GO19115@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4ED94536.2080307-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20111127225514.GO19115-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Richard Woodruff <r-woodruff2-l0cyMroinI0@public.gmane.org>
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 03 December 2011 03:07 AM, Jon Hunter wrote:
-> Hi Shubhrajyoti,
+This patch add support to multiplexed smbus for proliant microserver
+N36L and may be applicable to other configuration based on sb8xx
+southbus.
+
+root@proliant:/usr/src/lm-sensors/eddi# i2cdetect -l
+i2c-0   smbus           SMBus piix4 adapter (SDA0)              SMBus a=
+dapter
+i2c-1   smbus           SMBus piix4 adapter (SDA2)              SMBus a=
+dapter
+i2c-2   smbus           SMBus piix4 adapter (SDA3)              SMBus a=
+dapter
+i2c-3   smbus           SMBus piix4 adapter (SDA4)              SMBus a=
+dapter
+root@proliant:/usr/src/lm-sensors/eddi#
+
+yes SDA1 is reserved... so i can't multiplex it
+
+root@proliant:/usr/src/lm-sensors/eddi# sensors
+k10temp-pci-00c3
+Adapter: PCI adapter
+temp1:       +24.5=B0C  (high =3D +70.0=B0C, crit =3D +100.0=B0C)
+
+w83795adg-i2c-1-2f
+Adapter: SMBus piix4 adapter (SDA2)
+in0:         +1.02 V  (min =3D  +0.00 V, max =3D  +2.05 V)
+in1:         +1.52 V  (min =3D  +0.00 V, max =3D  +2.05 V)
+in2:         +1.10 V  (min =3D  +0.00 V, max =3D  +2.05 V)
+in3:         +0.89 V  (min =3D  +0.00 V, max =3D  +2.05 V)
+in12:        +3.35 V  (min =3D  +0.00 V, max =3D  +6.14 V)
+in13:        +3.28 V  (min =3D  +0.00 V, max =3D  +6.14 V)
+fan1:        703 RPM  (min =3D  329 RPM)
+temp1:       +23.0=B0C  (high =3D +109.0=B0C, hyst =3D +109.0=B0C)
+                      (crit =3D +109.0=B0C, hyst =3D +109.0=B0C)  senso=
+r =3D thermal diode
+temp2:       +33.2=B0C  (high =3D +105.0=B0C, hyst =3D +105.0=B0C)
+                      (crit =3D +105.0=B0C, hyst =3D +105.0=B0C)  senso=
+r =3D thermal diode
+temp5:       +14.0=B0C  (high =3D +39.0=B0C, hyst =3D +39.0=B0C)
+                      (crit =3D +44.0=B0C, hyst =3D +44.0=B0C)  sensor =
+=3D thermistor
+beep_enable:disabled
+
+jc42-i2c-0-18
+Adapter: SMBus piix4 adapter (SDA0)
+temp1:       +20.5=B0C  (low  =3D  +0.0=B0C, high =3D  +0.0=B0C)  ALARM
+                      (crit =3D  +0.0=B0C, hyst =3D  +0.0=B0C)  ALARM
+
+
+root@proliant:/usr/src/lm-sensors/eddi# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- UU -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: 50 -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+root@proliant:/usr/src/lm-sensors/eddi# i2cdetect -y 1
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- UU
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- 61 -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+root@proliant:/usr/src/lm-sensors/eddi# i2cdetect -y 2
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- 4c -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+root@proliant:/usr/src/lm-sensors/eddi# i2cdetect -y 3
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+pay attention that the msleep seems to be really needed...
+
+Signed-off-by: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
+
+Regards,
+
+Eddi
+
+follows patch....
+
+diff -u -N -r 2.6.32.orig/i2c-piix4.c 2.6.32/i2c-piix4.c
+--- 2.6.32.orig/i2c-piix4.c	2011-11-16 17:07:03.000000000 +0100
++++ 2.6.32/i2c-piix4.c	2011-11-16 15:21:17.000000000 +0100
+@@ -97,7 +97,8 @@
+ static unsigned short piix4_smba;
+ static int srvrworks_csb5_delay;
+ static struct pci_driver piix4_driver;
+-static struct i2c_adapter piix4_adapter;
++struct i2c_adapter piix4_adapter;
++EXPORT_SYMBOL_GPL(piix4_adapter);
+
+ static struct dmi_system_id __devinitdata piix4_dmi_blacklist[] =3D {
+ 	{
+@@ -246,10 +247,22 @@
+ 			"0x%x already in use!\n", smba_idx);
+ 		return -EBUSY;
+ 	}
+-	outb_p(smb_en, smba_idx);
+-	smba_en_lo =3D inb_p(smba_idx + 1);
+-	outb_p(smb_en + 1, smba_idx);
+-	smba_en_hi =3D inb_p(smba_idx + 1);
++	outb_p(smb_en, smba_idx); 		//seleziono il registro 0x2c
++	smba_en_lo =3D inb_p(smba_idx + 1);	//leggo il dato L del registro 0x=
+2c
++	outb_p(smb_en + 1, smba_idx);		//seleziono il registro 0x2c + 1
++	smba_en_hi =3D inb_p(smba_idx + 1);	//leggo il dato H del registro 0x=
+2c
++
++	outb_p(smb_en, smba_idx); 		//seleziono il registro 0x2c
++	outb_p(smba_en_lo & 0xF9 , smba_idx + 1); //seleziono la porta 0 00 0
++	outb_p(smb_en + 1, smba_idx);		//seleziono il registro 0x2c + 1
++	outb_p(smba_en_hi, smba_idx + 1);
++
++	outb_p(smb_en, smba_idx); 		//seleziono il registro 0x2c
++	smba_en_lo =3D inb_p(smba_idx + 1);	//leggo il dato L del registro 0x=
+2c
++	outb_p(smb_en + 1, smba_idx);		//seleziono il registro 0x2c + 1
++	smba_en_hi =3D inb_p(smba_idx + 1);	//leggo il dato H del registro 0x=
+2c
++
++
+ 	release_region(smba_idx, 2);
+
+ 	if ((smba_en_lo & 1) =3D=3D 0) {
+@@ -258,6 +271,8 @@
+ 		return -ENODEV;
+ 	}
+
++	dev_info(&PIIX4_dev->dev,"Selected Default Smbus Port 0x%x",
+(smba_en_lo & 0x6) >> 1);
++
+ 	piix4_smba =3D ((smba_en_hi << 8) | smba_en_lo) & 0xffe0;
+ 	if (acpi_check_region(piix4_smba, SMBIOSIZE, piix4_driver.name))
+ 		return -ENODEV;
+@@ -466,7 +481,7 @@
+ 	.functionality	=3D piix4_func,
+ };
+
+-static struct i2c_adapter piix4_adapter =3D {
++struct i2c_adapter piix4_adapter =3D {
+ 	.owner		=3D THIS_MODULE,
+ 	.class		=3D I2C_CLASS_HWMON | I2C_CLASS_SPD,
+ 	.algo		=3D &smbus_algorithm,
+diff -u -N -r 2.6.32.orig/i2c-piix4-n36l.c 2.6.32/i2c-piix4-n36l.c
+--- 2.6.32.orig/i2c-piix4-n36l.c	1970-01-01 01:00:00.000000000 +0100
++++ 2.6.32/i2c-piix4-n36l.c	2011-11-16 16:02:01.000000000 +0100
+@@ -0,0 +1,247 @@
++/*
++ * i2c-piix4-n36l.c - i2c-piix4 extras for the HP proliant
+microserver n36l motherboard
++ *
++ * Copyright (C) 2004, 2008 Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
++ * Copyright (C) 2011  Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License as published b=
+y
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++/*
++ * We select the channels by sending commands to the sb800 southbus
++ * the selection bit
++ * http://support.amd.com/us/Embedded_TechDocs/45482.pdf
++ *  Smbus0En - RW =E2=80=93 16 bits - [PM_Reg: 2Ch]
++ *  Field Name Bits Default Description
++ *  SmBus0En 0 0b Set to 1 to enable SMBUS0 function and decoding.
++ *  SmBus0Sel 2:1 00b SmBus port selection when PM_Reg 2Fh bit 0 is se=
+t to 0
++ *  00: Port 0
++ *  01: Port 2
++ *  10: Port 3
++ *  11: Port 4
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/slab.h>
++#include <linux/init.h>
++#include <linux/i2c.h>
++#include <linux/mutex.h>
++#include <asm/io.h>
++
++extern struct i2c_adapter piix4_adapter;
++
++static struct i2c_adapter *n36l_adapter;
++static struct i2c_algorithm *n36l_algo;
++
++/* Wrapper access functions for multiplexed SMBus */
++static DEFINE_MUTEX(piix4_lock);
++
++/* We remember the last used channels combination so as to only switch
++   channels when it is really needed. This greatly reduces the SMBus
++   overhead, but also assumes that nobody will be writing to the PCA95=
+56
++   in our back. */
++static u8 last_channels;
++
++static inline s32 piix4_access_channel(struct i2c_adapter * adap, u16 =
+addr,
++					unsigned short flags, char read_write,
++					u8 command, int size,
++					union i2c_smbus_data * data,
++					u8 channels)
++{
++	int error;
++	unsigned short smba_idx =3D 0xcd6;
++	u8 smba_en_lo, smba_en_hi, smb_en =3D 0x2c;
++
++	mutex_lock(&piix4_lock);
++
++	if (last_channels !=3D channels) {
++		union i2c_smbus_data mplxdata;
++		mplxdata.byte =3D channels;
++
++		/* Determine the address of the SMBus areas */
++		if (!request_region(smba_idx, 2, "smba_idx")) {
++			dev_err(&piix4_adapter.dev, "SMBus base address index region "
++				"0x%x already in use!\n", smba_idx);
++			return -EBUSY;
++		}
++
++		outb_p(smb_en, smba_idx); 		//seleziono il registro 0x2c
++		smba_en_lo =3D inb_p(smba_idx + 1);	//leggo il dato L del registro 0=
+x2c
++		outb_p(smb_en + 1, smba_idx);		//seleziono il registro 0x2c + 1
++		smba_en_hi =3D inb_p(smba_idx + 1);	//leggo il dato H del registro 0=
+x2c
++=09
++		msleep(50);
++		outb_p(smb_en, smba_idx); 		//seleziono il registro 0x2c
++		outb_p((smba_en_lo & 0xF9 )+ ( channels << 1) , smba_idx + 1);
+//seleziono la porta 0 00 0
++		outb_p(smb_en + 1, smba_idx);		//seleziono il registro 0x2c + 1
++		outb_p(smba_en_hi, smba_idx + 1);
++
++		msleep(50);
++
++		release_region(smba_idx, 2);
++
++		dev_info(&piix4_adapter.dev,"Selected Smbus Port 0x%x", (smba_en_lo
+& 0x6) >> 1);
++
++		last_channels =3D channels;
++
++	}
++=09
++	error =3D piix4_adapter.algo->smbus_xfer(adap, addr, flags, read_writ=
+e,
++					      command, size, data);
++
++
++	mutex_unlock(&piix4_lock);
++	return error;
++}
++
++static s32 piix4_access_virt0(struct i2c_adapter * adap, u16 addr,
++			       unsigned short flags, char read_write,
++			       u8 command, int size,
++			       union i2c_smbus_data * data)
++{
++	return piix4_access_channel(adap, addr, flags, read_write, command,
++				     size, data, 0);
++}
++
++static s32 piix4_access_virt1(struct i2c_adapter * adap, u16 addr,
++			       unsigned short flags, char read_write,
++			       u8 command, int size,
++			       union i2c_smbus_data * data)
++{
++	return piix4_access_channel(adap, addr, flags, read_write, command,
++				     size, data, 1);
++}
++
++static s32 piix4_access_virt2(struct i2c_adapter * adap, u16 addr,
++			       unsigned short flags, char read_write,
++			       u8 command, int size,
++			       union i2c_smbus_data * data)
++{
++	return piix4_access_channel(adap, addr, flags, read_write, command,
++				     size, data, 2);
++}
++
++static s32 piix4_access_virt3(struct i2c_adapter * adap, u16 addr,
++			       unsigned short flags, char read_write,
++			       u8 command, int size,
++			       union i2c_smbus_data * data)
++{
++	return piix4_access_channel(adap, addr, flags, read_write, command,
++				     size, data, 3);
++}
++
++static int __init piix4_n36l_init(void)
++{
++	int i, error;
++
++	if (!piix4_adapter.dev.parent)
++		return -ENODEV;
++
++	printk(KERN_INFO "Configure the AMD SB800 Multiplexer\n");
++
++	/* Unregister physical bus */
++	error =3D i2c_del_adapter(&piix4_adapter);
++	if (error) {
++		dev_err(&piix4_adapter.dev, "Physical bus removal failed\n");
++		goto ERROR0;
++	}
++
++	printk(KERN_INFO "Enabling SMBus multiplexing for Hp Proliant
+Microserver N36l\n");
++	/* Define the 4 virtual adapters and algorithms structures */
++	if (!(n36l_adapter =3D kzalloc(5 * sizeof(struct i2c_adapter),
++				      GFP_KERNEL))) {
++		error =3D -ENOMEM;
++		goto ERROR1;
++	}
++	if (!(n36l_algo =3D kzalloc(5 * sizeof(struct i2c_algorithm),
++				   GFP_KERNEL))) {
++		error =3D -ENOMEM;
++		goto ERROR2;
++	}
++
++	/* Fill in the new structures */
++	n36l_algo[0] =3D *(piix4_adapter.algo);
++	n36l_algo[0].smbus_xfer =3D piix4_access_virt0;
++	n36l_adapter[0] =3D piix4_adapter;
++	snprintf(n36l_adapter[0].name, sizeof(n36l_adapter[0].name),
++		 "SMBus piix4 adapter (SDA0)");
++	n36l_adapter[0].algo =3D n36l_algo;
++	n36l_adapter[0].dev.parent =3D piix4_adapter.dev.parent;
++	for (i =3D 1; i < 4; i++) {
++		n36l_algo[i] =3D *(piix4_adapter.algo);
++		n36l_adapter[i] =3D piix4_adapter;
++		snprintf(n36l_adapter[i].name, sizeof(n36l_adapter[i].name),
++			 "SMBus piix4 adapter (SDA%d)", i + 1);
++		n36l_adapter[i].algo =3D n36l_algo+i;
++		n36l_adapter[i].dev.parent =3D piix4_adapter.dev.parent;
++	}
++	n36l_algo[1].smbus_xfer =3D piix4_access_virt1;
++	n36l_algo[2].smbus_xfer =3D piix4_access_virt2;
++	n36l_algo[3].smbus_xfer =3D piix4_access_virt3;
++
++	/* Register virtual adapters */
++	for (i =3D 0; i < 4; i++) {
++		error =3D i2c_add_adapter(n36l_adapter+i);
++		if (error) {
++			printk(KERN_ERR "i2c-piix4-n36l: "
++			       "Virtual adapter %d registration "
++			       "failed, module not inserted\n", i);
++			for (i--; i >=3D 0; i--)
++				i2c_del_adapter(n36l_adapter+i);
++			goto ERROR3;
++		}
++	}
++
++	return 0;
++
++ERROR3:
++	kfree(n36l_algo);
++	n36l_algo =3D NULL;
++ERROR2:
++	kfree(n36l_adapter);
++	n36l_adapter =3D NULL;
++ERROR1:
++	/* Restore physical bus */
++	i2c_add_adapter(&piix4_adapter);
++ERROR0:
++	return error;
++}
++
++static void __exit piix4_n36l_exit(void)
++{
++	if (n36l_adapter) {
++		int i;
++
++		for (i =3D 0; i < 5; i++)
++			i2c_del_adapter(n36l_adapter+i);
++		kfree(n36l_adapter);
++		n36l_adapter =3D NULL;
++	}
++	kfree(n36l_algo);
++	n36l_algo =3D NULL;
++
++	/* Restore physical bus */
++	if (i2c_add_adapter(&piix4_adapter))
++		printk(KERN_ERR "i2c-piix4-n36l: "
++		       "Physical bus restoration failed\n");
++}
++
++MODULE_AUTHOR("Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org");
++MODULE_DESCRIPTION("n36l SMBus multiplexing");
++MODULE_LICENSE("GPL");
++
++module_init(piix4_n36l_init);
++module_exit(piix4_n36l_exit);
+
+
+On Sun, Nov 27, 2011 at 11:55 PM, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> wrote:
 >
-> On 12/2/2011 3:21, Shubhrajyoti D wrote:
->> -  The reset in the driver at init is not needed anymore as the
->>     hwmod framework takes care of reseting it.
->> -  Reset is removed from omap_i2c_init, which was called
->>     not only during probe, but also after time out and error handling.
->>     device_reset were added in those places to effect the reset.
->> -  Earlier the hwmod SYSC settings were over-written in the driver.
->>     Removing the same and letting the hwmod take care of the settings.
->> -  Clean up the SYSS_RESETDONE_MASK macro as it is no longer needed.
->> -  Clean up the SYSCONFIG SYSC bit defination macros.
->> -  Fix the typos in wakeup.
+> On Fri, Nov 25, 2011 at 11:07:21PM +0100, Eddi De Pieri wrote:
+>> This patch add support to multiplexed smbus for proliant microserver
+>> N36L and may be applicable to other configuration based on sb8xx
+>> southbus.
 >>
->> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> ---
->>   drivers/i2c/busses/i2c-omap.c |   82
->> +++++++++++------------------------------
->>   1 files changed, 22 insertions(+), 60 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c
->> b/drivers/i2c/busses/i2c-omap.c
->> index fa23faa..beff9f3 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -155,19 +155,6 @@ enum {
->>   #define OMAP_I2C_SYSTEST_SDA_O        (1<<  0)    /* SDA line drive
->> out */
->>   #endif
->>
->> -/* OCP_SYSSTATUS bit definitions */
->> -#define SYSS_RESETDONE_MASK        (1<<  0)
->> -
->> -/* OCP_SYSCONFIG bit definitions */
->> -#define SYSC_CLOCKACTIVITY_MASK        (0x3<<  8)
->> -#define SYSC_SIDLEMODE_MASK        (0x3<<  3)
->> -#define SYSC_ENAWAKEUP_MASK        (1<<  2)
->> -#define SYSC_SOFTRESET_MASK        (1<<  1)
->> -#define SYSC_AUTOIDLE_MASK        (1<<  0)
->> -
->> -#define SYSC_IDLEMODE_SMART        0x2
->> -#define SYSC_CLOCKACTIVITY_FCLK        0x2
->> -
->>   /* Errata definitions */
->>   #define I2C_OMAP_ERRATA_I207        (1<<  0)
->>   #define I2C_OMAP3_1P153            (1<<  1)
->> @@ -182,6 +169,7 @@ struct omap_i2c_dev {
->>       u32            latency;    /* maximum mpu wkup latency */
->>       void            (*set_mpu_wkup_lat)(struct device *dev,
->>                               long latency);
->> +    int            (*device_reset)(struct device *dev);
->>       u32            speed;        /* Speed of bus in Khz */
->>       u16            cmd_err;
->>       u8            *buf;
->> @@ -317,60 +305,23 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
->>       u16 psc = 0, scll = 0, sclh = 0, buf = 0;
->>       u16 fsscll = 0, fssclh = 0, hsscll = 0, hssclh = 0;
->>       unsigned long fclk_rate = 12000000;
->> -    unsigned long timeout;
->>       unsigned long internal_clk = 0;
->>       struct clk *fclk;
->>       struct omap_i2c_bus_platform_data *pdata;
->>
->>       pdata = dev->dev->platform_data;
->>
->> -    if (dev->rev>= OMAP_I2C_OMAP1_REV_2) {
->> -        /* Disable I2C controller before soft reset */
->> -        omap_i2c_write_reg(dev, OMAP_I2C_CON_REG,
->> -            omap_i2c_read_reg(dev, OMAP_I2C_CON_REG)&
->> -                ~(OMAP_I2C_CON_EN));
->> -
->> -        omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
->> SYSC_SOFTRESET_MASK);
->> -        /* For some reason we need to set the EN bit before the
->> -         * reset done bit gets set. */
->> -        timeout = jiffies + OMAP_I2C_TIMEOUT;
->> -        omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
->> -        while (!(omap_i2c_read_reg(dev, OMAP_I2C_SYSS_REG)&
->> -             SYSS_RESETDONE_MASK)) {
->> -            if (time_after(jiffies, timeout)) {
->> -                dev_warn(dev->dev, "timeout waiting "
->> -                        "for controller reset\n");
->> -                return -ETIMEDOUT;
->> -            }
->> -            msleep(1);
->> -        }
->> -
->> -        /* SYSC register is cleared by the reset; rewrite it */
->> -        if (dev->rev == OMAP_I2C_REV_ON_2430) {
->> -
->> -            omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
->> -                       SYSC_AUTOIDLE_MASK);
->> -
->> -        } else if (dev->rev>= OMAP_I2C_REV_ON_3430) {
->> -            dev->syscstate = SYSC_AUTOIDLE_MASK;
->> -            dev->syscstate |= SYSC_ENAWAKEUP_MASK;
->> -            dev->syscstate |= (SYSC_IDLEMODE_SMART<<
->> -                  __ffs(SYSC_SIDLEMODE_MASK));
->> -            dev->syscstate |= (SYSC_CLOCKACTIVITY_FCLK<<
->> -                  __ffs(SYSC_CLOCKACTIVITY_MASK));
+>> root@proliant:/usr/src/lm-sensors/eddi# i2cdetect -l
+>> i2c-0=A0=A0 smbus=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus piix4 adapter =
+(SDA0)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus adapter
+>> i2c-1=A0=A0 smbus=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus piix4 adapter =
+(SDA2)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus adapter
+>> i2c-2=A0=A0 smbus=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus piix4 adapter =
+(SDA3)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus adapter
+>> i2c-3=A0=A0 smbus=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus piix4 adapter =
+(SDA4)=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 SMBus adapter
+>> root@proliant:/usr/src/lm-sensors/eddi#
 >
-> The issue I see with this change is that you are removing the above
-> code to set the CLKACTIVITY field. Today, AFAIK, hwmod does not set
-> this. Ideally it should. However, from discussing this with Richard W,
-> this can cause timeouts to occur for i2c transactions. So before
-> removing this we need to make sure that this is handled by hwmod or
-> else where.
-Agree.
-Thanks  will try to fix in the next version.
+> patch should go inline so it can be reviewed, thanks.
 >
->> -            omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
->> -                            dev->syscstate);
->> -            /*
->> -             * Enabling all wakup sources to stop I2C freezing on
->> -             * WFI instruction.
->> -             * REVISIT: Some wkup sources might not be needed.
->> -             */
->> -            dev->westate = OMAP_I2C_WE_ALL;
->> -            omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
->> -                            dev->westate);
->> -        }
->> +    if (dev->rev>= OMAP_I2C_REV_ON_3430) {
->> +        /*
->> +         * Enabling all wakeup sources to stop I2C freezing on
->> +         * WFI instruction.
->> +         * REVISIT: Some wakeup sources might not be needed.
->> +         */
->> +        dev->westate = OMAP_I2C_WE_ALL;
->> +        omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
->> +                        dev->westate);
->>       }
->> +
->>       omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
->>
->>       if (pdata->flags&  OMAP_I2C_FLAG_ALWAYS_ARMXOR_CLK) {
->> @@ -594,6 +545,11 @@ static int omap_i2c_xfer_msg(struct i2c_adapter
->> *adap,
->>           return r;
->>       if (r == 0) {
->>           dev_err(dev->dev, "controller timed out\n");
->> +        if (dev->device_reset) {
->> +            r = dev->device_reset(dev->dev);
->> +            if (r<  0)
->> +                dev_err(dev->dev, "reset failed\n");
->> +        }
->>           omap_i2c_init(dev);
+> --
+> Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
 >
-> Why put the reset here? The function omap_i2c_init is going to perform
-> a soft reset. So why not replace the reset in that function?
+> Large Hadron Colada: A large Pina Colada that makes the universe disa=
+ppear.
 >
-> Furthermore does this work for omap1 devices? I think that you would
-> need to remove the existing soft-reset from omap_i2c_init() into an
-> omap1.
->
->>           return -ETIMEDOUT;
->>       }
->> @@ -604,6 +560,11 @@ static int omap_i2c_xfer_msg(struct i2c_adapter
->> *adap,
->>       /* We have an error */
->>       if (dev->cmd_err&  (OMAP_I2C_STAT_AL | OMAP_I2C_STAT_ROVR |
->>                   OMAP_I2C_STAT_XUDF)) {
->> +        if (dev->device_reset) {
->> +            r = dev->device_reset(dev->dev);
->> +            if (r<  0)
->> +                dev_err(dev->dev, "reset failed\n");
->> +        }
->>           omap_i2c_init(dev);
->
-> Same as above.
->
->>           return -EIO;
->>       }
->> @@ -1004,6 +965,7 @@ omap_i2c_probe(struct platform_device *pdev)
->>       if (pdata != NULL) {
->>           speed = pdata->clkrate;
->>           dev->set_mpu_wkup_lat = pdata->set_mpu_wkup_lat;
->> +        dev->device_reset = pdata->device_reset;
->>       } else {
->>           speed = 100;    /* Default speed */
->>           dev->set_mpu_wkup_lat = NULL;
->
-> Cheers
-> Jon
