@@ -1,47 +1,46 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c multiplexer driver for Proliant  microserver N36L
-Date: Sat, 3 Dec 2011 18:08:19 +0100
-Message-ID: <20111203180819.2ddbcb3a@endymion.delvare>
-References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
-	<20111127225514.GO19115@trinity.fluff.org>
-	<CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
-	<20111203162757.GA24302@ericsson.com>
-	<CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
+Subject: Re: [i2c-tools][PATCH] honor CROSS_COMPILE
+Date: Sun, 4 Dec 2011 20:49:11 +0100
+Message-ID: <20111204204911.19fefcb5@endymion.delvare>
+References: <1294426874-24973-1-git-send-email-nm@ti.com>
+	<20110108192345.GB4045@pengutronix.de>
+	<4D28C9D5.8050401@ti.com>
+	<20110108210130.GC4045@pengutronix.de>
+	<20110110152608.536de8e7@endymion.delvare>
+	<4D2B1768.5030303@ti.com>
+	<20110110154435.640c528b@endymion.delvare>
+	<4D2B1BDD.9070601@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <4D2B1BDD.9070601-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
-Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Eddi,
+On Mon, 10 Jan 2011 08:46:53 -0600, Nishanth Menon wrote:
+> Jean Delvare had written, on 01/10/2011 08:44 AM, the following:
+> > On Mon, 10 Jan 2011 08:27:52 -0600, Nishanth Menon wrote:
+> >> I think I should have done just CC alone. I missed the strip one. =
+but=20
+> >> are we interested in having CROSS_COMPILE? if yes, I can cleanup t=
+he=20
+> >> patch and resubmit.
+> >=20
+> > Well, you proposed it, so you should know if you are interested ;)
+> >=20
+> > What's certain is that I won't apply the patch as is, so it indeed
+> > needs to be cleaned up and resubmitted if you want me to apply it.
+> >=20
+> Touch=E9 ;). will resubmit it :) thanks for the pointers in strip. I =
+will=20
+> try to ensure that we have just the ones we need.
 
-On Sat, 3 Dec 2011 17:42:16 +0100, Eddi De Pieri wrote:
-> Actually I don't have a development system with latest git. I build my
-> patch on my debian with 2.6.32 kernel..
-> 
-> The patch is based on i2c-amd756-s4882.c and adapted to work with sb8xx...
-> 
-> i2c-amd756-s4882.c is still present and don't use i2c-mux infrastructure.
+You did not resubmit anything, and you just missed the train. If you
+want your patch in i2c-tools 3.1.1, please consider resubmitting with
+the required changes applied.
 
-That's because i2c-amd756-s4882.c was written before the i2c-mux
-infrastructure was available. Ideally SMBus multiplexing support on the
-Tyan S4882 would be converted to i2c-mux (i.e. i2c-amd756-s4882.c would
-be deleted and the multiplexer would be instantiated in i2c-amd756.c
-itself, based on DMI data.) This shouldn't be particularly difficult,
-the real difficulty is to find someone with one of these boards to test
-the changes.
-
-> However if you are interested in porting my work to latest git, you
-> will be welcome!
-
-That's not how it works, sorry. Submissions must be based on a recent
-kernel in order to be accepted upstream. If you want SMBus multiplexing
-support on your system, it will have to be based on i2c-mux, because
-that's how things work now. Otherwise I will not accept your code.
-
--- 
+--=20
 Jean Delvare
