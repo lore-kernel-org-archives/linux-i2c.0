@@ -1,81 +1,60 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: [PATCH 2/2] i2c-s3c2410: Add stub runtime power management
-Date: Mon,  5 Dec 2011 14:06:06 +0000
-Message-ID: <1323093966-9045-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-References: <1323093966-9045-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
+Date: Mon, 5 Dec 2011 23:57:10 +0100
+Message-ID: <CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
+References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
+ <20111127225514.GO19115@trinity.fluff.org> <CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
+ <20111203162757.GA24302@ericsson.com> <CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
+ <20111203180819.2ddbcb3a@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1323093966-9045-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <20111203180819.2ddbcb3a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add stub runtime_pm calls which go through the flow of enabling and
-disabling but don't actually do anything with the device itself as
-there's nothing useful we can do. This provides the core PM framework
-with information about when the device is idle, enabling chip wide
-power savings.
+Hello,
 
-Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
----
- drivers/i2c/busses/i2c-s3c2410.c |   10 ++++++++++
- 1 files changed, 10 insertions(+), 0 deletions(-)
+I tried in rewriting the driver... but I can't understand the right way...
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index ed62a7f..065c316 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -31,6 +31,7 @@
- #include <linux/errno.h>
- #include <linux/err.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_runtime.h>
- #include <linux/clk.h>
- #include <linux/cpufreq.h>
- #include <linux/slab.h>
-@@ -563,6 +564,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
- 	int retry;
- 	int ret;
- 
-+	pm_runtime_get_sync(&adap->dev);
- 	clk_enable(i2c->clk);
- 
- 	for (retry = 0; retry < adap->retries; retry++) {
-@@ -571,6 +573,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
- 
- 		if (ret != -EAGAIN) {
- 			clk_disable(i2c->clk);
-+			pm_runtime_put_sync(&adap->dev);
- 			return ret;
- 		}
- 
-@@ -580,6 +583,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
- 	}
- 
- 	clk_disable(i2c->clk);
-+	pm_runtime_put_sync(&adap->dev);
- 	return -EREMOTEIO;
- }
- 
-@@ -1012,6 +1016,9 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	of_i2c_register_devices(&i2c->adap);
- 	platform_set_drvdata(pdev, i2c);
- 
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_enable(&i2c->adap.dev);
-+
- 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
- 	clk_disable(i2c->clk);
- 	return 0;
-@@ -1046,6 +1053,9 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
- {
- 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
- 
-+	pm_runtime_disable(&i2c->adap.dev);
-+	pm_runtime_disable(&pdev->dev);
-+
- 	s3c24xx_i2c_deregister_cpufreq(i2c);
- 
- 	i2c_del_adapter(&i2c->adap);
--- 
-1.7.7.3
+since sb800 is a southbus, the mux driver must be defined as
+i2c_device, platform_device, or pci_device?
+
+I tried using i2c_device structure, but I can't make sb800 to match
+the id_Table..
+I tried usign pci_device structure, but the driver overwrite the pci
+space so kernel hangs...
+
+Regards, Eddi.
+
+On Sat, Dec 3, 2011 at 6:08 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> Hi Eddi,
+>
+> On Sat, 3 Dec 2011 17:42:16 +0100, Eddi De Pieri wrote:
+>> Actually I don't have a development system with latest git. I build my
+>> patch on my debian with 2.6.32 kernel..
+>>
+>> The patch is based on i2c-amd756-s4882.c and adapted to work with sb8xx...
+>>
+>> i2c-amd756-s4882.c is still present and don't use i2c-mux infrastructure.
+>
+> That's because i2c-amd756-s4882.c was written before the i2c-mux
+> infrastructure was available. Ideally SMBus multiplexing support on the
+> Tyan S4882 would be converted to i2c-mux (i.e. i2c-amd756-s4882.c would
+> be deleted and the multiplexer would be instantiated in i2c-amd756.c
+> itself, based on DMI data.) This shouldn't be particularly difficult,
+> the real difficulty is to find someone with one of these boards to test
+> the changes.
+>
+>> However if you are interested in porting my work to latest git, you
+>> will be welcome!
+>
+> That's not how it works, sorry. Submissions must be based on a recent
+> kernel in order to be accepted upstream. If you want SMBus multiplexing
+> support on your system, it will have to be based on i2c-mux, because
+> that's how things work now. Otherwise I will not accept your code.
+>
+> --
+> Jean Delvare
