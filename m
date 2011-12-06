@@ -1,71 +1,77 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
-Date: Tue, 6 Dec 2011 09:39:06 +0100
-Message-ID: <20111206093906.21dccf8d@endymion.delvare>
-References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
-	<20111127225514.GO19115@trinity.fluff.org>
-	<CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
-	<20111203162757.GA24302@ericsson.com>
-	<CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
-	<20111203180819.2ddbcb3a@endymion.delvare>
-	<CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: David Jander <david-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org>
+Subject: [RFC PATCH] i2c-imx.c: Add support for I2C bus fault recovery
+Date: Tue,  6 Dec 2011 12:56:12 +0100
+Message-ID: <1323172572-11715-1-git-send-email-david@protonic.nl>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
-Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Darius Augulis <darius.augulis-Ft0m5Q12RQ9xBelEqimL3w@public.gmane.org>, giometti-k2GhghHVRtY@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Rick Soza <rsoza-3V3W3W9657E/CDIEhCN/twC/G2K4zDHf@public.gmane.org>, David Jander <david-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Eddi,
+In the event that a I2C bus is disturbed, for instance by a slave missing
+a clock pulse, it is desirable to have a way to get the bus back working
+other than by power-cycling the whole system. This patch makes it possible to
+to have a special function in board support code issue an I2C reset, since
+the IMX peripheral is not capable of doing this, and it needs to be done
+by bit-banging the corresponding pins in GPIO mode.
+The reset function needs to check if the bus is hung by checking the state
+of SDA and issue a reset by pulsing SCL a few times as long as SDA is low.
 
-Please don't top-post, and only include as much context as necessary in
-your replies.
+Signed-off-by: David Jander <david-/Q/L1SwJa3aEVqv0pETR8A@public.gmane.org>
+---
+ arch/arm/plat-mxc/include/mach/i2c.h |    2 ++
+ drivers/i2c/busses/i2c-imx.c         |    6 ++++++
+ 2 files changed, 8 insertions(+), 0 deletions(-)
 
-On Mon, 5 Dec 2011 23:57:10 +0100, Eddi De Pieri wrote:
-> I tried in rewriting the driver... but I can't understand the right way...
-> 
-> since sb800 is a southbus, the mux driver must be defined as
-> i2c_device, platform_device, or pci_device?
-
-Your question doesn't make sense. A driver can't be defined as a
-device. But anyway I think I understand where your confusion comes
-from. The SMBus multiplexing as it exists on the SB800 is very
-different from what was implemented for the Tyan S4882 and S4985 boards.
-
-In fact, now that I have a SB800 datasheet, I better understand what
-you were doing and how it should be implemented. I don't even think you
-need the multiplexer framework for the SB800. My understanding is that
-it has 4 almost independent SMBus ports. The only thing that is shared
-between them is the register set. Contrary to the S4882 and S4985 board
-multiplexing, it is totally board-independent. So support should go to the
-i2c-piix4 driver directly.
-
-BTW please avoid comments in Italian in your code. Not everyone reads
-Italian. Use English.
-
-> I tried using i2c_device structure, but I can't make sb800 to match
-> the id_Table..
-> I tried usign pci_device structure, but the driver overwrite the pci
-> space so kernel hangs...
-
-You don't need a multiplexer device at all. Please just have i2c-piix4
-driver register 4 i2c_adapter devices for the SB800. This would be a
-3-step process:
-
-1* Turn piix4_adapter to an array, so that it can hold up to 4
-   i2c_adapter structures.
-2* Add a mutex to prevent concurrent access to the register set. It
-   should be initialized in piix4_setup_sb800(), taken at the very
-   beginning of piix4_access() and released at the very end of this
-   function.
-3* Add support for ports 1, 2 and 3 of the SB800.
-
-This would ideally be 3 incremental patches to make testing and review
-easy. I can help with parts 1 and 2 if you want, as this can be tested
-without a SB800. But it should be fairly easy overall.
-
+diff --git a/arch/arm/plat-mxc/include/mach/i2c.h b/arch/arm/plat-mxc/include/mach/i2c.h
+index 4a5dc5c..7ed4f64 100644
+--- a/arch/arm/plat-mxc/include/mach/i2c.h
++++ b/arch/arm/plat-mxc/include/mach/i2c.h
+@@ -13,12 +13,14 @@
+  * struct imxi2c_platform_data - structure of platform data for MXC I2C driver
+  * @init:	Initialise gpio's and other board specific things
+  * @exit:	Free everything initialised by @init
++ * @reset:	Issue I2C reset if needed (toggle SCL via GPIO access)
+  * @bitrate:	Bus speed measured in Hz
+  *
+  **/
+ struct imxi2c_platform_data {
+ 	int (*init)(struct device *dev);
+ 	void (*exit)(struct device *dev);
++	int (*reset)(struct device *dev);
+ 	int bitrate;
+ };
+ 
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 4c2a62b..c5c5cec 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -123,6 +123,7 @@ struct imx_i2c_struct {
+ 	unsigned int 		disable_delay;
+ 	int			stopped;
+ 	unsigned int		ifdr; /* IMX_I2C_IFDR */
++	int 			(*reset)(struct device *dev);
+ };
+ 
+ /** Functions for IMX I2C adapter driver ***************************************
+@@ -197,6 +198,10 @@ static int i2c_imx_start(struct imx_i2c_struct *i2c_imx)
+ 	/* Wait controller to be stable */
+ 	udelay(50);
+ 
++	/* Check if bus is busy (hung if not multi-master) and issue reset */
++	if (i2c_imx->reset && i2c_imx->reset(&i2c_imx->adapter.dev))
++		return -ETIMEDOUT;
++
+ 	/* Start I2C transaction */
+ 	temp = readb(i2c_imx->base + IMX_I2C_I2CR);
+ 	temp |= I2CR_MSTA;
+@@ -523,6 +528,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 	i2c_imx->irq			= irq;
+ 	i2c_imx->base			= base;
+ 	i2c_imx->res			= res;
++	i2c_imx->reset			= pdata->reset;
+ 
+ 	/* Get I2C clock */
+ 	i2c_imx->clk = clk_get(&pdev->dev, "i2c_clk");
 -- 
-Jean Delvare
+1.7.5.4
