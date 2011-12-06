@@ -1,60 +1,37 @@
-From: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
-Date: Mon, 5 Dec 2011 23:57:10 +0100
-Message-ID: <CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
-References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
- <20111127225514.GO19115@trinity.fluff.org> <CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
- <20111203162757.GA24302@ericsson.com> <CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
- <20111203180819.2ddbcb3a@endymion.delvare>
+From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Still problems wit egt20 i2c driver
+Date: Tue, 6 Dec 2011 12:05:12 +0900
+Message-ID: <CANKRQnhgrUdbEJ06MLpXtEuL_a6FDWDcY-N4TMydBjCLBqXskA@mail.gmail.com>
+References: <CAH9NwWf-Dgme+SBR4vwrVux5C12nTTe5sJuCpusdw8LqeVD+xA@mail.gmail.com>
+	<CANKRQnhPW3n6X29x1hrn+tpNapoi_d6Dk0zykQ8sNHioMC0K_A@mail.gmail.com>
+	<CAH9NwWf9PpRN6zMp+TPkiRpwLvLZZ-ukiOBHGb22qaFaypn91A@mail.gmail.com>
+	<CANKRQniAsE-S_v15hRci8tXZpmaymL-7Sg=dyPxdnjGZm5=7fA@mail.gmail.com>
+	<20111124001120.GM19115@trinity.fluff.org>
+	<CANKRQngiX55p0VTzV63mpRfxgcqov-izDbivqwbgFyeAXZc=kQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111203180819.2ddbcb3a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <CANKRQngiX55p0VTzV63mpRfxgcqov-izDbivqwbgFyeAXZc=kQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Hi Ben,
 
-I tried in rewriting the driver... but I can't understand the right way...
+2011/11/24 Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> Hi Ben
+>
+> It seems the following patches are not reviewed yet.
+> [PATCH] i2c-eg20t: modified the setting of transfer rate (Mon, 26 Sep
+> 2011 16:16:23 +0900)
+> [PATCH 1/2] i2c-eg20t: Support new device LAPIS Semiconductor ML7831
+> IOH (Fri, 28 Oct 2011 09:40:10 +0900)
+> [PATCH 2/2] i2c-eg20t: Change-company-name-OKI-SEMICONDUCTOR to LAPIS
+> Semiconductor
+>
 
-since sb800 is a southbus, the mux driver must be defined as
-i2c_device, platform_device, or pci_device?
+Don't you forget this task ?
 
-I tried using i2c_device structure, but I can't make sb800 to match
-the id_Table..
-I tried usign pci_device structure, but the driver overwrite the pci
-space so kernel hangs...
-
-Regards, Eddi.
-
-On Sat, Dec 3, 2011 at 6:08 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> Hi Eddi,
->
-> On Sat, 3 Dec 2011 17:42:16 +0100, Eddi De Pieri wrote:
->> Actually I don't have a development system with latest git. I build my
->> patch on my debian with 2.6.32 kernel..
->>
->> The patch is based on i2c-amd756-s4882.c and adapted to work with sb8xx...
->>
->> i2c-amd756-s4882.c is still present and don't use i2c-mux infrastructure.
->
-> That's because i2c-amd756-s4882.c was written before the i2c-mux
-> infrastructure was available. Ideally SMBus multiplexing support on the
-> Tyan S4882 would be converted to i2c-mux (i.e. i2c-amd756-s4882.c would
-> be deleted and the multiplexer would be instantiated in i2c-amd756.c
-> itself, based on DMI data.) This shouldn't be particularly difficult,
-> the real difficulty is to find someone with one of these boards to test
-> the changes.
->
->> However if you are interested in porting my work to latest git, you
->> will be welcome!
->
-> That's not how it works, sorry. Submissions must be based on a recent
-> kernel in order to be accepted upstream. If you want SMBus multiplexing
-> support on your system, it will have to be based on i2c-mux, because
-> that's how things work now. Otherwise I will not accept your code.
->
-> --
-> Jean Delvare
+thanks,
+tomoya
