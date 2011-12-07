@@ -1,55 +1,53 @@
-From: Kevin Hilman <khilman@ti.com>
-Subject: [PATCH] I2C: OMAP: fix FIFO usage for OMAP4
-Date: Tue,  6 Dec 2011 10:25:58 -0800
-Message-ID: <1323195958-17982-1-git-send-email-khilman@ti.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>
+From: Tang Yuantian-B29983 <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
+Date: Wed, 7 Dec 2011 02:52:36 +0000
+Message-ID: <3C06C26914DACA4BB3A368F78CA0B3A7134583@039-SN1MPN1-004.039d.mgd.msft.net>
+References: <1321338462-6138-1-git-send-email-guenter.roeck@ericsson.com>
+	<CAOZdJXUPO5PyMkAw-2EPvy_qSUuqsgUA7Gr8mKUX7HyShoXk3g@mail.gmail.com>
+	<E6AF40B3BFC8A9428EACB47497F0F4B62DC687@039-SN1MPN1-002.039d.mgd.msft.net>
+	<ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
+	<1321464509.7847.41.camel@oslab-l1>
+	<1321464968.2309.384.camel@groeck-laptop>
+	<1321466135.7847.55.camel@oslab-l1>
+	<20111116190954.67c846fc@endymion.delvare>
+	<1321467638.7847.73.camel@oslab-l1>
+	<20111116201048.4b7877dd@endymion.delvare>
+	<1321470915.7847.122.camel@oslab-l1>
+ <20111116201847.6b11dc7f@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="iso-2022-jp"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20111116201847.6b11dc7f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org" <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, sun york-R58495 <R58495-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Durai Kumar-R34055 <r34055-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Huang Changming-R66093 <r66093-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Hi Jean Delvare,
 
-Currently the fifo depth is set to zero for OMAP4 which disables
-the FIFO usage. This patch enables the FIFO usage for I2C transactions
-on OMAP4 also.
+We agree to apply this patch. Do you have any concerns?
+Although Guenter said that he give up, I don't think he really meant it.
+Also it is improper if I repost similar patch.
+I tested this patch, it works.
 
-Tested on omap4430 and 3430.
+Regards,
+Yuantian
 
-Tested-and-Reported-by: Nishanth Menon <nm@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-Signed-off-by: Kevin Hilman <khilman@ti.com>
----
-Ben, can you queue this fix for v3.2-rc?
-Patch applies to v3.2-rc4.
-
- drivers/i2c/busses/i2c-omap.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index a43d002..fa23faa 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1047,13 +1047,14 @@ omap_i2c_probe(struct platform_device *pdev)
- 		 * size. This is to ensure that we can handle the status on int
- 		 * call back latencies.
- 		 */
--		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430) {
--			dev->fifo_size = 0;
-+
-+		dev->fifo_size = (dev->fifo_size / 2);
-+
-+		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430)
- 			dev->b_hw = 0; /* Disable hardware fixes */
--		} else {
--			dev->fifo_size = (dev->fifo_size / 2);
-+		else
- 			dev->b_hw = 1; /* Enable hardware fixes */
--		}
-+
- 		/* calculate wakeup latency constraint for MPU */
- 		if (dev->set_mpu_wkup_lat != NULL)
- 			dev->latency = (1000000 * dev->fifo_size) /
--- 
-1.7.6
-
+> -----Original Message-----
+> From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]
+> Sent: 2011年11月17日 3:19
+> To: sun york-R58495
+> Cc: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org; Tabi Timur-B04825; linux-
+> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Tang Yuantian-B29983
+> Subject: Re: [PATCH] i2c/busses: (mpc) Add support for
+> SMBUS_READ_BLOCK_DATA
+> Really, please. I understand you're only trying to help and understand
+> the patch, but at some point, if you have zero knowledge about the topic,
+> you're not the right person to review the patch, period. You are still
+> welcome to test the patch if you can and want, that's a completely
+> different task.
+> 
+> --
+> Jean Delvare
