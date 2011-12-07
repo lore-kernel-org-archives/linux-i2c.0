@@ -1,7 +1,7 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-Date: Tue, 6 Dec 2011 19:20:00 -0800
-Message-ID: <20111207032000.GA17575@ericsson.com>
+From: Tang Yuantian-B29983 <B29983@freescale.com>
+Subject: RE: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
+Date: Wed, 7 Dec 2011 05:25:49 +0000
+Message-ID: <3C06C26914DACA4BB3A368F78CA0B3A71345F2@039-SN1MPN1-004.039d.mgd.msft.net>
 References: <ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
  <1321464509.7847.41.camel@oslab-l1>
  <1321464968.2309.384.camel@groeck-laptop>
@@ -12,53 +12,46 @@ References: <ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
  <1321470915.7847.122.camel@oslab-l1>
  <20111116201847.6b11dc7f@endymion.delvare>
  <3C06C26914DACA4BB3A368F78CA0B3A7134583@039-SN1MPN1-004.039d.mgd.msft.net>
+ <20111207032000.GA17575@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <3C06C26914DACA4BB3A368F78CA0B3A7134583-TcFNo7jSaXM0vywKSws3iq4g8xLGJsHaLnY5E4hWTkheoWH0uzbU5w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tang Yuantian-B29983 <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, sun york-R58495 <R58495-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Durai Kumar-R34055 <r34055-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Huang Changming-R66093 <r66093-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20111207032000.GA17575@ericsson.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Guenter Roeck <guenter.roeck@ericsson.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Tabi Timur-B04825 <B04825@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, sun york-R58495 <R58495@freescale.com>, Durai Kumar-R34055 <r34055@freescale.com>, Huang Changming-R66093 <r66093@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 06, 2011 at 09:52:36PM -0500, Tang Yuantian-B29983 wrote:
-> Hi Jean Delvare,
->=20
-> We agree to apply this patch. Do you have any concerns?
-> Although Guenter said that he give up, I don't think he really meant =
-it.
-
-I did mean it, otherwise I would not have said it.
-
-Guenter
-
-> Also it is improper if I repost similar patch.
-> I tested this patch, it works.
->=20
-> Regards,
-> Yuantian
->=20
-> > -----Original Message-----
-> > From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]
-> > Sent: 2011=E5=B9=B411=E6=9C=8817=E6=97=A5 3:19
-> > To: sun york-R58495
-> > Cc: guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org; Tabi Timur-B04825; linux-
-> > i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Tang Yuantian-B2=
-9983
-> > Subject: Re: [PATCH] i2c/busses: (mpc) Add support for
-> > SMBUS_READ_BLOCK_DATA
-> > Really, please. I understand you're only trying to help and underst=
-and
-> > the patch, but at some point, if you have zero knowledge about the =
-topic,
-> > you're not the right person to review the patch, period. You are st=
-ill
-> > welcome to test the patch if you can and want, that's a completely
-> > different task.
-> >=20
-> > --
-> > Jean Delvare
->=20
->=20
+SGkgR3VlbnRlciwNCg0KSSB0aG91Z2h0IHlvdSB3ZXJlIGJvcmUgb2YgZGlzY3Vzc2lvbi4NCkRv
+IHlvdSBtaW5kIGlmIEkgcG9zdCBzaW1pbGFyIHBhdGNoPw0KDQpSZWdhcmRzLA0KWXVhbnRpYW4N
+Cg0KPiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBHdWVudGVyIFJvZWNrIFtt
+YWlsdG86Z3VlbnRlci5yb2Vja0Blcmljc3Nvbi5jb21dDQo+IFNlbnQ6IDIwMTHlubQxMuaciDfm
+l6UgMTE6MjANCj4gVG86IFRhbmcgWXVhbnRpYW4tQjI5OTgzDQo+IENjOiBKZWFuIERlbHZhcmU7
+IFRhYmkgVGltdXItQjA0ODI1OyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBsaW51eC0NCj4g
+a2VybmVsQHZnZXIua2VybmVsLm9yZzsgc3VuIHlvcmstUjU4NDk1OyBEdXJhaSBLdW1hci1SMzQw
+NTU7IEh1YW5nDQo+IENoYW5nbWluZy1SNjYwOTMNCj4gU3ViamVjdDogUmU6IFtQQVRDSF0gaTJj
+L2J1c3NlczogKG1wYykgQWRkIHN1cHBvcnQgZm9yDQo+IFNNQlVTX1JFQURfQkxPQ0tfREFUQQ0K
+PiANCj4gT24gVHVlLCBEZWMgMDYsIDIwMTEgYXQgMDk6NTI6MzZQTSAtMDUwMCwgVGFuZyBZdWFu
+dGlhbi1CMjk5ODMgd3JvdGU6DQo+ID4gSGkgSmVhbiBEZWx2YXJlLA0KPiA+DQo+ID4gV2UgYWdy
+ZWUgdG8gYXBwbHkgdGhpcyBwYXRjaC4gRG8geW91IGhhdmUgYW55IGNvbmNlcm5zPw0KPiA+IEFs
+dGhvdWdoIEd1ZW50ZXIgc2FpZCB0aGF0IGhlIGdpdmUgdXAsIEkgZG9uJ3QgdGhpbmsgaGUgcmVh
+bGx5IG1lYW50IGl0Lg0KPiANCj4gSSBkaWQgbWVhbiBpdCwgb3RoZXJ3aXNlIEkgd291bGQgbm90
+IGhhdmUgc2FpZCBpdC4NCj4gDQo+IEd1ZW50ZXINCj4gDQo+ID4gQWxzbyBpdCBpcyBpbXByb3Bl
+ciBpZiBJIHJlcG9zdCBzaW1pbGFyIHBhdGNoLg0KPiA+IEkgdGVzdGVkIHRoaXMgcGF0Y2gsIGl0
+IHdvcmtzLg0KPiA+DQo+ID4gUmVnYXJkcywNCj4gPiBZdWFudGlhbg0KPiA+DQo+ID4gPiAtLS0t
+LU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiA+ID4gRnJvbTogSmVhbiBEZWx2YXJlIFttYWlsdG86
+a2hhbGlAbGludXgtZnIub3JnXQ0KPiA+ID4gU2VudDogMjAxMeW5tDEx5pyIMTfml6UgMzoxOQ0K
+PiA+ID4gVG86IHN1biB5b3JrLVI1ODQ5NQ0KPiA+ID4gQ2M6IGd1ZW50ZXIucm9lY2tAZXJpY3Nz
+b24uY29tOyBUYWJpIFRpbXVyLUIwNDgyNTsgbGludXgtDQo+ID4gPiBpMmNAdmdlci5rZXJuZWwu
+b3JnOyBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwub3JnOyBUYW5nDQo+ID4gPiBZdWFudGlhbi1C
+Mjk5ODMNCj4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIGkyYy9idXNzZXM6IChtcGMpIEFkZCBz
+dXBwb3J0IGZvcg0KPiA+ID4gU01CVVNfUkVBRF9CTE9DS19EQVRBIFJlYWxseSwgcGxlYXNlLiBJ
+IHVuZGVyc3RhbmQgeW91J3JlIG9ubHkNCj4gPiA+IHRyeWluZyB0byBoZWxwIGFuZCB1bmRlcnN0
+YW5kIHRoZSBwYXRjaCwgYnV0IGF0IHNvbWUgcG9pbnQsIGlmIHlvdQ0KPiA+ID4gaGF2ZSB6ZXJv
+IGtub3dsZWRnZSBhYm91dCB0aGUgdG9waWMsIHlvdSdyZSBub3QgdGhlIHJpZ2h0IHBlcnNvbiB0
+bw0KPiA+ID4gcmV2aWV3IHRoZSBwYXRjaCwgcGVyaW9kLiBZb3UgYXJlIHN0aWxsIHdlbGNvbWUg
+dG8gdGVzdCB0aGUgcGF0Y2ggaWYNCj4gPiA+IHlvdSBjYW4gYW5kIHdhbnQsIHRoYXQncyBhIGNv
+bXBsZXRlbHkgZGlmZmVyZW50IHRhc2suDQo+ID4gPg0KPiA+ID4gLS0NCj4gPiA+IEplYW4gRGVs
+dmFyZQ0KPiA+DQo+ID4NCg0K
