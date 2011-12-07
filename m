@@ -1,61 +1,67 @@
-From: "Pierre-Yves Rofes" <py.rofes-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] i2c-ali1535: enable SPARC support
-Date: Wed, 7 Dec 2011 09:04:56 +0100
-Message-ID: <f4dd6eb0ec3cf5cb9c0ce90d6b06d08c.squirrel@mail.rofes.fr>
-References: <20111125142351.739f6b89@endymion.delvare>
-    <4ED36E2F.3010003@geomatys.fr>
+From: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
+Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
+Date: Wed, 7 Dec 2011 15:57:29 +0100
+Message-ID: <CAKdnbx48We9=i9QrY9LG1HV-opHqTjBR1w2xu_kpyAkOahvvdA@mail.gmail.com>
+References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
+ <20111127225514.GO19115@trinity.fluff.org> <CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
+ <20111203162757.GA24302@ericsson.com> <CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
+ <20111203180819.2ddbcb3a@endymion.delvare> <CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
+ <20111206093906.21dccf8d@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4ED36E2F.3010003-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
+In-Reply-To: <20111206093906.21dccf8d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "corentin.labbe" <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, November 28, 2011 12:19 pm, corentin.labbe wrote:
-> Le 25/11/2011 14:23, Jean Delvare a =E9crit :
->> From: "corentin.labbe" <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
->>
->> The i2c-ali1535 driver don't work on SPARC, this is because it assum=
-es that
->> ioport address are 16bits wide (address stored with an unsigned shor=
-t).
->> But on SPARC arch, ioports are mapped in memory and so are stored wi=
-th an
->> unsigned long.
->>
->> This patch corrects this by using pci_resource_start for getting IOM=
-EM base
->> address, then reading the SMBBA of the i2c busse and using together =
-for I/O
->> access.
->>
->> I like to thanks Jean DELVARE for reviewing of my patch.
->>
->> Signed-off-by: LABBE Corentin <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
->> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->> ---
->> Corentin, I rebased your patch so that it applies on top of the fix =
-I
->> just sent. I also turned one dev_info into dev_dbg, and relaxed the
->> check on the PCI resource flags: I have no idea if the resource is
->> always defined, in particular on x86, and as it will be difficult to
->> find testers, I want to play it safe and guarantee that the driver w=
-ill
->> behave the same way it used to before your patch.
->>
->> Corentin, Pierre-Yves, please test this version of the patch on top =
-of
->> the fix I just sent, and confirm that it works for you.
->
-> It works for me.
->
-> Thanks for your work.
->
+On Tue, Dec 6, 2011 at 9:39 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote=
+:
 
-Works for me too, thanks!
+> The SMBus multiplexing as it exists on the SB800 is very
+> different from what was implemented for the Tyan S4882 and S4985 boar=
+ds.
 
---=20
-Pierre-Yves Rofes
+Well...
+- the Tyan use PCA9556 to select the multiplexed bus...
+
+- SB800 (and SB700) seems to select lines writing the port number
+using a particolar protocol.
+
+> In fact, now that I have a SB800 datasheet, I better understand what
+> you were doing and how it should be implemented.
+
+> I don't even think you
+> need the multiplexer framework for the SB800.
+
+Are you sure?
+
+SB7/8xx has two i2c bus smbus(0) should be accessible to the user
+smbus(1) should be reserved to the chipset
+
+> it has 4 almost independent SMBus ports.
+
+smbus(0) may be connected to different physical port.... but each port
+may be routed by the OEM to different function... so these port aren't
+really independent.
+
+how to probe this? perhaps by reading DMI?
+
+> 1* Turn piix4_adapter to an array, so that it can hold up to 4
+> =A0 i2c_adapter structures.
+> 2* Add a mutex to prevent concurrent access to the register set. It
+> =A0 should be initialized in piix4_setup_sb800(), taken at the very
+> =A0 beginning of piix4_access() and released at the very end of this
+> =A0 function.
+> 3* Add support for ports 1, 2 and 3 of the SB800.
+
+I tried to apply your suggestion... but... I don't really have the
+knowledges to do what you wrote...
+
+I need your help :(
+
+Regards
+
+Eddi
