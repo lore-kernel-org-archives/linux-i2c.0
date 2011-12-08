@@ -1,67 +1,33 @@
-From: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
-Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
-Date: Wed, 7 Dec 2011 15:57:29 +0100
-Message-ID: <CAKdnbx48We9=i9QrY9LG1HV-opHqTjBR1w2xu_kpyAkOahvvdA@mail.gmail.com>
-References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
- <20111127225514.GO19115@trinity.fluff.org> <CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
- <20111203162757.GA24302@ericsson.com> <CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
- <20111203180819.2ddbcb3a@endymion.delvare> <CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
- <20111206093906.21dccf8d@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Alexander Aring <a.aring-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH] i2c_omap: correct OMAP_I2C_SYSC_REG offset
+Date: Thu, 8 Dec 2011 15:43:53 +0100
+Message-ID: <1323355433-8508-1-git-send-email-a.aring@phytec.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111206093906.21dccf8d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
-Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Aring <a.aring-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 6, 2011 at 9:39 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote=
-:
+Correct OMAP_I2C_SYSC_REG offset in omap4 register map.
+Offset 0x20 is reserved and OMAP_I2C_SYSC_REG has 0x10 as offset.
 
-> The SMBus multiplexing as it exists on the SB800 is very
-> different from what was implemented for the Tyan S4882 and S4985 boar=
-ds.
+Signed-off-by: Alexander Aring <a.aring-guT5V/WYfQezQB+pC5nmwQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Well...
-- the Tyan use PCA9556 to select the multiplexed bus...
-
-- SB800 (and SB700) seems to select lines writing the port number
-using a particolar protocol.
-
-> In fact, now that I have a SB800 datasheet, I better understand what
-> you were doing and how it should be implemented.
-
-> I don't even think you
-> need the multiplexer framework for the SB800.
-
-Are you sure?
-
-SB7/8xx has two i2c bus smbus(0) should be accessible to the user
-smbus(1) should be reserved to the chipset
-
-> it has 4 almost independent SMBus ports.
-
-smbus(0) may be connected to different physical port.... but each port
-may be routed by the OEM to different function... so these port aren't
-really independent.
-
-how to probe this? perhaps by reading DMI?
-
-> 1* Turn piix4_adapter to an array, so that it can hold up to 4
-> =A0 i2c_adapter structures.
-> 2* Add a mutex to prevent concurrent access to the register set. It
-> =A0 should be initialized in piix4_setup_sb800(), taken at the very
-> =A0 beginning of piix4_access() and released at the very end of this
-> =A0 function.
-> 3* Add support for ports 1, 2 and 3 of the SB800.
-
-I tried to apply your suggestion... but... I don't really have the
-knowledges to do what you wrote...
-
-I need your help :(
-
-Regards
-
-Eddi
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index a43d002..fc3bb37 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -235,7 +235,7 @@ static const u8 reg_map_ip_v2[] = {
+ 	[OMAP_I2C_BUF_REG] = 0x94,
+ 	[OMAP_I2C_CNT_REG] = 0x98,
+ 	[OMAP_I2C_DATA_REG] = 0x9c,
+-	[OMAP_I2C_SYSC_REG] = 0x20,
++	[OMAP_I2C_SYSC_REG] = 0x10,
+ 	[OMAP_I2C_CON_REG] = 0xa4,
+ 	[OMAP_I2C_OA_REG] = 0xa8,
+ 	[OMAP_I2C_SA_REG] = 0xac,
+-- 
+1.7.0.4
