@@ -1,40 +1,31 @@
-From: Tushar Behera <tushar.behera@linaro.org>
-Subject: [PATCH] i2c-s3c2410: Fix return code of s3c24xx_i2c_parse_dt_gpio
-Date: Fri,  9 Dec 2011 15:33:55 +0530
-Message-ID: <1323425035-11298-1-git-send-email-tushar.behera@linaro.org>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Cc: ben-linux@fluff.org, kgene.kim@samsung.com, linaro-dev@lists.linaro.org, patches@linaro.org, thomas.abraham@linaro.org
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: [PATCH] i2c: i2c-s3c2410: Add a cpu_relax() to busy wait for bus idle
+Date: Fri,  9 Dec 2011 20:55:03 +0800
+Message-ID: <1323435303-17040-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-s3c24xx_i2c_parse_dt_gpio is called when cfg_gpio is not defined
-in the platform data of the i2c device. When DT is not enabled,
-the above function always returns -EINVAL. Since there can be
-some i2c devices which don't need to configure any gpio lines,
-the probe of such devices would fail here. Changing the default
-return value to success would fix this issue.
+Be a bit more friendly.
 
-Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
+Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 ---
-This patch is rebased on Kukjin's for-next branch.
-d3d936c "Merge branch 'samsung-fixes-2' into for-next"
-
- drivers/i2c/busses/i2c-s3c2410.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 2754cef..b5caa42 100644
+index 065c316..acda56e1 100644
 --- a/drivers/i2c/busses/i2c-s3c2410.c
 +++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -786,7 +786,7 @@ static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
- #else
- static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
- {
--	return -EINVAL;
-+	return 0;
- }
+@@ -535,6 +535,7 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
  
- static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
+ 	/* first, try busy waiting briefly */
+ 	do {
++		cpu_relax();
+ 		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+ 	} while ((iicstat & S3C2410_IICSTAT_START) && --spins);
+ 
 -- 
-1.7.4.1
+1.7.7.3
