@@ -1,99 +1,40 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv7 1/3] OMAP: I2C: Reset support
-Date: Fri, 09 Dec 2011 12:51:09 +0530
-Message-ID: <4EE1B6E5.6080401@ti.com>
-References: <1322817674-25384-1-git-send-email-shubhrajyoti@ti.com> <1322817674-25384-2-git-send-email-shubhrajyoti@ti.com> <alpine.DEB.2.00.1112081812530.6289@utopia.booyaka.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.DEB.2.00.1112081812530.6289-rwI8Ez+7Ko+d5PgPZx9QOdBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+From: Tushar Behera <tushar.behera@linaro.org>
+Subject: [PATCH] i2c-s3c2410: Fix return code of s3c24xx_i2c_parse_dt_gpio
+Date: Fri,  9 Dec 2011 15:33:55 +0530
+Message-ID: <1323425035-11298-1-git-send-email-tushar.behera@linaro.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: ben-linux@fluff.org, kgene.kim@samsung.com, linaro-dev@lists.linaro.org, patches@linaro.org, thomas.abraham@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 09 December 2011 06:45 AM, Paul Walmsley wrote:
-> Hi
->
-> some comments
->
-> On Fri, 2 Dec 2011, Shubhrajyoti D wrote:
->
->> Under some error conditions the i2c driver may do a reset.
->> Adding a reset field and support in the device-specific code.
->>
->> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> ---
->>  arch/arm/plat-omap/i2c.c |   18 ++++++++++++++++++
->>  include/linux/i2c-omap.h |    1 +
->>  2 files changed, 19 insertions(+), 0 deletions(-)
->>
->> diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
->> index db071bc..883229c 100644
->> --- a/arch/arm/plat-omap/i2c.c
->> +++ b/arch/arm/plat-omap/i2c.c
->> @@ -74,6 +74,22 @@ static struct omap_i2c_bus_platform_data i2c_pdata[OMAP_I2C_MAX_CONTROLLERS];
->>  static struct platform_device omap_i2c_devices[] = {
->>  	I2C_DEV_BUILDER(1, i2c_resources[0], &i2c_pdata[0]),
->>  };
->> +/**
->> + * omap2_i2c_reset - reset the omap i2c module.
->> + * @dev: struct device*
->> + */
->> +
->> +static int omap2_i2c_reset(struct device *dev)
->> +{
->> +	int r = 0;
->> +	struct platform_device *pdev = to_platform_device(dev);
->> +	struct omap_device *odev = to_omap_device(pdev);
->> +	struct omap_hwmod *oh;
->> +
->> +	oh = odev->hwmods[0];
->> +	r = omap_hwmod_reset(oh);
->> +	return r;
->> +}
-> This function should go into arch/arm/plat-omap/omap_device.c, and it 
-agree
-> should be renamed to omap_device_reset(), since it's not I2C specific.  
-> Also it shouldn't assume that there's only one hwmod - it should iterate 
-> over all of the hwmods in the omap_device and call omap_hwmod_reset() on 
-> each.
-Yes agree will fix in the next version.
+s3c24xx_i2c_parse_dt_gpio is called when cfg_gpio is not defined
+in the platform data of the i2c device. When DT is not enabled,
+the above function always returns -EINVAL. Since there can be
+some i2c devices which don't need to configure any gpio lines,
+the probe of such devices would fail here. Changing the default
+return value to success would fix this issue.
 
->>  
->>  #define OMAP_I2C_CMDLINE_SETUP	(BIT(31))
->>  
->> @@ -179,6 +195,8 @@ static inline int omap2_i2c_add_bus(int bus_id)
->>  	 */
->>  	if (cpu_is_omap34xx())
->>  		pdata->set_mpu_wkup_lat = omap_pm_set_max_mpu_wakeup_lat_compat;
->> +
->> +	pdata->device_reset = omap2_i2c_reset;
-> omap_device_reset
->
->>  	pdev = omap_device_build(name, bus_id, oh, pdata,
->>  			sizeof(struct omap_i2c_bus_platform_data),
->>  			NULL, 0, 0);
->> diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
->> index 92a0dc7..fd38249 100644
->> --- a/include/linux/i2c-omap.h
->> +++ b/include/linux/i2c-omap.h
->> @@ -35,6 +35,7 @@ struct omap_i2c_bus_platform_data {
->>  	u32		rev;
->>  	u32		flags;
->>  	void		(*set_mpu_wkup_lat)(struct device *dev, long set);
->> +	int		(*device_reset) (struct device *dev);
->>  };
->>  
->>  #endif
->> -- 
->> 1.7.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>
->
-> - Paul
+Signed-off-by: Tushar Behera <tushar.behera@linaro.org>
+---
+This patch is rebased on Kukjin's for-next branch.
+d3d936c "Merge branch 'samsung-fixes-2' into for-next"
+
+ drivers/i2c/busses/i2c-s3c2410.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 2754cef..b5caa42 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -786,7 +786,7 @@ static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
+ #else
+ static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+ {
+-	return -EINVAL;
++	return 0;
+ }
+ 
+ static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
+-- 
+1.7.4.1
