@@ -1,31 +1,35 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: [PATCH] i2c: i2c-s3c2410: Add a cpu_relax() to busy wait for bus idle
-Date: Fri,  9 Dec 2011 20:55:03 +0800
-Message-ID: <1323435303-17040-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: "=?UTF-8?B?IlNJTUtJTlMgTFREIg==?=" <simkinsltd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: =?UTF-8?B?UHJvZHVjdCBPcmRlcg==?=
+Date: Fri, 09 Dec 2011 18:31:55 +0545
+Message-ID: <20111209124655.D2DE5343EF6__38441.1762854599$1323443012$gmane$org@ns1.info.com.np>
+Reply-To: "=?UTF-8?B?IlNJTUtJTlMgTFREIg==?=" <simkinsltd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain;
+	charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+To: simkinsltd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Be a bit more friendly.
 
-Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
----
- drivers/i2c/busses/i2c-s3c2410.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 065c316..acda56e1 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -535,6 +535,7 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
- 
- 	/* first, try busy waiting briefly */
- 	do {
-+		cpu_relax();
- 		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
- 	} while ((iicstat & S3C2410_IICSTAT_START) && --spins);
- 
--- 
-1.7.7.3
+Hello,
+
+I am Manager of SIMKINS LTD. USA, My company is interested in the
+purchase of your products.
+
+Kindly send me an email with details of:
+
+*Minimum Order Quantity
+*Your delivery time
+*Payment terms
+*And your products warranty
+
+I await to hear from you urgently
+Mr Stefan Al Simkins.
+Purchasing Manager.
+SIMKINS LTD
+
+___________________________________
+NOCC, http://nocc.sourceforge.net
