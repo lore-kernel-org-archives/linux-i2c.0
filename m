@@ -1,42 +1,134 @@
-From: Kevin Hilman <khilman@ti.com>
-Subject: Re: [PATCH] i2c_omap: correct OMAP_I2C_SYSC_REG offset
-Date: Fri, 09 Dec 2011 10:03:29 -0800
-Message-ID: <874nx9hbbi.fsf@ti.com>
-References: <1323355433-8508-1-git-send-email-a.aring@phytec.de>
-	<87obvjj5l5.fsf@ti.com> <4EE11091.20404@ti.com>
-	<4EE1AEA8.6000008@ti.com>
+From: <Yuantian.tang-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
+Date: Mon, 12 Dec 2011 12:10:10 +0800
+Message-ID: <1323663010-32223-1-git-send-email-Yuantian.tang@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4EE1AEA8.6000008@ti.com> (shubhrajyoti@ti.com's message of "Fri,
-	09 Dec 2011 12:16:00 +0530")
-Sender: linux-omap-owner@vger.kernel.org
-Cc: Jon Hunter <jon-hunter@ti.com>, Alexander Aring <a.aring@phytec.de>, linux-omap@vger.kernel.org, ben-linux@fluff.org, tony@atomide.com, linux-i2c@vger.kernel.org, Shubhrajyoti <shubhrajyoti@ti.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org, Tang Yuantian <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Tang Yuantian <Yuantian.Tang-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben,
+From: Tang Yuantian <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-[...]
+Add support for SMBUS_READ_BLOCK_DATA to the i2c-mpc bus driver.
 
->>> Shubhrajyoti/Jon, any objections to me queuing this fix for v3.2 (and
->>> stable.)  It would just mean rebasing your other fixes and cleanup
->>> series on top of this.
->>
->> I have no issue with that and I am in favour of getting the fix in now.
-> I too have no issues.
+Signed-off-by: Tang Yuantian <Yuantian.Tang-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+---
+tested on p1022ds
 
-I've queued this fix in my i2c fixes branch[1], and added a 
-Cc: stable@kernel.org so it makes it into stable as well.
+ drivers/i2c/busses/i2c-mpc.c |   63 ++++++++++++++++++++++++++++++++---------
+ 1 files changed, 49 insertions(+), 14 deletions(-)
 
-Note, This branch also includes the other fix I sent a couple days
-ago[2], so pulling this branch will get you all the OMAP I2C fixes for
-v3.2.
-
-Thanks,
-
-Kevin
-
-[1]
-git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap-pm.git for_3.2/fixes/i2c
-
-[2] Subject: [PATCH] I2C: OMAP: fix FIFO usage for OMAP4.
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 107397a..bba9a07 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -454,7 +454,7 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
+ }
+ 
+ static int mpc_read(struct mpc_i2c *i2c, int target,
+-		    u8 *data, int length, int restart)
++		    u8 *data, int length, int restart, bool recv_len)
+ {
+ 	unsigned timeout = i2c->adap.timeout;
+ 	int i, result;
+@@ -470,7 +470,7 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
+ 		return result;
+ 
+ 	if (length) {
+-		if (length == 1)
++		if (length == 1 && !recv_len)
+ 			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
+ 		else
+ 			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA);
+@@ -479,17 +479,46 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
+ 	}
+ 
+ 	for (i = 0; i < length; i++) {
++		u8 byte;
++
+ 		result = i2c_wait(i2c, timeout, 0);
+ 		if (result < 0)
+ 			return result;
+ 
+-		/* Generate txack on next to last byte */
+-		if (i == length - 2)
+-			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
+-		/* Do not generate stop on last byte */
+-		if (i == length - 1)
+-			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX);
+-		data[i] = readb(i2c->base + MPC_I2C_DR);
++		/*
++		 * For block reads, we have to know the total length (1st byte)
++		 * before we can determine if we are done.
++		 */
++		if (i || !recv_len) {
++			/* Generate txack on next to last byte */
++			if (i == length - 2)
++				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
++					 | CCR_TXAK);
++			/* Do not generate stop on last byte */
++			if (i == length - 1)
++				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
++					 | CCR_MTX);
++		}
++
++		byte = readb(i2c->base + MPC_I2C_DR);
++
++		/*
++		 * Adjust length if first received byte is length.
++		 * The length is 1 length byte plus actually data length
++		 */
++		if (i == 0 && recv_len) {
++			if (byte == 0 || byte > I2C_SMBUS_BLOCK_MAX)
++				return -EPROTO;
++			length += byte;
++			/*
++			 * For block reads, generate txack here if data length
++			 * is 1 byte (total length is 2 bytes).
++			 */
++			if (length == 2)
++				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
++					 | CCR_TXAK);
++		}
++		data[i] = byte;
+ 	}
+ 
+ 	return length;
+@@ -532,12 +561,17 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			"Doing %s %d bytes to 0x%02x - %d of %d messages\n",
+ 			pmsg->flags & I2C_M_RD ? "read" : "write",
+ 			pmsg->len, pmsg->addr, i + 1, num);
+-		if (pmsg->flags & I2C_M_RD)
+-			ret =
+-			    mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
+-		else
++		if (pmsg->flags & I2C_M_RD) {
++			bool recv_len = pmsg->flags & I2C_M_RECV_LEN;
++
++			ret = mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i,
++				       recv_len);
++			if (recv_len && ret > 0)
++				pmsg->len = ret;
++		} else {
+ 			ret =
+ 			    mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
++		}
+ 	}
+ 	mpc_i2c_stop(i2c);
+ 	return (ret < 0) ? ret : num;
+@@ -545,7 +579,8 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 
+ static u32 mpc_functionality(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
++	  | I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_SMBUS_BLOCK_PROC_CALL;
+ }
+ 
+ static const struct i2c_algorithm mpc_algo = {
+-- 
+1.6.4
