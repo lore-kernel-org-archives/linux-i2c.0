@@ -1,21 +1,13 @@
-From: Joseph Evans <josephconsultancy1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Xmas Lening Aanbieding
-Date: Mon, 12 Dec 2011 05:11:54 -0800
-Message-ID: <CA+B1JgHAsBQcPs25J3R6CebckUYuaoWN000MHV7Mtt_13hgsnw__26248.5681138516$1323695598$gmane$org@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: "Saul Young" <rhhzoq8-sCUFg4tGL+gvpSTzI+DlDwC/G2K4zDHf@public.gmane.org>
+Subject: Fake/Novelty/Replica Diplomas 2011 X-Mas Special Discount!
+Date: Mon, 12 Dec 2011 18:16:46 -0500
+Message-ID: <20111212181646.10198@web002.nyc1.bluetie.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: doshoes1990-EMRzualFZlQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wir sind auf dem XAMS Kredit Angebot mit so viel Bonus, bitte
-kontaktieren Sie mich, wenn Sie tun m=FCssen, jede Form von Darlehen vo=
-n
-unserer Firma.
-Gr=FC=DFe
-
-
-We are on our xams loan special offer with so much bonus, please do
-contact me if you do need any form of loan from our firm.
-Regards
+https://docs.google.com/document/d/1UgJ4HaKCuBTOO4mmPWgvTgmEr54UPWuoJGzbFZPY=
+awo/edit
