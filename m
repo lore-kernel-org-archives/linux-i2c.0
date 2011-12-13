@@ -1,70 +1,91 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv8 5/5] OMAP: I2C: Remove the SYSC register definition
-Date: Tue, 13 Dec 2011 16:25:58 +0530
-Message-ID: <1323773758-6375-6-git-send-email-shubhrajyoti@ti.com>
-References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com>
+From: Heiko =?iso-8859-15?q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH 2/2] i2c-s3c2410: Add stub runtime power management
+Date: Tue, 13 Dec 2011 15:53:48 +0100
+Message-ID: <201112131553.49270.heiko@sntech.de>
+References: <1323093966-9045-1-git-send-email-broonie@opensource.wolfsonmicro.com> <1323093966-9045-2-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1323773758-6375-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1323093966-9045-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, patches@opensource.wolfsonmicro.com
 List-Id: linux-i2c@vger.kernel.org
 
-The SYSC register should not accessed in the driver removing the
-define from the driver.
-Also clean up the syscstate from the omap_i2c_dev struct.
+Am Montag, 5. Dezember 2011, 15:06:06 schrieb Mark Brown:
+> Add stub runtime_pm calls which go through the flow of enabling and
+> disabling but don't actually do anything with the device itself as
+> there's nothing useful we can do. This provides the core PM framework
+> with information about when the device is idle, enabling chip wide
+> power savings.
+> 
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Acked-by: Heiko Stuebner <heiko@sntech.de>
 
-Acked-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |    5 -----
- 1 files changed, 0 insertions(+), 5 deletions(-)
+Kgene, Jean, Ben: could we move this forward please?
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 70136a2..9dcd99b 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -63,7 +63,6 @@ enum {
- 	OMAP_I2C_BUF_REG,
- 	OMAP_I2C_CNT_REG,
- 	OMAP_I2C_DATA_REG,
--	OMAP_I2C_SYSC_REG,
- 	OMAP_I2C_CON_REG,
- 	OMAP_I2C_OA_REG,
- 	OMAP_I2C_SA_REG,
-@@ -187,7 +186,6 @@ struct omap_i2c_dev {
- 	u16			scllstate;
- 	u16			sclhstate;
- 	u16			bufstate;
--	u16			syscstate;
- 	u16			westate;
- 	u16			errata;
- };
-@@ -202,7 +200,6 @@ static const u8 reg_map_ip_v1[] = {
- 	[OMAP_I2C_BUF_REG] = 0x05,
- 	[OMAP_I2C_CNT_REG] = 0x06,
- 	[OMAP_I2C_DATA_REG] = 0x07,
--	[OMAP_I2C_SYSC_REG] = 0x08,
- 	[OMAP_I2C_CON_REG] = 0x09,
- 	[OMAP_I2C_OA_REG] = 0x0a,
- 	[OMAP_I2C_SA_REG] = 0x0b,
-@@ -223,7 +220,6 @@ static const u8 reg_map_ip_v2[] = {
- 	[OMAP_I2C_BUF_REG] = 0x94,
- 	[OMAP_I2C_CNT_REG] = 0x98,
- 	[OMAP_I2C_DATA_REG] = 0x9c,
--	[OMAP_I2C_SYSC_REG] = 0x10,
- 	[OMAP_I2C_CON_REG] = 0xa4,
- 	[OMAP_I2C_OA_REG] = 0xa8,
- 	[OMAP_I2C_SA_REG] = 0xac,
-@@ -264,7 +260,6 @@ static void omap_i2c_unidle(struct omap_i2c_dev *dev)
- 		omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
--		omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG, dev->syscstate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
- 		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
- 	}
--- 
-1.7.1
+Thanks
+Heiko
+
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |   10 ++++++++++
+>  1 files changed, 10 insertions(+), 0 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c
+> b/drivers/i2c/busses/i2c-s3c2410.c index ed62a7f..065c316 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -31,6 +31,7 @@
+>  #include <linux/errno.h>
+>  #include <linux/err.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/pm_runtime.h>
+>  #include <linux/clk.h>
+>  #include <linux/cpufreq.h>
+>  #include <linux/slab.h>
+> @@ -563,6 +564,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+>  	int retry;
+>  	int ret;
+> 
+> +	pm_runtime_get_sync(&adap->dev);
+>  	clk_enable(i2c->clk);
+> 
+>  	for (retry = 0; retry < adap->retries; retry++) {
+> @@ -571,6 +573,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+> 
+>  		if (ret != -EAGAIN) {
+>  			clk_disable(i2c->clk);
+> +			pm_runtime_put_sync(&adap->dev);
+>  			return ret;
+>  		}
+> 
+> @@ -580,6 +583,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+>  	}
+> 
+>  	clk_disable(i2c->clk);
+> +	pm_runtime_put_sync(&adap->dev);
+>  	return -EREMOTEIO;
+>  }
+> 
+> @@ -1012,6 +1016,9 @@ static int s3c24xx_i2c_probe(struct platform_device
+> *pdev) of_i2c_register_devices(&i2c->adap);
+>  	platform_set_drvdata(pdev, i2c);
+> 
+> +	pm_runtime_enable(&pdev->dev);
+> +	pm_runtime_enable(&i2c->adap.dev);
+> +
+>  	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
+>  	clk_disable(i2c->clk);
+>  	return 0;
+> @@ -1046,6 +1053,9 @@ static int s3c24xx_i2c_remove(struct platform_device
+> *pdev) {
+>  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+> 
+> +	pm_runtime_disable(&i2c->adap.dev);
+> +	pm_runtime_disable(&pdev->dev);
+> +
+>  	s3c24xx_i2c_deregister_cpufreq(i2c);
+> 
+>  	i2c_del_adapter(&i2c->adap);
