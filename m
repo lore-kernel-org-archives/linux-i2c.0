@@ -1,45 +1,58 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: Cleanly intercepting suspend/resume of specific i2c clients?
-Date: Thu, 15 Dec 2011 08:30:05 -0800
-Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF176BE922AB@HQMAIL01.nvidia.com>
+From: Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>
+Subject: Re: Cleanly intercepting suspend/resume of specific i2c clients?
+Date: Thu, 15 Dec 2011 11:23:48 -0600
+Message-ID: <CADkCAuvwmmtc3tvBPw3XwUgnAJ5jg_qkLAK9twUNogNP-Ligpg@mail.gmail.com>
 References: <CADkCAuteSObrXMnmN--8AG84-V_aWWudt_EXwBNPZfG6GHG2hA@mail.gmail.com>
+	<74CDBE0F657A3D45AFBB94109FB122FF176BE922AB@HQMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CADkCAuteSObrXMnmN--8AG84-V_aWWudt_EXwBNPZfG6GHG2hA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF176BE922AB-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: "Linus Walleij (linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org)" <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Linus Walleij (linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org)" <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Bill Gatliff wrote at Wednesday, December 14, 2011 10:36 PM:
-> I need to catch the suspend and resume events sent to specific i2c
-> clients, so that I can do platform-specific reconfigurations after the
-> target client has been suspended/before the target client is resumed.
-> These reconfigurations include GPIO tweaks that I don't want to appear
-> in the driver for the i2c client, due to their being highly
-> platform-specific.
+Stephen:
 
-This sounds like something the new pinctrl subsystem will eventually grow
-to address.
+On Thu, Dec 15, 2011 at 10:30 AM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
+>
+> This sounds like something the new pinctrl subsystem will eventually grow
+> to address.
 
-The basic idea is that drivers will be able to request the pinctrl system
-place their pins into a certain configuration when they desire. This could
-be at probe, but also suspend/resume, runtime PM, etc. The definition of
-what the suspend/resume states mean is provided to the pinctrl subsystem
-by board-specific code or device tree; the driver using this scheme need
-not be aware of the details of each state, just request them.
+It might, but I'm not sure it is exactly what I want.  In particular,
+in what I gather from reading about pinctrl it seems to presume that
+only events on the device in question will invoke pin control events.
 
-That said, this aspect of pinctrl isn't something that's fleshed out yet
-(I think I saw LinusW post a patch to start discussions of multiple
-configurations yesterday), and there's still debate over how/whether to
-integrate this "pin configuration" aspect into the existing "pin
-multiplexing" tables.
+I'm trying to do things at a higher level, by using the Device Model
+to express relationships between devices beyond simple electrical and
+data connections.  The vreg APIs are a good example, since they allow
+me to name regulators on a per-device basis but still associate those
+names with a physical regulator at some point.  This additional layer
+of indirection lets me refer to device-specific pin names like "VIN"
+in my probe() methods, and have something behind the scenes do the
+"Device X's VIN is actually regulator LDO23 on this platform"
+translation.
 
-Still, pinctrl is worth looking at, and it sounds like you can provide
-a lot of real-world examples that'd help while defining this aspect.
+I can get similar behaviors when I create a "virtual" platform device
+as a parent of one or more platform devices representing actual
+hardware.  That allows me to tell the kernel, "After you suspend
+devices X and Y, I need to know about it".  The only thing that gets
+clumsy here is the additional code to deal with the split
+device/driver implementation, which facilitates managing N devices
+just fine but in my case I know there will only be one of the virtual
+devices.
 
+In a way, I'm trying to implement a generic "device event notification
+shim" that can wedge in between a parent and child device of any type,
+and intercept events passing between them.  I think I can get this
+done with ordinary struct device and struct driver implementations,
+plus judicious use of device_move().  I just wanted to be sure I
+wasn't reinventing anything before going down this path.
+
+Assuming I survive the trip, I'll report back with what I find. :)
+
+b.g.
 -- 
-nvpublic
+Bill Gatliff
+bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org
