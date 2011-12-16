@@ -1,45 +1,52 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv8 4/5] OMAP: I2C: Remove the reset in the init path
-Date: Fri, 16 Dec 2011 14:29:22 +0530
-Message-ID: <4EEB086A.2050607@ti.com>
-References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com> <1323773758-6375-5-git-send-email-shubhrajyoti@ti.com> <alpine.DEB.2.00.1112160139010.12660@utopia.booyaka.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCHv5] OMAP: I2C: Fix the interrupt clearing in OMAP4
+Date: Fri, 16 Dec 2011 19:13:15 +0530
+Message-ID: <1324042995-5543-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <alpine.DEB.2.00.1112160139010.12660@utopia.booyaka.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Paul Walmsley <paul@pwsan.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, b-cousson@ti.com, ben-linux@fluff.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben,
+On OMAP4 we were writing 1 to IRQENABLE_CLR which cleared only
+the arbitration lost interrupt. The patch intends to fix the same by writing 0
+to the IE register clearing all interrupts.
 
-On Friday 16 December 2011 02:10 PM, Paul Walmsley wrote:
-> Hi
->
-> On Tue, 13 Dec 2011, Shubhrajyoti D wrote:
->
->> -  The reset in the driver at init is not needed anymore as the
->>    hwmod framework takes care of reseting it.
->> -  Reset is removed from omap_i2c_init, which was called
->>    not only during probe, but also after time out and error handling.
->>    device_reset were added in those places to effect the reset.
->> -  Earlier the hwmod SYSC settings were over-written in the driver.
->>    Removing the same and letting the hwmod take care of the settings.
->> -  Clean up the SYSS_RESETDONE_MASK macro as it is no longer needed.
->> -  Clean up the SYSCONFIG SYSC bit definition macros.
->> -  Fix the typos in wakeup.
->>
->> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
->> ---
->>  drivers/i2c/busses/i2c-omap.c |   83 +++++++++++-----------------------------
->>  1 files changed, 23 insertions(+), 60 deletions(-)
-> This patch either needs to be acked by Ben with a note that it's okay for 
-> us to merge through the OMAP tree, or needs to be merged by Ben during the 
-> 3.4 merge window, after patches 1-3 have reached the mainline tree.
-I agree.
-Ben do you have any comments .
->
-> - Paul
+This is based on the work done by Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>.
 
+The  changes from the original patch ...
+-  Does not use the IRQENABLE_CLR register to clear as it is not mentioned
+  to be legacy register IRQENABLE_CLR helps in  atomically
+  setting/clearing specific interrupts, instead use the OMAP_I2C_IE_REG as we are
+  clearing all interrupts.
+
+Cc: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+Original patch can be found here:
+http://git.omapzoom.org/?p=kernel/omap.git;a=commit;h=41049d62e146e0fafe2fac0a31be566b3bbc9149
+
+ drivers/i2c/busses/i2c-omap.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index e0733b7..11f6c9b 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -297,10 +297,8 @@ static void omap_i2c_idle(struct omap_i2c_dev *dev)
+ 	pdata = dev->dev->platform_data;
+ 
+ 	dev->iestate = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
+-	if (pdata->rev == OMAP_I2C_IP_VERSION_2)
+-		omap_i2c_write_reg(dev, OMAP_I2C_IP_V2_IRQENABLE_CLR, 1);
+-	else
+-		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
++
++	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, 0);
+ 
+ 	if (dev->rev < OMAP_I2C_OMAP1_REV_2) {
+ 		iv = omap_i2c_read_reg(dev, OMAP_I2C_IV_REG); /* Read clears */
+-- 
+1.7.1
