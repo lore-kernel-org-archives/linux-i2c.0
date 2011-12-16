@@ -1,58 +1,38 @@
-From: Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>
-Subject: Re: Cleanly intercepting suspend/resume of specific i2c clients?
-Date: Thu, 15 Dec 2011 11:23:48 -0600
-Message-ID: <CADkCAuvwmmtc3tvBPw3XwUgnAJ5jg_qkLAK9twUNogNP-Ligpg@mail.gmail.com>
-References: <CADkCAuteSObrXMnmN--8AG84-V_aWWudt_EXwBNPZfG6GHG2hA@mail.gmail.com>
-	<74CDBE0F657A3D45AFBB94109FB122FF176BE922AB@HQMAIL01.nvidia.com>
+From: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCHv8 1/5] OMAP3+: HWMOD: Add the default clockactivity for
+ I2C
+Date: Fri, 16 Dec 2011 01:35:18 -0700 (MST)
+Message-ID: <alpine.DEB.2.00.1112160135060.12660@utopia.booyaka.com>
+References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com> <1323773758-6375-2-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF176BE922AB-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1323773758-6375-2-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Linus Walleij (linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org)" <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Stephen:
+On Tue, 13 Dec 2011, Shubhrajyoti D wrote:
 
-On Thu, Dec 15, 2011 at 10:30 AM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
->
-> This sounds like something the new pinctrl subsystem will eventually grow
-> to address.
+> For I2C clockactivity field is added for OMAP3 and OMAP4 that defines how the
+> interface (OCP) and functional (system) clocks behave when the I2C module is
+> idle.
+> 
+> The configuration of the clock activity bit field (per TRM) is as follows:
+> 0x0: Both clocks can be cut off
+> 0x1: Only OCP clock must be kept active; system clock
+>      can be cut off
+> 0x3: Both clocks must be kept active
+> 0x2: Only system clock must be kept active; OCP clock
+>      can be cut off
+> 
+> The patch makes 0x2(CLOCKACT_TEST_ICLK) the default for OMAP3 and OMAP4.
+> 
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
 
-It might, but I'm not sure it is exactly what I want.  In particular,
-in what I gather from reading about pinctrl it seems to presume that
-only events on the device in question will invoke pin control events.
+Thanks, queued for 3.3.
 
-I'm trying to do things at a higher level, by using the Device Model
-to express relationships between devices beyond simple electrical and
-data connections.  The vreg APIs are a good example, since they allow
-me to name regulators on a per-device basis but still associate those
-names with a physical regulator at some point.  This additional layer
-of indirection lets me refer to device-specific pin names like "VIN"
-in my probe() methods, and have something behind the scenes do the
-"Device X's VIN is actually regulator LDO23 on this platform"
-translation.
 
-I can get similar behaviors when I create a "virtual" platform device
-as a parent of one or more platform devices representing actual
-hardware.  That allows me to tell the kernel, "After you suspend
-devices X and Y, I need to know about it".  The only thing that gets
-clumsy here is the additional code to deal with the split
-device/driver implementation, which facilitates managing N devices
-just fine but in my case I know there will only be one of the virtual
-devices.
-
-In a way, I'm trying to implement a generic "device event notification
-shim" that can wedge in between a parent and child device of any type,
-and intercept events passing between them.  I think I can get this
-done with ordinary struct device and struct driver implementations,
-plus judicious use of device_move().  I just wanted to be sure I
-wasn't reinventing anything before going down this path.
-
-Assuming I survive the trip, I'll report back with what I find. :)
-
-b.g.
--- 
-Bill Gatliff
-bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org
+- Paul
