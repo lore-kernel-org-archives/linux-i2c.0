@@ -1,33 +1,59 @@
-From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Please pull bjdooks' for-linus/i2c-32-rc6 branch
-Date: Sun, 18 Dec 2011 11:49:01 +0000
-Message-ID: <E1RcFEj-0002WA-PP@freya>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bjdooks-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org
+From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: tegra: Support DVC controller in device tree
+Date: Sun, 18 Dec 2011 16:42:08 +0100
+Message-ID: <20111218154208.GA5600@avionic-0098.mockup.avionic-design.de>
+References: <1324186101-23695-1-git-send-email-swarren@nvidia.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1324186101-23695-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The following changes since commit a36bfddd65b58dd8c8364dba919c04922e04f2f5:
 
-  Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jbarnes/pci (2011-12-17 10:40:51 -0800)
+--BXVAT5kNtrzKuDFl
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-are available in the git repository at:
+* Stephen Warren wrote:
+[...]
+> @@ -636,7 +649,18 @@ static int tegra_i2c_probe(struct platform_device *p=
+dev)
+>  			i2c_dev->bus_clk_rate =3D be32_to_cpup(prop);
+>  	}
+> =20
+> -	if (pdev->id =3D=3D 3)
+> +#if defined(CONFIG_OF)
+> +	if (pdev->dev.of_node) {
+> +		const struct of_device_id *match;
+> +
+> +		match =3D of_match_device(tegra_i2c_of_match, &pdev->dev);
+> +		if (!match)
+> +			return -EINVAL;
+> +
+> +		i2c_dev->is_dvc =3D match->data;
+> +	}
+> +#endif
+> +	else if (pdev->id =3D=3D 3)
 
-  git://git.fluff.org/bjdooks/linux.git for-linus/i2c-32-rc6
+Shouldn't the "else" move into the CONFIG_OF branch?
 
-Feng Tang (1):
-      i2c-eg20t: correct the driver init order of pch_i2c_probe()
+Thierry
 
-Mark Brown (1):
-      i2c: i2c-s3c2410: Add a cpu_relax() to busy wait for bus idle
+--BXVAT5kNtrzKuDFl
+Content-Type: application/pgp-signature
 
-Shubhrajyoti D (1):
-      I2C: OMAP: fix FIFO usage for OMAP4
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-Tushar Behera (1):
-      i2c-s3c2410: Fix return code of s3c24xx_i2c_parse_dt_gpio
+iEYEARECAAYFAk7uCdAACgkQZ+BJyKLjJp/pmwCghUU/1etIwAHlqCnGS+I0PME0
+xPIAni06+o1xv9sOWMNpgltL/OR4DdJm
+=/Zst
+-----END PGP SIGNATURE-----
 
- drivers/i2c/busses/i2c-eg20t.c   |   22 ++++++++++++----------
- drivers/i2c/busses/i2c-omap.c    |   11 ++++++-----
- drivers/i2c/busses/i2c-s3c2410.c |    3 ++-
- 3 files changed, 20 insertions(+), 16 deletions(-)
+--BXVAT5kNtrzKuDFl--
