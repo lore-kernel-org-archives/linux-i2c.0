@@ -1,52 +1,33 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH V2 3/4] arm/dt: tegra: Use new compatible value for DVC I2C controller
-Date: Sat, 17 Dec 2011 23:29:31 -0700
-Message-ID: <1324189772-26914-3-git-send-email-swarren@nvidia.com>
-References: <1324189772-26914-1-git-send-email-swarren@nvidia.com>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1324189772-26914-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+From: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Please pull bjdooks' for-linus/i2c-32-rc6 branch
+Date: Sun, 18 Dec 2011 11:49:01 +0000
+Message-ID: <E1RcFEj-0002WA-PP@freya>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, bjdooks-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Update the device tree to indicate which I2C controller is the DVC
-controller. AUXDATA needs to be updated too, since the compatible
-value changed.
+The following changes since commit a36bfddd65b58dd8c8364dba919c04922e04f2f5:
 
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-v2: No change
+  Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git/jbarnes/pci (2011-12-17 10:40:51 -0800)
 
- arch/arm/boot/dts/tegra20.dtsi |    2 +-
- arch/arm/mach-tegra/board-dt.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+are available in the git repository at:
 
-diff --git a/arch/arm/boot/dts/tegra20.dtsi b/arch/arm/boot/dts/tegra20.dtsi
-index 660c8ad..3da7afd 100644
---- a/arch/arm/boot/dts/tegra20.dtsi
-+++ b/arch/arm/boot/dts/tegra20.dtsi
-@@ -39,7 +39,7 @@
- 	i2c@7000d000 {
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--		compatible = "nvidia,tegra20-i2c";
-+		compatible = "nvidia,tegra20-i2c-dvc";
- 		reg = <0x7000D000 0x200>;
- 		interrupts = < 0 53 0x04 >;
- 	};
-diff --git a/arch/arm/mach-tegra/board-dt.c b/arch/arm/mach-tegra/board-dt.c
-index b44633b..9abc89d 100644
---- a/arch/arm/mach-tegra/board-dt.c
-+++ b/arch/arm/mach-tegra/board-dt.c
-@@ -74,7 +74,7 @@ struct of_dev_auxdata tegra20_auxdata_lookup[] __initdata = {
- 	OF_DEV_AUXDATA("nvidia,tegra20-i2c", TEGRA_I2C_BASE, "tegra-i2c.0", NULL),
- 	OF_DEV_AUXDATA("nvidia,tegra20-i2c", TEGRA_I2C2_BASE, "tegra-i2c.1", NULL),
- 	OF_DEV_AUXDATA("nvidia,tegra20-i2c", TEGRA_I2C3_BASE, "tegra-i2c.2", NULL),
--	OF_DEV_AUXDATA("nvidia,tegra20-i2c", TEGRA_DVC_BASE, "tegra-i2c.3", NULL),
-+	OF_DEV_AUXDATA("nvidia,tegra20-i2c-dvc", TEGRA_DVC_BASE, "tegra-i2c.3", NULL),
- 	OF_DEV_AUXDATA("nvidia,tegra20-i2s", TEGRA_I2S1_BASE, "tegra-i2s.0", NULL),
- 	OF_DEV_AUXDATA("nvidia,tegra20-i2s", TEGRA_I2S2_BASE, "tegra-i2s.1", NULL),
- 	OF_DEV_AUXDATA("nvidia,tegra20-das", TEGRA_APB_MISC_DAS_BASE, "tegra-das", NULL),
--- 
-1.7.5.4
+  git://git.fluff.org/bjdooks/linux.git for-linus/i2c-32-rc6
+
+Feng Tang (1):
+      i2c-eg20t: correct the driver init order of pch_i2c_probe()
+
+Mark Brown (1):
+      i2c: i2c-s3c2410: Add a cpu_relax() to busy wait for bus idle
+
+Shubhrajyoti D (1):
+      I2C: OMAP: fix FIFO usage for OMAP4
+
+Tushar Behera (1):
+      i2c-s3c2410: Fix return code of s3c24xx_i2c_parse_dt_gpio
+
+ drivers/i2c/busses/i2c-eg20t.c   |   22 ++++++++++++----------
+ drivers/i2c/busses/i2c-omap.c    |   11 ++++++-----
+ drivers/i2c/busses/i2c-s3c2410.c |    3 ++-
+ 3 files changed, 20 insertions(+), 16 deletions(-)
