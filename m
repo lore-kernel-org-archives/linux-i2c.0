@@ -1,61 +1,100 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCHv8 3/5] OMAP: I2C: Reset support
-Date: Fri, 16 Dec 2011 09:26:10 -0800
-Message-ID: <20111216172610.GA32251@atomide.com>
-References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com>
- <1323773758-6375-4-git-send-email-shubhrajyoti@ti.com>
- <4EEB068C.3010501@ti.com>
- <4EEB07FA.1020100@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4EEB07FA.1020100-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: "Cousson, Benoit" <b-cousson-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 1/3] i2c: tegra: Support DVC controller in device tree
+Date: Sat, 17 Dec 2011 22:28:19 -0700
+Message-ID: <1324186101-23695-1-git-send-email-swarren@nvidia.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> [111216 00:25]:
-> Hi Benoit,
-> 
-> On Friday 16 December 2011 02:21 PM, Cousson, Benoit wrote:
-> > Hi Shubhro,
-> >
-> > On 12/13/2011 11:55 AM, Shubhrajyoti D wrote:
-> >> Under some error conditions the i2c driver may do a reset.
-> >> Adding a reset field and support in the device-specific code to aid
-> >> error-recovery.
-> >>
-> >> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> >> ---
-> >>   arch/arm/plat-omap/i2c.c |    2 ++
-> >>   include/linux/i2c-omap.h |    1 +
-> >>   2 files changed, 3 insertions(+), 0 deletions(-)
-> >>
-> >> diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
-> >> index db071bc..6cddde2 100644
-> >> --- a/arch/arm/plat-omap/i2c.c
-> >> +++ b/arch/arm/plat-omap/i2c.c
-> >> @@ -179,6 +179,8 @@ static inline int omap2_i2c_add_bus(int bus_id)
-> >>        */
-> >>       if (cpu_is_omap34xx())
-> >>           pdata->set_mpu_wkup_lat =
-> >> omap_pm_set_max_mpu_wakeup_lat_compat;
-> >> +
-> >> +    pdata->device_reset = omap_device_reset;
-> >
-> > We should avoid introducing any new pdata function pointers since we
-> > are in the process of removing them for DT support.
-> However if the driver has to do a reset due to some error what is the
-> recommended way?
-> Currently we used to access the SYSC directly I am removing the same and
-> introducing this  function pointer.
+One of the Tegra I2C blocks is inside the DVC (Digital Voltage Controller)
+block. This block is identical to the rest of the I2C blocks, except that
+it only supports master mode, it has registers moved around, and it needs
+some extra init to get it into I2C mode.  The register moves are handled
+by i2c_readl and i2c_writel
 
-Sounds like this sould be possible to handle with pm_runtime
-calls from the driver which should end up making the right
-hwmod calls.
+This patch adds a new compatible value for controllers of this "DVC"
+type; I figured that this approach was reasonable, as opposed to adding
+an is-dvc property under the existing compatible value, since the HW
+truly is different.
 
-Regards,
+Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+Ben, it'd probably be simplest if you could ack this patch, and we
+could take it through the Tegra tree.
 
-Tony
+ drivers/i2c/busses/i2c-tegra.c |   37 +++++++++++++++++++++++++------------
+ 1 files changed, 25 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 46b6500..c264e8c 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -26,6 +26,7 @@
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+ #include <linux/i2c-tegra.h>
++#include <linux/of_device.h>
+ #include <linux/of_i2c.h>
+ #include <linux/module.h>
+ 
+@@ -558,6 +559,18 @@ static const struct i2c_algorithm tegra_i2c_algo = {
+ 	.functionality	= tegra_i2c_func,
+ };
+ 
++#if defined(CONFIG_OF)
++/* Match table for of_platform binding */
++static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
++	{ .compatible = "nvidia,tegra20-i2c",     .data = (void *)0},
++	{ .compatible = "nvidia,tegra20-i2c-dvc", .data = (void *)1},
++	{},
++};
++MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
++#else
++#define tegra_i2c_of_match NULL
++#endif
++
+ static int tegra_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev;
+@@ -636,7 +649,18 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
+ 	}
+ 
+-	if (pdev->id == 3)
++#if defined(CONFIG_OF)
++	if (pdev->dev.of_node) {
++		const struct of_device_id *match;
++
++		match = of_match_device(tegra_i2c_of_match, &pdev->dev);
++		if (!match)
++			return -EINVAL;
++
++		i2c_dev->is_dvc = match->data;
++	}
++#endif
++	else if (pdev->id == 3)
+ 		i2c_dev->is_dvc = 1;
+ 	init_completion(&i2c_dev->msg_complete);
+ 
+@@ -738,17 +762,6 @@ static int tegra_i2c_resume(struct platform_device *pdev)
+ }
+ #endif
+ 
+-#if defined(CONFIG_OF)
+-/* Match table for of_platform binding */
+-static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
+-	{ .compatible = "nvidia,tegra20-i2c", },
+-	{},
+-};
+-MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
+-#else
+-#define tegra_i2c_of_match NULL
+-#endif
+-
+ static struct platform_driver tegra_i2c_driver = {
+ 	.probe   = tegra_i2c_probe,
+ 	.remove  = tegra_i2c_remove,
+-- 
+1.7.5.4
