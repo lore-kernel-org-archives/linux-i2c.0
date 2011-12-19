@@ -1,63 +1,50 @@
-From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: tegra: Support DVC controller in device tree
-Date: Sun, 18 Dec 2011 16:46:21 +0100
-Message-ID: <20111218154621.GB5600@avionic-0098.mockup.avionic-design.de>
-References: <1324186101-23695-1-git-send-email-swarren@nvidia.com>
- <20111218154208.GA5600@avionic-0098.mockup.avionic-design.de>
+From: Tushar Behera <tushar.behera@linaro.org>
+Subject: Re: [PATCH] i2c-s3c2410: Fix return code of s3c24xx_i2c_parse_dt_gpio
+Date: Mon, 19 Dec 2011 09:35:44 +0530
+Message-ID: <4EEEB818.406@linaro.org>
+References: <1323425035-11298-1-git-send-email-tushar.behera@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="WYTEVAkct0FjGQmd"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20111218154208.GA5600-RM9K5IK7kjIQXX3q8xo1gnVAuStQJXxyR5q1nwbD4aMs9pC9oP6+/A@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1323425035-11298-1-git-send-email-tushar.behera@linaro.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: ben-linux@fluff.org, kgene.kim@samsung.com, linaro-dev@lists.linaro.org, patches@linaro.org, thomas.abraham@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
+Ping
 
---WYTEVAkct0FjGQmd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 12/09/2011 03:33 PM, Tushar Behera wrote:
+> s3c24xx_i2c_parse_dt_gpio is called when cfg_gpio is not defined
+> in the platform data of the i2c device. When DT is not enabled,
+> the above function always returns -EINVAL. Since there can be
+> some i2c devices which don't need to configure any gpio lines,
+> the probe of such devices would fail here. Changing the default
+> return value to success would fix this issue.
+>
+> Signed-off-by: Tushar Behera<tushar.behera@linaro.org>
+> ---
+> This patch is rebased on Kukjin's for-next branch.
+> d3d936c "Merge branch 'samsung-fixes-2' into for-next"
+>
+>   drivers/i2c/busses/i2c-s3c2410.c |    2 +-
+>   1 files changed, 1 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 2754cef..b5caa42 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -786,7 +786,7 @@ static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
+>   #else
+>   static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+>   {
+> -	return -EINVAL;
+> +	return 0;
+>   }
+>
+>   static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
 
-* Thierry Reding wrote:
-> * Stephen Warren wrote:
-> [...]
-> > @@ -636,7 +649,18 @@ static int tegra_i2c_probe(struct platform_device =
-*pdev)
-> >  			i2c_dev->bus_clk_rate =3D be32_to_cpup(prop);
-> >  	}
-> > =20
-> > -	if (pdev->id =3D=3D 3)
-> > +#if defined(CONFIG_OF)
-> > +	if (pdev->dev.of_node) {
-> > +		const struct of_device_id *match;
-> > +
-> > +		match =3D of_match_device(tegra_i2c_of_match, &pdev->dev);
-> > +		if (!match)
-> > +			return -EINVAL;
-> > +
-> > +		i2c_dev->is_dvc =3D match->data;
-> > +	}
-> > +#endif
-> > +	else if (pdev->id =3D=3D 3)
->=20
-> Shouldn't the "else" move into the CONFIG_OF branch?
 
-Okay, I hadn't seen v2. Please ignore.
-
-Thierry
-
---WYTEVAkct0FjGQmd
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk7uCs0ACgkQZ+BJyKLjJp9zjgCgp3ScbUwDibzHsQp5Zax4T4ik
-+v0AoKeC59wb36uy22bf4A8lQV/d1hT1
-=0pd+
------END PGP SIGNATURE-----
-
---WYTEVAkct0FjGQmd--
+-- 
+Tushar Behera
