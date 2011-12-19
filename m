@@ -1,121 +1,38 @@
-From: "Dr. William Cole" <WilliamCole-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-Subject: LET US WORK TOGETHER
-Date: Mon, 19 Dec 2011 05:39:57 -0800
-Message-ID: <20111219133946.C42764B008B@tupu.netikka.net>
-Reply-To: <cole.william2010-mRCrAkd8dF0@public.gmane.org>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH V2 1/4] i2c: tegra: Add __devinit/exit to probe/remove
+Date: Mon, 19 Dec 2011 08:59:44 -0800
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF176BE929ED@HQMAIL01.nvidia.com>
+References: <1324189772-26914-1-git-send-email-swarren@nvidia.com>
+ <CAM=Q2csGoQR8PZhQO_oeVZt9CqEq377Ut8swY5g12M_=71on9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----=_NextPart_000_0026_01C2A9A6.2A89A7C6"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAM=Q2csGoQR8PZhQO_oeVZt9CqEq377Ut8swY5g12M_=71on9g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
+Shubhrajyoti Datta wrote at Sunday, December 18, 2011 11:54 PM:
+> On Sun, Dec 18, 2011 at 11:59 AM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
+> > This fixes some section mismatch build warnings.
+>
+> What was the error was a devinit function called from these?
 
-------=_NextPart_000_0026_01C2A9A6.2A89A7C6
-Content-Type: text/plain;
-	charset="big5"
-Content-Transfer-Encoding: 7bit
+As I Understand It, probe/remove are devinit/exit functions, and hence
+should be marked as such.
 
-To ensure that you get this message
-I have attached a file to this mail. 
-Please ensure you read the attached file
-and reply as soon as possible
+The errors were from building with CONFIG_DEBUG_SECTION_MISMATCH=y.
 
-------=_NextPart_000_0026_01C2A9A6.2A89A7C6
-Content-Type: application/octet-stream;
-	name="LET US WORK TOGETHER.rtf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="LET US WORK TOGETHER.rtf"
+I guess the section mismatch errors won't actually show up in the code
+that's in the kernel right now; they only showed up because I had a local
+patch that modified probe() to reference tegra_i2c_of_match[] which is
+__devinitconst. I since reworked that patch so that it doesn't introduce
+that reference, for other reasons. Still, I think this is a good cleanup
+change even if nothing is actually causing these mismatch errors to fire
+right now.
 
-e1xydGYxXGFuc2lcYW5zaWNwZzEyNTJcZGVmZjBcZGVmbGFuZzEwMzN7XGZv
-bnR0Ymx7XGYwXGZzd2lzc1xmcHJxMlxmY2hhcnNldDAgQ2FsaWJyaTt9e1xm
-MVxmc3dpc3NcZmNoYXJzZXQwIEFyaWFsO319DQp7XGNvbG9ydGJsIDtccmVk
-MFxncmVlbjBcYmx1ZTI1NTt9DQp7XCpcZ2VuZXJhdG9yIE1zZnRlZGl0IDUu
-NDEuMjEuMjUwOTt9XHZpZXdraW5kNFx1YzFccGFyZFxzYTIwMFxzbDI3Nlxz
-bG11bHQxXGJcZjBcZnMyMlxwYXINClxiMCBEZWFyIEZyaWVuZCxccGFyDQpc
-cGFyDQpccGFyDQpccGFyDQpccGFyDQpcYlxwYXINClxiMCBNeSBuYW1lIGlz
-IG5hbWUgaXMgRHIuIFdpbGxpYW0gQ29sZSwgYSBCcml0aXNoIG5hdGlvbmFs
-IGFuZCBhbiBpbnZlc3RtZW50IGNvbnN1bHRhbnQgYXR0YWNoZWQgdG8gdGhl
-IExpYnlhbiBpbnZlc3RtZW50IEF1dGhvcml0eSAoTElBKS5ccGFyDQpccGFy
-DQpccGFyDQpccGFyDQpccGFyDQogSSBzdGFydGVkIHdvcmtpbmcgZm9yIHRo
-ZSBMaWJ5YW4gZ292ZXJubWVudCB1bmRlciB0aGUgbGVhZGVyc2hpcCBvZiBN
-dWFtbWFyIE11aGFtbWFkIGFsLUdhZGRhZmkgc2luY2UgdGhlIGJlZ2lubmlu
-ZyBvZiAyMDAwIGFuZCBoYXZlIGFycmFuZ2VkIHNvIG1hbnkgZGVhbHMgYmV0
-d2VlbiB0aGUgZ292ZXJubWVudCBhbmQgdGhlIGludGVybmF0aW9uYWwgcGFy
-dG5lcnMgYnV0IGR1ZSB0byB0aGUgb25nb2luZyBjcmlzaXMgaW4gdGhlIGNv
-dW50cnkgSSBkZWNpZGVkIHRvIHF1aXQgbXkgam9iIGFuZCByZXR1cm4gdG8g
-bXkgaG9tZSBjb3VudHJ5IEVuZ2xhbmQgYmVjYXVzZSBJIGFtIG5vdCBpbiBz
-dXBwb3J0IG9mIHRoZSBMaWJ5YW4gbGVhZGVyIE11YW1tYXIgTXVoYW1tYWQg
-YWwtR2FkZGFmaSBkdWUgdG8gaGlzIGNyYWNrIGRvd24gb24gdGhlIG9wcG9z
-aXRpb24uIFxwYXINClxwYXINClxwYXINClxwYXINClxwYXINClRoZXJlIGFy
-ZSBzb21lIGZ1bmRzIHdoaWNoIEkgd2FzIGRpcmVjdGVkIHRvIG1vdmUgdG8g
-bmVpZ2hib3JpbmcgR2hhbmEgYXQgdGhlIGJlZ2lubmluZyBvZiB0aGUgdXBy
-aXNpbmcgZm9yIGZ1cnRoZXIgdHJhbnNmZXIgdG8gQ2hpbmEgZm9yIHRoZSBw
-dXJjaGFzZSBvZiBhcm1zIHRvIGJlIHVzZWQgaW4gdGhlIG9uZ29pbmcgd2Fy
-IGluIHRoZSBMaWJ5YS4gXHBhcg0KXHBhcg0KXHBhcg0KXHBhcg0KXHBhcg0K
-VGhlIGZ1bmRzIHdoaWNoIEkgc3VjY2VlZGVkIGluIG1vdmluZyB0aHJvdWdo
-IGEgY2xhbmRlc3RpbmUgYXJyYW5nZW1lbnQgdG8gYSBwcml2YXRlIGZpbmFu
-Y2UgY29tcGFueSBpbiBHaGFuYSBpcyBub3cgZGVwb3NpdGVkIHRoZXJlIHdh
-aXRpbmcgZm9yIG15IGZ1cnRoZXIgaW5zdHJ1Y3Rpb24gZm9yIG9ud2FyZCB0
-cmFuc2ZlciB0byBjaGluYSBmb3IgdGhlIHB1cmNoYXNlIG9mIHRoZSBhcm1z
-IGFuZCBhbW11bml0aW9ucyBmcm9tIGFuIGFybXMgbWFudWZhY3R1cmluZyBj
-b21wYW55IGluIENoaW5hIGJ1dCBJIG5vdyBkZWNpZGVkIHRvIGxlYXZlIHRo
-ZSBjb3VudHJ5IHdpdGggdGhlIHdob2xlIGRvY3VtZW50cyByZWxhdGluZyB0
-byB0aGlzIGZ1bmRzIGFzIHRoZSBMaWJ5YW4gbGVhZGVyIE11aGFtbWFkIGFs
-LUdhZGRhZmkgaGFzIGJlZW4gdG9wcGxlZCBhbmQga2lsbGVkIGJ5IHRoZSBy
-ZWJlbCBzLiBccGFyDQpccGFyDQpccGFyDQpccGFyDQpccGFyDQpJIHNhdyB0
-aGlzIGFzIGFuIG9wcG9ydHVuaXR5IHRvIGRpdmVydCB0aGlzIGZ1bmQgZm9y
-IG91ciBwZXJzb25hbCB1c2Ugc2luY2UgSSBoYXZlIHRoZSB3aG9sZSBkb2N1
-bWVudHMgYmVjYXVzZSB0d28gb2YgbXkgY29sbGVhZ3VlcywgdGhlIGRlZmVu
-c2UgY2hpZWYgQWJ1IEJha3IgWXVuaXMgYW5kIEdoYWRhZmlccnF1b3RlIHMg
-c29uIHdobyBhcmUgYXdhcmUgb2YgdGhpcyBkZXBvc2l0IHdlcmUgYWxsIGtp
-bGxlZCB0aGUgcmViZWwgZm9yY2VzIHRvZ2V0aGVyIHdpdGggR2hhZGFmaSB3
-aGVuIHRoZWlyIGNvbnZveSB3YXMgYXR0YWNoZWQgYnkgTlRPIHdhciBwbGFu
-ZS4gSSBhbSBjdXJyZW50bHkgaW4gbXkgbmF0aXZlIGNvdW50cnkgRW5nbGFu
-ZCB3YWl0aW5nIGZvciBhIHJlbGlhYmxlIHBhcnRuZXIgb24gd2hvc2UgbmFt
-ZSB0aGlzIGZ1bmQgc2hhbGwgYmUgdHJhbnNmZXJyZWQgc2luY2UgSSBhbSBp
-biBwb3NzZXNzaW9uIG9mIGFsbCB0aGUgZG9jdW1lbnRzLlxwYXINClxwYXIN
-ClxwYXINClxwYXINClxwYXINCiBJIHdpbGwgcGVyc29uYWxseSBmYWNpbGl0
-YXRlIHRoZSByZWxlYXNlIG9mIHRoaXMgZnVuZCBhbmQgaGF2ZSBpdCBtb3Zl
-ZCB0byB5b3VyIG5vbWluYXRlZCBhY2NvdW50IGFueXdoZXJlIGFyb3VuZCB0
-aGUgZ2xvYmUuIFxwYXINClxwYXINClxwYXINClxwYXINClxwYXINCkkgd2ls
-bCBiZSBhYmxlIHRvIGRvIHRoaXMgYmVjYXVzZSBJIHdhcyB0aGUgb25lIHRo
-YXQgb3JjaGVzdHJhdGVkIHRoZSBtb3ZlbWVudCBvZiB0aGlzIGZ1bmQgb3V0
-IG9mIExpYnlhIHRvIEdoYW5hIHRoZXJlZm9yZSBpcyBpbiBwb3NzZXNzaW9u
-IG9mIGFsbCB0aGUgcGFwZXJzIHRvIHRoYXQgZWZmZWN0LiBccGFyDQpccGFy
-DQpccGFyDQpccGFyDQpccGFyDQpccGFyDQpccGFyZCBGdXJ0aGVyIGRldGFp
-bHMgc2hhbGwgYmUgZ2l2ZW4gdG8geW91IHVwb24gdGhlIHJlY2VpcHQgb2Yg
-eW91ciBpbnRlcmVzdCB0byB3b3JrIHdpdGggbWUgb24gdGhpcyBwcm9qZWN0
-IHNvIHRoYXQgd2UgY2FuIHN1Y2Nlc3NmdWxseSBtb3ZlIHRoaXMgZnVuZCB0
-byB5b3VyIG5vbWluYXRlZCBhY2NvdW50LlxwYXINClxwYXINClxwYXINClxw
-YXINClxwYXINClxwYXINClxwYXINCiBBbGwgYXJyYW5nZW1lbnQgaGFzIGJl
-ZW4gY29uY2x1ZGVkIGZvciB0aGUgc3VjY2Vzc2Z1bCBjb25jbHVzaW9uIG9m
-IHRoZSByZWxlYXNlL3RyYW5zZmVyIG9mIHRoaXMgZnVuZCBpbiB5b3VyIG5h
-bWUuIFxwYXINClxwYXINClxwYXINClxwYXINClxwYXINClxwYXINCkdvIHRv
-IGh0dHA6Ly9zYWhhcmFyZXBvcnRlcnMuY29tL3ByZXNzLXJlbGVhc2UvbmV3
-LWxlYWtlZC1kb2N1bWVudC1yZXZlYWxzLWhzYmMtaGVsZC0xNGJuLWxpYnlh
-bi1mdW5kcyBccGFyDQpodHRwOi8vd2ViY2FjaGUuZ29vZ2xldXNlcmNvbnRl
-bnQuY29tL3NlYXJjaD9obD1lbiZnc19zbT1zJmdzX3VwbD0xMTYyNTgxbDEx
-NzQ3NDlsMGwxMTc2NjIybDM3bDMxbDFsOGwwbDJsMTE1Mmw0MDk2bDYtMS4z
-bDRsMCZxPWNhY2hlOnNZeGh6RTAxREo4SjpodHRwOi8vd3d3LmJiYy5jby51
-ay9uZXdzL3dvcmxkLWFmcmljYS0xNTM4OTU1MCtiYmMrbmV3cytyZXBvcnRz
-K2RlYXRoK29mK2dhZGRhZmkmY3Q9Y2xuayBccGFyDQpodHRwOi8vd3d3LmJi
-Yy5jby51ay9uZXdzL3dvcmxkLWFmcmljYS0xNTM5MDk4MCAgIGZvciBtb3Jl
-IGRldGFpbHMuXHBhcg0KXHBhcg0KXHBhcg0KXHBhcg0KXHBhcg0KXHBhcg0K
-XHBhcg0KXHBhcg0KUGxlYXNlIHRoaXMgaXMgaGlnaGx5IGNsYXNzaWZpZWQg
-aW5mb3JtYXRpb24gdGhlcmVmb3JlIEkgYWR2aXNlIHRoYXQgeW91IGtlZXAg
-aXQgdG8geW91cnNlbGYuIEkgc2hhbGwgYmUgd2lsbGluZyB0byBtZWV0IHdp
-dGggeW91IGFueXdoZXJlIGluIEV1cm9wZSBvciBwb3NzaWJseSBBZnJpY2Eg
-YnV0IGF0IHRoZSBtb21lbnQgSSBhbSBjdXJyZW50bHkgaW4gbXkgRW5nbGFu
-ZC4gR2V0IGJhY2sgdG8gbWUgb24gdGhpcyBlbWFpbDogXHVsIHcuY29sZTIw
-MDlAaG90bWFpbC5jb21cdWxub25lICBpZiB5b3UgYXJlIGludGVyZXN0ZWQg
-c28gdGhhdCB3ZSBjYW4gcHJvY2VlZC4gIFxwYXINClxwYXINClxwYXINClxw
-YXINClxwYXINClxwYXINCldlIHdpbGwgZGlzY3VzcyB0aGUgc2hhcmluZyBy
-YXRpbyBvbmNlIEkgaGVhciBmcm9tIHlvdSBiZWNhdXNlIHlvdSB3aWxsIHBs
-YXkgYSB2aXRhbCByb2xlIHRvIHRoZSBzdWNjZXNzIG9mIHRoaXMgYnVzaW5l
-c3MuXHBhcg0KUmVnYXJkc1xwYXINCkRyLiBXaWxsaWFtIENvbGVccGFyDQpc
-ZjFcZnMyMFxwYXINCn0NCgA=
-
-------=_NextPart_000_0026_01C2A9A6.2A89A7C6--
+-- 
+nvpublic
