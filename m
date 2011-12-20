@@ -1,42 +1,45 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH v4] I2C: add CSR SiRFprimaII on-chip I2C controllers
-	driver
-Date: Tue, 20 Dec 2011 20:07:50 +0000
-Message-ID: <20111220200750.GA2577@n2100.arm.linux.org.uk>
-References: <1323852927-13521-1-git-send-email-Barry.Song@csr.com>
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH V2 1/4] i2c: tegra: Add __devinit/exit to probe/remove
+Date: Tue, 20 Dec 2011 13:47:29 -0800
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF176BE92E21@HQMAIL01.nvidia.com>
+References: <1324189772-26914-1-git-send-email-swarren@nvidia.com>
+	<20111220015634.GA27789@quad.lixom.net>
+ <CAM=Q2cs8K4vraWPNqervcmxEqUGiAbng+44+L9OhD3ijPw9tAA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1323852927-13521-1-git-send-email-Barry.Song-kQvG35nSl+M@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>
-Cc: ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, jamie-wmLquQDDieKakBO8gow8eQ@public.gmane.org, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAM=Q2cs8K4vraWPNqervcmxEqUGiAbng+44+L9OhD3ijPw9tAA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Cc: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Dec 14, 2011 at 04:55:27PM +0800, Barry Song wrote:
-> +static int __devinit i2c_sirfsoc_probe(struct platform_device *pdev)
-> +{
-> +	struct clk *clk;
-> +
-> +	clk = clk_get(&pdev->dev, NULL);
-> +	err = clk_prepare(clk);
-> +	err = clk_enable(clk);
+Shubhrajyoti Datta wrote at Monday, December 19, 2011 11:15 PM:
 ...
-> +	clk_disable(clk);
-> +
-> +	dev_info(&pdev->dev, " I2C adapter ready to operate\n");
-> +
-> +	return 0;
-> +}
-> +
-> +static int __devexit i2c_sirfsoc_remove(struct platform_device *pdev)
-> +{
-> +	clk_disable(siic->clk);
-> +	clk_unprepare(siic->clk);
-> +	clk_put(siic->clk);
+> Hi Stephen ,
+> could you check this one also
+> thanks.
+> 
+> From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> Date: Tue, 20 Dec 2011 11:40:51 +0530
+> Subject: [PATCH] I2C : tegra : devexit in remove
+> 
+> Adding I2C __devexxit in remove
+> 
+> Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 
-This doesn't look right - look at the state which you leave the clk in
-upon successful probe, and now look at what you do when you do a remove.
+Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-It seems that you disable an already disabled clock to me.
+Ben or Olof,
+
+> -       .remove  = tegra_i2c_remove,
+> +       .remove  =__devexit_p(tegra_i2c_remove),
+
+When you apply this, can you fix it up to add a space after the = in
+the modified line? If you want, I can post an updated version to do that.
+
+-- 
+nvpublic
