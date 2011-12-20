@@ -1,26 +1,62 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: Re: [PATCH V2 4/4] arm/dt: Add ADT7461 to Seaboard
-Date: Mon, 19 Dec 2011 17:59:03 -0800
-Message-ID: <20111220015903.GD27789@quad.lixom.net>
-References: <1324189772-26914-1-git-send-email-swarren@nvidia.com>
- <1324189772-26914-4-git-send-email-swarren@nvidia.com>
+From: Shawn Guo <shawn.guo@freescale.com>
+Subject: Re: [PATCH V3 10/14] ARM: mxs: add clk_prepare/clk_unprepare
+Date: Tue, 20 Dec 2011 10:15:33 +0800
+Message-ID: <20111220021532.GA2995@S2101-09.ap.freescale.net>
+References: <1321008637-19999-1-git-send-email-richard.zhao@linaro.org>
+ <1321008637-19999-11-git-send-email-richard.zhao@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-serial-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1324189772-26914-4-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+In-Reply-To: <1321008637-19999-11-git-send-email-richard.zhao@linaro.org>
+Sender: linux-serial-owner@vger.kernel.org
+To: Richard Zhao <richard.zhao@linaro.org>, Sascha Hauer <s.hauer@pengutronix.de>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org, netdev@vger.kernel.org, linux-serial@vger.kernel.org, linux@arm.linux.org.uk, amit.kucheria@canonical.com, kernel@pengutronix.de, ben-linux@fluff.org, cjb@laptop.org, alan@linux.intel.com, eric.miao@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Dec 17, 2011 at 11:29:32PM -0700, Stephen Warren wrote:
-> The ADT7461 is a temperature monitoring IC. One is present on the DVC
-> I2C bus on Seaboard.
+Hi Sascha,
+
+Can you drop this patch from your tree?  This patch is not complete
+even for mxs platform/arch code, and will conflict with my mxs
+clk-prepare series.
+
+-- 
+Regards,
+Shawn
+
+On Fri, Nov 11, 2011 at 06:50:33PM +0800, Richard Zhao wrote:
+> Signed-off-by: Richard Zhao <richard.zhao@linaro.org>
+> ---
+>  arch/arm/mach-mxs/system.c |    2 +-
+>  arch/arm/mach-mxs/timer.c  |    2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 > 
-> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> diff --git a/arch/arm/mach-mxs/system.c b/arch/arm/mach-mxs/system.c
+> index 20ec3bd..9760a12 100644
+> --- a/arch/arm/mach-mxs/system.c
+> +++ b/arch/arm/mach-mxs/system.c
+> @@ -66,7 +66,7 @@ static int __init mxs_arch_reset_init(void)
+>  
+>  	clk = clk_get_sys("rtc", NULL);
+>  	if (!IS_ERR(clk))
+> -		clk_enable(clk);
+> +		clk_prepare_enable(clk);
+>  
+>  	return 0;
+>  }
+> diff --git a/arch/arm/mach-mxs/timer.c b/arch/arm/mach-mxs/timer.c
+> index cace0d2..564a632 100644
+> --- a/arch/arm/mach-mxs/timer.c
+> +++ b/arch/arm/mach-mxs/timer.c
+> @@ -245,7 +245,7 @@ static int __init mxs_clocksource_init(struct clk *timer_clk)
+>  
+>  void __init mxs_timer_init(struct clk *timer_clk, int irq)
+>  {
+> -	clk_enable(timer_clk);
+> +	clk_prepare_enable(timer_clk);
+>  
+>  	/*
+>  	 * Initialize timers to a known state
+> -- 
+> 1.7.5.4
 
-Thanks, applied to for-3.3/dt.
-
-
--Olof
