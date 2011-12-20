@@ -1,51 +1,42 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v4] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
-Date: Tue, 20 Dec 2011 21:11:33 +0800
-Message-ID: <CAGsJ_4yL2tk-W3jL2E9BpiLE7utv2ytf5E8wisw0O-B8uMh-MA@mail.gmail.com>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCH v4] I2C: add CSR SiRFprimaII on-chip I2C controllers
+	driver
+Date: Tue, 20 Dec 2011 20:07:50 +0000
+Message-ID: <20111220200750.GA2577@n2100.arm.linux.org.uk>
 References: <1323852927-13521-1-git-send-email-Barry.Song@csr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
 In-Reply-To: <1323852927-13521-1-git-send-email-Barry.Song-kQvG35nSl+M@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>
+Cc: ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, jamie-wmLquQDDieKakBO8gow8eQ@public.gmane.org, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2011/12/14 Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>:
-> From: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
->
-> SiRFprimaII is the latest generation application processor from CSR=E2=
-=80=99s
-> multi-function SoC product family.
-> The SoC support codes are in arch/arm/mach-prima2 from Linux mainline
-> 3.0.
-> There are two I2C controllers on primaII, features include:
-> * Two I2C controller modules are on chip
-> * RISC I/O bus read write register
-> * Up to 16 bytes data buffer for issuing commands and writing data
-> =C2=A0at the same time
-> * Up to 16 commands, and receiving read data 16 bytes at a time
-> * Error INT report (ACK check)
-> * No-ACK bus protocols (SCCB bus protocols)
->
-> Signed-off-by: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
-> Signed-off-by: Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>
-> Signed-off-by: Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>
-> Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
-> ---
-> =C2=A0-v4:
-> =C2=A0fix some minor issues pointed out by Shubhrajyoti Datta;
-> =C2=A0move platform_driver.suspend/resume to dev_pm_ops;
-> =C2=A0use Wolfram Sang's new devm_request_and_ioremap() api, refer to=
-:
-> =C2=A0 =C2=A0 https://lkml.org/lkml/2011/10/25/226
+On Wed, Dec 14, 2011 at 04:55:27PM +0800, Barry Song wrote:
+> +static int __devinit i2c_sirfsoc_probe(struct platform_device *pdev)
+> +{
+> +	struct clk *clk;
+> +
+> +	clk = clk_get(&pdev->dev, NULL);
+> +	err = clk_prepare(clk);
+> +	err = clk_enable(clk);
+...
+> +	clk_disable(clk);
+> +
+> +	dev_info(&pdev->dev, " I2C adapter ready to operate\n");
+> +
+> +	return 0;
+> +}
+> +
+> +static int __devexit i2c_sirfsoc_remove(struct platform_device *pdev)
+> +{
+> +	clk_disable(siic->clk);
+> +	clk_unprepare(siic->clk);
+> +	clk_put(siic->clk);
 
-Hi Ben,
-can we do something to move things ahead? the patch has sent for
-several weeks and 4 versions based on feedback from other people, you
-haven't given any comment, nack or ack. Are you still active, or are
-you just too busy to take care?
-Thanks
-barry
+This doesn't look right - look at the state which you leave the clk in
+upon successful probe, and now look at what you do when you do a remove.
+
+It seems that you disable an already disabled clock to me.
