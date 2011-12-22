@@ -1,48 +1,63 @@
-From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: Add delay before reset the controller
-Date: Thu, 22 Dec 2011 16:11:20 +0530
-Message-ID: <1324550480-26308-1-git-send-email-alokc@nvidia.com>
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
+Date: Thu, 22 Dec 2011 20:08:34 +0800
+Message-ID: <CAGsJ_4wS1Otr3Od3y+pBg+YssDbwhU2xKsKzJk_UcVowxwzVOw@mail.gmail.com>
+References: <1323852927-13521-1-git-send-email-Barry.Song@csr.com>
+ <20111220200750.GA2577@n2100.arm.linux.org.uk> <CAGsJ_4y8vwrK=UD8a10gf2aN=O3hs_R_jYBKeFYf0v+gk0hiuQ@mail.gmail.com>
+ <20111221033444.GH15863@b20223-02.ap.freescale.net> <20111221034753.GC5983@S2101-09.ap.freescale.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20111221034753.GC5983-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, jamie-wmLquQDDieKakBO8gow8eQ@public.gmane.org, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+2011/12/21 Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>:
+> On Wed, Dec 21, 2011 at 11:34:45AM +0800, Richard Zhao wrote:
+>> On Wed, Dec 21, 2011 at 11:29:29AM +0800, Barry Song wrote:
+>> > 2011/12/21 Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>:
+>> > > On Wed, Dec 14, 2011 at 04:55:27PM +0800, Barry Song wrote:
+>> > >> +static int __devinit i2c_sirfsoc_probe(struct platform_device =
+*pdev)
+>> > >> +{
+>> > >> + =C2=A0 =C2=A0 struct clk *clk;
+>> > >> +
+>> > >> + =C2=A0 =C2=A0 clk =3D clk_get(&pdev->dev, NULL);
+>> > >> + =C2=A0 =C2=A0 err =3D clk_prepare(clk);
+>> > >> + =C2=A0 =C2=A0 err =3D clk_enable(clk);
+>> > > ...
+>> > >> + =C2=A0 =C2=A0 clk_disable(clk);
+>> > >> +
+>> > >> + =C2=A0 =C2=A0 dev_info(&pdev->dev, " I2C adapter ready to ope=
+rate\n");
+>> > >> +
+>> > >> + =C2=A0 =C2=A0 return 0;
+>> > >> +}
+>> > >> +
+>> > >> +static int __devexit i2c_sirfsoc_remove(struct platform_device=
+ *pdev)
+>> > >> +{
+>> > >> + =C2=A0 =C2=A0 clk_disable(siic->clk);
+>> > >> + =C2=A0 =C2=A0 clk_unprepare(siic->clk);
+>> > >> + =C2=A0 =C2=A0 clk_put(siic->clk);
+>> > >
+>> There's a handy clk_disable_unprepare function in the patch I ever s=
+ent
+>> out. It's in Sascha or Shawn's tree.
+>>
+> We cannot really ask people to use that before it hits Linus' tree.
 
-In NACK error condition, I2C controller violates
-clock-to-data setup time before stop. In Software,
-because of this reset of controller is happening
-before I2C controller could complete STOP condition.
+Thanks. Shawn/Richard.
+The problem is that Ben seems to have been scheduled to TASK_UNINTERRUP=
+TIBLE.
 
-Added worst case delay of 1 ms (assuming lowest
-clock frequency will be 1 KHZ) before reset the
-controller in case of NACK error.
+>
+> --
+> Regards,
+> Shawn
+>
 
-Signed-off-by: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |    9 +++++++++
- 1 files changed, 9 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 6381604..b731499 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -517,6 +517,15 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
- 		return 0;
- 
-+	/*
-+	 * In NACK error condition resetting of I2C controller happens
-+	 * before STOP condition is properly completed by I2C controller,
-+	 * so wait for worst case delay of 1 ms (assuming lowest clock
-+	 * frequency will be 1 KHz) to complete STOP condition.
-+	 */
-+	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
-+		mdelay(1);
-+
- 	tegra_i2c_init(i2c_dev);
- 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
- 		if (msg->flags & I2C_M_IGNORE_NAK)
--- 
-1.7.4.1
+-barry
