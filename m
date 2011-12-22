@@ -1,115 +1,48 @@
-From: Benoit Cousson <b-cousson@ti.com>
-Subject: [PATCH v4 12/12] ARM: OMAP2+: board-generic: Remove i2c static init
-Date: Thu, 22 Dec 2011 15:56:46 +0100
-Message-ID: <1324565806-31142-13-git-send-email-b-cousson@ti.com>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v4 03/12] mfd: twl-core: Add initial DT support for
+ twl4030/twl6030
+Date: Thu, 22 Dec 2011 18:31:06 +0100
+Message-ID: <20111222173106.GJ5183@sortiz-mobl>
 References: <1324565806-31142-1-git-send-email-b-cousson@ti.com>
+ <1324565806-31142-4-git-send-email-b-cousson@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1324565806-31142-1-git-send-email-b-cousson@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: rob.herring@calxeda.com, tony@atomide.com
-Cc: linux-omap@vger.kernel.org, akpm@linux-foundation.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@lists.ozlabs.org, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org, sameo@linux.intel.com, ben-linux@fluff.org, Benoit Cousson <b-cousson@ti.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1324565806-31142-4-git-send-email-b-cousson-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
+Cc: rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Balaji T K <balajitk-l0cyMroinI0@public.gmane.org>, Graeme Gregory <gg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This mainly reverts the commit that was adding the i2c static init.
+Hi Benoit,
 
-Since the i2c and twl nodes are now present, there is no need
-for the static initialization anymore.
+On Thu, Dec 22, 2011 at 03:56:37PM +0100, Benoit Cousson wrote:
+> Add initial device-tree support for twl familly chips.
+> The current version is missing the regulator entries due
+> to the lack of DT regulator bindings for the moment.
+> Only the simple sub-modules that do not depend on
+> platform_data information can be initialized properly.
+> 
+> Add irqdomain support.
+> 
+> Add documentation for the Texas Instruments TWL Integrated Chip.
+> 
+> Signed-off-by: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
+> Cc: Balaji T K <balajitk-l0cyMroinI0@public.gmane.org>
+> Cc: Graeme Gregory <gg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>
+> Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  .../devicetree/bindings/mfd/twl-familly.txt        |   47 ++++++++++++++++++
+>  drivers/mfd/Kconfig                                |    1 +
+>  drivers/mfd/twl-core.c                             |   51 +++++++++++++++++++-
+>  3 files changed, 98 insertions(+), 1 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/mfd/twl-familly.txt
+Patch applied instead of the previous one, thanks for the quick fix.
 
-Signed-off-by: Benoit Cousson <b-cousson@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>
----
- arch/arm/mach-omap2/board-generic.c |   48 +---------------------------------
- 1 files changed, 2 insertions(+), 46 deletions(-)
+Cheers,
+Samuel.
 
-diff --git a/arch/arm/mach-omap2/board-generic.c b/arch/arm/mach-omap2/board-generic.c
-index 2529017..38f105d 100644
---- a/arch/arm/mach-omap2/board-generic.c
-+++ b/arch/arm/mach-omap2/board-generic.c
-@@ -15,7 +15,6 @@
- #include <linux/of_irq.h>
- #include <linux/of_platform.h>
- #include <linux/irqdomain.h>
--#include <linux/i2c/twl.h>
- 
- #include <mach/hardware.h>
- #include <asm/hardware/gic.h>
-@@ -36,34 +35,6 @@ static void __init omap_init_irq(void)
- 	of_irq_init(irq_match);
- }
- 
--/*
-- * XXX: Still needed to boot until the i2c & twl driver is adapted to
-- * device-tree
-- */
--#ifdef CONFIG_ARCH_OMAP4
--static struct twl4030_platform_data sdp4430_twldata = {
--	.irq_base	= TWL6030_IRQ_BASE,
--	.irq_end	= TWL6030_IRQ_END,
--};
--
--static void __init omap4_i2c_init(void)
--{
--	omap4_pmic_init("twl6030", &sdp4430_twldata);
--}
--#endif
--
--#ifdef CONFIG_ARCH_OMAP3
--static struct twl4030_platform_data beagle_twldata = {
--	.irq_base	= TWL4030_IRQ_BASE,
--	.irq_end	= TWL4030_IRQ_END,
--};
--
--static void __init omap3_i2c_init(void)
--{
--	omap3_pmic_init("twl4030", &beagle_twldata);
--}
--#endif
--
- static struct of_device_id omap_dt_match_table[] __initdata = {
- 	{ .compatible = "simple-bus", },
- 	{ .compatible = "ti,omap-infra", },
-@@ -78,21 +49,6 @@ static void __init omap_generic_init(void)
- 	of_platform_populate(NULL, omap_dt_match_table, NULL, NULL);
- }
- 
--#ifdef CONFIG_ARCH_OMAP4
--static void __init omap4_init(void)
--{
--	omap4_i2c_init();
--	omap_generic_init();
--}
--#endif
--
--#ifdef CONFIG_ARCH_OMAP3
--static void __init omap3_init(void)
--{
--	omap3_i2c_init();
--	omap_generic_init();
--}
--#endif
- 
- #if defined(CONFIG_SOC_OMAP2420)
- static const char *omap242x_boards_compat[] __initdata = {
-@@ -145,7 +101,7 @@ DT_MACHINE_START(OMAP3_DT, "Generic OMAP3 (Flattened Device Tree)")
- 	.init_early	= omap3430_init_early,
- 	.init_irq	= omap_init_irq,
- 	.handle_irq	= omap3_intc_handle_irq,
--	.init_machine	= omap3_init,
-+	.init_machine	= omap_generic_init,
- 	.timer		= &omap3_timer,
- 	.dt_compat	= omap3_boards_compat,
- MACHINE_END
-@@ -164,7 +120,7 @@ DT_MACHINE_START(OMAP4_DT, "Generic OMAP4 (Flattened Device Tree)")
- 	.init_early	= omap4430_init_early,
- 	.init_irq	= omap_init_irq,
- 	.handle_irq	= gic_handle_irq,
--	.init_machine	= omap4_init,
-+	.init_machine	= omap_generic_init,
- 	.timer		= &omap4_timer,
- 	.dt_compat	= omap4_boards_compat,
- MACHINE_END
 -- 
-1.7.0.4
-
+Intel Open Source Technology Centre
+http://oss.intel.com/
