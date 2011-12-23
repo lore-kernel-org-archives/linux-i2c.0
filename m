@@ -1,16 +1,36 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: Add delay before reset the controller
-Date: Thu, 22 Dec 2011 13:17:46 -0800
-Message-ID: <CAOesGMire-13yiA9gVQYFWdTa6ZLJLbTW8qoRoPMRQ1ExavVUQ@mail.gmail.com>
+From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH] i2c: tegra: Add delay before reset the controller
+Date: Fri, 23 Dec 2011 16:45:05 +0530
+Message-ID: <7A0BFCFE3DA5CD47B0FB7984326F201A134F2CCC73@BGMAIL01.nvidia.com>
 References: <1324550480-26308-1-git-send-email-alokc@nvidia.com>
+ <CAOesGMire-13yiA9gVQYFWdTa6ZLJLbTW8qoRoPMRQ1ExavVUQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1324550480-26308-1-git-send-email-alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dgreid-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAOesGMire-13yiA9gVQYFWdTa6ZLJLbTW8qoRoPMRQ1ExavVUQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org" <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "dgreid-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org" <dgreid-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
+
+Hi,
+
+(Adding Laxman Dewangan)
+
+>This change causes problems systems with some models of i2c TPMs, since the first transaction to them will always time out (TPM quirk), and the delay means that the tpm will have time to go back to sleep and thus timeout >even on the retry. So you'll never make progress.
+Working on this.
+
+-Alok
+
+
+-----Original Message-----
+From: Olof Johansson [mailto:olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org] 
+Sent: Friday, December 23, 2011 2:48 AM
+To: Alok Chauhan
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; Stephen Warren; bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org; paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; dgreid-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org
+Subject: Re: [PATCH] i2c: tegra: Add delay before reset the controller
 
 Hi,
 
@@ -19,22 +39,16 @@ Hi,
 On Thu, Dec 22, 2011 at 2:41 AM, Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
 > From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 >
-> In NACK error condition, I2C controller violates
-> clock-to-data setup time before stop. In Software,
-> because of this reset of controller is happening
-> before I2C controller could complete STOP condition.
+> In NACK error condition, I2C controller violates clock-to-data setup 
+> time before stop. In Software, because of this reset of controller is 
+> happening before I2C controller could complete STOP condition.
 >
-> Added worst case delay of 1 ms (assuming lowest
-> clock frequency will be 1 KHZ) before reset the
-> controller in case of NACK error.
+> Added worst case delay of 1 ms (assuming lowest clock frequency will 
+> be 1 KHZ) before reset the controller in case of NACK error.
 
-This change causes problems systems with some models of i2c TPMs, since
-the first transaction to them will always time out (TPM quirk), and the delay
-means that the tpm will have time to go back to sleep and thus timeout
-even on the retry. So you'll never make progress.
+This change causes problems systems with some models of i2c TPMs, since the first transaction to them will always time out (TPM quirk), and the delay means that the tpm will have time to go back to sleep and thus timeout even on the retry. So you'll never make progress.
 
-In other words: this patch will break some systems and thus shouldn't be
-applied.
+In other words: this patch will break some systems and thus shouldn't be applied.
 
 
 -Olof
