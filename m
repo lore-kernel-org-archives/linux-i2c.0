@@ -1,35 +1,48 @@
-From: "postcodesloetrij-  Bonus" <Postinfo-XmxE97WL2LwS+FvcfC7Uqw@public.gmane.org>
-Subject: End of year bonus!!
-Date: Sun, 25 Dec 2011 14:55:33 -0700
-Message-ID: <0bb7cee5361d32f4a30bf4aa2b0d9925.squirrel__24228.4651998945$1324851217$gmane$org@macmail.lakotanetwork.com>
-Reply-To: Postinfo-XmxE97WL2LwS+FvcfC7Uqw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v2] i2c: tegra: Add delay before reset the controller
+Date: Mon, 26 Dec 2011 16:44:41 +0530
+Message-ID: <1324898081-10308-1-git-send-email-alokc@nvidia.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org, dgreid-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-postcodesloetrij-  Bonus !!
+From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Promotion advertisement !!: we are please to inform you that the
-Postcode-lottery yearly award award promotion program held 25th Dec  2011,
-have pronounce your e-mail address as the luckily winner of a total sum:
-of ?100,000(One Hundred Thousand Euros
-Only)
+In NACK error condition, I2C controller violates
+clock-to-data setup time before stop. In Software,
+because of this reset of controller is happening
+before I2C controller could complete STOP condition.
 
-Please email via BV Post-lottery Solicitors Fund Verification Department
-with your Serial-No:LE-0031#55330 for your claim,
+Added delay of 2 clock period before reset the
+controller in case of NACK error.
 
-Office/Email:Postinfo-XmxE97WL2LwS+FvcfC7Uqw@public.gmane.org
-Tell:+31-645-764-338/Netherlands
+Signed-off-by: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+Instead of setting constant value for delay as was in previous patch, now in
+the current modification delay will be calculated based on clock frequency of the bus.
+ drivers/i2c/busses/i2c-tegra.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-This program is organize to promote the postcode lottery company award
-yearly, and we are strictly and skeptical regard your winning information
-that  is why you are advice to forward your serial number the claim
-department only and without any dis-closer to any person /friends for
-security reason
-
-Sincerely,
-Mrs:Hase Van Willems
-Promotion Coordinator.
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 6381604..62e197c 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -517,6 +517,14 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
+ 		return 0;
+ 
++	/*
++	 * In NACK error condition resetting of I2C controller happens
++	 * before STOP condition is properly completed by I2C controller,
++	 * so wait for 2 clock cycle to complete STOP condition.
++	 */
++	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
++		udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
++
+ 	tegra_i2c_init(i2c_dev);
+ 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
+ 		if (msg->flags & I2C_M_IGNORE_NAK)
+-- 
+1.7.4.1
