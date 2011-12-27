@@ -1,50 +1,31 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH] i2c: Convert to DEFINE_PCI_DEVICE_TABLE
-Date: Tue, 27 Dec 2011 16:17:43 +0100
-Message-ID: <20111227151743.GA3605@pengutronix.de>
-References: <1324956897.9775.2.camel@phoenix>
+From: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Subject: Re: [PATCH] i2c-ali1535: enable SPARC support
+Date: Tue, 27 Dec 2011 14:17:59 -0500 (EST)
+Message-ID: <20111227.141759.1836372889946924661.davem@davemloft.net>
+References: <4ECE2410.7040608@geomatys.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1324956897.9775.2.camel@phoenix>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Rudolf Marek <r.marek@assembler.cz>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Olof Johansson <olof@lixom.net>, "Mark M. Hoffman" <mhoffman@lightlink.com>, Dirk Brandewie <dirk.brandewie@gmail.com>, Tomoya MORINAGA <tomoya-linux@dsn.lapis-semi.com>, Feng Tang <feng.tang@intel.com>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, linux-i2c@vger.kernel.org
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4ECE2410.7040608-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org
+Cc: sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+From: "corentin.labbe" <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
+Date: Thu, 24 Nov 2011 12:01:36 +0100
 
---XsQoSWH+UP9D9v3l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> The i2c-ali1535 driver don't work on SPARC, this is because it assumes that ioport address are 16bits wide (address stored with an unsigned short).
+> But on SPARC arch, ioports are mapped in memory and so are stored with an unsigned long.
+> 
+> This patch corrects this by using pci_resource_start for getting IOMEM base address, then reading the SMBBA of the i2c busse and using together for I/O access.
+> 
+> I like to thanks Jean DELVARE for reviewing of my patch.
+> 
+> Thanks
+> 
+> Signed-off-by: LABBE Corentin <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
 
-On Tue, Dec 27, 2011 at 11:34:57AM +0800, Axel Lin wrote:
-> Convert static struct pci_device_id *[] to static DEFINE_PCI_DEVICE_TABLE
-> tables.
-
-Please not only describe what the patch does but also why it is needed or a
-good idea. People looking up stuff later on might not know.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---XsQoSWH+UP9D9v3l
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk754ZcACgkQD27XaX1/VRuHngCdEoilO9/t9kcSWxQdEOeKv4zM
-Fd0AoL8mhIhxJTjEw9uacYs4qG0l4UQH
-=bKvr
------END PGP SIGNATURE-----
-
---XsQoSWH+UP9D9v3l--
+Jean has asked for some more changes, please follow his suggestions and
+resubmit, thanks.
