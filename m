@@ -1,312 +1,99 @@
-From: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH RESEND] i2c: Convert to DEFINE_PCI_DEVICE_TABLE
-Date: Wed, 28 Dec 2011 20:48:32 +0800
-Message-ID: <1325076512.6997.1.camel@phoenix>
+From: Carsten Behling <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
+Subject: AW: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
+Date: Wed, 28 Dec 2011 14:36:44 +0100
+Message-ID: <D99582E5322435468A77E74BB0039E7B1D18739F99@SRV02.hamburg.garz-fricke.de>
+References: <cover.1322062555.git.n.voss@weinmann.de>
+ <4ECFB755.6060509@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4ECFB755.6060509-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hubert Feurstein <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Convert static struct pci_device_id *[] to static DEFINE_PCI_DEVICE_TABLE
-tables.
+Hi,
 
-Use DEFINE_PCI_DEVICE_TABLE ensures we make the pci_device_id table const
-and marked as __devinitconst.
+I've tested this driver with the pca953x GPIO expander driver with a PC=
+A9554.
 
-This also fixes some warnings from checkpatch:
-e.g.
-WARNING: Use DEFINE_PCI_DEVICE_TABLE for struct pci_device_id
-#1096: FILE: i2c/busses/i2c-intel-mid.c:1096:
-+static struct pci_device_id intel_mid_i2c_ids[] = {
+In the case of 8 GPIO pins (my case) "i2c_smbus_read_byte_data(...)"
+is called to read the registers of the GPIO expander. This results in a=
+ at91_twi_xfer with two messages. The first message is to put the regis=
+ter address into the IADR and the second is to read the one byte conten=
+t of the register.
 
-Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Cc: "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>
-Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Sebastian Andrzej Siewior <bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
-This resend updates the change log.
-This patch is against linux-next tree.
-Axel
+At the end we have a one byte read with a repeated start condition.=20
 
- drivers/i2c/busses/i2c-ali1563.c           |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c           |    2 +-
- drivers/i2c/busses/i2c-amd756.c            |    2 +-
- drivers/i2c/busses/i2c-amd8111.c           |    2 +-
- drivers/i2c/busses/i2c-designware-pcidrv.c |    2 +-
- drivers/i2c/busses/i2c-eg20t.c             |    2 +-
- drivers/i2c/busses/i2c-hydra.c             |    2 +-
- drivers/i2c/busses/i2c-i801.c              |    2 +-
- drivers/i2c/busses/i2c-intel-mid.c         |    2 +-
- drivers/i2c/busses/i2c-nforce2.c           |    2 +-
- drivers/i2c/busses/i2c-pasemi.c            |    2 +-
- drivers/i2c/busses/i2c-piix4.c             |    2 +-
- drivers/i2c/busses/i2c-pxa-pci.c           |    2 +-
- drivers/i2c/busses/i2c-sis5595.c           |    2 +-
- drivers/i2c/busses/i2c-sis630.c            |    2 +-
- drivers/i2c/busses/i2c-sis96x.c            |    2 +-
- drivers/i2c/busses/i2c-via.c               |    2 +-
- drivers/i2c/busses/i2c-viapro.c            |    2 +-
- drivers/i2c/busses/scx200_acb.c            |    2 +-
- 19 files changed, 19 insertions(+), 19 deletions(-)
+I observed that reading out the GPIO status is one read delayed.
+The first read to a register from the pca953x driver does not result in=
+ a RXRDY interrupt and at91_twi_read_next_byte(...) is not called.
+Only the completion routine is triggered with a TXCOMP interrupt.
 
-diff --git a/drivers/i2c/busses/i2c-ali1563.c b/drivers/i2c/busses/i2c-ali1563.c
-index a409cfc..47ae009 100644
---- a/drivers/i2c/busses/i2c-ali1563.c
-+++ b/drivers/i2c/busses/i2c-ali1563.c
-@@ -417,7 +417,7 @@ static void __devexit ali1563_remove(struct pci_dev * dev)
- 	ali1563_shutdown(dev);
- }
- 
--static const struct pci_device_id ali1563_id_table[] __devinitconst = {
-+static DEFINE_PCI_DEVICE_TABLE(ali1563_id_table) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M1563) },
- 	{},
- };
-diff --git a/drivers/i2c/busses/i2c-ali15x3.c b/drivers/i2c/busses/i2c-ali15x3.c
-index 83e8a60..087ea9caa 100644
---- a/drivers/i2c/busses/i2c-ali15x3.c
-+++ b/drivers/i2c/busses/i2c-ali15x3.c
-@@ -477,7 +477,7 @@ static struct i2c_adapter ali15x3_adapter = {
- 	.algo		= &smbus_algorithm,
- };
- 
--static const struct pci_device_id ali15x3_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(ali15x3_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AL, PCI_DEVICE_ID_AL_M7101) },
- 	{ 0, }
- };
-diff --git a/drivers/i2c/busses/i2c-amd756.c b/drivers/i2c/busses/i2c-amd756.c
-index 03bcd07..eb778bf1 100644
---- a/drivers/i2c/busses/i2c-amd756.c
-+++ b/drivers/i2c/busses/i2c-amd756.c
-@@ -308,7 +308,7 @@ static const char* chipname[] = {
- 	"nVidia nForce", "AMD8111",
- };
- 
--static const struct pci_device_id amd756_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(amd756_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_740B),
- 	  .driver_data = AMD756 },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_VIPER_7413),
-diff --git a/drivers/i2c/busses/i2c-amd8111.c b/drivers/i2c/busses/i2c-amd8111.c
-index 6b6a6b1..e5ac53b 100644
---- a/drivers/i2c/busses/i2c-amd8111.c
-+++ b/drivers/i2c/busses/i2c-amd8111.c
-@@ -415,7 +415,7 @@ static const struct i2c_algorithm smbus_algorithm = {
- };
- 
- 
--static const struct pci_device_id amd8111_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(amd8111_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_SMBUS2) },
- 	{ 0, }
- };
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 9e89e73..37f4211 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -349,7 +349,7 @@ static void __devexit i2c_dw_pci_remove(struct pci_dev *pdev)
- /* work with hotplug and coldplug */
- MODULE_ALIAS("i2c_designware-pci");
- 
--DEFINE_PCI_DEVICE_TABLE(i2_designware_pci_ids) = {
-+static DEFINE_PCI_DEVICE_TABLE(i2_designware_pci_ids) = {
- 	/* Moorestown */
- 	{ PCI_VDEVICE(INTEL, 0x0802), moorestown_0 },
- 	{ PCI_VDEVICE(INTEL, 0x0803), moorestown_1 },
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 18936ac..3ef3557 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -185,7 +185,7 @@ static DEFINE_MUTEX(pch_mutex);
- #define PCI_DEVICE_ID_ML7213_I2C	0x802D
- #define PCI_DEVICE_ID_ML7223_I2C	0x8010
- 
--static struct pci_device_id __devinitdata pch_pcidev_id[] = {
-+static DEFINE_PCI_DEVICE_TABLE(pch_pcidev_id) = {
- 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PCH_I2C),   1, },
- 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7213_I2C), 2, },
- 	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7223_I2C), 1, },
-diff --git a/drivers/i2c/busses/i2c-hydra.c b/drivers/i2c/busses/i2c-hydra.c
-index 9ff1695..c527de1 100644
---- a/drivers/i2c/busses/i2c-hydra.c
-+++ b/drivers/i2c/busses/i2c-hydra.c
-@@ -105,7 +105,7 @@ static struct i2c_adapter hydra_adap = {
- 	.algo_data	= &hydra_bit_data,
- };
- 
--static const struct pci_device_id hydra_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(hydra_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, PCI_DEVICE_ID_APPLE_HYDRA) },
- 	{ 0, }
- };
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index ab26840d..5d2e281 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -609,7 +609,7 @@ static const struct i2c_algorithm smbus_algorithm = {
- 	.functionality	= i801_func,
- };
- 
--static const struct pci_device_id i801_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AA_3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801AB_3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801BA_2) },
-diff --git a/drivers/i2c/busses/i2c-intel-mid.c b/drivers/i2c/busses/i2c-intel-mid.c
-index e828ac8..365bad5 100644
---- a/drivers/i2c/busses/i2c-intel-mid.c
-+++ b/drivers/i2c/busses/i2c-intel-mid.c
-@@ -1093,7 +1093,7 @@ static void __devexit intel_mid_i2c_remove(struct pci_dev *dev)
- 	pci_release_region(dev, 0);
- }
- 
--static struct pci_device_id intel_mid_i2c_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(intel_mid_i2c_ids) = {
- 	/* Moorestown */
- 	{ PCI_VDEVICE(INTEL, 0x0802), 0 },
- 	{ PCI_VDEVICE(INTEL, 0x0803), 1 },
-diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
-index 4853b52..43a96a1 100644
---- a/drivers/i2c/busses/i2c-nforce2.c
-+++ b/drivers/i2c/busses/i2c-nforce2.c
-@@ -309,7 +309,7 @@ static struct i2c_algorithm smbus_algorithm = {
- };
- 
- 
--static const struct pci_device_id nforce2_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(nforce2_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2S_SMBUS) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3_SMBUS) },
-diff --git a/drivers/i2c/busses/i2c-pasemi.c b/drivers/i2c/busses/i2c-pasemi.c
-index 837b8c1..eaaea73 100644
---- a/drivers/i2c/busses/i2c-pasemi.c
-+++ b/drivers/i2c/busses/i2c-pasemi.c
-@@ -401,7 +401,7 @@ static void __devexit pasemi_smb_remove(struct pci_dev *dev)
- 	kfree(smbus);
- }
- 
--static const struct pci_device_id pasemi_smb_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(pasemi_smb_ids) = {
- 	{ PCI_DEVICE(0x1959, 0xa003) },
- 	{ 0, }
- };
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 6d14ac2..c14d48d 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -472,7 +472,7 @@ static struct i2c_adapter piix4_adapter = {
- 	.algo		= &smbus_algorithm,
- };
- 
--static const struct pci_device_id piix4_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(piix4_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_EFAR, PCI_DEVICE_ID_EFAR_SLC90E66_3) },
-diff --git a/drivers/i2c/busses/i2c-pxa-pci.c b/drivers/i2c/busses/i2c-pxa-pci.c
-index 632e088..a058179 100644
---- a/drivers/i2c/busses/i2c-pxa-pci.c
-+++ b/drivers/i2c/busses/i2c-pxa-pci.c
-@@ -150,7 +150,7 @@ static void __devexit ce4100_i2c_remove(struct pci_dev *dev)
- 	kfree(sds);
- }
- 
--static struct pci_device_id ce4100_i2c_devices[] __devinitdata = {
-+static DEFINE_PCI_DEVICE_TABLE(ce4100_i2c_devices) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x2e68)},
- 	{ },
- };
-diff --git a/drivers/i2c/busses/i2c-sis5595.c b/drivers/i2c/busses/i2c-sis5595.c
-index 6d60284..87e5126 100644
---- a/drivers/i2c/busses/i2c-sis5595.c
-+++ b/drivers/i2c/busses/i2c-sis5595.c
-@@ -369,7 +369,7 @@ static struct i2c_adapter sis5595_adapter = {
- 	.algo		= &smbus_algorithm,
- };
- 
--static const struct pci_device_id sis5595_ids[] __devinitconst = {
-+static DEFINE_PCI_DEVICE_TABLE(sis5595_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_503) }, 
- 	{ 0, }
- };
-diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-sis630.c
-index 39a80cf..15cf78f 100644
---- a/drivers/i2c/busses/i2c-sis630.c
-+++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -472,7 +472,7 @@ static struct i2c_adapter sis630_adapter = {
- 	.algo		= &smbus_algorithm,
- };
- 
--static const struct pci_device_id sis630_ids[] __devinitconst = {
-+static DEFINE_PCI_DEVICE_TABLE(sis630_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_503) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_LPC) },
- 	{ 0, }
-diff --git a/drivers/i2c/busses/i2c-sis96x.c b/drivers/i2c/busses/i2c-sis96x.c
-index 86837f0..cc5d149 100644
---- a/drivers/i2c/busses/i2c-sis96x.c
-+++ b/drivers/i2c/busses/i2c-sis96x.c
-@@ -245,7 +245,7 @@ static struct i2c_adapter sis96x_adapter = {
- 	.algo		= &smbus_algorithm,
- };
- 
--static const struct pci_device_id sis96x_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(sis96x_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_SMBUS) },
- 	{ 0, }
- };
-diff --git a/drivers/i2c/busses/i2c-via.c b/drivers/i2c/busses/i2c-via.c
-index 7799fe5..713d31a 100644
---- a/drivers/i2c/busses/i2c-via.c
-+++ b/drivers/i2c/busses/i2c-via.c
-@@ -89,7 +89,7 @@ static struct i2c_adapter vt586b_adapter = {
- };
- 
- 
--static const struct pci_device_id vt586b_ids[] __devinitconst = {
-+static DEFINE_PCI_DEVICE_TABLE(vt586b_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C586_3) },
- 	{ 0, }
- };
-diff --git a/drivers/i2c/busses/i2c-viapro.c b/drivers/i2c/busses/i2c-viapro.c
-index a907983..333011c 100644
---- a/drivers/i2c/busses/i2c-viapro.c
-+++ b/drivers/i2c/busses/i2c-viapro.c
-@@ -441,7 +441,7 @@ release_region:
- 	return error;
- }
- 
--static const struct pci_device_id vt596_ids[] = {
-+static DEFINE_PCI_DEVICE_TABLE(vt596_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C596_3),
- 	  .driver_data = SMBBA1 },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C596B_3),
-diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
-index 91e349c..2eacb77 100644
---- a/drivers/i2c/busses/scx200_acb.c
-+++ b/drivers/i2c/busses/scx200_acb.c
-@@ -559,7 +559,7 @@ static struct platform_driver scx200_pci_driver = {
- 	.remove = __devexit_p(scx200_remove),
- };
- 
--static const struct pci_device_id scx200_isa[] __initconst = {
-+static DEFINE_PCI_DEVICE_TABLE(scx200_isa) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SCx200_BRIDGE) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_SC1100_BRIDGE) },
- 	{ 0, }
--- 
-1.7.5.4
+Additionally, I took a look at the status flags just after the control =
+flags are set (in at91_do_twi_transfer(...), AT91_TWI_START|AT91_TWI_ST=
+OP for the one byte read). Surprisingly, the AT91_TWI_RXRDY flag is zer=
+o before the first register read and one for the following reads. Accor=
+ding to the manual this flag should be zero after a read on AT91_TWI_RH=
+R.
+
+Reading the AT91_TWI_RHR before the control flags are set to be sure th=
+at the AT91_TWI_RXRDY is cleared leads to a never occurring RXRDY inter=
+rupt.
+
+This looks very strange to me. Can anyone help?
+
+Mit freundlichen Gr=FC=DFen / Best regards
+Carsten Behling
+
+Development Engineer
+Garz & Fricke GmbH
+Tempowerkring 2, 21079 Hamburg - Germany
+Amtsgericht Hamburg HRB 60514
+Gesch=E4ftsf=FChrer: Manfred Garz, Matthias Fricke
+Phone: +49 (0) 40 791 899 - 56
+=46ax:    +49 40 / 791 899 - 39
+www.garz-fricke.com=20
+
+=20
+
+
+-----Urspr=FCngliche Nachricht-----
+Von: Hubert Feurstein [mailto:h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]=20
+Gesendet: Freitag, 25. November 2011 16:42
+An: Nikolaus Voss
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; li=
+nux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; Carsten Behling
+Betreff: Re: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
+
+Hi,
+
+I've tested this driver on a 2.6.38 kernel with several i2c clients
+(temp-sensor, audio-codec, touchscreen-controller, w1-bridge,
+io-expanders) and works without problems. SoC: at91sam9g45
+
+Because of the 2.6.38 kernel, I had to skip "[PATCH v7 2/5] Replace
+clk_lookup.con_id with clk_lookup.dev_id entries for twi clk" and used
+instead: at91_clock_associate("twi0_clk", &at91sam9g45_twi0_device.dev,
+"twi_clk");
+
+Best Regards
+Hubert
+
+On 2011-11-23 16:35, Nikolaus Voss wrote:
+> The old driver has two main deficencies:
+> i)  No repeated start (Sr) condiction is possible, this makes it unus=
+able
+>     e.g. for most SMBus transfers.
+> ii) I/O was done with polling/busy waiting what caused over-/underrun=
+s
+>     even at light system loads and clock speeds.
+>=20
+> The new driver overcomes these deficencies and in addition allows for
+> more than one TWI interface.
+>=20
+
+Tested-by: Hubert Feurstein <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
