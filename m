@@ -1,87 +1,50 @@
-From: NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH] OMAP/I2C - Fix timeout problem during suspend.
-Date: Fri, 30 Dec 2011 12:40:30 +1100
-Message-ID: <20111230124030.12c3d02c@notabene.brown>
+From: Jonathan Nieder <jrnieder@gmail.com>
+Subject: [2.6.37 -> 2.6.38 regression] "mv64xxx: I2C bus locked, block: 1,
+ time_left: 0" every few seconds
+Date: Sun, 1 Jan 2012 01:32:55 -0600
+Message-ID: <20120101073255.GA2402@elie.hsd1.il.comcast.net>
+References: <20120101042401.4bef017e@natsu>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/rGSApU6yCXFNaoH5IWNYQfl"; protocol="application/pgp-signature"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20120101042401.4bef017e@natsu>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Arnaud Patard <arnaud.patard@rtp-net.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Roman Mamedov <rm@romanrm.ru>, Manuel Roeder <manuel_roeder@gmx.de>, Michael Ott <michael@king-coder.de>
 List-Id: linux-i2c@vger.kernel.org
 
---Sig_/rGSApU6yCXFNaoH5IWNYQfl
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
+Roman Mamedov wrote[1]:
 
+> This bug is still present for me in the latest kernel version in
+> Debian testing (3.1.6).
+>
+> The last properly working kernel version seems to be:
+[...]
+> And the problem occurs since:
+[...]
 
-On a board with OMAP3 processor and TWL4030 Power management,
-we need to talk to the TWL4030 during late suspend but cannot
-because the I2C interrupt is disabled (as late suspend disables
-interrupt).
+Thanks.  Arnaud, any hints?  To summarize:
 
-e.g. I get messages like:
+ - Michael Ott reported with Debian kernel 2.6.38-3 (which is closely
+   based on stable v2.6.38.2):
 
-[   62.161102] musb-omap2430 musb-omap2430: LATE power domain suspend
-[   63.167205] omap_i2c omap_i2c.1: controller timed out
-[   63.183044] twl: i2c_read failed to transfer all messages
-[   64.182861] omap_i2c omap_i2c.1: controller timed out
-[   64.198455] twl: i2c_write failed to transfer all messages
-[   65.198455] omap_i2c omap_i2c.1: controller timed out
-[   65.203765] twl: i2c_write failed to transfer all messages
+	syslog tell me every few seconds:
+	i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
 
-The stack shows omap2430_runtime_suspend calling twl4030_set_suspend
-which tries to power-down the USB PHY (twl4030_phy_suspend ->
-twl4030_phy_power -> __twl4030_phy_power which as a nice WARN_ON
-that helps).
+ - Manuel Roeder reported the same and found that upstream v2.6.38
+   triggers the problem and v2.6.37.6 does not.
 
-Then we get the same in resume:
+ - Roman Mamedov finds the bug present in Debian 3.1.6-1 (which
+   is closely based on stable v3.1.6) and Debian 2.6.37-2 (based on
+   stable v2.6.37.2) but not Debian 2.6.37-1 (based on mainline
+   v2.6.37).
 
-[   69.603912] musb-omap2430 musb-omap2430: EARLY power domain resume
-[   70.610473] omap_i2c omap_i2c.1: controller timed out
-[   70.626129] twl: i2c_write failed to transfer all messages
-etc.
+The regression range described above seems a little inconsistent to
+me, so maybe there's something more going on.
 
-So don't disable interrupts for I2C.
+Jonathan
 
-Signed-off-by: NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org>
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index fa23faa..23e4c65 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1066,7 +1066,7 @@ omap_i2c_probe(struct platform_device *pdev)
-=20
- 	isr =3D (dev->rev < OMAP_I2C_OMAP1_REV_2) ? omap_i2c_omap1_isr :
- 								   omap_i2c_isr;
--	r =3D request_irq(dev->irq, isr, 0, pdev->name, dev);
-+	r =3D request_irq(dev->irq, isr, IRQF_NO_SUSPEND, pdev->name, dev);
-=20
- 	if (r) {
- 		dev_err(dev->dev, "failure requesting irq %i\n", dev->irq);
-
---Sig_/rGSApU6yCXFNaoH5IWNYQfl
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iQIVAwUBTv0Wjjnsnt1WYoG5AQLIZQ//TDuzhzLs9t52n636kja7JYx5X2uQPaLx
-+52/M7wjeV/XXm7kre+ZmL8JhNdb4Y68GGaCNRaImIe7pywbUmlL3yRxnhIjLfc+
-zy+6dhz2edD++G5FkIXkT7RsKRyABjOzU4IjKBWpCMlHj+uOMKq+9ufUTuYN6oAA
-T1ctQkD92AbPKwzNQbMgcCKx0NO7WGX9RVgTpKU5FfgGhaeze2CpIQVK40hzX/fG
-/BgblYd42vwVoZ2glsHhsZkWxUySv6Fk/NX8jaDFCeJRWbCtCGvNhCQNLYKPRVXS
-LLSCciiKLIUk0QmT1rWycyYKCy/ofi+UyRG4BtWryppSAUHGzrZYmcDMp/20eQ8t
-4DAH6hzsxwOFuxxMGK1RmtGZL2nDZUbwd9mVXClYPvEcEbjDjaZ+WOs9NfkBH+aS
-jb64hevo1y1pITugB0SToH66UmFkrTV6COEg9Vn+ngUfefa9t3LVRUbi2PeXxn8v
-pTSjK1lmwW1E8rPI/Qey8FWn+oU+AXlON5D31CCt9c+7JpQuZgmsEAUcQER3f3vc
-yWEwrOcAJVn/kNU7gDW3yvjWIoKLT1iW77b8E4oggZjqUZMd1YbM7dUtB/thRgcK
-CCpL6M36SeQ/ELha4M3V7CaawA12wl6d8auArKNJYF/lgSh2X0isYPpZmepyFymv
-nY0XUsb+JCo=
-=TIO5
------END PGP SIGNATURE-----
-
---Sig_/rGSApU6yCXFNaoH5IWNYQfl--
+[1] http://bugs.debian.org/622325
