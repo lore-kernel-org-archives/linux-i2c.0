@@ -1,50 +1,55 @@
-From: Jonathan Nieder <jrnieder@gmail.com>
-Subject: [2.6.37 -> 2.6.38 regression] "mv64xxx: I2C bus locked, block: 1,
- time_left: 0" every few seconds
-Date: Sun, 1 Jan 2012 01:32:55 -0600
-Message-ID: <20120101073255.GA2402@elie.hsd1.il.comcast.net>
-References: <20120101042401.4bef017e@natsu>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH v4 03/12] mfd: twl-core: Add initial DT support for
+ twl4030/twl6030
+Date: Mon, 2 Jan 2012 02:04:54 -0700
+Message-ID: <20120102090454.GO18381@ponder.secretlab.ca>
+References: <1324565806-31142-1-git-send-email-b-cousson@ti.com>
+ <1324565806-31142-4-git-send-email-b-cousson@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120101042401.4bef017e@natsu>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Arnaud Patard <arnaud.patard@rtp-net.org>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Roman Mamedov <rm@romanrm.ru>, Manuel Roeder <manuel_roeder@gmx.de>, Michael Ott <michael@king-coder.de>
+In-Reply-To: <1324565806-31142-4-git-send-email-b-cousson-l0cyMroinI0@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
+Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, Graeme Gregory <gg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Balaji T K <balajitk-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Thu, Dec 22, 2011 at 03:56:37PM +0100, Benoit Cousson wrote:
+> Add initial device-tree support for twl familly chips.
+> The current version is missing the regulator entries due
+> to the lack of DT regulator bindings for the moment.
+> Only the simple sub-modules that do not depend on
+> platform_data information can be initialized properly.
+> 
+> Add irqdomain support.
+> 
+> Add documentation for the Texas Instruments TWL Integrated Chip.
+> 
+> Signed-off-by: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
+> Cc: Balaji T K <balajitk-l0cyMroinI0@public.gmane.org>
+> Cc: Graeme Gregory <gg-kDsPt+C1G03kYMGBc/C6ZA@public.gmane.org>
+> Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
+> index f1391c2..f0de088 100644
+> --- a/drivers/mfd/Kconfig
+> +++ b/drivers/mfd/Kconfig
+> @@ -200,6 +200,7 @@ config MENELAUS
+>  config TWL4030_CORE
+>  	bool "Texas Instruments TWL4030/TWL5030/TWL6030/TPS659x0 Support"
+>  	depends on I2C=y && GENERIC_HARDIRQS
+> +	select IRQ_DOMAIN
 
-Roman Mamedov wrote[1]:
-
-> This bug is still present for me in the latest kernel version in
-> Debian testing (3.1.6).
->
-> The last properly working kernel version seems to be:
-[...]
-> And the problem occurs since:
-[...]
-
-Thanks.  Arnaud, any hints?  To summarize:
-
- - Michael Ott reported with Debian kernel 2.6.38-3 (which is closely
-   based on stable v2.6.38.2):
-
-	syslog tell me every few seconds:
-	i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
-
- - Manuel Roeder reported the same and found that upstream v2.6.38
-   triggers the problem and v2.6.37.6 does not.
-
- - Roman Mamedov finds the bug present in Debian 3.1.6-1 (which
-   is closely based on stable v3.1.6) and Debian 2.6.37-2 (based on
-   stable v2.6.37.2) but not Debian 2.6.37-1 (based on mainline
-   v2.6.37).
-
-The regression range described above seems a little inconsistent to
-me, so maybe there's something more going on.
-
-Jonathan
-
-[1] http://bugs.debian.org/622325
+As discussed on linux-next, this breaks powerpc.  Drivers cannot select
+IRQ_DOMAIN, it can only be selected by architectures.  Drivers must depend
+on it instead.
