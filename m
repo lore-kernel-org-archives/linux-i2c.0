@@ -1,42 +1,100 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH] i2c-ali1535: enable SPARC support
-Date: Thu, 05 Jan 2012 15:44:48 -0500 (EST)
-Message-ID: <20120105.154448.1684808658085359635.davem@davemloft.net>
-References: <20120105205105.6a2d03b3@endymion.delvare>
-	<20120105.145510.2259110209867964309.davem@davemloft.net>
-	<20120105210600.7c099f75@endymion.delvare>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] OMAP/I2C - Fix timeout problem during suspend.
+Date: Thu, 05 Jan 2012 12:48:39 -0800
+Message-ID: <87sjjt98pk.fsf@ti.com>
+References: <20111230124030.12c3d02c@notabene.brown> <87boqjaz5n.fsf@ti.com>
+	<20120105181026.24b8c0f4@notabene.brown>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <sparclinux-owner@vger.kernel.org>
-In-Reply-To: <20120105210600.7c099f75@endymion.delvare>
-Sender: sparclinux-owner@vger.kernel.org
-To: khali@linux-fr.org
-Cc: corentin.labbe@geomatys.fr, sparclinux@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120105181026.24b8c0f4-wvvUuzkyo1EYVZTmpyfIwg@public.gmane.org> (NeilBrown's message of
+	"Thu, 5 Jan 2012 18:10:26 +1100")
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jean Delvare <khali@linux-fr.org>
-Date: Thu, 5 Jan 2012 21:06:00 +0100
+NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org> writes:
 
-> On Thu, 05 Jan 2012 14:55:10 -0500 (EST), David Miller wrote:
->> Using the raw PCI config register value in the non-IO case is always
->> wrong and non-portable.  You need to ioremap the thing using the PCI
->> resource if it's not IO and therefore MEM.
+> On Wed, 04 Jan 2012 14:19:48 -0800 Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> wrote:
+>
+>> +Felipe
 >> 
->> More easier, if non-IO is really not expected, would be to fail the
->> probe if we don't find IORESOURCE_IO set.
-> 
-> It's indeed not expected, and failing is what Corentin's original patch
-> was doing. I had him change (actually did the change myself with his
-> approval) to limit the risk of regression. I don't expect MEM but maybe
-> no resource type at all (i.e. BAR 0 unused.)
-> 
-> The rationale is that old PC boards use the same PCI chipset and we
-> were not able to find any tester. I have no idea what the PCI resources
-> look like on these machines, but I know the driver used to work OK, so
-> the strategy is to make the new code behave the same as the original
-> code if things don't look as expected.
-> 
-> We can revisit if/when we find a tester with ALI1535 on x86.
+>> NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org> writes:
+>> 
+>> > On a board with OMAP3 processor and TWL4030 Power management,
+>> > we need to talk to the TWL4030 during late suspend but cannot
+>> > because the I2C interrupt is disabled (as late suspend disables
+>> > interrupt).
+>> 
+>> I'm not convinced this is the right solution to this problem.
+>> 
+>> IMO, this problem is caused by the MUSB driver being broken for
+>> suspend/resume.  I've reported this problem (and an RFC/PATCH)
+>> already[1], but I don't think the driver has been fixed.
+>> 
+>> Can you try my patch[1] to see if it fixes your problem as well?
+>> 
+>> Kevin
+>> 
+>> [1] http://marc.info/?l=linux-omap&m=132252827112721&w=2
+>> 
+>
+> Yes... and no.
+>
+> I reverted my patch to confirm that the timeout messages come back which
+> they did.
+> I then applied your patch and the suspend was nice and smooth again with no
+> timeouts.  So that is good.
+>
+> However immediately after I wake it up I get:
+>
+> [  109.193054] Powerdomain (core_pwrdm) didn't enter target state 1
+> [  109.199310] Could not enter target state in pm_suspend
+>
+> whereas with my patch in place I get:
+>
+> [  123.666046] Successfully put all powerdomains to target state
+>
+> Following this hint I looked into current draw.  With my patch I get a
+> suspend-time current draw of 60-80mA (which is still too high..).
+> With your patch in place I get 120mA or more (about 4 tests, definitely at
+> least 30mA difference).  I measure this by checking the 'charge_now' reported
+> by the bq27000 in the battery.
+>
+> This is without the usb cable plugged in.  
 
-Ok.
+Strange... without the usb cable plugged in, runtime PM should kick in
+and suspend the device long before system suspend happens so that there
+shouldn't be anything for the MUSB driver to do during system suspend.
+
+> With usb plugged in your version
+> has the positive effect that charging continues while in suspend while with
+> mine it doesn't.  But I don't think that justifies the extra current drain :-)
+
+The reason I implemented it that way was because I understood that with
+a cable plugged in, you cant reliabaly suspend (or resume) MUSB due to
+HW bugs/limitations.  
+
+Hopefully Felipe can chime in here to clarify.
+
+> So I'll be sticking with my patch for now.
+>
+> My next problem I need to resolve relates to i2c and the charger as well.
+> When entering suspend the various twl4030 interrupts are disabled by not
+> masked.  This means they can still fire but are not handled until after
+> suspend.  This effectively blocks other interrupts from the twl4030 that I
+> actually want (like the RTC alarm).
+> I think there are at least 3 or 4 bugs in here making it rather hard to sort
+> out.  However I think I will want to mask interrupt sources when they are
+> disabled.  To mask the interrupts I need to talk to the twl4030 over i2c.
+> And this means that I need the i2c interrupt to still be working.
+>
+> So I feel that my patch might be more generally useful.  However I confess
+> that there is a lot here that I don't completely understand, and I might have
+> a different opinion tomorrow.
+
+I think your patch is probably useful also, but would like to see the
+MUSB driver issues better clarified and fixed as well.
+
+Kevin
