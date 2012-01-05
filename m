@@ -1,116 +1,44 @@
-From: NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org>
-Subject: Re: [PATCH] OMAP/I2C - Fix timeout problem during suspend.
-Date: Thu, 5 Jan 2012 18:10:26 +1100
-Message-ID: <20120105181026.24b8c0f4@notabene.brown>
-References: <20111230124030.12c3d02c@notabene.brown>
-	<87boqjaz5n.fsf@ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-ali1535: enable SPARC support
+Date: Thu, 5 Jan 2012 20:51:05 +0100
+Message-ID: <20120105205105.6a2d03b3@endymion.delvare>
+References: <4ECE2410.7040608@geomatys.fr>
+	<20111227.141759.1836372889946924661.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=PGP-SHA1;
- boundary="Sig_/knpVEH+fr0iZ4ZOYUyUOD3u"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87boqjaz5n.fsf-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20111227.141759.1836372889946924661.davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+To: David Miller <davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org>
+Cc: corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org, sparclinux-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---Sig_/knpVEH+fr0iZ4ZOYUyUOD3u
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Hi David,
 
-On Wed, 04 Jan 2012 14:19:48 -0800 Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> wrote:
+On Tue, 27 Dec 2011 14:17:59 -0500 (EST), David Miller wrote:
+> From: "corentin.labbe" <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
+> Date: Thu, 24 Nov 2011 12:01:36 +0100
+> 
+> > The i2c-ali1535 driver don't work on SPARC, this is because it assumes that ioport address are 16bits wide (address stored with an unsigned short).
+> > But on SPARC arch, ioports are mapped in memory and so are stored with an unsigned long.
+> > 
+> > This patch corrects this by using pci_resource_start for getting IOMEM base address, then reading the SMBBA of the i2c busse and using together for I/O access.
+> > 
+> > I like to thanks Jean DELVARE for reviewing of my patch.
+> > 
+> > Thanks
+> > 
+> > Signed-off-by: LABBE Corentin <corentin.labbe-Um+J1D3rkBVWj0EZb7rXcA@public.gmane.org>
+> 
+> Jean has asked for some more changes, please follow his suggestions and
+> resubmit, thanks.
 
-> +Felipe
->=20
-> NeilBrown <neilb-l3A5Bk7waGM@public.gmane.org> writes:
->=20
-> > On a board with OMAP3 processor and TWL4030 Power management,
-> > we need to talk to the TWL4030 during late suspend but cannot
-> > because the I2C interrupt is disabled (as late suspend disables
-> > interrupt).
->=20
-> I'm not convinced this is the right solution to this problem.
->=20
-> IMO, this problem is caused by the MUSB driver being broken for
-> suspend/resume.  I've reported this problem (and an RFC/PATCH)
-> already[1], but I don't think the driver has been fixed.
->=20
-> Can you try my patch[1] to see if it fixes your problem as well?
->=20
-> Kevin
->=20
-> [1] http://marc.info/?l=3Dlinux-omap&m=3D132252827112721&w=3D2
->=20
+Actually I ended up doing the changes myself, and the patch is queued
+for 3.3 already:
+http://khali.linux-fr.org/devel/linux-3/jdelvare-i2c/i2c-ali1535-enable-sparc-support.patch
 
-Yes... and no.
+Please let me know quickly if you see anything wrong there.
 
-I reverted my patch to confirm that the timeout messages come back which
-they did.
-I then applied your patch and the suspend was nice and smooth again with no
-timeouts.  So that is good.
-
-However immediately after I wake it up I get:
-
-[  109.193054] Powerdomain (core_pwrdm) didn't enter target state 1
-[  109.199310] Could not enter target state in pm_suspend
-
-whereas with my patch in place I get:
-
-[  123.666046] Successfully put all powerdomains to target state
-
-Following this hint I looked into current draw.  With my patch I get a
-suspend-time current draw of 60-80mA (which is still too high..).
-With your patch in place I get 120mA or more (about 4 tests, definitely at
-least 30mA difference).  I measure this by checking the 'charge_now' report=
-ed
-by the bq27000 in the battery.
-
-This is without the usb cable plugged in.  With usb plugged in your version
-has the positive effect that charging continues while in suspend while with
-mine it doesn't.  But I don't think that justifies the extra current drain =
-:-)
-
-So I'll be sticking with my patch for now.
-
-My next problem I need to resolve relates to i2c and the charger as well.
-When entering suspend the various twl4030 interrupts are disabled by not
-masked.  This means they can still fire but are not handled until after
-suspend.  This effectively blocks other interrupts from the twl4030 that I
-actually want (like the RTC alarm).
-I think there are at least 3 or 4 bugs in here making it rather hard to sort
-out.  However I think I will want to mask interrupt sources when they are
-disabled.  To mask the interrupts I need to talk to the twl4030 over i2c.
-And this means that I need the i2c interrupt to still be working.
-
-So I feel that my patch might be more generally useful.  However I confess
-that there is a lot here that I don't completely understand, and I might ha=
-ve
-a different opinion tomorrow.
-
-Thanks,
-NeilBrown
-
-
---Sig_/knpVEH+fr0iZ4ZOYUyUOD3u
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Disposition: attachment; filename=signature.asc
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.18 (GNU/Linux)
-
-iQIVAwUBTwVM4jnsnt1WYoG5AQLmRA/+L+GDHyyweJuo5Ot4BJzPjb3rPnHZN25A
-Qo/+0mhgwMtZylDj+m3gAEeD3XqdnjlY4Ck4+lrstynNUWze8GatN+BVCGHbz6fS
-kXhgXZlXukU5Uk69tDDYwvn+QM+8dhw/902zQ0Z6Ew9ngM/GasW/e+gf3hAiIKCo
-F3rgJctW3/S92KU/bBGfUJAETSpeZcbCO/9953ujsNNs9FcHVO6YJ+Eh301S4BpO
-AHXTUuzhyJCuhOH26rSvM5V8ZiAGQ6pSRkGiKhZ/6dP3DzCDp66lPQSouRFMBHII
-G2HtoLplSSGHBHaPkHrrswC7DtTPPGhJ/GGvcCBbTKR76u28JIQxaoJfZPiWLolm
-dZHkOiqbQJYzg+alBUgAjN9KLvOIZ4XUeS3YN624noxzNYJ19FtyZXXIYUtf3CN+
-EEoyIbJ8eL/dgShHwDfDbODd+5xTlOzg3+P8sLhu9fyZmx4cNXEshxVnZm5Ps/pf
-IzGEV/R/u+pfNLo4ZHH5L3AlRSbmhLq53dFalrzybGnY0HomshRPMfyvFVbroEEG
-v1Q8KF0WkdHQeuzMy4ugOXS3SGseKrJF9fZkHOcdg72cLL/4LLsCuVCoNuqPgxmB
-xAfR04oIjwb0l27rYyjjfvns22NsI2l9e+3kO7qyMqKpLLGX2WxYkHuD7ubIpJhx
-rEX7Uuc0Tdo=
-=OaJS
------END PGP SIGNATURE-----
-
---Sig_/knpVEH+fr0iZ4ZOYUyUOD3u--
+-- 
+Jean Delvare
