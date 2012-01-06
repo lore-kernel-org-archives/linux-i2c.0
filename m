@@ -1,83 +1,61 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/3 v2] i2c: i801: enable irq
-Date: Fri, 6 Jan 2012 12:35:31 +0100
-Message-ID: <20120106123531.3b5ca7db@endymion.delvare>
-References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
+From: Ben Dooks <ben-i2c@fluff.org>
+Subject: Re: [GIT PULL] I2C: OMAP: misc. updates for v3.3
+Date: Fri, 6 Jan 2012 16:16:39 +0000
+Message-ID: <20120106161639.GP19115@trinity.fluff.org>
+References: <87boqh7kn4.fsf@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1325847502-17841-1-git-send-email-djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <87boqh7kn4.fsf@ti.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Kevin Hilman <khilman@ti.com>
+Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-omap <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Daniel,
-
-On Fri,  6 Jan 2012 18:58:19 +0800, Daniel Kurtz wrote:
-> This is a second version of a set of patches enables the Intel PCH SMBus
-> controller interrupt.  It refactors the second two patches a little bit by
-> relying on DEV_ERR interrupt for timeouts, instead of using an explicit
-> wait_event_timeout.
+On Thu, Jan 05, 2012 at 04:13:51PM -0800, Kevin Hilman wrote:
+> Hi Ben,
 > 
-> The first attempt received absolutely no response. Maybe this time someone
-> will be interested.
+> Here's a few OMAP I2C updates for the v3.3 merge window.
 
-I was on vacation. But I am very interested and will review and test
-your patches. There have been several attempts to add IRQ support to
-i2c-i801 in the past but each time there was a blocker issue which
-prevented it from making it into mainline. Hopefully this time we'll
-get it there!
-
+ok, added these to my i2c-next and for-33/i2c/omap.
+ 
+> Thanks,
 > 
-> The SMBus Host Controller Interrupt can signify:
->  INTR - the end of a complete transaction
->  DEV_ERR - that a device did not ACK a transaction
->  BYTE_DONE - the completion of a single byte during a byte-by-byte transaction
+> Kevin
 > 
-> This patchset arrives with the following caveats:
+> The following changes since commit 3f6b2a8bd6e4ff43269d89066a9fe06a0e5ba961:
 > 
->  1)  It has only been tested with a Cougar Point (Intel 6 Series PCH) SMBus
-> controller, so the irq is only enabled for that chip type.
-
-I can test on ICH10 easily, and also on ICH7 and ICH3-M if needed.
-
->  2) It has not been tested with any devices that do transactions that use the
->     PEC.  In fact, I believe that an additional small patch would be required
->     to the driver working correctly in interrupt mode with PEC.
+>   I2C: OMAP: correct SYSC register offset for OMAP4 (2011-12-13 11:35:56 -0800)
 > 
->  3) It has not been tested in SMBus Slave mode.
+> are available in the git repository at:
+>   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap-pm.git for_3.3/i2c/misc
 > 
->  4) It has not been tested with SMI#-type interrupts.
+> Benoit Cousson (1):
+>       i2c: OMAP: Add DT support for i2c controller
 > 
->  5) The BIOS has to configure the PCH SMBus IRQ properly.
+> Jan Weitzel (1):
+>       I2C: OMAP: NACK without STP
 > 
->  6) It has not been tested with a device that does byte-by-byte smbus (non-i2c)
->     reads.
-
-I think I can test this.
-
->  7) It has not been tested with smbus 'process call' transactions.
-
-But not this.
-
-> If would be very helpful if somebody could help test on other chipsets, with
-> a PEC device, or on additional BIOS that woudl be very helpful.
-
-I will do what I can with the hardware I have here.
-
-> In the meantime, the interrupt behavior is only enabled on the Cougar Point,
-> and even here, it can be completely disabled with the "Interrupt" feature like
-> other advanced features of the driver.
-> 
-> Daniel Kurtz (3):
->   i2c: i801: refactor i801_block_transaction_byte_by_byte
->   i2c: i801: enable irq for i801 smbus transactions
->   i2c: i801: enable irq for byte_by_byte transactions
-> 
->  drivers/i2c/busses/i2c-i801.c |  199 ++++++++++++++++++++++++++++++++++++-----
->  1 files changed, 175 insertions(+), 24 deletions(-)
+>  Documentation/devicetree/bindings/i2c/omap-i2c.txt |   30 ++++++
+>  drivers/i2c/busses/i2c-omap.c                      |  108 +++++++++++++-------
+>  2 files changed, 99 insertions(+), 39 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/omap-i2c.txt
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Jean Delvare
+Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
+
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
