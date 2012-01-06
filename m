@@ -1,61 +1,55 @@
-From: Ben Dooks <ben-i2c@fluff.org>
-Subject: Re: [GIT PULL] I2C: OMAP: misc. updates for v3.3
-Date: Fri, 6 Jan 2012 16:16:39 +0000
-Message-ID: <20120106161639.GP19115@trinity.fluff.org>
-References: <87boqh7kn4.fsf@ti.com>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH V2 1/4] i2c: tegra: Add __devinit/exit to probe/remove
+Date: Fri, 6 Jan 2012 16:22:39 +0000
+Message-ID: <20120106162239.GR19115@trinity.fluff.org>
+References: <1324189772-26914-1-git-send-email-swarren@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <87boqh7kn4.fsf@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Kevin Hilman <khilman@ti.com>
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-omap <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
+In-Reply-To: <1324189772-26914-1-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jan 05, 2012 at 04:13:51PM -0800, Kevin Hilman wrote:
-> Hi Ben,
+On Sat, Dec 17, 2011 at 11:29:29PM -0700, Stephen Warren wrote:
+> This fixes some section mismatch build warnings.
 > 
-> Here's a few OMAP I2C updates for the v3.3 merge window.
+> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+> v2: New patch.
+> 
+>  drivers/i2c/busses/i2c-tegra.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index 46b6500..e8560ed 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -558,7 +558,7 @@ static const struct i2c_algorithm tegra_i2c_algo = {
+>  	.functionality	= tegra_i2c_func,
+>  };
+>  
+> -static int tegra_i2c_probe(struct platform_device *pdev)
+> +static int __devinit tegra_i2c_probe(struct platform_device *pdev)
+>  {
+>  	struct tegra_i2c_dev *i2c_dev;
+>  	struct tegra_i2c_platform_data *pdata = pdev->dev.platform_data;
+> @@ -690,7 +690,7 @@ err_iounmap:
+>  	return ret;
+>  }
+>  
+> -static int tegra_i2c_remove(struct platform_device *pdev)
+> +static int __devexit tegra_i2c_remove(struct platform_device *pdev)
+>  {
+>  	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+>  	i2c_del_adapter(&i2c_dev->adapter);
 
-ok, added these to my i2c-next and for-33/i2c/omap.
- 
-> Thanks,
-> 
-> Kevin
-> 
-> The following changes since commit 3f6b2a8bd6e4ff43269d89066a9fe06a0e5ba961:
-> 
->   I2C: OMAP: correct SYSC register offset for OMAP4 (2011-12-13 11:35:56 -0800)
-> 
-> are available in the git repository at:
->   git://git.kernel.org/pub/scm/linux/kernel/git/khilman/linux-omap-pm.git for_3.3/i2c/misc
-> 
-> Benoit Cousson (1):
->       i2c: OMAP: Add DT support for i2c controller
-> 
-> Jan Weitzel (1):
->       I2C: OMAP: NACK without STP
-> 
->  Documentation/devicetree/bindings/i2c/omap-i2c.txt |   30 ++++++
->  drivers/i2c/busses/i2c-omap.c                      |  108 +++++++++++++-------
->  2 files changed, 99 insertions(+), 39 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/omap-i2c.txt
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+You need t oupdate the platform driver's .remove method with __devexit_p
+to ensure that it nulls it out.
 
 -- 
-Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
+Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
 
 Large Hadron Colada: A large Pina Colada that makes the universe disappear.
