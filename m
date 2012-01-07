@@ -1,42 +1,53 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: reorganize muxes to a standard pattern
-Date: Sat, 7 Jan 2012 15:51:07 +0100
-Message-ID: <20120107155107.1e682fee@endymion.delvare>
-References: <1321220474-11378-1-git-send-email-w.sang@pengutronix.de>
-	<20111127214847.547542fb@endymion.delvare>
-	<87sjl9gtcv.fsf@macbook.be.48ers.dk>
-	<20111128092227.3d5d6a25@endymion.delvare>
-	<20111128093835.GA4243@pengutronix.de>
-	<874nxoh8l5.fsf@macbook.be.48ers.dk>
-	<20111128125751.3d6a3ca7@endymion.delvare>
-	<20120107153820.45ed4b37@endymion.delvare>
-	<20120107144559.GA2537@pengutronix.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] i2c: convert drivers/i2c/* to use
+ module_platform_driver()
+Date: Sat, 7 Jan 2012 16:00:18 +0100
+Message-ID: <20120107160018.43c9d7fe@endymion.delvare>
+References: <1322374332.2226.1.camel@phoenix>
+	<20111127202212.44ebf4c4@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120107144559.GA2537-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20111127202212.44ebf4c4@endymion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Axel Lin <axel.lin@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Jochen Friedrich <jochen@scram.de>, Peter Korsgaard <jacmet@sunsite.dk>, Wolfram Sang <w.sang@pengutronix.de>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Manuel Lauss <manuel.lauss@googlemail.com>, Barry Song <21cnbao@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Yong Zhang <yong.zhang0@gmail.com>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Grant Likely <grant.likely@secretlab.ca>, Samuel Ortiz <sameo@linux.intel.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 7 Jan 2012 15:46:00 +0100, Wolfram Sang wrote:
-> On Sat, Jan 07, 2012 at 03:38:20PM +0100, Jean Delvare wrote:
-> > On Mon, 28 Nov 2011 12:57:51 +0100, Jean Delvare wrote:
-> > > I see exactly 1 user of <linux/gpio-i2cmux.h> in the upstream kernel
-> > > tree, and that is gpio-i2cmux itself. So I'd say no big deal renaming
-> > > it, and actually if we intend to rename header files and/or structures,
-> > > the sooner the better.
-> > 
-> > Wolfram, Peter, any progress here? I think Wolfram was supposed to send
-> > an updated patch but I did not receive anything.
-> 
-> -EBUSY :(
-> 
-> It *is* on my todo-list, though...
+Axel,
 
-OK, no problem. Let's schedule this for kernel 3.4 then.
+On Sun, 27 Nov 2011 20:22:12 +0100, Jean Delvare wrote:
+> On Sun, 27 Nov 2011 14:12:12 +0800, Axel Lin wrote:
+> > diff --git a/drivers/i2c/muxes/gpio-i2cmux.c b/drivers/i2c/muxes/gpio-i2cmux.c
+> > index 7b6ce62..e5fa695 100644
+> > --- a/drivers/i2c/muxes/gpio-i2cmux.c
+> > +++ b/drivers/i2c/muxes/gpio-i2cmux.c
+> > @@ -165,18 +165,7 @@ static struct platform_driver gpiomux_driver = {
+> >  	},
+> >  };
+> >  
+> > -static int __init gpiomux_init(void)
+> > -{
+> > -	return platform_driver_register(&gpiomux_driver);
+> > -}
+> > -
+> > -static void __exit gpiomux_exit(void)
+> > -{
+> > -	platform_driver_unregister(&gpiomux_driver);
+> > -}
+> > -
+> > -module_init(gpiomux_init);
+> > -module_exit(gpiomux_exit);
+> > +module_platform_driver(gpiomux_driver);
+> 
+> This one would be better as a separate patch, as it touches a different
+> subdirectory, which I am responsible for.
+
+You resent a v2 of the patch without muxes/gpio-i2cmux.c, which is
+good, but I never received the suggested separate patch for
+muxes/gpio-i2cmux.c. Did I miss it somehow? Please send it quickly if
+you want it to make it into kernel 3.3.
 
 -- 
 Jean Delvare
