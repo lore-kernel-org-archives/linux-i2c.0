@@ -1,53 +1,53 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH] i2c: convert drivers/i2c/* to use
- module_platform_driver()
-Date: Sat, 7 Jan 2012 16:00:18 +0100
-Message-ID: <20120107160018.43c9d7fe@endymion.delvare>
-References: <1322374332.2226.1.camel@phoenix>
-	<20111127202212.44ebf4c4@endymion.delvare>
+From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Subject: Re: [2.6.37 -> 2.6.38 regression] "mv64xxx: I2C bus locked, block:
+ 1, time_left: 0" every few seconds
+Date: Sat, 7 Jan 2012 16:45:02 -0800
+Message-ID: <20120108004502.GA20549@ericsson.com>
+References: <20120101042401.4bef017e@natsu>
+ <20120101073255.GA2402@elie.hsd1.il.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20111127202212.44ebf4c4@endymion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Jochen Friedrich <jochen@scram.de>, Peter Korsgaard <jacmet@sunsite.dk>, Wolfram Sang <w.sang@pengutronix.de>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Manuel Lauss <manuel.lauss@googlemail.com>, Barry Song <21cnbao@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, Yong Zhang <yong.zhang0@gmail.com>, Lucas De Marchi <lucas.demarchi@profusion.mobi>, Grant Likely <grant.likely@secretlab.ca>, Samuel Ortiz <sameo@linux.intel.com>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120101073255.GA2402-E4JsH6yu/ca99If2fRKg35Ea+QML8DWm@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jonathan Nieder <jrnieder-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Roman Mamedov <rm-pzoh41kZ4TQvJsYlp49lxw@public.gmane.org>, Manuel Roeder <manuel_roeder-Mmb7MZpHnFY@public.gmane.org>, Michael Ott <michael-rB2af1Vdh+fddJNmlsFzeA@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Mauro Barella <mbarella-RSoB1PSltFvQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Axel,
-
-On Sun, 27 Nov 2011 20:22:12 +0100, Jean Delvare wrote:
-> On Sun, 27 Nov 2011 14:12:12 +0800, Axel Lin wrote:
-> > diff --git a/drivers/i2c/muxes/gpio-i2cmux.c b/drivers/i2c/muxes/gpio-i2cmux.c
-> > index 7b6ce62..e5fa695 100644
-> > --- a/drivers/i2c/muxes/gpio-i2cmux.c
-> > +++ b/drivers/i2c/muxes/gpio-i2cmux.c
-> > @@ -165,18 +165,7 @@ static struct platform_driver gpiomux_driver = {
-> >  	},
-> >  };
-> >  
-> > -static int __init gpiomux_init(void)
-> > -{
-> > -	return platform_driver_register(&gpiomux_driver);
-> > -}
-> > -
-> > -static void __exit gpiomux_exit(void)
-> > -{
-> > -	platform_driver_unregister(&gpiomux_driver);
-> > -}
-> > -
-> > -module_init(gpiomux_init);
-> > -module_exit(gpiomux_exit);
-> > +module_platform_driver(gpiomux_driver);
+On Sun, Jan 01, 2012 at 01:32:55AM -0600, Jonathan Nieder wrote:
+> Hi,
 > 
-> This one would be better as a separate patch, as it touches a different
-> subdirectory, which I am responsible for.
+> Roman Mamedov wrote[1]:
+> 
+> > This bug is still present for me in the latest kernel version in
+> > Debian testing (3.1.6).
+> >
+> > The last properly working kernel version seems to be:
+> [...]
+> > And the problem occurs since:
+> [...]
+> 
+> Thanks.  Arnaud, any hints?  To summarize:
+> 
+>  - Michael Ott reported with Debian kernel 2.6.38-3 (which is closely
+>    based on stable v2.6.38.2):
+> 
+> 	syslog tell me every few seconds:
+> 	i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
+> 
+>  - Manuel Roeder reported the same and found that upstream v2.6.38
+>    triggers the problem and v2.6.37.6 does not.
+> 
+>  - Roman Mamedov finds the bug present in Debian 3.1.6-1 (which
+>    is closely based on stable v3.1.6) and Debian 2.6.37-2 (based on
+>    stable v2.6.37.2) but not Debian 2.6.37-1 (based on mainline
+>    v2.6.37).
+> 
+> The regression range described above seems a little inconsistent to
+> me, so maybe there's something more going on.
+> 
+Points to commit eda6bee6c7e67b5bd17bdbced0926f5687f686d5 (i2c-mv64xxx: send repeated START
+between messages in xfer). Maybe you can back it out and see if it makes a difference.
 
-You resent a v2 of the patch without muxes/gpio-i2cmux.c, which is
-good, but I never received the suggested separate patch for
-muxes/gpio-i2cmux.c. Did I miss it somehow? Please send it quickly if
-you want it to make it into kernel 3.3.
-
--- 
-Jean Delvare
+Guenter
