@@ -1,60 +1,70 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] MAINTAINERS: i2c: add third maintainer
-Date: Mon, 9 Jan 2012 09:10:29 +0100
-Message-ID: <20120109091029.120c8e82@endymion.delvare>
-References: <1326065816-12463-1-git-send-email-w.sang@pengutronix.de>
+From: Alok Chauhan <alokc@nvidia.com>
+Subject: RE: [PATCH v2] i2c: tegra: Add delay before reset the controller
+Date: Tue, 10 Jan 2012 09:42:50 +0530
+Message-ID: <7A0BFCFE3DA5CD47B0FB7984326F201A134F2CD4F1@BGMAIL01.nvidia.com>
+References: <1324898081-10308-1-git-send-email-alokc@nvidia.com>
+ <20120106161803.GQ19115@trinity.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1326065816-12463-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120106161803.GQ19115@trinity.fluff.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ben Dooks <ben-i2c@fluff.org>
+Cc: "khali@linux-fr.org" <khali@linux-fr.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, Stephen Warren <swarren@nvidia.com>, "olof@lixom.net" <olof@lixom.net>, "bones@secretlab.ca" <bones@secretlab.ca>, "paul.gortmaker@windriver.com" <paul.gortmaker@windriver.com>, "dgreid@google.com" <dgreid@google.com>, Laxman Dewangan <ldewangan@nvidia.com>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Mon,  9 Jan 2012 00:36:56 +0100, Wolfram Sang wrote:
-> Add me as a third maintainer to help out in the i2c subsystem.
-
-Thanks a lot for stepping in! We can definitely take some help :)
-
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-I'll push the patch myself by the end of the week if there are no
-objections.
-
+On Mon, Dec 26, 2011 at 04:44:41PM +0530, Alok Chauhan wrote:
+> From: Alok Chauhan <alokc@nvidia.com>
+> 
+> In NACK error condition, I2C controller violates clock-to-data setup 
+> time before stop. In Software, because of this reset of controller is 
+> happening before I2C controller could complete STOP condition.
+> 
+> Added delay of 2 clock period before reset the controller in case of 
+> NACK error.
+> 
+> Signed-off-by: Alok Chauhan <alokc@nvidia.com>
 > ---
+> Instead of setting constant value for delay as was in previous patch, 
+> now in the current modification delay will be calculated based on clock frequency of the bus.
+>  drivers/i2c/busses/i2c-tegra.c |    8 ++++++++
+>  1 files changed, 8 insertions(+), 0 deletions(-)
 > 
-> No extra repo for now to avoid fragmentation. I will send pull requests to
-> either Jean or Ben as needed. Sounds OK?
+> diff --git a/drivers/i2c/busses/i2c-tegra.c 
+> b/drivers/i2c/busses/i2c-tegra.c index 6381604..62e197c 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -517,6 +517,14 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+>  	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
+>  		return 0;
+>  
+> +	/*
+> +	 * In NACK error condition resetting of I2C controller happens
+> +	 * before STOP condition is properly completed by I2C controller,
+> +	 * so wait for 2 clock cycle to complete STOP condition.
+> +	 */
+> +	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
+> +		udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
+> +
 
-Yes, we can begin that way and see how it goes.
+>Is a delay here good, would it be better to sleep so that some other process can gain cpu time?
+We mostly used 100 khz i2c clock frequency and delay in that case will be 20 usec. Would it be 
+ok to sleep for such a smaller time? Won't it increase any other overhead?
 
+  	tegra_i2c_init(i2c_dev);
+>  	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
+>  		if (msg->flags & I2C_M_IGNORE_NAK)
+> --
+> 1.7.4.1
 > 
->  MAINTAINERS |    1 +
->  1 files changed, 1 insertions(+), 0 deletions(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index c00e3cc..d4e3d62 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3191,6 +3191,7 @@ F:	drivers/i2c/busses/i2c-stub.c
->  I2C SUBSYSTEM
->  M:	"Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->  M:	"Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> +M:	"Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->  L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->  W:	http://i2c.wiki.kernel.org/
->  T:	quilt kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" 
+> in the body of a message to majordomo@vger.kernel.org More majordomo 
+> info at  http://vger.kernel.org/majordomo-info.html
 
-This one no longer works, BTW, I'll have to update it.
+--
+Ben Dooks, ben@fluff.org, http://www.fluff.org/ben/
 
-Thanks again,
--- 
-Jean Delvare
+Large Hadron Colada: A large Pina Colada that makes the universe disappear.
