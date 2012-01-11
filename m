@@ -1,84 +1,55 @@
-From: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
+From: Paul Walmsley <paul@pwsan.com>
 Subject: Re: [PATCHv8 4/5] OMAP: I2C: Remove the reset in the init path
-Date: Wed, 11 Jan 2012 08:07:11 -0700 (MST)
-Message-ID: <alpine.DEB.2.00.1201110714221.31702@utopia.booyaka.com>
+Date: Wed, 11 Jan 2012 08:22:52 -0700 (MST)
+Message-ID: <alpine.DEB.2.00.1201110809530.31702@utopia.booyaka.com>
 References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com> <1323773758-6375-5-git-send-email-shubhrajyoti@ti.com> <alpine.DEB.2.00.1112160139010.12660@utopia.booyaka.com> <4EEB086A.2050607@ti.com> <CANQgH-Ze1S6sy1uhzy_b8GWOCjF4+-9DOCcUn9mq1kAaT+Y7FA@mail.gmail.com>
- <CANQgH-YLez8B-t8nf9_M8samn9YWUa7LcOFx6uPFrJE9tnXB1Q@mail.gmail.com> <87hb03tw8h.fsf@ti.com> <4F0D26DF.1020108@ti.com> <alpine.DEB.2.00.1201110619090.31702@utopia.booyaka.com> <4F0D9589.1080609@ti.com>
+ <CANQgH-YLez8B-t8nf9_M8samn9YWUa7LcOFx6uPFrJE9tnXB1Q@mail.gmail.com> <87hb03tw8h.fsf@ti.com> <4F0D26DF.1020108@ti.com> <alpine.DEB.2.00.1201110619090.31702@utopia.booyaka.com> <4F0D9B70.3000309@ti.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F0D9589.1080609-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <4F0D9B70.3000309@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: "Cousson, Benoit" <b-cousson@ti.com>
+Cc: Shubhrajyoti <shubhrajyoti@ti.com>, Kevin Hilman <khilman@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 11 Jan 2012, Shubhrajyoti wrote:
+On Wed, 11 Jan 2012, Cousson, Benoit wrote:
 
-> On Wednesday 11 January 2012 06:59 PM, Paul Walmsley wrote:
+> Something that puzzle me on that point is most architecture does not use
+> plateform_device and thus does not have any pdata to hack some custom function
+> pointers here an there.
+> It means that there is probably some better solution to handle that.
+
+PCI and USB have their own bus-level device reset functions that are 
+exported from bus code that lives under drivers/.  In a similar fashion, 
+we could export omap_device_reset() from our arch/arm/plat-omap code.  
+But that would require that arch/arm/plat-omap and arch/arm/mach-omap2 
+code to be compiled for any ARM build that includes i2c-omap.c.  This 
+would be good to avoid, under the principle that drivers should be 
+buildable for any architecture.  (This is also why we wish to remove 
+omap_{read,write}*() and cpu_is_omap() from any drivers which contain 
+those.)
+
+The intention a few years ago was to eventually create a a real omap_bus 
+and omap_device, with the bus/device integration code living under 
+drivers.  In such a situation, we'd be able to use something like the 
+PCI/USB approach cleanly, since there wouldn't be dependencies to arch/ 
+code.
+
+> AFAIU, the way PPC is handling that is by splitting the driver in a generic
+> part and in a platform specific part.
 >
-> > The real question is how you plan to handle the device reset function, 
-> > given that the driver should compile on a non-OMAP build (meaning that you 
-> > can't call omap_device*() functions from the driver directly), nor should 
-> > the driver touch the SYSCONFIG register directly.
+> You can then add any OMAP specific hacks in the OMAP specific part while 
+> keeping most of generic code in a generic driver.
 > 
-> Paul I thought through it myself not very clear.
-> - One way is to find some way for the dt to pass function pointer. Or maybe
-> a flag that  activates a static function / hwmod func.
->  
-> Will give this a little more thought and get back. I have not any answer
-> right now.
+> In this case, we just have to implement a small shim that will handle the OMAP
+> specific code for the reset. The generic driver will handle the rest.
+> 
+> Maybe I'm missing some important details, but that does seems easily doable
+> for the i2c case.
 
-Well, if it makes you feel any better, no one else seems to have thought 
-through it very much either :-(
-
-To me this is essentially implementing a bus-level (or really, 
-integration-level) reset of the device.  This seems to be a function that 
-many other buses might support.  So let's look at some of the other 
-common Linux bus implementations.
-
-PCI has pci_reset_function() in drivers/pci/pci.c, which a handful of 
-PCI-specific drivers call. USB has usb_reset_device() in 
-drivers/usb/core/hub.c, also called by a handful of devices.
-
-So there's precedent for the use case.
-
-Incidentally, this is the kind of thing that ideally should be supported 
-via a common function pointer in struct bus_type or maybe struct device. 
-So rather than the driver calling pci_reset_function() or 
-usb_reset_device(), it seems preferable for the driver to do something 
-like:
-
-    if (dev->bus->device_reset)
-        dev->bus->device_reset(dev);
-
-It seems best to avoid binding a driver tightly to a particular bus 
-whenever possible.
-
-...
-
-Now to consider something like this from an OMAP perspective.
-
-In a rough approximation of an ideal world, much of the hwmod and 
-omap_device code would live somewhere like drivers/omap_bus/.  Our devices 
-would be omap_device based rather than platform_device or of_device based.  
-We could export omap_device_reset() and then the I2C driver could call 
-this directly.  We're at least a year away from this (if ever): we need 
-PRM, CM, SCM drivers; we'd need to have a real omap_bus and omap_device 
-that our drivers would use, unlike the faux omap_device we have now.  
-Maybe the latter is never going to happen now due to the DT situation.
-So any solution that would depend on these steps as prerequisites might 
-easily be delayed for an infinite amount of time.
-
-But let's say that a device_reset() function pointer existed inside the 
-common struct bus_type in include/linux/device.h, as discussed above.  
->From an OMAP perspective, we could simply set that to point to 
-omap_device_reset() in the OMAP-specific device creation code or DT 
-notifier callback code.  PCI and USB code could set it to point to their 
-own reset functions.  Something like the code fragment above would be 
-recommended for all device drivers to do an integration device reset.
-
-Anyway, just an idea.
+Hmm.  How do those drivers call the platform-specific code in a way that 
+allows those drivers to be built for non-PPC platforms?
 
 
 - Paul
