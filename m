@@ -1,75 +1,57 @@
-From: Grazvydas Ignotas <notasas@gmail.com>
-Subject: Re: [PATCH RFC] OMAP: I2C: Fix the mismatch of pm_runtime enable and disable
-Date: Wed, 11 Jan 2012 15:59:22 +0200
-Message-ID: <CANOLnONdYYybbSP143+TeLxjfdEg1krcZjHwf140Fm5Y8rHogA@mail.gmail.com>
-References: <1326288104-10544-1-git-send-email-shubhrajyoti@ti.com>
+From: "Voss, Nikolaus" <N.Voss@weinmann.de>
+Subject: RE: [PATCH v7 0/5] AT91: replace broken TWI driver i2c-at91.c
+Date: Wed, 11 Jan 2012 15:06:52 +0100
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D0882DEF3E8@wm021.weinmann.com>
+References: <cover.1322062555.git.n.voss@weinmann.de>
+ <4ECFB755.6060509@gmail.com>
+ <D99582E5322435468A77E74BB0039E7B1D18739F99@SRV02.hamburg.garz-fricke.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1326288104-10544-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khilman@ti.com, Rajendra Nayak <rnayak@ti.com>, Felipe Contreras <felipe.contreras@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <D99582E5322435468A77E74BB0039E7B1D18739F99@SRV02.hamburg.garz-fricke.de>
+Content-Language: de-DE
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: 'Carsten Behling' <carsten.behling@garz-fricke.com>, 'Hubert Feurstein' <h.feurstein@gmail.com>
+Cc: "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 11, 2012 at 3:21 PM, Shubhrajyoti D <shubhrajyoti@ti.com> w=
-rote:
-> Currently the i2c driver calls the pm_runtime_enable and never
-> the disable. This may cause a warning when pm_runtime_enable
-> checks for the count match.Attempting to fix the same by calling
-> pm_runtime_disable in the error and the remove path.
+Hi,
 
-I remember seeing Felipe doing the reverse to musb here:
-http://marc.info/?l=3Dlinux-omap&m=3D132432610700952&w=3D2
-so I'm confused here.
+Carsten Behling wrote on 2011-12-28:
+> I've tested this driver with the pca953x GPIO expander driver with a PCA9554.
+> 
+> In the case of 8 GPIO pins (my case) "i2c_smbus_read_byte_data(...)"
+[...]
+> I observed that reading out the GPIO status is one read delayed.
+> The first read to a register from the pca953x driver does not result in a
+> RXRDY interrupt and at91_twi_read_next_byte(...) is not called.
+> Only the completion routine is triggered with a TXCOMP interrupt.
 
->
-> Cc: Kevin Hilman <khilman@ti.com>
-> Cc: Rajendra Nayak <rnayak@ti.com>
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-> ---
-> =C2=A0drivers/i2c/busses/i2c-omap.c | =C2=A0 =C2=A02 ++
-> =C2=A01 files changed, 2 insertions(+), 0 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-o=
-map.c
-> index 12d402c..abc7b5b 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1070,6 +1070,7 @@ err_unuse_clocks:
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, =
-0);
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0pm_runtime_put(dev->dev);
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0iounmap(dev->base);
-> + =C2=A0 =C2=A0 =C2=A0 pm_runtime_disable(&pdev->dev);
-> =C2=A0err_free_mem:
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0platform_set_drvdata(pdev, NULL);
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0kfree(dev);
-> @@ -1085,6 +1086,7 @@ omap_i2c_remove(struct platform_device *pdev)
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct omap_i2c_dev =C2=A0 =C2=A0 *dev =3D=
- platform_get_drvdata(pdev);
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0struct resource =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- *mem;
->
-> + =C2=A0 =C2=A0 =C2=A0 pm_runtime_disable(&pdev->dev);
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0platform_set_drvdata(pdev, NULL);
->
-> =C2=A0 =C2=A0 =C2=A0 =C2=A0free_irq(dev->irq, dev);
-> --
-> 1.7.1
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
- in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.ht=
-ml
+Which SOC are you using? This is probably a hardware bug since on my
+at91sam9g45 i2c_smbus_read_byte_data() works reliably without any
+problems. Please check the errata and see if there is a useable
+workaround. If not, the driver should be disabled for your SOC.
 
---=20
-Gra=C5=BEvydas
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Additionally, I took a look at the status flags just after the control flags
+> are set (in at91_do_twi_transfer(...), AT91_TWI_START|AT91_TWI_STOP for the
+> one byte read). Surprisingly, the AT91_TWI_RXRDY flag is zero before the first
+> register read and one for the following reads. According to the manual this
+> flag should be zero after a read on AT91_TWI_RHR.
+> 
+> Reading the AT91_TWI_RHR before the control flags are set to be sure that the
+> AT91_TWI_RXRDY is cleared leads to a never occurring RXRDY interrupt.
+
+Again, this behavior does not conform to the datasheet, I suspect documented
+or undocumented errata... At91rm9200 has at least one erratum for which I
+imported a workaround from the old driver (which does not use interrupts).
+
+Niko
