@@ -1,85 +1,36 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c updates for Linux 3.3
-Date: Thu, 12 Jan 2012 20:37:04 +0100
-Message-ID: <20120112203704.14400201@endymion.delvare>
+From: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of interrupts
+Date: Thu, 12 Jan 2012 16:19:49 -0500
+Message-ID: <CAEdQ38FpG11m50pwg2=tu1fJRRg=zixFKLsPmVPOzWNBCjbNBg@mail.gmail.com>
+References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
+ <20110903103036.161616a5@endymion.delvare> <20111031105354.4b888e44@endymion.delvare>
+ <20120110153834.531664db@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120110153834.531664db-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On Tue, Jan 10, 2012 at 9:38 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> On Mon, 31 Oct 2011 10:53:54 +0100, Jean Delvare wrote:
+>> On Sat, 3 Sep 2011 10:30:36 +0200, Jean Delvare wrote:
+>> > Please address my concerns where you agree and send an updated patch.
+>>
+>> Matt, care to send an updated patch addressing my concerns? Otherwise
+>> it will be lost again.
+>
+> It's been 3 more months. Matt (or anyone else who cares and has access
+> to the hardware), please send an updated patch or I'll have to drop it.
+>
+> --
+> Jean Delvare
 
-Please pull i2c subsystem updates for Linux 3.3 from:
+I'll fix it up and resend the next time I'm working on the related mips stuff.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+It's hard to prioritize volunteer work for hardware you and two other
+people have. :)
 
- MAINTAINERS                                |    4 +++
- drivers/i2c/busses/i2c-ali1535.c           |   38 +++++++++++++++++++--------
- drivers/i2c/busses/i2c-ali1563.c           |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c           |    2 +-
- drivers/i2c/busses/i2c-amd756.c            |    2 +-
- drivers/i2c/busses/i2c-amd8111.c           |    2 +-
- drivers/i2c/busses/i2c-at91.c              |   17 +-----------
- drivers/i2c/busses/i2c-au1550.c            |   13 +---------
- drivers/i2c/busses/i2c-cpm.c               |   13 +---------
- drivers/i2c/busses/i2c-designware-pcidrv.c |    2 +-
- drivers/i2c/busses/i2c-eg20t.c             |    2 +-
- drivers/i2c/busses/i2c-highlander.c        |   13 +---------
- drivers/i2c/busses/i2c-hydra.c             |    2 +-
- drivers/i2c/busses/i2c-i801.c              |    2 +-
- drivers/i2c/busses/i2c-ibm_iic.c           |   13 +---------
- drivers/i2c/busses/i2c-intel-mid.c         |    2 +-
- drivers/i2c/busses/i2c-iop3xx.c            |   16 +-----------
- drivers/i2c/busses/i2c-isch.c              |   13 +---------
- drivers/i2c/busses/i2c-ixp2000.c           |   13 +---------
- drivers/i2c/busses/i2c-mpc.c               |   13 +---------
- drivers/i2c/busses/i2c-mv64xxx.c           |   15 +----------
- drivers/i2c/busses/i2c-nforce2.c           |    4 +-
- drivers/i2c/busses/i2c-ocores.c            |   17 +-----------
- drivers/i2c/busses/i2c-octeon.c            |   16 +-----------
- drivers/i2c/busses/i2c-pasemi.c            |    2 +-
- drivers/i2c/busses/i2c-pca-platform.c      |   14 +---------
- drivers/i2c/busses/i2c-piix4.c             |    2 +-
- drivers/i2c/busses/i2c-pmcmsp.c            |   17 +-----------
- drivers/i2c/busses/i2c-powermac.c          |   19 +------------
- drivers/i2c/busses/i2c-pxa-pci.c           |    2 +-
- drivers/i2c/busses/i2c-sh7760.c            |   13 +---------
- drivers/i2c/busses/i2c-simtec.c            |   18 +-----------
- drivers/i2c/busses/i2c-sis5595.c           |    6 ++--
- drivers/i2c/busses/i2c-sis630.c            |    8 ++++-
- drivers/i2c/busses/i2c-sis96x.c            |    2 +-
- drivers/i2c/busses/i2c-via.c               |    2 +-
- drivers/i2c/busses/i2c-viapro.c            |    9 ++++--
- drivers/i2c/busses/i2c-xiic.c              |   18 +-----------
- drivers/i2c/busses/scx200_acb.c            |    2 +-
- drivers/i2c/i2c-dev.c                      |   13 +++------
- drivers/i2c/muxes/gpio-i2cmux.c            |   13 +---------
- 41 files changed, 92 insertions(+), 304 deletions(-)
-
----------------
-
-Axel Lin (3):
-      i2c: Convert to DEFINE_PCI_DEVICE_TABLE
-      i2c/busses: Use module_platform_driver()
-      i2c/gpio-i2cmux: Convert to use module_platform_driver()
-
-Jean Delvare (2):
-      i2c: Fix error value returned by several bus drivers
-      MAINTAINERS: List i2c-omap and i2c-davinci drivers
-
-Thomas Meyer (1):
-      i2c-dev: Use memdup_user
-
-Wolfram Sang (1):
-      MAINTAINERS: i2c: Add third maintainer
-
-corentin.labbe (1):
-      i2c-ali1535: enable SPARC support
-
-Thanks,
--- 
-Jean Delvare
+Matt
