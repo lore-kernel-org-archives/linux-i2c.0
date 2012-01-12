@@ -1,43 +1,72 @@
-From: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH] i2c-eg20t: use i2c_add_numbered_adapter to get a fixed
- bus number
-Date: Thu, 12 Jan 2012 13:39:07 +0530
-Message-ID: <4F0E9523.1040709@st.com>
-References: <1326353882-3158-1-git-send-email-feng.tang@intel.com>
+From: "Cousson, Benoit" <b-cousson-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv8 4/5] OMAP: I2C: Remove the reset in the init path
+Date: Thu, 12 Jan 2012 15:13:47 +0100
+Message-ID: <4F0EEA9B.3030104@ti.com>
+References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com> <1323773758-6375-5-git-send-email-shubhrajyoti@ti.com> <alpine.DEB.2.00.1112160139010.12660@utopia.booyaka.com> <4EEB086A.2050607@ti.com> <CANQgH-Ze1S6sy1uhzy_b8GWOCjF4+-9DOCcUn9mq1kAaT+Y7FA@mail.gmail.com> <CANQgH-YLez8B-t8nf9_M8samn9YWUa7LcOFx6uPFrJE9tnXB1Q@mail.gmail.com> <87hb03tw8h.fsf@ti.com> <4F0D26DF.1020108@ti.com> <alpine.DEB.2.00.1201110619090.31702@utopia.booyaka.com> <4F0D9B70.3000309@ti.com> <alpine.DEB.2.00.1201110809530.31702@utopia.booyaka.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1326353882-3158-1-git-send-email-feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <alpine.DEB.2.00.1201110809530.31702-rwI8Ez+7Ko+d5PgPZx9QOdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
+Cc: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 1/12/2012 1:08 PM, Feng Tang wrote:
-> For EG20T and ML7213 IOH, the i2c controller numbers are fixed, using
-> fixed bus number will make it much easier for platform code to use
-> i2c_register_board_info() to register i2c devices.
+On 1/11/2012 4:22 PM, Paul Walmsley wrote:
+> On Wed, 11 Jan 2012, Cousson, Benoit wrote:
 >
-> Signed-off-by: Feng Tang<feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-eg20t.c |    4 +++-
->   1 files changed, 3 insertions(+), 1 deletions(-)
+>> Something that puzzle me on that point is most architecture does not use
+>> plateform_device and thus does not have any pdata to hack some custom function
+>> pointers here an there.
+>> It means that there is probably some better solution to handle that.
 >
-> diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-> index 18936ac..079435b 100644
-> --- a/drivers/i2c/busses/i2c-eg20t.c
-> +++ b/drivers/i2c/busses/i2c-eg20t.c
-> @@ -918,7 +918,9 @@ static int __devinit pch_i2c_probe(struct pci_dev *pdev,
->   		pch_adap->dev.parent =&pdev->dev;
+> PCI and USB have their own bus-level device reset functions that are
+> exported from bus code that lives under drivers/.  In a similar fashion,
+> we could export omap_device_reset() from our arch/arm/plat-omap code.
+> But that would require that arch/arm/plat-omap and arch/arm/mach-omap2
+> code to be compiled for any ARM build that includes i2c-omap.c.  This
+> would be good to avoid, under the principle that drivers should be
+> buildable for any architecture.  (This is also why we wish to remove
+> omap_{read,write}*() and cpu_is_omap() from any drivers which contain
+> those.)
 >
->   		pch_i2c_init(&adap_info->pch_data[i]);
-> -		ret = i2c_add_adapter(pch_adap);
-> +
-> +		pch_adap->nr = i;
-> +		ret = i2c_add_numbered_adapter(pch_adap);
->   		if (ret) {
->   			pch_pci_err(pdev, "i2c_add_adapter[ch:%d] FAILED\n", i);
->   			goto err_add_adapter;
+> The intention a few years ago was to eventually create a a real omap_bus
+> and omap_device, with the bus/device integration code living under
+> drivers.  In such a situation, we'd be able to use something like the
+> PCI/USB approach cleanly, since there wouldn't be dependencies to arch/
+> code.
 
-Reviewd By: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+For reset, maybe the custom bus is a better approach, since it is 
+something that is handled by the OMAP core infrastructure.
+I was referring more to all the other function pointer we have today in 
+driver like MMC, DSS that does not necessarily belong to a OMAP core stuff.
+
+>> AFAIU, the way PPC is handling that is by splitting the driver in a generic
+>> part and in a platform specific part.
+>>
+>> You can then add any OMAP specific hacks in the OMAP specific part while
+>> keeping most of generic code in a generic driver.
+>>
+>> In this case, we just have to implement a small shim that will handle the OMAP
+>> specific code for the reset. The generic driver will handle the rest.
+>>
+>> Maybe I'm missing some important details, but that does seems easily doable
+>> for the i2c case.
+>
+> Hmm.  How do those drivers call the platform-specific code in a way that
+> allows those drivers to be built for non-PPC platforms?
+
+Well, the point is that a lot of that code should not be in the omap 
+arch directory at the first place.
+For example, the MMC is using extensively function pointers because of 
+the control module dependency.
+Having a control module driver will allow stacking the drivers without 
+having to get any code in mach-omap directory.
+
+Otherwise, there is as well a dedicated drivers/platform directory that 
+can store some platform specific drivers. So far it looks like it is 
+used for x86 board kind of drivers only.
+
+Regards,
+Benoit
