@@ -1,36 +1,54 @@
-From: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of interrupts
-Date: Thu, 12 Jan 2012 16:19:49 -0500
-Message-ID: <CAEdQ38FpG11m50pwg2=tu1fJRRg=zixFKLsPmVPOzWNBCjbNBg@mail.gmail.com>
-References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
- <20110903103036.161616a5@endymion.delvare> <20111031105354.4b888e44@endymion.delvare>
- <20120110153834.531664db@endymion.delvare>
+From: Paul Walmsley <paul@pwsan.com>
+Subject: Re: [PATCHv8 4/5] OMAP: I2C: Remove the reset in the init path
+Date: Thu, 12 Jan 2012 16:22:52 -0700 (MST)
+Message-ID: <alpine.DEB.2.00.1201121617300.3659@utopia.booyaka.com>
+References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com> <1323773758-6375-5-git-send-email-shubhrajyoti@ti.com> <alpine.DEB.2.00.1112160139010.12660@utopia.booyaka.com> <4EEB086A.2050607@ti.com> <CANQgH-Ze1S6sy1uhzy_b8GWOCjF4+-9DOCcUn9mq1kAaT+Y7FA@mail.gmail.com>
+ <CANQgH-YLez8B-t8nf9_M8samn9YWUa7LcOFx6uPFrJE9tnXB1Q@mail.gmail.com> <87hb03tw8h.fsf@ti.com> <4F0D26DF.1020108@ti.com> <alpine.DEB.2.00.1201110619090.31702@utopia.booyaka.com> <4F0D9B70.3000309@ti.com> <alpine.DEB.2.00.1201110809530.31702@utopia.booyaka.com>
+ <4F0EEA9B.3030104@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120110153834.531664db-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <4F0EEA9B.3030104@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: "Cousson, Benoit" <b-cousson@ti.com>
+Cc: Shubhrajyoti <shubhrajyoti@ti.com>, Kevin Hilman <khilman@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 10, 2012 at 9:38 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Mon, 31 Oct 2011 10:53:54 +0100, Jean Delvare wrote:
->> On Sat, 3 Sep 2011 10:30:36 +0200, Jean Delvare wrote:
->> > Please address my concerns where you agree and send an updated patch.
->>
->> Matt, care to send an updated patch addressing my concerns? Otherwise
->> it will be lost again.
->
-> It's been 3 more months. Matt (or anyone else who cares and has access
-> to the hardware), please send an updated patch or I'll have to drop it.
->
-> --
-> Jean Delvare
+On Thu, 12 Jan 2012, Cousson, Benoit wrote:
 
-I'll fix it up and resend the next time I'm working on the related mips stuff.
+> On 1/11/2012 4:22 PM, Paul Walmsley wrote:
+> > On Wed, 11 Jan 2012, Cousson, Benoit wrote:
+> > 
+> > > Something that puzzle me on that point is most architecture does not use
+> > > plateform_device and thus does not have any pdata to hack some custom
+> > > function
+> > > pointers here an there.
+> > > It means that there is probably some better solution to handle that.
+> > 
+> > PCI and USB have their own bus-level device reset functions that are
+> > exported from bus code that lives under drivers/.  In a similar fashion,
+> > we could export omap_device_reset() from our arch/arm/plat-omap code.
+> > But that would require that arch/arm/plat-omap and arch/arm/mach-omap2
+> > code to be compiled for any ARM build that includes i2c-omap.c.  This
+> > would be good to avoid, under the principle that drivers should be
+> > buildable for any architecture.  (This is also why we wish to remove
+> > omap_{read,write}*() and cpu_is_omap() from any drivers which contain
+> > those.)
+> > 
+> > The intention a few years ago was to eventually create a a real omap_bus
+> > and omap_device, with the bus/device integration code living under
+> > drivers.  In such a situation, we'd be able to use something like the
+> > PCI/USB approach cleanly, since there wouldn't be dependencies to arch/
+> > code.
+> 
+> For reset, maybe the custom bus is a better approach, since it is something
+> that is handled by the OMAP core infrastructure.
+> I was referring more to all the other function pointer we have today in driver
+> like MMC, DSS that does not necessarily belong to a OMAP core stuff.
 
-It's hard to prioritize volunteer work for hardware you and two other
-people have. :)
+Yes, that's right.  In general, cross-device dependencies with no 
+infrastructural consequences should be handled by EXPORT_SYMBOL() between 
+driver code.
 
-Matt
+
+- Paul
