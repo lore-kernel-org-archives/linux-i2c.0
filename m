@@ -1,54 +1,37 @@
-From: Paul Walmsley <paul@pwsan.com>
-Subject: Re: [PATCHv8 4/5] OMAP: I2C: Remove the reset in the init path
-Date: Thu, 12 Jan 2012 16:22:52 -0700 (MST)
-Message-ID: <alpine.DEB.2.00.1201121617300.3659@utopia.booyaka.com>
-References: <1323773758-6375-1-git-send-email-shubhrajyoti@ti.com> <1323773758-6375-5-git-send-email-shubhrajyoti@ti.com> <alpine.DEB.2.00.1112160139010.12660@utopia.booyaka.com> <4EEB086A.2050607@ti.com> <CANQgH-Ze1S6sy1uhzy_b8GWOCjF4+-9DOCcUn9mq1kAaT+Y7FA@mail.gmail.com>
- <CANQgH-YLez8B-t8nf9_M8samn9YWUa7LcOFx6uPFrJE9tnXB1Q@mail.gmail.com> <87hb03tw8h.fsf@ti.com> <4F0D26DF.1020108@ti.com> <alpine.DEB.2.00.1201110619090.31702@utopia.booyaka.com> <4F0D9B70.3000309@ti.com> <alpine.DEB.2.00.1201110809530.31702@utopia.booyaka.com>
- <4F0EEA9B.3030104@ti.com>
+From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [RESEND] i2c-eg20t: some patches are not reviewed yet
+Date: Fri, 13 Jan 2012 10:27:50 +0900
+Message-ID: <CANKRQnj64Ch--qctHMYYfGC5erkb_gctznpru8iGPOaioDGcDw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4F0EEA9B.3030104@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Cousson, Benoit" <b-cousson@ti.com>
-Cc: Shubhrajyoti <shubhrajyoti@ti.com>, Kevin Hilman <khilman@ti.com>, tony@atomide.com, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 12 Jan 2012, Cousson, Benoit wrote:
+Hi
 
-> On 1/11/2012 4:22 PM, Paul Walmsley wrote:
-> > On Wed, 11 Jan 2012, Cousson, Benoit wrote:
-> > 
-> > > Something that puzzle me on that point is most architecture does not use
-> > > plateform_device and thus does not have any pdata to hack some custom
-> > > function
-> > > pointers here an there.
-> > > It means that there is probably some better solution to handle that.
-> > 
-> > PCI and USB have their own bus-level device reset functions that are
-> > exported from bus code that lives under drivers/.  In a similar fashion,
-> > we could export omap_device_reset() from our arch/arm/plat-omap code.
-> > But that would require that arch/arm/plat-omap and arch/arm/mach-omap2
-> > code to be compiled for any ARM build that includes i2c-omap.c.  This
-> > would be good to avoid, under the principle that drivers should be
-> > buildable for any architecture.  (This is also why we wish to remove
-> > omap_{read,write}*() and cpu_is_omap() from any drivers which contain
-> > those.)
-> > 
-> > The intention a few years ago was to eventually create a a real omap_bus
-> > and omap_device, with the bus/device integration code living under
-> > drivers.  In such a situation, we'd be able to use something like the
-> > PCI/USB approach cleanly, since there wouldn't be dependencies to arch/
-> > code.
-> 
-> For reset, maybe the custom bus is a better approach, since it is something
-> that is handled by the OMAP core infrastructure.
-> I was referring more to all the other function pointer we have today in driver
-> like MMC, DSS that does not necessarily belong to a OMAP core stuff.
+The following 3 patches are still not reviewed yet for 2~3 months.
+Could you review and accept these patches ?
 
-Yes, that's right.  In general, cross-device dependencies with no 
-infrastructural consequences should be handled by EXPORT_SYMBOL() between 
-driver code.
+Subject:    [PATCH] i2c-eg20t: modified the setting of transfer rate.
+From:       Toshiharu Okada <toshiharu-linux () dsn ! okisemi ! com>
+Date:       2011-09-26 7:16:23
+http://marc.info/?l=linux-i2c&m=131702145913299&w=2
 
 
-- Paul
+Subject:    [PATCH 2/2] i2c-eg20t:
+Change-company-name-OKI-SEMICONDUCTOR to LAPIS Semiconductor
+From:       Tomoya MORINAGA <tomoya-linux () dsn ! lapis-semi ! com>
+Date:       2011-10-28 0:40:11
+http://marc.info/?l=linux-kernel&m=131976246906496&w=2
+
+Subject:    [PATCH 1/2] i2c-eg20t: Support new device LAPIS
+Semiconductor ML7831 IOH
+From:       Tomoya MORINAGA <tomoya-linux () dsn ! lapis-semi ! com>
+Date:       2011-10-28 0:40:10
+http://marc.info/?l=linux-i2c&m=131976245206491&w=2
+
+thanks in advance.
+tomoya
