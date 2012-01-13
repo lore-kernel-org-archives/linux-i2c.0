@@ -1,37 +1,31 @@
-From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [RESEND] i2c-eg20t: some patches are not reviewed yet
-Date: Fri, 13 Jan 2012 10:27:50 +0900
-Message-ID: <CANKRQnj64Ch--qctHMYYfGC5erkb_gctznpru8iGPOaioDGcDw@mail.gmail.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCHv9 0/2] I2C driver updates
+Date: Fri, 13 Jan 2012 12:27:04 +0530
+Message-ID: <1326437826-7408-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Qi Wang <qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
+The patch series does the following 
 
-The following 3 patches are still not reviewed yet for 2~3 months.
-Could you review and accept these patches ?
+- Removes the reset from probe and inplements a seperate 
+  function.
+- Removes the reset from init as hwmod does it.
+- The second patch inplements the recovery from bus busy condition
 
-Subject:    [PATCH] i2c-eg20t: modified the setting of transfer rate.
-From:       Toshiharu Okada <toshiharu-linux () dsn ! okisemi ! com>
-Date:       2011-09-26 7:16:23
-http://marc.info/?l=linux-i2c&m=131702145913299&w=2
+Tested on omap4sdp and omap3430
 
+applies to Kevin's  for_3.3/i2c/misc
 
-Subject:    [PATCH 2/2] i2c-eg20t:
-Change-company-name-OKI-SEMICONDUCTOR to LAPIS Semiconductor
-From:       Tomoya MORINAGA <tomoya-linux () dsn ! lapis-semi ! com>
-Date:       2011-10-28 0:40:11
-http://marc.info/?l=linux-kernel&m=131976246906496&w=2
+Shubhrajyoti D (1):
+  OMAP : I2C : Remove reset at init
 
-Subject:    [PATCH 1/2] i2c-eg20t: Support new device LAPIS
-Semiconductor ML7831 IOH
-From:       Tomoya MORINAGA <tomoya-linux () dsn ! lapis-semi ! com>
-Date:       2011-10-28 0:40:10
-http://marc.info/?l=linux-i2c&m=131976245206491&w=2
+Vikram Pandita (1):
+  I2C: OMAP: Recover from bus busy condition
 
-thanks in advance.
-tomoya
+ drivers/i2c/busses/i2c-omap.c |   53 +++++++++++++++++++++++++++++++++-------
+ 1 files changed, 43 insertions(+), 10 deletions(-)
