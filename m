@@ -1,205 +1,33 @@
-From: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Subject: [PATCH 3/3] mfd: mc13xxx-core: Add i2c driver
-Date: Thu, 19 Jan 2012 12:01:34 +1100
-Message-ID: <1326934894-29516-4-git-send-email-marc@cpdesign.com.au>
-References: <1326934894-29516-1-git-send-email-marc@cpdesign.com.au>
+From: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c-davinci: dev->irq is used instead of IRQ_I2C by free_irq
+Date: Thu, 19 Jan 2012 15:59:30 +0900
+Message-ID: <1326956370-23469-1-git-send-email-nobuhiro.iwamatsu.yj@renesas.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1326934894-29516-1-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Adds support for mc13xxx family ICs connected via i2c.
+dev->irq is used in request_irq function, we should use
+dev->irq in free_irq function too.
 
-Signed-off-by: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/mfd/Kconfig         |    8 +++-
- drivers/mfd/Makefile        |    1 +
- drivers/mfd/mc13xxx-i2c.c   |  120 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/mfd/mc13xxx.h |    5 ++-
- 4 files changed, 132 insertions(+), 2 deletions(-)
- create mode 100644 drivers/mfd/mc13xxx-i2c.c
+ drivers/i2c/busses/i2c-davinci.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 6cf84c8..08afc84 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -515,7 +515,7 @@ config MFD_MC13783
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index a76d85f..79b4bcb 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -755,7 +755,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
+ 	dev->clk = NULL;
  
- config MFD_MC13XXX
- 	tristate "Support Freescale MC13783 or MC13892"
--	depends on SPI_MASTER
-+	depends on SPI_MASTER || I2C
- 	select MFD_CORE
- 	select MFD_MC13783
- 	help
-@@ -538,6 +538,12 @@ config MFD_MC13XXX_SPI
- 	help
- 	  Select this if your MC13xxx is connected via an SPI bus.
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
+-	free_irq(IRQ_I2C, dev);
++	free_irq(dev->irq, dev);
+ 	iounmap(dev->base);
+ 	kfree(dev);
  
-+config MFD_MC13XXX_I2C
-+	tristate "I2C interface"
-+	depends on I2C
-+	help
-+	  Select this if your MC13xxx is connected via an I2C bus.
-+
- endchoice
- 
- config ABX500_CORE
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 3856820..5db8b76 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -52,6 +52,7 @@ obj-$(CONFIG_TWL6040_CORE)	+= twl6040-core.o twl6040-irq.o
- 
- obj-$(CONFIG_MFD_MC13XXX)	+= mc13xxx-core.o
- obj-$(CONFIG_MFD_MC13XXX_SPI)	+= mc13xxx-spi.o
-+obj-$(CONFIG_MFD_MC13XXX_I2C)	+= mc13xxx-i2c.o
- 
- obj-$(CONFIG_MFD_CORE)		+= mfd-core.o
- 
-diff --git a/drivers/mfd/mc13xxx-i2c.c b/drivers/mfd/mc13xxx-i2c.c
-new file mode 100644
-index 0000000..9965481
---- /dev/null
-+++ b/drivers/mfd/mc13xxx-i2c.c
-@@ -0,0 +1,120 @@
-+/*
-+ * Copyright 2009-2010 Creative Product Design
-+ * Marc Reilly marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org
-+ *
-+ * This program is free software; you can redistribute it and/or modify it under
-+ * the terms of the GNU General Public License version 2 as published by the
-+ * Free Software Foundation.
-+ */
-+
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/mutex.h>
-+#include <linux/mfd/core.h>
-+#include <linux/mfd/mc13xxx.h>
-+#include <linux/i2c.h>
-+
-+static int mc13xxx_i2c_reg_read(struct mc13xxx *mc13xxx, unsigned int offset,
-+		u32 *val)
-+{
-+	int ret;
-+	unsigned char buf[3] = {0, 0, 0};
-+
-+	ret = i2c_smbus_read_i2c_block_data(mc13xxx->i2cclient,
-+			offset, 3, buf);
-+	*val = buf[0] << 16 | buf[1] << 8 | buf[2];
-+
-+	return ret == 3 ? 0 : ret;
-+}
-+
-+static int mc13xxx_i2c_reg_write(struct mc13xxx *mc13xxx, unsigned int offset,
-+		u32 val)
-+{
-+	int ret;
-+	unsigned char buf[3];
-+
-+	buf[0] = (val >> 16) & 0xff;
-+	buf[1] = (val >> 8) & 0xff;
-+	buf[2] = val & 0xff;
-+
-+	ret = i2c_smbus_write_i2c_block_data(mc13xxx->i2cclient,
-+			offset, 3, buf);
-+
-+	return ret;
-+}
-+
-+static int mc13xxx_i2c_probe(struct i2c_client *client,
-+		const struct i2c_device_id *id)
-+{
-+	struct mc13xxx *mc13xxx;
-+	struct mc13xxx_platform_data *pdata = dev_get_platdata(&client->dev);
-+	int ret;
-+
-+	if (!pdata) {
-+		dev_err(&client->dev, "invalid platform data\n");
-+		return -EINVAL;
-+	}
-+
-+	mc13xxx = kzalloc(sizeof(*mc13xxx), GFP_KERNEL);
-+	if (!mc13xxx)
-+		return -ENOMEM;
-+
-+	dev_set_drvdata(&client->dev, mc13xxx);
-+	mc13xxx->dev = &client->dev;
-+	mc13xxx->i2cclient = client;
-+	mc13xxx->read_dev = mc13xxx_i2c_reg_read;
-+	mc13xxx->write_dev = mc13xxx_i2c_reg_write;
-+
-+	ret = mc13xxx_common_init(mc13xxx, pdata, client->irq);
-+
-+	if (ret == 0 && (id->driver_data != mc13xxx->ictype))
-+		dev_warn(mc13xxx->dev,
-+				"device id doesn't match auto detection!\n");
-+
-+	return ret;
-+}
-+
-+static int __devexit mc13xxx_i2c_remove(struct i2c_client *client)
-+{
-+	struct mc13xxx *mc13xxx = dev_get_drvdata(&client->dev);
-+
-+	free_irq(client->irq, mc13xxx);
-+
-+	mfd_remove_devices(&client->dev);
-+
-+	kfree(mc13xxx);
-+
-+	return 0;
-+}
-+
-+static const struct i2c_device_id mc13xxx_i2c_idtable[] = {
-+	{"mc13892", MC13XXX_ID_MC13892},
-+	{ }
-+};
-+
-+static struct i2c_driver mc13xxx_i2c_driver = {
-+	.driver = {
-+		.owner = THIS_MODULE,
-+		.name = "mc13xxx-i2c"
-+	},
-+	.id_table = mc13xxx_i2c_idtable,
-+	.probe = mc13xxx_i2c_probe,
-+	.remove = __devexit_p(mc13xxx_i2c_remove),
-+};
-+
-+static int __init mc13xxx_i2c_init(void)
-+{
-+	return i2c_add_driver(&mc13xxx_i2c_driver);
-+}
-+subsys_initcall(mc13xxx_i2c_init);
-+
-+static void __exit mc13xxx_i2c_exit(void)
-+{
-+	i2c_del_driver(&mc13xxx_i2c_driver);
-+}
-+module_exit(mc13xxx_i2c_exit);
-+
-+MODULE_DESCRIPTION("i2c driver for Freescale MC13XXX PMIC");
-+MODULE_AUTHOR("Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
-index abf77d3..c17fc60 100644
---- a/include/linux/mfd/mc13xxx.h
-+++ b/include/linux/mfd/mc13xxx.h
-@@ -76,7 +76,10 @@ enum mc13xxx_id {
- };
- 
- struct mc13xxx {
--	struct spi_device *spidev;
-+	union {
-+		struct spi_device *spidev;
-+		struct i2c_client *i2cclient;
-+	};
- 
- 	struct device *dev;
- 	enum mc13xxx_id ictype;
 -- 
-1.7.3.4
+1.7.7.3
