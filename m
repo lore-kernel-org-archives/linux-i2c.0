@@ -1,33 +1,65 @@
-From: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c-davinci: dev->irq is used instead of IRQ_I2C by free_irq
-Date: Thu, 19 Jan 2012 15:59:30 +0900
-Message-ID: <1326956370-23469-1-git-send-email-nobuhiro.iwamatsu.yj@renesas.com>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: mc13xxx: add I2C support
+Date: Thu, 19 Jan 2012 15:22:24 +0800
+Message-ID: <20120119072222.GD2247@S2101-09.ap.freescale.net>
+References: <1326934894-29516-1-git-send-email-marc@cpdesign.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1326934894-29516-1-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-dev->irq is used in request_irq function, we should use
-dev->irq in free_irq function too.
+Hi Marc,
 
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-davinci.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+On Thu, Jan 19, 2012 at 12:01:31PM +1100, Marc Reilly wrote:
+> Hi,
+>=20
+> This series (based on 3.2) adds I2C support for the mc13xxx family PM=
+ICs.
+> The patches are similar, but not identical to my previous patches for=
+ this [1], the
+> main difference being the way the config items are done in patch 2.
+>=20
+The series looks nice.
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index a76d85f..79b4bcb 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -755,7 +755,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
- 	dev->clk = NULL;
- 
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
--	free_irq(IRQ_I2C, dev);
-+	free_irq(dev->irq, dev);
- 	iounmap(dev->base);
- 	kfree(dev);
- 
--- 
-1.7.7.3
+> I don't have the hardware to retest on SPI hardware, I'd appreciate i=
+f someone could=20
+> double check it still works.
+>=20
+I just gave it a spin on my imx51 babbage board where mc13892 is
+connected on spi.  The spi access works fine as before, since the part
+still gets recognized correctly.
+
+BTW, I see the following compile error.
+
+  CC      drivers/regulator/mc13892-regulator.o
+In file included from include/linux/mfd/mc13892.h:12:0,
+                 from drivers/regulator/mc13892-regulator.c:13:
+include/linux/mfd/mc13xxx.h:87:15: error: field =E2=80=98lock=E2=80=99 =
+has incomplete type
+
+And I fixed it as below.
+
+---8<----
+diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
+index c17fc60..4ca8439 100644
+--- a/include/linux/mfd/mc13xxx.h
++++ b/include/linux/mfd/mc13xxx.h
+@@ -10,6 +10,7 @@
+ #define __LINUX_MFD_MC13XXX_H
+
+ #include <linux/interrupt.h>
++#include <linux/mutex.h>
+
+ struct mc13xxx;
+
+---->8---
+
+--=20
+Regards,
+Shawn
