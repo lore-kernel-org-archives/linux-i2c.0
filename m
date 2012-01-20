@@ -1,54 +1,89 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: mc13xxx: add I2C support
-Date: Fri, 20 Jan 2012 12:08:36 +0000
-Message-ID: <20120120120836.GA18297@opensource.wolfsonmicro.com>
-References: <1326934894-29516-1-git-send-email-marc@cpdesign.com.au>
- <87lip4kktc.fsf@lebrac.rtp-net.org>
- <20120119112941.GC29494@sirena.org.uk>
- <201201201855.35971.marc@cpdesign.com.au>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] i2c: mxs: only flag completion when queue is completely done
+Date: Fri, 20 Jan 2012 13:56:20 +0100
+Message-ID: <1327064180-23540-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201201201855.35971.marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 20, 2012 at 06:55:35PM +1100, Marc Reilly wrote:
-> On Thursday, January 19, 2012 10:29:41 PM Mark Brown wrote:
-> > On Thu, Jan 19, 2012 at 12:12:31PM +0100, Arnaud Patard wrote:
+The hardware generates an interrupt for every completed command in the
+queue while the code assumed that it will only generate one interrupt
+when the queue is empty. So, explicitly check if the queue is really
+empty. This patch fixed problems which occurred due to high traffic on
+the bus. While we are here, move the completion-initialization after th=
+e
+parameter error checking.
 
-> > > I've never looked at regmap deeply but can't it be done with regmap or is
-> > > it just a bad idea ?
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Lothar Wa=C3=9Fmann <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mxs.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
 
-> > Glancing quickly at the existing code it should map on reasonably well,
-> > though a new format definition may be required for the 25 bit shift that
-> > would be trivial.
-
-> I'm sadly unfamiliar with regmap, is it a far superior solution? does it need 
-> to used now? (ie. I'm relucant to totally rework this now. Please convince me 
-> I need to if required.)
-
-It shouldn't be a total rework - the conversion is usually just a case
-of replacing the body of the current read/write functions (and ideally
-also update_bits() if you've got a one of those) with the equivalent
-regmap calls and adding the calls to initialise and free to the probe
-functions.  This should be pretty quick and easy.
-
-The benefit of doing the simple conversion is mostly just code sharing,
-though you do also get some trace infrastructure for logging register
-writes for free.  With a tiny bit more work (saying what the highest
-register number is) you'd also get debugfs support for dumping the
-register map which is handy for development.  With another small bit of
-work (turning on a flag when registering the device and adding a
-function which says which registers the chip can change itself) you can
-get a register cache which gives a nice performance improvement on
-read/modify/write updates as it cuts out the read.  This is useful for
-things like DVFS where the regulator voltage change should be as quick
-as possible.  None of this is earth shattering but it's very easy to
-deploy once the infrastructure is shared.
-
-I doubt Samuel would insist on doing this immediately, though given that
-you're adding new bus support it'd be nice.
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.=
+c
+index 7e78f7c..3d471d5 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -72,6 +72,7 @@
+=20
+ #define MXS_I2C_QUEUESTAT	(0x70)
+ #define MXS_I2C_QUEUESTAT_RD_QUEUE_EMPTY        0x00002000
++#define MXS_I2C_QUEUESTAT_WRITE_QUEUE_CNT_MASK	0x0000001F
+=20
+ #define MXS_I2C_QUEUECMD	(0x80)
+=20
+@@ -219,14 +220,14 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *a=
+dap, struct i2c_msg *msg,
+ 	int ret;
+ 	int flags;
+=20
+-	init_completion(&i2c->cmd_complete);
+-
+ 	dev_dbg(i2c->dev, "addr: 0x%04x, len: %d, flags: 0x%x, stop: %d\n",
+ 		msg->addr, msg->len, msg->flags, stop);
+=20
+ 	if (msg->len =3D=3D 0)
+ 		return -EINVAL;
+=20
++	init_completion(&i2c->cmd_complete);
++
+ 	flags =3D stop ? MXS_I2C_CTRL0_POST_SEND_STOP : 0;
+=20
+ 	if (msg->flags & I2C_M_RD)
+@@ -286,6 +287,7 @@ static irqreturn_t mxs_i2c_isr(int this_irq, void *=
+dev_id)
+ {
+ 	struct mxs_i2c_dev *i2c =3D dev_id;
+ 	u32 stat =3D readl(i2c->regs + MXS_I2C_CTRL1) & MXS_I2C_IRQ_MASK;
++	bool is_last_cmd;
+=20
+ 	if (!stat)
+ 		return IRQ_NONE;
+@@ -300,9 +302,14 @@ static irqreturn_t mxs_i2c_isr(int this_irq, void =
+*dev_id)
+ 	else
+ 		i2c->cmd_err =3D 0;
+=20
+-	complete(&i2c->cmd_complete);
++	is_last_cmd =3D (readl(i2c->regs + MXS_I2C_QUEUESTAT) &
++		MXS_I2C_QUEUESTAT_WRITE_QUEUE_CNT_MASK) =3D=3D 0;
++
++	if (is_last_cmd || i2c->cmd_err)
++		complete(&i2c->cmd_complete);
+=20
+ 	writel(stat, i2c->regs + MXS_I2C_CTRL1_CLR);
++
+ 	return IRQ_HANDLED;
+ }
+=20
+--=20
+1.7.8.3
