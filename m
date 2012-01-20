@@ -1,45 +1,54 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH RFC] I2C : OMAP : make omap_i2c_unidle/idle functions depend on CONFIG_PM_RUNTIME
-Date: Thu, 19 Jan 2012 11:08:24 -0800
-Message-ID: <87d3afwlw7.fsf@ti.com>
-References: <1326270657-15309-1-git-send-email-shubhrajyoti@ti.com>
-	<877h0x3mxh.fsf@ti.com> <4F0E84B9.8050805@ti.com>
+From: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Subject: Re: mc13xxx: add I2C support
+Date: Fri, 20 Jan 2012 18:55:35 +1100
+Message-ID: <201201201855.35971.marc@cpdesign.com.au>
+References: <1326934894-29516-1-git-send-email-marc@cpdesign.com.au>
+	<87lip4kktc.fsf@lebrac.rtp-net.org>
+	<20120119112941.GC29494@sirena.org.uk>
+Reply-To: marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F0E84B9.8050805-l0cyMroinI0@public.gmane.org> (shubhrajyoti-l0cyMroinI0@public.gmane.org's message of "Thu,
-	12 Jan 2012 12:29:05 +0530")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <20120119112941.GC29494-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
+List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
+Hi,
 
-> On Thursday 12 January 2012 03:46 AM, Kevin Hilman wrote:
->> Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
->>
->>> The functions omap_i2c_unidle/idle are called from omap_i2c_runtime_resume
->>> and omap_i2c_runtime_suspend which is compiled for CONFIG_PM_RUNTIME.
->>> Make the omap_i2c_unidle/idle also depend on CONFIG_PM_RUNTIME flag.
->> I probably should've done this when I initially cleaned up the
->> callbacks, but since you're doing it...
->>
->> rather than move the functions within the file, just remove the
->> functions and move the code into the runtime callbacks.
-> That may break the modularity of the code since the
->
-> omap_i2c_unidle is responsible for restore. I would have preferred to keep it separate.
+Thankyou all for your feedback and comments. I'll use them for a V2 but 
+Samuel, I'd like to know if you'd like me to base them on a specific branch 
+before I do.
 
-> Do you think  I could  rename   omap_i2c_unidle to 
-> omap_i2c_restore instead ?
+Shawn, thanks for testing!
 
-that doesn't help: It does restore and (re)enable interrupts.
+On Thursday, January 19, 2012 10:29:41 PM Mark Brown wrote:
+> On Thu, Jan 19, 2012 at 12:12:31PM +0100, Arnaud Patard wrote:
+> > I've never looked at regmap deeply but can't it be done with regmap or is
+> > it just a bad idea ?
+> 
+> Glancing quickly at the existing code it should map on reasonably well,
+> though a new format definition may be required for the 25 bit shift that
+> would be trivial.
 
-> However don't feel strongly about it either dif you still feel that it should be moved into runtime 
-> callbacks directly I am ok.
+I'm sadly unfamiliar with regmap, is it a far superior solution? does it need 
+to used now? (ie. I'm relucant to totally rework this now. Please convince me 
+I need to if required.)
 
-Yes, just move it into the runtime callbacks as it's the only place they
-are used.
-
-Kevin
+Cheers,
+Marc
+------------------------------------------------------------------------------
+Keep Your Developer Skills Current with LearnDevNow!
+The most comprehensive online learning library for Microsoft developers
+is just $99.99! Visual Studio, SharePoint, SQL - plus HTML5, CSS3, MVC3,
+Metro Style Apps, more. Free future releases when you subscribe now!
+http://p.sf.net/sfu/learndevnow-d2d
