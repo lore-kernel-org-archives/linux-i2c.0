@@ -1,54 +1,61 @@
-From: Arnaud Patard (Rtp) <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>
-Subject: Re: mc13xxx: add I2C support
-Date: Fri, 20 Jan 2012 11:36:07 +0100
-Message-ID: <878vl2lkyw.fsf@lebrac.rtp-net.org>
-References: <1326934894-29516-1-git-send-email-marc@cpdesign.com.au>
-	<87lip4kktc.fsf@lebrac.rtp-net.org>
-	<20120119112941.GC29494@sirena.org.uk>
-	<201201201855.35971.marc@cpdesign.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Olivier Sobrie <olivier-Ui3EtX6WB9GzQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH] i2c-isch: Decrease delay in the loop checking the BUSY state of the bus
+Date: Fri, 20 Jan 2012 12:46:54 +0100
+Message-ID: <1327060014-7604-1-git-send-email-olivier@sobrie.be>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201201201855.35971.marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org> (Marc Reilly's message
-	of "Fri, 20 Jan 2012 18:55:35 +1100")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Olivier Sobrie <olivier-Ui3EtX6WB9GzQB+pC5nmwQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org> writes:
+Generally it is not needed to wait for 1 msec, the SMBus get often ready
+in less than 200 usecs.
 
-> Hi,
+msleep(1) can wait up to 20 msecs... It has a significant impact when
+there is a burst of transactions on the bus.
 
-Hi,
+Signed-off-by: Olivier Sobrie <olivier-Ui3EtX6WB9GzQB+pC5nmwQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-isch.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
->
-> Thankyou all for your feedback and comments. I'll use them for a V2 but 
-> Samuel, I'd like to know if you'd like me to base them on a specific branch 
-> before I do.
->
-> Shawn, thanks for testing!
->
-> On Thursday, January 19, 2012 10:29:41 PM Mark Brown wrote:
->> On Thu, Jan 19, 2012 at 12:12:31PM +0100, Arnaud Patard wrote:
->> > I've never looked at regmap deeply but can't it be done with regmap or is
->> > it just a bad idea ?
->> 
->> Glancing quickly at the existing code it should map on reasonably well,
->> though a new format definition may be required for the 25 bit shift that
->> would be trivial.
->
-> I'm sadly unfamiliar with regmap, is it a far superior solution? does it need 
-
-The aim of regmap is to provide a solution for chip running either on
-i2c or spi, that's why I thought it would be interesting to use it
-instead of rewriting similar code.
-
-> to used now? (ie. I'm relucant to totally rework this now. Please convince me 
-> I need to if required.)
-
-I don't know. I've no strong opinion about it. Moreover, nothing
-prevents you to try to merge this version and then convert to regmap,
-say once the 25 bit shift problem noticed by Mark is fixed.
-
-Arnaud
+diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
+index 6561d27..f90a605 100644
+--- a/drivers/i2c/busses/i2c-isch.c
++++ b/drivers/i2c/busses/i2c-isch.c
+@@ -47,7 +47,7 @@
+ #define SMBBLKDAT	(0x20 + sch_smba)
+ 
+ /* Other settings */
+-#define MAX_TIMEOUT	500
++#define MAX_RETRIES	5000
+ 
+ /* I2C constants */
+ #define SCH_QUICK		0x00
+@@ -68,7 +68,7 @@ static int sch_transaction(void)
+ {
+ 	int temp;
+ 	int result = 0;
+-	int timeout = 0;
++	int retries = 0;
+ 
+ 	dev_dbg(&sch_adapter.dev, "Transaction (pre): CNT=%02x, CMD=%02x, "
+ 		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb(SMBHSTCNT),
+@@ -100,12 +100,12 @@ static int sch_transaction(void)
+ 	outb(inb(SMBHSTCNT) | 0x10, SMBHSTCNT);
+ 
+ 	do {
+-		msleep(1);
++		usleep_range(100, 200);
+ 		temp = inb(SMBHSTSTS) & 0x0f;
+-	} while ((temp & 0x08) && (timeout++ < MAX_TIMEOUT));
++	} while ((temp & 0x08) && (retries++ < MAX_RETRIES));
+ 
+ 	/* If the SMBus is still busy, we give up */
+-	if (timeout > MAX_TIMEOUT) {
++	if (retries > MAX_RETRIES) {
+ 		dev_err(&sch_adapter.dev, "SMBus Timeout!\n");
+ 		result = -ETIMEDOUT;
+ 	}
+-- 
+1.7.5.4
