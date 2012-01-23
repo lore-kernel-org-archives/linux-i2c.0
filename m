@@ -1,48 +1,60 @@
-From: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>
-Subject: Re: [PATCH] i2c-s3c2410: Add stub runtime power management
-Date: Mon, 23 Jan 2012 21:19:31 +0100
-Message-ID: <4F1DC0D3.4070408@gmail.com>
-References: <1327171600-5489-1-git-send-email-broonie@opensource.wolfsonmicro.com> <4F1C082D.2080005@gmail.com> <20120122152234.GA2915@opensource.wolfsonmicro.com> <4F1C45C6.1040003@gmail.com> <CADkCAusScak6gH4BBowrOpveGG=eDjZdj+X8vF4D5+yi8gv5PA@mail.gmail.com> <4F1C4BF4.5040409@gmail.com> <20120122213952.GA29022@opensource.wolfsonmicro.com>
+From: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH 5/7] ARM: davinci: i2c: add OF support
+Date: Mon, 23 Jan 2012 21:35:12 +0100
+Message-ID: <4F1DC480.4010603@gmail.com>
+References: <1327308967-8092-1-git-send-email-hs@denx.de> <1327308967-8092-6-git-send-email-hs@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20120122213952.GA29022@opensource.wolfsonmicro.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Bill Gatliff <bgat@billgatliff.com>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-pm@lists.linux-foundation.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1327308967-8092-6-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 01/22/2012 10:39 PM, Mark Brown wrote:
-> On Sun, Jan 22, 2012 at 06:48:36PM +0100, Sylwester Nawrocki wrote:
->> On 01/22/2012 06:27 PM, Bill Gatliff wrote:
-> 
->>> I for one would rather see in-kernel drivers that require it, and then
-> 
->> In fact we have to deal with the opposite now, as some existing drivers
->> have been used for multiple generations of SoC, where almost unchanged
->> device IPs are deployed. Those drivers were originally written for the
->> simplest SoCs.
-> 
-> TBH I think most of the devices for which people are running these days
-> will be able to get some win from the system wide stuff - the WFI modes
-> aren't exactly the latest thing in hardware terms, it's just been a long
-> road to getting them supported.  Infrastructure like Mark's PM QoS work
-> and Raphael's PM domains work has really helped a lot here.
+Hello,
 
-Indeed, now that I checked some earliest SoC TRMs even the simplest systems
-have some sort of intermediate Idle states.
-
->>> patches in mailing lists that show how to un-require it.  Make it more
->>> painful to avoid PM_RUNTIME, and less painful to use it.
+On 01/23/2012 09:56 AM, Heiko Schocher wrote:
+> add of support for the davinci i2c driver.
 > 
->> Yeah, makes a lot of sense. With new code there is no issue, only the code
->> with long history is sort of troublesome.
+> Signed-off-by: Heiko Schocher<hs-ynQEQJNshbs@public.gmane.org>
+> Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: Ben Dooks<ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> Cc: Wolfram Sang<w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Cc: Grant Likely<grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+> Cc: Sekhar Nori<nsekhar-l0cyMroinI0@public.gmane.org>
+> Cc: Wolfgang Denk<wd-ynQEQJNshbs@public.gmane.org>
+> ---
+>   .../devicetree/bindings/arm/davinci/i2c.txt        |   39 ++++++++++++++++++
+>   drivers/i2c/busses/i2c-davinci.c                   |   43 ++++++++++++++++++++
+>   2 files changed, 82 insertions(+), 0 deletions(-)
+>   create mode 100644 Documentation/devicetree/bindings/arm/davinci/i2c.txt
 > 
-> It's mostly a transition management issue I think.  When I repost I'll
-> add an additional patch on top which moves the clock gating into the
-> runtime PM callbacks, that way the decision on that doesn't block the
-> system wide work.
+> diff --git a/Documentation/devicetree/bindings/arm/davinci/i2c.txt b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
+> new file mode 100644
+> index 0000000..94ec670
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
+> @@ -0,0 +1,39 @@
+> +* Texas Instruments Davinci I2C
+> +
+> +This file provides information, what the device node for the
+> +davinci i2c interface contain.
+> +
+> +Required properties:
+> +- compatible: "ti,davinci-i2c";
+> +- reg : Offset and length of the register set for the device
+> +- id: id of the controller
 
-Sounds like a great resolution to the problem, thanks for considering it.
-And sorry for disturbing. Let's see what's Kukjin's opinion on that.
+I was wondering whether we're supposed to use "cell-index" property name
+for such a device instance index? or doesn't it really matter and "id" is 
+fine? Such an IP instance index seems quite common so I thought it could
+be easier to follow to use standard name.
+
+--
+Regards,
+Sylwester
