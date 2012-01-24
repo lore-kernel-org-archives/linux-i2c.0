@@ -1,60 +1,77 @@
-From: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [RFC PATCH 5/7] ARM: davinci: i2c: add OF support
-Date: Mon, 23 Jan 2012 21:35:12 +0100
-Message-ID: <4F1DC480.4010603@gmail.com>
-References: <1327308967-8092-1-git-send-email-hs@denx.de> <1327308967-8092-6-git-send-email-hs@denx.de>
+From: Seth Heasley <seth.heasley@intel.com>
+Subject: [PATCH 4/6] i2c-i801: SMBus patch for Intel Lynx Point DeviceIDs
+Date: Mon, 23 Jan 2012 16:37:36 -0800
+Message-ID: <201201231637.36362.seth.heasley@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1327308967-8092-6-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: khali@linux-fr.org, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, james.d.ralston@intel.com, seth.heasley@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+This patch adds the SMBus controller DeviceIDs for the Intel Lynx Point PCH.
 
-On 01/23/2012 09:56 AM, Heiko Schocher wrote:
-> add of support for the davinci i2c driver.
-> 
-> Signed-off-by: Heiko Schocher<hs-ynQEQJNshbs@public.gmane.org>
-> Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Ben Dooks<ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Wolfram Sang<w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Grant Likely<grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Sekhar Nori<nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: Wolfgang Denk<wd-ynQEQJNshbs@public.gmane.org>
-> ---
->   .../devicetree/bindings/arm/davinci/i2c.txt        |   39 ++++++++++++++++++
->   drivers/i2c/busses/i2c-davinci.c                   |   43 ++++++++++++++++++++
->   2 files changed, 82 insertions(+), 0 deletions(-)
->   create mode 100644 Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/arm/davinci/i2c.txt b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> new file mode 100644
-> index 0000000..94ec670
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> @@ -0,0 +1,39 @@
-> +* Texas Instruments Davinci I2C
-> +
-> +This file provides information, what the device node for the
-> +davinci i2c interface contain.
-> +
-> +Required properties:
-> +- compatible: "ti,davinci-i2c";
-> +- reg : Offset and length of the register set for the device
-> +- id: id of the controller
+Signed-off-by: Seth Heasley <seth.heasley@intel.com>
+---
+ Documentation/i2c/busses/i2c-i801 |    1 +
+ drivers/i2c/busses/Kconfig        |    1 +
+ drivers/i2c/busses/i2c-i801.c     |    3 +++
+ 3 files changed, 5 insertions(+), 0 deletions(-)
 
-I was wondering whether we're supposed to use "cell-index" property name
-for such a device instance index? or doesn't it really matter and "id" is 
-fine? Such an IP instance index seems quite common so I thought it could
-be easier to follow to use standard name.
-
---
-Regards,
-Sylwester
+diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+index 2871fd5..71f55bb 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -20,6 +20,7 @@ Supported adapters:
+   * Intel Patsburg (PCH)
+   * Intel DH89xxCC (PCH)
+   * Intel Panther Point (PCH)
++  * Intel Lynx Point (PCH)
+    Datasheets: Publicly available at the Intel website
+ 
+ On Intel Patsburg and later chipsets, both the normal host SMBus controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index a3afac4..ff64291 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -103,6 +103,7 @@ config I2C_I801
+ 	    Patsburg (PCH)
+ 	    DH89xxCC (PCH)
+ 	    Panther Point (PCH)
++	    Lynx Point (PCH)
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index ab26840d..f9c3ca0 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -51,6 +51,7 @@
+   Patsburg (PCH) IDF    0x1d72     32     hard     yes     yes     yes
+   DH89xxCC (PCH)        0x2330     32     hard     yes     yes     yes
+   Panther Point (PCH)   0x1e22     32     hard     yes     yes     yes
++  Lynx Point (PCH)      0x8c22     32     hard     yes     yes     yes
+ 
+   Features supported by this driver:
+   Software PEC                     no
+@@ -145,6 +146,7 @@
+ #define PCI_DEVICE_ID_INTEL_PANTHERPOINT_SMBUS	0x1e22
+ #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
+ #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
++#define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
+ 
+ struct i801_priv {
+ 	struct i2c_adapter adapter;
+@@ -633,6 +635,7 @@ static const struct pci_device_id i801_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF2) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PANTHERPOINT_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS) },
+ 	{ 0, }
+ };
+ 
+-- 
+1.7.4.4
