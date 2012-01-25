@@ -1,106 +1,40 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-i801: Use usleep_range to wait for command completion
-Date: Tue, 24 Jan 2012 17:54:08 +0100
-Message-ID: <20120124175408.61797201@endymion.delvare>
+From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Subject: Re: Accessing EEPROM from Linux driver
+Date: Wed, 25 Jan 2012 12:19:06 +0100
+Message-ID: <CAGm1_ks9Do5Wk=tNoqYZtnNm4KEo3OF4zWknDirS8+hW_T_0qA@mail.gmail.com>
+References: <CAGm1_ku3N0ksJ4USt9Rae=Yo3xcTFX=dLVh6=YMkFjUaLABu-A@mail.gmail.com>
+ <20120124100636.GB2609@pengutronix.de> <CAGm1_ksgrtyAmo73f-GCr_ZH=8i8LxbwFpMH81U2STQzmT9GYQ@mail.gmail.com>
+ <CAGm1_kugwA-rWXmCNNcxRc4XZ5u-2N8Rwf+LBaoRrOgBWMTbDg@mail.gmail.com> <20120124111320.GD2609@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120124111320.GD2609-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Olivier Sobrie <olivier-Ui3EtX6WB9GzQB+pC5nmwQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use usleep_range instead of msleep when waiting for command
-completion. Most SMBus commands complete in less than 2 jiffies so
-this brings a pleasant performance boost.
+On Tue, Jan 24, 2012 at 12:13 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+>> Wolfram, do you have any example how to access at24_macc_read()? My
+>> kernel is 2.6.37. Theres is a statement to export this code to the
+>> kernel via chip.setup(), which appears to be NULL. What headers do I
+>> need in the network driver?
+>
+> I haven't used it myself, but using LXR [1] you can check current users
+> of at24_platform_data and find users (davinci) using this feature.
+>
+> [1] http://lxr.linux.no/#linux+v3.2.1/include/linux/i2c/at24.h
 
-Strongly inspired from a similar change by Olivier Sobrie to the
-i2c-isch driver.
+Thanks. It's working now. I was lucky to have DaVinci based EMAC in
+am3517, so I only had to adjust the code on the platform side. The
+driver itself was left untouched. For USB based NIC and WLAN I'll need
+to get my hands on their drivers :-(
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Olivier Sobrie <olivier-Ui3EtX6WB9GzQB+pC5nmwQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-i801.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+I submitted a patch to eeprom's documentation. At this point I have a
+question? Are those TODO items still valid? At least in regards of
+write capability? In 2.6.37 kernel I can write to EEPROM through sysfs
+entry. Unfortunately I can't test any 3.x kernel because PSP for
+am3517 is still not finished.
 
---- linux-3.3-rc1.orig/drivers/i2c/busses/i2c-i801.c	2012-01-24 16:55:37.734394612 +0100
-+++ linux-3.3-rc1/drivers/i2c/busses/i2c-i801.c	2012-01-24 17:51:00.921443870 +0100
-@@ -2,7 +2,7 @@
-     Copyright (c) 1998 - 2002  Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>,
-     Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>, and Mark D. Studebaker
-     <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
--    Copyright (C) 2007, 2008   Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-+    Copyright (C) 2007 - 2012  Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-     Copyright (C) 2010         Intel Corporation,
-                                David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
- 
-@@ -106,7 +106,7 @@
- #define SMBHSTCNT_KILL		2
- 
- /* Other settings */
--#define MAX_TIMEOUT		100
-+#define MAX_RETRIES		400
- #define ENABLE_INT9		0	/* set to 0x01 to enable - untested */
- 
- /* I801 command constants */
-@@ -217,7 +217,7 @@ static int i801_check_post(struct i801_p
- 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
- 		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
- 		       SMBHSTCNT(priv));
--		msleep(1);
-+		usleep_range(1000, 2000);
- 		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
- 		       SMBHSTCNT(priv));
- 
-@@ -274,11 +274,11 @@ static int i801_transaction(struct i801_
- 
- 	/* We will always wait for a fraction of a second! */
- 	do {
--		msleep(1);
-+		usleep_range(250, 500);
- 		status = inb_p(SMBHSTSTS(priv));
--	} while ((status & SMBHSTSTS_HOST_BUSY) && (timeout++ < MAX_TIMEOUT));
-+	} while ((status & SMBHSTSTS_HOST_BUSY) && (timeout++ < MAX_RETRIES));
- 
--	result = i801_check_post(priv, status, timeout > MAX_TIMEOUT);
-+	result = i801_check_post(priv, status, timeout > MAX_RETRIES);
- 	if (result < 0)
- 		return result;
- 
-@@ -293,12 +293,12 @@ static void i801_wait_hwpec(struct i801_
- 	int status;
- 
- 	do {
--		msleep(1);
-+		usleep_range(250, 500);
- 		status = inb_p(SMBHSTSTS(priv));
- 	} while ((!(status & SMBHSTSTS_INTR))
--		 && (timeout++ < MAX_TIMEOUT));
-+		 && (timeout++ < MAX_RETRIES));
- 
--	if (timeout > MAX_TIMEOUT)
-+	if (timeout > MAX_RETRIES)
- 		dev_dbg(&priv->pci_dev->dev, "PEC Timeout!\n");
- 
- 	outb_p(status, SMBHSTSTS(priv));
-@@ -382,12 +382,12 @@ static int i801_block_transaction_byte_b
- 		/* We will always wait for a fraction of a second! */
- 		timeout = 0;
- 		do {
--			msleep(1);
-+			usleep_range(250, 500);
- 			status = inb_p(SMBHSTSTS(priv));
- 		} while ((!(status & SMBHSTSTS_BYTE_DONE))
--			 && (timeout++ < MAX_TIMEOUT));
-+			 && (timeout++ < MAX_RETRIES));
- 
--		result = i801_check_post(priv, status, timeout > MAX_TIMEOUT);
-+		result = i801_check_post(priv, status, timeout > MAX_RETRIES);
- 		if (result < 0)
- 			return result;
- 
-
-
--- 
-Jean Delvare
+Regards,
+Yegor
