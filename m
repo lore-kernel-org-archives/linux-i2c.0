@@ -1,40 +1,68 @@
-From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: Accessing EEPROM from Linux driver
-Date: Wed, 25 Jan 2012 12:19:06 +0100
-Message-ID: <CAGm1_ks9Do5Wk=tNoqYZtnNm4KEo3OF4zWknDirS8+hW_T_0qA@mail.gmail.com>
-References: <CAGm1_ku3N0ksJ4USt9Rae=Yo3xcTFX=dLVh6=YMkFjUaLABu-A@mail.gmail.com>
- <20120124100636.GB2609@pengutronix.de> <CAGm1_ksgrtyAmo73f-GCr_ZH=8i8LxbwFpMH81U2STQzmT9GYQ@mail.gmail.com>
- <CAGm1_kugwA-rWXmCNNcxRc4XZ5u-2N8Rwf+LBaoRrOgBWMTbDg@mail.gmail.com> <20120124111320.GD2609@pengutronix.de>
+From: Yegor Yefremov <yegor_sub1-ZJVcf1zZPRSebONBosFW4Q@public.gmane.org>
+Subject: [PATCH] Documentation: EEPROM: add kernel side usage description
+Date: Wed, 25 Jan 2012 12:12:16 +0100
+Message-ID: <4F1FE390.6040903@visionsystems.de>
+Reply-To: yegor_sub1-ZJVcf1zZPRSebONBosFW4Q@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120124111320.GD2609-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jan 24, 2012 at 12:13 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->> Wolfram, do you have any example how to access at24_macc_read()? My
->> kernel is 2.6.37. Theres is a statement to export this code to the
->> kernel via chip.setup(), which appears to be NULL. What headers do I
->> need in the network driver?
->
-> I haven't used it myself, but using LXR [1] you can check current users
-> of at24_platform_data and find users (davinci) using this feature.
->
-> [1] http://lxr.linux.no/#linux+v3.2.1/include/linux/i2c/at24.h
+add EEPROM usage instructions and example for kernel side.
+dm644x-evm was taken as example.
 
-Thanks. It's working now. I was lucky to have DaVinci based EMAC in
-am3517, so I only had to adjust the code on the platform side. The
-driver itself was left untouched. For USB based NIC and WLAN I'll need
-to get my hands on their drivers :-(
+Signed-off-by: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+---
+ Documentation/misc-devices/eeprom |   34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-I submitted a patch to eeprom's documentation. At this point I have a
-question? Are those TODO items still valid? At least in regards of
-write capability? In 2.6.37 kernel I can write to EEPROM through sysfs
-entry. Unfortunately I can't test any 3.x kernel because PSP for
-am3517 is still not finished.
-
-Regards,
-Yegor
+Index: b/Documentation/misc-devices/eeprom
+===================================================================
+--- a/Documentation/misc-devices/eeprom
++++ b/Documentation/misc-devices/eeprom
+@@ -90,7 +90,41 @@
+ 
+ Use:
+ 
++1. Userland
++
+ After inserting the module (and any other required SMBus/i2c modules), you
+ should have some EEPROM directories in /sys/bus/i2c/devices/* of names such
+ as "0-0050". Inside each of these is a series of files, the eeprom file
+ contains the binary data from EEPROM.
++
++2. Kernel
++
++It is also possible to read/write EEPROM from kernel side. at24.c provides two
++routines at24_macc_read() and at24_macc_write(). Those routines can be used
++as part of setup() routine, when configuring platform data for i2c EEPROM.
++
++Example:
++
++arch/arm/mach-davinci/board-dm644x-evm.c uses EEPROM to store MAC address.
++This is how EEPROM platform data will be set up:
++
++static struct at24_platform_data eeprom_info = {
++	.byte_len	= (256*1024) / 8,
++	.page_size	= 64,
++	.flags		= AT24_FLAG_ADDR16,
++	.setup          = davinci_get_mac_addr,
++	.context	= (void *)0x7f00,
++};
++
++davinci_get_mac_addr() will be called from at24_probe() and fetches the MAC
++address from specified offset:
++
++void davinci_get_mac_addr(struct memory_accessor *mem_acc, void *context)
++{
++	char *mac_addr = davinci_soc_info.emac_pdata->mac_addr;
++	off_t offset = (off_t)context;
++
++	/* Read MAC addr from EEPROM */
++	if (mem_acc->read(mem_acc, mac_addr, offset, ETH_ALEN) == ETH_ALEN)
++		pr_info("Read MAC addr from EEPROM: %pM\n", mac_addr);
++}
