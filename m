@@ -1,60 +1,38 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: core: comment says "transmitted" but means
- "received"
-Date: Thu, 26 Jan 2012 09:02:43 +0100
-Message-ID: <20120126090243.2fe961cc@endymion.delvare>
-References: <1327521565-14988-1-git-send-email-w.sang@pengutronix.de>
+From: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>
+Subject: [PATCH] (RESEND #2)  i2c: prevent spurious interrupt
+Date: Thu, 26 Jan 2012 16:13:34 +0000
+Message-ID: <20120126161319.22798.6071.stgit@bob.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1327521565-14988-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 25 Jan 2012 20:59:25 +0100, Wolfram Sang wrote:
-> Fix that. Also convert this and the related comment to proper commenting
-> style.
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c |   12 ++++++++----
->  1 files changed, 8 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 1e56061..e9c1893 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1386,8 +1386,10 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
->  
->  	ret = i2c_transfer(adap, &msg, 1);
->  
-> -	/* If everything went ok (i.e. 1 msg transmitted), return #bytes
-> -	   transmitted, else error code. */
-> +	/*
-> +	 * If everything went ok (i.e. 1 msg transmitted), return #bytes
-> +	 * transmitted, else error code.
-> +	 */
->  	return (ret == 1) ? count : ret;
->  }
->  EXPORT_SYMBOL(i2c_master_send);
-> @@ -1414,8 +1416,10 @@ int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
->  
->  	ret = i2c_transfer(adap, &msg, 1);
->  
-> -	/* If everything went ok (i.e. 1 msg transmitted), return #bytes
-> -	   transmitted, else error code. */
-> +	/*
-> +	 * If everything went ok (i.e. 1 msg received), return #bytes received,
-> +	 * else error code.
-> +	 */
->  	return (ret == 1) ? count : ret;
->  }
->  EXPORT_SYMBOL(i2c_master_recv);
+From: Kristen Carlson Accardi <kristen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Applied, thanks.
+Don't call i2c_enable on resume because it causes a spurious
+interrupt.
 
--- 
-Jean Delvare
+Signed-off-by:  Kristen Carlson Accardi <kristen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+
+ drivers/i2c/busses/i2c-designware-pcidrv.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
+
+
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 37f4211..00e8f21 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -182,7 +182,6 @@ static int i2c_dw_pci_resume(struct device *dev)
+ 	pci_restore_state(pdev);
+ 
+ 	i2c_dw_init(i2c);
+-	i2c_dw_enable(i2c);
+ 	return 0;
+ }
+ 
