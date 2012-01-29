@@ -1,67 +1,67 @@
-From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: [PATCH] at24: add kernel side usage description
-Date: Sun, 29 Jan 2012 01:16:36 +0100
-Message-ID: <CAGm1_kuiucZjjX7oaF+A9PcQ534X-6XTk=KWP58zV0cSfx4OGw@mail.gmail.com>
-References: <1327507871-15211-1-git-send-email-yegorslists@googlemail.com> <20120128225336.GC26708@pengutronix.de>
+From: Barry Song <21cnbao@gmail.com>
+Subject: Re: [PATCH 1/2] i2c-s3c2410: Convert to devm_kzalloc()
+Date: Sun, 29 Jan 2012 13:14:39 +0800
+Message-ID: <CAGsJ_4x285CE0aDB4J2iKN7uyc4afxSTZ=i-Mrmc7DfsiNUEQA@mail.gmail.com>
+References: <1327152527-11364-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120128225336.GC26708-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1327152527-11364-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Jean Delvare <khali@linux-fr.org>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jan 28, 2012 at 11:53 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> =
-wrote:
-> On Wed, Jan 25, 2012 at 05:11:11PM +0100, yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org =
-wrote:
->> From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
->>
->> Add EEPROM usage instructions and example for kernel side.
->> dm644x-evm was taken as example.
->>
->> Signed-off-by: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
->> ---
->> =C2=A0drivers/misc/eeprom/at24.c | =C2=A0 =C2=A09 +++++++++
->> =C2=A01 files changed, 9 insertions(+), 0 deletions(-)
->>
->> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
->> index ab1ad41..49494ad 100644
->> --- a/drivers/misc/eeprom/at24.c
->> +++ b/drivers/misc/eeprom/at24.c
->> @@ -438,6 +438,15 @@ static ssize_t at24_bin_write(struct file *filp=
-, struct kobject *kobj,
->> =C2=A0 * This lets other kernel code access the eeprom data. For exa=
-mple, it
->> =C2=A0 * might hold a board's Ethernet address, or board-specific ca=
-libration
->> =C2=A0 * data generated on the manufacturing floor.
->> + *
->> + * struct at24_platform_data provides special hook .setup, that can
->> + * invoke at24_macc_read()/at24_macc_write() through memory_accesso=
-r:
->> + *
->> + * void =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0(*setup)(st=
-ruct memory_accessor *, void *context);
->> + *
->> + * setup hook (if provided) will be executed at the end of at24_pro=
-be().
->> + *
->> + * See arch/arm/mach-davinci/board-dm644x-evm.c for details.
+2012/1/21 Mark Brown <broonie@opensource.wolfsonmicro.com>:
+> Saves remembering to call kfree(). There's some kfree()s used by the
+> resource still, these will be removed in 3.3 using the newly added
+> devm_request_and_ioremap().
 >
-> I think a reference to some board code is not good, since the code mi=
-ght change
-> for whatever reason. I know that I suggested to place the comment the=
-re, but
-> meanwhile I think at24_platform_data really needs to get proper kerne=
-l-doc
-> annotations, also including your suggestion. I won't force that on yo=
-u and will
-> do it in the next days, unless you are eager to do it, of course :)
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 
-I think you're the best man to do the job :-) Since you have more
-experience in this area.
+Reviewed-by: Barry Song <Baohua.Song@csr.com>
 
-Yegor
+> ---
+> =C2=A0drivers/i2c/busses/i2c-s3c2410.c | =C2=A0 =C2=A04 +---
+> =C2=A01 files changed, 1 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2=
+c-s3c2410.c
+> index 4c17180..e6f982b 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -890,7 +890,7 @@ static int s3c24xx_i2c_probe(struct platform_devi=
+ce *pdev)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0}
+>
+> - =C2=A0 =C2=A0 =C2=A0 i2c =3D kzalloc(sizeof(struct s3c24xx_i2c), GF=
+P_KERNEL);
+> + =C2=A0 =C2=A0 =C2=A0 i2c =3D devm_kzalloc(&pdev->dev, sizeof(struct=
+ s3c24xx_i2c), GFP_KERNEL);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (!i2c) {
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0dev_err(&pdev-=
+>dev, "no memory for state\n");
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -ENOMEM=
+;
+> @@ -1035,7 +1035,6 @@ static int s3c24xx_i2c_probe(struct platform_de=
+vice *pdev)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0clk_put(i2c->clk);
+>
+> =C2=A0err_noclk:
+> - =C2=A0 =C2=A0 =C2=A0 kfree(i2c);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0return ret;
+> =C2=A0}
+>
+> @@ -1061,7 +1060,6 @@ static int s3c24xx_i2c_remove(struct platform_d=
+evice *pdev)
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0release_resource(i2c->ioarea);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0s3c24xx_i2c_dt_gpio_free(i2c);
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0kfree(i2c->ioarea);
+> - =C2=A0 =C2=A0 =C2=A0 kfree(i2c);
+>
+> =C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;
+> =C2=A0}
+> --
+> 1.7.7.3
