@@ -1,46 +1,110 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: [PATCH] (RESEND #2)  i2c: prevent spurious interrupt
-Date: Sun, 29 Jan 2012 23:29:34 +0000
-Message-ID: <20120129232934.GD8441@trinity.fluff.org>
-References: <20120126161319.22798.6071.stgit@bob.linux.org.uk> <20120127092607.09ed312a@endymion.delvare>
+From: Roman Mamedov <rm@romanrm.ru>
+Subject: Re: [2.6.37 -> 2.6.38 regression] "mv64xxx: I2C bus locked, block:
+ 1, time_left: 0" every few seconds
+Date: Tue, 31 Jan 2012 02:44:29 +0600
+Message-ID: <20120131024429.2affbd1c@natsu>
+References: <20120101042401.4bef017e@natsu>
+ <20120101073255.GA2402@elie.hsd1.il.comcast.net>
+ <20120108004502.GA20549@ericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120127092607.09ed312a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Alan Cox <alan-qBU/x9rampVanCEyBjwyrvXRex20P6io@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============4013045066879140383=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20120108004502.GA20549@ericsson.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Guenter Roeck <guenter.roeck@ericsson.com>
+Cc: Arnaud Patard <arnaud.patard@rtp-net.org>, linux-kernel@vger.kernel.org, Jonathan Nieder <jrnieder@gmail.com>, Manuel Roeder <manuel_roeder@gmx.de>, Michael Ott <michael@king-coder.de>, Rodolfo Giometti <giometti@linux.it>, Mauro Barella <mbarella@vds-it.com>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 27, 2012 at 09:26:07AM +0100, Jean Delvare wrote:
-> Hi Alan,
-> 
-> On Thu, 26 Jan 2012 16:13:34 +0000, Alan Cox wrote:
-> > From: Kristen Carlson Accardi <kristen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > 
-> > Don't call i2c_enable on resume because it causes a spurious
-> > interrupt.
-> > 
-> > Signed-off-by:  Kristen Carlson Accardi <kristen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > Signed-off-by: Kirill A. Shutemov <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > Signed-off-by: Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > ---
-> > 
-> >  drivers/i2c/busses/i2c-designware-pcidrv.c |    1 -
-> >  1 files changed, 0 insertions(+), 1 deletions(-)
-> 
-> Please come up with a decent subject line for this patch. Currently it
-> sounds very generic so Ben will never look at it, assuming I will take
-> care of it. But it is actually driver-specific, and that's a driver Ben
+--===============4013045066879140383==
+Content-Type: multipart/signed; micalg=PGP-SHA1;
+ boundary="Sig_/d_beU1UD.wwpuu792r=2Ei5"; protocol="application/pgp-signature"
 
-I agreee, the subject needs to be more specific to the driver it is
-modifying. I would accept i2c-dw or i2c-designware as the start of
-the subject.
+--Sig_/d_beU1UD.wwpuu792r=2Ei5
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Jean, thanks for clairfying ownership,
+On Sat, 7 Jan 2012 16:45:02 -0800
+Guenter Roeck <guenter.roeck@ericsson.com> wrote:
 
--- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
+> >  - Michael Ott reported with Debian kernel 2.6.38-3 (which is closely
+> >    based on stable v2.6.38.2):
+> >=20
+> > 	syslog tell me every few seconds:
+> > 	i2c i2c-0: mv64xxx: I2C bus locked, block: 1, time_left: 0
+> >=20
+> >  - Manuel Roeder reported the same and found that upstream v2.6.38
+> >    triggers the problem and v2.6.37.6 does not.
+> >=20
+> >  - Roman Mamedov finds the bug present in Debian 3.1.6-1 (which
+> >    is closely based on stable v3.1.6) and Debian 2.6.37-2 (based on
+> >    stable v2.6.37.2) but not Debian 2.6.37-1 (based on mainline
+> >    v2.6.37).
+> >=20
+> > The regression range described above seems a little inconsistent to
+> > me, so maybe there's something more going on.
+> >=20
+> Points to commit eda6bee6c7e67b5bd17bdbced0926f5687f686d5 (i2c-mv64xxx: s=
+end repeated START
+> between messages in xfer). Maybe you can back it out and see if it makes =
+a difference.
 
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+Hello,
+
+I have just confirmed that the problem still occurs in the current
+3.2.2, and is indeed solved by rolling-back the referred commit.
+
+Should be noted that beside the "I2C bus locked" messages in dmesg, the des=
+cribed problem
+manifested itself in the inability to read the temperature sensor value or =
+adjust the fan
+speed on the D-Link DNS-323. On all problematic kernels the built-in fan of=
+ DNS-323 does not
+rotate and this risks overheating the device and disks installed in it.
+
+Thanks.
+
+--=20
+With respect,
+Roman
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"Stallman had a printer,
+with code he could not see.
+So he began to tinker,
+and set the software free."
+
+--Sig_/d_beU1UD.wwpuu792r=2Ei5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk8nAS0ACgkQTLKSvz+PZwhrDwCaAgcdz1dzLFwBNTf39vPNNLIQ
+NbcAn13HOhNfCAUqoL2HGNsRhOGieZSg
+=GrIB
+-----END PGP SIGNATURE-----
+
+--Sig_/d_beU1UD.wwpuu792r=2Ei5--
+
+
+--===============4013045066879140383==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============4013045066879140383==--
