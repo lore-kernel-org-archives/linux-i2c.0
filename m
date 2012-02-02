@@ -1,244 +1,82 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
-Date: Wed,  1 Feb 2012 14:26:33 +0100
-Message-ID: <1328102793-4313-4-git-send-email-s.hauer@pengutronix.de>
-References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [RFC PATCH 7/7] ARM: davinci: add support for the am1808 based
+ enbw_cmc board
+Date: Wed, 1 Feb 2012 17:17:30 -0700
+Message-ID: <20120202001730.GF15343@ponder.secretlab.ca>
+References: <1327308967-8092-1-git-send-email-hs@denx.de>
+ <1327308967-8092-8-git-send-email-hs@denx.de>
+ <20120130203252.GX28397@ponder.secretlab.ca>
+ <4F27E6E0.1050608@denx.de>
+ <4F2911DD.6010405@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1328102793-4313-1-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4F2911DD.6010405-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Cc: hs-ynQEQJNshbs@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This driver provides support for the CGEB watchdog found on some
-Congatec x86 modules.
+On Wed, Feb 01, 2012 at 02:20:13PM +0400, Sergei Shtylyov wrote:
+> Hello.
+> 
+> On 31-01-2012 17:04, Heiko Schocher wrote:
+> 
+> >>On Mon, Jan 23, 2012 at 09:56:07AM +0100, Heiko Schocher wrote:
+> >>>- AM1808 based board
+> >>>- 64 MiB DDR ram
+> >>>- 2 MiB Nor flash
+> >>>- 128 MiB NAND flash
+> >>>- use internal RTC
+> >>>- I2C support
+> >>>- hwmon lm75 support
+> >>>- UBI/UBIFS support
+> >>>- MMC support
+> >>>- USB OTG support
+> 
+> >>>Signed-off-by: Heiko Schocher<hs-ynQEQJNshbs@public.gmane.org>
+> >>>Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> >>>Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> >>>Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+> >>>Cc: linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> >>>Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> >>>Cc: netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> >>>Cc: David Woodhouse<dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+> >>>Cc: Ben Dooks<ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> >>>Cc: Wolfram Sang<w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> >>>Cc: Sekhar Nori<nsekhar-l0cyMroinI0@public.gmane.org>
+> >>>Cc: Kevin Hilman<khilman-l0cyMroinI0@public.gmane.org>
+> >>>Cc: Wolfgang Denk<wd-ynQEQJNshbs@public.gmane.org>
+> 
+> >>>---
+> >>>- post this board support with USB support, even though
+> >>>   USB is only working with the 10 ms "workaround", posted here:
+> >>>   http://comments.gmane.org/gmane.linux.usb.general/54505
+> >>>   I see this issue also on the AM1808 TMDXEXP1808L evalboard.
+> >>>- MMC and USB are not using OF support yet, ideas how to port
+> >>>   this are welcome. I need for USB and MMC boards board
+> >>>   specific callbacks, how to solve this with OF support?
+> 
+> [...]
+> 
+> >>>diff --git a/arch/arm/boot/dts/enbw_cmc.dts b/arch/arm/boot/dts/enbw_cmc.dts
+> >>>new file mode 100644
+> >>>index 0000000..e5995ce
+> >>>--- /dev/null
+> >>>+++ b/arch/arm/boot/dts/enbw_cmc.dts
+> [...]
+> 
+> >>>+			compatible = "ns16550a";
+> 
+> >>Should include a string for the specific device.  Something like:
+> 
+> >>	compatible = "ti,da800", "ns16550a";
+> 
+> >added.
+> 
+>    Note that there's no DA800 chip, only DA828, DA830, and DA850 AFAIK.
 
-Signed-off-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- drivers/watchdog/Kconfig                  |    9 ++
- drivers/watchdog/Makefile                 |    1 +
- drivers/watchdog/congatec_cgeb_watchdog.c |  181 +++++++++++++++++++++++++++++
- 3 files changed, 191 insertions(+), 0 deletions(-)
- create mode 100644 drivers/watchdog/congatec_cgeb_watchdog.c
+Right, so the compatible string should reflect that.
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 79fd606..a1f35a5 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -880,6 +880,15 @@ config SBC_EPX_C3_WATCHDOG
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called sbc_epx_c3.
- 
-+config CONGATEC_CGEB_WATCHDOG
-+	tristate "Congatec CGEB watchdog"
-+	---help---
-+	  This driver provides support for the watchdogs found on Congatec
-+	  modules with the CGEB BIOS interface.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called congatec_cgeb_wdt.
-+
- # M32R Architecture
- 
- # M68K Architecture
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index fe893e9..d0b2f1d 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -107,6 +107,7 @@ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
- obj-$(CONFIG_MACHZ_WDT) += machzwd.o
- obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
- obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
-+obj-$(CONFIG_CONGATEC_CGEB_WATCHDOG) += congatec_cgeb_watchdog.o
- 
- # M32R Architecture
- 
-diff --git a/drivers/watchdog/congatec_cgeb_watchdog.c b/drivers/watchdog/congatec_cgeb_watchdog.c
-new file mode 100644
-index 0000000..a4be745
---- /dev/null
-+++ b/drivers/watchdog/congatec_cgeb_watchdog.c
-@@ -0,0 +1,181 @@
-+/*
-+ * CGEB watchdog driver
-+ *
-+ * (c) 2011 Sascha Hauer, Pengutronix
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; version 2 of the License.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+#include <linux/mfd/congatec-cgeb.h>
-+
-+#define CGOS_WDOG_MODE_REBOOT_PC    0
-+#define CGOS_WDOG_MODE_RESTART_OS   1
-+#define CGOS_WDOG_MODE_STAGED    0x80
-+
-+#define CGOS_WDOG_OPMODE_DISABLED      0
-+#define CGOS_WDOG_OPMODE_ONETIME_TRIG  1
-+#define CGOS_WDOG_OPMODE_SINGLE_EVENT  2
-+#define CGOS_WDOG_OPMODE_EVENT_REPEAT  3
-+
-+#define CGOS_WDOG_EVENT_INT 0	/* NMI/IRQ */
-+#define CGOS_WDOG_EVENT_SCI 1	/* SMI/SCI */
-+#define CGOS_WDOG_EVENT_RST 2	/* system reset */
-+#define CGOS_WDOG_EVENT_BTN 3	/* power button */
-+
-+#define CGOS_WDOG_EVENT_MAX_STAGES 3
-+
-+struct cgeb_watchdog_stage {
-+	unsigned long timeout;
-+	unsigned long event;
-+};
-+
-+struct cgeb_watchdog_config {
-+	unsigned long size;
-+	unsigned long timeout; /* not used in staged mode */
-+	unsigned long delay;
-+	unsigned long mode;
-+	/* optional parameters for staged watchdog */
-+	unsigned long op_mode;
-+	unsigned long stage_count;
-+	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
-+};
-+
-+struct cgeb_watchdog_priv {
-+	struct cgeb_board_data	*board;
-+	struct watchdog_device	wdd;
-+	unsigned int		timeout_s;
-+	int unit;
-+};
-+
-+static struct watchdog_info cgeb_wdd_info = {
-+	.options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+	.firmware_version = 0,
-+	.identity = "cgeb watchdog",
-+};
-+
-+static unsigned int watchdog_set_config(struct cgeb_watchdog_priv *priv,
-+		unsigned int timeout_s)
-+{
-+	struct cgeb_board_data *board = priv->board;
-+	struct cgeb_watchdog_config wdi;
-+	struct cgeb_function_parameters fps;
-+
-+	memset(&wdi, 0, sizeof(wdi));
-+	memset(&fps, 0, sizeof(fps));
-+
-+	fps.unit = priv->unit;
-+	fps.iptr = &wdi;
-+
-+	wdi.timeout = timeout_s * 1000;
-+	wdi.delay = 0;
-+	wdi.size = sizeof(wdi);
-+	wdi.mode = CGOS_WDOG_MODE_REBOOT_PC;
-+
-+	return cgeb_call(board, &fps, CgebWDogSetConfig);
-+}
-+
-+static int cgeb_watchdog_start(struct watchdog_device *wdd)
-+{
-+	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	return watchdog_set_config(priv, priv->timeout_s);
-+}
-+
-+static int cgeb_watchdog_stop(struct watchdog_device *wdd)
-+{
-+	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	return watchdog_set_config(priv, 0);
-+}
-+
-+static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
-+		unsigned int timeout_s)
-+{
-+	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
-+
-+	if (!timeout_s)
-+		return -EINVAL;
-+
-+	priv->timeout_s = timeout_s;
-+
-+	return 0;
-+}
-+
-+struct watchdog_ops cgeb_watchdog_ops = {
-+	.start = cgeb_watchdog_start,
-+	.stop = cgeb_watchdog_stop,
-+	.set_timeout = cgeb_watchdog_set_timeout,
-+};
-+
-+static int __devinit cgeb_watchdog_probe(struct platform_device *pdev)
-+{
-+	struct cgeb_watchdog_priv *priv;
-+	struct cgeb_pdata *pdata = pdev->dev.platform_data;
-+	int ret;
-+
-+	dev_info(&pdev->dev, "registering\n");
-+
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->wdd.ops = &cgeb_watchdog_ops;
-+	priv->wdd.info = &cgeb_wdd_info;
-+	priv->wdd.min_timeout = 1;
-+	priv->wdd.max_timeout = 3600;
-+	priv->board = pdata->board;
-+	priv->unit = pdata->unit;
-+
-+	watchdog_set_drvdata(&priv->wdd, priv);
-+	platform_set_drvdata(pdev, priv);
-+
-+	ret = watchdog_register_device(&priv->wdd);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
-+static int __devexit cgeb_watchdog_remove(struct platform_device *pdev)
-+{
-+	struct cgeb_watchdog_priv *priv = platform_get_drvdata(pdev);
-+
-+	watchdog_unregister_device(&priv->wdd);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver cgeb_watchdog_driver = {
-+	.probe		= cgeb_watchdog_probe,
-+	.remove		= __exit_p(cgeb_watchdog_remove),
-+	.driver	= {
-+		.name	= "cgeb-watchdog",
-+		.owner	= THIS_MODULE,
-+	},
-+};
-+
-+static int __init cgeb_watchdog_driver_init(void)
-+{
-+	return platform_driver_register(&cgeb_watchdog_driver);
-+}
-+
-+static void __exit cgeb_watchdog_driver_exit(void)
-+{
-+	platform_driver_unregister(&cgeb_watchdog_driver);
-+}
-+
-+module_init(cgeb_watchdog_driver_init);
-+module_exit(cgeb_watchdog_driver_exit);
-+
-+MODULE_AUTHOR("Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
-+MODULE_DESCRIPTION("cgeb watchdog driver");
-+MODULE_LICENSE("GPL");
--- 
-1.7.2.5
+g.
