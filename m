@@ -1,42 +1,60 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-gpio: Use linux/gpio.h rather than asm/gpio.h
-Date: Sat, 4 Feb 2012 17:51:54 +0100
-Message-ID: <20120204175154.152c8b05@endymion.delvare>
-References: <1328371447-23775-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] i2c-dev: relax ban on I2C_M_RECV_LEN
+Date: Sat, 04 Feb 2012 16:42:29 -0500
+Message-ID: <4F2DA645.3080604@interlog.com>
+Reply-To: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="------------020501000409030509000807"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1328371447-23775-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat,  4 Feb 2012 16:04:07 +0000, Mark Brown wrote:
-> Direct inclusion of asm/gpio.h has been deprecated for a while now due
-> to the cross platform gpiolib.
-> 
-> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-gpio.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-> index a651779..3397572 100644
-> --- a/drivers/i2c/busses/i2c-gpio.c
-> +++ b/drivers/i2c/busses/i2c-gpio.c
-> @@ -15,7 +15,7 @@
->  #include <linux/slab.h>
->  #include <linux/platform_device.h>
->  
-> -#include <asm/gpio.h>
-> +#include <linux/gpio.h>
->  
->  /* Toggle SDA by changing the direction of the pin */
->  static void i2c_gpio_setsda_dir(void *data, int state)
+This is a multi-part message in MIME format.
+--------------020501000409030509000807
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Applied, thanks.
+The I2C_M_RECV_LEN flag indicates that the length of
+an I2C response is in the first byte read. So the maximum
+size of the read buffer using this option is 256 bytes.
 
--- 
-Jean Delvare
+Currently the i2c-dev driver returns EINVAL when an
+attempt is made to use ioctl(I2C_RDWR) with the
+I2C_M_RECV_LEN flag set. That is overly paranoid:
+
+ChangeLog:
+   - allow I2C_M_RECV_LEN flag in the i2c-dev driver as
+     long as the associated buffer length can cope with
+     the worst case size (which is 256 bytes).
+
+Doug Gilbert
+[Please cc responses to me]
+
+--------------020501000409030509000807
+Content-Type: text/x-patch;
+ name="i2c-dev_mrecv_len1.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="i2c-dev_mrecv_len1.patch"
+
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 57a45ce8..b8f226a0 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -270,9 +270,10 @@ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
+ 	res = 0;
+ 	for (i = 0; i < rdwr_arg.nmsgs; i++) {
+ 		/* Limit the size of the message to a sane amount;
+-		 * and don't let length change either. */
++		 * with I2C_M_RECV_LEN require worst case len. */
+ 		if ((rdwr_pa[i].len > 8192) ||
+-		    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
++		    ((rdwr_pa[i].flags & I2C_M_RECV_LEN) &&
++		     (rdwr_pa[i].len < 256))) {
+ 			res = -EINVAL;
+ 			break;
+ 		}
+
+--------------020501000409030509000807--
