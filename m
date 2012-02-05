@@ -1,102 +1,184 @@
-From: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: tegra: Remove unnecessary clk_get
-Date: Sat, 4 Feb 2012 22:02:41 -0800
-Message-ID: <CAPnjgZ2r1+tSiiKg0rHH_atrLVqn6h+7ueMdtcmaRYtkdXiTRw@mail.gmail.com>
-References: <1328314217-16632-1-git-send-email-swarren@nvidia.com>
-	<4F2D1400.5050907@nvidia.com>
-	<74CDBE0F657A3D45AFBB94109FB122FF178E5D3162@HQMAIL01.nvidia.com>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: [PATCH 1/4] i2c/gpio-i2c add: add DT support
+Date: Sun,  5 Feb 2012 11:38:53 +0100
+Message-ID: <1328438337-21185-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF178E5D3162-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: devicetree-discuss@lists.ozlabs.org, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Stephen,
+Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: linux-i2c@vger.kernel.org
+Cc: devicetree-discuss@lists.ozlabs.org
+---
+ .../devicetree/bindings/gpio/gpio_i2c.txt          |   33 ++++++++++++
+ drivers/i2c/busses/i2c-gpio.c                      |   55 +++++++++++++++++++-
+ 2 files changed, 86 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
 
-On Sat, Feb 4, 2012 at 9:51 PM, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wro=
-te:
-> Laxman Dewangan wrote at Saturday, February 04, 2012 4:18 AM
->> On Saturday 04 February 2012 05:40 AM, Stephen Warren wrote:
->> > From: Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->> >
->> > The clock table has just one entry for a given i2c controller.
->> > Hence, the second clk_get is not required in the driver.
->> >
->> > Originally by Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, but S-o-b is
->> > missing in our internal repo.
->> >
->> > [swarren: Reworded commit description, resolved merge issue when c=
-herry-
->> > picking to mainline]
->> > Signed-off-by: Stephen Warren<swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->
-> Ben, Wolfram. The two changes in this patch series are completely
-> independent. The 2nd patch is what I really care about, and can be
-> applied irrespective of the resolution of the discussion below.
->
->> The tegra i2c controller have two clock inputs i2c_div and i2c_fast_=
-clk.
->
-> Is this true on Tegra20 or just Tegra30? The Tegra20 TRM explicitly l=
-ists
-> the clock domains the I2C controller users, and doesn't mention anyth=
-ing
-> about this...
-
-As I happened to be looking at this on Friday, it seems that Tegra20
-supports the fast I2C also. I couldn't quite see how to select the
-fast clock, but since I wasn't planning to support it I didn't mind.
-=46rom what I could tell, the slow clock can switch between four option=
-s
-and the fast clock is fixed at 72MHz (based off PLLP), as below.
-
->
->> There is way to select the clock source for i2c_div clock but
->> i2c_fast_clk is fixed to PLLP_OUT3 clock source.
->> Both clocks are needed to proper functionality. This change assume t=
-hat
->> fast-clk (pllp_out3) is always be ON which is wrong assumption. For
->
-> That's not something this change assumes; the assumption was already
-> there. The two clk_get() calls in the I2C driver today end up getting
-> the same clock I believe, since there is only a single clock listed i=
-n
-> tegra2_clock.c for the I2C controller.
->
->> aggressive power management, if there is no client for pllp_out3, it
->> will be turned off. And so this is require.
->>
->> However, the code enable fast_clk always once it is registered which=
- is
->> also not correct. The div_clk and fast_clk should be enable together=
- and
->> diable together and so driver need to call the clk_enable(div_clk) a=
-nd
->> clk_enable(fast_clk) for enabling clock. We have fixed this in our
->> internal tree (K3.1). Let me know if I can help here.:
->
-> The K3.1 tree is where I got this change from, although I did notice
-> that there were some other changes in that tree to implement the more
-> aggressive clock management you described.
->
-> If I'm not making sense, We should probably continue this discussion
-> off-list (just between ourselves) so as to avoid spamming the mailing
-> list; I can summarize any results for the list archive later.
-
-
-Regards,
-Simon
-
->
-> --
-> nvpublic
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-tegra=
-" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+new file mode 100644
+index 0000000..15f288da
+--- /dev/null
++++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+@@ -0,0 +1,33 @@
++Device-Tree bindings for i2c gpio driver
++
++Required properties:
++	- compatible = "gpio-i2c";
++	- gpios: sda and scl gpio
++
++
++Optional properties:
++	- gpio-i2c,sda_is_open_drain: sda as open drain
++	- gpio-i2c,scl_is_open_drain: scl as open drain
++	- gpio-i2c,scl_is_output_only: scl as output only
++	- udelay: half clock cycle time in us (may depend on each platform)
++	- timeout: timeout to get data
++
++
++Example nodes:
++
++i2c-gpio@0 {
++	compatible = "gpio-i2c";
++	gpios = <&pioA 23 0 /* sda */
++		 &pioA 24 0 /* scl */
++		>;
++	gpio-i2c,sda_is_open_drain;
++	gpio-i2c,scl_is_open_drain;
++	udelay = <2>;		/* ~100 kHz */
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	rv3029c2@56 {
++		compatible = "rv3029c2";
++		reg = <0x56>;
++	};
++};
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index a651779..6b5d794 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -14,6 +14,8 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/platform_device.h>
++#include <linux/of_gpio.h>
++#include <linux/of_i2c.h>
+ 
+ #include <asm/gpio.h>
+ 
+@@ -78,16 +80,51 @@ static int i2c_gpio_getscl(void *data)
+ 	return gpio_get_value(pdata->scl_pin);
+ }
+ 
++static int of_i2c_gpio_probe(struct device_node *np,
++			     struct i2c_gpio_platform_data *pdata)
++{
++	u32 reg;
++
++	pdata->sda_pin = of_get_gpio(np, 0);
++	pdata->scl_pin = of_get_gpio(np, 1);
++
++	if (of_property_read_u32(np, "udelay", &reg))
++		pdata->udelay = reg;
++
++	if (of_property_read_u32(np, "timeout", &reg))
++		pdata->timeout = reg;
++
++	pdata->sda_is_open_drain =
++		!!of_get_property(np, "gpio-i2c,sda_is_open_drain", NULL);
++	pdata->scl_is_open_drain =
++		!!of_get_property(np, "gpio-i2c,scl_is_open_drain", NULL);
++	pdata->scl_is_output_only =
++		!!of_get_property(np, "gpio-i2c,scl_is_output_only", NULL);
++
++	return 0;
++}
++
+ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+ {
+ 	struct i2c_gpio_platform_data *pdata;
+ 	struct i2c_algo_bit_data *bit_data;
+ 	struct i2c_adapter *adap;
+ 	int ret;
++	int len = sizeof(struct i2c_gpio_platform_data);
+ 
+-	pdata = pdev->dev.platform_data;
++	pdata = kzalloc(len, GFP_KERNEL);
+ 	if (!pdata)
+-		return -ENXIO;
++		return -ENOMEM;
++
++	if (pdev->dev.of_node) {
++		of_i2c_gpio_probe(pdev->dev.of_node, pdata);
++	} else {
++		if (!pdev->dev.platform_data) {
++			ret = -ENXIO;
++			goto err_alloc_adap;
++		}
++		memcpy(pdata, pdev->dev.platform_data, len);
++	}
+ 
+ 	ret = -ENOMEM;
+ 	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+@@ -143,6 +180,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+ 	adap->algo_data = bit_data;
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->dev.parent = &pdev->dev;
++	adap->dev.of_node = pdev->dev.of_node;
+ 
+ 	/*
+ 	 * If "dev->id" is negative we consider it as zero.
+@@ -154,6 +192,8 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_add_bus;
+ 
++	of_i2c_register_devices(adap);
++
+ 	platform_set_drvdata(pdev, adap);
+ 
+ 	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
+@@ -172,6 +212,7 @@ err_request_sda:
+ err_alloc_bit_data:
+ 	kfree(adap);
+ err_alloc_adap:
++	kfree(pdata);
+ 	return ret;
+ }
+ 
+@@ -192,10 +233,20 @@ static int __devexit i2c_gpio_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_OF)
++static const struct of_device_id gpio_i2c_dt_ids[] = {
++	{ .compatible = "gpio-i2c", },
++	{ /* sentinel */ }
++};
++
++MODULE_DEVICE_TABLE(of, gpio_i2c_dt_ids);
++#endif
++
+ static struct platform_driver i2c_gpio_driver = {
+ 	.driver		= {
+ 		.name	= "i2c-gpio",
+ 		.owner	= THIS_MODULE,
++		.of_match_table	= of_match_ptr(gpio_i2c_dt_ids),
+ 	},
+ 	.probe		= i2c_gpio_probe,
+ 	.remove		= __devexit_p(i2c_gpio_remove),
+-- 
+1.7.7
