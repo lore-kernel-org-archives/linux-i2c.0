@@ -1,60 +1,70 @@
-From: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH] i2c-dev: relax ban on I2C_M_RECV_LEN
-Date: Sat, 04 Feb 2012 16:42:29 -0500
-Message-ID: <4F2DA645.3080604@interlog.com>
-Reply-To: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH 1/2] i2c: tegra: Remove unnecessary clk_get
+Date: Sat, 4 Feb 2012 21:51:59 -0800
+Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF178E5D3162@HQMAIL01.nvidia.com>
+References: <1328314217-16632-1-git-send-email-swarren@nvidia.com>
+ <4F2D1400.5050907@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------020501000409030509000807"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4F2D1400.5050907-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020501000409030509000807
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Laxman Dewangan wrote at Saturday, February 04, 2012 4:18 AM
+> On Saturday 04 February 2012 05:40 AM, Stephen Warren wrote:
+> > From: Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> >
+> > The clock table has just one entry for a given i2c controller.
+> > Hence, the second clk_get is not required in the driver.
+> >
+> > Originally by Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, but S-o-b is
+> > missing in our internal repo.
+> >
+> > [swarren: Reworded commit description, resolved merge issue when cherry-
+> > picking to mainline]
+> > Signed-off-by: Stephen Warren<swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-The I2C_M_RECV_LEN flag indicates that the length of
-an I2C response is in the first byte read. So the maximum
-size of the read buffer using this option is 256 bytes.
+Ben, Wolfram. The two changes in this patch series are completely
+independent. The 2nd patch is what I really care about, and can be
+applied irrespective of the resolution of the discussion below.
 
-Currently the i2c-dev driver returns EINVAL when an
-attempt is made to use ioctl(I2C_RDWR) with the
-I2C_M_RECV_LEN flag set. That is overly paranoid:
+> The tegra i2c controller have two clock inputs i2c_div and i2c_fast_clk.
 
-ChangeLog:
-   - allow I2C_M_RECV_LEN flag in the i2c-dev driver as
-     long as the associated buffer length can cope with
-     the worst case size (which is 256 bytes).
+Is this true on Tegra20 or just Tegra30? The Tegra20 TRM explicitly lists
+the clock domains the I2C controller users, and doesn't mention anything
+about this...
 
-Doug Gilbert
-[Please cc responses to me]
+> There is way to select the clock source for i2c_div clock but
+> i2c_fast_clk is fixed to PLLP_OUT3 clock source.
+> Both clocks are needed to proper functionality. This change assume that
+> fast-clk (pllp_out3) is always be ON which is wrong assumption. For
 
---------------020501000409030509000807
-Content-Type: text/x-patch;
- name="i2c-dev_mrecv_len1.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="i2c-dev_mrecv_len1.patch"
+That's not something this change assumes; the assumption was already
+there. The two clk_get() calls in the I2C driver today end up getting
+the same clock I believe, since there is only a single clock listed in
+tegra2_clock.c for the I2C controller.
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 57a45ce8..b8f226a0 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -270,9 +270,10 @@ static noinline int i2cdev_ioctl_rdrw(struct i2c_client *client,
- 	res = 0;
- 	for (i = 0; i < rdwr_arg.nmsgs; i++) {
- 		/* Limit the size of the message to a sane amount;
--		 * and don't let length change either. */
-+		 * with I2C_M_RECV_LEN require worst case len. */
- 		if ((rdwr_pa[i].len > 8192) ||
--		    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
-+		    ((rdwr_pa[i].flags & I2C_M_RECV_LEN) &&
-+		     (rdwr_pa[i].len < 256))) {
- 			res = -EINVAL;
- 			break;
- 		}
+> aggressive power management, if there is no client for pllp_out3, it
+> will be turned off. And so this is require.
+>
+> However, the code enable fast_clk always once it is registered which is
+> also not correct. The div_clk and fast_clk should be enable together and
+> diable together and so driver need to call the clk_enable(div_clk) and
+> clk_enable(fast_clk) for enabling clock. We have fixed this in our
+> internal tree (K3.1). Let me know if I can help here.:
 
---------------020501000409030509000807--
+The K3.1 tree is where I got this change from, although I did notice
+that there were some other changes in that tree to implement the more
+aggressive clock management you described.
+
+If I'm not making sense, We should probably continue this discussion
+off-list (just between ourselves) so as to avoid spamming the mailing
+list; I can summarize any results for the list archive later.
+
+-- 
+nvpublic
