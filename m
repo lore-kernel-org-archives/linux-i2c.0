@@ -1,184 +1,54 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: [PATCH 1/4] i2c/gpio-i2c add: add DT support
-Date: Sun,  5 Feb 2012 11:38:53 +0100
-Message-ID: <1328438337-21185-1-git-send-email-plagnioj@jcrosoft.com>
+From: Sylwester Nawrocki <snjw23-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC PATCH 5/7] ARM: davinci: i2c: add OF support
+Date: Sun, 05 Feb 2012 21:44:01 +0100
+Message-ID: <4F2EEA11.9080807@gmail.com>
+References: <1327308967-8092-1-git-send-email-hs@denx.de> <1327308967-8092-6-git-send-email-hs@denx.de> <4F1DC480.4010603@gmail.com> <4F1E5B44.4090200@denx.de> <4F1E7F36.50505@samsung.com> <20120130201307.GV28397@ponder.secretlab.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: devicetree-discuss@lists.ozlabs.org, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120130201307.GV28397-e0URQFbLeQY2iJbIjFUEsiwD8/FfD2ys@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, dlos <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Cc: linux-i2c@vger.kernel.org
-Cc: devicetree-discuss@lists.ozlabs.org
----
- .../devicetree/bindings/gpio/gpio_i2c.txt          |   33 ++++++++++++
- drivers/i2c/busses/i2c-gpio.c                      |   55 +++++++++++++++++++-
- 2 files changed, 86 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+Hi Grant,
 
-diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-new file mode 100644
-index 0000000..15f288da
---- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-@@ -0,0 +1,33 @@
-+Device-Tree bindings for i2c gpio driver
-+
-+Required properties:
-+	- compatible = "gpio-i2c";
-+	- gpios: sda and scl gpio
-+
-+
-+Optional properties:
-+	- gpio-i2c,sda_is_open_drain: sda as open drain
-+	- gpio-i2c,scl_is_open_drain: scl as open drain
-+	- gpio-i2c,scl_is_output_only: scl as output only
-+	- udelay: half clock cycle time in us (may depend on each platform)
-+	- timeout: timeout to get data
-+
-+
-+Example nodes:
-+
-+i2c-gpio@0 {
-+	compatible = "gpio-i2c";
-+	gpios = <&pioA 23 0 /* sda */
-+		 &pioA 24 0 /* scl */
-+		>;
-+	gpio-i2c,sda_is_open_drain;
-+	gpio-i2c,scl_is_open_drain;
-+	udelay = <2>;		/* ~100 kHz */
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
-+	rv3029c2@56 {
-+		compatible = "rv3029c2";
-+		reg = <0x56>;
-+	};
-+};
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index a651779..6b5d794 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -14,6 +14,8 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/platform_device.h>
-+#include <linux/of_gpio.h>
-+#include <linux/of_i2c.h>
+On 01/30/2012 09:13 PM, Grant Likely wrote:
+> The whole 'cell-index' or 'id' thing is a BadIdea(tm).  Don't use it, and tell
+> others not to do it when you see it.  There are some legacy uses in powerpc,
+> but those were written before I and others knew better.
+> 
+> The *only* situation where cell-index is acceptable is when the driver
+> absolutely must know which hardware instance it is driving because it
+> needs to calculate offsets in a shared register or something, and even
+> then it should not be used to set the pdev->id field. That situation
+> does not look to be the case here.
+
+Thanks a lot for the clarification. Some media device drivers use the pdev->id
+field to enumerate hardware entities which are shown to user space libraries/
+applications through the media device interface:
+<http://linuxtv.org/downloads/v4l-dvb-apis/media-ioc-enum-entities.html>
+
+The entity name is initialized from dev_name(&pdev->dev), which in DT case
+will be rather random string AFAICS. Is using 'cell-index' property justified
+in such cases ? 
  
- #include <asm/gpio.h>
- 
-@@ -78,16 +80,51 @@ static int i2c_gpio_getscl(void *data)
- 	return gpio_get_value(pdata->scl_pin);
- }
- 
-+static int of_i2c_gpio_probe(struct device_node *np,
-+			     struct i2c_gpio_platform_data *pdata)
-+{
-+	u32 reg;
-+
-+	pdata->sda_pin = of_get_gpio(np, 0);
-+	pdata->scl_pin = of_get_gpio(np, 1);
-+
-+	if (of_property_read_u32(np, "udelay", &reg))
-+		pdata->udelay = reg;
-+
-+	if (of_property_read_u32(np, "timeout", &reg))
-+		pdata->timeout = reg;
-+
-+	pdata->sda_is_open_drain =
-+		!!of_get_property(np, "gpio-i2c,sda_is_open_drain", NULL);
-+	pdata->scl_is_open_drain =
-+		!!of_get_property(np, "gpio-i2c,scl_is_open_drain", NULL);
-+	pdata->scl_is_output_only =
-+		!!of_get_property(np, "gpio-i2c,scl_is_output_only", NULL);
-+
-+	return 0;
-+}
-+
- static int __devinit i2c_gpio_probe(struct platform_device *pdev)
- {
- 	struct i2c_gpio_platform_data *pdata;
- 	struct i2c_algo_bit_data *bit_data;
- 	struct i2c_adapter *adap;
- 	int ret;
-+	int len = sizeof(struct i2c_gpio_platform_data);
- 
--	pdata = pdev->dev.platform_data;
-+	pdata = kzalloc(len, GFP_KERNEL);
- 	if (!pdata)
--		return -ENXIO;
-+		return -ENOMEM;
-+
-+	if (pdev->dev.of_node) {
-+		of_i2c_gpio_probe(pdev->dev.of_node, pdata);
-+	} else {
-+		if (!pdev->dev.platform_data) {
-+			ret = -ENXIO;
-+			goto err_alloc_adap;
-+		}
-+		memcpy(pdata, pdev->dev.platform_data, len);
-+	}
- 
- 	ret = -ENOMEM;
- 	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
-@@ -143,6 +180,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
- 	adap->algo_data = bit_data;
- 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	adap->dev.parent = &pdev->dev;
-+	adap->dev.of_node = pdev->dev.of_node;
- 
- 	/*
- 	 * If "dev->id" is negative we consider it as zero.
-@@ -154,6 +192,8 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_add_bus;
- 
-+	of_i2c_register_devices(adap);
-+
- 	platform_set_drvdata(pdev, adap);
- 
- 	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
-@@ -172,6 +212,7 @@ err_request_sda:
- err_alloc_bit_data:
- 	kfree(adap);
- err_alloc_adap:
-+	kfree(pdata);
- 	return ret;
- }
- 
-@@ -192,10 +233,20 @@ static int __devexit i2c_gpio_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+#if defined(CONFIG_OF)
-+static const struct of_device_id gpio_i2c_dt_ids[] = {
-+	{ .compatible = "gpio-i2c", },
-+	{ /* sentinel */ }
-+};
-+
-+MODULE_DEVICE_TABLE(of, gpio_i2c_dt_ids);
-+#endif
-+
- static struct platform_driver i2c_gpio_driver = {
- 	.driver		= {
- 		.name	= "i2c-gpio",
- 		.owner	= THIS_MODULE,
-+		.of_match_table	= of_match_ptr(gpio_i2c_dt_ids),
- 	},
- 	.probe		= i2c_gpio_probe,
- 	.remove		= __devexit_p(i2c_gpio_remove),
--- 
-1.7.7
+> If you're using the DT, then let the core code dynamically assign the
+> i2c adapter number.
+
+Then it means that all uses if i2c_get_adapter() that take an I2C adapter 
+number as an argument need to be converted accordingly, e.g. we need an OF
+version of i2c_get_adapter() ?
+
+The V4L core provides v4l2_i2c_new_subdev_board() function which is used
+by the video bridge drivers to register its sub-devices - I2C clients 
+(usually image sensors or video encoders). The I2C bus ids are usually 
+provided as platform data to the bridge driver. Sounds like all this will
+need to be reworked quite significantly for DT support.
+
+---
+
+Thanks,
+Sylwester
