@@ -1,64 +1,198 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: Re: [PATCH V2 1/4] i2c: tegra: Add __devinit/exit to probe/removeG
-Date: Mon, 6 Feb 2012 08:52:22 -0800
-Message-ID: <20120206165222.GA25597@quad.lixom.net>
-References: <1324189772-26914-1-git-send-email-swarren@nvidia.com>
- <20111220015634.GA27789@quad.lixom.net>
- <CAM=Q2cs8K4vraWPNqervcmxEqUGiAbng+44+L9OhD3ijPw9tAA@mail.gmail.com>
- <74CDBE0F657A3D45AFBB94109FB122FF176BE92E21@HQMAIL01.nvidia.com>
- <20120106162615.GA8441@trinity.fluff.org>
- <74CDBE0F657A3D45AFBB94109FB122FF177EE39E15@HQMAIL01.nvidia.com>
+From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c/gpio-i2c add: add DT support
+Date: Mon, 06 Feb 2012 19:38:29 +0100
+Message-ID: <4F301E25.5060507@samsung.com>
+References: <1328438337-21185-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <74CDBE0F657A3D45AFBB94109FB122FF177EE39E15-C7FfzLzN0UxDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+In-reply-to: <1328438337-21185-1-git-send-email-plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 06, 2012 at 08:47:11AM -0800, Stephen Warren wrote:
-> Ben Dooks wrote at Friday, January 06, 2012 9:26 AM:
-> > On Tue, Dec 20, 2011 at 01:47:29PM -0800, Stephen Warren wrote:
-> > > Shubhrajyoti Datta wrote at Monday, December 19, 2011 11:15 PM:
-> > > ...
-> > > > Hi Stephen ,
-> > > > could you check this one also
-> > > > thanks.
-> > > >
-> > > > From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> > > > Date: Tue, 20 Dec 2011 11:40:51 +0530
-> > > > Subject: [PATCH] I2C : tegra : devexit in remove
-> > > >
-> > > > Adding I2C __devexxit in remove
-> > > >
-> > > > Cc: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> > > > Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> > >
-> > > Acked-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> > >
-> > > Ben or Olof,
-> > >
-> > > > -       .remove  = tegra_i2c_remove,
-> > > > +       .remove  =__devexit_p(tegra_i2c_remove),
-> > >
-> > > When you apply this, can you fix it up to add a space after the = in
-> > > the modified line? If you want, I can post an updated version to do that.
-> > 
-> > Let me know if you want anything applying or a pull-request processed.
-> > 
-> > I think once fixed the patches would be fine and I ack them:
-> > 
-> > Acked-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> 
-> Olof, since you took the original through the Tegra tree, I think it
-> makes sense for us to take this fix through there too, and for 3.3?
-> The patch above is http://patchwork.ozlabs.org/patch/132349/
+On 05.02.2012 11:38, Jean-Christophe PLAGNIOL-VILLARD wrote:
 
-Done, applied, sorry for the delay.
+Hi!
 
-The patch has whitespace damage but I fixed it up manually.
+> +Device-Tree bindings for i2c gpio driver
+> +
+> +Required properties:
+> +	- compatible = "gpio-i2c";
 
+Driver name is "i2c-gpio" in file i2c-gpio.c. Previous version of patch 
+adding DT-support (prepared by Thomas Chou[1]) used i2c-gpio - could we 
+stick to that name?
 
--Olof
+[1] https://lkml.org/lkml/2011/2/23/584
+
+> +	- gpios: sda and scl gpio
+> +
+> +
+> +Optional properties:
+> +	- gpio-i2c,sda_is_open_drain: sda as open drain
+> +	- gpio-i2c,scl_is_open_drain: scl as open drain
+> +	- gpio-i2c,scl_is_output_only: scl as output only
+
+Most of DT-properties I've seen used hyphen, not underscore.  Could we 
+stick to that convention?
+
+(Nitpick: I think that "is" in property names is redundant too.)
+
+> +	- udelay: half clock cycle time in us (may depend on each platform)
+
+Could we use "clock-frequency" as Grant have suggested during review of 
+previous patch to i2c-gpio?
+
+   https://lkml.org/lkml/2011/2/24/220
+
+> +	- timeout: timeout to get data
+> +
+> +
+> +Example nodes:
+> +
+> +i2c-gpio@0 {
+> +	compatible = "gpio-i2c";
+> +	gpios =<&pioA 23 0 /* sda */
+> +		&pioA 24 0 /* scl */
+> +		>;
+> +	gpio-i2c,sda_is_open_drain;
+> +	gpio-i2c,scl_is_open_drain;
+> +	udelay =<2>;		/* ~100 kHz */
+> +	#address-cells =<1>;
+> +	#size-cells =<0>;
+> +
+> +	rv3029c2@56 {
+> +		compatible = "rv3029c2";
+> +		reg =<0x56>;
+> +	};
+> +};
+> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+> index a651779..6b5d794 100644
+> --- a/drivers/i2c/busses/i2c-gpio.c
+> +++ b/drivers/i2c/busses/i2c-gpio.c
+> @@ -14,6 +14,8 @@
+>   #include<linux/module.h>
+>   #include<linux/slab.h>
+>   #include<linux/platform_device.h>
+> +#include<linux/of_gpio.h>
+> +#include<linux/of_i2c.h>
+>
+>   #include<asm/gpio.h>
+>
+> @@ -78,16 +80,51 @@ static int i2c_gpio_getscl(void *data)
+>   	return gpio_get_value(pdata->scl_pin);
+>   }
+>
+> +static int of_i2c_gpio_probe(struct device_node *np,
+> +			     struct i2c_gpio_platform_data *pdata)
+> +{
+> +	u32 reg;
+> +
+
+if (of_gpio_count(np) < 2)
+	return -EINVAL;
+
+> +	pdata->sda_pin = of_get_gpio(np, 0);
+> +	pdata->scl_pin = of_get_gpio(np, 1);
+
+if (pdata->sda_pin < 0 || pdata->scl_pin < 0)
+	return -EINVAL;
+
+> +
+> +	if (of_property_read_u32(np, "udelay",&reg))
+> +		pdata->udelay = reg;
+> +
+> +	if (of_property_read_u32(np, "timeout",&reg))
+> +		pdata->timeout = reg;
+> +
+> +	pdata->sda_is_open_drain =
+> +		!!of_get_property(np, "gpio-i2c,sda_is_open_drain", NULL);
+> +	pdata->scl_is_open_drain =
+> +		!!of_get_property(np, "gpio-i2c,scl_is_open_drain", NULL);
+> +	pdata->scl_is_output_only =
+> +		!!of_get_property(np, "gpio-i2c,scl_is_output_only", NULL);
+> +
+> +	return 0;
+> +}
+> +
+>   static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+>   {
+>   	struct i2c_gpio_platform_data *pdata;
+>   	struct i2c_algo_bit_data *bit_data;
+>   	struct i2c_adapter *adap;
+>   	int ret;
+> +	int len = sizeof(struct i2c_gpio_platform_data);
+>
+> -	pdata = pdev->dev.platform_data;
+> +	pdata = kzalloc(len, GFP_KERNEL);
+
+Could you also take into account Grant's comment about private/platform 
+data?
+
+   https://lkml.org/lkml/2011/2/3/221
+
+>   	if (!pdata)
+> -		return -ENXIO;
+> +		return -ENOMEM;
+> +
+> +	if (pdev->dev.of_node) {
+> +		of_i2c_gpio_probe(pdev->dev.of_node, pdata);
+
+Above might fail if configuration is corrupted.
+
+> +	} else {
+> +		if (!pdev->dev.platform_data) {
+> +			ret = -ENXIO;
+> +			goto err_alloc_adap;
+> +		}
+> +		memcpy(pdata, pdev->dev.platform_data, len);
+> +	}
+>
+>   	ret = -ENOMEM;
+>   	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+> @@ -143,6 +180,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+>   	adap->algo_data = bit_data;
+>   	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+>   	adap->dev.parent =&pdev->dev;
+> +	adap->dev.of_node = pdev->dev.of_node;
+>
+>   	/*
+>   	 * If "dev->id" is negative we consider it as zero.
+> @@ -154,6 +192,8 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+>   	if (ret)
+>   		goto err_add_bus;
+>
+> +	of_i2c_register_devices(adap);
+> +
+>   	platform_set_drvdata(pdev, adap);
+>
+>   	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
+> @@ -172,6 +212,7 @@ err_request_sda:
+>   err_alloc_bit_data:
+>   	kfree(adap);
+>   err_alloc_adap:
+> +	kfree(pdata);
+>   	return ret;
+>   }
+>
+> @@ -192,10 +233,20 @@ static int __devexit i2c_gpio_remove(struct platform_device *pdev)
+>   	return 0;
+>   }
+>
+> +#if defined(CONFIG_OF)
+> +static const struct of_device_id gpio_i2c_dt_ids[] = {
+> +	{ .compatible = "gpio-i2c", },
+
+There seem to be no good reason to make DT-compatible string different 
+from driver's name that's already in use:
+
+>   static struct platform_driver i2c_gpio_driver = {
+>   	.driver		= {
+>   		.name	= "i2c-gpio",
+
+Regards,
+-- 
+Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
