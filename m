@@ -1,52 +1,48 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
-Date: Mon, 6 Feb 2012 10:20:36 +0800
-Message-ID: <CAGsJ_4zNjkLOs_A8H1-yteDTZodFGjh=3k9x0P-hmBb1w2q4vg@mail.gmail.com>
-References: <1327846668-3053-1-git-send-email-21cnbao@gmail.com>
- <20120205223757.GA10680@nekote.pengutronix.de> <CAGsJ_4yHn1M3s6CPezaW_jwOcsX6NuaZRHcNWX0qnSfhx30AHQ@mail.gmail.com>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RESEND] Congatec CGEB base, i2c and watchdog driver support
+Date: Mon, 6 Feb 2012 11:58:48 +0100
+Message-ID: <CAH9NwWfWVeOaNH6KRXK==sbLb3kR2eJz2+c9+k7zyAFgzwF+Vw@mail.gmail.com>
+References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGsJ_4yHn1M3s6CPezaW_jwOcsX6NuaZRHcNWX0qnSfhx30AHQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1328102793-4313-1-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <ninja-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfi=
-g
->>> index 3101dd5..a3c43fc 100644
->>> --- a/drivers/i2c/busses/Kconfig
->>> +++ b/drivers/i2c/busses/Kconfig
->>> @@ -618,6 +618,16 @@ config I2C_SH_MOBILE
->>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 This driver can also be built as a modu=
-le. =C2=A0If so, the module
->>> =C2=A0 =C2=A0 =C2=A0 =C2=A0 will be called i2c-sh_mobile.
->>>
->>> +config I2C_SIRF
->>> + =C2=A0 =C2=A0 tristate "CSR SiRFprimaII I2C interface"
->>> + =C2=A0 =C2=A0 depends on ARCH_PRIMA2
->>> + =C2=A0 =C2=A0 help
->>> + =C2=A0 =C2=A0 =C2=A0 If you say yes to this option, support will =
-be included for the
->>> + =C2=A0 =C2=A0 =C2=A0 CSR SiRFprimaII I2C interface.
->>> +
->>> + =C2=A0 =C2=A0 =C2=A0 This driver can also be built as a module. =C2=
-=A0If so, the module
->>> + =C2=A0 =C2=A0 =C2=A0 will be called i2c-sirf.
->>> +
->>
->> Sorting is broken, same with Makefile.
+Hi Sascha,
+
+2012/2/1 Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+> This is a resend of the series I posted in january, only difference
+> is that this time I have included the i2c and watchdog lists. To
+> minimize dependencies I suggest pushing this via the mfd tree, given
+> I get acks on the I2C and watchdog part.
 >
-> sorry. i don't get this. I2C_SIRF have be placed in "I2C system bus
-> drivers (mostly embedded / system-on-chip)" submenu and placed betwee=
-n
-> "I2C_SH_MOBILE" and "I2C_SIMTEC".
-> what is the problem?
+> The following series adds support for the Congatec CGEB interface
+> found on some Congatec x86 boards. The CGEB interface is a BIOS
+> interface which provides access to onboard peripherals like I2C
+> busses and watchdogs. It works by mapping BIOS code and searching
+> for magic values which specify the entry points to the CGEB call.
+> The CGEB call is an API provided by the BIOS which provides access
+> to the functions in an ioctl like fashion.
+>
+> For more information about the CGEB API have a look at:
+>
+> http://www.congatec.com/single_news+M5d58c9cd155.html
+>
+> This document only describes the C API, unfortunately not the
+> underlying BIOS interface.
+>
+> Comments very appreciated.
 >
 
-Oh.... i was making some stupid mistake. i thought R is earlier than
-M. in fact,  it is L->M->N->O->P->Q->R, so move I2C_SIRF behind
-"I2C_SIMTEC".
--barry
+I am looking forward to see your work in mainline soon. I have here
+some boards from
+Congatec and I will review and test your patches during this week.
+
+
+Greets
+--
+Christian Gmeiner, MSc
