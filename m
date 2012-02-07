@@ -1,65 +1,160 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 1/4] i2c/gpio-i2c add: add DT support
-Date: Tue, 7 Feb 2012 11:25:47 +0000
-Message-ID: <20120207112547.GC3332@opensource.wolfsonmicro.com>
-References: <1328438337-21185-1-git-send-email-plagnioj@jcrosoft.com>
- <20120206160907.GG10173@sirena.org.uk>
- <20120207025624.GB15647@game.jcrosoft.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
+Date: Tue, 7 Feb 2012 16:08:56 +0100
+Message-ID: <20120207150856.GI2539@pengutronix.de>
+References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
+ <1328102793-4313-4-git-send-email-s.hauer@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="YD3LsXFS42OYHhNZ"
+	protocol="application/pgp-signature"; boundary="vs0rQTeTompTJjtd"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120207025624.GB15647-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
+In-Reply-To: <1328102793-4313-4-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---YD3LsXFS42OYHhNZ
+--vs0rQTeTompTJjtd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 07, 2012 at 03:56:24AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> On 16:09 Mon 06 Feb     , Mark Brown wrote:
+Hi Sascha,
 
-> > > +	- udelay: half clock cycle time in us (may depend on each platform)
+> +struct cgeb_watchdog_stage {
+> +	unsigned long timeout;
+> +	unsigned long event;
+> +};
+> +
+> +struct cgeb_watchdog_config {
+> +	unsigned long size;
+> +	unsigned long timeout; /* not used in staged mode */
+> +	unsigned long delay;
+> +	unsigned long mode;
+> +	/* optional parameters for staged watchdog */
+> +	unsigned long op_mode;
+> +	unsigned long stage_count;
+> +	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
+> +};
+> +
 
-> > > +	udelay = <2>;		/* ~100 kHz */
+There is some unused stuff in here.
 
-> > Why not specify this in kHz and do the conversion in the driver?  It
-> > seems a more intuitive thing to be specifying.  I appreciate that the
-> > platform data used udelay but it seems an entirely unintuitive thing
-> > from a user point of view even if it's what the implementation wants.
+> +struct cgeb_watchdog_priv {
+> +	struct cgeb_board_data	*board;
+> +	struct watchdog_device	wdd;
+> +	unsigned int		timeout_s;
 
-> because it's not accurate and on some platform you need to adapt it so we keep
-> the udelay
+Is wdd->timeout not sufficent?
 
-Then you should clarify that in the documentation, it's not the cycle
-time but the delay between GPIO operations which isn't quite the same
-thing.
+> +	int unit;
+> +};
+> +
+> +static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
+> +		unsigned int timeout_s)
+> +{
+> +	struct cgeb_watchdog_priv *priv =3D watchdog_get_drvdata(wdd);
+> +
+> +	if (!timeout_s)
+> +		return -EINVAL;
 
---YD3LsXFS42OYHhNZ
+Is this possible? You have min_timeout =3D 1.
+
+> +static int __devinit cgeb_watchdog_probe(struct platform_device *pdev)
+> +{
+> +	struct cgeb_watchdog_priv *priv;
+> +	struct cgeb_pdata *pdata =3D pdev->dev.platform_data;
+> +	int ret;
+> +
+> +	dev_info(&pdev->dev, "registering\n");
+
+"registered" on success would be more useful?
+
+> +
+> +	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +
+> +	priv->wdd.ops =3D &cgeb_watchdog_ops;
+> +	priv->wdd.info =3D &cgeb_wdd_info;
+> +	priv->wdd.min_timeout =3D 1;
+> +	priv->wdd.max_timeout =3D 3600;
+> +	priv->board =3D pdata->board;
+> +	priv->unit =3D pdata->unit;
+> +
+> +	watchdog_set_drvdata(&priv->wdd, priv);
+> +	platform_set_drvdata(pdev, priv);
+> +
+> +	ret =3D watchdog_register_device(&priv->wdd);
+> +	if (ret)
+> +		return ret;
+> +
+> +	return 0;
+
+return watchdog_register_device();
+
+> +}
+> +
+> +static int __devexit cgeb_watchdog_remove(struct platform_device *pdev)
+> +{
+> +	struct cgeb_watchdog_priv *priv =3D platform_get_drvdata(pdev);
+> +
+> +	watchdog_unregister_device(&priv->wdd);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct platform_driver cgeb_watchdog_driver =3D {
+> +	.probe		=3D cgeb_watchdog_probe,
+> +	.remove		=3D __exit_p(cgeb_watchdog_remove),
+
+__devexit_p
+
+> +	.driver	=3D {
+> +		.name	=3D "cgeb-watchdog",
+> +		.owner	=3D THIS_MODULE,
+> +	},
+> +};
+> +
+> +static int __init cgeb_watchdog_driver_init(void)
+> +{
+> +	return platform_driver_register(&cgeb_watchdog_driver);
+> +}
+> +
+> +static void __exit cgeb_watchdog_driver_exit(void)
+> +{
+> +	platform_driver_unregister(&cgeb_watchdog_driver);
+> +}
+> +
+> +module_init(cgeb_watchdog_driver_init);
+> +module_exit(cgeb_watchdog_driver_exit);
+
+module_platform_driver()
+
+> +
+> +MODULE_AUTHOR("Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
+> +MODULE_DESCRIPTION("cgeb watchdog driver");
+> +MODULE_LICENSE("GPL");
+
+GPL v2 according to header
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--vs0rQTeTompTJjtd
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
+Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+Version: GnuPG v1.4.10 (GNU/Linux)
 
-iQIcBAEBAgAGBQJPMQomAAoJEBus8iNuMP3d2I0P/1RCN1jbV+kJoV3J07nleC3i
-Rnxnd0WI+9shpVRCMQmfBGanJ1m6LUoqJwP7Reha7lYA9sRX8T9IEWOsdW2a/73r
-5iMZudmelXdiDgqNApS1UEwGnFKG7zdrYW7fIWkOPRE5C5T6aXy6uVieYi64a9Gy
-ZgayzPQQqekeBDJUtV2SjsNZHWUWoNyCwmI6eBjLjkIuNFB1bCbTqtF7+nlt8TP+
-PdLR0BRBZBPOe5LInEcVfGm5QI8kuT9s5RHX1/EjvKTYicG2cxp2WQpydygbg4pp
-tfIBpHndV6QvjZs2ov7XMVsmshU30K7Utah0MlKJIaTUPOi+JJo5GQY/11hPrGCB
-lFYV3Al9XAUXSIRTu4J7oN544S2wjqqWzvkAiPJpkyT7RSKp2I/N/CHteVOYUYav
-Y5CE3fcV8ubCDrZHLJ1tuIo7WkZc+3NIpoHbdrbtO8zfEvy40EkreshSnlR40cF0
-1plKkVRBP8gNQqRnV8JfsXwQdUqw4urCp7B97v37iyN62LtbRwRj/plEwU2SpJ3S
-Gc2VlDATI0QukwCL7SfqoB6XANRh9shEduz8V+iCCUJkA6paOUFyBOGFvP+ACmsr
-1JqmwXbQpHfOgz6XbfzRRhLRR14LtX2tiisHcOgI2/YiKIRQAbsYPhXf+mjoq4kW
-SjNCsr3f04wIVBpQ+0C0
-=Js//
+iEYEARECAAYFAk8xPogACgkQD27XaX1/VRsXQQCdF4OJxzpAYjWiHv3RcocNX7JT
+rsMAoKeAUDGaUTyqbj7D9WlbxFs46y69
+=1vAS
 -----END PGP SIGNATURE-----
 
---YD3LsXFS42OYHhNZ--
+--vs0rQTeTompTJjtd--
