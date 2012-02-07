@@ -1,97 +1,65 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: Add Congatec CGEB I2C driver
-Date: Tue, 7 Feb 2012 11:10:16 +0100
-Message-ID: <20120207101016.GB2539@pengutronix.de>
-References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
- <1328102793-4313-3-git-send-email-s.hauer@pengutronix.de>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c/gpio-i2c add: add DT support
+Date: Tue, 7 Feb 2012 11:25:47 +0000
+Message-ID: <20120207112547.GC3332@opensource.wolfsonmicro.com>
+References: <1328438337-21185-1-git-send-email-plagnioj@jcrosoft.com>
+ <20120206160907.GG10173@sirena.org.uk>
+ <20120207025624.GB15647@game.jcrosoft.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZoaI/ZTpAVc4A5k6"
+	protocol="application/pgp-signature"; boundary="YD3LsXFS42OYHhNZ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1328102793-4313-3-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20120207025624.GB15647-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ZoaI/ZTpAVc4A5k6
+--YD3LsXFS42OYHhNZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hi Sascha,
+On Tue, Feb 07, 2012 at 03:56:24AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> On 16:09 Mon 06 Feb     , Mark Brown wrote:
 
-> +config I2C_CONGATEC_CGEB
-> +	tristate "Congatec CGEB I2C driver"
-> +	depends on MFD_CONGATEC_CGEB
-> +	help
-> +	  This driver provides support for the I2C busses accssable via
-> +	  the Congatec CGEB interface found on Congatec boards.
-> +
+> > > +	- udelay: half clock cycle time in us (may depend on each platform)
 
-Please keep the sorting (eg20t is wrong and will be fixed).
+> > > +	udelay = <2>;		/* ~100 kHz */
 
-> +		ret =3D cgeb_call(priv->board, &fps, CgebI2CTransfer);
-> +		if (ret) {
-> +			ret =3D -EREMOTEIO;
-> +			goto out;
-> +		}
+> > Why not specify this in kHz and do the conversion in the driver?  It
+> > seems a more intuitive thing to be specifying.  I appreciate that the
+> > platform data used udelay but it seems an entirely unintuitive thing
+> > from a user point of view even if it's what the implementation wants.
 
--EREMOTEIO is not present in Documentation/i2c/fault-codes. Please use
-one from that file.
+> because it's not accurate and on some platform you need to adapt it so we keep
+> the udelay
 
-> +	ret =3D cgeb_i2c_set_speed(priv, 400000);
-> +	if (ret)
-> +		/*
-> +		 * not a critical error, we can continue with the default speed.
-> +		 */
-> +		dev_warn(&pdev->dev, "Could not set speed to 400KHz\n");
+Then you should clarify that in the documentation, it's not the cycle
+time but the delay between GPIO operations which isn't quite the same
+thing.
 
-Is it possible to make this configurable? Not all I2C devices support
-400KHz, 100KHz is OK.
-
-> +static struct platform_driver cgeb_i2c_driver =3D {
-> +	.probe		=3D cgeb_i2c_probe,
-> +	.remove		=3D __exit_p(cgeb_i2c_remove),
-
-__devexit_p()
-
-> +static int __init cgeb_i2c_driver_init(void)
-> +{
-> +	return platform_driver_register(&cgeb_i2c_driver);
-> +}
-> +
-> +static void __exit cgeb_i2c_driver_exit(void)
-> +{
-> +	platform_driver_unregister(&cgeb_i2c_driver);
-> +}
-> +
-> +module_init(cgeb_i2c_driver_init);
-> +module_exit(cgeb_i2c_driver_exit);
-
-module_platform_driver();
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---ZoaI/ZTpAVc4A5k6
+--YD3LsXFS42OYHhNZ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-iEYEARECAAYFAk8w+IgACgkQD27XaX1/VRseFgCfb9GA9+cmUwNKK4A634tNVzAg
-+ZoAniKTp9LQ1MorQSaZjR7/t6jzm/L2
-=WMNh
+iQIcBAEBAgAGBQJPMQomAAoJEBus8iNuMP3d2I0P/1RCN1jbV+kJoV3J07nleC3i
+Rnxnd0WI+9shpVRCMQmfBGanJ1m6LUoqJwP7Reha7lYA9sRX8T9IEWOsdW2a/73r
+5iMZudmelXdiDgqNApS1UEwGnFKG7zdrYW7fIWkOPRE5C5T6aXy6uVieYi64a9Gy
+ZgayzPQQqekeBDJUtV2SjsNZHWUWoNyCwmI6eBjLjkIuNFB1bCbTqtF7+nlt8TP+
+PdLR0BRBZBPOe5LInEcVfGm5QI8kuT9s5RHX1/EjvKTYicG2cxp2WQpydygbg4pp
+tfIBpHndV6QvjZs2ov7XMVsmshU30K7Utah0MlKJIaTUPOi+JJo5GQY/11hPrGCB
+lFYV3Al9XAUXSIRTu4J7oN544S2wjqqWzvkAiPJpkyT7RSKp2I/N/CHteVOYUYav
+Y5CE3fcV8ubCDrZHLJ1tuIo7WkZc+3NIpoHbdrbtO8zfEvy40EkreshSnlR40cF0
+1plKkVRBP8gNQqRnV8JfsXwQdUqw4urCp7B97v37iyN62LtbRwRj/plEwU2SpJ3S
+Gc2VlDATI0QukwCL7SfqoB6XANRh9shEduz8V+iCCUJkA6paOUFyBOGFvP+ACmsr
+1JqmwXbQpHfOgz6XbfzRRhLRR14LtX2tiisHcOgI2/YiKIRQAbsYPhXf+mjoq4kW
+SjNCsr3f04wIVBpQ+0C0
+=Js//
 -----END PGP SIGNATURE-----
 
---ZoaI/ZTpAVc4A5k6--
+--YD3LsXFS42OYHhNZ--
