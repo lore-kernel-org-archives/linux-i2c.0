@@ -1,153 +1,203 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v5] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
-Date: Tue, 7 Feb 2012 16:47:40 +0800
-Message-ID: <CAGsJ_4yJOg8XNfD=tgwPU_57BroBOBGvA428tG6_eUnYX2v8OQ@mail.gmail.com>
-References: <1327846668-3053-1-git-send-email-21cnbao@gmail.com>
- <20120205223757.GA10680@nekote.pengutronix.de> <CAGsJ_4yHn1M3s6CPezaW_jwOcsX6NuaZRHcNWX0qnSfhx30AHQ@mail.gmail.com>
- <20120206224714.GB25703@pengutronix.de>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c/gpio-i2c add: add DT support
+Date: Tue, 7 Feb 2012 04:25:33 +0100
+Message-ID: <20120207032533.GC15647@game.jcrosoft.org>
+References: <1328438337-21185-1-git-send-email-plagnioj@jcrosoft.com>
+ <4F301E25.5060507@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120206224714.GB25703-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4F301E25.5060507-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <ninja-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-hi Wolfram,
+On 19:38 Mon 06 Feb     , Karol Lewandowski wrote:
+> On 05.02.2012 11:38, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> 
+> Hi!
+> 
+> >+Device-Tree bindings for i2c gpio driver
+> >+
+> >+Required properties:
+> >+	- compatible = "gpio-i2c";
+> 
+> Driver name is "i2c-gpio" in file i2c-gpio.c. Previous version of
+> patch adding DT-support (prepared by Thomas Chou[1]) used i2c-gpio -
+> could we stick to that name?
+> 
+> [1] https://lkml.org/lkml/2011/2/23/584
+> 
+> >+	- gpios: sda and scl gpio
+> >+
+> >+
+> >+Optional properties:
+> >+	- gpio-i2c,sda_is_open_drain: sda as open drain
+> >+	- gpio-i2c,scl_is_open_drain: scl as open drain
+> >+	- gpio-i2c,scl_is_output_only: scl as output only
+> 
+> Most of DT-properties I've seen used hyphen, not underscore.  Could
+> we stick to that convention?
+> 
+> (Nitpick: I think that "is" in property names is redundant too.)
+> 
+> >+	- udelay: half clock cycle time in us (may depend on each platform)
+> 
+> Could we use "clock-frequency" as Grant have suggested during review
+> of previous patch to i2c-gpio?
+as exaplained no as for gpio the delay is platform dependent
+> 
+>   https://lkml.org/lkml/2011/2/24/220
+> 
+> >+	- timeout: timeout to get data
+> >+
+> >+
+> >+Example nodes:
+> >+
+> >+i2c-gpio@0 {
+> >+	compatible = "gpio-i2c";
+> >+	gpios =<&pioA 23 0 /* sda */
+> >+		&pioA 24 0 /* scl */
+> >+		>;
+> >+	gpio-i2c,sda_is_open_drain;
+> >+	gpio-i2c,scl_is_open_drain;
+> >+	udelay =<2>;		/* ~100 kHz */
+> >+	#address-cells =<1>;
+> >+	#size-cells =<0>;
+> >+
+> >+	rv3029c2@56 {
+> >+		compatible = "rv3029c2";
+> >+		reg =<0x56>;
+> >+	};
+> >+};
+> >diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+> >index a651779..6b5d794 100644
+> >--- a/drivers/i2c/busses/i2c-gpio.c
+> >+++ b/drivers/i2c/busses/i2c-gpio.c
+> >@@ -14,6 +14,8 @@
+> >  #include<linux/module.h>
+> >  #include<linux/slab.h>
+> >  #include<linux/platform_device.h>
+> >+#include<linux/of_gpio.h>
+> >+#include<linux/of_i2c.h>
+> >
+> >  #include<asm/gpio.h>
+> >
+> >@@ -78,16 +80,51 @@ static int i2c_gpio_getscl(void *data)
+> >  	return gpio_get_value(pdata->scl_pin);
+> >  }
+> >
+> >+static int of_i2c_gpio_probe(struct device_node *np,
+> >+			     struct i2c_gpio_platform_data *pdata)
+> >+{
+> >+	u32 reg;
+> >+
+> 
+> if (of_gpio_count(np) < 2)
+> 	return -EINVAL;
+ok
+> 
+> >+	pdata->sda_pin = of_get_gpio(np, 0);
+> >+	pdata->scl_pin = of_get_gpio(np, 1);
+> 
+> if (pdata->sda_pin < 0 || pdata->scl_pin < 0)
+> 	return -EINVAL;
 
-2012/2/7 Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
->
->> > Thanks for your contribution! Is there a free datasheet for this c=
-ontroller
->> > available?
->>
->> sorry. not available to public yet.
->
-> :( Can you cite what "SIRFSOC_I2C_NACK" does?
-
-if ACK is not received, an interrupt will be got and related register
-status can show this error. that is just a common feature in almost
-all i2c controllers? so the naming is confused. i just copied it from
-the spec.
-
->>
->> >> +struct sirfsoc_i2c {
->> >> + =C2=A0 =C2=A0 void __iomem *base;
->> >> + =C2=A0 =C2=A0 struct clk *clk;
->> >> + =C2=A0 =C2=A0 unsigned long speed; =C2=A0 =C2=A0/* I2C SCL freq=
-uency */
->> >> + =C2=A0 =C2=A0 int irq;
->> >
->> > Do you really need those two?
->>
->> irq can be deleted. speed is not really needed if you don't like.
->
-> It is not about "like". It is not needed, or?
-
-it is not needed.
-
->
->> >> +static void i2c_sirfsoc_queue_cmd(struct sirfsoc_i2c *siic)
->> >> +{
->> >> + =C2=A0 =C2=A0 u32 regval;
->> >> + =C2=A0 =C2=A0 int i =3D 0;
->> >> +
->> >> + =C2=A0 =C2=A0 if (siic->msg_read) {
->> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 while (((siic->finish=
-ed_len + i) < siic->msg_len)
->> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 && (siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX)) {
->> >
->> > Either use a different indentation for the above line or add a new=
-line below.
->> > It is hard to see where the while() ends and the code block starts=
-=2E
->>
->> i just want to make sure what you want is:
->>
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0while (((siic->finis=
-hed_len + i) < siic->msg_len)
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0&&(siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX)
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0) {
->> ?
->> or something else?
->
-> I thought of (which is simpler IMO):
->
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0while (((siic->finis=
-hed_len + i) < siic->msg_len)
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0&&(siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX)) {
->>
->> =C2=A0=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
- =C2=A0 regval =3D SIRFSOC_I2C_READ | SIRFSOC_I2C_CMD_RP(0);
->
->
-> The other solution would be (not sure if it fits the line length):
->
->> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 while (((siic->finish=
-ed_len + i) < siic->msg_len)
->> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 && (siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF=
-_MAX)) {
->> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
-=C2=A0 regval =3D SIRFSOC_I2C_READ | SIRFSOC_I2C_CMD_RP(0);
->
-> The idea is to make it easier (visually) what is the while-condition =
-and where
-> is the code of the while-block. I thought that was difficult in origi=
-nal version.
-
-the mail webpages and clients really fails to show the difference. i
-guess you mean:
- while (((siic->finished_len + i) < siic->msg_len)
- [ tab ][ tab ]&& (siic->cmd_ptr < SIRFSOC_I2C_CMD_BUF_MAX)) {
-?
-
-or can you describle the indentation by something like [space][space][t=
-ab][tab]?
-
->
->> >> +static int i2c_sirfsoc_xfer_msg(struct sirfsoc_i2c *siic, struct=
- i2c_msg *msg)
->> >> +{
->> >> + =C2=A0 =C2=A0 u32 regval =3D readl(siic->base + SIRFSOC_I2C_CTR=
-L);
->> >> + =C2=A0 =C2=A0 int timeout =3D (msg->len + 1) * 50;
->> >
->> > That looks broken. What is 50 here?
->>
->> just multiple of xfer bytes for defining a timeout. i might have a c=
-omment here.
->
-> That probably won't help. I'd think you want a *_to_jiffies() here to=
- define a
-> proper timeout value in usecs/msecs?
-
-ok. make sense.
-
->
->> >> + =C2=A0 =C2=A0 siic->irq =3D platform_get_irq(pdev, 0);
->> >> + =C2=A0 =C2=A0 if (siic->irq < 0) {
->> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 err =3D -EINVAL;
->> >> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto out;
->> >> + =C2=A0 =C2=A0 }
->> >
->> > return the error code here?
->>
->> out lable will free resources and return error code.
->
-> Sorry, I meant the error code you received which is in siic->irq.
-
-ok. err =3D -ENXIO
-
->
+> 
+> >+
+> >+	if (of_property_read_u32(np, "udelay",&reg))
+> >+		pdata->udelay = reg;
+> >+
+> >+	if (of_property_read_u32(np, "timeout",&reg))
+> >+		pdata->timeout = reg;
+> >+
+> >+	pdata->sda_is_open_drain =
+> >+		!!of_get_property(np, "gpio-i2c,sda_is_open_drain", NULL);
+> >+	pdata->scl_is_open_drain =
+> >+		!!of_get_property(np, "gpio-i2c,scl_is_open_drain", NULL);
+> >+	pdata->scl_is_output_only =
+> >+		!!of_get_property(np, "gpio-i2c,scl_is_output_only", NULL);
+> >+
+> >+	return 0;
+> >+}
+> >+
+> >  static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+> >  {
+> >  	struct i2c_gpio_platform_data *pdata;
+> >  	struct i2c_algo_bit_data *bit_data;
+> >  	struct i2c_adapter *adap;
+> >  	int ret;
+> >+	int len = sizeof(struct i2c_gpio_platform_data);
+> >
+> >-	pdata = pdev->dev.platform_data;
+> >+	pdata = kzalloc(len, GFP_KERNEL);
+> 
+> Could you also take into account Grant's comment about
+> private/platform data?
+> 
+>   https://lkml.org/lkml/2011/2/3/221
+> 
+> >  	if (!pdata)
+> >-		return -ENXIO;
+> >+		return -ENOMEM;
+> >+
+> >+	if (pdev->dev.of_node) {
+> >+		of_i2c_gpio_probe(pdev->dev.of_node, pdata);
+> 
+> Above might fail if configuration is corrupted.
+> 
+> >+	} else {
+> >+		if (!pdev->dev.platform_data) {
+> >+			ret = -ENXIO;
+> >+			goto err_alloc_adap;
+> >+		}
+> >+		memcpy(pdata, pdev->dev.platform_data, len);
+> >+	}
+> >
+> >  	ret = -ENOMEM;
+> >  	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+> >@@ -143,6 +180,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+> >  	adap->algo_data = bit_data;
+> >  	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> >  	adap->dev.parent =&pdev->dev;
+> >+	adap->dev.of_node = pdev->dev.of_node;
+> >
+> >  	/*
+> >  	 * If "dev->id" is negative we consider it as zero.
+> >@@ -154,6 +192,8 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+> >  	if (ret)
+> >  		goto err_add_bus;
+> >
+> >+	of_i2c_register_devices(adap);
+> >+
+> >  	platform_set_drvdata(pdev, adap);
+> >
+> >  	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
+> >@@ -172,6 +212,7 @@ err_request_sda:
+> >  err_alloc_bit_data:
+> >  	kfree(adap);
+> >  err_alloc_adap:
+> >+	kfree(pdata);
+> >  	return ret;
+> >  }
+> >
+> >@@ -192,10 +233,20 @@ static int __devexit i2c_gpio_remove(struct platform_device *pdev)
+> >  	return 0;
+> >  }
+> >
+> >+#if defined(CONFIG_OF)
+> >+static const struct of_device_id gpio_i2c_dt_ids[] = {
+> >+	{ .compatible = "gpio-i2c", },
+> 
+> There seem to be no good reason to make DT-compatible string
+> different from driver's name that's already in use:
+> 
+> >  static struct platform_driver i2c_gpio_driver = {
+> >  	.driver		= {
+> >  		.name	= "i2c-gpio",
+> 
 > Regards,
->
-> =C2=A0 Wolfram
-
--barry
+> -- 
+> Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
