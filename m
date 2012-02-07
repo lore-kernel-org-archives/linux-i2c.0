@@ -1,150 +1,70 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
-Date: Tue, 7 Feb 2012 16:08:56 +0100
-Message-ID: <20120207150856.GI2539@pengutronix.de>
-References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
- <1328102793-4313-4-git-send-email-s.hauer@pengutronix.de>
+Subject: Re: [PATCH v5] I2C: add CSR SiRFprimaII on-chip I2C controllers
+ driver
+Date: Tue, 7 Feb 2012 16:11:58 +0100
+Message-ID: <20120207151117.GJ2539@pengutronix.de>
+References: <1327846668-3053-1-git-send-email-21cnbao@gmail.com>
+ <20120205223757.GA10680@nekote.pengutronix.de>
+ <CAGsJ_4yHn1M3s6CPezaW_jwOcsX6NuaZRHcNWX0qnSfhx30AHQ@mail.gmail.com>
+ <20120206224714.GB25703@pengutronix.de>
+ <CAGsJ_4yJOg8XNfD=tgwPU_57BroBOBGvA428tG6_eUnYX2v8OQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vs0rQTeTompTJjtd"
+	protocol="application/pgp-signature"; boundary="5dNcufZ4prhark0F"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1328102793-4313-4-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <CAGsJ_4yJOg8XNfD=tgwPU_57BroBOBGvA428tG6_eUnYX2v8OQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---vs0rQTeTompTJjtd
-Content-Type: text/plain; charset=us-ascii
+--5dNcufZ4prhark0F
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Sascha,
+Hi Barry,
 
-> +struct cgeb_watchdog_stage {
-> +	unsigned long timeout;
-> +	unsigned long event;
-> +};
-> +
-> +struct cgeb_watchdog_config {
-> +	unsigned long size;
-> +	unsigned long timeout; /* not used in staged mode */
-> +	unsigned long delay;
-> +	unsigned long mode;
-> +	/* optional parameters for staged watchdog */
-> +	unsigned long op_mode;
-> +	unsigned long stage_count;
-> +	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
-> +};
-> +
+> if ACK is not received, an interrupt will be got and related register
+> status can show this error. that is just a common feature in almost
+> all i2c controllers? so the naming is confused. i just copied it from
+> the spec.
 
-There is some unused stuff in here.
+Yes, this is common and yes, the naming is confusing :) This is why I
+asked if it really does what I believed it does. All is fine, no need
+for a change.
 
-> +struct cgeb_watchdog_priv {
-> +	struct cgeb_board_data	*board;
-> +	struct watchdog_device	wdd;
-> +	unsigned int		timeout_s;
+> the mail webpages and clients really fails to show the difference. i
 
-Is wdd->timeout not sufficent?
+Not all of them. gmane looks OK both in web-interface and via NNTP.
 
-> +	int unit;
-> +};
-> +
-> +static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
-> +		unsigned int timeout_s)
-> +{
-> +	struct cgeb_watchdog_priv *priv =3D watchdog_get_drvdata(wdd);
-> +
-> +	if (!timeout_s)
-> +		return -EINVAL;
+> >> >> + =A0 =A0 siic->irq =3D platform_get_irq(pdev, 0);
+> >> >> + =A0 =A0 if (siic->irq < 0) {
+> >> >> + =A0 =A0 =A0 =A0 =A0 =A0 err =3D -EINVAL;
+> >> >> + =A0 =A0 =A0 =A0 =A0 =A0 goto out;
+> >> >> + =A0 =A0 }
+> >> >
+> >> > return the error code here?
+> >>
+> >> out lable will free resources and return error code.
+> >
+> > Sorry, I meant the error code you received which is in siic->irq.
+>=20
+> ok. err =3D -ENXIO
 
-Is this possible? You have min_timeout =3D 1.
+err =3D ssic->irq?
 
-> +static int __devinit cgeb_watchdog_probe(struct platform_device *pdev)
-> +{
-> +	struct cgeb_watchdog_priv *priv;
-> +	struct cgeb_pdata *pdata =3D pdev->dev.platform_data;
-> +	int ret;
-> +
-> +	dev_info(&pdev->dev, "registering\n");
+Regards,
 
-"registered" on success would be more useful?
-
-> +
-> +	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	priv->wdd.ops =3D &cgeb_watchdog_ops;
-> +	priv->wdd.info =3D &cgeb_wdd_info;
-> +	priv->wdd.min_timeout =3D 1;
-> +	priv->wdd.max_timeout =3D 3600;
-> +	priv->board =3D pdata->board;
-> +	priv->unit =3D pdata->unit;
-> +
-> +	watchdog_set_drvdata(&priv->wdd, priv);
-> +	platform_set_drvdata(pdev, priv);
-> +
-> +	ret =3D watchdog_register_device(&priv->wdd);
-> +	if (ret)
-> +		return ret;
-> +
-> +	return 0;
-
-return watchdog_register_device();
-
-> +}
-> +
-> +static int __devexit cgeb_watchdog_remove(struct platform_device *pdev)
-> +{
-> +	struct cgeb_watchdog_priv *priv =3D platform_get_drvdata(pdev);
-> +
-> +	watchdog_unregister_device(&priv->wdd);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct platform_driver cgeb_watchdog_driver =3D {
-> +	.probe		=3D cgeb_watchdog_probe,
-> +	.remove		=3D __exit_p(cgeb_watchdog_remove),
-
-__devexit_p
-
-> +	.driver	=3D {
-> +		.name	=3D "cgeb-watchdog",
-> +		.owner	=3D THIS_MODULE,
-> +	},
-> +};
-> +
-> +static int __init cgeb_watchdog_driver_init(void)
-> +{
-> +	return platform_driver_register(&cgeb_watchdog_driver);
-> +}
-> +
-> +static void __exit cgeb_watchdog_driver_exit(void)
-> +{
-> +	platform_driver_unregister(&cgeb_watchdog_driver);
-> +}
-> +
-> +module_init(cgeb_watchdog_driver_init);
-> +module_exit(cgeb_watchdog_driver_exit);
-
-module_platform_driver()
-
-> +
-> +MODULE_AUTHOR("Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
-> +MODULE_DESCRIPTION("cgeb watchdog driver");
-> +MODULE_LICENSE("GPL");
-
-GPL v2 according to header
+   Wolfram
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---vs0rQTeTompTJjtd
+--5dNcufZ4prhark0F
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -152,9 +72,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAk8xPogACgkQD27XaX1/VRsXQQCdF4OJxzpAYjWiHv3RcocNX7JT
-rsMAoKeAUDGaUTyqbj7D9WlbxFs46y69
-=1vAS
+iEYEARECAAYFAk8xPz4ACgkQD27XaX1/VRtvIQCfUDOCGPPEhesRQazh6CNNr5wi
+mr8Anj7klqW5JeTitLkjfMnm8eHVm7Km
+=ogoc
 -----END PGP SIGNATURE-----
 
---vs0rQTeTompTJjtd--
+--5dNcufZ4prhark0F--
