@@ -1,66 +1,29 @@
-From: "Coelho, Luciano" <coelho@ti.com>
-Subject: Re: [PATCH] I2C: OMAP: fix build breakage when CONFIG_OF is not set
-Date: Wed, 8 Feb 2012 17:54:23 +0200
-Message-ID: <CAKd1q9owoor5aShGb=LpDvkzmQvKASb8R9HPZtcyhvsY4+OqHg@mail.gmail.com>
-References: <1328698612-18661-1-git-send-email-coelho@ti.com>
-	<20120208105957.GB16334@legolas.emea.dhcp.ti.com>
-	<1328699077.20197.51.camel@cumari>
-	<CAM=Q2cvZWdUk-v4-EWUJzAf4br-4+tO2s3qS_dn4KhHp+mm2+g@mail.gmail.com>
-	<1328700319.20197.54.camel@cumari>
-	<4F329953.9010608@ti.com>
+From: Robin Holt <holt-sJ/iWh9BUns@public.gmane.org>
+Subject: Xilinx iic i2c bus interface GPIO support for i2c-mux in Linux.
+Date: Wed, 8 Feb 2012 13:46:15 -0600
+Message-ID: <20120208194615.GT14907@sgi.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4F329953.9010608@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Cousson, Benoit" <b-cousson@ti.com>
-Cc: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, balbi@ti.com, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org, tony@atomide.com, khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, grant.likely@secretlab.ca, rob.herring@calxeda.com, devicetree-discuss@lists.ozlabs.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Richard =?iso-8859-1?Q?R=F6jfors?= <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, info-l7gf1WXxx3uGw+nKnLezzg@public.gmane.org, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Benoit,
+We are using a Xilinx FPGA which implements a series of i2c bus
+interfaces.  We are planning on implementing a single-bit GPIO
+(XIIC_GPO_REG_OFFSET) which is included in that logic block to act
+as a MUX selector (also in the FPGA) between two separate i2c busses.
 
-Ok, thanks. Good to know that the fixes are already queued.
+This will require a GPIO driver in the linux kernel.
 
-On 2/8/12, Cousson, Benoit <b-cousson@ti.com> wrote:
-> Hi Luca,
->
-> On 2/8/2012 12:25 PM, Luciano Coelho wrote:
->> On Wed, 2012-02-08 at 16:42 +0530, Shubhrajyoti Datta wrote:
->>> On Wed, Feb 8, 2012 at 4:34 PM, Luciano Coelho<coelho@ti.com>  wrote:
->>>> On Wed, 2012-02-08 at 12:59 +0200, Felipe Balbi wrote:
->>>>> On Wed, Feb 08, 2012 at 12:56:52PM +0200, Luciano Coelho wrote:
->>>>>> Since commit 6145197be6cc0583fa1a2f4ec1079d366137061e, building
->>>>>
->>>>> we generally like to see the commit subject here too. And adding the
->>>>> abbreviated commit instead of the full sha1, wouldn't hurt either ;-)
->>>>
->>>> Ok, different practices. :)
->>>
->>> However  there was already a discurssion.
->>> Anyways thanks for the patch.
->>> http://permalink.gmane.org/gmane.linux.ports.arm.omap/69796
->>>
->>>
->>>>
->>>> I'll send v2.
->>> I think there was already a fix for this.
->>>
->>> http://www.spinics.net/lists/linux-omap/msg63151.html
->>>
->>> Anyways thanks for the patch.
->>
->> Ah, okay.  Thanks for the info, I hadn't seen these.
->
-> Yeah, it looks like the OMAP fixes missed -rc2, but Tony sent the pull
-> request [1].
->
-> Regards,
-> Benoit
->
-> [1] http://www.spinics.net/lists/linux-omap/msg63564.html
->
+Is it better to try and change the i2c-xiic.c code which already knows
+about the GPO register to handle that additional GPIO or should we be
+implementing the GPIO driver outside the i2c driver and then use the
+standard i2c-mux support available in newer kernels?
 
+Any guidance is welcome.
 
--- 
-Cheers,
-Luca.
+Thanks,
+Robin Holt
