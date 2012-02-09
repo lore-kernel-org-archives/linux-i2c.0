@@ -1,242 +1,81 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Subject: [PATCH 1/4 v2] i2c/gpio: add DT support
-Date: Thu,  9 Feb 2012 03:25:05 +0100
-Message-ID: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: [PATCH] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce wait time
+Date: Thu,  9 Feb 2012 09:32:46 +0100
+Message-ID: <1328776366-6881-1-git-send-email-alexander.stein@systec-electronic.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Toshiharu Okada <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+If you insert several i2c transfers, the driver might start the next one
+while the STOP bit of the previous transfer is still on the bus, marking
+the bus as busy.
+pch_i2c_wait_for_bus_idle does an msleep(20) delaying the next transfer
+by >=20ms. Reduce wait time by actively waiting 5 us once, then using
+usleep_range.
+
+Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 ---
-v2:
+ drivers/i2c/busses/i2c-eg20t.c |   35 ++++++++++++++++++++++-------------
+ 1 files changed, 22 insertions(+), 13 deletions(-)
 
-	use devm
-	update DT bindings to i2c-gpio and sda-open-drain...
-	update against "of: introduce helper to manage boolean"
-
-Best Regards,
-J.
- .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
- drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
- 2 files changed, 107 insertions(+), 20 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-
-diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-new file mode 100644
-index 0000000..9710ed2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-@@ -0,0 +1,32 @@
-+Device-Tree bindings for i2c gpio driver
-+
-+Required properties:
-+	- compatible = "i2c-gpio";
-+	- gpios: sda and scl gpio
-+
-+
-+Optional properties:
-+	- i2c-gpio,sda-open-drain: sda as open drain
-+	- i2c-gpio,scl-open-drain: scl as open drain
-+	- i2c-gpio,scl-output-only: scl as output only
-+	- udelay: delay between GPIO operations (may depend on each platform)
-+	- timeout: timeout to get data (ms)
-+
-+Example nodes:
-+
-+i2c-gpio@0 {
-+	compatible = "i2c-gpio";
-+	gpios = <&pioA 23 0 /* sda */
-+		 &pioA 24 0 /* scl */
-+		>;
-+	i2c-gpio,sda-open-drain;
-+	i2c-gpio,scl-open-drain;
-+	udelay = <2>;		/* ~100 kHz */
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
-+	rv3029c2@56 {
-+		compatible = "rv3029c2";
-+		reg = <0x56>;
-+	};
-+};
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index a651779..d7032c1 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -14,8 +14,15 @@
- #include <linux/module.h>
- #include <linux/slab.h>
- #include <linux/platform_device.h>
-+#include <linux/gpio.h>
-+#include <linux/of_gpio.h>
-+#include <linux/of_i2c.h>
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index ca88776..6987e73 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -271,30 +271,39 @@ static inline bool ktime_lt(const ktime_t cmp1, const ktime_t cmp2)
+ /**
+  * pch_i2c_wait_for_bus_idle() - check the status of bus.
+  * @adap:	Pointer to struct i2c_algo_pch_data.
+- * @timeout:	waiting time counter (us).
++ * @timeout:	waiting time counter (ms).
+  */
+ static s32 pch_i2c_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
+ 				     s32 timeout)
+ {
+ 	void __iomem *p = adap->pch_base_address;
+-	ktime_t ns_val;
++	int schedule = 0;
++	unsigned long end = jiffies + msecs_to_jiffies(timeout);
  
--#include <asm/gpio.h>
-+struct i2c_gpio_private_data {
-+	struct i2c_adapter adap;
-+	struct i2c_algo_bit_data bit_data;
-+	struct i2c_gpio_platform_data pdata;
-+};
+ 	if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+ 		return 0;
  
- /* Toggle SDA by changing the direction of the pin */
- static void i2c_gpio_setsda_dir(void *data, int state)
-@@ -78,24 +85,63 @@ static int i2c_gpio_getscl(void *data)
- 	return gpio_get_value(pdata->scl_pin);
- }
+-	/* MAX timeout value is timeout*1000*1000nsec */
+-	ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
+-	do {
+-		msleep(20);
+-		if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+-			return 0;
+-	} while (ktime_lt(ktime_get(), ns_val));
++	while (ioread32(p + PCH_I2CSR) & I2CMBB_BIT) {
++		if (time_after(jiffies, end)) {
++			pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
++			pch_err(adap, "%s: Timeout Error.return%d\n",
++					__func__, -ETIME);
++			pch_i2c_init(adap);
++
++			return -ETIME;
++		}
  
-+static int __devinit of_i2c_gpio_probe(struct device_node *np,
-+			     struct i2c_gpio_platform_data *pdata)
-+{
-+	u32 reg;
+-	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
+-	pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
+-	pch_i2c_init(adap);
++		if (!schedule)
++			/* Retry after some usecs */
++			udelay(5);
++		else
++			/* Wait a bit more without consuming CPU */
++			usleep_range(20, 1000);
 +
-+	if (of_gpio_count(np) < 2)
-+		return -ENODEV;
-+
-+	pdata->sda_pin = of_get_gpio(np, 0);
-+	pdata->scl_pin = of_get_gpio(np, 1);
-+
-+	if (pdata->sda_pin < 0 || pdata->scl_pin < 0) {
-+		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
-+		       np->full_name, pdata->sda_pin, pdata->scl_pin);
-+		return -ENODEV;
++		schedule = 1;
 +	}
-+
-+	if (of_property_read_u32(np, "udelay", &reg))
-+		pdata->udelay = reg;
-+
-+	if (of_property_read_u32(np, "timeout", &reg))
-+		pdata->timeout = msecs_to_jiffies(reg);
-+
-+	pdata->sda_is_open_drain =
-+		!!of_property_read_bool(np, "i2c-gpio,sda-open-drain");
-+	pdata->scl_is_open_drain =
-+		!!of_property_read_bool(np, "i2c-gpio,scl-open-drain");
-+	pdata->scl_is_output_only =
-+		!!of_property_read_bool(np, "i2c-gpio,scl-output-only");
-+
+ 
+-	return -ETIME;
 +	return 0;
-+}
-+
- static int __devinit i2c_gpio_probe(struct platform_device *pdev)
- {
-+	struct i2c_gpio_private_data *priv;
- 	struct i2c_gpio_platform_data *pdata;
- 	struct i2c_algo_bit_data *bit_data;
- 	struct i2c_adapter *adap;
- 	int ret;
- 
--	pdata = pdev->dev.platform_data;
--	if (!pdata)
--		return -ENXIO;
-+	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+	adap = &priv->adap;
-+	bit_data = &priv->bit_data;
-+	pdata = &priv->pdata;
- 
--	ret = -ENOMEM;
--	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
--	if (!adap)
--		goto err_alloc_adap;
--	bit_data = kzalloc(sizeof(struct i2c_algo_bit_data), GFP_KERNEL);
--	if (!bit_data)
--		goto err_alloc_bit_data;
-+	if (pdev->dev.of_node) {
-+		ret = of_i2c_gpio_probe(pdev->dev.of_node, pdata);
-+		if (ret)
-+			return ret;
-+	} else {
-+		if (!pdev->dev.platform_data)
-+			return -ENXIO;
-+		memcpy(pdata, pdev->dev.platform_data, sizeof(*pdata));
-+	}
- 
- 	ret = gpio_request(pdata->sda_pin, "sda");
- 	if (ret)
-@@ -143,6 +189,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
- 	adap->algo_data = bit_data;
- 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	adap->dev.parent = &pdev->dev;
-+	adap->dev.of_node = pdev->dev.of_node;
- 
- 	/*
- 	 * If "dev->id" is negative we consider it as zero.
-@@ -154,7 +201,9 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
- 	if (ret)
- 		goto err_add_bus;
- 
--	platform_set_drvdata(pdev, adap);
-+	of_i2c_register_devices(adap);
-+
-+	platform_set_drvdata(pdev, priv);
- 
- 	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
- 		 pdata->sda_pin, pdata->scl_pin,
-@@ -168,34 +217,40 @@ err_add_bus:
- err_request_scl:
- 	gpio_free(pdata->sda_pin);
- err_request_sda:
--	kfree(bit_data);
--err_alloc_bit_data:
--	kfree(adap);
--err_alloc_adap:
- 	return ret;
  }
  
- static int __devexit i2c_gpio_remove(struct platform_device *pdev)
- {
-+	struct i2c_gpio_private_data *priv;
- 	struct i2c_gpio_platform_data *pdata;
- 	struct i2c_adapter *adap;
- 
--	adap = platform_get_drvdata(pdev);
--	pdata = pdev->dev.platform_data;
-+	priv = platform_get_drvdata(pdev);
-+	adap = &priv->adap;
-+	pdata = &priv->pdata;
- 
- 	i2c_del_adapter(adap);
- 	gpio_free(pdata->scl_pin);
- 	gpio_free(pdata->sda_pin);
--	kfree(adap->algo_data);
--	kfree(adap);
- 
- 	return 0;
- }
- 
-+#if defined(CONFIG_OF)
-+static const struct of_device_id i2c_gpio_dt_ids[] = {
-+	{ .compatible = "i2c-gpio", },
-+	{ /* sentinel */ }
-+};
-+
-+MODULE_DEVICE_TABLE(of, i2c_gpio_dt_ids);
-+#endif
-+
- static struct platform_driver i2c_gpio_driver = {
- 	.driver		= {
- 		.name	= "i2c-gpio",
- 		.owner	= THIS_MODULE,
-+		.of_match_table	= of_match_ptr(i2c_gpio_dt_ids),
- 	},
- 	.probe		= i2c_gpio_probe,
- 	.remove		= __devexit_p(i2c_gpio_remove),
+ /**
 -- 
-1.7.7
+1.7.3.4
