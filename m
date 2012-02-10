@@ -1,27 +1,39 @@
-From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce
- wait time
-Date: Fri, 10 Feb 2012 09:52:03 +0900
-Message-ID: <CANKRQniXxZbY5Bs90v+xsU3PRU6JntXF53Vv0Yhx0Lyhn3fq6g@mail.gmail.com>
-References: <1328776366-6881-1-git-send-email-alexander.stein@systec-electronic.com>
+From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH v2] i2c: tegra: Add delay before reset the controller
+Date: Fri, 10 Feb 2012 14:50:22 +0530
+Message-ID: <7A0BFCFE3DA5CD47B0FB7984326F201A13689D36EE@BGMAIL01.nvidia.com>
+References: <1324898081-10308-1-git-send-email-alokc@nvidia.com>
+ <20120106161803.GQ19115@trinity.fluff.org>
+ <7A0BFCFE3DA5CD47B0FB7984326F201A134F2CD4F1@BGMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1328776366-6881-1-git-send-email-alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Toshiharu Okada <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <7A0BFCFE3DA5CD47B0FB7984326F201A134F2CD4F1-kdsAE/FnitNDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+Content-Language: en-US
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org" <paul.gortmaker-CWA4WttNNZF54TAoqtyWWQ@public.gmane.org>, "dgreid-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org" <dgreid-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2012/2/9 Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org> wrote:
->
-> =A0 =A0 =A0 =A0if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) =3D=3D 0)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return 0;
->
+> On Mon, Dec 26, 2011 at 04:44:41PM +0530, Alok Chauhan wrote:
+>> 
+> +	/*
+> +	 * In NACK error condition resetting of I2C controller happens
+> +	 * before STOP condition is properly completed by I2C controller,
+> +	 * so wait for 2 clock cycle to complete STOP condition.
+> +	 */
+> +	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
+> +		udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
+> +
 
-If this patch will be accepted,
-this code also looks redundant code.
+>Is a delay here good, would it be better to sleep so that some other process can gain cpu time?
+>>We mostly used 100 khz i2c clock frequency and delay in that case will be 20 usec. Would it be ok to sleep for such a smaller time? Won't it increase any other overhead?
 
-thanks,
-tomoya
+Please let me know if sleep is better option here instead of waiting.
+
+Thanks
+Alok
+
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info at  http://vger.kernel.org/majordomo-info.html
