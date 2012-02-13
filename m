@@ -1,58 +1,42 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] i2c-s3c2410: move resume state flag to end of resume
-Date: Sun, 12 Feb 2012 13:12:31 +0000
-Message-ID: <20120212131230.GB3395@opensource.wolfsonmicro.com>
-References: <018401cce86c$5df94130$19ebc390$@samsung.com>
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: Re: [PATCH] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce wait time
+Date: Mon, 13 Feb 2012 08:25 +0100
+Message-ID: <63318173.mcCRrit7Mu@ws-stein>
+References: <1328776366-6881-1-git-send-email-alexander.stein@systec-electronic.com> <CANKRQniXxZbY5Bs90v+xsU3PRU6JntXF53Vv0Yhx0Lyhn3fq6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hQiwHBbRI9kgIhsi"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <018401cce86c$5df94130$19ebc390$@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Huisung Kang <hs1218.kang@samsung.com>
-Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org, kgene.kim@samsung.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANKRQniXxZbY5Bs90v+xsU3PRU6JntXF53Vv0Yhx0Lyhn3fq6g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Toshiharu Okada <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Am Freitag, 10. Februar 2012, 09:52:03 schrieb Tomoya MORINAGA:
+> 2012/2/9 Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org> wrote:
+> >
+> >        if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+> >                return 0;
+> >
+> 
+> If this patch will be accepted,
+> this code also looks redundant code.
 
---hQiwHBbRI9kgIhsi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yep, you're right. I'll prepare a now patch after some days of possibly more comments.
 
-On Sat, Feb 11, 2012 at 12:22:21PM +0900, Huisung Kang wrote:
-> From: Kisoo Yu <ksoo.yu@samsung.com>
+Best regards,
+Alexander
+-- 
+Dipl.-Inf. Alexander Stein
 
-> need to set flag after finishing its work
+SYS TEC electronic GmbH
+August-Bebel-Str. 29
+D-07973 Greiz
 
-> -	i2c->suspended = 0;
->  	clk_enable(i2c->clk);
->  	s3c24xx_i2c_init(i2c);
->  	clk_disable(i2c->clk);
-> +	i2c->suspended = 0;
+Tel: +49-3661-6279-0, Fax: +49-3661-6279-99
+eMail:    Alexander.Stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org
+Internet: http://www.systec-electronic.com
 
-Why is this needed - given that there's no locking involved anywhere
-here does this mean that we've got a race somewhere?
-
---hQiwHBbRI9kgIhsi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPN7qqAAoJEBus8iNuMP3dae0P/1t9ap40yF79bYIo09MRiElk
-rFH68IVUu6RhBDuFw1MVLxSM+D+enMWmYExNmC619FixkCsDfd/9JmqUX9LQBsV8
-zI+Op2BZTNaOVoz+s2CmHqVmXPbCZCl6anZLabp/vqsNpHin/IbpLnItmNvGdnzt
-OqMr5f9nA2XsODHaHi+gtgL1IjlxhQWv6eObKUh7d3ieqjzNO1jLlmIPA7EqCnPJ
-jJX9BiSxYgffwqIgkTiLvKYd1JoGssuRxJk6zKCFpxlMwqBHV7ZUFLb0OO7y0mxr
-n+1UhDDX18VUdp/Derka4EZsv+DqNVpXaLBpgZkBGfvOFoS4/qYQiL88s7tiGgNJ
-H0gKA2zJHRt1C0ePlTp0LNB86BowWOBK5BhTNb47rS6L4gOsoOAcYcZIUAFSbP0j
-tXTaUEqoJw3CX2o2N4/tOgLyuT66zykDvLVvg5s5CfoHwNxGZNTiBs42OH/J0JtN
-JpXn/aI8+dqTyV6KNJS6a1Gwb5lfDsVFbhQQcjEKUzOnr6JiHv4rCBe4DO21hFb/
-PAJHSXIQbW+xp5KBWXl6GORY5mWidCkvRSvBDm8qhjQ+S/ZEIHOtHhQT7JxodTWN
-5wXGMYSlviZRlB/+/xFlFCV456hMKFobnfQW04HDfEtulDQiot5hfW4mU9ki9UrO
-8tDj3JZUSrkfIVZSiCpW
-=tRSG
------END PGP SIGNATURE-----
-
---hQiwHBbRI9kgIhsi--
+Managing Director: Dipl.-Phys. Siegmar Schmidt
+Commercial registry: Amtsgericht Jena, HRB 205563
