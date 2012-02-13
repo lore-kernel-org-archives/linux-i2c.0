@@ -1,102 +1,264 @@
-From: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: convert drivers/i2c/* to use module_i2c_driver()
-Date: Mon, 13 Feb 2012 17:05:03 +0800
-Message-ID: <1329123903.13995.1.camel@phoenix>
+From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
+Date: Mon, 13 Feb 2012 18:17:37 +0100
+Message-ID: <4F3945B1.9070900@samsung.com>
+References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <1328754308-7365-1-git-send-email-plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch converts the drivers in drivers/i2c/* to use the
-module_i2c_driver() macro which makes the code smaller and a bit simpler.
+On 09.02.2012 03:25, Jean-Christophe PLAGNIOL-VILLARD wrote:
 
-Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
----
- drivers/i2c/i2c-smbus.c     |   13 +------------
- drivers/i2c/muxes/pca9541.c |   13 +------------
- drivers/i2c/muxes/pca954x.c |   13 +------------
- 3 files changed, 3 insertions(+), 36 deletions(-)
+Hi!
 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index f61ccc1..9316705 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -244,18 +244,7 @@ int i2c_handle_smbus_alert(struct i2c_client *ara)
- }
- EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
- 
--static int __init i2c_smbus_init(void)
--{
--	return i2c_add_driver(&smbalert_driver);
--}
--
--static void __exit i2c_smbus_exit(void)
--{
--	i2c_del_driver(&smbalert_driver);
--}
--
--module_init(i2c_smbus_init);
--module_exit(i2c_smbus_exit);
-+module_i2c_driver(smbalert_driver);
- 
- MODULE_AUTHOR("Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>");
- MODULE_DESCRIPTION("SMBus protocol extensions support");
-diff --git a/drivers/i2c/muxes/pca9541.c b/drivers/i2c/muxes/pca9541.c
-index ed699c5..e0df9b6 100644
---- a/drivers/i2c/muxes/pca9541.c
-+++ b/drivers/i2c/muxes/pca9541.c
-@@ -393,18 +393,7 @@ static struct i2c_driver pca9541_driver = {
- 	.id_table = pca9541_id,
- };
- 
--static int __init pca9541_init(void)
--{
--	return i2c_add_driver(&pca9541_driver);
--}
--
--static void __exit pca9541_exit(void)
--{
--	i2c_del_driver(&pca9541_driver);
--}
--
--module_init(pca9541_init);
--module_exit(pca9541_exit);
-+module_i2c_driver(pca9541_driver);
- 
- MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
- MODULE_DESCRIPTION("PCA9541 I2C master selector driver");
-diff --git a/drivers/i2c/muxes/pca954x.c b/drivers/i2c/muxes/pca954x.c
-index 6f89536..0e37ef2 100644
---- a/drivers/i2c/muxes/pca954x.c
-+++ b/drivers/i2c/muxes/pca954x.c
-@@ -284,18 +284,7 @@ static struct i2c_driver pca954x_driver = {
- 	.id_table	= pca954x_id,
- };
- 
--static int __init pca954x_init(void)
--{
--	return i2c_add_driver(&pca954x_driver);
--}
--
--static void __exit pca954x_exit(void)
--{
--	i2c_del_driver(&pca954x_driver);
--}
--
--module_init(pca954x_init);
--module_exit(pca954x_exit);
-+module_i2c_driver(pca954x_driver);
- 
- MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
- MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
--- 
-1.7.5.4
+> Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+> Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org
+> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org
+> ---
+> v2:
+> 
+> 	use devm
+> 	update DT bindings to i2c-gpio and sda-open-drain...
+> 	update against "of: introduce helper to manage boolean"
+> 
+> Best Regards,
+> J.
+>  .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
+>  drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
+>  2 files changed, 107 insertions(+), 20 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> new file mode 100644
+> index 0000000..9710ed2
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> @@ -0,0 +1,32 @@
+> +Device-Tree bindings for i2c gpio driver
+> +
+> +Required properties:
+> +	- compatible = "i2c-gpio";
+> +	- gpios: sda and scl gpio
+> +
+> +
+> +Optional properties:
+> +	- i2c-gpio,sda-open-drain: sda as open drain
+> +	- i2c-gpio,scl-open-drain: scl as open drain
+> +	- i2c-gpio,scl-output-only: scl as output only
+
+
+> +	- udelay: delay between GPIO operations (may depend on each platform)
+> +	- timeout: timeout to get data (ms)
+
+
+If these are really needed then I would prefer to have these fully
+qualified (with unit type "-ms/-millisecs" appended).
+
+Regulator framework, with its "-microvolt/-microamp", serve here as
+prime example of being quite descriptive (one doesn't neet to look up
+the docs). Please see:
+
+  http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
+
+> +
+> +Example nodes:
+> +
+> +i2c-gpio@0 {
+> +	compatible = "i2c-gpio";
+> +	gpios = <&pioA 23 0 /* sda */
+> +		 &pioA 24 0 /* scl */
+> +		>;
+> +	i2c-gpio,sda-open-drain;
+> +	i2c-gpio,scl-open-drain;
+> +	udelay = <2>;		/* ~100 kHz */
+> +	#address-cells = <1>;
+> +	#size-cells = <0>;
+> +
+> +	rv3029c2@56 {
+> +		compatible = "rv3029c2";
+> +		reg = <0x56>;
+> +	};
+> +};
+> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+> index a651779..d7032c1 100644
+> --- a/drivers/i2c/busses/i2c-gpio.c
+> +++ b/drivers/i2c/busses/i2c-gpio.c
+> @@ -14,8 +14,15 @@
+>  #include <linux/module.h>
+>  #include <linux/slab.h>
+>  #include <linux/platform_device.h>
+> +#include <linux/gpio.h>
+> +#include <linux/of_gpio.h>
+> +#include <linux/of_i2c.h>
+>  
+> -#include <asm/gpio.h>
+> +struct i2c_gpio_private_data {
+> +	struct i2c_adapter adap;
+> +	struct i2c_algo_bit_data bit_data;
+> +	struct i2c_gpio_platform_data pdata;
+> +};
+>  
+>  /* Toggle SDA by changing the direction of the pin */
+>  static void i2c_gpio_setsda_dir(void *data, int state)
+> @@ -78,24 +85,63 @@ static int i2c_gpio_getscl(void *data)
+>  	return gpio_get_value(pdata->scl_pin);
+>  }
+>  
+> +static int __devinit of_i2c_gpio_probe(struct device_node *np,
+> +			     struct i2c_gpio_platform_data *pdata)
+> +{
+> +	u32 reg;
+> +
+> +	if (of_gpio_count(np) < 2)
+> +		return -ENODEV;
+> +
+> +	pdata->sda_pin = of_get_gpio(np, 0);
+> +	pdata->scl_pin = of_get_gpio(np, 1);
+> +
+> +	if (pdata->sda_pin < 0 || pdata->scl_pin < 0) {
+> +		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
+> +		       np->full_name, pdata->sda_pin, pdata->scl_pin);
+> +		return -ENODEV;
+> +	}
+> +
+
+
+
+> +	if (of_property_read_u32(np, "udelay", &reg))
+> +		pdata->udelay = reg;
+> +
+> +	if (of_property_read_u32(np, "timeout", &reg))
+> +		pdata->timeout = msecs_to_jiffies(reg);
+
+
+I don't know if you have received my previous mail[1] but as I said
+there - of_property_read_* returns non-zero (< 0) value on _error_.
+Thus, logic of above two statements has to be reversed.
+
+[1] http://permalink.gmane.org/gmane.linux.drivers.i2c/10009
+
+Thanks
+
+> +
+> +	pdata->sda_is_open_drain =
+> +		!!of_property_read_bool(np, "i2c-gpio,sda-open-drain");
+> +	pdata->scl_is_open_drain =
+> +		!!of_property_read_bool(np, "i2c-gpio,scl-open-drain");
+> +	pdata->scl_is_output_only =
+> +		!!of_property_read_bool(np, "i2c-gpio,scl-output-only");
+> +
+> +	return 0;
+> +}
+> +
+>  static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+>  {
+> +	struct i2c_gpio_private_data *priv;
+>  	struct i2c_gpio_platform_data *pdata;
+>  	struct i2c_algo_bit_data *bit_data;
+>  	struct i2c_adapter *adap;
+>  	int ret;
+>  
+> -	pdata = pdev->dev.platform_data;
+> -	if (!pdata)
+> -		return -ENXIO;
+> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +	if (!priv)
+> +		return -ENOMEM;
+> +	adap = &priv->adap;
+> +	bit_data = &priv->bit_data;
+> +	pdata = &priv->pdata;
+>  
+> -	ret = -ENOMEM;
+> -	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+> -	if (!adap)
+> -		goto err_alloc_adap;
+> -	bit_data = kzalloc(sizeof(struct i2c_algo_bit_data), GFP_KERNEL);
+> -	if (!bit_data)
+> -		goto err_alloc_bit_data;
+> +	if (pdev->dev.of_node) {
+> +		ret = of_i2c_gpio_probe(pdev->dev.of_node, pdata);
+> +		if (ret)
+> +			return ret;
+> +	} else {
+> +		if (!pdev->dev.platform_data)
+> +			return -ENXIO;
+> +		memcpy(pdata, pdev->dev.platform_data, sizeof(*pdata));
+> +	}
+>  
+>  	ret = gpio_request(pdata->sda_pin, "sda");
+>  	if (ret)
+> @@ -143,6 +189,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+>  	adap->algo_data = bit_data;
+>  	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+>  	adap->dev.parent = &pdev->dev;
+> +	adap->dev.of_node = pdev->dev.of_node;
+>  
+>  	/*
+>  	 * If "dev->id" is negative we consider it as zero.
+> @@ -154,7 +201,9 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+>  	if (ret)
+>  		goto err_add_bus;
+>  
+> -	platform_set_drvdata(pdev, adap);
+> +	of_i2c_register_devices(adap);
+> +
+> +	platform_set_drvdata(pdev, priv);
+>  
+>  	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
+>  		 pdata->sda_pin, pdata->scl_pin,
+> @@ -168,34 +217,40 @@ err_add_bus:
+>  err_request_scl:
+>  	gpio_free(pdata->sda_pin);
+>  err_request_sda:
+> -	kfree(bit_data);
+> -err_alloc_bit_data:
+> -	kfree(adap);
+> -err_alloc_adap:
+>  	return ret;
+>  }
+>  
+>  static int __devexit i2c_gpio_remove(struct platform_device *pdev)
+>  {
+> +	struct i2c_gpio_private_data *priv;
+>  	struct i2c_gpio_platform_data *pdata;
+>  	struct i2c_adapter *adap;
+>  
+> -	adap = platform_get_drvdata(pdev);
+> -	pdata = pdev->dev.platform_data;
+> +	priv = platform_get_drvdata(pdev);
+> +	adap = &priv->adap;
+> +	pdata = &priv->pdata;
+>  
+>  	i2c_del_adapter(adap);
+>  	gpio_free(pdata->scl_pin);
+>  	gpio_free(pdata->sda_pin);
+> -	kfree(adap->algo_data);
+> -	kfree(adap);
+>  
+>  	return 0;
+>  }
+>  
+> +#if defined(CONFIG_OF)
+> +static const struct of_device_id i2c_gpio_dt_ids[] = {
+> +	{ .compatible = "i2c-gpio", },
+> +	{ /* sentinel */ }
+> +};
+> +
+> +MODULE_DEVICE_TABLE(of, i2c_gpio_dt_ids);
+> +#endif
+> +
+>  static struct platform_driver i2c_gpio_driver = {
+>  	.driver		= {
+>  		.name	= "i2c-gpio",
+>  		.owner	= THIS_MODULE,
+> +		.of_match_table	= of_match_ptr(i2c_gpio_dt_ids),
+>  	},
+>  	.probe		= i2c_gpio_probe,
+>  	.remove		= __devexit_p(i2c_gpio_remove),
