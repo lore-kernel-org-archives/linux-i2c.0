@@ -1,52 +1,46 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH] i2c: convert drivers/i2c/* to use module_i2c_driver()
-Date: Mon, 13 Feb 2012 23:26:43 +0100
-Message-ID: <20120213222643.GA22686@pengutronix.de>
-References: <1329123903.13995.1.camel@phoenix>
+From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Subject: Re: [PATCH] i2c-s3c2410: move resume state flag to end of resume
+Date: Mon, 13 Feb 2012 22:53:20 +0000
+Message-ID: <20120213225320.GA2999@freya.fluff.org>
+References: <018401cce86c$5df94130$19ebc390$@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jRHKVT23PllUwdXP"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1329123903.13995.1.camel@phoenix>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Axel Lin <axel.lin@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Guenter Roeck <guenter.roeck@ericsson.com>, Jean Delvare <khali@linux-fr.org>, Michael Lawnick <ml.lawnick@gmx.de>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org
+In-Reply-To: <018401cce86c$5df94130$19ebc390$@samsung.com>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Huisung Kang <hs1218.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Sat, Feb 11, 2012 at 12:22:21PM +0900, Huisung Kang wrote:
+> From: Kisoo Yu <ksoo.yu-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> 
+> need to set flag after finishing its work
+> 
+> Signed-off-by: Kisoo Yu <ksoo.yu-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Huisung Kang <hs1218.kang-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 4c17180..7d6d2b7 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -1082,10 +1082,10 @@ static int s3c24xx_i2c_resume(struct device *dev)
+>  	struct platform_device *pdev = to_platform_device(dev);
+>  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+>  
+> -	i2c->suspended = 0;
+>  	clk_enable(i2c->clk);
+>  	s3c24xx_i2c_init(i2c);
+>  	clk_disable(i2c->clk);
+> +	i2c->suspended = 0;
 
---jRHKVT23PllUwdXP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, technically we should not mark ourselves as un-suspended until
+the peripheral has been properly restarted. I will have a look at
+Mark's comments before this is applied.
 
-On Mon, Feb 13, 2012 at 05:05:03PM +0800, Axel Lin wrote:
-> This patch converts the drivers in drivers/i2c/* to use the
-> module_i2c_driver() macro which makes the code smaller and a bit simpler.
->=20
-> Signed-off-by: Axel Lin <axel.lin@gmail.com>
-> Cc: Wolfram Sang <w.sang@pengutronix.de>
-> Cc: Guenter Roeck <guenter.roeck@ericsson.com>
-> Cc: Jean Delvare <khali@linux-fr.org>
-> Cc: Michael Lawnick <ml.lawnick@gmx.de>
-> Cc: Ben Dooks <ben-linux@fluff.org>
-
-Acked-by: Wolfram Sang <w.sang@pengutronix.de>
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---jRHKVT23PllUwdXP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk85jiMACgkQD27XaX1/VRuU+QCeKVXTJ7UtqsXQT6tvFfq/mHf5
-aXsAoJApLZz1ibr1QfqcKoHpSKwb89v3
-=jNIw
------END PGP SIGNATURE-----
-
---jRHKVT23PllUwdXP--
+-- 
+Ben
