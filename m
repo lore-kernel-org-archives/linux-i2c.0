@@ -1,42 +1,102 @@
-From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
-Subject: Re: [PATCH] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce wait time
-Date: Mon, 13 Feb 2012 08:25 +0100
-Message-ID: <63318173.mcCRrit7Mu@ws-stein>
-References: <1328776366-6881-1-git-send-email-alexander.stein@systec-electronic.com> <CANKRQniXxZbY5Bs90v+xsU3PRU6JntXF53Vv0Yhx0Lyhn3fq6g@mail.gmail.com>
+From: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: convert drivers/i2c/* to use module_i2c_driver()
+Date: Mon, 13 Feb 2012 17:05:03 +0800
+Message-ID: <1329123903.13995.1.camel@phoenix>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANKRQniXxZbY5Bs90v+xsU3PRU6JntXF53Vv0Yhx0Lyhn3fq6g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Toshiharu Okada <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am Freitag, 10. Februar 2012, 09:52:03 schrieb Tomoya MORINAGA:
-> 2012/2/9 Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org> wrote:
-> >
-> >        if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
-> >                return 0;
-> >
-> 
-> If this patch will be accepted,
-> this code also looks redundant code.
+This patch converts the drivers in drivers/i2c/* to use the
+module_i2c_driver() macro which makes the code smaller and a bit simpler.
 
-Yep, you're right. I'll prepare a now patch after some days of possibly more comments.
+Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+---
+ drivers/i2c/i2c-smbus.c     |   13 +------------
+ drivers/i2c/muxes/pca9541.c |   13 +------------
+ drivers/i2c/muxes/pca954x.c |   13 +------------
+ 3 files changed, 3 insertions(+), 36 deletions(-)
 
-Best regards,
-Alexander
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index f61ccc1..9316705 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -244,18 +244,7 @@ int i2c_handle_smbus_alert(struct i2c_client *ara)
+ }
+ EXPORT_SYMBOL_GPL(i2c_handle_smbus_alert);
+ 
+-static int __init i2c_smbus_init(void)
+-{
+-	return i2c_add_driver(&smbalert_driver);
+-}
+-
+-static void __exit i2c_smbus_exit(void)
+-{
+-	i2c_del_driver(&smbalert_driver);
+-}
+-
+-module_init(i2c_smbus_init);
+-module_exit(i2c_smbus_exit);
++module_i2c_driver(smbalert_driver);
+ 
+ MODULE_AUTHOR("Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>");
+ MODULE_DESCRIPTION("SMBus protocol extensions support");
+diff --git a/drivers/i2c/muxes/pca9541.c b/drivers/i2c/muxes/pca9541.c
+index ed699c5..e0df9b6 100644
+--- a/drivers/i2c/muxes/pca9541.c
++++ b/drivers/i2c/muxes/pca9541.c
+@@ -393,18 +393,7 @@ static struct i2c_driver pca9541_driver = {
+ 	.id_table = pca9541_id,
+ };
+ 
+-static int __init pca9541_init(void)
+-{
+-	return i2c_add_driver(&pca9541_driver);
+-}
+-
+-static void __exit pca9541_exit(void)
+-{
+-	i2c_del_driver(&pca9541_driver);
+-}
+-
+-module_init(pca9541_init);
+-module_exit(pca9541_exit);
++module_i2c_driver(pca9541_driver);
+ 
+ MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
+ MODULE_DESCRIPTION("PCA9541 I2C master selector driver");
+diff --git a/drivers/i2c/muxes/pca954x.c b/drivers/i2c/muxes/pca954x.c
+index 6f89536..0e37ef2 100644
+--- a/drivers/i2c/muxes/pca954x.c
++++ b/drivers/i2c/muxes/pca954x.c
+@@ -284,18 +284,7 @@ static struct i2c_driver pca954x_driver = {
+ 	.id_table	= pca954x_id,
+ };
+ 
+-static int __init pca954x_init(void)
+-{
+-	return i2c_add_driver(&pca954x_driver);
+-}
+-
+-static void __exit pca954x_exit(void)
+-{
+-	i2c_del_driver(&pca954x_driver);
+-}
+-
+-module_init(pca954x_init);
+-module_exit(pca954x_exit);
++module_i2c_driver(pca954x_driver);
+ 
+ MODULE_AUTHOR("Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>");
+ MODULE_DESCRIPTION("PCA954x I2C mux/switch driver");
 -- 
-Dipl.-Inf. Alexander Stein
-
-SYS TEC electronic GmbH
-August-Bebel-Str. 29
-D-07973 Greiz
-
-Tel: +49-3661-6279-0, Fax: +49-3661-6279-99
-eMail:    Alexander.Stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org
-Internet: http://www.systec-electronic.com
-
-Managing Director: Dipl.-Phys. Siegmar Schmidt
-Commercial registry: Amtsgericht Jena, HRB 205563
+1.7.5.4
