@@ -1,66 +1,86 @@
-From: Tasslehoff Kjappfot <tasskjapp@gmail.com>
-Subject: [PATCH v2] i2c: fix missing handling of errata I2C_OMAP3_1P153
-Date: Tue, 14 Feb 2012 11:15:55 +0100
-Message-ID: <4F3A345B.2060308@gmail.com>
-References: <1328538811-13097-1-git-send-email-tasskjapp@gmail.com> <1329213583-20839-1-git-send-email-tasskjapp@gmail.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-s3c2410: Convert to devm_kzalloc()
+Date: Tue, 14 Feb 2012 18:33:02 +0530
+Message-ID: <CAM=Q2cv7JjCaYQFFtGmEXwN7yeQHWh3tDMac_Bq4v8oe2K+j1Q@mail.gmail.com>
+References: <1327152527-11364-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1329213583-20839-1-git-send-email-tasskjapp@gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1327152527-11364-1-git-send-email-broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Sorry about the bad mails. First time I use git send-email to follow up 
-on a patch, and it seems I need to read up a bit more on it.
+Hi Mark,
 
-Anyway.
+The changes look good to me.
+Reviewed-by: Datta Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+=46or your changes.
 
-This patch is tested on our custom board based on Beagleboard rev C3.
+Some other doubts though not related to your patch.
+Just curious.
 
- From 7c1e2c14bccb16c20dc7d93088b12ac6e6e351a3 Mon Sep 17 00:00:00 2001
-From: Tasslehoff Kjappfot <tasskjapp@gmail.com>
-Date: Mon, 6 Feb 2012 14:14:23 +0100
-Subject: [PATCH] i2c: fix missing handling of errata I2C_OMAP3_1P153
+On Sat, Jan 21, 2012 at 6:58 PM, Mark Brown
+<broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org> wrote:
+> Saves remembering to call kfree(). There's some kfree()s used by the
+> resource still, these will be removed in 3.3 using the newly added
+> devm_request_and_ioremap().
+>
+> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> ---
+> =A0drivers/i2c/busses/i2c-s3c2410.c | =A0 =A04 +---
+> =A01 files changed, 1 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2=
+c-s3c2410.c
+> index 4c17180..e6f982b 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -890,7 +890,7 @@ static int s3c24xx_i2c_probe(struct platform_devi=
+ce *pdev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0}
+> =A0 =A0 =A0 =A0}
+>
+> - =A0 =A0 =A0 i2c =3D kzalloc(sizeof(struct s3c24xx_i2c), GFP_KERNEL)=
+;
+> + =A0 =A0 =A0 i2c =3D devm_kzalloc(&pdev->dev, sizeof(struct s3c24xx_=
+i2c), GFP_KERNEL);
+> =A0 =A0 =A0 =A0if (!i2c) {
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_err(&pdev->dev, "no memory for sta=
+te\n");
 
-i2c_prope set the dev->errata flag, but omap_i2c_init cleared the flag 
-again. Move the errata handling to i2c_probe.
-
-Signed-off-by: Tasslehoff Kjappfot <tasskjapp@gmail.com>
----
-  drivers/i2c/busses/i2c-omap.c |   10 +++++-----
-  1 files changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 801df60..d609ae2 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -468,11 +468,6 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
-  	/* Take the I2C module out of reset: */
-  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
-
--	dev->errata = 0;
--
--	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
--		dev->errata |= I2C_OMAP_ERRATA_I207;
--
-  	/* Enable interrupts */
-  	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
-  			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
-@@ -1058,6 +1053,11 @@ omap_i2c_probe(struct platform_device *pdev)
-
-  	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
-
-+	dev->errata = 0;
-+
-+	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
-+		dev->errata |= I2C_OMAP_ERRATA_I207;
-+
-  	if (dev->rev <= OMAP_I2C_REV_ON_3430)
-  		dev->errata |= I2C_OMAP3_1P153;
-
--- 
-1.7.5.4
+The comment looks confusing as I am not sure what is meant here by stat=
+e.
 
 
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0return -ENOMEM;
+> @@ -1035,7 +1035,6 @@ static int s3c24xx_i2c_probe(struct platform_de=
+vice *pdev)
+> =A0 =A0 =A0 =A0clk_put(i2c->clk);
+>
+> =A0err_noclk:
+> - =A0 =A0 =A0 kfree(i2c);
+> =A0 =A0 =A0 =A0return ret;
+> =A0}
+>
+> @@ -1061,7 +1060,6 @@ static int s3c24xx_i2c_remove(struct platform_d=
+evice *pdev)
+> =A0 =A0 =A0 =A0release_resource(i2c->ioarea);
+> =A0 =A0 =A0 =A0s3c24xx_i2c_dt_gpio_free(i2c);
+> =A0 =A0 =A0 =A0kfree(i2c->ioarea);
+Do we need both  release_resource and kfree
+
+> - =A0 =A0 =A0 kfree(i2c);
+>
+> =A0 =A0 =A0 =A0return 0;
+> =A0}
+> --
+> 1.7.7.3
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
+in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
