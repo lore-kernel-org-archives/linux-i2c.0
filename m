@@ -1,74 +1,48 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCH 00/10] I2C updates
-Date: Tue, 14 Feb 2012 14:41:32 +0530
-Message-ID: <4F3A2544.2000407@ti.com>
-References: <1328882405-15284-1-git-send-email-shubhrajyoti@ti.com> <1BAFE6F6C881BF42822005164F1491C3317B26A0@DBDE01.ent.ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: convert drivers/i2c/* to use module_i2c_driver()
+Date: Tue, 14 Feb 2012 10:16:04 +0100
+Message-ID: <20120214101604.658cac32@endymion.delvare>
+References: <1329123903.13995.1.camel@phoenix>
+	<20120213222643.GA22686@pengutronix.de>
+	<20120214101013.4133784e@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1BAFE6F6C881BF42822005164F1491C3317B26A0@DBDE01.ent.ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Hebbar, Gururaja" <gururaja.hebbar@ti.com>
-Cc: "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Hilman, Kevin" <khilman@ti.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>, "khali@linux-fr.org" <khali@linux-fr.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120214101013.4133784e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 14 February 2012 11:42 AM, Hebbar, Gururaja wrote:
-> Hi,
->
-> I am interested in testing these patches on AM335x.
+On Tue, 14 Feb 2012 10:10:13 +0100, Jean Delvare wrote:
+> On Mon, 13 Feb 2012 23:26:43 +0100, Wolfram Sang wrote:
+> > On Mon, Feb 13, 2012 at 05:05:03PM +0800, Axel Lin wrote:
+> > > This patch converts the drivers in drivers/i2c/* to use the
+> > > module_i2c_driver() macro which makes the code smaller and a bit simpler.
+> > > 
+> > > Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+> > > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > > Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+> > > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> > 
+> > Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> 
+> Patch applied, thanks.
 
-Thanks for your interest in testin.
->  Do you have a tree with these
-> patches applied so that I can pull.
+Hmm, on second thought...
 
-tree        : git://gitorious.org/linus-tree/linus-tree.git
-branch    : i2c_misc_fixes
+I'm not going to apply the i2c-smbus patch. This is a special module,
+it isn't a device driver per se. It happens that right now the only
+SMBus extension supported by the i2c-smbus module is SMBus Alert and
+it happens that this is implemented as an i2c_driver, but as we add
+support for more SMBus extensions to  that driver, the init and exit
+functions will likely become more complex, and then we'd have to move
+away from module_i2c_driver(). So I'd rather not use it to start with.
 
-let me know if that works for you
-> On Fri, Feb 10, 2012 at 19:29:55, Datta, Shubhrajyoti wrote:
->> This patch series colates the various i2c updates into
->> a series.  Since it is collection of various patches
->> the version info is not retained, however most of them undergone
->> multiple versions.
->>
->> This is rebased to linus head commit 63082402968f4b73f10b28a8ac1f3da821aeb82d
->>
->> The patch series does the following 
->>
->> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
->> - I2C register restore only if context if the context is lost
->> - Bus busy recovery mechanism.
->> - the reset is not done in init.
->>
->> Tested on omap4sdp and omap3sdp. 
->>
->>
->> Cc: Kevin Hilman <khilman@ti.com>
->> Cc: Ben Dooks <ben-linux@fluff.org>
->>
->> Jon Hunter (1):
->>   I2C: OMAP: Correct I2C revision for OMAP3
->>
->> Shubhrajyoti D (8):
->>   I2C : OMAP : make omap_i2c_unidle/idle functions depend on
->>     CONFIG_PM_RUNTIME
->>   OMAP : I2C : Remove reset at init
->>   OMAP: I2C: I2C register restore only if context is lost
->>   OMAP: I2C: Fix the interrupt clearing in OMAP4
->>   OMAP: I2C: Fix the mismatch of pm_runtime enable and disable
->>   OMAP: I2C: Optimise the remove code
->>   OMAP: I2C: Fix the error handling
->>   I2C: OMAP: Don't check if wait_for_completion_timeout() returns less
->>     than zero
->>
->> Vikram Pandita (1):
->>   I2C: OMAP: Recover from Bus Busy condition
->>
->>  drivers/i2c/busses/i2c-omap.c |  173 ++++++++++++++++++++++++-----------------
->>  1 files changed, 101 insertions(+), 72 deletions(-)
->
->
-> Regards, 
-> Gururaja
+I am taking the drivers/i2c/muxes/pca954*.c parts though.
 
+-- 
+Jean Delvare
