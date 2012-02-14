@@ -1,61 +1,34 @@
-From: Tasslehoff Kjappfot <tasskjapp@gmail.com>
-Subject: Re: [PATCH] i2c: fix missing handling of errata I2C_OMAP3_1P153
-Date: Tue, 14 Feb 2012 09:55:47 +0100
-Message-ID: <4F3A2193.9050406@gmail.com>
-References: <1328538811-13097-1-git-send-email-tasskjapp@gmail.com> <4F36A2F2.7040003@ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: convert drivers/i2c/* to use module_i2c_driver()
+Date: Tue, 14 Feb 2012 10:10:13 +0100
+Message-ID: <20120214101013.4133784e@endymion.delvare>
+References: <1329123903.13995.1.camel@phoenix>
+	<20120213222643.GA22686@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4F36A2F2.7040003@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120213222643.GA22686-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/11/2012 06:18 PM, Shubhrajyoti wrote:
-> On Monday 06 February 2012 08:03 PM, tasskjapp@gmail.com wrote:
->> From: Tasslehoff Kjappfot<tasskjapp@gmail.com>
->>
->> i2c_prope set the dev->errata flag, but omap_i2c_init cleared the flag again. Move the errata handling to i2c_init.
->>
->   also in my opinion moving the reset to 0 should be moved to probe.
-Do you mean moving all setting of the errate flag to probe instead of 
-having it in init?
+On Mon, 13 Feb 2012 23:26:43 +0100, Wolfram Sang wrote:
+> On Mon, Feb 13, 2012 at 05:05:03PM +0800, Axel Lin wrote:
+> > This patch converts the drivers in drivers/i2c/* to use the
+> > module_i2c_driver() macro which makes the code smaller and a bit simpler.
+> > 
+> > Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+> > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> > Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+> > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+> 
+> Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-> also you may want to cc linux-i2c for the driver patches.
-Done.
+Patch applied, thanks.
 
-
->> Signed-off-by: Tasslehoff Kjappfot<tasskjapp@gmail.com>
->> ---
->>   drivers/i2c/busses/i2c-omap.c |    7 ++++---
->>   1 files changed, 4 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->> index 801df60..ecaa60d 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -473,6 +473,10 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
->>   	if (dev->flags&  OMAP_I2C_FLAG_APPLY_ERRATA_I207)
->>   		dev->errata |= I2C_OMAP_ERRATA_I207;
->>
->> +	if (dev->rev<= OMAP_I2C_REV_ON_3430)
->> +		dev->errata |= I2C_OMAP3_1P153;
->> +
->> +
->>   	/* Enable interrupts */
->>   	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
->>   			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
->> @@ -1058,9 +1062,6 @@ omap_i2c_probe(struct platform_device *pdev)
->>
->>   	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG)&  0xff;
->>
->> -	if (dev->rev<= OMAP_I2C_REV_ON_3430)
->> -		dev->errata |= I2C_OMAP3_1P153;
->> -
->>   	if (!(dev->flags&  OMAP_I2C_FLAG_NO_FIFO)) {
->>   		u16 s;
->>
->
-
+-- 
+Jean Delvare
