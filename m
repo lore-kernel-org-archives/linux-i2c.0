@@ -1,48 +1,44 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: convert drivers/i2c/* to use module_i2c_driver()
-Date: Tue, 14 Feb 2012 10:16:04 +0100
-Message-ID: <20120214101604.658cac32@endymion.delvare>
-References: <1329123903.13995.1.camel@phoenix>
-	<20120213222643.GA22686@pengutronix.de>
-	<20120214101013.4133784e@endymion.delvare>
+From: Luciano Coelho <coelho-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 3.3 v2] I2C: OMAP: fix build breakage when CONFIG_OF is
+ not set
+Date: Tue, 14 Feb 2012 11:55:31 +0200
+Message-ID: <1329213331.3032.62.camel@cumari>
+References: <1328699901-19488-1-git-send-email-coelho@ti.com>
+	 <20120213232707.GH2999@freya.fluff.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120214101013.4133784e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20120213232707.GH2999-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 14 Feb 2012 10:10:13 +0100, Jean Delvare wrote:
-> On Mon, 13 Feb 2012 23:26:43 +0100, Wolfram Sang wrote:
-> > On Mon, Feb 13, 2012 at 05:05:03PM +0800, Axel Lin wrote:
-> > > This patch converts the drivers in drivers/i2c/* to use the
-> > > module_i2c_driver() macro which makes the code smaller and a bit simpler.
-> > > 
-> > > Signed-off-by: Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> > > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > > Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-> > > Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > > Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-> > > Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> > 
-> > Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Hi Ben,
+
+On Mon, 2012-02-13 at 23:27 +0000, Ben Dooks wrote: 
+> On Wed, Feb 08, 2012 at 01:18:21PM +0200, Luciano Coelho wrote:
+> > diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> > index f713eac..fd200eb 100644
+> > --- a/drivers/i2c/busses/i2c-omap.c
+> > +++ b/drivers/i2c/busses/i2c-omap.c
+> > @@ -979,6 +979,8 @@ static const struct of_device_id omap_i2c_of_match[] = {
+> >  	{ },
+> >  };
+> >  MODULE_DEVICE_TABLE(of, omap_i2c_of_match);
+> > +#else
+> > +static const struct of_device_id *omap_i2c_of_match = NULL;
+> >  #endif
 > 
-> Patch applied, thanks.
+> of_match_ptr(_ptr) will go to NULL if CONFIG_OF is not set, use that please.
 
-Hmm, on second thought...
+Yes, you're right.  But this patch can be ignored, since there was
+already an equivalent one queued up (which I missed).  And it uses
+of_match_ptr() ;)
 
-I'm not going to apply the i2c-smbus patch. This is a special module,
-it isn't a device driver per se. It happens that right now the only
-SMBus extension supported by the i2c-smbus module is SMBus Alert and
-it happens that this is implemented as an i2c_driver, but as we add
-support for more SMBus extensions to  that driver, the init and exit
-functions will likely become more complex, and then we'd have to move
-away from module_i2c_driver(). So I'd rather not use it to start with.
-
-I am taking the drivers/i2c/muxes/pca954*.c parts though.
+Thanks for your comment anyway!
 
 -- 
-Jean Delvare
+Cheers,
+Luca.
