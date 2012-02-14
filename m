@@ -1,49 +1,84 @@
-From: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Subject: Re: [PATCH 1/2] i2c-s3c2410: Convert to devm_kzalloc()
-Date: Tue, 14 Feb 2012 14:52:58 +0100
-Message-ID: <4F3A673A.9030001@samsung.com>
-References: <1327152527-11364-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <CAM=Q2cv7JjCaYQFFtGmEXwN7yeQHWh3tDMac_Bq4v8oe2K+j1Q@mail.gmail.com>
+From: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+Subject: [PATCH 1/7] drm/i915: add dev_priv to intel_gmbus
+Date: Tue, 14 Feb 2012 22:37:19 +0100
+Message-ID: <1329255445-6312-1-git-send-email-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <CAM=Q2cv7JjCaYQFFtGmEXwN7yeQHWh3tDMac_Bq4v8oe2K+j1Q@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Jean Delvare <khali@linux-fr.org>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shubhrajyoti,
+This way we can free up the bus->adaptor.algo_data pointer and make it
+available for use with the bitbanging fallback algo.
 
-On 02/14/2012 02:03 PM, Shubhrajyoti Datta wrote:
-> Hi Mark,
-> 
-> The changes look good to me.
-> Reviewed-by: Datta Shubhrajyoti <shubhrajyoti@ti.com>
-> For your changes.
-> 
-> Some other doubts though not related to your patch.
-> Just curious.
-> 
-...
->> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
->> index 4c17180..e6f982b 100644
->> --- a/drivers/i2c/busses/i2c-s3c2410.c
->> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-...
->> @@ -1061,7 +1060,6 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
->>        release_resource(i2c->ioarea);
->>        s3c24xx_i2c_dt_gpio_free(i2c);
->>        kfree(i2c->ioarea);
-> Do we need both  release_resource and kfree
+Signed-Off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+---
+ drivers/gpu/drm/i915/i915_drv.h  |   13 ++++++++-----
+ drivers/gpu/drm/i915/intel_i2c.c |    6 +++---
+ 2 files changed, 11 insertions(+), 8 deletions(-)
 
-No, instead of release_resource() and kfree() you normally use
-release_mem_region() to free resources acquired with request_mem_region().
-See this patch for instance:
-
-http://www.spinics.net/lists/linux-samsung-soc/msg08325.html
-
---
-Thanks,
-Sylwester
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index 8e3eb5e..ed40743 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -290,6 +290,13 @@ enum intel_pch {
+ struct intel_fbdev;
+ struct intel_fbc_work;
+ 
++struct intel_gmbus {
++	struct i2c_adapter adapter;
++	struct i2c_adapter *force_bit;
++	u32 reg0;
++	struct drm_i915_private *dev_priv;
++};
++
+ typedef struct drm_i915_private {
+ 	struct drm_device *dev;
+ 
+@@ -307,11 +314,7 @@ typedef struct drm_i915_private {
+ 	/** gt_lock is also taken in irq contexts. */
+ 	struct spinlock gt_lock;
+ 
+-	struct intel_gmbus {
+-		struct i2c_adapter adapter;
+-		struct i2c_adapter *force_bit;
+-		u32 reg0;
+-	} *gmbus;
++	struct intel_gmbus *gmbus;
+ 
+ 	/** gmbus_mutex protects against concurrent usage of the single hw gmbus
+ 	 * controller on different i2c buses. */
+diff --git a/drivers/gpu/drm/i915/intel_i2c.c b/drivers/gpu/drm/i915/intel_i2c.c
+index fc75d71..f496510 100644
+--- a/drivers/gpu/drm/i915/intel_i2c.c
++++ b/drivers/gpu/drm/i915/intel_i2c.c
+@@ -232,7 +232,7 @@ gmbus_xfer(struct i2c_adapter *adapter,
+ 	struct intel_gmbus *bus = container_of(adapter,
+ 					       struct intel_gmbus,
+ 					       adapter);
+-	struct drm_i915_private *dev_priv = adapter->algo_data;
++	struct drm_i915_private *dev_priv = bus->dev_priv;
+ 	int i, reg_offset, ret;
+ 
+ 	mutex_lock(&dev_priv->gmbus_mutex);
+@@ -401,7 +401,7 @@ int intel_setup_gmbus(struct drm_device *dev)
+ 			 names[i]);
+ 
+ 		bus->adapter.dev.parent = &dev->pdev->dev;
+-		bus->adapter.algo_data	= dev_priv;
++		bus->dev_priv = dev_priv;
+ 
+ 		bus->adapter.algo = &gmbus_algorithm;
+ 		ret = i2c_add_adapter(&bus->adapter);
+@@ -442,7 +442,7 @@ void intel_gmbus_force_bit(struct i2c_adapter *adapter, bool force_bit)
+ 
+ 	if (force_bit) {
+ 		if (bus->force_bit == NULL) {
+-			struct drm_i915_private *dev_priv = adapter->algo_data;
++			struct drm_i915_private *dev_priv = bus->dev_priv;
+ 			bus->force_bit = intel_gpio_create(dev_priv,
+ 							   bus->reg0 & 0xff);
+ 		}
+-- 
+1.7.7.5
