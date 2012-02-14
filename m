@@ -1,84 +1,55 @@
 From: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Subject: [PATCH 1/7] drm/i915: add dev_priv to intel_gmbus
-Date: Tue, 14 Feb 2012 22:37:19 +0100
-Message-ID: <1329255445-6312-1-git-send-email-daniel.vetter@ffwll.ch>
+Subject: [PATCH 2/7] drm/nouveau: do a better job at hiding the NIH i2c bit-banging algo
+Date: Tue, 14 Feb 2012 22:37:20 +0100
+Message-ID: <1329255445-6312-2-git-send-email-daniel.vetter@ffwll.ch>
+References: <1329255445-6312-1-git-send-email-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1329255445-6312-1-git-send-email-daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>, nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This way we can free up the bus->adaptor.algo_data pointer and make it
-available for use with the bitbanging fallback algo.
+I'd like to export the corresponding functions from the i2c core
+so that I can use them in fallback bit-banging in i915.ko
 
-Signed-Off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+Cc: nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Signed-off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 ---
- drivers/gpu/drm/i915/i915_drv.h  |   13 ++++++++-----
- drivers/gpu/drm/i915/intel_i2c.c |    6 +++---
- 2 files changed, 11 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_i2c.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 8e3eb5e..ed40743 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -290,6 +290,13 @@ enum intel_pch {
- struct intel_fbdev;
- struct intel_fbc_work;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_i2c.c b/drivers/gpu/drm/nouveau/nouveau_i2c.c
+index 820ae7f..7a7e751 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_i2c.c
++++ b/drivers/gpu/drm/nouveau/nouveau_i2c.c
+@@ -242,7 +242,7 @@ i2c_addr(struct nouveau_i2c_chan *port, struct i2c_msg *msg)
+ }
  
-+struct intel_gmbus {
-+	struct i2c_adapter adapter;
-+	struct i2c_adapter *force_bit;
-+	u32 reg0;
-+	struct drm_i915_private *dev_priv;
-+};
-+
- typedef struct drm_i915_private {
- 	struct drm_device *dev;
+ static int
+-i2c_bit_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
++nouveau_i2c_bit_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ {
+ 	struct nouveau_i2c_chan *port = (struct nouveau_i2c_chan *)adap;
+ 	struct i2c_msg *msg = msgs;
+@@ -272,14 +272,14 @@ i2c_bit_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ }
  
-@@ -307,11 +314,7 @@ typedef struct drm_i915_private {
- 	/** gt_lock is also taken in irq contexts. */
- 	struct spinlock gt_lock;
+ static u32
+-i2c_bit_func(struct i2c_adapter *adap)
++nouveau_i2c_bit_func(struct i2c_adapter *adap)
+ {
+ 	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+ }
  
--	struct intel_gmbus {
--		struct i2c_adapter adapter;
--		struct i2c_adapter *force_bit;
--		u32 reg0;
--	} *gmbus;
-+	struct intel_gmbus *gmbus;
+ const struct i2c_algorithm i2c_bit_algo = {
+-	.master_xfer = i2c_bit_xfer,
+-	.functionality = i2c_bit_func
++	.master_xfer = nouveau_i2c_bit_xfer,
++	.functionality = nouveau_i2c_bit_func
+ };
  
- 	/** gmbus_mutex protects against concurrent usage of the single hw gmbus
- 	 * controller on different i2c buses. */
-diff --git a/drivers/gpu/drm/i915/intel_i2c.c b/drivers/gpu/drm/i915/intel_i2c.c
-index fc75d71..f496510 100644
---- a/drivers/gpu/drm/i915/intel_i2c.c
-+++ b/drivers/gpu/drm/i915/intel_i2c.c
-@@ -232,7 +232,7 @@ gmbus_xfer(struct i2c_adapter *adapter,
- 	struct intel_gmbus *bus = container_of(adapter,
- 					       struct intel_gmbus,
- 					       adapter);
--	struct drm_i915_private *dev_priv = adapter->algo_data;
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
- 	int i, reg_offset, ret;
- 
- 	mutex_lock(&dev_priv->gmbus_mutex);
-@@ -401,7 +401,7 @@ int intel_setup_gmbus(struct drm_device *dev)
- 			 names[i]);
- 
- 		bus->adapter.dev.parent = &dev->pdev->dev;
--		bus->adapter.algo_data	= dev_priv;
-+		bus->dev_priv = dev_priv;
- 
- 		bus->adapter.algo = &gmbus_algorithm;
- 		ret = i2c_add_adapter(&bus->adapter);
-@@ -442,7 +442,7 @@ void intel_gmbus_force_bit(struct i2c_adapter *adapter, bool force_bit)
- 
- 	if (force_bit) {
- 		if (bus->force_bit == NULL) {
--			struct drm_i915_private *dev_priv = adapter->algo_data;
-+			struct drm_i915_private *dev_priv = bus->dev_priv;
- 			bus->force_bit = intel_gpio_create(dev_priv,
- 							   bus->reg0 & 0xff);
- 		}
+ static const uint32_t nv50_i2c_port[] = {
 -- 
 1.7.7.5
