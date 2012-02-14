@@ -1,71 +1,165 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH] i2c-s3c2410: Add stub runtime power management
-Date: Mon, 13 Feb 2012 16:37:49 -0800
-Message-ID: <20120214003748.GD11931@opensource.wolfsonmicro.com>
-References: <1327171600-5489-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <4F1C082D.2080005@gmail.com>
- <20120122152234.GA2915@opensource.wolfsonmicro.com>
- <4F1C45C6.1040003@gmail.com>
- <CADkCAusScak6gH4BBowrOpveGG=eDjZdj+X8vF4D5+yi8gv5PA@mail.gmail.com>
- <4F1C4BF4.5040409@gmail.com>
- <20120122213952.GA29022@opensource.wolfsonmicro.com>
- <20120213233139.GJ2999@freya.fluff.org>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
+Date: Tue, 14 Feb 2012 05:06:54 +0100
+Message-ID: <20120214040654.GF3378@game.jcrosoft.org>
+References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
+ <20120213230948.GC2999@freya.fluff.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zS7rBR6csb6tI2e1"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20120213233139.GJ2999-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+In-Reply-To: <20120213230948.GC2999@freya.fluff.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Ben Dooks <ben-i2c@fluff.org>
+Cc: devicetree-discuss@lists.ozlabs.org, Nicolas Ferre <nicolas.ferre@atmel.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 23:09 Mon 13 Feb     , Ben Dooks wrote:
+> On Thu, Feb 09, 2012 at 03:25:05AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+> > Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
+> > Cc: linux-i2c@vger.kernel.org
+> > Cc: devicetree-discuss@lists.ozlabs.org
+> > ---
+> > v2:
+> > 
+> > 	use devm
+> > 	update DT bindings to i2c-gpio and sda-open-drain...
+> > 	update against "of: introduce helper to manage boolean"
+> > 
+> > Best Regards,
+> > J.
+> >  .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
+> >  drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
+> >  2 files changed, 107 insertions(+), 20 deletions(-)
+> >  create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> > new file mode 100644
+> > index 0000000..9710ed2
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> > @@ -0,0 +1,32 @@
+> > +Device-Tree bindings for i2c gpio driver
+> > +
+> > +Required properties:
+> > +	- compatible = "i2c-gpio";
+> > +	- gpios: sda and scl gpio
+> > +
+> > +
+> > +Optional properties:
+> > +	- i2c-gpio,sda-open-drain: sda as open drain
+> > +	- i2c-gpio,scl-open-drain: scl as open drain
+> > +	- i2c-gpio,scl-output-only: scl as output only
+> > +	- udelay: delay between GPIO operations (may depend on each platform)
+> > +	- timeout: timeout to get data (ms)
+> > +
+> > +Example nodes:
+> > +
+> > +i2c-gpio@0 {
+> > +	compatible = "i2c-gpio";
+> > +	gpios = <&pioA 23 0 /* sda */
+> > +		 &pioA 24 0 /* scl */
+> > +		>;
+> > +	i2c-gpio,sda-open-drain;
+> > +	i2c-gpio,scl-open-drain;
+> > +	udelay = <2>;		/* ~100 kHz */
+> > +	#address-cells = <1>;
+> > +	#size-cells = <0>;
+> > +
+> > +	rv3029c2@56 {
+> > +		compatible = "rv3029c2";
+> > +		reg = <0x56>;
+> > +	};
+> > +};
+> > diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+> > index a651779..d7032c1 100644
+> > --- a/drivers/i2c/busses/i2c-gpio.c
+> > +++ b/drivers/i2c/busses/i2c-gpio.c
+> > @@ -14,8 +14,15 @@
+> >  #include <linux/module.h>
+> >  #include <linux/slab.h>
+> >  #include <linux/platform_device.h>
+> > +#include <linux/gpio.h>
+> > +#include <linux/of_gpio.h>
+> > +#include <linux/of_i2c.h>
+> > -#include <asm/gpio.h>
+> > +struct i2c_gpio_private_data {
+> > +	struct i2c_adapter adap;
+> > +	struct i2c_algo_bit_data bit_data;
+> > +	struct i2c_gpio_platform_data pdata;
+> > +};
+> >  
+> >  /* Toggle SDA by changing the direction of the pin */
+> >  static void i2c_gpio_setsda_dir(void *data, int state)
+> > @@ -78,24 +85,63 @@ static int i2c_gpio_getscl(void *data)
+> >  	return gpio_get_value(pdata->scl_pin);
+> >  }
+> >  
+> > +static int __devinit of_i2c_gpio_probe(struct device_node *np,
+> > +			     struct i2c_gpio_platform_data *pdata)
+> > +{
+> > +	u32 reg;
+> > +
+> > +	if (of_gpio_count(np) < 2)
+> > +		return -ENODEV;
+> 
+> Hmm, there's no error print and unless updated recently I think the
+> driver core will not produce any warnings if ->probe returns an
+> -ENODEV. I would prefer to see this printing a warning as for the
+> case below if an GPIO fails to be found.
+> 
+> Maybe return -EINVAL as it is not a valid configuration.
+> 
+> > +
+> > +	pdata->sda_pin = of_get_gpio(np, 0);
+> > +	pdata->scl_pin = of_get_gpio(np, 1);
+> > +
+> > +	if (pdata->sda_pin < 0 || pdata->scl_pin < 0) {
+> > +		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
+> > +		       np->full_name, pdata->sda_pin, pdata->scl_pin);
+> > +		return -ENODEV;
+> > +	}
+> > +
+> > +	if (of_property_read_u32(np, "udelay", &reg))
+> > +		pdata->udelay = reg;
+> 
+> This sounds like a "linux" specific property. I would think about
+> giving it a name like frequency, or ask Grant if we have a base set
+> of properties that a i2c controller should think about implementing.
+as example in the doc it's the delay between each gpio operations and it's
+platform specific. put frequency will assume you specify the frequency of the
+bus you want but we can not calculate here (platform specific).
+> 
+> > +	if (of_property_read_u32(np, "timeout", &reg))
+> > +		pdata->timeout = msecs_to_jiffies(reg);
+> > +
+> > +	pdata->sda_is_open_drain =
+> > +		!!of_property_read_bool(np, "i2c-gpio,sda-open-drain");
+> > +	pdata->scl_is_open_drain =
+> > +		!!of_property_read_bool(np, "i2c-gpio,scl-open-drain");
+> > +	pdata->scl_is_output_only =
+> > +		!!of_property_read_bool(np, "i2c-gpio,scl-output-only");
+> 
+> I hate !!, why does of_property_read_bool() not return a bool? Also,
+> why can't I find of_property_read_bool() in include/linux/* ?
+because it's an other patch
+> 
+> Also, does of_property_read_bool() consitently return a useful value if
+> the property does not exist, or is not readable? I am most concerned
+> with the behaviour if one of these properties has un-parsable contents.
+it's use read_u32
 
---zS7rBR6csb6tI2e1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+and return false if read_u32 return -EINVAL
 
-On Mon, Feb 13, 2012 at 11:31:39PM +0000, Ben Dooks wrote:
-> On Sun, Jan 22, 2012 at 09:39:53PM +0000, Mark Brown wrote:
-
-> > TBH I think most of the devices for which people are running these days
-> > will be able to get some win from the system wide stuff - the WFI modes
-> > aren't exactly the latest thing in hardware terms, it's just been a long
-> > road to getting them supported.  Infrastructure like Mark's PM QoS work
-> > and Raphael's PM domains work has really helped a lot here.
-
-> The WFI stuff's been around for ages, and is generally just the core that
-> is affected. The deep sleep options might be useful, so I don't see any
-> reason not to do this. I also approve that it might allow people to shut
-> down I2C units they're not using at the time to save power.
-
-On the more recent devices they've got wider effects if you configure
-the device to enter one of the lower power states on WFI - things will
-break quite badly if you enter even SLEEP mode on s3c64xx right now for
-example as we don't make sure things like the UARTs are quiesced enough.
-The power savings are nice, though.
-
---zS7rBR6csb6tI2e1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPOazVAAoJEBus8iNuMP3djTIP/34ySicxBiw6abdAppgmuw/j
-/7BRNbYaumoLxfr2HsC/uTzCeGd6XrtkIMSJsc7uAyuG9TxZNRvg2hFcFYjtRXRu
-XrsHorpaZGPZjtTwMM0j/S4SsAhdL7OAqaJ7QCs12+PxTKaaQIHTrFvCU+1pOmWk
-2QVOxzJgPz35mrluKjCANt4+K3/vFf2dxt7/fX2jw3k3/aTk7upbdPgu3lXaELfv
-CNLR8uyNGQb3JJGCpfSBBvb0OpnWpXJYrYBQXD0i/ygOL6z2c+mYtXVHtmyfNsl6
-F2cct9hHu3piEnCtHFyfwRrvP9LyYU5cVBHOMJxOn77+gvLJC0r5XFFjbFDJI/LT
-WsMgID6R5oZvF4sOQIiJUG8BF195ZPhP9++HemPIaHWvzDKVIxRsxd1YKGwP5SMg
-1zHe9wJuxAOXNrU8DOCBKZEcqaztzceLpPY5Xq8O40Zz2Jqh3H3Gf6Ki/1TYyU+K
-nkAyxnaoSbGMeQ6QBKZbvPf0lNiU/UnS56wFy6PiZkfzpnA6WDGixozsba80TVJe
-CVGQHm+N0tWfbrp8EI5SEjm82A7H5Azj1w0NzyQdCa8riClB+78aic7QIFA0VLSX
-4WDr/SNq+dsmNToNZa06hDJifDdFMuA4iqqOo1rh2LxkoNOzpk5nPIynWVcPCDEI
-Wbm7KFccTNE0u7DaFG8G
-=0Fe3
------END PGP SIGNATURE-----
-
---zS7rBR6csb6tI2e1--
+Best Regards,
+J.
