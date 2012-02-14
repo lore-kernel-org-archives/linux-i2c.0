@@ -1,7 +1,7 @@
 From: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Subject: [PATCH 4/7] drm/i915: merge struct intel_gpio into struct intel_gmbus
-Date: Tue, 14 Feb 2012 22:37:22 +0100
-Message-ID: <1329255445-6312-4-git-send-email-daniel.vetter@ffwll.ch>
+Subject: [PATCH 5/7] drm/i915: merge gmbus and gpio i2c adpater into one
+Date: Tue, 14 Feb 2012 22:37:23 +0100
+Message-ID: <1329255445-6312-5-git-send-email-daniel.vetter@ffwll.ch>
 References: <1329255445-6312-1-git-send-email-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
@@ -11,311 +11,131 @@ To: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@publi
 Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-When we set up the gpio fallback, we always have a 1:1 relationship
-with an intel_gmbus. Exploit that to store all gpio related data in
-there, too. This is a preparation step to merge the tw i2c adapters
-controlling the same bus into one.
+... and directly call the newly exported i2c bit-banging functions.
 
-Just mundane code-munging in this patch.
+The code is still pretty convoluted because we only set up the gpio
+i2c stuff when actually falling back, resulting in more complexity
+than necessary. This will be fixed up in the next patch.
 
 Signed-Off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 ---
- drivers/gpu/drm/i915/i915_drv.h  |    1 +
- drivers/gpu/drm/i915/intel_i2c.c |  144 +++++++++++++++++++-------------------
- 2 files changed, 72 insertions(+), 73 deletions(-)
+ drivers/gpu/drm/i915/i915_drv.h  |    2 ++
+ drivers/gpu/drm/i915/intel_i2c.c |   38 +++++---------------------------------
+ 2 files changed, 7 insertions(+), 33 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index ed40743..f137b1d 100644
+index f137b1d..14b6e94 100644
 --- a/drivers/gpu/drm/i915/i915_drv.h
 +++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -294,6 +294,7 @@ struct intel_gmbus {
- 	struct i2c_adapter adapter;
+@@ -35,6 +35,7 @@
+ #include "intel_ringbuffer.h"
+ #include <linux/io-mapping.h>
+ #include <linux/i2c.h>
++#include <linux/i2c-algo-bit.h>
+ #include <drm/intel-gtt.h>
+ #include <linux/backlight.h>
+ 
+@@ -295,6 +296,7 @@ struct intel_gmbus {
  	struct i2c_adapter *force_bit;
  	u32 reg0;
-+	u32 gpio_reg;
+ 	u32 gpio_reg;
++	struct i2c_algo_bit_data bit_algo;
  	struct drm_i915_private *dev_priv;
  };
  
 diff --git a/drivers/gpu/drm/i915/intel_i2c.c b/drivers/gpu/drm/i915/intel_i2c.c
-index f496510..b9f17cb 100644
+index b9f17cb..6eb68b7 100644
 --- a/drivers/gpu/drm/i915/intel_i2c.c
 +++ b/drivers/gpu/drm/i915/intel_i2c.c
-@@ -45,13 +45,6 @@ to_intel_gmbus(struct i2c_adapter *i2c)
- 	return container_of(i2c, struct intel_gmbus, adapter);
- }
- 
--struct intel_gpio {
--	struct i2c_adapter adapter;
--	struct i2c_algo_bit_data algo;
--	struct drm_i915_private *dev_priv;
--	u32 reg;
--};
--
- void
- intel_i2c_reset(struct drm_device *dev)
- {
-@@ -78,15 +71,15 @@ static void intel_i2c_quirk_set(struct drm_i915_private *dev_priv, bool enable)
- 	I915_WRITE(DSPCLK_GATE_D, val);
- }
- 
--static u32 get_reserved(struct intel_gpio *gpio)
-+static u32 get_reserved(struct intel_gmbus *bus)
- {
--	struct drm_i915_private *dev_priv = gpio->dev_priv;
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
- 	struct drm_device *dev = dev_priv->dev;
- 	u32 reserved = 0;
- 
- 	/* On most chips, these bits must be preserved in software. */
- 	if (!IS_I830(dev) && !IS_845G(dev))
--		reserved = I915_READ_NOTRACE(gpio->reg) &
-+		reserved = I915_READ_NOTRACE(bus->gpio_reg) &
- 					     (GPIO_DATA_PULLUP_DISABLE |
- 					      GPIO_CLOCK_PULLUP_DISABLE);
- 
-@@ -95,29 +88,29 @@ static u32 get_reserved(struct intel_gpio *gpio)
- 
- static int get_clock(void *data)
- {
--	struct intel_gpio *gpio = data;
--	struct drm_i915_private *dev_priv = gpio->dev_priv;
--	u32 reserved = get_reserved(gpio);
--	I915_WRITE_NOTRACE(gpio->reg, reserved | GPIO_CLOCK_DIR_MASK);
--	I915_WRITE_NOTRACE(gpio->reg, reserved);
--	return (I915_READ_NOTRACE(gpio->reg) & GPIO_CLOCK_VAL_IN) != 0;
-+	struct intel_gmbus *bus = data;
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
-+	u32 reserved = get_reserved(bus);
-+	I915_WRITE_NOTRACE(bus->gpio_reg, reserved | GPIO_CLOCK_DIR_MASK);
-+	I915_WRITE_NOTRACE(bus->gpio_reg, reserved);
-+	return (I915_READ_NOTRACE(bus->gpio_reg) & GPIO_CLOCK_VAL_IN) != 0;
- }
- 
- static int get_data(void *data)
- {
--	struct intel_gpio *gpio = data;
--	struct drm_i915_private *dev_priv = gpio->dev_priv;
--	u32 reserved = get_reserved(gpio);
--	I915_WRITE_NOTRACE(gpio->reg, reserved | GPIO_DATA_DIR_MASK);
--	I915_WRITE_NOTRACE(gpio->reg, reserved);
--	return (I915_READ_NOTRACE(gpio->reg) & GPIO_DATA_VAL_IN) != 0;
-+	struct intel_gmbus *bus = data;
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
-+	u32 reserved = get_reserved(bus);
-+	I915_WRITE_NOTRACE(bus->gpio_reg, reserved | GPIO_DATA_DIR_MASK);
-+	I915_WRITE_NOTRACE(bus->gpio_reg, reserved);
-+	return (I915_READ_NOTRACE(bus->gpio_reg) & GPIO_DATA_VAL_IN) != 0;
- }
- 
- static void set_clock(void *data, int state_high)
- {
--	struct intel_gpio *gpio = data;
--	struct drm_i915_private *dev_priv = gpio->dev_priv;
--	u32 reserved = get_reserved(gpio);
-+	struct intel_gmbus *bus = data;
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
-+	u32 reserved = get_reserved(bus);
- 	u32 clock_bits;
- 
- 	if (state_high)
-@@ -126,15 +119,15 @@ static void set_clock(void *data, int state_high)
- 		clock_bits = GPIO_CLOCK_DIR_OUT | GPIO_CLOCK_DIR_MASK |
- 			GPIO_CLOCK_VAL_MASK;
- 
--	I915_WRITE_NOTRACE(gpio->reg, reserved | clock_bits);
--	POSTING_READ(gpio->reg);
-+	I915_WRITE_NOTRACE(bus->gpio_reg, reserved | clock_bits);
-+	POSTING_READ(bus->gpio_reg);
- }
- 
- static void set_data(void *data, int state_high)
- {
--	struct intel_gpio *gpio = data;
--	struct drm_i915_private *dev_priv = gpio->dev_priv;
--	u32 reserved = get_reserved(gpio);
-+	struct intel_gmbus *bus = data;
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
-+	u32 reserved = get_reserved(bus);
- 	u32 data_bits;
- 
- 	if (state_high)
-@@ -143,13 +136,14 @@ static void set_data(void *data, int state_high)
- 		data_bits = GPIO_DATA_DIR_OUT | GPIO_DATA_DIR_MASK |
- 			GPIO_DATA_VAL_MASK;
- 
--	I915_WRITE_NOTRACE(gpio->reg, reserved | data_bits);
--	POSTING_READ(gpio->reg);
-+	I915_WRITE_NOTRACE(bus->gpio_reg, reserved | data_bits);
-+	POSTING_READ(bus->gpio_reg);
- }
- 
- static struct i2c_adapter *
--intel_gpio_create(struct drm_i915_private *dev_priv, u32 pin)
-+intel_gpio_create(struct intel_gmbus *bus, u32 pin)
- {
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
- 	static const int map_pin_to_reg[] = {
- 		0,
- 		GPIOB,
-@@ -160,65 +154,69 @@ intel_gpio_create(struct drm_i915_private *dev_priv, u32 pin)
+@@ -154,29 +154,18 @@ intel_gpio_create(struct intel_gmbus *bus, u32 pin)
  		0,
  		GPIOF,
  	};
--	struct intel_gpio *gpio;
-+	struct i2c_adapter *adapter;
-+	struct i2c_algo_bit_data *algo;
+-	struct i2c_adapter *adapter;
+ 	struct i2c_algo_bit_data *algo;
  
  	if (pin >= ARRAY_SIZE(map_pin_to_reg) || !map_pin_to_reg[pin])
  		return NULL;
  
--	gpio = kzalloc(sizeof(struct intel_gpio), GFP_KERNEL);
--	if (gpio == NULL)
-+	adapter = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
-+	if (adapter == NULL)
- 		return NULL;
+-	adapter = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+-	if (adapter == NULL)
+-		return NULL;
+-
+-	algo = kzalloc(sizeof(struct i2c_algo_bit_data), GFP_KERNEL);
+-	if (algo == NULL)
+-		goto out_adap;
++	algo = &bus->bit_algo;
  
--	gpio->reg = map_pin_to_reg[pin];
-+	algo = kzalloc(sizeof(struct i2c_algo_bit_data), GFP_KERNEL);
-+	if (algo == NULL)
-+		goto out_adap;
-+
-+	bus->gpio_reg = map_pin_to_reg[pin];
+ 	bus->gpio_reg = map_pin_to_reg[pin];
  	if (HAS_PCH_SPLIT(dev_priv->dev))
--		gpio->reg += PCH_GPIOA - GPIOA;
--	gpio->dev_priv = dev_priv;
-+		bus->gpio_reg += PCH_GPIOA - GPIOA;
+ 		bus->gpio_reg += PCH_GPIOA - GPIOA;
  
--	snprintf(gpio->adapter.name, sizeof(gpio->adapter.name),
-+	snprintf(adapter->name, sizeof(adapter->name),
- 		 "i915 GPIO%c", "?BACDE?F"[pin]);
--	gpio->adapter.owner = THIS_MODULE;
--	gpio->adapter.algo_data	= &gpio->algo;
--	gpio->adapter.dev.parent = &dev_priv->dev->pdev->dev;
--	gpio->algo.setsda = set_data;
--	gpio->algo.setscl = set_clock;
--	gpio->algo.getsda = get_data;
--	gpio->algo.getscl = get_clock;
--	gpio->algo.udelay = I2C_RISEFALL_TIME;
--	gpio->algo.timeout = usecs_to_jiffies(2200);
--	gpio->algo.data = gpio;
+-	snprintf(adapter->name, sizeof(adapter->name),
+-		 "i915 GPIO%c", "?BACDE?F"[pin]);
+-	adapter->owner = THIS_MODULE;
+-	adapter->algo_data = algo;
+-	adapter->dev.parent = &dev_priv->dev->pdev->dev;
++	bus->adapter.algo_data = algo;
+ 	algo->setsda = set_data;
+ 	algo->setscl = set_clock;
+ 	algo->getsda = get_data;
+@@ -185,16 +174,7 @@ intel_gpio_create(struct intel_gmbus *bus, u32 pin)
+ 	algo->timeout = usecs_to_jiffies(2200);
+ 	algo->data = bus;
+ 
+-	if (i2c_bit_add_bus(adapter))
+-		goto out_algo;
 -
--	if (i2c_bit_add_bus(&gpio->adapter))
--		goto out_free;
+-	return adapter;
 -
--	return &gpio->adapter;
--
--out_free:
--	kfree(gpio);
-+	adapter->owner = THIS_MODULE;
-+	adapter->algo_data = algo;
-+	adapter->dev.parent = &dev_priv->dev->pdev->dev;
-+	algo->setsda = set_data;
-+	algo->setscl = set_clock;
-+	algo->getsda = get_data;
-+	algo->getscl = get_clock;
-+	algo->udelay = I2C_RISEFALL_TIME;
-+	algo->timeout = usecs_to_jiffies(2200);
-+	algo->data = bus;
-+
-+	if (i2c_bit_add_bus(adapter))
-+		goto out_algo;
-+
-+	return adapter;
-+
-+out_algo:
-+	kfree(algo);
-+out_adap:
-+	kfree(adapter);
- 	return NULL;
+-out_algo:
+-	kfree(algo);
+-out_adap:
+-	kfree(adapter);
+-	return NULL;
++	return &bus->adapter;
  }
  
  static int
--intel_i2c_quirk_xfer(struct drm_i915_private *dev_priv,
-+intel_i2c_quirk_xfer(struct intel_gmbus *bus,
- 		     struct i2c_adapter *adapter,
- 		     struct i2c_msg *msgs,
- 		     int num)
- {
--	struct intel_gpio *gpio = container_of(adapter,
--					       struct intel_gpio,
--					       adapter);
-+	struct drm_i915_private *dev_priv = bus->dev_priv;
- 	int ret;
- 
- 	intel_i2c_reset(dev_priv->dev);
- 
- 	intel_i2c_quirk_set(dev_priv, true);
--	set_data(gpio, 1);
--	set_clock(gpio, 1);
-+	set_data(bus, 1);
-+	set_clock(bus, 1);
+@@ -213,7 +193,7 @@ intel_i2c_quirk_xfer(struct intel_gmbus *bus,
+ 	set_clock(bus, 1);
  	udelay(I2C_RISEFALL_TIME);
  
- 	ret = adapter->algo->master_xfer(adapter, msgs, num);
+-	ret = adapter->algo->master_xfer(adapter, msgs, num);
++	ret = i2c_bit_xfer(adapter, msgs, num);
  
--	set_data(gpio, 1);
--	set_clock(gpio, 1);
-+	set_data(bus, 1);
-+	set_clock(bus, 1);
- 	intel_i2c_quirk_set(dev_priv, false);
+ 	set_data(bus, 1);
+ 	set_clock(bus, 1);
+@@ -348,7 +328,7 @@ static u32 gmbus_func(struct i2c_adapter *adapter)
+ 					       adapter);
  
- 	return ret;
-@@ -238,8 +236,7 @@ gmbus_xfer(struct i2c_adapter *adapter,
- 	mutex_lock(&dev_priv->gmbus_mutex);
+ 	if (bus->force_bit)
+-		bus->force_bit->algo->functionality(bus->force_bit);
++		i2c_bit_func(bus->force_bit);
  
- 	if (bus->force_bit) {
--		ret = intel_i2c_quirk_xfer(dev_priv,
--					    bus->force_bit, msgs, num);
-+		ret = intel_i2c_quirk_xfer(bus, bus->force_bit, msgs, num);
- 		goto out;
- 	}
- 
-@@ -334,11 +331,11 @@ timeout:
- 	I915_WRITE(GMBUS0 + reg_offset, 0);
- 
- 	/* Hardware may not support GMBUS over these pins? Try GPIO bitbanging instead. */
--	bus->force_bit = intel_gpio_create(dev_priv, bus->reg0 & 0xff);
-+	bus->force_bit = intel_gpio_create(bus, bus->reg0 & 0xff);
- 	if (!bus->force_bit)
- 		ret = -ENOMEM;
- 	else
--		ret = intel_i2c_quirk_xfer(dev_priv, bus->force_bit, msgs, num);
-+		ret = intel_i2c_quirk_xfer(bus, bus->force_bit, msgs, num);
- out:
- 	mutex_unlock(&dev_priv->gmbus_mutex);
- 	return ret;
-@@ -412,7 +409,7 @@ int intel_setup_gmbus(struct drm_device *dev)
- 		bus->reg0 = i | GMBUS_RATE_100KHZ;
- 
- 		/* XXX force bit banging until GMBUS is fully debugged */
--		bus->force_bit = intel_gpio_create(dev_priv, i);
-+		bus->force_bit = intel_gpio_create(bus, i);
- 	}
- 
- 	intel_i2c_reset(dev_priv->dev);
-@@ -442,13 +439,13 @@ void intel_gmbus_force_bit(struct i2c_adapter *adapter, bool force_bit)
- 
- 	if (force_bit) {
- 		if (bus->force_bit == NULL) {
--			struct drm_i915_private *dev_priv = bus->dev_priv;
--			bus->force_bit = intel_gpio_create(dev_priv,
-+			bus->force_bit = intel_gpio_create(bus,
- 							   bus->reg0 & 0xff);
+ 	return (I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
+ 		/* I2C_FUNC_10BIT_ADDR | */
+@@ -444,9 +424,6 @@ void intel_gmbus_force_bit(struct i2c_adapter *adapter, bool force_bit)
  		}
  	} else {
  		if (bus->force_bit) {
- 			i2c_del_adapter(bus->force_bit);
-+			kfree(bus->force_bit->algo);
- 			kfree(bus->force_bit);
+-			i2c_del_adapter(bus->force_bit);
+-			kfree(bus->force_bit->algo);
+-			kfree(bus->force_bit);
  			bus->force_bit = NULL;
  		}
-@@ -467,6 +464,7 @@ void intel_teardown_gmbus(struct drm_device *dev)
+ 	}
+@@ -462,11 +439,6 @@ void intel_teardown_gmbus(struct drm_device *dev)
+ 
+ 	for (i = 0; i < GMBUS_NUM_PORTS; i++) {
  		struct intel_gmbus *bus = &dev_priv->gmbus[i];
- 		if (bus->force_bit) {
- 			i2c_del_adapter(bus->force_bit);
-+			kfree(bus->force_bit->algo);
- 			kfree(bus->force_bit);
- 		}
+-		if (bus->force_bit) {
+-			i2c_del_adapter(bus->force_bit);
+-			kfree(bus->force_bit->algo);
+-			kfree(bus->force_bit);
+-		}
  		i2c_del_adapter(&bus->adapter);
+ 	}
+ 
 -- 
 1.7.7.5
