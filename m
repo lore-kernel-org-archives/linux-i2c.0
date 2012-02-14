@@ -1,14 +1,14 @@
 From: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Subject: [PATCH 6/7] drm/i915: i2c: unconditionally set up gpio fallback
-Date: Tue, 14 Feb 2012 22:37:24 +0100
-Message-ID: <1329255445-6312-6-git-send-email-daniel.vetter@ffwll.ch>
-References: <1329255445-6312-1-git-send-email-daniel.vetter@ffwll.ch>
+Subject: [PATCH] drm/i915: i2c: unconditionally set up gpio fallback
+Date: Tue, 14 Feb 2012 23:53:01 +0100
+Message-ID: <1329259981-10505-1-git-send-email-daniel.vetter@ffwll.ch>
+References: <1329255445-6312-6-git-send-email-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1329255445-6312-1-git-send-email-daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+In-Reply-To: <1329255445-6312-6-git-send-email-daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+To: Chris Wilson <chris-Y6uKTt2uX1cEflXRtASbqLVCufUGDwFn@public.gmane.org>
+Cc: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 This way we can simplify the setup and teardown a bit.
@@ -18,6 +18,8 @@ case, we can now convert that into a boolean.
 
 Also and the functionality supported by the bit-banging together with
 what gmbus can do, so that this doesn't randomly change any more.
+
+v2: Chris Wilson noticed that I've mixed up && and & ...
 
 Signed-Off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 ---
@@ -40,7 +42,7 @@ index 14b6e94..31affc0 100644
  	u32 gpio_reg;
  	struct i2c_algo_bit_data bit_algo;
 diff --git a/drivers/gpu/drm/i915/intel_i2c.c b/drivers/gpu/drm/i915/intel_i2c.c
-index 6eb68b7..9791546 100644
+index 6eb68b7..5e89680 100644
 --- a/drivers/gpu/drm/i915/intel_i2c.c
 +++ b/drivers/gpu/drm/i915/intel_i2c.c
 @@ -140,8 +140,8 @@ static void set_data(void *data, int state_high)
@@ -124,7 +126,7 @@ index 6eb68b7..9791546 100644
 -		i2c_bit_func(bus->force_bit);
 -
 -	return (I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-+	return i2c_bit_func(adapter) &&
++	return i2c_bit_func(adapter) &
 +		(I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
  		/* I2C_FUNC_10BIT_ADDR | */
  		I2C_FUNC_SMBUS_READ_BLOCK_DATA |
