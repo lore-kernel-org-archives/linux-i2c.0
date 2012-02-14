@@ -1,167 +1,118 @@
-From: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Subject: [PATCH] drm/i915: i2c: unconditionally set up gpio fallback
-Date: Tue, 14 Feb 2012 23:53:01 +0100
-Message-ID: <1329259981-10505-1-git-send-email-daniel.vetter@ffwll.ch>
-References: <1329255445-6312-6-git-send-email-daniel.vetter@ffwll.ch>
+From: Eugeni Dodonov <eugeni@dodonov.net>
+Subject: Re: [PATCH 6/7] drm/i915: i2c: unconditionally set up gpio fallback
+Date: Tue, 14 Feb 2012 21:47:01 -0200
+Message-ID: <CAC7LmnvP0wUroQq6VJ3QeoWDy=WEk_UcfkKiuYx=hWZ8WT6tMQ@mail.gmail.com>
+References: <1329255445-6312-1-git-send-email-daniel.vetter@ffwll.ch>
+	<1329255445-6312-6-git-send-email-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1329255445-6312-6-git-send-email-daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Chris Wilson <chris-Y6uKTt2uX1cEflXRtASbqLVCufUGDwFn@public.gmane.org>
-Cc: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+Content-Type: multipart/mixed; boundary="===============1833558520=="
+Return-path: <dri-devel-bounces+sf-dri-devel=m.gmane.org@lists.freedesktop.org>
+In-Reply-To: <1329255445-6312-6-git-send-email-daniel.vetter@ffwll.ch>
+List-Unsubscribe: <http://lists.freedesktop.org/mailman/options/dri-devel>,
+	<mailto:dri-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <http://lists.freedesktop.org/archives/dri-devel>
+List-Post: <mailto:dri-devel@lists.freedesktop.org>
+List-Help: <mailto:dri-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <http://lists.freedesktop.org/mailman/listinfo/dri-devel>,
+	<mailto:dri-devel-request@lists.freedesktop.org?subject=subscribe>
+Sender: dri-devel-bounces+sf-dri-devel=m.gmane.org@lists.freedesktop.org
+Errors-To: dri-devel-bounces+sf-dri-devel=m.gmane.org@lists.freedesktop.org
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, linux-i2c@vger.kernel.org, DRI Development <dri-devel@lists.freedesktop.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This way we can simplify the setup and teardown a bit.
+--===============1833558520==
+Content-Type: multipart/alternative; boundary=047d7b10ccdb7ea53404b8f538b1
 
-Because we don't actually allocate anything anymore for the force_bit
-case, we can now convert that into a boolean.
+--047d7b10ccdb7ea53404b8f538b1
+Content-Type: text/plain; charset=ISO-8859-1
 
-Also and the functionality supported by the bit-banging together with
-what gmbus can do, so that this doesn't randomly change any more.
+On Tue, Feb 14, 2012 at 19:37, Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
 
-v2: Chris Wilson noticed that I've mixed up && and & ...
+>        /* Hardware may not support GMBUS over these pins? Try GPIO
+> bitbanging instead. */
+> -       bus->force_bit = intel_gpio_create(bus, bus->reg0 & 0xff);
+> -       if (!bus->force_bit)
+> -               ret = -ENOMEM;
+> -       else
+> -               ret = intel_i2c_quirk_xfer(bus, bus->force_bit, msgs, num);
+> +       ret = -EIO;
+> +       if (bus->has_gpio) {
+> +               bus->force_bit = true;
+> +               ret = intel_i2c_quirk_xfer(bus, msgs, num);
+> +       }
+>
 
-Signed-Off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
----
- drivers/gpu/drm/i915/i915_drv.h  |    3 +-
- drivers/gpu/drm/i915/intel_i2c.c |   50 ++++++++++++++-----------------------
- 2 files changed, 21 insertions(+), 32 deletions(-)
+<bikeshedding>
+Wouldn't it be cleaner and more consistent with the rest of the code to use:
 
-diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
-index 14b6e94..31affc0 100644
---- a/drivers/gpu/drm/i915/i915_drv.h
-+++ b/drivers/gpu/drm/i915/i915_drv.h
-@@ -293,7 +293,8 @@ struct intel_fbc_work;
- 
- struct intel_gmbus {
- 	struct i2c_adapter adapter;
--	struct i2c_adapter *force_bit;
-+	bool force_bit;
-+	bool has_gpio;
- 	u32 reg0;
- 	u32 gpio_reg;
- 	struct i2c_algo_bit_data bit_algo;
-diff --git a/drivers/gpu/drm/i915/intel_i2c.c b/drivers/gpu/drm/i915/intel_i2c.c
-index 6eb68b7..5e89680 100644
---- a/drivers/gpu/drm/i915/intel_i2c.c
-+++ b/drivers/gpu/drm/i915/intel_i2c.c
-@@ -140,8 +140,8 @@ static void set_data(void *data, int state_high)
- 	POSTING_READ(bus->gpio_reg);
- }
- 
--static struct i2c_adapter *
--intel_gpio_create(struct intel_gmbus *bus, u32 pin)
-+static bool
-+intel_gpio_setup(struct intel_gmbus *bus, u32 pin)
- {
- 	struct drm_i915_private *dev_priv = bus->dev_priv;
- 	static const int map_pin_to_reg[] = {
-@@ -157,7 +157,7 @@ intel_gpio_create(struct intel_gmbus *bus, u32 pin)
- 	struct i2c_algo_bit_data *algo;
- 
- 	if (pin >= ARRAY_SIZE(map_pin_to_reg) || !map_pin_to_reg[pin])
--		return NULL;
-+		return false;
- 
- 	algo = &bus->bit_algo;
- 
-@@ -174,12 +174,11 @@ intel_gpio_create(struct intel_gmbus *bus, u32 pin)
- 	algo->timeout = usecs_to_jiffies(2200);
- 	algo->data = bus;
- 
--	return &bus->adapter;
-+	return true;
- }
- 
- static int
- intel_i2c_quirk_xfer(struct intel_gmbus *bus,
--		     struct i2c_adapter *adapter,
- 		     struct i2c_msg *msgs,
- 		     int num)
- {
-@@ -193,7 +192,7 @@ intel_i2c_quirk_xfer(struct intel_gmbus *bus,
- 	set_clock(bus, 1);
- 	udelay(I2C_RISEFALL_TIME);
- 
--	ret = i2c_bit_xfer(adapter, msgs, num);
-+	ret = i2c_bit_xfer(&bus->adapter, msgs, num);
- 
- 	set_data(bus, 1);
- 	set_clock(bus, 1);
-@@ -216,7 +215,7 @@ gmbus_xfer(struct i2c_adapter *adapter,
- 	mutex_lock(&dev_priv->gmbus_mutex);
- 
- 	if (bus->force_bit) {
--		ret = intel_i2c_quirk_xfer(bus, bus->force_bit, msgs, num);
-+		ret = intel_i2c_quirk_xfer(bus, msgs, num);
- 		goto out;
- 	}
- 
-@@ -311,11 +310,11 @@ timeout:
- 	I915_WRITE(GMBUS0 + reg_offset, 0);
- 
- 	/* Hardware may not support GMBUS over these pins? Try GPIO bitbanging instead. */
--	bus->force_bit = intel_gpio_create(bus, bus->reg0 & 0xff);
--	if (!bus->force_bit)
--		ret = -ENOMEM;
--	else
--		ret = intel_i2c_quirk_xfer(bus, bus->force_bit, msgs, num);
-+	ret = -EIO;
-+	if (bus->has_gpio) {
-+		bus->force_bit = true;
-+		ret = intel_i2c_quirk_xfer(bus, msgs, num);
-+	}
- out:
- 	mutex_unlock(&dev_priv->gmbus_mutex);
- 	return ret;
-@@ -323,14 +322,8 @@ out:
- 
- static u32 gmbus_func(struct i2c_adapter *adapter)
- {
--	struct intel_gmbus *bus = container_of(adapter,
--					       struct intel_gmbus,
--					       adapter);
--
--	if (bus->force_bit)
--		i2c_bit_func(bus->force_bit);
--
--	return (I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
-+	return i2c_bit_func(adapter) &
-+		(I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
- 		/* I2C_FUNC_10BIT_ADDR | */
- 		I2C_FUNC_SMBUS_READ_BLOCK_DATA |
- 		I2C_FUNC_SMBUS_BLOCK_PROC_CALL);
-@@ -388,8 +381,11 @@ int intel_setup_gmbus(struct drm_device *dev)
- 		/* By default use a conservative clock rate */
- 		bus->reg0 = i | GMBUS_RATE_100KHZ;
- 
-+		bus->has_gpio = intel_gpio_setup(bus, i);
-+
- 		/* XXX force bit banging until GMBUS is fully debugged */
--		bus->force_bit = intel_gpio_create(bus, i);
-+		if (bus->has_gpio)
-+			bus->force_bit = true;
- 	}
- 
- 	intel_i2c_reset(dev_priv->dev);
-@@ -417,16 +413,8 @@ void intel_gmbus_force_bit(struct i2c_adapter *adapter, bool force_bit)
- {
- 	struct intel_gmbus *bus = to_intel_gmbus(adapter);
- 
--	if (force_bit) {
--		if (bus->force_bit == NULL) {
--			bus->force_bit = intel_gpio_create(bus,
--							   bus->reg0 & 0xff);
--		}
--	} else {
--		if (bus->force_bit) {
--			bus->force_bit = NULL;
--		}
--	}
-+	if (bus->has_gpio)
-+		bus->force_bit = force_bit;
- }
- 
- void intel_teardown_gmbus(struct drm_device *dev)
+if (!bus->has_gpio)
+    ret = -EIO;
+else {
+    bus->force_bit = true;
+    ret = intel_i2c_quirk_xfer(bus, msgs, num);
+}
+
+instead?
+</bikeshedding>
+
+Other than that, it looks correct to me, and certainly makes code more
+clean.
+
+Reviewed-by: Eugeni Dodonov <eugeni.dodonov@intel.com>
+
 -- 
-1.7.7.5
+Eugeni Dodonov
+<http://eugeni.dodonov.net/>
+
+--047d7b10ccdb7ea53404b8f538b1
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<div class=3D"gmail_quote">On Tue, Feb 14, 2012 at 19:37, Daniel Vetter <sp=
+an dir=3D"ltr">&lt;<a href=3D"mailto:daniel.vetter@ffwll.ch">daniel.vetter@=
+ffwll.ch</a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=
+=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+
+=A0 =A0 =A0=A0 /* Hardware may not support GMBUS over these pins? Try GPIO =
+bitbanging instead. */<br>
+- =A0 =A0 =A0 bus-&gt;force_bit =3D intel_gpio_create(bus, bus-&gt;reg0 &am=
+p; 0xff);<br>
+- =A0 =A0 =A0 if (!bus-&gt;force_bit)<br>
+- =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D -ENOMEM;<br>
+- =A0 =A0 =A0 else<br>
+- =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D intel_i2c_quirk_xfer(bus, bus-&gt;for=
+ce_bit, msgs, num);<br>
++ =A0 =A0 =A0 ret =3D -EIO;<br>
++ =A0 =A0 =A0 if (bus-&gt;has_gpio) {<br>
++ =A0 =A0 =A0 =A0 =A0 =A0 =A0 bus-&gt;force_bit =3D true;<br>
++ =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D intel_i2c_quirk_xfer(bus, msgs, num);=
+<br>
++ =A0 =A0 =A0 }<br></blockquote><div><br>&lt;bikeshedding&gt;<br>Wouldn&#39=
+;t it be cleaner and more consistent with the rest of the code to use:<br><=
+br>if (!bus-&gt;has_gpio)<br>=A0=A0=A0 ret =3D -EIO;<br>else {<br>=A0=A0=A0=
+ bus-&gt;force_bit =3D true;<br>
+
+=A0=A0=A0 ret =3D intel_i2c_quirk_xfer(bus, msgs, num);<br>}<br><br>instead=
+?<br>&lt;/bikeshedding&gt;<br><br>Other than that, it looks correct to me, =
+and certainly makes code more clean.<br clear=3D"all"></div></div><br>Revie=
+wed-by: Eugeni Dodonov &lt;<a href=3D"mailto:eugeni.dodonov@intel.com">euge=
+ni.dodonov@intel.com</a>&gt;<br>
+
+<br>-- <br>Eugeni Dodonov<a href=3D"http://eugeni.dodonov.net/" target=3D"_=
+blank"><br></a><br>
+
+--047d7b10ccdb7ea53404b8f538b1--
+
+--===============1833558520==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+dri-devel mailing list
+dri-devel@lists.freedesktop.org
+http://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+--===============1833558520==--
