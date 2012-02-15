@@ -1,23 +1,115 @@
-From: Mind Spawn <mndspwn-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: serial port over i2c
-Date: Wed, 15 Feb 2012 01:02:18 -0600
-Message-ID: <CAAzok3rXyjF9i7SgtTYurUcbqN6p2Ed6qxZm_SD9JdoufLbDMA@mail.gmail.com>
+From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
+Date: Wed, 15 Feb 2012 14:41:22 +0100
+Message-ID: <20120215134122.GC3852@pengutronix.de>
+References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
+ <1328102793-4313-4-git-send-email-s.hauer@pengutronix.de>
+ <20120207150856.GI2539@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120207150856.GI2539-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-For an embedded project, I have 10-15 ARM based Linux systems (slaves)
-connected to a another ARM based Linux system (master) via the i2c
-bus.
+On Tue, Feb 07, 2012 at 04:08:56PM +0100, Wolfram Sang wrote:
+> Hi Sascha,
+> 
+> > +struct cgeb_watchdog_stage {
+> > +	unsigned long timeout;
+> > +	unsigned long event;
+> > +};
+> > +
+> > +struct cgeb_watchdog_config {
+> > +	unsigned long size;
+> > +	unsigned long timeout; /* not used in staged mode */
+> > +	unsigned long delay;
+> > +	unsigned long mode;
+> > +	/* optional parameters for staged watchdog */
+> > +	unsigned long op_mode;
+> > +	unsigned long stage_count;
+> > +	struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
+> > +};
+> > +
+> 
+> There is some unused stuff in here.
 
-I would like to be able to create a serial console from the master to
-each of the slaves using only the i2c bus. Is there a way to do this
-with the existing i2c code in the kernel i.e. any way to create a
-virtual serial port that runs over the i2c bus? If such a method
-exists, does it support any sort of software flow control?
+It's the hardware, or more precisely the BIOS that dictates the layout
+of this structure. Given that, the members should be u32 rather than
+unsigned long.
 
-If no such method exists, is there any reason why such an
-implementation is not feasible?
+> 
+> > +struct cgeb_watchdog_priv {
+> > +	struct cgeb_board_data	*board;
+> > +	struct watchdog_device	wdd;
+> > +	unsigned int		timeout_s;
+> 
+> Is wdd->timeout not sufficent?
+
+I wasn't aware such a field exists. Yes, that should work
+
+> 
+> > +	int unit;
+> > +};
+> > +
+> > +static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
+> > +		unsigned int timeout_s)
+> > +{
+> > +	struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
+> > +
+> > +	if (!timeout_s)
+> > +		return -EINVAL;
+> 
+> Is this possible? You have min_timeout = 1.
+
+Nope, I think we can remove this line.
+
+> 
+> > +static int __devinit cgeb_watchdog_probe(struct platform_device *pdev)
+> > +{
+> > +	struct cgeb_watchdog_priv *priv;
+> > +	struct cgeb_pdata *pdata = pdev->dev.platform_data;
+> > +	int ret;
+> > +
+> > +	dev_info(&pdev->dev, "registering\n");
+> 
+> "registered" on success would be more useful?
+> 
+> > +
+> > +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> > +	if (!priv)
+> > +		return -ENOMEM;
+> > +
+> > +	priv->wdd.ops = &cgeb_watchdog_ops;
+> > +	priv->wdd.info = &cgeb_wdd_info;
+> > +	priv->wdd.min_timeout = 1;
+> > +	priv->wdd.max_timeout = 3600;
+> > +	priv->board = pdata->board;
+> > +	priv->unit = pdata->unit;
+> > +
+> > +	watchdog_set_drvdata(&priv->wdd, priv);
+> > +	platform_set_drvdata(pdev, priv);
+> > +
+> > +	ret = watchdog_register_device(&priv->wdd);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	return 0;
+> 
+> return watchdog_register_device();
+
+These comments are mutually exclusive ;)
+
+I'll move the dev_info to here.
+
+Sascha
+
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
