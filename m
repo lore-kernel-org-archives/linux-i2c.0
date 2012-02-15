@@ -1,63 +1,69 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: Add Congatec CGEB I2C driver
-Date: Wed, 15 Feb 2012 14:54:13 +0100
-Message-ID: <20120215135413.GD3852@pengutronix.de>
-References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
- <1328102793-4313-3-git-send-email-s.hauer@pengutronix.de>
- <20120207101016.GB2539@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: [PATCH v2] i2c-isch: Add module parameter which actually set the clock divider
+Date: Wed, 15 Feb 2012 15:36:49 +0100
+Message-ID: <1329316609-14570-1-git-send-email-alexander.stein@systec-electronic.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120207101016.GB2539-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 07, 2012 at 11:10:16AM +0100, Wolfram Sang wrote:
-> Hi Sascha,
-> 
-> > +config I2C_CONGATEC_CGEB
-> > +	tristate "Congatec CGEB I2C driver"
-> > +	depends on MFD_CONGATEC_CGEB
-> > +	help
-> > +	  This driver provides support for the I2C busses accssable via
-> > +	  the Congatec CGEB interface found on Congatec boards.
-> > +
-> 
-> Please keep the sorting (eg20t is wrong and will be fixed).
-> 
-> > +		ret = cgeb_call(priv->board, &fps, CgebI2CTransfer);
-> > +		if (ret) {
-> > +			ret = -EREMOTEIO;
-> > +			goto out;
-> > +		}
-> 
-> -EREMOTEIO is not present in Documentation/i2c/fault-codes. Please use
-> one from that file.
+It was observed the Host Clock Divider was not written by the driver. It
+was still set to (default) 0, if not already set by BIOS, which caused
+garbage on SMBus.
+This driver adds 2 parameters which are used to calculate the divider
+appropriately. This new divider is only applied if the clock divider is
+still default 0.
 
--EIO?
+Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Tested-by: Adam Pribyl <pribyl-CRPBUER/Gz7twjQa/ONI9g@public.gmane.org>
+---
+Changes in v2:
+* HSTCLK register is 16 Bit, not 8 Bit. Thanks to Adam for detecting
 
-> 
-> > +	ret = cgeb_i2c_set_speed(priv, 400000);
-> > +	if (ret)
-> > +		/*
-> > +		 * not a critical error, we can continue with the default speed.
-> > +		 */
-> > +		dev_warn(&pdev->dev, "Could not set speed to 400KHz\n");
-> 
-> Is it possible to make this configurable? Not all I2C devices support
-> 400KHz, 100KHz is OK.
+ drivers/i2c/busses/i2c-isch.c |   12 ++++++++++++
+ 1 files changed, 12 insertions(+), 0 deletions(-)
 
-Yes, it is. The problem is more *how* it should be configurable.
-Exposing it via sysfs is the only reasonable option I can think
-of.
-
-Sascha
-
+diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
+index 6561d27..bdfddf8 100644
+--- a/drivers/i2c/busses/i2c-isch.c
++++ b/drivers/i2c/busses/i2c-isch.c
+@@ -40,6 +40,7 @@
+ /* SCH SMBus address offsets */
+ #define SMBHSTCNT	(0 + sch_smba)
+ #define SMBHSTSTS	(1 + sch_smba)
++#define SMBHSTCLK	(2 + sch_smba)
+ #define SMBHSTADD	(4 + sch_smba) /* TSA */
+ #define SMBHSTCMD	(5 + sch_smba)
+ #define SMBHSTDAT0	(6 + sch_smba)
+@@ -58,6 +59,8 @@
+ 
+ static unsigned short sch_smba;
+ static struct i2c_adapter sch_adapter;
++static int smbus_speed = 100; /* SMBus bus speed in Kbps */
++static int backbone_speed = 33000; /* backbone speed in KHz */
+ 
+ /*
+  * Start the i2c transaction -- the i2c_access will prepare the transaction
+@@ -156,6 +159,13 @@ static s32 sch_access(struct i2c_adapter *adap, u16 addr,
+ 		dev_dbg(&sch_adapter.dev, "SMBus busy (%02x)\n", temp);
+ 		return -EAGAIN;
+ 	}
++	temp = inw(SMBHSTCLK);
++	if (!temp) {
++		dev_notice(&sch_adapter.dev, "clock divider unitialized. Setting module defaults\n");
++		dev_dbg(&sch_adapter.dev, "access speed: %d KHz\n", smbus_speed);
++		outw((backbone_speed / 4) / smbus_speed, SMBHSTCLK);
++	}
++
+ 	dev_dbg(&sch_adapter.dev, "access size: %d %s\n", size,
+ 		(read_write)?"READ":"WRITE");
+ 	switch (size) {
+@@ -312,3 +322,5 @@ MODULE_AUTHOR("Jacob Pan <jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>");
+ MODULE_DESCRIPTION("Intel SCH SMBus driver");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:isch_smbus");
++module_param(smbus_speed, int, (S_IRUSR | S_IWUSR));
++module_param(backbone_speed, int, (S_IRUSR | S_IWUSR));
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+1.7.3.4
