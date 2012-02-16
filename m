@@ -1,101 +1,70 @@
-From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Subject: Re: [PATCH v2] i2c: fix missing handling of errata I2C_OMAP3_1P153
-Date: Thu, 16 Feb 2012 17:06:07 +0530
-Message-ID: <CAM=Q2cvQeAcS3drwKAZxV0=FjmmJQFADQgpt0uk66jK_EPxOmA@mail.gmail.com>
-References: <1328538811-13097-1-git-send-email-tasskjapp@gmail.com>
-	<1329213583-20839-1-git-send-email-tasskjapp@gmail.com>
-	<4F3A345B.2060308@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v6] I2C: add CSR SiRFprimaII on-chip I2C controllers
+ driver
+Date: Thu, 16 Feb 2012 15:45:04 +0100
+Message-ID: <20120216144504.GC2541@pengutronix.de>
+References: <1328714915-12287-1-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4F3A345B.2060308@gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Tasslehoff Kjappfot <tasskjapp@gmail.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oJ71EGRlYNjSvfq7"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1328714915-12287-1-git-send-email-21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi ,
 
-On Tue, Feb 14, 2012 at 3:45 PM, Tasslehoff Kjappfot
-<tasskjapp@gmail.com> wrote:
-> Sorry about the bad mails. First time I use git send-email to follow =
-up on a
-> patch, and it seems I need to read up a bit more on it.
->
-> Anyway.
->
-> This patch is tested on our custom board based on Beagleboard rev C3.
-thanks for the testing . may be include it in the changelogs .
-Just a suggestion not an objection to the patch.
->
-> From 7c1e2c14bccb16c20dc7d93088b12ac6e6e351a3 Mon Sep 17 00:00:00 200=
-1
-> From: Tasslehoff Kjappfot <tasskjapp@gmail.com>
-> Date: Mon, 6 Feb 2012 14:14:23 +0100
-> Subject: [PATCH] i2c: fix missing handling of errata I2C_OMAP3_1P153
->
->
-> i2c_prope
-Nitpick :  probe
+--oJ71EGRlYNjSvfq7
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, Feb 08, 2012 at 11:28:35PM +0800, Barry Song wrote:
+> From: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+>=20
+> SiRFprimaII is the latest generation application processor from CSR=E2=80=
+=99s
+> multi-function SoC product family.
+> The SoC support codes are in arch/arm/mach-prima2 from Linux mainline
+> 3.0.
+> There are two I2C controllers on primaII, features include:
+> * Two I2C controller modules are on chip
+> * RISC I/O bus read write register
+> * Up to 16 bytes data buffer for issuing commands and writing data
+>   at the same time
+> * Up to 16 commands, and receiving read data 16 bytes at a time
+> * Error INT report (ACK check)
+> * No-ACK bus protocols (SCCB bus protocols)
+>=20
+> Signed-off-by: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+> Signed-off-by: Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>
+> Signed-off-by: Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>
+> Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 
+I am fine with it. Personally, I would have violated the 80 char limit
+a few times to keep stuff more readable, but this is taste, I guess.
 
-set the dev->errata flag, but omap_i2c_init cleared the flag
-> again. Move the errata handling to i2c_probe.
->
-> Signed-off-by: Tasslehoff Kjappfot <tasskjapp@gmail.com>
->
-> ---
-> =A0drivers/i2c/busses/i2c-omap.c | =A0 10 +++++-----
-> =A01 files changed, 5 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-o=
-map.c
-> index 801df60..d609ae2 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -468,11 +468,6 @@ static int omap_i2c_init(struct omap_i2c_dev *de=
-v)
-> =A0 =A0 =A0 =A0/* Take the I2C module out of reset: */
-> =A0 =A0 =A0 =A0omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON=
-_EN);
->
-> - =A0 =A0 =A0 dev->errata =3D 0;
-> -
-> - =A0 =A0 =A0 if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
-> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->errata |=3D I2C_OMAP_ERRATA_I207;
-> -
-> =A0 =A0 =A0 =A0/* Enable interrupts */
-> =A0 =A0 =A0 =A0dev->iestate =3D (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY =
-|
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0OMAP_I2C_IE_ARDY | OMA=
-P_I2C_IE_NACK |
-> @@ -1058,6 +1053,11 @@ omap_i2c_probe(struct platform_device *pdev)
->
-> =A0 =A0 =A0 =A0dev->rev =3D omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) =
-& 0xff;
->
-> + =A0 =A0 =A0 dev->errata =3D 0;
-> +
-> + =A0 =A0 =A0 if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->errata |=3D I2C_OMAP_ERRATA_I207;
-> +
-> =A0 =A0 =A0 =A0if (dev->rev <=3D OMAP_I2C_REV_ON_3430)
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev->errata |=3D I2C_OMAP3_1P153;
->
-> --
-> 1.7.5.4
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
- in
->
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+
+Ben, will you handle it?
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--oJ71EGRlYNjSvfq7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk89FnAACgkQD27XaX1/VRvzlgCfbDIxooIlb4Yqp91Sjw1b8kuB
+RBQAoJtB6ZN6uQ0HLqcNR5nsj91CBgjZ
+=0xzh
+-----END PGP SIGNATURE-----
+
+--oJ71EGRlYNjSvfq7--
