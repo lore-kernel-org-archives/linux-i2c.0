@@ -1,92 +1,111 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH RESEND] i2c: mxs: only flag completion when queue is completely done
-Date: Thu, 16 Feb 2012 15:47:44 +0100
-Message-ID: <1329403664-17936-1-git-send-email-w.sang@pengutronix.de>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v6] I2C: add CSR SiRFprimaII on-chip I2C controllers driver
+Date: Thu, 16 Feb 2012 22:24:00 +0530
+Message-ID: <CAM=Q2ct7EHht06uCHVpR_HoO39WZjO2+N6DhxuMthRQRQBRnyw@mail.gmail.com>
+References: <1328714915-12287-1-git-send-email-21cnbao@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=windows-1252
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1328714915-12287-1-git-send-email-21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, =?UTF-8?q?Lothar=20Wa=C3=9Fmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The hardware generates an interrupt for every completed command in the
-queue while the code assumed that it will only generate one interrupt
-when the queue is empty. So, explicitly check if the queue is really
-empty. This patch fixed problems which occurred due to high traffic on
-the bus. While we are here, move the completion-initialization after th=
-e
-parameter error checking.
+Hello,
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Lothar Wa=C3=9Fmann <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
----
+On Wed, Feb 8, 2012 at 8:58 PM, Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> From: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+>
+> SiRFprimaII is the latest generation application processor from CSR=92=
+s
+> multi-function SoC product family.
+> The SoC support codes are in arch/arm/mach-prima2 from Linux mainline
+> 3.0.
+> There are two I2C controllers on primaII, features include:
+> * Two I2C controller modules are on chip
+> * RISC I/O bus read write register
+> * Up to 16 bytes data buffer for issuing commands and writing data
+> =A0at the same time
+> * Up to 16 commands, and receiving read data 16 bytes at a time
+> * Error INT report (ACK check)
+> * No-ACK bus protocols (SCCB bus protocols)
+>
+> Signed-off-by: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+> Signed-off-by: Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>
+> Signed-off-by: Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>
+> Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+> ---
+> =A0-v6:
+> =A0fix/cleanup lots of minor issues pointed out by wolfram;
+> =A0add OF property clock-frequency to support freq setting by DT;
+> =A0add lost devicetree binding document;
+>
+> =A0Documentation/devicetree/bindings/i2c/sirf-i2c.txt | =A0 19 +
+> =A0drivers/i2c/busses/Kconfig =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 | =A0 10 +
+> =A0drivers/i2c/busses/Makefile =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0| =A0 =A01 +
+> =A0drivers/i2c/busses/i2c-sirf.c =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0| =A0459 ++++++++++++++++++++
+> =A04 files changed, 489 insertions(+), 0 deletions(-)
+> =A0create mode 100644 Documentation/devicetree/bindings/i2c/sirf-i2c.=
+txt
+> =A0create mode 100644 drivers/i2c/busses/i2c-sirf.c
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/sirf-i2c.txt b/Doc=
+umentation/devicetree/bindings/i2c/sirf-i2c.txt
+> new file mode 100644
+> index 0000000..7baf9e1
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/sirf-i2c.txt
+<snip>
 
-Ben, will you send this to Linus? Should get a stable tag, too, IMO.
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (i2c_stat & SIRFSOC_I2C_STAT_NACK)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&siic->adapter.=
+dev, "ACK not received\n");
+Could we send stop here?
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(&siic->adapter.=
+dev, "I2C error\n");
+> +
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 complete(&siic->done);
+<Snip>
 
- drivers/i2c/busses/i2c-mxs.c |   13 ++++++++++---
- 1 files changed, 10 insertions(+), 3 deletions(-)
+> +static int i2c_sirfsoc_resume(struct device *dev)
+> +{
+> + =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev=
+);
+> + =A0 =A0 =A0 struct i2c_adapter *adapter =3D platform_get_drvdata(pd=
+ev);
+> + =A0 =A0 =A0 struct sirfsoc_i2c *siic =3D adapter->algo_data;
+> +
+> + =A0 =A0 =A0 clk_enable(siic->clk);
+> + =A0 =A0 =A0 writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL=
+);
+Could you explain why is a reset needed.
+Or am I missing something.
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.=
-c
-index 7e78f7c..3d471d5 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -72,6 +72,7 @@
-=20
- #define MXS_I2C_QUEUESTAT	(0x70)
- #define MXS_I2C_QUEUESTAT_RD_QUEUE_EMPTY        0x00002000
-+#define MXS_I2C_QUEUESTAT_WRITE_QUEUE_CNT_MASK	0x0000001F
-=20
- #define MXS_I2C_QUEUECMD	(0x80)
-=20
-@@ -219,14 +220,14 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *a=
-dap, struct i2c_msg *msg,
- 	int ret;
- 	int flags;
-=20
--	init_completion(&i2c->cmd_complete);
--
- 	dev_dbg(i2c->dev, "addr: 0x%04x, len: %d, flags: 0x%x, stop: %d\n",
- 		msg->addr, msg->len, msg->flags, stop);
-=20
- 	if (msg->len =3D=3D 0)
- 		return -EINVAL;
-=20
-+	init_completion(&i2c->cmd_complete);
-+
- 	flags =3D stop ? MXS_I2C_CTRL0_POST_SEND_STOP : 0;
-=20
- 	if (msg->flags & I2C_M_RD)
-@@ -286,6 +287,7 @@ static irqreturn_t mxs_i2c_isr(int this_irq, void *=
-dev_id)
- {
- 	struct mxs_i2c_dev *i2c =3D dev_id;
- 	u32 stat =3D readl(i2c->regs + MXS_I2C_CTRL1) & MXS_I2C_IRQ_MASK;
-+	bool is_last_cmd;
-=20
- 	if (!stat)
- 		return IRQ_NONE;
-@@ -300,9 +302,14 @@ static irqreturn_t mxs_i2c_isr(int this_irq, void =
-*dev_id)
- 	else
- 		i2c->cmd_err =3D 0;
-=20
--	complete(&i2c->cmd_complete);
-+	is_last_cmd =3D (readl(i2c->regs + MXS_I2C_QUEUESTAT) &
-+		MXS_I2C_QUEUESTAT_WRITE_QUEUE_CNT_MASK) =3D=3D 0;
-+
-+	if (is_last_cmd || i2c->cmd_err)
-+		complete(&i2c->cmd_complete);
-=20
- 	writel(stat, i2c->regs + MXS_I2C_CTRL1_CLR);
-+
- 	return IRQ_HANDLED;
- }
-=20
---=20
-1.7.8.3
+> + =A0 =A0 =A0 writel(SIRFSOC_I2C_CORE_EN | SIRFSOC_I2C_MASTER_MODE,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 siic->base + SIRFSOC_I2C_CTRL);
+> + =A0 =A0 =A0 writel(siic->clk_div, siic->base + SIRFSOC_I2C_CLK_CTRL=
+);
+> + =A0 =A0 =A0 writel(siic->sda_delay, siic->base + SIRFSOC_I2C_SDA_DE=
+LAY);
+> + =A0 =A0 =A0 clk_disable(siic->clk);
+> + =A0 =A0 =A0 return 0;
+> +}
+> +
+> +static const struct dev_pm_ops i2c_sirfsoc_pm_ops =3D {
+> + =A0 =A0 =A0 .suspend =3D i2c_sirfsoc_suspend,
+> + =A0 =A0 =A0 .resume =3D i2c_sirfsoc_resume,
+Could we use simple dev_pm ops here?
+
+> +};
+> +#endif
+> +
+> +static const struct of_device_id sirfsoc_i2c_of_match[] __devinitcon=
+st =3D {
+> + =A0 =A0 =A0 { .compatible =3D "sirf,prima2-i2c", },
