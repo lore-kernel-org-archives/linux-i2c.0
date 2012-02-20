@@ -1,103 +1,52 @@
-From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/3 v2] i2c: i801: enable irq
-Date: Mon, 20 Feb 2012 19:23:10 +0800
-Message-ID: <CAGS+omBvULkWsowprvVWkodBxT=diui7g5GtKZ0mb=Uy7DZKtg@mail.gmail.com>
-References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org> <20120106123531.3b5ca7db@endymion.delvare>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
+Date: Mon, 20 Feb 2012 12:50:54 +0000
+Message-ID: <20120220125054.GF22562@n2100.arm.linux.org.uk>
+References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com> <4F3945B1.9070900@samsung.com> <20120220095813.GB11307@game.jcrosoft.org> <20120220100843.GE22562@n2100.arm.linux.org.uk> <20120220102231.GC11307@game.jcrosoft.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120106123531.3b5ca7db-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120220102231.GC11307-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jan 6, 2012 at 7:35 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote=
-:
-> Hi Daniel,
->
-> On Fri, =A06 Jan 2012 18:58:19 +0800, Daniel Kurtz wrote:
->> This is a second version of a set of patches enables the Intel PCH S=
-MBus
->> controller interrupt. =A0It refactors the second two patches a littl=
-e bit by
->> relying on DEV_ERR interrupt for timeouts, instead of using an expli=
-cit
->> wait_event_timeout.
->>
->> The first attempt received absolutely no response. Maybe this time s=
-omeone
->> will be interested.
->
-> I was on vacation. But I am very interested and will review and test
-> your patches. There have been several attempts to add IRQ support to
-> i2c-i801 in the past but each time there was a blocker issue which
-> prevented it from making it into mainline. Hopefully this time we'll
-> get it there!
->
->>
->> The SMBus Host Controller Interrupt can signify:
->> =A0INTR - the end of a complete transaction
->> =A0DEV_ERR - that a device did not ACK a transaction
->> =A0BYTE_DONE - the completion of a single byte during a byte-by-byte=
- transaction
->>
->> This patchset arrives with the following caveats:
->>
->> =A01) =A0It has only been tested with a Cougar Point (Intel 6 Series=
- PCH) SMBus
->> controller, so the irq is only enabled for that chip type.
->
-> I can test on ICH10 easily, and also on ICH7 and ICH3-M if needed.
->
->> =A02) It has not been tested with any devices that do transactions t=
-hat use the
->> =A0 =A0 PEC. =A0In fact, I believe that an additional small patch wo=
-uld be required
->> =A0 =A0 to the driver working correctly in interrupt mode with PEC.
->>
->> =A03) It has not been tested in SMBus Slave mode.
->>
->> =A04) It has not been tested with SMI#-type interrupts.
->>
->> =A05) The BIOS has to configure the PCH SMBus IRQ properly.
->>
->> =A06) It has not been tested with a device that does byte-by-byte sm=
-bus (non-i2c)
->> =A0 =A0 reads.
->
-> I think I can test this.
->
->> =A07) It has not been tested with smbus 'process call' transactions.
->
-> But not this.
->
->> If would be very helpful if somebody could help test on other chipse=
-ts, with
->> a PEC device, or on additional BIOS that woudl be very helpful.
->
-> I will do what I can with the hardware I have here.
+On Mon, Feb 20, 2012 at 11:22:31AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> On 10:08 Mon 20 Feb     , Russell King - ARM Linux wrote:
+> > On Mon, Feb 20, 2012 at 10:58:13AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> > > On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
+> > > > > +	- udelay: delay between GPIO operations (may depend on each platform)
+> > > > > +	- timeout: timeout to get data (ms)
+> > > > 
+> > > > 
+> > > > If these are really needed then I would prefer to have these fully
+> > > > qualified (with unit type "-ms/-millisecs" appended).
+> > > > 
+> > > > Regulator framework, with its "-microvolt/-microamp", serve here as
+> > > > prime example of being quite descriptive (one doesn't neet to look up
+> > > > the docs). Please see:
+> > > > 
+> > > >   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
+> > > timeout are usualy in ms I don't really see the need of -ms or so
+> > 
+> > Which is obviously total crap for udelay, which would be in _micro_seconds.
+> agreed but here on i2c gpio I never see timetout as udelay so I don't see
+> the mandatory to force the name in the binding
+> 
+> futhermore it's maybe linux specific
 
-Jean,
-Ping?
+Stop grabbing at straws.  There's nothing linux specific about the units
+of specification.
 
+What is linux specific is specifying the _delay_ rather than specifying
+the bus frequency.  So as soon as you're trying to justify not adding
+the units because they may be linux specific, you've already lost that
+argument by using a delay rather than a bus frequency.  You can't have
+it both ways.
 
->
->> In the meantime, the interrupt behavior is only enabled on the Couga=
-r Point,
->> and even here, it can be completely disabled with the "Interrupt" fe=
-ature like
->> other advanced features of the driver.
->>
->> Daniel Kurtz (3):
->> =A0 i2c: i801: refactor i801_block_transaction_byte_by_byte
->> =A0 i2c: i801: enable irq for i801 smbus transactions
->> =A0 i2c: i801: enable irq for byte_by_byte transactions
->>
->> =A0drivers/i2c/busses/i2c-i801.c | =A0199 ++++++++++++++++++++++++++=
-++++++++++-----
->> =A01 files changed, 175 insertions(+), 24 deletions(-)
->
-> --
-> Jean Delvare
+Moreover, mixing microseconds and milliseconds in the properties for a
+device is absolutely insane.
+
+So, which ever way, your patch as it currently stands is wrong and broken.
