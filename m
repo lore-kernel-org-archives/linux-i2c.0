@@ -1,83 +1,83 @@
-From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
-Subject: [PATCH v2] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce wait time
-Date: Mon, 20 Feb 2012 09:14:16 +0100
-Message-ID: <1329725656-32715-1-git-send-email-alexander.stein@systec-electronic.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Toshiharu Okada <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
+Date: Mon, 20 Feb 2012 10:58:13 +0100
+Message-ID: <20120220095813.GB11307@game.jcrosoft.org>
+References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
+ <4F3945B1.9070900@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <4F3945B1.9070900@samsung.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Karol Lewandowski <k.lewandowsk@samsung.com>, Grant Likely <grant.likely@secretlab.ca>
+Cc: devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-If you insert several i2c transfers, the driver might start the next one
-while the STOP bit of the previous transfer is still on the bus, marking
-the bus as busy.
-pch_i2c_wait_for_bus_idle does an msleep(20) delaying the next transfer
-by >=20ms. Reduce wait time by actively waiting 5 us once, then using
-usleep_range.
+On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
+> On 09.02.2012 03:25, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> 
+> Hi!
+> 
+> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+> > Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+> > ---
+> > v2:
+> > 
+> > 	use devm
+> > 	update DT bindings to i2c-gpio and sda-open-drain...
+> > 	update against "of: introduce helper to manage boolean"
+> > 
+> > Best Regards,
+> > J.
+> >  .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
+> >  drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
+> >  2 files changed, 107 insertions(+), 20 deletions(-)
+> >  create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> > 
+> > diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> > new file mode 100644
+> > index 0000000..9710ed2
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> > @@ -0,0 +1,32 @@
+> > +Device-Tree bindings for i2c gpio driver
+> > +
+> > +Required properties:
+> > +	- compatible = "i2c-gpio";
+> > +	- gpios: sda and scl gpio
+> > +
+> > +
+> > +Optional properties:
+> > +	- i2c-gpio,sda-open-drain: sda as open drain
+> > +	- i2c-gpio,scl-open-drain: scl as open drain
+> > +	- i2c-gpio,scl-output-only: scl as output only
+> 
+> 
+> > +	- udelay: delay between GPIO operations (may depend on each platform)
+> > +	- timeout: timeout to get data (ms)
+> 
+> 
+> If these are really needed then I would prefer to have these fully
+> qualified (with unit type "-ms/-millisecs" appended).
+> 
+> Regulator framework, with its "-microvolt/-microamp", serve here as
+> prime example of being quite descriptive (one doesn't neet to look up
+> the docs). Please see:
+> 
+>   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
+timeout are usualy in ms I don't really see the need of -ms or so
 
-Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
----
-Changes in v2:
-* Remove redundant code
-
- drivers/i2c/busses/i2c-eg20t.c |   42 ++++++++++++++++++++++-----------------
- 1 files changed, 24 insertions(+), 18 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index ca88776..1eb60ca 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -271,30 +271,36 @@ static inline bool ktime_lt(const ktime_t cmp1, const ktime_t cmp2)
- /**
-  * pch_i2c_wait_for_bus_idle() - check the status of bus.
-  * @adap:	Pointer to struct i2c_algo_pch_data.
-- * @timeout:	waiting time counter (us).
-+ * @timeout:	waiting time counter (ms).
-  */
- static s32 pch_i2c_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
- 				     s32 timeout)
- {
- 	void __iomem *p = adap->pch_base_address;
--	ktime_t ns_val;
-+	int schedule = 0;
-+	unsigned long end = jiffies + msecs_to_jiffies(timeout);
-+
-+	while (ioread32(p + PCH_I2CSR) & I2CMBB_BIT) {
-+		if (time_after(jiffies, end)) {
-+			pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
-+			pch_err(adap, "%s: Timeout Error.return%d\n",
-+					__func__, -ETIME);
-+			pch_i2c_init(adap);
- 
--	if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
--		return 0;
-+			return -ETIME;
-+		}
- 
--	/* MAX timeout value is timeout*1000*1000nsec */
--	ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
--	do {
--		msleep(20);
--		if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
--			return 0;
--	} while (ktime_lt(ktime_get(), ns_val));
-+		if (!schedule)
-+			/* Retry after some usecs */
-+			udelay(5);
-+		else
-+			/* Wait a bit more without consuming CPU */
-+			usleep_range(20, 1000);
- 
--	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
--	pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
--	pch_i2c_init(adap);
-+		schedule = 1;
-+	}
- 
--	return -ETIME;
-+	return 0;
- }
- 
- /**
--- 
-1.7.3.4
+Best Regards,
+J.
