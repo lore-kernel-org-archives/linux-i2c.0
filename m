@@ -1,52 +1,36 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
-Date: Mon, 20 Feb 2012 12:50:54 +0000
-Message-ID: <20120220125054.GF22562@n2100.arm.linux.org.uk>
-References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com> <4F3945B1.9070900@samsung.com> <20120220095813.GB11307@game.jcrosoft.org> <20120220100843.GE22562@n2100.arm.linux.org.uk> <20120220102231.GC11307@game.jcrosoft.org>
+From: Stephane Grosjean <s.grosjean-g4cQ8AsIbFbL9ATBNaCtXw@public.gmane.org>
+Subject: Questions about i2c_transfer() usage in timer context...
+Date: Mon, 20 Feb 2012 14:01:52 +0100
+Message-ID: <4F424440.300@peak-system.com>
+Reply-To: Stephane Grosjean <s.grosjean-g4cQ8AsIbFbL9ATBNaCtXw@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120220102231.GC11307-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 20, 2012 at 11:22:31AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> On 10:08 Mon 20 Feb     , Russell King - ARM Linux wrote:
-> > On Mon, Feb 20, 2012 at 10:58:13AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
-> > > > > +	- udelay: delay between GPIO operations (may depend on each platform)
-> > > > > +	- timeout: timeout to get data (ms)
-> > > > 
-> > > > 
-> > > > If these are really needed then I would prefer to have these fully
-> > > > qualified (with unit type "-ms/-millisecs" appended).
-> > > > 
-> > > > Regulator framework, with its "-microvolt/-microamp", serve here as
-> > > > prime example of being quite descriptive (one doesn't neet to look up
-> > > > the docs). Please see:
-> > > > 
-> > > >   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
-> > > timeout are usualy in ms I don't really see the need of -ms or so
-> > 
-> > Which is obviously total crap for udelay, which would be in _micro_seconds.
-> agreed but here on i2c gpio I never see timetout as udelay so I don't see
-> the mandatory to force the name in the binding
-> 
-> futhermore it's maybe linux specific
+Hi,
 
-Stop grabbing at straws.  There's nothing linux specific about the units
-of specification.
+I'm facing a deadlock regarding a timer callback which is only calling=20
+i2c_transfer(), and I wonder if this comes from that call: I first=20
+googled and found that i2c_transfer() may sleep (which is forbidden in=20
+my timer callback) but when I have a look the beginning of the function=
+,=20
+it starts to check if it is in any atomic context, before trying to=20
+acquire  a lock...
 
-What is linux specific is specifying the _delay_ rather than specifying
-the bus frequency.  So as soon as you're trying to justify not adding
-the units because they may be linux specific, you've already lost that
-argument by using a delay rather than a bus frequency.  You can't have
-it both ways.
+So I'm afraid I'm lost and I hope someone will be able to understand to=
+=20
+that question: might i2c_transfer() be used in a timer callback or=20
+should I handle my periodic call to i2c_tranfer() by means of a delayed=
+=20
+work?
 
-Moreover, mixing microseconds and milliseconds in the properties for a
-device is absolutely insane.
+Thanks for your reply,
 
-So, which ever way, your patch as it currently stands is wrong and broken.
+Regards,
+
+St=E9phane
