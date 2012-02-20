@@ -1,55 +1,44 @@
-From: Stephane Grosjean <s.grosjean-g4cQ8AsIbFbL9ATBNaCtXw@public.gmane.org>
-Subject: Re: Questions about i2c_transfer() usage in timer context...
-Date: Mon, 20 Feb 2012 14:19:49 +0100
-Message-ID: <4F424875.5030600@peak-system.com>
-References: <4F424440.300@peak-system.com>
- <20120220141112.1e633beb@endymion.delvare>
-Reply-To: Stephane Grosjean <s.grosjean-g4cQ8AsIbFbL9ATBNaCtXw@public.gmane.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
+Date: Mon, 20 Feb 2012 14:35:57 +0100
+Message-ID: <20120220143557.02787bad@endymion.delvare>
+References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
+	<4F3945B1.9070900@samsung.com>
+	<20120220095813.GB11307@game.jcrosoft.org>
+	<20120220100843.GE22562@n2100.arm.linux.org.uk>
+	<20120220102231.GC11307@game.jcrosoft.org>
+	<20120220125054.GF22562@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120220141112.1e633beb-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20120220125054.GF22562-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Merci Jean,
+On Mon, 20 Feb 2012 12:50:54 +0000, Russell King - ARM Linux wrote:
+> What is linux specific is specifying the _delay_ rather than specifying
+> the bus frequency.  So as soon as you're trying to justify not adding
+> the units because they may be linux specific, you've already lost that
+> argument by using a delay rather than a bus frequency.  You can't have
+> it both ways.
 
-Thx for the quick answer. I think this will help.
+While I am not much into DT and did not follow this thread too
+carefully... I seem to understand that the dispute is mainly on
+frequency vs. udelay specification for the bus speed, Jean-Christophe
+arguing that hardware-specific delays are added when changing e.g. a
+GPIO pin output value and thus the frequency can't be guaranteed. Do I
+get this right?
 
-St=C3=A9phane
+If so I would suggest that you specify neither the frequency nor
+udelay, but the _maximum_ frequency. Where maximum frequency = 10^6 /
+(2 * udelay) Hz. Would this make everybody happy?
 
-Le 20/02/2012 14:11, Jean Delvare a =C3=A9crit :
-> Bonjour St=C3=A9phane,
->
-> On Mon, 20 Feb 2012 14:01:52 +0100, Stephane Grosjean wrote:
->> I'm facing a deadlock regarding a timer callback which is only calli=
-ng
->> i2c_transfer(), and I wonder if this comes from that call: I first
->> googled and found that i2c_transfer() may sleep (which is forbidden =
-in
->> my timer callback) but when I have a look the beginning of the funct=
-ion,
->> it starts to check if it is in any atomic context, before trying to
->> acquire  a lock...
->>
->> So I'm afraid I'm lost and I hope someone will be able to understand=
- to
->> that question: might i2c_transfer() be used in a timer callback or
->> should I handle my periodic call to i2c_tranfer() by means of a dela=
-yed
->> work?
-> Depends on the underlying I2C adapter driver. One of the sleep causes
-> is indeed the acquisition of the mutex in i2c_transfer(). However the
-> function then calls a driver specific callback function
-> (adap->algo->master_xfer) which may or may not sleep too depending on
-> the implementation. So if you want your code to be portable, you have=
- to
-> assume that it may sleep, which means you indeed have to use a delaye=
-d
-> work.
->
-> HTH,
+Note that I2C allows clock stretching by the slaves so even without the
+extra delay incurred by hardware state switching, the bus operating
+frequency is already a maximum rather than a guaranteed valued.
+
+-- 
+Jean Delvare
