@@ -1,45 +1,72 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
 Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
-Date: Mon, 20 Feb 2012 13:51:06 +0000
-Message-ID: <20120220135106.GA26840@n2100.arm.linux.org.uk>
-References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com> <4F3945B1.9070900@samsung.com> <20120220095813.GB11307@game.jcrosoft.org> <20120220100843.GE22562@n2100.arm.linux.org.uk> <20120220102231.GC11307@game.jcrosoft.org> <20120220125054.GF22562@n2100.arm.linux.org.uk> <20120220143557.02787bad@endymion.delvare>
+Date: Mon, 20 Feb 2012 14:46:34 +0100
+Message-ID: <20120220134634.GE11307@game.jcrosoft.org>
+References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
+ <4F3945B1.9070900@samsung.com>
+ <20120220095813.GB11307@game.jcrosoft.org>
+ <20120220100843.GE22562@n2100.arm.linux.org.uk>
+ <20120220102231.GC11307@game.jcrosoft.org>
+ <20120220125054.GF22562@n2100.arm.linux.org.uk>
+ <20120220133725.GD11307@game.jcrosoft.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120220143557.02787bad-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20120220133725.GD11307-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 20, 2012 at 02:35:57PM +0100, Jean Delvare wrote:
-> On Mon, 20 Feb 2012 12:50:54 +0000, Russell King - ARM Linux wrote:
+On 14:37 Mon 20 Feb     , Jean-Christophe PLAGNIOL-VILLARD wrote:
+> On 12:50 Mon 20 Feb     , Russell King - ARM Linux wrote:
+> > On Mon, Feb 20, 2012 at 11:22:31AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> > > On 10:08 Mon 20 Feb     , Russell King - ARM Linux wrote:
+> > > > On Mon, Feb 20, 2012 at 10:58:13AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> > > > > On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
+> > > > > > > +	- udelay: delay between GPIO operations (may depend on each platform)
+> > > > > > > +	- timeout: timeout to get data (ms)
+> > > > > > 
+> > > > > > 
+> > > > > > If these are really needed then I would prefer to have these fully
+> > > > > > qualified (with unit type "-ms/-millisecs" appended).
+> > > > > > 
+> > > > > > Regulator framework, with its "-microvolt/-microamp", serve here as
+> > > > > > prime example of being quite descriptive (one doesn't neet to look up
+> > > > > > the docs). Please see:
+> > > > > > 
+> > > > > >   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
+> > > > > timeout are usualy in ms I don't really see the need of -ms or so
+> > > > 
+> > > > Which is obviously total crap for udelay, which would be in _micro_seconds.
+> > > agreed but here on i2c gpio I never see timetout as udelay so I don't see
+> > > the mandatory to force the name in the binding
+> > > 
+> > > futhermore it's maybe linux specific
+> > 
+> > Stop grabbing at straws.  There's nothing linux specific about the units
+> > of specification.
+> > 
 > > What is linux specific is specifying the _delay_ rather than specifying
 > > the bus frequency.  So as soon as you're trying to justify not adding
 > > the units because they may be linux specific, you've already lost that
 > > argument by using a delay rather than a bus frequency.  You can't have
 > > it both ways.
-> 
-> While I am not much into DT and did not follow this thread too
-> carefully... I seem to understand that the dispute is mainly on
-> frequency vs. udelay specification for the bus speed, Jean-Christophe
-> arguing that hardware-specific delays are added when changing e.g. a
-> GPIO pin output value and thus the frequency can't be guaranteed. Do I
-> get this right?
+> > 
+> > Moreover, mixing microseconds and milliseconds in the properties for a
+> > device is absolutely insane.
+> > 
+> > So, which ever way, your patch as it currently stands is wrong and broken.
+>  no what I said is the binding timeout is maybe linux specific for i2c gpio
 
-This sub-thread is more about the units of the properties rather
-than the properties themselves.
+I do not argue about that here we do not even disucss about the bus frequency
+but the specific bining to the i2c algo bit for it's internal timeout
 
-What's being proposed is to have two properties, one named 'udelay'
-which takes microseconds, and one named 'timeout' which takes
-milliseconds.
+the timeout is used to do not end in an infinite loop while ready the scl on
+slow device
 
-I'm saying that's a completely absurd proposal, as the proposal is
-for two opaque numeric properties with different units.  At least
-make the units the same, or as Karol said, incorporate the units
-into the property names.
+that's why I said it's maybe linux specific
 
-At least we can then create new properties in the future of we need
-to change the units, rather than thinking up a different name for
-'timeout'.
+Best Regards,
+J.
