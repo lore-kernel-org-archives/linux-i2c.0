@@ -1,83 +1,32 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
 Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
-Date: Mon, 20 Feb 2012 10:58:13 +0100
-Message-ID: <20120220095813.GB11307@game.jcrosoft.org>
-References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
- <4F3945B1.9070900@samsung.com>
+Date: Mon, 20 Feb 2012 10:08:43 +0000
+Message-ID: <20120220100843.GE22562@n2100.arm.linux.org.uk>
+References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com> <4F3945B1.9070900@samsung.com> <20120220095813.GB11307@game.jcrosoft.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4F3945B1.9070900@samsung.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Karol Lewandowski <k.lewandowsk@samsung.com>, Grant Likely <grant.likely@secretlab.ca>
-Cc: devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20120220095813.GB11307-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
-> On 09.02.2012 03:25, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> 
-> Hi!
-> 
-> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-> > Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> > ---
-> > v2:
+On Mon, Feb 20, 2012 at 10:58:13AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
+> > > +	- udelay: delay between GPIO operations (may depend on each platform)
+> > > +	- timeout: timeout to get data (ms)
 > > 
-> > 	use devm
-> > 	update DT bindings to i2c-gpio and sda-open-drain...
-> > 	update against "of: introduce helper to manage boolean"
 > > 
-> > Best Regards,
-> > J.
-> >  .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
-> >  drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
-> >  2 files changed, 107 insertions(+), 20 deletions(-)
-> >  create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+> > If these are really needed then I would prefer to have these fully
+> > qualified (with unit type "-ms/-millisecs" appended).
 > > 
-> > diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> > new file mode 100644
-> > index 0000000..9710ed2
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> > @@ -0,0 +1,32 @@
-> > +Device-Tree bindings for i2c gpio driver
-> > +
-> > +Required properties:
-> > +	- compatible = "i2c-gpio";
-> > +	- gpios: sda and scl gpio
-> > +
-> > +
-> > +Optional properties:
-> > +	- i2c-gpio,sda-open-drain: sda as open drain
-> > +	- i2c-gpio,scl-open-drain: scl as open drain
-> > +	- i2c-gpio,scl-output-only: scl as output only
-> 
-> 
-> > +	- udelay: delay between GPIO operations (may depend on each platform)
-> > +	- timeout: timeout to get data (ms)
-> 
-> 
-> If these are really needed then I would prefer to have these fully
-> qualified (with unit type "-ms/-millisecs" appended).
-> 
-> Regulator framework, with its "-microvolt/-microamp", serve here as
-> prime example of being quite descriptive (one doesn't neet to look up
-> the docs). Please see:
-> 
->   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
-timeout are usualy in ms I don't really see the need of -ms or so
+> > Regulator framework, with its "-microvolt/-microamp", serve here as
+> > prime example of being quite descriptive (one doesn't neet to look up
+> > the docs). Please see:
+> > 
+> >   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
+> timeout are usualy in ms I don't really see the need of -ms or so
 
-Best Regards,
-J.
+Which is obviously total crap for udelay, which would be in _micro_seconds.
