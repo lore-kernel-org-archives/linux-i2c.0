@@ -1,40 +1,83 @@
-From: "Western Union Outlet" <westernunion-TZzldHklojc@public.gmane.org>
-Subject: Transfer Notice!!
-Date: Sun, 19 Feb 2012 23:30:09 +0100
-Message-ID: <20120219223055.DCF175C96E3E@mail.kpoly.edu.gh>
-Reply-To: westernunionpaycenter-Gg6/2tba2O5ofqt5WZNmog@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: [PATCH v2] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce wait time
+Date: Mon, 20 Feb 2012 09:14:16 +0100
+Message-ID: <1329725656-32715-1-git-send-email-alexander.stein@systec-electronic.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Description: Mail message body
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Recipients <westernunion-TZzldHklojc@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Tomoya MORINAGA <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Toshiharu Okada <toshiharu-linux-ECg8zkTtlr0C6LszWs/t0g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Beneficiary.
+If you insert several i2c transfers, the driver might start the next one
+while the STOP bit of the previous transfer is still on the bus, marking
+the bus as busy.
+pch_i2c_wait_for_bus_idle does an msleep(20) delaying the next transfer
+by >=20ms. Reduce wait time by actively waiting 5 us once, then using
+usleep_range.
 
-We write to inform you that we have transferred USD$400,000.00 dollars, I could have called you via phone to give you the MTCN information but we lost your contact phone number. So, I decided to email you the information so that you can start cashing your money in USD5000.00 daily installment with the same MTCN and sender's name which will be valid for 20 days until you cash the full $400,000.00usd as it automatically activates for use for 20 days after the first reactivation.
+Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+---
+Changes in v2:
+* Remove redundant code
 
-The money is available for pick up which was deposited for transfer to you by MR Bernard Harry from United Nation Trust Funds.  The money is available for pick up by receiver (you) but when you track it, it will display PICKED UP due to the fact that it has been deactivated from our head office for security reason because it has stayed too long in the air as we have been trying to reach you on the phone for some days now but it was not reachable,so it was blocked.
+ drivers/i2c/busses/i2c-eg20t.c |   42 ++++++++++++++++++++++-----------------
+ 1 files changed, 24 insertions(+), 18 deletions(-)
 
-Therefore you can not cash it out in any western union office due to its restriction from our head office,which was a security measure because the money has been in the air for three days now and maybe in danger, hence the mtcn has to be reactivated to enable you cash out the money in any western union office in your area, the reactivation of the MTCN will cost you a token of $155, once this is paid, our head office will release the fund on hold to enable you cash it.To be sure of this please log on to www.westernunion.com and click on track to and enter the sender's info and mtcn below.
-
-Sender's Fist name: Abraham
-Sender's Last Name: Elizabeth
-MTCN: 5801913322
-Question: Who Is Great
-Answer: God
-Amount: $5000.00USD
-Total Amount To be Cashed: $400,000.00Usd
-
-Please also send to us the following details..
-1,Re-Comfirm Your Contact Phone Number.................
-
-With due respect please get back to me urgently after tracking the money on-line so i can instruct you on how to send the $155 to us for the reactivation of the MTCN.
-
-
-Best Regards
-Mr.Smith Mcferrin.
-Outlet Manager,
-Western Union Money Transfer.
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index ca88776..1eb60ca 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -271,30 +271,36 @@ static inline bool ktime_lt(const ktime_t cmp1, const ktime_t cmp2)
+ /**
+  * pch_i2c_wait_for_bus_idle() - check the status of bus.
+  * @adap:	Pointer to struct i2c_algo_pch_data.
+- * @timeout:	waiting time counter (us).
++ * @timeout:	waiting time counter (ms).
+  */
+ static s32 pch_i2c_wait_for_bus_idle(struct i2c_algo_pch_data *adap,
+ 				     s32 timeout)
+ {
+ 	void __iomem *p = adap->pch_base_address;
+-	ktime_t ns_val;
++	int schedule = 0;
++	unsigned long end = jiffies + msecs_to_jiffies(timeout);
++
++	while (ioread32(p + PCH_I2CSR) & I2CMBB_BIT) {
++		if (time_after(jiffies, end)) {
++			pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
++			pch_err(adap, "%s: Timeout Error.return%d\n",
++					__func__, -ETIME);
++			pch_i2c_init(adap);
+ 
+-	if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+-		return 0;
++			return -ETIME;
++		}
+ 
+-	/* MAX timeout value is timeout*1000*1000nsec */
+-	ns_val = ktime_add_ns(ktime_get(), timeout*1000*1000);
+-	do {
+-		msleep(20);
+-		if ((ioread32(p + PCH_I2CSR) & I2CMBB_BIT) == 0)
+-			return 0;
+-	} while (ktime_lt(ktime_get(), ns_val));
++		if (!schedule)
++			/* Retry after some usecs */
++			udelay(5);
++		else
++			/* Wait a bit more without consuming CPU */
++			usleep_range(20, 1000);
+ 
+-	pch_dbg(adap, "I2CSR = %x\n", ioread32(p + PCH_I2CSR));
+-	pch_err(adap, "%s: Timeout Error.return%d\n", __func__, -ETIME);
+-	pch_i2c_init(adap);
++		schedule = 1;
++	}
+ 
+-	return -ETIME;
++	return 0;
+ }
+ 
+ /**
+-- 
+1.7.3.4
