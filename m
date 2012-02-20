@@ -1,133 +1,83 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
-Date: Mon, 20 Feb 2012 15:27:48 +0000
-Message-ID: <20120220152748.GF26840@n2100.arm.linux.org.uk>
-References: <20120220095813.GB11307@game.jcrosoft.org>
- <20120220100843.GE22562@n2100.arm.linux.org.uk>
- <20120220102231.GC11307@game.jcrosoft.org>
- <20120220125054.GF22562@n2100.arm.linux.org.uk>
- <20120220133725.GD11307@game.jcrosoft.org>
- <20120220134634.GE11307@game.jcrosoft.org>
- <20120220135807.GB26840@n2100.arm.linux.org.uk>
- <20120220144635.GF11307@game.jcrosoft.org>
- <20120220150040.GC26840@n2100.arm.linux.org.uk>
- <20120220150810.GH11307@game.jcrosoft.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-dev: relax ban on I2C_M_RECV_LEN
+Date: Mon, 20 Feb 2012 16:29:39 +0100
+Message-ID: <20120220162939.5ce96d52@endymion.delvare>
+References: <4F2DA645.3080604@interlog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120220150810.GH11307-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4F2DA645.3080604-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 20, 2012 at 04:08:10PM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> On 15:00 Mon 20 Feb     , Russell King - ARM Linux wrote:
-> > On Mon, Feb 20, 2012 at 03:46:35PM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > On 13:58 Mon 20 Feb     , Russell King - ARM Linux wrote:
-> > > > On Mon, Feb 20, 2012 at 02:46:34PM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > > > On 14:37 Mon 20 Feb     , Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > > > > On 12:50 Mon 20 Feb     , Russell King - ARM Linux wrote:
-> > > > > > > On Mon, Feb 20, 2012 at 11:22:31AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > > > > > > On 10:08 Mon 20 Feb     , Russell King - ARM Linux wrote:
-> > > > > > > > > On Mon, Feb 20, 2012 at 10:58:13AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > > > > > > > > On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
-> > > > > > > > > > > > +	- udelay: delay between GPIO operations (may depend on each platform)
-> > > > > > > > > > > > +	- timeout: timeout to get data (ms)
-> > > > > > > > > > > 
-> > > > > > > > > > > 
-> > > > > > > > > > > If these are really needed then I would prefer to have these fully
-> > > > > > > > > > > qualified (with unit type "-ms/-millisecs" appended).
-> > > > > > > > > > > 
-> > > > > > > > > > > Regulator framework, with its "-microvolt/-microamp", serve here as
-> > > > > > > > > > > prime example of being quite descriptive (one doesn't neet to look up
-> > > > > > > > > > > the docs). Please see:
-> > > > > > > > > > > 
-> > > > > > > > > > >   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
-> > > > > > > > > > timeout are usualy in ms I don't really see the need of -ms or so
-> > > > > > > > > 
-> > > > > > > > > Which is obviously total crap for udelay, which would be in _micro_seconds.
-> > > > > > > > agreed but here on i2c gpio I never see timetout as udelay so I don't see
-> > > > > > > > the mandatory to force the name in the binding
-> > > > > > > > 
-> > > > > > > > futhermore it's maybe linux specific
-> > > > > > > 
-> > > > > > > Stop grabbing at straws.  There's nothing linux specific about the units
-> > > > > > > of specification.
-> > > > > > > 
-> > > > > > > What is linux specific is specifying the _delay_ rather than specifying
-> > > > > > > the bus frequency.  So as soon as you're trying to justify not adding
-> > > > > > > the units because they may be linux specific, you've already lost that
-> > > > > > > argument by using a delay rather than a bus frequency.  You can't have
-> > > > > > > it both ways.
-> > > > > > > 
-> > > > > > > Moreover, mixing microseconds and milliseconds in the properties for a
-> > > > > > > device is absolutely insane.
-> > > > > > > 
-> > > > > > > So, which ever way, your patch as it currently stands is wrong and broken.
-> > > > > >  no what I said is the binding timeout is maybe linux specific for i2c gpio
-> > > > > 
-> > > > > I do not argue about that here we do not even disucss about the bus frequency
-> > > > > but the specific bining to the i2c algo bit for it's internal timeout
-> > > > > 
-> > > > > the timeout is used to do not end in an infinite loop while ready the scl on
-> > > > > slow device
-> > > > 
-> > > > The patch is still wrong and broken.
-> > > > 
-> > > > As you're not listening to me at all, I've lost patience, so I'm just going
-> > > > to say this:
-> > > > 
-> > > > Explicit NAK on this patch.
-> > > > 
-> > > > When you feel like you can _constructively_ _consider_ the point that both
-> > > > Karol and myself have raised with respect to the _U_N_I_T_S_ then feel free
-> > > > to continue this discussion.  If not, don't waste your time writing another
-> > > > email.  I hope that's plain.
-> > >
-> > > I do not discuss about the U_N_I_T_S at all in this reply
-> > > so the NACK is no revelent
-> > 
-> > LET ME PUT IT IN BIG LETTERS FOR YOU.  I AM DISCUSSING THE UNITS ISSUE IN
-> > MY EMAILS.  YOU KEEP BRINGING UP THE LINUX SPECIFIC CRAP ABOUT UDELAY OR
-> > TIMEOUT.
-> > 
-> > I AM TALKING ABOUT UNITS.  MICROSECONDS.  MILLISECONDS.
-> > 
-> > I HAVE BEEN TALKING ABOUT UNITS ON THIS THREAD ALL DAY SO FAR.
-> > 
-> > GET IT THROUGH YOUR BIG HEAD THAT I AM DISCUSSING ABOUT THE UNITS.  I AM
-> > NOT DISCUSSING, AND HAVE NOT BEEN DISCUSSING ABOUT WHETHER BUS FREQUENCY
-> > OR DELAYS ARE APPROPRIATE IN THIS CASE.
-> > 
-> > ALL THAT I AM DISCUSSING IS ABOUT THE UNITS.  *T*H*E* *S*O*D*D*I*N*G*
-> > *U*N*I*T*S*.
-> > 
-> > HAVE YOU GOT THE FUCKING MESSAGE YET?
-> > 
-> > SO, THE NACK STANDS UNTIL YOU START REPLYING TO THE POINT I AM RAISING.
+Hi Doug,
+
+Sorry for the late reply, I wanted to make sure I remembered all the
+I2C_M_RECV_LEN logic before replying.
+
+On Sat, 04 Feb 2012 16:42:29 -0500, Douglas Gilbert wrote:
+> The I2C_M_RECV_LEN flag indicates that the length of
+> an I2C response is in the first byte read. So the maximum
+> size of the read buffer using this option is 256 bytes.
 > 
-> I just said we have 2 properties
-> 
-> - timeout which is expressed in jiffies (today in C) which is at my sense a linux specific
->   propertie as it's representing a timeout of the i2c bit algo
->   and here I don't see the mandatory to name it timeout-ms or timeout-milisecond
+> Currently the i2c-dev driver returns EINVAL when an
+> attempt is made to use ioctl(I2C_RDWR) with the
+> I2C_M_RECV_LEN flag set. That is overly paranoid:
 
-THIS IS IN MILLISECONDS.
+No, this is playing it safe, in the absence of use case and complete
+review of all involved code paths.
 
-> - udelay which is the delay between GPIO operations
+> ChangeLog:
+>    - allow I2C_M_RECV_LEN flag in the i2c-dev driver as
+>      long as the associated buffer length can cope with
+>      the worst case size (which is 256 bytes).
 
-THIS IS IN MICROSECONDS.
+This means that you expect user-space to provide a 256 byte message
+buffer when passing the I2C_M_RECV_LEN flag. Underlying bus drivers
+OTOH expect len to be set to 1 when I2C_M_RECV_LEN is used (and they
+add the received block length to that to come up with the actual used
+length.) I don't think this is documented formally anywhere, but reading
+the code of function i2c_smbus_xfer_emulated() in i2c-core will show you
+the calling conventions and expectations. Function readbytes() in
+i2c-algo-bit is also worth reading. So your patch is not correct.
 
-TWO DIFFERENT UNITS FOR TWO DIFFERENT PROPERTIES FOR THE SAME DEVICE.
-CONFUSING.  NACK STANDS.
+To be honest, I think I recall being the one designing things that way
+but I can't remember why I did so. Some git and mailing list digging
+might be needed. Might be related to the support of SMBus PEC but I'm
+not sure.
+
+Unfortunately there is only i2c_msg.len available to pass length
+information, so it isn't possible to dissociate the buffer size from
+the used size. It happens to be the same in most cases so it has never
+been a problem in practice. Only for the I2C_M_RECV_LEN case it would
+be useful to distinguish between both, and presumably SMBus PEC too.
+
+It has never been a problem so far because only the SMBus layer is
+using I2C_M_RECV_LEN and PEC, and there we know that the block size
+cannot exceed I2C_SMBUS_BLOCK_MAX == 32. Every bus driver can (and
+should) enforce that, and buffers are always large enough to contain 32
+bytes, by design.
+
+Passing I2C_M_RECV_LEN at the I2C (not SMBus) level wouldn't work
+safely, not even in the kernel. The only non-SMBus implementation is in
+i2c-algo-bit as far as I know, and it enforces the I2C_SMBUS_BLOCK_MAX
+limit. So it should be pretty clear that flag I2C_M_RECV_LEN was
+introduced for and designed with SMBus in mind. Using it for I2C
+messaging just doesn't work, thus the ban in i2c-dev.
+
+This makes me wonder how you did test your patch, as I can't see how it
+would work with the upstream driver code. But more importantly, can you
+please explain what you are trying to achieve in the first place?
+Receiving block length as the first data byte is an SMBus thing,
+traditionally non-SMBus devices don't do that. And for SMBus devices
+through i2c-dev, you'd be using ioctl I2C_SMBUS not I2C_RDWR.
+
+If you have a legitimate use case for I2C_M_RECV_LEN, then we can
+discuss it, but it will take a lot more than your 2-line patch to get
+it right.
+
+-- 
+Jean Delvare
