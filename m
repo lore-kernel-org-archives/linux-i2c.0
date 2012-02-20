@@ -1,89 +1,48 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH 1/4 v2] i2c/gpio: add DT support
-Date: Mon, 20 Feb 2012 13:58:07 +0000
-Message-ID: <20120220135807.GB26840@n2100.arm.linux.org.uk>
-References: <1328754308-7365-1-git-send-email-plagnioj@jcrosoft.com>
- <4F3945B1.9070900@samsung.com> <20120220095813.GB11307@game.jcrosoft.org>
- <20120220100843.GE22562@n2100.arm.linux.org.uk>
- <20120220102231.GC11307@game.jcrosoft.org>
- <20120220125054.GF22562@n2100.arm.linux.org.uk>
- <20120220133725.GD11307@game.jcrosoft.org>
- <20120220134634.GE11307@game.jcrosoft.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Questions about i2c_transfer() usage in timer context...
+Date: Mon, 20 Feb 2012 15:13:01 +0100
+Message-ID: <20120220151301.6ca4db1f@endymion.delvare>
+References: <4F424440.300@peak-system.com>
+	<20120220141112.1e633beb@endymion.delvare>
+	<CADkCAusvXZC5Ju2oNbBgi6aZO2E9upoDPbtFqTbrbBhd8eCu8A@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120220134634.GE11307-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CADkCAusvXZC5Ju2oNbBgi6aZO2E9upoDPbtFqTbrbBhd8eCu8A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bill Gatliff <bgat-uPd5UNENI//N9NzbbXoYwQ@public.gmane.org>
+Cc: Stephane Grosjean <s.grosjean-g4cQ8AsIbFbL9ATBNaCtXw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 20, 2012 at 02:46:34PM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> On 14:37 Mon 20 Feb     , Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > On 12:50 Mon 20 Feb     , Russell King - ARM Linux wrote:
-> > > On Mon, Feb 20, 2012 at 11:22:31AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > > On 10:08 Mon 20 Feb     , Russell King - ARM Linux wrote:
-> > > > > On Mon, Feb 20, 2012 at 10:58:13AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > > > > > On 18:17 Mon 13 Feb     , Karol Lewandowski wrote:
-> > > > > > > > +	- udelay: delay between GPIO operations (may depend on each platform)
-> > > > > > > > +	- timeout: timeout to get data (ms)
-> > > > > > > 
-> > > > > > > 
-> > > > > > > If these are really needed then I would prefer to have these fully
-> > > > > > > qualified (with unit type "-ms/-millisecs" appended).
-> > > > > > > 
-> > > > > > > Regulator framework, with its "-microvolt/-microamp", serve here as
-> > > > > > > prime example of being quite descriptive (one doesn't neet to look up
-> > > > > > > the docs). Please see:
-> > > > > > > 
-> > > > > > >   http://permalink.gmane.org/gmane.linux.ports.arm.omap/67637
-> > > > > > timeout are usualy in ms I don't really see the need of -ms or so
-> > > > > 
-> > > > > Which is obviously total crap for udelay, which would be in _micro_seconds.
-> > > > agreed but here on i2c gpio I never see timetout as udelay so I don't see
-> > > > the mandatory to force the name in the binding
-> > > > 
-> > > > futhermore it's maybe linux specific
-> > > 
-> > > Stop grabbing at straws.  There's nothing linux specific about the units
-> > > of specification.
-> > > 
-> > > What is linux specific is specifying the _delay_ rather than specifying
-> > > the bus frequency.  So as soon as you're trying to justify not adding
-> > > the units because they may be linux specific, you've already lost that
-> > > argument by using a delay rather than a bus frequency.  You can't have
-> > > it both ways.
-> > > 
-> > > Moreover, mixing microseconds and milliseconds in the properties for a
-> > > device is absolutely insane.
-> > > 
-> > > So, which ever way, your patch as it currently stands is wrong and broken.
-> >  no what I said is the binding timeout is maybe linux specific for i2c gpio
+Hi Bill,
+
+On Mon, 20 Feb 2012 07:46:07 -0600, Bill Gatliff wrote:
+> On Feb 20, 2012 7:11 AM, "Jean Delvare" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > On Mon, 20 Feb 2012 14:01:52 +0100, Stephane Grosjean wrote:
+> > > I'm facing a deadlock regarding a timer callback...
+> >
+> > Depends on the underlying I2C adapter driver. One of the sleep causes
+> > is indeed the acquisition of the mutex in i2c_transfer(). However the
+> > function then calls a driver specific callback function
+> > (adap->algo->master_xfer) which may or may not sleep too depending on
+> > the implementation.
 > 
-> I do not argue about that here we do not even disucss about the bus frequency
-> but the specific bining to the i2c algo bit for it's internal timeout
+> Indeed. A fair number of the i2c transfer functions I have encountered call
+> schedule_work() or equivalent, and/or wait_for_completion().
+
+Or even plain msleep().
+
+> The low-level transfer function implementations are entirely
+> platform-dependent, and often lean heavily on the assumption that they
+> aren't called in atomic contexts. So in addition to driving architecture
+> decisions in your code which calls them, they can also have implications
+> for real-time performance.
 > 
-> the timeout is used to do not end in an infinite loop while ready the scl on
-> slow device
+> None of the above is a complaint, mind you. Just observations. :)
 
-The patch is still wrong and broken.
+I certainly hope you wouldn't dare to complain without also submitting
+a proposal and a patch set addressing any issue you have ;)
 
-As you're not listening to me at all, I've lost patience, so I'm just going
-to say this:
-
-Explicit NAK on this patch.
-
-When you feel like you can _constructively_ _consider_ the point that both
-Karol and myself have raised with respect to the _U_N_I_T_S_ then feel free
-to continue this discussion.  If not, don't waste your time writing another
-email.  I hope that's plain.
+-- 
+Jean Delvare
