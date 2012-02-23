@@ -1,138 +1,43 @@
-From: <b29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH][V2] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-Date: Thu, 23 Feb 2012 17:42:45 +0800
-Message-ID: <1329990165-31289-1-git-send-email-b29983@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Tang Yuantian <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Tang Yuantian <Yuantian.Tang-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: "Oskar Schirmer" <oskar@scara.com>
+Subject: [PATCH] i2c/imx: fix imx driver to work though signal is pending
+Date: 23 Feb 2012 12:19:11 +0000
+Message-ID: <1329999551-32171-1-git-send-email-oskar@scara.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Ben Dooks <ben-linux@fluff.org>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Sascha Hauer <s.hauer@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Darius Augulis <augulis.darius@gmail.com>, Oskar Schirmer <oskar@scara.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Tang Yuantian <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Interrupt a test application for I2C based mc13xxx driven
+touch panel, SIGINT, causes open event file descriptor to be
+closed, which in turn causes I2C activity to mask PMIC local
+interrupts. This eventually ends up in i2c_imx_bus_busy to
+wait for some busy flag to toggle, but while waiting it would
+find a signal pending and break. The final symptom is the
+device is not closed down cleanly and thus not reopenable.
 
-Add support for SMBUS_READ_BLOCK_DATA to the i2c-mpc bus driver.
+Do without check for pending signal.
 
-Signed-off-by: Tang Yuantian <Yuantian.Tang-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Signed-off-by: Oskar Schirmer <oskar@scara.com>
 ---
-Add Cc and resend this patch
-tested on p1022ds
-v2 vs v1:
-	-remove signature
+ drivers/i2c/busses/i2c-imx.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
- drivers/i2c/busses/i2c-mpc.c |   63 ++++++++++++++++++++++++++++++++---------
- 1 files changed, 49 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 107397a..bba9a07 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -454,7 +454,7 @@ static int mpc_write(struct mpc_i2c *i2c, int target,
- }
- 
- static int mpc_read(struct mpc_i2c *i2c, int target,
--		    u8 *data, int length, int restart)
-+		    u8 *data, int length, int restart, bool recv_len)
- {
- 	unsigned timeout = i2c->adap.timeout;
- 	int i, result;
-@@ -470,7 +470,7 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
- 		return result;
- 
- 	if (length) {
--		if (length == 1)
-+		if (length == 1 && !recv_len)
- 			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
- 		else
- 			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA);
-@@ -479,17 +479,46 @@ static int mpc_read(struct mpc_i2c *i2c, int target,
- 	}
- 
- 	for (i = 0; i < length; i++) {
-+		u8 byte;
-+
- 		result = i2c_wait(i2c, timeout, 0);
- 		if (result < 0)
- 			return result;
- 
--		/* Generate txack on next to last byte */
--		if (i == length - 2)
--			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_TXAK);
--		/* Do not generate stop on last byte */
--		if (i == length - 1)
--			writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA | CCR_MTX);
--		data[i] = readb(i2c->base + MPC_I2C_DR);
-+		/*
-+		 * For block reads, we have to know the total length (1st byte)
-+		 * before we can determine if we are done.
-+		 */
-+		if (i || !recv_len) {
-+			/* Generate txack on next to last byte */
-+			if (i == length - 2)
-+				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
-+					 | CCR_TXAK);
-+			/* Do not generate stop on last byte */
-+			if (i == length - 1)
-+				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
-+					 | CCR_MTX);
-+		}
-+
-+		byte = readb(i2c->base + MPC_I2C_DR);
-+
-+		/*
-+		 * Adjust length if first received byte is length.
-+		 * The length is 1 length byte plus actually data length
-+		 */
-+		if (i == 0 && recv_len) {
-+			if (byte == 0 || byte > I2C_SMBUS_BLOCK_MAX)
-+				return -EPROTO;
-+			length += byte;
-+			/*
-+			 * For block reads, generate txack here if data length
-+			 * is 1 byte (total length is 2 bytes).
-+			 */
-+			if (length == 2)
-+				writeccr(i2c, CCR_MIEN | CCR_MEN | CCR_MSTA
-+					 | CCR_TXAK);
-+		}
-+		data[i] = byte;
- 	}
- 
- 	return length;
-@@ -532,12 +561,17 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 			"Doing %s %d bytes to 0x%02x - %d of %d messages\n",
- 			pmsg->flags & I2C_M_RD ? "read" : "write",
- 			pmsg->len, pmsg->addr, i + 1, num);
--		if (pmsg->flags & I2C_M_RD)
--			ret =
--			    mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
--		else
-+		if (pmsg->flags & I2C_M_RD) {
-+			bool recv_len = pmsg->flags & I2C_M_RECV_LEN;
-+
-+			ret = mpc_read(i2c, pmsg->addr, pmsg->buf, pmsg->len, i,
-+				       recv_len);
-+			if (recv_len && ret > 0)
-+				pmsg->len = ret;
-+		} else {
- 			ret =
- 			    mpc_write(i2c, pmsg->addr, pmsg->buf, pmsg->len, i);
-+		}
- 	}
- 	mpc_i2c_stop(i2c);
- 	return (ret < 0) ? ret : num;
-@@ -545,7 +579,8 @@ static int mpc_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 
- static u32 mpc_functionality(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL
-+	  | I2C_FUNC_SMBUS_READ_BLOCK_DATA | I2C_FUNC_SMBUS_BLOCK_PROC_CALL;
- }
- 
- static const struct i2c_algorithm mpc_algo = {
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 58832e5..124d9c5 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -149,11 +149,6 @@ static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy)
+ 			break;
+ 		if (!for_busy && !(temp & I2SR_IBB))
+ 			break;
+-		if (signal_pending(current)) {
+-			dev_dbg(&i2c_imx->adapter.dev,
+-				"<%s> I2C Interrupted\n", __func__);
+-			return -EINTR;
+-		}
+ 		if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+ 			dev_dbg(&i2c_imx->adapter.dev,
+ 				"<%s> I2C bus is busy\n", __func__);
 -- 
-1.6.4
+1.7.5.4
