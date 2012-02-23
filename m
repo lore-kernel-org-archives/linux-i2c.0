@@ -1,65 +1,45 @@
-From: Huang Changming-R66093 <r66093-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH] i2c/busses: (mpc) Add support for SMBUS_READ_BLOCK_DATA
-Date: Thu, 23 Feb 2012 06:57:54 +0000
-Message-ID: <110EED8CC96DFC488B7E717A2027A27C02C64E@039-SN1MPN1-002.039d.mgd.msft.net>
-References: <ECEE0D23-8F53-402C-A97F-4DB0F0E9C79B@freescale.com>
-	<1321464509.7847.41.camel@oslab-l1>
-	<1321464968.2309.384.camel@groeck-laptop>
-	<1321466135.7847.55.camel@oslab-l1>
-	<20111116190954.67c846fc@endymion.delvare>
-	<1321467638.7847.73.camel@oslab-l1>
-	<20111116201048.4b7877dd@endymion.delvare>
-	<1321470915.7847.122.camel@oslab-l1>
-	<20111116201847.6b11dc7f@endymion.delvare>
-	<3C06C26914DACA4BB3A368F78CA0B3A7134583@039-SN1MPN1-004.039d.mgd.msft.net>
-	<20111207032000.GA17575@ericsson.com>
-	<3C06C26914DACA4BB3A368F78CA0B3A71345F2@039-SN1MPN1-004.039d.mgd.msft.net>
- <20111207082924.2f88bd5d@endymion.delvare>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH][V2] i2c/busses: (mpc) Add support for
+ SMBUS_READ_BLOCK_DATA
+Date: Thu, 23 Feb 2012 10:15:42 +0100
+Message-ID: <20120223091542.GA5404@pengutronix.de>
+References: <110EED8CC96DFC488B7E717A2027A27C02C633@039-SN1MPN1-002.039d.mgd.msft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20111207082924.2f88bd5d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <110EED8CC96DFC488B7E717A2027A27C02C633-TcFNo7jSaXPiTqIcKZ1S2K4g8xLGJsHaLnY5E4hWTkheoWH0uzbU5w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, sun york-R58495 <R58495-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Durai Kumar-R34055 <r34055-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Huang Changming-R66093 <r66093-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org" <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Tang Yuantian-B29983 <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, sun york-R58495 <R58495-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-We have sent the v2 since 12/12/2011, could you have any comment about it?
-http://marc.info/?l=linux-i2c&m=132368362506671&w=2
 
+--x+6KMIRAuhnl3hBn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks
-Jerry Huang
+>    There is not any feedback since 12/12/2011, and this patch has been
+>    blocked.
 
+Please resend the patch.
 
-> -----Original Message-----
-> From: Jean Delvare [mailto:khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org]
-> Sent: Wednesday, December 07, 2011 3:29 PM
-> To: Tang Yuantian-B29983
-> Cc: Guenter Roeck; Tabi Timur-B04825; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
-> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; sun york-R58495; Durai Kumar-R34055; Huang
-> Changming-R66093
-> Subject: Re: [PATCH] i2c/busses: (mpc) Add support for
-> SMBUS_READ_BLOCK_DATA
-> 
-> Hi Yuantian,
-> 
-> Please don't top-post.
-> 
-> On Wed, 7 Dec 2011 05:25:49 +0000, Tang Yuantian-B29983 wrote:
-> > Hi Guenter,
-> >
-> > I thought you were bore of discussion.
-> > Do you mind if I post similar patch?
-> 
-> I have no objection, as long as you give proper credit to the original
-> author.
-> 
-> Note that ultimately you'll have to get Ben Dooks to apply the patch. I
-> helped with the review but the i2c-mpc driver doesn't actually fall in my
-> jurisdiction.
-> 
-> --
-> Jean Delvare
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--x+6KMIRAuhnl3hBn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk9GA74ACgkQD27XaX1/VRsfLwCePaP0UvauVAAOMkgDK/65LdlS
+AucAnjfJwork+3C/SA1jobQvxVdbxvgI
+=R56O
+-----END PGP SIGNATURE-----
+
+--x+6KMIRAuhnl3hBn--
