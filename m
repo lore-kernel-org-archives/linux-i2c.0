@@ -1,59 +1,52 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCH 00/10] I2C updates
-Date: Fri, 24 Feb 2012 15:01:45 +0530
-Message-ID: <4F475901.10005@ti.com>
-References: <1328882405-15284-1-git-send-email-shubhrajyoti@ti.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH RESEND] i2c: Add Device Tree support to versatile-i2c
+ driver
+Date: Fri, 24 Feb 2012 11:58:04 +0100
+Message-ID: <20120224105804.GA2479@pengutronix.de>
+References: <1330021041-29782-1-git-send-email-pawel.moll@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1328882405-15284-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, khali@linux-fr.org, Kevin Hilman <khilman@ti.com>, Ben Dooks <ben-linux@fluff.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1330021041-29782-1-git-send-email-pawel.moll-5wv7dgnIgG8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 10 February 2012 07:29 PM, Shubhrajyoti D wrote:
-> This patch series colates the various i2c updates into
-> a series.  Since it is collection of various patches
-> the version info is not retained, however most of them undergone
-> multiple versions.
-If there are no further comments can this be queued.
 
-> This is rebased to linus head commit 63082402968f4b73f10b28a8ac1f3da821aeb82d
->
-> The patch series does the following 
->
-> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
-> - I2C register restore only if context if the context is lost
-> - Bus busy recovery mechanism.
-> - the reset is not done in init.
->
-> Tested on omap4sdp and omap3sdp. 
->
->
-> Cc: Kevin Hilman <khilman@ti.com>
-> Cc: Ben Dooks <ben-linux@fluff.org>
->
-> Jon Hunter (1):
->   I2C: OMAP: Correct I2C revision for OMAP3
->
-> Shubhrajyoti D (8):
->   I2C : OMAP : make omap_i2c_unidle/idle functions depend on
->     CONFIG_PM_RUNTIME
->   OMAP : I2C : Remove reset at init
->   OMAP: I2C: I2C register restore only if context is lost
->   OMAP: I2C: Fix the interrupt clearing in OMAP4
->   OMAP: I2C: Fix the mismatch of pm_runtime enable and disable
->   OMAP: I2C: Optimise the remove code
->   OMAP: I2C: Fix the error handling
->   I2C: OMAP: Don't check if wait_for_completion_timeout() returns less
->     than zero
->
-> Vikram Pandita (1):
->   I2C: OMAP: Recover from Bus Busy condition
->
->  drivers/i2c/busses/i2c-omap.c |  173 ++++++++++++++++++++++++-----------------
->  1 files changed, 101 insertions(+), 72 deletions(-)
->
+--PNTmBPCT7hxwcZjr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+
+> +static struct of_device_id i2c_versatile_match[] =3D {
+> +	{ .compatible =3D "arm,versatile-i2c", },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, i2c_versatile_match);
+
+const here, but I fixed it up already.
+
+Thanks.
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--PNTmBPCT7hxwcZjr
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk9HbTwACgkQD27XaX1/VRuEDQCgh06Us1+HMS473dJSimc4NsUX
+kxEAoIEWCRyvW7KrsMxvrOoMVqysWX1Q
+=VsOn
+-----END PGP SIGNATURE-----
+
+--PNTmBPCT7hxwcZjr--
