@@ -1,89 +1,382 @@
 From: Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
-Date: Fri, 24 Feb 2012 18:56:07 +0000 (UTC)
-Message-ID: <loom.20120215T165236-509@post.gmane.org>
-References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com> <20111127225514.GO19115@trinity.fluff.org> <CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com> <20111203162757.GA24302@ericsson.com> <CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com> <20111203180819.2ddbcb3a@endymion.delvare> <CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com> <20111206093906.21dccf8d@endymion.delvare>
+Date: Sat, 25 Feb 2012 06:04:59 +1100
+Message-ID: <CAM5MpD5R4xde4Li1NCDoErisXs7oRMAgW7swuCwga80MkU3VMw@mail.gmail.com>
+References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
+	<20111127225514.GO19115@trinity.fluff.org>
+	<CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
+	<20111203162757.GA24302@ericsson.com>
+	<CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
+	<20111203180819.2ddbcb3a@endymion.delvare>
+	<CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
+	<20111206093906.21dccf8d@endymion.delvare>
+	<loom.20120215T165236-509@post.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <loom.20120215T165236-509-eS7Uydv5nfjZ+VzJOa5vwg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean Delvare <khali@...> writes:
-> You don't need a multiplexer device at all. Please just have i2c-piix4
-> driver register 4 i2c_adapter devices for the SB800. This would be a
-> 3-step process:
-> 
-> 1* Turn piix4_adapter to an array, so that it can hold up to 4
->    i2c_adapter structures.
-> 2* Add a mutex to prevent concurrent access to the register set. It
->    should be initialized in piix4_setup_sb800(), taken at the very
->    beginning of piix4_access() and released at the very end of this
->    function.
-> 3* Add support for ports 1, 2 and 3 of the SB800.
-> 
-> This would ideally be 3 incremental patches to make testing and review
-> easy. I can help with parts 1 and 2 if you want, as this can be tested
-> without a SB800. But it should be fairly easy overall.
-> 
-I have reworked the original patch to (hopefully) fit the structure you suggest.
-However I have encountered issues with it that I'm not sure how to solve. The
-behaviour is the same under both the original and the modified version of the
-patch. When running sensors-detect, SDA0 (i2c-0) and SDA2 (i2c-1) (SDA1 is
-reserved for ASF devices and accessed through a seperate controller) scan fine
-with the following (edited) output:
-Next adapter: SMBus piix4 adapter (SDA0) (i2c-0)
-Do you want to scan it? (YES/no/selectively): y
-Client found at address 0x18
-Probing for `Microchip MCP98243'...                         Success!
-    (confidence 5, driver `jc42')
-Client found at address 0x19
-Probing for `Microchip MCP98243'...                         Success!
-    (confidence 5, driver `jc42')
-Client found at address 0x50
-Probing for `SPD EEPROM'...                                 Yes
-    (confidence 8, not a hardware monitoring chip)
-Client found at address 0x51
-Probing for `SPD EEPROM'...                                 Yes
-    (confidence 8, not a hardware monitoring chip)
-Next adapter: SMBus piix4 adapter (SDA2) (i2c-1)
-Do you want to scan it? (YES/no/selectively): y
-Client found at address 0x2f
-Probing for `Nuvoton W83795G/ADG'...                        Success!
-    (confidence 8, driver `w83795')
+Here is the modified patch. As this is my first attempt at submitting
+a patch while it obviously isn't ready for inclusion given the errors
+any feedback on general style would be welcome.
 
-However while scanning SDA3 (i2c-2) sensors-detect finds a client at address
-0x4c but no probes are successful and you get kernel output like:
-i2c i2c-2: Transaction (pre): CNT=04, CMD=00, ADD=99, DAT0=ff, DAT1=01
-i2c i2c-2: Transaction (post): CNT=04, CMD=00, ADD=99, DAT0=00, DAT1=01
-i2c i2c-2: Transaction (pre): CNT=04, CMD=00, ADD=99, DAT0=00, DAT1=01
-i2c i2c-2: Transaction (post): CNT=04, CMD=00, ADD=99, DAT0=00, DAT1=01
-[SNIP]
-i2c i2c-2: Transaction (pre): CNT=08, CMD=ac, ADD=99, DAT0=00, DAT1=01
-i2c i2c-2: Transaction (post): CNT=08, CMD=ac, ADD=99, DAT0=00, DAT1=01
-i2c i2c-2: Transaction (pre): CNT=0c, CMD=aa, ADD=99, DAT0=00, DAT1=01
-i2c i2c-2: Transaction (pre): CNT=0c, CMD=aa, ADD=99, DAT0=00, DAT1=01
-i2c i2c-2: SMBus Timeout!
-i2c i2c-2: Bus collision! SMBus may be locked until next hard reset. (sorry!)
-i2c i2c-2: Failed reset at end of transaction (01)
-i2c i2c-2: Transaction (post): CNT=0c, CMD=aa, ADD=99, DAT0=00, DAT1=80
+Tom.
 
-Then all subsequent access attempts before a hard reset result in output like:
-i2c i2c-2: Transaction (pre): CNT=08, CMD=03, ADD=99, DAT0=00, DAT1=80
-i2c i2c-2: SMBus busy (01). Resetting...
-i2c i2c-2: Failed! (01)
+--- linux-3.2.1-gentoo-r2/drivers/i2c/busses/i2c-piix4.c	2012-01-05
+10:55:44.000000000 +1100
++++ dev/drivers/i2c/busses/i2c-piix4.c	2012-02-25 04:53:04.743198258 +1100
+@@ -25,7 +25,10 @@
+ 	AMD Hudson-2
+ 	SMSC Victory66
 
-Additionally, shutdown/restart commands now fail, as does using the power button
-on the machine (it turns off but on powering back up the screen doesn't return).
-The power cord must be removed before the server will restart. This is as
-reported by the original submitter and another tester when the thread was posted
-on the lm_sensors list
-(http://lists.lm-sensors.org/pipermail/lm-sensors/2011-November/034259.html).
-After restarting sensors now work as reported by others.
+-   Note: we assume there can only be one device, with one SMBus interface.
++   Note: we assume there can only be one device.
++   The device can register multiple i2c_adapters (up to PIIX4_MAX_ADAPTERS).
++   For devices supporting multiple ports the i2c_adapter should provide
++   an i2c_algorithm to access them.
+ */
 
-I'm not quite sure how best to proceed. Any tips on debugging/fixing this are
-welcome.
+ #include <linux/module.h>
+@@ -40,6 +43,7 @@
+ #include <linux/dmi.h>
+ #include <linux/acpi.h>
+ #include <linux/io.h>
++#include <linux/mutex.h>
 
-Thomas Brandon
+
+ /* PIIX4 SMBus address offsets */
+@@ -78,6 +82,9 @@
+ #define PIIX4_WORD_DATA		0x0C
+ #define PIIX4_BLOCK_DATA	0x14
+
++/* Multi-port constants */
++#define PIIX4_MAX_ADAPTERS 4
++
+ /* insmod parameters */
+
+ /* If force is set to anything different from 0, we forcibly enable the
+@@ -97,7 +104,15 @@ MODULE_PARM_DESC(force_addr,
+ static unsigned short piix4_smba;
+ static int srvrworks_csb5_delay;
+ static struct pci_driver piix4_driver;
+-static struct i2c_adapter piix4_adapter;
++static struct i2c_adapter *piix4_adapters[PIIX4_MAX_ADAPTERS];
++
++/* SB800 globals */
++DEFINE_MUTEX(piix4_mutex_sb800);
++static u8 piix4_adapter_ports_sb800[4];
++static u8 piix4_sel_port_sb800 = -1;
++static const char *piix4_port_names_sb800[4] = {
++	"SDA0", "SDA2", "SDA3", "SDA4"
++};
+
+ static struct dmi_system_id __devinitdata piix4_dmi_blacklist[] = {
+ 	{
+@@ -284,6 +299,8 @@ static int __devinit piix4_setup_sb800(s
+ 	else
+ 		dev_dbg(&PIIX4_dev->dev, "Using SMI# for SMBus.\n");
+
++	mutex_init(&piix4_mutex_sb800);
++
+ 	dev_info(&PIIX4_dev->dev,
+ 		 "SMBus Host Controller at 0x%x, revision %d\n",
+ 		 piix4_smba, i2ccfg >> 4);
+@@ -291,27 +308,27 @@ static int __devinit piix4_setup_sb800(s
+ 	return 0;
+ }
+
+-static int piix4_transaction(void)
++static int piix4_transaction(struct i2c_adapter *adap)
+ {
+ 	int temp;
+ 	int result = 0;
+ 	int timeout = 0;
+
+-	dev_dbg(&piix4_adapter.dev, "Transaction (pre): CNT=%02x, CMD=%02x, "
++	dev_dbg(&adap->dev, "Transaction (pre): CNT=%02x, CMD=%02x, "
+ 		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
+ 		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
+ 		inb_p(SMBHSTDAT1));
+
+ 	/* Make sure the SMBus host is ready to start transmitting */
+ 	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
+-		dev_dbg(&piix4_adapter.dev, "SMBus busy (%02x). "
++		dev_dbg(&adap->dev, "SMBus busy (%02x). "
+ 			"Resetting...\n", temp);
+ 		outb_p(temp, SMBHSTSTS);
+ 		if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
+-			dev_err(&piix4_adapter.dev, "Failed! (%02x)\n", temp);
++			dev_err(&adap->dev, "Failed! (%02x)\n", temp);
+ 			return -EBUSY;
+ 		} else {
+-			dev_dbg(&piix4_adapter.dev, "Successful!\n");
++			dev_dbg(&adap->dev, "Successful!\n");
+ 		}
+ 	}
+
+@@ -330,35 +347,35 @@ static int piix4_transaction(void)
+
+ 	/* If the SMBus is still busy, we give up */
+ 	if (timeout == MAX_TIMEOUT) {
+-		dev_err(&piix4_adapter.dev, "SMBus Timeout!\n");
++		dev_err(&adap->dev, "SMBus Timeout!\n");
+ 		result = -ETIMEDOUT;
+ 	}
+
+ 	if (temp & 0x10) {
+ 		result = -EIO;
+-		dev_err(&piix4_adapter.dev, "Error: Failed bus transaction\n");
++		dev_err(&adap->dev, "Error: Failed bus transaction\n");
+ 	}
+
+ 	if (temp & 0x08) {
+ 		result = -EIO;
+-		dev_dbg(&piix4_adapter.dev, "Bus collision! SMBus may be "
++		dev_dbg(&adap->dev, "Bus collision! SMBus may be "
+ 			"locked until next hard reset. (sorry!)\n");
+ 		/* Clock stops and slave is stuck in mid-transmission */
+ 	}
+
+ 	if (temp & 0x04) {
+ 		result = -ENXIO;
+-		dev_dbg(&piix4_adapter.dev, "Error: no response!\n");
++		dev_dbg(&adap->dev, "Error: no response!\n");
+ 	}
+
+ 	if (inb_p(SMBHSTSTS) != 0x00)
+ 		outb_p(inb(SMBHSTSTS), SMBHSTSTS);
+
+ 	if ((temp = inb_p(SMBHSTSTS)) != 0x00) {
+-		dev_err(&piix4_adapter.dev, "Failed reset at end of "
++		dev_err(&adap->dev, "Failed reset at end of "
+ 			"transaction (%02x)\n", temp);
+ 	}
+-	dev_dbg(&piix4_adapter.dev, "Transaction (post): CNT=%02x, CMD=%02x, "
++	dev_dbg(&adap->dev, "Transaction (post): CNT=%02x, CMD=%02x, "
+ 		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb_p(SMBHSTCNT),
+ 		inb_p(SMBHSTCMD), inb_p(SMBHSTADD), inb_p(SMBHSTDAT0),
+ 		inb_p(SMBHSTDAT1));
+@@ -426,7 +443,7 @@ static s32 piix4_access(struct i2c_adapt
+
+ 	outb_p((size & 0x1C) + (ENABLE_INT9 & 1), SMBHSTCNT);
+
+-	status = piix4_transaction();
++	status = piix4_transaction(adap);
+ 	if (status)
+ 		return status;
+
+@@ -454,6 +471,47 @@ static s32 piix4_access(struct i2c_adapt
+ 	return 0;
+ }
+
++/* Handles access to multiple SMBus ports on the SB800.
++ * The port is selected by bits 2:1 of the smb_en register (0x2C).
++ * Return negative errno on error.
++ */
++static s32 piix4_access_sb800(struct i2c_adapter * adap, u16 addr,
++		 unsigned short flags, char read_write,
++		 u8 command, int size, union i2c_smbus_data * data)
++{
++	unsigned short smba_idx = 0xcd6;
++	u8 smba_en_lo, smb_en = 0x2c;
++	u8 port;
++	int retval;
++
++	mutex_lock(&piix4_mutex_sb800);
++
++	port = *((u8*)adap->algo_data);
++	if(port != piix4_sel_port_sb800) {
++		if (!request_region(smba_idx, 2, "smba_idx")) {
++			dev_err(&adap->dev, "SMBus base address index region "
++				"0x%x already in use!\n", smba_idx);
++			retval = -EBUSY;
++			goto ERROR;
++		}
++		outb_p(smb_en, smba_idx);
++		smba_en_lo = inb_p(smba_idx + 1);
++		smba_en_lo = (smba_en_lo & ~6) | (port << 1);
++		outb_p(smba_en_lo, smba_idx + 1);
++		release_region(smba_idx, 2);
++		piix4_sel_port_sb800 = port;
++		dev_dbg(&adap->dev, "SB800 SMBus port set to %s\n",
+piix4_port_names_sb800[port]);
++		msleep(50);
++	}
++
++	retval = piix4_access(adap, addr, flags, read_write, command, size, data);
++
++	ERROR:
++	mutex_unlock(&piix4_mutex_sb800);
++
++	return retval;
++}
++
+ static u32 piix4_func(struct i2c_adapter *adapter)
+ {
+ 	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+@@ -461,17 +519,95 @@ static u32 piix4_func(struct i2c_adapter
+ 	    I2C_FUNC_SMBUS_BLOCK_DATA;
+ }
+
+-static const struct i2c_algorithm smbus_algorithm = {
++static const struct i2c_algorithm piix4_smbus_algorithm = {
+ 	.smbus_xfer	= piix4_access,
+ 	.functionality	= piix4_func,
+ };
+
+-static struct i2c_adapter piix4_adapter = {
+-	.owner		= THIS_MODULE,
+-	.class		= I2C_CLASS_HWMON | I2C_CLASS_SPD,
+-	.algo		= &smbus_algorithm,
++static const struct i2c_algorithm piix4_smbus_algorithm_sb800 = {
++	.smbus_xfer	= piix4_access_sb800,
++	.functionality	= piix4_func,
+ };
+
++static int __devinit piix4_setup_adapters(struct pci_dev *dev)
++{
++	int retval;
++
++	if (!(piix4_adapters[0] = kzalloc(sizeof(**piix4_adapters), GFP_KERNEL)))
++		return -ENOMEM;
++
++	piix4_adapters[0]->owner = THIS_MODULE;
++	piix4_adapters[0]->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++	piix4_adapters[0]->algo  = &piix4_smbus_algorithm;
++
++	/* set up the sysfs linkage to our parent device */
++	piix4_adapters[0]->dev.parent = &dev->dev;
++
++	snprintf(piix4_adapters[0]->name, sizeof(piix4_adapters[0]->name),
++		"SMBus PIIX4 adapter at %04x", piix4_smba);
++
++	if ((retval = i2c_add_adapter(piix4_adapters[0]))) {
++		dev_err(&dev->dev, "Couldn't register adapter!\n");
++		kfree(piix4_adapters[0]);
++		piix4_adapters[0] = NULL;
++	}
++
++	return retval;
++}
++
++static int __devinit piix4_setup_adapters_sb800(struct pci_dev *dev)
++{
++	int i, retval;
++
++	dev_dbg(&dev->dev, "piix4_setup_adapters_sb800");
++
++	/* Register 4 adapters */
++	for (i = 0; i < 4; i++) {
++		if (!(piix4_adapters[i] = kzalloc(sizeof(**piix4_adapters), GFP_KERNEL))) {
++			dev_err(&dev->dev, "Out of memory!\n");
++			retval = -ENOMEM;
++			goto ERROR;
++
++		}
++		piix4_adapters[i]->owner = THIS_MODULE;
++		piix4_adapters[i]->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++		piix4_adapters[i]->algo  = &piix4_smbus_algorithm_sb800;
++
++		piix4_adapter_ports_sb800[i] = i;
++		piix4_adapters[i]->algo_data = &(piix4_adapter_ports_sb800[i]);
++
++		/* set up the sysfs linkage to our parent device */
++		piix4_adapters[i]->dev.parent = &dev->dev;
++
++		dev_dbg(&dev->dev, "sizeof(piix4_adapters[%d]->name) = %ld\n", i,
+sizeof(piix4_adapters[i]->name));
++
++		snprintf(piix4_adapters[i]->name, sizeof(piix4_adapters[i]->name),
++			"SB800 SMBus adapter %s at %04x",
++			piix4_port_names_sb800[i], piix4_smba);
++		dev_dbg(&dev->dev, "piix4_adapters[%d]->name = \"%s\" (%ld)\n", i,
+piix4_adapters[i]->name, strlen(piix4_adapters[i]->name));
++
++		if ((retval = i2c_add_adapter(piix4_adapters[i]))) {
++			dev_err(&dev->dev, "Couldn't register SB800 adapter %s (%d)!\n",
++					piix4_port_names_sb800[i], retval);
++			kfree(piix4_adapters[i]);
++			piix4_adapters[i] = NULL;
++			goto ERROR;
++		}
++	}
++
++	return retval;
++
++	ERROR:
++	dev_err(&dev->dev,
++			"Error setting up SB800 adapters. Unregistering all adapters!\n");
++	for (i--; i >= 0; i--) {
++		i2c_del_adapter(piix4_adapters[i]);
++		kfree(piix4_adapters[i]);
++		piix4_adapters[i] = NULL;
++	}
++	return retval;
++}
++
+ static const struct pci_device_id piix4_ids[] = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3) },
+@@ -501,26 +637,25 @@ static int __devinit piix4_probe(struct
+ {
+ 	int retval;
+
++	dev_dbg(&dev->dev, "piix4_probe: vendor: %d; device: %d; Rev: %d",
++			dev->vendor, dev->device, dev->revision);
++
+ 	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
+ 	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+ 	     dev->revision >= 0x40) ||
+-	    dev->vendor == PCI_VENDOR_ID_AMD)
+-		/* base address location etc changed in SB800 */
+-		retval = piix4_setup_sb800(dev, id);
+-	else
+-		retval = piix4_setup(dev, id);
+-
+-	if (retval)
+-		return retval;
+-
+-	/* set up the sysfs linkage to our parent device */
+-	piix4_adapter.dev.parent = &dev->dev;
+-
+-	snprintf(piix4_adapter.name, sizeof(piix4_adapter.name),
+-		"SMBus PIIX4 adapter at %04x", piix4_smba);
++	    dev->vendor == PCI_VENDOR_ID_AMD) {
++		dev_dbg(&dev->dev, "piix4_probe: SB800 detected");
++		/* SB800 uses a different base address and has 4 SMBus ports */
++		if ((retval = piix4_setup_sb800(dev, id)))
++			return retval;
++		retval = piix4_setup_adapters_sb800(dev);
++	} else {
++		if ((retval = piix4_setup(dev, id)))
++			return retval;
++		retval = piix4_setup_adapters(dev);
++	}
+
+-	if ((retval = i2c_add_adapter(&piix4_adapter))) {
+-		dev_err(&dev->dev, "Couldn't register adapter!\n");
++	if (retval) {
+ 		release_region(piix4_smba, SMBIOSIZE);
+ 		piix4_smba = 0;
+ 	}
+@@ -530,8 +665,16 @@ static int __devinit piix4_probe(struct
+
+ static void __devexit piix4_remove(struct pci_dev *dev)
+ {
++	int i;
++
++	for (i = 0; i < PIIX4_MAX_ADAPTERS; i++) {
++		if (piix4_adapters[i]) {
++			i2c_del_adapter(piix4_adapters[i]);
++			kfree(piix4_adapters[i]);
++			piix4_adapters[i] = NULL;
++		}
++	}
+ 	if (piix4_smba) {
+-		i2c_del_adapter(&piix4_adapter);
+ 		release_region(piix4_smba, SMBIOSIZE);
+ 		piix4_smba = 0;
+ 	}
