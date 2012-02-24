@@ -1,75 +1,57 @@
-From: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Subject: [PATCH] misc: at24: describe platform_data with kernel_doc
-Date: Fri, 24 Feb 2012 07:41:06 +0100
-Message-ID: <1330065666-12758-1-git-send-email-wolfram@the-dreams.de>
+From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 00/10] I2C updates
+Date: Fri, 24 Feb 2012 15:00:52 +0530
+Message-ID: <4F4758CC.4010607@ti.com>
+References: <1328882405-15284-1-git-send-email-shubhrajyoti@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1328882405-15284-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-There have been questions about its fields lately, so describe them properly.
-
-Reported-by: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Signed-off-by: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- include/linux/i2c/at24.h |   35 +++++++++++++++++++++++++++++------
- 1 files changed, 29 insertions(+), 6 deletions(-)
-
-diff --git a/include/linux/i2c/at24.h b/include/linux/i2c/at24.h
-index 8ace930..5767ac7 100644
---- a/include/linux/i2c/at24.h
-+++ b/include/linux/i2c/at24.h
-@@ -1,19 +1,42 @@
-+/*
-+ * at24.h - platform_data for the at24 (generic eeprom) driver
-+ * (C) Copyright 2008 by Pengutronix
-+ * (C) Copyright 2012 by Wolfram Sang
-+ * same license as the driver
-+ */
-+
- #ifndef _LINUX_AT24_H
- #define _LINUX_AT24_H
- 
- #include <linux/types.h>
- #include <linux/memory.h>
- 
--/*
-- * As seen through Linux I2C, differences between the most common types of I2C
-- * memory include:
-- * - How much memory is available (usually specified in bit)?
-- * - What write page size does it support?
-- * - Special flags (16 bit addresses, read_only, world readable...)?
-+/**
-+ * struct at24_platform_data - data to set up at24 (generic eeprom) driver
-+ * @byte_len: size of eeprom in byte
-+ * @page_size: number of byte which can be written in one go
-+ * @flags: tunable options, check AT24_FLAG_* defines
-+ * @setup: an optional callback invoked after eeprom is probed; enables kernel
-+	code to access eeprom via memory_accessor, see example
-+ * @context: optional parameter passed to setup()
-  *
-  * If you set up a custom eeprom type, please double-check the parameters.
-  * Especially page_size needs extra care, as you risk data loss if your value
-  * is bigger than what the chip actually supports!
-+ *
-+ * An example in pseudo code for a setup() callback:
-+ *
-+ * void get_mac_addr(struct memory_accessor *mem_acc, void *context)
-+ * {
-+ * 	u8 *mac_addr = ethernet_pdata->mac_addr;
-+ *	off_t offset = context;
-+ *
-+ *	// Read MAC addr from EEPROM
-+ *	if (mem_acc->read(mem_acc, mac_addr, offset, ETH_ALEN) == ETH_ALEN)
-+ *		pr_info("Read MAC addr from EEPROM: %pM\n", mac_addr);
-+ * }
-+ *
-+ * This function pointer and context can now be set up in at24_platform_data.
-  */
- 
- struct at24_platform_data {
--- 
-1.7.2.5
+On Friday 10 February 2012 07:29 PM, Shubhrajyoti D wrote:
+> This patch series colates the various i2c updates into
+> a series.  Since it is collection of various patches
+> the version info is not retained, however most of them undergone
+> multiple versions.
+If there are no further comments can this be queued.
+> This is rebased to linus head commit 63082402968f4b73f10b28a8ac1f3da821aeb82d
+>
+> The patch series does the following 
+>
+> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
+> - I2C register restore only if context if the context is lost
+> - Bus busy recovery mechanism.
+> - the reset is not done in init.
+>
+> Tested on omap4sdp and omap3sdp. 
+>
+>
+> Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+>
+> Jon Hunter (1):
+>   I2C: OMAP: Correct I2C revision for OMAP3
+>
+> Shubhrajyoti D (8):
+>   I2C : OMAP : make omap_i2c_unidle/idle functions depend on
+>     CONFIG_PM_RUNTIME
+>   OMAP : I2C : Remove reset at init
+>   OMAP: I2C: I2C register restore only if context is lost
+>   OMAP: I2C: Fix the interrupt clearing in OMAP4
+>   OMAP: I2C: Fix the mismatch of pm_runtime enable and disable
+>   OMAP: I2C: Optimise the remove code
+>   OMAP: I2C: Fix the error handling
+>   I2C: OMAP: Don't check if wait_for_completion_timeout() returns less
+>     than zero
+>
+> Vikram Pandita (1):
+>   I2C: OMAP: Recover from Bus Busy condition
+>
+>  drivers/i2c/busses/i2c-omap.c |  173 ++++++++++++++++++++++++-----------------
+>  1 files changed, 101 insertions(+), 72 deletions(-)
+>
