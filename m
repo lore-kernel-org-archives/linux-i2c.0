@@ -1,76 +1,58 @@
-From: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: [PATCH 1/2] i2c/busses: Add PM support
-Date: Fri, 24 Feb 2012 17:01:15 +0530
-Message-ID: <0ca1d8990c23a45193a32d0e7e889620b995af59.1330082915.git.viresh.kumar@st.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to
+ reduce wait time
+Date: Fri, 24 Feb 2012 13:17:53 +0100
+Message-ID: <20120224121753.GE2479@pengutronix.de>
+References: <1329725656-32715-1-git-send-email-alexander.stein@systec-electronic.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="uTRFFR9qmiCqR05s"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1329725656-32715-1-git-send-email-alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: armando.visconti-qxv4g6HH51o@public.gmane.org, shiraz.hashim-qxv4g6HH51o@public.gmane.org, vipin.kumar-qxv4g6HH51o@public.gmane.org, rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org, deepak.sikri-qxv4g6HH51o@public.gmane.org, vipulkumar.samar-qxv4g6HH51o@public.gmane.org, amit.virdi-qxv4g6HH51o@public.gmane.org, viresh.kumar-qxv4g6HH51o@public.gmane.org, pratyush.anand-qxv4g6HH51o@public.gmane.org, bhupesh.sharma-qxv4g6HH51o@public.gmane.org, viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bhavna.yadav-qxv4g6HH51o@public.gmane.org, vincenzo.frascino-qxv4g6HH51o@public.gmane.org, mirko.gardi-qxv4g6HH51o@public.gmane.org, salvatore.dedominicis-qxv4g6HH51o@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Deepak Sikri <deepak.sikri-qxv4g6HH51o@public.gmane.org>
 
-This patch adds in support for standby/S2R/hybernate for i2c-designware driver.
+--uTRFFR9qmiCqR05s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Deepak Sikri <deepak.sikri-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-platdrv.c |   27 +++++++++++++++++++++++++++
- 1 files changed, 27 insertions(+), 0 deletions(-)
+On Mon, Feb 20, 2012 at 09:14:16AM +0100, Alexander Stein wrote:
+> If you insert several i2c transfers, the driver might start the next one
+> while the STOP bit of the previous transfer is still on the bus, marking
+> the bus as busy.
+> pch_i2c_wait_for_bus_idle does an msleep(20) delaying the next transfer
+> by >=3D20ms. Reduce wait time by actively waiting 5 us once, then using
+> usleep_range.
+>=20
+> Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 5244c47..c5ac2dc 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -36,6 +36,7 @@
- #include <linux/interrupt.h>
- #include <linux/of_i2c.h>
- #include <linux/platform_device.h>
-+#include <linux/pm.h>
- #include <linux/io.h>
- #include <linux/slab.h>
- #include "i2c-designware-core.h"
-@@ -198,6 +199,31 @@ static const struct of_device_id dw_i2c_of_match[] = {
- MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
- #endif
- 
-+#ifdef CONFIG_PM
-+static int dw_i2c_suspend(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
-+
-+	clk_disable(i_dev->clk);
-+
-+	return 0;
-+}
-+
-+static int dw_i2c_resume(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
-+
-+	clk_enable(i_dev->clk);
-+	i2c_dw_init(i_dev);
-+
-+	return 0;
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(dw_i2c_dev_pm_ops, dw_i2c_suspend, dw_i2c_resume);
-+
- /* work with hotplug and coldplug */
- MODULE_ALIAS("platform:i2c_designware");
- 
-@@ -207,6 +233,7 @@ static struct platform_driver dw_i2c_driver = {
- 		.name	= "i2c_designware",
- 		.owner	= THIS_MODULE,
- 		.of_match_table = of_match_ptr(dw_i2c_of_match),
-+		.pm	= &dw_i2c_dev_pm_ops,
- 	},
- };
- 
--- 
-1.7.8.110.g4cb5d
+Tomoya, are you happy with it? (I hope he reads the list, since his
+companies mailserver doesn't seem to accept my mails).
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--uTRFFR9qmiCqR05s
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAk9Hf/EACgkQD27XaX1/VRsJBwCfQcJt+ZL0iuZoBYyAOdvX4CiQ
+sO4An3T1JN+rCq+8KmpM22VrMrEWrfc7
+=cnOu
+-----END PGP SIGNATURE-----
+
+--uTRFFR9qmiCqR05s--
