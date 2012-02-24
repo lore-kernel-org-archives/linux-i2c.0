@@ -1,44 +1,75 @@
-From: Huang Changming-R66093 <r66093-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH][V2] i2c/busses: (mpc) Add support for
- SMBUS_READ_BLOCK_DATA
-Date: Fri, 24 Feb 2012 01:45:45 +0000
-Message-ID: <110EED8CC96DFC488B7E717A2027A27C02E46C@039-SN1MPN1-002.039d.mgd.msft.net>
-References: <110EED8CC96DFC488B7E717A2027A27C02C633@039-SN1MPN1-002.039d.mgd.msft.net>
- <20120223091542.GA5404@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+From: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Subject: [PATCH] misc: at24: describe platform_data with kernel_doc
+Date: Fri, 24 Feb 2012 07:41:06 +0100
+Message-ID: <1330065666-12758-1-git-send-email-wolfram@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120223091542.GA5404-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org" <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Tang Yuantian-B29983 <B29983-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, sun york-R58495 <R58495-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, Wolfram,
-My workmate (Tang Yuantian) has re-post it, please review.
+From: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Thanks
-Jerry Huang
+There have been questions about its fields lately, so describe them properly.
 
+Reported-by: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Signed-off-by: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ include/linux/i2c/at24.h |   35 +++++++++++++++++++++++++++++------
+ 1 files changed, 29 insertions(+), 6 deletions(-)
 
-> -----Original Message-----
-> From: Wolfram Sang [mailto:w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
-> Sent: Thursday, February 23, 2012 5:16 PM
-> To: Huang Changming-R66093
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org;
-> guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org; Tang Yuantian-B29983; sun york-R58495
-> Subject: Re: [PATCH][V2] i2c/busses: (mpc) Add support for
-> SMBUS_READ_BLOCK_DATA
-> 
-> >    There is not any feedback since 12/12/2011, and this patch has been
-> >    blocked.
-> 
-> Please resend the patch.
-> 
-> --
-> Pengutronix e.K.                           | Wolfram Sang
-> |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/
-> |
+diff --git a/include/linux/i2c/at24.h b/include/linux/i2c/at24.h
+index 8ace930..5767ac7 100644
+--- a/include/linux/i2c/at24.h
++++ b/include/linux/i2c/at24.h
+@@ -1,19 +1,42 @@
++/*
++ * at24.h - platform_data for the at24 (generic eeprom) driver
++ * (C) Copyright 2008 by Pengutronix
++ * (C) Copyright 2012 by Wolfram Sang
++ * same license as the driver
++ */
++
+ #ifndef _LINUX_AT24_H
+ #define _LINUX_AT24_H
+ 
+ #include <linux/types.h>
+ #include <linux/memory.h>
+ 
+-/*
+- * As seen through Linux I2C, differences between the most common types of I2C
+- * memory include:
+- * - How much memory is available (usually specified in bit)?
+- * - What write page size does it support?
+- * - Special flags (16 bit addresses, read_only, world readable...)?
++/**
++ * struct at24_platform_data - data to set up at24 (generic eeprom) driver
++ * @byte_len: size of eeprom in byte
++ * @page_size: number of byte which can be written in one go
++ * @flags: tunable options, check AT24_FLAG_* defines
++ * @setup: an optional callback invoked after eeprom is probed; enables kernel
++	code to access eeprom via memory_accessor, see example
++ * @context: optional parameter passed to setup()
+  *
+  * If you set up a custom eeprom type, please double-check the parameters.
+  * Especially page_size needs extra care, as you risk data loss if your value
+  * is bigger than what the chip actually supports!
++ *
++ * An example in pseudo code for a setup() callback:
++ *
++ * void get_mac_addr(struct memory_accessor *mem_acc, void *context)
++ * {
++ * 	u8 *mac_addr = ethernet_pdata->mac_addr;
++ *	off_t offset = context;
++ *
++ *	// Read MAC addr from EEPROM
++ *	if (mem_acc->read(mem_acc, mac_addr, offset, ETH_ALEN) == ETH_ALEN)
++ *		pr_info("Read MAC addr from EEPROM: %pM\n", mac_addr);
++ * }
++ *
++ * This function pointer and context can now be set up in at24_platform_data.
+  */
+ 
+ struct at24_platform_data {
+-- 
+1.7.2.5
