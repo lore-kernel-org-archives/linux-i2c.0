@@ -1,57 +1,73 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [PATCH 1/3] mfd: Add basic support for the Congatec CGEB BIOS
- interface
-Date: Mon, 27 Feb 2012 18:24:43 +0100
-Message-ID: <20120227172443.GD3852@pengutronix.de>
-References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
- <1328102793-4313-2-git-send-email-s.hauer@pengutronix.de>
- <20120220163927.GY5387@sortiz-mobl>
- <20120220180752.GV3852@pengutronix.de>
- <20120227135827.GM27687@sortiz-mobl>
+From: Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>
+Subject: Re: [PATCH 2/7] drm/nouveau: do a better job at hiding the NIH i2c
+ bit-banging algo
+Date: Mon, 27 Feb 2012 18:25:48 +0100
+Message-ID: <20120227172548.GG4866@phenom.ffwll.local>
+References: <1329255445-6312-1-git-send-email-daniel.vetter@ffwll.ch>
+ <1329255445-6312-2-git-send-email-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120227135827.GM27687@sortiz-mobl>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Samuel Ortiz <sameo@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, kernel@pengutronix.de
+In-Reply-To: <1329255445-6312-2-git-send-email-daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Ben Skeggs <bskeggs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>, nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 27, 2012 at 02:58:27PM +0100, Samuel Ortiz wrote:
-> Hi Sascha,
-> 
-> 
-> On Mon, Feb 20, 2012 at 07:07:52PM +0100, Sascha Hauer wrote:
-> > Hi Samuel,
-> > 
-> > On Mon, Feb 20, 2012 at 05:39:27PM +0100, Samuel Ortiz wrote:
-> > > Hi Sascha,
-> > > 
-> > > On Wed, Feb 01, 2012 at 02:26:31PM +0100, Sascha Hauer wrote:
-> > > > The Congatec CGEB is a BIOS interface found on some Congatec x86
-> > > > modules. It provides access to on board peripherals like I2C busses
-> > > > and watchdogs. This driver contains the basic support for accessing
-> > > > the CGEB interface and registers the child devices.
-> > > After looking at the code, I'm not entirely sure this one belongs to
-> > > drivers/mfd/. Have you thought about putting it under arch/x86/platform/ ?
-> > > There are similar examples there, like uv or olpc.
-> > 
-> > I don't mind putting it in arch/x86/platform instead. I'm an ARM guy and
-> > on ARM there currently is a rush to move everything looking remotely
-> > like a driver out of arch/arm/ to drivers/, so putting it under
-> > drivers/mfd/ seemed logical to me.
-> Yes, this seems to be the trend apparently. Could you try pushing that into
-> the x86/platform, please ? If they put you under fire, I guess I could take
-> this patchset. But they have several "BIOS interfaces" there already...
+Hi Ben,
 
-Ok, I'll put on my asbestos suit and give it a try.
+Can you ack this patch for merging through drm-intel-next? Imo that's the
+easiest way to get it in (assuming you don't have any objections).
 
-Thanks
- Sascha
+Thanks, Daniel
+
+On Tue, Feb 14, 2012 at 10:37:20PM +0100, Daniel Vetter wrote:
+> I'd like to export the corresponding functions from the i2c core
+> so that I can use them in fallback bit-banging in i915.ko
+> 
+> Cc: nouveau-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+> Signed-off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+> ---
+>  drivers/gpu/drm/nouveau/nouveau_i2c.c |    8 ++++----
+>  1 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/nouveau/nouveau_i2c.c b/drivers/gpu/drm/nouveau/nouveau_i2c.c
+> index 820ae7f..7a7e751 100644
+> --- a/drivers/gpu/drm/nouveau/nouveau_i2c.c
+> +++ b/drivers/gpu/drm/nouveau/nouveau_i2c.c
+> @@ -242,7 +242,7 @@ i2c_addr(struct nouveau_i2c_chan *port, struct i2c_msg *msg)
+>  }
+>  
+>  static int
+> -i2c_bit_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+> +nouveau_i2c_bit_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>  {
+>  	struct nouveau_i2c_chan *port = (struct nouveau_i2c_chan *)adap;
+>  	struct i2c_msg *msg = msgs;
+> @@ -272,14 +272,14 @@ i2c_bit_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>  }
+>  
+>  static u32
+> -i2c_bit_func(struct i2c_adapter *adap)
+> +nouveau_i2c_bit_func(struct i2c_adapter *adap)
+>  {
+>  	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>  }
+>  
+>  const struct i2c_algorithm i2c_bit_algo = {
+> -	.master_xfer = i2c_bit_xfer,
+> -	.functionality = i2c_bit_func
+> +	.master_xfer = nouveau_i2c_bit_xfer,
+> +	.functionality = nouveau_i2c_bit_func
+>  };
+>  
+>  static const uint32_t nv50_i2c_port[] = {
+> -- 
+> 1.7.7.5
+> 
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Daniel Vetter
+Mail: daniel-/w4YWyX8dFk@public.gmane.org
+Mobile: +41 (0)79 365 57 48
