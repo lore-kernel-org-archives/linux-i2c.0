@@ -1,45 +1,51 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c/designware: dw_i2c_init_driver as subsys initcall
-Date: Mon, 27 Feb 2012 14:17:25 +0100
-Message-ID: <20120227131725.GA3550@pengutronix.de>
-References: <1321419487-2353-1-git-send-email-pratyush.anand@st.com>
- <4F4AFEE4.5010401@st.com>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/3] mfd: Add basic support for the Congatec CGEB BIOS
+ interface
+Date: Mon, 27 Feb 2012 14:58:27 +0100
+Message-ID: <20120227135827.GM27687@sortiz-mobl>
+References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
+ <1328102793-4313-2-git-send-email-s.hauer@pengutronix.de>
+ <20120220163927.GY5387@sortiz-mobl>
+ <20120220180752.GV3852@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4F4AFEE4.5010401-qxv4g6HH51o@public.gmane.org>
+In-Reply-To: <20120220180752.GV3852-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org" <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Rajeev KUMAR <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, Bhavna YADAV <bhavna.yadav-qxv4g6HH51o@public.gmane.org>, Vincenzo FRASCINO <Vincenzo.FRASCINO-qxv4g6HH51o@public.gmane.org>, Mirko GARDI <mirko.gardi-qxv4g6HH51o@public.gmane.org>
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Sascha,
 
---3V7upXqbjpZ4EhLz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-> Can anyone of you apply this patch, if it looks fine.
+On Mon, Feb 20, 2012 at 07:07:52PM +0100, Sascha Hauer wrote:
+> Hi Samuel,
+> 
+> On Mon, Feb 20, 2012 at 05:39:27PM +0100, Samuel Ortiz wrote:
+> > Hi Sascha,
+> > 
+> > On Wed, Feb 01, 2012 at 02:26:31PM +0100, Sascha Hauer wrote:
+> > > The Congatec CGEB is a BIOS interface found on some Congatec x86
+> > > modules. It provides access to on board peripherals like I2C busses
+> > > and watchdogs. This driver contains the basic support for accessing
+> > > the CGEB interface and registers the child devices.
+> > After looking at the code, I'm not entirely sure this one belongs to
+> > drivers/mfd/. Have you thought about putting it under arch/x86/platform/ ?
+> > There are similar examples there, like uv or olpc.
+> 
+> I don't mind putting it in arch/x86/platform instead. I'm an ARM guy and
+> on ARM there currently is a rush to move everything looking remotely
+> like a driver out of arch/arm/ to drivers/, so putting it under
+> drivers/mfd/ seemed logical to me.
+Yes, this seems to be the trend apparently. Could you try pushing that into
+the x86/platform, please ? If they put you under fire, I guess I could take
+this patchset. But they have several "BIOS interfaces" there already...
 
-Please simply resend the patch.
+Cheers,
+Samuel.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---3V7upXqbjpZ4EhLz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk9LgmUACgkQD27XaX1/VRshrQCeM7FlRFkgpdZr4UQIDMwnenv1
-rwQAni/mf5Ktu6EzOciJT6302VpA9xha
-=i89O
------END PGP SIGNATURE-----
-
---3V7upXqbjpZ4EhLz--
+-- 
+Intel Open Source Technology Centre
+http://oss.intel.com/
