@@ -1,69 +1,25 @@
-From: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Subject: [PATCH] i2c: export bit-banging algo functions
-Date: Tue, 28 Feb 2012 00:39:39 +0100
-Message-ID: <1330385979-19406-1-git-send-email-daniel.vetter@ffwll.ch>
-References: <20120227225223.GB1050@phenom.ffwll.local>
+From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce
+ wait time
+Date: Tue, 28 Feb 2012 08:53:09 +0900
+Message-ID: <CANKRQngWB8kUO68UdbDeWey5eGRF0nGCE341j8jyCMogvYUYKA@mail.gmail.com>
+References: <1329725656-32715-1-git-send-email-alexander.stein@systec-electronic.com>
+	<20120224121753.GE2479@pengutronix.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120227225223.GB1050-dv86pmgwkMBes7Z6vYuT8azUEOm+Xw19@public.gmane.org>
+In-Reply-To: <20120224121753.GE2479-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-i915 has a hw i2c controller (gmbus) but for a bunch of stupid reasons
-we need to be able to fall back to the bit-banging algo on gpio pins.
+Hi
 
-The current code sets up a 2nd i2c controller for the same i2c bus using
-the bit-banging algo. This has a bunch of issues, the major one being
-that userspace can directly access this fallback i2c adaptor behind
-the drivers back.
+Our team moved to ROHM Co., Ltd.
+So, previous email address already disappeared.
+Current my mail address is "tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org".
 
-But we need to frob a few registers before and after using fallback
-gpio bit-banging, so this horribly fails.
-
-The new plan is to only set up one i2c adaptor and transparently fall
-back to bit-banging by directly calling the xfer function of the bit-
-banging algo in the i2c core.
-
-To make that possible, export the 2 i2c algo functions.
-
-v2: As suggested by Jean Delvare, simply export the i2c_bit_algo
-vtable instead of the individual functions.
-
-Signed-off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
----
- drivers/i2c/algos/i2c-algo-bit.c |    3 ++-
- include/linux/i2c-algo-bit.h     |    1 +
- 2 files changed, 3 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-index 525c734..ad0459c 100644
---- a/drivers/i2c/algos/i2c-algo-bit.c
-+++ b/drivers/i2c/algos/i2c-algo-bit.c
-@@ -610,10 +610,11 @@ static u32 bit_func(struct i2c_adapter *adap)
- 
- /* -----exported algorithm data: -------------------------------------	*/
- 
--static const struct i2c_algorithm i2c_bit_algo = {
-+const struct i2c_algorithm i2c_bit_algo = {
- 	.master_xfer	= bit_xfer,
- 	.functionality	= bit_func,
- };
-+EXPORT_SYMBOL(i2c_bit_algo);
- 
- /*
-  * registering functions to load algorithms at runtime
-diff --git a/include/linux/i2c-algo-bit.h b/include/linux/i2c-algo-bit.h
-index 4f98148..584ffa0 100644
---- a/include/linux/i2c-algo-bit.h
-+++ b/include/linux/i2c-algo-bit.h
-@@ -49,5 +49,6 @@ struct i2c_algo_bit_data {
- 
- int i2c_bit_add_bus(struct i2c_adapter *);
- int i2c_bit_add_numbered_bus(struct i2c_adapter *);
-+extern const struct i2c_algorithm i2c_bit_algo;
- 
- #endif /* _LINUX_I2C_ALGO_BIT_H */
--- 
-1.7.7.5
+thanks.
+ROHM Co., Ltd.
+tomoya
