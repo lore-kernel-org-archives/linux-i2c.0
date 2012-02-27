@@ -1,39 +1,170 @@
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH 2/2] i2c: tegra: Remove unnecessary write to INT_STATUS
-Date: Mon, 27 Feb 2012 10:02:55 -0800
-Message-ID: <74CDBE0F657A3D45AFBB94109FB122FF17BD8BCF95@HQMAIL01.nvidia.com>
-References: <1328314217-16632-1-git-send-email-swarren@nvidia.com>
- <1328314217-16632-2-git-send-email-swarren@nvidia.com>
- <20120213232427.GG2999@freya.fluff.org>
+From: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+Subject: [PATCH] drm/i915: i2c: unconditionally set up gpio fallback
+Date: Mon, 27 Feb 2012 19:22:43 +0100
+Message-ID: <1330366963-12623-1-git-send-email-daniel.vetter@ffwll.ch>
+References: <CAC7LmnvP0wUroQq6VJ3QeoWDy=WEk_UcfkKiuYx=hWZ8WT6tMQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120213232427.GG2999-RazCHl0VsYgkUSuvROHNpA@public.gmane.org>
-Content-Language: en-US
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAC7LmnvP0wUroQq6VJ3QeoWDy=WEk_UcfkKiuYx=hWZ8WT6tMQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Eugeni Dodonov <eugeni-xQ4UrP1oEK3R7s880joybQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ben Dooks wrote at Monday, February 13, 2012 4:24 PM:
-> On Fri, Feb 03, 2012 at 05:10:17PM -0700, Stephen Warren wrote:
-> > From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> >
-> > The write is not necessary and may cause the I2C controller to misbehave.
-> > With this fix, I2C on Tegra30 works (at least, running i2cdump repeatedly
-> > on the WM8903 on Cardhu's I2C5/DVC bus).
-> >
-> > Originally by Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, but S-o-b missing in our
-> > internal repo.
-> >
-> > [swarren: Reworded commit description]
-> > Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> 
-> I'll apply this as it seems to have gone by without major comment.
+This way we can simplify the setup and teardown a bit.
 
-Ben, I haven't seen this show up in linux-next yet. I'm hoping the patch
-will make 3.4. Thanks
+Because we don't actually allocate anything anymore for the force_bit
+case, we can now convert that into a boolean.
 
+Also and the functionality supported by the bit-banging together with
+what gmbus can do, so that this doesn't randomly change any more.
+
+v2: Chris Wilson noticed that I've mixed up && and & ...
+
+v3: Clarify an if block as suggested by Eugeni Dodonov.
+
+Signed-Off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+---
+ drivers/gpu/drm/i915/i915_drv.h  |    3 +-
+ drivers/gpu/drm/i915/intel_i2c.c |   51 +++++++++++++++-----------------------
+ 2 files changed, 22 insertions(+), 32 deletions(-)
+
+diff --git a/drivers/gpu/drm/i915/i915_drv.h b/drivers/gpu/drm/i915/i915_drv.h
+index 14b6e94..31affc0 100644
+--- a/drivers/gpu/drm/i915/i915_drv.h
++++ b/drivers/gpu/drm/i915/i915_drv.h
+@@ -293,7 +293,8 @@ struct intel_fbc_work;
+ 
+ struct intel_gmbus {
+ 	struct i2c_adapter adapter;
+-	struct i2c_adapter *force_bit;
++	bool force_bit;
++	bool has_gpio;
+ 	u32 reg0;
+ 	u32 gpio_reg;
+ 	struct i2c_algo_bit_data bit_algo;
+diff --git a/drivers/gpu/drm/i915/intel_i2c.c b/drivers/gpu/drm/i915/intel_i2c.c
+index 6eb68b7..44d1755 100644
+--- a/drivers/gpu/drm/i915/intel_i2c.c
++++ b/drivers/gpu/drm/i915/intel_i2c.c
+@@ -140,8 +140,8 @@ static void set_data(void *data, int state_high)
+ 	POSTING_READ(bus->gpio_reg);
+ }
+ 
+-static struct i2c_adapter *
+-intel_gpio_create(struct intel_gmbus *bus, u32 pin)
++static bool
++intel_gpio_setup(struct intel_gmbus *bus, u32 pin)
+ {
+ 	struct drm_i915_private *dev_priv = bus->dev_priv;
+ 	static const int map_pin_to_reg[] = {
+@@ -157,7 +157,7 @@ intel_gpio_create(struct intel_gmbus *bus, u32 pin)
+ 	struct i2c_algo_bit_data *algo;
+ 
+ 	if (pin >= ARRAY_SIZE(map_pin_to_reg) || !map_pin_to_reg[pin])
+-		return NULL;
++		return false;
+ 
+ 	algo = &bus->bit_algo;
+ 
+@@ -174,12 +174,11 @@ intel_gpio_create(struct intel_gmbus *bus, u32 pin)
+ 	algo->timeout = usecs_to_jiffies(2200);
+ 	algo->data = bus;
+ 
+-	return &bus->adapter;
++	return true;
+ }
+ 
+ static int
+ intel_i2c_quirk_xfer(struct intel_gmbus *bus,
+-		     struct i2c_adapter *adapter,
+ 		     struct i2c_msg *msgs,
+ 		     int num)
+ {
+@@ -193,7 +192,7 @@ intel_i2c_quirk_xfer(struct intel_gmbus *bus,
+ 	set_clock(bus, 1);
+ 	udelay(I2C_RISEFALL_TIME);
+ 
+-	ret = i2c_bit_xfer(adapter, msgs, num);
++	ret = i2c_bit_xfer(&bus->adapter, msgs, num);
+ 
+ 	set_data(bus, 1);
+ 	set_clock(bus, 1);
+@@ -216,7 +215,7 @@ gmbus_xfer(struct i2c_adapter *adapter,
+ 	mutex_lock(&dev_priv->gmbus_mutex);
+ 
+ 	if (bus->force_bit) {
+-		ret = intel_i2c_quirk_xfer(bus, bus->force_bit, msgs, num);
++		ret = intel_i2c_quirk_xfer(bus, msgs, num);
+ 		goto out;
+ 	}
+ 
+@@ -311,11 +310,12 @@ timeout:
+ 	I915_WRITE(GMBUS0 + reg_offset, 0);
+ 
+ 	/* Hardware may not support GMBUS over these pins? Try GPIO bitbanging instead. */
+-	bus->force_bit = intel_gpio_create(bus, bus->reg0 & 0xff);
+-	if (!bus->force_bit)
+-		ret = -ENOMEM;
+-	else
+-		ret = intel_i2c_quirk_xfer(bus, bus->force_bit, msgs, num);
++	if (!bus->has_gpio) {
++		ret = -EIO;
++	} else {
++		bus->force_bit = true;
++		ret = intel_i2c_quirk_xfer(bus, msgs, num);
++	}
+ out:
+ 	mutex_unlock(&dev_priv->gmbus_mutex);
+ 	return ret;
+@@ -323,14 +323,8 @@ out:
+ 
+ static u32 gmbus_func(struct i2c_adapter *adapter)
+ {
+-	struct intel_gmbus *bus = container_of(adapter,
+-					       struct intel_gmbus,
+-					       adapter);
+-
+-	if (bus->force_bit)
+-		i2c_bit_func(bus->force_bit);
+-
+-	return (I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
++	return i2c_bit_func(adapter) &
++		(I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL |
+ 		/* I2C_FUNC_10BIT_ADDR | */
+ 		I2C_FUNC_SMBUS_READ_BLOCK_DATA |
+ 		I2C_FUNC_SMBUS_BLOCK_PROC_CALL);
+@@ -388,8 +382,11 @@ int intel_setup_gmbus(struct drm_device *dev)
+ 		/* By default use a conservative clock rate */
+ 		bus->reg0 = i | GMBUS_RATE_100KHZ;
+ 
++		bus->has_gpio = intel_gpio_setup(bus, i);
++
+ 		/* XXX force bit banging until GMBUS is fully debugged */
+-		bus->force_bit = intel_gpio_create(bus, i);
++		if (bus->has_gpio)
++			bus->force_bit = true;
+ 	}
+ 
+ 	intel_i2c_reset(dev_priv->dev);
+@@ -417,16 +414,8 @@ void intel_gmbus_force_bit(struct i2c_adapter *adapter, bool force_bit)
+ {
+ 	struct intel_gmbus *bus = to_intel_gmbus(adapter);
+ 
+-	if (force_bit) {
+-		if (bus->force_bit == NULL) {
+-			bus->force_bit = intel_gpio_create(bus,
+-							   bus->reg0 & 0xff);
+-		}
+-	} else {
+-		if (bus->force_bit) {
+-			bus->force_bit = NULL;
+-		}
+-	}
++	if (bus->has_gpio)
++		bus->force_bit = force_bit;
+ }
+ 
+ void intel_teardown_gmbus(struct drm_device *dev)
 -- 
-nvpublic
+1.7.7.5
