@@ -1,71 +1,92 @@
-From: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c/designware: Provide optional i2c bus recovery
- function
-Date: Wed, 29 Feb 2012 09:59:31 +0100
-Message-ID: <4F4DE8F3.6030407@st.com>
-References: <0ca1d8990c23a45193a32d0e7e889620b995af59.1330082915.git.viresh.kumar@st.com> <351031347b845920a0ea78e7491d955137e3d7aa.1330082915.git.viresh.kumar@st.com> <CAM=Q2cudYcSqAKk4qNg7MQxRBCkJ-XXXSL-Bg=sZ2+hvS_Qcxw@mail.gmail.com> <4F4B3072.6050903@nvidia.com> <CAM=Q2cs-nCuSmkBFtv4odbqoRJcPkXk4Rz-H=9S6RDG3Z8kcEQ@mail.gmail.com> <4F4B569F.3080607@st.com> <4F4B5A9A.4050303@st.com>,<CAOh2x=nfNGpBmHVd1bPT9+AezDMEjaC4ktj4hX9=yWg2_k7r3Q@mail.gmail.com> <4E01B0DA4B09044DB320A047A7063F8DCA93DAA13E@SAFEX1MAIL4.st.com> <4F4DB073.9030906@st.com>
+From: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep sleep
+Date: Wed, 29 Feb 2012 18:39:21 +0800
+Message-ID: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F4DB073.9030906-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Cc: Salvatore DE DOMINICIS <salvatore.dedominicis-qxv4g6HH51o@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, viresh kumar <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rajeev KUMAR <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, Bhavna YADAV <bhavna.yadav-qxv4g6HH51o@public.gmane.org>, Mirko GARDI <mirko.gardi-qxv4g6HH51o@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Giuseppe BARBA <giuseppe.barba-qxv4g6HH51o@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Viresh,
+When entering deep sleep, the value in the registers I2CFDR and
+I2CDFSRR are lost. This causes I2C access to fail after resuming.
 
-Il 29/02/2012 05:58, Viresh KUMAR ha scritto:
-> On 2/28/2012 7:25 PM, Salvatore DE DOMINICIS wrote:
->> What happens if the bus is still stuck?
->> Do we need to check also for a change in SDA line?
->> I mean, if some device is not behaving correctly and does not change the SDA
->> (as mandated by standard) then we don't solve the issue.
->>
-> I also wanted to ask this question over list, so that experienced people
-> can suggest what should we do here.
->
-> Following is mentioned in: UM10204: I2C-bus specification and user manual
-> http://www.nxp.com/documents/user_manual/UM10204.pdf
->
-> "3.1.16 Bus clear
->
-> In the unlikely event where the clock (SCL) is stuck LOW, the preferential procedure is to 
-> reset the bus using the HW reset signal if your I2C devices have HW reset inputs. If the 
-> I2C devices do not have HW reset inputs, cycle power to the devices to activate the 
-> mandatory internal Power-On Reset (POR) circuit.
->
-> If the data line (SDA) is stuck LOW, the master should send nine clock pulses. The device 
-> that held the bus LOW should release it sometime within those nine clocks. If not, then 
-> use the HW reset or cycle power to clear the bus."
->
->
-> It says that the hang situation is "SDA is stuck LOW" and 9 clock pulses should
-> be enough to get it out of hang (Can somebody tell me how this figure of "9"
-> derived?)
->
-> SDA will become High, but what guarantees that this will not be low immediately
-> after that, while we are reading SDA line? Or Is reading SDA line after 9 pulses
-> sufficient?
->
->> static int i2c_device_probe(struct device *dev)
->>> {
->> +       /* bus recovery specific initialization */
->>> +       if (!adap->recover_bus) {
->>> +               if (!adap->clock_cnt || !adap->clock_rate)
->>> +                       goto warn_no_recovery;
-> I will also change this code to something like:
->
->        if (!adap->recover_bus) {
->                if (!adap->clock_cnt)
->                        adap->clock_cnt = 9;
->
->                if (!adap->clock_rate)
->                        goto warn_no_recovery;
->
-I think this is ok. It covers the standard situation and the experimental foundings.
+Add suspend/resume routines to save/restore the registers
+I2CFDR and I2CDFSRR.
 
-Regards,
+Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mpc.c |   34 +++++++++++++++++++++++++++++++++-
+ 1 files changed, 33 insertions(+), 1 deletions(-)
 
-Vincenzo
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index a8ebb84..f95a647 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -1,7 +1,9 @@
+ /*
+  * (C) Copyright 2003-2004
+  * Humboldt Solutions Ltd, adrian-nKrwMtk+6WksDtB2XHyCLA@public.gmane.org
+-
++ *
++ * Copyright 2012 Freescale Semiconductor, Inc.
++ *
+  * This is a combined i2c adapter and algorithm driver for the
+  * MPC107/Tsi107 PowerPC northbridge and processors that include
+  * the same I2C unit (8240, 8245, 85xx).
+@@ -64,6 +66,9 @@ struct mpc_i2c {
+ 	struct i2c_adapter adap;
+ 	int irq;
+ 	u32 real_clk;
++#ifdef CONFIG_PM
++	u8 fdr, dfsrr;
++#endif
+ };
+ 
+ struct mpc_i2c_divider {
+@@ -668,6 +673,30 @@ static int __devexit fsl_i2c_remove(struct platform_device *op)
+ 	return 0;
+ };
+ 
++#ifdef CONFIG_PM
++static int mpc_i2c_suspend(struct device *dev)
++{
++	struct mpc_i2c *i2c = dev_get_drvdata(dev);
++
++	i2c->fdr = readb(i2c->base + MPC_I2C_FDR);
++	i2c->dfsrr = readb(i2c->base + MPC_I2C_DFSRR);
++
++	return 0;
++}
++
++static int mpc_i2c_resume(struct device *dev)
++{
++	struct mpc_i2c *i2c = dev_get_drvdata(dev);
++
++	writeb(i2c->fdr, i2c->base + MPC_I2C_FDR);
++	writeb(i2c->dfsrr, i2c->base + MPC_I2C_DFSRR);
++
++	return 0;
++}
++
++SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
++#endif
++
+ static struct mpc_i2c_data mpc_i2c_data_512x __devinitdata = {
+ 	.setup = mpc_i2c_setup_512x,
+ };
+@@ -712,6 +741,9 @@ static struct platform_driver mpc_i2c_driver = {
+ 		.owner = THIS_MODULE,
+ 		.name = DRV_NAME,
+ 		.of_match_table = mpc_i2c_of_match,
++#ifdef CONFIG_PM
++		.pm = &mpc_i2c_pm_ops,
++#endif
+ 	},
+ };
+ 
+-- 
+1.6.4.1
