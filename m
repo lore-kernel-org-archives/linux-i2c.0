@@ -1,32 +1,68 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 1/3] mfd: Add basic support for the Congatec CGEB BIOS
- interface
-Date: Tue, 28 Feb 2012 14:32:17 +0000
-Message-ID: <20120228143217.GB25472@sirena.org.uk>
-References: <1328102793-4313-1-git-send-email-s.hauer@pengutronix.de>
- <1328102793-4313-2-git-send-email-s.hauer@pengutronix.de>
- <20120220163927.GY5387@sortiz-mobl>
- <20120220180752.GV3852@pengutronix.de>
- <20120227135827.GM27687@sortiz-mobl>
- <20120227172443.GD3852@pengutronix.de>
+From: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c/designware: Provide optional i2c bus recovery
+ function
+Date: Wed, 29 Feb 2012 10:28:27 +0530
+Message-ID: <4F4DB073.9030906@st.com>
+References: <0ca1d8990c23a45193a32d0e7e889620b995af59.1330082915.git.viresh.kumar@st.com> <351031347b845920a0ea78e7491d955137e3d7aa.1330082915.git.viresh.kumar@st.com> <CAM=Q2cudYcSqAKk4qNg7MQxRBCkJ-XXXSL-Bg=sZ2+hvS_Qcxw@mail.gmail.com> <4F4B3072.6050903@nvidia.com> <CAM=Q2cs-nCuSmkBFtv4odbqoRJcPkXk4Rz-H=9S6RDG3Z8kcEQ@mail.gmail.com> <4F4B569F.3080607@st.com> <4F4B5A9A.4050303@st.com>,<CAOh2x=nfNGpBmHVd1bPT9+AezDMEjaC4ktj4hX9=yWg2_k7r3Q@mail.gmail.com> <4E01B0DA4B09044DB320A047A7063F8DCA93DAA13E@SAFEX1MAIL4.st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120227172443.GD3852-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <4E01B0DA4B09044DB320A047A7063F8DCA93DAA13E-+EwDPpWUVoSs+H57zxxw29BPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Salvatore DE DOMINICIS <salvatore.dedominicis-qxv4g6HH51o@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: viresh kumar <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rajeev KUMAR <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, Bhavna YADAV <bhavna.yadav-qxv4g6HH51o@public.gmane.org>, Vincenzo FRASCINO <Vincenzo.FRASCINO-qxv4g6HH51o@public.gmane.org>, Mirko GARDI <mirko.gardi-qxv4g6HH51o@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Giuseppe BARBA <giuseppe.barba-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 27, 2012 at 06:24:43PM +0100, Sascha Hauer wrote:
-> On Mon, Feb 27, 2012 at 02:58:27PM +0100, Samuel Ortiz wrote:
+On 2/28/2012 7:25 PM, Salvatore DE DOMINICIS wrote:
+> What happens if the bus is still stuck?
+> Do we need to check also for a change in SDA line?
+> I mean, if some device is not behaving correctly and does not change the SDA
+> (as mandated by standard) then we don't solve the issue.
+> 
 
-> > Yes, this seems to be the trend apparently. Could you try pushing that into
-> > the x86/platform, please ? If they put you under fire, I guess I could take
-> > this patchset. But they have several "BIOS interfaces" there already...
+I also wanted to ask this question over list, so that experienced people
+can suggest what should we do here.
 
-> Ok, I'll put on my asbestos suit and give it a try.
+Following is mentioned in: UM10204: I2C-bus specification and user manual
+http://www.nxp.com/documents/user_manual/UM10204.pdf
 
-You might want to jump into the thread Linus Walleij started about
-system controllers today.
+"3.1.16 Bus clear
+
+In the unlikely event where the clock (SCL) is stuck LOW, the preferential procedure is to 
+reset the bus using the HW reset signal if your I2C devices have HW reset inputs. If the 
+I2C devices do not have HW reset inputs, cycle power to the devices to activate the 
+mandatory internal Power-On Reset (POR) circuit.
+
+If the data line (SDA) is stuck LOW, the master should send nine clock pulses. The device 
+that held the bus LOW should release it sometime within those nine clocks. If not, then 
+use the HW reset or cycle power to clear the bus."
+
+
+It says that the hang situation is "SDA is stuck LOW" and 9 clock pulses should
+be enough to get it out of hang (Can somebody tell me how this figure of "9"
+derived?)
+
+SDA will become High, but what guarantees that this will not be low immediately
+after that, while we are reading SDA line? Or Is reading SDA line after 9 pulses
+sufficient?
+
+> static int i2c_device_probe(struct device *dev)
+>> {
+> 
+> +       /* bus recovery specific initialization */
+>>+       if (!adap->recover_bus) {
+>>+               if (!adap->clock_cnt || !adap->clock_rate)
+>>+                       goto warn_no_recovery;
+
+I will also change this code to something like:
+
+       if (!adap->recover_bus) {
+               if (!adap->clock_cnt)
+                       adap->clock_cnt = 9;
+
+               if (!adap->clock_rate)
+                       goto warn_no_recovery;
+
+-- 
+viresh
