@@ -1,111 +1,242 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep sleep
-Date: Wed, 29 Feb 2012 18:32:05 +0530
-Message-ID: <CAM=Q2ctLm8FKgTek6u9H0jzWJv1bbBUnvDHZfEA=p2ReK8ybUQ@mail.gmail.com>
-References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: [PATCH 1/5 v2] i2c/gpio: add DT support
+Date: Wed, 29 Feb 2012 15:20:17 +0100
+Message-ID: <1330525221-25651-1-git-send-email-plagnioj@jcrosoft.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1330511961-22498-1-git-send-email-chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>, devicetree-discuss@lists.ozlabs.org, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Zhao,
+Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Cc: Nicolas Ferre <nicolas.ferre@atmel.com>
+Cc: linux-i2c@vger.kernel.org
+Cc: devicetree-discuss@lists.ozlabs.org
+---
+v2:
 
-On Wed, Feb 29, 2012 at 4:09 PM, Zhao Chenhui
-<chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
-> When entering deep sleep, the value in the registers I2CFDR and
-> I2CDFSRR are lost. This causes I2C access to fail after resuming.
->
-> Add suspend/resume routines to save/restore the registers
-> I2CFDR and I2CDFSRR.
->
-> Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
-> =A0drivers/i2c/busses/i2c-mpc.c | =A0 34 ++++++++++++++++++++++++++++=
-+++++-
-> =A01 files changed, 33 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mp=
-c.c
-> index a8ebb84..f95a647 100644
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -1,7 +1,9 @@
-> =A0/*
-> =A0* (C) Copyright 2003-2004
-> =A0* Humboldt Solutions Ltd, adrian-nKrwMtk+6WksDtB2XHyCLA@public.gmane.org
-> -
-> + *
-> + * Copyright 2012 Freescale Semiconductor, Inc.
-> + *
-> =A0* This is a combined i2c adapter and algorithm driver for the
-> =A0* MPC107/Tsi107 PowerPC northbridge and processors that include
-> =A0* the same I2C unit (8240, 8245, 85xx).
-> @@ -64,6 +66,9 @@ struct mpc_i2c {
-> =A0 =A0 =A0 =A0struct i2c_adapter adap;
-> =A0 =A0 =A0 =A0int irq;
-> =A0 =A0 =A0 =A0u32 real_clk;
-> +#ifdef CONFIG_PM
-> + =A0 =A0 =A0 u8 fdr, dfsrr;
-How about having  a structure here ?
-> +#endif
-> =A0};
->
-> =A0struct mpc_i2c_divider {
-> @@ -668,6 +673,30 @@ static int __devexit fsl_i2c_remove(struct platf=
-orm_device *op)
-> =A0 =A0 =A0 =A0return 0;
-> =A0};
->
-> +#ifdef CONFIG_PM
-> +static int mpc_i2c_suspend(struct device *dev)
-> +{
-> + =A0 =A0 =A0 struct mpc_i2c *i2c =3D dev_get_drvdata(dev);
-> +
-> + =A0 =A0 =A0 i2c->fdr =3D readb(i2c->base + MPC_I2C_FDR);
-> + =A0 =A0 =A0 i2c->dfsrr =3D readb(i2c->base + MPC_I2C_DFSRR);
-> +
-> + =A0 =A0 =A0 return 0;
-> +}
-> +
-> +static int mpc_i2c_resume(struct device *dev)
-> +{
-> + =A0 =A0 =A0 struct mpc_i2c *i2c =3D dev_get_drvdata(dev);
-> +
-> + =A0 =A0 =A0 writeb(i2c->fdr, i2c->base + MPC_I2C_FDR);
-> + =A0 =A0 =A0 writeb(i2c->dfsrr, i2c->base + MPC_I2C_DFSRR);
-> +
-> + =A0 =A0 =A0 return 0;
-> +}
-> +
-> +SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
-> +#endif
-> +
-> =A0static struct mpc_i2c_data mpc_i2c_data_512x __devinitdata =3D {
-> =A0 =A0 =A0 =A0.setup =3D mpc_i2c_setup_512x,
-> =A0};
-> @@ -712,6 +741,9 @@ static struct platform_driver mpc_i2c_driver =3D =
-{
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.owner =3D THIS_MODULE,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.name =3D DRV_NAME,
-> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0.of_match_table =3D mpc_i2c_of_match,
-> +#ifdef CONFIG_PM
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 .pm =3D &mpc_i2c_pm_ops,
-> +#endif
-> =A0 =A0 =A0 =A0},
-> =A0};
->
-> --
-> 1.6.4.1
->
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
-in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+	use devm_kzalloc
+	use i2c-gpio
+	use time name in the properties
+
+Best Regars,
+J.
+ .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
+ drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
+ 2 files changed, 107 insertions(+), 20 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+
+diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+new file mode 100644
+index 0000000..27e1b1a
+--- /dev/null
++++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
+@@ -0,0 +1,32 @@
++Device-Tree bindings for i2c gpio driver
++
++Required properties:
++	- compatible = "i2c-gpio";
++	- gpios: sda and scl gpio
++
++
++Optional properties:
++	- i2c-gpio,sda-open-drain: sda as open drain
++	- i2c-gpio,scl-open-drain: scl as open drain
++	- i2c-gpio,scl-output-only: scl as output only
++	- udelay: delay between GPIO operations (may depend on each platform)
++	- i2c-algo-bit,timeout-milliseconds: timeout to get data
++
++Example nodes:
++
++i2c-gpio@0 {
++	compatible = "i2c-gpio";
++	gpios = <&pioA 23 0 /* sda */
++		 &pioA 24 0 /* scl */
++		>;
++	i2c-gpio,sda-open-drain;
++	i2c-gpio,scl-open-drain;
++	udelay = <2>;		/* ~100 kHz */
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	rv3029c2@56 {
++		compatible = "rv3029c2";
++		reg = <0x56>;
++	};
++};
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index a651779..71adba5 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -14,8 +14,15 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/platform_device.h>
++#include <linux/gpio.h>
++#include <linux/of_gpio.h>
++#include <linux/of_i2c.h>
+ 
+-#include <asm/gpio.h>
++struct i2c_gpio_private_data {
++	struct i2c_adapter adap;
++	struct i2c_algo_bit_data bit_data;
++	struct i2c_gpio_platform_data pdata;
++};
+ 
+ /* Toggle SDA by changing the direction of the pin */
+ static void i2c_gpio_setsda_dir(void *data, int state)
+@@ -78,24 +85,63 @@ static int i2c_gpio_getscl(void *data)
+ 	return gpio_get_value(pdata->scl_pin);
+ }
+ 
++static int __devinit of_i2c_gpio_probe(struct device_node *np,
++			     struct i2c_gpio_platform_data *pdata)
++{
++	u32 reg;
++
++	if (of_gpio_count(np) < 2)
++		return -ENODEV;
++
++	pdata->sda_pin = of_get_gpio(np, 0);
++	pdata->scl_pin = of_get_gpio(np, 1);
++
++	if (pdata->sda_pin < 0 || pdata->scl_pin < 0) {
++		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
++		       np->full_name, pdata->sda_pin, pdata->scl_pin);
++		return -ENODEV;
++	}
++
++	if (of_property_read_u32(np, "udelay", &reg))
++		pdata->udelay = reg;
++
++	if (of_property_read_u32(np, "i2c-algo-bit,timeout-milliseconds", &reg))
++		pdata->timeout = msecs_to_jiffies(reg);
++
++	pdata->sda_is_open_drain =
++		!!of_property_read_bool(np, "i2c-gpio,sda-open-drain");
++	pdata->scl_is_open_drain =
++		!!of_property_read_bool(np, "i2c-gpio,scl-open-drain");
++	pdata->scl_is_output_only =
++		!!of_property_read_bool(np, "i2c-gpio,scl-output-only");
++
++	return 0;
++}
++
+ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+ {
++	struct i2c_gpio_private_data *priv;
+ 	struct i2c_gpio_platform_data *pdata;
+ 	struct i2c_algo_bit_data *bit_data;
+ 	struct i2c_adapter *adap;
+ 	int ret;
+ 
+-	pdata = pdev->dev.platform_data;
+-	if (!pdata)
+-		return -ENXIO;
++	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++	adap = &priv->adap;
++	bit_data = &priv->bit_data;
++	pdata = &priv->pdata;
+ 
+-	ret = -ENOMEM;
+-	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
+-	if (!adap)
+-		goto err_alloc_adap;
+-	bit_data = kzalloc(sizeof(struct i2c_algo_bit_data), GFP_KERNEL);
+-	if (!bit_data)
+-		goto err_alloc_bit_data;
++	if (pdev->dev.of_node) {
++		ret = of_i2c_gpio_probe(pdev->dev.of_node, pdata);
++		if (ret)
++			return ret;
++	} else {
++		if (!pdev->dev.platform_data)
++			return -ENXIO;
++		memcpy(pdata, pdev->dev.platform_data, sizeof(*pdata));
++	}
+ 
+ 	ret = gpio_request(pdata->sda_pin, "sda");
+ 	if (ret)
+@@ -143,6 +189,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+ 	adap->algo_data = bit_data;
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->dev.parent = &pdev->dev;
++	adap->dev.of_node = pdev->dev.of_node;
+ 
+ 	/*
+ 	 * If "dev->id" is negative we consider it as zero.
+@@ -154,7 +201,9 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto err_add_bus;
+ 
+-	platform_set_drvdata(pdev, adap);
++	of_i2c_register_devices(adap);
++
++	platform_set_drvdata(pdev, priv);
+ 
+ 	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
+ 		 pdata->sda_pin, pdata->scl_pin,
+@@ -168,34 +217,40 @@ err_add_bus:
+ err_request_scl:
+ 	gpio_free(pdata->sda_pin);
+ err_request_sda:
+-	kfree(bit_data);
+-err_alloc_bit_data:
+-	kfree(adap);
+-err_alloc_adap:
+ 	return ret;
+ }
+ 
+ static int __devexit i2c_gpio_remove(struct platform_device *pdev)
+ {
++	struct i2c_gpio_private_data *priv;
+ 	struct i2c_gpio_platform_data *pdata;
+ 	struct i2c_adapter *adap;
+ 
+-	adap = platform_get_drvdata(pdev);
+-	pdata = pdev->dev.platform_data;
++	priv = platform_get_drvdata(pdev);
++	adap = &priv->adap;
++	pdata = &priv->pdata;
+ 
+ 	i2c_del_adapter(adap);
+ 	gpio_free(pdata->scl_pin);
+ 	gpio_free(pdata->sda_pin);
+-	kfree(adap->algo_data);
+-	kfree(adap);
+ 
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_OF)
++static const struct of_device_id i2c_gpio_dt_ids[] = {
++	{ .compatible = "i2c-gpio", },
++	{ /* sentinel */ }
++};
++
++MODULE_DEVICE_TABLE(of, i2c_gpio_dt_ids);
++#endif
++
+ static struct platform_driver i2c_gpio_driver = {
+ 	.driver		= {
+ 		.name	= "i2c-gpio",
+ 		.owner	= THIS_MODULE,
++		.of_match_table	= of_match_ptr(i2c_gpio_dt_ids),
+ 	},
+ 	.probe		= i2c_gpio_probe,
+ 	.remove		= __devexit_p(i2c_gpio_remove),
+-- 
+1.7.7
