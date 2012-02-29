@@ -1,70 +1,82 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v6] I2C: add CSR SiRFprimaII on-chip I2C controllers
- driver
-Date: Wed, 29 Feb 2012 20:15:31 +0100
-Message-ID: <20120229191531.GF30545@pengutronix.de>
-References: <1328714915-12287-1-git-send-email-21cnbao@gmail.com>
- <20120216144504.GC2541@pengutronix.de>
+From: Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>
+Subject: Re: [PATCH] i2c: export bit-banging algo functions
+Date: Wed, 29 Feb 2012 20:48:18 +0100
+Message-ID: <20120229194818.GC28941@phenom.ffwll.local>
+References: <20120227225223.GB1050@phenom.ffwll.local>
+ <1330385979-19406-1-git-send-email-daniel.vetter@ffwll.ch>
+ <20120228090817.1a95c28b@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CD/aTaZybdUisKIc"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120216144504.GC2541-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20120228090817.1a95c28b-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>, Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>, Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Feb 28, 2012 at 09:08:17AM +0100, Jean Delvare wrote:
+> On Tue, 28 Feb 2012 00:39:39 +0100, Daniel Vetter wrote:
+> > i915 has a hw i2c controller (gmbus) but for a bunch of stupid reasons
+> > we need to be able to fall back to the bit-banging algo on gpio pins.
+> > 
+> > The current code sets up a 2nd i2c controller for the same i2c bus using
+> > the bit-banging algo. This has a bunch of issues, the major one being
+> > that userspace can directly access this fallback i2c adaptor behind
+> > the drivers back.
+> > 
+> > But we need to frob a few registers before and after using fallback
+> > gpio bit-banging, so this horribly fails.
+> > 
+> > The new plan is to only set up one i2c adaptor and transparently fall
+> > back to bit-banging by directly calling the xfer function of the bit-
+> > banging algo in the i2c core.
+> > 
+> > To make that possible, export the 2 i2c algo functions.
+> > 
+> > v2: As suggested by Jean Delvare, simply export the i2c_bit_algo
+> > vtable instead of the individual functions.
+> > 
+> > Signed-off-by: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
+> > ---
+> >  drivers/i2c/algos/i2c-algo-bit.c |    3 ++-
+> >  include/linux/i2c-algo-bit.h     |    1 +
+> >  2 files changed, 3 insertions(+), 1 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+> > index 525c734..ad0459c 100644
+> > --- a/drivers/i2c/algos/i2c-algo-bit.c
+> > +++ b/drivers/i2c/algos/i2c-algo-bit.c
+> > @@ -610,10 +610,11 @@ static u32 bit_func(struct i2c_adapter *adap)
+> >  
+> >  /* -----exported algorithm data: -------------------------------------	*/
+> >  
+> > -static const struct i2c_algorithm i2c_bit_algo = {
+> > +const struct i2c_algorithm i2c_bit_algo = {
+> >  	.master_xfer	= bit_xfer,
+> >  	.functionality	= bit_func,
+> >  };
+> > +EXPORT_SYMBOL(i2c_bit_algo);
+> >  
+> >  /*
+> >   * registering functions to load algorithms at runtime
+> > diff --git a/include/linux/i2c-algo-bit.h b/include/linux/i2c-algo-bit.h
+> > index 4f98148..584ffa0 100644
+> > --- a/include/linux/i2c-algo-bit.h
+> > +++ b/include/linux/i2c-algo-bit.h
+> > @@ -49,5 +49,6 @@ struct i2c_algo_bit_data {
+> >  
+> >  int i2c_bit_add_bus(struct i2c_adapter *);
+> >  int i2c_bit_add_numbered_bus(struct i2c_adapter *);
+> > +extern const struct i2c_algorithm i2c_bit_algo;
+> >  
+> >  #endif /* _LINUX_I2C_ALGO_BIT_H */
+> 
+> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
---CD/aTaZybdUisKIc
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Feb 16, 2012 at 03:45:04PM +0100, Wolfram Sang wrote:
-> On Wed, Feb 08, 2012 at 11:28:35PM +0800, Barry Song wrote:
-> > From: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
-> >=20
-> > SiRFprimaII is the latest generation application processor from CSR=E2=
-=80=99s
-> > multi-function SoC product family.
-> > The SoC support codes are in arch/arm/mach-prima2 from Linux mainline
-> > 3.0.
-> > There are two I2C controllers on primaII, features include:
-> > * Two I2C controller modules are on chip
-> > * RISC I/O bus read write register
-> > * Up to 16 bytes data buffer for issuing commands and writing data
-> >   at the same time
-> > * Up to 16 commands, and receiving read data 16 bytes at a time
-> > * Error INT report (ACK check)
-> > * No-ACK bus protocols (SCCB bus protocols)
-> >=20
-> > Signed-off-by: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
-> > Signed-off-by: Xiangzhen Ye <Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org>
-> > Signed-off-by: Yuping Luo <Yuping.Luo-kQvG35nSl+M@public.gmane.org>
-> > Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
->=20
-> I am fine with it. Personally, I would have violated the 80 char limit
-> a few times to keep stuff more readable, but this is taste, I guess.
-
-Picked to my for 3.4 branch
-
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---CD/aTaZybdUisKIc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iEYEARECAAYFAk9OeVMACgkQD27XaX1/VRuAeQCeOwJXbxhVU08KTLvTsA00tWMA
-CrUAn2zGbsI2gbf3yj9NLRqzIaMdkerl
-=ibjf
------END PGP SIGNATURE-----
-
---CD/aTaZybdUisKIc--
+I've applied this patch to drm-intel-next, thanks for the feedback.
+-Daniel
+-- 
+Daniel Vetter
+Mail: daniel-/w4YWyX8dFk@public.gmane.org
+Mobile: +41 (0)79 365 57 48
