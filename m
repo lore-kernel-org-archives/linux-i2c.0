@@ -1,54 +1,31 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to
- reduce wait time
-Date: Thu, 1 Mar 2012 11:15:02 +0100
-Message-ID: <20120301101502.GB2535@pengutronix.de>
-References: <1329725656-32715-1-git-send-email-alexander.stein@systec-electronic.com>
- <20120224121753.GE2479@pengutronix.de>
- <CANKRQngWB8kUO68UdbDeWey5eGRF0nGCE341j8jyCMogvYUYKA@mail.gmail.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: (unknown)
+Date: Thu, 1 Mar 2012 11:33:32 +0100
+Message-ID: <20120301103332.GA30156@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="R3G7APHDIzY6R/pk"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CANKRQngWB8kUO68UdbDeWey5eGRF0nGCE341j8jyCMogvYUYKA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+The following changes since commit b01543dfe67bb1d191998e90d20534dc354de059:
 
---R3G7APHDIzY6R/pk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  Linux 3.3-rc4 (2012-02-18 15:53:33 -0800)
 
+are available in the git repository at:
 
-> Our team moved to ROHM Co., Ltd.
-> So, previous email address already disappeared.
-> Current my mail address is "tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org".
+  git://git.pengutronix.de/git/wsa/linux-2.6.git i2c-embedded/for-3.3
 
-Ah, thanks for the update! Are you fine with the patch in question now?
+for you to fetch changes up to 844990daa2e69a4258049ba9c2bae1180657dac3:
 
-Thanks,
+  i2c: mxs: only flag completion when queue is completely done (2012-02-24 22:28:27 +0100)
 
-   Wolfram
+----------------------------------------------------------------
+Wolfram Sang (1):
+      i2c: mxs: only flag completion when queue is completely done
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---R3G7APHDIzY6R/pk
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk9PTCYACgkQD27XaX1/VRv46wCfcmM3LnEq3iH6m/OeckgAhsqb
-SFYAn2fvJ5vN05J1Hgxye8oeT98vqfQ0
-=83qE
------END PGP SIGNATURE-----
-
---R3G7APHDIzY6R/pk--
+ drivers/i2c/busses/i2c-mxs.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
