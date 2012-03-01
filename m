@@ -1,50 +1,46 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: "Anthony Drake" <agmotorsvc-H+0wwilmMs3R7s880joybQ@public.gmane.org>
 Subject: Re: rtc-ds3232 driver
-Date: Thu, 1 Mar 2012 20:12:00 +0100
-Message-ID: <20120301191200.GB2538@pengutronix.de>
-References: <61_2012_11913_GON@news.gmane.org>
+Date: Thu, 1 Mar 2012 19:54:00 +0000 (UTC)
+Message-ID: <61_2012_13540_GON@news.gmane.org>
+References: <61_2012_11913_GON@news.gmane.org> <20120301191200.GB2538@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jq0ap7NbKX2Kqbes"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <61_2012_11913_GON-2AO0Uh8ossnZ+VzJOa5vwg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anthony Drake <agmotorsvc-H+0wwilmMs3R7s880joybQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 1 Mar 2012 20:12:00 +0100,
+Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote 
 
---jq0ap7NbKX2Kqbes
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> 
+> Documentation/rtc.txt
+> 
+> --=20
+Thank you.  I am familiar with the /dev/rtc0 character device special 
+file interface, and can access it well.  My problem is that there is no
+device special file created for rtc-ds3232 module.  I know how to mknod
+a character device, but I do not know the major/minor number for
+rtc-ds3232.ko, it does not appear in /proc/devices.  I do have
+/dev/i2c-1, 2, & 3 in my system.  
 
+I think I just do not know how to access i2c driver services, one that
+is added in the following way, from rtc-ds3232.c: 
 
-> I've built and insmod'd rtc-ds3232.ko, but I do not know how to access=20
-> the functionality of the driver.  I think there should be a device
-> special file such as /dev/rtc1 or something like it, but I don't know
-> what it is. I suspect that since this is a type of i2c driver there
-> must be a way to access the driver at a higher level but I do not know
-> how.  Is there any information to help?
+static int __init ds3232_init(void)
+{
+	printk("adding ds3232 driver: %s\n", ds3232_driver.driver.name);
+	return i2c_add_driver(&ds3232_driver);
+}
 
-Documentation/rtc.txt
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---jq0ap7NbKX2Kqbes
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk9PygAACgkQD27XaX1/VRuPywCgn5XWRpoLc3nFuwyxs6tGyQ+z
-u70An0vzGpJASfqjDto2rq6QXvtQh5MM
-=oF/c
------END PGP SIGNATURE-----
-
---jq0ap7NbKX2Kqbes--
+ds3232_driver defined:
+static struct i2c_driver ds3232_driver = {
+	.driver = {
+		.name = "rtc-ds3232",
+		.owner = THIS_MODULE,
+	},
+	.probe = ds3232_probe,
+	.remove = __devexit_p(ds3232_remove),
+	.id_table = ds3232_id,
+};
