@@ -1,34 +1,25 @@
-From: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Subject: Re: another i2c/for-next branch
-Date: Fri, 2 Mar 2012 16:28:10 +0000
-Message-ID: <20120302162810.GG8441@trinity.fluff.org>
-References: <20120302134305.GA19451@pengutronix.de> <20120302151118.554efb4a@endymion.delvare>
+From: "Anthony Drake" <agmotorsvc-H+0wwilmMs3R7s880joybQ@public.gmane.org>
+Subject: Re: rtc-ds3232 driver
+Date: Fri, 2 Mar 2012 17:27:35 +0000 (UTC)
+Message-ID: <62_2012_112735_GON@news.gmane.org>
+References: <61_2012_11913_GON@news.gmane.org>  <20120301191200.GB2538@pengutronix.de>  <61_2012_13540_GON@news.gmane.org> <20120301213414.501c5189@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120302151118.554efb4a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 02, 2012 at 03:11:18PM +0100, Jean Delvare wrote:
-> On Fri, 2 Mar 2012 14:43:05 +0100, Wolfram Sang wrote:
-> > Hi Stephen,
-> > 
-> > I am also collecting patches for the i2c-subsystem. Can you add my branch to
-> > linux-next, please?
-> > 
-> > git://git.pengutronix.de/git/wsa/linux.git i2c-embedded/for-next
+On Thu, 1 Mar 2012 21:34:14 +0100,
+Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote in 
+message
 > 
-> Would be good to have this in linux-next, yes. Thanks Wolfram for your
-> help!
-
-Seconded, Thankyou. I have asked Wolfram to handle things for this merge
-window as I am currently too busy to give adequate time to it.
-
--- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+> Odds are that the underlying I2C slave device was not instantiated.
+> Please read:
+> Documentation/i2c/instantiating-devices
+> 
+Thank you very much! It works! after using method 4 with the name
+("ds3232") from the i2c_device_id array, the kernel autoloads the
+module, creates /dev/rtc1. I've modified my userspace app to use the
+driver instead of raw i2c read/write, all working well. 
