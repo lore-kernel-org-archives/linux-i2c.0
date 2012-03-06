@@ -1,7 +1,7 @@
 From: "Lin Huang" <info-hpV0y7THmws@public.gmane.org>
 Subject: Proposal
-Date: Tue, 6 Mar 2012 09:01:59 +0800
-Message-ID: <23200.7015300498$1330996427@news.gmane.org>
+Date: Tue, 6 Mar 2012 09:38:00 +0800
+Message-ID: <45007.0170023993$1330997911@news.gmane.org>
 Reply-To: <llii.nhuang@9.cn>
 Mime-Version: 1.0
 Content-Type: text/plain;
