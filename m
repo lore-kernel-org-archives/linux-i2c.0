@@ -1,53 +1,28 @@
-From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH 2/2] i2c: tegra: Remove unnecessary write to INT_STATUS
-Date: Tue, 6 Mar 2012 09:37:07 +0530
-Message-ID: <7A0BFCFE3DA5CD47B0FB7984326F201A136B88647E@BGMAIL01.nvidia.com>
-References: <1328314217-16632-1-git-send-email-swarren@nvidia.com>
- <1328314217-16632-2-git-send-email-swarren@nvidia.com>
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-eg20t: Rework pch_i2c_wait_for_bus_idle to reduce wait time
+Date: Tue, 06 Mar 2012 08:36:37 +0100
+Message-ID: <2041940.hOTQq1CLVz@ws-stein>
+References: <1329725656-32715-1-git-send-email-alexander.stein@systec-electronic.com> <20120301101502.GB2535@pengutronix.de> <CANKRQniA2icHddFG22r7VtLTuoefbK61tpcUQnXgShFHuffUuA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1328314217-16632-2-git-send-email-swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Content-Language: en-US
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANKRQniA2icHddFG22r7VtLTuoefbK61tpcUQnXgShFHuffUuA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Am Freitag, 2. M=C3=A4rz 2012, 09:51:29 schrieb Tomoya MORINAGA:
+> 2012=E5=B9=B43=E6=9C=881=E6=97=A519:15 Wolfram Sang <w.sang@pengutron=
+ix.de>:
+> > Ah, thanks for the update! Are you fine with the patch in question =
+now?
+>=20
+> Alexander's patch looks good.
+> Did Alexander test i2c-eg20t driver with this patch ?
 
+Yes, I did test it.
 
------Original Message-----
-From: Stephen Warren 
-Sent: Saturday, February 04, 2012 5:40 AM
-To: Ben Dooks; Wolfram Sang
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Alok Chauhan; Stephen Warren
-Subject: [PATCH 2/2] i2c: tegra: Remove unnecessary write to INT_STATUS
-
-From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-
-The write is not necessary and may cause the I2C controller to misbehave.
-With this fix, I2C on Tegra30 works (at least, running i2cdump repeatedly on the WM8903 on Cardhu's I2C5/DVC bus).
-
-Originally by Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, but S-o-b missing in our internal repo.
-
-[swarren: Reworded commit description]
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |    1 -
- 1 files changed, 0 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c index a546ede..edac27b 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -456,7 +456,6 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	int ret;
- 
- 	tegra_i2c_flush_fifos(i2c_dev);
--	i2c_writel(i2c_dev, 0xFF, I2C_INT_STATUS);
- 
- 	if (msg->len == 0)
- 		return -EINVAL;
---
-1.7.0.4
+Best regards,
+Alexander
