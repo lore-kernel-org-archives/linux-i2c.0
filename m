@@ -1,249 +1,55 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/5 v2] i2c/gpio: add DT support
-Date: Wed, 07 Mar 2012 11:16:36 -0600
-Message-ID: <4F5797F4.2040104@gmail.com>
-References: <1330525221-25651-1-git-send-email-plagnioj@jcrosoft.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH V1] i2c: gpio: Use open drain support from gpio driver
+Date: Wed, 7 Mar 2012 17:31:57 +0000
+Message-ID: <20120307173157.GT3107@opensource.wolfsonmicro.com>
+References: <1331127494-6913-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1330525221-25651-1-git-send-email-plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sDhuxz86kt5qlkuV"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1331127494-6913-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/29/2012 08:20 AM, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-> Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> ---
-> v2:
-> 
-> 	use devm_kzalloc
-> 	use i2c-gpio
-> 	use time name in the properties
-> 
-> Best Regars,
-> J.
->  .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
->  drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
->  2 files changed, 107 insertions(+), 20 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> new file mode 100644
-> index 0000000..27e1b1a
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> @@ -0,0 +1,32 @@
-> +Device-Tree bindings for i2c gpio driver
-> +
-> +Required properties:
-> +	- compatible = "i2c-gpio";
-> +	- gpios: sda and scl gpio
-> +
-> +
-> +Optional properties:
-> +	- i2c-gpio,sda-open-drain: sda as open drain
-> +	- i2c-gpio,scl-open-drain: scl as open drain
-> +	- i2c-gpio,scl-output-only: scl as output only
-> +	- udelay: delay between GPIO operations (may depend on each platform)
 
-i2c-gpio,delay-us
+--sDhuxz86kt5qlkuV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> +	- i2c-algo-bit,timeout-milliseconds: timeout to get data
+On Wed, Mar 07, 2012 at 07:08:14PM +0530, Laxman Dewangan wrote:
+> The gpio core driver (gpio library) supports the open
+> drain pin handling. Therefore, it is not require it
+> to handle in the i2c-gpio driver, just require
+> to pass the OPEN_DRAIN type flag when requesting the gpio.
 
-i2c-gpio,timeout-ms
+Reviwed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 
-> +
-> +Example nodes:
-> +
-> +i2c-gpio@0 {
+but note that this is a new gpiolib feature in -next and will need to
+either be applied via Grant's tree or wait until after the merge window.
 
-Should be "i2c@0"
+--sDhuxz86kt5qlkuV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> +	compatible = "i2c-gpio";
-> +	gpios = <&pioA 23 0 /* sda */
-> +		 &pioA 24 0 /* scl */
-> +		>;
-> +	i2c-gpio,sda-open-drain;
-> +	i2c-gpio,scl-open-drain;
-> +	udelay = <2>;		/* ~100 kHz */
-> +	#address-cells = <1>;
-> +	#size-cells = <0>;
-> +
-> +	rv3029c2@56 {
-> +		compatible = "rv3029c2";
-> +		reg = <0x56>;
-> +	};
-> +};
-> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-> index a651779..71adba5 100644
-> --- a/drivers/i2c/busses/i2c-gpio.c
-> +++ b/drivers/i2c/busses/i2c-gpio.c
-> @@ -14,8 +14,15 @@
->  #include <linux/module.h>
->  #include <linux/slab.h>
->  #include <linux/platform_device.h>
-> +#include <linux/gpio.h>
-> +#include <linux/of_gpio.h>
-> +#include <linux/of_i2c.h>
->  
-> -#include <asm/gpio.h>
-> +struct i2c_gpio_private_data {
-> +	struct i2c_adapter adap;
-> +	struct i2c_algo_bit_data bit_data;
-> +	struct i2c_gpio_platform_data pdata;
-> +};
->  
->  /* Toggle SDA by changing the direction of the pin */
->  static void i2c_gpio_setsda_dir(void *data, int state)
-> @@ -78,24 +85,63 @@ static int i2c_gpio_getscl(void *data)
->  	return gpio_get_value(pdata->scl_pin);
->  }
->  
-> +static int __devinit of_i2c_gpio_probe(struct device_node *np,
-> +			     struct i2c_gpio_platform_data *pdata)
-> +{
-> +	u32 reg;
-> +
-> +	if (of_gpio_count(np) < 2)
-> +		return -ENODEV;
-> +
-> +	pdata->sda_pin = of_get_gpio(np, 0);
-> +	pdata->scl_pin = of_get_gpio(np, 1);
-> +
-> +	if (pdata->sda_pin < 0 || pdata->scl_pin < 0) {
-> +		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
-> +		       np->full_name, pdata->sda_pin, pdata->scl_pin);
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (of_property_read_u32(np, "udelay", &reg))
-> +		pdata->udelay = reg;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-Why not of_property_read_u32(np, "udelay", &pdata->udelay)?
+iQIcBAEBAgAGBQJPV5t0AAoJEBus8iNuMP3dnFQP/iT707PFwE6bw5wb5a0hsxrq
+MSj7aOItxpYJWPxwddVJZkgmluH+P1kzqiINqNF1sIQ7FfS5qJ3uZkwu2D2bzCHo
+F+yVd4X4zYTP15tx1Z2zZUipFo15XhcB0hTSrqvUPuyzVfWl/+jS5rJCxdWncVs2
+doGgevvun2nM9kxmXCIR9TVhCFjQXHl6ySA2hzk+uuNuzBo9gU5OgoYpNpSiUVj7
+L5ZEmo1QzhZKlMWSxFWLf5ySleI9vSqTDIHzDumse9B6aE+8MEC7H4281+VD0tHv
+mI3O1YTn0WfdHAMqyYvx2hd8s+t6UP6/Xe8tYOoPob8c9JxavAVYgE2ad/RLIpT8
+8g6S7fZa0uB8St9nac9hAVEJh1NIIIqTnWRhCuLu/T7j1MZea4fc1Tvc5bUEs25H
+FUzYkQEVrOUDs9hV3b13muWJj50MmodnzfwE2/lRgkparFHpsZiKH+J4q8J95W9t
+WxdquEu27RYb0mQbbY1fkv9YIesjTLQn/ovn8Os7DJhenoeVb0hJwrDYDi30f5hB
+tI0ZD1fRBIh5+Lc7zWYJ8xo7cuvuQUZTjraDhnagz1r/K4U9bQS+W5NECsR4cHL8
+4eMKYydSCL7X/E2myeIwDJjGpUrXVXbQ3iwXYny5F6Ncaj2Dlq8fFFIDAL58WCz6
+FgdrLN4kkMWyS5f6XXTI
+=ijI2
+-----END PGP SIGNATURE-----
 
-Also, reg may not be initialized here.
-
-> +
-> +	if (of_property_read_u32(np, "i2c-algo-bit,timeout-milliseconds", &reg))
-> +		pdata->timeout = msecs_to_jiffies(reg);
-> +
-> +	pdata->sda_is_open_drain =
-> +		!!of_property_read_bool(np, "i2c-gpio,sda-open-drain");
-> +	pdata->scl_is_open_drain =
-> +		!!of_property_read_bool(np, "i2c-gpio,scl-open-drain");
-> +	pdata->scl_is_output_only =
-> +		!!of_property_read_bool(np, "i2c-gpio,scl-output-only");
-> +
-> +	return 0;
-> +}
-> +
->  static int __devinit i2c_gpio_probe(struct platform_device *pdev)
->  {
-> +	struct i2c_gpio_private_data *priv;
->  	struct i2c_gpio_platform_data *pdata;
->  	struct i2c_algo_bit_data *bit_data;
->  	struct i2c_adapter *adap;
->  	int ret;
->  
-> -	pdata = pdev->dev.platform_data;
-> -	if (!pdata)
-> -		return -ENXIO;
-> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +	adap = &priv->adap;
-> +	bit_data = &priv->bit_data;
-> +	pdata = &priv->pdata;
->  
-> -	ret = -ENOMEM;
-> -	adap = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
-> -	if (!adap)
-> -		goto err_alloc_adap;
-> -	bit_data = kzalloc(sizeof(struct i2c_algo_bit_data), GFP_KERNEL);
-> -	if (!bit_data)
-> -		goto err_alloc_bit_data;
-> +	if (pdev->dev.of_node) {
-> +		ret = of_i2c_gpio_probe(pdev->dev.of_node, pdata);
-> +		if (ret)
-> +			return ret;
-> +	} else {
-> +		if (!pdev->dev.platform_data)
-> +			return -ENXIO;
-> +		memcpy(pdata, pdev->dev.platform_data, sizeof(*pdata));
-> +	}
->  
->  	ret = gpio_request(pdata->sda_pin, "sda");
->  	if (ret)
-> @@ -143,6 +189,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
->  	adap->algo_data = bit_data;
->  	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
->  	adap->dev.parent = &pdev->dev;
-> +	adap->dev.of_node = pdev->dev.of_node;
->  
->  	/*
->  	 * If "dev->id" is negative we consider it as zero.
-> @@ -154,7 +201,9 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
->  	if (ret)
->  		goto err_add_bus;
->  
-> -	platform_set_drvdata(pdev, adap);
-> +	of_i2c_register_devices(adap);
-> +
-> +	platform_set_drvdata(pdev, priv);
->  
->  	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
->  		 pdata->sda_pin, pdata->scl_pin,
-> @@ -168,34 +217,40 @@ err_add_bus:
->  err_request_scl:
->  	gpio_free(pdata->sda_pin);
->  err_request_sda:
-> -	kfree(bit_data);
-> -err_alloc_bit_data:
-> -	kfree(adap);
-> -err_alloc_adap:
->  	return ret;
->  }
->  
->  static int __devexit i2c_gpio_remove(struct platform_device *pdev)
->  {
-> +	struct i2c_gpio_private_data *priv;
->  	struct i2c_gpio_platform_data *pdata;
->  	struct i2c_adapter *adap;
->  
-> -	adap = platform_get_drvdata(pdev);
-> -	pdata = pdev->dev.platform_data;
-> +	priv = platform_get_drvdata(pdev);
-> +	adap = &priv->adap;
-> +	pdata = &priv->pdata;
->  
->  	i2c_del_adapter(adap);
->  	gpio_free(pdata->scl_pin);
->  	gpio_free(pdata->sda_pin);
-> -	kfree(adap->algo_data);
-> -	kfree(adap);
->  
->  	return 0;
->  }
->  
-> +#if defined(CONFIG_OF)
-> +static const struct of_device_id i2c_gpio_dt_ids[] = {
-> +	{ .compatible = "i2c-gpio", },
-> +	{ /* sentinel */ }
-> +};
-> +
-> +MODULE_DEVICE_TABLE(of, i2c_gpio_dt_ids);
-> +#endif
-> +
->  static struct platform_driver i2c_gpio_driver = {
->  	.driver		= {
->  		.name	= "i2c-gpio",
->  		.owner	= THIS_MODULE,
-> +		.of_match_table	= of_match_ptr(i2c_gpio_dt_ids),
->  	},
->  	.probe		= i2c_gpio_probe,
->  	.remove		= __devexit_p(i2c_gpio_remove),
+--sDhuxz86kt5qlkuV--
