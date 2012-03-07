@@ -1,137 +1,59 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 1/5 v2] i2c/gpio: add DT support
-Date: Wed, 7 Mar 2012 18:22:23 +0100
-Message-ID: <20120307172223.GB17087@game.jcrosoft.org>
-References: <1330525221-25651-1-git-send-email-plagnioj@jcrosoft.com>
- <4F5797F4.2040104@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH V1] i2c: gpio: Use open drain support from gpio driver
+Date: Wed, 7 Mar 2012 18:39:22 +0100
+Message-ID: <20120307173922.GB1130@pengutronix.de>
+References: <1331127494-6913-1-git-send-email-ldewangan@nvidia.com>
+ <20120307173157.GT3107@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4F5797F4.2040104-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20120307173157.GT3107-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 11:16 Wed 07 Mar     , Rob Herring wrote:
-> On 02/29/2012 08:20 AM, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> > Signed-off-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-> > Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> > ---
-> > v2:
-> > 
-> > 	use devm_kzalloc
-> > 	use i2c-gpio
-> > 	use time name in the properties
-> > 
-> > Best Regars,
-> > J.
-> >  .../devicetree/bindings/gpio/gpio_i2c.txt          |   32 +++++++
-> >  drivers/i2c/busses/i2c-gpio.c                      |   95 +++++++++++++++----
-> >  2 files changed, 107 insertions(+), 20 deletions(-)
-> >  create mode 100644 Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> > 
-> > diff --git a/Documentation/devicetree/bindings/gpio/gpio_i2c.txt b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> > new file mode 100644
-> > index 0000000..27e1b1a
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/gpio/gpio_i2c.txt
-> > @@ -0,0 +1,32 @@
-> > +Device-Tree bindings for i2c gpio driver
-> > +
-> > +Required properties:
-> > +	- compatible = "i2c-gpio";
-> > +	- gpios: sda and scl gpio
-> > +
-> > +
-> > +Optional properties:
-> > +	- i2c-gpio,sda-open-drain: sda as open drain
-> > +	- i2c-gpio,scl-open-drain: scl as open drain
-> > +	- i2c-gpio,scl-output-only: scl as output only
-> > +	- udelay: delay between GPIO operations (may depend on each platform)
-> 
-> i2c-gpio,delay-us
-> 
-> > +	- i2c-algo-bit,timeout-milliseconds: timeout to get data
-> 
-> i2c-gpio,timeout-ms
-it's algo-bit speficic no i2c-gpio that's why I use i2c-algo-bit
-> 
-> > +
-> > +Example nodes:
-> > +
-> > +i2c-gpio@0 {
-> 
-> Should be "i2c@0"
-ok
-> 
-> > +	compatible = "i2c-gpio";
-> > +	gpios = <&pioA 23 0 /* sda */
-> > +		 &pioA 24 0 /* scl */
-> > +		>;
-> > +	i2c-gpio,sda-open-drain;
-> > +	i2c-gpio,scl-open-drain;
-> > +	udelay = <2>;		/* ~100 kHz */
-> > +	#address-cells = <1>;
-> > +	#size-cells = <0>;
-> > +
-> > +	rv3029c2@56 {
-> > +		compatible = "rv3029c2";
-> > +		reg = <0x56>;
-> > +	};
-> > +};
-> > diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-> > index a651779..71adba5 100644
-> > --- a/drivers/i2c/busses/i2c-gpio.c
-> > +++ b/drivers/i2c/busses/i2c-gpio.c
-> > @@ -14,8 +14,15 @@
-> >  #include <linux/module.h>
-> >  #include <linux/slab.h>
-> >  #include <linux/platform_device.h>
-> > +#include <linux/gpio.h>
-> > +#include <linux/of_gpio.h>
-> > +#include <linux/of_i2c.h>
-> >  
-> > -#include <asm/gpio.h>
-> > +struct i2c_gpio_private_data {
-> > +	struct i2c_adapter adap;
-> > +	struct i2c_algo_bit_data bit_data;
-> > +	struct i2c_gpio_platform_data pdata;
-> > +};
-> >  
-> >  /* Toggle SDA by changing the direction of the pin */
-> >  static void i2c_gpio_setsda_dir(void *data, int state)
-> > @@ -78,24 +85,63 @@ static int i2c_gpio_getscl(void *data)
-> >  	return gpio_get_value(pdata->scl_pin);
-> >  }
-> >  
-> > +static int __devinit of_i2c_gpio_probe(struct device_node *np,
-> > +			     struct i2c_gpio_platform_data *pdata)
-> > +{
-> > +	u32 reg;
-> > +
-> > +	if (of_gpio_count(np) < 2)
-> > +		return -ENODEV;
-> > +
-> > +	pdata->sda_pin = of_get_gpio(np, 0);
-> > +	pdata->scl_pin = of_get_gpio(np, 1);
-> > +
-> > +	if (pdata->sda_pin < 0 || pdata->scl_pin < 0) {
-> > +		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
-> > +		       np->full_name, pdata->sda_pin, pdata->scl_pin);
-> > +		return -ENODEV;
-> > +	}
-> > +
-> > +	if (of_property_read_u32(np, "udelay", &reg))
-> > +		pdata->udelay = reg;
-> 
-> Why not of_property_read_u32(np, "udelay", &pdata->udelay)?
-> 
-> Also, reg may not be initialized here.
-if udelay have any error we keep udelay as 0
 
-Best Regards,
-J.
+--oC1+HKm2/end4ao3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Mar 07, 2012 at 05:31:57PM +0000, Mark Brown wrote:
+> On Wed, Mar 07, 2012 at 07:08:14PM +0530, Laxman Dewangan wrote:
+> > The gpio core driver (gpio library) supports the open
+> > drain pin handling. Therefore, it is not require it
+> > to handle in the i2c-gpio driver, just require
+> > to pass the OPEN_DRAIN type flag when requesting the gpio.
+>=20
+> Reviwed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+
+Typo ;)
+
+>=20
+> but note that this is a new gpiolib feature in -next and will need to
+> either be applied via Grant's tree or wait until after the merge window.
+
+I'll pick it for v3.5 later. Thanks for the review!
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--oC1+HKm2/end4ao3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk9XnUoACgkQD27XaX1/VRu0yQCgwyR3SZ5kEPkYeE0p53PHaa+I
+Om8AnRgak1mDjdFhqAIaouyVEVMyc39V
+=Zh2i
+-----END PGP SIGNATURE-----
+
+--oC1+HKm2/end4ao3--
