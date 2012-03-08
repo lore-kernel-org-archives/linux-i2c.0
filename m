@@ -1,59 +1,91 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH RESEND] i2c/nomadik: runtime PM support
-Date: Thu, 8 Mar 2012 14:41:54 +0000
-Message-ID: <20120308144154.GO3638@opensource.wolfsonmicro.com>
-References: <1331213407-10135-1-git-send-email-linus.walleij@stericsson.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: tegra: Add delay before reset the controller
+Date: Thu, 08 Mar 2012 09:30:48 -0700
+Message-ID: <4F58DEB8.9060103@wwwdotorg.org>
+References: <1324898081-10308-1-git-send-email-alokc@nvidia.com> <CAM=Q2cs+myCvph7OXvCDTG7y48oNTfRtjsDzQaKiEXzjdu3pzA@mail.gmail.com> <7A0BFCFE3DA5CD47B0FB7984326F201A13689D386F@BGMAIL01.nvidia.com> <7A0BFCFE3DA5CD47B0FB7984326F201A136B886672@BGMAIL01.nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jXoUnAu9pZeaHebo"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1331213407-10135-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <7A0BFCFE3DA5CD47B0FB7984326F201A136B886672-kdsAE/FnitNDw2glCA4ptUEOCMrvLtNR@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Dec 26, 2011 at 4:44 PM, Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
+> From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>
+> In NACK error condition, I2C controller violates clock-to-data setup 
+> time before stop. In Software, because of this reset of controller is 
+> happening before I2C controller could complete STOP condition.
+>
+> Added delay of 2 clock period before reset the controller in case of 
+> NACK error.
 
---jXoUnAu9pZeaHebo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+(CC list cut down to people who were active in the original patch
+posting thread)
 
-On Thu, Mar 08, 2012 at 02:30:07PM +0100, Linus Walleij wrote:
+On 03/07/2012 11:29 PM, Alok Chauhan wrote:
+> Hi all,
+> 
+> If there are no more concern then can we merge this patch to i2c tegra driver? 
 
-> The key reason is that we have hardware blocks with different
-> characteristics on the order to do things, whereas in some other
-> systems (like shmobile I guess) every IP block shall be twisted
-> the same way. We have a mixed legacy of ARM PrimeCells and IP
-> blocks from different corners of the world and just cannot do
-> it in one single way. ARM PrimeCells already have some
-> centralized runtime PM callbacks.
+Alok, a couple comments:
 
-Yeah, the other issue on some systems with long histories is that if
-you've got many generations of SoC it can be easier to roll updates out
-over drivers than get all the SoCs updated to the latest infrastructure
-along with supporting new ones.
+1) The set of I2C maintainers has changed since you last posted this
+patch. You should resend the whole patch to make sure the new
+maintainers have a copy. I've CC'd Wolfram on this message, but you
+still need to repost since there's no way Wolfram can extract the patch
+from this email.
 
---jXoUnAu9pZeaHebo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+2) Wasn't there an outstanding question about the length of the delay
+here, and whether it negatively interfered with the TPM chips on some
+boards, since they always NACK the first transaction, which then needs
+to be retried quickly so the TPM doesn't go back to sleep? I don't
+recall you answering addressing that issue. There's no point reposting
+without addressing all the issues. Also, I'm not sure whether
+Shubhrajyot or Ben consider the answers you gave to their questions
+satisfactory or not.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+P.S. Top-posting makes for confusing emails.
 
-iQIcBAEBAgAGBQJPWMUrAAoJEBus8iNuMP3d2JwQAJgP9X9qYwZy0LCU5L8QAHGg
-A+hcHV+BILeNzwPL15VXqVZCqUdhfSDW118S0zmKiGnARLw0nqe+TB8Xl9ZNkSWw
-aJWUV7aq6ulMXy1cihR1CpflDEZRmvq5bgg7C+lom41FgrNvsuE/iL3XRfyn5lXo
-2q+AJnDvEbWbr4loLaBGjB0IOwYc+RdOAh1ADWYfCTeqPw4sN5vaaA4cyoowVWMP
-zlqQKUiCAcDzRp87ZtYr0RqWEpRMidODcyCC1LOO2CysBnVIs80lPA/vQbdFvh9Z
-Pv4O1zSgc0FbnM2ayhcTBGvQbjpkx/tBAyoDtATqV2NtCSMWRkdarNuB32fT3aAK
-Cnpf7eRN83NRUZXqKWlmv2wLAkprUE0gBxgEb0Hqzjn3I5/bWNue/jD1Cl/GXi2c
-gUdAOJoeksjtupDFWtuDRTYU+jO/rggDs/aRqBZ5EPZaDYtu/D3RXYOTqCk71S6g
-LSS9iOPEQzf5HLFrmZkCefkkgVdQ3A65CQUWN/KxLLULCt2lRwYbrFsJTUfNla5w
-eTcLfyiY2BGk1Eo//HSDv++IGJUgo6h8KjtCxZIdZl6qC8Ezn0bll+c8P3C8MoNJ
-wZZGA33mynC3FV2rkntAesom69YVU/2Laup6pzkH04x4e28KdIUPStDNdh8WJBKv
-te3MGoROGhc37Lwyp+kZ
-=rPZQ
------END PGP SIGNATURE-----
+Thanks.
 
---jXoUnAu9pZeaHebo--
+>> Signed-off-by: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>> ---
+>> Instead of setting constant value for delay as was in previous patch, 
+>> now in the current modification delay will be calculated based on clock frequency of the bus.
+>>
+>>  drivers/i2c/busses/i2c-tegra.c |    8 ++++++++
+>>  1 files changed, 8 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-tegra.c 
+>> b/drivers/i2c/busses/i2c-tegra.c index 6381604..62e197c 100644
+>> --- a/drivers/i2c/busses/i2c-tegra.c
+>> +++ b/drivers/i2c/busses/i2c-tegra.c
+>> @@ -517,6 +517,14 @@ static int tegra_i2c_xfer_msg(struct 
+>> tegra_i2c_dev *i2c_dev,
+>>        if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
+>>                return 0;
+>>
+>> +       /*
+>> +        * In NACK error condition resetting of I2C controller happens
+>> +        * before STOP condition is properly completed by I2C 
+>> + controller,
+>> +        * so wait for 2 clock cycle to complete STOP condition.
+>> +        */
+> 
+>>>>> Why do you need to reset the controller in case of a NACK.
+>>>> This is required because of hardware limitations. Without reset we can't flus the internal hardware registers.
+> 
+> 
+>> +       if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
+>> +               udelay(DIV_ROUND_UP(2 * 1000000, 
+>> + i2c_dev->bus_clk_rate));
+>> +
+>>        tegra_i2c_init(i2c_dev);
+>>        if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
+>>                if (msg->flags & I2C_M_IGNORE_NAK)
+>> --
+>> 1.7.4.1
