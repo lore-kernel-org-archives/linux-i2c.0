@@ -1,49 +1,57 @@
-From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 1/5 v3] i2c/gpio: add DT support
-Date: Thu, 08 Mar 2012 11:52:00 +0100
-Message-ID: <4F588F50.7060906@samsung.com>
-References: <1331196635-27203-1-git-send-email-plagnioj@jcrosoft.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH V1] i2c: gpio: Use open drain support from gpio driver
+Date: Thu, 8 Mar 2012 11:01:48 +0000
+Message-ID: <20120308110148.GE3638@opensource.wolfsonmicro.com>
+References: <1331127494-6913-1-git-send-email-ldewangan@nvidia.com>
+ <20120307173157.GT3107@opensource.wolfsonmicro.com>
+ <CACRpkdaEHOGA2XfW1SMJodyf9oTNRF7kk9ErQeSpBv_2TFj=Rg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <1331196635-27203-1-git-send-email-plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PGNNI9BzQDUtgA2J"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdaEHOGA2XfW1SMJodyf9oTNRF7kk9ErQeSpBv_2TFj=Rg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08.03.2012 09:50, Jean-Christophe PLAGNIOL-VILLARD wrote:
 
-> +static int __devinit of_i2c_gpio_probe(struct device_node *np,
-> +			     struct i2c_gpio_platform_data *pdata)
-> +{
-> +	u32 reg;
-> +
-> +	if (of_gpio_count(np) < 2)
-> +		return -ENODEV;
-> +
-> +	pdata->sda_pin = of_get_gpio(np, 0);
-> +	pdata->scl_pin = of_get_gpio(np, 1);
-> +
-> +	if (pdata->sda_pin < 0 || pdata->scl_pin < 0) {
-> +		pr_err("%s: invalid GPIO pins, sda=%d/scl=%d\n",
-> +		       np->full_name, pdata->sda_pin, pdata->scl_pin);
-> +		return -ENODEV;
-> +	}
-> +
-> +	of_property_read_u32(np, "i2c-gpio,delay-us", &pdata->udelay);
-> +
+--PGNNI9BzQDUtgA2J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Thu, Mar 08, 2012 at 07:24:39AM +0100, Linus Walleij wrote:
 
+> > but note that this is a new gpiolib feature in -next and will need to
+> > either be applied via Grant's tree or wait until after the merge window.
 
-> +	if (of_property_read_u32(np, "i2c-gpio,timeout-ms", &reg))
-> +		pdata->timeout = msecs_to_jiffies(reg);
+> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> I'd ask Grant to take this into the GPIO tree if Broonie can ACK it.
 
+You're looking for Wolfram or Ben there, I don't really do much I2C
+stuff.
 
-I've already said (two times!) that of_property_read_u32() returns
-nonzero (negative) error code on _error_.
+--PGNNI9BzQDUtgA2J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Don't you see obvious error in above code fragment?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
-You assign to pdata->timeout on _error_.
+iQIcBAEBAgAGBQJPWJGTAAoJEBus8iNuMP3dzdEP/3/TRSUQLzd/yNH3cCHqs/jr
+PCc/I/k4v5Oacax7z1WuFjTQo0u5pWvSrz2dg/84Evu4jbzd4vSEdzA9FXC2eCA5
+q9fWQLgeTu2OeryiVID6xuDDVh3N1F8SCH/Txq3X1ewsLH1CFeAYj2+9d84g/gZA
+qgohVC/f01SfDz0BCLQ3aQlng7MAEi9akIn2HT/5h1NQiUAKLpBLia5QCdBd3BKR
+HaP/OE0SnE4y+UgaZwbEuoMODwSMPbi0W2X3Gxckb1d5FCjrKWeI3s6bXcLz6vvj
+AhTGI3ic4VUM8Z1exJSTx0THA2n1qObsrhvuF19DLX3bkZsz2qH0rT648n/dCYmB
+1x7EoAeOOPmpSvH6QXfunt+11i/W//PNSmKLOqG8Q9QV/UqeXW6uqgoJ7vfYYSq/
+p7aCXo2GORGnrOtIcIQHR8FDxwA5cqHdNA3R65N8R+0snw8XJK7UQ5gixUWrNEyZ
+5j8I687sfEYvzoinsC9FKfWP1LDH+UtUvf6hho+wA89GF66A2iUo5CYmBnEZyVXI
+QGiXS9+sBsqKBuirNUpDxIpiJBsUFozaW5A6xoxH0cwhEaAMjEwvZCon1rTMZQC6
+URqW36JPtAj82eyS4RuWRe2OGYkGgn6vvBtFkfFU3hT4kEinE2G4PDZ0pwm/E2CB
+UzeVy2JylnjTOyYkT8S8
+=yQvj
+-----END PGP SIGNATURE-----
+
+--PGNNI9BzQDUtgA2J--
