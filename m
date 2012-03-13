@@ -1,81 +1,38 @@
-From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH] i2c: designware: Add support for 16bit register access
-Date: Tue, 13 Mar 2012 16:54:21 +0100
-Message-ID: <1331654061-5322-1-git-send-email-sr@denx.de>
+From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 0/3 v2] Updates for exynos4210 and DT-based systems
+Date: Tue, 13 Mar 2012 17:54:36 +0100
+Message-ID: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+To: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The STM SPEAr platform can only access the i2c controller register
-via 16bit read/write functions. This patch adds support to
-automatically detect this 16bit access mode.
+Changes since v1:
+ - Move unrelated code fragment to separate patch (of_match_ptr())
+ - Move device-type handling to separate function and rework its
+   internals a bit
 
-Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-core.c |   22 ++++++++++++++++++++--
- drivers/i2c/busses/i2c-designware-core.h |    1 +
- 2 files changed, 21 insertions(+), 2 deletions(-)
+This patchset reworks i2c-s3c2410 driver a bit to better handle
+device tree-enabled platforms and adds two quirks required by
+exynos4210-specific I2C controller used by s5p-hdmi driver.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index df87992..d1facbc 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -164,7 +164,14 @@ static char *abort_sources[] = {
- 
- u32 dw_readl(struct dw_i2c_dev *dev, int offset)
- {
--	u32 value = readl(dev->base + offset);
-+	u32 value;
-+
-+	if (dev->access_16bit) {
-+		value = readw(dev->base + offset) |
-+			(readw(dev->base + offset + 2) << 16);
-+	} else {
-+		value = readl(dev->base + offset);
-+	}
- 
- 	if (dev->swab)
- 		return swab32(value);
-@@ -177,7 +184,12 @@ void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
- 	if (dev->swab)
- 		b = swab32(b);
- 
--	writel(b, dev->base + offset);
-+	if (dev->access_16bit) {
-+		writew((u16)b, dev->base + offset);
-+		writew((u16)(b >> 16), dev->base + offset + 2);
-+	} else {
-+		writel(b, dev->base + offset);
-+	}
- }
- 
- static u32
-@@ -258,6 +270,12 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 		reg = DW_IC_COMP_TYPE_VALUE;
- 	}
- 
-+	/* Configure register access mode 16bit */
-+	if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
-+		dev->access_16bit = 1;
-+		reg = DW_IC_COMP_TYPE_VALUE;
-+	}
-+
- 	if (reg != DW_IC_COMP_TYPE_VALUE) {
- 		dev_err(dev->dev, "Unknown Synopsys component type: "
- 			"0x%08x\n", reg);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 02d1a2d..f5af101 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -83,6 +83,7 @@ struct dw_i2c_dev {
- 	u32			abort_source;
- 	int			irq;
- 	int			swab;
-+	int			access_16bit;
- 	struct i2c_adapter	adapter;
- 	u32			functionality;
- 	u32			master_cfg;
+This patchset is based on "i2c-bjdooks/for-34/i2c/i2c-samsung" branch
+taken from:
+
+  git://git.fluff.org/bjdooks/linux.git
+
+Karol Lewandowski (3):
+  i2c-s3c2410: Drop unused define
+  i2c-s3c2410: Rework device type handling
+  i2c-s3c2410: Add HDMIPHY quirk for S3C2440
+
+ .../devicetree/bindings/i2c/samsung-i2c.txt        |   10 ++-
+ drivers/i2c/busses/i2c-s3c2410.c                   |   93 +++++++++++++++-----
+ 2 files changed, 77 insertions(+), 26 deletions(-)
+
 -- 
-1.7.9.2
+1.7.9
