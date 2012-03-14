@@ -1,53 +1,116 @@
-From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <syrjala-ORSVBvAovxo@public.gmane.org>
-Subject: [PATCH] i2c-algo-bit: Fix spurious SCL timeouts under heavy load
-Date: Wed, 14 Mar 2012 10:32:52 +0200
-Message-ID: <1331713973-7711-1-git-send-email-syrjala@sci.fi>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: designware: Add support for 16bit register access
+Date: Wed, 14 Mar 2012 09:43:46 +0100
+Message-ID: <20120314094346.3d6e167f@endymion.delvare>
+References: <1331654061-5322-1-git-send-email-sr@denx.de>
+	<D5ECB3C7A6F99444980976A8C6D896384FA2BA250F@EAPEX1MAIL1.st.com>
+	<201203140858.00472.sr@denx.de>
+	<D5ECB3C7A6F99444980976A8C6D896384FA2BA2675@EAPEX1MAIL1.st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <D5ECB3C7A6F99444980976A8C6D896384FA2BA2675-8vAmw3ZAcdzhJTuQ9jeba9BPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <syrjala-ORSVBvAovxo@public.gmane.org>
+To: Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>
+Cc: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel <spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-When the system is under heavy load, there can be a significant delay
-between the getscl() and time_after() calls inside sclhi(). That delay
-may cause the time_after() check to trigger after SCL has gone high,
-causing sclhi() to return -ETIMEDOUT.
+On Wed, 14 Mar 2012 16:19:22 +0800, Bhupesh SHARMA wrote:
+> > -----Original Message-----
+> > From: Stefan Roese [mailto:sr-ynQEQJNshbs@public.gmane.org]
+> > Sent: Wednesday, March 14, 2012 1:28 PM
+> > To: Bhupesh SHARMA
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; spear-devel; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+> > Subject: Re: [PATCH] i2c: designware: Add support for 16bit register
+> > access
+> > 
+> > On Wednesday 14 March 2012 04:29:23 Bhupesh SHARMA wrote:
+> > > > -----Original Message-----
+> > > > From: Stefan Roese [mailto:sr-ynQEQJNshbs@public.gmane.org]
+> > > > Sent: Tuesday, March 13, 2012 9:24 PM
+> > > > To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > > Cc: spear-devel; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+> > > > Subject: [PATCH] i2c: designware: Add support for 16bit register access
+> > > > (...)
+> > > > @@ -258,6 +270,12 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+> > > >
+> > > >  		reg = DW_IC_COMP_TYPE_VALUE;
+> > > >
+> > > >  	}
+> > > >
+> > > > +	/* Configure register access mode 16bit */
+> > > > +	if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
+> > > > +		dev->access_16bit = 1;
+> > >
+> > > Can we use a suitable macro for 0x0000ffff?
+> > 
+> > Hmmm. Wouldn't that make it more complex? 0x0000ffff is easy to
+> > understand. A
+> > marco would "hide" this value. I would prefer to keep the value.
+> 
+> Using a macro doesn't make things 'more complex', but more readable.
+> Magic numbers must be avoided at all cost. A better
+> named MACRO is always better (for anyone else reading the code)
+> than a magic number like 0x0000ffff.
 
-To fix the problem, double check that SCL is still low after the
-timeout has been reached, before deciding to return -ETIMEDOUT.
+I beg to disagree. Quite strongly, even.
 
-Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <syrjala-ORSVBvAovxo@public.gmane.org>
----
-I can easily reproduce these spurious timeouts on my HP-compaq nc6000
-laptop with the radeon kms driver. It's enough to have a -j2 kernel
-build running, and simultaneosly issue xrandr commands in a
-terminal. Calling xrandr will cause the driver to re-read the EDID
-from the display. A significant number of the EDID reads will fail.
-With this fix I have yet to see any failed EDID reads.
+For one thing, "at all cost" never holds in the real world. You always
+have to make compromises.
 
- drivers/i2c/algos/i2c-algo-bit.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletions(-)
+For another, it only makes sense to define constants for values that
+have a specific meaning. For example bits in a bit vector, or bit
+masks. Here this is clearly not the case, so I fully agree with Stefan
+that a define would make the code _less_ readable.
 
-diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-a=
-lgo-bit.c
-index 525c734..d25112e 100644
---- a/drivers/i2c/algos/i2c-algo-bit.c
-+++ b/drivers/i2c/algos/i2c-algo-bit.c
-@@ -104,9 +104,11 @@ static int sclhi(struct i2c_algo_bit_data *adap)
- 		 * are processing data internally.
- 		 */
- 		if (time_after(jiffies, start + adap->timeout))
--			return -ETIMEDOUT;
-+			break;
- 		cond_resched();
- 	}
-+	if (!getscl(adap))
-+		return -ETIMEDOUT;
- #ifdef DEBUG
- 	if (jiffies !=3D start && i2c_debug >=3D 3)
- 		pr_debug("i2c-algo-bit: needed %ld jiffies for SCL to go "
---=20
-1.7.3.4
+> > > > (...)
+> > > > diff --git a/drivers/i2c/busses/i2c-designware-core.h
+> > > > b/drivers/i2c/busses/i2c-designware-core.h
+> > > > index 02d1a2d..f5af101 100644
+> > > > --- a/drivers/i2c/busses/i2c-designware-core.h
+> > > > +++ b/drivers/i2c/busses/i2c-designware-core.h
+> > > > @@ -83,6 +83,7 @@ struct dw_i2c_dev {
+> > > >
+> > > >  	u32			abort_source;
+> > > >  	int			irq;
+> > > >  	int			swab;
+> > > >
+> > > > +	int			access_16bit;
+> > >
+> > > ...
+> > > int?? Probably we are better off with making this as bool.
+> > 
+> > I'm not a big fan of bool's. But I have no strong preference here. My
+> > reasoning here was consistency. As we already have "int swab" for a
+> > similar
+> > issue.
+> 
+> If we have not done it earlier, doesn't mean that we repeat the same
+> mistake again. There is no reason to take access_16bit as an int when a bool
+> will suffice.
+> 
+> This wastes storage and on some platforms (which have real crunch of memory),
+> such saving is critical.
+> 
+> > So basically, I would prefer to not make the changes you suggested. But
+> > in the
+> > end its the decision of the maintainer(s).
+> > 
+> 
+> Linux is a collaborative world and patches can be reviewed by
+> literally anyone :)
+
+Likewise, everyone can send patches to address issues that bother them.
+Want these ints turned into bools? Stop yelling at Stefan, and do it
+yourself. If it is so critical, no doubt you'll find reviewers to ack
+your patch and maintainers to apply it. And you'll even get the fame.
+
+> I am sure the maintainer(s) will find my comments worth adding in your patch..  
+
+I'm not in charge of this specific driver, so I can't speak for the
+maintainer. And you shouldn't either...
+
+Thanks,
+-- 
+Jean Delvare
