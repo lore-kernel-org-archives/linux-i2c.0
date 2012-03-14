@@ -1,65 +1,50 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/5 v4] i2c/gpio: add DT support
-Date: Tue, 13 Mar 2012 20:46:17 +0100
-Message-ID: <20120313194616.GE2488@pengutronix.de>
-References: <1331642024-19869-1-git-send-email-plagnioj@jcrosoft.com>
- <20120313140822.GD2488@pengutronix.de>
- <20120313164756.GF18320@game.jcrosoft.org>
+From: Kyungmin Park <kmpark@infradead.org>
+Subject: Re: [PATCH 0/3 v2] Updates for exynos4210 and DT-based systems
+Date: Wed, 14 Mar 2012 10:49:48 +0900
+Message-ID: <CAH9JG2VhDKN4skjtgsYXDJqrNbXbOuheKHo_hQPeQ3XdNgh1Lg@mail.gmail.com>
+References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tVmo9FyGdCe4F4YN"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120313164756.GF18320-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Karol Lewandowski <k.lewandowsk@samsung.com>, Wolfram Sang <w.sang@pengutronix.de>
+Cc: ben-linux@fluff.org, thomas.abraham@linaro.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
++CC another i2c subsystem maintainer, Wolfram Sang.
 
---tVmo9FyGdCe4F4YN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Mar 13, 2012 at 05:47:56PM +0100, Jean-Christophe PLAGNIOL-VILLARD =
-wrote:
-> On 15:08 Tue 13 Mar     , Wolfram Sang wrote:
-> > On Tue, Mar 13, 2012 at 01:33:40PM +0100, Jean-Christophe PLAGNIOL-VILL=
-ARD wrote:
-> >=20
-> > > update to use devm_kzalloc for private data
-> >=20
-> > Hmm, you need really to work on the commit messages, not everybody is
-> > familiar with DT and its implications:
-> >=20
-> > "To achieve DT support, we need to populate a custom platform_data in a
-> > private struct from DT information. To simplify code, the adapter and
-> > algorithm are also put into the private struct."
-> >=20
-> ok I put this can I get the Ack ?
-
-Yes.
-
-> I need to send the pull asap
-
-Please, no rush. Makes it too easy for bugs to slip in...
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---tVmo9FyGdCe4F4YN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAk9fpAgACgkQD27XaX1/VRtfrwCgjVpsMEEXLYxWL6OH9cDM4fF2
-KywAoMiaxI1BJmb0XiHiXs+8GKco5DOE
-=LBlQ
------END PGP SIGNATURE-----
-
---tVmo9FyGdCe4F4YN--
+On 3/14/12, Karol Lewandowski <k.lewandowsk@samsung.com> wrote:
+> Changes since v1:
+>  - Move unrelated code fragment to separate patch (of_match_ptr())
+>  - Move device-type handling to separate function and rework its
+>    internals a bit
+>
+> This patchset reworks i2c-s3c2410 driver a bit to better handle
+> device tree-enabled platforms and adds two quirks required by
+> exynos4210-specific I2C controller used by s5p-hdmi driver.
+>
+> This patchset is based on "i2c-bjdooks/for-34/i2c/i2c-samsung" branch
+> taken from:
+>
+>   git://git.fluff.org/bjdooks/linux.git
+>
+> Karol Lewandowski (3):
+>   i2c-s3c2410: Drop unused define
+>   i2c-s3c2410: Rework device type handling
+>   i2c-s3c2410: Add HDMIPHY quirk for S3C2440
+>
+>  .../devicetree/bindings/i2c/samsung-i2c.txt        |   10 ++-
+>  drivers/i2c/busses/i2c-s3c2410.c                   |   93
+> +++++++++++++++-----
+>  2 files changed, 77 insertions(+), 26 deletions(-)
+>
+> --
+> 1.7.9
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-samsung-soc"
+> in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
