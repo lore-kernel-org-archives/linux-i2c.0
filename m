@@ -1,59 +1,71 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH v3 4/6] mfd: mc13xxx-core: use regmap for register access
-Date: Thu, 15 Mar 2012 17:43:44 +0000
-Message-ID: <20120315174343.GQ3138@opensource.wolfsonmicro.com>
-References: <1331757790-10583-1-git-send-email-marc@cpdesign.com.au>
- <1331757790-10583-5-git-send-email-marc@cpdesign.com.au>
+From: Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: Add clk_prepare/clk_unprepare calls to i2c-pxa
+Date: Thu, 15 Mar 2012 19:18:25 +0100
+Message-ID: <1331835505.14662.10.camel@flow>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wg9FEZT+WCTrEXgJ"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1331757790-10583-5-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch adds clk_prepare/clk_unprepare calls to the i2c-pxa
+driver by using the helper functions clk_prepare_enable and
+clk_disable_unprepare.
 
---wg9FEZT+WCTrEXgJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: Philipp Zabel <philipp.zabel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Eric Miao <eric.y.miao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |    8 +++++---
+ 1 files changed, 5 insertions(+), 3 deletions(-)
 
-On Thu, Mar 15, 2012 at 07:43:08AM +1100, Marc Reilly wrote:
-> This change converts the mc13xxx core to use regmap rather than direct
-> spi r/w.
-> The spidev member of mc13xxx struct becomes redundant and is removed.
-> Extra debugging aids are added to mc13xxx_reg_rmw.
-> Mutex init is moved to before regmap init.
-
-Reviwed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-
-For rmw please push the trace down into regmap as a new tracepoint if
-you find it useful; one of the wins from regmap is intended to be the
-trace and diagnostic infrastructure you get for free with it.  At the
-minute only the underlying reads and writes have trace.
-
---wg9FEZT+WCTrEXgJ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPYipGAAoJEBus8iNuMP3da1sP/ROPgtgPNaPXFB3+ZKjwUn1B
-ISivBi7QYeu69pENd0ZI29frZMiec5fNnJ0bx2jFAVdpwTOD8XBOc777p9okecQL
-jBNfVhR1paVewoOdsrqabShVlzwHalqEuNvsOL+QFVR8/wW8t8+LOFVmV2nhiaJi
-8ltF9aRIp4p+gWz4o3Yn2dmStjoM4OrQTmtCR64Wca0v4/GwPdxDrW+d6brjvo//
-lNfqpbifw8BwbC8pUdlgNCzOqS2jEPNysuvFAa72TbjUX4HG4OHdXfL9dS5IJleR
-lKDmIzXorjEwiY+CzL4+A+zCvIfMupFsk5eTwpI+IZnAJSfTca9irrwSupyPTinv
-6vFHzAJ9EXSzeVzyIS7cq00yJEgNHKiR6/EN9l3gR7EZLiAQajr23zHxQewdHLPI
-YTs/qOmx1wNdqtWpXHgooHAMpv/b1wpl8xggGOduODkp7oVcdoxDfBt+RBz/cTjS
-zF5w9WKkBiBijxMV9EXKHmFw0Z/ny7Czflnj5heKV0rPOj/wHYQXMaxLlOuyhfR3
-xktS1VOq8lJD3Gql2R9xQAD7wlQQkULQWJKlkHCr+nD4lmIDMrhg+iQ5lq3ps7OR
-YMouPZXmc7oR5WuC24Pk4zDsnyE+XQwWcUCgQs/GCex/o+uib+YLxAiTrIF8pAdr
-6LSaK1M6VUZShKOtVAKN
-=ogQ9
------END PGP SIGNATURE-----
-
---wg9FEZT+WCTrEXgJ--
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index d603646..950b76c 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -42,8 +42,10 @@
+ #ifndef CONFIG_HAVE_CLK
+ #define clk_get(dev, id)	NULL
+ #define clk_put(clk)		do { } while (0)
++#define clk_prepare_enable(clk)	do { } while (0)
+ #define clk_disable(clk)	do { } while (0)
+ #define clk_enable(clk)		do { } while (0)
++#define clk_disable_unprepare(clk) do { } while (0)
+ #endif
+ 
+ struct pxa_reg_layout {
+@@ -1116,7 +1118,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	}
+ #endif
+ 
+-	clk_enable(i2c->clk);
++	clk_prepare_enable(i2c->clk);
+ 
+ 	if (plat) {
+ 		i2c->adap.class = plat->class;
+@@ -1164,7 +1166,7 @@ eadapt:
+ 	if (!i2c->use_pio)
+ 		free_irq(irq, i2c);
+ ereqirq:
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	iounmap(i2c->reg_base);
+ eremap:
+ 	clk_put(i2c->clk);
+@@ -1185,7 +1187,7 @@ static int __exit i2c_pxa_remove(struct platform_device *dev)
+ 	if (!i2c->use_pio)
+ 		free_irq(i2c->irq, i2c);
+ 
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	clk_put(i2c->clk);
+ 
+ 	iounmap(i2c->reg_base);
+-- 
+1.7.9.1
