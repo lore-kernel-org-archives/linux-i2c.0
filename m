@@ -1,43 +1,74 @@
-From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
-Date: Thu, 15 Mar 2012 17:54:33 +0100
-Message-ID: <4F621EC9.6020106@samsung.com>
-References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
- <1331657679-31302-3-git-send-email-k.lewandowsk@samsung.com>
- <20120314172915.GB13393@sirena.org.uk> <4F61BEC8.4030008@samsung.com>
- <20120315125630.GK3138@opensource.wolfsonmicro.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-dev: Add support for I2C_M_RECV_LEN
+Date: Thu, 15 Mar 2012 18:08:35 +0100
+Message-ID: <20120315180835.2e669111@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20120315125630.GK3138-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 15.03.2012 13:56, Mark Brown wrote:
+As the bus driver side implementation of I2C_M_RECV_LEN is heavily
+tied to SMBus, we can't support received length over 32 bytes, but
+let's at least support that.
 
-> On Thu, Mar 15, 2012 at 11:04:56AM +0100, Karol Lewandowski wrote:
-> 
->> Introducing separate type (TYPE_S3C2440_HDMIPHY) has been our original
->> attempt to solve this issue.  However, this required adding explicit
->> checks to driver code all over the place (if (type == S3C2400 ||
->> type == S3c2440_HDMIPHY).
-> 
-> Another option is to change the type to be a pointer to a struct with
-> quirk flags in it.
+In practice, the caller will have to setup a buffer large enough to
+cover the case where received length byte has value 32, so minimum
+32 + 1 = 33 bytes, possibly more if there is a fixed number of bytes
+added for the specific slave (for example a checksum.)
+
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+---
+This is an alternative to Doug's implementation. Doug, I sent this to
+you one week ago, did you have the time to give it a try, do you have
+any comment? Again I can't test this myself so someone else will have
+to do it.
+
+ drivers/i2c/i2c-dev.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
+
+--- linux-3.3-rc7.orig/drivers/i2c/i2c-dev.c	2012-03-15 18:00:02.502988008 +0100
++++ linux-3.3-rc7/drivers/i2c/i2c-dev.c	2012-03-15 18:04:46.394992216 +0100
+@@ -265,19 +265,30 @@ static noinline int i2cdev_ioctl_rdrw(st
+ 
+ 	res = 0;
+ 	for (i = 0; i < rdwr_arg.nmsgs; i++) {
+-		/* Limit the size of the message to a sane amount;
+-		 * and don't let length change either. */
+-		if ((rdwr_pa[i].len > 8192) ||
+-		    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
++		/* Limit the size of the message to a sane amount */
++		if (rdwr_pa[i].len > 8192) {
+ 			res = -EINVAL;
+ 			break;
+ 		}
++
++		/* Use the same RECV_LEN semantics as SMBus */
++		if (rdwr_pa[i].flags & I2C_M_RECV_LEN) {
++			if (rdwr_pa[i].len < I2C_SMBUS_BLOCK_MAX + 1) {
++				res = -EINVAL;
++				break;
++			}
++		}
++
+ 		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
+ 		rdwr_pa[i].buf = memdup_user(data_ptrs[i], rdwr_pa[i].len);
+ 		if (IS_ERR(rdwr_pa[i].buf)) {
+ 			res = PTR_ERR(rdwr_pa[i].buf);
+ 			break;
+ 		}
++
++		/* Bus driver will add the value of the first byte received */
++		if (rdwr_pa[i].flags & I2C_M_RECV_LEN)
++			rdwr_pa[i].len -= I2C_SMBUS_BLOCK_MAX;
+ 	}
+ 	if (res < 0) {
+ 		int j;
 
 
-Sure, that's possible.   However, I don't find it any simpler than
-using  bitmasks.  Quite to contrary - I consider it redundant to
-bring new structure into existence when simple uint does the trick
-just fine (IMHO, of course).
-
-If you consider code to be inherently less readable because of this
-approach I'll rework it.  If it's not a such big deal for you I would
-prefer to keep it as is.
-
-Thanks!
 -- 
-Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
+Jean Delvare
