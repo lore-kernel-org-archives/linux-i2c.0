@@ -1,74 +1,59 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-dev: Add support for I2C_M_RECV_LEN
-Date: Thu, 15 Mar 2012 18:08:35 +0100
-Message-ID: <20120315180835.2e669111@endymion.delvare>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH v3 4/6] mfd: mc13xxx-core: use regmap for register access
+Date: Thu, 15 Mar 2012 17:43:44 +0000
+Message-ID: <20120315174343.GQ3138@opensource.wolfsonmicro.com>
+References: <1331757790-10583-1-git-send-email-marc@cpdesign.com.au>
+ <1331757790-10583-5-git-send-email-marc@cpdesign.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wg9FEZT+WCTrEXgJ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1331757790-10583-5-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-As the bus driver side implementation of I2C_M_RECV_LEN is heavily
-tied to SMBus, we can't support received length over 32 bytes, but
-let's at least support that.
 
-In practice, the caller will have to setup a buffer large enough to
-cover the case where received length byte has value 32, so minimum
-32 + 1 = 33 bytes, possibly more if there is a fixed number of bytes
-added for the specific slave (for example a checksum.)
+--wg9FEZT+WCTrEXgJ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
----
-This is an alternative to Doug's implementation. Doug, I sent this to
-you one week ago, did you have the time to give it a try, do you have
-any comment? Again I can't test this myself so someone else will have
-to do it.
+On Thu, Mar 15, 2012 at 07:43:08AM +1100, Marc Reilly wrote:
+> This change converts the mc13xxx core to use regmap rather than direct
+> spi r/w.
+> The spidev member of mc13xxx struct becomes redundant and is removed.
+> Extra debugging aids are added to mc13xxx_reg_rmw.
+> Mutex init is moved to before regmap init.
 
- drivers/i2c/i2c-dev.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+Reviwed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 
---- linux-3.3-rc7.orig/drivers/i2c/i2c-dev.c	2012-03-15 18:00:02.502988008 +0100
-+++ linux-3.3-rc7/drivers/i2c/i2c-dev.c	2012-03-15 18:04:46.394992216 +0100
-@@ -265,19 +265,30 @@ static noinline int i2cdev_ioctl_rdrw(st
- 
- 	res = 0;
- 	for (i = 0; i < rdwr_arg.nmsgs; i++) {
--		/* Limit the size of the message to a sane amount;
--		 * and don't let length change either. */
--		if ((rdwr_pa[i].len > 8192) ||
--		    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
-+		/* Limit the size of the message to a sane amount */
-+		if (rdwr_pa[i].len > 8192) {
- 			res = -EINVAL;
- 			break;
- 		}
-+
-+		/* Use the same RECV_LEN semantics as SMBus */
-+		if (rdwr_pa[i].flags & I2C_M_RECV_LEN) {
-+			if (rdwr_pa[i].len < I2C_SMBUS_BLOCK_MAX + 1) {
-+				res = -EINVAL;
-+				break;
-+			}
-+		}
-+
- 		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
- 		rdwr_pa[i].buf = memdup_user(data_ptrs[i], rdwr_pa[i].len);
- 		if (IS_ERR(rdwr_pa[i].buf)) {
- 			res = PTR_ERR(rdwr_pa[i].buf);
- 			break;
- 		}
-+
-+		/* Bus driver will add the value of the first byte received */
-+		if (rdwr_pa[i].flags & I2C_M_RECV_LEN)
-+			rdwr_pa[i].len -= I2C_SMBUS_BLOCK_MAX;
- 	}
- 	if (res < 0) {
- 		int j;
+For rmw please push the trace down into regmap as a new tracepoint if
+you find it useful; one of the wins from regmap is intended to be the
+trace and diagnostic infrastructure you get for free with it.  At the
+minute only the underlying reads and writes have trace.
 
+--wg9FEZT+WCTrEXgJ
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- 
-Jean Delvare
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPYipGAAoJEBus8iNuMP3da1sP/ROPgtgPNaPXFB3+ZKjwUn1B
+ISivBi7QYeu69pENd0ZI29frZMiec5fNnJ0bx2jFAVdpwTOD8XBOc777p9okecQL
+jBNfVhR1paVewoOdsrqabShVlzwHalqEuNvsOL+QFVR8/wW8t8+LOFVmV2nhiaJi
+8ltF9aRIp4p+gWz4o3Yn2dmStjoM4OrQTmtCR64Wca0v4/GwPdxDrW+d6brjvo//
+lNfqpbifw8BwbC8pUdlgNCzOqS2jEPNysuvFAa72TbjUX4HG4OHdXfL9dS5IJleR
+lKDmIzXorjEwiY+CzL4+A+zCvIfMupFsk5eTwpI+IZnAJSfTca9irrwSupyPTinv
+6vFHzAJ9EXSzeVzyIS7cq00yJEgNHKiR6/EN9l3gR7EZLiAQajr23zHxQewdHLPI
+YTs/qOmx1wNdqtWpXHgooHAMpv/b1wpl8xggGOduODkp7oVcdoxDfBt+RBz/cTjS
+zF5w9WKkBiBijxMV9EXKHmFw0Z/ny7Czflnj5heKV0rPOj/wHYQXMaxLlOuyhfR3
+xktS1VOq8lJD3Gql2R9xQAD7wlQQkULQWJKlkHCr+nD4lmIDMrhg+iQ5lq3ps7OR
+YMouPZXmc7oR5WuC24Pk4zDsnyE+XQwWcUCgQs/GCex/o+uib+YLxAiTrIF8pAdr
+6LSaK1M6VUZShKOtVAKN
+=ogQ9
+-----END PGP SIGNATURE-----
+
+--wg9FEZT+WCTrEXgJ--
