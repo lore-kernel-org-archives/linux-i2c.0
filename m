@@ -1,79 +1,95 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 6/6] mfd: mc13xxx: Add i2c driver
-Date: Thu, 15 Mar 2012 19:10:42 +0530
-Message-ID: <CAM=Q2cssNF2TSWHjcbG4wsABBXhquYoKq_scC6bDcq8kdoosyQ@mail.gmail.com>
-References: <1331757790-10583-1-git-send-email-marc@cpdesign.com.au>
-	<1331757790-10583-7-git-send-email-marc@cpdesign.com.au>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-algo-bit: Fix spurious SCL timeouts under heavy
+ load
+Date: Thu, 15 Mar 2012 15:32:40 +0100
+Message-ID: <20120315153240.75efc254@endymion.delvare>
+References: <1331713973-7711-1-git-send-email-syrjala@sci.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <1331757790-10583-7-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
-List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1331713973-7711-1-git-send-email-syrjala-ORSVBvAovxo@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ville =?UTF-8?B?U3lyasOkbMOk?= <syrjala-ORSVBvAovxo@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Marc,
+Hi Ville,
 
-On Thu, Mar 15, 2012 at 2:13 AM, Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org> wrote:
-> Adds support for mc13xxx family ICs connected via i2c.
->
-> Signed-off-by: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+On Wed, 14 Mar 2012 10:32:52 +0200, Ville Syrj=C3=A4l=C3=A4 wrote:
+> When the system is under heavy load, there can be a significant delay
+> between the getscl() and time_after() calls inside sclhi(). That dela=
+y
+> may cause the time_after() check to trigger after SCL has gone high,
+> causing sclhi() to return -ETIMEDOUT.
+>=20
+> To fix the problem, double check that SCL is still low after the
+> timeout has been reached, before deciding to return -ETIMEDOUT.
+>=20
+> Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <syrjala-ORSVBvAovxo@public.gmane.org>
 > ---
-<snip>
+> I can easily reproduce these spurious timeouts on my HP-compaq nc6000
+> laptop with the radeon kms driver. It's enough to have a -j2 kernel
+> build running, and simultaneosly issue xrandr commands in a
+> terminal. Calling xrandr will cause the driver to re-read the EDID
+> from the display. A significant number of the EDID reads will fail.
+> With this fix I have yet to see any failed EDID reads.
 
-> +static int mc13xxx_i2c_probe(struct i2c_client *client,
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 const struct i2c_device_id *id)
-> +{
-> + =A0 =A0 =A0 const struct of_device_id *of_id;
-> + =A0 =A0 =A0 struct i2c_driver *idrv =3D to_i2c_driver(client->dev.drive=
-r);
-> + =A0 =A0 =A0 struct mc13xxx *mc13xxx;
-> + =A0 =A0 =A0 struct mc13xxx_platform_data *pdata =3D dev_get_platdata(&c=
-lient->dev);
-> + =A0 =A0 =A0 int ret;
-> +
-> + =A0 =A0 =A0 of_id =3D of_match_device(mc13xxx_dt_ids, &client->dev);
-> + =A0 =A0 =A0 if (of_id)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 idrv->id_table =3D
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 &mc13xxx_i2c_device_id[(enu=
-m mc13xxx_id) of_id->data];
-> +
-> + =A0 =A0 =A0 mc13xxx =3D kzalloc(sizeof(*mc13xxx), GFP_KERNEL);
-> + =A0 =A0 =A0 if (!mc13xxx)
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
-> +
-> + =A0 =A0 =A0 dev_set_drvdata(&client->dev, mc13xxx);
-> +
-> + =A0 =A0 =A0 mc13xxx->dev =3D &client->dev;
-> + =A0 =A0 =A0 mutex_init(&mc13xxx->lock);
-> +
-> + =A0 =A0 =A0 mc13xxx->regmap =3D regmap_init_i2c(client, &mc13xxx_regmap=
-_i2c_config);
-> + =A0 =A0 =A0 if (IS_ERR(mc13xxx->regmap)) {
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D PTR_ERR(mc13xxx->regmap);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(mc13xxx->dev, "Failed to initialize=
- register map: %d\n",
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret);
-> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_set_drvdata(&client->dev, NULL);
-Are we  leaking mc13xxx here
-May be you can consider using devm* functions ?
+Thanks for describing a test case, I was able to reproduce the problem
+easily by following your instructions. The problem is real, even with
+the pending fixes I have to radeon's I2C implementation.
 
->  + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return ret;
-> + =A0 =A0 =A0 }
-> +
+I only have one concern about your implementation:
 
----------------------------------------------------------------------------=
----
-This SF email is sponsosred by:
-Try Windows Azure free for 90 days Click Here =
+>=20
+>  drivers/i2c/algos/i2c-algo-bit.c |    4 +++-
+>  1 files changed, 3 insertions(+), 1 deletions(-)
+>=20
+> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c=
+-algo-bit.c
+> index 525c734..d25112e 100644
+> --- a/drivers/i2c/algos/i2c-algo-bit.c
+> +++ b/drivers/i2c/algos/i2c-algo-bit.c
+> @@ -104,9 +104,11 @@ static int sclhi(struct i2c_algo_bit_data *adap)
+>  		 * are processing data internally.
+>  		 */
+>  		if (time_after(jiffies, start + adap->timeout))
+> -			return -ETIMEDOUT;
+> +			break;
+>  		cond_resched();
+>  	}
+> +	if (!getscl(adap))
+> +		return -ETIMEDOUT;
 
-http://p.sf.net/sfu/sfd2d-msazure
+This means double-check even in the most common case where time_after()
+didn't cause the loop break. From a performance perspective, this seems
+undesirable. What would you think of the alternative fix below?
+
+--- linux-3.3-rc7.orig/drivers/i2c/algos/i2c-algo-bit.c	2012-03-15 09:3=
+3:10.232176790 +0100
++++ linux-3.3-rc7/drivers/i2c/algos/i2c-algo-bit.c	2012-03-15 14:52:48.=
+127778459 +0100
+@@ -103,8 +103,14 @@ static int sclhi(struct i2c_algo_bit_dat
+ 		 * chips may hold it low ("clock stretching") while they
+ 		 * are processing data internally.
+ 		 */
+-		if (time_after(jiffies, start + adap->timeout))
++		if (time_after(jiffies, start + adap->timeout)) {
++			/* Test one last time, as we may have been preempted
++			 * between last check and timeout test.
++			 */
++			if (getscl(adap))
++				break;
+ 			return -ETIMEDOUT;
++		}
+ 		cond_resched();
+ 	}
+ #ifdef DEBUG
+
+=46unctionally it should be equivalent to your proposal, but faster. I'=
+ll
+apply that (and send for stable inclusion.)
+
+Thanks,
+--=20
+Jean Delvare
