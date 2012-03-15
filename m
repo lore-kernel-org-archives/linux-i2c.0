@@ -1,52 +1,82 @@
 From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH v3 2/6] regmap: Add support for device with 24 data bits.
-Date: Thu, 15 Mar 2012 10:46:18 +0000
-Message-ID: <20120315104617.GD3138@opensource.wolfsonmicro.com>
-References: <1331757790-10583-1-git-send-email-marc@cpdesign.com.au>
- <1331757790-10583-3-git-send-email-marc@cpdesign.com.au>
+Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
+Date: Thu, 15 Mar 2012 12:56:30 +0000
+Message-ID: <20120315125630.GK3138@opensource.wolfsonmicro.com>
+References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
+ <1331657679-31302-3-git-send-email-k.lewandowsk@samsung.com>
+ <20120314172915.GB13393@sirena.org.uk>
+ <4F61BEC8.4030008@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NklN7DEeGtkPCoo3"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1331757790-10583-3-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============3471446847755934681=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <4F61BEC8.4030008-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---NklN7DEeGtkPCoo3
+--===============3471446847755934681==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HcccYpVZDxQ8hzPO"
+Content-Disposition: inline
+
+
+--HcccYpVZDxQ8hzPO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Mar 15, 2012 at 07:43:06AM +1100, Marc Reilly wrote:
-> Add support for devices with 24 data bits.
+On Thu, Mar 15, 2012 at 11:04:56AM +0100, Karol Lewandowski wrote:
 
-Not sure what you generated this patch against but it doesn't apply to
-my topic/core or against -next.  Please regenerate it against
-topic/core, it looks good.
+> Introducing separate type (TYPE_S3C2440_HDMIPHY) has been our original
+> attempt to solve this issue.  However, this required adding explicit
+> checks to driver code all over the place (if (type == S3C2400 ||
+> type == S3c2440_HDMIPHY).
 
---NklN7DEeGtkPCoo3
+Another option is to change the type to be a pointer to a struct with
+quirk flags in it.
+
+--HcccYpVZDxQ8hzPO
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.11 (GNU/Linux)
 
-iQIcBAEBAgAGBQJPYcheAAoJEBus8iNuMP3dazYP/2dkWFkQjRUdofSKt5ttPovm
-D3KZSnXqP1L0PYHTni+pvsY9hHX83qigwcHHEsSeAS67KaLWBO/BBTc6Uaq1XkiS
-VI3mDvV9DaLEVCCzhyFc0W9AWZLBFaqamlmXlDVew3qFF9/Ftxlk/Afgxen4d1cp
-ZgM9/tC9S8zPFQyEPB9K3WsirA81xVTo8Lw2rbQPdjYG75Fn+OzZ8SlvrDCN0pxU
-HY1YuB5JClFpIuNvH5aKqqxZ7hFzpwr7zsaKLE9d+UgSKTE7jxfpmfZ77nz7vUrK
-5DGiXXANRsiOHxKMofRsv99xNauflkrNoDj6r3hhscPfB71r4gBetfe6hxRV2G9B
-dm8/ol5eCypDkf7YGRaAA7dTgBh7QfzxpC9JR5UAoiDCJyi6vPQ3M/olq3DPXl9E
-6zPSlkxAP14phm6QkzWzmaEB/SmMkq1ICSNQhgXX5bq+c+7yZvAoonN1Bh7rwB3K
-6vaMVYe3jqMN18SSrgE0i+fGQm1zP/jbkD+OK4MI7Pl0qHNScBXgZJKNo90HS93s
-ahgqvPxF6yITsttQioc6wL3eiSyj85/cY5oczr9hJRW5KHtqmVuXPRiGpOOowx6z
-6QUM3HbfrwtwP5nsKsh6kJzpGS8a2K+HvrwPrHWwBYHuDNayDyk7sWlKlUbuz13c
-YHf6Gqkko2C8B4BkBcxO
-=YWyi
+iQIcBAEBAgAGBQJPYebwAAoJEBus8iNuMP3drkYP/1PZa56oyfKw8hJd1h9L+IZv
+RKBh7G8R2Z3Yx/uLDIP5PlhYoPOdMeQ9ngg4svOh27maeDvhEXgXO5jP2nzxjCOo
+Su62mR8sozezGe2OO6cFkX4zaa6I48gexfiSZzkMpr16HEkRXd5Cu/aSO4ruF50R
+yduSDMPZVuiI/fnlKvYpSKmkOhVUfgRNI+Zg7qbV6YqQLDjsP5EvEia7NU4h3T+B
+qs1RWcZC67LRvuDBWfB3akTHtoQqPAMLGqvqXgZfFOT860erAAVTfBj4jQ/1VIwo
+blaycDLtSAD6iQhtXE6HL06exP57GBtfYnXrFdxFu0OtyMRsgbpUeYFPuNE9japD
+dcC+t5gmGYrG8yVYtUjF607kP3HgQnKHDD/JmbGDo66IBxQC0F7gYJh/LBNstMK2
+YXZLi5JEmUMuvMlNQ/aQE7HdzVf4m0FiJHWCNaL8z7cmNF7HLERHARvW3WlT3vgJ
+2SMb3vKq9EQWQs0wvCqMfdROrVEXO8pEdjYwveZdiMXqNheCEuyPIjqG8tPPjwjv
+M41QcfsCTwdZIfaoJlCAPc/qiw7HmlyFOlXvFIUrOrw6d0/06XYJmSoS5h5EQhyy
+z2jj70jFdWTejb7ZBixO3RRD+J4j7psa/A7LzrlgJxKoDnhiITn6OHMwaS6UAVBf
+ihCC5yudMnNesehNatHt
+=NmrA
 -----END PGP SIGNATURE-----
 
---NklN7DEeGtkPCoo3--
+--HcccYpVZDxQ8hzPO--
+
+--===============3471446847755934681==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============3471446847755934681==--
