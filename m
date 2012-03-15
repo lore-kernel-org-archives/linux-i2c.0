@@ -1,82 +1,79 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
-Date: Thu, 15 Mar 2012 12:56:30 +0000
-Message-ID: <20120315125630.GK3138@opensource.wolfsonmicro.com>
-References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
- <1331657679-31302-3-git-send-email-k.lewandowsk@samsung.com>
- <20120314172915.GB13393@sirena.org.uk>
- <4F61BEC8.4030008@samsung.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 6/6] mfd: mc13xxx: Add i2c driver
+Date: Thu, 15 Mar 2012 19:10:42 +0530
+Message-ID: <CAM=Q2cssNF2TSWHjcbG4wsABBXhquYoKq_scC6bDcq8kdoosyQ@mail.gmail.com>
+References: <1331757790-10583-1-git-send-email-marc@cpdesign.com.au>
+	<1331757790-10583-7-git-send-email-marc@cpdesign.com.au>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3471446847755934681=="
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <4F61BEC8.4030008-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <1331757790-10583-7-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
+List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Marc,
 
---===============3471446847755934681==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcccYpVZDxQ8hzPO"
-Content-Disposition: inline
+On Thu, Mar 15, 2012 at 2:13 AM, Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org> wrote:
+> Adds support for mc13xxx family ICs connected via i2c.
+>
+> Signed-off-by: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+> ---
+<snip>
 
+> +static int mc13xxx_i2c_probe(struct i2c_client *client,
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 const struct i2c_device_id *id)
+> +{
+> + =A0 =A0 =A0 const struct of_device_id *of_id;
+> + =A0 =A0 =A0 struct i2c_driver *idrv =3D to_i2c_driver(client->dev.drive=
+r);
+> + =A0 =A0 =A0 struct mc13xxx *mc13xxx;
+> + =A0 =A0 =A0 struct mc13xxx_platform_data *pdata =3D dev_get_platdata(&c=
+lient->dev);
+> + =A0 =A0 =A0 int ret;
+> +
+> + =A0 =A0 =A0 of_id =3D of_match_device(mc13xxx_dt_ids, &client->dev);
+> + =A0 =A0 =A0 if (of_id)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 idrv->id_table =3D
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 &mc13xxx_i2c_device_id[(enu=
+m mc13xxx_id) of_id->data];
+> +
+> + =A0 =A0 =A0 mc13xxx =3D kzalloc(sizeof(*mc13xxx), GFP_KERNEL);
+> + =A0 =A0 =A0 if (!mc13xxx)
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ENOMEM;
+> +
+> + =A0 =A0 =A0 dev_set_drvdata(&client->dev, mc13xxx);
+> +
+> + =A0 =A0 =A0 mc13xxx->dev =3D &client->dev;
+> + =A0 =A0 =A0 mutex_init(&mc13xxx->lock);
+> +
+> + =A0 =A0 =A0 mc13xxx->regmap =3D regmap_init_i2c(client, &mc13xxx_regmap=
+_i2c_config);
+> + =A0 =A0 =A0 if (IS_ERR(mc13xxx->regmap)) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret =3D PTR_ERR(mc13xxx->regmap);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_err(mc13xxx->dev, "Failed to initialize=
+ register map: %d\n",
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 ret);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_set_drvdata(&client->dev, NULL);
+Are we  leaking mc13xxx here
+May be you can consider using devm* functions ?
 
---HcccYpVZDxQ8hzPO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+>  + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return ret;
+> + =A0 =A0 =A0 }
+> +
 
-On Thu, Mar 15, 2012 at 11:04:56AM +0100, Karol Lewandowski wrote:
+---------------------------------------------------------------------------=
+---
+This SF email is sponsosred by:
+Try Windows Azure free for 90 days Click Here =
 
-> Introducing separate type (TYPE_S3C2440_HDMIPHY) has been our original
-> attempt to solve this issue.  However, this required adding explicit
-> checks to driver code all over the place (if (type == S3C2400 ||
-> type == S3c2440_HDMIPHY).
-
-Another option is to change the type to be a pointer to a struct with
-quirk flags in it.
-
---HcccYpVZDxQ8hzPO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPYebwAAoJEBus8iNuMP3drkYP/1PZa56oyfKw8hJd1h9L+IZv
-RKBh7G8R2Z3Yx/uLDIP5PlhYoPOdMeQ9ngg4svOh27maeDvhEXgXO5jP2nzxjCOo
-Su62mR8sozezGe2OO6cFkX4zaa6I48gexfiSZzkMpr16HEkRXd5Cu/aSO4ruF50R
-yduSDMPZVuiI/fnlKvYpSKmkOhVUfgRNI+Zg7qbV6YqQLDjsP5EvEia7NU4h3T+B
-qs1RWcZC67LRvuDBWfB3akTHtoQqPAMLGqvqXgZfFOT860erAAVTfBj4jQ/1VIwo
-blaycDLtSAD6iQhtXE6HL06exP57GBtfYnXrFdxFu0OtyMRsgbpUeYFPuNE9japD
-dcC+t5gmGYrG8yVYtUjF607kP3HgQnKHDD/JmbGDo66IBxQC0F7gYJh/LBNstMK2
-YXZLi5JEmUMuvMlNQ/aQE7HdzVf4m0FiJHWCNaL8z7cmNF7HLERHARvW3WlT3vgJ
-2SMb3vKq9EQWQs0wvCqMfdROrVEXO8pEdjYwveZdiMXqNheCEuyPIjqG8tPPjwjv
-M41QcfsCTwdZIfaoJlCAPc/qiw7HmlyFOlXvFIUrOrw6d0/06XYJmSoS5h5EQhyy
-z2jj70jFdWTejb7ZBixO3RRD+J4j7psa/A7LzrlgJxKoDnhiITn6OHMwaS6UAVBf
-ihCC5yudMnNesehNatHt
-=NmrA
------END PGP SIGNATURE-----
-
---HcccYpVZDxQ8hzPO--
-
---===============3471446847755934681==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-devicetree-discuss mailing list
-devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-https://lists.ozlabs.org/listinfo/devicetree-discuss
-
---===============3471446847755934681==--
+http://p.sf.net/sfu/sfd2d-msazure
