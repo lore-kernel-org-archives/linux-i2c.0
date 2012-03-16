@@ -1,42 +1,44 @@
-From: Karol Lewandowski <k.lewandowsk@samsung.com>
-Subject: [PATCH 0/2] i2c: Don't assume bus nr 0 if none was specified
-Date: Fri, 16 Mar 2012 13:19:01 +0100
-Message-ID: <1331900343-6743-1-git-send-email-k.lewandowsk@samsung.com>
+From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 1/2] i2c-pxa: Drop leftover comment
+Date: Fri, 16 Mar 2012 13:19:02 +0100
+Message-ID: <1331900343-6743-2-git-send-email-k.lewandowsk@samsung.com>
+References: <1331900343-6743-1-git-send-email-k.lewandowsk@samsung.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: w.sang@pengutronix.de
-Cc: ben-linux@fluff.org, khali@linux-fr.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, hskinnemoen@gmail.com, dirk.brandewie@gmail.com, bigeasy@linutronix.de, m.szyprowski@samsung.com, grant.likely@secretlab.ca, kyungmin.park@samsung.com, Karol Lewandowski <k.lewandowsk@samsung.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <1331900343-6743-1-git-send-email-k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Commit 488bf314b ("i2c: Allow i2c_add_numbered_adapter() to assign a
+bus id") reworked i2c-pxa driver leaving obsolete comment.
 
-i2c controller drivers used to assume bus number 0 when none (-1) was specified.
+This commit simply drops it.
 
-This worked on non-device tree systems, where one could explicitly specify
-bus number via platform data.  On DT-enabled systems bus number is always -1.
+Signed-off-by: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-Some drivers assume bus number 0 when -1 is specified.  This patchset kills
-this logic and switches to dynamic bus allocation (default when -1 is provided[1]).
-
-[ I've found out this when I've tried to instantiate more than one i2c-gpio
-  instance on DT-enabled system. I've, hopefully, fixed few other drivers too. ]
-
-[1] Introduced by Grant Likely in 488bf314b ("i2c: Allow i2c_add_numbered_adapter()
-    to assign a bus id")
-
-Karol Lewandowski (2):
-  i2c-pxa: Drop leftover comment
-  i2c: Dynamically assign adapter id if it wasn't explictly specified
-
- drivers/i2c/busses/i2c-gpio.c         |    7 +------
- drivers/i2c/busses/i2c-octeon.c       |    2 +-
- drivers/i2c/busses/i2c-pca-platform.c |    2 +-
- drivers/i2c/busses/i2c-pxa.c          |    5 -----
- drivers/i2c/busses/i2c-versatile.c    |    9 ++-------
- 5 files changed, 5 insertions(+), 20 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index d603646..b81fd10 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1074,11 +1074,6 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	spin_lock_init(&i2c->lock);
+ 	init_waitqueue_head(&i2c->wait);
+ 
+-	/*
+-	 * If "dev->id" is negative we consider it as zero.
+-	 * The reason to do so is to avoid sysfs names that only make
+-	 * sense when there are multiple adapters.
+-	 */
+ 	i2c->adap.nr = dev->id;
+ 	snprintf(i2c->adap.name, sizeof(i2c->adap.name), "pxa_i2c-i2c.%u",
+ 		 i2c->adap.nr);
 -- 
 1.7.9
