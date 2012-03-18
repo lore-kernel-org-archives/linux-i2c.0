@@ -1,39 +1,59 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH 0/2] i2c: Don't assume bus nr 0 if none was specified
-Date: Sat, 17 Mar 2012 10:50:56 +0000
-Message-ID: <20120317105056.BC9EE3E093F@localhost>
-References: <1331900343-6743-1-git-send-email-k.lewandowsk@samsung.com> <4F6331AF.3010007@samsung.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F6331AF.3010007-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH 1/3] i2c-s3c2410: Drop unused define
+Date: Sun, 18 Mar 2012 20:49:37 +0000
+Message-ID: <20120318204937.0F6AB3E07BF@localhost>
+References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com> <1331657679-31302-2-git-send-email-k.lewandowsk@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1331657679-31302-2-git-send-email-k.lewandowsk@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: ben-linux@fluff.org
+Cc: thomas.abraham@linaro.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, Karol Lewandowski <k.lewandowsk@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 16 Mar 2012 13:27:27 +0100, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
-> On 16.03.2012 13:19, Karol Lewandowski wrote:
+On Tue, 13 Mar 2012 17:54:37 +0100, Karol Lewandowski <k.lewandowsk@samsung.com> wrote:
+> Use standard of_match_ptr() to avoid defining variable unused
+> in non device tree builds.
 > 
-> > Hi,
-> > 
-> > i2c controller drivers used to assume bus number 0 when none (-1) was specified.
-> > 
-> > This worked on non-device tree systems, where one could explicitly specify
-> > bus number via platform data.  On DT-enabled systems bus number is always -1.
-> > 
-> > Some drivers assume bus number 0 when -1 is specified.  This patchset kills
-> > this logic and switches to dynamic bus allocation (default when -1 is provided[1]).
-> 
-> 
-> [ I must have lost actual problem description while rewording
->   message itself... ]
-> 
-> Problem arises when multiple drivers (or multiple instances
-> of one driver) try to assume the same fixed bus number (0).
-> 
-> This causes simply causes i2c_add_numbered_bus() to fail.
-> Leaving -1 works perfectly, as registration function switches
-> to dynamic id registration.
+> Signed-off-by: Karol Lewandowski <k.lewandowsk@samsung.com>
+> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
 
-Patch series looks good to me.  You'll need acks from the affected users.
+Acked-by: Grant Likely <grant.likely@secretlab.ca>
 
-g.
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |    4 +---
+>  1 files changed, 1 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 737f721..85e3664 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -1128,8 +1128,6 @@ static const struct of_device_id s3c24xx_i2c_match[] = {
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
+> -#else
+> -#define s3c24xx_i2c_match NULL
+>  #endif
+>  
+>  static struct platform_driver s3c24xx_i2c_driver = {
+> @@ -1140,7 +1138,7 @@ static struct platform_driver s3c24xx_i2c_driver = {
+>  		.owner	= THIS_MODULE,
+>  		.name	= "s3c-i2c",
+>  		.pm	= S3C24XX_DEV_PM_OPS,
+> -		.of_match_table = s3c24xx_i2c_match,
+> +		.of_match_table = of_match_ptr(s3c24xx_i2c_match),
+>  	},
+>  };
+>  
+> -- 
+> 1.7.9
+> 
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Grant Likely, B.Sc, P.Eng.
+Secret Lab Technologies,Ltd.
