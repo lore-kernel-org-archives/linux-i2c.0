@@ -1,97 +1,52 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c-designware: add optional regulator support
-Date: Mon, 19 Mar 2012 14:46:20 +0200
-Message-ID: <1332161180-32502-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: add optional regulator support
+Date: Mon, 19 Mar 2012 14:28:07 +0000
+Message-ID: <20120319142807.GA9334@sirena.org.uk>
+References: <1332161180-32502-1-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1332161180-32502-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jani Nikula <jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Jani Nikula <jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It is possible that some of the i2c busses are supplied by a separate
-regulator which needs to be enabled before we can access the bus. Thus add
-support for an optional regulator.
+On Mon, Mar 19, 2012 at 02:46:20PM +0200, Mika Westerberg wrote:
 
-We also implement enabling/disabling the regulator on system and runtime PM
-hooks.
+> It is possible that some of the i2c busses are supplied by a separate
+> regulator which needs to be enabled before we can access the bus. Thus add
+> support for an optional regulator.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Signed-off-by: Jani Nikula <jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c |   19 +++++++++++++++++++
- 1 files changed, 19 insertions(+), 0 deletions(-)
+No, support for critical supplies should not be optional.  I'm getting
+rather fed up with having to point this out.  There's always a regulator
+there supplying the bus, the driver should just assume that the system
+provides it.
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 37f4211..26bcdf3 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -39,6 +39,7 @@
- #include <linux/slab.h>
- #include <linux/pci.h>
- #include <linux/pm_runtime.h>
-+#include <linux/regulator/consumer.h>
- #include "i2c-designware-core.h"
- 
- #define DRIVER_NAME "i2c-designware-pci"
-@@ -62,6 +63,7 @@ struct dw_pci_controller {
- 	u32 tx_fifo_depth;
- 	u32 rx_fifo_depth;
- 	u32 clk_khz;
-+	struct regulator *regulator;
- };
- 
- #define INTEL_MID_STD_CFG  (DW_IC_CON_MASTER |			\
-@@ -144,6 +146,8 @@ static int i2c_dw_pci_suspend(struct device *dev)
- 	struct dw_i2c_dev *i2c = pci_get_drvdata(pdev);
- 	int err;
- 
-+	if (i2c->controller->regulator)
-+		regulator_disable(i2c->controller->regulator);
- 
- 	i2c_dw_disable(i2c);
- 
-@@ -169,6 +173,9 @@ static int i2c_dw_pci_resume(struct device *dev)
- 	int err;
- 	u32 enabled;
- 
-+	if (i2c->controller->regulator)
-+		regulator_enable(i2c->controller->regulator);
-+
- 	enabled = i2c_dw_is_enabled(i2c);
- 	if (enabled)
- 		return 0;
-@@ -281,6 +288,12 @@ const struct pci_device_id *id)
- 
- 	pci_set_drvdata(pdev, dev);
- 
-+	controller->regulator = regulator_get(&pdev->dev, "v-i2c");
-+	if (IS_ERR(controller->regulator))
-+		controller->regulator = NULL;
-+	else
-+		regulator_enable(controller->regulator);
-+
- 	dev->tx_fifo_depth = controller->tx_fifo_depth;
- 	dev->rx_fifo_depth = controller->rx_fifo_depth;
- 	r = i2c_dw_init(dev);
-@@ -332,11 +345,17 @@ exit:
- static void __devexit i2c_dw_pci_remove(struct pci_dev *pdev)
- {
- 	struct dw_i2c_dev *dev = pci_get_drvdata(pdev);
-+	struct regulator *regulator = dev->controller->regulator;
- 
- 	i2c_dw_disable(dev);
- 	pm_runtime_forbid(&pdev->dev);
- 	pm_runtime_get_noresume(&pdev->dev);
- 
-+	if (regulator) {
-+		regulator_disable(regulator);
-+		regulator_put(regulator);
-+	}
-+
- 	pci_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
--- 
-1.7.9.1
+> We also implement enabling/disabling the regulator on system and runtime PM
+> hooks.
+
+This is suspicious too...
+
+If this is just the external buffer/reference voltage for the bus then
+I'd really not expect the controller to have to worry about it, the
+drivers for the target devices ought to be making sure they've powered
+up the devices prior to trying to talk to them anyway (and most of the
+time will need the supplies on for *much* longer than just the time
+spent doing I2C transactions).  There's no harm in having support in the
+controller driver but I'd be surprised if the clients were happy with
+having their I/O voltage bounced on them...
+
+> +	if (i2c->controller->regulator)
+> +		regulator_enable(i2c->controller->regulator);
+
+> +	controller->regulator = regulator_get(&pdev->dev, "v-i2c");
+> +	if (IS_ERR(controller->regulator))
+> +		controller->regulator = NULL;
+> +	else
+> +		regulator_enable(controller->regulator);
+
+There's no error checking at all in this ccode - if it fails to request
+the supply the driver silently ignores the error and if the regulator is
+there but fails to enable the error will also be silently ignored.
