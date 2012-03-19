@@ -1,59 +1,29 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 1/3] i2c-s3c2410: Drop unused define
-Date: Sun, 18 Mar 2012 20:49:37 +0000
-Message-ID: <20120318204937.0F6AB3E07BF@localhost>
-References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com> <1331657679-31302-2-git-send-email-k.lewandowsk@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1331657679-31302-2-git-send-email-k.lewandowsk@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: ben-linux@fluff.org
-Cc: thomas.abraham@linaro.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, Karol Lewandowski <k.lewandowsk@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>
+From: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Subject: mc13xxx: add I2C support (now with regmap), V4
+Date: Mon, 19 Mar 2012 15:03:54 +1100
+Message-ID: <1332129838-7080-1-git-send-email-marc@cpdesign.com.au>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 13 Mar 2012 17:54:37 +0100, Karol Lewandowski <k.lewandowsk@samsung.com> wrote:
-> Use standard of_match_ptr() to avoid defining variable unused
-> in non device tree builds.
-> 
-> Signed-off-by: Karol Lewandowski <k.lewandowsk@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+Hi,
 
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
+This series (against mfd-2.6/for-next) changes the mc13xxx driver to use 
+regmap and adds I2C support.
+It has a compile dependency on regmap/for-next, as the spi driver uses the
+recently added pad_bits config field.
 
-> ---
->  drivers/i2c/busses/i2c-s3c2410.c |    4 +---
->  1 files changed, 1 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> index 737f721..85e3664 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -1128,8 +1128,6 @@ static const struct of_device_id s3c24xx_i2c_match[] = {
->  	{},
->  };
->  MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
-> -#else
-> -#define s3c24xx_i2c_match NULL
->  #endif
->  
->  static struct platform_driver s3c24xx_i2c_driver = {
-> @@ -1140,7 +1138,7 @@ static struct platform_driver s3c24xx_i2c_driver = {
->  		.owner	= THIS_MODULE,
->  		.name	= "s3c-i2c",
->  		.pm	= S3C24XX_DEV_PM_OPS,
-> -		.of_match_table = s3c24xx_i2c_match,
-> +		.of_match_table = of_match_ptr(s3c24xx_i2c_match),
->  	},
->  };
->  
-> -- 
-> 1.7.9
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Changes since V3:
+- spi driver uses padded register format (reads should actually work now!)
+- mc13873 removed from I2C driver
+- fix memory leak on probe error
 
--- 
-Grant Likely, B.Sc, P.Eng.
-Secret Lab Technologies,Ltd.
+Cheers,
+Marc
+
+PS. Mark Brown added his "reviwed-by" (sic) for what is now 2/4. I've not 
+included it here because 1. it changed (albeit very slightly) so I don't 
+know if it's bad ettiquie to include it again, and 2. I'm ignorant of the
+correct process/way to include it.
