@@ -1,41 +1,97 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH v4 2/4] mfd: mc13xxx-core: use regmap for register access
-Date: Mon, 19 Mar 2012 12:00:15 +0000
-Message-ID: <20120319120015.GA5705@sirena.org.uk>
-References: <1332129838-7080-1-git-send-email-marc@cpdesign.com.au>
-	<1332129838-7080-3-git-send-email-marc@cpdesign.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1332129838-7080-3-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
-List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c-designware: add optional regulator support
+Date: Mon, 19 Mar 2012 14:46:20 +0200
+Message-ID: <1332161180-32502-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jani Nikula <jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 19, 2012 at 03:03:56PM +1100, Marc Reilly wrote:
-> This change converts the mc13xxx core to use regmap rather than direct
-> spi r/w.
-> The spidev member of mc13xxx struct becomes redundant and is removed.
-> Extra debugging aids are added to mc13xxx_reg_rmw.
-> Mutex init is moved to before regmap init.
+It is possible that some of the i2c busses are supplied by a separate
+regulator which needs to be enabled before we can access the bus. Thus add
+support for an optional regulator.
 
-Reviewed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+We also implement enabling/disabling the regulator on system and runtime PM
+hooks.
 
-though like I said it'd be good to get the rmw trace into regmap - if
-it's useful to you here similar trace is probably going to be useful to
-other users.
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Jani Nikula <jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c |   19 +++++++++++++++++++
+ 1 files changed, 19 insertions(+), 0 deletions(-)
 
-------------------------------------------------------------------------------
-This SF email is sponsosred by:
-Try Windows Azure free for 90 days Click Here 
-http://p.sf.net/sfu/sfd2d-msazure
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 37f4211..26bcdf3 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -39,6 +39,7 @@
+ #include <linux/slab.h>
+ #include <linux/pci.h>
+ #include <linux/pm_runtime.h>
++#include <linux/regulator/consumer.h>
+ #include "i2c-designware-core.h"
+ 
+ #define DRIVER_NAME "i2c-designware-pci"
+@@ -62,6 +63,7 @@ struct dw_pci_controller {
+ 	u32 tx_fifo_depth;
+ 	u32 rx_fifo_depth;
+ 	u32 clk_khz;
++	struct regulator *regulator;
+ };
+ 
+ #define INTEL_MID_STD_CFG  (DW_IC_CON_MASTER |			\
+@@ -144,6 +146,8 @@ static int i2c_dw_pci_suspend(struct device *dev)
+ 	struct dw_i2c_dev *i2c = pci_get_drvdata(pdev);
+ 	int err;
+ 
++	if (i2c->controller->regulator)
++		regulator_disable(i2c->controller->regulator);
+ 
+ 	i2c_dw_disable(i2c);
+ 
+@@ -169,6 +173,9 @@ static int i2c_dw_pci_resume(struct device *dev)
+ 	int err;
+ 	u32 enabled;
+ 
++	if (i2c->controller->regulator)
++		regulator_enable(i2c->controller->regulator);
++
+ 	enabled = i2c_dw_is_enabled(i2c);
+ 	if (enabled)
+ 		return 0;
+@@ -281,6 +288,12 @@ const struct pci_device_id *id)
+ 
+ 	pci_set_drvdata(pdev, dev);
+ 
++	controller->regulator = regulator_get(&pdev->dev, "v-i2c");
++	if (IS_ERR(controller->regulator))
++		controller->regulator = NULL;
++	else
++		regulator_enable(controller->regulator);
++
+ 	dev->tx_fifo_depth = controller->tx_fifo_depth;
+ 	dev->rx_fifo_depth = controller->rx_fifo_depth;
+ 	r = i2c_dw_init(dev);
+@@ -332,11 +345,17 @@ exit:
+ static void __devexit i2c_dw_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct dw_i2c_dev *dev = pci_get_drvdata(pdev);
++	struct regulator *regulator = dev->controller->regulator;
+ 
+ 	i2c_dw_disable(dev);
+ 	pm_runtime_forbid(&pdev->dev);
+ 	pm_runtime_get_noresume(&pdev->dev);
+ 
++	if (regulator) {
++		regulator_disable(regulator);
++		regulator_put(regulator);
++	}
++
+ 	pci_set_drvdata(pdev, NULL);
+ 	i2c_del_adapter(&dev->adapter);
+ 	put_device(&pdev->dev);
+-- 
+1.7.9.1
