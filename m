@@ -1,61 +1,49 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
-Date: Mon, 19 Mar 2012 19:55:41 +0000
-Message-ID: <20120319195540.GH12384@opensource.wolfsonmicro.com>
-References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
- <1331657679-31302-3-git-send-email-k.lewandowsk@samsung.com>
- <20120314172915.GB13393@sirena.org.uk>
- <4F61BEC8.4030008@samsung.com>
- <20120315125630.GK3138@opensource.wolfsonmicro.com>
- <4F621EC9.6020106@samsung.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: add optional regulator support
+Date: Tue, 20 Mar 2012 10:46:19 +0200
+Message-ID: <20120320084619.GZ32276@intel.com>
+References: <1332161180-32502-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20120319142807.GA9334@sirena.org.uk>
+ <20120319154130.GX32276@intel.com>
+ <20120319162434.GC5132@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2NLGdgz3UMHa/lqP"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4F621EC9.6020106@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Karol Lewandowski <k.lewandowsk@samsung.com>
-Cc: ben-linux@fluff.org, thomas.abraham@linaro.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, Kyungmin Park <kyungmin.park@samsung.com>
+In-Reply-To: <20120319162434.GC5132-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Jani Nikula <jani.nikula-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Kirill A. Shutemov" <kirill.shutemov-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Mar 19, 2012 at 04:24:34PM +0000, Mark Brown wrote:
 
---2NLGdgz3UMHa/lqP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> This is all exactly what I'd expect and really sounds exactly like the
+> case I described - the panel needs the supply so the panel driver should
+> be managing it when required.  There's nothing system or controller
+> specific about the fact that the panel needs all its supplies up to run,
+> and indeed there's already some LCD and backlight drivers which manage
+> their supplies.
 
-On Thu, Mar 15, 2012 at 05:54:33PM +0100, Karol Lewandowski wrote:
+We already have the panel driver to manage its regulator and it works as
+should. The problem is that when we blank the display and switch off the
+panel power, it drives the whole I2C bus to low (due to HW bug in the
+panel). This effectively prevents any other driver to talk to their device
+on the same bus :-/
 
-> If you consider code to be inherently less readable because of this
-> approach I'll rework it.  If it's not a such big deal for you I would
-> prefer to keep it as is.
+This is the reason we shared the same panel regulator with I2C controller -
+power is only cut off when both drivers do regulator_disable().
 
-The thing that was causing me to think the code was funny was mainly the
-fact that we're now combining both quirk based selection and chip type
-based selection into the same bitmask.  If the chip types were quirks
-it'd probably not have looked odd, and that might just be a case of
-renaming them - I can't remember what they do.
+> So what happens in a system where the regulator is required but fails to
+> appear for some reason is that the driver happily runs on without saying
+> anything which isn't going to be great for diagnostics and will produce
+> some interesting races when we start to deploy deferred probe.
 
---2NLGdgz3UMHa/lqP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Ah, true - it should print some sort of warning in that case instead of
+silently failing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+I understand your point wrt. this patch and I think we can go forward by
+keeping this in our local kernel tree as a workaround for particular HW
+issue.
 
-iQIcBAEBAgAGBQJPZ46JAAoJEBus8iNuMP3dGgkP/RQpJ1YPK5e6mrLjrIplCMc1
-lVJEVBVloDF70KFFIGj6SWVmf6aqwW3mMANpGlGnFPSG6H4nd0UbtUetKTYqmh2y
-0mmb2nCmuTN47u7EWayrVKzBuG616EJkmXGJywxtmBzPAy9vIAwsrpc1DZ4bNS59
-XyNZDcVr8B22ef4BRiietQ+HBtzhPEWTNJYy35dqKHSuwLwgl5jv6RykD8oLYbbt
-2nduVPR7itWWdhmaskjlhvGr6Rbm2SLypBbcJJlLXFghoTjyAK5my6RyWAd6sjwg
-UDM1vSeAijpC1Uk2CjjGFqk4HUc29XT6dq6dcqxB6WERChU/hrrGr1uh323Msbct
-wEAOJL/RZbn1RTo4k0YrFk8e6mMqZTx0W429v3gMt/6NyabjCAXFFZ5ZeW28XGE3
-59zVsFmNbRmSWmvmU8YqbmuvRjZX4rWc7QhPgIf0ao4S51Sz1z2k5qIn5EsJVR/C
-v7ilhi0HBmVPkoobaUktBUePkZULd4sNUJlHKn0pWkYbrfiIpb8U7ns/ri5WNk9C
-fx/EGtNd3hT3AKa/EUweWgQTOWQBTFIe1F/cfNaLHYTtsDfibwWtlrVYypC9dUT1
-fjKXD9sa02cddCB9f3IZuL85R2oOEqdkvfMtZlDCuNX1F1H46qvXgN0b6rn9KbHh
-INpEOLy1sWiyNpAcL6Kj
-=R1iX
------END PGP SIGNATURE-----
-
---2NLGdgz3UMHa/lqP--
+Thank you for your comments.
