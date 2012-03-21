@@ -1,203 +1,57 @@
-From: Karol Lewandowski <k.lewandowsk@samsung.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
-Date: Wed, 21 Mar 2012 11:33:58 +0100
-Message-ID: <4F69AE96.6060901@samsung.com>
+Date: Wed, 21 Mar 2012 11:50:36 +0000
+Message-ID: <20120321115036.GB3226@opensource.wolfsonmicro.com>
 References: <1331657679-31302-1-git-send-email-k.lewandowsk@samsung.com>
  <1331657679-31302-3-git-send-email-k.lewandowsk@samsung.com>
- <20120314172915.GB13393@sirena.org.uk> <4F61BEC8.4030008@samsung.com>
+ <20120314172915.GB13393@sirena.org.uk>
+ <4F61BEC8.4030008@samsung.com>
  <20120315125630.GK3138@opensource.wolfsonmicro.com>
  <4F621EC9.6020106@samsung.com>
  <20120319195540.GH12384@opensource.wolfsonmicro.com>
+ <4F69AE96.6060901@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20120319195540.GH12384@opensource.wolfsonmicro.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: ben-linux@fluff.org, thomas.abraham@linaro.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, Kyungmin Park <kyungmin.park@samsung.com>, w.sang@pengutronix.de
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="dTy3Mrz/UPE2dbVg"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4F69AE96.6060901-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 19.03.2012 20:55, Mark Brown wrote:
 
-> On Thu, Mar 15, 2012 at 05:54:33PM +0100, Karol Lewandowski wrote:
-> 
->> If you consider code to be inherently less readable because of this
->> approach I'll rework it.  If it's not a such big deal for you I would
->> prefer to keep it as is.
-> 
-> The thing that was causing me to think the code was funny was mainly the
-> fact that we're now combining both quirk based selection and chip type
-> based selection into the same bitmask.  If the chip types were quirks
-> it'd probably not have looked odd, and that might just be a case of
-> renaming them - I can't remember what they do.
+--dTy3Mrz/UPE2dbVg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+On Wed, Mar 21, 2012 at 11:33:58AM +0100, Karol Lewandowski wrote:
 
-What do you think about following changes, then?
+> What do you think about following changes, then?
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c
-b/drivers/i2c/busses/i2c-s3c2410.c
-index fa5f8c4..18c9760 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -48,12 +48,9 @@
- static const struct of_device_id s3c24xx_i2c_match[];
- #endif
+That looks reasonable.
 
--/* reserve lower 8 bits for device type, use remaining space for hw
-quirks */
--#define TYPE_BITS		0x000000ff
--#define TYPE_S3C2410		0x00000001
--#define TYPE_S3C2440		0x00000002
--#define FLAG_HDMIPHY		0x00000100
--#define FLAG_NO_GPIO		0x00000200
-+#define QUIRK_S3C2440		(1 << 0)
-+#define QUIRK_HDMIPHY		(1 << 1)
-+#define QUIRK_NO_GPIO		(1 << 2)
+--dTy3Mrz/UPE2dbVg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
- /* i2c controller state */
- enum s3c24xx_i2c_state {
-@@ -67,7 +64,7 @@ enum s3c24xx_i2c_state {
- struct s3c24xx_i2c {
- 	spinlock_t		lock;
- 	wait_queue_head_t	wait;
--	unsigned int            type;
-+	unsigned int            quirks;
- 	unsigned int		suspended:1;
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
 
- 	struct i2c_msg		*msg;
-@@ -94,22 +91,12 @@ struct s3c24xx_i2c {
- #endif
- };
+iQIcBAEBAgAGBQJPacCEAAoJEBus8iNuMP3dRYoP/0CITBeI1EF0ZP7uMiHk9GUq
+wcXuf69WUCLcnytFWg1pg8YtSwVTz2/4K4SQrcQchcNEvxYpHpvpyqKwYYL+Hhi8
+qe/D+6lK22epXTrQpwe+cL/7VflaTggxhWjQnXPgAn/yvyY6fcSbDDiMhSV/f2PD
+HgL0S+VBrw5K0MVq+wzmWgP0TF3i5adJnwz+NkhUER07j+OAeh+C9/MuIMYaCFo7
+DPKeLgtVdQiccHMCrDYS9FJpvZ29MUFVsps9FpHFE1bdqf1c4OqArmD5/pThq4x/
+7WJjKsf4Kork50NXXGNeNKphDwGPz/Xk2EAgPRTZyzv++E8SEXtOJ8nFIhlmYmqk
+8YvPmADFQBdaPoZI+cSA6Kpy0pkam1LenQyQVVkUKsIgm2grD/+7SLKRbvqtwZP1
+FEXAcU3FgtiSpK1Cy6COvFI+zsFpOIMEKJ5JRkkwc1ZlPyA6EASI6jHJ5+SRRg/F
+Yeqa/Tdni3afR/MkghS5s7HJIV7s/vsFUnG/I+od7+NkFiYeZbP1GE0uutzcgMG1
+XIuaFu/dRzAtBC6bQ4x7hQch4eFwR7WSDyYnVO1fR/UuYIWvLEFU4YFzHfQOe/uE
+YzZtNho9CePLER727Rg8oQoUz+QsDmHmjnTD2FJkhYWN/gEuhMFzXKuduW5Yeje4
+d6voP2LrBTjN6VbkXfzB
+=f3wS
+-----END PGP SIGNATURE-----
 
--/* s3c24xx_i2c_is_type()
-- *
-- * return true if this controller is of specified type
--*/
--
--static inline int s3c24xx_i2c_is_type(struct s3c24xx_i2c *i2c, unsigned
-int type)
--{
--	return (i2c->type & TYPE_BITS) == type;
--}
--
--/* s3c24xx_get_device_type
-+/* s3c24xx_get_device_quirks
-  *
-  * Get controller type either from device tree or platform device variant.
- */
-
--static inline unsigned int s3c24xx_get_device_type(struct
-platform_device *pdev)
-+static inline unsigned int s3c24xx_get_device_quirks(struct
-platform_device *pdev)
- {
- #ifdef CONFIG_OF
-         if (pdev->dev.of_node) {
-@@ -487,7 +474,7 @@ static int s3c24xx_i2c_set_master(struct s3c24xx_i2c
-*i2c)
- 	 * the hangup is expected to happen, so waiting 400 ms
- 	 * causes only unnecessary system hangup
- 	 */
--	if (i2c->type & FLAG_HDMIPHY)
-+	if (i2c->quirks & QUIRK_HDMIPHY)
- 		timeout = 10;
-
- 	while (timeout-- > 0) {
-@@ -500,7 +487,7 @@ static int s3c24xx_i2c_set_master(struct s3c24xx_i2c
-*i2c)
- 	}
-
- 	/* hang-up of bus dedicated for HDMIPHY occurred, resetting */
--	if (i2c->type & FLAG_HDMIPHY) {
-+	if (i2c->quirks & QUIRK_HDMIPHY) {
- 		writel(0, i2c->regs + S3C2410_IICCON);
- 		writel(0, i2c->regs + S3C2410_IICSTAT);
- 		writel(0, i2c->regs + S3C2410_IICDS);
-@@ -704,7 +691,7 @@ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c
-*i2c, unsigned int *got)
-
- 	writel(iiccon, i2c->regs + S3C2410_IICCON);
-
--	if (s3c24xx_i2c_is_type(i2c, TYPE_S3C2440)) {
-+	if (i2c->quirks & QUIRK_S3C2440) {
- 		unsigned long sda_delay;
-
- 		if (pdata->sda_delay) {
-@@ -789,7 +776,7 @@ static int s3c24xx_i2c_parse_dt_gpio(struct
-s3c24xx_i2c *i2c)
- {
- 	int idx, gpio, ret;
-
--	if (i2c->type & FLAG_NO_GPIO)
-+	if (i2c->quirks & QUIRK_NO_GPIO)
- 		return 0;
-
- 	for (idx = 0; idx < 2; idx++) {
-@@ -817,7 +804,7 @@ static void s3c24xx_i2c_dt_gpio_free(struct
-s3c24xx_i2c *i2c)
- {
- 	unsigned int idx;
-
--	if (i2c->type & FLAG_NO_GPIO)
-+	if (i2c->quirks & QUIRK_NO_GPIO)
- 		return;
-
- 	for (idx = 0; idx < 2; idx++)
-@@ -898,10 +885,10 @@ s3c24xx_i2c_parse_dt(struct device_node *np,
-struct s3c24xx_i2c *i2c)
- 	pdata->bus_num = -1; /* i2c bus number is dynamically assigned */
-
- 	if (of_get_property(np, "samsung,i2c-quirk-hdmiphy", NULL))
--		i2c->type |= FLAG_HDMIPHY;
-+		i2c->quirks |= QUIRK_HDMIPHY;
-
- 	if (of_get_property(np, "samsung,i2c-no-gpio", NULL))
--		i2c->type |= FLAG_NO_GPIO;
-+		i2c->quirks |= QUIRK_NO_GPIO;
-
- 	of_property_read_u32(np, "samsung,i2c-sda-delay", &pdata->sda_delay);
- 	of_property_read_u32(np, "samsung,i2c-slave-addr", &pdata->slave_addr);
-@@ -948,7 +935,7 @@ static int s3c24xx_i2c_probe(struct platform_device
-*pdev)
- 		goto err_noclk;
- 	}
-
--	i2c->type = s3c24xx_get_device_type(pdev);
-+	i2c->quirks = s3c24xx_get_device_quirks(pdev);
- 	if (pdata)
- 		memcpy(i2c->pdata, pdata, sizeof(*pdata));
- 	else
-@@ -1156,21 +1143,21 @@ static const struct dev_pm_ops
-s3c24xx_i2c_dev_pm_ops = {
- static struct platform_device_id s3c24xx_driver_ids[] = {
- 	{
- 		.name		= "s3c2410-i2c",
--		.driver_data	= TYPE_S3C2410,
-+		.driver_data	= 0,
- 	}, {
- 		.name		= "s3c2440-i2c",
--		.driver_data	= TYPE_S3C2440,
-+		.driver_data	= QUIRK_S3C2440,
- 	}, {
- 		.name		= "s3c2440-hdmiphy-i2c",
--		.driver_data	= TYPE_S3C2440 | FLAG_HDMIPHY | FLAG_NO_GPIO,
-+		.driver_data	= QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO,
- 	}, { },
- };
- MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
-
- #ifdef CONFIG_OF
- static const struct of_device_id s3c24xx_i2c_match[] = {
--	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)TYPE_S3C2410 },
--	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)TYPE_S3C2440 },
-+	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
-+	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440 },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
-
-
-Regards,
--- 
-Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
+--dTy3Mrz/UPE2dbVg--
