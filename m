@@ -1,57 +1,131 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
-Date: Wed, 21 Mar 2012 20:30:32 +0000
-Message-ID: <20120321203032.GQ3226@opensource.wolfsonmicro.com>
-References: <1332357113-2973-1-git-send-email-k.lewandowsk@samsung.com>
- <1332357113-2973-3-git-send-email-k.lewandowsk@samsung.com>
+From: Karol Lewandowski <k.lewandowsk@samsung.com>
+Subject: Re: [PATCH 2/2] i2c: Dynamically assign adapter id if it wasn't
+ explictly specified
+Date: Thu, 22 Mar 2012 16:28:50 +0100
+Message-ID: <4F6B4532.7090806@samsung.com>
+References: <1331900343-6743-1-git-send-email-k.lewandowsk@samsung.com>
+ <1331900343-6743-3-git-send-email-k.lewandowsk@samsung.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z87VqPJ/HsYrR2WM"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1332357113-2973-3-git-send-email-k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <1331900343-6743-3-git-send-email-k.lewandowsk@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: w.sang@pengutronix.de, hskinnemoen@gmail.com, linux@arm.linux.org.uk, Rade Bozic <rade.bozic.ext@nsn.com>
+Cc: Karol Lewandowski <k.lewandowsk@samsung.com>, ben-linux@fluff.org, khali@linux-fr.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, dirk.brandewie@gmail.com, bigeasy@linutronix.de, m.szyprowski@samsung.com, grant.likely@secretlab.ca, kyungmin.park@samsung.com, David Daney <ddaney@caviumnetworks.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On 16.03.2012 13:19, Karol Lewandowski wrote:
 
---z87VqPJ/HsYrR2WM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>> Commit 488bf314b ("i2c: Allow i2c_add_numbered_adapter() to assign a
+>> bus id") reworked i2c_add_numbered_adapter() to call i2c_add_adapter()
+>> if requested bus was -1.
 
-On Wed, Mar 21, 2012 at 08:11:52PM +0100, Karol Lewandowski wrote:
-> Reorganize driver a bit to better handle device tree-based systems:
->=20
->  - move machine type to driver's private structure instead of
->    quering platform device variants in runtime
->=20
->  - replace s3c24xx_i2c_type enum with unsigned int that holds
->    bitmask with revision-specific quirks
+>> This allows to simplify driver's initialization procedure as it allows
 
-Reviewed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+>> static and dynamic adapter id registration using one function.
+>> 
+>> This patch updates few more drivers (missed out in original patch) to
+>> use this functionality.
+>
 
---z87VqPJ/HsYrR2WM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> [ I must have lost actual problem description while rewording
+>  message itself... ]
+>
+> Problem arises when multiple drivers (or multiple instances
+> of one driver) try to assume the same fixed bus number (0).
+>
+> This simply causes i2c_add_numbered_bus() to fail.
+> Leaving -1 works perfectly, as registration function switches
+> to dynamic id registration.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
+>> Signed-off-by: Karol Lewandowski <k.lewandowsk@samsung.com>
+>> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+>> ---
+>>  drivers/i2c/busses/i2c-gpio.c         |    7 +------
+>>  drivers/i2c/busses/i2c-octeon.c       |    2 +-
+>>  drivers/i2c/busses/i2c-pca-platform.c |    2 +-
+>>  drivers/i2c/busses/i2c-versatile.c    |    9 ++-------
+>>  4 files changed, 5 insertions(+), 15 deletions(-)
 
-iQIcBAEBAgAGBQJPajphAAoJEBus8iNuMP3dMwwP/jgjBp+gspHKZZlU3EX9OZzl
-9shg8+4X22tppGQziiCZkqeWmaaHExVyFBvBIcLvpb1WRcroJafLEFqrC5O/AOKr
-C2G3S16Q3NYvrGShGVqxU6M1FSges8v4y0PKkClSzcdot8FsAKr035aFw19LblRv
-3HlZhiKQTNDivzVW31UkmkKMf+Kvqg3eJmwyT6RXwkRMEP1AmjXLSXxDfafFGFOJ
-qN7krly9N8A/vBZOFiAC6TS8zepGIYR3lwU/9rSYyMeDprEgcEayL7FwoTKAawQC
-MCl1ZvRolJViIkrhivYk/sGXo0f7144q1Vf5324qiVl7Tjh57hYxwxhynCXDJVUB
-P0IkBXKq+3fcskvTsLkbJy9r0EfnHD3AQWOziQHv4dnvwnZUC58nYgtq2lzIyL4/
-KzpqjGc+Kgw3VIfzEAyBIiNo+LVyVJfugL22169CZZrs7mOxcVkOG/Tbt27tei2w
-S3k01hLSmaWCotgAcwNzTLh7wqaSxs5RAp8TRcXCvcQhgCvgNnYpHo+3vVrutfHA
-+szVZl6ZEf58RLm9ehpI/7bp5G8cWgJXJaYv7Z4mv6KrAIBVQzsKVcCLvp2eaZfS
-Oq3RA8j6eLTjAKxoz33ABY9daAPYaRZlDN3cgTiS4+HXk40UF63uLvjGs9D+FJAY
-HaCuFRAm1MngMv1Y8l+l
-=ANMQ
------END PGP SIGNATURE-----
 
---z87VqPJ/HsYrR2WM--
+Dear Haavard, Rade, Wolfram and Russel
+
+Could you review following changes for gpio, octeon, pca-platform
+and versatile i2c controller drivers (for which you are, or were,
+maintainers)?
+
+Grant requested explicit Ack to get this merged.
+
+Thanks!
+
+> 
+> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+> index a651779..50a2a94 100644
+> --- a/drivers/i2c/busses/i2c-gpio.c
+> +++ b/drivers/i2c/busses/i2c-gpio.c
+> @@ -144,12 +144,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+>  	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+>  	adap->dev.parent = &pdev->dev;
+>  
+> -	/*
+> -	 * If "dev->id" is negative we consider it as zero.
+> -	 * The reason to do so is to avoid sysfs names that only make
+> -	 * sense when there are multiple adapters.
+> -	 */
+> -	adap->nr = (pdev->id != -1) ? pdev->id : 0;
+> +	adap->nr = pdev->id;
+>  	ret = i2c_bit_add_numbered_bus(adap);
+>  	if (ret)
+>  		goto err_add_bus;
+> diff --git a/drivers/i2c/busses/i2c-octeon.c b/drivers/i2c/busses/i2c-octeon.c
+> index ee139a5..8470232 100644
+> --- a/drivers/i2c/busses/i2c-octeon.c
+> +++ b/drivers/i2c/busses/i2c-octeon.c
+> @@ -581,7 +581,7 @@ static int __devinit octeon_i2c_probe(struct platform_device *pdev)
+>  
+>  	i2c->adap = octeon_i2c_ops;
+>  	i2c->adap.dev.parent = &pdev->dev;
+> -	i2c->adap.nr = pdev->id >= 0 ? pdev->id : 0;
+> +	i2c->adap.nr = pdev->id;
+>  	i2c_set_adapdata(&i2c->adap, i2c);
+>  	platform_set_drvdata(pdev, i2c);
+>  
+> diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+> index 2adbf1a..675878f 100644
+> --- a/drivers/i2c/busses/i2c-pca-platform.c
+> +++ b/drivers/i2c/busses/i2c-pca-platform.c
+> @@ -171,7 +171,7 @@ static int __devinit i2c_pca_pf_probe(struct platform_device *pdev)
+>  	i2c->io_size = resource_size(res);
+>  	i2c->irq = irq;
+>  
+> -	i2c->adap.nr = pdev->id >= 0 ? pdev->id : 0;
+> +	i2c->adap.nr = pdev->id;
+>  	i2c->adap.owner = THIS_MODULE;
+>  	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
+>  		 "PCA9564/PCA9665 at 0x%08lx",
+> diff --git a/drivers/i2c/busses/i2c-versatile.c b/drivers/i2c/busses/i2c-versatile.c
+> index 6055601..9458568 100644
+> --- a/drivers/i2c/busses/i2c-versatile.c
+> +++ b/drivers/i2c/busses/i2c-versatile.c
+> @@ -102,13 +102,8 @@ static int i2c_versatile_probe(struct platform_device *dev)
+>  	i2c->algo = i2c_versatile_algo;
+>  	i2c->algo.data = i2c;
+>  
+> -	if (dev->id >= 0) {
+> -		/* static bus numbering */
+> -		i2c->adap.nr = dev->id;
+> -		ret = i2c_bit_add_numbered_bus(&i2c->adap);
+> -	} else
+> -		/* dynamic bus numbering */
+> -		ret = i2c_bit_add_bus(&i2c->adap);
+> +	i2c->adap.nr = dev->id;
+> +	ret = i2c_bit_add_numbered_bus(&i2c->adap);
+>  	if (ret >= 0) {
+>  		platform_set_drvdata(dev, i2c);
+>  		return 0;
+
+
+
+-- 
+Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
