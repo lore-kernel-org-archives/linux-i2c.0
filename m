@@ -1,54 +1,34 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: Dynamically assign adapter id if it wasn't
- explictly specified
-Date: Thu, 22 Mar 2012 22:47:14 +0100
-Message-ID: <20120322214714.GA24684@pengutronix.de>
-References: <1331900343-6743-1-git-send-email-k.lewandowsk@samsung.com>
- <1331900343-6743-3-git-send-email-k.lewandowsk@samsung.com>
- <4F6B4532.7090806@samsung.com>
+From: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c/busses: Add PM support
+Date: Fri, 23 Mar 2012 13:40:11 +0530
+Message-ID: <4F6C2FE3.7010700@st.com>
+References: <0ca1d8990c23a45193a32d0e7e889620b995af59.1330082915.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4F6B4532.7090806-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <0ca1d8990c23a45193a32d0e7e889620b995af59.1330082915.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Rade Bozic <rade.bozic.ext-OYasijW0DpE@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+To: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Armando VISCONTI <armando.visconti-qxv4g6HH51o@public.gmane.org>, Shiraz HASHIM <shiraz.hashim-qxv4g6HH51o@public.gmane.org>, Vipin KUMAR <vipin.kumar-qxv4g6HH51o@public.gmane.org>, Rajeev KUMAR <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>, Deepak SIKRI <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Vipul Kumar SAMAR <vipulkumar.samar-qxv4g6HH51o@public.gmane.org>, Amit VIRDI <Amit.VIRDI-qxv4g6HH51o@public.gmane.org>, Pratyush ANAND <pratyush.anand-qxv4g6HH51o@public.gmane.org>, Bhupesh SHARMA <bhupesh.sharma-qxv4g6HH51o@public.gmane.org>, "viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bhavna YADAV <bhavna.yadav-qxv4g6HH51o@public.gmane.org>, Vincenzo FRASCINO <Vincenzo.FRASCINO-qxv4g6HH51o@public.gmane.org>, Mirko GARDI <mirko.gardi-qxv4g6HH51o@public.gmane.org>, Salvatore DE DOMINICIS <salvatore.dedominicis-qxv4g6HH51o@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 2/24/2012 5:01 PM, Viresh KUMAR wrote:
+> From: Deepak Sikri <deepak.sikri-qxv4g6HH51o@public.gmane.org>
+> 
+> This patch adds in support for standby/S2R/hybernate for i2c-designware driver.
+> 
+> Signed-off-by: Deepak Sikri <deepak.sikri-qxv4g6HH51o@public.gmane.org>
+> Signed-off-by: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-platdrv.c |   27 +++++++++++++++++++++++++++
+>  1 files changed, 27 insertions(+), 0 deletions(-)
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Wolfram,
 
-> Dear Haavard, Rade, Wolfram and Russel
->=20
-> Could you review following changes for gpio, octeon, pca-platform
-> and versatile i2c controller drivers (for which you are, or were,
-> maintainers)?
->=20
-> Grant requested explicit Ack to get this merged.
+Any inputs of this patch?
+You can discard 2/2 of this patchset, as that patch is included in
+a separate patchset "I2C: Add bus recovery infrastructure".
 
-? Since those are I2C patches, I was assuming that I pick them. After the m=
-erge
-window, that is. Did I miss something?
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---6TrnltStXW4iwmi0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk9rneIACgkQD27XaX1/VRtLVwCeLQKz4JTOjSswrVzUL8An9geQ
-0GwAoKqQ4HeiHX3DMPLTuhluNHjJPxqR
-=fsnM
------END PGP SIGNATURE-----
-
---6TrnltStXW4iwmi0--
+-- 
+viresh
