@@ -1,38 +1,104 @@
-From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 3/3] i2c-eg20t: change timeout value 50msec to 1000msec
-Date: Mon, 26 Mar 2012 14:55:25 +0900
-Message-ID: <1332741325-7746-3-git-send-email-tomoya.rohm@gmail.com>
+From: Tomoya MORINAGA <tomoya.rohm@gmail.com>
+Subject: [PATCH 2/3] i2c-eg20t: Call init() when wait-event timeout occurs
+Date: Mon, 26 Mar 2012 14:55:24 +0900
+Message-ID: <1332741325-7746-2-git-send-email-tomoya.rohm@gmail.com>
 References: <1332741325-7746-1-git-send-email-tomoya.rohm@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1332741325-7746-1-git-send-email-tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1332741325-7746-1-git-send-email-tomoya.rohm@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Feng Tang <feng.tang@intel.com>, Alexander Stein <alexander.stein@systec-electronic.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: qi.wang@intel.com, yong.y.wang@intel.com, joel.clark@intel.com, kok.howg.ewe@intel.com, Tomoya MORINAGA <tomoya.rohm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently, during i2c works alone, wait-event timeout is not occurred.
-However, as CPU load increases, timeout occurs frequently.
-So, I modified like this patch.
-Modifying like this patch, I've never seen the timeout event with high
-load test.
 
-Signed-off-by: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Tomoya MORINAGA <tomoya.rohm@gmail.com>
 ---
- drivers/i2c/busses/i2c-eg20t.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-eg20t.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 714b070..ec8f4fa 100644
+index d73975b..714b070 100644
 --- a/drivers/i2c/busses/i2c-eg20t.c
 +++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -324,7 +324,7 @@ static s32 pch_i2c_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
- {
- 	long ret;
- 	ret = wait_event_timeout(pch_event,
--			(adap->pch_event_flag != 0), msecs_to_jiffies(50));
-+			(adap->pch_event_flag != 0), msecs_to_jiffies(1000));
+@@ -445,7 +445,9 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+ 			pch_i2c_init(adap);
+ 			return -EAGAIN;
+ 		} else { /* wait-event timeout */
++			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 			pch_i2c_stop(adap);
++			pch_i2c_init(adap);
+ 			return -ETIME;
+ 		}
+ 	} else {
+@@ -469,7 +471,9 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+ 		pch_i2c_init(adap);
+ 		return -EAGAIN;
+ 	} else { /* wait-event timeout */
++		pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 		pch_i2c_stop(adap);
++		pch_i2c_init(adap);
+ 		return -ETIME;
+ 	}
  
- 	if (ret == 0) {
- 		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
+@@ -490,7 +494,9 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c_adap,
+ 			pch_clrbit(adap->pch_base_address, PCH_I2CSR,
+ 				   I2CMIF_BIT);
+ 		} else { /* wait-event timeout */
++			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 			pch_i2c_stop(adap);
++			pch_i2c_init(adap);
+ 			return -ETIME;
+ 		}
+ 	}
+@@ -598,7 +604,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 			pch_i2c_init(adap);
+ 			return -EAGAIN;
+ 		} else { /* wait-event timeout */
++			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 			pch_i2c_stop(adap);
++			pch_i2c_init(adap);
+ 			return -ETIME;
+ 		}
+ 		pch_i2c_restart(adap);
+@@ -621,7 +629,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 			pch_i2c_init(adap);
+ 			return -EAGAIN;
+ 		} else { /* wait-event timeout */
++			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 			pch_i2c_stop(adap);
++			pch_i2c_init(adap);
+ 			return -ETIME;
+ 		}
+ 	} else {
+@@ -648,7 +658,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 		pch_i2c_init(adap);
+ 		return -EAGAIN;
+ 	} else { /* wait-event timeout */
++		pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 		pch_i2c_stop(adap);
++		pch_i2c_init(adap);
+ 		return -ETIME;
+ 	}
+ 
+@@ -677,7 +689,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 					return -EIO;
+ 				}
+ 			} else { /* wait-event timeout */
++				pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 				pch_i2c_stop(adap);
++				pch_i2c_init(adap);
+ 				return -ETIME;
+ 			}
+ 
+@@ -698,7 +712,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
+ 				return -EIO;
+ 			}
+ 		} else { /* wait-event timeout */
++			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
+ 			pch_i2c_stop(adap);
++			pch_i2c_init(adap);
+ 			return -ETIME;
+ 		}
+ 
 -- 
 1.7.7.6
