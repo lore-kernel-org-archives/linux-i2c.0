@@ -1,46 +1,30 @@
-From: "jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Registering i2c devices with Device Tree
-Date: Sun, 25 Mar 2012 14:49:45 -0400
-Message-ID: <CAKON4OyhkvMHbXZsFCt9yEHPZSM16mG9f9HKnp7cNS9Zn+cNJw@mail.gmail.com>
-References: <CAKON4Oy5hSpDS4mpJHL-Nk95+9MMSwUqE6TXnvH2wn2XaNA68Q@mail.gmail.com>
-	<20120325204150.20d3dcdb@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/3] i2c-eg20t: Modify MODULE_AUTHOR's email address
+Date: Mon, 26 Mar 2012 14:55:23 +0900
+Message-ID: <1332741325-7746-1-git-send-email-tomoya.rohm@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120325204150.20d3dcdb-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Mar 25, 2012 at 2:41 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrot=
-e:
-> On Sun, 25 Mar 2012 13:29:51 -0400, jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org wrote:
->> All of the OF aware i2c bus drivers need to do:
->> =A0 =A0 =A0 of_i2c_register_devices(&alg_data->adapter);
->>
->> Can this be moved to the common core code?
->
-> I seem to recall that someone once proposed to move the call to
-> i2c-core, but the dependencies and #ifdef mess that resulted made me
-> reject it. That doesn't mean it can't be done, but just moving the ca=
-ll
-> is not the way.
 
-You could make the #ifdef go away by putting an #ifdef into
-<linux/of_i2c.h> to stub out the call when CONFIG_OF is not defined.
+Signed-off-by: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-eg20t.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-I don't think the dependencies are as much of a problem anymore. I'm
-bringing up a new ARM platform and didn't have any problem adding it.
-I just noticed that is was duplicated in a dozen bus drivers.
-
->
-> --
-> Jean Delvare
-
-
-
---=20
-Jon Smirl
-jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
+index f086131..d73975b 100644
+--- a/drivers/i2c/busses/i2c-eg20t.c
++++ b/drivers/i2c/busses/i2c-eg20t.c
+@@ -1063,6 +1063,6 @@ module_exit(pch_pci_exit);
+ 
+ MODULE_DESCRIPTION("Intel EG20T PCH/LAPIS Semico ML7213/ML7223/ML7831 IOH I2C");
+ MODULE_LICENSE("GPL");
+-MODULE_AUTHOR("Tomoya MORINAGA. <tomoya-linux-8lRStDepK8iSL1NxhRU65dBPR1lH4CV8@public.gmane.org>");
++MODULE_AUTHOR("Tomoya MORINAGA. <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>");
+ module_param(pch_i2c_speed, int, (S_IRUSR | S_IWUSR));
+ module_param(pch_clk, int, (S_IRUSR | S_IWUSR));
+-- 
+1.7.7.6
