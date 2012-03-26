@@ -1,34 +1,65 @@
-From: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
-Subject: i801_smbus: ... you should use it instead of the native driver
-Date: Mon, 26 Mar 2012 17:06:05 +0200
-Message-ID: <4F7085DD.7050303@fold.natur.cuni.cz>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c updates for Linux 3.4
+Date: Mon, 26 Mar 2012 22:49:32 +0200
+Message-ID: <20120326224932.7b4272e2@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-  I have the following message logged through syslog on a 2.6.32.59 kernel:
+Hi Linus,
 
-Mar 26 11:21:55 vostro kernel: i801_smbus 0000:00:1f.3: PCI INT C -> GSI 18 (level, low) -> IRQ 18
-Mar 26 11:21:55 vostro kernel: ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
+Please pull i2c subsystem updates for Linux 3.4 from:
 
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
 
-And here the relevant line from lspci:
-00:1f.3 SMBus: Intel Corporation 6 Series/C200 Series Chipset Family SMBus Controller (rev 05)
+ Documentation/i2c/busses/i2c-i801 |    1 +
+ drivers/i2c/algos/i2c-algo-bit.c  |    5 +++--
+ drivers/i2c/algos/i2c-algo-pca.c  |    3 ++-
+ drivers/i2c/algos/i2c-algo-pcf.c  |    3 ++-
+ drivers/i2c/algos/i2c-algo-pcf.h  |    3 ++-
+ drivers/i2c/busses/Kconfig        |    1 +
+ drivers/i2c/busses/i2c-gpio.c     |    3 +--
+ drivers/i2c/busses/i2c-i801.c     |   27 +++++++++++++++------------
+ drivers/i2c/busses/i2c-isch.c     |   10 +++++-----
+ drivers/i2c/i2c-boardinfo.c       |    3 ++-
+ drivers/i2c/i2c-core.c            |    3 ++-
+ drivers/i2c/i2c-core.h            |    3 ++-
+ drivers/i2c/i2c-dev.c             |    3 ++-
+ drivers/i2c/i2c-smbus.c           |    3 ++-
+ drivers/i2c/muxes/pca9541.c       |   13 +------------
+ drivers/i2c/muxes/pca954x.c       |   13 +------------
+ include/linux/i2c-algo-bit.h      |    3 ++-
+ include/linux/i2c-algo-pcf.h      |    3 ++-
+ include/linux/i2c-dev.h           |    3 ++-
+ include/linux/i2c-mux.h           |    3 ++-
+ include/linux/i2c-smbus.h         |    3 ++-
+ include/linux/i2c.h               |    3 ++-
+ 22 files changed, 56 insertions(+), 59 deletions(-)
 
-00:1f.3 SMBus: Intel Corporation 6 Series/C200 Series Chipset Family SMBus Controller (rev 05)
-        Subsystem: Dell Device 04b3
-        Flags: medium devsel, IRQ 18
-        Memory at f7f05000 (64-bit, non-prefetchable) [size=256]
-        I/O ports at f040 [size=32]
-        Kernel modules: i2c-i801
+---------------
 
+Axel Lin (1):
+      i2c: Convert drivers/i2c/muxes/* to use module_i2c_driver()
 
-  So what driver should I use instead? This is a Dell Vostro 3550 laptop with Core i7 on
-a SandyBridge.
+Jean Delvare (3):
+      i2c-i801: Use usleep_range to wait for command completion
+      i2c: Update the FSF address
+      i2c-algo-bit: Don't resched on clock stretching
+
+Mark Brown (1):
+      i2c-gpio: Use linux/gpio.h rather than asm/gpio.h
+
+Olivier Sobrie (1):
+      i2c-isch: Decrease delay in command completion check loop
+
+Seth Heasley (1):
+      i2c-i801: Add device IDs for Intel Lynx Point
+
 Thanks,
-Martin
+-- 
+Jean Delvare
