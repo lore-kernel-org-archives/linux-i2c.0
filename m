@@ -1,60 +1,33 @@
-From: David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: Convert i2c-octeon.c to use device tree.
-Date: Mon, 26 Mar 2012 18:29:33 -0700
-Message-ID: <4F7117FD.7000700@cavium.com>
-References: <1332808075-8333-1-git-send-email-ddaney.cavm@gmail.com> <1332808075-8333-2-git-send-email-ddaney.cavm@gmail.com> <4F7115FA.6080507@gmail.com>
+From: "Oskar Schirmer" <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 4/4] mfd: mc13xxx: Add i2c driver
+Date: 27 Mar 2012 08:24:19 +0000
+Message-ID: <20120327082419.GA5080@curry>
+References: <1332129838-7080-1-git-send-email-marc@cpdesign.com.au> <1332129838-7080-5-git-send-email-marc@cpdesign.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F7115FA.6080507-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1332129838-7080-5-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: David Daney <ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, "ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org" <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/26/2012 06:20 PM, Rob Herring wrote:
+Test against Linux 3.3 fails as crucial patches in regmap core
+are not yet mainline. However, with commit cc374fbf5305 from
+git://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git
+applied, this series works fine.
+
+Signed-off-by: Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
+
+On Mon, Mar 19, 2012 at 15:03:58 +1100, Marc Reilly wrote:
+> Adds support for mc13xxx family ICs connected via i2c.
+> 
+> Signed-off-by: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+> ---
+>  drivers/mfd/Kconfig       |    8 +++-
+>  drivers/mfd/Makefile      |    1 +
+>  drivers/mfd/mc13xxx-i2c.c |  128 +++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 136 insertions(+), 1 deletions(-)
+>  create mode 100644 drivers/mfd/mc13xxx-i2c.c
 [...]
->> ---
->>
->> Should probably go via Ralf's linux-mips.org tree.
->>
->>   arch/mips/cavium-octeon/octeon-irq.c      |    2 -
->>   arch/mips/cavium-octeon/octeon-platform.c |   84 -------------------------
->>   arch/mips/include/asm/octeon/octeon.h     |    5 --
->>   drivers/i2c/busses/i2c-octeon.c           |   94 ++++++++++++++++-------------
->>   4 files changed, 52 insertions(+), 133 deletions(-)
->
-> snip
->
->>
->> -	if (i2c_data == NULL) {
->> -		dev_err(i2c->dev, "no I2C frequency data\n");
->> +	/*
->> +	 * "clock-rate" is a legacy binding, the official binding is
->> +	 * "clock-frequency".  Try the official one first and then
->> +	 * fall back if it doesn't exist.
->> +	 */
->> +	data = of_get_property(pdev->dev.of_node, "clock-frequency",&len);
->> +	if (!data || len != sizeof(*data))
->> +		data = of_get_property(pdev->dev.of_node, "clock-rate",&len);
->> +	if (data&&  len == sizeof(*data)) {
->> +		i2c->twsi_freq = be32_to_cpup(data);
->
-> Can't you use of_property_read_u32?
-
-I will investigate, and use it if possible.
-
->
-> Does the legacy binding really exist as DT support is new?
->
-
-Yes, unfortunately some bootloaders escaped into the wild with the 
-"clock-rate" binding.
-
-> Otherwise,
->
-> Acked-by: Rob Herring<rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
->
-
-Thanks,
