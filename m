@@ -1,42 +1,87 @@
-From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v2 0/2] i2c: Don't assume bus nr 0 if none was specified
-Date: Tue, 27 Mar 2012 11:10:26 +0200
-Message-ID: <1332839428-29705-1-git-send-email-k.lewandowsk@samsung.com>
+From: Karol Lewandowski <k.lewandowsk@samsung.com>
+Subject: [PATCH 2/2] i2c: Dynamically assign adapter id if it wasn't explictly
+ specified
+Date: Tue, 27 Mar 2012 11:10:28 +0200
+Message-ID: <1332839428-29705-3-git-send-email-k.lewandowsk@samsung.com>
+References: <1332839428-29705-1-git-send-email-k.lewandowsk@samsung.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN
 Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, bigeasy-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-reply-to: <1332839428-29705-1-git-send-email-k.lewandowsk@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: w.sang@pengutronix.de
+Cc: ben-linux@fluff.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, kyungmin.park@samsung.com, hskinnemoen@gmail.com, bigeasy@linutronix.de, dirk.brandewie@gmail.com, linux@arm.linux.org.uk, Karol Lewandowski <k.lewandowsk@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Changes since v1:
- - Dropped reduntant i2c-octeon change
+Commit 488bf314b ("i2c: Allow i2c_add_numbered_adapter() to assign a
+bus id") reworked i2c_add_numbered_adapter() to call i2c_add_adapter()
+if requested bus was -1.
 
-i2c controller drivers used to assume bus number 0 when none (-1) was
-specified.
+This allows to simplify driver's initialization procedure by using
+just one function for static and dynamic adapter id registration.
 
-This worked on non-device tree systems, where one could explicitly
-specify bus number via platform data.  On DT-enabled systems bus
-number is always -1.
+This patch updates few more drivers (missed out in original patch)
+to use this functionality.
 
-This patchset reworks few remaining drivers to use dynamic bus
-allocation when no id has been provided.
-
-[ I've found out this when I've tried to instantiate more than one
-  i2c-gpio instance on DT-enabled system. I've, hopefully, fixed few
-  other drivers too. ]
-
-Karol Lewandowski (2):
-  i2c-pxa: Drop leftover comment
-  i2c: Dynamically assign adapter id if it wasn't explictly specified
-
+Signed-off-by: Karol Lewandowski <k.lewandowsk@samsung.com>
+Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+---
  drivers/i2c/busses/i2c-gpio.c         |    7 +------
  drivers/i2c/busses/i2c-pca-platform.c |    2 +-
- drivers/i2c/busses/i2c-pxa.c          |    5 -----
  drivers/i2c/busses/i2c-versatile.c    |    9 ++-------
- 4 files changed, 4 insertions(+), 19 deletions(-)
+ 3 files changed, 4 insertions(+), 14 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index a651779..50a2a94 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -144,12 +144,7 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
+ 	adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->dev.parent = &pdev->dev;
+ 
+-	/*
+-	 * If "dev->id" is negative we consider it as zero.
+-	 * The reason to do so is to avoid sysfs names that only make
+-	 * sense when there are multiple adapters.
+-	 */
+-	adap->nr = (pdev->id != -1) ? pdev->id : 0;
++	adap->nr = pdev->id;
+ 	ret = i2c_bit_add_numbered_bus(adap);
+ 	if (ret)
+ 		goto err_add_bus;
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index 2adbf1a..675878f 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -171,7 +171,7 @@ static int __devinit i2c_pca_pf_probe(struct platform_device *pdev)
+ 	i2c->io_size = resource_size(res);
+ 	i2c->irq = irq;
+ 
+-	i2c->adap.nr = pdev->id >= 0 ? pdev->id : 0;
++	i2c->adap.nr = pdev->id;
+ 	i2c->adap.owner = THIS_MODULE;
+ 	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
+ 		 "PCA9564/PCA9665 at 0x%08lx",
+diff --git a/drivers/i2c/busses/i2c-versatile.c b/drivers/i2c/busses/i2c-versatile.c
+index 6055601..9458568 100644
+--- a/drivers/i2c/busses/i2c-versatile.c
++++ b/drivers/i2c/busses/i2c-versatile.c
+@@ -102,13 +102,8 @@ static int i2c_versatile_probe(struct platform_device *dev)
+ 	i2c->algo = i2c_versatile_algo;
+ 	i2c->algo.data = i2c;
+ 
+-	if (dev->id >= 0) {
+-		/* static bus numbering */
+-		i2c->adap.nr = dev->id;
+-		ret = i2c_bit_add_numbered_bus(&i2c->adap);
+-	} else
+-		/* dynamic bus numbering */
+-		ret = i2c_bit_add_bus(&i2c->adap);
++	i2c->adap.nr = dev->id;
++	ret = i2c_bit_add_numbered_bus(&i2c->adap);
+ 	if (ret >= 0) {
+ 		platform_set_drvdata(dev, i2c);
+ 		return 0;
 -- 
 1.7.9.1
