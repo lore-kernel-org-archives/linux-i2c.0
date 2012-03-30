@@ -1,49 +1,47 @@
-From: Paul Mundt <lethal@linux-sh.org>
-Subject: Re: [PATCH] i2c: i2c-sh_mobile device tree support
-Date: Fri, 30 Mar 2012 18:03:41 +0900
-Message-ID: <20120330090341.GG26543@linux-sh.org>
-References: <20120330084402.19597.63655.sendpatchset@w520> <20120330084744.GF26543@linux-sh.org> <CANqRtoTERUznk7xYr5qHMP4X5cVbvUw9vLZ5X-6YFkmVf69m4Q@mail.gmail.com>
+From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c: tegra: Add delay before reset the controller
+Date: Fri, 30 Mar 2012 17:36:19 +0530
+Message-ID: <1333109179-12445-1-git-send-email-alokc@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CANqRtoTERUznk7xYr5qHMP4X5cVbvUw9vLZ5X-6YFkmVf69m4Q@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-i2c@vger.kernel.org, arnd@arndb.de, linux-sh@vger.kernel.org, w.sang@pengutronix.de, rjw@sisk.pl, ben-linux@fluff.org, khali@linux-fr.org
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Cc: alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 30, 2012 at 05:53:35PM +0900, Magnus Damm wrote:
-> On Fri, Mar 30, 2012 at 5:47 PM, Paul Mundt <lethal@linux-sh.org> wrote:
-> > On Fri, Mar 30, 2012 at 05:44:02PM +0900, Magnus Damm wrote:
-> >> +static const struct of_device_id sh_mobile_i2c_dt_ids[] __devinitconst = {
-> >> + ? ? { .compatible = "renesas,rmobile-iic", },
-> >> + ? ? {},
-> >> +};
-> >> +MODULE_DEVICE_TABLE(of, sh_mobile_i2c_dt_ids);
-> >> +
-> > Given that this block predates R-Mobile, using the rmobile naming here is
-> > pretty dubious. I suppose you can have it as an alias, though.
-> 
-> Sure, but creating new code based an old naming conventions seem rather
-> odd too.
-> 
-Devices should be named what they are, not what the marketing people tell
-you they should be. Retroactively attempting to label parts that pre-date
-rmobile as being rmobile-related is non-sensical. The driver itself
-you'll note is not called i2c-rmobile for precisely this reason.
+In NACK error condition, I2C controller violates
+clock-to-data setup time before stop. In Software,
+because of this reset of controller is happening
+before I2C controller could complete STOP condition.
 
-Furthermore, there are also ARM-based SH-Mobile parts that pre-date the
-R-Mobile line that also use this driver, so it's hardly an architecture
-issue.
+Added delay of 2 clock period before reset the
+controller in case of NACK error.
 
-> Of course, if you think it is cramping your SH device tree style then
-> we can easily add a "renesas-shmobile-iic" entry as well.
-> 
-I obviously don't mind if you wish to use the rmobile naming convention
-going forward, as the new parts have obviously dropped with the shmobile
-naming convention, and it's likely you'll even be able to infer different
-capabilities between rmobile vs shmobile. That's not sufficient cause to
-prefer one over the other though, so you're still going to have to keep
-things balanced. Simply having two aliases seems to me to be the easiest
-solution.
+Signed-off-by: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+delay will be calculated based on clock frequency of the bus.
+ drivers/i2c/busses/i2c-tegra.c |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index e978635..344282e 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -516,6 +516,14 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
+ 		return 0;
+ 
++	/*
++	 * In NACK error condition resetting of I2C controller happens
++	 * before STOP condition is properly completed by I2C controller,
++	 * so wait for 2 clock cycle to complete STOP condition.
++	 */
++	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
++		udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
++
+ 	tegra_i2c_init(i2c_dev);
+ 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
+ 		if (msg->flags & I2C_M_IGNORE_NAK)
+-- 
+1.7.4.1
