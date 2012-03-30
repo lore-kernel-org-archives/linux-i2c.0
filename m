@@ -1,47 +1,71 @@
-From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: Add delay before reset the controller
-Date: Fri, 30 Mar 2012 17:36:19 +0530
-Message-ID: <1333109179-12445-1-git-send-email-alokc@nvidia.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCHv3 00/16] I2C updates
+Date: Fri, 30 Mar 2012 21:19:55 +0530
+Message-ID: <1333122611-29953-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
-Cc: alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-In NACK error condition, I2C controller violates
-clock-to-data setup time before stop. In Software,
-because of this reset of controller is happening
-before I2C controller could complete STOP condition.
+The patch series does the following
 
-Added delay of 2 clock period before reset the
-controller in case of NACK error.
+- Warn fixes if CONFIG_PM_RUNTIME is not selected.
+- I2C register restore only if context if the context is lost
+- Bus busy recovery mechanism.
+- the reset is not done in init.
 
-Signed-off-by: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-delay will be calculated based on clock frequency of the bus.
- drivers/i2c/busses/i2c-tegra.c |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+v2 changes
+-Adds a patch to use devm_* functions
+-Also checks the return type of the get_sync and in case
+ of errors prevents register access.
+- In case of i2c remove register access was done without any
+ get_sync fix the same.
+- Adds a pdata function pointer to do context save restore
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index e978635..344282e 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -516,6 +516,14 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	if (likely(i2c_dev->msg_err == I2C_ERR_NONE))
- 		return 0;
- 
-+	/*
-+	 * In NACK error condition resetting of I2C controller happens
-+	 * before STOP condition is properly completed by I2C controller,
-+	 * so wait for 2 clock cycle to complete STOP condition.
-+	 */
-+	if (i2c_dev->msg_err == I2C_ERR_NO_ACK)
-+		udelay(DIV_ROUND_UP(2 * 1000000, i2c_dev->bus_clk_rate));
-+
- 	tegra_i2c_init(i2c_dev);
- 	if (i2c_dev->msg_err == I2C_ERR_NO_ACK) {
- 		if (msg->flags & I2C_M_IGNORE_NAK)
--- 
-1.7.4.1
+v3 changes
+- Split the omap_i2c_isr to increase readability
+- Adds the restore flag patch for OMAP4 to the series
+- Make the i2c use SET_RUNTIME_PM_OPS
+
+Tested on omap4sdp and omap3sdp.
+
+Also available through
+
+git://gitorious.org/linus-tree/linus-tree.git for_3.5_i2c
+
+Previous discussion can be found
+http://www.spinics.net/lists/linux-i2c/msg07380.html
+
+
+Jon Hunter (1):
+  I2C: OMAP: Correct I2C revision for OMAP3
+
+Shubhrajyoti D (14):
+  I2C : OMAP : make omap_i2c_unidle/idle functions depend on
+    CONFIG_PM_RUNTIME
+  OMAP : I2C : Remove reset at init
+  OMAP: I2C: I2C register restore only if context is lost
+  OMAP: I2C: Fix the interrupt clearing in OMAP4
+  OMAP: I2C: Fix the mismatch of pm_runtime enable and disable
+  OMAP: I2C: Optimise the remove code
+  OMAP: I2C: Fix the error handling
+  I2C: OMAP: Don't check if wait_for_completion_timeout() returns less
+    than zero
+  OMAP : I2C : use devm_* functions
+  I2C : OMAP : Fix the crash in i2c remove
+  OMAP: I2C: Handle error check for pm runtime
+  I2C : OMAP : Use SET_RUNTIME_PM_OPS
+  OMAP4: hwmod data: I2C: add flag for context restore
+  i2c: omap: make the read ready processing a separate function
+
+Vikram Pandita (1):
+  I2C: OMAP: Recover from Bus Busy condition
+
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 +-
+ arch/arm/plat-omap/i2c.c                   |    3 +
+ drivers/i2c/busses/i2c-omap.c              |  318 +++++++++++++++-------------
+ include/linux/i2c-omap.h                   |    1 +
+ 4 files changed, 182 insertions(+), 143 deletions(-)
