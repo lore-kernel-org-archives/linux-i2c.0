@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv3 11/16] OMAP : I2C : use devm_* functions
-Date: Fri, 30 Mar 2012 21:20:06 +0530
-Message-ID: <1333122611-29953-12-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCHv3 09/16] I2C: OMAP: Correct I2C revision for OMAP3
+Date: Fri, 30 Mar 2012 21:20:04 +0530
+Message-ID: <1333122611-29953-10-git-send-email-shubhrajyoti@ti.com>
 References: <1333122611-29953-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -9,94 +9,66 @@ Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1333122611-29953-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The various devm_ functions allocate memory that is released when a driver
-detaches. This patch uses devm_kzalloc, devm_request_mem_region and
-devm_ioremap for data that is allocated in the probe function of a platform
-device and is only freed in the remove function.
+From: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
 
+The OMAP3530 is based upon the same silicon as the OMAP3430 and so the I2C
+revision is the same for 3430 and 3530. However, the OMAP3630 device has the
+same I2C revision as OMAP4. Correct the revision definition to reflect this.
+
+This patch is based on work done by Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
+Changes from his patch
+- Update OMAP_I2C_REV_ON_3430 also to reflect that it is same as 3530
+
+Signed-off-by: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
 Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c |   29 +++++++++--------------------
- 1 files changed, 9 insertions(+), 20 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 5b05ea2..0258878 100644
+index 1e36507..121b29b 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -995,17 +995,17 @@ omap_i2c_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
+@@ -50,8 +50,8 @@
  
--	ioarea = request_mem_region(mem->start, resource_size(mem),
--			pdev->name);
-+	ioarea = devm_request_mem_region(&pdev->dev, mem->start,
-+			resource_size(mem), pdev->name);
- 	if (!ioarea) {
- 		dev_err(&pdev->dev, "I2C region already claimed\n");
- 		return -EBUSY;
- 	}
+ /* I2C controller revisions present on specific hardware */
+ #define OMAP_I2C_REV_ON_2430		0x36
+-#define OMAP_I2C_REV_ON_3430		0x3C
+-#define OMAP_I2C_REV_ON_3530_4430	0x40
++#define OMAP_I2C_REV_ON_3430_3530	0x3C
++#define OMAP_I2C_REV_ON_3630_4430	0x40
  
--	dev = kzalloc(sizeof(struct omap_i2c_dev), GFP_KERNEL);
-+	dev = devm_kzalloc(&pdev->dev, sizeof(struct omap_i2c_dev), GFP_KERNEL);
- 	if (!dev) {
--		r = -ENOMEM;
--		goto err_release_region;
-+		dev_err(&pdev->dev, "Menory allocation failed\n");
-+		return -ENOMEM;
- 	}
+ /* timeout waiting for the controller to respond */
+ #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
+@@ -298,7 +298,7 @@ static int omap_i2c_reset(struct omap_i2c_dev *dev)
+ 			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
+ 					   SYSC_AUTOIDLE_MASK);
  
- 	match = of_match_device(of_match_ptr(omap_i2c_of_match), &pdev->dev);
-@@ -1029,11 +1029,10 @@ omap_i2c_probe(struct platform_device *pdev)
+-		} else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
++		} else if (dev->rev >= OMAP_I2C_REV_ON_3430_3530) {
+ 			dev->syscstate = SYSC_AUTOIDLE_MASK;
+ 			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
+ 			dev->syscstate |= (SYSC_IDLEMODE_SMART <<
+@@ -1051,7 +1051,7 @@ omap_i2c_probe(struct platform_device *pdev)
  
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq->start;
--	dev->base = ioremap(mem->start, resource_size(mem));
--	if (!dev->base) {
--		r = -ENOMEM;
--		goto err_free_mem;
--	}
-+	dev->base = devm_ioremap(&pdev->dev, mem->start, resource_size(mem));
-+	if (!dev->base)
-+		return -ENOMEM;
-+
+ 	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
  
- 	platform_set_drvdata(pdev, dev);
+-	if (dev->rev <= OMAP_I2C_REV_ON_3430)
++	if (dev->rev <= OMAP_I2C_REV_ON_3430_3530)
+ 		dev->errata |= I2C_OMAP3_1P153;
  
-@@ -1121,13 +1120,8 @@ err_free_irq:
- err_unuse_clocks:
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 	pm_runtime_put(dev->dev);
--	iounmap(dev->base);
- 	pm_runtime_disable(&pdev->dev);
--err_free_mem:
- 	platform_set_drvdata(pdev, NULL);
--	kfree(dev);
--err_release_region:
--	release_mem_region(mem->start, resource_size(mem));
+ 	if (!(dev->flags & OMAP_I2C_FLAG_NO_FIFO)) {
+@@ -1069,7 +1069,7 @@ omap_i2c_probe(struct platform_device *pdev)
  
- 	return r;
- }
-@@ -1135,7 +1129,6 @@ err_release_region:
- static int __devexit omap_i2c_remove(struct platform_device *pdev)
- {
- 	struct omap_i2c_dev	*dev = platform_get_drvdata(pdev);
--	struct resource		*mem;
+ 		dev->fifo_size = (dev->fifo_size / 2);
  
- 	platform_set_drvdata(pdev, NULL);
- 
-@@ -1143,10 +1136,6 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
- 	i2c_del_adapter(&dev->adapter);
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 	pm_runtime_disable(&pdev->dev);
--	iounmap(dev->base);
--	kfree(dev);
--	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	release_mem_region(mem->start, resource_size(mem));
- 	return 0;
- }
- 
+-		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430)
++		if (dev->rev >= OMAP_I2C_REV_ON_3630_4430)
+ 			dev->b_hw = 0; /* Disable hardware fixes */
+ 		else
+ 			dev->b_hw = 1; /* Enable hardware fixes */
 -- 
 1.7.1
