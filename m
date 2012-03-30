@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv3 16/16] i2c: omap: make the read ready processing a separate function
-Date: Fri, 30 Mar 2012 21:20:11 +0530
-Message-ID: <1333122611-29953-17-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCHv3 14/16] I2C : OMAP : Use SET_RUNTIME_PM_OPS
+Date: Fri, 30 Mar 2012 21:20:09 +0530
+Message-ID: <1333122611-29953-15-git-send-email-shubhrajyoti@ti.com>
 References: <1333122611-29953-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,118 +12,44 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-No functional change. Makes the read ready processing a separate
-function. This is to avoid extremely long level of indentation.
+Use SET_RUNTIME_PM_OPS macro to set runtime functions.
 
 Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c |   86 +++++++++++++++++++++-------------------
- 1 files changed, 45 insertions(+), 41 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |   11 ++++-------
+ 1 files changed, 4 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 4d57569..1f63698 100644
+index b098650..4d57569 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -784,6 +784,49 @@ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
+@@ -1211,15 +1211,12 @@ static int omap_i2c_runtime_resume(struct device *dev)
+ 
  	return 0;
  }
++#endif
  
-+static int process_read_rdy(struct omap_i2c_dev *dev)
-+{
-+	u8 num_bytes = 1;
-+	u16 stat, w;
-+
-+	if (dev->errata & I2C_OMAP_ERRATA_I207)
-+		i2c_omap_errata_i207(dev, stat);
-+
-+	if (dev->fifo_size) {
-+		if (stat & OMAP_I2C_STAT_RRDY)
-+			num_bytes = dev->fifo_size;
-+		else    /* read RXSTAT on RDR interrupt */
-+			num_bytes = (omap_i2c_read_reg(dev,
-+					OMAP_I2C_BUFSTAT_REG) >> 8) & 0x3F;
-+	}
-+	while (num_bytes) {
-+		num_bytes--;
-+		w = omap_i2c_read_reg(dev, OMAP_I2C_DATA_REG);
-+		if (dev->buf_len) {
-+			*dev->buf++ = w;
-+			dev->buf_len--;
-+			/*
-+			 * Data reg in 2430, omap3 and omap4 is 8 bit wide
-+			 */
-+			if (dev->flags & OMAP_I2C_FLAG_16BIT_DATA_REG) {
-+				if (dev->buf_len) {
-+					*dev->buf++ = w >> 8;
-+					dev->buf_len--;
-+				}
-+			}
-+		} else {
-+			if (stat & OMAP_I2C_STAT_RRDY)
-+				dev_err(dev->dev,
-+					"RRDY IRQ while no data requested\n");
-+			if (stat & OMAP_I2C_STAT_RDR)
-+				dev_err(dev->dev,
-+					"RDR IRQ while no data requested\n");
-+			return -EIO;
-+		}
-+	}
-+	return 0;
-+}
-+
- static irqreturn_t
- omap_i2c_isr(int this_irq, void *dev_id)
- {
-@@ -834,48 +877,9 @@ complete:
- 			return IRQ_HANDLED;
- 		}
- 		if (stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR)) {
--			u8 num_bytes = 1;
--
--			if (dev->errata & I2C_OMAP_ERRATA_I207)
--				i2c_omap_errata_i207(dev, stat);
-+			if (process_read_rdy(dev) == -EIO)
-+				break;
+ static struct dev_pm_ops omap_i2c_pm_ops = {
+-	.runtime_suspend = omap_i2c_runtime_suspend,
+-	.runtime_resume = omap_i2c_runtime_resume,
++	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
++			   omap_i2c_runtime_resume, NULL)
+ };
+-#define OMAP_I2C_PM_OPS (&omap_i2c_pm_ops)
+-#else
+-#define OMAP_I2C_PM_OPS NULL
+-#endif
  
--			if (dev->fifo_size) {
--				if (stat & OMAP_I2C_STAT_RRDY)
--					num_bytes = dev->fifo_size;
--				else    /* read RXSTAT on RDR interrupt */
--					num_bytes = (omap_i2c_read_reg(dev,
--							OMAP_I2C_BUFSTAT_REG)
--							>> 8) & 0x3F;
--			}
--			while (num_bytes) {
--				num_bytes--;
--				w = omap_i2c_read_reg(dev, OMAP_I2C_DATA_REG);
--				if (dev->buf_len) {
--					*dev->buf++ = w;
--					dev->buf_len--;
--					/*
--					 * Data reg in 2430, omap3 and
--					 * omap4 is 8 bit wide
--					 */
--					if (dev->flags &
--						 OMAP_I2C_FLAG_16BIT_DATA_REG) {
--						if (dev->buf_len) {
--							*dev->buf++ = w >> 8;
--							dev->buf_len--;
--						}
--					}
--				} else {
--					if (stat & OMAP_I2C_STAT_RRDY)
--						dev_err(dev->dev,
--							"RRDY IRQ while no data"
--								" requested\n");
--					if (stat & OMAP_I2C_STAT_RDR)
--						dev_err(dev->dev,
--							"RDR IRQ while no data"
--								" requested\n");
--					break;
--				}
--			}
- 			omap_i2c_ack_stat(dev,
- 				stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR));
- 			continue;
+ static struct platform_driver omap_i2c_driver = {
+ 	.probe		= omap_i2c_probe,
+@@ -1227,7 +1224,7 @@ static struct platform_driver omap_i2c_driver = {
+ 	.driver		= {
+ 		.name	= "omap_i2c",
+ 		.owner	= THIS_MODULE,
+-		.pm	= OMAP_I2C_PM_OPS,
++		.pm	= &omap_i2c_pm_ops,
+ 		.of_match_table = of_match_ptr(omap_i2c_of_match),
+ 	},
+ };
 -- 
 1.7.1
