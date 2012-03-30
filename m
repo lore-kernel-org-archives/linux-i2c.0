@@ -1,51 +1,48 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv3 05/16] OMAP: I2C: Fix the interrupt clearing in OMAP4
-Date: Fri, 30 Mar 2012 21:20:00 +0530
-Message-ID: <1333122611-29953-6-git-send-email-shubhrajyoti@ti.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCHv3 06/16] OMAP: I2C: Fix the mismatch of pm_runtime enable and disable
+Date: Fri, 30 Mar 2012 21:20:01 +0530
+Message-ID: <1333122611-29953-7-git-send-email-shubhrajyoti@ti.com>
 References: <1333122611-29953-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1333122611-29953-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1333122611-29953-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>, Kevin Hilman <khilman@ti.com>, Rajendra Nayak <rnayak@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On OMAP4 we were writing 1 to IRQENABLE_CLR which cleared only
-the arbitration lost interrupt. The patch intends to fix the same by writing 0
-to the IE register clearing all interrupts.
+Currently the i2c driver calls the pm_runtime_enable and never
+the disable. This may cause a warning when pm_runtime_enable
+checks for the count match.Attempting to fix the same by calling
+pm_runtime_disable in the error and the remove path.
 
-This is based on the work done by Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>.
-
-The  changes from the original patch ...
--  Does not use the IRQENABLE_CLR register to clear as it is not mentioned
-  to be legacy register IRQENABLE_CLR helps in  atomically
-  setting/clearing specific interrupts, instead use the OMAP_I2C_IE_REG as we are
-  clearing all interrupts.
-
-Cc: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: Kevin Hilman <khilman@ti.com>
+Cc: Rajendra Nayak <rnayak@ti.com>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
- drivers/i2c/busses/i2c-omap.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index f39d591..1c38572 100644
+index 1c38572..7df1ea2 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1179,10 +1179,8 @@ static int omap_i2c_runtime_suspend(struct device *dev)
- 		_dev->dev_lost_count = _dev->get_context_loss_count(dev);
- 
- 	_dev->iestate = omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
--	if (_dev->dtrev == OMAP_I2C_IP_VERSION_2)
--		omap_i2c_write_reg(_dev, OMAP_I2C_IP_V2_IRQENABLE_CLR, 1);
--	else
--		omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
-+
-+	omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
- 
- 	if (_dev->rev < OMAP_I2C_OMAP1_REV_2) {
- 		iv = omap_i2c_read_reg(_dev, OMAP_I2C_IV_REG); /* Read clears */
+@@ -1124,6 +1124,7 @@ err_unuse_clocks:
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+ 	pm_runtime_put(dev->dev);
+ 	iounmap(dev->base);
++	pm_runtime_disable(&pdev->dev);
+ err_free_mem:
+ 	platform_set_drvdata(pdev, NULL);
+ 	kfree(dev);
+@@ -1144,6 +1145,7 @@ omap_i2c_remove(struct platform_device *pdev)
+ 	free_irq(dev->irq, dev);
+ 	i2c_del_adapter(&dev->adapter);
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
++	pm_runtime_disable(&pdev->dev);
+ 	iounmap(dev->base);
+ 	kfree(dev);
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
 -- 
 1.7.1
