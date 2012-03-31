@@ -1,37 +1,49 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-dev: Add support for I2C_M_RECV_LEN
-Date: Sat, 31 Mar 2012 08:19:27 +0200
-Message-ID: <20120331081927.2438ea9e@endymion.delvare>
-References: <20120315180835.2e669111@endymion.delvare>
+Subject: Re: [PATCH] i2c: reorganize muxes to a standard pattern
+Date: Sat, 31 Mar 2012 08:21:12 +0200
+Message-ID: <20120331082112.2fcc13c3@endymion.delvare>
+References: <1321220474-11378-1-git-send-email-w.sang@pengutronix.de>
+	<20111127214847.547542fb@endymion.delvare>
+	<87sjl9gtcv.fsf@macbook.be.48ers.dk>
+	<20111128092227.3d5d6a25@endymion.delvare>
+	<20111128093835.GA4243@pengutronix.de>
+	<874nxoh8l5.fsf@macbook.be.48ers.dk>
+	<20111128125751.3d6a3ca7@endymion.delvare>
+	<20120107153820.45ed4b37@endymion.delvare>
+	<20120107144559.GA2537@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120315180835.2e669111-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20120107144559.GA2537-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 15 Mar 2012 18:08:35 +0100, Jean Delvare wrote:
-> As the bus driver side implementation of I2C_M_RECV_LEN is heavily
-> tied to SMBus, we can't support received length over 32 bytes, but
-> let's at least support that.
+On Sat, 7 Jan 2012 15:46:00 +0100, Wolfram Sang wrote:
+> On Sat, Jan 07, 2012 at 03:38:20PM +0100, Jean Delvare wrote:
+> > On Mon, 28 Nov 2011 12:57:51 +0100, Jean Delvare wrote:
+> > > On Mon, 28 Nov 2011 10:58:30 +0100, Peter Korsgaard wrote:
+> > > > Indeed. If we were to rename it we should also rename struct
+> > > > gpio_i2cmux_platform_data.
+> > > > 
+> > > > I don't feel strongly about it - It will break for existing users, but
+> > > > there's probably not too many of those. Your call.
+> > > 
+> > > I see exactly 1 user of <linux/gpio-i2cmux.h> in the upstream kernel
+> > > tree, and that is gpio-i2cmux itself. So I'd say no big deal renaming
+> > > it, and actually if we intend to rename header files and/or structures,
+> > > the sooner the better.
+> > 
+> > Wolfram, Peter, any progress here? I think Wolfram was supposed to send
+> > an updated patch but I did not receive anything.
 > 
-> In practice, the caller will have to setup a buffer large enough to
-> cover the case where received length byte has value 32, so minimum
-> 32 + 1 = 33 bytes, possibly more if there is a fixed number of bytes
-> added for the specific slave (for example a checksum.)
+> -EBUSY :(
 > 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
-> ---
-> This is an alternative to Doug's implementation. Doug, I sent this to
-> you one week ago, did you have the time to give it a try, do you have
-> any comment? Again I can't test this myself so someone else will have
-> to do it.
+> It *is* on my todo-list, though...
 
-Douglas, please?
+Any news on this?
 
 -- 
 Jean Delvare
