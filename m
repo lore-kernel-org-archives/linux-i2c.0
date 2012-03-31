@@ -1,36 +1,37 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: Add delay before reset the controller
-Date: Fri, 30 Mar 2012 09:54:28 -0600
-Message-ID: <4F75D734.3090109@wwwdotorg.org>
-References: <1333109179-12445-1-git-send-email-alokc@nvidia.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-dev: Add support for I2C_M_RECV_LEN
+Date: Sat, 31 Mar 2012 08:19:27 +0200
+Message-ID: <20120331081927.2438ea9e@endymion.delvare>
+References: <20120315180835.2e669111@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1333109179-12445-1-git-send-email-alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120315180835.2e669111-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/30/2012 06:06 AM, Alok Chauhan wrote:
-> In NACK error condition, I2C controller violates
-> clock-to-data setup time before stop. In Software,
-> because of this reset of controller is happening
-> before I2C controller could complete STOP condition.
+On Thu, 15 Mar 2012 18:08:35 +0100, Jean Delvare wrote:
+> As the bus driver side implementation of I2C_M_RECV_LEN is heavily
+> tied to SMBus, we can't support received length over 32 bytes, but
+> let's at least support that.
+> 
+> In practice, the caller will have to setup a buffer large enough to
+> cover the case where received length byte has value 32, so minimum
+> 32 + 1 = 33 bytes, possibly more if there is a fixed number of bytes
+> added for the specific slave (for example a checksum.)
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+> ---
+> This is an alternative to Doug's implementation. Doug, I sent this to
+> you one week ago, did you have the time to give it a try, do you have
+> any comment? Again I can't test this myself so someone else will have
+> to do it.
 
-I'm not quite sure this description is correct. Surely what's happening
-is simply that the controller raises the NACK interrupt as soon as it
-detects a NACK condition. Then, the controller generates the STOP
-condition on the bus correctly. The issue is that if software resets the
-controller as soon as the NACK interrupt is raised, this will happen
-before the controller has completely delivered the STOP condition onto
-the bus, so we need to pause and wait for that?
+Douglas, please?
 
-I think the commit description and comment in the code should be
-reworded to describe what I wrote above, assuming it's accurate.
-
-Is there really no idle bit we can poll in the I2C controller to
-determine when the STOP has completed, rather than just delaying a
-"hard-coded" time? Can I2C SCL clock-stretching affect the amount of
-time that must be delayed?
+-- 
+Jean Delvare
