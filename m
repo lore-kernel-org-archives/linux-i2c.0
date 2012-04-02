@@ -1,26 +1,85 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH v5 2/4] mfd: mc13xxx-core: use regmap for register
- access
-Date: Mon, 2 Apr 2012 17:00:36 +0100
-Message-ID: <20120402160036.GA29808@sirena.org.uk>
-References: <1333262499-25871-1-git-send-email-marc@cpdesign.com.au>
- <1333262499-25871-3-git-send-email-marc@cpdesign.com.au>
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH v2 1/8] iio: Add device tree support to LPC32xx ADC
+Date: Mon,  2 Apr 2012 20:33:00 +0200
+Message-ID: <1333391587-26290-2-git-send-email-stigge@antcom.de>
+References: <1333391587-26290-1-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1333262499-25871-3-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexg-uRCCPK1wpQlR0G4FFNCX/g@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1333391587-26290-1-git-send-email-stigge@antcom.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: arm@kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, w.sang@pengutronix.de, srinivas.bakki@nxp.com, kevin.wells@nxp.com, gregkh@linuxfoundation.org, netdev@vger.kernel.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, linux-watchdog@vger.kernel.org, wim@iguana.be, jonsmirl@gmail.com
+Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Apr 01, 2012 at 04:41:37PM +1000, Marc Reilly wrote:
-> This change converts the mc13xxx core to use regmap rather than direct
-> spi r/w.
-> The spidev member of mc13xxx struct becomes redundant and is removed.
-> Extra debugging aids are added to mc13xxx_reg_rmw.
+This patch adds device tree support to the LPC32xx's ADC.
 
-To repeat what I've said on previous versions please push this down into
-regmap.  There's already extensive diagnostic features there, let's not
-have people open coding things that are missing.
+Signed-off-by: Roland Stigge <stigge@antcom.de>
+
+---
+
+ Applies to v3.4-rc1
+
+ Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt |   16 ++++++++++
+ drivers/staging/iio/adc/lpc32xx_adc.c                             |   10 ++++++
+ 2 files changed, 26 insertions(+)
+
+--- /dev/null
++++ linux-2.6/Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt
+@@ -0,0 +1,16 @@
++* NXP LPC32xx SoC ADC controller
++
++Required properties:
++- compatible: must be "nxp,lpc32xx-adc"
++- reg: physical base address of the controller and length of memory mapped
++  region.
++- interrupts: The ADC interrupt
++
++Example:
++
++	adc@40048000 {
++		compatible = "nxp,lpc32xx-adc";
++		reg = <0x40048000 0x1000>;
++		interrupt-parent = <&mic>;
++		interrupts = <39 0>;
++	};
+--- linux-2.6.orig/drivers/staging/iio/adc/lpc32xx_adc.c
++++ linux-2.6/drivers/staging/iio/adc/lpc32xx_adc.c
+@@ -30,6 +30,7 @@
+ #include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/completion.h>
++#include <linux/of.h>
+ 
+ #include "../iio.h"
+ #include "../sysfs.h"
+@@ -221,12 +222,21 @@ static int __devexit lpc32xx_adc_remove(
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_OF
++static const struct of_device_id lpc32xx_adc_match[] = {
++	{ .compatible = "nxp,lpc32xx-adc" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, lpc32xx_adc_match);
++#endif
++
+ static struct platform_driver lpc32xx_adc_driver = {
+ 	.probe		= lpc32xx_adc_probe,
+ 	.remove		= __devexit_p(lpc32xx_adc_remove),
+ 	.driver		= {
+ 		.name	= MOD_NAME,
+ 		.owner	= THIS_MODULE,
++		.of_match_table = of_match_ptr(lpc32xx_adc_match),
+ 	},
+ };
