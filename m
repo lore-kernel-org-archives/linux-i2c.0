@@ -1,81 +1,44 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH 7/7] wdt: Device tree support for pnx4008-wdt
-Date: Mon,  2 Apr 2012 14:56:04 +0200
-Message-ID: <1333371364-21347-8-git-send-email-stigge@antcom.de>
-References: <1333371364-21347-1-git-send-email-stigge@antcom.de>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 4/7] arm: mach-pnx4008: Adjust i2c.c to updated i2c-pnx.c
+Date: Mon, 2 Apr 2012 13:07:15 +0000
+Message-ID: <201204021307.16072.arnd@arndb.de>
+References: <1333371364-21347-1-git-send-email-stigge@antcom.de> <1333371364-21347-5-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1333371364-21347-1-git-send-email-stigge@antcom.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: arm@kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, w.sang@pengutronix.de, srinivas.bakki@nxp.com, kevin.wells@nxp.com, gregkh@linuxfoundation.org, netdev@vger.kernel.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, linux-watchdog@vger.kernel.org, wim@iguana.be
-Cc: Roland Stigge <stigge@antcom.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1333371364-21347-5-git-send-email-stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Cc: arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds watchdog support to pnx4008-wdt.c
+On Monday 02 April 2012, Roland Stigge wrote:
+> The i2c bus driver i2c-pnx.c (used by mach-pnx4008 and mach-lpc32xx) was
+> updated to support device tree. In this process, the struct i2c_pnx_data was
+> eliminated. Therefore, the platform data of pnx4008 is adjusted with this patch
+> to use default resources for mem and irq. DT support for pnx4008 is still not
+> available, but i2c-pnx.c now supports both DT and non-DT.
+> 
+> arch/arm/mach-pnx4008/include/mach/i2c.h can safely be removed now since its
+> contents is integrated in the updated i2c-pnx.c driver and was duplicated
+> between platforms pnx4008 and lpc32xx.
+> 
+> Signed-off-by: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
+Hi Roland,
 
----
+The i2c changes look ok, but the order breaks bisection through the series.
 
- Applies to v3.4-rc1
+Since the changes in pnx4008 are fairly localized, I would suggest merging
+all three patches through the i2c tree and reorganizing the changes so
+that each change is atomic. I would suggest an order like:
 
- Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt |   13 +++++++++++++
- drivers/watchdog/pnx4008_wdt.c                             |   10 ++++++++++
- 2 files changed, 23 insertions(+)
+1. fix suspend
+2. move contents of mach/i2c.h from pnx4008 and lpc32xx to i2c driver
+3. change driver and platform device definitions to use resources instead
+   of platform data
+4. add support for device tree based probing
 
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt
-@@ -0,0 +1,13 @@
-+* NXP PNX watchdog timer
-+
-+Required properties:
-+- compatible: must be "nxp,pnx4008-wdt"
-+- reg: physical base address of the controller and length of memory mapped
-+  region.
-+
-+Example:
-+
-+	watchdog@4003C000 {
-+		compatible = "nxp,pnx4008-wdt";
-+		reg = <0x4003C000 0x1000>;
-+	};
---- linux-2.6.orig/drivers/watchdog/pnx4008_wdt.c
-+++ linux-2.6/drivers/watchdog/pnx4008_wdt.c
-@@ -32,6 +32,7 @@
- #include <linux/io.h>
- #include <linux/slab.h>
- #include <linux/err.h>
-+#include <linux/of.h>
- #include <mach/hardware.h>
- 
- /* WatchDog Timer - Chapter 23 Page 207 */
-@@ -201,10 +202,19 @@ static int __devexit pnx4008_wdt_remove(
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id pnx4008_wdt_match[] = {
-+	{ .compatible = "nxp,pnx4008-wdt" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, pnx4008_wdt_match);
-+#endif
-+
- static struct platform_driver platform_wdt_driver = {
- 	.driver = {
- 		.name = "pnx4008-watchdog",
- 		.owner	= THIS_MODULE,
-+		.of_match_table = of_match_ptr(pnx4008_wdt_match),
- 	},
- 	.probe = pnx4008_wdt_probe,
- 	.remove = __devexit_p(pnx4008_wdt_remove),
+	Arnd
