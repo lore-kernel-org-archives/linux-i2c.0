@@ -1,97 +1,70 @@
-From: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH v2] i2c: tegra: Add delay before reset the controller
-Date: Mon, 2 Apr 2012 17:36:45 +0530
-Message-ID: <7A0BFCFE3DA5CD47B0FB7984326F201A136BDCC3DB@BGMAIL01.nvidia.com>
-References: <1333345982-16595-1-git-send-email-alokc@nvidia.com>
-	<7A0BFCFE3DA5CD47B0FB7984326F201A136BDCC35E@BGMAIL01.nvidia.com>
- <CAM=Q2cuN+qAjDsBNp5Sq_Xs9KGcOQJ+PwjSVW-F0QczxMpWZRQ@mail.gmail.com>
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH 0/7]: arm: lpc32xx: Device tree support
+Date: Mon,  2 Apr 2012 14:55:57 +0200
+Message-ID: <1333371364-21347-1-git-send-email-stigge@antcom.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2cuN+qAjDsBNp5Sq_Xs9KGcOQJ+PwjSVW-F0QczxMpWZRQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org" <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: arm@kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, w.sang@pengutronix.de, srinivas.bakki@nxp.com, kevin.wells@nxp.com, gregkh@linuxfoundation.org, netdev@vger.kernel.org, rtc-linux@googlegroups.com, a.zummo@towertech.it, linux-watchdog@vger.kernel.org, wim@iguana.be
+Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shubhrajyoti,
+This is the first series of patches to introduce device tree support for the
+LPC32xx SoC. This series includes patches for the various subsystems to support
+device tree to be used later by the machine's initialization.
 
-> Why is it clock cycle dependent?
-I think you got me wrong. What I meant to say that delay is calculated =
-based on clock period of that bus. So in this way I don't have to hardc=
-ode the delay value.
+The patches apply to various subsystems:
 
-> Is it possible to poll if the stop is sent by controller ?
-No, Tegra i2c controller doesn't have any register for STOP condition c=
-ompletion status bit. So delay is the only option here.
+ * staging/iio/adc
+ * rtc
+ * net
+ * arm-soc
+ * i2c
+ * wdt
 
-Thanks
-Alok
+Based on v3.4-rc1
 
------Original Message-----
-=46rom: Shubhrajyoti Datta [mailto:omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]=20
-Sent: Monday, April 02, 2012 3:49 PM
-To: Alok Chauhan
-Cc: Stephen Warren; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; b=
-en-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; Stephen Warren; olof@lixom.n=
-et; bones-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org; ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org; Laxman Dewangan; linux-tegr=
-a@vger.kernel.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; dgreid-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
-Subject: Re: [PATCH v2] i2c: tegra: Add delay before reset the controll=
-er
+You can also pull from
 
-Hi Alok,
-=46ew / doubts /questions.
+  git://git.antcom.de/linux-2.6 lpc32xx/dt
 
+I'm CC'ing the various subsystem maintainers and lists who can each see what's
+going on and please pick their respective subsystem's changes. - Thanks!
 
-On Mon, Apr 2, 2012 at 11:29 AM, Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org> wrote:
-> Stephen,
->
-> I've updated the commit message and comment in the code as per your s=
-uggestion. Tegra I2C controller doesn't have idle bit so delay is requi=
-red before reset the controller in case of NACK error. =A0This delay is=
- calculated purely based on clock period of that particular i2c bus and=
- not passed as hardcoded value. I2C SCL clock-stretching won't affect t=
-his calculated delay.
+Signed-off-by: Roland Stigge <stigge@antcom.de>
 
-Why is it clock cycle dependent?
+--
 
-Is it possible to poll if the stop is sent by controller ?
+Roland Stigge (7):
+ iio: Add device tree support to LPC32xx ADC
+ rtc: Add device tree support for LPC32xx
+ net: Add device tree support to LPC32xx
+ arm: mach-pnx4008: Adjust i2c.c to updated i2c-pnx.c
+ i2c: Add device tree support to i2c-pnx.c
+ i2c-pnx.c: Fix suspend
+ wdt: Device tree support for pnx4008-wdt
 
->
-> Thanks
-> Alok
->
->
-> -----Original Message-----
-> From: Alok Chauhan [mailto:alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org]
-> Sent: Monday, April 02, 2012 11:23 AM
-> To: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; w=
-=2Esang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; Stephen Warren; olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org; bones@secretlab=
-=2Eca; omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org; Laxman Dewangan; =
-linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; dgreid@chromium=
-=2Eorg
-> Cc: Alok Chauhan; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Subject: [PATCH v2] i2c: tegra: Add delay before reset the controller
->
-> NACK interrupt generated before I2C controller generates the STOP con=
-dition on bus. In Software, because of this reset of controller is happ=
-ening before I2C controller could complete STOP condition. So wait for =
-some time before resetting the controller so that STOP condition has de=
-livered properly on bus.
->
-> Added delay of 2 clock period
-How did you calculate the 2 clock cycles?
-
-
-before reset the controller in case of NACK error.
->
-> Signed-off-by: Alok Chauhan <alokc-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> ---
-> Added the more descriptive commit message about issue in case of NACK=
- error condition. Changed the comment in code also
->
-> =A0drivers/i2c/busses/i2c-tegra.c | =A0 =A08 ++++++++
-> =A01 files changed, 8 insertions(+), 0 deletions(-)
->
+ Documentation/devicetree/bindings/i2c/pnx.txt                     |   36 ++
+ Documentation/devicetree/bindings/net/lpc-eth.txt                 |   25 +
+ Documentation/devicetree/bindings/rtc/lpc32xx-rtc.txt             |   15 
+ Documentation/devicetree/bindings/staging/iio/adc/lpc32xx-adc.txt |   16 
+ Documentation/devicetree/bindings/watchdog/pnx4008-wdt.txt        |   13 
+ arch/arm/mach-pnx4008/i2c.c                                       |   58 ++-
+ arch/arm/mach-pnx4008/include/mach/i2c.h                          |   64 ---
+ drivers/i2c/busses/i2c-pnx.c                                      |  163 +++++++---
+ drivers/net/ethernet/nxp/lpc_eth.c                                |   76 ++--
+ drivers/rtc/rtc-lpc32xx.c                                         |   12 
+ drivers/staging/iio/adc/lpc32xx_adc.c                             |   10 
+ drivers/watchdog/pnx4008_wdt.c                                    |   10 
+ include/linux/i2c-pnx.h                                           |   10 
+ 13 files changed, 340 insertions(+), 168 deletions(-)
