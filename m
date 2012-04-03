@@ -1,48 +1,34 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHv4 18/18] i2c: omap: Do not set the XUDF if the underflow is not reached
-Date: Tue, 3 Apr 2012 17:08:27 +0530
-Message-ID: <1333453107-7697-19-git-send-email-shubhrajyoti@ti.com>
-References: <1333453107-7697-1-git-send-email-shubhrajyoti@ti.com>
+From: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of
+ interrupts
+Date: Tue, 3 Apr 2012 13:26:07 +0100 (BST)
+Message-ID: <alpine.LFD.2.00.1204031323300.28968@eddie.linux-mips.org>
+References: <1313710991-3596-1-git-send-email-mattst88@gmail.com> <20110903103036.161616a5@endymion.delvare> <20111031105354.4b888e44@endymion.delvare> <20120110153834.531664db@endymion.delvare> <CAEdQ38FpG11m50pwg2=tu1fJRRg=zixFKLsPmVPOzWNBCjbNBg@mail.gmail.com>
+ <20120331082346.26cc95cb@endymion.delvare> <CAEdQ38Ez+8DudAaJY7HZu9jbisk_KMbBO5h=s+P4pjJ0Va-zWw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1333453107-7697-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>, Alexander Shishkin <virtuoso@slind.org>, Moiz Sonasath <m-sonasath@ti.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAEdQ38Ez+8DudAaJY7HZu9jbisk_KMbBO5h=s+P4pjJ0Va-zWw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently in the 1.153 errata handling while waiting for transmitter
-underflow if NACK is got the XUDF flag is also set.
-Fix the same and set it after wait for the condition is over.
+On Sat, 31 Mar 2012, Matt Turner wrote:
 
-Cc: Alexander Shishkin <virtuoso@slind.org>
-Cc: Moiz Sonasath <m-sonasath@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- drivers/i2c/busses/i2c-omap.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+> >> It's hard to prioritize volunteer work for hardware you and two other
+> >> people have. :)
+> >
+> > Matt, Maciej, does any of you have an updated patch ready by now? If I
+> > don't receive anything by the end of April I'll just drop it.
+> 
+> I'll do my best to get you an updated patch.
+> 
+> Thanks for keeping after me.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 51576d6..a3160d1 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -763,7 +763,6 @@ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
- 		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
- 			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
- 							OMAP_I2C_STAT_XDR));
--			*err |= OMAP_I2C_STAT_XUDF;
- 			return -ETIMEDOUT;
- 		}
- 
-@@ -776,6 +775,7 @@ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
- 		return 0;
- 	}
- 
-+	*err |= OMAP_I2C_STAT_XUDF;
- 	return 0;
- }
- 
--- 
-1.7.1
+ And thanks for looking after the patches -- regrettably I still have no 
+ETA on updating my Linux sources to a version that would let me work on 
+upstream patches, sigh...  I'll do my best to review or provide other 
+feedback on these changes if needed though.
 
+  Maciej
