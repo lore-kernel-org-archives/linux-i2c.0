@@ -1,42 +1,43 @@
-From: Jon Hunter <jon-hunter@ti.com>
-Subject: Re: [PATCHv5 16/18] I2C: OMAP: fix missing handling of errata I2C_OMAP3_1P153
-Date: Wed, 4 Apr 2012 14:22:07 -0500
-Message-ID: <4F7C9F5F.8010206@ti.com>
-References: <1333468957-5999-1-git-send-email-shubhrajyoti@ti.com> <1333468957-5999-17-git-send-email-shubhrajyoti@ti.com> <4F7C7780.7040807@ti.com> <CAM=Q2cu8k8n2w8_=8VCFcFTTgywqc_Vk_eM_DDTap3YeYyAH2g@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: i2c-tools: Discussion points about future library
+Date: Wed, 4 Apr 2012 21:23:23 +0200
+Message-ID: <20120404212323.59053a1f@endymion.delvare>
+References: <20120404160113.2295c636@endymion.delvare>
+	<20120404174158.GA19773@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <CAM=Q2cu8k8n2w8_=8VCFcFTTgywqc_Vk_eM_DDTap3YeYyAH2g@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, tony@atomide.com, Tasslehoff Kjappfot <tasskjapp@gmail.com>, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120404174158.GA19773-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Aurelien Jarno <aurelien-rXXEIb44qovR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shubhro,
+Hi Mark,
 
-On 04/04/2012 12:45 PM, Shubhrajyoti Datta wrote:
-> Hi Jon,
->
->
->>> +       if (dev->flags&    OMAP_I2C_FLAG_APPLY_ERRATA_I207)
->>>
->>> +               dev->errata |= I2C_OMAP_ERRATA_I207;
->>> +
->>>         if (dev->rev<= OMAP_I2C_REV_ON_3430_3530)
->>>                 dev->errata |= I2C_OMAP3_1P153;
->>
->>
->> The errata ID is not correct. I believe that 1P153 is referring to the
->> section number in the errata doc and not the errata ID. The errata ID should
->> be i451 in the latest OMAP34xx and OMAP36xx docs.
->>
->> Please can you update this? The section number changed in the latest errata
->> docs and it took me a minute to find this.
->
-> Do you mind if that is a separate patch?
+On Wed, 4 Apr 2012 18:41:58 +0100, Mark Brown wrote:
+> On Wed, Apr 04, 2012 at 04:01:13PM +0200, Jean Delvare wrote:
+> 
+> > First point is the name of the library. My original intent was to name
+> > it libi2c-dev, because the library is essentially a front-end to the
+> > i2c-dev kernel driver, and also because this is what Debian named their
+> > package currently containing the (i2c-tools flavor of)
+> > <linux/i2c-dev.h>. However Aur??lien Jarno suggested that libi2c would
+> > be just as fine, and easier/shorter. I am mostly convinced by now. I am
+> > curious if anyone wants to express an opinion on the matter?
+> 
+> FWIW the Debian convention is that the source package of a library is
+> called libfoo building packages libfoo-dev with the headers and .so
+> symlink to link against (or .a for a static library) and libfooN with
+> the runtime in it (where N is the soname).
 
-Not at all and in fact it probably should be.
+Oh, OK, so I completely misinterpreted the -dev. I am used to -devel
+for development packages (openSUSE) so the connection did not happen in
+my brain. Of course it makes sense now.
 
-Thanks
-Jon
+So I guess I'll name the library libi2c.
+
+Thanks,
+-- 
+Jean Delvare
