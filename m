@@ -1,74 +1,66 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: i2c-tools: Discussion points about future library
-Date: Wed, 4 Apr 2012 16:01:13 +0200
-Message-ID: <20120404160113.2295c636@endymion.delvare>
+From: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv5 16/18] I2C: OMAP: fix missing handling of errata I2C_OMAP3_1P153
+Date: Wed, 4 Apr 2012 11:32:00 -0500
+Message-ID: <4F7C7780.7040807@ti.com>
+References: <1333468957-5999-1-git-send-email-shubhrajyoti@ti.com> <1333468957-5999-17-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1333468957-5999-17-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Aurelien Jarno <aurelien-rXXEIb44qovR7s880joybQ@public.gmane.org>
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, Tasslehoff Kjappfot <tasskjapp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+Hi Shubhro,
 
-There are two points which may need to be discussed concerning the
-upcoming library in i2c-tools [1] [2].
+On 04/03/2012 11:02 AM, Shubhrajyoti D wrote:
+> From: Tasslehoff Kjappfot<tasskjapp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>
+> i2c_probe set the dev->errata flag, but omap_i2c_init cleared the flag again.
+> Move the errata handling to i2c_probe.
+>
+> Signed-off-by: Tasslehoff Kjappfot<tasskjapp-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Signed-off-by: Shubhrajyoti D<shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> ---
+>   drivers/i2c/busses/i2c-omap.c |   10 +++++-----
+>   1 files changed, 5 insertions(+), 5 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index c113f41..51576d6 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -431,11 +431,6 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+>   	/* Take the I2C module out of reset: */
+>   	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+>
+> -	dev->errata = 0;
+> -
+> -	if (dev->flags&  OMAP_I2C_FLAG_APPLY_ERRATA_I207)
+> -		dev->errata |= I2C_OMAP_ERRATA_I207;
+> -
+>   	/* Enable interrupts */
+>   	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+>   			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
+> @@ -1056,6 +1051,11 @@ omap_i2c_probe(struct platform_device *pdev)
+>
+>   	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG)&  0xff;
+>
+> +	dev->errata = 0;
+> +
+> +	if (dev->flags&  OMAP_I2C_FLAG_APPLY_ERRATA_I207)
+> +		dev->errata |= I2C_OMAP_ERRATA_I207;
+> +
+>   	if (dev->rev<= OMAP_I2C_REV_ON_3430_3530)
+>   		dev->errata |= I2C_OMAP3_1P153;
 
-[1] http://www.lm-sensors.org/wiki/I2CTools_4_Plan
-[2] http://marc.info/?l=3Dlinux-i2c&m=3D133182689203486&w=3D2
+The errata ID is not correct. I believe that 1P153 is referring to the 
+section number in the errata doc and not the errata ID. The errata ID 
+should be i451 in the latest OMAP34xx and OMAP36xx docs.
 
-=46irst point is the name of the library. My original intent was to nam=
-e
-it libi2c-dev, because the library is essentially a front-end to the
-i2c-dev kernel driver, and also because this is what Debian named their
-package currently containing the (i2c-tools flavor of)
-<linux/i2c-dev.h>. However Aur=C3=A9lien Jarno suggested that libi2c wo=
-uld
-be just as fine, and easier/shorter. I am mostly convinced by now. I am
-curious if anyone wants to express an opinion on the matter?
+Please can you update this? The section number changed in the latest 
+errata docs and it took me a minute to find this.
 
-Second point is the creation of a header file to ease the migration of
-tools from the old model (i2c-tools flavor of <linux/i2c-dev.h>) to the
-new model (library with its header files + unchanged kernel headers).
-Right now, the migration path looks like this:
-
-+#include <sys/ioctl.h>
-+#include <i2c/smbus.h>
- #include <linux/i2c-dev.h>
-
-for SMBus tools, and this:
-
-+#include <sys/ioctl.h>
-+#include <linux/i2c.h>
- #include <linux/i2c-dev.h>
-=20
-for I2C tools. I am happy with this, but Aur=C3=A9lien insisted that it
-would be more friendly if tools only needed to include one header file
-in order to make use of the library. For this we would need to create
-an extra header file only including the other header files. Something
-like <i2c/i2c.h> containing:
-
-#include <sys/ioctl.h>
-#include <linux/i2c.h>
-#include <linux/i2c-dev.h>
-#include <i2c/smbus.h>
-
-This would have the downside that tools end up (indirectly) including
-header files they don't necessarily need. And migrating every tool is
-still needed, as you would then still have to do:
-
--#include <linux/i2c-dev.h>
-+#include <i2c/i2c.h>
-
-I admit this is slightly easier than my initial plan, but the benefit
-doesn't strike me as fundamental. Here again I would appreciate if
-users of the i2c-dev driver could comment on this. I know that
-libsensors (the only library I am intimately familiar with) does not
-provide such an extra header file, but that's only one example so it
-might not be relevant.
-
-Thanks,
---=20
-Jean Delvare
+Cheers
+Jon
