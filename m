@@ -1,29 +1,55 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: i2c-tools: Discussion points about future library
-Date: Wed, 4 Apr 2012 18:41:58 +0100
-Message-ID: <20120404174158.GA19773@sirena.org.uk>
-References: <20120404160113.2295c636@endymion.delvare>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [PATCHv5 16/18] I2C: OMAP: fix missing handling of errata I2C_OMAP3_1P153
+Date: Wed, 4 Apr 2012 23:15:19 +0530
+Message-ID: <CAM=Q2cu8k8n2w8_=8VCFcFTTgywqc_Vk_eM_DDTap3YeYyAH2g@mail.gmail.com>
+References: <1333468957-5999-1-git-send-email-shubhrajyoti@ti.com>
+	<1333468957-5999-17-git-send-email-shubhrajyoti@ti.com>
+	<4F7C7780.7040807@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120404160113.2295c636-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Aurelien Jarno <aurelien-rXXEIb44qovR7s880joybQ@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <4F7C7780.7040807@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Jon Hunter <jon-hunter@ti.com>
+Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, tony@atomide.com, Tasslehoff Kjappfot <tasskjapp@gmail.com>, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 04, 2012 at 04:01:13PM +0200, Jean Delvare wrote:
+Hi Jon,
 
-> First point is the name of the library. My original intent was to name
-> it libi2c-dev, because the library is essentially a front-end to the
-> i2c-dev kernel driver, and also because this is what Debian named their
-> package currently containing the (i2c-tools flavor of)
-> <linux/i2c-dev.h>. However Aur??lien Jarno suggested that libi2c would
-> be just as fine, and easier/shorter. I am mostly convinced by now. I am
-> curious if anyone wants to express an opinion on the matter?
 
-FWIW the Debian convention is that the source package of a library is
-called libfoo building packages libfoo-dev with the headers and .so
-symlink to link against (or .a for a static library) and libfooN with
-the runtime in it (where N is the soname).
+>> + =A0 =A0 =A0 if (dev->flags& =A0OMAP_I2C_FLAG_APPLY_ERRATA_I207)
+>>
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->errata |=3D I2C_OMAP_ERRATA_I207;
+>> +
+>> =A0 =A0 =A0 =A0if (dev->rev<=3D OMAP_I2C_REV_ON_3430_3530)
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev->errata |=3D I2C_OMAP3_1P153;
+>
+>
+> The errata ID is not correct. I believe that 1P153 is referring to th=
+e
+> section number in the errata doc and not the errata ID. The errata ID=
+ should
+> be i451 in the latest OMAP34xx and OMAP36xx docs.
+>
+> Please can you update this? The section number changed in the latest =
+errata
+> docs and it took me a minute to find this.
+
+Do you mind if that is a separate patch?
+
+>
+> Cheers
+> Jon
+>
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
+in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
