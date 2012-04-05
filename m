@@ -1,116 +1,73 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-dev: Add support for I2C_M_RECV_LEN
-Date: Thu, 5 Apr 2012 09:24:22 +0200
-Message-ID: <20120405092422.453edecf@endymion.delvare>
-References: <20120315180835.2e669111@endymion.delvare>
-	<20120331081927.2438ea9e@endymion.delvare>
-	<4F7CD11C.2090801@interlog.com>
+Subject: Re: i2c-tools: Discussion points about future library
+Date: Thu, 5 Apr 2012 09:49:10 +0200
+Message-ID: <20120405094910.1dcc4779@endymion.delvare>
+References: <20120404160113.2295c636@endymion.delvare>
+	<20120404174158.GA19773@sirena.org.uk>
+	<20120404212323.59053a1f@endymion.delvare>
+	<4F7CA3D4.8000104@fold.natur.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F7CD11C.2090801-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <4F7CA3D4.8000104-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Aurelien Jarno <aurelien-rXXEIb44qovR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Douglas,
+Hi Martin,
 
-On Wed, 04 Apr 2012 18:54:20 -0400, Douglas Gilbert wrote:
-> Sorry about the delay in responding. The patch didn't work
-> in the case of the Sonmicro SM130 RFID but I could see it was close.
-> 
-> The correct response (for the SM130) when reading the firmware
-> version is this 10 byte response:
->    08 81 49 32 43 20 32 2e 38 ff     ["I2C 2.8"]
-> so the count in the first byte excludes itself and the checksum
-> trailing byte. With the I2C_M_RECV_LEN patch I see this response:
->    08 81 49 32 43 20 32 2e 00 00
-> so the count (leading) byte includes itself and makes no
-> provision for a checksum. [So 8 bytes are returned and the two
-> trailing zeros are just buffer pre-fill.]
+Please don't top-post.
 
-What value did you set msg->buf[0] to before calling? You were supposed
-to set it to 2 in your case, exactly because the driver can't guess how
-many extra bytes the chip will return, that aren't included in the byte
-count. Your results suggest that you let msg->buf[0] to 0.
+On Wed, 04 Apr 2012 21:41:08 +0200, Martin Mokrejs wrote:
+> Hi,
+>   did you Google for it? Looks "libi2c" is already existing.
 
-I've improved my patch to properly reject the transaction if buf[0] is
-not set properly. Please test and report.
+Yes I did.
 
-> You might argue that the I2C_M_RECV_LEN patch is sensible
-> and the SM130 is strange. My solution is to read 32 bytes
-> which is more than I ever expect.
+> http://www.rtems.com/ml/rtems-users/2008/march/msg00033.html
 
-The SM130 is a bit strange but it should be supportable.
+RTEMS is an operating system on its own. We don't care what libraries
+they have and what they named them, just as they don't care what
+libraries Linux has and names them.
 
-* * * * *
+> http://packages.ubuntu.com/search?keywords=libi2c-dev
 
-As the bus driver side implementation of I2C_M_RECV_LEN is heavily
-tied to SMBus, we can't support received length over 32 bytes, but
-let's at least support that.
+As you know, Ubuntu is derived from Debian, and I did mention in my
+original post that Debian had a package named libi2c-dev. Meanwhile
+Mark Brown explained that this is the development package for an
+hypothetical libi2c package which doesn't (yet exist.) So I am aware of
+this one and it is compatible with my effort.
 
-In practice, the caller will have to setup a buffer large enough to
-cover the case where received length byte has value 32, so minimum
-32 + 1 = 33 bytes, possibly more if there is a fixed number of bytes
-added for the specific slave (for example a checksum.)
+> http://opensource.katalix.com/libi2c/
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Douglas Gilbert <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
----
- drivers/i2c/i2c-dev.c |   30 ++++++++++++++++++++++++++----
- 1 file changed, 26 insertions(+), 4 deletions(-)
+First time I hear of this. They never contacted me (nor the linux-i2c
+list) about it, and more importantly, it doesn't seem to be packaged by
+any major Linux distribution. Their API is different from what the
+kernel and i2c-tools use. I can understand that they developed
+something given the lack of a proper library for the past 10 years, but
+they should have discussed it with the community to make it more
+visible. I'm not saying Katalix is bad, they did work with the
+community on other topics, but in this specific case they did not, and
+that's unfortunate.
 
---- linux-3.4-rc1.orig/drivers/i2c/i2c-dev.c	2012-04-02 17:16:53.000000000 +0200
-+++ linux-3.4-rc1/drivers/i2c/i2c-dev.c	2012-04-05 09:12:26.385033151 +0200
-@@ -265,19 +265,41 @@ static noinline int i2cdev_ioctl_rdrw(st
- 
- 	res = 0;
- 	for (i = 0; i < rdwr_arg.nmsgs; i++) {
--		/* Limit the size of the message to a sane amount;
--		 * and don't let length change either. */
--		if ((rdwr_pa[i].len > 8192) ||
--		    (rdwr_pa[i].flags & I2C_M_RECV_LEN)) {
-+		/* Limit the size of the message to a sane amount */
-+		if (rdwr_pa[i].len > 8192) {
- 			res = -EINVAL;
- 			break;
- 		}
-+
- 		data_ptrs[i] = (u8 __user *)rdwr_pa[i].buf;
- 		rdwr_pa[i].buf = memdup_user(data_ptrs[i], rdwr_pa[i].len);
- 		if (IS_ERR(rdwr_pa[i].buf)) {
- 			res = PTR_ERR(rdwr_pa[i].buf);
- 			break;
- 		}
-+
-+		/*
-+		 * If the message length is received from the slave (similar
-+		 * to SMBus block read), we must ensure that the buffer will
-+		 * be large enough to cope with a message length of
-+		 * I2C_SMBUS_BLOCK_MAX as this is the maximum underlying bus
-+		 * drivers allow. The first byte in the buffer must be
-+		 * pre-filled with the number of extra bytes, which must be
-+		 * at least one to hold the message length, but can be
-+		 * greater (for example to account for a checksum byte at
-+		 * the end of the message.)
-+		 */
-+		if (rdwr_pa[i].flags & I2C_M_RECV_LEN) {
-+			if (!(rdwr_pa[i].flags & I2C_M_RD) ||
-+			    rdwr_pa[i].buf[0] < 1 ||
-+			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
-+					     I2C_SMBUS_BLOCK_MAX) {
-+				res = -EINVAL;
-+				break;
-+			}
-+
-+			rdwr_pa[i].len = rdwr_pa[i].buf[0];
-+		}
- 	}
- 	if (res < 0) {
- 		int j;
+I'm not sure if they still maintain that code, BTW, this seems to be an
+old page, if I go to http://www.katalix.com, I can't return to that
+page.
 
+I understand that having two libraries by the same name will cause some
+confusion, but OTOH the parallel implementations and resulting
+confusion already exist, I'm only making the confusion more formal.
+
+>   I would also search for the header filenames and invent such names
+> which will not clash with any existing. Same for "-li2c" or
+> whatever will apear on the ld line.
+
+No, sorry. I'm not going to invent a fancy name to make sure it isn't
+clashing with something out there. If anyone wanted their code to
+become the standard Linux i2c library, they should have pushed it to
+major Linux distributions. Nobody did AFAICS.
 
 -- 
 Jean Delvare
