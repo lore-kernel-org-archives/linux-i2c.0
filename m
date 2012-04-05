@@ -1,49 +1,34 @@
-From: Jon Hunter <jon-hunter@ti.com>
-Subject: Re: [PATCHv5 16/18] I2C: OMAP: fix missing handling of errata I2C_OMAP3_1P153
-Date: Thu, 5 Apr 2012 11:21:45 -0500
-Message-ID: <4F7DC699.8000609@ti.com>
-References: <1333468957-5999-1-git-send-email-shubhrajyoti@ti.com> <1333468957-5999-17-git-send-email-shubhrajyoti@ti.com> <4F7C7780.7040807@ti.com> <CAM=Q2cu8k8n2w8_=8VCFcFTTgywqc_Vk_eM_DDTap3YeYyAH2g@mail.gmail.com> <4F7C9F5F.8010206@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <4F7C9F5F.8010206@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: tony@atomide.com, Tasslehoff Kjappfot <tasskjapp@gmail.com>, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-omap@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>, linux-arm-kernel@lists.infradead.org
+From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: i2c-mxs: Fix build warning
+Date: Thu,  5 Apr 2012 17:09:55 -0300
+Message-ID: <1333656595-3600-1-git-send-email-festevam@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Fix the following build warning:
 
+drivers/i2c/busses/i2c-mxs.c:207:8: warning: 'data' may be used uninitialized in this function [-Wuninitialized]
 
-On 04/04/2012 02:22 PM, Jon Hunter wrote:
-> Hi Shubhro,
->
-> On 04/04/2012 12:45 PM, Shubhrajyoti Datta wrote:
->> Hi Jon,
->>
->>
->>>> + if (dev->flags& OMAP_I2C_FLAG_APPLY_ERRATA_I207)
->>>>
->>>> + dev->errata |= I2C_OMAP_ERRATA_I207;
->>>> +
->>>> if (dev->rev<= OMAP_I2C_REV_ON_3430_3530)
->>>> dev->errata |= I2C_OMAP3_1P153;
->>>
->>>
->>> The errata ID is not correct. I believe that 1P153 is referring to the
->>> section number in the errata doc and not the errata ID. The errata ID
->>> should
->>> be i451 in the latest OMAP34xx and OMAP36xx docs.
->>>
->>> Please can you update this? The section number changed in the latest
->>> errata
->>> docs and it took me a minute to find this.
->>
->> Do you mind if that is a separate patch?
->
-> Not at all and in fact it probably should be.
+Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mxs.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Sorry the erratum ID is not i451 but i462!
-
-Cheers
-Jon
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 3d471d5..6a24a86 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -194,7 +194,7 @@ static int mxs_i2c_wait_for_data(struct mxs_i2c_dev *i2c)
+ 
+ static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf, int len)
+ {
+-	u32 data;
++	u32 data = 0;
+ 	int i;
+ 
+ 	for (i = 0; i < len; i++) {
+-- 
+1.7.1
