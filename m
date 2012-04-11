@@ -1,71 +1,77 @@
 From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCHv7 01/18] I2C: OMAP: make omap_i2c_unidle/idle functions
- depend on CONFIG_PM_RUNTIME
-Date: Wed, 11 Apr 2012 14:32:54 +0300
-Message-ID: <20120411113254.GE12064@arwen.pp.htv.fi>
+Subject: Re: [PATCHv7 11/18] I2C: OMAP: use devm_* functions
+Date: Wed, 11 Apr 2012 14:34:57 +0300
+Message-ID: <20120411113456.GF12064@arwen.pp.htv.fi>
 References: <1334142776-10583-1-git-send-email-shubhrajyoti@ti.com>
- <1334142776-10583-2-git-send-email-shubhrajyoti@ti.com>
+ <1334142776-10583-12-git-send-email-shubhrajyoti@ti.com>
 Reply-To: balbi@ti.com
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ExIO7AL6tcaLjJBF"
+	protocol="application/pgp-signature"; boundary="gAUgrzRZ7tRi/Yr6"
 Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1334142776-10583-2-git-send-email-shubhrajyoti@ti.com>
+In-Reply-To: <1334142776-10583-12-git-send-email-shubhrajyoti@ti.com>
 Sender: linux-omap-owner@vger.kernel.org
 To: Shubhrajyoti D <shubhrajyoti@ti.com>
 Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
 
---ExIO7AL6tcaLjJBF
+--gAUgrzRZ7tRi/Yr6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 11, 2012 at 04:42:39PM +0530, Shubhrajyoti D wrote:
-> The functions omap_i2c_unidle/idle are called from omap_i2c_runtime_resume
-> and omap_i2c_runtime_suspend which is compiled for CONFIG_PM_RUNTIME.
-> This patch removes the omap_i2c_unidle/idle functions and folds them
-> into the runtime callbacks.
->=20
-> This fixes the below warn when CONFIG_PM_RUNTIME is not defined
->=20
->  CC      arch/arm/mach-omap2/board-ti8168evm.o
-> drivers/i2c/busses/i2c-omap.c:272: warning: 'omap_i2c_unidle' defined but=
- not used
-> drivers/i2c/busses/i2c-omap.c:293: warning: 'omap_i2c_idle' defined but n=
-ot used
->   CC      net/ipv4/ip_forward.o
+On Wed, Apr 11, 2012 at 04:42:49PM +0530, Shubhrajyoti D wrote:
+> The various devm_ functions allocate memory that is released when a driver
+> detaches. This patch uses devm_kzalloc, devm_request_mem_region and
+> devm_ioremap for data that is allocated in the probe function of a platfo=
+rm
+> device and is only freed in the remove function.
 >=20
 > Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+> ---
+>  drivers/i2c/busses/i2c-omap.c |   29 +++++++++--------------------
+>  1 files changed, 9 insertions(+), 20 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 121c52e..86be475 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -995,17 +995,17 @@ omap_i2c_probe(struct platform_device *pdev)
+>  		return -ENODEV;
+>  	}
+> =20
+> -	ioarea =3D request_mem_region(mem->start, resource_size(mem),
+> -			pdev->name);
+> +	ioarea =3D devm_request_mem_region(&pdev->dev, mem->start,
+> +			resource_size(mem), pdev->name);
 
-how about just moving them into the #ifdef ? /me thinks it's easier to
-read with the function. Matter of taste though, it's not that much code.
+you could use devm_request_and_ioremap()
 
 --=20
 balbi
 
---ExIO7AL6tcaLjJBF
+--gAUgrzRZ7tRi/Yr6
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJPhWvmAAoJEIaOsuA1yqRE+RcQAKffYkWNqPYIpI/jQW66jNaJ
-pjZpl4QUggSfh7xdk60sv1kKpcT22W0gUqHY3rQ6omtvANayT5Zkqxv68VYb5FPT
-QEduVz8sgkWIt0uj+l5/qIRQUpo26vDnEOZBEtcBIMWshwMG5BXIJAi6j0XfgkLB
-fVbu4Tbz13b0XORRGWkmtZpoMnzCOOVqV5JY4NrUumBYM89b7qndRoEZtFfJapEU
-BhuSj6Ie+WXiyfOagvRE7llso20XPGqBVGVKfimsc4EeIpGonuX2//JlUDOxmlZw
-QUfG6ReYxdBdMQDQGzUihqaNnrMMDPcaSSe1eCkZn8ewaSor/ajGIQqbL30AFp32
-sRVI++ZWJ62FrXS3U9Ttxh/TLJZdXOPLCoVX0gFFYMchhZbCjpW1XMvJFhMvs3d4
-FPCS4yIRI8Pgygm27HRYUmDRnni+ZYD8Btq7OjKB5WN6ZdtahzcKlJEDKNWKgt8d
-dhkocGCQfY8upQXlr9iR4oWZj6vqZOJvmsAlbR02FYSvggEpPx1q8HwMKY/So7Qq
-8L8qMkZiekAOJPk1VusDSjQ9sEbMyva0dG1KEwuTFeTZX60jG0WMjrK5o8lpzWmo
-AuvkGydh8V+h+69AqVzTGItbxqenWcH3EA+DNjvLGy6sy9FY1NDNj5gBQnjNFg4H
-s4m6l4910zco6Z04Xxvn
-=P1qq
+iQIcBAEBAgAGBQJPhWxgAAoJEIaOsuA1yqRE1UgQALW47R6Z+bM9+UL69N19vE3p
+seXWaXrju3F7oYesz2CyJ/ZM90KduhP9sjKQzgrCsvpK5JfBiIiZ3NEB5WG1QIGM
+HY068EGJpaiej8DyU4SP2yf6Z3K1B5cxtCfUwdopLBV6mAiMGB6uSrX+uKDIDYAM
+AS4LaFwbtxFc0BpWU7OAh42v6rH6EeD/Me7ISe48j7KEmtFGRRt2LvAO6bt/bcpI
+lhPxq63x65U19laHm+ueTH94nbSj7+471634A0IE2Os+cXOnFqqeZS9NSFCgctBn
+3sITSwGgjTVhVl64HxDGQUwzg25p82fXQwSFEW8wMZCQehzFf8/KjPhuRI5DdFOP
+tmQGdvBFqwUDaUP1FADujmi/xDFv9lCK3Is+h+bLmcxNJ4OftIvS5PQiPDBQJF0c
+NtuJmn2r5J7hq4TFqSj57rGOAiQHtZbV3v1M84FbDG4u1DFUdb5xHBDtPwENaEnE
+BZqWnpSUS8VHdZA7lG76WxGWYYRaod8UHUCLdUTU6XNgYGRyZQmY8VtEecHj0A+i
+Xo9KFB7WJU8U2dtgVWcfn97G9JeKjS6LpHAsOSRzbtf66Y/pNQG4R5NRh4kt22QU
+tuNA6ugY0TIOsqM0OBjnDlQUdiBIqbB5NVTkan3PANgVJlQp90wWp7JtrgrtoxlK
+LniyZg1GUaP/5h1lDRUA
+=WwI0
 -----END PGP SIGNATURE-----
 
---ExIO7AL6tcaLjJBF--
+--gAUgrzRZ7tRi/Yr6--
