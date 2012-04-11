@@ -1,93 +1,76 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv7 00/18] I2C updates
-Date: Wed, 11 Apr 2012 16:31:22 +0530
-Message-ID: <4F856482.4030305@ti.com>
-References: <1334141549-8288-1-git-send-email-shubhrajyoti@ti.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCHv7 08/18] I2C: OMAP: Fix the error handling
+Date: Wed, 11 Apr 2012 16:42:46 +0530
+Message-ID: <1334142776-10583-9-git-send-email-shubhrajyoti@ti.com>
+References: <1334142776-10583-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1334141549-8288-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1334142776-10583-1-git-send-email-shubhrajyoti@ti.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-omap@vger.kernel.org
+Cc: tony@atomide.com, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, ben-linux@fluff.org, Shubhrajyoti D <shubhrajyoti@ti.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Please ignore this series sent the wrong patches by mistake.
-Will resend.
+Currently in probe
+      pm_runtime_put(dev->dev);
 
+...
+        /* i2c device drivers may be active on return from add_adapter() */
+        adap->nr = pdev->id;
+        r = i2c_add_numbered_adapter(adap);
+        if (r) {
+                dev_err(dev->dev, "failure adding adapter\n");
+                goto err_free_irq;
+        }
+...
 
-On Wednesday 11 April 2012 04:22 PM, Shubhrajyoti D wrote:
-> The patch series does the following
->
-> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
-> - I2C register restore only if context if the context is lost
-> - Bus busy recovery mechanism.
-> - the reset is not done in init.
-> - Adds a patch to use devm_* functions
-> - Also checks the return type of the get_sync and in case
->  of errors prevents register access, also print the cause of
->  failure in case of errors.
-> - In case of i2c remove register access was done without any
->  get_sync fix the same.
-> - Adds a pdata function pointer to do context save restore
-> - Split the omap_i2c_isr to increase readability
-> - Make the i2c use SET_RUNTIME_PM_OPS
-> - Folds a patch from Tasslehoff to prevent any merge conflicts.
-> - Prevents the XDUF flag to be set if the underflow condition is not met.
-> - As per discussion in [1] .Adds a patch to rename the 1p153 errata and
->  use the unique id instead as the section number in the recent errata
->  docs has changed.
->
-> - As discussed in [2] Paul has queued the flag for context restore patch,
->  removing it from the series.
->
->
-> [1] http://www.spinics.net/lists/linux-i2c/msg07607.html
-> [2] http://www.spinics.net/lists/linux-i2c/msg07685.html
->
-> Tested on omap4sdp and omap3sdp.
->
->
-> The following changes since commit 258f742635360175564e9470eb060ff4d4b984e7:
->
->   modpost: Fix modpost license checking of vmlinux.o (2012-04-09 20:52:56 -0700)
->
-> are available in the git repository at:
->   git://gitorious.org/linus-tree/linus-tree.git i2c_omap-next
->
->
->
-> Jon Hunter (1):
->   I2C: OMAP: Correct I2C revision for OMAP3
->
-> Shubhrajyoti D (15):
->   I2C: OMAP: make omap_i2c_unidle/idle functions depend on
->     CONFIG_PM_RUNTIME
->   I2C: OMAP: Remove reset at init
->   I2C: OMAP: I2C register restore only if context is lost
->   I2C: OMAP: Fix the interrupt clearing in OMAP4
->   I2C: OMAP: Fix the mismatch of pm_runtime enable and disable
->   I2C: OMAP: Optimise the remove code
->   I2C: OMAP: Fix the error handling
->   I2C: OMAP: Don't check if wait_for_completion_timeout() returns less
->     than zero
->   I2C: OMAP: use devm_* functions
->   I2C: OMAP: Fix the crash in i2c remove
->   I2C: OMAP: Handle error check for pm runtime
->   I2C: OMAP: Use SET_RUNTIME_PM_OPS
->   I2C: OMAP: make the read ready processing a separate function
->   I2C: OMAP: Do not set the XUDF if the underflow is not reached
->   I2C: OMAP: Rename the 1p153 to the erratum id i462
->
-> Tasslehoff Kjappfot (1):
->   I2C: OMAP: fix missing handling of errata I2C_OMAP3_1P153
->
-> Vikram Pandita (1):
->   I2C: OMAP: Recover from Bus Busy condition
->
->  arch/arm/plat-omap/i2c.c      |    3 +
->  drivers/i2c/busses/i2c-omap.c |  348 +++++++++++++++++++++++------------------
->  include/linux/i2c-omap.h      |    1 +
->  3 files changed, 198 insertions(+), 154 deletions(-)
->
+        return 0;
+
+err_free_irq:
+        free_irq(dev->irq, dev);
+err_unuse_clocks:
+        omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+        pm_runtime_put(dev->dev);
+
+This may access the i2c registers without the clocks.
+Attempting to fix the same by moving the pm_rintime_put after the error check.
+
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ drivers/i2c/busses/i2c-omap.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 2096726..a461097 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1095,8 +1095,6 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", pdev->id,
+ 		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
+ 
+-	pm_runtime_put(dev->dev);
+-
+ 	adap = &dev->adapter;
+ 	i2c_set_adapdata(adap, dev);
+ 	adap->owner = THIS_MODULE;
+@@ -1116,6 +1114,8 @@ omap_i2c_probe(struct platform_device *pdev)
+ 
+ 	of_i2c_register_devices(adap);
+ 
++	pm_runtime_put(dev->dev);
++
+ 	return 0;
+ 
+ err_free_irq:
+-- 
+1.7.4.1
