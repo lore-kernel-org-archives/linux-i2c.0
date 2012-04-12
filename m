@@ -1,7 +1,7 @@
 From: David Daney <ddaney.cavm@gmail.com>
-Subject: [PATCH v3 1/2] i2c: Add a struct device * parameter to i2c_add_mux_adapter()
-Date: Thu, 12 Apr 2012 14:14:22 -0700
-Message-ID: <1334265263-13549-2-git-send-email-ddaney.cavm@gmail.com>
+Subject: [PATCH v3 2/2] i2c/of: Automatically populate i2c mux busses from device tree data.
+Date: Thu, 12 Apr 2012 14:14:23 -0700
+Message-ID: <1334265263-13549-3-git-send-email-ddaney.cavm@gmail.com>
 References: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
@@ -12,142 +12,142 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: David Daney <david.daney@cavium.com>
 
-And adjust all callers.
+For 'normal' i2c bus drivers, we can call of_i2c_register_devices()
+and have the device tree framework automatically populate the bus with
+the devices specified in the device tree.
 
-The new device parameter is used in the next patch to initialize the
-mux's of_node so that its children may be automatically populated.
+This patch adds a common code to the i2c mux framework to have the mux
+sub-busses be populated by the of_i2c_register_devices() too.  If the
+mux device has an of_node, we populate the sub-bus' of_node so that
+the subsequent call to of_i2c_register_devices() will find the
+corresponding devices.
+
+It seemed better to put this logic in i2c_add_mux_adapter() rather
+than the individual mux drivers, as they will all probably want to do
+the same thing.
 
 Signed-off-by: David Daney <david.daney@cavium.com>
 Cc: Lars-Peter Clausen <lars@metafoo.de>
 ---
- drivers/i2c/i2c-mux.c           |   19 ++++++++++---------
- drivers/i2c/muxes/gpio-i2cmux.c |    3 ++-
- drivers/i2c/muxes/pca9541.c     |    3 ++-
- drivers/i2c/muxes/pca954x.c     |    2 +-
- include/linux/i2c-mux.h         |    3 ++-
- 5 files changed, 17 insertions(+), 13 deletions(-)
+ Documentation/devicetree/bindings/i2c/mux.txt |   60 +++++++++++++++++++++++++
+ drivers/i2c/i2c-mux.c                         |   24 ++++++++++
+ 2 files changed, 84 insertions(+), 0 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/mux.txt
 
+diff --git a/Documentation/devicetree/bindings/i2c/mux.txt b/Documentation/devicetree/bindings/i2c/mux.txt
+new file mode 100644
+index 0000000..af84cce
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/mux.txt
+@@ -0,0 +1,60 @@
++Common i2c bus multiplexer/switch properties.
++
++An i2c bus multiplexer/switch will have several child busses that are
++numbered uniquely in a device dependent manner.  The nodes for an i2c bus
++multiplexer/switch will have one child node for each child
++bus.
++
++Required properties:
++- #address-cells = <1>;
++- #size-cells = <0>;
++
++Required properties for child nodes:
++- #address-cells = <1>;
++- #size-cells = <0>;
++- reg : The sub-bus number.
++
++Optional properties for child nodes:
++- Other properties specific to the multiplexer/switch hardware.
++- Child nodes conforming to i2c bus binding
++
++
++Example :
++
++	/*
++	   An NXP pca9548 8 channel I2C multiplexer at address 0x70
++	   with two NXP pca8574 GPIO expanders attached, one each to
++	   ports 3 and 4.
++	 */
++
++	mux@70 {
++		compatible = "nxp,pca9548";
++		reg = <0x70>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c@3 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <3>;
++
++			gpio1: gpio@38 {
++				compatible = "nxp,pca8574";
++				reg = <0x38>;
++				#gpio-cells = <2>;
++				gpio-controller;
++			};
++		};
++		i2c@4 {
++			#address-cells = <1>;
++			#size-cells = <0>;
++			reg = <4>;
++
++			gpio2: gpio@38 {
++				compatible = "nxp,pca8574";
++				reg = <0x38>;
++				#gpio-cells = <2>;
++				gpio-controller;
++			};
++		};
++	};
 diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index d7a4833..26ab31d 100644
+index 26ab31d..609794b 100644
 --- a/drivers/i2c/i2c-mux.c
 +++ b/drivers/i2c/i2c-mux.c
-@@ -31,11 +31,11 @@ struct i2c_mux_priv {
- 	struct i2c_algorithm algo;
+@@ -24,6 +24,8 @@
+ #include <linux/slab.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
++#include <linux/of.h>
++#include <linux/of_i2c.h>
  
- 	struct i2c_adapter *parent;
--	void *mux_dev;	/* the mux chip/device */
-+	void *mux_priv;	/* the mux chip/device */
- 	u32  chan_id;	/* the channel id */
+ /* multiplexer per channel data */
+ struct i2c_mux_priv {
+@@ -125,6 +127,26 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 	priv->adap.algo_data = priv;
+ 	priv->adap.dev.parent = &parent->dev;
  
--	int (*select)(struct i2c_adapter *, void *mux_dev, u32 chan_id);
--	int (*deselect)(struct i2c_adapter *, void *mux_dev, u32 chan_id);
-+	int (*select)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
-+	int (*deselect)(struct i2c_adapter *, void *mux_priv, u32 chan_id);
- };
++	/*
++	 * Try to get populate the mux adapter's of_node, expands to
++	 * nothing if !CONFIG_OF.
++	 */
++	if (mux_dev->of_node) {
++		struct device_node *child;
++		u32 reg;
++		int ret;
++
++		for_each_child_of_node(mux_dev->of_node, child) {
++			ret = of_property_read_u32(child, "reg", &reg);
++			if (ret)
++				continue;
++			if (chan_id == reg) {
++				priv->adap.dev.of_node = child;
++				break;
++			}
++		}
++	}
++
+ 	if (force_nr) {
+ 		priv->adap.nr = force_nr;
+ 		ret = i2c_add_numbered_adapter(&priv->adap);
+@@ -142,6 +164,8 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+ 	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
+ 		 i2c_adapter_id(&priv->adap));
  
- static int i2c_mux_master_xfer(struct i2c_adapter *adap,
-@@ -47,11 +47,11 @@ static int i2c_mux_master_xfer(struct i2c_adapter *adap,
- 
- 	/* Switch to the right mux port and perform the transfer. */
- 
--	ret = priv->select(parent, priv->mux_dev, priv->chan_id);
-+	ret = priv->select(parent, priv->mux_priv, priv->chan_id);
- 	if (ret >= 0)
- 		ret = parent->algo->master_xfer(parent, msgs, num);
- 	if (priv->deselect)
--		priv->deselect(parent, priv->mux_dev, priv->chan_id);
-+		priv->deselect(parent, priv->mux_priv, priv->chan_id);
- 
- 	return ret;
++	of_i2c_register_devices(&priv->adap);
++
+ 	return &priv->adap;
  }
-@@ -67,12 +67,12 @@ static int i2c_mux_smbus_xfer(struct i2c_adapter *adap,
- 
- 	/* Select the right mux port and perform the transfer. */
- 
--	ret = priv->select(parent, priv->mux_dev, priv->chan_id);
-+	ret = priv->select(parent, priv->mux_priv, priv->chan_id);
- 	if (ret >= 0)
- 		ret = parent->algo->smbus_xfer(parent, addr, flags,
- 					read_write, command, size, data);
- 	if (priv->deselect)
--		priv->deselect(parent, priv->mux_dev, priv->chan_id);
-+		priv->deselect(parent, priv->mux_priv, priv->chan_id);
- 
- 	return ret;
- }
-@@ -87,7 +87,8 @@ static u32 i2c_mux_functionality(struct i2c_adapter *adap)
- }
- 
- struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
--				void *mux_dev, u32 force_nr, u32 chan_id,
-+				struct device *mux_dev,
-+				void *mux_priv, u32 force_nr, u32 chan_id,
- 				int (*select) (struct i2c_adapter *,
- 					       void *, u32),
- 				int (*deselect) (struct i2c_adapter *,
-@@ -102,7 +103,7 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 
- 	/* Set up private adapter data */
- 	priv->parent = parent;
--	priv->mux_dev = mux_dev;
-+	priv->mux_priv = mux_priv;
- 	priv->chan_id = chan_id;
- 	priv->select = select;
- 	priv->deselect = deselect;
-diff --git a/drivers/i2c/muxes/gpio-i2cmux.c b/drivers/i2c/muxes/gpio-i2cmux.c
-index e5fa695..fc5c1ef 100644
---- a/drivers/i2c/muxes/gpio-i2cmux.c
-+++ b/drivers/i2c/muxes/gpio-i2cmux.c
-@@ -105,7 +105,8 @@ static int __devinit gpiomux_probe(struct platform_device *pdev)
- 	for (i = 0; i < pdata->n_values; i++) {
- 		u32 nr = pdata->base_nr ? (pdata->base_nr + i) : 0;
- 
--		mux->adap[i] = i2c_add_mux_adapter(parent, mux, nr, i,
-+		mux->adap[i] = i2c_add_mux_adapter(parent, &pdev->dev, mux,
-+						   nr, i,
- 						   gpiomux_select, deselect);
- 		if (!mux->adap[i]) {
- 			ret = -ENODEV;
-diff --git a/drivers/i2c/muxes/pca9541.c b/drivers/i2c/muxes/pca9541.c
-index e0df9b6..8aacde1 100644
---- a/drivers/i2c/muxes/pca9541.c
-+++ b/drivers/i2c/muxes/pca9541.c
-@@ -353,7 +353,8 @@ static int pca9541_probe(struct i2c_client *client,
- 	force = 0;
- 	if (pdata)
- 		force = pdata->modes[0].adap_id;
--	data->mux_adap = i2c_add_mux_adapter(adap, client, force, 0,
-+	data->mux_adap = i2c_add_mux_adapter(adap, &client->dev, client,
-+					     force, 0,
- 					     pca9541_select_chan,
- 					     pca9541_release_chan);
- 
-diff --git a/drivers/i2c/muxes/pca954x.c b/drivers/i2c/muxes/pca954x.c
-index 0e37ef2..f2dfe0d 100644
---- a/drivers/i2c/muxes/pca954x.c
-+++ b/drivers/i2c/muxes/pca954x.c
-@@ -226,7 +226,7 @@ static int pca954x_probe(struct i2c_client *client,
- 		}
- 
- 		data->virt_adaps[num] =
--			i2c_add_mux_adapter(adap, client,
-+			i2c_add_mux_adapter(adap, &client->dev, client,
- 				force, num, pca954x_select_chan,
- 				(pdata && pdata->modes[num].deselect_on_exit)
- 					? pca954x_deselect_mux : NULL);
-diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
-index 747f0cd..c790838 100644
---- a/include/linux/i2c-mux.h
-+++ b/include/linux/i2c-mux.h
-@@ -34,7 +34,8 @@
-  * mux control.
-  */
- struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
--				void *mux_dev, u32 force_nr, u32 chan_id,
-+				struct device *mux_dev,
-+				void *mux_priv, u32 force_nr, u32 chan_id,
- 				int (*select) (struct i2c_adapter *,
- 					       void *mux_dev, u32 chan_id),
- 				int (*deselect) (struct i2c_adapter *,
+ EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
 -- 
 1.7.2.3
