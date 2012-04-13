@@ -1,40 +1,42 @@
-From: Nobuhiro Iwamatsu <nobuhiro.iwamatsu.yj-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Add support SuperH SH7734 I2C bus controller
-Date: Fri, 13 Apr 2012 20:05:52 +0900
-Message-ID: <CABMQnVK8Jt1cZZA-w9xnfrMZNvRbe4r+Sjm3YeF3o6utX0g93Q@mail.gmail.com>
-References: <1334188641-14641-1-git-send-email-nobuhiro.iwamatsu.yj@renesas.com>
- <87d37d37ml.wl%kuninori.morimoto.gx@renesas.com> <CABMQnVKQAfdnQ+CfSuYSXQHmOyjQzPzngzTVLm6an2-haQAKZg@mail.gmail.com>
- <87y5q02cv2.wl%kuninori.morimoto.gx@renesas.com>
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: Re: [PATCH v3 0/2] i2c/of: Populate multiplexed i2c busses from the
+ device tree.
+Date: Fri, 13 Apr 2012 13:09:20 +0200
+Message-ID: <4F880960.8010803@metafoo.de>
+References: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87y5q02cv2.wl%kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
-Cc: Magnus <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux-SH <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Daney <ddaney.cavm@gmail.com>
+Cc: Grant Likely <grant.likely@secretlab.ca>, devicetree-discuss@lists.ozlabs.org, "Jean Delvare (PC drivers core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <guenter.roeck@ericsson.com>, linux-i2c@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On 04/12/2012 11:14 PM, David Daney wrote:
+> From: David Daney <david.daney@cavium.com>
+> 
+> v3: Integrate changes from Lars-Peter Clausen to make better use of
+>     the of_*() infrastructure.  Get rid of ugly #ifdefs.
+> 
+> v2: Update bindings to use "reg" insutead of "cell-index"
+> 
+> v1: Unchanged from the original RFC where I said:
+> 
+>   We need to populate our I2C devices from the device tree, but some
+>   of our systems have multiplexers which currently break this process.
+> 
+>   The basic idea is to have the generic i2c-mux framework propagate
+>   the device_node for the child bus into the corresponding
+>   i2c_adapter, and then call of_i2c_register_devices().  This means
+>   that the device tree bindings for *all* i2c muxes must have some
+>   common properties.  I try to document these in mux.txt.
+> 
+> This is now tested against 3.4-rc2 and is still working well.
+> 
 
-2012/4/13 Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>:
->
-> Hi Iwamatsu-san
->
->> Well, the SH-NAVI series hss I2C.
->> However, I assume it support only for SH7734 because bus width and
->> register constitution are different.
->> If you point it out about R-Car, I will examine R-Car. (R-Car is not SH-NAVI).
->
-> I guess R-Car is not same as this I2C.
-> And sorry, SH7734 seems not same as SH-NAVI.
-> Now I'm checking the series.
-> Please wait.
->
+I've been using these patches with a pca9548 and a pca9546 for a while now.
+Both:
 
-I already checked SH7775 and SH7776. These are SH-NAVI series.
-But these CPU's are constitution unlike I2C of SH7734.
-
-Best regards,
-  Nobuhiro
--- 
-Nobuhiro Iwamatsu
+Tested-by: Lars-Peter Clausen <lars@metafoo.de>
