@@ -1,42 +1,82 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH v3 0/2] i2c/of: Populate multiplexed i2c busses from the
- device tree.
-Date: Fri, 13 Apr 2012 13:09:20 +0200
-Message-ID: <4F880960.8010803@metafoo.de>
-References: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Daney <ddaney.cavm@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>, devicetree-discuss@lists.ozlabs.org, "Jean Delvare (PC drivers core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <guenter.roeck@ericsson.com>, linux-i2c@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>
+From: Hubert Feurstein <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-at91: fix data-loss issue
+Date: Fri, 13 Apr 2012 13:44:36 +0200
+Message-ID: <1334317476-10044-1-git-send-email-h.feurstein@gmail.com>
+References: <20120413103937.GH7154@arwen.pp.htv.fi>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120413103937.GH7154-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Hubert Feurstein <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/12/2012 11:14 PM, David Daney wrote:
-> From: David Daney <david.daney@cavium.com>
-> 
-> v3: Integrate changes from Lars-Peter Clausen to make better use of
->     the of_*() infrastructure.  Get rid of ugly #ifdefs.
-> 
-> v2: Update bindings to use "reg" insutead of "cell-index"
-> 
-> v1: Unchanged from the original RFC where I said:
-> 
->   We need to populate our I2C devices from the device tree, but some
->   of our systems have multiplexers which currently break this process.
-> 
->   The basic idea is to have the generic i2c-mux framework propagate
->   the device_node for the child bus into the corresponding
->   i2c_adapter, and then call of_i2c_register_devices().  This means
->   that the device tree bindings for *all* i2c muxes must have some
->   common properties.  I try to document these in mux.txt.
-> 
-> This is now tested against 3.4-rc2 and is still working well.
-> 
+In the interrupt handler both status-flags (TXCOMP and RXRDY) might be
+pending at the same time. In this case TXCOMP is handled but NOT RXRDY
+which causes a data-loss on the current transfer. As a consequence also the
+next transfer will be corrupt, because old data is pending in RHR.
 
-I've been using these patches with a pca9548 and a pca9546 for a while now.
-Both:
+To make sure that we do not start with old data in any case, SR and RHR is
+read empty before initiating a new transfer.
 
-Tested-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Hubert Feurstein <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ This patch applies on top of [PATCH v9 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+
+ drivers/i2c/busses/i2c-at91.c |   23 ++++++++++++++++-------
+ 1 files changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 40c39a2..295835f 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -161,18 +161,22 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+ {
+ 	struct at91_twi_dev *dev = dev_id;
+ 	const unsigned status = at91_twi_read(dev, AT91_TWI_SR);
+-	const unsigned irqstatus = status & at91_twi_read(dev, AT91_TWI_IMR);
++	unsigned irqstatus = status & at91_twi_read(dev, AT91_TWI_IMR);
++
++	irqstatus &= (AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_TXCOMP);
++	if (!irqstatus)
++		return IRQ_NONE;
++
++	if (irqstatus & AT91_TWI_RXRDY)
++		at91_twi_read_next_byte(dev);
++
++	if (irqstatus & AT91_TWI_TXRDY)
++		at91_twi_write_next_byte(dev);
+ 
+ 	if (irqstatus & AT91_TWI_TXCOMP) {
+ 		at91_disable_twi_interrupts(dev);
+ 		dev->transfer_status = status;
+ 		complete(&dev->cmd_complete);
+-	} else if (irqstatus & AT91_TWI_RXRDY) {
+-		at91_twi_read_next_byte(dev);
+-	} else if (irqstatus & AT91_TWI_TXRDY) {
+-		at91_twi_write_next_byte(dev);
+-	} else {
+-		return IRQ_NONE;
+ 	}
+ 
+ 	return IRQ_HANDLED;
+@@ -189,6 +193,10 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	if (dev->msg->flags & I2C_M_RD) {
+ 		unsigned start_flags = AT91_TWI_START;
+ 
++		/* clear any pending data */
++		(void)at91_twi_read(dev, AT91_TWI_SR);
++		(void)at91_twi_read(dev, AT91_TWI_RHR);
++
+ 		/* if only one byte is to be read, immediately stop transfer */
+ 		if (dev->buf_len <= 1 && !(dev->msg->flags & I2C_M_RECV_LEN))
+ 			start_flags |= AT91_TWI_STOP;
+@@ -259,6 +267,7 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 			internal_address |= addr << (8 * i);
+ 			int_addr_flag += AT91_TWI_IADRSZ_1;
+ 		}
++
+ 		at91_twi_write(dev, AT91_TWI_IADR, internal_address);
+ 	}
+ 
+-- 
+1.7.8.3
