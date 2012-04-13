@@ -1,153 +1,56 @@
-From: David Daney <ddaney.cavm@gmail.com>
-Subject: [PATCH v3 2/2] i2c/of: Automatically populate i2c mux busses from device tree data.
-Date: Thu, 12 Apr 2012 14:14:23 -0700
-Message-ID: <1334265263-13549-3-git-send-email-ddaney.cavm@gmail.com>
-References: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>, devicetree-discuss@lists.ozlabs.org, "Jean Delvare (PC drivers core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, "Wolfram Sang (embedded platforms)" <w.sang@pengutronix.de>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <guenter.roeck@ericsson.com>, linux-i2c@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>
-Cc: linux-kernel@vger.kernel.org, David Daney <david.daney@cavium.com>, Lars-Peter Clausen <lars@metafoo.de>
+From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH v3 0/3] i2c-s3c2410: Updates for exynos4210 and DT-based
+ systems
+Date: Fri, 13 Apr 2012 11:30:50 +0200
+Message-ID: <4F87F24A.1040408@samsung.com>
+References: <1332357113-2973-1-git-send-email-k.lewandowsk@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <1332357113-2973-1-git-send-email-k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, "grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: David Daney <david.daney@cavium.com>
+On 21.03.2012 20:11, Karol Lewandowski wrote:
 
-For 'normal' i2c bus drivers, we can call of_i2c_register_devices()
-and have the device tree framework automatically populate the bus with
-the devices specified in the device tree.
+> Changes since v2:
+>  - Merge device type and flags into flat bitmask named quirks -
+>    Consequently, treat s3c24xx as baseline hardware platform and
+>    support all hw variations via quirks [Suggested by Mark Brown]
+> 
+> Changes since v1:
+>  - Move unrelated code fragment to separate patch (of_match_ptr())
+>    [Suggested by Thomas Abraham]
+>  - Move device-type handling to separate function and rework its
+>    internals a bit [likewise]
+> 
+> This patchset reworks i2c-s3c2410 driver a bit to better handle
+> device tree-enabled platforms and adds two quirks required by
+> exynos4210-specific I2C controller used by s5p-hdmi driver.
+> 
+> This patchset is based on "i2c-bjdooks/for-34/i2c/i2c-samsung" branch
+> taken from:
+> 
+>   git://git.fluff.org/bjdooks/linux.git
+> 
+> Karol Lewandowski (3):
+>   i2c-s3c2410: Drop unused define
+>   i2c-s3c2410: Rework device type handling
+>   i2c-s3c2410: Add HDMIPHY quirk for S3C2440
+> 
+>  .../devicetree/bindings/i2c/samsung-i2c.txt        |   11 ++-
+>  drivers/i2c/busses/i2c-s3c2410.c                   |   86 +++++++++++++------
+>  2 files changed, 68 insertions(+), 29 deletions(-)
 
-This patch adds a common code to the i2c mux framework to have the mux
-sub-busses be populated by the of_i2c_register_devices() too.  If the
-mux device has an of_node, we populate the sub-bus' of_node so that
-the subsequent call to of_i2c_register_devices() will find the
-corresponding devices.
 
-It seemed better to put this logic in i2c_add_mux_adapter() rather
-than the individual mux drivers, as they will all probably want to do
-the same thing.
+Wolfram,
 
-Signed-off-by: David Daney <david.daney@cavium.com>
-Cc: Lars-Peter Clausen <lars@metafoo.de>
----
- Documentation/devicetree/bindings/i2c/mux.txt |   60 +++++++++++++++++++++++++
- drivers/i2c/i2c-mux.c                         |   24 ++++++++++
- 2 files changed, 84 insertions(+), 0 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/mux.txt
+Is there anything I can do to have these patches in -next
+(and, consequently, in 3.5-rc1)?
 
-diff --git a/Documentation/devicetree/bindings/i2c/mux.txt b/Documentation/devicetree/bindings/i2c/mux.txt
-new file mode 100644
-index 0000000..af84cce
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/mux.txt
-@@ -0,0 +1,60 @@
-+Common i2c bus multiplexer/switch properties.
-+
-+An i2c bus multiplexer/switch will have several child busses that are
-+numbered uniquely in a device dependent manner.  The nodes for an i2c bus
-+multiplexer/switch will have one child node for each child
-+bus.
-+
-+Required properties:
-+- #address-cells = <1>;
-+- #size-cells = <0>;
-+
-+Required properties for child nodes:
-+- #address-cells = <1>;
-+- #size-cells = <0>;
-+- reg : The sub-bus number.
-+
-+Optional properties for child nodes:
-+- Other properties specific to the multiplexer/switch hardware.
-+- Child nodes conforming to i2c bus binding
-+
-+
-+Example :
-+
-+	/*
-+	   An NXP pca9548 8 channel I2C multiplexer at address 0x70
-+	   with two NXP pca8574 GPIO expanders attached, one each to
-+	   ports 3 and 4.
-+	 */
-+
-+	mux@70 {
-+		compatible = "nxp,pca9548";
-+		reg = <0x70>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		i2c@3 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <3>;
-+
-+			gpio1: gpio@38 {
-+				compatible = "nxp,pca8574";
-+				reg = <0x38>;
-+				#gpio-cells = <2>;
-+				gpio-controller;
-+			};
-+		};
-+		i2c@4 {
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			reg = <4>;
-+
-+			gpio2: gpio@38 {
-+				compatible = "nxp,pca8574";
-+				reg = <0x38>;
-+				#gpio-cells = <2>;
-+				gpio-controller;
-+			};
-+		};
-+	};
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index 26ab31d..609794b 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -24,6 +24,8 @@
- #include <linux/slab.h>
- #include <linux/i2c.h>
- #include <linux/i2c-mux.h>
-+#include <linux/of.h>
-+#include <linux/of_i2c.h>
- 
- /* multiplexer per channel data */
- struct i2c_mux_priv {
-@@ -125,6 +127,26 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 	priv->adap.algo_data = priv;
- 	priv->adap.dev.parent = &parent->dev;
- 
-+	/*
-+	 * Try to get populate the mux adapter's of_node, expands to
-+	 * nothing if !CONFIG_OF.
-+	 */
-+	if (mux_dev->of_node) {
-+		struct device_node *child;
-+		u32 reg;
-+		int ret;
-+
-+		for_each_child_of_node(mux_dev->of_node, child) {
-+			ret = of_property_read_u32(child, "reg", &reg);
-+			if (ret)
-+				continue;
-+			if (chan_id == reg) {
-+				priv->adap.dev.of_node = child;
-+				break;
-+			}
-+		}
-+	}
-+
- 	if (force_nr) {
- 		priv->adap.nr = force_nr;
- 		ret = i2c_add_numbered_adapter(&priv->adap);
-@@ -142,6 +164,8 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 	dev_info(&parent->dev, "Added multiplexed i2c bus %d\n",
- 		 i2c_adapter_id(&priv->adap));
- 
-+	of_i2c_register_devices(&priv->adap);
-+
- 	return &priv->adap;
- }
- EXPORT_SYMBOL_GPL(i2c_add_mux_adapter);
+Regards,
 -- 
-1.7.2.3
+Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
