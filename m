@@ -1,84 +1,45 @@
-From: "Voss, Nikolaus" <N.Voss@weinmann.de>
-Subject: RE: [PATCH] i2c-at91: fix data-loss issue
-Date: Mon, 16 Apr 2012 09:30:02 +0200
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D0905D5A1AA@wm021.weinmann.com>
-References: <20120413103937.GH7154@arwen.pp.htv.fi>
- <1334317476-10044-1-git-send-email-h.feurstein@gmail.com>
+From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: RE: [PATCH] i2c-dev: Add support for I2C_M_RECV_LEN
+Date: Mon, 16 Apr 2012 09:40:11 +0200
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D0905D5A1D2@wm021.weinmann.com>
+References: <20120315180835.2e669111@endymion.delvare>
+ <20120331081927.2438ea9e@endymion.delvare> <4F7CD11C.2090801@interlog.com>
+ <20120405092422.453edecf@endymion.delvare> <4F7E3267.9040306@interlog.com>
+ <20120406083751.46fd23c5@endymion.delvare> <4F7F16D3.6080307@interlog.com>
+ <20120406182534.68d7f53d@endymion.delvare> <4F7F2220.50003@interlog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1334317476-10044-1-git-send-email-h.feurstein@gmail.com>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4F7F2220.50003-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
 Content-Language: de-DE
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: 'Hubert Feurstein' <h.feurstein@gmail.com>
-Cc: "'rmallon@gmail.com'" <rmallon@gmail.com>, "'nicolas.ferre@atmel.com'" <nicolas.ferre@atmel.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'balbi@ti.com'" <balbi@ti.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "'dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org'" <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>, 'Jean Delvare' <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: 'Linux I2C' <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hubert Feurstein wrote on 2012-04-13:
-> In the interrupt handler both status-flags (TXCOMP and RXRDY) might be
-> pending at the same time. In this case TXCOMP is handled but NOT RXRDY
-> which causes a data-loss on the current transfer
+Hi,
 
-Right, this is definitely a bug and must be corrected. Part of my
-motivation for exclusively or-ing the irq bits was not reading/
-writing beyond the buffer because of (still) pending bits despite
-of an already finished transfer, so I gave TXCOMP the highest prio.
+Douglas Gilbert wrote on 2012-04-06:
+> On 12-04-06 12:25 PM, Jean Delvare wrote:
+>> On Fri, 06 Apr 2012 12:16:19 -0400, Douglas Gilbert wrote:
+>>> However I see that Nikolaus Voss has submitted a replacement driver
+>>> for the i2c-at91 that works for the G45 which has two TWI units.
+>>> Is that driver going into the mainline? Surely it is much better
+>>> than the broken i2c-at91 driver that has been sitting broken for
+>>> way too long. Atmel are bringing out new MCUs in that family which
+>>> have 3 TWI units (e.g. AT91SAM9G25). Apart from the limitations
+>>> about repeated starts surely Atmel have fixed the problems referred
+>>> to in existing mainline i2c-at91.c driver from circa 2006.
+>>> 
+>>> My vote would be to add Nikolaus Voss's driver ASAP.
+>> 
+>> I'm not into embedded devices, so this isn't my call.
+> 
+> A pity. I checked lk 3.4-rc1 and the bad old driver is still there.
 
-Because of other reasons, write_next_byte() already checks this and
-does nothing if all data already has been written. My suggestion is
-to have read_next_byte() do this check too, as I don't trust the
-hardware to reset RXRDY _immediately_ after reading.
-
-> @@ -161,18 +161,22 @@ static irqreturn_t atmel_twi_interrupt(int irq, void
-> *dev_id)
->  {
->  	struct at91_twi_dev *dev = dev_id;
->  	const unsigned status = at91_twi_read(dev, AT91_TWI_SR);
-> -	const unsigned irqstatus = status & at91_twi_read(dev, AT91_TWI_IMR);
-> +	unsigned irqstatus = status & at91_twi_read(dev, AT91_TWI_IMR);
-> +
-> +	irqstatus &= (AT91_TWI_RXRDY | AT91_TWI_TXRDY | AT91_TWI_TXCOMP);
-
-The above line should be unnecessary as no more than those interrupts
-are enabled anyway. Any special reason for this?
- 
-> +	if (!irqstatus)
-> +		return IRQ_NONE;
-> +
-> +	if (irqstatus & AT91_TWI_RXRDY)
-> +		at91_twi_read_next_byte(dev);
-> +
-> +	if (irqstatus & AT91_TWI_TXRDY)
-> +		at91_twi_write_next_byte(dev);
-
-I would like to exclusively or TXRDY and RXRDY as those really should
-not be active at the same time. Keeps the decision tree lean ;-).
-
-> @@ -189,6 +193,10 @@ static int
->  at91_do_twi_transfer(struct at91_twi_dev *dev) 	if (dev->msg->flags &
->  I2C_M_RD) { 		unsigned start_flags = AT91_TWI_START;
-> +		/* clear any pending data */
-> +		(void)at91_twi_read(dev, AT91_TWI_SR);
-> +		(void)at91_twi_read(dev, AT91_TWI_RHR);
-
-I would like to modify this, as this is a partial fix for the above bug
-which should already be fully fixed by the modified isr.
-I fear subtle data-loss if we make (partial) tabula rasa before each
-transfer. I'd rather add an assertion to check if the corresponding
-irqs are active as an indication for a driver/hw-bug.
-
-I'll repost the driver with your fix on positive feedback from you.
-Thanks for tracking this down.
-
-Ben, is there any chance to get this driver into next?
+as I see it, my driver has only been tested with the G45. If you
+can confirm it works with other devices, too, maybe this would help
+to get it into next.
 
 Niko
