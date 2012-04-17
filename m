@@ -1,59 +1,45 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep
- sleep
-Date: Tue, 17 Apr 2012 16:21:05 +0200
-Message-ID: <20120417142105.GA21802@pengutronix.de>
-References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
- <20120229183436.GA30545@pengutronix.de>
+Subject: Re: [PATCH RESEND] i2c/nomadik: runtime PM support
+Date: Tue, 17 Apr 2012 16:39:01 +0200
+Message-ID: <20120417143901.GA22406@pengutronix.de>
+References: <1331213407-10135-1-git-send-email-linus.walleij@stericsson.com>
+ <CACRpkdbQRB37kYfCwn6+xUxBkVVo9f3RwUk5pstVPcfK8bivZw@mail.gmail.com>
+ <CACRpkdafU2Awaxx-2dXT_Z8S+dySx6YoV174rxJvdix81TBBpg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120229183436.GA30545-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <CACRpkdafU2Awaxx-2dXT_Z8S+dySx6YoV174rxJvdix81TBBpg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---cNdxnHkX5QqsyA0e
+--Q68bSM7Ycu6FN28Q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Feb 29, 2012 at 07:45:23PM +0100, Wolfram Sang wrote:
-> Hi,
->=20
-> On Wed, Feb 29, 2012 at 06:39:21PM +0800, Zhao Chenhui wrote:
-> > When entering deep sleep, the value in the registers I2CFDR and
-> > I2CDFSRR are lost. This causes I2C access to fail after resuming.
-> >=20
-> > Add suspend/resume routines to save/restore the registers
-> > I2CFDR and I2CDFSRR.
-> >=20
-> > Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-mpc.c |   34 +++++++++++++++++++++++++++++++++-
-> >  1 files changed, 33 insertions(+), 1 deletions(-)
-> >=20
-> > diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> > index a8ebb84..f95a647 100644
-> > --- a/drivers/i2c/busses/i2c-mpc.c
-> > +++ b/drivers/i2c/busses/i2c-mpc.c
-> > @@ -1,7 +1,9 @@
-> >  /*
-> >   * (C) Copyright 2003-2004
-> >   * Humboldt Solutions Ltd, adrian-nKrwMtk+6WksDtB2XHyCLA@public.gmane.org
-> > -
-> > + *
-> > + * Copyright 2012 Freescale Semiconductor, Inc.
-> > + *
->=20
-> I'd think the change is too trivial to claim copyright on the file.
 
-Do you want to resend with the comments addressed?
+> >> From: Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> >>
+> >> Turn off the clock and regulator to the I2C block using runtime
+> >> PM.
+> >>
+> >> Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> >> Cc: Rafael J. Wysocki <rjw-KKrjLPT3xs0@public.gmane.org>
+> >> Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+> >> Signed-off-by: Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> >> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> >
+> > Dooks, are you OK with merging this patch now?
+>=20
+
+As I understood, Mark acked it? I didn't dive into the details, so it would=
+ be
+nice for me to have an ACK (or at least a not NACK) from Magnus.
 
 Regards,
 
@@ -63,16 +49,16 @@ Regards,
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---cNdxnHkX5QqsyA0e
+--Q68bSM7Ycu6FN28Q
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+NfFEACgkQD27XaX1/VRsRyQCePPnnlynynpq5hVQMeZDBMIWu
-crsAnA4Xgpuf089oXkaxypETfwVnrNg9
-=TAH2
+iEYEARECAAYFAk+NgIUACgkQD27XaX1/VRthyQCfa2TeA/mr2wSOpiFQE8AYZjrj
+jjYAn1Hq4QHA7vVvA6l2hT0qOrFAPSC7
+=26FJ
 -----END PGP SIGNATURE-----
 
---cNdxnHkX5QqsyA0e--
+--Q68bSM7Ycu6FN28Q--
