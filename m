@@ -1,270 +1,233 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCHv8 04/18] I2C: OMAP: I2C register restore only if context
- is lost
-Date: Tue, 17 Apr 2012 20:38:40 +0530
-Message-ID: <CAM=Q2cvGFgNtvCX=TXAioAUKH9z+VzeKW2ZHhpxUC+s2_yS1QA@mail.gmail.com>
-References: <1334235995-6727-1-git-send-email-shubhrajyoti@ti.com>
-	<1334235995-6727-5-git-send-email-shubhrajyoti@ti.com>
-	<87d376zd2v.fsf@ti.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
+Date: Tue, 17 Apr 2012 19:31:36 +0200
+Message-ID: <20120417173136.GB22406@pengutronix.de>
+References: <1332357113-2973-1-git-send-email-k.lewandowsk@samsung.com>
+ <1332357113-2973-3-git-send-email-k.lewandowsk@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87d376zd2v.fsf-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============6419583066895409022=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1332357113-2973-3-git-send-email-k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kevin,
-Thanks for your review,
 
-On Tue, Apr 17, 2012 at 7:15 PM, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> wrote:
-> Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
->
->> =A0Currently i2c register restore is done always.
->> =A0Adding conditional restore.
->> =A0The i2c register restore is done only if the context is lost.
->
-> OK, minor comment below.
->
->> =A0Also remove the definition of SYSS_RESETDONE_MASK and use the
->> =A0one in omap_hwmod.h.
->
-> The definition is removed, but I don't see any of the users removed.
-> If the users were cleaned up earlier in the series, then the removal =
-of
-> this should be done with that, or as a separate patch. =A0I don't see=
- why
-> it belongs with this patch.
+--===============6419583066895409022==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="l76fUT7nc3MelDdI"
+Content-Disposition: inline
 
-I have not removed the users actually the macro was redefined.
-I have instead used the definition in omap_hwmod.h which gets added
-when I include omap_device.h
 
-Let me know if you prefer a  separate patch?
+--l76fUT7nc3MelDdI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
->> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> ---
->> =A0arch/arm/plat-omap/i2c.c =A0 =A0 =A0| =A0 =A03 ++
->> =A0drivers/i2c/busses/i2c-omap.c | =A0 52 ++++++++++++++++++++++++++=
---------------
->> =A0include/linux/i2c-omap.h =A0 =A0 =A0| =A0 =A01 +
->> =A03 files changed, 38 insertions(+), 18 deletions(-)
->>
->> diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
->> index db071bc..4ccab07 100644
->> --- a/arch/arm/plat-omap/i2c.c
->> +++ b/arch/arm/plat-omap/i2c.c
->> @@ -179,6 +179,9 @@ static inline int omap2_i2c_add_bus(int bus_id)
->> =A0 =A0 =A0 =A0*/
->> =A0 =A0 =A0 if (cpu_is_omap34xx())
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->set_mpu_wkup_lat =3D omap_pm_set_=
-max_mpu_wakeup_lat_compat;
->> +
->> + =A0 =A0 pdata->get_context_loss_count =3D omap_pm_get_dev_context_=
-loss_count;
->> +
->> =A0 =A0 =A0 pdev =3D omap_device_build(name, bus_id, oh, pdata,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 sizeof(struct omap_i2c_b=
-us_platform_data),
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 NULL, 0, 0);
->> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-=
-omap.c
->> index a882558..45389db 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -43,6 +43,7 @@
->> =A0#include <linux/slab.h>
->> =A0#include <linux/i2c-omap.h>
->> =A0#include <linux/pm_runtime.h>
->> +#include <plat/omap_device.h>
->>
->> =A0/* I2C controller revisions */
->> =A0#define OMAP_I2C_OMAP1_REV_2 =A0 =A0 =A0 =A0 0x20
->> @@ -157,9 +158,6 @@ enum {
->> =A0#define OMAP_I2C_SYSTEST_SDA_I =A0 =A0 =A0 =A0 =A0 =A0 =A0 (1 << =
-1) =A0 =A0 =A0 =A0/* SDA line sense in */
->> =A0#define OMAP_I2C_SYSTEST_SDA_O =A0 =A0 =A0 =A0 =A0 =A0 =A0 (1 << =
-0) =A0 =A0 =A0 =A0/* SDA line drive out */
->>
->> -/* OCP_SYSSTATUS bit definitions */
->> -#define SYSS_RESETDONE_MASK =A0 =A0 =A0 =A0 =A0(1 << 0)
->> -
->> =A0/* OCP_SYSCONFIG bit definitions */
->> =A0#define SYSC_CLOCKACTIVITY_MASK =A0 =A0 =A0 =A0 =A0 =A0 =A0(0x3 <=
-< 8)
->> =A0#define SYSC_SIDLEMODE_MASK =A0 =A0 =A0 =A0 =A0(0x3 << 3)
->> @@ -184,6 +182,7 @@ struct omap_i2c_dev {
->> =A0 =A0 =A0 u32 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 latency; =A0=
- =A0 =A0 =A0/* maximum mpu wkup latency */
->> =A0 =A0 =A0 void =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0(*set_mpu_wk=
-up_lat)(struct device *dev,
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
-=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 long latency);
->> + =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (*get_context_=
-loss_count)(struct device *dev);
->> =A0 =A0 =A0 u32 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 speed; =A0 =A0=
- =A0 =A0 =A0/* Speed of bus in kHz */
->> =A0 =A0 =A0 u32 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dtrev; =A0 =A0=
- =A0 =A0 =A0/* extra revision from DT */
->> =A0 =A0 =A0 u32 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 flags;
->> @@ -206,6 +205,7 @@ struct omap_i2c_dev {
->> =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 syscstate;
->> =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 westate;
->> =A0 =A0 =A0 u16 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 errata;
->> + =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev_lost_count=
-;
->> =A0};
->>
->> =A0static const u8 reg_map_ip_v1[] =3D {
->> @@ -1025,6 +1025,7 @@ omap_i2c_probe(struct platform_device *pdev)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->speed =3D pdata->clkrate;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->flags =3D pdata->flags;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->set_mpu_wkup_lat =3D pdata->set_mpu=
-_wkup_lat;
->> + =A0 =A0 =A0 =A0 =A0 =A0 dev->get_context_loss_count =3D pdata->get=
-_context_loss_count;
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 dev->dtrev =3D pdata->rev;
->> =A0 =A0 =A0 }
->>
->> @@ -1151,12 +1152,32 @@ omap_i2c_remove(struct platform_device *pdev=
-)
->> =A0}
->>
->> =A0#ifdef CONFIG_PM_RUNTIME
->> +static void omap_i2c_restore(struct omap_i2c_dev *dev)
->> +{
->> + =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
->> + =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
->> + =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate)=
-;
->> + =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate)=
-;
->> + =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
->> + =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
->> + =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN)=
-;
->> + =A0 =A0 /*
->> + =A0 =A0 =A0* Don't write to this register if the IE state is 0 as =
-it can
->> + =A0 =A0 =A0* cause deadlock.
->> + =A0 =A0 =A0*/
->> + =A0 =A0 if (dev->iestate)
->> + =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, d=
-ev->iestate);
->> +
->> +}
->> =A0static int omap_i2c_runtime_suspend(struct device *dev)
->> =A0{
->> =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev)=
-;
->> =A0 =A0 =A0 struct omap_i2c_dev *_dev =3D platform_get_drvdata(pdev)=
-;
->> =A0 =A0 =A0 u16 iv;
->>
->> + =A0 =A0 if (_dev->get_context_loss_count)
->> + =A0 =A0 =A0 =A0 =A0 =A0 _dev->dev_lost_count =3D _dev->get_context=
-_loss_count(dev);
->> +
->> =A0 =A0 =A0 _dev->iestate =3D omap_i2c_read_reg(_dev, OMAP_I2C_IE_RE=
-G);
->> =A0 =A0 =A0 if (_dev->dtrev =3D=3D OMAP_I2C_IP_VERSION_2)
->> =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_IP_V2_=
-IRQENABLE_CLR, 1);
->> @@ -1179,24 +1200,19 @@ static int omap_i2c_runtime_resume(struct de=
-vice *dev)
->> =A0{
->> =A0 =A0 =A0 struct platform_device *pdev =3D to_platform_device(dev)=
-;
->> =A0 =A0 =A0 struct omap_i2c_dev *_dev =3D platform_get_drvdata(pdev)=
-;
->> + =A0 =A0 int loss_cnt;
->>
->> - =A0 =A0 if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG,=
- 0);
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_PSC_REG,=
- _dev->pscstate);
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_SCLL_REG=
-, _dev->scllstate);
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_SCLH_REG=
-, _dev->sclhstate);
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_BUF_REG,=
- _dev->bufstate);
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_SYSC_REG=
-, _dev->syscstate);
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_WE_REG, =
-_dev->westate);
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG,=
- OMAP_I2C_CON_EN);
->> + =A0 =A0 if (_dev->get_context_loss_count) {
->> + =A0 =A0 =A0 =A0 =A0 =A0 loss_cnt =3D _dev->get_context_loss_count(=
-dev);
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (loss_cnt < 0)
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return loss_cnt;
->
-> To avoid messing up driver state, upon error, you should probably
-> restore context, not abort.
-Agreed , will fix this.
+Hi,
 
->
->> + =A0 =A0 =A0 =A0 =A0 =A0 if (_dev->dev_lost_count =3D=3D loss_cnt &=
-& _dev->dev_lost_count)
->> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return 0;
->
-> Why the non-zero check?
+On Wed, Mar 21, 2012 at 08:11:52PM +0100, Karol Lewandowski wrote:
+> Reorganize driver a bit to better handle device tree-based systems:
+>=20
+>  - move machine type to driver's private structure instead of
+>    quering platform device variants in runtime
+>=20
+>  - replace s3c24xx_i2c_type enum with unsigned int that holds
+>    bitmask with revision-specific quirks
+>=20
+> Signed-off-by: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-Actually the driver probe-->omap_i2c_init
+Okay, so this driver needs to the 'data' field from either
+platform_device_id or of_device_id and implements a function for that,
+namely s3c24xx_get_device_quirks(). Grant, Rob: I'd think there might be
+more drivers in need of that, so maybe it makes sense to have a generic
+of-helper function?
 
-here
-<snip>
-                dev->pscstate =3D psc;
-                dev->scllstate =3D scll;
-                dev->sclhstate =3D sclh;
-                dev->bufstate =3D buf;
-<snip>
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |   47 ++++++++++++++++++--------------=
+-----
+>  1 files changed, 23 insertions(+), 24 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3=
+c2410.c
+> index 85e3664..f7b6a14 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -44,8 +44,14 @@
+>  #include <plat/regs-iic.h>
+>  #include <plat/iic.h>
+> =20
+> -/* i2c controller state */
+> +#ifdef CONFIG_OF
+> +static const struct of_device_id s3c24xx_i2c_match[];
+> +#endif
 
-variables are updated and the first write happens in the handler.
+Uh, forward declaration with #ifdef. I'd think we should get this simply
+to the front.
 
->
-> Seems like all you need to check is if (_dev->dev_lost_count !=3D los=
-s_cnt).
->
-> Kevin
->
->> =A0 =A0 =A0 }
->>
->> - =A0 =A0 /*
->> - =A0 =A0 =A0* Don't write to this register if the IE state is 0 as =
-it can
->> - =A0 =A0 =A0* cause deadlock.
->> - =A0 =A0 =A0*/
->> - =A0 =A0 if (_dev->iestate)
->> - =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, =
-_dev->iestate);
->> + =A0 =A0 if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE)
->> + =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_restore(_dev);
->>
->> =A0 =A0 =A0 return 0;
->> =A0}
->> diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
->> index 92a0dc7..c76cbc0 100644
->> --- a/include/linux/i2c-omap.h
->> +++ b/include/linux/i2c-omap.h
->> @@ -35,6 +35,7 @@ struct omap_i2c_bus_platform_data {
->> =A0 =A0 =A0 u32 =A0 =A0 =A0 =A0 =A0 =A0 rev;
->> =A0 =A0 =A0 u32 =A0 =A0 =A0 =A0 =A0 =A0 flags;
->> =A0 =A0 =A0 void =A0 =A0 =A0 =A0 =A0 =A0(*set_mpu_wkup_lat)(struct d=
-evice *dev, long set);
->> + =A0 =A0 int =A0 =A0 =A0 =A0 =A0 =A0 (*get_context_loss_count)(stru=
-ct device *dev);
->> =A0};
->>
->> =A0#endif
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
- in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+>  dd
+> +/* Treat S3C2410 as baseline hardware, anything else is supported via qu=
+irks */
+> +#define QUIRK_S3C2440		(1 << 0)
+
+Minor: Is it really a quirk being s3c2440? Maybe FLAG_*, dunno.
+
+> +
+> +/* i2c controller state */
+>  enum s3c24xx_i2c_state {
+>  	STATE_IDLE,
+>  	STATE_START,
+> @@ -54,14 +60,10 @@ enum s3c24xx_i2c_state {
+>  	STATE_STOP
+>  };
+> =20
+> -enum s3c24xx_i2c_type {
+> -	TYPE_S3C2410,
+> -	TYPE_S3C2440,
+> -};
+> -
+>  struct s3c24xx_i2c {
+>  	spinlock_t		lock;
+>  	wait_queue_head_t	wait;
+> +	unsigned int            quirks;
+>  	unsigned int		suspended:1;
+> =20
+>  	struct i2c_msg		*msg;
+> @@ -88,26 +90,22 @@ struct s3c24xx_i2c {
+>  #endif
+>  };
+> =20
+> -/* default platform data removed, dev should always carry data. */
+> -
+> -/* s3c24xx_i2c_is2440()
+> +/* s3c24xx_get_device_quirks
+>   *
+> - * return true is this is an s3c2440
+> + * Get controller type either from device tree or platform device varian=
+t.
+>  */
+> =20
+> -static inline int s3c24xx_i2c_is2440(struct s3c24xx_i2c *i2c)
+> +static inline unsigned int s3c24xx_get_device_quirks(struct platform_dev=
+ice *pdev)
+>  {
+> -	struct platform_device *pdev =3D to_platform_device(i2c->dev);
+> -	enum s3c24xx_i2c_type type;
+> -
+>  #ifdef CONFIG_OF
+> -	if (i2c->dev->of_node)
+> -		return of_device_is_compatible(i2c->dev->of_node,
+> -				"samsung,s3c2440-i2c");
+> +        if (pdev->dev.of_node) {
+> +		const struct of_device_id *match;
+> +		match =3D of_match_node(&s3c24xx_i2c_match[0], pdev->dev.of_node);
+
+Minor: I think it is more readable to drop the [0]
+
+> +		return (unsigned int)match->data;
+> +        }
+>  #endif
+> =20
+> -	type =3D platform_get_device_id(pdev)->driver_data;
+> -	return type =3D=3D TYPE_S3C2440;
+> +	return platform_get_device_id(pdev)->driver_data;
+>  }
+> =20
+>  /* s3c24xx_i2c_master_complete
+> @@ -676,7 +674,7 @@ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *=
+i2c, unsigned int *got)
+> =20
+>  	writel(iiccon, i2c->regs + S3C2410_IICCON);
+> =20
+> -	if (s3c24xx_i2c_is2440(i2c)) {
+> +	if (i2c->quirks & QUIRK_S3C2440) {
+>  		unsigned long sda_delay;
+> =20
+>  		if (pdata->sda_delay) {
+> @@ -906,6 +904,7 @@ static int s3c24xx_i2c_probe(struct platform_device *=
+pdev)
+>  		goto err_noclk;
+>  	}
+> =20
+> +	i2c->quirks =3D s3c24xx_get_device_quirks(pdev);
+>  	if (pdata)
+>  		memcpy(i2c->pdata, pdata, sizeof(*pdata));
+>  	else
+> @@ -1113,18 +1112,18 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm=
+_ops =3D {
+>  static struct platform_device_id s3c24xx_driver_ids[] =3D {
+>  	{
+>  		.name		=3D "s3c2410-i2c",
+> -		.driver_data	=3D TYPE_S3C2410,
+> +		.driver_data	=3D 0,
+>  	}, {
+>  		.name		=3D "s3c2440-i2c",
+> -		.driver_data	=3D TYPE_S3C2440,
+> +		.driver_data	=3D QUIRK_S3C2440,
+>  	}, { },
+>  };
+>  MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
+> =20
+>  #ifdef CONFIG_OF
+>  static const struct of_device_id s3c24xx_i2c_match[] =3D {
+> -	{ .compatible =3D "samsung,s3c2410-i2c" },
+> -	{ .compatible =3D "samsung,s3c2440-i2c" },
+> +	{ .compatible =3D "samsung,s3c2410-i2c", .data =3D (void *)0 },
+> +	{ .compatible =3D "samsung,s3c2440-i2c", .data =3D (void *)QUIRK_S3C244=
+0 },
+
+Hmm, the need to sepcify the quirks twice may lead to only one instance
+being updated in future patches, but I don't see a way around that,
+currently :(
+
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
+> --=20
+> 1.7.9
+>=20
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--l76fUT7nc3MelDdI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+NqPgACgkQD27XaX1/VRvuygCfYXd6SSv7KWC4jPwRgZlt9tCt
+bxwAn05dB7Zk8mUKlZgfiFohLFqRXc0d
+=7alQ
+-----END PGP SIGNATURE-----
+
+--l76fUT7nc3MelDdI--
+
+--===============6419583066895409022==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============6419583066895409022==--
