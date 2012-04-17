@@ -1,118 +1,77 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: decode-dimms: Module Configuration Type not reported for DDR2/3
-Date: Tue, 17 Apr 2012 13:18:57 +0200
-Message-ID: <20120417131857.4e05c67b@endymion.delvare>
-References: <4F8C8A74.90804@icyb.net.ua>
+From: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH V2] i2c: designware: Add clk_{un}prepare() support
+Date: Tue, 17 Apr 2012 17:04:31 +0530
+Message-ID: <b562073871c8c3c13a1f59698f69cfdf65db3b5a.1334662366.git.viresh.kumar@st.com>
+References: <caa4a0645f80f199b31ec16de37a5c4c9c67a6fa.1334652570.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="MP_/LzDD8FhDnq_ncdlxG1y/NWV"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F8C8A74.90804-+43SdJ71VxTsG83rWm+8vg@public.gmane.org>
+In-Reply-To: <caa4a0645f80f199b31ec16de37a5c4c9c67a6fa.1334652570.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andriy Gapon <avg-+43SdJ71VxTsG83rWm+8vg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---MP_/LzDD8FhDnq_ncdlxG1y/NWV
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+clk_{un}prepare is mandatory for platforms using common clock framework. Since
+this driver is used by SPEAr platform, which supports common clock framework,
+add clk_{un}prepare() support for designware i2c.
 
-Hi Andriy,
+Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+---
+V1->V2:
+- Use clk_prepare_enable and clk_disable_unprepare
 
-On Tue, 17 Apr 2012 00:09:08 +0300, Andriy Gapon wrote:
-> It seems that Module Configuration Type ("ECC", "No Parity", etc) is not
-> reported for DDR2 and DDR3 module types.  Not sure if resolution could be as
-> easy as adding sdram_module_configuration_type() calls in the corresponding
-> decode procedures.
+ drivers/i2c/busses/i2c-designware-platdrv.c |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-Won't be so easy. For DDR2 there is one new bit to decode
-(Address/Command Parity). For DDR3 byte 11 has a completely different
-meaning, and the information seem to be no longer available. As I read
-the specification, the only way to tell if a DDR3 module has any form
-of parity or ECC is to check the extra bus width in bits 4-3 of byte 8.
-But this is a boolean type of information then, telling "there is some
-form of data error detection/correction". No way to tell between parity
-and ECC AFAICS, and information about Address/Command Parity is gone
-too.
-
-I am attaching two patches, one for DDR2, one for DDR3, please give
-them a try.
-
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 76bf108..3a7a4e8 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -103,7 +103,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
+ 		r = -ENODEV;
+ 		goto err_free_mem;
+ 	}
+-	clk_enable(dev->clk);
++	clk_prepare_enable(dev->clk);
+ 
+ 	dev->functionality =
+ 		I2C_FUNC_I2C |
+@@ -180,7 +180,7 @@ err_free_irq:
+ err_iounmap:
+ 	iounmap(dev->base);
+ err_unuse_clocks:
+-	clk_disable(dev->clk);
++	clk_disable_unprepare(dev->clk);
+ 	clk_put(dev->clk);
+ 	dev->clk = NULL;
+ err_free_mem:
+@@ -202,7 +202,7 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
+ 	i2c_del_adapter(&dev->adapter);
+ 	put_device(&pdev->dev);
+ 
+-	clk_disable(dev->clk);
++	clk_disable_unprepare(dev->clk);
+ 	clk_put(dev->clk);
+ 	dev->clk = NULL;
+ 
+@@ -229,7 +229,7 @@ static int dw_i2c_suspend(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
+-	clk_disable(i_dev->clk);
++	clk_disable_unprepare(i_dev->clk);
+ 
+ 	return 0;
+ }
+@@ -239,7 +239,7 @@ static int dw_i2c_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
+ 
+-	clk_enable(i_dev->clk);
++	clk_prepare_enable(i_dev->clk);
+ 	i2c_dw_init(i_dev);
+ 
+ 	return 0;
 -- 
-Jean Delvare
-
---MP_/LzDD8FhDnq_ncdlxG1y/NWV
-Content-Type: text/x-patch
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename=decode-dimms-ddr2-module-config.patch
-
----
- eeprom/decode-dimms |   22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
-
---- i2c-tools.orig/eeprom/decode-dimms	2011-02-16 14:58:41.000000000 +0100
-+++ i2c-tools/eeprom/decode-dimms	2012-04-17 10:22:06.784083856 +0200
-@@ -525,16 +525,21 @@ sub sdram_voltage_interface_level($)
- 	return ($_[0] < @levels) ? $levels[$_[0]] : "Undefined!";
- }
- 
--# Common to SDR and DDR SDRAM
-+# Common to SDR, DDR and DDR2 SDRAM
- sub sdram_module_configuration_type($)
- {
--	my @types = (
--		"No Parity",			# 0
--		"Parity",			# 1
--		"ECC",				# 2
--	);
-+	my $byte = $_[0] & 0x07;
-+	my @edc;
- 
--	return ($_[0] < @types) ? $types[$_[0]] : "Undefined!";
-+	return "No Parity" if $byte == 0;
-+
-+	# Data ECC includes Data Parity so don't print both
-+	push @edc, "Data Parity" if ($byte & 0x03) == 0x01;
-+	push @edc, "Data ECC" if ($byte & 0x02);
-+	# New in DDR2 specification
-+	push @edc, "Address/Command Parity" if ($byte & 0x04);
-+
-+	return join ", ", @edc;
- }
- 
- # Parameter: EEPROM bytes 0-127 (using 3-62)
-@@ -1019,6 +1024,9 @@ sub decode_ddr2_sdram($)
- 	printl("Voltage Interface Level",
- 	       sdram_voltage_interface_level($bytes->[8]));
- 
-+	printl("Module Configuration Type",
-+	       sdram_module_configuration_type($bytes->[11]));
-+
- 	printl("Refresh Rate", ddr2_refresh_rate($bytes->[12]));
- 
- 	my @burst;
-
---MP_/LzDD8FhDnq_ncdlxG1y/NWV
-Content-Type: text/x-patch
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename=decode-dimms-ddr3-module-config.patch
-
----
- eeprom/decode-dimms |    2 ++
- 1 file changed, 2 insertions(+)
-
---- i2c-tools.orig/eeprom/decode-dimms	2012-04-17 10:22:06.000000000 +0200
-+++ i2c-tools/eeprom/decode-dimms	2012-04-17 10:42:10.205990901 +0200
-@@ -1169,6 +1169,8 @@ sub decode_ddr3_sdram($)
- 
- 	printl("SDRAM Device Width", (1 << (($bytes->[7] & 7) + 2))." bits");
- 
-+	printl("Bus Width Extension", ($bytes->[8] & 24)." bits");
-+
- 	my $taa;
- 	my $trcd;
- 	my $trp;
-
---MP_/LzDD8FhDnq_ncdlxG1y/NWV--
+1.7.9
