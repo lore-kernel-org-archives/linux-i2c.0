@@ -1,85 +1,38 @@
-From: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: [PATCH] i2c: designware: Add clk_{un}prepare() support
-Date: Tue, 17 Apr 2012 14:23:09 +0530
-Message-ID: <caa4a0645f80f199b31ec16de37a5c4c9c67a6fa.1334652570.git.viresh.kumar@st.com>
+From: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH V3 0/2] I2C: Add bus recovery infrastructure
+Date: Tue, 17 Apr 2012 15:07:07 +0530
+Message-ID: <4F8D39C3.5070306@st.com>
+References: <cover.1330669025.git.viresh.kumar@st.com> <4F8D323E.5040908@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4F8D323E.5040908-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Cc: Viresh KUMAR <viresh.kumar-qxv4g6HH51o@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org" <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, spear-devel <spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>, "viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org" <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "ml.lawnick-Mmb7MZpHnFY@public.gmane.org" <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-clk_{un}prepare is mandatory for platforms using common clock framework. Since
-this driver is used by SPEAr platform, which supports common clock framework,
-add clk_{un}prepare() support for designware i2c.
+Hello Wolfram,
 
-Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-platdrv.c |   19 ++++++++++++++++---
- 1 files changed, 16 insertions(+), 3 deletions(-)
+On 4/17/2012 2:35 PM, Viresh KUMAR wrote:
+> On 3/2/2012 11:53 AM, Viresh KUMAR wrote:
+>> This patchset adds i2c bus recovery infrastructure to i2c adapters as specified
+>> in the i2c protocol Rev. 03 section 3.16 titled "Bus clear".
+>>
+>> http://www.nxp.com/documents/user_manual/UM10204.pdf
+>>
+>> This patch was earlier part of a separate thread:
+>> http://www.spinics.net/lists/linux-i2c/msg07267.html
+>
+> Hi Wolfram,
+>
+> I know that you have been very busy with other stuff, but Can you
+> please apply this patchset if it looks fine to you?
+>
+> It had been in queue for over 1.5 months now :(
+>
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 76bf108..7b50eec 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -97,13 +97,20 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, dev);
- 
- 	dev->clk = clk_get(&pdev->dev, NULL);
--	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
--
- 	if (IS_ERR(dev->clk)) {
- 		r = -ENODEV;
- 		goto err_free_mem;
- 	}
--	clk_enable(dev->clk);
-+
-+	r = clk_prepare(dev->clk);
-+	if (r)
-+		goto err_put_clk;
-+
-+	r = clk_enable(dev->clk);
-+	if (r)
-+		goto err_unprepare_clk;
-+
-+	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
- 
- 	dev->functionality =
- 		I2C_FUNC_I2C |
-@@ -181,6 +188,9 @@ err_iounmap:
- 	iounmap(dev->base);
- err_unuse_clocks:
- 	clk_disable(dev->clk);
-+err_unprepare_clk:
-+	clk_unprepare(dev->clk);
-+err_put_clk:
- 	clk_put(dev->clk);
- 	dev->clk = NULL;
- err_free_mem:
-@@ -203,6 +213,7 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
- 	put_device(&pdev->dev);
- 
- 	clk_disable(dev->clk);
-+	clk_unprepare(dev->clk);
- 	clk_put(dev->clk);
- 	dev->clk = NULL;
- 
-@@ -230,6 +241,7 @@ static int dw_i2c_suspend(struct device *dev)
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
- 	clk_disable(i_dev->clk);
-+	clk_unprepare(i_dev->clk);
- 
- 	return 0;
- }
-@@ -239,6 +251,7 @@ static int dw_i2c_resume(struct device *dev)
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
- 
-+	clk_prepare(i_dev->clk);
- 	clk_enable(i_dev->clk);
- 	i2c_dw_init(i_dev);
- 
--- 
-1.7.9
+Tested By: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+
+Rgds
+Rajeev
