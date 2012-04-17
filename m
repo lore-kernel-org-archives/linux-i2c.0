@@ -1,189 +1,78 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv8 04/18] I2C: OMAP: I2C register restore only if context is lost
-Date: Tue, 17 Apr 2012 06:45:44 -0700
-Message-ID: <87d376zd2v.fsf@ti.com>
-References: <1334235995-6727-1-git-send-email-shubhrajyoti@ti.com>
-	<1334235995-6727-5-git-send-email-shubhrajyoti@ti.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep
+ sleep
+Date: Tue, 17 Apr 2012 16:21:05 +0200
+Message-ID: <20120417142105.GA21802@pengutronix.de>
+References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
+ <20120229183436.GA30545@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="cNdxnHkX5QqsyA0e"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1334235995-6727-5-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-	(Shubhrajyoti D.'s message of "Thu, 12 Apr 2012 18:36:21 +0530")
+Content-Disposition: inline
+In-Reply-To: <20120229183436.GA30545-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
 
->  Currently i2c register restore is done always.
->  Adding conditional restore.
->  The i2c register restore is done only if the context is lost.
+--cNdxnHkX5QqsyA0e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, minor comment below.
+On Wed, Feb 29, 2012 at 07:45:23PM +0100, Wolfram Sang wrote:
+> Hi,
+>=20
+> On Wed, Feb 29, 2012 at 06:39:21PM +0800, Zhao Chenhui wrote:
+> > When entering deep sleep, the value in the registers I2CFDR and
+> > I2CDFSRR are lost. This causes I2C access to fail after resuming.
+> >=20
+> > Add suspend/resume routines to save/restore the registers
+> > I2CFDR and I2CDFSRR.
+> >=20
+> > Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-mpc.c |   34 +++++++++++++++++++++++++++++++++-
+> >  1 files changed, 33 insertions(+), 1 deletions(-)
+> >=20
+> > diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+> > index a8ebb84..f95a647 100644
+> > --- a/drivers/i2c/busses/i2c-mpc.c
+> > +++ b/drivers/i2c/busses/i2c-mpc.c
+> > @@ -1,7 +1,9 @@
+> >  /*
+> >   * (C) Copyright 2003-2004
+> >   * Humboldt Solutions Ltd, adrian-nKrwMtk+6WksDtB2XHyCLA@public.gmane.org
+> > -
+> > + *
+> > + * Copyright 2012 Freescale Semiconductor, Inc.
+> > + *
+>=20
+> I'd think the change is too trivial to claim copyright on the file.
 
->  Also remove the definition of SYSS_RESETDONE_MASK and use the
->  one in omap_hwmod.h.
+Do you want to resend with the comments addressed?
 
-The definition is removed, but I don't see any of the users removed.
-If the users were cleaned up earlier in the series, then the removal of
-this should be done with that, or as a separate patch.  I don't see why
-it belongs with this patch.
+Regards,
 
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->  arch/arm/plat-omap/i2c.c      |    3 ++
->  drivers/i2c/busses/i2c-omap.c |   52 ++++++++++++++++++++++++++--------------
->  include/linux/i2c-omap.h      |    1 +
->  3 files changed, 38 insertions(+), 18 deletions(-)
->
-> diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
-> index db071bc..4ccab07 100644
-> --- a/arch/arm/plat-omap/i2c.c
-> +++ b/arch/arm/plat-omap/i2c.c
-> @@ -179,6 +179,9 @@ static inline int omap2_i2c_add_bus(int bus_id)
->  	 */
->  	if (cpu_is_omap34xx())
->  		pdata->set_mpu_wkup_lat = omap_pm_set_max_mpu_wakeup_lat_compat;
-> +
-> +	pdata->get_context_loss_count = omap_pm_get_dev_context_loss_count;
-> +
->  	pdev = omap_device_build(name, bus_id, oh, pdata,
->  			sizeof(struct omap_i2c_bus_platform_data),
->  			NULL, 0, 0);
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index a882558..45389db 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -43,6 +43,7 @@
->  #include <linux/slab.h>
->  #include <linux/i2c-omap.h>
->  #include <linux/pm_runtime.h>
-> +#include <plat/omap_device.h>
->  
->  /* I2C controller revisions */
->  #define OMAP_I2C_OMAP1_REV_2		0x20
-> @@ -157,9 +158,6 @@ enum {
->  #define OMAP_I2C_SYSTEST_SDA_I		(1 << 1)	/* SDA line sense in */
->  #define OMAP_I2C_SYSTEST_SDA_O		(1 << 0)	/* SDA line drive out */
->  
-> -/* OCP_SYSSTATUS bit definitions */
-> -#define SYSS_RESETDONE_MASK		(1 << 0)
-> -
->  /* OCP_SYSCONFIG bit definitions */
->  #define SYSC_CLOCKACTIVITY_MASK		(0x3 << 8)
->  #define SYSC_SIDLEMODE_MASK		(0x3 << 3)
-> @@ -184,6 +182,7 @@ struct omap_i2c_dev {
->  	u32			latency;	/* maximum mpu wkup latency */
->  	void			(*set_mpu_wkup_lat)(struct device *dev,
->  						    long latency);
-> +	int			(*get_context_loss_count)(struct device *dev);
->  	u32			speed;		/* Speed of bus in kHz */
->  	u32			dtrev;		/* extra revision from DT */
->  	u32			flags;
-> @@ -206,6 +205,7 @@ struct omap_i2c_dev {
->  	u16			syscstate;
->  	u16			westate;
->  	u16			errata;
-> +	int			dev_lost_count;
->  };
->  
->  static const u8 reg_map_ip_v1[] = {
-> @@ -1025,6 +1025,7 @@ omap_i2c_probe(struct platform_device *pdev)
->  		dev->speed = pdata->clkrate;
->  		dev->flags = pdata->flags;
->  		dev->set_mpu_wkup_lat = pdata->set_mpu_wkup_lat;
-> +		dev->get_context_loss_count = pdata->get_context_loss_count;
->  		dev->dtrev = pdata->rev;
->  	}
->  
-> @@ -1151,12 +1152,32 @@ omap_i2c_remove(struct platform_device *pdev)
->  }
->  
->  #ifdef CONFIG_PM_RUNTIME
-> +static void omap_i2c_restore(struct omap_i2c_dev *dev)
-> +{
-> +	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
-> +	omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
-> +	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
-> +	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
-> +	omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
-> +	omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
-> +	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
-> +	/*
-> +	 * Don't write to this register if the IE state is 0 as it can
-> +	 * cause deadlock.
-> +	 */
-> +	if (dev->iestate)
-> +		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
-> +
-> +}
->  static int omap_i2c_runtime_suspend(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
->  	u16 iv;
->  
-> +	if (_dev->get_context_loss_count)
-> +		_dev->dev_lost_count = _dev->get_context_loss_count(dev);
-> +
->  	_dev->iestate = omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
->  	if (_dev->dtrev == OMAP_I2C_IP_VERSION_2)
->  		omap_i2c_write_reg(_dev, OMAP_I2C_IP_V2_IRQENABLE_CLR, 1);
-> @@ -1179,24 +1200,19 @@ static int omap_i2c_runtime_resume(struct device *dev)
->  {
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
-> +	int loss_cnt;
->  
-> -	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, 0);
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_PSC_REG, _dev->pscstate);
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_SCLL_REG, _dev->scllstate);
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_SCLH_REG, _dev->sclhstate);
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_BUF_REG, _dev->bufstate);
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_SYSC_REG, _dev->syscstate);
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_WE_REG, _dev->westate);
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
-> +	if (_dev->get_context_loss_count) {
-> +		loss_cnt = _dev->get_context_loss_count(dev);
-> +		if (loss_cnt < 0)
-> +			return loss_cnt;
+   Wolfram
 
-To avoid messing up driver state, upon error, you should probably
-restore context, not abort.
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-> +		if (_dev->dev_lost_count == loss_cnt && _dev->dev_lost_count)
-> +			return 0;
+--cNdxnHkX5QqsyA0e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Why the non-zero check?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-Seems like all you need to check is if (_dev->dev_lost_count != loss_cnt).
+iEYEARECAAYFAk+NfFEACgkQD27XaX1/VRsRyQCePPnnlynynpq5hVQMeZDBMIWu
+crsAnA4Xgpuf089oXkaxypETfwVnrNg9
+=TAH2
+-----END PGP SIGNATURE-----
 
-Kevin
-
->  	}
->  
-> -	/*
-> -	 * Don't write to this register if the IE state is 0 as it can
-> -	 * cause deadlock.
-> -	 */
-> -	if (_dev->iestate)
-> -		omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, _dev->iestate);
-> +	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE)
-> +		omap_i2c_restore(_dev);
->  
->  	return 0;
->  }
-> diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
-> index 92a0dc7..c76cbc0 100644
-> --- a/include/linux/i2c-omap.h
-> +++ b/include/linux/i2c-omap.h
-> @@ -35,6 +35,7 @@ struct omap_i2c_bus_platform_data {
->  	u32		rev;
->  	u32		flags;
->  	void		(*set_mpu_wkup_lat)(struct device *dev, long set);
-> +	int		(*get_context_loss_count)(struct device *dev);
->  };
->  
->  #endif
+--cNdxnHkX5QqsyA0e--
