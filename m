@@ -1,80 +1,137 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: implement i2c_verify_adapter
-Date: Tue, 17 Apr 2012 20:49:25 +0200
-Message-ID: <20120417204925.29de7775@endymion.delvare>
-References: <1334688214-8400-1-git-send-email-swarren@wwwdotorg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: [PATCH 1/2] ARM: dt: tegra: seaboard: instantiate pinctrl-based I2C bus mux
+Date: Tue, 17 Apr 2012 12:50:54 -0600
+Message-ID: <1334688655-8509-1-git-send-email-swarren@wwwdotorg.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1334688214-8400-1-git-send-email-swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Stephen,
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-On Tue, 17 Apr 2012 12:43:33 -0600, Stephen Warren wrote:
-> From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> 
-> This converts a struct device * to a struct i2c_adapter * while verifying
-> that the device really is an I2C adapter. Just like i2c_verify_client.
-> 
-> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c |   17 +++++++++++++++++
->  include/linux/i2c.h    |    1 +
->  2 files changed, 18 insertions(+), 0 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index feb7dc3..a6ad32b 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -772,6 +772,23 @@ struct device_type i2c_adapter_type = {
->  };
->  EXPORT_SYMBOL_GPL(i2c_adapter_type);
->  
-> +/**
-> + * i2c_verify_adapter - return parameter as i2c_adapter or NULL
-> + * @dev: device, probably from some driver model iterator
-> + *
-> + * When traversing the driver model tree, perhaps using driver model
-> + * iterators like @device_for_each_child(), you can't assume very much
-> + * about the nodes you find.  Use this function to avoid oopses caused
-> + * by wrongly treating some non-I2C device as an i2c_adapter.
-> + */
-> +struct i2c_adapter *i2c_verify_adapter(struct device *dev)
-> +{
-> +	return (dev->type == &i2c_adapter_type)
-> +			? to_i2c_adapter(dev)
-> +			: NULL;
-> +}
-> +EXPORT_SYMBOL(i2c_verify_adapter);
-> +
->  #ifdef CONFIG_I2C_COMPAT
->  static struct class_compat *i2c_adapter_compat_class;
->  #endif
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 195d8b3..b66cb60 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -232,6 +232,7 @@ struct i2c_client {
->  #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
->  
->  extern struct i2c_client *i2c_verify_client(struct device *dev);
-> +extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
->  
->  static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
->  {
+Tegra's I2C2 controller can be routed to either the PTA or DDC pin group
+on Seaboard. Define the pinctrl state nodes required to allow runtime
+control of this routing. Instantiate a pinctrl-i2cmux I2C bus mux that
+uses these pinctrl states.
 
-I am fine with this patch:
+Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+Ben, Wolfram, I'll take this one patch through the Tegra tree at an
+appropriate time. I'm including it here to give a good example.
+---
+ arch/arm/boot/dts/tegra-seaboard.dts |   57 +++++++++++++++++++++++++++++-----
+ 1 files changed, 49 insertions(+), 8 deletions(-)
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-I can merge it if you want, but if it is easier for you to merge it
-through a different tree, this is equally fine with me, just let me
-know what you prefer.
-
+diff --git a/arch/arm/boot/dts/tegra-seaboard.dts b/arch/arm/boot/dts/tegra-seaboard.dts
+index ed0a2f5..e1025e2 100644
+--- a/arch/arm/boot/dts/tegra-seaboard.dts
++++ b/arch/arm/boot/dts/tegra-seaboard.dts
+@@ -65,11 +65,6 @@
+ 				nvidia,pins = "dap4";
+ 				nvidia,function = "dap4";
+ 			};
+-			ddc {
+-				nvidia,pins = "ddc", "owc", "spdi", "spdo",
+-					"uac";
+-				nvidia,function = "rsvd2";
+-			};
+ 			dta {
+ 				nvidia,pins = "dta", "dtb", "dtc", "dtd", "dte";
+ 				nvidia,function = "vi";
+@@ -100,7 +95,7 @@
+ 			};
+ 			hdint {
+ 				nvidia,pins = "hdint", "lpw0", "lpw2", "lsc1",
+-					"lsck", "lsda", "pta";
++					"lsck", "lsda";
+ 				nvidia,function = "hdmi";
+ 			};
+ 			i2cp {
+@@ -130,6 +125,10 @@
+ 					"lspi", "lvp1", "lvs";
+ 				nvidia,function = "displaya";
+ 			};
++			owc {
++				nvidia,pins = "owc", "spdi", "spdo", "uac";
++				nvidia,function = "rsvd2";
++			};
+ 			pmc {
+ 				nvidia,pins = "pmc";
+ 				nvidia,function = "pwr_on";
+@@ -173,7 +172,7 @@
+ 			conf_ata {
+ 				nvidia,pins = "ata", "atb", "atc", "atd",
+ 					"cdev1", "cdev2", "dap1", "dap2",
+-					"dap4", "dtf", "gma", "gmc", "gmd",
++					"dap4", "ddc", "dtf", "gma", "gmc", "gmd",
+ 					"gme", "gpu", "gpu7", "i2cp", "irrx",
+ 					"irtx", "pta", "rm", "sdc", "sdd",
+ 					"slxd", "slxk", "spdi", "spdo", "uac",
+@@ -182,7 +181,7 @@
+ 				nvidia,tristate = <0>;
+ 			};
+ 			conf_ate {
+-				nvidia,pins = "ate", "csus", "dap3", "ddc",
++				nvidia,pins = "ate", "csus", "dap3",
+ 					"gpv", "owc", "slxc", "spib", "spid",
+ 					"spie";
+ 				nvidia,pull = <0>;
+@@ -252,6 +251,28 @@
+ 				nvidia,slew-rate-falling = <3>;
+ 			};
+ 		};
++
++		state_i2cmux_ddc: pinmux_i2cmux_ddc {
++			ddc {
++				nvidia,pins = "ddc";
++				nvidia,function = "i2c2";
++			};
++			pta {
++				nvidia,pins = "pta";
++				nvidia,function = "rsvd4";
++			};
++		};
++
++		state_i2cmux_pta: pinmux_i2cmux_pta {
++			ddc {
++				nvidia,pins = "ddc";
++				nvidia,function = "rsvd4";
++			};
++			pta {
++				nvidia,pins = "pta";
++				nvidia,function = "i2c2";
++			};
++		};
+ 	};
+ 
+ 	i2c@7000c000 {
+@@ -276,6 +297,26 @@
+ 		clock-frequency = <400000>;
+ 	};
+ 
++	i2cmux {
++		compatible = "pinctrl-i2cmux";
++
++		i2c-parent = <&{/i2c@7000c400}>;
++
++		pinctrl-names = "ddc", "pta";
++		pinctrl-0 = <&state_i2cmux_ddc>;
++		pinctrl-1 = <&state_i2cmux_pta>;
++
++		i2c-bus-ddc {
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++
++		i2c-bus-pta {
++			#address-cells = <1>;
++			#size-cells = <0>;
++		};
++	};
++
+ 	i2c@7000c500 {
+ 		clock-frequency = <400000>;
+ 	};
 -- 
-Jean Delvare
+1.7.0.4
