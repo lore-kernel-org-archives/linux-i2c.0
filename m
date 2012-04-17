@@ -1,7 +1,7 @@
 From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: [PATCH] of/i2c: call i2c_verify_client from of_find_i2c_device_by_node
-Date: Tue, 17 Apr 2012 12:42:15 -0600
-Message-ID: <1334688135-8355-1-git-send-email-swarren@wwwdotorg.org>
+Subject: [PATCH 1/2] i2c: implement i2c_verify_adapter
+Date: Tue, 17 Apr 2012 12:43:33 -0600
+Message-ID: <1334688214-8400-1-git-send-email-swarren@wwwdotorg.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
@@ -10,33 +10,54 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-i2c_bus_type may contain both I2C clients and I2C adapters. Fix
-of_find_i2c_device_by_node to call i2c_verify_client to ensure that it
-only returns non-NULL of I2C clients.
+This converts a struct device * to a struct i2c_adapter * while verifying
+that the device really is an I2C adapter. Just like i2c_verify_client.
 
 Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
-Note: This is a dependency for the pinctrl I2C bus mux I will send in a
-minute. It'd probably be easiest to merge this through the I2C tree.
-It might also be useful to put this patch (and the others I'll send) in
-a separate tree so it can be merged into any SoC trees that wish to use
-this new feature.
+ drivers/i2c/i2c-core.c |   17 +++++++++++++++++
+ include/linux/i2c.h    |    1 +
+ 2 files changed, 18 insertions(+), 0 deletions(-)
 
- drivers/of/of_i2c.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/of/of_i2c.c b/drivers/of/of_i2c.c
-index f37fbeb..0684887 100644
---- a/drivers/of/of_i2c.c
-+++ b/drivers/of/of_i2c.c
-@@ -90,7 +90,7 @@ struct i2c_client *of_find_i2c_device_by_node(struct device_node *node)
- 	if (!dev)
- 		return NULL;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index feb7dc3..a6ad32b 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -772,6 +772,23 @@ struct device_type i2c_adapter_type = {
+ };
+ EXPORT_SYMBOL_GPL(i2c_adapter_type);
  
--	return to_i2c_client(dev);
-+	return i2c_verify_client(dev);
- }
- EXPORT_SYMBOL(of_find_i2c_device_by_node);
++/**
++ * i2c_verify_adapter - return parameter as i2c_adapter or NULL
++ * @dev: device, probably from some driver model iterator
++ *
++ * When traversing the driver model tree, perhaps using driver model
++ * iterators like @device_for_each_child(), you can't assume very much
++ * about the nodes you find.  Use this function to avoid oopses caused
++ * by wrongly treating some non-I2C device as an i2c_adapter.
++ */
++struct i2c_adapter *i2c_verify_adapter(struct device *dev)
++{
++	return (dev->type == &i2c_adapter_type)
++			? to_i2c_adapter(dev)
++			: NULL;
++}
++EXPORT_SYMBOL(i2c_verify_adapter);
++
+ #ifdef CONFIG_I2C_COMPAT
+ static struct class_compat *i2c_adapter_compat_class;
+ #endif
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 195d8b3..b66cb60 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -232,6 +232,7 @@ struct i2c_client {
+ #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
  
+ extern struct i2c_client *i2c_verify_client(struct device *dev);
++extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
+ 
+ static inline struct i2c_client *kobj_to_i2c_client(struct kobject *kobj)
+ {
 -- 
 1.7.0.4
