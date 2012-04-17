@@ -1,38 +1,118 @@
-From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: RE: About AT91: replace broken TWI driver i2c-at91.c
-Date: Tue, 17 Apr 2012 11:59:06 +0200
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D0905D5A78B@wm021.weinmann.com>
-References: <4F8C4A8B.2060005@aalto.fi>
- <EF2E73589CA71846A15D0B2CDF79505D0905AAA1EC@wm021.weinmann.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: decode-dimms: Module Configuration Type not reported for DDR2/3
+Date: Tue, 17 Apr 2012 13:18:57 +0200
+Message-ID: <20120417131857.4e05c67b@endymion.delvare>
+References: <4F8C8A74.90804@icyb.net.ua>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="MP_/LzDD8FhDnq_ncdlxG1y/NWV"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D0905AAA1EC-qhZVaJ2D3XF9OWT4OSQXE9BPR1lH4CV8@public.gmane.org>
-Content-Language: de-DE
+In-Reply-To: <4F8C8A74.90804-+43SdJ71VxTsG83rWm+8vg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>, 'Adrian Yanes' <adrian.yanes-uOixanVlb7U@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: "'konsta.holtta-uOixanVlb7U@public.gmane.org'" <konsta.holtta-uOixanVlb7U@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Hubert Feurstein' <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, 'Douglas Gilbert' <dgilbert-qazKcTl6WRFWk0Htik3J/w@public.gmane.org>
+To: Andriy Gapon <avg-+43SdJ71VxTsG83rWm+8vg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Vm9zcywgTmlrb2xhdXMgd3JvdGUgb24gMjAxMi0wNC0xNzoNCj4gQWRyaWFuIFlhbmVzIHdyb3Rl
-IG9uIDIwMTItMDQtMTY6DQo+PiBDaGFuZ2luZyB0aGUgdmFsdWUgdG8gNDAwMDAwIGdpdmVzIGFz
-IH4zNTZrSHogcmF0ZSBpbnN0ZWFkIG9mIDQwMGtIeiwNCj4+IG1heWJlIGl0IGlzIGR1ZSB0byBv
-dXIgcHJvY2Vzc29yL2JvYXJkLCBob3dldmVyLCBjaGVja2luZyB0aGUgc3BlY3Mgb2YNCj4+IHRo
-ZSBhdDkxcm05MjAwIChwYWdlIDQwNSkgd2UgZm91bmQgdGhhdCB0aGUgQ0xWSUQgYW5kIHRoZSBD
-SERJViBhcmUNCj4+IGNhbGN1bGF0ZWQgYXMgZm9sbG93Og0KPj4gDQo+PiBUX2xvdyA9ICgoIENM
-RElWIHggMl5DS0RJVikgKzMpICsgVF9tY2sNCj4+IFRfaGlnaCA9ICgoIENIRElWIHggMl5DS0RJ
-VikgKzMpICsgVF9tY2sNCj4+IA0KPj4gd2hpY2ggZGlmZmVycyBvZiB0aGUgbWV0aG9kIHN1Z2dl
-c3RlZCBpbiB0aGUgcGF0Y2g6DQo+PiANCj4+IGNvbnN0IGludCBkaXYgPSBESVZfUk9VTkRfVVAo
-Y2xrX2dldF9yYXRlKGRldi0+Y2xrKSwgMiAqIHR3aV9jbGspIC0gMjsNCj4gDQo+IEc0NSBzcGVj
-IGlzIHNsaWdodGx5IGRpZmZlcmVudDogVF9sb3cgPSAoQ0xESVYgeCAyXkNLRElWICsgNCkgeCBU
-X21jaw0KPiBXaXRoDQo+IHR3aV9jbGsgOj0gMSAvIChUX2xvdyArIFRfaGlnaCkgPSAxIC8gKDIg
-KiBUX2xvdykNCj4gYW5kDQo+IGRpdiA6PSBDTEtESVYgeCAyXkNLRElWID0gTUNLIC8gKDIgKiB0
-d2lfY2xrKSAtIDQNCj4gdGhlIGFib3ZlIGxpbmUgc2hvdWxkIGJlDQo+IGNvbnN0IGludCBkaXYg
-PSBESVZfUk9VTkRfVVAoY2xrX2dldF9yYXRlKGRldi0+Y2xrKSwgMiAqIHR3aV9jbGspIC0gNDsN
-Cj4gZm9yIEc0NSBhbmQNCj4gY29uc3QgaW50IGRpdiA9IERJVl9ST1VORF9VUChjbGtfZ2V0X3Jh
-dGUoZGV2LT5jbGspLCAyICogdHdpX2NsaykgLSAzOw0KPiBmb3IgUk05MjAwLCByaWdodD8NCg0K
-U3RyYW5nZTogSSBtZWFzdXJlZCB0aGUgZnJlcXVlbmN5IG9mIHNjbCBhbmQgSSBzdGlsbCBnZXQg
-dG9vIGxvdyB2YWx1ZXMNCmZvciBvZmZzZXQgNCAoaW5zdGVhZCBvZiAyKS4gT24gbXkgRzQ1IHRo
-ZSBjb3JyZWN0IG9mZnNldCBzZWVtcyB0byBiZQ0KYXMgaGlnaCBhcyAyNy4NCg0KQWRyaWFuLCBj
-YW4geW91IHBsZWFzZSBnaXZlIHRoaXMgYSB0cnk/DQoNCk5pa28NCg0K
+--MP_/LzDD8FhDnq_ncdlxG1y/NWV
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+Hi Andriy,
+
+On Tue, 17 Apr 2012 00:09:08 +0300, Andriy Gapon wrote:
+> It seems that Module Configuration Type ("ECC", "No Parity", etc) is not
+> reported for DDR2 and DDR3 module types.  Not sure if resolution could be as
+> easy as adding sdram_module_configuration_type() calls in the corresponding
+> decode procedures.
+
+Won't be so easy. For DDR2 there is one new bit to decode
+(Address/Command Parity). For DDR3 byte 11 has a completely different
+meaning, and the information seem to be no longer available. As I read
+the specification, the only way to tell if a DDR3 module has any form
+of parity or ECC is to check the extra bus width in bits 4-3 of byte 8.
+But this is a boolean type of information then, telling "there is some
+form of data error detection/correction". No way to tell between parity
+and ECC AFAICS, and information about Address/Command Parity is gone
+too.
+
+I am attaching two patches, one for DDR2, one for DDR3, please give
+them a try.
+
+-- 
+Jean Delvare
+
+--MP_/LzDD8FhDnq_ncdlxG1y/NWV
+Content-Type: text/x-patch
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename=decode-dimms-ddr2-module-config.patch
+
+---
+ eeprom/decode-dimms |   22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
+
+--- i2c-tools.orig/eeprom/decode-dimms	2011-02-16 14:58:41.000000000 +0100
++++ i2c-tools/eeprom/decode-dimms	2012-04-17 10:22:06.784083856 +0200
+@@ -525,16 +525,21 @@ sub sdram_voltage_interface_level($)
+ 	return ($_[0] < @levels) ? $levels[$_[0]] : "Undefined!";
+ }
+ 
+-# Common to SDR and DDR SDRAM
++# Common to SDR, DDR and DDR2 SDRAM
+ sub sdram_module_configuration_type($)
+ {
+-	my @types = (
+-		"No Parity",			# 0
+-		"Parity",			# 1
+-		"ECC",				# 2
+-	);
++	my $byte = $_[0] & 0x07;
++	my @edc;
+ 
+-	return ($_[0] < @types) ? $types[$_[0]] : "Undefined!";
++	return "No Parity" if $byte == 0;
++
++	# Data ECC includes Data Parity so don't print both
++	push @edc, "Data Parity" if ($byte & 0x03) == 0x01;
++	push @edc, "Data ECC" if ($byte & 0x02);
++	# New in DDR2 specification
++	push @edc, "Address/Command Parity" if ($byte & 0x04);
++
++	return join ", ", @edc;
+ }
+ 
+ # Parameter: EEPROM bytes 0-127 (using 3-62)
+@@ -1019,6 +1024,9 @@ sub decode_ddr2_sdram($)
+ 	printl("Voltage Interface Level",
+ 	       sdram_voltage_interface_level($bytes->[8]));
+ 
++	printl("Module Configuration Type",
++	       sdram_module_configuration_type($bytes->[11]));
++
+ 	printl("Refresh Rate", ddr2_refresh_rate($bytes->[12]));
+ 
+ 	my @burst;
+
+--MP_/LzDD8FhDnq_ncdlxG1y/NWV
+Content-Type: text/x-patch
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename=decode-dimms-ddr3-module-config.patch
+
+---
+ eeprom/decode-dimms |    2 ++
+ 1 file changed, 2 insertions(+)
+
+--- i2c-tools.orig/eeprom/decode-dimms	2012-04-17 10:22:06.000000000 +0200
++++ i2c-tools/eeprom/decode-dimms	2012-04-17 10:42:10.205990901 +0200
+@@ -1169,6 +1169,8 @@ sub decode_ddr3_sdram($)
+ 
+ 	printl("SDRAM Device Width", (1 << (($bytes->[7] & 7) + 2))." bits");
+ 
++	printl("Bus Width Extension", ($bytes->[8] & 24)." bits");
++
+ 	my $taa;
+ 	my $trcd;
+ 	my $trp;
+
+--MP_/LzDD8FhDnq_ncdlxG1y/NWV--
