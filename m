@@ -1,60 +1,56 @@
-From: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Subject: Re: mc13xxx: add I2C support, V5
-Date: Tue, 17 Apr 2012 09:21:41 +1000
-Message-ID: <201204170921.42027.marc@cpdesign.com.au>
-References: <1333262499-25871-1-git-send-email-marc@cpdesign.com.au>
-Reply-To: marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCHv8 04/18] I2C: OMAP: I2C register restore only if context
+ is lost
+Date: Tue, 17 Apr 2012 11:20:24 +0530
+Message-ID: <4F8D04A0.5080303@ti.com>
+References: <1334235995-6727-1-git-send-email-shubhrajyoti@ti.com> <1334235995-6727-5-git-send-email-shubhrajyoti@ti.com> <20120416181355.GK6487@atomide.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1333262499-25871-1-git-send-email-marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20120416181355.GK6487@atomide.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, w.sang@pengutronix.de, Kevin Hilman <khilman@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Samuel,
+On Monday 16 April 2012 11:43 PM, Tony Lindgren wrote:
+> * Shubhrajyoti D <shubhrajyoti@ti.com> [120412 06:10]:
+>>  Currently i2c register restore is done always.
+>>  Adding conditional restore.
+>>  The i2c register restore is done only if the context is lost.
+>>  Also remove the definition of SYSS_RESETDONE_MASK and use the
+>>  one in omap_hwmod.h.
+>>
+>> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+>> ---
+>>  arch/arm/plat-omap/i2c.c      |    3 ++
+>>  drivers/i2c/busses/i2c-omap.c |   52 ++++++++++++++++++++++++++--------------
+>>  include/linux/i2c-omap.h      |    1 +
+>>  3 files changed, 38 insertions(+), 18 deletions(-)
+>>
+>> diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
+>> index db071bc..4ccab07 100644
+>> --- a/arch/arm/plat-omap/i2c.c
+>> +++ b/arch/arm/plat-omap/i2c.c
+>> @@ -179,6 +179,9 @@ static inline int omap2_i2c_add_bus(int bus_id)
+>>  	 */
+>>  	if (cpu_is_omap34xx())
+>>  		pdata->set_mpu_wkup_lat = omap_pm_set_max_mpu_wakeup_lat_compat;
+>> +
+>> +	pdata->get_context_loss_count = omap_pm_get_dev_context_loss_count;
+>> +
+>>  	pdev = omap_device_build(name, bus_id, oh, pdata,
+>>  			sizeof(struct omap_i2c_bus_platform_data),
+>>  			NULL, 0, 0);
+> This should be acked by Kevin, 
+I should have cced Kevin.
+> adding him to Cc.
+Thanks.
+> For the arch/arm/plat-omap/i2c.c part:
+>
+> Acked-by: Tony Lindgren <tony@atomide.com>
+>
+Thanks.
 
 
-On Sunday, April 01, 2012 04:41:35 PM Marc Reilly wrote:
-> This series (against mfd-2.6/for-next) changes the mc13xxx driver to use
-> regmap and adds I2C support.
-> It has a compile dependency on regmap/for-next, as the spi driver uses the
-> recently added pad_bits config field.
-
-(bump).
-
-Are these changes OK to go in?
-
-Cheers,
-Marc
-
-
-
-> 
-> Patch 2/4 has:
-> Reviewed-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-> Patch 4/4 has:
-> Signed-off-by: Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org>
-> 
-> Changes since:
-> V4:
-> - Fix compile error when CONFIG_OF enabled
-> - Select REGMAP_I2C and REGMAP_SPI for appropriate drivers.
-> 
-> V3:
-> - spi driver uses padded register format (reads should actually work now!)
-> - mc13873 removed from I2C driver
-> - fix memory leak on probe error
-> 
-> Cheers,
-> Marc
-> 
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
