@@ -1,62 +1,29 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH] i2c: i2c-sh_mobile device tree support
-Date: Wed, 18 Apr 2012 16:08:39 +0200
-Message-ID: <20120418140839.GD19220@pengutronix.de>
-References: <20120330084402.19597.63655.sendpatchset@w520>
- <20120330084744.GF26543@linux-sh.org>
- <CANqRtoTERUznk7xYr5qHMP4X5cVbvUw9vLZ5X-6YFkmVf69m4Q@mail.gmail.com>
- <20120330090341.GG26543@linux-sh.org>
+From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH v3] i2c: designware: Add support for 16bit register access
+Date: Wed, 18 Apr 2012 16:09:04 +0200
+Message-ID: <201204181609.05156.sr@denx.de>
+References: <1334754101-25802-1-git-send-email-sr@denx.de> <20120418140011.GC19220@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zbGR4y+acU1DwHSi"
-Return-path: <linux-sh-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120330090341.GG26543@linux-sh.org>
-Sender: linux-sh-owner@vger.kernel.org
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, arnd@arndb.de, linux-sh@vger.kernel.org, rjw@sisk.pl, ben-linux@fluff.org, khali@linux-fr.org
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120418140011.GC19220-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wednesday 18 April 2012 16:00:11 Wolfram Sang wrote:
+> On Wed, Apr 18, 2012 at 03:01:41PM +0200, Stefan Roese wrote:
+> > The STM SPEAr platform can only access the i2c controller register
+> > via 16bit read/write functions. This patch adds support to
+> > automatically detect this 16bit access mode.
+> > 
+> > Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+> 
+> Even on second thought, I still think checking the upper 16 bits would
+> not have hurt much, but I am taking it as is. Applied.
 
---zbGR4y+acU1DwHSi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi Paul,
-
-> > Of course, if you think it is cramping your SH device tree style then
-> > we can easily add a "renesas-shmobile-iic" entry as well.
-> >=20
-> I obviously don't mind if you wish to use the rmobile naming convention
-> going forward, as the new parts have obviously dropped with the shmobile
-> naming convention, and it's likely you'll even be able to infer different
-> capabilities between rmobile vs shmobile. That's not sufficient cause to
-> prefer one over the other though, so you're still going to have to keep
-> things balanced. Simply having two aliases seems to me to be the easiest
-> solution.
-
-"alias" is a second compatible entry here? Is it okay if this is added
-with a seperate patch when needed?
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---zbGR4y+acU1DwHSi
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+OyucACgkQD27XaX1/VRvGZwCgllydWT6H/C8SndMvA979Gkyw
-4j0An1vmbe4Lu1xTJRmKIfQwkxfNGAD/
-=paZW
------END PGP SIGNATURE-----
-
---zbGR4y+acU1DwHSi--
+Thanks,
+Stefan
