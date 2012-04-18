@@ -1,185 +1,68 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c-eg20t: Call init() when wait-event timeout occurs
-Date: Wed, 18 Apr 2012 17:05:44 +0200
-Message-ID: <20120418150544.GE19802@pengutronix.de>
-References: <1332741325-7746-1-git-send-email-tomoya.rohm@gmail.com>
- <1332741325-7746-2-git-send-email-tomoya.rohm@gmail.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH 1/5] i2c: Convert i2c-octeon.c to use device tree.
+Date: Wed, 18 Apr 2012 17:16:21 +0200
+Message-ID: <20120418151621.GF19802@pengutronix.de>
+References: <1332808075-8333-1-git-send-email-ddaney.cavm@gmail.com>
+ <1332808075-8333-2-git-send-email-ddaney.cavm@gmail.com>
+ <4F7115FA.6080507@gmail.com>
+ <4F7117FD.7000700@cavium.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ffoCPvUAPMgSXi6H"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="i3lJ51RuaGWuFYNw"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1332741325-7746-2-git-send-email-tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, qi.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, yong.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, joel.clark-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, kok.howg.ewe-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+In-Reply-To: <4F7117FD.7000700@cavium.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Daney <david.daney@cavium.com>
+Cc: Rob Herring <robherring2@gmail.com>, David Daney <ddaney.cavm@gmail.com>, "linux-mips@linux-mips.org" <linux-mips@linux-mips.org>, "ralf@linux-mips.org" <ralf@linux-mips.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---ffoCPvUAPMgSXi6H
+--i3lJ51RuaGWuFYNw
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Mar 26, 2012 at 02:55:24PM +0900, Tomoya MORINAGA wrote:
+> >>-	if (i2c_data =3D=3D NULL) {
+> >>-		dev_err(i2c->dev, "no I2C frequency data\n");
+> >>+	/*
+> >>+	 * "clock-rate" is a legacy binding, the official binding is
+> >>+	 * "clock-frequency".  Try the official one first and then
+> >>+	 * fall back if it doesn't exist.
+> >>+	 */
+> >>+	data =3D of_get_property(pdev->dev.of_node, "clock-frequency",&len);
+> >>+	if (!data || len !=3D sizeof(*data))
+> >>+		data =3D of_get_property(pdev->dev.of_node, "clock-rate",&len);
+> >>+	if (data&&  len =3D=3D sizeof(*data)) {
+> >>+		i2c->twsi_freq =3D be32_to_cpup(data);
+> >
+> >Can't you use of_property_read_u32?
 >=20
-> Signed-off-by: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> I will investigate, and use it if possible.
 
-Woha, that's copy&paste code all over. May I ask to refactor this?
-Something like:
+Any outcome?
 
-	rtn =3D pch_..._wait_for_checked_xfer();
-	if (rtn)
-		return rtn;
-	// All the things you have to do when rtn =3D=3D 0
+And shouldn't the bindings be documented? Or are they only standard and
+we hide the legacy one?
 
-in that new function (the name was only a suugestion), you can do all
-the checks which are now copy-pasted, e.g.:
-
- 458         rtn =3D pch_i2c_wait_for_xfer_complete(adap);
- 459         if (rtn =3D=3D 0) {
- 460                 if (pch_i2c_getack(adap)) {
- 461                         pch_dbg(adap, "Receive NACK for slave address"
- 462                                 "setting\n");
- 463                         return -EIO;
- 464                 }
- 465         } else if (rtn =3D=3D -EIO) { /* Arbitration Lost */
- 466                 pch_err(adap, "Lost Arbitration\n");
- 467                 pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMAL_B=
-IT);
- 468                 pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMIF_B=
-IT);
- 469                 pch_i2c_init(adap);
- 470                 return -EAGAIN;
- 471         } else { /* wait-event timeout */
- 472                 pch_i2c_stop(adap);
-		     // Your current fixes added here
- 473                 return -ETIME;
- 474         }
- 	     return 0;
-
-It is only pseudo-code, but I think it can be done and will help the driver.
-
-Thanks,
+Regards,
 
    Wolfram
-
-
-> ---
->  drivers/i2c/busses/i2c-eg20t.c |   16 ++++++++++++++++
->  1 files changed, 16 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20=
-t.c
-> index d73975b..714b070 100644
-> --- a/drivers/i2c/busses/i2c-eg20t.c
-> +++ b/drivers/i2c/busses/i2c-eg20t.c
-> @@ -445,7 +445,9 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c=
-_adap,
->  			pch_i2c_init(adap);
->  			return -EAGAIN;
->  		} else { /* wait-event timeout */
-> +			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  			pch_i2c_stop(adap);
-> +			pch_i2c_init(adap);
->  			return -ETIME;
->  		}
->  	} else {
-> @@ -469,7 +471,9 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c=
-_adap,
->  		pch_i2c_init(adap);
->  		return -EAGAIN;
->  	} else { /* wait-event timeout */
-> +		pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  		pch_i2c_stop(adap);
-> +		pch_i2c_init(adap);
->  		return -ETIME;
->  	}
-> =20
-> @@ -490,7 +494,9 @@ static s32 pch_i2c_writebytes(struct i2c_adapter *i2c=
-_adap,
->  			pch_clrbit(adap->pch_base_address, PCH_I2CSR,
->  				   I2CMIF_BIT);
->  		} else { /* wait-event timeout */
-> +			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  			pch_i2c_stop(adap);
-> +			pch_i2c_init(adap);
->  			return -ETIME;
->  		}
->  	}
-> @@ -598,7 +604,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_=
-adap, struct i2c_msg *msgs,
->  			pch_i2c_init(adap);
->  			return -EAGAIN;
->  		} else { /* wait-event timeout */
-> +			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  			pch_i2c_stop(adap);
-> +			pch_i2c_init(adap);
->  			return -ETIME;
->  		}
->  		pch_i2c_restart(adap);
-> @@ -621,7 +629,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_=
-adap, struct i2c_msg *msgs,
->  			pch_i2c_init(adap);
->  			return -EAGAIN;
->  		} else { /* wait-event timeout */
-> +			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  			pch_i2c_stop(adap);
-> +			pch_i2c_init(adap);
->  			return -ETIME;
->  		}
->  	} else {
-> @@ -648,7 +658,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_=
-adap, struct i2c_msg *msgs,
->  		pch_i2c_init(adap);
->  		return -EAGAIN;
->  	} else { /* wait-event timeout */
-> +		pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  		pch_i2c_stop(adap);
-> +		pch_i2c_init(adap);
->  		return -ETIME;
->  	}
-> =20
-> @@ -677,7 +689,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_=
-adap, struct i2c_msg *msgs,
->  					return -EIO;
->  				}
->  			} else { /* wait-event timeout */
-> +				pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  				pch_i2c_stop(adap);
-> +				pch_i2c_init(adap);
->  				return -ETIME;
->  			}
-> =20
-> @@ -698,7 +712,9 @@ static s32 pch_i2c_readbytes(struct i2c_adapter *i2c_=
-adap, struct i2c_msg *msgs,
->  				return -EIO;
->  			}
->  		} else { /* wait-event timeout */
-> +			pch_err(adap, "%s(L.%d):wait-event timeout\n", __func__, __LINE__);
->  			pch_i2c_stop(adap);
-> +			pch_i2c_init(adap);
->  			return -ETIME;
->  		}
-> =20
-> --=20
-> 1.7.7.6
->=20
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---ffoCPvUAPMgSXi6H
+--i3lJ51RuaGWuFYNw
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+O2EgACgkQD27XaX1/VRuyFQCfcm1SxkVwpHBaezGkPyfJjGe5
-TGcAn0tcSXZY5RE3jfL1pLscygPQUefZ
-=rO1I
+iEYEARECAAYFAk+O2sUACgkQD27XaX1/VRv/CQCgl1wkMkth8GAy711B8Qinp3Ke
+rfsAoL2TfKfwpc5sEuiwNqyAxNWDIiS2
+=Qn9J
 -----END PGP SIGNATURE-----
 
---ffoCPvUAPMgSXi6H--
+--i3lJ51RuaGWuFYNw--
