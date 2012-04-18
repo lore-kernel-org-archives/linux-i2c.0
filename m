@@ -1,212 +1,106 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv8 04/18] I2C: OMAP: I2C register restore only if context
- is lost
-Date: Wed, 18 Apr 2012 12:49:27 +0530
-Message-ID: <CANQgH-aUyx97rDUUTy8L1qHSSgdC2YaP7LaQor4RAGPfb2JX=g@mail.gmail.com>
-References: <1334235995-6727-1-git-send-email-shubhrajyoti@ti.com>
-	<1334235995-6727-5-git-send-email-shubhrajyoti@ti.com>
-	<87d376zd2v.fsf@ti.com>
-	<CAM=Q2cvGFgNtvCX=TXAioAUKH9z+VzeKW2ZHhpxUC+s2_yS1QA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <CAM=Q2cvGFgNtvCX=TXAioAUKH9z+VzeKW2ZHhpxUC+s2_yS1QA@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: Kevin Hilman <khilman@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de
+From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH v2] i2c: designware: Add support for 16bit register access
+Date: Wed, 18 Apr 2012 09:33:19 +0200
+Message-ID: <1334734399-1003-1-git-send-email-sr@denx.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kevin,
+The STM SPEAr platform can only access the i2c controller register
+via 16bit read/write functions. This patch adds support to
+automatically detect this 16bit access mode.
 
-> Hi Kevin,
-> Thanks for your review,
->
-> On Tue, Apr 17, 2012 at 7:15 PM, Kevin Hilman <khilman@ti.com> wrote:
->> Shubhrajyoti D <shubhrajyoti@ti.com> writes:
->>
->>> =A0Currently i2c register restore is done always.
->>> =A0Adding conditional restore.
->>> =A0The i2c register restore is done only if the context is lost.
->>
->> OK, minor comment below.
-
-Thanks for the suggestion of the error case restore.
-Updated the patch. Also added Tony's ack for the plat part.
-
-
-=46rom 1ca222f6f50868e07d9a46575e73dd66fd2d542e Mon Sep 17 00:00:00 200=
-1
-=46rom: Shubhrajyoti D <shubhrajyoti@ti.com>
-Date: Tue, 17 Jan 2012 16:13:03 +0530
-Subject: [PATCH] I2C: OMAP: I2C register restore only if context is los=
-t
-
- Currently i2c register restore is done always.
- Adding conditional restore.
- The i2c register restore is done only if the context is lost
- or in case of error to be on the safe side.
- Also remove the definition of SYSS_RESETDONE_MASK and use the
- one in omap_hwmod.h.
-
-Cc: Kevin Hilman <khilman@ti.com>
-[For the arch/arm/plat-omap/i2c.c part]
-Acked-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
 ---
- arch/arm/plat-omap/i2c.c      |    3 ++
- drivers/i2c/busses/i2c-omap.c |   53 +++++++++++++++++++++++++++------=
---------
- include/linux/i2c-omap.h      |    1 +
- 3 files changed, 39 insertions(+), 18 deletions(-)
+v2:
+- Removed parenthesis for single-statement block
+- Moved "swab" and "access_16bit" into "accessor_flags"
 
-diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
-index db071bc..4ccab07 100644
---- a/arch/arm/plat-omap/i2c.c
-+++ b/arch/arm/plat-omap/i2c.c
-@@ -179,6 +179,9 @@ static inline int omap2_i2c_add_bus(int bus_id)
- 	 */
- 	if (cpu_is_omap34xx())
- 		pdata->set_mpu_wkup_lat =3D omap_pm_set_max_mpu_wakeup_lat_compat;
-+
-+	pdata->get_context_loss_count =3D omap_pm_get_dev_context_loss_count;
-+
- 	pdev =3D omap_device_build(name, bus_id, oh, pdata,
- 			sizeof(struct omap_i2c_bus_platform_data),
- 			NULL, 0, 0);
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-oma=
-p.c
-index a882558..76cf066 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -43,6 +43,7 @@
- #include <linux/slab.h>
- #include <linux/i2c-omap.h>
- #include <linux/pm_runtime.h>
-+#include <plat/omap_device.h>
+ drivers/i2c/busses/i2c-designware-core.c |   27 ++++++++++++++++++++++-----
+ drivers/i2c/busses/i2c-designware-core.h |    5 ++++-
+ 2 files changed, 26 insertions(+), 6 deletions(-)
 
- /* I2C controller revisions */
- #define OMAP_I2C_OMAP1_REV_2		0x20
-@@ -157,9 +158,6 @@ enum {
- #define OMAP_I2C_SYSTEST_SDA_I		(1 << 1)	/* SDA line sense in */
- #define OMAP_I2C_SYSTEST_SDA_O		(1 << 0)	/* SDA line drive out */
-
--/* OCP_SYSSTATUS bit definitions */
--#define SYSS_RESETDONE_MASK		(1 << 0)
--
- /* OCP_SYSCONFIG bit definitions */
- #define SYSC_CLOCKACTIVITY_MASK		(0x3 << 8)
- #define SYSC_SIDLEMODE_MASK		(0x3 << 3)
-@@ -184,6 +182,7 @@ struct omap_i2c_dev {
- 	u32			latency;	/* maximum mpu wkup latency */
- 	void			(*set_mpu_wkup_lat)(struct device *dev,
- 						    long latency);
-+	int			(*get_context_loss_count)(struct device *dev);
- 	u32			speed;		/* Speed of bus in kHz */
- 	u32			dtrev;		/* extra revision from DT */
- 	u32			flags;
-@@ -206,6 +205,7 @@ struct omap_i2c_dev {
- 	u16			syscstate;
- 	u16			westate;
- 	u16			errata;
-+	int			dev_lost_count;
- };
-
- static const u8 reg_map_ip_v1[] =3D {
-@@ -1025,6 +1025,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 		dev->speed =3D pdata->clkrate;
- 		dev->flags =3D pdata->flags;
- 		dev->set_mpu_wkup_lat =3D pdata->set_mpu_wkup_lat;
-+		dev->get_context_loss_count =3D pdata->get_context_loss_count;
- 		dev->dtrev =3D pdata->rev;
- 	}
-
-@@ -1151,12 +1152,32 @@ omap_i2c_remove(struct platform_device *pdev)
- }
-
- #ifdef CONFIG_PM_RUNTIME
-+static void omap_i2c_restore(struct omap_i2c_dev *dev)
-+{
-+	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
-+	omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
-+	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
-+	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
-+	omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
-+	omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
-+	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
-+	/*
-+	 * Don't write to this register if the IE state is 0 as it can
-+	 * cause deadlock.
-+	 */
-+	if (dev->iestate)
-+		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
-+
-+}
- static int omap_i2c_runtime_suspend(struct device *dev)
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index df87992..b3c5cfa 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -164,9 +164,15 @@ static char *abort_sources[] = {
+ 
+ u32 dw_readl(struct dw_i2c_dev *dev, int offset)
  {
- 	struct platform_device *pdev =3D to_platform_device(dev);
- 	struct omap_i2c_dev *_dev =3D platform_get_drvdata(pdev);
- 	u16 iv;
-
-+	if (_dev->get_context_loss_count)
-+		_dev->dev_lost_count =3D _dev->get_context_loss_count(dev);
+-	u32 value = readl(dev->base + offset);
++	u32 value;
+ 
+-	if (dev->swab)
++	if (dev->accessor_flags & ACCESS_16BIT)
++		value = readw(dev->base + offset) |
++			(readw(dev->base + offset + 2) << 16);
++	else
++		value = readl(dev->base + offset);
 +
- 	_dev->iestate =3D omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
- 	if (_dev->dtrev =3D=3D OMAP_I2C_IP_VERSION_2)
- 		omap_i2c_write_reg(_dev, OMAP_I2C_IP_V2_IRQENABLE_CLR, 1);
-@@ -1179,24 +1200,20 @@ static int omap_i2c_runtime_resume(struct devic=
-e *dev)
++	if (dev->accessor_flags & ACCESS_SWAP)
+ 		return swab32(value);
+ 	else
+ 		return value;
+@@ -174,10 +180,15 @@ u32 dw_readl(struct dw_i2c_dev *dev, int offset)
+ 
+ void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
  {
- 	struct platform_device *pdev =3D to_platform_device(dev);
- 	struct omap_i2c_dev *_dev =3D platform_get_drvdata(pdev);
-+	int loss_cnt;
-
--	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
--		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, 0);
--		omap_i2c_write_reg(_dev, OMAP_I2C_PSC_REG, _dev->pscstate);
--		omap_i2c_write_reg(_dev, OMAP_I2C_SCLL_REG, _dev->scllstate);
--		omap_i2c_write_reg(_dev, OMAP_I2C_SCLH_REG, _dev->sclhstate);
--		omap_i2c_write_reg(_dev, OMAP_I2C_BUF_REG, _dev->bufstate);
--		omap_i2c_write_reg(_dev, OMAP_I2C_SYSC_REG, _dev->syscstate);
--		omap_i2c_write_reg(_dev, OMAP_I2C_WE_REG, _dev->westate);
--		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
-+	if (_dev->get_context_loss_count) {
-+		loss_cnt =3D _dev->get_context_loss_count(dev);
-+		if (loss_cnt < 0) {
-+			omap_i2c_restore(_dev);
-+			return 0;
-+		}
-+		if (_dev->dev_lost_count =3D=3D loss_cnt && _dev->dev_lost_count)
-+			return 0;
- 	}
-
--	/*
--	 * Don't write to this register if the IE state is 0 as it can
--	 * cause deadlock.
--	 */
--	if (_dev->iestate)
--		omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, _dev->iestate);
-+	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE)
-+		omap_i2c_restore(_dev);
-
- 	return 0;
+-	if (dev->swab)
++	if (dev->accessor_flags & ACCESS_SWAP)
+ 		b = swab32(b);
+ 
+-	writel(b, dev->base + offset);
++	if (dev->accessor_flags & ACCESS_16BIT) {
++		writew((u16)b, dev->base + offset);
++		writew((u16)(b >> 16), dev->base + offset + 2);
++	} else {
++		writel(b, dev->base + offset);
++	}
  }
-diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
-index 92a0dc7..c76cbc0 100644
---- a/include/linux/i2c-omap.h
-+++ b/include/linux/i2c-omap.h
-@@ -35,6 +35,7 @@ struct omap_i2c_bus_platform_data {
- 	u32		rev;
- 	u32		flags;
- 	void		(*set_mpu_wkup_lat)(struct device *dev, long set);
-+	int		(*get_context_loss_count)(struct device *dev);
+ 
+ static u32
+@@ -254,7 +265,13 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	/* Configure register endianess access */
+ 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+ 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
+-		dev->swab = 1;
++		dev->accessor_flags |= ACCESS_SWAP;
++		reg = DW_IC_COMP_TYPE_VALUE;
++	}
++
++	/* Configure register access mode 16bit */
++	if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
++		dev->accessor_flags |= ACCESS_16BIT;
+ 		reg = DW_IC_COMP_TYPE_VALUE;
+ 	}
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 02d1a2d..9c1840e 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -82,7 +82,7 @@ struct dw_i2c_dev {
+ 	unsigned int		status;
+ 	u32			abort_source;
+ 	int			irq;
+-	int			swab;
++	u32			accessor_flags;
+ 	struct i2c_adapter	adapter;
+ 	u32			functionality;
+ 	u32			master_cfg;
+@@ -90,6 +90,9 @@ struct dw_i2c_dev {
+ 	unsigned int		rx_fifo_depth;
  };
-
- #endif
---=20
-1.7.5.4
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ 
++#define ACCESS_SWAP		0x00000001
++#define ACCESS_16BIT		0x00000002
++
+ extern u32 dw_readl(struct dw_i2c_dev *dev, int offset);
+ extern void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset);
+ extern int i2c_dw_init(struct dw_i2c_dev *dev);
+-- 
+1.7.10
