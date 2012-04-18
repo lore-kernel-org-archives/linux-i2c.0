@@ -1,55 +1,50 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH v2 0/2] i2c: Don't assume bus nr 0 if none was specified
-Date: Wed, 18 Apr 2012 12:55:29 +0200
-Message-ID: <20120418105529.GA21955@pengutronix.de>
-References: <1332839428-29705-1-git-send-email-k.lewandowsk@samsung.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c-s3c2410: Drop unused define
+Date: Wed, 18 Apr 2012 12:56:02 +0200
+Message-ID: <20120418105602.GB21955@pengutronix.de>
+References: <1332357113-2973-1-git-send-email-k.lewandowsk@samsung.com>
+ <1332357113-2973-2-git-send-email-k.lewandowsk@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="dTy3Mrz/UPE2dbVg"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1332839428-29705-1-git-send-email-k.lewandowsk@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Karol Lewandowski <k.lewandowsk@samsung.com>
-Cc: ben-linux@fluff.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, kyungmin.park@samsung.com, hskinnemoen@gmail.com, bigeasy@linutronix.de, dirk.brandewie@gmail.com, linux@arm.linux.org.uk
+In-Reply-To: <1332357113-2973-2-git-send-email-k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---IS0zKkzwUGydFO0o
+--dTy3Mrz/UPE2dbVg
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 27, 2012 at 11:10:26AM +0200, Karol Lewandowski wrote:
-> Changes since v1:
->  - Dropped reduntant i2c-octeon change
+On Wed, Mar 21, 2012 at 08:11:51PM +0100, Karol Lewandowski wrote:
+> Use standard of_match_ptr() to avoid defining variable unused
+> in non device tree builds.
 >=20
-> i2c controller drivers used to assume bus number 0 when none (-1) was
-> specified.
->=20
-> This worked on non-device tree systems, where one could explicitly
-> specify bus number via platform data.  On DT-enabled systems bus
-> number is always -1.
->=20
-> This patchset reworks few remaining drivers to use dynamic bus
-> allocation when no id has been provided.
+> Signed-off-by: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Acked-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 
-Thanks, both applied.
+I applied this one already.
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---IS0zKkzwUGydFO0o
+--dTy3Mrz/UPE2dbVg
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+OnaEACgkQD27XaX1/VRsEjQCaA6liUIwu127RZSud9mMPKjGY
-p5kAn0k0kak9WIGmCFthJRMTv2V7OX70
-=S+8z
+iEYEARECAAYFAk+OncIACgkQD27XaX1/VRsZowCfdPzc8izNYMoA/3QsfHlPQxLV
++qcAn0MnVpNS8u7w6SBHGRqwLBVMCsQe
+=wj7B
 -----END PGP SIGNATURE-----
 
---IS0zKkzwUGydFO0o--
+--dTy3Mrz/UPE2dbVg--
