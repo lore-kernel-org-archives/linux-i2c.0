@@ -1,55 +1,59 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: decode-dimms: Module Configuration Type not reported for DDR2/3
-Date: Wed, 18 Apr 2012 10:30:25 +0200
-Message-ID: <20120418103025.46ab7446@endymion.delvare>
-References: <4F8C8A74.90804@icyb.net.ua>
-	<20120417131857.4e05c67b@endymion.delvare>
-	<4F8DCC84.2040206@icyb.net.ua>
+From: Li Yang-R58472 <r58472-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep
+ sleep
+Date: Wed, 18 Apr 2012 10:20:36 +0000
+Message-ID: <94F013E7935FF44C83EBE7784D62AD3F092D1DC7@039-SN2MPN1-022.039d.mgd.msft.net>
+References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
+ <20120229183436.GA30545@pengutronix.de>
+ <20120417142105.GA21802@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4F8DCC84.2040206-+43SdJ71VxTsG83rWm+8vg@public.gmane.org>
+In-Reply-To: <20120417142105.GA21802-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andriy Gapon <avg-+43SdJ71VxTsG83rWm+8vg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Zhao Chenhui-B35336 <B35336-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andriy,
 
-On Tue, 17 Apr 2012 23:03:16 +0300, Andriy Gapon wrote:
-> on 17/04/2012 14:18 Jean Delvare said the following:
-> > I am attaching two patches, one for DDR2, one for DDR3, please give
-> > them a try.
+> On Wed, Feb 29, 2012 at 07:45:23PM +0100, Wolfram Sang wrote:
+> > Hi,
+> >
+> > On Wed, Feb 29, 2012 at 06:39:21PM +0800, Zhao Chenhui wrote:
+> > > When entering deep sleep, the value in the registers I2CFDR and
+> > > I2CDFSRR are lost. This causes I2C access to fail after resuming.
+> > >
+> > > Add suspend/resume routines to save/restore the registers I2CFDR and
+> > > I2CDFSRR.
+> > >
+> > > Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > ---
+> > >  drivers/i2c/busses/i2c-mpc.c |   34
+> +++++++++++++++++++++++++++++++++-
+> > >  1 files changed, 33 insertions(+), 1 deletions(-)
+> > >
+> > > diff --git a/drivers/i2c/busses/i2c-mpc.c
+> > > b/drivers/i2c/busses/i2c-mpc.c index a8ebb84..f95a647 100644
+> > > --- a/drivers/i2c/busses/i2c-mpc.c
+> > > +++ b/drivers/i2c/busses/i2c-mpc.c
+> > > @@ -1,7 +1,9 @@
+> > >  /*
+> > >   * (C) Copyright 2003-2004
+> > >   * Humboldt Solutions Ltd, adrian-nKrwMtk+6WksDtB2XHyCLA@public.gmane.org
+> > > -
+> > > + *
+> > > + * Copyright 2012 Freescale Semiconductor, Inc.
+> > > + *
+> >
+> > I'd think the change is too trivial to claim copyright on the file.
 > 
-> Thanks a lot!
-> I am able to test only the DDR2 part at the moment.
-> With the patch I am getting the following
-> Module Configuration Type                       Data ECC
-> for these modules: http://www.valueram.com/datasheets/kvr800d2e5_2g.pdf
-> 
-> For some definitely non-ECC modules I get the expected
-> Module Configuration Type                       No Parity
+> Do you want to resend with the comments addressed?
 
-Thanks for the report, I've applied both patches.
+We have a company policy for adding copyright claims.  And this patch has met our criteria that requires adding copyright.
 
-> P.S.
-> I've noticed that the "Decoding EEPROM" message is printed with
-> $dimm[$current]->{eeprom} when $opt_side_by_side is true but it is printed with
-> $dimm[$current]->{file} in the other case.  Not sure if this is on purpose.
+We certainly don't want the policy to be against the common practice of the community.  If it is we can consider changing our policy.  However I can't find a clear message stating the consensus of what the Linux kernel community think of adding copyright claims.  I even found some message that encourage adding copyright to maintain the GPL license.
 
-I think it is on purpose. ->{file} contains the full path so it is
-rather long, ->{eeprom} only contains the file name so it is much
-shorter. The full path would make side-by-side output very wide, that
-wouldn't be convenient, that's why the short name is used in this
-output mode. In legacy output mode, the long name fits.
-
-We _could_ use the short name in legacy output mode, as the long name
-doesn't necessarily add a lot of value. I think I tried to leave the
-legacy output unchanged when implementing the side-by-side output, to
-avoid any regression in case someone was parsing the output of
-decode-dimms. If you believe it would be better to always use the short
-name, we could do that, this may even allow for a small code clean-up.
-
--- 
-Jean Delvare
+- Leo
