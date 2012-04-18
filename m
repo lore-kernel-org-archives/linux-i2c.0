@@ -1,89 +1,50 @@
-From: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH 3/3] i2c-s3c2410: Add HDMIPHY quirk for S3C2440
-Date: Wed, 18 Apr 2012 14:11:10 +0200
-Message-ID: <00dd01cd1d5c$57ce7f80$076b7e80$%szyprowski@samsung.com>
-References: <1332357113-2973-1-git-send-email-k.lewandowsk@samsung.com>
- <1332357113-2973-4-git-send-email-k.lewandowsk@samsung.com>
- <20120417174029.GC22406@pengutronix.de>
+From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: designware: Add support for 16bit register access
+Date: Wed, 18 Apr 2012 14:58:11 +0200
+Message-ID: <201204181458.11326.sr@denx.de>
+References: <1334734399-1003-1-git-send-email-sr@denx.de> <20120418112426.GD21955@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7BIT
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20120417174029.GC22406-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-language: pl
+In-Reply-To: <20120418112426.GD21955-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tomasz Stanislawski <t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On Wednesday 18 April 2012 13:24:26 Wolfram Sang wrote:
 
-On Tuesday, April 17, 2012 7:40 PM Wolfram Sang wrote:
+<snip>
 
-> On Wed, Mar 21, 2012 at 08:11:53PM +0100, Karol Lewandowski wrote:
-> > This patch adds support for s3c2440 I2C bus controller dedicated HDMIPHY device on
-> > Exynos4 platform. Some quirks are introduced due to differences between HDMIPHY
-> > and other I2C controllers on Exynos4.  These differences are:
-> > - no GPIOs, HDMIPHY is inside the SoC and the controller is connected
-> >   internally
-> > - due to unknown reason (probably HW bug in HDMIPHY and/or the controller) a
-> >   transfer fails to finish. The controller hangs after sending the last byte,
-> >   the workaround for this bug is resetting the controller after each transfer
-> >
-> > Signed-off-by: Tomasz Stanislawski <t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > Signed-off-by: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > Tested-by: Tomasz Stanislawski <t.stanislaws-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > ---
-> >  .../devicetree/bindings/i2c/samsung-i2c.txt        |   11 +++++-
-> >  drivers/i2c/busses/i2c-s3c2410.c                   |   35 ++++++++++++++++++++
-> >  2 files changed, 44 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-> b/Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-> > index 38832c7..c6670f9 100644
-> > --- a/Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-> > +++ b/Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-> > @@ -10,14 +10,21 @@ Required properties:
-> >      region.
-> >    - interrupts: interrupt number to the cpu.
-> >    - samsung,i2c-sda-delay: Delay (in ns) applied to data line (SDA) edges.
-> > -  - gpios: The order of the gpios should be the following: <SDA, SCL>.
-> > -    The gpio specifier depends on the gpio controller.
-> >
-> >  Optional properties:
-> > +  - gpios: The order of the gpios should be the following: <SDA, SCL>.
-> > +    The gpio specifier depends on the gpio controller. Required in all cases
-> > +    except when "samsung,i2c-no-gpio" is also specified.
-> > +  - samsung,i2c-no-gpio: input/output lines of the controller are
-> > +    permanently wired to the respective client, there are no gpio
-> > +    lines that need to be configured to enable this controller
+> > @@ -254,7 +265,13 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+> > 
+> >  	/* Configure register endianess access */
+> >  	reg = dw_readl(dev, DW_IC_COMP_TYPE);
+> >  	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
+> > 
+> > -		dev->swab = 1;
+> > +		dev->accessor_flags |= ACCESS_SWAP;
+> > +		reg = DW_IC_COMP_TYPE_VALUE;
 > 
-> Can't we just skip this property...
+> May I ask you to use proper if/elseif/else blocks instead of overwriting
+> reg? I know you didn't come up with the mechanism, yet it looks too
+> fragile to be extended IMO.
 
-All standard s3c-24x0 i2c controllers require gpio lines for proper operation,
-so lack of the gpios property should be considered as an error. However there
-is a special case of internal, embedded i2c controller which has no such gpio 
-lines at all.
-
-> >    - samsung,i2c-slave-addr: Slave address in multi-master enviroment. If not
-> >      specified, default value is 0.
-> >    - samsung,i2c-max-bus-freq: Desired frequency in Hz of the bus. If not
-> >      specified, the default value in Hz is 100000.
-> > +  - samsung,i2c-quirk-hdmiphy: Quirk for HDMI PHY block found on
-> > +    Exynos4 platform - reduce timeout and reset controller after each
-> > +    transfer
+Okay, will do.
+ 
+> > +	}
+> > +
+> > +	/* Configure register access mode 16bit */
+> > +	if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
 > 
-> ... and this one, if we declare a new compatible-entry for exynos4?
+> Does it make sense to check reg + 2 for the upper part of the signature?
 
-It is not strictly related to Exynos4 SoCs. Exynos4 SoC has 8 standard s3c2440 style
-i2c controllers and one additional, internal controller for HDMIPHY, which needs 
-some workarounds in the driver. Maybe the quirk should be named 'broken timeout 
-detection'
+Not from my point of view. Its very unlikely that this driver will be used on 
+another controller. Its configured (via its address in platform-data or DT) 
+for exactly this controller. And matching 16bit of this 32bit register seems 
+enough for me. I would even have no problem to remove this check completely.
 
-(snipped)
-
-Best regards
--- 
-Marek Szyprowski
-Samsung Poland R&D Center
+Thanks,
+Stefan
