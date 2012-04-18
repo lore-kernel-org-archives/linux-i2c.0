@@ -1,65 +1,55 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep
- sleep
-Date: Wed, 18 Apr 2012 12:33:34 +0200
-Message-ID: <20120418103334.GD2232@pengutronix.de>
-References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
- <20120229183436.GA30545@pengutronix.de>
- <20120417142105.GA21802@pengutronix.de>
- <94F013E7935FF44C83EBE7784D62AD3F092D1DC7@039-SN2MPN1-022.039d.mgd.msft.net>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH v2 0/2] i2c: Don't assume bus nr 0 if none was specified
+Date: Wed, 18 Apr 2012 12:55:29 +0200
+Message-ID: <20120418105529.GA21955@pengutronix.de>
+References: <1332839428-29705-1-git-send-email-k.lewandowsk@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UfEAyuTBtIjiZzX6"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <94F013E7935FF44C83EBE7784D62AD3F092D1DC7-RL0Hj/+nBVC81RJBUSuqCa4g8xLGJsHaLnY5E4hWTkheoWH0uzbU5w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Li Yang-R58472 <r58472-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Zhao Chenhui-B35336 <B35336-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1332839428-29705-1-git-send-email-k.lewandowsk@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Karol Lewandowski <k.lewandowsk@samsung.com>
+Cc: ben-linux@fluff.org, m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, kyungmin.park@samsung.com, hskinnemoen@gmail.com, bigeasy@linutronix.de, dirk.brandewie@gmail.com, linux@arm.linux.org.uk
 List-Id: linux-i2c@vger.kernel.org
 
 
---UfEAyuTBtIjiZzX6
+--IS0zKkzwUGydFO0o
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Tue, Mar 27, 2012 at 11:10:26AM +0200, Karol Lewandowski wrote:
+> Changes since v1:
+>  - Dropped reduntant i2c-octeon change
+>=20
+> i2c controller drivers used to assume bus number 0 when none (-1) was
+> specified.
+>=20
+> This worked on non-device tree systems, where one could explicitly
+> specify bus number via platform data.  On DT-enabled systems bus
+> number is always -1.
+>=20
+> This patchset reworks few remaining drivers to use dynamic bus
+> allocation when no id has been provided.
 
-> We certainly don't want the policy to be against the common practice
-> of the community.  If it is we can consider changing our policy.
-
-Nice, thanks for being open to discussion!
-
-> However I can't find a clear message stating the consensus of what the
-> Linux kernel community think of adding copyright claims.  I even found
-
-Well, what I know, the consensus is "common sense". What is obviously
-not "clear" in a way you could write it down. At least, Ben agrees.
-
-> some message that encourage adding copyright to maintain the GPL
-> license.
-
-I am interested. Do you have a link?
-
-Regards,
-
-   Wolfram
+Thanks, both applied.
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---UfEAyuTBtIjiZzX6
+--IS0zKkzwUGydFO0o
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+OmH4ACgkQD27XaX1/VRubswCfWX0Qu6/PjR7yzGUDfHwBiw05
-DAgAoLlVGb8xLugS8oGhajd5dFYBn2jO
-=eGmZ
+iEYEARECAAYFAk+OnaEACgkQD27XaX1/VRsEjQCaA6liUIwu127RZSud9mMPKjGY
+p5kAn0k0kak9WIGmCFthJRMTv2V7OX70
+=S+8z
 -----END PGP SIGNATURE-----
 
---UfEAyuTBtIjiZzX6--
+--IS0zKkzwUGydFO0o--
