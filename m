@@ -1,114 +1,105 @@
-From: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH v3] i2c: designware: Add support for 16bit register access
-Date: Wed, 18 Apr 2012 15:01:41 +0200
-Message-ID: <1334754101-25802-1-git-send-email-sr@denx.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH 2/3] i2c-s3c2410: Rework device type handling
+Date: Wed, 18 Apr 2012 15:39:45 +0200
+Message-ID: <20120418133945.GA19220@pengutronix.de>
+References: <1332357113-2973-1-git-send-email-k.lewandowsk@samsung.com>
+ <1332357113-2973-3-git-send-email-k.lewandowsk@samsung.com>
+ <20120417173136.GB22406@pengutronix.de>
+ <4F8EAB94.7080707@samsung.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="G4iJoqBmSsgzjUCe"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <4F8EAB94.7080707@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Karol Lewandowski <k.lewandowsk@samsung.com>
+Cc: ben-linux@fluff.org, m.szyprowski@samsung.com, thomas.abraham@linaro.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, kyungmin.park@samsung.com, broonie@opensource.wolfsonmicro.com, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <robherring2@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The STM SPEAr platform can only access the i2c controller register
-via 16bit read/write functions. This patch adds support to
-automatically detect this 16bit access mode.
 
-Signed-off-by: Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>
----
-v3:
-- Changed multiple if statements into one if/elseif/etc statement
-  to remove the "reg overwriting abuse".
+--G4iJoqBmSsgzjUCe
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-v2:
-- Removed parenthesis for single-statement block
-- Moved "swab" and "access_16bit" into "accessor_flags"
+Hi,
 
- drivers/i2c/busses/i2c-designware-core.c |   31 ++++++++++++++++++++----------
- drivers/i2c/busses/i2c-designware-core.h |    5 ++++-
- 2 files changed, 25 insertions(+), 11 deletions(-)
+> >> Reorganize driver a bit to better handle device tree-based systems:
+> >>
+> >>  - move machine type to driver's private structure instead of
+> >>    quering platform device variants in runtime
+> >>
+> >>  - replace s3c24xx_i2c_type enum with unsigned int that holds
+> >>    bitmask with revision-specific quirks
+> >>
+> >> Signed-off-by: Karol Lewandowski <k.lewandowsk@samsung.com>
+> >> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> >=20
+> > Okay, so this driver needs to the 'data' field from either
+> > platform_device_id or of_device_id and implements a function for that,
+> > namely s3c24xx_get_device_quirks(). Grant, Rob: I'd think there might be
+> > more drivers in need of that, so maybe it makes sense to have a generic
+> > of-helper function?
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index df87992..1e48bec 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -164,9 +164,15 @@ static char *abort_sources[] = {
- 
- u32 dw_readl(struct dw_i2c_dev *dev, int offset)
- {
--	u32 value = readl(dev->base + offset);
-+	u32 value;
- 
--	if (dev->swab)
-+	if (dev->accessor_flags & ACCESS_16BIT)
-+		value = readw(dev->base + offset) |
-+			(readw(dev->base + offset + 2) << 16);
-+	else
-+		value = readl(dev->base + offset);
-+
-+	if (dev->accessor_flags & ACCESS_SWAP)
- 		return swab32(value);
- 	else
- 		return value;
-@@ -174,10 +180,15 @@ u32 dw_readl(struct dw_i2c_dev *dev, int offset)
- 
- void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset)
- {
--	if (dev->swab)
-+	if (dev->accessor_flags & ACCESS_SWAP)
- 		b = swab32(b);
- 
--	writel(b, dev->base + offset);
-+	if (dev->accessor_flags & ACCESS_16BIT) {
-+		writew((u16)b, dev->base + offset);
-+		writew((u16)(b >> 16), dev->base + offset + 2);
-+	} else {
-+		writel(b, dev->base + offset);
-+	}
- }
- 
- static u32
-@@ -251,14 +262,14 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 
- 	input_clock_khz = dev->get_clk_rate_khz(dev);
- 
--	/* Configure register endianess access */
- 	reg = dw_readl(dev, DW_IC_COMP_TYPE);
- 	if (reg == ___constant_swab32(DW_IC_COMP_TYPE_VALUE)) {
--		dev->swab = 1;
--		reg = DW_IC_COMP_TYPE_VALUE;
--	}
--
--	if (reg != DW_IC_COMP_TYPE_VALUE) {
-+		/* Configure register endianess access */
-+		dev->accessor_flags |= ACCESS_SWAP;
-+	} else if (reg == (DW_IC_COMP_TYPE_VALUE & 0x0000ffff)) {
-+		/* Configure register access mode 16bit */
-+		dev->accessor_flags |= ACCESS_16BIT;
-+	} else if (reg != DW_IC_COMP_TYPE_VALUE) {
- 		dev_err(dev->dev, "Unknown Synopsys component type: "
- 			"0x%08x\n", reg);
- 		return -ENODEV;
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 02d1a2d..9c1840e 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -82,7 +82,7 @@ struct dw_i2c_dev {
- 	unsigned int		status;
- 	u32			abort_source;
- 	int			irq;
--	int			swab;
-+	u32			accessor_flags;
- 	struct i2c_adapter	adapter;
- 	u32			functionality;
- 	u32			master_cfg;
-@@ -90,6 +90,9 @@ struct dw_i2c_dev {
- 	unsigned int		rx_fifo_depth;
- };
- 
-+#define ACCESS_SWAP		0x00000001
-+#define ACCESS_16BIT		0x00000002
-+
- extern u32 dw_readl(struct dw_i2c_dev *dev, int offset);
- extern void dw_writel(struct dw_i2c_dev *dev, u32 b, int offset);
- extern int i2c_dw_init(struct dw_i2c_dev *dev);
--- 
-1.7.10
+Please wait one or two days before resending. Maybe Grant or Rob find
+some time to answer this question. (Yeah, we can fix it later if such a
+generic function is introduced somewhen).
+
+> >> -/* i2c controller state */
+> >> +#ifdef CONFIG_OF
+> >> +static const struct of_device_id s3c24xx_i2c_match[];
+> >> +#endif
+> >=20
+> > Uh, forward declaration with #ifdef. I'd think we should get this simply
+> > to the front.
+>=20
+>=20
+> Ok, as I think it's better to have dt and non-dt definitions together
+> I'll move both of_device_id and platform_device_id to the top.
+
+Agreed.
+
+>=20
+> >> +/* Treat S3C2410 as baseline hardware, anything else is supported via=
+ quirks */
+> >> +#define QUIRK_S3C2440		(1 << 0)
+> >=20
+> > Minor: Is it really a quirk being s3c2440? Maybe FLAG_*, dunno.
+>=20
+>=20
+> In first version[1] of this patch I've used TYPEs for device types
+> and FLAGS for quirks. However, I've squashed these into "quirks" after
+> discussion with Mark[2].
+>=20
+> [1] http://permalink.gmane.org/gmane.linux.kernel/1266759
+> [2] http://permalink.gmane.org/gmane.linux.kernel.samsung-soc/10255
+
+It's minor, keep the QUIRKs.
+
+> [ I'll also drop above CONFIG_OF ifdef, as of_match_node() seem
+>   to be always defined since v3.2-rc1. ]
+
+Great.
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--G4iJoqBmSsgzjUCe
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+OxCEACgkQD27XaX1/VRsfBACgvFrE7I7yC075t+xwKUfaHfgr
+wvUAn3raIeCytJJ3hQU3BZzR/y7Q/ua2
+=fZFN
+-----END PGP SIGNATURE-----
+
+--G4iJoqBmSsgzjUCe--
