@@ -1,59 +1,65 @@
-From: Li Yang-R58472 <r58472-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep
  sleep
-Date: Wed, 18 Apr 2012 10:20:36 +0000
-Message-ID: <94F013E7935FF44C83EBE7784D62AD3F092D1DC7@039-SN2MPN1-022.039d.mgd.msft.net>
+Date: Wed, 18 Apr 2012 12:33:34 +0200
+Message-ID: <20120418103334.GD2232@pengutronix.de>
 References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
  <20120229183436.GA30545@pengutronix.de>
  <20120417142105.GA21802@pengutronix.de>
+ <94F013E7935FF44C83EBE7784D62AD3F092D1DC7@039-SN2MPN1-022.039d.mgd.msft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UfEAyuTBtIjiZzX6"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120417142105.GA21802-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <94F013E7935FF44C83EBE7784D62AD3F092D1DC7-RL0Hj/+nBVC81RJBUSuqCa4g8xLGJsHaLnY5E4hWTkheoWH0uzbU5w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Zhao Chenhui-B35336 <B35336-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Li Yang-R58472 <r58472-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Zhao Chenhui-B35336 <B35336-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
-> On Wed, Feb 29, 2012 at 07:45:23PM +0100, Wolfram Sang wrote:
-> > Hi,
-> >
-> > On Wed, Feb 29, 2012 at 06:39:21PM +0800, Zhao Chenhui wrote:
-> > > When entering deep sleep, the value in the registers I2CFDR and
-> > > I2CDFSRR are lost. This causes I2C access to fail after resuming.
-> > >
-> > > Add suspend/resume routines to save/restore the registers I2CFDR and
-> > > I2CDFSRR.
-> > >
-> > > Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > ---
-> > >  drivers/i2c/busses/i2c-mpc.c |   34
-> +++++++++++++++++++++++++++++++++-
-> > >  1 files changed, 33 insertions(+), 1 deletions(-)
-> > >
-> > > diff --git a/drivers/i2c/busses/i2c-mpc.c
-> > > b/drivers/i2c/busses/i2c-mpc.c index a8ebb84..f95a647 100644
-> > > --- a/drivers/i2c/busses/i2c-mpc.c
-> > > +++ b/drivers/i2c/busses/i2c-mpc.c
-> > > @@ -1,7 +1,9 @@
-> > >  /*
-> > >   * (C) Copyright 2003-2004
-> > >   * Humboldt Solutions Ltd, adrian-nKrwMtk+6WksDtB2XHyCLA@public.gmane.org
-> > > -
-> > > + *
-> > > + * Copyright 2012 Freescale Semiconductor, Inc.
-> > > + *
-> >
-> > I'd think the change is too trivial to claim copyright on the file.
-> 
-> Do you want to resend with the comments addressed?
+--UfEAyuTBtIjiZzX6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-We have a company policy for adding copyright claims.  And this patch has met our criteria that requires adding copyright.
+Hi,
 
-We certainly don't want the policy to be against the common practice of the community.  If it is we can consider changing our policy.  However I can't find a clear message stating the consensus of what the Linux kernel community think of adding copyright claims.  I even found some message that encourage adding copyright to maintain the GPL license.
+> We certainly don't want the policy to be against the common practice
+> of the community.  If it is we can consider changing our policy.
 
-- Leo
+Nice, thanks for being open to discussion!
+
+> However I can't find a clear message stating the consensus of what the
+> Linux kernel community think of adding copyright claims.  I even found
+
+Well, what I know, the consensus is "common sense". What is obviously
+not "clear" in a way you could write it down. At least, Ben agrees.
+
+> some message that encourage adding copyright to maintain the GPL
+> license.
+
+I am interested. Do you have a link?
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--UfEAyuTBtIjiZzX6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+OmH4ACgkQD27XaX1/VRubswCfWX0Qu6/PjR7yzGUDfHwBiw05
+DAgAoLlVGb8xLugS8oGhajd5dFYBn2jO
+=eGmZ
+-----END PGP SIGNATURE-----
+
+--UfEAyuTBtIjiZzX6--
