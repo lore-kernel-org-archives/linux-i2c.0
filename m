@@ -1,54 +1,53 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH] i2c-at91: fix data-loss issue
-Date: Wed, 18 Apr 2012 16:39:20 +0200
-Message-ID: <20120418143920.GA19802@pengutronix.de>
-References: <20120413103937.GH7154@arwen.pp.htv.fi>
- <1334317476-10044-1-git-send-email-h.feurstein@gmail.com>
- <EF2E73589CA71846A15D0B2CDF79505D0905D5A1AA@wm021.weinmann.com>
+From: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep sleep
+Date: Wed, 18 Apr 2012 22:44:16 +0800
+Message-ID: <CADRPPNQRLyZK-zjeLUYCZtLe+8HhFzFALCMyPeaCGX+buaf+ug@mail.gmail.com>
+References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
+	<20120229183436.GA30545@pengutronix.de>
+	<20120417142105.GA21802@pengutronix.de>
+	<94F013E7935FF44C83EBE7784D62AD3F092D1DC7@039-SN2MPN1-022.039d.mgd.msft.net>
+	<20120418103334.GD2232@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D0905D5A1AA@wm021.weinmann.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Voss, Nikolaus" <N.Voss@weinmann.de>
-Cc: 'Hubert Feurstein' <h.feurstein@gmail.com>, "'rmallon@gmail.com'" <rmallon@gmail.com>, "'nicolas.ferre@atmel.com'" <nicolas.ferre@atmel.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'balbi@ti.com'" <balbi@ti.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120418103334.GD2232-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Li Yang-R58472 <r58472-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Zhao Chenhui-B35336 <B35336-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Apr 18, 2012 at 6:33 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> w=
+rote:
+> Hi,
+>
+>> We certainly don't want the policy to be against the common practice
+>> of the community. =C2=A0If it is we can consider changing our policy=
+=2E
+>
+> Nice, thanks for being open to discussion!
+>
+>> However I can't find a clear message stating the consensus of what t=
+he
+>> Linux kernel community think of adding copyright claims. =C2=A0I eve=
+n found
+>
+> Well, what I know, the consensus is "common sense". What is obviously
+> not "clear" in a way you could write it down. At least, Ben agrees.
+>
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We do honor your point and can be flexible on this.  I'm just not sure
+if our policy need to be changed to align with the common sense of the
+community.
 
+>> some message that encourage adding copyright to maintain the GPL
+>> license.
+>
+> I am interested. Do you have a link?
 
-> I'll repost the driver with your fix on positive feedback from you.
-> Thanks for tracking this down.
->=20
-> Ben, is there any chance to get this driver into next?
+Well.  I can't find the exact message.  I remember it is from an email
+discussion in which someone said by encouraging contributors to add
+copyright claims to a file it would be clear that no one can change
+the license of the file away from GPL.
 
-I think sending a new series would be good. It depends a bit on the amount
-of donated tags (Tested-by, especially) if it will make it into 3.5.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+O0hgACgkQD27XaX1/VRuGVwCfbCS5QH55EkuCi1We072O4Wet
-1H8AnRYNi+NoqQhdyENB66VTVwGdcko5
-=GF9j
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
+- Leo
