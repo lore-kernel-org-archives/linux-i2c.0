@@ -1,81 +1,53 @@
-From: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH v2] i2c-mpc: avoid I2C abnormal after resuming from deep sleep
-Date: Thu, 19 Apr 2012 17:51:34 +0800
-Message-ID: <1334829094-22048-1-git-send-email-chenhui.zhao@freescale.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-mpc: avoid I2C abnormal after resuming from deep
+ sleep
+Date: Thu, 19 Apr 2012 13:07:10 +0200
+Message-ID: <20120419110710.GD2206@pengutronix.de>
+References: <1334829094-22048-1-git-send-email-chenhui.zhao@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C+ts3FVlLX8+P6JN"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1334829094-22048-1-git-send-email-chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-When entering deep sleep, the value in the registers I2CFDR and
-I2CDFSRR are lost. This causes I2C access to fail after resuming.
 
-Add suspend/resume routines to save/restore the registers
-I2CFDR and I2CDFSRR.
+--C+ts3FVlLX8+P6JN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
- drivers/i2c/busses/i2c-mpc.c |   30 ++++++++++++++++++++++++++++++
- 1 files changed, 30 insertions(+), 0 deletions(-)
+On Thu, Apr 19, 2012 at 05:51:34PM +0800, Zhao Chenhui wrote:
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index a8ebb84..fb2627b 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -64,6 +64,9 @@ struct mpc_i2c {
- 	struct i2c_adapter adap;
- 	int irq;
- 	u32 real_clk;
-+#ifdef CONFIG_PM
-+	u8 fdr, dfsrr;
-+#endif
- };
- 
- struct mpc_i2c_divider {
-@@ -668,6 +671,30 @@ static int __devexit fsl_i2c_remove(struct platform_device *op)
- 	return 0;
- };
- 
-+#ifdef CONFIG_PM
-+static int mpc_i2c_suspend(struct device *dev)
-+{
-+	struct mpc_i2c *i2c = dev_get_drvdata(dev);
-+
-+	i2c->fdr = readb(i2c->base + MPC_I2C_FDR);
-+	i2c->dfsrr = readb(i2c->base + MPC_I2C_DFSRR);
-+
-+	return 0;
-+}
-+
-+static int mpc_i2c_resume(struct device *dev)
-+{
-+	struct mpc_i2c *i2c = dev_get_drvdata(dev);
-+
-+	writeb(i2c->fdr, i2c->base + MPC_I2C_FDR);
-+	writeb(i2c->dfsrr, i2c->base + MPC_I2C_DFSRR);
-+
-+	return 0;
-+}
-+
-+SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
-+#endif
-+
- static struct mpc_i2c_data mpc_i2c_data_512x __devinitdata = {
- 	.setup = mpc_i2c_setup_512x,
- };
-@@ -712,6 +739,9 @@ static struct platform_driver mpc_i2c_driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRV_NAME,
- 		.of_match_table = mpc_i2c_of_match,
-+#ifdef CONFIG_PM
-+		.pm = &mpc_i2c_pm_ops,
-+#endif
- 	},
- };
- 
--- 
-1.6.4.1
+> When entering deep sleep, the value in the registers I2CFDR and
+> I2CDFSRR are lost. This causes I2C access to fail after resuming.
+>=20
+> Add suspend/resume routines to save/restore the registers
+> I2CFDR and I2CDFSRR.
+>=20
+> Signed-off-by: Zhao Chenhui <chenhui.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Signed-off-by: Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+
+Applied to next. Thanks!
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--C+ts3FVlLX8+P6JN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+P8d4ACgkQD27XaX1/VRsG8wCgs3R+gYTdS4A/rb13SgOSGHU8
+2gIAoIXaq/jRSp5AhEvtNnhFDug6T4WE
+=EOcj
+-----END PGP SIGNATURE-----
+
+--C+ts3FVlLX8+P6JN--
