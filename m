@@ -1,38 +1,37 @@
-From: Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c-mpc: avoid I2C abnormal after resuming from deep
- sleep
-Date: Wed, 18 Apr 2012 21:49:48 +0000
-Message-ID: <CAOZdJXW7MKSzrY-s=KJ2bz-8RyMFDTnV-Yg1Dy5a+VYndT3qzw@mail.gmail.com>
-References: <1330511961-22498-1-git-send-email-chenhui.zhao@freescale.com>
-	<20120229183436.GA30545@pengutronix.de>
-	<20120417142105.GA21802@pengutronix.de>
-	<94F013E7935FF44C83EBE7784D62AD3F092D1DC7@039-SN2MPN1-022.039d.mgd.msft.net>
-	<20120418103334.GD2232@pengutronix.de>
-	<CADRPPNQRLyZK-zjeLUYCZtLe+8HhFzFALCMyPeaCGX+buaf+ug@mail.gmail.com>
+From: Paul Mundt <lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-sh_mobile device tree support
+Date: Thu, 19 Apr 2012 10:41:13 +0900
+Message-ID: <20120419014113.GB22189@linux-sh.org>
+References: <20120330084402.19597.63655.sendpatchset@w520>
+ <20120330084744.GF26543@linux-sh.org>
+ <CANqRtoTERUznk7xYr5qHMP4X5cVbvUw9vLZ5X-6YFkmVf69m4Q@mail.gmail.com>
+ <20120330090341.GG26543@linux-sh.org>
+ <20120418140839.GD19220@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CADRPPNQRLyZK-zjeLUYCZtLe+8HhFzFALCMyPeaCGX+buaf+ug-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: en-US
-Content-ID: <75AD2FC3A0E25D4894F56ECA09C0D731-725oAoX4OcF2GV6JINhBVAC/G2K4zDHf@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120418140839.GD19220-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Li Yang-R58472 <r58472-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Zhao Chenhui-B35336 <B35336-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-KKrjLPT3xs0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 18, 2012 at 9:44 AM, Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
-
-> We do honor your point and can be flexible on this. =A0I'm just not s=
-ure
-> if our policy need to be changed to align with the common sense of th=
-e
-> community.
-
-It does need to be changed, and we are currently working on changing it=
-=2E
-
-The patch should be resubmitted without the Copyright statement.
-
---=20
-Timur Tabi
-Linux kernel developer at Freescale
+On Wed, Apr 18, 2012 at 04:08:39PM +0200, Wolfram Sang wrote:
+> Hi Paul,
+> 
+> > > Of course, if you think it is cramping your SH device tree style then
+> > > we can easily add a "renesas-shmobile-iic" entry as well.
+> > > 
+> > I obviously don't mind if you wish to use the rmobile naming convention
+> > going forward, as the new parts have obviously dropped with the shmobile
+> > naming convention, and it's likely you'll even be able to infer different
+> > capabilities between rmobile vs shmobile. That's not sufficient cause to
+> > prefer one over the other though, so you're still going to have to keep
+> > things balanced. Simply having two aliases seems to me to be the easiest
+> > solution.
+> 
+> "alias" is a second compatible entry here? Is it okay if this is added
+> with a seperate patch when needed?
+> 
+Yes, that's fine.
