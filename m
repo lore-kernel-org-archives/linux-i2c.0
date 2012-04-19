@@ -1,110 +1,54 @@
-From: Tomoya MORINAGA <tomoya.rohm@gmail.com>
-Subject: [PATCH 2/2] i2c-eg20t: Merge 2 functions
-Date: Thu, 19 Apr 2012 15:38:05 +0900
-Message-ID: <1334817485-7121-2-git-send-email-tomoya.rohm@gmail.com>
-References: <1334817485-7121-1-git-send-email-tomoya.rohm@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1334817485-7121-1-git-send-email-tomoya.rohm@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Feng Tang <feng.tang@intel.com>, Alexander Stein <alexander.stein@systec-electronic.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc: qi.wang@intel.com, yong.y.wang@intel.com, joel.clark@intel.com, kok.howg.ewe@intel.com, Tomoya MORINAGA <tomoya.rohm@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-sh_mobile device tree support
+Date: Thu, 19 Apr 2012 09:33:02 +0200
+Message-ID: <20120419073302.GA2206@pengutronix.de>
+References: <20120330084402.19597.63655.sendpatchset@w520>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120330084402.19597.63655.sendpatchset@w520>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-KKrjLPT3xs0@public.gmane.org, lethal-M7jkjyW5wf5g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-By previous patch(1/2), pch_i2c_wait_for_xfer_complete can be merged
-to pch_i2c_wait_for_check_xfer.
 
-Signed-off-by: Tomoya MORINAGA <tomoya.rohm@gmail.com>
----
- drivers/i2c/busses/i2c-eg20t.c |   65 +++++++++++++--------------------------
- 1 files changed, 22 insertions(+), 43 deletions(-)
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 72bd23c..c0dde69 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -310,33 +310,6 @@ static void pch_i2c_start(struct i2c_algo_pch_data *adap)
- }
- 
- /**
-- * pch_i2c_wait_for_xfer_complete() - initiates a wait for the tx complete event
-- * @adap:	Pointer to struct i2c_algo_pch_data.
-- */
--static s32 pch_i2c_wait_for_xfer_complete(struct i2c_algo_pch_data *adap)
--{
--	long ret;
--	ret = wait_event_timeout(pch_event,
--			(adap->pch_event_flag != 0), msecs_to_jiffies(1000));
--
--	if (ret == 0) {
--		pch_err(adap, "timeout: %x\n", adap->pch_event_flag);
--		adap->pch_event_flag = 0;
--		return -ETIMEDOUT;
--	}
--
--	if (adap->pch_event_flag & I2C_ERROR_MASK) {
--		pch_err(adap, "error bits set: %x\n", adap->pch_event_flag);
--		adap->pch_event_flag = 0;
--		return -EIO;
--	}
--
--	adap->pch_event_flag = 0;
--
--	return 0;
--}
--
--/**
-  * pch_i2c_getack() - to confirm ACK/NACK
-  * @adap:	Pointer to struct i2c_algo_pch_data.
-  */
-@@ -368,27 +341,33 @@ static void pch_i2c_stop(struct i2c_algo_pch_data *adap)
- 
- static int pch_i2c_wait_for_check_xfer(struct i2c_algo_pch_data *adap)
- {
--	int rtn;
--
--	rtn = pch_i2c_wait_for_xfer_complete(adap);
--	if (rtn == 0) {
--		if (pch_i2c_getack(adap)) {
--			pch_dbg(adap, "Receive NACK for slave address"
--				"setting\n");
--			return -EIO;
--		}
--	} else if (rtn == -EIO) { /* Arbitration Lost */
-+	long ret;
-+
-+	ret = wait_event_timeout(pch_event,
-+			(adap->pch_event_flag != 0), msecs_to_jiffies(1000));
-+	if (!ret) {
-+		pch_err(adap, "%s:wait-event timeout\n", __func__);
-+		adap->pch_event_flag = 0;
-+		pch_i2c_stop(adap);
-+		pch_i2c_init(adap);
-+		return -ETIMEDOUT;
-+	}
-+
-+	if (adap->pch_event_flag & I2C_ERROR_MASK) {
- 		pch_err(adap, "Lost Arbitration\n");
-+		adap->pch_event_flag = 0;
- 		pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMAL_BIT);
- 		pch_clrbit(adap->pch_base_address, PCH_I2CSR, I2CMIF_BIT);
- 		pch_i2c_init(adap);
- 		return -EAGAIN;
--	} else { /* wait-event timeout */
--		pch_err(adap, "%s(L.%d):wait-event timeout\n",
--			__func__, __LINE__);
--		pch_i2c_stop(adap);
--		pch_i2c_init(adap);
--		return -ETIME;
-+	}
-+
-+	adap->pch_event_flag = 0;
-+
-+	if (pch_i2c_getack(adap)) {
-+		pch_dbg(adap, "Receive NACK for slave address"
-+			"setting\n");
-+		return -EIO;
- 	}
- 
- 	return 0;
--- 
-1.7.4.4
+On Fri, Mar 30, 2012 at 05:44:02PM +0900, Magnus Damm wrote:
+> From: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+>=20
+> This patch enables DT support for the IIC driver
+> used on SH-based SoCs such as sh7722 and sh7724
+> among others as well as SH-Mobile SoCs such as
+> sh7367, sh7377, sh7372, sh73a0 and r8a7740.
+>=20
+> Tested with out-of-tree DT support code on the
+> sh7372 Mackerel board.
+>=20
+> Signed-off-by: Magnus Damm <damm-yzvPICuk2ACczHhG9Qg4qA@public.gmane.org>
+
+Applied to next.
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+Pv64ACgkQD27XaX1/VRvl+ACgsSYjQJ0TNxDqjEa5O75BW/kZ
++94AoMn35yQQm4OVCcFrQCs1/T/Q3bCu
+=zL2l
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--
