@@ -1,72 +1,171 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv8 06/10] I2C: OMAP: Fix the crash in i2c remove
-Date: Thu, 19 Apr 2012 18:58:17 +0530
-Message-ID: <1334842101-20670-7-git-send-email-shubhrajyoti@ti.com>
-References: <1334842101-20670-1-git-send-email-shubhrajyoti@ti.com>
+From: Andreas Schallenberg <Andreas.Schallenberg-O0pkHBJuA+wYBXkCv02bHtBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH] Add support for TCA6424. Pased on a patch by Michele Bevilacqua.
+Date: Thu, 19 Apr 2012 16:49:04 +0200
+Message-ID: <0MNPzx-1SIyre3X2n-007URV@mrelayeu.kundenserver.de>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1334842101-20670-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Andreas Schallenberg <Andreas.Schallenberg-O0pkHBJuA+wYBXkCv02bHtBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-    In omap_i2c_remove we are accessing the I2C_CON register without
-    enabling the clocks. Fix the same by enabling the clocks and disabling
-    it.
-    This fixes the following crash.
-    [  154.723022] ------------[ cut here ]------------
-    [  154.725677] WARNING: at arch/arm/mach-omap2/omap_l3_noc.c:112 l3_interrupt_handler+0x1b4/0x1c4()
-    [  154.725677] L3 custom error: MASTER:MPU TARGET:L4 PER2
-    [  154.742614] Modules linked in: i2c_omap(-)
-    [  154.746948] Backtrace:
-    [  154.746948] [<c0013078>] (dump_backtrace+0x0/0x110) from [<c026c158>] (dump_stack+0x18/0x1c)
-    [  154.752716]  r6:00000070 r5:c002c43c r4:df9b9e98 r3:df9b8000
-    [  154.764465] [<c026c140>] (dump_stack+0x0/0x1c) from [<c0041a2c>] (warn_slowpath_common+0x5c/0x6c)
-    [  154.768341] [<c00419d0>] (warn_slowpath_common+0x0/0x6c) from [<c0041ae0>] (warn_slowpath_fmt+0x38/0x40)
-    [  154.776153]  r8:00000180 r7:c0361594 r6:c0379b48 r5:00080003 r4:e0838b00
-    [  154.790771] r3:00000009
-    [  154.791778] [<c0041aa8>] (warn_slowpath_fmt+0x0/0x40) from [<c002c43c>] (l3_interrupt_handler+0x1b4/0x1c4)
-    [  154.803710]  r3:c0361598 r2:c02ef74c
-    [  154.807403] [<c002c288>] (l3_interrupt_handler+0x0/0x1c4) from [<c0085f44>] (handle_irq_event_percpu+0x58/0
-    [  154.818237]  r8:0000002a r7:00000000 r6:00000000 r5:df808054 r4:df8893c0
-    [  154.825378] [<c0085eec>] (handle_irq_event_percpu+0x0/0x188) from [<c00860b8>] (handle_irq_event+0x44/0x64)
-    [  154.835662] [<c0086074>] (handle_irq_event+0x0/0x64) from [<c0088ec0>] (handle_fasteoi_irq+0xa4/0x10c)
-    [  154.845458]  r6:0000002a r5:df808054 r4:df808000 r3:c034a150
-    [  154.846466] [<c0088e1c>] (handle_fasteoi_irq+0x0/0x10c) from [<c0085ed0>] (generic_handle_irq+0x30/0x38)
-    [  154.854278]  r5:c034aa48 r4:0000002a
-    [  154.862091] [<c0085ea0>] (generic_handle_irq+0x0/0x38) from [<c000fd38>] (handle_IRQ+0x60/0xc0)
-    [  154.874450]  r4:c034ea70 r3:000001f8
-    [  154.878234] [<c000fcd8>] (handle_IRQ+0x0/0xc0) from [<c0008478>] (gic_handle_irq+0x20/0x5c)
-    [  154.887023]  r7:ffffff40 r6:df9b9fb0 r5:c034e2b4 r4:0000001a
-    [  154.887054] [<c0008458>] (gic_handle_irq+0x0/0x5c) from [<c000ea80>] (__irq_usr+0x40/0x60)
-    [  154.901153] Exception stack(0xdf9b9fb0 to 0xdf9b9ff8)
-    [  154.907104] 9fa0:                                     beaf1f04 4006be00 0000000f 0000000c
-    [  154.915710] 9fc0: 4006c000 00000000 00008034 ffffff40 00000007 00000000 00000000 0007b8d7
-    [  154.916778] 9fe0: 00000000 beaf1b68 0000d23c 4005baf0 80000010 ffffffff
-    [  154.931335]  r6:ffffffff r5:80000010 r4:4005baf0 r3:beaf1f04
-    [  154.937316] ---[ end trace 1b75b31a2719ed21 ]--
-
-Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
+ drivers/gpio/gpio-pca953x.c |   43 ++++++++++++++++++++++++++++++-------------
+ 1 files changed, 30 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index fec8d5c..44e8cfa 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1108,7 +1108,9 @@ omap_i2c_remove(struct platform_device *pdev)
+diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
+index 0550dcb..58f9428 100644
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -28,6 +28,8 @@
+ #define PCA953X_INVERT		2
+ #define PCA953X_DIRECTION	3
  
- 	free_irq(dev->irq, dev);
- 	i2c_del_adapter(&dev->adapter);
-+	pm_runtime_get_sync(&pdev->dev);
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
-+	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 	iounmap(dev->base);
- 	kfree(dev);
++#define REG_ADDR_AI		0x80
++
+ #define PCA957X_IN		0
+ #define PCA957X_INVRT		1
+ #define PCA957X_BKEN		2
+@@ -63,15 +65,15 @@ static const struct i2c_device_id pca953x_id[] = {
+ 	{ "pca6107", 8  | PCA953X_TYPE | PCA_INT, },
+ 	{ "tca6408", 8  | PCA953X_TYPE | PCA_INT, },
+ 	{ "tca6416", 16 | PCA953X_TYPE | PCA_INT, },
+-	/* NYET:  { "tca6424", 24, }, */
++	{ "tca6424", 24 | PCA953X_TYPE | PCA_INT, },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pca953x_id);
+ 
+ struct pca953x_chip {
+ 	unsigned gpio_start;
+-	uint16_t reg_output;
+-	uint16_t reg_direction;
++	uint reg_output;
++	uint reg_direction;
+ 	struct mutex i2c_lock;
+ 
+ #ifdef CONFIG_GPIO_PCA953X_IRQ
+@@ -89,12 +91,20 @@ struct pca953x_chip {
+ 	int	chip_type;
+ };
+ 
+-static int pca953x_write_reg(struct pca953x_chip *chip, int reg, uint16_t val)
++static int pca953x_write_reg(struct pca953x_chip *chip, int reg, uint val)
+ {
+ 	int ret = 0;
+ 
+ 	if (chip->gpio_chip.ngpio <= 8)
+ 		ret = i2c_smbus_write_byte_data(chip->client, reg, val);
++	else if (chip->gpio_chip.ngpio > 16) {
++		ret = i2c_smbus_write_word_data(chip->client,
++						(reg << 2) | REG_ADDR_AI,
++						val & 0xffff);
++		ret = i2c_smbus_write_byte_data(chip->client,
++						(reg << 2) + 2,
++						(val & 0xff0000) >> 16);
++	}
+ 	else {
+ 		switch (chip->chip_type) {
+ 		case PCA953X_TYPE:
+@@ -121,12 +131,17 @@ static int pca953x_write_reg(struct pca953x_chip *chip, int reg, uint16_t val)
+ 	return 0;
+ }
+ 
+-static int pca953x_read_reg(struct pca953x_chip *chip, int reg, uint16_t *val)
++static int pca953x_read_reg(struct pca953x_chip *chip, int reg, uint *val)
+ {
+ 	int ret;
+ 
+ 	if (chip->gpio_chip.ngpio <= 8)
+ 		ret = i2c_smbus_read_byte_data(chip->client, reg);
++	else if (chip->gpio_chip.ngpio == 24) {
++		ret =  i2c_smbus_read_word_data(chip->client, reg << 2);
++		ret |= (i2c_smbus_read_byte_data(chip->client,
++						 (reg << 2) + 2)<<16);
++	}
+ 	else
+ 		ret = i2c_smbus_read_word_data(chip->client, reg << 1);
+ 
+@@ -135,14 +150,14 @@ static int pca953x_read_reg(struct pca953x_chip *chip, int reg, uint16_t *val)
+ 		return ret;
+ 	}
+ 
+-	*val = (uint16_t)ret;
++	*val = (uint)ret;
+ 	return 0;
+ }
+ 
+ static int pca953x_gpio_direction_input(struct gpio_chip *gc, unsigned off)
+ {
+ 	struct pca953x_chip *chip;
+-	uint16_t reg_val;
++	uint reg_val;
+ 	int ret, offset = 0;
+ 
+ 	chip = container_of(gc, struct pca953x_chip, gpio_chip);
+@@ -173,7 +188,7 @@ static int pca953x_gpio_direction_output(struct gpio_chip *gc,
+ 		unsigned off, int val)
+ {
+ 	struct pca953x_chip *chip;
+-	uint16_t reg_val;
++	uint reg_val;
+ 	int ret, offset = 0;
+ 
+ 	chip = container_of(gc, struct pca953x_chip, gpio_chip);
+@@ -223,7 +238,7 @@ exit:
+ static int pca953x_gpio_get_value(struct gpio_chip *gc, unsigned off)
+ {
+ 	struct pca953x_chip *chip;
+-	uint16_t reg_val;
++	uint reg_val;
+ 	int ret, offset = 0;
+ 
+ 	chip = container_of(gc, struct pca953x_chip, gpio_chip);
+@@ -253,7 +268,7 @@ static int pca953x_gpio_get_value(struct gpio_chip *gc, unsigned off)
+ static void pca953x_gpio_set_value(struct gpio_chip *gc, unsigned off, int val)
+ {
+ 	struct pca953x_chip *chip;
+-	uint16_t reg_val;
++	uint reg_val;
+ 	int ret, offset = 0;
+ 
+ 	chip = container_of(gc, struct pca953x_chip, gpio_chip);
+@@ -386,7 +401,7 @@ static struct irq_chip pca953x_irq_chip = {
+ 
+ static uint16_t pca953x_irq_pending(struct pca953x_chip *chip)
+ {
+-	uint16_t cur_stat;
++	uint     cur_stat;
+ 	uint16_t old_stat;
+ 	uint16_t pending;
+ 	uint16_t trigger;
+@@ -449,6 +464,7 @@ static int pca953x_irq_setup(struct pca953x_chip *chip,
+ {
+ 	struct i2c_client *client = chip->client;
+ 	int ret, offset = 0;
++	uint temporary;
+ 
+ 	if (irq_base != -1
+ 			&& (id->driver_data & PCA_INT)) {
+@@ -462,7 +478,8 @@ static int pca953x_irq_setup(struct pca953x_chip *chip,
+ 			offset = PCA957X_IN;
+ 			break;
+ 		}
+-		ret = pca953x_read_reg(chip, offset, &chip->irq_stat);
++		ret = pca953x_read_reg(chip, offset, &temporary);
++		chip->irq_stat = temporary;
+ 		if (ret)
+ 			goto out_failed;
+ 
+@@ -606,7 +623,7 @@ out:
+ static int __devinit device_pca957x_init(struct pca953x_chip *chip, int invert)
+ {
+ 	int ret;
+-	uint16_t val = 0;
++	uint val = 0;
+ 
+ 	/* Let every port in proper state, that could save power */
+ 	pca953x_write_reg(chip, PCA957X_PUPD, 0x0);
 -- 
-1.7.5.4
+1.7.3.4
