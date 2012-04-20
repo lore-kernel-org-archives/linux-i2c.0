@@ -1,7 +1,7 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH 1/4] i2c: eg20t: use NULL instead of 0
-Date: Fri, 20 Apr 2012 22:45:14 +0200
-Message-ID: <1334954717-13146-2-git-send-email-w.sang@pengutronix.de>
+Subject: [PATCH 2/4] i2c: eg20t: pass on return value in i2c_xfer
+Date: Fri, 20 Apr 2012 22:45:15 +0200
+Message-ID: <1334954717-13146-3-git-send-email-w.sang@pengutronix.de>
 References: <1334954717-13146-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1334954717-13146-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
@@ -12,8 +12,12 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-sparse rightfully says:
-drivers/i2c/busses/i2c-eg20t.c:990:59: warning: Using plain integer as NULL pointer
+smatch says:
+drivers/i2c/busses/i2c-eg20t.c:702 pch_i2c_xfer() info: why not propagate 'ret' from mutex_lock_interruptible() instead of -512?
+
+which is especially true since for -ENORESTARTSYS it is said in
+linux/errno.h "signal_pending() MUST be set" which is not done here. So
+just pass on the return value we got.
 
 Signed-off-by: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
@@ -22,17 +26,17 @@ Cc: Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index 9da12ce..6e9e075 100644
+index 6e9e075..93926a7 100644
 --- a/drivers/i2c/busses/i2c-eg20t.c
 +++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -872,7 +872,7 @@ static void __devexit pch_i2c_remove(struct pci_dev *pdev)
- 		pci_iounmap(pdev, adap_info->pch_data[0].pch_base_address);
+@@ -699,7 +699,7 @@ static s32 pch_i2c_xfer(struct i2c_adapter *i2c_adap,
  
- 	for (i = 0; i < adap_info->ch_num; i++)
--		adap_info->pch_data[i].pch_base_address = 0;
-+		adap_info->pch_data[i].pch_base_address = NULL;
+ 	ret = mutex_lock_interruptible(&pch_mutex);
+ 	if (ret)
+-		return -ERESTARTSYS;
++		return ret;
  
- 	pci_set_drvdata(pdev, NULL);
- 
+ 	if (adap->p_adapter_info->pch_i2c_suspended) {
+ 		mutex_unlock(&pch_mutex);
 -- 
 1.7.10
