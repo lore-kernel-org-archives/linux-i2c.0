@@ -1,70 +1,83 @@
-From: Nikolaus Voss <n.voss@weinmann.de>
-Subject: [PATCH v10 0/4] AT91: replace broken TWI driver i2c-at91.c
-Date: Fri, 20 Apr 2012 12:13:30 +0200
-Message-ID: <cover.1334916810.git.n.voss@weinmann.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: nicolas.ferre@atmel.com, ben-linux@fluff.org, balbi@ti.com, h.feurstein@gmail.com, rmallon@gmail.com, adrian.yanes@aalto.fi
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v5] i2c: Add device tree support to i2c-pnx.c
+Date: Fri, 20 Apr 2012 14:09:50 +0200
+Message-ID: <20120420120950.GA15613@pengutronix.de>
+References: <1334913755-10466-1-git-send-email-stigge@antcom.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="MGYHOYXEY6WxJCY8"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1334913755-10466-1-git-send-email-stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Cc: grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The old driver has two main deficencies:
-i)  No repeated start (Sr) condiction is possible, this makes it unusable
-    e.g. for most SMBus transfers.
-ii) I/O was done with polling/busy waiting what caused over-/underruns
-    even at light system loads and clock speeds.
 
-The new driver overcomes these deficencies and in addition allows for
-more than one TWI interface.
+--MGYHOYXEY6WxJCY8
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-A remaining limitation is the fact, that only one repeated start is
-possible (two concatenated messages). This limitation is imposed by
-the hardware. However, this should not be a problem as all common
-i2c-client communication does not rely on more than one repeated start.
+On Fri, Apr 20, 2012 at 11:22:35AM +0200, Roland Stigge wrote:
+> This patch adds device tree support to the pnx-i2c driver by using platfo=
+rm
+> resources for memory region and irq and removing dependency on mach inclu=
+des.
+>=20
+> The following platforms are affected:
+>=20
+> * PNX
+> * LPC31xx (WIP)
+> * LPC32xx
+>=20
+> The patch is based on a patch by Jon Smirl, working on lpc31xx integration
+>=20
+> Signed-off-by: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+> Reviewed-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+> Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-Signed-off-by: Nikolaus Voss <n.voss@weinmann.de>
-Reviewed-by: Felipe Balbi <balbi@ti.com>
-Tested-by: Hubert Feurstein <h.feurstein@gmail.com>
+NACK! I said the approach of dropping "timeout" is OK, but unless I say
+"you may add my ack after changing this and that", please do not
+automatically add my ack. Doesn't hurt here, since I have to pick it up
+anyway.
 
-v10: - applied fix for RXRDY overrun bug submitted by Hubert Feurstein
-     - applied fix for calculating twi_clk
-v9: - merge i2c-at91.c patches to single patch
-    - rewrite cwgr reg after timeout
-v8: - remove local include
-    - remove cpu_is_rm9200() and put twi hw bug info in platform_device
-    - use readl/writel_relaxed instead of __raw_readl/writel
-v7: i)  fix bug if internal address > 1 byte
-    ii) send stop when len == 1 (both reported by Carsten Behling)
-v6: support for I2C_SMBUS_BLOCK_DATA transfers.
-    Better use of clk_(un)prepare().
-    More sensible transfer timeout.
-v5: Another round of review comments from Ryan Mallon, Felipe Balbi
-    and Russell King: convert twi clk to use .dev_id, cleanups
-v4: Integrated more review comments from Ryan Mallon and Felipe Balbi:
-    Moved register include file to local include, code cleanups
-v3: Integrated review comments from Ryan Mallon and Felipe Balbi
-v2: Fixed whitespace issue
+> Changes since v4:
+> * Removed OF timeout property (to be added later when there is consensus =
+about
+>   how to call and handle it)
+> * Changed clock-frequency example to decimal
 
-Nikolaus Voss (4):
-  drivers/i2c/busses/i2c-at91.c: remove broken driver
-  Replace clk_lookup.con_id with clk_lookup.dev_id entries for twi clk
-  drivers/i2c/busses/i2c-at91.c: add new driver
-  G45 TWI: remove open drain setting for twi function gpios
+Thanks, I just noticed. Please drop (more precise: remove) the
+"slave-addr" for the same reasons as "timeout". Doesn't make much sense
+anyhow, pnx doesn't have any slave support.
 
- arch/arm/mach-at91/at91cap9.c              |    1 +
- arch/arm/mach-at91/at91rm9200.c            |    1 +
- arch/arm/mach-at91/at91rm9200_devices.c    |    9 +
- arch/arm/mach-at91/at91sam9260.c           |    1 +
- arch/arm/mach-at91/at91sam9261.c           |    1 +
- arch/arm/mach-at91/at91sam9263.c           |    1 +
- arch/arm/mach-at91/at91sam9g45.c           |    2 +
- arch/arm/mach-at91/at91sam9g45_devices.c   |    6 -
- arch/arm/mach-at91/at91sam9rl.c            |    2 +
- arch/arm/mach-at91/include/mach/at91_twi.h |   68 ----
- drivers/i2c/busses/Kconfig                 |   11 +-
- drivers/i2c/busses/i2c-at91.c              |  579 ++++++++++++++++++----------
- 12 files changed, 393 insertions(+), 289 deletions(-)
- delete mode 100644 arch/arm/mach-at91/include/mach/at91_twi.h
+>  	ret =3D request_irq(alg_data->irq, i2c_pnx_interrupt,
+> -			0, pdev->name, alg_data);
+> +			  0, pdev->name, alg_data);
 
--- 
-1.7.5.4
+I know that checkpatch complains about this, but I'd prefer to avoid
+such changes unless the code before was really unreadable.
+
+Regards,
+
+    Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--MGYHOYXEY6WxJCY8
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+RUg4ACgkQD27XaX1/VRszjQCfZ3I5d72a7N3aTncbjFrZyxtz
+8CYAoJW01IRAID0JFnc9fZuRqKqpFzKQ
+=qWMv
+-----END PGP SIGNATURE-----
+
+--MGYHOYXEY6WxJCY8--
