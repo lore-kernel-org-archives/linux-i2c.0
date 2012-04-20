@@ -1,295 +1,189 @@
-From: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
-Subject: [PATCH v6] i2c: Add device tree support to i2c-pnx.c
-Date: Fri, 20 Apr 2012 15:34:09 +0200
-Message-ID: <1334928849-18079-1-git-send-email-stigge@antcom.de>
+From: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv8 04/18] I2C: OMAP: I2C register restore only if context
+ is lost
+Date: Fri, 20 Apr 2012 19:47:44 +0530
+Message-ID: <CANQgH-Y9hNgHsuD6s+DHDC7ff+V1efawXvfceyC_q+N92w1PVw@mail.gmail.com>
+References: <1334235995-6727-1-git-send-email-shubhrajyoti@ti.com>
+	<1334235995-6727-5-git-send-email-shubhrajyoti@ti.com>
+	<87d376zd2v.fsf@ti.com>
+	<CAM=Q2cvGFgNtvCX=TXAioAUKH9z+VzeKW2ZHhpxUC+s2_yS1QA@mail.gmail.com>
+	<CANQgH-aUyx97rDUUTy8L1qHSSgdC2YaP7LaQor4RAGPfb2JX=g@mail.gmail.com>
+	<87wr5dnndj.fsf@ti.com>
+	<CANQgH-af1VCutKqpq8jK1yTPHybgvnUNA3zdfQq4AYcWcJRtvA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, arm-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org
-Cc: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANQgH-af1VCutKqpq8jK1yTPHybgvnUNA3zdfQq4AYcWcJRtvA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Cc: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds device tree support to the pnx-i2c driver by using platform
-resources for memory region and irq and removing dependency on mach includes.
+On Fri, Apr 20, 2012 at 7:43 PM, Datta, Shubhrajyoti
+<shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
+>
+>
+>
+> On Wed, Apr 18, 2012 at 7:38 PM, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> wrote:
+>>
+>> "
+>
+>
+>> > =A0#define OMAP_I2C_SYSTEST_SDA_O =A0 =A0 =A0 =A0 =A0 =A0 =A0 (1 <=
+< 0) =A0 =A0 =A0 =A0/* SDA
+>> > line drive out */
+>> >
+>> > -/* OCP_SYSSTATUS bit definitions */
+>> > -#define SYSS_RESETDONE_MASK =A0 =A0 =A0 =A0 =A0(1 << 0)
+>> > -
+>>
+>> Unrelated to this patch.
+>
+>
+Actually if this is not removed we get a warn as the header file gets
+added when I add omap_device.h and the compiler sees a redefinition. Ho=
+wever
+I agree that it can be a seperate patch.
 
-The following platforms are affected:
+ Here is the updated patch with your comments.
+ Thanks.
+=46rom c5efbe2bb050c113a1cb1b959a8890578ba9b237 Mon Sep 17 00:00:00 200=
+1
+=46rom: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Date: Fri, 20 Apr 2012 11:15:28 +0530
+Subject: [PATCH] I2C: OMAP: I2C register restore only if context is los=
+t
 
-* PNX
-* LPC31xx (WIP)
-* LPC32xx
+ Currently i2c register restore is done always.
+ Adding conditional restore.
+ The i2c register restore is done only if the context is lost
+ or in case of error to be on the safe side.
 
-The patch is based on a patch by Jon Smirl, working on lpc31xx integration
-
-Signed-off-by: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
-
+Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
+ arch/arm/plat-omap/i2c.c      |    3 +++
+ drivers/i2c/busses/i2c-omap.c |   35 ++++++++++++++++++++++++++-------=
+--
+ include/linux/i2c-omap.h      |    1 +
+ 3 files changed, 30 insertions(+), 9 deletions(-)
 
-Applies to v3.4-rc3 + already applied i2c-pnx.c patches from this series
-
-NOTE: I separated out this patch from the first patch series of the LPC32xx
-device tree conversion because most of those patches are already applied to
--next. This is the last patch of this first series, a precondition for the
-LPC32xx device tree switch.
-
-Changes since v5:
-* Removed OF slave-addr property
-* Removed whitespace fix
-
-Thanks to Wolfram Sang for reviewing!
-
- Documentation/devicetree/bindings/i2c/pnx.txt |   36 ++++++++++++++
- drivers/i2c/busses/i2c-pnx.c                  |   63 +++++++++++++++++++-------
- include/linux/i2c-pnx.h                       |    1 
- 3 files changed, 84 insertions(+), 16 deletions(-)
-
---- /dev/null
-+++ linux-2.6/Documentation/devicetree/bindings/i2c/pnx.txt
-@@ -0,0 +1,36 @@
-+* NXP PNX I2C Controller
-+
-+Required properties:
-+
-+ - reg: Offset and length of the register set for the device
-+ - compatible: should be "nxp,pnx-i2c"
-+ - interrupts: configure one interrupt line
-+ - #address-cells: always 1 (for i2c addresses)
-+ - #size-cells: always 0
-+ - interrupt-parent: the phandle for the interrupt controller that
-+   services interrupts for this device.
-+
-+Optional properties:
-+
-+ - clock-frequency: desired I2C bus clock frequency in Hz, Default: 100000 Hz
-+
-+Examples:
-+
-+	i2c1: i2c@400a0000 {
-+		compatible = "nxp,pnx-i2c";
-+		reg = <0x400a0000 0x100>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <51 0>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+	};
-+
-+	i2c2: i2c@400a8000 {
-+		compatible = "nxp,pnx-i2c";
-+		reg = <0x400a8000 0x100>;
-+		interrupt-parent = <&mic>;
-+		interrupts = <50 0>;
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		clock-frequency = <100000>;
-+	};
---- linux-2.6.orig/drivers/i2c/busses/i2c-pnx.c
-+++ linux-2.6/drivers/i2c/busses/i2c-pnx.c
-@@ -23,10 +23,11 @@
- #include <linux/err.h>
- #include <linux/clk.h>
- #include <linux/slab.h>
-+#include <linux/of_i2c.h>
- 
--#define I2C_PNX_TIMEOUT		10 /* msec */
--#define I2C_PNX_SPEED_KHZ	100
--#define I2C_PNX_REGION_SIZE	0x100
-+#define I2C_PNX_TIMEOUT_DEFAULT		10 /* msec */
-+#define I2C_PNX_SPEED_KHZ_DEFAULT	100
-+#define I2C_PNX_REGION_SIZE		0x100
- 
- enum {
- 	mstatus_tdi = 0x00000001,
-@@ -74,8 +75,9 @@ enum {
- #define I2C_REG_TXS(a)	((a)->ioaddr + 0x28)	/* Tx slave FIFO (RO) */
- #define I2C_REG_STFL(a)	((a)->ioaddr + 0x2c)	/* Tx slave FIFO level (RO) */
- 
--static inline int wait_timeout(long timeout, struct i2c_pnx_algo_data *data)
-+static inline int wait_timeout(struct i2c_pnx_algo_data *data)
- {
-+	long timeout = data->timeout;
- 	while (timeout > 0 &&
- 			(ioread32(I2C_REG_STS(data)) & mstatus_active)) {
- 		mdelay(1);
-@@ -84,8 +86,9 @@ static inline int wait_timeout(long time
- 	return (timeout <= 0);
- }
- 
--static inline int wait_reset(long timeout, struct i2c_pnx_algo_data *data)
-+static inline int wait_reset(struct i2c_pnx_algo_data *data)
- {
-+	long timeout = data->timeout;
- 	while (timeout > 0 &&
- 			(ioread32(I2C_REG_CTL(data)) & mcntrl_reset)) {
- 		mdelay(1);
-@@ -97,7 +100,7 @@ static inline int wait_reset(long timeou
- static inline void i2c_pnx_arm_timer(struct i2c_pnx_algo_data *alg_data)
- {
- 	struct timer_list *timer = &alg_data->mif.timer;
--	unsigned long expires = msecs_to_jiffies(I2C_PNX_TIMEOUT);
-+	unsigned long expires = msecs_to_jiffies(alg_data->timeout);
- 
- 	if (expires <= 1)
- 		expires = 2;
-@@ -135,7 +138,7 @@ static int i2c_pnx_start(unsigned char s
- 	}
- 
- 	/* First, make sure bus is idle */
--	if (wait_timeout(I2C_PNX_TIMEOUT, alg_data)) {
-+	if (wait_timeout(alg_data)) {
- 		/* Somebody else is monopolizing the bus */
- 		dev_err(&alg_data->adapter.dev,
- 			"%s: Bus busy. Slave addr = %02x, cntrl = %x, stat = %x\n",
-@@ -228,7 +231,7 @@ static int i2c_pnx_master_xmit(struct i2
- 		if (alg_data->mif.len == 0) {
- 			if (alg_data->last) {
- 				/* Wait until the STOP is seen. */
--				if (wait_timeout(I2C_PNX_TIMEOUT, alg_data))
-+				if (wait_timeout(alg_data))
- 					dev_err(&alg_data->adapter.dev,
- 						"The bus is still active after timeout\n");
- 			}
-@@ -326,7 +329,7 @@ static int i2c_pnx_master_rcv(struct i2c
- 		if (alg_data->mif.len == 0) {
- 			if (alg_data->last)
- 				/* Wait until the STOP is seen. */
--				if (wait_timeout(I2C_PNX_TIMEOUT, alg_data))
-+				if (wait_timeout(alg_data))
- 					dev_err(&alg_data->adapter.dev,
- 						"The bus is still active after timeout\n");
- 
-@@ -442,7 +445,7 @@ static void i2c_pnx_timeout(unsigned lon
- 
- 	ctl |= mcntrl_reset;
- 	iowrite32(ctl, I2C_REG_CTL(alg_data));
--	wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+	wait_reset(alg_data);
- 	alg_data->mif.ret = -EIO;
- 	complete(&alg_data->mif.complete);
- }
-@@ -457,18 +460,18 @@ static inline void bus_reset_if_active(s
- 			alg_data->adapter.name);
- 		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_reset,
- 			  I2C_REG_CTL(alg_data));
--		wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+		wait_reset(alg_data);
- 	} else if (!(stat & mstatus_rfe) || !(stat & mstatus_tfe)) {
- 		/* If there is data in the fifo's after transfer,
- 		 * flush fifo's by reset.
- 		 */
- 		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_reset,
- 			  I2C_REG_CTL(alg_data));
--		wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+		wait_reset(alg_data);
- 	} else if (stat & mstatus_nai) {
- 		iowrite32(ioread32(I2C_REG_CTL(alg_data)) | mcntrl_reset,
- 			  I2C_REG_CTL(alg_data));
--		wait_reset(I2C_PNX_TIMEOUT, alg_data);
-+		wait_reset(alg_data);
- 	}
- }
- 
-@@ -612,6 +615,7 @@ static int __devinit i2c_pnx_probe(struc
- 	struct i2c_pnx_algo_data *alg_data;
- 	unsigned long freq;
- 	struct resource *res;
-+	u32 speed = I2C_PNX_SPEED_KHZ_DEFAULT * 1000;
- 
- 	alg_data = kzalloc(sizeof(*alg_data), GFP_KERNEL);
- 	if (!alg_data) {
-@@ -626,6 +630,22 @@ static int __devinit i2c_pnx_probe(struc
- 	alg_data->adapter.algo_data = alg_data;
- 	alg_data->adapter.nr = pdev->id;
- 
-+	alg_data->timeout = I2C_PNX_TIMEOUT_DEFAULT;
-+#ifdef CONFIG_OF
-+	alg_data->adapter.dev.of_node = of_node_get(pdev->dev.of_node);
-+	if (pdev->dev.of_node) {
-+		of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-+				     &speed);
-+		/*
-+		 * At this point, it is planned to add an OF timeout property.
-+		 * As soon as there is a consensus about how to call and handle
-+		 * this, sth. like the following can be put here:
-+		 *
-+		 * of_property_read_u32(pdev->dev.of_node, "timeout",
-+		 *                      &alg_data->timeout);
-+		 */
-+	}
-+#endif
- 	alg_data->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(alg_data->clk)) {
- 		ret = PTR_ERR(alg_data->clk);
-@@ -651,7 +671,7 @@ static int __devinit i2c_pnx_probe(struc
- 		dev_err(&pdev->dev,
- 		       "I/O region 0x%08x for I2C already in use.\n",
- 		       res->start);
--		ret = -ENODEV;
-+		ret = -ENOMEM;
- 		goto out_clkget;
- 	}
- 
-@@ -680,14 +700,14 @@ static int __devinit i2c_pnx_probe(struc
- 	 * the deglitching filter length.
+diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
+index db071bc..4ccab07 100644
+--- a/arch/arm/plat-omap/i2c.c
++++ b/arch/arm/plat-omap/i2c.c
+@@ -179,6 +179,9 @@ static inline int omap2_i2c_add_bus(int bus_id)
  	 */
- 
--	tmp = ((freq / 1000) / I2C_PNX_SPEED_KHZ) / 2 - 2;
-+	tmp = (freq / speed) / 2 - 2;
- 	if (tmp > 0x3FF)
- 		tmp = 0x3FF;
- 	iowrite32(tmp, I2C_REG_CKH(alg_data));
- 	iowrite32(tmp, I2C_REG_CKL(alg_data));
- 
- 	iowrite32(mcntrl_reset, I2C_REG_CTL(alg_data));
--	if (wait_reset(I2C_PNX_TIMEOUT, alg_data)) {
-+	if (wait_reset(alg_data)) {
- 		ret = -ENODEV;
- 		goto out_clock;
- 	}
-@@ -710,6 +730,8 @@ static int __devinit i2c_pnx_probe(struc
- 		goto out_irq;
- 	}
- 
-+	of_i2c_register_devices(&alg_data->adapter);
+ 	if (cpu_is_omap34xx())
+ 		pdata->set_mpu_wkup_lat =3D omap_pm_set_max_mpu_wakeup_lat_compat;
 +
- 	dev_dbg(&pdev->dev, "%s: Master at %#8x, irq %d.\n",
- 		alg_data->adapter.name, res->start, alg_data->irq);
- 
-@@ -748,10 +770,19 @@ static int __devexit i2c_pnx_remove(stru
- 	return 0;
- }
- 
-+#ifdef CONFIG_OF
-+static const struct of_device_id i2c_pnx_of_match[] = {
-+	{ .compatible = "nxp,pnx-i2c" },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, i2c_pnx_of_match);
-+#endif
++	pdata->get_context_loss_count =3D omap_pm_get_dev_context_loss_count;
 +
- static struct platform_driver i2c_pnx_driver = {
- 	.driver = {
- 		.name = "pnx-i2c",
- 		.owner = THIS_MODULE,
-+		.of_match_table = of_match_ptr(i2c_pnx_of_match),
- 	},
- 	.probe = i2c_pnx_probe,
- 	.remove = __devexit_p(i2c_pnx_remove),
---- linux-2.6.orig/include/linux/i2c-pnx.h
-+++ linux-2.6/include/linux/i2c-pnx.h
-@@ -32,6 +32,7 @@ struct i2c_pnx_algo_data {
- 	struct i2c_adapter	adapter;
- 	phys_addr_t		base;
- 	int			irq;
-+	u32			timeout;
+ 	pdev =3D omap_device_build(name, bus_id, oh, pdata,
+ 			sizeof(struct omap_i2c_bus_platform_data),
+ 			NULL, 0, 0);
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-oma=
+p.c
+index f5094b1..d95b01b 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -43,6 +43,7 @@
+ #include <linux/slab.h>
+ #include <linux/i2c-omap.h>
+ #include <linux/pm_runtime.h>
++#include <plat/omap_device.h>
+
+ /* I2C controller revisions */
+ #define OMAP_I2C_OMAP1_REV_2		0x20
+@@ -185,6 +186,7 @@ struct omap_i2c_dev {
+ 	u32			latency;	/* maximum mpu wkup latency */
+ 	void			(*set_mpu_wkup_lat)(struct device *dev,
+ 						    long latency);
++	int			(*get_context_loss_count)(struct device *dev);
+ 	u32			speed;		/* Speed of bus in kHz */
+ 	u32			dtrev;		/* extra revision from DT */
+ 	u32			flags;
+@@ -207,6 +209,7 @@ struct omap_i2c_dev {
+ 	u16			syscstate;
+ 	u16			westate;
+ 	u16			errata;
++	int			dev_lost_count;
  };
- 
- #endif /* __I2C_PNX_H__ */
+
+ static const u8 reg_map_ip_v1[] =3D {
+@@ -989,6 +992,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		dev->speed =3D pdata->clkrate;
+ 		dev->flags =3D pdata->flags;
+ 		dev->set_mpu_wkup_lat =3D pdata->set_mpu_wkup_lat;
++		dev->get_context_loss_count =3D pdata->get_context_loss_count;
+ 		dev->dtrev =3D pdata->rev;
+ 	}
+
+@@ -1133,12 +1137,26 @@ omap_i2c_remove(struct platform_device *pdev)
+ }
+
+ #ifdef CONFIG_PM_RUNTIME
++static void omap_i2c_restore(struct omap_i2c_dev *dev)
++{
++	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
++	omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, dev->bufstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
++	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
++
++}
+ static int omap_i2c_runtime_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev =3D to_platform_device(dev);
+ 	struct omap_i2c_dev *_dev =3D platform_get_drvdata(pdev);
+ 	u16 iv;
+
++	if (_dev->get_context_loss_count)
++		_dev->dev_lost_count =3D _dev->get_context_loss_count(dev);
++
+ 	_dev->iestate =3D omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
+
+ 	omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
+@@ -1159,16 +1177,15 @@ static int omap_i2c_runtime_resume(struct devic=
+e *dev)
+ {
+ 	struct platform_device *pdev =3D to_platform_device(dev);
+ 	struct omap_i2c_dev *_dev =3D platform_get_drvdata(pdev);
++	int loss_cnt;
++
++	if (!(_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE))
++		return 0;
+
+-	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
+-		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, 0);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_PSC_REG, _dev->pscstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_SCLL_REG, _dev->scllstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_SCLH_REG, _dev->sclhstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_BUF_REG, _dev->bufstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_SYSC_REG, _dev->syscstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_WE_REG, _dev->westate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
++	if (_dev->get_context_loss_count) {
++		loss_cnt =3D _dev->get_context_loss_count(dev);
++		if (_dev->dev_lost_count !=3D loss_cnt)
++			omap_i2c_restore(_dev);
+ 	}
+
+ 	/*
+diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
+index 92a0dc7..c76cbc0 100644
+--- a/include/linux/i2c-omap.h
++++ b/include/linux/i2c-omap.h
+@@ -35,6 +35,7 @@ struct omap_i2c_bus_platform_data {
+ 	u32		rev;
+ 	u32		flags;
+ 	void		(*set_mpu_wkup_lat)(struct device *dev, long set);
++	int		(*get_context_loss_count)(struct device *dev);
+ };
+
+ #endif
+--=20
+1.7.5.4
