@@ -1,48 +1,50 @@
-From: Viresh Kumar <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 06/13] i2c/i2c-pxa: Remove conditional compilation of clk code
-Date: Sat, 21 Apr 2012 17:17:33 +0530
-Message-ID: <dc3d8fd0eeee7a93048ed2b1d6ed0c1cfe9e3ba0.1335008617.git.viresh.kumar@st.com>
-References: <cover.1335008617.git.viresh.kumar@st.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1335008617.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-In-Reply-To: <cover.1335008617.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-References: <cover.1335008617.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, mturquette-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org, jgarzik-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Adrian Yanes <devel@ayanes.com>
+Subject: Re: [PATCH] i2c-at91: fix data-loss issue
+Date: Sat, 21 Apr 2012 22:33:11 +0300
+Message-ID: <4F930B77.8070909@ayanes.com>
+References: <20120413103937.GH7154@arwen.pp.htv.fi> <1334317476-10044-1-git-send-email-h.feurstein@gmail.com> <EF2E73589CA71846A15D0B2CDF79505D0905D5A1AA@wm021.weinmann.com> <20120418143920.GA19802@pengutronix.de>
+Reply-To: devel@ayanes.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120418143920.GA19802@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-With addition of dummy clk_*() calls for non CONFIG_HAVE_CLK cases in clk.h,
-there is no need to have clk code enclosed in #ifdef CONFIG_HAVE_CLK, #endif
-macros.
+Hello,
 
-pxa i2c also has these dummy macros defined locally. Remove them as they aren't
-required anymore.
+we performed some measurements with the new version of the patch (v10),
+in order to verify that the twi clock was performing better with the new
+ternary operator introduced for the calculation of CLDIV & CHDIV.
 
-Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
- drivers/i2c/busses/i2c-pxa.c |    7 -------
- 1 files changed, 0 insertions(+), 7 deletions(-)
+However, we noticed we were using the wrongs resistors in our setup,
+changing them to the correct ones, the driver gives us a frequency rate
+of ~396kHz when we tweak the TWI_CLK_HZ to 400000. Using the previous
+version the driver (without the specific offset for the AT91RM9200) it
+gives a frequency rate of ~392kHz. Therefore, both rates are inside of
+the error margin that the oscilloscope can give, so we suggest to keep
+the latest code introduced for it, mostly because it behaves as the
+datasheet claims.
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index f673326..5fab849 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -41,13 +41,6 @@
- 
- #include <asm/irq.h>
- 
--#ifndef CONFIG_HAVE_CLK
--#define clk_get(dev, id)	NULL
--#define clk_put(clk)		do { } while (0)
--#define clk_disable(clk)	do { } while (0)
--#define clk_enable(clk)		do { } while (0)
--#endif
--
- struct pxa_reg_layout {
- 	u32 ibmr;
- 	u32 idbr;
--- 
-1.7.9
+On the other hand we found that the Underrun Error (UNRE) is not handled
+in the driver. When we send data up > 2-4 bytes (quite random to say
+when it really fails) and we add some dev_dbg() to print
+dev->transfer_status we get 141 (==UNRE). According with the datasheet,
+after the first UNRE received "this action automatically generated a
+STOP bit in Master Mode. Reset by read in TWI_SR when TXCOMP is set."
+
+We thought that one possibility for this was that the board was too slow
+to process the requests or that other interrupts were interfering.
+Disabling the interrupts inside of the twi interrupt handler did not
+help either.
+
+The datasheet does not mention any method to implement some mechanism to
+avoid the UNRE telling the hardware to wait a bit longer for the next
+byte. Thus, one way will be to restart the transfer with the remaining
+bytes (maybe only applicable to at91rm9200) or just to return some
+error/message to userland informing that could not send all the data.
+
+Adrian
