@@ -1,76 +1,51 @@
 From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 3/5] i2c: remove ixp2000 driver
-Date: Sun, 22 Apr 2012 18:31:37 +0200
-Message-ID: <20120422163137.GB4201@pengutronix.de>
-References: <1333503243-7702-1-git-send-email-robherring2@gmail.com>
- <1333503243-7702-3-git-send-email-robherring2@gmail.com>
+Subject: Re: [PATCH V2] i2c: designware: Add clk_{un}prepare() support
+Date: Sun, 22 Apr 2012 19:26:11 +0200
+Message-ID: <20120422172611.GA15041@pengutronix.de>
+References: <caa4a0645f80f199b31ec16de37a5c4c9c67a6fa.1334652570.git.viresh.kumar@st.com>
+ <b562073871c8c3c13a1f59698f69cfdf65db3b5a.1334662366.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6969597211155213966=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1333503243-7702-3-git-send-email-robherring2@gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Rob Herring <robherring2@gmail.com>
-Cc: Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, Nicolas Pitre <nico@fluxnic.net>, linux-kernel@vger.kernel.org, Rob Herring <rob.herring@calxeda.com>, "Jean Delvare (PC drivers,
- core)" <khali@linux-fr.org>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Olof Johansson <olof@lixom.net>, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <b562073871c8c3c13a1f59698f69cfdf65db3b5a.1334662366.git.viresh.kumar@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Viresh Kumar <viresh.kumar@st.com>
+Cc: ben-linux@fluff.org, spear-devel@list.st.com, viresh.linux@gmail.com, khali@linux-fr.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============6969597211155213966==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3uo+9/B/ebqu+fSQ"
-Content-Disposition: inline
-
-
---3uo+9/B/ebqu+fSQ
+--CE+1k2dSO48ffgeK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 03, 2012 at 08:34:01PM -0500, Rob Herring wrote:
-> From: Rob Herring <rob.herring@calxeda.com>
+On Tue, Apr 17, 2012 at 05:04:31PM +0530, Viresh Kumar wrote:
+> clk_{un}prepare is mandatory for platforms using common clock framework. =
+Since
+> this driver is used by SPEAr platform, which supports common clock framew=
+ork,
+> add clk_{un}prepare() support for designware i2c.
 >=20
-> The platform is removed, so there are no users of this driver.
->=20
-> Signed-off-by: Rob Herring <rob.herring@calxeda.com>
+> Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
 
-Thanks, applied to next.
+? Can't apply, which version is this against? Looks good otherwise.
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---3uo+9/B/ebqu+fSQ
+--CE+1k2dSO48ffgeK
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+UMmkACgkQD27XaX1/VRspIgCgoRlmrxMwvB/muNf6wWeJXh2T
-C/UAnR4dEuEb4nqT7WcH0wrAGDBsEbuo
-=vFla
+iEYEARECAAYFAk+UPzMACgkQD27XaX1/VRub3wCfevLeEGhwxQ0b0s6DKF5yKz5f
+QxwAnj7fqilV4GTgmsNj19JeKdka5TYh
+=tksO
 -----END PGP SIGNATURE-----
 
---3uo+9/B/ebqu+fSQ--
-
-
---===============6969597211155213966==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============6969597211155213966==--
+--CE+1k2dSO48ffgeK--
