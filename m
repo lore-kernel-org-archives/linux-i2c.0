@@ -1,50 +1,79 @@
-From: Adrian Yanes <devel@ayanes.com>
-Subject: Re: [PATCH] i2c-at91: fix data-loss issue
-Date: Sat, 21 Apr 2012 22:33:11 +0300
-Message-ID: <4F930B77.8070909@ayanes.com>
-References: <20120413103937.GH7154@arwen.pp.htv.fi> <1334317476-10044-1-git-send-email-h.feurstein@gmail.com> <EF2E73589CA71846A15D0B2CDF79505D0905D5A1AA@wm021.weinmann.com> <20120418143920.GA19802@pengutronix.de>
-Reply-To: devel@ayanes.com
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c/of: Automatically populate i2c mux busses
+ from device tree data.
+Date: Sun, 22 Apr 2012 18:20:08 +0200
+Message-ID: <20120422162008.GA4201@pengutronix.de>
+References: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com>
+ <1334265263-13549-3-git-send-email-ddaney.cavm@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120418143920.GA19802@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1334265263-13549-3-git-send-email-ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: David Daney <ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, "Jean Delvare (PC drivers core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
 
-we performed some measurements with the new version of the patch (v10),
-in order to verify that the twi clock was performing better with the new
-ternary operator introduced for the calculation of CLDIV & CHDIV.
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However, we noticed we were using the wrongs resistors in our setup,
-changing them to the correct ones, the driver gives us a frequency rate
-of ~396kHz when we tweak the TWI_CLK_HZ to 400000. Using the previous
-version the driver (without the specific offset for the AT91RM9200) it
-gives a frequency rate of ~392kHz. Therefore, both rates are inside of
-the error margin that the oscilloscope can give, so we suggest to keep
-the latest code introduced for it, mostly because it behaves as the
-datasheet claims.
+On Thu, Apr 12, 2012 at 02:14:23PM -0700, David Daney wrote:
+> From: David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>
+>=20
+> For 'normal' i2c bus drivers, we can call of_i2c_register_devices()
+> and have the device tree framework automatically populate the bus with
+> the devices specified in the device tree.
+>=20
+> This patch adds a common code to the i2c mux framework to have the mux
+> sub-busses be populated by the of_i2c_register_devices() too.  If the
+> mux device has an of_node, we populate the sub-bus' of_node so that
+> the subsequent call to of_i2c_register_devices() will find the
+> corresponding devices.
+>=20
+> It seemed better to put this logic in i2c_add_mux_adapter() rather
+> than the individual mux drivers, as they will all probably want to do
+> the same thing.
 
-On the other hand we found that the Underrun Error (UNRE) is not handled
-in the driver. When we send data up > 2-4 bytes (quite random to say
-when it really fails) and we add some dev_dbg() to print
-dev->transfer_status we get 141 (==UNRE). According with the datasheet,
-after the first UNRE received "this action automatically generated a
-STOP bit in Master Mode. Reset by read in TWI_SR when TXCOMP is set."
+Both patches looking mostly good, two things here:
 
-We thought that one possibility for this was that the board was too slow
-to process the requests or that other interrupts were interfering.
-Disabling the interrupts inside of the twi interrupt handler did not
-help either.
+> +	/*
+> +	 * Try to get populate the mux adapter's of_node, expands to
 
-The datasheet does not mention any method to implement some mechanism to
-avoid the UNRE telling the hardware to wait a bit longer for the next
-byte. Thus, one way will be to restart the transfer with the remaining
-bytes (maybe only applicable to at91rm9200) or just to return some
-error/message to userland informing that could not send all the data.
+"get populate"? I'd think you mean "populate" only, but am not sure
+enough to fix it myself.
 
-Adrian
+> +	 * nothing if !CONFIG_OF.
+> +	 */
+> +	if (mux_dev->of_node) {
+> +		struct device_node *child;
+> +		u32 reg;
+> +		int ret;
+
+We have a "ret" already in this function.
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--BOKacYhQ+x31HxR3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+UL7gACgkQD27XaX1/VRvdWgCgrlnDJ86GWtEaT3obbXaiJfuW
+q/YAoIzUvdOyNTDegA/3UfckWimXYdZv
+=nwnH
+-----END PGP SIGNATURE-----
+
+--BOKacYhQ+x31HxR3--
