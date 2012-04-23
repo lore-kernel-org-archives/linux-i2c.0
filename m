@@ -1,69 +1,51 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv8 02/10] I2C: OMAP: Fix the mismatch of pm_runtime enable
- and disable
-Date: Mon, 23 Apr 2012 21:27:00 +0530
-Message-ID: <CANQgH-YfhZWEi0nMVAJmgwGzYsNWmQr4HOwn7g4cZ1Ca405-1g@mail.gmail.com>
-References: <1334842101-20670-1-git-send-email-shubhrajyoti@ti.com>
-	<1334842101-20670-3-git-send-email-shubhrajyoti@ti.com>
-	<20120423154345.GA27321@pengutronix.de>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: mux: add device tree support
+Date: Mon, 23 Apr 2012 10:13:19 -0600
+Message-ID: <4F957F9F.7000309@wwwdotorg.org>
+References: <1334688545-8465-1-git-send-email-swarren@wwwdotorg.org> <20120423111507.GF19192@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20120423154345.GA27321@pengutronix.de>
-Sender: linux-omap-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Kevin Hilman <khilman@ti.com>, Rajendra Nayak <rnayak@ti.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120423111507.GF19192-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, David Daney <ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Thanks for review,
+On 04/23/2012 05:15 AM, Wolfram Sang wrote:
+> On Tue, Apr 17, 2012 at 12:49:04PM -0600, Stephen Warren wrote:
+>> From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>>
+>> * Define core portions of the DT binding for I2C bus muxes.
+>> * Enhance i2c_add_mux_adapter():
+>> ** Add parameters required for DT support. Update all callers.
+>> ** Set the appropriate adap->dev.of_node for the child bus.
+>> ** Call of_i2c_register_devices() for the child bus.
+>>
+>> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> 
+> David Daney (CCed) posted another variant [1]. Just looking at the
+> patches (and not really using them), I tend to like the approach using
+> <reg> better. But I am open for discussion, so I'd appreciate your
+> feedback.
+> 
+> Regards,
+> 
+>    Wolfram
+> 
+> [1] http://lkml.org/lkml/2012/4/12/423
 
-On Mon, Apr 23, 2012 at 9:13 PM, Wolfram Sang <w.sang@pengutronix.de> wrote:
-> On Thu, Apr 19, 2012 at 06:58:13PM +0530, Shubhrajyoti D wrote:
->> Currently the i2c driver calls the pm_runtime_enable and never
->> the disable. This may cause a warning when pm_runtime_enable
->> checks for the count match.Attempting to fix the same by calling
->> pm_runtime_disable in the error and the remove path.
->
-> Why "attempting"?
-yes will correct it. The updated patch below.
+Ah, that does look like a reasonable binding.
 
->From 1f6d8671d15b16de8840f0ff23d77d613a03e876 Mon Sep 17 00:00:00 2001
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Date: Fri, 16 Dec 2011 19:43:16 +0530
-Subject: [PATCHv8 02/10] I2C: OMAP: Fix the mismatch of pm_runtime enable and
- disable
+I had meant to call out to reviewers the potentially unusual use of
+explicitly named sub-nodes, rather than using the usual reg-based matching.
 
-Currently the i2c driver calls the pm_runtime_enable and never
-the disable. This may cause a warning when pm_runtime_enable
-checks for the count match. Fix the same by calling  pm_runtime_disable
-in the error and the remove path.
-
-Cc: Kevin Hilman <khilman@ti.com>
-Cc: Rajendra Nayak <rnayak@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- drivers/i2c/busses/i2c-omap.c |    2 ++
- 1 files changed, 2 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 4f4188d..c851672 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1090,6 +1090,7 @@ err_unuse_clocks:
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 	pm_runtime_put(dev->dev);
- 	iounmap(dev->base);
-+	pm_runtime_disable(&pdev->dev);
- err_free_mem:
- 	platform_set_drvdata(pdev, NULL);
- 	kfree(dev);
-@@ -1110,6 +1111,7 @@ omap_i2c_remove(struct platform_device *pdev)
- 	free_irq(dev->irq, dev);
- 	i2c_del_adapter(&dev->adapter);
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
-+	pm_runtime_disable(&pdev->dev);
- 	iounmap(dev->base);
- 	kfree(dev);
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--- 
-1.7.5.4
+The main reason I chose named sub-nodes for the busses was so the
+sub-nodes would match the pinctrl named states. However, I think we can
+make the pinctrl numbering match rather than the pinctrl naming instead.
+The only issue is the "idle" state; if we allow it to exist anywhere in
+the pinctrl-names list, it'll make the pinctrl numbering mismatch the
+sub-node numbering. I think we can solve this by forcing the idle state
+to be listed last in pinctrl-names (if it's listed at all). I'll update
+my patches based on that David's patch.
