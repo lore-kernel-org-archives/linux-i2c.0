@@ -1,89 +1,121 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCHv8 08/10] I2C: OMAP: fix missing handling of errata
- I2C_OMAP3_1P153
-Date: Mon, 23 Apr 2012 18:43:56 +0200
-Message-ID: <20120423164356.GD27321@pengutronix.de>
-References: <1334842101-20670-1-git-send-email-shubhrajyoti@ti.com>
- <1334842101-20670-9-git-send-email-shubhrajyoti@ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 1/3] i2c-tools: Clean up <linux/i2c-dev.h>
+Date: Mon, 23 Apr 2012 18:44:54 +0200
+Message-ID: <20120423184454.304660a8@endymion.delvare>
+References: <20120423184319.3e09d7b4@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PHCdUe6m4AxPMzOu"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1334842101-20670-9-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Tasslehoff Kjappfot <tasskjapp@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120423184319.3e09d7b4-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Minimize differences between kernel and user-space flavors of
+<linux/i2c-dev.h>.
+---
+ include/linux/i2c-dev.h |   60 +++++++++++++++++++++--------------------------
+ 1 file changed, 27 insertions(+), 33 deletions(-)
 
---PHCdUe6m4AxPMzOu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+--- i2c-tools.orig/include/linux/i2c-dev.h	2010-12-12 14:22:33.000000000 +0100
++++ i2c-tools/include/linux/i2c-dev.h	2012-03-15 09:47:41.134895370 +0100
+@@ -20,10 +20,8 @@
+     MA 02110-1301 USA.
+ */
+ 
+-/* $Id: i2c-dev.h 5894 2010-12-12 13:22:29Z khali $ */
+-
+-#ifndef LIB_I2CDEV_H
+-#define LIB_I2CDEV_H
++#ifndef _LINUX_I2C_DEV_H
++#define _LINUX_I2C_DEV_H
+ 
+ #include <linux/types.h>
+ #include <sys/ioctl.h>
+@@ -111,52 +109,48 @@ union i2c_smbus_data {
+ #define I2C_SMBUS_I2C_BLOCK_DATA    8
+ 
+ 
+-/* ----- commands for the ioctl like i2c_command call:
+- * note that additional calls are defined in the algorithm and hw 
+- *	dependent layers - these can be listed here, or see the 
+- *	corresponding header files.
++/* /dev/i2c-X ioctl commands.  The ioctl's parameter is always an
++ * unsigned long, except for:
++ *	- I2C_FUNCS, takes pointer to an unsigned long
++ *	- I2C_RDWR, takes pointer to struct i2c_rdwr_ioctl_data
++ *	- I2C_SMBUS, takes pointer to struct i2c_smbus_ioctl_data
+  */
+-				/* -> bit-adapter specific ioctls	*/
+-#define I2C_RETRIES	0x0701	/* number of times a device address      */
+-				/* should be polled when not            */
+-                                /* acknowledging 			*/
+-#define I2C_TIMEOUT	0x0702	/* set timeout - call with int 		*/
+-
+-
+-/* this is for i2c-dev.c	*/
+-#define I2C_SLAVE	0x0703	/* Change slave address			*/
+-				/* Attn.: Slave address is 7 or 10 bits */
+-#define I2C_SLAVE_FORCE	0x0706	/* Change slave address			*/
+-				/* Attn.: Slave address is 7 or 10 bits */
+-				/* This changes the address, even if it */
+-				/* is already taken!			*/
+-#define I2C_TENBIT	0x0704	/* 0 for 7 bit addrs, != 0 for 10 bit	*/
++#define I2C_RETRIES	0x0701	/* number of times a device address should
++				   be polled when not acknowledging */
++#define I2C_TIMEOUT	0x0702	/* set timeout in units of 10 ms */
+ 
+-#define I2C_FUNCS	0x0705	/* Get the adapter functionality */
+-#define I2C_RDWR	0x0707	/* Combined R/W transfer (one stop only)*/
+-#define I2C_PEC		0x0708	/* != 0 for SMBus PEC                   */
++/* NOTE: Slave address is 7 or 10 bits, but 10-bit addresses
++ * are NOT supported! (due to code brokenness)
++ */
++#define I2C_SLAVE	0x0703	/* Use this slave address */
++#define I2C_SLAVE_FORCE	0x0706	/* Use this slave address, even if it
++				   is already in use by a driver! */
++#define I2C_TENBIT	0x0704	/* 0 for 7 bit addrs, != 0 for 10 bit */
+ 
+-#define I2C_SMBUS	0x0720	/* SMBus-level access */
++#define I2C_FUNCS	0x0705	/* Get the adapter functionality mask */
+ 
+-/* -- i2c.h -- */
++#define I2C_RDWR	0x0707	/* Combined R/W transfer (one STOP only) */
+ 
++#define I2C_PEC		0x0708	/* != 0 to use PEC with SMBus */
++#define I2C_SMBUS	0x0720	/* SMBus transfer */
+ 
+-/* Note: 10-bit addresses are NOT supported! */
+ 
+ /* This is the structure as used in the I2C_SMBUS ioctl call */
+ struct i2c_smbus_ioctl_data {
+-	char read_write;
++	__u8 read_write;
+ 	__u8 command;
+-	int size;
++	__u32 size;
+ 	union i2c_smbus_data *data;
+ };
+ 
+ /* This is the structure as used in the I2C_RDWR ioctl call */
+ struct i2c_rdwr_ioctl_data {
+ 	struct i2c_msg *msgs;	/* pointers to i2c_msgs */
+-	int nmsgs;		/* number of i2c_msgs */
++	__u32 nmsgs;			/* number of i2c_msgs */
+ };
+ 
++#define  I2C_RDRW_IOCTL_MAX_MSGS	42
++
+ 
+ static inline __s32 i2c_smbus_access(int file, char read_write, __u8 command, 
+                                      int size, union i2c_smbus_data *data)
+@@ -332,4 +326,4 @@ static inline __s32 i2c_smbus_block_proc
+ }
+ 
+ 
+-#endif /* LIB_I2CDEV_H */
++#endif /* _LINUX_I2C_DEV_H */
 
-On Thu, Apr 19, 2012 at 06:58:19PM +0530, Shubhrajyoti D wrote:
-> From: Tasslehoff Kjappfot <tasskjapp@gmail.com>
->=20
-> i2c_probe set the dev->errata flag, but omap_i2c_init cleared the flag ag=
-ain.
-> Move the errata handling to i2c_probe.
->=20
-> Signed-off-by: Tasslehoff Kjappfot <tasskjapp@gmail.com>
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-
-Subject looks bogus to me. You are handling I207 here.
-
-> ---
->  drivers/i2c/busses/i2c-omap.c |   10 +++++-----
->  1 files changed, 5 insertions(+), 5 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index d555dcd..9323201 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -427,11 +427,6 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
->  	/* Take the I2C module out of reset: */
->  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
-> =20
-> -	dev->errata =3D 0;
-> -
-> -	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
-> -		dev->errata |=3D I2C_OMAP_ERRATA_I207;
-> -
->  	/* Enable interrupts */
->  	dev->iestate =3D (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
->  			OMAP_I2C_IE_ARDY | OMAP_I2C_IE_NACK |
-> @@ -1023,6 +1018,11 @@ omap_i2c_probe(struct platform_device *pdev)
-> =20
->  	dev->rev =3D omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
-> =20
-> +	dev->errata =3D 0;
-> +
-> +	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
-> +		dev->errata |=3D I2C_OMAP_ERRATA_I207;
-> +
->  	if (dev->rev <=3D OMAP_I2C_REV_ON_3430)
->  		dev->errata |=3D I2C_OMAP3_1P153;
-> =20
-> --=20
-> 1.7.5.4
->=20
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---PHCdUe6m4AxPMzOu
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+VhswACgkQD27XaX1/VRs/PgCgrj6vIqzS+VrcAaGc8NWELE6R
-Hh4An1ygqJhLFceYBPtmEvlJV2g0JkO6
-=EjbH
------END PGP SIGNATURE-----
-
---PHCdUe6m4AxPMzOu--
+-- 
+Jean Delvare
