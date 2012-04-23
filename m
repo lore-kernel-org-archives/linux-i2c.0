@@ -1,64 +1,124 @@
-From: David Daney <ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c/of: Automatically populate i2c mux busses
- from device tree data.
-Date: Mon, 23 Apr 2012 09:48:40 -0700
-Message-ID: <4F9587E8.1050702@gmail.com>
-References: <1334265263-13549-1-git-send-email-ddaney.cavm@gmail.com> <1334265263-13549-3-git-send-email-ddaney.cavm@gmail.com> <20120422162008.GA4201@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCHv8 06/10] I2C: OMAP: Fix the crash in i2c remove
+Date: Mon, 23 Apr 2012 18:49:44 +0200
+Message-ID: <20120423164944.GE27321@pengutronix.de>
+References: <1334842101-20670-1-git-send-email-shubhrajyoti@ti.com>
+ <1334842101-20670-7-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+SfteS7bOf3dGlBC"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120422162008.GA4201-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1334842101-20670-7-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, "Jean Delvare (PC drivers core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/22/2012 09:20 AM, Wolfram Sang wrote:
-> On Thu, Apr 12, 2012 at 02:14:23PM -0700, David Daney wrote:
->> From: David Daney<david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>
->>
->> For 'normal' i2c bus drivers, we can call of_i2c_register_devices()
->> and have the device tree framework automatically populate the bus with
->> the devices specified in the device tree.
->>
->> This patch adds a common code to the i2c mux framework to have the mux
->> sub-busses be populated by the of_i2c_register_devices() too.  If the
->> mux device has an of_node, we populate the sub-bus' of_node so that
->> the subsequent call to of_i2c_register_devices() will find the
->> corresponding devices.
->>
->> It seemed better to put this logic in i2c_add_mux_adapter() rather
->> than the individual mux drivers, as they will all probably want to do
->> the same thing.
->
-> Both patches looking mostly good, two things here:
->
->> +	/*
->> +	 * Try to get populate the mux adapter's of_node, expands to
->
-> "get populate"? I'd think you mean "populate" only, but am not sure
-> enough to fix it myself.
 
-You are correct.
+--+SfteS7bOf3dGlBC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
->> +	 * nothing if !CONFIG_OF.
->> +	 */
->> +	if (mux_dev->of_node) {
->> +		struct device_node *child;
->> +		u32 reg;
->> +		int ret;
->
-> We have a "ret" already in this function.
->
+On Thu, Apr 19, 2012 at 06:58:17PM +0530, Shubhrajyoti D wrote:
+>     In omap_i2c_remove we are accessing the I2C_CON register without
+>     enabling the clocks. Fix the same by enabling the clocks and disabling
+>     it.
+>     This fixes the following crash.
+>     [  154.723022] ------------[ cut here ]------------
+>     [  154.725677] WARNING: at arch/arm/mach-omap2/omap_l3_noc.c:112 l3_i=
+nterrupt_handler+0x1b4/0x1c4()
+>     [  154.725677] L3 custom error: MASTER:MPU TARGET:L4 PER2
+>     [  154.742614] Modules linked in: i2c_omap(-)
+>     [  154.746948] Backtrace:
+>     [  154.746948] [<c0013078>] (dump_backtrace+0x0/0x110) from [<c026c15=
+8>] (dump_stack+0x18/0x1c)
+>     [  154.752716]  r6:00000070 r5:c002c43c r4:df9b9e98 r3:df9b8000
+>     [  154.764465] [<c026c140>] (dump_stack+0x0/0x1c) from [<c0041a2c>] (=
+warn_slowpath_common+0x5c/0x6c)
+>     [  154.768341] [<c00419d0>] (warn_slowpath_common+0x0/0x6c) from [<c0=
+041ae0>] (warn_slowpath_fmt+0x38/0x40)
+>     [  154.776153]  r8:00000180 r7:c0361594 r6:c0379b48 r5:00080003 r4:e0=
+838b00
+>     [  154.790771] r3:00000009
+>     [  154.791778] [<c0041aa8>] (warn_slowpath_fmt+0x0/0x40) from [<c002c=
+43c>] (l3_interrupt_handler+0x1b4/0x1c4)
+>     [  154.803710]  r3:c0361598 r2:c02ef74c
+>     [  154.807403] [<c002c288>] (l3_interrupt_handler+0x0/0x1c4) from [<c=
+0085f44>] (handle_irq_event_percpu+0x58/0
+>     [  154.818237]  r8:0000002a r7:00000000 r6:00000000 r5:df808054 r4:df=
+8893c0
+>     [  154.825378] [<c0085eec>] (handle_irq_event_percpu+0x0/0x188) from =
+[<c00860b8>] (handle_irq_event+0x44/0x64)
+>     [  154.835662] [<c0086074>] (handle_irq_event+0x0/0x64) from [<c0088e=
+c0>] (handle_fasteoi_irq+0xa4/0x10c)
+>     [  154.845458]  r6:0000002a r5:df808054 r4:df808000 r3:c034a150
+>     [  154.846466] [<c0088e1c>] (handle_fasteoi_irq+0x0/0x10c) from [<c00=
+85ed0>] (generic_handle_irq+0x30/0x38)
+>     [  154.854278]  r5:c034aa48 r4:0000002a
+>     [  154.862091] [<c0085ea0>] (generic_handle_irq+0x0/0x38) from [<c000=
+fd38>] (handle_IRQ+0x60/0xc0)
+>     [  154.874450]  r4:c034ea70 r3:000001f8
+>     [  154.878234] [<c000fcd8>] (handle_IRQ+0x0/0xc0) from [<c0008478>] (=
+gic_handle_irq+0x20/0x5c)
+>     [  154.887023]  r7:ffffff40 r6:df9b9fb0 r5:c034e2b4 r4:0000001a
+>     [  154.887054] [<c0008458>] (gic_handle_irq+0x0/0x5c) from [<c000ea80=
+>] (__irq_usr+0x40/0x60)
+>     [  154.901153] Exception stack(0xdf9b9fb0 to 0xdf9b9ff8)
+>     [  154.907104] 9fa0:                                     beaf1f04 400=
+6be00 0000000f 0000000c
+>     [  154.915710] 9fc0: 4006c000 00000000 00008034 ffffff40 00000007 000=
+00000 00000000 0007b8d7
+>     [  154.916778] 9fe0: 00000000 beaf1b68 0000d23c 4005baf0 80000010 fff=
+fffff
+>     [  154.931335]  r6:ffffffff r5:80000010 r4:4005baf0 r3:beaf1f04
+>     [  154.937316] ---[ end trace 1b75b31a2719ed21 ]--
+>=20
+> Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 
-Good catch.  That definition of "ret" could (and should) be removed. 
-The code works correctly, but fails the elegance test.
+Is this really the correct solution? I do wonder that every driver using
+runtime PM should enable the clocks on their own. That should be done by
+the core, I'd say; it is not unusual that drivers need to write to
+registers in remove(). If it is correct, can I get some acks?
 
-I can send a new patch set with those corrections, or if you prefer, you 
-could commit these making the changes yourself.
+> ---
+>  drivers/i2c/busses/i2c-omap.c |    2 ++
+>  1 files changed, 2 insertions(+), 0 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index fec8d5c..44e8cfa 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1108,7 +1108,9 @@ omap_i2c_remove(struct platform_device *pdev)
+> =20
+>  	free_irq(dev->irq, dev);
+>  	i2c_del_adapter(&dev->adapter);
+> +	pm_runtime_get_sync(&pdev->dev);
+>  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+> +	pm_runtime_put(&pdev->dev);
+>  	pm_runtime_disable(&pdev->dev);
+>  	iounmap(dev->base);
+>  	kfree(dev);
+> --=20
+> 1.7.5.4
+>=20
 
-Which do you prefer?
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-David Daney
+--+SfteS7bOf3dGlBC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+ViCgACgkQD27XaX1/VRtZsACgvCjPMyXP+T0hhBLpfBYaH8DX
+2PYAoMo9kPOm0amblbXxy2QfByms4bS9
+=s1cZ
+-----END PGP SIGNATURE-----
+
+--+SfteS7bOf3dGlBC--
