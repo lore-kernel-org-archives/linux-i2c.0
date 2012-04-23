@@ -1,110 +1,80 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 3/3] i2c-s3c2410: Add HDMIPHY quirk for S3C2440
-Date: Mon, 23 Apr 2012 12:01:06 +0200
-Message-ID: <20120423100106.GB19192@pengutronix.de>
-References: <1332357113-2973-1-git-send-email-k.lewandowsk@samsung.com>
- <1332357113-2973-4-git-send-email-k.lewandowsk@samsung.com>
- <20120417174029.GC22406@pengutronix.de>
- <00dd01cd1d5c$57ce7f80$076b7e80$%szyprowski@samsung.com>
- <20120418134644.GB19220@pengutronix.de>
- <4F8EEC60.2080603@samsung.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] of/i2c: call i2c_verify_client from
+ of_find_i2c_device_by_node
+Date: Mon, 23 Apr 2012 13:04:54 +0200
+Message-ID: <20120423110454.GE19192@pengutronix.de>
+References: <1334688135-8355-1-git-send-email-swarren@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i0/AhcQY5QxfSsSZ"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <4F8EEC60.2080603@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Karol Lewandowski <k.lewandowsk@samsung.com>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>, ben-linux@fluff.org, thomas.abraham@linaro.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, Tomasz Stanislawski <t.stanislaws@samsung.com>, kyungmin.park@samsung.com, broonie@opensource.wolfsonmicro.com
+Content-Type: multipart/mixed; boundary="===============1673070296985245510=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <1334688135-8355-1-git-send-email-swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---i0/AhcQY5QxfSsSZ
+--===============1673070296985245510==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="phCU5ROyZO6kBE05"
+Content-Disposition: inline
+
+
+--phCU5ROyZO6kBE05
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Karol,
-
-> >>> ... and this one, if we declare a new compatible-entry for exynos4?
-> >>
-> >> It is not strictly related to Exynos4 SoCs. Exynos4 SoC has 8 standard=
- s3c2440 style
-> >> i2c controllers and one additional, internal controller for HDMIPHY, w=
-hich needs=20
-> >> some workarounds in the driver. Maybe the quirk should be named 'broke=
-n timeout=20
-> >> detection'
-> >=20
-> > I was wondering since you do what I suggested for platform devices alre=
-ady:
-> >=20
-> > +               .name           =3D "s3c2440-hdmiphy-i2c",
-> > +               .driver_data    =3D QUIRK_S3C2440 | QUIRK_HDMIPHY | QUI=
-RK_NO_GPIO,
+On Tue, Apr 17, 2012 at 12:42:15PM -0600, Stephen Warren wrote:
+> From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 >=20
+> i2c_bus_type may contain both I2C clients and I2C adapters. Fix
+> of_find_i2c_device_by_node to call i2c_verify_client to ensure that it
+> only returns non-NULL of I2C clients.
 >=20
-> Here I've done it this way for compatibility with legacy driver and
-> board(s).
+> Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Understood.
+Patch looks good to me, so I took the liberty and applied it to
+i2c-embedded/for-next. Acks by either Grant or Rob would still be
+appreciated.
 
-> Device tree is new interface, and I thought that it would be better
-> to describe things explicitly and separately from device type.
->=20
-> Right now these properties are used only on S3C2440, but I don't
-> consider it highly unlikely to see these on S3C**** in future.
-
-My experience also says that it easily can get even worse :(
-
-> Tomasz had similar doubts when I've posted patch that checked these
-> quirks only for S3C2440:
->=20
->   http://permalink.gmane.org/gmane.linux.drivers.i2c/10305
->=20
-> Thus, I've chosen properties and not separate type.
-
-I understand this reasoning. I still differ, though. Think about my
-above example about things getting worse. Then, you'd need another
-quirk-property for $FLAW. Later, $FLAW is still there, but the timeout
-issue was fixed. That would mean, the poor device-tree making person has
-to know which quirks to select for this version of the controller. Just
-specifying that it is the HDMI-phy and not a regular I2C controller is
-much more convenient, and the driver will figure the rest.
-
-> It's easy to introduce compat string (see below), but given above
-> I'm afraid that we might end up adding -hdmiphy- variant for every
-> new version of i2c controller.
-
-I'd be fine with that, given that the upcoming hdmiphy versions will not
-need all the same set of quirk-flags. I think we want that "quirk lookup
-table" fixed in the driver and not encoded in the device tree where
-people could get it wrong. Also, the quirks are nothing a board maker
-can select from; it is implicit as soons as you want the HDMIPHY on that
-SoC, thus the compatible-entry should be enough of a description.
-
-I am not the ultimate expert about bindings, though, and am open for
-corrections (I feel kinda confident on this issue, though ;))
-
-Regards,
-
-   Wolfram
+Thanks!
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---i0/AhcQY5QxfSsSZ
+--phCU5ROyZO6kBE05
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+VKGIACgkQD27XaX1/VRs/3gCfaJYb7/C+CZeqJPVdH2tbSFk2
-POQAoL60oVexMDsHMPZY/04TUAk4p9nU
-=DI+t
+iEYEARECAAYFAk+VN1YACgkQD27XaX1/VRt/YgCgxquqy+RdHFpOL+sFuAacymPG
+lZgAoKoIzD7iAMGFVYia3BymuryR4hGo
+=C+tK
 -----END PGP SIGNATURE-----
 
---i0/AhcQY5QxfSsSZ--
+--phCU5ROyZO6kBE05--
+
+--===============1673070296985245510==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============1673070296985245510==--
