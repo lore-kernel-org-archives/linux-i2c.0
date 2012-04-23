@@ -1,99 +1,61 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCHv8 05/10] I2C: OMAP: Don't check if
- wait_for_completion_timeout() returns less than zero
-Date: Mon, 23 Apr 2012 19:11:08 +0200
-Message-ID: <20120423171108.GJ27321@pengutronix.de>
-References: <1334842101-20670-1-git-send-email-shubhrajyoti@ti.com>
- <1334842101-20670-6-git-send-email-shubhrajyoti@ti.com>
+From: David Daney <ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: mux: add device tree support
+Date: Mon, 23 Apr 2012 10:11:33 -0700
+Message-ID: <4F958D45.1080800@gmail.com>
+References: <1334688545-8465-1-git-send-email-swarren@wwwdotorg.org> <20120423111507.GF19192@pengutronix.de> <4F957F9F.7000309@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="I/5syFLg1Ed7r+1G"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1334842101-20670-6-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <4F957F9F.7000309-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 04/23/2012 09:13 AM, Stephen Warren wrote:
+> On 04/23/2012 05:15 AM, Wolfram Sang wrote:
+>> On Tue, Apr 17, 2012 at 12:49:04PM -0600, Stephen Warren wrote:
+>>> From: Stephen Warren<swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>>>
+>>> * Define core portions of the DT binding for I2C bus muxes.
+>>> * Enhance i2c_add_mux_adapter():
+>>> ** Add parameters required for DT support. Update all callers.
+>>> ** Set the appropriate adap->dev.of_node for the child bus.
+>>> ** Call of_i2c_register_devices() for the child bus.
+>>>
+>>> Signed-off-by: Stephen Warren<swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>>
+>> David Daney (CCed) posted another variant [1]. Just looking at the
+>> patches (and not really using them), I tend to like the approach using
+>> <reg>  better. But I am open for discussion, so I'd appreciate your
+>> feedback.
+>>
+>> Regards,
+>>
+>>     Wolfram
+>>
+>> [1] http://lkml.org/lkml/2012/4/12/423
+>
+> Ah, that does look like a reasonable binding.
+>
 
---I/5syFLg1Ed7r+1G
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It was arrived at by iterating through several versions with Grant and Rob.
 
-On Thu, Apr 19, 2012 at 06:58:16PM +0530, Shubhrajyoti D wrote:
-> By definition, wait_for_completion_timeout() returns an unsigned value and
-> therefore, it is not necessary to check if the return value is less than =
-zero
-> as this is not possible.
->=20
-> This is based on a patch from Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
-> Changes from his patch
-> - Declare a long as the wait_for_completion_timeout returns long.
->=20
-> Original patch is
-> http://git.omapzoom.org/?p=3Dkernel/omap.git;a=3Dcommitdiff;h=3Dea02cece7=
-b0000bc736e60c4188a11aaa74bc6e6
+You make at least the third person (after me and Lars-Peter Clausen) 
+wanting to use the device tree to configure the I2C muxes.  So at a 
+minimum, it shows a need for this.
 
-The original patch has a signed-off, so you need to include it here as
-well.
+David Daney.
 
->=20
-> Cc : Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-omap.c |   10 ++++------
->  1 files changed, 4 insertions(+), 6 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 1777d79..fec8d5c 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -473,7 +473,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
->  			     struct i2c_msg *msg, int stop)
->  {
->  	struct omap_i2c_dev *dev =3D i2c_get_adapdata(adap);
-> -	int r;
-> +	unsigned long timeout;
->  	u16 w;
-> =20
->  	dev_dbg(dev->dev, "addr: 0x%04x, len: %d, flags: 0x%x, stop: %d\n",
-> @@ -541,12 +541,10 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *ad=
-ap,
->  	 * REVISIT: We should abort the transfer on signals, but the bus goes
->  	 * into arbitration and we're currently unable to recover from it.
->  	 */
-> -	r =3D wait_for_completion_timeout(&dev->cmd_complete,
-> -					OMAP_I2C_TIMEOUT);
-> +	timeout =3D wait_for_completion_timeout(&dev->cmd_complete,
-> +						OMAP_I2C_TIMEOUT);
->  	dev->buf_len =3D 0;
-> -	if (r < 0)
-> -		return r;
-> -	if (r =3D=3D 0) {
-> +	if (timeout =3D=3D 0) {
->  		dev_err(dev->dev, "controller timed out\n");
->  		omap_i2c_init(dev);
->  		return -ETIMEDOUT;
-> --=20
-> 1.7.5.4
->=20
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---I/5syFLg1Ed7r+1G
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+VjSwACgkQD27XaX1/VRtTqQCghNp32aefExdzxHFJftLDLz7j
-b7kAoJW0aQgVD8lKOzkzOYQ8ZJ/kdG9u
-=ltUz
------END PGP SIGNATURE-----
-
---I/5syFLg1Ed7r+1G--
+> I had meant to call out to reviewers the potentially unusual use of
+> explicitly named sub-nodes, rather than using the usual reg-based matching.
+>
+> The main reason I chose named sub-nodes for the busses was so the
+> sub-nodes would match the pinctrl named states. However, I think we can
+> make the pinctrl numbering match rather than the pinctrl naming instead.
+> The only issue is the "idle" state; if we allow it to exist anywhere in
+> the pinctrl-names list, it'll make the pinctrl numbering mismatch the
+> sub-node numbering. I think we can solve this by forcing the idle state
+> to be listed last in pinctrl-names (if it's listed at all). I'll update
+> my patches based on that David's patch.
