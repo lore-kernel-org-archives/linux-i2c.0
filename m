@@ -1,49 +1,31 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCHv8 09/10] I2C: OMAP: Do not set the XUDF if the underflow
- is not reached
-Date: Mon, 23 Apr 2012 18:42:12 +0200
-Message-ID: <20120423164212.GC27321@pengutronix.de>
-References: <1334842101-20670-1-git-send-email-shubhrajyoti@ti.com>
- <1334842101-20670-10-git-send-email-shubhrajyoti@ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 0/3 v2] i2c-tools: Introduce libi2c
+Date: Mon, 23 Apr 2012 18:43:19 +0200
+Message-ID: <20120423184319.3e09d7b4@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vEao7xgI/oilGqZ+"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1334842101-20670-10-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Alexander Shishkin <virtuoso@slind.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+For years now, project i2c-tools has been carrying a modified copy of
+<linux/i2c-dev.h> for use by user-space applications
+accessing /dev/i2c-* device nodes. The modified copy includes parts of
+<linux/i2c.h> as well as i2c_smbus_*() inline functions mimicking their
+kernel counterparts.
 
---vEao7xgI/oilGqZ+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Why it was done that way, I'm not sure. Maybe to make things easier for
+application authors, or maybe just because nobody ever cared to clean
+it all up. But what I'm sure of is that the current situation is ugly
+and should be cleaned up. Kernel interfaces should be described by
+kernel header files, not random user-space tool projects.
 
-On Thu, Apr 19, 2012 at 06:58:20PM +0530, Shubhrajyoti D wrote:
-> Currently in the 1.153 errata handling while waiting for transmitter
-> underflow if NACK is got the XUDF flag is also set.
-> The flag is set after wait for the condition is over.
+So I have a plan to get rid of <linux/i2c-dev.h> in i2c-tools and to
+move the inline i2c_smbus_*() functions to a proper library - they are
+too large to be inline functions and recent versions of gcc complain
+about that.
 
-What does XUDF mean? Please update the commit description, I can't know
-all terminology for all architectures.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---vEao7xgI/oilGqZ+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+VhmQACgkQD27XaX1/VRtGWQCfXrA62qe8KQBK4zv9bWMF55WV
-G5oAn3miWpokEDMH0sr0NhwCO3e64fOu
-=s+mY
------END PGP SIGNATURE-----
-
---vEao7xgI/oilGqZ+--
+-- 
+Jean Delvare
