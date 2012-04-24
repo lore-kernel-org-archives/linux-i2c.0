@@ -1,64 +1,52 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 1/2] i2c-s3c2410: Rework device type handling
-Date: Tue, 24 Apr 2012 16:44:07 +0200
-Message-ID: <20120424144407.GA9007@pengutronix.de>
-References: <1335198241-19344-1-git-send-email-k.lewandowsk@samsung.com>
- <1335198241-19344-2-git-send-email-k.lewandowsk@samsung.com>
- <20120423182033.GB2767@pengutronix.de>
- <4F966711.7080608@samsung.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: i2c of mux patches inquiry
+Date: Tue, 24 Apr 2012 18:08:57 +0200
+Message-ID: <20120424160857.GB9007@pengutronix.de>
+References: <e3d3b989-3996-49c7-86fc-2d04873e9e72@AM1EHSMHS004.ehs.local>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y0ulUmNC+osPPQO6"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="H1spWtNR+x+ondvy"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4F966711.7080608@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Karol Lewandowski <k.lewandowsk@samsung.com>
-Cc: m.szyprowski@samsung.com, ben-linux@fluff.org, thomas.abraham@linaro.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, kyungmin.park@samsung.com, broonie@opensource.wolfsonmicro.com, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>
+In-Reply-To: <e3d3b989-3996-49c7-86fc-2d04873e9e72-dAX9Bq04yCSXHCJdrdq+zrjjLBE8jN/0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: John Linn <John.Linn-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---y0ulUmNC+osPPQO6
+--H1spWtNR+x+ondvy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 24, 2012 at 10:40:49AM +0200, Karol Lewandowski wrote:
-> On 23.04.2012 20:20, Wolfram Sang wrote:
+On Tue, Apr 24, 2012 at 09:33:08AM -0600, John Linn wrote:
+> Hi guys,
 >=20
-> Hi!
+> What's the odds of the i2c/of: mux patches making into upstream?
 >=20
-> >> -static inline int s3c24xx_i2c_is2440(struct s3c24xx_i2c *i2c)
-> >> +static inline unsigned int s3c24xx_get_device_quirks(struct platform_=
-device *pdev)
-> >>  {
-> >> -	struct platform_device *pdev =3D to_platform_device(i2c->dev);
-> >> -	enum s3c24xx_i2c_type type;
-> >> -
-> >> -#ifdef CONFIG_OF
-> >> -	if (i2c->dev->of_node)
-> >> -		return of_device_is_compatible(i2c->dev->of_node,
-> >> -				"samsung,s3c2440-i2c");
-> >> -#endif
-> >> +	if (pdev->dev.of_node) {
-> >> +		const struct of_device_id *match;
-> >> +		match =3D of_match_node(&s3c24xx_i2c_match, pdev->dev.of_node);
-> >=20
-> > I'd appreciate a comment explaining why match can't be NULL here (as to
-> > my understanding, it can't). Or just check for it, but this way it looks
-> > a bit fishy and people (hopefully ;)) will ask about it.
->=20
->=20
-> My understanding is that it can't be null for exactly same reason why
-> platform_get_device_id(pdev) can't be null either (see below).
->=20
-> I.e. prerequisite for this code to be run at all (as it's called from
-> driver's .probe()) is to be already matched against very same match
-> table.
+> It looks like they're getting some momentum, nice work!
 
-Yes, I agree. Yet, this is not obvious and people might try to fix it
-(especially since programs like smatch report it as potentially
-dangerous). Ah, whatever, I could simply apply the fix then :) OK.
+Thanks!
+
+> http://git.kernel.org/?p=3Dlinux/kernel/git/next/linux-next.git;a=3Dcommi=
+t;h
+> =3D2d9b178f1d5ff652850410b36842b4401ab7e319
+> http://git.kernel.org/?p=3Dlinux/kernel/git/next/linux-next.git;a=3Dcommi=
+t;h
+> =3D7e865fe1ffa449d7f4f5a1946aa0f28b05afcbee
+>=20
+> I really want to start using them but also don't like to get a
+> dependency on stuff that never makes it upstream.
+
+They are scheduled for the 3.5 merge window. I don't put stuff into my
+next branch which I don't intend to send upstream (short-term or
+mid-term).
+
+You do have an influence regarding upstreaming by donating tags like
+Acked-by, Tested-by or Reviewed-by.
+
+And please ask such questions on the lists, not personally.
 
 Regards,
 
@@ -68,16 +56,16 @@ Regards,
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---y0ulUmNC+osPPQO6
+--H1spWtNR+x+ondvy
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+WvDcACgkQD27XaX1/VRtfRwCfWhhvxIvD1njgpI9TcTD9rkO6
-u9YAoKTCSavc1yBC7fSYosfqcBM3L/DE
-=sVaK
+iEYEARECAAYFAk+W0BkACgkQD27XaX1/VRtE6QCgha0YpNB4A6WKBMj9l6cgGhDa
+h1QAoJPtjHb4Q9oKIdGRwCDsHZE7gZ6D
+=08sV
 -----END PGP SIGNATURE-----
 
---y0ulUmNC+osPPQO6--
+--H1spWtNR+x+ondvy--
