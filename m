@@ -1,66 +1,33 @@
-From: Karol Lewandowski <k.lewandowsk@samsung.com>
-Subject: Re: [PATCH 1/2] i2c-s3c2410: Rework device type handling
-Date: Tue, 24 Apr 2012 10:40:49 +0200
-Message-ID: <4F966711.7080608@samsung.com>
-References: <1335198241-19344-1-git-send-email-k.lewandowsk@samsung.com>
- <1335198241-19344-2-git-send-email-k.lewandowsk@samsung.com>
- <20120423182033.GB2767@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH V1 2/2] i2c: tegra: support for I2C_M_NOSTART protocol
+ mangling
+Date: Tue, 24 Apr 2012 10:55:57 +0200
+Message-ID: <20120424105557.7ac07232@endymion.delvare>
+References: <1335251976-31925-1-git-send-email-ldewangan@nvidia.com>
+	<1335251976-31925-3-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <20120423182033.GB2767@pengutronix.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: m.szyprowski@samsung.com, ben-linux@fluff.org, thomas.abraham@linaro.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, kyungmin.park@samsung.com, broonie@opensource.wolfsonmicro.com, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1335251976-31925-3-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 23.04.2012 20:20, Wolfram Sang wrote:
-
-Hi!
-
->> -static inline int s3c24xx_i2c_is2440(struct s3c24xx_i2c *i2c)
->> +static inline unsigned int s3c24xx_get_device_quirks(struct platform_device *pdev)
->>  {
->> -	struct platform_device *pdev = to_platform_device(i2c->dev);
->> -	enum s3c24xx_i2c_type type;
->> -
->> -#ifdef CONFIG_OF
->> -	if (i2c->dev->of_node)
->> -		return of_device_is_compatible(i2c->dev->of_node,
->> -				"samsung,s3c2440-i2c");
->> -#endif
->> +	if (pdev->dev.of_node) {
->> +		const struct of_device_id *match;
->> +		match = of_match_node(&s3c24xx_i2c_match, pdev->dev.of_node);
+On Tue, 24 Apr 2012 12:49:36 +0530, Laxman Dewangan wrote:
+> Adding support for protocol mangling I2C_M_NOSTART.
+> When multiple message transfer request made through i2c
+> and if any message is flagged with I2C_M_NOSTART then
+> it will not send the start/repeat start/address of that
+> message i.e. send the data directly.
 > 
-> I'd appreciate a comment explaining why match can't be NULL here (as to
-> my understanding, it can't). Or just check for it, but this way it looks
-> a bit fishy and people (hopefully ;)) will ask about it.
+> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-tegra.c |   32 +++++++++++++++++++++++++++-----
+>  1 files changed, 27 insertions(+), 5 deletions(-)
 
-
-My understanding is that it can't be null for exactly same reason why
-platform_get_device_id(pdev) can't be null either (see below).
-
-I.e. prerequisite for this code to be run at all (as it's called from
-driver's .probe()) is to be already matched against very same match
-table.
-
-As far I can see the only possibility for it to fail is to have
-dev.of_node pointing to device tree node and NOT being instantiated
-from DT description...
-
->> +		return (unsigned int)match->data;
->> +	}
->>  
->> -	type = platform_get_device_id(pdev)->driver_data;
->> -	return type == TYPE_S3C2440;
->> +	return platform_get_device_id(pdev)->driver_data;
->>  }
-
-
-Regards,
+What do you need this for?
 
 -- 
-
-Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
+Jean Delvare
