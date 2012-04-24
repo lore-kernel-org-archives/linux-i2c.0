@@ -1,47 +1,50 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH V1 2/2] i2c: tegra: support for I2C_M_NOSTART protocol
- mangling
-Date: Tue, 24 Apr 2012 14:51:13 +0530
-Message-ID: <4F967089.3050004@nvidia.com>
-References: <1335251976-31925-1-git-send-email-ldewangan@nvidia.com>	<1335251976-31925-3-git-send-email-ldewangan@nvidia.com> <20120424105557.7ac07232@endymion.delvare>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH V3 03/12] i2c/i2c-pxa: Remove conditional compilation of clk code
+Date: Tue, 24 Apr 2012 16:51:25 +0530
+Message-ID: <08a0a53dde1958a395a9950d5e910bcb6e3b02b6.1335266056.git.viresh.kumar@st.com>
+References: <cover.1335266056.git.viresh.kumar@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120424105557.7ac07232-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <cover.1335266056.git.viresh.kumar@st.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: akpm@linux-foundation.org
+Cc: spear-devel@list.st.com, viresh.linux@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, mturquette@linaro.org, sshtylyov@mvista.com, jgarzik@redhat.com, linux@arm.linux.org.uk, Viresh Kumar <viresh.kumar@st.com>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 24 April 2012 02:25 PM, Jean Delvare wrote:
-> On Tue, 24 Apr 2012 12:49:36 +0530, Laxman Dewangan wrote:
->> Adding support for protocol mangling I2C_M_NOSTART.
->> When multiple message transfer request made through i2c
->> and if any message is flagged with I2C_M_NOSTART then
->> it will not send the start/repeat start/address of that
->> message i.e. send the data directly.
->>
->> Signed-off-by: Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
->> ---
->>   drivers/i2c/busses/i2c-tegra.c |   32 +++++++++++++++++++++++++++-----
->>   1 files changed, 27 insertions(+), 5 deletions(-)
-> What do you need this for?
->
+From: Viresh Kumar <viresh.linux@gmail.com>
 
-The primary use-case here is scatter-gather of multiple I2C messages; 
-the first message will contain the START and perhaps some transfers, 
-then subsequent messages will continue with more data transfers. This 
-removes the need to put all the data transfers into a single message, 
-and hence avoids some copying of commands/data.
+With addition of dummy clk_*() calls for non CONFIG_HAVE_CLK cases in clk.h,
+there is no need to have clk code enclosed in #ifdef CONFIG_HAVE_CLK, #endif
+macros.
 
-Mark Brown says this is important for regmap. This feature is implement 
-gather support for I2C transfers - the resulting I2C transfer is 
-entirely normal but this ends up being implemented by the controller 
-doing two transfers back to back with no start on the second transfer. 
-To the outside world it looks like a perfectly normal transfer. This 
-behaviour can be emulated by allocating a buffer and coalescing the data 
-into that buffer before sending it to the hardware but this introduces 
-an avoidable and sometimes noticeable overhead.
+pxa i2c also has these dummy macros defined locally. Remove them as they aren't
+required anymore.
 
-Including Mark B here for more comment/insight.
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Cc: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-pxa.c |    7 -------
+ 1 files changed, 0 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index a997c7d..1034d93 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -41,13 +41,6 @@
+ 
+ #include <asm/irq.h>
+ 
+-#ifndef CONFIG_HAVE_CLK
+-#define clk_get(dev, id)	NULL
+-#define clk_put(clk)		do { } while (0)
+-#define clk_disable(clk)	do { } while (0)
+-#define clk_enable(clk)		do { } while (0)
+-#endif
+-
+ struct pxa_reg_layout {
+ 	u32 ibmr;
+ 	u32 idbr;
+-- 
+1.7.9
