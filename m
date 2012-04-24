@@ -1,50 +1,91 @@
-From: Viresh Kumar <viresh.kumar@st.com>
-Subject: [PATCH V3 03/12] i2c/i2c-pxa: Remove conditional compilation of clk code
-Date: Tue, 24 Apr 2012 16:51:25 +0530
-Message-ID: <08a0a53dde1958a395a9950d5e910bcb6e3b02b6.1335266056.git.viresh.kumar@st.com>
-References: <cover.1335266056.git.viresh.kumar@st.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH V1 2/2] i2c: tegra: support for I2C_M_NOSTART protocol
+ mangling
+Date: Tue, 24 Apr 2012 12:38:35 +0100
+Message-ID: <20120424113834.GE12063@opensource.wolfsonmicro.com>
+References: <1335251976-31925-1-git-send-email-ldewangan@nvidia.com>
+ <1335251976-31925-3-git-send-email-ldewangan@nvidia.com>
+ <20120424105557.7ac07232@endymion.delvare>
+ <4F967089.3050004@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1335266056.git.viresh.kumar@st.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: akpm@linux-foundation.org
-Cc: spear-devel@list.st.com, viresh.linux@gmail.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, mturquette@linaro.org, sshtylyov@mvista.com, jgarzik@redhat.com, linux@arm.linux.org.uk, Viresh Kumar <viresh.kumar@st.com>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4Epv4kl9IRBfg3rk"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4F967089.3050004-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Viresh Kumar <viresh.linux@gmail.com>
 
-With addition of dummy clk_*() calls for non CONFIG_HAVE_CLK cases in clk.h,
-there is no need to have clk code enclosed in #ifdef CONFIG_HAVE_CLK, #endif
-macros.
+--4Epv4kl9IRBfg3rk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-pxa i2c also has these dummy macros defined locally. Remove them as they aren't
-required anymore.
+On Tue, Apr 24, 2012 at 02:51:13PM +0530, Laxman Dewangan wrote:
+> On Tuesday 24 April 2012 02:25 PM, Jean Delvare wrote:
 
-Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org
----
- drivers/i2c/busses/i2c-pxa.c |    7 -------
- 1 files changed, 0 insertions(+), 7 deletions(-)
+> >>Adding support for protocol mangling I2C_M_NOSTART.
+> >>When multiple message transfer request made through i2c
+> >>and if any message is flagged with I2C_M_NOSTART then
+> >>it will not send the start/repeat start/address of that
+> >>message i.e. send the data directly.
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index a997c7d..1034d93 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -41,13 +41,6 @@
- 
- #include <asm/irq.h>
- 
--#ifndef CONFIG_HAVE_CLK
--#define clk_get(dev, id)	NULL
--#define clk_put(clk)		do { } while (0)
--#define clk_disable(clk)	do { } while (0)
--#define clk_enable(clk)		do { } while (0)
--#endif
--
- struct pxa_reg_layout {
- 	u32 ibmr;
- 	u32 idbr;
--- 
-1.7.9
+> >What do you need this for?
+
+> The primary use-case here is scatter-gather of multiple I2C
+> messages; the first message will contain the START and perhaps some
+> transfers, then subsequent messages will continue with more data
+> transfers. This removes the need to put all the data transfers into
+> a single message, and hence avoids some copying of commands/data.
+
+> Mark Brown says this is important for regmap. This feature is
+> implement gather support for I2C transfers - the resulting I2C
+> transfer is entirely normal but this ends up being implemented by
+> the controller doing two transfers back to back with no start on the
+> second transfer. To the outside world it looks like a perfectly
+> normal transfer. This behaviour can be emulated by allocating a
+> buffer and coalescing the data into that buffer before sending it to
+> the hardware but this introduces an avoidable and sometimes
+> noticeable overhead.
+
+I'm sure I've seen that block of text somewhere before :)
+
+This is it, you've got some big blob like a firmware image somewhere=20
+or perhaps even just a small block of data to write in one and you want
+to put a register address on the front and send it.  It's much easier
+and slightly faster if you can avoid having to allocate a temporary
+buffer - not so much for I2C per se (it's generally very slow after all)
+as for the overall system, often when you're doing this stuff when the
+system is generally very busy so it's helpful to avoid introducing
+needless extra work.
+
+In the grand scheme it's not the end of the world if it's missing but
+if the hardware supports it we may as well use it, it's usually just
+setting a single register bit.
+
+--4Epv4kl9IRBfg3rk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPlpCOAAoJEBus8iNuMP3d1TQQAIZp0Z0T74cWQ+75VBj7FKKZ
+ie39Zbam6fRlZYxfERAmUTi38uL5gDNRuEWDYIAB+WkpxxRMmxUwmPt7wCNLRf5D
+gVI/WyNERwla6fiqIA2G4gB8UqQPOmTKujaX8XyB0/RBqdxcbjp6Au+GmbLnqyd6
+ZnW8vOkCvTShiGXawkiFnHVk/tpIcmoaahHjXfxikgyNlFRKxb9LLy4UjbSp3rMX
+xyCthylB3bwDtMGKzjxQ+MXpdblvF5EKjopPr8+nSbwDmrABSZvmd9dkOE2gZhQl
+gJsl7KqOPIM4UytF67OlZdzux58BoygT9QhZWilNXJ2BxTIaAWf2+eWj6zBQw8Ct
+suyawO2G37p0GJeQAtIahFh3ZLXnesx0hoxMN9N0qHAQBzSDC43H2jJ1yGDuUjSf
+/RbR9lpp4BcMcusndyqnYjUU5wAwzzq4JAu92PvM7h5SUgg2gBlc69znmSrpxt3E
+rk8Vn9gdZQ4EAVZqQMacVze6qMrwUhxh/vZkJyTAczPInvre4Ob8MgyXZ2eo9Oor
+vrHMeHeg9IE4IqQo/C+87erNQoifiNg/uKdkzNf9n3neRRgen+L9l0kwyb0d1i9W
+dHJheNrMk5l8wGWRX5f3MFI6NFSOE0sb4BVTiVn2nPsZkICZF52XH30RwspKNq+O
+4DN39W1CXyMC/Bwg57Q6
+=/foX
+-----END PGP SIGNATURE-----
+
+--4Epv4kl9IRBfg3rk--
