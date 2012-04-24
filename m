@@ -1,98 +1,66 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH V1 2/2] i2c: tegra: support for I2C_M_NOSTART protocol mangling
-Date: Tue, 24 Apr 2012 12:49:36 +0530
-Message-ID: <1335251976-31925-3-git-send-email-ldewangan@nvidia.com>
-References: <1335251976-31925-1-git-send-email-ldewangan@nvidia.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1335251976-31925-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+From: Karol Lewandowski <k.lewandowsk@samsung.com>
+Subject: Re: [PATCH 1/2] i2c-s3c2410: Rework device type handling
+Date: Tue, 24 Apr 2012 10:40:49 +0200
+Message-ID: <4F966711.7080608@samsung.com>
+References: <1335198241-19344-1-git-send-email-k.lewandowsk@samsung.com>
+ <1335198241-19344-2-git-send-email-k.lewandowsk@samsung.com>
+ <20120423182033.GB2767@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-reply-to: <20120423182033.GB2767@pengutronix.de>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: m.szyprowski@samsung.com, ben-linux@fluff.org, thomas.abraham@linaro.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-samsung-soc@vger.kernel.org, t.stanislaws@samsung.com, kyungmin.park@samsung.com, broonie@opensource.wolfsonmicro.com, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>
 List-Id: linux-i2c@vger.kernel.org
 
-Adding support for protocol mangling I2C_M_NOSTART.
-When multiple message transfer request made through i2c
-and if any message is flagged with I2C_M_NOSTART then
-it will not send the start/repeat start/address of that
-message i.e. send the data directly.
+On 23.04.2012 20:20, Wolfram Sang wrote:
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |   32 +++++++++++++++++++++++++++-----
- 1 files changed, 27 insertions(+), 5 deletions(-)
+Hi!
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 18067b3..a50e4c4 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -97,8 +97,21 @@
- #define I2C_HEADER_10BIT_ADDR			(1<<18)
- #define I2C_HEADER_IE_ENABLE			(1<<17)
- #define I2C_HEADER_REPEAT_START			(1<<16)
-+#define I2C_HEADER_CONTINUE_XFER		(1<<15)
- #define I2C_HEADER_MASTER_ADDR_SHIFT		12
- #define I2C_HEADER_SLAVE_ADDR_SHIFT		1
-+/*
-+ * msg_end_type: The bus control which need to be send at end of transfer.
-+ * @MSG_END_STOP: Send stop pulse at end of transfer.
-+ * @MSG_END_REPEAT_START: Send repeat start at end of transfer.
-+ * @MSG_END_CONTINUE: The following on message is coming and so do not send
-+ *		stop or repeat start.
-+ */
-+enum msg_end_type {
-+	MSG_END_STOP,
-+	MSG_END_REPEAT_START,
-+	MSG_END_CONTINUE,
-+};
- 
- /**
-  * struct tegra_i2c_dev	- per device i2c context
-@@ -450,7 +463,7 @@ err:
- }
- 
- static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
--	struct i2c_msg *msg, int stop)
-+	struct i2c_msg *msg, enum msg_end_type end_state)
- {
- 	u32 packet_header;
- 	u32 int_mask;
-@@ -477,7 +490,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	i2c_writel(i2c_dev, packet_header, I2C_TX_FIFO);
- 
- 	packet_header = I2C_HEADER_IE_ENABLE;
--	if (!stop)
-+	if (end_state == MSG_END_CONTINUE)
-+		packet_header |= I2C_HEADER_CONTINUE_XFER;
-+	else if (end_state == MSG_END_REPEAT_START)
- 		packet_header |= I2C_HEADER_REPEAT_START;
- 	if (msg->flags & I2C_M_TEN) {
- 		packet_header |= msg->addr;
-@@ -549,8 +564,14 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 
- 	clk_enable(i2c_dev->clk);
- 	for (i = 0; i < num; i++) {
--		int stop = (i == (num - 1)) ? 1  : 0;
--		ret = tegra_i2c_xfer_msg(i2c_dev, &msgs[i], stop);
-+		enum msg_end_type end_type = MSG_END_STOP;
-+		if (i < (num - 1)) {
-+			if (msgs[i + 1].flags & I2C_M_NOSTART)
-+				end_type = MSG_END_CONTINUE;
-+			else
-+				end_type = MSG_END_REPEAT_START;
-+		}
-+		ret = tegra_i2c_xfer_msg(i2c_dev, &msgs[i], end_type);
- 		if (ret)
- 			break;
- 	}
-@@ -560,7 +581,8 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 
- static u32 tegra_i2c_func(struct i2c_adapter *adap)
- {
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR;
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR |
-+			I2C_FUNC_PROTOCOL_MANGLING;
- }
- 
- static const struct i2c_algorithm tegra_i2c_algo = {
+>> -static inline int s3c24xx_i2c_is2440(struct s3c24xx_i2c *i2c)
+>> +static inline unsigned int s3c24xx_get_device_quirks(struct platform_device *pdev)
+>>  {
+>> -	struct platform_device *pdev = to_platform_device(i2c->dev);
+>> -	enum s3c24xx_i2c_type type;
+>> -
+>> -#ifdef CONFIG_OF
+>> -	if (i2c->dev->of_node)
+>> -		return of_device_is_compatible(i2c->dev->of_node,
+>> -				"samsung,s3c2440-i2c");
+>> -#endif
+>> +	if (pdev->dev.of_node) {
+>> +		const struct of_device_id *match;
+>> +		match = of_match_node(&s3c24xx_i2c_match, pdev->dev.of_node);
+> 
+> I'd appreciate a comment explaining why match can't be NULL here (as to
+> my understanding, it can't). Or just check for it, but this way it looks
+> a bit fishy and people (hopefully ;)) will ask about it.
+
+
+My understanding is that it can't be null for exactly same reason why
+platform_get_device_id(pdev) can't be null either (see below).
+
+I.e. prerequisite for this code to be run at all (as it's called from
+driver's .probe()) is to be already matched against very same match
+table.
+
+As far I can see the only possibility for it to fail is to have
+dev.of_node pointing to device tree node and NOT being instantiated
+from DT description...
+
+>> +		return (unsigned int)match->data;
+>> +	}
+>>  
+>> -	type = platform_get_device_id(pdev)->driver_data;
+>> -	return type == TYPE_S3C2440;
+>> +	return platform_get_device_id(pdev)->driver_data;
+>>  }
+
+
+Regards,
+
 -- 
-1.7.1.1
+
+Karol Lewandowski | Samsung Poland R&D Center | Linux/Platform
