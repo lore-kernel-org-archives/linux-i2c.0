@@ -1,46 +1,57 @@
-From: Adrian Yanes <devel@ayanes.com>
-Subject: Re: [PATCH] i2c-at91: fix data-loss issue
-Date: Wed, 25 Apr 2012 08:26:18 +0300
-Message-ID: <jn81tq$b3s$1@dough.gmane.org>
-References: <20120413103937.GH7154@arwen.pp.htv.fi> <1334317476-10044-1-git-send-email-h.feurstein@gmail.com> <EF2E73589CA71846A15D0B2CDF79505D0905D5A1AA@wm021.weinmann.com> <20120418143920.GA19802@pengutronix.de> <4F930B77.8070909@ayanes.com> <EF2E73589CA71846A15D0B2CDF79505D0905DB4657@wm021.weinmann.com> <4F94F598.1040008@ayanes.com>
-Reply-To: devel@ayanes.com
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] eepromer/24cXX: fix leaking file descriptor
+Date: Wed, 25 Apr 2012 08:41:26 +0200
+Message-ID: <20120425084126.317079a9@endymion.delvare>
+References: <d53426eaec2f3212842b5a44a0fbc2d1c97f44e3.1335263046.git.npajkovs@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4F94F598.1040008@ayanes.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <d53426eaec2f3212842b5a44a0fbc2d1c97f44e3.1335263046.git.npajkovs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nikola Pajkovsky <npajkovs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Apparently the issue with the AT91RM9200 is the chipset itself due to a
-factory design defect. Some people claim that the root cause of it is:
+Hi Nikola,
 
-"Since the TWI doesn't have a DMA channel there is no way to deliver
-timely data to the Tx buffer under heavy CPU load."[1]
+Patches for i2c-tools are better sent to the linux-i2c list,
+redirecting.
 
-Other threads[2] highlights same issues with the AT91RM9200 and the data
-loss. Even in 2007, Ronny Nilsson tried to do some patch[3] blocking the
-interrupts in order to win more feasibility, some testing was
-performed[4], and up to 100kHz (exactly the same value as we started
-getting errors), the driver just failed. At the end of the discussion
-the conclusion was that the TWI controller of the AT91RM9200 is just
-broken and the GPIO driver is the only alternative.
+On Tue, 24 Apr 2012 12:24:54 +0200, Nikola Pajkovsky wrote:
+> Signed-off-by: Nikola Pajkovsky <npajkovs-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> ---
+>  eepromer/24cXX.c |    5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/eepromer/24cXX.c b/eepromer/24cXX.c
+> index 00a21fd..ab86c33 100644
+> --- a/eepromer/24cXX.c
+> +++ b/eepromer/24cXX.c
+> @@ -79,9 +79,10 @@ int eeprom_open(char *dev_fqn, int addr, int type, struct eeprom* e)
+>  		return -1;
+>  
+>  	// get funcs list
+> -	if((r = ioctl(fd, I2C_FUNCS, &funcs) < 0))
+> +	if((r = ioctl(fd, I2C_FUNCS, &funcs) < 0)) {
+> +		close(fd);
+>  		return r;
+> -
+> +	}
+>  	
+>  	// check for req funcs
+>  	CHECK_I2C_FUNC( funcs, I2C_FUNC_SMBUS_READ_BYTE );
 
-Therefore, your driver will work for all of those chipsets using PDC
-with the TWI. However, it won't work with the AT91RM9200 (and probably
-old hardware variants that keep same hardware design).
+Good catch, however this function is leaking the same file descriptor
+in 7 other cases (one obvious one plus six times in CHECK_I2C_FUNC.) If
+we fix one, we should fix them all. I'd also be happy to get rid of
+CHECK_I2C_FUNC as it exists, macro-generated code is evil. I see no
+good reason why this couldn't be implemented as a regular function
+instead.
 
-So I recommend to add a note/comment indicating such incompatibility for
-the AT91RM9200, either in the source code or in the kernel config.
+Will you send updated patches, or do you want me to take care of these
+changes?
 
-Thanks.
-
-Adrian
-
-
-1 - http://lists.atrpms.net/pipermail/i2c/2007-October/002026.html
-2 - http://lists.lm-sensors.org/pipermail/i2c/2007-February/000773.html
-3 - http://lists.lm-sensors.org/pipermail/i2c/2007-February/000833.html
-4 - http://lists.atrpms.net/pipermail/i2c/2007-October/002034.html
+Thanks,
+-- 
+Jean Delvare
