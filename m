@@ -1,115 +1,23 @@
-From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Subject: [PATCH] I2C: xiic: Add OF binding support
-Date: Wed, 25 Apr 2012 15:48:53 +0200
-Message-ID: <1335361733-24441-1-git-send-email-lars@metafoo.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [RFC v2 3/5] i2c: Add of_i2c_get_adapter() function
+Date: Wed, 25 Apr 2012 09:36:41 -0600
+Message-ID: <4F981A09.2020304@wwwdotorg.org>
+References: <1335347102-14905-1-git-send-email-thierry.reding@avionic-design.de> <1335347102-14905-4-git-send-email-thierry.reding@avionic-design.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1335347102-14905-4-git-send-email-thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Jon Mayo <jmayo-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, =?ISO-8859-1?Q?Terje_Bergstr=F6m?= <tbergstrom-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Lucas Stach <dev-8ppwABl0HbeELgA04lAiVw@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <joerg.roedel-5C7GfCeVMHo@public.gmane.org>, Hiroshi Doyu <hdoyu-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Liam Girdwood <lrg-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
----
- Documentation/devicetree/bindings/i2c/xiic.txt |   22 ++++++++++++++++++++++
- drivers/i2c/busses/i2c-xiic.c                  |   23 ++++++++++++++++++-----
- 2 files changed, 40 insertions(+), 5 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/xiic.txt
+On 04/25/2012 03:45 AM, Thierry Reding wrote:
+> This function resolves an OF device node to an I2C adapter registered
+> with the I2C core.
 
-diff --git a/Documentation/devicetree/bindings/i2c/xiic.txt b/Documentation/devicetree/bindings/i2c/xiic.txt
-new file mode 100644
-index 0000000..ceabbe9
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/xiic.txt
-@@ -0,0 +1,22 @@
-+Xilinx IIC controller:
-+
-+Required properties:
-+- compatible : Must be "xlnx,xps-iic-2.00.a"
-+- reg : IIC register location and length
-+- interrupts : IIC controller unterrupt
-+- #address-cells = <1>
-+- #size-cells = <0>
-+
-+Optional properties:
-+- Child nodes conforming to i2c bus binding
-+
-+Example:
-+
-+	axi_iic_0: i2c@40800000 {
-+		compatible = "xlnx,xps-iic-2.00.a";
-+		interrupts = < 1 2 >;
-+		reg = < 0x40800000 0x10000 >;
-+
-+		#size-cells = <0>;
-+		#address-cells = <1>;
-+	};
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 2bded76..641d0e5 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -40,6 +40,7 @@
- #include <linux/i2c-xiic.h>
- #include <linux/io.h>
- #include <linux/slab.h>
-+#include <linux/of_i2c.h>
- 
- #define DRIVER_NAME "xiic-i2c"
- 
-@@ -705,8 +706,6 @@ static int __devinit xiic_i2c_probe(struct platform_device *pdev)
- 		goto resource_missing;
- 
- 	pdata = (struct xiic_i2c_platform_data *) pdev->dev.platform_data;
--	if (!pdata)
--		return -EINVAL;
- 
- 	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
-@@ -730,6 +729,7 @@ static int __devinit xiic_i2c_probe(struct platform_device *pdev)
- 	i2c->adap = xiic_adapter;
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	i2c->adap.dev.parent = &pdev->dev;
-+	i2c->adap.dev.of_node = pdev->dev.of_node;
- 
- 	xiic_reinit(i2c);
- 
-@@ -748,9 +748,13 @@ static int __devinit xiic_i2c_probe(struct platform_device *pdev)
- 		goto add_adapter_failed;
- 	}
- 
--	/* add in known devices to the bus */
--	for (i = 0; i < pdata->num_devices; i++)
--		i2c_new_device(&i2c->adap, pdata->devices + i);
-+	if (pdata) {
-+		/* add in known devices to the bus */
-+		for (i = 0; i < pdata->num_devices; i++)
-+			i2c_new_device(&i2c->adap, pdata->devices + i);
-+	}
-+
-+	of_i2c_register_devices(&i2c->adap);
- 
- 	return 0;
- 
-@@ -795,12 +799,21 @@ static int __devexit xiic_i2c_remove(struct platform_device* pdev)
- 	return 0;
- }
- 
-+#if defined(CONFIG_OF)
-+static const struct of_device_id xiic_of_match[] __devinitconst = {
-+	{ .compatible = "xlnx,xps-iic-2.00.a", },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(of, xiic_of_match);
-+#endif
-+
- static struct platform_driver xiic_i2c_driver = {
- 	.probe   = xiic_i2c_probe,
- 	.remove  = __devexit_p(xiic_i2c_remove),
- 	.driver  = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
-+		.of_match_table = of_match_ptr(xiic_of_match),
- 	},
- };
- 
--- 
-1.7.9.5
+I think this is doing the same thing as a patch I posted recently:
+http://www.spinics.net/lists/linux-i2c/msg07808.html
+
+What's the advantage of one way over the other?
