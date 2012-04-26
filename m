@@ -1,59 +1,81 @@
-From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: Re: [PATCH v10 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Thu, 26 Apr 2012 13:01:18 +0200 (CEST)
-Message-ID: <alpine.DEB.2.00.1204261035060.16439@gatekeeper.vosshq.de>
-References: <D99582E5322435468A77E74BB0039E7B1D22784CF0@SRV02.hamburg.garz-fricke.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: possible MXS-i2c bug
+Date: Thu, 26 Apr 2012 13:42:01 +0200
+Message-ID: <20120426114201.GC3548@pengutronix.de>
+References: <201204261326.29388.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="JgQwtEuHJzHdouWu"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <D99582E5322435468A77E74BB0039E7B1D22784CF0-6hi2BFpdtA3X4XV0xjfKZxOngtiEHj0sqGK+G5UkneY@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201204261326.29388.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Carsten Behling <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
-Cc: Marc-Oliver Westerburg <Westerburg-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Carsten,
 
-On Wed, 25 Apr 2012, Carsten Behling wrote:
-> I cannot find the fix for the RXRDY overrun bug in this patch:
+--JgQwtEuHJzHdouWu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The fix refers to the bug when RXRDY flag was masked out by TXCOMP,
-reported by Hubert. I hope this is fixed with v10.
+Hi Marek,
 
-[...]
-> here you only report the status flags after a complete transfer, but 
-> an overrun can happen after every byte. After reading the status 
-> register after an overrun for the next byte this info will be lost !
+you forgot the most important list, linux-i2c ;)
 
-Right, I didn't consider this. Would you mind to test if the attached 
-patch on top of v10 fixes your problem?
+> I recently tried mxs-i2c (on 3.4-rc4) with at24 eeprom, didn't work as ex=
+pected.
 
-Thanks,
-Niko
+Yes, we had the same this week/last week.
 
-P.S. Are you using a RM9200? Seems that this SOC has some problems...
+> Apparently, there might be some timing issue, when I put printk() into th=
+e at24=20
+> driver eeprom write function, it "fixed" itself. Though, replacing the i2=
+c=20
+> driver with i2c gpio also fixed the issue, so I suspect the i2c driver ha=
+s some=20
+> flaw in it.
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 97f4365..df0f6ed 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -186,9 +186,11 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
-  	else if (irqstatus & AT91_TWI_TXRDY)
-  		at91_twi_write_next_byte(dev);
+Try removing the printk and use the module paramter "io_limit=3D24" for
+at24. Does this help? (Or bs<=3D24 with dd)
 
-+	/* catch error flags */
-+	dev->transfer_status |= status;
-+
-  	if (irqstatus & AT91_TWI_TXCOMP) {
-  		at91_disable_twi_interrupts(dev);
--		dev->transfer_status = status;
-  		complete(&dev->cmd_complete);
-  	}
+> If noone has any fixes already, I'll debug this tonight or so.
 
-@@ -203,6 +205,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
-  		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
+The write FIFO overflows, since it only can carry 8 words. There is
+currently no check for that. One solution would be to check the FIFO
+status and fill them as needed. This will probably require additional
+locking, so I think the proper solution would be to use DMA for
+transfers bigger than the write FIFO size (we would get MX23 support
+then, too). Sadly, we don't have DMA support yet and I don't have time
+to implement it.
 
-  	INIT_COMPLETION(dev->cmd_complete);
-+	dev->transfer_status = 0;
-  	if (dev->msg->flags & I2C_M_RD) {
-  		unsigned start_flags = AT91_TWI_START;
+I am thinking if such transfers which would fail anyway, should
+currently be rejected or if the driver should depend on BROKEN or both.
+
+I am still undecided, though.
+
+Please also check the patch I sent yesterday, there is also another one
+coming after I get confirmation from a customer.
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--JgQwtEuHJzHdouWu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+ZNIkACgkQD27XaX1/VRu1ygCeJSRUzlIxVezNMxoHDTZ56cyC
+7pAAoKzAiEbiNbGxmMB3DXA+S4d0oEcD
+=QcHL
+-----END PGP SIGNATURE-----
+
+--JgQwtEuHJzHdouWu--
