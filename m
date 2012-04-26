@@ -1,68 +1,59 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv8 06/10] I2C: OMAP: Fix the crash in i2c remove
-Date: Thu, 26 Apr 2012 12:13:24 +0530
-Message-ID: <4F98EE8C.3070001@ti.com>
-References: <1334842101-20670-1-git-send-email-shubhrajyoti@ti.com>
- <1334842101-20670-7-git-send-email-shubhrajyoti@ti.com>
- <20120423164944.GE27321@pengutronix.de> <4F96ED77.9070503@ti.com>
- <20120424181806.GF9007@pengutronix.de> <4F98EB03.8060903@ti.com>
+From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: Re: [PATCH v10 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Thu, 26 Apr 2012 13:01:18 +0200 (CEST)
+Message-ID: <alpine.DEB.2.00.1204261035060.16439@gatekeeper.vosshq.de>
+References: <D99582E5322435468A77E74BB0039E7B1D22784CF0@SRV02.hamburg.garz-fricke.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <4F98EB03.8060903@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Kevin Hilman <khilman@ti.com>, tony@atomide.com, Rajendra Nayak <rnayak@ti.com>, stable@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-omap@vger.kernel.org, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <D99582E5322435468A77E74BB0039E7B1D22784CF0-6hi2BFpdtA3X4XV0xjfKZxOngtiEHj0sqGK+G5UkneY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Carsten Behling <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
+Cc: Marc-Oliver Westerburg <Westerburg-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 26 April 2012 11:58 AM, Shubhrajyoti wrote:
-> On Tuesday 24 April 2012 11:48 PM, Wolfram Sang wrote:
->> On Tue, Apr 24, 2012 at 11:44:15PM +0530, Shubhrajyoti wrote:
->>> On Monday 23 April 2012 10:19 PM, Wolfram Sang wrote:
->>>>>     [  154.901153] Exception stack(0xdf9b9fb0 to 0xdf9b9ff8)
->>>>>>     [  154.907104] 9fa0:                                     beaf1f0=
-4 4006be00 0000000f 0000000c
->>>>>>     [  154.915710] 9fc0: 4006c000 00000000 00008034 ffffff40 0000000=
-7 00000000 00000000 0007b8d7
->>>>>>     [  154.916778] 9fe0: 00000000 beaf1b68 0000d23c 4005baf0 8000001=
-0 ffffffff
->>>>>>     [  154.931335]  r6:ffffffff r5:80000010 r4:4005baf0 r3:beaf1f04
->>>>>>     [  154.937316] ---[ end trace 1b75b31a2719ed21 ]--
->>>>>>
->>>>>> Cc: <stable@vger.kernel.org>
->>>>>> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
->>>> Is this really the correct solution? I do wonder that every driver usi=
-ng
->>>> runtime PM should enable the clocks on their own. That should be done =
-by
->>>> the core, =
+Hi Carsten,
 
->>> By core you don't mean the i2c core but the pm layer right?
->> Yes.
->>
->>>> I'd say; it is not unusual that drivers need to write to
->>>> registers in remove(). If it is correct, can I get some acks?
->>> I did see the crash.
->> That was never a doubt. With "correct" I meant "correct solution".
->>
->>> Will wait for the pm experts to comment.
-> As far as I know I don=92t think that the pm layer doesn't enable the clo=
-cks
-> for the drivers on remove. Maybe Kevin or Rajendra can comment better.
-typo what i meant was
+On Wed, 25 Apr 2012, Carsten Behling wrote:
+> I cannot find the fix for the RXRDY overrun bug in this patch:
 
-As far as I know the pm layer doesn't enable the clocks
-for the drivers on remove. Maybe Kevin or Rajendra can comment better.
+The fix refers to the bug when RXRDY flag was masked out by TXCOMP,
+reported by Hubert. I hope this is fixed with v10.
 
-thanks,
->
->
+[...]
+> here you only report the status flags after a complete transfer, but 
+> an overrun can happen after every byte. After reading the status 
+> register after an overrun for the next byte this info will be lost !
+
+Right, I didn't consider this. Would you mind to test if the attached 
+patch on top of v10 fixes your problem?
+
+Thanks,
+Niko
+
+P.S. Are you using a RM9200? Seems that this SOC has some problems...
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 97f4365..df0f6ed 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -186,9 +186,11 @@ static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
+  	else if (irqstatus & AT91_TWI_TXRDY)
+  		at91_twi_write_next_byte(dev);
+
++	/* catch error flags */
++	dev->transfer_status |= status;
++
+  	if (irqstatus & AT91_TWI_TXCOMP) {
+  		at91_disable_twi_interrupts(dev);
+-		dev->transfer_status = status;
+  		complete(&dev->cmd_complete);
+  	}
+
+@@ -203,6 +205,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+  		(dev->msg->flags & I2C_M_RD) ? "read" : "write", dev->buf_len);
+
+  	INIT_COMPLETION(dev->cmd_complete);
++	dev->transfer_status = 0;
+  	if (dev->msg->flags & I2C_M_RD) {
+  		unsigned start_flags = AT91_TWI_START;
