@@ -1,43 +1,32 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] i2c: mxs: handle spurious interrupt
-Date: Wed, 25 Apr 2012 22:57:30 +0200
-Message-ID: <1335387450-26406-1-git-send-email-w.sang@pengutronix.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+From: Tomoya MORINAGA <tomoya.rohm@gmail.com>
+Subject: Re: [PATCH 1/2] i2c-eg20t: add helper function for xfer check
+Date: Thu, 26 Apr 2012 11:59:05 +0900
+Message-ID: <CANKRQnh6Vgou1A+tNFd6SyNuzsCfpUGEGRxkV4jPunDYpTDgwQ@mail.gmail.com>
+References: <1334817485-7121-1-git-send-email-tomoya.rohm@gmail.com>
+	<20120420203937.GB12691@pengutronix.de>
+	<CANKRQnhW6bH2eok5LtrW0Qg2Dis5EpC9Sae6Le+9Chkv0yQA4w@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CANKRQnhW6bH2eok5LtrW0Qg2Dis5EpC9Sae6Le+9Chkv0yQA4w@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Feng Tang <feng.tang@intel.com>, Alexander Stein <alexander.stein@systec-electronic.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, qi.wang@intel.com, yong.y.wang@intel.com, joel.clark@intel.com, kok.howg.ewe@intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-After an error interrupt setting cmd->err, I see another interrupt that
-the data engine is empty which clears cmd->err before being processed.
-So, clear cmd->err at the beginning of a transfer only to handle these
-consecutive interrupts.
+On Mon, Apr 23, 2012 at 1:25 PM, Tomoya MORINAGA <tomoya.rohm@gmail.com> wrote:
+>>
+>> My checkers found some other issues, for which I will send patches in a
+>> minute. Please have a look and test.
+>
+> OK.
+> I'll do until this week end and report to you.
+>
 
-Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-mxs.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+These 4 patches posted by you don't affect this driver's logical behavior.
+So, I only confirmed the driver is compiled without any error/warning.
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 3d471d5..4c37347 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -227,6 +227,7 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
- 		return -EINVAL;
- 
- 	init_completion(&i2c->cmd_complete);
-+	i2c->cmd_err = 0;
- 
- 	flags = stop ? MXS_I2C_CTRL0_POST_SEND_STOP : 0;
- 
-@@ -299,8 +300,6 @@ static irqreturn_t mxs_i2c_isr(int this_irq, void *dev_id)
- 		    MXS_I2C_CTRL1_SLAVE_STOP_IRQ | MXS_I2C_CTRL1_SLAVE_IRQ))
- 		/* MXS_I2C_CTRL1_OVERSIZE_XFER_TERM_IRQ is only for slaves */
- 		i2c->cmd_err = -EIO;
--	else
--		i2c->cmd_err = 0;
- 
- 	is_last_cmd = (readl(i2c->regs + MXS_I2C_QUEUESTAT) &
- 		MXS_I2C_QUEUESTAT_WRITE_QUEUE_CNT_MASK) == 0;
+thanks.
 -- 
-1.7.10
+ROHM Co., Ltd.
+tomoya
