@@ -1,83 +1,51 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: possible MXS-i2c bug
-Date: Fri, 27 Apr 2012 18:37:56 +0200
-Message-ID: <20120427163756.GH16504@pengutronix.de>
-References: <201204261326.29388.marex@denx.de>
- <201204271708.53467.marex@denx.de>
- <20120427154119.GF16504@pengutronix.de>
- <201204271753.39516.marex@denx.de>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 02/11] ASoC: imx-sgtl5000: add of_node_put when probe
+ fail.
+Date: Fri, 27 Apr 2012 18:44:28 +0100
+Message-ID: <20120427174428.GN18260@opensource.wolfsonmicro.com>
+References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
+ <1335510185-7906-3-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6cMF9JLEeZkfJjkP"
+	protocol="application/pgp-signature"; boundary="cs5saTBZh7UZl2eX"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <201204271753.39516.marex-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <1335510185-7906-3-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---6cMF9JLEeZkfJjkP
+--cs5saTBZh7UZl2eX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
+On Fri, Apr 27, 2012 at 03:02:56PM +0800, Richard Zhao wrote:
+> Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-> But then you don't have the DMA chain linked. Which I wonder if the contr=
-oller=20
-> has any problem with or not. I tried yesterday, got wrotes working perfec=
-tly,=20
-> but still had issues with reads, which is exactly what needs to be chaine=
-d.
+Applied, thanks.
 
-Yes, the read needs chaining of two "DMA command blocks". That should be
-the only chain needed, because of how the driver handles reads. It is
-still one I2C message, though.
-
-> I'll poke further eventually.
-
-I really hope it works out! That would be great.
-
-> > Regarding Figure 27-10, the first I2C write command could be sent
-> > seperately (probably even via PIOQUEUE).
->=20
-> I wonder if we want to combine pioqueue and DMA, that might create quite =
-some=20
-> franken-driver.
-
-Might be true, yet I hope it won't. Most I2C transfers tend to be very
-small, so PIOQEUE would have some advantage here (less overhead).
-
-> > The only thing to be chained is the I2C read command and the actual
-> > reading of the data.
-> >=20
-> > Just checked, the FSL driver does it basically this way, too.
->=20
-> Which doesn't mean FSL driver does it correctly, but it probably
-> worked for them and there was some bug in my DMA tinkering.
-
-It's only a proof-of-concept. We both know that :) (If it works, that
-is, AFAICT that one will fail for transfers bigger than PAGE_SIZE, too).
-
-Thanks,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---6cMF9JLEeZkfJjkP
+--cs5saTBZh7UZl2eX
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+ay2QACgkQD27XaX1/VRtxXQCfWmCCLhhzGoyXqsIJUCMbUv9N
-VCYAnj8Raa7FcMCJ+Wp9eaTk/oEa9hb6
-=ft6j
+iQIcBAEBAgAGBQJPmtr0AAoJEBus8iNuMP3dkEIQAI7etoGmmnMZEbiEkv01AMGY
+pqiyzKZqmOdNX7ghHae1lKec5w3MDjByJSr3PvIL6B/6BC8nddziKMVq8B8062Zx
+rvYhM7wra8m3NhX73+cNsoUB3rwDIgetYlgC2hYm7hzrSZ5rUqwt4V29AsQEXUND
+nnve5Q5z3OCa6rTft284M01UHiODlBSbkA7SPGR695o1jMXrAk3GOziUHmcKD9mn
+xUQDGoYGbtboi9ySiDRUnRWUCzn5f+2+Nhkr6PbrklsjFrk+FVFe+JNbXkRlNQZQ
+YJ2geAuqm4u/LLopXhI2Dj/42Gq7KstjDk1OPHb3Q6KYDuzW8pLFrZ4tr60Cm+Vg
+B5UhtVr6M+eXfCUV1IOd8Xe/9N7ue+WyfiTyLaljE0edQvXy3rXd/4Vm/TbCUYfE
+1FpGmYgb6urSSJHaZ1sXz889jQ/EIc3faGv9YcZSHEBKAMWGlrFt+sbjr3MNhXri
+UHodcbg7re0CnN+PoTC7ytnTLxrK0Qb+t3WVIDggerQnA/or8I+oBZ1W63cosx2K
+EUkOQhq82yga2AoWRw20eIHSaLDtFCH1iQLZ3X2jxl0B7xqArSmIS6ENphPMTrgS
+Eqw2NV3VPDxmwBS2r2Xj2GqymPj+b/AGrtmBaSTgrgifeVye2MHw3UEGluYJPKKu
+ZkVO+bpfZwYsUuCFS3iy
+=LxRj
 -----END PGP SIGNATURE-----
 
---6cMF9JLEeZkfJjkP--
+--cs5saTBZh7UZl2eX--
