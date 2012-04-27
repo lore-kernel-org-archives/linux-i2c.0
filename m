@@ -1,64 +1,105 @@
 From: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH 09/11] ARM: imx6q: add ssi1 clk_lookup
-Date: Fri, 27 Apr 2012 17:10:56 +0800
-Message-ID: <20120427091055.GP28063@b20223-02.ap.freescale.net>
+Subject: Re: [PATCH 04/11] i2c: imx: add pinctrl support
+Date: Fri, 27 Apr 2012 17:15:08 +0800
+Message-ID: <20120427091507.GQ28063@b20223-02.ap.freescale.net>
 References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
- <1335510185-7906-10-git-send-email-richard.zhao@freescale.com>
- <20120427080412.GW17184@pengutronix.de>
+ <1335510185-7906-5-git-send-email-richard.zhao@freescale.com>
+ <20120427084056.GD826@shlinux2.ap.freescale.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120427080412.GW17184-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20120427084056.GD826-Fb7DQEYuewWctlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
+To: Dong Aisheng <aisheng.dong-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 27, 2012 at 10:04:12AM +0200, Sascha Hauer wrote:
-> On Fri, Apr 27, 2012 at 03:03:03PM +0800, Richard Zhao wrote:
-> > It's used by audio drivers.
-> > 
+On Fri, Apr 27, 2012 at 04:40:57PM +0800, Dong Aisheng wrote:
+> On Fri, Apr 27, 2012 at 03:02:58PM +0800, Richard Zhao wrote:
 > > Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 > > ---
-> >  arch/arm/mach-imx/clk-imx6q.c |    1 +
-> >  1 files changed, 1 insertions(+), 0 deletions(-)
+> >  arch/arm/boot/dts/imx6q-sabrelite.dts |    2 ++
+> >  arch/arm/boot/dts/imx6q.dtsi          |   16 ++++++++++++++++
+> >  drivers/i2c/busses/i2c-imx.c          |    9 +++++++++
+> >  3 files changed, 27 insertions(+), 0 deletions(-)
 > > 
-> > diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
-> > index f40a35d..9a03dcc 100644
-> > --- a/arch/arm/mach-imx/clk-imx6q.c
-> > +++ b/arch/arm/mach-imx/clk-imx6q.c
-> > @@ -418,6 +418,7 @@ int __init mx6q_clocks_init(void)
-> >  	clk_register_clkdev(clk[sdma], NULL, "20ec000.sdma");
-> >  	clk_register_clkdev(clk[dummy], NULL, "20bc000.wdog");
-> >  	clk_register_clkdev(clk[dummy], NULL, "20c0000.wdog");
-> > +	clk_register_clkdev(clk[ssi1], NULL, "2028000.ssi");
+> > diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
+> > index 4663a4e..4e13293 100644
+> > --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
+> > +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
+> > @@ -50,6 +50,8 @@
+> >  			i2c@021a0000 { /* I2C1 */
+> >  				status = "okay";
+> >  				clock-frequency = <100000>;
+> > +				pinctrl-names = "default";
+> > +				pinctrl-0 = <&pinctrl_i2c1_1>;
+> >  
+> >  				codec: sgtl5000@0a {
+> >  					compatible = "fsl,sgtl5000";
+> > diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+> > index 2ba32e7..fe8c80d 100644
+> > --- a/arch/arm/boot/dts/imx6q.dtsi
+> > +++ b/arch/arm/boot/dts/imx6q.dtsi
+> > @@ -390,6 +390,22 @@
+> >  				reg = <0x020e0000 0x4000>;
+> >  
+> >  				/* shared pinctrl settings */
+> > +				i2c1 {
+> > +					pinctrl_i2c1_1: i2c1grp-1 {
+> > +						fsl,pins =	"MX6Q_PAD_EIM_D21",
+> > +								"MX6Q_PAD_EIM_D28";
+> > +						fsl,hysteresis = <1>;
+> > +						fsl,mux = <0x16 0x11>;
+> > +						fsl,pull = <2>;
+> > +						fsl,pue = <1>;
+> > +						fsl,pke = <1>;
+> > +						fsl,open-drain = <1>;
+> > +						fsl,speed = <2>;
+> > +						fsl,drive-strength = <6>;
+> > +						fsl,slew-rate = <1>;
+> > +					};
+> The pinctrl binding is changed a bit since v1.
+> You may need to change here according to v2 or latter.
+Yes, I'll try your v3 with SION.
 > 
-> The ssi clock needs a general cleanup on all i.MX just like I cleaned up
-> the other units. The SSI unit has at least a register clock and a baud
-> clock. What the driver requests and enables is the register clock.
-> 
-> The baud clock is currently unused and is needed only for master mode
-> (which is not implemented in the ssi driver)
-Are you sure for that? If I don't enable clk[ssi1], the ssi will not
-work.
-
-> 
-> So where we want to come to is:
-> 
-> 	clk_register_clkdev(clk[ipg], "ipg", "2028000.ssi");
-ssi don't have ipg gate. We can let it always on for imx6q.
+> > +				};
+> > +
+> >  				uart4 {
+> >  					pinctrl_uart4_1: uart4grp-1 {
+> >  						fsl,pins =	"MX6Q_PAD_KEY_COL0",
+> > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> > index dfb84b7..7a52067 100644
+> > --- a/drivers/i2c/busses/i2c-imx.c
+> > +++ b/drivers/i2c/busses/i2c-imx.c
+> > @@ -48,6 +48,7 @@
+> >  #include <linux/platform_device.h>
+> >  #include <linux/clk.h>
+> >  #include <linux/slab.h>
+> > +#include <linux/pinctrl/consumer.h>
+> >  #include <linux/of.h>
+> >  #include <linux/of_device.h>
+> >  #include <linux/of_i2c.h>
+> > @@ -470,6 +471,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+> >  	struct imx_i2c_struct *i2c_imx;
+> >  	struct resource *res;
+> >  	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
+> > +	struct pinctrl *pct;
+> >  	void __iomem *base;
+> >  	resource_size_t res_size;
+> >  	int irq, bitrate;
+> > @@ -520,6 +522,13 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+> >  	i2c_imx->base			= base;
+> >  	i2c_imx->res			= res;
+> >  
+> > +	pct = devm_pinctrl_get_select_default(&pdev->dev);
+> You may want to check this change will break other platforms also using this driver.
+> Refer to:
+> http://www.spinics.net/lists/arm-kernel/msg171538.html
+I didn't expect it can go in right now. It surely depends on your dummy pinctrl.
 
 Thanks
 Richard
-> 	clk_register_clkdev(clk[ssi1], "baud", "2028000.ssi");
 > 
-> Sascha
-> 
-> 
-> -- 
-> Pengutronix e.K.                           |                             |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
-> 
+> Regards
+> Dong Aisheng
