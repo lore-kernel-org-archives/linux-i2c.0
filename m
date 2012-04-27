@@ -1,68 +1,52 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: muxes: rename first set of drivers to a standard
- pattern
-Date: Fri, 27 Apr 2012 16:05:20 +0200
-Message-ID: <20120427140520.GA16504@pengutronix.de>
-References: <1335386636-23892-1-git-send-email-w.sang@pengutronix.de>
- <20120427095946.50352d3e@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+Subject: [PATCH] i2c: mxs: disable QUEUE when sending is done
+Date: Fri, 27 Apr 2012 16:23:51 +0200
+Message-ID: <1335536631-28202-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120427095946.50352d3e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Since the last fixes to this driver ensure now the queue termination is
+done correctly, we can finally disable the queue after a transfer
+without problems. The gain is that it will only be reenabled after the
+next transfer is fully set up. Before, the queue was running all the
+time and if the setup of the next message was interrupted by another
+thread, an incomplete buffer could have been sent, padded with zeroes.
 
---ZPt4rx8FFjLCG7dd
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
 
-On Fri, Apr 27, 2012 at 09:59:46AM +0200, Jean Delvare wrote:
-> On Wed, 25 Apr 2012 22:43:56 +0200, Wolfram Sang wrote:
-> > Apply a naming pattern like in the rest of the subsystem to a first set
-> > of mux drivers. Those drivers are the low-hanging fruit; we want to pick
-> > them to motivate upcoming drivers to follow the new pattern. The missing
-> > GPIO driver will be converted in a later patch.
->=20
-> Good idea.
+In case you are testing this patch, please donate Tested-by tags. Regular I2C
+usage should do, a bit of stress testing (putting I2C bus and system under
+load) would be great.
 
-Thanks.
+ drivers/i2c/busses/i2c-mxs.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->=20
-> (I can pick this in my tree if you want, just let me know.)
-
-Since I do carry some mux-patches already, might be easier if I keep it.
-
-> Now that you made i2c mux non-experimental, I think it would be great
-> to solve the gpio mux case quickly. Renaming drivers, header files and
-> public structures is better done early. I'll give it a try.
-
-Cool. I intended to ping Peter after my patch, but forgot :/
-
-Will fix the MAINTAINER issue you just mentioned.
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---ZPt4rx8FFjLCG7dd
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+ap6AACgkQD27XaX1/VRtYQgCdHvFjA8L1A4YNAGUSoBg/Gz4n
-rcMAnROR/XJFvfFp4GWUynDCWth1VX78
-=wvHT
------END PGP SIGNATURE-----
-
---ZPt4rx8FFjLCG7dd--
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 4c37347..76b8af4 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -253,6 +253,9 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 
+ 	if (i2c->cmd_err == -ENXIO)
+ 		mxs_i2c_reset(i2c);
++	else
++		writel(MXS_I2C_QUEUECTRL_QUEUE_RUN,
++				i2c->regs + MXS_I2C_QUEUECTRL_CLR);
+ 
+ 	dev_dbg(i2c->dev, "Done with err=%d\n", i2c->cmd_err);
+ 
+@@ -383,8 +386,6 @@ static int __devexit mxs_i2c_remove(struct platform_device *pdev)
+ 	if (ret)
+ 		return -EBUSY;
+ 
+-	writel(MXS_I2C_QUEUECTRL_QUEUE_RUN,
+-			i2c->regs + MXS_I2C_QUEUECTRL_CLR);
+ 	writel(MXS_I2C_CTRL0_SFTRST, i2c->regs + MXS_I2C_CTRL0_SET);
+ 
+ 	platform_set_drvdata(pdev, NULL);
+-- 
+1.7.10
