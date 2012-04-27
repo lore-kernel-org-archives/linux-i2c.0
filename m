@@ -1,98 +1,84 @@
-From: Dong Aisheng <aisheng.dong-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH 04/11] i2c: imx: add pinctrl support
-Date: Fri, 27 Apr 2012 16:40:57 +0800
-Message-ID: <20120427084056.GD826@shlinux2.ap.freescale.net>
-References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
- <1335510185-7906-5-git-send-email-richard.zhao@freescale.com>
+From: Carsten Behling <carsten.behling@garz-fricke.com>
+Subject: AW: [PATCH v10 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Fri, 27 Apr 2012 10:36:47 +0200
+Message-ID: <D99582E5322435468A77E74BB0039E7B1D2293684D@SRV02.hamburg.garz-fricke.de>
+References: <D99582E5322435468A77E74BB0039E7B1D22784CF0@SRV02.hamburg.garz-fricke.de>
+ <alpine.DEB.2.00.1204261035060.16439@gatekeeper.vosshq.de>
+ <D99582E5322435468A77E74BB0039E7B1D22784E8B@SRV02.hamburg.garz-fricke.de>
+ <EF2E73589CA71846A15D0B2CDF79505D0905E0994A@wm021.weinmann.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1335510185-7906-5-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D0905E0994A@wm021.weinmann.com>
+Content-Language: de-DE
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "Voss, Nikolaus" <N.Voss@weinmann.de>
+Cc: "'devel@ayanes.com'" <devel@ayanes.com>, 'Wolfram Sang' <w.sang@pengutronix.de>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, 'Hubert Feurstein' <h.feurstein@gmail.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, Marc-Oliver Westerburg <Westerburg@garz-fricke.com>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 27, 2012 at 03:02:58PM +0800, Richard Zhao wrote:
-> Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
->  arch/arm/boot/dts/imx6q-sabrelite.dts |    2 ++
->  arch/arm/boot/dts/imx6q.dtsi          |   16 ++++++++++++++++
->  drivers/i2c/busses/i2c-imx.c          |    9 +++++++++
->  3 files changed, 27 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/imx6q-sabrelite.dts b/arch/arm/boot/dts/imx6q-sabrelite.dts
-> index 4663a4e..4e13293 100644
-> --- a/arch/arm/boot/dts/imx6q-sabrelite.dts
-> +++ b/arch/arm/boot/dts/imx6q-sabrelite.dts
-> @@ -50,6 +50,8 @@
->  			i2c@021a0000 { /* I2C1 */
->  				status = "okay";
->  				clock-frequency = <100000>;
-> +				pinctrl-names = "default";
-> +				pinctrl-0 = <&pinctrl_i2c1_1>;
->  
->  				codec: sgtl5000@0a {
->  					compatible = "fsl,sgtl5000";
-> diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
-> index 2ba32e7..fe8c80d 100644
-> --- a/arch/arm/boot/dts/imx6q.dtsi
-> +++ b/arch/arm/boot/dts/imx6q.dtsi
-> @@ -390,6 +390,22 @@
->  				reg = <0x020e0000 0x4000>;
->  
->  				/* shared pinctrl settings */
-> +				i2c1 {
-> +					pinctrl_i2c1_1: i2c1grp-1 {
-> +						fsl,pins =	"MX6Q_PAD_EIM_D21",
-> +								"MX6Q_PAD_EIM_D28";
-> +						fsl,hysteresis = <1>;
-> +						fsl,mux = <0x16 0x11>;
-> +						fsl,pull = <2>;
-> +						fsl,pue = <1>;
-> +						fsl,pke = <1>;
-> +						fsl,open-drain = <1>;
-> +						fsl,speed = <2>;
-> +						fsl,drive-strength = <6>;
-> +						fsl,slew-rate = <1>;
-> +					};
-The pinctrl binding is changed a bit since v1.
-You may need to change here according to v2 or latter.
+Hi Niko,
 
-> +				};
-> +
->  				uart4 {
->  					pinctrl_uart4_1: uart4grp-1 {
->  						fsl,pins =	"MX6Q_PAD_KEY_COL0",
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index dfb84b7..7a52067 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -48,6 +48,7 @@
->  #include <linux/platform_device.h>
->  #include <linux/clk.h>
->  #include <linux/slab.h>
-> +#include <linux/pinctrl/consumer.h>
->  #include <linux/of.h>
->  #include <linux/of_device.h>
->  #include <linux/of_i2c.h>
-> @@ -470,6 +471,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	struct imx_i2c_struct *i2c_imx;
->  	struct resource *res;
->  	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
-> +	struct pinctrl *pct;
->  	void __iomem *base;
->  	resource_size_t res_size;
->  	int irq, bitrate;
-> @@ -520,6 +522,13 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	i2c_imx->base			= base;
->  	i2c_imx->res			= res;
->  
-> +	pct = devm_pinctrl_get_select_default(&pdev->dev);
-You may want to check this change will break other platforms also using this driver.
-Refer to:
-http://www.spinics.net/lists/arm-kernel/msg171538.html
+you a right. Driver works with that patch.
 
-Regards
-Dong Aisheng
+Mit freundlichen Gr=FC=DFen / Best regards
+Carsten Behling
+
+Development Engineer
+Garz & Fricke GmbH
+Tempowerkring 2, 21079 Hamburg - Germany
+Amtsgericht Hamburg HRB 60514
+Gesch=E4ftsf=FChrer: Manfred Garz, Matthias Fricke
+Phone: +49 (0) 40 791 899 - 56
+Fax:    +49 40 / 791 899 - 39
+www.garz-fricke.com =
+
+
+ =
+
+
+
+-----Urspr=FCngliche Nachricht-----
+Von: Voss, Nikolaus [mailto:N.Voss@weinmann.de] =
+
+Gesendet: Freitag, 27. April 2012 10:05
+An: Carsten Behling
+Cc: Marc-Oliver Westerburg; 'devel@ayanes.com'; 'Wolfram Sang'; 'linux-arm-=
+kernel@lists.infradead.org'; 'linux-kernel@vger.kernel.org'; 'linux-i2c@vge=
+r.kernel.org'; 'Hubert Feurstein'
+Betreff: RE: [PATCH v10 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+
+Hi Carsten,
+
+Carsten Behling wrote on 2012-04-27:
+>>  	INIT_COMPLETION(dev->cmd_complete);
+>> +	dev->transfer_status =3D 0;
+>>  	if (dev->msg->flags & I2C_M_RD) {
+>>  		unsigned start_flags =3D AT91_TWI_START;
+> =
+
+> this patch will not work, because you reset 'dev->transfer_status'
+> before it is evaluated on errors (AT91_TWI_NACK, AT91_TWI_OVRE). =
+
+
+it should, because transfer_status is updated by the ISR between
+wait_for_completion_interruptible_timeout() and the error evaluation.
+Please try it out.
+
+> > P.S. Are you using a RM9200? Seems that this SOC has some problems...
+> =
+
+> Yes, our ECO920 uses the RM9200, but we support it with an very old kernel
+> (2.6.21). I remember there were many problems with I2C.
+
+Ok, but good to hear the driver basically works with the RM9200.
+
+Niko
