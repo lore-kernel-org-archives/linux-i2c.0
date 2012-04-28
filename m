@@ -1,61 +1,35 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 0/4] MXS: I2C improvements
-Date: Tue, 1 May 2012 04:05:23 +0200
-Message-ID: <201205010405.23362.marex@denx.de>
-References: <1335837621-14816-1-git-send-email-marex@denx.de>
+From: "Peter Korsgaard" <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-mux-gpio: Rename platform data structure
+Date: Sat, 28 Apr 2012 16:13:13 +0200
+Message-ID: <87haw4hrly.fsf@thor.barco.com>
+References: <20120428153206.00c1e226@endymion.delvare><20120428153551.64d4d200@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1335837621-14816-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <20120428153551.64d4d200-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org> (Jean Delvare'smessage of "Sat, 28 Apr 2012 15:35:51 +0200")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> This patchset implements support for adjustment of I2C bus speed via
-> platform data. Further, it implements support for DMA transfers into =
-the
-> mxs-i2c driver. Lastly, there is a fix for GCC4.7 warning included.
+>>>>> "JD" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
 
-btw. this patchset is also available here:
+JD> Align the name of i2c-mux-gpio's data structure on the new driver name.
+JD> Also change one define and adjust function names, even if they aren't
+JD> part of the public interface, for consistency.
 
-http://git.kernel.org/?p=3Dlinux/kernel/git/marex/linux-2.6.git;a=3Dsho=
-rtlog;h=3Drefs/heads/mxs-
-i2c
+JD> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+JD> Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+JD> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
->=20
-> Marek Vasut (4):
->   MXS: Allow passing i2c bus speed via platform data
->   MXS: Set I2C timing registers for mxs-i2c
->   MXS: Implement DMA support into mxs-i2c
->   MXS: Fix GCC4.7 complaint in mxs-i2c
->=20
->  arch/arm/mach-mxs/devices-mx28.h                |    3 +-
->  arch/arm/mach-mxs/devices/platform-mxs-i2c.c    |   14 +-
->  arch/arm/mach-mxs/include/mach/devices-common.h |    5 +-
->  arch/arm/mach-mxs/mach-apx4devkit.c             |    7 +-
->  arch/arm/mach-mxs/mach-m28evk.c                 |    8 +-
->  arch/arm/mach-mxs/mach-mx28evk.c                |    7 +-
->  arch/arm/mach-mxs/mach-tx28.c                   |    7 +-
->  drivers/i2c/busses/i2c-mxs.c                    |  304
-> +++++++++++++++++++++-- include/linux/i2c/mxs-i2c.h                  =
-   |=20
->  22 ++
->  9 files changed, 343 insertions(+), 34 deletions(-)
->  create mode 100644 include/linux/i2c/mxs-i2c.h
->=20
-> Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>
-> CC: Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Cc: Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> CC: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>
-> CC: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Acked-by: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 
-Best regards,
-Marek Vasut
+-- 
+Bye, Peter Korsgaard
+
+
+DISCLAIMER:
+Unless indicated otherwise, the information contained in this message is privileged and confidential, and is intended only for the use of the addressee(s) named above and others who have been specifically authorized to receive it. If you are not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this message and/or attachments is strictly prohibited. The company accepts no liability for any damage caused by any virus transmitted by this email. Furthermore, the company does not warrant a proper and complete transmission of this information, nor does it accept liability for any delays. If you have received this message in error, please contact the sender and delete the message. Thank you.
