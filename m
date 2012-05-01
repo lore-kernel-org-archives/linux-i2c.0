@@ -1,34 +1,42 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: Rename last mux driver to standard pattern
-Date: Tue, 1 May 2012 08:45:50 +0200
-Message-ID: <20120501084550.259d31f0@endymion.delvare>
-References: <20120428153206.00c1e226@endymion.delvare>
-	<87lilghrow.fsf@thor.barco.com>
+From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: mc13xxx: add I2C support, V5
+Date: Tue, 1 May 2012 12:39:49 +0200
+Message-ID: <20120501103949.GC20224@sortiz-mobl>
+References: <1333262499-25871-1-git-send-email-marc@cpdesign.com.au>
+ <201204170921.42027.marc@cpdesign.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87lilghrow.fsf-1Ae4nN3xCbAluPl5bxqUMw@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201204170921.42027.marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
+Cc: spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, 28 Apr 2012 16:11:27 +0200, Peter Korsgaard wrote:
-> >>>>> "JD" == Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> writes:
-> JD>  Documentation/i2c/muxes/gpio-i2cmux  |   65 ------------
-> JD>  Documentation/i2c/muxes/i2c-mux-gpio |   65 ++++++++++++
-> JD>  MAINTAINERS                          |    6 -
-> JD>  drivers/i2c/muxes/Kconfig            |    2 
-> JD>  drivers/i2c/muxes/Makefile           |    2 
-> JD>  drivers/i2c/muxes/gpio-i2cmux.c      |  173 ----------------------------------
-> JD>  drivers/i2c/muxes/i2c-mux-gpio.c     |  173 ++++++++++++++++++++++++++++++++++
-> JD>  include/linux/gpio-i2cmux.h          |   38 -------
-> JD>  include/linux/i2c-mux-gpio.h         |   38 +++++++
-> 
-> git diff -M patches are a lot easier to read for this kind of change.
+Hi Marc,
 
-Sure, but I'm not using git, and I don't think GNU diff has the option.
+On Tue, Apr 17, 2012 at 09:21:41AM +1000, Marc Reilly wrote:
+> Hi Samuel,
+> 
+> 
+> On Sunday, April 01, 2012 04:41:35 PM Marc Reilly wrote:
+> > This series (against mfd-2.6/for-next) changes the mc13xxx driver to use
+> > regmap and adds I2C support.
+> > It has a compile dependency on regmap/for-next, as the spi driver uses the
+> > recently added pad_bits config field.
+> 
+> (bump).
+> 
+> Are these changes OK to go in?
+All 4 patches applied to my for-next branch.
+I had to manually apply patch #1, please verify that it's all good.
+I added an Acked-by: Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org> to patch #4. Please make
+sure that you add the right tags to the corresponding patches in the future.
+
+Cheers,
+Samuel.
 
 -- 
-Jean Delvare
+Intel Open Source Technology Centre
+http://oss.intel.com/
