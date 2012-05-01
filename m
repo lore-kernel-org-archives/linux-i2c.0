@@ -1,91 +1,58 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH 2/2] I2C: Implement DMA support into mxs-i2c
-Date: Tue, 1 May 2012 15:37:13 +0100
-Message-ID: <20120501143712.GB3548@n2100.arm.linux.org.uk>
-References: <1335738969-27445-1-git-send-email-marex@denx.de> <201204302207.39112.marex@denx.de> <20120430203016.GD28226@pengutronix.de> <201204302245.57958.marex@denx.de> <20120430210108.GE28226@pengutronix.de> <20120501135800.GL2194@S2101-09.ap.freescale.net>
+From: "Western Union" <w-online-TZzldHklojc@public.gmane.org>
+Subject: $5000 AVAILABLE FOR PICK UP
+Date: Tue, 01 May 2012 17:14:51 +0200
+Message-ID: <20120501171451.193421we09oa3mcg@webmail.ladresse.com>
+Reply-To: westernuniononlineservice-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	format=flowed
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120501135800.GL2194-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 01, 2012 at 09:58:03PM +0800, Shawn Guo wrote:
-> On Mon, Apr 30, 2012 at 11:01:08PM +0200, Wolfram Sang wrote:
-> > 
-> > > > > It complains that data might be undefined, do you want it in a separate
-> > > > > patch then ?
-> > > > 
-> > > > Yes, but only if you can prove that the compiler is right.
-> > > 
-> > > It's not right, because that variable is always initialized, but this at least 
-> > > squashes the compile warning.
-> > 
-> > The compiler needs to be fixed, not the kernel.
-> > 
-> Heh, this is coming up again.  I'm not convincing you to take the
-> change, but just curious what if this is not a compile warning but
-> an error for the same cause that compiler is not right.
 
-It's a compiler warning.
 
-Please look at the wording of the warning.  The compiler uses "may" not
-"is".  That means it can't come to a conclusion about it.
+-- 
 
-But we, as humans with our biological inference engines, can see that
-the code is correct, and we _can_ choose to ignore the warning -
-just like I do with:
+Dear Beneficiary?
+This is to inform you that we have already sent
+you USD5000.00 dollars through Western union
+as we have been mandated by United Nations
+and ECOWAS which are supporting individual
+due to the worldwide economy meltdown, to
+transfer to you the full compensation sum
+payment of $1.800,000.00 USD via western
+union by this government.
 
-drivers/video/omap2/displays/panel-taal.c: In function 'taal_num_errors_show':
-drivers/video/omap2/displays/panel-taal.c:605: warning: 'errors' may be used uninitialized in this function
+In this regards, We decided to email the
+relevant details for you to be able to pick up
+this USD5000.00 to enable us send another
+USD5000.00 by tomorrow as you know we will be
+sending you only $5000.00 per day.You can
+track at before going to pick it up the link
 
-static int taal_dcs_read_1(struct taal_data *td, u8 dcs_cmd, u8 *data)
-{
-        int r;
-        u8 buf[1];
-        r = dsi_vc_dcs_read(td->dssdev, td->channel, dcs_cmd, buf, 1);
-        if (r < 0)
-                return r;
-        *data = buf[0];  
-        return 0;
-}
+https://wumt.westernunion.com/asp/orderStatus.asp?country=global
 
-        u8 errors;
+Mr.John Balo.
+Chief Operating Officer,
+Western Union.
+Tell: +2348182570719
+Email: johnbalo33@w.cn
+call or email the above details once you picked
+up this USD5000.00
 
-        mutex_lock(&td->lock);
-        if (td->enabled) {
-                dsi_bus_lock(dssdev);
-                r = taal_wake_up(dssdev);
-                if (!r) 
-                        r = taal_dcs_read_1(td, DCS_READ_NUM_ERRORS, &errors);
-                dsi_bus_unlock(dssdev);
-        } else {
-                r = -ENODEV;
-        }
-        mutex_unlock(&td->lock);
+Here is the western union information to pick up
+the compensation Pick Up Information
 
-        if (r)
-                return r;
+Sender's first name:.........Godwin
+Sender's last name:..........Onyia
+MTCN.................... 6890479748
 
-        return snprintf(buf, PAGE_SIZE, "%d\n", errors);
-
-See?  We can infer from the above that that 'errors' will always be set
-if r is zero - but the compiler is saying it's not clever enough to do
-that automatically.
-
-This doesn't mean the code _has_ to be changed - we can see that the
-above warning is false.  Though, if there is a way to rewrite it to make
-it easier for us humans to read and that makes the warning go away, it
-_might_ be a good idea to make the change - but only for a maintainability
-reason.
-
-The reverse is also true - if trying to fix a warning like this makes
-the code more difficult to understand, then the warning _should_ stay.
-
-That's actually the point of programming languages - the ability to
-express our instructions to a computer in a way that both we and the
-compiler can readily understand.  The most important part of that is
-that _we_ understand what's been written.
+Amount Sent: $5000USD
+I am waiting for your call once you pick up this transfer.
+Best Regards,
+Mrs.Sandra Morris.
+Co-Ordinator,
+WESTERN UNION.
