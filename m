@@ -1,41 +1,40 @@
-From: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Subject: Re: mc13xxx: add I2C support, V5
-Date: Wed, 2 May 2012 08:55:55 +1000
-Message-ID: <201205020855.55953.marc@cpdesign.com.au>
-References: <1333262499-25871-1-git-send-email-marc@cpdesign.com.au> <201204170921.42027.marc@cpdesign.com.au> <20120501103949.GC20224@sortiz-mobl>
-Reply-To: marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: Re: [PATCH 10/11] ARM: imx6q_sabrelite: clkdev_add
+	cko1 for sgtl5000
+Date: Wed, 2 May 2012 07:39:41 +0800
+Message-ID: <20120501233939.GO2194@S2101-09.ap.freescale.net>
+References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
+	<1335510185-7906-11-git-send-email-richard.zhao@freescale.com>
+	<20120501124706.GF2194@S2101-09.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120501103949.GC20224@sortiz-mobl>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <20120501124706.GF2194@S2101-09.ap.freescale.net>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Richard Zhao <richard.zhao@freescale.com>
+Cc: alsa-devel@alsa-project.org, ben-linux@fluff.org, broonie@opensource.wolfsonmicro.com, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, kernel@pengutronix.de, dan.j.williams@intel.com, lrg@ti.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Samuel,
-
-> > On Sunday, April 01, 2012 04:41:35 PM Marc Reilly wrote:
-> > > This series (against mfd-2.6/for-next) changes the mc13xxx driver to
-> > > use regmap and adds I2C support.
-> > > It has a compile dependency on regmap/for-next, as the spi driver uses
-> > > the recently added pad_bits config field.
-> > 
-> > (bump).
-> > 
-> > Are these changes OK to go in?
+On Tue, May 01, 2012 at 08:47:10PM +0800, Shawn Guo wrote:
+> > +	clk_register_clkdev(cko1, NULL, "0-000a");
 > 
-> All 4 patches applied to my for-next branch.
-> I had to manually apply patch #1, please verify that it's all good.
+> This dev_id looks a little strange to me.  I understand that's the
+> consequence of having sgtl5000 clock managed in ASoC machine driver
+> imx-sgtl5000.
+> 
+Just realised it's not the case.  But shouldn't the name look like
+"sgtl5000.0-000a"?
 
-Looks good. I think I can see where it didn't apply, thanks for that. 
-
-> I added an Acked-by: Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org> to patch #4. Please
-> make sure that you add the right tags to the corresponding patches in the
-> future.
-Apologies, will try.
-
-Cheers,
-Marc
+-- 
+Regards,
+Shawn
