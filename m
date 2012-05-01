@@ -1,42 +1,120 @@
-From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: mc13xxx: add I2C support, V5
-Date: Tue, 1 May 2012 12:39:49 +0200
-Message-ID: <20120501103949.GC20224@sortiz-mobl>
-References: <1333262499-25871-1-git-send-email-marc@cpdesign.com.au>
- <201204170921.42027.marc@cpdesign.com.au>
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: Re: [PATCH 10/11] ARM: imx6q_sabrelite: clkdev_add
+	cko1 for sgtl5000
+Date: Tue, 1 May 2012 20:47:10 +0800
+Message-ID: <20120501124706.GF2194@S2101-09.ap.freescale.net>
+References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
+	<1335510185-7906-11-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
 Content-Disposition: inline
-In-Reply-To: <201204170921.42027.marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Reilly <marc-DtE7ei5U7Kg0n/F98K4Iww@public.gmane.org>
-Cc: spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1335510185-7906-11-git-send-email-richard.zhao@freescale.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Richard Zhao <richard.zhao@freescale.com>
+Cc: alsa-devel@alsa-project.org, ben-linux@fluff.org, broonie@opensource.wolfsonmicro.com, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, kernel@pengutronix.de, dan.j.williams@intel.com, lrg@ti.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Marc,
+On Fri, Apr 27, 2012 at 03:03:04PM +0800, Richard Zhao wrote:
+> Signed-off-by: Richard Zhao <richard.zhao@freescale.com>
+> ---
+>  arch/arm/mach-imx/clk-imx6q.c  |    3 +++
+>  arch/arm/mach-imx/mach-imx6q.c |   28 ++++++++++++++++++++++++++++
+>  2 files changed, 31 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+> index 9a03dcc..4ea0de0 100644
+> --- a/arch/arm/mach-imx/clk-imx6q.c
+> +++ b/arch/arm/mach-imx/clk-imx6q.c
+> @@ -419,6 +419,9 @@ int __init mx6q_clocks_init(void)
+>  	clk_register_clkdev(clk[dummy], NULL, "20bc000.wdog");
+>  	clk_register_clkdev(clk[dummy], NULL, "20c0000.wdog");
+>  	clk_register_clkdev(clk[ssi1], NULL, "2028000.ssi");
+> +	clk_register_clkdev(clk[cko1_sel], "cko1_sel", NULL);
+> +	clk_register_clkdev(clk[ahb], "ahb", NULL);
+> +	clk_register_clkdev(clk[cko1], "cko1", NULL);
+>  
+>  	for (i = 0; i < ARRAY_SIZE(clks_init_on); i++) {
+>  		c = clk_get_sys(clks_init_on[i], NULL);
+> diff --git a/arch/arm/mach-imx/mach-imx6q.c b/arch/arm/mach-imx/mach-imx6q.c
+> index d25c5d8..e9b2522 100644
+> --- a/arch/arm/mach-imx/mach-imx6q.c
+> +++ b/arch/arm/mach-imx/mach-imx6q.c
+> @@ -10,6 +10,8 @@
+>   * http://www.gnu.org/copyleft/gpl.html
+>   */
+>  
+> +#include <linux/clkdev.h>
+> +#include <linux/clk.h>
 
-On Tue, Apr 17, 2012 at 09:21:41AM +1000, Marc Reilly wrote:
-> Hi Samuel,
-> 
-> 
-> On Sunday, April 01, 2012 04:41:35 PM Marc Reilly wrote:
-> > This series (against mfd-2.6/for-next) changes the mc13xxx driver to use
-> > regmap and adds I2C support.
-> > It has a compile dependency on regmap/for-next, as the spi driver uses the
-> > recently added pad_bits config field.
-> 
-> (bump).
-> 
-> Are these changes OK to go in?
-All 4 patches applied to my for-next branch.
-I had to manually apply patch #1, please verify that it's all good.
-I added an Acked-by: Oskar Schirmer <oskar-fYPSZ7JpQqsAvxtiuMwx3w@public.gmane.org> to patch #4. Please make
-sure that you add the right tags to the corresponding patches in the future.
+Nit: I would have <linux/clk.h> put before <linux/clkdev.h>.
 
-Cheers,
-Samuel.
+>  #include <linux/delay.h>
+>  #include <linux/init.h>
+>  #include <linux/io.h>
+> @@ -75,10 +77,36 @@ static int ksz9021rn_phy_fixup(struct phy_device *phydev)
+>  	return 0;
+>  }
+>  
+> +static void __init imx6q_cko1_setup(void)
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+I would say this is a sabrelite specific setup so far.
+
+> +{
+> +	struct clk *cko1_sel, *ahb, *cko1;
+> +	unsigned long rate;
+> +
+> +	cko1_sel = clk_get_sys(NULL, "cko1_sel");
+> +	ahb = clk_get_sys(NULL, "ahb");
+> +	cko1 = clk_get_sys(NULL, "cko1");
+> +	if (IS_ERR(cko1_sel) || IS_ERR(ahb) || IS_ERR(cko1)) {
+> +		printk(KERN_ERR "cko1 setup failed!\n");
+
+pr_err
+
+> +		goto put_clk;
+> +	}
+> +	clk_set_parent(cko1_sel, ahb);
+> +	rate = clk_round_rate(cko1, 16000000);
+> +	clk_set_rate(cko1, rate);
+> +	clk_register_clkdev(cko1, NULL, "0-000a");
+
+This dev_id looks a little strange to me.  I understand that's the
+consequence of having sgtl5000 clock managed in ASoC machine driver
+imx-sgtl5000.  IMO, having sgtl5000 driver manages its clock and
+looking up the clock with dev_id simply as "sgtl5000" makes more
+sense to me.  Will put more comment on your imx-sgtl5000 clock patch.
+
+Regards,
+Shawn
+
+> +put_clk:
+> +	if (!IS_ERR(cko1_sel))
+> +		clk_put(cko1_sel);
+> +	if (!IS_ERR(ahb))
+> +		clk_put(ahb);
+> +	if (!IS_ERR(cko1))
+> +		clk_put(cko1);
+> +}
+> +
+>  static void __init imx6q_sabrelite_init(void)
+>  {
+>  	phy_register_fixup_for_uid(PHY_ID_KSZ9021, MICREL_PHY_ID_MASK,
+>  				ksz9021rn_phy_fixup);
+> +	imx6q_cko1_setup();
+>  }
+>  
+>  static void __init imx6q_init_machine(void)
+> -- 
+> 1.7.5.4
+> 
+> 
