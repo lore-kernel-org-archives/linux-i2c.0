@@ -1,27 +1,103 @@
 From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 06/11] ARM: dts: imx6q-sabrelite: add ssi device
-Date: Tue, 1 May 2012 21:26:53 +0800
-Message-ID: <20120501132651.GJ2194@S2101-09.ap.freescale.net>
+Subject: Re: [PATCH 03/11] ASoC: fsl: add sgtl5000 clock support for
+ imx-sgtl5000
+Date: Tue, 1 May 2012 21:44:48 +0800
+Message-ID: <20120501134446.GK2194@S2101-09.ap.freescale.net>
 References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
- <1335510185-7906-7-git-send-email-richard.zhao@freescale.com>
+ <1335510185-7906-4-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1335510185-7906-7-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <1335510185-7906-4-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 27, 2012 at 03:03:00PM +0800, Richard Zhao wrote:
+On Fri, Apr 27, 2012 at 03:02:57PM +0800, Richard Zhao wrote:
 > From: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 > 
-> Signed-off-by: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> It tries to clk_get the clock. And if it failed, it assumes the clock
+> by default enabled.
+> 
 > Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> ---
+>  sound/soc/fsl/imx-sgtl5000.c |   40 ++++++++++++++++++++++++++++++++--------
+>  1 files changed, 32 insertions(+), 8 deletions(-)
+> 
+> diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
+> index 73b935e..3a729ca 100644
+> --- a/sound/soc/fsl/imx-sgtl5000.c
+> +++ b/sound/soc/fsl/imx-sgtl5000.c
+> @@ -13,6 +13,8 @@
+>  #include <linux/module.h>
+>  #include <linux/of.h>
+>  #include <linux/of_platform.h>
+> +#include <linux/of_i2c.h>
+> +#include <linux/clk.h>
+>  #include <sound/soc.h>
+>  
+>  #include "../codecs/sgtl5000.h"
+> @@ -25,6 +27,7 @@ struct imx_sgtl5000_data {
+>  	struct snd_soc_card card;
+>  	char codec_dai_name[DAI_NAME_SIZE];
+>  	char platform_name[DAI_NAME_SIZE];
+> +	struct clk *codec_clk;
+>  	unsigned int clk_frequency;
+>  };
+>  
+> @@ -58,6 +61,7 @@ static int __devinit imx_sgtl5000_probe(struct platform_device *pdev)
+>  	struct device_node *np = pdev->dev.of_node;
+>  	struct device_node *ssi_np, *codec_np;
+>  	struct platform_device *ssi_pdev;
+> +	struct i2c_client *codec_dev;
+>  	struct imx_sgtl5000_data *data;
+>  	int int_port, ext_port;
+>  	int ret;
+> @@ -113,6 +117,11 @@ static int __devinit imx_sgtl5000_probe(struct platform_device *pdev)
+>  		ret = -EINVAL;
+>  		goto fail;
+>  	}
+> +	codec_dev = of_find_i2c_device_by_node(codec_np);
+> +	if (!codec_dev) {
+> +		dev_err(&pdev->dev, "failed to find codec platform device\n");
+> +		return -EINVAL;
+> +	}
 
-I tried to apply patch #6 and #7, but they did not apply.
+What if the codec is accessed via SPI bus on some machines?
 
--- 
+>  
+>  	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+>  	if (!data) {
+> @@ -120,11 +129,20 @@ static int __devinit imx_sgtl5000_probe(struct platform_device *pdev)
+>  		goto fail;
+>  	}
+>  
+> -	ret = of_property_read_u32(codec_np, "clock-frequency",
+> -				   &data->clk_frequency);
+> -	if (ret) {
+> -		dev_err(&pdev->dev, "clock-frequency missing or invalid\n");
+> -		goto fail;
+> +	data->codec_clk = clk_get(&codec_dev->dev, NULL);
+
+It's a clock of sgtl5000 codec.  I feel it makes more sense to have
+sgtl5000 device driver than machine driver to manage this clock.
+
 Regards,
 Shawn
+
+> +	if (IS_ERR(data->codec_clk)) {
+> +		/* assuming clock enabled by default */
+> +		data->codec_clk = NULL;
+> +		ret = of_property_read_u32(codec_np, "clock-frequency",
+> +					&data->clk_frequency);
+> +		if (ret) {
+> +			dev_err(&codec_dev->dev,
+> +				"clock-frequency missing or invalid\n");
+> +			goto fail;
+> +		}
+> +	} else {
+> +		data->clk_frequency = clk_get_rate(data->codec_clk);
+> +		clk_prepare_enable(data->codec_clk);
+>  	}
