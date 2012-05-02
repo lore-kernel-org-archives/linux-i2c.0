@@ -1,71 +1,30 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHv9 07/10] I2C: OMAP: Handle error check for pm runtime
-Date: Wed, 2 May 2012 20:02:12 +0530
-Message-ID: <1335969135-20858-8-git-send-email-shubhrajyoti@ti.com>
-References: <1335969135-20858-1-git-send-email-shubhrajyoti@ti.com>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 09/11] ARM: imx6q: add ssi1 clk_lookup
+Date: Wed, 2 May 2012 22:34:17 +0800
+Message-ID: <20120502143413.GE2194@S2101-09.ap.freescale.net>
+References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
+ <1335510185-7906-10-git-send-email-richard.zhao@freescale.com>
+ <20120427080412.GW17184@pengutronix.de>
+ <20120427091055.GP28063@b20223-02.ap.freescale.net>
+ <20120427092529.GA20478@pengutronix.de>
+ <20120430020143.GA1857@richard-laptop>
+ <20120430121857.GL4141@pengutronix.de>
+ <20120502103440.GA2982@b20223-02.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1335969135-20858-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120502103440.GA2982-iWYTGMXpHj9ITqJhDdzsOjpauB2SiJktrE5yTffgRl4@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-If PM runtime get_sync fails return with the error
-so that no further reads/writes goes through the interface.
-This will avoid possible abort. Add a error message in case
-of failure with the cause of the failure.
+On Wed, May 02, 2012 at 06:34:41PM +0800, Richard Zhao wrote:
+> Shawn, will you add clk ssi_ipg?
+> 
+Ok, will do after Sascha's clk series gets settled on arm-soc tree.
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- drivers/i2c/busses/i2c-omap.c |   14 +++++++++++---
- 1 files changed, 11 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 44e8cfa..a72874e 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -585,7 +585,9 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	int i;
- 	int r;
- 
--	pm_runtime_get_sync(dev->dev);
-+	r = pm_runtime_get_sync(dev->dev);
-+	if (r < 0)
-+		return r;
- 
- 	r = omap_i2c_wait_for_bb(dev);
- 	if (r < 0)
-@@ -1011,7 +1013,9 @@ omap_i2c_probe(struct platform_device *pdev)
- 		dev->regs = (u8 *)reg_map_ip_v1;
- 
- 	pm_runtime_enable(dev->dev);
--	pm_runtime_get_sync(dev->dev);
-+	r = pm_runtime_get_sync(dev->dev);
-+	if (r < 0)
-+		goto err_free_mem;
- 
- 	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
- 
-@@ -1103,12 +1107,16 @@ omap_i2c_remove(struct platform_device *pdev)
- {
- 	struct omap_i2c_dev	*dev = platform_get_drvdata(pdev);
- 	struct resource		*mem;
-+	int ret;
- 
- 	platform_set_drvdata(pdev, NULL);
- 
- 	free_irq(dev->irq, dev);
- 	i2c_del_adapter(&dev->adapter);
--	pm_runtime_get_sync(&pdev->dev);
-+	ret = pm_runtime_get_sync(&pdev->dev);
-+	if (ret < 0)
-+		return ret;
-+
- 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
 -- 
-1.7.5.4
-
+Regards,
+Shawn
