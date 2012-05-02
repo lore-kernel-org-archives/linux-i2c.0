@@ -1,50 +1,59 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [alsa-devel] [PATCH 10/11] ARM: imx6q_sabrelite: clkdev_add cko1
- for sgtl5000
-Date: Wed, 2 May 2012 11:37:13 +0800
-Message-ID: <20120502033711.GW2194@S2101-09.ap.freescale.net>
+From: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH 09/11] ARM: imx6q: add ssi1 clk_lookup
+Date: Wed, 2 May 2012 18:34:41 +0800
+Message-ID: <20120502103440.GA2982@b20223-02.ap.freescale.net>
 References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
- <1335510185-7906-11-git-send-email-richard.zhao@freescale.com>
- <20120501124706.GF2194@S2101-09.ap.freescale.net>
- <20120501233939.GO2194@S2101-09.ap.freescale.net>
- <CAOMZO5Ab5pYuOY4oLbkOc+SeeT6itKOMJu+zzodFOJaW5h+RuQ@mail.gmail.com>
+ <1335510185-7906-10-git-send-email-richard.zhao@freescale.com>
+ <20120427080412.GW17184@pengutronix.de>
+ <20120427091055.GP28063@b20223-02.ap.freescale.net>
+ <20120427092529.GA20478@pengutronix.de>
+ <20120430020143.GA1857@richard-laptop>
+ <20120430121857.GL4141@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAOMZO5Ab5pYuOY4oLbkOc+SeeT6itKOMJu+zzodFOJaW5h+RuQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20120430121857.GL4141-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 01, 2012 at 11:47:55PM -0300, Fabio Estevam wrote:
-> On Tue, May 1, 2012 at 8:39 PM, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrot=
-e:
-> > On Tue, May 01, 2012 at 08:47:10PM +0800, Shawn Guo wrote:
-> >> > + =A0 clk_register_clkdev(cko1, NULL, "0-000a");
-> >>
-> >> This dev_id looks a little strange to me. =A0I understand that's t=
-he
-> >> consequence of having sgtl5000 clock managed in ASoC machine drive=
-r
-> >> imx-sgtl5000.
-> >>
-> > Just realised it's not the case. =A0But shouldn't the name look lik=
-e
-> > "sgtl5000.0-000a"?
->=20
-> Since this is common code, we should not hardcode the I2C bus as the
-> codec can be connected in a I2C bus different of 0.
+On Mon, Apr 30, 2012 at 02:18:57PM +0200, Sascha Hauer wrote:
+> On Mon, Apr 30, 2012 at 10:01:46AM +0800, Richard Zhao wrote:
+> > > > > 
+> > > > > 	clk_register_clkdev(clk[ipg], "ipg", "2028000.ssi");
+> > > > ssi don't have ipg gate. We can let it always on for imx6q.
+> > > 
+> > > Can you please ask your IC guys for clarification?
+> > > 
+> > > For example on i.MX5 we have a ssi ipg clock and a ssi serial clock.
+> > > Both can be gated with two individual gate bits.
+> > > 
+> > > The i.MX6 datasheet (and also several other i.MX datasheets) is quite
+> > > nebulous. The i.MX6 has only one gate bit for each SSI unit, but
+> > > it's not clear if this bit actually gates both the ipg and serial
+> > > clock or only one of them.
+> > You're right. ipg and serial clocks share the same gate. How do we
+> > handle it? I think it's not the only one and won't be last one.
+> 
+> We don't have support for a single gate gating two clocks right now and
+> I don't know how this fits into the clock framework.
+> We could pretend that only the ipg clock is gateable because this is
+> needed anyway when the SSI unit is used.
+Shawn, will you add clk ssi_ipg?
 
-No, it's not.  It's a sabrelite specific lookup which is done in
-imx6q_sabrelite_init, while imx6q_cko1_setup needs a better naming,
-as what I already commented.
-
-In the end, this type of board specific clock lookup should really
-go into device tree.
-
---=20
-Regards,
-Shawn
+Thanks
+Richard
+> 
+> It seems we need a proper solution for this later.
+> 
+> Sascha
+> 
+> 
+> -- 
+> Pengutronix e.K.                           |                             |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+> 
