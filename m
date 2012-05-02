@@ -1,114 +1,119 @@
 From: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH 03/11] ASoC: fsl: add sgtl5000 clock support for
- imx-sgtl5000
-Date: Wed, 2 May 2012 18:50:24 +0800
-Message-ID: <20120502105024.GC2982@b20223-02.ap.freescale.net>
+Subject: Re: [PATCH 10/11] ARM: imx6q_sabrelite: clkdev_add cko1 for sgtl5000
+Date: Wed, 2 May 2012 19:00:11 +0800
+Message-ID: <20120502110011.GD2982@b20223-02.ap.freescale.net>
 References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
- <1335510185-7906-4-git-send-email-richard.zhao@freescale.com>
- <20120501134446.GK2194@S2101-09.ap.freescale.net>
+ <1335510185-7906-11-git-send-email-richard.zhao@freescale.com>
+ <20120501124706.GF2194@S2101-09.ap.freescale.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120501134446.GK2194-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
+In-Reply-To: <20120501124706.GF2194-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 01, 2012 at 09:44:48PM +0800, Shawn Guo wrote:
-> On Fri, Apr 27, 2012 at 03:02:57PM +0800, Richard Zhao wrote:
-> > From: Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > 
-> > It tries to clk_get the clock. And if it failed, it assumes the clock
-> > by default enabled.
-> > 
+On Tue, May 01, 2012 at 08:47:10PM +0800, Shawn Guo wrote:
+> On Fri, Apr 27, 2012 at 03:03:04PM +0800, Richard Zhao wrote:
 > > Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 > > ---
-> >  sound/soc/fsl/imx-sgtl5000.c |   40 ++++++++++++++++++++++++++++++++--------
-> >  1 files changed, 32 insertions(+), 8 deletions(-)
+> >  arch/arm/mach-imx/clk-imx6q.c  |    3 +++
+> >  arch/arm/mach-imx/mach-imx6q.c |   28 ++++++++++++++++++++++++++++
+> >  2 files changed, 31 insertions(+), 0 deletions(-)
 > > 
-> > diff --git a/sound/soc/fsl/imx-sgtl5000.c b/sound/soc/fsl/imx-sgtl5000.c
-> > index 73b935e..3a729ca 100644
-> > --- a/sound/soc/fsl/imx-sgtl5000.c
-> > +++ b/sound/soc/fsl/imx-sgtl5000.c
-> > @@ -13,6 +13,8 @@
-> >  #include <linux/module.h>
-> >  #include <linux/of.h>
-> >  #include <linux/of_platform.h>
-> > +#include <linux/of_i2c.h>
+> > diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
+> > index 9a03dcc..4ea0de0 100644
+> > --- a/arch/arm/mach-imx/clk-imx6q.c
+> > +++ b/arch/arm/mach-imx/clk-imx6q.c
+> > @@ -419,6 +419,9 @@ int __init mx6q_clocks_init(void)
+> >  	clk_register_clkdev(clk[dummy], NULL, "20bc000.wdog");
+> >  	clk_register_clkdev(clk[dummy], NULL, "20c0000.wdog");
+> >  	clk_register_clkdev(clk[ssi1], NULL, "2028000.ssi");
+> > +	clk_register_clkdev(clk[cko1_sel], "cko1_sel", NULL);
+> > +	clk_register_clkdev(clk[ahb], "ahb", NULL);
+> > +	clk_register_clkdev(clk[cko1], "cko1", NULL);
+> >  
+> >  	for (i = 0; i < ARRAY_SIZE(clks_init_on); i++) {
+> >  		c = clk_get_sys(clks_init_on[i], NULL);
+> > diff --git a/arch/arm/mach-imx/mach-imx6q.c b/arch/arm/mach-imx/mach-imx6q.c
+> > index d25c5d8..e9b2522 100644
+> > --- a/arch/arm/mach-imx/mach-imx6q.c
+> > +++ b/arch/arm/mach-imx/mach-imx6q.c
+> > @@ -10,6 +10,8 @@
+> >   * http://www.gnu.org/copyleft/gpl.html
+> >   */
+> >  
+> > +#include <linux/clkdev.h>
 > > +#include <linux/clk.h>
-> >  #include <sound/soc.h>
-> >  
-> >  #include "../codecs/sgtl5000.h"
-> > @@ -25,6 +27,7 @@ struct imx_sgtl5000_data {
-> >  	struct snd_soc_card card;
-> >  	char codec_dai_name[DAI_NAME_SIZE];
-> >  	char platform_name[DAI_NAME_SIZE];
-> > +	struct clk *codec_clk;
-> >  	unsigned int clk_frequency;
-> >  };
-> >  
-> > @@ -58,6 +61,7 @@ static int __devinit imx_sgtl5000_probe(struct platform_device *pdev)
-> >  	struct device_node *np = pdev->dev.of_node;
-> >  	struct device_node *ssi_np, *codec_np;
-> >  	struct platform_device *ssi_pdev;
-> > +	struct i2c_client *codec_dev;
-> >  	struct imx_sgtl5000_data *data;
-> >  	int int_port, ext_port;
-> >  	int ret;
-> > @@ -113,6 +117,11 @@ static int __devinit imx_sgtl5000_probe(struct platform_device *pdev)
-> >  		ret = -EINVAL;
-> >  		goto fail;
-> >  	}
-> > +	codec_dev = of_find_i2c_device_by_node(codec_np);
-> > +	if (!codec_dev) {
-> > +		dev_err(&pdev->dev, "failed to find codec platform device\n");
-> > +		return -EINVAL;
-> > +	}
 > 
-> What if the codec is accessed via SPI bus on some machines?
+> Nit: I would have <linux/clk.h> put before <linux/clkdev.h>.
+ok
 > 
+> >  #include <linux/delay.h>
+> >  #include <linux/init.h>
+> >  #include <linux/io.h>
+> > @@ -75,10 +77,36 @@ static int ksz9021rn_phy_fixup(struct phy_device *phydev)
+> >  	return 0;
+> >  }
 > >  
-> >  	data = devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-> >  	if (!data) {
-> > @@ -120,11 +129,20 @@ static int __devinit imx_sgtl5000_probe(struct platform_device *pdev)
-> >  		goto fail;
-> >  	}
-> >  
-> > -	ret = of_property_read_u32(codec_np, "clock-frequency",
-> > -				   &data->clk_frequency);
-> > -	if (ret) {
-> > -		dev_err(&pdev->dev, "clock-frequency missing or invalid\n");
-> > -		goto fail;
-> > +	data->codec_clk = clk_get(&codec_dev->dev, NULL);
+> > +static void __init imx6q_cko1_setup(void)
 > 
-> It's a clock of sgtl5000 codec.  I feel it makes more sense to have
-> sgtl5000 device driver than machine driver to manage this clock.
-The ASoC machine driver handled the clock settings, I just followed the
-same way, using snd_soc_dai_set_sysclk to set codec clk. But what you
-said  is reasonable. I also find it's impossible to use devm_get_clk.
-
-Mark, do you suggest get clk in ASoC machine driver or in codec driver?
+> I would say this is a sabrelite specific setup so far.
+ok
+> 
+> > +{
+> > +	struct clk *cko1_sel, *ahb, *cko1;
+> > +	unsigned long rate;
+> > +
+> > +	cko1_sel = clk_get_sys(NULL, "cko1_sel");
+> > +	ahb = clk_get_sys(NULL, "ahb");
+> > +	cko1 = clk_get_sys(NULL, "cko1");
+> > +	if (IS_ERR(cko1_sel) || IS_ERR(ahb) || IS_ERR(cko1)) {
+> > +		printk(KERN_ERR "cko1 setup failed!\n");
+> 
+> pr_err
+ok
 
 Thanks
 Richard
 > 
+> > +		goto put_clk;
+> > +	}
+> > +	clk_set_parent(cko1_sel, ahb);
+> > +	rate = clk_round_rate(cko1, 16000000);
+> > +	clk_set_rate(cko1, rate);
+> > +	clk_register_clkdev(cko1, NULL, "0-000a");
+> 
+> This dev_id looks a little strange to me.  I understand that's the
+> consequence of having sgtl5000 clock managed in ASoC machine driver
+> imx-sgtl5000.  IMO, having sgtl5000 driver manages its clock and
+> looking up the clock with dev_id simply as "sgtl5000" makes more
+> sense to me.  Will put more comment on your imx-sgtl5000 clock patch.
+> 
 > Regards,
 > Shawn
 > 
-> > +	if (IS_ERR(data->codec_clk)) {
-> > +		/* assuming clock enabled by default */
-> > +		data->codec_clk = NULL;
-> > +		ret = of_property_read_u32(codec_np, "clock-frequency",
-> > +					&data->clk_frequency);
-> > +		if (ret) {
-> > +			dev_err(&codec_dev->dev,
-> > +				"clock-frequency missing or invalid\n");
-> > +			goto fail;
-> > +		}
-> > +	} else {
-> > +		data->clk_frequency = clk_get_rate(data->codec_clk);
-> > +		clk_prepare_enable(data->codec_clk);
-> >  	}
+> > +put_clk:
+> > +	if (!IS_ERR(cko1_sel))
+> > +		clk_put(cko1_sel);
+> > +	if (!IS_ERR(ahb))
+> > +		clk_put(ahb);
+> > +	if (!IS_ERR(cko1))
+> > +		clk_put(cko1);
+> > +}
+> > +
+> >  static void __init imx6q_sabrelite_init(void)
+> >  {
+> >  	phy_register_fixup_for_uid(PHY_ID_KSZ9021, MICREL_PHY_ID_MASK,
+> >  				ksz9021rn_phy_fixup);
+> > +	imx6q_cko1_setup();
+> >  }
+> >  
+> >  static void __init imx6q_init_machine(void)
+> > -- 
+> > 1.7.5.4
+> > 
+> > 
 > 
