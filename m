@@ -1,39 +1,35 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 09/11] ARM: imx6q: add ssi1 clk_lookup
-Date: Wed, 2 May 2012 18:33:29 +0200
-Message-ID: <20120502163329.GB4141@pengutronix.de>
-References: <1335510185-7906-1-git-send-email-richard.zhao@freescale.com>
- <1335510185-7906-10-git-send-email-richard.zhao@freescale.com>
- <20120427080412.GW17184@pengutronix.de>
- <20120427091055.GP28063@b20223-02.ap.freescale.net>
- <20120427092529.GA20478@pengutronix.de>
- <20120430020143.GA1857@richard-laptop>
- <20120430121857.GL4141@pengutronix.de>
- <20120502103440.GA2982@b20223-02.ap.freescale.net>
- <20120502143413.GE2194@S2101-09.ap.freescale.net>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH V1 1/2] i2c: tegra: fix 10bit address configuration
+Date: Thu, 3 May 2012 11:43:14 +0530
+Message-ID: <4FA221FA.2030305@nvidia.com>
+References: <1335251976-31925-1-git-send-email-ldewangan@nvidia.com>	<1335251976-31925-2-git-send-email-ldewangan@nvidia.com> <20120424105815.1d9e7d95@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120502143413.GE2194-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
+In-Reply-To: <20120424105815.1d9e7d95-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Richard Zhao <richard.zhao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 02, 2012 at 10:34:17PM +0800, Shawn Guo wrote:
-> On Wed, May 02, 2012 at 06:34:41PM +0800, Richard Zhao wrote:
-> > Shawn, will you add clk ssi_ipg?
-> > 
-> Ok, will do after Sascha's clk series gets settled on arm-soc tree.
-
-I have a branch based on Mikes clk-next as of today, I will send it
-tomorrow.
-
-Sascha
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+On Tuesday 24 April 2012 02:28 PM, Jean Delvare wrote:
+> On Tue, 24 Apr 2012 12:49:35 +0530, Laxman Dewangan wrote:
+>> The slave address of device to be configured in packet
+>> header as follows:
+>>      7 bit address: PacketHeader3[7:1]
+>>      10 bit address: PacketHeader3[9:0]
+>>
+>> Fixing the code to make packet header3 properly.
+>>
+>> Signed-off-by: Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>> ---
+>>
+>>   
+> Looks good.
+>
+> Acked-by: Jean Delvare<khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>
+Hi Wolfram Sang,
+Can it be apply? This is independent of other change in this series 
+which is under discussion/review.
