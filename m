@@ -1,33 +1,29 @@
-From: Marcus Folkesson <marcus.folkesson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: davinci: Free requested IRQ in remove
-Date: Thu,  3 May 2012 15:56:36 +0200
-Message-ID: <1336053396-24974-1-git-send-email-marcus.folkesson@gmail.com>
+From: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Subject: Re: [PATCH] I2C: xiic: Add OF binding support
+Date: Thu, 03 May 2012 17:50:48 +0200
+Message-ID: <4FA2A958.7060502@metafoo.de>
+References: <1335361733-24441-1-git-send-email-lars@metafoo.de> <20120503111027.GD9574@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120503111027.GD9574-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Marcus Folkesson <marcus.folkesson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The freed IRQ is not necessary the one requested in probe.
-Even if it was, with two or more i2c-controllers it will fails anyway.
+On 05/03/2012 01:10 PM, Wolfram Sang wrote:
+> On Wed, Apr 25, 2012 at 03:48:53PM +0200, Lars-Peter Clausen wrote:
+>> Signed-off-by: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+> 
+> Applied to next, thanks.
+> 
+> How are your experiences with the driver? Does it still need
+> EXPERIMENTAL?
 
-Signed-off-by: Marcus Folkesson <marcus.folkesson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/busses/i2c-davinci.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I had some issues under certain conditions, e.g. certain types of I2C transfers
+would confuse the core and fail. But I hadn't had the time yet to investigate
+further. So I wouldn't remove the EXPERIMENTAL yet.
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index a76d85f..79b4bcb 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -755,7 +755,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
- 	dev->clk = NULL;
- 
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
--	free_irq(IRQ_I2C, dev);
-+	free_irq(dev->irq, dev);
- 	iounmap(dev->base);
- 	kfree(dev);
- 
--- 
-1.7.5.4
+- Lars
