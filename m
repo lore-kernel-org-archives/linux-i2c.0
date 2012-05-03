@@ -1,32 +1,47 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Thu, 3 May 2012 12:58:52 +0200
-Message-ID: <20120503125852.46faa6e2@endymion.delvare>
-References: <1335443839-22872-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-	<20120503095211.GC9574@pengutronix.de>
-	<20120503095814.GA3955@opensource.wolfsonmicro.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] I2C: xiic: Add OF binding support
+Date: Thu, 3 May 2012 13:10:27 +0200
+Message-ID: <20120503111027.GD9574@pengutronix.de>
+References: <1335361733-24441-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2Z2K0IlrPCVsbNpk"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120503095814.GA3955-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1335361733-24441-1-git-send-email-lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 3 May 2012 10:58:15 +0100, Mark Brown wrote:
-> On Thu, May 03, 2012 at 11:52:11AM +0200, Wolfram Sang wrote:
-> 
-> > Also, I'd think the FUNC_NOSTART bit should be 0x08 and SMBUS_PEC 0x4000. This
-> > will be more intuitive, probably?
-> 
-> What is the value in renumbering everything?  It just seems like it
-> makes the diff less clear and has no practical value.
 
-You actually just can't renumber them, as they are part of the ABI to
-user-space (through i2c-dev's ioctl I2C_FUNCS.)
+--2Z2K0IlrPCVsbNpk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jean Delvare
+On Wed, Apr 25, 2012 at 03:48:53PM +0200, Lars-Peter Clausen wrote:
+> Signed-off-by: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+
+Applied to next, thanks.
+
+How are your experiences with the driver? Does it still need
+EXPERIMENTAL?
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--2Z2K0IlrPCVsbNpk
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+iZ6MACgkQD27XaX1/VRtTbgCfVHxKgi4FzHLzPNnxvrJ1y6yG
+IGgAoKiVHaLmvppz0D3MkV4qsxilN2S5
+=/is/
+-----END PGP SIGNATURE-----
+
+--2Z2K0IlrPCVsbNpk--
