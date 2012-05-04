@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 03/15] ARM: ux500: Provide auxdata to be used as name base clock search for nmk-i2c
-Date: Fri,  4 May 2012 19:23:13 +0100
-Message-ID: <1336155805-18554-4-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 01/15] i2c/busses: Add Device Tree support to the Nomadik I2C driver
+Date: Fri,  4 May 2012 19:23:11 +0100
+Message-ID: <1336155805-18554-2-git-send-email-lee.jones@linaro.org>
 References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1336155805-18554-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
@@ -10,39 +10,98 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch provides a way for find_clk() to complete its name-based
-searches and still find the nmk-i2c clocks. As Device Tree has a
-different naming structure to that of more traditional initialisation
-methods, find_clk() not succeed without these bindings.
+Here we move the i2c-nomadik's default settings into the driver
+rather than specifying them from platform code. At the time of
+this writing we only have one user, the u8500. As new users are
+added, it is expected that they will be Device Tree compliant.
+If this is the case, we will look up their initialisation values
+by compatible entry, then apply them forthwith.
 
 Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- arch/arm/mach-ux500/board-mop500.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-nomadik.c |   50 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 49 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
-index 215d212..4b847cb 100644
---- a/arch/arm/mach-ux500/board-mop500.c
-+++ b/arch/arm/mach-ux500/board-mop500.c
-@@ -733,6 +733,11 @@ struct of_dev_auxdata u8500_auxdata_lookup[] __initdata = {
- 	OF_DEV_AUXDATA("st,nomadik-gpio", 0x8011e000, "gpio.6", NULL),
- 	OF_DEV_AUXDATA("st,nomadik-gpio", 0x8011e080, "gpio.7", NULL),
- 	OF_DEV_AUXDATA("st,nomadik-gpio", 0xa03fe000, "gpio.8", NULL),
-+	OF_DEV_AUXDATA("st,nomadik-i2c", 0x80004000, "nmk-i2c.0", NULL),
-+	OF_DEV_AUXDATA("st,nomadik-i2c", 0x80122000, "nmk-i2c.1", NULL),
-+	OF_DEV_AUXDATA("st,nomadik-i2c", 0x80128000, "nmk-i2c.2", NULL),
-+	OF_DEV_AUXDATA("st,nomadik-i2c", 0x80110000, "nmk-i2c.3", NULL),
-+	OF_DEV_AUXDATA("st,nomadik-i2c", 0x8012a000, "nmk-i2c.4", NULL),
- 	{},
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 5267ab9..8803467 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -899,15 +899,57 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+ 	.functionality	= nmk_i2c_functionality
  };
  
-@@ -807,7 +812,6 @@ static void __init u8500_init_machine(void)
- 		i2c_register_board_info(2, mop500_i2c2_devices,
- 					ARRAY_SIZE(mop500_i2c2_devices));
- 	}
--	mop500_i2c_init(parent);
++static const struct nmk_i2c_controller u8500_i2c = {
++       /*
++        * slave data setup time, which is
++        * 250 ns,100ns,10ns which is 14,6,2
++        * respectively for a 48 Mhz
++        * i2c clock
++        */
++       .slsu           = 0xe,
++       /* Tx FIFO threshold */
++       .tft            = 1,
++       /* Rx FIFO threshold */
++       .rft            = 8,
++       /* std. mode operation */
++       .clk_freq       = 100000,
++       /* Slave response timeout(ms) */
++       .timeout        = 200,
++       .sm             = I2C_FREQ_MODE_FAST,
++};
++
++static const struct nmk_i2c_controller *
++nmk_i2c_find_pdata_from_compatible(struct device_node *np)
++{
++	/*
++	 * The u8500 is currently our only user. As more SoCs are added,
++	 * search for the correct value set using of_machine_is_compatible
++	 * and return a 'struct nmk_i2c_controller *' which contains the
++	 * correct information for the given SoC, whilst leaving u8500_i2c
++	 * as the default/fall-back value set.
++	 */
++	return &u8500_i2c;
++}
++
+ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ {
+ 	int ret = 0;
+ 	struct resource *res;
+-	struct nmk_i2c_controller *pdata =
++	const struct nmk_i2c_controller *pdata =
+ 			pdev->dev.platform_data;
++	struct device_node *np = pdev->dev.of_node;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
  
- 	/* This board has full regulator constraints */
- 	regulator_has_full_constraints();
++	if (!pdata) {
++		if (!np) {
++			dev_err(&pdev->dev,
++				"Neither platform_data nor Device Tree not found\n");
++			return -EINVAL;
++		}
++		pdata = nmk_i2c_find_pdata_from_compatible(np);
++	}
++
+ 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		dev_err(&pdev->dev, "cannot allocate memory\n");
+@@ -1039,11 +1081,17 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct of_device_id nmk_gpio_match[] = {
++	{ .compatible = "st,nomadik-i2c", },
++	{}
++};
++
+ static struct platform_driver nmk_i2c_driver = {
+ 	.driver = {
+ 		.owner = THIS_MODULE,
+ 		.name = DRIVER_NAME,
+ 		.pm = &nmk_i2c_pm,
++		.of_match_table = nmk_gpio_match,
+ 	},
+ 	.probe = nmk_i2c_probe,
+ 	.remove = __devexit_p(nmk_i2c_remove),
 -- 
 1.7.9.5
