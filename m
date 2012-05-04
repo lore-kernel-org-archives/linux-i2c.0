@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 08/15] ARM: ux500: PRCMU related configuration and layout corrections for Device Tree
-Date: Fri,  4 May 2012 19:23:18 +0100
-Message-ID: <1336155805-18554-9-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 09/15] drivers/mfd: Enable Device Tree support for the db8500-prcmu
+Date: Fri,  4 May 2012 19:23:19 +0100
+Message-ID: <1336155805-18554-10-git-send-email-lee.jones@linaro.org>
 References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1336155805-18554-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
@@ -10,41 +10,70 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Apply db8500 related PRCMU Device Tree settings and clean up some formatting
-errors. We also remove one of the PRCMU assigned IRQs, as it is currently not
-used.
+This patch will enable probing to occur during a Device Tree enabled
+boot. The IRQ base is expected to be located in and will be fetched
+from the DT itself. We also prevent any of the db8500 regulators
+from being registered here, as they will be enabled via DT instead.
 
 Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- arch/arm/boot/dts/db8500.dtsi |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/mfd/db8500-prcmu.c |   29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/boot/dts/db8500.dtsi b/arch/arm/boot/dts/db8500.dtsi
-index 9a62f86..1188925 100644
---- a/arch/arm/boot/dts/db8500.dtsi
-+++ b/arch/arm/boot/dts/db8500.dtsi
-@@ -187,12 +187,12 @@
- 		prcmu@80157000 {
- 			compatible = "stericsson,db8500-prcmu";
- 			reg = <0x80157000 0x1000>;
--			interrupts = <46 47>;
-+			interrupts = <0 47 0x4>;
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 			ranges;
+diff --git a/drivers/mfd/db8500-prcmu.c b/drivers/mfd/db8500-prcmu.c
+index 7a83bf0..9bc75a8 100644
+--- a/drivers/mfd/db8500-prcmu.c
++++ b/drivers/mfd/db8500-prcmu.c
+@@ -2960,7 +2960,8 @@ static struct mfd_cell db8500_prcmu_devs[] = {
+  */
+ static int __devinit db8500_prcmu_probe(struct platform_device *pdev)
+ {
+-	int err = 0;
++	struct device_node *np = pdev->dev.of_node;
++	int irq = 0, err = 0;
  
--				prcmu-timer-4@80157450 {
-+			prcmu-timer-4@80157450 {
- 				compatible = "stericsson,db8500-prcmu-timer-4";
- 				reg = <0x80157450 0xC>;
- 			};
-@@ -201,6 +201,7 @@
- 				compatible = "stericsson,ab8500";
- 				reg = <5>; /* mailbox 5 is i2c */
- 				interrupts = <0 40 0x4>;
-+				stericsson,irq-base = <520>;
- 			};
- 		};
+ 	if (ux500_is_svp())
+ 		return -ENODEV;
+@@ -2970,8 +2971,14 @@ static int __devinit db8500_prcmu_probe(struct platform_device *pdev)
+ 	/* Clean up the mailbox interrupts after pre-kernel code. */
+ 	writel(ALL_MBOX_BITS, PRCM_ARM_IT1_CLR);
  
+-	err = request_threaded_irq(IRQ_DB8500_PRCMU1, prcmu_irq_handler,
+-		prcmu_irq_thread_fn, IRQF_NO_SUSPEND, "prcmu", NULL);
++	if (np)
++		irq = platform_get_irq(pdev, 0);
++
++	if (!np || irq <= 0)
++		irq = IRQ_DB8500_PRCMU1;
++
++	err = request_threaded_irq(irq, prcmu_irq_handler,
++	        prcmu_irq_thread_fn, IRQF_NO_SUSPEND, "prcmu", NULL);
+ 	if (err < 0) {
+ 		pr_err("prcmu: Failed to allocate IRQ_DB8500_PRCMU1.\n");
+ 		err = -EBUSY;
+@@ -2981,14 +2988,16 @@ static int __devinit db8500_prcmu_probe(struct platform_device *pdev)
+ 	if (cpu_is_u8500v20_or_later())
+ 		prcmu_config_esram0_deep_sleep(ESRAM0_DEEP_SLEEP_STATE_RET);
+ 
+-	err = mfd_add_devices(&pdev->dev, 0, db8500_prcmu_devs,
+-			      ARRAY_SIZE(db8500_prcmu_devs), NULL,
+-			      0);
++	if (!np) {
++		err = mfd_add_devices(&pdev->dev, 0, db8500_prcmu_devs,
++				ARRAY_SIZE(db8500_prcmu_devs), NULL, 0);
++		if (err) {
++			pr_err("prcmu: Failed to add subdevices\n");
++			return err;
++		}
++	}
+ 
+-	if (err)
+-		pr_err("prcmu: Failed to add subdevices\n");
+-	else
+-		pr_info("DB8500 PRCMU initialized\n");
++	pr_info("DB8500 PRCMU initialized\n");
+ 
+ no_irq_return:
+ 	return err;
 -- 
 1.7.9.5
