@@ -1,49 +1,26 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Fri, 4 May 2012 18:07:32 +0200
-Message-ID: <20120504160732.GB5789@pengutronix.de>
-References: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20120503113546.GG9574@pengutronix.de>
- <20120504103929.644a05ce@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6sX45UoQRIJXqkqR"
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 00/15] DT enablement for Snowball
+Date: Fri,  4 May 2012 19:23:10 +0100
+Message-ID: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120504103929.644a05ce-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Here's your next back of DT related doings for the ux500,
+along with some bugs encountered fixed along the way.
 
---6sX45UoQRIJXqkqR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-> > Applied to next, thanks! Jean, let me know if you prefer to take it.
-> > Acks from input and fbdev maintainers still appreciated.
->=20
-> I'd prefer to take it, yes, as it touches the core infrastructure.
-
-OK, didn't know if you were busy. Dropped it from my tree now.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---6sX45UoQRIJXqkqR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk+j/sQACgkQD27XaX1/VRtaLwCfXFOLkpgSOyPLqV+Ljr5bT6Wm
-F/QAoImFj5goaYFt8PW+E+iWGnEYdyCc
-=IdYZ
------END PGP SIGNATURE-----
-
---6sX45UoQRIJXqkqR--
+ arch/arm/boot/dts/db8500.dtsi      |  103 +++++++++++++-
+ arch/arm/boot/dts/snowball.dts     |    3 +
+ arch/arm/configs/u8500_defconfig   |    1 +
+ arch/arm/mach-ux500/board-mop500.c |   55 ++------
+ drivers/i2c/busses/i2c-nomadik.c   |   53 ++++++-
+ drivers/mfd/Makefile               |    5 +-
+ drivers/mfd/ab8500-core.c          |  165 +++++++++++++++++++---
+ drivers/mfd/ab8500-i2c.c           |  128 -----------------
+ drivers/mfd/db8500-prcmu.c         |   30 ++--
+ drivers/power/ab8500_btemp.c       |   12 +-
+ drivers/power/ab8500_charger.c     |   12 +-
+ drivers/power/ab8500_fg.c          |   12 +-
+ drivers/regulator/ab8500.c         |  273 +++++++++++++++++++++++-------------
