@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 01/15] i2c/busses: Add Device Tree support to the Nomadik I2C driver
-Date: Fri,  4 May 2012 19:23:11 +0100
-Message-ID: <1336155805-18554-2-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 05/15] ARM: ux500: Enable the user LED on Snowball via Device Tree
+Date: Fri,  4 May 2012 19:23:15 +0100
+Message-ID: <1336155805-18554-6-git-send-email-lee.jones@linaro.org>
 References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1336155805-18554-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
@@ -10,98 +10,48 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Here we move the i2c-nomadik's default settings into the driver
-rather than specifying them from platform code. At the time of
-this writing we only have one user, the u8500. As new users are
-added, it is expected that they will be Device Tree compliant.
-If this is the case, we will look up their initialisation values
-by compatible entry, then apply them forthwith.
+This patch enables and illuminates the user_led on the
+Snowball low-cost development board using DT. It also
+removes initialisation carried out from platform code.
 
 Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   50 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 49 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/snowball.dts     |    1 +
+ arch/arm/mach-ux500/board-mop500.c |    3 +--
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 5267ab9..8803467 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -899,15 +899,57 @@ static const struct i2c_algorithm nmk_i2c_algo = {
- 	.functionality	= nmk_i2c_functionality
+diff --git a/arch/arm/boot/dts/snowball.dts b/arch/arm/boot/dts/snowball.dts
+index 56f8a76..579c304 100644
+--- a/arch/arm/boot/dts/snowball.dts
++++ b/arch/arm/boot/dts/snowball.dts
+@@ -67,6 +67,7 @@
+ 		used-led {
+ 			label = "user_led";
+ 			gpios = <&gpio4 14 0x4>;
++			default-state = "on";
+ 		};
+ 	};
+ 
+diff --git a/arch/arm/mach-ux500/board-mop500.c b/arch/arm/mach-ux500/board-mop500.c
+index 4b847cb..7810334 100644
+--- a/arch/arm/mach-ux500/board-mop500.c
++++ b/arch/arm/mach-ux500/board-mop500.c
+@@ -579,7 +579,6 @@ static struct platform_device *snowball_platform_devs[] __initdata = {
  };
  
-+static const struct nmk_i2c_controller u8500_i2c = {
-+       /*
-+        * slave data setup time, which is
-+        * 250 ns,100ns,10ns which is 14,6,2
-+        * respectively for a 48 Mhz
-+        * i2c clock
-+        */
-+       .slsu           = 0xe,
-+       /* Tx FIFO threshold */
-+       .tft            = 1,
-+       /* Rx FIFO threshold */
-+       .rft            = 8,
-+       /* std. mode operation */
-+       .clk_freq       = 100000,
-+       /* Slave response timeout(ms) */
-+       .timeout        = 200,
-+       .sm             = I2C_FREQ_MODE_FAST,
-+};
-+
-+static const struct nmk_i2c_controller *
-+nmk_i2c_find_pdata_from_compatible(struct device_node *np)
-+{
-+	/*
-+	 * The u8500 is currently our only user. As more SoCs are added,
-+	 * search for the correct value set using of_machine_is_compatible
-+	 * and return a 'struct nmk_i2c_controller *' which contains the
-+	 * correct information for the given SoC, whilst leaving u8500_i2c
-+	 * as the default/fall-back value set.
-+	 */
-+	return &u8500_i2c;
-+}
-+
- static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- {
- 	int ret = 0;
- 	struct resource *res;
--	struct nmk_i2c_controller *pdata =
-+	const struct nmk_i2c_controller *pdata =
- 			pdev->dev.platform_data;
-+	struct device_node *np = pdev->dev.of_node;
- 	struct nmk_i2c_dev	*dev;
- 	struct i2c_adapter *adap;
+ static struct platform_device *snowball_of_platform_devs[] __initdata = {
+-	&snowball_led_dev,
+ 	&snowball_key_dev,
+ 	&ab8500_device,
+ };
+@@ -783,7 +782,7 @@ static void __init u8500_init_machine(void)
  
-+	if (!pdata) {
-+		if (!np) {
-+			dev_err(&pdev->dev,
-+				"Neither platform_data nor Device Tree not found\n");
-+			return -EINVAL;
-+		}
-+		pdata = nmk_i2c_find_pdata_from_compatible(np);
-+	}
-+
- 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
- 	if (!dev) {
- 		dev_err(&pdev->dev, "cannot allocate memory\n");
-@@ -1039,11 +1081,17 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id nmk_gpio_match[] = {
-+	{ .compatible = "st,nomadik-i2c", },
-+	{}
-+};
-+
- static struct platform_driver nmk_i2c_driver = {
- 	.driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
- 		.pm = &nmk_i2c_pm,
-+		.of_match_table = nmk_gpio_match,
- 	},
- 	.probe = nmk_i2c_probe,
- 	.remove = __devexit_p(nmk_i2c_remove),
+ 		/*
+ 		 * Devices to be DT:ed:
+-		 *   snowball_led_dev   = todo
++		 *   snowball_led_dev   = done
+ 		 *   snowball_key_dev   = todo
+ 		 *   snowball_sbnet_dev = done
+ 		 *   ab8500_device      = todo
 -- 
 1.7.9.5
