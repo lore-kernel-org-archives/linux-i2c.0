@@ -1,7 +1,7 @@
 From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 13/15] ARM: ux500: Add support for ab8500 regulators into the Device Tree
-Date: Fri,  4 May 2012 19:23:23 +0100
-Message-ID: <1336155805-18554-14-git-send-email-lee.jones@linaro.org>
+Subject: [PATCH 11/15] drivers/mfd: Enable Device Tree for ab8500-core driver
+Date: Fri,  4 May 2012 19:23:21 +0100
+Message-ID: <1336155805-18554-12-git-send-email-lee.jones@linaro.org>
 References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1336155805-18554-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
@@ -10,146 +10,129 @@ To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Here we supply the information required to setup regulators
-successfully on Snowball and other db8500 variants which use
-the ab8500 regulators. This information includes values used
-for regulator related register initialisation and platform
-specific regulator setup information.
+This patch will allow the ab8500-core driver to be probed and set up
+when booting when Device Tree is enabled. This includes platform ID
+look-up which identifies the machine it is currently running on. If
+we are undergoing a DT enabled boot, we will refuse to setup each of
+the other ab8500-* devices, as they will be probed individually by DT.
 
 Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- arch/arm/boot/dts/db8500.dtsi  |   98 ++++++++++++++++++++++++++++++++++++++++
- arch/arm/boot/dts/snowball.dts |    2 +
- 2 files changed, 100 insertions(+)
+ drivers/mfd/ab8500-core.c |   62 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 45 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm/boot/dts/db8500.dtsi b/arch/arm/boot/dts/db8500.dtsi
-index 1188925..2609f53 100644
---- a/arch/arm/boot/dts/db8500.dtsi
-+++ b/arch/arm/boot/dts/db8500.dtsi
-@@ -202,6 +202,104 @@
- 				reg = <5>; /* mailbox 5 is i2c */
- 				interrupts = <0 40 0x4>;
- 				stericsson,irq-base = <520>;
-+
-+				ab8500-regulators {
-+					compatible = "stericsson,ab8500-regulator";
-+					stericsson,regurequestctrl2 = <0x00>;
-+					stericsson,regurequestctrl3 = <0x00>;
-+					stericsson,regurequestctrl4 = <0x00>;
-+					stericsson,regusysclkreq1hpvalid1 = <0x00>;
-+					stericsson,regusysclkreq1hpvalid2 = <0x40>;
-+					stericsson,reguhwhpreq1valid1 = <0x00>;
-+					stericsson,reguhwhpreq1valid2 = <0x00>;
-+					stericsson,reguhwhpreq2valid1 = <0x00>;
-+					stericsson,reguhwhpreq2valid2 = <0x04>;
-+					stericsson,reguswhpreqvalid1 = <0x00>;
-+					stericsson,reguswhpreqvalid2 = <0x00>;
-+					stericsson,regusysclkreqvalid1 = <0x2a>;
-+					stericsson,regusysclkreqvalid2 = <0x20>;
-+					stericsson,regumisc1 = <0x10>;
-+					stericsson,vaudiosupply = <0x00>;
-+					stericsson,reguctrl1vamic = <0x00>;
-+					stericsson,vpllvanaregu = <0x02>;
-+					stericsson,vrefddr = <0x00>;
-+					stericsson,extsupplyregu = <0x2a>;
-+					stericsson,vaux12regu = <0x01>;
-+					stericsson,vrf1vaux3regu = <0x00>;
-+					stericsson,vsmps1sel1 = <0x24>;
-+					stericsson,vaux1sel = <0x08>;
-+					stericsson,vaux2sel = <0x0d>;
-+					stericsson,vrf1vaux3sel = <0x07>;
-+					stericsson,reguctrl2spare = <0x00>;
-+					stericsson,reguctrldisch = <0x00>;
-+					stericsson,reguctrldisch2 = <0x00>;
-+
-+					/* It's imperative that these remain in order. */
-+
-+					// supplies to the display/camera
-+					ab8500_ldo_aux1_reg: ab8500_ldo_aux1 {
-+						regulator-name = "V-DISPLAY";
-+						regulator-min-microvolt = <2500000>;
-+						regulator-max-microvolt = <2900000>;
-+						regulator-boot-on;
-+						/* BUG: If turned off MMC will be affected. */
-+						regulator-always-on;
-+					};
-+
-+					// supplies to the on-board eMMC
-+					ab8500_ldo_aux2_reg: ab8500_ldo_aux2 {
-+						regulator-name = "V-eMMC1";
-+						regulator-min-microvolt = <1100000>;
-+						regulator-max-microvolt = <3300000>;
-+					};
-+
-+					// supply for VAUX3; SDcard slots
-+					ab8500_ldo_aux3_reg: ab8500_ldo_aux3 {
-+						regulator-name = "V-MMC-SD";
-+						regulator-min-microvolt = <1100000>;
-+						regulator-max-microvolt = <3300000>;
-+					};
-+
-+					// supply for v-intcore12; VINTCORE12 LDO
-+					ab8500_ldo_initcore_reg: ab8500_ldo_initcore {
-+						regulator-name = "V-INTCORE";
-+					};
-+
-+					// supply for tvout; gpadc; TVOUT LDO
-+					ab8500_ldo_tvout_reg: ab8500_ldo_tvout {
-+						regulator-name = "V-TVOUT";
-+					};
-+
-+					// supply for ab8500-usb; USB LDO
-+					ab8500_ldo_usb_reg: ab8500_ldo_usb {
-+						regulator-name = "dummy";
-+					};
-+
-+					// supply for ab8500-vaudio; VAUDIO LDO
-+					ab8500_ldo_audio_reg: ab8500_ldo_audio {
-+						regulator-name = "V-AUD";
-+					};
-+
-+					// supply for v-anamic1 VAMic1-LDO
-+					ab8500_ldo_anamic1_reg: ab8500_ldo_anamic1 {
-+						regulator-name = "V-AMIC1";
-+					};
-+
-+					// supply for v-amic2; VAMIC2 LDO; reuse constants for AMIC1
-+					ab8500_ldo_amamic2_reg: ab8500_ldo_amamic2 {
-+						regulator-name = "V-AMIC2";
-+					};
-+
-+					// supply for v-dmic; VDMIC LDO
-+					ab8500_ldo_dmic_reg: ab8500_ldo_dmic {
-+						regulator-name = "V-DMIC";
-+					};
-+
-+					// supply for U8500 CSI/DSI; VANA LDO
-+					ab8500_ldo_ana_reg: ab8500_ldo_ana {
-+						regulator-name = "V-CSI/DSI";
-+					};
-+				};
- 			};
- 		};
+diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
+index 74e6661..9f8547e 100644
+--- a/drivers/mfd/ab8500-core.c
++++ b/drivers/mfd/ab8500-core.c
+@@ -20,6 +20,8 @@
+ #include <linux/mfd/abx500/ab8500.h>
+ #include <linux/mfd/dbx500-prcmu.h>
+ #include <linux/regulator/ab8500.h>
++#include <linux/of.h>
++#include <linux/of_device.h>
  
-diff --git a/arch/arm/boot/dts/snowball.dts b/arch/arm/boot/dts/snowball.dts
-index 579c304..6b00350 100644
---- a/arch/arm/boot/dts/snowball.dts
-+++ b/arch/arm/boot/dts/snowball.dts
-@@ -94,6 +94,7 @@
- 			arm,primecell-periphid = <0x10480180>;
- 			max-frequency = <50000000>;
- 			bus-width = <8>;
-+			vmmc-supply = <&ab8500_ldo_aux3_reg>;
- 			mmc-cap-mmc-highspeed;
+ /*
+  * Interrupt register offsets
+@@ -1039,11 +1041,20 @@ static struct attribute_group ab9540_attr_group = {
+ 	.attrs	= ab9540_sysfs_entries,
+ };
  
- 			cd-gpios  = <&gpio6 26 0x4>; // 218
-@@ -107,6 +108,7 @@
- 			arm,primecell-periphid = <0x10480180>;
- 		        max-frequency = <50000000>;
- 			bus-width = <8>;
-+			vmmc-supply = <&ab8500_ldo_aux2_reg>;
- 			mmc-cap-mmc-highspeed;
++static const struct of_device_id ab8500_match[] = {
++	{
++		.compatible = "stericsson,ab8500",
++		.data = (void *)AB8500_VERSION_AB8500,
++	},
++	{},
++};
++
+ static int __devinit ab8500_probe(struct platform_device *pdev)
+ {
+ 	struct ab8500_platform_data *plat = dev_get_platdata(&pdev->dev);
+ 	const struct platform_device_id *platid = platform_get_device_id(pdev);
+-	enum ab8500_version version = platid->driver_data;
++	enum ab8500_version version = AB8500_VERSION_UNDEFINED;
++	struct device_node *np = pdev->dev.of_node;
+ 	struct ab8500 *ab8500;
+ 	struct resource *resource;
+ 	int ret;
+@@ -1056,6 +1067,14 @@ static int __devinit ab8500_probe(struct platform_device *pdev)
  
- 			status = "okay";
+ 	if (plat)
+ 		ab8500->irq_base = plat->irq_base;
++	else if (np)
++		ret = of_property_read_u32(np, "stericsson,irq-base", &ab8500->irq_base);
++
++	if (ab8500->irq_base == 0) {
++		dev_info(&pdev->dev, "couldn't find irq-base\n");
++		ret = -EINVAL;
++		goto out_free_ab8500;
++	}
+ 
+ 	ab8500->dev = &pdev->dev;
+ 
+@@ -1076,6 +1095,12 @@ static int __devinit ab8500_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, ab8500);
+ 
++	if (platid)
++		version = platid->driver_data;
++	else if (np)
++		version = (unsigned int)
++			of_match_device(ab8500_match, &pdev->dev)->data;
++
+ 	if (version != AB8500_VERSION_UNDEFINED)
+ 		ab8500->version = version;
+ 	else {
+@@ -1172,23 +1197,25 @@ static int __devinit ab8500_probe(struct platform_device *pdev)
+ 			goto out_removeirq;
+ 	}
+ 
+-	ret = mfd_add_devices(ab8500->dev, 0, abx500_common_devs,
+-			      ARRAY_SIZE(abx500_common_devs), NULL,
+-			      ab8500->irq_base);
++	if (!np) {
++		ret = mfd_add_devices(ab8500->dev, 0, abx500_common_devs,
++				ARRAY_SIZE(abx500_common_devs), NULL,
++				ab8500->irq_base);
+ 
+-	if (ret)
+-		goto out_freeirq;
+-
+-	if (is_ab9540(ab8500))
+-		ret = mfd_add_devices(ab8500->dev, 0, ab9540_devs,
+-			      ARRAY_SIZE(ab9540_devs), NULL,
+-			      ab8500->irq_base);
+-	else
+-		ret = mfd_add_devices(ab8500->dev, 0, ab8500_devs,
+-			      ARRAY_SIZE(ab9540_devs), NULL,
+-			      ab8500->irq_base);
+-	if (ret)
+-		goto out_freeirq;
++		if (ret)
++			goto out_freeirq;
++
++		if (is_ab9540(ab8500))
++			ret = mfd_add_devices(ab8500->dev, 0, ab9540_devs,
++					ARRAY_SIZE(ab9540_devs), NULL,
++					ab8500->irq_base);
++		else
++			ret = mfd_add_devices(ab8500->dev, 0, ab8500_devs,
++					ARRAY_SIZE(ab9540_devs), NULL,
++					ab8500->irq_base);
++		if (ret)
++			goto out_freeirq;
++	}
+ 
+ 	if (is_ab9540(ab8500))
+ 		ret = sysfs_create_group(&ab8500->dev->kobj,
+@@ -1249,6 +1276,7 @@ static struct platform_driver ab8500_core_driver = {
+ 	.driver = {
+ 		.name = "ab8500-core",
+ 		.owner = THIS_MODULE,
++		.of_match_table = ab8500_match,
+ 	},
+ 	.probe	= ab8500_probe,
+ 	.remove	= __devexit_p(ab8500_remove),
 -- 
 1.7.9.5
