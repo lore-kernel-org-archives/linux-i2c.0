@@ -1,46 +1,215 @@
 From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 01/15] i2c/busses: Add Device Tree support to the Nomadik I2C driver
-Date: Fri, 4 May 2012 20:02:20 +0000
-Message-ID: <201205042002.20943.arnd@arndb.de>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org> <1336155805-18554-2-git-send-email-lee.jones@linaro.org>
+Subject: Re: [PATCH 06/15] mfd/ab8500: Remove confusing ab8500-i2c file and merge into ab8500-core
+Date: Fri, 4 May 2012 20:25:15 +0000
+Message-ID: <201205042025.15421.arnd@arndb.de>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org> <1336155805-18554-7-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1336155805-18554-2-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1336155805-18554-7-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 On Friday 04 May 2012, Lee Jones wrote:
-> +static const struct nmk_i2c_controller *
-> +nmk_i2c_find_pdata_from_compatible(struct device_node *np)
+> 
+> ab8500-i2c is used as core code to register the ab8500 device.
+> After allocating ab8500 memory, it immediately calls into
+> ab8500-core where the real initialisation takes place. This
+> patch moves all core registration and memory allocation into
+> the true ab8500-core file and removes ab8500-i2c completely.
+> 
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+These changes all look good, but I think I would go further here.
+I believe we discussed this and I agreed that we could leave that
+for later, but upon reading this code, I think now that it's getting
+rather silly.
+
+> @@ -125,6 +126,41 @@ static const char ab8500_version_str[][7] = {
+>         [AB8500_VERSION_AB8540] = "AB8540",
+>  };
+>  
+> +static int ab8500_i2c_write(struct ab8500 *ab8500, u16 addr, u8 data)
 > +{
-> +       /*
-> +        * The u8500 is currently our only user. As more SoCs are added,
-> +        * search for the correct value set using of_machine_is_compatible
-> +        * and return a 'struct nmk_i2c_controller *' which contains the
-> +        * correct information for the given SoC, whilst leaving u8500_i2c
-> +        * as the default/fall-back value set.
-> +        */
-> +       return &u8500_i2c;
+> +       int ret;
+> +
+> +       ret = prcmu_abb_write((u8)(addr >> 8), (u8)(addr & 0xFF), &data, 1);
+> +       if (ret < 0)
+> +               dev_err(ab8500->dev, "prcmu i2c error %d\n", ret);
+> +       return ret;
 > +}
+> +
+> +static int ab8500_i2c_write_masked(struct ab8500 *ab8500, u16 addr, u8 mask,
+> +       u8 data)
+> +{
+> +       int ret;
+> +
+> +       ret = prcmu_abb_write_masked((u8)(addr >> 8), (u8)(addr & 0xFF), &data,
+> +               &mask, 1);
+> +       if (ret < 0)
+> +               dev_err(ab8500->dev, "prcmu i2c error %d\n", ret);
+> +       return ret;
+> +}
+> +
+> +static int ab8500_i2c_read(struct ab8500 *ab8500, u16 addr)
+> +{
+> +       int ret;
+> +       u8 data;
+> +
+> +       ret = prcmu_abb_read((u8)(addr >> 8), (u8)(addr & 0xFF), &data, 1);
+> +       if (ret < 0) {
+> +               dev_err(ab8500->dev, "prcmu i2c error %d\n", ret);
+> +               return ret;
+> +       }
+> +       return (int)data;
+> +}
+> +
+>  static int ab8500_get_chip_id(struct device *dev)
+>  {
+>         struct ab8500 *ab8500;
 
-Why not just put this pointer ...
+Each of these functions is called only from a single location, and through an indirect
+function pointer.
 
-> +static const struct of_device_id nmk_gpio_match[] = {
-> +       { .compatible = "st,nomadik-i2c", },
-> +       {}
-> +};
+> +       ab8500->read = ab8500_i2c_read;
+> +       ab8500->write = ab8500_i2c_write;
+> +       ab8500->write_masked = ab8500_i2c_write_masked;
 
-into the .data field after the .compatible match, and make it more specific
-to the soc, i.e.
+Which you unconditionally assign here.
 
-static const struct of_device_id nmk_gpio_match[] = {
-	{ .compatible = "st-ericsson,u8500-i2c", .data = &u8500_i2c },
-	{ .compatible = "st,nomadik-i2c", .data = &default_i2c_controller },
-};
+If you apply this patch below, then there is no reason to add any of those.
+There is room for additional simplification even, but this is the most
+important one. Note that the ab8500 mutex was only needed to support the
+case where write_masked is not present, and that the debug output
+on error is pointless because the prcmu driver already writes the same
+output. The next step would be to remove all the {get,set}_register functions
+from ab8500 and just call the prcmu directly.
 
-	Arnd
+Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+---
+
+ drivers/mfd/ab8500-core.c         |   72 +++---------------------------------------------------------------------
+ include/linux/mfd/abx500/ab8500.h |    1 -
+ 2 files changed, 3 insertions(+), 70 deletions(-)
+
+diff --git a/drivers/mfd/ab8500-core.c b/drivers/mfd/ab8500-core.c
+index 1f08704..b10bd2f 100644
+--- a/drivers/mfd/ab8500-core.c
++++ b/drivers/mfd/ab8500-core.c
+@@ -138,24 +138,8 @@ static int ab8500_get_chip_id(struct device *dev)
+ static int set_register_interruptible(struct ab8500 *ab8500, u8 bank,
+ 	u8 reg, u8 data)
+ {
+-	int ret;
+-	/*
+-	 * Put the u8 bank and u8 register together into a an u16.
+-	 * The bank on higher 8 bits and register in lower 8 bits.
+-	 * */
+-	u16 addr = ((u16)bank) << 8 | reg;
+-
+ 	dev_vdbg(ab8500->dev, "wr: addr %#x <= %#x\n", addr, data);
+-
+-	mutex_lock(&ab8500->lock);
+-
+-	ret = ab8500->write(ab8500, addr, data);
+-	if (ret < 0)
+-		dev_err(ab8500->dev, "failed to write reg %#x: %d\n",
+-			addr, ret);
+-	mutex_unlock(&ab8500->lock);
+-
+-	return ret;
++	return prcmu_abb_write(bank, reg, &data, 1);
+ }
+ 
+ static int ab8500_set_register(struct device *dev, u8 bank,
+@@ -169,21 +153,7 @@ static int ab8500_set_register(struct device *dev, u8 bank,
+ static int get_register_interruptible(struct ab8500 *ab8500, u8 bank,
+ 	u8 reg, u8 *value)
+ {
+-	int ret;
+-	/* put the u8 bank and u8 reg together into a an u16.
+-	 * bank on higher 8 bits and reg in lower */
+-	u16 addr = ((u16)bank) << 8 | reg;
+-
+-	mutex_lock(&ab8500->lock);
+-
+-	ret = ab8500->read(ab8500, addr);
+-	if (ret < 0)
+-		dev_err(ab8500->dev, "failed to read reg %#x: %d\n",
+-			addr, ret);
+-	else
+-		*value = ret;
+-
+-	mutex_unlock(&ab8500->lock);
++	ret = prcmu_abb_read(bank, addr, value, 1);
+ 	dev_vdbg(ab8500->dev, "rd: addr %#x => data %#x\n", addr, ret);
+ 
+ 	return ret;
+@@ -200,42 +170,7 @@ static int ab8500_get_register(struct device *dev, u8 bank,
+ static int mask_and_set_register_interruptible(struct ab8500 *ab8500, u8 bank,
+ 	u8 reg, u8 bitmask, u8 bitvalues)
+ {
+-	int ret;
+-	/* put the u8 bank and u8 reg together into a an u16.
+-	 * bank on higher 8 bits and reg in lower */
+-	u16 addr = ((u16)bank) << 8 | reg;
+-
+-	mutex_lock(&ab8500->lock);
+-
+-	if (ab8500->write_masked == NULL) {
+-		u8 data;
+-
+-		ret = ab8500->read(ab8500, addr);
+-		if (ret < 0) {
+-			dev_err(ab8500->dev, "failed to read reg %#x: %d\n",
+-				addr, ret);
+-			goto out;
+-		}
+-
+-		data = (u8)ret;
+-		data = (~bitmask & data) | (bitmask & bitvalues);
+-
+-		ret = ab8500->write(ab8500, addr, data);
+-		if (ret < 0)
+-			dev_err(ab8500->dev, "failed to write reg %#x: %d\n",
+-				addr, ret);
+-
+-		dev_vdbg(ab8500->dev, "mask: addr %#x => data %#x\n", addr,
+-			data);
+-		goto out;
+-	}
+-	ret = ab8500->write_masked(ab8500, addr, bitmask, bitvalues);
+-	if (ret < 0)
+-		dev_err(ab8500->dev, "failed to modify reg %#x: %d\n", addr,
+-			ret);
+-out:
+-	mutex_unlock(&ab8500->lock);
+-	return ret;
++	return prcmu_abb_write_masked(bank, reg, &bitmask, &bitvalues, 1);
+ }
+ 
+ static int ab8500_mask_and_set_register(struct device *dev,
+@@ -1013,7 +948,6 @@ int __devinit ab8500_init(struct ab8500 *ab8500, enum ab8500_version version)
+ 	if (plat)
+ 		ab8500->irq_base = plat->irq_base;
+ 
+-	mutex_init(&ab8500->lock);
+ 	mutex_init(&ab8500->irq_lock);
+ 
+ 	if (version != AB8500_VERSION_UNDEFINED)
+diff --git a/include/linux/mfd/abx500/ab8500.h b/include/linux/mfd/abx500/ab8500.h
+index fccc300..5f70328 100644
+--- a/include/linux/mfd/abx500/ab8500.h
++++ b/include/linux/mfd/abx500/ab8500.h
+@@ -232,7 +232,6 @@ enum ab8500_version {
+  */
+ struct ab8500 {
+ 	struct device	*dev;
+-	struct mutex	lock;
+ 	struct mutex	irq_lock;
+ 
+ 	int		irq_base;
