@@ -1,62 +1,58 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
- I2C_FUNC_PROTOCOL_MANGLING
-Date: Fri, 4 May 2012 11:30:42 +0100
-Message-ID: <20120504103042.GC14230@opensource.wolfsonmicro.com>
-References: <1336042416-28330-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20120503203617.31179f9b@endymion.delvare>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH RESEND] i2c/nomadik: runtime PM support
+Date: Fri, 4 May 2012 13:58:30 +0100
+Message-ID: <20120504125830.GM14230@opensource.wolfsonmicro.com>
+References: <1331213407-10135-1-git-send-email-linus.walleij@stericsson.com>
+ <201205031459.25262.rjw@sisk.pl>
+ <20120503133907.GG3955@opensource.wolfsonmicro.com>
+ <201205032125.37631.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PuGuTyElPB9bOcsM"
-Return-path: <linux-input-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="zROEGoKAXsG5UqGB"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120503203617.31179f9b@endymion.delvare>
-Sender: linux-input-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
+In-Reply-To: <201205032125.37631.rjw-KKrjLPT3xs0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jonas Aaberg <jonas.aberg-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Rickard ANDERSSON <rickard.andersson-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Rabin VINCENT <rabin.vincent-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---PuGuTyElPB9bOcsM
+--zROEGoKAXsG5UqGB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, May 03, 2012 at 08:36:17PM +0200, Jean Delvare wrote:
+On Thu, May 03, 2012 at 09:25:37PM +0200, Rafael J. Wysocki wrote:
+> On Thursday, May 03, 2012, Mark Brown wrote:
 
-> This is all correct, but it should be documented in
-> Documentation/i2c/i2c-protocol. At the moment documentation still says
-> that I2C_M_NOSTART is a weird protocol quirk nobody should be using.
+> > This seems like a really useful idiom in general - might it be worth
+> > supporting as a standard framework feature?
 
-> When you update the documentation, I think it is important to stress
-> that there are now two use cases of I2C_M_NOSTART. If direction
-> changes, it is a rarely needed protocol quirk. If direction doesn't
-> change, it is used for buffer gathering.
+> The generic PM domains framework does this, it's not platform-specific
+> (if I understood your question correctly).
 
-Hrm, actually rereading the documentation it wasn't all that clear that
-these were particularly disrecommended - it just mentioned that the
-flags existed and might be needed.  I strengthened the documentation
-here as well.
+AIUI it only works if the device gets placed into a doman, though?
 
---PuGuTyElPB9bOcsM
+--zROEGoKAXsG5UqGB
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJPo6/LAAoJEBus8iNuMP3dsFIP/RroZa2h/8L7kGNYDuQl0iWc
-ZK8fYaQh8FVLadhX0LrPCQxEXsq3NT1rEIpGnj06qK4F2c2Nqp8tVshzqidLrsOs
-/d3CPBPX0fB7VV0W1IGMG5eknTm2TlhRfF4/gdsUUPnnjIknFYJgA7X297ztMzMJ
-kVegN6PPzo05htCstv6ID7Jj1qCT/UHw5ZT5inwAjSJxBZL5j2+1Y+XjYVq27FuQ
-G1uEocZjUAkSfnrBkAc1rsl/oBdBAsq5rouqUYvS8mThWl0EFXYOtEqNtDKJIYjb
-E2wmeW5WxVE3zQIBIKB8oDISond/wynqd6Rg4IKW5jkj6ovQZRjW3U+j3Rn4fil/
-7EXbFI1E+cR5TDVPMhEOK1BrAYRRHwlT7Lo3dbUjZjIKJ6etE7oZdo5tQXA5ODme
-ixGWzju0u9Q/hPxK+TL6w6WPPCBncocxWMYs1flbyz5rGEzxkKrOQaxEy3xXp+4+
-VJwJE3mtZ4VeEf71vgZ4d9UI5YCPQk3UVDBq3VaeXnSLN8boeDN2C4F5jDjYOgBO
-vrYnf9kXOJzB0X3dtn6ajnblEYfdGT2zEPoxdA0VBTh4NSYZJTpm0ME7/jFkEI55
-Df6UEYJAINumKVh54ggkY33igO23F+yWKCXnG6QJemH7kQs599TEMmGHfL3dUfca
-S81zEhRo/FajR81WQ6I+
-=w9PF
+iQIcBAEBAgAGBQJPo9JvAAoJEBus8iNuMP3dLZEP/1AH4Pbawgj/cL/V4u/lSXGL
+R5Hyxbw3UeXCmrU+pAQeHWsrhCjN0CXicBSzooD74zmlKhR41cYvbPYExKRInUTP
+syaCn/x6WqaH25+kMwlb6WQOLeu2RaNoDMtVl7biVz+eg0vPmmtpGxGLNBn7QVNz
++yEqS//kav7S3xpYXKgy/IDMCMwCNWc4Y8ApY1r4rHXHUaOwjRlc+DFBeYiGiMvM
+c1sTrCexEUZZlslM1EtksPm3gmkg5O19som3AkIk4PQWRa9xCVu9AQ/kHnzFmKOn
+qKeCKa0KAgVzGAOZvMVozS2MpKt+3IRVRHzlR8INJBR+SQNSvZBFOx9//IFV3leR
+JsfhFCqRF6hiR4bOFd0s2FcXjrNjwDuAbyDPSAH4eIyDJ8FOdCeVt5FVy8QNYf0z
+xmNAE2tg22do6RiOt1hFMBPusxJJkn8TKATSbuyeTC9tWOwEHDtopqKYvOYoJ0ea
+8Sptzy24qLtV3fXw9WNrBZgY+wtdyieIT2q1Ehuy+G9zeAHnalJD0sIC5+TAgx60
+Cm2fsQh1V2q2f21eaxfFxIuyAK8XDW2DAZU89jMhXFFak6ntlzpFcAKCF/DFkMOh
+dLv85e9DYgpa7IZLrMBly2NrAmSvob6tcr0kGkdEkC9YJUNWh6IB8e1FzAEckQsh
+7fS0Xiln/fi7yQnOJuTv
+=kjaT
 -----END PGP SIGNATURE-----
 
---PuGuTyElPB9bOcsM--
+--zROEGoKAXsG5UqGB--
