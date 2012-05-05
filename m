@@ -1,114 +1,63 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 01/15] i2c/busses: Add Device Tree support to the Nomadik
- I2C driver
-Date: Sat, 05 May 2012 07:17:14 +0100
-Message-ID: <4FA4C5EA.7030006@linaro.org>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org> <1336155805-18554-2-git-send-email-lee.jones@linaro.org> <201205042002.20943.arnd@arndb.de>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 06/15] mfd/ab8500: Remove confusing ab8500-i2c file and
+ merge into ab8500-core
+Date: Sat, 05 May 2012 07:30:19 +0100
+Message-ID: <4FA4C8FB.4090202@linaro.org>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
+ <1336155805-18554-7-git-send-email-lee.jones@linaro.org>
+ <201205042025.15421.arnd@arndb.de> <4FA448FA.8000404@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201205042002.20943.arnd-r2nGTMty4D4@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <4FA448FA.8000404@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linus.walleij@stericsson.com, broonie@opensource.wolfsonmicro.com, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org, ben-linux@fluff.org, cjb@laptop.org, linux-arm-kernel@lists.infradead.org, sameo@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-I haven't tested it yet (it builds with no warnings/errors, but I
-haven't booted it), as I don't have my board immediately to hand,
-but does this kind of thing better suit what you're looking for?
-
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Date: Tue, 17 Apr 2012 16:04:13 +0100
-Subject: [PATCH 01/15] i2c/busses: Add Device Tree support to the Nomadik I2C
- driver
-
-Here we move the i2c-nomadik's default settings into the driver
-rather than specifying them from platform code. At the time of
-this writing we only have one user, the u8500. As new users are
-added, it is expected that they will be Device Tree compliant.
-If this is the case, we will look up their initialisation values
-by compatible entry, then apply them forthwith.
-
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |   42 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 41 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 5267ab9..3478a13 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -23,6 +23,7 @@
- #include <linux/io.h>
- #include <linux/regulator/consumer.h>
- #include <linux/pm_runtime.h>
-+#include <linux/of_device.h>
- 
- #include <plat/i2c.h>
- 
-@@ -899,15 +900,53 @@ static const struct i2c_algorithm nmk_i2c_algo = {
- 	.functionality	= nmk_i2c_functionality
- };
- 
-+static const struct nmk_i2c_controller u8500_i2c = {
-+       /*
-+        * slave data setup time, which is
-+        * 250 ns,100ns,10ns which is 14,6,2
-+        * respectively for a 48 Mhz
-+        * i2c clock
-+        */
-+       .slsu           = 0xe,
-+       /* Tx FIFO threshold */
-+       .tft            = 1,
-+       /* Rx FIFO threshold */
-+       .rft            = 8,
-+       /* std. mode operation */
-+       .clk_freq       = 100000,
-+       /* Slave response timeout(ms) */
-+       .timeout        = 200,
-+       .sm             = I2C_FREQ_MODE_FAST,
-+};
-+
-+static const struct of_device_id nmk_gpio_match[] = {
-+	{ .compatible = "stericsson,db8500-i2c", .data = (void *)&u8500_i2c, },
-+	{}
-+};
-+
- static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- {
- 	int ret = 0;
- 	struct resource *res;
--	struct nmk_i2c_controller *pdata =
-+	const struct nmk_i2c_controller *pdata =
- 			pdev->dev.platform_data;
-+	struct device_node *np = pdev->dev.of_node;
- 	struct nmk_i2c_dev	*dev;
- 	struct i2c_adapter *adap;
- 
-+	if (!pdata) {
-+		if (!np) {
-+			dev_err(&pdev->dev,
-+				"Neither platform_data nor Device Tree not found\n");
-+			return -EINVAL;
-+		}
-+		/* Try to fetch supplied i2c configuration from the match table. */
-+		pdata = of_match_device(nmk_gpio_match, &pdev->dev)->data;
-+		/* If no configuration was supplied, use the default. */
-+		if (!pdata)
-+			pdata = &u8500_i2c;
-+	}
-+
- 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
- 	if (!dev) {
- 		dev_err(&pdev->dev, "cannot allocate memory\n");
-@@ -1044,6 +1083,7 @@ static struct platform_driver nmk_i2c_driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
- 		.pm = &nmk_i2c_pm,
-+		.of_match_table = nmk_gpio_match,
- 	},
- 	.probe = nmk_i2c_probe,
- 	.remove = __devexit_p(nmk_i2c_remove),
--- 
-1.7.9.5
+V2hvb3BzLCBJIHB1dCB0aGF0IGNvbW1lbnQgaW4gdGhlIHdyb25nIHBsYWNlLiBMZXQgbWUgYW1l
+bmQ6CgpPbiAwNC8wNS8xMiAyMjoyNCwgTGVlIEpvbmVzIHdyb3RlOgo+IE9uIDA0LzA1LzEyIDIx
+OjI1LCBBcm5kIEJlcmdtYW5uIHdyb3RlOgo+PiBPbiBGcmlkYXkgMDQgTWF5IDIwMTIsIExlZSBK
+b25lcyB3cm90ZToKPj4+Cj4+PiBhYjg1MDAtaTJjIGlzIHVzZWQgYXMgY29yZSBjb2RlIHRvIHJl
+Z2lzdGVyIHRoZSBhYjg1MDAgZGV2aWNlLgo+Pj4gQWZ0ZXIgYWxsb2NhdGluZyBhYjg1MDAgbWVt
+b3J5LCBpdCBpbW1lZGlhdGVseSBjYWxscyBpbnRvCj4+PiBhYjg1MDAtY29yZSB3aGVyZSB0aGUg
+cmVhbCBpbml0aWFsaXNhdGlvbiB0YWtlcyBwbGFjZS4gVGhpcwo+Pj4gcGF0Y2ggbW92ZXMgYWxs
+IGNvcmUgcmVnaXN0cmF0aW9uIGFuZCBtZW1vcnkgYWxsb2NhdGlvbiBpbnRvCj4+PiB0aGUgdHJ1
+ZSBhYjg1MDAtY29yZSBmaWxlIGFuZCByZW1vdmVzIGFiODUwMC1pMmMgY29tcGxldGVseS4KPj4+
+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBMZWUgSm9uZXM8bGVlLmpvbmVzQGxpbmFyby5vcmc+Cj4+Cj4+
+IFRoZXNlIGNoYW5nZXMgYWxsIGxvb2sgZ29vZCwgYnV0IEkgdGhpbmsgSSB3b3VsZCBnbyBmdXJ0
+aGVyIGhlcmUuCj4+IEkgYmVsaWV2ZSB3ZSBkaXNjdXNzZWQgdGhpcyBhbmQgSSBhZ3JlZWQgdGhh
+dCB3ZSBjb3VsZCBsZWF2ZSB0aGF0Cj4+IGZvciBsYXRlciwgYnV0IHVwb24gcmVhZGluZyB0aGlz
+IGNvZGUsIEkgdGhpbmsgbm93IHRoYXQgaXQncyBnZXR0aW5nCj4+IHJhdGhlciBzaWxseS4KCkl0
+J3Mgc29tZXRoaW5nIEknbSBoYXBweSB0byBkbywgYnV0IHdhc24ndCB0aGUgcG9pbnQgb2YgdGhl
+IHBhdGNoLiBJCmRvbid0IGtub3cgbXVjaCBhYm91dCB0aGlzIGNvZGUsIGFzIEkgZGlkbid0IHdy
+aXRlIGl0LiBJIGNhbiBzcGVuZCBtb3JlIAp0aW1lIG9uIGNsZWFuLXVwcyBzdWNoIGFzIHRoZXNl
+IGFmdGVyIG15IERUIHRhc2sgaGFzIGJlZW4gY29tcGxldGVkLgoKPHNuaXA+Cgo+PiBJZiB5b3Ug
+YXBwbHkgdGhpcyBwYXRjaCBiZWxvdywgdGhlbiB0aGVyZSBpcyBubyByZWFzb24gdG8gYWRkIGFu
+eSBvZgo+PiB0aG9zZS4KID4+Cj4+IFRoZXJlIGlzIHJvb20gZm9yIGFkZGl0aW9uYWwgc2ltcGxp
+ZmljYXRpb24gZXZlbiwgYnV0IHRoaXMgaXMgdGhlIG1vc3QKPj4gaW1wb3J0YW50IG9uZS4gTm90
+ZSB0aGF0IHRoZSBhYjg1MDAgbXV0ZXggd2FzIG9ubHkgbmVlZGVkIHRvIHN1cHBvcnQgdGhlCj4+
+IGNhc2Ugd2hlcmUgd3JpdGVfbWFza2VkIGlzIG5vdCBwcmVzZW50LCBhbmQgdGhhdCB0aGUgZGVi
+dWcgb3V0cHV0Cj4+IG9uIGVycm9yIGlzIHBvaW50bGVzcyBiZWNhdXNlIHRoZSBwcmNtdSBkcml2
+ZXIgYWxyZWFkeSB3cml0ZXMgdGhlIHNhbWUKPj4gb3V0cHV0LiBUaGUgbmV4dCBzdGVwIHdvdWxk
+IGJlIHRvIHJlbW92ZSBhbGwgdGhlIHtnZXQsc2V0fV9yZWdpc3Rlcgo+PiBmdW5jdGlvbnMKPj4g
+ZnJvbSBhYjg1MDAgYW5kIGp1c3QgY2FsbCB0aGUgcHJjbXUgZGlyZWN0bHkuCj4+Cj4+IFNpZ25l
+ZC1vZmYtYnk6IEFybmQgQmVyZ21hbm48YXJuZEBhcm5kYi5kZT4KClBhdGNoIGxvb2tzIGdvb2Qu
+IEknbGwgdGVzdCBpdCB3aGVuIEkgaGF2ZSBteSBib2FyZC4gSWYgaXQgZG9lc24ndCBjYXVzZSAK
+YW55IGlzc3VlcyBJJ2xsIGFwcGx5IGl0IHRvIHRoZSBwYXRjaC1zZXQgcmVhZHkgZm9yIHB1bGwt
+cmVxdWVzdC4KCktpbmQgcmVnYXJkcywKTGVlCgotLSAKTGVlIEpvbmVzCkxpbmFybyBTVC1Fcmlj
+c3NvbiBMYW5kaW5nIFRlYW0gTGVhZApNOiArNDQgNzcgODggNjMzIDUxNQpMaW5hcm8ub3JnIOKU
+giBPcGVuIHNvdXJjZSBzb2Z0d2FyZSBmb3IgQVJNIFNvQ3MKRm9sbG93IExpbmFybzogRmFjZWJv
+b2sgfCBUd2l0dGVyIHwgQmxvZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5l
+bEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4v
+bGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
