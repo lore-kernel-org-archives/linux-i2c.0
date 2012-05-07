@@ -1,63 +1,43 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 06/15] mfd/ab8500: Remove confusing ab8500-i2c file and
- merge into ab8500-core
-Date: Sat, 05 May 2012 07:30:19 +0100
-Message-ID: <4FA4C8FB.4090202@linaro.org>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
- <1336155805-18554-7-git-send-email-lee.jones@linaro.org>
- <201205042025.15421.arnd@arndb.de> <4FA448FA.8000404@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <4FA448FA.8000404@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linus.walleij@stericsson.com, broonie@opensource.wolfsonmicro.com, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org, ben-linux@fluff.org, cjb@laptop.org, linux-arm-kernel@lists.infradead.org, sameo@linux.intel.com
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: [PATCH RESEND 0/5] Adopt pinctrl support for a few outstanding imx drivers
+Date: Mon,  7 May 2012 08:53:55 +0800
+Message-ID: <1336352040-28447-1-git-send-email-shawn.guo@linaro.org>
+Return-path: <linux-serial-owner@vger.kernel.org>
+Sender: linux-serial-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, Sascha Hauer <s.hauer@pengutronix.de>, Dong Aisheng <dong.aisheng@linaro.org>, Shawn Guo <shawn.guo@linaro.org>, spi-devel-general@lists.sourceforge.net, Grant Likely <grant.likely@secretlab.ca>, linux-i2c@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, linux-can@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>, netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, linux-serial@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-V2hvb3BzLCBJIHB1dCB0aGF0IGNvbW1lbnQgaW4gdGhlIHdyb25nIHBsYWNlLiBMZXQgbWUgYW1l
-bmQ6CgpPbiAwNC8wNS8xMiAyMjoyNCwgTGVlIEpvbmVzIHdyb3RlOgo+IE9uIDA0LzA1LzEyIDIx
-OjI1LCBBcm5kIEJlcmdtYW5uIHdyb3RlOgo+PiBPbiBGcmlkYXkgMDQgTWF5IDIwMTIsIExlZSBK
-b25lcyB3cm90ZToKPj4+Cj4+PiBhYjg1MDAtaTJjIGlzIHVzZWQgYXMgY29yZSBjb2RlIHRvIHJl
-Z2lzdGVyIHRoZSBhYjg1MDAgZGV2aWNlLgo+Pj4gQWZ0ZXIgYWxsb2NhdGluZyBhYjg1MDAgbWVt
-b3J5LCBpdCBpbW1lZGlhdGVseSBjYWxscyBpbnRvCj4+PiBhYjg1MDAtY29yZSB3aGVyZSB0aGUg
-cmVhbCBpbml0aWFsaXNhdGlvbiB0YWtlcyBwbGFjZS4gVGhpcwo+Pj4gcGF0Y2ggbW92ZXMgYWxs
-IGNvcmUgcmVnaXN0cmF0aW9uIGFuZCBtZW1vcnkgYWxsb2NhdGlvbiBpbnRvCj4+PiB0aGUgdHJ1
-ZSBhYjg1MDAtY29yZSBmaWxlIGFuZCByZW1vdmVzIGFiODUwMC1pMmMgY29tcGxldGVseS4KPj4+
-Cj4+PiBTaWduZWQtb2ZmLWJ5OiBMZWUgSm9uZXM8bGVlLmpvbmVzQGxpbmFyby5vcmc+Cj4+Cj4+
-IFRoZXNlIGNoYW5nZXMgYWxsIGxvb2sgZ29vZCwgYnV0IEkgdGhpbmsgSSB3b3VsZCBnbyBmdXJ0
-aGVyIGhlcmUuCj4+IEkgYmVsaWV2ZSB3ZSBkaXNjdXNzZWQgdGhpcyBhbmQgSSBhZ3JlZWQgdGhh
-dCB3ZSBjb3VsZCBsZWF2ZSB0aGF0Cj4+IGZvciBsYXRlciwgYnV0IHVwb24gcmVhZGluZyB0aGlz
-IGNvZGUsIEkgdGhpbmsgbm93IHRoYXQgaXQncyBnZXR0aW5nCj4+IHJhdGhlciBzaWxseS4KCkl0
-J3Mgc29tZXRoaW5nIEknbSBoYXBweSB0byBkbywgYnV0IHdhc24ndCB0aGUgcG9pbnQgb2YgdGhl
-IHBhdGNoLiBJCmRvbid0IGtub3cgbXVjaCBhYm91dCB0aGlzIGNvZGUsIGFzIEkgZGlkbid0IHdy
-aXRlIGl0LiBJIGNhbiBzcGVuZCBtb3JlIAp0aW1lIG9uIGNsZWFuLXVwcyBzdWNoIGFzIHRoZXNl
-IGFmdGVyIG15IERUIHRhc2sgaGFzIGJlZW4gY29tcGxldGVkLgoKPHNuaXA+Cgo+PiBJZiB5b3Ug
-YXBwbHkgdGhpcyBwYXRjaCBiZWxvdywgdGhlbiB0aGVyZSBpcyBubyByZWFzb24gdG8gYWRkIGFu
-eSBvZgo+PiB0aG9zZS4KID4+Cj4+IFRoZXJlIGlzIHJvb20gZm9yIGFkZGl0aW9uYWwgc2ltcGxp
-ZmljYXRpb24gZXZlbiwgYnV0IHRoaXMgaXMgdGhlIG1vc3QKPj4gaW1wb3J0YW50IG9uZS4gTm90
-ZSB0aGF0IHRoZSBhYjg1MDAgbXV0ZXggd2FzIG9ubHkgbmVlZGVkIHRvIHN1cHBvcnQgdGhlCj4+
-IGNhc2Ugd2hlcmUgd3JpdGVfbWFza2VkIGlzIG5vdCBwcmVzZW50LCBhbmQgdGhhdCB0aGUgZGVi
-dWcgb3V0cHV0Cj4+IG9uIGVycm9yIGlzIHBvaW50bGVzcyBiZWNhdXNlIHRoZSBwcmNtdSBkcml2
-ZXIgYWxyZWFkeSB3cml0ZXMgdGhlIHNhbWUKPj4gb3V0cHV0LiBUaGUgbmV4dCBzdGVwIHdvdWxk
-IGJlIHRvIHJlbW92ZSBhbGwgdGhlIHtnZXQsc2V0fV9yZWdpc3Rlcgo+PiBmdW5jdGlvbnMKPj4g
-ZnJvbSBhYjg1MDAgYW5kIGp1c3QgY2FsbCB0aGUgcHJjbXUgZGlyZWN0bHkuCj4+Cj4+IFNpZ25l
-ZC1vZmYtYnk6IEFybmQgQmVyZ21hbm48YXJuZEBhcm5kYi5kZT4KClBhdGNoIGxvb2tzIGdvb2Qu
-IEknbGwgdGVzdCBpdCB3aGVuIEkgaGF2ZSBteSBib2FyZC4gSWYgaXQgZG9lc24ndCBjYXVzZSAK
-YW55IGlzc3VlcyBJJ2xsIGFwcGx5IGl0IHRvIHRoZSBwYXRjaC1zZXQgcmVhZHkgZm9yIHB1bGwt
-cmVxdWVzdC4KCktpbmQgcmVnYXJkcywKTGVlCgotLSAKTGVlIEpvbmVzCkxpbmFybyBTVC1Fcmlj
-c3NvbiBMYW5kaW5nIFRlYW0gTGVhZApNOiArNDQgNzcgODggNjMzIDUxNQpMaW5hcm8ub3JnIOKU
-giBPcGVuIHNvdXJjZSBzb2Z0d2FyZSBmb3IgQVJNIFNvQ3MKRm9sbG93IExpbmFybzogRmFjZWJv
-b2sgfCBUd2l0dGVyIHwgQmxvZwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QKbGludXgtYXJtLWtlcm5l
-bEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRlYWQub3JnL21haWxtYW4v
-bGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
+With patch 5b3aa5f (pinctrl: add pinctrl_provide_dummies interface for
+platforms to use) applied on pinctrl tree, and patch "ARM: imx: enable
+pinctrl dummy states" [1] being there, we are ready to adopt pinctrl
+API for imx drivers.  So let's start from a few outstanding ones.
+
+I would expect to ask Arnd and Olof to pull pinctrl tree into arm-soc
+as a dependency and then have series [1] and this patch set go through
+arm-soc tree to ease the merge process.
+
+Resend to have subsystem lists Cc-ed.
+
+Regards,
+Shawn
+
+[1] http://thread.gmane.org/gmane.linux.kernel.mmc/14180
+
+Shawn Guo (5):
+  tty: serial: imx: adopt pinctrl support
+  net: fec: adopt pinctrl support
+  can: flexcan: adopt pinctrl support
+  i2c: imx: adopt pinctrl support
+  spi/imx: adopt pinctrl support
+
+ drivers/i2c/busses/i2c-imx.c         |    8 ++++++++
+ drivers/net/can/flexcan.c            |    6 ++++++
+ drivers/net/ethernet/freescale/fec.c |    9 +++++++++
+ drivers/spi/spi-imx.c                |    8 ++++++++
+ drivers/tty/serial/imx.c             |    8 ++++++++
+ 5 files changed, 39 insertions(+), 0 deletions(-)
+
+-- 
+1.7.5.4
+
