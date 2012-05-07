@@ -1,108 +1,89 @@
 From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 14/15] drivers/regulators: Enable the ab8500 for Device
- Tree
-Date: Mon, 7 May 2012 18:08:32 +0100
-Message-ID: <20120507170832.GO17002@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 12/15] drivers/regulator: ab8500: Split up probe() into
+ manageable pieces
+Date: Mon, 7 May 2012 19:44:54 +0100
+Message-ID: <20120507184453.GQ17002@opensource.wolfsonmicro.com>
 References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
- <1336155805-18554-15-git-send-email-lee.jones@linaro.org>
+ <1336155805-18554-13-git-send-email-lee.jones@linaro.org>
+ <20120507165838.GN17002@opensource.wolfsonmicro.com>
+ <CAF2Aj3h7pgh=Kbt+M5Xd_RDRbJN7K+WbaH1+8nM2Eakb1QNpsg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zBPbvmIlJjvpbu6L"
+	protocol="application/pgp-signature"; boundary="MXxcbiX/Q4+iy5U7"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1336155805-18554-15-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <CAF2Aj3h7pgh=Kbt+M5Xd_RDRbJN7K+WbaH1+8nM2Eakb1QNpsg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---zBPbvmIlJjvpbu6L
+--MXxcbiX/Q4+iy5U7
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 04, 2012 at 07:23:24PM +0100, Lee Jones wrote:
+On Mon, May 07, 2012 at 07:04:59PM +0100, Lee Jones wrote:
+> On 7 May 2012 17:58, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org> wro=
+te:
 
-Once again, please try to make sure your changelog matches the
-subsystem.  This also isn't consistent with the other regulator change
-further up the series :(
+> > This doesn't apply against current regulator code.
 
-You've also not included any binding documenation here, binding
-documentation should be included for new bindings.
+> It doesn't? I rebased it onto -rc5 which was the latest at time of
+> submission.
 
-> =20
-> +static __devinit int
-> +ab8500_regulator_of_probe(struct platform_device *pdev, struct device_no=
-de *np)
-> +{
-> +	struct regulator_init_data *ab8500_regulator;
-> +	struct device_node *child;
-> +	int err, value, i, id =3D 0;
-> +
-> +	/* Initialise regulator registers to platform specific values. */
-> +	for (i =3D 0; i < ARRAY_SIZE(ab8500_reg_init); i++) {
-> +		err =3D of_property_read_u32(np, ab8500_reg_init[i].of_name, &value);
-> +		if (err < 0)
-> +			return err;
-> +
-> +		err =3D ab8500_regulator_init_registers(pdev, i, value);
-> +		if (err < 0)
-> +			return err;
+This isn't a bugfix that should be rushed into Linus' tree for 3.4!
+You're missing the best part of a release cycle of development here,
+including at least one incompatible API change. =20
 
-You should be using of_regulator_match() for this (I think it's supposed
-to do an equivalent job...) rather than open coding.
+If you're developing new code you should always submit against the tree
+it's supposed to be applied to; as a rule of thumb -next is a good
+approximation though subsystems do things slightly differently,
+especially in the creation of topic branches.  Even where the code will
+get applied to Linus' tree then merged as a new topic branch you should
+verify that there aren't any other changes in -next that affect it (eg,
+an API you rely on having changed or other changes to the same file
+which conflict with yours).
 
-> +	/* Register each ab8500 regulator found in the Device Tree. */
-> +	for_each_child_of_node(np, child) {
-> +		ab8500_regulator =3D of_get_regulator_init_data(&pdev->dev, child);
+> > Please also at least
+> > try to use changelogs that match the subsystem you're submitting
+> > against.
 
-Definitely don't do this - you should unconditionally register all the
-regulators that physically exist, this allows users to inspect their
-state even if they aren't used.
+> What do you mean? Isn't "drivers/regulator" in the subject line enough?
 
-It's possible the original driver has this bug (I didn't check but=20
+As I said you should use changelogs that match the subsystem you are
+submitting against.  Essentially nothing in the regulator tree uses
+this, as you should be able to see from inspection of the changelogs:
 
-> +		if (strcmp(ab8500_regulator->constraints.name, "dummy"))
-> +			ab8500_regulator_register(pdev, ab8500_regulator, id, child);
+$ git shortlog next/master drivers/regulator | wc -l
+1059
+$ git shortlog drivers/regulator | grep drivers/regulator | wc -l
+6
 
-This is really broken - the whole purpose of allowing users to specify a
-name in the constraints is to allow them to assign a name that's
-meaningful for their board so they can tie the software in with the
-schematic which we will display in diagnostics.  Forcing them to specify
-magic strings as the supply name defeats this and makes diagnostics from
-the kernel more obscure.
+Generally everything uses "regulator: ".  You should always make an
+effort to do this for whatever subsystem you're working with.
 
->  	pdata =3D dev_get_platdata(ab8500->dev);
-> -	if (!pdata) {
-> -		dev_err(&pdev->dev, "null pdata\n");
-> +	if (!pdata && !np) {
-> +		dev_err(&pdev->dev, "null pdata and no device tree found\n");
->  		return -EINVAL;
->  	}
-
-Neither should be mandatory.
-
---zBPbvmIlJjvpbu6L
+--MXxcbiX/Q4+iy5U7
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJPqAGJAAoJEBus8iNuMP3drREQAILkX/J6FDfLp/eQQD9f2L3c
-DDSUrWeWBYVN/Jr29vjwAPKvP3/UYoprJxvtCucVkVmBZ12tI+C7AAFY2hpb4Dzq
-VUVHkRKLsrmbxqKLmkWz8smo3EPdwE6zJNC5ZQ2ACsleuH5QwF4Rh+wZWr0X7m4s
-ojJfQ9TwqP2ak3NZcg94TCTujJA4wh6+VpNIeR2vi4fzaC/DdRiMxvDEV3erpoKg
-uRHG8iv91zhUyBesMO6V5X+sHK5r2niB4C0SNOAdCzt4Xe2ehpIsL5Olm0El2Sp2
-b8PfoY7jDkuKv6o4NqUkuEKykS5K9mpc2qIm+K/qAeUOiXyBKE8ZlYD74Kiz4AjW
-Vf5AV5f6tWByzIjKU/RIHMnFPLuCVINZOqG86eZ6VnisKJjL69ry5AWzzupZrIJi
-DMI77z+mHGCnZ6NYnFrvLFt7Sth6rSnHAPTiZZT9Fekq/EZmW2uPxYfcTLMJOJCB
-ouvNTOr1+5lKXshZNJYy8cXmrNbagi8gOhZENitkCmBBp89FtXnFpmBATZwHG+4b
-u0ofAlYJd6SFiRLwbHDvxk0yHITdFZnNpDfNwJ7jPWNYD8Q/TW+PFoj4U0dN8qjM
-vP0OSgllhilbiJsIjkwc7S4fDmcKepWcZGEO/c/7Z9c5U2Y7isxgxks72OMwX4Zh
-YbYZi/XXr5FOrPWxpPXc
-=ud9Z
+iQIcBAEBAgAGBQJPqBgfAAoJEBus8iNuMP3dhFEP/Rk6ifDpDDcDYbupeLZIAd8w
+ZA6cDIyGMODl67cflfLoSUcE2RqDsBwBGhGslZkcDWhW3dsTItqCPAAzwTybF7AU
+QUjHv5zVcR0wXDZCwnHllrNEUy6RltR3heRnbUs1nWgPykLBFVCiA5J8mkgISSNc
+6zs0KHL8viXfKhF2E8WC9z9rBReNHp2FnrYQ4fZWSVybLCrxBaolbP354aWA732w
+GuJ3vUCyiI8IZIRmBl5dMFCkWFgAZr2M1zujuCAeEAj0zQkfu2pzHwjfDDeqMSaj
+YNv+HF5WWN3m7F0qq3Me6KrRCWAnrgLwQVeoj1nWuF9jnJcBo989JiM+oZ0RDjzH
+gGW86AULcb0nZYJuJfgA0lQzEvQ3dK77IikrByYREhSwcbIPVltl+6sKkYDvY8T8
+DxWiqK4nS5jb7k0N7vVVKtEDfSxhY0MOmuF6f1475iEmkufYLDySWlI462IXmYcI
+zz8zbjTQTX6jekWHzE9923W4YYi58TktLAO/iyQPyWSTKTr3+q//lAWNY6CgfPvs
+5HfO2GXiB6otaeDsd0Zzt77wQMQtJrSHKVo54xNEkGx5Sy9SFAzBhJhkG3dz/LDG
++ToGcLexJOuPWKwORIXh23/2GvNA/hLDCmXc8YSUqk/GCIwH+nIIPZ1y6FiJHMrh
++80N/t4Pxyq/EqP3LZXB
+=WDhe
 -----END PGP SIGNATURE-----
 
---zBPbvmIlJjvpbu6L--
+--MXxcbiX/Q4+iy5U7--
