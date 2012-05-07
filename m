@@ -1,75 +1,171 @@
-From: Dong Aisheng <aisheng.dong@freescale.com>
-Subject: Re: [PATCH RESEND 0/5] Adopt pinctrl support for a few outstanding
- imx drivers
-Date: Mon, 7 May 2012 14:50:02 +0800
-Message-ID: <20120507065001.GA23607@shlinux2.ap.freescale.net>
-References: <1336352040-28447-1-git-send-email-shawn.guo@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-can-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1336352040-28447-1-git-send-email-shawn.guo@linaro.org>
-Sender: linux-can-owner@vger.kernel.org
-To: Shawn Guo <shawn.guo@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>, netdev@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>, Wolfram Sang <w.sang@pengutronix.de>, linux-can@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, Marc Kleine-Budde <mkl@pengutronix.de>, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Olof Johansson <olof@lixom.net>, spi-devel-general@lists.sourceforge.net, Dong Aisheng <dong.aisheng@linaro.org>, "David S. Miller" <davem@davemloft.net>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V1 1/2] i2c: tegra: make all resource allocation through devm_*
+Date: Mon,  7 May 2012 12:14:05 +0530
+Message-ID: <1336373047-12654-1-git-send-email-ldewangan@nvidia.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 07, 2012 at 08:53:55AM +0800, Shawn Guo wrote:
-> With patch 5b3aa5f (pinctrl: add pinctrl_provide_dummies interface for
-> platforms to use) applied on pinctrl tree, and patch "ARM: imx: enable
-> pinctrl dummy states" [1] being there, we are ready to adopt pinctrl
-> API for imx drivers.  So let's start from a few outstanding ones.
-> 
-> I would expect to ask Arnd and Olof to pull pinctrl tree into arm-soc
-> as a dependency and then have series [1] and this patch set go through
-> arm-soc tree to ease the merge process.
-> 
-Shouldn't we add the pinctrl states in dts file at the same time
-with this patch series or using another separate patch to add them
-before this series to avoid breaking the exist mx6q platforms?
+Use the devm_* for the memory region allocation, interrupt request,
+clock handler request.
+By doing this, it does not require to explicitly free it and hence
+saving some code.
 
-> Resend to have subsystem lists Cc-ed.
-> 
-> Regards,
-> Shawn
-> 
-> [1] http://thread.gmane.org/gmane.linux.kernel.mmc/14180
-> 
-> Shawn Guo (5):
->   tty: serial: imx: adopt pinctrl support
-...
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-tegra.c |   64 ++++++++++-----------------------------
+ 1 files changed, 17 insertions(+), 47 deletions(-)
 
->   net: fec: adopt pinctrl support
->   can: flexcan: adopt pinctrl support
-This two also depends on another patch you sent.
-[PATCH RESEND 1/9] ARM: mxs: enable pinctrl dummy states
-http://www.spinics.net/lists/arm-kernel/msg173341.html
-
-Maybe you can put this two in the mxs convert series to avoid breaking
-mxs platforms.
-[PATCH 0/9] Enable pinctrl support for mach-mxs
-http://www.spinics.net/lists/arm-kernel/msg173312.html
-
-Regards
-Dong Aisheng
-
->   i2c: imx: adopt pinctrl support
->   spi/imx: adopt pinctrl support
-> 
->  drivers/i2c/busses/i2c-imx.c         |    8 ++++++++
->  drivers/net/can/flexcan.c            |    6 ++++++
->  drivers/net/ethernet/freescale/fec.c |    9 +++++++++
->  drivers/spi/spi-imx.c                |    8 ++++++++
->  drivers/tty/serial/imx.c             |    8 ++++++++
->  5 files changed, 39 insertions(+), 0 deletions(-)
-> 
-> -- 
-> 1.7.5.4
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
-
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 18067b3..390d379 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -106,7 +106,6 @@
+  * @adapter: core i2c layer adapter information
+  * @clk: clock reference for i2c controller
+  * @i2c_clk: clock reference for i2c bus
+- * @iomem: memory resource for registers
+  * @base: ioremapped registers cookie
+  * @cont_id: i2c controller id, used for for packet header
+  * @irq: irq number of transfer complete interrupt
+@@ -124,7 +123,6 @@ struct tegra_i2c_dev {
+ 	struct i2c_adapter adapter;
+ 	struct clk *clk;
+ 	struct clk *i2c_clk;
+-	struct resource *iomem;
+ 	void __iomem *base;
+ 	int cont_id;
+ 	int irq;
+@@ -573,7 +571,6 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
+ 	struct tegra_i2c_dev *i2c_dev;
+ 	struct tegra_i2c_platform_data *pdata = pdev->dev.platform_data;
+ 	struct resource *res;
+-	struct resource *iomem;
+ 	struct clk *clk;
+ 	struct clk *i2c_clk;
+ 	const unsigned int *prop;
+@@ -586,50 +583,41 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "no mem resource\n");
+ 		return -EINVAL;
+ 	}
+-	iomem = request_mem_region(res->start, resource_size(res), pdev->name);
+-	if (!iomem) {
+-		dev_err(&pdev->dev, "I2C region already claimed\n");
+-		return -EBUSY;
+-	}
+ 
+-	base = ioremap(iomem->start, resource_size(iomem));
++	base = devm_request_and_ioremap(&pdev->dev, res);
+ 	if (!base) {
+-		dev_err(&pdev->dev, "Cannot ioremap I2C region\n");
+-		return -ENOMEM;
++		dev_err(&pdev->dev, "Cannot request/ioremap I2C registers\n");
++		return -EADDRNOTAVAIL;
+ 	}
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 	if (!res) {
+ 		dev_err(&pdev->dev, "no irq resource\n");
+-		ret = -EINVAL;
+-		goto err_iounmap;
++		return -EINVAL;
+ 	}
+ 	irq = res->start;
+ 
+-	clk = clk_get(&pdev->dev, NULL);
++	clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(clk)) {
+ 		dev_err(&pdev->dev, "missing controller clock");
+-		ret = PTR_ERR(clk);
+-		goto err_release_region;
++		return PTR_ERR(clk);
+ 	}
+ 
+-	i2c_clk = clk_get(&pdev->dev, "i2c");
++	i2c_clk = devm_clk_get(&pdev->dev, "i2c");
+ 	if (IS_ERR(i2c_clk)) {
+ 		dev_err(&pdev->dev, "missing bus clock");
+-		ret = PTR_ERR(i2c_clk);
+-		goto err_clk_put;
++		return PTR_ERR(i2c_clk);
+ 	}
+ 
+-	i2c_dev = kzalloc(sizeof(struct tegra_i2c_dev), GFP_KERNEL);
++	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+ 	if (!i2c_dev) {
+-		ret = -ENOMEM;
+-		goto err_i2c_clk_put;
++		dev_err(&pdev->dev, "Could not allocate struct tegra_i2c_dev");
++		return -ENOMEM;
+ 	}
+ 
+ 	i2c_dev->base = base;
+ 	i2c_dev->clk = clk;
+ 	i2c_dev->i2c_clk = i2c_clk;
+-	i2c_dev->iomem = iomem;
+ 	i2c_dev->adapter.algo = &tegra_i2c_algo;
+ 	i2c_dev->irq = irq;
+ 	i2c_dev->cont_id = pdev->id;
+@@ -658,13 +646,14 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
+ 	ret = tegra_i2c_init(i2c_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to initialize i2c controller");
+-		goto err_free;
++		return ret;
+ 	}
+ 
+-	ret = request_irq(i2c_dev->irq, tegra_i2c_isr, 0, pdev->name, i2c_dev);
++	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
++			tegra_i2c_isr, 0, pdev->name, i2c_dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
+-		goto err_free;
++		return ret;
+ 	}
+ 
+ 	clk_enable(i2c_dev->i2c_clk);
+@@ -682,38 +671,19 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
+ 	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Failed to add I2C adapter\n");
+-		goto err_free_irq;
++		clk_disable(i2c_dev->i2c_clk);
++		return ret;
+ 	}
+ 
+ 	of_i2c_register_devices(&i2c_dev->adapter);
+ 
+ 	return 0;
+-err_free_irq:
+-	free_irq(i2c_dev->irq, i2c_dev);
+-err_free:
+-	kfree(i2c_dev);
+-err_i2c_clk_put:
+-	clk_put(i2c_clk);
+-err_clk_put:
+-	clk_put(clk);
+-err_release_region:
+-	release_mem_region(iomem->start, resource_size(iomem));
+-err_iounmap:
+-	iounmap(base);
+-	return ret;
+ }
+ 
+ static int __devexit tegra_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+ 	i2c_del_adapter(&i2c_dev->adapter);
+-	free_irq(i2c_dev->irq, i2c_dev);
+-	clk_put(i2c_dev->i2c_clk);
+-	clk_put(i2c_dev->clk);
+-	release_mem_region(i2c_dev->iomem->start,
+-		resource_size(i2c_dev->iomem));
+-	iounmap(i2c_dev->base);
+-	kfree(i2c_dev);
+ 	return 0;
+ }
+ 
+-- 
+1.7.1.1
