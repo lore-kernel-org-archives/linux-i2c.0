@@ -1,72 +1,57 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [RFC v2 5/5] drm: Add NVIDIA Tegra support
-Date: Mon, 07 May 2012 10:27:59 -0600
-Message-ID: <4FA7F80F.5090002@wwwdotorg.org>
-References: <1335347102-14905-1-git-send-email-thierry.reding@avionic-design.de>
-	<1335347102-14905-6-git-send-email-thierry.reding@avionic-design.de>
-	<4FA78CBD.5010606@nvidia.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 06/15] mfd/ab8500: Remove confusing ab8500-i2c file and
+ merge into ab8500-core
+Date: Mon, 7 May 2012 17:54:50 +0100
+Message-ID: <20120507165450.GM17002@opensource.wolfsonmicro.com>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
+ <1336155805-18554-7-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <4FA78CBD.5010606-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
-	<mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Sender: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-To: =?ISO-8859-1?Q?Terje_Bergstr=F6m?= <tbergstrom-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org" <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jon Mayo <jmayo-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Liam Girdwood <lrg-l0cyMroinI0@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="TxukmIqg3MmZ0Kmh"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1336155805-18554-7-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/07/2012 02:50 AM, Terje Bergstr=F6m wrote:
-> On 25.04.2012 12:45, Thierry Reding wrote:
-> =
 
->> +/ {
->> +       ...
->> +
->> +       /* host1x */
->> +       host1x: host1x@50000000 {
->> +               compatible =3D "nvidia,tegra20-host1x";
->> +               reg =3D <0x50000000 0x00024000>;
->> +               interrupts =3D <0 64 0x04   /* cop syncpt */
->> +                             0 65 0x04   /* mpcore syncpt */
->> +                             0 66 0x04   /* cop general */
->> +                             0 67 0x04>; /* mpcore general */
->> +       };
->> +
->> +       /* video-encoding/decoding */
->> +       mpe@54040000 {
->> +               reg =3D <0x54040000 0x00040000>;
->> +               interrupts =3D <0 68 0x04>;
->> +       };
->> +
-> =
+--TxukmIqg3MmZ0Kmh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> (...)
-> =
+On Fri, May 04, 2012 at 07:23:16PM +0100, Lee Jones wrote:
+> ab8500-i2c is used as core code to register the ab8500 device.
+> After allocating ab8500 memory, it immediately calls into
+> ab8500-core where the real initialisation takes place. This
+> patch moves all core registration and memory allocation into
+> the true ab8500-core file and removes ab8500-i2c completely.
 
-> Hi Thierry,
-> =
+This idiom is commonly used as many devices support both I2C and SPI
+control interfaces.  Does this apply here, or does the device only
+support I2C?
 
-> I have still lots of questions regarding how device trees work. I'm now
-> just trying to match the device tree structure with hardware - let me
-> know if that goes wrong.
-> =
+--TxukmIqg3MmZ0Kmh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> There's a hierarchy in the hardware, which should be represented in the
-> device trees. All of the hardware are client modules for host1x - with
-> the exception of host1x obviously. CPU has two methods for accessing the
-> hardware: clients' register aperture and host1x channels. Both of these
-> operate via host1x hardware.
-> =
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-> We should define host1x bus in the device tree, and move all nodes
-> except host1x under that bus.
+iQIcBAEBAgAGBQJPp/5TAAoJEBus8iNuMP3dlRMP/A9iofUtbaoDdNgtqO42385s
+X9IMqJwQ1X9vvvFie5VoW8LUD7sZwPJNOXRga5BBvQjfWKW4mP4hu7CCxcIlM9ik
+DYvRywZBpe2n26f5PivzbpYFJkuQCSo/MWKzaAJZrHn29mLQHQ/qxF/iC8TxluyL
+CSlpZ84gVWOzwVNfB+tritP4Uycj9v0VCrydpAbLaPsTjOsXj5i8mPoWpRLGyQLz
+Oh8SgCTTData08NkDbCPL6RgAwAodTkYwvYVyUIONtBGGr3NkAmi3qatnGy1vswa
+xoynd1AT3erwhdVxK5Je7SEj+HRGtnmyp+4FHWhxL1VE/kdySwnOHRmL44P132ae
+sMJEPdhXOZ/4zweTZ5IQPxNLVImThL1LXyJZdTjOJwSkhm3q1IlpnRLMJhtFr1j2
+31RNaOoFmTxVarnel6I2dK+Abbxt38WbgZACQ07hqBP0RB2NsFIT7mcGL74LFUew
+YVYV1jXlZQaqoDr/7/3ca5eJDCL3uyzZdhiICun1tutb+20E0WxrIAa2GTk89+iN
+mEjQ0jKK5kuN48VCo4tlRIalC/BOXdAX8+BF7/SWfiis7m0kVXrzGaOc8N8zxew8
+vqZpoj0qMoIRKxAsClU882pTAwouYK7BJv6aNJVNyD5ZZW+B6iouqCkV1iogmEdZ
++tPX9Z7cyjOPc22Vbo01
+=mXx+
+-----END PGP SIGNATURE-----
 
-I think the host1x node /is/ that bus.
+--TxukmIqg3MmZ0Kmh--
