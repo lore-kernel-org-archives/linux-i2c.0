@@ -1,55 +1,101 @@
-From: Dong Aisheng <aisheng.dong@freescale.com>
-Subject: Re: [alsa-devel] [PATCH RESEND 0/9] Enable pinctrl support for
- mach-mxs
-Date: Mon, 7 May 2012 16:01:32 +0800
-Message-ID: <20120507080131.GD23607@shlinux2.ap.freescale.net>
-References: <1336353374-28939-1-git-send-email-shawn.guo@linaro.org>
- <20120507071400.GB23607@shlinux2.ap.freescale.net>
- <20120507074658.GH19389@S2101-09.ap.freescale.net>
+From: =?ISO-8859-1?Q?Terje_Bergstr=F6m?= <tbergstrom-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [RFC v2 5/5] drm: Add NVIDIA Tegra support
+Date: Mon, 7 May 2012 11:50:05 +0300
+Message-ID: <4FA78CBD.5010606@nvidia.com>
+References: <1335347102-14905-1-git-send-email-thierry.reding@avionic-design.de> <1335347102-14905-6-git-send-email-thierry.reding@avionic-design.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-serial-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120507074658.GH19389@S2101-09.ap.freescale.net>
-Sender: linux-serial-owner@vger.kernel.org
-To: Shawn Guo <shawn.guo@linaro.org>
-Cc: Dong Aisheng-B29396 <B29396@freescale.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-fbdev@vger.kernel.org" <linux-fbdev@vger.kernel.org>, Chris Ball <cjb@laptop.org>, Arnd Bergmann <arnd@arndb.de>, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, "alsa-devel@alsa-project.org" <alsa-devel@alsa-project.org>, Wolfram Sang <w.sang@pengutronix.de>, "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Olof Johansson <olof@lixom.net>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1335347102-14905-6-git-send-email-thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Cc: "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Jon Mayo <jmayo-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Lucas Stach <dev-8ppwABl0HbeELgA04lAiVw@public.gmane.org>, "dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org" <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Joerg Roedel <joerg.roedel-5C7GfCeVMHo@public.gmane.org>, Hiroshi Doyu <hdoyu-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Liam Girdwood <lrg-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 07, 2012 at 03:47:00PM +0800, Shawn Guo wrote:
-> On Mon, May 07, 2012 at 03:14:00PM +0800, Dong Aisheng wrote:
-> > As IMX, basically i'd prefer to add pinctrl states in dts file at the
-> > same time within the patch or using a separate patch to add them before
-> > this series to avoid breaking the exist platforms.
-> > 
-> > However i noted that for mxs, most drivers here are still not dt capable,
-> > so it may be ok to not add their pinctrl state at this time.
-> > 
-> There no mxs driver on mainline that has been DT aware of.  What I'm
-> going to do is to ask Arnd abandon the mxs/dt branch I sent him before
-> and send him an updated one with the whole mxs DT support based on
-> mxs common clk and pinctrl series.
-> 
-> > But for the patch "serial: amba-pl011: adopt pinctrl support" since it is
-> > dt capable, so with this patch applied, the mx28 dt boot will fail.
-> > Maybe we should at least add pinctrl states for amba-pl011 first.
-> > 
-> The updated mxs/dt will have pinctrl defined in dts for each device
-> that is converted to DT.
-> 
-Well, i did not see amba-pl011 pinctrl states defined in this patch.
-But it would be ok if you can get it done and applied before this patch.
+On 25.04.2012 12:45, Thierry Reding wrote:
 
-> > > Shawn Guo (9):
-> > >   ARM: mxs: enable pinctrl dummy states
-> > >   serial: amba-pl011: adopt pinctrl support
-> > BTW, will this one break other platforms using this driver?
-> > 
-> If the platforms do not turn on CONFIG_PINCTRL, they are fine.  If they
-> turn on the support, they should provide pinctrl state either dummy or
-> real one.
-> 
+> +/ {
+> +       ...
+> +
+> +       /* host1x */
+> +       host1x: host1x@50000000 {
+> +               compatible = "nvidia,tegra20-host1x";
+> +               reg = <0x50000000 0x00024000>;
+> +               interrupts = <0 64 0x04   /* cop syncpt */
+> +                             0 65 0x04   /* mpcore syncpt */
+> +                             0 66 0x04   /* cop general */
+> +                             0 67 0x04>; /* mpcore general */
+> +       };
+> +
+> +       /* video-encoding/decoding */
+> +       mpe@54040000 {
+> +               reg = <0x54040000 0x00040000>;
+> +               interrupts = <0 68 0x04>;
+> +       };
+> +
 
-Regards
-Dong Aisheng
+(...)
 
+Hi Thierry,
+
+I have still lots of questions regarding how device trees work. I'm now
+just trying to match the device tree structure with hardware - let me
+know if that goes wrong.
+
+There's a hierarchy in the hardware, which should be represented in the
+device trees. All of the hardware are client modules for host1x - with
+the exception of host1x obviously. CPU has two methods for accessing the
+hardware: clients' register aperture and host1x channels. Both of these
+operate via host1x hardware.
+
+We should define host1x bus in the device tree, and move all nodes
+except host1x under that bus. This will help us in the long run, as we
+will have multiple drivers (drm, v4l2) each accessing hardware under
+host1x. We will need to model the bus and the bus_type will need to take
+over responsibilities of managing the common resources.
+
+When we are clocking hardware, whenever we want to access display's
+register aperture, host1x needs to be clocked.
+
+> +       /* graphics host */
+
+> +       graphics@54000000 {
+> +               compatible = "nvidia,tegra20-graphics";
+> +
+> +               #address-cells = <1>;
+> +               #size-cells = <1>;
+> +               ranges;
+> +
+> +               display-controllers = <&disp1 &disp2>;
+> +               carveout = <0x0e000000 0x02000000>;
+> +               host1x = <&host1x>;
+> +               gart = <&gart>;
+> +
+> +               connectors {
+> +                       #address-cells = <1>;
+> +                       #size-cells = <0>;
+> +
+> +                       connector@0 {
+> +                               reg = <0>;
+> +                               edid = /incbin/("machine.edid");
+> +                               output = <&lvds>;
+> +                       };
+> +
+> +                       connector@1 {
+> +                               reg = <1>;
+> +                               output = <&hdmi>;
+> +                               ddc = <&i2c2>;
+> +
+> +                               hpd-gpio = <&gpio 111 0>; /* PN7 */
+> +                       };
+> +               };
+> +       };
+> +};
+
+
+I'm not sure what this node means. The register range from 54000000
+onwards is actually the one that you just described in the nodes of the
+individual client modules. Why is it represented here again?
+
+Terje
