@@ -1,81 +1,47 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 12/15] drivers/regulator: ab8500: Split up probe() into
- manageable pieces
-Date: Tue, 08 May 2012 12:08:36 +0100
-Message-ID: <4FA8FEB4.2030201@linaro.org>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org> <1336155805-18554-13-git-send-email-lee.jones@linaro.org> <20120507165838.GN17002@opensource.wolfsonmicro.com> <CAF2Aj3h7pgh=Kbt+M5Xd_RDRbJN7K+WbaH1+8nM2Eakb1QNpsg@mail.gmail.com> <20120507184453.GQ17002@opensource.wolfsonmicro.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] i2c: Split I2C_M_NOSTART support out of
+ I2C_FUNC_PROTOCOL_MANGLING
+Date: Tue, 8 May 2012 13:31:01 +0200
+Message-ID: <20120508133101.5019b934@endymion.delvare>
+References: <1336127208-17951-1-git-send-email-broonie@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120507184453.GQ17002-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <1336127208-17951-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-input-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-fbdev@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/05/12 19:44, Mark Brown wrote:
-> On Mon, May 07, 2012 at 07:04:59PM +0100, Lee Jones wrote:
->> On 7 May 2012 17:58, Mark Brown<broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>=
-  wrote:
->
->>> This doesn't apply against current regulator code.
->
->> It doesn't? I rebased it onto -rc5 which was the latest at time of
->> submission.
->
-> This isn't a bugfix that should be rushed into Linus' tree for 3.4!
-> You're missing the best part of a release cycle of development here,
-> including at least one incompatible API change.
->
-> If you're developing new code you should always submit against the tr=
-ee
-> it's supposed to be applied to; as a rule of thumb -next is a good
-> approximation though subsystems do things slightly differently,
-> especially in the creation of topic branches.  Even where the code wi=
-ll
-> get applied to Linus' tree then merged as a new topic branch you shou=
-ld
-> verify that there aren't any other changes in -next that affect it (e=
-g,
-> an API you rely on having changed or other changes to the same file
-> which conflict with yours).
+On Fri,  4 May 2012 11:26:48 +0100, Mark Brown wrote:
+> Since there are uses for I2C_M_NOSTART which are much more sensible and
+> standard than most of the protocol mangling functionality (the main one
+> being gather writes to devices where something like a register address
+> needs to be inserted before a block of data) create a new I2C_FUNC_NOSTART
+> for this feature and update all the users to use it.
+> 
+> Also strengthen the disrecommendation of the protocol mangling while we're
+> at it.
+> 
+> In the case of regmap-i2c we remove the requirement for mangling as
+> I2C_M_NOSTART is the only mangling feature which is being used.
+> 
+> Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+> ---
+>  Documentation/i2c/functionality       |    8 +++++---
+>  Documentation/i2c/i2c-protocol        |    9 ++++++++-
+>  drivers/base/regmap/regmap-i2c.c      |    2 +-
+>  drivers/i2c/algos/i2c-algo-bit.c      |    2 +-
+>  drivers/i2c/busses/i2c-nuc900.c       |    3 ++-
+>  drivers/i2c/busses/i2c-s3c2410.c      |    3 ++-
+>  drivers/input/joystick/as5011.c       |    1 +
+>  drivers/video/matrox/matroxfb_maven.c |    1 +
+>  include/linux/i2c.h                   |    5 +++--
+>  9 files changed, 24 insertions(+), 10 deletions(-)
+> (...)
 
-Okay, I will pull these patches out of the patch-set and rebase them=20
-against -next before re-sending.
+Applied with minor cleanups, thanks.
 
->>> Please also at least
->>> try to use changelogs that match the subsystem you're submitting
->>> against.
->
->> What do you mean? Isn't "drivers/regulator" in the subject line enou=
-gh?
->
-> As I said you should use changelogs that match the subsystem you are
-> submitting against.  Essentially nothing in the regulator tree uses
-> this, as you should be able to see from inspection of the changelogs:
->
-> $ git shortlog next/master drivers/regulator | wc -l
-> 1059
-> $ git shortlog drivers/regulator | grep drivers/regulator | wc -l
-> 6
->
-> Generally everything uses "regulator: ".  You should always make an
-> effort to do this for whatever subsystem you're working with.
-
-I am happy to change the subject line to make you happy. :)
-
-I'll make the requested changes and re-send early next week - as I'm of=
-f=20
-this week.
-
-Kind regards,
-Lee
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-M: +44 77 88 633 515
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+-- 
+Jean Delvare
