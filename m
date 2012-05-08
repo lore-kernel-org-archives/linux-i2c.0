@@ -1,27 +1,60 @@
-From: Dong Aisheng <aisheng.dong-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH RESEND 4/5] i2c: imx: adopt pinctrl support
-Date: Tue, 8 May 2012 11:45:20 +0800
-Message-ID: <20120508034519.GI23607@shlinux2.ap.freescale.net>
-References: <1336352040-28447-1-git-send-email-shawn.guo@linaro.org>
- <1336352040-28447-5-git-send-email-shawn.guo@linaro.org>
+From: Viresh Kumar <viresh.kumar@st.com>
+Subject: [PATCH V3 Resend 03/12] i2c/i2c-pxa: Remove conditional compilation
+ of clk code
+Date: Tue, 8 May 2012 09:22:30 +0530
+Message-ID: <28655b8c590cefc2d6481dafd7bec6ec010b66d3.1336448639.git.viresh.kumar@st.com>
+References: <cover.1336448639.git.viresh.kumar@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1336352040-28447-5-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Dong Aisheng <dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <cover.1336448639.git.viresh.kumar@st.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: akpm@linux-foundation.org
+Cc: andrew@lunn.ch, mturquette@linaro.org, sshtylyov@mvista.com, spear-devel@list.st.com, linux-kernel@vger.kernel.org, w.sang@pengutronix.de, viresh.linux@gmail.com, linux-i2c@vger.kernel.org, linux@arm.linux.org.uk, jgarzik@redhat.com, linux-arm-kernel@lists.infradead.org, LW@KARO-electronics.de
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 07, 2012 at 08:53:59AM +0800, Shawn Guo wrote:
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-imx.c |    8 ++++++++
->  1 files changed, 8 insertions(+), 0 deletions(-)
-Acked-by: Dong Aisheng <dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Viresh Kumar <viresh.linux@gmail.com>
 
-Regards
-Dong Aisheng
+With addition of dummy clk_*() calls for non CONFIG_HAVE_CLK cases in clk.h,
+there is no need to have clk code enclosed in #ifdef CONFIG_HAVE_CLK, #endif
+macros.
+
+pxa i2c also has these dummy macros defined locally. Remove them as they aren't
+required anymore.
+
+Signed-off-by: Viresh Kumar <viresh.kumar@st.com>
+Acked-by: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org
+---
+ drivers/i2c/busses/i2c-pxa.c |    7 -------
+ 1 files changed, 0 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index a997c7d..1034d93 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -41,13 +41,6 @@
+ 
+ #include <asm/irq.h>
+ 
+-#ifndef CONFIG_HAVE_CLK
+-#define clk_get(dev, id)	NULL
+-#define clk_put(clk)		do { } while (0)
+-#define clk_disable(clk)	do { } while (0)
+-#define clk_enable(clk)		do { } while (0)
+-#endif
+-
+ struct pxa_reg_layout {
+ 	u32 ibmr;
+ 	u32 idbr;
+-- 
+1.7.9
