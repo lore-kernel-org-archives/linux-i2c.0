@@ -1,34 +1,73 @@
-From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 10/15] drivers/mfd: db8500-prcmu: Add support for
- regulator supply for nmk-i2c.4
-Date: Wed, 9 May 2012 16:31:47 +0200
-Message-ID: <20120509143147.GH1794@sortiz-mobl>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
- <1336155805-18554-11-git-send-email-lee.jones@linaro.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH V2 03/11] ASoC: imx-audmux: add pinctrl
+	support
+Date: Wed, 9 May 2012 17:00:06 +0100
+Message-ID: <20120509160005.GG3955@opensource.wolfsonmicro.com>
+References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
+	<1336563190-19974-4-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1336155805-18554-11-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============0828520598209795426=="
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <1336563190-19974-4-git-send-email-richard.zhao@freescale.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Sender: alsa-devel-bounces@alsa-project.org
+Errors-To: alsa-devel-bounces@alsa-project.org
+To: Richard Zhao <richard.zhao@freescale.com>
+Cc: alsa-devel@alsa-project.org, dong.aisheng@linaro.org, ben-linux@fluff.org, vinod.koul@intel.com, w.sang@pengutronix.de, timur@freescale.com, linux-i2c@vger.kernel.org, kernel@pengutronix.de, dan.j.williams@intel.com, shawn.guo@linaro.org, lrg@ti.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Lee,
 
-On Fri, May 04, 2012 at 07:23:20PM +0100, Lee Jones wrote:
-> This applies a supply alias for the db8500's fifth Nomadik i2c port.
-> 
-> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->  drivers/mfd/db8500-prcmu.c |    1 +
->  1 file changed, 1 insertion(+)
-Applied as well, thanks.
+--===============0828520598209795426==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="pVF9EYSGkiif4dMH"
+Content-Disposition: inline
 
-Cheers,
-Samuel.
 
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+--pVF9EYSGkiif4dMH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Wed, May 09, 2012 at 07:33:02PM +0800, Richard Zhao wrote:
+> Signed-off-by: Richard Zhao <richard.zhao@freescale.com>
+
+I guess this depends on some other tree and can't just be directly
+applied to ASoC?
+
+--pVF9EYSGkiif4dMH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJPqpRxAAoJEBus8iNuMP3dAkoQAIUV05fblm4n9oxc0L7w+YJY
+pK8scl2ZypJtyAudSJEOxLptFcHMHz7NVLzU32pNQ0AnEsMDNe1uXxlqt9PsMFvF
+3dUOIQHq9ToMJof6fgy6kBR8zS5P6GHLNsUoxNKL8wN4EQFiu3x0K5cw24ziytGI
+0FNvdGZwszy8Pz1Ldy1+oJDqBKyJHcZtacESGLD3cHaVov3rZANZ2POIE01Yd/pG
+x2UIxyEvFVTta4BDiCQK21HV6qCAhm2q53SR+Pb+GNtiB2la9ZCdae8Y29N6NUB9
+vntrL7TTLLCS6AU6W7h4fbjqX8e9IqyduUwIQNcFefNev3mEZQXc8mMz7ZMpZXtB
+eU+kd8ZUu/DGJU/ReZs5hY3oXlDV4wwYGWVAINGrejrfK8IgezPYBVo4hKtKf7Ip
+jTGcRp3AsLP89Zfv7eFdISPO5bPTCdOg2cMJxDMixOzhxheQLRVy9GgwHaS0BIRo
+Qoe113qpF9Du9oKfZmGZouqrvy2bonu4/FC+PMuhlpgSr5ccksGMW4d6B5MtYRkD
+rc7K6KP+LyICKHERuWBcwhXu0qovx7XtLoAcjMddxIWzUWUSPlQJlySvXEixfWDW
+eba/taBi8pPn01VWEhAqDa/z2I9SYGdP1G93IqI7s7pvJQYoTv5NFcUkvGzGmIkB
+JiLoKx/UN3uHG3perBuY
+=+4Nq
+-----END PGP SIGNATURE-----
+
+--pVF9EYSGkiif4dMH--
+
+--===============0828520598209795426==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+--===============0828520598209795426==--
