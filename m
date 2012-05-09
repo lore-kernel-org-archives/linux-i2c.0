@@ -1,7 +1,7 @@
 From: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH V2 11/11] ARM: imx6q: change clkdev device name from xxxx.enet to xxxx.ethernet
-Date: Wed, 9 May 2012 19:33:10 +0800
-Message-ID: <1336563190-19974-12-git-send-email-richard.zhao@freescale.com>
+Subject: [PATCH V2 10/11] ARM: imx6q: change clkdev device name from xxxx.uart to xxxx.serial
+Date: Wed, 9 May 2012 19:33:09 +0800
+Message-ID: <1336563190-19974-11-git-send-email-richard.zhao@freescale.com>
 References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -16,21 +16,39 @@ It's because the dts changed the node name.
 
 Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- arch/arm/mach-imx/clk-imx6q.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+ arch/arm/mach-imx/clk-imx6q.c |   20 ++++++++++----------
+ 1 files changed, 10 insertions(+), 10 deletions(-)
 
 diff --git a/arch/arm/mach-imx/clk-imx6q.c b/arch/arm/mach-imx/clk-imx6q.c
-index 4ac1282..cab02d0 100644
+index 096fcfb..4ac1282 100644
 --- a/arch/arm/mach-imx/clk-imx6q.c
 +++ b/arch/arm/mach-imx/clk-imx6q.c
-@@ -403,7 +403,7 @@ int __init mx6q_clocks_init(void)
- 	clk_register_clkdev(clk[uart_ipg], "ipg", "21f0000.serial");
- 	clk_register_clkdev(clk[uart_serial], "per", "21f4000.serial");
- 	clk_register_clkdev(clk[uart_ipg], "ipg", "21f4000.serial");
--	clk_register_clkdev(clk[enet], NULL, "2188000.enet");
-+	clk_register_clkdev(clk[enet], NULL, "2188000.ethernet");
+@@ -393,16 +393,16 @@ int __init mx6q_clocks_init(void)
+ 	clk_register_clkdev(clk[gpt_ipg_per], "per", "imx-gpt.0");
+ 	clk_register_clkdev(clk[twd], NULL, "smp_twd");
+ 	clk_register_clkdev(clk[usboh3], NULL, "usboh3");
+-	clk_register_clkdev(clk[uart_serial], "per", "2020000.uart");
+-	clk_register_clkdev(clk[uart_ipg], "ipg", "2020000.uart");
+-	clk_register_clkdev(clk[uart_serial], "per", "21e8000.uart");
+-	clk_register_clkdev(clk[uart_ipg], "ipg", "21e8000.uart");
+-	clk_register_clkdev(clk[uart_serial], "per", "21ec000.uart");
+-	clk_register_clkdev(clk[uart_ipg], "ipg", "21ec000.uart");
+-	clk_register_clkdev(clk[uart_serial], "per", "21f0000.uart");
+-	clk_register_clkdev(clk[uart_ipg], "ipg", "21f0000.uart");
+-	clk_register_clkdev(clk[uart_serial], "per", "21f4000.uart");
+-	clk_register_clkdev(clk[uart_ipg], "ipg", "21f4000.uart");
++	clk_register_clkdev(clk[uart_serial], "per", "2020000.serial");
++	clk_register_clkdev(clk[uart_ipg], "ipg", "2020000.serial");
++	clk_register_clkdev(clk[uart_serial], "per", "21e8000.serial");
++	clk_register_clkdev(clk[uart_ipg], "ipg", "21e8000.serial");
++	clk_register_clkdev(clk[uart_serial], "per", "21ec000.serial");
++	clk_register_clkdev(clk[uart_ipg], "ipg", "21ec000.serial");
++	clk_register_clkdev(clk[uart_serial], "per", "21f0000.serial");
++	clk_register_clkdev(clk[uart_ipg], "ipg", "21f0000.serial");
++	clk_register_clkdev(clk[uart_serial], "per", "21f4000.serial");
++	clk_register_clkdev(clk[uart_ipg], "ipg", "21f4000.serial");
+ 	clk_register_clkdev(clk[enet], NULL, "2188000.enet");
  	clk_register_clkdev(clk[usdhc1], NULL, "2190000.usdhc");
  	clk_register_clkdev(clk[usdhc2], NULL, "2194000.usdhc");
- 	clk_register_clkdev(clk[usdhc3], NULL, "2198000.usdhc");
 -- 
 1.7.5.4
