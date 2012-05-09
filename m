@@ -1,41 +1,62 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V2 06/11] ASoC: fsl_ssi: convert to use devm_clk_get
-Date: Wed, 9 May 2012 20:03:09 +0800
-Message-ID: <CAAQ0ZWT4nqA8k=xTHcBvW5d7_KnbiLU73adfWv3_PVvG0YXknQ@mail.gmail.com>
-References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
-	<1336563190-19974-7-git-send-email-richard.zhao@freescale.com>
-	<20120509115041.GM3955@opensource.wolfsonmicro.com>
-	<CAAQ0ZWSiRysfkUnu2ZoDXFtiJz-nfrQ-DTKOgCpKpCe5LpQj3Q@mail.gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 06/15] mfd/ab8500: Remove confusing ab8500-i2c file and
+ merge into ab8500-core
+Date: Wed, 9 May 2012 14:20:55 +0200
+Message-ID: <CACRpkdanG7KgYuZw29KwZe7wRp-AVZJ9n_hwBEZzf5gDAbGneg@mail.gmail.com>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
+	<1336155805-18554-7-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAAQ0ZWSiRysfkUnu2ZoDXFtiJz-nfrQ-DTKOgCpKpCe5LpQj3Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1336155805-18554-7-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mattias WALLIN <mattias.wallin-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 9 May 2012 19:59, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 9 May 2012 19:50, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>=
- wrote:
->> On Wed, May 09, 2012 at 07:33:05PM +0800, Richard Zhao wrote:
->>> Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->>
->> I'll apply this when devm_clk_get() makes it into mainline (hopefull=
-y in
->> the merge window); please remind me if I forget.
->
-> We will have rmk's clkdev branch appear on arm-soc as dependency
-> anyway. =A0Can we have this series go over arm-soc tree, since we wil=
-l
-> have all the dependencies on clk and pinctrl meet and conflicts solve=
-d
-> there?
->
-Ah, I just realized that the prerequisite patches on fsl_ssi.c have
-already applied on sound tree, so yes, we have to wait for the next
-merge window then.
+On Fri, May 4, 2012 at 8:23 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-Regards,
-Shawn
+> ab8500-i2c is used as core code to register the ab8500 device.
+> After allocating ab8500 memory, it immediately calls into
+> ab8500-core where the real initialisation takes place. This
+> patch moves all core registration and memory allocation into
+> the true ab8500-core file and removes ab8500-i2c completely.
+>
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+This code is in a separate file for a reason:
+
+git checkout v2.6.37
+$ ls drivers/mfd/
+ab8500-core.c
+ab8500-debugfs.c
+ab8500-i2c.c
+ab8500-spi.c
+
+So the driver supports different backendsm and at one point
+there was both the SPI and "I2C" (actually PRCMU) backend.
+
+And the physical component has an SPI port as well.
+
+However nowadays it's not used, since the component is design to
+be used by the PRCMU I2C channel and nothing else, the SPI
+mode was just for prototyping and testing. On newer boards
+and the Snowball the SPI isn't even routed.
+
+(...)
++static int ab8500_i2c_write(struct ab8500 *ab8500, u16 addr, u8 data)
++static int ab8500_i2c_read(struct ab8500 *ab8500, u16 addr)
+
+As you might have noticed, many people have been confused by
+the "i2c" naming of these things. Yes, there is physically an I2C
+carrying these out but in Linux terms that's just confusing, it's mixing
+hardware and software terminology. Take this opportunity to
+rename them:
+
+static int ab8500_prcmu_write(struct ab8500 *ab8500, u16 addr, u8 data)
+static int ab8500_prcmu_read(struct ab8500 *ab8500, u16 addr)
+
+etc, so they have a meaningful name.
+
+Yours,
+Linus Walleij
