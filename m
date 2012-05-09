@@ -1,70 +1,109 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 14/15] drivers/regulators: Enable the ab8500 for Device
- Tree
-Date: Tue, 08 May 2012 18:00:20 +0100
-Message-ID: <4FA95124.5010309@linaro.org>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org> <1336155805-18554-15-git-send-email-lee.jones@linaro.org> <20120507170832.GO17002@opensource.wolfsonmicro.com> <4FA90BE1.3050304@linaro.org> <20120508121940.GL15893@opensource.wolfsonmicro.com> <4FA913BA.30908@linaro.org> <20120508133411.GP15893@opensource.wolfsonmicro.com> <4FA93391.8040905@linaro.org> <20120508145758.GV15893@opensource.wolfsonmicro.com>
+From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 0/3 v2] i2c: i801: enable irq
+Date: Wed, 9 May 2012 14:36:03 +0800
+Message-ID: <CAGS+omA6=+vUM0jTg1vsRCpxBQG22bUfz-_U6AmS0CVRSa8doA@mail.gmail.com>
+References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
+ <20120106123531.3b5ca7db@endymion.delvare> <CAGS+omBvULkWsowprvVWkodBxT=diui7g5GtKZ0mb=Uy7DZKtg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120508145758.GV15893-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+In-Reply-To: <CAGS+omBvULkWsowprvVWkodBxT=diui7g5GtKZ0mb=Uy7DZKtg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/05/12 15:57, Mark Brown wrote:
-> On Tue, May 08, 2012 at 03:54:09PM +0100, Lee Jones wrote:
->> On 08/05/12 14:34, Mark Brown wrote:
->
->>> Looking at the usage here it looks like most of this stuff shouldn'=
-t be
->>> there even with non-DT stuff, we probably don't want to add DT bind=
-ings
->>> for those bits.All the voltage setting is not at all device specifi=
-c
->>> and can be done using the generic regulator bindings, the forcing o=
-n or
->>> off is similarly generic.
->
->> All the generic properties _are_ set using the generic bindings. The
->> only vendor specific values are the initialisation register values
->> referenced above. I'll see what happens when I remove those from DT.
->> I have a feeling that the regulators will just fail though.
->
-> The comments in the arch/arm file indicate otherwise - they were talk=
-ing
-> about enabling and disabling regulators, and about setting voltages. =
- It
-> may be that the comments in the arch/arm code are inaccurate but with=
- it
-> being magic numbers you'd really hope they're accurate...
+Jean? Anyone? ping?
 
-=46ingers crossed. I'll let you know how I get on.
-
->>> While looking for the original patch I also noticed that you're not=
- CCing
->>> the mailing list either...  please always CC the subsystem mailing =
-list
->>> on patches.
+On Mon, Feb 20, 2012 at 7:23 PM, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wr=
+ote:
+> On Fri, Jan 6, 2012 at 7:35 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wro=
+te:
+>> Hi Daniel,
+>>
+>> On Fri, =A06 Jan 2012 18:58:19 +0800, Daniel Kurtz wrote:
+>>> This is a second version of a set of patches enables the Intel PCH =
+SMBus
+>>> controller interrupt. =A0It refactors the second two patches a litt=
+le bit by
+>>> relying on DEV_ERR interrupt for timeouts, instead of using an expl=
+icit
+>>> wait_event_timeout.
+>>>
+>>> The first attempt received absolutely no response. Maybe this time =
+someone
+>>> will be interested.
+>>
+>> I was on vacation. But I am very interested and will review and test
+>> your patches. There have been several attempts to add IRQ support to
+>> i2c-i801 in the past but each time there was a blocker issue which
+>> prevented it from making it into mainline. Hopefully this time we'll
+>> get it there!
+>>
+>>>
+>>> The SMBus Host Controller Interrupt can signify:
+>>> =A0INTR - the end of a complete transaction
+>>> =A0DEV_ERR - that a device did not ACK a transaction
+>>> =A0BYTE_DONE - the completion of a single byte during a byte-by-byt=
+e transaction
+>>>
+>>> This patchset arrives with the following caveats:
+>>>
+>>> =A01) =A0It has only been tested with a Cougar Point (Intel 6 Serie=
+s PCH) SMBus
+>>> controller, so the irq is only enabled for that chip type.
+>>
+>> I can test on ICH10 easily, and also on ICH7 and ICH3-M if needed.
+>>
+>>> =A02) It has not been tested with any devices that do transactions =
+that use the
+>>> =A0 =A0 PEC. =A0In fact, I believe that an additional small patch w=
+ould be required
+>>> =A0 =A0 to the driver working correctly in interrupt mode with PEC.
+>>>
+>>> =A03) It has not been tested in SMBus Slave mode.
+>>>
+>>> =A04) It has not been tested with SMI#-type interrupts.
+>>>
+>>> =A05) The BIOS has to configure the PCH SMBus IRQ properly.
+>>>
+>>> =A06) It has not been tested with a device that does byte-by-byte s=
+mbus (non-i2c)
+>>> =A0 =A0 reads.
+>>
+>> I think I can test this.
+>>
+>>> =A07) It has not been tested with smbus 'process call' transactions=
+=2E
+>>
+>> But not this.
+>>
+>>> If would be very helpful if somebody could help test on other chips=
+ets, with
+>>> a PEC device, or on additional BIOS that woudl be very helpful.
+>>
+>> I will do what I can with the hardware I have here.
 >
->> You don't appear to have one. I ran get_maintainer.pl on the patch
->> and the only ML it came up with was LKML. If you do have one, you
->> may need to update the MAINTAINERS file.
+> Jean,
+> Ping?
 >
-> LKML is the relevant list here.
-
-Ah, okay. In retrospect I don't know why I didn't add it to be honest.=20
-I'll endeavor to do so next time.
-
-Kind regards,
-Lee
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-M: +44 77 88 633 515
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+>
+>>
+>>> In the meantime, the interrupt behavior is only enabled on the Coug=
+ar Point,
+>>> and even here, it can be completely disabled with the "Interrupt" f=
+eature like
+>>> other advanced features of the driver.
+>>>
+>>> Daniel Kurtz (3):
+>>> =A0 i2c: i801: refactor i801_block_transaction_byte_by_byte
+>>> =A0 i2c: i801: enable irq for i801 smbus transactions
+>>> =A0 i2c: i801: enable irq for byte_by_byte transactions
+>>>
+>>> =A0drivers/i2c/busses/i2c-i801.c | =A0199 +++++++++++++++++++++++++=
++++++++++++-----
+>>> =A01 files changed, 175 insertions(+), 24 deletions(-)
+>>
+>> --
+>> Jean Delvare
