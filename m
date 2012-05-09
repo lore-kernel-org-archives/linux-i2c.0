@@ -1,57 +1,44 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH 11/15] drivers/mfd: Enable Device Tree for ab8500-core
- driver
-Date: Wed, 9 May 2012 12:18:20 +0100
-Message-ID: <20120509111820.GJ3955@opensource.wolfsonmicro.com>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
- <1336155805-18554-12-git-send-email-lee.jones@linaro.org>
- <CACRpkdaju5y6pduWrkH97LujzqJu5hAaGozyHY3Rsvvn7ZyKhA@mail.gmail.com>
- <4FAA46E1.4050708@linaro.org>
+From: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH V2 00/11] enable imx6q_sabrelite sgtl5000 audio support
+Date: Wed, 9 May 2012 19:32:59 +0800
+Message-ID: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="va4/JQ6j8/8uipEp"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4FAA46E1.4050708-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mattias WALLIN <mattias.wallin-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
+Cc: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Changes since v1:
 
---va4/JQ6j8/8uipEp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ - rebase to latest clk and pinctrl base
+ - fix according v1 comments.
 
-On Wed, May 09, 2012 at 11:28:49AM +0100, Lee Jones wrote:
+You can also get at:
+https://github.com/riczhao/kernel-imx/tree/topics/audio
 
-> >Shouldn't this be (av8500->irq_base == NO_IRQ) now that we're tranisitioning to
-> >use 0 as NO_IRQ?
+Richard Zhao (11):
+  dma: imx-sdma: make channel0 operations atomic
+  ARM: dts: imx6q-sabrelite: add i2c1 pinctrl support
+  ASoC: imx-audmux: add pinctrl support
+  ARM: dts: imx6q-sabrelite: add audmux pinctrl support
+  ARM: imx6q: add ssi1_ipg clk_lookup
+  ASoC: fsl_ssi: convert to use devm_clk_get
+  ARM: imx6q_sabrelite: clk_register_clkdev cko1 for sgtl5000
+  ARM: dts: imx6q-sabrelite: add sound device imx6q-sabrelite-sgtl5000
+  ARM: dts: imx6q-sabrelite: add serial2 pinctrl support
+  ARM: imx6q: change clkdev device name from xxxx.uart to xxxx.serial
+  ARM: imx6q: change clkdev device name from xxxx.enet to xxxx.ethernet
 
-> Sure, why not.
+ arch/arm/boot/dts/imx6q-sabrelite.dts |   20 +++++++++++
+ arch/arm/boot/dts/imx6q.dtsi          |   23 +++++++++++++
+ arch/arm/mach-imx/clk-imx6q.c         |   35 +++++++++++---------
+ arch/arm/mach-imx/mach-imx6q.c        |   28 ++++++++++++++++
+ drivers/dma/imx-sdma.c                |   57 ++++++++++++++++++---------------
+ sound/soc/fsl/fsl_ssi.c               |    7 +---
+ sound/soc/fsl/imx-audmux.c            |    8 +++++
+ 7 files changed, 132 insertions(+), 46 deletions(-)
 
-I think the endgame is to phase out NO_IRQ entirely...
-
---va4/JQ6j8/8uipEp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPqlJiAAoJEBus8iNuMP3dB98QAJCngUbIrCgbzn+7IE1cKDQx
-5snehFiScygu3Lik3NRQCbKW8TwTAmbD/az7iKOKQQIurec+JtxaExma4GM5/7de
-kYB5BXNOCiFinbubpm7ifXkRd8n7TBZNZJ0qcCXjXlFl0PNiqFVVYF99Dq6C9X7t
-ZkJ9MEi9W6K2yB0C5wGj+Z3pBhP9chl6CDA+dhjIBMBuTwExOxn7SC0DKparTAg+
-wSadJNSE05HVBlCYIvQIWyYC+mvjk9I9h6n3Jb0s2sYLCfa9ydFKwWRilT39Vdzp
-qR7j1YdkN5XfBpCo8UvKSynwoY+Nhqx/1tJx3ij/+uM0z+2iGbzhGv2Mat6G+rF9
-lxAUkMLuYt43uSPv7ubDWu9ku8DP0r0cPWylK2yVNPgTexvuMN1Xrw6Rzy2gGbwn
-AsApeKY80QDFVuyAUZSukkGJanCSs74IvUu1cBCo9g0YnbvfP7c/SA7e3JLT5Aaq
-m9uTWEFb20fXt1Ir1IVa70zNylvw1MyfQHa4ycoCQLXYpFV0jdfzpd24V+CncnIy
-hyJnEhWw1E9dv25dbr+DBfLVDnXEf05++t1b9xDauGRohfJQrB8/zF/ERqVl+1qe
-weOcbHL2PyCJwVJAoeiNXzTAOovkj/TYJSmF5Ut3xaaxz/ZEeCHaIOmQS1Nt6euT
-Tw89qWy0R+OYr52y0tHu
-=VGvb
------END PGP SIGNATURE-----
-
---va4/JQ6j8/8uipEp--
+-- 
+1.7.5.4
