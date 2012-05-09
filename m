@@ -1,13 +1,14 @@
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 09/15] drivers/mfd: Enable Device Tree support for the db8500-prcmu
-Date: Wed, 9 May 2012 10:56:01 +0200
-Message-ID: <CACRpkdYdBufhd07fGeYSibyheoHfu68Hfrnsrpomd557mZAupA@mail.gmail.com>
+Subject: Re: [PATCH 10/15] drivers/mfd: db8500-prcmu: Add support for
+ regulator supply for nmk-i2c.4
+Date: Wed, 9 May 2012 10:56:47 +0200
+Message-ID: <CACRpkdYZiiHb3g2HfVXWNR8cvQBXQ0Kaim8MGcydxNH6aAUC-g@mail.gmail.com>
 References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
-	<1336155805-18554-10-git-send-email-lee.jones@linaro.org>
+	<1336155805-18554-11-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1336155805-18554-10-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1336155805-18554-11-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
@@ -15,10 +16,7 @@ List-Id: linux-i2c@vger.kernel.org
 
 On Fri, May 4, 2012 at 8:23 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-> This patch will enable probing to occur during a Device Tree enabled
-> boot. The IRQ base is expected to be located in and will be fetched
-> from the DT itself. We also prevent any of the db8500 regulators
-> from being registered here, as they will be enabled via DT instead.
+> This applies a supply alias for the db8500's fifth Nomadik i2c port.
 >
 > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
