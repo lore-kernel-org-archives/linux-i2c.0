@@ -1,109 +1,46 @@
-From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/3 v2] i2c: i801: enable irq
-Date: Wed, 9 May 2012 14:36:03 +0800
-Message-ID: <CAGS+omA6=+vUM0jTg1vsRCpxBQG22bUfz-_U6AmS0CVRSa8doA@mail.gmail.com>
-References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
- <20120106123531.3b5ca7db@endymion.delvare> <CAGS+omBvULkWsowprvVWkodBxT=diui7g5GtKZ0mb=Uy7DZKtg@mail.gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 01/15] i2c/busses: Add Device Tree support to the Nomadik
+ I2C driver
+Date: Wed, 9 May 2012 10:42:53 +0200
+Message-ID: <CACRpkda6EvO5O+C86HUefEde3+9FEg2aLFUixr_yaiYXtPjmuA@mail.gmail.com>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
+	<1336155805-18554-2-git-send-email-lee.jones@linaro.org>
+	<201205042002.20943.arnd@arndb.de>
+	<4FA4C5EA.7030006@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGS+omBvULkWsowprvVWkodBxT=diui7g5GtKZ0mb=Uy7DZKtg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <4FA4C5EA.7030006-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Jean? Anyone? ping?
+On Sat, May 5, 2012 at 8:17 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-On Mon, Feb 20, 2012 at 7:23 PM, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wr=
-ote:
-> On Fri, Jan 6, 2012 at 7:35 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wro=
-te:
->> Hi Daniel,
->>
->> On Fri, =A06 Jan 2012 18:58:19 +0800, Daniel Kurtz wrote:
->>> This is a second version of a set of patches enables the Intel PCH =
-SMBus
->>> controller interrupt. =A0It refactors the second two patches a litt=
-le bit by
->>> relying on DEV_ERR interrupt for timeouts, instead of using an expl=
-icit
->>> wait_event_timeout.
->>>
->>> The first attempt received absolutely no response. Maybe this time =
-someone
->>> will be interested.
->>
->> I was on vacation. But I am very interested and will review and test
->> your patches. There have been several attempts to add IRQ support to
->> i2c-i801 in the past but each time there was a blocker issue which
->> prevented it from making it into mainline. Hopefully this time we'll
->> get it there!
->>
->>>
->>> The SMBus Host Controller Interrupt can signify:
->>> =A0INTR - the end of a complete transaction
->>> =A0DEV_ERR - that a device did not ACK a transaction
->>> =A0BYTE_DONE - the completion of a single byte during a byte-by-byt=
-e transaction
->>>
->>> This patchset arrives with the following caveats:
->>>
->>> =A01) =A0It has only been tested with a Cougar Point (Intel 6 Serie=
-s PCH) SMBus
->>> controller, so the irq is only enabled for that chip type.
->>
->> I can test on ICH10 easily, and also on ICH7 and ICH3-M if needed.
->>
->>> =A02) It has not been tested with any devices that do transactions =
-that use the
->>> =A0 =A0 PEC. =A0In fact, I believe that an additional small patch w=
-ould be required
->>> =A0 =A0 to the driver working correctly in interrupt mode with PEC.
->>>
->>> =A03) It has not been tested in SMBus Slave mode.
->>>
->>> =A04) It has not been tested with SMI#-type interrupts.
->>>
->>> =A05) The BIOS has to configure the PCH SMBus IRQ properly.
->>>
->>> =A06) It has not been tested with a device that does byte-by-byte s=
-mbus (non-i2c)
->>> =A0 =A0 reads.
->>
->> I think I can test this.
->>
->>> =A07) It has not been tested with smbus 'process call' transactions=
-=2E
->>
->> But not this.
->>
->>> If would be very helpful if somebody could help test on other chips=
-ets, with
->>> a PEC device, or on additional BIOS that woudl be very helpful.
->>
->> I will do what I can with the hardware I have here.
+> I haven't tested it yet (it builds with no warnings/errors, but I
+> haven't booted it), as I don't have my board immediately to hand,
+> but does this kind of thing better suit what you're looking for?
 >
-> Jean,
-> Ping?
+> From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Date: Tue, 17 Apr 2012 16:04:13 +0100
+> Subject: [PATCH 01/15] i2c/busses: Add Device Tree support to the Nom=
+adik I2C
+> =A0driver
 >
+> Here we move the i2c-nomadik's default settings into the driver
+> rather than specifying them from platform code. At the time of
+> this writing we only have one user, the u8500. As new users are
+> added, it is expected that they will be Device Tree compliant.
+> If this is the case, we will look up their initialisation values
+> by compatible entry, then apply them forthwith.
 >
->>
->>> In the meantime, the interrupt behavior is only enabled on the Coug=
-ar Point,
->>> and even here, it can be completely disabled with the "Interrupt" f=
-eature like
->>> other advanced features of the driver.
->>>
->>> Daniel Kurtz (3):
->>> =A0 i2c: i801: refactor i801_block_transaction_byte_by_byte
->>> =A0 i2c: i801: enable irq for i801 smbus transactions
->>> =A0 i2c: i801: enable irq for byte_by_byte transactions
->>>
->>> =A0drivers/i2c/busses/i2c-i801.c | =A0199 +++++++++++++++++++++++++=
-+++++++++++-----
->>> =A01 files changed, 175 insertions(+), 24 deletions(-)
->>
->> --
->> Jean Delvare
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+Make sure you test it first though.
+
+Yours,
+Linus Walleij
