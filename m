@@ -1,51 +1,34 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: Re: [PATCH V2 06/11] ASoC: fsl_ssi: convert to use devm_clk_get
-Date: Wed, 9 May 2012 12:50:42 +0100
-Message-ID: <20120509115041.GM3955@opensource.wolfsonmicro.com>
-References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
- <1336563190-19974-7-git-send-email-richard.zhao@freescale.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 11/15] drivers/mfd: Enable Device Tree for ab8500-core driver
+Date: Wed, 9 May 2012 11:56:00 +0000
+Message-ID: <201205091156.00322.arnd@arndb.de>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org> <1336155805-18554-12-git-send-email-lee.jones@linaro.org> <CACRpkdaju5y6pduWrkH97LujzqJu5hAaGozyHY3Rsvvn7ZyKhA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="6CiRFyVmOOJ3DkBX"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1336563190-19974-7-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <CACRpkdaju5y6pduWrkH97LujzqJu5hAaGozyHY3Rsvvn7ZyKhA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mattias WALLIN <mattias.wallin-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wednesday 09 May 2012, Linus Walleij wrote:
+> > +       else if (np)
+> > +               ret = of_property_read_u32(np, "stericsson,irq-base", &ab8500->irq_base);
+> > +
+> > +       if (ab8500->irq_base == 0) {
+> 
+> Shouldn't this be (av8500->irq_base == NO_IRQ) now that we're tranisitioning to
+> use 0 as NO_IRQ?
 
---6CiRFyVmOOJ3DkBX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Since we're into bike-shedding already, why not make it :? :-)
 
-On Wed, May 09, 2012 at 07:33:05PM +0800, Richard Zhao wrote:
-> Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+	if (!ab8500->irq_base)
 
-I'll apply this when devm_clk_get() makes it into mainline (hopefully in
-the merge window); please remind me if I forget.
+I usually prefer this syntax for testing if something has been assigned,
+while I use a comparison with 0 only when it is a meant as a numeric value
+rather than meant as validity test.
 
---6CiRFyVmOOJ3DkBX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPqloLAAoJEBus8iNuMP3dkSgP/3SyySK1CCEsK3OxyW1HMqke
-fclt/HC/JvfwXDSRfryw59zy7YXJlRHluDg4F1voYMaSeN7AgjpFSUeP/zVxkqET
-3mcOu086xXFKqI/FpsKe65+sb0uw16CziX6brJHjQxK1svdckyAa7aOCWk1P3uqQ
-c4PQelQtxkOKZLlGhlD6CxE+1kX0Y5CpcBJ3/bBeoX2gz+M9UG0nzpeRrbzUZ0RD
-WHwoW/O012r78qZP99/20Nx4DbCrWvXPmbUb6yeeooaCPP+UT3AV0yr311lvDqdR
-UkEy04XV8MZqYg5hjNCmDDaSawcwW/EK0rGP0Kghq9UhHIR3PliYKUINwAR5HYMa
-KILeBcny5WZiubhC7QTMoMBgq8cTMFKeNhtjB/eGL/m/6828wkeiEXxrXd3Xakg0
-jJaHB2H/iXvTtAoPhk+lWqp2xjpfRrl6QW0rdYAtWFqjQgDx+Apj5PTgpmfPtWdb
-WAnlKamYWpfG0THq5wn00/dOBNl2BtGJ7lcXQVwpFaW9BcsKbNYyQXjXi1oTh2hb
-YFM0sPaGAfssHK+rLfJax7lp74VjEBTbXgKAvUv58Sst/H6EdQ8AYGwDtgjGVQNe
-eXGmQ+y+PzloiCWMuaMA7imjs2tU1dfKoa2VtFwru9OUciJbG4tvtq6VtivEm1dY
-rV0PvITb8a7J9buPrsdk
-=82c0
------END PGP SIGNATURE-----
-
---6CiRFyVmOOJ3DkBX--
+	Arnd
