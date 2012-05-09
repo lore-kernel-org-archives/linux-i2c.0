@@ -1,30 +1,41 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 0/4] MXS: I2C improvements
-Date: Wed, 9 May 2012 20:33:46 +0200
-Message-ID: <201205092033.46812.marex@denx.de>
-References: <1335837621-14816-1-git-send-email-marex@denx.de>
+From: Adrian Yanes <devel@ayanes.com>
+Subject: Re: AW: [PATCH v10 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Wed, 09 May 2012 22:07:51 +0300
+Message-ID: <4FAAC087.7030304@ayanes.com>
+References: <D99582E5322435468A77E74BB0039E7B1D22784CF0@SRV02.hamburg.garz-fricke.de>
+ <alpine.DEB.2.00.1204261035060.16439@gatekeeper.vosshq.de>
+ <D99582E5322435468A77E74BB0039E7B1D22784E8B@SRV02.hamburg.garz-fricke.de>
+ <EF2E73589CA71846A15D0B2CDF79505D0905E0994A@wm021.weinmann.com>
+ <D99582E5322435468A77E74BB0039E7B1D2293684D@SRV02.hamburg.garz-fricke.de>
+Reply-To: devel@ayanes.com
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1335837621-14816-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <D99582E5322435468A77E74BB0039E7B1D2293684D@SRV02.hamburg.garz-fricke.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-> This patchset implements support for adjustment of I2C bus speed via
-> platform data. Further, it implements support for DMA transfers into the
-> mxs-i2c driver. Lastly, there is a fix for GCC4.7 warning included.
-> 
-> Marek Vasut (4):
->   MXS: Allow passing i2c bus speed via platform data
->   MXS: Set I2C timing registers for mxs-i2c
->   MXS: Implement DMA support into mxs-i2c
->   MXS: Fix GCC4.7 complaint in mxs-i2c
+>> Yes, our ECO920 uses the RM9200, but we support it with an very old kernel
+>> (2.6.21). I remember there were many problems with I2C.
 
-Bump?
+I really doubt this, as I indicated in a previous email[1], the RM9200
+has a hardware "bug". So either you performed the testing with less than
+2 bytes of data and in a really low frequency (<50kHz) or we are missing
+something.
 
-Best regards,
-Marek Vasut
+Can you provide more details about which kind of testing you performed?
+
+Thanks
+
+1 - http://article.gmane.org/gmane.linux.kernel/1287445/match=
