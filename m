@@ -1,49 +1,58 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH V1 2/2] i2c: tegra: support for I2C_M_NOSTART protocol
-  mangling
-Date: Thu, 10 May 2012 17:50:32 +0530
-Message-ID: <4FABB290.40609@nvidia.com>
-References: <1335251976-31925-1-git-send-email-ldewangan@nvidia.com>	<1335251976-31925-3-git-send-email-ldewangan@nvidia.com>	<4FABA585.7090600@nvidia.com> <20120510135411.3ba5bb6d@endymion.delvare>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V2 03/11] ASoC: imx-audmux: add pinctrl support
+Date: Thu, 10 May 2012 14:26:31 +0200
+Message-ID: <CACRpkdah3956QLZZ1wTw1PcZ90wWX=Ta9j45jjzWsBtT=nm8-g@mail.gmail.com>
+References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
+	<1336563190-19974-4-git-send-email-richard.zhao@freescale.com>
+	<20120509160005.GG3955@opensource.wolfsonmicro.com>
+	<20120510003532.GG2982@b20223-02.ap.freescale.net>
+	<20120510063904.GB17875@S2101-09.ap.freescale.net>
+	<20120510084403.GA3908@opensource.wolfsonmicro.com>
+	<20120510090459.GH2982@b20223-02.ap.freescale.net>
+	<20120510092733.GH3908@opensource.wolfsonmicro.com>
+	<20120510102309.GK2982@b20223-02.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120510135411.3ba5bb6d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20120510102309.GK2982-iWYTGMXpHj9ITqJhDdzsOjpauB2SiJktrE5yTffgRl4@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 10 May 2012 05:24 PM, Jean Delvare wrote:
-> Hi Laxman,
+On Thu, May 10, 2012 at 12:23 PM, Richard Zhao
+<richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
+> On Thu, May 10, 2012 at 10:27:34AM +0100, Mark Brown wrote:
+>> On Thu, May 10, 2012 at 05:05:00PM +0800, Richard Zhao wrote:
+>>
+>> > devm_pinctrl_get_select_default function is added in below commit =
+which
+>> > is in pinctrl/for-next.
+>>
+>> Oh, dear. =A0That's unfortunate, I guess it's not on a branch in pin=
+ctl
+>> which can be pulled separately (...)
 >
-> On Thu, 10 May 2012 16:54:53 +0530, Laxman Dewangan wrote:
->> Jean,
->> On Tuesday 24 April 2012 12:49 PM, Laxman Dewangan wrote:
->>> Adding support for protocol mangling I2C_M_NOSTART.
->>> When multiple message transfer request made through i2c
->>> and if any message is flagged with I2C_M_NOSTART then
->>> it will not send the start/repeat start/address of that
->>> message i.e. send the data directly.
->> Now the framework/core changes for making M_NOSTART as a separate flag
->> is already part of your tree.
->> So do I need to re-send the patch for having that change?
->> 1/1 is already part of Wolfram's tree and so not sure that how do I go
->> i.e. from where I take the base i2c-tegra driver.
->> It may create the problem in integration on main if they are not sync.
->> Also I have some couple of changes which will be on top of this.
-> I'm not sure I read you correctly so, for clarity: the patch
-> introducing I2C_FUNC_NOSTART finally landed in my tree [1], not
-> Wolfram's. It will be merged in kernel 3.5.
+> I prefer to have a non-rebase pinctrl branch. We can not defer pinctr=
+l
+> patch for all drivers. pinctrl will be so widely used.
 >
-> [1] http://khali.linux-fr.org/devel/linux-3/jdelvare-i2c/
+> Hi Linus,
 >
-> If you don't want to depend on that, then just use
-> I2C_FUNC_PROTOCOL_MANGLING for now and you can switch to
-> I2C_FUNC_NOSTART later.
->
-It is fine. So this change can go in to Wolfram's tree as it is and 
-after k3.5, I will post another change which will use I2C_FUNC_NOSTART.
+> Could you comment?
 
-Thanks,
-Laxman
+You're lucky because a few ARM SoC:s wanted a stable tag to
+use for pinctrl merges.
+
+Ref:
+git://git.linaro.org/people/triad/linux-pinctrl.git
+
+The tag pinctrl-mergebase-20120418
+contains the devm and other changes, Stephen is already using
+that for Tegra stuff and it's solid as a rock. Newer patches are
+put on top of this and since pinctrl has no deps in any directions
+it will be requested for pull as soon as the merge window opens.
+
+Yours,
+Linus Walleij
