@@ -1,94 +1,37 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 0/4] MXS: I2C improvements
-Date: Thu, 10 May 2012 22:37:26 +0800
-Message-ID: <20120510143723.GP17875@S2101-09.ap.freescale.net>
-References: <1335837621-14816-1-git-send-email-marex@denx.de>
- <201205092033.46812.marex@denx.de>
- <20120510073518.GE17875@S2101-09.ap.freescale.net>
- <201205101317.25786.marex@denx.de>
+From: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [alsa-devel] [PATCH V2 08/11] ARM: dts: imx6q-sabrelite: add
+ sound device imx6q-sabrelite-sgtl5000
+Date: Thu, 10 May 2012 23:48:24 +0800
+Message-ID: <20120510154823.GA18625@S2100-06.ap.freescale.net>
+References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
+ <1336563190-19974-9-git-send-email-richard.zhao@freescale.com>
+ <20120510064816.GC17875@S2101-09.ap.freescale.net>
+ <20120510093444.GI2982@b20223-02.ap.freescale.net>
+ <20120510094113.GG17875@S2101-09.ap.freescale.net>
+ <20120510094508.GN3908@opensource.wolfsonmicro.com>
+ <20120510114956.GI17875@S2101-09.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <201205101317.25786.marex-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <20120510114956.GI17875-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org, Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 10, 2012 at 01:17:25PM +0200, Marek Vasut wrote:
-> > Sorry, Marek.  Since we are moving over to device tree, I'm not going
-> > to ack the arch/arm/mach-mxs changes, which are introducing more use
-> > of platform data.
+On Thu, May 10, 2012 at 07:49:58PM +0800, Shawn Guo wrote:
+> I did not make myself clear, but you made :)  Yes, this is exactly the
+> thing on my mind, and the circuit will look like:
 > 
-> Can you please tell me what _exactly_ is the formal reason for
-> NAKing these changes?
+It seems I was just misled by the impression that we should have
+a route of MIC_IN <-- Mic Bais.  I just checked through the SGTL5000
+data sheet and it does not really mention about this.
 
-I said I'm not going to ack the changes, not I'm NAKing the changes.
-But since you have put me on that position, ok, I'm now NAKing the
-changes.  The reason is obvious, you are adding something we are trying
-hard to remove.
+Richard,
 
-> As far as I can see, they do not introduce
-> new aspects of platform data but rather fix the usage in the
-> current context, so I do not quite understand the reasoning.
-> 
-The i2c-mxs driver currently does not use platform_data at all, the
-first patch creates a new file include/linux/i2c/mxs-i2c.h to introduce
-it.
-
-> I consider your current approach of NAKing these changes very
-> harmful to MXS.
-
-I take it in the opposite way.  It's helpful for MXS, especially
-in the long run.
-
-> If it wasn't for your NAKing every patch for MXS
-> that doesn't use device tree, the platform would currently be in
-> much better shape. By now, you'd already have good SPI driver,
-> this I2C driver and maybe others. I wonder if others agree with
-> me on this one?
-> 
-All the examples you put here are submitted in this development cycle,
-how can they make the MXS support much better already without waiting
-v3.5-rc1 to hit the mainline?
-
-> But now we're waiting for the device tree support, which will
-> take some more time to fully arrive. Maybe 3.5, but I doubt full
-> DT support will hit mainline before 3.6. I'd understand you
-> NAKing patches that don't use DT support if DT support for MXS
-> was already in place, but there is not a trace of it in mainline.
-> 
-I would expect the support will hit mainline in a few weeks with
-v3.5-rc1, so none of the examples you put here, neither SPI driver
-nor I2C changes, can really hit the mainline earlier than DT.
-
-> Finally, consider people who write patches for MXS (remember
-> fixes for mxs-spi,
-
-This is a new driver.
-
-> or this fix for mxs-i2c for example
-> again). They will easily be demotivated by this approach and give
-> up on MXS, probably not reposting these changes.
-
-That's a bit unfortunate.  Let me put an interesting story here.
-When Huang Shijie adds DT support for gpmi-nand driver, he chooses to
-not maintain the compatibility of non-DT support to make the code
-a lot clean and simple.  When I asked how he can do this before all
-those non-DT board files are converted to DT, I was reminded that
-is not a problem because I rejected his board file changes coming along
-with the driver, there is no in-tree board files are users of gpmi-nand
-driver.  What I put here is it's much easier and cleaner to create a DT
-only driver from the beginning than having a non-DT driver and then
-converting it to DT.
-
-> What is the plan
-> on saving all the precious efforts that are currently NAKed by
-> you?  How do we ensure this work does not get lost?
-> 
-If they do not get reposted to have DT support from the beginning,
-I believe other people will do when the need of the patches are seen.
+Will test your route setting and then apply the patch if everything
+goes fine.
 
 -- 
 Regards,
