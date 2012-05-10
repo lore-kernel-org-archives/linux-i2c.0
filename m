@@ -1,75 +1,36 @@
 From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 2/2] ARM: dts: enable i2c device for imx28-evk
-Date: Thu, 10 May 2012 15:31:03 +0800
-Message-ID: <1336635063-11122-3-git-send-email-shawn.guo@linaro.org>
-References: <1336635063-11122-1-git-send-email-shawn.guo@linaro.org>
+Subject: Re: [PATCH 0/4] MXS: I2C improvements
+Date: Thu, 10 May 2012 15:35:20 +0800
+Message-ID: <20120510073518.GE17875@S2101-09.ap.freescale.net>
+References: <1335837621-14816-1-git-send-email-marex@denx.de>
+ <201205092033.46812.marex@denx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1336635063-11122-1-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201205092033.46812.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- arch/arm/boot/dts/imx28-evk.dts |    6 ++++++
- arch/arm/boot/dts/imx28.dtsi    |   14 ++++++++++++++
- 2 files changed, 20 insertions(+), 0 deletions(-)
+On Wed, May 09, 2012 at 08:33:46PM +0200, Marek Vasut wrote:
+> > This patchset implements support for adjustment of I2C bus speed via
+> > platform data. Further, it implements support for DMA transfers into the
+> > mxs-i2c driver. Lastly, there is a fix for GCC4.7 warning included.
+> > 
+> > Marek Vasut (4):
+> >   MXS: Allow passing i2c bus speed via platform data
+> >   MXS: Set I2C timing registers for mxs-i2c
+> >   MXS: Implement DMA support into mxs-i2c
+> >   MXS: Fix GCC4.7 complaint in mxs-i2c
+> 
+> Bump?
+> 
+Sorry, Marek.  Since we are moving over to device tree, I'm not going
+to ack the arch/arm/mach-mxs changes, which are introducing more use
+of platform data.
 
-diff --git a/arch/arm/boot/dts/imx28-evk.dts b/arch/arm/boot/dts/imx28-evk.dts
-index 6ca10f2..c4b717f 100644
---- a/arch/arm/boot/dts/imx28-evk.dts
-+++ b/arch/arm/boot/dts/imx28-evk.dts
-@@ -41,6 +41,12 @@
- 		};
- 
- 		apbx@80040000 {
-+			i2c0: i2c@80058000 {
-+				pinctrl-names = "default";
-+				pinctrl-0 = <&i2c0_pins_a>;
-+				status = "okay";
-+			};
-+
- 			duart: serial@80074000 {
- 				pinctrl-names = "default";
- 				pinctrl-0 = <&duart_pins_a>;
-diff --git a/arch/arm/boot/dts/imx28.dtsi b/arch/arm/boot/dts/imx28.dtsi
-index 8596bdf..fd73fc2 100644
---- a/arch/arm/boot/dts/imx28.dtsi
-+++ b/arch/arm/boot/dts/imx28.dtsi
-@@ -204,6 +204,14 @@
- 					fsl,drive-strength = <2>;
- 					fsl,pull-up = <0>;
- 				};
-+
-+				i2c0_pins_a: i2c0@0 {
-+					reg = <0>;
-+					fsl,pinmux-ids = <0x3180 0x3190>;
-+					fsl,drive-strength = <1>;
-+					fsl,voltage = <1>;
-+					fsl,pull-up = <1>;
-+				};
- 			};
- 
- 			digctl@8001c000 {
-@@ -345,12 +353,18 @@
- 			};
- 
- 			i2c0: i2c@80058000 {
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				compatible = "fsl,imx28-i2c";
- 				reg = <0x80058000 2000>;
- 				interrupts = <111 68>;
- 				status = "disabled";
- 			};
- 
- 			i2c1: i2c@8005a000 {
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				compatible = "fsl,imx28-i2c";
- 				reg = <0x8005a000 2000>;
- 				interrupts = <110 69>;
- 				status = "disabled";
 -- 
-1.7.5.4
+Regards,
+Shawn
