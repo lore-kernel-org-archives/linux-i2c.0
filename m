@@ -1,31 +1,21 @@
-From: Richard Zhao <richard.zhao@freescale.com>
-Subject: Re: [PATCH V2 03/11] ASoC: imx-audmux: add pinctrl
-	support
-Date: Thu, 10 May 2012 17:05:00 +0800
-Message-ID: <20120510090459.GH2982@b20223-02.ap.freescale.net>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V2 03/11] ASoC: imx-audmux: add pinctrl support
+Date: Thu, 10 May 2012 17:07:18 +0800
+Message-ID: <20120510090715.GF17875@S2101-09.ap.freescale.net>
 References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
-	<1336563190-19974-4-git-send-email-richard.zhao@freescale.com>
-	<20120509160005.GG3955@opensource.wolfsonmicro.com>
-	<20120510003532.GG2982@b20223-02.ap.freescale.net>
-	<20120510063904.GB17875@S2101-09.ap.freescale.net>
-	<20120510084403.GA3908@opensource.wolfsonmicro.com>
+ <1336563190-19974-4-git-send-email-richard.zhao@freescale.com>
+ <20120509160005.GG3955@opensource.wolfsonmicro.com>
+ <20120510003532.GG2982@b20223-02.ap.freescale.net>
+ <20120510063904.GB17875@S2101-09.ap.freescale.net>
+ <20120510084403.GA3908@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120510084403.GA3908@opensource.wolfsonmicro.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
-	<mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Sender: alsa-devel-bounces@alsa-project.org
-Errors-To: alsa-devel-bounces@alsa-project.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: alsa-devel@alsa-project.org, dong.aisheng@linaro.org, ben-linux@fluff.org, vinod.koul@intel.com, linus.walleij@linaro.org, w.sang@pengutronix.de, timur@freescale.com, linux-i2c@vger.kernel.org, kernel@pengutronix.de, dan.j.williams@intel.com, Shawn Guo <shawn.guo@linaro.org>, lrg@ti.com, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20120510084403.GA3908-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 On Thu, May 10, 2012 at 09:44:04AM +0100, Mark Brown wrote:
@@ -46,26 +36,19 @@ On Thu, May 10, 2012 at 09:44:04AM +0100, Mark Brown wrote:
 > if you pull it right now you'll get problems in -next due to the the
 > ux500 stuff.
 > 
+Pulling it into arm-soc as a dependency only means we will have it as
+a base for other branches that depend on.  It does not change anything
+about how the branch flows to Linus.  Arnd will only send those arm-soc
+branches that depend on sound/for-3.5 after it gets merged by Linus.
+
 > What does "working" mean in this context - what happens without the
 > pinctl changes?
-devm_pinctrl_get_select_default function is added in below commit which
-is in pinctrl/for-next.
 
-commit 6d4ca1fb467932773da7b808c52f3d7ef4461ba0
-Author: Stephen Warren <swarren@nvidia.com>
-Date:   Mon Apr 16 10:51:00 2012 -0600
+It will break all the imx-audmux users that haven't got any pinctrl
+states defined for imx-audmux.  We have patches on imx (arm-soc) tree
+defining pinctrl states either in DT or dummy states in board files
+to make sure pinctrl API works fine for every imx-audmux users. 
 
-    pinctrl: implement devm_pinctrl_get()/put()
-    
-    These functions allow the driver core to automatically clean up any
-    allocations made by drivers, thus leading to simplified drivers.
-    
-    Signed-off-by: Stephen Warren <swarren@nvidia.com>
-    Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-
-
-So it'll fail compile without pinctrl/for-next. I guess Linus may need
-to prepare a non-rebase base for others to merge.
-
-Thanks
-Richard
+-- 
+Regards,
+Shawn
