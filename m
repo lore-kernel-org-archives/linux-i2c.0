@@ -1,28 +1,188 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V2 00/11] enable imx6q_sabrelite sgtl5000 audio support
-Date: Fri, 11 May 2012 14:30:33 +0800
-Message-ID: <20120511063030.GW17875@S2101-09.ap.freescale.net>
+From: Vinod Koul <vinod.koul-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH V2 01/11] dma: imx-sdma: make channel0 operations atomic
+Date: Fri, 11 May 2012 12:02:08 +0530
+Message-ID: <1336717928.15424.1597.camel@vkoul-udesk3>
 References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
+	 <1336563190-19974-2-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1336563190-19974-1-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <1336563190-19974-2-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 09, 2012 at 07:32:59PM +0800, Richard Zhao wrote:
->   ARM: dts: imx6q-sabrelite: add i2c1 pinctrl support
->   ARM: dts: imx6q-sabrelite: add audmux pinctrl support
->   ARM: imx6q: add ssi1_ipg clk_lookup
->   ARM: imx6q_sabrelite: clk_register_clkdev cko1 for sgtl5000
->   ARM: dts: imx6q-sabrelite: add sound device imx6q-sabrelite-sgtl5000
->   ARM: dts: imx6q-sabrelite: add serial2 pinctrl support
+On Wed, 2012-05-09 at 19:33 +0800, Richard Zhao wrote:
+> device_prep_dma_cyclic may be call in audio trigger function which is
+> atomic context, so we make it atomic too.
+> 
+>  - change channel0 lock to spinlock.
+>  - Use polling to wait for channel0 finish running.
+> 
+> Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Can you pls rebase this against the slave-dma next and resend.
+It fails to apply for me.
+> ---
+>  drivers/dma/imx-sdma.c |   57 ++++++++++++++++++++++++++---------------------
+>  1 files changed, 31 insertions(+), 26 deletions(-)
+> 
+> diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
+> index fddccae..4fd48eb 100644
+> --- a/drivers/dma/imx-sdma.c
+> +++ b/drivers/dma/imx-sdma.c
+> @@ -24,7 +24,7 @@
+>  #include <linux/mm.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/clk.h>
+> -#include <linux/wait.h>
+> +#include <linux/delay.h>
+>  #include <linux/sched.h>
+>  #include <linux/semaphore.h>
+>  #include <linux/spinlock.h>
+> @@ -324,7 +324,7 @@ struct sdma_engine {
+>  	struct dma_device		dma_device;
+>  	struct clk			*clk_ipg;
+>  	struct clk			*clk_ahb;
+> -	struct mutex			channel_0_lock;
+> +	spinlock_t		channel_0_lock;
+>  	struct sdma_script_start_addrs	*script_addrs;
+>  };
+>  
+> @@ -402,19 +402,27 @@ static void sdma_enable_channel(struct sdma_engine *sdma, int channel)
+>  }
+>  
+>  /*
+> - * sdma_run_channel - run a channel and wait till it's done
+> + * sdma_run_channel0 - run a channel and wait till it's done
+>   */
+> -static int sdma_run_channel(struct sdma_channel *sdmac)
+> +static int sdma_run_channel0(struct sdma_engine *sdma)
+>  {
+> -	struct sdma_engine *sdma = sdmac->sdma;
+> -	int channel = sdmac->channel;
+>  	int ret;
+> +	unsigned long timeout = 500;
+>  
+> -	init_completion(&sdmac->done);
+> +	sdma_enable_channel(sdma, 0);
+>  
+> -	sdma_enable_channel(sdma, channel);
+> +	while (!(ret = readl_relaxed(sdma->regs + SDMA_H_INTR) & 1)) {
+> +		if (timeout-- <= 0)
+> +			break;
+> +		udelay(1);
+> +	}
+>  
+> -	ret = wait_for_completion_timeout(&sdmac->done, HZ);
+> +	if (ret) {
+> +		/* Clear the interrupt status */
+> +		writel_relaxed(ret, sdma->regs + SDMA_H_INTR);
+> +	} else {
+> +		dev_err(sdma->dev, "Timeout waiting for CH0 ready\n");
+> +	}
+>  
+>  	return ret ? 0 : -ETIMEDOUT;
+>  }
+> @@ -426,17 +434,17 @@ static int sdma_load_script(struct sdma_engine *sdma, void *buf, int size,
+>  	void *buf_virt;
+>  	dma_addr_t buf_phys;
+>  	int ret;
+> -
+> -	mutex_lock(&sdma->channel_0_lock);
+> +	unsigned long flags;
+>  
+>  	buf_virt = dma_alloc_coherent(NULL,
+>  			size,
+>  			&buf_phys, GFP_KERNEL);
+>  	if (!buf_virt) {
+> -		ret = -ENOMEM;
+> -		goto err_out;
+> +		return -ENOMEM;
+>  	}
+>  
+> +	spin_lock_irqsave(&sdma->channel_0_lock, flags);
+> +
+>  	bd0->mode.command = C0_SETPM;
+>  	bd0->mode.status = BD_DONE | BD_INTR | BD_WRAP | BD_EXTD;
+>  	bd0->mode.count = size / 2;
+> @@ -445,12 +453,11 @@ static int sdma_load_script(struct sdma_engine *sdma, void *buf, int size,
+>  
+>  	memcpy(buf_virt, buf, size);
+>  
+> -	ret = sdma_run_channel(&sdma->channel[0]);
+> +	ret = sdma_run_channel0(sdma);
+>  
+> -	dma_free_coherent(NULL, size, buf_virt, buf_phys);
+> +	spin_unlock_irqrestore(&sdma->channel_0_lock, flags);
+>  
+> -err_out:
+> -	mutex_unlock(&sdma->channel_0_lock);
+> +	dma_free_coherent(NULL, size, buf_virt, buf_phys);
+>  
+>  	return ret;
+>  }
+> @@ -539,10 +546,6 @@ static void mxc_sdma_handle_channel(struct sdma_channel *sdmac)
+>  {
+>  	complete(&sdmac->done);
+>  
+> -	/* not interested in channel 0 interrupts */
+> -	if (sdmac->channel == 0)
+> -		return;
+> -
+>  	if (sdmac->flags & IMX_DMA_SG_LOOP)
+>  		sdma_handle_channel_loop(sdmac);
+>  	else
+> @@ -555,6 +558,8 @@ static irqreturn_t sdma_int_handler(int irq, void *dev_id)
+>  	unsigned long stat;
+>  
+>  	stat = readl_relaxed(sdma->regs + SDMA_H_INTR);
+> +	/* not interested in channel 0 interrupts */
+> +	stat &= ~1;
+>  	writel_relaxed(stat, sdma->regs + SDMA_H_INTR);
+>  
+>  	while (stat) {
+> @@ -660,6 +665,7 @@ static int sdma_load_context(struct sdma_channel *sdmac)
+>  	struct sdma_context_data *context = sdma->context;
+>  	struct sdma_buffer_descriptor *bd0 = sdma->channel[0].bd;
+>  	int ret;
+> +	unsigned long flags;
+>  
+>  	if (sdmac->direction == DMA_DEV_TO_MEM) {
+>  		load_address = sdmac->pc_from_device;
+> @@ -677,7 +683,7 @@ static int sdma_load_context(struct sdma_channel *sdmac)
+>  	dev_dbg(sdma->dev, "event_mask0 = 0x%08x\n", (u32)sdmac->event_mask[0]);
+>  	dev_dbg(sdma->dev, "event_mask1 = 0x%08x\n", (u32)sdmac->event_mask[1]);
+>  
+> -	mutex_lock(&sdma->channel_0_lock);
+> +	spin_lock_irqsave(&sdma->channel_0_lock, flags);
+>  
+>  	memset(context, 0, sizeof(*context));
+>  	context->channel_state.pc = load_address;
+> @@ -696,10 +702,9 @@ static int sdma_load_context(struct sdma_channel *sdmac)
+>  	bd0->mode.count = sizeof(*context) / 4;
+>  	bd0->buffer_addr = sdma->context_phys;
+>  	bd0->ext_buffer_addr = 2048 + (sizeof(*context) / 4) * channel;
+> +	ret = sdma_run_channel0(sdma);
+>  
+> -	ret = sdma_run_channel(&sdma->channel[0]);
+> -
+> -	mutex_unlock(&sdma->channel_0_lock);
+> +	spin_unlock_irqrestore(&sdma->channel_0_lock, flags);
+>  
+>  	return ret;
+>  }
+> @@ -1305,7 +1310,7 @@ static int __init sdma_probe(struct platform_device *pdev)
+>  	if (!sdma)
+>  		return -ENOMEM;
+>  
+> -	mutex_init(&sdma->channel_0_lock);
+> +	spin_lock_init(&sdma->channel_0_lock);
+>  
+>  	sdma->dev = &pdev->dev;
+>  
 
-I picked up above 6 patches.  Thanks.
 
 -- 
-Regards,
-Shawn
+~Vinod
