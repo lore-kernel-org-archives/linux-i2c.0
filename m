@@ -1,89 +1,51 @@
-From: "Jayachandran C." <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-ocore: support 16 and 32-bit wide registers
-Date: Sat, 12 May 2012 11:07:25 +0530
-Message-ID: <20120512053722.GC23689@jayachandranc.netlogicmicro.com>
-References: <1336483529-19140-1-git-send-email-jayachandranc@netlogicmicro.com>
- <1336483529-19140-3-git-send-email-jayachandranc@netlogicmicro.com>
- <CAM=Q2cuYCQu1McDD=otyyBFSG8Tw974Y146tAswZ3dD+USkiTw@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 0/2] Add device tree probe for i2c-mxs driver
+Date: Sat, 12 May 2012 13:07:32 +0200
+Message-ID: <20120512110732.GD20673@pengutronix.de>
+References: <1336635063-11122-1-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RhUH2Ysw6aD5utA4"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2cuYCQu1McDD=otyyBFSG8Tw974Y146tAswZ3dD+USkiTw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <1336635063-11122-1-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 08, 2012 at 10:28:34PM +0530, Shubhrajyoti Datta wrote:
-> Hi,
->=20
-> On Tue, May 8, 2012 at 6:55 PM, Jayachandran C
-> <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org> wrote:
-> > From: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> >
-> > Some architectures supports only 16-bit or 32-bit read/write access
-> > to their iospace. Add a 'regwidth' platform and OF parameter which
-> > specifies the IO width to support these platforms.
-> >
-> > regwidth can be specified as 1, 2 or 4, and has a default value
-> > of 1 if it is unspecified.
-> >
-> > Signed-off-by: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> > Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-> > ---
-> > =A0drivers/i2c/busses/i2c-ocores.c | =A0 32 +++++++++++++++++++++++=
-+++++++--
-> > =A0include/linux/i2c-ocores.h =A0 =A0 =A0| =A0 =A01 +
-> > =A02 files changed, 31 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i=
-2c-ocores.c
-> > index ebd2700..1313145 100644
-> > --- a/drivers/i2c/busses/i2c-ocores.c
-> > +++ b/drivers/i2c/busses/i2c-ocores.c
-> > @@ -60,6 +64,7 @@
-> > =A0struct ocores_i2c {
-> > =A0 =A0 =A0 =A0void __iomem *base;
-> > =A0 =A0 =A0 =A0int regstep;
-> > + =A0 =A0 =A0 int regwidth;
->=20
-> Do we need it to be signed?
 
-regstep and regwidth can be both unsigned, but since regstep is already=
-=20
-defined as int, we just followed that convention.
+--RhUH2Ysw6aD5utA4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->=20
-> > =A0 =A0 =A0 =A0wait_queue_head_t wait;
-> > =A0 =A0 =A0 =A0struct i2c_adapter adap;
-> > =A0 =A0 =A0 =A0struct i2c_msg *msg;
-> > @@ -102,12 +107,22 @@ struct ocores_i2c {
-> >
-> > =A0static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8=
- value)
-> > =A0{
-> > - =A0 =A0 =A0 iowrite8(value, i2c->base + reg * i2c->regstep);
-> > + =A0 =A0 =A0 if (i2c->regwidth =3D=3D 4)
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite32(value, i2c->base + reg * i2=
-c->regstep);
-> > + =A0 =A0 =A0 else if (i2c->regwidth =3D=3D 2)
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite16(value, i2c->base + reg * i2=
-c->regstep);
-> > + =A0 =A0 =A0 else
-> > + =A0 =A0 =A0 =A0 =A0 =A0 =A0 iowrite8(value, i2c->base + reg * i2c=
-->regstep);
-> > =A0}
-> >
-> > =A0static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
->
-> Shouldnt the return type also change?
->
+On Thu, May 10, 2012 at 03:31:01PM +0800, Shawn Guo wrote:
+> The series adds device tree probe support for i2c-mxs driver.  It
+> depends on mxs clk and pinctrl series.  Since all the dependencies
+> will probably be solved in arm-soc tree, it will be easier to have
+> it go through arm-soc.
 
-No, the registers have only 8bit of data, and we do a 16/32 bit read an=
-d
-return the lowest 8 bits.
+Yes.
 
-Regards,
-JC.
+Patch 1/2:
+
+Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--RhUH2Ysw6aD5utA4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk+uRHQACgkQD27XaX1/VRvsBwCgvtX/VNOIZKfHF/T+oCezsSXd
+nMwAoK14vn1S4BLa1S022e+rUP1Sf/2S
+=sQi+
+-----END PGP SIGNATURE-----
+
+--RhUH2Ysw6aD5utA4--
