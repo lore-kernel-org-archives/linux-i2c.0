@@ -1,166 +1,59 @@
-From: "Jayachandran C." <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c-ocore: support 16 and 32-bit wide registers
-Date: Sun, 13 May 2012 17:09:34 +0530
-Message-ID: <20120513113933.GA22906@jayachandranc.netlogicmicro.com>
-References: <1336483529-19140-1-git-send-email-jayachandranc@netlogicmicro.com>
- <1336483529-19140-3-git-send-email-jayachandranc@netlogicmicro.com>
- <20120512145648.GM20673@pengutronix.de>
+From: Andriy Gapon <avg-+43SdJ71VxTsG83rWm+8vg@public.gmane.org>
+Subject: Re: decode-dimms: Module Configuration Type not reported for DDR2/3
+Date: Sun, 13 May 2012 22:13:02 +0300
+Message-ID: <4FB007BE.8070603@icyb.net.ua>
+References: <4F8C8A74.90804@icyb.net.ua> <20120417131857.4e05c67b@endymion.delvare> <4F8DCC84.2040206@icyb.net.ua> <20120418103025.46ab7446@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120512145648.GM20673-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20120418103025.46ab7446-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, May 12, 2012 at 04:56:48PM +0200, Wolfram Sang wrote:
-> On Tue, May 08, 2012 at 06:55:29PM +0530, Jayachandran C wrote:
-> > From: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> > 
-> > Some architectures supports only 16-bit or 32-bit read/write access
-> > to their iospace. Add a 'regwidth' platform and OF parameter which
-> > specifies the IO width to support these platforms.
-> > 
-> > regwidth can be specified as 1, 2 or 4, and has a default value
-> > of 1 if it is unspecified.
-> > 
-> > Signed-off-by: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> > Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+on 18/04/2012 11:30 Jean Delvare said the following:
+> Hi Andriy,
 > 
-> Hmm, this is a generic issue and should not be handled with a driver
-> specific property. CCing devicetree-discuss, maybe there is already a
-> way to handle this? The already existing 'regstep' looks suspicious, too?
-> Can't find any documentation for it.
-
-My suggestion would be to use "reg-shift" and "reg-io-width" like the
-uart and some other devices. I am not sure why "regstep" was used when
-there is already a standard "reg-shift" parameter.
-
-We will post an updated patch that deprecates "regstep" and uses "reg-shift"
-and "reg-io-width" if that is preferred.
-
-Thanks,
-JC.
-
+> On Tue, 17 Apr 2012 23:03:16 +0300, Andriy Gapon wrote:
+>> on 17/04/2012 14:18 Jean Delvare said the following:
+>>> I am attaching two patches, one for DDR2, one for DDR3, please give
+>>> them a try.
+>>
+>> Thanks a lot!
+>> I am able to test only the DDR2 part at the moment.
+>> With the patch I am getting the following
+>> Module Configuration Type                       Data ECC
+>> for these modules: http://www.valueram.com/datasheets/kvr800d2e5_2g.pdf
+>>
+>> For some definitely non-ECC modules I get the expected
+>> Module Configuration Type                       No Parity
 > 
-> > ---
-> >  drivers/i2c/busses/i2c-ocores.c |   32 ++++++++++++++++++++++++++++++--
-> >  include/linux/i2c-ocores.h      |    1 +
-> >  2 files changed, 31 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-> > index ebd2700..1313145 100644
-> > --- a/drivers/i2c/busses/i2c-ocores.c
-> > +++ b/drivers/i2c/busses/i2c-ocores.c
-> > @@ -19,6 +19,9 @@
-> >   * - regstep         : size of device registers in bytes
-> >   * - clock-frequency : frequency of bus clock in Hz
-> >   * 
-> > + * Optional properties:
-> > + * - regwidth        : io register width in bytes (1, 2 or 4)
-> > +
-> >   * Example:
-> >   *
-> >   *  i2c0: ocores@a0000000 {
-> > @@ -27,6 +30,7 @@
-> >   *              interrupts = <10>;
-> >   *
-> >   *              regstep = <1>;
-> > + *              regwidth = <1>;
-> >   *              clock-frequency = <20000000>;
-> >   *
-> >   * -- Devices connected on this I2C bus get
-> > @@ -60,6 +64,7 @@
-> >  struct ocores_i2c {
-> >  	void __iomem *base;
-> >  	int regstep;
-> > +	int regwidth;
-> >  	wait_queue_head_t wait;
-> >  	struct i2c_adapter adap;
-> >  	struct i2c_msg *msg;
-> > @@ -102,12 +107,22 @@ struct ocores_i2c {
-> >  
-> >  static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
-> >  {
-> > -	iowrite8(value, i2c->base + reg * i2c->regstep);
-> > +	if (i2c->regwidth == 4)
-> > +		iowrite32(value, i2c->base + reg * i2c->regstep);
-> > +	else if (i2c->regwidth == 2)
-> > +		iowrite16(value, i2c->base + reg * i2c->regstep);
-> > +	else
-> > +		iowrite8(value, i2c->base + reg * i2c->regstep);
-> >  }
-> >  
-> >  static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
-> >  {
-> > -	return ioread8(i2c->base + reg * i2c->regstep);
-> > +	if (i2c->regwidth == 4)
-> > +		return ioread32(i2c->base + reg * i2c->regstep);
-> > +	else if (i2c->regwidth == 2)
-> > +		return ioread16(i2c->base + reg * i2c->regstep);
-> > +	else
-> > +		return ioread8(i2c->base + reg * i2c->regstep);
-> >  }
-> >  
-> >  static void ocores_process(struct ocores_i2c *i2c)
-> > @@ -267,6 +282,10 @@ static int ocores_i2c_of_probe(struct platform_device* pdev,
-> >  	}
-> >  	i2c->clock_khz = be32_to_cpup(val) / 1000;
-> >  
-> > +	val = of_get_property(pdev->dev.of_node, "regwidth", NULL);
-> > +	if (val)
-> > +		i2c->regwidth = be32_to_cpup(val);
-> > +
-> >  	return 0;
-> >  }
-> >  #else
-> > @@ -309,12 +328,21 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
-> >  	pdata = pdev->dev.platform_data;
-> >  	if (pdata) {
-> >  		i2c->regstep = pdata->regstep;
-> > +		i2c->regwidth = pdata->regwidth;
-> >  		i2c->clock_khz = pdata->clock_khz;
-> >  	} else {
-> >  		ret = ocores_i2c_of_probe(pdev, i2c);
-> >  		if (ret)
-> >  			return ret;
-> >  	}
-> > +	if (i2c->regwidth == 0)
-> > +		i2c->regwidth = 1;	/* not configured, use default */
-> > +	else if (i2c->regwidth != 1 && i2c->regwidth != 2 &&
-> > +			i2c->regwidth != 4) {
-> > +		dev_err(&pdev->dev, "Invalid register width %d\n",
-> > +			i2c->regwidth);
-> > +		return -EINVAL;
-> > +	}
-> >  
-> >  	ocores_init(i2c);
-> >  
-> > diff --git a/include/linux/i2c-ocores.h b/include/linux/i2c-ocores.h
-> > index 4d5e57f..d1258ad 100644
-> > --- a/include/linux/i2c-ocores.h
-> > +++ b/include/linux/i2c-ocores.h
-> > @@ -13,6 +13,7 @@
-> >  
-> >  struct ocores_i2c_platform_data {
-> >  	u32 regstep;   /* distance between registers */
-> > +	u32 regwidth;  /* io read/write register witdth */
-> >  	u32 clock_khz; /* input clock in kHz */
-> >  	u8 num_devices; /* number of devices in the devices list */
-> >  	struct i2c_board_info const *devices; /* devices connected to the bus */
-> > -- 
-> > 1.7.9.5
-> > 
-> > 
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> > the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Thanks for the report, I've applied both patches.
+
+Thank you!
+
+>> P.S.
+>> I've noticed that the "Decoding EEPROM" message is printed with
+>> $dimm[$current]->{eeprom} when $opt_side_by_side is true but it is printed with
+>> $dimm[$current]->{file} in the other case.  Not sure if this is on purpose.
 > 
-> -- 
-> Pengutronix e.K.                           | Wolfram Sang                |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> I think it is on purpose. ->{file} contains the full path so it is
+> rather long, ->{eeprom} only contains the file name so it is much
+> shorter. The full path would make side-by-side output very wide, that
+> wouldn't be convenient, that's why the short name is used in this
+> output mode. In legacy output mode, the long name fits.
+> 
+> We _could_ use the short name in legacy output mode, as the long name
+> doesn't necessarily add a lot of value. I think I tried to leave the
+> legacy output unchanged when implementing the side-by-side output, to
+> avoid any regression in case someone was parsing the output of
+> decode-dimms. If you believe it would be better to always use the short
+> name, we could do that, this may even allow for a small code clean-up.
+
+I don't have any strong opinion about this.  I see pros and contras for both
+choices and I can not make up my mind :)
+
+-- 
+Andriy Gapon
