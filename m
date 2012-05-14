@@ -1,54 +1,73 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv9 06/10] I2C: OMAP: Fix the crash in i2c remove
-Date: Mon, 14 May 2012 16:56:19 +0530
-Message-ID: <4FB0EBDB.3040902@ti.com>
-References: <1335969135-20858-1-git-send-email-shubhrajyoti@ti.com> <1335969135-20858-7-git-send-email-shubhrajyoti@ti.com> <20120512181019.GA28973@pengutronix.de>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 14/15] drivers/regulators: Enable the ab8500 for Device
+ Tree
+Date: Mon, 14 May 2012 16:49:21 +0100
+Message-ID: <4FB12981.8050603@linaro.org>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org> <1336155805-18554-15-git-send-email-lee.jones@linaro.org> <20120507170832.GO17002@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20120512181019.GA28973@pengutronix.de>
-Sender: linux-omap-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Kevin Hilman <khilman@ti.com>, Rajendra Nayak <rnayak@ti.com>
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120507170832.GO17002-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 12 May 2012 11:40 PM, Wolfram Sang wrote:
->> Cc: Kevin Hilman <khilman@ti.com>
->> > Cc: Rajendra Nayak <rnayak@ti.com>
->> > Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-> I'd really like a comment from the PM experts if each and every driver
-> has to ensure that the clocks are enabled on remove like this?
-Just resent cc ing linux-pm
+Hi Mark,
 
-BTW also found that
+Looking at this now.
 
-Some others are also doing the same. eg:
- 
-drivers/mmc/host/omap_hsmmc.c
-static int __devexit omap_hsmmc_remove(struct platform_device *pdev)
-{
-        struct omap_hsmmc_host *host = platform_get_drvdata(pdev);
-        struct resource *res;
-
-        pm_runtime_get_sync(host->dev);
-        mmc_remove_host(host->mmc);
-
-2. drivers/usb/musb/musb_core.c
-
-static void musb_shutdown(struct platform_device *pdev)
-{
-        struct musb     *musb = dev_to_musb(&pdev->dev);
-        unsigned long   flags;
-
-        pm_runtime_get_sync(musb->controller);
-
-Anyways will wait for feedback.
-
-
-
-
+>> +static __devinit int
+>> +ab8500_regulator_of_probe(struct platform_device *pdev, struct devi=
+ce_node *np)
+>> +{
+>> +	struct regulator_init_data *ab8500_regulator;
+>> +	struct device_node *child;
+>> +	int err, value, i, id =3D 0;
+>> +
+>> +	/* Initialise regulator registers to platform specific values. */
+>> +	for (i =3D 0; i<  ARRAY_SIZE(ab8500_reg_init); i++) {
+>> +		err =3D of_property_read_u32(np, ab8500_reg_init[i].of_name,&valu=
+e);
+>> +		if (err<  0)
+>> +			return err;
+>> +
+>> +		err =3D ab8500_regulator_init_registers(pdev, i, value);
+>> +		if (err<  0)
+>> +			return err;
 >
->> > ---
->> >  drivers/i2c/busses/i2c-omap.c |   
+> You should be using of_regulator_match() for this (I think it's suppo=
+sed
+> to do an equivalent job...) rather than open coding.
 
+I've ripped this out completely and the code appears to continue be=20
+fully functional. Happy days! :)
+
+>> +	/* Register each ab8500 regulator found in the Device Tree. */
+>> +	for_each_child_of_node(np, child) {
+>> +		ab8500_regulator =3D of_get_regulator_init_data(&pdev->dev, child=
+);
+>
+> Definitely don't do this - you should unconditionally register all th=
+e
+> regulators that physically exist, this allows users to inspect their
+> state even if they aren't used.
+>
+> It's possible the original driver has this bug (I didn't check but
+
+The original driver places each of the registers inside a structure=20
+within the driver itself and recursively registers them from there. The=
+=20
+constraints are united with the correct element using #defines.
+
+Can't we just assume that all of the regulators will be put into the=20
+Device Tree? As this is what I'll be doing.
+
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+M: +44 77 88 633 515
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
