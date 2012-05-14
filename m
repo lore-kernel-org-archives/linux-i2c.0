@@ -1,48 +1,49 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 06/15] mfd/ab8500: Remove confusing ab8500-i2c file and
- merge into ab8500-core
-Date: Mon, 14 May 2012 11:11:05 +0200
-Message-ID: <CACRpkda3wWJ2tV2EE+avMtKQbge0gsLuQnutDETm-MnERgZx1Q@mail.gmail.com>
-References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
-	<1336155805-18554-7-git-send-email-lee.jones@linaro.org>
-	<CACRpkdanG7KgYuZw29KwZe7wRp-AVZJ9n_hwBEZzf5gDAbGneg@mail.gmail.com>
-	<4FB0C52E.9030109@linaro.org>
+From: "Renz, Bernhard" <bernhard.renz-//tT4aWmXyZBDgjK7y7TUQ@public.gmane.org>
+Subject: Howto compile py-smbus with python 3.2
+Date: Mon, 14 May 2012 11:16:00 +0000
+Message-ID: <DDF9A29ED50FA94F83C55CFA4BB8EF5F08323B@011-DB3MPN1-023.MGDPHG.emi.philips.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FB0C52E.9030109-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mattias WALLIN <mattias.wallin-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 14, 2012 at 10:41 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 09/05/12 13:20, Linus Walleij wrote:
+Hello @All,
 
->> (...)
->> +static int ab8500_i2c_write(struct ab8500 *ab8500, u16 addr, u8 data)
->> +static int ab8500_i2c_read(struct ab8500 *ab8500, u16 addr)
->>
->> As you might have noticed, many people have been confused by
->> the "i2c" naming of these things. Yes, there is physically an I2C
->> carrying these out but in Linux terms that's just confusing, it's mixing
->> hardware and software terminology. Take this opportunity to
->> rename them:
->>
->> static int ab8500_prcmu_write(struct ab8500 *ab8500, u16 addr, u8 data)
->> static int ab8500_prcmu_read(struct ab8500 *ab8500, u16 addr)
->>
->> etc, so they have a meaningful name.
->
->
-> Again, something that I'm happy to do, and again something I'd like to do as
-> a separate patch (I'll create a patch-set with this and your other
-> 'clean-up' requests if that's okay with you?)
+i try to compile i2c-tools-3.1.0 py-smbus, smbusmodule.c with the following command under Ubuntu 12.04:
+python3.2 ./setup.py build
 
-Sure, what I worry about is that it needs to happen, whether it's done
-in 1,2 or 50 patches is just mechanics, as long as the patches are sent.
+But it fail with the following errors:
+running build
+running build_ext
+building 'smbus' extension
+gcc -pthread -DNDEBUG -g -fwrapv -O2 -Wall -Wstrict-prototypes -g -fstack-protector --param=ssp-buffer-size=4 -Wformat -Wformat-security -Werror=format-security -fPIC -I/usr/include/python3.2mu -c smbusmodule.c -o build/temp.linux-x86_64-3.2/smbusmodule.o
 
-And Sam can always squash them if they get too plentiful :-)
 
-Yours,
-Linus Walleij
+smbusmodule.c: In function 'SMBus_dealloc':
+smbusmodule.c:94:6: error: 'SMBus' has no member named 'ob_type'
+smbusmodule.c: In function 'SMBus_list_to_data':
+
+With Python 2.7 it works. So it seems that the smbusmodule.c is written for Python 2.7.
+I googled a bit, and found the following article where the changes in the c extentation between Python 2.X and Python 3 is described (espancially the ob_type problem):
+http://python3porting.com/cextensions.html
+
+Citation:
+Another change in the object header is that the PyObject_HEAD macro has changed so that ob_type is now in a nested structure. This means you no longer can pick the ob_type directly from the struct, so code like ob->ob_type stops working. You should replace this with Py_TYPE(ob). The Py_TYPE macro doesn't appear until Python 2.6, so to support earlier versions we make another #ifndef:
+#ifndef Py_TYPE
+    #define Py_TYPE(ob) (((PyObject*)(ob))->ob_type)
+#endif
+In both cases the definitions above are taken directly from the Python 2.6 headers, where they are defined for forward compatibility purposes with Python 3. They work well in earlier Python versions as well, so this is a trick you can use as a general rule; if you need to use a macro that is defined in Python 3 and Python 2.6, just steal the Python 2.6 or Python 2.7 definition and put it inside an #ifndef.
+
+
+Has anybody smbusmodule.c port to use with python 3?
+
+With kind regards
+Bernhard
+
+
+________________________________
+The information contained in this message may be confidential and legally protected under applicable law. The message is intended solely for the addressee(s). If you are not the intended recipient, you are hereby notified that any use, forwarding, dissemination, or reproduction of this message is strictly prohibited and may be unlawful. If you are not the intended recipient, please contact the sender by return e-mail and destroy all copies of the original message.
