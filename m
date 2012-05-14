@@ -1,50 +1,48 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHv10 09/10] I2C: OMAP: Do not set the XUDF(Transmit underflow) if the underflow is not reached
-Date: Mon, 14 May 2012 14:19:57 +0530
-Message-ID: <1336985398-3291-10-git-send-email-shubhrajyoti@ti.com>
-References: <1336985398-3291-1-git-send-email-shubhrajyoti@ti.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 06/15] mfd/ab8500: Remove confusing ab8500-i2c file and
+ merge into ab8500-core
+Date: Mon, 14 May 2012 11:11:05 +0200
+Message-ID: <CACRpkda3wWJ2tV2EE+avMtKQbge0gsLuQnutDETm-MnERgZx1Q@mail.gmail.com>
+References: <1336155805-18554-1-git-send-email-lee.jones@linaro.org>
+	<1336155805-18554-7-git-send-email-lee.jones@linaro.org>
+	<CACRpkdanG7KgYuZw29KwZe7wRp-AVZJ9n_hwBEZzf5gDAbGneg@mail.gmail.com>
+	<4FB0C52E.9030109@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1336985398-3291-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>, Alexander Shishkin <virtuoso@slind.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4FB0C52E.9030109-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, Mattias WALLIN <mattias.wallin-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Currently in the 1.153 errata handling while waiting for transmitter
-underflow if NACK is got the XUDF(Transmit underflow) flag is also set.
-The flag is set after wait for the condition is over.
+On Mon, May 14, 2012 at 10:41 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On 09/05/12 13:20, Linus Walleij wrote:
 
-Cc: Alexander Shishkin <virtuoso@slind.org>
-Acked-by: Moiz Sonasath <m-sonasath@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
-- XUDF is expanded to transmit underflow
+>> (...)
+>> +static int ab8500_i2c_write(struct ab8500 *ab8500, u16 addr, u8 data)
+>> +static int ab8500_i2c_read(struct ab8500 *ab8500, u16 addr)
+>>
+>> As you might have noticed, many people have been confused by
+>> the "i2c" naming of these things. Yes, there is physically an I2C
+>> carrying these out but in Linux terms that's just confusing, it's mixing
+>> hardware and software terminology. Take this opportunity to
+>> rename them:
+>>
+>> static int ab8500_prcmu_write(struct ab8500 *ab8500, u16 addr, u8 data)
+>> static int ab8500_prcmu_read(struct ab8500 *ab8500, u16 addr)
+>>
+>> etc, so they have a meaningful name.
+>
+>
+> Again, something that I'm happy to do, and again something I'd like to do as
+> a separate patch (I'll create a patch-set with this and your other
+> 'clean-up' requests if that's okay with you?)
 
- drivers/i2c/busses/i2c-omap.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Sure, what I worry about is that it needs to happen, whether it's done
+in 1,2 or 50 patches is just mechanics, as long as the patches are sent.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 43b0efb..c0aa16b 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -730,7 +730,6 @@ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
- 		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
- 			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
- 							OMAP_I2C_STAT_XDR));
--			*err |= OMAP_I2C_STAT_XUDF;
- 			return -ETIMEDOUT;
- 		}
- 
-@@ -743,6 +742,7 @@ static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int *err)
- 		return 0;
- 	}
- 
-+	*err |= OMAP_I2C_STAT_XUDF;
- 	return 0;
- }
- 
--- 
-1.7.5.4
+And Sam can always squash them if they get too plentiful :-)
 
+Yours,
+Linus Walleij
