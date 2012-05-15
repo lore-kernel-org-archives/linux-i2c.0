@@ -1,45 +1,265 @@
-From: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH V4 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Tue, 15 May 2012 12:28:39 +0530
-Message-ID: <4FB1FE9F.7030700@st.com>
-References: <cover.1336124143.git.viresh.kumar@st.com> <3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar@st.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH 6/8] CI13xxx: Add i.MX233/i.MX28 binding code
+Date: Tue, 15 May 2012 10:23:37 +0200
+Message-ID: <1337070219-3630-7-git-send-email-marex@denx.de>
+References: <1337070219-3630-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
+In-Reply-To: <1337070219-3630-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org" <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org" <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "ml.lawnick-Mmb7MZpHnFY@public.gmane.org" <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, spear-devel <spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>, "viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 5/4/2012 3:10 PM, Viresh KUMAR wrote:
-> Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
-> protocol Rev. 03 section 3.16 titled "Bus clear".
-> 
-> http://www.nxp.com/documents/user_manual/UM10204.pdf
-> 
-> Sometimes during operation i2c bus hangs and we need to give dummy clocks to
-> slave device to start the transfer again. Now we may have capability in the bus
-> controller to generate these clocks or platform may have gpio pins which can be
-> toggled to generate dummy clocks. This patch supports both.
-> 
-> This patch also adds in generic bus recovery routines gpio or scl line based
-> which can be used by bus controller. In addition controller driver may provide
-> its own version of the bus recovery routine.
-> 
-> Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-> ---
->  Documentation/i2c/bus-recovery |   87 ++++++++++++++++++++++
->  drivers/i2c/i2c-core.c         |  160 ++++++++++++++++++++++++++++++++++++++++
->  drivers/i2c/i2c-mux.c          |    9 ++-
->  include/linux/i2c.h            |   58 ++++++++++++++
->  4 files changed, 313 insertions(+), 1 deletions(-)
->  create mode 100644 Documentation/i2c/bus-recovery
+This codes connects the CI13xxx driver with the core found inside of
+the Freescale i.MX244/i.MX28 CPU.
 
-Hi Wolfram,
+Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>
+CC: Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+Cc: Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+CC: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>
+CC: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ drivers/usb/chipidea/Makefile      |    4 +
+ drivers/usb/chipidea/ci13xxx_mxs.c |  201 ++++++++++++++++++++++++++++=
+++++++++
+ 2 files changed, 205 insertions(+)
+ create mode 100644 drivers/usb/chipidea/ci13xxx_mxs.c
 
-Any inputs on this patch.
-
---
-viresh
+diff --git a/drivers/usb/chipidea/Makefile b/drivers/usb/chipidea/Makef=
+ile
+index cc34937..266d57d 100644
+--- a/drivers/usb/chipidea/Makefile
++++ b/drivers/usb/chipidea/Makefile
+@@ -12,3 +12,7 @@ endif
+ ifneq ($(CONFIG_ARCH_MSM),)
+ 	obj-$(CONFIG_USB_CHIPIDEA)	+=3D ci13xxx_msm.o
+ endif
++
++ifneq ($(CONFIG_ARCH_MXS),)
++	obj-$(CONFIG_USB_CHIPIDEA)	+=3D ci13xxx_mxs.o
++endif
+diff --git a/drivers/usb/chipidea/ci13xxx_mxs.c b/drivers/usb/chipidea/=
+ci13xxx_mxs.c
+new file mode 100644
+index 0000000..fcca90b
+--- /dev/null
++++ b/drivers/usb/chipidea/ci13xxx_mxs.c
+@@ -0,0 +1,201 @@
++/*
++ * drivers/usb/chipidea/ci13xxx_mxs.c
++ *
++ * Freescale i.MX233/i.MX28 USB glue driver to CI13xxx core.
++ *
++ * Copyright (C) 2012 Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
++ * on behalf of DENX Software Engineering GmbH
++ *
++ * This program is free software; you can redistribute it and/or modif=
+y
++ * it under the terms of the GNU General Public License as published b=
+y
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/pm_runtime.h>
++#include <linux/clk.h>
++#include <linux/dma-mapping.h>
++
++#include <linux/usb.h>
++#include <linux/usb/chipidea.h>
++#include <linux/usb/ch9.h>
++#include <linux/usb/otg.h>
++#include <linux/usb/gadget.h>
++#include <linux/usb/hcd.h>
++#include <linux/usb/ehci_def.h>
++
++#include <linux/usb/mxs-usb.h>
++
++#include "ci.h"
++
++static void ci13xxx_mxs_notify(struct ci13xxx *ci, unsigned event)
++{
++	uint32_t status;
++	struct usb_phy *phy;
++	struct mxs_ci13xxx_phy_notify notify;
++
++	phy =3D usb_get_transceiver();
++	if (!phy)
++		return;
++
++	if (event !=3D CI13XXX_CONTROLLER_HOST_IRQ_EVENT)
++		return;
++
++	status =3D hw_read(ci, OP_USBSTS, ~0);
++
++	notify.discon =3D status & STS_PCD;
++
++	usb_phy_notify(phy, &notify);
++}
++
++static struct ci13xxx_udc_driver ci13xxx_mxs_udc_driver =3D {
++	.name			=3D "ci13xxx_mxs",
++	.flags			=3D /*CI13XXX_REGS_SHARED |*/
++				  CI13XXX_REQUIRE_TRANSCEIVER |
++				  CI13XXX_PULLUP_ON_VBUS |
++				  CI13XXX_DISABLE_STREAMING,
++	.capoffset		=3D 0x100,
++	.notify_event		=3D ci13xxx_mxs_notify,
++};
++
++struct ci13xxx_mxs_data {
++	struct clk		*clk;
++	struct platform_device	*pdev;
++};
++
++static int __devinit ci13xxx_mxs_probe(struct platform_device *pdev)
++{
++	struct ci13xxx_mxs_data *data;
++	int ret;
++	struct usb_phy *phy;
++
++	phy =3D usb_get_transceiver();
++	if (!phy)
++		return -EPROBE_DEFER;
++
++	data =3D devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
++	if (!data) {
++		dev_err(&pdev->dev, "Failed to allocate CI13xxx-MXS data!\n");
++		return -ENOMEM;
++	}
++
++	ret =3D usb_phy_init(phy);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to initialize PHY!\n");
++		return -EINVAL;
++	}
++
++	data->pdev =3D platform_device_alloc("ci_hdrc", -1);
++	if (!data->pdev) {
++		dev_err(&pdev->dev,
++			"Failed to allocate ci_hdrc platform device!\n");
++		ret =3D -ENOMEM;
++		goto put_phy;
++	}
++
++	/* Add DMA mask */
++	data->pdev->dev.dma_mask =3D devm_kzalloc(&pdev->dev,
++					sizeof(*data->pdev->dev.dma_mask),
++					GFP_KERNEL);
++	if (!data->pdev->dev.dma_mask) {
++		ret =3D -ENOMEM;
++		goto put_platform;
++	}
++
++	*data->pdev->dev.dma_mask =3D DMA_BIT_MASK(32);
++	data->pdev->dev.coherent_dma_mask =3D DMA_BIT_MASK(32);
++
++	ret =3D platform_device_add_resources(data->pdev, pdev->resource,
++					    pdev->num_resources);
++	if (ret) {
++		dev_err(&pdev->dev,
++			"Failed to add resources to platform device!\n");
++		goto put_platform;
++	}
++
++	ret =3D platform_device_add_data(data->pdev, &ci13xxx_mxs_udc_driver,
++				       sizeof(ci13xxx_mxs_udc_driver));
++	if (ret) {
++		dev_err(&pdev->dev,
++			"Failed to add platform data to platform device!\n");
++		goto put_platform;
++	}
++
++	/* Claim the Host clock. */
++	data->clk =3D clk_get(&pdev->dev, "usb");
++	if (IS_ERR(data->clk)) {
++		dev_err(&pdev->dev, "Failed to claim clock for USB Host\n");
++		ret =3D PTR_ERR(data->clk);
++		goto put_platform;
++	}
++
++	/* Prepare Host clock. */
++	ret =3D clk_prepare_enable(data->clk);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to enable clock for USB Host.\n");
++		goto put_clk;
++	}
++
++	ret =3D platform_device_add(data->pdev);
++	if (ret)
++		goto put_clk;
++
++	dev_set_drvdata(&pdev->dev, data);
++
++	pm_runtime_no_callbacks(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++
++	return 0;
++
++put_clk:
++	clk_put(data->clk);
++put_platform:
++	platform_device_put(data->pdev);
++put_phy:
++	usb_phy_shutdown(phy);
++	return ret;
++}
++
++static int __devexit ci13xxx_mxs_remove(struct platform_device *pdev)
++{
++	struct ci13xxx_mxs_data *data =3D dev_get_drvdata(&pdev->dev);
++	struct usb_phy *phy =3D usb_get_transceiver();
++
++	clk_disable_unprepare(data->clk);
++	clk_put(data->clk);
++
++	if (phy)
++		usb_phy_shutdown(phy);
++
++	platform_device_del(data->pdev);
++	platform_device_put(data->pdev);
++
++	return 0;
++}
++
++static struct platform_driver ci13xxx_mxs_driver =3D {
++	.probe		=3D ci13xxx_mxs_probe,
++	.remove		=3D __devexit_p(ci13xxx_mxs_remove),
++	.driver		=3D {
++		.name	=3D "mxs-usb",
++		.owner	=3D THIS_MODULE,
++	},
++};
++
++module_platform_driver(ci13xxx_mxs_driver);
++
++MODULE_ALIAS("platform:mxs-usb");
++MODULE_LICENSE("GPL v2");
++MODULE_DESCRIPTION("CI13xxx MXS USB binding");
++MODULE_AUTHOR("Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>");
+--=20
+1.7.10
