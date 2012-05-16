@@ -1,7 +1,7 @@
 From: <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 2/8] i2c: i2c-bfin-twi: Stop receiving operation immediately in last rx interrupt.
-Date: Wed, 16 May 2012 15:20:20 +0800
-Message-ID: <1337152826-9850-2-git-send-email-sonic.zhang@analog.com>
+Subject: [PATCH 7/8] i2c: i2c-bfin-twi: Move TWI peripheral pin request array to platform data.
+Date: Wed, 16 May 2012 15:20:25 +0800
+Message-ID: <1337152826-9850-7-git-send-email-sonic.zhang@analog.com>
 References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,86 +14,54 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Also wake up waiting process when transfer completes.
-
 Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-
-git-svn-id: svn://localhost/svn/linux-kernel/trunk@9105 526b6c2d-f592-4532-a319-5dd88ccb003d
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |   43 ++++++++++++++++++++----------------
- 1 files changed, 24 insertions(+), 19 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index e6dd3c9..376e331 100644
+index d7e8fba..b2ca317 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -130,21 +130,25 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 			}
- 			iface->transPtr++;
- 			iface->readNum--;
--		} else if (iface->manual_stop) {
--			/* Avoid possible bus stall -
--			 * Flush FIFO before issuing the STOP condition
--			 */
--			read_RCV_DATA16(iface);
--			write_MASTER_CTL(iface,
--				read_MASTER_CTL(iface) | STOP);
--		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
--		           iface->cur_msg + 1 < iface->msg_num) {
--			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
--				write_MASTER_CTL(iface,
--					read_MASTER_CTL(iface) | RSTART | MDIR);
--			else
-+		}
-+
-+		if (iface->readNum == 0) {
-+			if (iface->manual_stop) {
-+				/* Avoid possible bus stall -
-+				 * Flush FIFO before issuing the STOP condition
-+				 */
-+				read_RCV_DATA16(iface);
- 				write_MASTER_CTL(iface,
--					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
-+					read_MASTER_CTL(iface) | STOP);
-+			} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
-+					iface->cur_msg + 1 < iface->msg_num) {
-+				if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
-+					write_MASTER_CTL(iface,
-+						read_MASTER_CTL(iface) | RSTART | MDIR);
-+				else
-+					write_MASTER_CTL(iface,
-+						(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
-+			}
- 		}
- 	}
- 	if (twi_int_status & MERR) {
-@@ -245,12 +249,13 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 				}
- 			}
+@@ -78,11 +78,6 @@ DEFINE_TWI_REG(XMT_DATA16, 0x84)
+ DEFINE_TWI_REG(RCV_DATA8, 0x88)
+ DEFINE_TWI_REG(RCV_DATA16, 0x8C)
  
--			if (iface->pmsg[iface->cur_msg].len <= 255)
--					write_MASTER_CTL(iface,
-+			if (iface->pmsg[iface->cur_msg].len <= 255) {
-+				write_MASTER_CTL(iface,
- 					(read_MASTER_CTL(iface) &
- 					(~(0xff << 6))) |
--				(iface->pmsg[iface->cur_msg].len << 6));
--			else {
-+					(iface->pmsg[iface->cur_msg].len << 6));
-+				iface->manual_stop = 0;
-+			} else {
- 				write_MASTER_CTL(iface,
- 					(read_MASTER_CTL(iface) |
- 					(0xff << 6)));
-@@ -264,8 +269,8 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 			write_INT_MASK(iface, 0);
- 			write_MASTER_CTL(iface, 0);
- 		}
-+		complete(&iface->complete);
- 	}
--	complete(&iface->complete);
- }
+-static const u16 pin_req[2][3] = {
+-	{P_TWI0_SCL, P_TWI0_SDA, 0},
+-	{P_TWI1_SCL, P_TWI1_SDA, 0},
+-};
+-
+ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 					unsigned short twi_int_status)
+ {
+@@ -719,7 +714,8 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ 	p_adap->timeout = 5 * HZ;
+ 	p_adap->retries = 3;
  
- /* Interrupt handler */
+-	rc = peripheral_request_list(pin_req[pdev->id], "i2c-bfin-twi");
++	rc = peripheral_request_list((unsigned short *)pdev->dev.platform_data,
++					"i2c-bfin-twi");
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "Can't setup pin mux!\n");
+ 		goto out_error_pin_mux;
+@@ -766,7 +762,7 @@ out_error_add_adapter:
+ 	free_irq(iface->irq, iface);
+ out_error_req_irq:
+ out_error_no_irq:
+-	peripheral_free_list(pin_req[pdev->id]);
++	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+ out_error_pin_mux:
+ 	iounmap(iface->regs_base);
+ out_error_ioremap:
+@@ -784,7 +780,7 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
+ 
+ 	i2c_del_adapter(&(iface->adap));
+ 	free_irq(iface->irq, iface);
+-	peripheral_free_list(pin_req[pdev->id]);
++	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+ 	iounmap(iface->regs_base);
+ 	kfree(iface);
+ 
 -- 
 1.7.0.4
