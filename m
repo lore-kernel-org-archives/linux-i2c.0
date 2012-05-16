@@ -1,218 +1,200 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 Subject: Re: [PATCH 6/8] CI13xxx: Add i.MX233/i.MX28 binding code
-Date: Wed, 16 May 2012 11:36:16 +0300
-Message-ID: <20120516083613.GG17359@arwen.pp.htv.fi>
-References: <1337070219-3630-1-git-send-email-marex@denx.de>
- <1337070219-3630-7-git-send-email-marex@denx.de>
-Reply-To: balbi-l0cyMroinI0@public.gmane.org
+Date: Wed, 16 May 2012 15:41:17 +0200
+Message-ID: <201205161541.17508.marex@denx.de>
+References: <1337070219-3630-1-git-send-email-marex@denx.de> <1337070219-3630-7-git-send-email-marex@denx.de> <20120516083613.GG17359@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FwyhczKCDPOVeYh6"
+Content-Type: Text/Plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1337070219-3630-7-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <20120516083613.GG17359-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: balbi-l0cyMroinI0@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Dear Felipe Balbi,
 
---FwyhczKCDPOVeYh6
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, May 15, 2012 at 10:23:37AM +0200, Marek Vasut wrote:
-> This codes connects the CI13xxx driver with the core found inside of
-> the Freescale i.MX244/i.MX28 CPU.
+> On Tue, May 15, 2012 at 10:23:37AM +0200, Marek Vasut wrote:
+> > This codes connects the CI13xxx driver with the core found inside o=
+f
+> > the Freescale i.MX244/i.MX28 CPU.
+> >=20
+> > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+> > Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>
+> > CC: Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> > Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+> > Cc: Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > CC: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > Cc: Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>
+> > CC: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+> > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > ---
+> >=20
+> >  drivers/usb/chipidea/Makefile      |    4 +
+> >  drivers/usb/chipidea/ci13xxx_mxs.c |  201
+> >  ++++++++++++++++++++++++++++++++++++ 2 files changed, 205 insertio=
+ns(+)
+> >  create mode 100644 drivers/usb/chipidea/ci13xxx_mxs.c
+> >=20
+> > diff --git a/drivers/usb/chipidea/Makefile
+> > b/drivers/usb/chipidea/Makefile index cc34937..266d57d 100644
+> > --- a/drivers/usb/chipidea/Makefile
+> > +++ b/drivers/usb/chipidea/Makefile
+> > @@ -12,3 +12,7 @@ endif
+> >=20
+> >  ifneq ($(CONFIG_ARCH_MSM),)
+> > =20
+> >  	obj-$(CONFIG_USB_CHIPIDEA)	+=3D ci13xxx_msm.o
+> > =20
+> >  endif
+> >=20
+> > +
+> > +ifneq ($(CONFIG_ARCH_MXS),)
+> > +	obj-$(CONFIG_USB_CHIPIDEA)	+=3D ci13xxx_mxs.o
+> > +endif
 >=20
-> Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-> Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-> Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>
-> CC: Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-> Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
-> Cc: Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> CC: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>
-> CC: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/usb/chipidea/Makefile      |    4 +
->  drivers/usb/chipidea/ci13xxx_mxs.c |  201 ++++++++++++++++++++++++++++++=
-++++++
->  2 files changed, 205 insertions(+)
->  create mode 100644 drivers/usb/chipidea/ci13xxx_mxs.c
+> NAK... let it compile everywhere.
+
+I just followed the pattern here, honestly I think this is quite OK so =
+far.=20
+=46urther improvements can be made indeed.
+
+> > diff --git a/drivers/usb/chipidea/ci13xxx_mxs.c
+> > b/drivers/usb/chipidea/ci13xxx_mxs.c new file mode 100644
+> > index 0000000..fcca90b
+> > --- /dev/null
+> > +++ b/drivers/usb/chipidea/ci13xxx_mxs.c
+> > @@ -0,0 +1,201 @@
+> > +/*
+> > + * drivers/usb/chipidea/ci13xxx_mxs.c
+> > + *
+> > + * Freescale i.MX233/i.MX28 USB glue driver to CI13xxx core.
+> > + *
+> > + * Copyright (C) 2012 Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > + * on behalf of DENX Software Engineering GmbH
+> > + *
+> > + * This program is free software; you can redistribute it and/or m=
+odify
+> > + * it under the terms of the GNU General Public License as publish=
+ed by
+> > + * the Free Software Foundation; either version 2 of the License, =
+or
+> > + * (at your option) any later version.
+> > + *
+> > + * This program is distributed in the hope that it will be useful,
+> > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> > + * GNU General Public License for more details.
+> > + *
+> > + * You should have received a copy of the GNU General Public Licen=
+se
+> > + * along with this program; if not, write to the Free Software
+> > + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+> > + */
+> > +
+> > +#include <linux/module.h>
+> > +#include <linux/platform_device.h>
+> > +#include <linux/pm_runtime.h>
+> > +#include <linux/clk.h>
+> > +#include <linux/dma-mapping.h>
+> > +
+> > +#include <linux/usb.h>
+> > +#include <linux/usb/chipidea.h>
+> > +#include <linux/usb/ch9.h>
+> > +#include <linux/usb/otg.h>
+> > +#include <linux/usb/gadget.h>
+> > +#include <linux/usb/hcd.h>
+> > +#include <linux/usb/ehci_def.h>
+> > +
+> > +#include <linux/usb/mxs-usb.h>
+> > +
+> > +#include "ci.h"
+> > +
+> > +static void ci13xxx_mxs_notify(struct ci13xxx *ci, unsigned event)
+> > +{
+> > +	uint32_t status;
+> > +	struct usb_phy *phy;
+> > +	struct mxs_ci13xxx_phy_notify notify;
+> > +
+> > +	phy =3D usb_get_transceiver();
+> > +	if (!phy)
+> > +		return;
+> > +
+> > +	if (event !=3D CI13XXX_CONTROLLER_HOST_IRQ_EVENT)
+> > +		return;
+> > +
+> > +	status =3D hw_read(ci, OP_USBSTS, ~0);
+> > +
+> > +	notify.discon =3D status & STS_PCD;
+> > +
+> > +	usb_phy_notify(phy, &notify);
+> > +}
+> > +
+> > +static struct ci13xxx_udc_driver ci13xxx_mxs_udc_driver =3D {
+> > +	.name			=3D "ci13xxx_mxs",
+> > +	.flags			=3D /*CI13XXX_REGS_SHARED |*/
+> > +				  CI13XXX_REQUIRE_TRANSCEIVER |
+> > +				  CI13XXX_PULLUP_ON_VBUS |
+> > +				  CI13XXX_DISABLE_STREAMING,
+> > +	.capoffset		=3D 0x100,
+> > +	.notify_event		=3D ci13xxx_mxs_notify,
+> > +};
+> > +
+> > +struct ci13xxx_mxs_data {
+> > +	struct clk		*clk;
+> > +	struct platform_device	*pdev;
+> > +};
+> > +
+> > +static int __devinit ci13xxx_mxs_probe(struct platform_device *pde=
+v)
+> > +{
+> > +	struct ci13xxx_mxs_data *data;
+> > +	int ret;
+> > +	struct usb_phy *phy;
+> > +
+> > +	phy =3D usb_get_transceiver();
+> > +	if (!phy)
+> > +		return -EPROBE_DEFER;
+> > +
+> > +	data =3D devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
+> > +	if (!data) {
+> > +		dev_err(&pdev->dev, "Failed to allocate CI13xxx-MXS data!\n");
+> > +		return -ENOMEM;
+> > +	}
+> > +
+> > +	ret =3D usb_phy_init(phy);
+> > +	if (ret) {
+> > +		dev_err(&pdev->dev, "Failed to initialize PHY!\n");
+> > +		return -EINVAL;
+> > +	}
+> > +
+> > +	data->pdev =3D platform_device_alloc("ci_hdrc", -1);
+> > +	if (!data->pdev) {
+> > +		dev_err(&pdev->dev,
+> > +			"Failed to allocate ci_hdrc platform device!\n");
+> > +		ret =3D -ENOMEM;
+> > +		goto put_phy;
+> > +	}
+> > +
+> > +	/* Add DMA mask */
+> > +	data->pdev->dev.dma_mask =3D devm_kzalloc(&pdev->dev,
+> > +					sizeof(*data->pdev->dev.dma_mask),
+> > +					GFP_KERNEL);
+> > +	if (!data->pdev->dev.dma_mask) {
+> > +		ret =3D -ENOMEM;
+> > +		goto put_platform;
+> > +	}
+> > +
+> > +	*data->pdev->dev.dma_mask =3D DMA_BIT_MASK(32);
+> > +	data->pdev->dev.coherent_dma_mask =3D DMA_BIT_MASK(32);
 >=20
-> diff --git a/drivers/usb/chipidea/Makefile b/drivers/usb/chipidea/Makefile
-> index cc34937..266d57d 100644
-> --- a/drivers/usb/chipidea/Makefile
-> +++ b/drivers/usb/chipidea/Makefile
-> @@ -12,3 +12,7 @@ endif
->  ifneq ($(CONFIG_ARCH_MSM),)
->  	obj-$(CONFIG_USB_CHIPIDEA)	+=3D ci13xxx_msm.o
->  endif
-> +
-> +ifneq ($(CONFIG_ARCH_MXS),)
-> +	obj-$(CONFIG_USB_CHIPIDEA)	+=3D ci13xxx_mxs.o
-> +endif
+> why don't you just point to the parent's ?
 
-NAK... let it compile everywhere.
-
-> diff --git a/drivers/usb/chipidea/ci13xxx_mxs.c b/drivers/usb/chipidea/ci=
-13xxx_mxs.c
-> new file mode 100644
-> index 0000000..fcca90b
-> --- /dev/null
-> +++ b/drivers/usb/chipidea/ci13xxx_mxs.c
-> @@ -0,0 +1,201 @@
-> +/*
-> + * drivers/usb/chipidea/ci13xxx_mxs.c
-> + *
-> + * Freescale i.MX233/i.MX28 USB glue driver to CI13xxx core.
-> + *
-> + * Copyright (C) 2012 Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-> + * on behalf of DENX Software Engineering GmbH
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-> + */
-> +
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/pm_runtime.h>
-> +#include <linux/clk.h>
-> +#include <linux/dma-mapping.h>
-> +
-> +#include <linux/usb.h>
-> +#include <linux/usb/chipidea.h>
-> +#include <linux/usb/ch9.h>
-> +#include <linux/usb/otg.h>
-> +#include <linux/usb/gadget.h>
-> +#include <linux/usb/hcd.h>
-> +#include <linux/usb/ehci_def.h>
-> +
-> +#include <linux/usb/mxs-usb.h>
-> +
-> +#include "ci.h"
-> +
-> +static void ci13xxx_mxs_notify(struct ci13xxx *ci, unsigned event)
-> +{
-> +	uint32_t status;
-> +	struct usb_phy *phy;
-> +	struct mxs_ci13xxx_phy_notify notify;
-> +
-> +	phy =3D usb_get_transceiver();
-> +	if (!phy)
-> +		return;
-> +
-> +	if (event !=3D CI13XXX_CONTROLLER_HOST_IRQ_EVENT)
-> +		return;
-> +
-> +	status =3D hw_read(ci, OP_USBSTS, ~0);
-> +
-> +	notify.discon =3D status & STS_PCD;
-> +
-> +	usb_phy_notify(phy, &notify);
-> +}
-> +
-> +static struct ci13xxx_udc_driver ci13xxx_mxs_udc_driver =3D {
-> +	.name			=3D "ci13xxx_mxs",
-> +	.flags			=3D /*CI13XXX_REGS_SHARED |*/
-> +				  CI13XXX_REQUIRE_TRANSCEIVER |
-> +				  CI13XXX_PULLUP_ON_VBUS |
-> +				  CI13XXX_DISABLE_STREAMING,
-> +	.capoffset		=3D 0x100,
-> +	.notify_event		=3D ci13xxx_mxs_notify,
-> +};
-> +
-> +struct ci13xxx_mxs_data {
-> +	struct clk		*clk;
-> +	struct platform_device	*pdev;
-> +};
-> +
-> +static int __devinit ci13xxx_mxs_probe(struct platform_device *pdev)
-> +{
-> +	struct ci13xxx_mxs_data *data;
-> +	int ret;
-> +	struct usb_phy *phy;
-> +
-> +	phy =3D usb_get_transceiver();
-> +	if (!phy)
-> +		return -EPROBE_DEFER;
-> +
-> +	data =3D devm_kzalloc(&pdev->dev, sizeof(*data), GFP_KERNEL);
-> +	if (!data) {
-> +		dev_err(&pdev->dev, "Failed to allocate CI13xxx-MXS data!\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	ret =3D usb_phy_init(phy);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Failed to initialize PHY!\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	data->pdev =3D platform_device_alloc("ci_hdrc", -1);
-> +	if (!data->pdev) {
-> +		dev_err(&pdev->dev,
-> +			"Failed to allocate ci_hdrc platform device!\n");
-> +		ret =3D -ENOMEM;
-> +		goto put_phy;
-> +	}
-> +
-> +	/* Add DMA mask */
-> +	data->pdev->dev.dma_mask =3D devm_kzalloc(&pdev->dev,
-> +					sizeof(*data->pdev->dev.dma_mask),
-> +					GFP_KERNEL);
-> +	if (!data->pdev->dev.dma_mask) {
-> +		ret =3D -ENOMEM;
-> +		goto put_platform;
-> +	}
-> +
-> +	*data->pdev->dev.dma_mask =3D DMA_BIT_MASK(32);
-> +	data->pdev->dev.coherent_dma_mask =3D DMA_BIT_MASK(32);
-
-why don't you just point to the parent's ?
-
---=20
-balbi
-
---FwyhczKCDPOVeYh6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJPs2b9AAoJEIaOsuA1yqRERo0P/2QIrDXa6MNaRfGOIOtmGS72
-en/9IDSIQ7B30smaog+ApIwK+f1JyY+B8LydXyCcGuBc175B6/TdTKRZIfLKky3f
-JIuLzFiwAArPenB55nz70LB3zZyNsqty7Zc1CwyqxkbSkGojDxbJbSicAmC6p3Ua
-6AmcH4xo76A3+6XWmQQ8CLG+5elktH47PAHj2LRew/IlKY+nBU1CBIbxgrYEvo34
-D13en2yNJQXztNL6ySKQrdLjhlb7zoh6cP/PpKH20UiJ3LvTx75SNDOHcphT+wBo
-wpI2hoVuhURvvYB6vC6ZeqrRyIBiS+XbsF8fsJVAvzOAqUVNNIbnLhsPEza6sCBk
-yHYKBmBTzfvSxwsf/gQx+365LeNZ+IHlZVy5yOJvZFMEFghUPiE2KS6IDHyfgyJR
-g9XM+Lx5NOfzdRy5U+8+tZAy0l17NQ/Hr/qRCiRXTTMJsMZ3VbhCBTSuF9XM5GNS
-mXKSODteZ03uEoqyqMdFQBHmvUNRubnYrXcmK8xAThFf5qwdeAKGGl+2XIfHKR69
-0PK3nl8G3IZqsqyhHfYGj2Me7qxpxV/XHgmVNSU9hVzpieg0GRD5aguku19Utv/w
-KQ3rYXCWqVUFrzyU0RX9E7zz1zNx5ugpmgvib3ckJNgB0zIhh1qJtE542LMr6Rhb
-q9kins0QzBBzBRXZwd0t
-=zIHH
------END PGP SIGNATURE-----
-
---FwyhczKCDPOVeYh6--
+Good idea, thanks :)
