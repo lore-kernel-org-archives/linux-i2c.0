@@ -1,7 +1,7 @@
 From: <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 3/8] i2c: i2c-bfin-twi: Break dead waiting loop if i2c device misbehaves.
-Date: Wed, 16 May 2012 15:20:21 +0800
-Message-ID: <1337152826-9850-3-git-send-email-sonic.zhang@analog.com>
+Subject: [PATCH 2/8] i2c: i2c-bfin-twi: Stop receiving operation immediately in last rx interrupt.
+Date: Wed, 16 May 2012 15:20:20 +0800
+Message-ID: <1337152826-9850-2-git-send-email-sonic.zhang@analog.com>
 References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,65 +14,86 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Some fault i2c device may hold the sda/scl line and cause i2c driver
-wait in the BUS busy loop. This patch breaks this potential dead
-loop.
+Also wake up waiting process when transfer completes.
 
 Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-git-svn-id: svn://localhost/svn/linux-kernel/trunk@9291 526b6c2d-f592-4532-a319-5dd88ccb003d
+git-svn-id: svn://localhost/svn/linux-kernel/trunk@9105 526b6c2d-f592-4532-a319-5dd88ccb003d
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |   43 ++++++++++++++++++++----------------
+ 1 files changed, 24 insertions(+), 19 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 376e331..4abaf59 100644
+index e6dd3c9..376e331 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -294,6 +294,8 @@ static irqreturn_t bfin_twi_interrupt_entry(int irq, void *dev_id)
- 	return IRQ_HANDLED;
+@@ -130,21 +130,25 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 			}
+ 			iface->transPtr++;
+ 			iface->readNum--;
+-		} else if (iface->manual_stop) {
+-			/* Avoid possible bus stall -
+-			 * Flush FIFO before issuing the STOP condition
+-			 */
+-			read_RCV_DATA16(iface);
+-			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) | STOP);
+-		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
+-		           iface->cur_msg + 1 < iface->msg_num) {
+-			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
+-				write_MASTER_CTL(iface,
+-					read_MASTER_CTL(iface) | RSTART | MDIR);
+-			else
++		}
++
++		if (iface->readNum == 0) {
++			if (iface->manual_stop) {
++				/* Avoid possible bus stall -
++				 * Flush FIFO before issuing the STOP condition
++				 */
++				read_RCV_DATA16(iface);
+ 				write_MASTER_CTL(iface,
+-					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
++					read_MASTER_CTL(iface) | STOP);
++			} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
++					iface->cur_msg + 1 < iface->msg_num) {
++				if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
++					write_MASTER_CTL(iface,
++						read_MASTER_CTL(iface) | RSTART | MDIR);
++				else
++					write_MASTER_CTL(iface,
++						(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
++			}
+ 		}
+ 	}
+ 	if (twi_int_status & MERR) {
+@@ -245,12 +249,13 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 				}
+ 			}
+ 
+-			if (iface->pmsg[iface->cur_msg].len <= 255)
+-					write_MASTER_CTL(iface,
++			if (iface->pmsg[iface->cur_msg].len <= 255) {
++				write_MASTER_CTL(iface,
+ 					(read_MASTER_CTL(iface) &
+ 					(~(0xff << 6))) |
+-				(iface->pmsg[iface->cur_msg].len << 6));
+-			else {
++					(iface->pmsg[iface->cur_msg].len << 6));
++				iface->manual_stop = 0;
++			} else {
+ 				write_MASTER_CTL(iface,
+ 					(read_MASTER_CTL(iface) |
+ 					(0xff << 6)));
+@@ -264,8 +269,8 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 			write_INT_MASK(iface, 0);
+ 			write_MASTER_CTL(iface, 0);
+ 		}
++		complete(&iface->complete);
+ 	}
+-	complete(&iface->complete);
  }
  
-+#define BFIN_TWI_BUSY_TIMEOUT	1000
-+
- /*
-  * One i2c master transfer
-  */
-@@ -303,12 +305,16 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
- 	struct bfin_twi_iface *iface = adap->algo_data;
- 	struct i2c_msg *pmsg;
- 	int rc = 0;
-+	unsigned int busy_timeout = BFIN_TWI_BUSY_TIMEOUT;
- 
- 	if (!(read_CONTROL(iface) & TWI_ENA))
- 		return -ENXIO;
- 
--	while (read_MASTER_STAT(iface) & BUSBUSY)
-+	while (read_MASTER_STAT(iface) & BUSBUSY) {
-+		if (--busy_timeout == 0)
-+			return -EBUSY;
- 		yield();
-+	}
- 
- 	iface->pmsg = msgs;
- 	iface->msg_num = num;
-@@ -403,12 +409,16 @@ int bfin_twi_do_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- {
- 	struct bfin_twi_iface *iface = adap->algo_data;
- 	int rc = 0;
-+	unsigned int busy_timeout = BFIN_TWI_BUSY_TIMEOUT;
- 
- 	if (!(read_CONTROL(iface) & TWI_ENA))
- 		return -ENXIO;
- 
--	while (read_MASTER_STAT(iface) & BUSBUSY)
-+	while (read_MASTER_STAT(iface) & BUSBUSY) {
-+		if (--busy_timeout == 0)
-+			return -EBUSY;
- 		yield();
-+	}
- 
- 	iface->writeNum = 0;
- 	iface->readNum = 0;
+ /* Interrupt handler */
 -- 
 1.7.0.4
