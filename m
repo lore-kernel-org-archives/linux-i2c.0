@@ -1,8 +1,9 @@
 From: <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 6/8] i2c:i2c-bfin-twi: include twi head
-	file
-Date: Wed, 16 May 2012 15:20:24 +0800
-Message-ID: <1337152826-9850-6-git-send-email-sonic.zhang@analog.com>
+Subject: [PATCH 4/8] i2c: i2c-bfin-twi: Tighten
+	condition when failing I2C transfer if MEN bit is reset
+	unexpectedly.
+Date: Wed, 16 May 2012 15:20:22 +0800
+Message-ID: <1337152826-9850-4-git-send-email-sonic.zhang@analog.com>
 References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,25 +25,27 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-TWI bit mask macros are moved to twi head file.
+Correct I2C transfer may fail because interrupt status bits XMTSERV and
+RCVSERV are not checked when MCOMP interrupt is handled.
 
 Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Bob Liu <lliubbo-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 594bbb1..d7e8fba 100644
+index 4abaf59..63fb84f 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -25,6 +25,7 @@
- #include <asm/blackfin.h>
- #include <asm/portmux.h>
- #include <asm/irq.h>
-+#include <asm/bfin_twi.h>
- 
- /* SMBus mode*/
- #define TWI_I2C_MODE_STANDARD		1
+@@ -201,7 +201,8 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 		return;
+ 	}
+ 	if (twi_int_status & MCOMP) {
+-		if ((read_MASTER_CTL(iface) & MEN) == 0 &&
++		if (twi_int_status & (XMTSERV|RCVSERV) &&
++			(read_MASTER_CTL(iface) & MEN) == 0 &&
+ 			(iface->cur_mode == TWI_I2C_MODE_REPEAT ||
+ 			iface->cur_mode == TWI_I2C_MODE_COMBINED)) {
+ 			iface->result = -1;
 -- 
 1.7.0.4
