@@ -1,51 +1,48 @@
-From: <sonic.zhang@analog.com>
-Subject: [PATCH 1/8] i2c: i2c-bfin-twi: Illegal i2c bus lock upon certain transfer scenarios.
-Date: Wed, 16 May 2012 15:20:19 +0800
-Message-ID: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
+From: <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 6/8] i2c:i2c-bfin-twi: include twi head
+	file
+Date: Wed, 16 May 2012 15:20:24 +0800
+Message-ID: <1337152826-9850-6-git-send-email-sonic.zhang@analog.com>
+References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, uclinux-dist-devel@blackfin.uclinux.org, Michael Hennerich <michael.hennerich@analog.com>, Sonic Zhang <sonic.zhang@analog.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <1337152826-9850-1-git-send-email-sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
+List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
+List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
+	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
+Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Michael Hennerich <michael.hennerich@analog.com>
+From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-For transfer counts > 255 bytes i2c-bfin-twi sets the data
-transfer counter DCNT to 0xFF indicating unlimited transfers.
-It then uses a flag iface->manual_stop to manually issue the STOP
-condition, once the required amount of bytes are received.
+TWI bit mask macros are moved to twi head file.
 
-We found that on I2C receive operation issuing the STOP condition
-together with a FULL RCV FIFO (2bytes) will cause SDA and SCL be
-constantly driven low.
-
-Temporary workaround until further investigation:
-Discard the RCV FIFO before issuing the STOP condition.
-
-Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Sonic Zhang <sonic.zhang@analog.com>
-
-git-svn-id: svn://localhost/svn/linux-kernel/trunk@9011 526b6c2d-f592-4532-a319-5dd88ccb003d
+Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Bob Liu <lliubbo-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |    4 ++++
- 1 files changed, 4 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index cdb59e5..e6dd3c9 100644
+index 594bbb1..d7e8fba 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -131,6 +131,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 			iface->transPtr++;
- 			iface->readNum--;
- 		} else if (iface->manual_stop) {
-+			/* Avoid possible bus stall -
-+			 * Flush FIFO before issuing the STOP condition
-+			 */
-+			read_RCV_DATA16(iface);
- 			write_MASTER_CTL(iface,
- 				read_MASTER_CTL(iface) | STOP);
- 		} else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
+@@ -25,6 +25,7 @@
+ #include <asm/blackfin.h>
+ #include <asm/portmux.h>
+ #include <asm/irq.h>
++#include <asm/bfin_twi.h>
+ 
+ /* SMBus mode*/
+ #define TWI_I2C_MODE_STANDARD		1
 -- 
 1.7.0.4
