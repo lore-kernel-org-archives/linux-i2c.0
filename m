@@ -1,7 +1,7 @@
 From: <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 7/8] i2c: i2c-bfin-twi: Move TWI peripheral pin request array to platform data.
-Date: Wed, 16 May 2012 15:20:25 +0800
-Message-ID: <1337152826-9850-7-git-send-email-sonic.zhang@analog.com>
+Subject: [PATCH 5/8] i2c:i2c-bfin-twi: TWI fails to restart next transfer in high system load.
+Date: Wed, 16 May 2012 15:20:23 +0800
+Message-ID: <1337152826-9850-5-git-send-email-sonic.zhang@analog.com>
 References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,54 +14,103 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
+Current driver was developed based on BF537 0.2 HRM. In high system load, BUFRDERR error
+interrupt may be raised if XMTSERV interrupt of last TX byte is not served in time
+(set RSTART bit), which breaks restart tranfer as expected.
+
+"Buffer Read Error (BUFRDERR)" description in Blackfin HRM only applys to BF537
+rev. < 0.3. In later rev. and later announced Blackfin chips, such as BF527 and
+BF548, a new TWI master feature "Clock Stretching" is added into the TWI controller,
+BUFRDERR interrupt is not triggered after TX FIFO is empty.
+
+This patch sets RSTART bit at the beginning of the first transfer. The SCL and SDA
+is hold till XMTSERV interrupt of last TX byte is served. Restart transfer is not broken
+in high system load.
+
 Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |   23 +++++++++++++----------
+ 1 files changed, 13 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index d7e8fba..b2ca317 100644
+index 63fb84f..594bbb1 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -78,11 +78,6 @@ DEFINE_TWI_REG(XMT_DATA16, 0x84)
- DEFINE_TWI_REG(RCV_DATA8, 0x88)
- DEFINE_TWI_REG(RCV_DATA16, 0x8C)
+@@ -99,7 +99,7 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 		 */
+ 		else if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
+ 			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) | MDIR | RSTART);
++				read_MASTER_CTL(iface) | MDIR);
+ 		else if (iface->manual_stop)
+ 			write_MASTER_CTL(iface,
+ 				read_MASTER_CTL(iface) | STOP);
+@@ -107,10 +107,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 		         iface->cur_msg + 1 < iface->msg_num) {
+ 			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
+ 				write_MASTER_CTL(iface,
+-					read_MASTER_CTL(iface) | RSTART | MDIR);
++					read_MASTER_CTL(iface) | MDIR);
+ 			else
+ 				write_MASTER_CTL(iface,
+-					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
++					read_MASTER_CTL(iface) & ~MDIR);
+ 		}
+ 	}
+ 	if (twi_int_status & RCVSERV) {
+@@ -144,10 +144,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 					iface->cur_msg + 1 < iface->msg_num) {
+ 				if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
+ 					write_MASTER_CTL(iface,
+-						read_MASTER_CTL(iface) | RSTART | MDIR);
++						read_MASTER_CTL(iface) | MDIR);
+ 				else
+ 					write_MASTER_CTL(iface,
+-						(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
++						read_MASTER_CTL(iface) & ~MDIR);
+ 			}
+ 		}
+ 	}
+@@ -262,9 +262,10 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 					(0xff << 6)));
+ 				iface->manual_stop = 1;
+ 			}
+-			/* remove restart bit and enable master receive */
+-			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) & ~RSTART);
++			/* remove restart bit before last message */
++			if (iface->cur_msg+1 == iface->msg_num)
++				write_MASTER_CTL(iface,
++					read_MASTER_CTL(iface) & ~RSTART);
+ 		} else {
+ 			iface->result = 1;
+ 			write_INT_MASK(iface, 0);
+@@ -327,7 +328,8 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
+ 		return -EINVAL;
+ 	}
  
--static const u16 pin_req[2][3] = {
--	{P_TWI0_SCL, P_TWI0_SDA, 0},
--	{P_TWI1_SCL, P_TWI1_SDA, 0},
--};
--
- static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 					unsigned short twi_int_status)
- {
-@@ -719,7 +714,8 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	p_adap->timeout = 5 * HZ;
- 	p_adap->retries = 3;
+-	iface->cur_mode = TWI_I2C_MODE_REPEAT;
++	if (iface->msg_num > 1)
++		iface->cur_mode = TWI_I2C_MODE_REPEAT;
+ 	iface->manual_stop = 0;
+ 	iface->transPtr = pmsg->buf;
+ 	iface->writeNum = iface->readNum = pmsg->len;
+@@ -372,6 +374,7 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter *adap,
  
--	rc = peripheral_request_list(pin_req[pdev->id], "i2c-bfin-twi");
-+	rc = peripheral_request_list((unsigned short *)pdev->dev.platform_data,
-+					"i2c-bfin-twi");
- 	if (rc) {
- 		dev_err(&pdev->dev, "Can't setup pin mux!\n");
- 		goto out_error_pin_mux;
-@@ -766,7 +762,7 @@ out_error_add_adapter:
- 	free_irq(iface->irq, iface);
- out_error_req_irq:
- out_error_no_irq:
--	peripheral_free_list(pin_req[pdev->id]);
-+	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
- out_error_pin_mux:
- 	iounmap(iface->regs_base);
- out_error_ioremap:
-@@ -784,7 +780,7 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
- 
- 	i2c_del_adapter(&(iface->adap));
- 	free_irq(iface->irq, iface);
--	peripheral_free_list(pin_req[pdev->id]);
-+	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
- 	iounmap(iface->regs_base);
- 	kfree(iface);
- 
+ 	/* Master enable */
+ 	write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
++		(iface->msg_num > 1 ? RSTART : 0) |
+ 		((iface->read_write == I2C_SMBUS_READ) ? MDIR : 0) |
+ 		((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ > 100) ? FAST : 0));
+ 	SSYNC();
+@@ -540,7 +543,7 @@ int bfin_twi_do_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+ 		else
+ 			write_MASTER_CTL(iface, 0x1 << 6);
+ 		/* Master enable */
+-		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
++		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN | RSTART |
+ 			((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ>100) ? FAST : 0));
+ 		break;
+ 	default:
 -- 
 1.7.0.4
