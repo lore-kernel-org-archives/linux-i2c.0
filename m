@@ -1,38 +1,23 @@
 From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/8] i2c: i2c-bfin-twi: Break dead waiting loop if i2c
- device misbehaves.
-Date: Thu, 17 May 2012 16:21:24 +0530
-Message-ID: <CAM=Q2cujxAGes0c4Ls6L_fUENvJE=Vf10YXOvng3zku84eC6ng@mail.gmail.com>
+Subject: Re: [PATCH 4/8] i2c: i2c-bfin-twi: Tighten condition when failing I2C
+ transfer if MEN bit is reset unexpectedly.
+Date: Thu, 17 May 2012 17:00:40 +0530
+Message-ID: <CAM=Q2cta_a2XcOLoOnnUUjZOpj1phUH99xfgZnh4nhxG8QX3-Q@mail.gmail.com>
 References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
-	<1337152826-9850-3-git-send-email-sonic.zhang@analog.com>
-	<CAM=Q2csTziLb0niCTj6oW9G=BPa2VWN58rW2jF-A1VJKXwNfCQ@mail.gmail.com>
-	<CAMjpGUf-AQHigrpBhxmOGJZgjfqfCWvRa29wURpGkVuj58suPg@mail.gmail.com>
+	<1337152826-9850-4-git-send-email-sonic.zhang@analog.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAMjpGUf-AQHigrpBhxmOGJZgjfqfCWvRa29wURpGkVuj58suPg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1337152826-9850-4-git-send-email-sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+To: sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 17, 2012 at 10:53 AM, Mike Frysinger <vapier.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>=
- wrote:
-> On Thu, May 17, 2012 at 1:20 AM, Shubhrajyoti Datta
-> <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> On Wed, May 16, 2012 at 12:50 PM, =A0<sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org> wrote:
->>> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>>
->>> Some fault i2c device may hold the sda/scl line and cause i2c drive=
-r
->>> wait in the BUS busy loop. This patch breaks this potential dead
->>> loop.
->>
->> How about using a non-busy loop while you are at it.
+On Wed, May 16, 2012 at 12:50 PM,  <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org> wrote:
+> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 >
-> the timings here are fairly small ...
-OK no issues.
-Anyways was just a suggestion.:-)
-
-> -mike
+> Correct I2C transfer may fail because interrupt status bits XMTSERV and
+> RCVSERV are not checked when MCOMP interrupt is handled.
+>
+Could you expand MCOMP?
