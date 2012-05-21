@@ -1,94 +1,73 @@
-From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
-Subject: Re: [RFC v2 5/5] drm: Add NVIDIA Tegra support
-Date: Mon, 21 May 2012 15:58:38 +0200
-Message-ID: <20120521135838.GA15046@avionic-0098.mockup.avionic-design.de>
-References: <1335347102-14905-1-git-send-email-thierry.reding@avionic-design.de>
- <1335347102-14905-6-git-send-email-thierry.reding@avionic-design.de>
- <4FA78CBD.5010606@nvidia.com>
- <4FA7F80F.5090002@wwwdotorg.org>
- <20120521110514.GC27686@avionic-0098.mockup.avionic-design.de>
- <4FBA28FD.2060504@nvidia.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH V2 00/11] enable imx6q_sabrelite sgtl5000 audio support
+Date: Mon, 21 May 2012 15:45:44 +0100
+Message-ID: <20120521144543.GA4063@opensource.wolfsonmicro.com>
+References: <1336563190-19974-1-git-send-email-richard.zhao@freescale.com>
+ <20120521125930.GC6206@b20223-02.ap.freescale.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="zhXaljGHf11kAtnf"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="NzB8fVQJ5HfG6fxh"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4FBA28FD.2060504-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Terje =?utf-8?Q?Bergstr=C3=B6m?= <tbergstrom-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Jon Mayo <jmayo-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Lucas Stach <dev-8ppwABl0HbeELgA04lAiVw@public.gmane.org>, "dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org" <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, Joerg Roedel <joerg.roedel-5C7GfCeVMHo@public.gmane.org>, Hiroshi Doyu <hdoyu-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Liam Girdwood <lrg-l0cyMroinI0@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120521125930.GC6206-iWYTGMXpHj9ITqJhDdzsOjpauB2SiJktrE5yTffgRl4@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---zhXaljGHf11kAtnf
-Content-Type: text/plain; charset=utf-8
+--NzB8fVQJ5HfG6fxh
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-* Terje Bergstr=C3=B6m wrote:
-> On 21.05.2012 14:05, Thierry Reding wrote:
->=20
-> > I agree. It's really just a "simple-bus" kind of bus. Except that it'll=
- need
-> > another compatible value to make the host1x driver bind to it. But we s=
-hould
-> > be able to make it work without creating a completely new bus. I guess =
-the
-> > "ranges" property could specify 0x54000000 as the base address and child
-> > nodes could use offsets relative to that. Maybe even that is overkill,
-> > though.
->=20
->=20
-> Hi,
->=20
-> In the phase where we are just getting display up, yes, the bus is a
-> really simple bus. For that, all you need to know about host1x is that
-> it needs to be turned on whenever you talk to the display. Having a bus
-> seems overkill.
->=20
-> At a latest stage, we're going to need support for host1x channels and
-> related infrastructure. In that phase, we need to find good homes for
-> channel allocation, job tracking, push buffer management, and other code
-> common to all host1x drivers. In the current nvhost driver, it's the job
-> of the bus_type and related utilities, and that seems like a good enough
-> fit.
->=20
-> I have a bit of hard time understanding the significance of a bus_type
-> in the Linux driver model.
->=20
-> On one hand, bus_type allows grouping a set of devices and drivers
-> according to the APIs they implement. In nvhost, we have struct
-> nvhost_device and struct nvhost_driver, and each host1x client driver
-> needs to use them. It's natural to put them in the same bus_type. As a
-> bonus, we can assign further common tasks to the bus_type.
->=20
-> On the other hand, implementing a bus_type introduces code almost
-> duplicate to platform bus. This is the part that I have hard time with.
->=20
-> The device tree should reflect the target state, as it's going to be an
-> API between kernel and boot loader. I believe it'd be best to introduce
-> host1x as a bus and put all host1x clients as nodes inside host1x.
+On Mon, May 21, 2012 at 08:59:31PM +0800, Richard Zhao wrote:
 
-I agree that reflecting the hardware hierarchy within the device tree makes
-sense. I'll need to add some code to tear down child devices in the cleanup
-path, but that shouldn't be too difficult.
+> >   ASoC: imx-audmux: add pinctrl support
+> >   ASoC: fsl_ssi: convert to use devm_clk_get
 
-However, adding a whole bus_type implementation would pretty much duplicate
-the platform bus code. I guess host1x could just provide struct host1x_clie=
-nt
-a set of corresponding APIs to create them, request channels, etc.
+> Linus has sent out pull request for pinctrl. So is that ok for you
+> to pick up the above two patch?
 
-Thierry
+No, apart from anything else the second patch depends on clkdev which is
+nothing to do with pinctrl!  For the first patch it wasn't clear if the
+changes in pinctrl were the actual dependencies or if there were more
+things needed from the ARM tree, and in any case until those patches are
+actually in the ASoC tree we'll break the build if they get applied.
 
---zhXaljGHf11kAtnf
-Content-Type: application/pgp-signature
+Guys, you really need to think about how you're organising what you're
+doing more.  You need to split your work out into focused lines of
+development rather than just having a single branch. =20
+
+This patch series contains a whole bunch of different changes (the
+devm_clk_get() change is as far as I can tell completely unrelated to
+the rest for example) with unclear dependencies on multiple external
+trees.  You should be splitting unrelated changes out, trying to
+minimise interdependencies, and clearly identifying the dependencies
+that are there we can get things applied in a timely fashion.
+
+Please resend these patches *after* their dependencies are in mainline.
+
+--NzB8fVQJ5HfG6fxh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk+6Sg4ACgkQZ+BJyKLjJp8pMQCcDzkRrXEqkRzMw++24qKAm5nz
-uIYAn36d3doXZ7hlZV5xh09uRQChZxh3
-=7PcX
+iQIcBAEBAgAGBQJPulUMAAoJEBus8iNuMP3dsRIQAJOjCbTwC8gkha4rRxBKkT1o
+4Xq1ea/Y/UU7QyVezyj+fF+KzMzNiJFRVhqhY5v6fNADq0Koq7nKGAAse0XbLzhk
+L4C5QumRe/hgn1FmELYMcAmzsckFo/ySc5XKuxsQamXn3d8fTFMwQb2LaPHU/BtQ
+/jsHcsuYYLi3OeARqSZvYQSlvJO9Y+dqbfTK4d8dnzdwI8Et92/Qac4m+r4u0ddL
+Hqj4LNtfvD8niyBEq4tMcSiPcnSa9J7Ou2o++zBM46AJDfAxCKRxsulOFi8S84Xu
+0H1LyoSoXSxpLK4q+8AF72MIXJJa01WGvxqH6la4lqT8ByH+trcTcdHWY5LPEVpK
+GkAY7OFN/KAD54BW/HitJLBLmoysksyJZcYgkQJ118FQF83SZevm20ixH33EWf4Z
+8U6//W7yU/5TCgQgCaUIBx97L7NVZFEh4uFDNYA3M0YByzJYyee4LuNVH2hse1iV
+uaNddgZEQhHH2BwS6vDVIe7dD5qA5aR0NpzYzoDGqATK64f3o/h7/JFH/vyKz2Zy
+Oh3e0/YkGpCu84u8L3eT6xh6jEuINU1nzZZpMz1iMq4y5Qe3/MR7+2ZKctcVIz9J
+R0B0dJlcxFPo6FCLx6U3BCO/m0Is70Oh9Rc6cPMTel9Y1Ll7YTR/R4MpGZ187VXp
+6o/AG+OCHa9XscBTdA4b
+=n+BS
 -----END PGP SIGNATURE-----
 
---zhXaljGHf11kAtnf--
+--NzB8fVQJ5HfG6fxh--
