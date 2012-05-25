@@ -1,79 +1,55 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 8/8] i2c: i2c-bfin-twi: Move blackfin TWI register access
- Macro to head file.
-Date: Fri, 25 May 2012 15:46:06 +0530
-Message-ID: <CAM=Q2cvUVuOMQ+Q=uLUkHN+ioqVtQ=bhPgrcnbyuUavAjES1-g@mail.gmail.com>
-References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
-	<1337152826-9850-8-git-send-email-sonic.zhang@analog.com>
-	<CAM=Q2csSuQ3R9U=XKwj9F0xijTxx_ULperAiQYD_X3a5GKVjFg@mail.gmail.com>
-	<DB904C5425BA6F4E8424B3B51A1414D170230E5ADF@NWD2CMBX1.ad.analog.com>
-	<CAM=Q2cveBrYUiNYEbUgXyTnK2JhVD8UyhGgYJ=Zr86YnMMJ6Dg@mail.gmail.com>
-	<DB904C5425BA6F4E8424B3B51A1414D170230E5AF6@NWD2CMBX1.ad.analog.com>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv9 06/10] I2C: OMAP: Fix the crash in i2c remove
+Date: Fri, 25 May 2012 14:51:34 -0700
+Message-ID: <878vggkjyx.fsf@ti.com>
+References: <1335969135-20858-1-git-send-email-shubhrajyoti@ti.com>
+	<1335969135-20858-7-git-send-email-shubhrajyoti@ti.com>
+	<20120512181019.GA28973@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <DB904C5425BA6F4E8424B3B51A1414D170230E5AF6-6SXM3jaLOct7xzP2fcxY8GoKb0G9Rp+C@public.gmane.org>
+In-Reply-To: <20120512181019.GA28973-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> (Wolfram Sang's message
+	of "Sat, 12 May 2012 20:10:19 +0200")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, May 25, 2012 at 3:42 PM, Zhang, Sonic <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org> =
-wrote:
->
->
->>-----Original Message-----
->>From: Shubhrajyoti Datta [mailto:omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
->>Sent: Friday, May 25, 2012 6:10 PM
->>To: Zhang, Sonic
->>Cc: Ben Dooks; Wolfram Sang; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; LKML; uclinux=
--dist-
->>devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
->>Subject: Re: [PATCH 8/8] i2c: i2c-bfin-twi: Move blackfin TWI registe=
-r access
->>Macro to head file.
->>
->>Hi ,
->>On Fri, May 25, 2012 at 3:24 PM, Zhang, Sonic <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org=
->
->>wrote:
->>>
->>>
->>>>-----Original Message-----
->>>>From: Shubhrajyoti Datta [mailto:omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org]
->>>>Sent: Friday, May 25, 2012 5:48 PM
->>>>To: Zhang, Sonic
->>>>Cc: Ben Dooks; Wolfram Sang; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; LKML; uclin=
-ux-dist-
->>>>devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
->>>>Subject: Re: [PATCH 8/8] i2c: i2c-bfin-twi: Move blackfin TWI regis=
-ter access
->>>>Macro to head file.
->>>>
->>>>Hi ,
->>>>Some minor comments/ doubts.
->>>>On Wed, May 16, 2012 at 12:50 PM, =A0<sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org> wrote=
-:
->>>>> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>>>>
->>>>
->>>>A small description may be helpful.
->>>>Also the $SUBJECT says move the patch looks more like the remove.
->>>>Am I missing something.
->>>
->>> The subject says these definitions are moved to a head file by the =
-other patch
->>for Blackfin architecture.
->>
->>Got it thanks.
->>
->>You may want to add a dependency otherwise it might lead to a compila=
-tion break?
->>
->
-> That patch for Blackfin architecture has already been merged into mai=
-nline.
-Great,
+Hi Wolfram,
 
-Apologies for the noise.
+Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> writes:
+
+> On Wed, May 02, 2012 at 08:02:11PM +0530, Shubhrajyoti D wrote:
+>>     In omap_i2c_remove we are accessing the I2C_CON register without
+>>     enabling the clocks. Fix the same by enabling the clocks and disabling
+>>     it.
+
+[...]
+
+> I'd really like a comment from the PM experts if each and every driver
+> has to ensure that the clocks are enabled on remove like this?
+
+Yes, this is correct.
+
+In fact, this is the goal of runtime PM.  The driver itself tells the PM
+core (using runtime PM) when the device needs to be accessible and when
+it doesn't.
+
+Technically speaking, the it's up to the platform-specific runtime PM
+implementation to decide whether or not the clocks are actually disable
+or not  (e.g. due to wakeup latency requirements, it might decide not to
+cut clocks.)
+
+Because of that, the changelog should be reworded to say something like
+"ensure device is accessible" instead of "enable the clocks", because
+the runtime PM implementation does more than just manage clocks.
+
+Kevin
+
+P.S. It's great to see you helping out maintaining i2c drivers.  Thanks!
+
+P.P.S. Before you merge this, I would strongly recommend we wait for a
+       few more Tested-bys, and a bit more description about how this
+       was tested.  We've been having quite a few problems with
+       regressions introduced in OMAP drivers that have not been well
+       reviewed or tested.
