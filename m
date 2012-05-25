@@ -1,8 +1,8 @@
-From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 8/8] i2c: i2c-bfin-twi: Move blackfin TWI register access
  Macro to head file.
-Date: Thu, 24 May 2012 17:19:08 +0800
-Message-ID: <CAJxxZ0NwNh70EzNYCqpSec+ZfeaxzJ3b=QY7w24EqmyA7+2VQw@mail.gmail.com>
+Date: Fri, 25 May 2012 15:18:19 +0530
+Message-ID: <CAM=Q2csSuQ3R9U=XKwj9F0xijTxx_ULperAiQYD_X3a5GKVjFg@mail.gmail.com>
 References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
 	<1337152826-9850-8-git-send-email-sonic.zhang@analog.com>
 Mime-Version: 1.0
@@ -15,11 +15,16 @@ To: sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org
 Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-PING
-
-On Wed, May 16, 2012 at 3:20 PM,  <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org> wrote:
+Hi ,
+Some minor comments/ doubts.
+On Wed, May 16, 2012 at 12:50 PM,  <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org> wrote:
 > From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 >
+
+A small description may be helpful.
+Also the $SUBJECT says move the patch looks more like the remove.
+Am I missing something.
+
 > Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > ---
 > =A0drivers/i2c/busses/i2c-bfin-twi.c | =A0 45 -----------------------=
