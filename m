@@ -1,196 +1,212 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH v4 5/7] ARM: davinci: i2c: add OF support
-Date: Sat, 26 May 2012 00:08:54 -0600
-Message-ID: <20120526060854.A9BB93E2E10@localhost>
-References: <1337694920-8925-1-git-send-email-hs@denx.de>
-	<1337694920-8925-6-git-send-email-hs@denx.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PULL REQUEST] i2c-embedded for 3.5
+Date: Sat, 26 May 2012 16:06:50 +0200
+Message-ID: <20120526140650.GA7133@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <1337694920-8925-6-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Arnd Bergmann <arnd@arndb.de>, Roland Stigge <stigge@antcom.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 22 May 2012 15:55:18 +0200, Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org> wrote:
-> add of support for the davinci i2c driver.
-> 
-> Signed-off-by: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-> Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-> Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> 
-> ---
-> - changes for v2:
-> - add comments from Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
->   - use "cell-index" instead "id"
->   - OF_DEV_AUXDATA in the machine code, instead pre-define platform
->     device name
-> - add comment from Grant Likely:
->   - removed "id" resp. "cell-index" completely
->   - fixed documentation
->   - use of_match_ptr()
->   - use devm_kzalloc() for allocating plattform data mem
->   - fixed a whitespace issue
-> - no changes for v3
-> - changes for v4
->   remove "pinmux-handle" property as discussed here:
->   http://www.spinics.net/lists/arm-kernel/msg175701.html
->   with Nori Sekhar
-> ---
->  .../devicetree/bindings/arm/davinci/i2c.txt        |   31 +++++++++++++++++++
->  drivers/i2c/busses/i2c-davinci.c                   |   32 ++++++++++++++++++++
->  2 files changed, 63 insertions(+), 0 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/arm/davinci/i2c.txt b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> new file mode 100644
-> index 0000000..e98a025
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> @@ -0,0 +1,31 @@
-> +* Texas Instruments Davinci I2C
-> +
-> +This file provides information, what the device node for the
-> +davinci i2c interface contain.
-> +
-> +Required properties:
-> +- compatible: "ti,davinci-i2c";
-> +- reg : Offset and length of the register set for the device
-> +
-> +Recommended properties :
-> +- interrupts : <a> standard interrupt property.
-> +- clock-frequency : desired I2C bus clock frequency in Hz.
-> +
-> +Optional properties:
-> +- bus-delay: bus delay in usec
-> +
-> +Example (enbw_cmc board):
-> +	i2c@1c22000 {
-> +		compatible = "ti,davinci-i2c";
-> +		reg = <0x22000 0x1000>;
-> +		clock-frequency = <100000>;
-> +		interrupts = <15>;
-> +		interrupt-parent = <&intc>;
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +
-> +		dtt@48 {
-> +				compatible = "national,lm75";
-> +				reg = <0x48>;
-> +			};
-> +	};
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index a76d85f..c1783bb 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -38,9 +38,12 @@
->  #include <linux/slab.h>
->  #include <linux/cpufreq.h>
->  #include <linux/gpio.h>
-> +#include <linux/of_i2c.h>
-> +#include <linux/of_device.h>
->  
->  #include <mach/hardware.h>
->  #include <mach/i2c.h>
-> +#include <mach/mux.h>
->  
->  /* ----- global defines ----------------------------------------------- */
->  
-> @@ -635,6 +638,12 @@ static struct i2c_algorithm i2c_davinci_algo = {
->  	.functionality	= i2c_davinci_func,
->  };
->  
-> +static const struct of_device_id davinci_i2c_of_match[] = {
-> +	{.compatible = "ti,davinci-i2c", },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, davinci_i2c_of_match);
-> +
->  static int davinci_i2c_probe(struct platform_device *pdev)
->  {
->  	struct davinci_i2c_dev *dev;
-> @@ -676,6 +685,26 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	dev->irq = irq->start;
->  	platform_set_drvdata(pdev, dev);
->  
-> +	if ((dev->dev->platform_data == NULL) &&
-> +		(pdev->dev.of_node)) {
-> +		struct davinci_i2c_platform_data *pdata;
-> +		u32 prop;
-> +
-> +		pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-> +		if (!pdata) {
-> +			r = -ENOMEM;
-> +			goto err_free_mem;
-> +		}
-> +		memcpy(pdata, &davinci_i2c_platform_data_default,
-> +			sizeof(*pdata));
-> +		dev->dev->platform_data = pdata;
 
-This is actually illegal.  Drivers must not change the value of
-dev->dev->platform_data.  It messes up unbinding/rebinding drivers.
-You'll need to have a copy of the pointer in davinci_i2c_dev.
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Other than that this patch looks good.
+Linus,
 
-g.
+here is the pull request for the embedded part of the i2c subsystem.
+Major changes:
 
-> +		if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-> +			&prop))
-> +			pdata->bus_freq = prop / 1000;
-> +		if (!of_property_read_u32(pdev->dev.of_node, "bus-delay",
-> +			&prop))
-> +			pdata->bus_delay = prop;
-> +	}
->  	dev->clk = clk_get(&pdev->dev, NULL);
->  	if (IS_ERR(dev->clk)) {
->  		r = -ENODEV;
-> @@ -711,6 +740,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	adap->algo = &i2c_davinci_algo;
->  	adap->dev.parent = &pdev->dev;
->  	adap->timeout = DAVINCI_I2C_TIMEOUT;
-> +	adap->dev.of_node = pdev->dev.of_node;
->  
->  	adap->nr = pdev->id;
->  	r = i2c_add_numbered_adapter(adap);
-> @@ -718,6 +748,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  		dev_err(&pdev->dev, "failure adding adapter\n");
->  		goto err_free_irq;
->  	}
-> +	of_i2c_register_devices(adap);
->  
->  	return 0;
->  
-> @@ -809,6 +840,7 @@ static struct platform_driver davinci_i2c_driver = {
->  		.name	= "i2c_davinci",
->  		.owner	= THIS_MODULE,
->  		.pm	= davinci_i2c_pm_ops,
-> +		.of_match_table = of_match_ptr(davinci_i2c_of_match),
->  	},
->  };
->  
-> -- 
-> 1.7.7.6
-> 
+- lots of devicetree additions for existing drivers. I tried hard to
+  make sure the bindings are proper. In more complicated cases, I
+  requested acks from people having more experience with them than me.
+  That took a bit of extra time and also some time went into discussions
+  with developers about what bindings are and what not. I have the
+  feeling that the workflow with bindings should be improved to scale
+  better. I will spend some more thought on this...
 
--- 
-Grant Likely, B.Sc, P.Eng.
-Secret Lab Technologies, Ltd.
+- i2c-muxes are succesfully used meanwhile, so we dropped EXPERIMENTAL
+  for them and renamed the drivers to a standard pattern to match the
+  rest of the subsystem. They can also be used with devicetree now.
+
+- ixp2000 was removed since the whole platform goes away.
+
+- cleanups (strlcpy instead of strcpy, NULL instead of 0)
+
+- The rest is typical driver fixes I assume.
+
+All patches have been in linux-next at least since v3.4-rc6.
+
+Note that you will get a trivial merge-conflict because some
+lpc32xx-patches have already come in via arm-soc to reduce dependencies.
+I read that you want to see such conflicts so I didn't take any actions.
+I'll add Arnd and Roland to CC, because they know best about LPC32xx
+changes.
+
+Thanks,
+
+   Wolfram
+
+The following changes since commit d48b97b403d23f6df0b990cee652bdf9a52337a3:
+
+  Linux 3.4-rc6 (2012-05-06 15:07:32 -0700)
+
+are available in the git repository at:
+
+  git://git.pengutronix.de/git/wsa/linux.git i2c-embedded/for-next
+
+for you to fetch changes up to 9868a060ccf769c08ec378a9829137e272e9a92c:
+
+  i2c: davinci: Free requested IRQ in remove (2012-05-12 20:36:24 +0200)
+
+----------------------------------------------------------------
+David Daney (2):
+      i2c: Add a struct device * parameter to i2c_add_mux_adapter()
+      i2c/of: Automatically populate i2c mux busses from device tree data.
+
+Deepak Sikri (1):
+      i2c: designware: add PM support
+
+Ganesan Ramalingam (1):
+      i2c: ocores: register OF i2c devices
+
+Jean Delvare (1):
+      i2c: Rename last mux driver to standard pattern
+
+Karol Lewandowski (5):
+      i2c-s3c2410: Drop unused define
+      i2c-pxa: Drop leftover comment
+      i2c: Dynamically assign adapter id if it wasn't explictly specified
+      i2c-s3c2410: Rework device type handling
+      i2c-s3c2410: Add HDMIPHY quirk for S3C2440
+
+Lars-Peter Clausen (1):
+      I2C: xiic: Add OF binding support
+
+Laxman Dewangan (2):
+      i2c: tegra: fix 10bit address configuration
+      i2c: tegra: notify transfer-complete after clearing status.
+
+Magnus Damm (1):
+      i2c: sh_mobile: add device tree support
+
+Marcus Folkesson (1):
+      i2c: davinci: Free requested IRQ in remove
+
+Rob Herring (1):
+      i2c: ixp2000: remove driver
+
+Roland Stigge (3):
+      i2c-pnx.c: Use resources in platforms
+      i2c-pnx.c: Remove duplicated i2c.h
+      i2c: pnx: add device tree support
+
+Stefan Roese (1):
+      i2c: designware: Add support for 16bit register access
+
+Stephen Warren (3):
+      of/i2c: call i2c_verify_client from of_find_i2c_device_by_node
+      i2c: implement i2c_verify_adapter
+      of/i2c: implement of_find_i2c_adapter_by_node
+
+Tomoya MORINAGA (3):
+      i2c-eg20t: Call init() when wait-event timeout occurs
+      i2c-eg20t: add helper function for xfer check
+      i2c-eg20t: Merge two functions
+
+Viresh Kumar (1):
+      i2c: designware: Add clk_{un}prepare() support
+
+Wolfram Sang (7):
+      i2c: eg20t: use NULL instead of 0
+      i2c: eg20t: pass on return value in i2c_xfer
+      i2c: eg20t: remove unused function
+      i2c: eg20t: don't use strcpy but strlcpy
+      i2c: imx: don't use strcpy but strlcpy
+      i2c: muxes are not EXPERIMENTAL anymore
+      i2c: muxes: rename first set of drivers to a standard pattern
+
+Zhao Chenhui (1):
+      i2c-mpc: avoid I2C abnormal after resuming from deep sleep
+
+ Documentation/devicetree/bindings/i2c/mux.txt      |   60 +++++
+ Documentation/devicetree/bindings/i2c/pnx.txt      |   36 +++
+ .../devicetree/bindings/i2c/samsung-i2c.txt        |    8 +-
+ Documentation/devicetree/bindings/i2c/xiic.txt     |   22 ++
+ .../i2c/muxes/{gpio-i2cmux =3D> i2c-mux-gpio}        |   12 +-
+ MAINTAINERS                                        |    8 +-
+ arch/arm/mach-lpc32xx/common.c                     |   67 ++++--
+ arch/arm/mach-lpc32xx/include/mach/i2c.h           |   63 -----
+ arch/arm/mach-pnx4008/i2c.c                        |   64 +++--
+ arch/arm/mach-pnx4008/include/mach/i2c.h           |   64 -----
+ drivers/i2c/Kconfig                                |    1 -
+ drivers/i2c/busses/Kconfig                         |   14 --
+ drivers/i2c/busses/Makefile                        |    1 -
+ drivers/i2c/busses/i2c-davinci.c                   |    2 +-
+ drivers/i2c/busses/i2c-designware-core.c           |   31 ++-
+ drivers/i2c/busses/i2c-designware-core.h           |    5 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c        |   33 ++-
+ drivers/i2c/busses/i2c-eg20t.c                     |  246 ++++++----------=
+----
+ drivers/i2c/busses/i2c-gpio.c                      |    7 +-
+ drivers/i2c/busses/i2c-imx.c                       |    2 +-
+ drivers/i2c/busses/i2c-ixp2000.c                   |  157 -------------
+ drivers/i2c/busses/i2c-mpc.c                       |   30 +++
+ drivers/i2c/busses/i2c-ocores.c                    |    3 +
+ drivers/i2c/busses/i2c-pca-platform.c              |    2 +-
+ drivers/i2c/busses/i2c-pnx.c                       |  157 +++++++++----
+ drivers/i2c/busses/i2c-pxa.c                       |    5 -
+ drivers/i2c/busses/i2c-s3c2410.c                   |  109 +++++----
+ drivers/i2c/busses/i2c-sh_mobile.c                 |   11 +
+ drivers/i2c/busses/i2c-tegra.c                     |   24 +-
+ drivers/i2c/busses/i2c-versatile.c                 |    9 +-
+ drivers/i2c/busses/i2c-xiic.c                      |   23 +-
+ drivers/i2c/i2c-core.c                             |   17 ++
+ drivers/i2c/i2c-mux.c                              |   42 +++-
+ drivers/i2c/muxes/Kconfig                          |    6 +-
+ drivers/i2c/muxes/Makefile                         |    6 +-
+ .../i2c/muxes/{gpio-i2cmux.c =3D> i2c-mux-gpio.c}    |   42 ++--
+ drivers/i2c/muxes/{pca9541.c =3D> i2c-mux-pca9541.c} |    3 +-
+ drivers/i2c/muxes/{pca954x.c =3D> i2c-mux-pca954x.c} |    2 +-
+ drivers/of/of_i2c.c                                |   16 +-
+ include/linux/{gpio-i2cmux.h =3D> i2c-mux-gpio.h}    |   14 +-
+ include/linux/i2c-mux.h                            |    3 +-
+ include/linux/i2c-pnx.h                            |   10 +-
+ include/linux/i2c.h                                |    1 +
+ include/linux/of_i2c.h                             |    4 +
+ 44 files changed, 720 insertions(+), 722 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/mux.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/pnx.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/xiic.txt
+ rename Documentation/i2c/muxes/{gpio-i2cmux =3D> i2c-mux-gpio} (85%)
+ delete mode 100644 arch/arm/mach-lpc32xx/include/mach/i2c.h
+ delete mode 100644 arch/arm/mach-pnx4008/include/mach/i2c.h
+ delete mode 100644 drivers/i2c/busses/i2c-ixp2000.c
+ rename drivers/i2c/muxes/{gpio-i2cmux.c =3D> i2c-mux-gpio.c} (73%)
+ rename drivers/i2c/muxes/{pca9541.c =3D> i2c-mux-pca9541.c} (99%)
+ rename drivers/i2c/muxes/{pca954x.c =3D> i2c-mux-pca954x.c} (99%)
+ rename include/linux/{gpio-i2cmux.h =3D> i2c-mux-gpio.h} (74%)
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk/A43oACgkQD27XaX1/VRvk7wCfSXRDuUEepiVZwEuofAat9How
+GowAn0xTXUw8TjIRfJpofssbSzKNtsay
+=loD7
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--
