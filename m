@@ -1,37 +1,65 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv9 02/10] I2C: OMAP: Fix the mismatch of pm_runtime enable
- and disable
-Date: Mon, 28 May 2012 15:29:18 +0530
-Message-ID: <4FC34C76.402@ti.com>
-References: <1335969135-20858-1-git-send-email-shubhrajyoti@ti.com> <1335969135-20858-3-git-send-email-shubhrajyoti@ti.com> <87wr3zkjp7.fsf@ti.com>
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: Re: [PATCH 1/2] MXS: Set I2C timing registers for mxs-i2c
+Date: Mon, 28 May 2012 11:55:56 +0100
+Message-ID: <4FC359BC.8080606@codethink.co.uk>
+References: <1338084656-11961-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87wr3zkjp7.fsf-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Rajendra Nayak <rnayak-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1338084656-11961-1-git-send-email-marex@denx.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Marek Vasut <marex@denx.de>
+Cc: Fabio Estevam <fabio.estevam@freescale.com>, Wolfgang Denk <wd@denx.de>, Detlev Zundel <dzu@denx.de>, Stefano Babic <sbabic@denx.de>, Sascha Hauer <s.hauer@pengutronix.de>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, =?UTF-8?B?VXdlIEtsZWluZS1Lw7ZuaWc=?= <u.kleine-koenig@pengutronix.de>, Shawn Guo <shawn.guo@linaro.org>, Dong Aisheng <b29396@freescale.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Saturday 26 May 2012 03:27 AM, Kevin Hilman wrote:
-> Looks right.
->
-> Can you be more specific in the changelog about when the errors/warning
-> happens?
-By the way the count cribs Unbalanced pm_runtime_enable!
-is what happens.
-
-I found it by review, I did the testing with this patch.
-
-Since there was an access without get_sync I was seeing
-some other issues.
-
-Did not test with the fix and without this patch.
->   e.g. why pm_runtime_enable() is called again?  Is this on
-> module unload/reload?
->
-> Other than that
->
-> Acked-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Thanks.
+T24gMjcvMDUvMTIgMDM6MTAsIE1hcmVrIFZhc3V0IHdyb3RlOgo+IFRoaXMgcGF0Y2ggY29uZmln
+dXJlcyB0aGUgSTJDIGJ1cyB0aW1pbmcgcmVnaXN0ZXJzIGFjY29yZGluZwo+IHRvIGluZm9ybWF0
+aW9uIHBhc3NlZCB2aWEgRFQuIEN1cnJlbnRseSwgMTAwa0h6IGFuZCA0MDBrSHoKPiBtb2RlcyBh
+cmUgc3VwcG9ydGVkLgo+Cj4gU2lnbmVkLW9mZi1ieTogTWFyZWsgVmFzdXQ8bWFyZXhAZGVueC5k
+ZT4KPiBDYzogRGV0bGV2IFp1bmRlbDxkenVAZGVueC5kZT4KPiBDQzogRG9uZyBBaXNoZW5nPGIy
+OTM5NkBmcmVlc2NhbGUuY29tPgo+IENDOiBGYWJpbyBFc3RldmFtPGZhYmlvLmVzdGV2YW1AZnJl
+ZXNjYWxlLmNvbT4KPiBDYzogTGludXggQVJNIGtlcm5lbDxsaW51eC1hcm0ta2VybmVsQGxpc3Rz
+LmluZnJhZGVhZC5vcmc+Cj4gQ2M6IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmcKPiBDQzogU2Fz
+Y2hhIEhhdWVyPHMuaGF1ZXJAcGVuZ3V0cm9uaXguZGU+Cj4gQ0M6IFNoYXduIEd1bzxzaGF3bi5n
+dW9AbGluYXJvLm9yZz4KPiBDYzogU3RlZmFubyBCYWJpYzxzYmFiaWNAZGVueC5kZT4KPiBDQzog
+VXdlIEtsZWluZS1Lw7ZuaWc8dS5rbGVpbmUta29lbmlnQHBlbmd1dHJvbml4LmRlPgo+IENjOiBX
+b2xmZ2FuZyBEZW5rPHdkQGRlbnguZGU+Cj4gQ2M6IFdvbGZyYW0gU2FuZzx3LnNhbmdAcGVuZ3V0
+cm9uaXguZGU+Cj4gLS0tCj4gICBEb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJj
+L2kyYy1teHMudHh0IHwgICAgMSArCj4gICBhcmNoL2FybS9ib290L2R0cy9pbXgyOC5kdHNpICAg
+ICAgICAgICAgICAgICAgICAgIHwgICAgMiArCj4gICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW14
+cy5jICAgICAgICAgICAgICAgICAgICAgIHwgICA2NCArKysrKysrKysrKysrKysrKysrKysKPiAg
+IDMgZmlsZXMgY2hhbmdlZCwgNjcgaW5zZXJ0aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBhL0RvY3Vt
+ZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5ncy9pMmMvaTJjLW14cy50eHQgYi9Eb2N1bWVudGF0
+aW9uL2RldmljZXRyZWUvYmluZGluZ3MvaTJjL2kyYy1teHMudHh0Cj4gaW5kZXggMWJmYzAyZC4u
+NzkwYjVjNiAxMDA2NDQKPiAtLS0gYS9Eb2N1bWVudGF0aW9uL2RldmljZXRyZWUvYmluZGluZ3Mv
+aTJjL2kyYy1teHMudHh0Cj4gKysrIGIvRG9jdW1lbnRhdGlvbi9kZXZpY2V0cmVlL2JpbmRpbmdz
+L2kyYy9pMmMtbXhzLnR4dAo+IEBAIC00LDYgKzQsNyBAQCBSZXF1aXJlZCBwcm9wZXJ0aWVzOgo+
+ICAgLSBjb21wYXRpYmxlOiBTaG91bGQgYmUgImZzbCw8Y2hpcD4taTJjIgo+ICAgLSByZWc6IFNo
+b3VsZCBjb250YWluIHJlZ2lzdGVycyBsb2NhdGlvbiBhbmQgbGVuZ3RoCj4gICAtIGludGVycnVw
+dHM6IFNob3VsZCBjb250YWluIEVSUk9SIGFuZCBETUEgaW50ZXJydXB0cwo+ICstIHNwZWVkOiBT
+cGVlZCBvZiB0aGUgYnVzIGluIGtIeiAoNDAwIG9yIDEwMCBhcmUgc3VwcG9ydGVkKQo+Cj4gICBF
+eGFtcGxlczoKPgo+IGRpZmYgLS1naXQgYS9hcmNoL2FybS9ib290L2R0cy9pbXgyOC5kdHNpIGIv
+YXJjaC9hcm0vYm9vdC9kdHMvaW14MjguZHRzaQo+IGluZGV4IDQ2MzRjYjguLmQ5MjcxNTUgMTAw
+NjQ0Cj4gLS0tIGEvYXJjaC9hcm0vYm9vdC9kdHMvaW14MjguZHRzaQo+ICsrKyBiL2FyY2gvYXJt
+L2Jvb3QvZHRzL2lteDI4LmR0c2kKPiBAQCAtMzgxLDYgKzM4MSw3IEBACj4gICAJCQkJY29tcGF0
+aWJsZSA9ICJmc2wsaW14MjgtaTJjIjsKPiAgIAkJCQlyZWcgPTwweDgwMDU4MDAwIDIwMDA+Owo+
+ICAgCQkJCWludGVycnVwdHMgPTwxMTEgNjg+Owo+ICsJCQkJZnNsLHNwZWVkID08NDAwPjsKPiAg
+IAkJCQlzdGF0dXMgPSAiZGlzYWJsZWQiOwo+ICAgCQkJfTsKPgo+IEBAIC0zOTAsNiArMzkxLDcg
+QEAKPiAgIAkJCQljb21wYXRpYmxlID0gImZzbCxpbXgyOC1pMmMiOwo+ICAgCQkJCXJlZyA9PDB4
+ODAwNWEwMDAgMjAwMD47Cj4gICAJCQkJaW50ZXJydXB0cyA9PDExMCA2OT47Cj4gKwkJCQlmc2ws
+c3BlZWQgPTw0MDA+Owo+ICAgCQkJCXN0YXR1cyA9ICJkaXNhYmxlZCI7Cj4gICAJCQl9OwoKSXMg
+dGhlcmUgbm90IGEgc3RhbmRhcmQgc3BlZWQgc2V0dGluZyBpbiB0aGUgaTJjIGJpbmRpbmc/Cgot
+LSAKQmVuIERvb2tzCQkJCWh0dHA6Ly93d3cuY29kZXRoaW5rLmNvLnVrLwpTZW5pb3IgRW5naW5l
+ZXIJCQkJQ29kZXRoaW5rIC0gUHJvdmlkaW5nIEdlbml1cwoKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KbGludXgtYXJtLWtlcm5lbCBtYWlsaW5nIGxpc3QK
+bGludXgtYXJtLWtlcm5lbEBsaXN0cy5pbmZyYWRlYWQub3JnCmh0dHA6Ly9saXN0cy5pbmZyYWRl
+YWQub3JnL21haWxtYW4vbGlzdGluZm8vbGludXgtYXJtLWtlcm5lbAo=
