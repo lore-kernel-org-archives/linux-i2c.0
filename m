@@ -1,42 +1,39 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c updates for Linux 3.5
-Date: Wed, 30 May 2012 11:06:41 +0200
-Message-ID: <20120530110641.22d656da@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c-s3c2410: Fix pointer type passed to of_match_node()
+Date: Wed, 30 May 2012 11:43:05 +0200
+Message-ID: <1338370985-6950-1-git-send-email-k.lewandowsk@samsung.com>
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+This commit fixes warning introduced in 27452498a ("i2c-s3c2410: Rework
+device type handling"):
 
-Please pull i2c subsystem updates for Linux 3.5 from:
+  drivers/i2c/busses/i2c-s3c2410.c: In function 's3c24xx_get_device_quirks':
+  drivers/i2c/busses/i2c-s3c2410.c:125: warning: passing argument 1 of 'of_match_node' from incompatible pointer type
+  include/linux/of.h:245: note: expected 'const struct of_device_id *' but argument is of type 'const struct of_device_id (*)[4]'
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+Signed-off-by: Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- Documentation/i2c/functionality       |    9 ++++++---
- Documentation/i2c/i2c-protocol        |    9 ++++++++-
- drivers/base/regmap/regmap-i2c.c      |    2 +-
- drivers/i2c/algos/i2c-algo-bit.c      |    2 +-
- drivers/i2c/busses/i2c-nuc900.c       |    3 ++-
- drivers/i2c/busses/i2c-s3c2410.c      |    3 ++-
- drivers/i2c/i2c-dev.c                 |   30 ++++++++++++++++++++++++++----
- drivers/input/joystick/as5011.c       |    1 +
- drivers/video/matrox/matroxfb_maven.c |    1 +
- include/linux/i2c.h                   |    5 +++--
- 10 files changed, 51 insertions(+), 14 deletions(-)
-
----------------
-
-Jean Delvare (1):
-      i2c-dev: Add support for I2C_M_RECV_LEN
-
-Mark Brown (1):
-      i2c: Split I2C_M_NOSTART support out of I2C_FUNC_PROTOCOL_MANGLING
-
-Thanks,
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index fa0b134..286e596 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -122,7 +122,7 @@ static inline unsigned int s3c24xx_get_device_quirks(struct platform_device *pde
+ {
+ 	if (pdev->dev.of_node) {
+ 		const struct of_device_id *match;
+-		match = of_match_node(&s3c24xx_i2c_match, pdev->dev.of_node);
++		match = of_match_node(s3c24xx_i2c_match, pdev->dev.of_node);
+ 		return (unsigned int)match->data;
+ 	}
+ 
 -- 
-Jean Delvare
+1.7.10
