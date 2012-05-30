@@ -1,837 +1,437 @@
-From: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH v5 7/7] ARM: davinci: add support for the am1808 based enbw_cmc board
-Date: Wed, 30 May 2012 12:19:03 +0200
-Message-ID: <1338373143-7467-8-git-send-email-hs@denx.de>
-References: <1338373143-7467-1-git-send-email-hs@denx.de>
+From: Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH RFC 2/3] i2c-nomadik: turn the platform driver to an amba
+ driver
+Date: Wed, 30 May 2012 19:45:55 +0200
+Message-ID: <349645b61d0b28f6e84f7ae1f2c8c28e12a11d92.1338398567.git.rubini@gnudd.com>
+References: <cover.1338398567.git.rubini@gnudd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1338373143-7467-1-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <cover.1338398567.git.rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Cc: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Giancarlo Asnaghi <giancarlo.asnaghi-qxv4g6HH51o@public.gmane.org>, Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-- AM1808 based board
-- 64 MiB DDR ram
-- 2 MiB Nor flash
-- 128 MiB NAND flash
-- use internal RTC
-- I2C support
-- hwmon lm75 support
-- UBI/UBIFS support
-- MMC support
-- USB OTG support
+The i2c-nomadik gateware is really a PrimeCell APB device. By hosting
+the driver under the amba bus we can access it more easily, for
+example using the generic pci-amba driver. The patch also fixes the
+mach-ux500 users to register an AMBA device, not a platform device.
 
-Signed-off-by: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-Cc: linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-Cc: Scott Wood <scottwood-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-
+Signed-off-by: Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>
+Acked-by: Giancarlo Asnaghi <giancarlo.asnaghi-qxv4g6HH51o@public.gmane.org>
+Cc: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
+Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 ---
-- post this board support with USB support, even though
-  USB is only working with the 10 ms "workaround", posted here:
-  http://comments.gmane.org/gmane.linux.usb.general/54505
-  I see this issue also on the AM1808 TMDXEXP1808L evalboard.
-- MMC and USB are not using OF support yet, ideas how to port
-  this are welcome. I need for USB and MMC boards board
-  specific callbacks, how to solve this with OF support?
+ arch/arm/mach-ux500/devices-common.h |   21 +-----
+ drivers/i2c/busses/i2c-nomadik.c     |  137 +++++++++++++++++-----------------
+ 2 files changed, 71 insertions(+), 87 deletions(-)
 
-- changes for v2:
-  - changes in the nand node due to comments from Scott Wood:
-    - add "ti,davinci-" prefix
-    - Dashes are preferred to underscores
-    - rename "nandflash" to "nand"
-    - introduce new "ti,davinci" specific properties for setting
-      up ecc_mode, ecc_bits, options and bbt options, instead
-      using linux defines
-  - changes for i2c due to comments from Sylwester Nawrocki:
-    - use "cell-index" instead "id"
-    - OF_DEV_AUXDATA in the machine code, instead pre-define
-      platform device name
-  - add comment from Grant Likely for i2c:
-    - removed "id" resp. "cell-index" completely
-    - fixed documentation
-    - use of_match_ptr()
-    - use devm_kzalloc() for allocating plattform data mem
-    - fixed a whitespace issue
-  - add net comments from Grant Likely:
-    - add prefix "ti,davinci-" to davinci specific property names
-    - remove version property
-    - use compatible name "ti,davinci-dm6460-emac"
-  - add comment from Grant Likely:
-    - rename compatible node
-    - do not use cell-index
-    - CONFIG_OF required for this board
-    TODO:
-    - create a generic board support file, as I got no
-      answer to my ping to grant, maybe this could be done
-      in a second step?
-- changes for v3:
-  - add comments from Sergei Shtylyov:
-    - rename compatible" prop to "ti,cp_intc"
-    - cp_intc_init now used for Interrupt controller init
-- changes for v4:
-  add comment from Nori Sekhar:
-  - rename davinci emac compatible property to "ti,davinci-dm6467-emac"
-  - remove "pinmux-handle" property as discussed here:
-    http://www.spinics.net/lists/arm-kernel/msg175701.html
-    with Nori Sekhar
-
-- changes for v5:
-  add comments from Grant Likely:
-  - rename compatible" prop to "ti,cp-intc"
-
- arch/arm/boot/dts/enbw_cmc.dts                  |  172 +++++++++++
- arch/arm/configs/enbw_cmc_defconfig             |  123 ++++++++
- arch/arm/mach-davinci/Kconfig                   |    9 +
- arch/arm/mach-davinci/Makefile                  |    1 +
- arch/arm/mach-davinci/board-enbw-cmc.c          |  374 +++++++++++++++++++++++
- arch/arm/mach-davinci/include/mach/uncompress.h |    1 +
- 6 files changed, 680 insertions(+), 0 deletions(-)
- create mode 100644 arch/arm/boot/dts/enbw_cmc.dts
- create mode 100644 arch/arm/configs/enbw_cmc_defconfig
- create mode 100644 arch/arm/mach-davinci/board-enbw-cmc.c
-
-diff --git a/arch/arm/boot/dts/enbw_cmc.dts b/arch/arm/boot/dts/enbw_cmc.dts
-new file mode 100644
-index 0000000..19c7559
---- /dev/null
-+++ b/arch/arm/boot/dts/enbw_cmc.dts
-@@ -0,0 +1,172 @@
-+/*
-+ * Device Tree for the EnBW CMC plattform
-+ *
-+ * Copyright 2011 DENX Software Engineering GmbH
-+ * Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-+ *
-+ * This program is free software; you can redistribute  it and/or modify it
-+ * under  the terms of  the GNU General  Public License as published by the
-+ * Free Software Foundation;  either version 2 of the  License, or (at your
-+ * option) any later version.
-+ */
-+/dts-v1/;
-+/include/ "skeleton.dtsi"
-+
-+/ {
-+	model = "EnBW CMC";
-+	compatible = "enbw,cmc";
-+
-+	aliases {
-+		ethernet0 = &eth0;
-+	};
-+
-+	arm {
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0 0xfffee000 0x00020000>;
-+		intc: interrupt-controller@1 {
-+			compatible = "ti,cp-intc";
-+			interrupt-controller;
-+			#interrupt-cells = <1>;
-+			ti,intc-size = <101>;
-+			reg = <0x0 0x2000>;
-+		};
-+	};
-+	soc@1c00000 {
-+		compatible = "ti,da850";
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x01c00000 0x400000>;
-+
-+		serial0: serial@1c42000 {
-+			compatible = "ti,da850", "ns16550a";
-+			reg = <0x42000 0x100>;
-+			clock-frequency = <150000000>;
-+			reg-shift = <2>;
-+			interrupts = <25>;
-+			interrupt-parent = <&intc>;
-+		};
-+		serial1: serial@1d0c000 {
-+			compatible = "ti,da850", "ns16550a";
-+			reg = <0x10c000 0x100>;
-+			clock-frequency = <150000000>;
-+			reg-shift = <2>;
-+			interrupts = <53>;
-+			interrupt-parent = <&intc>;
-+		};
-+		serial2: serial@1d0d000 {
-+			compatible = "ti,da850", "ns16550a";
-+			reg = <0x10d000 0x100>;
-+			clock-frequency = <150000000>;
-+			reg-shift = <2>;
-+			interrupts = <61>;
-+			interrupt-parent = <&intc>;
-+		};
-+
-+		eth0: emac@1e20000 {
-+			compatible = "ti,davinci-dm6467-emac";
-+			reg = <0x220000 0x4000>;
-+			ti,davinci-ctrl-reg-offset = <0x3000>;
-+			ti,davinci-ctrl-mod-reg-offset = <0x2000>;
-+			ti,davinci-ctrl-ram-offset = <0>;
-+			ti,davinci-ctrl-ram-size = <0x2000>;
-+			local-mac-address = [ 00 00 00 00 00 00 ];
-+			interrupts = <33
-+					34
-+					35
-+					36
-+					>;
-+			interrupt-parent = <&intc>;
-+		};
-+
-+		i2c@1c22000 {
-+			compatible = "ti,davinci-i2c";
-+			reg = <0x22000 0x1000>;
-+			clock-frequency = <100000>;
-+			interrupts = <15>;
-+			interrupt-parent = <&intc>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+
-+			dtt@48 {
-+				compatible = "national,lm75";
-+				reg = <0x48>;
-+			};
-+		};
-+	};
-+	onchipram@8000000 {
-+		compatible = "ti,davinci-onchipram";
-+		#address-cells = <1>;
-+		#size-cells = <1>;
-+		ranges = <0x0 0x80000000 0x20000>;
-+	};
-+	aemif@60000000 {
-+		compatible = "ti,davinci-aemif";
-+		#address-cells = <2>;
-+		#size-cells = <1>;
-+		reg = <0x68000000 0x80000>;
-+		ranges = <2 0 0x60000000 0x02000000
-+			  3 0 0x62000000 0x02000000
-+			  4 0 0x64000000 0x02000000
-+			  5 0 0x66000000 0x02000000
-+			  6 0 0x68000000 0x02000000>;
-+		cs2@68000000 {
-+			compatible = "ti,davinci-cs";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			/* all timings in nanoseconds */
-+			cs = <2>;
-+			asize = <1>;
-+			ta = <0>;
-+			rhold = <7>;
-+			rstrobe = <42>;
-+			rsetup = <14>;
-+			whold = <7>;
-+			wstrobe = <42>;
-+			wsetup = <14>;
-+			ew = <0>;
-+			ss = <0>;
-+		};
-+		flash@2,0 {
-+			compatible = "cfi-flash";
-+			reg = <2 0x0 0x400000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			bank-width = <2>;
-+			device-width = <2>;
-+		};
-+		nand_cs: cs3@68000000 {
-+			compatible = "ti,davinci-cs";
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			/* all timings in nanoseconds */
-+			cs = <3>;
-+			asize = <0>;
-+			ta = <0>;
-+			rhold = <7>;
-+			rstrobe = <42>;
-+			rsetup = <7>;
-+			whold = <7>;
-+			wstrobe = <14>;
-+			wsetup = <7>;
-+			ew = <0>;
-+			ss = <0>;
-+		};
-+		nand@3,0 {
-+			compatible = "ti,davinci-nand";
-+			reg = <3 0x0 0x807ff
-+				6 0x0 0x8000>;
-+			#address-cells = <1>;
-+			#size-cells = <1>;
-+			ti,davinci-chipselect = <1>;
-+			ti,davinci-mask-ale = <0>;
-+			ti,davinci-mask-cle = <0>;
-+			ti,davinci-mask-chipsel = <0>;
-+			ti,davinci-ecc-mode = "hw";
-+			ti,davinci-ecc-bits = <4>;
-+			ti,davinci-nand-use-bbt;
-+			timing-handle = <&nand_cs>;
-+		};
-+
-+	};
-+};
-diff --git a/arch/arm/configs/enbw_cmc_defconfig b/arch/arm/configs/enbw_cmc_defconfig
-new file mode 100644
-index 0000000..9d98e7f
---- /dev/null
-+++ b/arch/arm/configs/enbw_cmc_defconfig
-@@ -0,0 +1,123 @@
-+CONFIG_EXPERIMENTAL=y
-+# CONFIG_SWAP is not set
-+CONFIG_SYSVIPC=y
-+CONFIG_POSIX_MQUEUE=y
-+CONFIG_IKCONFIG=y
-+CONFIG_IKCONFIG_PROC=y
-+CONFIG_LOG_BUF_SHIFT=14
-+CONFIG_BLK_DEV_INITRD=y
-+CONFIG_EXPERT=y
-+CONFIG_MODULES=y
-+CONFIG_MODULE_UNLOAD=y
-+CONFIG_MODULE_FORCE_UNLOAD=y
-+CONFIG_MODVERSIONS=y
-+# CONFIG_BLK_DEV_BSG is not set
-+CONFIG_PARTITION_ADVANCED=y
-+# CONFIG_IOSCHED_DEADLINE is not set
-+# CONFIG_IOSCHED_CFQ is not set
-+CONFIG_ARCH_DAVINCI=y
-+CONFIG_ARCH_DAVINCI_DA850=y
-+# CONFIG_MACH_DAVINCI_DA850_EVM is not set
-+CONFIG_GPIO_PCA953X=y
-+CONFIG_NO_HZ=y
-+CONFIG_HIGH_RES_TIMERS=y
-+CONFIG_PREEMPT=y
-+CONFIG_AEABI=y
-+# CONFIG_OABI_COMPAT is not set
-+CONFIG_USE_OF=y
-+CONFIG_NET=y
-+CONFIG_PACKET=y
-+CONFIG_UNIX=y
-+CONFIG_INET=y
-+CONFIG_IP_PNP=y
-+CONFIG_IP_PNP_DHCP=y
-+# CONFIG_INET_LRO is not set
-+CONFIG_IPV6=y
-+CONFIG_NETFILTER=y
-+# CONFIG_WIRELESS is not set
-+CONFIG_UEVENT_HELPER_PATH="/sbin/hotplug"
-+# CONFIG_FW_LOADER is not set
-+CONFIG_MTD=y
-+CONFIG_MTD_CMDLINE_PARTS=y
-+CONFIG_MTD_CHAR=y
-+CONFIG_MTD_BLKDEVS=y
-+CONFIG_MTD_CFI=y
-+CONFIG_MTD_CFI_INTELEXT=y
-+CONFIG_MTD_CFI_AMDSTD=y
-+CONFIG_MTD_PHYSMAP=y
-+CONFIG_MTD_PHYSMAP_OF=y
-+CONFIG_MTD_NAND=y
-+CONFIG_MTD_NAND_DAVINCI=y
-+CONFIG_MTD_UBI=y
-+CONFIG_BLK_DEV_LOOP=y
-+CONFIG_BLK_DEV_RAM=y
-+CONFIG_BLK_DEV_RAM_COUNT=1
-+CONFIG_BLK_DEV_RAM_SIZE=32768
-+CONFIG_EEPROM_AT24=y
-+CONFIG_SCSI=y
-+CONFIG_BLK_DEV_SD=y
-+CONFIG_NETDEVICES=y
-+CONFIG_MII=y
-+CONFIG_TI_DAVINCI_EMAC=y
-+# CONFIG_WLAN is not set
-+CONFIG_INPUT_POLLDEV=y
-+# CONFIG_INPUT_MOUSEDEV is not set
-+CONFIG_INPUT_EVDEV=y
-+CONFIG_INPUT_EVBUG=y
-+# CONFIG_INPUT_KEYBOARD is not set
-+# CONFIG_INPUT_MOUSE is not set
-+# CONFIG_SERIO is not set
-+# CONFIG_VT is not set
-+CONFIG_SERIAL_8250=y
-+CONFIG_SERIAL_8250_CONSOLE=y
-+CONFIG_SERIAL_8250_NR_UARTS=3
-+CONFIG_SERIAL_8250_RUNTIME_UARTS=3
-+CONFIG_SERIAL_OF_PLATFORM=y
-+CONFIG_HW_RANDOM=y
-+CONFIG_I2C=y
-+CONFIG_I2C_CHARDEV=y
-+CONFIG_I2C_DAVINCI=y
-+CONFIG_GPIO_SYSFS=y
-+CONFIG_GPIO_PCF857X=y
-+CONFIG_SENSORS_LM75=y
-+CONFIG_WATCHDOG=y
-+CONFIG_WATCHDOG_CORE=y
-+CONFIG_DAVINCI_WATCHDOG=y
-+# CONFIG_HID_SUPPORT is not set
-+CONFIG_USB=y
-+CONFIG_USB_ANNOUNCE_NEW_DEVICES=y
-+CONFIG_USB_MUSB_HDRC=y
-+CONFIG_USB_MUSB_DA8XX=y
-+CONFIG_USB_STORAGE=y
-+CONFIG_USB_UAS=y
-+CONFIG_USB_LIBUSUAL=y
-+CONFIG_USB_GADGET=y
-+CONFIG_USB_FUSB300=y
-+CONFIG_USB_ETH=y
-+CONFIG_MMC=y
-+CONFIG_MMC_DAVINCI=y
-+CONFIG_RTC_CLASS=y
-+CONFIG_RTC_DRV_OMAP=y
-+CONFIG_EXT2_FS=y
-+CONFIG_EXT3_FS=y
-+CONFIG_AUTOFS4_FS=y
-+CONFIG_MSDOS_FS=y
-+CONFIG_VFAT_FS=y
-+CONFIG_TMPFS=y
-+CONFIG_UBIFS_FS=y
-+CONFIG_CRAMFS=y
-+CONFIG_NFS_FS=y
-+CONFIG_NFS_V3=y
-+CONFIG_ROOT_NFS=y
-+CONFIG_NLS_CODEPAGE_437=y
-+CONFIG_NLS_ASCII=y
-+CONFIG_NLS_ISO8859_1=y
-+CONFIG_NLS_UTF8=y
-+CONFIG_DEBUG_FS=y
-+CONFIG_TIMER_STATS=y
-+CONFIG_DEBUG_RT_MUTEXES=y
-+CONFIG_DEBUG_MUTEXES=y
-+# CONFIG_CRYPTO_ANSI_CPRNG is not set
-+# CONFIG_CRYPTO_HW is not set
-+CONFIG_CRC_CCITT=m
-+CONFIG_CRC_T10DIF=m
-diff --git a/arch/arm/mach-davinci/Kconfig b/arch/arm/mach-davinci/Kconfig
-index 32d837d..4cb0469 100644
---- a/arch/arm/mach-davinci/Kconfig
-+++ b/arch/arm/mach-davinci/Kconfig
-@@ -202,6 +202,15 @@ config DA850_WL12XX
- 	  Say Y if you want to use a wl1271 expansion card connected to the
- 	  AM18x EVM.
+diff --git a/arch/arm/mach-ux500/devices-common.h b/arch/arm/mach-ux500/devices-common.h
+index 50d1292..d73fed5 100644
+--- a/arch/arm/mach-ux500/devices-common.h
++++ b/arch/arm/mach-ux500/devices-common.h
+@@ -56,27 +56,12 @@ dbx500_add_uart(struct device *parent, const char *name, resource_size_t base,
  
-+config MACH_ENBW_CMC
-+	bool "EnBW Communication Module Compact"
-+	default ARCH_DAVINCI_DA850
-+	depends on ARCH_DAVINCI_DA850
-+	select OF
-+	help
-+	  Say Y here to select the EnBW Communication Module Compact
-+	  board.
-+
- config GPIO_PCA953X
- 	default MACH_DAVINCI_DA850_EVM
+ struct nmk_i2c_controller;
  
-diff --git a/arch/arm/mach-davinci/Makefile b/arch/arm/mach-davinci/Makefile
-index 2db78bd..12f3166 100644
---- a/arch/arm/mach-davinci/Makefile
-+++ b/arch/arm/mach-davinci/Makefile
-@@ -34,6 +34,7 @@ obj-$(CONFIG_MACH_DAVINCI_DA850_EVM)	+= board-da850-evm.o
- obj-$(CONFIG_MACH_TNETV107X)		+= board-tnetv107x-evm.o
- obj-$(CONFIG_MACH_MITYOMAPL138)		+= board-mityomapl138.o
- obj-$(CONFIG_MACH_OMAPL138_HAWKBOARD)	+= board-omapl138-hawk.o
-+obj-$(CONFIG_MACH_ENBW_CMC)		+= board-enbw-cmc.o
+-static inline struct platform_device *
++static inline struct amba_device *
+ dbx500_add_i2c(struct device *parent, int id, resource_size_t base, int irq,
+ 	       struct nmk_i2c_controller *data)
+ {
+-	struct resource res[] = {
+-		DEFINE_RES_MEM(base, SZ_4K),
+-		DEFINE_RES_IRQ(irq),
+-	};
+-
+-	struct platform_device_info pdevinfo = {
+-		.parent = parent,
+-		.name = "nmk-i2c",
+-		.id = id,
+-		.res = res,
+-		.num_res = ARRAY_SIZE(res),
+-		.data = data,
+-		.size_data = sizeof(*data),
+-		.dma_mask = DMA_BIT_MASK(32),
+-	};
+-
+-	return platform_device_register_full(&pdevinfo);
++	return amba_apb_device_add(parent, "nmk-i2c", base, SZ_4K, irq, 0,
++				   data, 0);
+ }
  
- # Power Management
- obj-$(CONFIG_CPU_FREQ)			+= cpufreq.o
-diff --git a/arch/arm/mach-davinci/board-enbw-cmc.c b/arch/arm/mach-davinci/board-enbw-cmc.c
-new file mode 100644
-index 0000000..fcec14f
---- /dev/null
-+++ b/arch/arm/mach-davinci/board-enbw-cmc.c
-@@ -0,0 +1,374 @@
-+/*
-+ * EnBW Communication Module Compact board
-+ * Copyright 2011 DENX Software Engineering GmbH
-+ * Author: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-+ *
-+ * based on:
-+ * TI DA850/OMAP-L138 EVM board
-+ *
-+ * Copyright (C) 2009 Texas Instruments Incorporated - http://www.ti.com/
-+ *
-+ * Derived from: arch/arm/mach-davinci/board-da850-evm.c
-+ * Original Copyrights follow:
-+ *
-+ * 2007, 2009 (c) MontaVista Software, Inc. This file is licensed under
-+ * the terms of the GNU General Public License version 2. This program
-+ * is licensed "as is" without any warranty of any kind, whether express
-+ * or implied.
-+ */
-+#include <linux/console.h>
-+#include <linux/gpio.h>
-+#include <linux/gpio_keys.h>
-+#include <linux/i2c.h>
-+#include <linux/init.h>
-+#include <linux/kernel.h>
-+#include <linux/mtd/mtd.h>
-+#include <linux/mtd/nand.h>
-+#include <linux/mtd/partitions.h>
-+#include <linux/mtd/physmap.h>
-+#include <linux/of.h>
-+#include <linux/of_net.h>
-+#include <linux/of_address.h>
-+#include <linux/of_platform.h>
-+#include <linux/phy.h>
-+#include <linux/phy_fixed.h>
-+#include <linux/platform_device.h>
-+#include <linux/spi/spi.h>
-+#include <linux/spi/flash.h>
-+#include <asm/mach-types.h>
-+#include <asm/mach/arch.h>
-+#include <mach/aemif.h>
-+#include <mach/cp_intc.h>
-+#include <mach/da8xx.h>
-+#include <mach/mux.h>
-+#include <mach/nand.h>
-+#include <mach/spi.h>
-+
-+#define ENBW_CMC_MMCSD_CD_PIN          GPIO_TO_PIN(3, 13)
-+
-+/*
-+ * USB1 VBUS is controlled by GPIO7[12], over-current is reported on GPIO7[8].
-+ */
-+#define DA850_USB_VBUS_PIN	GPIO_TO_PIN(7, 12)
-+#define ON_BD_USB_OVC		GPIO_TO_PIN(7, 8)
-+
-+#if defined(CONFIG_USB_OHCI_HCD)
-+static irqreturn_t enbw_cmc_usb_ocic_irq(int irq, void *dev_id);
-+static da8xx_ocic_handler_t enbw_cmc_usb_ocic_handler;
-+
-+static int enbw_cmc_usb_set_power(unsigned port, int on)
-+{
-+	gpio_set_value(DA850_USB_VBUS_PIN, on);
-+	return 0;
-+}
-+
-+static int enbw_cmc_usb_get_power(unsigned port)
-+{
-+	return gpio_get_value(DA850_USB_VBUS_PIN);
-+}
-+
-+static int enbw_cmc_usb_get_oci(unsigned port)
-+{
-+	return !gpio_get_value(ON_BD_USB_OVC);
-+}
-+
-+static irqreturn_t enbw_cmc_usb_ocic_irq(int, void *);
-+
-+static int enbw_cmc_usb_ocic_notify(da8xx_ocic_handler_t handler)
-+{
-+	int irq         = gpio_to_irq(ON_BD_USB_OVC);
-+	int error       = 0;
-+
-+	if (handler != NULL) {
-+		enbw_cmc_usb_ocic_handler = handler;
-+
-+		error = request_irq(irq, enbw_cmc_usb_ocic_irq,
-+					IRQF_DISABLED | IRQF_TRIGGER_RISING |
-+					IRQF_TRIGGER_FALLING,
-+					"OHCI over-current indicator", NULL);
-+		if (error)
-+			pr_err("%s: could not request IRQ to watch "
-+				"over-current indicator changes\n", __func__);
-+	} else {
-+		free_irq(irq, NULL);
-+	}
-+	return error;
-+}
-+
-+static struct da8xx_ohci_root_hub enbw_cmc_usb11_pdata = {
-+	.set_power      = enbw_cmc_usb_set_power,
-+	.get_power      = enbw_cmc_usb_get_power,
-+	.get_oci        = enbw_cmc_usb_get_oci,
-+	.ocic_notify    = enbw_cmc_usb_ocic_notify,
-+	.potpgt         = (10 + 1) / 2,  /* 10 ms max */
-+};
-+
-+static irqreturn_t enbw_cmc_usb_ocic_irq(int irq, void *dev_id)
-+{
-+	enbw_cmc_usb_ocic_handler(&enbw_cmc_usb11_pdata, 1);
-+	return IRQ_HANDLED;
-+}
-+#endif
-+
-+static __init void enbw_cmc_usb_init(void)
-+{
-+	int ret;
-+	u32 cfgchip2;
-+
-+	/* Set up USB clock/mode in the CFGCHIP2 register. */
-+	cfgchip2 = __raw_readl(DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP2_REG));
-+
-+	/* USB2.0 PHY reference clock is AUXCLK with 24MHz */
-+	cfgchip2 &= ~CFGCHIP2_REFFREQ;
-+	cfgchip2 |=  CFGCHIP2_REFFREQ_24MHZ;
-+
-+	/*
-+	 * Select internal reference clock for USB 2.0 PHY
-+	 * and use it as a clock source for USB 1.1 PHY
-+	 * (this is the default setting anyway).
-+	 */
-+	cfgchip2 &= ~CFGCHIP2_USB1PHYCLKMUX;
-+	cfgchip2 |=  CFGCHIP2_USB2PHYCLKMUX;
-+
-+	cfgchip2 &= ~CFGCHIP2_OTGMODE;
-+	cfgchip2 |=  CFGCHIP2_SESENDEN | CFGCHIP2_VBDTCTEN;
-+
-+	__raw_writel(cfgchip2, DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP2_REG));
-+
-+	/*
-+	 * SP2525A @ 5V supplies 500mA,
-+	 * with the power on to power good time of 10 ms.
-+	 */
-+	ret = da8xx_register_usb20(500, 10);
-+	if (ret)
-+		pr_warning("%s: USB 2.0 registration failed: %d\n",
-+			   __func__, ret);
-+
-+#if defined(CONFIG_USB_OHCI_HCD)
-+	ret = gpio_request_one(DA850_USB_VBUS_PIN,
-+			GPIOF_DIR_OUT, "USB 1.1 VBUS");
-+	if (ret < 0) {
-+		pr_err("%s: failed to request GPIO for USB 1.1 port "
-+			"power control: %d\n", __func__, ret);
-+		return;
-+	}
-+	gpio_direction_input(DA850_USB_VBUS_PIN);
-+
-+	ret = gpio_request(ON_BD_USB_OVC, "ON_BD_USB_OVC");
-+	if (ret) {
-+		printk(KERN_ERR "%s: failed to request GPIO for USB 1.1 port "
-+		       "over-current indicator: %d\n", __func__, ret);
-+		gpio_free(DA850_USB_VBUS_PIN);
-+		return;
-+	}
-+	gpio_direction_input(ON_BD_USB_OVC);
-+
-+	ret = da8xx_register_usb11(&enbw_cmc_usb11_pdata);
-+	if (ret) {
-+		pr_warning("%s: USB 1.1 registration failed: %d\n",
-+			   __func__, ret);
-+		gpio_free(ON_BD_USB_OVC);
-+		gpio_free(DA850_USB_VBUS_PIN);
-+	}
-+#endif
-+
-+	return;
-+}
-+
-+static int enbw_cmc_mmc_get_ro(int index)
-+{
-+	return 0;
-+}
-+
-+static int enbw_cmc_mmc_get_cd(int index)
-+{
-+	return gpio_get_value(ENBW_CMC_MMCSD_CD_PIN) ? 1 : 0;
-+}
-+
-+static struct davinci_mmc_config enbw_cmc_mmc_config = {
-+	.get_ro		= enbw_cmc_mmc_get_ro,
-+	.get_cd		= enbw_cmc_mmc_get_cd,
-+	.wires		= 4,
-+	.max_freq	= 50000000,
-+	.caps		= MMC_CAP_MMC_HIGHSPEED | MMC_CAP_SD_HIGHSPEED,
-+	.version	= MMC_CTLR_VERSION_2,
-+};
-+
-+static int __init enbw_cmc_config_emac(void)
-+{
-+	void __iomem *cfg_chip3_base;
-+	u32 val;
-+	struct davinci_soc_info *soc_info = &davinci_soc_info;
-+
-+	if (!machine_is_enbw_cmc())
-+		return 0;
-+
-+	cfg_chip3_base = DA8XX_SYSCFG0_VIRT(DA8XX_CFGCHIP3_REG);
-+	val = __raw_readl(cfg_chip3_base);
-+	val &= ~BIT(8);
-+	pr_info("EMAC: MII PHY configured, RMII PHY will not be"
-+						" functional\n");
-+
-+	/* configure the CFGCHIP3 register for MII */
-+	__raw_writel(val, cfg_chip3_base);
-+
-+	/* use complete info from OF */
-+	soc_info->emac_pdata = NULL;
-+
-+	return 0;
-+}
-+device_initcall(enbw_cmc_config_emac);
-+
-+static const s16 da850_dma0_rsv_chans[][2] = {
-+	/* (offset, number) */
-+	{-1, -1}
-+};
-+
-+static const s16 da850_dma0_rsv_slots[][2] = {
-+	/* (offset, number) */
-+	{-1, -1}
-+};
-+
-+static const s16 da850_dma1_rsv_chans[][2] = {
-+	/* (offset, number) */
-+	{-1, -1}
-+};
-+
-+static const s16 da850_dma1_rsv_slots[][2] = {
-+	/* (offset, number) */
-+	{-1, -1}
-+};
-+
-+static struct edma_rsv_info da850_edma_cc0_rsv = {
-+	.rsv_chans	= da850_dma0_rsv_chans,
-+	.rsv_slots	= da850_dma0_rsv_slots,
-+};
-+
-+static struct edma_rsv_info da850_edma_cc1_rsv = {
-+	.rsv_chans	= da850_dma1_rsv_chans,
-+	.rsv_slots	= da850_dma1_rsv_slots,
-+};
-+
-+static struct edma_rsv_info *da850_edma_rsv[2] = {
-+	&da850_edma_cc0_rsv,
-+	&da850_edma_cc1_rsv,
-+};
-+
-+#ifdef CONFIG_CPU_FREQ
-+static __init int da850_evm_init_cpufreq(void)
-+{
-+	switch (system_rev & 0xF) {
-+	case 3:
-+		da850_max_speed = 456000;
-+		break;
-+	case 2:
-+		da850_max_speed = 408000;
-+		break;
-+	case 1:
-+		da850_max_speed = 372000;
-+		break;
-+	}
-+
-+	return da850_register_cpufreq("pll0_sysclk3");
-+}
-+#else
-+static __init int da850_evm_init_cpufreq(void) { return 0; }
-+#endif
-+
-+struct of_dev_auxdata enbw_cmc_auxdata_lookup[] __initdata = {
-+	OF_DEV_AUXDATA("ti,davinci-wdt", 0x01c21000, "ti,davinci-wdt", NULL),
-+	OF_DEV_AUXDATA("ti,davinci-i2c", 0x01c22000, "i2c_davinci.1", NULL),
-+	OF_DEV_AUXDATA("ti,davinci-i2c", 0x01e28000, "i2c_davinci.2", NULL),
-+	OF_DEV_AUXDATA("ti,davinci-dm6467-emac", 0x01e20000, "davinci_emac.1",
-+			NULL),
-+	{}
-+};
-+
-+const struct of_device_id enbw_cmc_bus_match_table[] = {
-+	{ .compatible = "simple-bus", },
-+	{ .compatible = "ti,da850", },
-+	{ .compatible = "ti,davinci-onchipram", },
-+	{ .compatible = "ti,davinci-aemif", },
-+	{} /* Empty terminated list */
-+};
-+
-+static __init void enbw_cmc_init(void)
-+{
-+	int ret;
-+
-+	of_platform_populate(NULL, enbw_cmc_bus_match_table,
-+		enbw_cmc_auxdata_lookup, NULL);
-+
-+	ret = da8xx_register_watchdog();
-+	if (ret)
-+		pr_warning("enbw_cmc_init: watchdog registration failed: %d\n",
-+				ret);
-+
-+	ret = da850_register_edma(da850_edma_rsv);
-+	if (ret)
-+		pr_warning("enbw_cmc_init: edma registration failed: %d\n",
-+				ret);
-+
-+	/*
-+	 * shut down uart 0 this port is not used on the board
-+	 */
-+	__raw_writel(0, IO_ADDRESS(DA8XX_UART0_BASE) + 0x30);
-+
-+	ret = da8xx_register_rtc();
-+	if (ret)
-+		pr_warning("enbw_cmc_init: rtc setup failed: %d\n", ret);
-+
-+	ret = da850_evm_init_cpufreq();
-+	if (ret)
-+		pr_warning("enbw_cmc_init: cpufreq registration failed: %d\n",
-+				ret);
-+
-+	ret = da8xx_register_cpuidle();
-+	if (ret)
-+		pr_warning("enbw_cmc_init: cpuidle registration failed: %d\n",
-+				ret);
-+
-+	ret = gpio_request(ENBW_CMC_MMCSD_CD_PIN, "MMC CD\n");
-+	if (ret)
-+		pr_warning("enbw_cmc_init: can not open GPIO %d\n",
-+				ENBW_CMC_MMCSD_CD_PIN);
-+	gpio_direction_input(ENBW_CMC_MMCSD_CD_PIN);
-+
-+	ret = da850_register_mmcsd1(&enbw_cmc_mmc_config);
-+	if (ret)
-+		pr_warning("enbw_cmc_init: mmcsd1 registration failed:"
-+				" %d\n", ret);
-+
-+	enbw_cmc_usb_init();
-+}
-+
-+#ifdef CONFIG_SERIAL_8250_CONSOLE
-+static int __init enbw_cmc_console_init(void)
-+{
-+	if (!machine_is_enbw_cmc())
-+		return 0;
-+
-+	return add_preferred_console("ttyS", 2, "115200");
-+}
-+console_initcall(enbw_cmc_console_init);
-+#endif
-+
-+static void __init enbw_cmc_map_io(void)
-+{
-+	da850_init();
-+}
-+
-+static const char *enbw_cmc_board_compat[] __initconst = {
-+	"enbw,cmc",
-+	NULL
-+};
-+
-+MACHINE_START(ENBW_CMC, "EnBW CMC")
-+	.map_io		= enbw_cmc_map_io,
-+	.init_irq	= cp_intc_init,
-+	.timer		= &davinci_timer,
-+	.init_machine	= enbw_cmc_init,
-+	.dt_compat	= enbw_cmc_board_compat,
-+	.dma_zone_size	= SZ_128M,
-+	.restart	= da8xx_restart,
-+MACHINE_END
-diff --git a/arch/arm/mach-davinci/include/mach/uncompress.h b/arch/arm/mach-davinci/include/mach/uncompress.h
-index da2fb2c..6119543 100644
---- a/arch/arm/mach-davinci/include/mach/uncompress.h
-+++ b/arch/arm/mach-davinci/include/mach/uncompress.h
-@@ -98,6 +98,7 @@ static inline void __arch_decomp_setup(unsigned long arch_id)
- 		DEBUG_LL_DA8XX(davinci_da850_evm,	2);
- 		DEBUG_LL_DA8XX(mityomapl138,		1);
- 		DEBUG_LL_DA8XX(omapl138_hawkboard,	2);
-+		DEBUG_LL_DA8XX(enbw_cmc,		2);
+ static inline struct amba_device *
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 09b7589..292e72c 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -14,7 +14,7 @@
+  */
+ #include <linux/init.h>
+ #include <linux/module.h>
+-#include <linux/platform_device.h>
++#include <linux/amba/bus.h>
+ #include <linux/slab.h>
+ #include <linux/interrupt.h>
+ #include <linux/i2c.h>
+@@ -135,7 +135,7 @@ struct i2c_nmk_client {
  
- 		/* TNETV107x boards */
- 		DEBUG_LL_TNETV107X(tnetv107x,		1);
+ /**
+  * struct nmk_i2c_dev - private data structure of the controller.
+- * @pdev: parent platform device.
++ * @adev: parent amba device.
+  * @adap: corresponding I2C adapter.
+  * @irq: interrupt line for the controller.
+  * @virtbase: virtual io memory area.
+@@ -149,7 +149,7 @@ struct i2c_nmk_client {
+  * @busy: Busy doing transfer.
+  */
+ struct nmk_i2c_dev {
+-	struct platform_device		*pdev;
++	struct amba_device		*adev;
+ 	struct i2c_adapter		adap;
+ 	int				irq;
+ 	void __iomem			*virtbase;
+@@ -216,7 +216,7 @@ static int flush_i2c_fifo(struct nmk_i2c_dev *dev)
+ 		}
+ 	}
+ 
+-	dev_err(&dev->pdev->dev,
++	dev_err(&dev->adev->dev,
+ 		"flushing operation timed out giving up after %d attempts",
+ 		LOOP_ATTEMPTS);
+ 
+@@ -363,7 +363,7 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 	 * and high speed (up to 3.4 Mb/s)
+ 	 */
+ 	if (dev->cfg.sm > I2C_FREQ_MODE_FAST) {
+-		dev_err(&dev->pdev->dev,
++		dev_err(&dev->adev->dev,
+ 			"do not support this mode defaulting to std. mode\n");
+ 		brcr2 = i2c_clk/(100000 * 2) & 0xffff;
+ 		writel((brcr1 | brcr2), dev->virtbase + I2C_BRCR);
+@@ -422,7 +422,7 @@ static int read_i2c(struct nmk_i2c_dev *dev)
+ 		&dev->xfer_complete, dev->adap.timeout);
+ 
+ 	if (timeout < 0) {
+-		dev_err(&dev->pdev->dev,
++		dev_err(&dev->adev->dev,
+ 			"wait_for_completion_timeout "
+ 			"returned %d waiting for event\n", timeout);
+ 		status = timeout;
+@@ -430,7 +430,7 @@ static int read_i2c(struct nmk_i2c_dev *dev)
+ 
+ 	if (timeout == 0) {
+ 		/* Controller timed out */
+-		dev_err(&dev->pdev->dev, "read from slave 0x%x timed out\n",
++		dev_err(&dev->adev->dev, "read from slave 0x%x timed out\n",
+ 				dev->cli.slave_adr);
+ 		status = -ETIMEDOUT;
+ 	}
+@@ -509,7 +509,7 @@ static int write_i2c(struct nmk_i2c_dev *dev)
+ 		&dev->xfer_complete, dev->adap.timeout);
+ 
+ 	if (timeout < 0) {
+-		dev_err(&dev->pdev->dev,
++		dev_err(&dev->adev->dev,
+ 			"wait_for_completion_timeout "
+ 			"returned %d waiting for event\n", timeout);
+ 		status = timeout;
+@@ -517,7 +517,7 @@ static int write_i2c(struct nmk_i2c_dev *dev)
+ 
+ 	if (timeout == 0) {
+ 		/* Controller timed out */
+-		dev_err(&dev->pdev->dev, "write to slave 0x%x timed out\n",
++		dev_err(&dev->adev->dev, "write to slave 0x%x timed out\n",
+ 				dev->cli.slave_adr);
+ 		status = -ETIMEDOUT;
+ 	}
+@@ -556,7 +556,7 @@ static int nmk_i2c_xfer_one(struct nmk_i2c_dev *dev, u16 flags)
+ 		if (((i2c_sr >> 2) & 0x3) == 0x3) {
+ 			/* get the abort cause */
+ 			cause =	(i2c_sr >> 4) & 0x7;
+-			dev_err(&dev->pdev->dev, "%s\n",
++			dev_err(&dev->adev->dev, "%s\n",
+ 				cause >= ARRAY_SIZE(abort_causes) ?
+ 				"unknown reason" :
+ 				abort_causes[cause]);
+@@ -629,7 +629,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 
+ 	if (dev->regulator)
+ 		regulator_enable(dev->regulator);
+-	pm_runtime_get_sync(&dev->pdev->dev);
++	pm_runtime_get_sync(&dev->adev->dev);
+ 
+ 	clk_enable(dev->clk);
+ 
+@@ -644,7 +644,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 
+ 		for (i = 0; i < num_msgs; i++) {
+ 			if (unlikely(msgs[i].flags & I2C_M_TEN)) {
+-				dev_err(&dev->pdev->dev,
++				dev_err(&dev->adev->dev,
+ 					"10 bit addressing not supported\n");
+ 
+ 				status = -EINVAL;
+@@ -666,7 +666,7 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 
+ out:
+ 	clk_disable(dev->clk);
+-	pm_runtime_put_sync(&dev->pdev->dev);
++	pm_runtime_put_sync(&dev->adev->dev);
+ 	if (dev->regulator)
+ 		regulator_disable(dev->regulator);
+ 
+@@ -789,7 +789,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 
+ 		if (dev->cli.count) {
+ 			dev->result = -EIO;
+-			dev_err(&dev->pdev->dev,
++			dev_err(&dev->adev->dev,
+ 				"%lu bytes still remain to be xfered\n",
+ 				dev->cli.count);
+ 			(void) init_hw(dev);
+@@ -833,7 +833,7 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 		dev->result = -EIO;
+ 		(void) init_hw(dev);
+ 
+-		dev_err(&dev->pdev->dev, "Tx Fifo Over run\n");
++		dev_err(&dev->adev->dev, "Tx Fifo Over run\n");
+ 		complete(&dev->xfer_complete);
+ 
+ 		break;
+@@ -846,10 +846,10 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ 	case I2C_IT_RFSE:
+ 	case I2C_IT_WTSR:
+ 	case I2C_IT_STD:
+-		dev_err(&dev->pdev->dev, "unhandled Interrupt\n");
++		dev_err(&dev->adev->dev, "unhandled Interrupt\n");
+ 		break;
+ 	default:
+-		dev_err(&dev->pdev->dev, "spurious Interrupt..\n");
++		dev_err(&dev->adev->dev, "spurious Interrupt..\n");
+ 		break;
+ 	}
+ 
+@@ -860,8 +860,8 @@ static irqreturn_t i2c_irq_handler(int irq, void *arg)
+ #ifdef CONFIG_PM
+ static int nmk_i2c_suspend(struct device *dev)
+ {
+-	struct platform_device *pdev = to_platform_device(dev);
+-	struct nmk_i2c_dev *nmk_i2c = platform_get_drvdata(pdev);
++	struct amba_device *adev = to_amba_device(dev);
++	struct nmk_i2c_dev *nmk_i2c = amba_get_drvdata(adev);
+ 
+ 	if (nmk_i2c->busy)
+ 		return -EBUSY;
+@@ -898,79 +898,67 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+ 	.functionality	= nmk_i2c_functionality
+ };
+ 
+-static int __devinit nmk_i2c_probe(struct platform_device *pdev)
++static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+ 	int ret = 0;
+-	struct resource *res;
+ 	struct nmk_i2c_controller *pdata =
+-			pdev->dev.platform_data;
++			adev->dev.platform_data;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+ 
++	if (!pdata) {
++		dev_warn(&adev->dev, "no platform data\n");
++		return -ENODEV;
++	}
+ 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+ 	if (!dev) {
+-		dev_err(&pdev->dev, "cannot allocate memory\n");
++		dev_err(&adev->dev, "cannot allocate memory\n");
+ 		ret = -ENOMEM;
+ 		goto err_no_mem;
+ 	}
+ 	dev->busy = false;
+-	dev->pdev = pdev;
+-	platform_set_drvdata(pdev, dev);
+-
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		ret = -ENOENT;
+-		goto err_no_resource;
+-	}
++	dev->adev = adev;
++	amba_set_drvdata(adev, dev);
+ 
+-	if (request_mem_region(res->start, resource_size(res),
+-		DRIVER_NAME "I/O region") == NULL) {
+-		ret = -EBUSY;
+-		goto err_no_region;
+-	}
+-
+-	dev->virtbase = ioremap(res->start, resource_size(res));
++	dev->virtbase = ioremap(adev->res.start, resource_size(&adev->res));
+ 	if (!dev->virtbase) {
+ 		ret = -ENOMEM;
+ 		goto err_no_ioremap;
+ 	}
+ 
+-	dev->irq = platform_get_irq(pdev, 0);
++	dev->irq = adev->irq[0];
+ 	ret = request_irq(dev->irq, i2c_irq_handler, 0,
+ 				DRIVER_NAME, dev);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "cannot claim the irq %d\n", dev->irq);
++		dev_err(&adev->dev, "cannot claim the irq %d\n", dev->irq);
+ 		goto err_irq;
+ 	}
+ 
+-	dev->regulator = regulator_get(&pdev->dev, "v-i2c");
++	dev->regulator = regulator_get(&adev->dev, "v-i2c");
+ 	if (IS_ERR(dev->regulator)) {
+-		dev_warn(&pdev->dev, "could not get i2c regulator\n");
++		dev_warn(&adev->dev, "could not get i2c regulator\n");
+ 		dev->regulator = NULL;
+ 	}
+ 
+-	pm_suspend_ignore_children(&pdev->dev, true);
+-	pm_runtime_enable(&pdev->dev);
++	pm_suspend_ignore_children(&adev->dev, true);
++	pm_runtime_enable(&adev->dev);
+ 
+-	dev->clk = clk_get(&pdev->dev, NULL);
++	dev->clk = clk_get(&adev->dev, NULL);
+ 	if (IS_ERR(dev->clk)) {
+-		dev_err(&pdev->dev, "could not get i2c clock\n");
++		dev_err(&adev->dev, "could not get i2c clock\n");
+ 		ret = PTR_ERR(dev->clk);
+ 		goto err_no_clk;
+ 	}
+ 
+ 	adap = &dev->adap;
+-	adap->dev.parent = &pdev->dev;
++	adap->dev.parent = &adev->dev;
+ 	adap->owner	= THIS_MODULE;
+ 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->algo	= &nmk_i2c_algo;
+ 	adap->timeout	= pdata->timeout ? msecs_to_jiffies(pdata->timeout) :
+ 		msecs_to_jiffies(20000);
+ 	snprintf(adap->name, sizeof(adap->name),
+-		 "Nomadik I2C%d at %lx", pdev->id, (unsigned long)res->start);
+-
+-	/* fetch the controller id */
+-	adap->nr	= pdev->id;
++		 "Nomadik I2C%d at %pR", adap->nr, &adev->res);
+ 
+ 	/* fetch the controller configuration from machine */
+ 	dev->cfg.clk_freq = pdata->clk_freq;
+@@ -981,13 +969,13 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ 
+ 	i2c_set_adapdata(adap, dev);
+ 
+-	dev_info(&pdev->dev,
++	dev_info(&adev->dev,
+ 		 "initialize %s on virtual base %p\n",
+ 		 adap->name, dev->virtbase);
+ 
+ 	ret = i2c_add_numbered_adapter(adap);
+ 	if (ret) {
+-		dev_err(&pdev->dev, "failed to add adapter\n");
++		dev_err(&adev->dev, "failed to add adapter\n");
+ 		goto err_add_adap;
+ 	}
+ 
+@@ -998,25 +986,22 @@ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+  err_no_clk:
+ 	if (dev->regulator)
+ 		regulator_put(dev->regulator);
+-	pm_runtime_disable(&pdev->dev);
++	pm_runtime_disable(&adev->dev);
+ 	free_irq(dev->irq, dev);
+  err_irq:
+ 	iounmap(dev->virtbase);
+  err_no_ioremap:
+-	release_mem_region(res->start, resource_size(res));
+- err_no_region:
+-	platform_set_drvdata(pdev, NULL);
+- err_no_resource:
++	amba_set_drvdata(adev, NULL);
+ 	kfree(dev);
+  err_no_mem:
+ 
+ 	return ret;
+ }
+ 
+-static int __devexit nmk_i2c_remove(struct platform_device *pdev)
++static int nmk_i2c_remove(struct amba_device *adev)
+ {
+-	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	struct nmk_i2c_dev *dev = platform_get_drvdata(pdev);
++	struct resource *res = &adev->res;
++	struct nmk_i2c_dev *dev = amba_get_drvdata(adev);
+ 
+ 	i2c_del_adapter(&dev->adap);
+ 	flush_i2c_fifo(dev);
+@@ -1031,31 +1016,46 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
+ 	clk_put(dev->clk);
+ 	if (dev->regulator)
+ 		regulator_put(dev->regulator);
+-	pm_runtime_disable(&pdev->dev);
+-	platform_set_drvdata(pdev, NULL);
++	pm_runtime_disable(&adev->dev);
++	amba_set_drvdata(adev, NULL);
+ 	kfree(dev);
+ 
+ 	return 0;
+ }
+ 
+-static struct platform_driver nmk_i2c_driver = {
+-	.driver = {
++static struct amba_id nmk_i2c_ids[] = {
++	{
++		.id	= 0x00018024,
++		.mask	= 0x00ffffff,
++	},
++	{
++		.id	= 0x00380024,
++		.mask	= 0x00ffffff,
++	},
++	{},
++};
++
++MODULE_DEVICE_TABLE(amba, nmk_i2c_ids);
++
++static struct amba_driver nmk_i2c_driver = {
++	.drv = {
+ 		.owner = THIS_MODULE,
+ 		.name = DRIVER_NAME,
+ 		.pm = &nmk_i2c_pm,
+ 	},
++	.id_table = nmk_i2c_ids,
+ 	.probe = nmk_i2c_probe,
+-	.remove = __devexit_p(nmk_i2c_remove),
++	.remove = nmk_i2c_remove,
+ };
+ 
+ static int __init nmk_i2c_init(void)
+ {
+-	return platform_driver_register(&nmk_i2c_driver);
++	return amba_driver_register(&nmk_i2c_driver);
+ }
+ 
+ static void __exit nmk_i2c_exit(void)
+ {
+-	platform_driver_unregister(&nmk_i2c_driver);
++	amba_driver_unregister(&nmk_i2c_driver);
+ }
+ 
+ subsys_initcall(nmk_i2c_init);
+@@ -1064,4 +1064,3 @@ module_exit(nmk_i2c_exit);
+ MODULE_AUTHOR("Sachin Verma, Srinidhi KASAGAR");
+ MODULE_DESCRIPTION("Nomadik/Ux500 I2C driver");
+ MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:" DRIVER_NAME);
 -- 
-1.7.7.6
+1.7.7.2
