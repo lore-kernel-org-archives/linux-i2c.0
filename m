@@ -1,44 +1,35 @@
-From: Alessandro Rubini <rubini@gnudd.com>
-Subject: [PATCH RFC 3/3] i2c-nomadik: depend on ARM_AMBA, not PLAT_NOMADIK
-Date: Wed, 30 May 2012 19:46:10 +0200
-Message-ID: <5be16088e4f9170da1540a3e4abe54175d5bcce2.1338398567.git.rubini@gnudd.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH RFC 1/3] i2c-nomadik: move header from <plat/i2c.h> to <linux/i2c-nomadik.h>
+Date: Thu, 31 May 2012 09:47:12 +0800
+Message-ID: <CACRpkdY_bg5s_eKot8Ywbmb+SmixsJOSJW_jWjjenedjJng4Jg@mail.gmail.com>
 References: <cover.1338398567.git.rubini@gnudd.com>
+	<ca47a47e0a4db31545549ed978e1dc7b3aad4377.1338398567.git.rubini@gnudd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cover.1338398567.git.rubini@gnudd.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Giancarlo Asnaghi <giancarlo.asnaghi@st.com>, Alan Cox <alan@linux.intel.com>, Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>, STEricsson_nomadik_linux@list.st.com, Linus Walleij <linus.walleij@stericsson.com>, Russell King <linux@arm.linux.org.uk>, Jean Delvare <khali@linux-fr.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <ca47a47e0a4db31545549ed978e1dc7b3aad4377.1338398567.git.rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Giancarlo Asnaghi <giancarlo.asnaghi-qxv4g6HH51o@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The gateware device has been used outside of the Nomadik world, using
-the pci-amba bridge driver, so loosen the dependencies.
+On Thu, May 31, 2012 at 1:45 AM, Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org> w=
+rote:
 
-Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
-Acked-by: Giancarlo Asnaghi <giancarlo.asnaghi@st.com>
----
- drivers/i2c/busses/Kconfig |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+> The header and driver were only used by arm/mach-nomadik and
+> arm/mach-u8500. =A0The STA2X11 I/O Hub exports on PCIe a number of
+> devices, including i2c-nomadik. =A0This patch allows compilation of
+> the driver under x86.
+>
+> Signed-off-by: Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>
+> Acked-by: Giancarlo Asnaghi <giancarlo.asnaghi-qxv4g6HH51o@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 7244c8b..e9f9c5d 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -479,10 +479,11 @@ config I2C_MXS
- 
- config I2C_NOMADIK
- 	tristate "ST-Ericsson Nomadik/Ux500 I2C Controller"
--	depends on PLAT_NOMADIK
-+	depends on ARM_AMBA
- 	help
- 	  If you say yes to this option, support will be included for the
--	  I2C interface from ST-Ericsson's Nomadik and Ux500 architectures.
-+	  I2C interface from ST-Ericsson's Nomadik and Ux500 architectures,
-+	  as well as the STA2X11 PCIe I/O HUB.
- 
- config I2C_NUC900
- 	tristate "NUC900 I2C Driver"
--- 
-1.7.7.2
+The new place to put pure platform data headers is:
+include/linux/platform_data/i2c-nomadik.h so please use this.
+
+Pls use git format-patch -M so we get a nice movement patch
+without all the -/+ lines. (No big deal though.)
+
+Yours,
+Linus Walleij
