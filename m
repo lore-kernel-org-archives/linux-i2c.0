@@ -1,84 +1,33 @@
-From: Kevin Hilman <khilman@ti.com>
-Subject: Re: [PATCHv10 00/11] I2C fixes
-Date: Thu, 31 May 2012 15:59:47 -0700
-Message-ID: <87obp4x8gs.fsf@ti.com>
-References: <1338288983-15026-1-git-send-email-shubhrajyoti@ti.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH RFC 2/3] i2c-nomadik: turn the platform driver to an amba driver
+Date: Fri, 1 Jun 2012 09:53:15 +0800
+Message-ID: <CACRpkdZXnuQe5NXyQBEZJD71Rs=+wvmXkw-4oT53FdU7KE7m2g@mail.gmail.com>
+References: <cover.1338398567.git.rubini@gnudd.com>
+	<349645b61d0b28f6e84f7ae1f2c8c28e12a11d92.1338398567.git.rubini@gnudd.com>
+	<CACRpkdZ79=B8N7omxYY4UPotg8gYotfLeBRViYMr8hA-Uhie0w@mail.gmail.com>
+	<4FC72DDF.7080209@codethink.co.uk>
+	<CACRpkdZpjn0RBGY+CqqSW3ip0MSQUJSaqN0GD=a4THnPHNM-jg@mail.gmail.com>
+	<20120531180204.GA28779@mail.gnudd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1338288983-15026-1-git-send-email-shubhrajyoti@ti.com>
-	(Shubhrajyoti D.'s message of "Tue, 29 May 2012 16:26:12 +0530")
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120531180204.GA28779-eyGpkxvC2QLRELXczCotyA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>
+Cc: ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org, lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, giancarlo.asnaghi-qxv4g6HH51o@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti D <shubhrajyoti@ti.com> writes:
+On Fri, Jun 1, 2012 at 2:02 AM, Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org> wrote:
 
-> The patch series does the following
->
-> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
-> - In case of i2c remove register access was done without any
->  get_sync fix the same.
-> - Folds a patch from Tasslehoff to prevent any merge conflicts.
-> - Prevents the XDUF flag to be set if the underflow condition is not met.
-> - As per discussion in [1] .Adds a patch to rename the 1p153 errata and
->  use the unique id instead as the section number in the recent errata
->  docs has changed.
->
-> v9:
-> Fix the comments from Wolfram Sang
->
-> v10:
-> Add a patch from Neil to the series.
-> Fix kevin comments
-> update the patches with comments.
+> So I'll resubmit in the right way (-M, include/linux/platform_data)
+> as soon as I have information for ftd fixup.
 
-Shubhrajyoti, thanks for the updates.
+OK if nothing happens you can probably just go in and patch:
+arch/arm/boot/dts/db8500.dtsi
 
-Wolfgang, with these updates and testing a bit better described, I'm OK
-with you merging it.  Merging it now will give it plenty of time to
-bake in linux-next and get more test exposure.
+I suspect it's just the compatible= that needs to be changed to
+"arm,primecell" or just have that string added to the others that
+are already there for each i2c device entry.
 
-Thanks,
-
-Kevin
-
-
-> [1] http://www.spinics.net/lists/linux-i2c/msg07607.html
->
-> Tested on omap4sdp and omap3sdp.
-> - Did functional tests read write on both the platforms.
-> - Off mode and retention on OMAP3
-> - On OMAP4 just did echo mem > /sys/power/state and wakeup.
-> Did see.
-> [ 1360.595855] Successfully put all powerdomains to target state
-> However didnt see the ret count for other than mpu_pwrdm increase.
-> I think power support for omap4 is minimal. 
->
-> The following changes since commit b48b2c3e50433ff6f7e46186daa7f986bd960215:
->
->   openrisc: use generic strnlen_user() function (2012-05-27 21:00:32 -0700)
->
-> are available in the git repository at:
->   git://gitorious.org/linus-tree/linus-tree.git i2c_omap-fixes
->
-> Neil Brown (1):
->       OMAP/I2C - Fix timeout problem during suspend.
->
-> Shubhrajyoti D (9):
->       I2C: OMAP: make omap_i2c_unidle/idle functions depend on CONFIG_PM_RUNTIME
->       I2C: OMAP: Fix the mismatch of pm_runtime enable and disable
->       I2C: OMAP: Fix the interrupt clearing in OMAP4
->       I2C: OMAP: Prevent the register access after pm_runtime_put in probe
->       I2C: OMAP: Don't check if wait_for_completion_timeout() returns less than zero
->       I2C: OMAP: Fix the crash in i2c remove
->       I2C: OMAP: Handle error check for pm runtime
->       I2C: OMAP: Do not set the XUDF(Transmit underflow) if the underflow is not reached
->       I2C: OMAP: Rename the 1p153 to the erratum id i462
->
-> Tasslehoff Kjappfot (1):
->       I2C: OMAP: prevent the overwrite of the errata flags
->
->  drivers/i2c/busses/i2c-omap.c |  129 ++++++++++++++++++++---------------------
->  1 files changed, 63 insertions(+), 66 deletions(-)
+Yours,
+Linus Walleij
