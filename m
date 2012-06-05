@@ -1,181 +1,27 @@
-From: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH v3] i2c: imx: convert to use managed functions
-Date: Mon, 4 Jun 2012 19:04:25 +0800
-Message-ID: <1338807865-5487-1-git-send-email-richard.zhao@freescale.com>
-References: <1338776481-23710-1-git-send-email-richard.zhao@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
+Subject: [PATCH 0/3] Multiple piix4-compatible SMBus support
+Date: Mon,  4 Jun 2012 21:49:21 -0400
+Message-ID: <1338860964-10803-1-git-send-email-andrew@asquaredlabs.com>
+References: <20120604091643.208956fe@endymion.delvare>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1338776481-23710-1-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <20120604091643.208956fe-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-- convert to use devm_request_and_ioremap, devm_kzalloc, devm_clk_get,
-  devm_request_irq.
-- clean up unused variables.
+These patches make it easier to support multiple SMBus controllers
+that may be present within one piix4-compatible PCI device, and
+enable support for the secondary SMBus controller found in the AMD
+SP5100 chipset.
 
-Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Reviewed-by: Shubhrajyoti D <Shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c |   71 ++++++++++-------------------------------
- 1 files changed, 18 insertions(+), 53 deletions(-)
+Andrew Armenia (3):
+  i2c-piix4: eliminate global I/O base address
+  i2c-piix4: separate registration and probing code
+  i2c-piix4: support aux SMBus on AMD chipsets
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 8d6b504..a93e846 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -118,10 +118,8 @@ static u16 __initdata i2c_clk_div[50][2] = {
- 
- struct imx_i2c_struct {
- 	struct i2c_adapter	adapter;
--	struct resource		*res;
- 	struct clk		*clk;
- 	void __iomem		*base;
--	int			irq;
- 	wait_queue_head_t	queue;
- 	unsigned long		i2csr;
- 	unsigned int 		disable_delay;
-@@ -473,7 +471,6 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
- 	struct pinctrl *pinctrl;
- 	void __iomem *base;
--	resource_size_t res_size;
- 	int irq, bitrate;
- 	int ret;
- 
-@@ -490,25 +487,15 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 		return -ENOENT;
- 	}
- 
--	res_size = resource_size(res);
--
--	if (!request_mem_region(res->start, res_size, DRIVER_NAME)) {
--		dev_err(&pdev->dev, "request_mem_region failed\n");
-+	base = devm_request_and_ioremap(&pdev->dev, res);
-+	if (!base)
- 		return -EBUSY;
--	}
--
--	base = ioremap(res->start, res_size);
--	if (!base) {
--		dev_err(&pdev->dev, "ioremap failed\n");
--		ret = -EIO;
--		goto fail1;
--	}
- 
--	i2c_imx = kzalloc(sizeof(struct imx_i2c_struct), GFP_KERNEL);
-+	i2c_imx = devm_kzalloc(&pdev->dev, sizeof(struct imx_i2c_struct),
-+				GFP_KERNEL);
- 	if (!i2c_imx) {
- 		dev_err(&pdev->dev, "can't allocate interface\n");
--		ret = -ENOMEM;
--		goto fail2;
-+		return -ENOMEM;
- 	}
- 
- 	/* Setup i2c_imx driver structure */
-@@ -518,29 +505,27 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 	i2c_imx->adapter.dev.parent	= &pdev->dev;
- 	i2c_imx->adapter.nr 		= pdev->id;
- 	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
--	i2c_imx->irq			= irq;
- 	i2c_imx->base			= base;
--	i2c_imx->res			= res;
- 
- 	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
- 	if (IS_ERR(pinctrl)) {
--		ret = PTR_ERR(pinctrl);
--		goto fail3;
-+		dev_err(&pdev->dev, "can't get/select pinctrl\n");
-+		return PTR_ERR(pinctrl);
- 	}
- 
- 	/* Get I2C clock */
--	i2c_imx->clk = clk_get(&pdev->dev, "i2c_clk");
-+	i2c_imx->clk = devm_clk_get(&pdev->dev, "i2c_clk");
- 	if (IS_ERR(i2c_imx->clk)) {
--		ret = PTR_ERR(i2c_imx->clk);
- 		dev_err(&pdev->dev, "can't get I2C clock\n");
--		goto fail3;
-+		return PTR_ERR(i2c_imx->clk);
- 	}
- 
- 	/* Request IRQ */
--	ret = request_irq(i2c_imx->irq, i2c_imx_isr, 0, pdev->name, i2c_imx);
-+	ret = devm_request_irq(&pdev->dev, irq, i2c_imx_isr, 0,
-+				pdev->name, i2c_imx);
- 	if (ret) {
--		dev_err(&pdev->dev, "can't claim irq %d\n", i2c_imx->irq);
--		goto fail4;
-+		dev_err(&pdev->dev, "can't claim irq %d\n", irq);
-+		return ret;
- 	}
- 
- 	/* Init queue */
-@@ -565,7 +550,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 	ret = i2c_add_numbered_adapter(&i2c_imx->adapter);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "registration failed\n");
--		goto fail5;
-+		return ret;
- 	}
- 
- 	of_i2c_register_devices(&i2c_imx->adapter);
-@@ -573,28 +558,16 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 	/* Set up platform driver data */
- 	platform_set_drvdata(pdev, i2c_imx);
- 
--	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", i2c_imx->irq);
-+	dev_dbg(&i2c_imx->adapter.dev, "claimed irq %d\n", irq);
- 	dev_dbg(&i2c_imx->adapter.dev, "device resources from 0x%x to 0x%x\n",
--		i2c_imx->res->start, i2c_imx->res->end);
--	dev_dbg(&i2c_imx->adapter.dev, "allocated %d bytes at 0x%x \n",
--		res_size, i2c_imx->res->start);
-+		res->start, res->end);
-+	dev_dbg(&i2c_imx->adapter.dev, "allocated %d bytes at 0x%x\n",
-+		resource_size(res), res->start);
- 	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
- 		i2c_imx->adapter.name);
- 	dev_dbg(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
- 
- 	return 0;   /* Return OK */
--
--fail5:
--	free_irq(i2c_imx->irq, i2c_imx);
--fail4:
--	clk_put(i2c_imx->clk);
--fail3:
--	kfree(i2c_imx);
--fail2:
--	iounmap(base);
--fail1:
--	release_mem_region(res->start, resource_size(res));
--	return ret; /* Return error number */
- }
- 
- static int __exit i2c_imx_remove(struct platform_device *pdev)
-@@ -606,20 +579,12 @@ static int __exit i2c_imx_remove(struct platform_device *pdev)
- 	i2c_del_adapter(&i2c_imx->adapter);
- 	platform_set_drvdata(pdev, NULL);
- 
--	/* free interrupt */
--	free_irq(i2c_imx->irq, i2c_imx);
--
- 	/* setup chip registers to defaults */
- 	writeb(0, i2c_imx->base + IMX_I2C_IADR);
- 	writeb(0, i2c_imx->base + IMX_I2C_IFDR);
- 	writeb(0, i2c_imx->base + IMX_I2C_I2CR);
- 	writeb(0, i2c_imx->base + IMX_I2C_I2SR);
- 
--	clk_put(i2c_imx->clk);
--
--	iounmap(i2c_imx->base);
--	release_mem_region(i2c_imx->res->start, resource_size(i2c_imx->res));
--	kfree(i2c_imx);
- 	return 0;
- }
- 
+ drivers/i2c/busses/i2c-piix4.c |  179 +++++++++++++++++++++++++++++++++-------
+ 1 file changed, 151 insertions(+), 28 deletions(-)
+
 -- 
-1.7.5.4
+1.7.10
