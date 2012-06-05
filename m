@@ -1,68 +1,46 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [PATCH 1/4] i2c: tegra: make sure register writes completes
-Date: Tue, 5 Jun 2012 18:39:57 +0530
-Message-ID: <1338901800-23968-2-git-send-email-ldewangan@nvidia.com>
-References: <1338901800-23968-1-git-send-email-ldewangan@nvidia.com>
+From: "Jayachandran C" <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Subject: [PATCH 0/4] I2C Ocores updates
+Date: Tue, 5 Jun 2012 21:11:04 +0530
+Message-ID: <1338910868-12318-1-git-send-email-jayachandranc@netlogicmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1338901800-23968-1-git-send-email-ldewangan@nvidia.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: khali@linux-fr.org, w.sang@pengutronix.de, ben-linux@fluff.org, swarren@wwwdotorg.org, olof@lixom.net
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The Tegra PPSB (an peripheral bus) queues writes transactions.
-In order to guarantee that writes have completed before a
-certain time, a read transaction to a register on the same
-bus must be executed.
-This is necessary in situations such as when clearing an
-interrupt status or enable, so that when returning from an
-interrupt handler, the HW has already de-asserted its
-interrupt status output, which will avoid spurious interrupts.
+[devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org copied since most of the changes are 
+ device tree related]
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c |   13 +++++++++++++
- 1 files changed, 13 insertions(+), 0 deletions(-)
+While trying to add reg-io-width property to i2c-ocores, we noticed
+a few things that needs to fixed up in i2c-ocores device tree code.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 8b2e555..fa92396 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -430,6 +430,13 @@ static irqreturn_t tegra_i2c_isr(int irq, void *dev_id)
- 	if (i2c_dev->is_dvc)
- 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
- 
-+	/*
-+	 * Register write get queued in the PPSB bus and write can
-+	 * happen later. Read back register to make sure that register
-+	 * write is completed.
-+	 */
-+	i2c_readl(i2c_dev, I2C_INT_STATUS);
-+
- 	if (status & I2C_INT_PACKET_XFER_COMPLETE) {
- 		BUG_ON(i2c_dev->msg_buf_remaining);
- 		complete(&i2c_dev->msg_complete);
-@@ -444,6 +451,9 @@ err:
- 	if (i2c_dev->is_dvc)
- 		dvc_writel(i2c_dev, DVC_STATUS_I2C_DONE_INTR, DVC_STATUS);
- 
-+	/* Read back register to make sure that register writes completed */
-+	i2c_readl(i2c_dev, I2C_INT_STATUS);
-+
- 	complete(&i2c_dev->msg_complete);
- 	return IRQ_HANDLED;
- }
-@@ -505,6 +515,9 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	ret = wait_for_completion_timeout(&i2c_dev->msg_complete, TEGRA_I2C_TIMEOUT);
- 	tegra_i2c_mask_irq(i2c_dev, int_mask);
- 
-+	/* Read back register to make sure that register writes completed */
-+	i2c_readl(i2c_dev, I2C_INT_MASK);
-+
- 	if (WARN_ON(ret == 0)) {
- 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
- 
+The changes are to: 
+ * use the standard 'reg-shift' property instead of 'regstep'
+ * fix the fallout of the about change in drivers/mfd/timberdale.c
+ * move bindings documentation to under Documentation/, 
+ * fix up formatting, and add \n to a few dev_* messages,
+ * and finally to add reg-io-width optional property.
+
+Regards,
+JC.
+
+Ganesan Ramalingam (2):
+  i2c: i2c-ocores: Use reg-shift property
+  i2c: i2c-ocores: support for 16bit and 32bit IO
+
+Jayachandran C (2):
+  i2c: i2c-ocores - DT bindings and minor fixes.
+  V4L/DVB: mfd: use reg_shift instead of regstep
+
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |   33 +++++++
+ drivers/i2c/busses/i2c-ocores.c                    |   96 +++++++++-----------
+ drivers/mfd/timberdale.c                           |    2 +-
+ include/linux/i2c-ocores.h                         |    7 +-
+ 4 files changed, 83 insertions(+), 55 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+
 -- 
-1.7.1.1
+1.7.9.5
