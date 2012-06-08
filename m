@@ -1,153 +1,175 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH V2 2/3] i2c-nomadik: turn the platform driver to an amba driver
-Date: Fri, 8 Jun 2012 19:09:52 +0200
-Message-ID: <CACRpkdaG2jMX75HRMvxX2oeV6GdU0VT__T2yY09k7uD=bz7mow@mail.gmail.com>
-References: <cover.1339076448.git.rubini@gnudd.com>
-	<a781edbbecfb4a0ebd22746b3110b2f130352509.1339076448.git.rubini@gnudd.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH 1/2 V2] MXS: Set I2C timing registers for mxs-i2c
+Date: Fri,  8 Jun 2012 20:54:48 +0200
+Message-ID: <1339181689-22573-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <a781edbbecfb4a0ebd22746b3110b2f130352509.1339076448.git.rubini@gnudd.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Alessandro Rubini <rubini@gnudd.com>
-Cc: linux-kernel@vger.kernel.org, Giancarlo Asnaghi <giancarlo.asnaghi@st.com>, Alan Cox <alan@linux.intel.com>, Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>, STEricsson_nomadik_linux@list.st.com, Linus Walleij <linus.walleij@stericsson.com>, Russell King <linux@arm.linux.org.uk>, Jean Delvare <khali@linux-fr.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 7, 2012 at 3:52 PM, Alessandro Rubini <rubini@gnudd.com> wrote:
+This patch configures the I2C bus timing registers according
+to information passed via DT. Currently, 100kHz and 400kHz
+modes are supported.
 
-> The i2c-nomadik gateware is really a PrimeCell APB device. By hosting
-> the driver under the amba bus we can access it more easily, for
-> example using the generic pci-amba driver. The patch also fixes the
-> mach-ux500 users, so they register an amba device instead than a
-> platform device.
->
-> The cell-id I used in the amba table are the one for ux500 (only as far as
-> I know from the stn-8815 manuals) and the one for STA2X11.
->
-> Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
-> Acked-by: Giancarlo Asnaghi <giancarlo.asnaghi@st.com>
+Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>
+CC: Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+CC: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>
+CC: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ Documentation/devicetree/bindings/i2c/i2c-mxs.txt |    1 +
+ arch/arm/boot/dts/imx28.dtsi                      |    2 +
+ drivers/i2c/busses/i2c-mxs.c                      |   54 +++++++++++++=
+++++++++
+ 3 files changed, 57 insertions(+)
 
-OK I tested this now and it causes a fat, ugly regression on ux500 and
-makes it hang at boot.
+V2: Use clock-frequency instead
 
-But don't worry! Because I found all the causes.
-
-1) The devices created from dbx500_add_i2c() must have a serious name
-  like "nmk-i2c.0" etc. (Caused platform to hang)
-
-2) Each adapter needs a unique adap->nr, this patch made the driver
-  into a singleton that couldn't handle multiple instances.
-
-3) Runtime PM screams because the AMBA runtime PM semantics
-  differ from the semantics of platform devices. AMBA calls probe
-  with pm enabled and one get() refcound and will also disable it
-  if probe fails. So just put() it at the end of probe.
-  (C.f. drivers/spi/spi-pl022.c)
-
-After fixing this it works fine on ux500. I also changed:
-
-4) The Nomadik PrimeCell ID looks tilted 4 bits. (Haven't tested, just
-  looked in the reference manual)
-
-Suggested patch to fix the patch below, beware that gmail might
-have whitespace-mangled it so you might need to edit it
-manually.
-
-diff --git a/arch/arm/mach-ux500/devices-common.h
-b/arch/arm/mach-ux500/devices-common.h
-index cfee556..ecdd838 100644
---- a/arch/arm/mach-ux500/devices-common.h
-+++ b/arch/arm/mach-ux500/devices-common.h
-@@ -60,8 +60,11 @@ static inline struct amba_device *
- dbx500_add_i2c(struct device *parent, int id, resource_size_t base, int irq,
- 	       struct nmk_i2c_controller *data)
- {
--	return amba_apb_device_add(parent, "nmk-i2c", base, SZ_4K, irq, 0,
--				   data, 0);
-+	/* Conjure a name similar to what the platform device used to have */
-+	char name[16];
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mxs.txt b/Docume=
+ntation/devicetree/bindings/i2c/i2c-mxs.txt
+index 1bfc02d..d2bf750 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
+@@ -4,6 +4,7 @@ Required properties:
+ - compatible: Should be "fsl,<chip>-i2c"
+ - reg: Should contain registers location and length
+ - interrupts: Should contain ERROR and DMA interrupts
++- clock-frequency: desired I2C bus clock frequency in Hz.
+=20
+ Examples:
+=20
+diff --git a/arch/arm/boot/dts/imx28.dtsi b/arch/arm/boot/dts/imx28.dts=
+i
+index a89da5a..714e63c 100644
+--- a/arch/arm/boot/dts/imx28.dtsi
++++ b/arch/arm/boot/dts/imx28.dtsi
+@@ -398,6 +398,7 @@
+ 				compatible =3D "fsl,imx28-i2c";
+ 				reg =3D <0x80058000 2000>;
+ 				interrupts =3D <111 68>;
++				clock-frequency =3D <400000>;
+ 				status =3D "disabled";
+ 			};
+=20
+@@ -407,6 +408,7 @@
+ 				compatible =3D "fsl,imx28-i2c";
+ 				reg =3D <0x8005a000 2000>;
+ 				interrupts =3D <110 69>;
++				clock-frequency =3D <400000>;
+ 				status =3D "disabled";
+ 			};
+=20
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.=
+c
+index 04eb441..b4d083f 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -46,6 +46,10 @@
+ #define MXS_I2C_CTRL0_DIRECTION			0x00010000
+ #define MXS_I2C_CTRL0_XFER_COUNT(v)		((v) & 0x0000FFFF)
+=20
++#define MXS_I2C_TIMING0		(0x10)
++#define MXS_I2C_TIMING1		(0x20)
++#define MXS_I2C_TIMING2		(0x30)
 +
-+	snprintf(name, sizeof(name), "nmk-i2c.%d", id);
-+	return amba_apb_device_add(parent, name, base, SZ_4K, irq, 0, data, 0);
- }
-
- static inline struct amba_device *
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index e9ed731..6db453f 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -15,6 +15,7 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/amba/bus.h>
-+#include <linux/atomic.h>
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/i2c.h>
-@@ -898,6 +899,8 @@ static const struct i2c_algorithm nmk_i2c_algo = {
- 	.functionality	= nmk_i2c_functionality
+ #define MXS_I2C_CTRL1		(0x40)
+ #define MXS_I2C_CTRL1_SET	(0x44)
+ #define MXS_I2C_CTRL1_CLR	(0x48)
+@@ -97,6 +101,24 @@
+ #define MXS_CMD_I2C_READ	(MXS_I2C_CTRL0_SEND_NAK_ON_LAST | \
+ 				 MXS_I2C_CTRL0_MASTER_MODE)
+=20
++struct mxs_i2c_speed_config {
++	uint32_t	timing0;
++	uint32_t	timing1;
++	uint32_t	timing2;
++};
++
++const struct mxs_i2c_speed_config mxs_i2c_95kHz_config =3D {
++	.timing0	=3D 0x00780030,
++	.timing1	=3D 0x00800030,
++	.timing2	=3D 0x0015000d,
++};
++
++const struct mxs_i2c_speed_config mxs_i2c_400kHz_config =3D {
++	.timing0	=3D 0x000f0007,
++	.timing1	=3D 0x001f000f,
++	.timing2	=3D 0x0015000d,
++};
++
+ /**
+  * struct mxs_i2c_dev - per device, private MXS-I2C data
+  *
+@@ -112,11 +134,17 @@ struct mxs_i2c_dev {
+ 	struct completion cmd_complete;
+ 	u32 cmd_err;
+ 	struct i2c_adapter adapter;
++	const struct mxs_i2c_speed_config *speed;
  };
-
-+static atomic_t adapter_id = ATOMIC_INIT(0);
-+
- static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+=20
+ static void mxs_i2c_reset(struct mxs_i2c_dev *i2c)
  {
- 	int ret = 0;
-@@ -941,7 +944,6 @@ static int nmk_i2c_probe(struct amba_device *adev,
-const struct amba_id *id)
- 	}
-
- 	pm_suspend_ignore_children(&adev->dev, true);
--	pm_runtime_enable(&adev->dev);
-
- 	dev->clk = clk_get(&adev->dev, NULL);
- 	if (IS_ERR(dev->clk)) {
-@@ -957,8 +959,10 @@ static int nmk_i2c_probe(struct amba_device
-*adev, const struct amba_id *id)
- 	adap->algo	= &nmk_i2c_algo;
- 	adap->timeout	= pdata->timeout ? msecs_to_jiffies(pdata->timeout) :
- 		msecs_to_jiffies(20000);
-+	adap->nr = atomic_read(&adapter_id);
- 	snprintf(adap->name, sizeof(adap->name),
- 		 "Nomadik I2C%d at %pR", adap->nr, &adev->res);
-+	atomic_inc(&adapter_id);
-
- 	/* fetch the controller configuration from machine */
- 	dev->cfg.clk_freq = pdata->clk_freq;
-@@ -979,6 +983,8 @@ static int nmk_i2c_probe(struct amba_device *adev,
-const struct amba_id *id)
- 		goto err_add_adap;
- 	}
-
-+	pm_runtime_put(&adev->dev);
+ 	stmp_reset_block(i2c->regs);
 +
- 	return 0;
-
-  err_add_adap:
-@@ -986,7 +992,6 @@ static int nmk_i2c_probe(struct amba_device *adev,
-const struct amba_id *id)
-  err_no_clk:
- 	if (dev->regulator)
- 		regulator_put(dev->regulator);
--	pm_runtime_disable(&adev->dev);
- 	free_irq(dev->irq, dev);
-  err_irq:
- 	iounmap(dev->virtbase);
-@@ -1025,7 +1030,7 @@ static int nmk_i2c_remove(struct amba_device *adev)
-
- static struct amba_id nmk_i2c_ids[] = {
- 	{
--		.id	= 0x00018024,
-+		.id	= 0x00180024,
- 		.mask	= 0x00ffffff,
- 	},
- 	{
-
-
-If you apply this and respin you can add
-Tested-by: Linus Walleij <linus.walleij@linaro.org>
-
-On all three patches.
-
-Yours,
-Linus Walleij
++	writel(i2c->speed->timing0, i2c->regs + MXS_I2C_TIMING0);
++	writel(i2c->speed->timing1, i2c->regs + MXS_I2C_TIMING1);
++	writel(i2c->speed->timing2, i2c->regs + MXS_I2C_TIMING2);
++
+ 	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
+ 	writel(MXS_I2C_QUEUECTRL_PIO_QUEUE_MODE,
+ 			i2c->regs + MXS_I2C_QUEUECTRL_SET);
+@@ -319,6 +347,27 @@ static const struct i2c_algorithm mxs_i2c_algo =3D=
+ {
+ 	.functionality =3D mxs_i2c_func,
+ };
+=20
++static int mxs_i2c_get_ofdata(struct mxs_i2c_dev *i2c)
++{
++	uint32_t speed;
++	struct device *dev =3D i2c->dev;
++	struct device_node *node =3D dev->of_node;
++
++	if (!node)
++		return -EINVAL;
++
++	i2c->speed =3D &mxs_i2c_95kHz_config;
++	ret =3D of_property_read_u32(node, "clock-frequency", &speed);
++	if (ret)
++		dev_warn(dev, "No I2C speed selected, using 100kHz\n");
++	else if (speed =3D=3D 400000)
++		i2c->speed =3D &mxs_i2c_400kHz_config;
++	else if (speed !=3D 100000)
++		dev_warn(dev, "Invalid I2C speed selected, using 100kHz\n");
++
++	return 0;
++}
++
+ static int __devinit mxs_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev =3D &pdev->dev;
+@@ -358,6 +407,11 @@ static int __devinit mxs_i2c_probe(struct platform=
+_device *pdev)
+ 		return err;
+=20
+ 	i2c->dev =3D dev;
++
++	err =3D mxs_i2c_get_ofdata(i2c);
++	if (err)
++		return err;
++
+ 	platform_set_drvdata(pdev, i2c);
+=20
+ 	/* Do reset to enforce correct startup after pinmuxing */
+--=20
+1.7.10
