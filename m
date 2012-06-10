@@ -1,114 +1,66 @@
-From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Subject: Re: [PATCHv10 00/11] I2C fixes
-Date: Sun, 10 Jun 2012 11:10:47 +0530
-Message-ID: <CAM=Q2ctZmOFdroUw5qywwGU_4ResB9RKqag4-+qh3nHeKHWzKQ@mail.gmail.com>
-References: <1338288983-15026-1-git-send-email-shubhrajyoti@ti.com>
-	<87obp4x8gs.fsf@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <87obp4x8gs.fsf@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: w.sang@pengutronix.de
-Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Kevin Hilman <khilman@ti.com>
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: [PATCH 0/9] Kirkwood DT support For IRQ, SPI, I2C, GPIO
+Date: Sun, 10 Jun 2012 12:31:52 +0200
+Message-ID: <1339324322-29388-1-git-send-email-andrew@lunn.ch>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org
+Cc: grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 1, 2012 at 4:29 AM, Kevin Hilman <khilman@ti.com> wrote:
-> Shubhrajyoti D <shubhrajyoti@ti.com> writes:
->
->> The patch series does the following
->>
->> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
->> - In case of i2c remove register access was done without any
->> =A0get_sync fix the same.
->> - Folds a patch from Tasslehoff to prevent any merge conflicts.
->> - Prevents the XDUF flag to be set if the underflow condition is not=
- met.
->> - As per discussion in [1] .Adds a patch to rename the 1p153 errata =
-and
->> =A0use the unique id instead as the section number in the recent err=
-ata
->> =A0docs has changed.
->>
->> v9:
->> Fix the comments from Wolfram Sang
->>
->> v10:
->> Add a patch from Neil to the series.
->> Fix kevin comments
->> update the patches with comments.
->
-> Shubhrajyoti, thanks for the updates.
->
-> Wolfgang, with these updates and testing a bit better described, I'm =
-OK
-> with you merging it. =A0Merging it now will give it plenty of time to
-> bake in linux-next and get more test exposure.
+This patch set adds Device Tree support for IRQ, SPI, I2C and GPIO on
+Orion based drivers, and makes use of these for kirkwood devices.  It
+also adds the ability to boot QNAP TS219 based systems using device
+tree.
 
-Agree,
-These are only fixes can it be considered for rc3?
+The SPI DT patches are from Michael Walle, and have been previously
+posted. I've addressed the issues raised during the review.
 
-Thanks and Regards,
-Shubhrajyoti
->
-> Thanks,
->
-> Kevin
->
->
->> [1] http://www.spinics.net/lists/linux-i2c/msg07607.html
->>
->> Tested on omap4sdp and omap3sdp.
->> - Did functional tests read write on both the platforms.
->> - Off mode and retention on OMAP3
->> - On OMAP4 just did echo mem > /sys/power/state and wakeup.
->> Did see.
->> [ 1360.595855] Successfully put all powerdomains to target state
->> However didnt see the ret count for other than mpu_pwrdm increase.
->> I think power support for omap4 is minimal.
->>
->> The following changes since commit b48b2c3e50433ff6f7e46186daa7f986b=
-d960215:
->>
->> =A0 openrisc: use generic strnlen_user() function (2012-05-27 21:00:=
-32 -0700)
->>
->> are available in the git repository at:
->> =A0 git://gitorious.org/linus-tree/linus-tree.git i2c_omap-fixes
->>
->> Neil Brown (1):
->> =A0 =A0 =A0 OMAP/I2C - Fix timeout problem during suspend.
->>
->> Shubhrajyoti D (9):
->> =A0 =A0 =A0 I2C: OMAP: make omap_i2c_unidle/idle functions depend on=
- CONFIG_PM_RUNTIME
->> =A0 =A0 =A0 I2C: OMAP: Fix the mismatch of pm_runtime enable and dis=
-able
->> =A0 =A0 =A0 I2C: OMAP: Fix the interrupt clearing in OMAP4
->> =A0 =A0 =A0 I2C: OMAP: Prevent the register access after pm_runtime_=
-put in probe
->> =A0 =A0 =A0 I2C: OMAP: Don't check if wait_for_completion_timeout() =
-returns less than zero
->> =A0 =A0 =A0 I2C: OMAP: Fix the crash in i2c remove
->> =A0 =A0 =A0 I2C: OMAP: Handle error check for pm runtime
->> =A0 =A0 =A0 I2C: OMAP: Do not set the XUDF(Transmit underflow) if th=
-e underflow is not reached
->> =A0 =A0 =A0 I2C: OMAP: Rename the 1p153 to the erratum id i462
->>
->> Tasslehoff Kjappfot (1):
->> =A0 =A0 =A0 I2C: OMAP: prevent the overwrite of the errata flags
->>
->> =A0drivers/i2c/busses/i2c-omap.c | =A0129 ++++++++++++++++++++------=
----------------
->> =A01 files changed, 63 insertions(+), 66 deletions(-)
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
- in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+The SPI refactor to use the SPI framework was submitted for merge into
+3.5, but due to dependency issues, which are now resolved, the patch
+was not accepted. This patch has been modified to remove two NOP
+functions, which the SPI framework no longer needs.
+
+Andrew Lunn (5):
+  ARM: Kirkwood: Add interrupt controller support for DT boards
+  SPI: Refactor spi-orion to use SPI framework queue.
+  I2C: MV64XXX: Add Device Tree support
+  ARM: Kirkwood: Add DT support for GPIO controllers
+  Kirkwood: Add basic device tree support for QNAP TS219.
+
+Michael Walle (4):
+  spi-orion: remove uneeded spi_info
+  spi-orion: add device tree binding
+  ARM: kirkwood: use devicetree for orion-spi
+  ARM: kirkwood: use devicetree for SPI on dreamplug
+
+ .../devicetree/bindings/arm/mrvl/intc.txt          |   20 ++
+ .../devicetree/bindings/gpio/mrvl-gpio.txt         |   25 +++
+ Documentation/devicetree/bindings/i2c/mrvl-i2c.txt |   35 ++-
+ .../devicetree/bindings/spi/spi-orion.txt          |    5 +
+ arch/arm/boot/dts/kirkwood-dreamplug.dts           |   29 +++
+ arch/arm/boot/dts/kirkwood-ts219-6281.dts          |   21 ++
+ arch/arm/boot/dts/kirkwood-ts219-6282.dts          |   21 ++
+ arch/arm/boot/dts/kirkwood-ts219.dtsi              |   73 +++++++
+ arch/arm/boot/dts/kirkwood.dtsi                    |   51 +++++
+ arch/arm/mach-kirkwood/Kconfig                     |   15 ++
+ arch/arm/mach-kirkwood/Makefile                    |    1 +
+ arch/arm/mach-kirkwood/Makefile.boot               |    1 +
+ arch/arm/mach-kirkwood/board-dreamplug.c           |   41 ----
+ arch/arm/mach-kirkwood/board-dt.c                  |   36 +++-
+ arch/arm/mach-kirkwood/board-ts219.c               |   86 ++++++++
+ arch/arm/mach-kirkwood/common.h                    |    5 +
+ arch/arm/mach-kirkwood/irq.c                       |   20 +-
+ arch/arm/plat-orion/gpio.c                         |   68 +++++-
+ arch/arm/plat-orion/include/plat/gpio.h            |    2 +
+ drivers/i2c/busses/i2c-mv64xxx.c                   |   38 +++-
+ drivers/spi/spi-orion.c                            |  223 ++++++--------------
+ 21 files changed, 605 insertions(+), 211 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/spi/spi-orion.txt
+ create mode 100644 arch/arm/boot/dts/kirkwood-ts219-6281.dts
+ create mode 100644 arch/arm/boot/dts/kirkwood-ts219-6282.dts
+ create mode 100644 arch/arm/boot/dts/kirkwood-ts219.dtsi
+ create mode 100644 arch/arm/mach-kirkwood/board-ts219.c
+
+-- 
+1.7.10
