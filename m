@@ -1,53 +1,114 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 1/2 V2] MXS: Set I2C timing registers for mxs-i2c
-Date: Sat, 9 Jun 2012 15:10:31 +0200
-Message-ID: <201206091510.31232.marex@denx.de>
-References: <1339181689-22573-1-git-send-email-marex@denx.de> <201206091234.47309.marex@denx.de> <CAM=Q2cvvwXimLY358ET69U6qCsGoxenYMNtApYbhpn4cCC0nUg@mail.gmail.com>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [PATCHv10 00/11] I2C fixes
+Date: Sun, 10 Jun 2012 11:10:47 +0530
+Message-ID: <CAM=Q2ctZmOFdroUw5qywwGU_4ResB9RKqag4-+qh3nHeKHWzKQ@mail.gmail.com>
+References: <1338288983-15026-1-git-send-email-shubhrajyoti@ti.com>
+	<87obp4x8gs.fsf@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2cvvwXimLY358ET69U6qCsGoxenYMNtApYbhpn4cCC0nUg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <87obp4x8gs.fsf@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: w.sang@pengutronix.de
+Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Kevin Hilman <khilman@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Shubhrajyoti Datta,
+On Fri, Jun 1, 2012 at 4:29 AM, Kevin Hilman <khilman@ti.com> wrote:
+> Shubhrajyoti D <shubhrajyoti@ti.com> writes:
+>
+>> The patch series does the following
+>>
+>> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
+>> - In case of i2c remove register access was done without any
+>> =A0get_sync fix the same.
+>> - Folds a patch from Tasslehoff to prevent any merge conflicts.
+>> - Prevents the XDUF flag to be set if the underflow condition is not=
+ met.
+>> - As per discussion in [1] .Adds a patch to rename the 1p153 errata =
+and
+>> =A0use the unique id instead as the section number in the recent err=
+ata
+>> =A0docs has changed.
+>>
+>> v9:
+>> Fix the comments from Wolfram Sang
+>>
+>> v10:
+>> Add a patch from Neil to the series.
+>> Fix kevin comments
+>> update the patches with comments.
+>
+> Shubhrajyoti, thanks for the updates.
+>
+> Wolfgang, with these updates and testing a bit better described, I'm =
+OK
+> with you merging it. =A0Merging it now will give it plenty of time to
+> bake in linux-next and get more test exposure.
 
-> >> > +struct mxs_i2c_speed_config {
-> >> > +       uint32_t        timing0;
-> >> > +       uint32_t        timing1;
-> >> > +       uint32_t        timing2;
-> >> > +};
-> >> > +
-> >> > +const struct mxs_i2c_speed_config mxs_i2c_95kHz_config = {
-> >> 
-> >> You are using 95k?
-> > 
-> > Yes
-> > 
-> >> Didnt understand this.
-> > 
-> > What exactly, it's running (according to the datasheet) at 95kHz.
-> 
-> Did you intend 100k?
+Agree,
+These are only fixes can it be considered for rc3?
 
-I intended to stick with the datasheet, if you manage to find explanation for 
-why they chose 95kHz, I'd be interested to hear it ... btw. 24MHz/95kHz gives 
-pretty weird divider, which is quite suspicious.
-
-> and approximating due to clock ... or some other limitaion?
-
-Doesn't seem to be the case, see "btw" part above.
-
-> That is what I was trying to understand.
-> 
-> >> > +       .timing0        = 0x00780030,
-> >> > +       .timing1        = 0x00800030,
-> >> > +       .timing2        = 0x0015000d,
-> >> > +};
-
-Best regards,
-Marek Vasut
+Thanks and Regards,
+Shubhrajyoti
+>
+> Thanks,
+>
+> Kevin
+>
+>
+>> [1] http://www.spinics.net/lists/linux-i2c/msg07607.html
+>>
+>> Tested on omap4sdp and omap3sdp.
+>> - Did functional tests read write on both the platforms.
+>> - Off mode and retention on OMAP3
+>> - On OMAP4 just did echo mem > /sys/power/state and wakeup.
+>> Did see.
+>> [ 1360.595855] Successfully put all powerdomains to target state
+>> However didnt see the ret count for other than mpu_pwrdm increase.
+>> I think power support for omap4 is minimal.
+>>
+>> The following changes since commit b48b2c3e50433ff6f7e46186daa7f986b=
+d960215:
+>>
+>> =A0 openrisc: use generic strnlen_user() function (2012-05-27 21:00:=
+32 -0700)
+>>
+>> are available in the git repository at:
+>> =A0 git://gitorious.org/linus-tree/linus-tree.git i2c_omap-fixes
+>>
+>> Neil Brown (1):
+>> =A0 =A0 =A0 OMAP/I2C - Fix timeout problem during suspend.
+>>
+>> Shubhrajyoti D (9):
+>> =A0 =A0 =A0 I2C: OMAP: make omap_i2c_unidle/idle functions depend on=
+ CONFIG_PM_RUNTIME
+>> =A0 =A0 =A0 I2C: OMAP: Fix the mismatch of pm_runtime enable and dis=
+able
+>> =A0 =A0 =A0 I2C: OMAP: Fix the interrupt clearing in OMAP4
+>> =A0 =A0 =A0 I2C: OMAP: Prevent the register access after pm_runtime_=
+put in probe
+>> =A0 =A0 =A0 I2C: OMAP: Don't check if wait_for_completion_timeout() =
+returns less than zero
+>> =A0 =A0 =A0 I2C: OMAP: Fix the crash in i2c remove
+>> =A0 =A0 =A0 I2C: OMAP: Handle error check for pm runtime
+>> =A0 =A0 =A0 I2C: OMAP: Do not set the XUDF(Transmit underflow) if th=
+e underflow is not reached
+>> =A0 =A0 =A0 I2C: OMAP: Rename the 1p153 to the erratum id i462
+>>
+>> Tasslehoff Kjappfot (1):
+>> =A0 =A0 =A0 I2C: OMAP: prevent the overwrite of the errata flags
+>>
+>> =A0drivers/i2c/busses/i2c-omap.c | =A0129 ++++++++++++++++++++------=
+---------------
+>> =A01 files changed, 63 insertions(+), 66 deletions(-)
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
+ in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
