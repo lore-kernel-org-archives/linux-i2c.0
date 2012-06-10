@@ -1,47 +1,27 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: lm75_remove: LM75 Device remove using sysfs  delete_device
-Date: Sun, 10 Jun 2012 17:52:37 +0200
-Message-ID: <20120610175237.6356c729@endymion.delvare>
-References: <CAOJFanUqFZPih6puAy2DWPWPQMs6ZZz_DFgO9wnRttnP5mCPZA@mail.gmail.com>
-	<20120610173640.3b21759c@endymion.delvare>
-	<20120610154629.GD10367@ericsson.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 2/9] SPI: Refactor spi-orion to use SPI framework queue.
+Date: Sun, 10 Jun 2012 18:30:10 +0200
+Message-ID: <CACRpkdY+egHAMxwLVOfRPYykeB3=nS=hVmdMDK0Q_6U9PZYbZQ@mail.gmail.com>
+References: <1339324322-29388-3-git-send-email-andrew@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120610154629.GD10367-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1339324322-29388-3-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Cc: Sasikanth babu <sasikanth.v19-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Cc: jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 10 Jun 2012 08:46:29 -0700, Guenter Roeck wrote:
-> On Sun, Jun 10, 2012 at 11:36:40AM -0400, Jean Delvare wrote:
-> > > "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> > > i2cinit       D ffffffff814a04e0     0  2064   2059 0x00000004
-> > >  ffff880271928a70 0000000000000086 0000000000000096 ffff880273215b48
-> > >  ffff8802ffffffff ffff880477306a70 0000000000010140 ffff880273215fd8
-> > >  0000000000010140 ffff880271928a70 ffff880273215fd8 ffff880273215fd8
-> > > Call Trace:
-> > >  [<ffffffff8103ecd0>] ? default_wake_function+0x0/0x20
-> > >  [<ffffffff8148765f>] ? __rt_mutex_slowlock+0x4f/0x110
-> > >  [<ffffffff814879e3>] ? rt_mutex_slowlock+0x93/0x190
-> > >  [<ffffffff813278d9>] ? i2c_smbus_xfer+0x49/0x110
-> > >  [<ffffffff814e1de0>] ? dev_sysfs_ops+0x0/0x10
-> > >  [<ffffffff81327c40>] ? i2c_smbus_write_byte_data+0x30/0x40
-> > 
-> > This looks odd, sysfs_remove_group() doesn't call
-> > i2c_smbus_write_byte_data(), and i2c_smbus_write_byte_data() doesn't
-> > touch dev_sysfs_ops... So this stack trace is approximate.
-> > 
-> I thought it was probably the call to lm75_write_value() in lm75_remove()
-> after sysfs_remove_group() returned.
+On Sun, Jun 10, 2012 at 12:31 PM, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org> wrote:
 
-Certainly. We see a mix of the function calls in lm75_remove().
-lm75_write_value() is definitely the one causing the deadlock. And your
-analysis is correct... there's nothing special about this byte write,
-so there must be something wrong with the underlying I2C bus even
-before that.
+> Replace the deprecated master->transfer with transfer_one_message()
+> and allow the SPI subsystem handle all the queuing of messages.
+>
+> Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
--- 
-Jean Delvare
+Looks good to me:
+Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+
+Yours,
+Linus Walleij
