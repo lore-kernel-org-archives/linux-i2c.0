@@ -1,49 +1,66 @@
-From: Steven King <sfking@fdwdc.com>
-Subject: Re: [PATCH V3] m68knommu: driver for Freescale
-	Coldfire I2C controller.
-Date: Mon, 11 Jun 2012 12:29:51 -0700
-Message-ID: <201206111229.51887.sfking@fdwdc.com>
-References: <201205161910.36693.sfking@fdwdc.com>
- <20120611174634.GI3887@pengutronix.de>
-Reply-To: uClinux development list <uclinux-dev@uclinux.org>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C driver
+Date: Mon, 11 Jun 2012 22:37:14 +0200
+Message-ID: <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
+	<1339428307-3850-10-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dev-bounces@uclinux.org>
-In-Reply-To: <20120611174634.GI3887@pengutronix.de>
-Content-Disposition: inline
-List-Unsubscribe: <http://mailman.uclinux.org/mailman/options/uclinux-dev>,
- <mailto:uclinux-dev-request@uclinux.org?subject=unsubscribe>
-List-Archive: <http://mailman.uclinux.org/pipermail/uclinux-dev>
-List-Post: <mailto:uclinux-dev@uclinux.org>
-List-Help: <mailto:uclinux-dev-request@uclinux.org?subject=help>
-List-Subscribe: <http://mailman.uclinux.org/mailman/listinfo/uclinux-dev>,
- <mailto:uclinux-dev-request@uclinux.org?subject=subscribe>
-Errors-To: uclinux-dev-bounces@uclinux.org
-Sender: uclinux-dev-bounces@uclinux.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: gerg@uclinux.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, uClinux development list <uclinux-dev@uclinux.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1339428307-3850-10-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 11 June 2012 10:46:34 am Wolfram Sang wrote:
-> On Wed, May 16, 2012 at 07:10:35PM -0700, Steven King wrote:
-> > D'oh!  I really dropped the ball on this, but I figure better late than
-> > never ;-).
->
-> Thank you for this! Yet, I just noticed that the register layout is the
-> same as in i2c-imx.c. Not surprisingly, since both platforms share the
-> roots. Have you checked if you can use the imx-driver as well?
+On Mon, Jun 11, 2012 at 5:25 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote=
+:
 
-While they are physically similar, just as the mpc and the imx are physically 
-similar, the imx driver has a lot of imx'isms, device tree and OF 
-dependencies that aren't supported by the m68k/nommu.  I would expect the 
-changes needed tantamount to having separate drivers.  Plus I have no way of 
-testing what impact any changes I made had on the imx functionality, so I 
-expect I would end up mostly just annoying the imx developers.
-_______________________________________________
-uClinux-dev mailing list
-uClinux-dev@uclinux.org
-http://mailman.uclinux.org/mailman/listinfo/uclinux-dev
-This message was resent by uclinux-dev@uclinux.org
-To unsubscribe see:
-http://mailman.uclinux.org/mailman/options/uclinux-dev
+> As new users are
+> added, it is expected that they will be Device Tree compliant.
+> If this is the case, we will look up their initialisation values
+> by compatible entry, then apply them forthwith.
+(...)
+> +static struct nmk_i2c_controller u8500_i2c =3D {
+> + =A0 =A0 =A0 /*
+> + =A0 =A0 =A0 =A0* slave data setup time, which is
+> + =A0 =A0 =A0 =A0* 250 ns,100ns,10ns which is 14,6,2
+> + =A0 =A0 =A0 =A0* respectively for a 48 Mhz
+> + =A0 =A0 =A0 =A0* i2c clock
+> + =A0 =A0 =A0 =A0*/
+> + =A0 =A0 =A0 .slsu =A0 =A0 =A0 =A0 =A0 =3D 0xe,
+> + =A0 =A0 =A0 /* Tx FIFO threshold */
+> + =A0 =A0 =A0 .tft =A0 =A0 =A0 =A0 =A0 =A0=3D 1,
+> + =A0 =A0 =A0 /* Rx FIFO threshold */
+> + =A0 =A0 =A0 .rft =A0 =A0 =A0 =A0 =A0 =A0=3D 8,
+> + =A0 =A0 =A0 /* std. mode operation */
+> + =A0 =A0 =A0 .clk_freq =A0 =A0 =A0 =3D 100000,
+> + =A0 =A0 =A0 /* Slave response timeout(ms) */
+> + =A0 =A0 =A0 .timeout =A0 =A0 =A0 =A0=3D 200,
+> + =A0 =A0 =A0 .sm =A0 =A0 =A0 =A0 =A0 =A0 =3D I2C_FREQ_MODE_FAST,
+> +};
+
+So why don't we create proper device tree bindings for the above platfo=
+rm
+data?
+
+=46or example several driver under
+Documentation/devicetree/bindings/i2c/*
+define the .clk_freq above as "clock-frequency"
+
+samsung-i2c even has this:
+samsung,i2c-sda-delay =3D <100>;
+samsung,i2c-max-bus-freq =3D <100000>;
+
+Where i2c-sda-delay corresponds to slsu above.
+
+I suspect .sm can be derived from the frequency so it
+is "FAST" whenever the frequency > 100000.
+
+This looks to me like a way to push the burden of doing the real
+device tree binding for the above to the next user.
+(Which will likely be me, so therefore I care a bit ...)
+
+Yours,
+Linus Walleij
