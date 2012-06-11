@@ -1,101 +1,84 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C driver
-Date: Mon, 11 Jun 2012 16:25:02 +0100
-Message-ID: <1339428307-3850-10-git-send-email-lee.jones@linaro.org>
-References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc: linus.walleij@stericsson.com, arnd@arndb.de, grant.likely@secretlab.ca, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCHv10 00/11] I2C fixes
+Date: Mon, 11 Jun 2012 18:00:34 +0200
+Message-ID: <20120611160034.GA3887@pengutronix.de>
+References: <1338288983-15026-1-git-send-email-shubhrajyoti@ti.com>
+ <87obp4x8gs.fsf@ti.com>
+ <CAM=Q2ctZmOFdroUw5qywwGU_4ResB9RKqag4-+qh3nHeKHWzKQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAM=Q2ctZmOFdroUw5qywwGU_4ResB9RKqag4-+qh3nHeKHWzKQ@mail.gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Kevin Hilman <khilman@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Here we move the i2c-nomadik's default settings into the driver
-rather than specifying them from platform code. At the time of
-this writing we only have one user, the u8500. As new users are
-added, it is expected that they will be Device Tree compliant.
-If this is the case, we will look up their initialisation values
-by compatible entry, then apply them forthwith.
 
-Cc: linux-i2c@vger.kernel.org
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/i2c/busses/i2c-nomadik.c |   40 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 39 insertions(+), 1 deletion(-)
+--4Ckj6UjgE2iN1+kY
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index a92440d..1ffdf67 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -23,6 +23,7 @@
- #include <linux/io.h>
- #include <linux/regulator/consumer.h>
- #include <linux/pm_runtime.h>
-+#include <linux/of_device.h>
- 
- #include <plat/i2c.h>
- 
-@@ -899,15 +900,51 @@ static const struct i2c_algorithm nmk_i2c_algo = {
- 	.functionality	= nmk_i2c_functionality
- };
- 
-+static struct nmk_i2c_controller u8500_i2c = {
-+       /*
-+        * slave data setup time, which is
-+        * 250 ns,100ns,10ns which is 14,6,2
-+        * respectively for a 48 Mhz
-+        * i2c clock
-+        */
-+       .slsu           = 0xe,
-+       /* Tx FIFO threshold */
-+       .tft            = 1,
-+       /* Rx FIFO threshold */
-+       .rft            = 8,
-+       /* std. mode operation */
-+       .clk_freq       = 100000,
-+       /* Slave response timeout(ms) */
-+       .timeout        = 200,
-+       .sm             = I2C_FREQ_MODE_FAST,
-+};
-+
-+
-+static const struct of_device_id nmk_gpio_match[] = {
-+	{ .compatible = "st,nomadik-i2c", .data = &u8500_i2c, },
-+	{}
-+};
-+
- static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- {
- 	int ret = 0;
- 	struct resource *res;
--	struct nmk_i2c_controller *pdata =
-+	const struct nmk_i2c_controller *pdata =
- 			pdev->dev.platform_data;
-+        const struct of_device_id *of_id =
-+                        of_match_device(nmk_gpio_match, &pdev->dev);
- 	struct nmk_i2c_dev	*dev;
- 	struct i2c_adapter *adap;
- 
-+	if (!pdata) {
-+		if (of_id && of_id->data)
-+			/* Looks like we're booting via Device Tree. */
-+			pdata = of_id->data;
-+		else
-+			/* No i2c configuration found, using the default. */
-+			pdata = &u8500_i2c;
-+	}
-+
- 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
- 	if (!dev) {
- 		dev_err(&pdev->dev, "cannot allocate memory\n");
-@@ -1043,6 +1080,7 @@ static struct platform_driver nmk_i2c_driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
- 		.pm = &nmk_i2c_pm,
-+		.of_match_table = nmk_gpio_match,
- 	},
- 	.probe = nmk_i2c_probe,
- 	.remove = __devexit_p(nmk_i2c_remove),
--- 
-1.7.9.5
+On Sun, Jun 10, 2012 at 11:10:47AM +0530, Shubhrajyoti Datta wrote:
+> On Fri, Jun 1, 2012 at 4:29 AM, Kevin Hilman <khilman@ti.com> wrote:
+> > Shubhrajyoti D <shubhrajyoti@ti.com> writes:
+> >
+> >> The patch series does the following
+> >>
+> >> - Warn fixes if CONFIG_PM_RUNTIME is not selected.
+> >> - In case of i2c remove register access was done without any
+> >> =A0get_sync fix the same.
+> >> - Folds a patch from Tasslehoff to prevent any merge conflicts.
+> >> - Prevents the XDUF flag to be set if the underflow condition is not m=
+et.
+> >> - As per discussion in [1] .Adds a patch to rename the 1p153 errata and
+> >> =A0use the unique id instead as the section number in the recent errata
+> >> =A0docs has changed.
+> >>
+> >> v9:
+> >> Fix the comments from Wolfram Sang
+> >>
+> >> v10:
+> >> Add a patch from Neil to the series.
+> >> Fix kevin comments
+> >> update the patches with comments.
+> >
+> > Shubhrajyoti, thanks for the updates.
+> >
+> > Wolfgang, with these updates and testing a bit better described, I'm OK
+> > with you merging it. =A0Merging it now will give it plenty of time to
+> > bake in linux-next and get more test exposure.
+>=20
+> Agree,
+> These are only fixes can it be considered for rc3?
+
+"Baking in linux-next" and "considering rc3" don't match; baking needs
+time, rc3 is soon. I've put the patches now into my -next branch for
+more exposure. I am still uncertain if they should be in 3.5 already;
+there seem to be worhty fixes in there, but they do depend on stuff
+which don't really qualify as bugfixes...
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--4Ckj6UjgE2iN1+kY
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk/WFiEACgkQD27XaX1/VRsMfwCeJvMrV0gKFZBR+YJAGC7gaCp6
+0+gAniO9hsTUEn1B426S8JBbpaVUTwDW
+=gApb
+-----END PGP SIGNATURE-----
+
+--4Ckj6UjgE2iN1+kY--
