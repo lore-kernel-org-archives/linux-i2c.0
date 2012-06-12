@@ -1,7 +1,7 @@
 From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: [PATCH 1/2] i2c: stu300: use clk_prepare/unprepare
-Date: Tue, 12 Jun 2012 19:33:30 +0200
-Message-ID: <1339522410-570-1-git-send-email-linus.walleij@stericsson.com>
+Subject: [PATCH 2/2] i2c: stu300: use devm allocation
+Date: Tue, 12 Jun 2012 19:33:37 +0200
+Message-ID: <1339522417-606-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
@@ -12,43 +12,42 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Make sure we prepare/unprepare the clock for the ST U300
-I2C driver as is required by the clk API especially if you
-use common clock.
+Allocate memory for device state using devm_kzalloc() to
+simplify accounting.
 
 Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-stu300.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-stu300.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index 4d44af1..79b7851 100644
+index 79b7851..e5c10c5 100644
 --- a/drivers/i2c/busses/i2c-stu300.c
 +++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -924,7 +924,7 @@ stu300_probe(struct platform_device *pdev)
+@@ -873,7 +873,7 @@ stu300_probe(struct platform_device *pdev)
+ 	int ret = 0;
+ 	char clk_name[] = "I2C0";
  
- 	dev->speed = scl_frequency;
- 
--	clk_enable(dev->clk);
-+	clk_prepare_enable(dev->clk);
- 	ret = stu300_init_hw(dev);
- 	clk_disable(dev->clk);
- 
-@@ -960,6 +960,7 @@ stu300_probe(struct platform_device *pdev)
- 
-  err_add_adapter:
-  err_init_hw:
-+	clk_unprepare(dev->clk);
- 	free_irq(dev->irq, dev);
-  err_no_irq:
- 	iounmap(dev->virtbase);
-@@ -1016,6 +1017,7 @@ stu300_remove(struct platform_device *pdev)
- 	free_irq(dev->irq, dev);
- 	iounmap(dev->virtbase);
- 	release_mem_region(dev->phybase, dev->physize);
-+	clk_unprepare(dev->clk);
+-	dev = kzalloc(sizeof(struct stu300_dev), GFP_KERNEL);
++	dev = devm_kzalloc(&pdev->dev, sizeof(struct stu300_dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		dev_err(&pdev->dev, "could not allocate device struct\n");
+ 		ret = -ENOMEM;
+@@ -971,7 +971,6 @@ stu300_probe(struct platform_device *pdev)
+  err_no_resource:
+ 	clk_put(dev->clk);
+  err_no_clk:
+-	kfree(dev);
+  err_no_devmem:
+ 	dev_err(&pdev->dev, "failed to add " NAME " adapter: %d\n",
+ 		pdev->id);
+@@ -1020,7 +1019,6 @@ stu300_remove(struct platform_device *pdev)
+ 	clk_unprepare(dev->clk);
  	clk_put(dev->clk);
  	platform_set_drvdata(pdev, NULL);
- 	kfree(dev);
+-	kfree(dev);
+ 	return 0;
+ }
+ 
 -- 
 1.7.9.2
