@@ -1,55 +1,29 @@
-From: Lee Jones <lee.jones@linaro.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C
  driver
-Date: Tue, 12 Jun 2012 08:23:49 +0100
-Message-ID: <4FD6EE85.2090207@linaro.org>
-References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <20120611190550.GK3887@pengutronix.de>
+Date: Tue, 12 Jun 2012 08:34:00 +0100
+Message-ID: <4FD6F0E8.5040606@linaro.org>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8;
 	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120611190550.GK3887@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linus.walleij@stericsson.com, arnd@arndb.de, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/06/12 20:05, Wolfram Sang wrote:
-> On Mon, Jun 11, 2012 at 04:25:02PM +0100, Lee Jones wrote:
->> Here we move the i2c-nomadik's default settings into the driver
->> rather than specifying them from platform code. At the time of
->> this writing we only have one user, the u8500. As new users are
+On 11/06/12 21:37, Linus Walleij wrote:
+> On Mon, Jun 11, 2012 at 5:25 PM, Lee Jones<lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>  wro=
+te:
+>
+>> As new users are
 >> added, it is expected that they will be Device Tree compliant.
 >> If this is the case, we will look up their initialisation values
 >> by compatible entry, then apply them forthwith.
->>
->> Cc: linux-i2c@vger.kernel.org
->> Acked-by: Linus Walleij<linus.walleij@linaro.org>
->> Signed-off-by: Lee Jones<lee.jones@linaro.org>
->> ---
->>   drivers/i2c/busses/i2c-nomadik.c |   40 ++++++++++++++++++++++++++=
-+++++++++++-
->>   1 file changed, 39 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i=
-2c-nomadik.c
->> index a92440d..1ffdf67 100644
->> --- a/drivers/i2c/busses/i2c-nomadik.c
->> +++ b/drivers/i2c/busses/i2c-nomadik.c
->> @@ -23,6 +23,7 @@
->>   #include<linux/io.h>
->>   #include<linux/regulator/consumer.h>
->>   #include<linux/pm_runtime.h>
->> +#include<linux/of_device.h>
->>
->>   #include<plat/i2c.h>
->>
->> @@ -899,15 +900,51 @@ static const struct i2c_algorithm nmk_i2c_algo=
- =3D {
->>   	.functionality	=3D nmk_i2c_functionality
->>   };
->>
+> (...)
 >> +static struct nmk_i2c_controller u8500_i2c =3D {
 >> +       /*
 >> +        * slave data setup time, which is
@@ -59,17 +33,47 @@ On 11/06/12 20:05, Wolfram Sang wrote:
 >> +        */
 >> +       .slsu           =3D 0xe,
 >> +       /* Tx FIFO threshold */
+>> +       .tft            =3D 1,
+>> +       /* Rx FIFO threshold */
+>> +       .rft            =3D 8,
+>> +       /* std. mode operation */
+>> +       .clk_freq       =3D 100000,
+>> +       /* Slave response timeout(ms) */
+>> +       .timeout        =3D 200,
+>> +       .sm             =3D I2C_FREQ_MODE_FAST,
+>> +};
 >
-> Please put these comments directly after the members they describe.
+> So why don't we create proper device tree bindings for the above plat=
+form
+> data?
 >
-> And make sure you use tabs for indentation all over the patch instead=
- of
-> spaces. checkpatch.pl will help you to get the formal things right.
+> For example several driver under
+> Documentation/devicetree/bindings/i2c/*
+> define the .clk_freq above as "clock-frequency"
+>
+> samsung-i2c even has this:
+> samsung,i2c-sda-delay =3D<100>;
+> samsung,i2c-max-bus-freq =3D<100000>;
+>
+> Where i2c-sda-delay corresponds to slsu above.
+>
+> I suspect .sm can be derived from the frequency so it
+> is "FAST" whenever the frequency>  100000.
+>
+> This looks to me like a way to push the burden of doing the real
+> device tree binding for the above to the next user.
+> (Which will likely be me, so therefore I care a bit ...)
 
-My apologies. This section of code was a direct copy and paste from=20
-platform code (arch/arm/mach-ux500/board-mop500.c). It must have lost=20
-some formatting en route. I'll make the changes you request and re-post=
-=2E
+On the contrary. This will avoid any added Device Tree complexity and=20
+ensure that no extra vendor specific bindings are required. When a new=20
+user wishes to use the driver, all they (you) have to do is create a ne=
+w=20
+struct with the platform specific information and add the entry to=20
+nmk_gpio_match[], simples.
+
+I've even added the logic to extract any information you provide via=20
+nmk_gpio_match[] for use as platform data. This keeps it both out of=20
+platform code and the Device Tree binary. Everyone's a winner. :)
 
 --=20
 Lee Jones
