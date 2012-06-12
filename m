@@ -1,163 +1,212 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: [PATCH V2 4/4] i2c: tegra: make all resource allocation through devm_*
-Date: Tue, 12 Jun 2012 16:07:31 +0530
-Message-ID: <1339497451-26260-5-git-send-email-ldewangan@nvidia.com>
-References: <1339497451-26260-1-git-send-email-ldewangan@nvidia.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 1/3] i2c-piix4: eliminate global I/O base address
+Date: Tue, 12 Jun 2012 13:53:38 +0200
+Message-ID: <20120612135338.48efadcc@endymion.delvare>
+References: <20120604091643.208956fe@endymion.delvare>
+	<1338860964-10803-1-git-send-email-andrew@asquaredlabs.com>
+	<1338860964-10803-2-git-send-email-andrew@asquaredlabs.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1339497451-26260-1-git-send-email-ldewangan@nvidia.com>
+In-Reply-To: <1338860964-10803-2-git-send-email-andrew@asquaredlabs.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: khali@linux-fr.org, w.sang@pengutronix.de, ben-linux@fluff.org, swarren@wwwdotorg.org, olof@lixom.net
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, Laxman Dewangan <ldewangan@nvidia.com>
+To: Andrew Armenia <andrew@asquaredlabs.com>
+Cc: Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use the devm_* for the memory region allocation, interrupt request,
-clock handler request.
-By doing this, it does not require to explicitly free it and hence
-saving some code.
+Hi Andrew,
 
-Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
----
-This is rebased of earlier similar patch and sending as
-part of this series.
-No change from V1.
+On Mon,  4 Jun 2012 21:49:22 -0400, Andrew Armenia wrote:
+> The i2c-piix4 driver used a global variable to store the base address
+> of the piix4 i2c registers. Some chipsets contain multiple sets of
+> i2c registers; thus it is desirable to eliminate global state.
+> 
+> i2c_get_adapdata()/i2c_set_adapdata() are used to keep track
+> of the IO base address; this is passed into piix4_transaction() as
+> an argument, eliminating the global variable.
+> 
+> Signed-off-by: Andrew Armenia <andrew@asquaredlabs.com>
+> ---
+>  drivers/i2c/busses/i2c-piix4.c |   61 ++++++++++++++++++++++++++++++----------
+>  1 file changed, 46 insertions(+), 15 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+> index c14d48d..7a5889c 100644
+> --- a/drivers/i2c/busses/i2c-piix4.c
+> +++ b/drivers/i2c/busses/i2c-piix4.c
+> @@ -94,7 +94,6 @@ MODULE_PARM_DESC(force_addr,
+>  		 "Forcibly enable the PIIX4 at the given address. "
+>  		 "EXTREMELY DANGEROUS!");
+>  
+> -static unsigned short piix4_smba;
+>  static int srvrworks_csb5_delay;
+>  static struct pci_driver piix4_driver;
+>  static struct i2c_adapter piix4_adapter;
+> @@ -127,10 +126,16 @@ static struct dmi_system_id __devinitdata piix4_dmi_ibm[] = {
+>  	{ },
+>  };
+>  
+> +struct i2c_piix4_adapdata {
+> +	unsigned short smba;
+> +};
+> +
+>  static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
+> -				const struct pci_device_id *id)
+> +				const struct pci_device_id *id,
+> +				unsigned short *smba)
 
- drivers/i2c/busses/i2c-tegra.c |   62 +++++++++++-----------------------------
- 1 files changed, 17 insertions(+), 45 deletions(-)
+You could instead return the smba value, as the return value is
+currently only used for errors. This would avoid the extra parameter
+and possibly false-positive compiler warnings.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index b093b66..2ace6ac 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -610,7 +610,6 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
- 	struct tegra_i2c_dev *i2c_dev;
- 	struct tegra_i2c_platform_data *pdata = pdev->dev.platform_data;
- 	struct resource *res;
--	struct resource *iomem;
- 	struct clk *clk;
- 	struct clk *i2c_clk;
- 	const unsigned int *prop;
-@@ -623,50 +622,41 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "no mem resource\n");
- 		return -EINVAL;
- 	}
--	iomem = request_mem_region(res->start, resource_size(res), pdev->name);
--	if (!iomem) {
--		dev_err(&pdev->dev, "I2C region already claimed\n");
--		return -EBUSY;
--	}
- 
--	base = ioremap(iomem->start, resource_size(iomem));
-+	base = devm_request_and_ioremap(&pdev->dev, res);
- 	if (!base) {
--		dev_err(&pdev->dev, "Cannot ioremap I2C region\n");
--		return -ENOMEM;
-+		dev_err(&pdev->dev, "Cannot request/ioremap I2C registers\n");
-+		return -EADDRNOTAVAIL;
- 	}
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!res) {
- 		dev_err(&pdev->dev, "no irq resource\n");
--		ret = -EINVAL;
--		goto err_iounmap;
-+		return -EINVAL;
- 	}
- 	irq = res->start;
- 
--	clk = clk_get(&pdev->dev, NULL);
-+	clk = devm_clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(clk)) {
- 		dev_err(&pdev->dev, "missing controller clock");
--		ret = PTR_ERR(clk);
--		goto err_release_region;
-+		return PTR_ERR(clk);
- 	}
- 
--	i2c_clk = clk_get(&pdev->dev, "i2c");
-+	i2c_clk = devm_clk_get(&pdev->dev, "i2c");
- 	if (IS_ERR(i2c_clk)) {
- 		dev_err(&pdev->dev, "missing bus clock");
--		ret = PTR_ERR(i2c_clk);
--		goto err_clk_put;
-+		return PTR_ERR(i2c_clk);
- 	}
- 
--	i2c_dev = kzalloc(sizeof(struct tegra_i2c_dev), GFP_KERNEL);
-+	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev) {
--		ret = -ENOMEM;
--		goto err_i2c_clk_put;
-+		dev_err(&pdev->dev, "Could not allocate struct tegra_i2c_dev");
-+		return -ENOMEM;
- 	}
- 
- 	i2c_dev->base = base;
- 	i2c_dev->clk = clk;
- 	i2c_dev->i2c_clk = i2c_clk;
--	i2c_dev->iomem = iomem;
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
- 	i2c_dev->irq = irq;
- 	i2c_dev->cont_id = pdev->id;
-@@ -695,13 +685,14 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
- 	ret = tegra_i2c_init(i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to initialize i2c controller");
--		goto err_free;
-+		return ret;
- 	}
- 
--	ret = request_irq(i2c_dev->irq, tegra_i2c_isr, 0, pdev->name, i2c_dev);
-+	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
-+			tegra_i2c_isr, 0, pdev->name, i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
--		goto err_free;
-+		return ret;
- 	}
- 
- 	clk_prepare_enable(i2c_dev->i2c_clk);
-@@ -719,38 +710,19 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
- 	ret = i2c_add_numbered_adapter(&i2c_dev->adapter);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to add I2C adapter\n");
--		goto err_free_irq;
-+		clk_disable(i2c_dev->i2c_clk);
-+		return ret;
- 	}
- 
- 	of_i2c_register_devices(&i2c_dev->adapter);
- 
- 	return 0;
--err_free_irq:
--	free_irq(i2c_dev->irq, i2c_dev);
--err_free:
--	kfree(i2c_dev);
--err_i2c_clk_put:
--	clk_put(i2c_clk);
--err_clk_put:
--	clk_put(clk);
--err_release_region:
--	release_mem_region(iomem->start, resource_size(iomem));
--err_iounmap:
--	iounmap(base);
--	return ret;
- }
- 
- static int __devexit tegra_i2c_remove(struct platform_device *pdev)
- {
- 	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
- 	i2c_del_adapter(&i2c_dev->adapter);
--	free_irq(i2c_dev->irq, i2c_dev);
--	clk_put(i2c_dev->i2c_clk);
--	clk_put(i2c_dev->clk);
--	release_mem_region(i2c_dev->iomem->start,
--		resource_size(i2c_dev->iomem));
--	iounmap(i2c_dev->base);
--	kfree(i2c_dev);
- 	return 0;
- }
- 
+>  {
+>  	unsigned char temp;
+> +	unsigned short piix4_smba;
+>  
+>  	if ((PIIX4_dev->vendor == PCI_VENDOR_ID_SERVERWORKS) &&
+>  	    (PIIX4_dev->device == PCI_DEVICE_ID_SERVERWORKS_CSB5))
+> @@ -224,12 +229,15 @@ static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
+>  		 "SMBus Host Controller at 0x%x, revision %d\n",
+>  		 piix4_smba, temp);
+>  
+> +	*smba = piix4_smba;
+>  	return 0;
+>  }
+>  
+>  static int __devinit piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+> -				const struct pci_device_id *id)
+> +				const struct pci_device_id *id,
+> +				unsigned short *smba)
+>  {
+> +	unsigned short piix4_smba;
+>  	unsigned short smba_idx = 0xcd6;
+>  	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en = 0x2c;
+>  
+> @@ -288,10 +296,11 @@ static int __devinit piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+>  		 "SMBus Host Controller at 0x%x, revision %d\n",
+>  		 piix4_smba, i2ccfg >> 4);
+>  
+> +	*smba = piix4_smba;
+>  	return 0;
+>  }
+>  
+> -static int piix4_transaction(void)
+> +static int piix4_transaction(unsigned short piix4_smba)
+>  {
+>  	int temp;
+>  	int result = 0;
+> @@ -372,6 +381,11 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
+>  {
+>  	int i, len;
+>  	int status;
+> +	unsigned short piix4_smba;
+> +	struct i2c_piix4_adapdata *adapdata;
+> +
+> +	adapdata = (struct i2c_piix4_adapdata *)i2c_get_adapdata(adap);
+
+Useless cast.
+
+> +	piix4_smba = adapdata->smba;
+>  
+>  	switch (size) {
+>  	case I2C_SMBUS_QUICK:
+> @@ -426,7 +440,7 @@ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
+>  
+>  	outb_p((size & 0x1C) + (ENABLE_INT9 & 1), SMBHSTCNT);
+>  
+> -	status = piix4_transaction();
+> +	status = piix4_transaction(piix4_smba);
+>  	if (status)
+>  		return status;
+>  
+> @@ -472,6 +486,10 @@ static struct i2c_adapter piix4_adapter = {
+>  	.algo		= &smbus_algorithm,
+>  };
+>  
+> +static struct i2c_piix4_adapdata piix4_adapter_data = {
+> +	.smba		= 0,
+> +};
+
+Useless initialization, 0 is the default.
+
+> +
+>  static DEFINE_PCI_DEVICE_TABLE(piix4_ids) = {
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82371AB_3) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82443MX_3) },
+> @@ -500,15 +518,16 @@ static int __devinit piix4_probe(struct pci_dev *dev,
+>  				const struct pci_device_id *id)
+>  {
+>  	int retval;
+> +	unsigned short smba;
+>  
+>  	if ((dev->vendor == PCI_VENDOR_ID_ATI &&
+>  	     dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+>  	     dev->revision >= 0x40) ||
+>  	    dev->vendor == PCI_VENDOR_ID_AMD)
+>  		/* base address location etc changed in SB800 */
+> -		retval = piix4_setup_sb800(dev, id);
+> +		retval = piix4_setup_sb800(dev, id, &smba);
+>  	else
+> -		retval = piix4_setup(dev, id);
+> +		retval = piix4_setup(dev, id, &smba);
+>  
+>  	if (retval)
+>  		return retval;
+> @@ -517,26 +536,38 @@ static int __devinit piix4_probe(struct pci_dev *dev,
+>  	piix4_adapter.dev.parent = &dev->dev;
+>  
+>  	snprintf(piix4_adapter.name, sizeof(piix4_adapter.name),
+> -		"SMBus PIIX4 adapter at %04x", piix4_smba);
+> +		"SMBus PIIX4 adapter at %04x", smba);
+> +
+> +	piix4_adapter_data.smba = smba;
+> +
+> +	i2c_set_adapdata(&piix4_adapter, &piix4_adapter_data);
+>  
+>  	if ((retval = i2c_add_adapter(&piix4_adapter))) {
+>  		dev_err(&dev->dev, "Couldn't register adapter!\n");
+> -		release_region(piix4_smba, SMBIOSIZE);
+> -		piix4_smba = 0;
+> +		release_region(smba, SMBIOSIZE);
+> +		piix4_adapter_data.smba = 0;
+>  	}
+>  
+>  	return retval;
+>  }
+>  
+> -static void __devexit piix4_remove(struct pci_dev *dev)
+> +static void piix4_adap_remove(struct i2c_adapter *adap)
+
+Called from a __devinit function so it can be made __devinit too.
+
+>  {
+> -	if (piix4_smba) {
+> -		i2c_del_adapter(&piix4_adapter);
+> -		release_region(piix4_smba, SMBIOSIZE);
+> -		piix4_smba = 0;
+> +	struct i2c_piix4_adapdata *adapdata;
+> +
+> +	adapdata = (struct i2c_piix4_adapdata *)i2c_get_adapdata(adap);
+
+Useless cast.
+
+> +	if (adapdata->smba) {
+> +		i2c_del_adapter(adap);
+> +		release_region(adapdata->smba, SMBIOSIZE);
+> +		adapdata->smba = 0;
+>  	}
+>  }
+>  
+> +static void __devexit piix4_remove(struct pci_dev *dev)
+> +{
+> +	piix4_adap_remove(&piix4_adapter);
+> +}
+> +
+>  static struct pci_driver piix4_driver = {
+>  	.name		= "piix4_smbus",
+>  	.id_table	= piix4_ids,
+
+
 -- 
-1.7.1.1
+Jean Delvare
