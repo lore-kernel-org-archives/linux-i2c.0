@@ -1,74 +1,102 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 0/4] i2c: tegra: Bug fixes, cleanups and M_NOSTART support
-Date: Tue, 12 Jun 2012 10:50:40 +0200
-Message-ID: <20120612085040.GC9230@pengutronix.de>
-References: <1338901800-23968-1-git-send-email-ldewangan@nvidia.com>
- <4FCE3078.1030008@wwwdotorg.org>
- <4FCE3CD8.8060502@nvidia.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C
+ driver
+Date: Tue, 12 Jun 2012 09:52:39 +0100
+Message-ID: <4FD70357.9060905@linaro.org>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <20120611190550.GK3887@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Fig2xvG2VGoz8o/s"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4FCE3CD8.8060502-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20120611190550.GK3887-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Date: Tue, 17 Apr 2012 16:04:13 +0100
+Subject: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C driver
 
---Fig2xvG2VGoz8o/s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Here we move the i2c-nomadik's default settings into the driver
+rather than specifying them from platform code. At the time of
+this writing we only have one user, the u8500. As new users are
+added, it is expected that they will be Device Tree compliant.
+If this is the case, we will look up their initialisation values
+by compatible entry, then apply them forthwith.
 
-On Tue, Jun 05, 2012 at 10:37:36PM +0530, Laxman Dewangan wrote:
-> On Tuesday 05 June 2012 09:44 PM, Stephen Warren wrote:
-> >On 06/05/2012 07:09 AM, Laxman Dewangan wrote:
-> >>This patch series having the:
-> >>- Handling of late register write due to Tegra PPSB design.
-> >>- support for I2C_M_NOSTART
-> >>- Use devm_* for all allocation.
-> >The series,
-> >
-> >Acked-by: Stephen Warren<swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-> >
-> >Note that patch 4 touches context adjacent to Prashant's "i2c: tegra:
-> >Add clk_prepare/clk_unprepare" patch, which I hope to take through the
-> >Tegra tree since it's a requirement for the Tegra common clock
-> >conversion. I don't think this will cause any significant conflict, but
-> >perhaps it's worth resolving it explicitly.
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-nomadik.c |   33 ++++++++++++++++++++++++++++++++-
+ 1 file changed, 32 insertions(+), 1 deletion(-)
 
-Is it really a requirement? Just wondering if it will cause problems, if
-Prashant's patch goes in via I2C after arm-soc has been merged. I am
-fine with simply acking the patch, though.
-
-> >Wolfram, perhaps we should put these 4 patches and Prashan'ts into their
-> >own topic branch so that you can merge it into the I2C tree, and I can
-> >merge it into the Tegra tree too? Or, I can take everything through
-> >Tegra if you want, and ack it.
-
-Laxman's patches should really go via I2C, I think. Can't we just fix
-the conflict in arm-soc?
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---Fig2xvG2VGoz8o/s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk/XAuAACgkQD27XaX1/VRvJZACgmJUb4NCK9hURE+7FGYME/+LZ
-OzEAoKY7E/RqXHNHCLmrYYM0lm5vXHfQ
-=01H1
------END PGP SIGNATURE-----
-
---Fig2xvG2VGoz8o/s--
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index a92440d..23fde19 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -23,6 +23,7 @@
+ #include <linux/io.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/pm_runtime.h>
++#include <linux/of_device.h>
+ 
+ #include <plat/i2c.h>
+ 
+@@ -899,15 +900,44 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+ 	.functionality	= nmk_i2c_functionality
+ };
+ 
++static struct nmk_i2c_controller u8500_i2c = {
++	/*
++	 * Slave data setup time; 250ns, 100ns, and 10ns, which
++	 * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
++	 */
++	.slsu           = 0xe,
++	.tft            = 1, 	  /* Tx FIFO threshold */
++	.rft            = 8, 	  /* Rx FIFO threshold */
++	.clk_freq       = 100000, /* std. mode operation */
++	.timeout        = 200, 	  /* Slave response timeout(ms) */
++	.sm             = I2C_FREQ_MODE_FAST,
++};
++
++static const struct of_device_id nmk_gpio_match[] = {
++	{ .compatible = "st,nomadik-i2c", .data = &u8500_i2c, },
++	{}
++};
++
+ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ {
+ 	int ret = 0;
+ 	struct resource *res;
+-	struct nmk_i2c_controller *pdata =
++	const struct nmk_i2c_controller *pdata =
+ 			pdev->dev.platform_data;
++        const struct of_device_id *of_id =
++                        of_match_device(nmk_gpio_match, &pdev->dev);
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+ 
++	if (!pdata) {
++		if (of_id && of_id->data)
++			/* Looks like we're booting via Device Tree. */
++			pdata = of_id->data;
++		else
++			/* No i2c configuration found, using the default. */
++			pdata = &u8500_i2c;
++	}
++
+ 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		dev_err(&pdev->dev, "cannot allocate memory\n");
+@@ -1043,6 +1073,7 @@ static struct platform_driver nmk_i2c_driver = {
+ 		.owner = THIS_MODULE,
+ 		.name = DRIVER_NAME,
+ 		.pm = &nmk_i2c_pm,
++		.of_match_table = nmk_gpio_match,
+ 	},
+ 	.probe = nmk_i2c_probe,
+ 	.remove = __devexit_p(nmk_i2c_remove),
+-- 
+1.7.9.5
