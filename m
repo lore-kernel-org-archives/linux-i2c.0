@@ -1,76 +1,74 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: stu300: use clk_prepare/unprepare
-Date: Wed, 13 Jun 2012 11:52:47 +0530
-Message-ID: <CAM=Q2ct+-URf8VT569Re2GTOFsVQLLspV6EyEj0GAt9qvn67Hg@mail.gmail.com>
-References: <1339522410-570-1-git-send-email-linus.walleij@stericsson.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C
+ driver
+Date: Wed, 13 Jun 2012 08:01:01 +0100
+Message-ID: <4FD83AAD.2010701@linaro.org>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com> <4FD6F0E8.5040606@linaro.org> <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1339522410-570-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+In-Reply-To: <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On 13/06/12 06:40, Linus Walleij wrote:
+> On Tue, Jun 12, 2012 at 9:34 AM, Lee Jones<lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>  wro=
+te:
+>> On 11/06/12 21:37, Linus Walleij wrote:
+>>>
+>>> So why don't we create proper device tree bindings for the above pl=
+atform
+>>> data?
+>>> (...)
+>>> This looks to me like a way to push the burden of doing the real
+>>> device tree binding for the above to the next user.
+>>> (Which will likely be me, so therefore I care a bit ...)
+>>
+>>
+>> On the contrary. This will avoid any added Device Tree complexity an=
+d ensure
+>> that no extra vendor specific bindings are required. When a new user=
+ wishes
+>> to use the driver, all they (you) have to do is create a new struct =
+with the
+>> platform specific information and add the entry to nmk_gpio_match[],
+>> simples.
+>>
+>> I've even added the logic to extract any information you provide via
+>> nmk_gpio_match[] for use as platform data. This keeps it both out of
+>> platform code and the Device Tree binary. Everyone's a winner. :)
+>
+> No. You assume that the platform data is a chip-specific property,
+> and that it will be the same for all busses on the chip. But it
+> isn't.
+>
+> The above platform data is *board specific*, it depends on
+> what devices have been connected to each bus.
+>
+> For example the max frequency: this depends on the maximum
+> frequency any of the devices connected to one very bus
+> can support.
+>
+> The other platforms have put this frequency into their device
+> trees for a reason, and this is it.
+>
+> So for the four different i2c busses there may need to be
+> four different platform data sets. How are you going to
+> distinguish between the four buses?
+>
+> This is thus broken and needs to have proper bindings.
 
-On Tue, Jun 12, 2012 at 11:03 PM, Linus Walleij
-<linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org> wrote:
-> From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->
-> Make sure we prepare/unprepare the clock for the ST U300
-> I2C driver as is required by the clk API especially if you
-> use common clock.
-Not a comment rather a doubt.
+Board specific is fine, as the data is protected by a board specific=20
+property. Do you mean that the properties are *bus specific*? In which=20
+case I see your point and will apply the correct bindings.
 
-The transfer is still using enable and disable?
-Can you help me understand the difference.
-
->
-> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
-> =A0drivers/i2c/busses/i2c-stu300.c | =A0 =A04 +++-
-> =A01 file changed, 3 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c=
--stu300.c
-> index 4d44af1..79b7851 100644
-> --- a/drivers/i2c/busses/i2c-stu300.c
-> +++ b/drivers/i2c/busses/i2c-stu300.c
-> @@ -924,7 +924,7 @@ stu300_probe(struct platform_device *pdev)
->
-> =A0 =A0 =A0 =A0dev->speed =3D scl_frequency;
->
-> - =A0 =A0 =A0 clk_enable(dev->clk);
-> + =A0 =A0 =A0 clk_prepare_enable(dev->clk);
-> =A0 =A0 =A0 =A0ret =3D stu300_init_hw(dev);
-> =A0 =A0 =A0 =A0clk_disable(dev->clk);
->
-> @@ -960,6 +960,7 @@ stu300_probe(struct platform_device *pdev)
->
-> =A0err_add_adapter:
-> =A0err_init_hw:
-> + =A0 =A0 =A0 clk_unprepare(dev->clk);
-
-So this also fixes an earlier lack of disable also?
-
-> =A0 =A0 =A0 =A0free_irq(dev->irq, dev);
-> =A0err_no_irq:
-> =A0 =A0 =A0 =A0iounmap(dev->virtbase);
-> @@ -1016,6 +1017,7 @@ stu300_remove(struct platform_device *pdev)
-> =A0 =A0 =A0 =A0free_irq(dev->irq, dev);
-> =A0 =A0 =A0 =A0iounmap(dev->virtbase);
-> =A0 =A0 =A0 =A0release_mem_region(dev->phybase, dev->physize);
-> + =A0 =A0 =A0 clk_unprepare(dev->clk);
-> =A0 =A0 =A0 =A0clk_put(dev->clk);
-> =A0 =A0 =A0 =A0platform_set_drvdata(pdev, NULL);
-> =A0 =A0 =A0 =A0kfree(dev);
-> --
-> 1.7.9.2
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" =
-in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+M: +44 77 88 633 515
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
