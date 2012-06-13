@@ -1,74 +1,122 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C
- driver
-Date: Wed, 13 Jun 2012 08:01:01 +0100
-Message-ID: <4FD83AAD.2010701@linaro.org>
-References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com> <4FD6F0E8.5040606@linaro.org> <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw@mail.gmail.com>
+From: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Subject: RE: [PATCH 3/8] i2c: i2c-bfin-twi: Break dead waiting loop if i2c
+ device misbehaves.
+Date: Wed, 13 Jun 2012 03:47:25 -0400
+Message-ID: <DB904C5425BA6F4E8424B3B51A1414D17023632CA4@NWD2CMBX1.ad.analog.com>
+References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
+ <1337152826-9850-3-git-send-email-sonic.zhang@analog.com>
+ <20120611163044.GD3887@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20120611163044.GD3887-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 13/06/12 06:40, Linus Walleij wrote:
-> On Tue, Jun 12, 2012 at 9:34 AM, Lee Jones<lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>  wro=
-te:
->> On 11/06/12 21:37, Linus Walleij wrote:
->>>
->>> So why don't we create proper device tree bindings for the above pl=
-atform
->>> data?
->>> (...)
->>> This looks to me like a way to push the burden of doing the real
->>> device tree binding for the above to the next user.
->>> (Which will likely be me, so therefore I care a bit ...)
->>
->>
->> On the contrary. This will avoid any added Device Tree complexity an=
-d ensure
->> that no extra vendor specific bindings are required. When a new user=
- wishes
->> to use the driver, all they (you) have to do is create a new struct =
-with the
->> platform specific information and add the entry to nmk_gpio_match[],
->> simples.
->>
->> I've even added the logic to extract any information you provide via
->> nmk_gpio_match[] for use as platform data. This keeps it both out of
->> platform code and the Device Tree binary. Everyone's a winner. :)
->
-> No. You assume that the platform data is a chip-specific property,
-> and that it will be the same for all busses on the chip. But it
-> isn't.
->
-> The above platform data is *board specific*, it depends on
-> what devices have been connected to each bus.
->
-> For example the max frequency: this depends on the maximum
-> frequency any of the devices connected to one very bus
-> can support.
->
-> The other platforms have put this frequency into their device
-> trees for a reason, and this is it.
->
-> So for the four different i2c busses there may need to be
-> four different platform data sets. How are you going to
-> distinguish between the four buses?
->
-> This is thus broken and needs to have proper bindings.
 
-Board specific is fine, as the data is protected by a board specific=20
-property. Do you mean that the properties are *bus specific*? In which=20
-case I see your point and will apply the correct bindings.
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-M: +44 77 88 633 515
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+>-----Original Message-----
+>From: Wolfram Sang [mailto:w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
+>Sent: Tuesday, June 12, 2012 12:31 AM
+>To: Zhang, Sonic
+>Cc: Ben Dooks; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; LKML; uclinux-dist-
+>devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+>Subject: Re: [PATCH 3/8] i2c: i2c-bfin-twi: Break dead waiting loop if i2c device
+>misbehaves.
+>
+>On Wed, May 16, 2012 at 03:20:21PM +0800, sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org wrote:
+>> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>>
+>> Some fault i2c device may hold the sda/scl line and cause i2c driver
+>> wait in the BUS busy loop. This patch breaks this potential dead loop.
+>>
+>> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+>>
+>> git-svn-id: svn://localhost/svn/linux-kernel/trunk@9291
+>> 526b6c2d-f592-4532-a319-5dd88ccb003d
+>
+>^
+>
+>> ---
+>>  drivers/i2c/busses/i2c-bfin-twi.c |   14 ++++++++++++--
+>>  1 files changed, 12 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c
+>> b/drivers/i2c/busses/i2c-bfin-twi.c
+>> index 376e331..4abaf59 100644
+>> --- a/drivers/i2c/busses/i2c-bfin-twi.c
+>> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
+>> @@ -294,6 +294,8 @@ static irqreturn_t bfin_twi_interrupt_entry(int irq, void
+>*dev_id)
+>>      return IRQ_HANDLED;
+>>  }
+>>
+>> +#define BFIN_TWI_BUSY_TIMEOUT       1000
+>> +
+>
+>Please use a unit like microseconds for the timeout.
+>
+
+Take a look at the I2C framework code again. I find this loop to poll BUSBUSY bit is not necessary. Just return -EAGAIN, the framework do retry before timeout already.
+
+Regards,
+
+Sonic
+
+
+>>  /*
+>>   * One i2c master transfer
+>>   */
+>> @@ -303,12 +305,16 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter
+>*adap,
+>>      struct bfin_twi_iface *iface = adap->algo_data;
+>>      struct i2c_msg *pmsg;
+>>      int rc = 0;
+>> +    unsigned int busy_timeout = BFIN_TWI_BUSY_TIMEOUT;
+>>
+>>      if (!(read_CONTROL(iface) & TWI_ENA))
+>>              return -ENXIO;
+>>
+>> -    while (read_MASTER_STAT(iface) & BUSBUSY)
+>> +    while (read_MASTER_STAT(iface) & BUSBUSY) {
+>> +            if (--busy_timeout == 0)
+>> +                    return -EBUSY;
+>>              yield();
+>> +    }
+>>
+>>      iface->pmsg = msgs;
+>>      iface->msg_num = num;
+>> @@ -403,12 +409,16 @@ int bfin_twi_do_smbus_xfer(struct i2c_adapter
+>> *adap, u16 addr,  {
+>>      struct bfin_twi_iface *iface = adap->algo_data;
+>>      int rc = 0;
+>> +    unsigned int busy_timeout = BFIN_TWI_BUSY_TIMEOUT;
+>>
+>>      if (!(read_CONTROL(iface) & TWI_ENA))
+>>              return -ENXIO;
+>>
+>> -    while (read_MASTER_STAT(iface) & BUSBUSY)
+>> +    while (read_MASTER_STAT(iface) & BUSBUSY) {
+>> +            if (--busy_timeout == 0)
+>> +                    return -EBUSY;
+>>              yield();
+>> +    }
+>>
+>>      iface->writeNum = 0;
+>>      iface->readNum = 0;
+>> --
+>> 1.7.0.4
+>>
+>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-i2c"
+>> in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo
+>> info at  http://vger.kernel.org/majordomo-info.html
+>
+>--
+>Pengutronix e.K.                           | Wolfram Sang                |
+>Industrial Linux Solutions                 | http://www.pengutronix.de/  |
