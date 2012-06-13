@@ -1,122 +1,50 @@
-From: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Subject: RE: [PATCH 3/8] i2c: i2c-bfin-twi: Break dead waiting loop if i2c
- device misbehaves.
-Date: Wed, 13 Jun 2012 03:47:25 -0400
-Message-ID: <DB904C5425BA6F4E8424B3B51A1414D17023632CA4@NWD2CMBX1.ad.analog.com>
-References: <1337152826-9850-1-git-send-email-sonic.zhang@analog.com>
- <1337152826-9850-3-git-send-email-sonic.zhang@analog.com>
- <20120611163044.GD3887@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
+Date: Wed, 13 Jun 2012 09:47:39 +0200
+Message-ID: <20120613094739.360967aa@endymion.delvare>
+References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
+	<20111127225514.GO19115@trinity.fluff.org>
+	<CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
+	<20111203162757.GA24302@ericsson.com>
+	<CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
+	<20111203180819.2ddbcb3a@endymion.delvare>
+	<CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
+	<20111206093906.21dccf8d@endymion.delvare>
+	<loom.20120215T165236-509@post.gmane.org>
+	<CAM5MpD5R4xde4Li1NCDoErisXs7oRMAgW7swuCwga80MkU3VMw@mail.gmail.com>
+	<CAM5MpD46pT1N2f5yZb0yW1O8CjH7B969TmvxDZztMfwBoyom3g@mail.gmail.com>
+	<CAKdnbx4MUfU086F7navt52WaoF4q_+3G+DHn7u2qic+FU50OiA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120611163044.GD3887-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <CAKdnbx4MUfU086F7navt52WaoF4q_+3G+DHn7u2qic+FU50OiA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+To: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Eddi,
 
+On Wed, 13 Jun 2012 07:44:34 +0200, Eddi De Pieri wrote:
+> It works for me too
+> 
+> What about including this patch in the mainline?
 
->-----Original Message-----
->From: Wolfram Sang [mailto:w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
->Sent: Tuesday, June 12, 2012 12:31 AM
->To: Zhang, Sonic
->Cc: Ben Dooks; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; LKML; uclinux-dist-
->devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
->Subject: Re: [PATCH 3/8] i2c: i2c-bfin-twi: Break dead waiting loop if i2c device
->misbehaves.
->
->On Wed, May 16, 2012 at 03:20:21PM +0800, sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org wrote:
->> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>
->> Some fault i2c device may hold the sda/scl line and cause i2c driver
->> wait in the BUS busy loop. This patch breaks this potential dead loop.
->>
->> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->>
->> git-svn-id: svn://localhost/svn/linux-kernel/trunk@9291
->> 526b6c2d-f592-4532-a319-5dd88ccb003d
->
->^
->
->> ---
->>  drivers/i2c/busses/i2c-bfin-twi.c |   14 ++++++++++++--
->>  1 files changed, 12 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c
->> b/drivers/i2c/busses/i2c-bfin-twi.c
->> index 376e331..4abaf59 100644
->> --- a/drivers/i2c/busses/i2c-bfin-twi.c
->> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
->> @@ -294,6 +294,8 @@ static irqreturn_t bfin_twi_interrupt_entry(int irq, void
->*dev_id)
->>      return IRQ_HANDLED;
->>  }
->>
->> +#define BFIN_TWI_BUSY_TIMEOUT       1000
->> +
->
->Please use a unit like microseconds for the timeout.
->
+Yesterday I reviewed a patch set adding support for the auxiliary SMBus
+controller on the SB600/SB700:
+http://marc.info/?t=133886124500001&r=1&w=2
+http://marc.info/?t=133886124300004&r=1&w=2
+http://marc.info/?t=133886124300003&r=1&w=2
 
-Take a look at the I2C framework code again. I find this loop to poll BUSBUSY bit is not necessary. Just return -EAGAIN, the framework do retry before timeout already.
+It touches the exact same area as touched by your patch, so they will
+conflict. Best would be to rebase the SB800 multiport support patch on
+top of the other patch set.
 
-Regards,
+Andrew, do you think you can update per my comments and resubmit your
+patch set quickly, so that we can then proceed with the SB800 multiport
+support before the next merge window?
 
-Sonic
-
-
->>  /*
->>   * One i2c master transfer
->>   */
->> @@ -303,12 +305,16 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter
->*adap,
->>      struct bfin_twi_iface *iface = adap->algo_data;
->>      struct i2c_msg *pmsg;
->>      int rc = 0;
->> +    unsigned int busy_timeout = BFIN_TWI_BUSY_TIMEOUT;
->>
->>      if (!(read_CONTROL(iface) & TWI_ENA))
->>              return -ENXIO;
->>
->> -    while (read_MASTER_STAT(iface) & BUSBUSY)
->> +    while (read_MASTER_STAT(iface) & BUSBUSY) {
->> +            if (--busy_timeout == 0)
->> +                    return -EBUSY;
->>              yield();
->> +    }
->>
->>      iface->pmsg = msgs;
->>      iface->msg_num = num;
->> @@ -403,12 +409,16 @@ int bfin_twi_do_smbus_xfer(struct i2c_adapter
->> *adap, u16 addr,  {
->>      struct bfin_twi_iface *iface = adap->algo_data;
->>      int rc = 0;
->> +    unsigned int busy_timeout = BFIN_TWI_BUSY_TIMEOUT;
->>
->>      if (!(read_CONTROL(iface) & TWI_ENA))
->>              return -ENXIO;
->>
->> -    while (read_MASTER_STAT(iface) & BUSBUSY)
->> +    while (read_MASTER_STAT(iface) & BUSBUSY) {
->> +            if (--busy_timeout == 0)
->> +                    return -EBUSY;
->>              yield();
->> +    }
->>
->>      iface->writeNum = 0;
->>      iface->readNum = 0;
->> --
->> 1.7.0.4
->>
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c"
->> in the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo
->> info at  http://vger.kernel.org/majordomo-info.html
->
->--
->Pengutronix e.K.                           | Wolfram Sang                |
->Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Thanks,
+-- 
+Jean Delvare
