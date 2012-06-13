@@ -1,45 +1,32 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c-piix4: eliminate piix4_smba global variable
-Date: Wed, 13 Jun 2012 21:37:36 +0200
-Message-ID: <20120613213736.7b5bc18d@endymion.delvare>
-References: <20120613094739.360967aa@endymion.delvare>
-	<1339606749-4578-1-git-send-email-andrew@asquaredlabs.com>
-	<1339606749-4578-2-git-send-email-andrew@asquaredlabs.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 5/9] ARM: kirkwood: use devicetree for orion-spi
+Date: Wed, 13 Jun 2012 21:10:30 +0000
+Message-ID: <201206132110.31011.arnd@arndb.de>
+References: <1339324322-29388-6-git-send-email-andrew@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1339606749-4578-2-git-send-email-andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
+In-Reply-To: <1339324322-29388-6-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Michael Walle <michael-QKn5cuLxLXY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org, Michael Walle <micheal-QKn5cuLxLXY@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 13 Jun 2012 12:59:07 -0400, Andrew Armenia wrote:
-> Some chipsets have multiple sets of piix4-compatible SMBus registers.
-> Eliminating the global variable will allow these chipsets to be fully
-> supported.
-> 
-> Return value from piix4_setup and piix4_sb800_setup now returns the smba
-> value detected. This is stored in a struct i2c_piix4_adapdata. Thus
-> the global variable is eliminated.
-> 
-> Signed-off-by: Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-piix4.c |   54 ++++++++++++++++++++++++++++------------
->  1 file changed, 38 insertions(+), 16 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index c14d48d..61a85c9 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> (...)
-> -static void __devexit piix4_remove(struct pci_dev *dev)
-> +static void __devinit piix4_adap_remove(struct i2c_adapter *adap)
+On Sunday 10 June 2012, Andrew Lunn wrote:
+> @@ -26,6 +26,11 @@ static struct of_device_id kirkwood_dt_match_table[] __initdata = {
+>         { }
+>  };
+>  
+> +struct of_dev_auxdata kirkwood_auxdata_lookup[] __initdata = {
+> +       OF_DEV_AUXDATA("marvell,orion-spi", 0xf1010600, "orion_spi.0", NULL),
+> +       {},
+> +};
+> +
+>  static void __init kirkwood_dt_init(void)
+>  {
 
-You mean __devexit here.
+How about instead adding the clkdev for "f1010600.spi" so you don't need the auxdata?
 
-Other than this, looks good, applied, thanks.
-
--- 
-Jean Delvare
+	Arnd
