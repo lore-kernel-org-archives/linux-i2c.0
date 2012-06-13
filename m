@@ -1,94 +1,60 @@
-From: Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
-Subject: Re: lm75_remove: LM75 Device remove using sysfs delete_device
-Date: Tue, 12 Jun 2012 21:23:43 -0700
-Message-ID: <20120613042343.GA11771@ericsson.com>
-References: <CAOJFanUqFZPih6puAy2DWPWPQMs6ZZz_DFgO9wnRttnP5mCPZA@mail.gmail.com>
- <20120610173640.3b21759c@endymion.delvare>
- <CAOJFanUqEPUGm-7M2HEP8U+uwhg4zQS5ww5dFu0gYAU-exs_Sg@mail.gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C driver
+Date: Wed, 13 Jun 2012 07:40:19 +0200
+Message-ID: <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw@mail.gmail.com>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
+	<1339428307-3850-10-git-send-email-lee.jones@linaro.org>
+	<CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
+	<4FD6F0E8.5040606@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAOJFanUqEPUGm-7M2HEP8U+uwhg4zQS5ww5dFu0gYAU-exs_Sg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <4FD6F0E8.5040606-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sasikanth babu <sasikanth.v19-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org" <lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 12, 2012 at 11:51:51PM -0400, Sasikanth babu wrote:
-> 
-> On Sun, Jun 10, 2012 at 9:06 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> 
->     (Note: Frodo is out of the lm-sensors project for years, no need to Cc
->     him.)
-> 
->     On Sun, 10 Jun 2012 07:41:03 -0700, Sasikanth babu wrote:
->     >   when I'm trying to delete lm75 device using sysfs delete_device
->     attribute
->     > (echo 0x4e >/sys/bus/i2c/devices/i2c-3/delete_device)
->     >   It hangs at lm75_remove function. I started the device using sysfs
->     > attribute new_device.
->     >
->     >
->     >   Kernel verion : 2.6.34.12
-> 
->     I can't reproduce this with kernel 3.4.2.
-> 
->     Did you try reproducing this with a more recent kernel? 2.6.34 is
->     getting old.
-> 
->     Is there anything you can think of which makes your system special? I2C
->     bus multiplexing ? Some unusual kernel option maybe?
-> 
->    
->       Yes, I have PCA9545 Mux device. LM75 device was connected to PCA9545 Mux
-> devices (Mux device
->       is connected to SMBUS). At first I unloaded PCA954x module, It hanged at
-> lm75_remove. Later I had
->       to tried remove the lm75 device using sysfs, again it hanged at same
-> location. Both PCA Mux device and
->       lm75 devvice instantiated using sysfs new_device.
-> 
-> 
->     > "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
->     > i2cinit       D ffffffff814a04e0     0  2064   2059 0x00000004
->     >  ffff880271928a70 0000000000000086 0000000000000096 ffff880273215b48
->     >  ffff8802ffffffff ffff880477306a70 0000000000010140 ffff880273215fd8
->     >  0000000000010140 ffff880271928a70 ffff880273215fd8 ffff880273215fd8
->     > Call Trace:
->     >  [<ffffffff8103ecd0>] ? default_wake_function+0x0/0x20
->     >  [<ffffffff8148765f>] ? __rt_mutex_slowlock+0x4f/0x110
->     >  [<ffffffff814879e3>] ? rt_mutex_slowlock+0x93/0x190
->     >  [<ffffffff813278d9>] ? i2c_smbus_xfer+0x49/0x110
->     >  [<ffffffff814e1de0>] ? dev_sysfs_ops+0x0/0x10
->     >  [<ffffffff81327c40>] ? i2c_smbus_write_byte_data+0x30/0x40
-> 
->     This looks odd, sysfs_remove_group() doesn't call
->     i2c_smbus_write_byte_data(), and i2c_smbus_write_byte_data() doesn't
->     touch dev_sysfs_ops... So this stack trace is approximate.
-> 
->     >  [<ffffffff811361f9>] ? sysfs_remove_group+0x59/0x100
->     >  [<ffffffff8132ec2d>] ? lm75_remove+0x4d/0x80
->     >  [<ffffffff81326ef9>] ? i2c_device_remove+0xa9/0xc0
->     >  [<ffffffff8129ffb6>] ? __device_release_driver+0x56/0xc0
->     >  [<ffffffff812a00f5>] ? device_release_driver+0x25/0x40
->     >  [<ffffffff8129f481>] ? bus_remove_device+0x91/0xc0
->     >  [<ffffffff8129d7a8>] ? device_del+0x118/0x190
->     >  [<ffffffff8129d829>] ? device_unregister+0x9/0x20
->     >  [<ffffffff813281bc>] ? i2c_sysfs_delete_device+0x17c/0x200
->     >  [<ffffffff81133046>] ? sysfs_write_file+0x1c6/0x260
->     >  [<ffffffff810d5323>] ? vfs_write+0x103/0x200
->     >  [<ffffffff810d550e>] ? sys_write+0x4e/0x90
->     >  [<ffffffff814884e4>] ? page_fault+0x24/0x30
->     >  [<ffffffff810024ab>] ? system_call_done+0x0/0x5
-> 
-Jean,
+On Tue, Jun 12, 2012 at 9:34 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On 11/06/12 21:37, Linus Walleij wrote:
+>>
+>> So why don't we create proper device tree bindings for the above platform
+>> data?
+>>(...)
+>> This looks to me like a way to push the burden of doing the real
+>> device tree binding for the above to the next user.
+>> (Which will likely be me, so therefore I care a bit ...)
+>
+>
+> On the contrary. This will avoid any added Device Tree complexity and ensure
+> that no extra vendor specific bindings are required. When a new user wishes
+> to use the driver, all they (you) have to do is create a new struct with the
+> platform specific information and add the entry to nmk_gpio_match[],
+> simples.
+>
+> I've even added the logic to extract any information you provide via
+> nmk_gpio_match[] for use as platform data. This keeps it both out of
+> platform code and the Device Tree binary. Everyone's a winner. :)
 
-in 2.6.34, i2c_sysfs_delete_device calls i2c_lock_adapter, then i2c_unregister_device.
-This in turn calls lm75_remove which through i2c_smbus_xfer tries to acquire the lock again.
+No. You assume that the platform data is a chip-specific property,
+and that it will be the same for all busses on the chip. But it
+isn't.
 
-The current code is different - i2c_sysfs_delete_device no longer calls i2c_lock_adapter.
-Commit ID is dafc50d141c27959dbd3a1cfe9857a86d23402a7, which specifically mentions deadlock
-issues with multiplexed busses.
+The above platform data is *board specific*, it depends on
+what devices have been connected to each bus.
 
-Guenter
+For example the max frequency: this depends on the maximum
+frequency any of the devices connected to one very bus
+can support.
+
+The other platforms have put this frequency into their device
+trees for a reason, and this is it.
+
+So for the four different i2c busses there may need to be
+four different platform data sets. How are you going to
+distinguish between the four buses?
+
+This is thus broken and needs to have proper bindings.
+
+Yours,
+Linus Walleij
