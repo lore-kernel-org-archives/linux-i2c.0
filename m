@@ -1,56 +1,69 @@
 From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 4/8 v2] i2c: i2c-bfin-twi: Tighten
-	condition when failing I2C transfer if MEN bit is reset
-	unexpectedly.
-Date: Wed, 13 Jun 2012 16:22:43 +0800
-Message-ID: <1339575767-22985-4-git-send-email-sonic.adi@gmail.com>
+Subject: [PATCH 7/8 v2] i2c: i2c-bfin-twi: Move TWI peripheral pin request array to platform data.
+Date: Wed, 13 Jun 2012 16:22:46 +0800
+Message-ID: <1339575767-22985-7-git-send-email-sonic.adi@gmail.com>
 References: <1339575767-22985-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1339575767-22985-1-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://blackfin.uclinux.org/mailman/options/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://blackfin.uclinux.org/pipermail/uclinux-dist-devel>
-List-Post: <mailto:uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>
-List-Help: <mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=help>
-List-Subscribe: <https://blackfin.uclinux.org/mailman/listinfo/uclinux-dist-devel>,
-	<mailto:uclinux-dist-devel-request-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org?subject=subscribe>
-Sender: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
-Errors-To: uclinux-dist-devel-bounces-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-In order to mark I2C transfer fail when MEN bit in I2C controller is reset unexpeced
-in MCOMP interrupt, interrupt status bits XMTSERV or RCVSERV should be checked.
-
-Master Transfer Complete (MCOMP).
-[1] The initiated master transfer has completed. In the absence of a
-repeat start, the bus has been released.
-[0] The completion of a transfer has not been detected.
+Depend on commit cf93feb3a0dee97c7896016a352a3226139fbcf4
 
 Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |   12 ++++--------
+ 1 files changed, 4 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index a5ab454..2e59bbd 100644
+index 5be1dc2..5c57623 100644
 --- a/drivers/i2c/busses/i2c-bfin-twi.c
 +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -201,7 +201,8 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 		return;
- 	}
- 	if (twi_int_status & MCOMP) {
--		if ((read_MASTER_CTL(iface) & MEN) == 0 &&
-+		if (twi_int_status & (XMTSERV|RCVSERV) &&
-+			(read_MASTER_CTL(iface) & MEN) == 0 &&
- 			(iface->cur_mode == TWI_I2C_MODE_REPEAT ||
- 			iface->cur_mode == TWI_I2C_MODE_COMBINED)) {
- 			iface->result = -1;
+@@ -78,11 +78,6 @@ DEFINE_TWI_REG(XMT_DATA16, 0x84)
+ DEFINE_TWI_REG(RCV_DATA8, 0x88)
+ DEFINE_TWI_REG(RCV_DATA16, 0x8C)
+ 
+-static const u16 pin_req[2][3] = {
+-	{P_TWI0_SCL, P_TWI0_SDA, 0},
+-	{P_TWI1_SCL, P_TWI1_SDA, 0},
+-};
+-
+ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 					unsigned short twi_int_status)
+ {
+@@ -709,7 +704,8 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ 	p_adap->timeout = 5 * HZ;
+ 	p_adap->retries = 3;
+ 
+-	rc = peripheral_request_list(pin_req[pdev->id], "i2c-bfin-twi");
++	rc = peripheral_request_list((unsigned short *)pdev->dev.platform_data,
++					"i2c-bfin-twi");
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "Can't setup pin mux!\n");
+ 		goto out_error_pin_mux;
+@@ -756,7 +752,7 @@ out_error_add_adapter:
+ 	free_irq(iface->irq, iface);
+ out_error_req_irq:
+ out_error_no_irq:
+-	peripheral_free_list(pin_req[pdev->id]);
++	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+ out_error_pin_mux:
+ 	iounmap(iface->regs_base);
+ out_error_ioremap:
+@@ -774,7 +770,7 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
+ 
+ 	i2c_del_adapter(&(iface->adap));
+ 	free_irq(iface->irq, iface);
+-	peripheral_free_list(pin_req[pdev->id]);
++	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+ 	iounmap(iface->regs_base);
+ 	kfree(iface);
+ 
 -- 
 1.7.0.4
