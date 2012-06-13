@@ -1,71 +1,28 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 3/3] Documentation: Device Tree binding information for i2c-nomadik
- driver
-Date: Wed, 13 Jun 2012 17:08:24 +0100
-Message-ID: <4FD8BAF8.10806@linaro.org>
-References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
+Subject: [PATCH 0/3] i2c-piix4: Multiple piix4-compatible SMBus support (revised)
+Date: Wed, 13 Jun 2012 12:59:06 -0400
+Message-ID: <1339606749-4578-1-git-send-email-andrew@asquaredlabs.com>
+References: <20120613094739.360967aa@endymion.delvare>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20120613094739.360967aa-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Date: Wed, 13 Jun 2012 17:00:02 +0100
-Subject: [PATCH 3/3] Documentation: Device Tree binding information for
- i2c-nomadik driver
+This is a revision to the earlier patch set I submitted, which adds
+support for the secondary SMBus controller found on certain AMD
+chipsets, notably the SB700 and its derivative the SP5100.
 
-This document describes each of the non-standard Device Tree bindings
-used in the Nomadik I2C driver.
+Andrew Armenia (3):
+  i2c-piix4: eliminate piix4_smba global variable
+  i2c-piix4: separate registration and probing code
+  i2c-piix4: support AMD auxiliary SMBus controller
 
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- Documentation/devicetree/bindings/i2c/nomadik.txt |   33 +++++++++++++++++++++
- 1 file changed, 33 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/nomadik.txt
+ Documentation/i2c/busses/i2c-piix4 |   13 ++-
+ drivers/i2c/busses/Kconfig         |    6 +-
+ drivers/i2c/busses/i2c-piix4.c     |  200 ++++++++++++++++++++++++++++--------
+ 3 files changed, 175 insertions(+), 44 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/nomadik.txt b/Documentation/devicetree/bindings/i2c/nomadik.txt
-new file mode 100644
-index 0000000..18cea18
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/nomadik.txt
-@@ -0,0 +1,33 @@
-+I2C for Nomadik based systems
-+
-+Required (non-standard) properties:
-+ - Nil
-+
-+Recommended (non-standard) properties:
-+ - clock-frequency : Maximum bus clock frequency for the device
-+ - stericsson,slsu : Data line delay
-+ - stericsson,tft : Tx FIFO threshold
-+ - stericsson,rft : Rx FIFO threshold
-+ - stericsson,timeout : Slave response timeout(ms)
-+ - stericsson,i2c_freq_mode_fast : I2C fast mode (omit for standard mode)
-+
-+Optional (non-standard) properties:
-+ - Nil
-+
-+Example :
-+
-+i2c@80004000 {
-+        compatible = "stericsson,db8500-i2c", "st,nomadik-i2c";
-+        reg = <0x80004000 0x1000>;
-+        interrupts = <0 21 0x4>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        v-i2c-supply = <&db8500_vape_reg>;
-+
-+        clock-frequency = <100000>;
-+        stericsson,slsu = <0xe>;
-+        stericsson,tft = <1>;
-+        stericsson,rft = <8>;
-+        stericsson,timeout = <200>;
-+        stericsson,i2c_freq_mode_fast;
-+};
 -- 
-1.7.9.5
+1.7.10
