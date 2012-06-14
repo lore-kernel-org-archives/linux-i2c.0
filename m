@@ -1,48 +1,45 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH V3 2/3] i2c-nomadik: turn the platform driver to an amba
- driver
-Date: Thu, 14 Jun 2012 08:04:38 +0000
-Message-ID: <201206140804.39083.arnd@arndb.de>
-References: <cover.1339447570.git.rubini@gnudd.com>
- <4a198618063924b68182279ffd56c335d621f542.1339447570.git.rubini@gnudd.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 1/9] ARM: Kirkwood: Add interrupt controller support for DT boards
+Date: Thu, 14 Jun 2012 08:12:34 +0000
+Message-ID: <201206140812.34399.arnd@arndb.de>
+References: <1339324322-29388-2-git-send-email-andrew@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <4a198618063924b68182279ffd56c335d621f542.1339447570.git.rubini@gnudd.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Giancarlo Asnaghi <giancarlo.asnaghi@st.com>, Russell King <linux@arm.linux.org.uk>, Linus Walleij <linus.walleij@stericsson.com>, Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>, Alessandro Rubini <rubini@gnudd.com>, linux-kernel@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, STEricsson_nomadik_linux@list.st.com, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Lee Jones <lee.jones@linaro.org>, Alan Cox <alan@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1339324322-29388-2-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 11 June 2012, Alessandro Rubini wrote:
-> The i2c-nomadik gateware is really a PrimeCell APB device. By hosting
-> the driver under the amba bus we can access it more easily, for
-> example using the generic pci-amba driver. The patch also fixes the
-> mach-ux500 users, so they register an amba device instead than a
-> platform device.
-> 
-> Signed-off-by: Alessandro Rubini <rubini@gnudd.com>
-> Acked-by: Giancarlo Asnaghi <giancarlo.asnaghi@st.com>
-> Tested-by: Linus Walleij <linus.walleij@linaro.org>
-> ---
->  arch/arm/mach-ux500/devices-common.h |   22 +----
->  drivers/i2c/busses/i2c-nomadik.c     |  142 +++++++++++++++++----------------
->  2 files changed, 78 insertions(+), 86 deletions(-)
+On Sunday 10 June 2012, Andrew Lunn wrote:
+> +static int __init kirkwood_add_irq_domain(struct device_node *np,
+> +                                         struct device_node *interrupt_parent)
+> +{
+> +       kirkwood_init_irq();
+> +       irq_domain_add_legacy(np, 64, 0, 0, &irq_domain_simple_ops, NULL);
+> +       return 0;
+> +}
+> +
+> +static const struct of_device_id kirkwood_irq_match[] = {
+> +       { .compatible = "marvell,orion-intc",
+> +         .data = kirkwood_add_irq_domain, },
+> +       {},
+> +};
+> +
+> +static void __init kirkwood_dt_init_irq(void)
+> +{
+> +       of_irq_init(kirkwood_irq_match);
+> +}
+> +
 
-You change only one half of ux500 here: the part where the device gets defined
-statically, but not not the definition in the device-tree.
+I think if you compute the number of interrupts in the domain from the number of
+registers that are described in the device tree, call orion_irq_init()
+based on those registers, and use irq domains for the gpio stuff as Rob suggested,
+this init_irq function can become completely generic to all orion platforms.
 
-I think all you need to do is mark the device compatible with primecell
-and add an ID if necessary, but we should definitely make sure that that
-path still works, because the one you patch is going away.
+That is what I tried to do with an earlier patch, which was flawed for other reasons.
 
 	Arnd
