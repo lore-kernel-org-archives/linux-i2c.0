@@ -1,75 +1,71 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 06/17] i2c: omap: improve 1p153 errata handling
-Date: Thu, 14 Jun 2012 14:48:05 +0300
-Message-ID: <20120614114804.GS13602@arwen.pp.htv.fi>
-References: <1339669250-9183-1-git-send-email-balbi@ti.com>
- <1339669250-9183-7-git-send-email-balbi@ti.com>
- <20120614111746.GB31187@n2100.arm.linux.org.uk>
-Reply-To: balbi-l0cyMroinI0@public.gmane.org
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 1/9] ARM: Kirkwood: Add interrupt controller support for
+ DT boards
+Date: Thu, 14 Jun 2012 11:55:56 +0000
+Message-ID: <201206141155.56289.arnd@arndb.de>
+References: <1339324322-29388-2-git-send-email-andrew@lunn.ch>
+ <201206140812.34399.arnd@arndb.de> <20120614091858.GD4799@lunn.ch>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pd495SECmvzXpBRb"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120614111746.GB31187-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20120614091858.GD4799-g2DYL2Zd6BY@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Cc: jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thursday 14 June 2012, Andrew Lunn wrote:
+> > I think if you compute the number of interrupts in the domain from the number of
+> > registers that are described in the device tree, call orion_irq_init()
+> > based on those registers, and use irq domains for the gpio stuff as Rob suggested,
+> > this init_irq function can become completely generic to all orion platforms.
+> 
+> I'm reworking the GPIO stuff at the moment, moving it to use IRQ
+> domains for its interrupts. That code will be generic to all Orion
+> platforms. I'm modeling the code on the AT91 GPIO handler, since that
+> has a similar structure, one hardware interrupt for a number of GPIO
+> lines, which is in software demultiplexed and triggers secondary level
+> interrupts. The major difference is that AT91 has one hardware
+> interrupt for a GPIO chip with 32 lines, where as Orion has 4 hardware
+> interrupt lines, so maybe four interrupt domains, for one GPIO chip
+> with 32 lines.
 
---pd495SECmvzXpBRb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My guess is that you're still better off with a single interrupt domain
+for 32 lines, or even for all the gpio lines, but I'm sure you can
+find a solution that works best for you.
 
-Hi,
+> Non-GPIO interrupts are more of a problem. Underneath it uses the
+> generic-chip interrupt code. The patchset to add _domain versions of
+> these calls is stalled. So i think for the moment, we need to stay
+> with the domain bolted on top, until generic-chip gets domain
+> support. I would also expect that generic-chip also gets a common DT
+> binding which any SoC can use.
 
-On Thu, Jun 14, 2012 at 12:17:46PM +0100, Russell King - ARM Linux wrote:
-> On Thu, Jun 14, 2012 at 01:20:39PM +0300, Felipe Balbi wrote:
-> > -static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, int=
- *err)
-> > +static int errata_omap3_1p153(struct omap_i2c_dev *dev)
-> >  {
-> > -	unsigned long timeout =3D 10000;
-> > +	unsigned long	timeout =3D 10000;
-> > +	u16		stat;
->=20
-> Eww, no, not more of this "lets add tabs to align auto variable
-> declarations".  This is detrimental when you add another variable whose
-> type is longer than the current indentation - you have to reformat the
-> entire block.
->=20
-> It's really not worth it.  Stick to just using one space, like the rest
-> of the kernel code.  Like the code which Linus writes.  And thereby help
-> to avoid future "pointless churn" whinges.
+I suggested that before, and the comments I got back then were that
+we should treat the generic irq chip more like a library and keep
+the device tree binding at a higher level. If I understood things right,
+that means we would just have one plat-orion (or mach-mvebu later)
+irq chip abstraction that handles the DT binding and the irq domains
+itself but uses the generic irq chip code to implement the actual
+irq handling.
 
-fair enough, no need to get so over the top like that, it's just a tab.
-Will fix it.
+> My aim at the moment is to get something which works well enough that
+> we can add DT support to other drivers. Without interrupts, we are not
+> going to get very far. We can later rip it out what i create now and
+> replace it once generic-chip becomes domain and DT aware, and there
+> should be no effect on other drivers.
 
---=20
-balbi
+Right. I just want to ensure that we don't need to change the bindings
+in incompatible ways.
 
---pd495SECmvzXpBRb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJP2c90AAoJEIaOsuA1yqREqWwP/1L/byV1tKu697GN5ppq9lZf
-JmS7y2+HVmnuqMIIxSX2dZAyJb4Md0n3oJJQW5eUvSVhY3m/lm8lAjCWIWl6paib
-r3SdqRWSN2sixurb8RSn7P2231bp/W/K5agwnlfQP/nz6fXM8zNPomz5OiQ4udUx
-6pSv5gMq9JYoPxDCg1A7mAlHbBUlSB/LSO4P4e65fUodGEAoCcyPbssudHt7W5bA
-sAb/yaZfPSSWIlm+hhKbbDkQbKVKY4Ga5C8hvWBxk3+aLwCCtlg1o+Frwj8t0Xos
-aSdsnSv5kfjStDXSJM8vRU63QOe6xbZlECpRaFIfPqSfIfIZN6JunnXsZ+l8q7Hh
-qN4l5yNMwsZG+ieaF1HlU5ApreDuD0KuR4thQuEYI/WZKpX1KE63pAzTazyrvEqS
-vdb5cXCfhtnQC6I7rrBQaAJznJ04LY/qQsu2gU0QNZ4gCO+wfjSz6ntpofakqz+O
-bSpv5jXQTY61V8ZpBjhB12N8PPOfWsvHa+XcZ9b7EXbigg+MvCdB28ofBIyl2YAl
-BzhcSlzPg3W/pkzBLDPIpAEDnz7FxOIMqlxJoya+DCZpuIkZWjbHPKyRh79sL7Ny
-Wxj2yIA4ibDL8m3UL6bSuTvEX2PLFIjFYsqJ5Vv7QLlwOMLUJ6126MmuvOHTAx4m
-YcHOHkSLoLgSr6CC6syU
-=xbuS
------END PGP SIGNATURE-----
-
---pd495SECmvzXpBRb--
+	Arnd
