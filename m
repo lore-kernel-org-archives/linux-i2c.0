@@ -1,123 +1,37 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: [PATCH 00/16] Enable SPARSE_IRQ support for imx
-Date: Thu, 14 Jun 2012 13:59:31 +0800
-Message-ID: <1339653587-4832-1-git-send-email-shawn.guo@linaro.org>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 12/16] i2c: imx: remove unneeded mach/irqs.h inclusion
+Date: Thu, 14 Jun 2012 13:59:43 +0800
+Message-ID: <1339653587-4832-13-git-send-email-shawn.guo@linaro.org>
+References: <1339653587-4832-1-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-serial-owner@vger.kernel.org>
-Sender: linux-serial-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Sascha Hauer <s.hauer@pengutronix.de>, Arnd Bergmann <arnd@arndb.de>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Dong Aisheng <b29396@freescale.com>, Shawn Guo <shawn.guo@linaro.org>, Russell King <linux@arm.linux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-serial@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1339653587-4832-1-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It seems that the lack of SPARSE_IRQ support becomes the last blocker
-for imx being built with multi-platform.  The series is to enable
-SPARSE_IRQ for imx by having all the irqchips allocate their irq_descs.
-Along with the change, a legacy irqdomain is added for each of these
-irqchips (except ipu_irq) to help the mapping between hardware irq and
-Linux irq number, which is required by DT boot but also benefits non-DT.
+Remove unneeded mach/irq.h inclusion from i2c-imx driver.
 
-Based on v3.5-rc2.  Boot tested on imx3, imx5 and imx6, and compile
-tested with imx_v4_v5_defconfig.
+Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-imx.c |    1 -
+ 1 files changed, 0 insertions(+), 1 deletions(-)
 
-Shawn Guo (16):
-  ARM: imx: eliminate macro IMX_GPIO_TO_IRQ()
-  ARM: imx: eliminate macro IOMUX_TO_IRQ()
-  ARM: imx: eliminate macro IRQ_GPIOx()
-  gpio/mxc: move irq_domain_add_legacy call into gpio driver
-  ARM: imx: move irq_domain_add_legacy call into tzic driver
-  ARM: imx: move irq_domain_add_legacy call into avic driver
-  dma: ipu: remove the use of ipu_platform_data
-  ARM: imx: leave irq_base of wm8350_platform_data uninitialized
-  ARM: imx: pass gpio than irq number into mxc_expio_init
-  ARM: imx: add a legacy irqdomain for 3ds_debugboard
-  ARM: imx: add a legacy irqdomain for mx31ads
-  i2c: imx: remove unneeded mach/irqs.h inclusion
-  ARM: imx: remove unneeded mach/irq.h inclusion
-  tty: serial: imx: remove the use of MXC_INTERNAL_IRQS
-  ARM: fiq: save FIQ_START by passing absolute fiq number
-  ARM: imx: enable SPARSE_IRQ for imx platform
-
- arch/arm/Kconfig                                |    1 +
- arch/arm/kernel/fiq.c                           |    4 +-
- arch/arm/mach-imx/devices-imx31.h               |    4 +-
- arch/arm/mach-imx/devices-imx35.h               |    4 +-
- arch/arm/mach-imx/eukrea_mbimx27-baseboard.c    |    3 +-
- arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c  |    6 +-
- arch/arm/mach-imx/imx27-dt.c                    |   28 ---
- arch/arm/mach-imx/imx51-dt.c                    |   27 ---
- arch/arm/mach-imx/imx53-dt.c                    |   27 ---
- arch/arm/mach-imx/mach-apf9328.c                |    7 +-
- arch/arm/mach-imx/mach-armadillo5x0.c           |   18 +-
- arch/arm/mach-imx/mach-cpuimx27.c               |   12 +-
- arch/arm/mach-imx/mach-cpuimx35.c               |    3 +-
- arch/arm/mach-imx/mach-cpuimx51sd.c             |    3 +-
- arch/arm/mach-imx/mach-imx27_visstrim_m10.c     |    9 +-
- arch/arm/mach-imx/mach-imx6q.c                  |   14 --
- arch/arm/mach-imx/mach-kzm_arm11_01.c           |   20 ++-
- arch/arm/mach-imx/mach-mx1ads.c                 |    1 -
- arch/arm/mach-imx/mach-mx21ads.c                |   16 ++-
- arch/arm/mach-imx/mach-mx27_3ds.c               |    7 +-
- arch/arm/mach-imx/mach-mx27ads.c                |   12 +-
- arch/arm/mach-imx/mach-mx31_3ds.c               |   18 +--
- arch/arm/mach-imx/mach-mx31ads.c                |   63 ++++---
- arch/arm/mach-imx/mach-mx31lilly.c              |   10 +-
- arch/arm/mach-imx/mach-mx31lite.c               |   11 +-
- arch/arm/mach-imx/mach-mx31moboard.c            |   10 +-
- arch/arm/mach-imx/mach-mx35_3ds.c               |   18 +--
- arch/arm/mach-imx/mach-mx51_3ds.c               |    3 +-
- arch/arm/mach-imx/mach-mx53_ard.c               |    5 +-
- arch/arm/mach-imx/mach-mxt_td60.c               |    6 +-
- arch/arm/mach-imx/mach-pca100.c                 |    5 +-
- arch/arm/mach-imx/mach-pcm037.c                 |   24 ++--
- arch/arm/mach-imx/mach-pcm038.c                 |    4 +-
- arch/arm/mach-imx/mach-pcm043.c                 |    6 +-
- arch/arm/mach-imx/mach-qong.c                   |   10 +-
- arch/arm/mach-imx/mach-scb9328.c                |    7 +-
- arch/arm/mach-imx/mach-vpr200.c                 |   10 +-
- arch/arm/mach-imx/mm-imx1.c                     |    1 -
- arch/arm/mach-imx/mm-imx21.c                    |    1 -
- arch/arm/mach-imx/mm-imx25.c                    |    1 -
- arch/arm/mach-imx/mm-imx27.c                    |    1 -
- arch/arm/mach-imx/mm-imx3.c                     |    1 -
- arch/arm/mach-imx/mx31lilly-db.c                |   11 +-
- arch/arm/mach-imx/mx31lite-db.c                 |    5 +-
- arch/arm/mach-imx/mx51_efika.c                  |    3 +-
- arch/arm/mach-imx/pcm970-baseboard.c            |   13 +-
- arch/arm/mach-rpc/include/mach/irqs.h           |   12 +-
- arch/arm/plat-mxc/3ds_debugboard.c              |   50 +++---
- arch/arm/plat-mxc/avic.c                        |   26 ++-
- arch/arm/plat-mxc/devices/platform-ipu-core.c   |    5 +-
- arch/arm/plat-mxc/include/mach/3ds_debugboard.h |    2 +-
- arch/arm/plat-mxc/include/mach/devices-common.h |    4 +-
- arch/arm/plat-mxc/include/mach/hardware.h       |    2 -
- arch/arm/plat-mxc/include/mach/iomux-mx3.h      |    3 -
- arch/arm/plat-mxc/include/mach/iomux-v1.h       |    7 -
- arch/arm/plat-mxc/include/mach/ipu.h            |    4 -
- arch/arm/plat-mxc/include/mach/irqs.h           |   44 -----
- arch/arm/plat-mxc/include/mach/mx1.h            |  111 ++++++------
- arch/arm/plat-mxc/include/mach/mx21.h           |  107 ++++++------
- arch/arm/plat-mxc/include/mach/mx25.h           |   72 ++++----
- arch/arm/plat-mxc/include/mach/mx27.h           |  127 +++++++-------
- arch/arm/plat-mxc/include/mach/mx2x.h           |   87 +++++-----
- arch/arm/plat-mxc/include/mach/mx31.h           |  118 +++++++------
- arch/arm/plat-mxc/include/mach/mx35.h           |  109 ++++++------
- arch/arm/plat-mxc/include/mach/mx3x.h           |   77 ++++----
- arch/arm/plat-mxc/include/mach/mx50.h           |  187 ++++++++++----------
- arch/arm/plat-mxc/include/mach/mx51.h           |  209 +++++++++++-----------
- arch/arm/plat-mxc/include/mach/mx53.h           |  217 ++++++++++++-----------
- arch/arm/plat-mxc/tzic.c                        |   28 ++-
- drivers/dma/ipu/ipu_idmac.c                     |    8 +-
- drivers/dma/ipu/ipu_irq.c                       |   14 +-
- drivers/gpio/gpio-mxc.c                         |   56 ++++---
- drivers/i2c/busses/i2c-imx.c                    |    1 -
- drivers/media/video/mx1_camera.c                |    1 +
- drivers/tty/serial/imx.c                        |    6 +-
- sound/soc/fsl/imx-pcm-fiq.c                     |    1 +
- 76 files changed, 1041 insertions(+), 1127 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 8d6b504..370031a 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -53,7 +53,6 @@
+ #include <linux/of_i2c.h>
+ #include <linux/pinctrl/consumer.h>
+ 
+-#include <mach/irqs.h>
+ #include <mach/hardware.h>
+ #include <mach/i2c.h>
+ 
 -- 
 1.7.5.4
-
-
