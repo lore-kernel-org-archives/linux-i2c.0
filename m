@@ -1,64 +1,35 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: [PATCH 12/17] i2c: omap: switch to platform_get_irq()
-Date: Thu, 14 Jun 2012 13:20:45 +0300
-Message-ID: <1339669250-9183-13-git-send-email-balbi@ti.com>
-References: <1339669250-9183-1-git-send-email-balbi@ti.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1339669250-9183-1-git-send-email-balbi@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: ben-linux@fluff.org
-Cc: Tony Lindgren <tony@atomide.com>, w.sang@pengutronix.de, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Felipe Balbi <balbi@ti.com>
+From: Pawel Moll <pawel.moll@arm.com>
+Subject: Re: [PATCH] i2c: let the core register devices from devicetree
+Date: Thu, 14 Jun 2012 11:28:52 +0100
+Message-ID: <1339669732.6598.7.camel@hornet>
+References: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Viresh Kumar <viresh.kumar@st.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Tony Lindgren <tony@atomide.com>, Linus Walleij <linus.walleij@linaro.org>, Jochen Friedrich <jochen@scram.de>, Grant Likely <grant.likely@secretlab.ca>, Laxman Dewangan <ldewangan@nvidia.com>, linux-i2c@vger.kernel.org, Peter Korsgaard <jacmet@sunsite.dk>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@nvidia.com>, Barry Song <21cnbao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Deepak Sikri <deepak.sikri@st.com>, Li Yang <leoli@freescale.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Dirk Brandewie <dirk.brandewie@gmail.com>, Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wolfram@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, Tang Yuantian <B29983@freescale.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr>
 List-Id: linux-i2c@vger.kernel.org
 
-that's a nice helper from drivers core which
-will give us the exact IRQ number, instead
-of a pointer to an IRQ resource.
-
-Signed-off-by: Felipe Balbi <balbi@ti.com>
----
- drivers/i2c/busses/i2c-omap.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index d805270..43d3289 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1045,11 +1045,12 @@ omap_i2c_probe(struct platform_device *pdev)
- {
- 	struct omap_i2c_dev	*dev;
- 	struct i2c_adapter	*adap;
--	struct resource		*mem, *irq;
-+	struct resource		*mem;
- 	struct omap_i2c_bus_platform_data *pdata = pdev->dev.platform_data;
- 	struct device_node	*node = pdev->dev.of_node;
- 	const struct of_device_id *match;
- 	irq_handler_t isr;
-+	int irq;
- 	int r;
- 
- 	/* NOTE: driver uses the static register mapping */
-@@ -1059,10 +1060,10 @@ omap_i2c_probe(struct platform_device *pdev)
- 		return -ENODEV;
- 	}
- 
--	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (!irq) {
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
- 		dev_err(&pdev->dev, "no irq resource?\n");
--		return -ENODEV;
-+		return irq;
- 	}
- 
- 	dev = devm_kzalloc(&pdev->dev, sizeof(struct omap_i2c_dev), GFP_KERNEL);
-@@ -1090,7 +1091,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	dev->dev = &pdev->dev;
--	dev->irq = irq->start;
-+	dev->irq = irq;
- 	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
- 	if (!dev->base) {
- 		dev_err(&pdev->dev, "ioremap failed\n");
--- 
-1.7.10.4
+T24gV2VkLCAyMDEyLTA2LTEzIGF0IDIzOjEyICswMjAwLCBXb2xmcmFtIFNhbmcgd3JvdGU6Cj4g
+Q3VycmVudGx5LCBldmVyeSBkcml2ZXIgaGFzIHRvIGRvIGl0IG9uIGl0cyBvd24sIGJ1dCBpdCBz
+aG91bGQgYmUgZG9uZQo+IGluIHRoZSBjb3JlLCBsaWtlIHdlIGFscmVhZHkgZG8gd2l0aCBib2Fy
+ZF9pbmZvIHN0cnVjdHMuCj4gCj4gU2lnbmVkLW9mZi1ieTogV29sZnJhbSBTYW5nIDx3LnNhbmdA
+cGVuZ3V0cm9uaXguZGU+Cj4gLS0tCj4gIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtdmVyc2F0aWxl
+LmMgICAgICAgICAgfCAgICAxIC0KPiAgZHJpdmVycy9pMmMvaTJjLWNvcmUuYyAgICAgICAgICAg
+ICAgICAgICAgICB8ICAgIDMgKysrCgpGb3Igd2hhdCBpdCdzIHdvcnRoCgpUZXN0ZWQtYnk6IFBh
+d2VsIE1vbGwgPHBhd2VsLm1vbGxAYXJtLmNvbT4KCm9uIFZlcnNhdGlsZSBFeHByZXNzLgoKUmVn
+YXJkcwoKUGF3ZcWCCgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlz
+dHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL2xpbnV4LWFybS1rZXJuZWwK
