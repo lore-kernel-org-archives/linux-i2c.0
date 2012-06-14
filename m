@@ -1,51 +1,104 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH V3 1/4] i2c: tegra: make sure register writes completes
-Date: Thu, 14 Jun 2012 18:07:58 +0200
-Message-ID: <20120614160758.GD14419@pengutronix.de>
-References: <1339582359-7911-1-git-send-email-ldewangan@nvidia.com>
- <1339582359-7911-2-git-send-email-ldewangan@nvidia.com>
- <4FD8B7FC.3060708@wwwdotorg.org>
- <4FD9DAAC.5000709@nvidia.com>
- <4FDA09FC.1010307@wwwdotorg.org>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: Add Device Tree support to the Nomadik I2C driver
+Date: Thu, 14 Jun 2012 19:12:14 +0200
+Message-ID: <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ@mail.gmail.com>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
+	<1339428307-3850-10-git-send-email-lee.jones@linaro.org>
+	<CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
+	<4FD8BAD2.50703@linaro.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="C+ts3FVlLX8+P6JN"
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4FDA09FC.1010307-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+In-Reply-To: <4FD8BAD2.50703-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Jun 13, 2012 at 6:07 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote=
+:
 
---C+ts3FVlLX8+P6JN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Here we apply the bindings required for successful Device Tree
+> probing of the i2c-nomadik driver. We also apply a fall-back
+> configuration in case either one is not provided, or a required
+> element is missing from the one supplied.
+>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
+This looks more like I'd expect it, good job! :-D
 
-> probably doesn't impact performance. It'd be more self-documenting if
-> this readback was limited to the specific registers where it was needed
-> though.
+> +static int __devinit
+> +nmk_i2c_of_probe(struct device_node *np, struct nmk_i2c_controller *=
+pdata)
+> +{
+> + =A0 =A0 =A0 of_property_read_u32(np, "clock-frequency", (u32*)&pdat=
+a->clk_freq);
+> + =A0 =A0 =A0 if (!pdata->clk_freq) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_warn("%s: Clock frequency not found\=
+n", np->full_name);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 of_property_read_u32(np, "stericsson,slsu", (u32*)&pdat=
+a->slsu);
+> + =A0 =A0 =A0 if (!pdata->slsu) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_warn("%s: Data line delay not found\=
+n", np->full_name);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 of_property_read_u32(np, "stericsson,tft", (u32*)&pdata=
+->tft);
+> + =A0 =A0 =A0 if (!pdata->tft) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_warn("%s: Tx FIFO threshold not foun=
+d\n", np->full_name);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 of_property_read_u32(np, "stericsson,rft", (u32*)&pdata=
+->rft);
+> + =A0 =A0 =A0 if (!pdata->rft) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_warn("%s: Rx FIFO threshold not foun=
+d\n", np->full_name);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 of_property_read_u32(np, "stericsson,timeout", (u32*)&p=
+data->timeout);
+> + =A0 =A0 =A0 if (!pdata->timeout) {
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pr_warn("%s: Timeout not found\n", np->=
+full_name);
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -EINVAL;
+> + =A0 =A0 =A0 }
+> +
+> + =A0 =A0 =A0 if (of_get_property(np, "stericsson,i2c_freq_mode_fast"=
+, NULL))
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->sm =3D I2C_FREQ_MODE_FAST;
+> + =A0 =A0 =A0 else
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 pdata->sm =3D I2C_FREQ_MODE_STANDARD;
+> +
+> + =A0 =A0 =A0 return 0;
+> +}
 
-I'd think this is easier to maintain in case code gets
-rewritten/shuffled around.
+Will this compile fine if CONFIG_OF is not selected?
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> =A0 =A0 =A0 =A0/* fetch the controller configuration from machine */
+> =A0 =A0 =A0 =A0dev->cfg.clk_freq =3D pdata->clk_freq;
+> - =A0 =A0 =A0 dev->cfg.slsu =A0 =3D pdata->slsu;
+> - =A0 =A0 =A0 dev->cfg.tft =A0 =A0=3D pdata->tft;
+> - =A0 =A0 =A0 dev->cfg.rft =A0 =A0=3D pdata->rft;
+> - =A0 =A0 =A0 dev->cfg.sm =A0 =A0 =3D pdata->sm;
+> -
+> - =A0 =A0 =A0 i2c_set_adapdata(adap, dev);
+> + =A0 =A0 =A0 dev->cfg.slsu =A0 =A0 =3D pdata->slsu;
+> + =A0 =A0 =A0 dev->cfg.tft =A0 =A0 =A0=3D pdata->tft;
+> + =A0 =A0 =A0 dev->cfg.rft =A0 =A0 =A0=3D pdata->rft;
+> + =A0 =A0 =A0 dev->cfg.sm =A0 =A0 =A0 =3D pdata->sm; =A0i2c_set_adapd=
+ata(adap, dev);
 
---C+ts3FVlLX8+P6JN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+This looks like an unrelated whitespace fix, but OK...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk/aDF4ACgkQD27XaX1/VRuSwACfX57hbCpT7GodrAIdUbIuFfIc
-CMcAnRVfF4Qc6PoJLlvor0/OIW8MAsl6
-=mpfj
------END PGP SIGNATURE-----
-
---C+ts3FVlLX8+P6JN--
+Yours,
+Linus Walleij
