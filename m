@@ -1,63 +1,51 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: stu300: use clk_prepare/unprepare
-Date: Thu, 14 Jun 2012 09:17:19 +0200
-Message-ID: <CACRpkdaH24CkXY1DF+JQjjqmVnOpGhCv4Xn+nxdowaLCg3E4Mg@mail.gmail.com>
-References: <1339522410-570-1-git-send-email-linus.walleij@stericsson.com>
-	<CAM=Q2ct+-URf8VT569Re2GTOFsVQLLspV6EyEj0GAt9qvn67Hg@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 12/16] i2c: imx: remove unneeded mach/irqs.h inclusion
+Date: Thu, 14 Jun 2012 09:30:18 +0200
+Message-ID: <20120614073018.GA14419@pengutronix.de>
+References: <1339653587-4832-1-git-send-email-shawn.guo@linaro.org>
+ <1339653587-4832-13-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="VbJkn9YxBvnuCH5J"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2ct+-URf8VT569Re2GTOFsVQLLspV6EyEj0GAt9qvn67Hg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1339653587-4832-13-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 13, 2012 at 8:22 AM, Shubhrajyoti Datta
-<omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org> wrote:
->>
->> Make sure we prepare/unprepare the clock for the ST U300
->> I2C driver as is required by the clk API especially if you
->> use common clock.
->
-> Not a comment rather a doubt.
->
-> The transfer is still using enable and disable?
-> Can you help me understand the difference.
 
-Do you mean you want me to explain the difference
-between enable/disable and prepare/unprepare?
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> =A0drivers/i2c/busses/i2c-stu300.c | =A0 =A04 +++-
->> =A01 file changed, 3 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2=
-c-stu300.c
->> index 4d44af1..79b7851 100644
->> --- a/drivers/i2c/busses/i2c-stu300.c
->> +++ b/drivers/i2c/busses/i2c-stu300.c
->> @@ -924,7 +924,7 @@ stu300_probe(struct platform_device *pdev)
->>
->> =A0 =A0 =A0 =A0dev->speed =3D scl_frequency;
->>
->> - =A0 =A0 =A0 clk_enable(dev->clk);
->> + =A0 =A0 =A0 clk_prepare_enable(dev->clk);
->> =A0 =A0 =A0 =A0ret =3D stu300_init_hw(dev);
->> =A0 =A0 =A0 =A0clk_disable(dev->clk);
->>
->> @@ -960,6 +960,7 @@ stu300_probe(struct platform_device *pdev)
->>
->> =A0err_add_adapter:
->> =A0err_init_hw:
->> + =A0 =A0 =A0 clk_unprepare(dev->clk);
->
-> So this also fixes an earlier lack of disable also?
+On Thu, Jun 14, 2012 at 01:59:43PM +0800, Shawn Guo wrote:
+> Remove unneeded mach/irq.h inclusion from i2c-imx driver.
+>=20
+> Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-No, there was no lack of disable earlier. If you look just a few lines
-up in the patch there is a disable immediately after the
-stu300_init_hw() call.
+Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-Yours,
-Linus Walleij
+Thanks!
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--VbJkn9YxBvnuCH5J
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk/ZkwoACgkQD27XaX1/VRtXJQCbB5jCTcp4ZVy7g2Jkog0bHmpO
+Kv0AoLffdtL3GyNn/OCHcCOOpa9T33KC
+=rOdH
+-----END PGP SIGNATURE-----
+
+--VbJkn9YxBvnuCH5J--
