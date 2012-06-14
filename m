@@ -1,44 +1,44 @@
-From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Subject: Re: [PATCH 5/9] ARM: kirkwood: use devicetree for orion-spi
-Date: Thu, 14 Jun 2012 11:31:35 +0200
-Message-ID: <20120614093135.GE4799@lunn.ch>
-References: <1339324322-29388-6-git-send-email-andrew@lunn.ch>
- <201206132110.31011.arnd@arndb.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201206132110.31011.arnd-r2nGTMty4D4@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Michael Walle <michael-QKn5cuLxLXY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org, Michael Walle <micheal-QKn5cuLxLXY@public.gmane.org>
+From: Felipe Balbi <balbi@ti.com>
+Subject: [PATCH 00/17] Big OMAP I2C Cleanup
+Date: Thu, 14 Jun 2012 13:20:33 +0300
+Message-ID: <1339669250-9183-1-git-send-email-balbi@ti.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: ben-linux@fluff.org
+Cc: Tony Lindgren <tony@atomide.com>, w.sang@pengutronix.de, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Felipe Balbi <balbi@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 13, 2012 at 09:10:30PM +0000, Arnd Bergmann wrote:
-> On Sunday 10 June 2012, Andrew Lunn wrote:
-> > @@ -26,6 +26,11 @@ static struct of_device_id kirkwood_dt_match_table[] __initdata = {
-> >         { }
-> >  };
-> >  
-> > +struct of_dev_auxdata kirkwood_auxdata_lookup[] __initdata = {
-> > +       OF_DEV_AUXDATA("marvell,orion-spi", 0xf1010600, "orion_spi.0", NULL),
-> > +       {},
-> > +};
-> > +
-> >  static void __init kirkwood_dt_init(void)
-> >  {
-> 
-> How about instead adding the clkdev for "f1010600.spi" so you don't need the auxdata?
+Hi guys,
 
-We either have auxdata and clean clock code, or no auxdata and messy
-clock code with lots of aliases.
+I have dropped a few patches from the series and also
+tested every single patch on my pandaboard. I2C messages
+are still working fine with panda after each patch.
 
-The auxdata is also not limited to the name of the clocks. It allows
-me to diff the kernel log for a DT boot and a none DT boot of the same
-box and see they are identical. I've found a few typo's that way, and
-not been hindered by noise of the devices changing name is useful.
+There's still lots of work to be done on the i2c-omap.c
+driver but it's now easier to read, IMO.
 
-Once we have the clock tree described in DT, then i think it makes
-sense to remove these auxdata entries.
+Felipe Balbi (17):
+  i2c: omap: simplify num_bytes handling
+  i2c: omap: decrease indentation level on data handling
+  i2c: omap: add blank lines
+  i2c: omap: simplify omap_i2c_ack_stat()
+  i2c: omap: split out [XR]DR and [XR]RDY
+  i2c: omap: improve 1p153 errata handling
+  i2c: omap: re-factor receive/transmit data loop
+  i2c: omap: switch over to do {} while loop
+  i2c: omap: ack IRQ in parts
+  i2c: omap: get rid of the "complete" label
+  i2c: omap: switch to devm_* API
+  i2c: omap: switch to platform_get_irq()
+  i2c: omap: bus: add a receiver flag
+  i2c: omap: simplify errata check
+  i2c: omap: always return IRQ_HANDLED
+  i2c: omap: simplify IRQ exit path
+  i2c: omap: resize fifos before each message
 
-      Andrew
+ drivers/i2c/busses/i2c-omap.c |  388 +++++++++++++++++++++++------------------
+ 1 file changed, 222 insertions(+), 166 deletions(-)
+
+-- 
+1.7.10.4
+
