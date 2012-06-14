@@ -1,301 +1,123 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH] i2c: let the core register devices from devicetree
-Date: Wed, 13 Jun 2012 22:40:00 -0600
-Message-ID: <20120614044000.63E583E3FA3@localhost>
-References: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
+From: Shawn Guo <shawn.guo@linaro.org>
+Subject: [PATCH 00/16] Enable SPARSE_IRQ support for imx
+Date: Thu, 14 Jun 2012 13:59:31 +0800
+Message-ID: <1339653587-4832-1-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org
-Cc: Viresh Kumar <viresh.kumar@st.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Tony Lindgren <tony@atomide.com>, Linus Walleij <linus.walleij@linaro.org>, Jochen Friedrich <jochen@scram.de>, Laxman Dewangan <ldewangan@nvidia.com>, Peter Korsgaard <jacmet@sunsite.dk>, Kukjin Kim <kgene.kim@samsung.com>, S tephen Warren <swarren@nvidia.com>, Olof Johansson <olof@lixom.net>, Barry Song <21cnbao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Deepak Sikri <deepak.sikri@st.com>, Li Yang <leoli@freescale.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wolfram@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, Tang Yuantian <B29983@freescale.com>, "Jean Delvare (PC drivers,
- core)" <khali@linux-fr.org>, Magnus Damm <damm@opensource.se>, Lars
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-serial-owner@vger.kernel.org>
+Sender: linux-serial-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Sascha Hauer <s.hauer@pengutronix.de>, Arnd Bergmann <arnd@arndb.de>, Rob Herring <rob.herring@calxeda.com>, Grant Likely <grant.likely@secretlab.ca>, Dong Aisheng <b29396@freescale.com>, Shawn Guo <shawn.guo@linaro.org>, Russell King <linux@arm.linux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-serial@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, Vinod Koul <vinod.koul@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 13 Jun 2012 23:12:10 +0200, Wolfram Sang <w.sang@pengutronix.de> wrote:
-> Currently, every driver has to do it on its own, but it should be done
-> in the core, like we already do with board_info structs.
-> 
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+It seems that the lack of SPARSE_IRQ support becomes the last blocker
+for imx being built with multi-platform.  The series is to enable
+SPARSE_IRQ for imx by having all the irqchips allocate their irq_descs.
+Along with the change, a legacy irqdomain is added for each of these
+irqchips (except ipu_irq) to help the mapping between hardware irq and
+Linux irq number, which is required by DT boot but also benefits non-DT.
 
-FWIW, and without any actual compiling or testing:
+Based on v3.5-rc2.  Boot tested on imx3, imx5 and imx6, and compile
+tested with imx_v4_v5_defconfig.
 
-Acked-by: Grant Likely <grant.likely@secretlab.ca>
+Shawn Guo (16):
+  ARM: imx: eliminate macro IMX_GPIO_TO_IRQ()
+  ARM: imx: eliminate macro IOMUX_TO_IRQ()
+  ARM: imx: eliminate macro IRQ_GPIOx()
+  gpio/mxc: move irq_domain_add_legacy call into gpio driver
+  ARM: imx: move irq_domain_add_legacy call into tzic driver
+  ARM: imx: move irq_domain_add_legacy call into avic driver
+  dma: ipu: remove the use of ipu_platform_data
+  ARM: imx: leave irq_base of wm8350_platform_data uninitialized
+  ARM: imx: pass gpio than irq number into mxc_expio_init
+  ARM: imx: add a legacy irqdomain for 3ds_debugboard
+  ARM: imx: add a legacy irqdomain for mx31ads
+  i2c: imx: remove unneeded mach/irqs.h inclusion
+  ARM: imx: remove unneeded mach/irq.h inclusion
+  tty: serial: imx: remove the use of MXC_INTERNAL_IRQS
+  ARM: fiq: save FIQ_START by passing absolute fiq number
+  ARM: imx: enable SPARSE_IRQ for imx platform
 
-On this topic, I'd also like to see all of drivers/of/of_i2c.c move
-into drivers/i2c.  I've done the same for spi and gpio and I think the
-result is cleaner.
-
-g.
-
-> ---
-> 
-> Based on v3.5-rc2. Only build tested, I don't have a OF based device
-> around at the moment.
-> 
-> @Peter: Why does ocores do the device registration manually via
-> platform_data instead of using board_info?
-> 
->  drivers/i2c/busses/i2c-cpm.c                |    5 -----
->  drivers/i2c/busses/i2c-designware-platdrv.c |    1 -
->  drivers/i2c/busses/i2c-gpio.c               |    2 --
->  drivers/i2c/busses/i2c-ibm_iic.c            |    3 ---
->  drivers/i2c/busses/i2c-imx.c                |    2 --
->  drivers/i2c/busses/i2c-mpc.c                |    1 -
->  drivers/i2c/busses/i2c-mxs.c                |    2 --
->  drivers/i2c/busses/i2c-ocores.c             |    2 --
->  drivers/i2c/busses/i2c-omap.c               |    2 --
->  drivers/i2c/busses/i2c-pnx.c                |    2 --
->  drivers/i2c/busses/i2c-pxa.c                |    1 -
->  drivers/i2c/busses/i2c-s3c2410.c            |    1 -
->  drivers/i2c/busses/i2c-sh_mobile.c          |    1 -
->  drivers/i2c/busses/i2c-tegra.c              |    2 --
->  drivers/i2c/busses/i2c-versatile.c          |    1 -
->  drivers/i2c/busses/i2c-xiic.c               |    2 --
->  drivers/i2c/i2c-core.c                      |    3 +++
->  17 files changed, 3 insertions(+), 30 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-> index c1e1096..749e63c 100644
-> --- a/drivers/i2c/busses/i2c-cpm.c
-> +++ b/drivers/i2c/busses/i2c-cpm.c
-> @@ -673,11 +673,6 @@ static int __devinit cpm_i2c_probe(struct platform_device *ofdev)
->  	dev_dbg(&ofdev->dev, "hw routines for %s registered.\n",
->  		cpm->adap.name);
->  
-> -	/*
-> -	 * register OF I2C devices
-> -	 */
-> -	of_i2c_register_devices(&cpm->adap);
-> -
->  	return 0;
->  out_shut:
->  	cpm_i2c_shutdown(cpm);
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 0506fef..cf3b23c 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -147,7 +147,6 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
->  		dev_err(&pdev->dev, "failure adding adapter\n");
->  		goto err_free_irq;
->  	}
-> -	of_i2c_register_devices(adap);
->  
->  	return 0;
->  
-> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-> index e62d2d9..75e26b9 100644
-> --- a/drivers/i2c/busses/i2c-gpio.c
-> +++ b/drivers/i2c/busses/i2c-gpio.c
-> @@ -195,8 +195,6 @@ static int __devinit i2c_gpio_probe(struct platform_device *pdev)
->  	if (ret)
->  		goto err_add_bus;
->  
-> -	of_i2c_register_devices(adap);
-> -
->  	platform_set_drvdata(pdev, priv);
->  
->  	dev_info(&pdev->dev, "using pins %u (SDA) and %u (SCL%s)\n",
-> diff --git a/drivers/i2c/busses/i2c-ibm_iic.c b/drivers/i2c/busses/i2c-ibm_iic.c
-> index 806e225..8894ab6 100644
-> --- a/drivers/i2c/busses/i2c-ibm_iic.c
-> +++ b/drivers/i2c/busses/i2c-ibm_iic.c
-> @@ -759,9 +759,6 @@ static int __devinit iic_probe(struct platform_device *ofdev)
->  	dev_info(&ofdev->dev, "using %s mode\n",
->  		 dev->fast_mode ? "fast (400 kHz)" : "standard (100 kHz)");
->  
-> -	/* Now register all the child nodes */
-> -	of_i2c_register_devices(adap);
-> -
->  	return 0;
->  
->  error_cleanup:
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 8d6b504..16d9356 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -568,8 +568,6 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  		goto fail5;
->  	}
->  
-> -	of_i2c_register_devices(&i2c_imx->adapter);
-> -
->  	/* Set up platform driver data */
->  	platform_set_drvdata(pdev, i2c_imx);
->  
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> index b76731e..a86049a 100644
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -675,7 +675,6 @@ static int __devinit fsl_i2c_probe(struct platform_device *op)
->  		dev_err(i2c->dev, "failed to add adapter\n");
->  		goto fail_add;
->  	}
-> -	of_i2c_register_devices(&i2c->adap);
->  
->  	return result;
->  
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> index 04eb441..2bc0ec6 100644
-> --- a/drivers/i2c/busses/i2c-mxs.c
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -379,8 +379,6 @@ static int __devinit mxs_i2c_probe(struct platform_device *pdev)
->  		return err;
->  	}
->  
-> -	of_i2c_register_devices(adap);
-> -
->  	return 0;
->  }
->  
-> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-> index 75194c5..a6a11cb 100644
-> --- a/drivers/i2c/busses/i2c-ocores.c
-> +++ b/drivers/i2c/busses/i2c-ocores.c
-> @@ -344,8 +344,6 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
->  	if (pdata) {
->  		for (i = 0; i < pdata->num_devices; i++)
->  			i2c_new_device(&i2c->adap, pdata->devices + i);
-> -	} else {
-> -		of_i2c_register_devices(&i2c->adap);
->  	}
->  
->  	return 0;
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 801df60..c290091 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1121,8 +1121,6 @@ omap_i2c_probe(struct platform_device *pdev)
->  		goto err_free_irq;
->  	}
->  
-> -	of_i2c_register_devices(adap);
-> -
->  	return 0;
->  
->  err_free_irq:
-> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-> index 99389d2..c64d960 100644
-> --- a/drivers/i2c/busses/i2c-pnx.c
-> +++ b/drivers/i2c/busses/i2c-pnx.c
-> @@ -730,8 +730,6 @@ static int __devinit i2c_pnx_probe(struct platform_device *pdev)
->  		goto out_irq;
->  	}
->  
-> -	of_i2c_register_devices(&alg_data->adapter);
-> -
->  	dev_dbg(&pdev->dev, "%s: Master at %#8x, irq %d.\n",
->  		alg_data->adapter.name, res->start, alg_data->irq);
->  
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index a997c7d..9475235 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -1194,7 +1194,6 @@ static int i2c_pxa_probe(struct platform_device *dev)
->  		printk(KERN_INFO "I2C: Failed to add bus\n");
->  		goto eadapt;
->  	}
-> -	of_i2c_register_devices(&i2c->adap);
->  
->  	platform_set_drvdata(dev, i2c);
->  
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> index 0195915..ad3a79b 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -1058,7 +1058,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
->  		goto err_cpufreq;
->  	}
->  
-> -	of_i2c_register_devices(&i2c->adap);
->  	platform_set_drvdata(pdev, i2c);
->  
->  	pm_runtime_enable(&pdev->dev);
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index 8110ca4..9acd286 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -670,7 +670,6 @@ static int sh_mobile_i2c_probe(struct platform_device *dev)
->  	dev_info(&dev->dev, "I2C adapter %d with bus speed %lu Hz\n",
->  		 adap->nr, pd->bus_speed);
->  
-> -	of_i2c_register_devices(adap);
->  	return 0;
->  
->   err_all:
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-> index 8b2e555..67388cc 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -684,8 +684,6 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
->  		goto err_free_irq;
->  	}
->  
-> -	of_i2c_register_devices(&i2c_dev->adapter);
-> -
->  	return 0;
->  err_free_irq:
->  	free_irq(i2c_dev->irq, i2c_dev);
-> diff --git a/drivers/i2c/busses/i2c-versatile.c b/drivers/i2c/busses/i2c-versatile.c
-> index eec20db..14a1432 100644
-> --- a/drivers/i2c/busses/i2c-versatile.c
-> +++ b/drivers/i2c/busses/i2c-versatile.c
-> @@ -108,7 +108,6 @@ static int i2c_versatile_probe(struct platform_device *dev)
->  	ret = i2c_bit_add_numbered_bus(&i2c->adap);
->  	if (ret >= 0) {
->  		platform_set_drvdata(dev, i2c);
-> -		of_i2c_register_devices(&i2c->adap);
->  		return 0;
->  	}
->  
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index 641d0e5..d76bb71 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -754,8 +754,6 @@ static int __devinit xiic_i2c_probe(struct platform_device *pdev)
->  			i2c_new_device(&i2c->adap, pdata->devices + i);
->  	}
->  
-> -	of_i2c_register_devices(&i2c->adap);
-> -
->  	return 0;
->  
->  add_adapter_failed:
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index a6ad32b..4791833 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -39,6 +39,7 @@
->  #include <linux/irqflags.h>
->  #include <linux/rwsem.h>
->  #include <linux/pm_runtime.h>
-> +#include <linux/of_i2c.h>
->  #include <asm/uaccess.h>
->  
->  #include "i2c-core.h"
-> @@ -880,6 +881,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
->  #endif
->  
->  	/* create pre-declared device nodes */
-> +	of_i2c_register_devices(adap);
-> +
->  	if (adap->nr < __i2c_first_dynamic_bus_num)
->  		i2c_scan_static_board_info(adap);
->  
-> -- 
-> 1.7.10
-> 
+ arch/arm/Kconfig                                |    1 +
+ arch/arm/kernel/fiq.c                           |    4 +-
+ arch/arm/mach-imx/devices-imx31.h               |    4 +-
+ arch/arm/mach-imx/devices-imx35.h               |    4 +-
+ arch/arm/mach-imx/eukrea_mbimx27-baseboard.c    |    3 +-
+ arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c  |    6 +-
+ arch/arm/mach-imx/imx27-dt.c                    |   28 ---
+ arch/arm/mach-imx/imx51-dt.c                    |   27 ---
+ arch/arm/mach-imx/imx53-dt.c                    |   27 ---
+ arch/arm/mach-imx/mach-apf9328.c                |    7 +-
+ arch/arm/mach-imx/mach-armadillo5x0.c           |   18 +-
+ arch/arm/mach-imx/mach-cpuimx27.c               |   12 +-
+ arch/arm/mach-imx/mach-cpuimx35.c               |    3 +-
+ arch/arm/mach-imx/mach-cpuimx51sd.c             |    3 +-
+ arch/arm/mach-imx/mach-imx27_visstrim_m10.c     |    9 +-
+ arch/arm/mach-imx/mach-imx6q.c                  |   14 --
+ arch/arm/mach-imx/mach-kzm_arm11_01.c           |   20 ++-
+ arch/arm/mach-imx/mach-mx1ads.c                 |    1 -
+ arch/arm/mach-imx/mach-mx21ads.c                |   16 ++-
+ arch/arm/mach-imx/mach-mx27_3ds.c               |    7 +-
+ arch/arm/mach-imx/mach-mx27ads.c                |   12 +-
+ arch/arm/mach-imx/mach-mx31_3ds.c               |   18 +--
+ arch/arm/mach-imx/mach-mx31ads.c                |   63 ++++---
+ arch/arm/mach-imx/mach-mx31lilly.c              |   10 +-
+ arch/arm/mach-imx/mach-mx31lite.c               |   11 +-
+ arch/arm/mach-imx/mach-mx31moboard.c            |   10 +-
+ arch/arm/mach-imx/mach-mx35_3ds.c               |   18 +--
+ arch/arm/mach-imx/mach-mx51_3ds.c               |    3 +-
+ arch/arm/mach-imx/mach-mx53_ard.c               |    5 +-
+ arch/arm/mach-imx/mach-mxt_td60.c               |    6 +-
+ arch/arm/mach-imx/mach-pca100.c                 |    5 +-
+ arch/arm/mach-imx/mach-pcm037.c                 |   24 ++--
+ arch/arm/mach-imx/mach-pcm038.c                 |    4 +-
+ arch/arm/mach-imx/mach-pcm043.c                 |    6 +-
+ arch/arm/mach-imx/mach-qong.c                   |   10 +-
+ arch/arm/mach-imx/mach-scb9328.c                |    7 +-
+ arch/arm/mach-imx/mach-vpr200.c                 |   10 +-
+ arch/arm/mach-imx/mm-imx1.c                     |    1 -
+ arch/arm/mach-imx/mm-imx21.c                    |    1 -
+ arch/arm/mach-imx/mm-imx25.c                    |    1 -
+ arch/arm/mach-imx/mm-imx27.c                    |    1 -
+ arch/arm/mach-imx/mm-imx3.c                     |    1 -
+ arch/arm/mach-imx/mx31lilly-db.c                |   11 +-
+ arch/arm/mach-imx/mx31lite-db.c                 |    5 +-
+ arch/arm/mach-imx/mx51_efika.c                  |    3 +-
+ arch/arm/mach-imx/pcm970-baseboard.c            |   13 +-
+ arch/arm/mach-rpc/include/mach/irqs.h           |   12 +-
+ arch/arm/plat-mxc/3ds_debugboard.c              |   50 +++---
+ arch/arm/plat-mxc/avic.c                        |   26 ++-
+ arch/arm/plat-mxc/devices/platform-ipu-core.c   |    5 +-
+ arch/arm/plat-mxc/include/mach/3ds_debugboard.h |    2 +-
+ arch/arm/plat-mxc/include/mach/devices-common.h |    4 +-
+ arch/arm/plat-mxc/include/mach/hardware.h       |    2 -
+ arch/arm/plat-mxc/include/mach/iomux-mx3.h      |    3 -
+ arch/arm/plat-mxc/include/mach/iomux-v1.h       |    7 -
+ arch/arm/plat-mxc/include/mach/ipu.h            |    4 -
+ arch/arm/plat-mxc/include/mach/irqs.h           |   44 -----
+ arch/arm/plat-mxc/include/mach/mx1.h            |  111 ++++++------
+ arch/arm/plat-mxc/include/mach/mx21.h           |  107 ++++++------
+ arch/arm/plat-mxc/include/mach/mx25.h           |   72 ++++----
+ arch/arm/plat-mxc/include/mach/mx27.h           |  127 +++++++-------
+ arch/arm/plat-mxc/include/mach/mx2x.h           |   87 +++++-----
+ arch/arm/plat-mxc/include/mach/mx31.h           |  118 +++++++------
+ arch/arm/plat-mxc/include/mach/mx35.h           |  109 ++++++------
+ arch/arm/plat-mxc/include/mach/mx3x.h           |   77 ++++----
+ arch/arm/plat-mxc/include/mach/mx50.h           |  187 ++++++++++----------
+ arch/arm/plat-mxc/include/mach/mx51.h           |  209 +++++++++++-----------
+ arch/arm/plat-mxc/include/mach/mx53.h           |  217 ++++++++++++-----------
+ arch/arm/plat-mxc/tzic.c                        |   28 ++-
+ drivers/dma/ipu/ipu_idmac.c                     |    8 +-
+ drivers/dma/ipu/ipu_irq.c                       |   14 +-
+ drivers/gpio/gpio-mxc.c                         |   56 ++++---
+ drivers/i2c/busses/i2c-imx.c                    |    1 -
+ drivers/media/video/mx1_camera.c                |    1 +
+ drivers/tty/serial/imx.c                        |    6 +-
+ sound/soc/fsl/imx-pcm-fiq.c                     |    1 +
+ 76 files changed, 1041 insertions(+), 1127 deletions(-)
 
 -- 
-Grant Likely, B.Sc, P.Eng.
-Secret Lab Technologies, Ltd.
+1.7.5.4
+
+
