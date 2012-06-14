@@ -1,45 +1,28 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 1/9] ARM: Kirkwood: Add interrupt controller support for DT boards
-Date: Thu, 14 Jun 2012 08:12:34 +0000
-Message-ID: <201206140812.34399.arnd@arndb.de>
-References: <1339324322-29388-2-git-send-email-andrew@lunn.ch>
+From: Alessandro Rubini <rubini@gnudd.com>
+Subject: Re: [PATCH V3 2/3] i2c-nomadik: turn the platform driver to an
+ amba driver
+Date: Thu, 14 Jun 2012 10:17:58 +0200
+Message-ID: <20120614081758.GA19648@mail.gnudd.com>
+References: <201206140804.39083.arnd@arndb.de>
+  <cover.1339447570.git.rubini@gnudd.com>
+ <4a198618063924b68182279ffd56c335d621f542.1339447570.git.rubini@gnudd.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1339324322-29388-2-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <201206140804.39083.arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: arnd@arndb.de
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, giancarlo.asnaghi@st.com, linux@arm.linux.org.uk, linus.walleij@stericsson.com, srinidhi.kasagar@stericsson.com, w.sang@pengutronix.de, khali@linux-fr.org, linux-i2c@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, lee.jones@linaro.org, alan@linux.intel.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Sunday 10 June 2012, Andrew Lunn wrote:
-> +static int __init kirkwood_add_irq_domain(struct device_node *np,
-> +                                         struct device_node *interrupt_parent)
-> +{
-> +       kirkwood_init_irq();
-> +       irq_domain_add_legacy(np, 64, 0, 0, &irq_domain_simple_ops, NULL);
-> +       return 0;
-> +}
-> +
-> +static const struct of_device_id kirkwood_irq_match[] = {
-> +       { .compatible = "marvell,orion-intc",
-> +         .data = kirkwood_add_irq_domain, },
-> +       {},
-> +};
-> +
-> +static void __init kirkwood_dt_init_irq(void)
-> +{
-> +       of_irq_init(kirkwood_irq_match);
-> +}
-> +
+> You change only one half of ux500 here: the part where the device
+> gets defined statically, but not not the definition in the
+> device-tree.
 
-I think if you compute the number of interrupts in the domain from the number of
-registers that are described in the device tree, call orion_irq_init()
-based on those registers, and use irq domains for the gpio stuff as Rob suggested,
-this init_irq function can become completely generic to all orion platforms.
+Yes, I'm aware. That's why I added Lee Jones as Cc:, on Linusw's
+suggestion.  Lee told me to go ahead and he'll fix the DT stuff.
+Lee?
 
-That is what I tried to do with an earlier patch, which was flawed for other reasons.
-
-	Arnd
+thanks
+/alessandro
