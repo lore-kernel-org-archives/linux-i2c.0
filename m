@@ -1,88 +1,68 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH] i2c: let the core register devices from devicetree
-Date: Thu, 14 Jun 2012 11:14:34 +0200
-Message-ID: <20120614091434.GB14419@pengutronix.de>
-References: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
- <1339623217.9220.119.camel@pasglop>
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: Re: [PATCH 1/9] ARM: Kirkwood: Add interrupt controller support for
+ DT boards
+Date: Thu, 14 Jun 2012 11:18:58 +0200
+Message-ID: <20120614091858.GD4799@lunn.ch>
+References: <1339324322-29388-2-git-send-email-andrew@lunn.ch>
+ <201206140812.34399.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============8193264362019133448=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1339623217.9220.119.camel@pasglop>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Viresh Kumar <viresh.kumar@st.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Tony Lindgren <tony@atomide.com>, Linus Walleij <linus.walleij@linaro.org>, Laxman Dewangan <ldewangan@nvidia.com>, linux-i2c@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@nvidia.com>, Barry Song <21cnbao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Deepak Sikri <deepak.sikri@st.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Dirk Brandewie <dirk.brandewie@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Wolfram Sang <wolfram@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, Tang Yuantian <B29983@freescale.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, Magnus Damm <damm@opensource.se>, Lars-Peter Clausen <lars@metafoo.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-arm-ke
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201206140812.34399.arnd-r2nGTMty4D4@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Jun 14, 2012 at 08:12:34AM +0000, Arnd Bergmann wrote:
+> On Sunday 10 June 2012, Andrew Lunn wrote:
+> > +static int __init kirkwood_add_irq_domain(struct device_node *np,
+> > +                                         struct device_node *interrupt_parent)
+> > +{
+> > +       kirkwood_init_irq();
+> > +       irq_domain_add_legacy(np, 64, 0, 0, &irq_domain_simple_ops, NULL);
+> > +       return 0;
+> > +}
+> > +
+> > +static const struct of_device_id kirkwood_irq_match[] = {
+> > +       { .compatible = "marvell,orion-intc",
+> > +         .data = kirkwood_add_irq_domain, },
+> > +       {},
+> > +};
+> > +
+> > +static void __init kirkwood_dt_init_irq(void)
+> > +{
+> > +       of_irq_init(kirkwood_irq_match);
+> > +}
+> > +
+> 
+> I think if you compute the number of interrupts in the domain from the number of
+> registers that are described in the device tree, call orion_irq_init()
+> based on those registers, and use irq domains for the gpio stuff as Rob suggested,
+> this init_irq function can become completely generic to all orion platforms.
 
---===============8193264362019133448==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qcHopEYAB45HaUaB"
-Content-Disposition: inline
+I'm reworking the GPIO stuff at the moment, moving it to use IRQ
+domains for its interrupts. That code will be generic to all Orion
+platforms. I'm modeling the code on the AT91 GPIO handler, since that
+has a similar structure, one hardware interrupt for a number of GPIO
+lines, which is in software demultiplexed and triggers secondary level
+interrupts. The major difference is that AT91 has one hardware
+interrupt for a GPIO chip with 32 lines, where as Orion has 4 hardware
+interrupt lines, so maybe four interrupt domains, for one GPIO chip
+with 32 lines.
 
+Non-GPIO interrupts are more of a problem. Underneath it uses the
+generic-chip interrupt code. The patchset to add _domain versions of
+these calls is stalled. So i think for the moment, we need to stay
+with the domain bolted on top, until generic-chip gets domain
+support. I would also expect that generic-chip also gets a common DT
+binding which any SoC can use.
 
---qcHopEYAB45HaUaB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My aim at the moment is to get something which works well enough that
+we can add DT support to other drivers. Without interrupts, we are not
+going to get very far. We can later rip it out what i create now and
+replace it once generic-chip becomes domain and DT aware, and there
+should be no effect on other drivers.
 
-On Thu, Jun 14, 2012 at 07:33:37AM +1000, Benjamin Herrenschmidt wrote:
-> On Wed, 2012-06-13 at 23:12 +0200, Wolfram Sang wrote:
-> > Currently, every driver has to do it on its own, but it should be done
-> > in the core, like we already do with board_info structs.
-> >=20
-> > Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
-> > ---
-> >=20
-> > Based on v3.5-rc2. Only build tested, I don't have a OF based device
-> > around at the moment.
->=20
-> Won't that conflict with i2c-powermac doing it its own way ?
-
-Yup :(
-
-I assume there is no chance that the powermac devicetree can be
-pre-processed to be compatible with of_i2c_register_devices?
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---qcHopEYAB45HaUaB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk/Zq3oACgkQD27XaX1/VRv+1QCfeFPejEo4HNanYfhXKfVjPDAs
-rnoAnRvrHlrKO9ewLnvUbB2adb+qwIQJ
-=rBSj
------END PGP SIGNATURE-----
-
---qcHopEYAB45HaUaB--
-
-
---===============8193264362019133448==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============8193264362019133448==--
+       Andrew
