@@ -1,38 +1,34 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] i2c: let the core register devices from devicetree
-Date: Thu, 14 Jun 2012 19:29:16 +0200
-Message-ID: <CACRpkdbWQdqQDF7mP51kdZGpiCS+nJ+91j=AkN8S=3Nzvk9sbQ@mail.gmail.com>
-References: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C
+ driver
+Date: Thu, 14 Jun 2012 19:36:36 +0100
+Message-ID: <20120614183636.GB30185@sirena.org.uk>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
+ <1339428307-3850-10-git-send-email-lee.jones@linaro.org>
+ <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
+ <4FD6F0E8.5040606@linaro.org>
+ <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw@mail.gmail.com>
+ <4FD83AAD.2010701@linaro.org>
+ <CACRpkdZC8E6izDpdnWy6DMjOdA6KsqTaPoaq9pErWoNW0Ewytw@mail.gmail.com>
+ <4FD88761.9050703@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <w.sang@pengutronix.de>, Lee Jones <lee.jones@linaro.org>
-Cc: Viresh Kumar <viresh.kumar@st.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Tony Lindgren <tony@atomide.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Grant Likely <grant.likely@secretlab.ca>, Laxman Dewangan <ldewangan@nvidia.com>, linux-i2c@vger.kernel.org, Peter Korsgaard <jacmet@sunsite.dk>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@nvidia.com>, Olof Johansson <olof@lixom.net>, Barry Song <21cnbao@gmail.com>, Jochen Friedrich <jochen@scram.de>, Deepak Sikri <deepak.sikri@st.com>, Li Yang <leoli@freescale.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wolfram@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, Tang Yuantian <B29983@freescale.com>, "Jean Delvare (PC drivers,
- core)" <khali@linux-fr.org>, Magnus
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4FD88761.9050703-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 13, 2012 at 11:12 PM, Wolfram Sang <w.sang@pengutronix.de> wrote:
+On Wed, Jun 13, 2012 at 01:28:17PM +0100, Lee Jones wrote:
 
-> Currently, every driver has to do it on its own, but it should be done
-> in the core, like we already do with board_info structs.
->
-> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> Device Tree. However, we have just as much control by keeping them
+> in separate structs in the C file and selecting the right one using
+> the compatible sting.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-
-Lee might be able to test this with his DT bindings (and patch them to use
-the new handling in the core..)
-
-Yours,
-Linus Walleij
+You're not understanding Linus' point.  The compatible string isn't
+useful here because properties like the maximum clock rate of the bus
+depend on the board design, not the silicon.  The controller may be
+perfectly happy to run at a given rate but other devices on the bus or
+the electrical engineering of the PCB itself may restrict this further.
