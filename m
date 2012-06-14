@@ -1,14 +1,13 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
+From: viresh kumar <viresh.linux@gmail.com>
 Subject: Re: [PATCH] i2c: let the core register devices from devicetree
-Date: Thu, 14 Jun 2012 09:31:49 +0200
-Message-ID: <87ehpiwdqy.fsf@macbook.be.48ers.dk>
+Date: Thu, 14 Jun 2012 08:53:49 +0100
+Message-ID: <CAOh2x=n3uzc3K1oMtOKicuiQoZLYu4QVTY0gEPmSFsw3_R=u9Q@mail.gmail.com>
 References: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de> (Wolfram
- Sang's message of "Wed, 13 Jun 2012 23:12:10 +0200")
+In-Reply-To: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -19,31 +18,33 @@ List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
 Sender: linux-arm-kernel-bounces@lists.infradead.org
 Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
 To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Viresh Kumar <viresh.kumar@st.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Tony Lindgren <tony@atomide.com>, Linus Walleij <linus.walleij@linaro.org>, Haojian Zhuang <haojian.zhuang@marvell.com>, Grant Likely <grant.likely@secretlab.ca>, Laxman Dewangan <ldewangan@nvidia.com>, linux-i2c@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@nvidia.com>, Olof Johansson <olof@lixom.net>, Barry Song <21cnbao@gmail.com>, Jochen Friedrich <jochen@scram.de>, Deepak Sikri <deepak.sikri@st.com>, Li Yang <leoli@freescale.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wolfram@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, Tang Yuantian <B29983@freescale.com>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, Magnus
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>, Tony Lindgren <tony@atomide.com>, Linus Walleij <linus.walleij@linaro.org>, Jochen Friedrich <jochen@scram.de>, Grant Likely <grant.likely@secretlab.ca>, Laxman Dewangan <ldewangan@nvidia.com>, linux-i2c@vger.kernel.org, Peter Korsgaard <jacmet@sunsite.dk>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@nvidia.com>, Barry Song <21cnbao@gmail.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Deepak Sikri <deepak.sikri@st.com>, Li Yang <leoli@freescale.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, spear-devel <spear-devel@list.st.com>, Dirk Brandewie <dirk.brandewie@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wolfram@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, Tang Yuantian <B29983@freescale.com>, Jean Delvare 
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Wolfram" == Wolfram Sang <w.sang@pengutronix.de> writes:
+On Wed, Jun 13, 2012 at 10:12 PM, Wolfram Sang <w.sang@pengutronix.de> wrot=
+e:
+> Currently, every driver has to do it on its own, but it should be done
+> in the core, like we already do with board_info structs.
+>
+> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
+> ---
 
- Wolfram> Currently, every driver has to do it on its own, but it should
- Wolfram> be done in the core, like we already do with board_info
- Wolfram> structs.
 
- Wolfram> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
- Wolfram> ---
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
+sses/i2c-designware-platdrv.c
+> index 0506fef..cf3b23c 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -147,7 +147,6 @@ static int __devinit dw_i2c_probe(struct platform_dev=
+ice *pdev)
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev_err(&pdev->dev, "failure adding adapte=
+r\n");
+> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0goto err_free_irq;
+> =A0 =A0 =A0 =A0}
+> - =A0 =A0 =A0 of_i2c_register_devices(adap);
+>
+> =A0 =A0 =A0 =A0return 0;
 
- Wolfram> Based on v3.5-rc2. Only build tested, I don't have a OF based device
- Wolfram> around at the moment.
+For SPEAr,
 
-Neither have I, but it looks good.
-
-Acked-by: Peter Korsgaard <jacmet@sunsite.dk>
-
- Wolfram> @Peter: Why does ocores do the device registration manually via
- Wolfram> platform_data instead of using board_info?
-
-Because of dd14be4c274 (i2c-ocores: Can add I2C devices to the bus), a
-patch I wasn't CC'ed on and haven't acked. I only noticed it later when
-the I2C tree got merged into mainline.
-
--- 
-Bye, Peter Korsgaard
+Reviewed-by: Viresh Kumar <viresh.linux@gmail.com>
