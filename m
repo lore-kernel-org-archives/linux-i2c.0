@@ -1,70 +1,38 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V3 2/3] i2c-nomadik: turn the platform driver to an amba driver
-Date: Thu, 14 Jun 2012 19:25:48 +0200
-Message-ID: <CACRpkdZfherHBEXcwaco1zeK-gW=3x-rGXTfNc4QwwWfLk_JRA@mail.gmail.com>
-References: <201206140804.39083.arnd@arndb.de>
-	<cover.1339447570.git.rubini@gnudd.com>
-	<4a198618063924b68182279ffd56c335d621f542.1339447570.git.rubini@gnudd.com>
-	<20120614081758.GA19648@mail.gnudd.com>
-	<4FD9A328.9080000@linaro.org>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH] i2c: let the core register devices from devicetree
+Date: Thu, 14 Jun 2012 19:29:16 +0200
+Message-ID: <CACRpkdbWQdqQDF7mP51kdZGpiCS+nJ+91j=AkN8S=3Nzvk9sbQ@mail.gmail.com>
+References: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FD9A328.9080000-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>, arnd-r2nGTMty4D4@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, giancarlo.asnaghi-qxv4g6HH51o@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1339622215-4733-1-git-send-email-w.sang@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <w.sang@pengutronix.de>, Lee Jones <lee.jones@linaro.org>
+Cc: Viresh Kumar <viresh.kumar@st.com>, Mauro Carvalho Chehab <mchehab@redhat.com>, Tony Lindgren <tony@atomide.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Grant Likely <grant.likely@secretlab.ca>, Laxman Dewangan <ldewangan@nvidia.com>, linux-i2c@vger.kernel.org, Peter Korsgaard <jacmet@sunsite.dk>, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@nvidia.com>, Olof Johansson <olof@lixom.net>, Barry Song <21cnbao@gmail.com>, Jochen Friedrich <jochen@scram.de>, Deepak Sikri <deepak.sikri@st.com>, Li Yang <leoli@freescale.com>, Haavard Skinnemoen <hskinnemoen@gmail.com>, Pawel Moll <pawel.moll@arm.com>, Vitaly Wool <vitalywool@gmail.com>, Wolfram Sang <wolfram@the-dreams.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rusty Russell <rusty@rustcorp.com.au>, Tang Yuantian <B29983@freescale.com>, "Jean Delvare (PC drivers,
+ core)" <khali@linux-fr.org>, Magnus
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 14, 2012 at 10:39 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrot=
-e:
-> On 14/06/12 09:17, Alessandro Rubini wrote:
->>>
->>> You change only one half of ux500 here: the part where the device
->>> gets defined statically, but not not the definition in the
->>> device-tree.
->>
->> Yes, I'm aware. That's why I added Lee Jones as Cc:, on Linusw's
->> suggestion. =A0Lee told me to go ahead and he'll fix the DT stuff.
+On Wed, Jun 13, 2012 at 11:12 PM, Wolfram Sang <w.sang@pengutronix.de> wrote:
+
+> Currently, every driver has to do it on its own, but it should be done
+> in the core, like we already do with board_info structs.
 >
-> I did?
+> Signed-off-by: Wolfram Sang <w.sang@pengutronix.de>
 
-Yes :-)
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-> I have already DT:ed this driver. There are 3 patches on the MLs curr=
-ently.
->
->> [PATCH 1/3] i2c: Add Device Tree support to the Nomadik I2C driver
->> [PATCH 2/3] ARM: ux500: Add i2c configurations to the Device Tree fo=
-r
->> DB8500 based devices
->> [PATCH 3/3] Documentation: Device Tree binding information for i2c-n=
-omadik
->> driver
->
-> I'm more than happy for you to base your patches on these and make th=
-e
-> necessary changes. Off hand, I think the only changes you'll need to =
-make is
-> the probing from DT itself.
-
-Depends on whether this patch or yours go in first I guess. Which
-is up to Wolfram. What I know is that Alessandros patches are
-ready to merge IMO.
-
-> So something like:
->
->    -                       compatible =3D "stericsson,db8500-i2c", "s=
-t,nomadik-i2c";
->    +                       compatible =3D "st,nomadik-i2c", "arm,prim=
-ecell";
-
-Yep that should do it.
-
-Which brings me to the fear of what happens the day we have
-deployed device trees out there and just cannot change things
-like this easily :-/
+Lee might be able to test this with his DT bindings (and patch them to use
+the new handling in the core..)
 
 Yours,
 Linus Walleij
