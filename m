@@ -1,41 +1,55 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 5/9] ARM: kirkwood: use devicetree for orion-spi
-Date: Thu, 14 Jun 2012 10:54:15 +0000
-Message-ID: <201206141054.16223.arnd@arndb.de>
-References: <1339324322-29388-6-git-send-email-andrew@lunn.ch>
- <201206132110.31011.arnd@arndb.de> <20120614093135.GE4799@lunn.ch>
+From: "Shilimkar, Santosh" <santosh.shilimkar@ti.com>
+Subject: Re: [PATCH 06/17] i2c: omap: improve 1p153 errata handling
+Date: Thu, 14 Jun 2012 16:31:02 +0530
+Message-ID: <CAMQu2gxY6x+JFw1ncimpVSxutJ_+4zscGHzVpg85W-4SPfUJRQ@mail.gmail.com>
+References: <1339669250-9183-1-git-send-email-balbi@ti.com> <1339669250-9183-7-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20120614093135.GE4799-g2DYL2Zd6BY@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Cc: jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org, Michael Walle <micheal-QKn5cuLxLXY@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1339669250-9183-7-git-send-email-balbi@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: ben-linux@fluff.org, Tony Lindgren <tony@atomide.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 14 June 2012, Andrew Lunn wrote:
-> We either have auxdata and clean clock code, or no auxdata and messy
-> clock code with lots of aliases.
-> 
-> The auxdata is also not limited to the name of the clocks. It allows
-> me to diff the kernel log for a DT boot and a none DT boot of the same
-> box and see they are identical. I've found a few typo's that way, and
-> not been hindered by noise of the devices changing name is useful.
-> 
-> Once we have the clock tree described in DT, then i think it makes
-> sense to remove these auxdata entries.
-> 
+On Thu, Jun 14, 2012 at 3:50 PM, Felipe Balbi <balbi@ti.com> wrote:
+> Make it not depend on ISR's local variables
+> in order to make it easier to re-factor the
+> transmit data loop.
+>
+> Signed-off-by: Felipe Balbi <balbi@ti.com>
+> ---
+> =A0drivers/i2c/busses/i2c-omap.c | =A0 47 +++++++++++++++++++++++++++=
+++------------
+> =A01 file changed, 34 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-o=
+map.c
+> index 0661ca1..52861c2 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -768,21 +768,24 @@ omap_i2c_omap1_isr(int this_irq, void *dev_id)
+> =A0* data to DATA_REG. Otherwise some data bytes can be lost while tr=
+ansferring
+> =A0* them from the memory to the I2C interface.
+> =A0*/
+> -static int errata_omap3_1p153(struct omap_i2c_dev *dev, u16 *stat, i=
+nt *err)
+> +static int errata_omap3_1p153(struct omap_i2c_dev *dev)
+> =A0{
+> - =A0 =A0 =A0 unsigned long timeout =3D 10000;
+> + =A0 =A0 =A0 unsigned long =A0 timeout =3D 10000;
 
-Ok, fair enough.
+Not related to this patch but this 10000 timeout magic
+needs to be fixed as well.
 
-	Arnd
+The patch looks fine.
+
+Regards
+santosh
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
