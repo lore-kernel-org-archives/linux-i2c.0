@@ -1,151 +1,54 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: Add Device Tree support to the Nomadik I2C driver
-Date: Fri, 15 Jun 2012 10:02:15 +0100
-Message-ID: <4FDAFA17.6050502@linaro.org>
-References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com> <4FD8BAD2.50703@linaro.org> <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
+Date: Fri, 15 Jun 2012 11:22:56 +0200
+Message-ID: <20120615112256.7c61fa18@endymion.delvare>
+References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
+	<20111127225514.GO19115@trinity.fluff.org>
+	<CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
+	<20111203162757.GA24302@ericsson.com>
+	<CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
+	<20111203180819.2ddbcb3a@endymion.delvare>
+	<CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
+	<20111206093906.21dccf8d@endymion.delvare>
+	<loom.20120215T165236-509@post.gmane.org>
+	<CAM5MpD5R4xde4Li1NCDoErisXs7oRMAgW7swuCwga80MkU3VMw@mail.gmail.com>
+	<CAM5MpD46pT1N2f5yZb0yW1O8CjH7B969TmvxDZztMfwBoyom3g@mail.gmail.com>
+	<CAKdnbx4MUfU086F7navt52WaoF4q_+3G+DHn7u2qic+FU50OiA@mail.gmail.com>
+	<20120613094739.360967aa@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20120613094739.360967aa-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Date: Tue, 17 Apr 2012 16:04:13 +0100
-Subject: [PATCH 1/1] i2c: Add Device Tree support to the Nomadik I2C driver
+Hi Eddi,
 
-Here we apply the bindings required for successful Device Tree
-probing of the i2c-nomadik driver. We also apply a fall-back
-configuration in case either one is not provided, or a required
-element is missing from the one supplied.
+On Wed, 13 Jun 2012 09:47:39 +0200, Jean Delvare wrote:
+> On Wed, 13 Jun 2012 07:44:34 +0200, Eddi De Pieri wrote:
+> > It works for me too
+> > 
+> > What about including this patch in the mainline?
+> 
+> Yesterday I reviewed a patch set adding support for the auxiliary SMBus
+> controller on the SB600/SB700:
+> http://marc.info/?t=133886124500001&r=1&w=2
+> http://marc.info/?t=133886124300004&r=1&w=2
+> http://marc.info/?t=133886124300003&r=1&w=2
+> 
+> It touches the exact same area as touched by your patch, so they will
+> conflict. Best would be to rebase the SB800 multiport support patch on
+> top of the other patch set.
 
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |   82 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 80 insertions(+), 2 deletions(-)
+This is done now, you can download my current patch stack at:
+http://khali.linux-fr.org/devel/linux-3/jdelvare-i2c/
+or
+http://khali.linux-fr.org/devel/linux-3/jdelvare-i2c.tar.gz
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index a92440d..58e8114 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -23,6 +23,7 @@
- #include <linux/io.h>
- #include <linux/regulator/consumer.h>
- #include <linux/pm_runtime.h>
-+#include <linux/of.h>
- 
- #include <plat/i2c.h>
- 
-@@ -899,15 +900,86 @@ static const struct i2c_algorithm nmk_i2c_algo = {
- 	.functionality	= nmk_i2c_functionality
- };
- 
-+static struct nmk_i2c_controller u8500_i2c = {
-+	/*
-+	 * Slave data setup time; 250ns, 100ns, and 10ns, which
-+	 * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
-+	 */
-+	.slsu           = 0xe,
-+	.tft            = 1,      /* Tx FIFO threshold */
-+	.rft            = 8,      /* Rx FIFO threshold */
-+	.clk_freq       = 100000, /* std. mode operation */
-+	.timeout        = 200,    /* Slave response timeout(ms) */
-+	.sm             = I2C_FREQ_MODE_FAST,
-+};
-+
-+static int __devinit
-+nmk_i2c_of_probe(struct device_node *np, struct nmk_i2c_controller *pdata)
-+{
-+	of_property_read_u32(np, "clock-frequency", (u32*)&pdata->clk_freq);
-+	if (!pdata->clk_freq) {
-+		pr_warn("%s: Clock frequency not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,slsu", (u32*)&pdata->slsu);
-+	if (!pdata->slsu) {
-+		pr_warn("%s: Data line delay not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,tft", (u32*)&pdata->tft);
-+	if (!pdata->tft) {
-+		pr_warn("%s: Tx FIFO threshold not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,rft", (u32*)&pdata->rft);
-+	if (!pdata->rft) {
-+		pr_warn("%s: Rx FIFO threshold not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,timeout", (u32*)&pdata->timeout);
-+	if (!pdata->timeout) {
-+		pr_warn("%s: Timeout not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	if (of_get_property(np, "stericsson,i2c_freq_mode_fast", NULL))
-+		pdata->sm = I2C_FREQ_MODE_FAST;
-+	else
-+		pdata->sm = I2C_FREQ_MODE_STANDARD;
-+
-+	return 0;
-+}
-+
- static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- {
- 	int ret = 0;
- 	struct resource *res;
--	struct nmk_i2c_controller *pdata =
--			pdev->dev.platform_data;
-+	struct nmk_i2c_controller *pdata = pdev->dev.platform_data;
-+	struct device_node *np = pdev->dev.of_node;
- 	struct nmk_i2c_dev	*dev;
- 	struct i2c_adapter *adap;
- 
-+	if (np) {
-+		if (!pdata) {
-+			pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+			if (!pdata) {
-+				ret = -ENOMEM;
-+				goto err_no_mem;
-+			}
-+		}
-+		ret = nmk_i2c_of_probe(np, pdata);
-+		if (ret)
-+			kfree(pdata);
-+	}
-+
-+	if (!pdata)
-+		/* No i2c configuration found, using the default. */
-+		pdata = &u8500_i2c;
-+
- 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
- 	if (!dev) {
- 		dev_err(&pdev->dev, "cannot allocate memory\n");
-@@ -1038,11 +1110,17 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id nmk_gpio_match[] = {
-+	{ .compatible = "st,nomadik-i2c", },
-+	{},
-+};
-+
- static struct platform_driver nmk_i2c_driver = {
- 	.driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
- 		.pm = &nmk_i2c_pm,
-+		.of_match_table = nmk_gpio_match,
- 	},
- 	.probe = nmk_i2c_probe,
- 	.remove = __devexit_p(nmk_i2c_remove),
+Could you please rebase your patch on top of that and resubmit? Thanks.
+
 -- 
-1.7.9.5
+Jean Delvare
