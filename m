@@ -1,266 +1,151 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c-piix4: support AMD auxiliary SMBus controller
-Date: Fri, 15 Jun 2012 10:31:53 +0200
-Message-ID: <20120615103153.3ea7c009@endymion.delvare>
-References: <20120613094739.360967aa@endymion.delvare>
- <1339606749-4578-1-git-send-email-andrew@asquaredlabs.com>
- <1339606749-4578-4-git-send-email-andrew@asquaredlabs.com>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: Add Device Tree support to the Nomadik I2C driver
+Date: Fri, 15 Jun 2012 10:02:15 +0100
+Message-ID: <4FDAFA17.6050502@linaro.org>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com> <4FD8BAD2.50703@linaro.org> <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1339606749-4578-4-git-send-email-andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
+In-Reply-To: <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andrew,
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Date: Tue, 17 Apr 2012 16:04:13 +0100
+Subject: [PATCH 1/1] i2c: Add Device Tree support to the Nomadik I2C driver
 
-For next time... When you post or repost a patch series, please always
-start a new discussion thread (don't use Reply), otherwise discussion
-threading becomes very hard to follow, both in e-mail clients and
-online list archives.
+Here we apply the bindings required for successful Device Tree
+probing of the i2c-nomadik driver. We also apply a fall-back
+configuration in case either one is not provided, or a required
+element is missing from the one supplied.
 
-On Wed, 13 Jun 2012 12:59:09 -0400, Andrew Armenia wrote:
-> Some AMD chipsets, such as the SP5100, have an auxiliary SMBus
-> controller with a second set of registers. This patch adds
-> support for this auxiliary controller.
-> 
-> Tested on ASUS KCMA-D8 motherboard.
-> 
-> Signed-off-by: Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
-> ---
->  Documentation/i2c/busses/i2c-piix4 |   13 +++++--
->  drivers/i2c/busses/Kconfig         |    6 +++-
->  drivers/i2c/busses/i2c-piix4.c     |   69 ++++++++++++++++++++++++++++++++++--
->  3 files changed, 82 insertions(+), 6 deletions(-)
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-nomadik.c |   82 +++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 80 insertions(+), 2 deletions(-)
 
-A few issues remaining in this patch:
-
-> diff --git a/Documentation/i2c/busses/i2c-piix4 b/Documentation/i2c/busses/i2c-piix4
-> index 475bb4a..474779e 100644
-> --- a/Documentation/i2c/busses/i2c-piix4
-> +++ b/Documentation/i2c/busses/i2c-piix4
-> @@ -8,12 +8,17 @@ Supported adapters:
->      Datasheet: Only available via NDA from ServerWorks
->    * ATI IXP200, IXP300, IXP400, SB600, SB700 and SB800 southbridges
->      Datasheet: Not publicly available
-> +    SB700 register reference available at:
-> +    http://support.amd.com/us/Embedded_TechDocs/43009_sb7xx_rrg_pub_1.00.pdf
-> +  * AMD SP5100 (SB700 derivative found on some server mainboards)
-> +    Datasheet: Publicly available at the AMD website
-> +    http://support.amd.com/us/Embedded_TechDocs/44413.pdf
->    * AMD Hudson-2
->      Datasheet: Not publicly available
->    * Standard Microsystems (SMSC) SLC90E66 (Victory66) southbridge
->      Datasheet: Publicly available at the SMSC website http://www.smsc.com
->  
-> -Authors: 
-> +Authors:
-
-Never include white-space changes in a non-cleanup patch, they make
-review and backporting harder.
-
->  	Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>
->  	Philip Edelbrock <phil-KXOFo5pg7o1l57MIdRCFDg@public.gmane.org>
->  
-> @@ -32,7 +37,7 @@ Description
->  
->  The PIIX4 (properly known as the 82371AB) is an Intel chip with a lot of
->  functionality. Among other things, it implements the PCI bus. One of its
-> -minor functions is implementing a System Management Bus. This is a true 
-> +minor functions is implementing a System Management Bus. This is a true
->  SMBus - you can not access it on I2C levels. The good news is that it
->  natively understands SMBus commands and you do not have to worry about
->  timing problems. The bad news is that non-SMBus devices connected to it can
-> @@ -68,6 +73,10 @@ this driver on those mainboards.
->  The ServerWorks Southbridges, the Intel 440MX, and the Victory66 are
->  identical to the PIIX4 in I2C/SMBus support.
->  
-> +The AMD SB700 and SP5100 chipsets implement two PIIX4-compatible SMBus
-> +controllers. If your BIOS initializes the secondary controller, it will
-> +be detected by this driver as an "Auxiliary SMBus Host Controller".
-> +
->  If you own Force CPCI735 motherboard or other OSB4 based systems you may need
->  to change the SMBus Interrupt Select register so the SMBus controller uses
->  the SMI mode.
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 7244c8b..2e7530a 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -133,7 +133,7 @@ config I2C_PIIX4
->  	    ATI IXP300
->  	    ATI IXP400
->  	    ATI SB600
-> -	    ATI SB700
-> +	    ATI SB700/SP5100
->  	    ATI SB800
->  	    AMD Hudson-2
->  	    Serverworks OSB4
-> @@ -143,6 +143,10 @@ config I2C_PIIX4
->  	    Serverworks HT-1100
->  	    SMSC Victory66
->  
-> +	  Some AMD chipsets contain two PIIX4-compatible SMBus
-> +	  controllers. This driver will attempt to use both controllers
-> +	  on the SB700/SP5100, if they have been initialized by the BIOS.
-> +
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-piix4.
->  
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 8181963..85d3db9 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -21,11 +21,12 @@
->     Supports:
->  	Intel PIIX4, 440MX
->  	Serverworks OSB4, CSB5, CSB6, HT-1000, HT-1100
-> -	ATI IXP200, IXP300, IXP400, SB600, SB700, SB800
-> +	ATI IXP200, IXP300, IXP400, SB600, SB700/SP5100, SB800
->  	AMD Hudson-2
->  	SMSC Victory66
->  
-> -   Note: we assume there can only be one device, with one SMBus interface.
-> +   Note: we assume there can only be one device, with one or more
-> +   SMBus interfaces.
->  */
->  
->  #include <linux/module.h>
-> @@ -60,6 +61,7 @@
->  #define SMBIOSIZE	8
->  
->  /* PCI Address Constants */
-> +#define SMBAUXBA	0x058
-
-AFAICS this is SB700-specific, so this should either be clarified in
-the name, or maybe we don't even want a name. After all, register
-offset is hard-coded in piix4_setup_sb800.
-
->  #define SMBBA		0x090
->  #define SMBHSTCFG	0x0D2
->  #define SMBSLVC		0x0D3
-> @@ -293,6 +295,43 @@ static int __devinit piix4_setup_sb800(struct pci_dev *PIIX4_dev,
->  	return piix4_smba;
->  }
->  
-> +static int __devinit piix4_setup_aux(struct pci_dev *PIIX4_dev,
-> +				const struct pci_device_id *id,
-> +				unsigned short base_reg_addr)
-> +{
-> +	/* Set up auxiliary SMBus controllers found on some
-> +	 * AMD chipsets e.g. SP5100 (SB700 derivative) */
-> +
-> +	unsigned short piix4_smba;
-> +
-> +	/* Read address of auxiliary SMBus controller */
-> +	pci_read_config_word(PIIX4_dev, base_reg_addr, &piix4_smba);
-> +	piix4_smba &= 0xffe0;
-
-You must check bit 0 first. You want the I/O base to be set AND
-decoding thereof enabled, otherwise the controller can't be used.
-
-Also, mask 0xffe0 is OK for the SB700 but not for the SB600 which only
-has bits 3:1 marked as reserved. Given that reserved bits are supposed
-to be 0 anyway, I think it is OK to mask with 0xfff0 always.
-
-> +
-> +	if (piix4_smba == 0) {
-> +		dev_dbg(&PIIX4_dev->dev,
-> +			"Auxiliary SMBus base address uninitialized");
-
-Missing trailing new line.
-
-> +
-
-Needless blank line.
-
-> +		return -ENODEV;
-> +	}
-> +
-
-> +	if (acpi_check_region(piix4_smba, SMBIOSIZE, piix4_driver.name))
-> +		return -ENODEV;
-> +
-> +	if (!request_region(piix4_smba, SMBIOSIZE, piix4_driver.name)) {
-> +		dev_err(&PIIX4_dev->dev, "Auxiliary SMBus region 0x%x "
-> +			"already in use!\n", piix4_smba);
-> +		return -EBUSY;
-> +	}
-> +
-> +	dev_info(&PIIX4_dev->dev,
-> +		"Auxiliary SMBus Host Controller at 0x%x\n",
-> +		piix4_smba
-> +	);
-
-Undesirable line break.
-
-> +
-> +	return piix4_smba;
-> +}
-> +
->  static int piix4_transaction(struct i2c_adapter *piix4_adapter)
->  {
->  	int temp;
-> @@ -504,6 +543,7 @@ static DEFINE_PCI_DEVICE_TABLE(piix4_ids) = {
->  MODULE_DEVICE_TABLE (pci, piix4_ids);
->  
->  static struct i2c_adapter *piix4_main_adapter;
-> +static struct i2c_adapter *piix4_aux_adapter;
->  
->  static int __devinit piix4_add_adapter(struct pci_dev *dev,
->  					unsigned short smba,
-> @@ -565,10 +605,28 @@ static int __devinit piix4_probe(struct pci_dev *dev,
->  	else
->  		retval = piix4_setup(dev, id);
->  
-> +	/* if no main SMBus found, give up */
->  	if (retval < 0)
->  		return retval;
->  
-> -	return piix4_add_adapter(dev, retval, &piix4_main_adapter);
-> +	/* try to register main SMBus adapter, give up if we can't */
-> +	retval = piix4_add_adapter(dev, retval, &piix4_main_adapter);
-> +	if (retval < 0)
-> +		return retval;
-> +
-> +	/* check for auxiliary SMBus on some AMD chipsets */
-> +	if (dev->vendor == PCI_VENDOR_ID_ATI &&
-> +	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
-> +	    dev->revision < 0x40) {
-> +		retval = piix4_setup_aux(dev, id, SMBAUXBA);
-> +		if (retval > 0) {
-> +			/* try to add the aux adapter if it exists,
-> +			 * piix4_add_adapter will clean up if this fails */
-> +			piix4_add_adapter(dev, retval, &piix4_aux_adapter);
-> +		}
-> +	}
-> +
-> +	return 0;
->  }
->  
->  static void __devinit piix4_adap_remove(struct i2c_adapter *adap)
-> @@ -590,6 +648,11 @@ static void __devexit piix4_remove(struct pci_dev *dev)
->  		piix4_adap_remove(piix4_main_adapter);
->  		piix4_main_adapter = NULL;
->  	}
-> +
-> +	if (piix4_aux_adapter) {
-> +		piix4_adap_remove(piix4_aux_adapter);
-> +		piix4_aux_adapter = NULL;
-> +	}
->  }
->  
->  static struct pci_driver piix4_driver = {
-
-I've fixed them all, and applied your patch. The whole series with my
-changes incorporated is now visible at:
-http://khali.linux-fr.org/devel/linux-3/jdelvare-i2c/
-
-I would appreciate if you could test them and confirm I didn't break
-anything. Your patches will then be merged in kernel 3.6.
-
-Thanks,
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index a92440d..58e8114 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -23,6 +23,7 @@
+ #include <linux/io.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/pm_runtime.h>
++#include <linux/of.h>
+ 
+ #include <plat/i2c.h>
+ 
+@@ -899,15 +900,86 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+ 	.functionality	= nmk_i2c_functionality
+ };
+ 
++static struct nmk_i2c_controller u8500_i2c = {
++	/*
++	 * Slave data setup time; 250ns, 100ns, and 10ns, which
++	 * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
++	 */
++	.slsu           = 0xe,
++	.tft            = 1,      /* Tx FIFO threshold */
++	.rft            = 8,      /* Rx FIFO threshold */
++	.clk_freq       = 100000, /* std. mode operation */
++	.timeout        = 200,    /* Slave response timeout(ms) */
++	.sm             = I2C_FREQ_MODE_FAST,
++};
++
++static int __devinit
++nmk_i2c_of_probe(struct device_node *np, struct nmk_i2c_controller *pdata)
++{
++	of_property_read_u32(np, "clock-frequency", (u32*)&pdata->clk_freq);
++	if (!pdata->clk_freq) {
++		pr_warn("%s: Clock frequency not found\n", np->full_name);
++		return -EINVAL;
++	}
++
++	of_property_read_u32(np, "stericsson,slsu", (u32*)&pdata->slsu);
++	if (!pdata->slsu) {
++		pr_warn("%s: Data line delay not found\n", np->full_name);
++		return -EINVAL;
++	}
++
++	of_property_read_u32(np, "stericsson,tft", (u32*)&pdata->tft);
++	if (!pdata->tft) {
++		pr_warn("%s: Tx FIFO threshold not found\n", np->full_name);
++		return -EINVAL;
++	}
++
++	of_property_read_u32(np, "stericsson,rft", (u32*)&pdata->rft);
++	if (!pdata->rft) {
++		pr_warn("%s: Rx FIFO threshold not found\n", np->full_name);
++		return -EINVAL;
++	}
++
++	of_property_read_u32(np, "stericsson,timeout", (u32*)&pdata->timeout);
++	if (!pdata->timeout) {
++		pr_warn("%s: Timeout not found\n", np->full_name);
++		return -EINVAL;
++	}
++
++	if (of_get_property(np, "stericsson,i2c_freq_mode_fast", NULL))
++		pdata->sm = I2C_FREQ_MODE_FAST;
++	else
++		pdata->sm = I2C_FREQ_MODE_STANDARD;
++
++	return 0;
++}
++
+ static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+ {
+ 	int ret = 0;
+ 	struct resource *res;
+-	struct nmk_i2c_controller *pdata =
+-			pdev->dev.platform_data;
++	struct nmk_i2c_controller *pdata = pdev->dev.platform_data;
++	struct device_node *np = pdev->dev.of_node;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+ 
++	if (np) {
++		if (!pdata) {
++			pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
++			if (!pdata) {
++				ret = -ENOMEM;
++				goto err_no_mem;
++			}
++		}
++		ret = nmk_i2c_of_probe(np, pdata);
++		if (ret)
++			kfree(pdata);
++	}
++
++	if (!pdata)
++		/* No i2c configuration found, using the default. */
++		pdata = &u8500_i2c;
++
+ 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		dev_err(&pdev->dev, "cannot allocate memory\n");
+@@ -1038,11 +1110,17 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static const struct of_device_id nmk_gpio_match[] = {
++	{ .compatible = "st,nomadik-i2c", },
++	{},
++};
++
+ static struct platform_driver nmk_i2c_driver = {
+ 	.driver = {
+ 		.owner = THIS_MODULE,
+ 		.name = DRIVER_NAME,
+ 		.pm = &nmk_i2c_pm,
++		.of_match_table = nmk_gpio_match,
+ 	},
+ 	.probe = nmk_i2c_probe,
+ 	.remove = __devexit_p(nmk_i2c_remove),
 -- 
-Jean Delvare
+1.7.9.5
