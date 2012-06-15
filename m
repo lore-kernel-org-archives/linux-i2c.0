@@ -1,64 +1,176 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C
- driver
-Date: Fri, 15 Jun 2012 12:43:57 +0100
-Message-ID: <4FDB1FFD.7040204@linaro.org>
-References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org> <1339428307-3850-10-git-send-email-lee.jones@linaro.org> <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com> <4FD6F0E8.5040606@linaro.org> <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw@mail.gmail.com> <4FD83AAD.2010701@linaro.org> <CACRpkdZC8E6izDpdnWy6DMjOdA6KsqTaPoaq9pErWoNW0Ewytw@mail.gmail.com> <4FD88761.9050703@linaro.org> <20120614183636.GB30185@sirena.org.uk> <4FDA341C.8010501@linaro.org> <20120615103233.GA19046@n2100.arm.linux.org.uk>
+From: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: Re: Fwd: [PATCH 1/3] i2c: Add Device Tree support to the Nomadik
+ I2C driver
+Date: Fri, 15 Jun 2012 17:20:43 +0530
+Message-ID: <20120615115042.GA27480@bnru02>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
+ <1339428307-3850-10-git-send-email-lee.jones@linaro.org>
+ <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
+ <4FD8BAD2.50703@linaro.org>
+ <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ@mail.gmail.com>
+ <4FDAFA17.6050502@linaro.org>
+ <CAE2-_9rRYxjU9QQgtBv9ReMY5x+oRiJG1cDQahYHanjDrwVUYA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120615103233.GA19046-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAE2-_9rRYxjU9QQgtBv9ReMY5x+oRiJG1cDQahYHanjDrwVUYA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 15/06/12 11:32, Russell King - ARM Linux wrote:
-> On Thu, Jun 14, 2012 at 07:57:32PM +0100, Lee Jones wrote:
->> On 14/06/12 19:36, Mark Brown wrote:
->>> On Wed, Jun 13, 2012 at 01:28:17PM +0100, Lee Jones wrote:
->>>
->>>> Device Tree. However, we have just as much control by keeping them
->>>> in separate structs in the C file and selecting the right one usin=
-g
->>>> the compatible sting.
->>>
->>> You're not understanding Linus' point.  The compatible string isn't
->>> useful here because properties like the maximum clock rate of the b=
-us
->>> depend on the board design, not the silicon.  The controller may be
->>> perfectly happy to run at a given rate but other devices on the bus=
- or
->>> the electrical engineering of the PCB itself may restrict this furt=
-her.
->>
->> And you're not understanding mine. ;)
->>
->> You can have multiple compatible strings for a single driver. Which =
-one
->> you reference from the Device Tree will dictate which group of setti=
-ngs
->> are used, including variation of clock rates.
->
-> However, if you list these settings separately, rather than selecting=
- them
-> based on a compatible string, it means when other board designs come =
-along,
-> you don't have to modify the kernel code to provide yet another compa=
-tible
-> to settings translation in the code - you can keep all that informati=
-on
-> entirely within DT with no kernel code mods.
->
-> I thought that was partly the point of DT...
+[...]
+> 
+> 
+> From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Date: Tue, 17 Apr 2012 16:04:13 +0100
+> Subject: [PATCH 1/1] i2c: Add Device Tree support to the Nomadik I2C driver
+> 
+> Here we apply the bindings required for successful Device Tree
+> probing of the i2c-nomadik driver. We also apply a fall-back
+> configuration in case either one is not provided, or a required
+> element is missing from the one supplied.
+> 
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-nomadik.c |   82 +++++++++++++++++++++++++++++++++++++-
+>  1 file changed, 80 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+> index a92440d..58e8114 100644
+> --- a/drivers/i2c/busses/i2c-nomadik.c
+> +++ b/drivers/i2c/busses/i2c-nomadik.c
+> @@ -23,6 +23,7 @@
+>  #include <linux/io.h>
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/pm_runtime.h>
+> +#include <linux/of.h>
+> 
+>  #include <plat/i2c.h>
+> 
+> @@ -899,15 +900,86 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+>        .functionality  = nmk_i2c_functionality
+>  };
+> 
+> +static struct nmk_i2c_controller u8500_i2c = {
+> +       /*
+> +        * Slave data setup time; 250ns, 100ns, and 10ns, which
+> +        * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
+> +        */
+> +       .slsu           = 0xe,
+> +       .tft            = 1,      /* Tx FIFO threshold */
+> +       .rft            = 8,      /* Rx FIFO threshold */
+> +       .clk_freq       = 100000, /* std. mode operation */
+> +       .timeout        = 200,    /* Slave response timeout(ms) */
+> +       .sm             = I2C_FREQ_MODE_FAST,
 
-Right. See my most recent emails on the subject. :)
+How is this possible? you are setting clk_freq as 100kb/s and mode
+as fast mode which is supposed to be 400kb/s.
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-M: +44 77 88 633 515
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+> +};
+> +
+> +static int __devinit
+> +nmk_i2c_of_probe(struct device_node *np, struct nmk_i2c_controller *pdata)
+> +{
+> +       of_property_read_u32(np, "clock-frequency", (u32*)&pdata->clk_freq);
+> +       if (!pdata->clk_freq) {
+> +               pr_warn("%s: Clock frequency not found\n", np->full_name);
+> +               return -EINVAL;
+> +       }
+> +
+> +       of_property_read_u32(np, "stericsson,slsu", (u32*)&pdata->slsu);
+> +       if (!pdata->slsu) {
+> +               pr_warn("%s: Data line delay not found\n", np->full_name);
+> +               return -EINVAL;
+> +       }
+> +
+> +       of_property_read_u32(np, "stericsson,tft", (u32*)&pdata->tft);
+> +       if (!pdata->tft) {
+> +               pr_warn("%s: Tx FIFO threshold not found\n", np->full_name);
+> +               return -EINVAL;
+> +       }
+> +
+> +       of_property_read_u32(np, "stericsson,rft", (u32*)&pdata->rft);
+> +       if (!pdata->rft) {
+> +               pr_warn("%s: Rx FIFO threshold not found\n", np->full_name);
+> +               return -EINVAL;
+> +       }
+> +
+> +       of_property_read_u32(np, "stericsson,timeout", (u32*)&pdata->timeout);
+> +       if (!pdata->timeout) {
+> +               pr_warn("%s: Timeout not found\n", np->full_name);
+> +               return -EINVAL;
+> +       }
+> +
+> +       if (of_get_property(np, "stericsson,i2c_freq_mode_fast", NULL))
+> +               pdata->sm = I2C_FREQ_MODE_FAST;
+> +       else
+> +               pdata->sm = I2C_FREQ_MODE_STANDARD;
+
+The controller has more modes like fast mode plus and high speed mode. You can't make
+assumptions like this.
+
+> +
+> +       return 0;
+> +}
+> +
+>  static int __devinit nmk_i2c_probe(struct platform_device *pdev)
+>  {
+>        int ret = 0;
+>        struct resource *res;
+> -       struct nmk_i2c_controller *pdata =
+> -                       pdev->dev.platform_data;
+> +       struct nmk_i2c_controller *pdata = pdev->dev.platform_data;
+> +       struct device_node *np = pdev->dev.of_node;
+>        struct nmk_i2c_dev      *dev;
+>        struct i2c_adapter *adap;
+> 
+> +       if (np) {
+> +               if (!pdata) {
+> +                       pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
+> +                       if (!pdata) {
+> +                               ret = -ENOMEM;
+> +                               goto err_no_mem;
+> +                       }
+> +               }
+> +               ret = nmk_i2c_of_probe(np, pdata);
+> +               if (ret)
+> +                       kfree(pdata);
+> +       }
+> +
+> +       if (!pdata)
+> +               /* No i2c configuration found, using the default. */
+> +               pdata = &u8500_i2c;
+
+There are redundant fallback configurations exists in the driver. You might need to remove 
+those, if you want to fallback here.
+
+> +
+>        dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+>        if (!dev) {
+>                dev_err(&pdev->dev, "cannot allocate memory\n");
+> @@ -1038,11 +1110,17 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
+>        return 0;
+>  }
+> 
+> +static const struct of_device_id nmk_gpio_match[] = {
+> +       { .compatible = "st,nomadik-i2c", },
+> +       {},
+> +};
+> +
+>  static struct platform_driver nmk_i2c_driver = {
+>        .driver = {
+>                .owner = THIS_MODULE,
+>                .name = DRIVER_NAME,
+>                .pm = &nmk_i2c_pm,
+> +               .of_match_table = nmk_gpio_match,
+>        },
+>        .probe = nmk_i2c_probe,
+>        .remove = __devexit_p(nmk_i2c_remove),
+> --
+> 1.7.9.5
+> 
+
+/srinidhi 
