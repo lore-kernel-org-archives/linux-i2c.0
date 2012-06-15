@@ -1,54 +1,88 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
-Date: Fri, 15 Jun 2012 11:22:56 +0200
-Message-ID: <20120615112256.7c61fa18@endymion.delvare>
-References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
-	<20111127225514.GO19115@trinity.fluff.org>
-	<CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
-	<20111203162757.GA24302@ericsson.com>
-	<CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
-	<20111203180819.2ddbcb3a@endymion.delvare>
-	<CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
-	<20111206093906.21dccf8d@endymion.delvare>
-	<loom.20120215T165236-509@post.gmane.org>
-	<CAM5MpD5R4xde4Li1NCDoErisXs7oRMAgW7swuCwga80MkU3VMw@mail.gmail.com>
-	<CAM5MpD46pT1N2f5yZb0yW1O8CjH7B969TmvxDZztMfwBoyom3g@mail.gmail.com>
-	<CAKdnbx4MUfU086F7navt52WaoF4q_+3G+DHn7u2qic+FU50OiA@mail.gmail.com>
-	<20120613094739.360967aa@endymion.delvare>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 09/14] i2c: Add Device Tree support to the Nomadik I2C
+ driver
+Date: Fri, 15 Jun 2012 10:32:32 +0100
+Message-ID: <20120615093231.GB3898@opensource.wolfsonmicro.com>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
+ <1339428307-3850-10-git-send-email-lee.jones@linaro.org>
+ <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
+ <4FD6F0E8.5040606@linaro.org>
+ <CACRpkdYxiT-0x4aetMxB2x8SkB+Mmy8rk8uSzgU_anemSayhMw@mail.gmail.com>
+ <4FD83AAD.2010701@linaro.org>
+ <CACRpkdZC8E6izDpdnWy6DMjOdA6KsqTaPoaq9pErWoNW0Ewytw@mail.gmail.com>
+ <4FD88761.9050703@linaro.org>
+ <20120614183636.GB30185@sirena.org.uk>
+ <4FDA341C.8010501@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="rJwd6BRFiFCcLxzm"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120613094739.360967aa-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4FDA341C.8010501-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Andrew Armenia <andrew-Lwj1yN59in/Ib2jZbfQ/kQ@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Eddi,
 
-On Wed, 13 Jun 2012 09:47:39 +0200, Jean Delvare wrote:
-> On Wed, 13 Jun 2012 07:44:34 +0200, Eddi De Pieri wrote:
-> > It works for me too
-> > 
-> > What about including this patch in the mainline?
-> 
-> Yesterday I reviewed a patch set adding support for the auxiliary SMBus
-> controller on the SB600/SB700:
-> http://marc.info/?t=133886124500001&r=1&w=2
-> http://marc.info/?t=133886124300004&r=1&w=2
-> http://marc.info/?t=133886124300003&r=1&w=2
-> 
-> It touches the exact same area as touched by your patch, so they will
-> conflict. Best would be to rebase the SB800 multiport support patch on
-> top of the other patch set.
+--rJwd6BRFiFCcLxzm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is done now, you can download my current patch stack at:
-http://khali.linux-fr.org/devel/linux-3/jdelvare-i2c/
-or
-http://khali.linux-fr.org/devel/linux-3/jdelvare-i2c.tar.gz
+On Thu, Jun 14, 2012 at 07:57:32PM +0100, Lee Jones wrote:
+> On 14/06/12 19:36, Mark Brown wrote:
 
-Could you please rebase your patch on top of that and resubmit? Thanks.
+> >You're not understanding Linus' point.  The compatible string isn't
+> >useful here because properties like the maximum clock rate of the bus
+> >depend on the board design, not the silicon.  The controller may be
+> >perfectly happy to run at a given rate but other devices on the bus or
+> >the electrical engineering of the PCB itself may restrict this further.
 
--- 
-Jean Delvare
+> And you're not understanding mine. ;)
+
+I think we are (or at least I do)...
+
+> You can have multiple compatible strings for a single driver. Which
+> one you reference from the Device Tree will dictate which group of
+> settings are used, including variation of clock rates.
+
+I'm certainly well aware of that.  The problem is that the compatible
+strings should identify a particular IP or piece of silicon and be
+unchanging properties of that hardware - for example, working out how
+big a FIFO in a device is from the compatible information is totally
+sensible and reasonable.  Things like the I2C bus clock speed on the
+other hand depend not on the individual device but on how it's been
+integrated into the system so you'd end up saying things like
+"nomadik-i2c-100khz-bus" in the compatible string which isn't great. =20
+
+If there's something like variation in the maximum speed that can be
+supported by the different silicon the driver handles then working that
+out from compatible and using it as the default is sensible but that's
+not the same thing as providing customisation of the system bus
+frequency to the user and if there's only one of those two that's
+configurable it should be the system bus frequency.
+
+--rJwd6BRFiFCcLxzm
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJP2v++AAoJEBus8iNuMP3dQ38P/iw7ozGv7O+9QsaPbqtNx3b2
+i8HIfKoBL7a+O/isyBEJq/07+9+zUy0HvsLd/6GBupgY7LVG9tuMeeA6sg8+Vfpl
+iX2J2L4mPJQPY/jQZn+tYlc9uy/M2lhssVItOzlSMl32j0sViKgwQj2aSW9bk4RA
+jf80bmggzz3/oewHuhbVQff5zb0Wt7e67N5nrnTzBfGOnin3JCRLLkxsqa5vWVgG
+cIFvQncVX3+C8NygUKUI7qizBy3YlTQs4307qeqA2vworgahpHiD/VAQmo74C6oW
+/SuKq135aexotrdUQ3Ii7UbPO4uslTRdbAVQNuN1WMiSbiC/Xx5EDCPgTFbe6OqH
+6KjgskFWh77Bc/vVplkNaTSRzfNiuTYlxTr2+8+KuuushnHXk0pPmjXY1TPKOlUT
+TpNrHwC823vivfe9j4Jbi5E6Lrkc887CEtd/THVPT72pTVK8E51a09v6OiN1nPwD
+EfsCW6W7ID7srZEg+IC52LYZX8P++wnpkoVvuqSopKszqOHm2SwjMNMxFlJY1hdM
+MWknQQ5gqJIWHpQA1nqSAv9PTrP8Uw5vY7G316ioLrkOWrLtAMT2m2K/qb30toRq
+tDKstmJJDS1ntbrmU3D5U2cn1UwmWqRLxjYDQSVCraQYiQtKxW6B2ofqpUvsNIR/
+FPVhJQzJDYZi32IgIByY
+=U0/B
+-----END PGP SIGNATURE-----
+
+--rJwd6BRFiFCcLxzm--
