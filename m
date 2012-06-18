@@ -1,102 +1,44 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: Fwd: [PATCH 1/3] i2c: Add Device Tree support to the Nomadik
- I2C driver
-Date: Mon, 18 Jun 2012 09:41:00 +0100
-Message-ID: <4FDEE99C.9090203@linaro.org>
-References: <4FD8BAD2.50703@linaro.org> <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ@mail.gmail.com> <4FDAFA17.6050502@linaro.org> <CAE2-_9rRYxjU9QQgtBv9ReMY5x+oRiJG1cDQahYHanjDrwVUYA@mail.gmail.com> <20120615115042.GA27480@bnru02> <4FDB2E57.4030904@linaro.org> <20120615130544.GA28537@bnru02> <4FDB3642.5030804@linaro.org> <CACRpkdZ7ESKhokk8Z+6sC9Kq+jPztFNwzger0Db7nCD1fPnG1A@mail.gmail.com> <4FDED62D.6030008@linaro.org> <20120618075834.GA14293@bnru02>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 2/3] ARM: ux500: Add i2c configurations to the Device Tree
+ for DB8500 based devices
+Date: Mon, 18 Jun 2012 13:29:43 +0200
+Message-ID: <CACRpkda2pH1by2hajpP20CJgdg+mWFF=QaGbeNdY=c8iOVtLUQ@mail.gmail.com>
+References: <1339428307-3850-1-git-send-email-lee.jones@linaro.org>
+ <1339428307-3850-10-git-send-email-lee.jones@linaro.org>
+ <CACRpkdaMDbH4NkiHRLAfbJZ_j4QXbwg94bvaWsdYRPH+dSfc8Q@mail.gmail.com>
+ <4FD8BAE4.4050606@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120618075834.GA14293@bnru02>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linus WALLEIJ <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "arnd-r2nGTMty4D4@public.gmane.org" <arnd-r2nGTMty4D4@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <4FD8BAE4.4050606@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18/06/12 08:58, Srinidhi Kasagar wrote:
-> On Mon, Jun 18, 2012 at 09:18:05 +0200, Lee Jones wrote:
->> On 17/06/12 18:43, Linus Walleij wrote:
->>> Gah, what a thread...
->>>
->>> On Fri, Jun 15, 2012 at 3:18 PM, Lee Jones<lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>   =
-wrote:
->>>> On 15/06/12 14:05, Srinidhi Kasagar wrote:
->>>>> On Fri, Jun 15, 2012 at 14:45:11 +0200, Lee Jones wrote:
->>>>>> On 15/06/12 12:50, Srinidhi Kasagar wrote:
->>>
->>>>>>>> +static struct nmk_i2c_controller u8500_i2c =3D {
->>>>>>>> +       /*
->>>>>>>> +        * Slave data setup time; 250ns, 100ns, and 10ns, whic=
-h
->>>>>>>> +        * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
->>>>>>>> +        */
->>>>>>>> +       .slsu           =3D 0xe,
->>>>>>>> +       .tft            =3D 1,      /* Tx FIFO threshold */
->>>>>>>> +       .rft            =3D 8,      /* Rx FIFO threshold */
->>>>>>>> +       .clk_freq       =3D 100000, /* std. mode operation */
->>>>>>>> +       .timeout        =3D 200,    /* Slave response timeout(=
-ms) */
->>>>>>>> +       .sm             =3D I2C_FREQ_MODE_FAST,
->>>>>>>
->>>>>>> How is this possible? you are setting clk_freq as 100kb/s and m=
-ode
->>>>>>> as fast mode which is supposed to be 400kb/s.
->>>>>>
->>>>>> That's not how I read it:
->>>>>
->>>>> But it is not readable. It confuses people.
->>>>
->>>> I understood it. :)
->>>>
->>>> If you think it's unclear speak to the author, Linus. He's CC'ed.
->>>
->>> Author of what? The i2c driver was written by Srinidhi. (The
->>> MODULE_AUTHOR() clause should be a good hint...)
->>
->> Actually, we appear to have our wires crossed. You wrote the board d=
-ata
->> stuff below, which changes the mode from STANDARD to FAST, no doubt
->> using Srinidhi's struct explanation comments found in
->> arch/arm/plat-nomadik/include/plat/i2c.h.
->>
->>   >  I'll cook a separate patch for this or something.
->>
->> Cool, thanks Linus.
->>
->> But you're correct in what you say Linus. Srinidhi, the comments whi=
-ch
->> are you say are confusing are the bits you are the author of:
->> e208c447bd728920e4f3d438a706344ea31249b9?
->
-> yes, it is of course evident that it's my commit from git.
-> I think you are not catching my point. What I mean is:
-> fast mode devices are downward compatible and can communicate
-> with the devices with standard only mode. Those comments in that
-> enum says exactly that (with "up to" keyword). However the code
-> which configures the bus in fast mode and restrict the frequency
-> to operate in 100 kb/s without any reason, and this creates
-> confusion..
->
-> Perhaps, I think we need to remove one of these
-> parameters as configurable options and derive out the
-> frequency based on the mode of operation..
+On Wed, Jun 13, 2012 at 6:08 PM, Lee Jones <lee.jones@linaro.org> wrote:
 
-I think Linus is fixing the frequency issues in platform code and I hav=
-e=20
-done so from Device Tree, so I think we're hot-to-trot.
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 clock-frequency =3D <100000=
+>;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stericsson,slsu =3D <0xe>;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stericsson,tft =3D <1>;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stericsson,rft =3D <8>;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stericsson,timeout =3D <200=
+>;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stericsson,i2c_freq_mode_fa=
+st;
 
-Linus, Srinidhi,
+In the context of my patch to the board file, we conclude that the
+clock-frequency should be set to 400000 instead.
 
-If you're happy with the patch now (not withstanding the removal of=20
-slsu, which I'll do in a separate patch), can you ack it please? By the=
-=20
-way, which tree will this go through?
-
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-M: +44 77 88 633 515
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Yours,
+Linus Walleij
