@@ -1,94 +1,30 @@
-From: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-Subject: Re: Fwd: [PATCH 1/3] i2c: Add Device Tree support to the Nomadik
- I2C driver
-Date: Mon, 18 Jun 2012 13:28:38 +0530
-Message-ID: <20120618075834.GA14293@bnru02>
-References: <4FD8BAD2.50703@linaro.org>
- <CACRpkdZFi34nChnMEo6yik67zk9owZLk-6zcdP7mmOXyLz8uqQ@mail.gmail.com>
- <4FDAFA17.6050502@linaro.org>
- <CAE2-_9rRYxjU9QQgtBv9ReMY5x+oRiJG1cDQahYHanjDrwVUYA@mail.gmail.com>
- <20120615115042.GA27480@bnru02> <4FDB2E57.4030904@linaro.org>
- <20120615130544.GA28537@bnru02> <4FDB3642.5030804@linaro.org>
- <CACRpkdZ7ESKhokk8Z+6sC9Kq+jPztFNwzger0Db7nCD1fPnG1A@mail.gmail.com>
- <4FDED62D.6030008@linaro.org>
+From: Dong Aisheng <aisheng.dong-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH 12/16] i2c: imx: remove unneeded mach/irqs.h inclusion
+Date: Mon, 18 Jun 2012 16:20:58 +0800
+Message-ID: <20120618082057.GC25447@shlinux2.ap.freescale.net>
+References: <1339653587-4832-1-git-send-email-shawn.guo@linaro.org>
+ <1339653587-4832-13-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <4FDED62D.6030008@linaro.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Linus WALLEIJ <linus.walleij@stericsson.com>, "arnd@arndb.de" <arnd@arndb.de>, Linus Walleij <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+In-Reply-To: <1339653587-4832-13-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Dong Aisheng-B29396 <B29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 18, 2012 at 09:18:05 +0200, Lee Jones wrote:
-> On 17/06/12 18:43, Linus Walleij wrote:
-> > Gah, what a thread...
-> >
-> > On Fri, Jun 15, 2012 at 3:18 PM, Lee Jones<lee.jones@linaro.org>  wrote:
-> >> On 15/06/12 14:05, Srinidhi Kasagar wrote:
-> >>> On Fri, Jun 15, 2012 at 14:45:11 +0200, Lee Jones wrote:
-> >>>> On 15/06/12 12:50, Srinidhi Kasagar wrote:
-> >
-> >>>>>> +static struct nmk_i2c_controller u8500_i2c = {
-> >>>>>> +       /*
-> >>>>>> +        * Slave data setup time; 250ns, 100ns, and 10ns, which
-> >>>>>> +        * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
-> >>>>>> +        */
-> >>>>>> +       .slsu           = 0xe,
-> >>>>>> +       .tft            = 1,      /* Tx FIFO threshold */
-> >>>>>> +       .rft            = 8,      /* Rx FIFO threshold */
-> >>>>>> +       .clk_freq       = 100000, /* std. mode operation */
-> >>>>>> +       .timeout        = 200,    /* Slave response timeout(ms) */
-> >>>>>> +       .sm             = I2C_FREQ_MODE_FAST,
-> >>>>>
-> >>>>> How is this possible? you are setting clk_freq as 100kb/s and mode
-> >>>>> as fast mode which is supposed to be 400kb/s.
-> >>>>
-> >>>> That's not how I read it:
-> >>>
-> >>> But it is not readable. It confuses people.
-> >>
-> >> I understood it. :)
-> >>
-> >> If you think it's unclear speak to the author, Linus. He's CC'ed.
-> >
-> > Author of what? The i2c driver was written by Srinidhi. (The
-> > MODULE_AUTHOR() clause should be a good hint...)
+On Thu, Jun 14, 2012 at 01:59:43PM +0800, Shawn Guo wrote:
+> Remove unneeded mach/irq.h inclusion from i2c-imx driver.
 > 
-> Actually, we appear to have our wires crossed. You wrote the board data 
-> stuff below, which changes the mode from STANDARD to FAST, no doubt 
-> using Srinidhi's struct explanation comments found in 
-> arch/arm/plat-nomadik/include/plat/i2c.h.
+> Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-imx.c |    1 -
+>  1 files changed, 0 insertions(+), 1 deletions(-)
 > 
->  > I'll cook a separate patch for this or something.
-> 
-> Cool, thanks Linus.
-> 
-> But you're correct in what you say Linus. Srinidhi, the comments which 
-> are you say are confusing are the bits you are the author of: 
-> e208c447bd728920e4f3d438a706344ea31249b9?
+Acked-by: Dong Aisheng <dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-yes, it is of course evident that it's my commit from git.
-I think you are not catching my point. What I mean is:
-fast mode devices are downward compatible and can communicate
-with the devices with standard only mode. Those comments in that
-enum says exactly that (with "up to" keyword). However the code
-which configures the bus in fast mode and restrict the frequency
-to operate in 100 kb/s without any reason, and this creates
-confusion..
-
-Perhaps, I think we need to remove one of these
-parameters as configurable options and derive out the
-frequency based on the mode of operation..
-
-/srinidhi
+Regards
+Dong Aisheng
