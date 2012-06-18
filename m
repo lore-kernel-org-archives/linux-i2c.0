@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHv8 05/13] I2C: OMAP: Optimise the remove code
-Date: Mon, 18 Jun 2012 20:00:20 +0530
-Message-ID: <1340029828-20751-6-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCHv8 09/13] I2C: OMAP: Do not initialise the completion everytime
+Date: Mon, 18 Jun 2012 20:00:24 +0530
+Message-ID: <1340029828-20751-10-git-send-email-shubhrajyoti@ti.com>
 References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,37 +12,34 @@ To: linux-omap@vger.kernel.org
 Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The omap_i2c_remove function may not be needed after
-device exit so the memory could be freed.
+Use INIT_COMPLETION instead of init_completion in transfer.
 
 Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
- drivers/i2c/busses/i2c-omap.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 7ab9fe1..691550a 100644
+index 6f8e7d9..e24eb1f 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1138,8 +1138,7 @@ err_release_region:
- 	return r;
- }
+@@ -521,7 +521,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	w |= OMAP_I2C_BUF_RXFIF_CLR | OMAP_I2C_BUF_TXFIF_CLR;
+ 	omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, w);
  
--static int
--omap_i2c_remove(struct platform_device *pdev)
-+static int __devexit omap_i2c_remove(struct platform_device *pdev)
- {
- 	struct omap_i2c_dev	*dev = platform_get_drvdata(pdev);
- 	struct resource		*mem;
-@@ -1236,7 +1235,7 @@ static struct dev_pm_ops omap_i2c_pm_ops = {
+-	init_completion(&dev->cmd_complete);
++	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->cmd_err = 0;
  
- static struct platform_driver omap_i2c_driver = {
- 	.probe		= omap_i2c_probe,
--	.remove		= omap_i2c_remove,
-+	.remove		= __devexit_p(omap_i2c_remove),
- 	.driver		= {
- 		.name	= "omap_i2c",
- 		.owner	= THIS_MODULE,
+ 	w = OMAP_I2C_CON_EN | OMAP_I2C_CON_MST | OMAP_I2C_CON_STT;
+@@ -1029,6 +1029,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	dev->irq = irq->start;
+ 
+ 	platform_set_drvdata(pdev, dev);
++	init_completion(&dev->cmd_complete);
+ 
+ 	dev->reg_shift = (dev->flags >> OMAP_I2C_FLAG_BUS_SHIFT__SHIFT) & 3;
+ 
 -- 
 1.7.5.4
 
