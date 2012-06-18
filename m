@@ -1,67 +1,109 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCHv8 00/13] I2C cleanups
-Date: Mon, 18 Jun 2012 17:33:36 +0200
-Message-ID: <20120618153336.GD10768@pengutronix.de>
-References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com>
+From: Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
+Subject: Re: [PATCH] i2c writing-clients document: mention
+ module_i2c_driver()
+Date: Mon, 18 Jun 2012 18:41:09 +0200 (CEST)
+Message-ID: <alpine.DEB.2.01.1206181838360.26163@pmeerw.net>
+References: <1326891629-8495-1-git-send-email-pmeerw@pmeerw.net> <20120618170236.21b04fd5@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AbQceqfdZEv+FvjW"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1340029828-20751-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20120618170236.21b04fd5-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hello Jean,
 
---AbQceqfdZEv+FvjW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Where's your Signed-off-by?
 
-On Mon, Jun 18, 2012 at 08:00:15PM +0530, Shubhrajyoti D wrote:
->=20
-> The patch series does the following
->=20
-> - I2C register restore only if context if the context is lost
-> - Bus busy recovery mechanism.
-> - the reset is not done in init.
-> - Adds a patch to use devm_* functions
-> - Adds a pdata function pointer to do context save restore
-> - Split the omap_i2c_isr to increase readability
-> - Make the i2c use SET_RUNTIME_PM_OPS
-> - Use INIT_COMPLETION instead of init_completion
-> - Dropping a cleanup and taking few patchs Felipe's series as it may
->  not be needed.
+thank you for taking and improving this patch, so
+Acked-by: Peter Meerwald <p.meerwald-12LT5diAjoA8TDmHOjzjNtBPR1lH4CV8@public.gmane.org>
 
-Patches look mostly okay for me without knowing the platform too much.
-For that reason, I'd be really appreciating Tested-by or even
-Reviewed-by tags!
+> >  Documentation/i2c/writing-clients |    8 ++++++++
+> >  1 files changed, 8 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/Documentation/i2c/writing-clients b/Documentation/i2c/writing-clients
+> > index 5aa5337..71248b2 100644
+> > --- a/Documentation/i2c/writing-clients
+> > +++ b/Documentation/i2c/writing-clients
+> > @@ -266,6 +266,14 @@ be removed after kernel booting (or module loading) is completed.
+> >  Likewise, functions marked by `__exit' are dropped by the compiler when
+> >  the code is built into the kernel, as they would never be called.
+> >  
+> > +The module_i2c_driver() macro can be used to reduce above code.
+> > +
+> > +MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>"
+> > +MODULE_DESCRIPTION("Driver for Barf Inc. Foo I2C devices");
+> > +MODULE_LICENSE("GPL");
+> > +
+> > +module_i2c_driver(foo_driver);
+> > +
+> >  
+> >  Power Management
+> >  ================
+> 
+> I agree this should be documented, but I would like to see it done
+> without repeating the MODULE_* macros. This can be done by moving these
+> to a separate section. What do you think?
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> ---
+>  Documentation/i2c/writing-clients |   23 +++++++++++++++--------
+>  1 file changed, 15 insertions(+), 8 deletions(-)
+> 
+> --- linux-3.5-rc3.orig/Documentation/i2c/writing-clients	2011-07-22 04:17:23.000000000 +0200
+> +++ linux-3.5-rc3/Documentation/i2c/writing-clients	2012-06-18 16:57:52.546924533 +0200
+> @@ -245,21 +245,17 @@ static int __init foo_init(void)
+>  {
+>  	return i2c_add_driver(&foo_driver);
+>  }
+> +module_init(foo_init);
+>  
+>  static void __exit foo_cleanup(void)
+>  {
+>  	i2c_del_driver(&foo_driver);
+>  }
+> +module_exit(foo_cleanup);
+>  
+> -/* Substitute your own name and email address */
+> -MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>"
+> -MODULE_DESCRIPTION("Driver for Barf Inc. Foo I2C devices");
+> -
+> -/* a few non-GPL license types are also allowed */
+> -MODULE_LICENSE("GPL");
+> +The module_i2c_driver() macro can be used to reduce above code.
+>  
+> -module_init(foo_init);
+> -module_exit(foo_cleanup);
+> +module_i2c_driver(foo_driver);
+>  
+>  Note that some functions are marked by `__init'.  These functions can
+>  be removed after kernel booting (or module loading) is completed.
+> @@ -267,6 +263,17 @@ Likewise, functions marked by `__exit' a
+>  the code is built into the kernel, as they would never be called.
+>  
+>  
+> +Driver Information
+> +==================
+> +
+> +/* Substitute your own name and email address */
+> +MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>"
+> +MODULE_DESCRIPTION("Driver for Barf Inc. Foo I2C devices");
+> +
+> +/* a few non-GPL license types are also allowed */
+> +MODULE_LICENSE("GPL");
+> +
+> +
+>  Power Management
+>  ================
+>  
+> 
+> 
+> 
+> 
 
-> This series mainly is the cleanups rebased on
-> i2c-embedded/for-next branch.
+-- 
 
-Thanks.
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---AbQceqfdZEv+FvjW
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk/fSlAACgkQD27XaX1/VRuPSACfRL5irOgsgcH6d1iEVw5M31my
-+AgAn1Rh5AWEarA2qLJdREWdDKeLUWCA
-=FQcG
------END PGP SIGNATURE-----
-
---AbQceqfdZEv+FvjW--
+Peter Meerwald
++43-664-2444418 (mobile)
