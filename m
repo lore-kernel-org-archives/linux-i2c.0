@@ -1,109 +1,130 @@
-From: Peter Meerwald <pmeerw-jW+XmwGofnusTnJN9+BGXg@public.gmane.org>
-Subject: Re: [PATCH] i2c writing-clients document: mention
- module_i2c_driver()
-Date: Mon, 18 Jun 2012 18:41:09 +0200 (CEST)
-Message-ID: <alpine.DEB.2.01.1206181838360.26163@pmeerw.net>
-References: <1326891629-8495-1-git-send-email-pmeerw@pmeerw.net> <20120618170236.21b04fd5@endymion.delvare>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCHv8 13/13] I2C: OMAP: simplify omap_i2c_ack_stat()
+Date: Tue, 19 Jun 2012 14:50:23 +0530
+Message-ID: <CAM=Q2ctOS19ToH7JRLxmEkoz8eUj8umcWFhaTQ-MWBbeh_DHtA@mail.gmail.com>
+References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com>
+	<1340029828-20751-14-git-send-email-shubhrajyoti@ti.com>
+	<20120618153000.GC10768@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120618170236.21b04fd5-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20120618153000.GC10768-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Jean,
+On Mon, Jun 18, 2012 at 9:00 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> w=
+rote:
+> On Mon, Jun 18, 2012 at 08:00:28PM +0530, Shubhrajyoti D wrote:
+>> From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+>>
+>> stat & BIT(1) is the same as BIT(1),
+>
+> Not true. I'd guess you are missing some context in the patch
+> description.
 
-> Where's your Signed-off-by?
 
-thank you for taking and improving this patch, so
-Acked-by: Peter Meerwald <p.meerwald-12LT5diAjoA8TDmHOjzjNtBPR1lH4CV8@public.gmane.org>
+See the explanation , hope I understood your concern correctly.
 
-> >  Documentation/i2c/writing-clients |    8 ++++++++
-> >  1 files changed, 8 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/Documentation/i2c/writing-clients b/Documentation/i2c/writing-clients
-> > index 5aa5337..71248b2 100644
-> > --- a/Documentation/i2c/writing-clients
-> > +++ b/Documentation/i2c/writing-clients
-> > @@ -266,6 +266,14 @@ be removed after kernel booting (or module loading) is completed.
-> >  Likewise, functions marked by `__exit' are dropped by the compiler when
-> >  the code is built into the kernel, as they would never be called.
-> >  
-> > +The module_i2c_driver() macro can be used to reduce above code.
-> > +
-> > +MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>"
-> > +MODULE_DESCRIPTION("Driver for Barf Inc. Foo I2C devices");
-> > +MODULE_LICENSE("GPL");
-> > +
-> > +module_i2c_driver(foo_driver);
-> > +
-> >  
-> >  Power Management
-> >  ================
-> 
-> I agree this should be documented, but I would like to see it done
-> without repeating the MODULE_* macros. This can be done by moving these
-> to a separate section. What do you think?
-> 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
->  Documentation/i2c/writing-clients |   23 +++++++++++++++--------
->  1 file changed, 15 insertions(+), 8 deletions(-)
-> 
-> --- linux-3.5-rc3.orig/Documentation/i2c/writing-clients	2011-07-22 04:17:23.000000000 +0200
-> +++ linux-3.5-rc3/Documentation/i2c/writing-clients	2012-06-18 16:57:52.546924533 +0200
-> @@ -245,21 +245,17 @@ static int __init foo_init(void)
->  {
->  	return i2c_add_driver(&foo_driver);
->  }
-> +module_init(foo_init);
->  
->  static void __exit foo_cleanup(void)
->  {
->  	i2c_del_driver(&foo_driver);
->  }
-> +module_exit(foo_cleanup);
->  
-> -/* Substitute your own name and email address */
-> -MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>"
-> -MODULE_DESCRIPTION("Driver for Barf Inc. Foo I2C devices");
-> -
-> -/* a few non-GPL license types are also allowed */
-> -MODULE_LICENSE("GPL");
-> +The module_i2c_driver() macro can be used to reduce above code.
->  
-> -module_init(foo_init);
-> -module_exit(foo_cleanup);
-> +module_i2c_driver(foo_driver);
->  
->  Note that some functions are marked by `__init'.  These functions can
->  be removed after kernel booting (or module loading) is completed.
-> @@ -267,6 +263,17 @@ Likewise, functions marked by `__exit' a
->  the code is built into the kernel, as they would never be called.
->  
->  
-> +Driver Information
-> +==================
-> +
-> +/* Substitute your own name and email address */
-> +MODULE_AUTHOR("Frodo Looijaard <frodol-B0qZmFHriGg@public.gmane.org>"
-> +MODULE_DESCRIPTION("Driver for Barf Inc. Foo I2C devices");
-> +
-> +/* a few non-GPL license types are also allowed */
-> +MODULE_LICENSE("GPL");
-> +
-> +
->  Power Management
->  ================
->  
-> 
-> 
-> 
-> 
+http://www.mail-archive.com/linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg70277.html
 
--- 
-
-Peter Meerwald
-+43-664-2444418 (mobile)
+>
+>> so let's
+>> simplify things a bit by removing "stat &" from
+>> all omap_i2c_ack_stat() calls.
+>>
+>> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+>> Reviewed-by : Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+>> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+>> ---
+>> =A0drivers/i2c/busses/i2c-omap.c | =A0 19 ++++++++++---------
+>> =A01 files changed, 10 insertions(+), 9 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-=
+omap.c
+>> index 6a79089..bac6305 100644
+>> --- a/drivers/i2c/busses/i2c-omap.c
+>> +++ b/drivers/i2c/busses/i2c-omap.c
+>> @@ -763,7 +763,7 @@ static int errata_omap3_i462(struct omap_i2c_dev=
+ *dev, u16 *stat, int *err)
+>>
+>> =A0 =A0 =A0 while (--timeout && !(*stat & OMAP_I2C_STAT_XUDF)) {
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I=
+2C_STAT_AL)) {
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, *st=
+at & (OMAP_I2C_STAT_XRDY |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, (OM=
+AP_I2C_STAT_XRDY |
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_STAT_XDR));
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return -ETIMEDOUT;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>> @@ -824,10 +824,11 @@ complete:
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0*/
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2=
+C_STAT_NACK |
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 OMAP_I2C_STAT_AL)) {
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, sta=
+t &
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 (OMAP_I2C_=
+STAT_RRDY | OMAP_I2C_STAT_RDR |
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
+TAT_XRDY | OMAP_I2C_STAT_XDR |
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 OMAP_I2C_S=
+TAT_ARDY));
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, (OM=
+AP_I2C_STAT_RRDY |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 OMAP_I2C_STAT_RDR |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 OMAP_I2C_STAT_XRDY |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 OMAP_I2C_STAT_XDR |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 OMAP_I2C_STAT_ARDY));
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_complete_cmd(de=
+v, err);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 return IRQ_HANDLED;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>> @@ -874,8 +875,8 @@ complete:
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+=A0 =A0 }
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev,
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stat & (OM=
+AP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR));
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, (OM=
+AP_I2C_STAT_RRDY |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 OMAP_I2C_STAT_RDR));
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>>
+>> @@ -922,8 +923,8 @@ complete:
+>>
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c=
+_write_reg(dev, OMAP_I2C_DATA_REG, w);
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev,
+>> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 stat & (OM=
+AP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 omap_i2c_ack_stat(dev, (OM=
+AP_I2C_STAT_XRDY |
+>> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0=
+ =A0 =A0 =A0 =A0 =A0 OMAP_I2C_STAT_XDR));
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 continue;
+>> =A0 =A0 =A0 =A0 =A0 =A0 =A0 }
+>>
+>> --
+>> 1.7.5.4
+>>
+>
+> --
+> Pengutronix e.K. =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =
+| Wolfram Sang =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0|
+> Industrial Linux Solutions =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 | http://w=
+ww.pengutronix.de/ =A0|
