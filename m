@@ -1,159 +1,85 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 07/15] i2c: Add Device Tree support to the Nomadik I2C driver
-Date: Wed, 20 Jun 2012 13:56:43 +0100
-Message-ID: <1340197011-5435-8-git-send-email-lee.jones@linaro.org>
-References: <1340197011-5435-1-git-send-email-lee.jones@linaro.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1340197011-5435-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCHv8 06/13] I2C: OMAP: Correct I2C revision for OMAP3
+Date: Wed, 20 Jun 2012 18:31:32 +0530
+Message-ID: <4FE1C9AC.3020104@ti.com>
+References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com> <1340029828-20751-7-git-send-email-shubhrajyoti@ti.com> <20120620103235.GD12766@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20120620103235.GD12766@atomide.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, w.sang@pengutronix.de, Jon Hunter <jon-hunter@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Here we apply the bindings required for successful Device Tree
-probing of the i2c-nomadik driver. We also apply a fall-back
-configuration in case either one is not provided, or a required
-element is missing from the one supplied.
+On Wednesday 20 June 2012 04:02 PM, Tony Lindgren wrote:
+> * Shubhrajyoti D <shubhrajyoti@ti.com> [120618 07:35]:
+>> From: Jon Hunter <jon-hunter@ti.com>
+>>
+>> The OMAP3530 is based upon the same silicon as the OMAP3430 and so the I2C
+>> revision is the same for 3430 and 3530. However, the OMAP3630 device has the
+>> same I2C revision as OMAP4. Correct the revision definition to reflect this.
+>>
+>> This patch is based on work done by Jon Hunter <jon-hunter@ti.com>
+>> Changes from his patch
+>> - Update OMAP_I2C_REV_ON_3430 also to reflect that it is same as 3530
+> ...
+>>  /* timeout waiting for the controller to respond */
+>>  #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
+>> @@ -298,7 +298,7 @@ static int omap_i2c_reset(struct omap_i2c_dev *dev)
+>>  			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
+>>  					   SYSC_AUTOIDLE_MASK);
+>>  
+>> -		} else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
+>> +		} else if (dev->rev >= OMAP_I2C_REV_ON_3430_3530) {
+>>  			dev->syscstate = SYSC_AUTOIDLE_MASK;
+>>  			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
+>>  			dev->syscstate |= (SYSC_IDLEMODE_SMART <<
+> Having to patch all over the place for these revision defines leads
+> into unmaintainable code as new SoCs get added.
+>
+> Please instead just check the revision once during init, then set
+> up some feature bits like I2C_OMAP_NEEDS_XYZ_RESET that the runtime
+> code can check.
+Even now at probe
 
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |   90 +++++++++++++++++++++++++++++++++++---
- 1 file changed, 84 insertions(+), 6 deletions(-)
+dev->rev is set by reading the rev register.
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index a92440d..5611c62 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -23,6 +23,7 @@
- #include <linux/io.h>
- #include <linux/regulator/consumer.h>
- #include <linux/pm_runtime.h>
-+#include <linux/of.h>
- 
- #include <plat/i2c.h>
- 
-@@ -333,10 +334,6 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
- 
- 	i2c_clk = clk_get_rate(dev->clk);
- 
--	/* fallback to std. mode if machine has not provided it */
--	if (dev->cfg.clk_freq == 0)
--		dev->cfg.clk_freq = 100000;
--
- 	/*
- 	 * The spec says, in case of std. mode the divider is
- 	 * 2 whereas it is 3 for fast and fastplus mode of
-@@ -899,15 +896,90 @@ static const struct i2c_algorithm nmk_i2c_algo = {
- 	.functionality	= nmk_i2c_functionality
- };
- 
-+static struct nmk_i2c_controller u8500_i2c = {
-+	/*
-+	 * Slave data setup time; 250ns, 100ns, and 10ns, which
-+	 * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
-+	 */
-+	.slsu           = 0xe,
-+	.tft            = 1,      /* Tx FIFO threshold */
-+	.rft            = 8,      /* Rx FIFO threshold */
-+	.clk_freq       = 100000, /* std. mode operation */
-+	.timeout        = 200,    /* Slave response timeout(ms) */
-+	.sm             = I2C_FREQ_MODE_FAST,
-+};
-+
-+static int __devinit
-+nmk_i2c_of_probe(struct device_node *np, struct nmk_i2c_controller *pdata)
-+{
-+	of_property_read_u32(np, "clock-frequency", (u32*)&pdata->clk_freq);
-+	if (!pdata->clk_freq) {
-+		pr_warn("%s: Clock frequency not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,slsu", (u32*)&pdata->slsu);
-+	if (!pdata->slsu) {
-+		pr_warn("%s: Data line delay not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,tft", (u32*)&pdata->tft);
-+	if (!pdata->tft) {
-+		pr_warn("%s: Tx FIFO threshold not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,rft", (u32*)&pdata->rft);
-+	if (!pdata->rft) {
-+		pr_warn("%s: Rx FIFO threshold not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	of_property_read_u32(np, "stericsson,timeout", (u32*)&pdata->timeout);
-+	if (!pdata->timeout) {
-+		pr_warn("%s: Timeout not found\n", np->full_name);
-+		return -EINVAL;
-+	}
-+
-+	/*
-+	 * This driver only supports fast and standard frequency
-+	 * modes. If anything else is requested fall-back to standard.
-+	 */
-+	if (of_get_property(np, "stericsson,i2c_freq_mode_fast", NULL))
-+		pdata->sm = I2C_FREQ_MODE_FAST;
-+	else
-+		pdata->sm = I2C_FREQ_MODE_STANDARD;
-+
-+	return 0;
-+}
-+
- static int __devinit nmk_i2c_probe(struct platform_device *pdev)
- {
- 	int ret = 0;
- 	struct resource *res;
--	struct nmk_i2c_controller *pdata =
--			pdev->dev.platform_data;
-+	struct nmk_i2c_controller *pdata = pdev->dev.platform_data;
-+	struct device_node *np = pdev->dev.of_node;
- 	struct nmk_i2c_dev	*dev;
- 	struct i2c_adapter *adap;
- 
-+	if (np) {
-+		if (!pdata) {
-+			pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
-+			if (!pdata) {
-+				ret = -ENOMEM;
-+				goto err_no_mem;
-+			}
-+		}
-+		ret = nmk_i2c_of_probe(np, pdata);
-+		if (ret)
-+			kfree(pdata);
-+	}
-+
-+	if (!pdata)
-+		/* No i2c configuration found, using the default. */
-+		pdata = &u8500_i2c;
-+
- 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
- 	if (!dev) {
- 		dev_err(&pdev->dev, "cannot allocate memory\n");
-@@ -1038,11 +1110,17 @@ static int __devexit nmk_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static const struct of_device_id nmk_gpio_match[] = {
-+	{ .compatible = "st,nomadik-i2c", },
-+	{},
-+};
-+
- static struct platform_driver nmk_i2c_driver = {
- 	.driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRIVER_NAME,
- 		.pm = &nmk_i2c_pm,
-+		.of_match_table = nmk_gpio_match,
- 	},
- 	.probe = nmk_i2c_probe,
- 	.remove = __devexit_p(nmk_i2c_remove),
--- 
-1.7.9.5
+The (macro)name used to identify is only changed.
+
+Also all the ips need reset the difference is that 2430 has less bits eg only autoidle and reset.
+So a flag needs reset may not be meaningful.
+
+
+
+>
+>
+>> @@ -1055,7 +1055,7 @@ omap_i2c_probe(struct platform_device *pdev)
+>>  	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
+>>  		dev->errata |= I2C_OMAP_ERRATA_I207;
+>>  
+>> -	if (dev->rev <= OMAP_I2C_REV_ON_3430)
+>> +	if (dev->rev <= OMAP_I2C_REV_ON_3430_3530)
+>>  		dev->errata |= I2C_OMAP_ERRATA_I462;
+>>  
+>>  	if (!(dev->flags & OMAP_I2C_FLAG_NO_FIFO)) {
+>> @@ -1073,7 +1073,7 @@ omap_i2c_probe(struct platform_device *pdev)
+>>  
+>>  		dev->fifo_size = (dev->fifo_size / 2);
+>>  
+>> -		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430)
+>> +		if (dev->rev >= OMAP_I2C_REV_ON_3630_4430)
+>>  			dev->b_hw = 0; /* Disable hardware fixes */
+>>  		else
+>>  			dev->b_hw = 1; /* Enable hardware fixes */
+> That way the code does not need to change when new SoC revisions
+> get added.
+I think it might still not need to change because of >= .
+I have just renamed
+
+OMAP_I2C_REV_ON_3530_4430 as 3530 rev is not the same as 4430 that the name implies.
+
+>
+> Tony
+
