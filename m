@@ -1,85 +1,198 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv8 06/13] I2C: OMAP: Correct I2C revision for OMAP3
-Date: Wed, 20 Jun 2012 18:31:32 +0530
-Message-ID: <4FE1C9AC.3020104@ti.com>
-References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com> <1340029828-20751-7-git-send-email-shubhrajyoti@ti.com> <20120620103235.GD12766@atomide.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 3/3 v2] i2c: i801: enable irq for byte_by_byte
+ transactions
+Date: Wed, 20 Jun 2012 15:34:49 +0200
+Message-ID: <20120620153449.5cee35fa@endymion.delvare>
+References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
+ <1325847502-17841-4-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20120620103235.GD12766@atomide.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, w.sang@pengutronix.de, Jon Hunter <jon-hunter@ti.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1325847502-17841-4-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: ben-linux@fluff.org, seth.heasley@intel.com, ben@decadent.org.uk, David.Woodhouse@intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, olofj@chromium.org, bleung@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 20 June 2012 04:02 PM, Tony Lindgren wrote:
-> * Shubhrajyoti D <shubhrajyoti@ti.com> [120618 07:35]:
->> From: Jon Hunter <jon-hunter@ti.com>
->>
->> The OMAP3530 is based upon the same silicon as the OMAP3430 and so the I2C
->> revision is the same for 3430 and 3530. However, the OMAP3630 device has the
->> same I2C revision as OMAP4. Correct the revision definition to reflect this.
->>
->> This patch is based on work done by Jon Hunter <jon-hunter@ti.com>
->> Changes from his patch
->> - Update OMAP_I2C_REV_ON_3430 also to reflect that it is same as 3530
-> ...
->>  /* timeout waiting for the controller to respond */
->>  #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
->> @@ -298,7 +298,7 @@ static int omap_i2c_reset(struct omap_i2c_dev *dev)
->>  			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
->>  					   SYSC_AUTOIDLE_MASK);
->>  
->> -		} else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
->> +		} else if (dev->rev >= OMAP_I2C_REV_ON_3430_3530) {
->>  			dev->syscstate = SYSC_AUTOIDLE_MASK;
->>  			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
->>  			dev->syscstate |= (SYSC_IDLEMODE_SMART <<
-> Having to patch all over the place for these revision defines leads
-> into unmaintainable code as new SoCs get added.
->
-> Please instead just check the revision once during init, then set
-> up some feature bits like I2C_OMAP_NEEDS_XYZ_RESET that the runtime
-> code can check.
-Even now at probe
+Hi Daniel,
 
-dev->rev is set by reading the rev register.
+On Fri,  6 Jan 2012 18:58:22 +0800, Daniel Kurtz wrote:
+> Byte-by-byte transactions are used primarily for accessing i2c devices
+> with an smbus controller.  For these transactions, for each byte that is
 
-The (macro)name used to identify is only changed.
+On recent chips, yes. On older chips (ICH3 and older), the block buffer
+didn't exist, so even SMBus block transactions went for byte-by-byte.
+Not that it matters much at the moment, as your interrupt support
+doesn't yet cover these old chips anyway.
 
-Also all the ips need reset the difference is that 2430 has less bits eg only autoidle and reset.
-So a flag needs reset may not be meaningful.
+BTW, please use proper capitalization in comments: I2C and SMBus.
+
+(As a side note, it might be worth checking if block buffer can now be
+used with I2C block transactions too. The comment that says it doesn't
+is getting old, maybe there was a bug somewhere in the code back then,
+or that may have been a hardware issue possibly fixed in recent chips.)
+
+> read or written, the SMBus controller generates a BYTE_DONE irq.  The isr
+> reads/writes the next byte, and clears the irq flag to start the next byte.
+> On the penultimate irq, the isr also sets the LAST_BYTE flag.
+> 
+> There is no locking around the cmd/len/count/data variables, since the
+> i2c adapter lock ensures there is never multiple simultaneous transactions
+> for the same device, and the driver thread never accesses these variables
+> while interrupts might be occurring.
+> 
+> The end result is a dramatic speed up in emulated i2c-over smbus block
+> read and write transactions.
+
+Here again the term "emulated" makes little sense IMHO. I2C block reads
+and writes are just one of the transaction types commonly supported by
+SMBus controllers.
+
+I agree that the performance gain is great. Maybe no longer dramatic
+compared to the usleep_delay() version, but certainly compared to the
+msleep() version, especially if HZ < 1000. In my case I see a 2.5x
+improvement which is still very good.
+
+> Note: This patch has only been tested and verified by doing i2c read and
+> write block transfers on Cougar Point 6 Series PCH.
+
+I'll get at least the I2C block read tested on ICH5.
+
+> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c |   51 ++++++++++++++++++++++++++++++++++++++++-
+>  1 files changed, 50 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index b123133..f957eca 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -168,6 +168,13 @@ struct i801_priv {
+>  	wait_queue_head_t waitq;
+>  	spinlock_t lock;
+>  	u8 status;
+> +
+> +	/* Command state used during by isr */
+
+Might be worth mentioning that it's only needed for byte-by-byte block
+transactions.
+
+> +	u8 cmd;
+> +	bool is_read;
+> +	int count;
+> +	int len;
+> +	u8 *data;
+>  };
+>  
+>  static struct pci_driver i801_driver;
+> @@ -368,18 +375,24 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
+>  }
+>  
+>  /*
+> - * i801 signals transaction completion with one of these interrupts:
+> + * There are two kinds of interrupts:
+> + *
+> + * (1) i801 signals transaction completion with one of these interrupts:
+>   *   INTR - Success
+>   *   DEV_ERR - Invalid command, NAK or communication timeout
+>   *   BUS_ERR - SMI# transaction collision
+>   *   FAILED - transaction was canceled due to a KILL request
+>   * When any of these occur, update ->status and wake up the waitq.
+>   * ->status must be cleared before kicking off the next transaction.
+> + *
+> +* (2) For byte-by-byte (I2C read/write) transactions, one BYTE_DONE interrupt
+> +*     occurs for each byte of a byte-by-byte to prepare the next byte.
+
+These stars aren't properly aligned.
+
+>   */
+>  static irqreturn_t i801_isr(int irq, void *dev_id)
+>  {
+>  	struct i801_priv *priv = dev_id;
+>  	u8 pcists, hststs;
+> +	u8 cmd;
+>  
+>  	/* Confirm this is our interrupt */
+>  	pci_read_config_byte(priv->pci_dev, SMBPCISTS, &pcists);
+> @@ -391,6 +404,27 @@ static irqreturn_t i801_isr(int irq, void *dev_id)
+>  	hststs = inb(SMBHSTSTS(priv));
+>  	dev_dbg(&priv->pci_dev->dev, "irq: hststs = %02x\n", hststs);
+>  
+> +	if (hststs & SMBHSTSTS_BYTE_DONE) {
+> +		if (priv->is_read) {
+> +			priv->data[priv->count++] = inb(SMBBLKDAT(priv));
+> +
+> +			/* Set LAST_BYTE for last byte of read transaction */
+> +			cmd = priv->cmd;
+> +			if (priv->count == priv->len - 1)
+> +				cmd |= I801_LAST_BYTE;
+> +			outb_p(cmd | I801_START, SMBHSTCNT(priv));
+
+I don't think you need the local variable "cmd". The only change is
+I801_LAST_BYTE and it's only ever added, so I believe you could do:
+
+			/* Set LAST_BYTE for last byte of read transaction */
+			if (priv->count == priv->len - 1)
+				priv->cmd |= I801_LAST_BYTE;
+			outb_p(priv->cmd, SMBHSTCNT(priv));
+
+as is done in the polling code. If you were worried about writing to
+priv, I don't think it is an issue. If you felt safe reading from it
+without a lock, writing to it is just as safe.
+
+> +		} else if (priv->count < priv->len - 1) {
+
+Is this just paranoia or do you believe it could actually happen? I
+admit I don't see how. If it is paranoia then the same should be done
+for the read part.
+
+> +			outb(priv->data[++priv->count], SMBBLKDAT(priv));
+> +			outb_p(priv->cmd | I801_START, SMBHSTCNT(priv));
+
+I don't get the I801_START here and above. We are in the middle of the block
+transaction. The polling-based code only sets I801_START at the
+beginning, not for every byte, so why would it be different here?
+
+> +		}
+> +
+> +		/* Clear BYTE_DONE to start next transaction. */
+> +		outb(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
+> +
+> +		/* Clear BYTE_DONE so it does not wake_up waitq */
+> +		hststs &= ~SMBHSTSTS_BYTE_DONE;
+
+SMBHSTSTS_BYTE_DONE isn't part of STATUS_RESULT_FLAGS anyway, so it
+will be removed from hststs right after.
+
+> +	}
+> +
+>  	/*
+>  	 * Clear irq sources and report transaction result.
+>  	 * ->status must be cleared before the next transaction is started.
+> @@ -437,6 +471,21 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+>  	else
+>  		smbcmd = I801_BLOCK_DATA;
+>  
+> +	if (priv->features & FEATURE_IRQ) {
+> +		priv->is_read = (read_write == I2C_SMBUS_READ);
+> +		if (len == 1 && priv->is_read)
+> +			smbcmd |= I801_LAST_BYTE;
+> +		priv->cmd = smbcmd | I801_INTREN;
+> +		priv->len = len;
+> +		priv->count = 0;
+> +		priv->data = &data->block[1];
+> +
+> +		outb(priv->cmd | I801_START, SMBHSTCNT(priv));
+> +		wait_event(priv->waitq, (status = priv->status));
+> +		priv->status = 0;
+> +		return i801_check_post(priv, status, 0);
+> +	}
+> +
+>  	for (i = 1; i <= len; i++) {
+>  		if (i == len && read_write == I2C_SMBUS_READ)
+>  			smbcmd |= I801_LAST_BYTE;
 
 
-
->
->
->> @@ -1055,7 +1055,7 @@ omap_i2c_probe(struct platform_device *pdev)
->>  	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
->>  		dev->errata |= I2C_OMAP_ERRATA_I207;
->>  
->> -	if (dev->rev <= OMAP_I2C_REV_ON_3430)
->> +	if (dev->rev <= OMAP_I2C_REV_ON_3430_3530)
->>  		dev->errata |= I2C_OMAP_ERRATA_I462;
->>  
->>  	if (!(dev->flags & OMAP_I2C_FLAG_NO_FIFO)) {
->> @@ -1073,7 +1073,7 @@ omap_i2c_probe(struct platform_device *pdev)
->>  
->>  		dev->fifo_size = (dev->fifo_size / 2);
->>  
->> -		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430)
->> +		if (dev->rev >= OMAP_I2C_REV_ON_3630_4430)
->>  			dev->b_hw = 0; /* Disable hardware fixes */
->>  		else
->>  			dev->b_hw = 1; /* Enable hardware fixes */
-> That way the code does not need to change when new SoC revisions
-> get added.
-I think it might still not need to change because of >= .
-I have just renamed
-
-OMAP_I2C_REV_ON_3530_4430 as 3530 rev is not the same as 4430 that the name implies.
-
->
-> Tony
-
+-- 
+Jean Delvare
