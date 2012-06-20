@@ -1,70 +1,42 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCHv8 06/13] I2C: OMAP: Correct I2C revision for OMAP3
-Date: Wed, 20 Jun 2012 03:32:35 -0700
-Message-ID: <20120620103235.GD12766@atomide.com>
-References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com>
- <1340029828-20751-7-git-send-email-shubhrajyoti@ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 2/3 v2] i2c: i801: enable irq for i801 smbus
+ transactions
+Date: Wed, 20 Jun 2012 12:51:24 +0200
+Message-ID: <20120620125124.794f3339@endymion.delvare>
+References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
+	<1325847502-17841-3-git-send-email-djkurtz@chromium.org>
+	<20120619204704.69454016@endymion.delvare>
+	<20120620105847.65cf37f2@endymion.delvare>
+	<CAGS+omDLYvqM69MFbU-pE6mAKT3tQnRw08aqbK73-hUBjOmZ0w@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1340029828-20751-7-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <CAGS+omDLYvqM69MFbU-pE6mAKT3tQnRw08aqbK73-hUBjOmZ0w-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
+To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> [120618 07:35]:
-> From: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
-> 
-> The OMAP3530 is based upon the same silicon as the OMAP3430 and so the I2C
-> revision is the same for 3430 and 3530. However, the OMAP3630 device has the
-> same I2C revision as OMAP4. Correct the revision definition to reflect this.
-> 
-> This patch is based on work done by Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
-> Changes from his patch
-> - Update OMAP_I2C_REV_ON_3430 also to reflect that it is same as 3530
-...
->  /* timeout waiting for the controller to respond */
->  #define OMAP_I2C_TIMEOUT (msecs_to_jiffies(1000))
-> @@ -298,7 +298,7 @@ static int omap_i2c_reset(struct omap_i2c_dev *dev)
->  			omap_i2c_write_reg(dev, OMAP_I2C_SYSC_REG,
->  					   SYSC_AUTOIDLE_MASK);
->  
-> -		} else if (dev->rev >= OMAP_I2C_REV_ON_3430) {
-> +		} else if (dev->rev >= OMAP_I2C_REV_ON_3430_3530) {
->  			dev->syscstate = SYSC_AUTOIDLE_MASK;
->  			dev->syscstate |= SYSC_ENAWAKEUP_MASK;
->  			dev->syscstate |= (SYSC_IDLEMODE_SMART <<
+On Wed, 20 Jun 2012 18:21:47 +0800, Daniel Kurtz wrote:
+> Thanks for taking a look at these patches... and for testing them!
 
-Having to patch all over the place for these revision defines leads
-into unmaintainable code as new SoCs get added.
+Thanks a lot for your patience!
 
-Please instead just check the revision once during init, then set
-up some feature bits like I2C_OMAP_NEEDS_XYZ_RESET that the runtime
-code can check.
+> They were from more than 7 months ago, so it will take me a little
+> time to context switch back to the point where I can really digest
+> your feedback and update and test them again myself.  But, I wanted to
+> just let you know that I am reading your review comments, and will get
+> to it as soon as I can.
 
+Great, thanks. On my end, I'll do some more testing on the hardware I
+have, and post comments if I have more.
 
-> @@ -1055,7 +1055,7 @@ omap_i2c_probe(struct platform_device *pdev)
->  	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
->  		dev->errata |= I2C_OMAP_ERRATA_I207;
->  
-> -	if (dev->rev <= OMAP_I2C_REV_ON_3430)
-> +	if (dev->rev <= OMAP_I2C_REV_ON_3430_3530)
->  		dev->errata |= I2C_OMAP_ERRATA_I462;
->  
->  	if (!(dev->flags & OMAP_I2C_FLAG_NO_FIFO)) {
-> @@ -1073,7 +1073,7 @@ omap_i2c_probe(struct platform_device *pdev)
->  
->  		dev->fifo_size = (dev->fifo_size / 2);
->  
-> -		if (dev->rev >= OMAP_I2C_REV_ON_3530_4430)
-> +		if (dev->rev >= OMAP_I2C_REV_ON_3630_4430)
->  			dev->b_hw = 0; /* Disable hardware fixes */
->  		else
->  			dev->b_hw = 1; /* Enable hardware fixes */
+> Speaking of which, I have only seen comments on patches 1 & 2 so far.
+> Any comments on patch 3?
 
-That way the code does not need to change when new SoC revisions
-get added.
+Didn't have the time yesterday, I'll comment on it today. Actually it's
+the very first item on my to-do list for the afternoon.
 
-Tony
+-- 
+Jean Delvare
