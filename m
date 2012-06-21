@@ -1,38 +1,44 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv8 03/13] I2C: OMAP: Remove reset at init
-Date: Thu, 21 Jun 2012 15:00:59 +0530
-Message-ID: <4FE2E9D3.5060304@ti.com>
-References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com> <1340029828-20751-4-git-send-email-shubhrajyoti@ti.com> <20120620102905.GC12766@atomide.com> <4FE2C750.3020803@ti.com> <20120621071959.GV12766@atomide.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCHv9 5/8] I2C: OMAP: Do not initialise the completion everytime
+Date: Thu, 21 Jun 2012 15:38:46 +0530
+Message-ID: <1340273329-8319-6-git-send-email-shubhrajyoti@ti.com>
+References: <1340273329-8319-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20120621071959.GV12766@atomide.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, w.sang@pengutronix.de
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1340273329-8319-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 21 June 2012 12:50 PM, Tony Lindgren wrote:
-> * Shubhrajyoti <shubhrajyoti@ti.com> [120621 00:08]:
->> On Wednesday 20 June 2012 03:59 PM, Tony Lindgren wrote:
->>> See the comments regarding driver specific resets in hwmod code.
->> you mean omap_hwmod.c
->>> The way to set this up is to have a shared inline function in
->>> i2c-omap.h that both the driver and hwmod code can use.
->> hwmod reset function uses oh (omap_hwmod).
->>
->> How could the driver also pass oh ?
->> Could we keep a local copy in driver data?
->>> Eventually hwmod code will do the reset only in late initcall
->>> if no driver is loaded for the device in question.
-> There's no need for the driver to know anything about oh.
-> The driver just needs to know the iobase.
-I will rework to make the hwmod and driver use the same function.
-In the meanwhile I will send a minimal/ remaining cleanups/ fixes so that
-it might get some time to bake in the next branch.
+Use INIT_COMPLETION instead of init_completion in transfer.
 
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
->
-> Tony
-
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index ccb2fc4..2a50094 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -493,7 +493,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	w |= OMAP_I2C_BUF_RXFIF_CLR | OMAP_I2C_BUF_TXFIF_CLR;
+ 	omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, w);
+ 
+-	init_completion(&dev->cmd_complete);
++	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->cmd_err = 0;
+ 
+ 	w = OMAP_I2C_CON_EN | OMAP_I2C_CON_MST | OMAP_I2C_CON_STT;
+@@ -997,6 +997,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	dev->irq = irq->start;
+ 
+ 	platform_set_drvdata(pdev, dev);
++	init_completion(&dev->cmd_complete);
+ 
+ 	dev->reg_shift = (dev->flags >> OMAP_I2C_FLAG_BUS_SHIFT__SHIFT) & 3;
+ 
+-- 
+1.7.5.4
