@@ -1,86 +1,44 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/2] libi2c: Use I2C_SMBUS_BLOCK_MAX
-Date: Fri, 22 Jun 2012 16:59:39 +0200
-Message-ID: <20120622165939.1cef58bb@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH 1/2] i2c: Update my e-mail address
+Date: Fri, 22 Jun 2012 12:11:10 -0700
+Message-ID: <1340392270-10443-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Use I2C_SMBUS_BLOCK_MAX instead of hardcoding 32.
+My old e-mail address won't be valid for much longer. Time to update it.
 
+Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 ---
- lib/smbus.c |   25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/i2c/busses/i2c-diolan-u2c.c |    2 +-
+ drivers/i2c/muxes/i2c-mux-pca9541.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- i2c-tools.orig/lib/smbus.c	2012-06-22 16:09:54.426235336 +0200
-+++ i2c-tools/lib/smbus.c	2012-06-22 16:10:18.169262240 +0200
-@@ -151,8 +151,8 @@ __s32 i2c_smbus_write_block_data(int fil
- {
- 	union i2c_smbus_data data;
- 	int i;
--	if (length > 32)
--		length = 32;
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
- 	for (i = 1; i <= length; i++)
- 		data.block[i] = values[i-1];
- 	data.block[0] = length;
-@@ -161,21 +161,22 @@ __s32 i2c_smbus_write_block_data(int fil
- }
+diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
+index 7eb19a5..aedb94f 100644
+--- a/drivers/i2c/busses/i2c-diolan-u2c.c
++++ b/drivers/i2c/busses/i2c-diolan-u2c.c
+@@ -517,6 +517,6 @@ static struct usb_driver diolan_u2c_driver = {
  
- /* Returns the number of read bytes */
--/* Until kernel 2.6.22, the length is hardcoded to 32 bytes. If you
--   ask for less than 32 bytes, your code will only work with kernels
--   2.6.23 and later. */
-+/* Until kernel 2.6.22, the length is hardcoded to 32 bytes
-+   (I2C_SMBUS_BLOCK_MAX.) If you ask for less than 32 bytes, your code
-+   will only work with kernels 2.6.23 and later. */
- __s32 i2c_smbus_read_i2c_block_data(int file, __u8 command, __u8 length,
- 				    __u8 *values)
- {
- 	union i2c_smbus_data data;
- 	int i, err;
+ module_usb_driver(diolan_u2c_driver);
  
--	if (length > 32)
--		length = 32;
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
- 	data.block[0] = length;
+-MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
++MODULE_AUTHOR("Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>");
+ MODULE_DESCRIPTION(DRIVER_NAME " driver");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 8aacde1..f8f72f3 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -396,6 +396,6 @@ static struct i2c_driver pca9541_driver = {
  
- 	err = i2c_smbus_access(file, I2C_SMBUS_READ, command,
--			       length == 32 ? I2C_SMBUS_I2C_BLOCK_BROKEN :
-+			       length == I2C_SMBUS_BLOCK_MAX ?
-+				I2C_SMBUS_I2C_BLOCK_BROKEN :
- 				I2C_SMBUS_I2C_BLOCK_DATA, &data);
- 	if (err < 0)
- 		return err;
-@@ -190,8 +191,8 @@ __s32 i2c_smbus_write_i2c_block_data(int
- {
- 	union i2c_smbus_data data;
- 	int i;
--	if (length > 32)
--		length = 32;
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
- 	for (i = 1; i <= length; i++)
- 		data.block[i] = values[i-1];
- 	data.block[0] = length;
-@@ -206,8 +207,8 @@ __s32 i2c_smbus_block_process_call(int f
- 	union i2c_smbus_data data;
- 	int i, err;
+ module_i2c_driver(pca9541_driver);
  
--	if (length > 32)
--		length = 32;
-+	if (length > I2C_SMBUS_BLOCK_MAX)
-+		length = I2C_SMBUS_BLOCK_MAX;
- 	for (i = 1; i <= length; i++)
- 		data.block[i] = values[i-1];
- 	data.block[0] = length;
-
-
+-MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
++MODULE_AUTHOR("Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>");
+ MODULE_DESCRIPTION("PCA9541 I2C master selector driver");
+ MODULE_LICENSE("GPL v2");
 -- 
-Jean Delvare
+1.7.9.7
