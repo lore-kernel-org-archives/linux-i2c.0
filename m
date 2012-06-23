@@ -1,44 +1,41 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: [PATCH 1/2] i2c: Update my e-mail address
-Date: Fri, 22 Jun 2012 12:11:10 -0700
-Message-ID: <1340392270-10443-1-git-send-email-linux@roeck-us.net>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/2 V3] MXS: Set I2C timing registers for mxs-i2c
+Date: Sat, 23 Jun 2012 20:19:34 +0200
+Message-ID: <201206232019.34829.marex@denx.de>
+References: <1339242351-8797-1-git-send-email-marex@denx.de> <201206111253.17314.marex@denx.de> <20120611144237.GI2552@S2101-09.ap.freescale.net>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120611144237.GI2552-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-My old e-mail address won't be valid for much longer. Time to update it.
+Dear Shawn Guo,
 
-Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-diolan-u2c.c |    2 +-
- drivers/i2c/muxes/i2c-mux-pca9541.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+> On Mon, Jun 11, 2012 at 12:53:17PM +0200, Marek Vasut wrote:
+> > Ok, then can you please try asking them how to exactly compute the values
+> > in timing0-timing2 registers? So we don't have to hardcode them like
+> > it's done now?
+> 
+> It's determined I2C clock waveform you want to get.  See i.MX28 RM
+> "Figure 27-2. I2C Data and Clock Timing" and "Figure 27-3. I2C Data
+> and Clock Timing Generation".
+> 
+> For example, if you run 12MHz APBX clock, and set HIGH_COUNT to 60,
+> the I2C clock will have 60 cycle x (1/12MHz) = 5us time for its high
+> period.
 
-diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
-index 7eb19a5..aedb94f 100644
---- a/drivers/i2c/busses/i2c-diolan-u2c.c
-+++ b/drivers/i2c/busses/i2c-diolan-u2c.c
-@@ -517,6 +517,6 @@ static struct usb_driver diolan_u2c_driver = {
- 
- module_usb_driver(diolan_u2c_driver);
- 
--MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
-+MODULE_AUTHOR("Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>");
- MODULE_DESCRIPTION(DRIVER_NAME " driver");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
-index 8aacde1..f8f72f3 100644
---- a/drivers/i2c/muxes/i2c-mux-pca9541.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
-@@ -396,6 +396,6 @@ static struct i2c_driver pca9541_driver = {
- 
- module_i2c_driver(pca9541_driver);
- 
--MODULE_AUTHOR("Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>");
-+MODULE_AUTHOR("Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>");
- MODULE_DESCRIPTION("PCA9541 I2C master selector driver");
- MODULE_LICENSE("GPL v2");
--- 
-1.7.9.7
+Ok, I think I see the equation. But what still doesn't make sense is how you got 
+to the value of 48 (RCV_COUNT at 95kHz). And how you got 120 for HIGH_COUNT and 
+128 for LOW_COUNT?
+
+Were these values based on some measurements, making them the best possible 
+values? Won't computation of slightly different values affect reliability of 
+this driver?
+
+Best regards,
+Marek Vasut
