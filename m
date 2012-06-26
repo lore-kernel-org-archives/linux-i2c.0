@@ -1,38 +1,57 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCHv10 1/7] I2C: OMAP: I2C register restore only if context
- is lost
-Date: Tue, 26 Jun 2012 11:38:07 +0530
-Message-ID: <4FE951C7.8070907@ti.com>
-References: <1340622702-21622-1-git-send-email-shubhrajyoti@ti.com> <1340622702-21622-2-git-send-email-shubhrajyoti@ti.com> <20120625123000.GB30463@arwen.pp.htv.fi>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: use clk_disable_unprepare in place of clk_disable
+Date: Tue, 26 Jun 2012 11:57:24 +0530
+Message-ID: <4FE9564C.4010502@nvidia.com>
+References: <1340196960-3002-1-git-send-email-ldewangan@nvidia.com> <4FE1F9A0.6080200@wwwdotorg.org> <4FE1F9D6.6090802@wwwdotorg.org> <4FE83374.6090608@nvidia.com> <4FE889D6.4030500@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20120625123000.GB30463@arwen.pp.htv.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: balbi@ti.com
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Kevin Hilman <khilman@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4FE889D6.4030500-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 25 June 2012 06:00 PM, Felipe Balbi wrote:
->> Cc: Kevin Hilman <khilman@ti.com>
->> > Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
-> how will this ever work with DT ? 
-What you say makes sense however that is what currently
-most of the omap drivers do.
-
-Will check on this.
-> I say we get rid of the OMAP-specific
-> API and build this "context lost" status directly on dev_pm_info and
-> have something like pm_runtime_lost_context() or something with pm QoS
-> tell you if a device has lost its context.
+On Monday 25 June 2012 09:25 PM, Stephen Warren wrote:
+> On 06/25/2012 03:46 AM, Laxman Dewangan wrote:
+>> Stephen,
+>>
+>> On Wednesday 20 June 2012 09:57 PM, Stephen Warren wrote:
+>>> On 06/20/2012 10:26 AM, Stephen Warren wrote:
+>>>> On 06/20/2012 06:56 AM, Laxman Dewangan wrote:
+>>>>> Use clk_disable_unprepare() inplace of clk_disable().
+>>>>> This was missed as part of moving clock enable/disable to
+>>>>> prepare/unprepare for using the common clock framework.
+>>> ...
+>>>> I see no reason not to take the second patch in the series through the
+>>>> I2C tree though.
+>>> Uggh. Ignore that paragraph - the other patch was sent separately not as
+>>> a series.
+>> so are you taking care of this patch or do I need to send the patch
+>> based on your tree in place of linux-next?
+> Yes, this patch should be applied through the Tegra tree, since it will
+> be a dependency of the common clock framework switchover there, which I
+> hope to take place this kernel cycle.
 >
-> Also, your commit log doesn't really state any problems you might have
-> reached before, or any improvements wrt latency coming out of suspend
-> and so on.
->
-> IMHO, drivers need a generic way to differentiate if they're resuming
-> from OFF or RET, otherwise we will end up with a bunch of OMAP-specific
-> hackery on all drivers
+> I did just attempt to apply this patch to the for-3.6/common-clk branch,
+> but it doesn't apply:-( Could you please rebase and resend. Thanks.
 
+Looked at your common_clk branch and the related code is not there.
+The clk_disable() in the particular case is introduced by change
+i2c: tegra: make all resource allocation through devm_*
+which is not in your branch.
 
+Then later Prashant post the change as
+i2c: tegra: Add clk_prepare/clk_unprepare
+and it does not accounted for the above patch.
+
+So none of your local tree will have this issue.
+
+You need to pull some of the change from Wofram's tree to you commn-clk 
+to fix the issue.
+Suggest to pull the change
+i2c: tegra: make all resource allocation through devm_*
+i2c: tegra: support for I2C_M_NOSTART functionality
+i2c: tegra: add PROTOCOL_MANGLING as supported functionality.
+i2c: tegra: make sure register writes completes
