@@ -1,67 +1,57 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/3 v2] i2c: i801: enable irq for byte_by_byte
- transactions
-Date: Tue, 26 Jun 2012 18:24:52 +0200
-Message-ID: <20120626182452.18804d77@endymion.delvare>
-References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
-	<1325847502-17841-4-git-send-email-djkurtz@chromium.org>
-	<20120620153449.5cee35fa@endymion.delvare>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: use clk_disable_unprepare in place of clk_disable
+Date: Tue, 26 Jun 2012 10:28:40 -0600
+Message-ID: <4FE9E338.6090601@wwwdotorg.org>
+References: <1340196960-3002-1-git-send-email-ldewangan@nvidia.com> <4FE1F9A0.6080200@wwwdotorg.org> <4FE1F9D6.6090802@wwwdotorg.org> <4FE83374.6090608@nvidia.com> <4FE889D6.4030500@wwwdotorg.org> <4FE9564C.4010502@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120620153449.5cee35fa-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <4FE9564C.4010502-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Daniel,
-
-On Wed, 20 Jun 2012 15:34:49 +0200, Jean Delvare wrote:
-> I'll get at least the I2C block read tested on ICH5.
-
-Some more notes about this patch, now that have done some testing...
-
-> > (...)
-> > +		} else if (priv->count < priv->len - 1) {
+On 06/26/2012 12:27 AM, Laxman Dewangan wrote:
+> On Monday 25 June 2012 09:25 PM, Stephen Warren wrote:
+>> On 06/25/2012 03:46 AM, Laxman Dewangan wrote:
+>>> Stephen,
+>>>
+>>> On Wednesday 20 June 2012 09:57 PM, Stephen Warren wrote:
+>>>> On 06/20/2012 10:26 AM, Stephen Warren wrote:
+>>>>> On 06/20/2012 06:56 AM, Laxman Dewangan wrote:
+>>>>>> Use clk_disable_unprepare() inplace of clk_disable().
+>>>>>> This was missed as part of moving clock enable/disable to
+>>>>>> prepare/unprepare for using the common clock framework.
+>>>> ...
+>>>>> I see no reason not to take the second patch in the series through the
+>>>>> I2C tree though.
+>>>> Uggh. Ignore that paragraph - the other patch was sent separately
+>>>> not as
+>>>> a series.
+>>> so are you taking care of this patch or do I need to send the patch
+>>> based on your tree in place of linux-next?
+>> Yes, this patch should be applied through the Tegra tree, since it will
+>> be a dependency of the common clock framework switchover there, which I
+>> hope to take place this kernel cycle.
+>>
+>> I did just attempt to apply this patch to the for-3.6/common-clk branch,
+>> but it doesn't apply:-( Could you please rebase and resend. Thanks.
 > 
-> Is this just paranoia or do you believe it could actually happen? I
-> admit I don't see how. If it is paranoia then the same should be done
-> for the read part.
-
-This is good paranoia and I recommend doing the same for block reads,
-where it is even more important. An array overrun on block write means
-you'll be sending random memory bytes to your I2C device, which is
-already bad. But an array overrun on block read means you'll _trash_
-random memory bytes, with tragic consequences. The bug right below did
-exactly this to me: the block read would never stop, and after a few
-seconds only my machine would die with a different error each time,
-depending on what memory got trashed.
-
-I ended up testing for both count < len and len <= I2C_SMBUS_BLOCK_MAX,
-for both reads and writes. Probably that's overkill and either should
-be sufficient, but I wanted to play it really safe at first.
-
+> Looked at your common_clk branch and the related code is not there.
+> The clk_disable() in the particular case is introduced by change
+> i2c: tegra: make all resource allocation through devm_*
+> which is not in your branch.
 > 
-> > +			outb(priv->data[++priv->count], SMBBLKDAT(priv));
-> > +			outb_p(priv->cmd | I801_START, SMBHSTCNT(priv));
+> Then later Prashant post the change as
+> i2c: tegra: Add clk_prepare/clk_unprepare
+> and it does not accounted for the above patch.
 > 
-> I don't get the I801_START here and above. We are in the middle of the block
-> transaction. The polling-based code only sets I801_START at the
-> beginning, not for every byte, so why would it be different here?
+> So none of your local tree will have this issue.
 
-I confirm this is a serious bug. The patch broke I2C block read on my
-ICH5 machine completely, until I removed these two I801_START.
-
-After fixing this, testing is conclusive on my ICH5 machine (where the
-SMBus interrupt is shared.) BTW, the debug message complaining when
-pcists.ints isn't set should be dropped, in my case the interrupt is
-shared with the sound chip and DVB-T card, and this caused a massive
-flood of this message while I was debugging. The message isn't terribly
-useful anyway IMHO, there's nothing wrong with that case.
-
-Next step for me is testing on my ICH7-M laptop.
-
--- 
-Jean Delvare
+OK. In that case, it's best if this patch goes through the I2C tree
+since that's where the code is that it's modifying. This might not be
+optimal for runtime git bisection depending on the order Linus ends up
+merging things, but it's probably as good as we can do without
+inter-twining the I2C and Tegra trees a lot.
