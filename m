@@ -1,57 +1,72 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: [RFC/PATCH 2/3] i2c: Fall back to emulated SMBus if the operation isn't supported natively
-Date: Tue, 26 Jun 2012 16:17:08 +0200
-Message-ID: <1340720229-30356-3-git-send-email-laurent.pinchart@ideasonboard.com>
-References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-omap@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+From: "Liu, Chuansheng" <chuansheng.liu@intel.com>
+Subject: [PATCH] i2c_dw: deadlock happening when system is trying to suspend
+Date: Tue, 26 Jun 2012 14:29:13 +0000
+Message-ID: <27240C0AC20F114CBF8149A2696CBE4A0EE76A@SHSMSX101.ccr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: "khali@linux-fr.org" <khali@linux-fr.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "Yanmin Zhang <yanmin_zhang@linux.intel.com>
+	(yanmin_zhang@linux.intel.com)" <yanmin_zhang@linux.intel.com>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, "Tu, Xiaobing" <xiaobing.tu@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Adapter drivers might support only a subset of the SMBus operations
-natively. Those drivers currently have to manually emulate unsupported
-operations using I2C.
+From: liu chuansheng <chuansheng.liu@intel.com>
+Subject: [PATCH] i2c_dw: deadlock happening when system is trying to suspend
 
-Make the i2c_smbus_xfer() function fall back to
-i2c_smbus_xfer_emulated() when the adapter's .smbus_xfer() operation
-returns -EOPNOTSUPP, like it already does when the .smbus_xfer()
-operation isn't available at all.
+In i2c_dw code, there is a race condition that causes pm suspend
+thread blocking there always. The scenerio is as below:
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+PM thread:
+suspend -->
+pm_suspend -->
+enter_state -->
+dpm_suspend_start(will call i2c_dw_pci_suspend(),
+and the dw_i2c_dev->lock is hold)
+...
+suspend_enter -->
+dpm_suspend_noirq -->
+suspend_device_irqs -->
+synchronize_irq()
+
+synchronize_irq will wait for any pending irq is handled, and
+the correpsonding irq thread is finished.
+
+In this case, there is a i2c device interrupt is pending, the irq
+thread do the below things:
+IRQ thread:
+i2c_smbus_read_byte_data -->
+i2c_smbus_xfer -->
+i2c_transfer -->
+i2c_dw_xfer -->
+down()
+
+The irq thread blocked at down dw_i2c_dev->lock, because in PM thread,
+it has been hold after calling i2c_dw_pci_suspend(), but PM thread is
+waiting for IRQ thread, then deadlock happened.
+
+The solution is moving the down() action after pm_runtime_get_sync().
+
+Signed-off-by: liu chuansheng <chuansheng.liu@intel.com>
 ---
- drivers/i2c/i2c-core.c |    9 +++++++--
- 1 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware-core.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 8cfa660..16e750e 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -2113,8 +2113,8 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 		   union i2c_smbus_data *data)
- {
- 	unsigned long orig_jiffies;
-+	s32 res = -EOPNOTSUPP;
- 	int try;
--	s32 res;
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 1e48bec..748ecb1 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -512,8 +512,8 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
  
- 	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
+        dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
  
-@@ -2134,7 +2134,12 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
- 				break;
- 		}
- 		i2c_unlock_adapter(adapter);
--	} else
-+	}
-+
-+	/* Fall back to i2c_smbus_xfer_emulated of the adapter doesn't implement
-+	 * native support for the SMBus operation.
-+	 */
-+	if (res == -EOPNOTSUPP && adapter->algo->master_xfer)
- 		res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
- 					      command, protocol, data);
+-       mutex_lock(&dev->lock);
+        pm_runtime_get_sync(dev->dev);
++       mutex_lock(&dev->lock);
  
+        INIT_COMPLETION(dev->cmd_complete);
+        dev->msgs = msgs;
 -- 
-1.7.3.4
-
+1.7.0.4
