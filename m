@@ -1,84 +1,67 @@
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Subject: Re: [RFC/PATCH 0/3] OMAP3 I2C/SCCB support
-Date: Tue, 26 Jun 2012 18:20:33 +0200
-Message-ID: <2898283.yhxlxrlhzg@avalon>
-References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com> <CAGGh5h3WLmQbDyoh8GbydxXQJ81DrVmeZK3Xh13HmHv4cxOs_g@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 3/3 v2] i2c: i801: enable irq for byte_by_byte
+ transactions
+Date: Tue, 26 Jun 2012 18:24:52 +0200
+Message-ID: <20120626182452.18804d77@endymion.delvare>
+References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
+	<1325847502-17841-4-git-send-email-djkurtz@chromium.org>
+	<20120620153449.5cee35fa@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <CAGGh5h3WLmQbDyoh8GbydxXQJ81DrVmeZK3Xh13HmHv4cxOs_g@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: jean-philippe francois <jp.francois@cynove.com>
-Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120620153449.5cee35fa-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean-Philippe,
+Hi Daniel,
 
-On Tuesday 26 June 2012 16:49:35 jean-philippe francois wrote:
-> 2012/6/26 Laurent Pinchart <laurent.pinchart@ideasonboard.com>:
-> > Hi everybody,
-> > 
-> > While trying to use an OV7725 camera sensor with an OMAP3 system I ran
-> > into a couple of issues related to the sensor communication protocol.
-> > Instead of using the obiquitous I2C protocol, Omnivision invited the SCCB
-> > communication bus, very similar to I2C but different enough not to be
-> > compatible.
-> I have been using omnivision sensor without being aware of this issue,
-> and without any i2c reliability issue either.
+On Wed, 20 Jun 2012 15:34:49 +0200, Jean Delvare wrote:
+> I'll get at least the I2C block read tested on ICH5.
+
+Some more notes about this patch, now that have done some testing...
+
+> > (...)
+> > +		} else if (priv->count < priv->len - 1) {
 > 
-> Here is typical code I use :
+> Is this just paranoia or do you believe it could actually happen? I
+> admit I don't see how. If it is paranoia then the same should be done
+> for the read part.
+
+This is good paranoia and I recommend doing the same for block reads,
+where it is even more important. An array overrun on block write means
+you'll be sending random memory bytes to your I2C device, which is
+already bad. But an array overrun on block read means you'll _trash_
+random memory bytes, with tragic consequences. The bug right below did
+exactly this to me: the block read would never stop, and after a few
+seconds only my machine would die with a different error each time,
+depending on what memory got trashed.
+
+I ended up testing for both count < len and len <= I2C_SMBUS_BLOCK_MAX,
+for both reads and writes. Probably that's overkill and either should
+be sufficient, but I wanted to play it really safe at first.
+
 > 
-> /* This function is used to read value from register for i2c client */
-> static int ov2710_read(struct i2c_client *client, unsigned short reg,
-> unsigned char *val)
-> {
->     int err = 0;
->     unsigned char outbuf[] = {(reg>>8)&0xff, reg&0xff};
+> > +			outb(priv->data[++priv->count], SMBBLKDAT(priv));
+> > +			outb_p(priv->cmd | I801_START, SMBHSTCNT(priv));
+> 
+> I don't get the I801_START here and above. We are in the middle of the block
+> transaction. The polling-based code only sets I801_START at the
+> beginning, not for every byte, so why would it be different here?
 
-According to the SCCB specification (or at least the version I've found) 
-register addresses are 8-bit. The OV2710 might just be I2C-compatible.
+I confirm this is a serious bug. The patch broke I2C block read on my
+ICH5 machine completely, until I removed these two I801_START.
 
->     unsigned char inbuf[1];
->     struct i2c_msg msg[] = {
->         { .addr = client->addr, .flags = 0, .buf = outbuf, .len = 2 },
->         { .addr = client->addr, .flags = I2C_M_RD, .buf = inbuf, .len = 1 },
-> };
->     err = i2c_transfer(client->adapter, msg, 2);
->     /* error handling and pass by ref handling */
->     ....
-> }
+After fixing this, testing is conclusive on my ICH5 machine (where the
+SMBus interrupt is shared.) BTW, the debug message complaining when
+pcists.ints isn't set should be dropped, in my case the interrupt is
+shared with the sound chip and DVB-T card, and this caused a massive
+flood of this message while I was debugging. The message isn't terribly
+useful anyway IMHO, there's nothing wrong with that case.
 
-The ov772x driver uses i2c_smbus_write_byte_data() and 
-i2c_smbus_read_byte_data(). The later calls
-
-i2c_smbus_xfer(client->adapter, client->addr, client->flags,
-               I2C_SMBUS_READ, I2C_SMBUS_BYTE_DATA, &data);
-
-which calls i2c_smbus_xfer_emulated() for hosts that don't support SMBus 
-transfers natively, and that's pretty much equivalent to your above code 
-(except for the 8/16 bit register address).
-
-It might be a good idea to implement i2c_smbus_*-like functions for 16-bit 
-register addresses in the I2C core, they could be reused across drivers.
-
-> Is the point of this patch to avoid writing such functions again and again
-> in every ov driver ?
-
-No, but that's a good idea as well :-)
-
-> What is solved in practice by this patch that is not solved by a regular i2c
-> transfer ?
-
-The above code will not ignore acks/nacks and will not generate a stop 
-condition between the two messages. The SCCB specification states that 
-acks/nacks must be ignored and that a stop condition must be generated. The 
-OV7725 handles acks/nacks correctly, but chokes if no stop condition is 
-generated. The point of this patch set is to fix both problems (although the 
-acks/nacks issue might be theoretical only).
+Next step for me is testing on my ICH7-M laptop.
 
 -- 
-Regards,
-
-Laurent Pinchart
-
+Jean Delvare
