@@ -1,57 +1,88 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: use clk_disable_unprepare in place of clk_disable
-Date: Tue, 26 Jun 2012 10:28:40 -0600
-Message-ID: <4FE9E338.6090601@wwwdotorg.org>
-References: <1340196960-3002-1-git-send-email-ldewangan@nvidia.com> <4FE1F9A0.6080200@wwwdotorg.org> <4FE1F9D6.6090802@wwwdotorg.org> <4FE83374.6090608@nvidia.com> <4FE889D6.4030500@wwwdotorg.org> <4FE9564C.4010502@nvidia.com>
+From: Gary Thomas <gary@mlbassoc.com>
+Subject: Re: [RFC/PATCH 0/3] OMAP3 I2C/SCCB support
+Date: Tue, 26 Jun 2012 10:25:58 -0600
+Message-ID: <4FE9E296.4020905@mlbassoc.com>
+References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com> <CAGGh5h3WLmQbDyoh8GbydxXQJ81DrVmeZK3Xh13HmHv4cxOs_g@mail.gmail.com> <2898283.yhxlxrlhzg@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FE9564C.4010502-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <2898283.yhxlxrlhzg@avalon>
+Sender: linux-omap-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: jean-philippe francois <jp.francois@cynove.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/26/2012 12:27 AM, Laxman Dewangan wrote:
-> On Monday 25 June 2012 09:25 PM, Stephen Warren wrote:
->> On 06/25/2012 03:46 AM, Laxman Dewangan wrote:
->>> Stephen,
+On 2012-06-26 10:20, Laurent Pinchart wrote:
+> Hi Jean-Philippe,
+>
+> On Tuesday 26 June 2012 16:49:35 jean-philippe francois wrote:
+>> 2012/6/26 Laurent Pinchart<laurent.pinchart@ideasonboard.com>:
+>>> Hi everybody,
 >>>
->>> On Wednesday 20 June 2012 09:57 PM, Stephen Warren wrote:
->>>> On 06/20/2012 10:26 AM, Stephen Warren wrote:
->>>>> On 06/20/2012 06:56 AM, Laxman Dewangan wrote:
->>>>>> Use clk_disable_unprepare() inplace of clk_disable().
->>>>>> This was missed as part of moving clock enable/disable to
->>>>>> prepare/unprepare for using the common clock framework.
->>>> ...
->>>>> I see no reason not to take the second patch in the series through the
->>>>> I2C tree though.
->>>> Uggh. Ignore that paragraph - the other patch was sent separately
->>>> not as
->>>> a series.
->>> so are you taking care of this patch or do I need to send the patch
->>> based on your tree in place of linux-next?
->> Yes, this patch should be applied through the Tegra tree, since it will
->> be a dependency of the common clock framework switchover there, which I
->> hope to take place this kernel cycle.
+>>> While trying to use an OV7725 camera sensor with an OMAP3 system I ran
+>>> into a couple of issues related to the sensor communication protocol.
+>>> Instead of using the obiquitous I2C protocol, Omnivision invited the SCCB
+>>> communication bus, very similar to I2C but different enough not to be
+>>> compatible.
+>> I have been using omnivision sensor without being aware of this issue,
+>> and without any i2c reliability issue either.
 >>
->> I did just attempt to apply this patch to the for-3.6/common-clk branch,
->> but it doesn't apply:-( Could you please rebase and resend. Thanks.
-> 
-> Looked at your common_clk branch and the related code is not there.
-> The clk_disable() in the particular case is introduced by change
-> i2c: tegra: make all resource allocation through devm_*
-> which is not in your branch.
-> 
-> Then later Prashant post the change as
-> i2c: tegra: Add clk_prepare/clk_unprepare
-> and it does not accounted for the above patch.
-> 
-> So none of your local tree will have this issue.
+>> Here is typical code I use :
+>>
+>> /* This function is used to read value from register for i2c client */
+>> static int ov2710_read(struct i2c_client *client, unsigned short reg,
+>> unsigned char *val)
+>> {
+>>      int err = 0;
+>>      unsigned char outbuf[] = {(reg>>8)&0xff, reg&0xff};
+>
+> According to the SCCB specification (or at least the version I've found)
+> register addresses are 8-bit. The OV2710 might just be I2C-compatible.
+>
+>>      unsigned char inbuf[1];
+>>      struct i2c_msg msg[] = {
+>>          { .addr = client->addr, .flags = 0, .buf = outbuf, .len = 2 },
+>>          { .addr = client->addr, .flags = I2C_M_RD, .buf = inbuf, .len = 1 },
+>> };
+>>      err = i2c_transfer(client->adapter, msg, 2);
+>>      /* error handling and pass by ref handling */
+>>      ....
+>> }
+>
+> The ov772x driver uses i2c_smbus_write_byte_data() and
+> i2c_smbus_read_byte_data(). The later calls
+>
+> i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+>                 I2C_SMBUS_READ, I2C_SMBUS_BYTE_DATA,&data);
+>
+> which calls i2c_smbus_xfer_emulated() for hosts that don't support SMBus
+> transfers natively, and that's pretty much equivalent to your above code
+> (except for the 8/16 bit register address).
+>
+> It might be a good idea to implement i2c_smbus_*-like functions for 16-bit
+> register addresses in the I2C core, they could be reused across drivers.
+>
+>> Is the point of this patch to avoid writing such functions again and again
+>> in every ov driver ?
+>
+> No, but that's a good idea as well :-)
+>
+>> What is solved in practice by this patch that is not solved by a regular i2c
+>> transfer ?
+>
+> The above code will not ignore acks/nacks and will not generate a stop
+> condition between the two messages. The SCCB specification states that
+> acks/nacks must be ignored and that a stop condition must be generated. The
+> OV7725 handles acks/nacks correctly, but chokes if no stop condition is
+> generated. The point of this patch set is to fix both problems (although the
+> acks/nacks issue might be theoretical only).
 
-OK. In that case, it's best if this patch goes through the I2C tree
-since that's where the code is that it's modifying. This might not be
-optimal for runtime git bisection depending on the order Linus ends up
-merging things, but it's probably as good as we can do without
-inter-twining the I2C and Tegra trees a lot.
+How does it "choke"?  I've had success talking to the OV8820 using the
+normal I2C driver as well.
+
+-- 
+------------------------------------------------------------
+Gary Thomas                 |  Consulting for the
+MLB Associates              |    Embedded world
+------------------------------------------------------------
