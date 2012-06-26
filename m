@@ -1,102 +1,87 @@
-From: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Subject: Re: [PATCH 7/9] I2C: MV64XXX: Add Device Tree support
-Date: Tue, 26 Jun 2012 15:13:46 +0100
-Message-ID: <4FE9C39A.2080104@codethink.co.uk>
-References: <1339324322-29388-8-git-send-email-andrew@lunn.ch>
-	<4FE9C14C.2030804@codethink.co.uk> <20120626141047.GA18804@lunn.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-In-Reply-To: <20120626141047.GA18804-g2DYL2Zd6BY@public.gmane.org>
-List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
-List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
-List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
-	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
-Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
-To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Subject: [RFC/PATCH 1/3] i2c: Add SCCB support
+Date: Tue, 26 Jun 2012 16:17:07 +0200
+Message-ID: <1340720229-30356-2-git-send-email-laurent.pinchart@ideasonboard.com>
+References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-omap@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 26/06/12 15:10, Andrew Lunn wrote:
-> On Tue, Jun 26, 2012 at 03:03:56PM +0100, Ben Dooks wrote:
->> On 10/06/12 11:31, Andrew Lunn wrote:
->>> Extends the driver to get properties from device tree. Also extend the
->>> kirkwood DT support to supply the needed properties.
->>>
->>> Signed-off-by: Andrew Lunn<andrew-g2DYL2Zd6BY@public.gmane.org>
->>> ---
->>>   Documentation/devicetree/bindings/i2c/mrvl-i2c.txt |   35 +++++++++++++++++-
->>>   arch/arm/boot/dts/kirkwood.dtsi                    |   13 +++++++
->>>   arch/arm/mach-kirkwood/board-dt.c                  |    2 ++
->>>   drivers/i2c/busses/i2c-mv64xxx.c                   |   38 +++++++++++++++++---
->>>   4 files changed, 82 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt b/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
->>> index b891ee2..89ef899 100644
->>> --- a/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
->>> +++ b/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
->>> @@ -1,4 +1,4 @@
->>> -* I2C
->>> +* Marvell MMP I2C controller
->>>
->>>   Required properties :
->>>
->>> @@ -32,3 +32,36 @@ Examples:
->>>   		interrupts =<58>;
->>>   	};
->>>
->>> +* Marvell MV64XXX I2C controller
->>> +
->>> +Required properties :
->>> +
->>> + - reg         : Offset and length of the register set for the device
->>> + - compatible  : should be "marvell,mv64xxx-i2c"
->>> + - interrupts  : the interrupt number
->>> + - frequency-m : m factor in baud rate calculation
->>> +
->>> +Recommended properties :
->>> +
->>> + - frequency-n : n factor in baud rate calculation
->>> + - timeout-ms  : How long to wait for a transaction to complete
->>> +
->>> +Baud Rate:
->>> +
->>> +The baud rate is calculated thus:
->>> +
->>> +Fscl =          Ftclk
->>> +       ------------------------------------------
->>> +                                (frequency-n + 1)
->>> +       10 *(frequency-m + 1) * 2
->>> +
->>> +Examples:
->>
->> I'd really rather see this calculated at run-time, given some
->> systems can quite easily change their clocks.
->
-> Hi Ben
->
-> Well, none of the Orion systems would make use of this. They all have
-> fixed clocks.
->
-> Maybe the new Armada XP systems could make use of clock scaling?
+SCCB is a serial communication bus developed by Omnivision. Its 2-wire
+mode is very similar to SMBus byte data transactions, but requires the
+controller to ignore the ACK bit and to insert a stop condition after
+each message.
 
-A couple of the development boards here have dip-switches to change
-the clocks at start-time, and thus having something that does this
-would be useful.
+Add a device SCCB flag and a message stop flag to be passed to
+controller drivers.
 
-PS, for other people's info, this bounces to the i2c list due to the
-use of 'xxx' in the title :(
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+---
+ drivers/i2c/i2c-core.c |   13 ++++++++++++-
+ include/linux/i2c.h    |    2 ++
+ 2 files changed, 14 insertions(+), 1 deletions(-)
 
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index feb7dc3..8cfa660 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1939,6 +1939,12 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	u8 partial_pec = 0;
+ 	int status;
+ 
++	if (unlikely(flags & I2C_CLIENT_SCCB) && size != I2C_SMBUS_BYTE_DATA) {
++		dev_err(&adapter->dev,
++			"SCCB devices only support I2C_SMBUS_BYTE_DATA\n");
++		return -EINVAL;
++	}
++
+ 	msgbuf0[0] = command;
+ 	switch (size) {
+ 	case I2C_SMBUS_QUICK:
+@@ -1956,6 +1962,11 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 		}
+ 		break;
+ 	case I2C_SMBUS_BYTE_DATA:
++		if (unlikely(flags & I2C_CLIENT_SCCB)) {
++			msg[0].flags |= I2C_M_IGNORE_NAK | I2C_M_STOP;
++			msg[1].flags |= I2C_M_IGNORE_NAK | I2C_M_STOP;
++		}
++
+ 		if (read_write == I2C_SMBUS_READ)
+ 			msg[1].len = 1;
+ 		else {
+@@ -2105,7 +2116,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ 	int try;
+ 	s32 res;
+ 
+-	flags &= I2C_M_TEN | I2C_CLIENT_PEC;
++	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
+ 
+ 	if (adapter->algo->smbus_xfer) {
+ 		i2c_lock_adapter(adapter);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 195d8b3..bd42914 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -420,6 +420,7 @@ void i2c_lock_adapter(struct i2c_adapter *);
+ void i2c_unlock_adapter(struct i2c_adapter *);
+ 
+ /*flags for the client struct: */
++#define I2C_CLIENT_SCCB	0x02		/* Use Omnivision SCCB protocol */
+ #define I2C_CLIENT_PEC	0x04		/* Use Packet Error Checking */
+ #define I2C_CLIENT_TEN	0x10		/* we have a ten bit chip address */
+ 					/* Must equal I2C_M_TEN below */
+@@ -540,6 +541,7 @@ struct i2c_msg {
+ 	__u16 flags;
+ #define I2C_M_TEN		0x0010	/* this is a ten bit chip address */
+ #define I2C_M_RD		0x0001	/* read data, from slave to master */
++#define I2C_M_STOP		0x8000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+ #define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+ #define I2C_M_REV_DIR_ADDR	0x2000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+ #define I2C_M_IGNORE_NAK	0x1000	/* if I2C_FUNC_PROTOCOL_MANGLING */
 -- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+1.7.3.4
 
-------------------------------------------------------------------------------
-Live Security Virtual Conference
-Exclusive live event will cover all the ways today's security and 
-threat landscape has changed and how IT managers can respond. Discussions 
-will include endpoint security, mobile security and the latest in malware 
-threats. http://www.accelacomm.com/jaw/sfrnl04242012/114/50122263/
