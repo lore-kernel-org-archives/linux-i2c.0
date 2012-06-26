@@ -1,72 +1,154 @@
-From: "Liu, Chuansheng" <chuansheng.liu@intel.com>
-Subject: [PATCH] i2c_dw: deadlock happening when system is trying to suspend
-Date: Tue, 26 Jun 2012 14:29:13 +0000
-Message-ID: <27240C0AC20F114CBF8149A2696CBE4A0EE76A@SHSMSX101.ccr.corp.intel.com>
+From: jean-philippe francois <jp.francois@cynove.com>
+Subject: Re: [RFC/PATCH 0/3] OMAP3 I2C/SCCB support
+Date: Tue, 26 Jun 2012 16:49:35 +0200
+Message-ID: <CAGGh5h3WLmQbDyoh8GbydxXQJ81DrVmeZK3Xh13HmHv4cxOs_g@mail.gmail.com>
+References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Cc: "khali@linux-fr.org" <khali@linux-fr.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "Yanmin Zhang <yanmin_zhang@linux.intel.com>
-	(yanmin_zhang@linux.intel.com)" <yanmin_zhang@linux.intel.com>, "Srivatsa S. Bhat" <srivatsa.bhat@linux.vnet.ibm.com>, "Tu, Xiaobing" <xiaobing.tu@intel.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: liu chuansheng <chuansheng.liu@intel.com>
-Subject: [PATCH] i2c_dw: deadlock happening when system is trying to suspend
+2012/6/26 Laurent Pinchart <laurent.pinchart@ideasonboard.com>:
+> Hi everybody,
+>
+> While trying to use an OV7725 camera sensor with an OMAP3 system I ra=
+n into a
+> couple of issues related to the sensor communication protocol. Instea=
+d of
+> using the obiquitous I2C protocol, Omnivision invited the SCCB commun=
+ication
+> bus, very similar to I2C but different enough not to be compatible.
+>
 
-In i2c_dw code, there is a race condition that causes pm suspend
-thread blocking there always. The scenerio is as below:
+I have been using omnivision sensor without being aware of this issue,
+and without any i2c reliability issue either.
 
-PM thread:
-suspend -->
-pm_suspend -->
-enter_state -->
-dpm_suspend_start(will call i2c_dw_pci_suspend(),
-and the dw_i2c_dev->lock is hold)
-...
-suspend_enter -->
-dpm_suspend_noirq -->
-suspend_device_irqs -->
-synchronize_irq()
+Here is typical code I use :
 
-synchronize_irq will wait for any pending irq is handled, and
-the correpsonding irq thread is finished.
+/* This function is used to read value from register for i2c client */
+static int ov2710_read(struct i2c_client *client, unsigned short reg,
+unsigned char *val)
+{
+    int err =3D 0;
+    unsigned char outbuf[] =3D {(reg>>8)&0xff, reg&0xff};
+    unsigned char inbuf[1];
+    struct i2c_msg msg[] =3D {
+        { .addr =3D client->addr, .flags =3D 0, .buf =3D outbuf, .len =3D=
+ 2 },
+        { .addr =3D client->addr, .flags =3D I2C_M_RD, .buf =3D inbuf, =
+=2Elen =3D 1 },
+    };
+    err =3D i2c_transfer(client->adapter, msg, 2);
+    /* error handling and pass by ref handling */
+    ....
+}
 
-In this case, there is a i2c device interrupt is pending, the irq
-thread do the below things:
-IRQ thread:
-i2c_smbus_read_byte_data -->
-i2c_smbus_xfer -->
-i2c_transfer -->
-i2c_dw_xfer -->
-down()
+Is the point of this patch to avoid writing such functions again and
+again in every ov driver ?
+What is solved in practice by this patch that is not solved by a
+regular i2c transfer ?
 
-The irq thread blocked at down dw_i2c_dev->lock, because in PM thread,
-it has been hold after calling i2c_dw_pci_suspend(), but PM thread is
-waiting for IRQ thread, then deadlock happened.
+Regards,
+Jean-Philippe Fran=E7ois
 
-The solution is moving the down() action after pm_runtime_get_sync().
-
-Signed-off-by: liu chuansheng <chuansheng.liu@intel.com>
+> SCCB documentation is available at
+> http://www.ovt.com/download_document.php?type=3Ddocument&DID=3D63. SC=
+CB exists in
+> two flavors, 3-wire and 2-wire. The 3-wire version is too different f=
+rom I2C
+> to be of interest here.
+>
+> SCCB is very close to SMBus. It supports two transactions, an 8-bit r=
+egister
+> read and an 8-bit register write. The write transaction transmits a 3=
+-byte
+> message (addr/w, reg, data). The read transaction transmits 2 2-byte =
+messages
+> (addr/w, reg, followed by addr/r, data).
+>
+> The two majors differences between I2C and SCCB are in the acknowledg=
+ment bit
+> and in the stop bit.
+>
+> SCCB devices generate no ack bit and don't take the ack bit generated=
+ by the
+> master into account. The ack bit is thus an unspecified bit, present =
+in the
+> transfer but whose value must be ignored. However, in practice, the S=
+CCB
+> components I've seen implement the ack bit in write transactions.
+>
+> The stop bit is handled as in I2C, except that a stop bit needs to be
+> generated between the two messages that make the read transaction (as=
+ opposed
+> to SMBus, where no stop bit must be present between the two messages)=
+=2E
+>
+> I need SCCB support in the I2C core and in the OMAP3 I2C driver and h=
+ave two
+> options. The OMAP3 I2C controller support SCCB natively. The interfac=
+e exposed
+> by the hardware is at the transaction level (smbus_xfer), while the i=
+2c-omap
+> driver exposes a message level interface (master_xfer). To use the na=
+tive SCCB
+> support, we would thus have to either allow i2c_smbus_xfer() to choos=
+e between
+> smbus_xfer and i2c_smbus_xfer_emulated based on the client type (I2C =
+or SCCB),
+> or export i2c_smbus_xfer_emulated() to use it as a fallback in the i2=
+c-omap
+> driver for I2C clients.
+>
+> Another option is not to use the hardware SCCB support, but to emulat=
+e it
+> through I2C. In that case the i2c-omap driver must generate a stop bi=
+t after
+> the first message of a read transaction, and ignore the ack bit. Two =
+flags
+> would then be necessary, one in the message to force the stop bit, an=
+d one in
+> the i2c_client to mark the device as using SCCB.
+>
+> Implementing support for the second option is required for I2C master=
+s that
+> have no hardware SCCB support. As the first option won't bring much b=
+enefits,
+> I've decided to skip it for now. The following three patches thus imp=
+lement
+> emulated SCCB support in the I2C core, with a small change in the i2c=
+-omap
+> driver to support the new I2C_M_STOP flag.
+>
+> Laurent Pinchart (3):
+> =A0i2c: Add SCCB support
+> =A0i2c: Fall back to emulated SMBus if the operation isn't supported
+> =A0 =A0natively
+> =A0i2c: omap: Add support for I2C_M_STOP message flag
+>
+> =A0drivers/i2c/busses/i2c-omap.c | =A0 =A02 ++
+> =A0drivers/i2c/i2c-core.c =A0 =A0 =A0 =A0| =A0 22 +++++++++++++++++++=
 ---
- drivers/i2c/busses/i2c-designware-core.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 1e48bec..748ecb1 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -512,8 +512,8 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
-        dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
- 
--       mutex_lock(&dev->lock);
-        pm_runtime_get_sync(dev->dev);
-+       mutex_lock(&dev->lock);
- 
-        INIT_COMPLETION(dev->cmd_complete);
-        dev->msgs = msgs;
--- 
-1.7.0.4
+> =A0include/linux/i2c.h =A0 =A0 =A0 =A0 =A0 | =A0 =A02 ++
+> =A03 files changed, 23 insertions(+), 3 deletions(-)
+>
+> --
+> Regards,
+>
+> Laurent Pinchart
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
+ in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
+--
+To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
+n
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
