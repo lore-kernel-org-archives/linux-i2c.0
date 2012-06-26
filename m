@@ -1,42 +1,86 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv10 1/7] I2C: OMAP: I2C register restore only if context
- is lost
-Date: Tue, 26 Jun 2012 16:53:21 +0530
-Message-ID: <4FE99BA9.9030107@ti.com>
-References: <1340622702-21622-1-git-send-email-shubhrajyoti@ti.com> <1340622702-21622-2-git-send-email-shubhrajyoti@ti.com> <20120625123000.GB30463@arwen.pp.htv.fi> <4FE951C7.8070907@ti.com>
+From: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Subject: Re: [PATCH 7/9] I2C: MV64XXX: Add Device Tree support
+Date: Tue, 26 Jun 2012 15:03:56 +0100
+Message-ID: <4FE9C14C.2030804@codethink.co.uk>
+References: <1339324322-29388-8-git-send-email-andrew@lunn.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FE951C7.8070907-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: balbi-l0cyMroinI0@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+In-Reply-To: <1339324322-29388-8-git-send-email-andrew-g2DYL2Zd6BY@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
+List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Cc: jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, machael-QKn5cuLxLXY@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 26 June 2012 11:38 AM, Shubhrajyoti wrote:
-> On Monday 25 June 2012 06:00 PM, Felipe Balbi wrote:
->>> Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
->>>> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> how will this ever work with DT ? 
-> What you say makes sense however that is what currently
-> most of the omap drivers do.
+On 10/06/12 11:31, Andrew Lunn wrote:
+> Extends the driver to get properties from device tree. Also extend the
+> kirkwood DT support to supply the needed properties.
 >
-> Will check on this.
->> I say we get rid of the OMAP-specific
->> API and build this "context lost" status directly on dev_pm_info and
->> have something like pm_runtime_lost_context() or something with pm QoS
->> tell you if a device has lost its context.
->>
->> Also, your commit log doesn't really state any problems you might have
->> reached before,
-Didnt see any issues while reviewing found that the restore was done always.
->>  or any improvements wrt latency coming out of suspend
->> and so on.
-I am only restoring only 4-5 registers.
+> Signed-off-by: Andrew Lunn<andrew-g2DYL2Zd6BY@public.gmane.org>
+> ---
+>   Documentation/devicetree/bindings/i2c/mrvl-i2c.txt |   35 +++++++++++++++++-
+>   arch/arm/boot/dts/kirkwood.dtsi                    |   13 +++++++
+>   arch/arm/mach-kirkwood/board-dt.c                  |    2 ++
+>   drivers/i2c/busses/i2c-mv64xxx.c                   |   38 +++++++++++++++++---
+>   4 files changed, 82 insertions(+), 6 deletions(-)
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt b/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
+> index b891ee2..89ef899 100644
+> --- a/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
+> +++ b/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
+> @@ -1,4 +1,4 @@
+> -* I2C
+> +* Marvell MMP I2C controller
+>
+>   Required properties :
+>
+> @@ -32,3 +32,36 @@ Examples:
+>   		interrupts =<58>;
+>   	};
+>
+> +* Marvell MV64XXX I2C controller
+> +
+> +Required properties :
+> +
+> + - reg         : Offset and length of the register set for the device
+> + - compatible  : should be "marvell,mv64xxx-i2c"
+> + - interrupts  : the interrupt number
+> + - frequency-m : m factor in baud rate calculation
+> +
+> +Recommended properties :
+> +
+> + - frequency-n : n factor in baud rate calculation
+> + - timeout-ms  : How long to wait for a transaction to complete
+> +
+> +Baud Rate:
+> +
+> +The baud rate is calculated thus:
+> +
+> +Fscl =          Ftclk
+> +       ------------------------------------------
+> +                                (frequency-n + 1)
+> +       10 *(frequency-m + 1) * 2
+> +
+> +Examples:
 
->>
->> IMHO, drivers need a generic way to differentiate if they're resuming
->> from OFF or RET, otherwise we will end up with a bunch of OMAP-specific
->> hackery on all drivers
->
+I'd really rather see this calculated at run-time, given some
+systems can quite easily change their clocks.
+
+-- 
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
+
+------------------------------------------------------------------------------
+Live Security Virtual Conference
+Exclusive live event will cover all the ways today's security and 
+threat landscape has changed and how IT managers can respond. Discussions 
+will include endpoint security, mobile security and the latest in malware 
+threats. http://www.accelacomm.com/jaw/sfrnl04242012/114/50122263/
