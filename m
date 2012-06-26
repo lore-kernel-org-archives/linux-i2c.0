@@ -1,57 +1,43 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: use clk_disable_unprepare in place of clk_disable
-Date: Tue, 26 Jun 2012 11:57:24 +0530
-Message-ID: <4FE9564C.4010502@nvidia.com>
-References: <1340196960-3002-1-git-send-email-ldewangan@nvidia.com> <4FE1F9A0.6080200@wwwdotorg.org> <4FE1F9D6.6090802@wwwdotorg.org> <4FE83374.6090608@nvidia.com> <4FE889D6.4030500@wwwdotorg.org>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCHv8 03/13] I2C: OMAP: Remove reset at init
+Date: Tue, 26 Jun 2012 04:15:13 -0700
+Message-ID: <20120626111513.GD31393@atomide.com>
+References: <1340029828-20751-1-git-send-email-shubhrajyoti@ti.com>
+ <1340029828-20751-4-git-send-email-shubhrajyoti@ti.com>
+ <20120620102905.GC12766@atomide.com>
+ <4FE2C750.3020803@ti.com>
+ <20120621071959.GV12766@atomide.com>
+ <4FE2E9D3.5060304@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FE889D6.4030500-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <4FE2E9D3.5060304-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Prashant Gaikwad <pgaikwad-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 25 June 2012 09:25 PM, Stephen Warren wrote:
-> On 06/25/2012 03:46 AM, Laxman Dewangan wrote:
->> Stephen,
->>
->> On Wednesday 20 June 2012 09:57 PM, Stephen Warren wrote:
->>> On 06/20/2012 10:26 AM, Stephen Warren wrote:
->>>> On 06/20/2012 06:56 AM, Laxman Dewangan wrote:
->>>>> Use clk_disable_unprepare() inplace of clk_disable().
->>>>> This was missed as part of moving clock enable/disable to
->>>>> prepare/unprepare for using the common clock framework.
->>> ...
->>>> I see no reason not to take the second patch in the series through the
->>>> I2C tree though.
->>> Uggh. Ignore that paragraph - the other patch was sent separately not as
->>> a series.
->> so are you taking care of this patch or do I need to send the patch
->> based on your tree in place of linux-next?
-> Yes, this patch should be applied through the Tegra tree, since it will
-> be a dependency of the common clock framework switchover there, which I
-> hope to take place this kernel cycle.
->
-> I did just attempt to apply this patch to the for-3.6/common-clk branch,
-> but it doesn't apply:-( Could you please rebase and resend. Thanks.
+* Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> [120621 02:35]:
+> On Thursday 21 June 2012 12:50 PM, Tony Lindgren wrote:
+> > * Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> [120621 00:08]:
+> >> On Wednesday 20 June 2012 03:59 PM, Tony Lindgren wrote:
+> >>> See the comments regarding driver specific resets in hwmod code.
+> >> you mean omap_hwmod.c
+> >>> The way to set this up is to have a shared inline function in
+> >>> i2c-omap.h that both the driver and hwmod code can use.
+> >> hwmod reset function uses oh (omap_hwmod).
+> >>
+> >> How could the driver also pass oh ?
+> >> Could we keep a local copy in driver data?
+> >>> Eventually hwmod code will do the reset only in late initcall
+> >>> if no driver is loaded for the device in question.
+> > There's no need for the driver to know anything about oh.
+> > The driver just needs to know the iobase.
+> I will rework to make the hwmod and driver use the same function.
+> In the meanwhile I will send a minimal/ remaining cleanups/ fixes so that
+> it might get some time to bake in the next branch.
 
-Looked at your common_clk branch and the related code is not there.
-The clk_disable() in the particular case is introduced by change
-i2c: tegra: make all resource allocation through devm_*
-which is not in your branch.
+OK thanks!
 
-Then later Prashant post the change as
-i2c: tegra: Add clk_prepare/clk_unprepare
-and it does not accounted for the above patch.
-
-So none of your local tree will have this issue.
-
-You need to pull some of the change from Wofram's tree to you commn-clk 
-to fix the issue.
-Suggest to pull the change
-i2c: tegra: make all resource allocation through devm_*
-i2c: tegra: support for I2C_M_NOSTART functionality
-i2c: tegra: add PROTOCOL_MANGLING as supported functionality.
-i2c: tegra: make sure register writes completes
+Tony
