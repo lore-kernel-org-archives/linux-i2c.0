@@ -1,41 +1,39 @@
-From: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
-Subject: Re: [RFC/PATCH 0/3] OMAP3 I2C/SCCB support
-Date: Tue, 26 Jun 2012 23:37:10 +0200
-Message-ID: <1570109.7kTIntEc04@avalon>
-References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com> <2898283.yhxlxrlhzg@avalon> <20120626185616.7fafc53b@endymion.delvare>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/2 V3] MXS: Set I2C timing registers for mxs-i2c
+Date: Wed, 27 Jun 2012 03:15:58 +0200
+Message-ID: <201206270315.58872.marex@denx.de>
+References: <1339242351-8797-1-git-send-email-marex@denx.de> <201206232047.33228.marex@denx.de> <20120625154354.GC2342@S2101-09.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120626185616.7fafc53b-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <20120625154354.GC2342-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: jean-philippe francois <jp.francois-JOfcSVQZ0GHQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Dear Shawn Guo,
 
-On Tuesday 26 June 2012 18:56:16 Jean Delvare wrote:
-> On Tue, 26 Jun 2012 18:20:33 +0200, Laurent Pinchart wrote:
-> > It might be a good idea to implement i2c_smbus_*-like functions for 16-bit
-> > register addresses in the I2C core, they could be reused across drivers.
+> On Sat, Jun 23, 2012 at 08:47:32PM +0200, Marek Vasut wrote:
+> > Dear Shawn Guo,
+> > 
+> > > This patch configures the I2C bus timing registers according
+> > > to information passed via DT. Currently, 100kHz and 400kHz
+> > > modes are supported.
+> > 
+> > [...]
+> > 
+> > Is there any reason why this can not be merged other than the timing
+> > registers goo (which I believe shall stay as in the datasheet until we
+> > figure out if it's even reasonable to add some computation there).
 > 
-> Except that they would preferably not be called i2c_smbus_*, not being
-> part of the SMBus subset nor being commonly implemented by SMBus-only
-> controllers.
+> I assume this is a question for Wolfram.  But I guess part of the reason
+> is there is still one comment from me staying unresolved.
 
-Sure. We need another name.
+Shawn, I just re-tested the i2c with mpg123 playing "MPEG 1.0 layer III, VBR, 
+44100 Hz joint-stereo" and it worked on a first try ... can you retest please?
 
-> Finding a proper name for these helpers function might be tough, as may be
-> figuring out which ones you really want to implement and which ones aren't
-> worth it.
-> 
-> Also note that this is more or less what regmap is trying to do, so you
-> may want to check in that direction (see drivers/base/regmap) first.
-
-Thanks, I didn't know about that.
-
--- 
-Regards,
-
-Laurent Pinchart
+Best regards,
+Marek Vasut
