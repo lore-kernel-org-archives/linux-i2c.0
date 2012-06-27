@@ -1,71 +1,77 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 1/2 V3] MXS: Set I2C timing registers for mxs-i2c
-Date: Wed, 27 Jun 2012 04:34:20 +0200
-Message-ID: <201206270434.20558.marex@denx.de>
-References: <1339242351-8797-1-git-send-email-marex@denx.de> <201206270330.31669.marex@denx.de> <20120627021336.GA9787@S2101-09.ap.freescale.net>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] I2C: OMAP: xfer: fix runtime PM get/put balance on error
+Date: Wed, 27 Jun 2012 11:41:47 +0530
+Message-ID: <CAM=Q2cuLCT2VzcUgrpyRWiX61t1F+iWchO9iLC=Ka9MFVm4_bQ@mail.gmail.com>
+References: <1340761532-27231-1-git-send-email-khilman@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120627021336.GA9787-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
+In-Reply-To: <1340761532-27231-1-git-send-email-khilman-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Shawn Guo,
+Hi Kevin,
+Thanks for the patch ,
+a doubt below
 
-> On Wed, Jun 27, 2012 at 03:30:31AM +0200, Marek Vasut wrote:
-> > Ok, I managed to replicate it just now. Scrap my previous email.
-> > 
-> > Still, any idea what can cause this?
-> 
-> I just spent some time on it.  It looks like a document issue (dammit).
-> 
-> The HW_I2C_TIMING2 EXAMPLE tells the value is 0x0015000d which is the
-> one you looked at and used.  But the register field figure tells it's
-> 0x00300030, which seems the real case.
-> 
-> The mxs_i2c_reset at probe changes the value to 0x0015000d which causes
-> the first time playback nonfunctional, but the mxs_i2c_reset call in
-> mxs_i2c_xfer_msg happens to reset the value back to 0x00300030, and
-> then second time playback starts working.
-> 
-> The changes below get everything work fine, both 100k and 400k.  So
-> with the changes in, you can add:
+On Wed, Jun 27, 2012 at 7:15 AM, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> wrote:
+> In omap_i2c_xfer(), ensure pm_runtime_put() is called, even on
+> failure.
+So the failure means that the usecount is incremented. However the
+device was not
+enabled. In that case could we consider
 
-Ok, can you push the FSL guys to roll out updated document?
+   void pm_runtime_put_noidle(struct device *dev);
+    - decrement the device's usage counter
 
-Do you consider it reasonable to add some calculations of these timing values or 
-were they somehow fine-tuned with a scope/deep HW knowledge as the best working 
-values and we should stick to those?
+Which will only decrement the counter and does not try to disable it.
 
-> Tested-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> 
-> Regards,
-> Shawn
-> 
-> --8<---
-> 
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> index e38be56..c2467e9 100644
-> --- a/drivers/i2c/busses/i2c-mxs.c
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -112,13 +112,13 @@ struct mxs_i2c_speed_config {
->  const struct mxs_i2c_speed_config mxs_i2c_95kHz_config = {
->         .timing0        = 0x00780030,
->         .timing1        = 0x00800030,
-> -       .timing2        = 0x0015000d,
-> +       .timing2        = 0x00300030,
->  };
-> 
->  const struct mxs_i2c_speed_config mxs_i2c_400kHz_config = {
->         .timing0        = 0x000f0007,
->         .timing1        = 0x001f000f,
-> -       .timing2        = 0x0015000d,
-> +       .timing2        = 0x00300030,
->  };
+However I am not sure what happens if you try to disable an already
+disabled device.
 
-Best regards,
-Marek Vasut
+>
+> Without this, after a failed xfer, the runtime PM usecount will have
+> been incremented, but not decremented
+
+Agree.
+
+> causing the usecount to never
+> reach zero after a failure. =A0This keeps the device always runtime P=
+M
+> enabled which keeps the enclosing power domain active, and prevents
+> full-chip retention/off from happening during idle.
+>
+> Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+> ---
+> This patch applies to current i2c-embedded/for-next branch
+>
+> =A0drivers/i2c/busses/i2c-omap.c | =A0 =A02 +-
+> =A01 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-o=
+map.c
+> index 9895fa7..b105733 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -582,7 +582,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2=
+c_msg msgs[], int num)
+>
+> =A0 =A0 =A0 =A0r =3D pm_runtime_get_sync(dev->dev);
+> =A0 =A0 =A0 =A0if (IS_ERR_VALUE(r))
+> - =A0 =A0 =A0 =A0 =A0 =A0 =A0 return r;
+> + =A0 =A0 =A0 =A0 =A0 =A0 =A0 goto out;
+>
+> =A0 =A0 =A0 =A0r =3D omap_i2c_wait_for_bb(dev);
+> =A0 =A0 =A0 =A0if (r < 0)
+> --
+> 1.7.9.2
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
+ in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at =A0http://vger.kernel.org/majordomo-info.html
