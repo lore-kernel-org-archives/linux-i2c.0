@@ -1,7 +1,7 @@
 From: Daniel Kurtz <djkurtz@chromium.org>
-Subject: [PATCH 6/8 v3] i2c: i801: drop ENABLE_INT9
-Date: Wed, 27 Jun 2012 21:54:13 +0800
-Message-ID: <1340805255-8041-7-git-send-email-djkurtz@chromium.org>
+Subject: [PATCH 3/8 v3] i2c: i801: check INTR after every transaction
+Date: Wed, 27 Jun 2012 21:54:10 +0800
+Message-ID: <1340805255-8041-4-git-send-email-djkurtz@chromium.org>
 References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
@@ -10,61 +10,107 @@ To: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram 
 Cc: Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Later patches enable interrupts.  This preliminary patch removes the older
-unsupported ENABLE_INT9 flag.
+Per ICH10 datasheet [1] pg. 711, after completing a block transaction,
+INTR should be checked & cleared separately, only after BYTE_DONE is
+first cleared:
+
+  When the last byte of a block message is received, the host controller
+sets DS. However, it does not set the INTR bit (and generate another
+interrupt) until DS is cleared. Thus, for a block message of n bytes,
+the ICH10 will generate n+1 interrupts.
+
+[1] http://www.intel.com/content/dam/doc/datasheet/io-controller-hub-10-family-datasheet.pdf
+
+Currently, the INTR bit was only checked & cleared separately if the PEC
+was used.
+This patch checks and clears INTR at the very end of every successful
+transaction, regardless of whether the PEC is used.
 
 Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
 ---
- drivers/i2c/busses/i2c-i801.c |    9 ++++-----
- 1 files changed, 4 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |   46 ++++++++++++++++++++--------------------
+ 1 files changed, 23 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index c57bb0c..6fa2a0b 100644
+index 8b74e1e..6a53338 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -104,7 +104,6 @@
+@@ -257,6 +257,24 @@ static int i801_check_post(struct i801_priv *priv, int status, int timeout)
+ 	return result;
+ }
  
- /* Other settings */
- #define MAX_RETRIES		400
--#define ENABLE_INT9		0	/* set to 0x01 to enable - untested */
- 
- /* I801 command constants */
- #define I801_QUICK		0x00
-@@ -289,7 +288,7 @@ static int i801_transaction(struct i801_priv *priv, int xact)
++/* wait for INTR bit as advised by Intel */
++static void i801_wait_intr(struct i801_priv *priv)
++{
++	int timeout = 0;
++	int status;
++
++	status = inb_p(SMBHSTSTS(priv));
++	while ((!(status & SMBHSTSTS_INTR)) && (timeout++ < MAX_RETRIES)) {
++		usleep_range(250, 500);
++		status = inb_p(SMBHSTSTS(priv));
++	}
++
++	if (timeout > MAX_RETRIES)
++		dev_dbg(&priv->pci_dev->dev, "INTR Timeout!\n");
++
++	outb_p(status, SMBHSTSTS(priv));
++}
++
+ static int i801_transaction(struct i801_priv *priv, int xact)
+ {
+ 	int status;
+@@ -281,26 +299,9 @@ static int i801_transaction(struct i801_priv *priv, int xact)
+ 	if (result < 0)
  		return result;
  
- 	/* the current contents of SMBHSTCNT can be overwritten, since PEC,
--	 * INTREN, SMBSCMD are passed in xact */
-+	 * SMBSCMD are passed in xact */
- 	outb_p(xact | SMBHSTCNT_START, SMBHSTCNT(priv));
+-	outb_p(SMBHSTSTS_INTR, SMBHSTSTS(priv));
+-	return 0;
+-}
++	i801_wait_intr(priv);
  
- 	/* We will always wait for a fraction of a second! */
-@@ -324,7 +323,7 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
+-/* wait for INTR bit as advised by Intel */
+-static void i801_wait_hwpec(struct i801_priv *priv)
+-{
+-	int timeout = 0;
+-	int status;
+-
+-	status = inb_p(SMBHSTSTS(priv));
+-	while ((!(status & SMBHSTSTS_INTR)) && (timeout++ < MAX_RETRIES)) {
+-		usleep_range(250, 500);
+-		status = inb_p(SMBHSTSTS(priv));
+-	}
+-
+-	if (timeout > MAX_RETRIES)
+-		dev_dbg(&priv->pci_dev->dev, "PEC Timeout!\n");
+-
+-	outb_p(status, SMBHSTSTS(priv));
++	return 0;
+ }
+ 
+ static int i801_block_transaction_by_block(struct i801_priv *priv,
+@@ -416,9 +417,11 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
  			outb_p(data->block[i+1], SMBBLKDAT(priv));
+ 
+ 		/* signals SMBBLKDAT ready */
+-		outb_p(SMBHSTSTS_BYTE_DONE | SMBHSTSTS_INTR, SMBHSTSTS(priv));
++		outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
  	}
  
--	status = i801_transaction(priv, I801_BLOCK_DATA | ENABLE_INT9 |
-+	status = i801_transaction(priv, I801_BLOCK_DATA |
- 				  SMBHSTCNT_PEC_EN * hwpec);
- 	if (status)
- 		return status;
-@@ -377,7 +376,7 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
- 	for (i = 1; i <= len; i++) {
- 		if (i == len && read_write == I2C_SMBUS_READ)
- 			smbcmd |= SMBHSTCNT_LAST_BYTE;
--		outb_p(smbcmd | ENABLE_INT9, SMBHSTCNT(priv));
-+		outb_p(smbcmd, SMBHSTCNT(priv));
++	i801_wait_intr(priv);
++
+ 	return 0;
+ }
  
- 		if (i == 1)
- 			outb_p(inb(SMBHSTCNT(priv)) | SMBHSTCNT_START,
-@@ -567,7 +566,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		ret = i801_block_transaction(priv, data, read_write, size,
- 					     hwpec);
- 	else
--		ret = i801_transaction(priv, xact | ENABLE_INT9);
-+		ret = i801_transaction(priv, xact);
+@@ -474,9 +477,6 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 							     read_write,
+ 							     command, hwpec);
  
- 	/* Some BIOSes don't like it when PEC is enabled at reboot or resume
- 	   time, so we forcibly disable it after every transaction. Turn off
+-	if (result == 0 && hwpec)
+-		i801_wait_hwpec(priv);
+-
+ 	if (command == I2C_SMBUS_I2C_BLOCK_DATA
+ 	 && read_write == I2C_SMBUS_WRITE) {
+ 		/* restore saved configuration register value */
 -- 
 1.7.7.3
