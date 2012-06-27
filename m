@@ -1,157 +1,56 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 0/3 v2] i2c: i801: enable irq
-Date: Wed, 27 Jun 2012 11:24:02 +0200
-Message-ID: <20120627112402.26576746@endymion.delvare>
-References: <1325847502-17841-1-git-send-email-djkurtz@chromium.org>
+Subject: Re: i801_smbus: ... you should use it instead of the native driver
+Date: Wed, 27 Jun 2012 11:33:30 +0200
+Message-ID: <20120627113330.1efc1862@endymion.delvare>
+References: <4F7085DD.7050303@fold.natur.cuni.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1325847502-17841-1-git-send-email-djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <4F7085DD.7050303-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, ben-/+tVBieCtBitmTQ+vhA3Yw@public.gmane.org, David.Woodhouse-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+To: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
+Cc: mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi again Daniel,
+Dobry den Martine,
 
-On Fri,  6 Jan 2012 18:58:19 +0800, Daniel Kurtz wrote:
-> This is a second version of a set of patches enables the Intel PCH SMBus
-> controller interrupt.  It refactors the second two patches a little bit by
-> relying on DEV_ERR interrupt for timeouts, instead of using an explicit
-> wait_event_timeout.
+Sorry for the late reply.
+
+On Mon, 26 Mar 2012 17:06:05 +0200, Martin Mokrejs wrote:
+> Hi,
+>   I have the following message logged through syslog on a 2.6.32.59 kernel:
 > 
-> The first attempt received absolutely no response. Maybe this time someone
-> will be interested.
+> Mar 26 11:21:55 vostro kernel: i801_smbus 0000:00:1f.3: PCI INT C -> GSI 18 (level, low) -> IRQ 18
+> Mar 26 11:21:55 vostro kernel: ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
 > 
-> The SMBus Host Controller Interrupt can signify:
->  INTR - the end of a complete transaction
->  DEV_ERR - that a device did not ACK a transaction
->  BYTE_DONE - the completion of a single byte during a byte-by-byte transaction
 > 
-> This patchset arrives with the following caveats:
+> And here the relevant line from lspci:
+> 00:1f.3 SMBus: Intel Corporation 6 Series/C200 Series Chipset Family SMBus Controller (rev 05)
 > 
->  1)  It has only been tested with a Cougar Point (Intel 6 Series PCH) SMBus
-> controller, so the irq is only enabled for that chip type.
-
-I just finished testing (my modified version of the driver [1] which
-includes all the fixes discussed in this thread so far) on my ICH7-M
-machine which is running kernel 3.0. I could only test SMBus quick
-write and SMBus byte read, but that worked just fine. Speed boost is
-impressive, with a factor 7.0x for the former and 2.1x for the latter!
-Very nice, thanks Daniel!
-
-[1] http://khali.linux-fr.org/devel/misc/i2c-i801/
-    Everyone is invited to test this on ICH5+, just add your device ID
-    to the list of interrupt-enabled devices if it's not there yet,
-    test and report.
-
->  2) It has not been tested with any devices that do transactions that use the
->     PEC.  In fact, I believe that an additional small patch would be required
->     to the driver working correctly in interrupt mode with PEC.
-
-Couldn't test that either.
-
+> 00:1f.3 SMBus: Intel Corporation 6 Series/C200 Series Chipset Family SMBus Controller (rev 05)
+>         Subsystem: Dell Device 04b3
+>         Flags: medium devsel, IRQ 18
+>         Memory at f7f05000 (64-bit, non-prefetchable) [size=256]
+>         I/O ports at f040 [size=32]
+>         Kernel modules: i2c-i801
 > 
->  3) It has not been tested in SMBus Slave mode.
-
-Well the driver doesn't support it yet anyway.
-
 > 
->  4) It has not been tested with SMI#-type interrupts.
+>   So what driver should I use instead? This is a Dell Vostro 3550 laptop with Core i7 on
+> a SandyBridge.
 
-I don't think it can work at all. As I understand it, you have to fall
-back to polled mode if interrupts are set to SMI#. Probably not a big
-deal in practice, my 4 test systems have interrupt set to PCI type. I
-think it's easier for the BIOS to do busy polling than interrupt
-handling, so unless the BIOS needs the SMBus slave mode, it probably
-will never set interrupt mode to SMI# for the SMBus.
+Unfortunately, in most cases there's nothing that can be done. The ACPI
+BIOS has requested the SMBus controller for its own use. You can
+disassemble your DSDT to see if it has good reasons for that.
+Unfortunately most BIOSes that do this don't bother implementing a
+standard ACPI interface to the SMBus controller for the operating
+system's benefit. We have drivers for these standards (i2c-scmi and
+sbshc), but it only helps on the rare machines which implement them.
 
-> 
->  5) The BIOS has to configure the PCH SMBus IRQ properly.
+So, as a summary, if your ACPI BIOS implements any device in ACPI0001,
+ACPI0005 or SMBUS01, you may get SMBus to work, otherwise you won't,
+sorry. Feel free to bring up the issue to your hardware vendor if this
+bothers you.
 
-Sounds like a reasonable assumption.
-
-> 
->  6) It has not been tested with a device that does byte-by-byte smbus (non-i2c)
->     reads.
-
-I planned on testing this on my ICH3-M system, but it turns out your
-interrupt-based implementation only works for ICH5 and later chips. As
-ICH5 and later chips all implement the block buffer, there's no reason
-for the byte-by-byte-code to ever be used for SMBus block transactions.
-However, the block buffer feature can be disabled for testing purpose
-by passing module parameter disable_features=0x0002.
-
-I just did, and actually it doesn't work. i2cdump shows 32 bytes no
-matter what the device said. Debug log shows that the driver reads
-fewer bytes from the device though, as it is supposed to. So I think
-the problem is simply that the interrupt path is missing this compared
-to the polled path:
-
-		if (i == 1 && read_write == I2C_SMBUS_READ
-		 && command != I2C_SMBUS_I2C_BLOCK_DATA) {
-			len = inb_p(SMBHSTDAT0(priv));
-			(...)
-			data->block[0] = len;
-		}
-
-I.e. we don't let the caller know how many bytes we actually read from
-the device. I fixed it with:
-
---- i2c-i801.orig/i2c-i801.c	2012-06-27 09:51:25.000000000 +0200
-+++ i2c-i801/i2c-i801.c	2012-06-27 11:10:25.362853361 +0200
-@@ -408,6 +408,24 @@ static irqreturn_t i801_isr(int irq, voi
- 
- 	if (hststs & SMBHSTSTS_BYTE_DONE) {
- 		if (priv->is_read) {
-+			if (priv->count == 0
-+			 && (priv->cmd & 0x1c) == I801_BLOCK_DATA) {
-+				priv->len = inb_p(SMBHSTDAT0(priv));
-+				if (priv->len < 1
-+				 || priv->len > I2C_SMBUS_BLOCK_MAX) {
-+					dev_err(&priv->pci_dev->dev,
-+						"Illegal SMBus block read size %d\n",
-+						priv->len);
-+					/* FIXME: Recover */
-+					priv->len = I2C_SMBUS_BLOCK_MAX;
-+				} else {
-+					dev_dbg(&priv->pci_dev->dev,
-+						"SMBus block read size is %d\n",
-+						priv->len);
-+				}
-+				priv->data[-1] = priv->len;
-+			}
-+
- 			if (priv->count < priv->len) {
- 				priv->data[priv->count++] = inb(SMBBLKDAT(priv));
- 
-
-Context in your version of the driver will be somewhat different, but
-you get the idea.
-
->  7) It has not been tested with smbus 'process call' transactions.
-
-Can't test this either. Devices implementing these are quite rare.
-
-> 
-> If would be very helpful if somebody could help test on other chipsets, with
-> a PEC device, or on additional BIOS that woudl be very helpful.
-> 
-> In the meantime, the interrupt behavior is only enabled on the Cougar Point,
-> and even here, it can be completely disabled with the "Interrupt" feature like
-> other advanced features of the driver.
-
-Tested so far, successfully: ICH5, ICH7-M and ICH10. Tested and didn't
-work: ICH3-M (but at least I tested there was no regression introduced
-by your patches.)
-
-I think it's time to respin this patch series with all the fixes I
-suggested, unless you object to some of the non-critical changes. If
-you don't have the time, just tell me and I can take care, if you don't
-mind. I really would like to see this patch set go in kernel 3.6, which
-means it should go into linux-next ASAP.
-
-Thanks again,
 -- 
 Jean Delvare
