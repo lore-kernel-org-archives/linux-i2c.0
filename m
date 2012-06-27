@@ -1,70 +1,62 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 2/8 v3] i2c: i801: optimize waiting for HWPEC to finish
-Date: Wed, 27 Jun 2012 16:58:48 +0200
-Message-ID: <20120627165848.5a080673@endymion.delvare>
-References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
-	<1340805255-8041-3-git-send-email-djkurtz@chromium.org>
+From: Laxman Dewangan <ldewangan@nvidia.com>
+Subject: Re: [PATCH] i2c: tegra: use clk_disable_unprepare in place of clk_disable
+Date: Wed, 27 Jun 2012 21:29:20 +0530
+Message-ID: <4FEB2DD8.4090904@nvidia.com>
+References: <1340196960-3002-1-git-send-email-ldewangan@nvidia.com> <4FE1F9A0.6080200@wwwdotorg.org> <4FE1F9D6.6090802@wwwdotorg.org> <4FE83374.6090608@nvidia.com> <4FE889D6.4030500@wwwdotorg.org> <4FE9564C.4010502@nvidia.com> <4FE9E338.6090601@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340805255-8041-3-git-send-email-djkurtz@chromium.org>
+In-Reply-To: <4FE9E338.6090601@wwwdotorg.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Seth Heasley <seth.heasley@intel.com>, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: "w.sang@pengutronix.de" <w.sang@pengutronix.de>, "khali@linux-fr.org" <khali@linux-fr.org>, Stephen Warren <swarren@nvidia.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Prashant Gaikwad <pgaikwad@nvidia.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Daniel,
+On Tuesday 26 June 2012 09:58 PM, Stephen Warren wrote:
+> On 06/26/2012 12:27 AM, Laxman Dewangan wrote:
+>> On Monday 25 June 2012 09:25 PM, Stephen Warren wrote:
+>>> On 06/25/2012 03:46 AM, Laxman Dewangan wrote:
+>>>> Stephen,
+>>>>
+>>>> On Wednesday 20 June 2012 09:57 PM, Stephen Warren wrote:
+>>>>> On 06/20/2012 10:26 AM, Stephen Warren wrote:
+>>>>>> On 06/20/2012 06:56 AM, Laxman Dewangan wrote:
+>>>>>>> Use clk_disable_unprepare() inplace of clk_disable().
+>>>>>>> This was missed as part of moving clock enable/disable to
+>>>>>>> prepare/unprepare for using the common clock framework.
+>>>>> ...
+>>>>>> I see no reason not to take the second patch in the series through the
+>>>>>> I2C tree though.
+>>>>> Uggh. Ignore that paragraph - the other patch was sent separately
+>>>>> not as
+>>>>> a series.
+>>>> so are you taking care of this patch or do I need to send the patch
+>>>> based on your tree in place of linux-next?
+>>> Yes, this patch should be applied through the Tegra tree, since it will
+>>> be a dependency of the common clock framework switchover there, which I
+>>> hope to take place this kernel cycle.
+>>>
+>>> I did just attempt to apply this patch to the for-3.6/common-clk branch,
+>>> but it doesn't apply:-( Could you please rebase and resend. Thanks.
+>> Looked at your common_clk branch and the related code is not there.
+>> The clk_disable() in the particular case is introduced by change
+>> i2c: tegra: make all resource allocation through devm_*
+>> which is not in your branch.
+>>
+>> Then later Prashant post the change as
+>> i2c: tegra: Add clk_prepare/clk_unprepare
+>> and it does not accounted for the above patch.
+>>
+>> So none of your local tree will have this issue.
+> OK. In that case, it's best if this patch goes through the I2C tree
+> since that's where the code is that it's modifying. This might not be
+> optimal for runtime git bisection depending on the order Linus ends up
+> merging things, but it's probably as good as we can do without
+> inter-twining the I2C and Tegra trees a lot.
 
-On Wed, 27 Jun 2012 21:54:09 +0800, Daniel Kurtz wrote:
-> When a transaction has finished (including the PEC), the SMBus controller
-> sets the INTR bit.
-> Slightly optimize the polling loop by reading status before the first
-> sleep.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz@chromium.org>
-> ---
->  drivers/i2c/busses/i2c-i801.c |    6 +++---
->  1 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 51e11eb..8b74e1e 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -291,11 +291,11 @@ static void i801_wait_hwpec(struct i801_priv *priv)
->  	int timeout = 0;
->  	int status;
->  
-> -	do {
-> +	status = inb_p(SMBHSTSTS(priv));
-> +	while ((!(status & SMBHSTSTS_INTR)) && (timeout++ < MAX_RETRIES)) {
->  		usleep_range(250, 500);
->  		status = inb_p(SMBHSTSTS(priv));
-> -	} while ((!(status & SMBHSTSTS_INTR))
-> -		 && (timeout++ < MAX_RETRIES));
-> +	}
->  
->  	if (timeout > MAX_RETRIES)
->  		dev_dbg(&priv->pci_dev->dev, "PEC Timeout!\n");
 
-Hmm, I would be very cautious here. Deep memories whisper to me
-that we have sometimes done it that way in the past due to hardware
-bugs. I think it was for the PIIX4 and not the 82801, but I wouldn't be
-surprised if early 82801 chips had some hardware bugs as well.
+Then it can go Wolfram's tree along with other patch
+  i2c: tegra: remove unused member variable.
 
-Also note that optimizing the polling code isn't a priority when you're
-about to enable interrupts for most chips supported by the driver. If
-anything, leaving the polling code unchanged for now could even be a
-goal, to make sure that users can disable interrupts if that doesn't
-work for them, and things keep working as before.
-
-Plus, PEC isn't used that much (neither you nor me can test it). And
-lastly, are you really certain that there is a benefit? Are you sure
-that the SMBus controller is always faster to receive and process the
-PEC byte than the CPU is to reach the INTR check?
-
-Unless you have actual numbers showing a significant improvement, I'd
-rather postpone this change.
-
--- 
-Jean Delvare
+as some of previous i2c patches are in his tree.
