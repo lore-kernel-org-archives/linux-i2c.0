@@ -1,38 +1,62 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 1/2 V3] MXS: Set I2C timing registers for mxs-i2c
-Date: Wed, 27 Jun 2012 03:30:31 +0200
-Message-ID: <201206270330.31669.marex@denx.de>
-References: <1339242351-8797-1-git-send-email-marex@denx.de> <20120611063903.GD2552@S2101-09.ap.freescale.net> <201206111254.21766.marex@denx.de>
+From: Kevin Hilman <khilman@ti.com>
+Subject: Re: [PATCH 07/11] I2C: OMAP: Handle error check for pm runtime
+Date: Tue, 26 Jun 2012 20:43:32 -0500
+Message-ID: <874npxv8aj.fsf@ti.com>
+References: <1338288983-15026-1-git-send-email-shubhrajyoti@ti.com>
+	<1338288983-15026-8-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201206111254.21766.marex-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1338288983-15026-8-git-send-email-shubhrajyoti@ti.com>
+	(Shubhrajyoti D.'s message of "Tue, 29 May 2012 16:26:19 +0530")
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti D <shubhrajyoti@ti.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Shawn Guo,
+Shubhrajyoti D <shubhrajyoti@ti.com> writes:
 
-> > On Sat, Jun 09, 2012 at 01:45:50PM +0200, Marek Vasut wrote:
-> > > This patch configures the I2C bus timing registers according
-> > > to information passed via DT. Currently, 100kHz and 400kHz
-> > > modes are supported.
-> > > 
-> > > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-> > 
-> > I gave it a test on imx28-evk board with audio playback.  It seems
-> > the patch makes the first time playback non-functional, but the later
-> > playback is still working.
-> 
-> Any hints what can be the source of this issue? I tested it with i2c
-> eeprom, saw no issues in there. I'll poke into it later.
+> If PM runtime get_sync fails return with the error
+> so that no further reads/writes goes through the interface.
+> This will avoid possible abort. Add a error message in case
+> of failure with the cause of the failure.
+>
+> Reviewed-by: Kevin Hilman <khilman@ti.com>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 
-Ok, I managed to replicate it just now. Scrap my previous email.
+This patch introduced a regression where the runtime PM usecount will
+never reach zero and so CORE retention is prevented after any xfer
+failures...
 
-Still, any idea what can cause this?
+> ---
+> -v10 Use IS_ERR_VALUE
+> -v9 Fix the error handling
+>
+>  drivers/i2c/busses/i2c-omap.c |   14 +++++++++++---
+>  1 files changed, 11 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 44e8cfa..c39b72f 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -585,7 +585,9 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>  	int i;
+>  	int r;
+>  
+> -	pm_runtime_get_sync(dev->dev);
+> +	r = pm_runtime_get_sync(dev->dev);<
+> +	if (IS_ERR_VALUE(r))
+> +		return r;
 
-Best regards,
-Marek Vasut
+This return should be 'goto out' so the runtime PM usecount is
+decremented by the 'put'.  Otherwise, after failure, the usecount
+remains non-zero, so the device is considered 'active' and keeps the
+containing power domain active.
+
+I found this on a 3730/OveroSTORM where the suspend/resume of MMC fails
+because I2C is already suspended.  After the suspend though, the CORE
+powerdomain never again hits retention, and I tracked it down to this.
+
+I'll send a separate patch to fix this shortly.
+
+Kevin 
