@@ -1,62 +1,79 @@
-From: Laxman Dewangan <ldewangan@nvidia.com>
-Subject: Re: [PATCH] i2c: tegra: use clk_disable_unprepare in place of clk_disable
-Date: Wed, 27 Jun 2012 21:29:20 +0530
-Message-ID: <4FEB2DD8.4090904@nvidia.com>
-References: <1340196960-3002-1-git-send-email-ldewangan@nvidia.com> <4FE1F9A0.6080200@wwwdotorg.org> <4FE1F9D6.6090802@wwwdotorg.org> <4FE83374.6090608@nvidia.com> <4FE889D6.4030500@wwwdotorg.org> <4FE9564C.4010502@nvidia.com> <4FE9E338.6090601@wwwdotorg.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 3/8 v3] i2c: i801: check INTR after every transaction
+Date: Wed, 27 Jun 2012 18:07:24 +0200
+Message-ID: <20120627180724.762f854a@endymion.delvare>
+References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
+	<1340805255-8041-4-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <4FE9E338.6090601@wwwdotorg.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: "w.sang@pengutronix.de" <w.sang@pengutronix.de>, "khali@linux-fr.org" <khali@linux-fr.org>, Stephen Warren <swarren@nvidia.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Prashant Gaikwad <pgaikwad@nvidia.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1340805255-8041-4-git-send-email-djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 26 June 2012 09:58 PM, Stephen Warren wrote:
-> On 06/26/2012 12:27 AM, Laxman Dewangan wrote:
->> On Monday 25 June 2012 09:25 PM, Stephen Warren wrote:
->>> On 06/25/2012 03:46 AM, Laxman Dewangan wrote:
->>>> Stephen,
->>>>
->>>> On Wednesday 20 June 2012 09:57 PM, Stephen Warren wrote:
->>>>> On 06/20/2012 10:26 AM, Stephen Warren wrote:
->>>>>> On 06/20/2012 06:56 AM, Laxman Dewangan wrote:
->>>>>>> Use clk_disable_unprepare() inplace of clk_disable().
->>>>>>> This was missed as part of moving clock enable/disable to
->>>>>>> prepare/unprepare for using the common clock framework.
->>>>> ...
->>>>>> I see no reason not to take the second patch in the series through the
->>>>>> I2C tree though.
->>>>> Uggh. Ignore that paragraph - the other patch was sent separately
->>>>> not as
->>>>> a series.
->>>> so are you taking care of this patch or do I need to send the patch
->>>> based on your tree in place of linux-next?
->>> Yes, this patch should be applied through the Tegra tree, since it will
->>> be a dependency of the common clock framework switchover there, which I
->>> hope to take place this kernel cycle.
->>>
->>> I did just attempt to apply this patch to the for-3.6/common-clk branch,
->>> but it doesn't apply:-( Could you please rebase and resend. Thanks.
->> Looked at your common_clk branch and the related code is not there.
->> The clk_disable() in the particular case is introduced by change
->> i2c: tegra: make all resource allocation through devm_*
->> which is not in your branch.
->>
->> Then later Prashant post the change as
->> i2c: tegra: Add clk_prepare/clk_unprepare
->> and it does not accounted for the above patch.
->>
->> So none of your local tree will have this issue.
-> OK. In that case, it's best if this patch goes through the I2C tree
-> since that's where the code is that it's modifying. This might not be
-> optimal for runtime git bisection depending on the order Linus ends up
-> merging things, but it's probably as good as we can do without
-> inter-twining the I2C and Tegra trees a lot.
+On Wed, 27 Jun 2012 21:54:10 +0800, Daniel Kurtz wrote:
+> Per ICH10 datasheet [1] pg. 711, after completing a block transaction,
+> INTR should be checked & cleared separately, only after BYTE_DONE is
+> first cleared:
+> 
+>   When the last byte of a block message is received, the host controller
+> sets DS. However, it does not set the INTR bit (and generate another
+> interrupt) until DS is cleared. Thus, for a block message of n bytes,
+> the ICH10 will generate n+1 interrupts.
+> 
+> [1] http://www.intel.com/content/dam/doc/datasheet/io-controller-hub-10-family-datasheet.pdf
+> 
+> Currently, the INTR bit was only checked & cleared separately if the PEC
+> was used.
+> This patch checks and clears INTR at the very end of every successful
+> transaction, regardless of whether the PEC is used.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c |   46 ++++++++++++++++++++--------------------
+>  1 files changed, 23 insertions(+), 23 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 8b74e1e..6a53338 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -257,6 +257,24 @@ static int i801_check_post(struct i801_priv *priv, int status, int timeout)
+>  	return result;
+>  }
+>  
+> +/* wait for INTR bit as advised by Intel */
+> +static void i801_wait_intr(struct i801_priv *priv)
+> +{
+> +	int timeout = 0;
+> +	int status;
+> +
+> +	status = inb_p(SMBHSTSTS(priv));
+> +	while ((!(status & SMBHSTSTS_INTR)) && (timeout++ < MAX_RETRIES)) {
+> +		usleep_range(250, 500);
+> +		status = inb_p(SMBHSTSTS(priv));
+> +	}
 
+Per my comment on previous patch, I've swapped the logic here to be in
+line with what we had before. I have no objection to trying this change
+again, but later, and only if you have actual numbers to back it up.
 
-Then it can go Wolfram's tree along with other patch
-  i2c: tegra: remove unused member variable.
+> +
+> +	if (timeout > MAX_RETRIES)
+> +		dev_dbg(&priv->pci_dev->dev, "INTR Timeout!\n");
+> +
+> +	outb_p(status, SMBHSTSTS(priv));
 
-as some of previous i2c patches are in his tree.
+Wouldn't it be more correct to only write the INTR bit? Writing back
+the whole 8 bits frightens me a little especially because of bit
+INUSE_STS. If we ever want to support this feature, I think we have to
+first ban writing back the whole status to register HST_STS. And this
+is the only place where we still do AFAICS.
+
+(This isn't a regression from your patch, the old code was already
+doing that, but it might be the opportunity to fix it.)
+
+-- 
+Jean Delvare
