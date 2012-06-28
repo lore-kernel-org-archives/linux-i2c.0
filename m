@@ -1,47 +1,114 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-i801: Clear only status bits in HST_STS after
- waiting for INTR
-Date: Thu, 28 Jun 2012 14:51:59 +0200
-Message-ID: <20120628145159.3725395b@endymion.delvare>
-References: <1340873970-19226-1-git-send-email-djkurtz@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1340873970-19226-1-git-send-email-djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH] i2c-s3c2410: Convert to devm_request_and_ioremap()
+Date: Thu, 28 Jun 2012 13:55:38 +0100
+Message-ID: <1340888138-32710-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 28 Jun 2012 16:59:30 +0800, Daniel Kurtz wrote:
-> Writing back the whole status register could clear unwanted bits.
-> In particular, it could clear the "INUSE_STS" bit, which is a
-> 'hardware semaphore', that might be useful to use some day.
-> To prepare for this, let's ban writing back the whole status to register
-> HST_STS, of which this is the only instance.
-> 
-> Signed-off-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Reported-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-i801.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index ae2945a..7443990 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -301,7 +301,7 @@ static void i801_wait_hwpec(struct i801_priv *priv)
->  	if (timeout > MAX_RETRIES)
->  		dev_dbg(&priv->pci_dev->dev, "PEC Timeout!\n");
->  
-> -	outb_p(status, SMBHSTSTS(priv));
-> +	outb_p(status & STATUS_FLAGS, SMBHSTSTS(priv));
->  }
->  
->  static int i801_block_transaction_by_block(struct i801_priv *priv,
+A small code saving and less error handling to worry about.
 
-Applied, thanks.
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |   35 +++++++----------------------------
+ 1 file changed, 7 insertions(+), 28 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 7fe8c73..ddd5797 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -78,7 +78,6 @@ struct s3c24xx_i2c {
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+ 	struct device		*dev;
+-	struct resource		*ioarea;
+ 	struct i2c_adapter	adap;
+ 
+ 	struct s3c2410_platform_i2c	*pdata;
+@@ -988,25 +987,16 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		goto err_clk;
+ 	}
+ 
+-	i2c->ioarea = request_mem_region(res->start, resource_size(res),
+-					 pdev->name);
+-
+-	if (i2c->ioarea == NULL) {
+-		dev_err(&pdev->dev, "cannot request IO\n");
+-		ret = -ENXIO;
+-		goto err_clk;
+-	}
+-
+-	i2c->regs = ioremap(res->start, resource_size(res));
++	i2c->regs = devm_request_and_ioremap(&pdev->dev, res);
+ 
+ 	if (i2c->regs == NULL) {
+ 		dev_err(&pdev->dev, "cannot map IO\n");
+ 		ret = -ENXIO;
+-		goto err_ioarea;
++		goto err_clk;
+ 	}
+ 
+-	dev_dbg(&pdev->dev, "registers %p (%p, %p)\n",
+-		i2c->regs, i2c->ioarea, res);
++	dev_dbg(&pdev->dev, "registers %p (%p)\n",
++		i2c->regs, res);
+ 
+ 	/* setup info block for the i2c core */
+ 
+@@ -1017,7 +1007,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = s3c24xx_i2c_init(i2c);
+ 	if (ret != 0)
+-		goto err_iomap;
++		goto err_clk;
+ 
+ 	/* find the IRQ for this unit (note, this relies on the init call to
+ 	 * ensure no current IRQs pending
+@@ -1026,7 +1016,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	i2c->irq = ret = platform_get_irq(pdev, 0);
+ 	if (ret <= 0) {
+ 		dev_err(&pdev->dev, "cannot find IRQ\n");
+-		goto err_iomap;
++		goto err_clk;
+ 	}
+ 
+ 	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, 0,
+@@ -1034,7 +1024,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
+-		goto err_iomap;
++		goto err_clk;
+ 	}
+ 
+ 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+@@ -1074,13 +1064,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+  err_irq:
+ 	free_irq(i2c->irq, i2c);
+ 
+- err_iomap:
+-	iounmap(i2c->regs);
+-
+- err_ioarea:
+-	release_resource(i2c->ioarea);
+-	kfree(i2c->ioarea);
+-
+  err_clk:
+ 	clk_disable(i2c->clk);
+ 	clk_put(i2c->clk);
+@@ -1109,11 +1092,7 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 	clk_disable(i2c->clk);
+ 	clk_put(i2c->clk);
+ 
+-	iounmap(i2c->regs);
+-
+-	release_resource(i2c->ioarea);
+ 	s3c24xx_i2c_dt_gpio_free(i2c);
+-	kfree(i2c->ioarea);
+ 
+ 	return 0;
+ }
 -- 
-Jean Delvare
+1.7.10
