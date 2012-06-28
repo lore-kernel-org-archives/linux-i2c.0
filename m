@@ -1,49 +1,56 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv11 4/6] i2c: omap: Remove the definition of SYSS_RESETDONE_MASK
-Date: Thu, 28 Jun 2012 20:41:30 +0530
-Message-ID: <1340896292-12112-5-git-send-email-shubhrajyoti@ti.com>
+From: "ABRAHAM, KISHON VIJAY" <kishon-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv11 3/6] i2c: omap: Do not initialise the completion everytime
+Date: Thu, 28 Jun 2012 21:33:11 +0530
+Message-ID: <CAAe_U6Jtoj3mixvp+vqNmkr-RC28AfNqZ0syEE5voEr+Odv3zg@mail.gmail.com>
 References: <1340896292-12112-1-git-send-email-shubhrajyoti@ti.com>
+	<1340896292-12112-4-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1340896292-12112-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1340896292-12112-4-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Remove the definition of SYSS_RESETDONE_MASK and use the
-one in omap_hwmod.h.
+Hi,
 
-Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
-- Add Felipe's reviewed by tag
+On Thu, Jun 28, 2012 at 8:41 PM, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> w=
+rote:
+> Use INIT_COMPLETION instead of init_completion in transfer.
+>
+> Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> ---
+> - Add Felipe's reviewed-by tag
+>
+> =A0drivers/i2c/busses/i2c-omap.c | =A0 =A03 ++-
+> =A01 files changed, 2 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-o=
+map.c
+> index b9915bb..6d05f18 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -490,7 +490,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *=
+adap,
+> =A0 =A0 =A0 =A0w |=3D OMAP_I2C_BUF_RXFIF_CLR | OMAP_I2C_BUF_TXFIF_CLR=
+;
+> =A0 =A0 =A0 =A0omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, w);
+>
+> - =A0 =A0 =A0 init_completion(&dev->cmd_complete);
+> + =A0 =A0 =A0 INIT_COMPLETION(dev->cmd_complete);
+> =A0 =A0 =A0 =A0dev->cmd_err =3D 0;
+>
+> =A0 =A0 =A0 =A0w =3D OMAP_I2C_CON_EN | OMAP_I2C_CON_MST | OMAP_I2C_CO=
+N_STT;
+> @@ -999,6 +999,7 @@ omap_i2c_probe(struct platform_device *pdev)
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0platform_set_drvdata(pdev, dev);
+> + =A0 =A0 =A0 init_completion(&dev->cmd_complete);
+It should be INIT_COMPLETION here too.
 
- drivers/i2c/busses/i2c-omap.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 6d05f18..4bbf288 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -43,6 +43,7 @@
- #include <linux/slab.h>
- #include <linux/i2c-omap.h>
- #include <linux/pm_runtime.h>
-+#include <plat/omap_hwmod.h>
- 
- /* I2C controller revisions */
- #define OMAP_I2C_OMAP1_REV_2		0x20
-@@ -158,9 +159,6 @@ enum {
- #define OMAP_I2C_SYSTEST_SDA_O		(1 << 0)	/* SDA line drive out */
- #endif
- 
--/* OCP_SYSSTATUS bit definitions */
--#define SYSS_RESETDONE_MASK		(1 << 0)
--
- /* OCP_SYSCONFIG bit definitions */
- #define SYSC_CLOCKACTIVITY_MASK		(0x3 << 8)
- #define SYSC_SIDLEMODE_MASK		(0x3 << 3)
--- 
-1.7.5.4
+Thanks
+Kishon
