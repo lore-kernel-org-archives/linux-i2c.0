@@ -1,118 +1,65 @@
-From: Dong Aisheng <aisheng.dong-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH 2/2] MXS: Implement DMA support into mxs-i2c
-Date: Fri, 29 Jun 2012 20:05:13 +0800
-Message-ID: <20120629120512.GP5844@shlinux2.ap.freescale.net>
-References: <1340958243-2332-1-git-send-email-marex@denx.de>
- <201206291130.17060.marex@denx.de>
- <20120629093806.GL5844@shlinux2.ap.freescale.net>
- <201206291202.46986.marex@denx.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [RFC PATCH 1/3] i2c: add 'actual' field to struct i2c_msg
+Date: Fri, 29 Jun 2012 14:33:20 +0200
+Message-ID: <20120629143320.42f51c0a@endymion.delvare>
+References: <1340967927-27354-1-git-send-email-shubhrajyoti@ti.com>
+	<1340967927-27354-2-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201206291202.46986.marex-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <1340967927-27354-2-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: Dong Aisheng-B29396 <B29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 29, 2012 at 06:02:46PM +0800, Marek Vasut wrote:
-> Dear Dong Aisheng,
->=20
-> > On Fri, Jun 29, 2012 at 05:30:16PM +0800, Marek Vasut wrote:
-> > > Dear Dong Aisheng,
-> > >=20
-> > > > On Fri, Jun 29, 2012 at 04:24:03PM +0800, Marek Vasut wrote:
-> > > > > This patch implements DMA support into mxs-i2c. DMA transfers=
- are now
-> > > > > enabled via DT. The DMA operation is enabled by default.
-> > > > >=20
-> > > > > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-> > > > > Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>
-> > > > > CC: Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > > > CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > > > > Cc: Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-> > > > > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > > > > CC: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > > > > CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> > > > > Cc: Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>
-> > > > > CC: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > > > > Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-> > > > > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> > > > > ---
-> > > > >=20
-> > > > >  Documentation/devicetree/bindings/i2c/i2c-mxs.txt |    4 +
-> > > > >  arch/arm/boot/dts/imx28.dtsi                      |    2 +
-> > > > >  drivers/i2c/busses/i2c-mxs.c                      |  267
-> > > > >  +++++++++++++++++++-- 3 files changed, 251 insertions(+), 22
-> > > > >  deletions(-)
-> > > > >=20
-> > > > > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mxs.tx=
-t
-> > > > > b/Documentation/devicetree/bindings/i2c/i2c-mxs.txt index
-> > > > > d2bf750..9497ee0 100644
-> > > > > --- a/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
-> > > > > +++ b/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
-> > > > >=20
-> > > > > @@ -5,6 +5,10 @@ Required properties:
-> > > > >  - reg: Should contain registers location and length
-> > > > >  - interrupts: Should contain ERROR and DMA interrupts
-> > > > >  - clock-frequency: desired I2C bus clock frequency in Hz.
-> > > > >=20
-> > > > > +- fsl,i2c-dma-channel: APBX DMA channel for the I2C
-> > > >=20
-> > > > Shoundn't this be optional?
-> > >=20
-> > > DMA channel? No, why?
-> >=20
-> > User can use pio mode, so actually it's optional.
-> > Is it reasonable?
->=20
-> PIO mode is something that should not be used unless it's to be used =
-for=20
-> debugging purposes. The ultimate goal then is to use PIO for small tr=
-ansfers and=20
-> DMA for large transfers. But that's not implemented yet and DMA is de=
-fault.
->=20
-Because DMA channel is not the minimum required properties to make HW w=
-ork,
-so i had that question.
-Anyway, i think it's not a big issue.
-If you really like it to be mandatory required for default dma mode, i'=
-m ok with it.
+On Fri, 29 Jun 2012 16:35:25 +0530, Shubhrajyoti D wrote:
+> In case of a NACK, it's wise to tell our clients
+> drivers about how many bytes were actually transferred.
+> 
+> Support this by adding an extra field to the struct
+> i2c_msg which gets incremented the amount of bytes
+> actually transferred.
+> 
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> ---
+>  include/linux/i2c.h |    1 +
+>  1 files changed, 1 insertions(+), 0 deletions(-)
+> 
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index ddfa041..0cb6b83 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -547,6 +547,7 @@ struct i2c_msg {
+>  #define I2C_M_NO_RD_ACK		0x0800	/* if I2C_FUNC_PROTOCOL_MANGLING */
+>  #define I2C_M_RECV_LEN		0x0400	/* length will be first received byte */
+>  	__u16 len;		/* msg length				*/
+> +	__u16 actual;		/* actual bytes transferred             */
+>  	__u8 *buf;		/* pointer to msg data			*/
+>  };
+>  
 
-> > > > > +	/*
-> > > > > +	 * The last descriptor must have this callback,
-> > > > > +	 * to finish the DMA transaction.
-> > > > > +	 */
-> > > > > +	desc->callback =3D mxs_i2c_dma_irq_callback;
-> > > > > +	desc->callback_param =3D i2c;
-> > > > > +
-> > > > > +	/* Start the transfer. */
-> > > > > +	dmaengine_submit(desc);
-> > > > > +	dma_async_issue_pending(i2c->dmach);
-> > > > > +	return 0;
-> > > > > +
-> > > > > +/* Read failpath. */
-> > > > > +read_init_dma_fail:
-> > > > > +	dma_unmap_sg(i2c->dev, &i2c->sg_io[1], 1, DMA_FROM_DEVICE);
-> > > > > +select_init_dma_fail:
-> > > > > +	dma_unmap_sg(i2c->dev, &i2c->sg_io[0], 1, DMA_TO_DEVICE);
-> > > > > +select_init_pio_fail:
-> > > > > +	return 1;
-> > > >=20
-> > > > look strange why return 1;
-> > >=20
-> > > Because it failed. -Esomething might be better ?
-> >=20
-> > i think yes.
->=20
-> And -Ewhat do you suggest ? :)
->=20
-I checked mxs-dma driver, it seems both EBUSY or EINVAL are ok.
-You can choose one. :)
+David Brownell discussed this a long time ago:
+http://marc.info/?l=linux-i2c&m=121103523020494&w=2
 
-Regards
-Dong Aisheng
+This structure is exported to user-space through i2c-dev, so changing
+it is tough if possible at all. You first have to ensure that the
+change doesn't alter the structure size. In other words, the field you
+add must fit in a padding hole the structure had previously. This
+appears to be the case here, but I'm not sure how to prove it for all
+supported architectures.
+
+Then, as you are inserting a field in the middle of the structure, you
+must ensure that every initialization follows C99. And you have to do
+that _before_ the above change, not after as you did in patch 3/3. This
+needs to be done in both the whole kernel tree and as many user-space
+applications as possible. At least i2c-tools is clean, but there must
+be other (possibly unpublished) tools using this API, which your change
+may break. We can't fix them all, but at least we will have to document
+the change clearly and explain how to fix in case of breakage. The i2c
+wiki might be the right place for that.
+
+-- 
+Jean Delvare
