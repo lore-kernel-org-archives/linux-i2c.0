@@ -1,116 +1,78 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] I2C: OMAP: xfer: fix runtime PM get/put balance on error
-Date: Thu, 28 Jun 2012 16:55:08 -0500
-Message-ID: <87lij7nltv.fsf@ti.com>
-References: <1340761532-27231-1-git-send-email-khilman@ti.com>
-	<CAM=Q2cuLCT2VzcUgrpyRWiX61t1F+iWchO9iLC=Ka9MFVm4_bQ@mail.gmail.com>
+From: "Zhang, Shijie" <shijie.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCHv11 3/6] i2c: omap: Do not initialise the completion
+ everytime
+Date: Fri, 29 Jun 2012 01:34:43 +0000
+Message-ID: <F432D66873BF804996E7E830C3B891790FD37C8E@SHSMSX102.ccr.corp.intel.com>
+References: <1340896292-12112-1-git-send-email-shubhrajyoti@ti.com>
+	<1340896292-12112-4-git-send-email-shubhrajyoti@ti.com>
+ <CAAe_U6Jtoj3mixvp+vqNmkr-RC28AfNqZ0syEE5voEr+Odv3zg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2cuLCT2VzcUgrpyRWiX61t1F+iWchO9iLC=Ka9MFVm4_bQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-	(Shubhrajyoti Datta's message of "Wed, 27 Jun 2012 11:41:47 +0530")
+In-Reply-To: <CAAe_U6Jtoj3mixvp+vqNmkr-RC28AfNqZ0syEE5voEr+Odv3zg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+To: "ABRAHAM, KISHON VIJAY" <kishon-l0cyMroinI0@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org" <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Shubhrajyoti,
+No, it should be init_completion(&dev->cmd_complete); in probe, we need=
+ to initialize the wait queue, which will be used when using "complete(=
+=2E.....)"
 
-Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
 
-> Hi Kevin,
-> Thanks for the patch ,
-> a doubt below
+-----Original Message-----
+=46rom: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org [mailto:linux-i2c-owner-fy+rA21nqHI@public.gmane.org=
+rnel.org] On Behalf Of ABRAHAM, KISHON VIJAY
+Sent: Friday, June 29, 2012 12:03 AM
+To: Shubhrajyoti D
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-ke=
+rnel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org; w.sang=
+@pengutronix.de
+Subject: Re: [PATCHv11 3/6] i2c: omap: Do not initialise the completion=
+ everytime
 
-Thanks for the review.
+Hi,
 
-> On Wed, Jun 27, 2012 at 7:15 AM, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> wrote:
->> In omap_i2c_xfer(), ensure pm_runtime_put() is called, even on
->> failure.
-> So the failure means that the usecount is incremented. However the
-> device was not
-> enabled.=20
-
-Correct.
-
-> In that case could we consider
+On Thu, Jun 28, 2012 at 8:41 PM, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> w=
+rote:
+> Use INIT_COMPLETION instead of init_completion in transfer.
 >
->    void pm_runtime_put_noidle(struct device *dev);
->     - decrement the device's usage counter
+> Reviewed-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> ---
+> - Add Felipe's reviewed-by tag
 >
-> Which will only decrement the counter and does not try to disable it.
-
-No, that is not needed.
-
-> However I am not sure what happens if you try to disable an already
-> disabled device.
-
-The runtime PM core already knows that the device is not enabled so wil=
-l
-not need to call the disable hooks.  It already needs this functionalit=
-y
-to support the _get_noresume() and _put_noidle() calls.
-
-I tested this on 3730/OveroSTORM where I was seeing this i2c xfer
-failure (and thus a failure in MMC suspend, which uses I2C to control
-the regulator.)
-
-Hope that helps clarify,
-
-If so, Wolfram, can you queue this up in your i2c-embedded/for-next
-branch since this problem was introduced there.
-
-Thanks,
-
-Kevin
-
->>
->> Without this, after a failed xfer, the runtime PM usecount will have
->> been incremented, but not decremented
+> =A0drivers/i2c/busses/i2c-omap.c | =A0 =A03 ++-
+> =A01 files changed, 2 insertions(+), 1 deletions(-)
 >
-> Agree.
+> diff --git a/drivers/i2c/busses/i2c-omap.c=20
+> b/drivers/i2c/busses/i2c-omap.c index b9915bb..6d05f18 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -490,7 +490,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter=20
+> *adap,
+> =A0 =A0 =A0 =A0w |=3D OMAP_I2C_BUF_RXFIF_CLR | OMAP_I2C_BUF_TXFIF_CLR=
+;
+> =A0 =A0 =A0 =A0omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, w);
 >
->> causing the usecount to never
->> reach zero after a failure. =C2=A0This keeps the device always runti=
-me PM
->> enabled which keeps the enclosing power domain active, and prevents
->> full-chip retention/off from happening during idle.
->>
->> Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
->> Signed-off-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
->> ---
->> This patch applies to current i2c-embedded/for-next branch
->>
->> =C2=A0drivers/i2c/busses/i2c-omap.c | =C2=A0 =C2=A02 +-
->> =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-=
-omap.c
->> index 9895fa7..b105733 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -582,7 +582,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i=
-2c_msg msgs[], int num)
->>
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0r =3D pm_runtime_get_sync(dev->dev);
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (IS_ERR_VALUE(r))
->> - =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 return r;
->> + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto out;
->>
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0r =3D omap_i2c_wait_for_bb(dev);
->> =C2=A0 =C2=A0 =C2=A0 =C2=A0if (r < 0)
->> --
->> 1.7.9.2
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-omap=
-" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at =C2=A0http://vger.kernel.org/majordomo-info.h=
-tml
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap"=
- in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> - =A0 =A0 =A0 init_completion(&dev->cmd_complete);
+> + =A0 =A0 =A0 INIT_COMPLETION(dev->cmd_complete);
+> =A0 =A0 =A0 =A0dev->cmd_err =3D 0;
+>
+> =A0 =A0 =A0 =A0w =3D OMAP_I2C_CON_EN | OMAP_I2C_CON_MST | OMAP_I2C_CO=
+N_STT; @@=20
+> -999,6 +999,7 @@ omap_i2c_probe(struct platform_device *pdev)
+> =A0 =A0 =A0 =A0}
+>
+> =A0 =A0 =A0 =A0platform_set_drvdata(pdev, dev);
+> + =A0 =A0 =A0 init_completion(&dev->cmd_complete);
+It should be INIT_COMPLETION here too.
+
+Thanks
+Kishon
+--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in=
+ the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org More majordomo info=
+ at  http://vger.kernel.org/majordomo-info.html
