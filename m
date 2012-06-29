@@ -1,77 +1,118 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] I2C: OMAP: fix runtime PM get/put balance on error
-Date: Fri, 29 Jun 2012 07:02:21 -0500
-Message-ID: <874npunx6a.fsf@ti.com>
-References: <1340960868-7371-1-git-send-email-shubhrajyoti@ti.com>
+From: Dong Aisheng <aisheng.dong-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH 2/2] MXS: Implement DMA support into mxs-i2c
+Date: Fri, 29 Jun 2012 20:05:13 +0800
+Message-ID: <20120629120512.GP5844@shlinux2.ap.freescale.net>
+References: <1340958243-2332-1-git-send-email-marex@denx.de>
+ <201206291130.17060.marex@denx.de>
+ <20120629093806.GL5844@shlinux2.ap.freescale.net>
+ <201206291202.46986.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1340960868-7371-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-	(Shubhrajyoti D.'s message of "Fri, 29 Jun 2012 14:37:48 +0530")
+Content-Disposition: inline
+In-Reply-To: <201206291202.46986.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Dong Aisheng-B29396 <B29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
+On Fri, Jun 29, 2012 at 06:02:46PM +0800, Marek Vasut wrote:
+> Dear Dong Aisheng,
+>=20
+> > On Fri, Jun 29, 2012 at 05:30:16PM +0800, Marek Vasut wrote:
+> > > Dear Dong Aisheng,
+> > >=20
+> > > > On Fri, Jun 29, 2012 at 04:24:03PM +0800, Marek Vasut wrote:
+> > > > > This patch implements DMA support into mxs-i2c. DMA transfers=
+ are now
+> > > > > enabled via DT. The DMA operation is enabled by default.
+> > > > >=20
+> > > > > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > > > > Cc: Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>
+> > > > > CC: Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > > > CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > > > Cc: Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+> > > > > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > > > > CC: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > > > CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > > > > Cc: Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>
+> > > > > CC: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > > > Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+> > > > > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > > > ---
+> > > > >=20
+> > > > >  Documentation/devicetree/bindings/i2c/i2c-mxs.txt |    4 +
+> > > > >  arch/arm/boot/dts/imx28.dtsi                      |    2 +
+> > > > >  drivers/i2c/busses/i2c-mxs.c                      |  267
+> > > > >  +++++++++++++++++++-- 3 files changed, 251 insertions(+), 22
+> > > > >  deletions(-)
+> > > > >=20
+> > > > > diff --git a/Documentation/devicetree/bindings/i2c/i2c-mxs.tx=
+t
+> > > > > b/Documentation/devicetree/bindings/i2c/i2c-mxs.txt index
+> > > > > d2bf750..9497ee0 100644
+> > > > > --- a/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
+> > > > > +++ b/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
+> > > > >=20
+> > > > > @@ -5,6 +5,10 @@ Required properties:
+> > > > >  - reg: Should contain registers location and length
+> > > > >  - interrupts: Should contain ERROR and DMA interrupts
+> > > > >  - clock-frequency: desired I2C bus clock frequency in Hz.
+> > > > >=20
+> > > > > +- fsl,i2c-dma-channel: APBX DMA channel for the I2C
+> > > >=20
+> > > > Shoundn't this be optional?
+> > >=20
+> > > DMA channel? No, why?
+> >=20
+> > User can use pio mode, so actually it's optional.
+> > Is it reasonable?
+>=20
+> PIO mode is something that should not be used unless it's to be used =
+for=20
+> debugging purposes. The ultimate goal then is to use PIO for small tr=
+ansfers and=20
+> DMA for large transfers. But that's not implemented yet and DMA is de=
+fault.
+>=20
+Because DMA channel is not the minimum required properties to make HW w=
+ork,
+so i had that question.
+Anyway, i think it's not a big issue.
+If you really like it to be mandatory required for default dma mode, i'=
+m ok with it.
 
->     ensure pm_runtime_put() is called, on pm_runtime_get_sync()
->     failure.
->
->     Without this, after a failed call, the runtime PM usecount will have
->     been incremented, but not decremented causing the usecount to never
->     reach zero after a failure. Thanks to Kevin for educating about it. 
->     While at it also fix a missing pm_runtime_disable in the probe error
->     path.
+> > > > > +	/*
+> > > > > +	 * The last descriptor must have this callback,
+> > > > > +	 * to finish the DMA transaction.
+> > > > > +	 */
+> > > > > +	desc->callback =3D mxs_i2c_dma_irq_callback;
+> > > > > +	desc->callback_param =3D i2c;
+> > > > > +
+> > > > > +	/* Start the transfer. */
+> > > > > +	dmaengine_submit(desc);
+> > > > > +	dma_async_issue_pending(i2c->dmach);
+> > > > > +	return 0;
+> > > > > +
+> > > > > +/* Read failpath. */
+> > > > > +read_init_dma_fail:
+> > > > > +	dma_unmap_sg(i2c->dev, &i2c->sg_io[1], 1, DMA_FROM_DEVICE);
+> > > > > +select_init_dma_fail:
+> > > > > +	dma_unmap_sg(i2c->dev, &i2c->sg_io[0], 1, DMA_TO_DEVICE);
+> > > > > +select_init_pio_fail:
+> > > > > +	return 1;
+> > > >=20
+> > > > look strange why return 1;
+> > >=20
+> > > Because it failed. -Esomething might be better ?
+> >=20
+> > i think yes.
+>=20
+> And -Ewhat do you suggest ? :)
+>=20
+I checked mxs-dma driver, it seems both EBUSY or EINVAL are ok.
+You can choose one. :)
 
-This is the same subject and changelog as the patch I sent, but is a
-different patch.  
-
-Please write a new subject and a changelog specific to your patch.
-
-As this changes the error/failure path, please be specific about how
-the failure modes were tested, and on which platforms.
-
-> Cc: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-omap.c |    7 +++----
->  1 files changed, 3 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 2500f19..c8e5c76 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1113,10 +1113,10 @@ err_free_irq:
->  	free_irq(dev->irq, dev);
->  err_unuse_clocks:
->  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
-> +err_free_mem:
->  	pm_runtime_put(dev->dev);
->  	iounmap(dev->base);
-
-This doesn't look right.  At least one of the gotos for this label, the
-ioremap has failed.
-
->  	pm_runtime_disable(&pdev->dev);
-> -err_free_mem:
->  	platform_set_drvdata(pdev, NULL);
->  	kfree(dev);
->  err_release_region:
-> @@ -1136,10 +1136,9 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
->  	free_irq(dev->irq, dev);
->  	i2c_del_adapter(&dev->adapter);
->  	ret = pm_runtime_get_sync(&pdev->dev);
-> -	if (IS_ERR_VALUE(ret))
-> -		return ret;
-> +	if (!IS_ERR_VALUE(ret))
-> +		omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
-
-this change isn't described in changelog
-
-> -	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
->  	pm_runtime_put(&pdev->dev);
->  	pm_runtime_disable(&pdev->dev);
->  	iounmap(dev->base);
-
-Kevin
+Regards
+Dong Aisheng
