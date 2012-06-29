@@ -1,73 +1,33 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [RFC PATCH 2/3] i2c: omap: implement handling for 'actual' bytes transferred
-Date: Fri, 29 Jun 2012 16:35:26 +0530
-Message-ID: <1340967927-27354-3-git-send-email-shubhrajyoti@ti.com>
-References: <1340967927-27354-1-git-send-email-shubhrajyoti@ti.com>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/2] MXS: Set I2C timing registers for mxs-i2c
+Date: Fri, 29 Jun 2012 19:47:16 +0800
+Message-ID: <20120629114714.GE29197@S2101-09.ap.freescale.net>
+References: <1340958243-2332-1-git-send-email-marex@denx.de>
+ <20120629090602.GI5844@shlinux2.ap.freescale.net>
+ <201206291133.09379.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1340967927-27354-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Felipe Balbi <balbi@ti.com>, Shubhrajyoti D <shubhrajyoti@ti.com>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201206291133.09379.marex-ynQEQJNshbs@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Dong Aisheng <aisheng.dong-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng-B29396 <B29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Felipe Balbi <balbi@ti.com>
+On Fri, Jun 29, 2012 at 11:33:09AM +0200, Marek Vasut wrote:
+> > I did not check spec,
+> > is it possible the supplied clock changed?
+> 
+> It's possible indeed ... Shawn?
+> 
+It's technically possible, but probably not practically.  The imx28 RM
+does not mention i2c clock at all, and I was told by designer that i2c
+always runs at the same frequency as apbx, which sources from ref_xtal
+(always 24 MHz).  Though there is a divider for apbx clock, it seems
+every single running system sets the divider as 1 all the time.  That
+said, what I have seen is the i2c clock is always 24 MHz.
 
-this is important in cases where client driver
-wants to know how many bytes were actually
-transferred.
-
-Signed-off-by: Felipe Balbi <balbi@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- drivers/i2c/busses/i2c-omap.c |    5 +++++
- 1 files changed, 5 insertions(+), 0 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 266bba7..fc726a6 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -189,6 +189,7 @@ struct omap_i2c_dev {
- 	u8			*buf;
- 	u8			*regs;
- 	size_t			buf_len;
-+	u16			actual;
- 	struct i2c_adapter	adapter;
- 	u8			threshold;
- 	u8			fifo_size;	/* use as flag and value
-@@ -601,6 +602,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
- 		omap_i2c_init(dev);
- 		return -ETIMEDOUT;
- 	}
-+	msg->actual = dev->actual;
- 
- 	if (likely(!dev->cmd_err))
- 		return 0;
-@@ -828,6 +830,7 @@ static void omap_i2c_receive_data(struct omap_i2c_dev *dev, u8 num_bytes,
- 		w = omap_i2c_read_reg(dev, OMAP_I2C_DATA_REG);
- 		*dev->buf++ = w;
- 		dev->buf_len--;
-+		dev->actual++;
- 
- 		/*
- 		 * Data reg in 2430, omap3 and
-@@ -848,6 +851,7 @@ static int omap_i2c_transmit_data(struct omap_i2c_dev *dev, u8 num_bytes,
- 	while (num_bytes--) {
- 		w = *dev->buf++;
- 		dev->buf_len--;
-+		dev->actual++;
- 
- 		/*
- 		 * Data reg in 2430, omap3 and
-@@ -908,6 +912,7 @@ omap_i2c_isr(int this_irq, void *dev_id)
- 
- 		if (stat & OMAP_I2C_STAT_NACK) {
- 			err |= OMAP_I2C_STAT_NACK;
-+			dev->actual--;
- 			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_NACK);
- 			goto out;
- 		}
 -- 
-1.7.5.4
-
+Regards,
+Shawn
