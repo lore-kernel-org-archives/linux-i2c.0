@@ -1,115 +1,116 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHv3 07/17] i2c: omap: improve i462 errata handling
-Date: Fri, 29 Jun 2012 15:43:27 +0530
-Message-ID: <1340964817-8599-8-git-send-email-shubhrajyoti@ti.com>
-References: <1340964817-8599-1-git-send-email-shubhrajyoti@ti.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: [PATCH] i2c: Export an unlocked flavor of i2c_transfer
+Date: Fri, 29 Jun 2012 12:47:19 +0200
+Message-ID: <20120629124719.2cf23f6b@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1340964817-8599-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Felipe Balbi <balbi@ti.com>, Shubhrajyoti D <shubhrajyoti@ti.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-media-owner@vger.kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: Linux I2C <linux-i2c@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: LMML <linux-media@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Felipe Balbi <balbi@ti.com>
+Some drivers (in particular for TV cards) need exclusive access to
+their I2C buses for specific operations. Export an unlocked flavor
+of i2c_transfer to give them full control.
 
-Make it not depend on ISR's local variables
-in order to make it easier to re-factor the
-transmit data loop.
-Also since we are waiting for XUDF just before
-writing data lets not flag the underflow.
-This is anyways going to go once we write
-the data.
+The unlocked flavor has the following limitations:
+* Obviously, caller must hold the i2c adapter lock.
+* No debug messages are logged. We don't want to log messages while
+  holding a rt_mutex.
+* No check is done on the existence of adap->algo->master_xfer. It
+  is thus the caller's responsibility to ensure that the function is
+  OK to call.
 
-Signed-off-by: Felipe Balbi <balbi@ti.com>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+Cc: Mauro Carvalho Chehab <mchehab@redhat.com>
 ---
- drivers/i2c/busses/i2c-omap.c |   43 ++++++++++++++++++++++++++++------------
- 1 files changed, 30 insertions(+), 13 deletions(-)
+Mauro, would this be OK with you?
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 45bd731..870452d 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -744,27 +744,30 @@ omap_i2c_omap1_isr(int this_irq, void *dev_id)
-  * data to DATA_REG. Otherwise some data bytes can be lost while transferring
-  * them from the memory to the I2C interface.
+ drivers/i2c/i2c-core.c |   44 +++++++++++++++++++++++++++++++++-----------
+ include/linux/i2c.h    |    3 +++
+ 2 files changed, 36 insertions(+), 11 deletions(-)
+
+--- linux-3.5-rc4.orig/drivers/i2c/i2c-core.c	2012-06-05 16:22:59.000000000 +0200
++++ linux-3.5-rc4/drivers/i2c/i2c-core.c	2012-06-29 12:41:04.707793937 +0200
+@@ -1312,6 +1312,37 @@ module_exit(i2c_exit);
   */
--static int errata_omap3_i462(struct omap_i2c_dev *dev, u16 *stat, int *err)
-+static int errata_omap3_i462(struct omap_i2c_dev *dev)
- {
- 	unsigned long timeout = 10000;
-+	u16 stat;
  
--	while (--timeout && !(*stat & OMAP_I2C_STAT_XUDF)) {
--		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
-+	do {
-+		stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
-+		if (stat & OMAP_I2C_STAT_XUDF)
-+			break;
+ /**
++ * __i2c_transfer - unlocked flavor of i2c_transfer
++ * @adap: Handle to I2C bus
++ * @msgs: One or more messages to execute before STOP is issued to
++ *	terminate the operation; each message begins with a START.
++ * @num: Number of messages to be executed.
++ *
++ * Returns negative errno, else the number of messages executed.
++ *
++ * Adapter lock must be held when calling this function. No debug logging
++ * takes place. adap->algo->master_xfer existence isn't checked.
++ */
++int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
++{
++	unsigned long orig_jiffies;
++	int ret, try;
 +
-+		if (stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
- 			omap_i2c_ack_stat(dev, (OMAP_I2C_STAT_XRDY |
- 							OMAP_I2C_STAT_XDR));
--			return -ETIMEDOUT;
-+			return -EIO;
++	/* Retry automatically on arbitration loss */
++	orig_jiffies = jiffies;
++	for (ret = 0, try = 0; try <= adap->retries; try++) {
++		ret = adap->algo->master_xfer(adap, msgs, num);
++		if (ret != -EAGAIN)
++			break;
++		if (time_after(jiffies, orig_jiffies + adap->timeout))
++			break;
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL(__i2c_transfer);
++
++/**
+  * i2c_transfer - execute a single or combined I2C message
+  * @adap: Handle to I2C bus
+  * @msgs: One or more messages to execute before STOP is issued to
+@@ -1325,8 +1356,7 @@ module_exit(i2c_exit);
+  */
+ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ {
+-	unsigned long orig_jiffies;
+-	int ret, try;
++	int ret;
+ 
+ 	/* REVISIT the fault reporting model here is weak:
+ 	 *
+@@ -1364,15 +1394,7 @@ int i2c_transfer(struct i2c_adapter *ada
+ 			i2c_lock_adapter(adap);
  		}
  
- 		cpu_relax();
--		*stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
--	}
-+	} while (--timeout);
+-		/* Retry automatically on arbitration loss */
+-		orig_jiffies = jiffies;
+-		for (ret = 0, try = 0; try <= adap->retries; try++) {
+-			ret = adap->algo->master_xfer(adap, msgs, num);
+-			if (ret != -EAGAIN)
+-				break;
+-			if (time_after(jiffies, orig_jiffies + adap->timeout))
+-				break;
+-		}
++		ret = __i2c_transfer(adap, msgs, num);
+ 		i2c_unlock_adapter(adap);
  
- 	if (!timeout) {
- 		dev_err(dev->dev, "timeout waiting on XUDF bit\n");
- 		return 0;
- 	}
+ 		return ret;
+--- linux-3.5-rc4.orig/include/linux/i2c.h	2012-06-05 16:23:05.000000000 +0200
++++ linux-3.5-rc4/include/linux/i2c.h	2012-06-29 10:29:47.865621249 +0200
+@@ -68,6 +68,9 @@ extern int i2c_master_recv(const struct
+  */
+ extern int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			int num);
++/* Unlocked flavor */
++extern int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
++			  int num);
  
--	*err |= OMAP_I2C_STAT_XUDF;
- 	return 0;
- }
- 
-@@ -926,9 +929,16 @@ complete:
- 					}
- 				}
- 
--				if ((dev->errata & I2C_OMAP_ERRATA_I462) &&
--				    errata_omap3_i462(dev, &stat, &err))
--					goto complete;
-+				if (dev->errata & I2C_OMAP_ERRATA_I462) {
-+					int ret;
-+
-+					ret = errata_omap3_i462(dev);
-+					stat = omap_i2c_read_reg(dev,
-+							OMAP_I2C_STAT_REG);
-+
-+					if (ret < 0)
-+						goto complete;
-+				}
- 
- 				omap_i2c_write_reg(dev, OMAP_I2C_DATA_REG, w);
- 			}
-@@ -966,9 +976,16 @@ complete:
- 					}
- 				}
- 
--				if ((dev->errata & I2C_OMAP_ERRATA_I462) &&
--				    errata_omap3_i462(dev, &stat, &err))
--					goto complete;
-+				if (dev->errata & I2C_OMAP_ERRATA_I462) {
-+					int ret;
-+
-+					ret = errata_omap3_i462(dev);
-+					stat = omap_i2c_read_reg(dev,
-+							OMAP_I2C_STAT_REG);
-+
-+					if (ret < 0)
-+						goto complete;
-+				}
- 
- 				omap_i2c_write_reg(dev, OMAP_I2C_DATA_REG, w);
- 			}
--- 
-1.7.5.4
+ /* This is the very generalized SMBus access routine. You probably do not
+    want to use this, though; one of the functions below may be much easier,
 
+-- 
+Jean Delvare
