@@ -1,53 +1,55 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] I2C: OMAP: fix runtime PM get/put balance on error
-Date: Fri, 29 Jun 2012 09:00:48 -0500
-Message-ID: <87395emd4f.fsf@ti.com>
-References: <1340960868-7371-1-git-send-email-shubhrajyoti@ti.com>
-	<874npunx6a.fsf@ti.com> <4FEDA5C2.3000905@ti.com>
+From: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of interrupts
+Date: Sat, 30 Jun 2012 12:35:20 -0400
+Message-ID: <CAEdQ38EDKndUcdBu1tZ_dOuhweVRW6aA=YKb6kUE3gUQJiwWoQ@mail.gmail.com>
+References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
+ <20110903103036.161616a5@endymion.delvare> <20111031105354.4b888e44@endymion.delvare>
+ <20120110153834.531664db@endymion.delvare> <CAEdQ38FpG11m50pwg2=tu1fJRRg=zixFKLsPmVPOzWNBCjbNBg@mail.gmail.com>
+ <20120331082346.26cc95cb@endymion.delvare> <CAEdQ38Ez+8DudAaJY7HZu9jbisk_KMbBO5h=s+P4pjJ0Va-zWw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FEDA5C2.3000905-l0cyMroinI0@public.gmane.org> (shubhrajyoti-l0cyMroinI0@public.gmane.org's message of "Fri,
-	29 Jun 2012 18:25:30 +0530")
+In-Reply-To: <CAEdQ38Ez+8DudAaJY7HZu9jbisk_KMbBO5h=s+P4pjJ0Va-zWw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
-
-> On Friday 29 June 2012 05:32 PM, Kevin Hilman wrote:
->> Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
->>
->>>     ensure pm_runtime_put() is called, on pm_runtime_get_sync()
->>>     failure.
+On Sat, Mar 31, 2012 at 8:11 AM, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Sat, Mar 31, 2012 at 2:23 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>> On Thu, 12 Jan 2012 16:19:49 -0500, Matt Turner wrote:
+>>> On Tue, Jan 10, 2012 at 9:38 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+>>> > On Mon, 31 Oct 2011 10:53:54 +0100, Jean Delvare wrote:
+>>> >> On Sat, 3 Sep 2011 10:30:36 +0200, Jean Delvare wrote:
+>>> >> > Please address my concerns where you agree and send an updated patch.
+>>> >>
+>>> >> Matt, care to send an updated patch addressing my concerns? Otherwise
+>>> >> it will be lost again.
+>>> >
+>>> > It's been 3 more months. Matt (or anyone else who cares and has access
+>>> > to the hardware), please send an updated patch or I'll have to drop it.
 >>>
->>>     Without this, after a failed call, the runtime PM usecount will have
->>>     been incremented, but not decremented causing the usecount to never
->>>     reach zero after a failure. Thanks to Kevin for educating about it. 
->>>     While at it also fix a missing pm_runtime_disable in the probe error
->>>     path.
->> This is the same subject and changelog as the patch I sent, but is a
->> different patch.  
+>>> I'll fix it up and resend the next time I'm working on the related mips stuff.
+>>>
+>>> It's hard to prioritize volunteer work for hardware you and two other
+>>> people have. :)
 >>
->> Please write a new subject and a changelog specific to your patch.
-> OK.
-> Actually I did that on purpose your patch fixed the xfer call only.
-> I thought that since get_sync increments the count always we could extend
-> the patch to all the callers.
->>
->> As this changes the error/failure path, please be specific about how
->> the failure modes were tested, and on which platforms.
-> I found and fixed by review only.
-> Didnt really hit the failure case.
+>> Matt, Maciej, does any of you have an updated patch ready by now? If I
+>> don't receive anything by the end of April I'll just drop it.
+>
+> I'll do my best to get you an updated patch.
+>
+> Thanks for keeping after me.
+>
+> Matt
 
-Which is why you should't just add stuff to other peoples work.
+Hi Jean,
 
-My patch was targetted at the XFER problem during suspend/resume which I
-found by testing and and proved the fix by testing.
+I'm not going to have time to do this. :(
 
-Your patch adds several additional functional changes that were not well
-described and not tested.  That calls for a separate patch with seprate
-subject/changelog etc.
+I had another look at the code, and I'm not sure I really understand
+it well enough to address your concerns.
 
-Kevin
+Good thing there are only about three users with this motherboard.
+
+Matt
