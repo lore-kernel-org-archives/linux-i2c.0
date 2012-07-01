@@ -1,55 +1,88 @@
-From: Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of interrupts
-Date: Sat, 30 Jun 2012 12:35:20 -0400
-Message-ID: <CAEdQ38EDKndUcdBu1tZ_dOuhweVRW6aA=YKb6kUE3gUQJiwWoQ@mail.gmail.com>
-References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
- <20110903103036.161616a5@endymion.delvare> <20111031105354.4b888e44@endymion.delvare>
- <20120110153834.531664db@endymion.delvare> <CAEdQ38FpG11m50pwg2=tu1fJRRg=zixFKLsPmVPOzWNBCjbNBg@mail.gmail.com>
- <20120331082346.26cc95cb@endymion.delvare> <CAEdQ38Ez+8DudAaJY7HZu9jbisk_KMbBO5h=s+P4pjJ0Va-zWw@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 3/8 v3] i2c: i801: check INTR after every transaction
+Date: Sun, 1 Jul 2012 23:20:51 +0200
+Message-ID: <20120701232051.308c03d1@endymion.delvare>
+References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
+ <1340805255-8041-4-git-send-email-djkurtz@chromium.org>
+ <20120627180724.762f854a@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAEdQ38Ez+8DudAaJY7HZu9jbisk_KMbBO5h=s+P4pjJ0Va-zWw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20120627180724.762f854a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Mar 31, 2012 at 8:11 AM, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Sat, Mar 31, 2012 at 2:23 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->> On Thu, 12 Jan 2012 16:19:49 -0500, Matt Turner wrote:
->>> On Tue, Jan 10, 2012 at 9:38 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->>> > On Mon, 31 Oct 2011 10:53:54 +0100, Jean Delvare wrote:
->>> >> On Sat, 3 Sep 2011 10:30:36 +0200, Jean Delvare wrote:
->>> >> > Please address my concerns where you agree and send an updated patch.
->>> >>
->>> >> Matt, care to send an updated patch addressing my concerns? Otherwise
->>> >> it will be lost again.
->>> >
->>> > It's been 3 more months. Matt (or anyone else who cares and has access
->>> > to the hardware), please send an updated patch or I'll have to drop it.
->>>
->>> I'll fix it up and resend the next time I'm working on the related mips stuff.
->>>
->>> It's hard to prioritize volunteer work for hardware you and two other
->>> people have. :)
->>
->> Matt, Maciej, does any of you have an updated patch ready by now? If I
->> don't receive anything by the end of April I'll just drop it.
->
-> I'll do my best to get you an updated patch.
->
-> Thanks for keeping after me.
->
-> Matt
+Hi again Daniel,
 
-Hi Jean,
+On Wed, 27 Jun 2012 18:07:24 +0200, Jean Delvare wrote:
+> On Wed, 27 Jun 2012 21:54:10 +0800, Daniel Kurtz wrote:
+> > Per ICH10 datasheet [1] pg. 711, after completing a block transaction,
+> > INTR should be checked & cleared separately, only after BYTE_DONE is
+> > first cleared:
+> > 
+> >   When the last byte of a block message is received, the host controller
+> > sets DS. However, it does not set the INTR bit (and generate another
+> > interrupt) until DS is cleared. Thus, for a block message of n bytes,
+> > the ICH10 will generate n+1 interrupts.
+> > 
+> > [1] http://www.intel.com/content/dam/doc/datasheet/io-controller-hub-10-family-datasheet.pdf
+> > 
+> > Currently, the INTR bit was only checked & cleared separately if the PEC
+> > was used.
+> > This patch checks and clears INTR at the very end of every successful
+> > transaction, regardless of whether the PEC is used.
+> > 
+> > Signed-off-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-i801.c |   46 ++++++++++++++++++++--------------------
+> >  1 files changed, 23 insertions(+), 23 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> > index 8b74e1e..6a53338 100644
+> > --- a/drivers/i2c/busses/i2c-i801.c
+> > +++ b/drivers/i2c/busses/i2c-i801.c
+> > @@ -257,6 +257,24 @@ static int i801_check_post(struct i801_priv *priv, int status, int timeout)
+> >  	return result;
+> >  }
+> >  
+> > +/* wait for INTR bit as advised by Intel */
+> > +static void i801_wait_intr(struct i801_priv *priv)
+> > +{
+> > +	int timeout = 0;
+> > +	int status;
+> > +
+> > +	status = inb_p(SMBHSTSTS(priv));
+> > +	while ((!(status & SMBHSTSTS_INTR)) && (timeout++ < MAX_RETRIES)) {
+> > +		usleep_range(250, 500);
+> > +		status = inb_p(SMBHSTSTS(priv));
+> > +	}
+> 
+> Per my comment on previous patch, I've swapped the logic here to be in
+> line with what we had before. I have no objection to trying this change
+> again, but later, and only if you have actual numbers to back it up.
 
-I'm not going to have time to do this. :(
+I've done some performance measurements, and it turns out that, with the
+version of this patch modified by me, all short transactions are twice
+as slow as before. This is because i801_transaction waits twice now:
+once for BUSY to be clear, and then again once for INTR to be set.
 
-I had another look at the code, and I'm not sure I really understand
-it well enough to address your concerns.
+I don't think this makes much sense, as both events normally happen at
+the same time. As a matter of fact, the original code did clear INTR at
+the end of i801_transaction without checking that it was set. Also, we
+call i801_check_post() _before_ i801_wait_intr(), which makes no sense
+IMHO. If INTR was really not set yet, then checking for errors was
+wrong, it was too early.
 
-Good thing there are only about three users with this motherboard.
+I'm not even sure why we rely on the BUSY bit in the first place. It
+would seem easier to just wait for INTR.
 
-Matt
+Thinking about it some more, the idea of function i801_wait_intr() is a
+little strange. Normally, you'd wait for INTR, then do what you have
+to, and lastly clear the INTR bit. Having a function which waits for
+INTR and clears it immediately seems wrong.
+
+-- 
+Jean Delvare
