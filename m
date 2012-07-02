@@ -1,71 +1,68 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 3/8 v3] i2c: i801: check INTR after every transaction
-Date: Mon, 2 Jul 2012 12:08:14 +0200
-Message-ID: <20120702120814.47d71bc5@endymion.delvare>
-References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
-	<1340805255-8041-4-git-send-email-djkurtz@chromium.org>
-	<20120627180724.762f854a@endymion.delvare>
-	<20120701232051.308c03d1@endymion.delvare>
-	<CAGS+omDV_ynBL-PN0qmLmDRiHGbQFf+TwqC2-+KJY8zy9FDhrA@mail.gmail.com>
+From: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH V4 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Mon, 2 Jul 2012 16:38:19 +0530
+Message-ID: <20120702110818.GP1978@localhost.localdomain>
+References: <cover.1336124143.git.viresh.kumar@st.com>
+ <3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar@st.com>
+ <4FB1FE9F.7030700@st.com>
+ <CAOh2x=m1XFLpunpTPUW7ozT3cExXNHyLwF7sDy4MxyjuK2uNwQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGS+omDV_ynBL-PN0qmLmDRiHGbQFf+TwqC2-+KJY8zy9FDhrA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAOh2x=m1XFLpunpTPUW7ozT3cExXNHyLwF7sDy4MxyjuK2uNwQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: viresh kumar <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org" <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org" <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "ml.lawnick-Mmb7MZpHnFY@public.gmane.org" <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, spear-devel <spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 2 Jul 2012 09:19:24 +0800, Daniel Kurtz wrote:
-> On Mon, Jul 2, 2012 at 5:20 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> > I've done some performance measurements, and it turns out that, with the
-> > version of this patch modified by me, all short transactions are twice
-> > as slow as before. This is because i801_transaction waits twice now:
-> > once for BUSY to be clear, and then again once for INTR to be set.
-> 
-> Does a fast sequence of such transactions actually take any longer? Or
-> just a single short transaction?
+Hi Wolfram,
 
-Both are affected, this is the problem. See:
+On Wed, Jun 13, 2012 at 10:03:48AM +0100, viresh kumar wrote:
+> On Tue, May 15, 2012 at 7:58 AM, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org> w=
+rote:
+> > On 5/4/2012 3:10 PM, Viresh KUMAR wrote:
+> >> Add i2c bus recovery infrastructure to i2c adapters as specified i=
+n the i2c
+> >> protocol Rev. 03 section 3.16 titled "Bus clear".
+> >>
+> >> http://www.nxp.com/documents/user_manual/UM10204.pdf
+> >>
+> >> Sometimes during operation i2c bus hangs and we need to give dummy=
+ clocks to
+> >> slave device to start the transfer again. Now we may have capabili=
+ty in the bus
+> >> controller to generate these clocks or platform may have gpio pins=
+ which can be
+> >> toggled to generate dummy clocks. This patch supports both.
+> >>
+> >> This patch also adds in generic bus recovery routines gpio or scl =
+line based
+> >> which can be used by bus controller. In addition controller driver=
+ may provide
+> >> its own version of the bus recovery routine.
+> >>
+> >> Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+> >> ---
+> >> =A0Documentation/i2c/bus-recovery | =A0 87 ++++++++++++++++++++++
+> >> =A0drivers/i2c/i2c-core.c =A0 =A0 =A0 =A0 | =A0160 +++++++++++++++=
++++++++++++++++++++++++++
+> >> =A0drivers/i2c/i2c-mux.c =A0 =A0 =A0 =A0 =A0| =A0 =A09 ++-
+> >> =A0include/linux/i2c.h =A0 =A0 =A0 =A0 =A0 =A0| =A0 58 +++++++++++=
++++
+> >> =A04 files changed, 313 insertions(+), 1 deletions(-)
+> >> =A0create mode 100644 Documentation/i2c/bus-recovery
+> >
+> > Hi Wolfram,
+> >
+> > Any inputs on this patch.
+>=20
+> Ping.
 
-Original driver:
+Any chance of this passing through your tree, as we are
+dependent on this.
 
-# time i2cdump -y 8 0x2f b >/dev/null
-
-real	0m0.157s
-user	0m0.000s
-sys	0m0.010s
-
-After this patch:
-
-# time i2cdump -y 8 0x2f b >/dev/null
-
-real	0m0.279s
-user	0m0.003s
-sys	0m0.011s
-
-This is on a fast machine with recent kernel. On my ICH3-M laptop with
-kernel 2.6.32, the slowdown for a full register dump is from 2 seconds
-to 4 seconds. Big performance regression.
-
-> My understanding is that the INTR wait is really waiting for the
-> entire transaction to complete (ie., including i2c STOP condition),
-> not just the byte transfer phase.
-
-This is my understanding as well, but I'm fairly certain that this is
-the case of the BUSY flag as well. I think BUSY gets cleared at the
-same time INTR (or any of the error status bits) gets set. Which is why
-I think checking BUSY is redundant. As a matter of fact, we ignore BUSY
-completely in i801_block_transaction_byte_by_byte(), so I see no reason
-why we couldn't do the same in i2c_transaction().
-
-> By waiting here at the end of a transaction, we make sure the status
-> bits are actually clear before starting the next transaction.
-
-I have no objection to clearing the status bits, simply I think the
-sequence is wrong. I'll write and post a RFC patch later today
-illustrating what I think should be done.
-
--- 
-Jean Delvare
+--
+regards
+Shiraz
