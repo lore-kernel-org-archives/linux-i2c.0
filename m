@@ -1,68 +1,108 @@
-From: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH V4 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Mon, 2 Jul 2012 16:38:19 +0530
-Message-ID: <20120702110818.GP1978@localhost.localdomain>
-References: <cover.1336124143.git.viresh.kumar@st.com>
- <3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar@st.com>
- <4FB1FE9F.7030700@st.com>
- <CAOh2x=m1XFLpunpTPUW7ozT3cExXNHyLwF7sDy4MxyjuK2uNwQ@mail.gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [RFC PATCH 3/3] i2c: inititalise the actual transferred to zero
+Date: Mon, 2 Jul 2012 14:54:23 +0300
+Message-ID: <20120702115422.GC2730@arwen.pp.htv.fi>
+References: <1340967927-27354-1-git-send-email-shubhrajyoti@ti.com>
+ <1340967927-27354-4-git-send-email-shubhrajyoti@ti.com>
+ <20120629144002.3b4a31ee@endymion.delvare>
+ <20120629145718.697b6955@endymion.delvare>
+ <4FEDA9A8.1050504@ti.com>
+ <20120629151832.0cb26bea@endymion.delvare>
+Reply-To: balbi@ti.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="s9fJI615cBHmzTOP"
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAOh2x=m1XFLpunpTPUW7ozT3cExXNHyLwF7sDy4MxyjuK2uNwQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: viresh kumar <viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org" <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org" <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "ml.lawnick-Mmb7MZpHnFY@public.gmane.org" <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, spear-devel <spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20120629151832.0cb26bea@endymion.delvare>
+Sender: linux-omap-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Shubhrajyoti <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-On Wed, Jun 13, 2012 at 10:03:48AM +0100, viresh kumar wrote:
-> On Tue, May 15, 2012 at 7:58 AM, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org> w=
-rote:
-> > On 5/4/2012 3:10 PM, Viresh KUMAR wrote:
-> >> Add i2c bus recovery infrastructure to i2c adapters as specified i=
-n the i2c
-> >> protocol Rev. 03 section 3.16 titled "Bus clear".
-> >>
-> >> http://www.nxp.com/documents/user_manual/UM10204.pdf
-> >>
-> >> Sometimes during operation i2c bus hangs and we need to give dummy=
- clocks to
-> >> slave device to start the transfer again. Now we may have capabili=
-ty in the bus
-> >> controller to generate these clocks or platform may have gpio pins=
- which can be
-> >> toggled to generate dummy clocks. This patch supports both.
-> >>
-> >> This patch also adds in generic bus recovery routines gpio or scl =
-line based
-> >> which can be used by bus controller. In addition controller driver=
- may provide
-> >> its own version of the bus recovery routine.
-> >>
-> >> Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-> >> ---
-> >> =A0Documentation/i2c/bus-recovery | =A0 87 ++++++++++++++++++++++
-> >> =A0drivers/i2c/i2c-core.c =A0 =A0 =A0 =A0 | =A0160 +++++++++++++++=
-+++++++++++++++++++++++++
-> >> =A0drivers/i2c/i2c-mux.c =A0 =A0 =A0 =A0 =A0| =A0 =A09 ++-
-> >> =A0include/linux/i2c.h =A0 =A0 =A0 =A0 =A0 =A0| =A0 58 +++++++++++=
-+++
-> >> =A04 files changed, 313 insertions(+), 1 deletions(-)
-> >> =A0create mode 100644 Documentation/i2c/bus-recovery
-> >
-> > Hi Wolfram,
-> >
-> > Any inputs on this patch.
+--s9fJI615cBHmzTOP
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Fri, Jun 29, 2012 at 03:18:32PM +0200, Jean Delvare wrote:
+> On Fri, 29 Jun 2012 18:42:08 +0530, Shubhrajyoti wrote:
+> > On Friday 29 June 2012 06:27 PM, Jean Delvare wrote:
+> > > drivers/gpu/drm/nouveau/nouveau_bios.c:3535:3: warning: (near initial=
+ization for =E2=80=98msg[1].actual=E2=80=99) [enabled by default]
+> > >
+> > > This needs to be all fixed (converted to C99-style struct
+> > > initialization) before your patch is considered for inclusion. And
+> > > there may be more that my config did not spot.
+> > Yes,agree.
+> >=20
+> > The idea of this patch was if the idea is agreed upon then.
+> > then fixing all the callers could be worked on.
 >=20
-> Ping.
+> This is worth fixing anyway, C99-style initialization is always good to
+> move to.
+>=20
+> > However do you agree with this approach?
+>=20
+> Well you've seen the caveats I mentioned, this will be no easy ride. If
+> you are willing to take the risk, spend the time documenting the
+> change, and help people if there are issues, then I'm OK. At least as
+> long as someone else doesn't come saying it's a very bad idea ;)
 
-Any chance of this passing through your tree, as we are
-dependent on this.
+This approach is a hard-requirement for devices which will pose any
+interface/feedback with user. We have been working with a piezo driver
+=66rom TI (drv2665) and it will be used (in most cases at least) to give
+the user a feedback based on e.g. touchscreen event.
 
---
-regards
-Shiraz
+Imagine drv2665 responds with a NAK while we're in the middle of driving
+a wave through it (keep in mind a wave could take seconds to finish,
+depending on the usecase), if we don't have a way to tell users that we
+have writen X bytes, how should we make sure to continue driving the
+wave from the exact byte where we got a NAK ?
+
+If can't make sure that detail is true, then such usecases (as piezo
+drivers) will never work.
+
+Another approach would be to not add any field to struct i2c_msg but
+instead return either the amount of bytes transferred, or an error case.
+This would mean a series that would:
+
+1) fix all users of struct i2c_master_send() and the like to check for
+	errors as if (ret < 0) instead of if (ret);
+2) fix all i2c buses to return the amount of bytes written instead of
+	zero or error case
+3) fix Documentation to state that we're now returning the amount of
+	bytes, instead of zero or errno.
+
+I'm not sure what will have minimum impact to userland, though. What do
+you say Jean ? What would you prefer ?
+
+--=20
+balbi
+
+--s9fJI615cBHmzTOP
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJP8YvuAAoJEIaOsuA1yqRExJMQAIh6m7mXG4ZcXuVzQ12PNyQc
+oKMXB/vFXdKTdsDrL7oOKxDViEKNqz/mwkTRLwwyUY1uG4shE90SNzrccj24xxL9
+eJNtbE5UMVT7p0mRciO0tRscmABpwIM3kt90dZzhYdgoB87Cajc9qJUSHvLI545t
+sJJVsxHH+FFYgTrxXLxkFfNSPvUQ1p/XksOr2TnmnNg+Fj9f/cqORvKujDW+qMIi
+kUX1gZWlROpmlZwrirRxe3T5t3PXX9/086TxZKYrl/JiJM20Vu9iMrKpQ4mJzxgj
+2PL9+fqtLcubDM4KkLI15lertJDwjtICOUUFJ1FjNIBSkeKeVxk0plCystjBKVZj
+0ZXObtYG5MtJ+knjSwGOly7thh8850WjgEPZYpSrfr0VhrHIcZkIL0rh6tA2DtC8
+KA15sclN9jNu05WOLsp/KqfA0t61DhnxFgFjQEmvw2SRKYuTlB9Jksk7jG8vG5df
+kXokJDFEr7W4s49+RjLSCC97woa/LFkrCdpeJeL+KbhGnwhzRB4i/CI/HMrMGDsK
+xy3nVjn0BPVat8+U10sdVh6y3UAnYcnS+trF6JutbjeQUKUnUW9Kc81N8pbkCfdj
+fhFpHI9KoG2A/ZdN6wQ4atguQokEad1x93tfEwP2LbxJi5s0M5gSbXjULpoj193p
+JecxhuUTcM52e+kY9G7E
+=apzP
+-----END PGP SIGNATURE-----
+
+--s9fJI615cBHmzTOP--
