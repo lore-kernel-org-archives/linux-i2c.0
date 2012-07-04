@@ -1,229 +1,58 @@
-From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-i801: Consolidate polling
-Date: Wed, 4 Jul 2012 16:08:25 +0800
-Message-ID: <CAGS+omBhKcJe7jUE8=mxp7Dh-eJP9bF1+dU9gze3UeyQUQpq-Q@mail.gmail.com>
-References: <20120703101927.63336e65@endymion.delvare> <CAGS+omDC7voaYU2w1zZjCBmXssPQVdp_7YOH+Lgvv5=XTU0fzg@mail.gmail.com>
- <20120703153959.0e760660@endymion.delvare> <CAGS+omAT0G=BBGRs9H91ah=oZnaY-MHbvbADGOKTES_FbCjLjA@mail.gmail.com>
- <20120704094910.7e077e2d@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 0/4 V2] add 88pm80x mfd driver
+Date: Wed,  4 Jul 2012 16:55:11 +0800
+Message-ID: <1341392115-9425-1-git-send-email-zhouqiao@marvell.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120704094910.7e077e2d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: arnd-r2nGTMty4D4@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, chao.xie-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yu.tang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, wilbur.wang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 4, 2012 at 3:49 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> Hi Daniel,
->
-> Thanks again for the continued feedback.
->
-> On Wed, 4 Jul 2012 14:12:26 +0800, Daniel Kurtz wrote:
->> On Tue, Jul 3, 2012 at 9:39 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->> > On Tue, 3 Jul 2012 17:50:13 +0800, Daniel Kurtz wrote:
->> > > On Tue, Jul 3, 2012 at 4:19 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->> > > > -/* wait for INTR bit as advised by Intel */
->> > > > -static void i801_wait_intr(struct i801_priv *priv)
->> > > > +/* Wait for BUSY being cleared and either INTR or an error flag being set */
->> > > > +static int i801_wait_intr(struct i801_priv *priv)
->> > > >  {
->> > > >         int timeout = 0;
->> > > >         int status;
->> > > >
->> > > > +       /* We will always wait for a fraction of a second! */
->> > > >         do {
->> > > >                 usleep_range(250, 500);
->> > > >                 status = inb_p(SMBHSTSTS(priv));
->> > > > -       } while ((!(status & SMBHSTSTS_INTR)) && (timeout++ < MAX_RETRIES));
->> > > > +       } while (((status & SMBHSTSTS_HOST_BUSY) ||
->> > > > +                 !(status & (STATUS_ERROR_FLAGS | SMBHSTSTS_INTR))) &&
->> > > > +                (timeout++ < MAX_RETRIES));
->> > >
->> > > From your experiments, I think you saw that the final status (ERROR |
->> > > INTR) will be set before or at the same time as HOST_BUSY -> 0, so the
->> > > loop need only check HOST_BUSY, and then just return the final status
->> > > bits of the transfer (ie, ERROR_FLAGS | INTR).  So, the function name
->> > > could be something like:
->> > >
->> > >   i801_wait_xfer_status()
->> >
->> > You're right. But I did these tests out of curiosity, maybe I shouldn't
->> > have published the results, because now I feel reluctant to use the
->> > results. The reason is that this is not specified in the datasheet, so
->> > I have no guarantee that the same holds for all chips or all
->> > transaction types.
->> >
->> > Furthermore, I see no reason to not play it safe. What costs time and
->> > CPU here is the sleep and the inb_p. The extra test is pretty cheap
->> > IMHO.
->>
->> Sorry, I forgot to make my actual point last time.  This loop actually
->> terminates *early* now, since it ends when an error occur, without
->> waiting for the transaction to finish.
->
-> This wasn't my intent, and also not what my code is doing, unless I am
-> reading it wrong.
->
->> I think it would be safer to
->> wait for the transaction to finish (HOST_BUSY -> 0) first, and then
->> return the status.
->
-> Which is what I'm doing, as far as I can see. Leaving the timeout case
-> aside for a moment, the loop keeps running if the following condition
-> is met:
->
->         (status & SMBHSTSTS_HOST_BUSY) || !(status & (STATUS_ERROR_FLAGS | SMBHSTSTS_INTR))
->
-> Which, per De Morgan's laws [1], means the loop _exit_ condition is:
->
->         !(status & SMBHSTSTS_HOST_BUSY) && (status & (STATUS_ERROR_FLAGS | SMBHSTSTS_INTR))
->
-> That is, we only exit the loop if the BUSY bit is cleared _and_ either
-> INTR or an error flag is set. In other words this is a late exit. Are
-> you OK with it now, or am I really missing something?
+change log [v2->v1]:
+1, split 88pm80x-core.c into 88pm800-core.c and 88pm805.c, per Arnd's
+suggestion. after the re-arch, 88pm80x-i2c handles the 800 & 805 common
+parts, while 800-core.c & 805-core.c handle the specific parts in each
+chip.
+2, add details about the workaround adding a i2c companion between 800 &
+805, and make a separate patch for it, per Arnd's suggestion.
+3, remove callback in pdata. but still keep the pdata currently.
+4, only keep necessary register in 88pm80x.h, including registers for
+regulator/rtc/onkey/power/codec etc, and remove other registers from global
+visibility.
+5, exported r/w API which requires regmap handle. as currently the pm800
+chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w the
+register in correct i2c device.
 
-Nope.  You are right, I was reading the code wrong.
-We are in complete agreement about what it should be doing, and you
-have convinced me that it is in fact doing it.
+change log [v1]:
+1, pm800 and pm805 are decoupled and probed separately;
+2, re-used the most of API for pm800 and pm805 per Arnd's comments;
+3, use regmap_irq, instead of previous 88pm80x_irq_data per Mark's comments.
+use regmap_add_irq_chip, and remove previous 88pm80x irq handling.
+4, remove callback function in rtc pdata per Arnd's comments.
+5, updated some coding style issue.
 
->
-> [1] http://en.wikipedia.org/wiki/De_Morgan%27s_laws
->
->> > (...)
->> > @@ -272,7 +272,7 @@ static int i801_wait_intr(struct i801_pr
->>
->> "i801_wait_intr()" isn't such a good name anymore.  I recommend
->> i801_wait_xfer_status(), or i801_wait_host_idle().
->
-> i801_wait_intr() isn't such a bad name IMHO, we are still ideally hoping
-> that INTR will be set, as this means the transaction will be
-> successful. The name has the advantage of being symmetric with
-> i801_wait_byte_done(), so it's clear which one of the status bits we
-> are expecting.
->
-> "i801_wait_host_idle" would be a good name too, but the actual name
-> doesn't really matter anyway, as the next patch merges both functions
-> into a single one. I had written this patch before you posted your
-> proposed changes, but it can still be applied on top of these (with the
-> usual context adjustment.) Unless you really don't like it? If so,
-> please tell me why.
->
->> >                 dev_dbg(&priv->pci_dev->dev, "INTR Timeout!\n");
->>
->> "Timed out waiting for transaction to complete!\n"
->
-> My next patch already changes this to:
->
->                 dev_err(&priv->pci_dev->dev,
->                         "Timeout waiting for %02x! (%02x)\n", wait_set, status);
->
-> My message is more generic because the function is now generic, but the
-> information provided is more or less the same. If you think wording can
-> be improved, just let me know.
+Qiao Zhou (4):
+  mfd: support 88pm80x in 80x driver
+  mfd: workaround: add companion chip in 88pm80x
+  rtc: add rtc support to 88PM80X PMIC
+  input: add onkey support to 88PM80X PMIC
 
-I'm really not sure this function is that necessary.  The code seems
-more confusing now with the two waits combined into a single function.
- Keeping them separate also means you don't have to do extra work like
-passing "wait_cleared = 0" and making sure not to clear BYTE_DONE in
-the BYTE_DONE case.
-
->
-> ---
->  drivers/i2c/busses/i2c-i801.c |   50 ++++++++++++++++-------------------------
->  1 file changed, 20 insertions(+), 30 deletions(-)
->
-> --- linux-3.5-rc5.orig/drivers/i2c/busses/i2c-i801.c    2012-07-03 16:49:42.000000000 +0200
-> +++ linux-3.5-rc5/drivers/i2c/busses/i2c-i801.c 2012-07-03 17:10:37.062356531 +0200
-> @@ -254,29 +254,16 @@ static int i801_check_post(struct i801_p
->         return result;
->  }
->
-> -/* Wait for BUSY being cleared and either INTR or an error flag being set */
-> -static int i801_wait_intr(struct i801_priv *priv)
-> -{
-> -       int timeout = 0;
-> -       int status;
-> -
-> -       /* We will always wait for a fraction of a second! */
-> -       do {
-> -               usleep_range(250, 500);
-> -               status = inb_p(SMBHSTSTS(priv));
-> -       } while (((status & SMBHSTSTS_HOST_BUSY) ||
-> -                 !(status & (STATUS_ERROR_FLAGS | SMBHSTSTS_INTR))) &&
-> -                (timeout++ < MAX_RETRIES));
-> -
-> -       if (timeout > MAX_RETRIES) {
-> -               dev_dbg(&priv->pci_dev->dev, "INTR Timeout!\n");
-> -               return -ETIMEDOUT;
-> -       }
-> -       return status & (STATUS_ERROR_FLAGS | SMBHSTSTS_INTR);
-> -}
-> -
-> -/* Wait for either BYTE_DONE or an error flag being set */
-> -static int i801_wait_byte_done(struct i801_priv *priv)
-> +/*
-> + * Wait for some status register bits being cleared and others being set.
-> + * Typical usage:
-> + *  - Wait for BUSY being cleared and either INTR or an error flag being set
-> + *    (end of transaction)
-> + *  - Wait for either BYTE_DONE or an error flag being set (step of
-> + *    byte-by-byte block transaction)
-> + * Return the status flags which should be cleared automatically.
-> + */
-> +static int i801_wait(struct i801_priv *priv, int wait_cleared, int wait_set)
->  {
->         int timeout = 0;
->         int status;
-> @@ -285,14 +272,17 @@ static int i801_wait_byte_done(struct i8
->         do {
->                 usleep_range(250, 500);
->                 status = inb_p(SMBHSTSTS(priv));
-> -       } while (!(status & (STATUS_ERROR_FLAGS | SMBHSTSTS_BYTE_DONE)) &&
-> +       } while (((status & wait_cleared) ||
-> +                 !(status & (STATUS_ERROR_FLAGS | wait_set))) &&
->                  (timeout++ < MAX_RETRIES));
->
-> -       if (timeout > MAX_RETRIES) {
-> -               dev_dbg(&priv->pci_dev->dev, "BYTE_DONE Timeout!\n");
-> +       if (unlikely(timeout > MAX_RETRIES)) {
-> +               dev_err(&priv->pci_dev->dev,
-> +                       "Timeout waiting for %02x! (%02x)\n", wait_set, status);
->                 return -ETIMEDOUT;
->         }
-> -       return status & STATUS_ERROR_FLAGS;
-> +       status &= ~SMBHSTSTS_BYTE_DONE; /* Must be cleared explicitly */
-> +       return status & (STATUS_ERROR_FLAGS | wait_set);
->  }
->
->  static int i801_transaction(struct i801_priv *priv, int xact)
-> @@ -308,7 +298,7 @@ static int i801_transaction(struct i801_
->          * SMBSCMD are passed in xact */
->         outb_p(xact | SMBHSTCNT_START, SMBHSTCNT(priv));
->
-> -       status = i801_wait_intr(priv);
-> +       status = i801_wait(priv, SMBHSTSTS_HOST_BUSY, SMBHSTSTS_INTR);
->         return i801_check_post(priv, status);
->  }
->
-> @@ -387,7 +377,7 @@ static int i801_block_transaction_byte_b
->                         outb_p(inb(SMBHSTCNT(priv)) | SMBHSTCNT_START,
->                                SMBHSTCNT(priv));
->
-> -               status = i801_wait_byte_done(priv);
-> +               status = i801_wait(priv, 0, SMBHSTSTS_BYTE_DONE);
->                 if (status)
->                         goto exit;
->
-> @@ -419,7 +409,7 @@ static int i801_block_transaction_byte_b
->                 outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
->         }
->
-> -       status = i801_wait_intr(priv);
-> +       status = i801_wait(priv, SMBHSTSTS_HOST_BUSY, SMBHSTSTS_INTR);
->  exit:
->         return i801_check_post(priv, status);
->  }
->
-> --
-> Jean Delvare
+ drivers/input/misc/88pm80x_onkey.c |  190 +++++++++++++
+ drivers/input/misc/Kconfig         |   10 +
+ drivers/input/misc/Makefile        |    1 +
+ drivers/mfd/88pm800-core.c         |  492 +++++++++++++++++++++++++++++++++
+ drivers/mfd/88pm805-core.c         |  273 +++++++++++++++++++
+ drivers/mfd/88pm80x-i2c.c          |  231 ++++++++++++++++
+ drivers/mfd/Kconfig                |   12 +
+ drivers/mfd/Makefile               |    2 +
+ drivers/rtc/Kconfig                |   10 +
+ drivers/rtc/Makefile               |    1 +
+ drivers/rtc/rtc-88pm80x.c          |  366 +++++++++++++++++++++++++
+ include/linux/mfd/88pm80x.h        |  522 ++++++++++++++++++++++++++++++++++++
+ 12 files changed, 2110 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/88pm80x_onkey.c
+ create mode 100644 drivers/mfd/88pm800-core.c
+ create mode 100644 drivers/mfd/88pm805-core.c
+ create mode 100644 drivers/mfd/88pm80x-i2c.c
+ create mode 100644 drivers/rtc/rtc-88pm80x.c
+ create mode 100644 include/linux/mfd/88pm80x.h
