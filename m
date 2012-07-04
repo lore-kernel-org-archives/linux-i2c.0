@@ -1,265 +1,88 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH 1/4] mfd: support 88pm80x in 80x driver
-Date: Wed, 4 Jul 2012 11:37:48 +0000
-Message-ID: <201207041137.49020.arnd@arndb.de>
-References: <1341392115-9425-1-git-send-email-zhouqiao@marvell.com> <1341392115-9425-2-git-send-email-zhouqiao@marvell.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c-i801: Consolidate polling
+Date: Wed, 4 Jul 2012 13:47:19 +0200
+Message-ID: <20120704134719.36e3b9e1@endymion.delvare>
+References: <20120703101927.63336e65@endymion.delvare>
+	<CAGS+omDC7voaYU2w1zZjCBmXssPQVdp_7YOH+Lgvv5=XTU0fzg@mail.gmail.com>
+	<20120703153959.0e760660@endymion.delvare>
+	<CAGS+omAT0G=BBGRs9H91ah=oZnaY-MHbvbADGOKTES_FbCjLjA@mail.gmail.com>
+	<20120704094910.7e077e2d@endymion.delvare>
+	<CAGS+omBhKcJe7jUE8=mxp7Dh-eJP9bF1+dU9gze3UeyQUQpq-Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1341392115-9425-2-git-send-email-zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <CAGS+omBhKcJe7jUE8=mxp7Dh-eJP9bF1+dU9gze3UeyQUQpq-Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Cc: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, chao.xie-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yu.tang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, wilbur.wang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 04 July 2012, Qiao Zhou wrote:
-> 88PM800 and 88PM805 are two discrete chips used for power management.
-> Hardware designer can use them together or only one of them according
-> to requirement.
+On Wed, 4 Jul 2012 16:08:25 +0800, Daniel Kurtz wrote:
+> On Wed, Jul 4, 2012 at 3:49 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> > On Wed, 4 Jul 2012 14:12:26 +0800, Daniel Kurtz wrote:
+> >> On Tue, Jul 3, 2012 at 9:39 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> >> > @@ -272,7 +272,7 @@ static int i801_wait_intr(struct i801_pr
+> >>
+> >> "i801_wait_intr()" isn't such a good name anymore.  I recommend
+> >> i801_wait_xfer_status(), or i801_wait_host_idle().
+> >
+> > i801_wait_intr() isn't such a bad name IMHO, we are still ideally hoping
+> > that INTR will be set, as this means the transaction will be
+> > successful. The name has the advantage of being symmetric with
+> > i801_wait_byte_done(), so it's clear which one of the status bits we
+> > are expecting.
+> >
+> > "i801_wait_host_idle" would be a good name too, but the actual name
+> > doesn't really matter anyway, as the next patch merges both functions
+> > into a single one. I had written this patch before you posted your
+> > proposed changes, but it can still be applied on top of these (with the
+> > usual context adjustment.) Unless you really don't like it? If so,
+> > please tell me why.
+> >
+> >> >                 dev_dbg(&priv->pci_dev->dev, "INTR Timeout!\n");
+> >>
+> >> "Timed out waiting for transaction to complete!\n"
+> >
+> > My next patch already changes this to:
+> >
+> >                 dev_err(&priv->pci_dev->dev,
+> >                         "Timeout waiting for %02x! (%02x)\n", wait_set, status);
+> >
+> > My message is more generic because the function is now generic, but the
+> > information provided is more or less the same. If you think wording can
+> > be improved, just let me know.
 > 
-> 88pm80x_i2c.c provides common i2c driver handling for both 800 and
-> 805, such as i2c_driver init, regmap init, read/write api etc.
-> 
-> 88pm800_core.c handles specifically for 800, such as chip init, irq
-> init/handle, mfd device register, including rtc, onkey, regulator(
-> to be add later) etc. besides that, 800 has three i2c device, one
-> regular i2c client, two other i2c dummy for gpadc and power purpose.
-> 
-> 88pm805_core.c handles specifically for 805, such as chip init, irq
-> init/handle, mfd device register, including codec, headset/mic detect
-> etc.
-> 
-> the i2c operation of both 800 and 805 are via regmap.
-> 
-> Signed-off-by: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> I'm really not sure this function is that necessary.  The code seems
+> more confusing now with the two waits combined into a single function.
+>  Keeping them separate also means you don't have to do extra work like
+> passing "wait_cleared = 0" and making sure not to clear BYTE_DONE in
+> the BYTE_DONE case.
 
-The split between the two files looks very good now, I think this way
-it makes much more sense for the reader.
+You have a point, and this is the reason why I originally wasn't sure
+myself if I wanted to do it. But it also allows for further cleanups. I
+have a patch moving the call to i801_wait into i801_check_post (which
+allows gcc to inline i801_wait) and another one merging i801_wait into
+i801_check_post (which saves some intermediate work.) Each step may
+not be very appealing nor convincing individually, but if you stack all
+three, the diffstat looks like:
 
+ drivers/i2c/busses/i2c-i801.c |   86 ++++++++++++++----------------------------
+ 1 file changed, 30 insertions(+), 56 deletions(-)
 
-> +	ret = mfd_add_devices(chip->dev, 0, &onkey_devs[0],
-> +			      ARRAY_SIZE(onkey_devs), &onkey_resources[0],
-> +			      chip->irq_base);
+And the binary comparison shows 274 bytes saved on x86_64, which isn't
+negligible.
 
-According to what I discussed with Mark in the previous version, I think you
-need to pass 0 instead of chip->irq_base here, and transform the interrupt
-numbers using the domain in the client drivers.
+That being said... The last two steps are unlikely to fit well with your
+interrupt patches. So I will postpone these cleanup/optimization
+patches of mine for the time being. I started working on this because
+of the performance regression introduced by one of your patches. Now
+that this is solved, I should resume to my original goal which was
+to get all your patches reviewed, tested and in linux-next as quickly
+as possible. We can always discuss the rest later.
 
-> +
-> +const struct i2c_device_id pm80x_id_table[] = {
-> +	{"88PM800", CHIP_PM800},
-> +	{"88PM805", CHIP_PM805},
-> +};
-> +MODULE_DEVICE_TABLE(i2c, pm80x_id_table);
+Thanks again for your time, I'll now reorder and cleanup the current
+patch series, retest, and then move on to the two interrupt patches.
 
-Since these are separate modules now, you have to move the device table
-into the split files as well.
-
-> +
-> +/**
-> + * pm80x_reg_read: Read a single 88PM80x register.
-> + *
-> + * @map: regmap to read from.
-> + * @reg: Register to read.
-> + */
-> +int pm80x_reg_read(struct regmap *map, u32 reg)
-> +{
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	ret = regmap_read(map, reg, &val);
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +	else
-> +		return val;
-> +}
-> +EXPORT_SYMBOL_GPL(pm80x_reg_read);
-
-In your introductory email you write
-
-"Exported r/w API which requires regmap handle. as currently the pm800
-chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w the
-register in correct i2c device."
-
-Your first driver version had this, then you removed the functions
-after I asked you to, and now they are back, so I assume there is something
-I don't see yet. It looks like the function is just an unnecessary wrapper
-that is better open-coded in the caller. Can you explain again what the
-difference is?
-
-> +/**
-> + * pm80x_bulk_read: Read multiple 88PM80x registers
-> + *
-> + * @map: regmap to read from
-> + * @reg: First register
-> + * @buf: Buffer to fill.  The data will be returned big endian.
-> + * @count: Number of registers
-> + */
-> +int pm80x_bulk_read(struct regmap *map, u32 reg, u8 *buf, int count)
-> +{
-> +	return regmap_raw_read(map, reg, buf, count);
-> +}
-
-Unused function? Either export this if you want to provide it as
-the general API, or drop the function.
-
-> +int __devinit pm80x_device_init(struct pm80x_chip *chip,
-> +				struct pm80x_platform_data *pdata)
-
-> +void __devexit pm80x_device_exit(struct pm80x_chip *chip)
-
-> +SIMPLE_DEV_PM_OPS(pm80x_pm_ops, pm80x_suspend, pm80x_resume);
-
-I would think that these need to be exported as well, at least if
-you want the driver to be modular.
-
-> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-> index e129c82..96dd2d7 100644
-> --- a/drivers/mfd/Kconfig
-> +++ b/drivers/mfd/Kconfig
-> @@ -20,6 +20,18 @@ config MFD_88PM860X
->  	  select individual components like voltage regulators, RTC and
->  	  battery-charger under the corresponding menus.
->  
-> +config MFD_88PM80X
-> +	bool "Support Marvell 88PM800/88PM805"
-> +	depends on I2C=y && GENERIC_HARDIRQS
-> +	select REGMAP_I2C
-> +	select REGMAP_IRQ
-> +	select MFD_CORE
-> +	help
-> +	  This supports for Marvell 88PM800/88PM805 Power Management IC.
-> +	  This includes the I2C driver and the core APIs _only_, you have to
-> +	  select individual components like voltage regulators, RTC and
-> +	  battery-charger under the corresponding menus.
-> +
->  config MFD_SM501
->  	tristate "Support for Silicon Motion SM501"
->  	 ---help---
-> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-> index 75f6ed6..dc2584e 100644
-> --- a/drivers/mfd/Makefile
-> +++ b/drivers/mfd/Makefile
-> @@ -3,7 +3,9 @@
->  #
->  
->  88pm860x-objs			:= 88pm860x-core.o 88pm860x-i2c.o
-> +88pm80x-objs			:= 88pm800-core.o 88pm805-core.o 88pm80x-i2c.o
->  obj-$(CONFIG_MFD_88PM860X)	+= 88pm860x.o
-> +obj-$(CONFIG_MFD_88PM80X)	+= 88pm80x.o
->  obj-$(CONFIG_MFD_SM501)		+= sm501.o
->  obj-$(CONFIG_MFD_ASIC3)		+= asic3.o tmio_core.o
-
-I just noticed that it can currently only be builtin. Is there a strict
-requirement for that? If not, better make it a tristate option.
-
-If you do that, aside from adding the exports mentioned above, you have
-to use three separate modules, as in
-
-obj-$(CONFIG_MFD_88PM80X)	+= 88pm800-core.o 88pm805-core.o 88pm80x-i2c.o
-
-or even
-
-obj-$(CONFIG_MFD_88PM800)	+= 88pm800-core.o 88pm800-core.o
-obj-$(CONFIG_MFD_88PM805)	+= 88pm800-core.o 88pm805-core.o
-
-with the respective Kconfig change.
-
-> diff --git a/include/linux/mfd/88pm80x.h b/include/linux/mfd/88pm80x.h
-> new file mode 100644
-> index 0000000..115348a
-> --- /dev/null
-> +++ b/include/linux/mfd/88pm80x.h
-> @@ -0,0 +1,521 @@
-> +#ifndef __LINUX_MFD_88PM80X_H
-> +#define __LINUX_MFD_88PM80X_H
-> +
-> +#define PM80X_VERSION_MASK		(0xFF)	/* 80X chip ID mask */
-> +
-> +enum {
-> +	/* Procida */
-> +	PM800_CHIP_A0  = 0x60,
-> +	PM800_CHIP_A1  = 0x61,
-> +	PM800_CHIP_B0  = 0x62,
-> +	PM800_CHIP_C0  = 0x63,
-> +	PM800_CHIP_END = PM800_CHIP_C0,
-> +
-> +	/* Make sure to update this to the last stepping */
-> +	PM8XXX_CHIP_END = PM800_CHIP_END
-> +};
-> +
-> +enum {
-> +	PM800_ID_INVALID,
-> +	PM800_ID_VIBRATOR,
-> +	PM800_ID_SOUND,
-> +	PM800_ID_MAX,
-> +};
-> +
-> +enum {
-> +	PM800_ID_BUCK1 = 0,
-> +	PM800_ID_BUCK2,
-> +	PM800_ID_BUCK3,
-> +	PM800_ID_BUCK4,
-> +	PM800_ID_BUCK5,
-
-I would still argue that the majority of the constants in this file
-should get moved into the driver .c file that uses them. Putting them
-into the header is better done only for interfaces between the
-driver parts, and for constants that are used by multiple drivers.
-
-> +struct pm80x_subchip {
-> +	struct i2c_client *power_page;	/* chip client for power page */
-> +	struct i2c_client *gpadc_page;	/* chip client for gpadc page */
-> +	struct regmap *regmap_power;
-> +	struct regmap *regmap_gpadc;
-> +	unsigned short power_page_addr;	/* power page I2C address */
-> +	unsigned short gpadc_page_addr;	/* gpadc page I2C address */
-> +};
-> +
-> +struct pm80x_chip {
-> +	struct pm80x_subchip *subchip;
-> +	struct device *dev;
-> +	struct i2c_client *client;
-> +	struct regmap *regmap;
-> +	struct regmap_irq_chip *regmap_irq_chip;
-> +	struct regmap_irq_chip_data *irq_data;
-> +	unsigned char version;
-> +	int id;
-> +	int irq;
-> +	int irq_mode;
-> +	int irq_base;
-> +	unsigned int wu_flag;
-> +};
-
-One thing I forgot to ask in the previous review although I had already
-noticed it then: What is the separation of pm80x_chip and pm80x_subchip
-used for?
-
-> +struct pm80x_rtc_pdata {
-> +	int		vrtc;
-> +	int		rtc_wakeup;
-> +};
-> +
-> +struct pm80x_platform_data {
-> +	struct pm80x_rtc_pdata *rtc;
-> +	unsigned short pm800_addr;
-> +	unsigned short pm805_addr;
-> +	unsigned short power_page_addr;	/* power page I2C address */
-> +	unsigned short gpadc_page_addr;	/* gpadc page I2C address */
-> +	int irq_mode;		/* Clear interrupt by read/write(0/1) */
-> +	int irq_base;		/* IRQ base of chip */
-> +	int batt_det;		/* enable/disable */
-> +};
-
-You removed the callback here as I asked you to, which I think is a useful
-cleanup, but you can actually managed to convinced me that it would be ok
-to have it, so I don't mind if you want to put it back and use auxdata.
-
-On the other hand, I think it probably makes sense to drop the irq_base
-member in this struct and rely on irq domains to allocate them dynamically
-as mentioned before.
-
-	Arnd
+-- 
+Jean Delvare
