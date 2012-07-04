@@ -1,39 +1,284 @@
-From: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH 1/4] mfd: support 88pm80x in 80x driver
-Date: Wed, 4 Jul 2012 08:47:54 -0700
-Message-ID: <B2A7C617B3AB7F44B7B44C7D374B431E13A09E8DF1@sc-vexch3.marvell.com>
-References: <1341392115-9425-1-git-send-email-zhouqiao@marvell.com>
- <201207041137.49020.arnd@arndb.de>
- <B2A7C617B3AB7F44B7B44C7D374B431E13A09E8DEE@sc-vexch3.marvell.com>
- <201207041527.13954.arnd@arndb.de>
- <20120704153307.GE4111@opensource.wolfsonmicro.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 7/8 v3] i2c: i801: enable irq for i801 smbus
+ transactions
+Date: Wed, 4 Jul 2012 17:48:41 +0200
+Message-ID: <20120704174841.68dc6587@endymion.delvare>
+References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
+	<1340805255-8041-8-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120704153307.GE4111-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <1340805255-8041-8-git-send-email-djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: "rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org" <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, "sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org" <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Chao Xie <cxie4-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yu Tang <ytang5-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Wilbur Wang <wwang27-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> On Wed, Jul 04, 2012 at 03:27:13PM +0000, Arnd Bergmann wrote:
-> > On Wednesday 04 July 2012, Qiao Zhou wrote:
->>
-> > > >On the other hand, I think it probably makes sense to drop the 
-> > > >irq_base member in this struct and rely on irq domains to allocate 
-> > > >them dynamically as mentioned before.
->
-> > > Do you mean that both regmap_add_irq_chip and mfd_add_devices api 
-> > > pass -1 as the irq_base, so that system can dynamically allocate the irq_base for it?
->
-> > regmap_add_irq_chip should pass -1, mfd_add_devices should pass 0.
-> > Mark can probably correct me if that's wrong.
->
-> That's right.
->
-Mark, thanks for the confirmation.
+Hi Daniel,
 
-Best Regards
-Qiao
+On Wed, 27 Jun 2012 21:54:14 +0800, Daniel Kurtz wrote:
+> Add a new 'feature' to i2c-i801 to enable using i801 interrupts.
+> When the feature is enabled, then an isr is installed for the device's
+> pci irq.
+> 
+> An I2C/SMBus transaction is always terminated by one of the following
+> interrupt sources: FAILED, BUS_ERR, DEV_ERR, or on success: INTR.
+> 
+> When the isr fires for one of these cases, it sets the ->status variable
+> and wakes up the waitq.  The waitq then saves off the status code, and
+> clears ->status (in preparation for some future transaction).
+> The SMBus controller generates an INTR irq at the end of each
+> transaction where INTREN was set in the HST_CNT register.
+> 
+> No locking is needed around accesses to priv->status since all writes to
+> it are serialized: it is only ever set once in the isr at the end of a
+> transaction, and cleared while no irqs can occur.  In addition, the I2C
+> adapter lock guarantees that entire I2C transactions for a single
+> adapter are always serialized.
+> 
+> For this patch, the INTREN bit is set only for SMBus block, byte and word
+> transactions, but not for I2C reads or writes.  The use of the DS
+> (BYTE_DONE) interrupt with byte-by-byte I2C transactions is implemented in
+> a subsequent patch.
+> 
+> The interrupt feature has only been enabled for COUGARPOINT hardware.
+> In addition, it is disabled if SMBus is using the SMI# interrupt.
+> 
+> Signed-off-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-i801.c |   93 ++++++++++++++++++++++++++++++++++++++---
+>  1 files changed, 87 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 6fa2a0b..6bfedc0 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -60,10 +60,12 @@
+>    Block process call transaction   no
+>    I2C block read transaction       yes  (doesn't use the block buffer)
+>    Slave mode                       no
+> +  Interrupt processing             yes
+>  
+>    See the file Documentation/i2c/busses/i2c-i801 for details.
+>  */
+>  
+> +#include <linux/interrupt.h>
+>  #include <linux/module.h>
+>  #include <linux/pci.h>
+>  #include <linux/kernel.h>
+> @@ -76,6 +78,7 @@
+>  #include <linux/io.h>
+>  #include <linux/dmi.h>
+>  #include <linux/slab.h>
+> +#include <linux/wait.h>
+>  
+>  /* I801 SMBus address offsets */
+>  #define SMBHSTSTS(p)	(0 + (p)->smba)
+> @@ -134,8 +137,9 @@
+>  #define STATUS_ERROR_FLAGS	(SMBHSTSTS_FAILED | SMBHSTSTS_BUS_ERR | \
+>  				 SMBHSTSTS_DEV_ERR)
+>  
+> -#define STATUS_FLAGS		(SMBHSTSTS_BYTE_DONE | SMBHSTSTS_INTR | \
+> -				 STATUS_ERROR_FLAGS)
+> +#define STATUS_RESULT_FLAGS	(SMBHSTSTS_INTR | STATUS_ERROR_FLAGS)
+
+I see no good reason to introduce this, you use it only once and
+STATUS_FLAGS would work as well there.
+
+> +
+> +#define STATUS_FLAGS		(SMBHSTSTS_BYTE_DONE | STATUS_RESULT_FLAGS)
+>  
+>  /* Older devices have their ID defined in <linux/pci_ids.h> */
+>  #define PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS	0x1c22
+> @@ -155,6 +159,10 @@ struct i801_priv {
+>  	unsigned char original_hstcfg;
+>  	struct pci_dev *pci_dev;
+>  	unsigned int features;
+> +
+> +	/* isr processing */
+> +	wait_queue_head_t waitq;
+> +	u8 status;
+>  };
+>  
+>  static struct pci_driver i801_driver;
+> @@ -163,6 +171,7 @@ static struct pci_driver i801_driver;
+>  #define FEATURE_BLOCK_BUFFER	(1 << 1)
+>  #define FEATURE_BLOCK_PROC	(1 << 2)
+>  #define FEATURE_I2C_BLOCK_READ	(1 << 3)
+> +#define FEATURE_IRQ		(1 << 4)
+>  /* Not really a feature, but it's convenient to handle it as such */
+>  #define FEATURE_IDF		(1 << 15)
+>  
+> @@ -171,6 +180,7 @@ static const char *i801_feature_names[] = {
+>  	"Block buffer",
+>  	"Block process call",
+>  	"I2C block read",
+> +	"Interrupt",
+>  };
+>  
+>  static unsigned int disable_features;
+> @@ -211,7 +221,12 @@ static int i801_check_post(struct i801_priv *priv, int status, int timeout)
+>  {
+>  	int result = 0;
+>  
+> -	/* If the SMBus is still busy, we give up */
+> +	/*
+> +	 * If the SMBus is still busy, we give up
+> +	 * Note: This timeout condition only happens when using polling
+> +	 * transactions.  For interrupt operation, NAK/timeout is indicated by
+> +	 * DEV_ERR.
+> +	 */
+>  	if (timeout) {
+>  		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
+>  		/* try to stop the current command */
+> @@ -287,6 +302,14 @@ static int i801_transaction(struct i801_priv *priv, int xact)
+>  	if (result < 0)
+>  		return result;
+>  
+> +	if (priv->features & FEATURE_IRQ) {
+> +		outb_p(xact | SMBHSTCNT_INTREN | SMBHSTCNT_START,
+> +		       SMBHSTCNT(priv));
+> +		wait_event(priv->waitq, (status = priv->status));
+> +		priv->status = 0;
+> +		return i801_check_post(priv, status, 0);
+> +	}
+> +
+>  	/* the current contents of SMBHSTCNT can be overwritten, since PEC,
+>  	 * SMBSCMD are passed in xact */
+>  	outb_p(xact | SMBHSTCNT_START, SMBHSTCNT(priv));
+> @@ -341,6 +364,37 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
+>  }
+>  
+>  /*
+> + * i801 signals transaction completion with one of these interrupts:
+> + *   INTR - Success
+> + *   DEV_ERR - Invalid command, NAK or communication timeout
+> + *   BUS_ERR - SMI# transaction collision
+> + *   FAILED - transaction was canceled due to a KILL request
+> + * When any of these occur, update ->status and wake up the waitq.
+> + * ->status must be cleared before kicking off the next transaction.
+> + */
+> +static irqreturn_t i801_isr(int irq, void *dev_id)
+> +{
+> +	struct i801_priv *priv = dev_id;
+> +	u8 hststs;
+
+It's named "status" everywhere else, now that the confusion with the
+PCI status register is no longer possible, I would advise that we stick
+with "status".
+
+> +
+> +	hststs = inb_p(SMBHSTSTS(priv));
+> +	dev_dbg(&priv->pci_dev->dev, "irq: hststs = %02x\n", hststs);
+> +
+> +	/*
+> +	 * Clear irq sources and report transaction result.
+> +	 * ->status must be cleared before the next transaction is started.
+> +	 */
+> +	hststs &= STATUS_RESULT_FLAGS;
+> +	if (hststs) {
+> +		outb_p(hststs, SMBHSTSTS(priv));
+> +		priv->status |= hststs;
+> +		wake_up(&priv->waitq);
+> +	}
+
+Your original patch did handle shared interrupts, I don't think this
+version does. We are supposed to return IRQ_NONE if the interrupt
+wasn't ours, aren't we? Plus, logging the register value when the
+interrupt isn't ours fills the kernel log very fast for heavily shared
+interrupts (as is the case on my old ICH3-M laptop.)
+
+> +
+> +	return IRQ_HANDLED;
+> +}
+> +
+> +/*
+>   * For "byte-by-byte" block transactions:
+>   *   I2C write uses cmd=I801_BLOCK_DATA, I2C_EN=1
+>   *   I2C read uses cmd=I801_I2C_BLOCK_DATA
+> @@ -801,6 +855,10 @@ static int __devinit i801_probe(struct pci_dev *dev,
+>  		break;
+>  	}
+>  
+> +	/* IRQ processing only tested on CougarPoint PCH */
+> +	if (dev->device == PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS)
+> +		priv->features |= FEATURE_IRQ;
+> +
+>  	/* Disable features on user request */
+>  	for (i = 0; i < ARRAY_SIZE(i801_feature_names); i++) {
+>  		if (priv->features & disable_features & (1 << i))
+> @@ -848,16 +906,31 @@ static int __devinit i801_probe(struct pci_dev *dev,
+>  	}
+>  	pci_write_config_byte(priv->pci_dev, SMBHSTCFG, temp);
+>  
+> -	if (temp & SMBHSTCFG_SMB_SMI_EN)
+> +	if (temp & SMBHSTCFG_SMB_SMI_EN) {
+>  		dev_dbg(&dev->dev, "SMBus using interrupt SMI#\n");
+> -	else
+> +		/* Disable SMBus interrupt feature if SMBus using SMI# */
+> +		priv->features &= ~FEATURE_IRQ;
+> +	} else {
+>  		dev_dbg(&dev->dev, "SMBus using PCI Interrupt\n");
+> +	}
+>  
+>  	/* Clear special mode bits */
+>  	if (priv->features & (FEATURE_SMBUS_PEC | FEATURE_BLOCK_BUFFER))
+>  		outb_p(inb_p(SMBAUXCTL(priv)) &
+>  		       ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B), SMBAUXCTL(priv));
+>  
+> +	if (priv->features & FEATURE_IRQ) {
+> +		init_waitqueue_head(&priv->waitq);
+> +
+> +		err = request_irq(dev->irq, i801_isr, IRQF_SHARED,
+> +				  i801_driver.name, priv);
+> +		if (err) {
+> +			dev_err(&dev->dev, "Failed to allocate irq %d: %d\n",
+> +				dev->irq, err);
+> +			goto exit_release;
+> +		}
+> +	}
+> +
+>  	/* set up the sysfs linkage to our parent device */
+>  	priv->adapter.dev.parent = &dev->dev;
+>  
+> @@ -869,14 +942,18 @@ static int __devinit i801_probe(struct pci_dev *dev,
+>  	err = i2c_add_adapter(&priv->adapter);
+>  	if (err) {
+>  		dev_err(&dev->dev, "Failed to add SMBus adapter\n");
+> -		goto exit_release;
+> +		goto exit_free_irq;
+>  	}
+>  
+>  	i801_probe_optional_slaves(priv);
+>  
+>  	pci_set_drvdata(dev, priv);
+> +
+>  	return 0;
+>  
+> +exit_free_irq:
+> +	if (priv->features & FEATURE_IRQ)
+> +		free_irq(dev->irq, priv);
+>  exit_release:
+>  	pci_release_region(dev, SMBBAR);
+>  exit:
+> @@ -891,6 +968,10 @@ static void __devexit i801_remove(struct pci_dev *dev)
+>  	i2c_del_adapter(&priv->adapter);
+>  	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+>  	pci_release_region(dev, SMBBAR);
+> +
+> +	if (priv->features & FEATURE_IRQ)
+> +		free_irq(dev->irq, priv);
+> +
+
+It should make no difference in practice, but I would prefer that we
+swamp these, to have the exact same order as in the error path of the
+probe function.
+
+>  	pci_set_drvdata(dev, NULL);
+>  	kfree(priv);
+>  	/*
+
+
+-- 
+Jean Delvare
