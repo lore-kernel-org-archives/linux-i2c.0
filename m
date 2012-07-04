@@ -1,88 +1,129 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-i801: Consolidate polling
-Date: Wed, 4 Jul 2012 13:47:19 +0200
-Message-ID: <20120704134719.36e3b9e1@endymion.delvare>
-References: <20120703101927.63336e65@endymion.delvare>
-	<CAGS+omDC7voaYU2w1zZjCBmXssPQVdp_7YOH+Lgvv5=XTU0fzg@mail.gmail.com>
-	<20120703153959.0e760660@endymion.delvare>
-	<CAGS+omAT0G=BBGRs9H91ah=oZnaY-MHbvbADGOKTES_FbCjLjA@mail.gmail.com>
-	<20120704094910.7e077e2d@endymion.delvare>
-	<CAGS+omBhKcJe7jUE8=mxp7Dh-eJP9bF1+dU9gze3UeyQUQpq-Q@mail.gmail.com>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Hid over I2C and ACPI interaction
+Date: Wed, 4 Jul 2012 15:46:35 +0200
+Message-ID: <CAN+gG=GnMX8Gu6w9za2QrjoVrmORncFgq-+hhmHvxtOPEB=nDw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGS+omBhKcJe7jUE8=mxp7Dh-eJP9bF1+dU9gze3UeyQUQpq-Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Len Brown <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, =?ISO-8859-1?Q?St=E9phane_Chatty?= <chatty-rXV5z7KbLFk@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 4 Jul 2012 16:08:25 +0800, Daniel Kurtz wrote:
-> On Wed, Jul 4, 2012 at 3:49 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> > On Wed, 4 Jul 2012 14:12:26 +0800, Daniel Kurtz wrote:
-> >> On Tue, Jul 3, 2012 at 9:39 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> >> > @@ -272,7 +272,7 @@ static int i801_wait_intr(struct i801_pr
-> >>
-> >> "i801_wait_intr()" isn't such a good name anymore.  I recommend
-> >> i801_wait_xfer_status(), or i801_wait_host_idle().
-> >
-> > i801_wait_intr() isn't such a bad name IMHO, we are still ideally hoping
-> > that INTR will be set, as this means the transaction will be
-> > successful. The name has the advantage of being symmetric with
-> > i801_wait_byte_done(), so it's clear which one of the status bits we
-> > are expecting.
-> >
-> > "i801_wait_host_idle" would be a good name too, but the actual name
-> > doesn't really matter anyway, as the next patch merges both functions
-> > into a single one. I had written this patch before you posted your
-> > proposed changes, but it can still be applied on top of these (with the
-> > usual context adjustment.) Unless you really don't like it? If so,
-> > please tell me why.
-> >
-> >> >                 dev_dbg(&priv->pci_dev->dev, "INTR Timeout!\n");
-> >>
-> >> "Timed out waiting for transaction to complete!\n"
-> >
-> > My next patch already changes this to:
-> >
-> >                 dev_err(&priv->pci_dev->dev,
-> >                         "Timeout waiting for %02x! (%02x)\n", wait_set, status);
-> >
-> > My message is more generic because the function is now generic, but the
-> > information provided is more or less the same. If you think wording can
-> > be improved, just let me know.
-> 
-> I'm really not sure this function is that necessary.  The code seems
-> more confusing now with the two waits combined into a single function.
->  Keeping them separate also means you don't have to do extra work like
-> passing "wait_cleared = 0" and making sure not to clear BYTE_DONE in
-> the BYTE_DONE case.
+Hi Guys,
 
-You have a point, and this is the reason why I originally wasn't sure
-myself if I wanted to do it. But it also allows for further cleanups. I
-have a patch moving the call to i801_wait into i801_check_post (which
-allows gcc to inline i801_wait) and another one merging i801_wait into
-i801_check_post (which saves some intermediate work.) Each step may
-not be very appealing nor convincing individually, but if you stack all
-three, the diffstat looks like:
+I'm the co-author and the maintainer of the hid-multitouch driver. To
+support even more devices, I started the implementation of the HID
+over I2C protocol specification which is introduced by Win8. I'm quite
+comfortable with the hid and the I2C part, but I'm blocked with the
+interaction with the ACPI for the pnp part.
 
- drivers/i2c/busses/i2c-i801.c |   86 ++++++++++++++----------------------------
- 1 file changed, 30 insertions(+), 56 deletions(-)
+I wanted to have your advice/help on this problem. I've add in the
+recipients list the maintainers of i2c and ACPI, sorry for the noise
+if you don't feel concerned about this.
 
-And the binary comparison shows 274 bytes saved on x86_64, which isn't
-negligible.
+So, let's go deeper in the problem ;-)
+Microsoft's spec asks the OEM to fill the ACPI DSDT to provide the
+following scope in the ASL layout:
 
-That being said... The last two steps are unlikely to fit well with your
-interrupt patches. So I will postpone these cleanup/optimization
-patches of mine for the time being. I started working on this because
-of the performance regression introduced by one of your patches. Now
-that this is solved, I should resume to my original goal which was
-to get all your patches reviewed, tested and in linux-next as quickly
-as possible. We can always discuss the rest later.
+>>>>>>>>> begin of ASL
+Scope (\_SB) {
+//--------------------
+//  General Purpose I/O, ports 0...127
+//--------------------
 
-Thanks again for your time, I'll now reorder and cleanup the current
-patch series, retest, and then move on to the two interrupt patches.
+Device(HIDI2C_DEVICE1) {
+    Name(_ADR,0)
+    Name (_HID, "MSFT1234=94)
+    Name (_CID, "PNP0C50")
+    Name (_UID, 3)
 
--- 
-Jean Delvare
+    Method(_CRS, 0x0, NotSerialized)
+    {
+        Name (RBUF, ResourceTemplate ()
+        {
+        // Address 0x07 on I2C-X (OEM selects this address)
+       //IHV SPECIFIC I2C3 =3D I2C Controller; TGD0 =3D GPIO Controller=
+;
+        I2CSerialBus (0x07, ControllerInitiated,
+100000,AddressingMode7Bit, "\\_SB.I2C3",,,,)
+        GpioInt(Level, ActiveLow, Exclusive, PullUp, 0, "\\_SB. TGD0",
+0 , ResourceConsumer, , ) {40}
+        })
+     Return(RBUF)
+     }
+
+     Method(_DSM, 0x4, NotSerialized)
+     {
+        // BreakPoint
+        Store ("Method _DSM begin", Debug)
+
+        // DSM UUID
+        switch(ToBuffer(Arg0))
+        {	=09
+            // ACPI DSM UUID for HIDI2C
+            case(ToUUID("3CDFF6F7-4267-4555-AD05-B30A3D8938DE"))
+            {
+                 // DSM function which returns the HID Descriptor
+Address (skipped)
+            }
+
+            default
+            {
+                // No other GUIDs supported
+                Return(Buffer(One) { 0x00 })
+            }
+        }
+    }
+}
+<<<<<<<<< end of ASL
+
+Summary:
+- a HID over I2C device has to present the Compatibility ID "PNP0C50"
+- in the _CRS block, the address, the adapter and the gpioInt are
+defined (or referenced)
+- it presents a Device Specific Method (_DSM) which returns the HID
+Descriptor register address. This register is our entry point for
+retrieving the information about our hid device (so it's mandatory to
+obtain it).
+
+Where am I:
+- I've written a first layer on top of i2c that retrieves the hid
+register (currently the address 0x0001 is hardcoded), then get the
+report desccriptors and the input events, and forward all this stuff
+to the hid layer.
+- It's working with a custom emulated HID over i2c touchpad, while
+waiting for the one a manufacturer should send to me.
+- The detection and the addition to the adapter is done by adding the
+address in the lists and the name through the i2c "->detect" callback
+(which is not very good, because I don't have the interrupt line
+there).
+- I've written a first acpi implementation that rely on the
+DEVICE_ACPI_HANDLE macro to get the ACPI handle of the device (if
+available).
+- I'm not able to do some tests with the ACPI, as I don't know how to
+implement this DSDT on my computer (I'm missing the I2C part), and the
+manufacturer returned the mainboard with the right DSDT to the OEM.
+
+My questions:
+- will the current acpi implementation handle I2C devices?
+- it seems to me that the .archdata field is left blank during the i2c
+device initialization in all paths I've seen. Is that true?
+- who puts the name int the struct i2c_board_info? (for hot-plugged
+i2c devices).
+
+- finally, what is the best way of handling ACPI for those I2C devices:
+  1) everything is fine, I should have the ACPI handle in .archdata.
+  2) someone has to implement the handling of I2C in the pnpACPI layer
+(by adding I2CSerialBus handling and creating there the i2c slave).
+  3) I should create an acpi driver which handles "PNP0C50" and which
+creates the i2c slaves.
+
+The thing is that I'm not very comfortable with solutions 2 and 3
+(i2c_new_device tells that it must not be called during
+arch_initcall(), how can I get the adapter, shall I blacklist in
+pnpacpi "PNP0C50" ...), so gentlemen, I'm waiting for your advice.
+
+Many thanks,
+Benjamin
