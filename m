@@ -1,84 +1,90 @@
-From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c i.MX: Fix divider table
-Date: Thu, 5 Jul 2012 22:52:39 +0800
-Message-ID: <20120705145236.GA2735@richard-laptop>
-References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH v2 01/12] ARM: Orion: DT support for IRQ and GPIO Controllers
+Date: Thu, 5 Jul 2012 14:54:23 +0000
+Message-ID: <201207051454.24475.arnd@arndb.de>
+References: <1341325365-21393-1-git-send-email-andrew@lunn.ch> <20120705130819.GV17534@lunn.ch> <4FF5A15A.8070309@googlemail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1341493826-13861-1-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <4FF5A15A.8070309-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Sebastian Hesselbarth <sebastian.hesselbarth-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Michael Walle <michael-QKn5cuLxLXY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 05, 2012 at 03:10:26PM +0200, Sascha Hauer wrote:
-> Measurements on i.MX1 and i.MX53 have shown that the divider values
-> in the datasheets are wrong. the values from first, third and fourth
-> column were all measured to be 8 higher than in the datasheet. It
-> should be safe to assume that the SoCs between i.MX1 and i.MX53 behave
-> the same as the i2c unit is unchanged since the i.MX1.
-We may need to check with IC guys? Or you've done?
+On Thursday 05 July 2012, Sebastian Hesselbarth wrote:
+> Andrew,
+> 
+> is it possible to group all gpio banks into one DT description?
+> For mach-dove it could be something like:
+> 
+> gpio: gpio-controller {
+>         compatible = "marvell, orion-gpio";
+>         ...
+> 
+>         bank0@d0400 {
+>                 reg = <0xd0400 0x40>;
+>                 ngpio = <8>;
+>                 mask-offset = <0>;
+>                 interrupts = <12>;
+>         };
+> 
+>         bank1@d0400 {
+>                 reg = <0xd0400 0x40>;
+>                 ngpio = <8>;
+>                 mask-offset = <8>;
+>                 interrupts = <13>;
+>         };
 
-Thanks
-Richard
+This way you have multiple nodes with the same register
+and different names, which is not how it normally works.
+
 > 
-> Signed-off-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-imx.c |   31 ++++++++++++++++++-------------
->  1 file changed, 18 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 8d6b504..aabbe31 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -98,22 +98,27 @@
->   * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
->   *
->   * Duplicated divider values removed from list
-> + *
-> + * These values (mostly) do not match the ones in the datasheet because
-> + * measurements have shown that the values are wrong. This was tested
-> + * on i.MX1 and i.MX53, so it shoud be safe to assume that the SoCs in
-> + * between behave the same.
->   */
+> This would have the advantage that DT describes gpio-to-irq dependencies.
+> Moreover, nodes that reference gpios can do gpios = <&gpio 71 0>; instead of
+> gpios = <&gpio3 7 0>;
+
+Is that desired?
+
+The device tree representation should match what is in the data sheet
+normally. If they are in a single continuous number range, then we should
+probably have a single device node with multiple register ranges
+rather than one device node for each 32-bit register. Looking at
+arch/arm/plat-orion/gpio.c I think that is not actually the case though
+and having separate banks is more logical.
+
+Something completely different I just noticed in the original patch:
+
+> @@ -90,6 +74,27 @@ static void pmu_irq_handler(unsigned int irq, struct irq_desc *desc)
+>       }
+>  }
 >  
->  static u16 __initdata i2c_clk_div[50][2] = {
-> -	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
-> -	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
-> -	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
-> -	{ 56,	0x29 }, { 60,	0x06 }, { 64,	0x2A },	{ 72,	0x2B },
-> -	{ 80,	0x2C }, { 88,	0x09 }, { 96,	0x2D }, { 104,	0x0A },
-> -	{ 112,	0x2E }, { 128,	0x2F }, { 144,	0x0C }, { 160,	0x30 },
-> -	{ 192,	0x31 },	{ 224,	0x32 }, { 240,	0x0F }, { 256,	0x33 },
-> -	{ 288,	0x10 }, { 320,	0x34 },	{ 384,	0x35 }, { 448,	0x36 },
-> -	{ 480,	0x13 }, { 512,	0x37 }, { 576,	0x14 },	{ 640,	0x38 },
-> -	{ 768,	0x39 }, { 896,	0x3A }, { 960,	0x17 }, { 1024,	0x3B },
-> -	{ 1152,	0x18 }, { 1280,	0x3C }, { 1536,	0x3D }, { 1792,	0x3E },
-> -	{ 1920,	0x1B },	{ 2048,	0x3F }, { 2304,	0x1C }, { 2560,	0x1D },
-> -	{ 3072,	0x1E }, { 3840,	0x1F }
-> +	{ 30,	0x20 }, { 32,	0x21 }, { 34,	0x22 },	{ 36,	0x23 },
-> +	{ 38,	0x00 },	{ 40,	0x24 },	{ 44,	0x25 },	{ 48,	0x26 },
-> +	{ 50,	0x03 },	{ 52,	0x27 },	{ 56,	0x28 }, { 60,	0x05 },
-> +	{ 64,	0x29 }, { 68,	0x06 }, { 72,	0x2A },	{ 80,	0x2B },
-> +	{ 88,	0x2C }, { 96,	0x09 }, { 104,	0x2D }, { 112,	0x0A },
-> +	{ 120,	0x2E }, { 136,	0x2F }, { 152,	0x0C },	{ 168,	0x30 },
-> +	{ 200,	0x31 }, { 232,	0x32 }, { 248,	0x0F },	{ 264,	0x33 },
-> +	{ 288,	0x10 },	{ 328,	0x34 },	{ 392,	0x35 },	{ 456,	0x36 },
-> +	{ 480,	0x13 },	{ 520,	0x37 },	{ 576,	0x14 },	{ 648,	0x38 },
-> +	{ 776,	0x39 },	{ 904,	0x3A },	{ 960,	0x17 },	{ 1032,	0x3B },
-> +	{ 1152,	0x18 },	{ 1288,	0x3C },	{ 1544,	0x3D },	{ 1800,	0x3E },
-> +	{ 1920,	0x1B },	{ 2048,	0x3F },	{ 2304,	0x1C },	{ 2560,	0x1D },
-> +	{ 3072,	0x1E },	{ 3840,	0x1F }
->  };
->  
->  struct imx_i2c_struct {
-> -- 
-> 1.7.10
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+> +static int __initdata gpio0_irqs[4] = {
+> +     IRQ_DOVE_GPIO_0_7,
+> +     IRQ_DOVE_GPIO_8_15,
+> +     IRQ_DOVE_GPIO_16_23,
+> +     IRQ_DOVE_GPIO_24_31,
+> +};
+> +
+> +static int __initdata gpio1_irqs[4] = {
+> +     IRQ_DOVE_HIGH_GPIO,
+> +     0,
+> +     0,
+> +     0,
+> +};
+
+I think the latter one needs to be
+
++static int __initdata gpio1_irqs[4] = {
++     IRQ_DOVE_HIGH_GPIO,
++     IRQ_DOVE_HIGH_GPIO,
++     IRQ_DOVE_HIGH_GPIO,
++     IRQ_DOVE_HIGH_GPIO,
++};
+
+so we register all four parts to the same primary IRQ. The
+same is true for the devicetree representation.
+
+	Arnd
