@@ -1,137 +1,52 @@
-From: Mitch Bradley <wmb-D5eQfiDGL7eakBO8gow8eQ@public.gmane.org>
-Subject: Re: [PATCH v2 01/12] ARM: Orion: DT support for IRQ and GPIO
- Controllers
-Date: Thu, 05 Jul 2012 08:36:53 -1000
-Message-ID: <4FF5DEC5.9030707@firmworks.com>
-References: <1341325365-21393-1-git-send-email-andrew@lunn.ch>
- <20120705130819.GV17534@lunn.ch> <4FF5A15A.8070309@googlemail.com>
- <201207051454.24475.arnd@arndb.de>
+From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c i.MX: Fix divider table
+Date: Thu, 5 Jul 2012 20:47:36 +0200
+Message-ID: <20120705184736.GW30009@pengutronix.de>
+References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
+ <CAM=Q2csv3rEs-xseGd6NHxR3wRSZp82ZqNB1mn-_C4=5=nOc6g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <201207051454.24475.arnd-r2nGTMty4D4@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAM=Q2csv3rEs-xseGd6NHxR3wRSZp82ZqNB1mn-_C4=5=nOc6g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/5/2012 4:54 AM, Arnd Bergmann wrote:
-> On Thursday 05 July 2012, Sebastian Hesselbarth wrote:
->> Andrew,
->>
->> is it possible to group all gpio banks into one DT description?
->> For mach-dove it could be something like:
->>
->> gpio: gpio-controller {
->>          compatible = "marvell, orion-gpio";
->>          ...
->>
->>          bank0@d0400 {
->>                  reg = <0xd0400 0x40>;
->>                  ngpio = <8>;
->>                  mask-offset = <0>;
->>                  interrupts = <12>;
->>          };
->>
->>          bank1@d0400 {
->>                  reg = <0xd0400 0x40>;
->>                  ngpio = <8>;
->>                  mask-offset = <8>;
->>                  interrupts = <13>;
->>          };
->
-> This way you have multiple nodes with the same register
-> and different names, which is not how it normally works.
+On Thu, Jul 05, 2012 at 11:36:27PM +0530, Shubhrajyoti Datta wrote:
+> On Thu, Jul 5, 2012 at 6:40 PM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> > Measurements on i.MX1 and i.MX53 have shown that the divider values
+> > in the datasheets are wrong.
+> How were the measurements made?
 
-The "mask-offset" property is really a "reg" in disguise.
+With an oscilloscope measuring the period length. This is probably not
+very exact, but the current values are way off. We had 350KHz instead
+of 380KHz (best possible divider) on an i.MX53. Funny enough some
+divider values really match the ones in the datasheet.
 
-"reg" is considerably more general than just "memory mapped
-register address".  It really means "any numeric identifier
-that makes sense in the context of a parent device".
+BTW I'm pretty sure the input frequency to the core is calculated
+correctly as it's the same clock that also drives the timer.
 
-Therefore, one could say:
+> 
+> > the values from first, third and fourth
+> > column were all measured to be 8 higher than in the datasheet. It
+> > should be safe to assume that the SoCs between i.MX1 and i.MX53 behave
+> > the same as the i2c unit is unchanged since the i.MX1.
+> 
+> Also does it vary board to board or is fixed by the ip?
+> What I mean is that the external cap etc.
 
-gpio: gpio-controller {
-          compatible = "marvell, orion-gpio";
-          reg = <0xd0400 0x40>;
-          #address-cells = <1>;
-          #size-cells = <0>;
-          ...
+The clock is derived from an internal SoC clock, I don't think this can
+be influenced that much by external components. I did not test different
+boards, but two board with different SoCs.
 
-          bank0@0 {
-                  reg = <0x0>;
-                  ngpio = <8>;
-                  mask-offset = <0>;
-                  interrupts = <12>;
-          };
+Let's see what the IC guys tell us.
 
-          bank1@8 {
-                  reg = <0x8>;
-                  ngpio = <8>;
-                  interrupts = <13>;
-           };
+Sascha
 
->
->>
->> This would have the advantage that DT describes gpio-to-irq dependencies.
->> Moreover, nodes that reference gpios can do gpios = <&gpio 71 0>; instead of
->> gpios = <&gpio3 7 0>;
->
-> Is that desired?
->
-> The device tree representation should match what is in the data sheet
-> normally. If they are in a single continuous number range, then we should
-> probably have a single device node with multiple register ranges
-> rather than one device node for each 32-bit register. Looking at
-> arch/arm/plat-orion/gpio.c I think that is not actually the case though
-> and having separate banks is more logical.
->
-> Something completely different I just noticed in the original patch:
->
->> @@ -90,6 +74,27 @@ static void pmu_irq_handler(unsigned int irq, struct irq_desc *desc)
->>        }
->>   }
->>
->> +static int __initdata gpio0_irqs[4] = {
->> +     IRQ_DOVE_GPIO_0_7,
->> +     IRQ_DOVE_GPIO_8_15,
->> +     IRQ_DOVE_GPIO_16_23,
->> +     IRQ_DOVE_GPIO_24_31,
->> +};
->> +
->> +static int __initdata gpio1_irqs[4] = {
->> +     IRQ_DOVE_HIGH_GPIO,
->> +     0,
->> +     0,
->> +     0,
->> +};
->
-> I think the latter one needs to be
->
-> +static int __initdata gpio1_irqs[4] = {
-> +     IRQ_DOVE_HIGH_GPIO,
-> +     IRQ_DOVE_HIGH_GPIO,
-> +     IRQ_DOVE_HIGH_GPIO,
-> +     IRQ_DOVE_HIGH_GPIO,
-> +};
->
-> so we register all four parts to the same primary IRQ. The
-> same is true for the devicetree representation.
->
-> 	Arnd
->
-> _______________________________________________
-> devicetree-discuss mailing list
-> devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> https://lists.ozlabs.org/listinfo/devicetree-discuss
->
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
