@@ -1,88 +1,84 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 8/8 v3] i2c: i801: enable irq for byte_by_byte
- transactions
-Date: Thu, 5 Jul 2012 16:46:32 +0200
-Message-ID: <20120705164632.04f53a73@endymion.delvare>
-References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
-	<1340805255-8041-9-git-send-email-djkurtz@chromium.org>
+From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c i.MX: Fix divider table
+Date: Thu, 5 Jul 2012 22:52:39 +0800
+Message-ID: <20120705145236.GA2735@richard-laptop>
+References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1340805255-8041-9-git-send-email-djkurtz@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Daniel Kurtz <djkurtz@chromium.org>
-Cc: Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Seth Heasley <seth.heasley@intel.com>, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1341493826-13861-1-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Daniel,
+On Thu, Jul 05, 2012 at 03:10:26PM +0200, Sascha Hauer wrote:
+> Measurements on i.MX1 and i.MX53 have shown that the divider values
+> in the datasheets are wrong. the values from first, third and fourth
+> column were all measured to be 8 higher than in the datasheet. It
+> should be safe to assume that the SoCs between i.MX1 and i.MX53 behave
+> the same as the i2c unit is unchanged since the i.MX1.
+We may need to check with IC guys? Or you've done?
 
-On Wed, 27 Jun 2012 21:54:15 +0800, Daniel Kurtz wrote:
-> Byte-by-byte transactions are used primarily for accessing I2C devices
-> with an SMBus controller.  For these transactions, for each byte that is
-> read or written, the SMBus controller generates a BYTE_DONE irq.  The isr
-> reads/writes the next byte, and clears the irq flag to start the next byte.
-> On the penultimate irq, the isr also sets the LAST_BYTE flag.
+Thanks
+Richard
 > 
-> There is no locking around the cmd/len/count/data variables, since the
-> I2C adapter lock ensures there is never multiple simultaneous transactions
-> for the same device, and the driver thread never accesses these variables
-> while interrupts might be occurring.
+> Signed-off-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-imx.c |   31 ++++++++++++++++++-------------
+>  1 file changed, 18 insertions(+), 13 deletions(-)
 > 
-> The end result is faster I2C block read and write transactions.
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 8d6b504..aabbe31 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -98,22 +98,27 @@
+>   * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
+>   *
+>   * Duplicated divider values removed from list
+> + *
+> + * These values (mostly) do not match the ones in the datasheet because
+> + * measurements have shown that the values are wrong. This was tested
+> + * on i.MX1 and i.MX53, so it shoud be safe to assume that the SoCs in
+> + * between behave the same.
+>   */
+>  
+>  static u16 __initdata i2c_clk_div[50][2] = {
+> -	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
+> -	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
+> -	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
+> -	{ 56,	0x29 }, { 60,	0x06 }, { 64,	0x2A },	{ 72,	0x2B },
+> -	{ 80,	0x2C }, { 88,	0x09 }, { 96,	0x2D }, { 104,	0x0A },
+> -	{ 112,	0x2E }, { 128,	0x2F }, { 144,	0x0C }, { 160,	0x30 },
+> -	{ 192,	0x31 },	{ 224,	0x32 }, { 240,	0x0F }, { 256,	0x33 },
+> -	{ 288,	0x10 }, { 320,	0x34 },	{ 384,	0x35 }, { 448,	0x36 },
+> -	{ 480,	0x13 }, { 512,	0x37 }, { 576,	0x14 },	{ 640,	0x38 },
+> -	{ 768,	0x39 }, { 896,	0x3A }, { 960,	0x17 }, { 1024,	0x3B },
+> -	{ 1152,	0x18 }, { 1280,	0x3C }, { 1536,	0x3D }, { 1792,	0x3E },
+> -	{ 1920,	0x1B },	{ 2048,	0x3F }, { 2304,	0x1C }, { 2560,	0x1D },
+> -	{ 3072,	0x1E }, { 3840,	0x1F }
+> +	{ 30,	0x20 }, { 32,	0x21 }, { 34,	0x22 },	{ 36,	0x23 },
+> +	{ 38,	0x00 },	{ 40,	0x24 },	{ 44,	0x25 },	{ 48,	0x26 },
+> +	{ 50,	0x03 },	{ 52,	0x27 },	{ 56,	0x28 }, { 60,	0x05 },
+> +	{ 64,	0x29 }, { 68,	0x06 }, { 72,	0x2A },	{ 80,	0x2B },
+> +	{ 88,	0x2C }, { 96,	0x09 }, { 104,	0x2D }, { 112,	0x0A },
+> +	{ 120,	0x2E }, { 136,	0x2F }, { 152,	0x0C },	{ 168,	0x30 },
+> +	{ 200,	0x31 }, { 232,	0x32 }, { 248,	0x0F },	{ 264,	0x33 },
+> +	{ 288,	0x10 },	{ 328,	0x34 },	{ 392,	0x35 },	{ 456,	0x36 },
+> +	{ 480,	0x13 },	{ 520,	0x37 },	{ 576,	0x14 },	{ 648,	0x38 },
+> +	{ 776,	0x39 },	{ 904,	0x3A },	{ 960,	0x17 },	{ 1032,	0x3B },
+> +	{ 1152,	0x18 },	{ 1288,	0x3C },	{ 1544,	0x3D },	{ 1800,	0x3E },
+> +	{ 1920,	0x1B },	{ 2048,	0x3F },	{ 2304,	0x1C },	{ 2560,	0x1D },
+> +	{ 3072,	0x1E },	{ 3840,	0x1F }
+>  };
+>  
+>  struct imx_i2c_struct {
+> -- 
+> 1.7.10
 > 
-> Note: This patch has only been tested and verified by doing I2C read and
-> write block transfers on Cougar Point 6 Series PCH.
-
-Two issues remaining:
-
-> +static void i801_isr_byte_done(struct i801_priv *priv)
-> +{
-> +	/* For SMBus block reads, length is first byte read */
-> +	if (priv->is_read && ((priv->cmd & 0x1c) == I801_BLOCK_DATA) &&
-> +	    (priv->count == 0)) {
-> +		priv->len = inb_p(SMBHSTDAT0(priv));
-> +		if (priv->len < 1 || priv->len > I2C_SMBUS_BLOCK_MAX) {
-> +			dev_err(&priv->pci_dev->dev,
-> +				"Illegal SMBus block read size %d\n",
-> +				priv->len);
-> +			/* FIXME: Recover */
-> +			priv->len = I2C_SMBUS_BLOCK_MAX;
-> +		} else {
-> +			dev_dbg(&priv->pci_dev->dev,
-> +				"SMBus block read size is %d\n",
-> +				priv->len);
-> +		}
-> +		priv->data[-1] = priv->len;
-> +	} else if (priv->is_read) {
-
-The "else" is wrong. When count == 0, you receive two bytes from the
-controller: the block length in SMBHSTDAT0 and the first data byte in
-SMBBLKDAT. So the code flow must fall through.
-
-> +		priv->data[priv->count++] = inb(SMBBLKDAT(priv));
-
-This is lacking a boundary check. As I reported in an earlier review,
-you shouldn't assume that the hardware will only emit the number of
-interrupts you are expecting. If for any reason (crazy hardware or
-driver bug) you get more interrupts than expected, you don't want to
-overflow priv->data[].
-
-> +		/* Set LAST_BYTE for last byte of read transaction */
-> +		if (priv->count == priv->len - 1)
-> +			priv->cmd |= SMBHSTCNT_LAST_BYTE;
-> +		outb_p(priv->cmd, SMBHSTCNT(priv));
-> +	} else if (priv->count < priv->len - 1) {
-> +		/* Write next byte, except for IRQ after last byte */
-> +		outb_p(priv->data[++priv->count], SMBBLKDAT(priv));
-> +		outb_p(priv->cmd, SMBHSTCNT(priv));
-> +	}
-> +
-> +	/* Clear BYTE_DONE to start next transaction. */
-> +	outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
-> +}
-
-The rest looks OK.
-
--- 
-Jean Delvare
+> 
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
