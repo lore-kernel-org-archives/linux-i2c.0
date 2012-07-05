@@ -1,38 +1,285 @@
-From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Subject: Re: [PATCH v2 01/12] ARM: Orion: DT support for IRQ and GPIO
- Controllers
-Date: Thu, 5 Jul 2012 13:48:15 +0200
-Message-ID: <20120705114815.GT17534@lunn.ch>
-References: <1341325365-21393-1-git-send-email-andrew@lunn.ch>
- <1341325365-21393-2-git-send-email-andrew@lunn.ch>
- <20120705110251.596331e0@skate>
- <20120705094824.GO17534@lunn.ch>
- <87sjd6ikkj.fsf@lebrac.rtp-net.org>
- <20120705122050.2fbc2fe3@skate>
- <87liiyijb8.fsf@lebrac.rtp-net.org>
- <20120705134231.3e1801e5@skate>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 1/4] mfd: support 88pm80x in 80x driver
+Date: Thu, 5 Jul 2012 12:06:10 +0000
+Message-ID: <201207051206.10376.arnd@arndb.de>
+References: <1341486425-697-1-git-send-email-zhouqiao@marvell.com> <1341486425-697-2-git-send-email-zhouqiao@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120705134231.3e1801e5@skate>
+In-Reply-To: <1341486425-697-2-git-send-email-zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Michael Walle <michael-QKn5cuLxLXY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, chao.xie-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, wilbur.wang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yu.tang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Thomas
+On Thursday 05 July 2012, Qiao Zhou wrote:
+> +
+> +static const struct i2c_device_id pm80x_id_table[] = {
+> +	{"88PM800", CHIP_PM800},
+> +	{"88PM805", CHIP_PM805},
+> +};
+> +MODULE_DEVICE_TABLE(i2c, pm80x_id_table);
 
-> Yes. I am not sure yet how to describe those in the DT, or even if it
-> is actually useful to describe them. Wouldn't it be simpler to just
-> leave to the user of the GPIO to use a GPIO that's appropriate for its
-> usage, i.e not use a GPO when input is needed?
+The point of moving the table to the individual drivers was that the
+right one can get loaded automatically. This requires of course that
+you put only one in there. It really needs to be
 
-We assume the hardware designer has got the basic hardware right. Its
-not going to work otherwise.
+static const struct i2c_device_id pm800_id_table[] = {
+	{"88PM800", CHIP_PM800},
+};
+MODULE_DEVICE_TABLE(i2c, pm800_id_table);
 
-What we are trying to detect is a DT author making a typo, assigning a
-gpio-key to a GPO pin, for example. The current MPP scheme will detect
-this sort of error and issue a warning to the kernel logs.
+and
 
-	 Andrew
+static const struct i2c_device_id pm805_id_table[] = {
+	{"88PM805", CHIP_PM805},
+};
+MODULE_DEVICE_TABLE(i2c, pm805_id_table);
+
+> diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
+> index 75f6ed6..22dba98 100644
+> --- a/drivers/mfd/Makefile
+> +++ b/drivers/mfd/Makefile
+> @@ -3,7 +3,12 @@
+>  #
+>  
+>  88pm860x-objs			:= 88pm860x-core.o 88pm860x-i2c.o
+> +88pm80x-objs			:= 88pm80x-i2c.o
+> +88pm800-objs			:= 88pm800-core.o
+> +88pm805-objs			:= 88pm805-core.o
+>  obj-$(CONFIG_MFD_88PM860X)	+= 88pm860x.o
+> +obj-$(CONFIG_MFD_88PM800)	+= 88pm800.o 88pm80x.o
+> +obj-$(CONFIG_MFD_88PM805)	+= 88pm805.o 88pm80x.o
+
+This can be written much shorter if you leave out the "88pm80?-objs:=" lines
+and just build each module from one file as in
+
+obj-$(CONFIG_MFD_88PM800)	+= 88pm800-core.o 88pm80x-i2c.o
+
+It might make sense to drop the "core" and "i2c" postfixes on the names,
+your choice.
+
+> diff --git a/include/linux/mfd/88pm80x.h b/include/linux/mfd/88pm80x.h
+> new file mode 100644
+> index 0000000..687f296
+> --- /dev/null
+> +++ b/include/linux/mfd/88pm80x.h
+
+I don't really like repeating myself, but this still contains a lot
+of crap that needs to be moved out of this file, into the places
+where it's used:
+
+> +enum {
+> +	/* Procida */
+> +	PM800_CHIP_A0  = 0x60,
+> +	PM800_CHIP_A1  = 0x61,
+> +	PM800_CHIP_B0  = 0x62,
+> +	PM800_CHIP_C0  = 0x63,
+> +	PM800_CHIP_END = PM800_CHIP_C0,
+> +
+> +	/* Make sure to update this to the last stepping */
+> +	PM8XXX_CHIP_END = PM800_CHIP_END
+> +};
+
+88pm800-core.c
+
+> +enum {
+> +	PM800_ID_INVALID,
+> +	PM800_ID_VIBRATOR,
+> +	PM800_ID_SOUND,
+> +	PM800_ID_MAX,
+> +};
+
+unused?
+
+> +enum {
+> +	PM800_ID_BUCK1 = 0,
+> +	PM800_ID_BUCK2,
+> +	PM800_ID_BUCK3,
+> +	PM800_ID_BUCK4,
+> +	PM800_ID_BUCK5,
+> +
+> +	PM800_ID_LDO1,
+> +	PM800_ID_LDO2,
+> +	PM800_ID_LDO3,
+> +	PM800_ID_LDO4,
+> +	PM800_ID_LDO5,
+> +	PM800_ID_LDO6,
+> +	PM800_ID_LDO7,
+> +	PM800_ID_LDO8,
+> +	PM800_ID_LDO9,
+> +	PM800_ID_LDO10,
+> +	PM800_ID_LDO11,
+> +	PM800_ID_LDO12,
+> +	PM800_ID_LDO13,
+> +	PM800_ID_LDO14,
+> +	PM800_ID_LDO15,
+> +	PM800_ID_LDO16,
+> +	PM800_ID_LDO17,
+> +	PM800_ID_LDO18,
+> +	PM800_ID_LDO19,
+> +
+> +	PM800_ID_RG_MAX,
+> +};
+> +#define PM800_MAX_REGULATOR	PM800_ID_RG_MAX	/* 5 Bucks, 19 LDOs */
+> +#define PM800_NUM_BUCK (5)	/*5 Bucks */
+> +#define PM800_NUM_LDO (19)	/*19 Bucks */
+
+unused? should probably go into the regulator driver
+
+> +/* 88PM805 Registers */
+> +#define PM805_CHIP_ID			(0x00)
+
+88pm805-core.c
+
+> +/* Audio */
+> +
+> +/* 88PM800 registers */
+> +enum {
+> +	PM80X_INVALID_PAGE = 0,
+> +	PM80X_BASE_PAGE,
+> +	PM80X_POWER_PAGE,
+> +	PM80X_GPADC_PAGE,
+> +	PM80X_TEST_PAGE,
+> +};
+
+unused?
+
+> +/* page 0 basic: slave adder 0x60 */
+> +
+> +/* Interrupt Registers */
+> +#define PM800_CHIP_ID			(0x00)
+> +
+> +#define PM800_STATUS_1			(0x01)
+> +#define PM800_ONKEY_STS1		(1 << 0)
+> +#define PM800_EXTON_STS1		(1 << 1)
+> +#define PM800_CHG_STS1			(1 << 2)
+> +#define PM800_BAT_STS1			(1 << 3)
+> +#define PM800_VBUS_STS1			(1 << 4)
+> +#define PM800_LDO_PGOOD_STS1	(1 << 5)
+> +#define PM800_BUCK_PGOOD_STS1	(1 << 6)
+> +
+> +#define PM800_STATUS_2			(0x02)
+> +#define PM800_RTC_ALARM_STS2	(1 << 0)
+
+These can probably stay here.
+
+> +#define PM800_INT_STATUS1		(0x05)
+> +#define PM800_ONKEY_INT_STS1		(1 << 0)
+> +#define PM800_EXTON_INT_STS1		(1 << 1)
+> +#define PM800_CHG_INT_STS1			(1 << 2)
+> +#define PM800_BAT_INT_STS1			(1 << 3)
+> +#define PM800_RTC_INT_STS1			(1 << 4)
+> +#define PM800_CLASSD_OC_INT_STS1	(1 << 5)
+> ...
+> +/* number of INT_ENA & INT_STATUS regs */
+> +#define PM800_INT_REG_NUM			(4)
+
+all the interrupt handling can go into 88pm800-core.c
+
+> +/* RTC Registers */
+> +#define PM800_RTC_CONTROL		(0xD0)
+> +#define PM800_RTC_COUNTER1		(0xD1)
+> +#define PM800_RTC_COUNTER2		(0xD2)
+> +#define PM800_RTC_COUNTER3		(0xD3)
+> +#define PM800_RTC_COUNTER4		(0xD4)
+> +#define PM800_RTC_EXPIRE1_1		(0xD5)
+> +#define PM800_RTC_EXPIRE1_2		(0xD6)
+> +#define PM800_RTC_EXPIRE1_3		(0xD7)
+> +#define PM800_RTC_EXPIRE1_4		(0xD8)
+> +#define PM800_RTC_TRIM1			(0xD9)
+> +#define PM800_RTC_TRIM2			(0xDA)
+> +#define PM800_RTC_TRIM3			(0xDB)
+> +#define PM800_RTC_TRIM4			(0xDC)
+> +#define PM800_RTC_EXPIRE2_1		(0xDD)
+> +#define PM800_RTC_EXPIRE2_2		(0xDE)
+> +#define PM800_RTC_EXPIRE2_3		(0xDF)
+> +#define PM800_RTC_EXPIRE2_4		(0xE0)
+> +#define PM800_RTC_MISC1			(0xE1)
+> +#define PM800_RTC_MISC2			(0xE2)
+> +#define PM800_RTC_MISC3			(0xE3)
+> +#define PM800_RTC_MISC4			(0xE4)
+> +
+> +/* bit definitions of RTC Register 1 (0xD0) */
+> +#define PM800_ALARM1_EN			(1 << 0)
+> +#define PM800_ALARM_WAKEUP		(1 << 4)
+> +#define PM800_ALARM			(1 << 5)
+> +#define PM800_RTC1_USE_XO		(1 << 7)
+> +
+> +#define PM800_POWER_DOWN_LOG1	(0xE5)
+> +#define PM800_POWER_DOWN_LOG2	(0xE6)
+> +
+> +#define PM800_RTC_MISC5			(0xE7)
+
+rtc-88pm80x.c
+
+> +/* Regulator Control Registers: BUCK1,BUCK5,LDO1 have DVC */
+> +
+> +/* LDO1 with DVC[0..3] */
+> +#define PM800_LDO1_VOUT		(0x08) /* VOUT1 */
+> +#define PM800_LDO1_VOUT_2	(0x09)
+> +#define PM800_LDO1_VOUT_3	(0x0A)
+> +#define PM800_LDO2_VOUT		(0x0B)
+> +#define PM800_LDO3_VOUT		(0x0C)
+> +#define PM800_LDO4_VOUT		(0x0D)
+> +#define PM800_LDO5_VOUT		(0x0E)
+> +#define PM800_LDO6_VOUT		(0x0F)
+> +#define PM800_LDO7_VOUT		(0x10)
+> +#define PM800_LDO8_VOUT		(0x11)
+
+unused
+
+> +#define get_pmic_version(chip) (*(unsigned char *) chip)
+
+unused
+
+> +/* Interrupt Number in 88PM800 */
+> +enum {
+> +	PM800_IRQ_ONKEY,	/*EN1b0 *//*0 */
+> +	PM800_IRQ_EXTON,	/*EN1b1 */
+> +	PM800_IRQ_CHG,		/*EN1b2 */
+> +	PM800_IRQ_BAT,		/*EN1b3 */
+> +	PM800_IRQ_RTC,		/*EN1b4 */
+> +	PM800_IRQ_CLASSD,	/*EN1b5 *//*5 */
+> +	PM800_IRQ_VBAT,		/*EN2b0 */
+> +	PM800_IRQ_VSYS,		/*EN2b1 */
+> +	PM800_IRQ_VCHG,		/*EN2b2 */
+> +	PM800_IRQ_TINT,		/*EN2b3 */
+> +	PM800_IRQ_GPADC0,	/*EN3b0 *//*10 */
+> +	PM800_IRQ_GPADC1,	/*EN3b1 */
+> +	PM800_IRQ_GPADC2,	/*EN3b2 */
+> +	PM800_IRQ_GPADC3,	/*EN3b3 */
+> +	PM800_IRQ_GPADC4,	/*EN3b4 */
+> +	PM800_IRQ_GPIO0,	/*EN4b0 *//*15 */
+> +	PM800_IRQ_GPIO1,	/*EN4b1 */
+> +	PM800_IRQ_GPIO2,	/*EN4b2 */
+> +	PM800_IRQ_GPIO3,	/*EN4b3 */
+> +	PM800_IRQ_GPIO4,	/*EN4b4 *//*19 */
+> +	PM800_MAX_IRQ,
+> +};
+
+88pm800-core.c
+
+> +/* Interrupt Number in 88PM805 */
+> +enum {
+> +	PM805_IRQ_LDO_OFF,	/*0 */
+> +	PM805_IRQ_SRC_DPLL_LOCK,	/*1 */
+> +	PM805_IRQ_CLIP_FAULT,
+> +	PM805_IRQ_MIC_CONFLICT,
+> +	PM805_IRQ_HP2_SHRT,
+> +	PM805_IRQ_HP1_SHRT,	/*5 */
+> +	PM805_IRQ_FINE_PLL_FAULT,
+> +	PM805_IRQ_RAW_PLL_FAULT,
+> +	PM805_IRQ_VOLP_BTN_DET,
+> +	PM805_IRQ_VOLM_BTN_DET,
+> +	PM805_IRQ_SHRT_BTN_DET,	/*10 */
+> +	PM805_IRQ_MIC_DET,	/*11 */
+> +
+> +	PM805_MAX_IRQ,
+> +};
+
+88pm805-core.c
+
+	Arnd
