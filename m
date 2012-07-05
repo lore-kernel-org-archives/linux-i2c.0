@@ -1,78 +1,88 @@
-From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Subject: Re: [PATCH v2 01/12] ARM: Orion: DT support for IRQ and GPIO
- Controllers
-Date: Thu, 5 Jul 2012 16:43:11 +0200
-Message-ID: <20120705144311.GB17534@lunn.ch>
-References: <1341325365-21393-1-git-send-email-andrew@lunn.ch>
- <1341325365-21393-2-git-send-email-andrew@lunn.ch>
- <201207051225.55390.arnd@arndb.de> <20120705130819.GV17534@lunn.ch>
- <4FF5A15A.8070309@googlemail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 8/8 v3] i2c: i801: enable irq for byte_by_byte
+ transactions
+Date: Thu, 5 Jul 2012 16:46:32 +0200
+Message-ID: <20120705164632.04f53a73@endymion.delvare>
+References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
+	<1340805255-8041-9-git-send-email-djkurtz@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <4FF5A15A.8070309-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Sebastian Hesselbarth <sebastian.hesselbarth-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1340805255-8041-9-git-send-email-djkurtz@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Kurtz <djkurtz@chromium.org>
+Cc: Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Seth Heasley <seth.heasley@intel.com>, Olof Johansson <olof@lixom.net>, Benson Leung <bleung@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 05, 2012 at 04:14:50PM +0200, Sebastian Hesselbarth wrote:
-> On 07/05/2012 03:08 PM, Andrew Lunn wrote:
-> >The issue is knowing what IRQ number to use for the secondary
-> >interrupts.
-> >
-> >Orion use generic chip interrupts, both for the main interrupts and
-> >the GPIO interrupts. This does not yet support irq domain, so i have
-> >to layer a legacy domain on top. The legacy domain needs to know the
-> >first IRQ and the number of IRQs. For the primary IRQs that is
-> >easy. However, GPIO IRQ is not so easy, it depends on how many primary
-> >IRQs there are. This is not fixed. Orion5x has 32, Dove 64, kirkwood,
-> >64, and mv78xx0 has 96. I need to know this number when adding the
-> >GPIO secondary IRQ legacy domain. By calling orion_gpio_of_init() in
-> >the orion_add_irq_domain() i have this number to hand. If i used to
-> >entries in the match table, i would have to put this number into some
-> >global variable, or somehow ask the IRQ subsystem what the next free
-> >IRQ number is.
+Hi Daniel,
+
+On Wed, 27 Jun 2012 21:54:15 +0800, Daniel Kurtz wrote:
+> Byte-by-byte transactions are used primarily for accessing I2C devices
+> with an SMBus controller.  For these transactions, for each byte that is
+> read or written, the SMBus controller generates a BYTE_DONE irq.  The isr
+> reads/writes the next byte, and clears the irq flag to start the next byte.
+> On the penultimate irq, the isr also sets the LAST_BYTE flag.
 > 
-> Andrew,
+> There is no locking around the cmd/len/count/data variables, since the
+> I2C adapter lock ensures there is never multiple simultaneous transactions
+> for the same device, and the driver thread never accesses these variables
+> while interrupts might be occurring.
 > 
-> is it possible to group all gpio banks into one DT description?
+> The end result is faster I2C block read and write transactions.
+> 
+> Note: This patch has only been tested and verified by doing I2C read and
+> write block transfers on Cougar Point 6 Series PCH.
 
-Everything is possible. 
+Two issues remaining:
 
-I did think about having just one gpio controller, since as you said,
-it makes it easier to describe gpios = <&gpio 71 0>; instead of gpios
-= <&gpio3 7 0>; But most SoCs seem to have multiple GPIO controllers
-in the .dtsi files. Only picoxcell has banks inside a single gpio
-controller. So it would be a bit unusual.
- 
-What you suggest also adds a lot of complexity to the code and
-probably means a lot less of the code can be shared with non-DT GPIO
-handling code.
+> +static void i801_isr_byte_done(struct i801_priv *priv)
+> +{
+> +	/* For SMBus block reads, length is first byte read */
+> +	if (priv->is_read && ((priv->cmd & 0x1c) == I801_BLOCK_DATA) &&
+> +	    (priv->count == 0)) {
+> +		priv->len = inb_p(SMBHSTDAT0(priv));
+> +		if (priv->len < 1 || priv->len > I2C_SMBUS_BLOCK_MAX) {
+> +			dev_err(&priv->pci_dev->dev,
+> +				"Illegal SMBus block read size %d\n",
+> +				priv->len);
+> +			/* FIXME: Recover */
+> +			priv->len = I2C_SMBUS_BLOCK_MAX;
+> +		} else {
+> +			dev_dbg(&priv->pci_dev->dev,
+> +				"SMBus block read size is %d\n",
+> +				priv->len);
+> +		}
+> +		priv->data[-1] = priv->len;
+> +	} else if (priv->is_read) {
 
-The natural size of a GPIO controller is 32 lines, not 8. The current
-interrupt handling does not actually care which IRQ of a bank of 32
-lines fired, it looks at all lines. The handler_data in the IRQ points
-to the GPIO chip, not a subsection of the GPIO chip.
+The "else" is wrong. When count == 0, you receive two bytes from the
+controller: the block length in SMBHSTDAT0 and the first data byte in
+SMBBLKDAT. So the code flow must fall through.
 
-> 	bank5@e8400 {
-> 		reg = <0xe8400 0x20>;
-> 		ngpio = <8>;
-> 		marvell,orion-gpio-output-only;
+> +		priv->data[priv->count++] = inb(SMBBLKDAT(priv));
 
-Some Orions mixed GPIOs GPOs and GPIs within one controller. So that
-is not generic enough. Probably the pinmux DT description needs to be
-able to specify per pin what a line can do.
+This is lacking a boundary check. As I reported in an earlier review,
+you shouldn't assume that the hardware will only emit the number of
+interrupts you are expecting. If for any reason (crazy hardware or
+driver bug) you get more interrupts than expected, you don't want to
+overflow priv->data[].
 
-     Andrew
+> +		/* Set LAST_BYTE for last byte of read transaction */
+> +		if (priv->count == priv->len - 1)
+> +			priv->cmd |= SMBHSTCNT_LAST_BYTE;
+> +		outb_p(priv->cmd, SMBHSTCNT(priv));
+> +	} else if (priv->count < priv->len - 1) {
+> +		/* Write next byte, except for IRQ after last byte */
+> +		outb_p(priv->data[++priv->count], SMBBLKDAT(priv));
+> +		outb_p(priv->cmd, SMBHSTCNT(priv));
+> +	}
+> +
+> +	/* Clear BYTE_DONE to start next transaction. */
+> +	outb_p(SMBHSTSTS_BYTE_DONE, SMBHSTSTS(priv));
+> +}
+
+The rest looks OK.
+
+-- 
+Jean Delvare
