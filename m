@@ -1,68 +1,44 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] i2c i.MX: Fix divider table
-Date: Thu,  5 Jul 2012 15:10:26 +0200
-Message-ID: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: Re: [PATCH v2 01/12] ARM: Orion: DT support for IRQ and GPIO
+ Controllers
+Date: Thu, 5 Jul 2012 15:15:22 +0200
+Message-ID: <20120705131522.GW17534@lunn.ch>
+References: <1341325365-21393-1-git-send-email-andrew@lunn.ch>
+ <1341325365-21393-2-git-send-email-andrew@lunn.ch>
+ <20120705110251.596331e0@skate>
+ <20120705094824.GO17534@lunn.ch>
+ <20120705145801.4985770d@skate>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120705145801.4985770d@skate>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Michael Walle <michael-QKn5cuLxLXY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Measurements on i.MX1 and i.MX53 have shown that the divider values
-in the datasheets are wrong. the values from first, third and fourth
-column were all measured to be 8 higher than in the datasheet. It
-should be safe to assume that the SoCs between i.MX1 and i.MX53 behave
-the same as the i2c unit is unchanged since the i.MX1.
+On Thu, Jul 05, 2012 at 02:58:01PM +0200, Thomas Petazzoni wrote:
+> Hello,
+> 
+> Le Thu, 5 Jul 2012 11:48:24 +0200,
+> Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org> a ??crit :
+> 
+> > The biggest problem i had, is the interaction between generic chip
+> > interrupts and irqdomain. There has been work to integrate the two,
+> > but its stalled. Either the work needs restarting and completing, or
+> > you need to throw away the use of generic interrupt so that you can
+> > use irqdomain linear. IMHO, throwing away generic interrupt is the
+> > wrong way.
+> 
+> Can you expand on why you think it would be wrong to throw away the
+> usage of irq_chip_generic, compared to implementing directly an
+> irq_chip?
 
-Signed-off-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c |   31 ++++++++++++++++++-------------
- 1 file changed, 18 insertions(+), 13 deletions(-)
+Basically you are asking, why should i use the framework when i can do
+it by hand.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 8d6b504..aabbe31 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -98,22 +98,27 @@
-  * Document Number: MC9328MXLRM, Rev. 5.1, 06/2007
-  *
-  * Duplicated divider values removed from list
-+ *
-+ * These values (mostly) do not match the ones in the datasheet because
-+ * measurements have shown that the values are wrong. This was tested
-+ * on i.MX1 and i.MX53, so it shoud be safe to assume that the SoCs in
-+ * between behave the same.
-  */
- 
- static u16 __initdata i2c_clk_div[50][2] = {
--	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
--	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
--	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
--	{ 56,	0x29 }, { 60,	0x06 }, { 64,	0x2A },	{ 72,	0x2B },
--	{ 80,	0x2C }, { 88,	0x09 }, { 96,	0x2D }, { 104,	0x0A },
--	{ 112,	0x2E }, { 128,	0x2F }, { 144,	0x0C }, { 160,	0x30 },
--	{ 192,	0x31 },	{ 224,	0x32 }, { 240,	0x0F }, { 256,	0x33 },
--	{ 288,	0x10 }, { 320,	0x34 },	{ 384,	0x35 }, { 448,	0x36 },
--	{ 480,	0x13 }, { 512,	0x37 }, { 576,	0x14 },	{ 640,	0x38 },
--	{ 768,	0x39 }, { 896,	0x3A }, { 960,	0x17 }, { 1024,	0x3B },
--	{ 1152,	0x18 }, { 1280,	0x3C }, { 1536,	0x3D }, { 1792,	0x3E },
--	{ 1920,	0x1B },	{ 2048,	0x3F }, { 2304,	0x1C }, { 2560,	0x1D },
--	{ 3072,	0x1E }, { 3840,	0x1F }
-+	{ 30,	0x20 }, { 32,	0x21 }, { 34,	0x22 },	{ 36,	0x23 },
-+	{ 38,	0x00 },	{ 40,	0x24 },	{ 44,	0x25 },	{ 48,	0x26 },
-+	{ 50,	0x03 },	{ 52,	0x27 },	{ 56,	0x28 }, { 60,	0x05 },
-+	{ 64,	0x29 }, { 68,	0x06 }, { 72,	0x2A },	{ 80,	0x2B },
-+	{ 88,	0x2C }, { 96,	0x09 }, { 104,	0x2D }, { 112,	0x0A },
-+	{ 120,	0x2E }, { 136,	0x2F }, { 152,	0x0C },	{ 168,	0x30 },
-+	{ 200,	0x31 }, { 232,	0x32 }, { 248,	0x0F },	{ 264,	0x33 },
-+	{ 288,	0x10 },	{ 328,	0x34 },	{ 392,	0x35 },	{ 456,	0x36 },
-+	{ 480,	0x13 },	{ 520,	0x37 },	{ 576,	0x14 },	{ 648,	0x38 },
-+	{ 776,	0x39 },	{ 904,	0x3A },	{ 960,	0x17 },	{ 1032,	0x3B },
-+	{ 1152,	0x18 },	{ 1288,	0x3C },	{ 1544,	0x3D },	{ 1800,	0x3E },
-+	{ 1920,	0x1B },	{ 2048,	0x3F },	{ 2304,	0x1C },	{ 2560,	0x1D },
-+	{ 3072,	0x1E },	{ 3840,	0x1F }
- };
- 
- struct imx_i2c_struct {
--- 
-1.7.10
+What are the advantages if ignoring the framework and doing it by
+hand?
+
+   Andrew
