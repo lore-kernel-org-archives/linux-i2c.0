@@ -1,58 +1,71 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 14/15] i2c: iop3xx: use standard gpiolib functions
-Date: Fri,  6 Jul 2012 13:40:39 -0500
-Message-ID: <1341600040-30993-15-git-send-email-robherring2@gmail.com>
-References: <1341600040-30993-1-git-send-email-robherring2@gmail.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH v2 01/12] ARM: Orion: DT support for IRQ and GPIO Controllers
+Date: Fri, 6 Jul 2012 20:08:23 +0000
+Message-ID: <201207062008.23952.arnd@arndb.de>
+References: <1341325365-21393-1-git-send-email-andrew@lunn.ch> <201207051454.24475.arnd@arndb.de> <20120705161600.GA28860@lunn.ch>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1341600040-30993-1-git-send-email-robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20120705161600.GA28860-g2DYL2Zd6BY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, Michael Walle <michael-QKn5cuLxLXY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+On Thursday 05 July 2012, Andrew Lunn wrote:
+> > I think the latter one needs to be
+> > 
+> > +static int __initdata gpio1_irqs[4] = {
+> > +     IRQ_DOVE_HIGH_GPIO,
+> > +     IRQ_DOVE_HIGH_GPIO,
+> > +     IRQ_DOVE_HIGH_GPIO,
+> > +     IRQ_DOVE_HIGH_GPIO,
+> > +};
+> > 
+> > so we register all four parts to the same primary IRQ. The
+> > same is true for the devicetree representation.
+> 
+> Nope, does not work like that.
+> 
+> It does not matter which IRQ of a GPIO chip fires. It looks at the IRQ
+> cause bits for all lines and fires off the secondary ISR as needed for
+> the whole chip. So in effect, there is a mapping IRQ->GPIO chip, not
+> IRQ->1/4 of GPIO chip. With what you suggest above, you would end up
+> with four chained interrupt handlers, all being handled by the same
+> interrupt handler for one chio, and the last three in the chain would
+> never do anything since the first one does all the work.
 
-Instead of using the custom iop3xx gpio functions, use the gpiolib
-variants. This should be functionally the same since the gpiolib
-just calls the iop3xx gpio functions. This is needed in preparation
-of removing iop3xx mach/io.h headers.
+Does it really?
 
-Signed-off-by: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
- drivers/i2c/busses/i2c-iop3xx.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+The handler function I'm looking at is
 
-diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
-index 567d873..2f99613 100644
---- a/drivers/i2c/busses/i2c-iop3xx.c
-+++ b/drivers/i2c/busses/i2c-iop3xx.c
-@@ -39,6 +39,7 @@
- #include <linux/platform_device.h>
- #include <linux/i2c.h>
- #include <linux/io.h>
-+#include <linux/gpio.h>
- 
- #include "i2c-iop3xx.h"
- 
-@@ -78,11 +79,11 @@ iop3xx_i2c_enable(struct i2c_algo_iop3xx_data *iop3xx_adap)
- 	 */
- #if defined(CONFIG_ARCH_IOP32X) || defined(CONFIG_ARCH_IOP33X)
- 	if (iop3xx_adap->id == 0) {
--		gpio_line_set(IOP3XX_GPIO_LINE(7), GPIO_LOW);
--		gpio_line_set(IOP3XX_GPIO_LINE(6), GPIO_LOW);
-+		gpio_set_value(7, 0);
-+		gpio_set_value(6, 0);
- 	} else {
--		gpio_line_set(IOP3XX_GPIO_LINE(5), GPIO_LOW);
--		gpio_line_set(IOP3XX_GPIO_LINE(4), GPIO_LOW);
-+		gpio_set_value(5, 0);
-+		gpio_set_value(4, 0);
- 	}
- #endif
- 	/* NB SR bits not same position as CR IE bits :-( */
--- 
-1.7.9.5
+
+static void gpio_irq_handler(unsigned int irq, struct irq_desc *desc)
+{
+        int irqoff;
+        BUG_ON(irq < IRQ_DOVE_GPIO_0_7 || irq > IRQ_DOVE_HIGH_GPIO);
+
+        irqoff = irq <= IRQ_DOVE_GPIO_16_23 ? irq - IRQ_DOVE_GPIO_0_7 :
+                3 + irq - IRQ_DOVE_GPIO_24_31;
+
+        orion_gpio_irq_handler(irqoff << 3);
+        if (irq == IRQ_DOVE_HIGH_GPIO) {
+                orion_gpio_irq_handler(40);
+                orion_gpio_irq_handler(48);
+                orion_gpio_irq_handler(56);
+        }
+}
+
+My reading of this is a manual hardwired implementation of a
+primary handler that triggers the secondary handler four times
+when it's called with a specific argument.
+
+If you want to keep that behavior, this handler cannot be
+generic across all mvebu socs, whereas registering four
+chained handlers for the same primary interrupt would have
+the same effect at a very small runtime overhead without the
+need for any special case.
+
+	Arnd
