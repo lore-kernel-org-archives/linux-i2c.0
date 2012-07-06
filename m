@@ -1,43 +1,92 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c i.MX: Fix divider table
-Date: Fri, 6 Jul 2012 08:28:52 +0200
-Message-ID: <20120706062852.GZ30009@pengutronix.de>
-References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
- <20120705145236.GA2735@richard-laptop>
- <20120705160153.GT30009@pengutronix.de>
- <20120706005249.GA26888@b20223-02.ap.freescale.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 2/4] mfd: workaround: add companion chip in 88pm80x
+Date: Fri,  6 Jul 2012 14:48:48 +0800
+Message-ID: <1341557330-24413-3-git-send-email-zhouqiao@marvell.com>
+References: <1341557330-24413-1-git-send-email-zhouqiao@marvell.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120706005249.GA26888-iWYTGMXpHj9ITqJhDdzsOjpauB2SiJktrE5yTffgRl4@public.gmane.org>
+In-Reply-To: <1341557330-24413-1-git-send-email-zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: arnd-r2nGTMty4D4@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, chao.xie-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yu.tang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, wilbur.wang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 06, 2012 at 08:52:50AM +0800, Richard Zhao wrote:
-> On Thu, Jul 05, 2012 at 06:01:53PM +0200, Sascha Hauer wrote:
-> > On Thu, Jul 05, 2012 at 10:52:39PM +0800, Richard Zhao wrote:
-> > > On Thu, Jul 05, 2012 at 03:10:26PM +0200, Sascha Hauer wrote:
-> > > > Measurements on i.MX1 and i.MX53 have shown that the divider values
-> > > > in the datasheets are wrong. the values from first, third and fourth
-> > > > column were all measured to be 8 higher than in the datasheet. It
-> > > > should be safe to assume that the SoCs between i.MX1 and i.MX53 behave
-> > > > the same as the i2c unit is unchanged since the i.MX1.
-> > > We may need to check with IC guys? Or you've done?
-> > 
-> > I don't have contact to the IC guys. Could you do this? I'd be
-> > interested in the results.
-> Sure, but it may be slow, as you know, many people are in summer break.
+in hw design, 800 is mainly for pmic control, while 805 for audio.
+but there are 3 registers which controls class D speaker property,
+and they are defined in 800 i2c client domain. so 805 codec driver
+needs to use 800 i2c client to access class D speaker reg for
+audio path management. so add this workaround for the purpose to
+let 805 access 800 i2c in some scenario.
 
-Thanks. It can take longer, the resulting frequencies are all too low,
-so we are on the safe side.
+Signed-off-by: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/mfd/88pm80x-i2c.c   |   28 ++++++++++++++++++++++++++++
+ include/linux/mfd/88pm80x.h |    1 +
+ 2 files changed, 29 insertions(+), 0 deletions(-)
 
-Sascha
-
+diff --git a/drivers/mfd/88pm80x-i2c.c b/drivers/mfd/88pm80x-i2c.c
+index 90aa18a..77b8655 100644
+--- a/drivers/mfd/88pm80x-i2c.c
++++ b/drivers/mfd/88pm80x-i2c.c
+@@ -18,6 +18,12 @@
+ #include <linux/uaccess.h>
+ #include <linux/err.h>
+ 
++/*
++ * workaround: some registers needed by pm805 are defined in pm800, so
++ * need to use this global variable to maintain the relation between
++ * pm800 and pm805. would remove it after HW chip fixes the issue.
++ */
++static struct pm80x_chip *g_pm80x_chip;
+ 
+ const struct regmap_config pm80x_regmap_config = {
+ 	.reg_bits = 8,
+@@ -61,6 +67,19 @@ int __devinit pm80x_init(struct i2c_client *client,
+ 
+ 	device_init_wakeup(&client->dev, 1);
+ 
++	/*
++	 * workaround: set g_pm80x_chip to the first probed chip. if the
++	 * second chip is probed, just point to the companion to each
++	 * other so that pm805 can access those specific register. would
++	 * remove it after HW chip fixes the issue.
++	 */
++	if (!g_pm80x_chip)
++		g_pm80x_chip = chip;
++	else {
++		chip->companion = g_pm80x_chip->client;
++		g_pm80x_chip->companion = chip->client;
++	}
++
+ 	return 0;
+ 
+ err_chip_id:
+@@ -75,6 +94,15 @@ int __devexit pm80x_deinit(struct i2c_client *client)
+ {
+ 	struct pm80x_chip *chip = i2c_get_clientdata(client);
+ 
++	/*
++	 * workaround: clear the dependency between pm800 and pm805.
++	 * would remove it after HW chip fixes the issue.
++	 */
++	if (g_pm80x_chip->companion)
++		g_pm80x_chip->companion = NULL;
++	else
++		g_pm80x_chip = NULL;
++
+ 	regmap_exit(chip->regmap);
+ 	devm_kfree(&client->dev, chip);
+ 
+diff --git a/include/linux/mfd/88pm80x.h b/include/linux/mfd/88pm80x.h
+index 283c903..d8b7dda 100644
+--- a/include/linux/mfd/88pm80x.h
++++ b/include/linux/mfd/88pm80x.h
+@@ -295,6 +295,7 @@ struct pm80x_chip {
+ 	struct pm80x_subchip *subchip;
+ 	struct device *dev;
+ 	struct i2c_client *client;
++	struct i2c_client *companion;
+ 	struct regmap *regmap;
+ 	struct regmap_irq_chip *regmap_irq_chip;
+ 	struct regmap_irq_chip_data *irq_data;
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+1.7.0.4
