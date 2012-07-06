@@ -1,65 +1,37 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 7/8 v3] i2c: i801: enable irq for i801 smbus
- transactions
-Date: Fri, 6 Jul 2012 13:55:00 +0200
-Message-ID: <20120706135500.44b17c42@endymion.delvare>
-References: <1340805255-8041-1-git-send-email-djkurtz@chromium.org>
-	<1340805255-8041-8-git-send-email-djkurtz@chromium.org>
-	<20120704221600.416d4475@endymion.delvare>
-	<CAGS+omAwkwd17MVe3uWoPNCL3y0BvKDvbFGWwjhJ5CpTqncsXA@mail.gmail.com>
-	<20120705101015.1e3a3afc@endymion.delvare>
-	<CAGS+omAgVLumYvOssHfdjELXixMdfRSxSj003xPzQ5v4h_D-mA@mail.gmail.com>
+From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] i2c: i2c-imx: Adapt the clock name to the new clock framework
+Date: Fri, 6 Jul 2012 15:31:32 -0300
+Message-ID: <1341599492-18212-1-git-send-email-fabio.estevam@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGS+omAgVLumYvOssHfdjELXixMdfRSxSj003xPzQ5v4h_D-mA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Daniel,
+With the new i.mx clock framework the i2c clock is registered as:
 
-On Fri, 6 Jul 2012 18:28:28 +0800, Daniel Kurtz wrote:
-> On Thu, Jul 5, 2012 at 4:10 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> > On Thu, 5 Jul 2012 12:31:11 +0800, Daniel Kurtz wrote:
-> >> The logic for clearing the STATUS_FLAGS was simply that they all
-> >> indicate the end of a transaction, so there won't be any further
-> >> interrupts.  Thus, it is safe to clear it in the irq, since the irq
-> >> will be followed by exactly one wait_event, which can read and process
-> >> saved status.
-> >
-> > It is safe if and only if someone is actually listening to the event.
-> > This was not the case for me yesterday. Even if we don't mix interrupts
-> > and polling, i801_isr() might still get called when we aren't
-> > listening. Not only because the IRQ may be shared, but also for events
-> > we don't yet handle, such as an SMBus Alert. Not sure about slave
-> > mode.
-> 
-> The real reason for clearing the flag in the hard irq is that
-> otherwise, we end up with an infinite irq loop.  The interrupt is
-> apparently level triggered, and must be cleared before exiting the
-> ISR.
+clk_register_clkdev(clk[i2c1_ipg_gate], NULL, "imx-i2c.0")
 
-Oh, OK. If we have to do it that way, then we do.
+So we do not need to pass "i2c_clk" string and can use NULL instead.
 
-> Unfortunately, I only had time today to discover this, but not time to fix it.
-> Next week I will be away, so I won't have a chance to provide more
-> patches for the next 10 days.
-> 
-> I think the 6 patches you have already make a complete set, however,
-> and shouldn't be waiting for the interrupt patch(es) which can follow
-> at some future date.
+Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-imx.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-Agreed, that's why they are already in linux-next waiting for the next
-merge window to open.
-
-That being said, I would hate to miss that merge window for interrupt
-support patches, as this is really a great performance improvement. So,
-if you have no objection, I propose to fix your patches myself today of
-tomorrow, test them, and if I find no problem, post them and push them
-to linux-next. You can review and test them when you return.
-
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 370031a..a8709b1 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -528,7 +528,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Get I2C clock */
+-	i2c_imx->clk = clk_get(&pdev->dev, "i2c_clk");
++	i2c_imx->clk = clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(i2c_imx->clk)) {
+ 		ret = PTR_ERR(i2c_imx->clk);
+ 		dev_err(&pdev->dev, "can't get I2C clock\n");
 -- 
-Jean Delvare
+1.7.1
