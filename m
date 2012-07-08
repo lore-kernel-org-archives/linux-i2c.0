@@ -1,42 +1,60 @@
-From: Baruch Siach <baruch@tkos.co.il>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH] i2c i.MX: Fix divider table
-Date: Thu, 5 Jul 2012 17:23:47 +0300
-Message-ID: <20120705142347.GF2093@sapphire.tkos.co.il>
+Date: Sun, 8 Jul 2012 14:44:17 +0530
+Message-ID: <CAM=Q2cuv3hWyTea+MYzs84xjxhrj9K57kgV2EP-wF9ywLCSKCw@mail.gmail.com>
 References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
+	<CAM=Q2csv3rEs-xseGd6NHxR3wRSZp82ZqNB1mn-_C4=5=nOc6g@mail.gmail.com>
+	<20120705184736.GW30009@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: linux-arm-kernel@lists.infradead.org, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, Wolfram Sang <w.sang@pengutronix.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120705184736.GW30009-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sascha,
+On Fri, Jul 6, 2012 at 12:17 AM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> On Thu, Jul 05, 2012 at 11:36:27PM +0530, Shubhrajyoti Datta wrote:
+>> On Thu, Jul 5, 2012 at 6:40 PM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+>> > Measurements on i.MX1 and i.MX53 have shown that the divider values
+>> > in the datasheets are wrong.
+>> How were the measurements made?
+>
+> With an oscilloscope measuring the period length. This is probably not
+> very exact, but the current values are way off. We had 350KHz instead
+> of 380KHz (best possible divider) on an i.MX53. Funny enough some
+> divider values really match the ones in the datasheet.
+>
+> BTW I'm pretty sure the input frequency to the core is calculated
+> correctly as it's the same clock that also drives the timer.
 
-On Thu, Jul 05, 2012 at 03:10:26PM +0200, Sascha Hauer wrote:
-> + * These values (mostly) do not match the ones in the datasheet because
-> + * measurements have shown that the values are wrong. This was tested
-> + * on i.MX1 and i.MX53, so it shoud be safe to assume that the SoCs in
+OK thanks for the explanation.
 
-s/shoud/should/
+>
+>>
+>> > the values from first, third and fourth
+>> > column were all measured to be 8 higher than in the datasheet. It
+>> > should be safe to assume that the SoCs between i.MX1 and i.MX53 behave
+>> > the same as the i2c unit is unchanged since the i.MX1.
+>>
+>> Also does it vary board to board or is fixed by the ip?
+>> What I mean is that the external cap etc.
+>
+> The clock is derived from an internal SoC clock, I don't think this can
+> be influenced that much by external components. I did not test different
+> boards, but two board with different SoCs.
 
-> + * between behave the same.
->   */
+OK thanks.
+>
+> Let's see what the IC guys tell us.
 
-baruch
-
--- 
-     http://baruch.siach.name/blog/                  ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.2.679.5364, http://www.tkos.co.il -
+Sure.
+>
+> Sascha
+>
+> --
+> Pengutronix e.K.                           |                             |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
