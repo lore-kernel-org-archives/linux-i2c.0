@@ -1,60 +1,50 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c i.MX: Fix divider table
-Date: Sun, 8 Jul 2012 14:44:17 +0530
-Message-ID: <CAM=Q2cuv3hWyTea+MYzs84xjxhrj9K57kgV2EP-wF9ywLCSKCw@mail.gmail.com>
-References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
-	<CAM=Q2csv3rEs-xseGd6NHxR3wRSZp82ZqNB1mn-_C4=5=nOc6g@mail.gmail.com>
-	<20120705184736.GW30009@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v3] i2c: imx: convert to use managed functions
+Date: Sun, 8 Jul 2012 13:22:55 +0200
+Message-ID: <20120708112255.GA18362@pengutronix.de>
+References: <1338776481-23710-1-git-send-email-richard.zhao@freescale.com>
+ <1338807865-5487-1-git-send-email-richard.zhao@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120705184736.GW30009-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1338807865-5487-1-git-send-email-richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 6, 2012 at 12:17 AM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Thu, Jul 05, 2012 at 11:36:27PM +0530, Shubhrajyoti Datta wrote:
->> On Thu, Jul 5, 2012 at 6:40 PM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->> > Measurements on i.MX1 and i.MX53 have shown that the divider values
->> > in the datasheets are wrong.
->> How were the measurements made?
->
-> With an oscilloscope measuring the period length. This is probably not
-> very exact, but the current values are way off. We had 350KHz instead
-> of 380KHz (best possible divider) on an i.MX53. Funny enough some
-> divider values really match the ones in the datasheet.
->
-> BTW I'm pretty sure the input frequency to the core is calculated
-> correctly as it's the same clock that also drives the timer.
 
-OK thanks for the explanation.
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
->>
->> > the values from first, third and fourth
->> > column were all measured to be 8 higher than in the datasheet. It
->> > should be safe to assume that the SoCs between i.MX1 and i.MX53 behave
->> > the same as the i2c unit is unchanged since the i.MX1.
->>
->> Also does it vary board to board or is fixed by the ip?
->> What I mean is that the external cap etc.
->
-> The clock is derived from an internal SoC clock, I don't think this can
-> be influenced that much by external components. I did not test different
-> boards, but two board with different SoCs.
+On Mon, Jun 04, 2012 at 07:04:25PM +0800, Richard Zhao wrote:
+> - convert to use devm_request_and_ioremap, devm_kzalloc, devm_clk_get,
+>   devm_request_irq.
+> - clean up unused variables.
+>=20
+> Signed-off-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Reviewed-by: Shubhrajyoti D <Shubhrajyoti-l0cyMroinI0@public.gmane.org>
 
-OK thanks.
->
-> Let's see what the IC guys tell us.
+Thanks, applied to for-next.
 
-Sure.
->
-> Sascha
->
-> --
-> Pengutronix e.K.                           |                             |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk/5bY8ACgkQD27XaX1/VRv4CQCgy3/wv15gNG6JHSbpd5DnCK0n
+zZoAmwWaoL5MuNFUSf7DsKxUmaob8VUx
+=7mpo
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--
