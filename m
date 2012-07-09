@@ -1,61 +1,48 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH V3 0/3] i2c-nomadik changes
-Date: Mon, 9 Jul 2012 11:48:21 +0200
-Message-ID: <20120709094821.GB1296@pengutronix.de>
-References: <cover.1339447570.git.rubini@gnudd.com>
- <CACRpkdakDBrF+G9wpPn+PQ5tcb2xqeiBoSRMmj_PuB_WhufaaQ@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c-nomadik: Add 10-bit addressing support
+Date: Mon, 9 Jul 2012 11:58:29 +0200
+Message-ID: <20120709095829.GC1296@pengutronix.de>
+References: <1340627167-13581-1-git-send-email-srinidhi.kasagar@stericsson.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EuxKj2iCbKjpUGkD"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="8NvZYKFJsRX2Djef"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CACRpkdakDBrF+G9wpPn+PQ5tcb2xqeiBoSRMmj_PuB_WhufaaQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Alessandro Rubini <rubini@gnudd.com>, linux-kernel@vger.kernel.org, Giancarlo Asnaghi <giancarlo.asnaghi@st.com>, Alan Cox <alan@linux.intel.com>, Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>, STEricsson_nomadik_linux@list.st.com, Linus Walleij <linus.walleij@stericsson.com>, Russell King <linux@arm.linux.org.uk>, Jean Delvare <khali@linux-fr.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+In-Reply-To: <1340627167-13581-1-git-send-email-srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Srinidhi KASAGAR <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---EuxKj2iCbKjpUGkD
-Content-Type: text/plain; charset=iso-8859-15
+--8NvZYKFJsRX2Djef
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 11, 2012 at 11:37:15PM +0200, Linus Walleij wrote:
-> On Mon, Jun 11, 2012 at 10:56 PM, Alessandro Rubini <rubini@gnudd.com> wr=
-ote:
+On Mon, Jun 25, 2012 at 05:56:07PM +0530, Srinidhi KASAGAR wrote:
+> From: Virupax Sadashivpetimath <virupax.sadashivpetimath-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 >=20
-> > V3:
-> > =A0 =A0 =A0 =A0- fixed according to Linusw feedback (merged the patch h=
-e posted)
-> > =A0 =A0 =A0 =A0- added Tested-by: Linusw on his permission
->=20
-> I'm happy with this version, Wolfram if it looks OK to you,
-> can you please merge this into the I2C tree?
+> Signed-off-by: Virupax Sadashivpetimath <virupax.sadashivpetimath@sterics=
+son.com>
+> Signed-off-by: Srinidhi KASAGAR <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-Done now, thanks.
-
-Is the latest version of Lee's patches for DT sent on 20/06 suitable to
-go on top of that?
-
-Regards,
-
-   Wolfram
+Applied to next, thanks!
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---EuxKj2iCbKjpUGkD
+--8NvZYKFJsRX2Djef
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk/6qOUACgkQD27XaX1/VRtTWQCgsHsNf254ujlFk20vSpgWXto9
-c3UAnivCKkol+mZVUb7qpOONjxaA6fyb
-=hYOt
+iEYEARECAAYFAk/6q0UACgkQD27XaX1/VRuargCfaY00uOBfklWVG5VYVUnVZ5N7
+qtUAoK3LzSKLHhqIh9K1LcwB3mHRnGFB
+=gIeG
 -----END PGP SIGNATURE-----
 
---EuxKj2iCbKjpUGkD--
+--8NvZYKFJsRX2Djef--
