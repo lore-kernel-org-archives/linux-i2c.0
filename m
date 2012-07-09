@@ -1,45 +1,62 @@
-From: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 0/4 V5] add 88pm80x mfd driver
-Date: Mon, 09 Jul 2012 22:48:37 +0800
-Message-ID: <4FFAEF45.7070509@marvell.com>
-References: <1341815855-13522-1-git-send-email-zhouqiao@marvell.com> <20120709105551.GK15345@sortiz-mobl> <20120709105533.GA3934@opensource.wolfsonmicro.com> <20120709132123.GQ15345@sortiz-mobl>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/2 V2] MXS: Set I2C timing registers for mxs-i2c
+Date: Mon, 9 Jul 2012 17:58:22 +0200
+Message-ID: <201207091758.22788.marex@denx.de>
+References: <1341554956-17416-1-git-send-email-marex@denx.de> <201207091307.35860.marex@denx.de> <20120709120523.GG1296@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120709132123.GQ15345@sortiz-mobl>
+In-Reply-To: <20120709120523.GG1296-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, "arnd-r2nGTMty4D4@public.gmane.org" <arnd-r2nGTMty4D4@public.gmane.org>, "rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org" <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, "haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Chao Xie <cxie4-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yu Tang <ytang5-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Wilbur Wang <wwang27-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 07/09/2012 09:21 PM, Samuel Ortiz wrote:
-> Hi Mark,
->
-> On Mon, Jul 09, 2012 at 11:55:33AM +0100, Mark Brown wrote:
->> On Mon, Jul 09, 2012 at 12:55:51PM +0200, Samuel Ortiz wrote:
->>
->>> I applied the first 2 patches, I'd like to get an ACK from the respective
->>> maintainers for the rtc and the input ones. They can even take it as both
->>> drivers are protected by the MFD symbol.
->>
->> Alessandro's been mostly offline recently so it might be as well to
->> apply the RTC patch anyway.
-> Fair enough, applied now. Neither Alessandro nor the rtc ml wer not cc'ed on this
-> thread, but that's another problem.
-> Zhou, could you please send at least the rtc patch to Alessandro so that he
-> could have a look at it if time permits ?
->
-> Cheers,
-> Samuel.
->
-Samuel, Mark, Arnd,
+Dear Wolfram Sang,
 
-deeply appreciate your review, and I'll send the patch to Alessandro and 
-rtc mainline. thanks!
+> > > > diff --git a/arch/arm/boot/dts/imx28.dtsi
+> > > > b/arch/arm/boot/dts/imx28.dtsi index ee3778a..832d30a 100644
+> > > > --- a/arch/arm/boot/dts/imx28.dtsi
+> > > > +++ b/arch/arm/boot/dts/imx28.dtsi
+> > 
+> > [...]
+> > 
+> > > > @@ -428,6 +429,7 @@
+> > > > 
+> > > >  				compatible = "fsl,imx28-i2c";
+> > > >  				reg = <0x8005a000 2000>;
+> > > >  				interrupts = <110 69>;
+> > > > 
+> > > > +				clock-frequency = <400000>;
+> > > 
+> > > NACK on that. Not all slaves can do 400KHz, so this is not a sensible
+> > > default.
+> > 
+> > How many of such chips are there and how many of the chips can do 400kHz
+> > ? I believe the majority shouldn't suffer because of minority.
+> 
+> The kernel should work for all users, not only for the majority, so:
+> Better safe than sorry.
+> 
+> Also, defaults should make the system work. Tuning can be done later by
+> somebody who understands what is needed.
+> 
+> And frankly, this attitude which made you add a potential regression is
+> worrisome. I'd suggest to give stability a higher priority.
 
+I believe you misunderstood my intention. Setting it to 400kHz was done because 
+it's what most people will use, therefore avoiding duplication (most of the 
+board files will override this setting now). All right, your sane defaults here 
+can be applied, I won't argue.
 
--- 
+And frankly, you could have left the last jab out. Let's avoid attacking each 
+other, I'm not in the mood for it today.
 
-Best Regards
-Qiao
+> Regards,
+> 
+>    Wolfram
+
+Best regards,
+Marek Vasut
