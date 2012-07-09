@@ -1,57 +1,45 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] i2c-s3c2410: Convert to devm_request_and_ioremap()
-Date: Mon, 9 Jul 2012 14:58:10 +0100
-Message-ID: <20120709135809.GG3934@opensource.wolfsonmicro.com>
-References: <1340888138-32710-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20120709135229.GL1296@pengutronix.de>
+From: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 0/4 V5] add 88pm80x mfd driver
+Date: Mon, 09 Jul 2012 22:48:37 +0800
+Message-ID: <4FFAEF45.7070509@marvell.com>
+References: <1341815855-13522-1-git-send-email-zhouqiao@marvell.com> <20120709105551.GK15345@sortiz-mobl> <20120709105533.GA3934@opensource.wolfsonmicro.com> <20120709132123.GQ15345@sortiz-mobl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8/pVXlBMPtxfSuJG"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120709135229.GL1296@pengutronix.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120709132123.GQ15345@sortiz-mobl>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Alessandro Zummo <a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org>, "arnd-r2nGTMty4D4@public.gmane.org" <arnd-r2nGTMty4D4@public.gmane.org>, "rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org" <rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org>, "haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Chao Xie <cxie4-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yu Tang <ytang5-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Wilbur Wang <wwang27-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 07/09/2012 09:21 PM, Samuel Ortiz wrote:
+> Hi Mark,
+>
+> On Mon, Jul 09, 2012 at 11:55:33AM +0100, Mark Brown wrote:
+>> On Mon, Jul 09, 2012 at 12:55:51PM +0200, Samuel Ortiz wrote:
+>>
+>>> I applied the first 2 patches, I'd like to get an ACK from the respective
+>>> maintainers for the rtc and the input ones. They can even take it as both
+>>> drivers are protected by the MFD symbol.
+>>
+>> Alessandro's been mostly offline recently so it might be as well to
+>> apply the RTC patch anyway.
+> Fair enough, applied now. Neither Alessandro nor the rtc ml wer not cc'ed on this
+> thread, but that's another problem.
+> Zhou, could you please send at least the rtc patch to Alessandro so that he
+> could have a look at it if time permits ?
+>
+> Cheers,
+> Samuel.
+>
+Samuel, Mark, Arnd,
 
---8/pVXlBMPtxfSuJG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+deeply appreciate your review, and I'll send the patch to Alessandro and 
+rtc mainline. thanks!
 
-On Mon, Jul 09, 2012 at 03:52:29PM +0200, Wolfram Sang wrote:
-> On Thu, Jun 28, 2012 at 01:55:38PM +0100, Mark Brown wrote:
-> > A small code saving and less error handling to worry about.
 
-> > Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+-- 
 
-> What about devm for the clocks, too?
-
-The devm_ versions of the API aren't exported there yet and there's a
-bug fix pending too but Russell and Mike have ignored the patches thus
-far.
-
---8/pVXlBMPtxfSuJG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJP+uNbAAoJEBus8iNuMP3dBaMP/jL+kkULl/DXEDJbnV1dqHMU
-y+h84MNqR9dfENoR2AkFqLF9DZAB+SfiHVfLaScmZXFtpB8Ka+Gvx0hzYSYi0+mS
-tsUblwG3c3jxgEoFXMNnmgF9hE6/TAKx/jLSeT0qmLtqAxG3f1lybIEO/EJprxTD
-W1XHJ4S4DtOvW3uY0zCMC8uTERNiWTlWHJSAbv8C//JNexElOtElBnA9SiuH+Bfp
-Kbwh8UtVcI8vyL9S5qi1h51GGtZtCTjMkuuPuIkVy2uWXDK94G2KWImn+IYxn8mX
-t0JqJ4a6QNCCby/ZU+OLDHxoSzbvQaop5fr3hkDuUmIN+9AgCNczZiypHlrOBNoF
-RfXonWpYMF5qQDoYl4nx0E4znlLvnIkD8t7yV5/5aAP0yLl7d1lW4kFewzSo72b6
-djWwC6Mo4It5NUKffgcS37LyDeYfNchMzyZvGlmLO/0gmfkoryIgmQqfPPNlthbz
-YdHJGZvyxNx0UjNw2/flyWf+9vUpYtyzDfdSPXPRuex7xmT38gfW19YLmuS6QWOf
-c6N1wb6IiUirpEBfXSWtf2vzGU98vV5/IPcyn6/GzfDlpQvCopl2UUvRhkFN/ub2
-VZmxrvB6uWOFnqe+s2Z0JlZgtOCrGrQxfLQqIWTvRslPJVBo/WY08tMRoPsjrYmE
-wro8bcurN1NjyyqSu3m3
-=FH+4
------END PGP SIGNATURE-----
-
---8/pVXlBMPtxfSuJG--
+Best Regards
+Qiao
