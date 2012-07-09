@@ -1,56 +1,98 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-imx: Adapt the clock name to the new clock
- framework
-Date: Mon, 9 Jul 2012 09:36:17 +0200
-Message-ID: <20120709073617.GR30009@pengutronix.de>
-References: <1341599492-18212-1-git-send-email-fabio.estevam@freescale.com>
+From: Lan Tianyu <tianyu.lan@intel.com>
+Subject: Re: Fwd: Hid over I2C and ACPI interaction
+Date: Mon, 09 Jul 2012 15:28:28 +0800
+Message-ID: <4FFA881C.5030001@intel.com>
+References: <CAN+gG=GnMX8Gu6w9za2QrjoVrmORncFgq-+hhmHvxtOPEB=nDw@mail.gmail.com> <4FF52C70.9010601@intel.com> <1341471717.1682.125.camel@rui.sh.intel.com> <20120706055234.GC2237@intel.com> <4FFA4EFD.6090708@intel.com> <94F2FBAB4432B54E8AACC7DFDE6C92E346B0A606@ORSMSX101.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1341599492-18212-1-git-send-email-fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Content-Type: text/plain; charset=ISO-2022-JP
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <94F2FBAB4432B54E8AACC7DFDE6C92E346B0A606@ORSMSX101.amr.corp.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Moore, Robert" <robert.moore@intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, "Zhang, Rui" <rui.zhang@intel.com>, "khali@linux-fr.org" <khali@linux-fr.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "w.sang@pengutronix.de" <w.sang@pengutronix.de>, "lenb@kernel.org" <lenb@kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "jkosina@suse.cz" <jkosina@suse.cz>, "chatty@enac.fr" <chatty@enac.fr>, "jj_ding@emc.com.tw" <jj_ding@emc.com.tw>, "bhelgaas@google.com" <bhelgaas@google.com>, "abelay@mit.edu" <abelay@mit.edu>, "Lin, Ming M" <ming.m.lin@intel.com>, "Tang, Feng" <feng.tang@intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 06, 2012 at 03:31:32PM -0300, Fabio Estevam wrote:
-> With the new i.mx clock framework the i2c clock is registered as:
+On 2012年07月09日 12:02, Moore, Robert wrote:
+> These are already defined in acpica - in the file acrestyp.h
 > 
-> clk_register_clkdev(clk[i2c1_ipg_gate], NULL, "imx-i2c.0")
+>      ACPI_RESOURCE_FIXED_DMA                 FixedDma;
 > 
-> So we do not need to pass "i2c_clk" string and can use NULL instead.
+>      ACPI_RESOURCE_GPIO                      Gpio;
+>      ACPI_RESOURCE_I2C_SERIALBUS             I2cSerialBus;
+>      ACPI_RESOURCE_SPI_SERIALBUS             SpiSerialBus;
+>      ACPI_RESOURCE_UART_SERIALBUS            UartSerialBus;
+>      ACPI_RESOURCE_COMMON_SERIALBUS          CommonSerialBus;
 > 
-> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Yeah. Thanks for Bob's reminder. We can reuse these macros.
 
-Acked-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
-Sascha
-
-> ---
->  drivers/i2c/busses/i2c-imx.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 370031a..a8709b1 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -528,7 +528,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	}
->  
->  	/* Get I2C clock */
-> -	i2c_imx->clk = clk_get(&pdev->dev, "i2c_clk");
-> +	i2c_imx->clk = clk_get(&pdev->dev, NULL);
->  	if (IS_ERR(i2c_imx->clk)) {
->  		ret = PTR_ERR(i2c_imx->clk);
->  		dev_err(&pdev->dev, "can't get I2C clock\n");
-> -- 
-> 1.7.1
 > 
 > 
+>> -----Original Message-----
+>> From: linux-acpi-owner@vger.kernel.org [mailto:linux-acpi-
+>> owner@vger.kernel.org] On Behalf Of Lan Tianyu
+>> Sent: Sunday, July 08, 2012 8:25 PM
+>> To: Mika Westerberg
+>> Cc: Zhang, Rui; khali@linux-fr.org; ben-linux@fluff.org;
+>> w.sang@pengutronix.de; lenb@kernel.org; linux-acpi@vger.kernel.org; linux-
+>> i2c@vger.kernel.org; linux-kernel@vger.kernel.org; jkosina@suse.cz;
+>> chatty@enac.fr; jj_ding@emc.com.tw; bhelgaas@google.com; abelay@mit.edu
+>> Subject: Re: Fwd: Hid over I2C and ACPI interaction
+>>
+>> On 2012年07月06日 13:52, Mika Westerberg wrote:
+>>> On Thu, Jul 05, 2012 at 03:01:57PM +0800, Zhang Rui wrote:
+>>>> +Note that although these are ACPI devices, we prefer to use PnP drivers
+>>>> for them,
+>>>> +this is because:
+>>>> +1. all the non-ACPI-predefined Devices are exported as PnP devices as
+>>>> well
+>>>> +2. PnP bus is a well designed bus. Probing via PnP layer saves a lot of
+>>>> work
+>>>> +   for the device driver, e.g. getting&   parsing ACPI resources.
+>>>
+>>> (Nice BKM, thanks for sharing)
+>>>
+>>> I have few questions about using PnP drivers instead of pure ACPI
+>> drivers.
+>>>
+>>> ACPI 5.0 defined some new resources, for example "Fixed DMA descriptor"
+>>> that has information about the request line + channel for the device to
+>>> use. Hovewer, PnP drivers pass resources as 'struct resource', which
+>>> basically only has start and end - how do you represent all this new
+>> stuff
+>>> using 'struct resource'?
+>>>
+>> I think we can add new interface to get acpi specific resources. e.g
+>> struct acpi_resource pnp_get_acpi_resource(...). When the pnp acpi devices
+>> were initialized, put those acpi specific resources into a new resource
+>> list
+>> pnpdev->acpi_resources. What pnp_get_acpi_resource does is to get specified
+>> type acpi resources and return. We also need to define some acpi resource
+>> types.
+>>
+>> ACPI_RESOURCE_DMA
+>> ACPI_RESOURCE_I2C_SERIALBUS
+>> ACPI_RESOURCE_SPI_SERIALBUS
+>> ACPI_RESOURCE_UART_SERIALBUS
+>> ACPI_RESOURCE_COMMON_SERIALBUS
+>> ...
+>>
+>> How about this? welcome to comments.
+>>
+>>> Or should we use acpi_walk_resources() where 'struct resource' is not
+>>> suitable?
+>>>
+>>
+>> --
+>> Best Regards
+>> Tianyu Lan
+>> linux kernel enabling team
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
 -- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Best Regards
+Tianyu Lan
+linux kernel enabling team
