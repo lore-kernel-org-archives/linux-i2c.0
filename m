@@ -1,85 +1,36 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: mxs_i2c_finish_read: mute flase positive
- uninitialized var
-Date: Mon, 9 Jul 2012 13:14:40 +0200
-Message-ID: <20120709111440.GF1296@pengutronix.de>
-References: <1341178470-14904-1-git-send-email-mkl@pengutronix.de>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 0/4 V5] add 88pm80x mfd driver
+Date: Mon, 9 Jul 2012 11:46:03 +0000
+Message-ID: <201207091146.04093.arnd@arndb.de>
+References: <1341815855-13522-1-git-send-email-zhouqiao@marvell.com> <20120709105551.GK15345@sortiz-mobl>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OzxllxdKGCiKxUZM"
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1341178470-14904-1-git-send-email-mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20120709105551.GK15345@sortiz-mobl>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, chao.xie-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yu.tang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, wilbur.wang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Monday 09 July 2012, Samuel Ortiz wrote:
+> On Mon, Jul 09, 2012 at 02:37:31PM +0800, Qiao Zhou wrote:
+> > change log [v5->v4]:
+> > 1, change the file name, from 88pm800-core.c, 88pm805-core.c, 88pm80x-i2c.c
+> > to 88pm800.c, 88pm805.c, 88pm80x.c, and modified Makefile accordingly.
+> > 2, replace the spinlock used to protect wakeup flag, with using set_bit/
+> > clear_bit, which is suitable adn enough in SMP env.
+> > 3, add the version number in each patch.
+> I applied the first 2 patches, I'd like to get an ACK from the respective
+> maintainers for the rtc and the input ones. They can even take it as both
+> drivers are protected by the MFD symbol.
+> 
 
---OzxllxdKGCiKxUZM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please add my
 
-On Sun, Jul 01, 2012 at 11:34:30PM +0200, Marc Kleine-Budde wrote:
-> This patch mutes the false positive compiler warning:
->=20
-> drivers/i2c/busses/i2c-mxs.c: In function 'mxs_i2c_xfer_msg':
-> drivers/i2c/busses/i2c-mxs.c:206:8: warning: 'data' may be used uninitial=
-ized in this function [-Wuninitialized]
-> drivers/i2c/busses/i2c-mxs.c:196:6: note: 'data' was declared here
->=20
-> Cc: "Wolfram Sang" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Reviewed-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
 
-FYI: Checkpatch complains about the position of the quotes above.
+comment to these two patches as well.
 
-> Signed-off-by: Marc Kleine-Budde <mkl-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
-Applied. I didn't know the exact intention of 'uninitialized_var'
-before. Its commit message (9490991482a2091a828d997adbc088e24c310a4d)
-convinces me to accept this compromise. It will silence the warning, but
-it can be disabled if such warnings want to be seen. Also, there is no
-extra code added like with '=3D 0'.
-
-I still do think however, gcc should be able to find out what happens.
-There is no pointer magic involved here...
-
-> ---
->  drivers/i2c/busses/i2c-mxs.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> index 04eb441..02ce1fa 100644
-> --- a/drivers/i2c/busses/i2c-mxs.c
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -193,7 +193,7 @@ static int mxs_i2c_wait_for_data(struct mxs_i2c_dev *=
-i2c)
-> =20
->  static int mxs_i2c_finish_read(struct mxs_i2c_dev *i2c, u8 *buf, int len)
->  {
-> -	u32 data;
-> +	u32 uninitialized_var(data);
->  	int i;
-> =20
->  	for (i =3D 0; i < len; i++) {
-> --=20
-> 1.7.10
->=20
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---OzxllxdKGCiKxUZM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk/6vSAACgkQD27XaX1/VRuGOwCaAmlkJIRyslF6cacjwt7l6DVJ
-ctEAn1EnHsbrp7zDTxU4910ZIWqy491V
-=m/Tg
------END PGP SIGNATURE-----
-
---OzxllxdKGCiKxUZM--
+	Arnd
