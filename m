@@ -1,239 +1,46 @@
-From: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V6 4/4] input: add onkey support to 88PM80X PMIC
-Date: Tue, 10 Jul 2012 13:07:33 +0800
-Message-ID: <1341896853-29755-5-git-send-email-zhouqiao@marvell.com>
-References: <1341896853-29755-1-git-send-email-zhouqiao@marvell.com>
+From: "Jayachandran C" <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Subject: [PATCH RESEND 0/4] I2C Ocores updates
+Date: Tue, 10 Jul 2012 11:40:54 +0530
+Message-ID: <1341900658-7698-1-git-send-email-jayachandranc@netlogicmicro.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1341896853-29755-1-git-send-email-zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: arnd-r2nGTMty4D4@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wfg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, chao.xie-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yu.tang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, wilbur.wang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Cc: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org
+Cc: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-add onkey support to MARVELL 88PM80X PMIC.
+[Sending this out again - the changes are straight-forward and I 
+ do not see any reason for not merging them.  Comments welcome]
 
-Signed-off-by: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
----
- drivers/input/misc/88pm80x_onkey.c |  176 ++++++++++++++++++++++++++++++++++++
- drivers/input/misc/Kconfig         |   10 ++
- drivers/input/misc/Makefile        |    1 +
- 3 files changed, 187 insertions(+), 0 deletions(-)
- create mode 100644 drivers/input/misc/88pm80x_onkey.c
+While trying to add reg-io-width property to i2c-ocores, we noticed
+a few things that needs to fixed up in i2c-ocores device tree code.
 
-diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm80x_onkey.c
-new file mode 100644
-index 0000000..807587f
---- /dev/null
-+++ b/drivers/input/misc/88pm80x_onkey.c
-@@ -0,0 +1,176 @@
-+/*
-+ * 88pm80x_onkey.c - Marvell 88PM80x ONKEY driver
-+ *
-+ * Copyright (C) 2012 Marvell International Ltd.
-+ * Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-+ * Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-+ *
-+ * This file is subject to the terms and conditions of the GNU General
-+ * Public License. See the file "COPYING" in the main directory of this
-+ * archive for more details.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/input.h>
-+#include <linux/mfd/88pm80x.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+
-+#define PM800_LONG_ONKEY_EN		(1 << 0)
-+#define PM800_LONG_KEY_DELAY		(8)	/* 1 .. 16 seconds */
-+#define PM800_LONKEY_PRESS_TIME		((PM800_LONG_KEY_DELAY-1) << 4)
-+#define PM800_LONKEY_PRESS_TIME_MASK	(0xF0)
-+#define PM800_SW_PDOWN			(1 << 5)
-+
-+struct pm80x_onkey_info {
-+	struct input_dev *idev;
-+	struct pm80x_chip *pm80x;
-+	struct regmap *map;
-+	int irq;
-+};
-+
-+/* 88PM80x gives us an interrupt when ONKEY is held */
-+static irqreturn_t pm80x_onkey_handler(int irq, void *data)
-+{
-+	struct pm80x_onkey_info *info = data;
-+	int ret = 0;
-+
-+	regmap_read(info->map, PM800_STATUS_1, &ret);
-+	ret &= PM800_ONKEY_STS1;
-+
-+	input_report_key(info->idev, KEY_POWER, ret);
-+	input_sync(info->idev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+#ifdef CONFIG_PM
-+static int pm80x_onkey_suspend(struct device *dev)
-+{
-+	return pm80x_dev_suspend(dev);
-+}
-+
-+static int pm80x_onkey_resume(struct device *dev)
-+{
-+	return pm80x_dev_resume(dev);
-+}
-+#endif
-+
-+static SIMPLE_DEV_PM_OPS(pm80x_onkey_pm_ops, pm80x_onkey_suspend,
-+			 pm80x_onkey_resume);
-+
-+static int __devinit pm80x_onkey_probe(struct platform_device *pdev)
-+{
-+
-+	void *chip = dev_get_drvdata(pdev->dev.parent);
-+	struct pm80x_onkey_info *info;
-+	int ret;
-+
-+	info =
-+	    devm_kzalloc(&pdev->dev, sizeof(struct pm80x_onkey_info),
-+			 GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	info->pm80x = (struct pm80x_chip *)chip;
-+
-+	info->irq = platform_get_irq(pdev, 0);
-+	if (info->irq < 0) {
-+		dev_err(&pdev->dev, "No IRQ resource!\n");
-+		return -EINVAL;
-+	}
-+
-+	info->map = info->pm80x->regmap;
-+	if (!info->map) {
-+		dev_err(&pdev->dev, "no regmap!\n");
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	info->idev = input_allocate_device();
-+	if (!info->idev) {
-+		dev_err(&pdev->dev, "Failed to allocate input dev\n");
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	info->idev->name = "88pm80x_on";
-+	info->idev->phys = "88pm80x_on/input0";
-+	info->idev->id.bustype = BUS_I2C;
-+	info->idev->dev.parent = &pdev->dev;
-+	info->idev->evbit[0] = BIT_MASK(EV_KEY);
-+	info->idev->keybit[BIT_WORD(KEY_POWER)] = BIT_MASK(KEY_POWER);
-+
-+	ret = input_register_device(info->idev);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Can't register input device: %d\n", ret);
-+		goto out_reg;
-+	}
-+
-+	ret = pm80x_request_irq(info->pm80x, info->irq, pm80x_onkey_handler,
-+					    IRQF_ONESHOT, "onkey", info);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to request IRQ: #%d: %d\n",
-+			info->irq, ret);
-+		goto out_irq;
-+	}
-+
-+	platform_set_drvdata(pdev, info);
-+
-+	/* Enable long onkey detection */
-+	regmap_update_bits(info->map, PM800_RTC_MISC4, PM800_LONG_ONKEY_EN,
-+			   PM800_LONG_ONKEY_EN);
-+	/* Set 8-second interval */
-+	regmap_update_bits(info->map, PM800_RTC_MISC3,
-+			   PM800_LONKEY_PRESS_TIME_MASK,
-+			   PM800_LONKEY_PRESS_TIME);
-+
-+	device_init_wakeup(&pdev->dev, 1);
-+	return 0;
-+
-+out_irq:
-+	input_unregister_device(info->idev);
-+out_reg:
-+	input_free_device(info->idev);
-+out:
-+	devm_kfree(&pdev->dev, info);
-+	return ret;
-+}
-+
-+static int __devexit pm80x_onkey_remove(struct platform_device *pdev)
-+{
-+	struct pm80x_onkey_info *info = platform_get_drvdata(pdev);
-+
-+	pm80x_free_irq(info->pm80x, info->irq, info);
-+	input_unregister_device(info->idev);
-+	input_free_device(info->idev);
-+	devm_kfree(&pdev->dev, info);
-+	return 0;
-+}
-+
-+static struct platform_driver pm80x_onkey_driver = {
-+	.driver = {
-+		   .name = "88pm80x-onkey",
-+		   .owner = THIS_MODULE,
-+		   .pm = &pm80x_onkey_pm_ops,
-+		   },
-+	.probe = pm80x_onkey_probe,
-+	.remove = __devexit_p(pm80x_onkey_remove),
-+};
-+
-+module_platform_driver(pm80x_onkey_driver);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Marvell 88PM80x ONKEY driver");
-+MODULE_AUTHOR("Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>");
-+MODULE_ALIAS("platform:88pm80x-onkey");
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 7faf4a7..7c0f1ec 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -22,6 +22,16 @@ config INPUT_88PM860X_ONKEY
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called 88pm860x_onkey.
- 
-+config INPUT_88PM80X_ONKEY
-+	tristate "88PM80x ONKEY support"
-+	depends on MFD_88PM800
-+	help
-+	  Support the ONKEY of Marvell 88PM80x PMICs as an input device
-+	  reporting power button status.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called 88pm80x_onkey.
-+
- config INPUT_AB8500_PONKEY
- 	tristate "AB8500 Pon (PowerOn) Key"
- 	depends on AB8500_CORE
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index f55cdf4..83fe6f5 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -5,6 +5,7 @@
- # Each configuration option enables a list of files.
- 
- obj-$(CONFIG_INPUT_88PM860X_ONKEY)	+= 88pm860x_onkey.o
-+obj-$(CONFIG_INPUT_88PM80X_ONKEY)	+= 88pm80x_onkey.o
- obj-$(CONFIG_INPUT_AB8500_PONKEY)	+= ab8500-ponkey.o
- obj-$(CONFIG_INPUT_AD714X)		+= ad714x.o
- obj-$(CONFIG_INPUT_AD714X_I2C)		+= ad714x-i2c.o
+The changes are to: 
+ * use the standard 'reg-shift' property instead of 'regstep'
+ * fix the fallout of the about change in drivers/mfd/timberdale.c
+ * move bindings documentation to under Documentation/, 
+ * fix up formatting, and add \n to a few dev_* messages,
+ * and finally to add reg-io-width optional property.
+
+Regards,
+JC.
+
+Ganesan Ramalingam (2):
+  i2c: i2c-ocores: Use reg-shift property
+  i2c: i2c-ocores: support for 16bit and 32bit IO
+
+Jayachandran C (2):
+  i2c: i2c-ocores - DT bindings and minor fixes.
+  V4L/DVB: mfd: use reg_shift instead of regstep
+
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |   33 +++++++
+ drivers/i2c/busses/i2c-ocores.c                    |   96 +++++++++-----------
+ drivers/mfd/timberdale.c                           |    2 +-
+ include/linux/i2c-ocores.h                         |    7 +-
+ 4 files changed, 83 insertions(+), 55 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+
 -- 
-1.7.0.4
+1.7.9.5
