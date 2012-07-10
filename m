@@ -1,71 +1,86 @@
-From: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V2] i2c: imx: make bitrate an u32 type
-Date: Tue, 10 Jul 2012 07:08:21 +0800
-Message-ID: <20120709230819.GA2196@richard-laptop>
-References: <1341872910-26687-1-git-send-email-wolfram@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V6 0/4] add 88pm80x mfd driver
+Date: Tue, 10 Jul 2012 13:07:29 +0800
+Message-ID: <1341896853-29755-1-git-send-email-zhouqiao@marvell.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1341872910-26687-1-git-send-email-wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: arnd-r2nGTMty4D4@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, rpurdie-Fm38FmjxZ/leoWH0uzbU5w@public.gmane.org, a.zummo-BfzFCNDTiLLj+vYz1yj4TQ@public.gmane.org, sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, wfg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, chao.xie-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, yu.tang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, wilbur.wang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Cc: Qiao Zhou <zhouqiao-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 10, 2012 at 12:28:30AM +0200, Wolfram Sang wrote:
-> sparse found this assignment of u32 to an int. Fix it:
-> 
-> drivers/i2c/busses/i2c-imx.c:540:56: warning: incorrect type in argument 3 (different signedness)
-> 
-> and also fix the type in platform_data. All current users use values
-> which fit into the old and new type, so it is a safe change.
-> 
-> Signed-off-by: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Cc: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Reviewed-by: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
-> 
-> Changes since V1: also change type in platform_data. Thanks to Richard.
-> 
->  arch/arm/plat-mxc/include/mach/i2c.h |    2 +-
->  drivers/i2c/busses/i2c-imx.c         |    4 ++--
->  2 files changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/arch/arm/plat-mxc/include/mach/i2c.h b/arch/arm/plat-mxc/include/mach/i2c.h
-> index 375cdd0..8289d91 100644
-> --- a/arch/arm/plat-mxc/include/mach/i2c.h
-> +++ b/arch/arm/plat-mxc/include/mach/i2c.h
-> @@ -15,7 +15,7 @@
->   *
->   **/
->  struct imxi2c_platform_data {
-> -	int bitrate;
-> +	u32 bitrate;
->  };
->  
->  #endif /* __ASM_ARCH_I2C_H_ */
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index dd2a083..90460dd 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -471,8 +471,8 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
->  	struct pinctrl *pinctrl;
->  	void __iomem *base;
-> -	int irq, bitrate;
-> -	int ret;
-> +	int irq, ret;
-> +	u32 bitrate;
->  
->  	dev_dbg(&pdev->dev, "<%s>\n", __func__);
->  
-> -- 
-> 1.7.10.4
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+change log [v6->v5]:
+export_symbol_gpl for pm80x_regmap_config to fix build issue for module.
+
+change log [v5->v4]:
+1, change the file name, from 88pm800-core.c, 88pm805-core.c, 88pm80x-i2c.c
+to 88pm800.c, 88pm805.c, 88pm80x.c, and modified Makefile accordingly.
+2, replace the spinlock used to protect wakeup flag, with using set_bit/
+clear_bit, which is suitable adn enough in SMP env.
+3, add the version number in each patch.
+
+change log [v4->v3]:
+1, provide unified suspend/resume api for all sub-devices, and add
+protection for 800 & 805 wakeup flag in SMP case.
+2, clean register definition in 88pm80x.h, and thanks Arnd's help.
+3, some minor changes in mfd Kconfig/Makefile.
+
+change log [v3->v2]:
+1, dynamically get the irq_base, for both regmap_add_irq_chip and
+mfd_add_devices. add pm80x_request_irq & pm80x_free_irq for sub-driver
+facility, and modify related irq thread operation. remove irq_base member
+from 80x_chip & platform data.
+2, split 88pm80x.o into 3 separate modules.
+3, remove the 88pm80x r/w API, and directly use open-coded regmap api.
+4, minor change: move pm80x_id_table from 80x-i2c.c to 800/805-core.c,
+exported pm80x_init, pm80x_deinit, and pm80x_bulk_read, add callback in
+pdata.
+
+change log [v2->v1]:
+1, split 88pm80x-core.c into 88pm800-core.c and 88pm805.c, per Arnd's
+suggestion. after the re-arch, 88pm80x-i2c handles the 800 & 805 common
+parts, while 800-core.c & 805-core.c handle the specific parts in each
+chip.
+2, add details about the workaround adding a i2c companion between 800 &
+805, and make a separate patch for it, per Arnd's suggestion.
+3, remove callback in pdata. but still keep the pdata currently.
+4, only keep necessary register in 88pm80x.h, including registers for
+regulator/rtc/onkey/power/codec etc, and remove other registers from global
+visibility.
+5, exported r/w API which requires regmap handle. as currently the pm800
+chip has 3 i2c device, only passing a pm80x_chip info can't ensure r/w the
+register in correct i2c device.
+
+change log [v1]:
+1, pm800 and pm805 are decoupled and probed separately;
+2, re-used the most of API for pm800 and pm805 per Arnd's comments;
+3, use regmap_irq, instead of previous 88pm80x_irq_data per Mark's comments.
+use regmap_add_irq_chip, and remove previous 88pm80x irq handling.
+4, remove callback function in rtc pdata per Arnd's comments.
+5, updated some coding style issue.
+
+
+Qiao Zhou (4):
+  mfd: support 88pm80x in 80x driver
+  mfd: workaround: add companion chip in 88pm80x
+  rtc: add rtc support to 88PM80X PMIC
+  input: add onkey support to 88PM80X PMIC
+
+ drivers/input/misc/88pm80x_onkey.c |  176 +++++++++++
+ drivers/input/misc/Kconfig         |   10 +
+ drivers/input/misc/Makefile        |    1 +
+ drivers/mfd/88pm800.c              |  593 ++++++++++++++++++++++++++++++++++++
+ drivers/mfd/88pm805.c              |  299 ++++++++++++++++++
+ drivers/mfd/88pm80x.c              |  145 +++++++++
+ drivers/mfd/Kconfig                |   24 ++
+ drivers/mfd/Makefile               |    2 +
+ drivers/rtc/Kconfig                |   10 +
+ drivers/rtc/Makefile               |    1 +
+ drivers/rtc/rtc-88pm80x.c          |  371 ++++++++++++++++++++++
+ include/linux/mfd/88pm80x.h        |  369 ++++++++++++++++++++++
+ 12 files changed, 2001 insertions(+), 0 deletions(-)
+ create mode 100644 drivers/input/misc/88pm80x_onkey.c
+ create mode 100644 drivers/mfd/88pm800.c
+ create mode 100644 drivers/mfd/88pm805.c
+ create mode 100644 drivers/mfd/88pm80x.c
+ create mode 100644 drivers/rtc/rtc-88pm80x.c
+ create mode 100644 include/linux/mfd/88pm80x.h
