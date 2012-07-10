@@ -1,61 +1,42 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: OMAP: send i2c message ignoring NAK
-Date: Tue, 10 Jul 2012 20:38:27 +0530
-Message-ID: <CAM=Q2cv2yCEaxjSL45PSpf8k8pgMuhr88TJ-RWc0OW1GL+n6Dg@mail.gmail.com>
-References: <CAGm1_ktL96X7kF3tvKErtirwnL7FGU=zGe+EyhX4GcUkZUeSkQ@mail.gmail.com>
-	<20120703103221.62fcb7ae@endymion.delvare>
-	<CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA@mail.gmail.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 1/2 V2] MXS: Set I2C timing registers for mxs-i2c
+Date: Tue, 10 Jul 2012 17:13:31 +0200
+Message-ID: <201207101713.31498.marex@denx.de>
+References: <1341554956-17416-1-git-send-email-marex@denx.de> <201207091758.22788.marex@denx.de> <20120710140911.GK20456@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20120710140911.GK20456-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, shubhrajyoti-l0cyMroinI0@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org
+To: Robert Schwebel <robert-xKSCrvTH0lQb1SvskN2V4Q@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 10, 2012 at 8:29 PM, Yegor Yefremov
-<yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org> wrote:
-> On Tue, Jul 3, 2012 at 10:32 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->> On Tue, 3 Jul 2012 10:12:09 +0200, Yegor Yefremov wrote:
->>> I'm using the second i2c channel to connect to HDMI transmitter
->>> sii9022a. In order to get EDID information from the attached monitor
->>> the sii9022a chip passes i2c request direct to the monitors i2c bus.
->>> To return to sii9022a mode one has to write data to HDMI transmitter,
->>> but this data won't be acknowledged. Because of this i2c produces
->>> timeout permanently (omap_i2c omap_i2c.2: controller timed out), so no
->>> communication is possible. The last bits I see on the scope are the
->>> i2c address of sii9022a. The CPU automatically end the transfer.
->>>
->>> The HDMI chip has i2c address 0x72 (8-bit notation) and EDID channel
->>> 0xa0 (8-bit notation). AFAIK there is only one device at a time on the
->>> bus, i.e. as soon as I switch sii9022a to access monitor only 0xa0
->>> responds to the queries. And I need to send a message to 0x72 ignoring
->>> normal i2c conditions in order to turn it back in normal mode.
->>>
->>> The driver for this HDMI transmitter can be found here:
->>> http://gitorious.org/efikamx/linux-kernel.git
->>> (drivers/video/mxc/siihdmi.c)
->>>
->>> How can I send this write request without awaiting for ACK?
->>
->> Use I2C_M_IGNORE_NAK, see Documentation/i2c/i2c-protocol.
->
-> Jean, thanks for the tip. I got it working by disabling the omap-i2c
-> driver and enabling i2c-gpio on the same pins. Only in this
-> combination and I2C_M_IGNORE_NAK I could get back to the HDMI chip.
-> OMAP i2c driver/I2C_M_IGNORE_NAK combo is not working. But I still got
-> no chance to try the latest kernel.
+Dear Robert Schwebel,
 
-OK may be you are missing patches like
-http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap.git;a=commit;h=464fca36d98b97ccd05e4f200ab7483d3acc8345
+> On Mon, Jul 09, 2012 at 05:58:22PM +0200, Marek Vasut wrote:
+> > > The kernel should work for all users, not only for the majority, so:
+> > > Better safe than sorry.
+> > > 
+> > > Also, defaults should make the system work. Tuning can be done later by
+> > > somebody who understands what is needed.
+> > > 
+> > > And frankly, this attitude which made you add a potential regression is
+> > > worrisome. I'd suggest to give stability a higher priority.
+> > 
+> > I believe you misunderstood my intention. Setting it to 400kHz was done
+> > because it's what most people will use, therefore avoiding duplication
+> > (most of the board files will override this setting now). All right,
+> > your sane defaults here can be applied, I won't argue.
+> 
+> I think all I2C chips support 100 kHz, but only selected ones support
+> 400 kHz.
 
-Personally will recommend the latest kernel.
+Yes, this is correct. And I never argued about this.
 
+But anyway, V3 patch is out, let's cut this discussion short.
 
->
-> Yegor
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Best regards,
+Marek Vasut
