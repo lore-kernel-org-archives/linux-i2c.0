@@ -1,7 +1,7 @@
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: [PATCH 7/7] i2c-tegra: Use struct dev_pm_ops for power management
-Date: Wed, 11 Jul 2012 21:27:30 +0200
-Message-ID: <201207112127.31139.rjw@sisk.pl>
+Subject: [PATCH 6/7] i2c-stu300: Use struct dev_pm_ops for power management
+Date: Wed, 11 Jul 2012 21:26:36 +0200
+Message-ID: <201207112126.36412.rjw@sisk.pl>
 References: <201207112121.11046.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
@@ -16,68 +16,69 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Rafael J. Wysocki <rjw@sisk.pl>
 
-Make the Tegra I2C controller driver define its PM callbacks through
-a struct dev_pm_ops object rather than by using legacy PM hooks
-in struct platform_driver.
+Make the ST-Ericsson U300 I2C controller driver define its PM
+callbacks through a struct dev_pm_ops object rather than by using
+legacy PM hooks in struct platform_driver.
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 ---
- drivers/i2c/busses/i2c-tegra.c |   18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-stu300.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
-Index: linux/drivers/i2c/busses/i2c-tegra.c
+Index: linux/drivers/i2c/busses/i2c-stu300.c
 ===================================================================
---- linux.orig/drivers/i2c/busses/i2c-tegra.c
-+++ linux/drivers/i2c/busses/i2c-tegra.c
-@@ -717,9 +717,9 @@ static int __devexit tegra_i2c_remove(st
+--- linux.orig/drivers/i2c/busses/i2c-stu300.c
++++ linux/drivers/i2c/busses/i2c-stu300.c
+@@ -978,31 +978,33 @@ stu300_probe(struct platform_device *pde
  }
  
  #ifdef CONFIG_PM
--static int tegra_i2c_suspend(struct platform_device *pdev, pm_message_t state)
-+static int tegra_i2c_suspend(struct device *dev)
+-static int stu300_suspend(struct platform_device *pdev, pm_message_t state)
++static int stu300_suspend(struct device *device)
  {
--	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
-+	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+-	struct stu300_dev *dev = platform_get_drvdata(pdev);
++	struct stu300_dev *dev = dev_get_drvdata(device);
  
- 	i2c_lock_adapter(&i2c_dev->adapter);
- 	i2c_dev->is_suspended = true;
-@@ -728,9 +728,9 @@ static int tegra_i2c_suspend(struct plat
+ 	/* Turn off everything */
+ 	stu300_wr8(0x00, dev->virtbase + I2C_CR);
  	return 0;
  }
  
--static int tegra_i2c_resume(struct platform_device *pdev)
-+static int tegra_i2c_resume(struct device *dev)
+-static int stu300_resume(struct platform_device *pdev)
++static int stu300_resume(struct device *device)
  {
--	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
-+	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 	int ret;
+ 	int ret = 0;
+-	struct stu300_dev *dev = platform_get_drvdata(pdev);
++	struct stu300_dev *dev = dev_get_drvdata(device);
  
- 	i2c_lock_adapter(&i2c_dev->adapter);
-@@ -748,6 +748,11 @@ static int tegra_i2c_resume(struct platf
+ 	clk_enable(dev->clk);
+ 	ret = stu300_init_hw(dev);
+ 	clk_disable(dev->clk);
  
- 	return 0;
+ 	if (ret != 0)
+-		dev_err(&pdev->dev, "error re-initializing hardware.\n");
++		dev_err(device, "error re-initializing hardware.\n");
+ 	return ret;
  }
 +
-+static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_suspend, tegra_i2c_resume);
-+#define TEGRA_I2C_PM	(&tegra_i2c_pm)
-+#else
-+#define TEGRA_I2C_PM	NULL
++static SIMPLE_DEV_PM_OPS(stu300_pm, stu300_suspend, stu300_resume);
++#define STU300_I2C_PM	(&stu300_pm)
+ #else
+-#define stu300_suspend NULL
+-#define stu300_resume NULL
++#define STU300_I2C_PM	NULL
  #endif
  
- #if defined(CONFIG_OF)
-@@ -765,14 +770,11 @@ MODULE_DEVICE_TABLE(of, tegra_i2c_of_mat
- static struct platform_driver tegra_i2c_driver = {
- 	.probe   = tegra_i2c_probe,
- 	.remove  = __devexit_p(tegra_i2c_remove),
--#ifdef CONFIG_PM
--	.suspend = tegra_i2c_suspend,
--	.resume  = tegra_i2c_resume,
--#endif
- 	.driver  = {
- 		.name  = "tegra-i2c",
- 		.owner = THIS_MODULE,
- 		.of_match_table = tegra_i2c_of_match,
-+		.pm    = TEGRA_I2C_PM,
+ static int __exit
+@@ -1026,10 +1028,9 @@ static struct platform_driver stu300_i2c
+ 	.driver = {
+ 		.name	= NAME,
+ 		.owner	= THIS_MODULE,
++		.pm	= STU300_I2C_PM,
  	},
+ 	.remove		= __exit_p(stu300_remove),
+-	.suspend        = stu300_suspend,
+-	.resume         = stu300_resume,
+ 
  };
  
