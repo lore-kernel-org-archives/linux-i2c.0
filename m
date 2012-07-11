@@ -1,7 +1,7 @@
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: [PATCH 3/7] i2c-ocores: Use struct dev_pm_ops for power management
-Date: Wed, 11 Jul 2012 21:24:15 +0200
-Message-ID: <201207112124.15712.rjw@sisk.pl>
+Subject: [PATCH 7/7] i2c-tegra: Use struct dev_pm_ops for power management
+Date: Wed, 11 Jul 2012 21:27:30 +0200
+Message-ID: <201207112127.31139.rjw@sisk.pl>
 References: <201207112121.11046.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
@@ -16,66 +16,68 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Rafael J. Wysocki <rjw@sisk.pl>
 
-Make the OpenCores I2C controller driver define its PM callbacks
-through a struct dev_pm_ops object rather than by using legacy PM
-hooks in struct platform_driver.
+Make the Tegra I2C controller driver define its PM callbacks through
+a struct dev_pm_ops object rather than by using legacy PM hooks
+in struct platform_driver.
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 ---
- drivers/i2c/busses/i2c-ocores.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-tegra.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-Index: linux/drivers/i2c/busses/i2c-ocores.c
+Index: linux/drivers/i2c/busses/i2c-tegra.c
 ===================================================================
---- linux.orig/drivers/i2c/busses/i2c-ocores.c
-+++ linux/drivers/i2c/busses/i2c-ocores.c
-@@ -367,9 +367,9 @@ static int __devexit ocores_i2c_remove(s
+--- linux.orig/drivers/i2c/busses/i2c-tegra.c
++++ linux/drivers/i2c/busses/i2c-tegra.c
+@@ -717,9 +717,9 @@ static int __devexit tegra_i2c_remove(st
  }
  
  #ifdef CONFIG_PM
--static int ocores_i2c_suspend(struct platform_device *pdev, pm_message_t state)
-+static int ocores_i2c_suspend(struct device *dev)
+-static int tegra_i2c_suspend(struct platform_device *pdev, pm_message_t state)
++static int tegra_i2c_suspend(struct device *dev)
  {
--	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
-+	struct ocores_i2c *i2c = dev_get_drvdata(dev);
- 	u8 ctrl = oc_getreg(i2c, OCI2C_CONTROL);
+-	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
++	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
  
- 	/* make sure the device is disabled */
-@@ -378,17 +378,19 @@ static int ocores_i2c_suspend(struct pla
+ 	i2c_lock_adapter(&i2c_dev->adapter);
+ 	i2c_dev->is_suspended = true;
+@@ -728,9 +728,9 @@ static int tegra_i2c_suspend(struct plat
  	return 0;
  }
  
--static int ocores_i2c_resume(struct platform_device *pdev)
-+static int ocores_i2c_resume(struct device *dev)
+-static int tegra_i2c_resume(struct platform_device *pdev)
++static int tegra_i2c_resume(struct device *dev)
  {
--	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
-+	struct ocores_i2c *i2c = dev_get_drvdata(dev);
+-	struct tegra_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
++	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
+ 	int ret;
  
- 	ocores_init(i2c);
+ 	i2c_lock_adapter(&i2c_dev->adapter);
+@@ -748,6 +748,11 @@ static int tegra_i2c_resume(struct platf
  
  	return 0;
  }
 +
-+static SIMPLE_DEV_PM_OPS(ocores_i2c_pm, ocores_i2c_suspend, ocores_i2c_resume);
-+#define OCORES_I2C_PM	(&ocores_i2c_pm)
- #else
--#define ocores_i2c_suspend	NULL
--#define ocores_i2c_resume	NULL
-+#define OCORES_I2C_PM	NULL
++static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_suspend, tegra_i2c_resume);
++#define TEGRA_I2C_PM	(&tegra_i2c_pm)
++#else
++#define TEGRA_I2C_PM	NULL
  #endif
  
- static struct of_device_id ocores_i2c_match[] = {
-@@ -400,12 +402,11 @@ MODULE_DEVICE_TABLE(of, ocores_i2c_match
- static struct platform_driver ocores_i2c_driver = {
- 	.probe   = ocores_i2c_probe,
- 	.remove  = __devexit_p(ocores_i2c_remove),
--	.suspend = ocores_i2c_suspend,
--	.resume  = ocores_i2c_resume,
+ #if defined(CONFIG_OF)
+@@ -765,14 +770,11 @@ MODULE_DEVICE_TABLE(of, tegra_i2c_of_mat
+ static struct platform_driver tegra_i2c_driver = {
+ 	.probe   = tegra_i2c_probe,
+ 	.remove  = __devexit_p(tegra_i2c_remove),
+-#ifdef CONFIG_PM
+-	.suspend = tegra_i2c_suspend,
+-	.resume  = tegra_i2c_resume,
+-#endif
  	.driver  = {
+ 		.name  = "tegra-i2c",
  		.owner = THIS_MODULE,
- 		.name = "ocores-i2c",
- 		.of_match_table = ocores_i2c_match,
-+		.pm = OCORES_I2C_PM,
+ 		.of_match_table = tegra_i2c_of_match,
++		.pm    = TEGRA_I2C_PM,
  	},
  };
  
