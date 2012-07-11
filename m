@@ -1,31 +1,63 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: OMAP: send i2c message ignoring NAK
-Date: Wed, 11 Jul 2012 22:22:52 +0530
-Message-ID: <4FFDAF64.5090505@ti.com>
-References: <CAGm1_ktL96X7kF3tvKErtirwnL7FGU=zGe+EyhX4GcUkZUeSkQ@mail.gmail.com> <20120703103221.62fcb7ae@endymion.delvare> <CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA@mail.gmail.com> <CAM=Q2cv2yCEaxjSL45PSpf8k8pgMuhr88TJ-RWc0OW1GL+n6Dg@mail.gmail.com> <CAGm1_kvLwj3iFz5M6zc+pitS_45OYPYw=aBU4bv8TdOhH600NA@mail.gmail.com>
+From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c i.MX: Fix divider table
+Date: Wed, 11 Jul 2012 20:38:38 +0200
+Message-ID: <20120711183838.GM30009@pengutronix.de>
+References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
+ <20120705145236.GA2735@richard-laptop>
+ <20120705160153.GT30009@pengutronix.de>
+ <20120706005249.GA26888@b20223-02.ap.freescale.net>
+ <20120706062852.GZ30009@pengutronix.de>
+ <20120711060121.GB30055@b20223-02.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGm1_kvLwj3iFz5M6zc+pitS_45OYPYw=aBU4bv8TdOhH600NA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120711060121.GB30055-iWYTGMXpHj9ITqJhDdzsOjpauB2SiJktrE5yTffgRl4@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, b35325-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 11 July 2012 09:53 PM, Yegor Yefremov wrote:
->> OK may be you are missing patches like
->> > http://git.kernel.org/?p=linux/kernel/git/tmlind/linux-omap.git;a=commit;h=464fca36d98b97ccd05e4f200ab7483d3acc8345
-> No, i don't.
-that's good.
->
->> > Personally will recommend the latest kernel.
-> To do that, I'll have to use device tree (there is no board file) and
-> I have no experience with this so far. So I'll have to postpone this
-> till am335x support stabilizes.
-I see.
-Will check on this.
+Hi Richard,
 
-Thanks,
->
-> Yegor
+On Wed, Jul 11, 2012 at 02:01:21PM +0800, Richard Zhao wrote:
+>=20
+> IC guys confirmed that the spec is right:
+>=20
+> This an adaptive feature of our I2C module may apply to all IMX chips=
+=2E
+> No mistake in the table of RMs.
+>=20
+> The divider is designed to guarantee SCL high level and low level las=
+t
+> time. Divider will hold when SCL transition from 1 to 0 or 0 to 1, if
+> the transition time is longer than 1 internal pre-divided clock cycle=
+=2E
+> The pre-divided clock is divided from I2C module clock, used for
+> generating SCL. So you will see SCL clock cycle is some way longer th=
+an
+> calculated value using IFDR.
+>=20
+> Transition time will different from rising or falling edge, different
+> pull-up resistors, and different SCL loading.
+>=20
+> This feature make sure transition time won=E2=80=99t eat both level t=
+ime of SCL.
+
+Thanks for clarification. Does this mean that this feature is used to
+synchronize between the bus clock and and bitclock?
+
+I'll send a documentation patch for this next week to make this clear.
+
+Sascha
+
+--=20
+Pengutronix e.K.                           |                           =
+  |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0  =
+  |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-555=
+5 |
