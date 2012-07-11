@@ -1,7 +1,7 @@
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: [PATCH 6/7] i2c-stu300: Use struct dev_pm_ops for power management
-Date: Wed, 11 Jul 2012 21:26:36 +0200
-Message-ID: <201207112126.36412.rjw@sisk.pl>
+Subject: [PATCH 5/7] i2c-puv3: Use struct dev_pm_ops for power management
+Date: Wed, 11 Jul 2012 21:25:55 +0200
+Message-ID: <201207112125.55418.rjw@sisk.pl>
 References: <201207112121.11046.rjw@sisk.pl>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
@@ -16,69 +16,55 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Rafael J. Wysocki <rjw@sisk.pl>
 
-Make the ST-Ericsson U300 I2C controller driver define its PM
-callbacks through a struct dev_pm_ops object rather than by using
-legacy PM hooks in struct platform_driver.
+Make the PKUnity-v3 SoC I2C controller driver define its suspend
+callback through a struct dev_pm_ops object rather than by using
+a legacy PM hook in struct platform_driver.  The empty resume
+callback is not necessary, so remove it.
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 ---
- drivers/i2c/busses/i2c-stu300.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-puv3.c |   15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-Index: linux/drivers/i2c/busses/i2c-stu300.c
+Index: linux/drivers/i2c/busses/i2c-puv3.c
 ===================================================================
---- linux.orig/drivers/i2c/busses/i2c-stu300.c
-+++ linux/drivers/i2c/busses/i2c-stu300.c
-@@ -978,31 +978,33 @@ stu300_probe(struct platform_device *pde
+--- linux.orig/drivers/i2c/busses/i2c-puv3.c
++++ linux/drivers/i2c/busses/i2c-puv3.c
+@@ -254,7 +254,7 @@ static int __devexit puv3_i2c_remove(str
  }
  
  #ifdef CONFIG_PM
--static int stu300_suspend(struct platform_device *pdev, pm_message_t state)
-+static int stu300_suspend(struct device *device)
+-static int puv3_i2c_suspend(struct platform_device *dev, pm_message_t state)
++static int puv3_i2c_suspend(struct device *dev)
  {
--	struct stu300_dev *dev = platform_get_drvdata(pdev);
-+	struct stu300_dev *dev = dev_get_drvdata(device);
- 
- 	/* Turn off everything */
- 	stu300_wr8(0x00, dev->virtbase + I2C_CR);
+ 	int poll_count;
+ 	/* Disable the IIC */
+@@ -267,23 +267,20 @@ static int puv3_i2c_suspend(struct platf
  	return 0;
  }
  
--static int stu300_resume(struct platform_device *pdev)
-+static int stu300_resume(struct device *device)
- {
- 	int ret = 0;
--	struct stu300_dev *dev = platform_get_drvdata(pdev);
-+	struct stu300_dev *dev = dev_get_drvdata(device);
- 
- 	clk_enable(dev->clk);
- 	ret = stu300_init_hw(dev);
- 	clk_disable(dev->clk);
- 
- 	if (ret != 0)
--		dev_err(&pdev->dev, "error re-initializing hardware.\n");
-+		dev_err(device, "error re-initializing hardware.\n");
- 	return ret;
- }
+-static int puv3_i2c_resume(struct platform_device *dev)
+-{
+-	return 0 ;
+-}
++static SIMPLE_DEV_PM_OPS(puv3_i2c_pm, puv3_i2c_suspend, NULL);
++#define PUV3_I2C_PM	(&puv3_i2c_pm)
 +
-+static SIMPLE_DEV_PM_OPS(stu300_pm, stu300_suspend, stu300_resume);
-+#define STU300_I2C_PM	(&stu300_pm)
  #else
--#define stu300_suspend NULL
--#define stu300_resume NULL
-+#define STU300_I2C_PM	NULL
+-#define puv3_i2c_suspend NULL
+-#define puv3_i2c_resume NULL
++#define PUV3_I2C_PM	NULL
  #endif
  
- static int __exit
-@@ -1026,10 +1028,9 @@ static struct platform_driver stu300_i2c
- 	.driver = {
- 		.name	= NAME,
+ static struct platform_driver puv3_i2c_driver = {
+ 	.probe		= puv3_i2c_probe,
+ 	.remove		= __devexit_p(puv3_i2c_remove),
+-	.suspend	= puv3_i2c_suspend,
+-	.resume		= puv3_i2c_resume,
+ 	.driver		= {
+ 		.name	= "PKUnity-v3-I2C",
  		.owner	= THIS_MODULE,
-+		.pm	= STU300_I2C_PM,
- 	},
- 	.remove		= __exit_p(stu300_remove),
--	.suspend        = stu300_suspend,
--	.resume         = stu300_resume,
- 
++		.pm	= PUV3_I2C_PM,
+ 	}
  };
  
