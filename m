@@ -1,76 +1,78 @@
-From: Richard Zhao <richard.zhao-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c i.MX: Fix divider table
-Date: Thu, 12 Jul 2012 08:45:22 +0800
-Message-ID: <20120712004522.GA21635@b20223-02.ap.freescale.net>
-References: <1341493826-13861-1-git-send-email-s.hauer@pengutronix.de>
- <20120705145236.GA2735@richard-laptop>
- <20120705160153.GT30009@pengutronix.de>
- <20120706005249.GA26888@b20223-02.ap.freescale.net>
- <20120706062852.GZ30009@pengutronix.de>
- <20120711060121.GB30055@b20223-02.ap.freescale.net>
- <20120711183838.GM30009@pengutronix.de>
+From: guanxuetao@mprc.pku.edu.cn
+Subject: Re: [PATCH 5/7] i2c-puv3: Use struct dev_pm_ops for power
+     management
+Date: Thu, 12 Jul 2012 11:24:54 +0800 (CST)
+Message-ID: <50122.162.105.203.8.1342063494.squirrel@mprc.pku.edu.cn>
+References: <201207112121.11046.rjw@sisk.pl>
+    <201207112125.55418.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120711183838.GM30009-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Richard Zhao <linuxzsc-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, b35325-KZfg59tc24xl57MIdRCFDg@public.gmane.org, b38611-KZfg59tc24xl57MIdRCFDg@public.gmane.org
+Content-Type: text/plain;charset=gb2312
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <201207112125.55418.rjw@sisk.pl>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, linux-i2c@vger.kernel.org, Sonic Zhang <sonic.zhang@analog.com>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Peter Korsgaard <jacmet@sunsite.dk>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Vitaly Wool <vitalywool@gmail.com>, Colin Cross <ccross@android.com>, Stephen Warren <swarren@wwwdotorg.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 11, 2012 at 08:38:38PM +0200, Sascha Hauer wrote:
-> Hi Richard,
->=20
-> On Wed, Jul 11, 2012 at 02:01:21PM +0800, Richard Zhao wrote:
-> >=20
-> > IC guys confirmed that the spec is right:
-> >=20
-> > This an adaptive feature of our I2C module may apply to all IMX chi=
-ps.
-> > No mistake in the table of RMs.
-> >=20
-> > The divider is designed to guarantee SCL high level and low level l=
-ast
-> > time. Divider will hold when SCL transition from 1 to 0 or 0 to 1, =
-if
-> > the transition time is longer than 1 internal pre-divided clock cyc=
-le.
-> > The pre-divided clock is divided from I2C module clock, used for
-> > generating SCL. So you will see SCL clock cycle is some way longer =
-than
-> > calculated value using IFDR.
-> >=20
-> > Transition time will different from rising or falling edge, differe=
-nt
-> > pull-up resistors, and different SCL loading.
-> >=20
-> > This feature make sure transition time won=E2=80=99t eat both level=
- time of SCL.
->=20
-> Thanks for clarification. Does this mean that this feature is used to
-> synchronize between the bus clock and and bitclock?
-Per my understanding,
-Not exactly. Divided clock is only used for count time of SCL level
-hold. This means, even if the i2c bus loading is high (long level
-setup time), the i2c may still work.
+> From: Rafael J. Wysocki <rjw@sisk.pl>
+>
+> Make the PKUnity-v3 SoC I2C controller driver define its suspend
+> callback through a struct dev_pm_ops object rather than by using
+> a legacy PM hook in struct platform_driver.  The empty resume
+> callback is not necessary, so remove it.
+>
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-Thanks
-Richard
->=20
-> I'll send a documentation patch for this next week to make this clear=
-=2E
->=20
-> Sascha
->=20
-> --=20
-> Pengutronix e.K.                           |                         =
-    |
-> Industrial Linux Solutions                 | http://www.pengutronix.d=
-e/  |
-> Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0=
-    |
-> Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5=
-555 |
->=20
+Thanks.
+
+Acked-by: Guan Xuetao <gxt@mprc.pku.edu.cn>
+
+> ---
+>  drivers/i2c/busses/i2c-puv3.c |   15 ++++++---------
+>  1 file changed, 6 insertions(+), 9 deletions(-)
+>
+> Index: linux/drivers/i2c/busses/i2c-puv3.c
+> ===================================================================
+> --- linux.orig/drivers/i2c/busses/i2c-puv3.c
+> +++ linux/drivers/i2c/busses/i2c-puv3.c
+> @@ -254,7 +254,7 @@ static int __devexit puv3_i2c_remove(str
+>  }
+>
+>  #ifdef CONFIG_PM
+> -static int puv3_i2c_suspend(struct platform_device *dev, pm_message_t
+> state)
+> +static int puv3_i2c_suspend(struct device *dev)
+>  {
+>  	int poll_count;
+>  	/* Disable the IIC */
+> @@ -267,23 +267,20 @@ static int puv3_i2c_suspend(struct platf
+>  	return 0;
+>  }
+>
+> -static int puv3_i2c_resume(struct platform_device *dev)
+> -{
+> -	return 0 ;
+> -}
+> +static SIMPLE_DEV_PM_OPS(puv3_i2c_pm, puv3_i2c_suspend, NULL);
+> +#define PUV3_I2C_PM	(&puv3_i2c_pm)
+> +
+>  #else
+> -#define puv3_i2c_suspend NULL
+> -#define puv3_i2c_resume NULL
+> +#define PUV3_I2C_PM	NULL
+>  #endif
+>
+>  static struct platform_driver puv3_i2c_driver = {
+>  	.probe		= puv3_i2c_probe,
+>  	.remove		= __devexit_p(puv3_i2c_remove),
+> -	.suspend	= puv3_i2c_suspend,
+> -	.resume		= puv3_i2c_resume,
+>  	.driver		= {
+>  		.name	= "PKUnity-v3-I2C",
+>  		.owner	= THIS_MODULE,
+> +		.pm	= PUV3_I2C_PM,
+>  	}
+>  };
+>
+>
