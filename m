@@ -1,72 +1,51 @@
-From: "Zhang, Sonic" <Sonic.Zhang@analog.com>
-Subject: RE: [PATCH 2/7] i2c-bfin-twi: Use struct dev_pm_ops for power
- management
-Date: Wed, 11 Jul 2012 22:51:45 -0400
-Message-ID: <DB904C5425BA6F4E8424B3B51A1414D171409B8860@NWD2CMBX1.ad.analog.com>
-References: <201207112121.11046.rjw@sisk.pl> <201207112123.31502.rjw@sisk.pl>
+From: "Voss, Nikolaus" <N.Voss@weinmann.de>
+Subject: RE: Build error with [PATCH v10 3/4] drivers/i2c/busses/i2c-at91.c
+Date: Thu, 12 Jul 2012 06:52:18 +0200
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090EA1AA99@wm021.weinmann.com>
+References: <CAFLc3brYJGkQoW5mGi9XaujNBMBdGX6RxfkNRbBZJQz_axz_Jg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201207112123.31502.rjw@sisk.pl>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>
-Cc: Linux PM list <linux-pm@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Peter Korsgaard <jacmet@sunsite.dk>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Vitaly Wool <vitalywool@gmail.com>, Colin Cross <ccross@android.com>, Stephen Warren <swarren@wwwdotorg.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CAFLc3brYJGkQoW5mGi9XaujNBMBdGX6RxfkNRbBZJQz_axz_Jg@mail.gmail.com>
+Content-Language: de-DE
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: 'Stefano Salati' <stef.salati@gmail.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-QWNrZWQtYnk6IFNvbmljIFpoYW5nIDxzb25pYy56aGFuZ0BhbmFsb2cuY29tPg0KDQo+LS0tLS1P
-cmlnaW5hbCBNZXNzYWdlLS0tLS0NCj5Gcm9tOiBSYWZhZWwgSi4gV3lzb2NraSBbbWFpbHRvOnJq
-d0BzaXNrLnBsXQ0KPlNlbnQ6IFRodXJzZGF5LCBKdWx5IDEyLCAyMDEyIDM6MjQgQU0NCj5Ubzog
-TEtNTA0KPkNjOiBMaW51eCBQTSBsaXN0OyBMaW51cyBXYWxsZWlqOyBsaW51eC1pMmNAdmdlci5r
-ZXJuZWwub3JnOyBaaGFuZywgU29uaWM7IEplYW4NCj5EZWx2YXJlOyBCZW4gRG9va3M7IFdvbGZy
-YW0gU2FuZzsgUGV0ZXIgS29yc2dhYXJkOyBHdWFuIFh1ZXRhbzsgVml0YWx5IFdvb2w7DQo+Q29s
-aW4gQ3Jvc3M7IFN0ZXBoZW4gV2FycmVuDQo+U3ViamVjdDogW1BBVENIIDIvN10gaTJjLWJmaW4t
-dHdpOiBVc2Ugc3RydWN0IGRldl9wbV9vcHMgZm9yIHBvd2VyIG1hbmFnZW1lbnQNCj4NCj5Gcm9t
-OiBSYWZhZWwgSi4gV3lzb2NraSA8cmp3QHNpc2sucGw+DQo+DQo+TWFrZSB0aGUgQmxhY2tmaW4g
-T24tQ2hpcCBUd28gV2lyZSBJbnRlcmZhY2UgZHJpdmVyIGRlZmluZSBpdHMgUE0NCj5jYWxsYmFj
-a3MgdGhyb3VnaCBhIHN0cnVjdCBkZXZfcG1fb3BzIG9iamVjdCByYXRoZXIgdGhhbiBieSB1c2lu
-Zw0KPmxlZ2FjeSBQTSBob29rcyBpbiBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyLg0KPg0KPlNpZ25l
-ZC1vZmYtYnk6IFJhZmFlbCBKLiBXeXNvY2tpIDxyandAc2lzay5wbD4NCj4tLS0NCj4gZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1iZmluLXR3aS5jIHwgICAxOCArKysrKysrKysrLS0tLS0tLS0NCj4g
-MSBmaWxlIGNoYW5nZWQsIDEwIGluc2VydGlvbnMoKyksIDggZGVsZXRpb25zKC0pDQo+DQo+SW5k
-ZXg6IGxpbnV4L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmZpbi10d2kuYw0KPj09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCj49PT09
-PT0NCj4tLS0gbGludXgub3JpZy9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJmaW4tdHdpLmMNCj4r
-KysgbGludXgvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1iZmluLXR3aS5jDQo+QEAgLTYxMSw5ICs2
-MTEsOSBAQCBzdGF0aWMgc3RydWN0IGkyY19hbGdvcml0aG0gYmZpbl90d2lfYWxnDQo+ICAgICAg
-IC5mdW5jdGlvbmFsaXR5ID0gYmZpbl90d2lfZnVuY3Rpb25hbGl0eSwNCj4gfTsNCj4NCj4tc3Rh
-dGljIGludCBpMmNfYmZpbl90d2lfc3VzcGVuZChzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2
-LCBwbV9tZXNzYWdlX3QNCj5zdGF0ZSkNCj4rc3RhdGljIGludCBpMmNfYmZpbl90d2lfc3VzcGVu
-ZChzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+IHsNCj4tICAgICAgc3RydWN0IGJmaW5fdHdpX2lmYWNl
-ICppZmFjZSA9IHBsYXRmb3JtX2dldF9kcnZkYXRhKHBkZXYpOw0KPisgICAgICBzdHJ1Y3QgYmZp
-bl90d2lfaWZhY2UgKmlmYWNlID0gZGV2X2dldF9kcnZkYXRhKGRldik7DQo+DQo+ICAgICAgIGlm
-YWNlLT5zYXZlZF9jbGtkaXYgPSByZWFkX0NMS0RJVihpZmFjZSk7DQo+ICAgICAgIGlmYWNlLT5z
-YXZlZF9jb250cm9sID0gcmVhZF9DT05UUk9MKGlmYWNlKTsNCj5AQCAtNjI2LDE0ICs2MjYsMTQg
-QEAgc3RhdGljIGludCBpMmNfYmZpbl90d2lfc3VzcGVuZChzdHJ1Y3QgcA0KPiAgICAgICByZXR1
-cm4gMDsNCj4gfQ0KPg0KPi1zdGF0aWMgaW50IGkyY19iZmluX3R3aV9yZXN1bWUoc3RydWN0IHBs
-YXRmb3JtX2RldmljZSAqcGRldikNCj4rc3RhdGljIGludCBpMmNfYmZpbl90d2lfcmVzdW1lKHN0
-cnVjdCBkZXZpY2UgKmRldikNCj4gew0KPi0gICAgICBzdHJ1Y3QgYmZpbl90d2lfaWZhY2UgKmlm
-YWNlID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+KyAgICAgIHN0cnVjdCBiZmluX3R3
-aV9pZmFjZSAqaWZhY2UgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsNCj4NCj4gICAgICAgaW50IHJj
-ID0gcmVxdWVzdF9pcnEoaWZhY2UtPmlycSwgYmZpbl90d2lfaW50ZXJydXB0X2VudHJ5LA0KPi0g
-ICAgICAgICAgICAgIDAsIHBkZXYtPm5hbWUsIGlmYWNlKTsNCj4rICAgICAgICAgICAgICAwLCB0
-b19wbGF0Zm9ybV9kZXZpY2UoZGV2KS0+bmFtZSwgaWZhY2UpOw0KPiAgICAgICBpZiAocmMpIHsN
-Cj4tICAgICAgICAgICAgICBkZXZfZXJyKCZwZGV2LT5kZXYsICJDYW4ndCBnZXQgSVJRICVkICFc
-biIsIGlmYWNlLT5pcnEpOw0KPisgICAgICAgICAgICAgIGRldl9lcnIoZGV2LCAiQ2FuJ3QgZ2V0
-IElSUSAlZCAhXG4iLCBpZmFjZS0+aXJxKTsNCj4gICAgICAgICAgICAgICByZXR1cm4gLUVOT0RF
-VjsNCj4gICAgICAgfQ0KPg0KPkBAIC02NDYsNiArNjQ2LDkgQEAgc3RhdGljIGludCBpMmNfYmZp
-bl90d2lfcmVzdW1lKHN0cnVjdCBwbA0KPiAgICAgICByZXR1cm4gMDsNCj4gfQ0KPg0KPitzdGF0
-aWMgU0lNUExFX0RFVl9QTV9PUFMoaTJjX2JmaW5fdHdpX3BtLA0KPisgICAgICAgICAgICAgICAg
-ICAgICAgIGkyY19iZmluX3R3aV9zdXNwZW5kLCBpMmNfYmZpbl90d2lfcmVzdW1lKTsNCj4rDQo+
-IHN0YXRpYyBpbnQgaTJjX2JmaW5fdHdpX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBk
-ZXYpDQo+IHsNCj4gICAgICAgc3RydWN0IGJmaW5fdHdpX2lmYWNlICppZmFjZTsNCj5AQCAtNzcw
-LDExICs3NzMsMTAgQEAgc3RhdGljIGludCBpMmNfYmZpbl90d2lfcmVtb3ZlKHN0cnVjdCBwbA0K
-PiBzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2RyaXZlciBpMmNfYmZpbl90d2lfZHJpdmVyID0gew0K
-PiAgICAgICAucHJvYmUgICAgICAgICAgPSBpMmNfYmZpbl90d2lfcHJvYmUsDQo+ICAgICAgIC5y
-ZW1vdmUgICAgICAgICA9IGkyY19iZmluX3R3aV9yZW1vdmUsDQo+LSAgICAgIC5zdXNwZW5kICAg
-ICAgICA9IGkyY19iZmluX3R3aV9zdXNwZW5kLA0KPi0gICAgICAucmVzdW1lICAgICAgICAgPSBp
-MmNfYmZpbl90d2lfcmVzdW1lLA0KPiAgICAgICAuZHJpdmVyICAgICAgICAgPSB7DQo+ICAgICAg
-ICAgICAgICAgLm5hbWUgICA9ICJpMmMtYmZpbi10d2kiLA0KPiAgICAgICAgICAgICAgIC5vd25l
-ciAgPSBUSElTX01PRFVMRSwNCj4rICAgICAgICAgICAgICAucG0gICAgID0gJmkyY19iZmluX3R3
-aV9wbSwNCj4gICAgICAgfSwNCj4gfTsNCj4NCj4NCg0K
+Hi Stefano,
+
+Stefano Salati wrote on 2012-07-11:
+> Thank you for publishing your patches! I'm using a at91sam9x5 board and I've
+> been trying to patch the TWI so to be able to use the physical I2C module.
+> When compiling, I get this error:
+> 
+> |   CC      drivers/i2c/busses/i2c-at91.o |
+> drivers/i2c/busses/i2c-at91.c: In function 'at91_twi_probe': |
+> drivers/i2c/busses/i2c-at91.c:350:2: error: implicit declaration of
+> function 'clk_prepare' | drivers/i2c/busses/i2c-at91.c:394:2: error:
+> implicit declaration of function 'clk_unprepare'
+> 
+> I tried to grep these these 2 functions in the whole /linux-2.6.39 but I had
+> no luck, I cannot find any declaration (even in files belonging to the board
+> you've designed the patch for).
+> Where I'm missing something?
+
+the driver is designed for kernel 3.2 or newer, nevertheless it should work
+on older kernels with slight modifications. You can simply delete the
+clk_prepare()/unprepare() stuff for your kernel version.
+
+Please report the SoC and I2C clients you tested the driver with, preferably
+with a Tested-by tag, so I can include it in newer versions of the driver
+to improve the chance of mainlining the driver.
+
+Niko
