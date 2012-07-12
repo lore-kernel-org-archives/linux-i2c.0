@@ -1,39 +1,36 @@
-From: Emmanuel Deloget <emmanuel.deloget-HH44TBFINEIAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-tiny-usb: Adds supports for the Robofuzz OSIF USB/i2c,
-  converter
-Date: Thu, 12 Jul 2012 15:55:42 +0200
-Message-ID: <4FFED75E.6020203@efixo.com>
-References: <4FFE87DB.3030204@efixo.com> <20120712144505.763542ba@endymion.delvare>
-Reply-To: emmanuel.deloget-HH44TBFINEIAvxtiuMwx3w@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH] i2c: mv64xxxx: remove EXPERIMENTAL tag
+Date: Thu, 12 Jul 2012 16:00:06 +0200
+Message-ID: <1342101607-21538-1-git-send-email-w.sang@pengutronix.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120712144505.763542ba-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org" <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, Florian Fainelli <ffainelli-MmRyKUhfbQ9GWvitb5QawA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,=20
+As git history indicates, the driver might be older than the kernel
+itself and is heavily used and worked on since. Not EXPERIMENTAL
+anymore.
 
-Le 12/07/2012 14:45, Jean Delvare a =E9crit :
-> Bonjour Emmanuel,
->=20
-> Somewhere along the way the patch format was altered, it doesn't appl=
-y.
-> Care to fix that and resubmit?
->=20
+Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>
+Cc: Florian Fainelli <ffainelli-MmRyKUhfbQ9GWvitb5QawA@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Weird - and thanks for the info. I don't know where these additional sp=
-ace
-characters come from. I guess it has something to do with my user agent
-setup.
-
-I'll give it a new try, after I change my mail client settings a bit. Y=
-ou
-should get it in a few minutes.=20
-
-best regards,=20
-
--- Emmanuel Deloget
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index e9f9c5d..52a825a 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -458,7 +458,7 @@ config I2C_MPC
+ 
+ config I2C_MV64XXX
+ 	tristate "Marvell mv64xxx I2C Controller"
+-	depends on (MV64X60 || PLAT_ORION) && EXPERIMENTAL
++	depends on (MV64X60 || PLAT_ORION)
+ 	help
+ 	  If you say yes to this option, support will be included for the
+ 	  built-in I2C interface on the Marvell 64xxx line of host bridges.
+-- 
+1.7.10.4
