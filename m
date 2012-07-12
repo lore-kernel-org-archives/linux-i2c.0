@@ -1,41 +1,50 @@
-From: Emmanuel Deloget <emmanuel.deloget-HH44TBFINEIAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c-tiny-usb: Adds supports for the Robofuzz OSIF USB/i2c,
- converter
-Date: Thu, 12 Jul 2012 10:16:27 +0200
-Message-ID: <4FFE87DB.3030204@efixo.com>
-Reply-To: emmanuel.deloget-HH44TBFINEIAvxtiuMwx3w@public.gmane.org
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 2/5] i2c: tegra: use clk_disable_unprepare in place of
+ clk_disable
+Date: Thu, 12 Jul 2012 11:52:01 +0200
+Message-ID: <20120712095201.GB27520@pengutronix.de>
+References: <1341919244-23327-1-git-send-email-ldewangan@nvidia.com>
+ <1341919244-23327-3-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1341919244-23327-3-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Robofuzz OSIF is a generic USB/i2c interface that embeds an ATMega8A
-AVR-RISC microcontroler.
 
-The device is based upon Till Harbaum's i2c-tiny-usb and although it
-enhances the original design with further functionnalities it still
-maintain compatibility with it with respect to the USB/i2c interface.
+--mxv5cy4qt+RJ9ypb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>
----
-  drivers/i2c/busses/i2c-tiny-usb.c |    1 +
-  1 file changed, 1 insertion(+)
+On Tue, Jul 10, 2012 at 04:50:41PM +0530, Laxman Dewangan wrote:
+> Use clk_disable_unprepare() inplace of clk_disable().
+> This was missed as part of moving clock enable/disable to
+> prepare/unprepare for using the common clock framework.
+>=20
+> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index f07307f..0510636 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -143,6 +143,7 @@ static const struct i2c_algorithm usb_algorithm = {
-  static const struct usb_device_id i2c_tiny_usb_table[] = {
-  	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
-  	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
-+	{ USB_DEVICE(0x1964, 0x0001) },   /* Robofuzz OSIF */
-  	{ }                               /* Terminating entry */
-  };
+OK, as per the previous discussion, I applied it to my next-branch.
 
--- 
-1.7.10
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--mxv5cy4qt+RJ9ypb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk/+nkEACgkQD27XaX1/VRu3LQCghs00wJP/qSFlXGHWciiHug9s
+wQkAoK2q036DbY41Y1Av0kJ48vWrP+wN
+=sVDQ
+-----END PGP SIGNATURE-----
+
+--mxv5cy4qt+RJ9ypb--
