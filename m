@@ -1,81 +1,30 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: OMAP: send i2c message ignoring NAK
-Date: Thu, 12 Jul 2012 10:54:59 +0530
-Message-ID: <CANQgH-YxYY7M6o4Hxw0kq9=GSwF8TSgiobXLJoPnGhj=c3w4KQ@mail.gmail.com>
-References: <CAGm1_ktL96X7kF3tvKErtirwnL7FGU=zGe+EyhX4GcUkZUeSkQ@mail.gmail.com>
-	<20120703103221.62fcb7ae@endymion.delvare>
-	<CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA@mail.gmail.com>
-	<CAM=Q2cv2yCEaxjSL45PSpf8k8pgMuhr88TJ-RWc0OW1GL+n6Dg@mail.gmail.com>
-	<CAGm1_kvLwj3iFz5M6zc+pitS_45OYPYw=aBU4bv8TdOhH600NA@mail.gmail.com>
-	<4FFDAF5A.8070205@ti.com>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 0/7] PM / I2C: Convert platform I2C drivers to PM handling
+ based on struct dev_pm_ops
+Date: Thu, 12 Jul 2012 11:30:32 +0530
+Message-ID: <4FFE6800.1030409@nvidia.com>
+References: <201207112121.11046.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FFDAF5A.8070205-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <201207112121.11046.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux PM list <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 11, 2012 at 10:22 PM, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
-> On Wednesday 11 July 2012 09:53 PM, Yegor Yefremov wrote:
-[...]
-Yegor I have made a patch to ignore the NACK in the ISR let me know if
-that helps you.
+On Thursday 12 July 2012 12:51 AM, Rafael J. Wysocki wrote:
+> [7/7] i2c-tegra: Use struct dev_pm_ops for power management
+>
 
+I did not get the 7/7 on my inbox and hence responding  here.
+Looked change from link
+https://lkml.org/lkml/2012/7/11/467
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 9895fa7..e13061f 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -476,6 +476,8 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+This is same as which I sent some days ago:
+https://lkml.org/lkml/2012/7/10/275
 
- 	if (msg->len == 0)
- 		return -EINVAL;
-+	if (msg->flags & I2C_M_IGNORE_NAK)
-+		dev->flags |= OMAP_I2C_FLAG_NO_NAK;
+I am fine with the change:
 
- 	omap_i2c_write_reg(dev, OMAP_I2C_SA_REG, msg->addr);
-
-@@ -776,18 +778,26 @@ complete:
- 				~(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
- 				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
-
--		if (stat & OMAP_I2C_STAT_NACK)
-+		if (stat & OMAP_I2C_STAT_NACK &&
-+				!(dev->flags & OMAP_I2C_FLAG_NO_NAK)) {
- 			err |= OMAP_I2C_STAT_NACK;
-+			omap_i2c_ack_stat(dev, stat &
-+				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
-+				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
-+				OMAP_I2C_STAT_ARDY));
-+			omap_i2c_complete_cmd(dev, err);
-+			return IRQ_HANDLED;
-+		}
-
- 		if (stat & OMAP_I2C_STAT_AL) {
- 			dev_err(dev->dev, "Arbitration lost\n");
- 			err |= OMAP_I2C_STAT_AL;
- 		}
-+
- 		/*
- 		 * ProDB0017052: Clear ARDY bit twice
- 		 */
--		if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_NACK |
--					OMAP_I2C_STAT_AL)) {
-+		if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_AL)) {
- 			omap_i2c_ack_stat(dev, stat &
- 				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
- 				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
-diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
-index 92a0dc7..f386150 100644
---- a/include/linux/i2c-omap.h
-+++ b/include/linux/i2c-omap.h
-@@ -29,6 +29,7 @@
- #define OMAP_I2C_FLAG_BUS_SHIFT_1		BIT(7)
- #define OMAP_I2C_FLAG_BUS_SHIFT_2		BIT(8)
- #define OMAP_I2C_FLAG_BUS_SHIFT__SHIFT 7
-+#define OMAP_I2C_FLAG_NO_NAK			BIT(9)
-
- struct omap_i2c_bus_platform_data {
- 	u32		clkrate;
+Acked-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
