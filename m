@@ -1,78 +1,72 @@
-From: guanxuetao@mprc.pku.edu.cn
-Subject: Re: [PATCH 5/7] i2c-puv3: Use struct dev_pm_ops for power
-     management
-Date: Thu, 12 Jul 2012 11:24:54 +0800 (CST)
-Message-ID: <50122.162.105.203.8.1342063494.squirrel@mprc.pku.edu.cn>
-References: <201207112121.11046.rjw@sisk.pl>
-    <201207112125.55418.rjw@sisk.pl>
+From: "Zhang, Sonic" <Sonic.Zhang@analog.com>
+Subject: RE: [PATCH 2/7] i2c-bfin-twi: Use struct dev_pm_ops for power
+ management
+Date: Wed, 11 Jul 2012 22:51:45 -0400
+Message-ID: <DB904C5425BA6F4E8424B3B51A1414D171409B8860@NWD2CMBX1.ad.analog.com>
+References: <201207112121.11046.rjw@sisk.pl> <201207112123.31502.rjw@sisk.pl>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=gb2312
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <201207112125.55418.rjw@sisk.pl>
+In-Reply-To: <201207112123.31502.rjw@sisk.pl>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux PM list <linux-pm@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, linux-i2c@vger.kernel.org, Sonic Zhang <sonic.zhang@analog.com>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Peter Korsgaard <jacmet@sunsite.dk>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Vitaly Wool <vitalywool@gmail.com>, Colin Cross <ccross@android.com>, Stephen Warren <swarren@wwwdotorg.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>
+Cc: Linux PM list <linux-pm@vger.kernel.org>, Linus Walleij <linus.walleij@stericsson.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Peter Korsgaard <jacmet@sunsite.dk>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Vitaly Wool <vitalywool@gmail.com>, Colin Cross <ccross@android.com>, Stephen Warren <swarren@wwwdotorg.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> From: Rafael J. Wysocki <rjw@sisk.pl>
->
-> Make the PKUnity-v3 SoC I2C controller driver define its suspend
-> callback through a struct dev_pm_ops object rather than by using
-> a legacy PM hook in struct platform_driver.  The empty resume
-> callback is not necessary, so remove it.
->
-> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-
-Thanks.
-
-Acked-by: Guan Xuetao <gxt@mprc.pku.edu.cn>
-
-> ---
->  drivers/i2c/busses/i2c-puv3.c |   15 ++++++---------
->  1 file changed, 6 insertions(+), 9 deletions(-)
->
-> Index: linux/drivers/i2c/busses/i2c-puv3.c
-> ===================================================================
-> --- linux.orig/drivers/i2c/busses/i2c-puv3.c
-> +++ linux/drivers/i2c/busses/i2c-puv3.c
-> @@ -254,7 +254,7 @@ static int __devexit puv3_i2c_remove(str
->  }
->
->  #ifdef CONFIG_PM
-> -static int puv3_i2c_suspend(struct platform_device *dev, pm_message_t
-> state)
-> +static int puv3_i2c_suspend(struct device *dev)
->  {
->  	int poll_count;
->  	/* Disable the IIC */
-> @@ -267,23 +267,20 @@ static int puv3_i2c_suspend(struct platf
->  	return 0;
->  }
->
-> -static int puv3_i2c_resume(struct platform_device *dev)
-> -{
-> -	return 0 ;
-> -}
-> +static SIMPLE_DEV_PM_OPS(puv3_i2c_pm, puv3_i2c_suspend, NULL);
-> +#define PUV3_I2C_PM	(&puv3_i2c_pm)
-> +
->  #else
-> -#define puv3_i2c_suspend NULL
-> -#define puv3_i2c_resume NULL
-> +#define PUV3_I2C_PM	NULL
->  #endif
->
->  static struct platform_driver puv3_i2c_driver = {
->  	.probe		= puv3_i2c_probe,
->  	.remove		= __devexit_p(puv3_i2c_remove),
-> -	.suspend	= puv3_i2c_suspend,
-> -	.resume		= puv3_i2c_resume,
->  	.driver		= {
->  		.name	= "PKUnity-v3-I2C",
->  		.owner	= THIS_MODULE,
-> +		.pm	= PUV3_I2C_PM,
->  	}
->  };
->
->
+QWNrZWQtYnk6IFNvbmljIFpoYW5nIDxzb25pYy56aGFuZ0BhbmFsb2cuY29tPg0KDQo+LS0tLS1P
+cmlnaW5hbCBNZXNzYWdlLS0tLS0NCj5Gcm9tOiBSYWZhZWwgSi4gV3lzb2NraSBbbWFpbHRvOnJq
+d0BzaXNrLnBsXQ0KPlNlbnQ6IFRodXJzZGF5LCBKdWx5IDEyLCAyMDEyIDM6MjQgQU0NCj5Ubzog
+TEtNTA0KPkNjOiBMaW51eCBQTSBsaXN0OyBMaW51cyBXYWxsZWlqOyBsaW51eC1pMmNAdmdlci5r
+ZXJuZWwub3JnOyBaaGFuZywgU29uaWM7IEplYW4NCj5EZWx2YXJlOyBCZW4gRG9va3M7IFdvbGZy
+YW0gU2FuZzsgUGV0ZXIgS29yc2dhYXJkOyBHdWFuIFh1ZXRhbzsgVml0YWx5IFdvb2w7DQo+Q29s
+aW4gQ3Jvc3M7IFN0ZXBoZW4gV2FycmVuDQo+U3ViamVjdDogW1BBVENIIDIvN10gaTJjLWJmaW4t
+dHdpOiBVc2Ugc3RydWN0IGRldl9wbV9vcHMgZm9yIHBvd2VyIG1hbmFnZW1lbnQNCj4NCj5Gcm9t
+OiBSYWZhZWwgSi4gV3lzb2NraSA8cmp3QHNpc2sucGw+DQo+DQo+TWFrZSB0aGUgQmxhY2tmaW4g
+T24tQ2hpcCBUd28gV2lyZSBJbnRlcmZhY2UgZHJpdmVyIGRlZmluZSBpdHMgUE0NCj5jYWxsYmFj
+a3MgdGhyb3VnaCBhIHN0cnVjdCBkZXZfcG1fb3BzIG9iamVjdCByYXRoZXIgdGhhbiBieSB1c2lu
+Zw0KPmxlZ2FjeSBQTSBob29rcyBpbiBzdHJ1Y3QgcGxhdGZvcm1fZHJpdmVyLg0KPg0KPlNpZ25l
+ZC1vZmYtYnk6IFJhZmFlbCBKLiBXeXNvY2tpIDxyandAc2lzay5wbD4NCj4tLS0NCj4gZHJpdmVy
+cy9pMmMvYnVzc2VzL2kyYy1iZmluLXR3aS5jIHwgICAxOCArKysrKysrKysrLS0tLS0tLS0NCj4g
+MSBmaWxlIGNoYW5nZWQsIDEwIGluc2VydGlvbnMoKyksIDggZGVsZXRpb25zKC0pDQo+DQo+SW5k
+ZXg6IGxpbnV4L2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtYmZpbi10d2kuYw0KPj09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0NCj49PT09
+PT0NCj4tLS0gbGludXgub3JpZy9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWJmaW4tdHdpLmMNCj4r
+KysgbGludXgvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1iZmluLXR3aS5jDQo+QEAgLTYxMSw5ICs2
+MTEsOSBAQCBzdGF0aWMgc3RydWN0IGkyY19hbGdvcml0aG0gYmZpbl90d2lfYWxnDQo+ICAgICAg
+IC5mdW5jdGlvbmFsaXR5ID0gYmZpbl90d2lfZnVuY3Rpb25hbGl0eSwNCj4gfTsNCj4NCj4tc3Rh
+dGljIGludCBpMmNfYmZpbl90d2lfc3VzcGVuZChzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2
+LCBwbV9tZXNzYWdlX3QNCj5zdGF0ZSkNCj4rc3RhdGljIGludCBpMmNfYmZpbl90d2lfc3VzcGVu
+ZChzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+IHsNCj4tICAgICAgc3RydWN0IGJmaW5fdHdpX2lmYWNl
+ICppZmFjZSA9IHBsYXRmb3JtX2dldF9kcnZkYXRhKHBkZXYpOw0KPisgICAgICBzdHJ1Y3QgYmZp
+bl90d2lfaWZhY2UgKmlmYWNlID0gZGV2X2dldF9kcnZkYXRhKGRldik7DQo+DQo+ICAgICAgIGlm
+YWNlLT5zYXZlZF9jbGtkaXYgPSByZWFkX0NMS0RJVihpZmFjZSk7DQo+ICAgICAgIGlmYWNlLT5z
+YXZlZF9jb250cm9sID0gcmVhZF9DT05UUk9MKGlmYWNlKTsNCj5AQCAtNjI2LDE0ICs2MjYsMTQg
+QEAgc3RhdGljIGludCBpMmNfYmZpbl90d2lfc3VzcGVuZChzdHJ1Y3QgcA0KPiAgICAgICByZXR1
+cm4gMDsNCj4gfQ0KPg0KPi1zdGF0aWMgaW50IGkyY19iZmluX3R3aV9yZXN1bWUoc3RydWN0IHBs
+YXRmb3JtX2RldmljZSAqcGRldikNCj4rc3RhdGljIGludCBpMmNfYmZpbl90d2lfcmVzdW1lKHN0
+cnVjdCBkZXZpY2UgKmRldikNCj4gew0KPi0gICAgICBzdHJ1Y3QgYmZpbl90d2lfaWZhY2UgKmlm
+YWNlID0gcGxhdGZvcm1fZ2V0X2RydmRhdGEocGRldik7DQo+KyAgICAgIHN0cnVjdCBiZmluX3R3
+aV9pZmFjZSAqaWZhY2UgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsNCj4NCj4gICAgICAgaW50IHJj
+ID0gcmVxdWVzdF9pcnEoaWZhY2UtPmlycSwgYmZpbl90d2lfaW50ZXJydXB0X2VudHJ5LA0KPi0g
+ICAgICAgICAgICAgIDAsIHBkZXYtPm5hbWUsIGlmYWNlKTsNCj4rICAgICAgICAgICAgICAwLCB0
+b19wbGF0Zm9ybV9kZXZpY2UoZGV2KS0+bmFtZSwgaWZhY2UpOw0KPiAgICAgICBpZiAocmMpIHsN
+Cj4tICAgICAgICAgICAgICBkZXZfZXJyKCZwZGV2LT5kZXYsICJDYW4ndCBnZXQgSVJRICVkICFc
+biIsIGlmYWNlLT5pcnEpOw0KPisgICAgICAgICAgICAgIGRldl9lcnIoZGV2LCAiQ2FuJ3QgZ2V0
+IElSUSAlZCAhXG4iLCBpZmFjZS0+aXJxKTsNCj4gICAgICAgICAgICAgICByZXR1cm4gLUVOT0RF
+VjsNCj4gICAgICAgfQ0KPg0KPkBAIC02NDYsNiArNjQ2LDkgQEAgc3RhdGljIGludCBpMmNfYmZp
+bl90d2lfcmVzdW1lKHN0cnVjdCBwbA0KPiAgICAgICByZXR1cm4gMDsNCj4gfQ0KPg0KPitzdGF0
+aWMgU0lNUExFX0RFVl9QTV9PUFMoaTJjX2JmaW5fdHdpX3BtLA0KPisgICAgICAgICAgICAgICAg
+ICAgICAgIGkyY19iZmluX3R3aV9zdXNwZW5kLCBpMmNfYmZpbl90d2lfcmVzdW1lKTsNCj4rDQo+
+IHN0YXRpYyBpbnQgaTJjX2JmaW5fdHdpX3Byb2JlKHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgKnBk
+ZXYpDQo+IHsNCj4gICAgICAgc3RydWN0IGJmaW5fdHdpX2lmYWNlICppZmFjZTsNCj5AQCAtNzcw
+LDExICs3NzMsMTAgQEAgc3RhdGljIGludCBpMmNfYmZpbl90d2lfcmVtb3ZlKHN0cnVjdCBwbA0K
+PiBzdGF0aWMgc3RydWN0IHBsYXRmb3JtX2RyaXZlciBpMmNfYmZpbl90d2lfZHJpdmVyID0gew0K
+PiAgICAgICAucHJvYmUgICAgICAgICAgPSBpMmNfYmZpbl90d2lfcHJvYmUsDQo+ICAgICAgIC5y
+ZW1vdmUgICAgICAgICA9IGkyY19iZmluX3R3aV9yZW1vdmUsDQo+LSAgICAgIC5zdXNwZW5kICAg
+ICAgICA9IGkyY19iZmluX3R3aV9zdXNwZW5kLA0KPi0gICAgICAucmVzdW1lICAgICAgICAgPSBp
+MmNfYmZpbl90d2lfcmVzdW1lLA0KPiAgICAgICAuZHJpdmVyICAgICAgICAgPSB7DQo+ICAgICAg
+ICAgICAgICAgLm5hbWUgICA9ICJpMmMtYmZpbi10d2kiLA0KPiAgICAgICAgICAgICAgIC5vd25l
+ciAgPSBUSElTX01PRFVMRSwNCj4rICAgICAgICAgICAgICAucG0gICAgID0gJmkyY19iZmluX3R3
+aV9wbSwNCj4gICAgICAgfSwNCj4gfTsNCj4NCj4NCg0K
