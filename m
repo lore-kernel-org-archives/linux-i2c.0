@@ -1,30 +1,41 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 0/7] PM / I2C: Convert platform I2C drivers to PM handling
- based on struct dev_pm_ops
-Date: Thu, 12 Jul 2012 11:30:32 +0530
-Message-ID: <4FFE6800.1030409@nvidia.com>
-References: <201207112121.11046.rjw@sisk.pl>
+From: Emmanuel Deloget <emmanuel.deloget-HH44TBFINEIAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-tiny-usb: Adds supports for the Robofuzz OSIF USB/i2c,
+ converter
+Date: Thu, 12 Jul 2012 10:16:27 +0200
+Message-ID: <4FFE87DB.3030204@efixo.com>
+Reply-To: emmanuel.deloget-HH44TBFINEIAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201207112121.11046.rjw-KKrjLPT3xs0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux PM list <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 12 July 2012 12:51 AM, Rafael J. Wysocki wrote:
-> [7/7] i2c-tegra: Use struct dev_pm_ops for power management
->
+Robofuzz OSIF is a generic USB/i2c interface that embeds an ATMega8A
+AVR-RISC microcontroler.
 
-I did not get the 7/7 on my inbox and hence responding  here.
-Looked change from link
-https://lkml.org/lkml/2012/7/11/467
+The device is based upon Till Harbaum's i2c-tiny-usb and although it
+enhances the original design with further functionnalities it still
+maintain compatibility with it with respect to the USB/i2c interface.
 
-This is same as which I sent some days ago:
-https://lkml.org/lkml/2012/7/10/275
+Signed-off-by: Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>
+---
+  drivers/i2c/busses/i2c-tiny-usb.c |    1 +
+  1 file changed, 1 insertion(+)
 
-I am fine with the change:
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index f07307f..0510636 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -143,6 +143,7 @@ static const struct i2c_algorithm usb_algorithm = {
+  static const struct usb_device_id i2c_tiny_usb_table[] = {
+  	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
+  	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
++	{ USB_DEVICE(0x1964, 0x0001) },   /* Robofuzz OSIF */
+  	{ }                               /* Terminating entry */
+  };
 
-Acked-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+-- 
+1.7.10
