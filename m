@@ -1,51 +1,81 @@
-From: "Voss, Nikolaus" <N.Voss@weinmann.de>
-Subject: RE: Build error with [PATCH v10 3/4] drivers/i2c/busses/i2c-at91.c
-Date: Thu, 12 Jul 2012 06:52:18 +0200
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090EA1AA99@wm021.weinmann.com>
-References: <CAFLc3brYJGkQoW5mGi9XaujNBMBdGX6RxfkNRbBZJQz_axz_Jg@mail.gmail.com>
+From: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: Re: OMAP: send i2c message ignoring NAK
+Date: Thu, 12 Jul 2012 10:54:59 +0530
+Message-ID: <CANQgH-YxYY7M6o4Hxw0kq9=GSwF8TSgiobXLJoPnGhj=c3w4KQ@mail.gmail.com>
+References: <CAGm1_ktL96X7kF3tvKErtirwnL7FGU=zGe+EyhX4GcUkZUeSkQ@mail.gmail.com>
+	<20120703103221.62fcb7ae@endymion.delvare>
+	<CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA@mail.gmail.com>
+	<CAM=Q2cv2yCEaxjSL45PSpf8k8pgMuhr88TJ-RWc0OW1GL+n6Dg@mail.gmail.com>
+	<CAGm1_kvLwj3iFz5M6zc+pitS_45OYPYw=aBU4bv8TdOhH600NA@mail.gmail.com>
+	<4FFDAF5A.8070205@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAFLc3brYJGkQoW5mGi9XaujNBMBdGX6RxfkNRbBZJQz_axz_Jg@mail.gmail.com>
-Content-Language: de-DE
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: 'Stefano Salati' <stef.salati@gmail.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <4FFDAF5A.8070205-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Stefano,
+On Wed, Jul 11, 2012 at 10:22 PM, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
+> On Wednesday 11 July 2012 09:53 PM, Yegor Yefremov wrote:
+[...]
+Yegor I have made a patch to ignore the NACK in the ISR let me know if
+that helps you.
 
-Stefano Salati wrote on 2012-07-11:
-> Thank you for publishing your patches! I'm using a at91sam9x5 board and I've
-> been trying to patch the TWI so to be able to use the physical I2C module.
-> When compiling, I get this error:
-> 
-> |   CC      drivers/i2c/busses/i2c-at91.o |
-> drivers/i2c/busses/i2c-at91.c: In function 'at91_twi_probe': |
-> drivers/i2c/busses/i2c-at91.c:350:2: error: implicit declaration of
-> function 'clk_prepare' | drivers/i2c/busses/i2c-at91.c:394:2: error:
-> implicit declaration of function 'clk_unprepare'
-> 
-> I tried to grep these these 2 functions in the whole /linux-2.6.39 but I had
-> no luck, I cannot find any declaration (even in files belonging to the board
-> you've designed the patch for).
-> Where I'm missing something?
 
-the driver is designed for kernel 3.2 or newer, nevertheless it should work
-on older kernels with slight modifications. You can simply delete the
-clk_prepare()/unprepare() stuff for your kernel version.
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 9895fa7..e13061f 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -476,6 +476,8 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
 
-Please report the SoC and I2C clients you tested the driver with, preferably
-with a Tested-by tag, so I can include it in newer versions of the driver
-to improve the chance of mainlining the driver.
+ 	if (msg->len == 0)
+ 		return -EINVAL;
++	if (msg->flags & I2C_M_IGNORE_NAK)
++		dev->flags |= OMAP_I2C_FLAG_NO_NAK;
 
-Niko
+ 	omap_i2c_write_reg(dev, OMAP_I2C_SA_REG, msg->addr);
+
+@@ -776,18 +778,26 @@ complete:
+ 				~(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
+ 				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
+
+-		if (stat & OMAP_I2C_STAT_NACK)
++		if (stat & OMAP_I2C_STAT_NACK &&
++				!(dev->flags & OMAP_I2C_FLAG_NO_NAK)) {
+ 			err |= OMAP_I2C_STAT_NACK;
++			omap_i2c_ack_stat(dev, stat &
++				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
++				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
++				OMAP_I2C_STAT_ARDY));
++			omap_i2c_complete_cmd(dev, err);
++			return IRQ_HANDLED;
++		}
+
+ 		if (stat & OMAP_I2C_STAT_AL) {
+ 			dev_err(dev->dev, "Arbitration lost\n");
+ 			err |= OMAP_I2C_STAT_AL;
+ 		}
++
+ 		/*
+ 		 * ProDB0017052: Clear ARDY bit twice
+ 		 */
+-		if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_NACK |
+-					OMAP_I2C_STAT_AL)) {
++		if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_AL)) {
+ 			omap_i2c_ack_stat(dev, stat &
+ 				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
+ 				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
+diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
+index 92a0dc7..f386150 100644
+--- a/include/linux/i2c-omap.h
++++ b/include/linux/i2c-omap.h
+@@ -29,6 +29,7 @@
+ #define OMAP_I2C_FLAG_BUS_SHIFT_1		BIT(7)
+ #define OMAP_I2C_FLAG_BUS_SHIFT_2		BIT(8)
+ #define OMAP_I2C_FLAG_BUS_SHIFT__SHIFT 7
++#define OMAP_I2C_FLAG_NO_NAK			BIT(9)
+
+ struct omap_i2c_bus_platform_data {
+ 	u32		clkrate;
