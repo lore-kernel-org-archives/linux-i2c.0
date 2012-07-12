@@ -1,49 +1,75 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c-tiny-usb: Adds supports for the Robofuzz OSIF
- USB/i2c,  converter
-Date: Thu, 12 Jul 2012 14:45:05 +0200
-Message-ID: <20120712144505.763542ba@endymion.delvare>
-References: <4FFE87DB.3030204@efixo.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCHv11 0/6] I2C cleanups
+Date: Thu, 12 Jul 2012 14:52:29 +0200
+Message-ID: <20120712125229.GG2194@pengutronix.de>
+References: <1340896292-12112-1-git-send-email-shubhrajyoti@ti.com>
+ <CAM=Q2ct0PUisYGcaX6EAPWT-SmZAgRV_O8mAOodH-V4Q0O-Vww@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4FFE87DB.3030204-HH44TBFINEIAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: emmanuel.deloget-HH44TBFINEIAvxtiuMwx3w@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Sw7tCqrGA+HQ0/zt"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAM=Q2ct0PUisYGcaX6EAPWT-SmZAgRV_O8mAOodH-V4Q0O-Vww@mail.gmail.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com
 List-Id: linux-i2c@vger.kernel.org
 
-Bonjour Emmanuel,
 
-On Thu, 12 Jul 2012 10:16:27 +0200, Emmanuel Deloget wrote:
-> Robofuzz OSIF is a generic USB/i2c interface that embeds an ATMega8A
-> AVR-RISC microcontroler.
-> 
-> The device is based upon Till Harbaum's i2c-tiny-usb and although it
-> enhances the original design with further functionnalities it still
-> maintain compatibility with it with respect to the USB/i2c interface.
-> 
-> Signed-off-by: Emmanuel Deloget <logout-GANU6spQydw@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-tiny-usb.c |    1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-> index f07307f..0510636 100644
-> --- a/drivers/i2c/busses/i2c-tiny-usb.c
-> +++ b/drivers/i2c/busses/i2c-tiny-usb.c
-> @@ -143,6 +143,7 @@ static const struct i2c_algorithm usb_algorithm = {
->   static const struct usb_device_id i2c_tiny_usb_table[] = {
->   	{ USB_DEVICE(0x0403, 0xc631) },   /* FTDI */
->   	{ USB_DEVICE(0x1c40, 0x0534) },   /* EZPrototypes */
-> +	{ USB_DEVICE(0x1964, 0x0001) },   /* Robofuzz OSIF */
->   	{ }                               /* Terminating entry */
->   };
-> 
+--Sw7tCqrGA+HQ0/zt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Somwhere along the way the patch format was altered, it doesn't apply.
-Care to fix that and resubmit?
+On Mon, Jul 09, 2012 at 05:17:07PM +0530, Shubhrajyoti Datta wrote:
+> On Thu, Jun 28, 2012 at 8:41 PM, Shubhrajyoti D <shubhrajyoti@ti.com> wro=
+te:
+> > This is a minimal cleanup series.
+>=20
+> If there are no further comments can this series be queued?
 
--- 
-Jean Delvare
+I just applied a few of them. BTW I get a build warning when compiling the
+kernel, maybe someone is interested. It is not related to the patches, thou=
+gh.
+
+=3D=3D=3D
+
+WARNING: arch/arm/mach-omap2/built-in.o(.data+0x2b5c0): Section mismatch in=
+ reference from the variable rx51_si4713_dev to the (unknown reference) .in=
+it.data:(unknown)
+The variable rx51_si4713_dev references
+the (unknown reference) __initdata (unknown)
+If the reference is valid then annotate the
+variable with __init* or __refdata (see linux/init.h) or name the variable:
+*_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+
+=3D=3D=3D
+
+I think this is what I'll pull in for the next merge window. The big OMAP
+cleanup (latest version from 3. July) would then go in early into -next for
+3.7. Is that OK with the omap-people?
+
+Also, thanks to Shubhrajyoti Datta for reviewing other patches on the
+i2c-list, much appreciated.
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--Sw7tCqrGA+HQ0/zt
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAk/+yI0ACgkQD27XaX1/VRtyJQCfVIMDkXaeybjBRKj+WTIDP/Ie
+XYMAnj2BAPID8vxQiHkKPqgQp41jGiVr
+=0gin
+-----END PGP SIGNATURE-----
+
+--Sw7tCqrGA+HQ0/zt--
