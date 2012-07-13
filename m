@@ -1,7 +1,7 @@
 From: "Jayachandran C" <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Subject: [PATCH v3 3/4] V4L/DVB: mfd: use reg_shift instead of regstep
-Date: Fri, 13 Jul 2012 19:14:24 +0530
-Message-ID: <1342187065-1651-4-git-send-email-jayachandranc@netlogicmicro.com>
+Subject: [PATCH v3 1/4] i2c: i2c-ocores - DT bindings and minor fixes.
+Date: Fri, 13 Jul 2012 19:14:22 +0530
+Message-ID: <1342187065-1651-2-git-send-email-jayachandranc@netlogicmicro.com>
 References: <1342187065-1651-1-git-send-email-jayachandranc@netlogicmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -13,27 +13,134 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9
 Cc: devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Update for change in i2c-ocores.h which uses reg_shift to
-specify the register offset shifts instead of regstep.
+Cleanups to i2c-cores, no change in logic, changes are:
+* Move i2c-ocores device tree documentation from source file to
+  Documentation/devicetree/bindings/i2c/i2c-ocores.txt.
+* Add \n to dev_warn and dev_err messages where missing
+* Minor updates to the text and formatting fixes.
 
 Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Acked-by: Richard Rojfors <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
 ---
- drivers/mfd/timberdale.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |   27 ++++++++++++
+ drivers/i2c/busses/i2c-ocores.c                    |   45 +++-----------------
+ 2 files changed, 34 insertions(+), 38 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-ocores.txt
 
-diff --git a/drivers/mfd/timberdale.c b/drivers/mfd/timberdale.c
-index 0ba26fb..a447f4e 100644
---- a/drivers/mfd/timberdale.c
-+++ b/drivers/mfd/timberdale.c
-@@ -83,7 +83,7 @@ timberdale_xiic_platform_data = {
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+new file mode 100644
+index 0000000..bfec894
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+@@ -0,0 +1,27 @@
++Device tree configuration for i2c-ocores
++
++Required properties:
++- compatible      : "opencores,i2c-ocores"
++- reg             : bus address start and address range size of device
++- interrupts      : interrupt number
++- regstep         : size of device registers in bytes
++- clock-frequency : frequency of bus clock in Hz
++- #address-cells  : should be <1>
++- #size-cells     : should be <0>
++
++Example:
++
++	i2c0: ocores@a0000000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "opencores,i2c-ocores";
++		reg = <0xa0000000 0x8>;
++		interrupts = <10>;
++		regstep = <1>;
++		clock-frequency = <20000000>;
++
++		dummy@60 {
++			compatible = "dummy";
++			reg = <0x60>;
++		};
++	};
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 75194c5..e8159db 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -10,40 +10,9 @@
+  */
  
- static __devinitdata struct ocores_i2c_platform_data
- timberdale_ocores_platform_data = {
--	.regstep = 4,
-+	.reg_shift = 2,
- 	.clock_khz = 62500,
- 	.devices = timberdale_i2c_board_info,
- 	.num_devices = ARRAY_SIZE(timberdale_i2c_board_info)
+ /*
+- * Device tree configuration:
+- *
+- * Required properties:
+- * - compatible      : "opencores,i2c-ocores"
+- * - reg             : bus address start and address range size of device
+- * - interrupts      : interrupt number
+- * - regstep         : size of device registers in bytes
+- * - clock-frequency : frequency of bus clock in Hz
+- * 
+- * Example:
+- *
+- *  i2c0: ocores@a0000000 {
+- *              compatible = "opencores,i2c-ocores";
+- *              reg = <0xa0000000 0x8>;
+- *              interrupts = <10>;
+- *
+- *              regstep = <1>;
+- *              clock-frequency = <20000000>;
+- *
+- * -- Devices connected on this I2C bus get
+- * -- defined here; address- and size-cells
+- * -- apply to these child devices
+- *
+- *              #address-cells = <1>;
+- *              #size-cells = <0>;
+- *
+- *              dummy@60 {
+- *                     compatible = "dummy";
+- *                     reg = <60>;
+- *              };
+- *  };
+- *
++ * This driver can be used from the device tree, see
++ *     Documentation/devicetree/bindings/i2c/ocore-i2c.txt
+  */
+-
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/init.h>
+@@ -247,14 +216,14 @@ static struct i2c_adapter ocores_adapter = {
+ };
+ 
+ #ifdef CONFIG_OF
+-static int ocores_i2c_of_probe(struct platform_device* pdev,
+-				struct ocores_i2c* i2c)
++static int ocores_i2c_of_probe(struct platform_device *pdev,
++				struct ocores_i2c *i2c)
+ {
+ 	const __be32* val;
+ 
+ 	val = of_get_property(pdev->dev.of_node, "regstep", NULL);
+ 	if (!val) {
+-		dev_err(&pdev->dev, "Missing required parameter 'regstep'");
++		dev_err(&pdev->dev, "Missing required parameter 'regstep'\n");
+ 		return -ENODEV;
+ 	}
+ 	i2c->regstep = be32_to_cpup(val);
+@@ -262,7 +231,7 @@ static int ocores_i2c_of_probe(struct platform_device* pdev,
+ 	val = of_get_property(pdev->dev.of_node, "clock-frequency", NULL);
+ 	if (!val) {
+ 		dev_err(&pdev->dev,
+-			"Missing required parameter 'clock-frequency'");
++			"Missing required parameter 'clock-frequency'\n");
+ 		return -ENODEV;
+ 	}
+ 	i2c->clock_khz = be32_to_cpup(val) / 1000;
+@@ -351,7 +320,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int __devexit ocores_i2c_remove(struct platform_device* pdev)
++static int __devexit ocores_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
+ 
 -- 
 1.7.9.5
