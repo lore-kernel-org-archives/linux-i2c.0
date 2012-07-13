@@ -1,340 +1,98 @@
-From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v5 5/7] ARM: davinci: i2c: add OF support
-Date: Fri, 13 Jul 2012 19:27:32 +0530
-Message-ID: <5000294C.5070606@ti.com>
-References: <1338373143-7467-1-git-send-email-hs@denx.de>
- <1338373143-7467-6-git-send-email-hs@denx.de>
+From: "Jayachandran C." <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Subject: Re: [PATCH v3 4/4] i2c: i2c-ocores: support for 16bit and 32bit
+ IO
+Date: Fri, 13 Jul 2012 19:28:48 +0530
+Message-ID: <20120713135848.GC18519@jayachandranc.netlogicmicro.com>
+References: <1342187065-1651-1-git-send-email-jayachandranc@netlogicmicro.com>
+ <1342187065-1651-5-git-send-email-jayachandranc@netlogicmicro.com>
+ <CAM=Q2csMBP7YHgmMob0Npaxo70Quo3-76TNhQawE972zfiLiHA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain;
+ charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <1338373143-7467-6-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAM=Q2csMBP7YHgmMob0Npaxo70Quo3-76TNhQawE972zfiLiHA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Heiko,
-
-On 5/30/2012 3:49 PM, Heiko Schocher wrote:
-> add of support for the davinci i2c driver.
+On Fri, Jul 13, 2012 at 07:18:35PM +0530, Shubhrajyoti Datta wrote:
+> Hello,
 > 
-> Signed-off-by: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-> Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-> Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> On Fri, Jul 13, 2012 at 7:14 PM, Jayachandran C
+> <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org> wrote:
+> > From: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> >
+> > Some architectures supports only 16-bit or 32-bit read/write access to
+> > their IO space. Add a 'reg-io-width' platform and OF parameter which
+> > specifies the IO width to support these platforms.
+> >
+> > reg-io-width can be specified as 1, 2 or 4, and has a default value
+> > of 1 if it is unspecified.
+> >
+> > Signed-off-by: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+> > Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+> > ---
+> >  .../devicetree/bindings/i2c/i2c-ocores.txt         |    2 ++
+> >  drivers/i2c/busses/i2c-ocores.c                    |   21 ++++++++++++++++++--
+> >  include/linux/i2c-ocores.h                         |    1 +
+> >  3 files changed, 22 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > index 1c9334b..c15781f 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+> > @@ -10,6 +10,7 @@ Required properties:
+> >
+> >  Optional properties:
+> >  - reg-shift       : device register offsets are shifted by this value
+> > +- reg-io-width    : io register width in bytes (1, 2 or 4)
+> >  - regstep         : deprecated, use reg-shift above
+> >
+> >  Example:
+> > @@ -23,6 +24,7 @@ Example:
+> >                 clock-frequency = <20000000>;
+> >
+> >                 reg-shift = <0>;        /* 8 bit registers */
+> > +               reg-io-width = <1>;     /* 8 bit read/write */
+> >
+> >                 dummy@60 {
+> >                         compatible = "dummy";
+> > diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+> > index 721ead9..de3b119 100644
+> > --- a/drivers/i2c/busses/i2c-ocores.c
+> > +++ b/drivers/i2c/busses/i2c-ocores.c
+> > @@ -30,6 +30,7 @@
+> >  struct ocores_i2c {
+> >         void __iomem *base;
+> >         u32 reg_shift;
+> > +       u32 reg_io_width;
+> >         wait_queue_head_t wait;
+> >         struct i2c_adapter adap;
+> >         struct i2c_msg *msg;
+> > @@ -72,12 +73,22 @@ struct ocores_i2c {
+> >
+> >  static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
+> >  {
+> > -       iowrite8(value, i2c->base + (reg << i2c->reg_shift));
+> > +       if (i2c->reg_io_width == 4)
+> > +               iowrite32(value, i2c->base + (reg << i2c->reg_shift));
+> > +       else if (i2c->reg_io_width == 2)
+> > +               iowrite16(value, i2c->base + (reg << i2c->reg_shift));
+> > +       else
+> > +               iowrite8(value, i2c->base + (reg << i2c->reg_shift));
+> >  }
+> >
+> >  static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
 > 
-> ---
-> - changes for v2:
-> - add comments from Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
->   - use "cell-index" instead "id"
->   - OF_DEV_AUXDATA in the machine code, instead pre-define platform
->     device name
-> - add comment from Grant Likely:
->   - removed "id" resp. "cell-index" completely
->   - fixed documentation
->   - use of_match_ptr()
->   - use devm_kzalloc() for allocating plattform data mem
->   - fixed a whitespace issue
-> - no changes for v3
-> - changes for v4
->   remove "pinmux-handle" property as discussed here:
->   http://www.spinics.net/lists/arm-kernel/msg175701.html
->   with Nori Sekhar
+> Should the return type be changed.
+> Now that it is returning more that than 8 bits.
 > 
-> - changes for v5
->   add comments from Grant Likely:
->   - do not change value of dev->dev->platform_data, instead
->     hold a copy in davinci_i2c_dev.
-> 
->  .../devicetree/bindings/arm/davinci/i2c.txt        |   31 ++++++++++++
->  drivers/i2c/busses/i2c-davinci.c                   |   49 ++++++++++++++++++--
->  2 files changed, 76 insertions(+), 4 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> 
-> diff --git a/Documentation/devicetree/bindings/arm/davinci/i2c.txt b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> new file mode 100644
-> index 0000000..e98a025
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
-> @@ -0,0 +1,31 @@
-> +* Texas Instruments Davinci I2C
-> +
-> +This file provides information, what the device node for the
-> +davinci i2c interface contain.
-> +
-> +Required properties:
-> +- compatible: "ti,davinci-i2c";
-> +- reg : Offset and length of the register set for the device
-> +
-> +Recommended properties :
-> +- interrupts : <a> standard interrupt property.
-> +- clock-frequency : desired I2C bus clock frequency in Hz.
-> +
-> +Optional properties:
-> +- bus-delay: bus delay in usec
-> +
-> +Example (enbw_cmc board):
-> +	i2c@1c22000 {
-> +		compatible = "ti,davinci-i2c";
-> +		reg = <0x22000 0x1000>;
-> +		clock-frequency = <100000>;
-> +		interrupts = <15>;
-> +		interrupt-parent = <&intc>;
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +
-> +		dtt@48 {
-> +				compatible = "national,lm75";
-> +				reg = <0x48>;
-> +			};
-> +	};
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index a76d85f..4e7a966 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -38,9 +38,12 @@
->  #include <linux/slab.h>
->  #include <linux/cpufreq.h>
->  #include <linux/gpio.h>
-> +#include <linux/of_i2c.h>
-> +#include <linux/of_device.h>
->  
->  #include <mach/hardware.h>
->  #include <mach/i2c.h>
-> +#include <mach/mux.h>
+> Did I miss something?
 
-Seems like a stray change. I was able to build and use just fine
-without this include.
+Only 8 bits of the register is significant, so even if we read 16 or 32
+bits only the lowest 8 bits are returned.
 
->  
->  /* ----- global defines ----------------------------------------------- */
->  
-> @@ -114,6 +117,7 @@ struct davinci_i2c_dev {
->  	struct completion	xfr_complete;
->  	struct notifier_block	freq_transition;
->  #endif
-> +	struct davinci_i2c_platform_data *pdata;
->  };
->  
->  /* default platform data to use if not supplied in the platform_device */
-> @@ -149,13 +153,22 @@ static void generic_i2c_clock_pulse(unsigned int scl_pin)
->  	}
->  }
->  
-> +static struct davinci_i2c_platform_data
-> +		*i2c_get_plattformdata(struct davinci_i2c_dev *dev)
-> +{
-> +	if (dev->dev->platform_data == NULL)
-> +		return dev->pdata;
-> +
-> +	return dev->dev->platform_data;
-> +}
-
-It seems to me that if we setup the newly introduced dev->pdata
-member correctly once in probe, there should not be a need for this
-function. We can also eliminate multiple checks for pdata in code.
-See below for more.
-
-> +
->  /* This routine does i2c bus recovery as specified in the
->   * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
->   */
->  static void i2c_recover_bus(struct davinci_i2c_dev *dev)
->  {
->  	u32 flag = 0;
-> -	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> +	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
->  
->  	dev_err(dev->dev, "initiating i2c bus recovery\n");
->  	/* Send NACK to the slave */
-> @@ -187,7 +200,7 @@ static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
->  
->  static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
->  {
-> -	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> +	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
->  	u16 psc;
->  	u32 clk;
->  	u32 d;
-> @@ -235,7 +248,7 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
->   */
->  static int i2c_davinci_init(struct davinci_i2c_dev *dev)
->  {
-> -	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> +	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
->  
->  	if (!pdata)
->  		pdata = &davinci_i2c_platform_data_default;
-> @@ -308,7 +321,7 @@ static int
->  i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
->  {
->  	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
-> -	struct davinci_i2c_platform_data *pdata = dev->dev->platform_data;
-> +	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
->  	u32 flag;
->  	u16 w;
->  	int r;
-> @@ -635,6 +648,12 @@ static struct i2c_algorithm i2c_davinci_algo = {
->  	.functionality	= i2c_davinci_func,
->  };
->  
-> +static const struct of_device_id davinci_i2c_of_match[] = {
-> +	{.compatible = "ti,davinci-i2c", },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, davinci_i2c_of_match);
-> +
->  static int davinci_i2c_probe(struct platform_device *pdev)
->  {
->  	struct davinci_i2c_dev *dev;
-> @@ -676,6 +695,25 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	dev->irq = irq->start;
->  	platform_set_drvdata(pdev, dev);
->  
-> +	if ((dev->dev->platform_data == NULL) &&
-> +		(pdev->dev.of_node)) {
-> +		u32 prop;
-> +
-> +		dev->pdata = devm_kzalloc(&pdev->dev,
-> +			sizeof(struct davinci_i2c_platform_data), GFP_KERNEL);
-> +		if (!dev->pdata) {
-> +			r = -ENOMEM;
-> +			goto err_free_mem;
-> +		}
-> +		memcpy(dev->pdata, &davinci_i2c_platform_data_default,
-> +			sizeof(struct davinci_i2c_platform_data));
-> +		if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-> +			&prop))
-> +			dev->pdata->bus_freq = prop / 1000;
-> +		if (!of_property_read_u32(pdev->dev.of_node, "bus-delay",
-> +			&prop))
-> +			dev->pdata->bus_delay = prop;
-
-You are leaving out two other platform data members (the gpio pins
-corresponding to data and clock) from DT data. We should be able to
-get that information from DT too, right?
-
-So, I took this patch and tried to see if pdata maintenance can be
-simplified and came with the diff below. Can you have a look and see
-if this makes sense? I tested this using i2cdetect both with and
-without DT.
-
-Thanks,
-Sekhar
-
----8<---
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 16d7645..d07c207 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -153,22 +153,13 @@ static void generic_i2c_clock_pulse(unsigned int scl_pin)
- 	}
- }
- 
--static struct davinci_i2c_platform_data
--		*i2c_get_plattformdata(struct davinci_i2c_dev *dev)
--{
--	if (dev->dev->platform_data == NULL)
--		return dev->pdata;
--
--	return dev->dev->platform_data;
--}
--
- /* This routine does i2c bus recovery as specified in the
-  * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
-  */
- static void i2c_recover_bus(struct davinci_i2c_dev *dev)
- {
- 	u32 flag = 0;
--	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
-+	struct davinci_i2c_platform_data *pdata = dev->pdata;
- 
- 	dev_err(dev->dev, "initiating i2c bus recovery\n");
- 	/* Send NACK to the slave */
-@@ -176,8 +167,7 @@ static void i2c_recover_bus(struct davinci_i2c_dev *dev)
- 	flag |=  DAVINCI_I2C_MDR_NACK;
- 	/* write the data into mode register */
- 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, flag);
--	if (pdata)
--		generic_i2c_clock_pulse(pdata->scl_pin);
-+	generic_i2c_clock_pulse(pdata->scl_pin);
- 	/* Send STOP */
- 	flag = davinci_i2c_read_reg(dev, DAVINCI_I2C_MDR_REG);
- 	flag |= DAVINCI_I2C_MDR_STP;
-@@ -200,7 +190,7 @@ static inline void davinci_i2c_reset_ctrl(struct davinci_i2c_dev *i2c_dev,
- 
- static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
- {
--	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
-+	struct davinci_i2c_platform_data *pdata = dev->pdata;
- 	u16 psc;
- 	u32 clk;
- 	u32 d;
-@@ -248,10 +238,7 @@ static void i2c_davinci_calc_clk_dividers(struct davinci_i2c_dev *dev)
-  */
- static int i2c_davinci_init(struct davinci_i2c_dev *dev)
- {
--	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
--
--	if (!pdata)
--		pdata = &davinci_i2c_platform_data_default;
-+	struct davinci_i2c_platform_data *pdata = dev->pdata;
- 
- 	/* put I2C into reset */
- 	davinci_i2c_reset_ctrl(dev, 0);
-@@ -321,13 +308,11 @@ static int
- i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
- {
- 	struct davinci_i2c_dev *dev = i2c_get_adapdata(adap);
--	struct davinci_i2c_platform_data *pdata = i2c_get_plattformdata(dev);
-+	struct davinci_i2c_platform_data *pdata = dev->pdata;
- 	u32 flag;
- 	u16 w;
- 	int r;
- 
--	if (!pdata)
--		pdata = &davinci_i2c_platform_data_default;
- 	/* Introduce a delay, required for some boards (e.g Davinci EVM) */
- 	if (pdata->bus_delay)
- 		udelay(pdata->bus_delay);
-@@ -693,10 +678,10 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- #endif
- 	dev->dev = get_device(&pdev->dev);
- 	dev->irq = irq->start;
-+	dev->pdata = dev->dev->platform_data;
- 	platform_set_drvdata(pdev, dev);
- 
--	if ((dev->dev->platform_data == NULL) &&
--		(pdev->dev.of_node)) {
-+	if (!dev->pdata && pdev->dev.of_node) {
- 		u32 prop;
- 
- 		dev->pdata = devm_kzalloc(&pdev->dev,
-@@ -713,7 +698,10 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 		if (!of_property_read_u32(pdev->dev.of_node, "bus-delay",
- 			&prop))
- 			dev->pdata->bus_delay = prop;
-+	} else if (!dev->pdata) {
-+		dev->pdata = &davinci_i2c_platform_data_default;
- 	}
-+
- 	dev->clk = clk_get(&pdev->dev, NULL);
- 	if (IS_ERR(dev->clk)) {
- 		r = -ENODEV;
+JC.
