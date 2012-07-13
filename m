@@ -1,60 +1,41 @@
-From: "Jayachandran C." <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Subject: Re: [PATCH 2/4] i2c: i2c-ocores: Use reg-shift property
-Date: Fri, 13 Jul 2012 18:08:45 +0530
-Message-ID: <20120713123845.GB18519@jayachandranc.netlogicmicro.com>
-References: <1342161543-5838-1-git-send-email-jayachandranc@netlogicmicro.com>
- <1342161543-5838-3-git-send-email-jayachandranc@netlogicmicro.com>
- <20120713091731.GI32184@pengutronix.de>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 00/11] make struct of_device_id.data const
+Date: Fri, 13 Jul 2012 14:39:08 +0200
+Message-ID: <20120713123908.GF592@pengutronix.de>
+References: <1342182734-321-1-git-send-email-y>
 Mime-Version: 1.0
-Content-Type: text/plain;
- charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120713091731.GI32184-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+In-Reply-To: <1342182734-321-1-git-send-email-y>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+Cc: Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Adrian Hunter <adrian.hunter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-serial-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Dan Williams <dan.j.williams-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>, Balaji T K <balajitk-l0cyMroinI0@public.gmane.org>, Alan Cox <alan-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 13, 2012 at 11:17:31AM +0200, Wolfram Sang wrote:
-> On Fri, Jul 13, 2012 at 12:09:01PM +0530, Jayachandran C wrote:
-> > From: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> > 
-> > Deprecate 'regstep' property and use the standard 'reg-shift' property
-> > for register offset shifts. 'regstep' will still be supported as an
-> > optional property, but will give a warning when used.
-> > 
-> > Signed-off-by: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
-> > Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-> > ---
-[...]
-> > +		}
-> > +	} else
-> > +		i2c->reg_shift = val;
-> 
-> Now you are assigning an u32 to an int. Regstep will never be really a
-> huge number, but still...
-> 
-> Also, braces around else-block according to coding style.
-> 
-> >  
-> > -	val = of_get_property(pdev->dev.of_node, "clock-frequency", NULL);
-> > -	if (!val) {
-> > +	if (of_property_read_u32(np, "clock-frequency", &val)) {
-> >  		dev_err(&pdev->dev,
-> >  			"Missing required parameter 'clock-frequency'\n");
-> >  		return -ENODEV;
-> >  	}
-> > -	i2c->clock_khz = be32_to_cpup(val) / 1000;
-> > +	i2c->clock_khz = val / 1000;
-> 
-> Okay, "/ 1000" will guarantee that the divided value will fit into an
-> int. Yet, what do we gain by not using u32?
+Hello,
 
-I will send out a new version of this patch using u32. In this case I
-felt that there is no need to use a fixed width type when an int would
-do.
+On Fri, Jul 13, 2012 at 02:32:02PM +0200, y@pengutronix.de wrote:
+This is utter non-sense, it was me who sent these mails (and pressed 'y'
+when git send-email asked if "Uwe Kleine-K=F6nig
+<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>" is the right sender). Please make sure
+to correct this when replying to the patches.
 
-Regards,
-JC.
+Sorry for the inconvenience.
+
+Best regards
+Uwe
+-- =
+
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
