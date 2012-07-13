@@ -1,48 +1,53 @@
-From: y@pengutronix.de
-Subject: [PATCH 06/11] i2c/i2c-omap: add a const qualifier
-Date: Fri, 13 Jul 2012 14:32:09 +0200
-Message-ID: <42460.9110028998$1342183964@news.gmane.org>
-References: <1342182734-321-1-git-send-email-y>
+From: "Jayachandran C" <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Subject: [PATCH v3 0/4] I2C Ocores updates
+Date: Fri, 13 Jul 2012 19:14:21 +0530
+Message-ID: <1342187065-1651-1-git-send-email-jayachandranc@netlogicmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1342182734-321-1-git-send-email-y>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Grant Likely <grant.likely@secretlab.ca>, Arnd Bergmann <arnd@arndb.de>
-Cc: Tony Lindgren <tony@atomide.com>, devicetree-discuss@lists.ozlabs.org, Wolfram Sang <w.sang@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, linux-i2c@vger.kernel.org, kernel@pengutronix.de, =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org
+Cc: devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-RnJvbTogVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4K
-ClRoaXMgcHJlcGFyZXMgb2ZfZGV2aWNlX2lkLmRhdGEgYmVjb21pbmcgY29uc3QuIFdpdGhvdXQg
-dGhpcyBjaGFuZ2UKdGhlIGZvbGxvd2luZyB3YXJuaW5nIHdvdWxkIG9jY3VyOgoKCWRyaXZlcnMv
-aTJjL2J1c3Nlcy9pMmMtb21hcC5jOiBJbiBmdW5jdGlvbiAnb21hcF9pMmNfcHJvYmUnOgoJZHJp
-dmVycy9pMmMvYnVzc2VzL2kyYy1vbWFwLmM6MTAyNTogd2FybmluZzogYXNzaWdubWVudCBkaXNj
-YXJkcyBxdWFsaWZpZXJzIGZyb20gcG9pbnRlciB0YXJnZXQgdHlwZQoKU2lnbmVkLW9mZi1ieTog
-VXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0BwZW5ndXRyb25peC5kZT4KQ2M6IFRv
-bnkgTGluZGdyZW4gPHRvbnlAYXRvbWlkZS5jb20+CkNjOiBXb2xmcmFtIFNhbmcgPHcuc2FuZ0Bw
-ZW5ndXRyb25peC5kZT4KQ2M6IGxpbnV4LW9tYXBAdmdlci5rZXJuZWwub3JnCkNjOiBsaW51eC1p
-MmNAdmdlci5rZXJuZWwub3JnCi0tLQogZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vbWFwLmMgfCAg
-ICAzICsrLQogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoK
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb21hcC5jIGIvZHJpdmVycy9pMmMv
-YnVzc2VzL2kyYy1vbWFwLmMKaW5kZXggODAxZGY2MC4uNGZjNTg1ZCAxMDA2NDQKLS0tIGEvZHJp
-dmVycy9pMmMvYnVzc2VzL2kyYy1vbWFwLmMKKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1v
-bWFwLmMKQEAgLTk4Nyw3ICs5ODcsOCBAQCBvbWFwX2kyY19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1f
-ZGV2aWNlICpwZGV2KQogCXN0cnVjdCBvbWFwX2kyY19kZXYJKmRldjsKIAlzdHJ1Y3QgaTJjX2Fk
-YXB0ZXIJKmFkYXA7CiAJc3RydWN0IHJlc291cmNlCQkqbWVtLCAqaXJxLCAqaW9hcmVhOwotCXN0
-cnVjdCBvbWFwX2kyY19idXNfcGxhdGZvcm1fZGF0YSAqcGRhdGEgPSBwZGV2LT5kZXYucGxhdGZv
-cm1fZGF0YTsKKwljb25zdCBzdHJ1Y3Qgb21hcF9pMmNfYnVzX3BsYXRmb3JtX2RhdGEgKnBkYXRh
-ID0KKwkJcGRldi0+ZGV2LnBsYXRmb3JtX2RhdGE7CiAJc3RydWN0IGRldmljZV9ub2RlCSpub2Rl
-ID0gcGRldi0+ZGV2Lm9mX25vZGU7CiAJY29uc3Qgc3RydWN0IG9mX2RldmljZV9pZCAqbWF0Y2g7
-CiAJaXJxX2hhbmRsZXJfdCBpc3I7Ci0tIAoxLjcuMTAuNAoKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fCmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0
-CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5mcmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFk
-ZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xpbnV4LWFybS1rZXJuZWwK
+Updated patchset to use u32 for reg_shift and reg_io_width, both
+for ocores_i2c_platform_data and for ocores_i2c.
+
+V2 notes
+========
+Updated patchset, changes in v2 are:
+ * pass u32 value to of_property_read_u32() in ocores_i2c_of_probe()
+ * undo whitespace change in include/linux/i2c-ocores.h
+ * use int for reg_shift and reg_io_width in ocores_i2c_platform_data
+   (include/linux/i2c-ocores.h) as well.
+
+V1 notes
+========
+While trying to add reg-io-width property to i2c-ocores, we noticed
+a few things that needs to fixed up in i2c-ocores device tree code.
+
+The changes are to: 
+ * use the standard 'reg-shift' property instead of 'regstep'
+ * fix the fallout of the about change in drivers/mfd/timberdale.c
+ * move bindings documentation to under Documentation/, 
+ * fix up formatting, and add \n to a few dev_* messages,
+ * and finally to add reg-io-width optional property.
+
+Ganesan Ramalingam (2):
+  i2c: i2c-ocores: Use reg-shift property
+  i2c: i2c-ocores: support for 16bit and 32bit IO
+
+Jayachandran C (2):
+  i2c: i2c-ocores - DT bindings and minor fixes.
+  V4L/DVB: mfd: use reg_shift instead of regstep
+
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |   33 +++++++
+ drivers/i2c/busses/i2c-ocores.c                    |   96 +++++++++-----------
+ drivers/mfd/timberdale.c                           |    2 +-
+ include/linux/i2c-ocores.h                         |    3 +-
+ 4 files changed, 81 insertions(+), 53 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+
+-- 
+1.7.9.5
