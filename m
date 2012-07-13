@@ -1,7 +1,7 @@
 From: "Jayachandran C" <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Subject: [PATCH v3 1/4] i2c: i2c-ocores - DT bindings and minor fixes.
-Date: Fri, 13 Jul 2012 19:14:22 +0530
-Message-ID: <1342187065-1651-2-git-send-email-jayachandranc@netlogicmicro.com>
+Subject: [PATCH v3 4/4] i2c: i2c-ocores: support for 16bit and 32bit IO
+Date: Fri, 13 Jul 2012 19:14:25 +0530
+Message-ID: <1342187065-1651-5-git-send-email-jayachandranc@netlogicmicro.com>
 References: <1342187065-1651-1-git-send-email-jayachandranc@netlogicmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -10,137 +10,121 @@ Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1342187065-1651-1-git-send-email-jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org
-Cc: devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Cc: devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Cleanups to i2c-cores, no change in logic, changes are:
-* Move i2c-ocores device tree documentation from source file to
-  Documentation/devicetree/bindings/i2c/i2c-ocores.txt.
-* Add \n to dev_warn and dev_err messages where missing
-* Minor updates to the text and formatting fixes.
+From: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 
+Some architectures supports only 16-bit or 32-bit read/write access to
+their IO space. Add a 'reg-io-width' platform and OF parameter which
+specifies the IO width to support these platforms.
+
+reg-io-width can be specified as 1, 2 or 4, and has a default value
+of 1 if it is unspecified.
+
+Signed-off-by: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 ---
- .../devicetree/bindings/i2c/i2c-ocores.txt         |   27 ++++++++++++
- drivers/i2c/busses/i2c-ocores.c                    |   45 +++-----------------
- 2 files changed, 34 insertions(+), 38 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |    2 ++
+ drivers/i2c/busses/i2c-ocores.c                    |   21 ++++++++++++++++++--
+ include/linux/i2c-ocores.h                         |    1 +
+ 3 files changed, 22 insertions(+), 2 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-new file mode 100644
-index 0000000..bfec894
---- /dev/null
+index 1c9334b..c15781f 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
 +++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-@@ -0,0 +1,27 @@
-+Device tree configuration for i2c-ocores
-+
-+Required properties:
-+- compatible      : "opencores,i2c-ocores"
-+- reg             : bus address start and address range size of device
-+- interrupts      : interrupt number
-+- regstep         : size of device registers in bytes
-+- clock-frequency : frequency of bus clock in Hz
-+- #address-cells  : should be <1>
-+- #size-cells     : should be <0>
-+
-+Example:
-+
-+	i2c0: ocores@a0000000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "opencores,i2c-ocores";
-+		reg = <0xa0000000 0x8>;
-+		interrupts = <10>;
-+		regstep = <1>;
-+		clock-frequency = <20000000>;
-+
-+		dummy@60 {
-+			compatible = "dummy";
-+			reg = <0x60>;
-+		};
-+	};
+@@ -10,6 +10,7 @@ Required properties:
+ 
+ Optional properties:
+ - reg-shift       : device register offsets are shifted by this value
++- reg-io-width    : io register width in bytes (1, 2 or 4)
+ - regstep         : deprecated, use reg-shift above
+ 
+ Example:
+@@ -23,6 +24,7 @@ Example:
+ 		clock-frequency = <20000000>;
+ 
+ 		reg-shift = <0>;	/* 8 bit registers */
++		reg-io-width = <1>;	/* 8 bit read/write */
+ 
+ 		dummy@60 {
+ 			compatible = "dummy";
 diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 75194c5..e8159db 100644
+index 721ead9..de3b119 100644
 --- a/drivers/i2c/busses/i2c-ocores.c
 +++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -10,40 +10,9 @@
-  */
+@@ -30,6 +30,7 @@
+ struct ocores_i2c {
+ 	void __iomem *base;
+ 	u32 reg_shift;
++	u32 reg_io_width;
+ 	wait_queue_head_t wait;
+ 	struct i2c_adapter adap;
+ 	struct i2c_msg *msg;
+@@ -72,12 +73,22 @@ struct ocores_i2c {
  
- /*
-- * Device tree configuration:
-- *
-- * Required properties:
-- * - compatible      : "opencores,i2c-ocores"
-- * - reg             : bus address start and address range size of device
-- * - interrupts      : interrupt number
-- * - regstep         : size of device registers in bytes
-- * - clock-frequency : frequency of bus clock in Hz
-- * 
-- * Example:
-- *
-- *  i2c0: ocores@a0000000 {
-- *              compatible = "opencores,i2c-ocores";
-- *              reg = <0xa0000000 0x8>;
-- *              interrupts = <10>;
-- *
-- *              regstep = <1>;
-- *              clock-frequency = <20000000>;
-- *
-- * -- Devices connected on this I2C bus get
-- * -- defined here; address- and size-cells
-- * -- apply to these child devices
-- *
-- *              #address-cells = <1>;
-- *              #size-cells = <0>;
-- *
-- *              dummy@60 {
-- *                     compatible = "dummy";
-- *                     reg = <60>;
-- *              };
-- *  };
-- *
-+ * This driver can be used from the device tree, see
-+ *     Documentation/devicetree/bindings/i2c/ocore-i2c.txt
-  */
--
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -247,14 +216,14 @@ static struct i2c_adapter ocores_adapter = {
- };
- 
- #ifdef CONFIG_OF
--static int ocores_i2c_of_probe(struct platform_device* pdev,
--				struct ocores_i2c* i2c)
-+static int ocores_i2c_of_probe(struct platform_device *pdev,
-+				struct ocores_i2c *i2c)
+ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
  {
- 	const __be32* val;
- 
- 	val = of_get_property(pdev->dev.of_node, "regstep", NULL);
- 	if (!val) {
--		dev_err(&pdev->dev, "Missing required parameter 'regstep'");
-+		dev_err(&pdev->dev, "Missing required parameter 'regstep'\n");
- 		return -ENODEV;
- 	}
- 	i2c->regstep = be32_to_cpup(val);
-@@ -262,7 +231,7 @@ static int ocores_i2c_of_probe(struct platform_device* pdev,
- 	val = of_get_property(pdev->dev.of_node, "clock-frequency", NULL);
- 	if (!val) {
- 		dev_err(&pdev->dev,
--			"Missing required parameter 'clock-frequency'");
-+			"Missing required parameter 'clock-frequency'\n");
- 		return -ENODEV;
- 	}
- 	i2c->clock_khz = be32_to_cpup(val) / 1000;
-@@ -351,7 +320,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 	return 0;
+-	iowrite8(value, i2c->base + (reg << i2c->reg_shift));
++	if (i2c->reg_io_width == 4)
++		iowrite32(value, i2c->base + (reg << i2c->reg_shift));
++	else if (i2c->reg_io_width == 2)
++		iowrite16(value, i2c->base + (reg << i2c->reg_shift));
++	else
++		iowrite8(value, i2c->base + (reg << i2c->reg_shift));
  }
  
--static int __devexit ocores_i2c_remove(struct platform_device* pdev)
-+static int __devexit ocores_i2c_remove(struct platform_device *pdev)
+ static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
  {
- 	struct ocores_i2c *i2c = platform_get_drvdata(pdev);
+-	return ioread8(i2c->base + (reg << i2c->reg_shift));
++	if (i2c->reg_io_width == 4)
++		return ioread32(i2c->base + (reg << i2c->reg_shift));
++	else if (i2c->reg_io_width == 2)
++		return ioread16(i2c->base + (reg << i2c->reg_shift));
++	else
++		return ioread8(i2c->base + (reg << i2c->reg_shift));
+ }
  
+ static void ocores_process(struct ocores_i2c *i2c)
+@@ -244,6 +255,8 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
+ 	}
+ 	i2c->clock_khz = val / 1000;
+ 
++	of_property_read_u32(pdev->dev.of_node, "reg-io-width",
++				&i2c->reg_io_width);
+ 	return 0;
+ }
+ #else
+@@ -286,6 +299,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 	pdata = pdev->dev.platform_data;
+ 	if (pdata) {
+ 		i2c->reg_shift = pdata->reg_shift;
++		i2c->reg_io_width = pdata->reg_io_width;
+ 		i2c->clock_khz = pdata->clock_khz;
+ 	} else {
+ 		ret = ocores_i2c_of_probe(pdev, i2c);
+@@ -293,6 +307,9 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 			return ret;
+ 	}
+ 
++	if (i2c->reg_io_width == 0)
++		i2c->reg_io_width = 1; /* Set to default value */
++
+ 	ocores_init(i2c);
+ 
+ 	init_waitqueue_head(&i2c->wait);
+diff --git a/include/linux/i2c-ocores.h b/include/linux/i2c-ocores.h
+index 5d95df2..1c06b5c 100644
+--- a/include/linux/i2c-ocores.h
++++ b/include/linux/i2c-ocores.h
+@@ -13,6 +13,7 @@
+ 
+ struct ocores_i2c_platform_data {
+ 	u32 reg_shift; /* register offset shift value */
++	u32 reg_io_width; /* register io read/write width */
+ 	u32 clock_khz; /* input clock in kHz */
+ 	u8 num_devices; /* number of devices in the devices list */
+ 	struct i2c_board_info const *devices; /* devices connected to the bus */
 -- 
 1.7.9.5
