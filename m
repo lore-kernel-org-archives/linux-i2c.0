@@ -1,165 +1,159 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 5/8 v2] i2c:i2c-bfin-twi: TWI fails to restart next
- transfer in high system load.
-Date: Fri, 13 Jul 2012 08:38:38 +0200
-Message-ID: <20120713063838.GC32184@pengutronix.de>
-References: <1339575767-22985-1-git-send-email-sonic.adi@gmail.com>
- <1339575767-22985-5-git-send-email-sonic.adi@gmail.com>
+From: "Jayachandran C" <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Subject: [PATCH 2/4] i2c: i2c-ocores: Use reg-shift property
+Date: Fri, 13 Jul 2012 12:09:01 +0530
+Message-ID: <1342161543-5838-3-git-send-email-jayachandranc@netlogicmicro.com>
+References: <1342161543-5838-1-git-send-email-jayachandranc@netlogicmicro.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CblX+4bnyfN0pR09"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1339575767-22985-5-git-send-email-sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1342161543-5838-1-git-send-email-jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org
+Cc: devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 
---CblX+4bnyfN0pR09
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Deprecate 'regstep' property and use the standard 'reg-shift' property
+for register offset shifts. 'regstep' will still be supported as an
+optional property, but will give a warning when used.
 
-On Wed, Jun 13, 2012 at 04:22:44PM +0800, Sonic Zhang wrote:
-> From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->=20
-> Current driver was developed based on BF537 0.2 HRM. In high system load,=
- BUFRDERR error
-> interrupt may be raised if XMTSERV interrupt of last TX byte is not serve=
-d in time
-> (set RSTART bit), which breaks restart tranfer as expected.
->=20
-> "Buffer Read Error (BUFRDERR)" description in Blackfin HRM only applys to=
- BF537
-> rev. < 0.3. In later rev. and later announced Blackfin chips, such as BF5=
-27 and
-> BF548, a new TWI master feature "Clock Stretching" is added into the TWI =
-controller,
-> BUFRDERR interrupt is not triggered after TX FIFO is empty.
->=20
-> This patch sets RSTART bit at the beginning of the first transfer. The SC=
-L and SDA
-> is hold till XMTSERV interrupt of last TX byte is served. Restart transfe=
-r is not broken
-> in high system load.
->=20
-> Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-bfin-twi.c |   23 +++++++++++++----------
->  1 files changed, 13 insertions(+), 10 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-b=
-fin-twi.c
-> index 2e59bbd..e75ee91 100644
-> --- a/drivers/i2c/busses/i2c-bfin-twi.c
-> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
-> @@ -99,7 +99,7 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_i=
-face *iface,
->  		 */
->  		else if (iface->cur_mode =3D=3D TWI_I2C_MODE_COMBINED)
->  			write_MASTER_CTL(iface,
-> -				read_MASTER_CTL(iface) | MDIR | RSTART);
-> +				read_MASTER_CTL(iface) | MDIR);
->  		else if (iface->manual_stop)
->  			write_MASTER_CTL(iface,
->  				read_MASTER_CTL(iface) | STOP);
-> @@ -107,10 +107,10 @@ static void bfin_twi_handle_interrupt(struct bfin_t=
-wi_iface *iface,
->  		         iface->cur_msg + 1 < iface->msg_num) {
->  			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
->  				write_MASTER_CTL(iface,
-> -					read_MASTER_CTL(iface) | RSTART | MDIR);
-> +					read_MASTER_CTL(iface) | MDIR);
->  			else
->  				write_MASTER_CTL(iface,
-> -					(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
-> +					read_MASTER_CTL(iface) & ~MDIR);
->  		}
->  	}
->  	if (twi_int_status & RCVSERV) {
-> @@ -144,10 +144,10 @@ static void bfin_twi_handle_interrupt(struct bfin_t=
-wi_iface *iface,
->  					iface->cur_msg + 1 < iface->msg_num) {
->  				if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
->  					write_MASTER_CTL(iface,
-> -						read_MASTER_CTL(iface) | RSTART | MDIR);
-> +						read_MASTER_CTL(iface) | MDIR);
->  				else
->  					write_MASTER_CTL(iface,
-> -						(read_MASTER_CTL(iface) | RSTART) & ~MDIR);
-> +						read_MASTER_CTL(iface) & ~MDIR);
->  			}
->  		}
->  	}
-> @@ -262,9 +262,10 @@ static void bfin_twi_handle_interrupt(struct bfin_tw=
-i_iface *iface,
->  					(0xff << 6)));
->  				iface->manual_stop =3D 1;
->  			}
-> -			/* remove restart bit and enable master receive */
-> -			write_MASTER_CTL(iface,
-> -				read_MASTER_CTL(iface) & ~RSTART);
-> +			/* remove restart bit before last message */
-> +			if (iface->cur_msg+1 =3D=3D iface->msg_num)
+Signed-off-by: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |    8 +++-
+ drivers/i2c/busses/i2c-ocores.c                    |   39 ++++++++++++--------
+ include/linux/i2c-ocores.h                         |    2 +-
+ 3 files changed, 31 insertions(+), 18 deletions(-)
 
-Spaces around operators. I fixed it for you.
-
-> +				write_MASTER_CTL(iface,
-> +					read_MASTER_CTL(iface) & ~RSTART);
->  		} else {
->  			iface->result =3D 1;
->  			write_INT_MASK(iface, 0);
-> @@ -321,7 +322,8 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter=
- *adap,
->  		return -EINVAL;
->  	}
-> =20
-> -	iface->cur_mode =3D TWI_I2C_MODE_REPEAT;
-> +	if (iface->msg_num > 1)
-> +		iface->cur_mode =3D TWI_I2C_MODE_REPEAT;
->  	iface->manual_stop =3D 0;
->  	iface->transPtr =3D pmsg->buf;
->  	iface->writeNum =3D iface->readNum =3D pmsg->len;
-> @@ -366,6 +368,7 @@ static int bfin_twi_do_master_xfer(struct i2c_adapter=
- *adap,
-> =20
->  	/* Master enable */
->  	write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
-> +		(iface->msg_num > 1 ? RSTART : 0) |
->  		((iface->read_write =3D=3D I2C_SMBUS_READ) ? MDIR : 0) |
->  		((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ > 100) ? FAST : 0));
->  	SSYNC();
-> @@ -530,7 +533,7 @@ int bfin_twi_do_smbus_xfer(struct i2c_adapter *adap, =
-u16 addr,
->  		else
->  			write_MASTER_CTL(iface, 0x1 << 6);
->  		/* Master enable */
-> -		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN |
-> +		write_MASTER_CTL(iface, read_MASTER_CTL(iface) | MEN | RSTART |
->  			((CONFIG_I2C_BLACKFIN_TWI_CLK_KHZ>100) ? FAST : 0));
->  		break;
->  	default:
-> --=20
-> 1.7.0.4
->=20
->=20
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---CblX+4bnyfN0pR09
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAk//wm4ACgkQD27XaX1/VRsqMgCeOJ4AVkW+Ja85GVD1NF0KZ+Qk
-HdYAoI+wdCb20o6D7ZlCZkugaz7hL2eo
-=aJ9i
------END PGP SIGNATURE-----
-
---CblX+4bnyfN0pR09--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+index bfec894..1c9334b 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+@@ -4,11 +4,14 @@ Required properties:
+ - compatible      : "opencores,i2c-ocores"
+ - reg             : bus address start and address range size of device
+ - interrupts      : interrupt number
+-- regstep         : size of device registers in bytes
+ - clock-frequency : frequency of bus clock in Hz
+ - #address-cells  : should be <1>
+ - #size-cells     : should be <0>
+ 
++Optional properties:
++- reg-shift       : device register offsets are shifted by this value
++- regstep         : deprecated, use reg-shift above
++
+ Example:
+ 
+ 	i2c0: ocores@a0000000 {
+@@ -17,9 +20,10 @@ Example:
+ 		compatible = "opencores,i2c-ocores";
+ 		reg = <0xa0000000 0x8>;
+ 		interrupts = <10>;
+-		regstep = <1>;
+ 		clock-frequency = <20000000>;
+ 
++		reg-shift = <0>;	/* 8 bit registers */
++
+ 		dummy@60 {
+ 			compatible = "dummy";
+ 			reg = <0x60>;
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index e8159db..fb8db30 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -25,10 +25,11 @@
+ #include <linux/slab.h>
+ #include <linux/io.h>
+ #include <linux/of_i2c.h>
++#include <linux/log2.h>
+ 
+ struct ocores_i2c {
+ 	void __iomem *base;
+-	int regstep;
++	int reg_shift;
+ 	wait_queue_head_t wait;
+ 	struct i2c_adapter adap;
+ 	struct i2c_msg *msg;
+@@ -71,12 +72,12 @@ struct ocores_i2c {
+ 
+ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+-	iowrite8(value, i2c->base + reg * i2c->regstep);
++	iowrite8(value, i2c->base + (reg << i2c->reg_shift));
+ }
+ 
+ static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
+ {
+-	return ioread8(i2c->base + reg * i2c->regstep);
++	return ioread8(i2c->base + (reg << i2c->reg_shift));
+ }
+ 
+ static void ocores_process(struct ocores_i2c *i2c)
+@@ -219,22 +220,30 @@ static struct i2c_adapter ocores_adapter = {
+ static int ocores_i2c_of_probe(struct platform_device *pdev,
+ 				struct ocores_i2c *i2c)
+ {
+-	const __be32* val;
+-
+-	val = of_get_property(pdev->dev.of_node, "regstep", NULL);
+-	if (!val) {
+-		dev_err(&pdev->dev, "Missing required parameter 'regstep'\n");
+-		return -ENODEV;
+-	}
+-	i2c->regstep = be32_to_cpup(val);
++	struct device_node *np = pdev->dev.of_node;
++	u32 val;
++
++	if (of_property_read_u32(np, "reg-shift", &val)) {
++		/* no 'reg-shift', check for deprecated 'regstep' */
++		if (!of_property_read_u32(np, "regstep", &val)) {
++			if (!is_power_of_2(val)) {
++				dev_err(&pdev->dev, "invalid regstep %d\n",
++					val);
++				return -EINVAL;
++			}
++			i2c->reg_shift = ilog2(val);
++			dev_warn(&pdev->dev,
++				"regstep property deprecated, use reg-shift\n");
++		}
++	} else
++		i2c->reg_shift = val;
+ 
+-	val = of_get_property(pdev->dev.of_node, "clock-frequency", NULL);
+-	if (!val) {
++	if (of_property_read_u32(np, "clock-frequency", &val)) {
+ 		dev_err(&pdev->dev,
+ 			"Missing required parameter 'clock-frequency'\n");
+ 		return -ENODEV;
+ 	}
+-	i2c->clock_khz = be32_to_cpup(val) / 1000;
++	i2c->clock_khz = val / 1000;
+ 
+ 	return 0;
+ }
+@@ -277,7 +286,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 
+ 	pdata = pdev->dev.platform_data;
+ 	if (pdata) {
+-		i2c->regstep = pdata->regstep;
++		i2c->reg_shift = pdata->reg_shift;
+ 		i2c->clock_khz = pdata->clock_khz;
+ 	} else {
+ 		ret = ocores_i2c_of_probe(pdev, i2c);
+diff --git a/include/linux/i2c-ocores.h b/include/linux/i2c-ocores.h
+index 4d5e57f..75d7767 100644
+--- a/include/linux/i2c-ocores.h
++++ b/include/linux/i2c-ocores.h
+@@ -12,7 +12,7 @@
+ #define _LINUX_I2C_OCORES_H
+ 
+ struct ocores_i2c_platform_data {
+-	u32 regstep;   /* distance between registers */
++	int reg_shift; /* register offset shift value */
+ 	u32 clock_khz; /* input clock in kHz */
+ 	u8 num_devices; /* number of devices in the devices list */
+ 	struct i2c_board_info const *devices; /* devices connected to the bus */
+-- 
+1.7.9.5
