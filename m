@@ -1,7 +1,7 @@
 From: "Jayachandran C" <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
-Subject: [PATCH 4/4] i2c: i2c-ocores: support for 16bit and 32bit IO
-Date: Fri, 13 Jul 2012 12:09:03 +0530
-Message-ID: <1342161543-5838-5-git-send-email-jayachandranc@netlogicmicro.com>
+Subject: [PATCH 3/4] V4L/DVB: mfd: use reg_shift instead of regstep
+Date: Fri, 13 Jul 2012 12:19:09 +0530
+Message-ID: <1342162149-6026-1-git-send-email-jayachandranc@netlogicmicro.com>
 References: <1342161543-5838-1-git-send-email-jayachandranc@netlogicmicro.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -10,121 +10,30 @@ Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1342161543-5838-1-git-send-email-jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org
-Cc: devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Cc: devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Update for change in i2c-ocores.h which uses reg_shift to
+specify the register offset shifts instead of regstep.
 
-Some architectures supports only 16-bit or 32-bit read/write access to
-their IO space. Add a 'reg-io-width' platform and OF parameter which
-specifies the IO width to support these platforms.
-
-reg-io-width can be specified as 1, 2 or 4, and has a default value
-of 1 if it is unspecified.
-
-Signed-off-by: Ganesan Ramalingam <ganesanr-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 Signed-off-by: Jayachandran C <jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org>
+Acked-by: Richard Rojfors <richard.rojfors-gfIc91nka+FZroRs9YW3xA@public.gmane.org>
 ---
- .../devicetree/bindings/i2c/i2c-ocores.txt         |    2 ++
- drivers/i2c/busses/i2c-ocores.c                    |   21 ++++++++++++++++++--
- include/linux/i2c-ocores.h                         |    1 +
- 3 files changed, 22 insertions(+), 2 deletions(-)
+ drivers/mfd/timberdale.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-index 1c9334b..c15781f 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-ocores.txt
-@@ -10,6 +10,7 @@ Required properties:
+diff --git a/drivers/mfd/timberdale.c b/drivers/mfd/timberdale.c
+index 0ba26fb..a447f4e 100644
+--- a/drivers/mfd/timberdale.c
++++ b/drivers/mfd/timberdale.c
+@@ -83,7 +83,7 @@ timberdale_xiic_platform_data = {
  
- Optional properties:
- - reg-shift       : device register offsets are shifted by this value
-+- reg-io-width    : io register width in bytes (1, 2 or 4)
- - regstep         : deprecated, use reg-shift above
- 
- Example:
-@@ -23,6 +24,7 @@ Example:
- 		clock-frequency = <20000000>;
- 
- 		reg-shift = <0>;	/* 8 bit registers */
-+		reg-io-width = <1>;	/* 8 bit read/write */
- 
- 		dummy@60 {
- 			compatible = "dummy";
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index fb8db30..7e710bd 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -30,6 +30,7 @@
- struct ocores_i2c {
- 	void __iomem *base;
- 	int reg_shift;
-+	int reg_io_width;
- 	wait_queue_head_t wait;
- 	struct i2c_adapter adap;
- 	struct i2c_msg *msg;
-@@ -72,12 +73,22 @@ struct ocores_i2c {
- 
- static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
- {
--	iowrite8(value, i2c->base + (reg << i2c->reg_shift));
-+	if (i2c->reg_io_width == 4)
-+		iowrite32(value, i2c->base + (reg << i2c->reg_shift));
-+	else if (i2c->reg_io_width == 2)
-+		iowrite16(value, i2c->base + (reg << i2c->reg_shift));
-+	else
-+		iowrite8(value, i2c->base + (reg << i2c->reg_shift));
- }
- 
- static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
- {
--	return ioread8(i2c->base + (reg << i2c->reg_shift));
-+	if (i2c->reg_io_width == 4)
-+		return ioread32(i2c->base + (reg << i2c->reg_shift));
-+	else if (i2c->reg_io_width == 2)
-+		return ioread16(i2c->base + (reg << i2c->reg_shift));
-+	else
-+		return ioread8(i2c->base + (reg << i2c->reg_shift));
- }
- 
- static void ocores_process(struct ocores_i2c *i2c)
-@@ -245,6 +256,8 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
- 	}
- 	i2c->clock_khz = val / 1000;
- 
-+	if (!of_property_read_u32(pdev->dev.of_node, "reg-io-width", &val))
-+		i2c->reg_io_width = val;
- 	return 0;
- }
- #else
-@@ -287,6 +300,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 	pdata = pdev->dev.platform_data;
- 	if (pdata) {
- 		i2c->reg_shift = pdata->reg_shift;
-+		i2c->reg_io_width = pdata->reg_io_width;
- 		i2c->clock_khz = pdata->clock_khz;
- 	} else {
- 		ret = ocores_i2c_of_probe(pdev, i2c);
-@@ -294,6 +308,9 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 			return ret;
- 	}
- 
-+	if (i2c->reg_io_width == 0)
-+		i2c->reg_io_width = 1; /* Set to default value */
-+
- 	ocores_init(i2c);
- 
- 	init_waitqueue_head(&i2c->wait);
-diff --git a/include/linux/i2c-ocores.h b/include/linux/i2c-ocores.h
-index 75d7767..5fef682 100644
---- a/include/linux/i2c-ocores.h
-+++ b/include/linux/i2c-ocores.h
-@@ -13,6 +13,7 @@
- 
- struct ocores_i2c_platform_data {
- 	int reg_shift; /* register offset shift value */
-+	int reg_io_width; /* register io read/write width */
- 	u32 clock_khz; /* input clock in kHz */
- 	u8 num_devices; /* number of devices in the devices list */
- 	struct i2c_board_info const *devices; /* devices connected to the bus */
+ static __devinitdata struct ocores_i2c_platform_data
+ timberdale_ocores_platform_data = {
+-	.regstep = 4,
++	.reg_shift = 2,
+ 	.clock_khz = 62500,
+ 	.devices = timberdale_i2c_board_info,
+ 	.num_devices = ARRAY_SIZE(timberdale_i2c_board_info)
 -- 
 1.7.9.5
