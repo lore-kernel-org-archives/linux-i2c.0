@@ -1,62 +1,23 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH] i2c-s3c2410: Convert to devm_request_and_ioremap()
-Date: Fri, 13 Jul 2012 10:44:43 +0100
-Message-ID: <20120713094442.GA4215@opensource.wolfsonmicro.com>
-References: <1340888138-32710-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <20120709135229.GL1296@pengutronix.de>
- <20120709135809.GG3934@opensource.wolfsonmicro.com>
- <20120713083712.GH32184@pengutronix.de>
+From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv11 6/6] i2c: omap: Recover from Bus Busy condition
+Date: Fri, 13 Jul 2012 16:34:06 +0530
+Message-ID: <500000A6.7030608@ti.com>
+References: <1340896292-12112-1-git-send-email-shubhrajyoti@ti.com> <1340896292-12112-7-git-send-email-shubhrajyoti@ti.com> <20120712122208.GF2194@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="vtzGhvizbBRQ85DL"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120713083712.GH32184@pengutronix.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120712122208.GF2194-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>, Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-On Fri, Jul 13, 2012 at 10:37:12AM +0200, Wolfram Sang wrote:
-> On Mon, Jul 09, 2012 at 02:58:10PM +0100, Mark Brown wrote:
-
-> > The devm_ versions of the API aren't exported there yet and there's a
-> > bug fix pending too but Russell and Mike have ignored the patches thus
-> > far.
-
-> I'd rather wait for this to be fixed and have all devm applied in one
-> go?
-
-clkdev is vanishingly unlikely to be fixed this release, the patches
-have been languishing in the patch tracker for essentially the entire
-release cycle, rmk is on vacation now and Mike doesn't like taking
-clkdev stuff.
-
---vtzGhvizbBRQ85DL
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJP/+3wAAoJEBus8iNuMP3dNxYP/2aA2bG5+QLjoLBA4o5HUOkO
-6MA/gg76OoOaTFKlRw9mRqLrJ/u8WHq/SP7NDWBJg6HfxBoPh6mFfCDDuz940t18
-RNLf3/xbk3yyBxZLTM4JyNZMOgSVnnp6eA/1YLAt9Rrk6DM1G/a7LCEKLqgq9d/W
-FoDlJD8PVuosWjNS0bNytqU7RUvK+Ym3dTdJ99WxpasDcpEso3rBsVRzcDgVNr65
-QQmKbhPvpAoW/SKv/3GN6QeWgojntTtO6e6HJjUaXwtsabw6M3c7rYTPJUfU6pkr
-K5kNZi3lMk6NYp8BYgCWP2oWeR2G2ZeMLhdJalrnZ+O/Y7OiUbwpVfRtyhwY298a
-8OMgsiI2Wa6GYP/r5jVAWKIf02HsAPnrSzIBJdkvCBxfEMqY8j2+RcFd8A38PTeb
-cv9SVi6rh7qgr0auzwYfMYswsbzpIzd7ddGdHbwm2gBuN3HJg6InejaamC6ub3K3
-m/WCUUfwfMgFI5q6Um1eR+XJjqvB0VvArbfdtPP88BPCCS9vKvxXzGfB+3zZD3Dc
-EnrGi4Jb2yialym2eN5WRdvVk3/5vogukjpDbpgVD3BQGkc+u9rKJKkz5Tv317R8
-1G8TiPJGoUZwCgqYdkcq9gn8kdRT1IqgSWgTT31/7D+emrbmLiRXNdtWIY49CCEo
-PyaGJ/gCw+7envfYlGSD
-=bDH3
------END PGP SIGNATURE-----
-
---vtzGhvizbBRQ85DL--
+On Thursday 12 July 2012 05:52 PM, Wolfram Sang wrote:
+>> Signed-off-by: Vikram Pandita <vikram.pandita-l0cyMroinI0@public.gmane.org>
+>> > Signed-off-by: Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
+>> > Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> This has to wait a little bit until I can spend time on the recovery
+> framework (which is still in the queue, sadly :( ). There might be some
+> consolidation.
+OK thanks.
