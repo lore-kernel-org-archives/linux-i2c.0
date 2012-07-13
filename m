@@ -1,55 +1,57 @@
 From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH] i2c-s3c2410: Fix pointer type passed to of_match_node()
-Date: Fri, 13 Jul 2012 10:32:54 +0200
-Message-ID: <20120713083254.GG32184@pengutronix.de>
-References: <1338370985-6950-1-git-send-email-k.lewandowsk@samsung.com>
+Subject: Re: [PATCH] i2c-s3c2410: Convert to devm_request_and_ioremap()
+Date: Fri, 13 Jul 2012 10:37:12 +0200
+Message-ID: <20120713083712.GH32184@pengutronix.de>
+References: <1340888138-32710-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+ <20120709135229.GL1296@pengutronix.de>
+ <20120709135809.GG3934@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UKNXkkdQCYZ6W5l3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="WIIRZ1HQ6FgrlPgb"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1338370985-6950-1-git-send-email-k.lewandowsk@samsung.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Karol Lewandowski <k.lewandowsk@samsung.com>
-Cc: m.szyprowski@samsung.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Kyungmin Park <kyungmin.park@samsung.com>
+In-Reply-To: <20120709135809.GG3934@opensource.wolfsonmicro.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---UKNXkkdQCYZ6W5l3
+--WIIRZ1HQ6FgrlPgb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 30, 2012 at 11:43:05AM +0200, Karol Lewandowski wrote:
-> This commit fixes warning introduced in 27452498a ("i2c-s3c2410: Rework
-> device type handling"):
+On Mon, Jul 09, 2012 at 02:58:10PM +0100, Mark Brown wrote:
+> On Mon, Jul 09, 2012 at 03:52:29PM +0200, Wolfram Sang wrote:
+> > On Thu, Jun 28, 2012 at 01:55:38PM +0100, Mark Brown wrote:
+> > > A small code saving and less error handling to worry about.
 >=20
->   drivers/i2c/busses/i2c-s3c2410.c: In function 's3c24xx_get_device_quirk=
-s':
->   drivers/i2c/busses/i2c-s3c2410.c:125: warning: passing argument 1 of 'o=
-f_match_node' from incompatible pointer type
->   include/linux/of.h:245: note: expected 'const struct of_device_id *' bu=
-t argument is of type 'const struct of_device_id (*)[4]'
+> > > Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
 >=20
-> Signed-off-by: Karol Lewandowski <k.lewandowsk@samsung.com>
-> Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
+> > What about devm for the clocks, too?
+>=20
+> The devm_ versions of the API aren't exported there yet and there's a
+> bug fix pending too but Russell and Mike have ignored the patches thus
+> far.
 
-Sorry, this dropped of the pile. Applied to next now.
+I'd rather wait for this to be fixed and have all devm applied in one
+go?
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---UKNXkkdQCYZ6W5l3
+--WIIRZ1HQ6FgrlPgb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAk//3TYACgkQD27XaX1/VRugLACfVUAabwojHig+20X4BUB83Q8J
-GToAoLkwAV+jtwFzDHTkYQX0nLXADoxP
-=fhcV
+iEYEARECAAYFAk//3jgACgkQD27XaX1/VRsX4wCgtkW47yTZknUv79vZhkTwvYD3
+zmsAn3DzOuQG67CdSZrXCZCavlKzBOmp
+=4uxv
 -----END PGP SIGNATURE-----
 
---UKNXkkdQCYZ6W5l3--
+--WIIRZ1HQ6FgrlPgb--
