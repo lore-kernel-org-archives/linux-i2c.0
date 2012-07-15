@@ -1,39 +1,44 @@
-From: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH 2/2 V3] MXS: Implement DMA support into mxs-i2c
-Date: Sun, 15 Jul 2012 16:17:16 +0800
-Message-ID: <20120715081715.GA2429@S2100-06.ap.freescale.net>
-References: <1341850974-11977-1-git-send-email-marex@denx.de>
- <1341850974-11977-2-git-send-email-marex@denx.de>
- <20120713082249.GF32184@pengutronix.de>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH] i2c: sis964: bus driver
+Date: Sun, 15 Jul 2012 13:35:30 +0200
+Message-ID: <20120715133530.1ffc3f36@endymion.delvare>
+References: <1342172455-8530-1-git-send-email-amaury.decreme@gmail.com>
+	<CAErSpo5-ou3vjmHgjiOOd57PvWg_hez80U0k3AX_ydjb0pikvQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120713082249.GF32184-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <CAErSpo5-ou3vjmHgjiOOd57PvWg_hez80U0k3AX_ydjb0pikvQ@mail.gmail.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Amaury =?UTF-8?B?RGVjcsOqbWU=?= <amaury.decreme@gmail.com>, linux-i2c@vger.kernel.org, amalysh@web.de, nelson@sis.com, ben-linux@fluff.org, w.sang@pengutronix.de, rob@landley.net, jeffrey.t.kirsher@intel.com, akpm@linux-foundation.org, davem@davemloft.net, joe@perches.com, ralf@linux-mips.org, dirk.brandewie@gmail.com, jayachandranc@netlogicmicro.com, Xiangzhen.Ye@csr.com, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-pci@vger.kernel.org, suzanne.decreme@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 13, 2012 at 10:22:49AM +0200, Wolfram Sang wrote:
-> > +	/*
-> > +	 * TODO: This is a temporary solution and should be changed
-> > +	 * to use generic DMA binding later when the helpers get in.
-> > +	 */
-> 
-> @Shawn: Any idea when this is going to happen? And why do we need this?
+Hi Bjorn,
 
-See thread [1] for current statues.  I'm not sure when it's going to
-happen though.
+On Fri, 13 Jul 2012 09:36:07 -0600, Bjorn Helgaas wrote:
+> On Fri, Jul 13, 2012 at 3:40 AM, Amaury Decr=C3=AAme
+> <amaury.decreme@gmail.com> wrote:
+> > diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+> > index ab741b0..0ffc982 100644
+> > --- a/include/linux/pci_ids.h
+> > +++ b/include/linux/pci_ids.h
+> > @@ -699,6 +699,7 @@
+> >  #define PCI_DEVICE_ID_SI_961           0x0961
+> >  #define PCI_DEVICE_ID_SI_962           0x0962
+> >  #define PCI_DEVICE_ID_SI_963           0x0963
+> > +#define PCI_DEVICE_ID_SI_964           0x0964
+>=20
+> Please read the comment at the top of this file; I don't think this
+> addition qualifies as something that should be added.
+>=20
+> >  #define PCI_DEVICE_ID_SI_965           0x0965
+> >  #define PCI_DEVICE_ID_SI_966           0x0966
+> >  #define PCI_DEVICE_ID_SI_968           0x0968
 
-> AFAICT it will be always channel 6/7 on mx28?
-> 
-Yes, but it might be a different channel on mx23.  Just like we define
-IO region and interrupt number in device tree, dma channel is just
-another resource of hardware block that we choose to define in device
-tree.
+When you reply to a large patch, please limit the quoting to the
+relevant portion.
 
-Regards,
-Shawn
-
-[1] http://thread.gmane.org/gmane.linux.ports.arm.omap/75828
+Thanks,
+--=20
+Jean Delvare
