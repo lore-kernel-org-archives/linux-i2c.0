@@ -1,50 +1,46 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: stu300: use devm managed resources
-Date: Mon, 16 Jul 2012 13:49:40 +0200
-Message-ID: <20120716114940.GD17435@pengutronix.de>
-References: <1342438212-18965-1-git-send-email-linus.walleij@linaro.org>
+From: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
+Subject: Re: [PATCHv3] I2C: MV64XXX: Add Device Tree support
+Date: Mon, 16 Jul 2012 14:20:19 +0200
+Message-ID: <20120716142019.3f6cdc26@skate>
+References: <1342430205-13702-1-git-send-email-andrew@lunn.ch>
+ <1342430205-13702-2-git-send-email-andrew@lunn.ch>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="k4f25fnPtRuIRUb3"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1342438212-18965-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1342430205-13702-2-git-send-email-andrew@lunn.ch>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Andrew Lunn <andrew@lunn.ch>
+Cc: Jason Cooper <jason@lakedaemon.net>, sebastian.hesselbarth@googlemail.com, w.sang@pengutronix.de, linux ARM <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-
---k4f25fnPtRuIRUb3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 16, 2012 at 01:30:12PM +0200, Linus Walleij wrote:
-> Allocate memory for device state using devm_kzalloc(), get the
-> clock using devm_clk_get(), get the IRQ using devm_request_irq(),
-> request and remap memory using devm_request_and_ioremap().
-> All to simplify accounting and letting the kernel do the
-> garbage-collection.
->=20
-> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-Applied to next, thanks!
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---k4f25fnPtRuIRUb3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlAD/9QACgkQD27XaX1/VRtfqgCfaSL3KA8U/HVQVS0U9AzZ7CCq
-bHkAn0Z9Ug5HQ2nXJBpxTBUGcm7jS0iU
-=BEpX
------END PGP SIGNATURE-----
-
---k4f25fnPtRuIRUb3--
+TGUgTW9uLCAxNiBKdWwgMjAxMiAxMToxNjo0NSArMDIwMCwKQW5kcmV3IEx1bm4gPGFuZHJld0Bs
+dW5uLmNoPiBhIMOpY3JpdCA6Cgo+ICsgLSByZWcgICAgICAgICAgICAgOiBPZmZzZXQgYW5kIGxl
+bmd0aCBvZiB0aGUgcmVnaXN0ZXIgc2V0IGZvciB0aGUgZGV2aWNlCj4gKyAtIGNvbXBhdGlibGUg
+ICAgICA6IFNob3VsZCBiZSAibWFydmVsbCxtdjY0eHh4LWkyYyIKPiArIC0gaW50ZXJydXB0cyAg
+ICAgIDogVGUgaW50ZXJydXB0IG51bWJlcgoKICAgICAgICAgICAgICAgICAgICAgICAgVGhlCgo+
+ICsJCWkyY0AxMTAwMCB7Cj4gKwkJCWNvbXBhdGlibGUgPSAibWFydmVsbCxtdjY0eHh4LWkyYyI7
+Cj4gKwkJCXJlZyA9IDwweDExMDAwIDB4MjA+Owo+ICsJCQkjYWRkcmVzcy1jZWxscyA9IDwxPjsK
+PiArCQkJI3NpemUtY2VsbHMgPSA8MD47Cj4gKwkJCWludGVycnVwdHMgPSA8Mjk+Owo+ICsJCQlj
+bG9jay1mcmVxdWVuY3kgPSA8NDAwMDAwPjsKPiArCQkJdGltZW91dC1tcyA9IDwxMDAwPjsKPiAr
+CQkJc3RhdHVzID0gImRpc2FibGUiOwoKVGhpcyBzaG91bGQgYmUgImRpc2FibGVkIi4gQW55IG90
+aGVyIHN0YXR1cyB0aGFuICJva2F5IiBpcyBjb25zaWRlcmVkCmFzIGRpc2FibGVkLCBpZiBJJ20g
+Y29ycmVjdCwgYnV0IHRoZSByaWdodCBvcHBvc2l0ZSB0byAib2theSIgaXMKImRpc2FibGVkIiwg
+YXMgZmFyIGFzIEknbSBhd2FyZS4KClRoZSAjaWZkZWYgbWFjaGluZXJ5IGluIHRoZSAtPnByb2Jl
+KCkgZnVuY3Rpb24gbG9va3MgYSBiaXQgdWdseSwgYnV0IEkKZ3Vlc3MgdGhpcyBjYW4gYmUgY2xl
+YW5lZCB1cCBvbmNlIGFsbCBwbGF0Zm9ybXMgdXNpbmcgdGhpcyBkcml2ZXIgd2lsbApoYXZlIGJl
+ZW4gY29udmVydGVkIHRvIERUICsgY2xvY2sgZnJhbWV3b3JrLgoKVGhvbWFzCi0tIApUaG9tYXMg
+UGV0YXp6b25pLCBGcmVlIEVsZWN0cm9ucwpLZXJuZWwsIGRyaXZlcnMsIHJlYWwtdGltZSBhbmQg
+ZW1iZWRkZWQgTGludXgKZGV2ZWxvcG1lbnQsIGNvbnN1bHRpbmcsIHRyYWluaW5nIGFuZCBzdXBw
+b3J0LgpodHRwOi8vZnJlZS1lbGVjdHJvbnMuY29tCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpsaW51eC1hcm0ta2VybmVsIG1haWxpbmcgbGlzdApsaW51
+eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVhZC5vcmcKaHR0cDovL2xpc3RzLmluZnJhZGVhZC5v
+cmcvbWFpbG1hbi9saXN0aW5mby9saW51eC1hcm0ta2VybmVsCg==
