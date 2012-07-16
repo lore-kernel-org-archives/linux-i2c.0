@@ -1,64 +1,63 @@
-From: Andrew Lunn <andrew@lunn.ch>
-Subject: Re: [PATCHv3] I2C: MV64XXX: Add Device Tree support
-Date: Mon, 16 Jul 2012 14:37:14 +0200
-Message-ID: <20120716123714.GG2489@lunn.ch>
-References: <1342430205-13702-1-git-send-email-andrew@lunn.ch>
- <1342430205-13702-2-git-send-email-andrew@lunn.ch>
- <20120716142019.3f6cdc26@skate>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 2/2 V3] MXS: Implement DMA support into mxs-i2c
+Date: Mon, 16 Jul 2012 15:06:07 +0200
+Message-ID: <201207161506.08147.marex@denx.de>
+References: <1341850974-11977-1-git-send-email-marex@denx.de> <201207141409.38554.marex@denx.de> <20120716102151.GC17435@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20120716142019.3f6cdc26@skate>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Jason Cooper <jason@lakedaemon.net>, sebastian.hesselbarth@googlemail.com, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, linux ARM <linux-arm-kernel@lists.infradead.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120716102151.GC17435-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 16, 2012 at 02:20:19PM +0200, Thomas Petazzoni wrote:
-> Le Mon, 16 Jul 2012 11:16:45 +0200,
-> Andrew Lunn <andrew@lunn.ch> a ??crit :
+Dear Wolfram Sang,
+
+> Marek,
 > 
-> > + - reg             : Offset and length of the register set for the device
-> > + - compatible      : Should be "marvell,mv64xxx-i2c"
-> > + - interrupts      : Te interrupt number
+> > > I am also still interested to check the runtime switching, but it might
+> > > take another month until I can really hack on it.
+> > 
+> > Good, there is some bit that probably needs to be flipped to allow this
+> > switching. I managed to get this working with SPI, not with i2c though.
+> > With
 > 
->                         The
+> Ah, hearing that it works with SPI is good news.
 > 
-> > +		i2c@11000 {
-> > +			compatible = "marvell,mv64xxx-i2c";
-> > +			reg = <0x11000 0x20>;
-> > +			#address-cells = <1>;
-> > +			#size-cells = <0>;
-> > +			interrupts = <29>;
-> > +			clock-frequency = <400000>;
-> > +			timeout-ms = <1000>;
-> > +			status = "disable";
+> > i2c, if I restarted the controller inbetween each transaction, it worked
+> > ... which is not what I'd like to see there.
 > 
-> This should be "disabled".
+> Agreed.
+> 
+> > > > No, it doesn't. See above about small transfers. Consider the easy
+> > > > situation where you have sensor on one bus (so you do PIO because you
+> > > > transfer small data) and you have EEPROM on other bus, where you use
+> > > > DMA because you transfer large data. And the mixed mode isn't there
+> > > > yet.
+> > > 
+> > > I fully understand what you want to configure. I did before. Yet,
+> > > devicetree bindings are not platform_data and shouldn't be used like
+> > > them.
+> > 
+> > But then, how would you configure this detail on a per-bus basis? Well
+> > all
+> 
+> This is a question for devicetree-discuss.
 
-Thanks.
+Did you Cc it?
 
-> The #ifdef machinery in the ->probe() function looks a bit ugly, but I
-> guess this can be cleaned up once all platforms using this driver will
-> have been converted to DT + clock framework.
+> > patch actually fixes a real issue, I'd like to have it in ASAP and it's
+> > been aboue three months already, which sucks.
+> 
+> I am open to ideas improving the situation (which is: a lot more
+> patches, but not a lot more reviewers)
+> 
+> Thanks,
+> 
+>    Wolfram
 
-Yes, it is ugly :-(
-
-The ARM platforms are moving in the right direction. They all have
-clock framework support and only mv78xx0 has nobody working on DT, as
-far as i know.
-
-I've no idea if anybody is still working on the powerpc platforms.
-There are two _defconfig files that use it.
-
-     Andrew
+Best regards,
+Marek Vasut
