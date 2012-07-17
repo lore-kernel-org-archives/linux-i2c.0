@@ -1,148 +1,88 @@
-From: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Subject: Re: OMAP: send i2c message ignoring NAK
-Date: Tue, 17 Jul 2012 11:31:33 +0200
-Message-ID: <CAGm1_ktYqq5HKt13RuQVL8axX0FUnZ_5a6va7BRuUschQRKERQ@mail.gmail.com>
-References: <CAGm1_ktL96X7kF3tvKErtirwnL7FGU=zGe+EyhX4GcUkZUeSkQ@mail.gmail.com>
- <20120703103221.62fcb7ae@endymion.delvare> <CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA@mail.gmail.com>
- <CAM=Q2cv2yCEaxjSL45PSpf8k8pgMuhr88TJ-RWc0OW1GL+n6Dg@mail.gmail.com>
- <CAGm1_kvLwj3iFz5M6zc+pitS_45OYPYw=aBU4bv8TdOhH600NA@mail.gmail.com>
- <4FFDAF5A.8070205@ti.com> <CANQgH-YxYY7M6o4Hxw0kq9=GSwF8TSgiobXLJoPnGhj=c3w4KQ@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: Transaction timeout issue with Temperature sensor driver on
+ 2.6.32 kernel.
+Date: Tue, 17 Jul 2012 13:17:38 +0200
+Message-ID: <20120717131738.7f7aaf80@endymion.delvare>
+References: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANQgH-YxYY7M6o4Hxw0kq9=GSwF8TSgiobXLJoPnGhj=c3w4KQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: bhanuprakash bodireddy <bhanuprakashbodireddy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 12, 2012 at 7:24 AM, Datta, Shubhrajyoti
-<shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
-> On Wed, Jul 11, 2012 at 10:22 PM, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
->> On Wednesday 11 July 2012 09:53 PM, Yegor Yefremov wrote:
-> [...]
-> Yegor I have made a patch to ignore the NACK in the ISR let me know if
-> that helps you.
->
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 9895fa7..e13061f 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -476,6 +476,8 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
->
->         if (msg->len == 0)
->                 return -EINVAL;
-> +       if (msg->flags & I2C_M_IGNORE_NAK)
-> +               dev->flags |= OMAP_I2C_FLAG_NO_NAK;
->
->         omap_i2c_write_reg(dev, OMAP_I2C_SA_REG, msg->addr);
->
-> @@ -776,18 +778,26 @@ complete:
->                                 ~(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
->                                 OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
->
-> -               if (stat & OMAP_I2C_STAT_NACK)
-> +               if (stat & OMAP_I2C_STAT_NACK &&
-> +                               !(dev->flags & OMAP_I2C_FLAG_NO_NAK)) {
->                         err |= OMAP_I2C_STAT_NACK;
-> +                       omap_i2c_ack_stat(dev, stat &
-> +                               (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
-> +                               OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
-> +                               OMAP_I2C_STAT_ARDY));
-> +                       omap_i2c_complete_cmd(dev, err);
-> +                       return IRQ_HANDLED;
-> +               }
->
->                 if (stat & OMAP_I2C_STAT_AL) {
->                         dev_err(dev->dev, "Arbitration lost\n");
->                         err |= OMAP_I2C_STAT_AL;
->                 }
-> +
->                 /*
->                  * ProDB0017052: Clear ARDY bit twice
->                  */
-> -               if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_NACK |
-> -                                       OMAP_I2C_STAT_AL)) {
-> +               if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_AL)) {
->                         omap_i2c_ack_stat(dev, stat &
->                                 (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
->                                 OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
-> diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
-> index 92a0dc7..f386150 100644
-> --- a/include/linux/i2c-omap.h
-> +++ b/include/linux/i2c-omap.h
-> @@ -29,6 +29,7 @@
->  #define OMAP_I2C_FLAG_BUS_SHIFT_1              BIT(7)
->  #define OMAP_I2C_FLAG_BUS_SHIFT_2              BIT(8)
->  #define OMAP_I2C_FLAG_BUS_SHIFT__SHIFT 7
-> +#define OMAP_I2C_FLAG_NO_NAK                   BIT(9)
->
->  struct omap_i2c_bus_platform_data {
->         u32             clkrate;
+On Tue, 17 Jul 2012 14:20:49 +0530, bhanuprakash bodireddy wrote:
+> I am porting an old INTEL temperature sensor module (written for
+> 2.6.21)  to kernel version (2.6.32).
+> The sensor is probed and accessed via I2C. Changed the code in-line
+> with the latest I2C framework
+> which uses new device driver binding model to make it work with new kernel.
+> 
+> But I see Transaction timeout errors on inserting the module. My module invokes
+> 'i2c_smbus_write_block_data/i2c_smbus_read_block_data' to clear/set
+> temperature format and
+> that's when i see the below errors get triggered.
+> 
+> > insmod temp_sensor.ko
 
-Thank you for the patch and sorry for delay. I tried the patch, but it
-doesn't help. I still get timeouts only. I fear it is really a
-hardware feature, that OMAPs i2c stops if address is not acknowledged.
-At least this is my understanding of the reference manual.
+Why was this driver not submitted for inclusion into the kernel tree?
+Or was it? Are you sure there is no compatible driver already in the
+tree?
 
-Here is the output from dmesg:
+> [  211.804338] XXXX(temperature sensor) driver init start..
+> [  211.815119] devfn: fb, vendor: 8086, device: 269b
+> [  211.854127] temp_probe[bus details]: name: SMBus I801 adapter at
+> 3000, id:0x0, algo: 0xffffffff81469fe0)
+> [  211.884109] i801_smbus 0000:00:1f.3: start call for
+> ffff88015b155400 ffff88015f94a580 at 4294879180
+> [  211.895031] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879191
+> [  211.905023] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879200
+> [  211.915024] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879211
+> [  211.924016] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879220
+> [  211.933021] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879229
+> [  211.942018] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879238
+>                                                    .
+>                                                    .
+> [  211.951019] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879247
+> [  211.960018] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879256
+> [  211.969020] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294879265
+> [  212.787881] i801_smbus 0000:00:1f.3: Transaction timeout
+> [  212.793163] i801_smbus 0000:00:1f.3: Terminating the current operation
+> [  212.800016] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294880096
+> [  212.808880] i801_smbus 0000:00:1f.3: Failed terminating the transaction
+> [  212.816016] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
+> ffff88015f94a580 at 4294880112
+> [  212.824872] XXXX_CMD_STOP_POLLING smbus read fail(-110)!!
+> 
+> (enabled the debug messages in i2c-i801.c)
 
-i2c i2c-2: master_xfer[0] W, addr=0x39, len=2
-omap_i2c omap_i2c.2: addr: 0x0039, len: 2, flags: 0x0, stop: 1
-omap_i2c omap_i2c.2: IRQ (ISR = 0x4000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x0004)
-i2c i2c-2: master_xfer[0] W, addr=0x39, len=1
-i2c i2c-2: master_xfer[1] R, addr=0x39, len=1
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x0, stop: 0
-omap_i2c omap_i2c.2: IRQ (ISR = 0x4000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x1004)
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x1, stop: 1
-omap_i2c omap_i2c.2: IRQ (ISR = 0x3000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x0004)
-SIIHDMI: Device ID: 0xb0
-i2c i2c-2: master_xfer[0] W, addr=0x39, len=1
-i2c i2c-2: master_xfer[1] R, addr=0x39, len=1
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x0, stop: 0
-omap_i2c omap_i2c.2: IRQ (ISR = 0x4000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x1004)
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x1, stop: 1
-omap_i2c omap_i2c.2: IRQ (ISR = 0x3000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x0004)
-(rev 0.2)
-i2c i2c-2: master_xfer[0] W, addr=0x39, len=1
-i2c i2c-2: master_xfer[1] R, addr=0x39, len=1
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x0, stop: 0
-omap_i2c omap_i2c.2: IRQ (ISR = 0x4000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x1004)
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x1, stop: 1
-omap_i2c omap_i2c.2: IRQ (ISR = 0x3000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x0004)
-(TPI revision 0.3)
-i2c i2c-2: master_xfer[0] W, addr=0x39, len=1
-i2c i2c-2: master_xfer[1] R, addr=0x39, len=1
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x0, stop: 0
-omap_i2c omap_i2c.2: IRQ (ISR = 0x4000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x1004)
-omap_i2c omap_i2c.2: addr: 0x0039, len: 1, flags: 0x1, stop: 1
-omap_i2c omap_i2c.2: IRQ (ISR = 0x3000)
-omap_i2c omap_i2c.2: IRQ (ISR = 0x0004)
+You did not just enable them, you added some of your own, or you aren't
+using the original i2c-i801 driver from your kernel version.
 
-I have placed some debugging output:
+> Is this driver issue or the bus problem on my Target board?
 
-SIIHDMI: Device ID: 0xb0
- (rev 0.2)
- (TPI revision 0.3)
+It is impossible to tell without seeing the temperature sensor driver
+source code and the bus driver source code. It _looks_ like a bus
+driver issue, but if the same code worked in kernel 2.6.21 there's no
+reason why it would fail in kernel 2.6.32 (unless the hardware changed
+too.)
 
-YY: NAK should be ignored (here the flag will be set according to the msg->flag)
-omap_i2c omap_i2c.2: controller timed out
-YY: NAK should be ignored
-omap_i2c omap_i2c.2: controller timed out
-omap_i2c omap_i2c.2: controller timed out
-YY: NAK should be ignored
-omap_i2c omap_i2c.2: controller timed out
-omap_i2c omap_i2c.2: controller timed out
-omap_i2c omap_i2c.2: controller timed out
-omap_i2c omap_i2c.2: controller timed out
+You can try the standalone i2c-i801 driver from:
+  http://khali.linux-fr.org/devel/misc/i2c-i801/
+and see if it helps.
 
-Yegor
+-- 
+Jean Delvare
