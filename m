@@ -1,66 +1,37 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: State of arbitration and i2c_gpio?
-Date: Mon, 16 Jul 2012 22:58:27 +0200
-Message-ID: <20120716225827.3425f4f8@endymion.delvare>
-References: <loom.20120710T223443-322@post.gmane.org>
+From: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: stu300: use devm managed resources
+Date: Tue, 17 Jul 2012 09:42:00 +0530
+Message-ID: <5004E610.9090000@st.com>
+References: <1342438212-18965-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <loom.20120710T223443-322-eS7Uydv5nfjZ+VzJOa5vwg@public.gmane.org>
+In-Reply-To: <1342438212-18965-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Matthias Urlichs <matthias-+qxcz+fHsVSELgA04lAiVw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hallo Matthias,
+On 7/16/2012 5:00 PM, Linus Walleij wrote:
+> Allocate memory for device state using devm_kzalloc(), get the
+> clock using devm_clk_get(), get the IRQ using devm_request_irq(),
+> request and remap memory using devm_request_and_ioremap().
+> All to simplify accounting and letting the kernel do the
+> garbage-collection.
+>
+> Signed-off-by: Linus Walleij<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ChangeLog v3->v4:
+> - Rebase on top of Wolframs i2c-embedded/for-next branch.
+> ChangeLog v2->v3:
+> - Also delete the cached physical base and size from the state
+>    holder struct.
+> ChangeLog v1->v2:
+> - Use more devm* stuff, at Wolfram's request.
+> - Note: based on a clean v3.5-rc6, may need some patch -p1<  patch
+>    to apply on the i2c tree, if you want me to rebase it, just tell
+>    me where to find the baseline.
 
-On Mon, 16 Jul 2012 15:15:29 +0000 (UTC), Matthias Urlichs wrote:
-> I'd like to ask whether anybody is working on adding arbitration supp=
-ort to
-> i2c_algo_bit.c. The code still has the old "FIXME do arbitration here=
-" comments,
-> added five years ago when the I=C2=B2C was imported into Linux 2.3.34=
-pre1. :-/
+Reviewed By: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
 
-Not that I am aware of.
-
-> If not, and I'm going to have to do that myself =E2=80=A6 my main que=
-stion is, even
-> before I get to that -- how do I even detect that the bus is idle? Tu=
-rn
-> interrupts off and busy-loop-check that both SCL and SDA stay high fo=
-r at least
-> one and a half clock periods?
-
-I was staring at this very FIXME comment in i2c-algo-bit a few weeks
-ago and my thoughts were along the lines of "can this be implemented at
-all?" We can't monitor SCL and SDA continuously with a pure software
-implementation. We can do best effort, but the closer to perfection we
-want to be, the more expensive. If both pins can trigger an interrupt
-when their level changes, we could use this feature, but OTOH we
-certainly don't want to receive interrupts the rest of the time, so
-we'd have to repeatedly enable/disable these interrupts. If we don't
-have such interrupts then indeed busy polling (or close to that) is the
-only way I can think of.
-
-Note that "one and a half clock period" is not something which
-evaluates to a number. You have no idea at what frequency the other
-master, if it exists, would be driving the bus. And the I2C
-specification does not specify a minimum operating frequency, so in
-theory you'd have to wait... forever. To solve this problem, SMBus
-specifies a 50 =C2=B5s maximum bus idle time (which corresponds to a 10=
- kHz
-clock, the minimum allowed under SMBus.) I suppose this is a sane
-setting in practice even for I2C controllers. At the other end of the
-spectrum, we have to deal with the maximum I2C frequency, 400 kHz in
-our context. This means you can't have more than 1.25 =C2=B5s between p=
-olls.
-Not sure we can actually guarantee that...
-
-In all cases we'll certainly want to let adapters tell whether they are
-operating on a multi-master bus or not, so that the whole thing can be
-disabled when not needed.
-
---=20
-Jean Delvare
+~Rajeev
