@@ -1,88 +1,106 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: Transaction timeout issue with Temperature sensor driver on
- 2.6.32 kernel.
-Date: Tue, 17 Jul 2012 13:17:38 +0200
-Message-ID: <20120717131738.7f7aaf80@endymion.delvare>
-References: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg@mail.gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [RFC/PATCH 1/3] i2c: Add SCCB support
+Date: Tue, 17 Jul 2012 13:53:07 +0200
+Message-ID: <20120717135307.6745729f@endymion.delvare>
+References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
+	<1340720229-30356-2-git-send-email-laurent.pinchart@ideasonboard.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: bhanuprakash bodireddy <bhanuprakashbodireddy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1340720229-30356-2-git-send-email-laurent.pinchart@ideasonboard.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 17 Jul 2012 14:20:49 +0530, bhanuprakash bodireddy wrote:
-> I am porting an old INTEL temperature sensor module (written for
-> 2.6.21)  to kernel version (2.6.32).
-> The sensor is probed and accessed via I2C. Changed the code in-line
-> with the latest I2C framework
-> which uses new device driver binding model to make it work with new kernel.
+Salut Laurent,
+
+On Tue, 26 Jun 2012 16:17:07 +0200, Laurent Pinchart wrote:
+> SCCB is a serial communication bus developed by Omnivision. Its 2-wire
+> mode is very similar to SMBus byte data transactions, but requires the
+> controller to ignore the ACK bit and to insert a stop condition after
+> each message.
 > 
-> But I see Transaction timeout errors on inserting the module. My module invokes
-> 'i2c_smbus_write_block_data/i2c_smbus_read_block_data' to clear/set
-> temperature format and
-> that's when i see the below errors get triggered.
+> Add a device SCCB flag and a message stop flag to be passed to
+> controller drivers.
 > 
-> > insmod temp_sensor.ko
-
-Why was this driver not submitted for inclusion into the kernel tree?
-Or was it? Are you sure there is no compatible driver already in the
-tree?
-
-> [  211.804338] XXXX(temperature sensor) driver init start..
-> [  211.815119] devfn: fb, vendor: 8086, device: 269b
-> [  211.854127] temp_probe[bus details]: name: SMBus I801 adapter at
-> 3000, id:0x0, algo: 0xffffffff81469fe0)
-> [  211.884109] i801_smbus 0000:00:1f.3: start call for
-> ffff88015b155400 ffff88015f94a580 at 4294879180
-> [  211.895031] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879191
-> [  211.905023] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879200
-> [  211.915024] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879211
-> [  211.924016] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879220
-> [  211.933021] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879229
-> [  211.942018] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879238
->                                                    .
->                                                    .
-> [  211.951019] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879247
-> [  211.960018] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879256
-> [  211.969020] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294879265
-> [  212.787881] i801_smbus 0000:00:1f.3: Transaction timeout
-> [  212.793163] i801_smbus 0000:00:1f.3: Terminating the current operation
-> [  212.800016] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294880096
-> [  212.808880] i801_smbus 0000:00:1f.3: Failed terminating the transaction
-> [  212.816016] i801_smbus 0000:00:1f.3: Poll call for ffff88015b155400
-> ffff88015f94a580 at 4294880112
-> [  212.824872] XXXX_CMD_STOP_POLLING smbus read fail(-110)!!
+> Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> ---
+>  drivers/i2c/i2c-core.c |   13 ++++++++++++-
+>  include/linux/i2c.h    |    2 ++
+>  2 files changed, 14 insertions(+), 1 deletions(-)
 > 
-> (enabled the debug messages in i2c-i801.c)
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index feb7dc3..8cfa660 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1939,6 +1939,12 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  	u8 partial_pec = 0;
+>  	int status;
+>  
+> +	if (unlikely(flags & I2C_CLIENT_SCCB) && size != I2C_SMBUS_BYTE_DATA) {
+> +		dev_err(&adapter->dev,
+> +			"SCCB devices only support I2C_SMBUS_BYTE_DATA\n");
+> +		return -EINVAL;
+> +	}
+> +
 
-You did not just enable them, you added some of your own, or you aren't
-using the original i2c-i801 driver from your kernel version.
+I'm not sure if we really want this. If the SCCB protocol evolves,
+we'll have to loosen the check. If a devices follows SCCB for byte data
+transactions and I2C/SMBus for others, it won't work. Plus it slows
+down the function a bit, to catch a developer error which would not
+result in anything catastrophic anyway.
 
-> Is this driver issue or the bus problem on my Target board?
+I propose that we either drop the check completely (my preference) or
+make it depend on DEBUG.
 
-It is impossible to tell without seeing the temperature sensor driver
-source code and the bus driver source code. It _looks_ like a bus
-driver issue, but if the same code worked in kernel 2.6.21 there's no
-reason why it would fail in kernel 2.6.32 (unless the hardware changed
-too.)
+>  	msgbuf0[0] = command;
+>  	switch (size) {
+>  	case I2C_SMBUS_QUICK:
+> @@ -1956,6 +1962,11 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+>  		}
+>  		break;
+>  	case I2C_SMBUS_BYTE_DATA:
+> +		if (unlikely(flags & I2C_CLIENT_SCCB)) {
+> +			msg[0].flags |= I2C_M_IGNORE_NAK | I2C_M_STOP;
+> +			msg[1].flags |= I2C_M_IGNORE_NAK | I2C_M_STOP;
+> +		}
+> +
+>  		if (read_write == I2C_SMBUS_READ)
+>  			msg[1].len = 1;
+>  		else {
+> @@ -2105,7 +2116,7 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>  	int try;
+>  	s32 res;
+>  
+> -	flags &= I2C_M_TEN | I2C_CLIENT_PEC;
+> +	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
+>  
+>  	if (adapter->algo->smbus_xfer) {
+>  		i2c_lock_adapter(adapter);
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 195d8b3..bd42914 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -420,6 +420,7 @@ void i2c_lock_adapter(struct i2c_adapter *);
+>  void i2c_unlock_adapter(struct i2c_adapter *);
+>  
+>  /*flags for the client struct: */
+> +#define I2C_CLIENT_SCCB	0x02		/* Use Omnivision SCCB protocol */
+>  #define I2C_CLIENT_PEC	0x04		/* Use Packet Error Checking */
+>  #define I2C_CLIENT_TEN	0x10		/* we have a ten bit chip address */
+>  					/* Must equal I2C_M_TEN below */
+> @@ -540,6 +541,7 @@ struct i2c_msg {
+>  	__u16 flags;
+>  #define I2C_M_TEN		0x0010	/* this is a ten bit chip address */
+>  #define I2C_M_RD		0x0001	/* read data, from slave to master */
+> +#define I2C_M_STOP		0x8000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+>  #define I2C_M_NOSTART		0x4000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+>  #define I2C_M_REV_DIR_ADDR	0x2000	/* if I2C_FUNC_PROTOCOL_MANGLING */
+>  #define I2C_M_IGNORE_NAK	0x1000	/* if I2C_FUNC_PROTOCOL_MANGLING */
 
-You can try the standalone i2c-i801 driver from:
-  http://khali.linux-fr.org/devel/misc/i2c-i801/
-and see if it helps.
+Other than this your patch looks fine, I'll apply it, thanks.
 
 -- 
 Jean Delvare
