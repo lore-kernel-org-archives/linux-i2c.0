@@ -1,45 +1,163 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [RFC/PATCH 1/3] i2c: Add SCCB support
-Date: Tue, 17 Jul 2012 14:08:27 +0200
-Message-ID: <20120717140827.0b06d427@endymion.delvare>
-References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
-	<1340720229-30356-2-git-send-email-laurent.pinchart@ideasonboard.com>
-	<20120717135307.6745729f@endymion.delvare>
-	<3429100.CjPKYaDDfQ@avalon>
+From: bhanuprakash bodireddy <bhanuprakashbodireddy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Transaction timeout issue with Temperature sensor driver on
+ 2.6.32 kernel.
+Date: Tue, 17 Jul 2012 17:52:57 +0530
+Message-ID: <CALPjBuUYJPOwTqZ+9gr2AVYigTD6N4B_2K6Erns+0vSX9biR+A@mail.gmail.com>
+References: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg@mail.gmail.com>
+	<20120717131738.7f7aaf80@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <3429100.CjPKYaDDfQ@avalon>
-Sender: linux-omap-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120717131738.7f7aaf80-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 17 Jul 2012 13:57:25 +0200, Laurent Pinchart wrote:
-> On Tuesday 17 July 2012 13:53:07 Jean Delvare wrote:
-> > On Tue, 26 Jun 2012 16:17:07 +0200, Laurent Pinchart wrote:
-> > > +	if (unlikely(flags & I2C_CLIENT_SCCB) && size != I2C_SMBUS_BYTE_DATA) {
-> > > +		dev_err(&adapter->dev,
-> > > +			"SCCB devices only support I2C_SMBUS_BYTE_DATA\n");
-> > > +		return -EINVAL;
-> > > +	}
-> > > +
-> > 
-> > I'm not sure if we really want this. If the SCCB protocol evolves,
-> > we'll have to loosen the check. If a devices follows SCCB for byte data
-> > transactions and I2C/SMBus for others, it won't work. Plus it slows
-> > down the function a bit, to catch a developer error which would not
-> > result in anything catastrophic anyway.
-> > 
-> > I propose that we either drop the check completely (my preference) or
-> > make it depend on DEBUG.
-> 
-> I'm OK with dropping the check. Should I resubmit the patch or can you modify 
-> it when applying ?
+> Why was this driver not submitted for inclusion into the kernel tree?
+> Or was it? Are you sure there is no compatible driver already in the
+> tree?
 
-I'll do it myself, no problem.
+This driver wasn't submitted to the kernel tree. This was written
+keeping in mind
+to service a user space program which uses ioctl calls.
 
-Thanks,
--- 
-Jean Delvare
+> You did not just enable them, you added some of your own, or you aren't
+> using the original i2c-i801 driver from your kernel version.
+
+True, I may not using the original i2c-i801 as the code is from MontaVista CGE6
+and as i see the bus driver code is bit different to what i see on
+kernel tree for
+same version. That makes the debugging even more difficult for me :(
+
+>> Is this driver issue or the bus problem on my Target board?
+>
+> It is impossible to tell without seeing the temperature sensor driver
+> source code and the bus driver source code. It _looks_ like a bus
+> driver issue, but if the same code worked in kernel 2.6.21 there's no
+> reason why it would fail in kernel 2.6.32 (unless the hardware changed
+> too.)
+
+Below is my driver code.
+
+PECI_ADDR = 0x29;
+#define BYTE_CNT_1               0x01
+#define PECI_STOP_POLLING             0x00
+
+static struct i2c_device_id peci_idtable[] = {
+        { "PECI", 0 },
+        { }
+};
+MODULE_DEVICE_TABLE(i2c, peci_idtable);
+
+struct i2c_driver peci_driver = {
+        .driver         =
+        {
+                .owner      = THIS_MODULE,
+                .name       = "PECI",
+        },
+        .probe          = peci_probe,
+        .remove         = peci_remove,
+        .id_table       = peci_idtable,
+};
+
+xxx_probe()
+{
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
+        struct i2c_client *pNewClient;
+#else
+        struct device *dev = &pAdapter->dev;
+        struct i2c_adapter *adapter = pAdapter->adapter;
+ #endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
+        if (!i2c_check_functionality(pAdapter,
+I2C_FUNC_SMBUS_BYTE|I2C_FUNC_SMBUS_BYTE_DATA))
+#else
+        if (!i2c_check_functionality(pAdapter->adapter,
+I2C_FUNC_SMBUS_BYTE|I2C_FUNC_SMBUS_BYTE_DATA|I2C_FUNC_SMBUS_BLOCK_DATA))
+#endif
+        {
+                printk(KERN_ERR "i2c_check_functionality() fail!\n");
+                return -1;
+        }
+}
+
+xxx_init_conf()
+{
+        u8                  aVal[I2C_SMBUS_BLOCK_MAX]={0,};
+
+        memset(aVal, 0, I2C_SMBUS_BLOCK_MAX);
+        bCnt = BYTE_CNT_1;
+
+        aVal[0] = bCnt;
+        aVal[1] = PECI_STOP_POLLING;
+        rslt = i2c_smbus_write_block_data(pClient,
+PECI_CMD_STOP_POLLING , bCnt+1, aVal);
+        if(rslt)
+                return -EFAULT;
+
+        rslt = i2c_smbus_read_block_data(pClient, PECI_CMD_STOP_POLLING, NULL);
+        if(rslt < 0)
+                return -EFAULT;
+}
+
+xxx_init()
+{
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,30)
+        static int bus_id = 0;
+        struct i2c_adapter *adapter;
+        struct i2c_board_info peci_device;
+
+        memset(&peci_device, 0, sizeof(struct i2c_board_info));
+        peci_device.addr = PECI_ADDR;
+        strlcpy(peci_device.type, "PECI", I2C_NAME_SIZE);
+
+        adapter = i2c_get_adapter(bus_id);
+        if (!adapter) {
+                return -ENODEV;
+        }
+
+        pClient = i2c_new_device(adapter, &peci_device);
+        i2c_put_adapter(adapter);
+        if (!pClient) {
+                         peci_exit();
+        }
+#endif
+
+     xxx_init_conf();
+}
+
+
+tree /sys/bus/i2c
+/sys/bus/i2c
+|-- devices
+|   |-- 0-0029 -> ../../../devices/pci0000:00/0000:00:1f.3/i2c-0/0-0029
+|   `-- i2c-0 -> ../../../devices/pci0000:00/0000:00:1f.3/i2c-0
+|-- drivers
+|   |-- PECI
+|   |   |-- 0-0029 -> ../../../../devices/pci0000:00/0000:00:1f.3/i2c-0/0-0029
+|   |   |-- bind
+|   |   |-- module -> ../../../../module/peci_ctrl
+|   |   |-- uevent
+|   |   `-- unbind
+|   |-- dev_driver
+|   |   |-- bind
+|   |   |-- uevent
+|   |   `-- unbind
+|   `-- dummy
+|       |-- bind
+|       |-- uevent
+|       `-- unbind
+|-- drivers_autoprobe
+|-- drivers_probe
+`-- uevent
+
+
+> You can try the standalone i2c-i801 driver from:
+>   http://khali.linux-fr.org/devel/misc/i2c-i801/
+> and see if it helps.
+
+Sure Jean, will try this out and see if it helps  me.
+
+--- Bhanu Prakash
