@@ -1,81 +1,96 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: OMAP: send i2c message ignoring NAK
-Date: Tue, 17 Jul 2012 19:31:27 +0530
-Message-ID: <CAM=Q2ct_mfGiuKrX9KAuk7B+PA==FRL7DPOfge9fRAuFg6bA3Q@mail.gmail.com>
-References: <CAGm1_ktL96X7kF3tvKErtirwnL7FGU=zGe+EyhX4GcUkZUeSkQ@mail.gmail.com>
-	<20120703103221.62fcb7ae@endymion.delvare>
-	<CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA@mail.gmail.com>
-	<CAM=Q2cv2yCEaxjSL45PSpf8k8pgMuhr88TJ-RWc0OW1GL+n6Dg@mail.gmail.com>
-	<CAGm1_kvLwj3iFz5M6zc+pitS_45OYPYw=aBU4bv8TdOhH600NA@mail.gmail.com>
-	<4FFDAF5A.8070205@ti.com>
-	<CANQgH-YxYY7M6o4Hxw0kq9=GSwF8TSgiobXLJoPnGhj=c3w4KQ@mail.gmail.com>
-	<CAGm1_ktYqq5HKt13RuQVL8axX0FUnZ_5a6va7BRuUschQRKERQ@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [RFC/PATCH 2/3] i2c: Fall back to emulated SMBus if the
+ operation isn't supported natively
+Date: Tue, 17 Jul 2012 17:02:43 +0200
+Message-ID: <20120717170243.5def41a3@endymion.delvare>
+References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
+	<1340720229-30356-3-git-send-email-laurent.pinchart@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGm1_ktYqq5HKt13RuQVL8axX0FUnZ_5a6va7BRuUschQRKERQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1340720229-30356-3-git-send-email-laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
-Cc: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 17, 2012 at 3:01 PM, Yegor Yefremov
-<yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org> wrote:
-> On Thu, Jul 12, 2012 at 7:24 AM, Datta, Shubhrajyoti
-> <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
-[...]
->> On Wed, Jul 11, 2012 at 10:22 PM, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
+Hi Laurent,
 
+On Tue, 26 Jun 2012 16:17:08 +0200, Laurent Pinchart wrote:
+> Adapter drivers might support only a subset of the SMBus operations
+> natively. Those drivers currently have to manually emulate unsupported
+> operations using I2C.
+> 
+> Make the i2c_smbus_xfer() function fall back to
+> i2c_smbus_xfer_emulated() when the adapter's .smbus_xfer() operation
+> returns -EOPNOTSUPP, like it already does when the .smbus_xfer()
+> operation isn't available at all.
+> 
+> Signed-off-by: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-core.c |    9 +++++++--
+>  1 files changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index 8cfa660..16e750e 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -2113,8 +2113,8 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>  		   union i2c_smbus_data *data)
+>  {
+>  	unsigned long orig_jiffies;
+> +	s32 res = -EOPNOTSUPP;
+>  	int try;
+> -	s32 res;
+>  
+>  	flags &= I2C_M_TEN | I2C_CLIENT_PEC | I2C_CLIENT_SCCB;
+>  
+> @@ -2134,7 +2134,12 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+>  				break;
+>  		}
+>  		i2c_unlock_adapter(adapter);
+> -	} else
+> +	}
+> +
+> +	/* Fall back to i2c_smbus_xfer_emulated of the adapter doesn't implement
+> +	 * native support for the SMBus operation.
+> +	 */
+> +	if (res == -EOPNOTSUPP && adapter->algo->master_xfer)
+>  		res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
+>  					      command, protocol, data);
+>  
 
->
-> Thank you for the patch and sorry for delay. I tried the patch,
+Looks good overall, but maybe the following variant would be preferable
+from a performance perspective:
 
-Thanks for the test.
-
-> but it doesn't help. I still get timeouts only. I fear it is really a
-> hardware feature,
-
-I feel that could be unlikely.
-
-> that OMAPs i2c stops if address is not acknowledged.
-> At least this is my understanding of the reference manual.
->
-> Here is the output from dmesg:
-
-
-Another request. Can you disable the NACK interrupt on the ignore and
-enable back?
-
-Also let me know if you know of any of the panda or sdp peripherals
-which could keep going on
-NACK.
-
-patch below.
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 801df60..82e52a5 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -523,6 +523,11 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
- 	if (msg->len == 0)
- 		return -EINVAL;
-
-+	if (msg->flags == I2C_M_IGNORE_NAK) {
-+		dev->iestate = dev->iestate &  ~OMAP_I2C_IE_NACK ;
-+		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+--- linux-3.5-rc7.orig/drivers/i2c/i2c-core.c	2012-07-17 16:35:42.566799611 +0200
++++ linux-3.5-rc7/drivers/i2c/i2c-core.c	2012-07-17 16:59:55.334530352 +0200
+@@ -2140,11 +2140,17 @@ s32 i2c_smbus_xfer(struct i2c_adapter *a
+ 				break;
+ 		}
+ 		i2c_unlock_adapter(adapter);
+-	} else
+-		res = i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
+-					      command, protocol, data);
+ 
+-	return res;
++		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
++			return res;
++		/*
++		 * Fall back to i2c_smbus_xfer_emulated if the adapter doesn't implement
++		 * native support for the SMBus operation.
++		 */
 +	}
 +
- 	omap_i2c_write_reg(dev, OMAP_I2C_SA_REG, msg->addr);
++	return i2c_smbus_xfer_emulated(adapter, addr, flags, read_write,
++				       command, protocol, data);
+ }
+ EXPORT_SYMBOL(i2c_smbus_xfer);
+ 
 
- 	/* REVISIT: Could the STB bit of I2C_CON be used with probing? */
-@@ -584,6 +589,10 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
- 	 */
- 	r = wait_for_completion_timeout(&dev->cmd_complete,
- 					OMAP_I2C_TIMEOUT);
-+	if (msg->flags == I2C_M_IGNORE_NAK) {
-+		dev->iestate = dev->iestate | OMAP_I2C_IE_NACK ;
-+		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
-+	}
- 	dev->buf_len = 0;
- 	if (r < 0)
- 		return r;
+What do you think? The advantage is that we can skip the tests for
+adapters which only implement adapter->algo->master_xfer().
+
+-- 
+Jean Delvare
