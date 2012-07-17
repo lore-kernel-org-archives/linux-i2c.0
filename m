@@ -1,163 +1,81 @@
-From: bhanuprakash bodireddy <bhanuprakashbodireddy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Transaction timeout issue with Temperature sensor driver on
- 2.6.32 kernel.
-Date: Tue, 17 Jul 2012 17:52:57 +0530
-Message-ID: <CALPjBuUYJPOwTqZ+9gr2AVYigTD6N4B_2K6Erns+0vSX9biR+A@mail.gmail.com>
-References: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg@mail.gmail.com>
-	<20120717131738.7f7aaf80@endymion.delvare>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: OMAP: send i2c message ignoring NAK
+Date: Tue, 17 Jul 2012 19:31:27 +0530
+Message-ID: <CAM=Q2ct_mfGiuKrX9KAuk7B+PA==FRL7DPOfge9fRAuFg6bA3Q@mail.gmail.com>
+References: <CAGm1_ktL96X7kF3tvKErtirwnL7FGU=zGe+EyhX4GcUkZUeSkQ@mail.gmail.com>
+	<20120703103221.62fcb7ae@endymion.delvare>
+	<CAGm1_kvBerv_Ot-NX2+ozZT3y+h4ECzwb-MM0-v=3M9aRRznzA@mail.gmail.com>
+	<CAM=Q2cv2yCEaxjSL45PSpf8k8pgMuhr88TJ-RWc0OW1GL+n6Dg@mail.gmail.com>
+	<CAGm1_kvLwj3iFz5M6zc+pitS_45OYPYw=aBU4bv8TdOhH600NA@mail.gmail.com>
+	<4FFDAF5A.8070205@ti.com>
+	<CANQgH-YxYY7M6o4Hxw0kq9=GSwF8TSgiobXLJoPnGhj=c3w4KQ@mail.gmail.com>
+	<CAGm1_ktYqq5HKt13RuQVL8axX0FUnZ_5a6va7BRuUschQRKERQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120717131738.7f7aaf80-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <CAGm1_ktYqq5HKt13RuQVL8axX0FUnZ_5a6va7BRuUschQRKERQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yegor Yefremov <yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org>
+Cc: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> Why was this driver not submitted for inclusion into the kernel tree?
-> Or was it? Are you sure there is no compatible driver already in the
-> tree?
+On Tue, Jul 17, 2012 at 3:01 PM, Yegor Yefremov
+<yegorslists-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org> wrote:
+> On Thu, Jul 12, 2012 at 7:24 AM, Datta, Shubhrajyoti
+> <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
+[...]
+>> On Wed, Jul 11, 2012 at 10:22 PM, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
 
-This driver wasn't submitted to the kernel tree. This was written
-keeping in mind
-to service a user space program which uses ioctl calls.
 
-> You did not just enable them, you added some of your own, or you aren't
-> using the original i2c-i801 driver from your kernel version.
-
-True, I may not using the original i2c-i801 as the code is from MontaVista CGE6
-and as i see the bus driver code is bit different to what i see on
-kernel tree for
-same version. That makes the debugging even more difficult for me :(
-
->> Is this driver issue or the bus problem on my Target board?
 >
-> It is impossible to tell without seeing the temperature sensor driver
-> source code and the bus driver source code. It _looks_ like a bus
-> driver issue, but if the same code worked in kernel 2.6.21 there's no
-> reason why it would fail in kernel 2.6.32 (unless the hardware changed
-> too.)
+> Thank you for the patch and sorry for delay. I tried the patch,
 
-Below is my driver code.
+Thanks for the test.
 
-PECI_ADDR = 0x29;
-#define BYTE_CNT_1               0x01
-#define PECI_STOP_POLLING             0x00
+> but it doesn't help. I still get timeouts only. I fear it is really a
+> hardware feature,
 
-static struct i2c_device_id peci_idtable[] = {
-        { "PECI", 0 },
-        { }
-};
-MODULE_DEVICE_TABLE(i2c, peci_idtable);
+I feel that could be unlikely.
 
-struct i2c_driver peci_driver = {
-        .driver         =
-        {
-                .owner      = THIS_MODULE,
-                .name       = "PECI",
-        },
-        .probe          = peci_probe,
-        .remove         = peci_remove,
-        .id_table       = peci_idtable,
-};
-
-xxx_probe()
-{
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
-        struct i2c_client *pNewClient;
-#else
-        struct device *dev = &pAdapter->dev;
-        struct i2c_adapter *adapter = pAdapter->adapter;
- #endif
-
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,6,30)
-        if (!i2c_check_functionality(pAdapter,
-I2C_FUNC_SMBUS_BYTE|I2C_FUNC_SMBUS_BYTE_DATA))
-#else
-        if (!i2c_check_functionality(pAdapter->adapter,
-I2C_FUNC_SMBUS_BYTE|I2C_FUNC_SMBUS_BYTE_DATA|I2C_FUNC_SMBUS_BLOCK_DATA))
-#endif
-        {
-                printk(KERN_ERR "i2c_check_functionality() fail!\n");
-                return -1;
-        }
-}
-
-xxx_init_conf()
-{
-        u8                  aVal[I2C_SMBUS_BLOCK_MAX]={0,};
-
-        memset(aVal, 0, I2C_SMBUS_BLOCK_MAX);
-        bCnt = BYTE_CNT_1;
-
-        aVal[0] = bCnt;
-        aVal[1] = PECI_STOP_POLLING;
-        rslt = i2c_smbus_write_block_data(pClient,
-PECI_CMD_STOP_POLLING , bCnt+1, aVal);
-        if(rslt)
-                return -EFAULT;
-
-        rslt = i2c_smbus_read_block_data(pClient, PECI_CMD_STOP_POLLING, NULL);
-        if(rslt < 0)
-                return -EFAULT;
-}
-
-xxx_init()
-{
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,30)
-        static int bus_id = 0;
-        struct i2c_adapter *adapter;
-        struct i2c_board_info peci_device;
-
-        memset(&peci_device, 0, sizeof(struct i2c_board_info));
-        peci_device.addr = PECI_ADDR;
-        strlcpy(peci_device.type, "PECI", I2C_NAME_SIZE);
-
-        adapter = i2c_get_adapter(bus_id);
-        if (!adapter) {
-                return -ENODEV;
-        }
-
-        pClient = i2c_new_device(adapter, &peci_device);
-        i2c_put_adapter(adapter);
-        if (!pClient) {
-                         peci_exit();
-        }
-#endif
-
-     xxx_init_conf();
-}
+> that OMAPs i2c stops if address is not acknowledged.
+> At least this is my understanding of the reference manual.
+>
+> Here is the output from dmesg:
 
 
-tree /sys/bus/i2c
-/sys/bus/i2c
-|-- devices
-|   |-- 0-0029 -> ../../../devices/pci0000:00/0000:00:1f.3/i2c-0/0-0029
-|   `-- i2c-0 -> ../../../devices/pci0000:00/0000:00:1f.3/i2c-0
-|-- drivers
-|   |-- PECI
-|   |   |-- 0-0029 -> ../../../../devices/pci0000:00/0000:00:1f.3/i2c-0/0-0029
-|   |   |-- bind
-|   |   |-- module -> ../../../../module/peci_ctrl
-|   |   |-- uevent
-|   |   `-- unbind
-|   |-- dev_driver
-|   |   |-- bind
-|   |   |-- uevent
-|   |   `-- unbind
-|   `-- dummy
-|       |-- bind
-|       |-- uevent
-|       `-- unbind
-|-- drivers_autoprobe
-|-- drivers_probe
-`-- uevent
+Another request. Can you disable the NACK interrupt on the ignore and
+enable back?
 
+Also let me know if you know of any of the panda or sdp peripherals
+which could keep going on
+NACK.
 
-> You can try the standalone i2c-i801 driver from:
->   http://khali.linux-fr.org/devel/misc/i2c-i801/
-> and see if it helps.
+patch below.
 
-Sure Jean, will try this out and see if it helps  me.
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 801df60..82e52a5 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -523,6 +523,11 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	if (msg->len == 0)
+ 		return -EINVAL;
 
---- Bhanu Prakash
++	if (msg->flags == I2C_M_IGNORE_NAK) {
++		dev->iestate = dev->iestate &  ~OMAP_I2C_IE_NACK ;
++		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
++	}
++
+ 	omap_i2c_write_reg(dev, OMAP_I2C_SA_REG, msg->addr);
+
+ 	/* REVISIT: Could the STB bit of I2C_CON be used with probing? */
+@@ -584,6 +589,10 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+ 	 */
+ 	r = wait_for_completion_timeout(&dev->cmd_complete,
+ 					OMAP_I2C_TIMEOUT);
++	if (msg->flags == I2C_M_IGNORE_NAK) {
++		dev->iestate = dev->iestate | OMAP_I2C_IE_NACK ;
++		omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
++	}
+ 	dev->buf_len = 0;
+ 	if (r < 0)
+ 		return r;
