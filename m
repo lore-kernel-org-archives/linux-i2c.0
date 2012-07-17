@@ -1,37 +1,44 @@
-From: Rajeev kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: stu300: use devm managed resources
-Date: Tue, 17 Jul 2012 09:42:00 +0530
-Message-ID: <5004E610.9090000@st.com>
-References: <1342438212-18965-1-git-send-email-linus.walleij@linaro.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: State of arbitration and i2c_gpio?
+Date: Tue, 17 Jul 2012 09:11:15 +0200
+Message-ID: <20120717091115.44e28fd0@endymion.delvare>
+References: <loom.20120710T223443-322@post.gmane.org>
+	<20120716225827.3425f4f8@endymion.delvare>
+	<20120717065544.GF11678@smurf.noris.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1342438212-18965-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20120717065544.GF11678-ci3XGGwdvIcvfNposrsB4g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Matthias Urlichs <matthias-+qxcz+fHsVSELgA04lAiVw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 7/16/2012 5:00 PM, Linus Walleij wrote:
-> Allocate memory for device state using devm_kzalloc(), get the
-> clock using devm_clk_get(), get the IRQ using devm_request_irq(),
-> request and remap memory using devm_request_and_ioremap().
-> All to simplify accounting and letting the kernel do the
-> garbage-collection.
->
-> Signed-off-by: Linus Walleij<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ChangeLog v3->v4:
-> - Rebase on top of Wolframs i2c-embedded/for-next branch.
-> ChangeLog v2->v3:
-> - Also delete the cached physical base and size from the state
->    holder struct.
-> ChangeLog v1->v2:
-> - Use more devm* stuff, at Wolfram's request.
-> - Note: based on a clean v3.5-rc6, may need some patch -p1<  patch
->    to apply on the i2c tree, if you want me to rebase it, just tell
->    me where to find the baseline.
+On Tue, 17 Jul 2012 08:55:45 +0200, Matthias Urlichs wrote:
+> Jean Delvare:
+> > At the other end of the
+> > spectrum, we have to deal with the maximum I2C frequency, 400 kHz i=
+n
+> > our context. This means you can't have more than 1.25 =C2=B5s betwe=
+en polls.
+>=20
+> Just wait until somebody implements Hs mode. :-P
 
-Reviewed By: Rajeev Kumar <rajeev-dlh.kumar-qxv4g6HH51o@public.gmane.org>
+Arbitration under HS-mode is handled differently: it is settled early
+in the transaction. So this might not actually be a problem.
 
-~Rajeev
+> > In all cases we'll certainly want to let adapters tell whether they=
+ are
+> > operating on a multi-master bus or not, so that the whole thing can=
+ be
+> > disabled when not needed.
+>=20
+> They'll certainly notice that the first time they lose arbitration.
+
+They won't notice if the code is disabled. My point was that we don't
+want to put an additional burden on single-master buses because
+arbitration is never needed for them.
+
+--=20
+Jean Delvare
