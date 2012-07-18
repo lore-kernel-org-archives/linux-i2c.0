@@ -1,45 +1,46 @@
-From: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: MXS i2c PIOQ/DMA mode selection via DT
-Date: Wed, 18 Jul 2012 14:38:54 +0200
-Message-ID: <201207181438.54721.marek.vasut@gmail.com>
-References: <201207161605.44379.marek.vasut@gmail.com>
+From: bhanuprakash bodireddy <bhanuprakashbodireddy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: Transaction timeout issue with Temperature sensor driver on
+ 2.6.32 kernel.
+Date: Wed, 18 Jul 2012 18:46:53 +0530
+Message-ID: <CALPjBuVY0wtL8qy=wRxEe5Sia24u7ugWKwvLVT_OC67LsnOoYQ@mail.gmail.com>
+References: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg@mail.gmail.com>
+	<20120717131738.7f7aaf80@endymion.delvare>
+	<CALPjBuUYJPOwTqZ+9gr2AVYigTD6N4B_2K6Erns+0vSX9biR+A@mail.gmail.com>
+	<20120718092449.305baddb@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201207161605.44379.marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20120718092449.305baddb-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Cc: Shawn Guo <shawn.guo-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Dong Aisheng <b29396-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Stefano Babic <sbabic-ynQEQJNshbs@public.gmane.org>, Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> Hello,
-> 
-> There's been this patch going on, which adds DMA mode into MXS i2c driver:
-> https://patchwork.kernel.org/patch/1174051/
-> 
-> Recent nitpick was about toggling the PIOQUEUE (almost like PIO, only
-> transfer mode in current implementation) vs. DMA mode (newly added) on a
-> per-bus basis.
-> 
-> Current implementation in the patch adds a DT property, "fsl,use-pio"
-> (shall be changed to "fsl,use-pioqueue", but that's irrelevant) to select
-> between the PIOQUEUE and DMA mode on per-bus basis.
-> 
-> There was now a suggestion to dump this property and use kernel module
-> parameter instead. This obviously disallows to configure this behavior on
-> per-bus basis. Consider a scenario where small transfers happens on one
-> bus (possibly from a sensor) and large transfers on the other bus (eg. i2c
-> EEPROM). In such scenario, it's beneficial to enable PIOQUEUE mode for the
-> sensor and DMA mode for the EEPROM to minimize the overall overhead.
-> 
-> The mixed mode (PIOQ for small data and DMA for large data transfers) isn't
-> supported yet.
-> 
-> Please advise.
-> 
-> Best regards,
-> Marek Vasut
+> If the code is from MontaVista, ask them for help, not us. Maybe they
+> know of the issue and/or have an updated driver to offer.
 
-BUMP?
+Extremely sorry jean, I believed that the bug could be in bus driver and hence
+posted here thinking it could be an known issue and may be a patch is available
+for 2.6.32.
+
+> the real thing, unmodified. One important point though is that a large
+> part of the code appears to depend on the kernel version being < or >=
+> to 2.6.30. As you switched from kernel version 2.6.21 to kernel version
+> 2.6.32, you are actually no longer using the same code as before. Maybe
+> there's a bug in the part of the code which runs on kernels >= 2.6.30.
+
+Finally my driver is working and user space program could read the temperature
+correctly. The i2c-i801.c file you gave me yesterday worked like a
+charm. The issue
+is with the bus driver in MVL code.
+
+Below is the result from my user space program.
+
+> peci_test
+CPU_0 CORE_0(0x18) => Temp : 48
+CPU_0 CORE_1(0x1A) => Temp : 48
+CPU_1 CORE_0(0x1B) => Temp : 45
+CPU_1 CORE_1(0x1C) => Temp : 45
+
+Regards,
+Bhanu Prakash.
