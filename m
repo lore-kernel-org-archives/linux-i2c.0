@@ -1,44 +1,52 @@
-From: =?UTF-8?Q?Amaury_Decr=C3=AAme?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: sis964: bus driver
-Date: Wed, 18 Jul 2012 13:57:54 +0200
-Message-ID: <CAPXEm70iiU-OQ4DbmBaPzk-WTxBLzvEPSTrRwcn073q9DFs08A@mail.gmail.com>
-References: <1342172455-8530-1-git-send-email-amaury.decreme@gmail.com>
- <CAErSpo5-ou3vjmHgjiOOd57PvWg_hez80U0k3AX_ydjb0pikvQ@mail.gmail.com> <20120715133530.1ffc3f36@endymion.delvare>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [RFC/PATCH 3/3] i2c: omap: Add support for I2C_M_STOP message flag
+Date: Wed, 18 Jul 2012 17:38:36 +0530
+Message-ID: <CAM=Q2cu866D4kbZMjTP4mTP4VhgyN1jGoTP-NFYMBBm2w25gzQ@mail.gmail.com>
+References: <1340720229-30356-1-git-send-email-laurent.pinchart@ideasonboard.com>
+	<1340720229-30356-4-git-send-email-laurent.pinchart@ideasonboard.com>
+	<5006556C.8070003@ti.com>
+	<223770735.y2EoxFmDTd@avalon>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120715133530.1ffc3f36-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, amalysh-S0/GAf8tV78@public.gmane.org, nelson-bExrPSV3DA0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, jeffrey.t.kirsher-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org, Xiangzhen.Ye-kQvG35nSl+M@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, hi3766691-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <223770735.y2EoxFmDTd@avalon>
+Sender: linux-omap-owner@vger.kernel.org
+To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Shubhrajyoti <shubhrajyoti@ti.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Jean Delvare <khali@linux-fr.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Wed, Jul 18, 2012 at 4:43 PM, Laurent Pinchart
+<laurent.pinchart@ideasonboard.com> wrote:
+> Hi Shubhrajyoti,
+>
+> On Wednesday 18 July 2012 11:49:24 Shubhrajyoti wrote:
+>> On Tuesday 26 June 2012 07:47 PM, Laurent Pinchart wrote:
+>> > Generate a stop condition after each message marked with I2C_M_STOP.
+>> >
+>> > Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+>> > ---
+>> >
+>> >  drivers/i2c/busses/i2c-omap.c |    2 ++
+>> >  1 files changed, 2 insertions(+), 0 deletions(-)
+>> >
+>> > diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>> > index 801df60..cf1bda0 100644
+>> > --- a/drivers/i2c/busses/i2c-omap.c
+>> > +++ b/drivers/i2c/busses/i2c-omap.c
+>> > @@ -545,6 +545,8 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+>> >
+>> >     if (dev->speed > 400)
+>> >
+>> >             w |= OMAP_I2C_CON_OPMODE_HS;
+>> >
+>> > +   if (msg->flags & I2C_M_STOP)
+>> > +           stop = 1;
+>>
+>> How about patching omap_i2c_xfer (caller) instead.
+>> There are some debug prints of stop  above that will not reflect the
+>> real value.
+>
+> omap_i2c_xfer() doesn't look at the content of individual messages, I thought
+> it was cleaner not to modify that.
 
-
-=46or the v2 of this patch, I will remove the modifications on
-include/linux/pci_ids.h
-
- include/linux/pci_ids.h             |    1 +
-diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-index ab741b0..0ffc982 100644
---- a/include/linux/pci_ids.h
-+++ b/include/linux/pci_ids.h
-@@ -699,6 +699,7 @@
- #define PCI_DEVICE_ID_SI_961           0x0961
- #define PCI_DEVICE_ID_SI_962           0x0962
- #define PCI_DEVICE_ID_SI_963           0x0963
-+#define PCI_DEVICE_ID_SI_964           0x0964
- #define PCI_DEVICE_ID_SI_965           0x0965
- #define PCI_DEVICE_ID_SI_966           0x0966
- #define PCI_DEVICE_ID_SI_968           0x0968
-
-
-And will add this to drivers/i2c/busses/i2c-sis964.c directly as
-i2c-sis964 will be the only file needing this define
-+#define PCI_DEVICE_ID_SI_964           0x0964
-
-
-
-Amaury Decr=C3=AAme
+OK fair enough.
