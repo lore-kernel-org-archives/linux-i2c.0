@@ -1,46 +1,43 @@
-From: bhanuprakash bodireddy <bhanuprakashbodireddy-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Transaction timeout issue with Temperature sensor driver on
- 2.6.32 kernel.
-Date: Wed, 18 Jul 2012 18:46:53 +0530
-Message-ID: <CALPjBuVY0wtL8qy=wRxEe5Sia24u7ugWKwvLVT_OC67LsnOoYQ@mail.gmail.com>
-References: <CALPjBuW+B2=Y3g9n_Sqe2QOT18XHyJc4t77WGjvsm-0ik+NmAg@mail.gmail.com>
-	<20120717131738.7f7aaf80@endymion.delvare>
-	<CALPjBuUYJPOwTqZ+9gr2AVYigTD6N4B_2K6Erns+0vSX9biR+A@mail.gmail.com>
-	<20120718092449.305baddb@endymion.delvare>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V4 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Wed, 18 Jul 2012 19:27:12 +0530
+Message-ID: <CAM=Q2cv7+qRpd7_SKo3dwQDLUQxpnaaSjAczQz89U_bvV5QAQQ@mail.gmail.com>
+References: <cover.1336124143.git.viresh.kumar@st.com>
+	<3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar@st.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120718092449.305baddb-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, ml.lawnick-Mmb7MZpHnFY@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> If the code is from MontaVista, ask them for help, not us. Maybe they
-> know of the issue and/or have an updated driver to offer.
+Hi Viresh,
 
-Extremely sorry jean, I believed that the bug could be in bus driver and hence
-posted here thinking it could be an known issue and may be a patch is available
-for 2.6.32.
+On Fri, May 4, 2012 at 3:10 PM, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org> wrote:
+> Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
+> protocol Rev. 03 section 3.16 titled "Bus clear".
+>
+> http://www.nxp.com/documents/user_manual/UM10204.pdf
+>
+> Sometimes during operation i2c bus hangs and we need to give dummy clocks to
+> slave device to start the transfer again. Now we may have capability in the bus
+> controller to generate these clocks or platform may have gpio pins which can be
+> toggled to generate dummy clocks. This patch supports both.
+>
+> This patch also adds in generic bus recovery routines gpio or scl line based
+> which can be used by bus controller. In addition controller driver may provide
+> its own version of the bus recovery routine.
+>
 
-> the real thing, unmodified. One important point though is that a large
-> part of the code appears to depend on the kernel version being < or >=
-> to 2.6.30. As you switched from kernel version 2.6.21 to kernel version
-> 2.6.32, you are actually no longer using the same code as before. Maybe
-> there's a bug in the part of the code which runs on kernels >= 2.6.30.
+It might me worth how was this tested?
+Was both the approaches given a try?
+Also it might help if one of the drivers currently doing it is
+ported to the framework.
 
-Finally my driver is working and user space program could read the temperature
-correctly. The i2c-i801.c file you gave me yesterday worked like a
-charm. The issue
-is with the bus driver in MVL code.
+Just a suggestion not an objection to the patch.
 
-Below is the result from my user space program.
-
-> peci_test
-CPU_0 CORE_0(0x18) => Temp : 48
-CPU_0 CORE_1(0x1A) => Temp : 48
-CPU_1 CORE_0(0x1B) => Temp : 45
-CPU_1 CORE_1(0x1C) => Temp : 45
-
-Regards,
-Bhanu Prakash.
+> Signed-off-by: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
+> ---
+>  Documentation/i2c/bus-recovery |   87 ++++++++++++++++++++++
