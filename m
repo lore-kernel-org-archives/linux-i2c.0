@@ -1,131 +1,227 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v6] ARM: davinci: i2c: add OF support
-Date: Fri, 20 Jul 2012 12:52:08 +0200
-Message-ID: <20120720105208.GB5971@pengutronix.de>
-References: <1342514447-30810-1-git-send-email-hs@denx.de>
+From: Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCHv3] I2C: MV64XXX: Add Device Tree support
+Date: Fri, 20 Jul 2012 13:17:00 +0200
+Message-ID: <20120720111700.GA14580@lunn.ch>
+References: <1342430205-13702-1-git-send-email-andrew@lunn.ch>
+ <1342430205-13702-2-git-send-email-andrew@lunn.ch>
+ <20120720103513.GA5971@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xXmbgvnjoT4axfJE"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1342514447-30810-1-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20120720103513.GA5971@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Andrew Lunn <andrew@lunn.ch>, sebastian.hesselbarth@googlemail.com, linux-i2c@vger.kernel.org, linux ARM <linux-arm-kernel@lists.infradead.org>, Jason Cooper <jason@lakedaemon.net>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Jul 20, 2012 at 12:35:13PM +0200, Wolfram Sang wrote:
+> Hi Andrew,
+> 
+> On Mon, Jul 16, 2012 at 11:16:45AM +0200, Andrew Lunn wrote:
+> > Extends the driver to get properties from device tree. Rather than
+> > pass the N & M factors in DT, use the more standard clock-frequency
+> > property. Calculate N & M at run time. In order to do this, we need to
+> 
+> Thanks.
+> 
+> > know tclk. So the driver uses clk_get() etc in order to get the clock
+> > and clk_get_rate() to determine the tclk rate. Not all platforms
+> > however have CLK, so some #ifdefery is needed to ensure the driver
+> > still compiles when CLK is not available.
+> > 
+> > Also extend the kirkwood DT support to supply the needed properties. A
+> > default clock-frequency is 400KHz, which some platforms might need to
+> > override to 100KHz if they have devices which do not support fast
+> > mode.
+> > 
+> > Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+> > Acked-by: Sebastian Hesselbarth <sebastian.hesselbarth@googlemail.com>
+> 
+> Has Sebastian acked THIS patch? Didn't saw such a mail? If it was a
+> previous patch which he acked, I'd like it to be resent, since the
+> divider calculation is new.
 
---xXmbgvnjoT4axfJE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes and the version that came after it, fixing the timeout code, which
+at your request i will rip out. It has also been tested by a couple of
+other people on different kirkwood boards.
 
-Hi,
+> > v2: Removed duplicate interrupt in DT.
+> > v3: Use clock-frequency property, instead of explicit n & m baud factors.
+> > 
+> > i2c fix.
+> > ---
+> >  Documentation/devicetree/bindings/i2c/mrvl-i2c.txt |   21 +++-
+> >  arch/arm/boot/dts/kirkwood.dtsi                    |   11 ++
+> >  arch/arm/mach-kirkwood/board-dt.c                  |    2 +
+> >  arch/arm/mach-kirkwood/common.c                    |    2 +
+> >  arch/arm/plat-orion/common.c                       |    1 +
+> >  drivers/i2c/busses/i2c-mv64xxx.c                   |  107 +++++++++++++++++++-
+> 
+> As said in another mail, please split up arch/arm and i2c-stuff.
 
-On Tue, Jul 17, 2012 at 10:40:47AM +0200, Heiko Schocher wrote:
-> add of support for the davinci i2c driver.
->=20
-> Signed-off-by: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-> Signed-off-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>
-> Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->=20
-> ---
-> - changes for v2:
-> - add comments from Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
->   - use "cell-index" instead "id"
->   - OF_DEV_AUXDATA in the machine code, instead pre-define platform
->     device name
-> - add comment from Grant Likely:
->   - removed "id" resp. "cell-index" completely
->   - fixed documentation
->   - use of_match_ptr()
->   - use devm_kzalloc() for allocating plattform data mem
->   - fixed a whitespace issue
-> - no changes for v3
-> - changes for v4
->   remove "pinmux-handle" property as discussed here:
->   http://www.spinics.net/lists/arm-kernel/msg175701.html
->   with Nori Sekhar
->=20
-> - changes for v5
->   add comments from Grant Likely:
->   - do not change value of dev->dev->platform_data, instead
->     hold a copy in davinci_i2c_dev.
->=20
-> - changes for v6:
->   add comments from Sekhar Nori:
->   - removed unneccessary include
->   - merge patch from Sekhar Nori:
->     setup the newly introduced dev->pdata member correctly once in
->     probe -> i2c_get_plattformdata(() not needed, remove a lot of
->     checks for pdata in code
->   - add Signed-off-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
->   - patch no longer in patchserie, as it has no dependencies.
-> ---
->  .../devicetree/bindings/arm/davinci/i2c.txt        |   31 ++++++++++++
->  drivers/i2c/busses/i2c-davinci.c                   |   50 ++++++++++++++=
-+----
->  2 files changed, 70 insertions(+), 11 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/arm/davinci/i2c.txt
->=20
-> diff --git a/Documentation/devicetree/bindings/arm/davinci/i2c.txt b/Docu=
-mentation/devicetree/bindings/arm/davinci/i2c.txt
-> new file mode 100644
-> index 0000000..e98a025
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/arm/davinci/i2c.txt
+Sure, no problem. 
 
-This should go bindings/i2c/...
+> 
+> > +Required properties :
+> > +
+> > + - reg             : Offset and length of the register set for the device
+> > + - compatible      : Should be "marvell,mv64xxx-i2c"
+> > + - interrupts      : Te interrupt number
+> > + - clock-frequency : Desired I2C bus clock frequency in Hz.
+> > + - timeout-ms      : How long to wait for a transaction to complete
+> 
+> If you don't really need "timeout-ms", I'd ask you to drop it.
 
-> @@ -0,0 +1,31 @@
-> +* Texas Instruments Davinci I2C
-> +
-> +This file provides information, what the device node for the
-> +davinci i2c interface contain.
-> +
-> +Required properties:
-> +- compatible: "ti,davinci-i2c";
-> +- reg : Offset and length of the register set for the device
-> +
-> +Recommended properties :
-> +- interrupts : <a> standard interrupt property.
-> +- clock-frequency : desired I2C bus clock frequency in Hz.
-> +
-> +Optional properties:
-> +- bus-delay: bus delay in usec
+I can hard code it to 1 second. This should have no impact on any
+plat-orion boards, since they all use 1 second.
 
-See my mail to Andrew regarding the timeout property in the mv64xxx
-driver. I'd like to skip the binding discussion for now in order to make
-it into 3.6. Is it okay for you to drop this binding and use a sane
-default?
+> > +#ifdef CONFIG_OF
+> 
+> Hooray, we have one big CONFIG_OF block, so we could move other stuff
+> here? See below.
+> 
+> > +static int __devinit
+> > +calc_freq(const int tclk, const int n, const int m)
+> > +{
+> > +	return tclk / (10 * (m + 1) * (2 << n));
+> > +}
+> > +
+> > +static bool __devinit
+> > +find_baud_factors(const int req_freq, const int tclk, int *best_n, int *best_m)
+> > +{
+> > +	int freq, delta, best_delta = INT_MAX;
+> > +	int m, n;
+> > +
+> > +	for (n = 0; n <= 7; n++)
+> > +		for (m = 0; m <= 15; m++) {
+> > +			freq = calc_freq(tclk, n, m);
+> > +			delta = req_freq - freq;
+> > +			if (delta >= 0 && delta < best_delta) {
+> > +				*best_m = m;
+> > +				*best_n = n;
+> > +				best_delta = delta;
+> > +			}
+> > +			if (best_delta == 0)
+> > +				return true;
+> > +		}
+> > +	if (best_delta == INT_MAX)
+> > +		return false;
+> > +	return true;
+> > +}
+> > +#endif
+> >  static int __devinit
+> >  mv64xxx_i2c_probe(struct platform_device *pd)
+> >  {
+> > @@ -528,7 +564,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+> >  	struct mv64xxx_i2c_pdata	*pdata = pd->dev.platform_data;
+> >  	int	rc;
+> >  
+> > -	if ((pd->id != 0) || !pdata)
+> > +	if ((!pdata && !pd->dev.of_node) || (pdata && (pd->id != 0)))
+> >  		return -ENODEV;
+> 
+> (extra points if you rebase your patch on top of this patch
+> d61a9095155e832287552a9e565b8756ee293c46 from my next tree:
+> git://git.pengutronix.de/git/wsa/linux.git i2c-embedded/for-next)
 
-Rest looks good (from a visual review),
+Yes, i know of this patch from Florian Fainelli. I was planning on
+warning you about the merge conflict, but maybe i will try for the
+rebase.
 
-   Wolfram
+> >  	drv_data = kzalloc(sizeof(struct mv64xxx_i2c_data), GFP_KERNEL);
+> > @@ -546,19 +582,64 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+> >  	init_waitqueue_head(&drv_data->waitq);
+> >  	spin_lock_init(&drv_data->lock);
+> >  
+> > -	drv_data->freq_m = pdata->freq_m;
+> > -	drv_data->freq_n = pdata->freq_n;
+> > -	drv_data->irq = platform_get_irq(pd, 0);
+> > +#if defined(CONFIG_HAVE_CLK)
+> > +	/* Not all platforms have a clk */
+> > +	drv_data->clk = clk_get(&pd->dev, NULL);
+> > +	if (!IS_ERR(drv_data->clk)) {
+> > +		clk_prepare(drv_data->clk);
+> > +		clk_enable(drv_data->clk);
+> > +	}
+> 
+> Call this code only when CONFIG_OF?
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Nope. There are lots of kirkwood boards who need to turn this clock
+on, but are not yet converted to DT. I suspect Dove is similar. I also
+don't particularly like all this #ifdefery, but there is not much i
+can do about it :-(
 
---xXmbgvnjoT4axfJE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> 
+> > +#endif
+> > +	if (pdata) {
+> > +		drv_data->freq_m = pdata->freq_m;
+> > +		drv_data->freq_n = pdata->freq_n;
+> > +		drv_data->irq = platform_get_irq(pd, 0);
+> > +	}
+> > +#ifdef CONFIG_OF
+> > +	if (pd->dev.of_node) {
+> 
+> Move this stuff into a seperate function and put it into the big
+> CONFIG_OF block? That should make the code a lot more readable?
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+O.K.
+ 
+> > +		int bus_freq;
+> > +		int tclk;
+> > +		/* CLK is mandatory when using DT to describe the i2c
+> > +		 * bus. We need to know tclk in order to calculate bus
+> > +		 * clock factors. */
+> > +#if defined(CONFIG_HAVE_CLK)
+> > +		if (IS_ERR(drv_data->clk)) {
+> > +			rc = -ENODEV;
+> > +			goto exit_unmap_regs;
+> > +		}
+> > +		tclk = clk_get_rate(drv_data->clk);
+> > +		of_property_read_u32(pd->dev.of_node, "clock-frequency",
+> > +				     &bus_freq);
+> > +		if (!find_baud_factors(bus_freq, tclk,
+> > +				       &drv_data->freq_n, &drv_data->freq_m)) {
+> > +			rc = -EINVAL;
+> > +			goto exit_unmap_regs;
+> > +		}
+> > +		drv_data->irq = irq_of_parse_and_map(pd->dev.of_node, 0);
+> > +#else
+> > +		/* Have OF but no CLK */
+> > +		rc = -ENODEV;
+> > +		goto exit_unmap_regs;
+> > +#endif
+> > +	}
+> > +#endif
+> >  	if (drv_data->irq < 0) {
+> >  		rc = -ENXIO;
+> >  		goto exit_unmap_regs;
+> >  	}
+> > +
+> >  	drv_data->adapter.dev.parent = &pd->dev;
+> >  	drv_data->adapter.algo = &mv64xxx_i2c_algo;
+> >  	drv_data->adapter.owner = THIS_MODULE;
+> >  	drv_data->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> > -	drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
+> > +	if (pd->dev.of_node)
+> > +		drv_data->adapter.timeout = msecs_to_jiffies(
+> > +			of_property_read_u32(pd->dev.of_node, "timeout-ms",
+> > +					     &drv_data->freq_n));
+> > +	else
+> > +		drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
+> 
+> This should also go into the new function.
 
-iEYEARECAAYFAlAJOFgACgkQD27XaX1/VRuu9ACfbmSdA87RQ1Xqz3XGvpIuH+dJ
-OaIAoKzK+vu1ZmTQcKQZHa3ma85U/qOK
-=5nLF
------END PGP SIGNATURE-----
+Actually, its totally broken, and is what i will replace with a hard
+coded value...
 
---xXmbgvnjoT4axfJE--
+      Andrew
