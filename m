@@ -1,51 +1,45 @@
 From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig@pengutronix.de>
-Subject: [PATCH 09/25] i2c/i2c-omap: add a const qualifier
-Date: Mon, 23 Jul 2012 11:13:14 +0200
-Message-ID: <1343034810-3386-10-git-send-email-u.kleine-koenig@pengutronix.de>
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: [PATCH 10/25] i2c/mpc: add a const qualifier
+Date: Mon, 23 Jul 2012 11:13:15 +0200
+Message-ID: <1343034810-3386-11-git-send-email-u.kleine-koenig@pengutronix.de>
 References: <1343034810-3386-1-git-send-email-u.kleine-koenig@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1343034810-3386-1-git-send-email-u.kleine-koenig@pengutronix.de>
-Sender: linux-omap-owner@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>, Arnd Bergmann <arnd@arndb.de>, Rob Herring <rob.herring@calxeda.com>, linux-omap@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>
-Cc: kernel@pengutronix.de, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1343034810-3386-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 This prepares *of_device_id.data becoming const. Without this change
 the following warning would occur:
 
-	drivers/i2c/busses/i2c-omap.c: In function 'omap_i2c_probe':
-	drivers/i2c/busses/i2c-omap.c:1025: warning: assignment discards quali=
-fiers from pointer target type
+	drivers/i2c/busses/i2c-mpc.c: In function 'fsl_i2c_probe':
+	drivers/i2c/busses/i2c-mpc.c:650:31: warning: initialization discards =
+'const' qualifier from pointer target type [enabled by default]
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mpc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-oma=
-p.c
-index 801df60..4fc585d 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -987,7 +987,8 @@ omap_i2c_probe(struct platform_device *pdev)
- 	struct omap_i2c_dev	*dev;
- 	struct i2c_adapter	*adap;
- 	struct resource		*mem, *irq, *ioarea;
--	struct omap_i2c_bus_platform_data *pdata =3D pdev->dev.platform_data;
-+	const struct omap_i2c_bus_platform_data *pdata =3D
-+		pdev->dev.platform_data;
- 	struct device_node	*node =3D pdev->dev.of_node;
- 	const struct of_device_id *match;
- 	irq_handler_t isr;
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.=
+c
+index b76731e..775062c 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -647,7 +647,7 @@ static int __devinit fsl_i2c_probe(struct platform_=
+device *op)
+ 	}
+=20
+ 	if (match->data) {
+-		struct mpc_i2c_data *data =3D match->data;
++		const struct mpc_i2c_data *data =3D match->data;
+ 		data->setup(op->dev.of_node, i2c, clock, data->prescaler);
+ 	} else {
+ 		/* Backwards compatibility */
 --=20
 1.7.10.4
-
---
-To unsubscribe from this list: send the line "unsubscribe linux-omap" i=
-n
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
