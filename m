@@ -1,30 +1,31 @@
-From: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 09/25] i2c/i2c-omap: add a const qualifier
-Date: Mon, 23 Jul 2012 22:57:48 +0530
-Message-ID: <CANQgH-Yx_iA0ANSLGjzgttBAfDFTJFQqYdo2PpJvtGN8=rdTrQ@mail.gmail.com>
-References: <1343034810-3386-1-git-send-email-u.kleine-koenig@pengutronix.de>
-	<1343034810-3386-10-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 5/5] i2c: tegra: convert normal suspend/resume to *_noirq
+Date: Mon, 23 Jul 2012 12:24:38 -0600
+Message-ID: <500D96E6.4060507@wwwdotorg.org>
+References: <1341919244-23327-1-git-send-email-ldewangan@nvidia.com> <1341919244-23327-6-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1343034810-3386-10-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1341919244-23327-6-git-send-email-ldewangan@nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>
+Cc: w.sang@pengutronix.de, khali@linux-fr.org, ben-linux@fluff.org, swarren@nvidia.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, Colin Cross <ccross@android.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 23, 2012 at 2:43 PM, Uwe Kleine-K=F6nig
-<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> This prepares *of_device_id.data becoming const. Without this change
-> the following warning would occur:
->
->         drivers/i2c/busses/i2c-omap.c: In function 'omap_i2c_probe':
->         drivers/i2c/busses/i2c-omap.c:1025: warning: assignment disca=
-rds qualifiers from pointer target type
->
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Reviewed-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-omap.c |    3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+On 07/10/2012 05:20 AM, Laxman Dewangan wrote:
+> To provide the late suspend and early resume for i2c
+> driver, convert the suspend/resume as
+> 	suspend-> suspend_noirq
+> 	resume -> resume_noirq
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+
+Why do we need this change?
+
+IIRC, I proposed it before solely to solve some suspend/resume ordering
+issues, and Colin Cross NAKd it. These days, deferred probe should make
+this change unnecessary.
+
+Unless there's a really good reason for this change, I'd tend to request
+reverting it.
