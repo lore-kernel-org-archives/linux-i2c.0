@@ -1,95 +1,32 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c updates for Linux 3.6
-Date: Tue, 24 Jul 2012 14:52:09 +0200
-Message-ID: <20120724145209.6b0ff2e7@endymion.delvare>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 5/5] i2c: tegra: convert normal suspend/resume to
+ *_noirq
+Date: Tue, 24 Jul 2012 13:52:38 +0100
+Message-ID: <20120724125237.GB22576@sirena.org.uk>
+References: <1341919244-23327-1-git-send-email-ldewangan@nvidia.com>
+ <1341919244-23327-6-git-send-email-ldewangan@nvidia.com>
+ <500D96E6.4060507@wwwdotorg.org>
+ <20120724091358.GK12034@tbergstrom-lnx.Nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120724091358.GK12034-Rysk9IDjsxmJz7etNGeUX8VPkgjIgRvpAL8bYrjMMd8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Peter De Schrijver <pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On Tue, Jul 24, 2012 at 12:13:58PM +0300, Peter De Schrijver wrote:
+> On Mon, Jul 23, 2012 at 08:24:38PM +0200, Stephen Warren wrote:
 
-Please pull i2c subsystem updates for Linux 3.6 from:
+> > IIRC, I proposed it before solely to solve some suspend/resume ordering
+> > issues, and Colin Cross NAKd it. These days, deferred probe should make
+> > this change unnecessary.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+> How does deferred probe solve this? Iirc the problem is that i2c is needed to
+> talk to the PMIC, so we need to make sure i2c is shutdown last because drivers
+> might want to do regulator control in the suspend function.
 
-The most important changes here are a big cleanup of the i2c-piix4
-driver, cleanups and interrupt support to the i2c-i801 driver, and
-support for the SCCB protocol.
-
- Documentation/i2c/busses/i2c-i801          |   13 +-
- Documentation/i2c/busses/i2c-piix4         |    9 +
- Documentation/i2c/writing-clients          |   23 ++-
- drivers/i2c/busses/Kconfig                 |    6 +-
- drivers/i2c/busses/i2c-ali1535.c           |   13 +-
- drivers/i2c/busses/i2c-ali1563.c           |   14 +-
- drivers/i2c/busses/i2c-ali15x3.c           |   13 +-
- drivers/i2c/busses/i2c-amd756.c            |   13 +-
- drivers/i2c/busses/i2c-amd8111.c           |   13 +-
- drivers/i2c/busses/i2c-designware-pcidrv.c |   12 +-
- drivers/i2c/busses/i2c-diolan-u2c.c        |    2 +-
- drivers/i2c/busses/i2c-eg20t.c             |   12 +-
- drivers/i2c/busses/i2c-hydra.c             |   17 +--
- drivers/i2c/busses/i2c-i801.c              |  343 +++++++++++++++++++++-------
- drivers/i2c/busses/i2c-intel-mid.c         |   13 +-
- drivers/i2c/busses/i2c-nforce2.c           |   14 +-
- drivers/i2c/busses/i2c-omap.c              |    5 +-
- drivers/i2c/busses/i2c-pasemi.c            |   13 +-
- drivers/i2c/busses/i2c-piix4.c             |  209 +++++++++++++-----
- drivers/i2c/busses/i2c-pxa-pci.c           |   12 +-
- drivers/i2c/busses/i2c-sis630.c            |   15 +--
- drivers/i2c/busses/i2c-sis96x.c            |   15 +--
- drivers/i2c/busses/i2c-tiny-usb.c          |    1 +
- drivers/i2c/busses/i2c-via.c               |   14 +-
- drivers/i2c/i2c-core.c                     |   16 +-
- drivers/i2c/i2c-smbus.c                    |   13 +-
- drivers/i2c/muxes/i2c-mux-pca9541.c        |    2 +-
- drivers/staging/media/go7007/wis-i2c.h     |    5 -
- include/linux/i2c.h                        |    3 +
- 29 files changed, 487 insertions(+), 366 deletions(-)
-
----------------
-
-Andrew Armenia (3):
-      i2c-piix4: Eliminate piix4_smba global variable
-      i2c-piix4: Separate registration and probing code
-      i2c-piix4: Support AMD auxiliary SMBus controller
-
-Axel Lin (1):
-      i2c/busses: Use module_pci_driver
-
-Daniel Kurtz (7):
-      i2c-i801: Refactor use of LAST_BYTE in i801_block_transaction_byte_by_byte
-      i2c-i801: Clear only status bits in HST_STS
-      i2c-i801: Check and return errors during byte-by-byte transfers
-      i2c-i801: Rename some SMBHSTCNT bit constants
-      i2c-i801: Drop ENABLE_INT9
-      i2c-i801: Enable IRQ for SMBus transactions
-      i2c-i801: Enable IRQ for byte_by_byte transactions
-
-Emmanuel Deloget (1):
-      i2c-tiny-usb: Add support for the Robofuzz OSIF USB/I2C converter
-
-Fabio Estevam (1):
-      i2c-smbus: Use module_i2c_driver()
-
-Guenter Roeck (1):
-      i2c: Update Guenter Roeck's e-mail address
-
-Jean Delvare (3):
-      i2c/writing-clients: Mention module_i2c_driver()
-      i2c-i801: Consolidate polling
-      i2c-i801: Enable interrupts on ICH5/7/8/9/10
-
-Laurent Pinchart (3):
-      i2c: Add SCCB support
-      i2c: Fall back to emulated SMBus if the operation isn't supported natively
-      i2c-omap: Add support for I2C_M_STOP message flag
-
-Thanks,
--- 
-Jean Delvare
+With probe deferral the drivers will be after the regulator driver in
+the DPM list and so be suspended first.
