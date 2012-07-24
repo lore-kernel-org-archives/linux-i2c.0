@@ -1,48 +1,41 @@
-From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Subject: Re: [PATCH] I2C: MV64XYZ: Add Device Tree support
-Date: Tue, 24 Jul 2012 08:42:57 +0200
-Message-ID: <20120724064257.GQ18778@lunn.ch>
-References: <1342954295-13279-1-git-send-email-andrew@lunn.ch>
- <20120723200359.GB31645@pengutronix.de>
+From: Peter De Schrijver <pdeschrijver-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 5/5] i2c: tegra: convert normal suspend/resume to
+ *_noirq
+Date: Tue, 24 Jul 2012 12:13:58 +0300
+Message-ID: <20120724091358.GK12034@tbergstrom-lnx.Nvidia.com>
+References: <1341919244-23327-1-git-send-email-ldewangan@nvidia.com>
+ <1341919244-23327-6-git-send-email-ldewangan@nvidia.com>
+ <500D96E6.4060507@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120723200359.GB31645-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <500D96E6.4060507-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux ARM <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, sebastian.hesselbarth-gM/Ye1E23mwN+BqQ9rBEUg@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jul 23, 2012 at 10:03:59PM +0200, Wolfram Sang wrote:
-> On Sun, Jul 22, 2012 at 12:51:35PM +0200, Andrew Lunn wrote:
-> > Extends the driver to get properties from device tree. Rather than
-> > pass the N & M factors in DT, use the more standard clock-frequency
-> > property. Calculate N & M at run time. In order to do this, we need to
-> > know tclk. So the driver uses clk_get() etc in order to get the clock
-> > and clk_get_rate() to determine the tclk rate. Not all platforms
-> > however have CLK, so some #ifdefery is needed to ensure the driver
-> > still compiles when CLK is not available.
+On Mon, Jul 23, 2012 at 08:24:38PM +0200, Stephen Warren wrote:
+> On 07/10/2012 05:20 AM, Laxman Dewangan wrote:
+> > To provide the late suspend and early resume for i2c
+> > driver, convert the suspend/resume as
+> > 	suspend-> suspend_noirq
+> > 	resume -> resume_noirq
 > > 
-> > Signed-off-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+> > Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 > 
-> Sparse complained about this:
+> Why do we need this change?
 > 
-> drivers/i2c/busses/i2c-mv64xxx.c:584:54: warning: incorrect type in argument 3 (different signedness)
-> drivers/i2c/busses/i2c-mv64xxx.c:584:54:    expected unsigned int [usertype] *out_value
-> drivers/i2c/busses/i2c-mv64xxx.c:584:54:    got int *<noident>
-> drivers/i2c/busses/i2c-mv64xxx.c:586:41: warning: incorrect type in argument 3 (different signedness)
-> drivers/i2c/busses/i2c-mv64xxx.c:586:41:    expected int *best_n
-> drivers/i2c/busses/i2c-mv64xxx.c:586:41:    got unsigned int *<noident>
-> drivers/i2c/busses/i2c-mv64xxx.c:586:60: warning: incorrect type in argument 4 (different signedness)
-> drivers/i2c/busses/i2c-mv64xxx.c:586:60:    expected int *best_m
-> drivers/i2c/busses/i2c-mv64xxx.c:586:60:    got unsigned int *<noident>
+> IIRC, I proposed it before solely to solve some suspend/resume ordering
+> issues, and Colin Cross NAKd it. These days, deferred probe should make
+> this change unnecessary.
 > 
-> I applied your patch with the following fix to -next. Let me know if you agree
-> with that.
 
-Hi Wolfram
+How does deferred probe solve this? Iirc the problem is that i2c is needed to
+talk to the PMIC, so we need to make sure i2c is shutdown last because drivers
+might want to do regulator control in the suspend function.
 
-Looks good, thanks for the fix.
+Cheers,
 
-      Andrew
+Peter.
