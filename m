@@ -1,123 +1,129 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c-mux-gpio platform device ID issue
-Date: Wed, 25 Jul 2012 16:39:13 +0200
-Message-ID: <20120725163913.60fffd1a@endymion.delvare>
-References: <20120725144409.1e47bd95@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120725144409.1e47bd95-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Roland Stigge <stigge@antcom.de>
+Subject: [PATCH 2/2] i2c: pnx: Fix read transactions of >= 2 bytes
+Date: Wed, 25 Jul 2012 17:07:43 +0200
+Message-ID: <1343228863-11553-2-git-send-email-stigge@antcom.de>
+References: <1343228863-11553-1-git-send-email-stigge@antcom.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1343228863-11553-1-git-send-email-stigge@antcom.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: vitalywool@gmail.com, khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, aletes.xgr@gmail.com, jonsmirl@gmail.com
+Cc: Roland Stigge <stigge@antcom.de>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 25 Jul 2012 14:44:09 +0200, Jean Delvare wrote:
-> If a per-driver IDA isn't acceptable, then we can go for a global IDA,
-> but then we can't re-use pdev->id == -1 for it. We'd have to introduce
-> pdev->id == -2 for drivers which want a dynamically allocated unique
-> ID. Actually this might be a better approach, as it's less intrusive.
+On transactions with n>=2 bytes, the controller actually wrongly clocks in n+1
+bytes. This is caused by the (wrong) assumption that RFE in the Status Register
+is 1 iff there is no byte already ordered (via a dummy TX byte). This lead to
+the implementation of synchronized byte ordering, e.g.:
 
-A possible implementation of this would be:
+Dummy-TX - RX - Dummy-TX - RX - ...
 
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: platform: Add support for automatic device IDs
+But since RFE actually stays high after some Dummy-TX, it rather looks like:
 
-Right now we have support for explicit platform device IDs, as well as
-ID-less platform devices when a given device type can only have one
-instance. However there are cases where multiple instances of a device
-type can exist, and their IDs aren't (and can't be) known in advance
-and do not matter. In that case we need automatic device IDs to avoid
-device name collisions.
+Dummy-TX - Dummy-TX - RX - Dummy-TX - RX - (RX)
 
-I am using magic ID value -4 for this (I left -2 and -3 free in case
-we ever need a couple of other magic values.) The automatically
-allocated device IDs are global (to avoid an additional per-driver
-cost) and are stored internally as negative numbers, starting with -4.
-This is required so that the IDs can be freed later. Externally the
-positive value is used.
+The last RX byte is clocked in by the bus controller, but ignored by the kernel
+when filling the userspace buffer.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+This patch fixes the issue by asking for RX via Dummy-TX asynchronously.
+Introducing a separate counter for TX bytes.
+
+Signed-off-by: Roland Stigge <stigge@antcom.de>
+
 ---
-If anyone has a problem with the -4 or using negative device IDs
-internally, it would be possible to avoid that by adding a boolean
-attribute to every platform device to record whether the ID needs to
-be freed. This would cost some memory.
+Applies to v3.5
 
-The code assumes that a given platform driver doesn't mix devices
-with explicit IDs and devices with automatic IDs. This seems
-reasonable to me. If not, we'll need separate namespaces for both
-types.
+This patch for i2c-pnx applies to: PNX4008, LPC31xx, LPC32xx. Can you please
+test?
 
- drivers/base/platform.c |   30 ++++++++++++++++++++++++++++--
- 1 file changed, 28 insertions(+), 2 deletions(-)
+Thanks in advance!
 
---- linux-3.5.orig/drivers/base/platform.c	2012-07-21 22:58:29.000000000 +0200
-+++ linux-3.5/drivers/base/platform.c	2012-07-25 16:37:03.707518815 +0200
-@@ -20,9 +20,12 @@
- #include <linux/err.h>
- #include <linux/slab.h>
- #include <linux/pm_runtime.h>
-+#include <linux/idr.h>
- 
- #include "base.h"
- 
-+static DEFINE_IDA(platform_ida);
-+
- #define to_platform_driver(drv)	(container_of((drv), struct platform_driver, \
- 				 driver))
- 
-@@ -273,10 +276,27 @@ int platform_device_add(struct platform_
- 
- 	pdev->dev.bus = &platform_bus_type;
- 
--	if (pdev->id != -1)
-+	switch (pdev->id) {
-+	default:
- 		dev_set_name(&pdev->dev, "%s.%d", pdev->name,  pdev->id);
--	else
-+		break;
-+	case -1:
- 		dev_set_name(&pdev->dev, "%s", pdev->name);
-+		break;
-+	case -4:
-+		/*
-+		 * Automatically allocated device ID. Stored as a negative
-+		 * number so that we remember it must be freed. We use the
-+		 * opposite in the device name so that the user still sees a
-+		 * positive device ID.
+ drivers/i2c/busses/i2c-pnx.c |   48 +++++++++++++++++++++++++------------------
+ include/linux/i2c-pnx.h      |    1 
+ 2 files changed, 29 insertions(+), 20 deletions(-)
+
+--- linux-2.6.orig/drivers/i2c/busses/i2c-pnx.c
++++ linux-2.6/drivers/i2c/busses/i2c-pnx.c
+@@ -291,31 +291,37 @@ static int i2c_pnx_master_rcv(struct i2c
+ 	 * or we didn't 'ask' for it yet.
+ 	 */
+ 	if (ioread32(I2C_REG_STS(alg_data)) & mstatus_rfe) {
+-		dev_dbg(&alg_data->adapter.dev,
+-			"%s(): Write dummy data to fill Rx-fifo...\n",
+-			__func__);
++		/* 'Asking' is done asynchronously, e.g. dummy TX of several
++		 * bytes is done before the first actual RX arrives in FIFO.
++		 * Therefore, ordered bytes (via TX) are counted separately.
 +		 */
-+		i = ida_simple_get(&platform_ida, 4, 0, GFP_KERNEL);
-+		if (i < 0)
-+			return i;
-+		pdev->id = -i;
-+		dev_set_name(&pdev->dev, "%s.%d", pdev->name, -pdev->id);
-+		break;
-+	}
++		if (alg_data->mif.order) {
++			dev_dbg(&alg_data->adapter.dev,
++				"%s(): Write dummy data to fill Rx-fifo...\n",
++				__func__);
  
- 	for (i = 0; i < pdev->num_resources; i++) {
- 		struct resource *p, *r = &pdev->resource[i];
-@@ -309,6 +329,9 @@ int platform_device_add(struct platform_
- 		return ret;
- 
-  failed:
-+	if (pdev->id <= -4)
-+		ida_simple_remove(&platform_ida, -pdev->id);
+-		if (alg_data->mif.len == 1) {
+-			/* Last byte, do not acknowledge next rcv. */
+-			val |= stop_bit;
++			if (alg_data->mif.order == 1) {
++				/* Last byte, do not acknowledge next rcv. */
++				val |= stop_bit;
 +
- 	while (--i >= 0) {
- 		struct resource *r = &pdev->resource[i];
- 		unsigned long type = resource_type(r);
-@@ -336,6 +359,9 @@ void platform_device_del(struct platform
- 	if (pdev) {
- 		device_del(&pdev->dev);
++				/*
++				 * Enable interrupt RFDAIE (data in Rx fifo),
++				 * and disable DRMIE (need data for Tx)
++				 */
++				ctl = ioread32(I2C_REG_CTL(alg_data));
++				ctl |= mcntrl_rffie | mcntrl_daie;
++				ctl &= ~mcntrl_drmie;
++				iowrite32(ctl, I2C_REG_CTL(alg_data));
++			}
  
-+		if (pdev->id <= -4)
-+			ida_simple_remove(&platform_ida, -pdev->id);
-+
- 		for (i = 0; i < pdev->num_resources; i++) {
- 			struct resource *r = &pdev->resource[i];
- 			unsigned long type = resource_type(r);
-
--- 
-Jean Delvare
+ 			/*
+-			 * Enable interrupt RFDAIE (data in Rx fifo),
+-			 * and disable DRMIE (need data for Tx)
++			 * Now we'll 'ask' for data:
++			 * For each byte we want to receive, we must
++			 * write a (dummy) byte to the Tx-FIFO.
+ 			 */
+-			ctl = ioread32(I2C_REG_CTL(alg_data));
+-			ctl |= mcntrl_rffie | mcntrl_daie;
+-			ctl &= ~mcntrl_drmie;
+-			iowrite32(ctl, I2C_REG_CTL(alg_data));
++			iowrite32(val, I2C_REG_TX(alg_data));
++			alg_data->mif.order--;
+ 		}
+-
+-		/*
+-		 * Now we'll 'ask' for data:
+-		 * For each byte we want to receive, we must
+-		 * write a (dummy) byte to the Tx-FIFO.
+-		 */
+-		iowrite32(val, I2C_REG_TX(alg_data));
+-
+ 		return 0;
+ 	}
+ 
+@@ -515,6 +521,7 @@ i2c_pnx_xfer(struct i2c_adapter *adap, s
+ 
+ 		alg_data->mif.buf = pmsg->buf;
+ 		alg_data->mif.len = pmsg->len;
++		alg_data->mif.order = pmsg->len;
+ 		alg_data->mif.mode = (pmsg->flags & I2C_M_RD) ?
+ 			I2C_SMBUS_READ : I2C_SMBUS_WRITE;
+ 		alg_data->mif.ret = 0;
+@@ -567,6 +574,7 @@ i2c_pnx_xfer(struct i2c_adapter *adap, s
+ 	/* Cleanup to be sure... */
+ 	alg_data->mif.buf = NULL;
+ 	alg_data->mif.len = 0;
++	alg_data->mif.order = 0;
+ 
+ 	dev_dbg(&alg_data->adapter.dev, "%s(): exiting, stat = %x\n",
+ 		__func__, ioread32(I2C_REG_STS(alg_data)));
+--- linux-2.6.orig/include/linux/i2c-pnx.h
++++ linux-2.6/include/linux/i2c-pnx.h
+@@ -22,6 +22,7 @@ struct i2c_pnx_mif {
+ 	struct timer_list	timer;		/* Timeout */
+ 	u8 *			buf;		/* Data buffer */
+ 	int			len;		/* Length of data buffer */
++	int			order;		/* RX Bytes to order via TX */
+ };
+ 
+ struct i2c_pnx_algo_data {
