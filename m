@@ -1,41 +1,22 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH 1/2] i2c: pnx: Fix bit definitions
-Date: Wed, 25 Jul 2012 17:07:42 +0200
-Message-ID: <1343228863-11553-1-git-send-email-stigge@antcom.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: vitalywool@gmail.com, khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, aletes.xgr@gmail.com, jonsmirl@gmail.com
-Cc: Roland Stigge <stigge@antcom.de>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: i2c-mux-gpio platform device ID issue
+Date: Wed, 25 Jul 2012 20:32:43 +0100
+Message-ID: <20120725193243.GA9792@sirena.org.uk>
+References: <20120725144409.1e47bd95@endymion.delvare>
+ <20120725163913.60fffd1a@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120725163913.60fffd1a-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The I2C Control Register bits RFDAIE and RFFIE were mixed up. In addition to
-this fix, this patch adds the missing bit DRSIE for completeness.
+On Wed, Jul 25, 2012 at 04:39:13PM +0200, Jean Delvare wrote:
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
+> I am using magic ID value -4 for this (I left -2 and -3 free in case
+> we ever need a couple of other magic values.) The automatically
 
----
-Applies to v3.5
-
-This patch for i2c-pnx applies to: PNX4008, LPC31xx, LPC32xx. Can you please
-test and double-check the manuals of PNX4008 and LPC31xx? I only found this via
-the manual of LPC32xx but assume it's the same for the others, also.
-
-Thanks in advance!
-
- drivers/i2c/busses/i2c-pnx.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- linux-2.6.orig/drivers/i2c/busses/i2c-pnx.c
-+++ linux-2.6/drivers/i2c/busses/i2c-pnx.c
-@@ -48,8 +48,9 @@ enum {
- 	mcntrl_afie = 0x00000002,
- 	mcntrl_naie = 0x00000004,
- 	mcntrl_drmie = 0x00000008,
--	mcntrl_daie = 0x00000020,
--	mcntrl_rffie = 0x00000040,
-+	mcntrl_drsie = 0x00000010,
-+	mcntrl_rffie = 0x00000020,
-+	mcntrl_daie = 0x00000040,
- 	mcntrl_tffie = 0x00000080,
- 	mcntrl_reset = 0x00000100,
- 	mcntrl_cdbmode = 0x00000400,
+We could always add the new magic values starting at -3 instead...
