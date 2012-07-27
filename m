@@ -1,53 +1,311 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH V4 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Fri, 27 Jul 2012 20:09:02 +0530
-Message-ID: <CAM=Q2cu-YWBQxjL9GBuwDWMuunZ1=bJTj-tyXOWPYPY_NQ1pqw@mail.gmail.com>
-References: <cover.1336124143.git.viresh.kumar@st.com>
-	<3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar@st.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-i801: Support SMBus multiplexing on Asus Z8 series
+Date: Fri, 27 Jul 2012 17:30:41 +0200
+Message-ID: <20120727173041.7ea7d723@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <3484bf49a423bd55daa6a45e68c2c31dce46eb32.1336124143.git.viresh.kumar-qxv4g6HH51o@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org, ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, ml.lawnick-Mmb7MZpHnFY@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, viresh.linux-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Jon Hunter <jon-hunter-l0cyMroinI0@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Viresh ,
-On Fri, May 4, 2012 at 3:10 PM, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org> wrote:
-> Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
-> protocol Rev. 03 section 3.16 titled "Bus clear".
->
-> http://www.nxp.com/documents/user_manual/UM10204.pdf
->
-> Sometimes during operation i2c bus hangs and we need to give dummy clocks to
-> slave device to start the transfer again. Now we may have capability in the bus
-> controller to generate these clocks or platform may have gpio pins which can be
-> toggled to generate dummy clocks. This patch supports both.
->
-> This patch also adds in generic bus recovery routines gpio or scl line based
-> which can be used by bus controller. In addition controller driver may provide
-> its own version of the bus recovery routine.
->
-A few suggestions.
+Add support for SMBus multiplexing on Asus Z8 motherboard series. On
+these boards, the memory slots are behind a GPIO-controlled I2C
+multiplexer. Models with 6 or 12 memory slots have 2 segments behind
+the multiplexer, while models with 18 memory slots have 3 such
+segments.
 
-1. Bus recovery should ideally handle both SCL and SDA stuck a 0
-   conditions. This only appears to handle SDA. For SCL stuck at 0 we
-   need to reset the slave if possible. So maybe there needs to be the
-   ability to register a slave reset handler (if this does not exist).
-2. Following on from #1, there should be the ability to query the state
-   of SCL and SDA if the controller supports this. For example, on OMAP
-   we can query whether SCL or SDA are stuck low when the timeout
-   occurs. Then based upon whether SCL or SDA are stuck, we either try
-   the appropriate bus recovery. If there is no mechanism to query SCL
-   or SDA, then we need to decide on the appropriate behaviour. For
-   example, should we try the workaround for SDA stuck first as it is
-   less severe and if that fails try the SCL workaround if a reset
-   handler is registered to reset the device.
+On these boards, only the memory slots are behind the multiplexer,
+so it is possible to keep the autodetection mechanism.
 
-. What do we do if the recovery does not work after N attempts? Is
-   this handled? If not after a certain number of failures it may be
-   necessary to unregister the slave.Or if the slave supports reset
-can we contemplate or if it is powered by gpio can we reset it.
+The code is generic enough so it could work on other boards as long as
+the multiplexer is controlled by GPIO pins. For other forms of
+multiplexing (for example using an I2C device) additional code will be
+needed.
 
-What do you think
+Thanks to Asus for providing a board to develop and test this feature,
+as well as all the technical information required.
+
+At the moment, the GPIO driver must be loaded before the i2c-i801
+driver, but I hope to solve this soon, using deferred probing on
+the i2c-mux-gpio side.
+
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+This patch depends on two patches not yet upstream:
+https://lkml.org/lkml/2012/7/23/234
+http://marc.info/?l=linux-i2c&m=134314191700778&w=2
+
+ drivers/i2c/busses/i2c-i801.c |  214 ++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 213 insertions(+), 1 deletion(-)
+
+--- linux-3.5.orig/drivers/i2c/busses/i2c-i801.c	2012-07-27 11:32:08.000000000 +0200
++++ linux-3.5/drivers/i2c/busses/i2c-i801.c	2012-07-27 17:16:10.979717026 +0200
+@@ -79,6 +79,13 @@
+ #include <linux/dmi.h>
+ #include <linux/slab.h>
+ #include <linux/wait.h>
++#include <linux/err.h>
++
++#if defined CONFIG_I2C_MUX || defined CONFIG_I2C_MUX_MODULE
++#include <linux/gpio.h>
++#include <linux/i2c-mux-gpio.h>
++#include <linux/platform_device.h>
++#endif
+ 
+ /* I801 SMBus address offsets */
+ #define SMBHSTSTS(p)	(0 + (p)->smba)
+@@ -156,6 +163,15 @@
+ #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
+ 
++struct i801_mux_config {
++	char *gpio_chip;
++	unsigned values[3];
++	int n_values;
++	unsigned classes[3];
++	unsigned gpios[2];		/* Relative to gpio_chip->base */
++	int n_gpios;
++};
++
+ struct i801_priv {
+ 	struct i2c_adapter adapter;
+ 	unsigned long smba;
+@@ -173,6 +189,12 @@ struct i801_priv {
+ 	int count;
+ 	int len;
+ 	u8 *data;
++
++#if defined CONFIG_I2C_MUX || defined CONFIG_I2C_MUX_MODULE
++	const struct i801_mux_config *mux_drvdata;
++	unsigned mux_priv[2];
++	struct platform_device *mux_pdev;
++#endif
+ };
+ 
+ static struct pci_driver i801_driver;
+@@ -897,6 +919,193 @@ static void __init input_apanel_init(voi
+ static void __devinit i801_probe_optional_slaves(struct i801_priv *priv) {}
+ #endif	/* CONFIG_X86 && CONFIG_DMI */
+ 
++#if defined CONFIG_I2C_MUX || defined CONFIG_I2C_MUX_MODULE
++static struct i801_mux_config i801_mux_config_asus_z8_d12 = {
++	.gpio_chip = "gpio_ich",
++	.values = { 0x02, 0x03 },
++	.n_values = 2,
++	.classes = { I2C_CLASS_SPD, I2C_CLASS_SPD },
++	.gpios = { 52, 53 },
++	.n_gpios = 2,
++};
++
++static struct i801_mux_config i801_mux_config_asus_z8_d18 = {
++	.gpio_chip = "gpio_ich",
++	.values = { 0x02, 0x03, 0x01 },
++	.n_values = 3,
++	.classes = { I2C_CLASS_SPD, I2C_CLASS_SPD, I2C_CLASS_SPD },
++	.gpios = { 52, 53 },
++	.n_gpios = 2,
++};
++
++static struct dmi_system_id __devinitdata mux_dmi_table[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8NA-D6(C)"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d12,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8P(N)E-D12(X)"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d12,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8NH-D12"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d12,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8PH-D12/IFB"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d12,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8NR-D12"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d12,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8P(N)H-D12"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d12,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8PG-D18"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d18,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8PE-D18"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d18,
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "ASUSTeK Computer INC."),
++			DMI_MATCH(DMI_BOARD_NAME, "Z8PS-D12"),
++		},
++		.driver_data = &i801_mux_config_asus_z8_d12,
++	},
++	{ }
++};
++
++static int __devinit match_gpio_chip_by_label(struct gpio_chip *chip,
++					      void *data)
++{
++	return !strcmp(chip->label, data);
++}
++
++/* Setup multiplexing if needed */
++static int __devinit i801_add_mux(struct i801_priv *priv)
++{
++	struct device *dev = &priv->adapter.dev;
++	const struct i801_mux_config *mux_config;
++	struct gpio_chip *gpio;
++	struct i2c_mux_gpio_platform_data gpio_data;
++	int i, err;
++
++	if (!priv->mux_drvdata)
++		return 0;
++	mux_config = priv->mux_drvdata;
++
++	/* Find GPIO chip */
++	gpio = gpiochip_find(mux_config->gpio_chip, match_gpio_chip_by_label);
++	if (gpio) {
++		dev_info(dev,
++			 "GPIO chip %s found, SMBus multiplexing enabled\n",
++			 mux_config->gpio_chip);
++	} else {
++		dev_err(dev,
++			"GPIO chip %s not found, SMBus multiplexing disabled\n",
++			mux_config->gpio_chip);
++		return -ENODEV;
++	}
++
++	/* Find absolute GPIO pin numbers */
++	if (ARRAY_SIZE(priv->mux_priv) < mux_config->n_gpios) {
++		dev_err(dev, "i801_priv.mux_priv too small (%lu, need %d)\n",
++			ARRAY_SIZE(priv->mux_priv), mux_config->n_gpios);
++		return -ENODEV;
++	}
++	for (i = 0; i < mux_config->n_gpios; i++)
++		priv->mux_priv[i] = gpio->base + mux_config->gpios[i];
++
++	/* Prepare the platform data */
++	memset(&gpio_data, 0, sizeof(struct i2c_mux_gpio_platform_data));
++	gpio_data.parent = priv->adapter.nr;
++	gpio_data.values = mux_config->values;
++	gpio_data.n_values = mux_config->n_values;
++	gpio_data.classes = mux_config->classes;
++	gpio_data.gpios = priv->mux_priv;
++	gpio_data.n_gpios = mux_config->n_gpios;
++	gpio_data.idle = I2C_MUX_GPIO_NO_IDLE;
++
++	/* Register the mux device */
++	priv->mux_pdev = platform_device_register_data(dev, "i2c-mux-gpio",
++				priv->mux_priv[0], &gpio_data,
++				sizeof(struct i2c_mux_gpio_platform_data));
++	if (IS_ERR(priv->mux_pdev)) {
++		err = PTR_ERR(priv->mux_pdev);
++		priv->mux_pdev = NULL;
++		dev_err(dev, "Failed to register i2c-mux-gpio device\n");
++		return err;
++	}
++
++	return 0;
++}
++
++static void __devexit i801_del_mux(struct i801_priv *priv)
++{
++	if (priv->mux_pdev)
++		platform_device_unregister(priv->mux_pdev);
++}
++
++static unsigned int __devinit i801_get_adapter_class(struct i801_priv *priv)
++{
++	const struct dmi_system_id *id;
++	const struct i801_mux_config *mux_config;
++	unsigned int class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++	int i;
++
++	id = dmi_first_match(mux_dmi_table);
++	if (id) {
++		/* Remove from branch classes from trunk */
++		mux_config = id->driver_data;
++		for (i = 0; i < mux_config->n_values; i++)
++			class &= ~mux_config->classes[i];
++
++		/* Remember for later */
++		priv->mux_drvdata = mux_config;
++	}
++
++	return class;
++}
++#else
++static inline int i801_add_mux(struct i801_priv *priv) { return 0; }
++static inline void i801_del_mux(struct i801_priv *priv) { }
++
++static inline unsigned int i801_get_adapter_class(struct i801_priv *priv)
++{
++	return I2C_CLASS_HWMON | I2C_CLASS_SPD;
++}
++#endif
++
+ static int __devinit i801_probe(struct pci_dev *dev,
+ 				const struct pci_device_id *id)
+ {
+@@ -910,7 +1119,7 @@ static int __devinit i801_probe(struct p
+ 
+ 	i2c_set_adapdata(&priv->adapter, priv);
+ 	priv->adapter.owner = THIS_MODULE;
+-	priv->adapter.class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++	priv->adapter.class = i801_get_adapter_class(priv);
+ 	priv->adapter.algo = &smbus_algorithm;
+ 
+ 	priv->pci_dev = dev;
+@@ -1030,6 +1239,8 @@ static int __devinit i801_probe(struct p
+ 	}
+ 
+ 	i801_probe_optional_slaves(priv);
++	/* We ignore errors - multiplexing is optional */
++	i801_add_mux(priv);
+ 
+ 	pci_set_drvdata(dev, priv);
+ 
+@@ -1049,6 +1260,7 @@ static void __devexit i801_remove(struct
+ {
+ 	struct i801_priv *priv = pci_get_drvdata(dev);
+ 
++	i801_del_mux(priv);
+ 	i2c_del_adapter(&priv->adapter);
+ 	pci_write_config_byte(dev, SMBHSTCFG, priv->original_hstcfg);
+ 
+
+
+-- 
+Jean Delvare
