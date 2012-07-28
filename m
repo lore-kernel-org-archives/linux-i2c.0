@@ -1,44 +1,214 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/2 V3] MXS: Implement DMA support into mxs-i2c
-Date: Sat, 28 Jul 2012 16:02:50 +0800
-Message-ID: <20120728080245.GA2128@S2101-09.ap.freescale.net>
-References: <1341850974-11977-1-git-send-email-marex@denx.de>
- <1341850974-11977-2-git-send-email-marex@denx.de>
- <20120713082249.GF32184@pengutronix.de>
- <20120715081715.GA2429@S2100-06.ap.freescale.net>
- <20120721124406.GA9946@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PULL REQUEST] i2c-embedded for 3.6
+Date: Sat, 28 Jul 2012 20:34:50 +0200
+Message-ID: <20120728183450.GA3096@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6TrnltStXW4iwmi0"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20120721124406.GA9946-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, devicetree-discuss-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Detlev Zundel <dzu-ynQEQJNshbs@public.gmane.org>, Linux ARM kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jul 21, 2012 at 02:44:06PM +0200, Wolfram Sang wrote:
-> Yet, if I know the compatible property for the mxs I2C driver, and also
-> know the CPU type (be it MX23 or MX28), I can deduce from that a lot of
-> information, including DMA channel. That is fix. Why encode it?
-> 
-The driver shouldn't know the CPU type but just the IP type/version.
-We can definitely have "fsl,imx23-i2c" and "fsl,imx28-i2c" compatible
-strings for iMX23 and iMX28 respectively if the I2C controller on these
-two SoC differs on the IP inside aspects.  But we shouldn't do that
-for IO region, interrupt number, DMA channel such differences at SoC
-integration level.
 
--- 
-Regards,
-Shawn
+--6TrnltStXW4iwmi0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Linus,
+
+please pull the changes for the "embedded" part of the I2C subsystem:
+
+* lots of devicetree conversions of drivers (and preparations for that)
+* big cleanups for drivers for OMAP, Tegra, Nomadik, Blackfin
+* Rafael's struct dev_pm_ops conversion patches for I2C
+* usual driver cleanups and fixes
+
+All patches have been in linux-next for an apropriate time and all
+patches touching files outside of i2c-folders should have proper acks
+=66rom the maintainers.
+
+Thanks,
+
+   Wolfram
+
+The following changes since commit 6887a4131da3adaab011613776d865f4bcfb5678:
+
+  Linux 3.5-rc5 (2012-06-30 16:08:57 -0700)
+
+are available in the git repository at:
+
+  git://git.pengutronix.de/git/wsa/linux.git i2c-embedded/for-next
+
+for you to fetch changes up to 5db20c49e2d6581797c17057e068d89d6677aa24:
+
+  Revert "i2c: tegra: convert normal suspend/resume to *_noirq" (2012-07-24=
+ 17:32:45 +0200)
+
+----------------------------------------------------------------
+Alessandro Rubini (3):
+      i2c-nomadik: move header to <linux/platform_data/i2c-nomadik.h>
+      i2c-nomadik: turn the platform driver to an amba driver
+      i2c-nomadik: depend on ARM_AMBA, not PLAT_NOMADIK
+
+Andrew Lunn (1):
+      I2C: MV64XYZ: Add Device Tree support
+
+Fabio Estevam (1):
+      i2c: i2c-imx: Adapt the clock name to the new clock framework
+
+Florian Fainelli (1):
+      i2c-mv64xxxx: allow more than one driver instance
+
+Ganesan Ramalingam (2):
+      i2c: i2c-ocores: Use reg-shift property
+      i2c: i2c-ocores: support for 16bit and 32bit IO
+
+Jayachandran C (2):
+      i2c: i2c-ocores: DT bindings and minor fixes.
+      V4L/DVB: mfd: use reg_shift instead of regstep
+
+Jon Hunter (1):
+      i2c: omap: Correct I2C revision for OMAP3
+
+Karol Lewandowski (1):
+      i2c: s3c2410: Fix pointer type passed to of_match_node()
+
+Laxman Dewangan (8):
+      i2c: tegra: make sure register writes completes
+      i2c: tegra: add PROTOCOL_MANGLING as supported functionality.
+      i2c: tegra: support for I2C_M_NOSTART functionality
+      i2c: tegra: make all resource allocation through devm_*
+      i2c: tegra: remove unused member variable
+      i2c: tegra: use clk_disable_unprepare in place of clk_disable
+      i2c: tegra: use of_match_ptr() for match_table initialization
+      i2c: tegra: convert normal suspend/resume to *_noirq
+
+Linus Walleij (2):
+      i2c: stu300: use clk_prepare/unprepare
+      i2c: stu300: use devm managed resources
+
+Marc Kleine-Budde (1):
+      i2c: mxs: mxs_i2c_finish_read: mute flase positive uninitialized var
+
+Marek Vasut (1):
+      i2c: mxs: Set I2C timing registers for mxs-i2c
+
+Mark Brown (1):
+      i2c-s3c2410: Use plain pm_runtime_put()
+
+Michael Hennerich (1):
+      i2c: i2c-bfin-twi: Illegal i2c bus lock upon certain transfer scenari=
+os.
+
+Neil Brown (1):
+      I2C: OMAP: Fix timeout problem during suspend.
+
+Rafael J. Wysocki (7):
+      i2c-at91: Use struct dev_pm_ops for power management
+      i2c-bfin-twi: Use struct dev_pm_ops for power management
+      i2c-ocores: Use struct dev_pm_ops for power management
+      i2c-pnx: Use struct dev_pm_ops for power management
+      i2c-puv3: Use struct dev_pm_ops for power management
+      i2c-stu300: Use struct dev_pm_ops for power management
+      i2c-tegra: Use struct dev_pm_ops for power management
+
+Richard Zhao (1):
+      i2c: imx: convert to use managed functions
+
+Shubhrajyoti D (12):
+      I2C: OMAP: make omap_i2c_unidle/idle functions depend on CONFIG_PM_RU=
+NTIME
+      I2C: OMAP: Fix the mismatch of pm_runtime enable and disable
+      I2C: OMAP: Fix the interrupt clearing in OMAP4
+      I2C: OMAP: Prevent the register access after pm_runtime_put in probe
+      I2C: OMAP: Don't check if wait_for_completion_timeout() returns less =
+than zero
+      I2C: OMAP: Fix the crash in i2c remove
+      I2C: OMAP: Handle error check for pm runtime
+      I2C: OMAP: Do not set the XUDF(Transmit underflow) if the underflow i=
+s not reached
+      I2C: OMAP: Rename the 1p153 to the erratum id i462
+      i2c: omap: Annotate the remove code
+      i2c: omap: Use SET_RUNTIME_PM_OPS
+      i2c: omap: Do not initialise the completion everytime
+
+Sonic Zhang (7):
+      i2c: i2c-bfin-twi: Improve the patch for bug "Illegal i2c bus lock up=
+on certain transfer scenarios".
+      i2c: i2c-bfin-twi: Break dead waiting loop if i2c device misbehaves.
+      i2c: i2c-bfin-twi: Tighten condition when failing I2C transfer if MEN=
+ bit is reset unexpectedly.
+      i2c:i2c-bfin-twi: TWI fails to restart next transfer in high system l=
+oad.
+      i2c:i2c-bfin-twi: include twi head file
+      i2c: i2c-bfin-twi: Move TWI peripheral pin request array to platform =
+data.
+      i2c: i2c-bfin-twi: Move blackfin TWI register access Macro to head fi=
+le.
+
+Tasslehoff Kjappfot (1):
+      I2C: OMAP: prevent the overwrite of the errata flags
+
+Virupax Sadashivpetimath (1):
+      i2c-nomadik: Add 10-bit addressing support
+
+Wolfram Sang (4):
+      devicetree: bindings: gpio-i2c belongs to i2c not gpio
+      i2c: imx: make bitrate an u32 type
+      i2c: mv64xxxx: remove EXPERIMENTAL tag
+      Revert "i2c: tegra: convert normal suspend/resume to *_noirq"
+
+ .../{gpio/gpio_i2c.txt =3D> i2c/gpio-i2c.txt}        |    0
+ Documentation/devicetree/bindings/i2c/i2c-mxs.txt  |    3 +
+ .../devicetree/bindings/i2c/i2c-ocores.txt         |   33 ++++
+ Documentation/devicetree/bindings/i2c/mrvl-i2c.txt |   19 +-
+ arch/arm/boot/dts/imx28.dtsi                       |    2 +
+ arch/arm/mach-ux500/board-mop500.c                 |    2 +-
+ arch/arm/mach-ux500/devices-common.h               |   24 +--
+ arch/arm/plat-mxc/include/mach/i2c.h               |    2 +-
+ drivers/i2c/busses/Kconfig                         |    7 +-
+ drivers/i2c/busses/i2c-at91.c                      |   13 +-
+ drivers/i2c/busses/i2c-bfin-twi.c                  |  147 ++++++---------
+ drivers/i2c/busses/i2c-imx.c                       |   75 +++-----
+ drivers/i2c/busses/i2c-mv64xxx.c                   |  133 +++++++++++++-
+ drivers/i2c/busses/i2c-mxs.c                       |   68 ++++++-
+ drivers/i2c/busses/i2c-nomadik.c                   |  189 +++++++++++-----=
+----
+ drivers/i2c/busses/i2c-ocores.c                    |  113 ++++++------
+ drivers/i2c/busses/i2c-omap.c                      |  155 ++++++++--------
+ drivers/i2c/busses/i2c-pnx.c                       |   19 +-
+ drivers/i2c/busses/i2c-puv3.c                      |   15 +-
+ drivers/i2c/busses/i2c-s3c2410.c                   |    6 +-
+ drivers/i2c/busses/i2c-stu300.c                    |  102 +++--------
+ drivers/i2c/busses/i2c-tegra.c                     |  122 ++++++-------
+ drivers/mfd/timberdale.c                           |    2 +-
+ include/linux/i2c-ocores.h                         |    3 +-
+ .../linux/platform_data/i2c-nomadik.h              |    6 +-
+ 25 files changed, 693 insertions(+), 567 deletions(-)
+ rename Documentation/devicetree/bindings/{gpio/gpio_i2c.txt =3D> i2c/gpio-=
+i2c.txt} (100%)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+ rename arch/arm/plat-nomadik/include/plat/i2c.h =3D> include/linux/platfor=
+m_data/i2c-nomadik.h (91%)
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--6TrnltStXW4iwmi0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlAUMMoACgkQD27XaX1/VRtUfwCaA/TGt14fpqNq5766k1xCF6Dq
+5rwAnik0VtrIh7WTtuAyxH8gYTaPcfKY
+=4yhg
+-----END PGP SIGNATURE-----
+
+--6TrnltStXW4iwmi0--
