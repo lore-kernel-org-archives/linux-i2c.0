@@ -1,37 +1,139 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: Fix ifdefs for suspend mode
-Date: Mon, 30 Jul 2012 19:03:07 +0530
-Message-ID: <1343655187-18282-1-git-send-email-ldewangan@nvidia.com>
+From: Gabriel Tisan <gabriel.tisan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: i2c: imx: could not read data
+Date: Mon, 30 Jul 2012 22:42:20 +0200
+Message-ID: <CAD9ZU8BymFUUp2wCfwtjUqZnYOXig38wC1KDJu43HZ6VZmSU2Q@mail.gmail.com>
+References: <CAD9ZU8BLrMbh684DN_Pyj0y-EtbvALKvtBUYUz+iVj00SNHstQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAD9ZU8BLrMbh684DN_Pyj0y-EtbvALKvtBUYUz+iVj00SNHstQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-CONFIG_PM covers runtime only PM.
+Hi !
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-This patch will remove the compilation warning if CONFIG_PM_SLEEP
-is not enabled.
+I have the following environment :
+- Kernel based on 3.2.21 with custom changes and with commit (bb79a07)
+"i2c: imx: fix imx driver to work though signal is pending" applied
+- board based on imx35 derived from Freescale i.MX35 3-stack eval board
 
- drivers/i2c/busses/i2c-tegra.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+I try to read some data from I2C by following userspace application,
+but I get some error:
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 66eb53f..9a08c57 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -712,7 +712,7 @@ static int __devexit tegra_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM
-+#ifdef CONFIG_PM_SLEEP
- static int tegra_i2c_suspend(struct device *dev)
- {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
--- 
-1.7.1.1
+#include <linux/i2c-dev.h>
+
+int main() {
+        int file, i;
+        char filename[20];
+        char buf[3];
+        int adapter_nr = 0; /* I2C-0 */
+        int addr = 0x08; /* The I2C address */
+        char reg = 0x07; /* Device register to access */
+
+        snprintf(filename, 19, "/dev/i2c-%d", adapter_nr);
+        file = open(filename, O_RDWR);
+        if (file < 0) {
+                printf("%s: open failed: %s\n",file, strerror(errno));
+                exit(1);
+        }
+
+        if (ioctl(file, I2C_SLAVE, addr) < 0) {
+                printf("%s: set slave address failed: %s\n",file,
+strerror(errno));
+                exit(1);
+        }
+
+        buf[0] = reg;
+        buf[1] = 0;
+        buf[2] = 0;
+        if (write(file, buf, 1) != 1) {
+                printf("%s: write failed: %s\n",file, strerror(errno));
+                exit(1);
+        }
+
+        if (read(file, buf, 2) != 2) {
+                printf("%s: read failed: %s\n",filename, strerror(errno));
+                exit(1);
+        } else {
+            printf("Read bytes\n");
+                /* buf contains the ID bytes */
+                printf("ID: ");
+                for (i=0; i<2; i++) {
+                        printf("%02x ",buf[i]);
+                }
+        }
+        return 0;
+}
+
+Here is the debug log with the error that I get when i run the program
+from above:
+i2c i2c-0: ioctl, cmd=0x703, arg=0x08
+i2c-dev: i2c-0 writing 1 bytes.
+i2c i2c-0: master_xfer[0] W, addr=0x08, len=1
+i2c i2c-0: <i2c_imx_xfer>
+i2c i2c-0: <i2c_imx_start>
+i2c i2c-0: <i2c_imx_bus_busy>
+i2c i2c-0: <i2c_imx_xfer> transfer message: 0
+i2c i2c-0: <i2c_imx_xfer> CONTROL: IEN=1, IIEN=1, MSTA=1, MTX=1, TXAK=1, RSTA=0
+i2c i2c-0: <i2c_imx_xfer> STATUS: ICF=1, IAAS=0, IBB=1, IAL=0, SRW=0,
+IIF=0, RXAK=1
+i2c i2c-0: <i2c_imx_write> write slave address: addr=0x10
+i2c i2c-0: <i2c_imx_trx_complete> TRX complete
+i2c i2c-0: <i2c_imx_acked> ACK received
+i2c i2c-0: <i2c_imx_write> write data
+i2c i2c-0: <i2c_imx_write> write byte: B0=0x7
+i2c i2c-0: <i2c_imx_trx_complete> TRX complete
+i2c i2c-0: <i2c_imx_acked> ACK received
+i2c i2c-0: <i2c_imx_stop>
+i2c i2c-0: <i2c_imx_bus_busy>
+i2c i2c-0: <i2c_imx_xfer> exit with: success msg: 1
+i2c-dev: i2c-0 reading 2 bytes.
+i2c i2c-0: master_xfer[0] R, addr=0x08, len=2
+i2c i2c-0: <i2c_imx_xfer>
+i2c i2c-0: <i2c_imx_start>
+i2c i2c-0: <i2c_imx_bus_busy>
+i2c i2c-0: <i2c_imx_xfer> transfer message: 0
+i2c i2c-0: <i2c_imx_xfer> CONTROL: IEN=1, IIEN=1, MSTA=1, MTX=1, TXAK=1, RSTA=0
+i2c i2c-0: <i2c_imx_xfer> STATUS: ICF=1, IAAS=0, IBB=1, IAL=0, SRW=0,
+IIF=0, RXAK=1
+i2c i2c-0: <i2c_imx_read> write slave address: addr=0x11
+i2c i2c-0: <i2c_imx_trx_complete> TRX complete
+i2c i2c-0: <i2c_imx_acked> No ACK
+i2c i2c-0: <i2c_imx_stop>
+i2c i2c-0: <i2c_imx_bus_busy>
+i2c i2c-0: <i2c_imx_xfer> exit with: error: -5
+
+Using i2ctools it seems that with i2c everything is fine:
+# i2cdetect -l
+i2c-0i2c       imx-i2c                         I2C adapter
+i2c-1i2c       imx-i2c                         I2C adapter
+i2c-2i2c       imx-i2c                         I2C adapter
+# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- 08 -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+# i2cget -y 0 0x08 07 w
+0x4100
+
+How you can see using i2ctools I can read without any errors from
+register 07 of slave device 08 found on i2c-0.
+On the same board using an old kernel 2.6.32.16 I can read data from
+i2c-0 using my userspace app.
+
+Has anybody some suggestions what could I try to go forward ?
+
+Best regards,
+Gabriel
