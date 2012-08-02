@@ -1,39 +1,37 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] i2c: imx: Use dev_dbg logging style
-Date: Wed,  1 Aug 2012 17:38:15 -0300
-Message-ID: <1343853495-23479-2-git-send-email-festevam@gmail.com>
-References: <1343853495-23479-1-git-send-email-festevam@gmail.com>
+From: Venu Byravarasu <vbyravarasu-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c: muxes: fix build break
+Date: Thu, 2 Aug 2012 14:42:17 +0530
+Message-ID: <1343898737-24386-1-git-send-email-vbyravarasu@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1343853495-23479-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: vbyravarasu-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Seems a new parameter is added to i2c_add_mux_adapter().
+All its references, except for the one present in
+i2c-mux-pinctrl.c, were updated.
+As this is causing build break, pushing current patch to fix it.
 
-Use dev_dbg logging style as it is done in other parts of this driver.
-
-Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Venu Byravarasu <vbyravarasu-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-imx.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/muxes/i2c-mux-pinctrl.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index e143629..2e1d5f4 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -272,9 +272,9 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+index 46a6697..5f097f3 100644
+--- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+@@ -221,7 +221,7 @@ static int __devinit i2c_mux_pinctrl_probe(struct platform_device *pdev)
+ 				(mux->pdata->base_bus_num + i) : 0;
  
- 	/* dev_dbg() can't be used, because adapter is not yet registered */
- #ifdef CONFIG_I2C_DEBUG_BUS
--	printk(KERN_DEBUG "I2C: <%s> I2C_CLK=%d, REQ DIV=%d\n",
-+	dev_dbg(&i2c_imx->adapter.dev, "<%s> I2C_CLK=%d, REQ DIV=%d\n",
- 		__func__, i2c_clk_rate, div);
--	printk(KERN_DEBUG "I2C: <%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
-+	dev_dbg(&i2c_imx->adapter.dev, "<%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
- 		__func__, i2c_clk_div[i][1], i2c_clk_div[i][0]);
- #endif
- }
+ 		mux->busses[i] = i2c_add_mux_adapter(mux->parent, &pdev->dev,
+-						     mux, bus, i,
++						     mux, bus, i, 0,
+ 						     i2c_mux_pinctrl_select,
+ 						     deselect);
+ 		if (!mux->busses[i]) {
 -- 
-1.7.1
+1.7.1.1
