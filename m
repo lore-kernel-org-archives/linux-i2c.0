@@ -1,57 +1,56 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: imx: Use dev_info to indicate that i2c driver
- was succesfully registered
-Date: Fri, 3 Aug 2012 16:25:25 +0200
-Message-ID: <20120803142525.GX1451@pengutronix.de>
-References: <1343853495-23479-1-git-send-email-festevam@gmail.com>
+From: =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme@gmail.com>
+Subject: [PATCH v2 0/2] I2C: SIS964: Bus driver
+Date: Fri,  3 Aug 2012 17:35:43 +0200
+Message-ID: <1344008145-14579-1-git-send-email-amaury.decreme@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1343853495-23479-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, rob@landley.net
+Cc: jeffrey.t.kirsher@intel.com, akpm@linux-foundation.org, davem@davemloft.net, gregkh@linuxfoundation.org, joe@perches.com, ralf@linux-mips.org, dirk.brandewie@gmail.com, jayachandranc@netlogicmicro.com, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 01, 2012 at 05:38:14PM -0300, Fabio Estevam wrote:
-> From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> 
-> It is useful information in dmesg to have a message indicating that the i2c
-> driver was succesfully registered, so promote it to dev_info.
-> 
-> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+This series of patches are a I2C bus driver for the SIS964.
 
-Both:
 
-Acked-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+The SIS964 is nearly the same as SIS630 for the SMBUS :
+	- Most of the SMBus registers (Status, Enable, Control,
+	  Host Control, etc.) are at the same adresses + 0x60
+	- The register count is 21 instead of 20
 
-Sascha
+The SIS964 name is ambiguous as this chip isn't part of the SIS96X
+family and behaves differently.
 
-> ---
->  drivers/i2c/busses/i2c-imx.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index 0722f86..e143629 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -564,7 +564,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
->  		resource_size(res), res->start);
->  	dev_dbg(&i2c_imx->adapter.dev, "adapter name: \"%s\"\n",
->  		i2c_imx->adapter.name);
-> -	dev_dbg(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
-> +	dev_info(&i2c_imx->adapter.dev, "IMX I2C adapter registered\n");
->  
->  	return 0;   /* Return OK */
->  }
-> -- 
-> 1.7.1
-> 
-> 
+The datasheets have been used to develop the driver based on the
+exsiting driver for I2C SIS630 .=20
 
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+
+Content of the patches:
+	- 1/2 The driver itself
+	- 2/2 Documentation, Kconfig, Makefile, Maintainers
+
+
+Changes:
+	V2
+	- Remove of the insertion on include/linux/pci_ids.h
+	and no quirk needed
+	- Cosmetics on the source code + patch split
+
+Amaury Decr=C3=AAme (2):
+  I2C: SIS964: Bus driver - Driver
+  I2C: SIS964: Bus driver - other files
+
+ Documentation/i2c/busses/i2c-sis964 |   36 +++
+ MAINTAINERS                         |    7 +
+ drivers/i2c/busses/Kconfig          |   12 +-
+ drivers/i2c/busses/Makefile         |    1 +
+ drivers/i2c/busses/i2c-sis964.c     |  578 +++++++++++++++++++++++++++=
+++++++++
+ 5 files changed, 633 insertions(+), 1 deletions(-)
+ create mode 100644 Documentation/i2c/busses/i2c-sis964
+ create mode 100644 drivers/i2c/busses/i2c-sis964.c
+
+--=20
+1.7.8.6
+
