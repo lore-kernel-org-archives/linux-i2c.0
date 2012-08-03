@@ -1,45 +1,42 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: =?UTF-8?Q?Amaury_Decr=C3=AAme?= <amaury.decreme@gmail.com>
 Subject: Re: [PATCH v2 0/2] I2C: SIS964: Bus driver
-Date: Fri, 3 Aug 2012 18:07:12 +0200
-Message-ID: <20120803180712.1e768042@endymion.delvare>
-References: <1344008145-14579-1-git-send-email-amaury.decreme@gmail.com>
+Date: Fri, 3 Aug 2012 18:36:36 +0200
+Message-ID: <CAPXEm73QX7haU5p7HU+=+qo5wnivt6j+WH5bQGZ0ZK0Ek2Cuyw@mail.gmail.com>
+References: <1344008145-14579-1-git-send-email-amaury.decreme@gmail.com> <20120803180712.1e768042@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1344008145-14579-1-git-send-email-amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Amaury =?UTF-8?B?RGVjcsOqbWU=?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, jeffrey.t.kirsher-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20120803180712.1e768042@endymion.delvare>
+Sender: linux-doc-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: ben-linux@fluff.org, w.sang@pengutronix.de, rob@landley.net, jeffrey.t.kirsher@intel.com, akpm@linux-foundation.org, davem@davemloft.net, gregkh@linuxfoundation.org, joe@perches.com, ralf@linux-mips.org, dirk.brandewie@gmail.com, jayachandranc@netlogicmicro.com, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Amaury,
+Hi Jean,
 
-On Fri,  3 Aug 2012 17:35:43 +0200, Amaury Decr=C3=AAme wrote:
-> This series of patches are a I2C bus driver for the SIS964.
->=20
->=20
-> The SIS964 is nearly the same as SIS630 for the SMBUS :
-> 	- Most of the SMBus registers (Status, Enable, Control,
-> 	  Host Control, etc.) are at the same adresses + 0x60
-> 	- The register count is 21 instead of 20
->=20
-> The SIS964 name is ambiguous as this chip isn't part of the SIS96X
-> family and behaves differently.
->=20
-> The datasheets have been used to develop the driver based on the
-> exsiting driver for I2C SIS630 .=20
+>
+> What is the rationale for not adding support for the new chip to
+> i2c-sis630 then? That would probably be a lot easier to review.
+>
 
-What is the rationale for not adding support for the new chip to
-i2c-sis630 then? That would probably be a lot easier to review.
+I was afraid that adding SIS964 support to i2c-sis630 would lead
+to confusion.
 
-> Content of the patches:
-> 	- 1/2 The driver itself
-> 	- 2/2 Documentation, Kconfig, Makefile, Maintainers
-
-This split makes little sense. Integration should come with the driver,
-otherwise even build-testing is impossible.
+I can try to submit a patch for i2c-sis630. In this case, do you think
+we should keep the 630 name or change it to something else to
+avoid misunderstanding ?
 
 
---=20
-Jean Delvare
+>
+> This split makes little sense. Integration should come with the drive=
+r,
+> otherwise even build-testing is impossible.
+>
+
+Sorry for that. As the patch V1 was rather big, I was hesitating for
+the same reason but posted it split. I'll "unsplit" for the V3 (unless
+i2c-sis630 patch).
+
+
+Amaury Decr=C3=AAme
