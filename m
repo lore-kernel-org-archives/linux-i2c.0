@@ -1,43 +1,51 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Adding support for Intel iSMT SMBus 2.0 host
- controller
-Date: Fri, 3 Aug 2012 08:33:42 +0200
-Message-ID: <20120803083342.76f0df3b@endymion.delvare>
-References: <1343683421-12504-1-git-send-email-bill.e.brown@intel.com>
-	<1343954343.24204.5.camel@bebrown-nhm1.ch.intel.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] i2c: convert struct i2c_msg initialization to C99 format
+Date: Fri, 3 Aug 2012 17:22:44 +0530
+Message-ID: <1343994764-2286-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1343954343.24204.5.camel-ttzMDwopN+0VpfeQ83dqLK2pdiUAq4bhAL8bYrjMMd8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Bill,
+Convert the struct i2c_msg initialization to C99 format and remove
+all the NULL or 0 initializers. This makes maintaining and editing the
+code simpler. This may help once other fields like transferred are added
+in future.
 
-On Thu, 02 Aug 2012 17:39:03 -0700, Bill Brown wrote:
-> On Mon, 2012-07-30 at 14:23 -0700, Bill Brown wrote:
-> > The iSMT (Intel SMBus Message Transport) supports multi-master I2C/SMBus,
-> > as well as IPMI.  It's operation is DMA-based and utilizes descriptors to
-> > initiate transactions on the bus.
-> > 
-> > The iSMT hardware can act as both a master and a target, although this
-> > driver only supports being a master.
-> > 
-> > Signed-off-by: Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> 
-> I haven't seen any activity on this yet...good to go, or has anyone had
-> a chance to review it yet?  I'd like to get it into the 3.6 kernel if
-> possible.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |   13 ++++++++++---
+ 1 files changed, 10 insertions(+), 3 deletions(-)
 
-Summer time is when when people take vacation, this increases review
-delays.
-
-I'm afraid it's too late for 3.6, rc1 is already out. In order to get a
-patch in a kernel version, you must have it in linux-next before the
-merge window opens.
-
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 2efa56c..33cfdd3 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1971,12 +1971,19 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
+ 	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
+ 	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
+ 	int num = read_write == I2C_SMBUS_READ ? 2 : 1;
+-	struct i2c_msg msg[2] = { { addr, flags, 1, msgbuf0 },
+-	                          { addr, flags | I2C_M_RD, 0, msgbuf1 }
+-	                        };
+ 	int i;
+ 	u8 partial_pec = 0;
+ 	int status;
++	struct i2c_msg msg[2];
++
++	msg[0].addr = addr;
++	msg[0].flags = flags;
++	msg[0].len = 1;
++	msg[0].buf = msgbuf0;
++	msg[1].addr = addr;
++	msg[1].flags = flags | I2C_M_RD;
++	msg[1].len = 0;
++	msg[1].buf = msgbuf1;
+ 
+ 	msgbuf0[0] = command;
+ 	switch (size) {
 -- 
-Jean Delvare
+1.7.5.4
