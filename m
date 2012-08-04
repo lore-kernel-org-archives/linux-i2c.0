@@ -1,137 +1,88 @@
-From: =?UTF-8?Q?Amaury_Decr=C3=AAme?= <amaury.decreme@gmail.com>
-Subject: Re: [PATCH v2 0/2] I2C: SIS964: Bus driver
-Date: Sat, 4 Aug 2012 00:38:29 +0000
-Message-ID: <CAPXEm72mv=j+D-7FU_VMCy0vesFV2TKa6xufWVcTkpgq=mddcQ@mail.gmail.com>
-References: <1344008145-14579-1-git-send-email-amaury.decreme@gmail.com>
- <20120803180712.1e768042@endymion.delvare> <CAPXEm73QX7haU5p7HU+=+qo5wnivt6j+WH5bQGZ0ZK0Ek2Cuyw@mail.gmail.com>
- <20120803190758.34e67b1e@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20120803190758.34e67b1e@endymion.delvare>
-Sender: linux-doc-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: ben-linux@fluff.org, w.sang@pengutronix.de, rob@landley.net, jeffrey.t.kirsher@intel.com, akpm@linux-foundation.org, davem@davemloft.net, gregkh@linuxfoundation.org, joe@perches.com, ralf@linux-mips.org, dirk.brandewie@gmail.com, jayachandranc@netlogicmicro.com, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, mhoffman@lightlink.com, amalysh@web.de, =?UTF-8?B?5p2O5b+X5p2RIChuZWxzb24p?= <nelson@sis.com>
+From: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
+Subject: [PATCH] drivers/i2c/i2c-smbus.c: convert kzalloc to devm_kzalloc
+Date: Sat,  4 Aug 2012 19:10:48 +0200
+Message-ID: <1344100248-16238-1-git-send-email-Julia.Lawall@lip6.fr>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> There's nothing confusing, drivers supporting several devices are
-> legion. If the devices are really almost compatible, reusing an
-> existing driver is the way to go.
+From: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
 
-With that in mind, here is an alpha preview of what the patch will
-look like if SIS964 support is added in i2c-sis630.
+Converting kzalloc to devm_kzalloc simplifies the code and ensures that the
+result, alert, is freed after the irq allocated by the subsequent
+devm_request_irq.  This in turn ensures that when an interrupt can be
+triggered, the alert structure is still available.
 
+The problem of a free after a devm_request_irq was found using the
+following semantic match (http://coccinelle.lip6.fr/)
 
-diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-s=
-is630.c
-index 5d6723b..861d58b 100644
---- a/drivers/i2c/busses/i2c-sis630.c
-+++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -33,6 +33,8 @@
-        Fixed logical error by restoring of Host Master Clock
-    31.07.2003
-        Added block data read/write support.
-+   03.08.2012
-+       Added support of SiS964 - Amaury Decr=C3=AAme <amaury.decreme@g=
-mail.com>
- */
+// <smpl>
+@r exists@
+expression e1,e2,x,a,b,c,d;
+identifier free;
+position p1,p2;
+@@
 
- /*
-@@ -41,6 +43,7 @@
-    Supports:
-        SIS 630
-        SIS 730
-+       SIS 964
+  devm_request_irq@p1(e1,e2,...,x)
+  ... when any
+      when != e2 = a
+      when != x = b
+  if (...) {
+    ... when != e2 = c
+        when != x = d
+    free@p2(...,x,...);
+    ...
+    return ...;
+  }
+// </smpl>
 
-    Note: we assume there can only be one device, with one SMBus interf=
-ace.
- */
-@@ -55,22 +58,22 @@
- #include <linux/acpi.h>
- #include <linux/io.h>
+Signed-off-by: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
 
-+/* SIS964 id, defined here as we are the only file using it */
-+#define PCI_DEVICE_ID_SI_964   0x0964
-+
- /* SIS630 SMBus registers */
--#define SMB_STS                        0x80    /* status */
--#define SMB_EN                 0x81    /* status enable */
--#define SMB_CNT                        0x82
--#define SMBHOST_CNT            0x83
--#define SMB_ADDR               0x84
--#define SMB_CMD                        0x85
--#define SMB_PCOUNT             0x86    /* processed count */
--#define SMB_COUNT              0x87
--#define SMB_BYTE               0x88    /* ~0x8F data byte field */
--#define SMBDEV_ADDR            0x90
--#define SMB_DB0                        0x91
--#define SMB_DB1                        0x92
--#define SMB_SAA                        0x93
+---
+ drivers/i2c/i2c-smbus.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index df3e0bf..50a36cf 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -142,7 +142,8 @@ static int smbalert_probe(struct i2c_client *ara,
+ 	struct i2c_adapter *adapter = ara->adapter;
+ 	int res;
+ 
+-	alert = kzalloc(sizeof(struct i2c_smbus_alert), GFP_KERNEL);
++	alert = devm_kzalloc(&ara->dev, sizeof(struct i2c_smbus_alert),
++			     GFP_KERNEL);
+ 	if (!alert)
+ 		return -ENOMEM;
+ 
+@@ -154,10 +155,8 @@ static int smbalert_probe(struct i2c_client *ara,
+ 	if (setup->irq > 0) {
+ 		res = devm_request_irq(&ara->dev, setup->irq, smbalert_irq,
+ 				       0, "smbus_alert", alert);
+-		if (res) {
+-			kfree(alert);
++		if (res)
+ 			return res;
+-		}
+ 	}
+ 
+ 	i2c_set_clientdata(ara, alert);
+@@ -167,14 +166,12 @@ static int smbalert_probe(struct i2c_client *ara,
+ 	return 0;
+ }
+ 
+-/* IRQ resource is managed so it is freed automatically */
++/* IRQ resource and alert are managed so they are freed automatically */
+ static int smbalert_remove(struct i2c_client *ara)
+ {
+ 	struct i2c_smbus_alert *alert = i2c_get_clientdata(ara);
+ 
+ 	cancel_work_sync(&alert->alert);
 -
--/* register count for request_region */
-+#define SMB_STS                        0x00 + offset   /* status */
-+#define SMB_CNT                        0x02 + offset   /* control */
-+#define SMBHOST_CNT            0x03 + offset   /* host control */
-+#define SMB_ADDR               0x04 + offset   /* address */
-+#define SMB_CMD                        0x05 + offset   /* command */
-+#define SMB_COUNT              0x07 + offset   /* byte count */
-+#define SMB_BYTE               0x08 + offset   /* ~0x8F data byte fiel=
-d */
-+#define SMB_SAA                        0x13 + offset   /* host slave
-alias address */
-+
-+/* register count for request_region
-+ * As we don't use SMB_PCOUNT 20 is ok for SiS630 and SiS964
-+ */
- #define SIS630_SMB_IOREGION    20
-
- /* PCI address constants */
-@@ -107,9 +110,13 @@ static unsigned short acpi_base;
- static int supported[] =3D {
-        PCI_DEVICE_ID_SI_630,
-        PCI_DEVICE_ID_SI_730,
-+       PCI_DEVICE_ID_SI_964,
-        0 /* terminates the list */
- };
-
-+/* SMB registers offset */
-+static int offset;
-+
- static inline u8 sis630_read(u8 reg)
- {
-        return inb(acpi_base + reg);
-@@ -412,6 +419,10 @@ static int __devinit sis630_setup(struct pci_dev
-*sis630_dev)
-                return -ENODEV;
-        }
-
-+       if (supported[i] =3D=3D PCI_DEVICE_ID_SI_964)
-+               offset =3D 0xE0;
-+       else
-+               offset =3D 0x80;
-        /*
-           Enable ACPI first , so we can accsess reg 74-75
-           in acpi io space and read acpi base addr
-@@ -474,6 +485,7 @@ static struct i2c_adapter sis630_adapter =3D {
-
- static DEFINE_PCI_DEVICE_TABLE(sis630_ids) =3D {
-        { PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_503) },
-+       { PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_964) },
-        { PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_LPC) },
-        { 0, }
- };
-@@ -482,6 +494,7 @@ MODULE_DEVICE_TABLE (pci, sis630_ids);
-
- static int __devinit sis630_probe(struct pci_dev *dev, const struct
-pci_device_id *id)
- {
-+       dev_dbg(&dev->dev, "salut");
-        if (sis630_setup(dev)) {
-                dev_err(&dev->dev, "SIS630 comp. bus not detected,
-module not inserted.\n");
-                return -ENODEV;
-
-
---
-Amaury Decr=C3=AAme
+-	kfree(alert);
+ 	return 0;
+ }
+ 
