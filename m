@@ -1,25 +1,51 @@
-From: =?UTF-8?Q?Amaury_Decr=C3=AAme?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 0/2] I2C: SIS964: Bus driver
-Date: Sun, 5 Aug 2012 22:03:19 +0000
-Message-ID: <CAPXEm727Dbs9v-BXHQJ33kQuNWr3o_fmfyw96fEf=zj4uCGMXA@mail.gmail.com>
-References: <1344008145-14579-1-git-send-email-amaury.decreme@gmail.com>
- <20120803180712.1e768042@endymion.delvare> <CAPXEm73QX7haU5p7HU+=+qo5wnivt6j+WH5bQGZ0ZK0Ek2Cuyw@mail.gmail.com>
- <20120803190758.34e67b1e@endymion.delvare> <CAPXEm72mv=j+D-7FU_VMCy0vesFV2TKa6xufWVcTkpgq=mddcQ@mail.gmail.com>
- <20120805140454.3e7a9606@endymion.delvare>
+From: =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme@gmail.com>
+Subject: [PATCH 0/2] I2C: SIS630: Add SIS964 support
+Date: Mon,  6 Aug 2012 00:11:52 +0200
+Message-ID: <1344204714-16513-1-git-send-email-amaury.decreme@gmail.com>
+References: <20120805140454.3e7a9606@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120805140454.3e7a9606-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, jeffrey.t.kirsher-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, davem-fT/PcQaiUtIeIZ0/mPfg9Q@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org, ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jayachandranc-oSioyQM9ZPnuBjGU1YDckgC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, amalysh-S0/GAf8tV78@public.gmane.org, =?UTF-8?B?5p2O5b+X5p2R?= <nelson-bExrPSV3DA0@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20120805140454.3e7a9606@endymion.delvare>
+Sender: linux-doc-owner@vger.kernel.org
+To: khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, rob@landley.net
+Cc: amalysh@web.de, mhoffman@lightlink.com, ralf@linux-mips.org, manuel.lauss@googlemail.com, axel.lin@gmail.com, olof@lixom.net, rusty@rustcorp.com.au, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Salut Jean,
+This series of patches add SIS964 support to i2c-sis630.
 
-Thanks for your comments.
-I will post now a new serie of patches for SIS630.
+The SIS964 is very similar to SIS630 for the SMBus.
+	+------------------------+--------------------+-------------------+
+	|                        |     SIS630/730     |      SIS964       |
+	+------------------------+--------------------+-------------------+
+	| Clock                  | 14kHz/56kHz        | 55.56kHz/27.78kHz |
+	| SMBus registers offset | 0x80               | 0xE0              |
+	| SMB_CNT                | Bit 1 =3D Slave Busy | Bit 1 =3D Bus probe =
+|
+	| SMB_COUNT              | 4:0 bits           | 5:0 bits          |
+	+------------------------+--------------------+-------------------+
 
---
-Amaury Decr=C3=AAme
+The other differences doesn't affect the functions provided by the orig=
+inal
+driver.
+
+The SIS964 name is ambiguous as this chip isn't part of the SIS96X fami=
+ly and
+behaves differently.
+
+Done with SiS 630 and 964 datasheets.
+
+Amaury Decr=C3=AAme (2):
+  I2C: SIS630: Add SiS964 support
+  I2C: SIS630: Cosmetics
+
+ Documentation/i2c/busses/i2c-sis630 |   17 +-
+ drivers/i2c/busses/Kconfig          |    4 +-
+ drivers/i2c/busses/i2c-sis630.c     |  445 +++++++++++++++++++++------=
+--------
+ 3 files changed, 278 insertions(+), 188 deletions(-)
+
+--=20
+1.7.8.6
+
