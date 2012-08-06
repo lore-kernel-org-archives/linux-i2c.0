@@ -1,62 +1,80 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: convert struct i2c_msg initialization to C99
- format
-Date: Mon, 6 Aug 2012 16:12:05 +0200
-Message-ID: <20120806161205.7ee28000@endymion.delvare>
-References: <1344243467-7237-1-git-send-email-shubhrajyoti@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1344243467-7237-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 1/1] i2c: Add default configuration into the Nomadik I2C driver.
+Date: Mon,  6 Aug 2012 16:17:33 +0100
+Message-ID: <1344266253-14050-1-git-send-email-lee.jones@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, w.sang@pengutronix.de, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 6 Aug 2012 14:27:47 +0530, Shubhrajyoti D wrote:
-> Convert the struct i2c_msg initialization to C99 format. This makes
-> maintaining and editing the code simpler. Also helps once other fields
-> like transferred are added in future.
-> 
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/i2c-core.c |   17 ++++++++++++++---
->  1 files changed, 14 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 2efa56c..c77a1ac 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1971,12 +1971,23 @@ static s32 i2c_smbus_xfer_emulated(struct i2c_adapter *adapter, u16 addr,
->  	unsigned char msgbuf0[I2C_SMBUS_BLOCK_MAX+3];
->  	unsigned char msgbuf1[I2C_SMBUS_BLOCK_MAX+2];
->  	int num = read_write == I2C_SMBUS_READ ? 2 : 1;
-> -	struct i2c_msg msg[2] = { { addr, flags, 1, msgbuf0 },
-> -	                          { addr, flags | I2C_M_RD, 0, msgbuf1 }
-> -	                        };
->  	int i;
->  	u8 partial_pec = 0;
->  	int status;
-> +	struct i2c_msg msg[2] = {
-> +		{
-> +			.addr = addr,
-> +			.flags = flags,
-> +			.len = 1,
-> +			.buf = msgbuf0,
-> +		 },
-> +		{
-> +			.addr = addr,
-> +			.flags = flags | I2C_M_RD,
-> +			.len = 0,
-> +			.buf = msgbuf1,
-> +		},
-> +	};
->  
->  	msgbuf0[0] = command;
->  	switch (size) {
+At this moment in time there is only one known configuration for the
+Nomadik I2C driver. By not holding that configuration in the driver
+adds some unnecessary overhead in platform code. The configuration
+as already been removed from platform code, this patch checks for any
+over-riding configurations. If there aren't any, the default is used.
 
-Applied, thanks.
+Cc: linux-i2c@vger.kernel.org
+Acked-by: srinidhi kasagar <srinidhi.kasagar@stericsson.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/i2c/busses/i2c-nomadik.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 5e6f1ee..e42e526 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -350,10 +350,6 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 
+ 	i2c_clk = clk_get_rate(dev->clk);
+ 
+-	/* fallback to std. mode if machine has not provided it */
+-	if (dev->cfg.clk_freq == 0)
+-		dev->cfg.clk_freq = 100000;
+-
+ 	/*
+ 	 * The spec says, in case of std. mode the divider is
+ 	 * 2 whereas it is 3 for fast and fastplus mode of
+@@ -911,20 +907,32 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+ 	.functionality	= nmk_i2c_functionality
+ };
+ 
++static struct nmk_i2c_controller u8500_i2c = {
++	/*
++	 * Slave data setup time; 250ns, 100ns, and 10ns, which
++	 * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
++	 */
++	.slsu           = 0xe,
++	.tft            = 1,      /* Tx FIFO threshold */
++	.rft            = 8,      /* Rx FIFO threshold */
++	.clk_freq       = 400000, /* fast mode operation */
++	.timeout        = 200,    /* Slave response timeout(ms) */
++	.sm             = I2C_FREQ_MODE_FAST,
++};
++
+ static atomic_t adapter_id = ATOMIC_INIT(0);
+ 
+ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+ 	int ret = 0;
+-	struct nmk_i2c_controller *pdata =
+-			adev->dev.platform_data;
++	struct nmk_i2c_controller *pdata = pdev->dev.platform_data;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+ 
+-	if (!pdata) {
+-		dev_warn(&adev->dev, "no platform data\n");
+-		return -ENODEV;
+-	}
++	if (!pdata)
++		/* No i2c configuration found, using the default. */
++		pdata = &u8500_i2c;
++
+ 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		dev_err(&adev->dev, "cannot allocate memory\n");
 -- 
-Jean Delvare
+1.7.9.5
