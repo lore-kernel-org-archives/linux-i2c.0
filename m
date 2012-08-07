@@ -1,85 +1,95 @@
-From: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH v7] ARM: davinci: i2c: add OF support
-Date: Tue, 07 Aug 2012 16:35:16 +0200
-Message-ID: <502127A4.2040505@denx.de>
-References: <1343632872-25896-1-git-send-email-hs@denx.de>
-Reply-To: hs-ynQEQJNshbs@public.gmane.org
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/1 v2] i2c: Add default configuration into the Nomadik
+ I2C driver.
+Date: Tue, 7 Aug 2012 16:31:13 +0100
+Message-ID: <20120807153112.GF10719@gmail.com>
+References: <1344266253-14050-1-git-send-email-lee.jones@linaro.org>
+ <20120806153503.GH10524@gmail.com>
+ <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <1343632872-25896-1-git-send-email-hs-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Heiko Schocher <hs-ynQEQJNshbs@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Wolfgang Denk <wd-ynQEQJNshbs@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, w.sang@pengutronix.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+From: Lee Jones <lee.jones@linaro.org>
+Date: Tue, 7 Aug 2012 12:27:24 +0100
+Subject: [PATCH 1/1 v3] i2c: Add default configuration into the Nomadik I2C
+ driver.
 
-On 30.07.2012 09:21, Heiko Schocher wrote:
-> add of support for the davinci i2c driver.
->
-> Signed-off-by: Heiko Schocher<hs-ynQEQJNshbs@public.gmane.org>
-> Signed-off-by: Sekhar Nori<nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-> Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Cc: Ben Dooks<ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-> Cc: Wolfram Sang<w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Grant Likely<grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-> Cc: Sekhar Nori<nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: Wolfgang Denk<wd-ynQEQJNshbs@public.gmane.org>
-> Cc: Sylwester Nawrocki<s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->
-> ---
-> - changes for v2:
-> - add comments from Sylwester Nawrocki<s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>:
->    - use "cell-index" instead "id"
->    - OF_DEV_AUXDATA in the machine code, instead pre-define platform
->      device name
-> - add comment from Grant Likely:
->    - removed "id" resp. "cell-index" completely
->    - fixed documentation
->    - use of_match_ptr()
->    - use devm_kzalloc() for allocating plattform data mem
->    - fixed a whitespace issue
-> - no changes for v3
-> - changes for v4
->    remove "pinmux-handle" property as discussed here:
->    http://www.spinics.net/lists/arm-kernel/msg175701.html
->    with Nori Sekhar
->
-> - changes for v5
->    add comments from Grant Likely:
->    - do not change value of dev->dev->platform_data, instead
->      hold a copy in davinci_i2c_dev.
->
-> - changes for v6:
->    add comments from Sekhar Nori:
->    - removed unneccessary include
->    - merge patch from Sekhar Nori:
->      setup the newly introduced dev->pdata member correctly once in
->      probe ->  i2c_get_plattformdata(() not needed, remove a lot of
->      checks for pdata in code
->    - add Signed-off-by: Sekhar Nori<nsekhar-l0cyMroinI0@public.gmane.org>
->    - patch no longer in patchserie, as it has no dependencies.
->
-> - changes for v7:
->    add comments from Wolfram Sang:
->    - move Documentation/devicetree/bindings/arm/davinci/i2c.txt
->      to Documentation/devicetree/bindings/i2c/davinci.txt
->    - remove bus-delay property
->
->   Documentation/devicetree/bindings/i2c/davinci.txt |   28 ++++++++++++
->   drivers/i2c/busses/i2c-davinci.c                  |   48 ++++++++++++++++-----
->   2 files changed, 65 insertions(+), 11 deletions(-)
->   create mode 100644 Documentation/devicetree/bindings/i2c/davinci.txt
+At this moment in time there is only one known configuration for the
+Nomadik I2C driver. By not holding that configuration in the driver
+adds some unnecessary overhead in platform code. The configuration
+as already been removed from platform code, this patch checks for any
+over-riding configurations. If there aren't any, the default is used.
 
-ping ... any comments?
+Cc: linux-i2c@vger.kernel.org
+Acked-by: srinidhi kasagar <srinidhi.kasagar@stericsson.com>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 
-bye,
-Heiko
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+---
+ drivers/i2c/busses/i2c-nomadik.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 5e6f1ee..61b00ed 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -350,10 +350,6 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+ 
+ 	i2c_clk = clk_get_rate(dev->clk);
+ 
+-	/* fallback to std. mode if machine has not provided it */
+-	if (dev->cfg.clk_freq == 0)
+-		dev->cfg.clk_freq = 100000;
+-
+ 	/*
+ 	 * The spec says, in case of std. mode the divider is
+ 	 * 2 whereas it is 3 for fast and fastplus mode of
+@@ -911,20 +907,32 @@ static const struct i2c_algorithm nmk_i2c_algo = {
+ 	.functionality	= nmk_i2c_functionality
+ };
+ 
++static struct nmk_i2c_controller u8500_i2c = {
++	/*
++	 * Slave data setup time; 250ns, 100ns, and 10ns, which
++	 * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
++	 */
++	.slsu           = 0xe,
++	.tft            = 1,      /* Tx FIFO threshold */
++	.rft            = 8,      /* Rx FIFO threshold */
++	.clk_freq       = 400000, /* fast mode operation */
++	.timeout        = 200,    /* Slave response timeout(ms) */
++	.sm             = I2C_FREQ_MODE_FAST,
++};
++
+ static atomic_t adapter_id = ATOMIC_INIT(0);
+ 
+ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+ 	int ret = 0;
+-	struct nmk_i2c_controller *pdata =
+-			adev->dev.platform_data;
++	struct nmk_i2c_controller *pdata = adev->dev.platform_data;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+ 
+-	if (!pdata) {
+-		dev_warn(&adev->dev, "no platform data\n");
+-		return -ENODEV;
+-	}
++	if (!pdata)
++		/* No i2c configuration found, using the default. */
++		pdata = &u8500_i2c;
++
+ 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+ 	if (!dev) {
+ 		dev_err(&adev->dev, "cannot allocate memory\n");
 -- 
-DENX Software Engineering GmbH,     MD: Wolfgang Denk & Detlev Zundel
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+1.7.9.5
