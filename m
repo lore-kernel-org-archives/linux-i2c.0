@@ -1,51 +1,56 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: fix i2c-i801.c printk format warning
-Date: Mon, 6 Aug 2012 18:17:28 +0200
-Message-ID: <20120806181728.56c471dd@endymion.delvare>
-References: <20120806140109.b1a33b63686ef04f30139c9e@canb.auug.org.au>
-	<501FEC87.6060506@xenotime.net>
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] I2C: OMAP: xfer: fix runtime PM get/put balance on error
+Date: Mon, 06 Aug 2012 17:28:44 -0700
+Message-ID: <87wr1b35qb.fsf@ti.com>
+References: <1340761532-27231-1-git-send-email-khilman@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <501FEC87.6060506-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <1340761532-27231-1-git-send-email-khilman-l0cyMroinI0@public.gmane.org> (Kevin
+	Hilman's message of "Tue, 26 Jun 2012 18:45:32 -0700")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-Cc: Stephen Rothwell <sfr-3FnU+UHB4dNDw9hX6IcOSA@public.gmane.org>, linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Randy,
+Hi Wolfram,
 
-On Mon, 06 Aug 2012 09:10:47 -0700, Randy Dunlap wrote:
-> From: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-> 
-> Fix printk format warning.  ARRAY_SIZE() uses sizeof(),
-> which is size_t, so use %zu to print it.
-> 
-> drivers/i2c/busses/i2c-i801.c: In function 'i801_add_mux':
-> drivers/i2c/busses/i2c-i801.c:1043:4: warning: format '%lu' expects type 'long unsigned int', but argument 3 has type 'unsigned int'
-> 
-> Signed-off-by: Randy Dunlap <rdunlap-/UHa2rfvQTnk1uMJSBkQmQ@public.gmane.org>
-> Cc: Mark D. Studebaker <mdsxyz123-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> writes:
+
+> In omap_i2c_xfer(), ensure pm_runtime_put() is called, even on
+> failure.
+>
+> Without this, after a failed xfer, the runtime PM usecount will have
+> been incremented, but not decremented causing the usecount to never
+> reach zero after a failure.  This keeps the device always runtime PM
+> enabled which keeps the enclosing power domain active, and prevents
+> full-chip retention/off from happening during idle.
+>
+> Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-i801.c |    2 +-
+> This patch applies to current i2c-embedded/for-next branch
+
+This one is needed for v3.6.  Can you queue this up as a fix for
+v3.6-rc?
+
+Thanks,
+
+Kevin
+
+>  drivers/i2c/busses/i2c-omap.c |    2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> --- linux-next-20120806.orig/drivers/i2c/busses/i2c-i801.c
-> +++ linux-next-20120806/drivers/i2c/busses/i2c-i801.c
-> @@ -1039,7 +1039,7 @@ static int __devinit i801_add_mux(struct
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 9895fa7..b105733 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -582,7 +582,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
 >  
->  	/* Find absolute GPIO pin numbers */
->  	if (ARRAY_SIZE(priv->mux_priv) < mux_config->n_gpios) {
-> -		dev_err(dev, "i801_priv.mux_priv too small (%lu, need %d)\n",
-> +		dev_err(dev, "i801_priv.mux_priv too small (%zu, need %d)\n",
->  			ARRAY_SIZE(priv->mux_priv), mux_config->n_gpios);
->  		return -ENODEV;
->  	}
-
-Good catch once again, thanks a lot. As the offending patch is still
-not upstream, I've folded your fix into it.
-
--- 
-Jean Delvare
+>  	r = pm_runtime_get_sync(dev->dev);
+>  	if (IS_ERR_VALUE(r))
+> -		return r;
+> +		goto out;
+>  
+>  	r = omap_i2c_wait_for_bb(dev);
+>  	if (r < 0)
