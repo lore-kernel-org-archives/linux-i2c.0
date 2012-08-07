@@ -1,40 +1,48 @@
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH 1/1 v2] i2c: Add default configuration into the Nomadik
  I2C driver.
-Date: Tue, 7 Aug 2012 11:47:38 +0200
-Message-ID: <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
+Date: Tue, 7 Aug 2012 12:41:15 +0100
+Message-ID: <20120807114113.GA5684@gmail.com>
 References: <1344266253-14050-1-git-send-email-lee.jones@linaro.org>
-	<20120806153503.GH10524@gmail.com>
+ <20120806153503.GH10524@gmail.com>
+ <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120806153503.GH10524@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
+To: Linus Walleij <linus.walleij@linaro.org>
 Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, w.sang@pengutronix.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 6, 2012 at 5:35 PM, Lee Jones <lee.jones@linaro.org> wrote:
+> > diff --git a/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/a=
+rch b/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch
+> > new file mode 120000
+> > index 0000000..427334b
+> > --- /dev/null
+> > +++ b/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch
+> > @@ -0,0 +1 @@
+>=20
+> NACK, what is this stuff? It's even out-of-tree code.
 
-> Looks like I introduced a merge error on the last patch. Trying again:
+Whoa, no idea! Good spot though, I missed this completely.
 
->  .../mali/mali400ko/driver/src/devicedrv/mali/arch  |    1 +
-(...)
-> diff --git a/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch b/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch
-> new file mode 120000
-> index 0000000..427334b
-> --- /dev/null
-> +++ b/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch
-> @@ -0,0 +1 @@
-> +/home/ljkenny/projects/linaro/snowball/snowball/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch-ux500
-> \ No newline at end of file
+> Please be careful with git add -A, I prefer to use git add <pathspec>
+> I suspect that may be why this happened...
 
-NACK, what is this stuff? It's even out-of-tree code.
+I don't use `git add -A`, ever. If I'm adding files, I usually use=20
+`git commit -s -- <pathspec>`, or `git commit -a` if I'm sure I require
+all the necessary changes. I guess I could have accidentally collected=20
+it using `git add -i` whist fixing it up, or a similar misdemeanor.
 
-Please be careful with git add -A, I prefer to use git add <pathspec>
-I suspect that may be why this happened...
+> Please fix it up and send a v3.
 
-Please fix it up and send a v3.
+Of course.
 
-Yours,
-Linus Walleij
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
