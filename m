@@ -1,56 +1,40 @@
-From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] I2C: OMAP: xfer: fix runtime PM get/put balance on error
-Date: Mon, 06 Aug 2012 17:28:44 -0700
-Message-ID: <87wr1b35qb.fsf@ti.com>
-References: <1340761532-27231-1-git-send-email-khilman@ti.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 1/1 v2] i2c: Add default configuration into the Nomadik
+ I2C driver.
+Date: Tue, 7 Aug 2012 11:47:38 +0200
+Message-ID: <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
+References: <1344266253-14050-1-git-send-email-lee.jones@linaro.org>
+	<20120806153503.GH10524@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1340761532-27231-1-git-send-email-khilman-l0cyMroinI0@public.gmane.org> (Kevin
-	Hilman's message of "Tue, 26 Jun 2012 18:45:32 -0700")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120806153503.GH10524@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, w.sang@pengutronix.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On Mon, Aug 6, 2012 at 5:35 PM, Lee Jones <lee.jones@linaro.org> wrote:
 
-Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org> writes:
+> Looks like I introduced a merge error on the last patch. Trying again:
 
-> In omap_i2c_xfer(), ensure pm_runtime_put() is called, even on
-> failure.
->
-> Without this, after a failed xfer, the runtime PM usecount will have
-> been incremented, but not decremented causing the usecount to never
-> reach zero after a failure.  This keeps the device always runtime PM
-> enabled which keeps the enclosing power domain active, and prevents
-> full-chip retention/off from happening during idle.
->
-> Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> Signed-off-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-> ---
-> This patch applies to current i2c-embedded/for-next branch
+>  .../mali/mali400ko/driver/src/devicedrv/mali/arch  |    1 +
+(...)
+> diff --git a/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch b/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch
+> new file mode 120000
+> index 0000000..427334b
+> --- /dev/null
+> +++ b/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch
+> @@ -0,0 +1 @@
+> +/home/ljkenny/projects/linaro/snowball/snowball/drivers/gpu/mali/mali400ko/driver/src/devicedrv/mali/arch-ux500
+> \ No newline at end of file
 
-This one is needed for v3.6.  Can you queue this up as a fix for
-v3.6-rc?
+NACK, what is this stuff? It's even out-of-tree code.
 
-Thanks,
+Please be careful with git add -A, I prefer to use git add <pathspec>
+I suspect that may be why this happened...
 
-Kevin
+Please fix it up and send a v3.
 
->  drivers/i2c/busses/i2c-omap.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 9895fa7..b105733 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -582,7 +582,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  
->  	r = pm_runtime_get_sync(dev->dev);
->  	if (IS_ERR_VALUE(r))
-> -		return r;
-> +		goto out;
->  
->  	r = omap_i2c_wait_for_bb(dev);
->  	if (r < 0)
+Yours,
+Linus Walleij
