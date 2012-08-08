@@ -1,95 +1,46 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/1 v2] i2c: Add default configuration into the Nomadik
- I2C driver.
-Date: Tue, 7 Aug 2012 16:31:13 +0100
-Message-ID: <20120807153112.GF10719@gmail.com>
-References: <1344266253-14050-1-git-send-email-lee.jones@linaro.org>
- <20120806153503.GH10524@gmail.com>
- <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZjbyQbht+UpXrrVGhAzGYPjb=HRZhJ+TvsEXhGeviJLA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, w.sang@pengutronix.de, linux-i2c@vger.kernel.org
+From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Subject: [PATCH] i2c: i2c-ocores: Use devm_request_and_ioremap()
+Date: Wed,  8 Aug 2012 08:54:32 +0200
+Message-ID: <1344408872-1051-1-git-send-email-thierry.reding@avionic-design.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
-Date: Tue, 7 Aug 2012 12:27:24 +0100
-Subject: [PATCH 1/1 v3] i2c: Add default configuration into the Nomadik I2C
- driver.
+Replacing the devm_request_mem_region() and devm_ioremap_nocache() calls
+by a single call to devm_request_and_ioremap() simplifies the code.
 
-At this moment in time there is only one known configuration for the
-Nomadik I2C driver. By not holding that configuration in the driver
-adds some unnecessary overhead in platform code. The configuration
-as already been removed from platform code, this patch checks for any
-over-riding configurations. If there aren't any, the default is used.
-
-Cc: linux-i2c@vger.kernel.org
-Acked-by: srinidhi kasagar <srinidhi.kasagar@stericsson.com>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-nomadik.c |   28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-ocores.c | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 5e6f1ee..61b00ed 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -350,10 +350,6 @@ static void setup_i2c_controller(struct nmk_i2c_dev *dev)
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index bffd550..1fad4ae 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -283,18 +283,9 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ 	if (!i2c)
+ 		return -ENOMEM;
  
- 	i2c_clk = clk_get_rate(dev->clk);
- 
--	/* fallback to std. mode if machine has not provided it */
--	if (dev->cfg.clk_freq == 0)
--		dev->cfg.clk_freq = 100000;
--
- 	/*
- 	 * The spec says, in case of std. mode the divider is
- 	 * 2 whereas it is 3 for fast and fastplus mode of
-@@ -911,20 +907,32 @@ static const struct i2c_algorithm nmk_i2c_algo = {
- 	.functionality	= nmk_i2c_functionality
- };
- 
-+static struct nmk_i2c_controller u8500_i2c = {
-+	/*
-+	 * Slave data setup time; 250ns, 100ns, and 10ns, which
-+	 * is 14, 6 and 2 respectively for a 48Mhz i2c clock.
-+	 */
-+	.slsu           = 0xe,
-+	.tft            = 1,      /* Tx FIFO threshold */
-+	.rft            = 8,      /* Rx FIFO threshold */
-+	.clk_freq       = 400000, /* fast mode operation */
-+	.timeout        = 200,    /* Slave response timeout(ms) */
-+	.sm             = I2C_FREQ_MODE_FAST,
-+};
-+
- static atomic_t adapter_id = ATOMIC_INIT(0);
- 
- static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- {
- 	int ret = 0;
--	struct nmk_i2c_controller *pdata =
--			adev->dev.platform_data;
-+	struct nmk_i2c_controller *pdata = adev->dev.platform_data;
- 	struct nmk_i2c_dev	*dev;
- 	struct i2c_adapter *adap;
- 
--	if (!pdata) {
--		dev_warn(&adev->dev, "no platform data\n");
--		return -ENODEV;
+-	if (!devm_request_mem_region(&pdev->dev, res->start,
+-				     resource_size(res), pdev->name)) {
+-		dev_err(&pdev->dev, "Memory region busy\n");
+-		return -EBUSY;
 -	}
-+	if (!pdata)
-+		/* No i2c configuration found, using the default. */
-+		pdata = &u8500_i2c;
-+
- 	dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
- 	if (!dev) {
- 		dev_err(&adev->dev, "cannot allocate memory\n");
+-
+-	i2c->base = devm_ioremap_nocache(&pdev->dev, res->start,
+-					 resource_size(res));
+-	if (!i2c->base) {
+-		dev_err(&pdev->dev, "Unable to map registers\n");
+-		return -EIO;
+-	}
++	i2c->base = devm_request_and_ioremap(&pdev->dev, res);
++	if (!i2c->base)
++		return -EADDRNOTAVAIL;
+ 
+ 	pdata = pdev->dev.platform_data;
+ 	if (pdata) {
 -- 
-1.7.9.5
+1.7.11.4
