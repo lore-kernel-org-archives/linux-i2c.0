@@ -1,42 +1,62 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: [PATCH RESEND 1/2] i2c: pnx: Fix bit definitions
-Date: Wed,  8 Aug 2012 09:42:31 +0200
-Message-ID: <1344411752-23469-1-git-send-email-stigge@antcom.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: vitalywool@gmail.com, khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, grant.likely@secretlab.ca, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kevin.wells@nxp.com, srinivas.bakki@nxp.com, aletes.xgr@gmail.com, jonsmirl@gmail.com
-Cc: Roland Stigge <stigge@antcom.de>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 1/4] ARM: tegra: clock: add i2c fast clock entry in clock table
+Date: Wed, 8 Aug 2012 13:21:31 +0530
+Message-ID: <1344412294-2420-2-git-send-email-ldewangan@nvidia.com>
+References: <1344412294-2420-1-git-send-email-ldewangan@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1344412294-2420-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The I2C Control Register bits RFDAIE and RFFIE were mixed up. In addition to
-this fix, this patch adds the missing bit DRSIE for completeness.
+Tegra's i2c controller require two clock sources named as
+div-clk and fast-clk for proper operation.
+Currently, the entry of fast-clk is missing in tegra30
+clock table and it is incorrectly named in the tegra20
+clock table.
+Adds aliases to enable lookups for "fast-clk" to succeed.
+A later patch will remove the incorrectly named clock,
+once the driver is modified to use the new name.
 
-Signed-off-by: Roland Stigge <stigge@antcom.de>
-
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
-Applies to v3.6-rc1
+ arch/arm/mach-tegra/tegra20_clocks_data.c |    4 ++++
+ arch/arm/mach-tegra/tegra30_clocks_data.c |    5 +++++
+ 2 files changed, 9 insertions(+), 0 deletions(-)
 
-This patch for i2c-pnx affects PNX4008 and LPC32xx (and LPC31xx, not yet in
-mainline). Can you please test and double-check the manuals of PNX4008 and
-LPC31xx? I only found this via the manual of LPC32xx but assume it's the same
-for the others, also.
-
-Thanks in advance!
-
- drivers/i2c/busses/i2c-pnx.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- linux-2.6.orig/drivers/i2c/busses/i2c-pnx.c
-+++ linux-2.6/drivers/i2c/busses/i2c-pnx.c
-@@ -48,8 +48,9 @@ enum {
- 	mcntrl_afie = 0x00000002,
- 	mcntrl_naie = 0x00000004,
- 	mcntrl_drmie = 0x00000008,
--	mcntrl_daie = 0x00000020,
--	mcntrl_rffie = 0x00000040,
-+	mcntrl_drsie = 0x00000010,
-+	mcntrl_rffie = 0x00000020,
-+	mcntrl_daie = 0x00000040,
- 	mcntrl_tffie = 0x00000080,
- 	mcntrl_reset = 0x00000100,
- 	mcntrl_cdbmode = 0x00000400,
+diff --git a/arch/arm/mach-tegra/tegra20_clocks_data.c b/arch/arm/mach-tegra/tegra20_clocks_data.c
+index b5c518e..7312ecd 100644
+--- a/arch/arm/mach-tegra/tegra20_clocks_data.c
++++ b/arch/arm/mach-tegra/tegra20_clocks_data.c
+@@ -1028,6 +1028,10 @@ static struct clk_duplicate tegra_clk_duplicates[] = {
+ 	CLK_DUPLICATE("cop",	"tegra-avp",	"cop"),
+ 	CLK_DUPLICATE("vde",	"tegra-aes",	"vde"),
+ 	CLK_DUPLICATE("cclk",	NULL,		"cpu"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.0", "fast-clk"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.1", "fast-clk"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.2", "fast-clk"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.3", "fast-clk"),
+ };
+ 
+ #define CLK(dev, con, ck)	\
+diff --git a/arch/arm/mach-tegra/tegra30_clocks_data.c b/arch/arm/mach-tegra/tegra30_clocks_data.c
+index c924240..eae85b7 100644
+--- a/arch/arm/mach-tegra/tegra30_clocks_data.c
++++ b/arch/arm/mach-tegra/tegra30_clocks_data.c
+@@ -1287,6 +1287,11 @@ struct clk_duplicate tegra_clk_duplicates[] = {
+ 	CLK_DUPLICATE("dam1", NULL, "dam1"),
+ 	CLK_DUPLICATE("dam2", NULL, "dam2"),
+ 	CLK_DUPLICATE("spdif_in", NULL, "spdif_in"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.0", "fast-clk"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.1", "fast-clk"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.2", "fast-clk"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.3", "fast-clk"),
++	CLK_DUPLICATE("pll_p_out3", "tegra-i2c.4", "fast-clk"),
+ };
+ 
+ struct clk *tegra_ptr_clks[] = {
+-- 
+1.7.1.1
