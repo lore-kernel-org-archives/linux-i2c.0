@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 3/6] i2c: designware: Fix a possible NULL pointer access
-Date: Thu, 9 Aug 2012 19:07:44 +0530
-Message-ID: <1344519467-14295-4-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH 4/6] i2c: at91: Fix a possible NULL pointer access
+Date: Thu, 9 Aug 2012 19:07:45 +0530
+Message-ID: <1344519467-14295-5-git-send-email-shubhrajyoti@ti.com>
 References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -19,28 +19,28 @@ Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
 untested
 
- drivers/i2c/busses/i2c-designware-platdrv.c |    2 +-
+ drivers/i2c/busses/i2c-at91.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0506fef..4f03eae 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -174,7 +174,6 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
- 	struct resource *mem;
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index e24484b..f748e87 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -263,7 +263,6 @@ static int __devexit at91_i2c_remove(struct platform_device *pdev)
+ 	int rc;
  
+ 	rc = i2c_del_adapter(adapter);
 -	platform_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
  
-@@ -188,6 +187,7 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	iounmap(twi_base);
+@@ -271,6 +270,7 @@ static int __devexit at91_i2c_remove(struct platform_device *pdev)
  
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	release_mem_region(mem->start, resource_size(mem));
+ 	clk_disable(twi_clk);		/* disable peripheral clock */
+ 	clk_put(twi_clk);
 +	platform_set_drvdata(pdev, NULL);
- 	return 0;
- }
  
+ 	return rc;
+ }
 -- 
 1.7.5.4
