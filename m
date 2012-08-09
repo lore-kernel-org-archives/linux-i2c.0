@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 5/6] i2c-puv3: Fix a possible NULL pointer access
-Date: Thu, 9 Aug 2012 19:07:46 +0530
-Message-ID: <1344519467-14295-6-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH 6/6] i2c: davinci: Fix a possible NULL pointer access
+Date: Thu, 9 Aug 2012 19:07:47 +0530
+Message-ID: <1344519467-14295-7-git-send-email-shubhrajyoti@ti.com>
 References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -18,24 +18,29 @@ platform_set_drvdata(pdev, NULL) after the get_resource.
 Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
 Untested
- drivers/i2c/busses/i2c-puv3.c |    2 +-
+
+ drivers/i2c/busses/i2c-davinci.c |    2 +-
  1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-puv3.c b/drivers/i2c/busses/i2c-puv3.c
-index d8515be..38e67b4 100644
---- a/drivers/i2c/busses/i2c-puv3.c
-+++ b/drivers/i2c/busses/i2c-puv3.c
-@@ -245,10 +245,10 @@ static int __devexit puv3_i2c_remove(struct platform_device *pdev)
- 	}
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 79b4bcb..9666454 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -746,7 +746,6 @@ static int davinci_i2c_remove(struct platform_device *pdev)
  
- 	put_device(&pdev->dev);
+ 	i2c_davinci_cpufreq_deregister(dev);
+ 
 -	platform_set_drvdata(pdev, NULL);
+ 	i2c_del_adapter(&dev->adapter);
+ 	put_device(&pdev->dev);
+ 
+@@ -761,6 +760,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
  
  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
  	release_mem_region(mem->start, resource_size(mem));
 +	platform_set_drvdata(pdev, NULL);
- 
- 	return rc;
+ 	return 0;
  }
+ 
 -- 
 1.7.5.4
