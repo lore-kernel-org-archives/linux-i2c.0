@@ -1,46 +1,36 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 4/6] i2c: at91: Fix a possible NULL pointer access
-Date: Thu, 9 Aug 2012 19:07:45 +0530
-Message-ID: <1344519467-14295-5-git-send-email-shubhrajyoti@ti.com>
-References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH 0/6] I2C cleanup
+Date: Thu, 9 Aug 2012 19:07:41 +0530
+Message-ID: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1344519467-14295-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-platform_get_resource uses pdev so move the function
-platform_set_drvdata(pdev, NULL) after the get_resource.
+Prevent possible NULL pointer access. 
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
-untested
+Only the omap patch is tested.
+I would be grateful if anone having the platform
+helps me test it.
 
- drivers/i2c/busses/i2c-at91.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+Shubhrajyoti D (6):
+  i2c: omap: Prevent NULL pointer dereference in remove
+  i2c-xiic:  Fix a possible NULL pointer access
+  i2c: designware: Fix a possible NULL pointer access
+  i2c: at91: Fix a possible NULL pointer access
+  i2c-puv3: Fix a possible NULL pointer access
+  i2c: davinci: Fix a possible NULL pointer access
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index e24484b..f748e87 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -263,7 +263,6 @@ static int __devexit at91_i2c_remove(struct platform_device *pdev)
- 	int rc;
- 
- 	rc = i2c_del_adapter(adapter);
--	platform_set_drvdata(pdev, NULL);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	iounmap(twi_base);
-@@ -271,6 +270,7 @@ static int __devexit at91_i2c_remove(struct platform_device *pdev)
- 
- 	clk_disable(twi_clk);		/* disable peripheral clock */
- 	clk_put(twi_clk);
-+	platform_set_drvdata(pdev, NULL);
- 
- 	return rc;
- }
+ drivers/i2c/busses/i2c-at91.c               |    2 +-
+ drivers/i2c/busses/i2c-davinci.c            |    2 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c |    2 +-
+ drivers/i2c/busses/i2c-omap.c               |    4 ++--
+ drivers/i2c/busses/i2c-puv3.c               |    2 +-
+ drivers/i2c/busses/i2c-xiic.c               |    3 +--
+ 6 files changed, 7 insertions(+), 8 deletions(-)
+
 -- 
 1.7.5.4
