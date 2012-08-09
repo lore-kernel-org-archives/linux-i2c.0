@@ -1,31 +1,32 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/6] i2c: omap: Prevent NULL pointer dereference in remove
-Date: Thu, 9 Aug 2012 19:18:24 +0530
-Message-ID: <CAM=Q2cv3AH2-RTWAuLZb_kSvobta4hk9YrhF4Q0oyh=9DaOizA@mail.gmail.com>
-References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
-	<1344519467-14295-2-git-send-email-shubhrajyoti@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH] i2c: (i2c-diolan-u2c) Fix master_xfer return code
+Date: Thu,  9 Aug 2012 08:47:20 -0700
+Message-ID: <1344527240-18266-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1344519467-14295-2-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 9, 2012 at 7:07 PM, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> wrote:
-> Prevent the NULL pointer access by moving the platform_set_drvdata function
-> after the access of the pdev.
->
-> [  654.961761] Unable to handle kernel NULL pointer dereference at virtual address 00000070
-> [  654.970611] pgd = df254000
-> [  654.973480] [00000070] *pgd=9f1da831, *pte=00000000, *ppte=00000000
-> [  654.980163] Internal error: Oops: 17 [#1] SMP ARM
-> [  654.985076] Modules linked in:
-> [  654.988281] CPU: 1    Not tainted  (3.6.0-rc1-00031-ge547de1-dirty #339)
-> [  654.995330] PC is at omap_i2c_runtime_resume+0x8/0x148
-> [  655.000732] LR is at omap_i2c_runtime_resume+0x8/0x148
->
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
-applies on top of Felipe's cleanup series.
+The master_xfer function returns 0 on success. It should return the number of
+successful transactions.
+
+Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-diolan-u2c.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
+index aedb94f..dae3ddf 100644
+--- a/drivers/i2c/busses/i2c-diolan-u2c.c
++++ b/drivers/i2c/busses/i2c-diolan-u2c.c
+@@ -405,6 +405,7 @@ static int diolan_usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs,
+ 			}
+ 		}
+ 	}
++	ret = num;
+ abort:
+ 	sret = diolan_i2c_stop(dev);
+ 	if (sret < 0 && ret >= 0)
+-- 
+1.7.9.7
