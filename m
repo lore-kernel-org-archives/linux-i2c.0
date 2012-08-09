@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 6/6] i2c: davinci: Fix a possible NULL pointer access
-Date: Thu, 9 Aug 2012 19:07:47 +0530
-Message-ID: <1344519467-14295-7-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH 1/6] i2c: omap: Prevent NULL pointer dereference in remove
+Date: Thu, 9 Aug 2012 19:07:42 +0530
+Message-ID: <1344519467-14295-2-git-send-email-shubhrajyoti@ti.com>
 References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,33 +12,42 @@ To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-platform_get_resource uses pdev so move the function
-platform_set_drvdata(pdev, NULL) after the get_resource.
+Prevent the NULL pointer access by moving the platform_set_drvdata function
+after the access of the pdev.
+
+[  654.961761] Unable to handle kernel NULL pointer dereference at virtual address 00000070
+[  654.970611] pgd = df254000
+[  654.973480] [00000070] *pgd=9f1da831, *pte=00000000, *ppte=00000000
+[  654.980163] Internal error: Oops: 17 [#1] SMP ARM
+[  654.985076] Modules linked in:
+[  654.988281] CPU: 1    Not tainted  (3.6.0-rc1-00031-ge547de1-dirty #339)
+[  654.995330] PC is at omap_i2c_runtime_resume+0x8/0x148
+[  655.000732] LR is at omap_i2c_runtime_resume+0x8/0x148
 
 Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
-Untested
+ drivers/i2c/busses/i2c-omap.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
- drivers/i2c/busses/i2c-davinci.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index 79b4bcb..9666454 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -746,7 +746,6 @@ static int davinci_i2c_remove(struct platform_device *pdev)
- 
- 	i2c_davinci_cpufreq_deregister(dev);
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index c8e3886..0c593d4 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1217,8 +1217,6 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
+ 	struct omap_i2c_dev	*dev = platform_get_drvdata(pdev);
+ 	int ret;
  
 -	platform_set_drvdata(pdev, NULL);
+-
  	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
- 
-@@ -761,6 +760,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
- 
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	release_mem_region(mem->start, resource_size(mem));
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+ 	if (IS_ERR_VALUE(ret))
+@@ -1227,6 +1225,8 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
+ 	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+ 	pm_runtime_put(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
 +	platform_set_drvdata(pdev, NULL);
++
  	return 0;
  }
  
