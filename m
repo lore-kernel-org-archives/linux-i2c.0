@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 2/6] i2c-xiic:  Fix a possible NULL pointer access
-Date: Thu, 9 Aug 2012 19:07:43 +0530
-Message-ID: <1344519467-14295-3-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCH 3/6] i2c: designware: Fix a possible NULL pointer access
+Date: Thu, 9 Aug 2012 19:07:44 +0530
+Message-ID: <1344519467-14295-4-git-send-email-shubhrajyoti@ti.com>
 References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -19,29 +19,28 @@ Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
 untested
 
- drivers/i2c/busses/i2c-xiic.c |    3 +--
- 1 files changed, 1 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 641d0e5..a28479a 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -784,8 +784,6 @@ static int __devexit xiic_i2c_remove(struct platform_device* pdev)
- 
- 	xiic_deinit(i2c);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 0506fef..4f03eae 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -174,7 +174,6 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+ 	struct resource *mem;
  
 -	platform_set_drvdata(pdev, NULL);
--
- 	free_irq(platform_get_irq(pdev, 0), i2c);
+ 	i2c_del_adapter(&dev->adapter);
+ 	put_device(&pdev->dev);
  
- 	iounmap(i2c->base);
-@@ -795,6 +793,7 @@ static int __devexit xiic_i2c_remove(struct platform_device* pdev)
- 		release_mem_region(res->start, resource_size(res));
+@@ -188,6 +187,7 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
  
- 	kfree(i2c);
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	release_mem_region(mem->start, resource_size(mem));
 +	platform_set_drvdata(pdev, NULL);
- 
  	return 0;
  }
+ 
 -- 
 1.7.5.4
