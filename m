@@ -1,117 +1,31 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHv6 05/24] i2c: omap: simplify omap_i2c_ack_stat()
-Date: Tue, 14 Aug 2012 19:48:47 +0530
-Message-ID: <1344953946-13005-6-git-send-email-shubhrajyoti@ti.com>
-References: <1344953946-13005-1-git-send-email-shubhrajyoti@ti.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH] i2c: tegra: I2_M_NOSTART functionality not supported
+ in Tegra20
+Date: Tue, 14 Aug 2012 10:49:00 -0600
+Message-ID: <502A817C.4000601@wwwdotorg.org>
+References: <1344935949-26709-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1344953946-13005-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, w.sang@pengutronix.de, Felipe Balbi <balbi@ti.com>, Shubhrajyoti D <shubhrajyoti@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1344935949-26709-1-git-send-email-ldewangan@nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Laxman Dewangan <ldewangan@nvidia.com>, w.sang@pengutronix.de
+Cc: khali@linux-fr.org, swarren@nvidia.com, olof@lixom.net, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Felipe Balbi <balbi@ti.com>
+On 08/14/2012 03:19 AM, Laxman Dewangan wrote:
+> Tegra20 i2c controller does not support the continue transfer
+> which implements the I2C_M_NOSTART functionality of i2c
+> protocol mangling.
+> Removing the I2C_M_NOSTART functionality for Tegra20.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan@nvidia.com>
+> Reported-by: Stephen Warren <swarren@nvidia.com>
 
-stat & BIT(1) is the same as BIT(1), so let's
-simplify things a bit by removing "stat &" from
-all omap_i2c_ack_stat() calls.
+Tested-by: Stephen Warren <swarren@wwwdotorg.org>
 
-Code snippet (extremely simplified):
-
-if (stat & NACK) {
-        ...
-        omap_i2c_ack_stat(dev, stat & NACK);
-}
-
-if (stat & RDR) {
-        ...
-        omap_i2c_ack_stat(dev, stat & RDR);
-}
-
-and so on. The tricky place is only WRT errata handling, for example:
-
-if (*stat & (NACK | AL)) {
-        omap_i2c_ack_stat(dev, *stat & (XRDY | XDR));
-        ...
-}
-
-but in this case, the errata says we must clear XRDY and XDR if that
-errata triggers, so if they just got enabled or not, it doesn't matter.
-
-Another tricky place is RDR | RRDY (likewise for XDR | XRDY):
-
-if (stat & (RDR | RRDY)) {
-        ...
-        omap_i2c_ack_stat(dev, stat & (RDR | RRDY));
-}
-
-again here there will be no issues because those IRQs never fire
-simultaneously and one will only after after we have handled the
-previous, that's because the same FIFO is used anyway and we won't shift
-data into FIFO until we tell the IP "hey, I'm done with the FIFO, you
-can shift more data"
-
-Signed-off-by: Felipe Balbi <balbi@ti.com>
-Reviewed-by : Santosh Shilimkar <santosh.shilimkar@ti.com>
-[Added the explaination from the discurssion to the commit logs]
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- drivers/i2c/busses/i2c-omap.c |   19 ++++++++++---------
- 1 files changed, 10 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index dbc5a3c..8009095 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -731,7 +731,7 @@ static int errata_omap3_i462(struct omap_i2c_dev *dev, u16 *stat, int *err)
- 
- 	while (--timeout && !(*stat & OMAP_I2C_STAT_XUDF)) {
- 		if (*stat & (OMAP_I2C_STAT_NACK | OMAP_I2C_STAT_AL)) {
--			omap_i2c_ack_stat(dev, *stat & (OMAP_I2C_STAT_XRDY |
-+			omap_i2c_ack_stat(dev, (OMAP_I2C_STAT_XRDY |
- 							OMAP_I2C_STAT_XDR));
- 			return -ETIMEDOUT;
- 		}
-@@ -792,10 +792,11 @@ complete:
- 		 */
- 		if (stat & (OMAP_I2C_STAT_ARDY | OMAP_I2C_STAT_NACK |
- 					OMAP_I2C_STAT_AL)) {
--			omap_i2c_ack_stat(dev, stat &
--				(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
--				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR |
--				OMAP_I2C_STAT_ARDY));
-+			omap_i2c_ack_stat(dev, (OMAP_I2C_STAT_RRDY |
-+						OMAP_I2C_STAT_RDR |
-+						OMAP_I2C_STAT_XRDY |
-+						OMAP_I2C_STAT_XDR |
-+						OMAP_I2C_STAT_ARDY));
- 			omap_i2c_complete_cmd(dev, err);
- 			return IRQ_HANDLED;
- 		}
-@@ -842,8 +843,8 @@ complete:
- 					}
- 				}
- 			}
--			omap_i2c_ack_stat(dev,
--				stat & (OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR));
-+			omap_i2c_ack_stat(dev, (OMAP_I2C_STAT_RRDY |
-+						OMAP_I2C_STAT_RDR));
- 			continue;
- 		}
- 
-@@ -890,8 +891,8 @@ complete:
- 
- 				omap_i2c_write_reg(dev, OMAP_I2C_DATA_REG, w);
- 			}
--			omap_i2c_ack_stat(dev,
--				stat & (OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
-+			omap_i2c_ack_stat(dev, (OMAP_I2C_STAT_XRDY |
-+						OMAP_I2C_STAT_XDR));
- 			continue;
- 		}
- 
--- 
-1.7.5.4
-
+Note that if I take Laxman's I2C driver clock patches through the Tegra
+tree, and Wolfram takes this patch through the I2C tree, there will be a
+very slight conflict, since adjacent lines are touched. However, the
+resolution is simple and obvious, so I think that's fine.
