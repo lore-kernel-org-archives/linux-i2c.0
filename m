@@ -1,7 +1,7 @@
 From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCHv6 13/24] i2c: omap: simplify errata check
-Date: Tue, 14 Aug 2012 19:48:55 +0530
-Message-ID: <1344953946-13005-14-git-send-email-shubhrajyoti@ti.com>
+Subject: [PATCHv6 11/24] i2c: omap: switch to platform_get_irq()
+Date: Tue, 14 Aug 2012 19:48:53 +0530
+Message-ID: <1344953946-13005-12-git-send-email-shubhrajyoti@ti.com>
 References: <1344953946-13005-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,30 +14,58 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Felipe Balbi <balbi@ti.com>
 
-omap_i2c_dev is allocated with kzalloc(),
-so we need not initialize b_hw to zero.
+that's a nice helper from drivers core which
+will give us the exact IRQ number, instead
+of a pointer to an IRQ resource.
 
 Signed-off-by: Felipe Balbi <balbi@ti.com>
 Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
- drivers/i2c/busses/i2c-omap.c |    4 +---
- 1 files changed, 1 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |   12 +++++++-----
+ 1 files changed, 7 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index fa54d41..80ebcf5 100644
+index 0adbfb1..e9907b5 100644
 --- a/drivers/i2c/busses/i2c-omap.c
 +++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1095,9 +1095,7 @@ omap_i2c_probe(struct platform_device *pdev)
+@@ -993,11 +993,12 @@ omap_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct omap_i2c_dev	*dev;
+ 	struct i2c_adapter	*adap;
+-	struct resource		*mem, *irq;
++	struct resource		*mem;
+ 	struct omap_i2c_bus_platform_data *pdata = pdev->dev.platform_data;
+ 	struct device_node	*node = pdev->dev.of_node;
+ 	const struct of_device_id *match;
+ 	irq_handler_t isr;
++	int irq;
+ 	int r;
  
- 		dev->fifo_size = (dev->fifo_size / 2);
+ 	/* NOTE: driver uses the static register mapping */
+@@ -1006,10 +1007,11 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "no mem resource?\n");
+ 		return -ENODEV;
+ 	}
+-	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+-	if (!irq) {
++
++	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no irq resource?\n");
+-		return -ENODEV;
++		return irq;
+ 	}
  
--		if (dev->rev >= OMAP_I2C_REV_ON_3630_4430)
--			dev->b_hw = 0; /* Disable hardware fixes */
--		else
-+		if (dev->rev < OMAP_I2C_REV_ON_3630_4430)
- 			dev->b_hw = 1; /* Enable hardware fixes */
+ 	dev = devm_kzalloc(&pdev->dev, sizeof(struct omap_i2c_dev), GFP_KERNEL);
+@@ -1043,7 +1045,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	}
  
- 		/* calculate wakeup latency constraint for MPU */
+ 	dev->dev = &pdev->dev;
+-	dev->irq = irq->start;
++	dev->irq = irq;
+ 
+ 	platform_set_drvdata(pdev, dev);
+ 	init_completion(&dev->cmd_complete);
 -- 
 1.7.5.4
 
