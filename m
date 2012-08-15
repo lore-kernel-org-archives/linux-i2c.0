@@ -1,30 +1,42 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH 0/4] i2c: tegra: required clock support for controller
-Date: Wed, 15 Aug 2012 10:58:04 -0600
-Message-ID: <502BD51C.4010204@wwwdotorg.org>
-References: <1344412294-2420-1-git-send-email-ldewangan@nvidia.com> <5022A89F.8070604@wwwdotorg.org>
+From: Jiri Slaby <jslaby@suse.cz>
+Subject: i2c-designware-core: KBUILD_MODNAME undeclared [was: Build regressions/improvements
+ in v3.6-rc1]
+Date: Wed, 15 Aug 2012 22:01:38 +0200
+Message-ID: <502C0022.2020106@suse.cz>
+References: <1344072256-13170-1-git-send-email-geert@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-2
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5022A89F.8070604-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1344072256-13170-1-git-send-email-geert@linux-m68k.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, dirk.brandewie@gmail.com, khali@linux-fr.org, linux-i2c@vger.kernel.org, Michal Marek <mmarek@suse.cz>, linux-kbuild@vger.kernel.org, jbaron@redhat.com, ben-linux@fluff.org, Jiri Slaby <jirislaby@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/08/2012 11:57 AM, Stephen Warren wrote:
-> On 08/08/2012 01:51 AM, Laxman Dewangan wrote:
->> The Tegra's i2c controller required two clock sources for proper
->> operation named as div-clk and fast-clk.
->>
->> Adding support to make sure that driver will get these clocks and 
->> enable before any transfer and disable after transfer completed.
-> 
-> This works fine on Cardhu and Ventana for me. I'll apply it once I get
-> an ack from Wolfram to take the I2C driver patch through the Tegra tree.
+On 08/04/2012 11:24 AM, Geert Uytterhoeven wrote:
+> Below is the list of build error/warning regressions/improvements in
+> v3.6-rc1[1] compared to v3.5[2].
+...
+>   + drivers/i2c/busses/i2c-designware-core.c: error: 'KBUILD_MODNAME' undeclared (first use in this function):
 
-I haven't heard from Wolfram, but since the I2C driver patch is pretty
-trivial, and pretty much has to go through the Tegra tree due to
-dependencies on other Tegra patches, I went ahead and applied this
-series to Tegra's for-3.7/clock branch.
+This is a real problem we are facing here. It happens on PPC when all
+I2C_DESIGNWARE_PLATFORM, I2C_DESIGNWARE_PCI and DYNAMIC_DEBUG are set.
+
+It's because i2c-designware-core.c is used in two modules
+(i2c-designware-platform and i2c-designware-pci) and KBUILD_MODNAME is
+not defined for those because (scripts/Makefile.lib):
+# $(modname_flags) #defines KBUILD_MODNAME as the name of the module
+# it will end up in (or would, if it gets compiled in)
+# Note: Files that end up in two or more modules are compiled
+#       without the KBUILD_MODNAME definition. The reason is
+#       that any made-up name would differ in different configs.
+
+But DYNAMIC_DEBUG needs KBUILD_MODNAME for dev_dbg used in that source.
+
+Any ideas? Why is it not a separate module for example?
+
+thanks,
+-- 
+js
+suse labs
