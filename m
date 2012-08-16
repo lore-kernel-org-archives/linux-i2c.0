@@ -1,1080 +1,1065 @@
 From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] I2C: MIPS: lantiq: add FALC-ON i2c bus master
-Date: Thu, 16 Aug 2012 14:13:59 +0530
-Message-ID: <CAM=Q2cvCmKMkQjWd0nvuvMMkNt3sH-AcupCq_KzM7EXDuD_-wQ@mail.gmail.com>
-References: <1345102448-4612-1-git-send-email-blogic@openwrt.org>
+Subject: Re: [RESEND PATCH] i2c: Adding support for Intel iSMT SMBus 2.0 host controller
+Date: Thu, 16 Aug 2012 14:28:28 +0530
+Message-ID: <CAM=Q2cvh=MCe2ZJS49YgVz5vsmwZ0FnJm2m9hjnKkNPmXUTz4Q@mail.gmail.com>
+References: <1344640664-8502-1-git-send-email-bill.e.brown@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1345102448-4612-1-git-send-email-blogic-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
+In-Reply-To: <1344640664-8502-1-git-send-email-bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: John Crispin <blogic-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Thomas Langer <thomas.langer-th3ZBGNqt+7QT0dZR+AlfA@public.gmane.org>
+To: Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi John ,
+Hi Bill,
+Some minor doubts below.
 
-On Thu, Aug 16, 2012 at 1:04 PM, John Crispin <blogic-p3rKhJxN3npAfugRpC6u6w@public.gmane.org> wrote:
-> This patch adds the driver needed to make the I2C bus work on FALC-ON SoCs.
+On Sat, Aug 11, 2012 at 4:47 AM, Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org> wrote:
+> The iSMT (Intel SMBus Message Transport) supports multi-master I2C/SMBus,
+> as well as IPMI.  It's operation is DMA-based and utilizes descriptors to
+> initiate transactions on the bus.
 >
-> Signed-off-by: Thomas Langer <thomas.langer-th3ZBGNqt+7QT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: John Crispin <blogic-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
+> The iSMT hardware can act as both a master and a target, although this
+> driver only supports being a master.
+>
+> Signed-off-by: Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 > ---
->  drivers/i2c/busses/Kconfig      |   10 +
->  drivers/i2c/busses/Makefile     |    1 +
->  drivers/i2c/busses/i2c-lantiq.c |  752 +++++++++++++++++++++++++++++++++++++++
->  drivers/i2c/busses/i2c-lantiq.h |  234 ++++++++++++
->  4 files changed, 997 insertions(+), 0 deletions(-)
->  create mode 100644 drivers/i2c/busses/i2c-lantiq.c
->  create mode 100644 drivers/i2c/busses/i2c-lantiq.h
+>  drivers/i2c/busses/Kconfig    |   10 +
+>  drivers/i2c/busses/Makefile   |    1 +
+>  drivers/i2c/busses/i2c-ismt.c |  862 +++++++++++++++++++++++++++++++++++++++++
+>  drivers/i2c/busses/i2c-ismt.h |  111 ++++++
+>  4 files changed, 984 insertions(+), 0 deletions(-)
+>  create mode 100644 drivers/i2c/busses/i2c-ismt.c
+>  create mode 100644 drivers/i2c/busses/i2c-ismt.h
 >
 > diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index b4aaa1b..1e80198 100644
+> index d2c5095..2b5ffa3 100644
 > --- a/drivers/i2c/busses/Kconfig
 > +++ b/drivers/i2c/busses/Kconfig
-> @@ -449,6 +449,16 @@ config I2C_IOP3XX
->           This driver can also be built as a module.  If so, the module
->           will be called i2c-iop3xx.
+> @@ -119,6 +119,16 @@ config I2C_ISCH
+>           This driver can also be built as a module. If so, the module
+>           will be called i2c-isch.
 >
-> +config I2C_LANTIQ
-> +       tristate "Lantiq I2C interface"
-> +       depends on LANTIQ && SOC_FALCON
+> +config I2C_ISMT
+> +       tristate "Intel iSMT SMBus Controller"
+> +       depends on PCI
 > +       help
-> +         If you say yes to this option, support will be included for the
-> +         Lantiq I2C core.
+> +         If you say yes to this option, support will be included for the Intel
+> +         iSMT SMBus host controller interface.
 > +
-> +         This driver can also be built as a module. If so, the module
-> +         will be called i2c-lantiq.
+> +         This driver can also be built as a module.  If so, the module will be
+> +         called i2c-ismt.
 > +
->  config I2C_MPC
->         tristate "MPC107/824x/85xx/512x/52xx/83xx/86xx"
->         depends on PPC
+>  config I2C_PIIX4
+>         tristate "Intel PIIX4 and compatible (ATI/AMD/Serverworks/Broadcom/SMSC)"
+>         depends on PCI
 > diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index ce3c2be..da72247 100644
+> index 569567b..8a05c80 100644
 > --- a/drivers/i2c/busses/Makefile
 > +++ b/drivers/i2c/busses/Makefile
-> @@ -44,6 +44,7 @@ obj-$(CONFIG_I2C_IBM_IIC)     += i2c-ibm_iic.o
->  obj-$(CONFIG_I2C_IMX)          += i2c-imx.o
->  obj-$(CONFIG_I2C_INTEL_MID)    += i2c-intel-mid.o
->  obj-$(CONFIG_I2C_IOP3XX)       += i2c-iop3xx.o
-> +obj-$(CONFIG_I2C_LANTIQ)       += i2c-lantiq.o
->  obj-$(CONFIG_I2C_MPC)          += i2c-mpc.o
->  obj-$(CONFIG_I2C_MV64XXX)      += i2c-mv64xxx.o
->  obj-$(CONFIG_I2C_MXS)          += i2c-mxs.o
-> diff --git a/drivers/i2c/busses/i2c-lantiq.c b/drivers/i2c/busses/i2c-lantiq.c
+> @@ -22,6 +22,7 @@ obj-$(CONFIG_I2C_SIS630)      += i2c-sis630.o
+>  obj-$(CONFIG_I2C_SIS96X)       += i2c-sis96x.o
+>  obj-$(CONFIG_I2C_VIA)          += i2c-via.o
+>  obj-$(CONFIG_I2C_VIAPRO)       += i2c-viapro.o
+> +obj-$(CONFIG_I2C_ISMT)         += i2c-ismt.o
+>
+>  # Mac SMBus host controller drivers
+>  obj-$(CONFIG_I2C_HYDRA)                += i2c-hydra.o
+> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
 > new file mode 100644
-> index 0000000..e0afa8c
+> index 0000000..dd107dd
 > --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-lantiq.c
-> @@ -0,0 +1,752 @@
+> +++ b/drivers/i2c/busses/i2c-ismt.c
+> @@ -0,0 +1,862 @@
 > +/*
-> + * Lantiq I2C bus adapter
+> + * This file is provided under a dual BSD/GPLv2 license.  When using or
+> + * redistributing this file, you may do so under either license.
 > + *
-> + * Parts based on i2c-designware.c and other i2c drivers from Linux 2.6.33
+> + * GPL LICENSE SUMMARY
+> + *
+> + * Copyright(c) 2012 Intel Corporation. All rights reserved.
 > + *
 > + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; either version 2 of the License, or
-> + * (at your option) any later version.
+> + * it under the terms of version 2 of the GNU General Public License as
+> + * published by the Free Software Foundation.
 > + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
+> + * This program is distributed in the hope that it will be useful, but
+> + * WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+> + * General Public License for more details.
 > + *
 > + * You should have received a copy of the GNU General Public License
 > + * along with this program; if not, write to the Free Software
-> + * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+> + * Foundation, Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
+> + * The full GNU General Public License is included in this distribution
+> + * in the file called LICENSE.GPL.
 > + *
-> + * Copyright (C) 2012 Thomas Langer <thomas.langer-th3ZBGNqt+7QT0dZR+AlfA@public.gmane.org>
+> + * BSD LICENSE
+> + *
+> + * Copyright(c) 2012 Intel Corporation. All rights reserved.
+> + * All rights reserved.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions
+> + * are met:
+> + *
+> + *   * Redistributions of source code must retain the above copyright
+> + *     notice, this list of conditions and the following disclaimer.
+> + *   * Redistributions in binary form must reproduce the above copyright
+> + *     notice, this list of conditions and the following disclaimer in
+> + *     the documentation and/or other materials provided with the
+> + *     distribution.
+> + *   * Neither the name of Intel Corporation nor the names of its
+> + *     contributors may be used to endorse or promote products derived
+> + *     from this software without specific prior written permission.
+> + *
+> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+> + * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+> + * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+> + * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+> + * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+> + * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+> + * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+> + * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+> + * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+> + * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+> + * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 > + */
 > +
-> +#include <linux/kernel.h>
+> +/*
+> +  Supports the SMBus Message Transport (SMT) on the following Intel SOCs:
+> +  BWD
+> +  CTN
+> +
+> +  Features supported by this driver:
+> +  Software PEC                     no
+> +  Hardware PEC                     yes
+> +  Block buffer                     yes
+> +  Block process call transaction   no
+> +  Slave mode                       no
+> +*/
+> +
 > +#include <linux/module.h>
+> +#include <linux/init.h>
+> +#include <linux/pci.h>
+> +#include <linux/kernel.h>
+> +#include <linux/stddef.h>
 > +#include <linux/delay.h>
-> +#include <linux/slab.h> /* for kzalloc, kfree */
 > +#include <linux/i2c.h>
-> +#include <linux/errno.h>
-> +#include <linux/completion.h>
+> +#include <linux/acpi.h>
 > +#include <linux/interrupt.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/io.h>
-> +#include <linux/of_irq.h>
-> +#include <linux/of_i2c.h>
+> +#include "i2c-ismt.h"
 > +
-> +#include <lantiq_soc.h>
-> +#include "i2c-lantiq.h"
-> +
-> +/* CURRENT ISSUES:
-> + * - no high speed support
-> + * - ten bit mode is not tested (no slave devices)
+> +/**
+> + * DEFINE_PCI_DEVICE_TABLE - PCI device IDs supported by this driver
 > + */
+> +static const DEFINE_PCI_DEVICE_TABLE(ismt_ids) = {
+> +       { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BWD_SMBUS_SMT0) },
+> +       { PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_BWD_SMBUS_SMT1) },
+> +       { 0, }
+> +};
 > +
-> +/* access macros */
-> +#define i2c_r32(reg)   \
-> +       __raw_readl(&(priv->membase)->reg)
-> +#define i2c_w32(val, reg)      \
-> +       __raw_writel(val, &(priv->membase)->reg)
-> +#define i2c_w32_mask(clear, set, reg)  \
-> +       i2c_w32((i2c_r32(reg) & ~(clear)) | (set), reg)
+> +MODULE_DEVICE_TABLE(pci, ismt_ids);
 > +
-> +#define DRV_NAME "i2c-lantiq"
-> +#define DRV_VERSION "1.00"
+> +/* Master Descriptor control bits */
+> +static unsigned int stop_on_error = 1;
+> +module_param(stop_on_error, uint, S_IRUGO);
+> +MODULE_PARM_DESC(stop_on_error, "Stop on Error");
 > +
-> +#define LTQ_I2C_BUSY_TIMEOUT           20 /* ms */
+> +static unsigned int fair = 1;
+> +module_param(fair, uint, S_IRUGO);
+> +MODULE_PARM_DESC(fair, "Enable fairness on the SMBus");
 > +
 > +#ifdef DEBUG
-> +#define LTQ_I2C_XFER_TIMEOUT           (25*HZ)
+> +/**
+> + * ismt_desc_dump() - dump the contents of a descriptor for debug purposes
+> + * @adap: the I2C host adapter
+> + */
+> +static void ismt_desc_dump(struct i2c_adapter *adap)
+> +{
+> +       struct ismt_priv *priv = i2c_get_adapdata(adap);
+> +       struct device *dev = &priv->pci_dev->dev;
+> +       struct ismt_desc *desc = &priv->hw[priv->head];
+> +
+> +       dev_dbg(dev, "Dump of the descriptor struct:  0x%X\n", priv->head);
+> +       dev_dbg(dev, "\ttgtaddr_rw=0x%02X\n", desc->tgtaddr_rw);
+> +       dev_dbg(dev, "\twr_len_cmd=0x%02X\n", desc->wr_len_cmd);
+> +       dev_dbg(dev, "\trd_len=    0x%02X\n", desc->rd_len);
+> +       dev_dbg(dev, "\tcontrol=   0x%02X\n", desc->control);
+> +       dev_dbg(dev, "\tstatus=    0x%02X\n", desc->status);
+> +       dev_dbg(dev, "\tretry=     0x%02X\n", desc->retry);
+> +       dev_dbg(dev, "\trxbytes=   0x%02X\n", desc->rxbytes);
+> +       dev_dbg(dev, "\ttxbytes=   0x%02X\n", desc->txbytes);
+> +       dev_dbg(dev, "\tdptr_low=  0x%08X\n", desc->dptr_low);
+> +       dev_dbg(dev, "\tdptr_high= 0x%08X\n", desc->dptr_high);
+> +
+> +       return;
+> +}
+> +
+> +/**
+> + * ismt_gen_reg_dump() - dump the iSMT General Registers
+> + * @adap: the I2C host adapter
+> + */
+> +static void ismt_gen_reg_dump(struct i2c_adapter *adap)
+> +{
+> +       struct ismt_priv *priv = i2c_get_adapdata(adap);
+> +       struct device *dev = &priv->pci_dev->dev;
+> +
+> +       dev_dbg(dev, "Dump of the iSMT General Registers\n");
+> +       dev_dbg(dev, "  GCTRL.... : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_GR_GCTRL,
+> +               readl(priv->smba + ISMT_GR_GCTRL));
+> +       dev_dbg(dev, "  SMTICL... : (0x%p)=0x%016lX\n",
+> +               priv->smba + ISMT_GR_SMTICL,
+> +               readq(priv->smba + ISMT_GR_SMTICL));
+> +       dev_dbg(dev, "  ERRINTMSK : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_GR_ERRINTMSK,
+> +               readl(priv->smba + ISMT_GR_ERRINTMSK));
+> +       dev_dbg(dev, "  ERRAERMSK : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_GR_ERRAERMSK,
+> +               readl(priv->smba + ISMT_GR_ERRAERMSK));
+> +       dev_dbg(dev, "  ERRSTS... : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_GR_ERRSTS,
+> +               readl(priv->smba + ISMT_GR_ERRSTS));
+> +       dev_dbg(dev, "  ERRINFO.. : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_GR_ERRINFO,
+> +               readl(priv->smba + ISMT_GR_ERRINFO));
+> +
+> +       return;
+> +}
+> +
+> +/**
+> + * ismt_mstr_reg_dump() - dump the iSMT Master Registers
+> + * @adap: the I2C host adapter
+> + */
+> +static void ismt_mstr_reg_dump(struct i2c_adapter *adap)
+> +{
+> +       struct ismt_priv *priv = i2c_get_adapdata(adap);
+> +       struct device *dev = &priv->pci_dev->dev;
+> +
+> +       dev_dbg(dev, "Dump of the iSMT Master Registers\n");
+> +       dev_dbg(dev, "  MDBA..... : (0x%p)=0x%016lX\n",
+> +               priv->smba + ISMT_MSTR_MDBA,
+> +               readq(priv->smba + ISMT_MSTR_MDBA));
+> +       dev_dbg(dev, "  MCTRL.... : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_MSTR_MCTRL,
+> +               readl(priv->smba + ISMT_MSTR_MCTRL));
+> +       dev_dbg(dev, "  MSTS..... : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_MSTR_MSTS,
+> +               readl(priv->smba + ISMT_MSTR_MSTS));
+> +       dev_dbg(dev, "  MDS...... : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_MSTR_MDS,
+> +               readl(priv->smba + ISMT_MSTR_MDS));
+> +       dev_dbg(dev, "  RPOLICY.. : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_MSTR_RPOLICY,
+> +               readl(priv->smba + ISMT_MSTR_RPOLICY));
+> +       dev_dbg(dev, "  SPGT..... : (0x%p)=0x%X\n",
+> +               priv->smba + ISMT_SPGT,
+> +               readl(priv->smba + ISMT_SPGT));
+> +
+> +       return;
+> +}
+> +
 > +#else
-> +#define LTQ_I2C_XFER_TIMEOUT           HZ
-> +#endif
-> +#if defined(DEBUG) && 0
-> +#define PRINTK(arg...) pr_debug(arg)
-> +#else
-> +#define PRINTK(arg...) do {} while (0)
+> +static void ismt_desc_dump(struct i2c_adapter *adap) {}
+> +static void ismt_gen_reg_dump(struct i2c_adapter *adap) {}
+> +static void ismt_mstr_reg_dump(struct i2c_adapter *adap) {}
 > +#endif
 > +
-> +#define LTQ_I2C_IMSC_DEFAULT_MASK      (I2C_IMSC_I2C_P_INT_EN | \
-> +                                        I2C_IMSC_I2C_ERR_INT_EN)
-> +
-> +#define LTQ_I2C_ARB_LOST               (1 << 0)
-> +#define LTQ_I2C_NACK                   (1 << 1)
-> +#define LTQ_I2C_RX_UFL                 (1 << 2)
-> +#define LTQ_I2C_RX_OFL                 (1 << 3)
-> +#define LTQ_I2C_TX_UFL                 (1 << 4)
-> +#define LTQ_I2C_TX_OFL                 (1 << 5)
-> +
-> +struct lantiq_i2c {
-> +       struct mutex mutex;
-> +
-> +       /* active clock settings */
-> +       unsigned int input_clock;       /* clock input for i2c hardware block */
-> +       unsigned int i2c_clock;         /* approximated bus clock in kHz */
-> +
-> +       struct clk *clk_gate;
-> +       struct clk *clk_input;
-> +
-> +       /* resources (memory and interrupts) */
-> +       struct lantiq_reg_i2c __iomem *membase; /* base of mapped registers */
-> +       int irq_lb, irq_b, irq_err, irq_p;      /* last burst, burst, error,
-> +                                                  protocol IRQs */
-> +
-> +       struct i2c_adapter adap;
-> +       struct device *dev;
-> +
-> +       struct completion cmd_complete;
-> +
-> +       /* message transfer data */
-> +       /* current message */
-> +       struct i2c_msg *current_msg;
-> +       /* number of messages to handle */
-> +       int msgs_num;
-> +       /* current buffer */
-> +       u8 *msg_buf;
-> +       /* remaining length of current buffer */
-> +       u32 msg_buf_len;
-> +       /* error status of the current transfer */
-> +       int msg_err;
-> +
-> +       /* master status codes */
-> +       enum {
-> +               STATUS_IDLE,
-> +               STATUS_ADDR,    /* address phase */
-> +               STATUS_WRITE,
-> +               STATUS_READ,
-> +               STATUS_READ_END,
-> +               STATUS_STOP
-> +       } status;
-> +};
-> +
-> +static irqreturn_t lantiq_i2c_isr(int irq, void *dev_id);
-> +
-> +static inline void enable_burst_irq(struct lantiq_i2c *priv)
+> +/**
+> + * ismt_insert_cmd() -  stuff a command into the head of the data buffer
+> + * @data: data buffer
+> + * @command: command to insert
+> + */
+> +static void ismt_insert_cmd(union i2c_smbus_data *data, u8 command)
 > +{
-> +       i2c_w32_mask(0, I2C_IMSC_LBREQ_INT_EN | I2C_IMSC_BREQ_INT_EN, imsc);
-> +}
-> +static inline void disable_burst_irq(struct lantiq_i2c *priv)
-> +{
-> +       i2c_w32_mask(I2C_IMSC_LBREQ_INT_EN | I2C_IMSC_BREQ_INT_EN, 0, imsc);
+> +       memmove(&data->block[1], &data->block[0], I2C_SMBUS_BLOCK_MAX);
+> +       data->block[0] = command;
+> +
+> +       return;
 > +}
 > +
-> +static void prepare_msg_send_addr(struct lantiq_i2c *priv)
+> +/**
+> + * ismt_submit_desc() - add a descriptor to the ring
+> + * @adap: the i2c host adapter
+> + */
+> +static void ismt_submit_desc(struct i2c_adapter *adap)
 > +{
-> +       struct i2c_msg *msg = priv->current_msg;
-> +       int rd = !!(msg->flags & I2C_M_RD);     /* extends to 0 or 1 */
-> +       u16 addr = msg->addr;
+> +       int fmhp;
+> +       int val;
+> +       struct ismt_priv *priv = i2c_get_adapdata(adap);
 > +
-> +       /* new i2c_msg */
-> +       priv->msg_buf = msg->buf;
-> +       priv->msg_buf_len = msg->len;
-> +       if (rd)
-> +               priv->status = STATUS_READ;
-> +       else
-> +               priv->status = STATUS_WRITE;
+> +       ismt_desc_dump(adap);
+> +       ismt_gen_reg_dump(adap);
+> +       ismt_mstr_reg_dump(adap);
 > +
-> +       /* send slave address */
-> +       if (msg->flags & I2C_M_TEN) {
-> +               i2c_w32(0xf0 | ((addr & 0x300) >> 7) | rd, txd);
-> +               i2c_w32(addr & 0xff, txd);
-> +       } else
-> +               i2c_w32((addr & 0x7f) << 1 | rd, txd);
+> +       /* Set the FMHP (Firmware Master Head Pointer)*/
+> +       fmhp = ((priv->head + 1) % ISMT_DESC_ENTRIES) << 16;
+> +       val = readl(priv->smba + ISMT_MSTR_MCTRL);
+> +       writel((val & ~(ISMT_MCTRL_FMHP)) | fmhp,
+> +               (priv->smba + ISMT_MSTR_MCTRL));
+> +
+> +       /* Set the start bit */
+> +       val = readl(priv->smba + ISMT_MSTR_MCTRL);
+> +       writel((val | ISMT_MCTRL_SS),
+> +              (priv->smba + ISMT_MSTR_MCTRL));
+> +
+> +       return;
+this may not be needed.
 > +}
 > +
-> +static void lantiq_i2c_set_tx_len(struct lantiq_i2c *priv)
+> +/**
+> + * ismt_process_desc() - handle the completion of the descriptor
+> + * @adap: the i2c host adapter
+> + */
+> +static int ismt_process_desc(struct i2c_adapter *adap)
 > +{
-> +       struct i2c_msg *msg = priv->current_msg;
-> +       int len = (msg->flags & I2C_M_TEN) ? 2 : 1;
+> +       int ret = 0;
 > +
-> +       PRINTK("set_tx_len %cX\n", (msg->flags & I2C_M_RD) ? 'R' : 'T');
+> +       struct ismt_desc *desc;
+> +       struct ismt_priv *priv = i2c_get_adapdata(adap);
 > +
-> +       priv->status = STATUS_ADDR;
+> +       desc = &priv->hw[priv->head];
 > +
-> +       if (!(msg->flags & I2C_M_RD)) {
-> +               len += msg->len;
-> +       } else {
-> +               /* set maximum received packet size (before rx int!) */
-> +               i2c_w32(msg->len, mrps_ctrl);
-> +       }
-> +       i2c_w32(len, tps_ctrl);
-> +       enable_burst_irq(priv);
-> +}
-> +
-> +static int lantiq_i2c_hw_set_clock(struct i2c_adapter *adap)
-> +{
-> +       struct lantiq_i2c *priv = i2c_get_adapdata(adap);
-> +       unsigned int input_clock = clk_get_rate(priv->clk_input);
-> +       u32 dec, inc = 1;
-> +
-> +       /* clock changed? */
-> +       if (priv->input_clock == input_clock)
+> +       if (desc->status & ISMT_DESC_SCS)
 > +               return 0;
 > +
-> +       /*
-> +        * this formula is only an approximation, found by the recommended
-> +        * values in the "I2C Architecture Specification 1.7.1"
-> +        */
-> +       dec = input_clock / (priv->i2c_clock * 2);
-> +       if (dec <= 6)
-> +               return -ENXIO;
-> +
-> +       i2c_w32(0, fdiv_high_cfg);
-> +       i2c_w32((inc << I2C_FDIV_CFG_INC_OFFSET) |
-> +               (dec << I2C_FDIV_CFG_DEC_OFFSET),
-> +               fdiv_cfg);
-> +
-> +       dev_info(priv->dev, "setup clocks (in %d kHz, bus %d kHz, dec=%d)\n",
-> +               input_clock, priv->i2c_clock, dec);
-> +
-> +       priv->input_clock = input_clock;
-> +       return 0;
-> +}
-> +
-> +static int lantiq_i2c_hw_init(struct i2c_adapter *adap)
-> +{
-> +       int ret = 0;
-> +       struct lantiq_i2c *priv = i2c_get_adapdata(adap);
-> +
-> +       /* disable bus */
-> +       i2c_w32_mask(I2C_RUN_CTRL_RUN_EN, 0, run_ctrl);
-> +
-> +#ifndef DEBUG
-> +       /* set normal operation clock divider */
-> +       i2c_w32(1 << I2C_CLC_RMC_OFFSET, clc);
-> +#else
-> +       /* for debugging a higher divider value! */
-> +       i2c_w32(0xF0 << I2C_CLC_RMC_OFFSET, clc);
-> +#endif
-> +
-> +       /* setup clock */
-> +       ret = lantiq_i2c_hw_set_clock(adap);
-> +       if (ret != 0) {
-> +               dev_warn(priv->dev, "invalid clock settings\n");
-> +               return ret;
-> +       }
-> +
-> +       /* configure fifo */
-> +       i2c_w32(I2C_FIFO_CFG_TXFC | /* tx fifo as flow controller */
-> +               I2C_FIFO_CFG_RXFC | /* rx fifo as flow controller */
-> +               I2C_FIFO_CFG_TXFA_TXFA2 | /* tx fifo 4-byte aligned */
-> +               I2C_FIFO_CFG_RXFA_RXFA2 | /* rx fifo 4-byte aligned */
-> +               I2C_FIFO_CFG_TXBS_TXBS0 | /* tx fifo burst size is 1 word */
-> +               I2C_FIFO_CFG_RXBS_RXBS0,  /* rx fifo burst size is 1 word */
-> +               fifo_cfg);
-> +
-> +       /* configure address */
-> +       i2c_w32(I2C_ADDR_CFG_SOPE_EN |  /* generate stop when no more data in
-> +                                          the fifo */
-> +               I2C_ADDR_CFG_SONA_EN |  /* generate stop when NA received */
-> +               I2C_ADDR_CFG_MnS_EN |   /* we are master device */
-> +               0,                      /* our slave address (not used!) */
-> +               addr_cfg);
-> +
-> +       /* enable bus */
-> +       i2c_w32_mask(0, I2C_RUN_CTRL_RUN_EN, run_ctrl);
-> +
-> +       return 0;
-> +}
-> +
-> +static int lantiq_i2c_wait_bus_not_busy(struct lantiq_i2c *priv)
-> +{
-> +       int timeout = LTQ_I2C_BUSY_TIMEOUT;
-> +
-> +       while ((i2c_r32(bus_stat) & I2C_BUS_STAT_BS_MASK)
-> +                                != I2C_BUS_STAT_BS_FREE) {
-> +               if (timeout <= 0) {
-> +                       dev_err(priv->dev, "timeout waiting for bus ready\n");
-> +                       return -ETIMEDOUT;
-> +               }
-> +               timeout--;
-> +               mdelay(1);
-does it need to be busy?
-
-> +       }
-> +
-> +       return 0;
-> +}
-> +
-> +static void lantiq_i2c_tx(struct lantiq_i2c *priv, int last)
-> +{
-> +       if (priv->msg_buf_len && priv->msg_buf) {
-> +               i2c_w32(*priv->msg_buf, txd);
-> +
-> +               if (--priv->msg_buf_len)
-> +                       priv->msg_buf++;
-> +               else
-> +                       priv->msg_buf = NULL;
-> +       } else
-> +               last = 1;
-> +
-> +       if (last)
-> +               disable_burst_irq(priv);
-> +}
-> +
-> +static void lantiq_i2c_rx(struct lantiq_i2c *priv, int last)
-> +{
-> +       u32 fifo_stat, timeout;
-> +       if (priv->msg_buf_len && priv->msg_buf) {
-> +               timeout = 5000000;
-> +               do {
-> +                       fifo_stat = i2c_r32(ffs_stat);
-> +               } while (!fifo_stat && --timeout);
-> +               if (!timeout) {
-> +                       last = 1;
-> +                       PRINTK("\nrx timeout\n");
-> +                       goto err;
-> +               }
-> +               while (fifo_stat) {
-> +                       *priv->msg_buf = i2c_r32(rxd);
-> +                       if (--priv->msg_buf_len)
-> +                               priv->msg_buf++;
-> +                       else {
-> +                               priv->msg_buf = NULL;
-> +                               last = 1;
-> +                               break;
-> +                       }
-> +                       #if 0
-> +                       fifo_stat = i2c_r32(ffs_stat);
-> +                       #else
-> +                       /* do not read more than burst size, otherwise no "last
-> +                       burst" is generated and the transaction is blocked! */
-> +                       fifo_stat = 0;
-> +                       #endif
-> +               }
-> +       } else {
-> +               last = 1;
-> +       }
-> +err:
-> +       if (last) {
-> +               disable_burst_irq(priv);
-> +
-> +               if (priv->status == STATUS_READ_END) {
-> +                       /* do the STATUS_STOP and complete() here, as sometimes
-> +                          the tx_end is already seen before this is finished */
-> +                       priv->status = STATUS_STOP;
-> +                       complete(&priv->cmd_complete);
-> +               } else {
-> +                       i2c_w32(I2C_ENDD_CTRL_SETEND, endd_ctrl);
-> +                       priv->status = STATUS_READ_END;
-> +               }
-> +       }
-> +}
-> +
-> +static void lantiq_i2c_xfer_init(struct lantiq_i2c *priv)
-> +{
-> +       /* enable interrupts */
-> +       i2c_w32(LTQ_I2C_IMSC_DEFAULT_MASK, imsc);
-> +
-> +       /* trigger transfer of first msg */
-> +       lantiq_i2c_set_tx_len(priv);
-> +}
-> +
-> +static void dump_msgs(struct i2c_msg msgs[], int num, int rx)
-> +{
-> +#if defined(DEBUG)
-> +       int i, j;
-> +       pr_debug("Messages %d %s\n", num, rx ? "out" : "in");
-> +       for (i = 0; i < num; i++) {
-> +               pr_debug("%2d %cX Msg(%d) addr=0x%X: ", i,
-> +                       (msgs[i].flags & I2C_M_RD) ? 'R' : 'T',
-> +                       msgs[i].len, msgs[i].addr);
-> +               if (!(msgs[i].flags & I2C_M_RD) || rx) {
-> +                       for (j = 0; j < msgs[i].len; j++)
-> +                               pr_debug("%02X ", msgs[i].buf[j]);
-> +               }
-> +               pr_debug("\n");
-> +       }
-> +#endif
-> +}
-> +
-> +static void lantiq_i2c_release_bus(struct lantiq_i2c *priv)
-> +{
-> +       if ((i2c_r32(bus_stat) & I2C_BUS_STAT_BS_MASK) == I2C_BUS_STAT_BS_BM)
-> +               i2c_w32(I2C_ENDD_CTRL_SETEND, endd_ctrl);
-> +}
-> +
-> +static int lantiq_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
-> +                          int num)
-> +{
-> +       struct lantiq_i2c *priv = i2c_get_adapdata(adap);
-> +       int ret;
-> +
-> +       dev_dbg(priv->dev, "xfer %u messages\n", num);
-> +       dump_msgs(msgs, num, 0);
-> +
-> +       mutex_lock(&priv->mutex);
-> +
-> +       INIT_COMPLETION(priv->cmd_complete);
-> +       priv->current_msg = msgs;
-> +       priv->msgs_num = num;
-> +       priv->msg_err = 0;
-> +       priv->status = STATUS_IDLE;
-> +
-> +       /* wait for the bus to become ready */
-> +       ret = lantiq_i2c_wait_bus_not_busy(priv);
-> +       if (ret)
+> +       if ((desc->status & ISMT_DESC_NAK) || (desc->status & ISMT_DESC_CRC)) {
+> +               ret = -ENXIO;
 > +               goto done;
-> +
-> +       while (priv->msgs_num) {
-> +               /* start the transfers */
-> +               lantiq_i2c_xfer_init(priv);
-> +
-> +               /* wait for transfers to complete */
-> +               ret = wait_for_completion_interruptible_timeout(
-> +                       &priv->cmd_complete, LTQ_I2C_XFER_TIMEOUT);
-> +               if (ret == 0) {
-> +                       dev_err(priv->dev, "controller timed out\n");
-> +                       lantiq_i2c_hw_init(adap);
-> +                       ret = -ETIMEDOUT;
-> +                       goto done;
-> +               } else if (ret < 0)
-> +                       goto done;
-> +
-> +               if (priv->msg_err) {
-> +                       if (priv->msg_err & LTQ_I2C_NACK)
-> +                               ret = -ENXIO;
-> +                       else
-> +                               ret = -EREMOTEIO;
-> +                       goto done;
-> +               }
-> +               if (--priv->msgs_num)
-> +                       priv->current_msg++;
+
+nit : why not return directly we could avoid copy and a goto.
+same for some below.
 > +       }
-> +       /* no error? */
-> +       ret = num;
+> +
+> +       if (desc->status & ISMT_DESC_COL) {
+> +               ret = -EAGAIN;
+> +               goto done;
+> +       }
 > +
 > +done:
-> +       lantiq_i2c_release_bus(priv);
-> +
-> +       mutex_unlock(&priv->mutex);
-> +
-> +       if (ret >= 0)
-> +               dump_msgs(msgs, num, 1);
-> +
-> +       PRINTK("XFER ret %d\n", ret);
 > +       return ret;
 > +}
 > +
-> +static irqreturn_t lantiq_i2c_isr_burst(int irq, void *dev_id)
+> +/**
+> + * ismt_access() - process an SMBus command
+> + * @adap: the i2c host adapter
+> + * @addr: address of the i2c/SMBus target
+> + * @flags: command options
+> + * @read_write: read from or write to device
+> + * @command: the i2c/SMBus command to issue
+> + * @size: SMBus transaction type
+> + * @data: read/write data buffer
+> + */
+> +static int ismt_access(struct i2c_adapter *adap, u16 addr,
+> +                      unsigned short flags, char read_write, u8 command,
+> +                      int size, union i2c_smbus_data *data)
 > +{
-> +       struct lantiq_i2c *priv = dev_id;
-> +       struct i2c_msg *msg = priv->current_msg;
-> +       int last = (irq == priv->irq_lb);
+> +       unsigned int ret = 0; /* return code */
+> +       dma_addr_t dma_addr = 0; /* address of the data buffer */
+> +       u8 dma_size = 0;
+> +       enum dma_data_direction dma_direction = 0;
+> +       bool map_dma_flag = 0;
+> +       struct ismt_desc *desc;
+> +       struct ismt_priv *priv = i2c_get_adapdata(adap);
 > +
-> +       if (last)
-> +               PRINTK("LB ");
-> +       else
-> +               PRINTK("B ");
+> +       desc = &priv->hw[priv->head];
 > +
-> +       if (msg->flags & I2C_M_RD) {
-> +               switch (priv->status) {
-> +               case STATUS_ADDR:
-> +                       PRINTK("X");
-> +                       prepare_msg_send_addr(priv);
-> +                       disable_burst_irq(priv);
-> +                       break;
-> +               case STATUS_READ:
-> +               case STATUS_READ_END:
-> +                       PRINTK("R");
-> +                       lantiq_i2c_rx(priv, last);
-> +                       break;
-> +               default:
-> +                       disable_burst_irq(priv);
-> +                       pr_warn("Status R %d\n", priv->status);
-> +                       break;
+> +       /* Initialize the descriptor */
+> +       memset(desc, 0, sizeof(struct ismt_desc));
+> +       desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+> +
+> +       /* Initialize common control bits */
+> +       desc->control |= ISMT_DESC_INT;
+> +
+> +       if (stop_on_error)
+> +               desc->control |= ISMT_DESC_SOE;
+> +
+> +       if ((flags & I2C_CLIENT_PEC) && (size != I2C_SMBUS_QUICK)
+> +               && (size != I2C_SMBUS_I2C_BLOCK_DATA))
+> +               desc->control |= ISMT_DESC_PEC;
+> +
+> +       if (fair)
+> +               desc->control |= ISMT_DESC_FAIR;
+> +
+> +       switch (size) {
+> +       case I2C_SMBUS_QUICK:
+> +               dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_QUICK\n");
+> +               break;
+> +
+> +       case I2C_SMBUS_BYTE:
+> +               if (read_write == I2C_SMBUS_WRITE) {
+> +                       /*
+> +                        * Send Byte
+> +                        * The command field contains the write data
+> +                        */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_BYTE:  WRITE\n");
+> +                       desc->control |= ISMT_DESC_CWRL;
+> +                       desc->wr_len_cmd = command;
+> +               } else {
+> +                       /* Receive Byte */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_BYTE:  READ\n");
+> +                       dma_size = 1;
+> +                       dma_direction = DMA_FROM_DEVICE;
+> +                       map_dma_flag = 1;
+> +                       desc->rd_len = 1;
 > +               }
-> +       } else {
-> +               switch (priv->status) {
-> +               case STATUS_ADDR:
-> +                       PRINTK("x");
-> +                       prepare_msg_send_addr(priv);
-> +                       break;
-> +               case STATUS_WRITE:
-> +                       PRINTK("w");
-> +                       lantiq_i2c_tx(priv, last);
-> +                       break;
-> +               default:
-> +                       disable_burst_irq(priv);
-> +                       pr_warn("Status W %d\n", priv->status);
-> +                       break;
+> +
+> +               break;
+> +
+> +       case I2C_SMBUS_BYTE_DATA:
+> +               if (read_write == I2C_SMBUS_WRITE) {
+> +                       /*
+> +                        * Write Byte
+> +                        * Command plus 1 data byte
+> +                        */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_BYTE_DATA:  WRITE\n");
+> +                       desc->wr_len_cmd = 2;
+> +
+> +                       /* Stuff the command ahead of the data in the buffer */
+> +                       ismt_insert_cmd(data, command);
+> +                       dma_size = 2;
+> +                       dma_direction = DMA_TO_DEVICE;
+> +               } else {
+> +                       /* Read Byte */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_BYTE_DATA:  READ\n");
+> +                       desc->control |= ISMT_DESC_CWRL;
+> +                       desc->wr_len_cmd = command;
+> +                       desc->rd_len = 1;
+> +                       dma_size = 1;
+> +                       dma_direction = DMA_FROM_DEVICE;
 > +               }
+> +
+> +               map_dma_flag = 1;
+> +               break;
+> +
+> +       case I2C_SMBUS_WORD_DATA:
+> +               if (read_write == I2C_SMBUS_WRITE) {
+> +                       /* Write Word */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_WORD_DATA:  WRITE\n");
+> +                       desc->wr_len_cmd = 3;
+> +
+> +                       /* Stuff the command ahead of the data in the buffer */
+> +                       ismt_insert_cmd(data, command);
+> +                       dma_size = 3;
+> +                       dma_direction = DMA_TO_DEVICE;
+> +               } else {
+> +                       /* Read Word */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_WORD_DATA:  READ\n");
+> +                       desc->wr_len_cmd = command;
+> +                       desc->control |= ISMT_DESC_CWRL;
+> +                       desc->rd_len = 2;
+> +                       dma_size = 2;
+> +                       dma_direction = DMA_FROM_DEVICE;
+> +               }
+> +
+> +               map_dma_flag = 1;
+> +               break;
+> +
+> +       case I2C_SMBUS_PROC_CALL:
+> +               dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_PROC_CALL\n");
+> +               desc->wr_len_cmd = 3;
+> +               desc->rd_len = 2;
+> +
+> +               /* Stuff the command ahead of the data in the buffer */
+> +               ismt_insert_cmd(data, command);
+> +               dma_size = 3;
+> +               dma_direction = DMA_BIDIRECTIONAL;
+> +               map_dma_flag = 1;
+> +               break;
+> +
+> +       case I2C_SMBUS_BLOCK_DATA:
+> +               if (read_write == I2C_SMBUS_WRITE) {
+> +                       /* Block Write */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_BLOCK_DATA:  WRITE\n");
+> +                       dma_size = data->block[0] + 1;
+> +                       dma_direction = DMA_TO_DEVICE;
+> +                       desc->wr_len_cmd = dma_size;
+> +                       desc->control |= ISMT_DESC_BLK;
+> +                       ismt_insert_cmd(data, command);
+> +               } else {
+> +                       /* Block Read */
+> +                       dev_dbg(&priv->pci_dev->dev, "I2C_SMBUS_BLOCK_DATA:  READ\n");
+> +                       dma_size = data->block[0] + 1;
+> +                       dma_direction = DMA_FROM_DEVICE;
+> +                       desc->rd_len = dma_size;
+> +                       desc->wr_len_cmd = command;
+> +                       desc->control |= (ISMT_DESC_BLK | ISMT_DESC_CWRL);
+> +               }
+> +
+> +               map_dma_flag = 1;
+> +               break;
+> +
+> +       default:
+> +               dev_err(&priv->pci_dev->dev, "Unsupported transaction %d\n",
+> +                       size);
+> +               return -EOPNOTSUPP;
 > +       }
 > +
-> +       i2c_w32(I2C_ICR_BREQ_INT_CLR | I2C_ICR_LBREQ_INT_CLR, icr);
-> +       return IRQ_HANDLED;
+> +       /* map the data buffer */
+> +       if (map_dma_flag) {
+> +               dev_dbg(&priv->pci_dev->dev,
+> +                       " &priv->pci_dev->dev=%p\n", &priv->pci_dev->dev);
+> +               dev_dbg(&priv->pci_dev->dev, " data=%p\n", data);
+> +               dev_dbg(&priv->pci_dev->dev, " dma_size=%d\n", dma_size);
+> +               dev_dbg(&priv->pci_dev->dev,
+> +                       " dma_direction=%d\n", dma_direction);
+> +
+> +               dma_addr = dma_map_single(&priv->pci_dev->dev,
+> +                                     data,
+> +                                     dma_size,
+> +                                     dma_direction);
+> +
+> +               dev_dbg(&priv->pci_dev->dev, " dma_addr = 0x%016llX\n",
+> +                       dma_addr);
+> +
+> +               desc->dptr_low = lower_32_bits(dma_addr);
+> +               desc->dptr_high = upper_32_bits(dma_addr);
+> +       }
+> +
+> +       INIT_COMPLETION(priv->cmp);
+> +
+> +       /* Add the descriptor */
+> +       ismt_submit_desc(adap);
+> +
+> +       /* Now we wait for interrupt completion, 1s */
+> +       ret = wait_for_completion_interruptible_timeout(&priv->cmp, HZ*1);
+> +
+> +       /* unmap the data buffer */
+> +       if (map_dma_flag)
+> +               dma_unmap_single(&adap->dev, dma_addr, dma_size, dma_direction);
+> +
+> +       if (ret < 0) {
+> +               dev_err(&priv->pci_dev->dev, "completion wait interrupted\n");
+> +               ret = -EIO;
+> +       } else if (ret == 0) {
+> +               dev_err(&priv->pci_dev->dev, "completion wait timed out\n");
+> +               ret = -ETIMEDOUT;
+> +       } else
+> +               /* do any post processing of the descriptor here */
+> +               ret = ismt_process_desc(adap);
+> +
+> +       /* Update the ring pointer */
+> +       priv->head++;
+> +       priv->head %= ISMT_DESC_ENTRIES;
+> +
+> +       return ret;
 > +}
 > +
-> +static void lantiq_i2c_isr_prot(struct lantiq_i2c *priv)
+> +/**
+> + * ismt_func() - report which i2c commands are supported by this adapter
+> + * @adap: the i2c host adapter
+> + */
+> +static u32 ismt_func(struct i2c_adapter *adap)
 > +{
-> +       u32 i_pro = i2c_r32(p_irqss);
-> +
-> +       PRINTK("i2c-p");
-> +
-> +       /* not acknowledge */
-> +       if (i_pro & I2C_P_IRQSS_NACK) {
-> +               priv->msg_err |= LTQ_I2C_NACK;
-> +               PRINTK(" nack");
-> +       }
-> +
-> +       /* arbitration lost */
-> +       if (i_pro & I2C_P_IRQSS_AL) {
-> +               priv->msg_err |= LTQ_I2C_ARB_LOST;
-> +               PRINTK(" arb-lost");
-> +       }
-> +       /* tx -> rx switch */
-> +       if (i_pro & I2C_P_IRQSS_RX)
-> +               PRINTK(" rx");
-> +
-> +       /* tx end */
-> +       if (i_pro & I2C_P_IRQSS_TX_END)
-> +               PRINTK(" txend");
-> +       PRINTK("\n");
-> +
-> +       if (!priv->msg_err) {
-> +               /* tx -> rx switch */
-> +               if (i_pro & I2C_P_IRQSS_RX) {
-> +                       priv->status = STATUS_READ;
-> +                       enable_burst_irq(priv);
-> +               }
-> +               if (i_pro & I2C_P_IRQSS_TX_END) {
-> +                       if (priv->status == STATUS_READ)
-> +                               priv->status = STATUS_READ_END;
-> +                       else {
-> +                               disable_burst_irq(priv);
-> +                               priv->status = STATUS_STOP;
-> +                       }
-> +               }
-> +       }
-> +
-> +       i2c_w32(i_pro, p_irqsc);
+> +       return  I2C_FUNC_SMBUS_QUICK           |
+> +               I2C_FUNC_SMBUS_BYTE            |
+> +               I2C_FUNC_SMBUS_BYTE_DATA       |
+> +               I2C_FUNC_SMBUS_WORD_DATA       |
+> +               I2C_FUNC_SMBUS_PROC_CALL       |
+> +               I2C_FUNC_SMBUS_BLOCK_DATA      |
+> +               I2C_FUNC_SMBUS_PEC;
 > +}
 > +
-> +static irqreturn_t lantiq_i2c_isr(int irq, void *dev_id)
-> +{
-> +       u32 i_raw, i_err = 0;
-> +       struct lantiq_i2c *priv = dev_id;
-> +
-> +       i_raw = i2c_r32(mis);
-> +       PRINTK("i_raw 0x%08X\n", i_raw);
-using the dev_dbg ??
-> +
-> +       /* error interrupt */
-> +       if (i_raw & I2C_RIS_I2C_ERR_INT_INTOCC) {
-> +               i_err = i2c_r32(err_irqss);
-> +               PRINTK("i_err 0x%08X bus_stat 0x%04X\n",
-> +                       i_err, i2c_r32(bus_stat));
-> +
-> +               /* tx fifo overflow (8) */
-> +               if (i_err & I2C_ERR_IRQSS_TXF_OFL)
-> +                       priv->msg_err |= LTQ_I2C_TX_OFL;
-> +
-> +               /* tx fifo underflow (4) */
-> +               if (i_err & I2C_ERR_IRQSS_TXF_UFL)
-> +                       priv->msg_err |= LTQ_I2C_TX_UFL;
-> +
-> +               /* rx fifo overflow (2) */
-> +               if (i_err & I2C_ERR_IRQSS_RXF_OFL)
-> +                       priv->msg_err |= LTQ_I2C_RX_OFL;
-> +
-> +               /* rx fifo underflow (1) */
-> +               if (i_err & I2C_ERR_IRQSS_RXF_UFL)
-> +                       priv->msg_err |= LTQ_I2C_RX_UFL;
-> +
-> +               i2c_w32(i_err, err_irqsc);
-> +       }
-> +
-> +       /* protocol interrupt */
-> +       if (i_raw & I2C_RIS_I2C_P_INT_INTOCC)
-> +               lantiq_i2c_isr_prot(priv);
-> +
-> +       if ((priv->msg_err) || (priv->status == STATUS_STOP))
-> +               complete(&priv->cmd_complete);
-> +
-> +       return IRQ_HANDLED;
-> +}
-> +
-> +static u32 lantiq_i2c_functionality(struct i2c_adapter *adap)
-> +{
-> +       return  I2C_FUNC_I2C |
-> +               I2C_FUNC_10BIT_ADDR |
-> +               I2C_FUNC_SMBUS_EMUL;
-> +}
-> +
-> +static struct i2c_algorithm lantiq_i2c_algorithm = {
-> +       .master_xfer    = lantiq_i2c_xfer,
-> +       .functionality  = lantiq_i2c_functionality,
+> +/**
+> + * struct i2c_algorithm - the adapter algorithm and supported functionality
+> + * @smbus_xfer: the adapter algorithm
+> + * @functionality: functionality supported by the adapter
+> + */
+> +static const struct i2c_algorithm smbus_algorithm = {
+> +       .smbus_xfer     = ismt_access,
+> +       .functionality  = ismt_func,
 > +};
 > +
-> +static int __devinit lantiq_i2c_probe(struct platform_device *pdev)
+> +/**
+> + * ismt_handle_isr() - interrupt handler bottom half
+> + * @priv: iSMT private data
+> + */
+> +static irqreturn_t ismt_handle_isr(struct ismt_priv *priv)
 > +{
-> +       struct device_node *node = pdev->dev.of_node;
-> +       struct lantiq_i2c *priv;
-> +       struct i2c_adapter *adap;
-> +       struct resource *mmres, irqres[4];
-> +       int ret = 0;
+> +       complete(&priv->cmp);
 > +
-> +       dev_dbg(&pdev->dev, "probing\n");
-> +
-> +       mmres = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +       ret = of_irq_to_resource_table(node, irqres, 4);
-> +       if (!mmres || (ret != 4)) {
-> +               dev_err(&pdev->dev, "no resources\n");
-> +               return -ENODEV;
-> +       }
-> +
-> +       /* allocate private data */
-> +       priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +       if (!priv) {
-> +               dev_err(&pdev->dev, "can't allocate private data\n");
-> +               return -ENOMEM;
-> +       }
-> +
-> +       adap = &priv->adap;
-> +       i2c_set_adapdata(adap, priv);
-> +       adap->owner = THIS_MODULE;
-> +       adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
-> +       strlcpy(adap->name, DRV_NAME "-adapter", sizeof(adap->name));
-> +       adap->algo = &lantiq_i2c_algorithm;
-> +
-> +       if (of_property_read_u32(node, "clock-frequency", &priv->i2c_clock)) {
-> +               dev_warn(&pdev->dev, "No I2C speed selected, using 100kHz\n");
-> +               priv->i2c_clock = 100000;
-> +       }
-> +
-> +       init_completion(&priv->cmd_complete);
-> +       mutex_init(&priv->mutex);
-> +
-> +       priv->membase = devm_request_and_ioremap(&pdev->dev, mmres);
-> +       if (priv->membase == NULL)
-> +               return -ENOMEM;
-> +
-> +       priv->clk_input = clk_get_fpi();
-> +       if (IS_ERR(priv->clk_input)) {
-> +               dev_err(&pdev->dev, "failed to get fpi clk\n");
-> +               return -ENOENT;
-> +       }
-> +
-> +       priv->clk_gate = clk_get(&pdev->dev, NULL);
-> +       if (IS_ERR(priv->clk_gate)) {
-> +               dev_err(&pdev->dev, "failed to get i2c clk\n");
-> +               return -ENOENT;
-> +       }
-> +       clk_activate(priv->clk_gate);
-> +
-> +       priv->dev = &pdev->dev;
-> +       priv->irq_lb = irqres[0].start;
-> +       ret = request_irq(priv->irq_lb, lantiq_i2c_isr_burst, IRQF_DISABLED,
-> +                         "i2c lb", priv);
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "can't get last burst IRQ %d\n",
-> +                       irqres[0].start);
-> +               return -ENODEV;
-> +       }
-> +
-> +       priv->irq_b = irqres[1].start;
-> +       ret = request_irq(priv->irq_b, lantiq_i2c_isr_burst, IRQF_DISABLED,
-> +                         "i2c b", priv);
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "can't get burst IRQ %d\n",
-> +                       irqres[1].start);
-Shouldnt lb be freed here ? Or how about using   devm_ instead
-
-> +               return -ENODEV;
-> +       }
-> +
-> +       priv->irq_err = irqres[2].start;
-> +       ret = request_irq(priv->irq_err, lantiq_i2c_isr, IRQF_DISABLED,
-> +                         "i2c err", priv);
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "can't get error IRQ %d\n",
-> +                       irqres[2].start);
-same here .
-> +               return -ENODEV;
-> +       }
-> +
-> +       priv->irq_p = irqres[3].start;
-> +       ret = request_irq(priv->irq_p, lantiq_i2c_isr, IRQF_DISABLED,
-> +                         "i2c p", priv);
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "can't get protocol IRQ %d\n",
-> +                       irqres[3].start);
-same here
-> +               return -ENODEV;
-> +       }
-> +
-> +       dev_dbg(&pdev->dev, "mapped io-space to %p\n", priv->membase);
-> +       dev_dbg(&pdev->dev, "use IRQs %d, %d, %d, %d\n", irqres[0].start,
-> +               irqres[1].start, irqres[2].start, irqres[3].start);
-> +
-> +       /* add our adapter to the i2c stack */
-> +       ret = i2c_add_numbered_adapter(adap);
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "can't register I2C adapter\n");
-> +               return ret;
-> +       }
-> +
-> +       platform_set_drvdata(pdev, priv);
-> +       i2c_set_adapdata(adap, priv);
-> +
-> +       /* print module version information */
-> +       dev_dbg(&pdev->dev, "module id=%u revision=%u\n",
-> +               (i2c_r32(id) & I2C_ID_ID_MASK) >> I2C_ID_ID_OFFSET,
-> +               (i2c_r32(id) & I2C_ID_REV_MASK) >> I2C_ID_REV_OFFSET);
-> +
-> +       /* initialize HW */
-> +       ret = lantiq_i2c_hw_init(adap);
-> +       if (ret) {
-> +               dev_err(&pdev->dev, "can't configure adapter\n");
-> +               i2c_del_adapter(adap);
-> +               platform_set_drvdata(pdev, NULL);
-> +       } else {
-> +               dev_info(&pdev->dev, "version %s\n", DRV_VERSION);
-> +       }
-> +
-> +       of_i2c_register_devices(adap);
-> +
-> +       return ret;
+> +       return IRQ_HANDLED;
 > +}
 > +
-> +static int __devexit lantiq_i2c_remove(struct platform_device *pdev)
+> +
+> +/**
+> + * ismt_do_interrupt() - IRQ interrupt handler
+> + * @vec: interrupt vector
+> + * @data:  iSMT private data
+> + */
+> +static irqreturn_t ismt_do_interrupt(int vec, void *data)
 > +{
-> +       struct lantiq_i2c *priv = platform_get_drvdata(pdev);
-> +       struct resource *mmres;
+> +       u32 val;
+> +       struct ismt_priv *priv = (struct ismt_priv *)data;
 > +
-> +       /* disable bus */
-> +       i2c_w32_mask(I2C_RUN_CTRL_RUN_EN, 0, run_ctrl);
+> +       /*
+> +        * check to see it's our interrupt, return IRQ_NONE if not ours
+> +        * since we are sharing interrupt
+> +        */
+> +       val = readl(priv->smba + ISMT_MSTR_MSTS);
 > +
-> +       /* remove driver */
-> +       platform_set_drvdata(pdev, NULL);
-
-Can you move this below as you are accessing it below right ?
-You could consider  rmmod to test this.
-
-> +       i2c_del_adapter(&priv->adap);
+> +       if (!(val & (ISMT_MSTS_MIS | ISMT_MSTS_MEIS)))
+> +               return IRQ_NONE;
 > +
-> +       free_irq(priv->irq_lb, priv);
-> +       free_irq(priv->irq_b, priv);
-> +       free_irq(priv->irq_err, priv);
-> +       free_irq(priv->irq_p, priv);
+> +       if (val & ISMT_MSTS_MIS) {
+> +               /* completed successfully */
+> +               writel((val | ISMT_MSTS_MIS), priv->smba + ISMT_MSTR_MSTS);
+> +       } else {
+> +               /* completed with errors */
+> +               writel((val | ISMT_MSTS_MEIS), priv->smba + ISMT_MSTR_MSTS);
+> +       }
 > +
-> +       iounmap(priv->membase);
-
-you used devm this shouldnt be needed?
-
+> +       return ismt_handle_isr(priv);
+> +}
 > +
-> +       kfree(priv);
+> +/**
+> + * ismt_do_msi_interrupt() - MSI interrupt handler
+> + * @vec: interrupt vector
+> + * @data:  iSMT private data
+> + */
+> +static irqreturn_t ismt_do_msi_interrupt(int vec, void *data)
+> +{
+> +       struct ismt_priv *priv = (struct ismt_priv *)data;
 > +
-> +       mmres = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +       release_mem_region(mmres->start, resource_size(mmres));
+> +       return ismt_handle_isr(priv);
+> +}
 > +
-> +       dev_dbg(&pdev->dev, "removed\n");
+> +/**
+> + * ismt_hw_init() - initialize the iSMT hardware
+> + * @pdev: PCI-Express device
+> + */
+> +static void __devinit ismt_hw_init(struct pci_dev *pdev)
+> +{
+> +       u32 val;
+> +       struct ismt_priv *priv = pci_get_drvdata(pdev);
+> +
+> +       /* initialize the Master Descriptor Base Address (MDBA) */
+> +       writeq(priv->io_rng_dma, priv->smba + ISMT_MSTR_MDBA);
+> +
+> +       /* initialize the Master Control Register (MCTRL) */
+> +       writel(ISMT_MCTRL_MEIE, priv->smba + ISMT_MSTR_MCTRL);
+> +
+> +       /* initialize the Master Status Register (MSTS) */
+> +       writel(0, priv->smba + ISMT_MSTR_MSTS);
+> +
+> +       /* initialize the Master Descriptor Size (MDS) */
+> +       val = readl(priv->smba + ISMT_MSTR_MDS);
+> +       writel((val & ~(ISMT_MDS_MDS)) | (ISMT_DESC_ENTRIES - 1),
+> +               priv->smba + ISMT_MSTR_MDS);
+> +
+> +#ifdef DEBUG_SLOW_HW
+> +       /*
+> +        * initialize the SMBus speed to 80KHz for slow HW debuggers
+> +        */
+> +       dev_dbg(&pdev->dev, " Setting SMBus clock to 80KHz\n");
+> +       val = readl(priv->smba + ISMT_SPGT);
+> +       writel(((val & ~(ISMT_SPGT_SPD)) | ISMT_SPGT_SPD_80K),
+> +              priv->smba + ISMT_SPGT);
+> +#endif
+> +
+> +       dev_dbg(&pdev->dev, " priv->smba=%p\n", priv->smba);
+> +}
+> +
+> +/**
+> + * ismt_init() - initialize the iSMT data structures
+> + * @pdev: PCI-Express Device
+> + */
+> +static int __devinit ismt_init(struct pci_dev *pdev)
+> +{
+> +       struct ismt_priv *priv = pci_get_drvdata(pdev);
+> +
+> +       priv->entries = ISMT_DESC_ENTRIES;
+> +
+> +       /* allocate memory for the descriptor */
+> +       priv->hw = dmam_alloc_coherent(&pdev->dev,
+> +                                      (ISMT_DESC_ENTRIES
+> +                                              * sizeof(struct ismt_desc)),
+> +                                      &priv->io_rng_dma,
+> +                                      GFP_KERNEL);
+> +       if (!priv->hw)
+> +               return -ENOMEM;
+> +
+> +       memset(priv->hw, 0, (ISMT_DESC_ENTRIES * sizeof(struct ismt_desc)));
+> +
+> +       priv->head = 0;
+> +       priv->tail = 0;
+> +       init_completion(&priv->cmp);
 > +
 > +       return 0;
 > +}
-> +static const struct of_device_id ltq_i2c_match[] = {
-> +       { .compatible = "lantiq,lantiq-i2c" },
-> +       {},
+> +
+> +/**
+> + * ismt_int_init() - initialize interrupts
+> + * @pdev: PCI-Express device
+> + * @priv: iSMT private data
+> + */
+> +static int ismt_int_init(struct pci_dev *pdev, struct ismt_priv *priv)
+
+Can this be devinit ?
+
+> +{
+> +       int err;
+> +
+> +       /* Try using MSI interrupts */
+> +       err = pci_enable_msi(pdev);
+> +       if (err)
+> +               goto intx;
+> +
+> +       err = devm_request_irq(&pdev->dev,
+> +                              pdev->irq,
+> +                              ismt_do_msi_interrupt,
+> +                              0,
+> +                              "ismt-msi",
+> +                              priv);
+> +
+> +       if (err) {
+> +               pci_disable_msi(pdev);
+> +               goto intx;
+> +       }
+> +
+> +       goto done;
+> +
+> +       /* Try using legacy interrupts */
+> +intx:
+> +       err = devm_request_irq(&pdev->dev,
+> +                              pdev->irq,
+> +                              ismt_do_interrupt,
+> +                              IRQF_SHARED,
+> +                              "ismt-intx",
+> +                              priv);
+> +       if (err) {
+> +               dev_err(&pdev->dev, "no usable interrupts\n");
+> +               return -ENODEV;
+> +       }
+> +
+> +done:
+> +       return 0;
+> +}
+> +
+> +static struct pci_driver ismt_driver;
+> +
+> +/**
+> + * ismt_probe() - probe for iSMT devices
+> + * @pdev: PCI-Express device
+> + * @id: PCI-Express device ID
+> + */
+> +static int __devinit
+> +ismt_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+> +{
+> +       int err;
+> +       struct ismt_priv *priv;
+> +       unsigned long start, len;
+> +
+> +       priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+> +       if (!priv)
+> +               return -ENOMEM;
+> +
+> +       pci_set_drvdata(pdev, priv);
+> +       i2c_set_adapdata(&priv->adapter, priv);
+> +       priv->adapter.owner = THIS_MODULE;
+> +
+> +       priv->adapter.class = I2C_CLASS_HWMON;
+> +
+> +       priv->adapter.algo = &smbus_algorithm;
+> +       priv->pci_dev = pdev;
+> +
+> +       err = pcim_enable_device(pdev);
+> +       if (err) {
+> +               dev_err(&pdev->dev, "Failed to enable SMBus PCI device (%d)\n",
+> +                       err);
+> +               return err;
+> +       }
+> +
+> +       /* enable bus mastering */
+> +       pci_set_master(pdev);
+> +
+> +       /* Determine the address of the SMBus area */
+> +       start = pci_resource_start(pdev, SMBBAR);
+> +       if (!start) {
+> +               dev_err(&pdev->dev,
+> +                       "SMBus base address uninitialized, upgrade BIOS\n");
+> +               return -ENODEV;
+> +       }
+> +
+> +       len = pci_resource_len(pdev, SMBBAR);
+> +       if (len == 0) {
+> +               dev_err(&pdev->dev,
+> +                       "SMBus base address uninitialized, upgrade BIOS\n");
+> +               return -ENODEV;
+> +       }
+> +
+> +       dev_dbg(&priv->pci_dev->dev, " start=0x%lX\n", start);
+> +       dev_dbg(&priv->pci_dev->dev, " len=0x%lX\n", len);
+> +
+> +       err = acpi_check_resource_conflict(&pdev->resource[SMBBAR]);
+> +       if (err) {
+> +               dev_err(&pdev->dev, "ACPI resource conflict!\n");
+> +               return err;
+> +       }
+> +
+> +       err = pci_request_region(pdev, SMBBAR, ismt_driver.name);
+> +       if (err) {
+> +               dev_err(&pdev->dev,
+> +                       "Failed to request SMBus region 0x%lx-0x%lx\n",
+> +                       start, start + len);
+> +               return err;
+> +       }
+> +
+> +       priv->smba = pcim_iomap(pdev, SMBBAR, len);
+> +       if (!priv->smba) {
+> +               dev_err(&pdev->dev, "Unable to ioremap SMBus BAR\n");
+> +               err = -ENODEV;
+> +               goto fail;
+> +       }
+> +
+> +       err = pci_set_dma_mask(pdev, DMA_BIT_MASK(64));
+> +       if (err) {
+> +               err = pci_set_dma_mask(pdev, DMA_BIT_MASK(32));
+> +               if (err)
+> +                       goto fail;
+> +               dev_warn(&pdev->dev, "Cannot DMA highmem\n");
+> +       }
+> +
+> +       err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64));
+> +       if (err) {
+> +               err = pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32));
+> +               if (err)
+> +                       goto fail;
+> +               dev_warn(&pdev->dev, "Cannot DMA consistent highmem\n");
+> +       }
+> +
+> +       err = ismt_init(pdev);
+> +       if (err) {
+> +               err = -ENODEV;
+> +               goto fail;
+> +       }
+> +
+> +       ismt_hw_init(pdev);
+> +
+> +       err = ismt_int_init(pdev, priv);
+> +       if (err)
+> +               goto fail;
+> +
+> +       /* set up the sysfs linkage to our parent device */
+> +       priv->adapter.dev.parent = &pdev->dev;
+> +
+> +       /* number of retries on lost arbitration */
+> +       priv->adapter.retries = ISMT_MAX_RETRIES;
+> +
+> +       snprintf(priv->adapter.name, sizeof(priv->adapter.name),
+> +                "SMBus iSMT adapter at %p", priv->smba);
+> +       err = i2c_add_adapter(&priv->adapter);
+> +       if (err) {
+> +               dev_err(&pdev->dev, "Failed to add SMBus iSMT adapter\n");
+> +               err = -ENODEV;
+> +               goto fail;
+> +       }
+> +       return 0;
+> +
+> +fail:
+> +       pci_release_region(pdev, SMBBAR);
+> +       return err;
+> +}
+> +
+> +/**
+> + * ismt_remove() - release driver resources
+> + * @pdev: PCI-Express device
+> + */
+> +static void __devexit ismt_remove(struct pci_dev *pdev)
+> +{
+> +       struct ismt_priv *priv = pci_get_drvdata(pdev);
+> +
+> +       writel(ISMT_GCTRL_SRST, priv->smba + ISMT_GR_GCTRL);
+> +       i2c_del_adapter(&priv->adapter);
+> +       pci_release_region(pdev, SMBBAR);
+> +}
+> +
+> +/**
+> + * ismt_suspend() - place the device in suspend
+> + * @pdev: PCI-Express device
+> + * @mesg: PM message
+> + */
+> +#ifdef CONFIG_PM
+> +static int ismt_suspend(struct pci_dev *pdev, pm_message_t mesg)
+> +{
+> +       pci_save_state(pdev);
+> +       pci_set_power_state(pdev, pci_choose_state(pdev, mesg));
+> +       return 0;
+> +}
+> +
+> +/**
+> + * ismt_resume() - PCI resume code
+> + * @pdev: PCI-Express device
+> + */
+> +static int ismt_resume(struct pci_dev *pdev)
+> +{
+> +       pci_set_power_state(pdev, PCI_D0);
+> +       pci_restore_state(pdev);
+> +       return pci_enable_device(pdev);
+> +}
+> +
+> +#else
+> +
+> +#define ismt_suspend NULL
+> +#define ismt_resume NULL
+> +
+> +#endif
+> +
+> +static struct pci_driver ismt_driver = {
+> +       .name = "ismt_smbus",
+> +       .id_table = ismt_ids,
+> +       .probe = ismt_probe,
+> +       .remove = __devexit_p(ismt_remove),
+> +       .suspend = ismt_suspend,
+> +       .resume = ismt_resume,
 > +};
-> +MODULE_DEVICE_TABLE(of, ltq_i2c_match);
 > +
-> +static struct platform_driver lantiq_i2c_driver = {
-> +       .probe  = lantiq_i2c_probe,
-> +       .remove = __devexit_p(lantiq_i2c_remove),
-> +       .driver = {
-> +               .name   = DRV_NAME,
-> +               .owner  = THIS_MODULE,
-> +               .of_match_table = ltq_i2c_match,
-> +       },
-> +};
+> +/**
+> + * i2c_ismt_init() - iSMT driver initialization
+> + */
+> +static int __init i2c_ismt_init(void)
+> +{
+> +       pr_debug("Loading the iSMT SMBus driver\n");
+> +       return pci_register_driver(&ismt_driver);
+> +}
 > +
-> +module_platform_driver(lantiq_i2c_driver);
+> +/**
+> + * i2c_ismt_exit() - iSMT driver exit code
+> + */
+> +static void __exit i2c_ismt_exit(void)
+> +{
+> +       pr_debug("Unloading iSMT SMBus driver\n");
+> +       pci_unregister_driver(&ismt_driver);
+> +}
 > +
-> +MODULE_DESCRIPTION("Lantiq I2C bus adapter");
-> +MODULE_AUTHOR("Thomas Langer <thomas.langer-th3ZBGNqt+7QT0dZR+AlfA@public.gmane.org>");
-> +MODULE_ALIAS("platform:" DRV_NAME);
-> +MODULE_LICENSE("GPL");
-> +MODULE_VERSION(DRV_VERSION);
-> diff --git a/drivers/i2c/busses/i2c-lantiq.h b/drivers/i2c/busses/i2c-lantiq.h
+> +MODULE_LICENSE("Dual BSD/GPL");
+> +MODULE_AUTHOR("Bill E. Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>");
+> +MODULE_DESCRIPTION("Intel SMBus Message Transport (iSMT) driver");
+> +
+> +module_init(i2c_ismt_init);
+> +module_exit(i2c_ismt_exit);
+> +
+> diff --git a/drivers/i2c/busses/i2c-ismt.h b/drivers/i2c/busses/i2c-ismt.h
 > new file mode 100644
-> index 0000000..7a86b89
+> index 0000000..e9c10e1
 > --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-lantiq.h
-> @@ -0,0 +1,234 @@
-> +#ifndef I2C_LANTIQ_H
-> +#define I2C_LANTIQ_H
+> +++ b/drivers/i2c/busses/i2c-ismt.h
+> @@ -0,0 +1,111 @@
+> +#ifndef _I2C_ISMT_H_
+> +#define _I2C_ISMT_H_
 > +
-> +/* I2C register structure */
-> +struct lantiq_reg_i2c {
-> +       /* I2C Kernel Clock Control Register */
-> +       unsigned int clc; /* 0x00000000 */
-> +       /* Reserved */
-> +       unsigned int res_0; /* 0x00000004 */
-> +       /* I2C Identification Register */
-> +       unsigned int id; /* 0x00000008 */
-> +       /* Reserved */
-> +       unsigned int res_1; /* 0x0000000C */
-> +       /*
-> +        * I2C RUN Control Register
-> +        * This register enables and disables the I2C peripheral. Before
-> +        * enabling, the I2C has to be configured properly. After enabling
-> +        * no configuration is possible
-> +        */
-> +       unsigned int run_ctrl; /* 0x00000010 */
-> +       /*
-> +        * I2C End Data Control Register
-> +        * This register is used to either turn around the data transmission
-> +        * direction or to address another slave without sending a stop
-> +        * condition. Also the software can stop the slave-transmitter by
-> +        * sending a not-accolade when working as master-receiver or even
-> +        * stop data transmission immediately when operating as
-> +        * master-transmitter. The writing to the bits of this control
-> +        * register is only effective when in MASTER RECEIVES BYTES, MASTER
-> +        * TRANSMITS BYTES, MASTER RESTART or SLAVE RECEIVE BYTES state
-> +        */
-> +       unsigned int endd_ctrl; /* 0x00000014 */
-> +       /*
-> +        * I2C Fractional Divider Configuration Register
-> +        * These register is used to program the fractional divider of the I2C
-> +        * bus. Before the peripheral is switched on by setting the RUN-bit the
-> +        * two (fixed) values for the two operating frequencies are programmed
-> +        * into these (configuration) registers. The Register FDIV_HIGH_CFG has
-> +        * the same layout as I2C_FDIV_CFG.
-> +        */
-> +       unsigned int fdiv_cfg; /* 0x00000018 */
-> +       /*
-> +        * I2C Fractional Divider (highspeed mode) Configuration Register
-> +        * These register is used to program the fractional divider of the I2C
-> +        * bus. Before the peripheral is switched on by setting the RUN-bit the
-> +        * two (fixed) values for the two operating frequencies are programmed
-> +        * into these (configuration) registers. The Register FDIV_CFG has the
-> +        * same layout as I2C_FDIV_CFG.
-> +        */
-> +       unsigned int fdiv_high_cfg; /* 0x0000001C */
-> +       /* I2C Address Configuration Register */
-> +       unsigned int addr_cfg; /* 0x00000020 */
-> +       /* I2C Bus Status Register
-> +        * This register gives a status information of the I2C. This additional
-> +        * information can be used by the software to start proper actions.
-> +        */
-> +       unsigned int bus_stat; /* 0x00000024 */
-> +       /* I2C FIFO Configuration Register */
-> +       unsigned int fifo_cfg; /* 0x00000028 */
-> +       /* I2C Maximum Received Packet Size Register */
-> +       unsigned int mrps_ctrl; /* 0x0000002C */
-> +       /* I2C Received Packet Size Status Register */
-> +       unsigned int rps_stat; /* 0x00000030 */
-> +       /* I2C Transmit Packet Size Register */
-> +       unsigned int tps_ctrl; /* 0x00000034 */
-> +       /* I2C Filled FIFO Stages Status Register */
-> +       unsigned int ffs_stat; /* 0x00000038 */
-> +       /* Reserved */
-> +       unsigned int res_2; /* 0x0000003C */
-> +       /* I2C Timing Configuration Register */
-> +       unsigned int tim_cfg; /* 0x00000040 */
-> +       /* Reserved */
-> +       unsigned int res_3[7]; /* 0x00000044 */
-> +       /* I2C Error Interrupt Request Source Mask Register */
-> +       unsigned int err_irqsm; /* 0x00000060 */
-> +       /* I2C Error Interrupt Request Source Status Register */
-> +       unsigned int err_irqss; /* 0x00000064 */
-> +       /* I2C Error Interrupt Request Source Clear Register */
-> +       unsigned int err_irqsc; /* 0x00000068 */
-> +       /* Reserved */
-> +       unsigned int res_4; /* 0x0000006C */
-> +       /* I2C Protocol Interrupt Request Source Mask Register */
-> +       unsigned int p_irqsm; /* 0x00000070 */
-> +       /* I2C Protocol Interrupt Request Source Status Register */
-> +       unsigned int p_irqss; /* 0x00000074 */
-> +       /* I2C Protocol Interrupt Request Source Clear Register */
-> +       unsigned int p_irqsc; /* 0x00000078 */
-> +       /* Reserved */
-> +       unsigned int res_5; /* 0x0000007C */
-> +       /* I2C Raw Interrupt Status Register */
-> +       unsigned int ris; /* 0x00000080 */
-> +       /* I2C Interrupt Mask Control Register */
-> +       unsigned int imsc; /* 0x00000084 */
-> +       /* I2C Masked Interrupt Status Register */
-> +       unsigned int mis; /* 0x00000088 */
-> +       /* I2C Interrupt Clear Register */
-> +       unsigned int icr; /* 0x0000008C */
-> +       /* I2C Interrupt Set Register */
-> +       unsigned int isr; /* 0x00000090 */
-> +       /* I2C DMA Enable Register */
-> +       unsigned int dmae; /* 0x00000094 */
-> +       /* Reserved */
-> +       unsigned int res_6[8154]; /* 0x00000098 */
-> +       /* I2C Transmit Data Register */
-> +       unsigned int txd; /* 0x00008000 */
-> +       /* Reserved */
-> +       unsigned int res_7[4095]; /* 0x00008004 */
-> +       /* I2C Receive Data Register */
-> +       unsigned int rxd; /* 0x0000C000 */
-> +       /* Reserved */
-> +       unsigned int res_8[4095]; /* 0x0000C004 */
+> +/* PCI Address Constants */
+> +#define SMBBAR         0
+> +
+> +/* PCI DIDs for Briarwood's pair of SMBus Message Transport (SMT) Devices */
+> +#define PCI_DEVICE_ID_INTEL_BWD_SMBUS_SMT0 0x0c59
+> +#define PCI_DEVICE_ID_INTEL_BWD_SMBUS_SMT1 0x0c5a
+> +
+> +#define ISMT_DESC_ENTRIES 32 /* number of descritor entries */
+> +#define ISMT_MAX_RETRIES 3   /* number of SMBus retries to attempt */
+> +
+> +/* Hardware Descriptor Constants - Control Field */
+> +#define ISMT_DESC_CWRL  0x01    /* Command/Write Length */
+> +#define ISMT_DESC_BLK   0X04    /* Perform Block Transaction */
+> +#define ISMT_DESC_FAIR  0x08    /* Set fairness flag upon successful arbit. */
+> +#define ISMT_DESC_PEC   0x10    /* Packet Error Code */
+> +#define ISMT_DESC_I2C   0x20    /* I2C Enable */
+> +#define ISMT_DESC_INT   0x40    /* Interrupt */
+> +#define ISMT_DESC_SOE   0x80    /* Stop On Error */
+> +
+> +/* Hardware Descriptor Constants - Status Field */
+> +#define ISMT_DESC_SCS   0x01    /* Success */
+> +#define ISMT_DESC_DLTO  0x04    /* Data Low Time Out */
+> +#define ISMT_DESC_NAK   0x08    /* NAK Received */
+> +#define ISMT_DESC_CRC   0x10    /* CRC Error */
+> +#define ISMT_DESC_CLTO  0x20    /* Clock Low Time Out */
+> +#define ISMT_DESC_COL   0x40    /* Collisions */
+> +#define ISMT_DESC_LPR   0x80    /* Large Packet Received */
+> +
+> +/* Hardware Descriptor Masks */
+> +#define ISMT_DESC_ADDR  0x7f    /* I2C/SMB address mask */
+> +#define ISMT_DESC_RW    0x01    /* Read/Write bit mask */
+> +
+> +/* Macros */
+> +#define ISMT_DESC_ADDR_RW(addr, rw) (((addr & ISMT_DESC_ADDR) << 1)    \
+> +                                    | (rw & ISMT_DESC_RW))
+> +
+> +/* iSMT General Register address offsets (SMBAR + <addr>) */
+> +#define ISMT_GR_GCTRL      0x000 /* General Control */
+> +#define ISMT_GR_SMTICL     0x008 /* SMT Interrupt Cause Location */
+> +#define ISMT_GR_ERRINTMSK  0x010 /* Error Interrupt Mask */
+> +#define ISMT_GR_ERRAERMSK  0x014 /* Error AER Mask */
+> +#define ISMT_GR_ERRSTS     0x018 /* Error Status */
+> +#define ISMT_GR_ERRINFO    0x01c /* Error Information */
+> +
+> +/* iSMT Master Registers */
+> +#define ISMT_MSTR_MDBA    0x100  /* Master Descriptor Base Address */
+> +#define ISMT_MSTR_MCTRL   0x108  /* Master Control */
+> +#define ISMT_MSTR_MSTS    0x10c  /* Master Status */
+> +#define ISMT_MSTR_MDS     0x110  /* Master Descriptor Size */
+> +#define ISMT_MSTR_RPOLICY 0x114  /* Retry Policy */
+> +
+> +/* iSMT Miscellaneous Registers */
+> +#define ISMT_SPGT  0x300  /* SMBus PHY Global Timing */
+> +
+> +/* General Control Register (GCTRL) bit definitions */
+> +#define ISMT_GCTRL_TRST 0x04    /* Target Reset */
+> +#define ISMT_GCTRL_KILL 0x08    /* Kill */
+> +#define ISMT_GCTRL_SRST 0x40    /* Soft Reset */
+> +
+> +/* Master Control Register (MCTRL) bit definitions */
+> +#define ISMT_MCTRL_SS    0x01       /* Start/Stop */
+> +#define ISMT_MCTRL_MEIE  0x10       /* Master Error Interrupt Enable */
+> +#define ISMT_MCTRL_FMHP  0x00ff0000 /* Firmware Master Head Pointer (FMHP) */
+> +
+> +/* Master Status Register (MSTS) bit definitions */
+> +#define ISMT_MSTS_HMTP  0xff0000 /* HW Master Tail Pointer (HMTP) */
+> +#define ISMT_MSTS_MIS   0x20     /* Master Interrupt Status (MIS) */
+> +#define ISMT_MSTS_MEIS  0x10     /* Master Error Interrupt Status (MEIS) */
+> +#define ISMT_MSTS_IP    0x01     /* In Progress */
+> +
+> +/* Master Descriptor Size (MDS) bit definitions */
+> +#define ISMT_MDS_MDS  0xFF /* Master Descriptor Size mask (MDS) */
+> +
+> +/* SMBus PHY Global Timing Register (SPGT) bit definitions */
+> +#define ISMT_SPGT_SPD     0xc0000000   /* SMBus Speed mask */
+> +#define ISMT_SPGT_SPD_80K (0x01 << 30) /* 80 KHz */
+> +
+> +/* MSI Control Register (MSICTL) bit definitions */
+> +#define ISMT_MSICTL_MSIE 0x01 /* MSI Enable */
+> +
+> +/* iSMT Hardware Descriptor */
+> +struct ismt_desc {
+> +       u8 tgtaddr_rw; /* target address & r/w bit */
+> +       u8 wr_len_cmd; /* write length in bytes or a command */
+> +       u8 rd_len; /* read length */
+> +       u8 control; /* control bits */
+> +       u8 status; /* status bits */
+> +       u8 retry; /* collision retry and retry count */
+> +       u8 rxbytes; /* received bytes */
+> +       u8 txbytes; /* transmitted bytes */
+> +       u32 dptr_low; /* lower 32 bit of the data pointer */
+> +       u32 dptr_high; /* upper 32 bit of the data pointer */
 > +};
 > +
-> +/*
-> + * Clock Divider for Normal Run Mode
-> + * Max 8-bit divider value. IF RMC is 0 the module is disabled. Note: As long
-> + * as the new divider value RMC is not valid, the register returns 0x0000 00xx
-> + * on reading.
-> + */
-> +#define I2C_CLC_RMC_MASK 0x0000FF00
-> +/* field offset */
-> +#define I2C_CLC_RMC_OFFSET 8
+> +struct ismt_priv {
+> +       struct i2c_adapter adapter;
+> +       void *smba; /* PCI BAR */
+> +       struct pci_dev *pci_dev;
+> +       struct ismt_ring_ent **ring; /* housekeeping struct pointer */
+> +       struct ismt_desc *hw; /* virtual base address of the descriptor */
+> +       dma_addr_t io_rng_dma; /* hardware base address of the descriptor */
+> +       int entries; /* number of descriptor entries */
+> +       u8 head; /* ring buffer head pointer */
+> +       u8 tail; /* ring buffer tail pointer */
+> +       struct completion cmp; /* interrupt completion */
+> +};
 > +
-> +/* Fields of "I2C Identification Register" */
-> +/* Module ID */
-> +#define I2C_ID_ID_MASK 0x0000FF00
-> +/* field offset */
-> +#define I2C_ID_ID_OFFSET 8
-> +/* Revision */
-> +#define I2C_ID_REV_MASK 0x000000FF
-> +/* field offset */
-> +#define I2C_ID_REV_OFFSET 0
-> +
-> +/* Fields of "I2C Interrupt Mask Control Register" */
-> +/* Enable */
-> +#define I2C_IMSC_BREQ_INT_EN 0x00000008
-> +/* Enable */
-> +#define I2C_IMSC_LBREQ_INT_EN 0x00000004
-> +
-> +/* Fields of "I2C Fractional Divider Configuration Register" */
-> +/* field offset */
-> +#define I2C_FDIV_CFG_INC_OFFSET 16
-> +
-> +/* Fields of "I2C Interrupt Mask Control Register" */
-> +/* Enable */
-> +#define I2C_IMSC_I2C_P_INT_EN 0x00000020
-> +/* Enable */
-> +#define I2C_IMSC_I2C_ERR_INT_EN 0x00000010
-> +
-> +/* Fields of "I2C Error Interrupt Request Source Status Register" */
-> +/* TXF_OFL */
-> +#define I2C_ERR_IRQSS_TXF_OFL 0x00000008
-> +/* TXF_UFL */
-> +#define I2C_ERR_IRQSS_TXF_UFL 0x00000004
-> +/* RXF_OFL */
-> +#define I2C_ERR_IRQSS_RXF_OFL 0x00000002
-> +/* RXF_UFL */
-> +#define I2C_ERR_IRQSS_RXF_UFL 0x00000001
-> +
-> +/* Fields of "I2C Raw Interrupt Status Register" */
-> +/* Read: Interrupt occurred. */
-> +#define I2C_RIS_I2C_ERR_INT_INTOCC 0x00000010
-> +/* Read: Interrupt occurred. */
-> +#define I2C_RIS_I2C_P_INT_INTOCC 0x00000020
-> +
-> +/* Fields of "I2C FIFO Configuration Register" */
-> +/* TX FIFO Flow Control */
-> +#define I2C_FIFO_CFG_TXFC 0x00020000
-> +/* RX FIFO Flow Control */
-> +#define I2C_FIFO_CFG_RXFC 0x00010000
-> +/* Word aligned (character alignment of four characters) */
-> +#define I2C_FIFO_CFG_TXFA_TXFA2 0x00002000
-> +/* Word aligned (character alignment of four characters) */
-> +#define I2C_FIFO_CFG_RXFA_RXFA2 0x00000200
-> +/* 1 word */
-> +#define I2C_FIFO_CFG_TXBS_TXBS0 0x00000000
-> +
-> +/* Fields of "I2C FIFO Configuration Register" */
-> +/* 1 word */
-> +#define I2C_FIFO_CFG_RXBS_RXBS0 0x00000000
-> +/* Stop on Packet End Enable */
-> +#define I2C_ADDR_CFG_SOPE_EN 0x00200000
-> +/* Stop on Not Acknowledge Enable */
-> +#define I2C_ADDR_CFG_SONA_EN 0x00100000
-> +/* Enable */
-> +#define I2C_ADDR_CFG_MnS_EN 0x00080000
-> +
-> +/* Fields of "I2C Interrupt Clear Register" */
-> +/* Clear */
-> +#define I2C_ICR_BREQ_INT_CLR 0x00000008
-> +/* Clear */
-> +#define I2C_ICR_LBREQ_INT_CLR 0x00000004
-> +
-> +/* Fields of "I2C Fractional Divider Configuration Register" */
-> +/* field offset */
-> +#define I2C_FDIV_CFG_DEC_OFFSET 0
-> +
-> +/* Fields of "I2C Bus Status Register" */
-> +/* Bus Status */
-> +#define I2C_BUS_STAT_BS_MASK 0x00000003
-> +/* Read from I2C Bus. */
-> +#define I2C_BUS_STAT_RNW_READ 0x00000004
-> +/* I2C Bus is free. */
-> +#define I2C_BUS_STAT_BS_FREE 0x00000000
-> +/*
-> + * The device is working as master and has claimed the control on the
-> + * I2C-bus (busy master).
-> + */
-> +#define I2C_BUS_STAT_BS_BM 0x00000002
-> +
-> +/* Fields of "I2C RUN Control Register" */
-> +/* Enable */
-> +#define I2C_RUN_CTRL_RUN_EN 0x00000001
-> +
-> +/* Fields of "I2C End Data Control Register" */
-> +/*
-> + * Set End of Transmission
-> + * Note:Do not write '1' to this bit when bus is free. This will cause an
-> + * abort after the first byte when a new transfer is started.
-> + */
-> +#define I2C_ENDD_CTRL_SETEND 0x00000002
-> +
-> +/* Fields of "I2C Protocol Interrupt Request Source Status Register" */
-> +/* NACK */
-> +#define I2C_P_IRQSS_NACK 0x00000010
-> +/* AL */
-> +#define I2C_P_IRQSS_AL 0x00000008
-> +/* RX */
-> +#define I2C_P_IRQSS_RX 0x00000040
-> +/* TX_END */
-> +#define I2C_P_IRQSS_TX_END 0x00000020
-> +
-> +
-> +#endif /* I2C_LANTIQ_H */
+> +#endif
 > --
-> 1.7.9.1
+> 1.6.2.5
 >
 > --
 > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
