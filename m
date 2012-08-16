@@ -1,85 +1,45 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCHv7 00/24] I2C big cleanup
-Date: Thu, 16 Aug 2012 16:15:38 +0200
-Message-ID: <20120816141538.GA13740@pengutronix.de>
-References: <1345125835-15524-1-git-send-email-shubhrajyoti@ti.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: I2_M_NOSTART functionality not supported
+ in Tegra20
+Date: Thu, 16 Aug 2012 15:16:52 -0600
+Message-ID: <502D6344.3070609@wwwdotorg.org>
+References: <1344935949-26709-1-git-send-email-ldewangan@nvidia.com> <502A817C.4000601@wwwdotorg.org> <502C9C4F.8090300@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1345125835-15524-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti D <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <502C9C4F.8090300-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 08/16/2012 01:07 AM, Laxman Dewangan wrote:
+> On Tuesday 14 August 2012 10:19 PM, Stephen Warren wrote:
+>> On 08/14/2012 03:19 AM, Laxman Dewangan wrote:
+>>> Tegra20 i2c controller does not support the continue transfer
+>>> which implements the I2C_M_NOSTART functionality of i2c
+>>> protocol mangling.
+>>> Removing the I2C_M_NOSTART functionality for Tegra20.
+>>>
+>>> Signed-off-by: Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>>> Reported-by: Stephen Warren<swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>> Tested-by: Stephen Warren<swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+>>
+>> Note that if I take Laxman's I2C driver clock patches through the Tegra
+>> tree, and Wolfram takes this patch through the I2C tree, there will be a
+>> very slight conflict, since adjacent lines are touched. However, the
+>> resolution is simple and obvious, so I think that's fine.
+> 
+> Stephen/Wolfram,
+> I have 2 more change to implement runtime PM and dynamic clock control
+> for fast clock which I have planned for 3.7.
+> I think it will be better if this also goes on same tree where the clock
+> related change are available to avoid the merge conflict.
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Thu, Aug 16, 2012 at 07:33:31PM +0530, Shubhrajyoti D wrote:
-> Changes since v1:
->        - removed tabification on patch 6/17
->        - removed dev_err() which was introduced on patch 09/17
-> Changes since v2:
->         - do not set full fifo depth in the RDR interrupt.
->         - some changelog updates.
->         - rebase to the Wolfram's tree.
-> Changes since v3:
->         - Remove a redundant read of status register
->         - Read the dev->buf_len variable instead of the register
->         as the information of the remaining bytes is there.
-> Changes since v4:
->         - Ack the arbitration lost.
->         - Rebase to the i2c-embedded/for-next branch.
-> Changes since v5:
->         - Rebase to latest mainline
->         - Added some more cleanup patches so as have a consolidated serie=
-s.
-> Changes since v6:
->         - Fix comments on setting the pdev to NULL.
->         - Trivial changelog update
->=20
-> Tested on omap4sdp and 3430sdp.
->=20
-> The following changes since commit 3bf671af14d591ede9251acb0085e8017f3705=
-e7:
->=20
->   Merge branch 'fixes-for-3.6' of git://git.kernel.org/pub/scm/linux/kern=
-el/git/cooloney/linux-leds (2012-08-13 09:59:04 +0300)
->=20
-> are available in the git repository at:
->=20
->   git://gitorious.org/linus-tree/linus-tree.git for_3.6/i2c/big_cleanup
-
-A GIT tree, thanks for that!
-
-Since the series is quite huge, I'd appreciate it if you could wait for
-reviews a little bit (a few days) and collect the issues raised there
-before resending. I know "release early & often", yet the traffic causes
-some overhead here :)
-
-Thanks,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---PNTmBPCT7hxwcZjr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlAtAIoACgkQD27XaX1/VRsxHACeKJ8p59AzCiEwpBNm6rFQ1yft
-DsIAn0P9xM0DPsvGyy6yXy6UgKl/H+RS
-=owlh
------END PGP SIGNATURE-----
-
---PNTmBPCT7hxwcZjr--
+OK, I guess I can take all the Tegra I2C driver changes through the
+Tegra tree if needed. This patch is less trivial than the last, so I
+would definitely need Wolfram's ack to do so. I suppose if this ends up
+conflicting with e.g. any core work in the I2C tree, I can always give
+Wolfram a Tegra branch to merge in first to avoid any issues; If needed,
+I'd rather wait until after rc2 or perhaps rc3 before doing that though.
