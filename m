@@ -1,59 +1,37 @@
-From: "Hebbar, Gururaja" <gururaja.hebbar-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCHv6 14/24] i2c: omap: always return IRQ_HANDLED
-Date: Thu, 16 Aug 2012 03:18:48 +0000
-Message-ID: <1BAFE6F6C881BF42822005164F1491C33EA5F5B6@DBDE01.ent.ti.com>
-References: <1344953946-13005-1-git-send-email-shubhrajyoti@ti.com>
- <1344953946-13005-15-git-send-email-shubhrajyoti@ti.com>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: I2_M_NOSTART functionality not supported
+ in Tegra20
+Date: Thu, 16 Aug 2012 12:37:59 +0530
+Message-ID: <502C9C4F.8090300@nvidia.com>
+References: <1344935949-26709-1-git-send-email-ldewangan@nvidia.com> <502A817C.4000601@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="Windows-1252"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1344953946-13005-15-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <502A817C.4000601-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: "tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org" <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Balbi, Felipe" <balbi-l0cyMroinI0@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 14, 2012 at 19:48:56, Datta, Shubhrajyoti wrote:
-> From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-> 
-> otherwise we could get our IRQ line disabled due
-> to many spurious IRQs.
+On Tuesday 14 August 2012 10:19 PM, Stephen Warren wrote:
+> On 08/14/2012 03:19 AM, Laxman Dewangan wrote:
+>> Tegra20 i2c controller does not support the continue transfer
+>> which implements the I2C_M_NOSTART functionality of i2c
+>> protocol mangling.
+>> Removing the I2C_M_NOSTART functionality for Tegra20.
+>>
+>> Signed-off-by: Laxman Dewangan<ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+>> Reported-by: Stephen Warren<swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> Tested-by: Stephen Warren<swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+>
+> Note that if I take Laxman's I2C driver clock patches through the Tegra
+> tree, and Wolfram takes this patch through the I2C tree, there will be a
+> very slight conflict, since adjacent lines are touched. However, the
+> resolution is simple and obvious, so I think that's fine.
 
-Patch description should be readable by itself. It is not a continuation of
-subject line.
-
-> 
-> Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-omap.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 80ebcf5..eb6898b 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -962,7 +962,7 @@ complete:
->  		}
->  	} while (stat);
->  
-> -	return count ? IRQ_HANDLED : IRQ_NONE;
-> +	return IRQ_HANDLED;
->  }
->  
->  static const struct i2c_algorithm omap_i2c_algo = {
-> -- 
-> 1.7.5.4
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
-
-
-Regards, 
-Gururaja
+Stephen/Wolfram,
+I have 2 more change to implement runtime PM and dynamic clock control 
+for fast clock which I have planned for 3.7.
+I think it will be better if this also goes on same tree where the clock 
+related change are available to avoid the merge conflict.
