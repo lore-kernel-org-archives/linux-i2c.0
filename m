@@ -1,34 +1,83 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] I2C: MIPS: lantiq: add FALC-ON i2c bus master
-Date: Thu, 16 Aug 2012 15:10:56 +0530
-Message-ID: <CAM=Q2csrm-zfnGUvR03EXj-Ybi-py8VqAy39g8kBjSHcyZZ8mQ@mail.gmail.com>
-References: <1345102448-4612-1-git-send-email-blogic@openwrt.org>
-	<CAM=Q2cvCmKMkQjWd0nvuvMMkNt3sH-AcupCq_KzM7EXDuD_-wQ@mail.gmail.com>
-	<502CB736.6010107@openwrt.org>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCHv7 10/24] i2c: omap: ack IRQ in parts
+Date: Thu, 16 Aug 2012 19:33:41 +0530
+Message-ID: <1345125835-15524-11-git-send-email-shubhrajyoti@ti.com>
+References: <1345125835-15524-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <502CB736.6010107-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
+In-Reply-To: <1345125835-15524-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: John Crispin <blogic-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Thomas Langer <thomas.langer-th3ZBGNqt+7QT0dZR+AlfA@public.gmane.org>
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi John,
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 
-On Thu, Aug 16, 2012 at 2:32 PM, John Crispin <blogic-p3rKhJxN3npAfugRpC6u6w@public.gmane.org> wrote:
-> Hi Shubhrajyoti,
->
-> Thanks for the comments, I just noticed that clk_put() is also missing
-> and that the clock gate should be deactivated upon a rmmod ... i will
-> fix all of these and resend the patch.
+According to flow diagrams on OMAP TRMs,
+we should ACK the IRQ as they happen.
 
-There are two things
+Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+[Ack the stat OMAP_I2C_STAT_AL in case of arbitration lost]
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |   28 ++++++++++++++++------------
+ 1 files changed, 16 insertions(+), 12 deletions(-)
 
-1> Relinquishing the handle. I think clk_put does that not sure.
-
-2> Gating , ie deactivating the clock the best place for this to
-happen is when there is no
-transfer. However that aggression in  PM can happen later.
->
-> John
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 8b80799..0adbfb1 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -850,21 +850,19 @@ omap_i2c_isr(int this_irq, void *dev_id)
+ 		}
+ 
+ complete:
+-		/*
+-		 * Ack the stat in one go, but [R/X]DR and [R/X]RDY should be
+-		 * acked after the data operation is complete.
+-		 * Ref: TRM SWPU114Q Figure 18-31
+-		 */
+-		omap_i2c_write_reg(dev, OMAP_I2C_STAT_REG, stat &
+-				~(OMAP_I2C_STAT_RRDY | OMAP_I2C_STAT_RDR |
+-				OMAP_I2C_STAT_XRDY | OMAP_I2C_STAT_XDR));
+-
+-		if (stat & OMAP_I2C_STAT_NACK)
++		if (stat & OMAP_I2C_STAT_NACK) {
+ 			err |= OMAP_I2C_STAT_NACK;
++			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_NACK);
++			omap_i2c_complete_cmd(dev, err);
++			return IRQ_HANDLED;
++		}
+ 
+ 		if (stat & OMAP_I2C_STAT_AL) {
+ 			dev_err(dev->dev, "Arbitration lost\n");
+ 			err |= OMAP_I2C_STAT_AL;
++			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_AL);
++			omap_i2c_complete_cmd(dev, err);
++			return IRQ_HANDLED;
+ 		}
+ 
+ 		/*
+@@ -941,12 +939,18 @@ complete:
+ 
+ 		if (stat & OMAP_I2C_STAT_ROVR) {
+ 			dev_err(dev->dev, "Receive overrun\n");
+-			dev->cmd_err |= OMAP_I2C_STAT_ROVR;
++			err |= OMAP_I2C_STAT_ROVR;
++			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_ROVR);
++			omap_i2c_complete_cmd(dev, err);
++			return IRQ_HANDLED;
+ 		}
+ 
+ 		if (stat & OMAP_I2C_STAT_XUDF) {
+ 			dev_err(dev->dev, "Transmit underflow\n");
+-			dev->cmd_err |= OMAP_I2C_STAT_XUDF;
++			err |= OMAP_I2C_STAT_XUDF;
++			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_XUDF);
++			omap_i2c_complete_cmd(dev, err);
++			return IRQ_HANDLED;
+ 		}
+ 	} while (stat);
+ 
+-- 
+1.7.5.4
