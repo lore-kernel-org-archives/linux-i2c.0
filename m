@@ -1,28 +1,32 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/1 v4] i2c: Add default configuration into the Nomadik
- I2C driver.
-Date: Fri, 17 Aug 2012 17:02:32 +0200
-Message-ID: <CACRpkdb+6S5yYvVjrr2f+wubE43dzD3i=OVfWtM_U+HW_XZX1A@mail.gmail.com>
-References: <1344266253-14050-1-git-send-email-lee.jones@linaro.org>
-	<20120808131158.GD8227@gmail.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: dynamically control fast clk
+Date: Fri, 17 Aug 2012 12:41:21 -0600
+Message-ID: <502E9051.4090507@wwwdotorg.org>
+References: <1345189711-24104-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120808131158.GD8227-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1345189711-24104-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 8, 2012 at 3:11 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+On 08/17/2012 01:48 AM, Laxman Dewangan wrote:
+> Tegra I2C driver enables the fast clock during initialization
+> and does not disable till driver removed.
+> Enable this clock before transfer and disable after transfer done.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+> This patch is on top of the clock chnages which is in Tegra sub system and
+> based on 
+>  i2c: tegra: I2_M_NOSTART functionality not supported in Tegra20
+> So recommend to go on tegra sub-system.
 
-> From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Date: Tue, 7 Aug 2012 12:27:24 +0100
-> Subject: [PATCH 1/1 v4] i2c/nomadik: Add default configuration into the Nomadik I2C driver
-
-Wolfram are you taking this v4 patch into the i2c tree for the -rc:s?
-
-Right now this is causing boot regressions so we need it badly...
-
-Yours,
-Linus Walleij
+What exactly is this patch based on? I checked out Tegra's
+for-3.7/drivers-i2c, cherry-picked the M_NOSTART patch you mentioned,
+and attempted to apply this patch. It doesn't apply. Same if I don't
+cherry-pick the M_NOSTART patch, and same for next-20120816 with/without
+the M_NOSTART patch.
