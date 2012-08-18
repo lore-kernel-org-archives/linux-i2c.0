@@ -1,77 +1,95 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH RESEND 2/2] i2c: pnx: Fix read transactions of >= 2 bytes
-Date: Sat, 18 Aug 2012 11:52:12 +0200
-Message-ID: <20120818095212.GC24812@pengutronix.de>
-References: <1344411752-23469-1-git-send-email-stigge@antcom.de>
- <1344411752-23469-2-git-send-email-stigge@antcom.de>
+Subject: Re: [PATCH 1/6] i2c: omap: Prevent NULL pointer dereference in remove
+Date: Sat, 18 Aug 2012 12:09:23 +0200
+Message-ID: <20120818100923.GD24812@pengutronix.de>
+References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
+ <1344519467-14295-2-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
+	protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1344411752-23469-2-git-send-email-stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+In-Reply-To: <1344519467-14295-2-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
-Cc: vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin.wells-3arQi8VN3Tc@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org, aletes.xgr-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---c3bfwLpm8qysLVxt
+--bajzpZikUji1w+G9
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 08, 2012 at 09:42:32AM +0200, Roland Stigge wrote:
-> On transactions with n>=3D2 bytes, the controller actually wrongly clocks=
- in n+1
-> bytes. This is caused by the (wrong) assumption that RFE in the Status Re=
-gister
-> is 1 iff there is no byte already ordered (via a dummy TX byte). This lea=
-d to
-> the implementation of synchronized byte ordering, e.g.:
+On Thu, Aug 09, 2012 at 07:07:42PM +0530, Shubhrajyoti D wrote:
+> Prevent the NULL pointer access by moving the platform_set_drvdata functi=
+on
+> after the access of the pdev.
 >=20
-> Dummy-TX - RX - Dummy-TX - RX - ...
+> [  654.961761] Unable to handle kernel NULL pointer dereference at virtua=
+l address 00000070
+> [  654.970611] pgd =3D df254000
+> [  654.973480] [00000070] *pgd=3D9f1da831, *pte=3D00000000, *ppte=3D00000=
+000
+> [  654.980163] Internal error: Oops: 17 [#1] SMP ARM
+> [  654.985076] Modules linked in:
+> [  654.988281] CPU: 1    Not tainted  (3.6.0-rc1-00031-ge547de1-dirty #33=
+9)
+> [  654.995330] PC is at omap_i2c_runtime_resume+0x8/0x148
+> [  655.000732] LR is at omap_i2c_runtime_resume+0x8/0x148
 >=20
-> But since RFE actually stays high after some Dummy-TX, it rather looks li=
-ke:
->=20
-> Dummy-TX - Dummy-TX - RX - Dummy-TX - RX - (RX)
->=20
-> The last RX byte is clocked in by the bus controller, but ignored by the =
-kernel
-> when filling the userspace buffer.
->=20
-> This patch fixes the issue by asking for RX via Dummy-TX asynchronously.
-> Introducing a separate counter for TX bytes.
->=20
-> Signed-off-by: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
->=20
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 > ---
-> Applies to v3.6-rc1
+>  drivers/i2c/busses/i2c-omap.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
 >=20
-> This patch for i2c-pnx affects PNX4008 and LPC32xx (and LPC31xx, not yet =
-in
-> mainline). Can you please test?
->=20
-> Thanks in advance!
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index c8e3886..0c593d4 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1217,8 +1217,6 @@ static int __devexit omap_i2c_remove(struct platfor=
+m_device *pdev)
+>  	struct omap_i2c_dev	*dev =3D platform_get_drvdata(pdev);
+>  	int ret;
+> =20
+> -	platform_set_drvdata(pdev, NULL);
+> -
+>  	i2c_del_adapter(&dev->adapter);
+>  	ret =3D pm_runtime_get_sync(&pdev->dev);
+>  	if (IS_ERR_VALUE(ret))
+> @@ -1227,6 +1225,8 @@ static int __devexit omap_i2c_remove(struct platfor=
+m_device *pdev)
+>  	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
+>  	pm_runtime_put(&pdev->dev);
+>  	pm_runtime_disable(&pdev->dev);
+> +	platform_set_drvdata(pdev, NULL);
+> +
+>  	return 0;
+>  }
 
-I assume you checked this on LPC32xx? I'll wait a bit more but tend to
-take the patch anyhow, even if there is no explicit ACK from PNX.
+I think this patch is correct, because drvdata is used in the PM code of
+the driver and thus cleared too early.
+
+As such, this is a bugfix and should be not based on the big cleanup
+since it should go into this rc series.
+
+I will pick it as soon as the comments on the other patches are
+answered.
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---c3bfwLpm8qysLVxt
+--bajzpZikUji1w+G9
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlAvZcwACgkQD27XaX1/VRvxbQCghFPkAvS7ICRYxWSfNNfDPKNR
-yhkAoLY/nVswtaEiUCFrIaUMBDfuh6a4
-=Hsg8
+iEYEARECAAYFAlAvadMACgkQD27XaX1/VRtiiwCgjtwwFbrh8jY4YaZRXVwfvycx
+NmUAn0ssWmtMxSJM/KFuMo9MwlYo3UJ1
+=ppae
 -----END PGP SIGNATURE-----
 
---c3bfwLpm8qysLVxt--
+--bajzpZikUji1w+G9--
