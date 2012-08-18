@@ -1,71 +1,64 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH REBASE 2/2] i2c: tegra: dynamically control fast clk
-Date: Sat, 18 Aug 2012 20:52:44 +0200
-Message-ID: <20120818185244.GD19802@pengutronix.de>
-References: <1345230155-4252-1-git-send-email-ldewangan@nvidia.com>
- <1345230155-4252-2-git-send-email-ldewangan@nvidia.com>
+Subject: Re: [PATCH] i2c-i801: Add device tree support
+Date: Sat, 18 Aug 2012 21:01:52 +0200
+Message-ID: <20120818190152.GE19802@pengutronix.de>
+References: <1344409609-1904-1-git-send-email-thierry.reding@avionic-design.de>
+ <20120818094846.GA24812@pengutronix.de>
+ <20120818111745.GA15702@avionic-0098.mockup.avionic-design.de>
+ <20120818121628.GB12839@pengutronix.de>
+ <20120818123527.GA28701@avionic-0098.adnet.avionic-design.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZARJHfwaSJQLOEUz"
+	protocol="application/pgp-signature"; boundary="orO6xySwJI16pVnm"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1345230155-4252-2-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <20120818123527.GA28701-RM9K5IK7kjIyiCvfTdI0JKcOhU4Rzj621B7CTYaBSLdn68oJJulU0Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org
+To: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ZARJHfwaSJQLOEUz
+--orO6xySwJI16pVnm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Aug 18, 2012 at 12:32:35AM +0530, Laxman Dewangan wrote:
-> Tegra I2C driver enables the fast clock during initialization
-> and does not disable till driver removed.
-> Enable this clock before transfer and disable after transfer done.
+
+> > I thought to recall that busses which can be probed at runtime should
+> > not have nodes but should be probed. Maybe that was wrong. Can you point
+> > me to a dts-file with an example?
 >=20
-> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> That approach doesn't work for I2C controllers, though because you
+> couldn't attach an slaves to them. The same goes for SPI controllers or
+> any other dumb busses that can't be probed.
 
-Except that this patch is affected from the flaw of the previous patch,
-it looks good to me.
+I understand the problem. I was wondering how it has been solved. Thanks
+for the pointer, I got the idea now.
 
-> -	clk_prepare_enable(i2c_dev->clk);
-> +	tegra_i2c_clock_enable(i2c_dev);
+> arch/x86/platform/ce4100/falconfalls.dts is an example for an X86
+> platform where PCI devices have associated device tree nodes.
 
-This should be div_clk.
+Do you intend to send a dts file mainline which needs the patch you sent?
 
->  	for (i =3D 0; i < num; i++) {
->  		enum msg_end_type end_type =3D MSG_END_STOP;
->  		if (i < (num - 1)) {
-> @@ -597,7 +621,7 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, s=
-truct i2c_msg msgs[],
->  		if (ret)
->  			break;
->  	}
-> -	clk_disable_unprepare(i2c_dev->div_clk);
-> +	tegra_i2c_clock_disable(i2c_dev);
->  	return ret ?: i;
+Regards,
 
-If that is fixed, you can add
-
-Reviewed-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+   Wolfram
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---ZARJHfwaSJQLOEUz
+--orO6xySwJI16pVnm
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlAv5HwACgkQD27XaX1/VRvu6QCgphMFz7+xOciNKwLbn32hqw6x
-GdgAniqA07wwMuAUHLwkEdC+phgcQzt9
-=bubb
+iEYEARECAAYFAlAv5qAACgkQD27XaX1/VRsBCgCgnMfKEoOhgv4MIwrZwaDet8Yn
+dNgAoJnrGR/qWQYZ1tVDv5kkc9jFHVcQ
+=KhcD
 -----END PGP SIGNATURE-----
 
---ZARJHfwaSJQLOEUz--
+--orO6xySwJI16pVnm--
