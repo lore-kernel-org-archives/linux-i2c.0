@@ -1,97 +1,74 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 2/6] i2c-xiic:  Fix a possible NULL pointer access
-Date: Sat, 18 Aug 2012 12:17:52 +0200
-Message-ID: <20120818101752.GE24812@pengutronix.de>
-References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
- <1344519467-14295-3-git-send-email-shubhrajyoti@ti.com>
+Subject: Re: [PATCH] i2c: (i2c-diolan-u2c) Fix master_xfer return code
+Date: Sat, 18 Aug 2012 12:27:21 +0200
+Message-ID: <20120818102721.GF24812@pengutronix.de>
+References: <1344527240-18266-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qFgkTsE6LiHkLPZw"
+	protocol="application/pgp-signature"; boundary="O98KdSgI27dgYlM5"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1344519467-14295-3-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1344527240-18266-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---qFgkTsE6LiHkLPZw
+--O98KdSgI27dgYlM5
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 09, 2012 at 07:07:43PM +0530, Shubhrajyoti D wrote:
-> platform_get_resource uses pdev so move the function
-> platform_set_drvdata(pdev, NULL) after the get_resource.
-
-This descriptions sounds as you'd assume pdev is set to NULL here?
-Careful, platform_set_drvdata() does not clear pdev, but driver_data of
-pdev->dev!
-
-So, I guess the rest of this series is bogus?
-
-It would be worth checking if other drivers have the same pattern as the
-omap driver where the fix was valid for other reasons. Are you
-interested in doing that (perfectly fine to say no).
-
-Regards,
-
-   Wolfram
-
+On Thu, Aug 09, 2012 at 08:47:20AM -0700, Guenter Roeck wrote:
+> The master_xfer function returns 0 on success. It should return the numbe=
+r of
+> successful transactions.
 >=20
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> ---
-> untested
->=20
->  drivers/i2c/busses/i2c-xiic.c |    3 +--
->  1 files changed, 1 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index 641d0e5..a28479a 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -784,8 +784,6 @@ static int __devexit xiic_i2c_remove(struct platform_=
-device* pdev)
-> =20
->  	xiic_deinit(i2c);
-> =20
-> -	platform_set_drvdata(pdev, NULL);
-> -
->  	free_irq(platform_get_irq(pdev, 0), i2c);
-> =20
->  	iounmap(i2c->base);
-> @@ -795,6 +793,7 @@ static int __devexit xiic_i2c_remove(struct platform_=
-device* pdev)
->  		release_mem_region(res->start, resource_size(res));
-> =20
->  	kfree(i2c);
-> +	platform_set_drvdata(pdev, NULL);
-> =20
->  	return 0;
->  }
-> --=20
-> 1.7.5.4
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+
+Applied to -current, thanks! To add something to the discussion, an
+excerpt for i2c-core.c:
+
+1357 int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int n=
+um)
+1358 {
+1359         int ret;
+1360=20
+1361         /* REVISIT the fault reporting model here is weak:
+1362          *
+1363          *  - When we get an error after receiving N bytes from a slav=
+e,
+1364          *    there is no way to report "N".
+1365          *
+1366          *  - When we get a NAK after transmitting N bytes to a slave,
+1367          *    there is no way to report "N" ... or to let the master
+1368          *    continue executing the rest of this combined message, if
+1369          *    that's the appropriate response.
+1370          *
+1371          *  - When for example "num" is two and we successfully comple=
+te
+1372          *    the first message but get an error part way through the
+1373          *    second, it's unclear whether that should be reported as
+1374          *    one (discarding status on the second message) or errno
+1375          *    (discarding status on the first one).
+1376          */
+1377=20
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---qFgkTsE6LiHkLPZw
+--O98KdSgI27dgYlM5
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlAva9AACgkQD27XaX1/VRt3awCfSYgxber0vxj4seQAgkA0Swcv
-6DwAoIXG39eqRt9763Ulb3xAj4M3304W
-=yitC
+iEYEARECAAYFAlAvbgkACgkQD27XaX1/VRt0VACfZTFJb8B5RLIpJxOINfVLROfd
+Hr0AnA2SLQUL3kPGzb+leDVscy6rx6ss
+=Qiib
 -----END PGP SIGNATURE-----
 
---qFgkTsE6LiHkLPZw--
+--O98KdSgI27dgYlM5--
