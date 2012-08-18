@@ -1,62 +1,40 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH REBASE 1/2] i2c: tegra: I2_M_NOSTART functionality not
- supported in Tegra20
-Date: Sat, 18 Aug 2012 18:20:11 +0530
-Message-ID: <502F8F83.5030902@nvidia.com>
-References: <1345230155-4252-1-git-send-email-ldewangan@nvidia.com> <20120818124703.GC12839@pengutronix.de>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/6] i2c-xiic: Fix a possible NULL pointer access
+Date: Sat, 18 Aug 2012 18:52:29 +0530
+Message-ID: <CAM=Q2cvebZc_3ja+K=4v+hC4ttf5r_jT=xVVtJ=kQtsRwdZtUA@mail.gmail.com>
+References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
+	<1344519467-14295-3-git-send-email-shubhrajyoti@ti.com>
+	<20120818101752.GE24812@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120818124703.GC12839-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20120818101752.GE24812-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Thanks for review.
-
-On Saturday 18 August 2012 06:17 PM, Wolfram Sang wrote:
-> * PGP Signed by an unknown key
+On Sat, Aug 18, 2012 at 3:47 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> On Thu, Aug 09, 2012 at 07:07:43PM +0530, Shubhrajyoti D wrote:
+>> platform_get_resource uses pdev so move the function
+>> platform_set_drvdata(pdev, NULL) after the get_resource.
 >
-> On Sat, Aug 18, 2012 at 12:32:34AM +0530, Laxman Dewangan wrote:
->> +	bool has_continue_xfer_support;
-> I wonder if it makes sense to carry a pointer here to the
-> tegra_i2c_hw_feature in use instead of copying all entries by hand,
-> since they might get more and more.
+Yes agree.
+
+> This descriptions sounds as you'd assume pdev is set to NULL here?
+> Careful, platform_set_drvdata() does not clear pdev, but driver_data of
+> pdev->dev!
 >
-
-Ok, we can store the hw pointer in device structure. I will send the new 
-patch.
-
->>   };
->>
->>   static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val, unsigned long reg)
->> @@ -563,7 +574,17 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
->>   	if (i2c_dev->is_suspended)
->>   		return -EBUSY;
->>
->> -	clk_prepare_enable(i2c_dev->div_clk);
->> +	/* Support I2C_M_NOSTART only if HW support continue xfer. */
->> +	for (i = 0; i<  num - 1; i++) {
->> +		if ((msgs[i + 1].flags&  I2C_M_NOSTART)&&
->> +			!i2c_dev->has_continue_xfer_support) {
->> +			dev_err(i2c_dev->dev,
->> +				"mesg %d have illegal flag\n", i + 1);
->> +			return -EINVAL;
->> +		}
->> +	}
-> Drivers are requested to explicitly check for features of the I2C bus
-> (like M_NOSTART) before using them, so I'd skip this extra check.
+> So, I guess the rest of this series is bogus?
 >
+> It would be worth checking if other drivers have the same pattern as the
+> omap driver where the fix was valid for other reasons. Are you
+> interested in doing that (perfectly fine to say no).
 
-Ok, I kept this as part of flag checking so illegal flag should not be 
-passed. I will remove this on next version patch.
-
->> +
->> +	clk_prepare_enable(i2c_dev->clk);
->  From a glimpse, this change looks unrelated at least. Even wrong, no?
+Yes I can take that , lest someone with the platform/ test set-up can
+take that up.
 >
-
-It was already there, just before above check. Due to insertion of 
-check, this code shifted, otherwise it is not a new code.
+> Regards,
+>
+>    Wolfram
+>
