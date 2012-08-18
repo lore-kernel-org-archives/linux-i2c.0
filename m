@@ -1,64 +1,150 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c-i801: Add device tree support
-Date: Sat, 18 Aug 2012 21:01:52 +0200
-Message-ID: <20120818190152.GE19802@pengutronix.de>
-References: <1344409609-1904-1-git-send-email-thierry.reding@avionic-design.de>
- <20120818094846.GA24812@pengutronix.de>
- <20120818111745.GA15702@avionic-0098.mockup.avionic-design.de>
- <20120818121628.GB12839@pengutronix.de>
- <20120818123527.GA28701@avionic-0098.adnet.avionic-design.de>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH V2 1/2] i2c: tegra: I2_M_NOSTART functionality not supported in Tegra20
+Date: Sun, 19 Aug 2012 00:47:46 +0530
+Message-ID: <1345317467-22258-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="orO6xySwJI16pVnm"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120818123527.GA28701-RM9K5IK7kjIyiCvfTdI0JKcOhU4Rzj621B7CTYaBSLdn68oJJulU0Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Tegra20 i2c controller does not support the continue transfer
+which implements the I2C_M_NOSTART functionality of i2c
+protocol mangling.
+Removing the I2C_M_NOSTART functionality support for Tegra20.
 
---orO6xySwJI16pVnm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+Changes from V1:
+- make the hw feature structure as part of tegra device structure in
+  place of copying the member.
+- Remove check for extra M_NOSTART flag if it is not supported in xfer function.
 
+Please note that this should go on tegra common clock source tree to avoid conflicts.
 
-> > I thought to recall that busses which can be probed at runtime should
-> > not have nodes but should be probed. Maybe that was wrong. Can you point
-> > me to a dts-file with an example?
->=20
-> That approach doesn't work for I2C controllers, though because you
-> couldn't attach an slaves to them. The same goes for SPI controllers or
-> any other dumb busses that can't be probed.
+ drivers/i2c/busses/i2c-tegra.c |   61 ++++++++++++++++++++++++++++++---------
+ 1 files changed, 47 insertions(+), 14 deletions(-)
 
-I understand the problem. I was wondering how it has been solved. Thanks
-for the pointer, I got the idea now.
-
-> arch/x86/platform/ce4100/falconfalls.dts is an example for an X86
-> platform where PCI devices have associated device tree nodes.
-
-Do you intend to send a dts file mainline which needs the patch you sent?
-
-Regards,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---orO6xySwJI16pVnm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlAv5qAACgkQD27XaX1/VRsBCgCgnMfKEoOhgv4MIwrZwaDet8Yn
-dNgAoJnrGR/qWQYZ1tVDv5kkc9jFHVcQ
-=KhcD
------END PGP SIGNATURE-----
-
---orO6xySwJI16pVnm--
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 7149625..2f74236 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -27,6 +27,7 @@
+ #include <linux/slab.h>
+ #include <linux/i2c-tegra.h>
+ #include <linux/of_i2c.h>
++#include <linux/of_device.h>
+ #include <linux/module.h>
+ 
+ #include <asm/unaligned.h>
+@@ -114,8 +115,18 @@ enum msg_end_type {
+ };
+ 
+ /**
++ * struct tegra_i2c_hw_feature : Different HW support on Tegra
++ * @has_continue_xfer_support: Continue transfer supports.
++ */
++
++struct tegra_i2c_hw_feature {
++	bool has_continue_xfer_support;
++};
++
++/**
+  * struct tegra_i2c_dev	- per device i2c context
+  * @dev: device reference for power management
++ * @hw: Tegra i2c hw feature.
+  * @adapter: core i2c layer adapter information
+  * @div_clk: clock reference for div clock of i2c controller.
+  * @fast_clk: clock reference for fast clock of i2c controller.
+@@ -133,6 +144,7 @@ enum msg_end_type {
+  */
+ struct tegra_i2c_dev {
+ 	struct device *dev;
++	const struct tegra_i2c_hw_feature *hw;
+ 	struct i2c_adapter adapter;
+ 	struct clk *div_clk;
+ 	struct clk *fast_clk;
+@@ -582,8 +594,13 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 
+ static u32 tegra_i2c_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR |
+-		I2C_FUNC_PROTOCOL_MANGLING | I2C_FUNC_NOSTART;
++	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
++	u32 ret = I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_10BIT_ADDR |
++				I2C_FUNC_PROTOCOL_MANGLING;
++
++	if (i2c_dev->hw->has_continue_xfer_support)
++		ret |= I2C_FUNC_NOSTART;
++	return ret;
+ }
+ 
+ static const struct i2c_algorithm tegra_i2c_algo = {
+@@ -591,6 +608,25 @@ static const struct i2c_algorithm tegra_i2c_algo = {
+ 	.functionality	= tegra_i2c_func,
+ };
+ 
++static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
++	.has_continue_xfer_support = false,
++};
++
++static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
++	.has_continue_xfer_support = true,
++};
++
++#if defined(CONFIG_OF)
++/* Match table for of_platform binding */
++static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
++	{ .compatible = "nvidia,tegra30-i2c", .data = &tegra30_i2c_hw, },
++	{ .compatible = "nvidia,tegra20-i2c", .data = &tegra20_i2c_hw, },
++	{ .compatible = "nvidia,tegra20-i2c-dvc", .data = &tegra20_i2c_hw, },
++	{},
++};
++MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
++#endif
++
+ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev;
+@@ -659,11 +695,18 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
+ 			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
+ 	}
+ 
+-	if (pdev->dev.of_node)
++	i2c_dev->hw = &tegra20_i2c_hw;
++
++	if (pdev->dev.of_node) {
++		const struct of_device_id *match;
++		match = of_match_device(of_match_ptr(tegra_i2c_of_match),
++						&pdev->dev);
++		i2c_dev->hw = match->data;
+ 		i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
+ 						"nvidia,tegra20-i2c-dvc");
+-	else if (pdev->id == 3)
++	} else if (pdev->id == 3) {
+ 		i2c_dev->is_dvc = 1;
++	}
+ 	init_completion(&i2c_dev->msg_complete);
+ 
+ 	platform_set_drvdata(pdev, i2c_dev);
+@@ -751,16 +794,6 @@ static SIMPLE_DEV_PM_OPS(tegra_i2c_pm, tegra_i2c_suspend, tegra_i2c_resume);
+ #define TEGRA_I2C_PM	NULL
+ #endif
+ 
+-#if defined(CONFIG_OF)
+-/* Match table for of_platform binding */
+-static const struct of_device_id tegra_i2c_of_match[] __devinitconst = {
+-	{ .compatible = "nvidia,tegra20-i2c", },
+-	{ .compatible = "nvidia,tegra20-i2c-dvc", },
+-	{},
+-};
+-MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
+-#endif
+-
+ static struct platform_driver tegra_i2c_driver = {
+ 	.probe   = tegra_i2c_probe,
+ 	.remove  = __devexit_p(tegra_i2c_remove),
+-- 
+1.7.1.1
