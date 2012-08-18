@@ -1,47 +1,70 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/6] i2c-xiic: Fix a possible NULL pointer access
-Date: Sat, 18 Aug 2012 19:19:10 +0530
-Message-ID: <CAM=Q2cuCmhTuL1pm0wRmp0+qo5++Jv+XiYiR1hgQTipMmMmXxQ@mail.gmail.com>
-References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
-	<1344519467-14295-3-git-send-email-shubhrajyoti@ti.com>
-	<20120818101752.GE24812@pengutronix.de>
-	<CAM=Q2cvebZc_3ja+K=4v+hC4ttf5r_jT=xVVtJ=kQtsRwdZtUA@mail.gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH REBASE 1/2] i2c: tegra: I2_M_NOSTART functionality not
+ supported in Tegra20
+Date: Sat, 18 Aug 2012 20:29:40 +0200
+Message-ID: <20120818182940.GA19802@pengutronix.de>
+References: <1345230155-4252-1-git-send-email-ldewangan@nvidia.com>
+ <20120818124703.GC12839@pengutronix.de>
+ <502F8F83.5030902@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2cvebZc_3ja+K=4v+hC4ttf5r_jT=xVVtJ=kQtsRwdZtUA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <502F8F83.5030902-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org" <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Aug 18, 2012 at 6:52 PM, Shubhrajyoti Datta
-<omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Sat, Aug 18, 2012 at 3:47 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->> On Thu, Aug 09, 2012 at 07:07:43PM +0530, Shubhrajyoti D wrote:
->>> platform_get_resource uses pdev so move the function
->>> platform_set_drvdata(pdev, NULL) after the get_resource.
->>
-> Yes agree.
->
->> This descriptions sounds as you'd assume pdev is set to NULL here?
->> Careful, platform_set_drvdata() does not clear pdev, but driver_data of
->> pdev->dev!
->>
->> So, I guess the rest of this series is bogus?
->>
->> It would be worth checking if other drivers have the same pattern as the
->> omap driver where the fix was valid for other reasons. Are you
->> interested in doing that (perfectly fine to say no).
->
-> Yes I can take that , lest someone with the platform/ test set-up can
-> take that up.
 
-By the way davinci and designware seem to have the issue
-however having a closer look even the probe err handling looks wrong.
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->>
->> Regards,
->>
->>    Wolfram
->>
+
+> >>-	clk_prepare_enable(i2c_dev->div_clk);
+> >>+	/* Support I2C_M_NOSTART only if HW support continue xfer. */
+> >>+	for (i =3D 0; i<  num - 1; i++) {
+> >>+		if ((msgs[i + 1].flags&  I2C_M_NOSTART)&&
+> >>+			!i2c_dev->has_continue_xfer_support) {
+> >>+			dev_err(i2c_dev->dev,
+> >>+				"mesg %d have illegal flag\n", i + 1);
+> >>+			return -EINVAL;
+> >>+		}
+> >>+	}
+> >Drivers are requested to explicitly check for features of the I2C bus
+> >(like M_NOSTART) before using them, so I'd skip this extra check.
+> >
+>=20
+> Ok, I kept this as part of flag checking so illegal flag should not
+> be passed. I will remove this on next version patch.
+>=20
+> >>+
+> >>+	clk_prepare_enable(i2c_dev->clk);
+> > From a glimpse, this change looks unrelated at least. Even wrong, no?
+> >
+>=20
+> It was already there, just before above check. Due to insertion of
+> check, this code shifted, otherwise it is not a new code.
+
+It used to be ->div_clk and now it is ->clk?
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlAv3xQACgkQD27XaX1/VRuMSwCgwWBZ/GTWIGew9JIPPT1F+OJW
+QOIAoKnHdvNb2jtx3suvGHm+WNAro7p9
+=SQ3A
+-----END PGP SIGNATURE-----
+
+--M9NhX3UHpAaciwkO--
