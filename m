@@ -1,53 +1,51 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/6] i2c: omap: Prevent NULL pointer dereference in remove
-Date: Sat, 18 Aug 2012 20:39:58 +0200
-Message-ID: <20120818183958.GB19802@pengutronix.de>
-References: <1344519467-14295-1-git-send-email-shubhrajyoti@ti.com>
- <1344519467-14295-2-git-send-email-shubhrajyoti@ti.com>
- <20120818100923.GD24812@pengutronix.de>
- <CAM=Q2csCuf1LBuf2T8wnthXC_eSxW_b88XmJ07jzegbJOr3xMg@mail.gmail.com>
+Subject: Re: [PATCH V2] i2c: tegra: protect suspend/resume callbacks with
+ CONFIG_PM_SLEEP
+Date: Sat, 18 Aug 2012 20:46:20 +0200
+Message-ID: <20120818184620.GC19802@pengutronix.de>
+References: <1345292398-10609-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
+	protocol="application/pgp-signature"; boundary="adJ1OR3c6QgCpb/j"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAM=Q2csCuf1LBuf2T8wnthXC_eSxW_b88XmJ07jzegbJOr3xMg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1345292398-10609-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---CdrF4e02JqNVZeln
+--adJ1OR3c6QgCpb/j
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> BTW it was pointed out that the The
-> platform_device object will be destroyed.
+On Sat, Aug 18, 2012 at 05:49:58PM +0530, Laxman Dewangan wrote:
+> The CONFIG_PM doesn't actually enable any of the PM callbacks, it
+> only allows to enable CONFIG_PM_SLEEP and CONFIG_PM_RUNTIME.
+> This means if CONFIG_PM is used to protect system sleep callbacks
+> then it may end up unreferenced if only runtime PM is enabled.
+> Hence protecting sleep callbacks with CONFIG_PM_SLEEP.
 >=20
-> Do you agree with
->=20
-> http://www.spinics.net/lists/linux-omap/msg75553.html
+> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Yes. I was actually wondering if that would be possible but wanted to
-check that somewhen later. Nice that it has already been done :)
+Applied to -current, thanks!
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---CdrF4e02JqNVZeln
+--adJ1OR3c6QgCpb/j
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlAv4X4ACgkQD27XaX1/VRtlPgCeNO9dHVJ/BnHbRhnGfOU00Qk1
-aQIAnjvlsOIWAxeDYEwe69IOOTcszzNn
-=d1PO
+iEYEARECAAYFAlAv4vwACgkQD27XaX1/VRuwRgCgzEtWwJCz9PkFTwn095N8AbNW
+d9UAn1WBYRQXvK8iyjq2rJIkSLxlZdgt
+=mA58
 -----END PGP SIGNATURE-----
 
---CdrF4e02JqNVZeln--
+--adJ1OR3c6QgCpb/j--
