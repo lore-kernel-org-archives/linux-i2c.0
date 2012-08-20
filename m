@@ -1,42 +1,76 @@
-From: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
-Subject: Re: [PATCH RESEND 1/2] i2c: pnx: Fix bit definitions
-Date: Sun, 19 Aug 2012 10:47:26 +0200
-Message-ID: <5030A81E.5090508@antcom.de>
-References: <1344411752-23469-1-git-send-email-stigge@antcom.de> <20120818095108.GB24812@pengutronix.de>
+From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+Subject: Re: [PATCH] i2c-i801: Add device tree support
+Date: Mon, 20 Aug 2012 09:13:06 +0200
+Message-ID: <20120820071306.GA2409@avionic-0098.mockup.avionic-design.de>
+References: <1344409609-1904-1-git-send-email-thierry.reding@avionic-design.de>
+ <20120818094846.GA24812@pengutronix.de>
+ <20120818111745.GA15702@avionic-0098.mockup.avionic-design.de>
+ <20120818121628.GB12839@pengutronix.de>
+ <20120818123527.GA28701@avionic-0098.adnet.avionic-design.de>
+ <20120818190152.GE19802@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120818095108.GB24812-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120818190152.GE19802-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: kevin.wells-3arQi8VN3Tc@public.gmane.org, vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, srinivas.bakki-3arQi8VN3Tc@public.gmane.org, aletes.xgr-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18/08/12 11:51, Wolfram Sang wrote:
-> On Wed, Aug 08, 2012 at 09:42:31AM +0200, Roland Stigge wrote:
->> The I2C Control Register bits RFDAIE and RFFIE were mixed up. In
->> addition to this fix, this patch adds the missing bit DRSIE for
->> completeness.
->> 
->> Signed-off-by: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
->> 
->> --- Applies to v3.6-rc1
->> 
->> This patch for i2c-pnx affects PNX4008 and LPC32xx (and LPC31xx,
->> not yet in mainline). Can you please test and double-check the
->> manuals of PNX4008 and LPC31xx? I only found this via the manual
->> of LPC32xx but assume it's the same for the others, also.
->> 
->> Thanks in advance!
-> 
-> Kevin, since the other manuals seem to be not easily available, can
-> you please check?
 
-Yes, would be great if someone at NXP could confirm that PNX actually
-uses the same IP core for the I2C controller as LPCs do (which is
-currently assumed by Linux anyway).
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks in advance,
+On Sat, Aug 18, 2012 at 09:01:52PM +0200, Wolfram Sang wrote:
+>=20
+> > > I thought to recall that busses which can be probed at runtime should
+> > > not have nodes but should be probed. Maybe that was wrong. Can you po=
+int
+> > > me to a dts-file with an example?
+> >=20
+> > That approach doesn't work for I2C controllers, though because you
+> > couldn't attach an slaves to them. The same goes for SPI controllers or
+> > any other dumb busses that can't be probed.
+>=20
+> I understand the problem. I was wondering how it has been solved. Thanks
+> for the pointer, I got the idea now.
+>=20
+> > arch/x86/platform/ce4100/falconfalls.dts is an example for an X86
+> > platform where PCI devices have associated device tree nodes.
+>=20
+> Do you intend to send a dts file mainline which needs the patch you sent?
 
-Roland
+Yes. I have an x86 platform which has an lm63 temperature sensor
+connected to the i801. There are a couple of loose ends that I need to
+take care of before I can send the DTS. I can send it for reference, but
+it won't be of much use because other things are still missing from the
+kernel and I don't know in what timeframe they can be applied.
+
+Thierry
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.19 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQMeOCAAoJEN0jrNd/PrOhdIoQAJpLYLtD66Q2pYMOsdSJOcTv
+16qyRev7xDoXX30bhzlbBqOv3BsnPrDcMEMr5jcgM6GYNb91N7HzH//QV1sNBsoY
+UZmbrvrYutW77u+avvn8tLIC6Cg8wIfl50tqLGzksE08DQX8OTVw73co/EZoo924
+2sF7NmIJlLXs007zaHAk3ftS4Xtj6aVnARy8I88TLIJgXLMsdtbr7MdG9aKPCuHd
+hiyDsgFaHfaXEBsUFvKtOpPDulNt36ecL2bQCmqTur/OaZm795/6sJh5ZqzQfHbd
+x0gt+ZhrXZ4jRa4IfKg/laCHhy76VHI0J9R5KvPaZEf/9MXSVu93du4lwOguxV/K
+WsWpUAI8ltbReC/QEPNseWhqNQNJlicRS28eyiSCazuQ8M1YRN7lp4L4UrYI3Y1t
+PSceVladXZ885k1Fm1rhSgGMYQ3PAo+6MguxtBRNUFZX04ss4QnNCTiluoiL3v6D
+rXcLIlosbYmY/vEGsk7P1D53bulTggiUkh+5prytI8tWz6ybEWHN3BmqiM1ZBWdp
+T2nm4V9jK9zIlrfDrkKJi0PPq2xkoVop3D5vnwVXMUNzuVPhFlhL6lSw/TktX+nC
+ySW6NuKkmwD5YikM87yv66ACdZg1Ys4zb7pWXZinKUpH0xA/o6eFLTfFnWbfxpH6
+tc9mxAcDbdDEY9Dt/stT
+=UuJ3
+-----END PGP SIGNATURE-----
+
+--mP3DRpeJDSE+ciuQ--
