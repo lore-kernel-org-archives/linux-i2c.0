@@ -1,104 +1,64 @@
-From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: [PATCH] i2c/nomadik: stop fetching the regulator
-Date: Tue, 21 Aug 2012 10:45:09 +0200
-Message-ID: <1345538709-25201-1-git-send-email-linus.walleij@stericsson.com>
+From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [RFC PATCH 0/5] fixes and DT support based on Nikolaus TWI driver
+Date: Tue, 21 Aug 2012 16:29:00 +0200
+Message-ID: <1345559345-13988-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+To: n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-The regulator fetched by the Nomadik I2C driver is actually a
-voltage domain regulator. Stop doing this in the driver and
-let the power domain code handle any regulators, as discussed
-on the list.
+Hi Nikolaus,
 
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c | 17 -----------------
- 1 file changed, 17 deletions(-)
+First of all, thanks for the work you have done on i2c-at91 driver and sorry
+to have been so long to answer you.
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 61b00ed..1b898b6 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -22,7 +22,6 @@
- #include <linux/err.h>
- #include <linux/clk.h>
- #include <linux/io.h>
--#include <linux/regulator/consumer.h>
- #include <linux/pm_runtime.h>
- #include <linux/platform_data/i2c-nomadik.h>
- 
-@@ -146,7 +145,6 @@ struct i2c_nmk_client {
-  * @stop: stop condition.
-  * @xfer_complete: acknowledge completion for a I2C message.
-  * @result: controller propogated result.
-- * @regulator: pointer to i2c regulator.
-  * @busy: Busy doing transfer.
-  */
- struct nmk_i2c_dev {
-@@ -160,7 +158,6 @@ struct nmk_i2c_dev {
- 	int				stop;
- 	struct completion		xfer_complete;
- 	int				result;
--	struct regulator		*regulator;
- 	bool				busy;
- };
- 
-@@ -643,8 +640,6 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 
- 	dev->busy = true;
- 
--	if (dev->regulator)
--		regulator_enable(dev->regulator);
- 	pm_runtime_get_sync(&dev->adev->dev);
- 
- 	clk_enable(dev->clk);
-@@ -676,8 +671,6 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- out:
- 	clk_disable(dev->clk);
- 	pm_runtime_put_sync(&dev->adev->dev);
--	if (dev->regulator)
--		regulator_disable(dev->regulator);
- 
- 	dev->busy = false;
- 
-@@ -957,12 +950,6 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 		goto err_irq;
- 	}
- 
--	dev->regulator = regulator_get(&adev->dev, "v-i2c");
--	if (IS_ERR(dev->regulator)) {
--		dev_warn(&adev->dev, "could not get i2c regulator\n");
--		dev->regulator = NULL;
--	}
--
- 	pm_suspend_ignore_children(&adev->dev, true);
- 
- 	dev->clk = clk_get(&adev->dev, NULL);
-@@ -1009,8 +996,6 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
-  err_add_adap:
- 	clk_put(dev->clk);
-  err_no_clk:
--	if (dev->regulator)
--		regulator_put(dev->regulator);
- 	free_irq(dev->irq, dev);
-  err_irq:
- 	iounmap(dev->virtbase);
-@@ -1038,8 +1023,6 @@ static int nmk_i2c_remove(struct amba_device *adev)
- 	if (res)
- 		release_mem_region(res->start, resource_size(res));
- 	clk_put(dev->clk);
--	if (dev->regulator)
--		regulator_put(dev->regulator);
- 	pm_runtime_disable(&adev->dev);
- 	amba_set_drvdata(adev, NULL);
- 	kfree(dev);
+This set of patches is based on:
+http://article.gmane.org/gmane.linux.kernel/1285193/match=patch+v10+0+4+at91+replace+broken+twi+driver+i2c+c
+
+On my side, I don't see any issue with this new driver. I am not an I2C guru
+but it works with all the I2C devices I have and your patches have already
+been reviewed and tested. I'll continue to test it with other I2C devices and
+on several chips.
+
+So the goal of this set of patches is to get feedback on the fix I added, on
+the DT support and to resurect your set of patches.
+
+Regards
+
+Ludovic
+
+Ludovic Desroches (5):
+  i2c: at91: add new fixes for some TWI ip versions
+  i2c: at91: add dt support to i2c-at91
+  ARM: at91: add clocks for i2c DT entries
+  ARM: dts: add twi nodes for atmel SOCs
+  ARM: dts: add twi nodes for atmel boards
+
+ .../devicetree/bindings/i2c/atmel-i2c.txt          | 29 +++++++++
+ arch/arm/boot/dts/at91sam9260.dtsi                 | 23 +++----
+ arch/arm/boot/dts/at91sam9263.dtsi                 | 23 +++----
+ arch/arm/boot/dts/at91sam9263ek.dts                | 20 +++---
+ arch/arm/boot/dts/at91sam9g20ek_common.dtsi        | 28 ++++-----
+ arch/arm/boot/dts/at91sam9g25ek.dts                | 12 ++++
+ arch/arm/boot/dts/at91sam9g45.dtsi                 | 33 ++++++----
+ arch/arm/boot/dts/at91sam9m10g45ek.dts             | 14 +++++
+ arch/arm/boot/dts/at91sam9n12.dtsi                 | 33 ++++++----
+ arch/arm/boot/dts/at91sam9n12ek.dts                |  8 +++
+ arch/arm/boot/dts/at91sam9x5.dtsi                  | 69 +++++++++------------
+ arch/arm/mach-at91/at91rm9200_devices.c            |  9 ---
+ arch/arm/mach-at91/at91sam9260.c                   |  1 +
+ arch/arm/mach-at91/at91sam9263.c                   |  1 +
+ arch/arm/mach-at91/at91sam9g45.c                   |  2 +
+ arch/arm/mach-at91/at91sam9n12.c                   |  2 +
+ arch/arm/mach-at91/at91sam9x5.c                    |  3 +
+ drivers/i2c/busses/i2c-at91.c                      | 71 ++++++++++++++++------
+ 18 files changed, 239 insertions(+), 142 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/atmel-i2c.txt
+
 -- 
 1.7.11.3
