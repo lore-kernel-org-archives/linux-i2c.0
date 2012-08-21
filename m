@@ -1,12 +1,12 @@
 From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Subject: [PATCH 4/5] ARM: dts: add twi nodes for atmel SOCs
-Date: Tue, 21 Aug 2012 16:29:04 +0200
-Message-ID: <1345559345-13988-5-git-send-email-ludovic.desroches@atmel.com>
-References: <1345559345-13988-1-git-send-email-ludovic.desroches@atmel.com>
+Date: Tue, 21 Aug 2012 16:30:49 +0200
+Message-ID: <1345559449-14034-1-git-send-email-ludovic.desroches@atmel.com>
+References: <1345559345-13988-5-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1345559345-13988-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1345559345-13988-5-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
