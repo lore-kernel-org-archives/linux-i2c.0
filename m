@@ -1,178 +1,136 @@
-From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 5/5] ARM: dts: add twi nodes for atmel boards
-Date: Tue, 21 Aug 2012 16:32:00 +0200
-Message-ID: <1345559520-14074-1-git-send-email-ludovic.desroches@atmel.com>
-References: <1345559345-13988-1-git-send-email-ludovic.desroches@atmel.com>
+From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/5] i2c: at91: add new fixes for some TWI ip versions
+Date: Tue, 21 Aug 2012 18:04:22 +0200
+Message-ID: <5033B186.5010601@atmel.com>
+References: <1345559345-13988-1-git-send-email-ludovic.desroches@atmel.com> <1345559345-13988-2-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1345559345-13988-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1345559345-13988-2-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Cc: n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+On 08/21/2012 04:29 PM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
+> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> 
+> The at91sam9261 TWI ip version requires also some fixes. The id_entry
+> field from the platform device structure has been replaced by the use
+> of cpu_is_xxx function to determine when to use these fixes.
 
-Use the atmel twi instead of gpio for i2c stuff.
+No, for this one. The current tendency is to remove the use of
+cpu_is_xxx() functions.
 
-Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
- arch/arm/boot/dts/at91sam9263ek.dts         | 20 ++++++++++----------
- arch/arm/boot/dts/at91sam9g20ek_common.dtsi | 28 ++++++++++++++--------------
- arch/arm/boot/dts/at91sam9g25ek.dts         | 12 ++++++++++++
- arch/arm/boot/dts/at91sam9m10g45ek.dts      | 14 ++++++++++++++
- arch/arm/boot/dts/at91sam9n12ek.dts         |  8 ++++++++
- 5 files changed, 58 insertions(+), 24 deletions(-)
+So yes, you will have to keep the use of struct platform_device_id in
+this driver and extend it with the device tree information.
 
-diff --git a/arch/arm/boot/dts/at91sam9263ek.dts b/arch/arm/boot/dts/at91sam9263ek.dts
-index f86ac4b..772ab75 100644
---- a/arch/arm/boot/dts/at91sam9263ek.dts
-+++ b/arch/arm/boot/dts/at91sam9263ek.dts
-@@ -50,6 +50,16 @@
- 				atmel,vbus-gpio = <&pioA 25 0>;
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@fff88000 {
-+				status = "okay";
-+
-+				24c512@50 {
-+					compatible = "24c512";
-+					reg = <0x50>;
-+					pagesize = <128>;
-+				};
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
-@@ -143,14 +153,4 @@
- 			gpio-key,wakeup;
- 		};
- 	};
--
--	i2c@0 {
--		status = "okay";
--
--		24c512@50 {
--			compatible = "24c512";
--			reg = <0x50>;
--			pagesize = <128>;
--		};
--	};
- };
-diff --git a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-index b06c0db..712106b 100644
---- a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-+++ b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-@@ -51,6 +51,20 @@
- 				atmel,vbus-gpio = <&pioC 5 0>;
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@fffac000 {
-+				status = "okay";
-+
-+				24c512@50 {
-+					compatible = "24c512";
-+					reg = <0x50>;
-+				};
-+
-+				wm8731@1b {
-+					compatible = "wm8731";
-+					reg = <0x1b>;
-+				};
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
-@@ -106,20 +120,6 @@
- 		};
- 	};
- 
--	i2c@0 {
--		status = "okay";
--
--		24c512@50 {
--			compatible = "24c512";
--			reg = <0x50>;
--		};
--
--		wm8731@1b {
--			compatible = "wm8731";
--			reg = <0x1b>;
--		};
--	};
--
- 	gpio_keys {
- 		compatible = "gpio-keys";
- 		#address-cells = <1>;
-diff --git a/arch/arm/boot/dts/at91sam9g25ek.dts b/arch/arm/boot/dts/at91sam9g25ek.dts
-index 7829a4d..3b0adbc 100644
---- a/arch/arm/boot/dts/at91sam9g25ek.dts
-+++ b/arch/arm/boot/dts/at91sam9g25ek.dts
-@@ -32,6 +32,18 @@
- 				phy-mode = "rmii";
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@f8010000 {
-+				status = "okay";
-+			};
-+
-+			i2c1: i2c@f8014000 {
-+				status = "okay";
-+			};
-+
-+			i2c2: i2c@f8018000 {
-+				status = "okay";
-+			};
- 		};
- 
- 		usb0: ohci@00600000 {
-diff --git a/arch/arm/boot/dts/at91sam9m10g45ek.dts b/arch/arm/boot/dts/at91sam9m10g45ek.dts
-index a3633bd..4f94f23 100644
---- a/arch/arm/boot/dts/at91sam9m10g45ek.dts
-+++ b/arch/arm/boot/dts/at91sam9m10g45ek.dts
-@@ -46,6 +46,20 @@
- 				phy-mode = "rmii";
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@fff84000 {
-+				status = "okay";
-+
-+				24c512@50 {
-+					compatible = "24c512";
-+					reg = <0x50>;
-+					pagesize = <128>;
-+				};
-+			};
-+			
-+			i2c1: i2c@fff88000 {
-+				status = "okay";
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
-diff --git a/arch/arm/boot/dts/at91sam9n12ek.dts b/arch/arm/boot/dts/at91sam9n12ek.dts
-index f4e43e3..912b2c2 100644
---- a/arch/arm/boot/dts/at91sam9n12ek.dts
-+++ b/arch/arm/boot/dts/at91sam9n12ek.dts
-@@ -37,6 +37,14 @@
- 			dbgu: serial@fffff200 {
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@f8010000 {
-+				status = "okay";
-+			};
-+
-+			i2c1: i2c@f8014000 {
-+				status = "okay";
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
+> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> ---
+>  arch/arm/mach-at91/at91rm9200_devices.c |  9 -------
+>  drivers/i2c/busses/i2c-at91.c           | 42 +++++++++++++++++++--------------
+>  2 files changed, 24 insertions(+), 27 deletions(-)
+> 
+> diff --git a/arch/arm/mach-at91/at91rm9200_devices.c b/arch/arm/mach-at91/at91rm9200_devices.c
+> index 2b9b493..e6b7d05 100644
+> --- a/arch/arm/mach-at91/at91rm9200_devices.c
+> +++ b/arch/arm/mach-at91/at91rm9200_devices.c
+> @@ -494,18 +494,9 @@ static struct resource twi_resources[] = {
+>  	},
+>  };
+>  
+> -static const struct platform_device_id twi_id = {
+> -	/*
+> -	 * driver_data is "1" for hardware with ckdiv upper limit == 5
+> -	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
+> -	 */
+> -	.driver_data	= 1,
+> -};
+> -
+>  static struct platform_device at91rm9200_twi_device = {
+>  	.name		= "at91_i2c",
+>  	.id		= -1,
+> -	.id_entry	= &twi_id,
+>  	.resource	= twi_resources,
+>  	.num_resources	= ARRAY_SIZE(twi_resources),
+>  };
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index b1cb780..4599522 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -27,6 +27,8 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/slab.h>
+>  
+> +#include <mach/cpu.h>
+> +
+>  #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
+>  #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
+>  
+> @@ -72,7 +74,6 @@ struct at91_twi_dev {
+>  	int			irq;
+>  	unsigned		transfer_status;
+>  	struct i2c_adapter	adapter;
+> -	bool			is_rm9200;
+>  	unsigned		twi_cwgr_reg;
+>  };
+>  
+> @@ -111,20 +112,28 @@ static void at91_init_twi_bus(struct at91_twi_dev *dev)
+>   */
+>  static void __devinit at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
+>  {
+> -	const int offset = dev->is_rm9200 ? 3 : 4;
+> -	const int div = max(0, (int)DIV_ROUND_UP(clk_get_rate(dev->clk),
+> -						 2 * twi_clk) - offset);
+> -	int ckdiv = fls(div >> 8);
+> -	int cdiv = div >> ckdiv;
+> -
+> -	if (dev->is_rm9200 && (ckdiv > 5)) {
+> -		dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
+> -		ckdiv = 5;
+> -		cdiv = 255;
+> -	} else if (ckdiv > 7) {
+> -		dev_warn(dev->dev, "%d exceeds 3 bits for ckdiv, limiting.\n",
+> -			 ckdiv);
+> -		ckdiv = 7;
+> +	int offset, div, max_ckdiv, ckdiv, cdiv;
+> +
+> +	if (cpu_is_at91rm9200()) {
+> +		offset = 3;
+> +		max_ckdiv = 5;
+> +	} else if (cpu_is_at91sam9261()) {
+> +		offset = 4;
+> +		max_ckdiv = 5;
+> +	} else {
+> +		offset = 4;
+> +		max_ckdiv = 7;
+> +	}
+> +
+> +	div = max(0, (int)DIV_ROUND_UP(clk_get_rate(dev->clk),
+> +				       2 * twi_clk) - offset);
+> +	ckdiv = fls(div >> 8);
+> +	cdiv = div >> ckdiv;
+> +
+> +	if (ckdiv > max_ckdiv) {
+> +		dev_warn(dev->dev, "%d exceeds ckdiv max value which is %d.\n",
+> +			 ckdiv, max_ckdiv);
+> +		ckdiv = max_ckdiv;
+>  		cdiv = 255;
+>  	}
+>  
+> @@ -331,9 +340,6 @@ static int __devinit at91_twi_probe(struct platform_device *pdev)
+>  		goto err_release_region;
+>  	}
+>  
+> -	if (pdev->id_entry && pdev->id_entry->driver_data == 1)
+> -		dev->is_rm9200 = 1;
+> -
+>  	init_completion(&dev->cmd_complete);
+>  
+>  	dev->dev = &pdev->dev;
+> 
+
+
 -- 
-1.7.11.3
+Nicolas Ferre
