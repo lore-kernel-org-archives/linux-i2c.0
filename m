@@ -1,32 +1,81 @@
-From: Roland Stigge <stigge@antcom.de>
-Subject: Re: [PATCH RESEND 1/2] i2c: pnx: Fix bit definitions
-Date: Mon, 20 Aug 2012 22:47:29 +0200
-Message-ID: <5032A261.8060702@antcom.de>
-References: <1344411752-23469-1-git-send-email-stigge@antcom.de> <20120818095108.GB24812@pengutronix.de> <5030A81E.5090508@antcom.de> <083DF309106F364B939360100EC290F823A0354A3D@eu1rdcrdc1wx030.exi.nxp.com> <20120820175527.GA9169@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH] i2c-i801: Add device tree support
+Date: Tue, 21 Aug 2012 10:29:06 +0200
+Message-ID: <20120821082906.GC28886@pengutronix.de>
+References: <1344409609-1904-1-git-send-email-thierry.reding@avionic-design.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7gGkHNMELEOhSGF6"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20120820175527.GA9169@pengutronix.de>
+Content-Disposition: inline
+In-Reply-To: <1344409609-1904-1-git-send-email-thierry.reding@avionic-design.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Kevin Wells <kevin.wells@nxp.com>, "vitalywool@gmail.com" <vitalywool@gmail.com>, "khali@linux-fr.org" <khali@linux-fr.org>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "grant.likely@secretlab.ca" <grant.likely@secretlab.ca>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Srinivas Bakki <srinivas.bakki@nxp.com>, "aletes.xgr@gmail.com" <aletes.xgr@gmail.com>, "jonsmirl@gmail.com" <jonsmirl@gmail.com>
+To: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Daniel Kurtz <djkurtz@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 20/08/12 19:55, Wolfram Sang wrote:
->> I've never had my hands on a PNX4008 chip at NXP, but I do
->> believe they are the same IP. That specific I2C IP was used in a
->> number of NXP/Phillips chips besides the PNX4008/LPC32xx. I don't
->> think there are any PNX4008's in the wild, and even working in
->> NXP, I can't find any non-marketing reference material for that
->> part (including the user manual).
-> 
-> Thanks for the heads up. I'll apply both patches, then.
-> 
-> Roland, this looks like 3.6-material?
 
-Yes, all bugfixes.
+--7gGkHNMELEOhSGF6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
+On Wed, Aug 08, 2012 at 09:06:47AM +0200, Thierry Reding wrote:
+> This commit adds support for probing slave devices parsed from the
+> device tree.
+>=20
+> Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
 
-Roland
+Acked-by: Wolfram Sang <w.sang@pengutronix.de>
+
+Jean, this one is for you, I guess?
+
+> ---
+>  drivers/i2c/busses/i2c-i801.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 6f00785..b5311cf 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -80,6 +80,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/wait.h>
+>  #include <linux/err.h>
+> +#include <linux/of_i2c.h>
+> =20
+>  #if defined CONFIG_I2C_MUX || defined CONFIG_I2C_MUX_MODULE
+>  #include <linux/gpio.h>
+> @@ -1238,6 +1239,7 @@ static int __devinit i801_probe(struct pci_dev *dev,
+>  		goto exit_free_irq;
+>  	}
+> =20
+> +	of_i2c_register_devices(&priv->adapter);
+>  	i801_probe_optional_slaves(priv);
+>  	/* We ignore errors - multiplexing is optional */
+>  	i801_add_mux(priv);
+> --=20
+> 1.7.11.4
+>=20
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--7gGkHNMELEOhSGF6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlAzRtIACgkQD27XaX1/VRuMKgCgv7WNAHl90AUOSP3UPu2pVD1C
+SE4AoLDSi/Q0C2LFxHLTMvPIXD9B6hdJ
+=SE4V
+-----END PGP SIGNATURE-----
+
+--7gGkHNMELEOhSGF6--
