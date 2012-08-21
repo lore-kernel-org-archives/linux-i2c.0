@@ -1,81 +1,104 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH] i2c-i801: Add device tree support
-Date: Tue, 21 Aug 2012 10:29:06 +0200
-Message-ID: <20120821082906.GC28886@pengutronix.de>
-References: <1344409609-1904-1-git-send-email-thierry.reding@avionic-design.de>
+From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: [PATCH] i2c/nomadik: stop fetching the regulator
+Date: Tue, 21 Aug 2012 10:45:09 +0200
+Message-ID: <1345538709-25201-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7gGkHNMELEOhSGF6"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1344409609-1904-1-git-send-email-thierry.reding@avionic-design.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@avionic-design.de>
-Cc: Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Daniel Kurtz <djkurtz@chromium.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
---7gGkHNMELEOhSGF6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The regulator fetched by the Nomadik I2C driver is actually a
+voltage domain regulator. Stop doing this in the driver and
+let the power domain code handle any regulators, as discussed
+on the list.
 
-On Wed, Aug 08, 2012 at 09:06:47AM +0200, Thierry Reding wrote:
-> This commit adds support for probing slave devices parsed from the
-> device tree.
->=20
-> Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
+Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-nomadik.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
 
-Acked-by: Wolfram Sang <w.sang@pengutronix.de>
-
-Jean, this one is for you, I guess?
-
-> ---
->  drivers/i2c/busses/i2c-i801.c | 2 ++
->  1 file changed, 2 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 6f00785..b5311cf 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -80,6 +80,7 @@
->  #include <linux/slab.h>
->  #include <linux/wait.h>
->  #include <linux/err.h>
-> +#include <linux/of_i2c.h>
-> =20
->  #if defined CONFIG_I2C_MUX || defined CONFIG_I2C_MUX_MODULE
->  #include <linux/gpio.h>
-> @@ -1238,6 +1239,7 @@ static int __devinit i801_probe(struct pci_dev *dev,
->  		goto exit_free_irq;
->  	}
-> =20
-> +	of_i2c_register_devices(&priv->adapter);
->  	i801_probe_optional_slaves(priv);
->  	/* We ignore errors - multiplexing is optional */
->  	i801_add_mux(priv);
-> --=20
-> 1.7.11.4
->=20
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---7gGkHNMELEOhSGF6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlAzRtIACgkQD27XaX1/VRuMKgCgv7WNAHl90AUOSP3UPu2pVD1C
-SE4AoLDSi/Q0C2LFxHLTMvPIXD9B6hdJ
-=SE4V
------END PGP SIGNATURE-----
-
---7gGkHNMELEOhSGF6--
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 61b00ed..1b898b6 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -22,7 +22,6 @@
+ #include <linux/err.h>
+ #include <linux/clk.h>
+ #include <linux/io.h>
+-#include <linux/regulator/consumer.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/platform_data/i2c-nomadik.h>
+ 
+@@ -146,7 +145,6 @@ struct i2c_nmk_client {
+  * @stop: stop condition.
+  * @xfer_complete: acknowledge completion for a I2C message.
+  * @result: controller propogated result.
+- * @regulator: pointer to i2c regulator.
+  * @busy: Busy doing transfer.
+  */
+ struct nmk_i2c_dev {
+@@ -160,7 +158,6 @@ struct nmk_i2c_dev {
+ 	int				stop;
+ 	struct completion		xfer_complete;
+ 	int				result;
+-	struct regulator		*regulator;
+ 	bool				busy;
+ };
+ 
+@@ -643,8 +640,6 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 
+ 	dev->busy = true;
+ 
+-	if (dev->regulator)
+-		regulator_enable(dev->regulator);
+ 	pm_runtime_get_sync(&dev->adev->dev);
+ 
+ 	clk_enable(dev->clk);
+@@ -676,8 +671,6 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ out:
+ 	clk_disable(dev->clk);
+ 	pm_runtime_put_sync(&dev->adev->dev);
+-	if (dev->regulator)
+-		regulator_disable(dev->regulator);
+ 
+ 	dev->busy = false;
+ 
+@@ -957,12 +950,6 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 		goto err_irq;
+ 	}
+ 
+-	dev->regulator = regulator_get(&adev->dev, "v-i2c");
+-	if (IS_ERR(dev->regulator)) {
+-		dev_warn(&adev->dev, "could not get i2c regulator\n");
+-		dev->regulator = NULL;
+-	}
+-
+ 	pm_suspend_ignore_children(&adev->dev, true);
+ 
+ 	dev->clk = clk_get(&adev->dev, NULL);
+@@ -1009,8 +996,6 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+  err_add_adap:
+ 	clk_put(dev->clk);
+  err_no_clk:
+-	if (dev->regulator)
+-		regulator_put(dev->regulator);
+ 	free_irq(dev->irq, dev);
+  err_irq:
+ 	iounmap(dev->virtbase);
+@@ -1038,8 +1023,6 @@ static int nmk_i2c_remove(struct amba_device *adev)
+ 	if (res)
+ 		release_mem_region(res->start, resource_size(res));
+ 	clk_put(dev->clk);
+-	if (dev->regulator)
+-		regulator_put(dev->regulator);
+ 	pm_runtime_disable(&adev->dev);
+ 	amba_set_drvdata(adev, NULL);
+ 	kfree(dev);
+-- 
+1.7.11.3
