@@ -1,28 +1,38 @@
-From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
-Subject: i2c-eg20t: regression since i2c_add_numbered_adapter change
-Date: Wed, 22 Aug 2012 08:30:35 +0200
-Message-ID: <4401854.hVfHzgeqjT@ws-stein>
+From: "Voss, Nikolaus" <N.Voss@weinmann.de>
+Subject: RE: [PATCH 1/5] i2c: at91: add new fixes for some TWI ip versions
+Date: Wed, 22 Aug 2012 08:55:15 +0200
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090EBE8856@wm021.weinmann.com>
+References: <1345559345-13988-1-git-send-email-ludovic.desroches@atmel.com>
+ <1345559345-13988-2-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1345559345-13988-2-git-send-email-ludovic.desroches@atmel.com>
+Content-Language: de-DE
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "'ludovic.desroches@atmel.com'" <ludovic.desroches@atmel.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>
+Cc: "'plagnioj@jcrosoft.com'" <plagnioj@jcrosoft.com>, "'nicolas.ferre@atmel.com'" <nicolas.ferre@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Hi Ludovic,
 
-I just noticed the 3.4 linux kernel fails to sucessfully probe the i2c-eg20t 
-driver. I returns with EBUSY error. It worked on the 3.0 kernel. To my view it 
-is caused the commit 07e8a51ff68353e01d795cceafbac9f54c49132b ( i2c-eg20t: use 
-i2c_add_numbered_adapter to get a fixed bus number).
-The reason it actually fails is that the i2c-isch driver is registered 
-beforehand which gets bus number 0. But this one is the bus number the eg20t 
-driver wants to register.
-A possibility is that if i2c_add_numbered_adapter failed with EBUSY just use 
-i2c_add_adapter to get at least the driver working, but with a non-fixed bus 
-number. Opinions?
+ludovic.desroches@atmel.com wrote on Tuesday, August 21, 2012 4:29 PM
+> The at91sam9261 TWI ip version requires also some fixes. The id_entry
+> field from the platform device structure has been replaced by the use
+> of cpu_is_xxx function to determine when to use these fixes.
 
-Best regards,
-Alexander
+I applied your calc_twi_clock() fix using the id_entry stuff instead of
+cpu_is_xxx functions as those are deprecated...
+
+I will post the complete series later on. Please test it!
+
+Niko
