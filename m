@@ -1,188 +1,28 @@
-From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 5/5] ARM: dts: add twi nodes for atmel boards
-Date: Tue, 21 Aug 2012 18:13:31 +0200
-Message-ID: <5033B3AB.8060507@atmel.com>
-References: <1345559345-13988-1-git-send-email-ludovic.desroches@atmel.com> <1345559520-14074-1-git-send-email-ludovic.desroches@atmel.com>
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: i2c-eg20t: regression since i2c_add_numbered_adapter change
+Date: Wed, 22 Aug 2012 08:30:35 +0200
+Message-ID: <4401854.hVfHzgeqjT@ws-stein>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1345559520-14074-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/21/2012 04:32 PM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
-> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> 
-> Use the atmel twi instead of gpio for i2c stuff.
-> 
-> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Hello,
 
-Seems good. Maybe we will have to test wm8731 a little bit more.
+I just noticed the 3.4 linux kernel fails to sucessfully probe the i2c-eg20t 
+driver. I returns with EBUSY error. It worked on the 3.0 kernel. To my view it 
+is caused the commit 07e8a51ff68353e01d795cceafbac9f54c49132b ( i2c-eg20t: use 
+i2c_add_numbered_adapter to get a fixed bus number).
+The reason it actually fails is that the i2c-isch driver is registered 
+beforehand which gets bus number 0. But this one is the bus number the eg20t 
+driver wants to register.
+A possibility is that if i2c_add_numbered_adapter failed with EBUSY just use 
+i2c_add_adapter to get at least the driver working, but with a non-fixed bus 
+number. Opinions?
 
-Acked-by: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-
-> ---
->  arch/arm/boot/dts/at91sam9263ek.dts         | 20 ++++++++++----------
->  arch/arm/boot/dts/at91sam9g20ek_common.dtsi | 28 ++++++++++++++--------------
->  arch/arm/boot/dts/at91sam9g25ek.dts         | 12 ++++++++++++
->  arch/arm/boot/dts/at91sam9m10g45ek.dts      | 14 ++++++++++++++
->  arch/arm/boot/dts/at91sam9n12ek.dts         |  8 ++++++++
->  5 files changed, 58 insertions(+), 24 deletions(-)
-> 
-> diff --git a/arch/arm/boot/dts/at91sam9263ek.dts b/arch/arm/boot/dts/at91sam9263ek.dts
-> index f86ac4b..772ab75 100644
-> --- a/arch/arm/boot/dts/at91sam9263ek.dts
-> +++ b/arch/arm/boot/dts/at91sam9263ek.dts
-> @@ -50,6 +50,16 @@
->  				atmel,vbus-gpio = <&pioA 25 0>;
->  				status = "okay";
->  			};
-> +
-> +			i2c0: i2c@fff88000 {
-> +				status = "okay";
-> +
-> +				24c512@50 {
-> +					compatible = "24c512";
-> +					reg = <0x50>;
-> +					pagesize = <128>;
-> +				};
-> +			};
->  		};
->  
->  		nand0: nand@40000000 {
-> @@ -143,14 +153,4 @@
->  			gpio-key,wakeup;
->  		};
->  	};
-> -
-> -	i2c@0 {
-> -		status = "okay";
-> -
-> -		24c512@50 {
-> -			compatible = "24c512";
-> -			reg = <0x50>;
-> -			pagesize = <128>;
-> -		};
-> -	};
->  };
-> diff --git a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-> index b06c0db..712106b 100644
-> --- a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-> +++ b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-> @@ -51,6 +51,20 @@
->  				atmel,vbus-gpio = <&pioC 5 0>;
->  				status = "okay";
->  			};
-> +
-> +			i2c0: i2c@fffac000 {
-> +				status = "okay";
-> +
-> +				24c512@50 {
-> +					compatible = "24c512";
-> +					reg = <0x50>;
-> +				};
-> +
-> +				wm8731@1b {
-> +					compatible = "wm8731";
-> +					reg = <0x1b>;
-> +				};
-> +			};
->  		};
->  
->  		nand0: nand@40000000 {
-> @@ -106,20 +120,6 @@
->  		};
->  	};
->  
-> -	i2c@0 {
-> -		status = "okay";
-> -
-> -		24c512@50 {
-> -			compatible = "24c512";
-> -			reg = <0x50>;
-> -		};
-> -
-> -		wm8731@1b {
-> -			compatible = "wm8731";
-> -			reg = <0x1b>;
-> -		};
-> -	};
-> -
->  	gpio_keys {
->  		compatible = "gpio-keys";
->  		#address-cells = <1>;
-> diff --git a/arch/arm/boot/dts/at91sam9g25ek.dts b/arch/arm/boot/dts/at91sam9g25ek.dts
-> index 7829a4d..3b0adbc 100644
-> --- a/arch/arm/boot/dts/at91sam9g25ek.dts
-> +++ b/arch/arm/boot/dts/at91sam9g25ek.dts
-> @@ -32,6 +32,18 @@
->  				phy-mode = "rmii";
->  				status = "okay";
->  			};
-> +
-> +			i2c0: i2c@f8010000 {
-> +				status = "okay";
-> +			};
-> +
-> +			i2c1: i2c@f8014000 {
-> +				status = "okay";
-> +			};
-> +
-> +			i2c2: i2c@f8018000 {
-> +				status = "okay";
-> +			};
->  		};
->  
->  		usb0: ohci@00600000 {
-> diff --git a/arch/arm/boot/dts/at91sam9m10g45ek.dts b/arch/arm/boot/dts/at91sam9m10g45ek.dts
-> index a3633bd..4f94f23 100644
-> --- a/arch/arm/boot/dts/at91sam9m10g45ek.dts
-> +++ b/arch/arm/boot/dts/at91sam9m10g45ek.dts
-> @@ -46,6 +46,20 @@
->  				phy-mode = "rmii";
->  				status = "okay";
->  			};
-> +
-> +			i2c0: i2c@fff84000 {
-> +				status = "okay";
-> +
-> +				24c512@50 {
-> +					compatible = "24c512";
-> +					reg = <0x50>;
-> +					pagesize = <128>;
-> +				};
-> +			};
-> +			
-> +			i2c1: i2c@fff88000 {
-> +				status = "okay";
-> +			};
->  		};
->  
->  		nand0: nand@40000000 {
-> diff --git a/arch/arm/boot/dts/at91sam9n12ek.dts b/arch/arm/boot/dts/at91sam9n12ek.dts
-> index f4e43e3..912b2c2 100644
-> --- a/arch/arm/boot/dts/at91sam9n12ek.dts
-> +++ b/arch/arm/boot/dts/at91sam9n12ek.dts
-> @@ -37,6 +37,14 @@
->  			dbgu: serial@fffff200 {
->  				status = "okay";
->  			};
-> +
-> +			i2c0: i2c@f8010000 {
-> +				status = "okay";
-> +			};
-> +
-> +			i2c1: i2c@f8014000 {
-> +				status = "okay";
-> +			};
->  		};
->  
->  		nand0: nand@40000000 {
-> 
-
-
--- 
-Nicolas Ferre
+Best regards,
+Alexander
