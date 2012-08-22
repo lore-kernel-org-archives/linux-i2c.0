@@ -1,117 +1,46 @@
-From: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: [PATCH v11 2/4] Replace clk_lookup.con_id with clk_lookup.dev_id entries
- for twi clk
-Date: Tue, 8 Nov 2011 12:09:30 +0100
-Message-ID: <39bedb5607e56a9b2193a5b3ca2ff47ed50d81f6.1345618760.git.n.voss@weinmann.de>
-References: <cover.1345618760.git.n.voss@weinmann.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <cover.1345618760.git.n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, adrian.yanes-uOixanVlb7U@public.gmane.org, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org
+From: Alexander Stein <alexander.stein@systec-electronic.com>
+Subject: Re: i2c-eg20t: regression since i2c_add_numbered_adapter change
+Date: Wed, 22 Aug 2012 09:57:07 +0200
+Message-ID: <3514180.RWySLZuOJm@ws-stein>
+References: <4401854.hVfHzgeqjT@ws-stein> <20120822152918.3e59616e@feng-i7>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20120822152918.3e59616e@feng-i7>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Feng Tang <feng.tang@intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Tomoya MORINAGA <tomoya.rohm@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The old driver used con_id clock entries. Convert to use dev_id
-for clock lookup via standard method.
+Hello,
 
-Signed-off-by: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
----
- arch/arm/mach-at91/at91rm9200.c  |    1 +
- arch/arm/mach-at91/at91sam9260.c |    1 +
- arch/arm/mach-at91/at91sam9261.c |    1 +
- arch/arm/mach-at91/at91sam9263.c |    1 +
- arch/arm/mach-at91/at91sam9g45.c |    2 ++
- arch/arm/mach-at91/at91sam9rl.c  |    2 ++
- arch/arm/mach-at91/at91sam9x5.c  |    3 +++
- 7 files changed, 11 insertions(+)
+On Wednesday 22 August 2012 15:29:18, Feng Tang wrote:
+> On Wed, 22 Aug 2012 08:30:35 +0200
+> Alexander Stein <alexander.stein@systec-electronic.com> wrote:
+> 
+> > Hello,
+> > 
+> > I just noticed the 3.4 linux kernel fails to sucessfully probe the i2c-eg20t 
+> > driver. I returns with EBUSY error. It worked on the 3.0 kernel. To my view it 
+> > is caused the commit 07e8a51ff68353e01d795cceafbac9f54c49132b ( i2c-eg20t: use 
+> > i2c_add_numbered_adapter to get a fixed bus number).
+> > The reason it actually fails is that the i2c-isch driver is registered 
+> > beforehand which gets bus number 0. But this one is the bus number the eg20t 
+> > driver wants to register.
+> 
+> Make sense.
+> 
+> > A possibility is that if i2c_add_numbered_adapter failed with EBUSY just use 
+> > i2c_add_adapter to get at least the driver working, but with a non-fixed bus 
+> > number. Opinions?
+> 
+> Or can we give it a fixed offset, like let the i2c_eg20t controller bus number
+> start with 4? I don't expect there will be more than 4 other i2c controllers 
+> on EG20T compatible platforms.
 
-diff --git a/arch/arm/mach-at91/at91rm9200.c b/arch/arm/mach-at91/at91rm9200.c
-index 2691768..cf354a3 100644
---- a/arch/arm/mach-at91/at91rm9200.c
-+++ b/arch/arm/mach-at91/at91rm9200.c
-@@ -186,6 +186,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.2", &ssc2_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
- 	/* fake hclk clock */
- 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
- 	CLKDEV_CON_ID("pioA", &pioA_clk),
-diff --git a/arch/arm/mach-at91/at91sam9260.c b/arch/arm/mach-at91/at91sam9260.c
-index 2b1e438..2e56321 100644
---- a/arch/arm/mach-at91/at91sam9260.c
-+++ b/arch/arm/mach-at91/at91sam9260.c
-@@ -210,6 +210,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("t1_clk", "atmel_tcb.1", &tc4_clk),
- 	CLKDEV_CON_DEV_ID("t2_clk", "atmel_tcb.1", &tc5_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
- 	/* more usart lookup table for DT entries */
- 	CLKDEV_CON_DEV_ID("usart", "fffff200.serial", &mck),
- 	CLKDEV_CON_DEV_ID("usart", "fffb0000.serial", &usart0_clk),
-diff --git a/arch/arm/mach-at91/at91sam9261.c b/arch/arm/mach-at91/at91sam9261.c
-index c77d503..f21196d 100644
---- a/arch/arm/mach-at91/at91sam9261.c
-+++ b/arch/arm/mach-at91/at91sam9261.c
-@@ -177,6 +177,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.2", &ssc2_clk),
- 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &hck0),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
- 	CLKDEV_CON_ID("pioA", &pioA_clk),
- 	CLKDEV_CON_ID("pioB", &pioB_clk),
- 	CLKDEV_CON_ID("pioC", &pioC_clk),
-diff --git a/arch/arm/mach-at91/at91sam9263.c b/arch/arm/mach-at91/at91sam9263.c
-index ed91c7e..71305fa 100644
---- a/arch/arm/mach-at91/at91sam9263.c
-+++ b/arch/arm/mach-at91/at91sam9263.c
-@@ -192,6 +192,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.0", &spi0_clk),
- 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.1", &spi1_clk),
- 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c", &twi_clk),
- 	/* fake hclk clock */
- 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &ohci_clk),
- 	CLKDEV_CON_ID("pioA", &pioA_clk),
-diff --git a/arch/arm/mach-at91/at91sam9g45.c b/arch/arm/mach-at91/at91sam9g45.c
-index 4792682..2944fc7 100644
---- a/arch/arm/mach-at91/at91sam9g45.c
-+++ b/arch/arm/mach-at91/at91sam9g45.c
-@@ -228,6 +228,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("spi_clk", "atmel_spi.1", &spi1_clk),
- 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.0", &tcb0_clk),
- 	CLKDEV_CON_DEV_ID("t0_clk", "atmel_tcb.1", &tcb0_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
- 	CLKDEV_CON_DEV_ID(NULL, "atmel-trng", &trng_clk),
-diff --git a/arch/arm/mach-at91/at91sam9rl.c b/arch/arm/mach-at91/at91sam9rl.c
-index e420085..8a97218 100644
---- a/arch/arm/mach-at91/at91sam9rl.c
-+++ b/arch/arm/mach-at91/at91sam9rl.c
-@@ -185,6 +185,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("t2_clk", "atmel_tcb.0", &tc2_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.0", &ssc0_clk),
- 	CLKDEV_CON_DEV_ID("pclk", "ssc.1", &ssc1_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
- 	CLKDEV_CON_ID("pioA", &pioA_clk),
- 	CLKDEV_CON_ID("pioB", &pioB_clk),
- 	CLKDEV_CON_ID("pioC", &pioC_clk),
-diff --git a/arch/arm/mach-at91/at91sam9x5.c b/arch/arm/mach-at91/at91sam9x5.c
-index 1b144b4..def85e5 100644
---- a/arch/arm/mach-at91/at91sam9x5.c
-+++ b/arch/arm/mach-at91/at91sam9x5.c
-@@ -231,6 +231,9 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("t0_clk", "f800c000.timer", &tcb0_clk),
- 	CLKDEV_CON_DEV_ID("dma_clk", "ffffec00.dma-controller", &dma0_clk),
- 	CLKDEV_CON_DEV_ID("dma_clk", "ffffee00.dma-controller", &dma1_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.2", &twi2_clk),
- 	CLKDEV_CON_ID("pioA", &pioAB_clk),
- 	CLKDEV_CON_ID("pioB", &pioAB_clk),
- 	CLKDEV_CON_ID("pioC", &pioCD_clk),
--- 
-1.7.9.5
+Why use a fixed one? Give the driver (and maybe every i2c bus driver) a parameter which sets the base bus number it should use.
+E.g. i2c-eg20t.base-bus-num=2 so it will register the bus numbers starting from 2. If this parameter is unset. It would use the first free one, thus simply using i2c_add_adapter.
+
+Regards,
+Alexander
