@@ -1,45 +1,79 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] i2c: designware: Fix a possible NULL pointer access
-Date: Thu, 23 Aug 2012 20:09:00 +0530
-Message-ID: <1345732740-26599-1-git-send-email-shubhrajyoti@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik I2C driver
+Date: Thu, 23 Aug 2012 16:01:27 +0100
+Message-ID: <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
+References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc: STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, w.sang@pengutronix.de, Lee Jones <lee.jones@linaro.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-    After platform_set_drvdata(pdev, NULL) the pdev->dev should not be accessed.
-    Also since the platform device is deleted anyways just remove the
-    call to platform_set_drvdata(pdev, NULL).
+Here we apply the bindings required for successful Device Tree
+probing of the i2c-nomadik driver.
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c@vger.kernel.org
+Acked-by: srinidhi kasagar <srinidhi.kasagar@stericsson.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
-Untested.
+ drivers/i2c/busses/i2c-nomadik.c |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
- drivers/i2c/busses/i2c-designware-platdrv.c |    2 --
- 1 files changed, 0 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0506fef..2884688 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -160,7 +160,6 @@ err_unuse_clocks:
- 	clk_put(dev->clk);
- 	dev->clk = NULL;
- err_free_mem:
--	platform_set_drvdata(pdev, NULL);
- 	put_device(&pdev->dev);
- 	kfree(dev);
- err_release_region:
-@@ -174,7 +173,6 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
- 	struct resource *mem;
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 61b00ed..8168389 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -25,6 +25,7 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/platform_data/i2c-nomadik.h>
++#include <linux/of.h>
  
--	platform_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
+ #define DRIVER_NAME "nmk-i2c"
  
+@@ -920,15 +921,42 @@ static struct nmk_i2c_controller u8500_i2c = {
+ 	.sm             = I2C_FREQ_MODE_FAST,
+ };
+ 
++static void nmk_i2c_of_probe(struct device_node *np,
++			struct nmk_i2c_controller *pdata)
++{
++	/* Provide the default configuration as a base. */
++	pdata = &u8500_i2c;
++
++	of_property_read_u32(np, "clock-frequency", (u32*)&pdata->clk_freq);
++
++	/* This driver only supports 'standard' and 'fast' modes of operation. */
++	if (pdata->clk_freq <= 100000)
++		pdata->sm = I2C_FREQ_MODE_STANDARD;
++	else
++		pdata->sm = I2C_FREQ_MODE_FAST;
++}
++
+ static atomic_t adapter_id = ATOMIC_INIT(0);
+ 
+ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+ 	int ret = 0;
+ 	struct nmk_i2c_controller *pdata = adev->dev.platform_data;
++	struct device_node *np = adev->dev.of_node;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+ 
++	if (np) {
++		if (!pdata) {
++			pdata = devm_kzalloc(&adev->dev, sizeof(*pdata), GFP_KERNEL);
++			if (!pdata) {
++				ret = -ENOMEM;
++				goto err_no_mem;
++			}
++		}
++		nmk_i2c_of_probe(np, pdata);
++	}
++
+ 	if (!pdata)
+ 		/* No i2c configuration found, using the default. */
+ 		pdata = &u8500_i2c;
 -- 
-1.7.5.4
+1.7.9.5
