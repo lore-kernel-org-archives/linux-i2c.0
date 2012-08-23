@@ -1,118 +1,55 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: Re: [PATCH 1/5] i2c: at91: add new fixes for some TWI ip versions
-Date: Wed, 22 Aug 2012 14:32:47 +0200
-Message-ID: <20120822123247.GD7456@game.jcrosoft.org>
-References: <1345559345-13988-1-git-send-email-ludovic.desroches@atmel.com>
- <1345559345-13988-2-git-send-email-ludovic.desroches@atmel.com>
+From: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: i2c-eg20t: regression since i2c_add_numbered_adapter change
+Date: Thu, 23 Aug 2012 16:28:52 +0800
+Message-ID: <20120823162852.29243e9c@feng-i7>
+References: <4401854.hVfHzgeqjT@ws-stein>
+	<3514180.RWySLZuOJm@ws-stein>
+	<20120822160439.62c619bf@feng-i7>
+	<24029861.U7thTLuEmC@ws-stein>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <1345559345-13988-2-git-send-email-ludovic.desroches@atmel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: ludovic.desroches@atmel.com
-Cc: n.voss@weinmann.de, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <24029861.U7thTLuEmC@ws-stein>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 16:29 Tue 21 Aug     , ludovic.desroches@atmel.com wrote:
-> From: Ludovic Desroches <ludovic.desroches@atmel.com>
-> 
-> The at91sam9261 TWI ip version requires also some fixes. The id_entry
-> field from the platform device structure has been replaced by the use
-> of cpu_is_xxx function to determine when to use these fixes.
-> 
-> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> ---
->  arch/arm/mach-at91/at91rm9200_devices.c |  9 -------
->  drivers/i2c/busses/i2c-at91.c           | 42 +++++++++++++++++++--------------
->  2 files changed, 24 insertions(+), 27 deletions(-)
-> 
-> diff --git a/arch/arm/mach-at91/at91rm9200_devices.c b/arch/arm/mach-at91/at91rm9200_devices.c
-> index 2b9b493..e6b7d05 100644
-> --- a/arch/arm/mach-at91/at91rm9200_devices.c
-> +++ b/arch/arm/mach-at91/at91rm9200_devices.c
-> @@ -494,18 +494,9 @@ static struct resource twi_resources[] = {
->  	},
->  };
->  
-> -static const struct platform_device_id twi_id = {
-> -	/*
-> -	 * driver_data is "1" for hardware with ckdiv upper limit == 5
-> -	 * (AT91RM9200 erratum 22), "0" for twi modules without this bug
-> -	 */
-> -	.driver_data	= 1,
-> -};
-> -
->  static struct platform_device at91rm9200_twi_device = {
->  	.name		= "at91_i2c",
->  	.id		= -1,
-> -	.id_entry	= &twi_id,
->  	.resource	= twi_resources,
->  	.num_resources	= ARRAY_SIZE(twi_resources),
->  };
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index b1cb780..4599522 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -27,6 +27,8 @@
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
->  
-> +#include <mach/cpu.h>
-> +
->  #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
->  #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
->  
-> @@ -72,7 +74,6 @@ struct at91_twi_dev {
->  	int			irq;
->  	unsigned		transfer_status;
->  	struct i2c_adapter	adapter;
-> -	bool			is_rm9200;
->  	unsigned		twi_cwgr_reg;
->  };
->  
-> @@ -111,20 +112,28 @@ static void at91_init_twi_bus(struct at91_twi_dev *dev)
->   */
->  static void __devinit at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
->  {
-> -	const int offset = dev->is_rm9200 ? 3 : 4;
-> -	const int div = max(0, (int)DIV_ROUND_UP(clk_get_rate(dev->clk),
-> -						 2 * twi_clk) - offset);
-> -	int ckdiv = fls(div >> 8);
-> -	int cdiv = div >> ckdiv;
-> -
-> -	if (dev->is_rm9200 && (ckdiv > 5)) {
-> -		dev_warn(dev->dev, "AT91RM9200 erratum 22: using ckdiv = 5.\n");
-> -		ckdiv = 5;
-> -		cdiv = 255;
-> -	} else if (ckdiv > 7) {
-> -		dev_warn(dev->dev, "%d exceeds 3 bits for ckdiv, limiting.\n",
-> -			 ckdiv);
-> -		ckdiv = 7;
-> +	int offset, div, max_ckdiv, ckdiv, cdiv;
-> +
-> +	if (cpu_is_at91rm9200()) {
-> +		offset = 3;
-> +		max_ckdiv = 5;
-> +	} else if (cpu_is_at91sam9261()) {
-> +		offset = 4;
-> +		max_ckdiv = 5;
-> +	} else {
-> +		offset = 4;
-> +		max_ckdiv = 7;
-> +	}
-can you read this from the IP version?
+Hi,
 
-I do not like the cpu_is outside of the mach-at91
+On Wed, 22 Aug 2012 11:17:51 +0200
+Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org> wrote:
 
-Best Regards,
-J.
+> Hello,
+> 
+> Am Mittwoch, 22. August 2012, 16:04:39 schrieb Feng Tang:
+> > > Why use a fixed one? Give the driver (and maybe every i2c bus driver) a parameter which sets the base bus number it should use.
+> > > E.g. i2c-eg20t.base-bus-num=2 so it will register the bus numbers starting from 2. If this parameter is unset. It would use the first free one, thus simply using i2c_add_adapter.
+> > 
+> > The reason we need a fixed number is it is easier for platform code
+> > which needs to register dozens of i2c devices to different controllers
+> > with i2c_register_board_info, and they need provide a bus number for
+> > each i2c device, this _binding_ info is not detectable but have to
+> > be fixed.
+> 
+> Yes, I'm aware of that. With "Why use a fixed one?" I meant why hard-code it into the driver. I should be changeable.
+> Because this is/was not possible in general to use i2c_register_board_info, so we used an echo to /sys/bus/i2c/devices/i2c-0/new_device or /sys/bus/i2c/devices/i2c-1/new_device.
+
+Yeah, our EG20T kernel used to use the same "echo /sys/bus/i2c/devices/i2c-x/new_device"
+way, but we found out it is not convenient for:
+1. needs extra user space script, why not make it just work in kernel after
+boot? We have several i2c devices like touchscreen/radio which we wants them
+just work without depending user space action.
+2. The i2c bus number is not fixed, which make the user space script even
+harder, as that number depends whether we compile into kernel all the i2c
+controllers (eg20t and isch) and whether these driver are compiled as
+modules and their loading order.
+
+Thus we come out with this fixed bus number registering.
+
+As I said before, either your module parameter "base_bus_num" solution
+or my fixed bus number offset are ok to me. Will you cook a patch?
+
+Thanks,
+Feng
