@@ -1,55 +1,52 @@
-From: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-eg20t: regression since i2c_add_numbered_adapter change
-Date: Thu, 23 Aug 2012 16:28:52 +0800
-Message-ID: <20120823162852.29243e9c@feng-i7>
-References: <4401854.hVfHzgeqjT@ws-stein>
-	<3514180.RWySLZuOJm@ws-stein>
-	<20120822160439.62c619bf@feng-i7>
-	<24029861.U7thTLuEmC@ws-stein>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] i2c: omap: Prevent NULL pointer dereference in remove
+Date: Thu, 23 Aug 2012 19:51:26 +0530
+Message-ID: <1345731686-26026-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <24029861.U7thTLuEmC@ws-stein>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Prevent the NULL pointer access of pdev->dev in remove. The platform_device is anyways
+deleted so remove  platform_set_drvdata(pdev, NULL);.
 
-On Wed, 22 Aug 2012 11:17:51 +0200
-Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org> wrote:
+[  654.961761] Unable to handle kernel NULL pointer dereference at virtual address 00000070
+[  654.970611] pgd = df254000
+[  654.973480] [00000070] *pgd=9f1da831, *pte=00000000, *ppte=00000000
+[  654.980163] Internal error: Oops: 17 [#1] SMP ARM
+[  654.985076] Modules linked in:
+[  654.988281] CPU: 1    Not tainted  (3.6.0-rc1-00031-ge547de1-dirty #339)
+[  654.995330] PC is at omap_i2c_runtime_resume+0x8/0x148
+[  655.000732] LR is at omap_i2c_runtime_resume+0x8/0x148
 
-> Hello,
-> 
-> Am Mittwoch, 22. August 2012, 16:04:39 schrieb Feng Tang:
-> > > Why use a fixed one? Give the driver (and maybe every i2c bus driver) a parameter which sets the base bus number it should use.
-> > > E.g. i2c-eg20t.base-bus-num=2 so it will register the bus numbers starting from 2. If this parameter is unset. It would use the first free one, thus simply using i2c_add_adapter.
-> > 
-> > The reason we need a fixed number is it is easier for platform code
-> > which needs to register dozens of i2c devices to different controllers
-> > with i2c_register_board_info, and they need provide a bus number for
-> > each i2c device, this _binding_ info is not detectable but have to
-> > be fixed.
-> 
-> Yes, I'm aware of that. With "Why use a fixed one?" I meant why hard-code it into the driver. I should be changeable.
-> Because this is/was not possible in general to use i2c_register_board_info, so we used an echo to /sys/bus/i2c/devices/i2c-0/new_device or /sys/bus/i2c/devices/i2c-1/new_device.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    3 ---
+ 1 files changed, 0 insertions(+), 3 deletions(-)
 
-Yeah, our EG20T kernel used to use the same "echo /sys/bus/i2c/devices/i2c-x/new_device"
-way, but we found out it is not convenient for:
-1. needs extra user space script, why not make it just work in kernel after
-boot? We have several i2c devices like touchscreen/radio which we wants them
-just work without depending user space action.
-2. The i2c bus number is not fixed, which make the user space script even
-harder, as that number depends whether we compile into kernel all the i2c
-controllers (eg20t and isch) and whether these driver are compiled as
-modules and their loading order.
-
-Thus we come out with this fixed bus number registering.
-
-As I said before, either your module parameter "base_bus_num" solution
-or my fixed bus number offset are ok to me. Will you cook a patch?
-
-Thanks,
-Feng
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 5d19a49..84fbef6 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1098,7 +1098,6 @@ err_unuse_clocks:
+ 	iounmap(dev->base);
+ 	pm_runtime_disable(&pdev->dev);
+ err_free_mem:
+-	platform_set_drvdata(pdev, NULL);
+ 	kfree(dev);
+ err_release_region:
+ 	release_mem_region(mem->start, resource_size(mem));
+@@ -1112,8 +1111,6 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
+ 	struct resource		*mem;
+ 	int ret;
+ 
+-	platform_set_drvdata(pdev, NULL);
+-
+ 	free_irq(dev->irq, dev);
+ 	i2c_del_adapter(&dev->adapter);
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+-- 
+1.7.5.4
