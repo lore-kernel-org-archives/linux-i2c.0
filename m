@@ -1,7 +1,7 @@
 From: Julia Lawall <Julia.Lawall@lip6.fr>
-Subject: [PATCH 2/6] i2c: at91: use devm_ functions
-Date: Sat, 25 Aug 2012 19:41:38 +0200
-Message-ID: <1345916499-6657-5-git-send-email-Julia.Lawall@lip6.fr>
+Subject: [PATCH 3/6] i2c: au1550: use devm_ functions
+Date: Sat, 25 Aug 2012 19:41:37 +0200
+Message-ID: <1345916499-6657-4-git-send-email-Julia.Lawall@lip6.fr>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Jean Delvare (PC drivers core)" <khali@linux-fr.org>
@@ -15,98 +15,82 @@ detaches.  This patch uses these functions for data that is allocated in
 the probe function of a platform device and is only freed in the remove
 function.
 
-This code was missing a free of adapter in the remove function.
+The initial call to platform_get_resource is moved down to the introduced
+call to devm_request_and_ioremap thta uses its result.
 
 Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
 ---
 Not compiled.
 
- drivers/i2c/busses/i2c-at91.c |   37 ++++++++++---------------------------
- 1 file changed, 10 insertions(+), 27 deletions(-)
+ drivers/i2c/busses/i2c-au1550.c |   41 +++++++---------------------------------
+ 1 file changed, 8 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index e24484b..b921858 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -196,30 +196,23 @@ static int __devinit at91_i2c_probe(struct platform_device *pdev)
- 	int rc;
+diff --git a/drivers/i2c/busses/i2c-au1550.c b/drivers/i2c/busses/i2c-au1550.c
+index 582d616..0690ef0 100644
+--- a/drivers/i2c/busses/i2c-au1550.c
++++ b/drivers/i2c/busses/i2c-au1550.c
+@@ -320,30 +320,16 @@ i2c_au1550_probe(struct platform_device *pdev)
+ 	struct resource *r;
+ 	int ret;
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!res)
--		return -ENXIO;
- 
--	if (!request_mem_region(res->start, resource_size(res), "at91_i2c"))
--		return -EBUSY;
--
--	twi_base = ioremap(res->start, resource_size(res));
--	if (!twi_base) {
--		rc = -ENOMEM;
--		goto fail0;
+-	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!r) {
+-		ret = -ENODEV;
+-		goto out;
 -	}
-+	twi_base = devm_request_and_ioremap(&pdev->dev, res);
-+	if (!twi_base)
+-
+-	priv = kzalloc(sizeof(struct i2c_au1550_data), GFP_KERNEL);
+-	if (!priv) {
+-		ret = -ENOMEM;
+-		goto out;
+-	}
++	priv = devm_kzalloc(&pdev->dev, sizeof(struct i2c_au1550_data),
++			    GFP_KERNEL);
++	if (!priv)
 +		return -ENOMEM;
  
- 	twi_clk = clk_get(NULL, "twi_clk");
- 	if (IS_ERR(twi_clk)) {
- 		dev_err(&pdev->dev, "no clock defined\n");
--		rc = -ENODEV;
--		goto fail1;
-+		return -ENODEV;
+-	priv->ioarea = request_mem_region(r->start, resource_size(r),
+-					  pdev->name);
+-	if (!priv->ioarea) {
+-		ret = -EBUSY;
+-		goto out_mem;
+-	}
++	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 
+-	priv->psc_base = ioremap(r->start, resource_size(r));
+-	if (!priv->psc_base) {
+-		ret = -EIO;
+-		goto out_map;
+-	}
++	priv->psc_base = devm_request_and_ioremap(&pdev->dev, r);
++	if (!priv->psc_base)
++		return -EIO;
+ 	priv->xfer_timeout = 200;
+ 
+ 	priv->adap.nr = pdev->id;
+@@ -362,13 +348,6 @@ i2c_au1550_probe(struct platform_device *pdev)
  	}
  
--	adapter = kzalloc(sizeof(struct i2c_adapter), GFP_KERNEL);
-+	adapter = devm_kzalloc(&pdev->dev, sizeof(struct i2c_adapter),
-+			       GFP_KERNEL);
- 	if (adapter == NULL) {
- 		dev_err(&pdev->dev, "can't allocate inteface!\n");
- 		rc = -ENOMEM;
--		goto fail2;
-+		goto fail1;
- 	}
- 	snprintf(adapter->name, sizeof(adapter->name), "AT91");
- 	adapter->algo = &at91_algorithm;
-@@ -236,22 +229,17 @@ static int __devinit at91_i2c_probe(struct platform_device *pdev)
- 	if (rc) {
- 		dev_err(&pdev->dev, "Adapter %s registration failed\n",
- 				adapter->name);
--		goto fail3;
-+		goto fail2;
- 	}
- 
- 	dev_info(&pdev->dev, "AT91 i2c bus driver.\n");
- 	return 0;
- 
--fail3:
-+fail2:
- 	platform_set_drvdata(pdev, NULL);
--	kfree(adapter);
- 	clk_disable(twi_clk);
--fail2:
--	clk_put(twi_clk);
- fail1:
--	iounmap(twi_base);
--fail0:
--	release_mem_region(res->start, resource_size(res));
-+	clk_put(twi_clk);
- 
- 	return rc;
+ 	i2c_au1550_disable(priv);
+-	iounmap(priv->psc_base);
+-out_map:
+-	release_resource(priv->ioarea);
+-	kfree(priv->ioarea);
+-out_mem:
+-	kfree(priv);
+-out:
+ 	return ret;
  }
-@@ -259,16 +247,11 @@ fail0:
- static int __devexit at91_i2c_remove(struct platform_device *pdev)
- {
- 	struct i2c_adapter *adapter = platform_get_drvdata(pdev);
--	struct resource *res;
- 	int rc;
  
- 	rc = i2c_del_adapter(adapter);
+@@ -379,10 +358,6 @@ static int __devexit i2c_au1550_remove(struct platform_device *pdev)
  	platform_set_drvdata(pdev, NULL);
- 
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	iounmap(twi_base);
--	release_mem_region(res->start, resource_size(res));
--
- 	clk_disable(twi_clk);		/* disable peripheral clock */
- 	clk_put(twi_clk);
+ 	i2c_del_adapter(&priv->adap);
+ 	i2c_au1550_disable(priv);
+-	iounmap(priv->psc_base);
+-	release_resource(priv->ioarea);
+-	kfree(priv->ioarea);
+-	kfree(priv);
+ 	return 0;
+ }
  
