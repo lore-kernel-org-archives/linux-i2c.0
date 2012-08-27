@@ -1,87 +1,38 @@
-From: Julia Lawall <julia.lawall@lip6.fr>
-Subject: Re: [PATCH 6/6] i2c: davinci: use devm_ functions
-Date: Mon, 27 Aug 2012 19:04:10 +0200 (CEST)
-Message-ID: <alpine.DEB.2.02.1208271900520.2079@hadrien>
-References: <1345916499-6657-6-git-send-email-Julia.Lawall@lip6.fr> <503BA696.6080701@mvista.com>
+From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V4] MXS: Implement DMA support into mxs-i2c
+Date: Mon, 27 Aug 2012 15:54:30 -0300
+Message-ID: <CAOMZO5CSvP3nXNq4VLYALh+U9OZRnjtgXqTr7zsKdeHpUdJ4cQ@mail.gmail.com>
+References: <1345779871-7677-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <503BA696.6080701@mvista.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sergei Shtylyov <sshtylyov@mvista.com>
-Cc: Julia Lawall <Julia.Lawall@lip6.fr>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@ti.com>, davinci-linux-open-source@linux.davincidsp.com, kernel-janitors@vger.kernel.org, "Wolfram Sang (embedded platforms)" <w.sang@pengutronix.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1345779871-7677-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-> > -	ioarea = request_mem_region(mem->start, resource_size(mem),
-> > -				    pdev->name);
-> > -	if (!ioarea) {
-> > -		dev_err(&pdev->dev, "I2C region already claimed\n");
-> > -		return -EBUSY;
-> > -	}
+On Fri, Aug 24, 2012 at 12:44 AM, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org> wrote:
+> This patch implements DMA support into mxs-i2c. DMA transfers are now enabled
+> via DT. The DMA operation is enabled by default.
 >
->    Shouldn't you have dropped the 'ioarea' variable? It should be unused now...
+> Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> CC: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> CC: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-Indeed, this is probably the case.  I will check.
+On a mx28evk:
 
-> > @@ -699,14 +685,15 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> [...]
-> > -	dev->base = ioremap(mem->start, resource_size(mem));
-> > +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->
->    Why you dropped check form 'mem' being NULL?
+Tested-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-devm_request_and_ioremap does the check.  There have been some discussions
-about this before.  Since the code is overall complicated and error-prone,
-it seems better to minimize it when possible.
+Wolfram,
 
-> > +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
-> >  	if (!dev->base) {
-> >  		r = -EBUSY;
-> >  		goto err_mem_ioremap;
-> > @@ -714,16 +701,17 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >
-> >  	i2c_davinci_init(dev);
-> >
-> > -	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
-> > +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_davinci_isr, 0,
-> > +			     pdev->name, dev);
-> >  	if (r) {
-> >  		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
-> > -		goto err_unuse_clocks;
-> > +		goto err_mem_ioremap;
->
->    The label no longer corresponds the failure happening. Perhaps it's better to
-> leave 'err_unuse_clocks'...
+Adding dma support into mxs-i2c has also the benefit to allow i2c on
+mx23 to work.
 
-OK.  It seemed nicer not to have a stack of empty labels...
+Please consider applying this one.
 
-I'll send another patch shortly.
+Thanks,
 
-julia
-
-> >  	}
-> >
-> >  	r = i2c_davinci_cpufreq_register(dev);
-> >  	if (r) {
-> >  		dev_err(&pdev->dev, "failed to register cpufreq\n");
-> > -		goto err_free_irq;
-> > +		goto err_mem_ioremap;
->
->    Ditto...
->
-> > @@ -740,26 +728,18 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  	r = i2c_add_numbered_adapter(adap);
-> >  	if (r) {
-> >  		dev_err(&pdev->dev, "failure adding adapter\n");
-> > -		goto err_free_irq;
-> > +		goto err_mem_ioremap;
->
->    Ditto...
->
-> WBR, Sergei
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe kernel-janitors" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
+Fabio Estevam
