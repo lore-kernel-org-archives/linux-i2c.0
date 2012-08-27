@@ -1,73 +1,50 @@
-From: ludovic.desroches <ludovic.desroches@atmel.com>
-Subject: Re: [PATCH v11 4/4] G45 TWI: remove open drain setting for twi
- function gpios
-Date: Mon, 27 Aug 2012 15:27:48 +0200
-Message-ID: <503B75D4.2030803@atmel.com>
+From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: RE: [PATCH v11 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Mon, 27 Aug 2012 15:32:11 +0200
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090EC3D6F6@wm021.weinmann.com>
 References: <cover.1345618760.git.n.voss@weinmann.de>
- <6acdbd0f06cb9902efc510346564e10b07fa0b91.1345618760.git.n.voss@weinmann.de>
- <503B4AE6.4090107@atmel.com>
- <EF2E73589CA71846A15D0B2CDF79505D090EC3D6E4@wm021.weinmann.com>
+ <4f3dcfbf1e8eab3e251ab3558e9e1e9123643928.1345618760.git.n.voss@weinmann.de>,<503B4919.6080306@atmel.com>
+ <BC0F374A1C27184AB96177CDFEC2F54225ECC330@EXMDB06.org.aalto.fi>,<503B623C.4030304@atmel.com>
+ <BC0F374A1C27184AB96177CDFEC2F54225ECD36E@EXMDB06.org.aalto.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D090EC3D6E4@wm021.weinmann.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "Voss, Nikolaus" <N.Voss@weinmann.de>
-Cc: "'rmallon@gmail.com'" <rmallon@gmail.com>, "'nicolas.ferre@atmel.com'" <nicolas.ferre@atmel.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'balbi@ti.com'" <balbi@ti.com>, "'h.feurstein@gmail.com'" <h.feurstein@gmail.com>, "'ludovic.desroches'" <ludovic.desroches@atmel.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'adrian.yanes@aalto.fi'" <adrian.yanes@aalto.fi>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'carsten.behling@garz-fricke.com'" <carsten.behling@garz-fricke.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <BC0F374A1C27184AB96177CDFEC2F54225ECD36E-rZDk5e4OVTsRAxgRyUl6SBEi2Xg3O0b1@public.gmane.org>
+Content-Language: de-DE
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Yanes Martinez Adrian' <adrian.yanes-uOixanVlb7U@public.gmane.org>, "'ludovic.desroches'" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "'ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org'" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "'balbi-l0cyMroinI0@public.gmane.org'" <balbi-l0cyMroinI0@public.gmane.org>, "'h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org'" <h.feurstein-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "'rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org'" <rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "'carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org'" <carsten.behling-0M7HhAU3Y85FsXB23wyQUg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Le 08/27/2012 03:22 PM, Voss, Nikolaus a =E9crit :
-> Hi Ludovic,
->
-> ludovic.desroches wrote on Monday, August 27, 2012 12:25 PM:
->> Le 11/08/2011 12:11 PM, Nikolaus Voss a =E9crit :
->>> The G45 datasheets explicitly states that setting the open drain proper=
-ty
->>> on peripheral function gpios is not allowed. (How about other A91 chips=
-?)
+Hi Adian,
+
+Yanes Martinez Adrian wrote on Monday, August 27, 2012 2:46 PM:
+> Le 08/27/2012 12:40 PM, Yanes Martinez Adrian a =E9crit :
+>> Hi Ludovic,
 >>
->> Did you remove open drain because you had some issues or because you
->> had  seen it into datasheet?
+>>> Tested on at91rm9200, at91sam9261, at91sam9g20 and at91sam9m10 with
+>>> eeprom, temperature sensor and rtc devices (and wolfson chip for
+>>> sam9g20).
 >>
->> I tried with and without open drain. The behavior was the same. Looking
->> to the G45 datasheet, I didn't see that the open drain property is not
->> allowed on peripheral function gpios:
+>> concerning the at91rm9200, what was the amount of bytes you
+> transmitted?
 >>
->> 'The Multi Drive can be selected whether the I/O line
->> is controlled by the PIO controller or assigned to a peripheral function=
-.'
->>
->> The datasheet should have been updated or there is another place where
->> it is mentioned that open drain property is not allowed in this case.
->
-> well, it didn't work on my G45. I found the following note in the
-> TWI chapter 31.6.1 of the G45 datasheet:
-> "The user must not program TWD and TWCK as open-drain.
-> It is already done by the hardware."
+>=20
+>> I have only checked that I can communicate with i2c devices so the
+>> amount is very low (1-4 bytes).
+>=20
+> IIRC it was from >7 bytes when the issues appeared.
+>=20
+>> Some months ago I performed some testing[1] with the previous versio=
+n of
+>> the patch and the main conclusion was that the absence of PDC in the
+>> AT91RM9200 made this driver unusable in such platform.
 
-Ok so it seems there is a contradiction. I'll try to inquire about this =
+I didn't get your last post  in that thread. In my opinion RM9200 shoul=
+d really
+be excluded from being configured with this driver, what's your opinion
+Ludovic?
 
-point.
-
-Regards
-
-Ludovic
-
->
-> After removing the open-drain setting, it worked.
->
-> Regards,
-> Nikolaus
->
->
->
->
+Regards,
+Niko
