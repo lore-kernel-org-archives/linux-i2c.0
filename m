@@ -1,48 +1,96 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c multiplexer driver for Proliant microserver N36L
-Date: Wed, 29 Aug 2012 19:44:25 +0200
-Message-ID: <20120829194425.31dc3500@endymion.delvare>
-References: <CAKdnbx7xeygkOK=BR+3vUrWT3GEt=PZrxgrEMvEB5nkOfAF0bg@mail.gmail.com>
-	<20111127225514.GO19115@trinity.fluff.org>
-	<CAKdnbx4u6+_WJjjMJ3jnDLSU8eJ0yXX0Mg-dcr=3F4FaOd2R=g@mail.gmail.com>
-	<20111203162757.GA24302@ericsson.com>
-	<CAKdnbx54R9t-mS9-EvyT-618wVp-YH0YDO++=m5t-JqR6h=GCw@mail.gmail.com>
-	<20111203180819.2ddbcb3a@endymion.delvare>
-	<CAKdnbx5V=qfa5dshRudHx+M3o8Eb6qJXCVG+ZBaBwCeKaoQYNA@mail.gmail.com>
-	<20111206093906.21dccf8d@endymion.delvare>
-	<loom.20120215T165236-509@post.gmane.org>
-	<CAM5MpD5R4xde4Li1NCDoErisXs7oRMAgW7swuCwga80MkU3VMw@mail.gmail.com>
-	<CAM5MpD46pT1N2f5yZb0yW1O8CjH7B969TmvxDZztMfwBoyom3g@mail.gmail.com>
-	<CAKdnbx7tiMaU1c971a+P2vhE_owO_zd8EXhKR7cAwrH=evVQ6g@mail.gmail.com>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH 4/5] i2c-i801: Add Device IDs for Intel Lynx Point-LP
+ PCH
+Date: Wed, 29 Aug 2012 19:54:52 +0200
+Message-ID: <20120829195452.4fa8ebaa@endymion.delvare>
+References: <1344530632-2645-1-git-send-email-james.d.ralston@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKdnbx7tiMaU1c971a+P2vhE_owO_zd8EXhKR7cAwrH=evVQ6g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Eddi De Pieri <eddi-soWH+0lSOSbR7s880joybQ@public.gmane.org>
-Cc: Thomas Brandon <tbrandonau-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1344530632-2645-1-git-send-email-james.d.ralston@intel.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: james.d.ralston@intel.com
+Cc: Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Rob Landley <rob@landley.net>, Seth Heasley <seth.heasley@intel.com>, Daniel Kurtz <djkurtz@chromium.org>, Ralf Baechle <ralf@linux-mips.org>, Manuel Lauss <manuel.lauss@googlemail.com>, Olof Johansson <olof@lixom.net>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Eddi, Thomas,
+Hi James,
 
-On Wed, 14 Mar 2012 09:28:54 +0100, Eddi De Pieri wrote:
-> Hi Thomas,
-> 
-> > With the updated patch and the modified sensors-detect I have been
-> > able to probe all ports and have not encountered the power issue
-> > again. If no further issues are identified I will seperate the patch
-> > into stages and submit for review.
-> 
-> I confirm that your patch works well on my proliant n36l and solve the
-> power issue.
-> 
-> Thank you for rewrote my patch.
+Quite a long Cc list for such a trivial patch...
 
-Recent mainline changes to the i2c-piix4 driver make the patch no
-longer apply, so I can't push it upstream. Can either of you please
-rebase the patch on top of Linus' latest kernel and resubmit?
+On Thu,  9 Aug 2012 09:43:52 -0700, james.d.ralston@intel.com wrote:
+> From: James Ralston <james.d.ralston@intel.com>
+> 
+> This patch adds the SMBus Device IDs for the Intel Lynx Point-LP PCH. The Device IDs are defined in drivers/i2c/busses/i2c-i801.c
 
-Thanks,
+I'm curious what the "LP" stands for. Low power?
+
+> 
+> Signed-off-by: James Ralston <james.d.ralston@intel.com>
+> ---
+>  Documentation/i2c/busses/i2c-i801 |    1 +
+>  drivers/i2c/busses/Kconfig        |    1 +
+>  drivers/i2c/busses/i2c-i801.c     |    3 +++
+>  3 files changed, 5 insertions(+), 0 deletions(-)
+> 
+> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+> index 615142d..53207df 100644
+> --- a/Documentation/i2c/busses/i2c-i801
+> +++ b/Documentation/i2c/busses/i2c-i801
+> @@ -21,6 +21,7 @@ Supported adapters:
+>    * Intel DH89xxCC (PCH)
+>    * Intel Panther Point (PCH)
+>    * Intel Lynx Point (PCH)
+> +  * Intel Lynx Point_LP (PCH)
+
+You spelled it "Lynx Point-LP" (with dash not underscore) in the patch
+summary. Consistency in naming would be preferred. I'll use a dash
+everywhere and apply your patch.
+
+>     Datasheets: Publicly available at the Intel website
+>  
+>  On Intel Patsburg and later chipsets, both the normal host SMBus controller
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 2e7530a..3500af7 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -104,6 +104,7 @@ config I2C_I801
+>  	    DH89xxCC (PCH)
+>  	    Panther Point (PCH)
+>  	    Lynx Point (PCH)
+> +	    Lynx Point_LP (PCH)
+>  
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-i801.
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 898dcf9..c467038 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -52,6 +52,7 @@
+>    DH89xxCC (PCH)        0x2330     32     hard     yes     yes     yes
+>    Panther Point (PCH)   0x1e22     32     hard     yes     yes     yes
+>    Lynx Point (PCH)      0x8c22     32     hard     yes     yes     yes
+> +  Lynx Point_LP (PCH)   0x9c22     32     hard     yes     yes     yes
+>  
+>    Features supported by this driver:
+>    Software PEC                     no
+> @@ -155,6 +156,7 @@
+>  #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
+>  #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+>  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
+> +#define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS	0x9c22
+>  
+>  struct i801_priv {
+>  	struct i2c_adapter adapter;
+> @@ -771,6 +773,7 @@ static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_PANTHERPOINT_SMBUS) },
+>  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS) },
+> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS) },
+>  	{ 0, }
+>  };
+>  
+
+
 -- 
 Jean Delvare
