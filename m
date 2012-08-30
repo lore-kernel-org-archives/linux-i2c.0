@@ -1,95 +1,49 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Subject: Re: I2C_FUNC_SMBUS_QUICK on i2c-mxs
-Date: Thu, 30 Aug 2012 15:08:28 +0200
-Message-ID: <201208301508.29149.marex@denx.de>
-References: <CAOMZO5Dyp-+GXkWZvgsFXbZv15N+4u3iuPjw-sqwLn=5bVGBsw@mail.gmail.com> <20120830133945.7c56ae0f@endymion.delvare>
+Date: Thu, 30 Aug 2012 15:13:27 +0200
+Message-ID: <20120830131327.GI27306@pengutronix.de>
+References: <CAOMZO5Dyp-+GXkWZvgsFXbZv15N+4u3iuPjw-sqwLn=5bVGBsw@mail.gmail.com>
+ <20120830133945.7c56ae0f@endymion.delvare>
+ <201208301508.29149.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Encpt1P6Mxii2VuT"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120830133945.7c56ae0f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201208301508.29149.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Jean Delvare,
 
-> Hi Fabio,
-> 
-> On Mon, 27 Aug 2012 16:32:12 -0300, Fabio Estevam wrote:
-> > When using i2cdetect on a mx28 I get:
-> > 
-> > $ i2cdetect 0
-> > Error: Can't use SMBus Quick Write command on this bus (ISA bus?)
-> 
-> You must be using a somewhat old version of i2c-tools, as the stray
-> reference to the ISA bus was removed two years ago already.
-> 
-> > Enabling I2C_FUNC_SMBUS_QUICK the error goes away:
-> > ---
-> > 
-> >  drivers/i2c/busses/i2c-mxs.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> > index 088c5c1..84484bb 100644
-> > --- a/drivers/i2c/busses/i2c-mxs.c
-> > +++ b/drivers/i2c/busses/i2c-mxs.c
-> > @@ -322,7 +322,7 @@ static int mxs_i2c_xfer(struct i2c_adapter *adap,
-> > struct i2c_msg msgs[],
-> > 
-> >  static u32 mxs_i2c_func(struct i2c_adapter *adap)
-> >  {
-> > 
-> > -	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
-> > +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> > 
-> >  }
-> >  
-> >  static irqreturn_t mxs_i2c_isr(int this_irq, void *dev_id)
-> > 
-> > Could anyone clarify whether I2C_FUNC_SMBUS_QUICK option could be
-> > turned on or not?
-> 
-> Well, I2C_FUNC_SMBUS_QUICK was left out explicitly, so I would expect
-> 
-> there was a good reason for this. Looking at the driver code:
-> > static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg
-> > *msg,
-> > 
-> > 				int stop)
-> > 
-> > {
-> > (...)
-> > 
-> > 	if (msg->len == 0)
-> > 	
-> > 		return -EINVAL;
+--Encpt1P6Mxii2VuT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Can we really not do zero-length transfer? If I recall properly, we are able to 
-do so in U-Boot. So I'd say that'd rather be flub of the original author of the 
-driver, being lazy and not testing the corner cases properly? I can't run git 
-blame to detect who did it now, but Fabio, can you possibly remove this and test 
-please?
 
-> it seems that quick transactions are really not supported by the
-> driver. So your hack made the error message go away but presumably
-> i2cdetect couldn't see any slave device on your I2C bus (except for the
-> limited address range where it doesn't use quick writes by default.)
-> 
-> You may want to try "i2cdetect -r" on this bus, but first please read
-> the warning in the manual page.
-> 
-> What is on your bus and what are you trying to find with i2cdetect?
-> 
-> Looking at the code in i2cdetect, it appears the checks are more strict
-> than they need to be. Instead of bailing out by default if either quick
-> writes or short reads aren't supported, we could simply warn and skip
-> the addresses we can't probe. Only if both quick writes and short reads
-> are unsupported, we should bail out. I can implement this easily if it
-> solves your problem.
+> So I'd say that'd rather be flub of the original author of the driver,
+> being lazy and not testing the corner cases properly? I can't run git
+> blame to detect who did it now,
 
-Best regards,
-Marek Vasut
+:)
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--Encpt1P6Mxii2VuT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlA/ZvcACgkQD27XaX1/VRvJvwCfblh6guZwQPDo+6YNo6mMThx8
+m8QAoKA+08xWyPuvs60uo8EDENBsPmSu
+=PZag
+-----END PGP SIGNATURE-----
+
+--Encpt1P6Mxii2VuT--
