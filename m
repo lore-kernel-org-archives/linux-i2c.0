@@ -1,86 +1,108 @@
-From: ludovic.desroches <ludovic.desroches@atmel.com>
-Subject: Re: [PATCH v11 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
-Date: Thu, 30 Aug 2012 09:35:35 +0200
-Message-ID: <503F17C7.5010807@atmel.com>
-References: <cover.1345618760.git.n.voss@weinmann.de>
- <4f3dcfbf1e8eab3e251ab3558e9e1e9123643928.1345618760.git.n.voss@weinmann.de>,
- <503B4919.6080306@atmel.com>
- <BC0F374A1C27184AB96177CDFEC2F54225ECC330@EXMDB06.org.aalto.fi>,
- <503B623C.4030304@atmel.com>
- <BC0F374A1C27184AB96177CDFEC2F54225ECD36E@EXMDB06.org.aalto.fi>
- <EF2E73589CA71846A15D0B2CDF79505D090EC3D6F6@wm021.weinmann.com>
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: Re: i2c-eg20t: regression since i2c_add_numbered_adapter change
+Date: Thu, 30 Aug 2012 09:49:52 +0200
+Message-ID: <4378288.tkkLiQ5MQ7@ws-stein>
+References: <4401854.hVfHzgeqjT@ws-stein> <20120823162852.29243e9c@feng-i7> <20120829204031.648a73e1@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D090EC3D6F6@wm021.weinmann.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "Voss, Nikolaus" <N.Voss@weinmann.de>
-Cc: "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'carsten.behling@garz-fricke.com'" <carsten.behling@garz-fricke.com>, "'nicolas.ferre@atmel.com'" <nicolas.ferre@atmel.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'balbi@ti.com'" <balbi@ti.com>, "'h.feurstein@gmail.com'" <h.feurstein@gmail.com>, "'ludovic.desroches'" <ludovic.desroches@atmel.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, 'Yanes Martinez Adrian' <adrian.yanes@aalto.fi>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'rmallon@gmail.com'" <rmallon@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120829204031.648a73e1-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Le 08/27/2012 03:32 PM, Voss, Nikolaus a =E9crit :
-> Hi Adian,
->
-> Yanes Martinez Adrian wrote on Monday, August 27, 2012 2:46 PM:
->> Le 08/27/2012 12:40 PM, Yanes Martinez Adrian a =E9crit :
->>> Hi Ludovic,
->>>
->>>> Tested on at91rm9200, at91sam9261, at91sam9g20 and at91sam9m10 with
->>>> eeprom, temperature sensor and rtc devices (and wolfson chip for
->>>> sam9g20).
->>>
->>> concerning the at91rm9200, what was the amount of bytes you
->> transmitted?
->>>
->>
->>> I have only checked that I can communicate with i2c devices so the
->>> amount is very low (1-4 bytes).
->>
->> IIRC it was from >7 bytes when the issues appeared.
->>
->>> Some months ago I performed some testing[1] with the previous version of
->>> the patch and the main conclusion was that the absence of PDC in the
->>> AT91RM9200 made this driver unusable in such platform.
->
-> I didn't get your last post  in that thread. In my opinion RM9200 should =
-really
-> be excluded from being configured with this driver, what's your opinion
-> Ludovic?
->
+Hello Jean,
 
-After investigation, the transmission issue may concern rm9200, 9261, =
+On Wednesday 29 August 2012 20:40:31, Jean Delvare wrote:
+> Looks like what media and sound drivers are/were doing to assign fixed
+> numbers to their devices. But my understanding is that this is a legacy
+> thing and nobody should need to use that any longer. Adding this to all
+> or even some i2c bus drivers looks like the wrong example to follow. If
+> your system has more than one device supported by the driver, it
+> doesn't even reliably guarantee fixed I2C bus numbers (especially if
+> some can be hot-plugged.)
 
-9260 and 9263. The main cause of this issue is we do not have clock =
+I'm aware that this is more than less a workaround to the current problem which arose from the change to i2c_add_numbered_adapter.
+The sitation before that where i2c-eg20t just used i2c_add_adapter wasn't perfect either.
 
-stretching.
-Using a low clock frequency should reduce the underrun issue so this =
+> > > > The reason we need a fixed number is it is easier for platform code
+> > > > which needs to register dozens of i2c devices to different controllers
+> > > > with i2c_register_board_info, and they need provide a bus number for
+> > > > each i2c device, this _binding_ info is not detectable but have to
+> > > > be fixed.
+> 
+> Whenever you call i2c_register_board_info(), every I2C bus number
+> referenced in the I2C device list passed as a parameter is reserved for
+> static I2C bus numbers, dynamic I2C bus numbers will never overlap.
+> 
+> So in the quoted example, if i2c-isch is able to dynamically pick I2C
+> bus number 0 while i2c-eg20t want it statically, it means that either
+> no device was declared on bus 0 with i2c_register_board_info(), or
+> i2c_register_board_info() was called too late in the game.
 
-driver can be used on those chips but a warning have to be added to =
+In my case i2c_register_board_info is never called due to a non-existant platform setup (see below).
 
-indicate this potential issue. I'll do it when I'll resend patches for =
+> Note that there was an assumption at the time the code was written,
+> that there was no need or reason to reserve a static I2C bus number if
+> no slave device was declared on said I2C bus. I never much liked it but
+> it never caused problems so far. This means that either:
+> * you call i2c_register_board_info() to register your slave I2C devices
+>   and all the affected I2C bus drivers call i2c_add_numbered_adapter();
+>   or
+> * you don't call i2c_register_board_info() and all I2C bus drivers call
+>   i2c_add_adapter().
+> You can't mix, i.e. if you don't register any slave device on a bus but
+> the bus driver still calls i2c_add_numbered_adapter(), it may fail.
+> 
+> If this is a problem now on some systems, it should be easy enough to
+> work around by adding a specific function to reserve an I2C bus number
+> for static allocation, even without declaring any slave device on it.
+> This function would be called at the same time
+> i2c_register_board_info() typically is.
 
-DT support.
+IMO the i2c_register_board_info only works in quite static setups. Especially with I2C-Busses attached to hotplugable PCI devices this way doesn't work reliable any more.
+The device come and go dynamically so you can't assume fixed mapping.
 
+> > > Yes, I'm aware of that. With "Why use a fixed one?" I meant why hard-code it into the driver. I should be changeable.
+> > > Because this is/was not possible in general to use i2c_register_board_info, so we used an echo to /sys/bus/i2c/devices/i2c-0/new_device or /sys/bus/i2c/devices/i2c-1/new_device.
+> 
+> Please elaborate on "this is/was not possible in general to use
+> i2c_register_board_info." You are supposed to call it as part of your
+> platform setup, so if it is not possible for you, whatever the problem
+> is needs to be addressed.
 
-Regards
+The problem here is that AFAIK on x86 there is no platform setup to e.g. register platform devices. So you depend on the order the drivers and devices are bound.
+In 3.0.x we get a static numbering due to this order. As there is no platform setup we register our I2C devices with /sys/bus/i2c/devices/i2c-[01]/new_device as some of our sensors can't be auto-detected.
 
-Ludovic
+> > Yeah, our EG20T kernel used to use the same "echo /sys/bus/i2c/devices/i2c-x/new_device"
+> > way, but we found out it is not convenient for:
+> > 1. needs extra user space script, why not make it just work in kernel after
+> > boot? We have several i2c devices like touchscreen/radio which we wants them
+> > just work without depending user space action.
+> 
+> It should indeed be handled all in kernel space, using
+> i2c_register_board_info().
 
-> Regards,
-> Niko
->
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->
+I know this mechanism for ARM, but how can this be done on x86 architecture?
+But even with this, how does this address the random occurance of hotplugable bus masters?
+
+> > 2. The i2c bus number is not fixed, which make the user space script even
+> > harder, as that number depends whether we compile into kernel all the i2c
+> > controllers (eg20t and isch) and whether these driver are compiled as
+> > modules and their loading order.
+> 
+> You can always look-up the right I2C bus number based on its name,
+> assuming your driver properly names them. There is some code doing that
+> at:
+> http://www.lm-sensors.org/browser/i2c-tools/trunk/tools/i2cbusses.c#L297
+> 
+> Ideally this code should move to libi2c and/or i2cdetect should offer
+> an interface to it, so it can easily be called from custom tools and
+> scripts.
+
+You either need this get the current (maybe non-fixed) bus number and attach the devices by new_device or there is some in-kernel or udev related mechanism which returns the current bus number from some unique deivce path or description.
+
+Best regards,
+Alexander
