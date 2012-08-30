@@ -1,26 +1,86 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [RFC PATCH 1/5] i2c: introduce i2c-cbus driver
-Date: Wed, 29 Aug 2012 16:35:17 -0700
-Message-ID: <20120829233517.GG1303@atomide.com>
-References: <1346189667-32330-1-git-send-email-aaro.koskinen@iki.fi>
- <1346189667-32330-2-git-send-email-aaro.koskinen@iki.fi>
+From: ludovic.desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH v11 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Thu, 30 Aug 2012 09:35:35 +0200
+Message-ID: <503F17C7.5010807@atmel.com>
+References: <cover.1345618760.git.n.voss@weinmann.de>
+ <4f3dcfbf1e8eab3e251ab3558e9e1e9123643928.1345618760.git.n.voss@weinmann.de>,
+ <503B4919.6080306@atmel.com>
+ <BC0F374A1C27184AB96177CDFEC2F54225ECC330@EXMDB06.org.aalto.fi>,
+ <503B623C.4030304@atmel.com>
+ <BC0F374A1C27184AB96177CDFEC2F54225ECD36E@EXMDB06.org.aalto.fi>
+ <EF2E73589CA71846A15D0B2CDF79505D090EC3D6F6@wm021.weinmann.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1346189667-32330-2-git-send-email-aaro.koskinen@iki.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D090EC3D6F6@wm021.weinmann.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "Voss, Nikolaus" <N.Voss@weinmann.de>
+Cc: "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'carsten.behling@garz-fricke.com'" <carsten.behling@garz-fricke.com>, "'nicolas.ferre@atmel.com'" <nicolas.ferre@atmel.com>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'balbi@ti.com'" <balbi@ti.com>, "'h.feurstein@gmail.com'" <h.feurstein@gmail.com>, "'ludovic.desroches'" <ludovic.desroches@atmel.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, 'Yanes Martinez Adrian' <adrian.yanes@aalto.fi>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'rmallon@gmail.com'" <rmallon@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-* Aaro Koskinen <aaro.koskinen@iki.fi> [120828 14:35]:
-> Add i2c driver to enable access to devices behind CBUS on Nokia Internet
-> Tablets.
+Le 08/27/2012 03:32 PM, Voss, Nikolaus a =E9crit :
+> Hi Adian,
+>
+> Yanes Martinez Adrian wrote on Monday, August 27, 2012 2:46 PM:
+>> Le 08/27/2012 12:40 PM, Yanes Martinez Adrian a =E9crit :
+>>> Hi Ludovic,
+>>>
+>>>> Tested on at91rm9200, at91sam9261, at91sam9g20 and at91sam9m10 with
+>>>> eeprom, temperature sensor and rtc devices (and wolfson chip for
+>>>> sam9g20).
+>>>
+>>> concerning the at91rm9200, what was the amount of bytes you
+>> transmitted?
+>>>
+>>
+>>> I have only checked that I can communicate with i2c devices so the
+>>> amount is very low (1-4 bytes).
+>>
+>> IIRC it was from >7 bytes when the issues appeared.
+>>
+>>> Some months ago I performed some testing[1] with the previous version of
+>>> the patch and the main conclusion was that the absence of PDC in the
+>>> AT91RM9200 made this driver unusable in such platform.
+>
+> I didn't get your last post  in that thread. In my opinion RM9200 should =
+really
+> be excluded from being configured with this driver, what's your opinion
+> Ludovic?
+>
 
-Can you please do also a separate patch for the device tree binding for
-getting the GPIO pins for this controller? 
+After investigation, the transmission issue may concern rm9200, 9261, =
 
-Other than that thanks for doing this and:
+9260 and 9263. The main cause of this issue is we do not have clock =
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+stretching.
+Using a low clock frequency should reduce the underrun issue so this =
+
+driver can be used on those chips but a warning have to be added to =
+
+indicate this potential issue. I'll do it when I'll resend patches for =
+
+DT support.
+
+
+Regards
+
+Ludovic
+
+> Regards,
+> Niko
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
