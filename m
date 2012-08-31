@@ -1,39 +1,47 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
- I2C driver
-Date: Fri, 31 Aug 2012 11:36:36 +0100
-Message-ID: <20120831103633.GA5569@gmail.com>
-References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
- <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
- <CACRpkdapY3JvZmLxK7dX917O-E+aDgVE9ELnysjqAyETXMZHNw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
+Subject: [PATCH] omap-i2c: fix incorrect log message when using a device tree
+Date: Fri, 31 Aug 2012 13:02:55 +0200
+Message-ID: <1346410975-29930-1-git-send-email-florian.vaussard@epfl.ch>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdapY3JvZmLxK7dX917O-E+aDgVE9ELnysjqAyETXMZHNw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>, =?UTF-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz-p8DiymsW2f8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Aug 27, 2012 at 04:42:49PM -0700, Linus Walleij wrote:
-> On Thu, Aug 23, 2012 at 8:01 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wro=
-te:
->=20
-> > Here we apply the bindings required for successful Device Tree
-> > probing of the i2c-nomadik driver.
-> >
-> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > Acked-by: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->=20
-> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+When booting using a device tree, the adapter number is dynamically
+assigned after the log message is sent.
+This patch modifies the log message to get a correct adapter id.
 
-I'm assuming I still need Wolfram's Ack on this?
+Applies on 3.6-rc3. Tested on OMAP3 (Gumstix Overo).
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Signed-off-by: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 5d19a49..136b4fe 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1064,9 +1064,6 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		goto err_unuse_clocks;
+ 	}
+ 
+-	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", pdev->id,
+-		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
+-
+ 	adap = &dev->adapter;
+ 	i2c_set_adapdata(adap, dev);
+ 	adap->owner = THIS_MODULE;
+@@ -1084,6 +1081,9 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		goto err_free_irq;
+ 	}
+ 
++	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
++		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
++
+ 	of_i2c_register_devices(adap);
+ 
+ 	pm_runtime_put(dev->dev);
+-- 
+1.7.5.4
