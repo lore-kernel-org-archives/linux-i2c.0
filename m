@@ -1,7 +1,7 @@
 From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/8] i2c: at91: add warning about transmission issues for some devices
-Date: Fri, 31 Aug 2012 11:21:18 +0200
-Message-ID: <1346404884-18451-3-git-send-email-ludovic.desroches@atmel.com>
+Subject: [PATCH 4/8] ARM: at91: do not configure at91sam9g10 twi pio as open-drain
+Date: Fri, 31 Aug 2012 11:21:20 +0200
+Message-ID: <1346404884-18451-5-git-send-email-ludovic.desroches@atmel.com>
 References: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,32 +14,48 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-Some devices don't have clock streching in transmission mode. It can
-lead to premature stop sendings if the latency to write data in the
-transmission register is too long. In this case, prefer the i2c-gpio
-driver.
+As indicated in the datasheet, TWD and TWCK must not be programmed as
+open-drain.
 
 Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/Kconfig | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/mach-at91/at91sam9261_devices.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d9c4918..da77c37 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -300,6 +300,12 @@ config I2C_AT91
- 	  to support combined I2C messages.  Use the i2c-gpio driver
- 	  unless your system can cope with this limitation.
+diff --git a/arch/arm/mach-at91/at91sam9261_devices.c b/arch/arm/mach-at91/at91sam9261_devices.c
+index c94495d..405f603 100644
+--- a/arch/arm/mach-at91/at91sam9261_devices.c
++++ b/arch/arm/mach-at91/at91sam9261_devices.c
+@@ -324,20 +324,22 @@ static struct platform_device at91sam9261_twi_device = {
  
-+	  Caution! at91rm9200, at91sam9261, at91sam9260, at91sam9263 devices
-+	  don't have clock stretching in transmission mode. For that reason,
-+	  you can encounter underrun issues causing premature stop sendings if
-+	  the latency to fill the transmission register is too long. If you
-+	  are facing this situation, use the i2c-gpio driver.
-+
- config I2C_AU1550
- 	tristate "Au1550/Au1200/Au1300 SMBus interface"
- 	depends on MIPS_ALCHEMY
+ void __init at91_add_device_i2c(struct i2c_board_info *devices, int nr_devices)
+ {
+-	/* IP version is not the same on 9261 and g10 */
++	/*
++	 * IP version is not the same on 9261 and g10 and only 9261 one
++	 * requires to configure PIO as open-drain.
++	 */
+ 	if (cpu_is_at91sam9g10()) {
+ 		at91sam9261_twi_device.name = "at91sam9g10_i2c";
++		at91_set_A_periph(AT91_PIN_PA7, 0);		/* TWD */
++		at91_set_A_periph(AT91_PIN_PA8, 0);		/* TWCK */
+ 	} else {
+ 		at91sam9261_twi_device.name = "at91sam9261_i2c";
++		at91_set_A_periph(AT91_PIN_PA7, 0);		/* TWD */
++		at91_set_multi_drive(AT91_PIN_PA7, 1);
++		at91_set_A_periph(AT91_PIN_PA8, 0);		/* TWCK */
++		at91_set_multi_drive(AT91_PIN_PA8, 1);
+ 	}
+ 
+-	/* pins used for TWI interface */
+-	at91_set_A_periph(AT91_PIN_PA7, 0);		/* TWD */
+-	at91_set_multi_drive(AT91_PIN_PA7, 1);
+-
+-	at91_set_A_periph(AT91_PIN_PA8, 0);		/* TWCK */
+-	at91_set_multi_drive(AT91_PIN_PA8, 1);
+-
+ 	i2c_register_board_info(0, devices, nr_devices);
+ 	platform_device_register(&at91sam9261_twi_device);
+ }
 -- 
 1.7.11.3
