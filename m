@@ -1,47 +1,166 @@
-From: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
-Subject: [PATCH] omap-i2c: fix incorrect log message when using a device tree
-Date: Fri, 31 Aug 2012 13:02:55 +0200
-Message-ID: <1346410975-29930-1-git-send-email-florian.vaussard@epfl.ch>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>, =?UTF-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz-p8DiymsW2f8@public.gmane.org>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the
+ Nomadik I2C driver
+Date: Fri, 31 Aug 2012 13:22:58 +0200
+Message-ID: <20120831112258.GA2624@pengutronix.de>
+References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
+ <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="===============3453596030035101214=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linus.walleij@stericsson.com, arnd@arndb.de, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-When booting using a device tree, the adapter number is dynamically
-assigned after the log message is sent.
-This patch modifies the log message to get a correct adapter id.
 
-Applies on 3.6-rc3. Tested on OMAP3 (Gumstix Overo).
+--===============3453596030035101214==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YiEDa0DAkWCtVeE4"
+Content-Disposition: inline
 
-Signed-off-by: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 5d19a49..136b4fe 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1064,9 +1064,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 		goto err_unuse_clocks;
- 	}
- 
--	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", pdev->id,
--		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
--
- 	adap = &dev->adapter;
- 	i2c_set_adapdata(adap, dev);
- 	adap->owner = THIS_MODULE;
-@@ -1084,6 +1081,9 @@ omap_i2c_probe(struct platform_device *pdev)
- 		goto err_free_irq;
- 	}
- 
-+	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
-+		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
-+
- 	of_i2c_register_devices(adap);
- 
- 	pm_runtime_put(dev->dev);
--- 
-1.7.5.4
+--YiEDa0DAkWCtVeE4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Aug 23, 2012 at 04:01:27PM +0100, Lee Jones wrote:
+> Here we apply the bindings required for successful Device Tree
+> probing of the i2c-nomadik driver.
+>=20
+> Cc: linux-i2c@vger.kernel.org
+> Acked-by: srinidhi kasagar <srinidhi.kasagar@stericsson.com>
+
+Two acks? I'd think this cannot work for multiple reasons.
+
+BTW, patch 2 and 3 should be merged. It is a lot easier to review the
+code with the binding description together.
+
+Is there some dependency other than updating the dts files? If not, I'd
+like to pick up the patch via I2C.
+
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  drivers/i2c/busses/i2c-nomadik.c |   28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-no=
+madik.c
+> index 61b00ed..8168389 100644
+> --- a/drivers/i2c/busses/i2c-nomadik.c
+> +++ b/drivers/i2c/busses/i2c-nomadik.c
+> @@ -25,6 +25,7 @@
+>  #include <linux/regulator/consumer.h>
+>  #include <linux/pm_runtime.h>
+>  #include <linux/platform_data/i2c-nomadik.h>
+> +#include <linux/of.h>
+> =20
+>  #define DRIVER_NAME "nmk-i2c"
+> =20
+> @@ -920,15 +921,42 @@ static struct nmk_i2c_controller u8500_i2c =3D {
+>  	.sm             =3D I2C_FREQ_MODE_FAST,
+>  };
+> =20
+> +static void nmk_i2c_of_probe(struct device_node *np,
+> +			struct nmk_i2c_controller *pdata)
+> +{
+> +	/* Provide the default configuration as a base. */
+> +	pdata =3D &u8500_i2c;
+
+?????? I wonder how that could work... have you tested the patch?
+
+> +
+> +	of_property_read_u32(np, "clock-frequency", (u32*)&pdata->clk_freq);
+
+Might be worth changing clk_freq to u32?
+
+> +
+> +	/* This driver only supports 'standard' and 'fast' modes of operation. =
+*/
+> +	if (pdata->clk_freq <=3D 100000)
+> +		pdata->sm =3D I2C_FREQ_MODE_STANDARD;
+
+Is standard =3D=3D 100000 Hz?
+
+
+> +	else
+> +		pdata->sm =3D I2C_FREQ_MODE_FAST;
+
+If those two are fixed frequencies, you should omit a warning if the
+devicetree has a different frequency set and report which one is going
+to be used actually.
+
+
+> +}
+> +
+>  static atomic_t adapter_id =3D ATOMIC_INIT(0);
+> =20
+>  static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id =
+*id)
+>  {
+>  	int ret =3D 0;
+>  	struct nmk_i2c_controller *pdata =3D adev->dev.platform_data;
+> +	struct device_node *np =3D adev->dev.of_node;
+>  	struct nmk_i2c_dev	*dev;
+>  	struct i2c_adapter *adap;
+> =20
+> +	if (np) {
+> +		if (!pdata) {
+> +			pdata =3D devm_kzalloc(&adev->dev, sizeof(*pdata), GFP_KERNEL);
+> +			if (!pdata) {
+> +				ret =3D -ENOMEM;
+> +				goto err_no_mem;
+> +			}
+> +		}
+> +		nmk_i2c_of_probe(np, pdata);
+> +	}
+> +
+>  	if (!pdata)
+>  		/* No i2c configuration found, using the default. */
+>  		pdata =3D &u8500_i2c;
+> --=20
+> 1.7.9.5
+>=20
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--YiEDa0DAkWCtVeE4
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlBAnpIACgkQD27XaX1/VRt03ACgohnOUAd/yK2V/jZKVJeEu3K+
+88kAoKYYDgEMyIZ2a+jNa85vStPkEBZz
+=SvfE
+-----END PGP SIGNATURE-----
+
+--YiEDa0DAkWCtVeE4--
+
+
+--===============3453596030035101214==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============3453596030035101214==--
