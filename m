@@ -1,15 +1,15 @@
 From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: Re: [PATCH 7/8] ARM: dts: add twi nodes for atmel SOCs
-Date: Fri, 31 Aug 2012 16:41:05 +0200
-Message-ID: <20120831144105.GB23867@game.jcrosoft.org>
+Subject: Re: [PATCH 8/8] ARM: dts: add twi nodes for atmel boards
+Date: Fri, 31 Aug 2012 16:42:28 +0200
+Message-ID: <20120831144228.GC23867@game.jcrosoft.org>
 References: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com>
- <1346405077-18620-1-git-send-email-ludovic.desroches@atmel.com>
+ <1346405096-18660-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <1346405077-18620-1-git-send-email-ludovic.desroches@atmel.com>
+In-Reply-To: <1346405096-18660-1-git-send-email-ludovic.desroches@atmel.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
  <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
 List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
@@ -26,9 +26,8 @@ List-Id: linux-i2c@vger.kernel.org
 On 11:24 Fri 31 Aug     , ludovic.desroches@atmel.com wrote:
 > From: Ludovic Desroches <ludovic.desroches@atmel.com>
 > 
-> Add twi nodes for atmel SOCs and remove i2c-gpio ones.
-Only drop the i2c-gpio on the soc that are kn own to have no issue on the hw
-IP. For hte onther one keep both in the dtsi
+> Use the atmel twi instead of gpio for i2c stuff.
+NACK as you do not update al the platform at the same time and break the Calao
 
 Best Regards,
 J.
