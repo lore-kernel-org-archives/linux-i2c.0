@@ -1,58 +1,41 @@
-From: Feng Tang <feng.tang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c-eg20t: regression since i2c_add_numbered_adapter change
-Date: Fri, 31 Aug 2012 10:16:58 +0800
-Message-ID: <20120831101658.5ec81fa2@feng-i7>
-References: <4401854.hVfHzgeqjT@ws-stein>
-	<4378288.tkkLiQ5MQ7@ws-stein>
-	<20120830171915.36b6d10b@feng-i7>
-	<6208908.ZjG7eB9lJn@ws-stein>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <6208908.ZjG7eB9lJn@ws-stein>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Tomoya MORINAGA <tomoya.rohm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Florian Vaussard <florian.vaussard@epfl.ch>
+Subject: [PATCH 0/2] dts for i2c-omap: fix incorrect adapter id
+Date: Fri, 31 Aug 2012 09:52:53 +0200
+Message-ID: <1346399575-7285-1-git-send-email-florian.vaussard@epfl.ch>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Benoit Cousson <b-cousson@ti.com>, Florian Vaussard <florian.vaussard@epfl.ch>, =?UTF-8?q?Philippe=20R=C3=A9tornaz?= <philippe.retornaz@epfl.ch>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Alexander,
+Hello,
 
-On Thu, 30 Aug 2012 13:08:09 +0200
-Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org> wrote:
+This patchset fixes the i2c adapter id on OMAP3 and OMAP4/AM33xx when booting
+from a device tree.
 
-> On Thursday 30 August 2012 17:19:15, Feng Tang wrote:
-> > > IMO the i2c_register_board_info only works in quite static setups. Especially with I2C-Busses attached to hotplugable PCI devices this way doesn't work reliable any more.
-> > > The device come and go dynamically so you can't assume fixed mapping.
-> > 
-> > Can you specify the hotplugable?
-> > 1. A hotplugable i2c bus controller (say i2c_eg20t) with all fixed i2c
-> >  devices connecting to it
-> > 2. i2c bus controller is fixed, while the i2c devices will be dynamically
-> >  connected to it.
-> > 3. Both the bus controller and devices are dynamically hotplugged
-> 
-> I had scenario 1 in mind, but with more than 1 bus controller (say 2x i2c_eg20t). How can you set a fixed numbering if there are more controllers, each with maybe more than 1 bus?
-> Anyway, how can you provide a static bus numbering if there are more than one driver or more than one device per driver if the devices are hotplugable?
+Currently, pdev->id is used, regardless of the boot method. The first patch
+checks for of_node, and get the id from the alias if a device tree is found.
+The boot message is updated accordingly.
 
-There is no problem for one pci driver to support multiple devices with
-same HW, if you check i2c-eg20t.c you can check the pch_pcidev_id[], there
-is a ML7213 platform which has 2 i2c controllers already. With current
-in tree driver, they will get fixed bus number 0 and 1.
+The second patch add the necessary aliases for OMAP3, OMAP4 and AM33xx.
 
-For the scenario 1, if you have really have another hotplugable pci eg20t
-controller, it surely will have its unique PCI id, and then we can use
-the "driver_data" of struct pci_device_id to point to a platform info
-structure like
+This patchset applies on 3.6-rc3 and has been tested on OMAP3 (Gumstix Overo).
 
-struct i2c_eg20t_platform_info {
-	u16	bus_base_num;
-	u16	total_hw_num;
-}
+Regards,
 
-And for EG20T compatible platform, I don't think it will have too many
-fancy hotplugable different type of i2c controller other than i2c_eg20t
-and i2c_sch.
+Florian
 
-Thanks,
-Feng
+
+Florian Vaussard (2):
+  i2c-omap: Fix incorrect adapter id when booting from a device tree
+  arm/dts: Add i2c aliases for OMAP3 and OMAP4/AM33xx
+
+ arch/arm/boot/dts/am33xx.dtsi |    3 +++
+ arch/arm/boot/dts/omap3.dtsi  |    3 +++
+ arch/arm/boot/dts/omap4.dtsi  |    4 ++++
+ drivers/i2c/busses/i2c-omap.c |   19 +++++++++++++++----
+ 4 files changed, 25 insertions(+), 4 deletions(-)
+
+-- 
+1.7.5.4
+
