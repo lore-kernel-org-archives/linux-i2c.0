@@ -1,104 +1,70 @@
-From: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-omap: Fix incorrect adapter id when booting from
- a device tree
-Date: Fri, 31 Aug 2012 11:14:20 +0200
-Message-ID: <5040806C.9080003@ti.com>
-References: <1346399575-7285-1-git-send-email-florian.vaussard@epfl.ch> <1346399575-7285-2-git-send-email-florian.vaussard@epfl.ch>
+From: <ludovic.desroches@atmel.com>
+Subject: [PATCH 0/8] i2c: at91: cleanup and dt support
+Date: Fri, 31 Aug 2012 11:21:16 +0200
+Message-ID: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1346399575-7285-2-git-send-email-florian.vaussard-p8DiymsW2f8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, =?ISO-8859-1?Q?Philippe_R=E9torn?= =?ISO-8859-1?Q?az?= <philippe.retornaz-p8DiymsW2f8@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, devicetree-discuss@lists.ozlabs.org
+Cc: plagnioj@jcrosoft.com, n.voss@weinmann.de, nicolas.ferre@atmel.com, Ludovic Desroches <ludovic.desroches@atmel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Florian,
+From: Ludovic Desroches <ludovic.desroches@atmel.com>
 
-On 08/31/2012 09:52 AM, Florian Vaussard wrote:
-> When booting from a device tree, the omap driver is using pdev->id,
-> which is incorrect. 
+Hi,
 
-Not really, see below...
+This set of patches is based on Nikolaus at91_i2c driver.
 
-> The proposed patch uses aliases, as done in omap-serial.
+Ludovic Desroches (8):
+  i2c: at91: use managed resources
+  i2c: at91: add warning about transmission issues for some devices
+  i2c: at91: use an id table for SoC dependent parameters
+  ARM: at91: do not configure at91sam9g10 twi pio as open-drain
+  i2c: at91: add dt support to i2c-at91
+  ARM: at91: add clocks for I2C DT entries
+  ARM: dts: add twi nodes for atmel SOCs
+  ARM: dts: add twi nodes for atmel boards
 
-Mmm, but is it really needed?
-In the case of serial the id is important because of the tty number used
-as device interface.
-In the case of I2C, the id is mostly irrelevant.
+ .../devicetree/bindings/i2c/atmel-i2c.txt          |  30 +++
+ arch/arm/boot/dts/at91sam9260.dtsi                 |  23 +--
+ arch/arm/boot/dts/at91sam9263.dtsi                 |  23 +--
+ arch/arm/boot/dts/at91sam9263ek.dts                |  20 +-
+ arch/arm/boot/dts/at91sam9g20.dtsi                 |   4 +
+ arch/arm/boot/dts/at91sam9g20ek_common.dtsi        |  28 +--
+ arch/arm/boot/dts/at91sam9g25ek.dts                |  12 ++
+ arch/arm/boot/dts/at91sam9g45.dtsi                 |  33 ++--
+ arch/arm/boot/dts/at91sam9m10g45ek.dts             |   8 +
+ arch/arm/boot/dts/at91sam9n12.dtsi                 |  33 ++--
+ arch/arm/boot/dts/at91sam9n12ek.dts                |   8 +
+ arch/arm/boot/dts/at91sam9x5.dtsi                  |  69 +++----
+ arch/arm/mach-at91/at91rm9200.c                    |   2 +-
+ arch/arm/mach-at91/at91rm9200_devices.c            |  11 +-
+ arch/arm/mach-at91/at91sam9260.c                   |   4 +-
+ arch/arm/mach-at91/at91sam9260_devices.c           |   8 +-
+ arch/arm/mach-at91/at91sam9261.c                   |   3 +-
+ arch/arm/mach-at91/at91sam9261_devices.c           |  31 ++-
+ arch/arm/mach-at91/at91sam9263.c                   |   3 +-
+ arch/arm/mach-at91/at91sam9263_devices.c           |   2 +-
+ arch/arm/mach-at91/at91sam9g45.c                   |   6 +-
+ arch/arm/mach-at91/at91sam9g45_devices.c           |   4 +-
+ arch/arm/mach-at91/at91sam9n12.c                   |   2 +
+ arch/arm/mach-at91/at91sam9rl.c                    |   4 +-
+ arch/arm/mach-at91/at91sam9rl_devices.c            |   2 +-
+ arch/arm/mach-at91/at91sam9x5.c                    |   6 +-
+ drivers/i2c/busses/Kconfig                         |   6 +
+ drivers/i2c/busses/i2c-at91.c                      | 217 +++++++++++++--------
+ 28 files changed, 367 insertions(+), 235 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/atmel-i2c.txt
 
-In fact, using the pdev->id = -1 was used on purpose to have a dynamic
-assignment:
-
-int i2c_add_numbered_adapter(struct i2c_adapter *adap)
-...
-        if (adap->nr == -1) /* -1 means dynamically assign bus id */
-                return i2c_add_adapter(adap);
-
-> Signed-off-by: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-omap.c |   19 +++++++++++++++----
->  1 files changed, 15 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index 5d19a49..9445d1f 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -1064,9 +1064,6 @@ omap_i2c_probe(struct platform_device *pdev)
->  		goto err_unuse_clocks;
->  	}
->  
-> -	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", pdev->id,
-> -		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
-> -
-
-[    0.658843] omap_i2c i2c.15: bus -1 rev2.4.0 at 400 kHz
-[    0.760192] omap_i2c i2c.16: bus -1 rev2.4.0 at 400 kHz
-[    0.775817] omap_i2c i2c.17: bus -1 rev2.4.0 at 400 kHz
-[    0.791442] omap_i2c i2c.18: bus -1 rev2.4.0 at 400 kHz
-
-OK, it is true that the current log is not that nice with bus -1, but
-maybe we should just remove that.
-
-Or we can potentially retrieve the i2c adapter number assign later, and
-delay the log.
-
->  	r = i2c_add_numbered_adapter(adap);
->  	if (r) {
->  		dev_err(dev->dev, "failure adding adapter\n");
-
-
-Regards,
-Benoit
-
-
->  	adap = &dev->adapter;
->  	i2c_set_adapdata(adap, dev);
->  	adap->owner = THIS_MODULE;
-> @@ -1076,8 +1073,22 @@ omap_i2c_probe(struct platform_device *pdev)
->  	adap->dev.parent = &pdev->dev;
->  	adap->dev.of_node = pdev->dev.of_node;
->  
-> +	if (adap->dev.of_node)
-> +		adap->nr = of_alias_get_id(adap->dev.of_node, "i2c");
-> +	else
-> +		adap->nr = pdev->id;
-> +
-> +	if (adap->nr < 0) {
-> +		dev_err(&pdev->dev, "failed to get alias/pdev id, errno %d\n",
-> +				adap->nr);
-> +		r = -ENODEV;
-> +		goto err_free_irq;
-> +	}
-> +
-> +	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
-> +		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
-> +
->  	/* i2c device drivers may be active on return from add_adapter() */
-> -	adap->nr = pdev->id;
->  	r = i2c_add_numbered_adapter(adap);
->  	if (r) {
->  		dev_err(dev->dev, "failure adding adapter\n");
-> 
+-- 
+1.7.11.3
