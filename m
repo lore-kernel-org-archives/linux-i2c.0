@@ -1,38 +1,39 @@
-From: Florian Vaussard <florian.vaussard@epfl.ch>
-Subject: Re: [PATCH 1/2] i2c-omap: Fix incorrect adapter id when booting from
- a device tree
-Date: Fri, 31 Aug 2012 11:53:37 +0200
-Message-ID: <504089A1.3030000@epfl.ch>
-References: <1346399575-7285-1-git-send-email-florian.vaussard@epfl.ch> <1346399575-7285-2-git-send-email-florian.vaussard@epfl.ch> <5040806C.9080003@ti.com>
-Reply-To: florian.vaussard@epfl.ch
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
+ I2C driver
+Date: Fri, 31 Aug 2012 11:36:36 +0100
+Message-ID: <20120831103633.GA5569@gmail.com>
+References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
+ <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
+ <CACRpkdapY3JvZmLxK7dX917O-E+aDgVE9ELnysjqAyETXMZHNw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <5040806C.9080003@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Benoit Cousson <b-cousson@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, =?UTF-8?B?UGhpbGlwcGUgUsOpdG9ybmF6?= <philippe.retornaz@epfl.ch>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdapY3JvZmLxK7dX917O-E+aDgVE9ELnysjqAyETXMZHNw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Benoit,
+On Mon, Aug 27, 2012 at 04:42:49PM -0700, Linus Walleij wrote:
+> On Thu, Aug 23, 2012 at 8:01 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wro=
+te:
+>=20
+> > Here we apply the bindings required for successful Device Tree
+> > probing of the i2c-nomadik driver.
+> >
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Acked-by: srinidhi kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+> > Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>=20
+> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-> [    0.658843] omap_i2c i2c.15: bus -1 rev2.4.0 at 400 kHz
-> [    0.760192] omap_i2c i2c.16: bus -1 rev2.4.0 at 400 kHz
-> [    0.775817] omap_i2c i2c.17: bus -1 rev2.4.0 at 400 kHz
-> [    0.791442] omap_i2c i2c.18: bus -1 rev2.4.0 at 400 kHz
->
-> OK, it is true that the current log is not that nice with bus -1, but
-> maybe we should just remove that.
->
-> Or we can potentially retrieve the i2c adapter number assign later, and
-> delay the log.
->
->>   	r = i2c_add_numbered_adapter(adap);
->>   	if (r) {
->>   		dev_err(dev->dev, "failure adding adapter\n");
-I agree, we should defer the log if we want a nice print. I will send a 
-new patch.
+I'm assuming I still need Wolfram's Ack on this?
 
-Regards,
-Florian
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
