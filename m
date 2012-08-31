@@ -1,7 +1,7 @@
 From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 6/8] ARM: at91: add clocks for I2C DT entries
-Date: Fri, 31 Aug 2012 11:24:18 +0200
-Message-ID: <1346405058-18580-1-git-send-email-ludovic.desroches@atmel.com>
+Subject: [PATCH 8/8] ARM: dts: add twi nodes for atmel boards
+Date: Fri, 31 Aug 2012 11:24:56 +0200
+Message-ID: <1346405096-18660-1-git-send-email-ludovic.desroches@atmel.com>
 References: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,81 +14,159 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
+Use the atmel twi instead of gpio for i2c stuff.
+
 Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 ---
- arch/arm/mach-at91/at91sam9260.c | 1 +
- arch/arm/mach-at91/at91sam9263.c | 1 +
- arch/arm/mach-at91/at91sam9g45.c | 2 ++
- arch/arm/mach-at91/at91sam9n12.c | 2 ++
- arch/arm/mach-at91/at91sam9x5.c  | 6 +++---
- 5 files changed, 9 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/at91sam9263ek.dts         | 20 ++++++++++----------
+ arch/arm/boot/dts/at91sam9g20ek_common.dtsi | 28 ++++++++++++++--------------
+ arch/arm/boot/dts/at91sam9g25ek.dts         | 12 ++++++++++++
+ arch/arm/boot/dts/at91sam9m10g45ek.dts      |  8 ++++++++
+ arch/arm/boot/dts/at91sam9n12ek.dts         |  8 ++++++++
+ 5 files changed, 52 insertions(+), 24 deletions(-)
 
-diff --git a/arch/arm/mach-at91/at91sam9260.c b/arch/arm/mach-at91/at91sam9260.c
-index 5f86e71..43f529a 100644
---- a/arch/arm/mach-at91/at91sam9260.c
-+++ b/arch/arm/mach-at91/at91sam9260.c
-@@ -221,6 +221,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("usart", "fffd0000.serial", &usart3_clk),
- 	CLKDEV_CON_DEV_ID("usart", "fffd4000.serial", &usart4_clk),
- 	CLKDEV_CON_DEV_ID("usart", "fffd8000.serial", &usart5_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "fffac000.i2c", &twi_clk),
- 	/* more tc lookup table for DT entries */
- 	CLKDEV_CON_DEV_ID("t0_clk", "fffa0000.timer", &tc0_clk),
- 	CLKDEV_CON_DEV_ID("t1_clk", "fffa0000.timer", &tc1_clk),
-diff --git a/arch/arm/mach-at91/at91sam9263.c b/arch/arm/mach-at91/at91sam9263.c
-index a4d760c..514757e 100644
---- a/arch/arm/mach-at91/at91sam9263.c
-+++ b/arch/arm/mach-at91/at91sam9263.c
-@@ -211,6 +211,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("hclk", "a00000.ohci", &ohci_clk),
- 	CLKDEV_CON_DEV_ID("spi_clk", "fffa4000.spi", &spi0_clk),
- 	CLKDEV_CON_DEV_ID("spi_clk", "fffa8000.spi", &spi1_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "fff88000.i2c", &twi_clk),
- };
+diff --git a/arch/arm/boot/dts/at91sam9263ek.dts b/arch/arm/boot/dts/at91sam9263ek.dts
+index f86ac4b..772ab75 100644
+--- a/arch/arm/boot/dts/at91sam9263ek.dts
++++ b/arch/arm/boot/dts/at91sam9263ek.dts
+@@ -50,6 +50,16 @@
+ 				atmel,vbus-gpio = <&pioA 25 0>;
+ 				status = "okay";
+ 			};
++
++			i2c0: i2c@fff88000 {
++				status = "okay";
++
++				24c512@50 {
++					compatible = "24c512";
++					reg = <0x50>;
++					pagesize = <128>;
++				};
++			};
+ 		};
  
- static struct clk_lookup usart_clocks_lookups[] = {
-diff --git a/arch/arm/mach-at91/at91sam9g45.c b/arch/arm/mach-at91/at91sam9g45.c
-index 15e62b9..9f3beba 100644
---- a/arch/arm/mach-at91/at91sam9g45.c
-+++ b/arch/arm/mach-at91/at91sam9g45.c
-@@ -256,6 +256,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("t0_clk", "fffd4000.timer", &tcb0_clk),
- 	CLKDEV_CON_DEV_ID("hclk", "700000.ohci", &uhphs_clk),
- 	CLKDEV_CON_DEV_ID("ehci_clk", "800000.ehci", &uhphs_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "fff84000.i2c", &twi0_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "fff88000.i2c", &twi1_clk),
- 	/* fake hclk clock */
- 	CLKDEV_CON_DEV_ID("hclk", "at91_ohci", &uhphs_clk),
- 	CLKDEV_CON_ID("pioA", &pioA_clk),
-diff --git a/arch/arm/mach-at91/at91sam9n12.c b/arch/arm/mach-at91/at91sam9n12.c
-index 0849466..732d3d3 100644
---- a/arch/arm/mach-at91/at91sam9n12.c
-+++ b/arch/arm/mach-at91/at91sam9n12.c
-@@ -169,6 +169,8 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("t0_clk", "f8008000.timer", &tcb_clk),
- 	CLKDEV_CON_DEV_ID("t0_clk", "f800c000.timer", &tcb_clk),
- 	CLKDEV_CON_DEV_ID("dma_clk", "ffffec00.dma-controller", &dma_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "f8010000.i2c", &twi0_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "f8014000.i2c", &twi1_clk),
- 	CLKDEV_CON_ID("pioA", &pioAB_clk),
- 	CLKDEV_CON_ID("pioB", &pioAB_clk),
- 	CLKDEV_CON_ID("pioC", &pioCD_clk),
-diff --git a/arch/arm/mach-at91/at91sam9x5.c b/arch/arm/mach-at91/at91sam9x5.c
-index 4bad4a2..e503538 100644
---- a/arch/arm/mach-at91/at91sam9x5.c
-+++ b/arch/arm/mach-at91/at91sam9x5.c
-@@ -231,9 +231,9 @@ static struct clk_lookup periph_clocks_lookups[] = {
- 	CLKDEV_CON_DEV_ID("t0_clk", "f800c000.timer", &tcb0_clk),
- 	CLKDEV_CON_DEV_ID("dma_clk", "ffffec00.dma-controller", &dma0_clk),
- 	CLKDEV_CON_DEV_ID("dma_clk", "ffffee00.dma-controller", &dma1_clk),
--	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.0", &twi0_clk),
--	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.1", &twi1_clk),
--	CLKDEV_CON_DEV_ID(NULL, "at91_i2c.2", &twi2_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "f8010000.i2c", &twi0_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "f8014000.i2c", &twi1_clk),
-+	CLKDEV_CON_DEV_ID(NULL, "f8018000.i2c", &twi2_clk),
- 	CLKDEV_CON_ID("pioA", &pioAB_clk),
- 	CLKDEV_CON_ID("pioB", &pioAB_clk),
- 	CLKDEV_CON_ID("pioC", &pioCD_clk),
+ 		nand0: nand@40000000 {
+@@ -143,14 +153,4 @@
+ 			gpio-key,wakeup;
+ 		};
+ 	};
+-
+-	i2c@0 {
+-		status = "okay";
+-
+-		24c512@50 {
+-			compatible = "24c512";
+-			reg = <0x50>;
+-			pagesize = <128>;
+-		};
+-	};
+ };
+diff --git a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
+index b06c0db..712106b 100644
+--- a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
++++ b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
+@@ -51,6 +51,20 @@
+ 				atmel,vbus-gpio = <&pioC 5 0>;
+ 				status = "okay";
+ 			};
++
++			i2c0: i2c@fffac000 {
++				status = "okay";
++
++				24c512@50 {
++					compatible = "24c512";
++					reg = <0x50>;
++				};
++
++				wm8731@1b {
++					compatible = "wm8731";
++					reg = <0x1b>;
++				};
++			};
+ 		};
+ 
+ 		nand0: nand@40000000 {
+@@ -106,20 +120,6 @@
+ 		};
+ 	};
+ 
+-	i2c@0 {
+-		status = "okay";
+-
+-		24c512@50 {
+-			compatible = "24c512";
+-			reg = <0x50>;
+-		};
+-
+-		wm8731@1b {
+-			compatible = "wm8731";
+-			reg = <0x1b>;
+-		};
+-	};
+-
+ 	gpio_keys {
+ 		compatible = "gpio-keys";
+ 		#address-cells = <1>;
+diff --git a/arch/arm/boot/dts/at91sam9g25ek.dts b/arch/arm/boot/dts/at91sam9g25ek.dts
+index 7829a4d..3b0adbc 100644
+--- a/arch/arm/boot/dts/at91sam9g25ek.dts
++++ b/arch/arm/boot/dts/at91sam9g25ek.dts
+@@ -32,6 +32,18 @@
+ 				phy-mode = "rmii";
+ 				status = "okay";
+ 			};
++
++			i2c0: i2c@f8010000 {
++				status = "okay";
++			};
++
++			i2c1: i2c@f8014000 {
++				status = "okay";
++			};
++
++			i2c2: i2c@f8018000 {
++				status = "okay";
++			};
+ 		};
+ 
+ 		usb0: ohci@00600000 {
+diff --git a/arch/arm/boot/dts/at91sam9m10g45ek.dts b/arch/arm/boot/dts/at91sam9m10g45ek.dts
+index a3633bd..15e1dd4 100644
+--- a/arch/arm/boot/dts/at91sam9m10g45ek.dts
++++ b/arch/arm/boot/dts/at91sam9m10g45ek.dts
+@@ -46,6 +46,14 @@
+ 				phy-mode = "rmii";
+ 				status = "okay";
+ 			};
++
++			i2c0: i2c@fff84000 {
++				status = "okay";
++			};
++
++			i2c1: i2c@fff88000 {
++				status = "okay";
++			};
+ 		};
+ 
+ 		nand0: nand@40000000 {
+diff --git a/arch/arm/boot/dts/at91sam9n12ek.dts b/arch/arm/boot/dts/at91sam9n12ek.dts
+index f4e43e3..912b2c2 100644
+--- a/arch/arm/boot/dts/at91sam9n12ek.dts
++++ b/arch/arm/boot/dts/at91sam9n12ek.dts
+@@ -37,6 +37,14 @@
+ 			dbgu: serial@fffff200 {
+ 				status = "okay";
+ 			};
++
++			i2c0: i2c@f8010000 {
++				status = "okay";
++			};
++
++			i2c1: i2c@f8014000 {
++				status = "okay";
++			};
+ 		};
+ 
+ 		nand0: nand@40000000 {
 -- 
 1.7.11.3
