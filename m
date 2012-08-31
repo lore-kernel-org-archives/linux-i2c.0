@@ -1,98 +1,77 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
- I2C driver
-Date: Fri, 31 Aug 2012 13:23:27 +0100
-Message-ID: <20120831122323.GC5962@gmail.com>
-References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
- <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
- <20120831112258.GA2624@pengutronix.de>
+From: Benoit Cousson <b-cousson@ti.com>
+Subject: Re: [PATCH] omap-i2c: fix incorrect log message when using a device
+ tree
+Date: Fri, 31 Aug 2012 14:36:28 +0200
+Message-ID: <5040AFCC.5060004@ti.com>
+References: <1346410975-29930-1-git-send-email-florian.vaussard@epfl.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120831112258.GA2624-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1346410975-29930-1-git-send-email-florian.vaussard@epfl.ch>
+Sender: linux-omap-owner@vger.kernel.org
+To: Florian Vaussard <florian.vaussard@epfl.ch>
+Cc: Tony Lindgren <tony@atomide.com>, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, =?ISO-8859-1?Q?Philippe_R=E9tornaz?= <philippe.retornaz@epfl.ch>
 List-Id: linux-i2c@vger.kernel.org
 
-Hopefully this is more to your liking:
+On 08/31/2012 01:02 PM, Florian Vaussard wrote:
+> When booting using a device tree, the adapter number is dynamically
+> assigned after the log message is sent.
+> This patch modifies the log message to get a correct adapter id.
+> 
+> Applies on 3.6-rc3. Tested on OMAP3 (Gumstix Overo).
 
-Author: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Date:   Mon Aug 6 11:09:57 2012 +0100
+Thanks for the fix. Tested successfully on OMAP4 SDP DT boot as well.
 
-    i2c: nomadik: Add Device Tree support to the Nomadik I2C driver
-    
-    Here we apply the bindings required for successful Device Tree
-    probing of the i2c-nomadik driver.
-    
-    Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-    Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+[    0.000000] Linux version 3.6.0-rc3-00030-g491038d (bcousson@lnwes3201) (gcc version 4.5.2 (Sourcery G++ Lite 2011.03-41) ) #6 SMP Fri Aug 31 13:50:48 CEST 2012
+[    0.000000] CPU: ARMv7 Processor [411fc092] revision 2 (ARMv7), cr=10c53c7d
+[    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+[    0.000000] Machine: Generic OMAP4 (Flattened Device Tree), model: TI OMAP4 SDP board
+...
+[    0.667205] omap_i2c i2c.15: bus 0 rev2.4.0 at 400 kHz
+...
+[    0.768341] omap_i2c i2c.16: bus 1 rev2.4.0 at 400 kHz
+[    0.783905] omap_i2c i2c.17: bus 2 rev2.4.0 at 400 kHz
+[    0.799530] omap_i2c i2c.18: bus 3 rev2.4.0 at 400 kHz
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 61b00ed..2c85de1 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -25,6 +25,7 @@
- #include <linux/regulator/consumer.h>
- #include <linux/pm_runtime.h>
- #include <linux/platform_data/i2c-nomadik.h>
-+#include <linux/of.h>
- 
- #define DRIVER_NAME "nmk-i2c"
- 
-@@ -920,15 +921,41 @@ static struct nmk_i2c_controller u8500_i2c = {
-        .sm             = I2C_FREQ_MODE_FAST,
- };
- 
-+static void nmk_i2c_of_probe(struct device_node *np,
-+                       struct nmk_i2c_controller *pdata)
-+{
-+       of_property_read_u32(np, "clock-frequency", &pdata->clk_freq);
-+
-+       /* This driver only supports 'standard' and 'fast' modes of operation. */
-+       if (pdata->clk_freq <= 100000)
-+               pdata->sm = I2C_FREQ_MODE_STANDARD;
-+       else
-+               pdata->sm = I2C_FREQ_MODE_FAST;
-+}
-+
- static atomic_t adapter_id = ATOMIC_INIT(0);
- 
- static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- {
-        int ret = 0;
-        struct nmk_i2c_controller *pdata = adev->dev.platform_data;
-+       struct device_node *np = adev->dev.of_node;
-        struct nmk_i2c_dev      *dev;
-        struct i2c_adapter *adap;
- 
-+       if (np) {
-+               if (!pdata) {
-+                       pdata = devm_kzalloc(&adev->dev, sizeof(*pdata), GFP_KERNEL);
-+                       if (!pdata) {
-+                               ret = -ENOMEM;
-+                               goto err_no_mem;
-+                       }
-+               }
-+               /* Provide the default configuration as a base. */
-+               pdata = &u8500_i2c;
-+               nmk_i2c_of_probe(np, pdata);
-+       }
-+
-        if (!pdata)
-                /* No i2c configuration found, using the default. */
-                pdata = &u8500_i2c;
-diff --git a/include/linux/platform_data/i2c-nomadik.h b/include/linux/platform_data/i2c-nomadik.h
-index c2303c3..3a8be9c 100644
---- a/include/linux/platform_data/i2c-nomadik.h
-+++ b/include/linux/platform_data/i2c-nomadik.h
-@@ -28,7 +28,7 @@ enum i2c_freq_mode {
-  * @sm:                speed mode
-  */
- struct nmk_i2c_controller {
--       unsigned long   clk_freq;
-+       u32             clk_freq;
-        unsigned short  slsu;
-        unsigned char   tft;
-        unsigned char   rft;
+
+> Signed-off-by: Florian Vaussard <florian.vaussard@epfl.ch>
+
+Tested-by: Benoit Cousson <b-cousson@ti.com>
+and
+Acked-by: Benoit Cousson <b-cousson@ti.com>
+
+Regards,
+Benoit
+
+
+> ---
+>  drivers/i2c/busses/i2c-omap.c |    6 +++---
+>  1 files changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 5d19a49..136b4fe 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1064,9 +1064,6 @@ omap_i2c_probe(struct platform_device *pdev)
+>  		goto err_unuse_clocks;
+>  	}
+>  
+> -	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", pdev->id,
+> -		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
+> -
+>  	adap = &dev->adapter;
+>  	i2c_set_adapdata(adap, dev);
+>  	adap->owner = THIS_MODULE;
+> @@ -1084,6 +1081,9 @@ omap_i2c_probe(struct platform_device *pdev)
+>  		goto err_free_irq;
+>  	}
+>  
+> +	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
+> +		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
+> +
+>  	of_i2c_register_devices(adap);
+>  
+>  	pm_runtime_put(dev->dev);
+> 
+
