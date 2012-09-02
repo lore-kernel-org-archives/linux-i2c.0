@@ -1,34 +1,44 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH 8/8] ARM: dts: add twi nodes for atmel boards
-Date: Sat, 1 Sep 2012 11:12:25 +0200
-Message-ID: <20120901091225.GB17540@game.jcrosoft.org>
-References: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com>
- <1346405096-18660-1-git-send-email-ludovic.desroches@atmel.com>
- <20120831144228.GC23867@game.jcrosoft.org>
- <5040D31E.8040306@atmel.com>
+From: Tabi Timur-B04825 <B04825-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c-mpc: Wait for STOP to hit the bus
+Date: Sun, 2 Sep 2012 02:48:01 +0000
+Message-ID: <6AE080B68D46FC4BA2D2769E68D765B708019E97@039-SN2MPN1-022.039d.mgd.msft.net>
+References: <1346323204-19210-1-git-send-email-Joakim.Tjernlund@transmode.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5040D31E.8040306-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1346323204-19210-1-git-send-email-Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
+Content-Language: en-US
+Content-ID: <C47CCF21CF3B164CA6845A481A87A847-725oAoX4OcF2GV6JINhBVAC/G2K4zDHf@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org
+To: Joakim Tjernlund <Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 17:07 Fri 31 Aug     , Nicolas Ferre wrote:
-> On 08/31/2012 04:42 PM, Jean-Christophe PLAGNIOL-VILLARD :
-> > On 11:24 Fri 31 Aug     , ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote:
-> >> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> >>
-> >> Use the atmel twi instead of gpio for i2c stuff.
-> > NACK as you do not update al the platform at the same time and break the Calao
-> 
-> Yes, Ludovic shall keep i2c-gpio at the side of the new twi driver.
-> 
-> But for the platform, the platform maintainer will have to choose the
-> one or the other.
-agreed the platform maintianer need to choose to switch or not
+On Thu, Aug 30, 2012 at 5:40 AM, Joakim Tjernlund
+<Joakim.Tjernlund-SNLAxHN9vbcOP4wsBPIw7w@public.gmane.org> wrote:
 
-Best Regards,
-J.
+> -       mpc_i2c_stop(i2c);
+> +       mpc_i2c_stop(i2c); /* Initiate STOP */
+> +       orig_jiffies = jiffies;
+> +       /* Wait until STOP is seen, allow up to 1 s */
+> +       while (readb(i2c->base + MPC_I2C_SR) & CSR_MBB) {
+> +               if (time_after(jiffies, orig_jiffies + HZ)) {
+> +                       u8 status = readb(i2c->base + MPC_I2C_SR);
+> +
+> +                       dev_dbg(i2c->dev, "timeout\n");
+> +                       if ((status & (CSR_MCF | CSR_MBB | CSR_RXAK)) != 0) {
+> +                               writeb(status & ~CSR_MAL,
+> +                                      i2c->base + MPC_I2C_SR);
+> +                               mpc_i2c_fixup(i2c);
+> +                       }
+> +                       return -EIO;
+> +               }
+> +               cond_resched();
+> +       }
+
+Shouldn't the while-loop be inside mpc_i2c_stop() itself?
+
+-- 
+Timur Tabi
+Linux kernel developer at Freescale
