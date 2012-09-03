@@ -1,8 +1,8 @@
 From: Lee Jones <lee.jones@linaro.org>
 Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
  I2C driver
-Date: Mon, 3 Sep 2012 12:11:07 +0100
-Message-ID: <CAF2Aj3hUo=Dx37cpwdJT74dLQoCfcOHVY4CAZnKDoiniG8Xkag@mail.gmail.com>
+Date: Mon, 3 Sep 2012 12:32:35 +0100
+Message-ID: <CAF2Aj3j25w1Nn9O6hV+=i-j1ts_p_Ucswk_M7r04S7i5BzPkHg@mail.gmail.com>
 References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
  <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
  <20120831112258.GA2624@pengutronix.de>
@@ -12,7 +12,7 @@ References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
  <20120903100656.GC5782@gmail.com>
  <CACRpkdb8owKBxawAv4LVVYx5kUgZ9cUSiQ=BV0f3Pf3bHtknuQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7217528554728233738=="
+Content-Type: multipart/mixed; boundary="===============2287677346671148817=="
 Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 In-Reply-To: <CACRpkdb8owKBxawAv4LVVYx5kUgZ9cUSiQ=BV0f3Pf3bHtknuQ@mail.gmail.com>
 List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
@@ -28,18 +28,14 @@ To: Linus Walleij <linus.walleij@linaro.org>
 Cc: linus.walleij@stericsson.com, arnd@arndb.de, Wolfram Sang <w.sang@pengutronix.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============7217528554728233738==
-Content-Type: multipart/alternative; boundary=20cf307d04a0c066db04c8ca3249
+--===============2287677346671148817==
+Content-Type: multipart/alternative; boundary=bcaec502d4e489650104c8ca7f1a
 
---20cf307d04a0c066db04c8ca3249
+--bcaec502d4e489650104c8ca7f1a
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-You're right. I rushed it to get it out the door, as I'm working on
-something else.
-
-Leave it with me. I'll spend more time on the semantics before posting
-again.
+Looking at this again ...
 
 On 3 September 2012 12:07, Linus Walleij <linus.walleij@linaro.org> wrote:
 
@@ -63,6 +59,11 @@ a),
 > Here you blank out any pdata passed from say a board file or
 > whatever if pdata !=3D NULL.
 >
+
+Right, this should be in 'if (!pdata) {}' . I'll correct this now.
+
+
+>
 > > +
 > > +               nmk_i2c_of_probe(np, pdata);
 > > +       }
@@ -75,6 +76,14 @@ a),
 > not override the DT, you have the semantics the other way
 > around, DT overrides pdata.
 >
+
+This is correct, however. If there is DT, it should override any platform
+data.
+
+Actually, if there is DT then no platform data should be passed in the
+first place.
+
+
 > Look at the switch statement in my previous comment,
 > just add the allocations and a memcpy() and it still holds:
 >
@@ -96,11 +105,10 @@ EL);
 >          pdata =3D &u8500_i2c;
 > }
 >
-> Yours,
-> Linus Walleij
 >
+No, this is wrong. Platform data should not override DT.
 
-
+If DT is enabled and passed, it should have highest priority.
 
 --=20
 Lee Jones
@@ -108,20 +116,19 @@ Linaro ST-Ericsson Landing Team Lead
 Linaro.org =E2=94=82 Open source software for ARM SoCs
 Follow Linaro: Facebook | Twitter | Blog
 
---20cf307d04a0c066db04c8ca3249
+--bcaec502d4e489650104c8ca7f1a
 Content-Type: text/html; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 
-<div>You&#39;re right. I rushed it to get it out the door, as I&#39;m worki=
-ng on something else.</div><div><br></div><div>Leave it with me. I&#39;ll s=
-pend more time on the semantics before posting again.</div><br><div class=
-=3D"gmail_quote">
-On 3 September 2012 12:07, Linus Walleij <span dir=3D"ltr">&lt;<a href=3D"m=
-ailto:linus.walleij@linaro.org" target=3D"_blank">linus.walleij@linaro.org<=
-/a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:=
-0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-<div class=3D"im">On Mon, Sep 3, 2012 at 12:07 PM, Lee Jones &lt;<a href=3D=
-"mailto:lee.jones@linaro.org">lee.jones@linaro.org</a>&gt; wrote:<br>
+Looking at this again ...<br><br><div class=3D"gmail_quote">On 3 September =
+2012 12:07, Linus Walleij <span dir=3D"ltr">&lt;<a href=3D"mailto:linus.wal=
+leij@linaro.org" target=3D"_blank">linus.walleij@linaro.org</a>&gt;</span> =
+wrote:<br>
+<blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1p=
+x #ccc solid;padding-left:1ex"><div class=3D"im">On Mon, Sep 3, 2012 at 12:=
+07 PM, Lee Jones &lt;<a href=3D"mailto:lee.jones@linaro.org">lee.jones@lina=
+ro.org</a>&gt; wrote:<br>
+
 <br>
 (...)<br>
 </div><div class=3D"im">&gt; + =C2=A0 =C2=A0 =C2=A0 if (np) {<br>
@@ -144,7 +151,11 @@ ult configuration as a base. */<br>
 u8500_i2c, sizeof(struct nmk_i2c_controller));<br>
 <br>
 </div>Here you blank out any pdata passed from say a board file or<br>
-whatever if pdata !=3D NULL.<br>
+whatever if pdata !=3D NULL.<br></blockquote><div><br></div><div>Right, thi=
+s should be in &#39;if (!pdata) {}&#39; . I&#39;ll correct this now.</div><=
+div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8e=
+x;border-left:1px #ccc solid;padding-left:1ex">
+
 <div class=3D"im"><br>
 &gt; +<br>
 &gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 nmk_i2c_of_probe(np=
@@ -159,8 +170,12 @@ iguration found, using the default. */<br>
 <br>
 </div>So this is still wrong, if pdata is passed to the driver it will<br>
 not override the DT, you have the semantics the other way<br>
-around, DT overrides pdata.<br>
-<br>
+around, DT overrides pdata.<br></blockquote><div><br></div><div>This is cor=
+rect, however. If there is DT, it should override any platform data.=C2=A0<=
+/div><div><br></div><div>Actually, if there is DT then no platform data sho=
+uld be passed in the first place.</div>
+<div>=C2=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8=
+ex;border-left:1px #ccc solid;padding-left:1ex">
 Look at the switch statement in my previous comment,<br>
 just add the allocations and a memcpy() and it still holds:<br>
 <br>
@@ -187,18 +202,18 @@ figuration as a base. */<br>
 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Just use the static pdata */<br>
 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0pdata =3D &amp;u8500_i2c;<br>
 }<br>
-<br>
-Yours,<br>
-Linus Walleij<br>
-</blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>Lee Jones
+<br></blockquote><div><br></div><div>No, this is wrong. Platform data shoul=
+d not override DT.=C2=A0</div><div><br></div><div>If DT is enabled and pass=
+ed, it should have highest priority.</div></div><div><br></div>-- <br>Lee J=
+ones
 <br>Linaro ST-Ericsson Landing Team Lead
 <br>Linaro.org =E2=94=82 Open source software for ARM SoCs
 <br>Follow Linaro: Facebook | Twitter | Blog=C2=A0<br>
 
---20cf307d04a0c066db04c8ca3249--
+--bcaec502d4e489650104c8ca7f1a--
 
 
---===============7217528554728233738==
+--===============2287677346671148817==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -209,4 +224,4 @@ linux-arm-kernel mailing list
 linux-arm-kernel@lists.infradead.org
 http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
 
---===============7217528554728233738==--
+--===============2287677346671148817==--
