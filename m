@@ -1,72 +1,33 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
- I2C driver
-Date: Mon, 3 Sep 2012 16:20:16 +0100
-Message-ID: <20120903152012.GH31163@gmail.com>
-References: <20120831122323.GC5962@gmail.com>
- <CACRpkdZ=C1EV4WO2b=1YLHPNhsDsQdq7Kfnpzm8i7uGRtVjJuQ@mail.gmail.com>
- <20120903094448.GB11780@pengutronix.de>
- <20120903100656.GC5782@gmail.com>
- <CACRpkdb8owKBxawAv4LVVYx5kUgZ9cUSiQ=BV0f3Pf3bHtknuQ@mail.gmail.com>
- <CAF2Aj3j25w1Nn9O6hV+=i-j1ts_p_Ucswk_M7r04S7i5BzPkHg@mail.gmail.com>
- <CACRpkdZ5VFhrbONy=0K5MFh4e6BDFckq0yqzjQ2QkW9MgwKqBg@mail.gmail.com>
- <5044BFD1.10708@nvidia.com>
- <CACRpkda0akcLRe3J=fVcyYpxHmkJmVe+c1doXQ4=vOA6iNxe2g@mail.gmail.com>
- <5044C82E.5060207@gmail.com>
+From: Roland Stigge <stigge-uj/7R2tJ6VmzQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH RESEND 1/2] i2c: pnx: Fix bit definitions
+Date: Mon, 03 Sep 2012 22:16:22 +0200
+Message-ID: <50451016.7010608@antcom.de>
+References: <1344411752-23469-1-git-send-email-stigge@antcom.de> <20120818095108.GB24812@pengutronix.de> <5030A81E.5090508@antcom.de> <083DF309106F364B939360100EC290F823A0354A3D@eu1rdcrdc1wx030.exi.nxp.com> <20120820175527.GA9169@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5044C82E.5060207@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rob Herring <robherring2@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Stephen Warren <swarren@nvidia.com>, devicetree-discuss@lists.ozlabs.org, linus.walleij@stericsson.com, Wolfram Sang <w.sang@pengutronix.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120820175527.GA9169-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Kevin Wells <kevin.wells-3arQi8VN3Tc@public.gmane.org>, "vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org" <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Srinivas Bakki <srinivas.bakki-3arQi8VN3Tc@public.gmane.org>, "aletes.xgr-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <aletes.xgr-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 03, 2012 at 10:09:34AM -0500, Rob Herring wrote:
-> On 09/03/2012 09:35 AM, Linus Walleij wrote:
-> > On Mon, Sep 3, 2012 at 4:33 PM, Stephen Warren <swarren@nvidia.com>=
- wrote:
-> >> On 09/03/2012 05:58 AM, Linus Walleij wrote:
-> >>> On Mon, Sep 3, 2012 at 1:32 PM, Lee Jones <lee.jones@linaro.org> =
-wrote:
-> >>>
-> >>>> No, this is wrong. Platform data should not override DT.
-> >>>>
-> >>>> If DT is enabled and passed, it should have highest priority.
-> >>
-> >> No, that's wrong. If platform data is specified, it overrides DT, =
-so
-> >> that if the DT needs any fixup, it can be provided using platform =
-data.
-> >=20
-> > Thanks Stephen, now there are two of us saying this, Lee please
-> > follow this design pattern.
-> >=20
-> > (Unless Rob/Grant start shouting counter-orders...)
->=20
-> Ideally, you only use DT or platform_data and you override DT with a =
-new
-> DTB. Hopefully we can ultimately remove platform_data or all but part=
-s
-> that can't be described in DT (i.e. function callouts).
+Hi Wolfram,
 
-Exactly. I don't believe that AUX_DATA() should be used as a facility t=
-o
-override DT settings from platform_data.
+On 20/08/12 19:55, Wolfram Sang wrote:
+>> I've never had my hands on a PNX4008 chip at NXP, but I do
+>> believe they are the same IP. That specific I2C IP was used in a
+>> number of NXP/Phillips chips besides the PNX4008/LPC32xx. I don't
+>> think there are any PNX4008's in the wild, and even working in
+>> NXP, I can't find any non-marketing reference material for that
+>> part (including the user manual).
+> 
+> Thanks for the heads up. I'll apply both patches, then.
 
-> But if you are handling both, then I agree that platform_data should
-> override DT.
+Should I consider the two patches as applied now (where?
+i2c-embedded?), or should I resend? ;-)
 
-I do agree with this, but I haven't stumbled over such a use-case yet.
-I have only provided; clock names, DMA settings and call-back informati=
-on
-via AUX_DATA() thus far, and those are being removed too when a) the=20
-correct bindings are mainlined and b) I have the time.
+Thanks in advance,
 
---=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Roland
