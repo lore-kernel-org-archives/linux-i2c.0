@@ -1,73 +1,70 @@
-From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 0/8] i2c: at91: cleanup and dt support
-Date: Mon, 3 Sep 2012 09:55:05 +0200
-Message-ID: <50446259.8020504@atmel.com>
-References: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
+ I2C driver
+Date: Mon, 3 Sep 2012 11:22:28 +0200
+Message-ID: <CACRpkdZ=C1EV4WO2b=1YLHPNhsDsQdq7Kfnpzm8i7uGRtVjJuQ@mail.gmail.com>
+References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
+	<1345734087-21803-3-git-send-email-lee.jones@linaro.org>
+	<20120831112258.GA2624@pengutronix.de>
+	<20120831122323.GC5962@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1346404884-18451-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20120831122323.GC5962-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/31/2012 11:21 AM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
-> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> 
-> Hi,
-> 
-> This set of patches is based on Nikolaus at91_i2c driver.
-> 
-> Ludovic Desroches (8):
->   i2c: at91: use managed resources
->   i2c: at91: add warning about transmission issues for some devices
->   i2c: at91: use an id table for SoC dependent parameters
->   ARM: at91: do not configure at91sam9g10 twi pio as open-drain
->   i2c: at91: add dt support to i2c-at91
->   ARM: at91: add clocks for I2C DT entries
->   ARM: dts: add twi nodes for atmel SOCs
->   ARM: dts: add twi nodes for atmel boards
+On Fri, Aug 31, 2012 at 2:23 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-For the whole patch series (with Jean-Christophe remarks about *dts
-modifications*):
+(...)
+>  static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+>  {
+>         int ret = 0;
+>         struct nmk_i2c_controller *pdata = adev->dev.platform_data;
+> +       struct device_node *np = adev->dev.of_node;
+>         struct nmk_i2c_dev      *dev;
+>         struct i2c_adapter *adap;
+>
+> +       if (np) {
+> +               if (!pdata) {
 
-Acked-by: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+So, if no pdata is provided, we go on to allocate some ...
 
+> +                       pdata = devm_kzalloc(&adev->dev, sizeof(*pdata), GFP_KERNEL);
+> +                       if (!pdata) {
+> +                               ret = -ENOMEM;
+> +                               goto err_no_mem;
+> +                       }
+> +               }
+> +               /* Provide the default configuration as a base. */
+> +               pdata = &u8500_i2c;
 
->  .../devicetree/bindings/i2c/atmel-i2c.txt          |  30 +++
->  arch/arm/boot/dts/at91sam9260.dtsi                 |  23 +--
->  arch/arm/boot/dts/at91sam9263.dtsi                 |  23 +--
->  arch/arm/boot/dts/at91sam9263ek.dts                |  20 +-
->  arch/arm/boot/dts/at91sam9g20.dtsi                 |   4 +
->  arch/arm/boot/dts/at91sam9g20ek_common.dtsi        |  28 +--
->  arch/arm/boot/dts/at91sam9g25ek.dts                |  12 ++
->  arch/arm/boot/dts/at91sam9g45.dtsi                 |  33 ++--
->  arch/arm/boot/dts/at91sam9m10g45ek.dts             |   8 +
->  arch/arm/boot/dts/at91sam9n12.dtsi                 |  33 ++--
->  arch/arm/boot/dts/at91sam9n12ek.dts                |   8 +
->  arch/arm/boot/dts/at91sam9x5.dtsi                  |  69 +++----
->  arch/arm/mach-at91/at91rm9200.c                    |   2 +-
->  arch/arm/mach-at91/at91rm9200_devices.c            |  11 +-
->  arch/arm/mach-at91/at91sam9260.c                   |   4 +-
->  arch/arm/mach-at91/at91sam9260_devices.c           |   8 +-
->  arch/arm/mach-at91/at91sam9261.c                   |   3 +-
->  arch/arm/mach-at91/at91sam9261_devices.c           |  31 ++-
->  arch/arm/mach-at91/at91sam9263.c                   |   3 +-
->  arch/arm/mach-at91/at91sam9263_devices.c           |   2 +-
->  arch/arm/mach-at91/at91sam9g45.c                   |   6 +-
->  arch/arm/mach-at91/at91sam9g45_devices.c           |   4 +-
->  arch/arm/mach-at91/at91sam9n12.c                   |   2 +
->  arch/arm/mach-at91/at91sam9rl.c                    |   4 +-
->  arch/arm/mach-at91/at91sam9rl_devices.c            |   2 +-
->  arch/arm/mach-at91/at91sam9x5.c                    |   6 +-
->  drivers/i2c/busses/Kconfig                         |   6 +
->  drivers/i2c/busses/i2c-at91.c                      | 217 +++++++++++++--------
->  28 files changed, 367 insertions(+), 235 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/atmel-i2c.txt
-> 
+Then you just override that pointer with a pointer to the local config.
 
+> +               nmk_i2c_of_probe(np, pdata);
+> +       }
+> +
+>         if (!pdata)
+>                 /* No i2c configuration found, using the default. */
+>                 pdata = &u8500_i2c;
 
--- 
-Nicolas Ferre
+This in it's entirety does not look sound. I *think* this is what you
+want to do,
+replace all of the above codde (including the last if (!pdata) clause) with:
+
+if (!pdata) {
+    /* If no platform data passed in, use the default configuration as
+a base. */
+    pdata = &u8500_i2c;
+    if (np)
+        /* Further, if we have a DT node, override the default with this */
+        nmk_i2c_of_probe(np, pdata);
+}
+
+This makes any passed pdata take precedence, else default pdata
+complemented with DT info. Which is what we want.
+
+Yours,
+Linus Walleij
