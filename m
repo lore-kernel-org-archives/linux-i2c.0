@@ -1,76 +1,170 @@
-From: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/8] i2c: at91: use an id table for SoC dependent parameters
-Date: Sun, 02 Sep 2012 19:21:53 +0200
-Message-ID: <504395B1.2040203@gmail.com>
-References: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com> <1346404884-18451-4-git-send-email-ludovic.desroches@atmel.com> <20120831142944.GA23867@game.jcrosoft.org> <5040CF80.8060201@atmel.com> <504122D3.70507@gmail.com> <20120901091054.GA17540@game.jcrosoft.org>
+From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: RE: [PATCH 1/8] i2c: at91: use managed resources
+Date: Mon, 3 Sep 2012 07:52:25 +0200
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090EC8F36E@wm021.weinmann.com>
+References: <1346404884-18451-1-git-send-email-ludovic.desroches@atmel.com>
+ <1346404884-18451-2-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120901091054.GA17540-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
+In-Reply-To: <1346404884-18451-2-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Cc: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org
+To: "'ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org'" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Cc: "'nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "'plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org'" <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/01/2012 11:10 AM, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> On 22:47 Fri 31 Aug     , Sylwester Nawrocki wrote:
->> On 08/31/2012 04:51 PM, Nicolas Ferre wrote:
->>>>> diff --git a/arch/arm/mach-at91/at91rm9200.c b/arch/arm/mach-at91/at91rm9200.c
->>>>> index f2112f9..0bc91e5 100644
->>>>> --- a/arch/arm/mach-at91/at91rm9200.c
->>>>> +++ b/arch/arm/mach-at91/at91rm9200.c
->>>>> @@ -187,7 +187,7 @@ static struct clk_lookup periph_clocks_lookups[] = {
->>>>>    	CLKDEV_CON_DEV_ID("pclk", "ssc.0",&ssc0_clk),
->>>>>    	CLKDEV_CON_DEV_ID("pclk", "ssc.1",&ssc1_clk),
->>>>>    	CLKDEV_CON_DEV_ID("pclk", "ssc.2",&ssc2_clk),
->>>>> -	CLKDEV_CON_DEV_ID(NULL, "at91_i2c",&twi_clk),
->>>>> +	CLKDEV_CON_DEV_ID(NULL, "at91rm9200_i2c",&twi_clk),
->>>> use i2c-xxx as on other drivers
->>>>
->>>> and I do not like to have platform_device_id
->>>
->>> Me, I like it and find this implementation very elegant.
->>>
->>>> as we need to touch the driver to add a new soc
->>>
->>> So what? We still keep the compatibility if the new SoC has it
->>> compatibility assured with previous revision: there is nothing to modify.
->>
->> I agree. The driver would need to be touched to support new SoC only if
->> the IP there have had some differences, which would have needed to be
->> resolved anyway.
->>
->>>> please use platform data
->>
->> Using platform data for the dt platforms would have been more troublesome,
->> wouldn't it ? I like Ludovic's approach which handles both: dt and non-dt
->> cases in uniform way from the driver's POV.
-> no you will describe it via DT as done on all the other drivers
-
-Yeah, makes sense. However there are drivers that deduce some parameters
-only from the 'compatible' property, let's take drivers/dma/mxs-dma.c as an
-example. I'm just trying to understand if there is a general preference on
-how to handle those things. Of course we could have all detail properties
-listed in a .dtsi file. But since we can derive these from a single property,
-it might be more sensible to avoid parsing ?
-
->>> No, it does not have to be exposed to the user: these data are highly
->>> dependent on the actual hardware (IP revision in fact). So, no need to
->>> mess with platform data.
-> no I really see no point on these list of platform_id it's does not look more
-> nice just more huggly to have x names. This is at the end the same as passing
-> platform data via soc info (add_xx or dtsi)
+ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote on Friday, August 31, 2012 11:21 AM:
+> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 > 
-> And here you just do the same as cpu_is via names.
+> Use managed resources to ease the cleanup.
 > 
-> The driver need to read IP revision instead
+> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Acked-by: Nikolaus Voss <n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
 
-OK, but wouldn't it be needed to resolve an IP revision at run time, e.g.
-with soc_is_*() anyway ? Having it set at each board doesn't look like an 
-optimal method either.
-
---
-
-Regards,
-Sylwester
+> ---
+>  drivers/i2c/busses/i2c-at91.c | 85 +++++++++++++------------------------------
+>  1 file changed, 25 insertions(+), 60 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index 2b8b2c2..08aaee7 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -326,61 +326,49 @@ static struct i2c_algorithm at91_twi_algorithm = {
+>  static int __devinit at91_twi_probe(struct platform_device *pdev)
+>  {
+>  	struct at91_twi_dev *dev;
+> -	struct resource *mem, *ioarea;
+> -	int irq, rc;
+> +	struct resource *mem;
+> +	int rc;
+> +
+> +	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
+> +	if (!dev)
+> +		return -ENOMEM;
+> +	init_completion(&dev->cmd_complete);
+> +	dev->dev = &pdev->dev;
+> 
+>  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>  	if (!mem)
+>  		return -ENODEV;
+> 
+> -	irq = platform_get_irq(pdev, 0);
+> -	if (irq < 0)
+> -		return irq;
+> -
+> -	ioarea = request_mem_region(mem->start, resource_size(mem),
+> pdev->name);
+> -	if (!ioarea)
+> +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
+> +	if (!dev->base)
+>  		return -EBUSY;
+> 
+> -	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+> -	if (!dev) {
+> -		rc = -ENOMEM;
+> -		goto err_release_region;
+> +	dev->irq = platform_get_irq(pdev, 0);
+> +	if (dev->irq < 0)
+> +		return dev->irq;
+> +
+> +	rc = devm_request_irq(&pdev->dev, dev->irq, atmel_twi_interrupt,
+> 0,
+> +			 dev_name(dev->dev), dev);
+> +	if (rc) {
+> +		dev_err(dev->dev, "Cannot get irq %d: %d\n", dev->irq, rc);
+> +		return rc;
+>  	}
+> 
+>  	if (pdev->id_entry)
+>  		dev->ip_id = pdev->id_entry->driver_data;
+> 
+> -	init_completion(&dev->cmd_complete);
+> -
+> -	dev->dev = &pdev->dev;
+> -	dev->irq = irq;
+>  	platform_set_drvdata(pdev, dev);
+> 
+> -	dev->clk = clk_get(dev->dev, NULL);
+> +	dev->clk = devm_clk_get(dev->dev, NULL);
+>  	if (IS_ERR(dev->clk)) {
+>  		dev_err(dev->dev, "no clock defined\n");
+> -		rc = -ENODEV;
+> -		goto err_free_mem;
+> -	}
+> -	clk_prepare(dev->clk);
+> -	clk_enable(dev->clk);
+> -
+> -	dev->base = ioremap(mem->start, resource_size(mem));
+> -	if (!dev->base) {
+> -		rc = -EBUSY;
+> -		goto err_mem_ioremap;
+> +		return -ENODEV;
+>  	}
+> +	clk_prepare_enable(dev->clk);
+> 
+>  	at91_calc_twi_clock(dev, TWI_CLK_HZ);
+>  	at91_init_twi_bus(dev);
+> 
+> -	rc = request_irq(dev->irq, atmel_twi_interrupt, 0,
+> -			 dev_name(dev->dev), dev);
+> -	if (rc) {
+> -		dev_err(dev->dev, "Cannot get irq %d: %d\n", dev->irq, rc);
+> -		goto err_unuse_clocks;
+> -	}
+> -
+>  	snprintf(dev->adapter.name, sizeof(dev->adapter.name), "AT91");
+>  	i2c_set_adapdata(&dev->adapter, dev);
+>  	dev->adapter.owner = THIS_MODULE;
+> @@ -394,44 +382,21 @@ static int __devinit at91_twi_probe(struct
+> platform_device *pdev)
+>  	if (rc) {
+>  		dev_err(dev->dev, "Adapter %s registration failed\n",
+>  			dev->adapter.name);
+> -		goto err_free_irq;
+> +		clk_disable_unprepare(dev->clk);
+> +		return rc;
+>  	}
+> 
+>  	dev_info(dev->dev, "AT91 i2c bus driver.\n");
+>  	return 0;
+> -
+> -err_free_irq:
+> -	free_irq(dev->irq, dev);
+> -err_unuse_clocks:
+> -	iounmap(dev->base);
+> -err_mem_ioremap:
+> -	clk_disable(dev->clk);
+> -	clk_unprepare(dev->clk);
+> -	clk_put(dev->clk);
+> -err_free_mem:
+> -	kfree(dev);
+> -err_release_region:
+> -	release_mem_region(mem->start, resource_size(mem));
+> -
+> -	return rc;
+>  }
+> 
+>  static int __devexit at91_twi_remove(struct platform_device *pdev)
+>  {
+>  	struct at91_twi_dev *dev = platform_get_drvdata(pdev);
+> -	struct resource *mem;
+>  	int rc;
+> 
+>  	rc = i2c_del_adapter(&dev->adapter);
+> -	clk_disable(dev->clk);
+> -	clk_unprepare(dev->clk);
+> -	clk_put(dev->clk);
+> -	free_irq(dev->irq, dev);
+> -	iounmap(dev->base);
+> -	kfree(dev);
+> -
+> -	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	release_mem_region(mem->start, resource_size(mem));
+> +	clk_disable_unprepare(dev->clk);
+> 
+>  	return rc;
+>  }
+> --
+> 1.7.11.3
