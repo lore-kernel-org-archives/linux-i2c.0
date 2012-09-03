@@ -1,81 +1,212 @@
-From: Tomasz Figa <t.figa@samsung.com>
-Subject: Re: [PATCH 1/2] i2c: s3c2410: add optional pin configuration using
- pinctrl interface
-Date: Thu, 06 Sep 2012 14:28:30 +0200
-Message-ID: <1390693.DWkgTZ1iNF@amdc1227>
-References: <1346923381-14144-1-git-send-email-thomas.abraham@linaro.org>
- <2444562.GB3nOHUb9M@amdc1227>
- <CAJuYYwQCQDTnpPR5WABtbozZOgc6_SZRBv3b6D8KY78tzMt-Eg@mail.gmail.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
+ I2C driver
+Date: Mon, 3 Sep 2012 12:11:07 +0100
+Message-ID: <CAF2Aj3hUo=Dx37cpwdJT74dLQoCfcOHVY4CAZnKDoiniG8Xkag@mail.gmail.com>
+References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
+ <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
+ <20120831112258.GA2624@pengutronix.de>
+ <20120831122323.GC5962@gmail.com>
+ <CACRpkdZ=C1EV4WO2b=1YLHPNhsDsQdq7Kfnpzm8i7uGRtVjJuQ@mail.gmail.com>
+ <20120903094448.GB11780@pengutronix.de>
+ <20120903100656.GC5782@gmail.com>
+ <CACRpkdb8owKBxawAv4LVVYx5kUgZ9cUSiQ=BV0f3Pf3bHtknuQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <CAJuYYwQCQDTnpPR5WABtbozZOgc6_SZRBv3b6D8KY78tzMt-Eg@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Thomas Abraham <thomas.abraham@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linus.walleij@linaro.org, dong.aisheng@linaro.org, swarren@wwwdotorg.org, kgene.kim@samsung.com, patches@linaro.org, w.sang@pengutronix.de, ben-linux@fluff.org
+Content-Type: multipart/mixed; boundary="===============7217528554728233738=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <CACRpkdb8owKBxawAv4LVVYx5kUgZ9cUSiQ=BV0f3Pf3bHtknuQ@mail.gmail.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: linus.walleij@stericsson.com, arnd@arndb.de, Wolfram Sang <w.sang@pengutronix.de>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+--===============7217528554728233738==
+Content-Type: multipart/alternative; boundary=20cf307d04a0c066db04c8ca3249
 
-Thanks for your comments.
+--20cf307d04a0c066db04c8ca3249
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-On Thursday 06 of September 2012 16:36:08 Thomas Abraham wrote:
-> > This patch shows the problem of the need to explicitly migrate all
-> > drivers to pinctrl.
-> > 
-> > Maybe we should consider extending the pinctrl subsystem to set the
-> > default state automatically before binding a driver to a device, at
-> > least in case of DT-based platforms?
-> 
-> The pinctrl driver allows for activating default pin configuration
-> when the pinctrl driver loads. This is referred to as "hogging".
+You're right. I rushed it to get it out the door, as I'm working on
+something else.
 
-What I suggested is that such default configuration would be applied just 
-before binding a driver, i.e. when it's almost sure that the device will be 
-actually used and the configuration will be needed.
+Leave it with me. I'll spend more time on the semantics before posting
+again.
 
-Of course such functionality would not have to be obligatory. For example, 
-we could add new property, like pinctrl-set-default, to point in device 
-tree that this device should have its pinctrl state set up automatically.
+On 3 September 2012 12:07, Linus Walleij <linus.walleij@linaro.org> wrote:
 
-> But
-> should hog be used or not is something that needs to be decided. Some
-> of the factors which favor the driver explicitly setting up the pin
-> configuration are
-> 
-> 1. After a suspend and resume cycle, the pin configuration registers
-> may be reset to default values. Hence, during resume, the pin
-> configuration has be redone.
+> On Mon, Sep 3, 2012 at 12:07 PM, Lee Jones <lee.jones@linaro.org> wrote:
+>
+> (...)
+> > +       if (np) {
+> > +               if (!pdata) {
+> > +                       pdata =3D devm_kzalloc(&adev->dev, sizeof(*pdat=
+a),
+> GFP_KERNEL);
+> > +                       if (!pdata) {
+> > +                               ret =3D -ENOMEM;
+> > +                               goto err_no_mem;
+> > +                       }
+> > +               }
+> > +               /* Provide the default configuration as a base. */
+> > +               memcpy(pdata, &u8500_i2c, sizeof(struct
+> nmk_i2c_controller));
+>
+> Here you blank out any pdata passed from say a board file or
+> whatever if pdata !=3D NULL.
+>
+> > +
+> > +               nmk_i2c_of_probe(np, pdata);
+> > +       }
+> > +
+> >         if (!pdata)
+> >                 /* No i2c configuration found, using the default. */
+> >                 pdata =3D &u8500_i2c;
+>
+> So this is still wrong, if pdata is passed to the driver it will
+> not override the DT, you have the semantics the other way
+> around, DT overrides pdata.
+>
+> Look at the switch statement in my previous comment,
+> just add the allocations and a memcpy() and it still holds:
+>
+> if (!pdata) {
+>     if (np) {
+>               pdata =3D devm_kzalloc(&adev->dev, sizeof(*pdata), GFP_KERN=
+EL);
+>                       if (!pdata) {
+>                               ret =3D -ENOMEM;
+>                               goto err_no_mem;
+>                       }
+>               }
+>               /* Provide the default configuration as a base. */
+>               memcpy(pdata, &u8500_i2c, sizeof(struct nmk_i2c_controller)=
+);
+>               nmk_i2c_of_probe(np, pdata);
+>     } else
+>          /* Just use the static pdata */
+>          pdata =3D &u8500_i2c;
+> }
+>
+> Yours,
+> Linus Walleij
+>
 
-In my opinion it should be saved and restored by pinctrl driver (as it was 
-done in case of GPIO subsystem previously). This is because the driver can 
-usually quickly restore all pins at once and some hardware even provide 
-facilities for restoring pin configuration after suspend. (e.g. s3c6410, 
-probably not going to use pinctrl, but possibly there are more systems 
-using this kind of solution, which allows to switch all pins at once from 
-sleep mode settings to normal mode).
 
-> 2. Runtime muxing/config is possible.
 
-Of course, for cases where runtime remuxing is required this would be no 
-option, but often there is just a single pin configuration used all the 
-time.
+--=20
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
 
-> 3. Setting some of the config options such as pull-up by default might
-> start consuming power from boot time itself, which could be avoided if
-> such setup is done only when needed.
+--20cf307d04a0c066db04c8ca3249
+Content-Type: text/html; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-Making it optional would solve this issue, because in such cases the driver 
-already has to be aware of setting pull-ups and similar.
+<div>You&#39;re right. I rushed it to get it out the door, as I&#39;m worki=
+ng on something else.</div><div><br></div><div>Leave it with me. I&#39;ll s=
+pend more time on the semantics before posting again.</div><br><div class=
+=3D"gmail_quote">
+On 3 September 2012 12:07, Linus Walleij <span dir=3D"ltr">&lt;<a href=3D"m=
+ailto:linus.walleij@linaro.org" target=3D"_blank">linus.walleij@linaro.org<=
+/a>&gt;</span> wrote:<br><blockquote class=3D"gmail_quote" style=3D"margin:=
+0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
+<div class=3D"im">On Mon, Sep 3, 2012 at 12:07 PM, Lee Jones &lt;<a href=3D=
+"mailto:lee.jones@linaro.org">lee.jones@linaro.org</a>&gt; wrote:<br>
+<br>
+(...)<br>
+</div><div class=3D"im">&gt; + =C2=A0 =C2=A0 =C2=A0 if (np) {<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!pdata) {<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 pdata =3D devm_kzalloc(&amp;adev-&gt;dev, sizeof(*pdata), GFP_KE=
+RNEL);<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 if (!pdata) {<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ret =3D -ENOMEM;<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto err_no_mem;<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 }<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* Provide the defa=
+ult configuration as a base. */<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 memcpy(pdata, &amp;=
+u8500_i2c, sizeof(struct nmk_i2c_controller));<br>
+<br>
+</div>Here you blank out any pdata passed from say a board file or<br>
+whatever if pdata !=3D NULL.<br>
+<div class=3D"im"><br>
+&gt; +<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 nmk_i2c_of_probe(np=
+, pdata);<br>
+&gt; + =C2=A0 =C2=A0 =C2=A0 }<br>
+&gt; +<br>
+&gt; =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!pdata)<br>
+&gt; =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* No i2c conf=
+iguration found, using the default. */<br>
+&gt; =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pdata =3D &amp=
+;u8500_i2c;<br>
+<br>
+</div>So this is still wrong, if pdata is passed to the driver it will<br>
+not override the DT, you have the semantics the other way<br>
+around, DT overrides pdata.<br>
+<br>
+Look at the switch statement in my previous comment,<br>
+just add the allocations and a memcpy() and it still holds:<br>
+<br>
+if (!pdata) {<br>
+=C2=A0 =C2=A0 if (np) {<br>
+<div class=3D"im">=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 pdata =
+=3D devm_kzalloc(&amp;adev-&gt;dev, sizeof(*pdata), GFP_KERNEL);<br>
+</div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+ =C2=A0 if (!pdata) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 ret =3D -ENOMEM;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto err_no_mem;<br>
+<div class=3D"im">=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 }<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 /* Provide the default con=
+figuration as a base. */<br>
+</div>=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 memcpy(pdata, &amp;u=
+8500_i2c, sizeof(struct nmk_i2c_controller));<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 nmk_i2c_of_probe(np, pdata=
+);<br>
+=C2=A0 =C2=A0 } else<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0/* Just use the static pdata */<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0pdata =3D &amp;u8500_i2c;<br>
+}<br>
+<br>
+Yours,<br>
+Linus Walleij<br>
+</blockquote></div><br><br clear=3D"all"><div><br></div>-- <br>Lee Jones
+<br>Linaro ST-Ericsson Landing Team Lead
+<br>Linaro.org =E2=94=82 Open source software for ARM SoCs
+<br>Follow Linaro: Facebook | Twitter | Blog=C2=A0<br>
 
-> Adding pinctrl driver support in device drivers seems to be simple
-> task. And it is just one time effort which can be reused on multiple
-> SoC's.
+--20cf307d04a0c066db04c8ca3249--
 
-I agree. Although not modifying the drivers at all would be nicer.
 
-Best regards,
--- 
-Tomasz Figa
-Samsung Poland R&D Center
+--===============7217528554728233738==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============7217528554728233738==--
