@@ -1,47 +1,36 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: i2c-core multiplexer handling triggers dep-lock validator
-Date: Tue, 4 Sep 2012 14:28:52 +0200
-Message-ID: <20120904142852.10b63443@endymion.delvare>
-References: <5045F1E3.10407@gmx.de>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik I2C driver
+Date: Tue, 4 Sep 2012 14:28:21 +0000
+Message-ID: <201209041428.21409.arnd@arndb.de>
+References: <20120831122323.GC5962@gmail.com> <5044C82E.5060207@gmail.com> <20120903152012.GH31163@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5045F1E3.10407-Mmb7MZpHnFY@public.gmane.org>
+In-Reply-To: <20120903152012.GH31163-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Michael,
-
-On Tue, 04 Sep 2012 14:19:47 +0200, Michael Lawnick wrote:
-> Hi Jean, *
+On Monday 03 September 2012, Lee Jones wrote:
+> > But if you are handling both, then I agree that platform_data should
+> > override DT.
 > 
-> our local kernel maintainers decided to switch on lock dependency check
-> (CONFIG_PROVE_LOCKING) and this got a hit when multiplexer is removed
-> while sub devices to its ports are registered:
-> > hpd_i2c_disconn/15357 is trying to acquire lock:
-> >  (&adap->userspace_clients_lock){+.+.+.}, at: [<ffffffff80417a14>] i2c_del_adapter+0xe4/0x350
-> > 
-> > but task is already holding lock:
-> >  (&adap->userspace_clients_lock){+.+.+.}, at: [<ffffffff804174cc>] i2c_sysfs_delete_device+0x74/0x218
-> > 
-> > other info that might help us debug this:
-> > 2 locks held by hpd_i2c_disconn/15357:
-> >  #0:  (&buffer->mutex){+.+.+.}, at: [<ffffffff80276d4c>] sysfs_write_file+0x4c/0x208
-> >  #1:  (&adap->userspace_clients_lock){+.+.+.}, at: [<ffffffff804174cc>] i2c_sysfs_delete_device+0x74/0x218
-> 
-> Looking into matters I found that all is ok, this is a false positive.
-> lockdep-design.txt handles this situation on a hard-disc example and
-> recommends usage of mutex_lock_nested().
-> 
-> Are you already aware of the problem, even have already a patch in queue
-> or is this waiting for a volunteer?
+> I do agree with this, but I haven't stumbled over such a use-case yet.
+> I have only provided; clock names, DMA settings and call-back information
+> via AUX_DATA() thus far, and those are being removed too when a) the 
+> correct bindings are mainlined and b) I have the time.
 
-First time I hear about this, so I don't have a patch. I'll happily
-receive one, review it and test it.
+I'd prefer if you just disallow the case where pdata and DT have conflicting
+information. We don't seem to have a clear rule that is enforced over the
+kernel, so I don't think we can rely on either one taking precedence over
+the other in general.
 
-Thanks,
--- 
-Jean Delvare
+In this particular case, we don't have a single board file providing a
+struct nmk_i2c_controller definition for platform data, so the best way
+to handle this IMHO is to remove the header file with the platform
+data definition, and just encode the defaults in the driver.
+
+	Arnd
