@@ -1,48 +1,25 @@
-From: Alessandro Rubini <rubini@gnudd.com>
-Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the
- Nomadik I2C driver
-Date: Tue, 4 Sep 2012 19:35:20 +0200
-Message-ID: <20120904173520.GA18209@mail.gnudd.com>
-References: <CACRpkdZESujO=2BU3jeKiX3Cm+JY2UPEXwGkro75FWa5Gio5YQ@mail.gmail.com>
- <20120831122323.GC5962@gmail.com>  <5044C82E.5060207@gmail.com>
- <20120903152012.GH31163@gmail.com>  <201209041428.21409.arnd@arndb.de>
+From: "Zheng, Lv" <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: multiple slave addresses for single I2C chip
+Date: Wed, 5 Sep 2012 04:50:02 +0000
+Message-ID: <1AE640813FDE7649BE1B193DEA596E88B9367A@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZESujO=2BU3jeKiX3Cm+JY2UPEXwGkro75FWa5Gio5YQ@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linus.walleij@linaro.org
-Cc: linux@arm.linux.org.uk, linus.walleij@stericsson.com, arnd@arndb.de, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, swarren@nvidia.com, lee.jones@linaro.org, linux-arm-kernel@lists.infradead.org, Davide Ciminaghi <ciminaghi@gnudd.com>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> Alessandro Rubini is actively working on bridging this (and
-> other amba_device primecells) to PCI, that is the reason why it
-> was recently converted to an amba_device.
+I'm new to Linux I2C community. So let me say "Hello!" here.
 
-Yes, I've been inactive for a while but I'm on it right now.
+We are trying to drive some sensors on Linux. The sensors are connected to the board as I2C slaves.
+I noticed the i2c_board_info can be used to register i2c slaves for the embedded platforms.
+I noticed there's also "address_list" member in the i2c_driver which can be used to detect the I2C slaves.
+The first question is: Which one shall I use to draft my sensor codes?
 
-> How is he then supposed to get the proper parameters into the
-> driver? Note that the PCI ID is no help at all since the parameters
-> depend on what is connected to the I2C bus, not on what it itself is
-> connected to. Isn't platform data used in such cases?
+If i2c_board_info is used to register platform i2c slaves, there is another issue for me:
+One of the sensors has 2 slave addresses. I noticed only one slave address can be declared in one i2c_board_info.
+The second question is: Shall I register the sensor's resource using 2 i2c_board_info? By doing this, shall I draft a single .c file containing 2 "i2c_driver" for them?
 
-I'm using platform data currently, but Davide Ciminaghi is actively
-working to convert the configuration to device-tree: the way we pass
-platform data to the pci device (and thus amba) is not considered
-acceptable by Peter Anvin.
-
-I'm thus asking Davide if he's happy to remove the platform data
-configuration path right now (I personally wouldn't be very happy, but
-I acknowledge it should happen, sooner or later).
-
-/alessandro
+Best regards/Lv Zheng
