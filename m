@@ -1,45 +1,100 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Subject: Re: [PATCH 3/3] i2c: nomadik: Add Device Tree support to the Nomadik
  I2C driver
-Date: Wed, 5 Sep 2012 08:53:54 +0200
-Message-ID: <CACRpkdaeNXU6ye2uO0cVPnVMVABVq7UoEG=0C_sES+csiYObdA@mail.gmail.com>
-References: <20120831122323.GC5962@gmail.com>
-	<5044C82E.5060207@gmail.com>
-	<20120903152012.GH31163@gmail.com>
-	<201209041428.21409.arnd@arndb.de>
-	<CACRpkdZESujO=2BU3jeKiX3Cm+JY2UPEXwGkro75FWa5Gio5YQ@mail.gmail.com>
-	<20120905064106.GA4233@gmail.com>
+Date: Wed, 5 Sep 2012 08:33:20 +0100
+Message-ID: <20120905073319.GF4233@gmail.com>
+References: <1345734087-21803-1-git-send-email-lee.jones@linaro.org>
+ <1345734087-21803-3-git-send-email-lee.jones@linaro.org>
+ <20120831112258.GA2624@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120905064106.GA4233-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20120831112258.GA2624-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Alessandro Rubini <rubini-kaDoWcXyVrEAvxtiuMwx3w@public.gmane.org>, Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 5, 2012 at 8:41 AM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Tue, Sep 04, 2012 at 07:27:10PM +0200, Linus Walleij wrote:
->> On Tue, Sep 4, 2012 at 4:28 PM, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org> wrote:
->>
->> > In this particular case, we don't have a single board file providing a
->> > struct nmk_i2c_controller definition for platform data, so the best way
->> > to handle this IMHO is to remove the header file with the platform
->> > data definition, and just encode the defaults in the driver.
->>
->> Alessandro Rubini is actively working on bridging this (and
->> other amba_device primecells) to PCI, that is the reason why it
->> was recently converted to an amba_device. How is he then supposed to
->> get the proper parameters into the driver? Note that the PCI ID
->> is no help at all since the parameters depend on what is connected
->> to the I2C bus, not on what it itself is connected to. Isn't platform data
->> used in such cases?
->
-> So why can't Alessandro continue to use Platform Data in the normal way?
+Author: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Date:   Mon Aug 6 11:09:57 2012 +0100
 
-He probably can, this is not an argument about that, what I am worried
-about is Arnd's suggestion to delete the platform data header if there
-are potential users of it.
+    i2c: nomadik: Add Device Tree support to the Nomadik I2C driver
+    
+    Here we apply the bindings required for successful Device Tree
+    probing of the i2c-nomadik driver.
+    
+    Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+    Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 61b00ed..5d1a970 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -25,6 +25,7 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/platform_data/i2c-nomadik.h>
++#include <linux/of.h>
+ 
+ #define DRIVER_NAME "nmk-i2c"
+ 
+@@ -920,18 +921,42 @@ static struct nmk_i2c_controller u8500_i2c = {
+        .sm             = I2C_FREQ_MODE_FAST,
+ };
+ 
++static void nmk_i2c_of_probe(struct device_node *np,
++                       struct nmk_i2c_controller *pdata)
++{
++       of_property_read_u32(np, "clock-frequency", &pdata->clk_freq);
++
++       /* This driver only supports 'standard' and 'fast' modes of operation. */
++       if (pdata->clk_freq <= 100000)
++               pdata->sm = I2C_FREQ_MODE_STANDARD;
++       else
++               pdata->sm = I2C_FREQ_MODE_FAST;
++}
++
+ static atomic_t adapter_id = ATOMIC_INIT(0);
+ 
+ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+        int ret = 0;
+        struct nmk_i2c_controller *pdata = adev->dev.platform_data;
++       struct device_node *np = adev->dev.of_node;
+        struct nmk_i2c_dev      *dev;
+        struct i2c_adapter *adap;
+ 
+-       if (!pdata)
+-               /* No i2c configuration found, using the default. */
+-               pdata = &u8500_i2c;
++       if (!pdata) {
++               if (np) {
++                       pdata = devm_kzalloc(&adev->dev, sizeof(*pdata), GFP_KERNEL);
++                       if (!pdata) {
++                               ret = -ENOMEM;
++                               goto err_no_mem;
++                       }
++                       /* Provide the default configuration as a base. */
++                       memcpy(pdata, &u8500_i2c, sizeof(struct nmk_i2c_controller));
++                       nmk_i2c_of_probe(np, pdata);
++               } else
++                       /* No i2c configuration found, using the default. */
++                       pdata = &u8500_i2c;
++       }
+ 
+        dev = kzalloc(sizeof(struct nmk_i2c_dev), GFP_KERNEL);
+        if (!dev) {
+diff --git a/include/linux/platform_data/i2c-nomadik.h b/include/linux/platform_data/i2c-nomadik.h
+index c2303c3..3a8be9c 100644
+--- a/include/linux/platform_data/i2c-nomadik.h
++++ b/include/linux/platform_data/i2c-nomadik.h
+@@ -28,7 +28,7 @@ enum i2c_freq_mode {
+  * @sm:                speed mode
+  */
+ struct nmk_i2c_controller {
+-       unsigned long   clk_freq;
++       u32             clk_freq;
+        unsigned short  slsu;
+        unsigned char   tft;
+        unsigned char   rft;
