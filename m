@@ -1,46 +1,54 @@
-From: Thomas Abraham <thomas.abraham@linaro.org>
-Subject: Re: [PATCH 2/2] ARM: dts: exynos4: allow i2c0 bus to be configured
- using pinctrl interface
-Date: Thu, 6 Sep 2012 16:44:54 +0530
-Message-ID: <CAJuYYwSC6nvs4eJ7GOTD2Ti8EvcTPPGZ7Fj7reT2eY65nvq22Q@mail.gmail.com>
-References: <1346923381-14144-1-git-send-email-thomas.abraham@linaro.org>
-	<1346923381-14144-3-git-send-email-thomas.abraham@linaro.org>
-	<5320531.svfjn4BD9X@amdc1227>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH v2] i2c: omap: Prevent NULL pointer dereference in remove
+Date: Thu, 6 Sep 2012 17:31:56 +0530
+Message-ID: <1346932916-12365-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <5320531.svfjn4BD9X@amdc1227>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Tomasz Figa <t.figa@samsung.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, kgene.kim@samsung.com, patches@linaro.org, linus.walleij@linaro.org, swarren@wwwdotorg.org, w.sang@pengutronix.de, linux-samsung-soc@vger.kernel.org, ben-linux@fluff.org, dong.aisheng@linaro.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 6 September 2012 15:43, Tomasz Figa <t.figa@samsung.com> wrote:
-> Hi Thomas,
->
-> On Thursday 06 of September 2012 14:53:01 Thomas Abraham wrote:
->>               compatible = "samsung,s3c2440-i2c";
->>               reg = <0x13860000 0x100>;
->>               interrupts = <0 58 0>;
->> +             pinctrl-names = "default";
->> +             pinctrl-0 = <&i2c0_bus>;
->
-> If pinctrl-names property is omitted then the state index is used as a name
-> (e.g. pinctrl-0 would be named "0"). Maybe it would be better to use this
-> approach (with respective adjustment in first patch)? What do you think?
+Prevent the NULL pointer access by moving the platform_set_drvdata function
+after the access of the pdev.
 
-I tend to prefer to name the states because it is easier to
-cross-reference code and dts files. i2c was a simple one, but for mmc
-controllers, there will 1-bit state, 4-bit state and 8-bit state, and
-it will be nicer to name then accordingly. So I prefer to use names
-but if there is wider consensus on not using names, we can drop names.
+[  654.961761] Unable to handle kernel NULL pointer dereference at virtual address 00000070
+[  654.970611] pgd = df254000
+[  654.973480] [00000070] *pgd=9f1da831, *pte=00000000, *ppte=00000000
+[  654.980163] Internal error: Oops: 17 [#1] SMP ARM
+[  654.985076] Modules linked in:
+[  654.988281] CPU: 1    Not tainted  (3.6.0-rc1-00031-ge547de1-dirty #339)
+[  654.995330] PC is at omap_i2c_runtime_resume+0x8/0x148
+[  655.000732] LR is at omap_i2c_runtime_resume+0x8/0x148
 
-Thanks,
-Thomas.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+v2: Implement Jean's suggestion of not deleting instead make it NULL at a safer time.
 
->
-> Best regards,
-> --
-> Tomasz Figa
-> Samsung Poland R&D Center
->
+ drivers/i2c/busses/i2c-omap.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 5d19a49..c4ddb08 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1112,8 +1112,6 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
+ 	struct resource		*mem;
+ 	int ret;
+ 
+-	platform_set_drvdata(pdev, NULL);
+-
+ 	free_irq(dev->irq, dev);
+ 	i2c_del_adapter(&dev->adapter);
+ 	ret = pm_runtime_get_sync(&pdev->dev);
+@@ -1127,6 +1125,7 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
+ 	kfree(dev);
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	release_mem_region(mem->start, resource_size(mem));
++	platform_set_drvdata(pdev, NULL);
+ 	return 0;
+ }
+ 
+-- 
+1.7.5.4
