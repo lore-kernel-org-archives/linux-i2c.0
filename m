@@ -1,56 +1,58 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed via Device Tree
-Date: Fri,  7 Sep 2012 12:14:52 +0100
-Message-ID: <1347016499-29354-13-git-send-email-lee.jones@linaro.org>
-References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH] i2c-core: fix for dep-lock validator
+Date: Fri, 07 Sep 2012 15:00:53 +0200
+Message-ID: <5049F005.2040300@gmx.de>
+References: <50473FC9.6000203@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347016499-29354-1-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <50473FC9.6000203-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Each I2C device can be correctly probed already using Device Tree,
-but the sub-devices still have to be registered by calls to
-i2c_register_board_info(). After this patch, each sub-device can
-be registered directly from Device Tree instead, removing the
-requirement for the aforementioned calls from platform code.
+Am 05.09.2012 14:04, schrieb Michael Lawnick:
+> If kernel is compiled with CONFIG_PROVE_LOCKING the
+> validator raises an error when a multiplexer is removed
+> via sysfs and sub-clients are connected to it. This is a
+> false positive.
+> Documentation/lockdep-design.txt recommends to handle this
+> via calls to mutex_lock_nested()
+> 
+> Signed-off-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+> ---
+> Documentation originally recommends to use an enum.
+> This is not applicable for a tree with unlimited depth.
+> This is why I use the adapter id which is expected
+> to be unique and monotonic increasing with the depth of
+> the tree.
+> 
+> --- linux/drivers/i2c/i2c-core.c.dist	2012-09-05 09:46:50.000000000 +0200
+> +++ linux/drivers/i2c/i2c-core.c	2012-09-05 09:56:58.000000000 +0200
+> @@ -628,7 +628,7 @@ i2c_sysfs_delete_device(struct device *d
+> 
+>  	/* Make sure the device was added through sysfs */
+>  	res = -ENOENT;
+> -	mutex_lock(&adap->userspace_clients_lock);
+> +	mutex_lock_nested(&adap->userspace_clients_lock, i2c_adapter_id(adap));
+>  	list_for_each_entry_safe(client, next, &adap->userspace_clients,
+>  				 detected) {
+>  		if (client->addr == addr) {
+> @@ -936,7 +936,7 @@ int i2c_del_adapter(struct i2c_adapter *
+>  		return res;
+> 
+>  	/* Remove devices instantiated from sysfs */
+> -	mutex_lock(&adap->userspace_clients_lock);
+> +	mutex_lock_nested(&adap->userspace_clients_lock, i2c_adapter_id(adap));
+>  	list_for_each_entry_safe(client, next, &adap->userspace_clients,
+>  				 detected) {
+>  		dev_dbg(&adap->dev, "Removing %s at 0x%x\n", client->name,
 
-CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-CC: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |    4 ++++
- 1 file changed, 4 insertions(+)
+This will get problems with maximum log level :-(
+Please ignore, other solution is under construction.
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 5d1a970..01231c2 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -26,6 +26,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/platform_data/i2c-nomadik.h>
- #include <linux/of.h>
-+#include <linux/of_i2c.h>
- 
- #define DRIVER_NAME "nmk-i2c"
- 
-@@ -998,6 +999,7 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 	}
- 
- 	adap = &dev->adap;
-+	adap->dev.of_node = np;
- 	adap->dev.parent = &adev->dev;
- 	adap->owner	= THIS_MODULE;
- 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
-@@ -1027,6 +1029,8 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 		goto err_add_adap;
- 	}
- 
-+	of_i2c_register_devices(adap);
-+
- 	pm_runtime_put(&adev->dev);
- 
- 	return 0;
 -- 
-1.7.9.5
+KR
+Michael
