@@ -1,89 +1,75 @@
-From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH v3] i2c-core: Fix for lockdep validator
-Date: Mon, 10 Sep 2012 14:55:02 +0200
-Message-ID: <504DE326.8080706@gmx.de>
-References: <20120908093814.21c1174d@endymion.delvare>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH 1/2] i2c: s3c2410: add optional pin configuration using
+ pinctrl interface
+Date: Mon, 10 Sep 2012 13:21:30 -0600
+Message-ID: <504E3DBA.3080603@wwwdotorg.org>
+References: <1346923381-14144-1-git-send-email-thomas.abraham@linaro.org> <1346923381-14144-2-git-send-email-thomas.abraham@linaro.org> <2444562.GB3nOHUb9M@amdc1227> <CAJuYYwQCQDTnpPR5WABtbozZOgc6_SZRBv3b6D8KY78tzMt-Eg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120908093814.21c1174d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <CAJuYYwQCQDTnpPR5WABtbozZOgc6_SZRBv3b6D8KY78tzMt-Eg@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Thomas Abraham <thomas.abraham@linaro.org>
+Cc: Tomasz Figa <t.figa@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linus.walleij@linaro.org, dong.aisheng@linaro.org, kgene.kim@samsung.com, patches@linaro.org, w.sang@pengutronix.de, ben-linux@fluff.org
 List-Id: linux-i2c@vger.kernel.org
 
-Am 08.09.2012 09:38, schrieb Jean Delvare:
-> If kernel is compiled with CONFIG_PROVE_LOCKING the
-> validator raises an error when a multiplexer is removed
-> via sysfs and sub-clients are connected to it. This is a
-> false positive.
-> Documentation/lockdep-design.txt recommends to handle this
-> via calls to mutex_lock_nested().
+On 09/06/2012 05:06 AM, Thomas Abraham wrote:
+> On 6 September 2012 15:04, Tomasz Figa <t.figa@samsung.com> wrote:
+>> Hi,
+>>
+>> This patch shows the problem of the need to explicitly migrate all drivers
+>> to pinctrl.
+>>
+>> Maybe we should consider extending the pinctrl subsystem to set the default
+>> state automatically before binding a driver to a device, at least in case
+>> of DT-based platforms?
 > 
-> Based on an earlier fix from Michael Lawnick.
+> The pinctrl driver allows for activating default pin configuration
+> when the pinctrl driver loads. This is referred to as "hogging". But
+> should hog be used or not is something that needs to be decided. Some
+> of the factors which favor the driver explicitly setting up the pin
+> configuration are
 > 
-> Note that the extra code resolves to nothing unless
-> CONFIG_DEBUG_LOCK_ALLOC=y.
-> 
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+> 1. After a suspend and resume cycle, the pin configuration registers
+> may be reset to default values. Hence, during resume, the pin
+> configuration has be redone.
 
-Tested-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
-Acked-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+I'd think it's the pinctrl driver's responsibility to make hogging work
+correctly across suspend/resume.
 
-> ---
-> Changes since v2:
->  * Inline function i2c_adapter_depth to avoid a compiler warning.
->  * Document the reason why it it implemented that way.
+> 2. Runtime muxing/config is possible.
+
+The "client" driver would definitely have to be involved there, I agree.
+
+> 3. Setting some of the config options such as pull-up by default might
+> start consuming power from boot time itself, which could be avoided if
+> such setup is done only when needed.
+
+Well, the difference in time between "just before driver binding" and
+"during probe" is minimal. If the driver/HW really needs to explicitly
+differentiate between those states to save power, I'd assert that it's
+covered by case (2) above.
+
+> Adding pinctrl driver support in device drivers seems to be simple
+> task. And it is just one time effort which can be reused on multiple
+> SoC's.
 > 
->  drivers/i2c/i2c-core.c |   22 ++++++++++++++++++++--
->  1 file changed, 20 insertions(+), 2 deletions(-)
+>>
+>> This would be similar to what is done currently with samsung-gpio bindings
+>> - the pin is being configured by custom xlate callback based on additional
+>> cells in GPIO specifier, when the driver retrieves the pin using
+>> of_get{_named,}_gpio without the need of setting it up in the driver.
 > 
-> --- linux-3.6-rc4.orig/drivers/i2c/i2c-core.c	2012-09-07 17:53:31.000000000 +0200
-> +++ linux-3.6-rc4/drivers/i2c/i2c-core.c	2012-09-08 09:36:13.538537033 +0200
-> @@ -637,6 +637,22 @@ static void i2c_adapter_dev_release(stru
->  }
->  
->  /*
-> + * This function is only needed for mutex_lock_nested, so it is never
-> + * called unless locking correctness checking is enabled. Thus we
-> + * make it inline to avoid a compiler warning. That's what gcc ends up
-> + * doing anyway.
-> + */
-> +static inline unsigned int i2c_adapter_depth(struct i2c_adapter *adapter)
-> +{
-> +	unsigned int depth = 0;
-> +
-> +	while ((adapter = i2c_parent_is_i2c_adapter(adapter)))
-> +		depth++;
-> +
-> +	return depth;
-> +}
-> +
-> +/*
->   * Let users instantiate I2C devices through sysfs. This can be used when
->   * platform initialization code doesn't contain the proper data for
->   * whatever reason. Also useful for drivers that do device detection and
-> @@ -726,7 +742,8 @@ i2c_sysfs_delete_device(struct device *d
->  
->  	/* Make sure the device was added through sysfs */
->  	res = -ENOENT;
-> -	mutex_lock(&adap->userspace_clients_lock);
-> +	mutex_lock_nested(&adap->userspace_clients_lock,
-> +			  i2c_adapter_depth(adap));
->  	list_for_each_entry_safe(client, next, &adap->userspace_clients,
->  				 detected) {
->  		if (client->addr == addr) {
-> @@ -1073,7 +1090,8 @@ int i2c_del_adapter(struct i2c_adapter *
->  		return res;
->  
->  	/* Remove devices instantiated from sysfs */
-> -	mutex_lock(&adap->userspace_clients_lock);
-> +	mutex_lock_nested(&adap->userspace_clients_lock,
-> +			  i2c_adapter_depth(adap));
->  	list_for_each_entry_safe(client, next, &adap->userspace_clients,
->  				 detected) {
->  		dev_dbg(&adap->dev, "Removing %s at 0x%x\n", client->name,
-> 
-> 
+> The Samsung gpio dt bindings was just a bootstrap method to get device
+> tree support going for Samsung platforms. The gpio xlate callback was
+> used as a back door to setup the pinmux/pinconfig due to lack of
+> generic driver interface to setup the pinmux/pinconfig for Samsung
+> platforms. From a linux perspective, gpio and pinmux/pinconfig are
+> separate entities. So using gpio xlate to setup pinmux/pinconfig was
+> not correct but helped getting device tree enabled for Samsung
+> platforms. With the pinctrl framework available now, there are generic
+> interfaces to setup gpio and pinmux /pinconfig.
+
+I agree; the Samsung GPIO bindings were surprising to me when I first
+realized what was in the GPIO specifiers...
