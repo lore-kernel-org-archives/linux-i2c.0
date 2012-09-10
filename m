@@ -1,71 +1,89 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed via
- Device Tree
-Date: Mon, 10 Sep 2012 04:42:36 -0700
-Message-ID: <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
-References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
-	<1347016499-29354-13-git-send-email-lee.jones@linaro.org>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH v3] i2c-core: Fix for lockdep validator
+Date: Mon, 10 Sep 2012 14:55:02 +0200
+Message-ID: <504DE326.8080706@gmx.de>
+References: <20120908093814.21c1174d@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347016499-29354-13-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20120908093814.21c1174d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 7, 2012 at 1:14 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+Am 08.09.2012 09:38, schrieb Jean Delvare:
+> If kernel is compiled with CONFIG_PROVE_LOCKING the
+> validator raises an error when a multiplexer is removed
+> via sysfs and sub-clients are connected to it. This is a
+> false positive.
+> Documentation/lockdep-design.txt recommends to handle this
+> via calls to mutex_lock_nested().
+> 
+> Based on an earlier fix from Michael Lawnick.
+> 
+> Note that the extra code resolves to nothing unless
+> CONFIG_DEBUG_LOCK_ALLOC=y.
+> 
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 
-> Each I2C device can be correctly probed already using Device Tree,
-> but the sub-devices still have to be registered by calls to
-> i2c_register_board_info(). After this patch, each sub-device can
-> be registered directly from Device Tree instead, removing the
-> requirement for the aforementioned calls from platform code.
->
-> CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> CC: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-The patch as such is fine.
-Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-...but there will be merge issues (of the type I'm
-discussing with Arnd in another thread).
+Tested-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Acked-by: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
 
 > ---
->  drivers/i2c/busses/i2c-nomadik.c |    4 ++++
->  1 file changed, 4 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-> index 5d1a970..01231c2 100644
-> --- a/drivers/i2c/busses/i2c-nomadik.c
-> +++ b/drivers/i2c/busses/i2c-nomadik.c
-> @@ -26,6 +26,7 @@
->  #include <linux/pm_runtime.h>
->  #include <linux/platform_data/i2c-nomadik.h>
->  #include <linux/of.h>
-> +#include <linux/of_i2c.h>
-
-This is clearly dependent on the other patches to I2C to
-be merged first (the include above is not yet there in
-linux-next even), so this patch should go into Wolfram's
-tree right? Else we have to rip out all the patches to the
-I2C driver from his tree and funnel it all through ARM SoC.
-
-With the changes to the device tree itself being dependent
-on this, they should thus also go through the I2C tree.
-
-But they may be heavily dependent on the other DT
-changes you've done, so they cannot be applied to
-Wolfram's tree...
-
-And thus you may need to hold this change off
-until the I2C changes are upstream, or start creating
-cross-tree dependencies.
-
-Maybe I shouldn't worry about these things and just
-ACK stuff, but I have such problems with cross-tree
-merges myself so just trying to be helpful :-/
-
-Yours,
-Linus Walleij
+> Changes since v2:
+>  * Inline function i2c_adapter_depth to avoid a compiler warning.
+>  * Document the reason why it it implemented that way.
+> 
+>  drivers/i2c/i2c-core.c |   22 ++++++++++++++++++++--
+>  1 file changed, 20 insertions(+), 2 deletions(-)
+> 
+> --- linux-3.6-rc4.orig/drivers/i2c/i2c-core.c	2012-09-07 17:53:31.000000000 +0200
+> +++ linux-3.6-rc4/drivers/i2c/i2c-core.c	2012-09-08 09:36:13.538537033 +0200
+> @@ -637,6 +637,22 @@ static void i2c_adapter_dev_release(stru
+>  }
+>  
+>  /*
+> + * This function is only needed for mutex_lock_nested, so it is never
+> + * called unless locking correctness checking is enabled. Thus we
+> + * make it inline to avoid a compiler warning. That's what gcc ends up
+> + * doing anyway.
+> + */
+> +static inline unsigned int i2c_adapter_depth(struct i2c_adapter *adapter)
+> +{
+> +	unsigned int depth = 0;
+> +
+> +	while ((adapter = i2c_parent_is_i2c_adapter(adapter)))
+> +		depth++;
+> +
+> +	return depth;
+> +}
+> +
+> +/*
+>   * Let users instantiate I2C devices through sysfs. This can be used when
+>   * platform initialization code doesn't contain the proper data for
+>   * whatever reason. Also useful for drivers that do device detection and
+> @@ -726,7 +742,8 @@ i2c_sysfs_delete_device(struct device *d
+>  
+>  	/* Make sure the device was added through sysfs */
+>  	res = -ENOENT;
+> -	mutex_lock(&adap->userspace_clients_lock);
+> +	mutex_lock_nested(&adap->userspace_clients_lock,
+> +			  i2c_adapter_depth(adap));
+>  	list_for_each_entry_safe(client, next, &adap->userspace_clients,
+>  				 detected) {
+>  		if (client->addr == addr) {
+> @@ -1073,7 +1090,8 @@ int i2c_del_adapter(struct i2c_adapter *
+>  		return res;
+>  
+>  	/* Remove devices instantiated from sysfs */
+> -	mutex_lock(&adap->userspace_clients_lock);
+> +	mutex_lock_nested(&adap->userspace_clients_lock,
+> +			  i2c_adapter_depth(adap));
+>  	list_for_each_entry_safe(client, next, &adap->userspace_clients,
+>  				 detected) {
+>  		dev_dbg(&adap->dev, "Removing %s at 0x%x\n", client->name,
+> 
+> 
