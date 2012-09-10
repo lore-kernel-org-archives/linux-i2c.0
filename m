@@ -1,41 +1,71 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c fixes for Linux 3.6
-Date: Mon, 10 Sep 2012 10:16:27 +0200
-Message-ID: <20120910101627.2a7ca310@endymion.delvare>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed via
+ Device Tree
+Date: Mon, 10 Sep 2012 04:42:36 -0700
+Message-ID: <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
+References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
+	<1347016499-29354-13-git-send-email-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1347016499-29354-13-git-send-email-lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+On Fri, Sep 7, 2012 at 1:14 PM, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-Please pull i2c subsystem fixes for Linux 3.6 from:
+> Each I2C device can be correctly probed already using Device Tree,
+> but the sub-devices still have to be registered by calls to
+> i2c_register_board_info(). After this patch, each sub-device can
+> be registered directly from Device Tree instead, removing the
+> requirement for the aforementioned calls from platform code.
+>
+> CC: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> CC: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> Signed-off-by: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+The patch as such is fine.
+Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
- Documentation/i2c/busses/i2c-i801        |    1 +
- drivers/i2c/busses/Kconfig               |    6 ++++++
- drivers/i2c/busses/Makefile              |    5 +++--
- drivers/i2c/busses/i2c-designware-core.c |   11 +++++++++++
- drivers/i2c/busses/i2c-i801.c            |    3 +++
- drivers/i2c/i2c-core.c                   |   22 ++++++++++++++++++++--
- 6 files changed, 44 insertions(+), 4 deletions(-)
+...but there will be merge issues (of the type I'm
+discussing with Arnd in another thread).
 
----------------
+> ---
+>  drivers/i2c/busses/i2c-nomadik.c |    4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+> index 5d1a970..01231c2 100644
+> --- a/drivers/i2c/busses/i2c-nomadik.c
+> +++ b/drivers/i2c/busses/i2c-nomadik.c
+> @@ -26,6 +26,7 @@
+>  #include <linux/pm_runtime.h>
+>  #include <linux/platform_data/i2c-nomadik.h>
+>  #include <linux/of.h>
+> +#include <linux/of_i2c.h>
 
-Axel Lin (1):
-      i2c-designware: Fix build error if CONFIG_I2C_DESIGNWARE_PLATFORM=y && CONFIG_I2C_DESIGNWARE_PCI=y
+This is clearly dependent on the other patches to I2C to
+be merged first (the include above is not yet there in
+linux-next even), so this patch should go into Wolfram's
+tree right? Else we have to rip out all the patches to the
+I2C driver from his tree and funnel it all through ARM SoC.
 
-James Ralston (1):
-      i2c-i801: Add Device IDs for Intel Lynx Point-LP PCH
+With the changes to the device tree itself being dependent
+on this, they should thus also go through the I2C tree.
 
-Jean Delvare (1):
-      i2c-core: Fix for lockdep validator
+But they may be heavily dependent on the other DT
+changes you've done, so they cannot be applied to
+Wolfram's tree...
 
-Thanks,
--- 
-Jean Delvare
+And thus you may need to hold this change off
+until the I2C changes are upstream, or start creating
+cross-tree dependencies.
+
+Maybe I shouldn't worry about these things and just
+ACK stuff, but I have such problems with cross-tree
+merges myself so just trying to be helpful :-/
+
+Yours,
+Linus Walleij
