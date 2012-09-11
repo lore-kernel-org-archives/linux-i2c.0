@@ -1,55 +1,50 @@
-From: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
-Subject: Re: [PATCH] omap-i2c: fix incorrect log message when using a device
- tree
-Date: Tue, 11 Sep 2012 09:01:55 +0200
-Message-ID: <504EE1E3.7040304@epfl.ch>
-References: <1346410975-29930-1-git-send-email-florian.vaussard@epfl.ch> <5040AFCC.5060004@ti.com>
-Reply-To: florian.vaussard-p8DiymsW2f8@public.gmane.org
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+Subject: Re: [PATCH v11 3/4] drivers/i2c/busses/i2c-at91.c: add new driver
+Date: Tue, 11 Sep 2012 10:26:39 +0200
+Message-ID: <504EF5BF.2090404@atmel.com>
+References: <cover.1345618760.git.n.voss@weinmann.de>
+ <4f3dcfbf1e8eab3e251ab3558e9e1e9123643928.1345618760.git.n.voss@weinmann.de>,
+ <503B4919.6080306@atmel.com>
+ <BC0F374A1C27184AB96177CDFEC2F54225ECC330@EXMDB06.org.aalto.fi>,
+ <503B623C.4030304@atmel.com>
+ <BC0F374A1C27184AB96177CDFEC2F54225ECD36E@EXMDB06.org.aalto.fi>
+ <EF2E73589CA71846A15D0B2CDF79505D090EC3D6F6@wm021.weinmann.com>
+ <503B7D6E.7090906@atmel.com>
+ <EF2E73589CA71846A15D0B2CDF79505D090EC3D747@wm021.weinmann.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5040AFCC.5060004-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, =?ISO-8859-1?Q?Philippe_R=E9tornaz?= <philippe.retornaz-p8DiymsW2f8@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <EF2E73589CA71846A15D0B2CDF79505D090EC3D747@wm021.weinmann.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: "''Wolfram Sang' (w.sang@pengutronix.de)'" <w.sang@pengutronix.de>
+Cc: "'ben-linux@fluff.org'" <ben-linux@fluff.org>, "'carsten.behling@garz-fricke.com'" <carsten.behling@garz-fricke.com>, "Voss,
+ Nikolaus" <N.Voss@weinmann.de>, "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>, "'balbi@ti.com'" <balbi@ti.com>, "'h.feurstein@gmail.com'" <h.feurstein@gmail.com>, "'ludovic.desroches'" <ludovic.desroches@atmel.com>, "'linux-i2c@vger.kernel.org'" <linux-i2c@vger.kernel.org>, 'Yanes Martinez Adrian' <adrian.yanes@aalto.fi>, "'linux-arm-kernel@lists.infradead.org'" <linux-arm-kernel@lists.infradead.org>, "'rmallon@gmail.com'" <rmallon@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello Wolfram,
+On 08/27/2012 04:29 PM, Voss, Nikolaus :
+> ludovic.desroches wrote on Monday, August 27, 2012 4:00 PM :
+>> For the moment, I don't have the necessary knowledge about the TWI
+>> controller to take a decision. I would say it can be done in an other
+>> patch in order to have your driver included in the mainline quickly
+>> since it doesn't introduce a breakage.
+> 
+> That would be the most pragmatic approach.
+> Wolfram, is the anything left to do from my side?
 
->> When booting using a device tree, the adapter number is dynamically
->> assigned after the log message is sent.
->> This patch modifies the log message to get a correct adapter id.
->>
->> Applies on 3.6-rc3. Tested on OMAP3 (Gumstix Overo).
->
-> Thanks for the fix. Tested successfully on OMAP4 SDP DT boot as well.
->
-> [    0.000000] Linux version 3.6.0-rc3-00030-g491038d (bcousson@lnwes3201) (gcc version 4.5.2 (Sourcery G++ Lite 2011.03-41) ) #6 SMP Fri Aug 31 13:50:48 CEST 2012
-> [    0.000000] CPU: ARMv7 Processor [411fc092] revision 2 (ARMv7), cr=10c53c7d
-> [    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
-> [    0.000000] Machine: Generic OMAP4 (Flattened Device Tree), model: TI OMAP4 SDP board
-> ...
-> [    0.667205] omap_i2c i2c.15: bus 0 rev2.4.0 at 400 kHz
-> ...
-> [    0.768341] omap_i2c i2c.16: bus 1 rev2.4.0 at 400 kHz
-> [    0.783905] omap_i2c i2c.17: bus 2 rev2.4.0 at 400 kHz
-> [    0.799530] omap_i2c i2c.18: bus 3 rev2.4.0 at 400 kHz
->
->
->> Signed-off-by: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
->
-> Tested-by: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
-> and
-> Acked-by: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
->
-> Regards,
-> Benoit
->
+Wolfram, ping?
 
-Was this patch picked-up by the i2c-embedded subsystem?
+Can we imagine to have this support and the device tree patches from
+Ludovic in 3.7-final?
 
-Thank you.
-
-Regards,
-Florian
+Bye,
+-- 
+Nicolas Ferre
