@@ -1,64 +1,55 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 1/2] i2c: s3c2410: add optional pin configuration using
- pinctrl interface
-Date: Mon, 10 Sep 2012 22:02:41 +0200
-Message-ID: <CACRpkdZ7kjfDQ-CNCcCv5fQwSqMez6sKSMUMLB=0Aviboiz=2g@mail.gmail.com>
-References: <1346923381-14144-1-git-send-email-thomas.abraham@linaro.org>
-	<1346923381-14144-2-git-send-email-thomas.abraham@linaro.org>
+From: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
+Subject: Re: [PATCH] omap-i2c: fix incorrect log message when using a device
+ tree
+Date: Tue, 11 Sep 2012 09:01:55 +0200
+Message-ID: <504EE1E3.7040304@epfl.ch>
+References: <1346410975-29930-1-git-send-email-florian.vaussard@epfl.ch> <5040AFCC.5060004@ti.com>
+Reply-To: florian.vaussard-p8DiymsW2f8@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1346923381-14144-2-git-send-email-thomas.abraham@linaro.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Thomas Abraham <thomas.abraham@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, dong.aisheng@linaro.org, swarren@wwwdotorg.org, kgene.kim@samsung.com, patches@linaro.org, w.sang@pengutronix.de, ben-linux@fluff.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5040AFCC.5060004-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, =?ISO-8859-1?Q?Philippe_R=E9tornaz?= <philippe.retornaz-p8DiymsW2f8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 6, 2012 at 11:23 AM, Thomas Abraham
-<thomas.abraham@linaro.org> wrote:
+Hello Wolfram,
 
-> Add optional support for i2c bus pin configuration using pinctrl interface
+>> When booting using a device tree, the adapter number is dynamically
+>> assigned after the log message is sent.
+>> This patch modifies the log message to get a correct adapter id.
+>>
+>> Applies on 3.6-rc3. Tested on OMAP3 (Gumstix Overo).
 >
-> Cc: Ben Dooks <ben-linux@fluff.org>
-> Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
-(...)
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-(...)
-> -       else
-> -               if (s3c24xx_i2c_parse_dt_gpio(i2c))
-> +       } else if (!IS_ERR_OR_NULL(i2c->pctrl) &&
-> +                       !IS_ERR_OR_NULL(i2c->pctrl_state)) {
-
-You don't need to check i2c->pctrl here, just check i2c->pctrl_state.
-
-If i2c->pctrl failed the other one will be null too, anyway.
-(Or the struct isn't kzalloc:ed properly... which I assume.)
-
-> +               if (pinctrl_select_state(i2c->pctrl, i2c->pctrl_state)) {
-> +                       dev_err(i2c->dev, "failed to configure io-pins\n");
-> +                       return -ENXIO;
-> +               }
-> +       } else if (s3c24xx_i2c_parse_dt_gpio(i2c)) {
->                         return -EINVAL;
-> +       }
+> Thanks for the fix. Tested successfully on OMAP4 SDP DT boot as well.
 >
->         /* write slave address */
+> [    0.000000] Linux version 3.6.0-rc3-00030-g491038d (bcousson@lnwes3201) (gcc version 4.5.2 (Sourcery G++ Lite 2011.03-41) ) #6 SMP Fri Aug 31 13:50:48 CEST 2012
+> [    0.000000] CPU: ARMv7 Processor [411fc092] revision 2 (ARMv7), cr=10c53c7d
+> [    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
+> [    0.000000] Machine: Generic OMAP4 (Flattened Device Tree), model: TI OMAP4 SDP board
+> ...
+> [    0.667205] omap_i2c i2c.15: bus 0 rev2.4.0 at 400 kHz
+> ...
+> [    0.768341] omap_i2c i2c.16: bus 1 rev2.4.0 at 400 kHz
+> [    0.783905] omap_i2c i2c.17: bus 2 rev2.4.0 at 400 kHz
+> [    0.799530] omap_i2c i2c.18: bus 3 rev2.4.0 at 400 kHz
 >
-> @@ -1013,6 +1022,10 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
->         i2c->adap.algo_data = i2c;
->         i2c->adap.dev.parent = &pdev->dev;
 >
-> +       i2c->pctrl = devm_pinctrl_get(i2c->dev);
-> +       if (!IS_ERR_OR_NULL(i2c->pctrl))
-> +               i2c->pctrl_state = pinctrl_lookup_state(i2c->pctrl, "default");
-> +
+>> Signed-off-by: Florian Vaussard <florian.vaussard-p8DiymsW2f8@public.gmane.org>
+>
+> Tested-by: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
+> and
+> Acked-by: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
+>
+> Regards,
+> Benoit
+>
 
-If all you do is select the default state (later, in the init function)
-the use devm_pinctrl_get_select_default() and be done
-with it.
+Was this patch picked-up by the i2c-embedded subsystem?
 
-In any case do not open code the string "default", use
-PINCTRL_STATE_DEFAULT which defines to that string.
+Thank you.
 
-Yours,
-Linus Walleij
+Regards,
+Florian
