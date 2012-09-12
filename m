@@ -1,53 +1,45 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCHv7 20/23] i2c: omap: switch to threaded IRQ support
-Date: Wed, 12 Sep 2012 13:51:43 +0200
-Message-ID: <20120912115143.GE2624@pengutronix.de>
-References: <1347356538-23835-1-git-send-email-shubhrajyoti@ti.com>
- <1347356538-23835-21-git-send-email-shubhrajyoti@ti.com>
- <20120911215112.GA27031@pengutronix.de>
- <50502AE3.7040300@ti.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v3 0/8] i2c: at91: cleanup and dt support
+Date: Wed, 12 Sep 2012 14:58:55 +0200
+Message-ID: <20120912125855.GA16547@pengutronix.de>
+References: <1347432137-25058-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ZInfyf7laFu/Kiw7"
-Return-path: <linux-omap-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="J/dobhs11T7y2rNN"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <50502AE3.7040300@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti <shubhrajyoti@ti.com>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Felipe Balbi <balbi@ti.com>
+In-Reply-To: <1347432137-25058-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ZInfyf7laFu/Kiw7
+--J/dobhs11T7y2rNN
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 12, 2012 at 11:55:39AM +0530, Shubhrajyoti wrote:
-> On Wednesday 12 September 2012 03:21 AM, Wolfram Sang wrote:
-> >> -omap_i2c_isr(int this_irq, void *dev_id)
-> >> > +omap_i2c_isr(int irq, void *dev_id)
-> >> >  {
-> >> >  	struct omap_i2c_dev *dev =3D dev_id;
-> >> > +	irqreturn_t ret =3D IRQ_HANDLED;
-> > Shouldn't that be IRQ_NONE?
-> Actually we are processing it so I thought it to be ok.
+On Wed, Sep 12, 2012 at 08:42:09AM +0200, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote:
+> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+>=20
+> Hi,
+>=20
+> This set of patches is based on Nikolaus at91_i2c driver.
 
-Are we processing it? There is nothing acknowledged AFAICS. Anyway, we
-can fix that with a later patch.
+Pushed both series with the discussed squashing to:
 
-> Also a similar discussion.
-> =20
-> http://lists.infradead.org/pipermail/linux-arm-kernel/2012-June/104422.ht=
-ml
+	git://git.pengutronix.de/git/wsa/linux.git i2c-embedded/for-next
 
-I totally agree to the things said there.
+You might want to have a look if everything looks good to you.
+
+Thanks to everyone involved!
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---ZInfyf7laFu/Kiw7
+--J/dobhs11T7y2rNN
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -55,9 +47,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAlBQd08ACgkQD27XaX1/VRsWQgCgxO98etvzzFtFQetYwTMH8OMM
-5HUAoMRAVircBmhF35JsTKZuHh/9jaR9
-=Rl0M
+iEYEARECAAYFAlBQhw8ACgkQD27XaX1/VRti7QCgkSo61PMS7soqu/Fd7ctAsVj0
+nogAoJ+fl+RJO2tDYdxhNYBDbhm5+Efi
+=7hXh
 -----END PGP SIGNATURE-----
 
---ZInfyf7laFu/Kiw7--
+--J/dobhs11T7y2rNN--
