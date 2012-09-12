@@ -1,38 +1,98 @@
-From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: RE: [PATCH v3 0/8] i2c: at91: cleanup and dt support
-Date: Wed, 12 Sep 2012 12:39:10 +0200
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090ED36C51@wm021.weinmann.com>
-References: <1347432137-25058-1-git-send-email-ludovic.desroches@atmel.com>
- <505041EF.5060204@atmel.com> <20120912101607.GA2624@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed
+ via Device Tree
+Date: Wed, 12 Sep 2012 12:52:02 +0200
+Message-ID: <20120912105202.GD2624@pengutronix.de>
+References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
+ <1347016499-29354-13-git-send-email-lee.jones@linaro.org>
+ <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120912101607.GA2624-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: de-DE
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, 'Nicolas Ferre' <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org'" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, "'plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org'" <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KdquIMZPjGJQvRdI"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>
+Cc: Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
- Wolfram Sang wrote on Wednesday, September 12, 2012 12:16 PM:
-> One thing I'd like to make, though. I'd like to squash the following
-> patches into one:
-> 
-> 	drivers/i2c/busses/i2c-at91.c: add new driver
-> 	i2c: at91: use managed resources
-> 	i2c: at91: add warning about transmission issues for some devices
-> 	i2c: at91: use an id table for SoC dependent parameters
-> 
-> It is especially the last patch I am mostly interested in. The id_table
-> approach is what I like, while the original id_entry mechanism looks
-> fishy. I'd was good for reviewing to have the patches split like this;
-> yet for hitting mainline, I'd prefer to have the driver proper on first
-> occasion. I already did the squashing in a test-branch and the result
-> looks good to me.
-> 
-> Nikolaus, Ludovic: Are you fine with this?
 
-Absolutely.
+--KdquIMZPjGJQvRdI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Niko
+On Mon, Sep 10, 2012 at 04:42:36AM -0700, Linus Walleij wrote:
+> On Fri, Sep 7, 2012 at 1:14 PM, Lee Jones <lee.jones@linaro.org> wrote:
+>=20
+> > Each I2C device can be correctly probed already using Device Tree,
+> > but the sub-devices still have to be registered by calls to
+> > i2c_register_board_info(). After this patch, each sub-device can
+> > be registered directly from Device Tree instead, removing the
+> > requirement for the aforementioned calls from platform code.
+> >
+> > CC: linux-i2c@vger.kernel.org
+> > CC: Wolfram Sang <w.sang@pengutronix.de>
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+>=20
+> The patch as such is fine.
+> Acked-by: Linus Walleij <linus.walleij@linaro.org>
+>=20
+> ...but there will be merge issues (of the type I'm
+> discussing with Arnd in another thread).
+>=20
+> > ---
+> >  drivers/i2c/busses/i2c-nomadik.c |    4 ++++
+> >  1 file changed, 4 insertions(+)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-=
+nomadik.c
+> > index 5d1a970..01231c2 100644
+> > --- a/drivers/i2c/busses/i2c-nomadik.c
+> > +++ b/drivers/i2c/busses/i2c-nomadik.c
+> > @@ -26,6 +26,7 @@
+> >  #include <linux/pm_runtime.h>
+> >  #include <linux/platform_data/i2c-nomadik.h>
+> >  #include <linux/of.h>
+> > +#include <linux/of_i2c.h>
+>=20
+> This is clearly dependent on the other patches to I2C to
+> be merged first (the include above is not yet there in
+> linux-next even), so this patch should go into Wolfram's
+> tree right? Else we have to rip out all the patches to the
+> I2C driver from his tree and funnel it all through ARM SoC.
+
+First, I'd like to have this patch squashed with "i2c: nomadik: Add
+Device Tree support to the Nomadik I2C driver". I wanted to do this on
+my own, but the patches do not apply to 3.6-rc5 (with or without
+regulator removal patch from Linus)?
+
+I can also take the I2C related changes to the devicetrees via my tree.
+This is not uncommon. Some people prefer to do this via their soc-trees,
+though. I don't care much since this is not really a hard dependency
+causing build failures or merge conflicts, but just needs a little extra
+time until the patches are all there...
+
+Thanks,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--KdquIMZPjGJQvRdI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlBQaVIACgkQD27XaX1/VRtFaACgoh39FHUnKUPV5kp+0b/v4dJ8
+sCoAoKZ+cztQxIEszGwClG27oICXHZ6H
+=Hc56
+-----END PGP SIGNATURE-----
+
+--KdquIMZPjGJQvRdI--
