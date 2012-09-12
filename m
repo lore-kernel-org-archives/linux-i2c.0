@@ -1,83 +1,63 @@
-From: ludovic.desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3 0/8] i2c: at91: cleanup and dt support
-Date: Wed, 12 Sep 2012 13:12:23 +0200
-Message-ID: <50506E17.1080904@atmel.com>
-References: <1347432137-25058-1-git-send-email-ludovic.desroches@atmel.com>
- <505041EF.5060204@atmel.com> <20120912101607.GA2624@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCHv7 20/23] i2c: omap: switch to threaded IRQ support
+Date: Wed, 12 Sep 2012 13:51:43 +0200
+Message-ID: <20120912115143.GE2624@pengutronix.de>
+References: <1347356538-23835-1-git-send-email-shubhrajyoti@ti.com>
+ <1347356538-23835-21-git-send-email-shubhrajyoti@ti.com>
+ <20120911215112.GA27031@pengutronix.de>
+ <50502AE3.7040300@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20120912101607.GA2624-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ZInfyf7laFu/Kiw7"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <50502AE3.7040300@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti <shubhrajyoti@ti.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, Felipe Balbi <balbi@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
 
-Le 09/12/2012 12:16 PM, Wolfram Sang a =E9crit :
-> On Wed, Sep 12, 2012 at 10:03:59AM +0200, Nicolas Ferre wrote:
->> On 09/12/2012 08:42 AM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
->>> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
->>>
->>> Hi,
->>>
->>> This set of patches is based on Nikolaus at91_i2c driver.
->>>
->>> Changes:
->>> v3:
->>>    - only put multi-drive lines in the if...else statement (suggested
->>>    by Warner Losh)
->>
->> Hi Wolfram,
->>
->> As said by Ludovic, this series goes on top of Nikolaus' one.
->> My Acked-by is already set on this one, so I think that I have nothing
->> more to do ;-)
->>
->> BTW, in case you need help to sort all this, do not hesitate to contact
->> us... we can setup a git tree for this...
->
-> I think I am fine. Patches look good. I wondered a bit about first
-> removing the old driver, then adding the new one with regard to
-> bisectability. But as the old driver depends on BROKEN, I think this is
-> OK to do.
->
-> One thing I'd like to make, though. I'd like to squash the following
-> patches into one:
->
-> 	drivers/i2c/busses/i2c-at91.c: add new driver
-> 	i2c: at91: use managed resources
-> 	i2c: at91: add warning about transmission issues for some devices
-> 	i2c: at91: use an id table for SoC dependent parameters
->
-> It is especially the last patch I am mostly interested in. The id_table
-> approach is what I like, while the original id_entry mechanism looks
-> fishy. I'd was good for reviewing to have the patches split like this;
-> yet for hitting mainline, I'd prefer to have the driver proper on first
-> occasion. I already did the squashing in a test-branch and the result
-> looks good to me.
->
-> Nikolaus, Ludovic: Are you fine with this?
->
+--ZInfyf7laFu/Kiw7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No problem on my side.
+On Wed, Sep 12, 2012 at 11:55:39AM +0530, Shubhrajyoti wrote:
+> On Wednesday 12 September 2012 03:21 AM, Wolfram Sang wrote:
+> >> -omap_i2c_isr(int this_irq, void *dev_id)
+> >> > +omap_i2c_isr(int irq, void *dev_id)
+> >> >  {
+> >> >  	struct omap_i2c_dev *dev =3D dev_id;
+> >> > +	irqreturn_t ret =3D IRQ_HANDLED;
+> > Shouldn't that be IRQ_NONE?
+> Actually we are processing it so I thought it to be ok.
 
-Regards
+Are we processing it? There is nothing acknowledged AFAICS. Anyway, we
+can fix that with a later patch.
 
-Ludovic
+> Also a similar discussion.
+> =20
+> http://lists.infradead.org/pipermail/linux-arm-kernel/2012-June/104422.ht=
+ml
 
-> Thanks,
->
->     Wolfram
->
+I totally agree to the things said there.
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--ZInfyf7laFu/Kiw7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlBQd08ACgkQD27XaX1/VRsWQgCgxO98etvzzFtFQetYwTMH8OMM
+5HUAoMRAVircBmhF35JsTKZuHh/9jaR9
+=Rl0M
+-----END PGP SIGNATURE-----
+
+--ZInfyf7laFu/Kiw7--
