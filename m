@@ -1,52 +1,64 @@
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PATCH] at24: make module parameters changeable via sysfs
-Date: Wed, 12 Sep 2012 11:43:32 +0200
-Message-ID: <1347443012-21302-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCHv7 00/23]I2C big cleanup
+Date: Wed, 12 Sep 2012 15:41:40 +0530
+Message-ID: <50505FDC.4090500@ti.com>
+References: <1347356538-23835-1-git-send-email-shubhrajyoti@ti.com> <20120911220048.GD27031@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20120911220048.GD27031@pengutronix.de>
+Sender: linux-omap-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com
 List-Id: linux-i2c@vger.kernel.org
 
-The respective values are evaluated at each read/write, so no further
-action is required than to change the perm argument to module_param.
+On Wednesday 12 September 2012 03:30 AM, Wolfram Sang wrote:
+>> Changes since v6:
+>> >         - Fix comments on setting the pdev to NULL.
+>> >         - Trivial changelog update
+> Looks mostly good, thanks. Only a few comments. Oh, and I still get
+> reports about a section mismatch ;)
+I am using omap2plus_defconfig
+ $ make --ver
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
-Note there is no sanity check so root can make the driver effectively
-unusable but that's what root is for :-)
+$ make CONFIG_DEBUG_SECTION_MISMATCH=y uImage
+....
+  LD      vmlinux.o
+  MODPOST vmlinux.o
+  GEN     .version
+  CHK     include/generated/compile.h
+  UPD     include/generated/compile.h
+  CC      init/version.o
+  LD      init/built-in.o
+  KSYM    .tmp_kallsyms1.o
+  KSYM    .tmp_kallsyms2.o
+  LD      vmlinux
+  SYSMAP  System.map
+  OBJCOPY arch/arm/boot/Image
+  Kernel: arch/arm/boot/Image is ready
+  GZIP    arch/arm/boot/compressed/piggy.gzip
+  CC      arch/arm/boot/compressed/misc.o
+  CC      arch/arm/boot/compressed/decompress.o
+  CC      arch/arm/boot/compressed/string.o
+  AS      arch/arm/boot/compressed/piggy.gzip.o
+  LD      arch/arm/boot/compressed/vmlinux
+  OBJCOPY arch/arm/boot/zImage
+  Kernel: arch/arm/boot/zImage is ready
+  UIMAGE  arch/arm/boot/uImage
+Image Name:   Linux-3.6.0-rc5-00022-g49fb6db
+Created:      Wed Sep 12 15:24:21 2012
+Image Type:   ARM Linux Kernel Image (uncompressed)
+Data Size:    4074688 Bytes = 3979.19 kB = 3.89 MB
+Load Address: 80008000
+Entry Point:  80008000
+  Image arch/arm/boot/uImage is ready
 
-Signed-off-by: Uwe Kleine-K=C3=B6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
----
- drivers/misc/eeprom/at24.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+I donot see the warning. Am I missing something?
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index ab1ad41..8a5a192 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -85,7 +85,7 @@ struct at24_data {
-  * This value is forced to be a power of two so that writes align on p=
-ages.
-  */
- static unsigned io_limit =3D 128;
--module_param(io_limit, uint, 0);
-+module_param(io_limit, uint, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
-=20
- /*
-@@ -93,7 +93,7 @@ MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (de=
-fault 128)");
-  * it's important to recover from write timeouts.
-  */
- static unsigned write_timeout =3D 25;
--module_param(write_timeout, uint, 0);
-+module_param(write_timeout, uint, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 2=
-5)");
-=20
- #define AT24_SIZE_BYTELEN 5
---=20
-1.7.10.4
+
