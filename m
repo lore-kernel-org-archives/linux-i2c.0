@@ -1,90 +1,50 @@
-From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 8/8] ARM: dts: add twi nodes for atmel boards
-Date: Wed, 12 Sep 2012 08:42:17 +0200
-Message-ID: <1347432137-25058-9-git-send-email-ludovic.desroches@atmel.com>
-References: <1347432137-25058-1-git-send-email-ludovic.desroches@atmel.com>
+From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCHv7 18/23] i2c: omap: remove redundant status read
+Date: Wed, 12 Sep 2012 12:21:49 +0530
+Message-ID: <50503105.8050100@ti.com>
+References: <1347356538-23835-1-git-send-email-shubhrajyoti@ti.com> <1347356538-23835-19-git-send-email-shubhrajyoti@ti.com> <20120911215441.GC27031@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347432137-25058-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20120911215441.GC27031-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-
-Still use i2c-gpio on boards which have a SoC with a TWI IP which
-doesn't have clock stretching in transmission mode.
-
-Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Acked-by: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
----
- arch/arm/boot/dts/at91sam9g25ek.dts    | 12 ++++++++++++
- arch/arm/boot/dts/at91sam9m10g45ek.dts |  8 ++++++++
- arch/arm/boot/dts/at91sam9n12ek.dts    |  8 ++++++++
- 3 files changed, 28 insertions(+)
-
-diff --git a/arch/arm/boot/dts/at91sam9g25ek.dts b/arch/arm/boot/dts/at91sam9g25ek.dts
-index 96514c1..877c08f 100644
---- a/arch/arm/boot/dts/at91sam9g25ek.dts
-+++ b/arch/arm/boot/dts/at91sam9g25ek.dts
-@@ -32,6 +32,18 @@
- 				phy-mode = "rmii";
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@f8010000 {
-+				status = "okay";
-+			};
-+
-+			i2c1: i2c@f8014000 {
-+				status = "okay";
-+			};
-+
-+			i2c2: i2c@f8018000 {
-+				status = "okay";
-+			};
- 		};
- 
- 		usb0: ohci@00600000 {
-diff --git a/arch/arm/boot/dts/at91sam9m10g45ek.dts b/arch/arm/boot/dts/at91sam9m10g45ek.dts
-index a3633bd..15e1dd4 100644
---- a/arch/arm/boot/dts/at91sam9m10g45ek.dts
-+++ b/arch/arm/boot/dts/at91sam9m10g45ek.dts
-@@ -46,6 +46,14 @@
- 				phy-mode = "rmii";
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@fff84000 {
-+				status = "okay";
-+			};
-+
-+			i2c1: i2c@fff88000 {
-+				status = "okay";
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
-diff --git a/arch/arm/boot/dts/at91sam9n12ek.dts b/arch/arm/boot/dts/at91sam9n12ek.dts
-index f4e43e3..912b2c2 100644
---- a/arch/arm/boot/dts/at91sam9n12ek.dts
-+++ b/arch/arm/boot/dts/at91sam9n12ek.dts
-@@ -37,6 +37,14 @@
- 			dbgu: serial@fffff200 {
- 				status = "okay";
- 			};
-+
-+			i2c0: i2c@f8010000 {
-+				status = "okay";
-+			};
-+
-+			i2c1: i2c@f8014000 {
-+				status = "okay";
-+			};
- 		};
- 
- 		nand0: nand@40000000 {
--- 
-1.7.11.3
+On Wednesday 12 September 2012 03:24 AM, Wolfram Sang wrote:
+> On Tue, Sep 11, 2012 at 03:12:13PM +0530, Shubhrajyoti D wrote:
+>> Remove the redundant read of the status register.
+> Commit message is just repeating the subject.
+> Why was the read there and why can it be removed now?
+>
+It is read and it is not read anywhere below.
+>> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/i2c-omap.c |    2 --
+>>  1 files changed, 0 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>> index 5d4bad4..498a462 100644
+>> --- a/drivers/i2c/busses/i2c-omap.c
+>> +++ b/drivers/i2c/busses/i2c-omap.c
+>> @@ -946,7 +946,6 @@ omap_i2c_isr(int this_irq, void *dev_id)
+>>  				num_bytes = dev->buf_len;
+>>  
+>>  			ret = omap_i2c_transmit_data(dev, num_bytes, true);
+>> -			stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
+>>  			if (ret < 0)
+>>  				goto out;
+>>  
+>> @@ -962,7 +961,6 @@ omap_i2c_isr(int this_irq, void *dev_id)
+>>  				num_bytes = dev->threshold;
+>>  
+>>  			ret = omap_i2c_transmit_data(dev, num_bytes, false);
+>> -			stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
+>>  			if (ret < 0)
+>>  				goto out;
+>>  
+>> -- 
+>> 1.7.5.4
+>>
