@@ -1,98 +1,93 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed
- via Device Tree
-Date: Wed, 12 Sep 2012 12:52:02 +0200
-Message-ID: <20120912105202.GD2624@pengutronix.de>
-References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
- <1347016499-29354-13-git-send-email-lee.jones@linaro.org>
- <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCHv8 15/22] i2c: omap: simplify IRQ exit path
+Date: Wed, 12 Sep 2012 16:28:09 +0530
+Message-ID: <1347447496-16793-16-git-send-email-shubhrajyoti@ti.com>
+References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KdquIMZPjGJQvRdI"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Walleij <linus.walleij@linaro.org>
-Cc: Lee Jones <lee.jones@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1347447496-16793-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 
---KdquIMZPjGJQvRdI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+instead of having multiple return points, use
+a goto statement to make that clearer.
 
-On Mon, Sep 10, 2012 at 04:42:36AM -0700, Linus Walleij wrote:
-> On Fri, Sep 7, 2012 at 1:14 PM, Lee Jones <lee.jones@linaro.org> wrote:
->=20
-> > Each I2C device can be correctly probed already using Device Tree,
-> > but the sub-devices still have to be registered by calls to
-> > i2c_register_board_info(). After this patch, each sub-device can
-> > be registered directly from Device Tree instead, removing the
-> > requirement for the aforementioned calls from platform code.
-> >
-> > CC: linux-i2c@vger.kernel.org
-> > CC: Wolfram Sang <w.sang@pengutronix.de>
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
->=20
-> The patch as such is fine.
-> Acked-by: Linus Walleij <linus.walleij@linaro.org>
->=20
-> ...but there will be merge issues (of the type I'm
-> discussing with Arnd in another thread).
->=20
-> > ---
-> >  drivers/i2c/busses/i2c-nomadik.c |    4 ++++
-> >  1 file changed, 4 insertions(+)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-=
-nomadik.c
-> > index 5d1a970..01231c2 100644
-> > --- a/drivers/i2c/busses/i2c-nomadik.c
-> > +++ b/drivers/i2c/busses/i2c-nomadik.c
-> > @@ -26,6 +26,7 @@
-> >  #include <linux/pm_runtime.h>
-> >  #include <linux/platform_data/i2c-nomadik.h>
-> >  #include <linux/of.h>
-> > +#include <linux/of_i2c.h>
->=20
-> This is clearly dependent on the other patches to I2C to
-> be merged first (the include above is not yet there in
-> linux-next even), so this patch should go into Wolfram's
-> tree right? Else we have to rip out all the patches to the
-> I2C driver from his tree and funnel it all through ARM SoC.
+Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |   20 ++++++++------------
+ 1 files changed, 8 insertions(+), 12 deletions(-)
 
-First, I'd like to have this patch squashed with "i2c: nomadik: Add
-Device Tree support to the Nomadik I2C driver". I wanted to do this on
-my own, but the patches do not apply to 3.6-rc5 (with or without
-regulator removal patch from Linus)?
-
-I can also take the I2C related changes to the devicetrees via my tree.
-This is not uncommon. Some people prefer to do this via their soc-trees,
-though. I don't care much since this is not really a hard dependency
-causing build failures or merge conflicts, but just needs a little extra
-time until the patches are all there...
-
-Thanks,
-
-   Wolfram
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---KdquIMZPjGJQvRdI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAlBQaVIACgkQD27XaX1/VRtFaACgoh39FHUnKUPV5kp+0b/v4dJ8
-sCoAoKZ+cztQxIEszGwClG27oICXHZ6H
-=Hc56
------END PGP SIGNATURE-----
-
---KdquIMZPjGJQvRdI--
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 96fd528..4af123f 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -853,24 +853,21 @@ omap_i2c_isr(int this_irq, void *dev_id)
+ 		dev_dbg(dev->dev, "IRQ (ISR = 0x%04x)\n", stat);
+ 		if (count++ == 100) {
+ 			dev_warn(dev->dev, "Too much work in one IRQ\n");
+-			omap_i2c_complete_cmd(dev, err);
+-			return IRQ_HANDLED;
++			goto out;
+ 		}
+ 
+ complete:
+ 		if (stat & OMAP_I2C_STAT_NACK) {
+ 			err |= OMAP_I2C_STAT_NACK;
+ 			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_NACK);
+-			omap_i2c_complete_cmd(dev, err);
+-			return IRQ_HANDLED;
++			goto out;
+ 		}
+ 
+ 		if (stat & OMAP_I2C_STAT_AL) {
+ 			dev_err(dev->dev, "Arbitration lost\n");
+ 			err |= OMAP_I2C_STAT_AL;
+ 			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_AL);
+-			omap_i2c_complete_cmd(dev, err);
+-			return IRQ_HANDLED;
++			goto out;
+ 		}
+ 
+ 		/*
+@@ -883,8 +880,7 @@ complete:
+ 						OMAP_I2C_STAT_XRDY |
+ 						OMAP_I2C_STAT_XDR |
+ 						OMAP_I2C_STAT_ARDY));
+-			omap_i2c_complete_cmd(dev, err);
+-			return IRQ_HANDLED;
++			goto out;
+ 		}
+ 
+ 		if (stat & OMAP_I2C_STAT_RDR) {
+@@ -949,19 +945,19 @@ complete:
+ 			dev_err(dev->dev, "Receive overrun\n");
+ 			err |= OMAP_I2C_STAT_ROVR;
+ 			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_ROVR);
+-			omap_i2c_complete_cmd(dev, err);
+-			return IRQ_HANDLED;
++			goto out;
+ 		}
+ 
+ 		if (stat & OMAP_I2C_STAT_XUDF) {
+ 			dev_err(dev->dev, "Transmit underflow\n");
+ 			err |= OMAP_I2C_STAT_XUDF;
+ 			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_XUDF);
+-			omap_i2c_complete_cmd(dev, err);
+-			return IRQ_HANDLED;
++			goto out;
+ 		}
+ 	} while (stat);
+ 
++out:
++	omap_i2c_complete_cmd(dev, err);
+ 	return IRQ_HANDLED;
+ }
+ 
+-- 
+1.7.5.4
