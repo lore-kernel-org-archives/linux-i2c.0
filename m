@@ -1,42 +1,41 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] MAINTAINERS: fix tree for current i2c-embedded
- development
-Date: Wed, 12 Sep 2012 18:09:54 +0200
-Message-ID: <20120912180954.69e3095e@endymion.delvare>
-References: <1347466020-11836-1-git-send-email-w.sang@pengutronix.de>
+From: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 0/1 ] i2c:clk: preparation for switch to common clock framework
+Date: Wed, 12 Sep 2012 16:00:48 -0400
+Message-ID: <1347480049-12165-1-git-send-email-m-karicheri2@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347466020-11836-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 12 Sep 2012 18:07:00 +0200, Wolfram Sang wrote:
-> Guide people to where their patches can be found these days.
-> 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  MAINTAINERS |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index fdc0119..53cc13c 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3388,7 +3388,7 @@ M:	"Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->  L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->  W:	http://i2c.wiki.kernel.org/
->  T:	quilt kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/
-> -T:	git git://git.fluff.org/bjdooks/linux.git
-> +T:	git git://git.pengutronix.de/git/wsa/linux.git
->  S:	Maintained
->  F:	Documentation/i2c/
->  F:	drivers/i2c/
+Hi i2c subsystem maintainer,
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Re-sending since the previous patch seems to have not made it
+to the mailing list..
+
+I am working to migrate DaVinci SoCs to common clock framwork.
+I am hoping to have this patch merged to linux-next for v3.6 so
+that mach-davinci patches for clock framework change can be
+reviewed and merged in subsequent releases. Please merge this
+to your linux-next tree for v3.6
+
+Thanks
+
+Murali Karicheri (1):
+  i2c:clk: preparation for switch to common clock framework
+
+ drivers/i2c/busses/i2c-davinci.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
 -- 
-Jean Delvare
+1.7.9.5
