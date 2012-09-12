@@ -1,74 +1,83 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv8 09/22] i2c: omap: switch over to do {} while loop
-Date: Wed, 12 Sep 2012 16:28:03 +0530
-Message-ID: <1347447496-16793-10-git-send-email-shubhrajyoti@ti.com>
-References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com>
+From: ludovic.desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 0/8] i2c: at91: cleanup and dt support
+Date: Wed, 12 Sep 2012 13:12:23 +0200
+Message-ID: <50506E17.1080904@atmel.com>
+References: <1347432137-25058-1-git-send-email-ludovic.desroches@atmel.com>
+ <505041EF.5060204@atmel.com> <20120912101607.GA2624@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347447496-16793-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20120912101607.GA2624-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Hi Wolfram,
 
-this will make sure that we execute at least once.
-No functional changes otherwise.
+Le 09/12/2012 12:16 PM, Wolfram Sang a =E9crit :
+> On Wed, Sep 12, 2012 at 10:03:59AM +0200, Nicolas Ferre wrote:
+>> On 09/12/2012 08:42 AM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
+>>> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+>>>
+>>> Hi,
+>>>
+>>> This set of patches is based on Nikolaus at91_i2c driver.
+>>>
+>>> Changes:
+>>> v3:
+>>>    - only put multi-drive lines in the if...else statement (suggested
+>>>    by Warner Losh)
+>>
+>> Hi Wolfram,
+>>
+>> As said by Ludovic, this series goes on top of Nikolaus' one.
+>> My Acked-by is already set on this one, so I think that I have nothing
+>> more to do ;-)
+>>
+>> BTW, in case you need help to sort all this, do not hesitate to contact
+>> us... we can setup a git tree for this...
+>
+> I think I am fine. Patches look good. I wondered a bit about first
+> removing the old driver, then adding the new one with regard to
+> bisectability. But as the old driver depends on BROKEN, I think this is
+> OK to do.
+>
+> One thing I'd like to make, though. I'd like to squash the following
+> patches into one:
+>
+> 	drivers/i2c/busses/i2c-at91.c: add new driver
+> 	i2c: at91: use managed resources
+> 	i2c: at91: add warning about transmission issues for some devices
+> 	i2c: at91: use an id table for SoC dependent parameters
+>
+> It is especially the last patch I am mostly interested in. The id_table
+> approach is what I like, while the original id_entry mechanism looks
+> fishy. I'd was good for reviewing to have the patches split like this;
+> yet for hitting mainline, I'd prefer to have the driver proper on first
+> occasion. I already did the squashing in a test-branch and the result
+> looks good to me.
+>
+> Nikolaus, Ludovic: Are you fine with this?
+>
 
-Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |   20 ++++++++++++++------
- 1 files changed, 14 insertions(+), 6 deletions(-)
+No problem on my side.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 2c7d7cc..4045134 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -827,20 +827,28 @@ omap_i2c_isr(int this_irq, void *dev_id)
- 	struct omap_i2c_dev *dev = dev_id;
- 	u16 bits;
- 	u16 stat;
--	int err, count = 0;
-+	int err = 0, count = 0;
- 
- 	if (pm_runtime_suspended(dev->dev))
- 		return IRQ_NONE;
- 
--	bits = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
--	while ((stat = (omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG))) & bits) {
-+	do {
-+		bits = omap_i2c_read_reg(dev, OMAP_I2C_IE_REG);
-+		stat = omap_i2c_read_reg(dev, OMAP_I2C_STAT_REG);
-+		stat &= bits;
-+
-+		if (!stat) {
-+			/* my work here is done */
-+			return IRQ_HANDLED;
-+		}
-+
- 		dev_dbg(dev->dev, "IRQ (ISR = 0x%04x)\n", stat);
- 		if (count++ == 100) {
- 			dev_warn(dev->dev, "Too much work in one IRQ\n");
--			break;
-+			omap_i2c_complete_cmd(dev, err);
-+			return IRQ_HANDLED;
- 		}
- 
--		err = 0;
- complete:
- 		/*
- 		 * Ack the stat in one go, but [R/X]DR and [R/X]RDY should be
-@@ -940,7 +948,7 @@ complete:
- 			dev_err(dev->dev, "Transmit underflow\n");
- 			dev->cmd_err |= OMAP_I2C_STAT_XUDF;
- 		}
--	}
-+	} while (stat);
- 
- 	return count ? IRQ_HANDLED : IRQ_NONE;
- }
--- 
-1.7.5.4
+Regards
+
+Ludovic
+
+> Thanks,
+>
+>     Wolfram
+>
