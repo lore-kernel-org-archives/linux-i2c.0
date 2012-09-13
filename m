@@ -1,47 +1,42 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCHv8 00/23]I2C big cleanup
-Date: Thu, 13 Sep 2012 10:52:39 +0200
-Message-ID: <20120913085239.GA14237@pengutronix.de>
-References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com>
- <20120912131615.GB16547@pengutronix.de>
- <87pq5quaqr.fsf@deeprootsystems.com>
- <87wqzysuu3.fsf@deeprootsystems.com>
+Subject: Re: i2c:clk: preparation for switch to common clock framework
+Date: Thu, 13 Sep 2012 11:29:43 +0200
+Message-ID: <20120913092943.GA5912@pengutronix.de>
+References: <1346350236-11105-1-git-send-email-m-karicheri2@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <87wqzysuu3.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <1346350236-11105-1-git-send-email-m-karicheri2-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
+To: m-karicheri2-l0cyMroinI0@public.gmane.org
+Cc: nsekhar-l0cyMroinI0@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---jI8keyz6grp/JLjh
+--k+w/mQv8wyuph6w0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Kevin,
-
-> Since this series is already merged, I suggest that the problem patch be
-> reverted, at least for v3.7 and until the problem is better understood
-> and tested.
-
-I thought I'll give you guys some more days to fix the problem before
-reverting.
-
+On Thu, Aug 30, 2012 at 06:10:36PM -0000, m-karicheri2-l0cyMroinI0@public.gmane.org wrote:
+> As a first step towards migrating davinci platforms to use common clock
+> framework, replace all instances of clk_enable() with clk_prepare_enable()
+> and clk_disable() with clk_disable_unprepare(). Until the platform is
+> switched to use the CONFIG_HAVE_CLK_PREPARE Kconfig variable, this just
+> adds a might_sleep() call and would work without any issues.
 >=20
-> With that patch reverted, all my PM tests are passing.  Feel free to
-> add:
+> This will make it easy later to switch to common clk based implementation
+> of clk driver from DaVinci specific driver.
 >=20
-> Tested-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
 
-Thanks. That indeed increases confidence in this series. I won't add the
-tags to the tree, though, since that would mean rebasing.
+Subject had "i2c:clk" where "i2c: davinci" would be more precise.
 
-All the best,
+Fixed that and pushed to -next.
+
+Thanks,
 
    Wolfram
 
@@ -49,17 +44,16 @@ All the best,
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---jI8keyz6grp/JLjh
+--k+w/mQv8wyuph6w0
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlBRntcACgkQD27XaX1/VRvMwQCdEDlqABs/+Bulp91wrQxMinh/
-CA0Anj0WpbScemghXiNK9XpGVU+iH11p
-=B7pC
+iEYEARECAAYFAlBRp4cACgkQD27XaX1/VRsvYACgotXt37eiAUUakCKM84H6Zenz
+02AAoJZZy+6DE2r7DGJhe/Mg7fkU60OC
+=9RhD
 -----END PGP SIGNATURE-----
 
---jI8keyz6grp/JLjh--
+--k+w/mQv8wyuph6w0--
