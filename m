@@ -1,41 +1,54 @@
-From: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
-Subject: Re: [PATCH 1/4] i2c: introduce i2c-cbus driver
-Date: Thu, 13 Sep 2012 17:51:05 +0300
-Message-ID: <20120913145104.GA8849@blackmetal.musicnaut.iki.fi>
-References: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
- <1346703805-31598-2-git-send-email-aaro.koskinen@iki.fi>
- <20120913105309.GF14237@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH v2] i2c: (algo-pca) Fix mode selection for PCA9665
+Date: Thu, 13 Sep 2012 08:16:55 -0700
+Message-ID: <1347549415-6140-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20120913105309.GF14237-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 13, 2012 at 12:53:09PM +0200, Wolfram Sang wrote:
-> On Mon, Sep 03, 2012 at 11:23:22PM +0300, Aaro Koskinen wrote:
-> > Add i2c driver to enable access to devices behind CBUS on Nokia Internet
-> > Tablets.
-> > 
-> > The patch also adds CBUS I2C configuration for N8x0 which is one of the
-> > users of this driver.
-> > 
-> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> > Acked-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-> > Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-> > Signed-off-by: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
-> 
-> My main question is: what is CBUS? It doesn't look like an I2C/SMBUS
-> host controller, but some bit-banging protocol? As such, it shouldn't go
-> to i2c/busses/. And the protocol doesn't look much like I2C, neither.
-> There is no ACK/NACK/START/STOP, so I wonder if it should be in i2c
-> after all...
+From: Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
 
-It's some legacy 3-wire bus protocol. Not much info is available,
-there's some references to CBUS in i2c spec, so I thought it wouldn't
-be a completly wrong place for it...
+The code currently always selects turbo mode for PCA9665, no matter which
+clock frequency is configured. This is because it compares the clock frequency
+against constants reflecting (boundary / 100). Compare against real boundary
+frequencies to fix the problem.
 
-A.
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Signed-off-by: Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+Signed-off-by: Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+---
+v2: Instead of changing the variable to compare against, change the clock values
+    to compare against.
+
+ drivers/i2c/algos/i2c-algo-pca.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index 07ccbef..f892a42 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -477,17 +477,17 @@ static int pca_init(struct i2c_adapter *adap)
+ 		/* To avoid integer overflow, use clock/100 for calculations */
+ 		clock = pca_clock(pca_data) / 100;
+ 
+-		if (pca_data->i2c_clock > 10000) {
++		if (pca_data->i2c_clock > 1000000) {
+ 			mode = I2C_PCA_MODE_TURBO;
+ 			min_tlow = 14;
+ 			min_thi  = 5;
+ 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
+-		} else if (pca_data->i2c_clock > 4000) {
++		} else if (pca_data->i2c_clock > 400000) {
+ 			mode = I2C_PCA_MODE_FASTP;
+ 			min_tlow = 17;
+ 			min_thi  = 9;
+ 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
+-		} else if (pca_data->i2c_clock > 1000) {
++		} else if (pca_data->i2c_clock > 100000) {
+ 			mode = I2C_PCA_MODE_FAST;
+ 			min_tlow = 44;
+ 			min_thi  = 20;
+-- 
+1.7.9.7
