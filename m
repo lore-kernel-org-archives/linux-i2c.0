@@ -1,55 +1,66 @@
-From: "Karicheri, Muralidharan" <m-karicheri2-l0cyMroinI0@public.gmane.org>
-Subject: RE: i2c:clk: preparation for switch to common clock framework
-Date: Thu, 13 Sep 2012 18:44:33 +0000
-Message-ID: <3E54258959B69E4282D79E01AB1F32B7041BCDC1@DFLE12.ent.ti.com>
-References: <1346350236-11105-1-git-send-email-m-karicheri2@ti.com>
- <20120913092943.GA5912@pengutronix.de>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCHv8 00/23]I2C big cleanup
+Date: Thu, 13 Sep 2012 14:28:02 -0700
+Message-ID: <87txv1bokd.fsf@deeprootsystems.com>
+References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com>
+	<20120912131615.GB16547@pengutronix.de>
+	<87pq5quaqr.fsf@deeprootsystems.com>
+	<87wqzysuu3.fsf@deeprootsystems.com>
+	<87sjaldcjp.fsf@deeprootsystems.com>
+	<20120913183705.GA17430@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120913092943.GA5912-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <20120913183705.GA17430-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org> (Felipe Balbi's message
+	of "Thu, 13 Sep 2012 21:37:07 +0300")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "Hilman, Kevin" <khilman-l0cyMroinI0@public.gmane.org>, "khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: balbi-l0cyMroinI0@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->> -----Original Message-----
->> From: Wolfram Sang [mailto:w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
->> Sent: Thursday, September 13, 2012 5:30 AM
->> To: Karicheri, Muralidharan
->> Cc: Nori, Sekhar; Hilman, Kevin; khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; davinci-linux-
->> open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
->> kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> Subject: Re: i2c:clk: preparation for switch to common clock framework
+Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org> writes:
+
+> Hi,
+>
+> On Thu, Sep 13, 2012 at 11:04:42AM -0700, Kevin Hilman wrote:
+>> Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> writes:
 >> 
->> On Thu, Aug 30, 2012 at 06:10:36PM -0000, m-karicheri2-l0cyMroinI0@public.gmane.org wrote:
->> > As a first step towards migrating davinci platforms to use common
->> > clock framework, replace all instances of clk_enable() with
->> > clk_prepare_enable() and clk_disable() with clk_disable_unprepare().
->> > Until the platform is switched to use the CONFIG_HAVE_CLK_PREPARE
->> > Kconfig variable, this just adds a might_sleep() call and would work without any issues.
+>> > Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> writes:
 >> >
->> > This will make it easy later to switch to common clk based
->> > implementation of clk driver from DaVinci specific driver.
+>> [...]
+>> 
+>> >> Sorry to be late to the party (again), but still catching up after some
+>> >> time off.
+>> >>
+>> >> Unfortunately, this series causes PM regressions on several OMAP
+>> >> platforms.  I hope we can hold off on this until those issues are
+>> >> addressed.
 >> >
->> > Signed-off-by: Murali Karicheri <m-karicheri2-l0cyMroinI0@public.gmane.org>
+>> > I tracked the regression down to [PATCHv8 21/22] (see reply there.)
+>> >
+>> > Since this series is already merged, I suggest that the problem patch be
+>> > reverted, at least for v3.7 and until the problem is better understood
+>> > and tested.
+>> >
+>> > With that patch reverted, all my PM tests are passing.  Feel free to
+>> > add:
 >> 
->> Subject had "i2c:clk" where "i2c: davinci" would be more precise.
+>> OK, the i2c series is off the hook.
 >> 
->> Fixed that and pushed to -next.
->> 
->> Thanks,
->> 
->>    Wolfram
+>> Felipe and I spent a little time tracking this down.  Felipe suggested
+>> that there might be a driver with periodic i2c activity keeping I2C
+>> awake, and thus preventing CORE retention.  He was right.
+>
+> FYI, the original idea came from Shubhro. We agreed that would be the
+> only way i2c would be prevented from idling.
 
-Wolfram,
+Great, thanks Shubhro!
 
-Thanks for pushing this to -next. Greatly appreciated.
+Also, FYI, I just submitted a patch to the TWL RTC driver which was the
+source of all the I2C activity since it's on the I2C-connected PMIC.
 
-Murali
->> 
->> --
->> Pengutronix e.K.                           | Wolfram Sang                |
->> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Thanks for the help and suggestions,
+
+Kevin
+
+[1] https://groups.google.com/forum/#!topic/rtc-linux/sFbYmAzCRLQ
