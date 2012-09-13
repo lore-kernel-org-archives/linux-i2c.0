@@ -1,39 +1,65 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Subject: Re: [PATCHv8 00/23]I2C big cleanup
-Date: Thu, 13 Sep 2012 12:25:27 +0530
-Message-ID: <5051835F.3050102@ti.com>
-References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com> <874nn2vpv9.fsf@deeprootsystems.com> <50517780.2080002@ti.com>
+Date: Thu, 13 Sep 2012 10:52:39 +0200
+Message-ID: <20120913085239.GA14237@pengutronix.de>
+References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com>
+ <20120912131615.GB16547@pengutronix.de>
+ <87pq5quaqr.fsf@deeprootsystems.com>
+ <87wqzysuu3.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <50517780.2080002-l0cyMroinI0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <87wqzysuu3.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 13 September 2012 11:34 AM, Shubhrajyoti wrote:
-> > At least on 3530/Overo and 3730/Overo, CORE no longer hits retenion (or
-> > off) during idle.  
-I dont have an Overo, anyways will see if I can get one
 
-However on beagleXm even off count increases
+--jI8keyz6grp/JLjh
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-/ # grep "^core_pwrdm" /debug/pm_debug/count
-core_pwrdm
-(ON),OFF:48,RET:856,INA:0,ON:905,RET-LOGIC-OFF:0,RET-MEMBANK1-OFF:0,RET-MEMBANK2-OFF:0
-/ # cat /sys/devices/platform/omap_i2c.*/power/runtime_status
-suspended
-suspended
-/ #
-/ #
-/ # cat /sys/devices/platform/omap_i2c.*/power/autosuspend_delay_ms
-1000
-1000
-/ #
-/ #
-/ # grep "^core_pwrdm" /debug/pm_debug/count
-core_pwrdm
-(ON),OFF:218,RET:856,INA:0,ON:1075,RET-LOGIC-OFF:0,RET-MEMBANK1-OFF:0,RET-MEMBANK2-OFF:0
-/ #
+Hi Kevin,
+
+> Since this series is already merged, I suggest that the problem patch be
+> reverted, at least for v3.7 and until the problem is better understood
+> and tested.
+
+I thought I'll give you guys some more days to fix the problem before
+reverting.
+
+>=20
+> With that patch reverted, all my PM tests are passing.  Feel free to
+> add:
+>=20
+> Tested-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+
+Thanks. That indeed increases confidence in this series. I won't add the
+tags to the tree, though, since that would mean rebasing.
+
+All the best,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--jI8keyz6grp/JLjh
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlBRntcACgkQD27XaX1/VRvMwQCdEDlqABs/+Bulp91wrQxMinh/
+CA0Anj0WpbScemghXiNK9XpGVU+iH11p
+=B7pC
+-----END PGP SIGNATURE-----
+
+--jI8keyz6grp/JLjh--
