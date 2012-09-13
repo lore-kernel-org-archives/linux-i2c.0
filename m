@@ -1,44 +1,41 @@
-From: Ben Dooks <ben-SMNkleLxa3Z6Wcw2j4pizdi2O/JbrIOy@public.gmane.org>
-Subject: Re: [PATCH] MAINTAINERS: fix tree for current i2c-embedded
- development
-Date: Thu, 13 Sep 2012 14:55:58 +0100
-Message-ID: <20120913135558.GB1095@trinity.fluff.org>
-References: <1347466020-11836-1-git-send-email-w.sang@pengutronix.de>
+From: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c: introduce i2c-cbus driver
+Date: Thu, 13 Sep 2012 17:51:05 +0300
+Message-ID: <20120913145104.GA8849@blackmetal.musicnaut.iki.fi>
+References: <1346703805-31598-1-git-send-email-aaro.koskinen@iki.fi>
+ <1346703805-31598-2-git-send-email-aaro.koskinen@iki.fi>
+ <20120913105309.GF14237@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1347466020-11836-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <20120913105309.GF14237-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 12, 2012 at 06:07:00PM +0200, Wolfram Sang wrote:
-> Guide people to where their patches can be found these days.
+On Thu, Sep 13, 2012 at 12:53:09PM +0200, Wolfram Sang wrote:
+> On Mon, Sep 03, 2012 at 11:23:22PM +0300, Aaro Koskinen wrote:
+> > Add i2c driver to enable access to devices behind CBUS on Nokia Internet
+> > Tablets.
+> > 
+> > The patch also adds CBUS I2C configuration for N8x0 which is one of the
+> > users of this driver.
+> > 
+> > Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> > Acked-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> > Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+> > Signed-off-by: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
 > 
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  MAINTAINERS |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index fdc0119..53cc13c 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3388,7 +3388,7 @@ M:	"Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->  L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->  W:	http://i2c.wiki.kernel.org/
->  T:	quilt kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/
-> -T:	git git://git.fluff.org/bjdooks/linux.git
-> +T:	git git://git.pengutronix.de/git/wsa/linux.git
->  S:	Maintained
->  F:	Documentation/i2c/
->  F:	drivers/i2c/
+> My main question is: what is CBUS? It doesn't look like an I2C/SMBUS
+> host controller, but some bit-banging protocol? As such, it shouldn't go
+> to i2c/busses/. And the protocol doesn't look much like I2C, neither.
+> There is no ACK/NACK/START/STOP, so I wonder if it should be in i2c
+> after all...
 
-Acked-by: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+It's some legacy 3-wire bus protocol. Not much info is available,
+there's some references to CBUS in i2c spec, so I thought it wouldn't
+be a completly wrong place for it...
 
--- 
-Ben Dooks, ben-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, http://www.fluff.org/ben/
-
-Large Hadron Colada: A large Pina Colada that makes the universe disappear.
+A.
