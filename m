@@ -1,57 +1,97 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCHv8 00/23]I2C big cleanup
-Date: Wed, 12 Sep 2012 16:08:20 -0700
-Message-ID: <87wqzysuu3.fsf@deeprootsystems.com>
-References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com>
-	<20120912131615.GB16547@pengutronix.de>
-	<87pq5quaqr.fsf@deeprootsystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <87pq5quaqr.fsf@deeprootsystems.com> (Kevin Hilman's message of
-	"Wed, 12 Sep 2012 15:39:24 -0700")
-Sender: linux-omap-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH 1/2] i2c: (algo-pca) Fix chip reset function for PCA9665
+Date: Wed, 12 Sep 2012 20:39:50 -0700
+Message-ID: <1347507591-32352-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Kevin Hilman <khilman@deeprootsystems.com> writes:
+From: Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
 
-> Wolfram Sang <w.sang@pengutronix.de> writes:
->
->> On Wed, Sep 12, 2012 at 04:27:54PM +0530, Shubhrajyoti D wrote:
->
-> [...]
->
->>> This is the cleanup only series.
->>>   
->>> Tested on omap4sdp and 3430sdp.
->>> 
->>> The following changes since commit 55d512e245bc7699a8800e23df1a24195dd08217:
->>> 
->>>   Linux 3.6-rc5 (2012-09-08 16:43:45 -0700)
->>> 
->>> are available in the git repository at:
->>>   git://gitorious.org/linus-tree/linus-tree.git for_3.7/i2c/big_cleanups
->>
->> Pushed to -next. Thanks to all involved!
->
-> Sorry to be late to the party (again), but still catching up after some
-> time off.
->
-> Unfortunately, this series causes PM regressions on several OMAP
-> platforms.  I hope we can hold off on this until those issues are
-> addressed.
+The parameter passed to pca9665_reset is adap->data, not adap. Unless
+adap->data happens to point back to adap, this can result in a kernel panic.
 
-I tracked the regression down to [PATCHv8 21/22] (see reply there.)
+Fix re-factoring pca_reset() from a macro to a function to handle chip
+specific code, and only call adap->reset_chip() if the chip is not PCA9665.
 
-Since this series is already merged, I suggest that the problem patch be
-reverted, at least for v3.7 and until the problem is better understood
-and tested.
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Signed-off-by: Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+Signed-off-by: Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+---
+ drivers/i2c/algos/i2c-algo-pca.c |   27 ++++++++++++++-------------
+ include/linux/i2c-algo-pca.h     |    1 +
+ 2 files changed, 15 insertions(+), 13 deletions(-)
 
-With that patch reverted, all my PM tests are passing.  Feel free to
-add:
-
-Tested-by: Kevin Hilman <khilman@ti.com>
-
-Kevin
+diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
+index 73133b1..07ccbef 100644
+--- a/drivers/i2c/algos/i2c-algo-pca.c
++++ b/drivers/i2c/algos/i2c-algo-pca.c
+@@ -46,14 +46,19 @@ static int i2c_debug;
+ #define pca_set_con(adap, val) pca_outw(adap, I2C_PCA_CON, val)
+ #define pca_get_con(adap) pca_inw(adap, I2C_PCA_CON)
+ #define pca_wait(adap) adap->wait_for_completion(adap->data)
+-#define pca_reset(adap) adap->reset_chip(adap->data)
+ 
+-static void pca9665_reset(void *pd)
++static void pca_reset(struct i2c_algo_pca_data *adap)
+ {
+-	struct i2c_algo_pca_data *adap = pd;
+-	pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IPRESET);
+-	pca_outw(adap, I2C_PCA_IND, 0xA5);
+-	pca_outw(adap, I2C_PCA_IND, 0x5A);
++	if (adap->chip == I2C_PCA_CHIP_9665) {
++		/* Ignore the reset function from the module,
++		 * we can use the parallel bus reset.
++		 */
++		pca_outw(adap, I2C_PCA_INDPTR, I2C_PCA_IPRESET);
++		pca_outw(adap, I2C_PCA_IND, 0xA5);
++		pca_outw(adap, I2C_PCA_IND, 0x5A);
++	} else {
++		adap->reset_chip(adap->data);
++	}
+ }
+ 
+ /*
+@@ -378,11 +383,12 @@ static unsigned int pca_probe_chip(struct i2c_adapter *adap)
+ 	pca_outw(pca_data, I2C_PCA_INDPTR, I2C_PCA_IADR);
+ 	if (pca_inw(pca_data, I2C_PCA_IND) == 0xAA) {
+ 		printk(KERN_INFO "%s: PCA9665 detected.\n", adap->name);
+-		return I2C_PCA_CHIP_9665;
++		pca_data->chip = I2C_PCA_CHIP_9665;
+ 	} else {
+ 		printk(KERN_INFO "%s: PCA9564 detected.\n", adap->name);
+-		return I2C_PCA_CHIP_9564;
++		pca_data->chip = I2C_PCA_CHIP_9564;
+ 	}
++	return pca_data->chip;
+ }
+ 
+ static int pca_init(struct i2c_adapter *adap)
+@@ -456,11 +462,6 @@ static int pca_init(struct i2c_adapter *adap)
+ 		 */
+ 		int raise_fall_time;
+ 
+-		/* Ignore the reset function from the module,
+-		 * we can use the parallel bus reset
+-		 */
+-		pca_data->reset_chip = pca9665_reset;
+-
+ 		if (pca_data->i2c_clock > 1265800) {
+ 			printk(KERN_WARNING "%s: I2C clock speed too high."
+ 				" Using 1265.8kHz.\n", adap->name);
+diff --git a/include/linux/i2c-algo-pca.h b/include/linux/i2c-algo-pca.h
+index 1364d62..a3c3ecd 100644
+--- a/include/linux/i2c-algo-pca.h
++++ b/include/linux/i2c-algo-pca.h
+@@ -62,6 +62,7 @@ struct i2c_algo_pca_data {
+ 	 * 330000, 288000, 217000, 146000, 88000, 59000, 44000, 36000
+ 	 * For PCA9665, use the frequency you want here. */
+ 	unsigned int			i2c_clock;
++	unsigned int			chip;
+ };
+ 
+ int i2c_pca_add_bus(struct i2c_adapter *);
+-- 
+1.7.9.7
