@@ -1,54 +1,62 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: [PATCH v2] i2c: (algo-pca) Fix mode selection for PCA9665
-Date: Thu, 13 Sep 2012 08:16:55 -0700
-Message-ID: <1347549415-6140-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCHv8 00/23]I2C big cleanup
+Date: Thu, 13 Sep 2012 11:04:42 -0700
+Message-ID: <87sjaldcjp.fsf@deeprootsystems.com>
+References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com>
+	<20120912131615.GB16547@pengutronix.de>
+	<87pq5quaqr.fsf@deeprootsystems.com>
+	<87wqzysuu3.fsf@deeprootsystems.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <87wqzysuu3.fsf@deeprootsystems.com> (Kevin Hilman's message of
+	"Wed, 12 Sep 2012 16:08:20 -0700")
+Sender: linux-omap-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com
 List-Id: linux-i2c@vger.kernel.org
 
-From: Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+Kevin Hilman <khilman@deeprootsystems.com> writes:
 
-The code currently always selects turbo mode for PCA9665, no matter which
-clock frequency is configured. This is because it compares the clock frequency
-against constants reflecting (boundary / 100). Compare against real boundary
-frequencies to fix the problem.
+> Kevin Hilman <khilman@deeprootsystems.com> writes:
+>
+[...]
 
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Signed-off-by: Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
-Signed-off-by: Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
----
-v2: Instead of changing the variable to compare against, change the clock values
-    to compare against.
+>> Sorry to be late to the party (again), but still catching up after some
+>> time off.
+>>
+>> Unfortunately, this series causes PM regressions on several OMAP
+>> platforms.  I hope we can hold off on this until those issues are
+>> addressed.
+>
+> I tracked the regression down to [PATCHv8 21/22] (see reply there.)
+>
+> Since this series is already merged, I suggest that the problem patch be
+> reverted, at least for v3.7 and until the problem is better understood
+> and tested.
+>
+> With that patch reverted, all my PM tests are passing.  Feel free to
+> add:
 
- drivers/i2c/algos/i2c-algo-pca.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+OK, the i2c series is off the hook.
 
-diff --git a/drivers/i2c/algos/i2c-algo-pca.c b/drivers/i2c/algos/i2c-algo-pca.c
-index 07ccbef..f892a42 100644
---- a/drivers/i2c/algos/i2c-algo-pca.c
-+++ b/drivers/i2c/algos/i2c-algo-pca.c
-@@ -477,17 +477,17 @@ static int pca_init(struct i2c_adapter *adap)
- 		/* To avoid integer overflow, use clock/100 for calculations */
- 		clock = pca_clock(pca_data) / 100;
- 
--		if (pca_data->i2c_clock > 10000) {
-+		if (pca_data->i2c_clock > 1000000) {
- 			mode = I2C_PCA_MODE_TURBO;
- 			min_tlow = 14;
- 			min_thi  = 5;
- 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
--		} else if (pca_data->i2c_clock > 4000) {
-+		} else if (pca_data->i2c_clock > 400000) {
- 			mode = I2C_PCA_MODE_FASTP;
- 			min_tlow = 17;
- 			min_thi  = 9;
- 			raise_fall_time = 22; /* Raise 11e-8s, Fall 11e-8s */
--		} else if (pca_data->i2c_clock > 1000) {
-+		} else if (pca_data->i2c_clock > 100000) {
- 			mode = I2C_PCA_MODE_FAST;
- 			min_tlow = 44;
- 			min_thi  = 20;
--- 
-1.7.9.7
+Felipe and I spent a little time tracking this down.  Felipe suggested
+that there might be a driver with periodic i2c activity keeping I2C
+awake, and thus preventing CORE retention.  He was right.
+
+On the boards where I'm seeing the failure, the RTC is firing every
+second, and since the RTC is on the I2C connected PMIC, the PMIC IRQ
+reads and the RTC reads are causing lots of I2C activity every second.  
+
+With the new autosuspend feature, that is enough to keep the I2C active
+continually and prevent CORE retention.
+
+So, all that to say, from my PoV, this series can go in as is.  The PM
+problem is caused by the RTC driver someplace.
+
+Thanks Felipe,
+
+Kevin
+
+
+
