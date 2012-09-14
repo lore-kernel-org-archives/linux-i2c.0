@@ -1,59 +1,62 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv8 00/23]I2C big cleanup
-Date: Fri, 14 Sep 2012 16:10:41 +0530
-Message-ID: <505309A9.8030808@ti.com>
-References: <1347447496-16793-1-git-send-email-shubhrajyoti@ti.com> <20120912131615.GB16547@pengutronix.de> <87pq5quaqr.fsf@deeprootsystems.com> <87wqzysuu3.fsf@deeprootsystems.com> <87sjaldcjp.fsf@deeprootsystems.com> <20120913183705.GA17430@arwen.pp.htv.fi> <87txv1bokd.fsf@deeprootsystems.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed
+ via Device Tree
+Date: Fri, 14 Sep 2012 13:32:12 +0200
+Message-ID: <20120914113212.GD2630@pengutronix.de>
+References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
+ <1347016499-29354-13-git-send-email-lee.jones@linaro.org>
+ <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
+ <20120912105202.GD2624@pengutronix.de>
+ <20120914082754.GE3374@gmail.com>
+ <20120914084141.GA2630@pengutronix.de>
+ <20120914090228.GH3374@gmail.com>
+ <20120914093945.GB2630@pengutronix.de>
+ <20120914101542.GT3374@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87txv1bokd.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: balbi-l0cyMroinI0@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="5gxpn/Q6ypwruk0T"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20120914101542.GT3374@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lee Jones <lee.jones@linaro.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Friday 14 September 2012 02:58 AM, Kevin Hilman wrote:
-> Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org> writes:
->
->> Hi,
->>
->> On Thu, Sep 13, 2012 at 11:04:42AM -0700, Kevin Hilman wrote:
->>> Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> writes:
->>>
->>>> Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> writes:
->>>>
->>> [...]
->>>
->>>>> Sorry to be late to the party (again), but still catching up after some
->>>>> time off.
->>>>>
->>>>> Unfortunately, this series causes PM regressions on several OMAP
->>>>> platforms.  I hope we can hold off on this until those issues are
->>>>> addressed.
->>>> I tracked the regression down to [PATCHv8 21/22] (see reply there.)
->>>>
->>>> Since this series is already merged, I suggest that the problem patch be
->>>> reverted, at least for v3.7 and until the problem is better understood
->>>> and tested.
->>>>
->>>> With that patch reverted, all my PM tests are passing.  Feel free to
->>>> add:
->>> OK, the i2c series is off the hook.
->>>
->>> Felipe and I spent a little time tracking this down.  Felipe suggested
->>> that there might be a driver with periodic i2c activity keeping I2C
->>> awake, and thus preventing CORE retention.  He was right.
->> FYI, the original idea came from Shubhro. We agreed that would be the
->> only way i2c would be prevented from idling.
-> Great, thanks Shubhro!
->
-> Also, FYI, I just submitted a patch to the TWL RTC driver which was the
-> source of all the I2C activity since it's on the I2C-connected PMIC.
->
-> Thanks for the help and suggestions,
->
-> Kevin
->
-> [1] https://groups.google.com/forum/#!topic/rtc-linux/sFbYmAzCRLQ
-Thanks for the testing and the patch.
+
+--5gxpn/Q6ypwruk0T
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> > 	Documentation: Device Tree binding information for i2c-nomadik driver
+> > 		(Documentation should go along with the code)
+>=20
+> I'm still not too sure about how this benefits anyone. You can ensure
+> the documentation is placed in an adjacent patch, so it's just as easy
+> to make reference to.
+
+It makes reviewing a lot easier if the documentation what is supposed to
+be coded and the actual code are in one place. It also prevents what
+happened in this case where the documentation never showed up on the
+i2c-list.
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--5gxpn/Q6ypwruk0T
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlBTFbwACgkQD27XaX1/VRvYpwCgo/5DPJAnUntcGkAMeHXQy34B
+7pcAnRe5CifEukcAZY9165/IPzaIPxD6
+=fCHt
+-----END PGP SIGNATURE-----
+
+--5gxpn/Q6ypwruk0T--
