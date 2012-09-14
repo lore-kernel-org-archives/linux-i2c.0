@@ -1,96 +1,83 @@
-From: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed via
- Device Tree
-Date: Fri, 14 Sep 2012 09:27:56 +0100
-Message-ID: <20120914082754.GE3374@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed
+ via Device Tree
+Date: Fri, 14 Sep 2012 10:41:42 +0200
+Message-ID: <20120914084141.GA2630@pengutronix.de>
 References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
  <1347016499-29354-13-git-send-email-lee.jones@linaro.org>
  <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
  <20120912105202.GD2624@pengutronix.de>
+ <20120914082754.GE3374@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120912105202.GD2624@pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, linux-i2c@vger.kernel.org
+In-Reply-To: <20120914082754.GE3374-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, STEricsson_nomadik_linux-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org, arnd-r2nGTMty4D4@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 12, 2012 at 12:52:02PM +0200, Wolfram Sang wrote:
-> On Mon, Sep 10, 2012 at 04:42:36AM -0700, Linus Walleij wrote:
-> > On Fri, Sep 7, 2012 at 1:14 PM, Lee Jones <lee.jones@linaro.org> wr=
-ote:
-> >=20
-> > > Each I2C device can be correctly probed already using Device Tree=
-,
-> > > but the sub-devices still have to be registered by calls to
-> > > i2c_register_board_info(). After this patch, each sub-device can
-> > > be registered directly from Device Tree instead, removing the
-> > > requirement for the aforementioned calls from platform code.
-> > >
-> > > CC: linux-i2c@vger.kernel.org
-> > > CC: Wolfram Sang <w.sang@pengutronix.de>
-> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> >=20
-> > The patch as such is fine.
-> > Acked-by: Linus Walleij <linus.walleij@linaro.org>
-> >=20
-> > ...but there will be merge issues (of the type I'm
-> > discussing with Arnd in another thread).
-> >=20
-> > > ---
-> > >  drivers/i2c/busses/i2c-nomadik.c |    4 ++++
-> > >  1 file changed, 4 insertions(+)
-> > >
-> > > diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busse=
-s/i2c-nomadik.c
-> > > index 5d1a970..01231c2 100644
-> > > --- a/drivers/i2c/busses/i2c-nomadik.c
-> > > +++ b/drivers/i2c/busses/i2c-nomadik.c
-> > > @@ -26,6 +26,7 @@
-> > >  #include <linux/pm_runtime.h>
-> > >  #include <linux/platform_data/i2c-nomadik.h>
-> > >  #include <linux/of.h>
-> > > +#include <linux/of_i2c.h>
-> >=20
-> > This is clearly dependent on the other patches to I2C to
-> > be merged first (the include above is not yet there in
-> > linux-next even), so this patch should go into Wolfram's
-> > tree right? Else we have to rip out all the patches to the
-> > I2C driver from his tree and funnel it all through ARM SoC.
+
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+> > First, I'd like to have this patch squashed with "i2c: nomadik: Add
+> > Device Tree support to the Nomadik I2C driver". I wanted to do this on
+> > my own, but the patches do not apply to 3.6-rc5 (with or without
+> > regulator removal patch from Linus)?
 >=20
-> First, I'd like to have this patch squashed with "i2c: nomadik: Add
-> Device Tree support to the Nomadik I2C driver". I wanted to do this o=
-n
-> my own, but the patches do not apply to 3.6-rc5 (with or without
-> regulator removal patch from Linus)?
+> I'm really not keen on squashing all my patches together. They are
+> clearly have very different purposes. If you think they are closely
+> related, then pull them in sequentially, but please don't squash
+> all my work into a single patch for no other reason than convenience.
 
-I'm really not keen on squashing all my patches together. They are
-clearly have very different purposes. If you think they are closely
-related, then pull them in sequentially, but please don't squash
-all my work into a single patch for no other reason than convenience.
+I can't follow this reasoning. I never asked you to squash all patches,
+only those two needed to get proper device tree support. Why would you
+want to let the device being detected via DT and not scan the child
+nodes immediately?
 
-> I can also take the I2C related changes to the devicetrees via my tre=
-e.
-> This is not uncommon. Some people prefer to do this via their soc-tre=
-es,
-> though. I don't care much since this is not really a hard dependency
-> causing build failures or merge conflicts, but just needs a little ex=
-tra
-> time until the patches are all there...
+> > I can also take the I2C related changes to the devicetrees via my tree.
+> > This is not uncommon. Some people prefer to do this via their soc-trees,
+> > though. I don't care much since this is not really a hard dependency
+> > causing build failures or merge conflicts, but just needs a little extra
+> > time until the patches are all there...
+>=20
+> It would be better for all the Device Tree changes go in as a single
+> patch-set. Again, I don't care where they go, so long as they go in
+> together. arm-soc seems like the most generic place for them to be
+> pulled into though.
 
-It would be better for all the Device Tree changes go in as a single
-patch-set. Again, I don't care where they go, so long as they go in
-together. arm-soc seems like the most generic place for them to be
-pulled into though.
+This reasoning I can follow, but how should I know you aimed for that? I
+only saw a patch [3/3] in one series making the driver probable via DT
+and a patch [12/19] in another series to scan the child nodes. That's
+all the infos I got. Some more context would have been helpful. Is there
+a branch somewhere with all the things collected?
 
-Kind regards,
-Lee
+Regards,
+
+   Wolfram
 
 --=20
-Lee Jones
-Linaro ST-Ericsson Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlBS7cUACgkQD27XaX1/VRusmgCgvS+/RdAsHiWc7cf8v/MggTwS
+cTkAoKqzlhmQL0CEu3MbHA2RwEtio+y5
+=PisS
+-----END PGP SIGNATURE-----
+
+--sdtB3X0nJg68CQEu--
