@@ -1,87 +1,96 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] at24: make module parameters changeable via sysfs
-Date: Fri, 14 Sep 2012 10:25:36 +0200
-Message-ID: <20120914102536.1ebd248d@endymion.delvare>
-References: <1347443012-21302-1-git-send-email-u.kleine-koenig@pengutronix.de>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed via
+ Device Tree
+Date: Fri, 14 Sep 2012 09:27:56 +0100
+Message-ID: <20120914082754.GE3374@gmail.com>
+References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
+ <1347016499-29354-13-git-send-email-lee.jones@linaro.org>
+ <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
+ <20120912105202.GD2624@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347443012-21302-1-git-send-email-u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?ISO-8859-1?B?S2xlaW5lLUv2bmln?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20120912105202.GD2624@pengutronix.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Uwe,
-
-On Wed, 12 Sep 2012 11:43:32 +0200, Uwe Kleine-K=F6nig wrote:
-> The respective values are evaluated at each read/write, so no further
-> action is required than to change the perm argument to module_param.
+On Wed, Sep 12, 2012 at 12:52:02PM +0200, Wolfram Sang wrote:
+> On Mon, Sep 10, 2012 at 04:42:36AM -0700, Linus Walleij wrote:
+> > On Fri, Sep 7, 2012 at 1:14 PM, Lee Jones <lee.jones@linaro.org> wr=
+ote:
+> >=20
+> > > Each I2C device can be correctly probed already using Device Tree=
+,
+> > > but the sub-devices still have to be registered by calls to
+> > > i2c_register_board_info(). After this patch, each sub-device can
+> > > be registered directly from Device Tree instead, removing the
+> > > requirement for the aforementioned calls from platform code.
+> > >
+> > > CC: linux-i2c@vger.kernel.org
+> > > CC: Wolfram Sang <w.sang@pengutronix.de>
+> > > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> >=20
+> > The patch as such is fine.
+> > Acked-by: Linus Walleij <linus.walleij@linaro.org>
+> >=20
+> > ...but there will be merge issues (of the type I'm
+> > discussing with Arnd in another thread).
+> >=20
+> > > ---
+> > >  drivers/i2c/busses/i2c-nomadik.c |    4 ++++
+> > >  1 file changed, 4 insertions(+)
+> > >
+> > > diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busse=
+s/i2c-nomadik.c
+> > > index 5d1a970..01231c2 100644
+> > > --- a/drivers/i2c/busses/i2c-nomadik.c
+> > > +++ b/drivers/i2c/busses/i2c-nomadik.c
+> > > @@ -26,6 +26,7 @@
+> > >  #include <linux/pm_runtime.h>
+> > >  #include <linux/platform_data/i2c-nomadik.h>
+> > >  #include <linux/of.h>
+> > > +#include <linux/of_i2c.h>
+> >=20
+> > This is clearly dependent on the other patches to I2C to
+> > be merged first (the include above is not yet there in
+> > linux-next even), so this patch should go into Wolfram's
+> > tree right? Else we have to rip out all the patches to the
+> > I2C driver from his tree and funnel it all through ARM SoC.
 >=20
-> Note there is no sanity check so root can make the driver effectively
-> unusable but that's what root is for :-)
->
-> Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/misc/eeprom/at24.c |    4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index ab1ad41..8a5a192 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -85,7 +85,7 @@ struct at24_data {
->   * This value is forced to be a power of two so that writes align on=
- pages.
->   */
->  static unsigned io_limit =3D 128;
-> -module_param(io_limit, uint, 0);
-> +module_param(io_limit, uint, S_IRUGO | S_IWUSR);
+> First, I'd like to have this patch squashed with "i2c: nomadik: Add
+> Device Tree support to the Nomadik I2C driver". I wanted to do this o=
+n
+> my own, but the patches do not apply to 3.6-rc5 (with or without
+> regulator removal patch from Linus)?
 
-This won't work. Not only there is no validation of the value, while
-there is such a validation (and value adjustment!) in at24_init(); you
-seem to not care, but I do. But the more important problem is that
-changing io_limit at run-time will only affect reads, not writes. The
-size limit from writes is computed at device probing time:
+I'm really not keen on squashing all my patches together. They are
+clearly have very different purposes. If you think they are closely
+related, then pull them in sequentially, but please don't squash
+all my work into a single patch for no other reason than convenience.
 
-static int at24_probe(struct i2c_client *client, const struct i2c_devic=
-e_id *id)
-{
-(...)
-	if (writable) {
-	(...)
-			if (write_max > io_limit)
-				write_max =3D io_limit;
+> I can also take the I2C related changes to the devicetrees via my tre=
+e.
+> This is not uncommon. Some people prefer to do this via their soc-tre=
+es,
+> though. I don't care much since this is not really a hard dependency
+> causing build failures or merge conflicts, but just needs a little ex=
+tra
+> time until the patches are all there...
 
-So changing the value through sysfs will have no effect. If you want it
-to have an effect, you have to move the check from at24_probe() to
-at24_eeprom_write().
+It would be better for all the Device Tree changes go in as a single
+patch-set. Again, I don't care where they go, so long as they go in
+together. arm-soc seems like the most generic place for them to be
+pulled into though.
 
-Back to the validation issue, I think it would be worth looking into
-module_param_cb(). Using it, it may not be that difficult to get
-validation when the value is changed through sysfs. Otherwise I'll ask
-you to check what exactly happens if someone sets io_limit to 0. We
-can't afford infinite loops or EEPROM corruption on root mistyping.
-
->  MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (default 128)");
-> =20
->  /*
-> @@ -93,7 +93,7 @@ MODULE_PARM_DESC(io_limit, "Maximum bytes per I/O (=
-default 128)");
->   * it's important to recover from write timeouts.
->   */
->  static unsigned write_timeout =3D 25;
-> -module_param(write_timeout, uint, 0);
-> +module_param(write_timeout, uint, S_IRUGO | S_IWUSR);
-
-This one is OK.
-
->  MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default=
- 25)");
-> =20
->  #define AT24_SIZE_BYTELEN 5
-
+Kind regards,
+Lee
 
 --=20
-Jean Delvare
+Lee Jones
+Linaro ST-Ericsson Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
