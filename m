@@ -1,52 +1,62 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 12/19] i2c-nomadik: Register sub-devices when passed
- via Device Tree
-Date: Fri, 14 Sep 2012 13:32:12 +0200
-Message-ID: <20120914113212.GD2630@pengutronix.de>
-References: <1347016499-29354-1-git-send-email-lee.jones@linaro.org>
- <1347016499-29354-13-git-send-email-lee.jones@linaro.org>
- <CACRpkdaCrus9SOpxyK+kV2gKr3sEZJsHCn6ivn2gA3ri0rcvHw@mail.gmail.com>
- <20120912105202.GD2624@pengutronix.de>
- <20120914082754.GE3374@gmail.com>
- <20120914084141.GA2630@pengutronix.de>
- <20120914090228.GH3374@gmail.com>
- <20120914093945.GB2630@pengutronix.de>
- <20120914101542.GT3374@gmail.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: (algo-pca) Fix chip reset function for PCA9665
+Date: Fri, 14 Sep 2012 14:12:44 +0200
+Message-ID: <20120914121244.GE2630@pengutronix.de>
+References: <20120913134128.GA1343@roeck-us.net>
+ <CC77B638.1126D%tkavanagh@juniper.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5gxpn/Q6ypwruk0T"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="ILuaRSyQpoVaJ1HG"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20120914101542.GT3374@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, STEricsson_nomadik_linux@list.st.com, linus.walleij@stericsson.com, arnd@arndb.de, linux-i2c@vger.kernel.org
+In-Reply-To: <CC77B638.1126D%tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Kavanagh <tkavanagh-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guenter Roeck <groeck-3r7Miqu9kMnR7s880joybQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---5gxpn/Q6ypwruk0T
+--ILuaRSyQpoVaJ1HG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+Thomas,
 
-> > 	Documentation: Device Tree binding information for i2c-nomadik driver
-> > 		(Documentation should go along with the code)
->=20
-> I'm still not too sure about how this benefits anyone. You can ensure
-> the documentation is placed in an adjacent patch, so it's just as easy
-> to make reference to.
+>   Hopefully the information below explains the problem with the current p=
+ca9665_reset() function.
 
-It makes reviewing a lot easier if the documentation what is supposed to
-be coded and the actual code are in one place. It also prevents what
-happened in this case where the documentation never showed up on the
-i2c-list.
+Yes, it does :)
+
+> Let's say mod1 has the following
+
+This was the first needed information. You seem to not use
+i2c-pca-platform but a custom driver using the pca-algo, right? May I
+ask why the custom one is needed?
+
+> Now with the pca9665_reset() function, the i2c-algo-pca module sets
+> the mod1's reset_chip function pointer to pca9665_reset.  When
+> pca_reset(adap) is called, the input parameter is of type
+> i2c_algo_pca_data as expected.  Then pca_reset() calls
+> adap->reset_chip (pca9665_reset) with the first parameter being
+> adap->data.  This parameter is of type mod1_pca_data_t * in this
+> example.  The problem comes from the fact that pca9665_reset(void *pd)
+> is expecting the parameter to be of type i2c_algp_pca_data:
+
+To put in other words: All other wrappers from the algo call back to the
+bus driver which knows to handle its custom data. Only the pca9665 reset
+is staying inside the algo and facing a custom data structure it
+doesn't know. Okay, understood now.
+
+Thanks,
+
+   Wolfram
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---5gxpn/Q6ypwruk0T
+--ILuaRSyQpoVaJ1HG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 Content-Disposition: inline
@@ -54,9 +64,9 @@ Content-Disposition: inline
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
 
-iEYEARECAAYFAlBTFbwACgkQD27XaX1/VRvYpwCgo/5DPJAnUntcGkAMeHXQy34B
-7pcAnRe5CifEukcAZY9165/IPzaIPxD6
-=fCHt
+iEYEARECAAYFAlBTHzwACgkQD27XaX1/VRsNVACgh6mx8IX9rglVfuK/7if/iTZh
+D/QAoK8ZgxGvBvAYx4gc2+8CMLDJ4GWs
+=XhqO
 -----END PGP SIGNATURE-----
 
---5gxpn/Q6ypwruk0T--
+--ILuaRSyQpoVaJ1HG--
