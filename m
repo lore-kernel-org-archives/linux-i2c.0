@@ -1,53 +1,46 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: correctly setup speed for non devicetree
-Date: Sun, 16 Sep 2012 10:15:25 +0200
-Message-ID: <20120916081525.GA4367@pengutronix.de>
-References: <1347118732-4896-1-git-send-email-w.sang@pengutronix.de>
- <201209152009.44320.marex@denx.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201209152009.44320.marex-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH -next] [media] altera-stapl should depend on HAS_IOPORT
+Date: Sun, 16 Sep 2012 11:21:23 +0200
+Message-ID: <1347787283-11994-1-git-send-email-geert@linux-m68k.org>
+Return-path: <linux-next-owner@vger.kernel.org>
+Sender: linux-next-owner@vger.kernel.org
+To: "Igor M. Liplianin" <liplianin@netup.ru>, Peter Huewe <peterhuewe@gmx.de>, Jean Delvare <khali@linux-fr.org>, Mauro Carvalho Chehab <mchehab@redhat.com>
+Cc: linux-i2c@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net, linux-next@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On s390:
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+drivers/misc/altera-stapl/altera-lpt.c: In function 'byteblaster_write':
+drivers/misc/altera-stapl/altera-lpt.c:34:2: error: implicit declaration of function 'outb' [-Werror=implicit-function-declaration]
+drivers/misc/altera-stapl/altera-lpt.c: In function 'byteblaster_read':
+drivers/misc/altera-stapl/altera-lpt.c:40:2: error: implicit declaration of function 'inb' [-Werror=implicit-function-declaration]
+cc1: some warnings being treated as errors
+make[6]: *** [drivers/misc/altera-stapl/altera-lpt.o] Error 1
 
+Before commit 3969d54acd70be70e1b2a72184cba5415bf326c2 ("i2c: Make I2C
+available on UML"), this was hidden because I2C depended on HAS_IOMEM, which
+is a superset of HAS_IOPORT.
 
-> > Commit cd4f2d4 (i2c: mxs: Set I2C timing registers for mxs-i2c) only
-> > covered the case for devicetree and made platform_data based boards
-> > bail out with -EINVAL. Correctly support the latter one, too.
->=20
-> MXS is now DT only, so this patch is pointless.
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+--
+http://kisskb.ellerman.id.au/kisskb/buildresult/7194502/
+http://kisskb.ellerman.id.au/kisskb/buildresult/7194476/
+---
+ drivers/misc/altera-stapl/Kconfig |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-This is not true for 3.5.
-
-> Rather make it depend on CONFIG_OF=20
-
-I wanted to avoid ifdeffery.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlBVip0ACgkQD27XaX1/VRsV0QCeJHpWRg7u0Knj/Lt7dIFmFjgG
-IWAAoItfHjqXuJ6b5EFI6EEJrImUvCRR
-=VmD1
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+diff --git a/drivers/misc/altera-stapl/Kconfig b/drivers/misc/altera-stapl/Kconfig
+index 7f01d8e..c7e4c77 100644
+--- a/drivers/misc/altera-stapl/Kconfig
++++ b/drivers/misc/altera-stapl/Kconfig
+@@ -2,7 +2,7 @@ comment "Altera FPGA firmware download module"
+ 
+ config ALTERA_STAPL
+ 	tristate "Altera FPGA firmware download module"
+-	depends on I2C
++	depends on I2C && HAS_IOPORT
+ 	default n
+ 	help
+ 	  An Altera FPGA module. Say Y when you want to support this tool.
+-- 
+1.7.0.4
