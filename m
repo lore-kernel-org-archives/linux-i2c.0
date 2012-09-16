@@ -1,64 +1,153 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: correctly setup speed for non devicetree
-Date: Sat, 15 Sep 2012 20:09:44 +0200
-Message-ID: <201209152009.44320.marex@denx.de>
-References: <1347118732-4896-1-git-send-email-w.sang@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c/scx200_*: replace printks with pr_<level>s, rev2 checkpatch clean
+Date: Sat, 15 Sep 2012 22:03:21 -0600
+Message-ID: <1347768201-11910-1-git-send-email-jim.cromie@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347118732-4896-1-git-send-email-w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Wolfram Sang,
+Replace printks with pr_<level>s, add pr_fmt()s to replace NAMEs
 
-> Commit cd4f2d4 (i2c: mxs: Set I2C timing registers for mxs-i2c) only
-> covered the case for devicetree and made platform_data based boards
-> bail out with -EINVAL. Correctly support the latter one, too.
+Signed-off-by: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/scx200_acb.c | 22 +++++++++++-----------
+ drivers/i2c/busses/scx200_i2c.c | 13 +++++++------
+ 2 files changed, 18 insertions(+), 17 deletions(-)
 
-MXS is now DT only, so this patch is pointless. Rather make it depend on 
-CONFIG_OF and be done with it, maybe remove the non-DT code.
-
-> Signed-off-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-mxs.c |   13 ++++++-------
->  1 file changed, 6 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> index 088c5c1..51f05b8 100644
-> --- a/drivers/i2c/busses/i2c-mxs.c
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -365,10 +365,6 @@ static int mxs_i2c_get_ofdata(struct mxs_i2c_dev *i2c)
->  	struct device_node *node = dev->of_node;
->  	int ret;
-> 
-> -	if (!node)
-> -		return -EINVAL;
-> -
-> -	i2c->speed = &mxs_i2c_95kHz_config;
->  	ret = of_property_read_u32(node, "clock-frequency", &speed);
->  	if (ret)
->  		dev_warn(dev, "No I2C speed selected, using 100kHz\n");
-> @@ -419,10 +415,13 @@ static int __devinit mxs_i2c_probe(struct
-> platform_device *pdev) return err;
-> 
->  	i2c->dev = dev;
-> +	i2c->speed = &mxs_i2c_95kHz_config;
-> 
-> -	err = mxs_i2c_get_ofdata(i2c);
-> -	if (err)
-> -		return err;
-> +	if (dev->of_node) {
-> +		err = mxs_i2c_get_ofdata(i2c);
-> +		if (err)
-> +			return err;
-> +	}
-> 
->  	platform_set_drvdata(pdev, i2c);
-
-Best regards,
-Marek Vasut
+diff --git a/drivers/i2c/busses/scx200_acb.c b/drivers/i2c/busses/scx200_acb.c
+index 2eacb77..c98b389 100644
+--- a/drivers/i2c/busses/scx200_acb.c
++++ b/drivers/i2c/busses/scx200_acb.c
+@@ -23,6 +23,8 @@
+     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
+ 
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+@@ -398,7 +400,7 @@ static __devinit int scx200_acb_probe(struct scx200_acb_iface *iface)
+ 	outb(0x70, ACBCTL2);
+ 
+ 	if (inb(ACBCTL2) != 0x70) {
+-		pr_debug(NAME ": ACBCTL2 readback failed\n");
++		pr_debug("ACBCTL2 readback failed\n");
+ 		return -ENXIO;
+ 	}
+ 
+@@ -406,8 +408,7 @@ static __devinit int scx200_acb_probe(struct scx200_acb_iface *iface)
+ 
+ 	val = inb(ACBCTL1);
+ 	if (val) {
+-		pr_debug(NAME ": disabled, but ACBCTL1=0x%02x\n",
+-			val);
++		pr_debug("disabled, but ACBCTL1=0x%02x\n", val);
+ 		return -ENXIO;
+ 	}
+ 
+@@ -417,8 +418,8 @@ static __devinit int scx200_acb_probe(struct scx200_acb_iface *iface)
+ 
+ 	val = inb(ACBCTL1);
+ 	if ((val & ACBCTL1_NMINTE) != ACBCTL1_NMINTE) {
+-		pr_debug(NAME ": enabled, but NMINTE won't be set, "
+-			 "ACBCTL1=0x%02x\n", val);
++		pr_debug("enabled, but NMINTE won't be set, ACBCTL1=0x%02x\n",
++			 val);
+ 		return -ENXIO;
+ 	}
+ 
+@@ -433,7 +434,7 @@ static __devinit struct scx200_acb_iface *scx200_create_iface(const char *text,
+ 
+ 	iface = kzalloc(sizeof(*iface), GFP_KERNEL);
+ 	if (!iface) {
+-		printk(KERN_ERR NAME ": can't allocate memory\n");
++		pr_err("can't allocate memory\n");
+ 		return NULL;
+ 	}
+ 
+@@ -459,14 +460,14 @@ static int __devinit scx200_acb_create(struct scx200_acb_iface *iface)
+ 
+ 	rc = scx200_acb_probe(iface);
+ 	if (rc) {
+-		printk(KERN_WARNING NAME ": probe failed\n");
++		pr_warn("probe failed\n");
+ 		return rc;
+ 	}
+ 
+ 	scx200_acb_reset(iface);
+ 
+ 	if (i2c_add_adapter(adapter) < 0) {
+-		printk(KERN_ERR NAME ": failed to register\n");
++		pr_err("failed to register\n");
+ 		return -ENODEV;
+ 	}
+ 
+@@ -493,8 +494,7 @@ static struct scx200_acb_iface * __devinit scx200_create_dev(const char *text,
+ 		return NULL;
+ 
+ 	if (!request_region(base, 8, iface->adapter.name)) {
+-		printk(KERN_ERR NAME ": can't allocate io 0x%lx-0x%lx\n",
+-		       base, base + 8 - 1);
++		pr_err("can't allocate io 0x%lx-0x%lx\n", base, base + 8 - 1);
+ 		goto errout_free;
+ 	}
+ 
+@@ -583,7 +583,7 @@ static __init void scx200_scan_isa(void)
+ 
+ static int __init scx200_acb_init(void)
+ {
+-	pr_debug(NAME ": NatSemi SCx200 ACCESS.bus Driver\n");
++	pr_debug("NatSemi SCx200 ACCESS.bus Driver\n");
+ 
+ 	/* First scan for ISA-based devices */
+ 	scx200_scan_isa();	/* XXX: should we care about errors? */
+diff --git a/drivers/i2c/busses/scx200_i2c.c b/drivers/i2c/busses/scx200_i2c.c
+index 7ee0d50..2d31a0e 100644
+--- a/drivers/i2c/busses/scx200_i2c.c
++++ b/drivers/i2c/busses/scx200_i2c.c
+@@ -21,6 +21,8 @@
+    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.		     
+ */
+ 
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
+ #include <linux/module.h>
+ #include <linux/errno.h>
+ #include <linux/kernel.h>
+@@ -88,17 +90,17 @@ static struct i2c_adapter scx200_i2c_ops = {
+ 
+ static int scx200_i2c_init(void)
+ {
+-	pr_debug(NAME ": NatSemi SCx200 I2C Driver\n");
++	pr_debug("NatSemi SCx200 I2C Driver\n");
+ 
+ 	if (!scx200_gpio_present()) {
+-		printk(KERN_ERR NAME ": no SCx200 gpio pins available\n");
++		pr_err("no SCx200 gpio pins available\n");
+ 		return -ENODEV;
+ 	}
+ 
+-	pr_debug(NAME ": SCL=GPIO%02u, SDA=GPIO%02u\n", scl, sda);
++	pr_debug("SCL=GPIO%02u, SDA=GPIO%02u\n", scl, sda);
+ 
+ 	if (scl == -1 || sda == -1 || scl == sda) {
+-		printk(KERN_ERR NAME ": scl and sda must be specified\n");
++		pr_err("scl and sda must be specified\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -107,8 +109,7 @@ static int scx200_i2c_init(void)
+ 	scx200_gpio_configure(sda, ~2, 5);
+ 
+ 	if (i2c_bit_add_bus(&scx200_i2c_ops) < 0) {
+-		printk(KERN_ERR NAME ": adapter %s registration failed\n", 
+-		       scx200_i2c_ops.name);
++		pr_err("adapter %s registration failed\n", scx200_i2c_ops.name);
+ 		return -ENODEV;
+ 	}
+ 	
+-- 
+1.7.10.1.487.ga3935e6
