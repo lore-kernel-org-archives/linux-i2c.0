@@ -1,99 +1,52 @@
-From: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: s3c2410: add optional pin configuration using
- pinctrl interface
-Date: Mon, 17 Sep 2012 13:22:55 +0530
-Message-ID: <CAJuYYwQWXOnRoCmiKJUwnBiceUimrK7BHeKZUKZ+pB679fhQNA@mail.gmail.com>
-References: <1346923381-14144-1-git-send-email-thomas.abraham@linaro.org>
-	<1346923381-14144-2-git-send-email-thomas.abraham@linaro.org>
-	<CACRpkdZ7kjfDQ-CNCcCv5fQwSqMez6sKSMUMLB=0Aviboiz=2g@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 00/34] i.MX multi-platform support
+Date: Mon, 17 Sep 2012 11:38:13 +0000
+Message-ID: <201209171138.13327.arnd@arndb.de>
+References: <1347860103-4141-1-git-send-email-shawn.guo@linaro.org>
+ <20120917075138.GN6180@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdZ7kjfDQ-CNCcCv5fQwSqMez6sKSMUMLB=0Aviboiz=2g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dong.aisheng-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20120917075138.GN6180@pengutronix.de>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Sascha Hauer <s.hauer@pengutronix.de>
+Cc: alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-fbdev@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Chris Ball <cjb@laptop.org>, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, Rob Herring <rob.herring@calxeda.com>, linux-arm-kernel@lists.infradead.org, Fabio Estevam <fabio.estevam@freescale.com>, Vinod Koul <vinod.koul@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-mmc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Javier Martin <javier.martin@vista-silicon.com>, Andrew Morton <akpm@linux-foundation.org>, Shawn
 List-Id: linux-i2c@vger.kernel.org
 
-On 11 September 2012 01:32, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Thu, Sep 6, 2012 at 11:23 AM, Thomas Abraham
-> <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->
->> Add optional support for i2c bus pin configuration using pinctrl interface
->>
->> Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
->> Signed-off-by: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> (...)
->> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> (...)
->> -       else
->> -               if (s3c24xx_i2c_parse_dt_gpio(i2c))
->> +       } else if (!IS_ERR_OR_NULL(i2c->pctrl) &&
->> +                       !IS_ERR_OR_NULL(i2c->pctrl_state)) {
->
-> You don't need to check i2c->pctrl here, just check i2c->pctrl_state.
->
-> If i2c->pctrl failed the other one will be null too, anyway.
-> (Or the struct isn't kzalloc:ed properly... which I assume.)
+On Monday 17 September 2012, Sascha Hauer wrote:
+> On Mon, Sep 17, 2012 at 01:34:29PM +0800, Shawn Guo wrote:
+> > The series enables multi-platform support for imx.  Since the required
+> > frameworks (clk, pwm) and spare_irq have already been adopted on imx,
+> > the series is all about cleaning up mach/* headers.  Along with the
+> > changes, arch/arm/plat-mxc gets merged into arch/arm/mach-imx.
+> > 
+> > It's based on a bunch of branches (works from others), Rob's initial
+> > multi-platform series, Arnd's platform-data and smp_ops (Marc's) and
+> > imx 3.7 material (Sascha and myself).
+> > 
+> > It's available on branch below.
+> > 
+> >   git://git.linaro.org/people/shawnguo/linux-2.6.git imx/multi-platform
+> > 
+> > It's been tested on imx5 and imx6, and only compile-tested on imx2 and
+> > imx3, so testing on imx2/3 are appreciated.
+> 
+> Great work! This really pushes the i.MX architecture one step closer to
+> a clean code base.
 
-Yes, that's right. I will modify this check.
+I agree, this series is wonderful, I thought it would take much longer
+to get this far.
 
->
->> +               if (pinctrl_select_state(i2c->pctrl, i2c->pctrl_state)) {
->> +                       dev_err(i2c->dev, "failed to configure io-pins\n");
->> +                       return -ENXIO;
->> +               }
->> +       } else if (s3c24xx_i2c_parse_dt_gpio(i2c)) {
->>                         return -EINVAL;
->> +       }
->>
->>         /* write slave address */
->>
->> @@ -1013,6 +1022,10 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
->>         i2c->adap.algo_data = i2c;
->>         i2c->adap.dev.parent = &pdev->dev;
->>
->> +       i2c->pctrl = devm_pinctrl_get(i2c->dev);
->> +       if (!IS_ERR_OR_NULL(i2c->pctrl))
->> +               i2c->pctrl_state = pinctrl_lookup_state(i2c->pctrl, "default");
->> +
->
-> If all you do is select the default state (later, in the init function)
-> the use devm_pinctrl_get_select_default() and be done
-> with it.
+Two small comments on the last two patches from me, but overall I really
+love it.
 
-The driver has a separate init which is invoked during probe. This
-init function sets up the i/o pads for the i2c controller. This
-function has to support three different types of Samsung platforms -
-(a) non-dt (b) dt without pinctrl and (c) dt with pinctrl. And the
-decision to use one of the types of pin setup has to be taken at
-runtime (to support multi-platform images)
-
-So the order that is used is
-
-1. Check if platform data has a callback for pin setup. If yes, invoke
-that callback.
-
-2. If not, check if a vaild pinctrl state available, (implies pinctrl
-driver support is available), then use the pinctrl_select_state() call
-to setup the pins.
-
-3. If both the above options are not available, then try setting up
-the pins with information available in device tree node.
-
-When all the Samsung platforms switch to using device tree and pinctrl
-driver, this code would be simplified to use the
-devm_pinctrl_get_select_default() function.
-
->
-> In any case do not open code the string "default", use
-> PINCTRL_STATE_DEFAULT which defines to that string.
-
-Okay, that was a mistake. I will fix this.
-
->
-> Yours,
-> Linus Walleij
-
-Thanks,
-Thomas.
+Acked-by: Arnd Bergmann <arnd@arndb.de>
