@@ -1,402 +1,565 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: [PATCH 00/34] i.MX multi-platform support
-Date: Mon, 17 Sep 2012 13:34:29 +0800
-Message-ID: <1347860103-4141-1-git-send-email-shawn.guo@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-fbdev@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Chris Ball <cjb@laptop.org>, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, Sascha Hauer <s.hauer@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, Fabio Estevam <fabio.estevam@freescale.com>, Vinod Koul <vinod.koul@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-mmc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Javier Martin <javier.martin@vista-silicon.com>, Andrew Morton <akpm@>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 20/34] i2c: imx: remove mach/hardware.h inclusion
+Date: Mon, 17 Sep 2012 13:34:49 +0800
+Message-ID: <1347860103-4141-21-git-send-email-shawn.guo@linaro.org>
+References: <1347860103-4141-1-git-send-email-shawn.guo@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1347860103-4141-1-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The series enables multi-platform support for imx.  Since the required
-frameworks (clk, pwm) and spare_irq have already been adopted on imx,
-the series is all about cleaning up mach/* headers.  Along with the
-changes, arch/arm/plat-mxc gets merged into arch/arm/mach-imx.
+This is some amount of work left/forgot from device tree conversion.
+Instead of checking cpu_is_xxx to determine the controller type, the
+driver should use platform_device_id, which should match the device
+tree compatible string.
 
-It's based on a bunch of branches (works from others), Rob's initial
-multi-platform series, Arnd's platform-data and smp_ops (Marc's) and
-imx 3.7 material (Sascha and myself).
+The patch changes the driver to use platform_device_id and of_device_id
+rather than cpu_is_xxx to determine the controller type/version for
+non-DT and DT probing.  It also updates the platform code and device
+tree source accordingly.
 
-It's available on branch below.
+As the result, mach/hardware.h inclusion gets removed from the driver.
 
-  git://git.linaro.org/people/shawnguo/linux-2.6.git imx/multi-platform
-
-It's been tested on imx5 and imx6, and only compile-tested on imx2 and
-imx3, so testing on imx2/3 are appreciated.
-
-Subsystem maintainers,
-
-I plan to send the whole series via arm-soc tree at the end of 3.7
-merge window when all dependant bits hit mainline.  Please have a
-look at the patches you get copied and provide ACKs if the changes
-are good.  Thanks.
-
-Shawn Guo (34):
-  ARM: imx: include board headers in the same folder
-  ASoC: mx27vis: retrieve gpio numbers from platform_data
-  ARM: imx: move iomux drivers and headers into mach-imx
-  ARM: imx: remove unnecessary inclusion from device-imx*.h
-  ARM: imx: move platform device code into mach-imx
-  ARM: imx: merge plat-mxc into mach-imx
-  ARM: imx: include common.h rather than mach/common.h
-  ARM: imx: ARM: imx: include cpuidle.h rather than mach/cpuidle.h
-  ARM: imx: include iim.h rather than mach/iim.h
-  ARM: imx: include iram.h rather than mach/iram.h
-  ARM: imx: include ulpi.h rather than mach/ulpi.h
-  media: mx1_camera: remove the driver
-  ARM: imx: remove mach/dma-mx1-mx2.h
-  dma: ipu: rename mach/ipu.h to include/linux/dma/ipu-dma.h
-  dma: imx-sdma: remove unneeded mach/hardware.h inclusion
-  ASoC: imx-ssi: remove unneeded mach/hardware.h inclusion
-  usb: ehci-mxc: remove unneeded mach/hardware.h inclusion
-  video: mx3fb: remove unneeded mach/hardware.h inclusion
-  watchdog: imx2_wdt: remove unneeded mach/hardware.h inclusion
-  i2c: imx: remove mach/hardware.h inclusion
-  mtd: mxc_nand: remove mach/hardware.h inclusion
-  rtc: mxc_rtc: remove mach/hardware.h inclusion
-  dma: imx-dma: use devm_kzalloc and devm_request_irq
-  dma: imx-dma: retrieve MEM and IRQ from resources
-  dma: imx-dma: remove mach/hardware.h inclusion
-  media: mx2_camera: remove dead code in mx2_camera_add_device
-  media: mx2_camera: use managed functions to clean up code
-  media: mx2_camera: remove mach/hardware.h inclusion
-  mmc: mxcmmc: remove mach/hardware.h inclusion
-  video: imxfb: remove mach/hardware.h inclusion
-  ARM: imx: move debug macros to include/debug
-  ARM: imx: include hardware.h rather than mach/hardware.h
-  ARM: imx: remove header file mach/irqs.h
-  ARM: imx: enable multi-platform build
-
+Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+---
  .../devicetree/bindings/i2c/fsl-imx-i2c.txt        |    4 +-
- arch/arm/Kconfig                                   |   15 +-
- arch/arm/Kconfig.debug                             |    8 +
- arch/arm/Makefile                                  |    1 -
  arch/arm/boot/dts/imx27.dtsi                       |    4 +-
  arch/arm/boot/dts/imx51.dtsi                       |    4 +-
- arch/arm/boot/dts/imx53.dtsi                       |    6 +-
- arch/arm/boot/dts/imx6q.dtsi                       |    6 +-
- .../mach/debug-macro.S => include/debug/imx.S}     |   33 +-
- arch/arm/{plat-mxc => mach-imx}/3ds_debugboard.c   |    2 +-
- .../include/mach => mach-imx}/3ds_debugboard.h     |    0
- arch/arm/mach-imx/Kconfig                          |   86 ++
- arch/arm/mach-imx/Makefile                         |   23 +-
- arch/arm/{plat-mxc => mach-imx}/avic.c             |    5 +-
- .../include/mach => mach-imx}/board-mx31lilly.h    |    0
- .../include/mach => mach-imx}/board-mx31lite.h     |    0
- .../include/mach => mach-imx}/board-mx31moboard.h  |    0
- .../include/mach => mach-imx}/board-pcm038.h       |    0
- arch/arm/mach-imx/clk-imx1.c                       |   15 +-
- arch/arm/mach-imx/clk-imx21.c                      |   14 +-
- arch/arm/mach-imx/clk-imx25.c                      |   26 +-
- arch/arm/mach-imx/clk-imx27.c                      |   36 +-
- arch/arm/mach-imx/clk-imx31.c                      |   21 +-
- arch/arm/mach-imx/clk-imx35.c                      |   13 +-
- arch/arm/mach-imx/clk-imx51-imx53.c                |   15 +-
- arch/arm/mach-imx/clk-imx6q.c                      |    3 +-
- arch/arm/mach-imx/clk-pllv1.c                      |    4 +-
- .../{plat-mxc/include/mach => mach-imx}/common.h   |    0
- arch/arm/mach-imx/cpu-imx25.c                      |    5 +-
- arch/arm/mach-imx/cpu-imx27.c                      |    2 +-
- arch/arm/mach-imx/cpu-imx31.c                      |    7 +-
- arch/arm/mach-imx/cpu-imx35.c                      |    5 +-
- arch/arm/mach-imx/cpu-imx5.c                       |    3 +-
- arch/arm/{plat-mxc => mach-imx}/cpu.c              |    3 +-
- arch/arm/mach-imx/cpu_op-mx51.c                    |    3 +-
- arch/arm/{plat-mxc => mach-imx}/cpufreq.c          |    3 +-
- arch/arm/{plat-mxc => mach-imx}/cpuidle.c          |    0
- .../{plat-mxc/include/mach => mach-imx}/cpuidle.h  |    0
- arch/arm/mach-imx/devices-imx1.h                   |    3 +-
- arch/arm/mach-imx/devices-imx21.h                  |    3 +-
- arch/arm/mach-imx/devices-imx25.h                  |    3 +-
- arch/arm/mach-imx/devices-imx27.h                  |    3 +-
- arch/arm/mach-imx/devices-imx31.h                  |    3 +-
- arch/arm/mach-imx/devices-imx35.h                  |    3 +-
- arch/arm/mach-imx/devices-imx50.h                  |    3 +-
- arch/arm/mach-imx/devices-imx51.h                  |    3 +-
- arch/arm/{plat-mxc => mach-imx}/devices/Kconfig    |    3 -
- arch/arm/{plat-mxc => mach-imx}/devices/Makefile   |    3 +-
- .../mach => mach-imx/devices}/devices-common.h     |   19 +-
- arch/arm/{plat-mxc => mach-imx/devices}/devices.c  |    1 -
- .../devices/platform-ahci-imx.c                    |    5 +-
- .../{plat-mxc => mach-imx}/devices/platform-fec.c  |    5 +-
- .../devices/platform-flexcan.c                     |    4 +-
- .../devices/platform-fsl-usb2-udc.c                |    5 +-
- .../devices/platform-gpio-mxc.c                    |    2 +-
- .../devices/platform-gpio_keys.c                   |    5 +-
- .../devices/platform-imx-dma.c                     |   23 +-
- .../devices/platform-imx-fb.c                      |   16 +-
- .../devices/platform-imx-i2c.c                     |   31 +-
- .../devices/platform-imx-keypad.c                  |    4 +-
- .../devices/platform-imx-ssi.c                     |    4 +-
- .../devices/platform-imx-uart.c                    |    4 +-
- .../devices/platform-imx2-wdt.c                    |    5 +-
- .../devices/platform-imx21-hcd.c                   |    4 +-
- .../devices/platform-imx_udc.c                     |    4 +-
- .../devices/platform-imxdi_rtc.c                   |    5 +-
- .../devices/platform-ipu-core.c                    |    5 +-
- .../devices/platform-mx2-camera.c                  |   16 +-
- .../devices/platform-mxc-ehci.c                    |    5 +-
- .../devices/platform-mxc-mmc.c                     |   20 +-
- .../devices/platform-mxc_nand.c                    |   25 +-
- .../devices/platform-mxc_pwm.c                     |    4 +-
- .../devices/platform-mxc_rnga.c                    |    4 +-
- .../devices/platform-mxc_rtc.c                     |   13 +-
- .../devices/platform-mxc_w1.c                      |    4 +-
- .../devices/platform-pata_imx.c                    |    4 +-
- .../devices/platform-sdhci-esdhc-imx.c             |    5 +-
- .../devices/platform-spi_imx.c                     |    4 +-
- arch/arm/mach-imx/ehci-imx25.c                     |    4 +-
- arch/arm/mach-imx/ehci-imx27.c                     |    4 +-
- arch/arm/mach-imx/ehci-imx31.c                     |    4 +-
- arch/arm/mach-imx/ehci-imx35.c                     |    4 +-
- arch/arm/mach-imx/ehci-imx5.c                      |    4 +-
- arch/arm/{plat-mxc => mach-imx}/epit.c             |    6 +-
- .../include/mach => mach-imx}/eukrea-baseboards.h  |    0
- arch/arm/mach-imx/eukrea_mbimx27-baseboard.c       |    7 +-
- arch/arm/mach-imx/eukrea_mbimxsd25-baseboard.c     |    8 +-
- arch/arm/mach-imx/eukrea_mbimxsd35-baseboard.c     |    7 +-
- arch/arm/mach-imx/eukrea_mbimxsd51-baseboard.c     |    7 +-
- .../{plat-mxc/include/mach => mach-imx}/hardware.h |   26 +-
- arch/arm/mach-imx/hotplug.c                        |    3 +-
- arch/arm/{plat-mxc/include/mach => mach-imx}/iim.h |    0
- arch/arm/mach-imx/imx27-dt.c                       |   11 +-
- arch/arm/mach-imx/imx31-dt.c                       |    5 +-
- arch/arm/mach-imx/imx51-dt.c                       |    9 +-
- arch/arm/mach-imx/include/mach/dma-mx1-mx2.h       |   10 -
- arch/arm/mach-imx/iomux-imx31.c                    |    5 +-
- .../include/mach => mach-imx}/iomux-mx1.h          |    2 +-
- .../include/mach => mach-imx}/iomux-mx21.h         |    4 +-
- .../include/mach => mach-imx}/iomux-mx25.h         |    2 +-
- .../include/mach => mach-imx}/iomux-mx27.h         |    4 +-
- .../include/mach => mach-imx}/iomux-mx2x.h         |    0
- .../include/mach => mach-imx}/iomux-mx3.h          |    0
- .../include/mach => mach-imx}/iomux-mx35.h         |    2 +-
- .../include/mach => mach-imx}/iomux-mx50.h         |    2 +-
- .../include/mach => mach-imx}/iomux-mx51.h         |    2 +-
- arch/arm/{plat-mxc => mach-imx}/iomux-v1.c         |    5 +-
- .../{plat-mxc/include/mach => mach-imx}/iomux-v1.h |    0
- arch/arm/{plat-mxc => mach-imx}/iomux-v3.c         |    5 +-
- .../{plat-mxc/include/mach => mach-imx}/iomux-v3.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/iram.h |    0
- arch/arm/{plat-mxc => mach-imx}/iram_alloc.c       |    3 +-
- arch/arm/{plat-mxc => mach-imx}/irq-common.c       |    0
- arch/arm/{plat-mxc => mach-imx}/irq-common.h       |    3 +
- arch/arm/mach-imx/lluart.c                         |    3 +-
- arch/arm/mach-imx/mach-apf9328.c                   |    7 +-
- arch/arm/mach-imx/mach-armadillo5x0.c              |    9 +-
- arch/arm/mach-imx/mach-bug.c                       |    7 +-
- arch/arm/mach-imx/mach-cpuimx27.c                  |   11 +-
- arch/arm/mach-imx/mach-cpuimx35.c                  |    9 +-
- arch/arm/mach-imx/mach-cpuimx51sd.c                |    9 +-
- arch/arm/mach-imx/mach-eukrea_cpuimx25.c           |   10 +-
- arch/arm/mach-imx/mach-imx27_visstrim_m10.c        |   48 +-
- arch/arm/mach-imx/mach-imx27ipcam.c                |    6 +-
- arch/arm/mach-imx/mach-imx27lite.c                 |    6 +-
- arch/arm/mach-imx/mach-imx53.c                     |   11 +-
- arch/arm/mach-imx/mach-imx6q.c                     |    6 +-
- arch/arm/mach-imx/mach-kzm_arm11_01.c              |    7 +-
- arch/arm/mach-imx/mach-mx1ads.c                    |    7 +-
- arch/arm/mach-imx/mach-mx21ads.c                   |    6 +-
- arch/arm/mach-imx/mach-mx25_3ds.c                  |    8 +-
- arch/arm/mach-imx/mach-mx27_3ds.c                  |   10 +-
- arch/arm/mach-imx/mach-mx27ads.c                   |    6 +-
- arch/arm/mach-imx/mach-mx31_3ds.c                  |   12 +-
- arch/arm/mach-imx/mach-mx31ads.c                   |    5 +-
- arch/arm/mach-imx/mach-mx31lilly.c                 |   11 +-
- arch/arm/mach-imx/mach-mx31lite.c                  |   11 +-
- arch/arm/mach-imx/mach-mx31moboard.c               |   14 +-
- arch/arm/mach-imx/mach-mx35_3ds.c                  |    8 +-
- arch/arm/mach-imx/mach-mx50_rdp.c                  |    7 +-
- arch/arm/mach-imx/mach-mx51_3ds.c                  |    9 +-
- arch/arm/mach-imx/mach-mx51_babbage.c              |    7 +-
- arch/arm/mach-imx/mach-mxt_td60.c                  |    6 +-
- arch/arm/mach-imx/mach-pca100.c                    |    8 +-
- arch/arm/mach-imx/mach-pcm037.c                    |    8 +-
- arch/arm/mach-imx/mach-pcm037_eet.c                |    5 +-
- arch/arm/mach-imx/mach-pcm038.c                    |   13 +-
- arch/arm/mach-imx/mach-pcm043.c                    |    9 +-
- arch/arm/mach-imx/mach-qong.c                      |    6 +-
- arch/arm/mach-imx/mach-scb9328.c                   |    7 +-
- arch/arm/mach-imx/mach-vpr200.c                    |    7 +-
- arch/arm/mach-imx/mm-imx1.c                        |    9 +-
- arch/arm/mach-imx/mm-imx21.c                       |   12 +-
- arch/arm/mach-imx/mm-imx25.c                       |   10 +-
- arch/arm/mach-imx/mm-imx27.c                       |   12 +-
- arch/arm/mach-imx/mm-imx3.c                        |    9 +-
- arch/arm/mach-imx/mm-imx5.c                        |    8 +-
- arch/arm/mach-imx/mx1-camera-fiq-ksym.c            |   18 -
- arch/arm/mach-imx/mx1-camera-fiq.S                 |   35 -
- arch/arm/{plat-mxc/include/mach => mach-imx}/mx1.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx21.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx25.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx27.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx2x.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx31.h |    0
- arch/arm/mach-imx/mx31lilly-db.c                   |    9 +-
- arch/arm/mach-imx/mx31lite-db.c                    |    9 +-
- arch/arm/mach-imx/mx31moboard-devboard.c           |    9 +-
- arch/arm/mach-imx/mx31moboard-marxbot.c            |    9 +-
- arch/arm/mach-imx/mx31moboard-smartbot.c           |   11 +-
- .../arm/{plat-mxc/include/mach => mach-imx}/mx35.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx3x.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx50.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx51.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx53.h |    0
- .../arm/{plat-mxc/include/mach => mach-imx}/mx6q.h |    0
- arch/arm/{plat-mxc/include/mach => mach-imx}/mxc.h |    0
- arch/arm/mach-imx/pcm970-baseboard.c               |    7 +-
- arch/arm/mach-imx/platsmp.c                        |    5 +-
- arch/arm/mach-imx/pm-imx27.c                       |    3 +-
- arch/arm/mach-imx/pm-imx3.c                        |    7 +-
- arch/arm/mach-imx/pm-imx5.c                        |    7 +-
- arch/arm/mach-imx/pm-imx6q.c                       |    5 +-
- arch/arm/{plat-mxc => mach-imx}/ssi-fiq-ksym.c     |    0
- arch/arm/{plat-mxc => mach-imx}/ssi-fiq.S          |    0
- arch/arm/{plat-mxc => mach-imx}/system.c           |    5 +-
- arch/arm/{plat-mxc => mach-imx}/time.c             |    5 +-
- arch/arm/{plat-mxc => mach-imx}/tzic.c             |    6 +-
- arch/arm/{plat-mxc => mach-imx}/ulpi.c             |    2 +-
- .../arm/{plat-mxc/include/mach => mach-imx}/ulpi.h |    0
- arch/arm/plat-mxc/Kconfig                          |   89 --
- arch/arm/plat-mxc/Makefile                         |   24 -
- arch/arm/plat-mxc/devices/platform-mx1-camera.c    |   42 -
- arch/arm/plat-mxc/include/mach/irqs.h              |   21 -
- arch/arm/plat-mxc/include/mach/timex.h             |   22 -
- arch/arm/plat-mxc/include/mach/uncompress.h        |  132 ---
- drivers/dma/imx-dma.c                              |  137 +--
- drivers/dma/imx-sdma.c                             |    1 -
- drivers/dma/ipu/ipu_idmac.c                        |    3 +-
- drivers/dma/ipu/ipu_irq.c                          |    3 +-
- drivers/i2c/busses/i2c-imx.c                       |   40 +-
- drivers/media/video/Kconfig                        |   12 -
- drivers/media/video/Makefile                       |    1 -
- drivers/media/video/mx1_camera.c                   |  889 --------------------
- drivers/media/video/mx2_camera.c                   |  240 +++---
- drivers/media/video/mx3_camera.c                   |    2 +-
- drivers/mmc/host/mxcmmc.c                          |   31 +-
- drivers/mtd/nand/mxc_nand.c                        |   86 +-
- drivers/rtc/rtc-mxc.c                              |   34 +-
- drivers/usb/host/ehci-mxc.c                        |    1 -
- drivers/video/imxfb.c                              |   38 +-
- drivers/video/mx3fb.c                              |    3 +-
- drivers/watchdog/imx2_wdt.c                        |    1 -
- .../mach/ipu.h => include/linux/dma/ipu-dma.h      |    6 +-
- include/linux/platform_data/asoc-mx27vis.h         |   11 +
- include/linux/platform_data/camera-mx1.h           |   35 -
- sound/soc/fsl/imx-pcm-fiq.c                        |    3 +-
- sound/soc/fsl/imx-ssi.c                            |    1 -
- sound/soc/fsl/mx27vis-aic32x4.c                    |   42 +-
- 219 files changed, 1149 insertions(+), 2170 deletions(-)
- rename arch/arm/{plat-mxc/include/mach/debug-macro.S => include/debug/imx.S} (59%)
- rename arch/arm/{plat-mxc => mach-imx}/3ds_debugboard.c (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/3ds_debugboard.h (100%)
- rename arch/arm/{plat-mxc => mach-imx}/avic.c (98%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/board-mx31lilly.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/board-mx31lite.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/board-mx31moboard.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/board-pcm038.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/common.h (100%)
- rename arch/arm/{plat-mxc => mach-imx}/cpu.c (97%)
- rename arch/arm/{plat-mxc => mach-imx}/cpufreq.c (99%)
- rename arch/arm/{plat-mxc => mach-imx}/cpuidle.c (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/cpuidle.h (100%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/Kconfig (96%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/Makefile (96%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx/devices}/devices-common.h (96%)
- rename arch/arm/{plat-mxc => mach-imx/devices}/devices.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-ahci-imx.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-fec.c (97%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-flexcan.c (96%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-fsl-usb2-udc.c (96%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-gpio-mxc.c (96%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-gpio_keys.c (94%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx-dma.c (63%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx-fb.c (79%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx-i2c.c (77%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx-keypad.c (97%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx-ssi.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx-uart.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx2-wdt.c (97%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx21-hcd.c (94%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imx_udc.c (96%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-imxdi_rtc.c (94%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-ipu-core.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mx2-camera.c (83%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mxc-ehci.c (97%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mxc-mmc.c (76%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mxc_nand.c (74%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mxc_pwm.c (97%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mxc_rnga.c (95%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mxc_rtc.c (77%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-mxc_w1.c (95%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-pata_imx.c (96%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-sdhci-esdhc-imx.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/devices/platform-spi_imx.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/epit.c (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/eukrea-baseboards.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/hardware.h (94%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iim.h (100%)
- delete mode 100644 arch/arm/mach-imx/include/mach/dma-mx1-mx2.h
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx1.h (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx21.h (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx25.h (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx27.h (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx2x.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx3.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx35.h (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx50.h (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-mx51.h (99%)
- rename arch/arm/{plat-mxc => mach-imx}/iomux-v1.c (98%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-v1.h (100%)
- rename arch/arm/{plat-mxc => mach-imx}/iomux-v3.c (97%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iomux-v3.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/iram.h (100%)
- rename arch/arm/{plat-mxc => mach-imx}/iram_alloc.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/irq-common.c (100%)
- rename arch/arm/{plat-mxc => mach-imx}/irq-common.h (94%)
- delete mode 100644 arch/arm/mach-imx/mx1-camera-fiq-ksym.c
- delete mode 100644 arch/arm/mach-imx/mx1-camera-fiq.S
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx1.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx21.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx25.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx27.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx2x.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx31.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx35.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx3x.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx50.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx51.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx53.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mx6q.h (100%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/mxc.h (100%)
- rename arch/arm/{plat-mxc => mach-imx}/ssi-fiq-ksym.c (100%)
- rename arch/arm/{plat-mxc => mach-imx}/ssi-fiq.S (100%)
- rename arch/arm/{plat-mxc => mach-imx}/system.c (97%)
- rename arch/arm/{plat-mxc => mach-imx}/time.c (99%)
- rename arch/arm/{plat-mxc => mach-imx}/tzic.c (98%)
- rename arch/arm/{plat-mxc => mach-imx}/ulpi.c (99%)
- rename arch/arm/{plat-mxc/include/mach => mach-imx}/ulpi.h (100%)
- delete mode 100644 arch/arm/plat-mxc/Kconfig
- delete mode 100644 arch/arm/plat-mxc/Makefile
- delete mode 100644 arch/arm/plat-mxc/devices/platform-mx1-camera.c
- delete mode 100644 arch/arm/plat-mxc/include/mach/irqs.h
- delete mode 100644 arch/arm/plat-mxc/include/mach/timex.h
- delete mode 100644 arch/arm/plat-mxc/include/mach/uncompress.h
- delete mode 100644 drivers/media/video/mx1_camera.c
- rename arch/arm/plat-mxc/include/mach/ipu.h => include/linux/dma/ipu-dma.h (97%)
- create mode 100644 include/linux/platform_data/asoc-mx27vis.h
- delete mode 100644 include/linux/platform_data/camera-mx1.h
+ arch/arm/boot/dts/imx53.dtsi                       |    6 +--
+ arch/arm/boot/dts/imx6q.dtsi                       |    6 +--
+ arch/arm/mach-imx/clk-imx1.c                       |    2 +-
+ arch/arm/mach-imx/clk-imx21.c                      |    2 +-
+ arch/arm/mach-imx/clk-imx25.c                      |    6 +--
+ arch/arm/mach-imx/clk-imx27.c                      |    4 +-
+ arch/arm/mach-imx/clk-imx31.c                      |    6 +--
+ arch/arm/mach-imx/clk-imx35.c                      |    6 +--
+ arch/arm/mach-imx/clk-imx51-imx53.c                |    8 ++--
+ arch/arm/mach-imx/devices/devices-common.h         |    1 +
+ arch/arm/mach-imx/devices/platform-imx-i2c.c       |   27 ++++++-------
+ arch/arm/mach-imx/imx27-dt.c                       |    4 +-
+ arch/arm/mach-imx/imx51-dt.c                       |    4 +-
+ arch/arm/mach-imx/mach-imx53.c                     |    6 +--
+ drivers/i2c/busses/i2c-imx.c                       |   40 +++++++++++++++++---
+ 18 files changed, 86 insertions(+), 54 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt b/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt
+index f3cf43b..3614242 100644
+--- a/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt
++++ b/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt
+@@ -12,13 +12,13 @@ Optional properties:
+ Examples:
+ 
+ i2c@83fc4000 { /* I2C2 on i.MX51 */
+-	compatible = "fsl,imx51-i2c", "fsl,imx1-i2c";
++	compatible = "fsl,imx51-i2c", "fsl,imx21-i2c";
+ 	reg = <0x83fc4000 0x4000>;
+ 	interrupts = <63>;
+ };
+ 
+ i2c@70038000 { /* HS-I2C on i.MX51 */
+-	compatible = "fsl,imx51-i2c", "fsl,imx1-i2c";
++	compatible = "fsl,imx51-i2c", "fsl,imx21-i2c";
+ 	reg = <0x70038000 0x4000>;
+ 	interrupts = <64>;
+ 	clock-frequency = <400000>;
+diff --git a/arch/arm/boot/dts/imx27.dtsi b/arch/arm/boot/dts/imx27.dtsi
+index 3e54f14..67d6727 100644
+--- a/arch/arm/boot/dts/imx27.dtsi
++++ b/arch/arm/boot/dts/imx27.dtsi
+@@ -113,7 +113,7 @@
+ 			i2c1: i2c@10012000 {
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx27-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx27-i2c", "fsl,imx21-i2c";
+ 				reg = <0x10012000 0x1000>;
+ 				interrupts = <12>;
+ 				status = "disabled";
+@@ -205,7 +205,7 @@
+ 			i2c2: i2c@1001d000 {
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx27-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx27-i2c", "fsl,imx21-i2c";
+ 				reg = <0x1001d000 0x1000>;
+ 				interrupts = <1>;
+ 				status = "disabled";
+diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
+index 2f71a91..702abcf 100644
+--- a/arch/arm/boot/dts/imx51.dtsi
++++ b/arch/arm/boot/dts/imx51.dtsi
+@@ -377,7 +377,7 @@
+ 			i2c@83fc4000 { /* I2C2 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx51-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx51-i2c", "fsl,imx21-i2c";
+ 				reg = <0x83fc4000 0x4000>;
+ 				interrupts = <63>;
+ 				status = "disabled";
+@@ -386,7 +386,7 @@
+ 			i2c@83fc8000 { /* I2C1 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx51-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx51-i2c", "fsl,imx21-i2c";
+ 				reg = <0x83fc8000 0x4000>;
+ 				interrupts = <62>;
+ 				status = "disabled";
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index 221cf33..ec3b8cca 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -432,7 +432,7 @@
+ 			i2c@53fec000 { /* I2C3 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx53-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx53-i2c", "fsl,imx21-i2c";
+ 				reg = <0x53fec000 0x4000>;
+ 				interrupts = <64>;
+ 				status = "disabled";
+@@ -488,7 +488,7 @@
+ 			i2c@63fc4000 { /* I2C2 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx53-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx53-i2c", "fsl,imx21-i2c";
+ 				reg = <0x63fc4000 0x4000>;
+ 				interrupts = <63>;
+ 				status = "disabled";
+@@ -497,7 +497,7 @@
+ 			i2c@63fc8000 { /* I2C1 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx53-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx53-i2c", "fsl,imx21-i2c";
+ 				reg = <0x63fc8000 0x4000>;
+ 				interrupts = <62>;
+ 				status = "disabled";
+diff --git a/arch/arm/boot/dts/imx6q.dtsi b/arch/arm/boot/dts/imx6q.dtsi
+index e45476d..8d62ac1 100644
+--- a/arch/arm/boot/dts/imx6q.dtsi
++++ b/arch/arm/boot/dts/imx6q.dtsi
+@@ -858,7 +858,7 @@
+ 			i2c@021a0000 { /* I2C1 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx6q-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
+ 				reg = <0x021a0000 0x4000>;
+ 				interrupts = <0 36 0x04>;
+ 				clocks = <&clks 125>;
+@@ -868,7 +868,7 @@
+ 			i2c@021a4000 { /* I2C2 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx6q-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
+ 				reg = <0x021a4000 0x4000>;
+ 				interrupts = <0 37 0x04>;
+ 				clocks = <&clks 126>;
+@@ -878,7 +878,7 @@
+ 			i2c@021a8000 { /* I2C3 */
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+-				compatible = "fsl,imx6q-i2c", "fsl,imx1-i2c";
++				compatible = "fsl,imx6q-i2c", "fsl,imx21-i2c";
+ 				reg = <0x021a8000 0x4000>;
+ 				interrupts = <0 38 0x04>;
+ 				clocks = <&clks 127>;
+diff --git a/arch/arm/mach-imx/clk-imx1.c b/arch/arm/mach-imx/clk-imx1.c
+index ebfffd2..1cd1c5b 100644
+--- a/arch/arm/mach-imx/clk-imx1.c
++++ b/arch/arm/mach-imx/clk-imx1.c
+@@ -94,7 +94,7 @@ int __init mx1_clocks_init(unsigned long fref)
+ 	clk_register_clkdev(clk[hclk], "ipg", "imx1-uart.1");
+ 	clk_register_clkdev(clk[per1], "per", "imx1-uart.2");
+ 	clk_register_clkdev(clk[hclk], "ipg", "imx1-uart.2");
+-	clk_register_clkdev(clk[hclk], NULL, "imx-i2c.0");
++	clk_register_clkdev(clk[hclk], NULL, "imx1-i2c.0");
+ 	clk_register_clkdev(clk[per2], "per", "imx1-cspi.0");
+ 	clk_register_clkdev(clk[dummy], "ipg", "imx1-cspi.0");
+ 	clk_register_clkdev(clk[per2], "per", "imx1-cspi.1");
+diff --git a/arch/arm/mach-imx/clk-imx21.c b/arch/arm/mach-imx/clk-imx21.c
+index fbee6a4..09fc31c 100644
+--- a/arch/arm/mach-imx/clk-imx21.c
++++ b/arch/arm/mach-imx/clk-imx21.c
+@@ -166,7 +166,7 @@ int __init mx21_clocks_init(unsigned long lref, unsigned long href)
+ 	clk_register_clkdev(clk[dma_hclk_gate], "ahb", "imx-dma");
+ 	clk_register_clkdev(clk[dma_gate], "ipg", "imx-dma");
+ 	clk_register_clkdev(clk[wdog_gate], NULL, "imx2-wdt.0");
+-	clk_register_clkdev(clk[i2c_gate], NULL, "imx-i2c.0");
++	clk_register_clkdev(clk[i2c_gate], NULL, "imx21-i2c.0");
+ 	clk_register_clkdev(clk[kpp_gate], NULL, "mxc-keypad");
+ 	clk_register_clkdev(clk[owire_gate], NULL, "mxc_w1.0");
+ 	clk_register_clkdev(clk[brom_gate], "brom", NULL);
+diff --git a/arch/arm/mach-imx/clk-imx25.c b/arch/arm/mach-imx/clk-imx25.c
+index 9841ff9..54edac0 100644
+--- a/arch/arm/mach-imx/clk-imx25.c
++++ b/arch/arm/mach-imx/clk-imx25.c
+@@ -213,9 +213,9 @@ int __init mx25_clocks_init(void)
+ 	clk_register_clkdev(clk[per10], "per", "mxc_pwm.3");
+ 	clk_register_clkdev(clk[kpp_ipg], NULL, "imx-keypad");
+ 	clk_register_clkdev(clk[tsc_ipg], NULL, "mx25-adc");
+-	clk_register_clkdev(clk[i2c_ipg_per], NULL, "imx-i2c.0");
+-	clk_register_clkdev(clk[i2c_ipg_per], NULL, "imx-i2c.1");
+-	clk_register_clkdev(clk[i2c_ipg_per], NULL, "imx-i2c.2");
++	clk_register_clkdev(clk[i2c_ipg_per], NULL, "imx21-i2c.0");
++	clk_register_clkdev(clk[i2c_ipg_per], NULL, "imx21-i2c.1");
++	clk_register_clkdev(clk[i2c_ipg_per], NULL, "imx21-i2c.2");
+ 	clk_register_clkdev(clk[fec_ipg], "ipg", "imx25-fec.0");
+ 	clk_register_clkdev(clk[fec_ahb], "ahb", "imx25-fec.0");
+ 	clk_register_clkdev(clk[dryice_ipg], NULL, "imxdi_rtc.0");
+diff --git a/arch/arm/mach-imx/clk-imx27.c b/arch/arm/mach-imx/clk-imx27.c
+index 7b6fd13..d9aac0f 100644
+--- a/arch/arm/mach-imx/clk-imx27.c
++++ b/arch/arm/mach-imx/clk-imx27.c
+@@ -247,8 +247,8 @@ int __init mx27_clocks_init(unsigned long fref)
+ 	clk_register_clkdev(clk[fec_ipg_gate], "ipg", "imx27-fec.0");
+ 	clk_register_clkdev(clk[fec_ahb_gate], "ahb", "imx27-fec.0");
+ 	clk_register_clkdev(clk[wdog_ipg_gate], NULL, "imx2-wdt.0");
+-	clk_register_clkdev(clk[i2c1_ipg_gate], NULL, "imx-i2c.0");
+-	clk_register_clkdev(clk[i2c2_ipg_gate], NULL, "imx-i2c.1");
++	clk_register_clkdev(clk[i2c1_ipg_gate], NULL, "imx21-i2c.0");
++	clk_register_clkdev(clk[i2c2_ipg_gate], NULL, "imx21-i2c.1");
+ 	clk_register_clkdev(clk[owire_ipg_gate], NULL, "mxc_w1.0");
+ 	clk_register_clkdev(clk[kpp_ipg_gate], NULL, "imx-keypad");
+ 	clk_register_clkdev(clk[emma_ahb_gate], "emma-ahb", "mx2-camera.0");
+diff --git a/arch/arm/mach-imx/clk-imx31.c b/arch/arm/mach-imx/clk-imx31.c
+index a4c298a..76e6462 100644
+--- a/arch/arm/mach-imx/clk-imx31.c
++++ b/arch/arm/mach-imx/clk-imx31.c
+@@ -155,9 +155,9 @@ int __init mx31_clocks_init(unsigned long fref)
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.3");
+ 	clk_register_clkdev(clk[uart5_gate], "per", "imx21-uart.4");
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx21-uart.4");
+-	clk_register_clkdev(clk[i2c1_gate], NULL, "imx-i2c.0");
+-	clk_register_clkdev(clk[i2c2_gate], NULL, "imx-i2c.1");
+-	clk_register_clkdev(clk[i2c3_gate], NULL, "imx-i2c.2");
++	clk_register_clkdev(clk[i2c1_gate], NULL, "imx21-i2c.0");
++	clk_register_clkdev(clk[i2c2_gate], NULL, "imx21-i2c.1");
++	clk_register_clkdev(clk[i2c3_gate], NULL, "imx21-i2c.2");
+ 	clk_register_clkdev(clk[owire_gate], NULL, "mxc_w1.0");
+ 	clk_register_clkdev(clk[sdhc1_gate], NULL, "mxc-mmc.0");
+ 	clk_register_clkdev(clk[sdhc2_gate], NULL, "mxc-mmc.1");
+diff --git a/arch/arm/mach-imx/clk-imx35.c b/arch/arm/mach-imx/clk-imx35.c
+index ba26bf3..ee25812 100644
+--- a/arch/arm/mach-imx/clk-imx35.c
++++ b/arch/arm/mach-imx/clk-imx35.c
+@@ -226,9 +226,9 @@ int __init mx35_clocks_init()
+ 	clk_register_clkdev(clk[fec_gate], NULL, "imx27-fec.0");
+ 	clk_register_clkdev(clk[gpt_gate], "per", "imx-gpt.0");
+ 	clk_register_clkdev(clk[ipg], "ipg", "imx-gpt.0");
+-	clk_register_clkdev(clk[i2c1_gate], NULL, "imx-i2c.0");
+-	clk_register_clkdev(clk[i2c2_gate], NULL, "imx-i2c.1");
+-	clk_register_clkdev(clk[i2c3_gate], NULL, "imx-i2c.2");
++	clk_register_clkdev(clk[i2c1_gate], NULL, "imx21-i2c.0");
++	clk_register_clkdev(clk[i2c2_gate], NULL, "imx21-i2c.1");
++	clk_register_clkdev(clk[i2c3_gate], NULL, "imx21-i2c.2");
+ 	clk_register_clkdev(clk[ipu_gate], NULL, "ipu-core");
+ 	clk_register_clkdev(clk[ipu_gate], NULL, "mx3_sdc_fb");
+ 	clk_register_clkdev(clk[kpp_gate], NULL, "imx-keypad");
+diff --git a/arch/arm/mach-imx/clk-imx51-imx53.c b/arch/arm/mach-imx/clk-imx51-imx53.c
+index 0ad4f8f..c8ee7d2 100644
+--- a/arch/arm/mach-imx/clk-imx51-imx53.c
++++ b/arch/arm/mach-imx/clk-imx51-imx53.c
+@@ -258,8 +258,8 @@ static void __init mx5_clocks_common_init(unsigned long rate_ckil,
+ 	clk_register_clkdev(clk[cspi_ipg_gate], NULL, "imx35-cspi.2");
+ 	clk_register_clkdev(clk[pwm1_ipg_gate], "pwm", "mxc_pwm.0");
+ 	clk_register_clkdev(clk[pwm2_ipg_gate], "pwm", "mxc_pwm.1");
+-	clk_register_clkdev(clk[i2c1_gate], NULL, "imx-i2c.0");
+-	clk_register_clkdev(clk[i2c2_gate], NULL, "imx-i2c.1");
++	clk_register_clkdev(clk[i2c1_gate], NULL, "imx21-i2c.0");
++	clk_register_clkdev(clk[i2c2_gate], NULL, "imx21-i2c.1");
+ 	clk_register_clkdev(clk[usboh3_per_gate], "per", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[usboh3_gate], "ipg", "mxc-ehci.0");
+ 	clk_register_clkdev(clk[usboh3_gate], "ahb", "mxc-ehci.0");
+@@ -345,7 +345,7 @@ int __init mx51_clocks_init(unsigned long rate_ckil, unsigned long rate_osc,
+ 
+ 	mx5_clocks_common_init(rate_ckil, rate_osc, rate_ckih1, rate_ckih2);
+ 
+-	clk_register_clkdev(clk[hsi2c_gate], NULL, "imx-i2c.2");
++	clk_register_clkdev(clk[hsi2c_gate], NULL, "imx21-i2c.2");
+ 	clk_register_clkdev(clk[mx51_mipi], "mipi_hsp", NULL);
+ 	clk_register_clkdev(clk[vpu_gate], NULL, "imx51-vpu.0");
+ 	clk_register_clkdev(clk[fec_gate], NULL, "imx27-fec.0");
+@@ -439,7 +439,7 @@ int __init mx53_clocks_init(unsigned long rate_ckil, unsigned long rate_osc,
+ 	mx5_clocks_common_init(rate_ckil, rate_osc, rate_ckih1, rate_ckih2);
+ 
+ 	clk_register_clkdev(clk[vpu_gate], NULL, "imx53-vpu.0");
+-	clk_register_clkdev(clk[i2c3_gate], NULL, "imx-i2c.2");
++	clk_register_clkdev(clk[i2c3_gate], NULL, "imx21-i2c.2");
+ 	clk_register_clkdev(clk[fec_gate], NULL, "imx25-fec.0");
+ 	clk_register_clkdev(clk[ipu_gate], "bus", "imx53-ipu");
+ 	clk_register_clkdev(clk[ipu_di0_gate], "di0", "imx53-ipu");
+diff --git a/arch/arm/mach-imx/devices/devices-common.h b/arch/arm/mach-imx/devices/devices-common.h
+index 34419b2..b0f4747 100644
+--- a/arch/arm/mach-imx/devices/devices-common.h
++++ b/arch/arm/mach-imx/devices/devices-common.h
+@@ -110,6 +110,7 @@ struct platform_device *__init imx_add_imx_fb(
+ 
+ #include <linux/platform_data/i2c-imx.h>
+ struct imx_imx_i2c_data {
++	const char *devid;
+ 	int id;
+ 	resource_size_t iobase;
+ 	resource_size_t iosize;
+diff --git a/arch/arm/mach-imx/devices/platform-imx-i2c.c b/arch/arm/mach-imx/devices/platform-imx-i2c.c
+index e0c7d62..4a701fc 100644
+--- a/arch/arm/mach-imx/devices/platform-imx-i2c.c
++++ b/arch/arm/mach-imx/devices/platform-imx-i2c.c
+@@ -9,31 +9,32 @@
+ #include <mach/hardware.h>
+ #include "devices-common.h"
+ 
+-#define imx_imx_i2c_data_entry_single(soc, _id, _hwid, _size)		\
++#define imx_imx_i2c_data_entry_single(soc, _devid, _id, _hwid, _size)	\
+ 	{								\
++		.devid = _devid,					\
+ 		.id = _id,						\
+ 		.iobase = soc ## _I2C ## _hwid ## _BASE_ADDR,		\
+ 		.iosize = _size,					\
+ 		.irq = soc ## _INT_I2C ## _hwid,			\
+ 	}
+ 
+-#define imx_imx_i2c_data_entry(soc, _id, _hwid, _size)			\
+-	[_id] = imx_imx_i2c_data_entry_single(soc, _id, _hwid, _size)
++#define imx_imx_i2c_data_entry(soc, _devid, _id, _hwid, _size)		\
++	[_id] = imx_imx_i2c_data_entry_single(soc, _devid, _id, _hwid, _size)
+ 
+ #ifdef CONFIG_SOC_IMX1
+ const struct imx_imx_i2c_data imx1_imx_i2c_data __initconst =
+-	imx_imx_i2c_data_entry_single(MX1, 0, , SZ_4K);
++	imx_imx_i2c_data_entry_single(MX1, "imx1-i2c", 0, , SZ_4K);
+ #endif /* ifdef CONFIG_SOC_IMX1 */
+ 
+ #ifdef CONFIG_SOC_IMX21
+ const struct imx_imx_i2c_data imx21_imx_i2c_data __initconst =
+-	imx_imx_i2c_data_entry_single(MX21, 0, , SZ_4K);
++	imx_imx_i2c_data_entry_single(MX21, "imx21-i2c", 0, , SZ_4K);
+ #endif /* ifdef CONFIG_SOC_IMX21 */
+ 
+ #ifdef CONFIG_SOC_IMX25
+ const struct imx_imx_i2c_data imx25_imx_i2c_data[] __initconst = {
+ #define imx25_imx_i2c_data_entry(_id, _hwid)				\
+-	imx_imx_i2c_data_entry(MX25, _id, _hwid, SZ_16K)
++	imx_imx_i2c_data_entry(MX25, "imx21-i2c", _id, _hwid, SZ_16K)
+ 	imx25_imx_i2c_data_entry(0, 1),
+ 	imx25_imx_i2c_data_entry(1, 2),
+ 	imx25_imx_i2c_data_entry(2, 3),
+@@ -43,7 +44,7 @@ const struct imx_imx_i2c_data imx25_imx_i2c_data[] __initconst = {
+ #ifdef CONFIG_SOC_IMX27
+ const struct imx_imx_i2c_data imx27_imx_i2c_data[] __initconst = {
+ #define imx27_imx_i2c_data_entry(_id, _hwid)				\
+-	imx_imx_i2c_data_entry(MX27, _id, _hwid, SZ_4K)
++	imx_imx_i2c_data_entry(MX27, "imx21-i2c", _id, _hwid, SZ_4K)
+ 	imx27_imx_i2c_data_entry(0, 1),
+ 	imx27_imx_i2c_data_entry(1, 2),
+ };
+@@ -52,7 +53,7 @@ const struct imx_imx_i2c_data imx27_imx_i2c_data[] __initconst = {
+ #ifdef CONFIG_SOC_IMX31
+ const struct imx_imx_i2c_data imx31_imx_i2c_data[] __initconst = {
+ #define imx31_imx_i2c_data_entry(_id, _hwid)				\
+-	imx_imx_i2c_data_entry(MX31, _id, _hwid, SZ_4K)
++	imx_imx_i2c_data_entry(MX31, "imx21-i2c", _id, _hwid, SZ_4K)
+ 	imx31_imx_i2c_data_entry(0, 1),
+ 	imx31_imx_i2c_data_entry(1, 2),
+ 	imx31_imx_i2c_data_entry(2, 3),
+@@ -62,7 +63,7 @@ const struct imx_imx_i2c_data imx31_imx_i2c_data[] __initconst = {
+ #ifdef CONFIG_SOC_IMX35
+ const struct imx_imx_i2c_data imx35_imx_i2c_data[] __initconst = {
+ #define imx35_imx_i2c_data_entry(_id, _hwid)				\
+-	imx_imx_i2c_data_entry(MX35, _id, _hwid, SZ_4K)
++	imx_imx_i2c_data_entry(MX35, "imx21-i2c", _id, _hwid, SZ_4K)
+ 	imx35_imx_i2c_data_entry(0, 1),
+ 	imx35_imx_i2c_data_entry(1, 2),
+ 	imx35_imx_i2c_data_entry(2, 3),
+@@ -72,7 +73,7 @@ const struct imx_imx_i2c_data imx35_imx_i2c_data[] __initconst = {
+ #ifdef CONFIG_SOC_IMX50
+ const struct imx_imx_i2c_data imx50_imx_i2c_data[] __initconst = {
+ #define imx50_imx_i2c_data_entry(_id, _hwid)				\
+-	imx_imx_i2c_data_entry(MX50, _id, _hwid, SZ_4K)
++	imx_imx_i2c_data_entry(MX50, "imx21-i2c", _id, _hwid, SZ_4K)
+ 	imx50_imx_i2c_data_entry(0, 1),
+ 	imx50_imx_i2c_data_entry(1, 2),
+ 	imx50_imx_i2c_data_entry(2, 3),
+@@ -82,7 +83,7 @@ const struct imx_imx_i2c_data imx50_imx_i2c_data[] __initconst = {
+ #ifdef CONFIG_SOC_IMX51
+ const struct imx_imx_i2c_data imx51_imx_i2c_data[] __initconst = {
+ #define imx51_imx_i2c_data_entry(_id, _hwid)				\
+-	imx_imx_i2c_data_entry(MX51, _id, _hwid, SZ_4K)
++	imx_imx_i2c_data_entry(MX51, "imx21-i2c", _id, _hwid, SZ_4K)
+ 	imx51_imx_i2c_data_entry(0, 1),
+ 	imx51_imx_i2c_data_entry(1, 2),
+ 	{
+@@ -97,7 +98,7 @@ const struct imx_imx_i2c_data imx51_imx_i2c_data[] __initconst = {
+ #ifdef CONFIG_SOC_IMX53
+ const struct imx_imx_i2c_data imx53_imx_i2c_data[] __initconst = {
+ #define imx53_imx_i2c_data_entry(_id, _hwid)				\
+-	imx_imx_i2c_data_entry(MX53, _id, _hwid, SZ_4K)
++	imx_imx_i2c_data_entry(MX53, "imx21-i2c", _id, _hwid, SZ_4K)
+ 	imx53_imx_i2c_data_entry(0, 1),
+ 	imx53_imx_i2c_data_entry(1, 2),
+ 	imx53_imx_i2c_data_entry(2, 3),
+@@ -120,7 +121,7 @@ struct platform_device *__init imx_add_imx_i2c(
+ 		},
+ 	};
+ 
+-	return imx_add_platform_device("imx-i2c", data->id,
++	return imx_add_platform_device(data->devid, data->id,
+ 			res, ARRAY_SIZE(res),
+ 			pdata, sizeof(*pdata));
+ }
+diff --git a/arch/arm/mach-imx/imx27-dt.c b/arch/arm/mach-imx/imx27-dt.c
+index 83c56fb..43fbf86 100644
+--- a/arch/arm/mach-imx/imx27-dt.c
++++ b/arch/arm/mach-imx/imx27-dt.c
+@@ -23,8 +23,8 @@ static const struct of_dev_auxdata imx27_auxdata_lookup[] __initconst = {
+ 	OF_DEV_AUXDATA("fsl,imx27-uart", MX27_UART2_BASE_ADDR, "imx21-uart.1", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx27-uart", MX27_UART3_BASE_ADDR, "imx21-uart.2", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx27-fec", MX27_FEC_BASE_ADDR, "imx27-fec.0", NULL),
+-	OF_DEV_AUXDATA("fsl,imx27-i2c", MX27_I2C1_BASE_ADDR, "imx-i2c.0", NULL),
+-	OF_DEV_AUXDATA("fsl,imx27-i2c", MX27_I2C2_BASE_ADDR, "imx-i2c.1", NULL),
++	OF_DEV_AUXDATA("fsl,imx27-i2c", MX27_I2C1_BASE_ADDR, "imx21-i2c.0", NULL),
++	OF_DEV_AUXDATA("fsl,imx27-i2c", MX27_I2C2_BASE_ADDR, "imx21-i2c.1", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx27-cspi", MX27_CSPI1_BASE_ADDR, "imx27-cspi.0", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx27-cspi", MX27_CSPI2_BASE_ADDR, "imx27-cspi.1", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx27-cspi", MX27_CSPI3_BASE_ADDR, "imx27-cspi.2", NULL),
+diff --git a/arch/arm/mach-imx/imx51-dt.c b/arch/arm/mach-imx/imx51-dt.c
+index e105f12..a0391a1 100644
+--- a/arch/arm/mach-imx/imx51-dt.c
++++ b/arch/arm/mach-imx/imx51-dt.c
+@@ -37,8 +37,8 @@ static const struct of_dev_auxdata imx51_auxdata_lookup[] __initconst = {
+ 	OF_DEV_AUXDATA("fsl,imx51-ecspi", MX51_ECSPI1_BASE_ADDR, "imx51-ecspi.0", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx51-ecspi", MX51_ECSPI2_BASE_ADDR, "imx51-ecspi.1", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx51-cspi", MX51_CSPI_BASE_ADDR, "imx35-cspi.0", NULL),
+-	OF_DEV_AUXDATA("fsl,imx51-i2c", MX51_I2C1_BASE_ADDR, "imx-i2c.0", NULL),
+-	OF_DEV_AUXDATA("fsl,imx51-i2c", MX51_I2C2_BASE_ADDR, "imx-i2c.1", NULL),
++	OF_DEV_AUXDATA("fsl,imx51-i2c", MX51_I2C1_BASE_ADDR, "imx21-i2c.0", NULL),
++	OF_DEV_AUXDATA("fsl,imx51-i2c", MX51_I2C2_BASE_ADDR, "imx21-i2c.1", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx51-sdma", MX51_SDMA_BASE_ADDR, "imx35-sdma", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx51-wdt", MX51_WDOG1_BASE_ADDR, "imx2-wdt.0", NULL),
+ 	{ /* sentinel */ }
+diff --git a/arch/arm/mach-imx/mach-imx53.c b/arch/arm/mach-imx/mach-imx53.c
+index aaa90a7..0e0aadfb 100644
+--- a/arch/arm/mach-imx/mach-imx53.c
++++ b/arch/arm/mach-imx/mach-imx53.c
+@@ -43,9 +43,9 @@ static const struct of_dev_auxdata imx53_auxdata_lookup[] __initconst = {
+ 	OF_DEV_AUXDATA("fsl,imx53-ecspi", MX53_ECSPI1_BASE_ADDR, "imx51-ecspi.0", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx53-ecspi", MX53_ECSPI2_BASE_ADDR, "imx51-ecspi.1", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx53-cspi", MX53_CSPI_BASE_ADDR, "imx35-cspi.0", NULL),
+-	OF_DEV_AUXDATA("fsl,imx53-i2c", MX53_I2C1_BASE_ADDR, "imx-i2c.0", NULL),
+-	OF_DEV_AUXDATA("fsl,imx53-i2c", MX53_I2C2_BASE_ADDR, "imx-i2c.1", NULL),
+-	OF_DEV_AUXDATA("fsl,imx53-i2c", MX53_I2C3_BASE_ADDR, "imx-i2c.2", NULL),
++	OF_DEV_AUXDATA("fsl,imx53-i2c", MX53_I2C1_BASE_ADDR, "imx21-i2c.0", NULL),
++	OF_DEV_AUXDATA("fsl,imx53-i2c", MX53_I2C2_BASE_ADDR, "imx21-i2c.1", NULL),
++	OF_DEV_AUXDATA("fsl,imx53-i2c", MX53_I2C3_BASE_ADDR, "imx21-i2c.2", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx53-sdma", MX53_SDMA_BASE_ADDR, "imx35-sdma", NULL),
+ 	OF_DEV_AUXDATA("fsl,imx53-wdt", MX53_WDOG1_BASE_ADDR, "imx2-wdt.0", NULL),
+ 	{ /* sentinel */ }
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index b7907ba7..9f75e52 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -52,8 +52,6 @@
+ #include <linux/of_device.h>
+ #include <linux/of_i2c.h>
+ #include <linux/pinctrl/consumer.h>
+-
+-#include <mach/hardware.h>
+ #include <linux/platform_data/i2c-imx.h>
+ 
+ /** Defines ********************************************************************
+@@ -115,6 +113,11 @@ static u16 __initdata i2c_clk_div[50][2] = {
+ 	{ 3072,	0x1E }, { 3840,	0x1F }
+ };
+ 
++enum imx_i2c_type {
++	IMX1_I2C,
++	IMX21_I2C,
++};
++
+ struct imx_i2c_struct {
+ 	struct i2c_adapter	adapter;
+ 	struct clk		*clk;
+@@ -124,13 +127,33 @@ struct imx_i2c_struct {
+ 	unsigned int 		disable_delay;
+ 	int			stopped;
+ 	unsigned int		ifdr; /* IMX_I2C_IFDR */
++	enum imx_i2c_type	devtype;
++};
++
++static struct platform_device_id imx_i2c_devtype[] = {
++	{
++		.name = "imx1-i2c",
++		.driver_data = IMX1_I2C,
++	}, {
++		.name = "imx21-i2c",
++		.driver_data = IMX21_I2C,
++	}, {
++		/* sentinel */
++	}
+ };
++MODULE_DEVICE_TABLE(platform, imx_i2c_devtype);
+ 
+ static const struct of_device_id i2c_imx_dt_ids[] = {
+-	{ .compatible = "fsl,imx1-i2c", },
++	{ .compatible = "fsl,imx1-i2c", .data = &imx_i2c_devtype[IMX1_I2C], },
++	{ .compatible = "fsl,imx21-i2c", .data = &imx_i2c_devtype[IMX21_I2C], },
+ 	{ /* sentinel */ }
+ };
+ 
++static inline int is_imx1_i2c(struct imx_i2c_struct *i2c_imx)
++{
++	return i2c_imx->devtype == IMX1_I2C;
++}
++
+ /** Functions for IMX I2C adapter driver ***************************************
+ *******************************************************************************/
+ 
+@@ -223,7 +246,7 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 		temp &= ~(I2CR_MSTA | I2CR_MTX);
+ 		writeb(temp, i2c_imx->base + IMX_I2C_I2CR);
+ 	}
+-	if (cpu_is_mx1()) {
++	if (is_imx1_i2c(i2c_imx)) {
+ 		/*
+ 		 * This delay caused by an i.MXL hardware bug.
+ 		 * If no (or too short) delay, no "STOP" bit will be generated.
+@@ -465,6 +488,8 @@ static struct i2c_algorithm i2c_imx_algo = {
+ 
+ static int __init i2c_imx_probe(struct platform_device *pdev)
+ {
++	const struct of_device_id *of_id = of_match_device(i2c_imx_dt_ids,
++							   &pdev->dev);
+ 	struct imx_i2c_struct *i2c_imx;
+ 	struct resource *res;
+ 	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
+@@ -497,6 +522,10 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
++	if (of_id)
++		pdev->id_entry = of_id->data;
++	i2c_imx->devtype = pdev->id_entry->driver_data;
++
+ 	/* Setup i2c_imx driver structure */
+ 	strlcpy(i2c_imx->adapter.name, pdev->name, sizeof(i2c_imx->adapter.name));
+ 	i2c_imx->adapter.owner		= THIS_MODULE;
+@@ -593,7 +622,8 @@ static struct platform_driver i2c_imx_driver = {
+ 		.name	= DRIVER_NAME,
+ 		.owner	= THIS_MODULE,
+ 		.of_match_table = i2c_imx_dt_ids,
+-	}
++	},
++	.id_table	= imx_i2c_devtype,
+ };
+ 
+ static int __init i2c_adap_imx_init(void)
 -- 
 1.7.9.5
