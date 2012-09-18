@@ -1,39 +1,37 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: [PATCH 00/34] i.MX multi-platform support
-Date: Tue, 18 Sep 2012 16:20:58 +0800
-Message-ID: <20120918082055.GD6377@S2101-09.ap.freescale.net>
-References: <1347860103-4141-1-git-send-email-shawn.guo@linaro.org>
- <20120917075138.GN6180@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-mmc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20120917075138.GN6180@pengutronix.de>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: linux-arm-kernel@lists.infradead.org, Fabio Estevam <fabio.estevam@freescale.com>, Rob Herring <rob.herring@calxeda.com>, Arnd Bergmann <arnd@arndb.de>, Mark Brown <broonie@opensource.wolfsonmicro.com>, alsa-devel@alsa-project.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, linux-fbdev@vger.kernel.org, Chris Ball <cjb@laptop.org>, linux-mmc@vger.kernel.org, Guennadi Liakhovetski <g.liakhovetski@gmx.de>, linux-media@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, rtc-linux@googlegroups.com, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-mtd@lists.infradead.org, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, Vinod Koul <vinod.koul@linux.intel.com>, Javier Martin <javier.mart>
+From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c-s3c2410: Fix potential NULL pointer dereference
+Date: Tue, 18 Sep 2012 14:18:48 +0530
+Message-ID: <1347958128-13146-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 17, 2012 at 09:51:38AM +0200, Sascha Hauer wrote:
-> I gave it a test on i.MX1, i.MX27, i.MX31 and i.MX35. All run fine, but
-> the last patch breaks the imx_v4_v5_defconfig: Somehow it now defaults
-> to ARMv7 based machines. I haven't looked into it, just reenabled
-> ARMv4/ARMv5 and the boards again -> works. The config should be updated
-> with the last patch.
-> 
-Yes, I will rework the patch with all these and Arnd's comment on the
-last patch taken into account.
+of_match_node() returns NULL if a device_node does not have
+a matching of_match structure. Thus the return value needs to be
+checked for NULL to avoid NULL pointer dereferencing.
 
-> I'm fine with the changes to mx2-camera, but Javier should give his ok
-> to it, he has worked on it quite a lot recently.
-> 
-> One other issue related to imx-dma, see comment to that patch.
-> 
-> Otherwise:
-> 
-> Acked-by: Sascha Hauer <s.hauer@pengutronix.de>
-> Tested-by: Sascha Hauer <s.hauer@pengutronix.de>
-> 
-Thanks a lot.
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-Shawn
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 5ae3b02..d906523 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -123,6 +123,8 @@ static inline unsigned int s3c24xx_get_device_quirks(struct platform_device *pde
+ 	if (pdev->dev.of_node) {
+ 		const struct of_device_id *match;
+ 		match = of_match_node(s3c24xx_i2c_match, pdev->dev.of_node);
++		if (!match)
++			return 0;
+ 		return (unsigned int)match->data;
+ 	}
+ 
+-- 
+1.7.4.1
