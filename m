@@ -1,51 +1,49 @@
-From: Ulf Hansson <ulf.hansson-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: [PATCH] i2c-nomadik: Fixup clock handling
-Date: Thu, 20 Sep 2012 17:20:47 +0200
-Message-ID: <1348154447-3815-1-git-send-email-ulf.hansson@stericsson.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 00/34] i.MX multi-platform support
+Date: Thu, 20 Sep 2012 15:56:56 +0000
+Message-ID: <201209201556.57171.arnd@arndb.de>
+References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
+ <201209200739.34899.arnd@arndb.de>
+ <20120920145342.GI2450@S2101-09.ap.freescale.net>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Philippe Begnic <philippe.begnic-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
+In-Reply-To: <20120920145342.GI2450@S2101-09.ap.freescale.net>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: alsa-devel@alsa-project.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-fbdev@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Chris Ball <cjb@laptop.org>, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, Sascha Hauer <s.hauer@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, linux-arm-kernel@lists.infradead.org, Vinod Koul <vinod.koul@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-mmc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Javier Martin <javier.martin@vista-silicon.com>, Andrew Morton <akpm@linux-foundation.org>, Guennadi
 List-Id: linux-i2c@vger.kernel.org
 
-From: Philippe Begnic <philippe.begnic-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+On Thursday 20 September 2012, Shawn Guo wrote:
+> 
+> On Thu, Sep 20, 2012 at 07:39:34AM +0000, Arnd Bergmann wrote:
+> > The first five branches are scheduled to go through the arm-soc tree, so
+> > I'm fine with that. For the sound/for-3.7 branch, I'd like to know when
+> > to expect that hitting mainline. If it always gets in very early during the
+> > merge window, it's probably ok to put the imx/multi-platform patches into
+> > the same branch as the other ones in arm-soc and wait for the sound stuff
+> > to hit mainline first, otherwise I'd suggest we start a second
+> > next/multiplatform-2 branch for imx and send the first part early on
+> > but then wait with the second batch before sound gets in.
+> > 
+> It seems that we will have to go with next/multiplatform-2.  I just
+> tried to merge the series with linux-next together, and got some
+> non-trivial conflicts with media and mtd tree.  I might have to rebase
+> my series on top of these trees to sort out those conflicts.  That said,
+> I will have several dependencies outside arm-soc tree, and have to pend
+> my series until all those trees get merged into mainline.
 
-Make sure to clk_prepare as well as clk_enable.
+Ok, fair enough. I think we can put it in arm-soc/for-next as a staging
+branch anyway to give it some exposure to linux-next, and then we can
+decide whether a rebase is necessary before sending it to Linus.
 
-Signed-off-by: Philippe Begnic <philippe.begnic-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-nomadik.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 1b898b6..3eeae52 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -642,7 +642,11 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 
- 	pm_runtime_get_sync(&dev->adev->dev);
- 
--	clk_enable(dev->clk);
-+	status = clk_prepare_enable(dev->clk);
-+	if (status) {
-+		dev_err(&dev->adev->dev, "can't prepare_enable clock\n");
-+		goto out_clk;
-+	}
- 
- 	status = init_hw(dev);
- 	if (status)
-@@ -669,7 +673,8 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 	}
- 
- out:
--	clk_disable(dev->clk);
-+	clk_disable_unprepare(dev->clk);
-+out_clk:
- 	pm_runtime_put_sync(&dev->adev->dev);
- 
- 	dev->busy = false;
--- 
-1.7.10
+	Arnd
