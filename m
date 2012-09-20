@@ -1,49 +1,181 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 00/34] i.MX multi-platform support
-Date: Thu, 20 Sep 2012 15:56:56 +0000
-Message-ID: <201209201556.57171.arnd@arndb.de>
-References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
- <201209200739.34899.arnd@arndb.de>
- <20120920145342.GI2450@S2101-09.ap.freescale.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20120920145342.GI2450@S2101-09.ap.freescale.net>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Shawn Guo <shawn.guo@linaro.org>
-Cc: alsa-devel@alsa-project.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-fbdev@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Chris Ball <cjb@laptop.org>, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, Sascha Hauer <s.hauer@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, linux-arm-kernel@lists.infradead.org, Vinod Koul <vinod.koul@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-mmc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Javier Martin <javier.martin@vista-silicon.com>, Andrew Morton <akpm@linux-foundation.org>, Guennadi
+From: Jean Pihet <jean.pihet-OTs2U3NB0ngRmelmmXo44Q@public.gmane.org>
+Subject: [PATCH] ARM: OMAP: convert I2C driver to PM QoS for MPU latency constraints
+Date: Thu, 20 Sep 2012 18:08:03 +0200
+Message-ID: <1348157283-24119-1-git-send-email-j-pihet@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Pihet <j-pihet-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 20 September 2012, Shawn Guo wrote:
-> 
-> On Thu, Sep 20, 2012 at 07:39:34AM +0000, Arnd Bergmann wrote:
-> > The first five branches are scheduled to go through the arm-soc tree, so
-> > I'm fine with that. For the sound/for-3.7 branch, I'd like to know when
-> > to expect that hitting mainline. If it always gets in very early during the
-> > merge window, it's probably ok to put the imx/multi-platform patches into
-> > the same branch as the other ones in arm-soc and wait for the sound stuff
-> > to hit mainline first, otherwise I'd suggest we start a second
-> > next/multiplatform-2 branch for imx and send the first part early on
-> > but then wait with the second batch before sound gets in.
-> > 
-> It seems that we will have to go with next/multiplatform-2.  I just
-> tried to merge the series with linux-next together, and got some
-> non-trivial conflicts with media and mtd tree.  I might have to rebase
-> my series on top of these trees to sort out those conflicts.  That said,
-> I will have several dependencies outside arm-soc tree, and have to pend
-> my series until all those trees get merged into mainline.
+Convert the driver from the outdated omap_pm_set_max_mpu_wakeup_lat
+API to the new PM QoS API.
+Since the constraint is on the MPU subsystem, use the PM_QOS_CPU_DMA_LATENCY
+class of PM QoS. The resulting MPU constraints are used by cpuidle to
+decide the next power state of the MPU subsystem.
 
-Ok, fair enough. I think we can put it in arm-soc/for-next as a staging
-branch anyway to give it some exposure to linux-next, and then we can
-decide whether a rebase is necessary before sending it to Linus.
+The I2C device latency timing is derived from the FIFO size and the
+clock speed and so is applicable to all OMAP SoCs.
 
-	Arnd
+Signed-off-by: Jean Pihet <j-pihet-l0cyMroinI0@public.gmane.org>
+---
+Rebased on git://git.pengutronix.de/git/wsa/linux.git, branch
+i2c-embedded/for-next
+---
+ arch/arm/plat-omap/i2c.c      |   21 ---------------------
+ drivers/i2c/busses/i2c-omap.c |   32 ++++++++++++++++++--------------
+ include/linux/i2c-omap.h      |    1 -
+ 3 files changed, 18 insertions(+), 36 deletions(-)
+
+diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
+index 40bc06a..d29a2cc 100644
+--- a/arch/arm/plat-omap/i2c.c
++++ b/arch/arm/plat-omap/i2c.c
+@@ -26,7 +26,6 @@
+ #include <linux/kernel.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c.h>
+-#include <linux/i2c-omap.h>
+ #include <linux/slab.h>
+ #include <linux/err.h>
+ #include <linux/clk.h>
+@@ -34,7 +33,6 @@
+ #include <mach/irqs.h>
+ #include <plat/mux.h>
+ #include <plat/i2c.h>
+-#include <plat/omap-pm.h>
+ #include <plat/omap_device.h>
+ 
+ #define OMAP_I2C_SIZE		0x3f
+@@ -130,16 +128,6 @@ static inline int omap1_i2c_add_bus(int bus_id)
+ 
+ 
+ #ifdef CONFIG_ARCH_OMAP2PLUS
+-/*
+- * XXX This function is a temporary compatibility wrapper - only
+- * needed until the I2C driver can be converted to call
+- * omap_pm_set_max_dev_wakeup_lat() and handle a return code.
+- */
+-static void omap_pm_set_max_mpu_wakeup_lat_compat(struct device *dev, long t)
+-{
+-	omap_pm_set_max_mpu_wakeup_lat(dev, t);
+-}
+-
+ static inline int omap2_i2c_add_bus(int bus_id)
+ {
+ 	int l;
+@@ -171,15 +159,6 @@ static inline int omap2_i2c_add_bus(int bus_id)
+ 	dev_attr = (struct omap_i2c_dev_attr *)oh->dev_attr;
+ 	pdata->flags = dev_attr->flags;
+ 
+-	/*
+-	 * When waiting for completion of a i2c transfer, we need to
+-	 * set a wake up latency constraint for the MPU. This is to
+-	 * ensure quick enough wakeup from idle, when transfer
+-	 * completes.
+-	 * Only omap3 has support for constraints
+-	 */
+-	if (cpu_is_omap34xx())
+-		pdata->set_mpu_wkup_lat = omap_pm_set_max_mpu_wakeup_lat_compat;
+ 	pdev = omap_device_build(name, bus_id, oh, pdata,
+ 			sizeof(struct omap_i2c_bus_platform_data),
+ 			NULL, 0, 0);
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 0b02543..db31eae 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -43,6 +43,7 @@
+ #include <linux/slab.h>
+ #include <linux/i2c-omap.h>
+ #include <linux/pm_runtime.h>
++#include <linux/pm_qos.h>
+ 
+ /* I2C controller revisions */
+ #define OMAP_I2C_OMAP1_REV_2		0x20
+@@ -186,9 +187,8 @@ struct omap_i2c_dev {
+ 	int			reg_shift;      /* bit shift for I2C register addresses */
+ 	struct completion	cmd_complete;
+ 	struct resource		*ioarea;
+-	u32			latency;	/* maximum mpu wkup latency */
+-	void			(*set_mpu_wkup_lat)(struct device *dev,
+-						    long latency);
++	u32			latency;	/* maximum MPU wkup latency */
++	struct pm_qos_request	pm_qos_request;
+ 	u32			speed;		/* Speed of bus in kHz */
+ 	u32			dtrev;		/* extra revision from DT */
+ 	u32			flags;
+@@ -494,9 +494,7 @@ static void omap_i2c_resize_fifo(struct omap_i2c_dev *dev, u8 size, bool is_rx)
+ 		dev->b_hw = 1; /* Enable hardware fixes */
+ 
+ 	/* calculate wakeup latency constraint for MPU */
+-	if (dev->set_mpu_wkup_lat != NULL)
+-		dev->latency = (1000000 * dev->threshold) /
+-			(1000 * dev->speed / 8);
++	dev->latency = (1000000 * dev->threshold) / (1000 * dev->speed / 8);
+ }
+ 
+ /*
+@@ -631,8 +629,16 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	if (r < 0)
+ 		goto out;
+ 
+-	if (dev->set_mpu_wkup_lat != NULL)
+-		dev->set_mpu_wkup_lat(dev->dev, dev->latency);
++	/*
++	 * When waiting for completion of a i2c transfer, we need to
++	 * set a wake up latency constraint for the MPU. This is to
++	 * ensure quick enough wakeup from idle, when transfer
++	 * completes.
++	 */
++	if (dev->latency)
++		pm_qos_add_request(&dev->pm_qos_request,
++				   PM_QOS_CPU_DMA_LATENCY,
++				   dev->latency);
+ 
+ 	for (i = 0; i < num; i++) {
+ 		r = omap_i2c_xfer_msg(adap, &msgs[i], (i == (num - 1)));
+@@ -640,8 +646,8 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 			break;
+ 	}
+ 
+-	if (dev->set_mpu_wkup_lat != NULL)
+-		dev->set_mpu_wkup_lat(dev->dev, -1);
++	if (dev->latency)
++		pm_qos_remove_request(&dev->pm_qos_request);
+ 
+ 	if (r == 0)
+ 		r = num;
+@@ -1098,7 +1104,6 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	} else if (pdata != NULL) {
+ 		dev->speed = pdata->clkrate;
+ 		dev->flags = pdata->flags;
+-		dev->set_mpu_wkup_lat = pdata->set_mpu_wkup_lat;
+ 		dev->dtrev = pdata->rev;
+ 	}
+ 
+@@ -1154,9 +1159,8 @@ omap_i2c_probe(struct platform_device *pdev)
+ 			dev->b_hw = 1; /* Enable hardware fixes */
+ 
+ 		/* calculate wakeup latency constraint for MPU */
+-		if (dev->set_mpu_wkup_lat != NULL)
+-			dev->latency = (1000000 * dev->fifo_size) /
+-				       (1000 * dev->speed / 8);
++		dev->latency = (1000000 * dev->fifo_size) /
++			       (1000 * dev->speed / 8);
+ 	}
+ 
+ 	/* reset ASAP, clearing any IRQs */
+diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
+index 92a0dc7..df804ba 100644
+--- a/include/linux/i2c-omap.h
++++ b/include/linux/i2c-omap.h
+@@ -34,7 +34,6 @@ struct omap_i2c_bus_platform_data {
+ 	u32		clkrate;
+ 	u32		rev;
+ 	u32		flags;
+-	void		(*set_mpu_wkup_lat)(struct device *dev, long set);
+ };
+ 
+ #endif
+-- 
+1.7.7.6
