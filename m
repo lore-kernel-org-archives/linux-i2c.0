@@ -1,44 +1,33 @@
-From: Olof Johansson <olof@lixom.net>
-Subject: Re: [PATCH v2 00/34] i.MX multi-platform support
-Date: Fri, 21 Sep 2012 01:26:43 -0700
-Message-ID: <CAOesGMi6CbvFikycJVdE8W-DxLD3W7+CyScz+YT103dxR31U9g@mail.gmail.com>
-References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
- <201209200739.34899.arnd@arndb.de>
- <20120920145342.GI2450@S2101-09.ap.freescale.net>
- <201209201556.57171.arnd@arndb.de>
- <20120921080123.GM2450@S2101-09.ap.freescale.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
-In-Reply-To: <20120921080123.GM2450@S2101-09.ap.freescale.net>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Shawn Guo <shawn.guo@linaro.org>
-Cc: alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-fbdev@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, rtc-linux@googlegroups.com, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Chris Ball <cjb@laptop.org>, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, linux-arm-kernel@lists.infradead.org, Vinod Koul <vinod.koul@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, linux-mmc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Javier Martin <javier.martin@vista-silicon.com>, Andrew Morton <akpm@linux-fo>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH 0/3] ARM: I2C: Add device tree bindings to i2c-mux-gpio
+Date: Fri, 21 Sep 2012 17:32:11 +0200
+Message-ID: <1348241535-27754-1-git-send-email-maxime.ripard@free-electrons.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 21, 2012 at 1:01 AM, Shawn Guo <shawn.guo@linaro.org> wrote:
-> On Thu, Sep 20, 2012 at 03:56:56PM +0000, Arnd Bergmann wrote:
->> Ok, fair enough. I think we can put it in arm-soc/for-next as a staging
->> branch anyway to give it some exposure to linux-next, and then we can
->> decide whether a rebase is necessary before sending it to Linus.
->>
-> I just saw the announcement from Olof - no more major merge for 3.7
-> will be accepted from now on.  Can this be an exception or should I
-> plan this for 3.8?
+Hi everyone,
 
+This patchset adds the device tree entry to the CFA-10049 board of its i2c
+muxer. This muxer controls sub-buses that contains three Nuvoton NAU7802
+ADCs and a NXP PCA955 GPIO expander. Support for these will be added
+eventually.
 
-I'll take a look at merging it tomorrow after I've dealt with smp_ops;
-if it looks reasonably conflict-free I'll pull it in. We need the
-sound dependency sorted out (or agreed upon) first though.
+Thanks,
+Maxime
 
+Maxime Ripard (3):
+  i2c: i2c-mux-gpio: Use devm_kzalloc instead of kzalloc
+  i2c: mux: Add dt support to i2c-mux-gpio driver
+  ARM: dts: cfa10049: Add the i2c muxer buses to the CFA-10049
 
--Olof
+ .../devicetree/bindings/i2c/i2c-mux-gpio.txt       |   86 ++++++++++
+ arch/arm/boot/dts/imx28-cfa10049.dts               |   33 ++++
+ drivers/i2c/muxes/i2c-mux-gpio.c                   |  168 +++++++++++++++-----
+ 3 files changed, 244 insertions(+), 43 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+
+-- 
+1.7.9.5
