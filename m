@@ -1,147 +1,67 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: mux: Add dt support to i2c-mux-gpio driver
-Date: Fri, 21 Sep 2012 10:37:03 -0600
-Message-ID: <505C97AF.9060701@wwwdotorg.org>
-References: <1348241535-27754-1-git-send-email-maxime.ripard@free-electrons.com> <1348241535-27754-3-git-send-email-maxime.ripard@free-electrons.com>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [alsa-devel] [PATCH v2 00/34] i.MX multi-platform support
+Date: Sat, 22 Sep 2012 00:46:26 +0800
+Message-ID: <20120921164622.GA5394@S2101-09.ap.freescale.net>
+References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
+ <201209200739.34899.arnd@arndb.de>
+ <20120920145342.GI2450@S2101-09.ap.freescale.net>
+ <201209201556.57171.arnd@arndb.de>
+ <20120921080123.GM2450@S2101-09.ap.freescale.net>
+ <CAOesGMi6CbvFikycJVdE8W-DxLD3W7+CyScz+YT103dxR31U9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1348241535-27754-3-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAOesGMi6CbvFikycJVdE8W-DxLD3W7+CyScz+YT103dxR31U9g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Artem Bityutskiy <artem.bityutskiy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Florian Tobias Schandinat <FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org>, Paulius Zaleckas <paulius.zaleckas-Ft0m5Q12RQ9xBelEqimL3w@public.gmane.org>, Chris Ball <cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rtc-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Vinod Koul <vinod.koul-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Javier Martin <javier.martin-N4RbWZIug12MkV8/HQOAswC/G2K4zDHf@public.gmane.org>, Andrew Morton <akpm@linux->
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/21/2012 09:32 AM, Maxime Ripard wrote:
-> Allow the i2c-mux-gpio to be used by a device tree enabled device. The
-> bindings are inspired by the one found in the i2c-mux-pinctrl driver.
+Hi Olof,
+
+On Fri, Sep 21, 2012 at 01:26:43AM -0700, Olof Johansson wrote:
+> I'll take a look at merging it tomorrow after I've dealt with smp_ops;
+> if it looks reasonably conflict-free I'll pull it in. We need the
+> sound dependency sorted out (or agreed upon) first though.
 > 
-> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+I just published the branch below with this series rebased on top of
+the necessary dependant branches.
 
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
-> @@ -0,0 +1,86 @@
-> +GPIO-based I2C Bus Mux
-> +
-> +This binding describes an I2C bus multiplexer that uses GPIOs to
-> +route the I2C signals.
-> +
-> +                                 +-----+  +-----+
-> +                                 | dev |  | dev |
-> +    +------------------------+   +-----+  +-----+
-> +    | SoC                    |      |        |
-> +    |                   /----|------+--------+
-> +    |   +---+   +------+     | child bus A, on GPIO value set to 0
-> +    |   |I2C|---| Mux  |     |
-> +    |   +---+   +--+---+     | child bus B, on GPIO value set to 1
-> +    |              |    \----|------+--------+--------+
-> +    |   +------+   |         |      |        |        |
-> +    |   | GPIO |---+         |  +-----+  +-----+  +-----+
-> +    |   +------+             |  | dev |  | dev |  | dev |
-> +    +------------------------+  +-----+  +-----+  +-----+
+  git://git.linaro.org/people/shawnguo/linux-2.6.git staging/imx-multiplatform
 
-The "Mux" box should be outside the SoC, since it isn't part of the SoC
-itself but something external.
+The dependant branches include:
 
-> +Required properties:
-> +- compatible: i2c-mux-gpio
-> +- i2c-parent: The phandle of the I2C bus that this multiplexer's master-side
-> +  port is connected to.
-> +
-> +Also required are:
-> +
-> +- muxer-gpios: list of gpios to use to control the muxer
+* arm-soc/multiplatform/platform-data
 
-Perhaps just "mux-gpios"? Bikeshedding, I know...
+* arm-soc/multiplatform/smp_ops
 
-> +* Standard I2C mux properties. See mux.txt in this directory.
-> +
-> +* I2C child bus nodes. See mux.txt in this directory.
-> +
-> +For each i2c child nodes, an I2C child bus will be created. They will
-> +be numbered based on the reg property of each nodes.
+* git://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-3.7
 
-s/nodes/node/ in both of the two lines above.
+  It contains dependant patch "ASoC: mx27vis: retrieve gpio numbers
+  from platform_data"
 
-> +Whenever an access is made to a device on a child bus, the value set
-> +in the revelant node's reg property will be outputed using the list of
+* git://git.infradead.org/mtd-2.6.git master
 
-s/outputed/output/
+  The series is based on this tree to solve some non-trivial conflicts
+  on mxc_nand driver.  Because mtd tree completely missed 3.6 merge
+  window, having the series base on 3.6-rc actually means 3.5 code base
+  in term of mtd support.  There are currently two cycles changes
+  accumulated on mtd, and we need to base the series on it to sort out
+  the conflicts.
 
-> +GPIOs, the first in the list holding the most-significant value.
-> +
-> +If an idle state is defined, using the idle-state (optional) property,
+* git://linuxtv.org/mchehab/media-next.git master
 
-The idle-state property isn't documented in the list of properties above.
+  The media tree renames mx2/mx3 camera drivers twice.  I'm not sure
+  if git merge can detect them, so I just rebased the series on media
+  tree to solve that.  The bonus point is that a number of trivial
+  conflicts with imx27-coda support on media tree gets solved as well.
 
-> +whenever an access is not being made to a device on a child bus, the
-> +idle value will be programmed into the GPIOs.
-> +
-> +If an idle state is not defined, the most recently used value will be
-> +left programmed into hardware whenever no access is being made of a
-> +device on a child bus.
-> +
-> +Example:
-> +	i2cmux {
-> +		compatible = "i2c-mux-gpio";
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		muxer-gpios = <&gpio1 22 0 &gpio1 23 0>;
-> +		i2c-parent = <&i2c1>;
-> +
-> +		i2c@0 {
-> +			reg = <0>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +		};
-> +
-> +		i2c@1 {
-> +		      reg = <1>;
-> +		      #address-cells = <1>;
-> +		      #size-cells = <0>;
-> +		};
+I'm not requesting you to pull the branch into arm-soc as a stable
+branch but staging one, because the external dependencies which might
+not be stable.  I attempt to use it for exposing the series on
+linux-next, so that we can send it to Linus for 3.7 if there is chance
+for us to (e.g. all the dependant branches hit mainline early during
+3.7 merge window).
 
-The indentation above is a mix of TABs and spaces, and is inconsistent
-between nodes; just TABs would be best.
-
-> +
-> +		i2c@2 {
-> +			reg = <2>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +		};
-
-I'm not sure it's a good idea to have example bus nodes that are empty;
-why not leave out two of the options, and put some device on each of the
-buses that is defined?
-
-
-> +		i2c@3 {
-> +			reg = <3>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +
-> +			pca9555: pca9555@20 {
-> +				compatible = "nxp,pca9555";
-> +				gpio-controller;
-> +				#gpio-cells = <2>;
-> +				reg = <0x20>;
-> +			};
-> +		};
-> +	};
-
-> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-
-> +#ifdef CONFIG_OF
-> +static int __devinit i2c_mux_gpio_probe_dt(struct gpiomux *mux,
-> +					struct platform_device *pdev)
-
-> +	mux->data->n_values = of_get_child_count(np);
-> +
-> +	values = devm_kzalloc(&pdev->dev, sizeof(*mux->data->values), GFP_KERNEL);
-
-Don't you need to multiply the size by mux->data->n_values?
-
-> +	gpios = devm_kzalloc(&pdev->dev, mux->data->n_gpios, GFP_KERNEL);
-
-Don't you need to multiple the size by sizeof(*gpios) here?
+Shawn
