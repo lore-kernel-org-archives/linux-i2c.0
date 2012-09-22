@@ -1,35 +1,41 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c/scx200_*: replace printks with pr_<level>s, rev2
- checkpatch clean
-Date: Sat, 22 Sep 2012 16:14:08 +0200
-Message-ID: <20120922161408.520ea802@endymion.delvare>
-References: <1347768201-11910-1-git-send-email-jim.cromie@gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH v2 00/34] i.MX multi-platform support
+Date: Sat, 22 Sep 2012 11:43:03 -0400
+Message-ID: <20120922154303.GO4495@opensource.wolfsonmicro.com>
+References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
+ <201209200739.34899.arnd@arndb.de>
+ <20120920145342.GI2450@S2101-09.ap.freescale.net>
+ <201209201556.57171.arnd@arndb.de>
+ <20120921080123.GM2450@S2101-09.ap.freescale.net>
+ <CAOesGMi6CbvFikycJVdE8W-DxLD3W7+CyScz+YT103dxR31U9g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1347768201-11910-1-git-send-email-jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org
+Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Disposition: inline
+In-Reply-To: <CAOesGMi6CbvFikycJVdE8W-DxLD3W7+CyScz+YT103dxR31U9g@mail.gmail.com>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: Olof Johansson <olof@lixom.net>
+Cc: alsa-devel@alsa-project.org, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-fbdev@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, rtc-linux@googlegroups.com, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Chris Ball <cjb@laptop.org>, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, linux-arm-kernel@lists.infradead.org, Vinod Koul <vinod.koul@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-mmc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Javier Martin <javier.martin@vista-silicon.com>, Andrew Morton <akpm@linux-foundation.org>, Shawn Guo <shawn.guo@linaro.org>G
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jim,
+On Fri, Sep 21, 2012 at 01:26:43AM -0700, Olof Johansson wrote:
 
-On Sat, 15 Sep 2012 22:03:21 -0600, Jim Cromie wrote:
-> Replace printks with pr_<level>s, add pr_fmt()s to replace NAMEs
-> 
-> Signed-off-by: Jim Cromie <jim.cromie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/scx200_acb.c | 22 +++++++++++-----------
->  drivers/i2c/busses/scx200_i2c.c | 13 +++++++------
->  2 files changed, 18 insertions(+), 17 deletions(-)
+> I'll take a look at merging it tomorrow after I've dealt with smp_ops;
+> if it looks reasonably conflict-free I'll pull it in. We need the
+> sound dependency sorted out (or agreed upon) first though.
 
-This looks good, thanks for the cleanup. But you can go one step
-further and remove the NAME defines, as they are no longer used
-anywhere in the drivers.
+I guess in the light of the rest of the thread it doesn't much matter
+for this merge window but I just pushed:
 
-I did that for you, no need to resend. Patch applied.
+ git://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git tags/asoc-3.7
 
--- 
-Jean Delvare
+which is signed so can happily be merged elsewhere.
