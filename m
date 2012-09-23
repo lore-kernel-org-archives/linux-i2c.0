@@ -1,41 +1,30 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH v2 00/34] i.MX multi-platform support
-Date: Sat, 22 Sep 2012 11:43:03 -0400
-Message-ID: <20120922154303.GO4495@opensource.wolfsonmicro.com>
-References: <1348123547-31082-1-git-send-email-shawn.guo@linaro.org>
- <201209200739.34899.arnd@arndb.de>
- <20120920145342.GI2450@S2101-09.ap.freescale.net>
- <201209201556.57171.arnd@arndb.de>
- <20120921080123.GM2450@S2101-09.ap.freescale.net>
- <CAOesGMi6CbvFikycJVdE8W-DxLD3W7+CyScz+YT103dxR31U9g@mail.gmail.com>
+From: "Maxin B. John" <maxin.john-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/2] i2c: busses: i2c-ocores: Fix documentation filename
+Date: Sun, 23 Sep 2012 09:30:12 -0400
+Message-ID: <20120923133012.GA22830@linux-3ix0.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <alsa-devel-bounces@alsa-project.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAOesGMi6CbvFikycJVdE8W-DxLD3W7+CyScz+YT103dxR31U9g@mail.gmail.com>
-List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
-List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
-List-Post: <mailto:alsa-devel@alsa-project.org>
-List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
-List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
- <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
-Errors-To: alsa-devel-bounces@alsa-project.org
-Sender: alsa-devel-bounces@alsa-project.org
-To: Olof Johansson <olof@lixom.net>
-Cc: alsa-devel@alsa-project.org, Artem Bityutskiy <artem.bityutskiy@linux.intel.com>, linux-fbdev@vger.kernel.org, Wim Van Sebroeck <wim@iguana.be>, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, rtc-linux@googlegroups.com, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, Paulius Zaleckas <paulius.zaleckas@teltonika.lt>, Chris Ball <cjb@laptop.org>, linux-media@vger.kernel.org, linux-watchdog@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Sascha Hauer <s.hauer@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, linux-arm-kernel@lists.infradead.org, Vinod Koul <vinod.koul@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-usb@vger.kernel.org, linux-mmc@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Javier Martin <javier.martin@vista-silicon.com>, Andrew Morton <akpm@linux-foundation.org>, Shawn Guo <shawn.guo@linaro.org>G
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, "Jean Delvare (PC drivers,core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 21, 2012 at 01:26:43AM -0700, Olof Johansson wrote:
+Fixes the wrong filename.
 
-> I'll take a look at merging it tomorrow after I've dealt with smp_ops;
-> if it looks reasonably conflict-free I'll pull it in. We need the
-> sound dependency sorted out (or agreed upon) first though.
-
-I guess in the light of the rest of the thread it doesn't much matter
-for this merge window but I just pushed:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git tags/asoc-3.7
-
-which is signed so can happily be merged elsewhere.
+Signed-off-by: Maxin B. John <maxin.john-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index bffd550..e39c122 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -11,7 +11,7 @@
+ 
+ /*
+  * This driver can be used from the device tree, see
+- *     Documentation/devicetree/bindings/i2c/ocore-i2c.txt
++ *     Documentation/devicetree/bindings/i2c/i2c-ocores.txt
+  */
+ #include <linux/kernel.h>
+ #include <linux/module.h>
