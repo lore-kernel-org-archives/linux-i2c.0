@@ -1,51 +1,30 @@
-From: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [RFC PATCH 2/6] Introduce ACPI style match in platform_match
-Date: Fri, 28 Sep 2012 15:39:15 +0800
-Message-ID: <1348817955.10877.322.camel@rui.sh.intel.com>
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V4 Resend 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Fri, 28 Sep 2012 13:09:24 +0530
+Message-ID: <CAKohpomTCRxdE9QcKhisy8Yik_G1i8+DOjhDakLd7imLqX8qmw@mail.gmail.com>
+References: <fce6ddd7e8061ed0f428d48973d73b75c9ae585c.1346044190.git.viresh.kumar@linaro.org>
+	<20120927142825.GB16606@pengutronix.de>
+	<CAOh2x=nm+iiw3pcKtRcWjBnnjc0+p1kQ7zcqjHHyX9351cZDHQ@mail.gmail.com>
+	<20120928072735.GC16606@pengutronix.de>
+	<CAKohpo=BCyu2M18TZKhGUUkOKi4y-g-=-dmvY8dzefJTFtgAvA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAKohpo=BCyu2M18TZKhGUUkOKi4y-g-=-dmvY8dzefJTFtgAvA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: linux-pm <linux-pm-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Len, Brown" <lenb-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Zhang, Rui" <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->From 5d7ecd12c2994b8c5905d52718c2870c3b62746e Mon Sep 17 00:00:00 2001
-From: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Date: Fri, 28 Sep 2012 14:51:03 +0800
-Subject: [RFC PATCH 2/6] Introduce ACPI style match in platform_match
+On 28 September 2012 13:06, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>> Why do you default to GPIOF_OUT_INIT_LOW? The idle state of scl is high.
+>> Using low here introduces an additional clk pulse.
+>
+> We aren't giving any clock pulses to scl line. Are you talking about sda?
 
-Signed-off-by: Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- drivers/base/platform.c |    8 ++++++++
- 1 files changed, 8 insertions(+), 0 deletions(-)
+My fault... we are sending clocks on scl only... Will take care to
+optimize it in
+next version. If decide to keep it as is, will inform you.
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index a1a7225..90e64c6f 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -20,6 +20,7 @@
- #include <linux/err.h>
- #include <linux/slab.h>
- #include <linux/pm_runtime.h>
-+#include <linux/acpi.h>
- 
- #include "base.h"
- 
-@@ -635,6 +636,13 @@ static const struct platform_device_id *platform_match_id(
- 			struct platform_device *pdev)
- {
- 	while (id->name[0]) {
-+#ifdef CONFIG_ACPI
-+		/* attempt ACPI style match */
-+		if (acpi_match_device_id(&pdev->dev, id->name) == 0) {
-+			pdev->id_entry = id;
-+			return id;
-+		}
-+#endif
- 		if (strcmp(pdev->name, id->name) == 0) {
- 			pdev->id_entry = id;
- 			return id;
--- 
-1.7.7.6
+--
+viresh
