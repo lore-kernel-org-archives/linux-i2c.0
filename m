@@ -1,65 +1,56 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V4 Resend 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Fri, 28 Sep 2012 13:06:24 +0530
-Message-ID: <CAKohpo=BCyu2M18TZKhGUUkOKi4y-g-=-dmvY8dzefJTFtgAvA@mail.gmail.com>
-References: <fce6ddd7e8061ed0f428d48973d73b75c9ae585c.1346044190.git.viresh.kumar@linaro.org>
-	<20120927142825.GB16606@pengutronix.de>
-	<CAOh2x=nm+iiw3pcKtRcWjBnnjc0+p1kQ7zcqjHHyX9351cZDHQ@mail.gmail.com>
-	<20120928072735.GC16606@pengutronix.de>
+From: Zhang Rui <rui.zhang@intel.com>
+Subject: [RFC PATCH 0/6] ACPI: ACPI 5.0 device enumeration
+	proposal
+Date: Fri, 28 Sep 2012 15:37:43 +0800
+Message-ID: <1348817863.10877.320.camel@rui.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120928072735.GC16606-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pm-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/linux-pm/>
+List-Post: <mailto:linux-pm@lists.linux-foundation.org>
+List-Help: <mailto:linux-pm-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/linux-pm>,
+	<mailto:linux-pm-request@lists.linux-foundation.org?subject=subscribe>
+Sender: linux-pm-bounces@lists.linux-foundation.org
+Errors-To: linux-pm-bounces@lists.linux-foundation.org
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Grant Likely <grant.likely@secretlab.ca>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, Dirk Brandewie <dirk.brandewie@gmail.com>, linux-pm <linux-pm@lists.linux-foundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Uwe,
+Hi, all,
 
-On 28 September 2012 12:57, Uwe Kleine-K=F6nig
-<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Fri, Sep 28, 2012 at 09:11:34AM +0530, viresh kumar wrote:
+I'm working on ACPI device enumeration support recently, and here is the
+proposal I made to enumerate devices via ACPI namespace.
 
->> This was done, because few platforms may not have configuration bits=
- to read
->> status of sda line.. For them skip_sda_polling was required.
->>
->> Whereas, others would need this to see if we can return early.
+the main idea is that, for Serial Buses like I2C and SPI, we enumerate
+the controller as a platform device, and then enumerate the slaves via
+i2c/spi_register_board_info. And then, when the controller is really
+probed and enabled in the platform driver, the SPI/I2C bus code will
+enumerate I2C/SPI slaves automatically.
+And for the other devices, we will enumerate all of them as platform
+devices, which is not covered in this patch set yet.
 
-> What is the upside of returning early? I'd say, just don't do it.
+Patch 1 & 2 Introduce ACPI style device match method in platform_match.
+this is because an ACPI device may have multiple hardware ID (_HID) and
+Compatible IDs, aka, _CID, but in platform device code, only pdev->name
+is used to match the driver id_table currently.
+Patch 3 introduces a new API acpi_get_generic_resources().
+this API is used to convert ACPI style resources to the generic struct
+resource.
+Patch 4 changes i2c_register_board_info from __init to __devinit.
+This is needed because I want to enumerate the slave devices in ACPI I2C
+control Driver, which supports hotplug in theory.
+Patch 5 introduces the ACPI I2C controller enumeration drive.
+it enumerate the ACPI I2C controller to a platform device and then
+enumerate the I2C slaves as I2C_board_info.
+Patch 6 is an example driver for an ACPI enuemrated I2C controller.
 
-Save time. Why give additional clocks when you don't actually need them=
-?
-Can use likely/unlikely to make it more efficient for 9 clock pulse
-scenario though.
+Note that this is just prototype patch set, which just passes build
+test. Because I'd like to get your ideas about this before going on.
+any comments are welcome.
 
->> >> + * @put_gpio: called after recover_bus() to get padmux configure=
-d for scl line
->> >> + *   as scl. Only required if is_gpio_recovery =3D=3D true.
->> >> + * @scl_gpio: gpio number of the scl line. Only required if is_g=
-pio_recovery =3D=3D
->> >> + *   true.
->> >> + * @sda_gpio: gpio number of the sda line. Only required if is_g=
-pio_recovery =3D=3D
->> >> + *   true and skip_sda_polling =3D=3D false.
->> >> + * @scl_gpio_flags: flag for gpio_request_one of scl_gpio. 0 imp=
-lies
->> >> + *   GPIOF_OUT_INIT_LOW.
->> > IMHO you should not make this configurable but use
->> >
->> >         GPIOF_OUT_INIT_HIGH | GPIOF_OPEN_DRAIN
->>
->> Discussed here:
->> http://www.spinics.net/lists/linux-i2c/msg07325.html
-
-> Why do you default to GPIOF_OUT_INIT_LOW? The idle state of scl is hi=
-gh.
-> Using low here introduces an additional clk pulse.
-
-We aren't giving any clock pulses to scl line. Are you talking about sd=
-a?
-
---
-viresh
+thanks,
+rui
