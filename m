@@ -1,35 +1,56 @@
-From: Ulf Hansson <ulf.hansson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] i2c-nomadik: Fixup clock handling
-Date: Mon, 1 Oct 2012 13:42:47 +0200
-Message-ID: <CAPDyKFpyB7SBY=Ht7Mz8KsC_eugNVTMF1C251BYPZMS2pFsDYg@mail.gmail.com>
-References: <1348154447-3815-1-git-send-email-ulf.hansson@stericsson.com>
-	<CACRpkdZZ-gNBi7EDwhXHawmzPD9dE8wo9voX-MJ7CYQ058k-Jw@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH] i2c-viapro: Add VIA VX900 device ID
+Date: Mon, 1 Oct 2012 14:00:42 +0200
+Message-ID: <20121001140042.5c5f8755@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdZZ-gNBi7EDwhXHawmzPD9dE8wo9voX-MJ7CYQ058k-Jw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Ulf Hansson <ulf.hansson-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alessandro Rubini <rubini-9wsNiZum9E8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Philippe Begnic <philippe.begnic-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+The SMBus controller in the VIA VX900 appears to be compatible with
+the VIA VX855, so just add the device ID.
 
-Juts a kind reminder on this. Do you see any problem merging this?
+This closes kernel bug #43096.
 
-Kind regards
-Ulf Hansson
+Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-viapro.c |    3 +++
+ include/linux/pci_ids.h         |    1 +
+ 2 files changed, 4 insertions(+)
 
-On 20 September 2012 21:17, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Thu, Sep 20, 2012 at 5:20 PM, Ulf Hansson <ulf.hansson-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org> wrote:
->
->> From: Philippe Begnic <philippe.begnic-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
->>
->> Make sure to clk_prepare as well as clk_enable.
->
-> Looks correct. xfer() is slowpatch so we might as well call
-> prepare/unprepare functions there.
-> Reviewed-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->
-> Yours,
-> Linus Walleij
+--- linux-3.6-rc7.orig/drivers/i2c/busses/i2c-viapro.c	2012-07-21 22:58:29.000000000 +0200
++++ linux-3.6-rc7/drivers/i2c/busses/i2c-viapro.c	2012-10-01 09:06:59.975354890 +0200
+@@ -401,6 +401,7 @@ found:
+ 	case PCI_DEVICE_ID_VIA_CX700:
+ 	case PCI_DEVICE_ID_VIA_VX800:
+ 	case PCI_DEVICE_ID_VIA_VX855:
++	case PCI_DEVICE_ID_VIA_VX900:
+ 	case PCI_DEVICE_ID_VIA_8251:
+ 	case PCI_DEVICE_ID_VIA_8237:
+ 	case PCI_DEVICE_ID_VIA_8237A:
+@@ -470,6 +471,8 @@ static DEFINE_PCI_DEVICE_TABLE(vt596_ids
+ 	  .driver_data = SMBBA3 },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX855),
+ 	  .driver_data = SMBBA3 },
++	{ PCI_DEVICE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_VX900),
++	  .driver_data = SMBBA3 },
+ 	{ 0, }
+ };
+ 
+--- linux-3.6-rc7.orig/include/linux/pci_ids.h	2012-09-10 09:31:24.000000000 +0200
++++ linux-3.6-rc7/include/linux/pci_ids.h	2012-10-01 09:05:40.816317835 +0200
+@@ -1426,6 +1426,7 @@
+ #define PCI_DEVICE_ID_VIA_CX700_IDE	0x0581
+ #define PCI_DEVICE_ID_VIA_VX800		0x8353
+ #define PCI_DEVICE_ID_VIA_VX855		0x8409
++#define PCI_DEVICE_ID_VIA_VX900		0x8410
+ #define PCI_DEVICE_ID_VIA_8371_1	0x8391
+ #define PCI_DEVICE_ID_VIA_82C598_1	0x8598
+ #define PCI_DEVICE_ID_VIA_838X_1	0xB188
+
+
+-- 
+Jean Delvare
