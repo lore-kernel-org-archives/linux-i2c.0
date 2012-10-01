@@ -1,45 +1,31 @@
-From: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: i2c_dw_xfer_msg can be static
-Date: Sun, 30 Sep 2012 19:12:16 -0700
-Message-ID: <CANOOhLRmObHz2LuJF6=h4hu4KqeFerCA6YzsJL-+P-EubLd3NQ@mail.gmail.com>
-References: <20120930140451.6701adaf@endymion.delvare>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [RFC PATCH 1/6] Introduce acpi_match_device_id().
+Date: Mon, 1 Oct 2012 09:37:53 +0300
+Message-ID: <20121001063753.GE15548@intel.com>
+References: <1348817910.10877.321.camel@rui.sh.intel.com>
+ <20120928141347.GC15548@intel.com>
+ <744357E9AAD1214791ACBA4B0B90926322C156@SHSMSX101.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120930140451.6701adaf-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <744357E9AAD1214791ACBA4B0B90926322C156@SHSMSX101.ccr.corp.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Zhang, Rui" <rui.zhang@intel.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-pm <linux-pm@lists.linux-foundation.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>, "Len, Brown" <lenb@kernel.org>, "Rafael J. Wysocki" <rjw@sisk.pl>, Grant Likely <grant.likely@secretlab.ca>, Dirk Brandewie <dirk.brandewie@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Sep 30, 2012 at 5:04 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> i2c_dw_xfer_msg is only called internally so it can be static. It
-> original was, before the driver split. No idea why it was changed at
-> that time.
->
-> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+On Sat, Sep 29, 2012 at 01:31:52PM +0000, Zhang, Rui wrote:
+>  
+> > > +{
+> > > +	acpi_handle handle = DEVICE_ACPI_HANDLE(dev);
+> > 
+> > If the device is not bound to an ACPI handle this will return NULL. And
+> > I don't see you doing that in this series meaning that..
+> > 
+> 
+> 
+> You're right, I should set pdev->archdata.acpi_handle to the I2C
+> controller in i2c_root.c.
 
-Ack
-
-Not sure how it got dropped sorry
-
-> ---
->  drivers/i2c/busses/i2c-designware-core.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> --- linux-3.6-rc7.orig/drivers/i2c/busses/i2c-designware-core.c 2012-09-30 13:49:56.000000000 +0200
-> +++ linux-3.6-rc7/drivers/i2c/busses/i2c-designware-core.c      2012-09-30 13:50:09.893408917 +0200
-> @@ -370,7 +370,7 @@ static void i2c_dw_xfer_init(struct dw_i
->   * messages into the tx buffer.  Even if the size of i2c_msg data is
->   * longer than the size of the tx buffer, it handles everything.
->   */
-> -void
-> +static void
->  i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
->  {
->         struct i2c_msg *msgs = dev->msgs;
->
->
-> --
-> Jean Delvare
+There already is an API for that - check drivers/acpi/glue.c.
