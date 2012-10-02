@@ -1,50 +1,98 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH] i2c-mux-gpio: Update documentation
-Date: Tue, 2 Oct 2012 23:09:56 +0200
-Message-ID: <20121002230956.49c4fe46@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+From: Thomas Abraham <thomas.abraham@linaro.org>
+Subject: [PATCH] i2c: s3c2410: use clk_prepare_enable and clk_disable_unprepare
+Date: Wed,  3 Oct 2012 08:26:39 +0900
+Message-ID: <1349220399-2318-1-git-send-email-thomas.abraham@linaro.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: ben-linux@fluff.org, w.sang@pengutronix.de, kgene.kim@samsung.com, linux-samsung-soc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Document the possibility to pass relative GPIO pin numbers.
-* Document what platform device IDs to use, so that they do not
-  collide.
+Convert clk_enable/clk_disable to clk_prepare_enable/clk_disable_unprepare
+calls as required by common clock framework.
 
-Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
 ---
- Documentation/i2c/muxes/i2c-mux-gpio |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/i2c/busses/i2c-s3c2410.c |   18 +++++++++---------
+ 1 files changed, 9 insertions(+), 9 deletions(-)
 
---- linux-3.7-rc0.orig/Documentation/i2c/muxes/i2c-mux-gpio	2012-07-21 22:58:29.000000000 +0200
-+++ linux-3.7-rc0/Documentation/i2c/muxes/i2c-mux-gpio	2012-10-02 23:06:15.131690033 +0200
-@@ -63,3 +63,21 @@ static struct platform_device myboard_i2
- 		.platform_data	= &myboard_i2cmux_data,
- 	},
- };
-+
-+If you don't know the absolute GPIO pin numbers at registration time,
-+you can instead provide a chip name (.chip_name) and relative GPIO pin
-+numbers, and the i2c-gpio-mux driver will do the work for you,
-+including deferred probing if the GPIO chip isn't immediately
-+available.
-+
-+Device Registration
-+-------------------
-+
-+When registering your i2c-gpio-mux device, you should pass the number
-+of any GPIO pin it uses as the device ID. This guarantees that every
-+instance has a different ID.
-+
-+Alternatively, if you don't need a stable device name, you can simply
-+pass PLATFORM_DEVID_AUTO as the device ID, and the platform core will
-+assign a dynamic ID to your device. If you do not know the absolute
-+GPIO pin numbers at registration time, this is even the only option.
-
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 4d07dea..3e0335f 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -601,14 +601,14 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 	int ret;
+ 
+ 	pm_runtime_get_sync(&adap->dev);
+-	clk_enable(i2c->clk);
++	clk_prepare_enable(i2c->clk);
+ 
+ 	for (retry = 0; retry < adap->retries; retry++) {
+ 
+ 		ret = s3c24xx_i2c_doxfer(i2c, msgs, num);
+ 
+ 		if (ret != -EAGAIN) {
+-			clk_disable(i2c->clk);
++			clk_disable_unprepare(i2c->clk);
+ 			pm_runtime_put(&adap->dev);
+ 			return ret;
+ 		}
+@@ -618,7 +618,7 @@ static int s3c24xx_i2c_xfer(struct i2c_adapter *adap,
+ 		udelay(100);
+ 	}
+ 
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	pm_runtime_put(&adap->dev);
+ 	return -EREMOTEIO;
+ }
+@@ -977,7 +977,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	dev_dbg(&pdev->dev, "clock source %p\n", i2c->clk);
+ 
+-	clk_enable(i2c->clk);
++	clk_prepare_enable(i2c->clk);
+ 
+ 	/* map the registers */
+ 
+@@ -1065,7 +1065,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(&i2c->adap.dev);
+ 
+ 	dev_info(&pdev->dev, "%s: S3C I2C adapter\n", dev_name(&i2c->adap.dev));
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	return 0;
+ 
+  err_cpufreq:
+@@ -1082,7 +1082,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	kfree(i2c->ioarea);
+ 
+  err_clk:
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	clk_put(i2c->clk);
+ 
+  err_noclk:
+@@ -1106,7 +1106,7 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 	i2c_del_adapter(&i2c->adap);
+ 	free_irq(i2c->irq, i2c);
+ 
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	clk_put(i2c->clk);
+ 
+ 	iounmap(i2c->regs);
+@@ -1135,9 +1135,9 @@ static int s3c24xx_i2c_resume(struct device *dev)
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+ 
+ 	i2c->suspended = 0;
+-	clk_enable(i2c->clk);
++	clk_prepare_enable(i2c->clk);
+ 	s3c24xx_i2c_init(i2c);
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 
+ 	return 0;
+ }
 -- 
-Jean Delvare
+1.7.4.1
