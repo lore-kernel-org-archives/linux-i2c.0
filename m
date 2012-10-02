@@ -1,100 +1,174 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/2] i2c-i801: Let i2c-mux-gpio find the GPIO chip
-Date: Tue, 2 Oct 2012 22:54:00 +0200
-Message-ID: <20121002225400.12267d00@endymion.delvare>
+Subject: [PATCH 1/2] i2c-mux-gpio: Add support for dynamically allocated
+ GPIO pins
+Date: Tue, 2 Oct 2012 22:53:08 +0200
+Message-ID: <20121002225308.735acfbf@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Now that i2c-mux-gpio is able to find the GPIO chip by itself, we can
-delegate this task. The great thing here is that i2c-mux-gpio can
-defer device probing until the gpio chip is available, so we no longer
-depend on the module loading order.
+The code instantiating an i2c-mux-gpio platform device doesn't
+necessarily know in advance the GPIO pin numbers it wants to use. If
+pins are on a GPIO device which gets its base GPIO number assigned
+dynamically at run-time, the values can't be hard-coded.
+
+In that case, let the caller tell i2c-mux-gpio the name of the GPIO
+chip and the (relative) GPIO pin numbers to use. At probe time, the
+i2c-mux-gpio driver will look for the chip and apply the proper offset
+to turn relative GPIO pin numbers to absolute GPIO pin numbers.
+
+The same could be (and was so far) done on the caller's end, however
+doing it in i2c-mux-gpio has two benefits:
+* It avoids duplicating the code on every caller's side (about 30
+  lines of code.)
+* It allows for deferred probing for the muxed part of the I2C bus
+  only. If finding the GPIO chip is the caller's responsibility, then
+  deferred probing (if the GPIO chip isn't there yet) will not only
+  affect the mux and the I2C bus segments behind it, but also the I2C
+  bus trunk.
 
 Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-i801.c |   37 ++++---------------------------------
- 1 file changed, 4 insertions(+), 33 deletions(-)
+Unfortunately this is not compatible with my idea of letting the
+caller set the platform device ID based on one GPIO pin number, as
+these numbers are no longer known in advance. So callers will instead
+have to use a new platform core feature: automatic platform device ID.
+This is enabled by passing PLATFORM_DEVID_AUTO as the platform device
+ID.
 
---- linux-3.6-rc5.orig/drivers/i2c/busses/i2c-i801.c	2012-09-13 18:18:02.884008189 +0200
-+++ linux-3.6-rc5/drivers/i2c/busses/i2c-i801.c	2012-09-13 18:18:12.031009849 +0200
-@@ -194,7 +194,6 @@ struct i801_priv {
- 
- #if defined CONFIG_I2C_MUX || defined CONFIG_I2C_MUX_MODULE
- 	const struct i801_mux_config *mux_drvdata;
--	unsigned mux_priv[2];
- 	struct platform_device *mux_pdev;
- #endif
+ drivers/i2c/muxes/i2c-mux-gpio.c |   38 ++++++++++++++++++++++++++++++++------
+ include/linux/i2c-mux-gpio.h     |    3 +++
+ 2 files changed, 35 insertions(+), 6 deletions(-)
+
+--- linux-3.6-rc6.orig/drivers/i2c/muxes/i2c-mux-gpio.c	2012-09-22 15:11:30.000000000 +0200
++++ linux-3.6-rc6/drivers/i2c/muxes/i2c-mux-gpio.c	2012-09-22 15:12:48.189053050 +0200
+@@ -21,6 +21,7 @@ struct gpiomux {
+ 	struct i2c_adapter *parent;
+ 	struct i2c_adapter **adap; /* child busses */
+ 	struct i2c_mux_gpio_platform_data data;
++	unsigned gpio_base;
  };
-@@ -1008,60 +1007,32 @@ static struct dmi_system_id __devinitdat
- 	{ }
- };
  
--static int __devinit match_gpio_chip_by_label(struct gpio_chip *chip,
--					      void *data)
--{
--	return !strcmp(chip->label, data);
--}
--
- /* Setup multiplexing if needed */
- static int __devinit i801_add_mux(struct i801_priv *priv)
+ static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
+@@ -28,7 +29,8 @@ static void i2c_mux_gpio_set(const struc
+ 	int i;
+ 
+ 	for (i = 0; i < mux->data.n_gpios; i++)
+-		gpio_set_value(mux->data.gpios[i], val & (1 << i));
++		gpio_set_value(mux->gpio_base + mux->data.gpios[i],
++			       val & (1 << i));
+ }
+ 
+ static int i2c_mux_gpio_select(struct i2c_adapter *adap, void *data, u32 chan)
+@@ -49,13 +51,19 @@ static int i2c_mux_gpio_deselect(struct
+ 	return 0;
+ }
+ 
++static int __devinit match_gpio_chip_by_label(struct gpio_chip *chip,
++					      void *data)
++{
++	return !strcmp(chip->label, data);
++}
++
+ static int __devinit i2c_mux_gpio_probe(struct platform_device *pdev)
  {
- 	struct device *dev = &priv->adapter.dev;
- 	const struct i801_mux_config *mux_config;
--	struct gpio_chip *gpio;
- 	struct i2c_mux_gpio_platform_data gpio_data;
--	int i, err;
-+	int err;
+ 	struct gpiomux *mux;
+ 	struct i2c_mux_gpio_platform_data *pdata;
+ 	struct i2c_adapter *parent;
+ 	int (*deselect) (struct i2c_adapter *, void *, u32);
+-	unsigned initial_state;
++	unsigned initial_state, gpio_base;
+ 	int i, ret;
  
- 	if (!priv->mux_drvdata)
- 		return 0;
- 	mux_config = priv->mux_drvdata;
+ 	pdata = pdev->dev.platform_data;
+@@ -64,6 +72,23 @@ static int __devinit i2c_mux_gpio_probe(
+ 		return -ENODEV;
+ 	}
  
--	/* Find GPIO chip */
--	gpio = gpiochip_find(mux_config->gpio_chip, match_gpio_chip_by_label);
--	if (gpio) {
--		dev_info(dev,
--			 "GPIO chip %s found, SMBus multiplexing enabled\n",
--			 mux_config->gpio_chip);
--	} else {
--		dev_err(dev,
--			"GPIO chip %s not found, SMBus multiplexing disabled\n",
--			mux_config->gpio_chip);
--		return -ENODEV;
--	}
--
--	/* Find absolute GPIO pin numbers */
--	if (ARRAY_SIZE(priv->mux_priv) < mux_config->n_gpios) {
--		dev_err(dev, "i801_priv.mux_priv too small (%zu, need %d)\n",
--			ARRAY_SIZE(priv->mux_priv), mux_config->n_gpios);
--		return -ENODEV;
--	}
--	for (i = 0; i < mux_config->n_gpios; i++)
--		priv->mux_priv[i] = gpio->base + mux_config->gpios[i];
--
- 	/* Prepare the platform data */
- 	memset(&gpio_data, 0, sizeof(struct i2c_mux_gpio_platform_data));
- 	gpio_data.parent = priv->adapter.nr;
- 	gpio_data.values = mux_config->values;
- 	gpio_data.n_values = mux_config->n_values;
- 	gpio_data.classes = mux_config->classes;
--	gpio_data.gpios = priv->mux_priv;
-+	gpio_data.gpio_chip = mux_config->gpio_chip;
-+	gpio_data.gpios = mux_config->gpios;
- 	gpio_data.n_gpios = mux_config->n_gpios;
- 	gpio_data.idle = I2C_MUX_GPIO_NO_IDLE;
++	/*
++	 * If a GPIO chip name is provided, the GPIO pin numbers provided are
++	 * relative to its base GPIO number. Otherwise they are absolute.
++	 */
++	if (pdata->gpio_chip) {
++		struct gpio_chip *gpio;
++
++		gpio = gpiochip_find(pdata->gpio_chip,
++				     match_gpio_chip_by_label);
++		if (!gpio)
++			return -EPROBE_DEFER;
++
++		gpio_base = gpio->base;
++	} else {
++		gpio_base = 0;
++	}
++
+ 	parent = i2c_get_adapter(pdata->parent);
+ 	if (!parent) {
+ 		dev_err(&pdev->dev, "Parent adapter (%d) not found\n",
+@@ -79,6 +104,7 @@ static int __devinit i2c_mux_gpio_probe(
  
- 	/* Register the mux device */
- 	priv->mux_pdev = platform_device_register_data(dev, "i2c-mux-gpio",
--				priv->mux_priv[0], &gpio_data,
-+				PLATFORM_DEVID_AUTO, &gpio_data,
- 				sizeof(struct i2c_mux_gpio_platform_data));
- 	if (IS_ERR(priv->mux_pdev)) {
- 		err = PTR_ERR(priv->mux_pdev);
+ 	mux->parent = parent;
+ 	mux->data = *pdata;
++	mux->gpio_base = gpio_base;
+ 	mux->adap = devm_kzalloc(&pdev->dev,
+ 				 sizeof(struct i2c_adapter *) * pdata->n_values,
+ 				 GFP_KERNEL);
+@@ -96,10 +122,10 @@ static int __devinit i2c_mux_gpio_probe(
+ 	}
+ 
+ 	for (i = 0; i < pdata->n_gpios; i++) {
+-		ret = gpio_request(pdata->gpios[i], "i2c-mux-gpio");
++		ret = gpio_request(gpio_base + pdata->gpios[i], "i2c-mux-gpio");
+ 		if (ret)
+ 			goto err_request_gpio;
+-		gpio_direction_output(pdata->gpios[i],
++		gpio_direction_output(gpio_base + pdata->gpios[i],
+ 				      initial_state & (1 << i));
+ 	}
+ 
+@@ -130,7 +156,7 @@ add_adapter_failed:
+ 	i = pdata->n_gpios;
+ err_request_gpio:
+ 	for (; i > 0; i--)
+-		gpio_free(pdata->gpios[i - 1]);
++		gpio_free(gpio_base + pdata->gpios[i - 1]);
+ alloc_failed:
+ 	i2c_put_adapter(parent);
+ 
+@@ -146,7 +172,7 @@ static int __devexit i2c_mux_gpio_remove
+ 		i2c_del_mux_adapter(mux->adap[i]);
+ 
+ 	for (i = 0; i < mux->data.n_gpios; i++)
+-		gpio_free(mux->data.gpios[i]);
++		gpio_free(mux->gpio_base + mux->data.gpios[i]);
+ 
+ 	platform_set_drvdata(pdev, NULL);
+ 	i2c_put_adapter(mux->parent);
+--- linux-3.6-rc6.orig/include/linux/i2c-mux-gpio.h	2012-09-22 14:53:24.000000000 +0200
++++ linux-3.6-rc6/include/linux/i2c-mux-gpio.h	2012-09-22 15:12:48.189053050 +0200
+@@ -22,6 +22,8 @@
+  *	position
+  * @n_values: Number of multiplexer positions (busses to instantiate)
+  * @classes: Optional I2C auto-detection classes
++ * @gpio_chip: Optional GPIO chip name; if set, GPIO pin numbers are given
++ *	relative to the base GPIO number of that chip
+  * @gpios: Array of GPIO numbers used to control MUX
+  * @n_gpios: Number of GPIOs used to control MUX
+  * @idle: Bitmask to write to MUX when idle or GPIO_I2CMUX_NO_IDLE if not used
+@@ -32,6 +34,7 @@ struct i2c_mux_gpio_platform_data {
+ 	const unsigned *values;
+ 	int n_values;
+ 	const unsigned *classes;
++	char *gpio_chip;
+ 	const unsigned *gpios;
+ 	int n_gpios;
+ 	unsigned idle;
 
 
 -- 
