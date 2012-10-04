@@ -1,203 +1,58 @@
 From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH V6 2/2] i2c/designware: Provide i2c bus recovery support
-Date: Thu,  4 Oct 2012 16:34:54 +0530
-Message-ID: <6262d3a8e87858d938362c4aa44caf40938f2be9.1349348405.git.viresh.kumar@linaro.org>
-References: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar@linaro.org>
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH V5 Resend 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Thu, 4 Oct 2012 15:28:19 +0530
+Message-ID: <CAKohpom3j930DuMLKscCsC3h9D_KvTeaJ4xwJub-=JNdju8+Fw@mail.gmail.com>
+References: <viresh.kumar@linaro.org>
+	<d5eaf5302de6a2ba01d1c11abeeed8850be879be.1348831273.git.viresh.kumar@linaro.org>
+	<20121004080051.GG598@pengutronix.de>
+	<CAKohpok-4PUz=1OMdJ7-TyWPi+f46k8NgFNUx0Z0La5aN-r5Hw@mail.gmail.com>
+	<20121004092017.GH598@pengutronix.de>
+	<CAKohpon-q9VdP4crEr0KXpDi+AhcOM708PZkJwZzuUH_4p56+Q@mail.gmail.com>
+	<20121004094743.GJ598@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-In-Reply-To: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-References: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20121004094743.GJ598-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+To: =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add bus recovery support for designware_i2c controller. It uses generic gpi=
-o
-based i2c_gpio_recover_bus() routine.
+On 4 October 2012 15:17, Uwe Kleine-K=F6nig
+<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> On Thu, Oct 04, 2012 at 03:02:26PM +0530, Viresh Kumar wrote:
+>> On 4 October 2012 14:50, Uwe Kleine-K=F6nig
+>> <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+>>
+>> >> So, we actually need to do "Low-High" 9 times instead of "High-Lo=
+w".
+>> >> So, initializing val to 0 should fix it?
+>> > I don't think this is enough. If you cut off the last half clock o=
+f the
+>> > first sequence above doing 9 times low-high isn't enough. So you h=
+ave to
+>> > do high + 9x low-high to assert 9 full cycles.
+>>
+>> I am not cutting the last half clock. val is the variable which keep=
+s
+>> track of value to be
+>> set on the line. I am asking to start from zero.
+> I meant the sequence that created the stall, not the one intending to
+> clear it. If you remove the last rising edge from that the SCL line i=
+s
+> initially low.
 
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
-V5->V6:
-- removed sda_gpio_flags
+But then, wouldn't only 8.5 cycles are enough? As with 8.5 cycles we wi=
+ll
+achieve 9 low-high cycles?
 
- drivers/i2c/busses/i2c-designware-core.c    |  7 ++++-
- drivers/i2c/busses/i2c-designware-platdrv.c | 38 ++++++++++++++++++++++--
- include/linux/i2c/i2c-designware.h          | 46 +++++++++++++++++++++++++=
-++++
- 3 files changed, 88 insertions(+), 3 deletions(-)
- create mode 100644 include/linux/i2c/i2c-designware.h
+I can't find you on IRC (#linaro on freenode). Want to finish this up q=
+uickly,
+so that i can send a fixup patch ASAP and get your reviewed-by :)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/=
-i2c-designware-core.c
-index cbba7db..9b7c9bf 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -538,7 +538,12 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg m=
-sgs[], int num)
- =09ret =3D wait_for_completion_interruptible_timeout(&dev->cmd_complete, H=
-Z);
- =09if (ret =3D=3D 0) {
- =09=09dev_err(dev->dev, "controller timed out\n");
--=09=09i2c_dw_init(dev);
-+=09=09if (adap->bus_recovery_info &&
-+=09=09=09=09adap->bus_recovery_info->recover_bus) {
-+=09=09=09dev_dbg(dev->dev, "try i2c bus recovery\n");
-+=09=09=09adap->bus_recovery_info->recover_bus(adap);
-+=09=09}
-+
- =09=09ret =3D -ETIMEDOUT;
- =09=09goto done;
- =09} else if (ret < 0)
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/buss=
-es/i2c-designware-platdrv.c
-index 0506fef..afa0df9 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -29,6 +29,7 @@
- #include <linux/module.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-+#include <linux/i2c/i2c-designware.h>
- #include <linux/clk.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
-@@ -45,6 +46,7 @@ static struct i2c_algorithm i2c_dw_algo =3D {
- =09.master_xfer=09=3D i2c_dw_xfer,
- =09.functionality=09=3D i2c_dw_func,
- };
-+
- static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- {
- =09return clk_get_rate(dev->clk)/1000;
-@@ -55,6 +57,8 @@ static int __devinit dw_i2c_probe(struct platform_device =
-*pdev)
- =09struct dw_i2c_dev *dev;
- =09struct i2c_adapter *adap;
- =09struct resource *mem, *ioarea;
-+=09struct i2c_dw_pdata *pdata;
-+=09struct i2c_bus_recovery_info *recovery_info =3D NULL;
- =09int irq, r;
-=20
- =09/* NOTE: driver uses the static register mapping */
-@@ -141,17 +145,45 @@ static int __devinit dw_i2c_probe(struct platform_dev=
-ice *pdev)
- =09adap->dev.parent =3D &pdev->dev;
- =09adap->dev.of_node =3D pdev->dev.of_node;
-=20
-+=09/* Bus recovery support */
-+=09pdata =3D dev_get_platdata(&pdev->dev);
-+=09if (pdata) {
-+=09=09recovery_info =3D kzalloc(sizeof(*recovery_info), GFP_KERNEL);
-+=09=09if (!recovery_info) {
-+=09=09=09adap->bus_recovery_info =3D NULL;
-+=09=09=09dev_err(&pdev->dev,
-+=09=09=09=09"failure to allocate memory for bus recovery\n");
-+=09=09=09goto skip_recovery;
-+=09=09}
-+
-+=09=09recovery_info->is_gpio_recovery =3D true;
-+=09=09recovery_info->get_gpio =3D pdata->get_gpio;
-+=09=09recovery_info->put_gpio =3D pdata->put_gpio;
-+=09=09recovery_info->scl_gpio =3D pdata->scl_gpio;
-+=09=09recovery_info->scl_gpio_flags =3D pdata->scl_gpio_flags;
-+=09=09recovery_info->clock_rate_khz =3D clk_get_rate(dev->clk) / 1000;
-+
-+=09=09if (!pdata->skip_sda_polling)
-+=09=09=09recovery_info->sda_gpio =3D pdata->sda_gpio;
-+
-+=09=09adap->bus_recovery_info =3D recovery_info;
-+=09} else {
-+=09=09adap->bus_recovery_info =3D NULL;
-+=09}
-+
-+skip_recovery:
- =09adap->nr =3D pdev->id;
- =09r =3D i2c_add_numbered_adapter(adap);
- =09if (r) {
- =09=09dev_err(&pdev->dev, "failure adding adapter\n");
--=09=09goto err_free_irq;
-+=09=09goto err_free_recovery_info;
- =09}
- =09of_i2c_register_devices(adap);
-=20
- =09return 0;
-=20
--err_free_irq:
-+err_free_recovery_info:
-+=09kfree(recovery_info);
- =09free_irq(dev->irq, dev);
- err_iounmap:
- =09iounmap(dev->base);
-@@ -174,6 +206,8 @@ static int __devexit dw_i2c_remove(struct platform_devi=
-ce *pdev)
- =09struct dw_i2c_dev *dev =3D platform_get_drvdata(pdev);
- =09struct resource *mem;
-=20
-+=09kfree(dev->adapter.bus_recovery_info);
-+
- =09platform_set_drvdata(pdev, NULL);
- =09i2c_del_adapter(&dev->adapter);
- =09put_device(&pdev->dev);
-diff --git a/include/linux/i2c/i2c-designware.h b/include/linux/i2c/i2c-des=
-ignware.h
-new file mode 100644
-index 0000000..522dec0
---- /dev/null
-+++ b/include/linux/i2c/i2c-designware.h
-@@ -0,0 +1,46 @@
-+/*
-+ * Synopsys DesignWare I2C adapter driver's platform data
-+ *
-+ * Copyright (C) 2012 ST Microelectronics.
-+ * Author: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+#ifndef I2C_DESIGNWARE_H
-+#define I2C_DESIGNWARE_H
-+
-+#include <linux/platform_device.h>
-+
-+/*
-+ * struct i2c_dw_pdata - Designware I2c platform data
-+ * @scl_gpio: gpio number of the scl line.
-+ * @scl_gpio_flags: flag for gpio_request_one of scl_gpio. 0 implies
-+ *=09GPIOF_OUT_INIT_LOW.
-+ * @get_gpio: called before recover_bus() to get padmux configured for scl=
- line
-+ *=09as gpio. Only required if is_gpio_recovery =3D=3D true
-+ * @put_gpio: called after recover_bus() to get padmux configured for scl =
-line
-+ *=09as scl. Only required if is_gpio_recovery =3D=3D true
-+ * @skip_sda_polling: if true, bus recovery will not poll sda line to chec=
-k if
-+ *=09it became high or not. Below are required only if this is false.
-+ * @sda_gpio: gpio number of the sda line.
-+ */
-+struct i2c_dw_pdata {
-+=09int scl_gpio;
-+=09int scl_gpio_flags;
-+=09int (*get_gpio)(unsigned gpio);
-+=09void (*put_gpio)(unsigned gpio);
-+
-+=09/* sda polling specific */
-+=09bool skip_sda_polling;
-+=09int sda_gpio;
-+};
-+
-+#endif /* I2C_DESIGNWARE_H */
---=20
-1.7.12.rc2.18.g61b472e
+--
+viresh
+
+--
+viresh
