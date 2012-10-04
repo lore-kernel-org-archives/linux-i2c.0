@@ -1,32 +1,33 @@
-From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
-Subject: [PATCH] i2c: correct struct i2c_driver doc about detection
-Date: Wed,  3 Oct 2012 16:17:24 -0400
-Message-ID: <1349295444-18645-1-git-send-email-vivien.didelot@savoirfairelinux.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Vivien Didelot <vivien.didelot@savoirfairelinux.com>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, linux-kernel@vger.kernel.org
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V4 Resend 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Thu, 4 Oct 2012 09:56:20 +0530
+Message-ID: <CAKohpokqV3-_b8PZCGN2cvOWM+5RvaQOj_QpvqJTmvgpg0MxMg@mail.gmail.com>
+References: <fce6ddd7e8061ed0f428d48973d73b75c9ae585c.1346044190.git.viresh.kumar@linaro.org>
+	<20120927142825.GB16606@pengutronix.de>
+	<CAOh2x=nm+iiw3pcKtRcWjBnnjc0+p1kQ7zcqjHHyX9351cZDHQ@mail.gmail.com>
+	<20120928070055.GA17047@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20120928070055.GA17047-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-qxv4g6HH51o@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-s/address_data/address_list/ in addition to c3813d6.
+On 28 September 2012 12:30, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> I am trying to have another I2C weekend this weekend. And your patches
+> have been scheduled for that. The generic feeling is:
+>
+> Very useful but the interface could probably be simplified. This is why
+> it takes me so long, working on interfaces needs more thought than the
+> average patch review :/
 
-Signed-off-by: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
----
- include/linux/i2c.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Hi,
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 8e25a91..8d87329 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -140,7 +140,7 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
-  * The driver.owner field should be set to the module owner of this driver.
-  * The driver.name field should be set to the name of this driver.
-  *
-- * For automatic device detection, both @detect and @address_data must
-+ * For automatic device detection, both @detect and @address_list must
-  * be defined. @class should also be set, otherwise only devices forced
-  * with module parameters will be created. The detect function must
-  * fill at least the name field of the i2c_board_info structure it is
--- 
-1.7.11.4
+Did this poor fellow got some attention this weekend? :)
+
+[PATCH V5 Resend 1/2] i2c/adapter: Add bus recovery infrastructure
+
+--
+viresh
