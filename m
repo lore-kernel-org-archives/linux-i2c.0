@@ -1,501 +1,339 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH resend 1/2] I2C: sis630: sis964 bus
-Date: Thu, 4 Oct 2012 14:57:02 +0200
-Message-ID: <20121004145702.2be5b612@endymion.delvare>
-References: <1346204115-30293-1-git-send-email-amaury.decreme@gmail.com>
- <1346204115-30293-2-git-send-email-amaury.decreme@gmail.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH V5 Resend 1/2] i2c/adapter: Add bus recovery
+ infrastructure
+Date: Thu, 4 Oct 2012 10:00:51 +0200
+Message-ID: <20121004080051.GG598@pengutronix.de>
+References: <viresh.kumar@linaro.org>
+ <d5eaf5302de6a2ba01d1c11abeeed8850be879be.1348831273.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1346204115-30293-2-git-send-email-amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <d5eaf5302de6a2ba01d1c11abeeed8850be879be.1348831273.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Amaury =?ISO-8859-1?B?RGVjcuptZQ==?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: nelson-bExrPSV3DA0@public.gmane.org, mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, amalysh-S0/GAf8tV78@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Amaury,
+Hello Viresh,
 
-I'm stripping the Cc list, this was really too much for such a
-driver-specific patch. You shouldn't trust scripts/get_maintainer.pl
-blindly. Most names it listed were for tree-wide cleanups, the authors
-of which have no personal interest in the i2c-sis630 driver.
-
-On Wed, 29 Aug 2012 03:35:14 +0200, Amaury Decr=EAme wrote:
-> This patch add sis964 bus support to i2c-sis630.
+On Fri, Sep 28, 2012 at 04:58:43PM +0530, Viresh Kumar wrote:
+> Add i2c bus recovery infrastructure to i2c adapters as specified in t=
+he i2c
+> protocol Rev. 03 section 3.1.16 titled "Bus clear".
 >=20
-> Signed-off-by: Amaury Decr=EAme <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> http://www.nxp.com/documents/user_manual/UM10204.pdf
+>=20
+> Sometimes during operation i2c bus hangs and we need to give dummy cl=
+ocks to
+> slave device to start the transfer again. Now we may have capability =
+in the bus
+> controller to generate these clocks or platform may have gpio pins wh=
+ich can be
+> toggled to generate dummy clocks. This patch supports both.
+>=20
+> This patch also adds in generic bus recovery routines gpio or scl lin=
+e based
+> which can be used by bus controller. In addition controller driver ma=
+y provide
+> its own version of the bus recovery routine.
+>=20
+> This doesn't support multi-master recovery for now.
+>=20
+> Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 > ---
->  Documentation/i2c/busses/i2c-sis630 |   17 +++-
->  drivers/i2c/busses/Kconfig          |    4 +-
->  drivers/i2c/busses/i2c-sis630.c     |  148 ++++++++++++++++++++++---=
-----------
->  3 files changed, 107 insertions(+), 62 deletions(-)
+> V5 Resend:
+> - Fixed my email-id, removed st.com and added linaro.org
+> V4->V5:
+> - section name corrected to 3.1.16
+> - merged gpio and non-gpio recovery routines to remove code redundanc=
+y
+> - Changed types of gpio and gpio-flags to unsigned and unsigned long
+> - Checking return value of get_gpio() now
+> - using DIV_ROUND_UP for calculating delay, to get more correct value
 >=20
-> diff --git a/Documentation/i2c/busses/i2c-sis630 b/Documentation/i2c/=
-busses/i2c-sis630
-> index 0b96973..46b62e7 100644
-> --- a/Documentation/i2c/busses/i2c-sis630
-> +++ b/Documentation/i2c/busses/i2c-sis630
-> @@ -4,20 +4,23 @@ Supported adapters:
->    * Silicon Integrated Systems Corp (SiS)
->  	630 chipset (Datasheet: available at http://www.sfr-fresh.com/linux=
-)
->  	730 chipset
-> +	964 chipset
->    * Possible other SiS chipsets ?
+>  drivers/i2c/i2c-core.c | 153 +++++++++++++++++++++++++++++++++++++++=
+++++++++++
+>  include/linux/i2c.h    |  52 +++++++++++++++++
+>  2 files changed, 205 insertions(+)
+>=20
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index a7edf98..bdc249a 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -27,7 +27,9 @@
 > =20
->  Author: Alexander Malysh <amalysh-S0/GAf8tV78@public.gmane.org>
-> +	Amaury Decr=EAme <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> - SiS964 patch
-
-s/patch/support/
-
+>  #include <linux/module.h>
+>  #include <linux/kernel.h>
+> +#include <linux/delay.h>
+>  #include <linux/errno.h>
+> +#include <linux/gpio.h>
+>  #include <linux/slab.h>
+>  #include <linux/i2c.h>
+>  #include <linux/init.h>
+> @@ -104,6 +106,116 @@ static int i2c_device_uevent(struct device *dev=
+, struct kobj_uevent_env *env)
+>  #define i2c_device_uevent	NULL
+>  #endif	/* CONFIG_HOTPLUG */
 > =20
->  Module Parameters
->  -----------------
-> =20
-> -* force =3D [1|0] Forcibly enable the SIS630. DANGEROUS!
-> +* force =3D [1|0] Forcibly enable the driver. DANGEROUS!
-
-"SIS630" here and in many other places really means "SIS630 and
-compatible" i.e. "any chip supported by the driver." So you don't
-really have to change it.
-
->  		This can be interesting for chipsets not named
->  		above to check if it works for you chipset, but DANGEROUS!
-> =20
-> -* high_clock =3D [1|0] Forcibly set Host Master Clock to 56KHz (defa=
-ult,
-> -			what your BIOS use). DANGEROUS! This should be a bit
-> -			faster, but freeze some systems (i.e. my Laptop).
-> +* clock_sel =3D [1|0] Forcibly set Host Master Clock.
-> +			SiS630/730	56kHz instead of 14kHz
-> +			SiS964		27.78kHz instead of 55.56 kHz
-> +			DANGEROUS! It can freeze some systems.
-
-You are changing a public interface here, this should be avoided. The
-change may break existing systems on kernel upgrade.
-
-Your new description is not correct. The forced frequency is really
-"instead of whatever the BIOS set, or failing that, the default value",
-as the original description correctly mentioned.
-
-Given that the SiS964 defaults to the high speed, this option has
-actually very little value for that chip. I suppose you did not even
-test it. IMHO it would be better to simply mark it as SIS630/730-only
-and ignore, conceal or reject it if a SIS964 is detected. I vote for
-concealing it, as this option as the lowest cost AFAICS.
-
-> =20
-> =20
->  Description
-> @@ -36,6 +39,12 @@ or like this:
->  00:00.0 Host bridge: Silicon Integrated Systems [SiS] 730 Host (rev =
-02)
->  00:01.0 ISA bridge: Silicon Integrated Systems [SiS] 85C503/5513
-> =20
-> +or like this:
+> +/* i2c bus recovery routines */
+> +static inline void set_scl_value(struct i2c_adapter *adap, int val)
+> +{
+> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
 > +
-> +00:00.0 Host bridge: Silicon Integrated Systems [SiS] 760/M760 Host =
-(rev 02)
-> +00:02.0 ISA bridge: Silicon Integrated Systems [SiS] SiS964 [MuTIOL =
-Media IO]
-> +							LPC Controller (rev 36)
-> +
->  in your 'lspci' output , then this driver is for your chipset.
-> =20
->  Thank You
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index b4aaa1b..ee9ca06 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -184,11 +184,11 @@ config I2C_SIS5595
->  	  will be called i2c-sis5595.
-> =20
->  config I2C_SIS630
-> -	tristate "SiS 630/730"
-> +	tristate "SiS 630/730/964"
->  	depends on PCI
->  	help
->  	  If you say yes to this option, support will be included for the
-> -	  SiS630 and SiS730 SMBus (a subset of I2C) interface.
-> +	  SiS630, SiS730 and SiS964 SMBus (a subset of I2C) interface.
-> =20
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-sis630.
-> diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c=
--sis630.c
-> index 5d6723b..c950397 100644
-> --- a/drivers/i2c/busses/i2c-sis630.c
-> +++ b/drivers/i2c/busses/i2c-sis630.c
-> @@ -24,7 +24,7 @@
->     18.09.2002
->  	Added SIS730 as supported.
->     21.09.2002
-> -	Added high_clock module option.If this option is set
-> +	Added clock_sel module option.If this option is set
-
-You can't change history!
-
->  	used Host Master Clock 56KHz (default 14KHz).For now we save old Ho=
-st
->  	Master Clock and after transaction completed restore (otherwise
->  	it's confuse BIOS and hung Machine).
-> @@ -32,7 +32,9 @@
->  	Fixed typo in sis630_access
->  	Fixed logical error by restoring of Host Master Clock
->     31.07.2003
-> -   	Added block data read/write support.
-> +	Added block data read/write support.
-> +   03.08.2012
-> +	Added support of SiS964 - Amaury Decr=EAme <amaury.decreme-Re5JQEeQqe8@public.gmane.org=
-m>
->  */
-
-These days we have git to track these changes. I'd rather drop this
-section from the driver altogether (e.g. in your cleanup patch), it is
-of very limited interest these days.
-
-> =20
->  /*
-> @@ -41,6 +43,18 @@
->     Supports:
->  	SIS 630
->  	SIS 730
-> +	SIS 964
-> +
-> +   Notable differences between chips:
-> +	+------------------------+--------------------+-------------------+
-> +	|                        |     SIS630/730     |      SIS964       |
-> +	+------------------------+--------------------+-------------------+
-> +	| Clock                  | 14kHz/56kHz        | 55.56kHz/27.78kHz |
-> +	| SMBus registers offset | 0x80               | 0xE0              |
-> +	| SMB_CNT                | Bit 1 =3D Slave Busy | Bit 1 =3D Bus pro=
-be |
-
-I also see a difference for bit 3 in this register: reserved on SIS630,
-Last Byte on SIS964. This doesn't matter right now because the driver
-doesn't support I2C block reads, but this means the SIS964 does support
-them and you may want to add support for this in the future (it makes
-reading SPD EEPROMs a lot faster.)
-
-
-> +	| SMB_COUNT              | 4:0 bits           | 5:0 bits          |
-> +	+------------------------+--------------------+-------------------+
-> +	(Other differences doesn't affect the functions provided by the dri=
-ver)
-
-Spelling: don't
-
-> =20
->     Note: we assume there can only be one device, with one SMBus inte=
-rface.
->  */
-> @@ -55,22 +69,22 @@
->  #include <linux/acpi.h>
->  #include <linux/io.h>
-> =20
-> -/* SIS630 SMBus registers */
-> -#define SMB_STS			0x80	/* status */
-> -#define SMB_EN			0x81	/* status enable */
-> -#define SMB_CNT			0x82
-> -#define SMBHOST_CNT		0x83
-> -#define SMB_ADDR		0x84
-> -#define SMB_CMD			0x85
-> -#define SMB_PCOUNT		0x86	/* processed count */
-> -#define SMB_COUNT		0x87
-> -#define SMB_BYTE		0x88	/* ~0x8F data byte field */
-> -#define SMBDEV_ADDR		0x90
-> -#define SMB_DB0			0x91
-> -#define SMB_DB1			0x92
-> -#define SMB_SAA			0x93
-> -
-> -/* register count for request_region */
-> +/* SIS964 id, defined here as we are the only file using it */
-> +#define PCI_DEVICE_ID_SI_964	0x0964
-> +
-> +/* SIS630/730/964 SMBus registers */
-> +#define SMB_STS			0x00	/* status */
-> +#define SMB_CNT			0x02	/* control */
-> +#define SMBHOST_CNT		0x03	/* host control */
-> +#define SMB_ADDR		0x04	/* address */
-> +#define SMB_CMD			0x05	/* command */
-> +#define SMB_COUNT		0x07	/* byte count */
-> +#define SMB_BYTE		0x08	/* ~0x8F data byte field */
-> +#define SMB_SAA			0x13	/* host slave alias address */
-
-This register isn't used by the driver per se, only to compute the
-address range end in an error message. As you removed all unused
-registers from the list, you should remove it too.
-
-> +
-> +/* register count for request_region
-> + * As we don't use SMB_PCOUNT, 20 is ok for SiS630 and SiS964
-
-You forgot to mention in the array listing the differences between the
-chips, that register at offset 0x06 has a different meaning. It's
-SMB_PCOUNT on the SIS630 but SMBus Packet Error Check on the SIS964,
-where SMB_PCOUNT was moved to offset 0x14. Without this explanation,
-your comment above is unclear.
-
-> + */
->  #define SIS630_SMB_IOREGION	20
-> =20
->  /* PCI address constants */
-> @@ -93,31 +107,33 @@
->  static struct pci_driver sis630_driver;
-> =20
->  /* insmod parameters */
-> -static bool high_clock;
-> +static bool clock_sel;
->  static bool force;
-> -module_param(high_clock, bool, 0);
-> -MODULE_PARM_DESC(high_clock, "Set Host Master Clock to 56KHz (defaul=
-t 14KHz).");
-> +module_param(clock_sel, bool, 0);
-> +MODULE_PARM_DESC(clock_sel,
-> +"Set Host Master Clock to 56kHz for SIS630/730 and to 27.78kHz for S=
-IS964.");
->  module_param(force, bool, 0);
-> -MODULE_PARM_DESC(force, "Forcibly enable the SIS630. DANGEROUS!");
-> +MODULE_PARM_DESC(force, "Forcibly enable the driver. DANGEROUS!");
-> =20
-> -/* acpi base address */
-> -static unsigned short acpi_base;
-> +/* SMBus base adress */
-> +static unsigned short smbus_base;
-> =20
->  /* supported chips */
->  static int supported[] =3D {
->  	PCI_DEVICE_ID_SI_630,
->  	PCI_DEVICE_ID_SI_730,
-> +	PCI_DEVICE_ID_SI_964,
->  	0 /* terminates the list */
-
-If you follow the logic of the two other chips, what should be listed
-here is PCI_DEVICE_ID_SI_760 =3D=3D 0x0760. I have no idea why it is
-implemented that way, but at least for this patch I'd rather stick to
-it.
-
->  };
-> =20
->  static inline u8 sis630_read(u8 reg)
->  {
-> -	return inb(acpi_base + reg);
-> +	return inb(smbus_base + reg);
->  }
-> =20
->  static inline void sis630_write(u8 reg, u8 data)
->  {
-> -	outb(data, acpi_base + reg);
-> +	outb(data, smbus_base + reg);
->  }
-> =20
->  static int sis630_transaction_start(struct i2c_adapter *adap, int si=
-ze, u8 *oldclock)
-> @@ -143,8 +159,7 @@ static int sis630_transaction_start(struct i2c_ad=
-apter *adap, int size, u8 *oldc
-> =20
->  	dev_dbg(&adap->dev, "saved clock 0x%02x\n", *oldclock);
-> =20
-> -	/* disable timeout interrupt , set Host Master Clock to 56KHz if re=
-quested */
-> -	if (high_clock)
-> +	if (clock_sel)
->  		sis630_write(SMB_CNT, 0x20);
->  	else
->  		sis630_write(SMB_CNT, (*oldclock & ~0x40));
-> @@ -185,12 +200,14 @@ static int sis630_transaction_wait(struct i2c_a=
-dapter *adap, int size)
-> =20
->  	if (temp & 0x04) {
->  		dev_err(&adap->dev, "Bus collision!\n");
-> -		result =3D -EIO;
-> -		/*
-> -		  TBD: Datasheet say:
-> -		  the software should clear this bit and restart SMBUS operation.
-> -		  Should we do it or user start request again?
-> -		*/
-> +		/* Datasheet:
-> +		 * SMBus Collision (SMBCOL_STS)
-> +		 * This bit is set when a SMBus Collision condition occurs and
-> +		 * SMBus Host loses in the bus arbitration. The software should
-> +		 * clear this bit and re-start SMBus operation.
-> +		 */
-> +		sis630_write(SMB_STS, temp & ~0x04);
-> +		return -EAGAIN;
->  	}
-
-This is a nice bug fix, which would deserve a patch on its own.
-
-> =20
->  	return result;
-> @@ -198,18 +215,17 @@ static int sis630_transaction_wait(struct i2c_a=
-dapter *adap, int size)
-> =20
->  static void sis630_transaction_end(struct i2c_adapter *adap, u8 oldc=
-lock)
->  {
-> -	int temp =3D 0;
-> -
-> -	/* clear all status "sticky" bits */
-> -	sis630_write(SMB_STS, temp);
-> +	/* clear all status "sticky" bits
-> +	 * Datasheet:
-> +	 * SMBus Status (SMB_STS)
-> +	 * The following registers are all sticky bits and only can be
-> +	 * cleared by writing a one to their corresponding fields.
-> +	 */
-> +	sis630_write(SMB_STS, 0xFF);
-
-This look like a bug fix as well, not sure how we missed that so far.
-This should be a separate patch too.
-
-> =20
->  	dev_dbg(&adap->dev, "SMB_CNT before clock restore 0x%02x\n", sis630=
-_read(SMB_CNT));
-> =20
-> -	/*
-> -	 * restore old Host Master Clock if high_clock is set
-> -	 * and oldclock was not 56KHz
-> -	 */
-> -	if (high_clock && !(oldclock & 0x20))
-> +	if (clock_sel && !(oldclock & 0x20))
->  		sis630_write(SMB_CNT,(sis630_read(SMB_CNT) & ~0x20));
-> =20
->  	dev_dbg(&adap->dev, "SMB_CNT after clock restore 0x%02x\n", sis630_=
-read(SMB_CNT));
-> @@ -218,12 +234,21 @@ static void sis630_transaction_end(struct i2c_a=
-dapter *adap, u8 oldclock)
->  static int sis630_transaction(struct i2c_adapter *adap, int size)
->  {
->  	int result =3D 0;
-> +	int timeout =3D 0;
->  	u8 oldclock =3D 0;
-> =20
-> -	result =3D sis630_transaction_start(adap, size, &oldclock);
-> -	if (!result) {
-> -		result =3D sis630_transaction_wait(adap, size);
-> -		sis630_transaction_end(adap, oldclock);
-> +	/* We loop in case of collisions */
-> +	do {
-> +		result =3D sis630_transaction_start(adap, size, &oldclock);
-> +		if (!result) {
-> +			result =3D sis630_transaction_wait(adap, size);
-> +			sis630_transaction_end(adap, oldclock);
-> +		}
-> +	} while (result =3D=3D -EAGAIN && timeout++ < MAX_TIMEOUT);
-> +
-> +	if (timeout > MAX_TIMEOUT) {
-> +		dev_dbg(&adap->dev, "Too many collisions !\n");
-> +		return -ETIMEDOUT;
->  	}
-
-You shouldn't do that. Returning -EAGAIN is enough, i2c-core will do
-the retries if you properly set i2c_adapter->retries (which the driver
-doesn't do yet.) Retrying 500 times in a row would be way too much
-anyway.
-
-> =20
->  	return result;
-> @@ -394,6 +419,8 @@ static int __devinit sis630_setup(struct pci_dev =
-*sis630_dev)
->  	unsigned char b;
->  	struct pci_dev *dummy =3D NULL;
->  	int retval, i;
-> +	/* acpi base address */
-> +	static unsigned short acpi_base;
-
-No good reason to make it static.
-
-> =20
->  	/* check for supported SiS devices */
->  	for (i=3D0; supported[i] > 0 ; i++) {
-> @@ -438,16 +465,24 @@ static int __devinit sis630_setup(struct pci_de=
-v *sis630_dev)
-> =20
->  	dev_dbg(&sis630_dev->dev, "ACPI base at 0x%04x\n", acpi_base);
-> =20
-> -	retval =3D acpi_check_region(acpi_base + SMB_STS, SIS630_SMB_IOREGI=
-ON,
-> +	if (supported[i] =3D=3D PCI_DEVICE_ID_SI_964)
-> +		smbus_base =3D acpi_base + 0xE0;
+> +	if (bri->is_gpio_recovery)
+> +		gpio_set_value(bri->scl_gpio, val);
 > +	else
-> +		smbus_base =3D acpi_base + 0x80;
+> +		bri->set_scl(adap, val);
+I would have done this in a different way (with function pointers
+instead of an if for each bang). Well, I don't care much.
+
+> +}
 > +
-> +	dev_dbg(&sis630_dev->dev, "SMBus base at 0x%04x\n", smbus_base);
+> +static inline int get_sda_value(struct i2c_adapter *adap)
+> +{
+> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
+> +
+> +	if (bri->is_gpio_recovery)
+> +		return gpio_get_value(bri->sda_gpio);
+> +	else
+> +		return bri->get_sda(adap);
+> +}
+> +
+> +static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
+> +	struct device *dev =3D &adap->dev;
+> +	int ret =3D 0;
+> +
+> +	if (bri->get_gpio) {
+> +		ret =3D bri->get_gpio(bri->scl_gpio);
+> +		if (ret) {
+> +			dev_warn(dev, "scl get_gpio: %d\n", bri->scl_gpio);
+> +			return ret;
+> +		}
+> +	}
+> +
+> +	ret =3D gpio_request_one(bri->scl_gpio, bri->scl_gpio_flags, "i2c-s=
+cl");
+> +	if (ret) {
+> +		dev_warn(dev, "gpio request fail: %d\n", bri->scl_gpio);
+> +		goto scl_put_gpio;
+> +	}
+> +
+> +	if (!bri->skip_sda_polling) {
+> +		if (bri->get_gpio)
+> +			ret =3D bri->get_gpio(bri->sda_gpio);
+> +
+> +		if (unlikely(ret ||
+> +			gpio_request_one(bri->sda_gpio, bri->sda_gpio_flags,
+> +				"i2c-sda"))) {
+> +			/* work without sda polling */
+> +			dev_warn(dev, "can't get sda: %d. Skip sda polling\n",
+> +					bri->sda_gpio);
+> +			bri->skip_sda_polling =3D true;
+> +			if (!ret && bri->put_gpio)
+> +				bri->put_gpio(bri->sda_gpio);
+> +
+> +			ret =3D 0;
+> +		}
+> +	}
+> +
+> +scl_put_gpio:
+> +	if (bri->put_gpio)
+> +		bri->put_gpio(bri->scl_gpio);
+> +
+> +	return ret;
+> +}
+> +
+> +static void i2c_put_gpios_for_recovery(struct i2c_adapter *adap)
+> +{
+> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
+> +
+> +	gpio_free(bri->scl_gpio);
+> +
+> +	if (!bri->skip_sda_polling) {
+> +		gpio_free(bri->sda_gpio);
+> +
+> +		if (bri->put_gpio)
+> +			bri->put_gpio(bri->sda_gpio);
+> +	}
+> +}
+> +
+> +static int i2c_recover_bus(struct i2c_adapter *adap)
+> +{
+> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
+> +	unsigned long delay =3D 1000000;
+> +	int i, ret, val =3D 1;
+> +
+> +	if (bri->is_gpio_recovery) {
+> +		ret =3D i2c_get_gpios_for_recovery(adap);
+> +		if (ret)
+> +			return ret;
+> +	}
+> +
+> +	delay =3D DIV_ROUND_UP(delay, bri->clock_rate_khz * 2);
+> +
+> +	for (i =3D 0; i < bri->clock_cnt * 2; i++, val =3D !val) {
+> +		set_scl_value(adap, val);
+> +		ndelay(delay);
+> +
+> +		/* break if sda got high, check only when scl line is high */
+> +		if (!bri->skip_sda_polling && val)
+> +			if (unlikely(get_sda_value(adap)))
+> +				break;
+> +	}
+With clock_cnt usually being 9 (and skipping sda polling) assume a
+device pulls down SDA because it was just addressed but the last clock
+pulse to release SDA didn't occur:
 
-Should be 0x%04hx, as this is an unsigned short. Something that could
-be cleaned up in other places BTW.
+	SDAout =AF\_/=AF=AF=AF\___/=AF=AF=AF\___________________/=AF=AF=AF=AF=AF=
+=AF
+        SCL    =AF=AF\_/=AF\_/=AF\_/=AF\_/=AF\_/=AF\_/=AF\_/=AF\_/=AF\_=
+/=AF=AF=AF=AF=AF
+	        S   1   2   3   4   5   6   7   8   9
+
+This adresses an eeprom with address 0x50. When SCL is released for the
+9th clock the eeprom pulls down SDA to ack being addressed. After that
+the eeprom expects the master to write a byte.
+
+Now you do write 0xff:
+
+	 i      0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17
+	SDAin  ___/=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=
+=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF=AF\______
+	SCL    =AF=AF\_/=AF\_/=AF\_/=AF\_/=AF\_/=AF=AF\__/=AF=AF\__/=AF=AF\__/=
+=AF=AF\______/
+	        9   1   2   3   4    5     6     7     8
+
+(assuming the SCL line goes up some time later to its idle state).
+That is you leave the bus in exactly the same state as before: The 9th
+clock isn't complete and the eeprom asserts SDA low to ack the byte jus=
+t
+written. So the bus is still stalled. The problem is BTW the exact same
+one I introduced first in my bus clear routine (for barebox though).
+Even though you count to 2*9 you only do 8 real clock pulses because yo=
+u
+have a half cycle at both the start and the end.
 
 > +
-> +	retval =3D acpi_check_region(smbus_base + SMB_STS, SIS630_SMB_IOREG=
-ION,
->  				   sis630_driver.name);
->  	if (retval)
->  		goto exit;
-> =20
->  	/* Everything is happy, let's grab the memory and set things up. */
-> -	if (!request_region(acpi_base + SMB_STS, SIS630_SMB_IOREGION,
-> +	if (!request_region(smbus_base + SMB_STS, SIS630_SMB_IOREGION,
->  			    sis630_driver.name)) {
-> -		dev_err(&sis630_dev->dev, "SMBus registers 0x%04x-0x%04x already "
-> -			"in use!\n", acpi_base + SMB_STS, acpi_base + SMB_SAA);
-> +		dev_err(&sis630_dev->dev,
-> +			"SMBus registers 0x%04x-0x%04x already in use!\n",
-> +			smbus_base + SMB_STS, smbus_base + SMB_SAA);
-
-"smbus_base + SMB_SAA" is better written "smbus_base + SMB_STS +
-SIS630_SMB_IOREGION - 1", as this is how the region is requested.
-
->  		retval =3D -EBUSY;
->  		goto exit;
->  	}
-> @@ -456,7 +491,7 @@ static int __devinit sis630_setup(struct pci_dev =
-*sis630_dev)
-> =20
->  exit:
->  	if (retval)
-> -		acpi_base =3D 0;
-> +		smbus_base =3D 0;
->  	return retval;
->  }
-> =20
-> @@ -474,6 +509,7 @@ static struct i2c_adapter sis630_adapter =3D {
-> =20
->  static DEFINE_PCI_DEVICE_TABLE(sis630_ids) =3D {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_503) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_964) },
-
-Logic would suggest adding it at the end of the list.
-
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SI, PCI_DEVICE_ID_SI_LPC) },
->  	{ 0, }
->  };
-> @@ -491,17 +527,17 @@ static int __devinit sis630_probe(struct pci_de=
-v *dev, const struct pci_device_i
->  	sis630_adapter.dev.parent =3D &dev->dev;
-> =20
->  	snprintf(sis630_adapter.name, sizeof(sis630_adapter.name),
-> -		 "SMBus SIS630 adapter at %04x", acpi_base + SMB_STS);
-> +		 "SMBus SIS630 adapter at %04x", smbus_base + SMB_STS);
-> =20
->  	return i2c_add_adapter(&sis630_adapter);
->  }
-> =20
->  static void __devexit sis630_remove(struct pci_dev *dev)
+> +	if (bri->is_gpio_recovery)
+> +		i2c_put_gpios_for_recovery(adap);
+> +
+> +	return 0;
+> +}
+> +
+>  static int i2c_device_probe(struct device *dev)
 >  {
-> -	if (acpi_base) {
-> +	if (smbus_base) {
->  		i2c_del_adapter(&sis630_adapter);
-> -		release_region(acpi_base + SMB_STS, SIS630_SMB_IOREGION);
-> -		acpi_base =3D 0;
-> +		release_region(smbus_base + SMB_STS, SIS630_SMB_IOREGION);
-> +		smbus_base =3D 0;
->  	}
->  }
+>  	struct i2c_client	*client =3D i2c_verify_client(dev);
+> @@ -896,6 +1008,47 @@ static int i2c_register_adapter(struct i2c_adap=
+ter *adap)
+>  			 "Failed to create compatibility class link\n");
+>  #endif
 > =20
+> +	/* bus recovery specific initialization */
+> +	if (adap->bus_recovery_info) {
+> +		struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
+> +
+> +		if (bri->recover_bus) {
+> +			dev_info(&adap->dev,
+> +				"registered for non-generic bus recovery\n");
+> +		} else {
+> +			/* Use generic recovery routines */
+> +			if (!bri->clock_rate_khz) {
+> +				dev_warn(&adap->dev,
+> +					"doesn't have valid recovery clock rate\n");
+> +				goto exit_recovery;
+> +			}
+> +
+> +			/* Most controller need 9 clocks at max */
+> +			if (!bri->clock_cnt)
+> +				bri->clock_cnt =3D 9;
+> +
+> +			bri->recover_bus =3D i2c_recover_bus;
+> +
+> +			if (bri->is_gpio_recovery) {
+> +				dev_info(&adap->dev,
+> +					"registered for gpio bus recovery\n");
+> +			} else if (bri->set_scl) {
+> +				if (!bri->skip_sda_polling && !bri->get_sda) {
+> +					dev_warn(&adap->dev,
+> +						"!get_sda. skip sda polling\n");
+> +					bri->skip_sda_polling =3D true;
+> +				}
+> +
+> +				dev_info(&adap->dev,
+> +					"registered for scl bus recovery\n");
+> +			} else {
+> +				dev_warn(&adap->dev,
+> +					"doesn't have valid recovery type\n");
+> +			}
+> +		}
+> +	}
+> +
+> +exit_recovery:
+>  	/* create pre-declared device nodes */
+>  	if (adap->nr < __i2c_first_dynamic_bus_num)
+>  		i2c_scan_static_board_info(adap);
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index 5970266..c43e5c4 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -370,6 +370,55 @@ struct i2c_algorithm {
+>  	u32 (*functionality) (struct i2c_adapter *);
+>  };
+> =20
+> +/**
+> + * struct i2c_bus_recovery_info - I2c bus recovery information
+> + * @recover_bus: Recover routine. Either pass driver's recover_bus()=
+ routine, or
+> + *	pass it NULL to use generic ones, i.e. gpio or scl based.
+> + * @skip_sda_polling: if true, bus recovery will not poll sda line t=
+o check if
+> + *	it became high or not. Only required if recover_bus =3D=3D NULL.
+> + * @is_gpio_recovery: true, select gpio type else scl type. Only req=
+uired if
+> + *	recover_bus =3D=3D NULL.
+> + * @clock_rate_khz: clock rate of dummy clock in khz. Required for b=
+oth gpio and
+> + *	scl type recovery.
+> + * @clock_cnt: count of max clocks to be generated. Required for bot=
+h gpio and
+> + *	scl type recovery.
+> + * @set_scl: controller specific scl configuration routine. Only req=
+uired if
+> + *	is_gpio_recovery =3D=3D false
+> + * @get_sda: controller specific sda read routine. Only required if
+> + *	is_gpio_recovery =3D=3D false and skip_sda_polling =3D=3D false.
+> + * @get_gpio: called before recover_bus() to get padmux configured f=
+or scl line.
+> + *	as gpio. Only required if is_gpio_recovery =3D=3D true. Return 0 =
+on success.
+> + * @put_gpio: called after recover_bus() to get padmux configured fo=
+r scl line
+> + *	as scl. Only required if is_gpio_recovery =3D=3D true.
+> + * @scl_gpio: gpio number of the scl line. Only required if is_gpio_=
+recovery =3D=3D
+> + *	true.
+> + * @sda_gpio: gpio number of the sda line. Only required if is_gpio_=
+recovery =3D=3D
+> + *	true and skip_sda_polling =3D=3D false.
+> + * @scl_gpio_flags: flag for gpio_request_one of scl_gpio. 0 implies
+> + *	GPIOF_OUT_INIT_LOW.
+> + * @sda_gpio_flags: flag for gpio_request_one of sda_gpio. 0 implies
+> + *	GPIOF_OUT_INIT_LOW.
+Didn't you want to change this to GPIOF_OUT_INIT_HIGH |
+GPIOF_OPEN_DRAIN? Hmm, I just wonder how to distinguish
+GPIOF_OUT_INIT_LOW from unset. Hmm, maybe assume unset because _LOW is
+wrong?
 
+Best regards
+Uwe
 
 --=20
-Jean Delvare
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
