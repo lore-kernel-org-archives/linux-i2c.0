@@ -1,73 +1,203 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: omap: Prevent NULL pointer dereference in remove
-Date: Thu, 4 Oct 2012 12:13:56 +0530
-Message-ID: <CAM=Q2cuVpN9dZH8BMEVRPSd-hFZ68ryraoNshCkjEvuWLhfb4w@mail.gmail.com>
-References: <1346932916-12365-1-git-send-email-shubhrajyoti@ti.com>
-	<20120906142135.2cdebf93@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH V6 2/2] i2c/designware: Provide i2c bus recovery support
+Date: Thu,  4 Oct 2012 16:34:54 +0530
+Message-ID: <6262d3a8e87858d938362c4aa44caf40938f2be9.1349348405.git.viresh.kumar@linaro.org>
+References: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar@linaro.org>
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20120906142135.2cdebf93-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+References: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 6, 2012 at 5:51 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Thu, 6 Sep 2012 17:31:56 +0530, Shubhrajyoti D wrote:
->> Prevent the NULL pointer access by moving the platform_set_drvdata function
->> after the access of the pdev.
->>
->> [  654.961761] Unable to handle kernel NULL pointer dereference at virtual address 00000070
->> [  654.970611] pgd = df254000
->> [  654.973480] [00000070] *pgd=9f1da831, *pte=00000000, *ppte=00000000
->> [  654.980163] Internal error: Oops: 17 [#1] SMP ARM
->> [  654.985076] Modules linked in:
->> [  654.988281] CPU: 1    Not tainted  (3.6.0-rc1-00031-ge547de1-dirty #339)
->> [  654.995330] PC is at omap_i2c_runtime_resume+0x8/0x148
->> [  655.000732] LR is at omap_i2c_runtime_resume+0x8/0x148
->>
->> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
->
-> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->
-> (This will rather go in Ben's or Wolfram's i2c tree.)
+Add bus recovery support for designware_i2c controller. It uses generic gpi=
+o
+based i2c_gpio_recover_bus() routine.
 
-ping.
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+V5->V6:
+- removed sda_gpio_flags
 
->
->> ---
->> v2: Implement Jean's suggestion of not deleting instead make it NULL at a safer time.
->>
->>  drivers/i2c/busses/i2c-omap.c |    3 +--
->>  1 files changed, 1 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->> index 5d19a49..c4ddb08 100644
->> --- a/drivers/i2c/busses/i2c-omap.c
->> +++ b/drivers/i2c/busses/i2c-omap.c
->> @@ -1112,8 +1112,6 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
->>       struct resource         *mem;
->>       int ret;
->>
->> -     platform_set_drvdata(pdev, NULL);
->> -
->>       free_irq(dev->irq, dev);
->>       i2c_del_adapter(&dev->adapter);
->>       ret = pm_runtime_get_sync(&pdev->dev);
->> @@ -1127,6 +1125,7 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
->>       kfree(dev);
->>       mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->>       release_mem_region(mem->start, resource_size(mem));
->> +     platform_set_drvdata(pdev, NULL);
->>       return 0;
->>  }
->>
->
->
-> --
-> Jean Delvare
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+ drivers/i2c/busses/i2c-designware-core.c    |  7 ++++-
+ drivers/i2c/busses/i2c-designware-platdrv.c | 38 ++++++++++++++++++++++--
+ include/linux/i2c/i2c-designware.h          | 46 +++++++++++++++++++++++++=
+++++
+ 3 files changed, 88 insertions(+), 3 deletions(-)
+ create mode 100644 include/linux/i2c/i2c-designware.h
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/=
+i2c-designware-core.c
+index cbba7db..9b7c9bf 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -538,7 +538,12 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg m=
+sgs[], int num)
+ =09ret =3D wait_for_completion_interruptible_timeout(&dev->cmd_complete, H=
+Z);
+ =09if (ret =3D=3D 0) {
+ =09=09dev_err(dev->dev, "controller timed out\n");
+-=09=09i2c_dw_init(dev);
++=09=09if (adap->bus_recovery_info &&
++=09=09=09=09adap->bus_recovery_info->recover_bus) {
++=09=09=09dev_dbg(dev->dev, "try i2c bus recovery\n");
++=09=09=09adap->bus_recovery_info->recover_bus(adap);
++=09=09}
++
+ =09=09ret =3D -ETIMEDOUT;
+ =09=09goto done;
+ =09} else if (ret < 0)
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/buss=
+es/i2c-designware-platdrv.c
+index 0506fef..afa0df9 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -29,6 +29,7 @@
+ #include <linux/module.h>
+ #include <linux/delay.h>
+ #include <linux/i2c.h>
++#include <linux/i2c/i2c-designware.h>
+ #include <linux/clk.h>
+ #include <linux/errno.h>
+ #include <linux/sched.h>
+@@ -45,6 +46,7 @@ static struct i2c_algorithm i2c_dw_algo =3D {
+ =09.master_xfer=09=3D i2c_dw_xfer,
+ =09.functionality=09=3D i2c_dw_func,
+ };
++
+ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ {
+ =09return clk_get_rate(dev->clk)/1000;
+@@ -55,6 +57,8 @@ static int __devinit dw_i2c_probe(struct platform_device =
+*pdev)
+ =09struct dw_i2c_dev *dev;
+ =09struct i2c_adapter *adap;
+ =09struct resource *mem, *ioarea;
++=09struct i2c_dw_pdata *pdata;
++=09struct i2c_bus_recovery_info *recovery_info =3D NULL;
+ =09int irq, r;
+=20
+ =09/* NOTE: driver uses the static register mapping */
+@@ -141,17 +145,45 @@ static int __devinit dw_i2c_probe(struct platform_dev=
+ice *pdev)
+ =09adap->dev.parent =3D &pdev->dev;
+ =09adap->dev.of_node =3D pdev->dev.of_node;
+=20
++=09/* Bus recovery support */
++=09pdata =3D dev_get_platdata(&pdev->dev);
++=09if (pdata) {
++=09=09recovery_info =3D kzalloc(sizeof(*recovery_info), GFP_KERNEL);
++=09=09if (!recovery_info) {
++=09=09=09adap->bus_recovery_info =3D NULL;
++=09=09=09dev_err(&pdev->dev,
++=09=09=09=09"failure to allocate memory for bus recovery\n");
++=09=09=09goto skip_recovery;
++=09=09}
++
++=09=09recovery_info->is_gpio_recovery =3D true;
++=09=09recovery_info->get_gpio =3D pdata->get_gpio;
++=09=09recovery_info->put_gpio =3D pdata->put_gpio;
++=09=09recovery_info->scl_gpio =3D pdata->scl_gpio;
++=09=09recovery_info->scl_gpio_flags =3D pdata->scl_gpio_flags;
++=09=09recovery_info->clock_rate_khz =3D clk_get_rate(dev->clk) / 1000;
++
++=09=09if (!pdata->skip_sda_polling)
++=09=09=09recovery_info->sda_gpio =3D pdata->sda_gpio;
++
++=09=09adap->bus_recovery_info =3D recovery_info;
++=09} else {
++=09=09adap->bus_recovery_info =3D NULL;
++=09}
++
++skip_recovery:
+ =09adap->nr =3D pdev->id;
+ =09r =3D i2c_add_numbered_adapter(adap);
+ =09if (r) {
+ =09=09dev_err(&pdev->dev, "failure adding adapter\n");
+-=09=09goto err_free_irq;
++=09=09goto err_free_recovery_info;
+ =09}
+ =09of_i2c_register_devices(adap);
+=20
+ =09return 0;
+=20
+-err_free_irq:
++err_free_recovery_info:
++=09kfree(recovery_info);
+ =09free_irq(dev->irq, dev);
+ err_iounmap:
+ =09iounmap(dev->base);
+@@ -174,6 +206,8 @@ static int __devexit dw_i2c_remove(struct platform_devi=
+ce *pdev)
+ =09struct dw_i2c_dev *dev =3D platform_get_drvdata(pdev);
+ =09struct resource *mem;
+=20
++=09kfree(dev->adapter.bus_recovery_info);
++
+ =09platform_set_drvdata(pdev, NULL);
+ =09i2c_del_adapter(&dev->adapter);
+ =09put_device(&pdev->dev);
+diff --git a/include/linux/i2c/i2c-designware.h b/include/linux/i2c/i2c-des=
+ignware.h
+new file mode 100644
+index 0000000..522dec0
+--- /dev/null
++++ b/include/linux/i2c/i2c-designware.h
+@@ -0,0 +1,46 @@
++/*
++ * Synopsys DesignWare I2C adapter driver's platform data
++ *
++ * Copyright (C) 2012 ST Microelectronics.
++ * Author: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++#ifndef I2C_DESIGNWARE_H
++#define I2C_DESIGNWARE_H
++
++#include <linux/platform_device.h>
++
++/*
++ * struct i2c_dw_pdata - Designware I2c platform data
++ * @scl_gpio: gpio number of the scl line.
++ * @scl_gpio_flags: flag for gpio_request_one of scl_gpio. 0 implies
++ *=09GPIOF_OUT_INIT_LOW.
++ * @get_gpio: called before recover_bus() to get padmux configured for scl=
+ line
++ *=09as gpio. Only required if is_gpio_recovery =3D=3D true
++ * @put_gpio: called after recover_bus() to get padmux configured for scl =
+line
++ *=09as scl. Only required if is_gpio_recovery =3D=3D true
++ * @skip_sda_polling: if true, bus recovery will not poll sda line to chec=
+k if
++ *=09it became high or not. Below are required only if this is false.
++ * @sda_gpio: gpio number of the sda line.
++ */
++struct i2c_dw_pdata {
++=09int scl_gpio;
++=09int scl_gpio_flags;
++=09int (*get_gpio)(unsigned gpio);
++=09void (*put_gpio)(unsigned gpio);
++
++=09/* sda polling specific */
++=09bool skip_sda_polling;
++=09int sda_gpio;
++};
++
++#endif /* I2C_DESIGNWARE_H */
+--=20
+1.7.12.rc2.18.g61b472e
