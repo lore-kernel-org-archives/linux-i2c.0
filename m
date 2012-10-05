@@ -1,83 +1,129 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [GIT PULL] i2c updates for Linux 3.7
-Date: Fri, 5 Oct 2012 23:26:01 +0200
-Message-ID: <20121005232601.7e505c84@endymion.delvare>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-omap: fix interrupt flood during resume
+Date: Fri, 05 Oct 2012 15:07:12 -0700
+Message-ID: <87boggmv3j.fsf@deeprootsystems.com>
+References: <1349427316-24990-1-git-send-email-kalle.jokiniemi@jollamobile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1349427316-24990-1-git-send-email-kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+	(Kalle Jokiniemi's message of "Fri, 5 Oct 2012 11:55:16 +0300")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
++Grygorii (who's been working on various I2C related suspend/resume
+           issues also)
 
-Please pull i2c subsystem updates for Linux 3.7 from:
+Hi Kalle,
 
-git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
+Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org> writes:
 
-Most visible changes are the SMBus multiplexing support added to the
-i2c-i801 driver, as well as support for the VIA VX900.
+> The resume_noirq enables interrupts one-by-one starting from
+> first one. Now if the wake up event for suspend came from i2c
+> device, the i2c bus irq gets enabled before the threaded
+> i2c device irq, causing a flood of i2c bus interrupts as the
+> threaded irq that should clear the event is not enabled yet.
 
- Documentation/i2c/busses/i2c-viapro      |    6 +-
- Documentation/i2c/muxes/i2c-mux-gpio     |   18 +++
- drivers/i2c/Kconfig                      |   17 +++-
- drivers/i2c/busses/Kconfig               |   18 +---
- drivers/i2c/busses/i2c-designware-core.c |    2 +-
- drivers/i2c/busses/i2c-i801.c            |  185 +++++++++++++++++++++++++++++-
- drivers/i2c/busses/i2c-parport.c         |    2 +-
- drivers/i2c/busses/i2c-piix4.c           |    1 +
- drivers/i2c/busses/i2c-viapro.c          |    3 +
- drivers/i2c/busses/scx200_acb.c          |   24 ++--
- drivers/i2c/busses/scx200_i2c.c          |   15 +--
- drivers/i2c/i2c-core.c                   |   16 ++-
- drivers/i2c/i2c-mux.c                    |   22 ++++
- drivers/i2c/i2c-smbus.c                  |   11 +-
- drivers/i2c/muxes/i2c-mux-gpio.c         |   56 +++++++---
- drivers/i2c/muxes/i2c-mux-pca9541.c      |    2 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c      |   10 +-
- drivers/i2c/muxes/i2c-mux-pinctrl.c      |    2 +-
- include/linux/i2c-mux-gpio.h             |    5 +
- include/linux/i2c-mux.h                  |    1 +
- include/linux/i2c.h                      |    2 +-
- include/linux/i2c/pca954x.h              |    1 +
- include/linux/pci_ids.h                  |    1 +
- 23 files changed, 347 insertions(+), 73 deletions(-)
+Ugh, another reason we need some sort of driver dependency tracking in the
+driver model.
 
----------------
+> Fixed the issue by adding suspend_late and resume_early
+> functions that keep i2c bus interrupts disabled until
+> resume_noirq has run completely.
 
-Daniel J Blueman (1):
-      i2c-piix4: Fix build failure
+Hmm, any reason we couldn't put the disable in the .suspend_noirq
+callback?  The reason being is that other drivers might use I2C in their
+suspend or late_suspend callbacks.  I'm not aware of any using I2C in
+their late_suspend callbacks in mainline, but in theory I2C should work
+all the way through the late callbacks.
 
-Jean Delvare (8):
-      i2c-mux: Add support for device auto-detection
-      i2c-designware: i2c_dw_xfer_msg can be static
-      i2c-parport: i2c_parport_irq can be static
-      i2c-viapro: Add VIA VX900 device ID
-      i2c-i801: Support SMBus multiplexing on Asus Z8 series
-      i2c-mux-gpio: Add support for dynamically allocated GPIO pins
-      i2c-mux-gpio: Update documentation
-      i2c-i801: Let i2c-mux-gpio find the GPIO chip
+I know it might look strange to have a disable_irq() in the noirq
+callback, since IRQs are already disabled at that point, but a comment
+stating that it's just there to balance the (re)enable in the
+early_resume callback should be clear.
 
-Jim Cromie (1):
-      i2c/scx200_*: Replace printks with pr_<level>s
+Some other minor comments below...
 
-Julia Lawall (1):
-      i2c-smbus: Convert kzalloc to devm_kzalloc
+> Issue was detected doing a wake up from autosleep with
+> twl4030 power key on N9. Patch tested on N9.
+>
+> Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-omap.c |   37 +++++++++++++++++++++++++++++++++++++
+>  1 files changed, 37 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index 801df60..b77b0c2 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1158,6 +1158,35 @@ omap_i2c_remove(struct platform_device *pdev)
+>  	return 0;
+>  }
+>  
+> +#ifdef CONFIG_SUSPEND
 
-Maxime Ripard (1):
-      i2c-mux-gpio: Use devm_kzalloc instead of kzalloc
+This should be CONFIG_PM_SLEEP in order to cover hibernation also.
 
-Peter Huewe (1):
-      i2c: Make I2C available on UML
+> +static int omap_i2c_suspend_late(struct device *dev)
+> +{
+> +
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
+> +
+> +	/*
+> +	 * The noirq_resume enables the interrupts one by one,
+> +	 * this causes a interrupt flood if the SW irq actually reading
+> +	 * event from i2c device is enabled only after i2c bus irq, as the
+> +	 * irq that should clear the event is still disabled. We have to
+> +	 * disable the bus irq until all other irqs have been enabled.
+> +	 */
 
-Shubhrajyoti D (1):
-      i2c: Convert struct i2c_msg initialization to C99 format
+This comment probably belongs in the resume handler.
 
-Vivien Didelot (1):
-      i2c: Correct struct i2c_driver doc about detection
+> +	disable_irq(_dev->irq);
+> +	return 0;
+> +}
+> +
+> +static int omap_i2c_resume_early(struct device *dev)
+> +{
+> +
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
+> +
+> +	enable_irq(_dev->irq);
+> +
+> +	return 0;
+> +}
+> +#endif
+>  #ifdef CONFIG_PM_RUNTIME
+>  static int omap_i2c_runtime_suspend(struct device *dev)
+>  {
+> @@ -1178,10 +1207,18 @@ static int omap_i2c_runtime_resume(struct device *dev)
+>  
+>  	return 0;
+>  }
+> +#endif
+>  
+> +#if defined(CONFIG_SUSPEND) || defined(CONFIG_PM_RUNTIME)
 
-Thanks,
--- 
-Jean Delvare
+#ifdef CONFIG_PM will cover this
+
+>  static struct dev_pm_ops omap_i2c_pm_ops = {
+> +#ifdef CONFIG_SUSPEND
+
+again, CONFIG_PM_SLEEP here
+
+> +	.suspend_late = omap_i2c_suspend_late,
+> +	.resume_early = omap_i2c_resume_early,
+> +#endif
+> +#ifdef CONFIG_PM_RUNTIME
+>  	.runtime_suspend = omap_i2c_runtime_suspend,
+>  	.runtime_resume = omap_i2c_runtime_resume,
+> +#endif
+>  };
+>  #define OMAP_I2C_PM_OPS (&omap_i2c_pm_ops)
+>  #else
+
+Kevin
