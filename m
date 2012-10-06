@@ -1,35 +1,65 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: i2c-mux-gpio: Use devm_kzalloc instead of
- kzalloc
-Date: Sat, 6 Oct 2012 15:10:28 +0200
-Message-ID: <20121006151028.3c9fbd53@endymion.delvare>
-References: <1348758784-15245-1-git-send-email-maxime.ripard@free-electrons.com>
-	<1348758784-15245-2-git-send-email-maxime.ripard@free-electrons.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: nomadik: adopt pinctrl support
+Date: Sat, 6 Oct 2012 15:30:06 +0200
+Message-ID: <20121006133006.GA25123@pengutronix.de>
+References: <1348837151-20820-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1348758784-15245-2-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1348837151-20820-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org
+To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anmar Oueja <anmar.oueja-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 27 Sep 2012 17:13:02 +0200, Maxime Ripard wrote:
-> Use the devm_kzalloc managed function to stripdown the error and remove
-> code.
-> 
-> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-> ---
->  drivers/i2c/muxes/i2c-mux-gpio.c |   14 +++++---------
->  1 file changed, 5 insertions(+), 9 deletions(-)
-> (...)
 
-Note: I ended up applying this patch (it's on its way to Linus already)
-because it did conflict with another patch in my tree. So only patches
-2/3 and 3/3 in this series are left for Wolfram to handle.
+--1yeeQ81UyVL57Vl7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Jean Delvare
+Hi,
+
+> +	ret =3D clk_prepare(dev->clk);
+> +	if (ret) {
+> +		dev_err(&adev->dev, "can't prepare clock\n");
+> +		goto err_prep_clk;
+> +	}
+> +
+>  	adap =3D &dev->adap;
+>  	adap->dev.parent =3D &adev->dev;
+>  	adap->owner	=3D THIS_MODULE;
+> @@ -994,6 +1092,8 @@ static int nmk_i2c_probe(struct amba_device *adev, c=
+onst struct amba_id *id)
+>  	return 0;
+> =20
+>   err_add_adap:
+> +	clk_unprepare(dev->clk);
+> + err_prep_clk:
+
+This is unrelated, right? And it is also unneeded because of Ulf
+Hansson's patch?
+
+Regards,
+
+   Wolfram
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--1yeeQ81UyVL57Vl7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlBwMl4ACgkQD27XaX1/VRvlNwCdHf/QvjZ1CRqXIB29LhzK+wt2
+ENUAoKbrf0t9wys7cMW4ChlV6k52y0d5
+=lANg
+-----END PGP SIGNATURE-----
+
+--1yeeQ81UyVL57Vl7--
