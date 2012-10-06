@@ -1,65 +1,47 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: nomadik: adopt pinctrl support
-Date: Sat, 6 Oct 2012 15:30:06 +0200
-Message-ID: <20121006133006.GA25123@pengutronix.de>
-References: <1348837151-20820-1-git-send-email-linus.walleij@stericsson.com>
+Subject: Re: [PATCH] i2c-s3c2410: Fix potential NULL pointer dereference
+Date: Sat, 6 Oct 2012 15:37:24 +0200
+Message-ID: <20121006133724.GB25123@pengutronix.de>
+References: <1347958128-13146-1-git-send-email-sachin.kamat@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="1yeeQ81UyVL57Vl7"
+	protocol="application/pgp-signature"; boundary="rS8CxjVDS/+yyDmU"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1348837151-20820-1-git-send-email-linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+In-Reply-To: <1347958128-13146-1-git-send-email-sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Cc: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Anmar Oueja <anmar.oueja-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---1yeeQ81UyVL57Vl7
+--rS8CxjVDS/+yyDmU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Tue, Sep 18, 2012 at 02:18:48PM +0530, Sachin Kamat wrote:
+> of_match_node() returns NULL if a device_node does not have
+> a matching of_match structure. Thus the return value needs to be
+> checked for NULL to avoid NULL pointer dereferencing.
 
-> +	ret =3D clk_prepare(dev->clk);
-> +	if (ret) {
-> +		dev_err(&adev->dev, "can't prepare clock\n");
-> +		goto err_prep_clk;
-> +	}
-> +
->  	adap =3D &dev->adap;
->  	adap->dev.parent =3D &adev->dev;
->  	adap->owner	=3D THIS_MODULE;
-> @@ -994,6 +1092,8 @@ static int nmk_i2c_probe(struct amba_device *adev, c=
-onst struct amba_id *id)
->  	return 0;
-> =20
->   err_add_adap:
-> +	clk_unprepare(dev->clk);
-> + err_prep_clk:
-
-This is unrelated, right? And it is also unneeded because of Ulf
-Hansson's patch?
-
-Regards,
-
-   Wolfram
+I am missing how the driver can be matched to the device if there is no
+fitting device node?
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---1yeeQ81UyVL57Vl7
+--rS8CxjVDS/+yyDmU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlBwMl4ACgkQD27XaX1/VRvlNwCdHf/QvjZ1CRqXIB29LhzK+wt2
-ENUAoKbrf0t9wys7cMW4ChlV6k52y0d5
-=lANg
+iEYEARECAAYFAlBwNBQACgkQD27XaX1/VRtOoACgxqoLSJZyRlkLQsLVnqS50MyM
+/vgAoKeajzgnavJuq2UqUL5S8myj/DQ6
+=e9Lz
 -----END PGP SIGNATURE-----
 
---1yeeQ81UyVL57Vl7--
+--rS8CxjVDS/+yyDmU--
