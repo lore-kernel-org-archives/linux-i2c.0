@@ -1,48 +1,49 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: s3c2410: use clk_prepare_enable and
- clk_disable_unprepare
-Date: Sat, 6 Oct 2012 16:00:54 +0200
-Message-ID: <20121006140054.GC25123@pengutronix.de>
-References: <1349220399-2318-1-git-send-email-thomas.abraham@linaro.org>
+From: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Sat, 6 Oct 2012 21:54:16 +0200
+Message-ID: <20121006215416.5fdbb6ef@endymion.delvare>
+References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com>
+	<20121003164306.GA18529@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DSayHWYpDlRfCAAQ"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1349220399-2318-1-git-send-email-thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20121003164306.GA18529@core.coreip.homeip.net>
+Sender: linux-input-owner@vger.kernel.org
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "benjamin.tissoires" <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, 3 Oct 2012 09:43:12 -0700, Dmitry Torokhov wrote:
+> On Fri, Sep 14, 2012 at 03:41:43PM +0200, benjamin.tissoires wrote:
+> > +	}
+> > +
+> > +	do {
+> > +		ret = i2c_transfer(client->adapter, msg, msg_num);
+> > +		if (ret > 0)
+> > +			break;
+> > +		tries--;
+> > +		dev_dbg(&client->dev, "retrying i2chid_command:%d (%d)\n",
+> > +			command, tries);
+> > +	} while (tries > 0);
+> > +
+> > +	if (wait && ret > 0) {
+> > +		if (debug)
+> > +			dev_err(&client->dev, "%s: waiting....\n", __func__);
+> > +		if (!wait_event_timeout(ihid->wait,
+> > +				!test_bit(I2C_HID_RESET_PENDING, &ihid->flags),
+> > +				msecs_to_jiffies(5000)))
+> > +			ret = -ENODATA;
+> > +		if (debug)
+> > +			dev_err(&client->dev, "%s: finished.\n", __func__);
+> 
+> Why do we have error level messages with debug? I know dev_dbg is
+> compiled out if !DEBUG, but there must be a better way. Maybe define
+> i2c_hid_dbg() via dev_printk() and also check debug condition there?
 
---DSayHWYpDlRfCAAQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+dev_dbg() is compiled out if !DEBUG only if CONFIG_DYNAMIC_DEBUG isn't
+set. These days I think every developer want to enable this option.
 
-On Wed, Oct 03, 2012 at 08:26:39AM +0900, Thomas Abraham wrote:
-> Convert clk_enable/clk_disable to clk_prepare_enable/clk_disable_unprepare
-> calls as required by common clock framework.
->=20
-> Signed-off-by: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-Applied to -next, thanks!
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---DSayHWYpDlRfCAAQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlBwOZYACgkQD27XaX1/VRv8WACfe7Rkbdk7t+woP/fnUX9jkvi+
-iI4AoMyl/R9ukYbLrVqlhGXbaLjermhI
-=wOkq
------END PGP SIGNATURE-----
-
---DSayHWYpDlRfCAAQ--
+-- 
+Jean Delvare
