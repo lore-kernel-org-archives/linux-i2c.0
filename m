@@ -1,462 +1,54 @@
-From: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
-Subject: [PATCH 0/11] introduce macros for i2c_msg initialization
-Date: Sun,  7 Oct 2012 17:38:30 +0200
-Message-ID: <1349624323-15584-1-git-send-email-Julia.Lawall@lip6.fr>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification implementation
+Date: Sun, 7 Oct 2012 18:00:00 +0200
+Message-ID: <CAN+gG=HOz9DN+x7MQ8RTEKNcbRi9Zq15a7xs6BTCeg2XUj4DCQ@mail.gmail.com>
+References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com>
+	<20121006220421.47f5fd56@endymion.delvare>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20121006220421.47f5fd56@endymion.delvare>
+Sender: linux-input-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch set introduces some macros for describing how an i2c_msg is
-being initialized.  There are three macros: I2C_MSG_READ, for a read
-message, I2C_MSG_WRITE, for a write message, and I2C_MSG_OP, for some other
-kind of message, which is expected to be very rarely used.
-
-Some i2c_msg initializations have been updated accordingly using the
-following semantic patch:
-
-// <smpl>
-@r@
-field list[n] ds;
-type T;
-identifier i;
-@@
-
-struct i2c_msg {
-  ds
-  T i;
-  ...
-};
-
-@@
-initializer list[r.n] is;
-expression a;
-identifier nm;
-identifier r.i;
-@@
-
-struct i2c_msg nm = {
-  is,
-- a
-+  .i = a
-  ,...
-};
-
-@@
-initializer list[r.n] is;
-expression a;
-identifier nm;
-identifier r.i;
-@@
-
-struct i2c_msg nm[...] = { ..., {
-  is,
-- a
-+  .i = a
-  ,...}, ...};
-
-@@
-initializer list[r.n] is;
-expression a;
-identifier nm;
-identifier r.i;
-@@
-
-struct i2c_msg nm[] = { ..., {
-  is,
-- a
-+  .i = a
-  ,...}, ...};
-
-// --------------------------------------------------------------------
-// ensure everyone has all fields, pointer case first
-
-@rt@
-type T;
-identifier i;
-@@
-
-struct i2c_msg {
-  ...
-  T *i;
-  ...
-};
-
-@t1@
-expression e;
-identifier nm,rt.i;
-position p;
-@@
-
-struct i2c_msg nm = {@p
-  .i = e,
-};
-
-@@
-identifier nm,rt.i;
-position p!= t1.p;
-@@
-
-struct i2c_msg nm = {@p
-+ .i = NULL,
-  ...
-};
-
-@t2@
-expression e;
-identifier nm,rt.i;
-position p;
-@@
-
-struct i2c_msg nm[] = { ..., {@p
-  .i = e,
-}, ...};
-
-@@
-identifier nm,rt.i;
-position p!= t2.p;
-@@
-
-struct i2c_msg nm[] = { ..., {@p
-+ .i = NULL,
-  ...
-}, ...};
-
-@t3@
-expression e;
-identifier nm,rt.i;
-position p;
-@@
-
-struct i2c_msg nm[...] = { ..., {@p
-  .i = e,
-}, ...};
-
-@@
-identifier nm,rt.i;
-position p!= t3.p;
-@@
-
-struct i2c_msg nm[...] = { ..., {@p
-+ .i = NULL,
-  ...
-}, ...};
-
-// ---------------------------------
-
-@f1@
-expression e;
-identifier nm,r.i;
-position p;
-@@
-
-struct i2c_msg nm = {@p
-  .i = e,
-};
-
-@@
-identifier nm,r.i;
-position p!= f1.p;
-@@
-
-struct i2c_msg nm = {@p
-+ .i = 0,
-  ...
-};
-
-@f2@
-expression e;
-identifier nm,r.i;
-position p;
-@@
-
-struct i2c_msg nm[] = { ..., {@p
-  .i = e,
-}, ...};
-
-@@
-identifier nm,r.i;
-position p!= f2.p;
-@@
-
-struct i2c_msg nm[] = { ..., {@p
-+ .i = 0,
-  ...
-}, ...};
-
-@f3@
-expression e;
-identifier nm,r.i;
-position p;
-@@
-
-struct i2c_msg nm[...] = { ..., {@p
-  .i = e,
-}, ...};
-
-@@
-identifier nm,r.i;
-position p!= f3.p;
-@@
-
-struct i2c_msg nm[...] = { ..., {@p
-+ .i = 0,
-  ...
-}, ...};
-
-// --------------------------------------------------------------------
-
-@@
-constant c;
-identifier x;
-type T,T1;
-T[] b;
-@@
-
-struct i2c_msg x =
-  { .buf = \((T1)b\|(T1)(&b)\|(T1)(&b[0])\), .len =
-(
-0
-|
-  sizeof (...)
-|
-- c
-+ sizeof(b)
-)
-  };
-
-@@
-constant c;
-identifier x;
-type T,T1;
-T[] b;
-@@
-
-struct i2c_msg x[...] =  {...,
-  { .buf = \((T1)b\|(T1)(&b)\|(T1)(&b[0])\), .len =
-(
-0
-|
-  sizeof (...)
-|
-- c
-+ sizeof(b)
-)
-  } ,...};
-
-@@
-constant c;
-identifier x;
-type T,T1;
-T[] b;
-@@
-
-struct i2c_msg x[] =  {...,
-  { .buf = \((T1)b\|(T1)(&b)\|(T1)(&b[0])\), .len =
-(
-0
-|
-  sizeof (...)
-|
-- c
-+ sizeof(b)
-)
-  } ,...};
-
-@@
-constant c;
-identifier x;
-type T1;
-expression b;
-@@
-
-struct i2c_msg x =
-  { .buf = (T1)(&b), .len =
-(
-0
-|
-  sizeof (...)
-|
-- c
-+ sizeof(b)
-)
-  };
-
-@@
-constant c;
-identifier x;
-type T1;
-expression b;
-@@
-
-struct i2c_msg x[...] =  {...,
-  { .buf = (T1)(&b), .len =
-(
-0
-|
-  sizeof (...)
-|
-- c
-+ sizeof(b)
-)
-  } ,...};
-
-@@
-constant c;
-identifier x;
-type T1;
-expression b;
-@@
-
-struct i2c_msg x[] =  {...,
-  { .buf = (T1)(&b), .len =
-(
-0
-|
-  sizeof (...)
-|
-- c
-+ sizeof(b)
-)
-  } ,...};
-
-// --------------------------------------------------------------------
-
-@@
-expression a,b,c;
-identifier x;
-@@
-
-struct i2c_msg x =
-- {.addr = a, .buf = b, .len = c, .flags = I2C_M_RD}
-+ I2C_MSG_READ(a,b,c)
- ;
-
-@@
-expression a,b,c;
-identifier x;
-@@
-
-struct i2c_msg x =
-- {.addr = a, .buf = b, .len = c, .flags = 0}
-+ I2C_MSG_WRITE(a,b,c)
- ;
-
-// has to come before the next rule, which matcher fewer fields
-@@
-expression a,b,c,d;
-identifier x;
-@@
-
-struct i2c_msg x = 
-- {.addr = a, .buf = b, .len = c, .flags = d}
-+ I2C_MSG_OP(a,b,c,d)
- ;
-
-// --------------------------------------------------------------------
-
-@@
-expression a,b,c;
-identifier x;
-@@
-
-struct i2c_msg x[] = {...,
-- {.addr = a, .buf = b, .len = c, .flags = I2C_M_RD}
-+ I2C_MSG_READ(a,b,c)
- ,...};
-
-@@
-expression a,b,c;
-identifier x;
-@@
-
-struct i2c_msg x[] = {..., 
-- {.addr = a, .buf = b, .len = c, .flags = 0}
-+ I2C_MSG_WRITE(a,b,c)
- ,...};
-
-@@
-expression a,b,c,d;
-identifier x;
-@@
-
-struct i2c_msg x[] =  {...,
-- {.addr = a, .buf = b, .len = c, .flags = d}
-+ I2C_MSG_OP(a,b,c,d)
- ,...};
-
-// --------------------------------------------------------------------
-
-@@
-expression a,b,c;
-identifier x;
-@@
-
-struct i2c_msg x[...] =  {...,
-- {.addr = a, .buf = b, .len = c, .flags = I2C_M_RD}
-+ I2C_MSG_READ(a,b,c)
- ,...};
-
-@@
-expression a,b,c;
-identifier x;
-@@
-
-struct i2c_msg x[...] =  {...,
-- {.addr = a, .buf = b, .len = c, .flags = 0}
-+ I2C_MSG_WRITE(a,b,c)
- ,...};
-
-@@
-expression a,b,c,d;
-identifier x;
-@@
-
-struct i2c_msg x[...] = {...,
-- {.addr = a, .buf = b, .len = c, .flags = d}
-+ I2C_MSG_OP(a,b,c,d)
- ,...};
-
-// --------------------------------------------------------------------
-// got everything?
-
-@check1@
-identifier nm;
-position p;
-@@
-
-struct i2c_msg nm@p = {...};
-
-@script:python@
-p << check1.p;
-@@
-
-cocci.print_main("",p)
-
-@check2@
-identifier nm;
-position p;
-@@
-
-struct i2c_msg nm@p [] = {...,{...},...};
-
-@script:python@
-p << check2.p;
-@@
-
-cocci.print_main("",p)
-
-@check3@
-identifier nm;
-position p;
-@@
-
-struct i2c_msg nm@p [...] = {...,{...},...};
-
-@script:python@
-p << check3.p;
-@@
-
-cocci.print_main("",p)
-// </smpl>
+Hi Jean,
+
+Thanks for the comments, the tests and the review. I'm going to try to
+answer most of the remarks, so here is the first:
+
+On Sat, Oct 6, 2012 at 10:04 PM, Jean Delvare <khali@linux-fr.org> wrote:
+> Hi Benjamin,
+>
+[...]
+>a
+> ERROR: "hiddev_report_event" [drivers/i2c/i2c-hid.ko] undefined!
+> ERROR: "hiddev_disconnect" [drivers/i2c/i2c-hid.ko] undefined!
+> ERROR: "hiddev_connect" [drivers/i2c/i2c-hid.ko] undefined!
+> ERROR: "hid_pidff_init" [drivers/i2c/i2c-hid.ko] undefined!
+> make[1]: *** [__modpost] Erreur 1
+> make: *** [modules] Erreur 2
+>
+> This is because these functions aren't exported and I tried to build
+> i2c-hid as a module.BTW I see that these functions are part of the
+> usbhid driver, which looks seriously wrong. If these functions are
+> transport layer-independent, they should be moved to the hid-code or
+> some sub-module. One should be able to enable HID-over-I2C without
+> HID-over-USB.
+
+It looks like I've been mislead by the generic names of these functions.
+By looking at the code, it appears that I can not use them in their
+current state as they are all usb related.
+I think that it will need some work to refactor the general part of
+hiddev so that I2C and bluetooth can use them. For the next version,
+I'll just drop hiddev and pidff support.
+I'm not sure we won't ever find a ff device connected through i2c, but
+the hiddev support will surely be needed.
+
+Cheers,
+Benjamin
+
+>
+> --
+> Jean Delvare
