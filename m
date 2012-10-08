@@ -1,36 +1,50 @@
-From: Jean Pihet <jean.pihet@newoldbits.com>
-Subject: Re: [PATCH] ARM: OMAP: convert I2C driver to PM QoS for MPU latency constraints
-Date: Mon, 8 Oct 2012 11:00:46 +0200
-Message-ID: <CAORVsuWv1HmaiYxfJVr1h5_r_+UHxXLVeLoVmH4RuO5egZoqqA@mail.gmail.com>
-References: <1348157283-24119-1-git-send-email-j-pihet@ti.com>
-	<20121006114614.GB10164@pengutronix.de>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 1/3] i2c: omap: Do not enable the irq always
+Date: Mon, 8 Oct 2012 14:35:14 +0530
+Message-ID: <1349687116-14463-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20121006114614.GB10164@pengutronix.de>
-Sender: linux-omap-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Tony Lindgren <tony@atomide.com>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, Jean Pihet <j-pihet@ti.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Oct 6, 2012 at 1:46 PM, Wolfram Sang <w.sang@pengutronix.de> wrote:
-> On Thu, Sep 20, 2012 at 06:08:03PM +0200, Jean Pihet wrote:
->> Convert the driver from the outdated omap_pm_set_max_mpu_wakeup_lat
->> API to the new PM QoS API.
->> Since the constraint is on the MPU subsystem, use the PM_QOS_CPU_DMA_LATENCY
->> class of PM QoS. The resulting MPU constraints are used by cpuidle to
->> decide the next power state of the MPU subsystem.
->>
->> The I2C device latency timing is derived from the FIFO size and the
->> clock speed and so is applicable to all OMAP SoCs.
->>
->> Signed-off-by: Jean Pihet <j-pihet@ti.com>
->
-> Applied to -next, thanks!
-Thanks!
+Enable the irq in the transfer and disable it after the
+transfer is done.
 
-Jean
->
-> --
-> Pengutronix e.K.                           | Wolfram Sang                |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index b6c6b95..ce41596 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -625,6 +625,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	if (IS_ERR_VALUE(r))
+ 		goto out;
+ 
++	enable_irq(dev->irq);
+ 	r = omap_i2c_wait_for_bb(dev);
+ 	if (r < 0)
+ 		goto out;
+@@ -654,6 +655,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ 	omap_i2c_wait_for_bb(dev);
+ out:
++	disable_irq(dev->irq);
+ 	pm_runtime_mark_last_busy(dev->dev);
+ 	pm_runtime_put_autosuspend(dev->dev);
+ 	return r;
+@@ -1179,6 +1181,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		goto err_unuse_clocks;
+ 	}
+ 
++	disable_irq(dev->irq);
+ 	adap = &dev->adapter;
+ 	i2c_set_adapdata(adap, dev);
+ 	adap->owner = THIS_MODULE;
+-- 
+1.7.5.4
