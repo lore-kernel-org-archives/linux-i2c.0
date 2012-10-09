@@ -1,69 +1,40 @@
-From: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-Subject: Re: [PATCH 0/11] introduce macros for i2c_msg initialization
-Date: Tue, 9 Oct 2012 17:43:36 +0200 (CEST)
-Message-ID: <alpine.DEB.2.02.1210091737450.1971@hadrien>
-References: <1349624323-15584-1-git-send-email-Julia.Lawall@lip6.fr> <20121009173237.7c1a49e9@endymion.delvare>
+From: <Peter.Huewe-d0qZbvYSIPpWk0Htik3J/w@public.gmane.org>
+Subject: RE: [tpmdd-devel] [PATCH] char/tpm: Convert struct i2c_msg
+	initialization to C99 format
+Date: Tue, 9 Oct 2012 16:07:18 +0000
+Message-ID: <74A44E99E3274B4CB570415926B37D440EC6CD@MUCSE501.eu.infineon.com>
+References: <1349782951-9175-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121009173237.7c1a49e9-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+In-Reply-To: <1349782951-9175-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: shubhrajyoti-l0cyMroinI0@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Cc: tpmdd-iBygD9l97zzQT0dZR+AlfA@public.gmane.org, mail-ZlhrYzitvtWsTnJN9+BGXg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, key-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 9 Oct 2012, Jean Delvare wrote:
+> Convert the struct i2c_msg initialization to C99 format. This makes
+> maintaining and editing the code simpler. Also helps once other fields
+> like transferred are added in future.
 
-> Hi Julia,
->
-> On Sun,  7 Oct 2012 17:38:30 +0200, Julia Lawall wrote:
-> > This patch set introduces some macros for describing how an i2c_msg is
-> > being initialized.  There are three macros: I2C_MSG_READ, for a read
-> > message, I2C_MSG_WRITE, for a write message, and I2C_MSG_OP, for some other
-> > kind of message, which is expected to be very rarely used.
->
-> "Some other kind of message" is actually messages which need extra
-> flags. They are still read or write messages.
+> Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
 
-I agree.  We could also have a read with extra options macro and a write
-with extra options macro.  That would give four macros, which is not too
-much more than three.
+Looks good to me,
+Reviewed-by: Peter Huewe <peter.huewe-d0qZbvYSIPpWk0Htik3J/w@public.gmane.org>
 
-> OK, I've read the whole series now and grepped the kernel tree so I
-> have a better overview. There are a lot more occurrences than what you
-> converted. I presume the conversions were just an example and you leave
-> the rest up to the relevant maintainers (e.g. me) if they are
-> interested?
+BUT maybe we should probably wait for the outcome of the 
+"introduce macros for i2c_msg initialization" discussion also by Julia:
+https://lkml.org/lkml/2012/10/7/92
+which would wrap this initialization into a macro:
 
-I would be happy to do the rest, or at least to do more.  I just didn't
-want to do 600+ cases before knowing how others felt about the various
-changes.  Actually, now that we seem to have decided to make fewer changes
-at once, I could probably work more quickly.  So far, I have been
-comparing the results after running cpp, as well as checking that the
-sizeof transformation is correct, which is a bit slow.
+struct i2c_msg msg1 = I2C_MSG_WRITE(tpm_dev.client->addr, 1, &addr);
+struct i2c_msg msg2 I2C_MSG_READ(tpm_dev.client->addr, len, buffer);
+...
+struct i2c_msg msg1 = I2C_MSG_WRITE(tpm_dev.client->addr, len + 1, tpm_dev.buf);
 
-> Given the huge number of affected drivers (a quick grep suggests 230
-> drivers and more than 300 occurrences), we'd better think twice before
-> going on as it will be intrusive and hard to change afterward.
->
-> So my first question will be: what is your goal with this change? Are
-> you only trying to save a few lines of source code? Or do you expect to
-> actually fix/prevent bugs by introducing these macros? Or something
-> else?
+When the discussion is settled I'd probably go directly to I2C_MSG_ macros in order to avoid a double conversion.
 
-The main goal just seems to be to provide something that is more readable.
-
-> I admit I am not completely convinced by the benefit at the moment. A
-> number of these drivers should be using i2c_smbus_*() functions instead
-> of i2c_transfer() for improved compatibility, or i2c_master_send/recv()
-> for single message transfers (383 occurrences!), so making
-> i2c_transfer() easier to use isn't at the top of my priority list. And
-> I see the extra work for the pre-processor, so we need a good reason
-> for doing that.
-
-OK, if it doesn't seem like a good idea, it is no problem to drop the idea
-completely.  It does seem a bit nicer to have writing indicated as WRITE
-rather than as 0, but that might not be a big enough benefit to justify
-making changes.
-
-julia
+Thanks,
+Peter
