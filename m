@@ -1,54 +1,51 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCH 2/4] input: Convert struct i2c_msg initialization to C99 format
-Date: Tue, 9 Oct 2012 17:01:18 +0530
-Message-ID: <1349782278-9023-2-git-send-email-shubhrajyoti@ti.com>
-References: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] matroxfb: Convert struct i2c_msg initialization to C99 format
+Date: Tue, 9 Oct 2012 17:07:48 +0530
+Message-ID: <1349782668-9098-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
-Sender: linux-input-owner@vger.kernel.org
-To: linux-input@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com, Shubhrajyoti D <shubhrajyoti@ti.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Convert the struct i2c_msg initialization to C99 format. This makes
 maintaining and editing the code simpler. Also helps once other fields
 like transferred are added in future.
 
-Thanks to Julia Lawall <julia.lawall@lip6.fr>  for automating the conversion
+Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
- drivers/input/touchscreen/cy8ctmg110_ts.c |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
+ drivers/video/matrox/matroxfb_maven.c |   15 +++++++++++++--
+ 1 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index 464f1bf..f4cfedf 100644
---- a/drivers/input/touchscreen/cy8ctmg110_ts.c
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -99,9 +99,19 @@ static int cy8ctmg110_read_regs(struct cy8ctmg110 *tsc,
- 	int ret;
- 	struct i2c_msg msg[2] = {
- 		/* first write slave position to i2c devices */
--		{ client->addr, 0, 1, &cmd },
-+		{
-+			.addr = client->addr,
-+			.flags = 0,
-+			.len = 1,
-+			.buf = &cmd
-+		},
- 		/* Second read data from position */
--		{ client->addr, I2C_M_RD, len, data }
-+		{
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = len,
-+			.buf = data
-+		}
- 	};
+diff --git a/drivers/video/matrox/matroxfb_maven.c b/drivers/video/matrox/matroxfb_maven.c
+index 217678e..fb5c123 100644
+--- a/drivers/video/matrox/matroxfb_maven.c
++++ b/drivers/video/matrox/matroxfb_maven.c
+@@ -137,8 +137,19 @@ static int* get_ctrl_ptr(struct maven_data* md, int idx) {
  
- 	ret = i2c_transfer(client->adapter, msg, 2);
+ static int maven_get_reg(struct i2c_client* c, char reg) {
+ 	char dst;
+-	struct i2c_msg msgs[] = {{ c->addr, I2C_M_REV_DIR_ADDR, sizeof(reg), &reg },
+-				 { c->addr, I2C_M_RD | I2C_M_NOSTART, sizeof(dst), &dst }};
++	struct i2c_msg msgs[] = {{
++					.addr = c->addr,
++					.flags = I2C_M_REV_DIR_ADDR,
++					.len = sizeof(reg),
++					.buf = &reg
++				},
++				{
++					.addr = c->addr,
++					.flags = I2C_M_RD | I2C_M_NOSTART,
++					.len = sizeof(dst),
++					.buf = &dst
++				}
++	};
+ 	s32 err;
+ 
+ 	err = i2c_transfer(c->adapter, msgs, 2);
 -- 
 1.7.5.4
-
