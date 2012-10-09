@@ -1,34 +1,62 @@
-From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: busses: i2c-ocores: switch to devm_request_and_ioremap
-Date: Tue, 09 Oct 2012 11:29:22 +0200
-Message-ID: <87y5jgc7t9.fsf@macbook.be.48ers.dk>
-References: <20120923133358.GA22861@linux-3ix0.site>
-	<874nmoa9b1.fsf@macbook.be.48ers.dk>
-	<CAMhs6YztTFh0fQFfJOwc++fr-xXxEJU5KvcSvOcAcyyDgWOBDQ@mail.gmail.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 1/4] input: Convert struct i2c_msg initialization to C99 format
+Date: Tue, 9 Oct 2012 17:01:17 +0530
+Message-ID: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAMhs6YztTFh0fQFfJOwc++fr-xXxEJU5KvcSvOcAcyyDgWOBDQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-	(Maxin B. John's message of "Tue, 9 Oct 2012 05:13:13 -0400")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxin B John <maxin.john-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, "Jean Delvare (PC drivers, core)" <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Maxin" == Maxin B John <maxin.john-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
+Convert the struct i2c_msg initialization to C99 format. This makes
+maintaining and editing the code simpler. Also helps once other fields
+like transferred are added in future.
 
- Maxin> Hi Peter,
+Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
 
- Maxin> This drops a few lines of code and allows common APIs to handle
- Maxin> those for us.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+ drivers/input/joystick/as5011.c |   19 ++++++++++++++++---
+ 1 files changed, 16 insertions(+), 3 deletions(-)
 
- Maxin> Signed-off-by: Maxin B. John <maxin.john-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
- >> Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-
- Maxin> Is there any update on this ?
-
-I'm expecting Wolfram to pick it up.
-
+diff --git a/drivers/input/joystick/as5011.c b/drivers/input/joystick/as5011.c
+index c96653b..9d869e2 100644
+--- a/drivers/input/joystick/as5011.c
++++ b/drivers/input/joystick/as5011.c
+@@ -85,7 +85,10 @@ static int as5011_i2c_write(struct i2c_client *client,
+ {
+ 	uint8_t data[2] = { aregaddr, avalue };
+ 	struct i2c_msg msg = {
+-		client->addr, I2C_M_IGNORE_NAK, 2, (uint8_t *)data
++		.addr = client->addr,
++		.flags = I2C_M_IGNORE_NAK,
++		.len = 2,
++		.buf = (uint8_t *)data
+ 	};
+ 	int error;
+ 
+@@ -98,8 +101,18 @@ static int as5011_i2c_read(struct i2c_client *client,
+ {
+ 	uint8_t data[2] = { aregaddr };
+ 	struct i2c_msg msg_set[2] = {
+-		{ client->addr, I2C_M_REV_DIR_ADDR, 1, (uint8_t *)data },
+-		{ client->addr, I2C_M_RD | I2C_M_NOSTART, 1, (uint8_t *)data }
++		{
++			.addr = client->addr,
++			.flags = I2C_M_REV_DIR_ADDR,
++			.len = 1,
++			.buf = (uint8_t *)data
++		},
++		{
++			.addr = client->addr,
++			.flags = I2C_M_RD | I2C_M_NOSTART,
++			.len = 1,
++			.buf = (uint8_t *)data
++		}
+ 	};
+ 	int error;
+ 
 -- 
-Bye, Peter Korsgaard
+1.7.5.4
