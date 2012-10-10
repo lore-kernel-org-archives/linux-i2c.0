@@ -1,70 +1,82 @@
-From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Subject: Re: [PATCH 2/4] input: Convert struct i2c_msg initialization to C99 format
-Date: Wed, 10 Oct 2012 17:05:39 +0530
-Message-ID: <CAM=Q2ctFe29-Dyi+jn6s=-ybQBzXoNERSXeXCQwSCsKUAv8=XA@mail.gmail.com>
-References: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
-	<1349782278-9023-2-git-send-email-shubhrajyoti@ti.com>
-	<20121010110228.3cbccde3@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <20121010110228.3cbccde3@endymion.delvare>
-Sender: linux-input-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com
+From: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+Subject: [PATCH v2] ARM: OMAP: i2c: fix interrupt flood during resume
+Date: Wed, 10 Oct 2012 14:46:06 +0300
+Message-ID: <1349869566-21756-1-git-send-email-kalle.jokiniemi@jollamobile.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org, Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 10, 2012 at 2:32 PM, Jean Delvare <khali@linux-fr.org> wrote:
-> On Tue, 9 Oct 2012 17:01:18 +0530, Shubhrajyoti D wrote:
-[...]
->
-> Acked-by: Jean Delvare <khali@linux-fr.org>
+The resume_noirq enables interrupts one-by-one starting from
+first one. Now if the wake up event for suspend came from i2c
+device, the i2c bus irq gets enabled before the threaded
+i2c device irq, causing a flood of i2c bus interrupts as the
+threaded irq that should clear the event is not enabled yet.
 
+Fixed the issue by adding suspend_late and resume_early
+functions that keep i2c bus interrupts disabled until
+resume_noirq has run completely.
 
-thanks updated patch below
->From 6638ecfa7982f95815382922c50573712c9626d7 Mon Sep 17 00:00:00 2001
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Date: Mon, 17 Sep 2012 19:37:17 +0530
-Subject: [PATCHv2 1/2] input: Convert struct i2c_msg initialization to C99
- format
+Issue was detected doing a wake up from autosleep with
+twl4030 power key on N9. Patch tested on N9.
 
-Convert the struct i2c_msg initialization to C99 format. This makes
-maintaining and editing the code simpler. Also helps once other fields
-like transferred are added in future.
-
-Thanks to Julia Lawall <julia.lawall@lip6.fr>  for automating the conversion
-
-Acked-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
 ---
- drivers/input/touchscreen/cy8ctmg110_ts.c |   13 +++++++++++--
- 1 files changed, 11 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-omap.c |   34 ++++++++++++++++++++++++++++++++++
+ 1 files changed, 34 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c
-b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index 464f1bf..ad6a664 100644
---- a/drivers/input/touchscreen/cy8ctmg110_ts.c
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -99,9 +99,18 @@ static int cy8ctmg110_read_regs(struct cy8ctmg110 *tsc,
- 	int ret;
- 	struct i2c_msg msg[2] = {
- 		/* first write slave position to i2c devices */
--		{ client->addr, 0, 1, &cmd },
-+		{
-+			.addr = client->addr,
-+			.len = 1,
-+			.buf = &cmd
-+		},
- 		/* Second read data from position */
--		{ client->addr, I2C_M_RD, len, data }
-+		{
-+			.addr = client->addr,
-+			.flags = I2C_M_RD,
-+			.len = len,
-+			.buf = data
-+		}
- 	};
-
- 	ret = i2c_transfer(client->adapter, msg, 2);
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index a0e49f6..991341b 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1132,6 +1132,36 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
+ }
+ 
+ #ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
++static int omap_i2c_suspend_noirq(struct device *dev)
++{
++
++	struct platform_device *pdev = to_platform_device(dev);
++	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
++
++	/* Disabling irq here to balance the enable in resume_early */
++	disable_irq(_dev->irq);
++	return 0;
++}
++
++static int omap_i2c_resume_early(struct device *dev)
++{
++
++	struct platform_device *pdev = to_platform_device(dev);
++	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
++
++	/*
++	 * The noirq_resume enables the interrupts one by one,
++	 * this causes a interrupt flood if the SW irq actually reading
++	 * event from i2c device is enabled only after i2c bus irq, as the
++	 * irq that should clear the event is still disabled. We have to
++	 * keep the bus irq disabled until all other irqs have been enabled.
++	 */
++	enable_irq(_dev->irq);
++
++	return 0;
++}
++#endif
+ #ifdef CONFIG_PM_RUNTIME
+ static int omap_i2c_runtime_suspend(struct device *dev)
+ {
+@@ -1183,6 +1213,10 @@ static int omap_i2c_runtime_resume(struct device *dev)
+ #endif /* CONFIG_PM_RUNTIME */
+ 
+ static struct dev_pm_ops omap_i2c_pm_ops = {
++#ifdef CONFIG_PM_SLEEP
++	.suspend_noirq = omap_i2c_suspend_noirq,
++	.resume_early = omap_i2c_resume_early,
++#endif
+ 	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
+ 			   omap_i2c_runtime_resume, NULL)
+ };
 -- 
-1.7.5.4
+1.7.4.1
