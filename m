@@ -1,233 +1,79 @@
-From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Subject: [PATCH 2/2 v3] i2c: nomadik: adopt pinctrl support
-Date: Wed, 10 Oct 2012 13:02:39 +0200
-Message-ID: <1349866959-10686-1-git-send-email-linus.walleij@stericsson.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] char/tpm: Convert struct i2c_msg initialization to C99 format
+Date: Wed, 10 Oct 2012 17:01:52 +0530
+Message-ID: <CAM=Q2cv2-85S7NoVEpcuCohQs=CFxKcyVdm62g4d5q7pJzcpXg@mail.gmail.com>
+References: <1349782951-9175-1-git-send-email-shubhrajyoti@ti.com>
+	<20121010110638.498f0a50@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121010110638.498f0a50-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Anmar Oueja <anmar.oueja-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, mail-ZlhrYzitvtWsTnJN9+BGXg@public.gmane.org, tpmdd-yWjUBOtONefk1uMJSBkQmQ@public.gmane.org, tpmdd-iBygD9l97zzQT0dZR+AlfA@public.gmane.org, key-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+On Wed, Oct 10, 2012 at 2:36 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> On Tue, 9 Oct 2012 17:12:31 +0530, Shubhrajyoti D wrote:
+Thanks for review updated patch below
+>From f3786807bbaafe1f0dfcf2d94e3bee1c273296a4 Mon Sep 17 00:00:00 2001
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Date: Mon, 17 Sep 2012 19:34:37 +0530
+Subject: [PATCHv2] char/tpm: Convert struct i2c_msg initialization to C99
+ format
 
-Amend the I2C nomadik pin controller to optionally take a pin control
-handle and set the state of the pins to:
+Convert the struct i2c_msg initialization to C99 format. This makes
+maintaining and editing the code simpler. Also helps once other fields
+like transferred are added in future.
 
-- "default" on boot, resume and before performing an i2c transfer
-- "idle" after initial default, after resume default, and after each
-   i2c xfer
-- "sleep" on suspend()
+Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
 
-This should make it possible to optimize energy usage for the pins
-both for the suspend/resume cycle, and for runtime cases inbetween
-I2C transfers.
-
-Signed-off-by: Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
-ChangeLog v2->v3:
-- Rebase on top of the patch from Philippe/Ulf.
-ChangeLog v1->v2:
-- We used only two states initially: default and sleep. It turns
-  out you can save some energy when idling (between transfers)
-  and even more when suspending on our platform, so grab all
-  three states and use them as applicable.
----
- drivers/i2c/busses/i2c-nomadik.c | 101 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 101 insertions(+)
+v2: removed zero initialisation of flags.
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 3eeae52..d50b16a 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -24,6 +24,7 @@
- #include <linux/io.h>
- #include <linux/pm_runtime.h>
- #include <linux/platform_data/i2c-nomadik.h>
-+#include <linux/pinctrl/consumer.h>
- 
- #define DRIVER_NAME "nmk-i2c"
- 
-@@ -145,6 +146,10 @@ struct i2c_nmk_client {
-  * @stop: stop condition.
-  * @xfer_complete: acknowledge completion for a I2C message.
-  * @result: controller propogated result.
-+ * @pinctrl: pinctrl handle.
-+ * @pins_default: default state for the pins.
-+ * @pins_idle: idle state for the pins.
-+ * @pins_sleep: sleep state for the pins.
-  * @busy: Busy doing transfer.
-  */
- struct nmk_i2c_dev {
-@@ -158,6 +163,11 @@ struct nmk_i2c_dev {
- 	int				stop;
- 	struct completion		xfer_complete;
- 	int				result;
-+	/* Three pin states - default, idle & sleep */
-+	struct pinctrl			*pinctrl;
-+	struct pinctrl_state		*pins_default;
-+	struct pinctrl_state		*pins_idle;
-+	struct pinctrl_state		*pins_sleep;
- 	bool				busy;
- };
- 
-@@ -648,6 +658,15 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- 		goto out_clk;
- 	}
- 
-+	/* Optionaly enable pins to be muxed in and configured */
-+	if (!IS_ERR(dev->pins_default)) {
-+		status = pinctrl_select_state(dev->pinctrl,
-+				dev->pins_default);
-+		if (status)
-+			dev_err(&dev->adev->dev,
-+				"could not set default pins\n");
-+	}
-+
- 	status = init_hw(dev);
- 	if (status)
- 		goto out;
-@@ -675,6 +694,15 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
- out:
- 	clk_disable_unprepare(dev->clk);
- out_clk:
-+	/* Optionally let pins go into idle state */
-+	if (!IS_ERR(dev->pins_idle)) {
-+		status = pinctrl_select_state(dev->pinctrl,
-+				dev->pins_idle);
-+		if (status)
-+			dev_err(&dev->adev->dev,
-+				"could not set pins to idle state\n");
-+	}
-+
- 	pm_runtime_put_sync(&dev->adev->dev);
- 
- 	dev->busy = false;
-@@ -869,15 +897,44 @@ static int nmk_i2c_suspend(struct device *dev)
+ drivers/char/tpm/tpm_i2c_infineon.c |   19 ++++++++++++++++---
+ 1 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/char/tpm/tpm_i2c_infineon.c
+b/drivers/char/tpm/tpm_i2c_infineon.c
+index 5a831ae..cbf72e1 100644
+--- a/drivers/char/tpm/tpm_i2c_infineon.c
++++ b/drivers/char/tpm/tpm_i2c_infineon.c
+@@ -90,8 +90,17 @@ static struct i2c_driver tpm_tis_i2c_driver;
+ static int iic_tpm_read(u8 addr, u8 *buffer, size_t len)
  {
- 	struct amba_device *adev = to_amba_device(dev);
- 	struct nmk_i2c_dev *nmk_i2c = amba_get_drvdata(adev);
-+	int ret;
- 
- 	if (nmk_i2c->busy)
- 		return -EBUSY;
- 
-+	if (!IS_ERR(nmk_i2c->pins_sleep)) {
-+		ret = pinctrl_select_state(nmk_i2c->pinctrl,
-+				nmk_i2c->pins_sleep);
-+		if (ret)
-+			dev_err(dev,
-+				"could not set pins to sleep state\n");
-+	}
-+
- 	return 0;
- }
- 
- static int nmk_i2c_resume(struct device *dev)
- {
-+	struct amba_device *adev = to_amba_device(dev);
-+	struct nmk_i2c_dev *nmk_i2c = amba_get_drvdata(adev);
-+	int ret;
-+
-+	/* First go to the default state */
-+	if (!IS_ERR(nmk_i2c->pins_default)) {
-+		ret = pinctrl_select_state(nmk_i2c->pinctrl,
-+				nmk_i2c->pins_default);
-+		if (ret)
-+			dev_err(dev,
-+				"could not set pins to default state\n");
-+	}
-+	/* Then let's idle the pins until the next transfer happens */
-+	if (!IS_ERR(nmk_i2c->pins_idle)) {
-+		ret = pinctrl_select_state(nmk_i2c->pinctrl,
-+				nmk_i2c->pins_idle);
-+		if (ret)
-+			dev_err(dev,
-+				"could not set pins to idle state\n");
-+	}
- 	return 0;
- }
- #else
-@@ -941,6 +998,40 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 	dev->adev = adev;
- 	amba_set_drvdata(adev, dev);
- 
-+	dev->pinctrl = devm_pinctrl_get(&adev->dev);
-+	if (IS_ERR(dev->pinctrl)) {
-+		ret = PTR_ERR(dev->pinctrl);
-+		goto err_pinctrl;
-+	}
-+
-+	dev->pins_default = pinctrl_lookup_state(dev->pinctrl,
-+						 PINCTRL_STATE_DEFAULT);
-+	if (IS_ERR(dev->pins_default))
-+		dev_err(&adev->dev, "could not get default pinstate\n");
-+	else {
-+		ret = pinctrl_select_state(dev->pinctrl,
-+					   dev->pins_default);
-+		if (ret)
-+			dev_dbg(&adev->dev, "could not set default pinstate\n");
-+	}
-+
-+	dev->pins_idle = pinctrl_lookup_state(dev->pinctrl,
-+					      PINCTRL_STATE_IDLE);
-+	if (IS_ERR(dev->pins_idle))
-+		dev_dbg(&adev->dev, "could not get idle pinstate\n");
-+	else {
-+		/* If possible, let's go to idle until the first transfer */
-+		ret = pinctrl_select_state(dev->pinctrl,
-+					   dev->pins_idle);
-+		if (ret)
-+			dev_dbg(&adev->dev, "could not set idle pinstate\n");
-+	}
-+
-+	dev->pins_sleep = pinctrl_lookup_state(dev->pinctrl,
-+					       PINCTRL_STATE_SLEEP);
-+	if (IS_ERR(dev->pins_sleep))
-+		dev_dbg(&adev->dev, "could not get sleep pinstate\n");
-+
- 	dev->virtbase = ioremap(adev->res.start, resource_size(&adev->res));
- 	if (!dev->virtbase) {
- 		ret = -ENOMEM;
-@@ -964,6 +1055,12 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 		goto err_no_clk;
- 	}
- 
-+	ret = clk_prepare(dev->clk);
-+	if (ret) {
-+		dev_err(&adev->dev, "can't prepare clock\n");
-+		goto err_prep_clk;
-+	}
-+
- 	adap = &dev->adap;
- 	adap->dev.parent = &adev->dev;
- 	adap->owner	= THIS_MODULE;
-@@ -999,6 +1096,8 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 	return 0;
- 
-  err_add_adap:
-+	clk_unprepare(dev->clk);
-+ err_prep_clk:
- 	clk_put(dev->clk);
-  err_no_clk:
- 	free_irq(dev->irq, dev);
-@@ -1007,6 +1106,7 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
-  err_no_ioremap:
- 	amba_set_drvdata(adev, NULL);
- 	kfree(dev);
-+ err_pinctrl:
-  err_no_mem:
- 
- 	return ret;
-@@ -1027,6 +1127,7 @@ static int nmk_i2c_remove(struct amba_device *adev)
- 	iounmap(dev->virtbase);
- 	if (res)
- 		release_mem_region(res->start, resource_size(res));
-+	clk_unprepare(dev->clk);
- 	clk_put(dev->clk);
- 	pm_runtime_disable(&adev->dev);
- 	amba_set_drvdata(adev, NULL);
+
+-	struct i2c_msg msg1 = { tpm_dev.client->addr, 0, 1, &addr };
+-	struct i2c_msg msg2 = { tpm_dev.client->addr, I2C_M_RD, len, buffer };
++	struct i2c_msg msg1 = {
++		.addr = tpm_dev.client->addr,
++		.len = 1,
++		.buf = &addr
++	};
++	struct i2c_msg msg2 = {
++		.addr = tpm_dev.client->addr,
++		.flags = I2C_M_RD,
++		.len = len,
++		.buf = buffer
++	};
+
+ 	int rc;
+ 	int count;
+@@ -138,7 +147,11 @@ static int iic_tpm_write_generic(u8 addr, u8
+*buffer, size_t len,
+ 	int rc = -EIO;
+ 	int count;
+
+-	struct i2c_msg msg1 = { tpm_dev.client->addr, 0, len + 1, tpm_dev.buf };
++	struct i2c_msg msg1 = {
++			.addr = tpm_dev.client->addr,
++			.len = len + 1,
++			.buf = tpm_dev.buf
++	};
+
+ 	if (len > TPM_BUFSIZE)
+ 		return -EINVAL;
 -- 
-1.7.11.3
+1.7.5.4
