@@ -1,33 +1,41 @@
-From: <Peter.Huewe-d0qZbvYSIPpWk0Htik3J/w@public.gmane.org>
-Subject: RE: [tpmdd-devel] [PATCH] char/tpm: Convert struct i2c_msg
-	initialization to C99 format
-Date: Wed, 10 Oct 2012 14:15:21 +0000
-Message-ID: <74A44E99E3274B4CB570415926B37D440ECC0B@MUCSE501.eu.infineon.com>
-References: <1349782951-9175-1-git-send-email-shubhrajyoti@ti.com>
-	<20121010110638.498f0a50@endymion.delvare>
- <CAM=Q2cv2-85S7NoVEpcuCohQs=CFxKcyVdm62g4d5q7pJzcpXg@mail.gmail.com>
+From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: at91: add a sanity check on i2c message length
+Date: Wed, 10 Oct 2012 16:25:58 +0200
+Message-ID: <1349879158-27268-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2cv2-85S7NoVEpcuCohQs=CFxKcyVdm62g4d5q7pJzcpXg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: tpmdd-iBygD9l97zzQT0dZR+AlfA@public.gmane.org, mail-ZlhrYzitvtWsTnJN9+BGXg@public.gmane.org, tpmdd-devel-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, key-23VcF4HTsmIX0ybBhKVfKdBPR1lH4CV8@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> -----Original Message-----
-> From: Shubhrajyoti Datta [mailto:omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org] 
-> Subject: [PATCHv2] char/tpm: Convert struct i2c_msg initialization to C99 format
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-> Convert the struct i2c_msg initialization to C99 format. This makes
-> maintaining and editing the code simpler. Also helps once other fields
-> like transferred are added in future.
+If the i2c message length is zero, i2c-at91 will directly return an error
+instead of trying to send a zero-length message.
 
-> Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
+Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+---
 
-> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+fix for 3.7
 
-Acked-by: Peter Huewe <peter.huewe-d0qZbvYSIPpWk0Htik3J/w@public.gmane.org>
+ drivers/i2c/busses/i2c-at91.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index aa59a25..eaddc77 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -263,6 +263,9 @@ static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
+ 	unsigned int_addr_flag = 0;
+ 	struct i2c_msg *m_start = msg;
+ 
++	if (!msg->len)
++		return -EINVAL;
++
+ 	dev_dbg(&adap->dev, "at91_xfer: processing %d messages:\n", num);
+ 
+ 	/*
+-- 
+1.7.11.3
