@@ -1,66 +1,70 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] matroxfb: Convert struct i2c_msg initialization to C99 format
-Date: Wed, 10 Oct 2012 17:03:14 +0530
-Message-ID: <CAM=Q2ctuv66edb3Sa76miA=f_j2He-28xPsR+eWc-hR0xzrcYw@mail.gmail.com>
-References: <1349782668-9098-1-git-send-email-shubhrajyoti@ti.com>
-	<20121010110521.3981a23f@endymion.delvare>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [PATCH 2/4] input: Convert struct i2c_msg initialization to C99 format
+Date: Wed, 10 Oct 2012 17:05:39 +0530
+Message-ID: <CAM=Q2ctFe29-Dyi+jn6s=-ybQBzXoNERSXeXCQwSCsKUAv8=XA@mail.gmail.com>
+References: <1349782278-9023-1-git-send-email-shubhrajyoti@ti.com>
+	<1349782278-9023-2-git-send-email-shubhrajyoti@ti.com>
+	<20121010110228.3cbccde3@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121010110521.3981a23f-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-fbdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, FlorianSchandinat-Mmb7MZpHnFY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <20121010110228.3cbccde3@endymion.delvare>
+Sender: linux-input-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Shubhrajyoti D <shubhrajyoti@ti.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, dmitry.torokhov@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 10, 2012 at 2:35 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Tue, 9 Oct 2012 17:07:48 +0530, Shubhrajyoti D wrote:
-Thanks updated patch below.
->From 99073779197f5759a76e65c3f4ef2ad4e9c88eaf Mon Sep 17 00:00:00 2001
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Date: Mon, 17 Sep 2012 21:19:32 +0530
-Subject: [PATCHv2] matroxfb: Convert struct i2c_msg initialization to C99
+On Wed, Oct 10, 2012 at 2:32 PM, Jean Delvare <khali@linux-fr.org> wrote:
+> On Tue, 9 Oct 2012 17:01:18 +0530, Shubhrajyoti D wrote:
+[...]
+>
+> Acked-by: Jean Delvare <khali@linux-fr.org>
+
+
+thanks updated patch below
+>From 6638ecfa7982f95815382922c50573712c9626d7 Mon Sep 17 00:00:00 2001
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Date: Mon, 17 Sep 2012 19:37:17 +0530
+Subject: [PATCHv2 1/2] input: Convert struct i2c_msg initialization to C99
  format
 
 Convert the struct i2c_msg initialization to C99 format. This makes
 maintaining and editing the code simpler. Also helps once other fields
 like transferred are added in future.
 
-Thanks to Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>  for automating the conversion
+Thanks to Julia Lawall <julia.lawall@lip6.fr>  for automating the conversion
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Acked-by: Jean Delvare <khali@linux-fr.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
- drivers/video/matrox/matroxfb_maven.c |   16 ++++++++++++++--
- 1 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/cy8ctmg110_ts.c |   13 +++++++++++--
+ 1 files changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/matrox/matroxfb_maven.c
-b/drivers/video/matrox/matroxfb_maven.c
-index 217678e..f66c34c 100644
---- a/drivers/video/matrox/matroxfb_maven.c
-+++ b/drivers/video/matrox/matroxfb_maven.c
-@@ -137,8 +137,20 @@ static int* get_ctrl_ptr(struct maven_data* md, int idx) {
+diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c
+b/drivers/input/touchscreen/cy8ctmg110_ts.c
+index 464f1bf..ad6a664 100644
+--- a/drivers/input/touchscreen/cy8ctmg110_ts.c
++++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
+@@ -99,9 +99,18 @@ static int cy8ctmg110_read_regs(struct cy8ctmg110 *tsc,
+ 	int ret;
+ 	struct i2c_msg msg[2] = {
+ 		/* first write slave position to i2c devices */
+-		{ client->addr, 0, 1, &cmd },
++		{
++			.addr = client->addr,
++			.len = 1,
++			.buf = &cmd
++		},
+ 		/* Second read data from position */
+-		{ client->addr, I2C_M_RD, len, data }
++		{
++			.addr = client->addr,
++			.flags = I2C_M_RD,
++			.len = len,
++			.buf = data
++		}
+ 	};
 
- static int maven_get_reg(struct i2c_client* c, char reg) {
- 	char dst;
--	struct i2c_msg msgs[] = {{ c->addr, I2C_M_REV_DIR_ADDR, sizeof(reg), &reg },
--				 { c->addr, I2C_M_RD | I2C_M_NOSTART, sizeof(dst), &dst }};
-+	struct i2c_msg msgs[] = {
-+			{
-+				.addr = c->addr,
-+				.flags = I2C_M_REV_DIR_ADDR,
-+				.len = sizeof(reg),
-+				.buf = &reg
-+			},
-+			{
-+				.addr = c->addr,
-+				.flags = I2C_M_RD | I2C_M_NOSTART,
-+				.len = sizeof(dst),
-+				.buf = &dst
-+			}
-+	};
- 	s32 err;
-
- 	err = i2c_transfer(c->adapter, msgs, 2);
+ 	ret = i2c_transfer(client->adapter, msg, 2);
 -- 
 1.7.5.4
