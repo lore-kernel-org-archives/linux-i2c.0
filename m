@@ -1,102 +1,100 @@
-From: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 3/3] i2c-ocores: Add support for the GRLIB port of the controller.
-Date: Thu, 11 Oct 2012 16:11:19 +0200
-Message-ID: <1349964679-23244-4-git-send-email-andreas@gaisler.com>
-References: <1349964679-23244-1-git-send-email-andreas@gaisler.com>
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
+Date: Thu, 11 Oct 2012 14:08:25 -0700
+Message-ID: <87ipag90om.fsf@deeprootsystems.com>
+References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1349964679-23244-1-git-send-email-andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <1349871480-25182-1-git-send-email-kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+	(Kalle Jokiniemi's message of "Wed, 10 Oct 2012 15:18:00 +0300")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
+To: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The registers are 32-bit and in big endian byte order. The PRELOW and PREHIGH
-registers are merged into one register. The subsequent registers have their
-offset decreased accordingly.
+Hi Kalle,
 
-Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-ocores.c |   47 +++++++++++++++++++++++++++++++++++++++
- 1 files changed, 47 insertions(+), 0 deletions(-)
+Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org> writes:
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index de93b2d..1895e8c 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -4,6 +4,9 @@
-  *
-  * Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-  *
-+ * Modified by Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> to support the GRLIB port
-+ * of the controller.
-+ *
-  * This file is licensed under the terms of the GNU General Public License
-  * version 2.  This program is licensed "as is" without any warranty of any
-  * kind, whether express or implied.
-@@ -99,6 +102,40 @@ static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
- 		return ioread8(i2c->base + (reg << i2c->reg_shift));
- }
- 
-+/* Read and write functions for the GRLIB port of the controller. Registers are
-+ * 32-bit big endian and the PRELOW and PREHIGH registers are merged into one
-+ * register. The subsequent registers has their offset decreased accordingly. */
-+static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
-+{
-+	u32 rd;
-+	int rreg = reg;
-+	if (reg != OCI2C_PRELOW)
-+		rreg--;
-+	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
-+	if (reg == OCI2C_PREHIGH)
-+		return (u8)rd >> 8;
-+	else
-+		return (u8)rd;
-+}
-+
-+static void oc_setreg_grlib(struct ocores_i2c *i2c, int reg, u8 value)
-+{
-+	u32 curr, wr;
-+	int rreg = reg;
-+	if (reg != OCI2C_PRELOW)
-+		rreg--;
-+	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
-+		curr = ioread32be(i2c->base + (rreg << i2c->reg_shift));
-+		if (reg == OCI2C_PRELOW)
-+			wr = (curr & 0xff00) | value;
-+		else
-+			wr = (((u32)value) << 8) | (curr & 0xff);
-+	} else {
-+		wr = value;
-+	}
-+	iowrite32be(wr, i2c->base + (rreg << i2c->reg_shift));
-+}
-+
- static void ocores_process(struct ocores_i2c *i2c)
- {
- 	struct i2c_msg *msg = i2c->msg;
-@@ -241,6 +278,7 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	u32 val;
-+	const char *name;
- 
- 	if (of_property_read_u32(np, "reg-shift", &i2c->reg_shift)) {
- 		/* no 'reg-shift', check for deprecated 'regstep' */
-@@ -265,6 +303,15 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
- 
- 	of_property_read_u32(pdev->dev.of_node, "reg-io-width",
- 				&i2c->reg_io_width);
-+
-+	name = of_get_property(pdev->dev.of_node, "name", NULL);
-+	if (name && (!strcmp(name, "GAISLER_I2CMST") ||
-+		     !strcmp(name, "01_028"))) {
-+		dev_dbg(&pdev->dev, "GRLIB variant of i2c-ocores\n");
-+		i2c->setreg = oc_setreg_grlib;
-+		i2c->getreg = oc_getreg_grlib;
-+	}
-+
- 	return 0;
- }
- #else
--- 
-1.7.0.4
+> The resume_noirq enables interrupts one-by-one starting from
+> first one. Now if the wake up event for suspend came from i2c
+> device, the i2c bus irq gets enabled before the threaded
+> i2c device irq, causing a flood of i2c bus interrupts as the
+> threaded irq that should clear the event is not enabled yet.
+>
+> Fixed the issue by adding suspend_noirq and resume_early
+> functions that keep i2c bus interrupts disabled until
+> resume_noirq has run completely.
+>
+> Issue was detected doing a wake up from autosleep with
+> twl4030 power key on N9. Patch tested on N9.
+>
+> Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+
+This version looks good, thanks for the extra comments.
+
+Reviewed-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+Tested-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+
+Wolfram, This should also probably be Cc'd to stable since it affects
+earlier kernels as well.  Thanks,
+
+Kevin
+
+> ---
+>  drivers/i2c/busses/i2c-omap.c |   34 ++++++++++++++++++++++++++++++++++
+>  1 files changed, 34 insertions(+), 0 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index a0e49f6..991341b 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -1132,6 +1132,36 @@ static int __devexit omap_i2c_remove(struct platform_device *pdev)
+>  }
+>  
+>  #ifdef CONFIG_PM
+> +#ifdef CONFIG_PM_SLEEP
+> +static int omap_i2c_suspend_noirq(struct device *dev)
+> +{
+> +
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
+> +
+> +	/* Disabling irq here to balance the enable in resume_early */
+> +	disable_irq(_dev->irq);
+> +	return 0;
+> +}
+> +
+> +static int omap_i2c_resume_early(struct device *dev)
+> +{
+> +
+> +	struct platform_device *pdev = to_platform_device(dev);
+> +	struct omap_i2c_dev *_dev = platform_get_drvdata(pdev);
+> +
+> +	/*
+> +	 * The noirq_resume enables the interrupts one by one,
+> +	 * this causes a interrupt flood if the SW irq actually reading
+> +	 * event from i2c device is enabled only after i2c bus irq, as the
+> +	 * irq that should clear the event is still disabled. We have to
+> +	 * keep the bus irq disabled until all other irqs have been enabled.
+> +	 */
+> +	enable_irq(_dev->irq);
+> +
+> +	return 0;
+> +}
+> +#endif
+>  #ifdef CONFIG_PM_RUNTIME
+>  static int omap_i2c_runtime_suspend(struct device *dev)
+>  {
+> @@ -1183,6 +1213,10 @@ static int omap_i2c_runtime_resume(struct device *dev)
+>  #endif /* CONFIG_PM_RUNTIME */
+>  
+>  static struct dev_pm_ops omap_i2c_pm_ops = {
+> +#ifdef CONFIG_PM_SLEEP
+> +	.suspend_noirq = omap_i2c_suspend_noirq,
+> +	.resume_early = omap_i2c_resume_early,
+> +#endif
+>  	SET_RUNTIME_PM_OPS(omap_i2c_runtime_suspend,
+>  			   omap_i2c_runtime_resume, NULL)
+>  };
