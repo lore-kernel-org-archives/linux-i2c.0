@@ -1,7 +1,7 @@
 From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Subject: Re: [PATCH 1/3] i2c: omap: Do not enable the irq always
-Date: Fri, 12 Oct 2012 07:26:02 -0700
-Message-ID: <87txtz7on9.fsf@deeprootsystems.com>
+Date: Fri, 12 Oct 2012 07:31:59 -0700
+Message-ID: <87lifb7odc.fsf@deeprootsystems.com>
 References: <1349687116-14463-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
