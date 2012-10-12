@@ -1,38 +1,89 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: set irq name as device name
-Date: Fri, 12 Oct 2012 23:19:32 +0530
-Message-ID: <1350064172-32417-1-git-send-email-ldewangan@nvidia.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: omap: Do not enable the irq always
+Date: Fri, 12 Oct 2012 23:30:05 +0530
+Message-ID: <CAM=Q2cu+Qx-X3=2U_p1UbrM3jf18b_XPWLsZGX=9rwEa711NWw@mail.gmail.com>
+References: <1349687116-14463-1-git-send-email-shubhrajyoti@ti.com>
+	<87txtz7on9.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <87txtz7on9.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, huzefank-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-When watching the irqs name of tegra i2c, all instances
-irq name shows as tegra_i2c.
+On Fri, Oct 12, 2012 at 7:56 PM, Kevin Hilman
+<khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> wrote:
+> +Kalle, Grygorii, Huzefa
+>
+> Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org> writes:
+>
+>> Enable the irq in the transfer and disable it after the
+>> transfer is done.
+>>
+>> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+>> ---
+>>  drivers/i2c/busses/i2c-omap.c |    3 +++
+>>  1 files changed, 3 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+>> index b6c6b95..ce41596 100644
+>> --- a/drivers/i2c/busses/i2c-omap.c
+>> +++ b/drivers/i2c/busses/i2c-omap.c
+>> @@ -625,6 +625,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>>       if (IS_ERR_VALUE(r))
+>>               goto out;
+>>
+>> +     enable_irq(dev->irq);
+>>       r = omap_i2c_wait_for_bb(dev);
+>>       if (r < 0)
+>>               goto out;
+>> @@ -654,6 +655,7 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>>
+>>       omap_i2c_wait_for_bb(dev);
+>>  out:
+>> +     disable_irq(dev->irq);
+>
+> When using runtime PM with auto-suspend timeouts, why would you disable
+> the IRQ before the runtime suspend handlers have run?
+>
+> If you really want to do this, you probably should have these in the
+> runtime PM callbacks.
 
-Passing the device name properly to have the irq names with
-instance like tegra-i2c.0, tegra-i2c.1 etc.
+OK.
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+>  But I'll wait until you add a more descriptive
+> changelog before I can really tell why this is being done.  Based on the
+> discussion in the patch from Kalle, I'm assuming this is to prevent
+> interrups when I2C is being used by co-processors.  If so, plese
+> describe in the changelog.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index f981ac4..dcea77b 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -742,7 +742,7 @@ static int __devinit tegra_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	ret = devm_request_irq(&pdev->dev, i2c_dev->irq,
--			tegra_i2c_isr, 0, pdev->name, i2c_dev);
-+			tegra_i2c_isr, 0, dev_name(&pdev->dev), i2c_dev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Failed to request irq %i\n", i2c_dev->irq);
- 		return ret;
--- 
-1.7.1.1
+OK.
+
+>
+> That being said, doesn't the runtime suspend callback already disable
+> IRQs at the device level instead of the INTC level?
+
+My idea is that the device may get reconfigured by the other processor.
+I felt intc is the only way. do you agree?
+
+
+>
+> Kevin
+>
+>>       pm_runtime_mark_last_busy(dev->dev);
+>>       pm_runtime_put_autosuspend(dev->dev);
+>>       return r;
+>> @@ -1179,6 +1181,7 @@ omap_i2c_probe(struct platform_device *pdev)
+>>               goto err_unuse_clocks;
+>>       }
+>>
+>> +     disable_irq(dev->irq);
+>>       adap = &dev->adapter;
+>>       i2c_set_adapdata(adap, dev);
+>>       adap->owner = THIS_MODULE;
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
