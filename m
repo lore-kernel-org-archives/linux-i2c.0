@@ -1,62 +1,68 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
-Date: Fri, 12 Oct 2012 23:41:23 +0530
-Message-ID: <CAM=Q2csQ7dVWUi2vrRMCQ653t_GxtXqH2yGMjY9YAkvA+_i9WA@mail.gmail.com>
-References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>
-	<87ipag90om.fsf@deeprootsystems.com>
-	<902E09E6452B0E43903E4F2D568737AB2C87B0@DNCE04.ent.ti.com>
-	<87d30n7o9q.fsf@deeprootsystems.com>
-	<902E09E6452B0E43903E4F2D568737AB2C8C9F@DNCE04.ent.ti.com>
-	<87r4p363ps.fsf@deeprootsystems.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Subject: [PATCH] i2c: omap: fix spurious IRQs: disable/enable IRQ at INTC when idle
+Date: Fri, 12 Oct 2012 11:40:25 -0700
+Message-ID: <1350067225-24589-1-git-send-email-khilman@deeprootsystems.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87r4p363ps.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: "Strashko, Grygorii" <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org" <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>, "Kankroliwala, Huzefa" <huzefank-l0cyMroinI0@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Huzefa Kankroliwala <huzefank-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Oct 12, 2012 at 10:13 PM, Kevin Hilman
-<khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> wrote:
-> "Strashko, Grygorii" <grygorii.strashko-l0cyMroinI0@public.gmane.org> writes:
->
->> Hi Kevin,
->>
->> yep, [1] is the same fix - thanks.
->
->> Hi Kalle,
->>
->> i've applied these changes and PM runtime fix on top of git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git (omap2plus_defconfig)
->> Could you check it with your use case, pls? (just to be sure that idea is right)
->
-> I think the ideas is right, but [1] introduces more potential problems
-> since it disables the IRQ at the INTC well before being disabled at the
-> device.
-I fail to see this point. Current driver supports master mode only.
-So unless there is a msg queued by the core. May be no interrupts should fire.
+From: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
 
-what I mean
+Currently, runtime PM is used to keep the device enabled only during
+active transfers and for a configurable runtime PM autosuspend timout
+after an xfer.
 
-msg -> conf -> intr -> completion/error  -> autosuspend.
+In addition to idling the device, driver's ->runtime_suspend() method
+currently disables device interrupts when idle.  However, on some SoCs
+(notably OMAP4+), the I2C hardware may shared with other coprocessors.
+This means that the MPU will still recieve interrupts if a coprocessor
+is using the I2C device.  To avoid this, also disable interrupts at
+the MPU INTC when idling the device in ->runtime_suspend() (and
+re-enable them in ->runtime_resume().)  This part based on an original
+patch from Shubhrajyoti Datta.  NOTE: for proper sharing the I2C with
+a coprocessor, this driver still needs hwspinlock support added.
 
->  With runtime PM autosuspend timeouts, that means any IRQs
-> firing during the autosuspend delay will be lost, which basically
-> nullifies the use of autosuspend.
+This change is also meant to address an issue reported by Kalle
+Jokiniemi where I2C bus interrupt may be enabled before an I2C device
+interrupt handler (e.g. just after noirq resume phase) causing an
+interrupt flood on the I2C bus interrupt before the device interrupt
+is enabled (e.g. interrupts coming from devices on I2C connected PMIC
+before the PMIC chained hanlder is enabled.)  This problem is addresed
+by ensuring that the I2C bus interrupt left disabled until an I2C xfer
+is requested.
 
-so I do not expect any interrupts between completion/error -> autosuspend.
+Cc: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
+Cc: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>,
+Cc: Huzefa Kankroliwala <huzefank-l0cyMroinI0@public.gmane.org>
+Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
->
-> Since Shubhrajyoti didn't respond to my runtime PM comments on the
-> original patch,
-
-my apologies for the delay.
-
-> I'll respin this patch by moving the INTC disable/enable
-> into the runtime PM callbacks and make the changelog a bit more clear.
->
-> Grygorii, that pm_runtime_resume() change is needed to.  Can you spin a
-> patch with just that change with a nice descriptive changelog about why
-> it is needed?  Thanks.
->
-> Kevin
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index db31eae..e6413e8 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1255,6 +1255,7 @@ static int omap_i2c_runtime_suspend(struct device *dev)
+ 		/* Flush posted write */
+ 		omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
+ 	}
++	disable_irq(_dev->irq);
+ 
+ 	return 0;
+ }
+@@ -1275,6 +1276,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
+ 		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+ 	}
+ 
++	enable_irq(_dev->irq);
++
+ 	/*
+ 	 * Don't write to this register if the IE state is 0 as it can
+ 	 * cause deadlock.
+-- 
+1.7.9.2
