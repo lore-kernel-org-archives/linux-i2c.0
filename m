@@ -1,17 +1,33 @@
-From: Shubhrajyoti <shubhrajyoti@ti.com>
-Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
-Date: Fri, 12 Oct 2012 17:03:00 +0530
-Message-ID: <5077FFEC.5040407@ti.com>
-References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>,<87ipag90om.fsf@deeprootsystems.com> <902E09E6452B0E43903E4F2D568737AB2C87B0@DNCE04.ent.ti.com>
+From: "Kankroliwala, Huzefa" <huzefank-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
+Date: Fri, 12 Oct 2012 12:55:52 +0000
+Message-ID: <2E9A81F522C511499A7C1931101F66CC0C252451@DFLE11.ent.ti.com>
+References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>,<87ipag90om.fsf@deeprootsystems.com>
+ <902E09E6452B0E43903E4F2D568737AB2C87B0@DNCE04.ent.ti.com>
+ <5077FFEC.5040407@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <902E09E6452B0E43903E4F2D568737AB2C87B0@DNCE04.ent.ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: "Strashko, Grygorii" <grygorii.strashko@ti.com>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "w.sang@pengutronix.de" <w.sang@pengutronix.de>, "ben-linux@fluff.org" <ben-linux@fluff.org>, "tony@atomide.com" <tony@atomide.com>, "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, "Kankroliwala, Huzefa" <huzefank@ti.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5077FFEC.5040407-l0cyMroinI0@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>, "Strashko, Grygorii" <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org" <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
+
+Shubro,
+As Grygorii pointed out we had a generic issue of arm getting interrupted for i2c accesses outside it (IPU in case of omap4/omap5) and to avoid that we would enable/disable mpu level interrupts only when required from i2c-omap driver.
+
+Regards
+Huzefa
+
+-----Original Message-----
+From: Datta, Shubhrajyoti 
+Sent: Friday, October 12, 2012 6:33 AM
+To: Strashko, Grygorii
+Cc: Kevin Hilman; Kalle Jokiniemi; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org; tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org; linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Kankroliwala, Huzefa
+Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
 
 On Friday 12 October 2012 03:48 PM, Strashko, Grygorii wrote:
 > Hi All,
@@ -43,4 +59,3 @@ Any-ways will wait for Huzefa to comment.
 >
 > Grygorii
 > ______________________
-
