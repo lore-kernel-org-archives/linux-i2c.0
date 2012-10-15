@@ -1,36 +1,62 @@
-From: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 0/2] i2c: change id to let i2c-gpio work
-Date: Mon, 15 Oct 2012 17:30:26 +0800
-Message-ID: <1350293428-24551-1-git-send-email-voice.shen@atmel.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
+Date: Mon, 15 Oct 2012 15:41:56 +0530
+Message-ID: <CAM=Q2cuJ-0VSgkBme_Cg8YD2cBG5NZcO6aBeTsPZ_PQGMwJ=bw@mail.gmail.com>
+References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>
+	<87ipag90om.fsf@deeprootsystems.com>
+	<902E09E6452B0E43903E4F2D568737AB2C87B0@DNCE04.ent.ti.com>
+	<87d30n7o9q.fsf@deeprootsystems.com>
+	<902E09E6452B0E43903E4F2D568737AB2C8C9F@DNCE04.ent.ti.com>
+	<1350282068.17145.42.camel@kj-X230>
+	<1350292602.17145.63.camel@kj-X230>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1350292602.17145.63.camel@kj-X230>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+To: kalle.jokiniemi-ieSKYCWCyXoAvxtiuMwx3w@public.gmane.org
+Cc: "Strashko, Grygorii" <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org" <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, "linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Datta, Shubhrajyoti" <shubhrajyoti-l0cyMroinI0@public.gmane.org>, "Kankroliwala, Huzefa" <huzefank-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c core driver will turn the platform device ID to busnum
-When using platfrom device ID as -1, it means dynamically assigned
-the busnum. When writing code, we need to make sure the busnum,
-and call i2c_register_board_info(int busnum, ...) to register device
-if using -1, we do not know the value of busnum
-	
-In order to solve this issue, set the platform device ID as a fix number
-Here using 0 to match the busnum used in i2c_regsiter_board_info()
+On Mon, Oct 15, 2012 at 2:46 PM, Kalle Jokiniemi
+<kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org> wrote:
+> ma, 2012-10-15 kello 09:21 +0300, Kalle Jokiniemi kirjoitti:
+>> Hi,
+>>
+>> pe, 2012-10-12 kello 14:46 +0000, Strashko, Grygorii kirjoitti:
+>> > Hi Kevin,
+>> >
+>> > yep, [1] is the same fix - thanks.
+>> >
+>> > Hi Kalle,
+>> >
+>> > i've applied these changes and PM runtime fix on top of git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git (omap2plus_defconfig)
+>> > Could you check it with your use case, pls? (just to be sure that idea is right)
+>>
+>> Odd, it's not working. I'll add some debug prints to see what happens
+>> there.
+>
+> Well, seems after enabling irq 23 in the resume_noirq, someone does
+> i2c_xfer and there is consequent flood of i2c_xfers and interrupts.
+If there is continuous xfers, you could enable debug LL and see who is
+queuing the
+transfers.
 
-Bo Shen (2):
-  i2c: change id to let i2c-gpio work
-  i2c: change id to let i2c-at91 work
+>
+> Not sure now how these IRQ numbers get mapped these days, my debug print
+> says it's irq number 72 (UART1 from TRM) that is flooding (although it's
+> printed from the i2c-omap isr function, so it's still I2C bus irq...).
 
- arch/arm/mach-at91/at91rm9200.c          |    2 +-
- arch/arm/mach-at91/at91rm9200_devices.c  |    4 ++--
- arch/arm/mach-at91/at91sam9260.c         |    4 ++--
- arch/arm/mach-at91/at91sam9260_devices.c |    4 ++--
- arch/arm/mach-at91/at91sam9261.c         |    4 ++--
- arch/arm/mach-at91/at91sam9261_devices.c |    4 ++--
- arch/arm/mach-at91/at91sam9263.c         |    2 +-
- arch/arm/mach-at91/at91sam9263_devices.c |    4 ++--
- arch/arm/mach-at91/at91sam9rl_devices.c  |    4 ++--
- 9 files changed, 16 insertions(+), 16 deletions(-)
+Can you do a cat /proc/interrupts
 
--- 
-1.7.9.5
+
+>
+> The irq enabling (in resume_noirq) is still slightly progressing after
+> the flooding starts, but my watchdog kicks in before we get to the
+> finish.
+>
+> Attached my debug prints patch and log. I used also "no_console_suspend"
+> boot option.
+>
+> - Kalle
+>
