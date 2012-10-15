@@ -1,43 +1,44 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: change id to let i2c-at91 work
-Date: Mon, 15 Oct 2012 17:02:44 +0200
-Message-ID: <20121015150244.GZ12801@game.jcrosoft.org>
-References: <1350293428-24551-1-git-send-email-voice.shen@atmel.com>
- <1350293428-24551-3-git-send-email-voice.shen@atmel.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: i2c-gpio: fix name issue when i2c gpio node GT
+ 1
+Date: Mon, 15 Oct 2012 10:03:11 -0600
+Message-ID: <507C33BF.6020604@wwwdotorg.org>
+References: <1350287477-30936-1-git-send-email-voice.shen@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1350293428-24551-3-git-send-email-voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1350287477-30936-1-git-send-email-voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 17:30 Mon 15 Oct     , Bo Shen wrote:
-> The i2c core driver will turn the platform device ID to busnum
-> When using platfrom device ID as -1, it means dynamically assigned
-> the busnum. When writing code, we need to make sure the busnum,
-> and call i2c_register_board_info(int busnum, ...) to register device
-> if using -1, we do not know the value of busnum
-> 	
-> In order to solve this issue, set the platform device ID as a fix number
-> Here using 0 to match the busnum used in i2c_regsiter_board_info()
+On 10/15/2012 01:51 AM, Bo Shen wrote:
+> When i2c-gpio node number is greater than 1, the name for each is same
+> So add the patch to fix it.
 > 
-> Signed-off-by: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> ---
+> The adap->name printing information is add by myself
+> 
+> without this patch the log information is as following
+> ---<8---
+> adap->name = i2c-gpio-1
+> i2c-gpio i2c.2: using pins 30 (SDA) and 31 (SCL)
+> adap->name = i2c-gpio-1
+> i2c-gpio i2c.3: using pins 64 (SDA) and 65 (SCL)
+> --->8---
+> 
+> with this patch, the log information is as following
+> ---<8---
+> adap->name = i2c.2
+> i2c-gpio i2c.2: using pins 30 (SDA) and 31 (SCL)
+> adap->name = i2c.3
+> i2c-gpio i2c.3: using pins 64 (SDA) and 65 (SCL)
+> --->8---
 
-can you check when this append for the first time to schedule a patch for stable too
+I think this is reasonable, although I imagine this has zero effect on
+the I2C bus number that's assigned to the device, so I'm not sure how it
+interacts with or supports the other Atmel patch series you sent, which
+I didn't really look at in much detail.
 
-Best Regards,
-J.
+Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
