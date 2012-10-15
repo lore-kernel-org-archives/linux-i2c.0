@@ -1,65 +1,43 @@
-From: Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: revert "i2c: omap: switch to threaded IRQ
- support"
-Date: Mon, 15 Oct 2012 15:05:15 +0000 (UTC)
-Message-ID: <alpine.DEB.2.00.1210151452470.15973@utopia.booyaka.com>
-References: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com> <20121015071657.GA22818@arwen.pp.htv.fi>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c: change id to let i2c-at91 work
+Date: Mon, 15 Oct 2012 17:02:44 +0200
+Message-ID: <20121015150244.GZ12801@game.jcrosoft.org>
+References: <1350293428-24551-1-git-send-email-voice.shen@atmel.com>
+ <1350293428-24551-3-git-send-email-voice.shen@atmel.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121015071657.GA22818-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1350293428-24551-3-git-send-email-voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
-
-On Mon, 15 Oct 2012, Felipe Balbi wrote:
-
-> On Mon, Oct 15, 2012 at 01:51:08AM +0000, Paul Walmsley wrote:
-> > 
-> > Commit 3b2f8f82dad7d1f79cdc8fc05bd1c94baf109bde ("i2c: omap: switch to
-> > threaded IRQ support") causes communication with I2C devices to fail
-> > after system suspend/resume on all OMAP3 devices:
-> > 
-> > ...
-> > [   40.228576] PM: noirq resume of devices complete after 3.723 msecs
-> > [   40.233184] PM: early resume of devices complete after 3.173 msecs
-> > [   40.242736] [sched_delayed] sched: RT throttling activated
-> > [   41.235046] omap_i2c omap_i2c.1: controller timed out
+On 17:30 Mon 15 Oct     , Bo Shen wrote:
+> The i2c core driver will turn the platform device ID to busnum
+> When using platfrom device ID as -1, it means dynamically assigned
+> the busnum. When writing code, we need to make sure the busnum,
+> and call i2c_register_board_info(int busnum, ...) to register device
+> if using -1, we do not know the value of busnum
+> 	
+> In order to solve this issue, set the platform device ID as a fix number
+> Here using 0 to match the busnum used in i2c_regsiter_board_info()
 > 
-> instead of just reverting the patch, I'd rather try to figure out why
-> controller times out in that situation.
-> 
-> It should make no difference if you're running an IRQ thread or not.
-> 
-> Do you have any extra debugging information which might help figuring
-> out what the issue really is ?
+> Signed-off-by: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> ---
 
-As mentioned, the problem can be easily reproduced on OMAP3 is test by 
-running
+can you check when this append for the first time to schedule a patch for stable too
 
-"echo mem > /sys/power/state"
-
-in userspace when rootfs is on MMC.  Then wake up out of suspend, for 
-example, by hitting ENTER on the serial console.
-
-This needs to be part of the testing before any OMAP patches are posted to 
-the lists -- if for no other reason than because Android kernels enter and 
-exit system suspend frequently as part of their standard usage model.
-
-> If the thread is actually at fault, then we need to add IRQF_NO_THREAD
-> to the IRQ flags, otherwise same issue will appear if we boot with
-> "threadirqs" kernel parameter.
-
-...
-
-> but it fails because I2C times out and I'd like to understand why,
-> before just reverting the patch.
-
-It doesn't matter to me how it's fixed as long as it's fixed quickly 
-during the early 3.7-rcs.  
-
-
-- Paul
+Best Regards,
+J.
