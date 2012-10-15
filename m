@@ -1,105 +1,109 @@
-From: Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com>
-Subject: Re: [PATCH] i2c: omap: fix spurious IRQs: disable/enable IRQ at
- INTC when idle
-Date: Mon, 15 Oct 2012 09:25:37 +0300
-Message-ID: <1350282337.17145.45.camel@kj-X230>
-References: <1350067225-24589-1-git-send-email-khilman@deeprootsystems.com>
-	 <CAM=Q2csm0Eh9F6d1wKhEfOOtG+aY+Fh8D-dKPC0RMbKupVQHYQ@mail.gmail.com>
-Reply-To: kalle.jokiniemi@jolla.com
+From: ludovic.desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH v2] i2c: change the id to let the i2c-gpio work
+Date: Mon, 15 Oct 2012 08:42:14 +0200
+Message-ID: <507BB046.8010702@atmel.com>
+References: <1350034971-1050-1-git-send-email-voice.shen@atmel.com>
+ <CAGhQ9VxRGQ8JAygxJreNDJY=tJ67yt2CM9NHvW3VyhjxooXuig@mail.gmail.com>
+ <507B7066.4060802@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <CAM=Q2csm0Eh9F6d1wKhEfOOtG+aY+Fh8D-dKPC0RMbKupVQHYQ@mail.gmail.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Cc: Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, linux-omap@vger.kernel.org, Grygorii Strashko <grygorii.strashko@ti.com>, Shubhrajyoti Datta <shubhrajyoti@ti.com>, Huzefa Kankroliwala <huzefank@ti.com>, Nishanth Menon <nm@ti.com>
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <507B7066.4060802@atmel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Bo Shen <voice.shen@atmel.com>
+Cc: broonie@opensource.wolfsonmicro.com, Joachim Eastwood <manabian@gmail.com>, n.voss@weinmann.de, nicolas.ferre@atmel.com, ludovic.desroches@atmel.com, linux-i2c@vger.kernel.org, plagnioj@jcrosoft.com, linux-arm-kernel@lists.infradead.org, hskinnemoen@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Le 10/15/2012 04:09 AM, Bo Shen a =E9crit :
+> Hi Joachim Eastwood,
+>
+> On 10/13/2012 1:42, Joachim Eastwood wrote:
+>> Hi Bo Shen,
+>>
+>> On Fri, Oct 12, 2012 at 11:42 AM, Bo Shen <voice.shen@atmel.com> wrote:
+>>> The i2c-gpio driver will turn the platform device ID to busnum.
+>>> When using platfrom device ID as -1, it means dynamically assigned
+>>> the busnum. When writing code, we need to make sure the busnum,
+>>> and call i2c_register_board_info(int busnum, ...) to register device
+>>> if using -1, we do not know the value of busnum.
+>>>
+>>> In order to solve this issue, set the platform device ID as a fix number
+>>> Here using 0 to match the busnum used in i2c_regsiter_board_info().
+>>
+>> I have been bitten by this myself on RM9200.
+>>
+>>> Signed-off-by: Bo Shen <voice.shen@atmel.com>
+>>> ---
+>>> Change since v1
+>>>    Make the commit message more clear
+>>> ---
+>>>   arch/arm/mach-at91/at91sam9260_devices.c |    2 +-
+>>
+>> This pattern exist in at91rm9200_devices.c, at91sam9261_devices.c,
+>> at91sam9263_devices.c and at91sam9rl_devices.c you might want to fix
+>> them as well.
+>
+> Thanks for your information.
+> After I test these boards, I will send patches to fix them, while not in
+> this patch.
+>
+>>
+>> I assume we have the same problem if CONFIG_I2C_AT91 is set?
+>> See further down in at91sam9260_devices.c we have another:  ".id =3D -1,"
+>
+> Maybe Nikolaus Voss will deal with this case.
+>
 
-la, 2012-10-13 kello 01:00 +0530, Shubhrajyoti Datta kirjoitti:
-> On Sat, Oct 13, 2012 at 12:10 AM, Kevin Hilman
-> <khilman@deeprootsystems.com> wrote:
-> > From: Kevin Hilman <khilman@ti.com>
-> >
-> > Currently, runtime PM is used to keep the device enabled only during
-> > active transfers and for a configurable runtime PM autosuspend timout
-> > after an xfer.
-> >
-> > In addition to idling the device, driver's ->runtime_suspend() method
-> > currently disables device interrupts when idle.  However, on some SoCs
-> > (notably OMAP4+), the I2C hardware may shared with other coprocessors.
-> > This means that the MPU will still recieve interrupts if a coprocessor
-> > is using the I2C device.  To avoid this, also disable interrupts at
-> > the MPU INTC when idling the device in ->runtime_suspend() (and
-> > re-enable them in ->runtime_resume().)  This part based on an original
-> > patch from Shubhrajyoti Datta.  NOTE: for proper sharing the I2C with
-> > a coprocessor, this driver still needs hwspinlock support added.
-> >
-> > This change is also meant to address an issue reported by Kalle
-> > Jokiniemi where I2C bus interrupt may be enabled before an I2C device
-> > interrupt handler (e.g. just after noirq resume phase) causing an
+Yes the problem is the same, I have encountered it and solved it in the =
 
-It is actually in middle of resume_noirq.
+same way but I was thinking there was a better way to correct it than =
 
-> > interrupt flood on the I2C bus interrupt before the device interrupt
-> > is enabled (e.g. interrupts coming from devices on I2C connected PMIC
-> > before the PMIC chained hanlder is enabled.)  This problem is addresed
-> > by ensuring that the I2C bus interrupt left disabled until an I2C xfer
-> > is requested.
-> 
-> Looks good to me.
-> Will wait for Kalle though.
+removing dynamic id assignment.
+Since setting the id to a fix value is acceptable this change can be =
 
-Does not work for me :(
+done also when using i2c-at91.
 
-As I said, the issue occurs for me when I enter static suspend (echo mem
-> /sys/power/autosleep or /sys/power/state). I don't think doing this
-just in runtime pm will fix my issue. Or do those handlers get run in
-the normal suspend path as well?
-
-- Kalle
-
-> 
-> >
-> > Cc: Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com>
-> > Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-> > Cc: Shubhrajyoti Datta <shubhrajyoti@ti.com>,
-> > Cc: Huzefa Kankroliwala <huzefank@ti.com>
-> > Cc: Nishanth Menon <nm@ti.com>
-> > Signed-off-by: Kevin Hilman <khilman@ti.com>
-> > ---
-> >  drivers/i2c/busses/i2c-omap.c |    3 +++
-> >  1 file changed, 3 insertions(+)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> > index db31eae..e6413e8 100644
-> > --- a/drivers/i2c/busses/i2c-omap.c
-> > +++ b/drivers/i2c/busses/i2c-omap.c
-> > @@ -1255,6 +1255,7 @@ static int omap_i2c_runtime_suspend(struct device *dev)
-> >                 /* Flush posted write */
-> >                 omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
-> >         }
-> > +       disable_irq(_dev->irq);
-> >
-> >         return 0;
-> >  }
-> > @@ -1275,6 +1276,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
-> >                 omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
-> >         }
-> >
-> > +       enable_irq(_dev->irq);
-> > +
-> >         /*
-> >          * Don't write to this register if the IE state is 0 as it can
-> >          * cause deadlock.
-> > --
-> > 1.7.9.2
-> >
-> > --
-> > To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-
-
+>>
+>> regards
+>> Joachim Eastwood
+>>
+>>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>>
+>>> diff --git a/arch/arm/mach-at91/at91sam9260_devices.c
+>>> b/arch/arm/mach-at91/at91sam9260_devices.c
+>>> index 0f24cfb..805ef95 100644
+>>> --- a/arch/arm/mach-at91/at91sam9260_devices.c
+>>> +++ b/arch/arm/mach-at91/at91sam9260_devices.c
+>>> @@ -389,7 +389,7 @@ static struct i2c_gpio_platform_data pdata =3D {
+>>>
+>>>   static struct platform_device at91sam9260_twi_device =3D {
+>>>          .name                   =3D "i2c-gpio",
+>>> -       .id                     =3D -1,
+>>> +       .id                     =3D 0,
+>>>          .dev.platform_data      =3D &pdata,
+>>>   };
+>>>
+>>> --
+>>> 1.7.9.5
+>>>
+>>>
+>>> _______________________________________________
+>>> linux-arm-kernel mailing list
+>>> linux-arm-kernel@lists.infradead.org
+>>> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
