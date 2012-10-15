@@ -1,80 +1,81 @@
 From: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: change the id to let the i2c-gpio work
-Date: Mon, 15 Oct 2012 10:09:42 +0800
-Message-ID: <507B7066.4060802@atmel.com>
-References: <1350034971-1050-1-git-send-email-voice.shen@atmel.com> <CAGhQ9VxRGQ8JAygxJreNDJY=tJ67yt2CM9NHvW3VyhjxooXuig@mail.gmail.com>
+Subject: Re: [PATCH] i2c: i2c-gpio: fix issue when DT node greater than 1
+Date: Mon, 15 Oct 2012 10:59:19 +0800
+Message-ID: <507B7C07.3070702@atmel.com>
+References: <1347958949-5598-1-git-send-email-voice.shen@atmel.com> <50588A8F.30203@wwwdotorg.org> <50591C9C.2080809@atmel.com> <5059E484.6090708@wwwdotorg.org> <20120919175433.3841a954@endymion.delvare> <5074E349.30605@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGhQ9VxRGQ8JAygxJreNDJY=tJ67yt2CM9NHvW3VyhjxooXuig-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <5074E349.30605-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org
-Cc: hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Joachim Eastwood,
+Hi Jean Delvare,
 
-On 10/13/2012 1:42, Joachim Eastwood wrote:
-> Hi Bo Shen,
+On 10/10/2012 10:54, Bo Shen wrote:
 >
-> On Fri, Oct 12, 2012 at 11:42 AM, Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org> wrote:
->> The i2c-gpio driver will turn the platform device ID to busnum.
->> When using platfrom device ID as -1, it means dynamically assigned
->> the busnum. When writing code, we need to make sure the busnum,
->> and call i2c_register_board_info(int busnum, ...) to register device
->> if using -1, we do not know the value of busnum.
+> Hi Jean Delvare,
+>
+> On 9/19/2012 23:54, Jean Delvare wrote:
+>> On Wed, 19 Sep 2012 09:28:04 -0600, Stephen Warren wrote:
+>>> On 09/18/2012 07:15 PM, Bo Shen wrote:
+>>>> I add the debug info, and it give the following error without this
+>>>> patch.
+>>>>
+>>>> --<8----------------------------------
+>>>> adap->name = i2c-gpio-1
+>>>> i2c-gpio i2c.2: using pins 30 (SDA) and 31 (SCL)
+>>>> adap->name = i2c-gpio-1
+>>>> i2c-gpio: probe of i2c.3 failed with error -16
+>>>> -->8----------------------------------
+>>>>
+>>>> With this patch, it successfully registered.
+>>>> --<8----------------------------------
+>>>> adap->name = i2c-gpio0
+>>>> i2c-gpio i2c.2: using pins 30 (SDA) and 31 (SCL)
+>>>> adap->name = i2c-gpio1
+>>>> i2c-gpio i2c.3: using pins 90 (SDA) and 91 (SCL)
+>>>> -->8----------------------------------
+>>>
+>>> Yes, that explains why the registration fails, but not why this patch is
+>>> the correct solution to the problem.
+>>>
+>>> The problematic code appears to be:
+>>>
+>>> snprintf(adap->name, sizeof(adap->name), "i2c-gpio%d", pdev->id);
+>>>
+>>> Instead, I think that should be something more like:
+>>>
+>>> adap->name = dev_name(&pdev->dev);
 >>
->> In order to solve this issue, set the platform device ID as a fix number
->> Here using 0 to match the busnum used in i2c_regsiter_board_info().
+>> strlcpy(adap->name, dev_name(&pdev->dev), sizeof(adap->name))
+ >> if anything, as adap->name is a buffer, not a pointer.
 >
-> I have been bitten by this myself on RM9200.
+> I am sorry for late. I have tested with DT, it works.
 >
->> Signed-off-by: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
->> ---
->> Change since v1
->>    Make the commit message more clear
->> ---
->>   arch/arm/mach-at91/at91sam9260_devices.c |    2 +-
->
-> This pattern exist in at91rm9200_devices.c, at91sam9261_devices.c,
-> at91sam9263_devices.c and at91sam9rl_devices.c you might want to fix
-> them as well.
+> Please send this patch to fix the issue.
+> Thanks.
 
-Thanks for your information.
-After I test these boards, I will send patches to fix them, while not in 
-this patch.
+Ping?
 
->
-> I assume we have the same problem if CONFIG_I2C_AT91 is set?
-> See further down in at91sam9260_devices.c we have another:  ".id = -1,"
+Will you send this patch? Or, I send this patch and add your S.O.B, 
+which do you prefer?
 
-Maybe Nikolaus Voss will deal with this case.
+BRs,
+Bo Shen
 
+>>
+>>> or perhaps:
+>>>
+>>> if (pdev->dev.of_node)
+>>>    /* named will be based on DT node name */
+>>>    adap->name = dev_name(&pdev->dev);
+>>> else
+>>>    snprintf(adap->name, sizeof(adap->name), "i2c-gpio%d", pdev->id);
+>>>
+>>> ?
+>>
 >
-> regards
-> Joachim Eastwood
->
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/arch/arm/mach-at91/at91sam9260_devices.c b/arch/arm/mach-at91/at91sam9260_devices.c
->> index 0f24cfb..805ef95 100644
->> --- a/arch/arm/mach-at91/at91sam9260_devices.c
->> +++ b/arch/arm/mach-at91/at91sam9260_devices.c
->> @@ -389,7 +389,7 @@ static struct i2c_gpio_platform_data pdata = {
->>
->>   static struct platform_device at91sam9260_twi_device = {
->>          .name                   = "i2c-gpio",
->> -       .id                     = -1,
->> +       .id                     = 0,
->>          .dev.platform_data      = &pdata,
->>   };
->>
->> --
->> 1.7.9.5
->>
->>
->> _______________________________________________
->> linux-arm-kernel mailing list
->> linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
->> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
