@@ -1,65 +1,99 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v3 2/2] i2c: change id to let i2c-at91 work
-Date: Tue, 16 Oct 2012 13:10:27 +0200
-Message-ID: <20121016111027.GE12801@game.jcrosoft.org>
-References: <1350293428-24551-1-git-send-email-voice.shen@atmel.com>
- <1350293428-24551-3-git-send-email-voice.shen@atmel.com>
- <20121015150244.GZ12801@game.jcrosoft.org>
- <507CD0CA.9010006@atmel.com>
- <20121016083954.GB12801@game.jcrosoft.org>
- <507D361C.6020403@atmel.com>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [PATCH] i2c: omap: revert "i2c: omap: switch to threaded IRQ support"
+Date: Tue, 16 Oct 2012 18:28:13 +0530
+Message-ID: <CAM=Q2csHTbR4rBe1HNr5-M3sG5wgdCv6dCnGLmNQEwo1gjCSGg@mail.gmail.com>
+References: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <507D361C.6020403-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Paul Walmsley <paul@pwsan.com>
+Cc: linux-i2c@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Shubhrajyoti D <shubhrajyoti@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18:25 Tue 16 Oct     , Bo Shen wrote:
-> Hi J,
-> 
-> On 10/16/2012 16:39, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> >On 11:13 Tue 16 Oct     , Bo Shen wrote:
-> >>Hi J,
-> >>
-> >>On 10/15/2012 23:02, Jean-Christophe PLAGNIOL-VILLARD wrote:
-> >>>On 17:30 Mon 15 Oct     , Bo Shen wrote:
-> >>>>The i2c core driver will turn the platform device ID to busnum
-> >>>>When using platfrom device ID as -1, it means dynamically assigned
-> >>>>the busnum. When writing code, we need to make sure the busnum,
-> >>>>and call i2c_register_board_info(int busnum, ...) to register device
-> >>>>if using -1, we do not know the value of busnum
-> >>>>	
-> >>>>In order to solve this issue, set the platform device ID as a fix number
-> >>>>Here using 0 to match the busnum used in i2c_regsiter_board_info()
-> >>>>
-> >>>>Signed-off-by: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> >>>>---
-> >>>
-> >>>can you check when this append for the first time to schedule a patch for stable too
-> >>
-> >>OK. I will resend it and add linux stable into the cc list.
-> >no this not how it work
-> >
-> >I ask you to check which patch add the regression and then when this is
-> >applied in the kernel we will request greg to apply it too to the stable
-> 
-> The code is using id = -1 appear 4 years ago. And after dig, I don't
-> find which patch cause this the regression.
-so use git bisect to find the commit responsible
+On Mon, Oct 15, 2012 at 7:21 AM, Paul Walmsley <paul@pwsan.com> wrote:
+>
+> Commit 3b2f8f82dad7d1f79cdc8fc05bd1c94baf109bde ("i2c: omap: switch to
+> threaded IRQ support") causes communication with I2C devices to fail
+> after system suspend/resume on all OMAP3 devices:
+>
+Could you tell me which  omap3 platform
 
-Best Regards,
-J.
+On Beagle Xm
+after
+mount /dev/mmcblk  /mmcfs
+
+
+# mount /dev/mmcblk0p2 /mmcfs/
+[  412.480041] kjournald starting.  Commit interval 5 seconds
+[  412.490020] EXT3-fs (mmcblk0p2): using internal journal
+[  412.495605] EXT3-fs (mmcblk0p2): mounted filesystem with ordered data mode
+#
+
+
+# cd /mmcfs/
+#
+#
+# ls
+bin                   omap3_usb_prcm.sh     usb_prcm.sh
+dev                   omap3_usbhs_off.sh    usb_uhh_show.sh
+etc                   omap3_usbhs_on.sh     usb_uhh_tll.sh
+init                  proc                  usbhs_clk_disable.sh
+lib                   readmem.dat           usbhs_clk_enable.sh
+lost+found            root                  usbhs_set_sm.sh
+mnt                   sbin                  usbhs_show.sh
+modules               sys                   usr
+msc                   tmp                   var
+omap3_ehcidump.sh     usb_omap3.sh
+#
+#
+# echo mem > /sys/power/state
+[  464.785461] PM: Syncing filesystems ... done.
+[  464.791442] PM: Preparing system for mem sleep
+[  464.798034] Freezing user space processes ... (elapsed 0.02 seconds) done.
+[  464.827301] Freezing remaining freezable tasks ... (elapsed 0.02
+seconds) done.
+[  464.858703] PM: Entering mem sleep
+[  464.862304] Suspending console(s) (use no_console_suspend to debug)
+[  464.994415] PM: suspend of devices complete after 121.002 msecs
+[  464.998107] PM: late suspend of devices complete after 3.662 msecs
+[  465.003173] PM: noirq suspend of devices complete after 5.004 msecs
+[  465.003173] Disabling non-boot CPUs ...
+[  466.225585] Successfully put all powerdomains to target state
+[  466.228942] PM: noirq resume of devices complete after 3.051 msecs
+[  466.232421] PM: early resume of devices complete after 2.349 msecs
+[  467.492645] PM: resume of devices complete after 1260.131 msecs
+[  467.546936] PM: Finishing wakeup.
+[  467.550415] Restarting tasks ... done.
+#
+#
+# cat /debug/pm_debug/count | grep per_pwrdm
+per_pwrdm (ON),OFF:7,RET:0,INA:0,ON:8,RET-LOGIC-OFF:0,RET-MEMBANK1-OFF:0
+per_clkdm->per_pwrdm (17)
+# echo mem > /sys/power/state
+[ 1492.225311] PM: Syncing filesystems ... done.
+[ 1492.232177] PM: Preparing system for mem sleep
+[ 1492.238830] Freezing user space processes ... (elapsed 0.02 seconds) done.
+[ 1492.268188] Freezing remaining freezable tasks ... (elapsed 0.02
+seconds) done.
+[ 1492.299804] PM: Entering mem sleep
+[ 1492.303375] Suspending console(s) (use no_console_suspend to debug)
+[ 1492.435333] PM: suspend of devices complete after 120.880 msecs
+[ 1492.439025] PM: late suspend of devices complete after 3.692 msecs
+[ 1492.444091] PM: noirq suspend of devices complete after 5.004 msecs
+[ 1492.444091] Disabling non-boot CPUs ...
+[ 1493.745544] Successfully put all powerdomains to target state
+[ 1493.748901] PM: noirq resume of devices complete after 3.051 msecs
+[ 1493.752319] PM: early resume of devices complete after 2.319 msecs
+[ 1494.794067] PM: resume of devices complete after 1041.625 msecs
+[ 1494.848388] PM: Finishing wakeup.
+[ 1494.851867] Restarting tasks ... done.
+#
+#
+# cat /debug/pm_debug/count | grep per_pwrdm
+per_pwrdm (ON),OFF:8,RET:0,INA:0,ON:9,RET-LOGIC-OFF:0,RET-MEMBANK1-OFF:0
+per_clkdm->per_pwrdm (17)
+#
+
+Anyways will retry with fs on mmc.
