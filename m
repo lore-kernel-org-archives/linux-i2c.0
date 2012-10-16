@@ -1,45 +1,43 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: fix spurious IRQs: disable/enable IRQ at
- INTC when idle
-Date: Mon, 15 Oct 2012 18:02:24 -0700
-Message-ID: <20121016010223.GL15569@atomide.com>
-References: <1350067225-24589-1-git-send-email-khilman@deeprootsystems.com>
- <CAM=Q2csm0Eh9F6d1wKhEfOOtG+aY+Fh8D-dKPC0RMbKupVQHYQ@mail.gmail.com>
- <1350282337.17145.45.camel@kj-X230>
- <87zk3ntzfe.fsf@deeprootsystems.com>
+From: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c: change id to let i2c-at91 work
+Date: Tue, 16 Oct 2012 11:13:14 +0800
+Message-ID: <507CD0CA.9010006@atmel.com>
+References: <1350293428-24551-1-git-send-email-voice.shen@atmel.com> <1350293428-24551-3-git-send-email-voice.shen@atmel.com> <20121015150244.GZ12801@game.jcrosoft.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <87zk3ntzfe.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <20121015150244.GZ12801-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: kalle.jokiniemi-ieSKYCWCyXoAvxtiuMwx3w@public.gmane.org, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Huzefa Kankroliwala <huzefank-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> [121015 10:32]:
-> Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org> writes:
-> >
-> > Does not work for me :(
-> >
-> > As I said, the issue occurs for me when I enter static suspend (echo mem
-> >> /sys/power/autosleep or /sys/power/state). I don't think doing this
-> > just in runtime pm will fix my issue. Or do those handlers get run in
-> > the normal suspend path as well?
-> 
-> If the I2C device is still active during the suspend path, these
-> handlers will get run by the PM domain code (in omap_device.)  However,
-> now that I think about it, the current omap_device PM domain code calls
-> these at the noirq level, not the late/early level, so it does not
-> address your original problem. :(
-> 
-> I suspect we'll need this and your original patch.
+Hi J,
 
-Have you checked that this is not related to flushing the posted
-write? If it is, reading back any register from the i2c controller
-after writing to it ensures the write actually reaches the i2c
-controller.
+On 10/15/2012 23:02, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> On 17:30 Mon 15 Oct     , Bo Shen wrote:
+>> The i2c core driver will turn the platform device ID to busnum
+>> When using platfrom device ID as -1, it means dynamically assigned
+>> the busnum. When writing code, we need to make sure the busnum,
+>> and call i2c_register_board_info(int busnum, ...) to register device
+>> if using -1, we do not know the value of busnum
+>> 	
+>> In order to solve this issue, set the platform device ID as a fix number
+>> Here using 0 to match the busnum used in i2c_regsiter_board_info()
+>>
+>> Signed-off-by: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+>> ---
+>
+> can you check when this append for the first time to schedule a patch for stable too
 
-Regards,
+OK. I will resend it and add linux stable into the cc list.
 
-Tony
+Thanks.
+
+BRs,
+Bo Shen
+
+> Best Regards,
+> J.
+>
