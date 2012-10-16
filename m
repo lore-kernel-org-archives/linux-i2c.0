@@ -1,75 +1,80 @@
-From: Sebastien Guiriec <s-guiriec-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH] i2c: omap: adopt pinctrl support
-Date: Tue, 16 Oct 2012 17:23:20 +0200
-Message-ID: <1350401000-9453-1-git-send-email-s-guiriec@ti.com>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
+Date: Tue, 16 Oct 2012 19:36:20 +0200
+Message-ID: <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ@mail.gmail.com>
+References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com>
+	<507D182E.9010902@suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <507D182E.9010902-AlSwsSmVLrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sebastien Guiriec <s-guiriec-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+To: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Some GPIO expanders need some early pin control muxing. Due to
-legacy boards sometimes the driver uses subsys_initcall instead of
-module_init. This patch takes advantage of defer probe feature
-and pin control in order to wait until pin control probing before
-GPIO driver probing. It has been tested on OMAP5 board with TCA6424
-driver.
+Hi Jiri,
 
-log:
+On Tue, Oct 16, 2012 at 10:17 AM, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org> wrote:
+> On 10/15/2012 10:38 PM, Benjamin Tissoires wrote:
+>> Notes:
+>> {1}: I don't have all the informations in the beginning of the probe function to
+>> get the real size I need to allocate. So the behavior is to allocate first a
+>> buffer by using HID_MIN_BUFFER_SIZE and once I got the information, I can
+>> reallocate the buffer to the right size (in i2c_hid_start).
+>
+> And there is a bug in this. See below.
+>
+>> --- /dev/null
+>> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> ...
+>> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
+>> +{
+>> +     /* the worst case is computed from the set_report command with a
+>> +      * reportID > 15 and the maximum report length */
+>> +     int args_len = sizeof(__u8) + /* optional ReportID byte */
+>> +                    sizeof(__u16) + /* data register */
+>> +                    sizeof(__u16) + /* size of the report */
+>> +                    ihid->bufsize; /* report */
+>> +
+>> +     ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+>> +
+>> +     if (!ihid->inbuf)
+>> +             return -ENOMEM;
+>> +
+>> +     ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
+>> +
+>> +     if (!ihid->argsbuf) {
+>> +             kfree(ihid->inbuf);
+>> +             return -ENOMEM;
+>> +     }
+>> +
+>> +     ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
+>> +
+>> +     if (!ihid->cmdbuf) {
+>> +             kfree(ihid->inbuf);
+>> +             kfree(ihid->argsbuf);
+>> +             return -ENOMEM;
+>> +     }
+>> +
+>> +     return 0;
+>
+> If this is called from hid_start and some of the latter allocation fails
+> here, you free the buffers appropriately. However if another start
+> occurs (e.g. by loading another module for that particular device), it
+> will crash, as the buffers will remain unallocated because at this point
+> ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
+> old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
+> NULL here.
 
-[0.482299] omap_i2c i2c.15: could not find pctldev for node /ocp/pinmux@4a00
-2840/pinmux_i2c5_pins, deferring probe
-[0.482330] platform i2c.15: Driver omap_i2c requests probe deferral
-[0.484466] Advanced Linux Sound Architecture Driver Initialized.
+well spotted, thanks.
+I'll change it in v3 then.
 
-[4.746917] omap_i2c i2c.15: bus 4 rev2.4.0 at 100 kHz
-[4.755279] gpiochip_find_base: found new base at 477
-[4.761169] gpiochip_add: registered GPIOs 477 to 500 on device: tca6424a
+Cheers,
+Benjamin
 
-Signed-off-by: Sebastien Guiriec <s-guiriec-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index db31eae..661d8a2 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -44,6 +44,7 @@
- #include <linux/i2c-omap.h>
- #include <linux/pm_runtime.h>
- #include <linux/pm_qos.h>
-+#include <linux/pinctrl/consumer.h>
- 
- /* I2C controller revisions */
- #define OMAP_I2C_OMAP1_REV_2		0x20
-@@ -213,6 +214,8 @@ struct omap_i2c_dev {
- 	u16			syscstate;
- 	u16			westate;
- 	u16			errata;
-+
-+	struct pinctrl		*pins;
- };
- 
- static const u8 reg_map_ip_v1[] = {
-@@ -1107,6 +1110,16 @@ omap_i2c_probe(struct platform_device *pdev)
- 		dev->dtrev = pdata->rev;
- 	}
- 
-+	dev->pins = devm_pinctrl_get_select_default(&pdev->dev);
-+	if (IS_ERR(dev->pins)) {
-+		if (PTR_ERR(dev->pins) == -EPROBE_DEFER)
-+			return -EPROBE_DEFER;
-+
-+		dev_warn(&pdev->dev, "did not get pins for i2c error: %li\n",
-+			 PTR_ERR(dev->pins));
-+		dev->pins = NULL;
-+	}
-+
- 	dev->dev = &pdev->dev;
- 	dev->irq = irq;
- 
--- 
-1.7.10.4
+>
+> regards,
+> --
+> js
+> suse labs
