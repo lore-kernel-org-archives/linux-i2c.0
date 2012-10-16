@@ -1,49 +1,45 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v1] i2c-hid: introduce HID over i2c specification implementation
-Date: Mon, 15 Oct 2012 22:42:41 +0200
-Message-ID: <CAN+gG=H9OfEyVaOD6r3Q5CZHNY2d1gAUr=kBAgXs-qacUDqsOw@mail.gmail.com>
-References: <1347630103-4105-1-git-send-email-benjamin.tissoires@gmail.com>
-	<20121007162838.01f36b7c@endymion.delvare>
-	<CAN+gG=E3nmXZ9RL3wN2tvKqSOu5hWYLXLf+Z=ag7VvZGJfhQ-w@mail.gmail.com>
-	<20121007210359.29f40ecf@endymion.delvare>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: omap: fix spurious IRQs: disable/enable IRQ at
+ INTC when idle
+Date: Mon, 15 Oct 2012 18:02:24 -0700
+Message-ID: <20121016010223.GL15569@atomide.com>
+References: <1350067225-24589-1-git-send-email-khilman@deeprootsystems.com>
+ <CAM=Q2csm0Eh9F6d1wKhEfOOtG+aY+Fh8D-dKPC0RMbKupVQHYQ@mail.gmail.com>
+ <1350282337.17145.45.camel@kj-X230>
+ <87zk3ntzfe.fsf@deeprootsystems.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121007210359.29f40ecf-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <87zk3ntzfe.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+Cc: kalle.jokiniemi-ieSKYCWCyXoAvxtiuMwx3w@public.gmane.org, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Huzefa Kankroliwala <huzefank-l0cyMroinI0@public.gmane.org>, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Oct 7, 2012 at 9:03 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Sun, 7 Oct 2012 18:57:36 +0200, Benjamin Tissoires wrote:
->> On Sun, Oct 7, 2012 at 4:28 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
->> > On Fri, 14 Sep 2012 15:41:43 +0200, benjamin.tissoires wrote:
->> >> +     u16 readRegister = ihid->hdesc.wDataRegister;
->> >
->> > This is missing le16_to_cpu().
->>
->> I agree this is awful, but not putting it allows me to not have to
->> check the endianness when I'm using it.
->> But I may be totally wrong on this.
->
-> I'm afraid I don't follow you. I want to see:
->
->         u16 readRegister = le16_to_cpu(ihid->hdesc.wDataRegister);
->
-> If you don't do that, your driver is broken on bigendian systems. And
-> there's no need to "check the endianness when you're using it", the
-> above should be enough for things to work just fine.
->
+* Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org> [121015 10:32]:
+> Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org> writes:
+> >
+> > Does not work for me :(
+> >
+> > As I said, the issue occurs for me when I enter static suspend (echo mem
+> >> /sys/power/autosleep or /sys/power/state). I don't think doing this
+> > just in runtime pm will fix my issue. Or do those handlers get run in
+> > the normal suspend path as well?
+> 
+> If the I2C device is still active during the suspend path, these
+> handlers will get run by the PM domain code (in omap_device.)  However,
+> now that I think about it, the current omap_device PM domain code calls
+> these at the noirq level, not the late/early level, so it does not
+> address your original problem. :(
+> 
+> I suspect we'll need this and your original patch.
 
-a little bit late, but yes, you are entirely right. I was confused by
-the fact that I only wanted to use the number coming from the device
-to communicate with it, but as I made bit shifting within the CPU, I
-need to convert it.
-So forget my previous words here, it is fixed in v2.
+Have you checked that this is not related to flushing the posted
+write? If it is, reading back any register from the i2c controller
+after writing to it ensures the write actually reaches the i2c
+controller.
 
-Thanks
-Benjamin
+Regards,
 
-> --
-> Jean Delvare
+Tony
