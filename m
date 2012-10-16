@@ -1,70 +1,56 @@
-From: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
-Date: Tue, 16 Oct 2012 10:17:50 +0200
-Message-ID: <507D182E.9010902@suse.cz>
-References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com>
+From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+Subject: Re: [PATCH v3 2/2] i2c: change id to let i2c-at91 work
+Date: Tue, 16 Oct 2012 10:39:54 +0200
+Message-ID: <20121016083954.GB12801@game.jcrosoft.org>
+References: <1350293428-24551-1-git-send-email-voice.shen@atmel.com>
+ <1350293428-24551-3-git-send-email-voice.shen@atmel.com>
+ <20121015150244.GZ12801@game.jcrosoft.org>
+ <507CD0CA.9010006@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-2
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1350333533-13366-1-git-send-email-benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+In-Reply-To: <507CD0CA.9010006@atmel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Bo Shen <voice.shen@atmel.com>
+Cc: broonie@opensource.wolfsonmicro.com, swarren@wwwdotorg.org, devicetree-discuss@lists.ozlabs.org, n.voss@weinmann.de, nicolas.ferre@atmel.com, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, khali@linux-fr.org, manabian@gmail.com, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/15/2012 10:38 PM, Benjamin Tissoires wrote:
-> Notes:
-> {1}: I don't have all the informations in the beginning of the probe function to
-> get the real size I need to allocate. So the behavior is to allocate first a
-> buffer by using HID_MIN_BUFFER_SIZE and once I got the information, I can
-> reallocate the buffer to the right size (in i2c_hid_start).
+On 11:13 Tue 16 Oct     , Bo Shen wrote:
+> Hi J,
+> 
+> On 10/15/2012 23:02, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> >On 17:30 Mon 15 Oct     , Bo Shen wrote:
+> >>The i2c core driver will turn the platform device ID to busnum
+> >>When using platfrom device ID as -1, it means dynamically assigned
+> >>the busnum. When writing code, we need to make sure the busnum,
+> >>and call i2c_register_board_info(int busnum, ...) to register device
+> >>if using -1, we do not know the value of busnum
+> >>	
+> >>In order to solve this issue, set the platform device ID as a fix number
+> >>Here using 0 to match the busnum used in i2c_regsiter_board_info()
+> >>
+> >>Signed-off-by: Bo Shen <voice.shen@atmel.com>
+> >>---
+> >
+> >can you check when this append for the first time to schedule a patch for stable too
+> 
+> OK. I will resend it and add linux stable into the cc list.
+no this not how it work
 
-And there is a bug in this. See below.
+I ask you to check which patch add the regression and then when this is
+applied in the kernel we will request greg to apply it too to the stable
 
-> --- /dev/null
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-...
-> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
-> +{
-> +	/* the worst case is computed from the set_report command with a
-> +	 * reportID > 15 and the maximum report length */
-> +	int args_len = sizeof(__u8) + /* optional ReportID byte */
-> +		       sizeof(__u16) + /* data register */
-> +		       sizeof(__u16) + /* size of the report */
-> +		       ihid->bufsize; /* report */
-> +
-> +	ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
-> +
-> +	if (!ihid->inbuf)
-> +		return -ENOMEM;
-> +
-> +	ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
-> +
-> +	if (!ihid->argsbuf) {
-> +		kfree(ihid->inbuf);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
-> +
-> +	if (!ihid->cmdbuf) {
-> +		kfree(ihid->inbuf);
-> +		kfree(ihid->argsbuf);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	return 0;
+But before do that you MUST foudn the commit responsible
 
-If this is called from hid_start and some of the latter allocation fails
-here, you free the buffers appropriately. However if another start
-occurs (e.g. by loading another module for that particular device), it
-will crash, as the buffers will remain unallocated because at this point
-ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
-old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
-NULL here.
-
-regards,
--- 
-js
-suse labs
+Best Regards,
+J.
