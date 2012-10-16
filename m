@@ -1,80 +1,73 @@
-From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
-Date: Tue, 16 Oct 2012 19:36:20 +0200
-Message-ID: <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ@mail.gmail.com>
-References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com>
-	<507D182E.9010902@suse.cz>
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: RT throttling and suspend/resume (was Re: [PATCH] i2c: omap: revert
+ "i2c: omap: switch to threaded IRQ support")
+Date: Tue, 16 Oct 2012 14:39:50 -0700
+Message-ID: <87ipaanljt.fsf_-_@deeprootsystems.com>
+References: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com>
+ <CAM=Q2csHTbR4rBe1HNr5-M3sG5wgdCv6dCnGLmNQEwo1gjCSGg@mail.gmail.com>
+ <20121016133356.GG21801@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <507D182E.9010902-AlSwsSmVLrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20121016133356.GG21801@arwen.pp.htv.fi> (Felipe Balbi's message
+ of "Tue, 16 Oct 2012 16:33:56 +0300")
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: balbi@ti.com, Thomas Gleixner <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>
+Cc: Paul Walmsley <paul@pwsan.com>, Wolfram Sang <w.sang@pengutronix.de>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, linux-omap@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jiri,
++ peterz, tglx
 
-On Tue, Oct 16, 2012 at 10:17 AM, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org> wrote:
-> On 10/15/2012 10:38 PM, Benjamin Tissoires wrote:
->> Notes:
->> {1}: I don't have all the informations in the beginning of the probe function to
->> get the real size I need to allocate. So the behavior is to allocate first a
->> buffer by using HID_MIN_BUFFER_SIZE and once I got the information, I can
->> reallocate the buffer to the right size (in i2c_hid_start).
->
-> And there is a bug in this. See below.
->
->> --- /dev/null
->> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> ...
->> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
->> +{
->> +     /* the worst case is computed from the set_report command with a
->> +      * reportID > 15 and the maximum report length */
->> +     int args_len = sizeof(__u8) + /* optional ReportID byte */
->> +                    sizeof(__u16) + /* data register */
->> +                    sizeof(__u16) + /* size of the report */
->> +                    ihid->bufsize; /* report */
->> +
->> +     ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
->> +
->> +     if (!ihid->inbuf)
->> +             return -ENOMEM;
->> +
->> +     ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
->> +
->> +     if (!ihid->argsbuf) {
->> +             kfree(ihid->inbuf);
->> +             return -ENOMEM;
->> +     }
->> +
->> +     ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
->> +
->> +     if (!ihid->cmdbuf) {
->> +             kfree(ihid->inbuf);
->> +             kfree(ihid->argsbuf);
->> +             return -ENOMEM;
->> +     }
->> +
->> +     return 0;
->
-> If this is called from hid_start and some of the latter allocation fails
-> here, you free the buffers appropriately. However if another start
-> occurs (e.g. by loading another module for that particular device), it
-> will crash, as the buffers will remain unallocated because at this point
-> ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
-> old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
-> NULL here.
+Felipe Balbi <balbi@ti.com> writes:
 
-well spotted, thanks.
-I'll change it in v3 then.
+[...]
 
-Cheers,
-Benjamin
+> The problem I see is that even though we properly return IRQ_WAKE_THREAD
+> and wake_up_process() manages to wakeup the IRQ thread (it returns 1),
+> the thread is never scheduled. To make things even worse, ouw irq thread
+> runs once, but doesn't run on a consecutive call. Here's some (rather
+> nasty) debug prints showing the problem:
 
->
-> regards,
-> --
-> js
-> suse labs
+[...]
+
+>> [   88.721923] try_to_wake_up 1411
+>> [   88.725189] ===> irq_wake_thread 139: IRQ 72 wake_up_process 0
+>> [   88.731292] [sched_delayed] sched: RT throttling activated
+
+This throttling message is the key one.
+
+With RT throttling activated, the IRQ thread will not be run (it
+eventually will be allowed much later on, but by then, the I2C xfers
+have timed out.)
+
+As a quick hack, the throttling can be disabled by seeting the
+sched_rt_runtime to RUNTIME_INF:
+
+        # sysctl -w kernel.sched_rt_runtime_us=-1
+
+and a quick test shows that things go back to working as expected.  But
+we still need to figure out why the throttling is hapenning...
+
+So I started digging into why the RT runtime was so high, and noticed
+that time spent in suspend was being counted as RT runtime!
+
+So spending time in suspend anywhere near sched_rt_runtime (0.95s) will
+cause the RT throttling to always be triggered, and thus prevent IRQ
+threads from running in the resume path.  Ouch.
+
+I think I'm already in over my head in the RT runtime stuff, but
+counting the time spent in suspend as RT runtime smells like a bug to
+me. no?
+
+Peter? Thomas?
+
+Kevin
