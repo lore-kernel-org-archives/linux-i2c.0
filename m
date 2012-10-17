@@ -1,84 +1,36 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
-Date: Wed, 17 Oct 2012 19:02:00 +0300
-Message-ID: <20121017160200.GA6567@arwen.pp.htv.fi>
-References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>
- <87ipag90om.fsf@deeprootsystems.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [PATCH] i2c: omap: adopt pinctrl support
+Date: Wed, 17 Oct 2012 22:05:50 +0530
+Message-ID: <CAM=Q2cu2nA2R_LcMnjkSMJn6coxYQ_EHPSuG9ExbW7pa7fsu8A@mail.gmail.com>
+References: <1350401000-9453-1-git-send-email-s-guiriec@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <87ipag90om.fsf-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
-Cc: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1350401000-9453-1-git-send-email-s-guiriec@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sebastien Guiriec <s-guiriec@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Felipe Balbi <balbi@ti.com>, Shubhrajyoti Datta <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Oct 16, 2012 at 8:53 PM, Sebastien Guiriec <s-guiriec@ti.com> wrote:
+> Some GPIO expanders need some early pin control muxing. Due to
+> legacy boards sometimes the driver uses subsys_initcall instead of
+> module_init. This patch takes advantage of defer probe feature
+> and pin control in order to wait until pin control probing before
+> GPIO driver probing. It has been tested on OMAP5 board with TCA6424
+> driver.
+>
+> log:
+>
+> [0.482299] omap_i2c i2c.15: could not find pctldev for node /ocp/pinmux@4a00
+> 2840/pinmux_i2c5_pins, deferring probe
+> [0.482330] platform i2c.15: Driver omap_i2c requests probe deferral
+> [0.484466] Advanced Linux Sound Architecture Driver Initialized.
+>
+> [4.746917] omap_i2c i2c.15: bus 4 rev2.4.0 at 100 kHz
+> [4.755279] gpiochip_find_base: found new base at 477
+> [4.761169] gpiochip_add: registered GPIOs 477 to 500 on device: tca6424a
+>
+Thanks,
 
-Hi,
-
-On Thu, Oct 11, 2012 at 02:08:25PM -0700, Kevin Hilman wrote:
-> Hi Kalle,
->=20
-> Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org> writes:
->=20
-> > The resume_noirq enables interrupts one-by-one starting from
-> > first one. Now if the wake up event for suspend came from i2c
-> > device, the i2c bus irq gets enabled before the threaded
-> > i2c device irq, causing a flood of i2c bus interrupts as the
-> > threaded irq that should clear the event is not enabled yet.
-> >
-> > Fixed the issue by adding suspend_noirq and resume_early
-> > functions that keep i2c bus interrupts disabled until
-> > resume_noirq has run completely.
-> >
-> > Issue was detected doing a wake up from autosleep with
-> > twl4030 power key on N9. Patch tested on N9.
-> >
-> > Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
->=20
-> This version looks good, thanks for the extra comments.
->=20
-> Reviewed-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-> Tested-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
->=20
-> Wolfram, This should also probably be Cc'd to stable since it affects
-> earlier kernels as well.  Thanks,
-
-just to make sure we're not fixing the wrong problem... does [1] help in
-any way ?
-
-[1] http://marc.info/?l=3Dlinux-omap&m=3D135048839915719&w=3D2
-
---=20
-balbi
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQftZ4AAoJEIaOsuA1yqREjEoQAIJxq1IAm4+9FGha13Awlhsa
-d6Gy7GiJLcyliHm9577IHCEUU5wU5B1Xh5vk/ri3Vm8MIz0x33sMjKo+33EPj9Lg
-JeXSsFY0L17uH4qjnq0lS5VJdk3DqkfxaLyCT7OO/G94JzFK5y/TKOOBc+SQ4rjb
-nSOvx7kEiRwfyFJKPJHtk3VgtTrl03/l7DhTxOQ3Ws9JtSeAXjREJRRFY57FzP+c
-XOC892ehqXdMtAWcrsCIJSdFjXYuHT/zLfv+aZWClTStpQJLzQ3qPjF/2+6/C12c
-Phv8jhUZkny6P6EubNAjDJCrneNP0J69b0BI9nc2xTFOTWz7UbttCb0cDWOyPiN/
-qP39gwhVkNOv+ug5DbK8gEpRoB8xgfJxcQRqWkOXAxkErmht/gP7FV6XlGjeLE95
-GQi+QnvbgXc2eEtdu00NORHFMxZX2XduIna0WELBBCHQFczVTt1Aviiigcpz05Z6
-V/h1fzH5+xU/d8+PMEYPQ5aZoota9VN+/aDicIDesFpS/YLIv8TJqVsemLSDmFlq
-OBAXIathulxinzzrcGzHwF7ntoooXMNsYzLqHpRMCnnqyuYSskFxY+01Fr72aR2F
-fUGQmleItruQIlB5KObZMoZ+9uSeIEJwEmByp4hy926AnNrw6JihxW1M/ssfaP8T
-MF/BW7oI4GQmndCl1foS
-=X81s
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
+Acked-by: Shubhrajyoti D <shubhrajyoti@ti.com>
