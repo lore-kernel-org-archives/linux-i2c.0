@@ -1,55 +1,64 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: [PATCH 1/1] twl4030: Fix chained irq handling on resume from suspend
-Date: Tue, 16 Oct 2012 16:52:49 -0700
-Message-ID: <87ipaam0tq.fsf@deeprootsystems.com>
-References: <1350399575-13240-1-git-send-email-kalle.jokiniemi@jollamobile.com>
+From: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 2/2] i2c: change id to let i2c-at91 work
+Date: Wed, 17 Oct 2012 10:19:34 +0800
+Message-ID: <507E15B6.7040004@atmel.com>
+References: <1350293428-24551-1-git-send-email-voice.shen@atmel.com> <1350293428-24551-3-git-send-email-voice.shen@atmel.com> <20121015150244.GZ12801@game.jcrosoft.org> <507CD0CA.9010006@atmel.com> <20121016083954.GB12801@game.jcrosoft.org> <507D361C.6020403@atmel.com> <20121016111027.GE12801@game.jcrosoft.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1350399575-13240-1-git-send-email-kalle.jokiniemi@jollamobile.com>
-	(Kalle Jokiniemi's message of "Tue, 16 Oct 2012 17:59:35 +0300")
-Sender: linux-omap-owner@vger.kernel.org
-To: Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com>
-Cc: tony@atomide.com, sameo@linux.intel.com, omaplinuxkernel@gmail.com, linux-i2c@vger.kernel.org, w.sang@pengutronix.de, linux-omap@vger.kernel.org, grygorii.strashko@ti.com, shubhrajyoti@ti.com, huzefank@ti.com, nm@ti.com
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121016111027.GE12801-RQcB7r2h9QmfDR2tN2SG5Ni2O/JbrIOy@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, n.voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com> writes:
+Hi J,
 
-> The irqs are enabled one-by-one in pm core resume_noirq phase.
-> This leads to situation where the twl4030 primary interrupt
-> handler (PIH) is enabled before the chained secondary handlers
-> (SIH). As the PIH cannot clear the pending interrupt, and
-> SIHs have not been enabled yet, a flood of interrupts hangs
-> the device.
+On 10/16/2012 19:10, Jean-Christophe PLAGNIOL-VILLARD wrote:
+> On 18:25 Tue 16 Oct     , Bo Shen wrote:
+>> Hi J,
+>>
+>> On 10/16/2012 16:39, Jean-Christophe PLAGNIOL-VILLARD wrote:
+>>> On 11:13 Tue 16 Oct     , Bo Shen wrote:
+>>>> Hi J,
+>>>>
+>>>> On 10/15/2012 23:02, Jean-Christophe PLAGNIOL-VILLARD wrote:
+>>>>> On 17:30 Mon 15 Oct     , Bo Shen wrote:
+>>>>>> The i2c core driver will turn the platform device ID to busnum
+>>>>>> When using platfrom device ID as -1, it means dynamically assigned
+>>>>>> the busnum. When writing code, we need to make sure the busnum,
+>>>>>> and call i2c_register_board_info(int busnum, ...) to register device
+>>>>>> if using -1, we do not know the value of busnum
+>>>>>> 	
+>>>>>> In order to solve this issue, set the platform device ID as a fix number
+>>>>>> Here using 0 to match the busnum used in i2c_regsiter_board_info()
+>>>>>>
+>>>>>> Signed-off-by: Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+>>>>>> ---
+>>>>>
+>>>>> can you check when this append for the first time to schedule a patch for stable too
+>>>>
+>>>> OK. I will resend it and add linux stable into the cc list.
+>>> no this not how it work
+>>>
+>>> I ask you to check which patch add the regression and then when this is
+>>> applied in the kernel we will request greg to apply it too to the stable
+>>
+>> The code is using id = -1 appear 4 years ago. And after dig, I don't
+>> find which patch cause this the regression.
+> so use git bisect to find the commit responsible
+
+Thanks for your information.
+
+Finally, I found the following commit add this:
+
+3267c077e589bc146a0b45e220fcefafbf83fb80
+[ARM] 3396/2: AT91RM9200 Platform devices update
+
+BRs,
+Bo Shen
+
+> Best Regards,
+> J.
 >
-> Fixed the issue by setting the SIH irqs with IRQF_EARLY_RESUME
-> flags, so they get enabled before the PIH.
->
-> Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com>
-
-Acked-by: Kevin Hilman <khilman@ti.com>
-
-Thanks, I like this better than the I2C driver fix.  
-
-Samuel, feel free to take this for v3.7
-
-Kevin
-
-> ---
->  drivers/mfd/twl4030-irq.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletions(-)
->
-> diff --git a/drivers/mfd/twl4030-irq.c b/drivers/mfd/twl4030-irq.c
-> index ad733d7..cdd1173 100644
-> --- a/drivers/mfd/twl4030-irq.c
-> +++ b/drivers/mfd/twl4030-irq.c
-> @@ -672,7 +672,8 @@ int twl4030_sih_setup(struct device *dev, int module, int irq_base)
->  	irq = sih_mod + twl4030_irq_base;
->  	irq_set_handler_data(irq, agent);
->  	agent->irq_name = kasprintf(GFP_KERNEL, "twl4030_%s", sih->name);
-> -	status = request_threaded_irq(irq, NULL, handle_twl4030_sih, 0,
-> +	status = request_threaded_irq(irq, NULL, handle_twl4030_sih,
-> +				      IRQF_EARLY_RESUME,
->  				      agent->irq_name ?: sih->name, NULL);
->  
->  	dev_info(dev, "%s (irq %d) chaining IRQs %d..%d\n", sih->name,
