@@ -1,65 +1,74 @@
-From: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
-Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
-Date: Thu, 18 Oct 2012 09:51:13 +0300
-Message-ID: <1350543073.2014.35.camel@kj-X230>
-References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>
-	 <87ipag90om.fsf@deeprootsystems.com>
-	 <20121017160200.GA6567@arwen.pp.htv.fi>
-Reply-To: kalle.jokiniemi-ieSKYCWCyXoAvxtiuMwx3w@public.gmane.org
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH] dma: add new DMA control commands
+Date: Thu, 18 Oct 2012 09:14:58 +0200
+Message-ID: <201210180914.58527.marex@denx.de>
+References: <1350538335-29026-1-git-send-email-b32955@freescale.com> <1350541111.5263.3.camel@vkoul-udesk3> <507FA595.4020507@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: Text/Plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121017160200.GA6567-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
+In-Reply-To: <507FA595.4020507-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: balbi-l0cyMroinI0@public.gmane.org
-Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grygorii.strashko-l0cyMroinI0@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org
+To: Huang Shijie <b32955-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Vinod Koul <vinod.koul-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, djbw-b10kYP2dOMg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, perex-/Fr2/VpizcU@public.gmane.org, tiwai-l3A5Bk7waGM@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, artem.bityutskiy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Huang Shijie <shijie8-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-ke, 2012-10-17 kello 19:02 +0300, Felipe Balbi kirjoitti:
-> Hi,
-> 
-> On Thu, Oct 11, 2012 at 02:08:25PM -0700, Kevin Hilman wrote:
-> > Hi Kalle,
-> > 
-> > Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org> writes:
-> > 
-> > > The resume_noirq enables interrupts one-by-one starting from
-> > > first one. Now if the wake up event for suspend came from i2c
-> > > device, the i2c bus irq gets enabled before the threaded
-> > > i2c device irq, causing a flood of i2c bus interrupts as the
-> > > threaded irq that should clear the event is not enabled yet.
-> > >
-> > > Fixed the issue by adding suspend_noirq and resume_early
-> > > functions that keep i2c bus interrupts disabled until
-> > > resume_noirq has run completely.
-> > >
-> > > Issue was detected doing a wake up from autosleep with
-> > > twl4030 power key on N9. Patch tested on N9.
-> > >
-> > > Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi-4y2FMlU5MS8onNqTyK5kxQ@public.gmane.org>
-> > 
-> > This version looks good, thanks for the extra comments.
-> > 
-> > Reviewed-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-> > Tested-by: Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>
-> > 
-> > Wolfram, This should also probably be Cc'd to stable since it affects
-> > earlier kernels as well.  Thanks,
-> 
-> just to make sure we're not fixing the wrong problem... does [1] help in
-> any way ?
+Dear Huang Shijie,
 
-Yes, I was fixing the wrong problem, this patch is obsolete. But the
-problem was in the TWL interrupt handling (PIH was run before SIH), not
-in i2c. See my other patch "twl4030: Fix chained irq handling on resume
-from suspend"
+Why such massive CC ?
 
-> 
-> [1] http://marc.info/?l=linux-omap&m=135048839915719&w=2
-> 
+> =E4=BA=8E 2012=E5=B9=B410=E6=9C=8818=E6=97=A5 14:18, Vinod Koul =E5=86=
+=99=E9=81=93:
+> > Why cant you do start (prepare clock etc) when you submit the descr=
+iptor
+> > to dmaengine. Can be done in tx_submit callback.
+> > Similarly remove the clock when dma transaction gets completed.
+>=20
+> I ever thought this method too.
+>=20
+> But it will become low efficient in the following case:
+>=20
+>    Assuming the gpmi-nand driver has to read out 1024 pages in one
+> _SINGLE_ read operation.
+> The gpmi-nand will submit the descriptor to dmaengine per page.
 
-Could be related, though if I understood correctly, that runtime pm
-stuff gets run at noirq phase, so it probably does not help.
+It will? Then GPMI NAND is flat our broken ... again.
 
-- Kalle
+> So with
+> your method,
+> the system will repeat the enable/disable dma clock 1024 time.
+
+Yes, it is the driver that's wrong.
+
+> At every
+> enable/disable dma clock,
+> the system has to enable the clock chain and it's parents ...
+>=20
+> But with this patch, we only need to enable/disable dma clock one tim=
+e,
+> just at we select the nand chip.
+
+You are fixing a driver problem at a framework level, wrong.
+
+So, check how the MXS SPI driver handles descriptor chaining. Indeed, t=
+he=20
+Sigmatel screwed the DMA stuff good. But if you analyze the SPI driver,=
+ you'll=20
+notice a few important points that might come handy when you fix the GP=
+MI NAND=20
+driver properly.
+
+The direction to take here is:
+1) Implement DMA chaining into the GPMI NAND driver
+2) You might need to do one PIO transfer to reconfigure the IP register=
+s between=20
+each segment of the DMA chain (just as MXS SPI does it)
+3) You might run out of DMA descriptors when doing too long chains -- s=
+o you=20
+might need to fix that part of the mxs DMA driver.
+
+> thanks
+> Huang Shijie
+
+Best regards,
+Marek Vasut
