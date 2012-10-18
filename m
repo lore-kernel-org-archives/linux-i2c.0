@@ -1,49 +1,45 @@
-From: Jassi Brar <jaswinder.singh@linaro.org>
-Subject: Re: [PATCH] dma: add new DMA control commands
-Date: Thu, 18 Oct 2012 14:59:10 +0530
-Message-ID: <CAJe_ZhfarH-HpJkEOpH=jY1Gc-UPEyuA4bJ4LSQES7Uyea2BQw@mail.gmail.com>
-References: <1350538335-29026-1-git-send-email-b32955@freescale.com>
-	<1350541111.5263.3.camel@vkoul-udesk3>
-	<507FA595.4020507@freescale.com>
+From: Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification implementation
+Date: Thu, 18 Oct 2012 18:16:21 +0800
+Message-ID: <87wqyojdai.fsf@emc.com.tw>
+References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com> <87zk3kjghz.fsf@emc.com.tw> <CAN+gG=HLxXJAwZ8mWzuDFVBht4BeWaSEvXOQZEBgS8akyerQEw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <507FA595.4020507@freescale.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Huang Shijie <b32955@freescale.com>
-Cc: Vinod Koul <vinod.koul@linux.intel.com>, marex@denx.de, Huang Shijie <shijie8@gmail.com>, alsa-devel@alsa-project.org, shawn.guo@linaro.org, linux@arm.linux.org.uk, tiwai@suse.de, artem.bityutskiy@linux.intel.com, broonie@opensource.wolfsonmicro.com, linux-mmc@vger.kernel.org, w.sang@pengutronix.de, perex@perex.cz, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, djbw@fb.com, khali@linux-fr.org, cjb@laptop.org, dwmw2@infradead.org, lrg@ti.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAN+gG=HLxXJAwZ8mWzuDFVBht4BeWaSEvXOQZEBgS8akyerQEw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18 October 2012 12:15, Huang Shijie <b32955@freescale.com> wrote:
-> =D3=DA 2012=C4=EA10=D4=C218=C8=D5 14:18, Vinod Koul =D0=B4=B5=C0:
+Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> writes:
+> Hi JJ,
 >
->> Why cant you do start (prepare clock etc) when you submit the descri=
-ptor
->> to dmaengine. Can be done in tx_submit callback.
->> Similarly remove the clock when dma transaction gets completed.
+> On Thu, Oct 18, 2012 at 11:07 AM, Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org> wrote:
+>> Hi Benjamin,
+>>
+>> Some suggestions to make the error messages more "human", and a little
+>> question on the return value of i2c_hid_fetch_hid_descriptor.  Please see below:
 >
-> I ever thought this method too.
+> I fully agree with the more "human" error messages.
 >
-> But it will become low efficient in the following case:
+> However, for i2c_hid_fetch_hid_descriptor return values, I'm affraid I
+> can't use -EINVAL.
 >
->   Assuming the gpmi-nand driver has to read out 1024 pages in one _SI=
-NGLE_
-> read operation.
-> The gpmi-nand will submit the descriptor to dmaengine per page. So wi=
-th your
-> method,
-> the system will repeat the enable/disable dma clock 1024 time. At eve=
-ry
-> enable/disable dma clock,
-> the system has to enable the clock chain and it's parents ...
+> Jean Delvare (one of the i2c maintainers) told in his review of the v1:
+> "
+> These should all be -ENODEV in this function
+> [i2c_hid_fetch_hid_descriptor]: the device isn't what you
+> expected. EINVAL is for invalid argument.
+> "
+
+I must have missed that mail.  Thank you for pointing this out.
+
+-JJ
+
+> So ENODEV is the right return value.
 >
-> But with this patch, we only need to enable/disable dma clock one tim=
-e, just
-> at we select the nand chip.
+> Anyway, thanks for the review.
 >
-If the clock is the dmac's property (not channels'), the toggling
-seems too aggressive.
-You could try using runtime_suspend/resume for clock
-disabling/enabling. How about employing autosuspend with a few ms
-delay?
+> Cheers,
+> Benjamin
