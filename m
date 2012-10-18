@@ -1,150 +1,327 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: RT throttling and suspend/resume (was Re: [PATCH] i2c: omap:
- revert "i2c: omap: switch to threaded IRQ support")
-Date: Thu, 18 Oct 2012 08:51:36 +0300
-Message-ID: <20121018055136.GF11137@arwen.pp.htv.fi>
-References: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com>
- <CAM=Q2csHTbR4rBe1HNr5-M3sG5wgdCv6dCnGLmNQEwo1gjCSGg@mail.gmail.com>
- <20121016133356.GG21801@arwen.pp.htv.fi>
- <87ipaanljt.fsf_-_@deeprootsystems.com>
- <20121017140002.GI11394@arwen.pp.htv.fi>
- <20121017143534.GJ11394@arwen.pp.htv.fi>
- <87txtsitpt.fsf@deeprootsystems.com>
-Reply-To: <balbi@ti.com>
+From: Huang Shijie <b32955-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH] dma: add new DMA control commands
+Date: Thu, 18 Oct 2012 13:32:15 +0800
+Message-ID: <1350538335-29026-1-git-send-email-b32955@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bGR76rFJjkSxVeRa"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <87txtsitpt.fsf@deeprootsystems.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Kevin Hilman <khilman@deeprootsystems.com>
-Cc: balbi@ti.com, Thomas Gleixner <tglx@linutronix.de>, Peter Zijlstra <peterz@infradead.org>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, Paul Walmsley <paul@pwsan.com>, linux-i2c@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Cc: djbw-b10kYP2dOMg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, cjb-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org, dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, lrg-l0cyMroinI0@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, perex-/Fr2/VpizcU@public.gmane.org, tiwai-l3A5Bk7waGM@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, artem.bityutskiy-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Huang Shijie <shijie8-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Huang Shijie <b32955-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---bGR76rFJjkSxVeRa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+From: Huang Shijie <shijie8-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 
-On Wed, Oct 17, 2012 at 04:06:54PM -0700, Kevin Hilman wrote:
-> Felipe Balbi <balbi@ti.com> writes:
->=20
-> > On Wed, Oct 17, 2012 at 05:00:02PM +0300, Felipe Balbi wrote:
-> >>=20
-> >> On Tue, Oct 16, 2012 at 02:39:50PM -0700, Kevin Hilman wrote:
-> >> > + peterz, tglx
-> >> >=20
-> >> > Felipe Balbi <balbi@ti.com> writes:
-> >> >=20
-> >> > [...]
-> >> >=20
-> >> > > The problem I see is that even though we properly return IRQ_WAKE_=
-THREAD
-> >> > > and wake_up_process() manages to wakeup the IRQ thread (it returns=
- 1),
-> >> > > the thread is never scheduled. To make things even worse, ouw irq =
-thread
-> >> > > runs once, but doesn't run on a consecutive call. Here's some (rat=
-her
-> >> > > nasty) debug prints showing the problem:
-> >> >=20
-> >> > [...]
-> >> >=20
-> >> > >> [   88.721923] try_to_wake_up 1411
-> >> > >> [   88.725189] =3D=3D=3D> irq_wake_thread 139: IRQ 72 wake_up_pro=
-cess 0
-> >> > >> [   88.731292] [sched_delayed] sched: RT throttling activated
-> >> >=20
-> >> > This throttling message is the key one.
-> >> >=20
-> >> > With RT throttling activated, the IRQ thread will not be run (it
-> >> > eventually will be allowed much later on, but by then, the I2C xfers
-> >> > have timed out.)
-> >> >=20
-> >> > As a quick hack, the throttling can be disabled by seeting the
-> >> > sched_rt_runtime to RUNTIME_INF:
-> >> >=20
-> >> >         # sysctl -w kernel.sched_rt_runtime_us=3D-1
-> >> >=20
-> >> > and a quick test shows that things go back to working as expected.  =
-But
-> >> > we still need to figure out why the throttling is hapenning...
-> >> >=20
-> >> > So I started digging into why the RT runtime was so high, and noticed
-> >> > that time spent in suspend was being counted as RT runtime!
-> >> >=20
-> >> > So spending time in suspend anywhere near sched_rt_runtime (0.95s) w=
-ill
-> >> > cause the RT throttling to always be triggered, and thus prevent IRQ
-> >> > threads from running in the resume path.  Ouch.
-> >> >=20
-> >> > I think I'm already in over my head in the RT runtime stuff, but
-> >> > counting the time spent in suspend as RT runtime smells like a bug to
-> >> > me. no?
-> >> >=20
-> >> > Peter? Thomas?
-> >>=20
-> >> it looks like removing console output completely (echo 0 >
-> >> /proc/sysrq-trigger) I don't see the issue anymore. Let me just run for
-> >> a few more iterations to make sure what I'm saying is correct.
-> >
-> > Yeah, really looks like removing console output makes the problem go
-> > away. Ran a few iterations and it always worked fine. Full logs attached
->=20
-> Removing console output during resume is going to significantly change
-> the timing of what is happening during suspend/resume, so I suspect that
-> combined with all your other debug prints is somehow masking the
-> problem.  How log are you letting the system stay in suspend?
+[1] Why add these new DMA control commands?
+    In mx6q, the gpmi-nand driver is the only user of the APBH-DMA. The dma clock
+    is enabled when we have successfully requested a DMA channel. So even when
+    the gpmi-nand driver does not work, the dma clock(apbh-dma) still runs
+    in high speed (198MHz). To save some power, it is better to disable the dma
+    clock when the dma device, such as gpmi-nand, is not working anymore.
+    When the dma device becomes work again, enable the dma clock again.
 
-about 2 minutes
+[2] add new DMA control commands: DMA_START/DMA_END
+    DMA_START: do some preprations to start the DMA engine, such as enable the
+               necessary clocks.
+    DMA_END: do some works to end the DMA engine, such as disable the
+               necessary clocks.
 
-> That being said, I can still easily reproduce the problem, even with
-> console output disabled.
->=20
-> With vanilla v3.7-rc1 + the debug patch below[1], with and without
-> console output, I see RT throttling kicking in on resume, and the RT
-> runtime on resume corresponds to the time spent in suspend.  Here's an
-> example of debug output of my patch below after ~3 sec in suspend:
->=20
-> [   43.198028] sched_rt_runtime_exceeded: rt_time 2671752930 > runtime 95=
-0000000
-> [   43.198028] update_curr_rt: RT runtime exceeded: irq/72-omap_i2c
-> [   43.198059] update_curr_rt: RT runtime exceeded: irq/72-omap_i2c
-> [   43.203704] [sched_delayed] sched: RT throttling activated
->=20
-> I see this rather consistently, and the rt_time value is always roughly t=
-he
-> time I spent in suspend.
->=20
-> So the primary question remains: is RT runtime supposed to include the
-> time spent suspended?  I suspect not.=20
+[3] This patch does not change any logic in i2c-mxs driver and mxs-pcm driver.
+    But for gpmi-nand driver, we will enable the the clock only when we select
+    the nand chip, and want to do some real jobs with the nand chip.
+    For mxs-mmc driver, disable the dma clock in the suspend; and enable the
+    dma clock in the resume.
 
-you might be right there, though we need Thomas or Peter to answer :-s
+Signed-off-by: Huang Shijie <b32955-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/dma/mxs-dma.c                  |   17 +++++++++++++++++
+ drivers/i2c/busses/i2c-mxs.c           |   10 +++++++++-
+ drivers/mmc/host/mxs-mmc.c             |   19 ++++++++++++++++---
+ drivers/mtd/nand/gpmi-nand/gpmi-lib.c  |   10 ++++++++++
+ drivers/mtd/nand/gpmi-nand/gpmi-nand.c |   10 ++++++----
+ include/linux/dmaengine.h              |    6 ++++++
+ sound/soc/mxs/mxs-pcm.c                |   12 ++++++++++++
+ 7 files changed, 76 insertions(+), 8 deletions(-)
 
---=20
-balbi
-
---bGR76rFJjkSxVeRa
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQf5jnAAoJEIaOsuA1yqREnpgQAJ9cHwZXPswTnZbLmVhWKkF3
-ngR1icbr+xtc5ZYiA6vRWWHyCOd1CrHYEG0mUgTtFJSZN0SOnfIQR2PgoJ5CS9vi
-wezj1ROC2iweEiMCOqXDCot5mhSR17a2nFLbR42uejV0J7usxgDMrzczOyzr51hF
-YA+8y+lQGiY3A/uXuwGFSz52sEdU6Xl2qVYkNwMmp3qbl1U5+2aVMu1LM4ZxwAJG
-nd4T6xgrsEGKE5zGOuCIOJE01O6krTn7CDbbN3mlblI3jNGpofM2bK828ps8A219
-kqP3UA11ibVrO6M6yBLm2yuCUDQ4ieLZWhR1Dr2rTfJHoMS6drjSRS/bJ/JFkcWQ
-evfSiwfGJkz4XzS2ZgKByKUuj5DoCnENFxDs32gp6TO463O2k49SITR7MGYNQDtS
-/JNfRJup1hxFVrruW/8nR/zmmohZe9JOhfpe0HOurnRxQ6i/phdTSK+Q/NDbKAbD
-R3QKeeP3abHiNA+8UhebBdC8TRDvN8gkNoFtDkARn1/fQQScYyFgNoqLUtaRc81d
-xXErP2c4KBswV02PA5Rhr8/pVRY1xG/oJx7tSOPja8Jqjt3nBG22cFOtDBOtmzZe
-o4OPwQTu0uNMPxh7uuv4CstLyFrgVBMOFNg1JevGiEasizKQTPy9MZeUNka0hzMS
-Usma9jWLA85ED4X1unID
-=uwKp
------END PGP SIGNATURE-----
-
---bGR76rFJjkSxVeRa--
+diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
+index 9f02e79..89286f4 100644
+--- a/drivers/dma/mxs-dma.c
++++ b/drivers/dma/mxs-dma.c
+@@ -384,6 +384,8 @@ static int mxs_dma_alloc_chan_resources(struct dma_chan *chan)
+ 	/* the descriptor is ready */
+ 	async_tx_ack(&mxs_chan->desc);
+ 
++	clk_disable_unprepare(mxs_dma->clk);
++
+ 	return 0;
+ 
+ err_clk:
+@@ -399,6 +401,14 @@ static void mxs_dma_free_chan_resources(struct dma_chan *chan)
+ {
+ 	struct mxs_dma_chan *mxs_chan = to_mxs_dma_chan(chan);
+ 	struct mxs_dma_engine *mxs_dma = mxs_chan->mxs_dma;
++	int ret;
++
++	ret = clk_prepare_enable(mxs_dma->clk);
++	if (ret) {
++		dev_err(mxs_dma->dma_device.dev,
++			"failed in enabling the dma clock\n");
++		return;
++	}
+ 
+ 	mxs_dma_disable_chan(mxs_chan);
+ 
+@@ -597,9 +607,13 @@ static int mxs_dma_control(struct dma_chan *chan, enum dma_ctrl_cmd cmd,
+ 		unsigned long arg)
+ {
+ 	struct mxs_dma_chan *mxs_chan = to_mxs_dma_chan(chan);
++	struct mxs_dma_engine *mxs_dma = mxs_chan->mxs_dma;
+ 	int ret = 0;
+ 
+ 	switch (cmd) {
++	case DMA_START:
++		ret = clk_prepare_enable(mxs_dma->clk);
++		break;
+ 	case DMA_TERMINATE_ALL:
+ 		mxs_dma_reset_chan(mxs_chan);
+ 		mxs_dma_disable_chan(mxs_chan);
+@@ -610,6 +624,9 @@ static int mxs_dma_control(struct dma_chan *chan, enum dma_ctrl_cmd cmd,
+ 	case DMA_RESUME:
+ 		mxs_dma_resume_chan(mxs_chan);
+ 		break;
++	case DMA_END:
++		clk_disable_unprepare(mxs_dma->clk);
++		break;
+ 	default:
+ 		ret = -ENOSYS;
+ 	}
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 1f58197..da1e881 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -643,6 +643,12 @@ static int __devinit mxs_i2c_probe(struct platform_device *pdev)
+ 			dev_err(dev, "Failed to request dma\n");
+ 			return -ENODEV;
+ 		}
++		err = dmaengine_device_control(i2c->dmach, DMA_START, 0);
++		if (err) {
++			dma_release_channel(i2c->dmach);
++			dev_err(dev, "Failed to start dma\n");
++			return err;
++		}
+ 	}
+ 
+ 	platform_set_drvdata(pdev, i2c);
+@@ -680,8 +686,10 @@ static int __devexit mxs_i2c_remove(struct platform_device *pdev)
+ 	if (ret)
+ 		return -EBUSY;
+ 
+-	if (i2c->dmach)
++	if (i2c->dmach) {
++		dmaengine_device_control(i2c->dmach, DMA_END, 0);
+ 		dma_release_channel(i2c->dmach);
++	}
+ 
+ 	writel(MXS_I2C_CTRL0_SFTRST, i2c->regs + MXS_I2C_CTRL0_SET);
+ 
+diff --git a/drivers/mmc/host/mxs-mmc.c b/drivers/mmc/host/mxs-mmc.c
+index 80d1e6d..aa91830 100644
+--- a/drivers/mmc/host/mxs-mmc.c
++++ b/drivers/mmc/host/mxs-mmc.c
+@@ -676,6 +676,9 @@ static int mxs_mmc_probe(struct platform_device *pdev)
+ 			"%s: failed to request dma\n", __func__);
+ 		goto out_clk_put;
+ 	}
++	ret = dmaengine_device_control(ssp->dmach, DMA_START, 0);
++	if (ret)
++		goto out_free_dma;
+ 
+ 	/* set mmc core parameters */
+ 	mmc->ops = &mxs_mmc_ops;
+@@ -717,18 +720,20 @@ static int mxs_mmc_probe(struct platform_device *pdev)
+ 	ret = devm_request_irq(&pdev->dev, irq_err, mxs_mmc_irq_handler, 0,
+ 			       DRIVER_NAME, host);
+ 	if (ret)
+-		goto out_free_dma;
++		goto out_end_free_dma;
+ 
+ 	spin_lock_init(&host->lock);
+ 
+ 	ret = mmc_add_host(mmc);
+ 	if (ret)
+-		goto out_free_dma;
++		goto out_end_free_dma;
+ 
+ 	dev_info(mmc_dev(host->mmc), "initialized\n");
+ 
+ 	return 0;
+ 
++out_end_free_dma:
++	dmaengine_device_control(ssp->dmach, DMA_END, 0);
+ out_free_dma:
+ 	if (ssp->dmach)
+ 		dma_release_channel(ssp->dmach);
+@@ -750,8 +755,10 @@ static int mxs_mmc_remove(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, NULL);
+ 
+-	if (ssp->dmach)
++	if (ssp->dmach) {
++		dmaengine_device_control(ssp->dmach, DMA_END, 0);
+ 		dma_release_channel(ssp->dmach);
++	}
+ 
+ 	clk_disable_unprepare(ssp->clk);
+ 	clk_put(ssp->clk);
+@@ -772,6 +779,7 @@ static int mxs_mmc_suspend(struct device *dev)
+ 	ret = mmc_suspend_host(mmc);
+ 
+ 	clk_disable_unprepare(ssp->clk);
++	dmaengine_device_control(ssp->dmach, DMA_END, 0);
+ 
+ 	return ret;
+ }
+@@ -784,8 +792,13 @@ static int mxs_mmc_resume(struct device *dev)
+ 	int ret = 0;
+ 
+ 	clk_prepare_enable(ssp->clk);
++	ret = dmaengine_device_control(ssp->dmach, DMA_START, 0);
++	if (ret)
++		return ret;
+ 
+ 	ret = mmc_resume_host(mmc);
++	if (ret)
++		dmaengine_device_control(ssp->dmach, DMA_END, 0);
+ 
+ 	return ret;
+ }
+diff --git a/drivers/mtd/nand/gpmi-nand/gpmi-lib.c b/drivers/mtd/nand/gpmi-nand/gpmi-lib.c
+index 3502acc..20ed3f3 100644
+--- a/drivers/mtd/nand/gpmi-nand/gpmi-lib.c
++++ b/drivers/mtd/nand/gpmi-nand/gpmi-lib.c
+@@ -958,6 +958,7 @@ void gpmi_begin(struct gpmi_nand_data *this)
+ 	uint32_t       reg;
+ 	unsigned int   dll_wait_time_in_us;
+ 	struct gpmi_nfc_hardware_timing  hw;
++	struct dma_chan *channel = get_dma_chan(this);
+ 	int ret;
+ 
+ 	/* Enable the clock. */
+@@ -967,6 +968,12 @@ void gpmi_begin(struct gpmi_nand_data *this)
+ 		goto err_out;
+ 	}
+ 
++	ret = dmaengine_device_control(channel, DMA_START, 0);
++	if (ret) {
++		gpmi_disable_clk(this);
++		goto err_out;
++	}
++
+ 	/* Only initialize the timing once */
+ 	if (this->flags & GPMI_TIMING_INIT_OK)
+ 		return;
+@@ -1035,7 +1042,10 @@ err_out:
+ 
+ void gpmi_end(struct gpmi_nand_data *this)
+ {
++	struct dma_chan *channel = get_dma_chan(this);
++
+ 	gpmi_disable_clk(this);
++	dmaengine_device_control(channel, DMA_END, 0);
+ }
+ 
+ /* Clears a BCH interrupt. */
+diff --git a/drivers/mtd/nand/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/gpmi-nand/gpmi-nand.c
+index e2c56fc..5694d03 100644
+--- a/drivers/mtd/nand/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/gpmi-nand/gpmi-nand.c
+@@ -815,12 +815,14 @@ static void gpmi_select_chip(struct mtd_info *mtd, int chipnr)
+ 	struct nand_chip *chip = mtd->priv;
+ 	struct gpmi_nand_data *this = chip->priv;
+ 
+-	if ((this->current_chip < 0) && (chipnr >= 0))
++	if ((this->current_chip < 0) && (chipnr >= 0)) {
++		/* set the current_chip before we call gpmi_begin(). */
++		this->current_chip = chipnr;
+ 		gpmi_begin(this);
+-	else if ((this->current_chip >= 0) && (chipnr < 0))
++	} else if ((this->current_chip >= 0) && (chipnr < 0)) {
+ 		gpmi_end(this);
+-
+-	this->current_chip = chipnr;
++		this->current_chip = chipnr;
++	}
+ }
+ 
+ static void gpmi_read_buf(struct mtd_info *mtd, uint8_t *buf, int len)
+diff --git a/include/linux/dmaengine.h b/include/linux/dmaengine.h
+index d3201e4..79f864a 100644
+--- a/include/linux/dmaengine.h
++++ b/include/linux/dmaengine.h
+@@ -199,6 +199,8 @@ enum dma_ctrl_flags {
+ /**
+  * enum dma_ctrl_cmd - DMA operations that can optionally be exercised
+  * on a running channel.
++ * @DMA_START: do some preprations to start the DMA engine, such as enable the
++ * necessary clocks.
+  * @DMA_TERMINATE_ALL: terminate all ongoing transfers
+  * @DMA_PAUSE: pause ongoing transfers
+  * @DMA_RESUME: resume paused transfer
+@@ -209,13 +211,17 @@ enum dma_ctrl_flags {
+  * command.
+  * @FSLDMA_EXTERNAL_START: this command will put the Freescale DMA controller
+  * into external start mode.
++ * @DMA_END: do some works to end the DMA engine, such as disable the
++ * necessary clocks.
+  */
+ enum dma_ctrl_cmd {
++	DMA_START,
+ 	DMA_TERMINATE_ALL,
+ 	DMA_PAUSE,
+ 	DMA_RESUME,
+ 	DMA_SLAVE_CONFIG,
+ 	FSLDMA_EXTERNAL_START,
++	DMA_END,
+ };
+ 
+ /**
+diff --git a/sound/soc/mxs/mxs-pcm.c b/sound/soc/mxs/mxs-pcm.c
+index f82d766..cfcc30f 100644
+--- a/sound/soc/mxs/mxs-pcm.c
++++ b/sound/soc/mxs/mxs-pcm.c
+@@ -92,6 +92,7 @@ static int snd_mxs_open(struct snd_pcm_substream *substream)
+ {
+ 	struct snd_soc_pcm_runtime *rtd = substream->private_data;
+ 	struct mxs_pcm_dma_data *pcm_dma_data;
++	struct dma_chan *chan;
+ 	int ret;
+ 
+ 	pcm_dma_data = kzalloc(sizeof(*pcm_dma_data), GFP_KERNEL);
+@@ -107,6 +108,14 @@ static int snd_mxs_open(struct snd_pcm_substream *substream)
+ 		return ret;
+ 	}
+ 
++	chan = snd_dmaengine_pcm_get_chan(substream);
++	ret = dmaengine_device_control(chan, DMA_START, (unsigned long)0);
++	if (ret) {
++		snd_dmaengine_pcm_close(substream);
++		kfree(pcm_dma_data);
++		return ret;
++	}
++
+ 	snd_soc_set_runtime_hwparams(substream, &snd_mxs_hardware);
+ 
+ 	snd_dmaengine_pcm_set_data(substream, pcm_dma_data);
+@@ -117,7 +126,10 @@ static int snd_mxs_open(struct snd_pcm_substream *substream)
+ static int snd_mxs_close(struct snd_pcm_substream *substream)
+ {
+ 	struct mxs_pcm_dma_data *pcm_dma_data = snd_dmaengine_pcm_get_data(substream);
++	struct dma_chan *chan;
+ 
++	chan = snd_dmaengine_pcm_get_chan(substream);
++	dmaengine_device_control(chan, DMA_END, 0);
+ 	snd_dmaengine_pcm_close(substream);
+ 	kfree(pcm_dma_data);
+ 
+-- 
+1.7.0.4
