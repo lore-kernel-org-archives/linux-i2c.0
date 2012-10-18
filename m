@@ -1,63 +1,35 @@
-From: Jassi Brar <jaswinder.singh@linaro.org>
-Subject: Re: [PATCH] dma: add new DMA control commands
-Date: Thu, 18 Oct 2012 20:55:30 +0530
-Message-ID: <CAJe_ZheWd3scXDhWukeZMuOOz8+bZRwZOw_ftDW8wmkqq9H45Q@mail.gmail.com>
-References: <1350538335-29026-1-git-send-email-b32955@freescale.com>
-	<1350541111.5263.3.camel@vkoul-udesk3>
-	<507FA595.4020507@freescale.com>
-	<CAJe_ZhfarH-HpJkEOpH=jY1Gc-UPEyuA4bJ4LSQES7Uyea2BQw@mail.gmail.com>
-	<CAMiH66H=VMEgHFMdEhCTqA5AtVw6iN97-cbwUd86Ghd77OLcWA@mail.gmail.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: mux: Add dt support to i2c-mux-gpio driver
+Date: Thu, 18 Oct 2012 16:36:49 -0600
+Message-ID: <50808481.6040501@wwwdotorg.org>
+References: <1350569623-4699-1-git-send-email-maxime.ripard@free-electrons.com> <1350569623-4699-2-git-send-email-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <CAMiH66H=VMEgHFMdEhCTqA5AtVw6iN97-cbwUd86Ghd77OLcWA@mail.gmail.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Huang Shijie <shijie8@gmail.com>
-Cc: Huang Shijie <b32955@freescale.com>, Vinod Koul <vinod.koul@linux.intel.com>, marex@denx.de, alsa-devel@alsa-project.org, shawn.guo@linaro.org, linux@arm.linux.org.uk, tiwai@suse.de, artem.bityutskiy@linux.intel.com, broonie@opensource.wolfsonmicro.com, linux-mmc@vger.kernel.org, w.sang@pengutronix.de, perex@perex.cz, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, djbw@fb.com, khali@linux-fr.org, cjb@laptop.org, dwmw2@infradead.org, lrg@ti.com, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1350569623-4699-2-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 18 October 2012 20:48, Huang Shijie <shijie8@gmail.com> wrote:
-> On Thu, Oct 18, 2012 at 5:29 AM, Jassi Brar <jaswinder.singh@linaro.o=
-rg> wrote:
->> On 18 October 2012 12:15, Huang Shijie <b32955@freescale.com> wrote:
->>> =D3=DA 2012=C4=EA10=D4=C218=C8=D5 14:18, Vinod Koul =D0=B4=B5=C0:
->>>
->>>> Why cant you do start (prepare clock etc) when you submit the desc=
-riptor
->>>> to dmaengine. Can be done in tx_submit callback.
->>>> Similarly remove the clock when dma transaction gets completed.
->>>
->>> I ever thought this method too.
->>>
->>> But it will become low efficient in the following case:
->>>
->>>   Assuming the gpmi-nand driver has to read out 1024 pages in one _=
-SINGLE_
->>> read operation.
->>> The gpmi-nand will submit the descriptor to dmaengine per page. So =
-with your
->>> method,
->>> the system will repeat the enable/disable dma clock 1024 time. At e=
-very
->>> enable/disable dma clock,
->>> the system has to enable the clock chain and it's parents ...
->>>
->>> But with this patch, we only need to enable/disable dma clock one t=
-ime, just
->>> at we select the nand chip.
->>>
->> If the clock is the dmac's property (not channels'), the toggling
->> seems too aggressive.
->> You could try using runtime_suspend/resume for clock
->> disabling/enabling. How about employing autosuspend with a few ms
->> delay?
->
-> Yes, employing the autosuspend is workable method too.o
-> But it's a little more complicated then this patch. You have to creat=
-e
-> a thread or workqueue to
-> do the job.
->
-I am not sure why you would need to create any thread/workqueue ?
-Just pm_runtime_put_autosuspend() in drivers/ to see how it works.
+On 10/18/2012 08:13 AM, Maxime Ripard wrote:
+> Allow the i2c-mux-gpio to be used by a device tree enabled device. The
+> bindings are inspired by the one found in the i2c-mux-pinctrl driver.
+
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+
+> +Optional properties:
+> +- idle-state: value to set to the muxer when idle. When no value is
+> +  given, it defaults to the first value in the array.
+
+That's inconsistent with the following text that appears later (and
+describes what the driver actually does):
+
+> +If an idle state is defined, using the idle-state (optional) property,
+> +whenever an access is not being made to a device on a child bus, the
+> +idle value will be programmed into the GPIOs.
+> +
+> +If an idle state is not defined, the most recently used value will be
+> +left programmed into hardware whenever no access is being made of a
+> +device on a child bus.
