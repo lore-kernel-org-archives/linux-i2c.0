@@ -1,110 +1,85 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH v3] ARM: OMAP: i2c: fix interrupt flood during resume
-Date: Thu, 18 Oct 2012 10:11:50 +0300
-Message-ID: <20121018071149.GI11137@arwen.pp.htv.fi>
-References: <1349871480-25182-1-git-send-email-kalle.jokiniemi@jollamobile.com>
- <87ipag90om.fsf@deeprootsystems.com>
- <20121017160200.GA6567@arwen.pp.htv.fi>
- <1350543073.2014.35.camel@kj-X230>
-Reply-To: <balbi@ti.com>
+From: Huang Shijie <b32955@freescale.com>
+Subject: Re: [PATCH] dma: add new DMA control commands
+Date: Thu, 18 Oct 2012 15:49:41 +0800
+Message-ID: <507FB495.7050104@freescale.com>
+References: <1350538335-29026-1-git-send-email-b32955@freescale.com> <1350541111.5263.3.camel@vkoul-udesk3> <507FA595.4020507@freescale.com> <201210180914.58527.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ibvzjYYg+QDzMCy1"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1350543073.2014.35.camel@kj-X230>
-Sender: linux-omap-owner@vger.kernel.org
-To: kalle.jokiniemi@jolla.com
-Cc: balbi@ti.com, Kevin Hilman <khilman@deeprootsystems.com>, linux-i2c@vger.kernel.org, w.sang@pengutronix.de, ben-linux@fluff.org, tony@atomide.com, linux-omap@vger.kernel.org, grygorii.strashko@ti.com, shubhrajyoti@ti.com
+Content-Type: text/plain; charset=UTF-8;
+	format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-mmc-owner@vger.kernel.org>
+In-Reply-To: <201210180914.58527.marex@denx.de>
+Sender: linux-mmc-owner@vger.kernel.org
+To: Marek Vasut <marex@denx.de>
+Cc: Vinod Koul <vinod.koul@linux.intel.com>, djbw@fb.com, khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, cjb@laptop.org, dwmw2@infradead.org, lrg@ti.com, broonie@opensource.wolfsonmicro.com, perex@perex.cz, tiwai@suse.de, shawn.guo@linaro.org, artem.bityutskiy@linux.intel.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org, linux@arm.linux.org.uk, Huang Shijie <shijie8@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>
 List-Id: linux-i2c@vger.kernel.org
 
---ibvzjYYg+QDzMCy1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+=E4=BA=8E 2012=E5=B9=B410=E6=9C=8818=E6=97=A5 15:14, Marek Vasut =E5=86=
+=99=E9=81=93:
+> Dear Huang Shijie,
+>
+> Why such massive CC ?
+>
+>> =E4=BA=8E 2012=E5=B9=B410=E6=9C=8818=E6=97=A5 14:18, Vinod Koul =E5=86=
+=99=E9=81=93:
+>>> Why cant you do start (prepare clock etc) when you submit the descr=
+iptor
+>>> to dmaengine. Can be done in tx_submit callback.
+>>> Similarly remove the clock when dma transaction gets completed.
+>> I ever thought this method too.
+>>
+>> But it will become low efficient in the following case:
+>>
+>>     Assuming the gpmi-nand driver has to read out 1024 pages in one
+>> _SINGLE_ read operation.
+>> The gpmi-nand will submit the descriptor to dmaengine per page.
+> It will? Then GPMI NAND is flat our broken ... again.
+yes.
 
-Hi,
+Please read the NAND chip spec about the comand READ PAGE(00h-30h) and=20
+the code
+nand_do_read_ops(). The nand chip limits us only read one page out one =
+time.
+So the driver will submit the descriptor to dmaengine per page.
 
-On Thu, Oct 18, 2012 at 09:51:13AM +0300, Kalle Jokiniemi wrote:
-> ke, 2012-10-17 kello 19:02 +0300, Felipe Balbi kirjoitti:
-> > Hi,
-> >=20
-> > On Thu, Oct 11, 2012 at 02:08:25PM -0700, Kevin Hilman wrote:
-> > > Hi Kalle,
-> > >=20
-> > > Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com> writes:
-> > >=20
-> > > > The resume_noirq enables interrupts one-by-one starting from
-> > > > first one. Now if the wake up event for suspend came from i2c
-> > > > device, the i2c bus irq gets enabled before the threaded
-> > > > i2c device irq, causing a flood of i2c bus interrupts as the
-> > > > threaded irq that should clear the event is not enabled yet.
-> > > >
-> > > > Fixed the issue by adding suspend_noirq and resume_early
-> > > > functions that keep i2c bus interrupts disabled until
-> > > > resume_noirq has run completely.
-> > > >
-> > > > Issue was detected doing a wake up from autosleep with
-> > > > twl4030 power key on N9. Patch tested on N9.
-> > > >
-> > > > Signed-off-by: Kalle Jokiniemi <kalle.jokiniemi@jollamobile.com>
-> > >=20
-> > > This version looks good, thanks for the extra comments.
-> > >=20
-> > > Reviewed-by: Kevin Hilman <khilman@ti.com>
-> > > Tested-by: Kevin Hilman <khilman@ti.com>
-> > >=20
-> > > Wolfram, This should also probably be Cc'd to stable since it affects
-> > > earlier kernels as well.  Thanks,
-> >=20
-> > just to make sure we're not fixing the wrong problem... does [1] help in
-> > any way ?
->=20
-> Yes, I was fixing the wrong problem, this patch is obsolete. But the
-> problem was in the TWL interrupt handling (PIH was run before SIH), not
-> in i2c. See my other patch "twl4030: Fix chained irq handling on resume
-> from suspend"
->=20
-> >=20
-> > [1] http://marc.info/?l=3Dlinux-omap&m=3D135048839915719&w=3D2
-> >=20
->=20
-> Could be related, though if I understood correctly, that runtime pm
-> stuff gets run at noirq phase, so it probably does not help.
 
-well, it will be called multiple times actually :-) Since i2c is
-forcefully suspend in noirq time, it suspends before e.g. rtc,
-twl*-gpio, etc, which means that (at least for) rtc will still do i2c
-transfers on its suspend callback which will runtime resume the i2c
-controller and later suspend it again :-)
 
-You might be right, however, that it won't help in your case.
+>> So with
+>> your method,
+>> the system will repeat the enable/disable dma clock 1024 time.
+> Yes, it is the driver that's wrong.
+not the driver.
+>> At every
+>> enable/disable dma clock,
+>> the system has to enable the clock chain and it's parents ...
+>>
+>> But with this patch, we only need to enable/disable dma clock one ti=
+me,
+>> just at we select the nand chip.
+> You are fixing a driver problem at a framework level, wrong.
+>
+> So, check how the MXS SPI driver handles descriptor chaining. Indeed,=
+ the
+> Sigmatel screwed the DMA stuff good. But if you analyze the SPI drive=
+r, you'll
+> notice a few important points that might come handy when you fix the =
+GPMI NAND
+> driver properly.
+>
+> The direction to take here is:
+> 1) Implement DMA chaining into the GPMI NAND driver
+How can i implement the DMA chain if the nand chip READ-PAGE command=20
+gives us the one page limit?
 
-cheers
+thanks
+Huang Shijie
 
---=20
-balbi
 
---ibvzjYYg+QDzMCy1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> 2) You might need to do one PIO transfer to reconfigure the IP regist=
+ers between
+> each segment of the DMA chain (just as MXS SPI does it)
+> 3) You might run out of DMA descriptors when doing too long chains --=
+ so you
+> might need to fix that part of the mxs DMA driver.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJQf6u1AAoJEIaOsuA1yqRE4HUP/jP+wkg2wwefSqLWxQ8fYPHJ
-80pYsmeQXkMOy/l6aH7Q7Bv4mbvSvL2Y0VpfT5Xf+sotM57nA9fvMt/ffA03OXia
-hLfL/hXM7paNVgiuv9k/AKI0W+SjZNT5DR11VTJm2iKGIHoekb48b+FRYC8kcWkb
-9H8A4RaJYxn8poPgbtuqH9Gki62kgntjBDFKneRVZ/4auqO+uSQfav6OhnNVZeeJ
-GzfmiLn8mtatazu28sFSapvN+GbQxQG7vrZ6s7345LZexN0xK7dz5mLkbZlNewfD
-CZapZvrjLurmlHm/sSUtMzFIKoEHnP6oRJEr8e1txJcmm2Ipftz952zDZa6kJE/u
-CrtGK/MllM9PNKAk5y6vlwRXVVIbS9KAsczzkchkctPtE1KMmCEG+GOBICzg/vSJ
-ic7/I17q+/hj60bgCf8OjXsFEO9jte1jdQThWfsilJDW6TfIVgoHDfOLScfNioI3
-ahmjsgZ7IRqkt75i00YlXi72Dcu3Isx2wiuQdB62idKhRR5k2+x6h4/oGUjh1IOP
-4NdWTQovr4j/Wbta4T0J3GZ+FRbvTQyLScC+AuexjvJEu8634bjQzv9lZGmRRF4d
-0/6L3AjtB4O2r0IwiiqRpKTCBa1kcZEIFiIMEIpgqfL0Y4CKur67u7rkthOLrQFe
-HAahLWYVYGSG78AISgxl
-=FbTD
------END PGP SIGNATURE-----
-
---ibvzjYYg+QDzMCy1--
