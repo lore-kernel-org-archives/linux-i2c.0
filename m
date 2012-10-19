@@ -1,38 +1,41 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V6 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Fri, 19 Oct 2012 19:03:51 +0530
-Message-ID: <CAKohpokgrKVpGOcT=H7TvNCQyKwHfcUPetXj-_Ug1pP35nyFEg@mail.gmail.com>
-References: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar@linaro.org>
+From: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Subject: Re: RT throttling and suspend/resume (was Re: [PATCH] i2c: omap:
+ revert "i2c: omap: switch to threaded IRQ support")
+Date: Fri, 19 Oct 2012 16:00:27 +0200
+Message-ID: <1350655227.2768.11.camel@twins>
+References: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com>
+	 <CAM=Q2csHTbR4rBe1HNr5-M3sG5wgdCv6dCnGLmNQEwo1gjCSGg@mail.gmail.com>
+	 <20121016133356.GG21801@arwen.pp.htv.fi>
+	 <87ipaanljt.fsf_-_@deeprootsystems.com>
+	 <20121017140002.GI11394@arwen.pp.htv.fi>
+	 <20121017143534.GJ11394@arwen.pp.htv.fi>
+	 <87txtsitpt.fsf@deeprootsystems.com>
+	 <20121018055136.GF11137@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20121018055136.GF11137-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: balbi-l0cyMroinI0@public.gmane.org
+Cc: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 4 October 2012 16:34, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
-> protocol Rev. 03 section 3.1.16 titled "Bus clear".
->
-> http://www.nxp.com/documents/user_manual/UM10204.pdf
->
-> Sometimes during operation i2c bus hangs and we need to give dummy clocks to
-> slave device to start the transfer again. Now we may have capability in the bus
-> controller to generate these clocks or platform may have gpio pins which can be
-> toggled to generate dummy clocks. This patch supports both.
->
-> This patch also adds in generic bus recovery routines gpio or scl line based
-> which can be used by bus controller. In addition controller driver may provide
-> its own version of the bus recovery routine.
->
-> This doesn't support multi-master recovery for now.
+On Thu, 2012-10-18 at 08:51 +0300, Felipe Balbi wrote:
+> > So the primary question remains: is RT runtime supposed to include the
+> > time spent suspended?  I suspect not. 
+> 
+> you might be right there, though we need Thomas or Peter to answer :-s 
 
-Hi Wolfram,
+re, sorry both tglx and I have been traveling, he still is, I'm trying
+to play catch-up :-)
 
-I haven't pinged you earlier as i knew merge window is around. Can you please
-share your opinion for this now?
+Anyway, yeah I'm somewhat surprised the clock is 'running' when the
+machine isn't. From what I could gather, this is !x86 hardware, right?
 
---
-viresh
+x86 explicitly makes sure our clocks are 'stopped' during suspend, see
+commit cd7240c0b900eb6d690ccee088a6c9b46dae815a.
+
+Can you do something similar for ARM? A quick look at
+arch/arm/kernel/sched_clock.c shows there's already suspend/resume
+hooks, do they do the wrong thing?
