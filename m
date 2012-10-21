@@ -1,55 +1,87 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: RT throttling and suspend/resume (was Re: [PATCH] i2c: omap: revert "i2c: omap: switch to threaded IRQ support")
-Date: Fri, 19 Oct 2012 16:54:55 -0700
-Message-ID: <87391ahvao.fsf@deeprootsystems.com>
-References: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com>
-	<CAM=Q2csHTbR4rBe1HNr5-M3sG5wgdCv6dCnGLmNQEwo1gjCSGg@mail.gmail.com>
-	<20121016133356.GG21801@arwen.pp.htv.fi>
-	<87ipaanljt.fsf_-_@deeprootsystems.com>
-	<20121017140002.GI11394@arwen.pp.htv.fi>
-	<20121017143534.GJ11394@arwen.pp.htv.fi>
-	<87txtsitpt.fsf@deeprootsystems.com>
-	<20121018055136.GF11137@arwen.pp.htv.fi>
-	<1350655227.2768.11.camel@twins>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 1/2] decode-dimms: Print extra timing values for DDR SDRAM
+Date: Sun, 21 Oct 2012 21:08:25 +0200
+Message-ID: <20121021210825.7b4812ba@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1350655227.2768.11.camel@twins> (Peter Zijlstra's message of
-	"Fri, 19 Oct 2012 16:00:27 +0200")
-Sender: linux-omap-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: balbi@ti.com, Thomas Gleixner <tglx@linutronix.de>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, Paul Walmsley <paul@pwsan.com>, linux-i2c@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Russell King <rmk+kernel@arm.linux.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Peter Zijlstra <peterz@infradead.org> writes:
+Print extra timing values for DDR memory modules as we do for DDR2
+memory modules.
+---
+ eeprom/decode-dimms |   47 ++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 46 insertions(+), 1 deletion(-)
 
-> On Thu, 2012-10-18 at 08:51 +0300, Felipe Balbi wrote:
->> > So the primary question remains: is RT runtime supposed to include the
->> > time spent suspended?  I suspect not. 
->> 
->> you might be right there, though we need Thomas or Peter to answer :-s 
->
-> re, sorry both tglx and I have been traveling, he still is, I'm trying
-> to play catch-up :-)
->
-> Anyway, yeah I'm somewhat surprised the clock is 'running' when the
-> machine isn't. From what I could gather, this is !x86 hardware, right?
->
-> x86 explicitly makes sure our clocks are 'stopped' during suspend, see
-> commit cd7240c0b900eb6d690ccee088a6c9b46dae815a.
->
-> Can you do something similar for ARM?
+--- i2c-tools.orig/eeprom/decode-dimms	2012-10-20 13:28:11.000000000 +0200
++++ i2c-tools/eeprom/decode-dimms	2012-10-20 13:31:05.899876006 +0200
+@@ -536,7 +536,12 @@ sub prints($) # print separator w/ given
+ 
+ # Helper functions
+ 
+-sub tns($) # print a time in ns
++sub tns1($) # print a time in ns, with 1 decimal digit
++{
++	return sprintf("%.1f ns", $_[0]);
++}
++
++sub tns($) # print a time in ns, with 2 decimal digits
+ {
+ 	return sprintf("%3.2f ns", $_[0]);
+ }
+@@ -944,8 +949,48 @@ sub decode_ddr_sdram($)
+ 
+ 	printl_cond(defined $cycle_time, "Minimum Cycle Time", $cycle_time);
+ 	printl_cond(defined $access_time, "Maximum Access Time", $access_time);
++	printl_cond($bytes->[43] & 0xfc,
++		    "Maximum Cycle Time (tCK max)",
++		    $bytes->[43] == 0xff ? "No minimum frequency" :
++		    $bytes->[43] == 0x00 ? "" : # Can't happen, prevent div by 0
++		    tns1($bytes->[43]/4)." (DDR".int(8000 / $bytes->[43]).")");
++
++
++# more timing information
++	prints("Timing Parameters");
++	printl_cond($bytes->[32] != 0xff,
++		    "Address/Command Setup Time Before Clock",
++		    tns(ddr2_sdram_atime($bytes->[32])));
++	printl_cond($bytes->[33] != 0xff,
++		    "Address/Command Hold Time After Clock",
++		    tns(ddr2_sdram_atime($bytes->[33])));
++	printl_cond($bytes->[34] != 0xff,
++		    "Data Input Setup Time Before Clock",
++		    tns(ddr2_sdram_atime($bytes->[34])));
++	printl_cond($bytes->[35] != 0xff,
++		    "Data Input Hold Time After Clock",
++		    tns(ddr2_sdram_atime($bytes->[35])));
++	printl("Minimum Row Precharge Delay (tRP)", tns($trp));
++	printl_cond($bytes->[28] & 0xfc,
++		    "Minimum Row Active to Row Active Delay (tRRD)",
++		    tns($bytes->[28]/4));
++	printl("Minimum RAS# to CAS# Delay (tRCD)", tns($trcd));
++	printl("Minimum RAS# Pulse Width (tRAS)", tns($tras));
++	printl_cond($bytes->[41] && $bytes->[41] != 0xff,
++		    "Minimum Active to Active/AR Time (tRC)",
++		    tns($bytes->[41]));
++	printl_cond($bytes->[42],
++		    "Minimum AR to Active/AR Command Period (tRFC)",
++		    tns($bytes->[42]));
++	printl_cond($bytes->[44],
++		    "Maximum DQS to DQ Skew (tDQSQ)",
++		    tns($bytes->[44]/100));
++	printl_cond(($bytes->[45] & 0xf0) && $bytes->[45] != 0xff,
++		    "Maximum Read Data Hold Skew (tQHS)",
++		    tns(ddr2_sdram_atime($bytes->[45])));
+ 
+ # module attributes
++	prints("Module Attributes");
+ 	if (($bytes->[47] & 0x03) == 0x01) { $temp = "1.125\" to 1.25\""; }
+ 	elsif (($bytes->[47] & 0x03) == 0x02) { $temp = "1.7\""; }
+ 	else { $temp = "Other"; }
 
-So I did the same thing for my ARM SoC, and it definitley stops the RT
-throttling.  
 
-However, it has the undesriable (IMO) side effect of making timed printk
-output rather unhelpful for debugging suspend/resume since printk time
-stays constant throughout suspend/resume no matter how long you
-sleep. :(
-
-So does that mean we have to choose between useful printk times during
-suspend/resume or functioning IRQ threads during suspend/resume ?
-
-Kevin
-
+-- 
+Jean Delvare
