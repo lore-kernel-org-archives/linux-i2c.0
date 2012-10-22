@@ -1,59 +1,71 @@
-From: Kevin Hilman <khilman@deeprootsystems.com>
-Subject: Re: RT throttling and suspend/resume (was Re: [PATCH] i2c: omap: revert "i2c: omap: switch to threaded IRQ support")
-Date: Mon, 22 Oct 2012 09:47:06 -0700
-Message-ID: <87ehkqihdh.fsf@deeprootsystems.com>
-References: <alpine.DEB.2.00.1210150148080.16624@utopia.booyaka.com>
-	<CAM=Q2csHTbR4rBe1HNr5-M3sG5wgdCv6dCnGLmNQEwo1gjCSGg@mail.gmail.com>
-	<20121016133356.GG21801@arwen.pp.htv.fi>
-	<87ipaanljt.fsf_-_@deeprootsystems.com>
-	<20121017140002.GI11394@arwen.pp.htv.fi>
-	<20121017143534.GJ11394@arwen.pp.htv.fi>
-	<87txtsitpt.fsf@deeprootsystems.com>
-	<20121018055136.GF11137@arwen.pp.htv.fi>
-	<1350655227.2768.11.camel@twins> <87391ahvao.fsf@deeprootsystems.com>
-	<1350899541.2768.82.camel@twins>
+From: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v1] Support Elan Touchscreen eKTF product.
+Date: Mon, 22 Oct 2012 19:12:22 +0200
+Message-ID: <CAN+gG=HyzcRnp_Bd=WRq2Hn_5QKCVCjvFjXCvO1xXbAcyBOJfQ@mail.gmail.com>
+References: <1350424679-20725-1-git-send-email-scott.liu@emc.com.tw>
+	<87hapnnp5t.fsf@emc.com.tw>
+	<20121022160705.GC13791@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1350899541.2768.82.camel@twins> (Peter Zijlstra's message of
-	"Mon, 22 Oct 2012 11:52:21 +0200")
-Sender: linux-omap-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: balbi@ti.com, Thomas Gleixner <tglx@linutronix.de>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, Paul Walmsley <paul@pwsan.com>, linux-i2c@vger.kernel.org, Shubhrajyoti D <shubhrajyoti@ti.com>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Russell King <rmk+kernel@arm.linux.org.uk>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121022160705.GC13791-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jian-Jhong Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jesse <jesse-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Vincent Wang <vincent.wang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Paul <paul.liang-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Peter Zijlstra <peterz@infradead.org> writes:
+On Mon, Oct 22, 2012 at 6:07 PM, Dmitry Torokhov
+<dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+> On Mon, Oct 22, 2012 at 11:47:42AM +0800, Jian-Jhong Ding wrote:
+>> Scott Liu <scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org> writes:
+>> > +
+>> > +struct mt_device {
+>> > +   struct mt_slot curdata; /* placeholder of incoming data */
+>> > +   __u8 num_received;      /* how many contacts we received */
+>> > +   __u8 num_expected;      /* expected last contact index */
+>> > +   __u8 maxcontacts;
+>> > +   bool curvalid;          /* is the current contact valid? */
+>> > +   struct mt_slot *slots;
+>> > +};
+>>
+>> With Benjamin's i2c-hid implimentation, is it possible to make
+>> hid-multitouch not depend on USBHID and reuse it to drive this device?
 
-> On Fri, 2012-10-19 at 16:54 -0700, Kevin Hilman wrote:
+We can already use hid-multitouch with hid over I2C devices (I'm
+testing my i2c devices with this module).
+But it's true that hid-multitouch depends on usbhid, and I the funny
+think is that I was removing this dependency today.
+The fact is that currently, i2c devices do not segfault with
+hid-multitouch  because win8 devices do not require anymore to set
+some feature at plug.
+
 >
->> So I did the same thing for my ARM SoC, and it definitley stops the RT
->> throttling.  
->> 
->> However, it has the undesriable (IMO) side effect of making timed printk
->> output rather unhelpful for debugging suspend/resume since printk time
->> stays constant throughout suspend/resume no matter how long you
->> sleep. :(
->> 
->> So does that mean we have to choose between useful printk times during
->> suspend/resume or functioning IRQ threads during suspend/resume ?
+> Exactly. Before looking any further - is this the same part that Tom Lin
+> posted a driver for earlier this summer?
+
+I'm not Elan, and I can not be sure, but judging from the "hello
+packets" and the other commands, I doubt this device is an I2C over
+HID one.
+
+Anyway, reusing hid-multitouch for this specific case seams to be a
+little bit difficult. You would have first to provide a fake report
+descriptor (or inject commands as if you were hid-core) and then, you
+would have to reformat the incoming data into valid win7 (or 8)
+packets. Judging by the functions elan_touch_parse_fid,
+elan_touch_parse_wid and elants_parse_xy, the data seem to be mixed
+(all the finger ids at the beginning, and not one per touch), so it is
+definitively needed to recreate a valid HID packet.
+
+So I'm not surprised with the duplicated code. However, Henrik did a
+big job in kernel 3.7 to factorize mt code, and some part of the
+duplication can be achieve with these functions (look at
+input_mt_sync_frame and input_mt_get_slot_by_key for example).
+
+Cheers,
+Benjamin
+
 >
-> Urgh.. this was not something I considered. This being primarily the
-> sched_clock infrastructure and such.
+> Thanks.
 >
-> So what exactly is the problem with the suspend resume thing (its not
-> something I've ever debugged), is all you need a clean break between pre
-> and post suspend, or do you need the actual time the machine was gone?
-
-I think it's more a question of what people are used to.  I think folks
-used to debugging suspend/resume (at least on ARM) are used to having
-the printk timestamps reflect the amount of time the machine was gone.
-
-With a sched_clock() that counts during suspend, that feature doesn't
-work anymore.  I'm not sure that this feature is a deal breaker, but it
-has been convenient.  I see that on x86, it's already normal that
-printk times don't reflect time spent in suspend, so I guess ARM needs
-to adapt.  
-
-Kevin
-
-
+> --
+> Dmitry
