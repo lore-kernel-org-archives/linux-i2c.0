@@ -1,44 +1,52 @@
-From: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-Subject: Re: [PATCH 0/11] introduce macros for i2c_msg initialization
-Date: Mon, 22 Oct 2012 11:18:26 +0200 (CEST)
-Message-ID: <alpine.DEB.2.02.1210221059100.2026@hadrien>
-References: <1349624323-15584-1-git-send-email-Julia.Lawall@lip6.fr> <20121009173237.7c1a49e9@endymion.delvare>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 0/8] I2C patches for v3.8 merge window
+Date: Mon, 22 Oct 2012 12:46:50 +0300
+Message-ID: <1350899218-13624-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121009173237.7c1a49e9-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>, Mauro Carvalho Chehab <mchehab-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rmallon-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, shubhrajyoti-l0cyMroinI0@public.gmane.org, linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I have been looking at this again, with the macros
+Hi guys,
 
-#define I2C_MSG_OP(_addr, _buf, _len, _flags) \
-        { .addr = _addr, .buf = _buf, .len = _len, .flags = _flags }
+here's another series for OMAP I2C driver. There are a few cleanups
+and one very nice new feature: we can now report how many bytes
+we transferred until NACK.
 
-#define I2C_MSG_WRITE(addr, buf, len) \
-        I2C_MSG_OP(addr, buf, len, 0)
-#define I2C_MSG_READ(addr, buf, len) \
-        I2C_MSG_OP(addr, buf, len, I2C_M_RD)
-#define I2C_MSG_WRITE_OP(addr, buf, len, op) \
-        I2C_MSG_OP(addr, buf, len, 0 | op)
-#define I2C_MSG_READ_OP(addr, buf, len, op) \
-        I2C_MSG_OP(addr, buf, len, I2C_M_RD | op)
+Note that the implemementation for OMAP-I2C turned out to be a
+little more complex then I expected, mainly because of the way
+I2C_CNT register behaves and because of the very buggy register
+usage on that driver.
 
-and the tuners files as a random first example.  This time I haven't made
-any adjustments for arrays of size 1.
+I have boot tested all patches on beagle xM (3630) and pandaboard
+rev A3 (4430), will send boot-logs if anyone wants to see.
 
-The following file is a bit unfortunate, because a single structure is
-mostly used for writing, but sometimes used for reading, in the function
-tda827xa_set_params.  That is, there are explicit assignments to
-msg.flags.
+All patches are available at [1] if anyone wants an easy way to
+test the patches.
 
-drivers/media/tuners/tda827x.c
+[1] git://git.kernel.org/pub/scm/linux/kernel/git/balbi/usb.git i2c-transferred-bytes-on-NACK
 
-Currently, this is done in 8 files across the entire kernel.  Would it be
-a problem to use a READ or WRITE macro to initialize such a structure,
-give that the type is going to change?  Maybe the I2C_MSG_OP macro could
-be used, with an explicit flag argument?
+Felipe Balbi (7):
+  i2c: omap: no need to access platform_device
+  i2c: omap: reorder exit path of omap_i2c_xfer_msg()
+  i2c: omap: fix error checking
+  i2c: omap: also complete() when stat becomes zero
+  i2c: omap: introduce and use OMAP_I2C_IP_VERSION_3
+  i2c: omap: wait for transfer completion before sending STP bit
+  i2c: omap: implement handling for 'transferred' bytes
 
-julia
+Shubhrajyoti D (1):
+  i2c: add 'transferred' field to struct i2c_msg
+
+ arch/arm/mach-omap2/i2c.c                  |   3 +-
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c |   2 +-
+ drivers/i2c/busses/i2c-omap.c              | 156 ++++++++++++++++-------------
+ include/linux/i2c-omap.h                   |   1 +
+ include/uapi/linux/i2c.h                   |   1 +
+ 5 files changed, 89 insertions(+), 74 deletions(-)
+
+-- 
+1.8.0.rc0
