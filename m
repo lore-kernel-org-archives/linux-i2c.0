@@ -1,38 +1,49 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 1/3] decode-dimms: Print DDR2 equivalent speed of tCK max
-Date: Mon, 22 Oct 2012 13:39:43 +0200
-Message-ID: <20121022133943.28b14338@endymion.delvare>
+From: Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 5/8] i2c: omap: introduce and use OMAP_I2C_IP_VERSION_3
+Date: Mon, 22 Oct 2012 14:27:20 +0200
+Message-ID: <50853BA8.8000200@ti.com>
+References: <1350899218-13624-1-git-send-email-balbi@ti.com> <1350899218-13624-6-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1350899218-13624-6-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Print DDR2 equivalent speed of tCK max.
----
- eeprom/decode-dimms |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+Hi Felipe,
 
---- i2c-tools.orig/eeprom/decode-dimms	2012-10-22 12:39:45.000000000 +0200
-+++ i2c-tools/eeprom/decode-dimms	2012-10-22 12:42:11.723525497 +0200
-@@ -1186,9 +1186,11 @@ sub decode_ddr2_sdram($)
- 
- 	printl_cond(defined $cycle_time, "Minimum Cycle Time", $cycle_time);
- 	printl_cond(defined $access_time, "Maximum Access Time", $access_time);
--
--	printl("Maximum Cycle Time (tCK max)",
--	       tns(ddr2_sdram_ctime($bytes->[43])));
-+	$temp = ddr2_sdram_ctime($bytes->[43]);
-+	printl_cond(($bytes->[43] & 0xf0) && $bytes->[43] != 0xff,
-+		    "Maximum Cycle Time (tCK max)",
-+		    $temp == 0 ? "" : # Can't happen, prevent div by 0
-+		    tns($temp)." (DDR2-".int(2000 / $temp).")");
- 
- # more timing information
- 	prints("Timing Parameters");
+On 10/22/2012 11:46 AM, Felipe Balbi wrote:
+> on OMAP4+ we want to read IRQSTATUS_RAW register,
+> instead of IRQSTATUS. The reason being that IRQSTATUS
+> will only contain the bits which were enabled on
+> IRQENABLE_SET and that will break when we need to
+> poll for a certain bit which wasn't enabled as an
+> IRQ source.
+> 
+> One such case is after we finish converting to
+> deferred stop bit, we will have to poll for ARDY
+> bit before returning control for the client driver
+> in order to prevent us from trying to start a
+> transfer on a bus which is already busy.
+> 
+> Note, however, that omap-i2c.c needs a big rework
+> on register definition and register access. Such
+> work will be done in a separate series of patches.
 
+Do you need OMAP_I2C_IP_VERSION_3 for OMAP4?
 
--- 
-Jean Delvare
+OMAP_I2C_IP_VERSION_2 was already introduced to detect OMAP3630 vs
+omap4430 because they were sharing the same IP version..
+
+/* I2C controller revisions present on specific hardware */
+#define OMAP_I2C_REV_ON_2430            0x36
+#define OMAP_I2C_REV_ON_3430_3530       0x3C
+#define OMAP_I2C_REV_ON_3630_4430       0x40
+
+So in theory you should not need an extra version.
+
+Regards,
+Benoit
