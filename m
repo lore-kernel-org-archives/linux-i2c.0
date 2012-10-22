@@ -1,100 +1,76 @@
-From: Felipe Balbi <balbi@ti.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH 0/8] I2C patches for v3.8 merge window
-Date: Mon, 22 Oct 2012 16:30:23 +0300
-Message-ID: <20121022133023.GC14033@arwen.pp.htv.fi>
+Date: Mon, 22 Oct 2012 19:36:31 +0530
+Message-ID: <CAM=Q2ctS3hxngk5efcvScAdv-2GtH2pHRZoxRhRTiOWmQA-AXw@mail.gmail.com>
 References: <1350899218-13624-1-git-send-email-balbi@ti.com>
-Reply-To: <balbi@ti.com>
+	<20121022133023.GC14033@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="y/A/1bIHS6WQt0eA"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1350899218-13624-1-git-send-email-balbi@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Felipe Balbi <balbi@ti.com>
-Cc: linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Tony Lindgren <tony@atomide.com>, Benoit Cousson <b-cousson@ti.com>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, w.sang@pengutronix.de, ben-linux@fluff.org, Shubhrajyoti Datta <shubhrajyoti@ti.com>, Santosh Shilimkar <santosh.shilimkar@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121022133023.GC14033-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: balbi-l0cyMroinI0@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---y/A/1bIHS6WQt0eA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Oct 22, 2012 at 7:00 PM, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org> wrote:
+> Hi,
+>
+> On Mon, Oct 22, 2012 at 12:46:50PM +0300, Felipe Balbi wrote:
+>> Hi guys,
+>>
+>> here's another series for OMAP I2C driver. There are a few cleanups
+>> and one very nice new feature: we can now report how many bytes
+>> we transferred until NACK.
+>>
+>> Note that the implemementation for OMAP-I2C turned out to be a
+>> little more complex then I expected, mainly because of the way
+>> I2C_CNT register behaves and because of the very buggy register
+>> usage on that driver.
+>>
+>> I have boot tested all patches on beagle xM (3630) and pandaboard
+>> rev A3 (4430), will send boot-logs if anyone wants to see.
 
-Hi,
+tested the below branch on omap4430sdp , panda , omap3430sdp.
 
-On Mon, Oct 22, 2012 at 12:46:50PM +0300, Felipe Balbi wrote:
-> Hi guys,
->=20
-> here's another series for OMAP I2C driver. There are a few cleanups
-> and one very nice new feature: we can now report how many bytes
-> we transferred until NACK.
->=20
-> Note that the implemementation for OMAP-I2C turned out to be a
-> little more complex then I expected, mainly because of the way
-> I2C_CNT register behaves and because of the very buggy register
-> usage on that driver.
->=20
-> I have boot tested all patches on beagle xM (3630) and pandaboard
-> rev A3 (4430), will send boot-logs if anyone wants to see.
->=20
-> All patches are available at [1] if anyone wants an easy way to
-> test the patches.
->=20
-> [1] git://git.kernel.org/pub/scm/linux/kernel/git/balbi/usb.git i2c-trans=
-ferred-bytes-on-NACK
+Doing simple i2ctools
+.
 
-forgot to mention, with [1] I could veridy suspend to ram with boards
-mentioned above.
+Tested-by : Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 
-[1] http://marc.info/?l=3Dlinux-arm-kernel&m=3D135090724817604&w=3D2
-
-> Felipe Balbi (7):
->   i2c: omap: no need to access platform_device
->   i2c: omap: reorder exit path of omap_i2c_xfer_msg()
->   i2c: omap: fix error checking
->   i2c: omap: also complete() when stat becomes zero
->   i2c: omap: introduce and use OMAP_I2C_IP_VERSION_3
->   i2c: omap: wait for transfer completion before sending STP bit
->   i2c: omap: implement handling for 'transferred' bytes
->=20
-> Shubhrajyoti D (1):
->   i2c: add 'transferred' field to struct i2c_msg
->=20
->  arch/arm/mach-omap2/i2c.c                  |   3 +-
->  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |   2 +-
->  drivers/i2c/busses/i2c-omap.c              | 156 ++++++++++++++++-------=
-------
->  include/linux/i2c-omap.h                   |   1 +
->  include/uapi/linux/i2c.h                   |   1 +
->  5 files changed, 89 insertions(+), 74 deletions(-)
->=20
-> --=20
-> 1.8.0.rc0
->=20
-
---=20
-balbi
-
---y/A/1bIHS6WQt0eA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQhUpvAAoJEIaOsuA1yqRE6oQP/i7ClKc6nFTZj+JlQf9smQMm
-mjIoyOAJ1i7CdEnS3dmqCv/OXzEXOq0cDeIJ3bcx002ZRCAALGTK7wTR5RHUUjJy
-BLevqk8S1T+udS6nT8C/n348CAlWAt6vctDERERMP7A9tSarpGSjnQRFW18Zvbd6
-LYjxxDFUe5Oacq1cGkwupYFuRPndvpdQHozFp781idijFgMUcLUXysgs8vM5RpIl
-rODk3rzPSkM/cf2e/7QFRqBsHmy77r2sGZ5+90EbHfhGEybevxp6gBepvi7J9Hs6
-dDvtAb6yhCdCpu+wPg8ixXvrHbsBZVKFJqmde83yzhxPx1NicXUC4oUhf/wk2Ib2
-XUHuTOAKTh2L0w2y1ZLdUB4qQlEkLQiGBJlEX7NF6KwcOGm+gmUOps2wTjdEgsMq
-JJIfl4vMSWiT7fuufIXEKHBEEz3YVmkbEgyg983CnA6XazXYbgjfqcDaf//Dm1o1
-YJwP31j8houmJ5/iykOfbd/gwgBt9h644aBO8rQowcyqHYv5kenrfO/5lnES5O65
-7hC3bkzuMhZhg40dkXV7vV3eES1Wb7h2P8sa0dgt5mn1izM5n+t15Af4qzrWbzCS
-PGmYjLMlNZyjxIOfwK/03CZ4FriIizxWtxTNFW/2qxuskw1gHDzn+XJBsI6AYBWW
-W+lNER6wgJBbyw56EaIV
-=LDED
------END PGP SIGNATURE-----
-
---y/A/1bIHS6WQt0eA--
+>>
+>> All patches are available at [1] if anyone wants an easy way to
+>> test the patches.
+>>
+>> [1] git://git.kernel.org/pub/scm/linux/kernel/git/balbi/usb.git i2c-transferred-bytes-on-NACK
+>
+> forgot to mention, with [1] I could veridy suspend to ram with boards
+> mentioned above.
+>
+> [1] http://marc.info/?l=linux-arm-kernel&m=135090724817604&w=2
+>
+>> Felipe Balbi (7):
+>>   i2c: omap: no need to access platform_device
+>>   i2c: omap: reorder exit path of omap_i2c_xfer_msg()
+>>   i2c: omap: fix error checking
+>>   i2c: omap: also complete() when stat becomes zero
+>>   i2c: omap: introduce and use OMAP_I2C_IP_VERSION_3
+>>   i2c: omap: wait for transfer completion before sending STP bit
+>>   i2c: omap: implement handling for 'transferred' bytes
+>>
+>> Shubhrajyoti D (1):
+>>   i2c: add 'transferred' field to struct i2c_msg
+>>
+>>  arch/arm/mach-omap2/i2c.c                  |   3 +-
+>>  arch/arm/mach-omap2/omap_hwmod_44xx_data.c |   2 +-
+>>  drivers/i2c/busses/i2c-omap.c              | 156 ++++++++++++++++-------------
+>>  include/linux/i2c-omap.h                   |   1 +
+>>  include/uapi/linux/i2c.h                   |   1 +
+>>  5 files changed, 89 insertions(+), 74 deletions(-)
+>>
+>> --
+>> 1.8.0.rc0
+>>
+>
+> --
+> balbi
