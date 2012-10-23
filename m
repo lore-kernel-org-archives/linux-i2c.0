@@ -1,135 +1,154 @@
-From: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 2/2] i2c: i2c-ocores: Add support for the GRLIB port of the controller and custom getreg and setreg functions
-Date: Tue, 23 Oct 2012 17:03:57 +0200
-Message-ID: <1351004637-11049-3-git-send-email-andreas@gaisler.com>
-References: <1351004637-11049-1-git-send-email-andreas@gaisler.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] i2c: omap: re-factor omap_i2c_init function
+Date: Tue, 23 Oct 2012 20:57:19 +0530
+Message-ID: <1351006039-24332-1-git-send-email-shubhrajyoti@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1351004637-11049-1-git-send-email-andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The registers in the GRLIB port of the controller are 32-bit and in big endian
-byte order. The PRELOW and PREHIGH registers are merged into one register. The
-subsequent registers have their offset decreased accordingly. Hence the register
-access needs to be handled in a non-standard manner using custom getreg and
-setreg functions.
+re-factor omap_i2c_init() so that we can re-use it for resume.
+While at it also remove the bufstate variable as we write it
+in omap_i2c_resize_fifo for every transfer.
 
-Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-ocores.c |   57 +++++++++++++++++++++++++++++++++++++-
- 1 files changed, 55 insertions(+), 2 deletions(-)
+Applies on Felipe's series
+http://www.spinics.net/lists/linux-omap/msg79995.html
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 1eb8a65..e3df62f 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -4,6 +4,9 @@
-  *
-  * Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-  *
-+ * Support for the GRLIB port of the controller by
-+ * Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-+ *
-  * This file is licensed under the terms of the GNU General Public License
-  * version 2.  This program is licensed "as is" without any warranty of any
-  * kind, whether express or implied.
-@@ -38,6 +41,8 @@ struct ocores_i2c {
- 	int nmsgs;
- 	int state; /* see STATE_ */
- 	int clock_khz;
-+	void (*setreg)(struct ocores_i2c *i2c, int reg, u8 value);
-+	u8 (*getreg)(struct ocores_i2c *i2c, int reg);
- };
- 
- /* registers */
-@@ -73,7 +78,9 @@ struct ocores_i2c {
- 
- static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
- {
--	if (i2c->reg_io_width == 4)
-+	if (i2c->setreg)
-+		i2c->setreg(i2c, reg, value);
-+	else if (i2c->reg_io_width == 4)
- 		iowrite32(value, i2c->base + (reg << i2c->reg_shift));
- 	else if (i2c->reg_io_width == 2)
- 		iowrite16(value, i2c->base + (reg << i2c->reg_shift));
-@@ -83,7 +90,9 @@ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
- 
- static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
- {
--	if (i2c->reg_io_width == 4)
-+	if (i2c->getreg)
-+		return i2c->getreg(i2c, reg);
-+	else if (i2c->reg_io_width == 4)
- 		return ioread32(i2c->base + (reg << i2c->reg_shift));
- 	else if (i2c->reg_io_width == 2)
- 		return ioread16(i2c->base + (reg << i2c->reg_shift));
-@@ -91,6 +100,40 @@ static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
- 		return ioread8(i2c->base + (reg << i2c->reg_shift));
+Tested with Terro sys fix + Felipe's stop sched_clock() during suspend
+on omap3636 beagle both idle and suspend.
+
+Functional testing on omap4sdp.
+
+ drivers/i2c/busses/i2c-omap.c |   68 +++++++++++++++++------------------------
+ 1 files changed, 28 insertions(+), 40 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 5e5cefb..338cee7 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -209,7 +209,6 @@ struct omap_i2c_dev {
+ 	u16			pscstate;
+ 	u16			scllstate;
+ 	u16			sclhstate;
+-	u16			bufstate;
+ 	u16			syscstate;
+ 	u16			westate;
+ 	u16			errata;
+@@ -285,9 +284,26 @@ static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
+ 	}
  }
  
-+/* Read and write functions for the GRLIB port of the controller. Registers are
-+ * 32-bit big endian and the PRELOW and PREHIGH registers are merged into one
-+ * register. The subsequent registers has their offset decreased accordingly. */
-+static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
++static void __omap_i2c_init(struct omap_i2c_dev *dev)
 +{
-+	u32 rd;
-+	int rreg = reg;
-+	if (reg != OCI2C_PRELOW)
-+		rreg--;
-+	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
-+	if (reg == OCI2C_PREHIGH)
-+		return (u8)rd >> 8;
-+	else
-+		return (u8)rd;
++
++	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
++	/* Setup clock prescaler to obtain approx 12MHz I2C module clock: */
++	omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, dev->pscstate);
++
++	/* SCL low and high time values */
++	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, dev->scllstate);
++	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, dev->sclhstate);
++	if (dev->rev >= OMAP_I2C_REV_ON_3430_3530)
++		omap_i2c_write_reg(dev, OMAP_I2C_WE_REG, dev->westate);
++	/* Take the I2C module out of reset: */
++	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
++	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
++
 +}
-+
-+static void oc_setreg_grlib(struct ocores_i2c *i2c, int reg, u8 value)
-+{
-+	u32 curr, wr;
-+	int rreg = reg;
-+	if (reg != OCI2C_PRELOW)
-+		rreg--;
-+	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
-+		curr = ioread32be(i2c->base + (rreg << i2c->reg_shift));
-+		if (reg == OCI2C_PRELOW)
-+			wr = (curr & 0xff00) | value;
-+		else
-+			wr = (((u32)value) << 8) | (curr & 0xff);
-+	} else {
-+		wr = value;
-+	}
-+	iowrite32be(wr, i2c->base + (rreg << i2c->reg_shift));
-+}
-+
- static void ocores_process(struct ocores_i2c *i2c)
+ static int omap_i2c_init(struct omap_i2c_dev *dev)
  {
- 	struct i2c_msg *msg = i2c->msg;
-@@ -233,6 +276,7 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
- {
- 	struct device_node *np = pdev->dev.of_node;
- 	u32 val;
-+	const char *name;
+-	u16 psc = 0, scll = 0, sclh = 0, buf = 0;
++	u16 psc = 0, scll = 0, sclh = 0;
+ 	u16 fsscll = 0, fssclh = 0, hsscll = 0, hssclh = 0;
+ 	unsigned long fclk_rate = 12000000;
+ 	unsigned long timeout;
+@@ -337,11 +353,8 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 			 * REVISIT: Some wkup sources might not be needed.
+ 			 */
+ 			dev->westate = OMAP_I2C_WE_ALL;
+-			omap_i2c_write_reg(dev, OMAP_I2C_WE_REG,
+-							dev->westate);
+ 		}
+ 	}
+-	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, 0);
  
- 	if (of_property_read_u32(np, "reg-shift", &i2c->reg_shift)) {
- 		/* no 'reg-shift', check for deprecated 'regstep' */
-@@ -257,6 +301,15 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
+ 	if (dev->flags & OMAP_I2C_FLAG_ALWAYS_ARMXOR_CLK) {
+ 		/*
+@@ -426,28 +439,18 @@ static int omap_i2c_init(struct omap_i2c_dev *dev)
+ 		sclh = fclk_rate / (dev->speed * 2) - 7 + psc;
+ 	}
  
- 	of_property_read_u32(pdev->dev.of_node, "reg-io-width",
- 				&i2c->reg_io_width);
+-	/* Setup clock prescaler to obtain approx 12MHz I2C module clock: */
+-	omap_i2c_write_reg(dev, OMAP_I2C_PSC_REG, psc);
+-
+-	/* SCL low and high time values */
+-	omap_i2c_write_reg(dev, OMAP_I2C_SCLL_REG, scll);
+-	omap_i2c_write_reg(dev, OMAP_I2C_SCLH_REG, sclh);
+-
+-	/* Take the I2C module out of reset: */
+-	omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+-
+ 	/* Enable interrupts */
+ 	dev->iestate = (OMAP_I2C_IE_XRDY | OMAP_I2C_IE_RRDY |
+ 			OMAP_I2C_IE_NACK | OMAP_I2C_IE_AL)  |
+ 			((dev->fifo_size) ? (OMAP_I2C_IE_RDR |
+ 				OMAP_I2C_IE_XDR) : 0);
+-	omap_i2c_write_reg(dev, OMAP_I2C_IE_REG, dev->iestate);
+-	if (dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
+-		dev->pscstate = psc;
+-		dev->scllstate = scll;
+-		dev->sclhstate = sclh;
+-		dev->bufstate = buf;
+-	}
 +
-+	name = of_get_property(pdev->dev.of_node, "name", NULL);
-+	if (name && (!strcmp(name, "GAISLER_I2CMST") ||
-+		     !strcmp(name, "01_028"))) {
-+		dev_dbg(&pdev->dev, "GRLIB variant of i2c-ocores\n");
-+		i2c->setreg = oc_setreg_grlib;
-+		i2c->getreg = oc_getreg_grlib;
-+	}
++	dev->pscstate = psc;
++	dev->scllstate = scll;
++	dev->sclhstate = sclh;
++
++	__omap_i2c_init(dev);
 +
  	return 0;
  }
- #else
+ 
+@@ -1136,7 +1139,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR_VALUE(r))
+ 		goto err_free_mem;
+ 
+-	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
++	dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG)  & 0xff;
+ 
+ 	dev->errata = 0;
+ 
+@@ -1268,23 +1271,8 @@ static int omap_i2c_runtime_resume(struct device *dev)
+ {
+ 	struct omap_i2c_dev *_dev = dev_get_drvdata(dev);
+ 
+-	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE) {
+-		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, 0);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_PSC_REG, _dev->pscstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_SCLL_REG, _dev->scllstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_SCLH_REG, _dev->sclhstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_BUF_REG, _dev->bufstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_SYSC_REG, _dev->syscstate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_WE_REG, _dev->westate);
+-		omap_i2c_write_reg(_dev, OMAP_I2C_CON_REG, OMAP_I2C_CON_EN);
+-	}
+-
+-	/*
+-	 * Don't write to this register if the IE state is 0 as it can
+-	 * cause deadlock.
+-	 */
+-	if (_dev->iestate)
+-		omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, _dev->iestate);
++	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE)
++		__omap_i2c_init(_dev);
+ 
+ 	return 0;
+ }
 -- 
-1.7.0.4
+1.7.5.4
