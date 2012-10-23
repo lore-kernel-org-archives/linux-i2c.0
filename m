@@ -1,96 +1,119 @@
-From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: i2c-ocores: Add irq support for sparc
-Date: Tue, 23 Oct 2012 22:13:08 +0200
-Message-ID: <87wqyhlzfv.fsf@macbook.be.48ers.dk>
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Subject: Re: [PATCH 2/2] i2c: i2c-ocores: Add support for the GRLIB port of the controller and custom getreg and setreg functions
+Date: Tue, 23 Oct 2012 22:24:33 +0200
+Message-ID: <87sj95lywu.fsf@macbook.be.48ers.dk>
 References: <1351004637-11049-1-git-send-email-andreas@gaisler.com>
- <1351004637-11049-2-git-send-email-andreas@gaisler.com>
+	<1351004637-11049-3-git-send-email-andreas@gaisler.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <1351004637-11049-2-git-send-email-andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> (Andreas
- Larsson's message of "Tue, 23 Oct 2012 17:03:56 +0200")
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Cc: software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1351004637-11049-3-git-send-email-andreas@gaisler.com> (Andreas
+	Larsson's message of "Tue, 23 Oct 2012 17:03:57 +0200")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andreas Larsson <andreas@gaisler.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, software@gaisler.com
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Andreas" == Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> writes:
+>>>>> "Andreas" == Andreas Larsson <andreas@gaisler.com> writes:
 
- Andreas> There are no platform resources of type IORESOURCE_IRQ on
- Andreas> sparc, so the irq number is acquired in a different manner for
- Andreas> sparc. The general case uses platform_get_irq, that internally
- Andreas> still uses platform_get_resource.
+ Andreas> The registers in the GRLIB port of the controller are 32-bit
+ Andreas> and in big endian byte order. The PRELOW and PREHIGH registers
+ Andreas> are merged into one register. The subsequent registers have
+ Andreas> their offset decreased accordingly. Hence the register access
+ Andreas> needs to be handled in a non-standard manner using custom
+ Andreas> getreg and
+ Andreas> setreg functions.
 
-I have no idea why sparc is being odd in this regard, but assuming this
-is how it's done, I'm fine with this change.
-
-A quick grep doesn't find any other drivers doing this though:
-
-git grep -l archdata.irqs drivers | xargs grep platform_get_irq
-
-Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-
-
- Andreas> Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+ Andreas> Signed-off-by: Andreas Larsson <andreas@gaisler.com>
  Andreas> ---
- Andreas>  drivers/i2c/busses/i2c-ocores.c |   13 +++++++++----
- Andreas>  1 files changed, 9 insertions(+), 4 deletions(-)
+ Andreas>  drivers/i2c/busses/i2c-ocores.c |   57 +++++++++++++++++++++++++++++++++++++-
+ Andreas>  1 files changed, 55 insertions(+), 2 deletions(-)
 
  Andreas> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
- Andreas> index bffd550..1eb8a65 100644
+ Andreas> index 1eb8a65..e3df62f 100644
  Andreas> --- a/drivers/i2c/busses/i2c-ocores.c
  Andreas> +++ b/drivers/i2c/busses/i2c-ocores.c
- Andreas> @@ -267,16 +267,21 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ Andreas> @@ -4,6 +4,9 @@
+ Andreas>   *
+ Andreas>   * Peter Korsgaard <jacmet@sunsite.dk>
+ Andreas>   *
+ Andreas> + * Support for the GRLIB port of the controller by
+ Andreas> + * Andreas Larsson <andreas@gaisler.com>
+ Andreas> + *
+ Andreas>   * This file is licensed under the terms of the GNU General Public License
+ Andreas>   * version 2.  This program is licensed "as is" without any warranty of any
+ Andreas>   * kind, whether express or implied.
+ Andreas> @@ -38,6 +41,8 @@ struct ocores_i2c {
+ Andreas>  	int nmsgs;
+ Andreas>  	int state; /* see STATE_ */
+ Andreas>  	int clock_khz;
+ Andreas> +	void (*setreg)(struct ocores_i2c *i2c, int reg, u8 value);
+ Andreas> +	u8 (*getreg)(struct ocores_i2c *i2c, int reg);
+ Andreas>  };
+ 
+ Andreas>  /* registers */
+ Andreas> @@ -73,7 +78,9 @@ struct ocores_i2c {
+ 
+ Andreas>  static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
  Andreas>  {
- Andreas>  	struct ocores_i2c *i2c;
- Andreas>  	struct ocores_i2c_platform_data *pdata;
- Andreas> -	struct resource *res, *res2;
- Andreas> +	struct resource *res;
- Andreas>  	int ret;
- Andreas>  	int i;
- Andreas> +	int irq;
+ Andreas> -	if (i2c->reg_io_width == 4)
+ Andreas> +	if (i2c->setreg)
+ Andreas> +		i2c->setreg(i2c, reg, value);
+ Andreas> +	else if (i2c->reg_io_width == 4)
+ Andreas>  		iowrite32(value, i2c->base + (reg << i2c->reg_shift));
+ Andreas>  	else if (i2c->reg_io_width == 2)
+ Andreas>  		iowrite16(value, i2c->base + (reg << i2c->reg_shift));
+ Andreas> @@ -83,7 +90,9 @@ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
  
- Andreas>  	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- Andreas>  	if (!res)
- Andreas>  		return -ENODEV;
+ Andreas>  static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
+ Andreas>  {
+ Andreas> -	if (i2c->reg_io_width == 4)
+ Andreas> +	if (i2c->getreg)
+ Andreas> +		return i2c->getreg(i2c, reg);
+ Andreas> +	else if (i2c->reg_io_width == 4)
+ Andreas>  		return ioread32(i2c->base + (reg << i2c->reg_shift));
+ Andreas>  	else if (i2c->reg_io_width == 2)
+ Andreas>  		return ioread16(i2c->base + (reg << i2c->reg_shift));
+ Andreas> @@ -91,6 +100,40 @@ static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
+ Andreas>  		return ioread8(i2c->base + (reg << i2c->reg_shift));
+ Andreas>  }
  
- Andreas> -	res2 = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- Andreas> -	if (!res2)
- Andreas> +#ifdef CONFIG_SPARC
- Andreas> +	irq = pdev->archdata.irqs[0];
- Andreas> +#else
- Andreas> +	irq = platform_get_irq(pdev, 0);
- Andreas> +#endif
- Andreas> +	if (irq < 0)
- Andreas>  		return -ENODEV;
- 
- Andreas>  	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
- Andreas> @@ -313,7 +318,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- Andreas>  	ocores_init(i2c);
- 
- Andreas>  	init_waitqueue_head(&i2c->wait);
- Andreas> -	ret = devm_request_irq(&pdev->dev, res2->start, ocores_isr, 0,
- Andreas> +	ret = devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
- pdev-> name, i2c);
- Andreas>  	if (ret) {
- Andreas>  		dev_err(&pdev->dev, "Cannot claim IRQ\n");
- Andreas> -- 
- Andreas> 1.7.0.4
+ Andreas> +/* Read and write functions for the GRLIB port of the controller. Registers are
+ Andreas> + * 32-bit big endian and the PRELOW and PREHIGH registers are merged into one
+ Andreas> + * register. The subsequent registers has their offset decreased accordingly. */
+ Andreas> +static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
+ Andreas> +{
+ Andreas> +	u32 rd;
+ Andreas> +	int rreg = reg;
+ Andreas> +	if (reg != OCI2C_PRELOW)
+ Andreas> +		rreg--;
+ Andreas> +	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
+ Andreas> +	if (reg == OCI2C_PREHIGH)
+ Andreas> +		return (u8)rd >> 8;
+ Andreas> +	else
+ Andreas> +		return (u8)rd;
+ Andreas> +}
+ Andreas> +
+ Andreas> +static void oc_setreg_grlib(struct ocores_i2c *i2c, int reg, u8 value)
+ Andreas> +{
+ Andreas> +	u32 curr, wr;
+ Andreas> +	int rreg = reg;
+ Andreas> +	if (reg != OCI2C_PRELOW)
+ Andreas> +		rreg--;
+ Andreas> +	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
+ Andreas> +		curr = ioread32be(i2c->base + (rreg << i2c->reg_shift));
+ Andreas> +		if (reg == OCI2C_PRELOW)
+ Andreas> +			wr = (curr & 0xff00) | value;
+ Andreas> +		else
+ Andreas> +			wr = (((u32)value) << 8) | (curr & 0xff);
+ Andreas> +	} else {
+ Andreas> +		wr = value;
+ Andreas> +	}
+ Andreas> +	iowrite32be(wr, i2c->base + (rreg << i2c->reg_shift));
 
- Andreas> --
- Andreas> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
- Andreas> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- Andreas> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Are all platforms using i2c-ocores guaranteed to provide ioread32be /
+iowrite32be or should we stick an #ifdef CONFIG_SPARC around it?
+
 
 
 -- 
