@@ -1,58 +1,32 @@
-From: "Peter Korsgaard" <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: mux: Add dt support to i2c-mux-gpio driver
-Date: Wed, 24 Oct 2012 13:45:58 +0200
-Message-ID: <87objsqeix.fsf@thor.barco.com>
-References: <1350910413-23925-1-git-send-email-maxime.ripard@free-electrons.com><1350910413-23925-2-git-send-email-maxime.ripard@free-electrons.com><87liexrmoz.fsf@thor.barco.com> <5087A8E5.8050103@free-electrons.com>
+From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: i2c-ocores: Add support for the GRLIB port of the controller and custom getreg and setreg functions
+Date: Wed, 24 Oct 2012 13:48:04 +0200
+Message-ID: <87bofsm6q3.fsf@macbook.be.48ers.dk>
+References: <1351004637-11049-1-git-send-email-andreas@gaisler.com>
+	<1351004637-11049-3-git-send-email-andreas@gaisler.com>
+	<87sj95lywu.fsf@macbook.be.48ers.dk> <5087AF46.1070707@gaisler.com>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <5087A8E5.8050103-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> (Maxime Ripard's message of"Wed, 24 Oct 2012 10:37:57 +0200")
+In-Reply-To: <5087AF46.1070707-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> (Andreas Larsson's message of
+	"Wed, 24 Oct 2012 11:05:10 +0200")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org
+To: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "MR" == Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> writes:
+>>>>> "Andreas" == Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> writes:
 
-Hi,
+ >> Are all platforms using i2c-ocores guaranteed to provide ioread32be /
+ >> iowrite32be or should we stick an #ifdef CONFIG_SPARC around it?
 
-MR> +* Standard I2C mux properties. See mux.txt in this directory.
-MR> +* I2C child bus nodes. See mux.txt in this directory.
-MR> +
-MR> +Optional properties:
-MR> +- idle-state: value to set to the muxer when idle. When no value is
->> 
->> How about 'bitmask defining mux state when idle' instead?
+ Andreas> As far as I can see, after digging around, the only platforms that
+ Andreas> have ioread/write32, but not ioread/write32be are frv and mn10300. Do
+ Andreas> you know if those platforms are using i2c-ocores?
 
-MR> Since the array documented as using the bitmasks in the platform_data
-MR> and described as an array of bitmasks is called "values", and the file
-MR> mux.txt talks about "numbers" to put into reg, won't this be confusing
-MR> to have three names for the exact same thing?
+Not to my knowledge, no. In that case:
 
-Yeah, the mess is less than perfect. To my defense I did use bitmask in
-the platform data documentation:
-
-@values: Array of bitmasks of GPIO settings (low/high) for each position
-@idle: Bitmask to write to MUX when idle or GPIO_I2CMUX_NO_IDLE if not used
-
-But ok, I don't feel strongly about it.
-
-
->> Why this change? I don't see why it is needed and the patch would be a
->> lot easier to review without all the s/.data/->data/ noise.
-
-MR> Ah yes, since mux is already allocated using kcalloc, we don't need to
-MR> do it for data as well. I will remove it.
-
-Ok, great.
+Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
 
 -- 
-Sorry about disclaimer - It's out of my control.
 Bye, Peter Korsgaard
-
-
-DISCLAIMER:
-Unless indicated otherwise, the information contained in this message is privileged and confidential, and is intended only for the use of the addressee(s) named above and others who have been specifically authorized to receive it. If you are not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this message and/or attachments is strictly prohibited. The company accepts no liability for any damage caused by any virus transmitted by this email. Furthermore, the company does not warrant a proper and complete transmission of this information, nor does it accept liability for any delays. If you have received this message in error, please contact the sender and delete the message. Thank you.
