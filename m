@@ -1,120 +1,169 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH 2/2] i2c: i2c-ocores: Add support for the GRLIB port of the controller and custom getreg and setreg functions
-Date: Tue, 23 Oct 2012 22:24:33 +0200
-Message-ID: <87sj95lywu.fsf@macbook.be.48ers.dk>
-References: <1351004637-11049-1-git-send-email-andreas@gaisler.com>
-	<1351004637-11049-3-git-send-email-andreas@gaisler.com>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: mux: Add dt support to i2c-mux-gpio driver
+Date: Wed, 24 Oct 2012 10:37:57 +0200
+Message-ID: <5087A8E5.8050103@free-electrons.com>
+References: <1350910413-23925-1-git-send-email-maxime.ripard@free-electrons.com><1350910413-23925-2-git-send-email-maxime.ripard@free-electrons.com> <87liexrmoz.fsf@thor.barco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1351004637-11049-3-git-send-email-andreas@gaisler.com> (Andreas
-	Larsson's message of "Tue, 23 Oct 2012 17:03:57 +0200")
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andreas Larsson <andreas@gaisler.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, linux-kernel@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, software@gaisler.com
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <87liexrmoz.fsf-1Ae4nN3xCbAluPl5bxqUMw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Cc: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Andreas" == Andreas Larsson <andreas@gaisler.com> writes:
+Hi Peter,
 
- Andreas> The registers in the GRLIB port of the controller are 32-bit
- Andreas> and in big endian byte order. The PRELOW and PREHIGH registers
- Andreas> are merged into one register. The subsequent registers have
- Andreas> their offset decreased accordingly. Hence the register access
- Andreas> needs to be handled in a non-standard manner using custom
- Andreas> getreg and
- Andreas> setreg functions.
+Le 23/10/2012 21:51, Peter Korsgaard a =E9crit :
+>>>>>> "MR" =3D=3D Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> wri=
+tes:
+>=20
+> Hi Maxime,
+>=20
+> I'm fine with the idea, but a few comments:
+>=20
+>=20
+> MR> Allow the i2c-mux-gpio to be used by a device tree enabled device=
+=2E The
+> MR> bindings are inspired by the one found in the i2c-mux-pinctrl dri=
+ver.
+>=20
+> MR> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> MR> ---
+> MR>  .../devicetree/bindings/i2c/i2c-mux-gpio.txt       |   81 ++++++=
+++++
+> MR>  drivers/i2c/muxes/i2c-mux-gpio.c                   |  169 ++++++=
++++++++++-----
+> MR>  2 files changed, 211 insertions(+), 39 deletions(-)
+> MR>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mux=
+-gpio.txt
+>=20
+> MR> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.t=
+xt b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+> MR> new file mode 100644
+> MR> index 0000000..335fc4e
+> MR> --- /dev/null
+> MR> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.txt
+> MR> @@ -0,0 +1,81 @@
+> MR> +GPIO-based I2C Bus Mux
+> MR> +
+> MR> +This binding describes an I2C bus multiplexer that uses GPIOs to
+> MR> +route the I2C signals.
+> MR> +
+> MR> +                                  +-----+  +-----+
+> MR> +                                  | dev |  | dev |
+> MR> +    +------------+                +-----+  +-----+
+> MR> +    | SoC        |                   |        |
+> MR> +    |            |          /--------+--------+
+> MR> +    |   +------+ |  +------+    child bus A, on GPIO value set t=
+o 0
+> MR> +    |   | I2C  |-|--| Mux  |
+> MR> +    |   +------+ |  +--+---+    child bus B, on GPIO value set t=
+o 1
+> MR> +    |            |     |    \----------+--------+--------+
+> MR> +    |   +------+ |     |               |        |        |
+> MR> +    |   | GPIO |-|-----+            +-----+  +-----+  +-----+
+> MR> +    |   +------+ |                  | dev |  | dev |  | dev |
+> MR> +    +------------+                  +-----+  +-----+  +-----+
+> MR> +
+> MR> +Required properties:
+> MR> +- compatible: i2c-mux-gpio
+> MR> +- i2c-parent: The phandle of the I2C bus that this multiplexer's=
+ master-side
+> MR> +  port is connected to.
+> MR> +- mux-gpios: list of gpios to use to control the muxer
+>=20
+> s/to use to/used to/
+>=20
+>=20
+> MR> +* Standard I2C mux properties. See mux.txt in this directory.
+> MR> +* I2C child bus nodes. See mux.txt in this directory.
+> MR> +
+> MR> +Optional properties:
+> MR> +- idle-state: value to set to the muxer when idle. When no value=
+ is
+>=20
+> How about 'bitmask defining mux state when idle' instead?
 
- Andreas> Signed-off-by: Andreas Larsson <andreas@gaisler.com>
- Andreas> ---
- Andreas>  drivers/i2c/busses/i2c-ocores.c |   57 +++++++++++++++++++++++++++++++++++++-
- Andreas>  1 files changed, 55 insertions(+), 2 deletions(-)
+Since the array documented as using the bitmasks in the platform_data
+and described as an array of bitmasks is called "values", and the file
+mux.txt talks about "numbers" to put into reg, won't this be confusing
+to have three names for the exact same thing?
 
- Andreas> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
- Andreas> index 1eb8a65..e3df62f 100644
- Andreas> --- a/drivers/i2c/busses/i2c-ocores.c
- Andreas> +++ b/drivers/i2c/busses/i2c-ocores.c
- Andreas> @@ -4,6 +4,9 @@
- Andreas>   *
- Andreas>   * Peter Korsgaard <jacmet@sunsite.dk>
- Andreas>   *
- Andreas> + * Support for the GRLIB port of the controller by
- Andreas> + * Andreas Larsson <andreas@gaisler.com>
- Andreas> + *
- Andreas>   * This file is licensed under the terms of the GNU General Public License
- Andreas>   * version 2.  This program is licensed "as is" without any warranty of any
- Andreas>   * kind, whether express or implied.
- Andreas> @@ -38,6 +41,8 @@ struct ocores_i2c {
- Andreas>  	int nmsgs;
- Andreas>  	int state; /* see STATE_ */
- Andreas>  	int clock_khz;
- Andreas> +	void (*setreg)(struct ocores_i2c *i2c, int reg, u8 value);
- Andreas> +	u8 (*getreg)(struct ocores_i2c *i2c, int reg);
- Andreas>  };
- 
- Andreas>  /* registers */
- Andreas> @@ -73,7 +78,9 @@ struct ocores_i2c {
- 
- Andreas>  static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
- Andreas>  {
- Andreas> -	if (i2c->reg_io_width == 4)
- Andreas> +	if (i2c->setreg)
- Andreas> +		i2c->setreg(i2c, reg, value);
- Andreas> +	else if (i2c->reg_io_width == 4)
- Andreas>  		iowrite32(value, i2c->base + (reg << i2c->reg_shift));
- Andreas>  	else if (i2c->reg_io_width == 2)
- Andreas>  		iowrite16(value, i2c->base + (reg << i2c->reg_shift));
- Andreas> @@ -83,7 +90,9 @@ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
- 
- Andreas>  static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
- Andreas>  {
- Andreas> -	if (i2c->reg_io_width == 4)
- Andreas> +	if (i2c->getreg)
- Andreas> +		return i2c->getreg(i2c, reg);
- Andreas> +	else if (i2c->reg_io_width == 4)
- Andreas>  		return ioread32(i2c->base + (reg << i2c->reg_shift));
- Andreas>  	else if (i2c->reg_io_width == 2)
- Andreas>  		return ioread16(i2c->base + (reg << i2c->reg_shift));
- Andreas> @@ -91,6 +100,40 @@ static inline u8 oc_getreg(struct ocores_i2c *i2c, int reg)
- Andreas>  		return ioread8(i2c->base + (reg << i2c->reg_shift));
- Andreas>  }
- 
- Andreas> +/* Read and write functions for the GRLIB port of the controller. Registers are
- Andreas> + * 32-bit big endian and the PRELOW and PREHIGH registers are merged into one
- Andreas> + * register. The subsequent registers has their offset decreased accordingly. */
- Andreas> +static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
- Andreas> +{
- Andreas> +	u32 rd;
- Andreas> +	int rreg = reg;
- Andreas> +	if (reg != OCI2C_PRELOW)
- Andreas> +		rreg--;
- Andreas> +	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
- Andreas> +	if (reg == OCI2C_PREHIGH)
- Andreas> +		return (u8)rd >> 8;
- Andreas> +	else
- Andreas> +		return (u8)rd;
- Andreas> +}
- Andreas> +
- Andreas> +static void oc_setreg_grlib(struct ocores_i2c *i2c, int reg, u8 value)
- Andreas> +{
- Andreas> +	u32 curr, wr;
- Andreas> +	int rreg = reg;
- Andreas> +	if (reg != OCI2C_PRELOW)
- Andreas> +		rreg--;
- Andreas> +	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
- Andreas> +		curr = ioread32be(i2c->base + (rreg << i2c->reg_shift));
- Andreas> +		if (reg == OCI2C_PRELOW)
- Andreas> +			wr = (curr & 0xff00) | value;
- Andreas> +		else
- Andreas> +			wr = (((u32)value) << 8) | (curr & 0xff);
- Andreas> +	} else {
- Andreas> +		wr = value;
- Andreas> +	}
- Andreas> +	iowrite32be(wr, i2c->base + (rreg << i2c->reg_shift));
+> MR> +  given, it defaults to the last value used.
+> MR> +
+> MR> +For each i2c child node, an I2C child bus will be created. They =
+will
+> MR> +be numbered based on the reg property of each node.
+>=20
+> As far as I can see they are dynamically assigned numbers in the orde=
+r
+> they are listed in the dt.
 
-Are all platforms using i2c-ocores guaranteed to provide ioread32be /
-iowrite32be or should we stick an #ifdef CONFIG_SPARC around it?
+Ah, yes.
+
+> MR> +
+> MR> +Whenever an access is made to a device on a child bus, the value=
+ set
+> MR> +in the revelant node's reg property will be output using the lis=
+t of
+> MR> +GPIOs, the first in the list holding the most-significant value.
+>=20
+> Isn't it the other way around, E.G. first gpio in mux-gpios controlle=
+d
+> by LSB of reg property, next gpio by lsb+1,  ..?
+
+True indeed.
+
+> MR> +
+> MR> +If an idle state is defined, using the idle-state (optional) pro=
+perty,
+> MR> +whenever an access is not being made to a device on a child bus,=
+ the
+> MR> +idle value will be programmed into the GPIOs.
+>=20
+> s/idle value will be programmed into the GPIOS/GPIOS set according to
+> the idle value bitmask/
+
+Once again, I'm really not fond of the term "bitmask".
+
+[..]
+
+> MR> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes=
+/i2c-mux-gpio.c
+> MR> index 566a675..7ebef01 100644
+> MR> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> MR> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> MR> @@ -16,11 +16,13 @@
+> MR>  #include <linux/module.h>
+> MR>  #include <linux/slab.h>
+> MR>  #include <linux/gpio.h>
+> MR> +#include <linux/of_i2c.h>
+> MR> +#include <linux/of_gpio.h>
+> =20
+> MR>  struct gpiomux {
+> MR>  	struct i2c_adapter *parent;
+> MR>  	struct i2c_adapter **adap; /* child busses */
+> MR> -	struct i2c_mux_gpio_platform_data data;
+> MR> +	struct i2c_mux_gpio_platform_data *data;
+>=20
+>=20
+> Why this change? I don't see why it is needed and the patch would be =
+a
+> lot easier to review without all the s/.data/->data/ noise.
+
+Ah yes, since mux is already allocated using kcalloc, we don't need to
+do it for data as well. I will remove it.
+
+Thanks,
+Maxime
 
 
 
--- 
-Bye, Peter Korsgaard
+
+--=20
+Maxime Ripard, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
