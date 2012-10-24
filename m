@@ -1,45 +1,58 @@
-From: Shinya Kuribayashi <shinya.kuribayashi.px@renesas.com>
-Subject: [PATCH 5/5] i2c: i2c-sh_mobile: fix spurious transfer request timed out
-Date: Wed, 24 Oct 2012 19:58:31 +0900
-Message-ID: <5087C9D7.1040108@renesas.com>
-References: <5087C93F.6080601@renesas.com>
+From: "Peter Korsgaard" <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: mux: Add dt support to i2c-mux-gpio driver
+Date: Wed, 24 Oct 2012 13:45:58 +0200
+Message-ID: <87objsqeix.fsf@thor.barco.com>
+References: <1350910413-23925-1-git-send-email-maxime.ripard@free-electrons.com><1350910413-23925-2-git-send-email-maxime.ripard@free-electrons.com><87liexrmoz.fsf@thor.barco.com> <5087A8E5.8050103@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-reply-to: <5087C93F.6080601@renesas.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: w.sang@pengutronix.de, ben-linux@fluff.org, magnus.damm@gmail.com
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-sh@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-class: urn:content-classes:message
+In-Reply-To: <5087A8E5.8050103-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> (Maxime Ripard's message of"Wed, 24 Oct 2012 10:37:57 +0200")
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Ensure that any of preceding register write operations to the I2C
-hardware block reached the module, and the write data is reflected
-in the registers, before leaving the interrupt handler.
+>>>>> "MR" == Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> writes:
 
-Otherwise, we'll suffer from spurious WAIT interrupts that lead to
-'Transfer request timed out' message, and the transaction failed.
+Hi,
 
-Tracked-down-by: Teppei Kamijou <teppei.kamijou.yb@renesas.com>
-Signed-off-by: Shinya Kuribayashi <shinya.kuribayashi.px@renesas.com>
----
- drivers/i2c/busses/i2c-sh_mobile.c | 3 +++
- 1 file changed, 3 insertions(+)
+MR> +* Standard I2C mux properties. See mux.txt in this directory.
+MR> +* I2C child bus nodes. See mux.txt in this directory.
+MR> +
+MR> +Optional properties:
+MR> +- idle-state: value to set to the muxer when idle. When no value is
+>> 
+>> How about 'bitmask defining mux state when idle' instead?
 
-diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 4c28358..9411c1b 100644
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -469,6 +469,9 @@ static irqreturn_t sh_mobile_i2c_isr(int irq, void *dev_id)
- 		wake_up(&pd->wait);
- 	}
- 
-+	/* defeat write posting to avoid spurious WAIT interrupts */
-+	iic_rd(pd, ICSR);
-+
- 	return IRQ_HANDLED;
- }
- 
+MR> Since the array documented as using the bitmasks in the platform_data
+MR> and described as an array of bitmasks is called "values", and the file
+MR> mux.txt talks about "numbers" to put into reg, won't this be confusing
+MR> to have three names for the exact same thing?
+
+Yeah, the mess is less than perfect. To my defense I did use bitmask in
+the platform data documentation:
+
+@values: Array of bitmasks of GPIO settings (low/high) for each position
+@idle: Bitmask to write to MUX when idle or GPIO_I2CMUX_NO_IDLE if not used
+
+But ok, I don't feel strongly about it.
+
+
+>> Why this change? I don't see why it is needed and the patch would be a
+>> lot easier to review without all the s/.data/->data/ noise.
+
+MR> Ah yes, since mux is already allocated using kcalloc, we don't need to
+MR> do it for data as well. I will remove it.
+
+Ok, great.
+
 -- 
-1.7.12.4
+Sorry about disclaimer - It's out of my control.
+Bye, Peter Korsgaard
 
+
+DISCLAIMER:
+Unless indicated otherwise, the information contained in this message is privileged and confidential, and is intended only for the use of the addressee(s) named above and others who have been specifically authorized to receive it. If you are not the intended recipient, you are hereby notified that any dissemination, distribution or copying of this message and/or attachments is strictly prohibited. The company accepts no liability for any damage caused by any virus transmitted by this email. Furthermore, the company does not warrant a proper and complete transmission of this information, nor does it accept liability for any delays. If you have received this message in error, please contact the sender and delete the message. Thank you.
