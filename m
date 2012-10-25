@@ -1,57 +1,81 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH 2/2] ARM: dts: cfa10049: Add the i2c muxer buses to the CFA-10049
-Date: Thu, 25 Oct 2012 18:23:54 +0200
-Message-ID: <1351182234-22971-3-git-send-email-maxime.ripard@free-electrons.com>
-References: <1351182234-22971-1-git-send-email-maxime.ripard@free-electrons.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1351182234-22971-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, brian-ZKiFAVwZFM2FeswfMrDH8w@public.gmane.org
+From: Kevin Hilman <khilman@deeprootsystems.com>
+Subject: Re: [PATCH] i2c: omap: ensure writes to dev->buf_len are ordered
+Date: Thu, 25 Oct 2012 09:38:06 -0700
+Message-ID: <8739124idt.fsf@deeprootsystems.com>
+References: <1351155648-20429-1-git-send-email-balbi@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1351155648-20429-1-git-send-email-balbi@ti.com> (Felipe Balbi's
+	message of "Thu, 25 Oct 2012 12:00:48 +0300")
+Sender: linux-omap-owner@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: w.sang@pengutronix.de, ben-linux@fluff.org, Tony Lindgren <tony@atomide.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org, Paul Walmsley <paul@pwsan.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This will allow to add the 3 Nuvoton NAU7802 ADCs and the NXP PCA9555
-GPIO expander eventually.
++Paul
 
-Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
----
- arch/arm/boot/dts/imx28-cfa10049.dts |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+Felipe Balbi <balbi@ti.com> writes:
 
-diff --git a/arch/arm/boot/dts/imx28-cfa10049.dts b/arch/arm/boot/dts/imx28-cfa10049.dts
-index 97ee098..2cda823 100644
---- a/arch/arm/boot/dts/imx28-cfa10049.dts
-+++ b/arch/arm/boot/dts/imx28-cfa10049.dts
-@@ -76,6 +76,30 @@
- 				status = "okay";
- 			};
- 
-+			i2cmux {
-+				compatible = "i2c-mux-gpio";
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+				mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
-+				i2c-parent = <&i2c1>;
-+
-+				i2c@0 {
-+					reg = <0>;
-+				};
-+
-+				i2c@1 {
-+					reg = <1>;
-+				};
-+
-+				i2c@2 {
-+					reg = <2>;
-+				};
-+
-+				i2c@3 {
-+					reg = <3>;
-+				};
-+			};
-+
- 			usbphy1: usbphy@8007e000 {
- 				status = "okay";
- 			};
--- 
-1.7.9.5
+> if we allow compiler reorder our writes, we could
+> fall into a situation where dev->buf_len is reset
+> for no apparent reason.
+
+Any chance this would help with the bug Paul found with I2C timeouts on
+beagle userspace startup?
+
+Kevin
+
+> This bug was found with a simple script which would
+> transfer data to an i2c client from 1 to 1024 bytes
+> (a simple for loop), when we got to transfer sizes
+> bigger than the fifo size, dev->buf_len was reset
+> to zero before we had an oportunity to handle XDR
+> Interrupt. Because dev->buf_len was zero, we entered
+> omap_i2c_transmit_data() to transfer zero bytes,
+> which would mean we would just silently exit
+> omap_i2c_transmit_data() without actually writing
+> anything to DATA register. That would cause XDR
+> IRQ to trigger forever and we would never transfer
+> the remaining bytes.
+>
+> After adding the memory barrier, we also drop resetting
+> dev->buf_len to zero in omap_i2c_xfer_msg() because
+> both omap_i2c_transmit_data() and omap_i2c_receive_data()
+> will act until dev->buf_len reaches zero, rendering the
+> other write in omap_i2c_xfer_msg() redundant.
+>
+> This patch has been tested with pandaboard for a few
+> iterations of the script mentioned above.
+>
+> Signed-off-by: Felipe Balbi <balbi@ti.com>
+> ---
+>
+> This bug has been there forever, but it's quite annoying.
+> I think it deserves being pushed upstream during this -rc
+> cycle, but if Wolfram decides to wait until v3.8, I don't
+> mind.
+>
+>  drivers/i2c/busses/i2c-omap.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index db31eae..1ec4e6e 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -521,6 +521,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+>  	/* REVISIT: Could the STB bit of I2C_CON be used with probing? */
+>  	dev->buf = msg->buf;
+>  	dev->buf_len = msg->len;
+> +	wmb();
+>  
+>  	omap_i2c_write_reg(dev, OMAP_I2C_CNT_REG, dev->buf_len);
+>  
+> @@ -579,7 +580,6 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+>  	 */
+>  	timeout = wait_for_completion_timeout(&dev->cmd_complete,
+>  						OMAP_I2C_TIMEOUT);
+> -	dev->buf_len = 0;
+>  	if (timeout == 0) {
+>  		dev_err(dev->dev, "controller timed out\n");
+>  		omap_i2c_init(dev);
