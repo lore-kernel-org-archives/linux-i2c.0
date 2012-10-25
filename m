@@ -1,73 +1,76 @@
-From: Santosh Shilimkar <santosh.shilimkar@ti.com>
-Subject: Re: [PATCH v2 4/7] i2c: omap: in case of VERSION_2 read IRQSTATUS_RAW
- but write to IRQSTATUS
-Date: Thu, 25 Oct 2012 18:36:01 +0530
-Message-ID: <50893939.3060302@ti.com>
-References: <1350899218-13624-1-git-send-email-balbi@ti.com> <1351167915-15079-1-git-send-email-balbi@ti.com> <1351167915-15079-5-git-send-email-balbi@ti.com> <50893665.60604@ti.com> <20121025125249.GK21217@arwen.pp.htv.fi>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCH 7/8] i2c: add 'transferred' field to struct i2c_msg
+Date: Thu, 25 Oct 2012 14:14:59 +0100
+Message-ID: <20121025131459.GG28061@n2100.arm.linux.org.uk>
+References: <1350899218-13624-1-git-send-email-balbi@ti.com> <1350899218-13624-8-git-send-email-balbi@ti.com> <20121025145748.760c218b@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20121025125249.GK21217@arwen.pp.htv.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: balbi@ti.com
-Cc: linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, Tony Lindgren <tony@atomide.com>, Shubhrajyoti Datta <shubhrajyoti@ti.com>, Benoit Cousson <b-cousson@ti.com>, w.sang@pengutronix.de, ben-linux@fluff.org, michael@amarulasolutions.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20121025145748.760c218b-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Benoit Cousson <b-cousson-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Shubhrajyoti Datta <shubhrajyoti-l0cyMroinI0@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 25 October 2012 06:22 PM, Felipe Balbi wrote:
-> Hi,
->
-> On Thu, Oct 25, 2012 at 06:23:57PM +0530, Santosh Shilimkar wrote:
->> On Thursday 25 October 2012 05:55 PM, Felipe Balbi wrote:
->>> on OMAP4+ we want to read IRQSTATUS_RAW register,
->>> instead of IRQSTATUS. The reason being that IRQSTATUS
->>> will only contain the bits which were enabled on
->>> IRQENABLE_SET and that will break when we need to
->>> poll for a certain bit which wasn't enabled as an
->>> IRQ source.
->>>
->>> One such case is after we finish converting to
->>> deferred stop bit, we will have to poll for ARDY
->>> bit before returning control for the client driver
->>> in order to prevent us from trying to start a
->>> transfer on a bus which is already busy.
->>>
->>> Note, however, that omap-i2c.c needs a big rework
->>> on register definition and register access. Such
->>> work will be done in a separate series of patches.
->>>
->>> Cc: Benoit Cousson <b-cousson@ti.com>
->>> Signed-off-by: Felipe Balbi <balbi@ti.com>
->>> ---
->>>   drivers/i2c/busses/i2c-omap.c | 12 +++++++++++-
->>>   1 file changed, 11 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
->>> index b004126..20f9ad6 100644
->>> --- a/drivers/i2c/busses/i2c-omap.c
->>> +++ b/drivers/i2c/busses/i2c-omap.c
->>> @@ -271,8 +271,18 @@ static inline void omap_i2c_write_reg(struct omap_i2c_dev *i2c_dev,
->>>
->>>   static inline u16 omap_i2c_read_reg(struct omap_i2c_dev *i2c_dev, int reg)
->>>   {
->>> -	return __raw_readw(i2c_dev->base +
->>> +	/* if we are OMAP_I2C_IP_VERSION_2, we need to read from
->>> +	 * IRQSTATUS_RAW, but write to IRQSTATUS
->>> +	 */
->>> +	if ((i2c_dev->dtrev == OMAP_I2C_IP_VERSION_2) &&
->>> +			(reg == OMAP_I2C_STAT_REG)) {
->> Doing this check on every I2C register read seems to
->> expensive to me. Can you not sort this in init with some offset
->> which can be 0 or non zero ?  Sorry in case this is already dicussed.
->
-> could be. I didn't go that route because I'm planning a complete rewrite
-> of all register accesses. The way it's done today is completely broken
-> and already expensive (with reg_shift and different map tables and so
-> on).
->
-> If it's really a big of a deal, I can try to find another way, maybe
-> just adding omap_i2c_read_stat() and limit the version check just to
-> I2C_STAT reads would do it for now...
->
-Its a hot path since you read many I2C register reads, so getting
-rid of that additional check will be good.
+On Thu, Oct 25, 2012 at 02:57:48PM +0200, Jean Delvare wrote:
+> Hi Felipe, Shubhrajyoti,
+> 
+> On Mon, 22 Oct 2012 12:46:57 +0300, Felipe Balbi wrote:
+> > From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> > 
+> > In case of a NACK, it's wise to tell our clients
+> > drivers about how many bytes were actually transferred.
+> > 
+> > Support this by adding an extra field to the struct
+> > i2c_msg which gets incremented the amount of bytes
+> > actually transferred.
+> > 
+> > Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+> > Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+> > ---
+> >  include/uapi/linux/i2c.h | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+> > index 0e949cb..4b35c9b 100644
+> > --- a/include/uapi/linux/i2c.h
+> > +++ b/include/uapi/linux/i2c.h
+> > @@ -77,6 +77,7 @@ struct i2c_msg {
+> >  #define I2C_M_NO_RD_ACK		0x0800	/* if I2C_FUNC_PROTOCOL_MANGLING */
+> >  #define I2C_M_RECV_LEN		0x0400	/* length will be first received byte */
+> >  	__u16 len;		/* msg length				*/
+> > +	__u16 transferred;	/* actual bytes transferred             */
+> >  	__u8 *buf;		/* pointer to msg data			*/
+> >  };
+> 
+> On the principle I am fine with this, however you also need to define
+> who should initialize this field, and to what value.
+
+You also miss one very very very big point.  This will break every I2C
+using userspace program out there unless it is rebuilt - this change will
+require the exact right version of those userspace programs for the
+kernel that they're being used on.
+
+Now that we have the userspace API headers separated, this is now much
+easier to detect: a patch which touches a uapi header needs much more
+careful consideration than one which doesn't.
+
+So no, strong NAK.  This is not how we treat userspace.
+
+If we want to change userspace API then we do it in a sane manner, where
+we provide the new functionality in a way that it doesn't break existing
+users.  There's two ways to do this:
+
+1. Leave the existing struct alone, introduce a new one with new ioctls.
+   Schedule the removal of the old interfaces for maybe 10 years time.
+
+2. Rename the existing struct (eg struct old_i2c_msg), and create a new
+   struct called i2c_msg.  Rename the existing ioctls to have OLD_ in
+   their names.  Provide the existing ioctls under those names, and
+   make them print a warning once that userspace programs need updating.
+   Schedule the removal of the old interfaces for a shorter number of
+   years than (1);
+
+Remember all those "old" syscalls we have... this is no different from
+those.
