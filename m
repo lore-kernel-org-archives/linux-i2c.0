@@ -1,39 +1,32 @@
-From: Joe Perches <joe@perches.com>
-Subject: [PATCH 08/16] i2c: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
-Date: Sun, 28 Oct 2012 01:05:46 -0700
-Message-ID: <3e4988b083a8b5d03a458aabc18042cedb3dbd8a.1351411047.git.joe@perches.com>
+From: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 00/16] treewide: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+Date: Sun, 28 Oct 2012 14:54:02 +0400
+Message-ID: <508D0ECA.8040008@mvista.com>
 References: <cover.1351411047.git.joe@perches.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1351411047.git.joe@perches.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: "Jean Delvare (PC drivers, core)" <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, "Wolfram Sang (embedded platforms)" <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1351411047.git.joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-wireless-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pcmcia-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devel-s9riP+hp16TNLxjTenLetw@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alsa-devel-K7yf7f+aM1XWsZ/bQMPhNw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-dev_<level> calls take less code than dev_printk(KERN_<LEVEL>
-and reducing object size is good.
-Coalesce formats for easier grep.
+Hello.
 
-Signed-off-by: Joe Perches <joe@perches.com>
----
- drivers/i2c/busses/i2c-piix4.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+On 28-10-2012 12:05, Joe Perches wrote:
 
-diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-index 8bbd6ec..f7216ed 100644
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -204,9 +204,8 @@ static int __devinit piix4_setup(struct pci_dev *PIIX4_dev,
- 			 */
- 			pci_write_config_byte(PIIX4_dev, SMBHSTCFG,
- 					      temp | 1);
--			dev_printk(KERN_NOTICE, &PIIX4_dev->dev,
--				"WARNING: SMBus interface has been "
--				"FORCEFULLY ENABLED!\n");
-+			dev_notice(&PIIX4_dev->dev,
-+				   "WARNING: SMBus interface has been FORCEFULLY ENABLED!\n");
- 		} else {
- 			dev_err(&PIIX4_dev->dev,
- 				"Host SMBus controller not enabled!\n");
--- 
-1.7.8.112.g3fd21
+> dev_<level> create smaller objects than dev_printk(KERN_<LEVEL>.
+> Convert non-debug calls to this form.
+
+> Joe Perches (16):
+>    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+[...]
+>    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+[...]
+>    tile: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
+
+    Hm, somehow this patch is repeated thrice?
+
+MBR, Sergei
