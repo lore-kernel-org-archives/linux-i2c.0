@@ -1,51 +1,96 @@
-From: Pantelis Antoniou <panto@antoniou-consulting.com>
-Subject: Re: [PATCH] i2c-EEPROM: Export memory accessor
-Date: Tue, 30 Oct 2012 20:51:18 +0200
-Message-ID: <4AF9EE5B-D1C1-45E7-B2FD-E96151F5772A@antoniou-consulting.com>
-References: <1351699009-4217-1-git-send-email-panto@antoniou-consulting.com> <50902079.30406@gmail.com>
-Mime-Version: 1.0 (Apple Message framework v1085)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8BIT
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH] i2c: pinctrl-ify i2c-omap.c
+Date: Tue, 30 Oct 2012 20:53:03 +0200
+Message-ID: <20121030185303.GD4804@arwen.pp.htv.fi>
+References: <1351698930-3797-1-git-send-email-panto@antoniou-consulting.com>
+Reply-To: <balbi@ti.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tNQTSEo8WG/FKZ8E"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50902079.30406@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <1351698930-3797-1-git-send-email-panto@antoniou-consulting.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Daney <ddaney.cavm@gmail.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, Russ Dill <Russ.Dill@ti.com>, linux-omap@vger.kernel.org
+To: Pantelis Antoniou <panto@antoniou-consulting.com>
+Cc: Tony Lindgren <tony@atomide.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, "Wolfram Sang (embedded platforms)" <w.sang@pengutronix.de>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, Russ Dill <Russ.Dill@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi David,
+--tNQTSEo8WG/FKZ8E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Oct 30, 2012, at 8:46 PM, David Daney wrote:
+Hi,
 
-> On 10/31/2012 08:56 AM, Pantelis Antoniou wrote:
->> Various platforms need access to the EEPROM in other
->> places besides their platform registration callbacks.
->> Export the memory accessor to the i2c_client
-> 
-> i2c_clients are *not* intrinsically memory, so adding this to the generic i2c_client structure doesn't really make sense.   What would the semantics of this interface be with respect to temperature sensors and GPIO expanders?
-> 
-> NACK.
-> 
+On Wed, Oct 31, 2012 at 05:55:30PM +0200, Pantelis Antoniou wrote:
+> Enable pinctrl for i2c-omap.
+>=20
+> Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+> ---
+>  drivers/i2c/busses/i2c-omap.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> index db31eae..4c38aa0 100644
+> --- a/drivers/i2c/busses/i2c-omap.c
+> +++ b/drivers/i2c/busses/i2c-omap.c
+> @@ -44,6 +44,8 @@
+>  #include <linux/i2c-omap.h>
+>  #include <linux/pm_runtime.h>
+>  #include <linux/pm_qos.h>
+> +#include <linux/pinctrl/consumer.h>
+> +#include <linux/err.h>
+> =20
+>  /* I2C controller revisions */
+>  #define OMAP_I2C_OMAP1_REV_2		0x20
+> @@ -1064,6 +1066,7 @@ omap_i2c_probe(struct platform_device *pdev)
+>  	const struct of_device_id *match;
+>  	int irq;
+>  	int r;
+> +	struct pinctrl *pinctrl;
+> =20
+>  	/* NOTE: driver uses the static register mapping */
+>  	mem =3D platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> @@ -1202,6 +1205,13 @@ omap_i2c_probe(struct platform_device *pdev)
+> =20
+>  	of_i2c_register_devices(adap);
+> =20
+> +	pinctrl =3D devm_pinctrl_get_select_default(&pdev->dev);
+> +	if (IS_ERR(pinctrl))
+> +		dev_warn(dev->dev, "unable to select pin group\n");
 
-It's only filled in for EEPROM devices. There's no other I2C memory read interface for kernel clients.
+if we continue anyway, should this be dev_warn() ? Would you consider
+dev_dbg() instead ?
 
-> 
->> and implement
->> it for the at24 driver.
->> 
->> And before you ask, no, the platform callback can't be used
->> for anything that depends on DT.
-> 
-> Why can't you just allocate (and populate) a struct at24_platform_data for the device if it isn't supplied by whatever created the device?
-> 
-> 
-> 
+> +	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
+> +		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
 
-There are no platform_data in the case of device tree only generic-boards. Everything is configured via the DT and there are
-no callbacks. DT is a purely data driver concept.
+this dev_info() doesn't look like it's part of $subject. Care to, at
+least, add a reasoning for adding this to commit log ?
 
-I'm open to suggestions on how to read an EEPROM from another kernel client, when there's no such thing as platform_data anymore.
+--=20
+balbi
 
-Regards
+--tNQTSEo8WG/FKZ8E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
--- Pantelis
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQkCIPAAoJEIaOsuA1yqREqDIQAIhOBrnoILrEBDhusah/8kdn
+Zsbr/BhO9NqA939KbgBBhEv71qEQ20NmlduA8YhiZvS+IwKF/KtkFZeGTZzhAb0c
+/p2Wp3OBWNIbdCC++OVKQGPydFbS2O6BdeI12wt0eTvm7QLnM9KAEUxw949SYvOQ
+Vh1SOGwmDPWDZbm7fQtTE3rt8yOhbhEz3djWrXCTMnYtPYvT8Gi24iQ0EDhqycAF
+Av52Fe6iCIPjTB3tGCUB0KE+0TwQH5Gde0oRXUnKPXSpz8HmHxgbToPat6uJd1zt
+vOQB84YnL8+ED8Ezelj6ejx2QjPbEmLwuEBo85on3+gVw2XFTZo3nV+lpVuWX6v1
+/+/gsR3Evnzg9kdU57FY964UQiuSD2tSaQHoRQ2iMwEJbHRhUiBzTj6xL3G4MIBT
+MVcuvPCOTjth6ADV/No5HUMpxn7q9x8BqFPdAGaC7sZ7BTom9b7ALrteUTrCUT74
+BAeYFTblkVnFDTgbCqwZIZZI2i6k+imrszI/QhMFqmBqNnAucEGuVKH72wdPZI2f
+CDo9KXiIB/zgLHgh1L4YvMeIgxscVGsWKIf6ML/FCbFhfF492Ewq9CJtf6Ii2KOp
+h9C10D7qMs0j9Y1xIxj3sND9HEHqLIw324yRkv8yo/gnhAlGi3UkxWVtGS+enmEv
+u1W86IWGWydzhkTPisEM
+=/oGd
+-----END PGP SIGNATURE-----
+
+--tNQTSEo8WG/FKZ8E--
