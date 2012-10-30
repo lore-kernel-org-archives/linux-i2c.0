@@ -1,66 +1,36 @@
-From: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] i2c: pinctrl-ify i2c-omap.c
-Date: Tue, 30 Oct 2012 11:17:57 -0700
-Message-ID: <20121030181756.GL11908@atomide.com>
-References: <1351698930-3797-1-git-send-email-panto@antoniou-consulting.com>
+From: David Daney <ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c-EEPROM: Export memory accessor
+Date: Tue, 30 Oct 2012 11:46:17 -0700
+Message-ID: <50902079.30406@gmail.com>
+References: <1351699009-4217-1-git-send-email-panto@antoniou-consulting.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1351698930-3797-1-git-send-email-panto@antoniou-consulting.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pantelis Antoniou <panto@antoniou-consulting.com>
-Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, "Wolfram Sang (embedded platforms)" <w.sang@pengutronix.de>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, Russ Dill <Russ.Dill@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1351699009-4217-1-git-send-email-panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Matt Porter <mporter-l0cyMroinI0@public.gmane.org>, Russ Dill <Russ.Dill-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-* Pantelis Antoniou <panto@antoniou-consulting.com> [121030 11:04]:
-> Enable pinctrl for i2c-omap.
-> 
-> Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
+On 10/31/2012 08:56 AM, Pantelis Antoniou wrote:
+> Various platforms need access to the EEPROM in other
+> places besides their platform registration callbacks.
+> Export the memory accessor to the i2c_client
 
-Looks good to me:
+i2c_clients are *not* intrinsically memory, so adding this to the 
+generic i2c_client structure doesn't really make sense.   What would the 
+semantics of this interface be with respect to temperature sensors and 
+GPIO expanders?
 
-Acked-by: Tony Lindgren <tony@atomide.com>
+NACK.
 
-> ---
->  drivers/i2c/busses/i2c-omap.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index db31eae..4c38aa0 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -44,6 +44,8 @@
->  #include <linux/i2c-omap.h>
->  #include <linux/pm_runtime.h>
->  #include <linux/pm_qos.h>
-> +#include <linux/pinctrl/consumer.h>
-> +#include <linux/err.h>
->  
->  /* I2C controller revisions */
->  #define OMAP_I2C_OMAP1_REV_2		0x20
-> @@ -1064,6 +1066,7 @@ omap_i2c_probe(struct platform_device *pdev)
->  	const struct of_device_id *match;
->  	int irq;
->  	int r;
-> +	struct pinctrl *pinctrl;
->  
->  	/* NOTE: driver uses the static register mapping */
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> @@ -1202,6 +1205,13 @@ omap_i2c_probe(struct platform_device *pdev)
->  
->  	of_i2c_register_devices(adap);
->  
-> +	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
-> +	if (IS_ERR(pinctrl))
-> +		dev_warn(dev->dev, "unable to select pin group\n");
-> +
-> +	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
-> +		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
-> +
->  	pm_runtime_mark_last_busy(dev->dev);
->  	pm_runtime_put_autosuspend(dev->dev);
->  
-> -- 
-> 1.7.12
-> 
+
+> and implement
+> it for the at24 driver.
+>
+> And before you ask, no, the platform callback can't be used
+> for anything that depends on DT.
+
+Why can't you just allocate (and populate) a struct at24_platform_data 
+for the device if it isn't supplied by whatever created the device?
