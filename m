@@ -1,41 +1,54 @@
-From: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: Add support Armada-XP SoC
-Date: Tue, 30 Oct 2012 18:50:03 +0300
-Message-ID: <508FF72B.5080708@mvista.com>
-References: <1351593581-19555-1-git-send-email-iwamatsu@nigauri.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Subject: [PATCH] i2c: pinctrl-ify i2c-omap.c
+Date: Wed, 31 Oct 2012 17:55:30 +0200
+Message-ID: <1351698930-3797-1-git-send-email-panto@antoniou-consulting.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1351593581-19555-1-git-send-email-iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Cc: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Matt Porter <mporter-l0cyMroinI0@public.gmane.org>, Russ Dill <Russ.Dill-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
+Enable pinctrl for i2c-omap.
 
-On 10/30/2012 01:39 PM, Nobuhiro Iwamatsu wrote:
+Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-> The Armada-XP SoC has the same I2C controller as mv64xxxi-i2c.
-> This validates to use mv64xxx in this SoC.
-
-> Signed-off-by: Nobuhiro Iwamatsu <iwamatsu-+mkmVskJBflAfugRpC6u6w@public.gmane.org>
-> ---
->  drivers/i2c/busses/Kconfig |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 65dd599..ff53cf4 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -474,7 +474,7 @@ config I2C_MPC
->  
->  config I2C_MV64XXX
->  	tristate "Marvell mv64xxx I2C Controller"
-> -	depends on (MV64X60 || PLAT_ORION)
-> +	depends on (MV64X60 || PLAT_ORION || MACH_ARMADA_370_XP)
-
-  Could remove useless parens, while at it...
-
-WBR, Sergei
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index db31eae..4c38aa0 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -44,6 +44,8 @@
+ #include <linux/i2c-omap.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/pm_qos.h>
++#include <linux/pinctrl/consumer.h>
++#include <linux/err.h>
+ 
+ /* I2C controller revisions */
+ #define OMAP_I2C_OMAP1_REV_2		0x20
+@@ -1064,6 +1066,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	const struct of_device_id *match;
+ 	int irq;
+ 	int r;
++	struct pinctrl *pinctrl;
+ 
+ 	/* NOTE: driver uses the static register mapping */
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -1202,6 +1205,13 @@ omap_i2c_probe(struct platform_device *pdev)
+ 
+ 	of_i2c_register_devices(adap);
+ 
++	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
++	if (IS_ERR(pinctrl))
++		dev_warn(dev->dev, "unable to select pin group\n");
++
++	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
++		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
++
+ 	pm_runtime_mark_last_busy(dev->dev);
+ 	pm_runtime_put_autosuspend(dev->dev);
+ 
+-- 
+1.7.12
