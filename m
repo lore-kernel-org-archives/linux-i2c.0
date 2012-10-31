@@ -1,54 +1,101 @@
-From: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
-Subject: [PATCH] i2c: pinctrl-ify i2c-omap.c
-Date: Wed, 31 Oct 2012 17:55:30 +0200
-Message-ID: <1351698930-3797-1-git-send-email-panto@antoniou-consulting.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Cc: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "Wolfram Sang (embedded platforms)" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Koen Kooi <koen-QLwJDigV5abLmq1fohREcCpxlwaOVQ5f@public.gmane.org>, Matt Porter <mporter-l0cyMroinI0@public.gmane.org>, Russ Dill <Russ.Dill-l0cyMroinI0@public.gmane.org>
+From: Pantelis Antoniou <panto@antoniou-consulting.com>
+Subject: [PATCH] i2c-EEPROM: Export memory accessor
+Date: Wed, 31 Oct 2012 17:56:49 +0200
+Message-ID: <1351699009-4217-1-git-send-email-panto@antoniou-consulting.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Pantelis Antoniou <panto@antoniou-consulting.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Koen Kooi <koen@dominion.thruhere.net>, Matt Porter <mporter@ti.com>, Russ Dill <Russ.Dill@ti.com>, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Enable pinctrl for i2c-omap.
+Various platforms need access to the EEPROM in other
+places besides their platform registration callbacks.
+Export the memory accessor to the i2c_client and implement
+it for the at24 driver.
 
-Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+And before you ask, no, the platform callback can't be used
+for anything that depends on DT.
+
+Signed-off-by: Pantelis Antoniou <panto@antoniou-consulting.com>
 ---
- drivers/i2c/busses/i2c-omap.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/misc/eeprom/at24.c |  5 +++++
+ include/linux/i2c.h        | 24 ++++++++++++++++++++++++
+ 2 files changed, 29 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index db31eae..4c38aa0 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -44,6 +44,8 @@
- #include <linux/i2c-omap.h>
- #include <linux/pm_runtime.h>
- #include <linux/pm_qos.h>
-+#include <linux/pinctrl/consumer.h>
-+#include <linux/err.h>
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index ab1ad41..4f88ae65 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -609,6 +609,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  
- /* I2C controller revisions */
- #define OMAP_I2C_OMAP1_REV_2		0x20
-@@ -1064,6 +1066,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	const struct of_device_id *match;
- 	int irq;
- 	int r;
-+	struct pinctrl *pinctrl;
+ 	at24->client[0] = client;
  
- 	/* NOTE: driver uses the static register mapping */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -1202,6 +1205,13 @@ omap_i2c_probe(struct platform_device *pdev)
- 
- 	of_i2c_register_devices(adap);
- 
-+	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
-+	if (IS_ERR(pinctrl))
-+		dev_warn(dev->dev, "unable to select pin group\n");
++	/* export accessor */
++	client->macc = &at24->macc;
 +
-+	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
-+		 dev->dtrev, dev->rev >> 4, dev->rev & 0xf, dev->speed);
+ 	/* use dummy devices for multiple-address chips */
+ 	for (i = 1; i < num_addresses; i++) {
+ 		at24->client[i] = i2c_new_dummy(client->adapter,
+@@ -619,6 +622,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			err = -EADDRINUSE;
+ 			goto err_clients;
+ 		}
++		at24->client[i]->macc = &at24->macc;
+ 	}
+ 
+ 	err = sysfs_create_bin_file(&client->dev.kobj, &at24->bin);
+@@ -637,6 +641,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			   I2C_SMBUS_WORD_DATA ? "word" : "byte");
+ 	}
+ 
 +
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
+ 	/* export data to kernel code */
+ 	if (chip.setup)
+ 		chip.setup(&at24->macc, chip.context);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 800de22..e20ad4e 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -33,6 +33,7 @@
+ #include <linux/of.h>		/* for struct device_node */
+ #include <linux/swab.h>		/* for swab16 */
+ #include <uapi/linux/i2c.h>
++#include <linux/memory.h>
+ 
+ extern struct bus_type i2c_bus_type;
+ extern struct device_type i2c_adapter_type;
+@@ -229,9 +230,32 @@ struct i2c_client {
+ 	struct device dev;		/* the device structure		*/
+ 	int irq;			/* irq issued by device		*/
+ 	struct list_head detected;
++
++	/* export accessor */
++	struct memory_accessor *macc;
+ };
+ #define to_i2c_client(d) container_of(d, struct i2c_client, dev)
+ 
++static inline ssize_t i2c_memory_read(struct i2c_client *client, char *buf, off_t offset,
++		size_t count)
++{
++	struct memory_accessor *macc = client->macc;
++
++	if (macc == NULL || macc->read == NULL)
++		return -ENODEV;
++	return (*client->macc->read)(macc, buf, offset, count);
++}
++
++static inline ssize_t i2c_memory_write(struct i2c_client *client, const char *buf, off_t offset,
++		size_t count)
++{
++	struct memory_accessor *macc = client->macc;
++
++	if (macc == NULL || macc->write == NULL)
++		return -ENODEV;
++	return (*client->macc->write)(macc, buf, offset, count);
++}
++
+ extern struct i2c_client *i2c_verify_client(struct device *dev);
+ extern struct i2c_adapter *i2c_verify_adapter(struct device *dev);
  
 -- 
 1.7.12
