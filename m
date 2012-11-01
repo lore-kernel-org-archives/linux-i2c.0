@@ -1,158 +1,54 @@
-From: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c-i801: utilize hardware semaphore
-Date: Wed, 31 Oct 2012 15:06:20 -0500 (CDT)
-Message-ID: <489e78bb-0678-4593-9888-70a8667d8cda@zimbra>
-References: <12c67a1f-9634-4fd7-bce8-bcb661cb3064@zimbra>
+From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: rcar: fixup section mismatch on
+ rcar_i2c_probe/remove()
+Date: Thu, 1 Nov 2012 08:22:45 +0800
+Message-ID: <20121101002234.GD8879@verge.net.au>
+References: <871uk04aa2.wl%kuninori.morimoto.gx@renesas.com>
+ <CAM=Q2ctETiVdyKBd_MxY2Ts=1XMPa_cdEJRkQpEySL6du9oLmw@mail.gmail.com>
+ <878vczd1hw.wl%kuninori.morimoto.gx@renesas.com>
+ <CAM=Q2cs5pFpVjqa_MFCLTFqdCo6SSm-1Ep=WtJ7fpABzWEGD9w@mail.gmail.com>
+ <20120828101259.409b410b@endymion.delvare>
+ <874nnnct03.wl%kuninori.morimoto.gx@renesas.com>
+ <CAM=Q2cuGiNnduVa+nnNV_02dYwfrSJoFGesiFBm6Q5U3SGQXpQ@mail.gmail.com>
+ <877gred4u1.wl%kuninori.morimoto.gx@renesas.com>
+ <20121031062128.GA31555@verge.net.au>
+ <877gq7m97r.wl%kuninori.morimoto.gx@renesas.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <12c67a1f-9634-4fd7-bce8-bcb661cb3064@zimbra>
+Content-Disposition: inline
+In-Reply-To: <877gq7m97r.wl%kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Eudean Sun <eudean-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+To: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+Cc: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Magnus <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linux-I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, phil.edworthy-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c-i801 driver (along with 12 others) was modified to include a check
-for ACPI resource conflicts by the following commit prior to 2.6.27
-release:
+On Tue, Oct 30, 2012 at 11:44:44PM -0700, Kuninori Morimoto wrote:
+> This patch fixup below WARNING
+> 
+> make CONFIG_DEBUG_SECTION_MISMATCH=y
+> ...
+> WARNING: vmlinux.o(.data+0x11798): Section mismatch in reference from the variable rcar_i2c_drv to the function .devinit.text:rcar_i2c_probe()
+> The variable rcar_i2c_drv references
+> the function __devinit rcar_i2c_probe()
+> If the reference is valid then annotate the
+> variable with __init* or __refdata (see linux/init.h) or name the variable:
+> *driver, *_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+> 
+> WARNING: vmlinux.o(.data+0x1179c): Section mismatch in reference from the variable rcar_i2c_drv to the function .devexit.text:rcar_i2c_remove()
+> The variable rcar_i2c_drv references
+> the function __devexit rcar_i2c_remove()
+> If the reference is valid then annotate the
+> variable with __exit* (see linux/init.h) or name the variable:
+> *driver, *_template, *_timer, *_sht, *_ops, *_probe, *_probe_one, *_console
+> 
+> Reported-by: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+> Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+> ---
+> Simon
+> 
+> Is this patch solve your issue ?
 
-    commit 54fb4a05af0a4b814e6716cfdf3fa97fc6be7a32
-    i2c: Check for ACPI resource conflicts
+Yes, thanks.
 
-The resource conflict check prevents a non-ACPI driver from accessing the
-same hardware as an ACPI driver. However, the check is unnecessary for the
-i2c-801 driver due to a previously unused semaphore provided by the
-underlying hardware.
-
-The INUSE_STS bit in the HST_STA/HST_STS register implements a hardware
-semaphore that allows multiple drivers (BIOS/EFI, Linux non-ACPI, Linux
-ACPI, etc.) to safely attempt to access the SMBus interface
-simultaneously.
-
-This commit adds a check to aquire the INUSE_STS semaphore before any
-SMBus registers are altered and adds calls to release the semaphore
-before returning in i801_access. It also removes the
-acpi_check_resource_conflict call.
-
-If any of the multiple possible drivers fails to properly utilize the
-hardware semaphore (the INUSE_STS bit is not intentionally read and never
-reset), then that driver will prevent the remaining drivers from gaining
-the semaphore and no conflicting accesses will occur.
-
-This corrects behavior seen on some hardware where an ACPI resource
-conflict is detected, but the ASL methods defined in ACPI are
-incompatible with the i2c-scmi driver. This results in no driver being
-bound to the hardware, when both could safely be bound.
-
-Signed-off-by: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-i801.c |   55 ++++++++++++++++++++++++++++++++++-------
- 1 file changed, 46 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 3779315..4f412f6 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -220,6 +220,36 @@ static unsigned int disable_features;
- module_param(disable_features, uint, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(disable_features, "Disable selected driver features");
- 
-+/*
-+ * Make sure that we get the hardware-provided semaphore so that any other
-+ * driver knows that other software is accessing the SMBus registers.
-+ * Return 0 if we get it, -EBUSY if not.
-+ */
-+static int i801_sem_get(struct i801_priv *priv)
-+{
-+	int status;
-+	int timeout = 0;
-+
-+	status = inb_p(SMBHSTSTS(priv));
-+	while ((status & SMBHSTSTS_INUSE_STS) && (timeout < MAX_RETRIES)) {
-+		msleep(1);
-+		status = inb_p(SMBHSTSTS(priv));
-+		timeout++;
-+	}
-+
-+	if (status & SMBHSTSTS_INUSE_STS) {
-+		dev_err(&priv->pci_dev->dev, "SMBus is in use, can't use it!\n");
-+		return -EBUSY;
-+	}
-+
-+        return 0;
-+}
-+
-+static void i801_sem_put(struct i801_priv *priv)
-+{
-+	outb_p(SMBHSTSTS_INUSE_STS, SMBHSTSTS(priv));
-+}
-+
- /* Make sure the SMBus host is ready to start transmitting.
-    Return 0 if it is, -EBUSY if it is not. */
- static int i801_check_pre(struct i801_priv *priv)
-@@ -653,6 +683,10 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	int ret, xact = 0;
- 	struct i801_priv *priv = i2c_get_adapdata(adap);
- 
-+	ret = i801_sem_get(priv);
-+	if (ret < 0)
-+		return ret;
-+
- 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
- 		&& size != I2C_SMBUS_QUICK
- 		&& size != I2C_SMBUS_I2C_BLOCK_DATA;
-@@ -709,6 +743,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	default:
- 		dev_err(&priv->pci_dev->dev, "Unsupported transaction %d\n",
- 			size);
-+		i801_sem_put(priv);
- 		return -EOPNOTSUPP;
- 	}
- 
-@@ -731,12 +766,18 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		outb_p(inb_p(SMBAUXCTL(priv)) &
- 		       ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B), SMBAUXCTL(priv));
- 
--	if (block)
-+	if (block) {
-+		i801_sem_put(priv);
- 		return ret;
--	if (ret)
-+	}
-+	if (ret) {
-+		i801_sem_put(priv);
- 		return ret;
--	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
-+	}
-+	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK)) {
-+		i801_sem_put(priv);
- 		return 0;
-+	}
- 
- 	switch (xact & 0x7f) {
- 	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
-@@ -748,6 +789,8 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 			     (inb_p(SMBHSTDAT1(priv)) << 8);
- 		break;
- 	}
-+
-+	i801_sem_put(priv);
- 	return 0;
- }
- 
-@@ -1151,12 +1194,6 @@ static int __devinit i801_probe(struct pci_dev *dev,
- 		goto exit;
- 	}
- 
--	err = acpi_check_resource_conflict(&dev->resource[SMBBAR]);
--	if (err) {
--		err = -ENODEV;
--		goto exit;
--	}
--
- 	err = pci_request_region(dev, SMBBAR, i801_driver.name);
- 	if (err) {
- 		dev_err(&dev->dev, "Failed to request SMBus region "
--- 
-1.7.9.5
+Tested-by: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
