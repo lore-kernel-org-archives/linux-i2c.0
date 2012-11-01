@@ -1,51 +1,77 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH REPOST] i2c: tegra: set irq name as device name
-Date: Thu, 1 Nov 2012 23:12:00 +0100
-Message-ID: <20121101221200.GB22956@pengutronix.de>
-References: <1351787894-23477-1-git-send-email-ldewangan@nvidia.com>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH] i2c: omap: ensure writes to dev->buf_len are ordered
+Date: Thu, 1 Nov 2012 23:23:16 +0100
+Message-ID: <20121101222316.GC22956@pengutronix.de>
+References: <1351155648-20429-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="hYooF8G/hrfVAmum"
+Return-path: <linux-omap-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1351787894-23477-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1351155648-20429-1-git-send-email-balbi@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>
+Cc: ben-linux@fluff.org, Tony Lindgren <tony@atomide.com>, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---JYK4vJDZwFMowpUq
+--hYooF8G/hrfVAmum
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 01, 2012 at 10:08:14PM +0530, Laxman Dewangan wrote:
-> When watching the irqs name of tegra i2c, all instances
-> irq name shows as tegra_i2c.
+On Thu, Oct 25, 2012 at 12:00:48PM +0300, Felipe Balbi wrote:
+> if we allow compiler reorder our writes, we could
+> fall into a situation where dev->buf_len is reset
+> for no apparent reason.
 >=20
-> Passing the device name properly to have the irq names with
-> instance like tegra-i2c.0, tegra-i2c.1 etc.
+> This bug was found with a simple script which would
+> transfer data to an i2c client from 1 to 1024 bytes
+> (a simple for loop), when we got to transfer sizes
+> bigger than the fifo size, dev->buf_len was reset
+> to zero before we had an oportunity to handle XDR
+> Interrupt. Because dev->buf_len was zero, we entered
+> omap_i2c_transmit_data() to transfer zero bytes,
+> which would mean we would just silently exit
+> omap_i2c_transmit_data() without actually writing
+> anything to DATA register. That would cause XDR
+> IRQ to trigger forever and we would never transfer
+> the remaining bytes.
 >=20
-> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> After adding the memory barrier, we also drop resetting
+> dev->buf_len to zero in omap_i2c_xfer_msg() because
+> both omap_i2c_transmit_data() and omap_i2c_receive_data()
+> will act until dev->buf_len reaches zero, rendering the
+> other write in omap_i2c_xfer_msg() redundant.
+>=20
+> This patch has been tested with pandaboard for a few
+> iterations of the script mentioned above.
+>=20
+> Signed-off-by: Felipe Balbi <balbi@ti.com>
+> ---
+>=20
+> This bug has been there forever, but it's quite annoying.
+> I think it deserves being pushed upstream during this -rc
+> cycle, but if Wolfram decides to wait until v3.8, I don't
+> mind.
 
-Applied to for-current, thanks.
+I would add this into 3.7, but what about the comments suggesting to use
+barrier()?
 
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---JYK4vJDZwFMowpUq
+--hYooF8G/hrfVAmum
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlCS87AACgkQD27XaX1/VRvfzQCfWr9v21gPlvC95vloittgOnij
-F1MAmgMG9OqCQ++3qZnrYQTd75WPQm1D
-=iyzJ
+iEYEARECAAYFAlCS9lQACgkQD27XaX1/VRve2QCgkBaAJ5+rXP1fEfGN9G5AYojd
+YdkAoIxQq0KpGL1Xug51J8B0Bd7T7gm2
+=2xu7
 -----END PGP SIGNATURE-----
 
---JYK4vJDZwFMowpUq--
+--hYooF8G/hrfVAmum--
