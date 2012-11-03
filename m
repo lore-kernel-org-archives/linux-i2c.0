@@ -1,158 +1,79 @@
-From: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v2  1/1] i2c-i801: utilize hardware semaphore
-Date: Fri, 02 Nov 2012 14:24:37 -0500 (CDT)
-Message-ID: <961dd5c5-048a-4604-8fe2-dd2e8d8a3093@zimbra>
-References: <4cd4aaa8-9418-4eb6-a536-4f4f13d5cb88@zimbra>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: [PULL REQUEST] i2c-embedded for 3.7
+Date: Sat, 3 Nov 2012 15:09:53 +0100
+Message-ID: <20121103140953.GA26557@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4cd4aaa8-9418-4eb6-a536-4f4f13d5cb88@zimbra>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Eudean Sun <eudean-BGArkANP9klv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c-i801 driver (along with 12 others) was modified to include a check
-for ACPI resource conflicts by the following commit prior to 2.6.27
-release:
 
-    commit 54fb4a05af0a4b814e6716cfdf3fa97fc6be7a32
-    i2c: Check for ACPI resource conflicts
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-The resource conflict check prevents a non-ACPI driver from accessing the
-same hardware as an ACPI driver. However, the check is unnecessary for the
-i2c-801 driver due to a previously unused semaphore provided by the
-underlying hardware.
+Linus,
 
-The INUSE_STS bit in the HST_STA/HST_STS register implements a hardware
-semaphore that allows multiple drivers (BIOS/EFI, Linux non-ACPI, Linux
-ACPI, etc.) to safely attempt to access the SMBus interface
-simultaneously.
+please pull bugfixes for i2c-embedded. 2 patches are usual stuff. The
+bigger patch is needed to correct a wrong decision made in this merge
+window. We hoped to get the PIOQUEUE mode in the mxs driver working with
+DMA, but it turned out to be too broken (leading to data loss), so we
+now think it is best to remove it entirely and work only with DMA now.
+The patch should be in 3.7. IMO, so users never get the chance to use
+both modes in parallel.
 
-This commit adds a check to aquire the INUSE_STS semaphore before any
-SMBus registers are altered and adds calls to release the semaphore
-before returning in i801_access. It also removes the
-acpi_check_resource_conflict call.
+Thanks,
 
-If any of the multiple possible drivers fails to properly utilize the
-hardware semaphore (the INUSE_STS bit is not intentionally read and never
-reset), then that driver will prevent the remaining drivers from gaining
-the semaphore and no conflicting accesses will occur.
+   Wolfram
 
-This corrects behavior seen on some hardware where an ACPI resource
-conflict is detected, but the ASL methods defined in ACPI are
-incompatible with the i2c-scmi driver. This results in no driver being
-bound to the hardware, when both could safely be bound.
+The following changes since commit 8f0d8163b50e01f398b14bcd4dc039ac5ab18d64:
 
-Signed-off-by: Aaron Sierra <asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-i801.c |   55 ++++++++++++++++++++++++++++++++++-------
- 1 file changed, 46 insertions(+), 9 deletions(-)
+  Linux 3.7-rc3 (2012-10-28 12:24:48 -0700)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 3779315..68f5605 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -220,6 +220,36 @@ static unsigned int disable_features;
- module_param(disable_features, uint, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(disable_features, "Disable selected driver features");
- 
-+/*
-+ * Make sure that we get the hardware-provided semaphore so that any other
-+ * driver knows that other software is accessing the SMBus registers.
-+ * Return 0 if we get it, -EBUSY if not.
-+ */
-+static int i801_sem_get(struct i801_priv *priv)
-+{
-+	int status;
-+	int timeout = 0;
-+
-+	status = inb_p(SMBHSTSTS(priv));
-+	while ((status & SMBHSTSTS_INUSE_STS) && (timeout < MAX_RETRIES)) {
-+		usleep_range(1000, 3000);
-+		status = inb_p(SMBHSTSTS(priv));
-+		timeout++;
-+	}
-+
-+	if (status & SMBHSTSTS_INUSE_STS) {
-+		dev_err(&priv->pci_dev->dev, "SMBus is in use, can't use it!\n");
-+		return -EBUSY;
-+	}
-+
-+	return 0;
-+}
-+
-+static void i801_sem_put(struct i801_priv *priv)
-+{
-+	outb_p(SMBHSTSTS_INUSE_STS, SMBHSTSTS(priv));
-+}
-+
- /* Make sure the SMBus host is ready to start transmitting.
-    Return 0 if it is, -EBUSY if it is not. */
- static int i801_check_pre(struct i801_priv *priv)
-@@ -653,6 +683,10 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	int ret, xact = 0;
- 	struct i801_priv *priv = i2c_get_adapdata(adap);
- 
-+	ret = i801_sem_get(priv);
-+	if (ret < 0)
-+		return ret;
-+
- 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
- 		&& size != I2C_SMBUS_QUICK
- 		&& size != I2C_SMBUS_I2C_BLOCK_DATA;
-@@ -709,6 +743,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	default:
- 		dev_err(&priv->pci_dev->dev, "Unsupported transaction %d\n",
- 			size);
-+		i801_sem_put(priv);
- 		return -EOPNOTSUPP;
- 	}
- 
-@@ -731,12 +766,18 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		outb_p(inb_p(SMBAUXCTL(priv)) &
- 		       ~(SMBAUXCTL_CRC | SMBAUXCTL_E32B), SMBAUXCTL(priv));
- 
--	if (block)
-+	if (block) {
-+		i801_sem_put(priv);
- 		return ret;
--	if (ret)
-+	}
-+	if (ret) {
-+		i801_sem_put(priv);
- 		return ret;
--	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK))
-+	}
-+	if ((read_write == I2C_SMBUS_WRITE) || (xact == I801_QUICK)) {
-+		i801_sem_put(priv);
- 		return 0;
-+	}
- 
- 	switch (xact & 0x7f) {
- 	case I801_BYTE:	/* Result put in SMBHSTDAT0 */
-@@ -748,6 +789,8 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 			     (inb_p(SMBHSTDAT1(priv)) << 8);
- 		break;
- 	}
-+
-+	i801_sem_put(priv);
- 	return 0;
- }
- 
-@@ -1151,12 +1194,6 @@ static int __devinit i801_probe(struct pci_dev *dev,
- 		goto exit;
- 	}
- 
--	err = acpi_check_resource_conflict(&dev->resource[SMBBAR]);
--	if (err) {
--		err = -ENODEV;
--		goto exit;
--	}
--
- 	err = pci_request_region(dev, SMBBAR, i801_driver.name);
- 	if (err) {
- 		dev_err(&dev->dev, "Failed to request SMBus region "
--- 
-1.7.9.5
+are available in the git repository at:
+
+  git://git.pengutronix.de/git/wsa/linux.git i2c-embedded/for-current
+
+for you to fetch changes up to 91b370a0dbda5de92c2cf4c3bc0d18d6bf08f05f:
+
+  i2c: tegra: set irq name as device name (2012-11-02 10:52:52 +0100)
+
+----------------------------------------------------------------
+Laxman Dewangan (1):
+      i2c: tegra: set irq name as device name
+
+Philippe Begnic (1):
+      i2c-nomadik: Fixup clock handling
+
+Wolfram Sang (1):
+      i2c: mxs: remove broken PIOQUEUE support
+
+ drivers/i2c/busses/i2c-mxs.c     |  186 +++-------------------------------=
+----
+ drivers/i2c/busses/i2c-nomadik.c |    9 +-
+ drivers/i2c/busses/i2c-tegra.c   |    2 +-
+ 3 files changed, 22 insertions(+), 175 deletions(-)
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlCVJbEACgkQD27XaX1/VRsPOgCfZMNUMgpO43QOGLFOP6LN82PI
+CtQAnRhadRmasFvR87tbSpyqmYVjsQed
+=I87I
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
