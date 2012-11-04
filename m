@@ -1,65 +1,51 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: at91: add a sanity check on i2c message length
-Date: Sat, 3 Nov 2012 15:16:24 +0100
-Message-ID: <20121103141624.GA24952@pengutronix.de>
-References: <1349879158-27268-1-git-send-email-ludovic.desroches@atmel.com>
- <20121101222922.GD22956@pengutronix.de>
- <5093A8CD.60006@atmel.com>
- <20121102111432.GD21313@pengutronix.de>
- <5093EE2B.8080005@atmel.com>
+From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Subject: [PATCHv2 7/7] i2c: omap: Restore i2c context always
+Date: Sun, 4 Nov 2012 16:14:33 +0530
+Message-ID: <1352025873-27492-8-git-send-email-shubhrajyoti@ti.com>
+References: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5093EE2B.8080005-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1352025873-27492-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "ludovic.desroches" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Currently the restore is done based on the flag
+OMAP_I2C_FLAG_RESET_REGS_POSTIDLE.
 
---T4sUOijqQbZv57TR
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This helps the following
+- The driver is always capable of restoring regardless
+of the off mode support being there or not.
 
+- While testing omap2430 it is found that in case of certain
+error paths (timeout) a reset is done. However the restore
+never happens as it is dependent on the POSTIDLE flag.
+The other option would be to call a restore in the reset
+case. As there are only a few registers to be restored
+the penalty in the idle case should not be much.
 
-> >>Yes SMBUS quick command is supported but is not managed in the
-> >>driver, we have to tell explicitly the IP that we want to send this
-> >>command.
-> >
-> >Ok, so unless you want to implement the support, please update this
-> >patch with a comment that SMBUS_QUICK is a TODO and remove the
-> >SMBUS_QUICK capability.
-> >
->=20
-> Implementation should not be a huge task, only one bit to set in a
-> register but I have no device to test it.
+Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+---
+Todo: the flag could be deleted if the patch is accepted.
 
-'i2cdetect' from i2c-tools uses SMBUS_QUICK as one method to detect
-chips. Most slaves (both I2C and SMBus) react to that, so that would do
-in my book.
+ drivers/i2c/busses/i2c-omap.c |    3 +--
+ 1 files changed, 1 insertions(+), 2 deletions(-)
 
-> Did you test the driver with SMBus compatible devices? Can I keep
-> other SMBus capabilities from SMBUS_EMUL?
-
-The rest should be fine.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---T4sUOijqQbZv57TR
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlCVJzgACgkQD27XaX1/VRtJzwCeLyhG/dThypgDS0WiMXOQTacW
-WX4AoLPwrX91Kj3XlOR9BZ4zreZu1v2G
-=o5Bn
------END PGP SIGNATURE-----
-
---T4sUOijqQbZv57TR--
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 70d43b7..f66c5ab 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1314,8 +1314,7 @@ static int omap_i2c_runtime_resume(struct device *dev)
+ 	if (!_dev->regs)
+ 		return 0;
+ 
+-	if (_dev->flags & OMAP_I2C_FLAG_RESET_REGS_POSTIDLE)
+-		__omap_i2c_init(_dev);
++	__omap_i2c_init(_dev);
+ 
+ 	return 0;
+ }
+-- 
+1.7.5.4
