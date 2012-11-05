@@ -1,22 +1,40 @@
-From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
-Subject: Re: [PATCH 2/2] i2c-s3c2410: Convert to devm_request_and_ioremap()
-Date: Mon, 5 Nov 2012 17:21:03 +0530
-Message-ID: <CAM=Q2cuV5V4db8TU-mz+htqnL9MLPB0q-uwxSKFgV6BUB2866A@mail.gmail.com>
-References: <1352104419-31630-1-git-send-email-broonie@opensource.wolfsonmicro.com>
-	<1352104419-31630-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCHv3 2/8] i2c: omap: use revision check for OMAP_I2C_FLAG_APPLY_ERRATA_I207
+Date: Mon, 5 Nov 2012 17:53:37 +0530
+Message-ID: <1352118223-3796-3-git-send-email-shubhrajyoti@ti.com>
+References: <1352118223-3796-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1352104419-31630-2-git-send-email-broonie@opensource.wolfsonmicro.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1352118223-3796-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, b-cousson@ti.com, balbi@ti.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Nov 5, 2012 at 2:03 PM, Mark Brown
-<broonie@opensource.wolfsonmicro.com> wrote:
-> A small code saving and less error handling to worry about.
->
-Looks good.
+The errata i207 is enabled for 2430 and 3xxx. Use the revision check
+to enable the erratum instead.
 
-request irq could be devm_* also. Not an objection though.
+Reviewed-by: Felipe Balbi <balbi@ti.com>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+ drivers/i2c/busses/i2c-omap.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 5c6f538..737d843 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1166,7 +1166,8 @@ omap_i2c_probe(struct platform_device *pdev)
+ 
+ 	dev->errata = 0;
+ 
+-	if (dev->flags & OMAP_I2C_FLAG_APPLY_ERRATA_I207)
++	if (dev->rev >= OMAP_I2C_REV_ON_2430 &&
++			dev->rev < OMAP_I2C_REV_ON_4430_PLUS)
+ 		dev->errata |= I2C_OMAP_ERRATA_I207;
+ 
+ 	if (dev->rev <= OMAP_I2C_REV_ON_3430_3530)
+-- 
+1.7.5.4
+
