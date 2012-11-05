@@ -1,80 +1,72 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv2 3/7] i2c: omap: remove the dtrev
-Date: Sun, 4 Nov 2012 16:14:29 +0530
-Message-ID: <1352025873-27492-4-git-send-email-shubhrajyoti@ti.com>
-References: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com>
+From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
+Subject: RE: [PATCH] i2c: at91: add a sanity check on i2c message length
+Date: Mon, 5 Nov 2012 07:08:29 +0100
+Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090EFB340B@wm021.weinmann.com>
+References: <1349879158-27268-1-git-send-email-ludovic.desroches@atmel.com>
+ <20121101222922.GD22956@pengutronix.de> <5093A8CD.60006@atmel.com>
+ <20121102111432.GD21313@pengutronix.de> <5093EE2B.8080005@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352025873-27492-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <5093EE2B.8080005-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Content-Language: de-DE
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+To: "'ludovic.desroches'" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The dtrev is used only for the comments. Remove the same and use
-the scheme instead to know if it is version2.
+ludovic.desroches wrote on Friday, November 02, 2012 5:01 PM:
+> Le 11/02/2012 12:14 PM, Wolfram Sang a =E9crit :
+> > On Fri, Nov 02, 2012 at 12:04:45PM +0100, ludovic.desroches wrote:
+> >> Hi Wolfram,
+> >>
+> >> Le 11/01/2012 11:29 PM, Wolfram Sang a =E9crit :
+> >>> On Wed, Oct 10, 2012 at 04:25:58PM +0200,
+> ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote:
+> >>>> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> >>>>
+> >>>> If the i2c message length is zero, i2c-at91 will directly return=
+ an error
+> >>>> instead of trying to send a zero-length message.
+> >>>>
+> >>>> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> >>>
+> >>> What happens if you send a 0 byte message? Some hardware is able =
+to
+> do
+> >>> this and it will be used in SMBUS QUICK which the driver states t=
+o
+> >>> support according to at91_twi_func().
+> >>
+> >> Without this I had some data corruption when writing to / reading
+> >> from a serial eeprom (depending on the IP version).
+> >>
+> >> Yes SMBUS quick command is supported but is not managed in the
+> >> driver, we have to tell explicitly the IP that we want to send thi=
+s
+> >> command.
+> >
+> > Ok, so unless you want to implement the support, please update this
+> > patch with a comment that SMBUS_QUICK is a TODO and remove the
+> > SMBUS_QUICK capability.
+> >
+>=20
+> Implementation should not be a huge task, only one bit to set in a
+> register but I have no device to test it.
+> So I will choose to remove the SMBUS_QUICK capability.
+>=20
+> Hi Nikolaus,
+>=20
+> Did you test the driver with SMBus compatible devices? Can I keep oth=
+er
+> SMBus capabilities from SMBUS_EMUL?
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
- drivers/i2c/busses/i2c-omap.c |   10 ++++------
- 1 files changed, 4 insertions(+), 6 deletions(-)
+Hi Ludovic,
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index e009985..b62cd9d 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -191,7 +191,6 @@ struct omap_i2c_dev {
- 	u32			latency;	/* maximum MPU wkup latency */
- 	struct pm_qos_request	pm_qos_request;
- 	u32			speed;		/* Speed of bus in kHz */
--	u32			dtrev;		/* extra revision from DT */
- 	u32			flags;
- 	u16			cmd_err;
- 	u8			*buf;
-@@ -1076,7 +1075,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	int irq;
- 	int r;
- 	u32 rev;
--	u16 minor, major;
-+	u16 minor, major, scheme;
- 
- 	/* NOTE: driver uses the static register mapping */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -1108,7 +1107,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 		u32 freq = 100000; /* default to 100000 Hz */
- 
- 		pdata = match->data;
--		dev->dtrev = pdata->rev;
- 		dev->flags = pdata->flags;
- 
- 		of_property_read_u32(node, "clock-frequency", &freq);
-@@ -1117,7 +1115,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 	} else if (pdata != NULL) {
- 		dev->speed = pdata->clkrate;
- 		dev->flags = pdata->flags;
--		dev->dtrev = pdata->rev;
- 	}
- 
- 	dev->dev = &pdev->dev;
-@@ -1146,7 +1143,8 @@ omap_i2c_probe(struct platform_device *pdev)
- 	 */
- 	rev = __raw_readw(dev->base + 0x04);
- 
--	switch (OMAP_I2C_SCHEME(rev)) {
-+	scheme = OMAP_I2C_SCHEME(rev);
-+	switch (scheme) {
- 	case OMAP_I2C_SCHEME_0:
- 		dev->regs = (u8 *)reg_map_ip_v1;
- 		dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG) & 0xff;
-@@ -1231,7 +1229,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
--		 dev->dtrev, major, minor, dev->speed);
-+		 scheme, major, minor, dev->speed);
- 
- 	of_i2c_register_devices(adap);
- 
--- 
-1.7.5.4
+yes, I use this driver with the sbs driver to query a smbus-attached
+battery with a TI bq chip (I actually wrote this driver only for this
+purpose). I implemented and tested SMBUS_BLOCK but not
+SMBUS_QUICK...
+
+Niko
