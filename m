@@ -1,85 +1,137 @@
-From: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: [PATCHv3 3/8] i2c: omap: remove the dtrev
-Date: Mon, 5 Nov 2012 17:53:38 +0530
-Message-ID: <1352118223-3796-4-git-send-email-shubhrajyoti@ti.com>
-References: <1352118223-3796-1-git-send-email-shubhrajyoti@ti.com>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [PATCHv2 1/7] i2c: omap: Fix the revision register read
+Date: Mon, 5 Nov 2012 14:54:32 +0530
+Message-ID: <CAM=Q2csb_9ryaZfURqv6QgsVuSRiVMDt=x=Adko2HH4GoiHnCQ@mail.gmail.com>
+References: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com>
+ <1352025873-27492-2-git-send-email-shubhrajyoti@ti.com>
+ <20121105075026.GB32468@arwen.pp.htv.fi> <50977A30.6040907@ti.com>
+ <20121105090412.GA2913@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352118223-3796-1-git-send-email-shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: multipart/mixed; boundary="===============3413054393690845612=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20121105090412.GA2913@arwen.pp.htv.fi>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: balbi@ti.com
+Cc: b-cousson@ti.com, tony@atomide.com, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-omap@vger.kernel.org, Shubhrajyoti <shubhrajyoti@ti.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-The dtrev is used only for the comments. Remove the same and use
-the scheme instead to know if it is version2.
+--===============3413054393690845612==
+Content-Type: multipart/alternative; boundary=f46d04016aa39f3dd904cdbc0de2
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
----
-v3: remove the scheme from the commments.
-todo: remove the dtrev from hwmod etc.
+--f46d04016aa39f3dd904cdbc0de2
+Content-Type: text/plain; charset=ISO-8859-1
 
- drivers/i2c/busses/i2c-omap.c |   12 +++++-------
- 1 files changed, 5 insertions(+), 7 deletions(-)
+On Mon, Nov 5, 2012 at 2:34 PM, Felipe Balbi <balbi@ti.com> wrote:
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 737d843..5f0c06c 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -191,7 +191,6 @@ struct omap_i2c_dev {
- 	u32			latency;	/* maximum MPU wkup latency */
- 	struct pm_qos_request	pm_qos_request;
- 	u32			speed;		/* Speed of bus in kHz */
--	u32			dtrev;		/* extra revision from DT */
- 	u32			flags;
- 	u16			cmd_err;
- 	u8			*buf;
-@@ -1076,7 +1075,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	int irq;
- 	int r;
- 	u32 rev;
--	u16 minor, major;
-+	u16 minor, major, scheme;
- 
- 	/* NOTE: driver uses the static register mapping */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -1108,7 +1107,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 		u32 freq = 100000; /* default to 100000 Hz */
- 
- 		pdata = match->data;
--		dev->dtrev = pdata->rev;
- 		dev->flags = pdata->flags;
- 
- 		of_property_read_u32(node, "clock-frequency", &freq);
-@@ -1117,7 +1115,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 	} else if (pdata != NULL) {
- 		dev->speed = pdata->clkrate;
- 		dev->flags = pdata->flags;
--		dev->dtrev = pdata->rev;
- 	}
- 
- 	dev->dev = &pdev->dev;
-@@ -1146,7 +1143,8 @@ omap_i2c_probe(struct platform_device *pdev)
- 	 */
- 	rev = __raw_readw(dev->base + 0x04);
- 
--	switch (OMAP_I2C_SCHEME(rev)) {
-+	scheme = OMAP_I2C_SCHEME(rev);
-+	switch (scheme) {
- 	case OMAP_I2C_SCHEME_0:
- 		dev->regs = (u8 *)reg_map_ip_v1;
- 		dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG);
-@@ -1230,8 +1228,8 @@ omap_i2c_probe(struct platform_device *pdev)
- 		goto err_unuse_clocks;
- 	}
- 
--	dev_info(dev->dev, "bus %d rev%d.%d.%d at %d kHz\n", adap->nr,
--		 dev->dtrev, major, minor, dev->speed);
-+	dev_info(dev->dev, "bus %d rev%d.%d at %d kHz\n", adap->nr,
-+		 major, minor, dev->speed);
- 
- 	of_i2c_register_devices(adap);
- 
--- 
-1.7.5.4
+> Hi,
+>
+> On Mon, Nov 05, 2012 at 02:04:56PM +0530, Shubhrajyoti wrote:
+> > >> @@ -1155,7 +1187,7 @@ omap_i2c_probe(struct platform_device *pdev)
+> > >>
+> > >>            dev->fifo_size = (dev->fifo_size / 2);
+> > >>
+> > >> -          if (dev->rev < OMAP_I2C_REV_ON_3630_4430)
+> > >> +          if (dev->rev < OMAP_I2C_REV_ON_3630)
+> > >>                    dev->b_hw = 1; /* Enable hardware fixes */
+> > > looks like this was applicable to 4430 too, what happened ?
+> > No actually this can be deleted completely once the
+> > start -> transaction -> stop sequence recommendation is followed.
+>
+> yes, but we're not there just yet and this patch is changing the
+> behavior of the driver
+
+
+No , earlier we were truncating the register for omap4 so
+OMAP_I2C_REV_ON_3630_4430 was there if we read both hi and lo for
+omap4 then we donot find 3630 and 4430 value to be similar.
+
+In this case the behavior is same as earlier also it enabled this for lower
+than 3630 and
+the same holds good even now.
+
+So in essence,
+Earlier  OMAP_I2C_REV_ON_3630_4430 is named to OMAP_I2C_REV_ON_3630
+and omap4 rev will have a 32bit value.
+
+
+
+
+> in ways which don't belong to $SUBJECT.
+>
+> --
+> balbi
+>
+
+--f46d04016aa39f3dd904cdbc0de2
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<br><div class=3D"gmail_extra"><br><br><div class=3D"gmail_quote">On Mon, N=
+ov 5, 2012 at 2:34 PM, Felipe Balbi <span dir=3D"ltr">&lt;<a href=3D"mailto=
+:balbi@ti.com" target=3D"_blank">balbi@ti.com</a>&gt;</span> wrote:<br><blo=
+ckquote class=3D"gmail_quote" style=3D"margin:0 0 0 .8ex;border-left:1px #c=
+cc solid;padding-left:1ex">
+
+Hi,<br>
+<div><br>
+On Mon, Nov 05, 2012 at 02:04:56PM +0530, Shubhrajyoti wrote:<br>
+&gt; &gt;&gt; @@ -1155,7 +1187,7 @@ omap_i2c_probe(struct platform_device *=
+pdev)<br>
+&gt; &gt;&gt;<br>
+&gt; &gt;&gt; =A0 =A0 =A0 =A0 =A0 =A0dev-&gt;fifo_size =3D (dev-&gt;fifo_si=
+ze / 2);<br>
+&gt; &gt;&gt;<br>
+&gt; &gt;&gt; - =A0 =A0 =A0 =A0 =A0if (dev-&gt;rev &lt; OMAP_I2C_REV_ON_363=
+0_4430)<br>
+&gt; &gt;&gt; + =A0 =A0 =A0 =A0 =A0if (dev-&gt;rev &lt; OMAP_I2C_REV_ON_363=
+0)<br>
+&gt; &gt;&gt; =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0 =A0dev-&gt;b_hw =3D 1; /*=
+ Enable hardware fixes */<br>
+&gt; &gt; looks like this was applicable to 4430 too, what happened ?<br>
+&gt; No actually this can be deleted completely once the<br>
+&gt; start -&gt; transaction -&gt; stop sequence recommendation is followed=
+.<br>
+<br>
+</div>yes, but we&#39;re not there just yet and this patch is changing the<=
+br>
+behavior of the driver</blockquote><div><br></div><div>No , earlier we were=
+ truncating the register for omap4 so=A0</div><div>OMAP_I2C_REV_ON_3630_443=
+0 was there if we read both hi and lo for=A0</div><div>omap4 then we donot =
+find 3630 and 4430 value to be similar.</div>
+<div><br></div><div>In this case the behavior is same as earlier also it en=
+abled this for lower than 3630 and=A0</div><div>the same holds good even no=
+w.</div><div><br></div><div>So in essence,</div><div>Earlier=A0=A0OMAP_I2C_=
+REV_ON_3630_4430 is named to=A0OMAP_I2C_REV_ON_3630=A0</div>
+<div>and omap4 rev will have a 32bit value.</div><div><br></div><div><br></=
+div><div>=A0</div><blockquote class=3D"gmail_quote" style=3D"margin:0 0 0 .=
+8ex;border-left:1px #ccc solid;padding-left:1ex"> in ways which don&#39;t b=
+elong to $SUBJECT.<br>
+
+<span><font color=3D"#888888"><br>
+--<br>
+balbi<br>
+</font></span></blockquote></div><br></div>
+
+--f46d04016aa39f3dd904cdbc0de2--
+
+
+--===============3413054393690845612==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============3413054393690845612==--
