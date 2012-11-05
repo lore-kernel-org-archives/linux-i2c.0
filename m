@@ -1,21 +1,52 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv2 3/7] i2c: omap: remove the dtrev
-Date: Mon, 5 Nov 2012 14:56:23 +0530
-Message-ID: <5097863F.7030105@ti.com>
-References: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com> <1352025873-27492-4-git-send-email-shubhrajyoti@ti.com> <20121105075320.GD32468@arwen.pp.htv.fi> <50977C80.8090000@ti.com> <20121105090517.GB2913@arwen.pp.htv.fi>
+From: Shubhrajyoti Datta <omaplinuxkernel@gmail.com>
+Subject: Re: [PATCHv2 1/7] i2c: omap: Fix the revision register read
+Date: Mon, 5 Nov 2012 15:10:49 +0530
+Message-ID: <CAM=Q2ctUp-kOY928=5Opi59gTC1EACTqMfojKN9OPsT-nrZ2mQ@mail.gmail.com>
+References: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com>
+	<1352025873-27492-2-git-send-email-shubhrajyoti@ti.com>
+	<20121105075026.GB32468@arwen.pp.htv.fi>
+	<50977A30.6040907@ti.com>
+	<20121105090412.GA2913@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121105090517.GB2913-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: balbi-l0cyMroinI0@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20121105090412.GA2913@arwen.pp.htv.fi>
+Sender: linux-omap-owner@vger.kernel.org
+To: balbi@ti.com
+Cc: Shubhrajyoti <shubhrajyoti@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, b-cousson@ti.com, w.sang@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 05 November 2012 02:35 PM, Felipe Balbi wrote:
->> egister map is different.
->> > 
->> > So the scheme may still be required.
-> fair enough, but drop it from debugging messages.
-OK thanks.
+On Mon, Nov 5, 2012 at 2:34 PM, Felipe Balbi <balbi@ti.com> wrote:
+> Hi,
+>
+> On Mon, Nov 05, 2012 at 02:04:56PM +0530, Shubhrajyoti wrote:
+>> >> @@ -1155,7 +1187,7 @@ omap_i2c_probe(struct platform_device *pdev)
+>> >>
+>> >>            dev->fifo_size = (dev->fifo_size / 2);
+>> >>
+>> >> -          if (dev->rev < OMAP_I2C_REV_ON_3630_4430)
+>> >> +          if (dev->rev < OMAP_I2C_REV_ON_3630)
+>> >>                    dev->b_hw = 1; /* Enable hardware fixes */
+>> > looks like this was applicable to 4430 too, what happened ?
+>> No actually this can be deleted completely once the
+>> start -> transaction -> stop sequence recommendation is followed.
+>
+> yes, but we're not there just yet and this patch is changing the
+> behavior
+
+No , earlier we were truncating the register for omap4 so
+OMAP_I2C_REV_ON_3630_4430 was there if we read both hi and lo for
+omap4 then we donot find 3630 and 4430 value to be similar.
+
+In this case the behavior is same as earlier also it enabled this for
+lower than 3630 and
+the same holds good even now.
+
+So in essence,
+Earlier  OMAP_I2C_REV_ON_3630_4430 is named to OMAP_I2C_REV_ON_3630
+and omap4 rev will have a 32bit value which is greater.
+
+> of the driver in ways which don't belong to $SUBJECT.
+>
+> --
+> balbi
