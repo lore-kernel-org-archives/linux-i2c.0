@@ -1,72 +1,96 @@
-From: "Voss, Nikolaus" <N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org>
-Subject: RE: [PATCH] i2c: at91: add a sanity check on i2c message length
-Date: Mon, 5 Nov 2012 07:08:29 +0100
-Message-ID: <EF2E73589CA71846A15D0B2CDF79505D090EFB340B@wm021.weinmann.com>
-References: <1349879158-27268-1-git-send-email-ludovic.desroches@atmel.com>
- <20121101222922.GD22956@pengutronix.de> <5093A8CD.60006@atmel.com>
- <20121102111432.GD21313@pengutronix.de> <5093EE2B.8080005@atmel.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCHv2 0/7] i2c: omap: updates
+Date: Mon, 5 Nov 2012 09:46:07 +0200
+Message-ID: <20121105074607.GA32468@arwen.pp.htv.fi>
+References: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5093EE2B.8080005-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Content-Language: de-DE
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "'ludovic.desroches'" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "'linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org'" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "'linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org'" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "'nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org'" <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti D <shubhrajyoti@ti.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, b-cousson@ti.com, w.sang@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
-ludovic.desroches wrote on Friday, November 02, 2012 5:01 PM:
-> Le 11/02/2012 12:14 PM, Wolfram Sang a =E9crit :
-> > On Fri, Nov 02, 2012 at 12:04:45PM +0100, ludovic.desroches wrote:
-> >> Hi Wolfram,
-> >>
-> >> Le 11/01/2012 11:29 PM, Wolfram Sang a =E9crit :
-> >>> On Wed, Oct 10, 2012 at 04:25:58PM +0200,
-> ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote:
-> >>>> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> >>>>
-> >>>> If the i2c message length is zero, i2c-at91 will directly return=
- an error
-> >>>> instead of trying to send a zero-length message.
-> >>>>
-> >>>> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> >>>
-> >>> What happens if you send a 0 byte message? Some hardware is able =
-to
-> do
-> >>> this and it will be used in SMBUS QUICK which the driver states t=
-o
-> >>> support according to at91_twi_func().
-> >>
-> >> Without this I had some data corruption when writing to / reading
-> >> from a serial eeprom (depending on the IP version).
-> >>
-> >> Yes SMBUS quick command is supported but is not managed in the
-> >> driver, we have to tell explicitly the IP that we want to send thi=
-s
-> >> command.
-> >
-> > Ok, so unless you want to implement the support, please update this
-> > patch with a comment that SMBUS_QUICK is a TODO and remove the
-> > SMBUS_QUICK capability.
-> >
->=20
-> Implementation should not be a huge task, only one bit to set in a
-> register but I have no device to test it.
-> So I will choose to remove the SMBUS_QUICK capability.
->=20
-> Hi Nikolaus,
->=20
-> Did you test the driver with SMBus compatible devices? Can I keep oth=
-er
-> SMBus capabilities from SMBUS_EMUL?
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Ludovic,
+HI,
 
-yes, I use this driver with the sbs driver to query a smbus-attached
-battery with a TI bq chip (I actually wrote this driver only for this
-purpose). I implemented and tested SMBUS_BLOCK but not
-SMBUS_QUICK...
+On Sun, Nov 04, 2012 at 04:14:26PM +0530, Shubhrajyoti D wrote:
+> Does the followiing
+> - Make the revision a 32- bit consisting of rev_lo amd rev_hi each
+> of 16 bits.
+>=20
+> - Also use the revision register for the erratum i207.
+> - Refactor the i2c_omap_init code.
+>=20
+>=20
+> Also more cleanup is possible will check on that subsequently.
+>=20
+>=20
+> Tested on OMAP4430sdp  ,4460 ,omap3630 ,3430 and omap2430.
+>=20
+> For omap2 testing the below patch was used
+> [PATCH] ARM: vfp: fix save and restore when running on pre-VFPv3 and CONF=
+IG_VFPv3 set
+>=20
+> Also for using the pm testing below patches are used.
+>=20
+> arm: sched: stop sched_clock() during suspend
+> ARM: OMAP: hwmod: wait for sysreset complete after enabling hwmod
+>=20
+> Also available through
+> git://gitorious.org/linus-tree/linus-tree.git i2c_omap/for_3.8
+>=20
+>=20
+> Shubhrajyoti D (7):
+>   i2c: omap: Fix the revision register read
+>   i2c: omap: use revision check for OMAP_I2C_FLAG_APPLY_ERRATA_I207
+>   i2c: omap: remove the dtrev
+>   ARM: i2c: omap: Remove the i207 errata flag
+>   i2c: omap: re-factor omap_i2c_init function
+>   i2c: omap: make reset a seperate function
+>   i2c: omap: Restore i2c context always
+>=20
+>  arch/arm/mach-omap2/omap_hwmod_2430_data.c |    3 +-
+>  arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |    9 +-
+>  drivers/i2c/busses/i2c-omap.c              |  166 +++++++++++++++++-----=
+------
+>  include/linux/i2c-omap.h                   |    1 -
+>  4 files changed, 104 insertions(+), 75 deletions(-)
 
-Niko
+since I have reviewed your previous version, it would be nice to Cc me
+so I don't loose your series ;-)
+
+--=20
+balbi
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQl26/AAoJEIaOsuA1yqRE2GgQAKEDyz8STQ12WUy2GKIk5VAy
+dxb4HtZ+81bwvAJXMW2aUE1XQkFQFVUs2J3zaBQH3r0ds5vMm9D7STMD6ti44tJq
+4FDsSL5Hk0lWFnqdusq/PbQJOOcib6onDvCoZ/0n5pRfrDrNNOXwPSHrOY0wLopq
+Xnwl3lB3CZQEqHtVcOv8SlRzAI5S8knlK5b2hAan1bqXIhnu9cKtIdcZovaKLEbd
+q7wv53yuTJYCEE6MARrZsFKJfZsHwIy2ws/Y0mxdewDFKhrq7/xLgl3nDSyy852J
+aWxj58DTqkqLZPzFFognvQAf4A+6bsDZ6bzNQ5h8TnU3wc6dxnNKNc1iErNUc0Mh
+SEl8SgGK88mXxFfPwwPieog98ioW9UgSpJh/+eaQDkozWH9IGmJipW+hlmTEPBJb
+UNZTxvT0kSSY13BhaB/HHL3nnGdNhE3qFBAM/7HomCIo4/D8Tjdx3Hp0YJxn2yLG
+Z5wOi6zXGyRvblwS4KAl2O8A9c2UfrC+3VmE8S0hqLgUNEciX5ZQ7omxwXbiNgH4
+N5Us3UKfWgdGvAQdOQQXU2OhVd2Xv1Im5ExnuP8js6hP9aoem89K1D33edXuk3IO
+kwkEooXexghV5zibWCs0E6ool9E/5qmL5sjpzCPyeiKsNowVSglkZIWYUg4i/CK1
+TZ0ystBdjVkcEF0sc7E2
+=GI0z
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--
