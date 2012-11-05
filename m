@@ -1,58 +1,61 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCHv3 8/8] i2c: omap: cleanup the sysc write
-Date: Mon, 5 Nov 2012 23:59:07 +0530
-Message-ID: <CAM=Q2csELdqM2PRtaswx7Ug6KxB+CwVakXnBY6O=FJrKkBWz6A@mail.gmail.com>
-References: <1352118223-3796-1-git-send-email-shubhrajyoti@ti.com>
-	<1352118223-3796-9-git-send-email-shubhrajyoti@ti.com>
-	<20121105141442.GD4815@arwen.pp.htv.fi>
-	<5097CBF1.6060108@ti.com>
-	<20121105142517.GG4815@arwen.pp.htv.fi>
-	<5097F642.9010803@ti.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] MAINTAINERS: i2c: 7 years, this is it
+Date: Mon, 5 Nov 2012 20:36:42 +0100
+Message-ID: <20121105193642.GA3272@pengutronix.de>
+References: <20121105170554.1972f3c2@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5097F642.9010803-l0cyMroinI0@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20121105170554.1972f3c2-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Cousson, Benoit" <b-cousson-l0cyMroinI0@public.gmane.org>
-Cc: balbi-l0cyMroinI0@public.gmane.org, Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/5/12, Cousson, Benoit <b-cousson-l0cyMroinI0@public.gmane.org> wrote:
-> On 11/5/2012 3:25 PM, Felipe Balbi wrote:
->> Hi,
->>
->> On Mon, Nov 05, 2012 at 07:53:45PM +0530, Shubhrajyoti wrote:
->>> On Monday 05 November 2012 07:44 PM, Felipe Balbi wrote:
->>>>> -							dev->syscstate);
->>>>>> -		}
->>>> not sure if this will work. What about the first time you call reset()
->>>> ?
->>>> won't SYSC just contain the reset values ?
->>> No actually the hwmod sets the value.
->>
->> ahaaa, ok good. Let's get an Ack from Benoit, then.
->
-> Well, in fact, I'm a little bit surprised that we still have to hack the
 
-there was an attempt [1]
+--8t9RHnE3ZwKMSgU+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-the pdata stuff may have issues with dt having to deal with more pdata [2]
+Jean,
 
+> * Wolfram Sang, for joining the crew when it became clear that there
+>   was more review work than Ben and myself could deal with.
 
-> SYSC directly without using an omap_device API.
+Thank you for guiding me when I entered the kernel space and again when
+you entrusted me to do maintainer work in i2c.
 
- Paul was not happy with omap device api  [3]
+> I hope I did not forget anyone, please forgive me if I did.
+>=20
+> Another big thank is due to Wolfram again, who quickly proposed to
+> take over as the main i2c subsystem maintainer. This will allow for a
+> smooth and fast transition.
+>=20
+> Note that I will keep maintaining all I2C/SMBus controller drivers for
+> PC systems as well as a few others. I am hereby updating MAINTAINERS
+> accordingly. I'll also keep maintaining user-space i2c-tools.
+>=20
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-As far as the patch is concerned it is only getting rid of the hard coded flags
-and the rev check.
+Acked-by: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-> I know that we have to
-> do some weird stuff for reseting that IP, but didn't we already exposed
-> something to allow that?
->
-> Regards,
-> Benoit
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-[1]  http://www.spinics.net/lists/linux-i2c/msg06810.html
-[2]  http://www.spinics.net/lists/linux-i2c/msg06937.html
-[3] http://www.spinics.net/lists/linux-i2c/msg06943.html
+--8t9RHnE3ZwKMSgU+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlCYFUkACgkQD27XaX1/VRsVGgCgnLxfifea5wuVyX4XXUGcF7ew
+YaMAnR2EZSP9vHRXrXBIHLJ6fM145huz
+=QqHr
+-----END PGP SIGNATURE-----
+
+--8t9RHnE3ZwKMSgU+--
