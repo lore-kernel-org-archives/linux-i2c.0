@@ -1,38 +1,116 @@
-From: Shubhrajyoti <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCHv2 3/7] i2c: omap: remove the dtrev
-Date: Mon, 5 Nov 2012 14:14:48 +0530
-Message-ID: <50977C80.8090000@ti.com>
-References: <1352025873-27492-1-git-send-email-shubhrajyoti@ti.com> <1352025873-27492-4-git-send-email-shubhrajyoti@ti.com> <20121105075320.GD32468@arwen.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121105075320.GD32468-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: balbi-l0cyMroinI0@public.gmane.org
-Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org, b-cousson-l0cyMroinI0@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: [PATCH 2/2] i2c-s3c2410: Convert to devm_request_and_ioremap()
+Date: Mon,  5 Nov 2012 09:33:39 +0100
+Message-ID: <1352104419-31630-2-git-send-email-broonie@opensource.wolfsonmicro.com>
+References: <1352104419-31630-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1352104419-31630-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday 05 November 2012 01:23 PM, Felipe Balbi wrote:
-> Hi,
->
-> On Sun, Nov 04, 2012 at 04:14:29PM +0530, Shubhrajyoti D wrote:
->> The dtrev is used only for the comments. Remove the same and use
->> the scheme instead to know if it is version2.
->>
->> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
-> I would drop dtrev completely and not use scheme to "emulate" it.
-However for ver2 ie omap4plus and previous versions the
-register map is different.
+A small code saving and less error handling to worry about.
 
-So the scheme may still be required.
->  dtrev
-> is wrong and unnecessary; it was only created due to the wrong
-> assumption that HW revision register was wrong. Looks like that
-> assumption was made based on the driver which is clearly wrong wrt
-> revision detection.
->
-> Also, when dropping dtrev, also drop it from platform_data and
-> omap_hwmod database (could be done on a separate patch).
-OK would do that.
->
+Signed-off-by: Mark Brown <broonie@opensource.wolfsonmicro.com>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |   35 +++++++----------------------------
+ 1 file changed, 7 insertions(+), 28 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index f01cdf3..f82d11f 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -78,7 +78,6 @@ struct s3c24xx_i2c {
+ 	void __iomem		*regs;
+ 	struct clk		*clk;
+ 	struct device		*dev;
+-	struct resource		*ioarea;
+ 	struct i2c_adapter	adap;
+ 
+ 	struct s3c2410_platform_i2c	*pdata;
+@@ -988,25 +987,16 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 		goto err_clk;
+ 	}
+ 
+-	i2c->ioarea = request_mem_region(res->start, resource_size(res),
+-					 pdev->name);
+-
+-	if (i2c->ioarea == NULL) {
+-		dev_err(&pdev->dev, "cannot request IO\n");
+-		ret = -ENXIO;
+-		goto err_clk;
+-	}
+-
+-	i2c->regs = ioremap(res->start, resource_size(res));
++	i2c->regs = devm_request_and_ioremap(&pdev->dev, res);
+ 
+ 	if (i2c->regs == NULL) {
+ 		dev_err(&pdev->dev, "cannot map IO\n");
+ 		ret = -ENXIO;
+-		goto err_ioarea;
++		goto err_clk;
+ 	}
+ 
+-	dev_dbg(&pdev->dev, "registers %p (%p, %p)\n",
+-		i2c->regs, i2c->ioarea, res);
++	dev_dbg(&pdev->dev, "registers %p (%p)\n",
++		i2c->regs, res);
+ 
+ 	/* setup info block for the i2c core */
+ 
+@@ -1017,7 +1007,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	ret = s3c24xx_i2c_init(i2c);
+ 	if (ret != 0)
+-		goto err_iomap;
++		goto err_clk;
+ 
+ 	/* find the IRQ for this unit (note, this relies on the init call to
+ 	 * ensure no current IRQs pending
+@@ -1026,7 +1016,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	i2c->irq = ret = platform_get_irq(pdev, 0);
+ 	if (ret <= 0) {
+ 		dev_err(&pdev->dev, "cannot find IRQ\n");
+-		goto err_iomap;
++		goto err_clk;
+ 	}
+ 
+ 	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, 0,
+@@ -1034,7 +1024,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
+-		goto err_iomap;
++		goto err_clk;
+ 	}
+ 
+ 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+@@ -1074,13 +1064,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+  err_irq:
+ 	free_irq(i2c->irq, i2c);
+ 
+- err_iomap:
+-	iounmap(i2c->regs);
+-
+- err_ioarea:
+-	release_resource(i2c->ioarea);
+-	kfree(i2c->ioarea);
+-
+  err_clk:
+ 	clk_disable_unprepare(i2c->clk);
+ 	clk_put(i2c->clk);
+@@ -1109,11 +1092,7 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 	clk_disable_unprepare(i2c->clk);
+ 	clk_put(i2c->clk);
+ 
+-	iounmap(i2c->regs);
+-
+-	release_resource(i2c->ioarea);
+ 	s3c24xx_i2c_dt_gpio_free(i2c);
+-	kfree(i2c->ioarea);
+ 
+ 	return 0;
+ }
+-- 
+1.7.10.4
