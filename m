@@ -1,30 +1,46 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] MAINTAINERS: i2c: 7 years, this is it
-Date: Mon, 5 Nov 2012 20:54:05 +0100
-Message-ID: <20121105205405.7640234a@endymion.delvare>
-References: <20121105170554.1972f3c2@endymion.delvare>
-	<20121105193642.GA3272@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Abhilash Kesavan <a.kesavan-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c: s3c2410: Add fix for i2c suspend/resume
+Date: Tue, 06 Nov 2012 11:40:59 +0530
+Message-ID: <1352182259-28903-1-git-send-email-a.kesavan@samsung.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121105193642.GA3272-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 5 Nov 2012 20:36:42 +0100, Wolfram Sang wrote:
-> Jean,
-> 
-> > * Wolfram Sang, for joining the crew when it became clear that there
-> >   was more review work than Ben and myself could deal with.
-> 
-> Thank you for guiding me when I entered the kernel space and again when
-> you entrusted me to do maintainer work in i2c.
+The I2C driver makes a gpio_request during initialization. This request
+happens again on resume and fails due to the earlier successful request.
+Modify the suspend code to free the earlier requested gpios.
 
-You're welcome. It is a true relief to know that my baby is in good
-hands :)
+Errors on resume without this:
+[   16.020000] s3c-i2c s3c2440-i2c.0: gpio [42] request failed
+[   16.020000] s3c-i2c s3c2440-i2c.1: gpio [44] request failed
+[   16.020000] s3c-i2c s3c2440-i2c.2: gpio [6] request failed
 
+Signed-off-by: Abhilash Kesavan <a.kesavan-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 3e0335f..9bec49e 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -806,6 +806,7 @@ static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+ 			dev_err(i2c->dev, "invalid gpio[%d]: %d\n", idx, gpio);
+ 			goto free_gpio;
+ 		}
++		i2c->gpios[idx] = gpio;
+ 
+ 		ret = gpio_request(gpio, "i2c-bus");
+ 		if (ret) {
+@@ -1125,6 +1126,7 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
+ 
+ 	i2c->suspended = 1;
++	s3c24xx_i2c_dt_gpio_free(i2c);
+ 
+ 	return 0;
+ }
 -- 
-Jean Delvare
+1.6.6.1
