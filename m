@@ -1,62 +1,90 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: samsung: resume race fix
-Date: Wed, 7 Nov 2012 11:44:37 +0100
-Message-ID: <20121107114437.0a563c7e@endymion.delvare>
-References: <1352284106-24988-1-git-send-email-ch.naveen@samsung.com>
+From: Timur Tabi <timur-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH v3 3/5] i2c: i2c-mpc: make I2C bus speed configurable
+Date: Wed, 7 Nov 2012 10:40:47 -0600
+Message-ID: <509A8F0F.4070806@freescale.com>
+References: <20090407082052.477328750@denx.de> <20090407082231.500525932@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352284106-24988-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20090407082231.500525932-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+To: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 07 Nov 2012 15:58:26 +0530, Naveen Krishna Chatradhi wrote:
-> Don't unmark the device as suspended until after it's been re-setup.
-> 
-> The main race would be w.r.t. an i2c driver that gets resumed at the same
-> time (asyncronously), that is allowed to do a transfer since suspended
-> is set to 0 before reinit, but really should have seen the -EIO return
-> instead.
+Wolfgang,
 
-I thought that the suspend order was children first and the resume
-order was parent first?
+I know it's been 3 1/2 years since you wrote this code, but I think I
+found a bug.
 
-If this can really happen then I am afraid this is an issue for more
-than just i2c-s3c2410. The proposed solution is also not really
-satisfactory, as the i2c client will certainly still fail to resume
-properly (the only improvement is that now the failure is no longer
-silent.)
+On Tue, Apr 7, 2009 at 3:20 AM, Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org> wrote:
+> This patch makes the I2C bus speed configurable by using the I2C node
+> property "clock-frequency". If the property is not defined, the old
+> fixed clock settings will be used for backward comptibility.
+>
+> The generic I2C clock properties, especially the CPU-specific source
+> clock pre-scaler are defined via the OF match table:
+>
+>   static const struct of_device_id mpc_i2c_of_match[] = {
+>         ...
+>         {.compatible = "fsl,mpc8543-i2c",
+>          .data = &(struct fsl_i2c_match_data) {
+>                         .setclock = mpc_i2c_setclock_8xxx,
+>                         .prescaler = 2,
+>                 },
+>         },
+>
+> The "data" field defines the relevant I2C setclock function and the
+> relevant pre-scaler for the I2C source clock frequency.
+>
+> It uses arch-specific tables and functions to determine resonable
+> Freqency Divider Register (fdr) values for MPC83xx, MPC85xx, MPC86xx,
+> MPC5200 and MPC5200B.
+>
+> The i2c->flags field and the corresponding FSL_I2C_DEV_* definitions
+> have been removed as they are obsolete.
+>
+> Signed-off-by: Wolfgang Grandegger <wg-5Yr1BZd7O62+XT7JhA+gdA@public.gmane.org>
 
-> 
-> Signed-off-by: Olof Johansson <olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-s3c2410.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> index 3e0335f..dbaf920 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -1134,10 +1134,10 @@ static int s3c24xx_i2c_resume(struct device *dev)
->  	struct platform_device *pdev = to_platform_device(dev);
->  	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
->  
-> -	i2c->suspended = 0;
->  	clk_prepare_enable(i2c->clk);
->  	s3c24xx_i2c_init(i2c);
->  	clk_disable_unprepare(i2c->clk);
-> +	i2c->suspended = 0;
->  
->  	return 0;
->  }
+...
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> +u32 mpc_i2c_get_sec_cfg_8xxx(void)
+> +{
+> +       struct device_node *node = NULL;
+> +       u32 __iomem *reg;
+> +       u32 val = 0;
+> +
+> +       node = of_find_node_by_name(NULL, "global-utilities");
+> +       if (node) {
+> +               const u32 *prop = of_get_property(node, "reg", NULL);
+> +               if (prop) {
+> +                       /*
+> +                        * Map and check POR Device Status Register 2
+> +                        * (PORDEVSR2) at 0xE0014
+> +                        */
+> +                       reg = ioremap(get_immrbase() + *prop + 0x14, 0x4);
+> +                       if (!reg)
+> +                               printk(KERN_ERR
+> +                                      "Error: couldn't map PORDEVSR2\n");
+> +                       else
+> +                               val = in_be32(reg) & 0x00000080; /* sec-cfg */
 
-(Not perfect but still better than before.)
+I'm looking at the MPC8544 reference manual, and PORDEVSR2[SEC_CFG] is
+in position 26, which means that this line should be "& 0x20", not "&
+0x80".
+
+Can you check this for me and let me know if I'm right?
+
+> +                       iounmap(reg);
+> +               }
+> +       }
+> +       if (node)
+> +               of_node_put(node);
+> +
+> +       return val;
+> +}
 
 -- 
-Jean Delvare
+Timur Tabi
+Linux kernel developer at Freescale
