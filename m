@@ -1,7 +1,7 @@
 From: Leo Song <liangs-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 06/11] i2c: pxa: Keep i2c clock enabled when system suspends/resumes.
-Date: Thu,  8 Nov 2012 22:17:59 +0800
-Message-ID: <1352384284-15660-6-git-send-email-liangs@marvell.com>
+Subject: [PATCH 05/11] i2c: pxa: add bus reset for platform data;
+Date: Thu,  8 Nov 2012 22:17:58 +0800
+Message-ID: <1352384284-15660-5-git-send-email-liangs@marvell.com>
 References: <1352384284-15660-1-git-send-email-liangs@marvell.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1352384284-15660-1-git-send-email-liangs-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
@@ -12,62 +12,53 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Xiaofan Tian <tianxf-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
-If a PMIC interrupt occurs after i2c clock disables, since PMIC
-interrupt handler uses i2c bus, phone hang or key value missing might
-happen. So i2c clock should keep enabled when system suspends/resumes.
+Since there is some problemic i2c slave devices on some platforms such
+as dkb sometimes, it will drop down sda and make i2c bus hang, at that
+time, it need to config scl/sda into gpio to simulate "stop" sequence to
+recover i2c bus, so add this interface in platform data;
 
-Change-Id: I983c5d3fe2dc18149d5d836d986e65e356913b47
+Change-Id: I2f7cf98d2f6b7a3a6d3ebac840b8f89f0b31fae6
 Signed-off-by: Jett.Zhou <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Xiaofan Tian <tianxf-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index cab0792..ad6e69b 100644
+index 833ab4d..cab0792 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1295,45 +1295,12 @@ static int __exit i2c_pxa_remove(struct platform_device *dev)
- 	return 0;
+@@ -271,6 +271,9 @@ static void i2c_pxa_show_state(struct pxa_i2c *i2c, int lno, const char *fname)
+ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ {
+ 	unsigned int i;
++	struct i2c_pxa_platform_data *plat =
++		(i2c->adap.dev.parent)->platform_data;
++
+ 	printk(KERN_ERR"i2c: <%s> slave_0x%x error: %s\n", i2c->adap.name,
+ 		i2c->req_slave_addr >> 1, why);
+ 	printk(KERN_ERR "i2c: msg_num: %d msg_idx: %d msg_ptr: %d\n",
+@@ -282,6 +285,12 @@ static void i2c_pxa_scream_blue_murder(struct pxa_i2c *i2c, const char *why)
+ 	for (i = 0; i < i2c->irqlogidx; i++)
+ 		printk("[%08x:%08x] ", i2c->isrlog[i], i2c->icrlog[i]);
+ 	printk("\n");
++	if (strcmp(why, "exhausted retries") != 0) {
++		if (plat && plat->i2c_bus_reset)
++			plat->i2c_bus_reset();
++		/* reset i2c contorler when it's fail */
++		i2c_pxa_reset(i2c);
++	}
  }
  
--#ifdef CONFIG_PM
--static int i2c_pxa_suspend_noirq(struct device *dev)
--{
--	struct platform_device *pdev = to_platform_device(dev);
--	struct pxa_i2c *i2c = platform_get_drvdata(pdev);
--
--	clk_disable(i2c->clk);
--
--	return 0;
--}
--
--static int i2c_pxa_resume_noirq(struct device *dev)
--{
--	struct platform_device *pdev = to_platform_device(dev);
--	struct pxa_i2c *i2c = platform_get_drvdata(pdev);
--
--	clk_enable(i2c->clk);
--	i2c_pxa_reset(i2c);
--
--	return 0;
--}
--
--static const struct dev_pm_ops i2c_pxa_dev_pm_ops = {
--	.suspend_noirq = i2c_pxa_suspend_noirq,
--	.resume_noirq = i2c_pxa_resume_noirq,
--};
--
--#define I2C_PXA_DEV_PM_OPS (&i2c_pxa_dev_pm_ops)
--#else
--#define I2C_PXA_DEV_PM_OPS NULL
--#endif
--
- static struct platform_driver i2c_pxa_driver = {
- 	.probe		= i2c_pxa_probe,
- 	.remove		= __exit_p(i2c_pxa_remove),
- 	.driver		= {
- 		.name	= "pxa2xx-i2c",
- 		.owner	= THIS_MODULE,
--		.pm	= I2C_PXA_DEV_PM_OPS,
- 		.of_match_table = i2c_pxa_dt_ids,
- 	},
- 	.id_table	= i2c_pxa_id_table,
+ #else /* ifdef DEBUG */
+diff --git a/include/linux/i2c/pxa-i2c.h b/include/linux/i2c/pxa-i2c.h
+index 2a03e91..a247f48 100644
+--- a/include/linux/i2c/pxa-i2c.h
++++ b/include/linux/i2c/pxa-i2c.h
+@@ -72,6 +72,7 @@ struct i2c_pxa_platform_data {
+ 	void			(*hardware_lock)(void);
+ 	void			(*hardware_unlock)(void);
+ 	int			(*hardware_trylock)(void);
++	void			(*i2c_bus_reset) (void);
+ };
+ 
+ extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
 -- 
 1.7.5.4
