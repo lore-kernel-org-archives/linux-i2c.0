@@ -1,56 +1,71 @@
-From: Leo Song <liangs-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [PATCH 11/11] i2c: pxa: no need slave addr for i2c master mode
- reset
-Date: Thu, 8 Nov 2012 06:25:24 -0800
-Message-ID: <78895A20B3CF7D49B5589B604D36692B1B59F88BFD@SC-VEXCH4.marvell.com>
-References: <1352384284-15660-1-git-send-email-liangs@marvell.com>
- <1352384284-15660-11-git-send-email-liangs@marvell.com>
+From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Fri, 9 Nov 2012 10:49:21 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211091048590.27271@pobox.suse.cz>
+References: <1350333533-13366-1-git-send-email-benjamin.tissoires@gmail.com> <507D182E.9010902@suse.cz> <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352384284-15660-11-git-send-email-liangs-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Content-Language: en-US
+In-Reply-To: <CAN+gG=E3QhwKeZfJtOhFrOqOnPW=hdbij-U7euvVEQ_MuNaXaQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Chao Xie <cxie4-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jett Zhou <jtzhou-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-SGkgQmVuIERvb2tzL1dvbGZyYW0gU2FuZywNCg0KV291bGQgeW91IHBsZWFzZSBoZWxwIHRvIHJl
-dmlldyBhbmQgbWVyZ2UgdGhlc2UgMTEgcGF0Y2hlcyBmb3IgZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1weGEuYz8NCg0KW1BBVENIIDAxLzExXSBpMmM6IHB4YTogc3VwcG9ydCBoYXJkd2FyZSBsb2Nr
-IA0KW1BBVENIIDAyLzExXSBpMmM6IHB4YTogc3VwcG9ydCBweGE5MTAgaW4gaWQgdGFibGUgDQpb
-UEFUQ0ggMDMvMTFdIGkyYzogcHhhOiBhZGQgbW9yZSBlcnJvciBoYW5kbGluZyBmb3IgaTJjIGNv
-bnRyb2xsZXIgDQpbUEFUQ0ggMDQvMTFdIGkyYzogcHhhOiBmaXggaXJxIHVuYmFsYW5jZWQgd2Fy
-bmluZyANCltQQVRDSCAwNS8xMV0gaTJjOiBweGE6IGFkZCBidXMgcmVzZXQgZm9yIHBsYXRmb3Jt
-IGRhdGE7IA0KW1BBVENIIDA2LzExXSBpMmM6IHB4YTogS2VlcCBpMmMgY2xvY2sgZW5hYmxlZCB3
-aGVuIHN5c3RlbSBzdXNwZW5kcy9yZXN1bWVzLiANCltQQVRDSCAwNy8xMV0gaTJjOiBweGE6IGtl
-ZXAgaTJjIGlycSBvbiBpbiBzdXNwZW5kIA0KW1BBVENIIDA4LzExXSBpMmM6IHB4YTogYnVnZml4
-IHRoZSBzbGF2ZSBhZGRyIGluIHRoZSB0cmFuc2FjdGlvbiANCltQQVRDSCAwOS8xMV0gaTJjOiBw
-eGE6IGFkZCBxb3MgYXMgY29uc3RyYWludCBmb3IgY3B1LWlkbGUgDQpbUEFUQ0ggMTAvMTFdIGky
-YzogcHhhOiBtb2RpZnkgdGhlIHBhcmFtZXRlcnMgb2YgaTJjX2J1c19yZXNldCgpIA0KW1BBVENI
-IDExLzExXSBpMmM6IHB4YTogbm8gbmVlZCBzbGF2ZSBhZGRyIGZvciBpMmMgbWFzdGVyIG1vZGUg
-cmVzZXQgDQoNClRoYW5rcyBhIGxvdC4NCg0KQmVzdCBXaXNoZXMsIA0KICANCkxlbyBTb25nDQpU
-ZWw6IDYxOTQtOTc0NSwgTWFydmVsbCAoU2hhbmdoYWkpDQpCMy1GNC00RDEyLCBOby4gMzk5IG9m
-IEtleXVhbiBSZCwgUHVkb25nIERpc3RyaWN0LCBTaGFuZ2hhaSANCg0KDQo+LS0tLS1PcmlnaW5h
-bCBNZXNzYWdlLS0tLS0NCj5Gcm9tOiBMZW8gU29uZyBbbWFpbHRvOmxpYW5nc0BtYXJ2ZWxsLmNv
-bV0NCj5TZW50OiAyMDEyxOoxMdTCOMjVIDIyOjE4DQo+VG86IEJlbiBEb29rczsgV29sZnJhbSBT
-YW5nDQo+Q2M6IExlbyBTb25nOyBDaGFvIFhpZTsgbGludXgtaTJjQHZnZXIua2VybmVsLm9yZzsg
-SmV0dCBaaG91DQo+U3ViamVjdDogW1BBVENIIDExLzExXSBpMmM6IHB4YTogbm8gbmVlZCBzbGF2
-ZSBhZGRyIGZvciBpMmMgbWFzdGVyIG1vZGUNCj5yZXNldA0KPg0KPkZyb206ICJKZXR0Llpob3Ui
-IDxqdHpob3VAbWFydmVsbC5jb20+DQo+DQo+Tm9ybWFsbHkgaTJjIGNvbnRyb2xsZXIgd29ya3Mg
-YXMgbWFzdGVyLCBzbGF2ZSBhZGRyIGlzIG5vdCBuZWVkZWQsIG9yIGl0DQo+d2lsbCBpbXBhY3Qg
-c29tZSBzbGF2ZSBkZXZpY2UoZWcuIFNUIE5GQyBjaGlwKSBpMmMgYWNjZXNzLCBiZWNhdXNlIGl0
-DQo+aGFzDQo+dGhlIHNhbWUgaTJjIGFkZHJlc3Mgd2l0aCBjb250cm9sbGVyLg0KPg0KPkNoYW5n
-ZS1JZDogSWFmNmUxNmNmMmUyMTFkMjQyYjIxMDg2ZTQ5MWI3NTFlYTMxMWEwMDANCj5TaWduZWQt
-b2ZmLWJ5OiBKZXR0Llpob3UgPGp0emhvdUBtYXJ2ZWxsLmNvbT4NCj4NCj5kaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1weGEuYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtcHhh
-LmMNCj5pbmRleCAzMzQ2ZmVmLi4yZGMzYWYzIDEwMDY0NA0KPi0tLSBhL2RyaXZlcnMvaTJjL2J1
-c3Nlcy9pMmMtcHhhLmMNCj4rKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXB4YS5jDQo+QEAg
-LTQ5MCw4ICs0OTAsMTAgQEAgc3RhdGljIHZvaWQgaTJjX3B4YV9yZXNldChzdHJ1Y3QgcHhhX2ky
-YyAqaTJjKQ0KPiAJd3JpdGVsKEkyQ19JU1JfSU5JVCwgX0lTUihpMmMpKTsNCj4gCXdyaXRlbChy
-ZWFkbChfSUNSKGkyYykpICYgfklDUl9VUiwgX0lDUihpMmMpKTsNCj4NCj4rI2lmZGVmIENPTkZJ
-R19JMkNfUFhBX1NMQVZFDQo+IAlpZiAoaTJjLT5yZWdfaXNhcikNCj4gCQl3cml0ZWwoaTJjLT5z
-bGF2ZV9hZGRyLCBfSVNBUihpMmMpKTsNCj4rI2VuZGlmDQo+DQo+IAkvKiBzZXQgY29udHJvbCBy
-ZWdpc3RlciB2YWx1ZXMgKi8NCj4gCXdyaXRlbChJMkNfSUNSX0lOSVQgfCAoaTJjLT5mYXN0X21v
-ZGUgPyBJQ1JfRk0gOiAwKSwgX0lDUihpMmMpKTsNCj4tLQ0KPjEuNy41LjQNCg0K
+On Tue, 16 Oct 2012, Benjamin Tissoires wrote:
+
+> >> --- /dev/null
+> >> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > ...
+> >> +static int i2c_hid_alloc_buffers(struct i2c_hid *ihid)
+> >> +{
+> >> +     /* the worst case is computed from the set_report command with a
+> >> +      * reportID > 15 and the maximum report length */
+> >> +     int args_len = sizeof(__u8) + /* optional ReportID byte */
+> >> +                    sizeof(__u16) + /* data register */
+> >> +                    sizeof(__u16) + /* size of the report */
+> >> +                    ihid->bufsize; /* report */
+> >> +
+> >> +     ihid->inbuf = kzalloc(ihid->bufsize, GFP_KERNEL);
+> >> +
+> >> +     if (!ihid->inbuf)
+> >> +             return -ENOMEM;
+> >> +
+> >> +     ihid->argsbuf = kzalloc(args_len, GFP_KERNEL);
+> >> +
+> >> +     if (!ihid->argsbuf) {
+> >> +             kfree(ihid->inbuf);
+> >> +             return -ENOMEM;
+> >> +     }
+> >> +
+> >> +     ihid->cmdbuf = kzalloc(sizeof(union command) + args_len, GFP_KERNEL);
+> >> +
+> >> +     if (!ihid->cmdbuf) {
+> >> +             kfree(ihid->inbuf);
+> >> +             kfree(ihid->argsbuf);
+> >> +             return -ENOMEM;
+> >> +     }
+> >> +
+> >> +     return 0;
+> >
+> > If this is called from hid_start and some of the latter allocation fails
+> > here, you free the buffers appropriately. However if another start
+> > occurs (e.g. by loading another module for that particular device), it
+> > will crash, as the buffers will remain unallocated because at this point
+> > ihid->bufsize == old_bufsize. You should set ihid->bufsize back to
+> > old_bufsize if i2c_hid_alloc_buffers fails and also set the pointers to
+> > NULL here.
+> 
+> well spotted, thanks.
+> I'll change it in v3 then.
+
+Benjamin,
+
+just a quick check -- are you planning on submitting v3 eventually?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
