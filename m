@@ -1,72 +1,74 @@
-From: Artem Bityutskiy <dedekind1@gmail.com>
-Subject: Re: [PATCH] dma: add new DMA control commands
-Date: Fri, 09 Nov 2012 17:29:11 +0200
-Message-ID: <1352474951.1814.40.camel@sauron.fi.intel.com>
-References: <1350538335-29026-1-git-send-email-b32955@freescale.com>
-	 <201210180914.58527.marex@denx.de> <507FB495.7050104@freescale.com>
-	 <201210181016.06782.marex@denx.de> <507FBDF1.5050602@freescale.com>
-Reply-To: dedekind1@gmail.com
+From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: at91: fix SMBus quick command
+Date: Fri, 9 Nov 2012 18:23:17 +0100
+Message-ID: <1352481797-3520-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg="pgp-sha1"; protocol="application/pgp-signature";
-	boundary="=-1Ho9I/5vx63xnID433oO"
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <507FBDF1.5050602@freescale.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Huang Shijie <b32955@freescale.com>
-Cc: Marek Vasut <marex@denx.de>, Vinod Koul <vinod.koul@linux.intel.com>, djbw@fb.com, khali@linux-fr.org, ben-linux@fluff.org, w.sang@pengutronix.de, cjb@laptop.org, dwmw2@infradead.org, lrg@ti.com, broonie@opensource.wolfsonmicro.com, perex@perex.cz, tiwai@suse.de, shawn.guo@linaro.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org, alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org, linux@arm.linux.org.uk, Huang Shijie <shijie8@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
---=-1Ho9I/5vx63xnID433oO
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+SMBus command was not performed. This patch fixes this issue. The timeout log
+priority has been decreased to not make console dirty uselessly.
 
-On Thu, 2012-10-18 at 16:29 +0800, Huang Shijie wrote:
-> =E4=BA=8E 2012=E5=B9=B410=E6=9C=8818=E6=97=A5 16:16, Marek Vasut =E5=86=
-=99=E9=81=93:
-> > So we can't stream data from the chip? About time to adjust the MTD fra=
-mework to
-> > allow that. Maybe implement a command queue?
-> >
->=20
-> to Artem & David:
->     is this possible to stream the data out with a command queue?
+Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+---
 
-Well, I think there was no HW which supported reading multiple pages
-with DMA before, are your sure yours support this? Usually reading a
-NAND page consists of 2 phases - loading the NAND array contents to a
-controller buffer, and then copying that to RAM. And the second part is
-something people sometimes do with DMA, AFAIU.
+Hi Wolfram,
 
-If your HW supports this, sure the MTD framework can be re-worked. Or
-you may write your own 'mtd->_read()' / 'mtd->_write()' implementation.
+It would be great if this patch could be included into 3.7. The driver was
+claiming that it supports SMBus quick command but it was not true. Moreover,
+with some IP versions, it could cause data corruption.
 
---=20
-Best Regards,
-Artem Bityutskiy
+I tested it with i2cdetect as you suggested. EEPROMs were detected but not
+other devices (lm75 and ds1337). I have exactly the same behavior by using
+i2c-gpio driver so I think there is no major issue on a driver point of view.
 
---=-1Ho9I/5vx63xnID433oO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
+Thanks.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Regards.
 
-iQIcBAABAgAGBQJQnSFHAAoJECmIfjd9wqK0GowP/jz3M70GMjElaOIdPUtV+TZf
-UlaiLpjwY5JNIa/2J5OHP8JA7mEsaG9QXFPHkHXbc0hdNODY1R/+l1db82JPH1WL
-9Fw3ka9+9HuZ5m4OEm4XkWH9e8eodM6Ixm0mYok5yzKdQ+ToHnacaS92z6mIdH5T
-SBZtH1+Lh7bRzdVDY9MlwlmrCoQ+aUx4Du1NKyXE2bh8zoEc5Z2t6URd6gT8bbWC
-7OelYPHKbKIIsAgSNYpoNFjnX0zdLWHU4UT2nS8ES7bz7TR47HHCHZVKBwK7R5P5
-UFqBNA7uufMRNuyAGM1/REtfIdtvcphEJZGlPWwQnN89Hu3oPZCCJn4rBUHnCiiK
-aPKeOQI4QrzxcnUjvkmpgAvaLrxWpKLNWDxzCYaXBmUvxSl/LcLgMtOBXbHtaaA/
-lt2DX7E8qpyWVznf+xlT+oMMHLzvcFk3yz5fM6wGkMpxogHRRf1bTUZJqx6HH0wF
-mJWyp1vSr66RUMb0s2ThRrTx/AaCBWxAIuaD3laId024p89tADeu9KLOrV7V1Qvs
-msZSb5D/P5laJyiaFkUP+pA23xP27sfzvascsF56ArwX1UvDL5ZI46HMBMFc4zRb
-sHhGI8FO5IOum5GcfEW5ABvS0WvN8G1bIP8yy/405UutCnkC/puzQiKTvCgv/AC3
-26iBTNS6y+1KA3BwgAm8
-=ZOe9
------END PGP SIGNATURE-----
+Ludovic
 
---=-1Ho9I/5vx63xnID433oO--
+ drivers/i2c/busses/i2c-at91.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index aa59a25..a6670eb 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -39,6 +39,7 @@
+ #define	AT91_TWI_STOP		0x0002	/* Send a Stop Condition */
+ #define	AT91_TWI_MSEN		0x0004	/* Master Transfer Enable */
+ #define	AT91_TWI_SVDIS		0x0020	/* Slave Transfer Disable */
++#define	AT91_TWI_QUICK		0x0040	/* SMBus quick command */
+ #define	AT91_TWI_SWRST		0x0080	/* Software Reset */
+ 
+ #define	AT91_TWI_MMR		0x0004	/* Master Mode Register */
+@@ -212,7 +213,10 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 
+ 	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->transfer_status = 0;
+-	if (dev->msg->flags & I2C_M_RD) {
++
++	if (!dev->buf_len) {
++		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_QUICK);
++	} else if (dev->msg->flags & I2C_M_RD) {
+ 		unsigned start_flags = AT91_TWI_START;
+ 
+ 		if (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY) {
+@@ -235,7 +239,7 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
+ 							dev->adapter.timeout);
+ 	if (ret == 0) {
+-		dev_err(dev->dev, "controller timed out\n");
++		dev_dbg(dev->dev, "controller timed out\n");
+ 		at91_init_twi_bus(dev);
+ 		return -ETIMEDOUT;
+ 	}
+-- 
+1.7.11.3
