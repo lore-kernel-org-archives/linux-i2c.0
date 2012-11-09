@@ -1,29 +1,70 @@
-From: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+From: ludovic.desroches <ludovic.desroches@atmel.com>
 Subject: Re: [PATCH] i2c: at91: fix compilation issue due to header move
-Date: Fri, 09 Nov 2012 16:51:44 +0400
-Message-ID: <509CFC60.6000203@mvista.com>
+Date: Fri, 9 Nov 2012 14:23:48 +0100
+Message-ID: <509D03E4.2040502@atmel.com>
 References: <1352455900-21074-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352455900-21074-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <1352455900-21074-1-git-send-email-ludovic.desroches@atmel.com>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: ludovic.desroches@atmel.com
+Cc: plagnioj@jcrosoft.com, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, w.sang@pengutronix.de
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
-
-On 09-11-2012 14:11, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote:
-
-> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-
+Le 11/09/2012 11:11 AM, ludovic.desroches@atmel.com a =E9crit :
+> From: Ludovic Desroches <ludovic.desroches@atmel.com>
+>
 > arch/arm/mach-at91/include/mach/at_hdmac.h has been move to
 > include/linux/platform_data/dma-atmel.h, commit 7cdc39e.
+>
+> Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
+> ---
+>
+> Hi,
+>
+> This is a fix for 3.7.
+>
+> Regards
+>
+> Ludovic
 
-    Need to also specify that commit's summary in parens.
+Sorry don't take care about this patch, I'll put it into the dma patch =
 
-> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+I've to update.
 
-WBR, Sergei
+I have it into my tree for a while, I've forgotten it is not yet included.
+
+Sorry for the noise.
+
+Regards
+
+Ludovic
+
+>
+>   drivers/i2c/busses/i2c-at91.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+> index a9fbad8..e2e9837 100644
+> --- a/drivers/i2c/busses/i2c-at91.c
+> +++ b/drivers/i2c/busses/i2c-at91.c
+> @@ -32,7 +32,7 @@
+>   #include <linux/platform_device.h>
+>   #include <linux/slab.h>
+>
+> -#include <mach/at_hdmac.h>
+> +#include <linux/platform_data/dma-atmel.h>
+>
+>   #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
+>   #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
+>
