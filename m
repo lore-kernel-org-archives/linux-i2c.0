@@ -1,199 +1,153 @@
-From: Wolfram Sang <wolfram@the-dreams.de>
-Subject: [PATCH] bindings: i2c: use consistent naming for i2c binding descriptions
-Date: Tue, 13 Nov 2012 18:16:43 +0100
-Message-ID: <1352827003-24287-1-git-send-email-wolfram@the-dreams.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org, linux-arm-kernel@lists.infradead.org, devicetree-discuss@ozlabs.org, Wolfram Sang <wolfram@the-dreams.de>, Rob Herring <robherring2@gmail.com>, Grant Likely <grant.likely@secretlab.ca>
+From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Subject: [PATCH 1/2] i2c: Add possibility for user-defined (i2c-)devices for bus-drivers.
+Date: Tue, 13 Nov 2012 19:06:07 +0100
+Message-ID: <1352829968-4908-1-git-send-email-holler@ahsoftware.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>, Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Filenames of devictree binding documentation seems to be arbitrary and
-for me it is unneeded hazzle to find the corresponding documentation for
-a specific driver.
+This makes it possible to define i2c-devices at the kernel command line
+or as a module parameter for bus-drivers which want to offer such
+an functionality.
 
-Naming the description the same as the driver is a lot easier and makes
-sense to me since the driver defines the binding it understands.
+Drivers which are using it will have the a parameter named
+devices with format devname1@addr1,devname2@addr2,...
+e.g. devices=ds1307@0x68,pcf8563@0x51
 
-Also, remove a reference in one source to the binding documentation, since path
-information easily gets stale.
+The devices will be probed using the standard probe mechanism,
+the definition of up to 8 devices is allowed.
 
-Signed-off-by: Wolfram Sang <wolfram@the-dreams.de>
-Cc: Rob Herring <robherring2@gmail.com>
-Cc: Grant Likely <grant.likely@secretlab.ca>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+Signed-off-by: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
 ---
+ Documentation/i2c/instantiating-devices | 37 ++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-core.c                  | 40 +++++++++++++++++++++++++++++++++
+ include/linux/i2c.h                     | 14 ++++++++++++
+ 3 files changed, 91 insertions(+)
 
-I think it would be helpful if other subsystems would follow if we can agree on
-this pattern.
-
-Thanks,
-
-   Wolfram
-
- .../bindings/i2c/{atmel-i2c.txt => i2c-at91.txt}     |    0
- .../bindings/i2c/{davinci.txt => i2c-davinci.txt}    |    0
- .../bindings/i2c/{gpio-i2c.txt => i2c-gpio.txt}      |    0
- .../bindings/i2c/{fsl-imx-i2c.txt => i2c-imx.txt}    |    0
- .../bindings/i2c/{fsl-i2c.txt => i2c-mpc.txt}        |    0
- .../devicetree/bindings/i2c/{mux.txt => i2c-mux.txt} |    0
- .../devicetree/bindings/i2c/i2c-mv64xxx.txt          |   18 ++++++++++++++++++
- .../bindings/i2c/{nomadik.txt => i2c-nomadik.txt}    |    0
- .../bindings/i2c/{cavium-i2c.txt => i2c-octeon.txt}  |    0
- .../bindings/i2c/{omap-i2c.txt => i2c-omap.txt}      |    0
- .../devicetree/bindings/i2c/{pnx.txt => i2c-pnx.txt} |    0
- .../i2c/{ce4100-i2c.txt => i2c-pxa-pci-ce4100.txt}   |    0
- .../bindings/i2c/{mrvl-i2c.txt => i2c-pxa.txt}       |   18 ------------------
- .../i2c/{samsung-i2c.txt => i2c-s3c2410.txt}         |    0
- .../bindings/i2c/{sirf-i2c.txt => i2c-sirf.txt}      |    0
- .../i2c/{arm-versatile.txt => i2c-versatile.txt}     |    0
- .../bindings/i2c/{xiic.txt => i2c-xiic.txt}          |    0
- drivers/i2c/busses/i2c-ocores.c                      |    4 ----
- 18 files changed, 18 insertions(+), 22 deletions(-)
- rename Documentation/devicetree/bindings/i2c/{atmel-i2c.txt => i2c-at91.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{davinci.txt => i2c-davinci.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{gpio-i2c.txt => i2c-gpio.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{fsl-imx-i2c.txt => i2c-imx.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{fsl-i2c.txt => i2c-mpc.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{mux.txt => i2c-mux.txt} (100%)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
- rename Documentation/devicetree/bindings/i2c/{nomadik.txt => i2c-nomadik.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{cavium-i2c.txt => i2c-octeon.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{omap-i2c.txt => i2c-omap.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{pnx.txt => i2c-pnx.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{ce4100-i2c.txt => i2c-pxa-pci-ce4100.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{mrvl-i2c.txt => i2c-pxa.txt} (70%)
- rename Documentation/devicetree/bindings/i2c/{samsung-i2c.txt => i2c-s3c2410.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{sirf-i2c.txt => i2c-sirf.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{arm-versatile.txt => i2c-versatile.txt} (100%)
- rename Documentation/devicetree/bindings/i2c/{xiic.txt => i2c-xiic.txt} (100%)
-
-diff --git a/Documentation/devicetree/bindings/i2c/atmel-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-at91.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/atmel-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-at91.txt
-diff --git a/Documentation/devicetree/bindings/i2c/davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/davinci.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-diff --git a/Documentation/devicetree/bindings/i2c/gpio-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/gpio-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-gpio.txt
-diff --git a/Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-imx.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/fsl-imx-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-imx.txt
-diff --git a/Documentation/devicetree/bindings/i2c/fsl-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-mpc.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/fsl-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-mpc.txt
-diff --git a/Documentation/devicetree/bindings/i2c/mux.txt b/Documentation/devicetree/bindings/i2c/i2c-mux.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/mux.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-mux.txt
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-new file mode 100644
-index 0000000..f46d928
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
-@@ -0,0 +1,18 @@
+diff --git a/Documentation/i2c/instantiating-devices b/Documentation/i2c/instantiating-devices
+index abf6361..1dbfdf3 100644
+--- a/Documentation/i2c/instantiating-devices
++++ b/Documentation/i2c/instantiating-devices
+@@ -209,3 +209,40 @@ device driver individually, it is much more efficient, and also has the
+ advantage that you do not have to reload the driver to change a setting.
+ You can also instantiate the device before the driver is loaded or even
+ available, and you don't need to know what driver the device needs.
 +
-+* Marvell MV64XXX I2C controller
 +
-+Required properties :
++Method 5: By module parameter
++-----------------------------
 +
-+ - reg             : Offset and length of the register set for the device
-+ - compatible      : Should be "marvell,mv64xxx-i2c"
-+ - interrupts      : The interrupt number
-+ - clock-frequency : Desired I2C bus clock frequency in Hz.
++If you want to add the possibility for user-defined optional devices to
++your i2c-bus driver, do it like that in the source of the driver:
 +
-+Examples:
++(...)
++MODULE_PARAM_I2C_OPTIONAL_DEVICES(opt_devices);
++(...)
 +
-+	i2c@11000 {
-+		compatible = "marvell,mv64xxx-i2c";
-+		reg = <0x11000 0x20>;
-+		interrupts = <29>;
-+		clock-frequency = <100000>;
-+	};
-diff --git a/Documentation/devicetree/bindings/i2c/nomadik.txt b/Documentation/devicetree/bindings/i2c/i2c-nomadik.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/nomadik.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-nomadik.txt
-diff --git a/Documentation/devicetree/bindings/i2c/cavium-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/cavium-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-octeon.txt
-diff --git a/Documentation/devicetree/bindings/i2c/omap-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-omap.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/omap-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-omap.txt
-diff --git a/Documentation/devicetree/bindings/i2c/pnx.txt b/Documentation/devicetree/bindings/i2c/i2c-pnx.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/pnx.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-pnx.txt
-diff --git a/Documentation/devicetree/bindings/i2c/ce4100-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-pxa-pci-ce4100.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/ce4100-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-pxa-pci-ce4100.txt
-diff --git a/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-similarity index 70%
-rename from Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-index 0f79450..12b78ac 100644
---- a/Documentation/devicetree/bindings/i2c/mrvl-i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-pxa.txt
-@@ -31,21 +31,3 @@ Examples:
- 		reg = <0xd4025000 0x1000>;
- 		interrupts = <58>;
- 	};
--
--* Marvell MV64XXX I2C controller
--
--Required properties :
--
-- - reg             : Offset and length of the register set for the device
-- - compatible      : Should be "marvell,mv64xxx-i2c"
-- - interrupts      : The interrupt number
-- - clock-frequency : Desired I2C bus clock frequency in Hz.
--
--Examples:
--
--	i2c@11000 {
--		compatible = "marvell,mv64xxx-i2c";
--		reg = <0x11000 0x20>;
--		interrupts = <29>;
--		clock-frequency = <100000>;
--	};
-diff --git a/Documentation/devicetree/bindings/i2c/samsung-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-diff --git a/Documentation/devicetree/bindings/i2c/sirf-i2c.txt b/Documentation/devicetree/bindings/i2c/i2c-sirf.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/sirf-i2c.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-sirf.txt
-diff --git a/Documentation/devicetree/bindings/i2c/arm-versatile.txt b/Documentation/devicetree/bindings/i2c/i2c-versatile.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/arm-versatile.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-versatile.txt
-diff --git a/Documentation/devicetree/bindings/i2c/xiic.txt b/Documentation/devicetree/bindings/i2c/i2c-xiic.txt
-similarity index 100%
-rename from Documentation/devicetree/bindings/i2c/xiic.txt
-rename to Documentation/devicetree/bindings/i2c/i2c-xiic.txt
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index bffd550..15da1ac 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -9,10 +9,6 @@
-  * kind, whether express or implied.
-  */
++static int i2c_my_bus_probe(...)
++{
++	(...)
++	i2c_add_adapter(&dev->adapter);
++	(...)
++
++	i2c_add_optional_devices(&dev->adapter, opt_devices);
++
++	return 0;
++}
++(...)
++
++The call to i2c_add_optional_devices() should only be done if and after
++the driver is registered. opt_devices will be used as a name for a
++static array of pointers to char (for usage with module_param_array_named()
++in the macro MODULE_PARAM_I2C_OPTIONAL_DEVICES).
++
++This interfaces offers users the possibility to define devices by using a
++module parameter. E.g.
++
++modprobe my_i2c_bus devices=ds1307@0x68,pcf8563@0x51
++
++or even at the kernel command line with
++
++my_i2c_bus.devices=ds1307@0x68,pcf8563@0x51
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index a7edf98..7d84bc40 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -2204,6 +2204,46 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ }
+ EXPORT_SYMBOL(i2c_smbus_xfer);
  
--/*
-- * This driver can be used from the device tree, see
-- *     Documentation/devicetree/bindings/i2c/ocore-i2c.txt
-- */
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
++void i2c_add_optional_devices(struct i2c_adapter *adapter, char **opt_devices)
++{
++	int i;
++	struct i2c_board_info i2c_info;
++	uint addr;
++	unsigned short i2c_addr[] = { 0, I2C_CLIENT_END };
++	char *at;
++
++	for (i = 0; opt_devices[i]; ++i) {
++		at = strchr(opt_devices[i], '@');
++		if (at == NULL) {
++			dev_warn(&adapter->dev,
++				"address need in device definition '%s'\n",
++				opt_devices[i]);
++			continue;
++		}
++		*at++ = 0;
++		if (kstrtouint(at, 0, &addr) || addr >= I2C_CLIENT_END) {
++			*--at = '@';
++			dev_warn(&adapter->dev,
++				"wrong address in slave definition '%s'\n",
++				opt_devices[i]);
++			continue;
++		}
++		memset(&i2c_info, 0, sizeof(struct i2c_board_info));
++		strlcpy(i2c_info.type, opt_devices[i], I2C_NAME_SIZE);
++		*--at = '@'; /* if someone uses opt_devices afterwards */
++		i2c_addr[0] = addr;
++		if (i2c_new_probed_device(adapter, &i2c_info, i2c_addr, NULL))
++			dev_info(&adapter->dev,
++				"device %s at address 0x%02x registered\n",
++				i2c_info.type, addr);
++		else
++			dev_warn(&adapter->dev,
++				"device %s at address 0x%02x not found\n",
++				i2c_info.type, addr);
++	}
++}
++EXPORT_SYMBOL(i2c_add_optional_devices);
++
+ MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
+ MODULE_DESCRIPTION("I2C-Bus main module");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 800de22..bd0cbb1 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -489,6 +489,20 @@ static inline int i2c_adapter_id(struct i2c_adapter *adap)
+ }
+ 
+ /**
++ * Used for user-defined optional devices, see
++ * Documentation/i2c/instantiating-devices about how to use it.
++ */
++
++extern void i2c_add_optional_devices(struct i2c_adapter *adapter,
++				     char **opt_devices);
++
++#define MAX_OPTIONAL_I2C_DEVICES 8
++#define MODULE_PARAM_I2C_OPTIONAL_DEVICES(_opt_devices) \
++	static char *_opt_devices[MAX_OPTIONAL_I2C_DEVICES]; \
++	module_param_array_named(devices, _opt_devices, charp, NULL, 0); \
++	MODULE_PARM_DESC(devices, "devname1@adr1,... (e.g. ds1307@0x68)")
++
++/**
+  * module_i2c_driver() - Helper macro for registering a I2C driver
+  * @__i2c_driver: i2c_driver struct
+  *
 -- 
-1.7.10.4
+1.7.11.7
