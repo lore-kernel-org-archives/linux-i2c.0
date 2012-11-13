@@ -1,97 +1,96 @@
-From: Alexander Holler <holler@ahsoftware.de>
-Subject: [PATCH] i2c: i2c-tiny-usb: Add parameter for optional i2c-devices.
-Date: Tue, 13 Nov 2012 21:52:20 +0100
-Message-ID: <1352839940-7559-1-git-send-email-holler@ahsoftware.de>
-References: <50A2AC28.7050304@ahsoftware.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <50A2AC28.7050304@ahsoftware.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Till Harbaum <till@harbaum.org>, Alexander Holler <holler@ahsoftware.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Add possibility for user-defined (i2c-)devices
+  for bus-drivers.
+Date: Tue, 13 Nov 2012 22:08:35 +0100
+Message-ID: <20121113220835.111a178a@endymion.delvare>
+References: <1352829968-4908-1-git-send-email-holler@ahsoftware.de>
+	<20121113195533.6db71716@endymion.delvare>
+	<50A2AC28.7050304@ahsoftware.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <50A2AC28.7050304-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Make it possible to define i2c-devices at the kernel command line
-or as a module parameter.
+Hi Alexander,
 
-Format is devname1@addr1,devname2@addr2,...
+On Tue, 13 Nov 2012 21:23:04 +0100, Alexander Holler wrote:
+> Am 13.11.2012 19:55, schrieb Jean Delvare:
+> > On Tue, 13 Nov 2012 19:06:07 +0100, Alexander Holler wrote:
+> >> This makes it possible to define i2c-devices at the kernel command line
+> >> or as a module parameter for bus-drivers which want to offer such
+> >> an functionality.
+> >>
+> >> Drivers which are using it will have the a parameter named
+> >> devices with format devname1@addr1,devname2@addr2,...
+> >> e.g. devices=ds1307@0x68,pcf8563@0x51
+> >
+> > No, no, no. We did that 10 years ago, killed all the code 3 years ago
+> > [1], let's not do the same mistake again, please. We have a sysfs
+> > interface for instantiating clients dynamically from user-space, it's
+> > way more powerful and flexible than your proposal. Just try plugging two
+> 
+> So how do I define a device, e.g. an RTC which I want to have alive 
+> before userland starts? Currently imho not possible.
 
-Example for the kernel command line:
+If your system relies on a an RTC clock chip hanging off an USB-to-I2C
+adapter, I'd say your design is very wrong to start with. I can only
+suppose (hope!) you are doing that during some development phase and
+the final hardware design is totally different.
 
-   i2c-tiny-usb.devices=ds1307@0x68,pcf8563@0x51
+If you need I2C devices to be instantiated early in the boot process,
+this would typically be done by platform code. This is going to be a
+little difficult with i2c-tiny-usb as it was definitely not meant to
+host system-critical chips. But you can probably get it to work if you
+try hard enough (in particular by allowing i2c-tiny-usb to claim
+specific i2c bus number(s).) If you want your development system to
+mimic the final hardware as closely as possible, this is the best
+approach anyway.
 
-The devices will be probed using the standard probe mechanism,
-the definition of up to 8 devices is allowed.
+> > different i2c-tiny-usb adapters on the same system and see the new code
+> > instantiate the wrong devices...
+> 
+> I know about that, but it probes
 
-Cc: Till Harbaum <till@harbaum.org>
-Signed-off-by: Alexander Holler <holler@ahsoftware.de>
----
- drivers/i2c/busses/i2c-tiny-usb.c | 40 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+It probes in the sense "check if a device is present", not in the sense
+"check if the device there is really what the user told me." So very
+easy to get wrong. Plus there is no universal probe method on I2C,
+i2c_new_probed_device() uses a default heuristic which may not only
+fail to detect a device's presence, but may even heavily confuse the
+device in question. Usage of i2c_new_probed_device() should be limited
+to very specific cases.
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 0510636..2096092 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -40,6 +40,11 @@ module_param(delay, ushort, 0);
- MODULE_PARM_DESC(delay, "bit delay in microseconds "
- 		 "(default is 10us for 100kHz max)");
- 
-+#define MAX_OPTIONAL_I2C_DEVICES 8
-+static char *opt_devices[MAX_OPTIONAL_I2C_DEVICES];
-+module_param_array_named(devices, opt_devices, charp, NULL, 0);
-+MODULE_PARM_DESC(devices, "devname1@adr1,devname2@adr2,... (e.g. ds1307@0x68)");
-+
- static int usb_read(struct i2c_adapter *adapter, int cmd,
- 		    int value, int index, void *data, int len);
- 
-@@ -190,6 +195,11 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	struct i2c_tiny_usb *dev;
- 	int retval = -ENOMEM;
- 	u16 version;
-+	unsigned i;
-+	struct i2c_board_info i2c_info;
-+	uint addr;
-+	unsigned short i2c_addr[] = { 0, I2C_CLIENT_END };
-+	char *at;
- 
- 	dev_dbg(&interface->dev, "probing usb device\n");
- 
-@@ -236,6 +246,36 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	/* inform user about successful attachment to i2c layer */
- 	dev_info(&dev->adapter.dev, "connected i2c-tiny-usb device\n");
- 
-+	for (i = 0; opt_devices[i]; ++i) {
-+		at = strchr(opt_devices[i], '@');
-+		if (at == NULL) {
-+			dev_warn(&dev->adapter.dev,
-+				"address needed in device definition '%s'\n",
-+				opt_devices[i]);
-+			continue;
-+		}
-+		*at++ = 0;
-+		if (kstrtouint(at, 0, &addr) || addr >= I2C_CLIENT_END) {
-+			*--at = '@';
-+			dev_warn(&dev->adapter.dev,
-+				"wrong address in slave definition '%s'\n",
-+				opt_devices[i]);
-+			continue;
-+		}
-+		memset(&i2c_info, 0, sizeof(struct i2c_board_info));
-+		strlcpy(i2c_info.type, opt_devices[i], I2C_NAME_SIZE);
-+		i2c_addr[0] = addr;
-+		if (i2c_new_probed_device(&dev->adapter, &i2c_info, i2c_addr,
-+			NULL))
-+			dev_info(&dev->adapter.dev,
-+				"device %s at address 0x%02x registered\n",
-+				i2c_info.type, addr);
-+		else
-+			dev_warn(&dev->adapter.dev,
-+				"device %s at address 0x%02x not found\n",
-+				i2c_info.type, addr);
-+	}
-+
- 	return 0;
- 
-  error:
+> and you don't have to use that parameter at all.
+
+This has never been a good reason to accept every piece of code into
+the kernel.
+
+> I think some people can think for their self, 
+> especially those how would use such a parameter.
+
+This isn't the point. At least this is not my point. My point is, if we
+let every developer add its own custom way of instantiating I2C devices
+to fit their specific need of the day (and this is just one example
+amongst others), we will end up with too many ways to achieve roughly
+the same, and in the long run the duplicate code will diverge, bugs
+will crop in, and we'll end up with an unmaintainable mess.
+
+> > [1] http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=7f508118b1c1f9856a1c899a2bd4867a962b0225
+> 
+> I think my patch looks nicier.
+
+Certainly, that's not terribly difficult. The code we got rid of at
+that time was horrid :( And the commit above was only the tip of the
+Halloween iceberg.
+
+I am not questioning the quality of your code, I did not even look at
+it. I'm questioning the pertinence of adding yet another way to
+instantiate i2c devices when we already have 4 which made everybody
+else happy for the past 3 years AFAIK.
+
 -- 
-1.7.11.7
+Jean Delvare
