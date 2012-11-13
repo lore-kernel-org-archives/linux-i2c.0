@@ -1,79 +1,68 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] i2c: i2c-ocores: Add irq support for sparc
-Date: Tue, 13 Nov 2012 07:18:37 -0600
-Message-ID: <50A248AD.9000705@gmail.com>
-References: <1352739591-1317-1-git-send-email-andreas@gaisler.com> <1352739591-1317-2-git-send-email-andreas@gaisler.com> <20121113111055.GF23119@pengutronix.de>
+From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v2] i2c: at91: fix SMBus quick command
+Date: Tue, 13 Nov 2012 16:43:21 +0100
+Message-ID: <1352821401-1944-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121113111055.GF23119-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
+The driver claims to support SMBus quick command but it was not the case.
+This patch fixes this issue.
 
-On 11/13/2012 05:10 AM, Wolfram Sang wrote:
-> Hi,
-> 
-> On Mon, Nov 12, 2012 at 05:59:50PM +0100, Andreas Larsson wrote:
->> Add sparc support by using platform_get_irq instead of platform_get_resource.
->> There are no platform resources of type IORESOURCE_IRQ for sparc, but
->> platform_get_irq works for sparc. In the non-sparc case platform_get_irq
->> internally uses platform_get_resource.
->>
->> Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
->> Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
->> ---
->> Changes since v1:
->>  - platform_get_irq now works for sparc, so that is used for all platforms
->>  - Acked by Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
->>
->>  drivers/i2c/busses/i2c-ocores.c |    9 +++++----
->>  1 files changed, 5 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
->> index bffd550..0b71dc6 100644
->> --- a/drivers/i2c/busses/i2c-ocores.c
->> +++ b/drivers/i2c/busses/i2c-ocores.c
->> @@ -267,7 +267,8 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
->>  {
->>  	struct ocores_i2c *i2c;
->>  	struct ocores_i2c_platform_data *pdata;
->> -	struct resource *res, *res2;
->> +	struct resource *res;
->> +	int irq;
->>  	int ret;
->>  	int i;
->>  
->> @@ -275,8 +276,8 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
->>  	if (!res)
->>  		return -ENODEV;
->>  
->> -	res2 = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
->> -	if (!res2)
->> +	irq = platform_get_irq(pdev, 0);
->> +	if (irq < 0)
->>  		return -ENODEV;
-> 
-> Why not pass the error code you got?
+Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+---
 
-I believe that should actually be a check for 'irq <= 0' as it returns
-NO_IRQ on error.
+Hi Wolfram,
 
->>  
->>  	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
->> @@ -313,7 +314,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
->>  	ocores_init(i2c);
->>  
->>  	init_waitqueue_head(&i2c->wait);
->> -	ret = devm_request_irq(&pdev->dev, res2->start, ocores_isr, 0,
->> +	ret = devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
->>  			       pdev->name, i2c);
->>  	if (ret) {
->>  		dev_err(&pdev->dev, "Cannot claim IRQ\n");
-> 
-> Rest looks good.
-> 
+Thanks to Jean explanation about i2cdetect and eeprom behavior, I realized
+that the first version of the patch was incorrect. This time all the i2c
+devices are detected with i2cdetect -q.
+
+I hope this fix could go into 3.7 since the driver claims SMBus quick
+capability but it doesn't support it. Moreover without it i2cdetect find
+imaginary devices, and with some IP versions, trying to send 0 byte can cause
+issue when writing data to an EEPROM.
+
+Regards
+
+Ludovic
+
+Changes since v1:
+ * enable txcomp irq to have a correct behavior
+
+ drivers/i2c/busses/i2c-at91.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index f471747..e9c926c 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -44,6 +44,7 @@
+ #define	AT91_TWI_STOP		0x0002	/* Send a Stop Condition */
+ #define	AT91_TWI_MSEN		0x0004	/* Master Transfer Enable */
+ #define	AT91_TWI_SVDIS		0x0020	/* Slave Transfer Disable */
++#define	AT91_TWI_QUICK		0x0040	/* SMBus quick command */
+ #define	AT91_TWI_SWRST		0x0080	/* Software Reset */
+ 
+ #define	AT91_TWI_MMR		0x0004	/* Master Mode Register */
+@@ -386,7 +387,11 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
+ 
+ 	INIT_COMPLETION(dev->cmd_complete);
+ 	dev->transfer_status = 0;
+-	if (dev->msg->flags & I2C_M_RD) {
++
++	if (!dev->buf_len) {
++		at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_QUICK);
++		at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_TXCOMP);
++	} else if (dev->msg->flags & I2C_M_RD) {
+ 		unsigned start_flags = AT91_TWI_START;
+ 
+ 		if (at91_twi_read(dev, AT91_TWI_SR) & AT91_TWI_RXRDY) {
+-- 
+1.7.11.3
