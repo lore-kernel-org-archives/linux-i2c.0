@@ -1,56 +1,49 @@
-From: Alexander Holler <holler@ahsoftware.de>
-Subject: [PATCH 2/2] i2c: i2c-tiny-usb: Add parameter for optional user-defined devices.
-Date: Tue, 13 Nov 2012 19:06:08 +0100
-Message-ID: <1352829968-4908-2-git-send-email-holler@ahsoftware.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Add possibility for user-defined (i2c-)devices
+ for bus-drivers.
+Date: Tue, 13 Nov 2012 19:55:33 +0100
+Message-ID: <20121113195533.6db71716@endymion.delvare>
 References: <1352829968-4908-1-git-send-email-holler@ahsoftware.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1352829968-4908-1-git-send-email-holler@ahsoftware.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Till Harbaum <till@harbaum.org>, Alexander Holler <holler@ahsoftware.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1352829968-4908-1-git-send-email-holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Now there is an example about how to use this functionality.
+On Tue, 13 Nov 2012 19:06:07 +0100, Alexander Holler wrote:
+> This makes it possible to define i2c-devices at the kernel command line
+> or as a module parameter for bus-drivers which want to offer such
+> an functionality.
+> 
+> Drivers which are using it will have the a parameter named
+> devices with format devname1@addr1,devname2@addr2,...
+> e.g. devices=ds1307@0x68,pcf8563@0x51
 
-Cc: Jean Delvare <khali@linux-fr.org>
-Cc: Till Harbaum <till@harbaum.org>
-Signed-off-by: Alexander Holler <holler@ahsoftware.de>
----
- Documentation/i2c/instantiating-devices | 2 ++
- drivers/i2c/busses/i2c-tiny-usb.c       | 4 ++++
- 2 files changed, 6 insertions(+)
+No, no, no. We did that 10 years ago, killed all the code 3 years ago
+[1], let's not do the same mistake again, please. We have a sysfs
+interface for instantiating clients dynamically from user-space, it's
+way more powerful and flexible than your proposal. Just try plugging two
+different i2c-tiny-usb adapters on the same system and see the new code
+instantiate the wrong devices...
 
-diff --git a/Documentation/i2c/instantiating-devices b/Documentation/i2c/instantiating-devices
-index 1dbfdf3..783a79f 100644
---- a/Documentation/i2c/instantiating-devices
-+++ b/Documentation/i2c/instantiating-devices
-@@ -246,3 +246,5 @@ modprobe my_i2c_bus devices=ds1307@0x68,pcf8563@0x51
- or even at the kernel command line with
- 
- my_i2c_bus.devices=ds1307@0x68,pcf8563@0x51
-+
-+See the i2c-tiny-usb driver for an exmaple.
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 0510636..9fd03c6 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -40,6 +40,8 @@ module_param(delay, ushort, 0);
- MODULE_PARM_DESC(delay, "bit delay in microseconds "
- 		 "(default is 10us for 100kHz max)");
- 
-+MODULE_PARAM_I2C_OPTIONAL_DEVICES(opt_devices);
-+
- static int usb_read(struct i2c_adapter *adapter, int cmd,
- 		    int value, int index, void *data, int len);
- 
-@@ -236,6 +238,8 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	/* inform user about successful attachment to i2c layer */
- 	dev_info(&dev->adapter.dev, "connected i2c-tiny-usb device\n");
- 
-+	i2c_add_optional_devices(&dev->adapter, opt_devices);
-+
- 	return 0;
- 
-  error:
+[1] http://git.kernel.org/?p=linux/kernel/git/torvalds/linux.git;a=commit;h=7f508118b1c1f9856a1c899a2bd4867a962b0225
+
+> The devices will be probed using the standard probe mechanism,
+> the definition of up to 8 devices is allowed.
+> 
+> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+> Signed-off-by: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+> ---
+>  Documentation/i2c/instantiating-devices | 37 ++++++++++++++++++++++++++++++
+>  drivers/i2c/i2c-core.c                  | 40 +++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h                     | 14 ++++++++++++
+>  3 files changed, 91 insertions(+)
+> (...)
+
 -- 
-1.7.11.7
+Jean Delvare
