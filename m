@@ -1,117 +1,103 @@
-From: Tomasz Figa <t.figa@samsung.com>
-Subject: [PATCH] i2c: i2c-s3c2410: Add support for pinctrl
-Date: Tue, 13 Nov 2012 11:33:40 +0100
-Message-ID: <14549510.veZygXpPkq@amdc1227>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: i2c-ocores: Add irq support for sparc
+Date: Tue, 13 Nov 2012 12:10:55 +0100
+Message-ID: <20121113111055.GF23119@pengutronix.de>
+References: <1352739591-1317-1-git-send-email-andreas@gaisler.com>
+ <1352739591-1317-2-git-send-email-andreas@gaisler.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc <linux-samsung-soc@vger.kernel.org>, Kukjin Kim <kgene.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="OFj+1YLvsEfSXdCH"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1352739591-1317-2-git-send-email-andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds support for pin configuration using pinctrl subsystem
-to the i2c-s3c2410 driver.
 
-Signed-off-by: Tomasz Figa <t.figa@samsung.com>
-Signed-off-by: Kyungmin Park <kyungmin.park@samsung.com>
----
- .../devicetree/bindings/i2c/samsung-i2c.txt          | 20 ++++++++++++++++----
- drivers/i2c/busses/i2c-s3c2410.c                     | 12 ++++++++----
- 2 files changed, 24 insertions(+), 8 deletions(-)
+--OFj+1YLvsEfSXdCH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/Documentation/devicetree/bindings/i2c/samsung-i2c.txt b/Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-index b6cb5a1..e9611ac 100644
---- a/Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-+++ b/Documentation/devicetree/bindings/i2c/samsung-i2c.txt
-@@ -13,11 +13,17 @@ Required properties:
-   - interrupts: interrupt number to the cpu.
-   - samsung,i2c-sda-delay: Delay (in ns) applied to data line (SDA) edges.
- 
-+Required for all cases except "samsung,s3c2440-hdmiphy-i2c":
-+  - Samsung GPIO variant (deprecated):
-+    - gpios: The order of the gpios should be the following: <SDA, SCL>.
-+      The gpio specifier depends on the gpio controller. Required in all
-+      cases except for "samsung,s3c2440-hdmiphy-i2c" whose input/output
-+      lines are permanently wired to the respective clienta
-+  - Pinctrl variant (preferred, if available):
-+    - pinctrl-0: Pin control group to be used for this controller.
-+    - pinctrl-names: Should contain only one value - "default".
-+
- Optional properties:
--  - gpios: The order of the gpios should be the following: <SDA, SCL>.
--    The gpio specifier depends on the gpio controller. Required in all
--    cases except for "samsung,s3c2440-hdmiphy-i2c" whose input/output
--    lines are permanently wired to the respective client
-   - samsung,i2c-slave-addr: Slave address in multi-master enviroment. If not
-     specified, default value is 0.
-   - samsung,i2c-max-bus-freq: Desired frequency in Hz of the bus. If not
-@@ -31,8 +37,14 @@ Example:
- 		interrupts = <345>;
- 		samsung,i2c-sda-delay = <100>;
- 		samsung,i2c-max-bus-freq = <100000>;
-+		/* Samsung GPIO variant begins here */
- 		gpios = <&gpd1 2 0 /* SDA */
- 			 &gpd1 3 0 /* SCL */>;
-+		/* Samsung GPIO variant ends here */
-+		/* Pinctrl variant begins here */
-+		pinctrl-0 = <&i2c3_bus>;
-+		pinctrl-names = "default";
-+		/* Pinctrl variant ends here */
- 		#address-cells = <1>;
- 		#size-cells = <0>;
- 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 3e0335f..ae4304b 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -38,6 +38,7 @@
- #include <linux/io.h>
- #include <linux/of_i2c.h>
- #include <linux/of_gpio.h>
-+#include <linux/pinctrl/consumer.h>
- 
- #include <asm/irq.h>
- 
-@@ -83,6 +84,7 @@ struct s3c24xx_i2c {
- 
- 	struct s3c2410_platform_i2c	*pdata;
- 	int			gpios[2];
-+	struct pinctrl          *pctrl;
- #ifdef CONFIG_CPU_FREQ
- 	struct notifier_block	freq_transition;
- #endif
-@@ -861,9 +863,8 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
- 
- 	if (pdata->cfg_gpio)
- 		pdata->cfg_gpio(to_platform_device(i2c->dev));
--	else
--		if (s3c24xx_i2c_parse_dt_gpio(i2c))
--			return -EINVAL;
-+	else if (IS_ERR(i2c->pctrl) && s3c24xx_i2c_parse_dt_gpio(i2c))
-+		return -EINVAL;
- 
- 	/* write slave address */
- 
-@@ -1013,6 +1014,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	i2c->adap.algo_data = i2c;
- 	i2c->adap.dev.parent = &pdev->dev;
- 
-+	i2c->pctrl = devm_pinctrl_get_select_default(i2c->dev);
-+
- 	/* initialise the i2c controller */
- 
- 	ret = s3c24xx_i2c_init(i2c);
-@@ -1112,7 +1115,8 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
- 	iounmap(i2c->regs);
- 
- 	release_resource(i2c->ioarea);
--	s3c24xx_i2c_dt_gpio_free(i2c);
-+	if (pdev->dev.of_node && IS_ERR(i2c->pctrl))
-+		s3c24xx_i2c_dt_gpio_free(i2c);
- 	kfree(i2c->ioarea);
- 
- 	return 0;
--- 
-1.8.0
+Hi,
+
+On Mon, Nov 12, 2012 at 05:59:50PM +0100, Andreas Larsson wrote:
+> Add sparc support by using platform_get_irq instead of platform_get_resou=
+rce.
+> There are no platform resources of type IORESOURCE_IRQ for sparc, but
+> platform_get_irq works for sparc. In the non-sparc case platform_get_irq
+> internally uses platform_get_resource.
+>=20
+> Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+> Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+> ---
+> Changes since v1:
+>  - platform_get_irq now works for sparc, so that is used for all platforms
+>  - Acked by Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+>=20
+>  drivers/i2c/busses/i2c-ocores.c |    9 +++++----
+>  1 files changed, 5 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-oco=
+res.c
+> index bffd550..0b71dc6 100644
+> --- a/drivers/i2c/busses/i2c-ocores.c
+> +++ b/drivers/i2c/busses/i2c-ocores.c
+> @@ -267,7 +267,8 @@ static int __devinit ocores_i2c_probe(struct platform=
+_device *pdev)
+>  {
+>  	struct ocores_i2c *i2c;
+>  	struct ocores_i2c_platform_data *pdata;
+> -	struct resource *res, *res2;
+> +	struct resource *res;
+> +	int irq;
+>  	int ret;
+>  	int i;
+> =20
+> @@ -275,8 +276,8 @@ static int __devinit ocores_i2c_probe(struct platform=
+_device *pdev)
+>  	if (!res)
+>  		return -ENODEV;
+> =20
+> -	res2 =3D platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> -	if (!res2)
+> +	irq =3D platform_get_irq(pdev, 0);
+> +	if (irq < 0)
+>  		return -ENODEV;
+
+Why not pass the error code you got?
+
+> =20
+>  	i2c =3D devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
+> @@ -313,7 +314,7 @@ static int __devinit ocores_i2c_probe(struct platform=
+_device *pdev)
+>  	ocores_init(i2c);
+> =20
+>  	init_waitqueue_head(&i2c->wait);
+> -	ret =3D devm_request_irq(&pdev->dev, res2->start, ocores_isr, 0,
+> +	ret =3D devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
+>  			       pdev->name, i2c);
+>  	if (ret) {
+>  		dev_err(&pdev->dev, "Cannot claim IRQ\n");
+
+Rest looks good.
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--OFj+1YLvsEfSXdCH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlCiKr8ACgkQD27XaX1/VRuCjQCgugJ6/nVu4gaduZKIOQFVnpDg
+uZgAoJoMOg/cPcvTacY+B5ULQKeLqNVp
+=7JKs
+-----END PGP SIGNATURE-----
+
+--OFj+1YLvsEfSXdCH--
