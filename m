@@ -1,68 +1,33 @@
-From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: Add possibility for user-defined (i2c-)devices
- for bus-drivers.
-Date: Wed, 14 Nov 2012 13:38:36 +0100
-Message-ID: <50A390CC.9000208@ahsoftware.de>
-References: <1352829968-4908-1-git-send-email-holler@ahsoftware.de> <20121113195533.6db71716@endymion.delvare> <50A2AC28.7050304@ahsoftware.de> <20121113220835.111a178a@endymion.delvare> <50A2BAA2.6090009@ahsoftware.de> <20121113224246.768bf734@endymion.delvare> <50A2DA0C.3090507@ahsoftware.de> <20121114104050.79df8cd9@endymion.delvare>
+From: Shubhrajyoti <shubhrajyoti@ti.com>
+Subject: Re: [PATCHv3 0/7] i2c: omap: updates
+Date: Wed, 14 Nov 2012 18:39:37 +0530
+Message-ID: <50A39811.9030406@ti.com>
+References: <1352118223-3796-1-git-send-email-shubhrajyoti@ti.com> <20121114120400.GH5954@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121114104050.79df8cd9-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20121114120400.GH5954@pengutronix.de>
+Sender: linux-omap-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, tony@atomide.com, b-cousson@ti.com, balbi@ti.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
-
-Am 14.11.2012 10:40, schrieb Jean Delvare:
-
->> It isn't possible to do such, because the only ID available for
->> i2c-busses is given them at runtime. So people have to live with that
->> imho artificially problem, if they use my patch. I don't have any other
->> solution until the numbering is predictable. But I assume you already
->> know all that, otherwise you wouldn't have mentioned it.
+On Wednesday 14 November 2012 05:34 PM, Wolfram Sang wrote:
+> On Mon, Nov 05, 2012 at 05:53:35PM +0530, Shubhrajyoti D wrote:
 >
-> The problem is inherent to external, hot-plug I2C adapters. You can't
-> predict their bus number, and actually you can't even always predict
-> their name. In the case of usb-tiny-i2c, you may be able to look-up the
-> bus number from the adapter name, but you won't be able to always
-> differentiate between two adapters, if they are connected to paired USB
-> ports.
+>> Shubhrajyoti D (8):
+>>       i2c: omap: Fix the revision register read
+>>       i2c: omap: use revision check for OMAP_I2C_FLAG_APPLY_ERRATA_I207
+>>       i2c: omap: remove the dtrev
+>>       ARM: i2c: omap: Remove the i207 errata flag
+>>       i2c: omap: re-factor omap_i2c_init function
+>>       i2c: omap: make reset a seperate function
+>>       i2c: omap: Restore i2c context always
+>>       i2c: omap: cleanup the sysc write
+> Pushed the series to for-next, after fixing a trivial merge conflict
+> caused by reverting the QoS patch.
+
+Thanks.
 >
-> This is a design issue with the i2c-tiny-usb hardware in the first
-> place. If it is needed to differentiate between adapters, their would
-> need to be a locally unique ID in every adapter, which the kernel can
-> query. I suppose this was not deemed necessary at design time, as most
-> people will only connect one such adapter at a time to their system.
 
-Actually many of the available USB devices (e.g. many usb-serials) don't 
-offer a unique ID by themself. That isn't just a problem of the 
-i2c-tiny-usb. But in contrast to other solutions, it shouldn't be very 
-hard to give those adapters a unique ID. As the whole SUB solution is 
-just software (and open source), one likely just would to write some 
-small piece of additional code.
-
-> I have already experienced this and yes, it is a pain. But I would
-> think that a system designed without a RTC in the first place has
-> another way of getting its time correct at boot time, for example NTP.
-> As I understand it the RTC chip is only there to set the system time at
-> boot, right, the actual timekeeping during run-time is still done by the
-> CPU?
-
-Whatever those people which want to us it decide. If I didn't want to 
-help other people by offering them some small documentation about how to 
-build such theirself, I wouldn't have taken the usual and almost 
-unavoidable pain trying feed some silly patches into the kernel. ;)
-
-Anyway, maybe Till Harbaum will like that solution and won't get blocked 
-by you. And maybe in some years we will see how many other bus-drivers 
-have adopted the same solution. In fact the in-driver solution was my 
-first one and I've thought others might be interested too, so I've moved 
-the few lines from the driver itself into the i2c-core before I sent the 
-patches. Unfortunately a waste of time.
-
-Regards,
-
-Alexander
