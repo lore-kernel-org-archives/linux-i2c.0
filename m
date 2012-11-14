@@ -1,35 +1,48 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: Handle i2c DMA failure properly
-Date: Wed, 14 Nov 2012 16:22:21 +0100
-Message-ID: <201211141622.22161.marex@denx.de>
-References: <1352903508-18113-1-git-send-email-marex@denx.de> <CAOMZO5AVDXeu59ZwB35k_0yYx5XwTzdmtj+QXXEoQRMs7Br-KA@mail.gmail.com>
+From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH v3 0/3] i2c: at91: add dma support
+Date: Wed, 14 Nov 2012 17:44:50 +0100
+Message-ID: <1352911493-6979-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAOMZO5AVDXeu59ZwB35k_0yYx5XwTzdmtj+QXXEoQRMs7Br-KA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Fabio Estevam,
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-> Hi Marek,
-> 
-> On Wed, Nov 14, 2012 at 12:31 PM, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org> wrote:
-> > Properly terminate the DMA transfer in case the DMA PIO transfer
-> > or setup fails for any reason. While at it, enable support for
-> > SMBUS_QUICK. This essentially fixes i2c-detect on this IP.
-> 
-> Shouldn't this be split into two patches?
+Hi Wolfram,
 
-It should, but then it fixes one problem, so I stuck it into one ...
+Here is the third version taking into account your feedback.
 
-> Regards,
-> 
-> Fabio Estevam
+Patch 1/3 should go into v3.7.
 
-Best regards,
-Marek Vasut
+Regards
+
+Ludovic
+
+Changes:
+- v3
+    - introduce two new patches: one to fix a compilation warning and one to
+    fix indentation
+    - introduce a threshold to use dma transfers
+    - use dma wrappers to clean code
+    - remove dma cookie since it is no more used
+
+- v2 (based on Russell feedback):
+    - replace DMA_TO_DEVICE/DMA_FROM_DEVICE by DMA_MEM_TO_DEV/DMA_DEV_TO_MEM
+    - don't check for tx_submit errors
+    - atmel dma header location has changed
+
+
+Ludovic Desroches (3):
+  i2c: at91: fix compilation warning
+  i2c: at91: change struct members indentation
+  i2c: at91: add dma support
+
+ drivers/i2c/busses/i2c-at91.c | 338 +++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 314 insertions(+), 24 deletions(-)
+
+-- 
+1.7.11.3
