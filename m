@@ -1,63 +1,108 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: at91: fix SMBus quick command
-Date: Wed, 14 Nov 2012 10:33:58 +0100
-Message-ID: <20121114093358.GC5954@pengutronix.de>
-References: <1352821401-1944-1-git-send-email-ludovic.desroches@atmel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Add possibility for user-defined (i2c-)devices
+  for bus-drivers.
+Date: Wed, 14 Nov 2012 10:40:50 +0100
+Message-ID: <20121114104050.79df8cd9@endymion.delvare>
+References: <1352829968-4908-1-git-send-email-holler@ahsoftware.de>
+	<20121113195533.6db71716@endymion.delvare>
+	<50A2AC28.7050304@ahsoftware.de>
+	<20121113220835.111a178a@endymion.delvare>
+	<50A2BAA2.6090009@ahsoftware.de>
+	<20121113224246.768bf734@endymion.delvare>
+	<50A2DA0C.3090507@ahsoftware.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IpbVkmxF4tDyP/Kb"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1352821401-1944-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <50A2DA0C.3090507-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, N.Voss-+umVssTZoCsb1SvskN2V4Q@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+To: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, 14 Nov 2012 00:38:52 +0100, Alexander Holler wrote:
+> Am 13.11.2012 22:42, schrieb Jean Delvare:
+> > Question is, what will you do the day someone wants to instantiate a
+> > device for which the default probing mechanism doesn't work?
+> 
+> Do you solve all problems you and others might have in the future 
+> already now?
 
---IpbVkmxF4tDyP/Kb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Not all. But at least I try to avoid artificial limitations when
+writing new code and to anticipate misbehavior in use cases other than
+my own. I also try to learn from our past collective mistakes (starting
+with my own.)
 
-On Tue, Nov 13, 2012 at 04:43:21PM +0100, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote:
-> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
->=20
-> The driver claims to support SMBus quick command but it was not the case.
-> This patch fixes this issue.
->=20
-> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> ---
->=20
-> Hi Wolfram,
->=20
-> Thanks to Jean explanation about i2cdetect and eeprom behavior, I realized
-> that the first version of the patch was incorrect. This time all the i2c
-> devices are detected with i2cdetect -q.
->=20
-> I hope this fix could go into 3.7 since the driver claims SMBus quick
-> capability but it doesn't support it. Moreover without it i2cdetect find
-> imaginary devices, and with some IP versions, trying to send 0 byte can c=
-ause
-> issue when writing data to an EEPROM.
+For clarity: it doesn't matter if new code doesn't cover all possible
+present and future use cases, but it should not allow users to screw up
+their system, and it should be possible to extend it to other
+foreseeable use cases without breaking compatibility or making the code
+unmaintainable or the interface ugly and confusing.
 
-Updated the commit message with the latter paragraph and added to
-for-current, thanks!
+> > Plus you don't address the main issues. Your syntax gives you no way to
+> > support two i2c-tiny-usb adapters with different chips at a specific
+> > address. The sysfs interface supports such a setup. Also instantiating
+> 
+> It isn't possible to do such, because the only ID available for 
+> i2c-busses is given them at runtime. So people have to live with that 
+> imho artificially problem, if they use my patch. I don't have any other 
+> solution until the numbering is predictable. But I assume you already 
+> know all that, otherwise you wouldn't have mentioned it.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+The problem is inherent to external, hot-plug I2C adapters. You can't
+predict their bus number, and actually you can't even always predict
+their name. In the case of usb-tiny-i2c, you may be able to look-up the
+bus number from the adapter name, but you won't be able to always
+differentiate between two adapters, if they are connected to paired USB
+ports.
 
---IpbVkmxF4tDyP/Kb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+This is a design issue with the i2c-tiny-usb hardware in the first
+place. If it is needed to differentiate between adapters, their would
+need to be a locally unique ID in every adapter, which the kernel can
+query. I suppose this was not deemed necessary at design time, as most
+people will only connect one such adapter at a time to their system.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+So I would agree that the problem I pointed out probably doesn't exist
+in practice. Still, the limitation should at least be documented.
 
-iEYEARECAAYFAlCjZYYACgkQD27XaX1/VRsXfwCfYaoiC/ng5K6hOxeezrSApQve
-Ix8AoKOET5ZbGyPTxnnSF5uSg7Rfwjg6
-=sDYC
------END PGP SIGNATURE-----
+> > the wrong devices is worse than instating a device that doesn't exist
+> > at all. So the use of i2c_new_probed_device() here will randomly help
+> > in a limited number of cases and randomly be problematic in others.
+> > Hard to justify...
+> 
+> So would you be satisfied if I would make the syntax more complicated by 
+> adding something which would allow them to define if the devices gets 
+> probed? E.g. dev1@addr1,dev2-fltQwxZSWAxmOS8nLLos6g@public.gmane.org,... ?
 
---IpbVkmxF4tDyP/Kb--
+No. I would be more satisfied (although still not thinking your code
+should make it into the kernel - but I am no longer the one to decide)
+if you did use i2c_new_device() instead of i2c_new_probed_device(). You
+said yourself that this module parameter was for users who knew what
+they were doing.
+
+> > I am not familiar with RTC constraints. What is so important about it
+> > that it can't wait for user-space? It'll have to wait for the USB and
+> > I2C stacks to initialize anyway, so it won't be available at the very
+> > early stages of the boot.
+> 
+> Try playing with a system which does have the wrong time. There is so 
+> much stuff which depends on the correct time, it is just a pain if the 
+> time is wrong or even the same across multiple system starts. And even 
+> if you know that, you might e.g. forget it and will use git to send some 
+> email and patches with erroneous times. But that is just an example.
+
+I have already experienced this and yes, it is a pain. But I would
+think that a system designed without a RTC in the first place has
+another way of getting its time correct at boot time, for example NTP.
+As I understand it the RTC chip is only there to set the system time at
+boot, right, the actual timekeeping during run-time is still done by the
+CPU?
+
+> And as I said, there might some other devices you might want or need in 
+> the future before usespace starts, so it solves a problem as the one 
+> above which I didn't have solved. ;)
+
+Or maybe this will never happen.
+
+-- 
+Jean Delvare
