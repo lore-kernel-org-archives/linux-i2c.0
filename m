@@ -1,76 +1,52 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH v3] i2c: omap: ensure writes to dev->buf_len are ordered
-Date: Wed, 14 Nov 2012 16:22:45 +0200
-Message-ID: <1352902965-25666-1-git-send-email-balbi@ti.com>
-References: <20121114112050.GG5954@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH] i2c: mxs: Handle i2c DMA failure properly
+Date: Wed, 14 Nov 2012 15:31:48 +0100
+Message-ID: <1352903508-18113-1-git-send-email-marex@denx.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121114112050.GG5954-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Paul Walmsley <paul-DWxLp4Yu+b8AvxtiuMwx3w@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-if we allow compiler reorder our writes, we could
-fall into a situation where dev->buf_len is reset
-for no apparent reason.
+Properly terminate the DMA transfer in case the DMA PIO transfer
+or setup fails for any reason. While at it, enable support for
+SMBUS_QUICK. This essentially fixes i2c-detect on this IP.
 
-This bug was found with a simple script which would
-transfer data to an i2c client from 1 to 1024 bytes
-(a simple for loop), when we got to transfer sizes
-bigger than the fifo size, dev->buf_len was reset
-to zero before we had an oportunity to handle XDR
-Interrupt. Because dev->buf_len was zero, we entered
-omap_i2c_transmit_data() to transfer zero bytes,
-which would mean we would just silently exit
-omap_i2c_transmit_data() without actually writing
-anything to DATA register. That would cause XDR
-IRQ to trigger forever and we would never transfer
-the remaining bytes.
-
-After adding the memory barrier, we also drop resetting
-dev->buf_len to zero in omap_i2c_xfer_msg() because
-both omap_i2c_transmit_data() and omap_i2c_receive_data()
-will act until dev->buf_len reaches zero, rendering the
-other write in omap_i2c_xfer_msg() redundant.
-
-This patch has been tested with pandaboard for a few
-iterations of the script mentioned above.
-
-Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 ---
-
-Changes since v2:
-	- add a comment
-
-Changes since v1:
-        - use barrier() instead of wmb()
-
- drivers/i2c/busses/i2c-omap.c | 4 +++-
+ drivers/i2c/busses/i2c-mxs.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index db31eae..e88fc26 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -522,6 +522,9 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
- 	dev->buf = msg->buf;
- 	dev->buf_len = msg->len;
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 286ca19..6ed53da 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -287,12 +287,14 @@ read_init_dma_fail:
+ select_init_dma_fail:
+ 	dma_unmap_sg(i2c->dev, &i2c->sg_io[0], 1, DMA_TO_DEVICE);
+ select_init_pio_fail:
++	dmaengine_terminate_all(i2c->dmach);
+ 	return -EINVAL;
  
-+	/* make sure writes to dev->buf_len are ordered */
-+	barrier();
-+
- 	omap_i2c_write_reg(dev, OMAP_I2C_CNT_REG, dev->buf_len);
+ /* Write failpath. */
+ write_init_dma_fail:
+ 	dma_unmap_sg(i2c->dev, i2c->sg_io, 2, DMA_TO_DEVICE);
+ write_init_pio_fail:
++	dmaengine_terminate_all(i2c->dmach);
+ 	return -EINVAL;
+ }
  
- 	/* Clear the FIFO Buffers */
-@@ -579,7 +582,6 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
- 	 */
- 	timeout = wait_for_completion_timeout(&dev->cmd_complete,
- 						OMAP_I2C_TIMEOUT);
--	dev->buf_len = 0;
- 	if (timeout == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
- 		omap_i2c_init(dev);
+@@ -357,7 +359,7 @@ static int mxs_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 
+ static u32 mxs_i2c_func(struct i2c_adapter *adap)
+ {
+-	return I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+ }
+ 
+ static irqreturn_t mxs_i2c_isr(int this_irq, void *dev_id)
 -- 
-1.8.0
+1.7.10.4
