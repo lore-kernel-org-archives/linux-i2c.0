@@ -1,64 +1,50 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: Handle i2c DMA failure properly
-Date: Thu, 15 Nov 2012 05:01:17 +0100
-Message-ID: <201211150501.18009.marex@denx.de>
-References: <1352903508-18113-1-git-send-email-marex@denx.de> <201211141622.22161.marex@denx.de> <CANqk_c-f3+a=f1QqWFxEpGcMQRqMD61eHiXNLyfzciJkzPGMRA@mail.gmail.com>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCHv2] i2c: omap: Move the remove constraint
+Date: Thu, 15 Nov 2012 13:04:43 +0530
+Message-ID: <1352964883-9846-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANqk_c-f3+a=f1QqWFxEpGcMQRqMD61eHiXNLyfzciJkzPGMRA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, balbi@ti.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Tim Michals,
+Currently we just queue the transfer and release the
+qos constraints, however we donot wait for the transfer
+to complete to release the constraint. Move the remove
+constraint after the bus busy as we are sure that the
+transfers are completed by then.
 
-> On Wed, Nov 14, 2012 at 9:22 AM, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org> wrote:
-> > Dear Fabio Estevam,
-> > 
-> > > Hi Marek,
-> > > 
-> > > On Wed, Nov 14, 2012 at 12:31 PM, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org> wrote:
-> > > > Properly terminate the DMA transfer in case the DMA PIO transfer
-> > > > or setup fails for any reason. While at it, enable support for
-> > > > SMBUS_QUICK. This essentially fixes i2c-detect on this IP.
-> > > 
-> > > Shouldn't this be split into two patches?
-> > 
-> > It should, but then it fixes one problem, so I stuck it into one ...
-> > 
-> > > Regards,
-> > > 
-> > > Fabio Estevam
-> > 
-> > Best regards,
-> > Marek Vasut
->
-> Dear Marek Vasut,
-> 
-> This patch
->  @@ -150,8 +150,6 @@ static void mxs_i2c_reset(struct mxs_i2c
->   writel(i2c->speed->timing2, i2c->regs + MXS_I2C_TIMING2);
-> 
->   writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
-> -
-> - dmaengine_terminate_all(i2c->dmach);
->  }
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+---
+v2: rebase to the for-next branch
 
-This patch doesn't apply, can you elaborate ?
+ drivers/i2c/busses/i2c-omap.c |    7 ++++---
+ 1 files changed, 4 insertions(+), 3 deletions(-)
 
-Moreover ... read either RFC1855 properly [1] and/or read the mailing list 
-etiquette please (!). Especially the part about top-posting. Do us a favor.
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 482c63d..fabcbe1 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -654,13 +654,14 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 			break;
+ 	}
+ 
+-	if (dev->set_mpu_wkup_lat != NULL)
+-		dev->set_mpu_wkup_lat(dev->dev, -1);
+-
+ 	if (r == 0)
+ 		r = num;
+ 
+ 	omap_i2c_wait_for_bb(dev);
++
++	if (dev->set_mpu_wkup_lat != NULL)
++		dev->set_mpu_wkup_lat(dev->dev, -1);
++
+ out:
+ 	pm_runtime_mark_last_busy(dev->dev);
+ 	pm_runtime_put_autosuspend(dev->dev);
+-- 
+1.7.5.4
 
-> This patch fixes current DMA requests which time out or error returned by
-> the ISR.
-> 
-> Tim
-
-[1] http://www.ietf.org/rfc/rfc1855.txt
-
-Best regards,
-Marek Vasut
