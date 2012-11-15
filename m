@@ -1,47 +1,80 @@
 From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: at91: fix compilation warning
-Date: Thu, 15 Nov 2012 18:16:37 +0100
-Message-ID: <50A52375.4070304@atmel.com>
-References: <1352911493-6979-1-git-send-email-ludovic.desroches@atmel.com> <1352911493-6979-2-git-send-email-ludovic.desroches@atmel.com>
+Subject: Re: [PATCH 2/3] i2c: at91: change struct members indentation
+Date: Thu, 15 Nov 2012 18:19:00 +0100
+Message-ID: <50A52404.9000503@atmel.com>
+References: <1352911493-6979-1-git-send-email-ludovic.desroches@atmel.com> <1352911493-6979-3-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352911493-6979-2-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1352911493-6979-3-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org
+To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 On 11/14/2012 05:44 PM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
 > From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 > 
+> Replace tabs for struct members indentation by space to minimise line changes
+> when adding new members which would require extra tabs to keep alignment.
+
+Lol, you followed Wolfram's advice... You know my preferences ;-)
+
 > Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+
+Ok, then:
 
 Acked-by: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-Maybe tell Wolfram to remove this one from the series and add it to his
-3.7 tree...
-
-Bye,
-
 > ---
->  drivers/i2c/busses/i2c-at91.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/i2c/busses/i2c-at91.c | 30 +++++++++++++++---------------
+>  1 file changed, 15 insertions(+), 15 deletions(-)
 > 
 > diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index a6670eb..dc8cb22 100644
+> index dc8cb22..2c437df 100644
 > --- a/drivers/i2c/busses/i2c-at91.c
 > +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -412,7 +412,7 @@ static struct at91_twi_pdata * __devinit at91_twi_get_driver_data(
->  		match = of_match_node(atmel_twi_dt_ids, pdev->dev.of_node);
->  		if (!match)
->  			return NULL;
-> -		return match->data;
-> +		return (struct at91_twi_pdata *) match->data;
->  	}
->  	return (struct at91_twi_pdata *) platform_get_device_id(pdev)->driver_data;
->  }
+> @@ -66,24 +66,24 @@
+>  #define	AT91_TWI_THR		0x0034	/* Transmit Holding Register */
+>  
+>  struct at91_twi_pdata {
+> -	unsigned	clk_max_div;
+> -	unsigned	clk_offset;
+> -	bool		has_unre_flag;
+> +	unsigned clk_max_div;
+> +	unsigned clk_offset;
+> +	bool has_unre_flag;
+>  };
+>  
+>  struct at91_twi_dev {
+> -	struct device		*dev;
+> -	void __iomem		*base;
+> -	struct completion	cmd_complete;
+> -	struct clk		*clk;
+> -	u8			*buf;
+> -	size_t			buf_len;
+> -	struct i2c_msg		*msg;
+> -	int			irq;
+> -	unsigned		transfer_status;
+> -	struct i2c_adapter	adapter;
+> -	unsigned		twi_cwgr_reg;
+> -	struct at91_twi_pdata	*pdata;
+> +	struct device *dev;
+> +	void __iomem *base;
+> +	struct completion cmd_complete;
+> +	struct clk *clk;
+> +	u8 *buf;
+> +	size_t buf_len;
+> +	struct i2c_msg *msg;
+> +	int irq;
+> +	unsigned transfer_status;
+> +	struct i2c_adapter adapter;
+> +	unsigned twi_cwgr_reg;
+> +	struct at91_twi_pdata *pdata;
+>  };
+>  
+>  static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
 > 
 
 
