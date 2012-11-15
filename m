@@ -1,64 +1,118 @@
-From: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v5 1/2] i2c: i2c-ocores: Add irq support for sparc
-Date: Thu, 15 Nov 2012 15:09:07 +0100
-Message-ID: <1352988548-10138-2-git-send-email-andreas@gaisler.com>
+From: Peter Korsgaard <jacmet@sunsite.dk>
+Subject: Re: [PATCH v5 2/2] i2c: i2c-ocores: Add support for the GRLIB port of the controller and use function pointers for getreg and setreg functions
+Date: Thu, 15 Nov 2012 15:56:44 +0100
+Message-ID: <87pq3e52z7.fsf@dell.be.48ers.dk>
 References: <1352988548-10138-1-git-send-email-andreas@gaisler.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352988548-10138-1-git-send-email-andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
+	<1352988548-10138-3-git-send-email-andreas@gaisler.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1352988548-10138-3-git-send-email-andreas@gaisler.com> (Andreas
+	Larsson's message of "Thu, 15 Nov 2012 15:09:08 +0100")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andreas Larsson <andreas@gaisler.com>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, devicetree-discuss@lists.ozlabs.org, linux-kernel@vger.kernel.org, software@gaisler.com
 List-Id: linux-i2c@vger.kernel.org
 
-Add sparc support by using platform_get_irq instead of platform_get_resource.
-There are no platform resources of type IORESOURCE_IRQ for sparc, but
-platform_get_irq works for sparc. In the non-sparc case platform_get_irq
-internally uses platform_get_resource.
+>>>>> "Andreas" == Andreas Larsson <andreas@gaisler.com> writes:
 
-Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
----
- Changes since v4:
- - None
+ Andreas> The registers in the GRLIB port of the controller are 32-bit
+ Andreas> and in big endian byte order. The PRELOW and PREHIGH registers
+ Andreas> are merged into one register. The subsequent registers have
+ Andreas> their offset decreased accordingly. Hence the register access
+ Andreas> needs to be handled in a non-standard manner using custom
+ Andreas> getreg and setreg functions.
 
- drivers/i2c/busses/i2c-ocores.c |   11 ++++++-----
- 1 files changed, 6 insertions(+), 5 deletions(-)
+ Andreas> The single oc_getreg and one oc_setreg functions, that
+ Andreas> branches and call different ioread and iowrite functions, are
+ Andreas> replaced by specific functions that uses the appropriate
+ Andreas> ioread and iowrite functions and function pointers are
+ Andreas> initiated and used to call the approproate functions.
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index bffd550..1d204cb 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -267,7 +267,8 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- {
- 	struct ocores_i2c *i2c;
- 	struct ocores_i2c_platform_data *pdata;
--	struct resource *res, *res2;
-+	struct resource *res;
-+	int irq;
- 	int ret;
- 	int i;
+ Andreas> A type is added as the data of the of match table entries. A
+ Andreas> new entry with a different compatible string is added to the
+ Andreas> table. The type of that entry triggers usage of the custom
+ Andreas> grlib functions by setting the new getreg and setreg function
+ Andreas> pointers to these functions.
+
+Sorry to keep on requesting changes, but see below for a bit more:
+
  
-@@ -275,9 +276,9 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 	if (!res)
- 		return -ENODEV;
+ Andreas>  static void ocores_process(struct ocores_i2c *i2c)
+ Andreas>  {
+ Andreas>  	struct i2c_msg *msg = i2c->msg;
+ Andreas> -	u8 stat = oc_getreg(i2c, OCI2C_STATUS);
+ Andreas> +	u8 stat = i2c->getreg(i2c, OCI2C_STATUS);
+
+The patch would have been quite a bit smaller/easier to read if you had
+kept oc_getreg / oc_setreg as wrappers.
+
  
--	res2 = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
--	if (!res2)
--		return -ENODEV;
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
+ Andreas>  #ifdef CONFIG_OF
+ Andreas>  static int ocores_i2c_of_probe(struct platform_device *pdev,
+ Andreas>  				struct ocores_i2c *i2c)
+ Andreas>  {
+ Andreas>  	struct device_node *np = pdev->dev.of_node;
+ Andreas> +	const struct of_device_id *match;
+ Andreas>  	u32 val;
  
- 	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
-@@ -313,7 +314,7 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
- 	ocores_init(i2c);
+ Andreas>  	if (of_property_read_u32(np, "reg-shift", &i2c->reg_shift)) {
+ Andreas> @@ -257,6 +324,14 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
  
- 	init_waitqueue_head(&i2c->wait);
--	ret = devm_request_irq(&pdev->dev, res2->start, ocores_isr, 0,
-+	ret = devm_request_irq(&pdev->dev, irq, ocores_isr, 0,
- 			       pdev->name, i2c);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Cannot claim IRQ\n");
+ Andreas>  	of_property_read_u32(pdev->dev.of_node, "reg-io-width",
+ Andreas>  				&i2c->reg_io_width);
+ Andreas> +
+ Andreas> +	match = of_match_node(ocores_i2c_match, pdev->dev.of_node);
+ Andreas> +	if (match && (int)match->data == TYPE_GRLIB) {
+ Andreas> +		dev_dbg(&pdev->dev, "GRLIB variant of i2c-ocores\n");
+ Andreas> +		i2c->setreg = oc_setreg_grlib;
+ Andreas> +		i2c->getreg = oc_getreg_grlib;
+ Andreas> +	}
+ Andreas> +      
+ Andreas>  	return 0;
+ Andreas>  }
+ Andreas>  #else
+ Andreas> @@ -311,6 +386,23 @@ static int __devinit ocores_i2c_probe(struct platform_device *pdev)
+ Andreas>  	if (i2c->reg_io_width == 0)
+ i2c-> reg_io_width = 1; /* Set to default value */
+ 
+ Andreas> +	if (!i2c->getreg) {
+ Andreas> +		if (i2c->reg_io_width == 4)
+ Andreas> +			i2c->getreg = oc_getreg_32;
+ Andreas> +		else if (i2c->reg_io_width == 2)
+ Andreas> +			i2c->getreg = oc_getreg_16;
+ Andreas> +		else
+ Andreas> +			i2c->getreg = oc_getreg_8;
+ Andreas> +	}
+ Andreas> +	if (!i2c->setreg) {
+ Andreas> +		if (i2c->reg_io_width == 4)
+ Andreas> +			i2c->setreg = oc_setreg_32;
+ Andreas> +		else if (i2c->reg_io_width == 2)
+ Andreas> +			i2c->setreg = oc_setreg_16;
+ Andreas> +		else
+ Andreas> +			i2c->setreg = oc_setreg_8;
+ Andreas> +	}
+ Andreas> +
+
+These are always set together (could even move to a single ops
+structure), so it would be shorter to assign them at the same time:
+
+if (!i2c->setreg || !i2c->getreg) {
+   switch (i2c->reg_io_width) {
+   case 1:
+        i2c->setreg = oc_setreg_8;
+        i2c->getreg = oc_getreg_8;
+        break;
+
+   case 2:
+        i2c->setreg = oc_setreg_16;
+        ...
+
+   default:
+        dev_err(&pdev->dev "Unsupported I/O width (%d)\n", i2c->reg_io_width);
+        return -EINVAL;
+   }
+}
+
 -- 
-1.7.0.4
+Bye, Peter Korsgaard
