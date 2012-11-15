@@ -1,71 +1,39 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: don't save a value only needed for
- read-clearing
-Date: Thu, 15 Nov 2012 14:51:46 +0200
-Message-ID: <20121115124956.GA7390@arwen.pp.htv.fi>
-References: <1352913666-11022-1-git-send-email-wolfram@the-dreams.de>
- <20121114183739.GA30212@arwen.pp.htv.fi>
- <20121114185033.GB26955@pengutronix.de>
- <CAM=Q2cuRBK4SG9HfcV+L7Yfwv4kv8rTOXzrnUbjfE+-c7JNoNA@mail.gmail.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Thu, 15 Nov 2012 14:51:03 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1211151450140.15877@pobox.suse.cz>
+References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="LyciRD1jyfeSSjG0"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CAM=Q2cuRBK4SG9HfcV+L7Yfwv4kv8rTOXzrnUbjfE+-c7JNoNA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, Jean Delvare <khali@linux-fr.org>, JJ Ding <jj_ding@emc.com.tw>, Jiri Slaby <jslaby@suse.cz>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
---LyciRD1jyfeSSjG0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
 
-Hi,
+> Microsoft published the protocol specification of HID over i2c:
+> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
+> 
+> This patch introduces an implementation of this protocol.
+> 
+> This implementation does not includes the ACPI part of the specification.
+> This will come when ACPI 5.0 devices enumeration will be available.
+> 
+> Once the ACPI part is done, OEM will not have to declare HID over I2C
+> devices in their platform specific driver.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
 
-On Thu, Nov 15, 2012 at 03:34:10PM +0530, Shubhrajyoti Datta wrote:
-> On Thu, Nov 15, 2012 at 12:20 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wr=
-ote:
-> >
-> >> > This makes one of my code analyzers happy and makes me a part of the
-> >>
-> >> anything open source which we could all be using ? :-)
-> >
-> > 'my' as in 'one of those I am using'. It was cppcheck which found that
-> > flaw. Its use for kernel code is limited, but it does find one or the
-> > other thing.
->=20
-> sparse did not complain though.
-> So it seems it helps to run multiple static tools:-)
+Out of curiosity -- has this been tested on a real device (is there any 
+such device available anyway?), or is that just the implementation of the 
+defined protocol?
 
-or sending a patch to sparse ;-)
+Thanks,
 
---=20
-balbi
-
---LyciRD1jyfeSSjG0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQpOViAAoJEIaOsuA1yqREgu8QAISBiiILXfHLNRT5IGZUi/Gr
-1hCF2uU7/XKufqBQBB6IxbcFy4f3v72SMK2g6M+UxoMzOb9Cmvcz7Lf8gSlX/Hv6
-UqaDhYoS2TI7toqLWIw87BBzji1Yld6k9vVpU5BPksDUMEfj3jjahSB1nkx0DuDh
-lHdYTm8Ui3Q8ci0HTY4iR0ca+aD2ZV6TYkloCmX4k9Jx+GzYgmBmluXdUJLWijYB
-6r8NqkZQDzqmmf23liIrRi8SX5pHUDG2Jgf6DqTEcpXQV0y182eLvQCPr8zw9YbC
-2Z7KAOIOkCEcdJjhzfmQtP9xzHfPTrcJ5s1NJkkvrWPqYiUNb4QlrqOLumQpj4jF
-EawvjpwBU396utWhfknBIPM4a3EV4zbyLp+B1dlWPald5565oCUTas2R1whaOJXc
-wO8iquckdv5Yl3Trox0ABM9FF45Cx5hsKmK31hi5vwtVSDKLKTZyvodSGx1cjjvV
-UuGJeC4leXfpC2hCQKAve2HjnMyyS2DeAQKy1J+4450HTk9D6T2jR6fc79HpgQVo
-hn1jQ+8y3M8CcR7mIq2mVGfADZvV+rqt3c05UG/J+lktssZTrH5qXRIoFRzKM5Ne
-TlZbwLIARRE4/MrsY+aPBo+H4zcf+B5rm2FizJLTjWcvTTQim7yvFbDQb5spb76I
-G60x2j/q/2ZzbfOURyTS
-=gkQa
------END PGP SIGNATURE-----
-
---LyciRD1jyfeSSjG0--
+-- 
+Jiri Kosina
+SUSE Labs
