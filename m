@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/7] decode-dimms: Print timings at standard DDR speeds
-Date: Thu, 15 Nov 2012 12:48:02 +0100
-Message-ID: <20121115124802.47ed07f3@endymion.delvare>
+Subject: [PATCH 3/7] decode-dimms: Delete ddr2_core_timings
+Date: Thu, 15 Nov 2012 12:49:11 +0100
+Message-ID: <20121115124911.0021df4f@endymion.delvare>
 References: <20121115115231.341ac0c9@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -12,118 +12,68 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Print timings at standard DDR speeds. The minimum cycle times for the
-3 supported CAS latency values do not necessarily match standard
-speeds, and even if they do, they may not cover all standard speeds.
-Display the timings at all standard supported speeds. This makes it
-easier to figure out which memory modules will work well together
-without tinkering with BIOS options.
+ddr2_core_timings is now the exact same function as ddr_core_timings
+so delete the former and user the latter everywhere.
 ---
- eeprom/decode-dimms |   46 ++++++++++++++++++++++++++++++++++------------
- 1 file changed, 34 insertions(+), 12 deletions(-)
+ eeprom/decode-dimms |   18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
---- i2c-tools.orig/eeprom/decode-dimms	2012-11-15 09:37:36.000000000 +0100
-+++ i2c-tools/eeprom/decode-dimms	2012-11-15 10:40:13.765625180 +0100
-@@ -835,7 +835,7 @@ sub ddr_core_timings($$$$$)
- 	my ($cas, $ctime, $trcd, $trp, $tras) = @_;
- 
- 	return $cas . "-" . ceil($trcd/$ctime) . "-" . ceil($trp/$ctime) .
--		"-" . ceil($tras/$ctime) . " as DDR-" . int(2000 / $ctime);
-+		"-" . ceil($tras/$ctime);
+--- i2c-tools.orig/eeprom/decode-dimms	2012-11-15 09:59:02.000000000 +0100
++++ i2c-tools/eeprom/decode-dimms	2012-11-15 09:59:33.500544032 +0100
+@@ -1091,14 +1091,6 @@ sub ddr2_refresh_rate($)
+ 	       ($byte & 0x80 ? " - Self Refresh" : "");
  }
  
+-sub ddr2_core_timings($$$$$)
+-{
+-	my ($cas, $ctime, $trcd, $trp, $tras) = @_;
+-
+-	return $cas . "-" . ceil($trcd/$ctime) . "-" . ceil($trp/$ctime) .
+-		"-" . ceil($tras/$ctime);
+-}
+-
  # Parameter: EEPROM bytes 0-127 (using 3-62)
-@@ -843,6 +843,7 @@ sub decode_ddr_sdram($)
+ sub decode_ddr2_sdram($)
  {
- 	my $bytes = shift;
- 	my $temp;
-+	my ($ctime, $ctime1, $ctime2, $ctime_min, $ctime_max);
- 
- # SPD revision
- 	printl_cond($bytes->[62] != 0xff, "SPD Revision",
-@@ -851,7 +852,7 @@ sub decode_ddr_sdram($)
- # speed
- 	prints("Memory Characteristics");
- 
--	my $ctime = ($bytes->[9] >> 4) + ($bytes->[9] & 0xf) * 0.1;
-+	$ctime_min = $ctime = ($bytes->[9] >> 4) + ($bytes->[9] & 0xf) * 0.1;
- 	my $ddrclk = 2 * (1000 / $ctime);
- 	my $tbits = ($bytes->[7] * 256) + $bytes->[6];
- 	if (($bytes->[11] == 2) || ($bytes->[11] == 1)) { $tbits = $tbits - 8; }
-@@ -930,7 +931,7 @@ sub decode_ddr_sdram($)
+@@ -1189,7 +1181,7 @@ sub decode_ddr2_sdram($)
+ 	my ($cycle_time, $access_time, $core_timings);
  
  	if (exists $cas{$highestCAS}) {
- 		$core_timings = ddr_core_timings($highestCAS, $ctime,
--			$trcd, $trp, $tras);
-+			$trcd, $trp, $tras) . " as DDR-" . int(2000 / $ctime);
+-		$core_timings = ddr2_core_timings($highestCAS, $ctime,
++		$core_timings = ddr_core_timings($highestCAS, $ctime,
+ 			$trcd, $trp, $tras) . " as DDR2-" . int(2000 / $ctime);
  
- 		$cycle_time = "$ctime ns at CAS $highestCAS";
- 		$access_time = (($bytes->[10] >> 4) * 0.1 + ($bytes->[10] & 0xf) * 0.01)
-@@ -938,25 +939,27 @@ sub decode_ddr_sdram($)
- 	}
+ 		$cycle_time = tns($ctime) . " at CAS $highestCAS (tCK min)";
+@@ -1199,7 +1191,7 @@ sub decode_ddr2_sdram($)
  
- 	if (exists $cas{$highestCAS-0.5} && spd_written(@$bytes[23..24])) {
--		$ctime = ($bytes->[23] >> 4) + ($bytes->[23] & 0xf) * 0.1;
--		$core_timings .= "\n".ddr_core_timings($highestCAS-0.5, $ctime,
--			$trcd, $trp, $tras);
-+		$ctime1 = ($bytes->[23] >> 4) + ($bytes->[23] & 0xf) * 0.1;
-+		$core_timings .= "\n".ddr_core_timings($highestCAS-0.5, $ctime1,
-+			$trcd, $trp, $tras) . " as DDR-" . int(2000 / $ctime1);
+ 	if (exists $cas{$highestCAS-1} && spd_written(@$bytes[23..24])) {
+ 		$ctime1 = ddr2_sdram_ctime($bytes->[23]);
+-		$core_timings .= "\n".ddr2_core_timings($highestCAS-1, $ctime1,
++		$core_timings .= "\n".ddr_core_timings($highestCAS-1, $ctime1,
+ 			$trcd, $trp, $tras) . " as DDR2-" . int(2000 / $ctime1);
  
--		$cycle_time .= "\n$ctime ns at CAS ".($highestCAS-0.5);
-+		$cycle_time .= "\n$ctime1 ns at CAS ".($highestCAS-0.5);
- 		$access_time .= "\n".(($bytes->[24] >> 4) * 0.1 + ($bytes->[24] & 0xf) * 0.01)
- 			      . " ns at CAS ".($highestCAS-0.5);
- 	}
+ 		$cycle_time .= "\n".tns($ctime1)
+@@ -1210,7 +1202,7 @@ sub decode_ddr2_sdram($)
  
- 	if (exists $cas{$highestCAS-1} && spd_written(@$bytes[25..26])) {
--		$ctime = ($bytes->[25] >> 4) + ($bytes->[25] & 0xf) * 0.1,
--		$core_timings .= "\n".ddr_core_timings($highestCAS-1, $ctime,
--			$trcd, $trp, $tras);
-+		$ctime2 = ($bytes->[25] >> 4) + ($bytes->[25] & 0xf) * 0.1,
-+		$core_timings .= "\n".ddr_core_timings($highestCAS-1, $ctime2,
-+			$trcd, $trp, $tras) . " as DDR-" . int(2000 / $ctime2);
+ 	if (exists $cas{$highestCAS-2} && spd_written(@$bytes[25..26])) {
+ 		$ctime2 = ddr2_sdram_ctime($bytes->[25]);
+-		$core_timings .= "\n".ddr2_core_timings($highestCAS-2, $ctime2,
++		$core_timings .= "\n".ddr_core_timings($highestCAS-2, $ctime2,
+ 			$trcd, $trp, $tras) . " as DDR2-" . int(2000 / $ctime2);
  
--		$cycle_time .= "\n$ctime ns at CAS ".($highestCAS-1);
-+		$cycle_time .= "\n$ctime2 ns at CAS ".($highestCAS-1);
- 		$access_time .= "\n".(($bytes->[26] >> 4) * 0.1 + ($bytes->[26] & 0xf) * 0.01)
- 			      . " ns at CAS ".($highestCAS-1);
- 	}
+ 		$cycle_time .= "\n".tns($ctime2)
+@@ -1245,8 +1237,8 @@ sub decode_ddr2_sdram($)
  
-+	$ctime_max = $bytes->[43] == 0xff ? 0 : $bytes->[43]/4;
-+
- 	printl_cond(defined $core_timings, "tCL-tRCD-tRP-tRAS", $core_timings);
- 	printl_cond(defined $cycle_time, "Minimum Cycle Time", $cycle_time);
- 	printl_cond(defined $access_time, "Maximum Access Time", $access_time);
-@@ -964,8 +967,27 @@ sub decode_ddr_sdram($)
- 		    "Maximum Cycle Time (tCK max)",
- 		    $bytes->[43] == 0xff ? "No minimum frequency" :
- 		    $bytes->[43] == 0 ? "" : # Wouldn't be displayed, prevent div by 0
--		    tns1($bytes->[43]/4)." (DDR-".int(8000 / $bytes->[43]).")");
-+		    tns1($ctime_max)." (DDR-".int(8000 / $bytes->[43]).")");
-+
-+# standard DDR speeds
-+	prints("Timings at Standard Speeds");
-+	foreach $ctime (5, 6, 7.5, 10) {
-+		my $best_cas;
- 
-+		# Find min CAS latency at this speed
-+		if (defined $ctime2 && $ctime >= $ctime2) {
-+			$best_cas = $highestCAS-1;
-+		} elsif (defined $ctime1 && $ctime >= $ctime1) {
-+			$best_cas = $highestCAS-0.5;
-+		} else {
-+			$best_cas = $highestCAS;
-+		}
-+
-+		printl_cond($ctime >= $ctime_min && ($ctime_max < 1 || $ctime <= $ctime_max),
-+			    "tCL-tRCD-tRP-tRAS as DDR-".int(2000 / $ctime),
+ 		printl_cond($ctime >= $ctime_min && $ctime <= $ctime_max,
+ 			    "tCL-tRCD-tRP-tRAS as DDR2-".int(2000 / $ctime),
+-			    ddr2_core_timings($best_cas, $ctime,
+-					      $trcd, $trp, $tras));
 +			    ddr_core_timings($best_cas, $ctime,
 +					     $trcd, $trp, $tras));
-+	}
+ 	}
  
  # more timing information
- 	prints("Timing Parameters");
+
 
 -- 
 Jean Delvare
