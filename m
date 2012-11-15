@@ -1,33 +1,65 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: omap: don't save a value only needed for read-clearing
-Date: Thu, 15 Nov 2012 15:34:10 +0530
-Message-ID: <CAM=Q2cuRBK4SG9HfcV+L7Yfwv4kv8rTOXzrnUbjfE+-c7JNoNA@mail.gmail.com>
-References: <1352913666-11022-1-git-send-email-wolfram@the-dreams.de>
-	<20121114183739.GA30212@arwen.pp.htv.fi>
-	<20121114185033.GB26955@pengutronix.de>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: Fwd: [PATCH 1/7] I2c-nomadik: Fix the usage of
+ wait_for_completion_timeout
+Date: Thu, 15 Nov 2012 11:18:20 +0100
+Message-ID: <20121115101820.GC418@pengutronix.de>
+References: <1352222317.15558.1584.camel@cliu38-desktop-build>
+ <CACRpkdYekQF5111NSNSPeaHdxgS_gpXkCjqT1n-n1_iAdDXbSg@mail.gmail.com>
+ <20121115084858.GA29668@bnru10>
+ <20121115092953.GA418@pengutronix.de>
+ <20121115095741.GA6280@bnru10>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="C94crkcyjafcjHxo"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121114185033.GB26955-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20121115095741.GA6280@bnru10>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
+To: Srinidhi Kasagar <srinidhi.kasagar-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Cc: "chuansheng.liu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <chuansheng.liu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 15, 2012 at 12:20 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->
->> > This makes one of my code analyzers happy and makes me a part of the
->>
->> anything open source which we could all be using ? :-)
->
-> 'my' as in 'one of those I am using'. It was cppcheck which found that
-> flaw. Its use for kernel code is limited, but it does find one or the
-> other thing.
 
-sparse did not complain though.
-So it seems it helps to run multiple static tools:-)
+--C94crkcyjafcjHxo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
-> --
-> Pengutronix e.K.                           | Wolfram Sang                |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+On Thu, Nov 15, 2012 at 03:27:42PM +0530, Srinidhi Kasagar wrote:
+> On Thu, Nov 15, 2012 at 10:29:53 +0100, Wolfram Sang wrote:
+> >=20
+> > > > -       if (timeout < 0) {
+> > > > -               dev_err(&dev->adev->dev,
+> > > > -                       "wait_for_completion_timeout "
+> > > > -                       "returned %d waiting for event\n", timeout);
+> > > > -               status =3D timeout;
+> > > > -       }
+> > > > -
+> > > No, it is wrong. You need to update the status variable in the case o=
+f timeout.
+> >=20
+> > Looking at the patch context, such code comes later.
+> But it causes regressions; without looking at the "later" code, we can't =
+afford merging
+> this code now.
+
+Later as in "a few lines later" not "some time later". Or am I missing
+something else?
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--C94crkcyjafcjHxo
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlCkwWwACgkQD27XaX1/VRukewCdHgxxIEsKSngw5LopT7WAECRa
+CxwAn1GR0ahWKqSoV/fJeL4ncyKPFKf2
+=/CFu
+-----END PGP SIGNATURE-----
+
+--C94crkcyjafcjHxo--
