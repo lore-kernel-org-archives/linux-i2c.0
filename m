@@ -1,143 +1,150 @@
-From: Chuansheng Liu <lcs0208@gmail.com>
-Subject: Re: [PATCH 1/7] I2c-nomadik: Fix the usage of
- wait_for_completion_timeout
-Date: Thu, 15 Nov 2012 18:52:36 +0800
-Message-ID: <C53EED5A-0C30-44EE-ADD5-6CBABFA3A0FE@gmail.com>
-References: <1352222317.15558.1584.camel@cliu38-desktop-build>
- <CACRpkdYekQF5111NSNSPeaHdxgS_gpXkCjqT1n-n1_iAdDXbSg@mail.gmail.com>
- <20121115084858.GA29668@bnru10> <20121115092953.GA418@pengutronix.de>
- <20121115095741.GA6280@bnru10>
-Mime-Version: 1.0 (iPad Mail 8J3)
-Content-Type: multipart/mixed; boundary="===============9221670036613574084=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20121115095741.GA6280@bnru10>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-Cc: "linus.walleij@linaro.org" <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <w.sang@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "chuansheng.liu@intel.com" <chuansheng.liu@intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH] i2c: Add support for device-tree based chip initialization
+Date: Thu, 15 Nov 2012 10:07:49 -0800
+Message-ID: <1353002869-24747-1-git-send-email-linux@roeck-us.net>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Some I2C devices are not or not correctly initialized by the firmware.
+Configuration would be possible via platform data, but that would require
+per-driver platform data and a lot of code, and changing it would not be
+possible without re-compiling the kernel. It is more elegant to do it
+generically via devicetree properties.
 
---===============9221670036613574084==
-Content-Transfer-Encoding: 7bit
-Content-Type: multipart/alternative;
-	boundary=Apple-Mail-4-1007408005
+Add a generic I2C devicetree property named "reg-init". This property provides
+a sequence of device initialization commands to be executed prior to calling
+the probe function for a given device.
 
+Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/trivial-devices.txt    |   24 +++++++
+ drivers/i2c/i2c-core.c                             |   68 ++++++++++++++++++++
+ 2 files changed, 92 insertions(+)
 
---Apple-Mail-4-1007408005
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=utf-8
-
-timeout is never < 0, so status =3D timeout is never getting run. This patch=
- delete pointless
-code. Could you show the regression? Thanks.
-
-=E5=9C=A8 2012-11-15=EF=BC=8C17:57=EF=BC=8CSrinidhi Kasagar <srinidhi.kasaga=
-r@stericsson.com> =E5=86=99=E9=81=93=EF=BC=9A
-
-> On Thu, Nov 15, 2012 at 10:29:53 +0100, Wolfram Sang wrote:
->>=20
->>>> -       if (timeout < 0) {
->>>> -               dev_err(&dev->adev->dev,
->>>> -                       "wait_for_completion_timeout "
->>>> -                       "returned %d waiting for event\n", timeout);
->>>> -               status =3D timeout;
->>>> -       }
->>>> -
->>> No, it is wrong. You need to update the status variable in the case of t=
-imeout.
->>=20
->> Looking at the patch context, such code comes later.
-> But it causes regressions; without looking at the "later" code, we can't a=
-fford merging
-> this code now.
->=20
-> regards/srinidhi
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in=
-
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
---Apple-Mail-4-1007408005
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/html;
-	charset=utf-8
-
-<html><body bgcolor=3D"#FFFFFF"><div>timeout is never &lt; 0, so&nbsp;<span c=
-lass=3D"Apple-style-span" style=3D"-webkit-tap-highlight-color: rgba(26, 26,=
- 26, 0.292969); -webkit-composition-fill-color: rgba(175, 192, 227, 0.230469=
-); -webkit-composition-frame-color: rgba(77, 128, 180, 0.230469); color: rgb=
-(148, 0, 14); ">status =3D timeout is never getting run. This patch delete p=
-ointless</span></div><div><font class=3D"Apple-style-span" color=3D"#94000E"=
-><span class=3D"Apple-style-span" style=3D"-webkit-tap-highlight-color: rgba=
-(26, 26, 26, 0.292969); -webkit-composition-fill-color: rgba(175, 192, 227, 0=
-.230469); -webkit-composition-frame-color: rgba(77, 128, 180, 0.230469);">co=
-de. Could you show the regression? Thanks.<br></span></font><br></div><div>=E5=
-=9C=A8 2012-11-15=EF=BC=8C17:57=EF=BC=8CSrinidhi Kasagar &lt;<a href=3D"mail=
-to:srinidhi.kasagar@stericsson.com">srinidhi.kasagar@stericsson.com</a>&gt; =E5=
-=86=99=E9=81=93=EF=BC=9A<br><br></div><div></div><blockquote type=3D"cite"><=
-div><span>On Thu, Nov 15, 2012 at 10:29:53 +0100, Wolfram Sang wrote:</span>=
-<br><blockquote type=3D"cite"><span></span><br></blockquote><blockquote type=
-=3D"cite"><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;=
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (timeout &lt; 0) {</span><br></blockquote><=
-/blockquote></blockquote><blockquote type=3D"cite"><blockquote type=3D"cite"=
-><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
-;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dev_err(&amp;dev-&gt;adev-&gt;dev=
-,</span><br></blockquote></blockquote></blockquote><blockquote type=3D"cite"=
-><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"wait_for_completion_timeout "</spa=
-n><br></blockquote></blockquote></blockquote><blockquote type=3D"cite"><bloc=
-kquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&nbsp;&nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"returned %d waiting for event\n", timeou=
-t);</span><br></blockquote></blockquote></blockquote><blockquote type=3D"cit=
-e"><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&=
-nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;statu=
-s =3D timeout;</span><br></blockquote></blockquote></blockquote><blockquote t=
-ype=3D"cite"><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nb=
-sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><br></blockquote></blockquote></blo=
-ckquote><blockquote type=3D"cite"><blockquote type=3D"cite"><blockquote type=
-=3D"cite"><span>-</span><br></blockquote></blockquote></blockquote><blockquo=
-te type=3D"cite"><blockquote type=3D"cite"><span>No, it is wrong. You need t=
-o update the status variable in the case of timeout.</span><br></blockquote>=
-</blockquote><blockquote type=3D"cite"><span></span><br></blockquote><blockq=
-uote type=3D"cite"><span>Looking at the patch context, such code comes later=
-.</span><br></blockquote><span>But it causes regressions; without looking at=
- the "later" code, we can't afford merging</span><br><span>this code now.</s=
-pan><br><span></span><br><span>regards/srinidhi</span><br><span>--</span><br=
-><span>To unsubscribe from this list: send the line "unsubscribe linux-kerne=
-l" in</span><br><span>the body of a message to <a href=3D"mailto:majordomo@v=
-ger.kernel.org"><a href=3D"mailto:majordomo@vger.kernel.org">majordomo@vger.=
-kernel.org</a></a></span><br><span>More majordomo info at &nbsp;<a href=3D"h=
-ttp://vger.kernel.org/majordomo-info.html"><a href=3D"http://vger.kernel.org=
-/majordomo-info.html">http://vger.kernel.org/majordomo-info.html</a></a></sp=
-an><br><span>Please read the FAQ at &nbsp;<a href=3D"http://www.tux.org/lkml=
-/"><a href=3D"http://www.tux.org/lkml/">http://www.tux.org/lkml/</a></a></sp=
-an><br></div></blockquote></body></html>=
-
---Apple-Mail-4-1007408005--
-
-
---===============9221670036613574084==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============9221670036613574084==--
+diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+index 2f5322b..33b694e 100644
+--- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
++++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
+@@ -2,6 +2,30 @@ This is a list of trivial i2c devices that have simple device tree
+ bindings, consisting only of a compatible field, an address and
+ possibly an interrupt line.
+ 
++Device initialization is supported with an optional reg-init property.
++This property contains a sequence of commands to be written into the chip.
++Each command consists of four values: Register, command type, mask, and data.
++	Register:
++		Register or command address
++	Command type:
++		0: SMBus write byte
++		1: SMBus write byte data
++		2: SMBus write word data
++	Mask:
++		If set, the register is read and masked with this value.
++	Data:
++		Data to be written (or with original data and mask if set)
++
++Example:
++	max6696@1a {
++		compatible = "maxim,max6696";
++		reg = <0x1a>;
++		reg-init = <
++			0x09 1 0x00 0x24
++			0x21 1 0x00 0x05
++		>;
++	};
++
+ If a device needs more specific bindings, such as properties to
+ describe some aspect of it, there needs to be a specific binding
+ document for it just like any other devices.
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index a7edf98..49f8b74 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -104,6 +104,69 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+ #define i2c_device_uevent	NULL
+ #endif	/* CONFIG_HOTPLUG */
+ 
++static int i2c_dev_of_init(struct i2c_client *client, struct device *dev)
++{
++	const u32 *reg_init;
++	int rlen;
++	int val;
++	u32 reg, access, mask, data;
++
++	reg_init = of_get_property(dev->of_node, "reg-init", &rlen);
++	if (!reg_init)
++		return 0;
++
++	if (!rlen || rlen % 4)
++		return -EINVAL;
++
++	while (rlen >= 4) {
++		reg = reg_init[0];
++		access = reg_init[1];
++		mask = reg_init[2];
++		data = reg_init[3];
++
++		if (reg > 0xff)
++			return -EINVAL;
++
++		switch (access) {
++		default:
++			return -EINVAL;
++		case 0:
++			val = 0;
++			break;
++		case 1:
++			val = mask ? i2c_smbus_read_byte_data(client, reg) : 0;
++			break;
++		case 2:
++			val = mask ? i2c_smbus_read_word_data(client, reg) : 0;
++			break;
++		}
++		if (val < 0)
++			return val;
++
++		val &= mask;
++		val |= data;
++
++		switch (access) {
++		default:
++		case 0:
++			val = i2c_smbus_write_byte(client, reg);
++			break;
++		case 1:
++			val = i2c_smbus_write_byte_data(client, reg, val);
++			break;
++		case 2:
++			val = i2c_smbus_write_word_data(client, reg, val);
++			break;
++		}
++		if (val < 0)
++			return val;
++
++		reg_init += 4;
++		rlen -= 4 * sizeof(u32);
++	}
++	return 0;
++}
++
+ static int i2c_device_probe(struct device *dev)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+@@ -122,7 +185,12 @@ static int i2c_device_probe(struct device *dev)
+ 					client->flags & I2C_CLIENT_WAKE);
+ 	dev_dbg(dev, "probe\n");
+ 
++	status = i2c_dev_of_init(client, dev);
++	if (status)
++		goto error;
++
+ 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
++error:
+ 	if (status) {
+ 		client->driver = NULL;
+ 		i2c_set_clientdata(client, NULL);
+-- 
+1.7.9.7
