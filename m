@@ -1,508 +1,143 @@
-From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/3] i2c: at91: add dma support
-Date: Thu, 15 Nov 2012 18:21:27 +0100
-Message-ID: <50A52497.5000607@atmel.com>
-References: <1352911493-6979-1-git-send-email-ludovic.desroches@atmel.com> <1352911493-6979-4-git-send-email-ludovic.desroches@atmel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352911493-6979-4-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org
+From: Chuansheng Liu <lcs0208@gmail.com>
+Subject: Re: [PATCH 1/7] I2c-nomadik: Fix the usage of
+ wait_for_completion_timeout
+Date: Thu, 15 Nov 2012 18:52:36 +0800
+Message-ID: <C53EED5A-0C30-44EE-ADD5-6CBABFA3A0FE@gmail.com>
+References: <1352222317.15558.1584.camel@cliu38-desktop-build>
+ <CACRpkdYekQF5111NSNSPeaHdxgS_gpXkCjqT1n-n1_iAdDXbSg@mail.gmail.com>
+ <20121115084858.GA29668@bnru10> <20121115092953.GA418@pengutronix.de>
+ <20121115095741.GA6280@bnru10>
+Mime-Version: 1.0 (iPad Mail 8J3)
+Content-Type: multipart/mixed; boundary="===============9221670036613574084=="
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20121115095741.GA6280@bnru10>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
+Cc: "linus.walleij@linaro.org" <linus.walleij@linaro.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Wolfram Sang <w.sang@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "chuansheng.liu@intel.com" <chuansheng.liu@intel.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/14/2012 05:44 PM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
-> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> 
-> Add dma support for Atmel TWI which is available on sam9x5 and later.
-> 
-> When using dma for reception, you have to read only n-2 bytes. The last
-> two bytes are read manually. Don't doing this should cause to send the
-> STOP command too late and then to get extra data in the receive
-> register.
-> 
-> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-Even nicer ;-)
-
-Acked-by: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+--===============9221670036613574084==
+Content-Transfer-Encoding: 7bit
+Content-Type: multipart/alternative;
+	boundary=Apple-Mail-4-1007408005
 
 
-> ---
->  drivers/i2c/busses/i2c-at91.c | 306 ++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 298 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-> index 2c437df..ceef40f 100644
-> --- a/drivers/i2c/busses/i2c-at91.c
-> +++ b/drivers/i2c/busses/i2c-at91.c
-> @@ -19,6 +19,8 @@
->  
->  #include <linux/clk.h>
->  #include <linux/completion.h>
-> +#include <linux/dma-mapping.h>
-> +#include <linux/dmaengine.h>
->  #include <linux/err.h>
->  #include <linux/i2c.h>
->  #include <linux/interrupt.h>
-> @@ -29,9 +31,11 @@
->  #include <linux/of_i2c.h>
->  #include <linux/platform_device.h>
->  #include <linux/slab.h>
-> +#include <linux/platform_data/dma-atmel.h>
->  
->  #define TWI_CLK_HZ		100000			/* max 400 Kbits/s */
->  #define AT91_I2C_TIMEOUT	msecs_to_jiffies(100)	/* transfer timeout */
-> +#define AT91_I2C_DMA_THRESHOLD	8			/* enable DMA if transfer size is bigger than this threshold */
->  
->  /* AT91 TWI register definitions */
->  #define	AT91_TWI_CR		0x0000	/* Control Register */
-> @@ -69,6 +73,18 @@ struct at91_twi_pdata {
->  	unsigned clk_max_div;
->  	unsigned clk_offset;
->  	bool has_unre_flag;
-> +	bool has_dma_support;
-> +	struct at_dma_slave dma_slave;
-> +};
-> +
-> +struct at91_twi_dma {
-> +	struct dma_chan *chan_rx;
-> +	struct dma_chan *chan_tx;
-> +	struct scatterlist sg;
-> +	struct dma_async_tx_descriptor *data_desc;
-> +	enum dma_data_direction direction;
-> +	bool buf_mapped;
-> +	bool xfer_in_progress;
->  };
->  
->  struct at91_twi_dev {
-> @@ -80,10 +96,13 @@ struct at91_twi_dev {
->  	size_t buf_len;
->  	struct i2c_msg *msg;
->  	int irq;
-> +	unsigned imr;
->  	unsigned transfer_status;
->  	struct i2c_adapter adapter;
->  	unsigned twi_cwgr_reg;
->  	struct at91_twi_pdata *pdata;
-> +	bool use_dma;
-> +	struct at91_twi_dma dma;
->  };
->  
->  static unsigned at91_twi_read(struct at91_twi_dev *dev, unsigned reg)
-> @@ -102,6 +121,17 @@ static void at91_disable_twi_interrupts(struct at91_twi_dev *dev)
->  		       AT91_TWI_TXCOMP | AT91_TWI_RXRDY | AT91_TWI_TXRDY);
->  }
->  
-> +static void at91_twi_irq_save(struct at91_twi_dev *dev)
-> +{
-> +	dev->imr = at91_twi_read(dev, AT91_TWI_IMR) & 0x7;
-> +	at91_disable_twi_interrupts(dev);
-> +}
-> +
-> +static void at91_twi_irq_restore(struct at91_twi_dev *dev)
-> +{
-> +	at91_twi_write(dev, AT91_TWI_IER, dev->imr);
-> +}
-> +
->  static void at91_init_twi_bus(struct at91_twi_dev *dev)
->  {
->  	at91_disable_twi_interrupts(dev);
-> @@ -138,6 +168,28 @@ static void __devinit at91_calc_twi_clock(struct at91_twi_dev *dev, int twi_clk)
->  	dev_dbg(dev->dev, "cdiv %d ckdiv %d\n", cdiv, ckdiv);
->  }
->  
-> +static void at91_twi_dma_cleanup(struct at91_twi_dev *dev)
-> +{
-> +	struct at91_twi_dma *dma = &dev->dma;
-> +
-> +	at91_twi_irq_save(dev);
-> +
-> +	if (dma->xfer_in_progress) {
-> +		if (dma->direction == DMA_FROM_DEVICE)
-> +			dmaengine_terminate_all(dma->chan_rx);
-> +		else
-> +			dmaengine_terminate_all(dma->chan_tx);
-> +		dma->xfer_in_progress = false;
-> +	}
-> +	if (dma->buf_mapped) {
-> +		dma_unmap_single(dev->dev, sg_dma_address(&dma->sg),
-> +				 dev->buf_len, dma->direction);
-> +		dma->buf_mapped = false;
-> +	}
-> +
-> +	at91_twi_irq_restore(dev);
-> +}
-> +
->  static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
->  {
->  	if (dev->buf_len <= 0)
-> @@ -154,6 +206,60 @@ static void at91_twi_write_next_byte(struct at91_twi_dev *dev)
->  	++dev->buf;
->  }
->  
-> +static void at91_twi_write_data_dma_callback(void *data)
-> +{
-> +	struct at91_twi_dev *dev = (struct at91_twi_dev *)data;
-> +
-> +	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg),
-> +			 dev->buf_len, DMA_MEM_TO_DEV);
-> +
-> +	at91_twi_write(dev, AT91_TWI_CR, AT91_TWI_STOP);
-> +}
-> +
-> +static void at91_twi_write_data_dma(struct at91_twi_dev *dev)
-> +{
-> +	dma_addr_t dma_addr;
-> +	struct dma_async_tx_descriptor *txdesc;
-> +	struct at91_twi_dma *dma = &dev->dma;
-> +	struct dma_chan *chan_tx = dma->chan_tx;
-> +
-> +	if (dev->buf_len <= 0)
-> +		return;
-> +
-> +	dma->direction = DMA_TO_DEVICE;
-> +
-> +	at91_twi_irq_save(dev);
-> +	dma_addr = dma_map_single(dev->dev, dev->buf, dev->buf_len,
-> +				  DMA_TO_DEVICE);
-> +	if (dma_mapping_error(dev->dev, dma_addr)) {
-> +		dev_err(dev->dev, "dma map failed\n");
-> +		return;
-> +	}
-> +	dma->buf_mapped = true;
-> +	at91_twi_irq_restore(dev);
-> +	sg_dma_len(&dma->sg) = dev->buf_len;
-> +	sg_dma_address(&dma->sg) = dma_addr;
-> +
-> +	txdesc = dmaengine_prep_slave_sg(chan_tx, &dma->sg, 1, DMA_MEM_TO_DEV,
-> +					 DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-> +	if (!txdesc) {
-> +		dev_err(dev->dev, "dma prep slave sg failed\n");
-> +		goto error;
-> +	}
-> +
-> +	txdesc->callback = at91_twi_write_data_dma_callback;
-> +	txdesc->callback_param = dev;
-> +
-> +	dma->xfer_in_progress = true;
-> +	dmaengine_submit(txdesc);
-> +	dma_async_issue_pending(chan_tx);
-> +
-> +	return;
-> +
-> +error:
-> +	at91_twi_dma_cleanup(dev);
-> +}
-> +
->  static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
->  {
->  	if (dev->buf_len <= 0)
-> @@ -179,6 +285,61 @@ static void at91_twi_read_next_byte(struct at91_twi_dev *dev)
->  	++dev->buf;
->  }
->  
-> +static void at91_twi_read_data_dma_callback(void *data)
-> +{
-> +	struct at91_twi_dev *dev = (struct at91_twi_dev *)data;
-> +
-> +	dma_unmap_single(dev->dev, sg_dma_address(&dev->dma.sg),
-> +			 dev->buf_len, DMA_DEV_TO_MEM);
-> +
-> +	/* The last two bytes have to be read without using dma */
-> +	dev->buf += dev->buf_len - 2;
-> +	dev->buf_len = 2;
-> +	at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_RXRDY);
-> +}
-> +
-> +static void at91_twi_read_data_dma(struct at91_twi_dev *dev)
-> +{
-> +	dma_addr_t dma_addr;
-> +	struct dma_async_tx_descriptor *rxdesc;
-> +	struct at91_twi_dma *dma = &dev->dma;
-> +	struct dma_chan *chan_rx = dma->chan_rx;
-> +
-> +	dma->direction = DMA_FROM_DEVICE;
-> +
-> +	/* Keep in mind that we won't use dma to read the last two bytes */
-> +	at91_twi_irq_save(dev);
-> +	dma_addr = dma_map_single(dev->dev, dev->buf, dev->buf_len - 2,
-> +				  DMA_FROM_DEVICE);
-> +	if (dma_mapping_error(dev->dev, dma_addr)) {
-> +		dev_err(dev->dev, "dma map failed\n");
-> +		return;
-> +	}
-> +	dma->buf_mapped = true;
-> +	at91_twi_irq_restore(dev);
-> +	dma->sg.dma_address = dma_addr;
-> +	sg_dma_len(&dma->sg) = dev->buf_len - 2;
-> +
-> +	rxdesc = dmaengine_prep_slave_sg(chan_rx, &dma->sg, 1, DMA_DEV_TO_MEM,
-> +					 DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
-> +	if (!rxdesc) {
-> +		dev_err(dev->dev, "dma prep slave sg failed\n");
-> +		goto error;
-> +	}
-> +
-> +	rxdesc->callback = at91_twi_read_data_dma_callback;
-> +	rxdesc->callback_param = dev;
-> +
-> +	dma->xfer_in_progress = true;
-> +	dmaengine_submit(rxdesc);
-> +	dma_async_issue_pending(dma->chan_rx);
-> +
-> +	return;
-> +
-> +error:
-> +	at91_twi_dma_cleanup(dev);
-> +}
-> +
->  static irqreturn_t atmel_twi_interrupt(int irq, void *dev_id)
->  {
->  	struct at91_twi_dev *dev = dev_id;
-> @@ -228,12 +389,36 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  		if (dev->buf_len <= 1 && !(dev->msg->flags & I2C_M_RECV_LEN))
->  			start_flags |= AT91_TWI_STOP;
->  		at91_twi_write(dev, AT91_TWI_CR, start_flags);
-> -		at91_twi_write(dev, AT91_TWI_IER,
-> +		/*
-> +		 * When using dma, the last byte has to be read manually in
-> +		 * order to not send the stop command too late and then
-> +		 * to receive extra data. In practice, there are some issues
-> +		 * if you use the dma to read n-1 bytes because of latency.
-> +		 * Reading n-2 bytes with dma and the two last ones manually
-> +		 * seems to be the best solution.
-> +		 */
-> +		if (dev->use_dma && (dev->buf_len > AT91_I2C_DMA_THRESHOLD)) {
-> +			at91_twi_read_data_dma(dev);
-> +			/*
-> +			 * It is important to enable TXCOMP irq here because
-> +			 * doing it only when transferring the last two bytes
-> +			 * will mask NACK errors since TXCOMP is set when a
-> +			 * NACK occurs.
-> +			 */
-> +			at91_twi_write(dev, AT91_TWI_IER,
-> +			       AT91_TWI_TXCOMP);
-> +		} else
-> +			at91_twi_write(dev, AT91_TWI_IER,
->  			       AT91_TWI_TXCOMP | AT91_TWI_RXRDY);
->  	} else {
-> -		at91_twi_write_next_byte(dev);
-> -		at91_twi_write(dev, AT91_TWI_IER,
-> -			       AT91_TWI_TXCOMP | AT91_TWI_TXRDY);
-> +		if (dev->use_dma && (dev->buf_len > AT91_I2C_DMA_THRESHOLD)) {
-> +			at91_twi_write_data_dma(dev);
-> +			at91_twi_write(dev, AT91_TWI_IER, AT91_TWI_TXCOMP);
-> +		} else {
-> +			at91_twi_write_next_byte(dev);
-> +			at91_twi_write(dev, AT91_TWI_IER,
-> +				AT91_TWI_TXCOMP | AT91_TWI_TXRDY);
-> +		}
->  	}
->  
->  	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete,
-> @@ -241,23 +426,31 @@ static int at91_do_twi_transfer(struct at91_twi_dev *dev)
->  	if (ret == 0) {
->  		dev_dbg(dev->dev, "controller timed out\n");
->  		at91_init_twi_bus(dev);
-> -		return -ETIMEDOUT;
-> +		ret = -ETIMEDOUT;
-> +		goto error;
->  	}
->  	if (dev->transfer_status & AT91_TWI_NACK) {
->  		dev_dbg(dev->dev, "received nack\n");
-> -		return -EREMOTEIO;
-> +		ret = -EREMOTEIO;
-> +		goto error;
->  	}
->  	if (dev->transfer_status & AT91_TWI_OVRE) {
->  		dev_err(dev->dev, "overrun while reading\n");
-> -		return -EIO;
-> +		ret = -EIO;
-> +		goto error;
->  	}
->  	if (has_unre_flag && dev->transfer_status & AT91_TWI_UNRE) {
->  		dev_err(dev->dev, "underrun while writing\n");
-> -		return -EIO;
-> +		ret = -EIO;
-> +		goto error;
->  	}
->  	dev_dbg(dev->dev, "transfer complete\n");
->  
->  	return 0;
-> +
-> +error:
-> +	at91_twi_dma_cleanup(dev);
-> +	return ret;
->  }
->  
->  static int at91_twi_xfer(struct i2c_adapter *adap, struct i2c_msg *msg, int num)
-> @@ -328,36 +521,42 @@ static struct at91_twi_pdata at91rm9200_config = {
->  	.clk_max_div = 5,
->  	.clk_offset = 3,
->  	.has_unre_flag = true,
-> +	.has_dma_support = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9261_config = {
->  	.clk_max_div = 5,
->  	.clk_offset = 4,
->  	.has_unre_flag = false,
-> +	.has_dma_support = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9260_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
->  	.has_unre_flag = false,
-> +	.has_dma_support = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g20_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
->  	.has_unre_flag = false,
-> +	.has_dma_support = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9g10_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
->  	.has_unre_flag = false,
-> +	.has_dma_support = false,
->  };
->  
->  static struct at91_twi_pdata at91sam9x5_config = {
->  	.clk_max_div = 7,
->  	.clk_offset = 4,
->  	.has_unre_flag = false,
-> +	.has_dma_support = true,
->  };
->  
->  static const struct platform_device_id at91_twi_devtypes[] = {
-> @@ -404,6 +603,90 @@ MODULE_DEVICE_TABLE(of, atmel_twi_dt_ids);
->  #define atmel_twi_dt_ids NULL
->  #endif
->  
-> +static bool __devinit filter(struct dma_chan *chan, void *slave)
-> +{
-> +	struct at_dma_slave *sl = slave;
-> +
-> +	if (sl->dma_dev == chan->device->dev) {
-> +		chan->private = sl;
-> +		return true;
-> +	} else {
-> +		return false;
-> +	}
-> +}
-> +
-> +static int __devinit at91_twi_configure_dma(struct at91_twi_dev *dev, u32 phy_addr)
-> +{
-> +	int ret = 0;
-> +	struct at_dma_slave *sdata;
-> +	struct dma_slave_config slave_config;
-> +	struct at91_twi_dma *dma = &dev->dma;
-> +
-> +	sdata = &dev->pdata->dma_slave;
-> +
-> +	memset(&slave_config, 0, sizeof(slave_config));
-> +	slave_config.src_addr = (dma_addr_t)phy_addr + AT91_TWI_RHR;
-> +	slave_config.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
-> +	slave_config.src_maxburst = 1;
-> +	slave_config.dst_addr = (dma_addr_t)phy_addr + AT91_TWI_THR;
-> +	slave_config.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
-> +	slave_config.dst_maxburst = 1;
-> +	slave_config.device_fc = false;
-> +
-> +	if (sdata && sdata->dma_dev) {
-> +		dma_cap_mask_t mask;
-> +
-> +		dma_cap_zero(mask);
-> +		dma_cap_set(DMA_SLAVE, mask);
-> +		dma->chan_tx = dma_request_channel(mask, filter, sdata);
-> +		if (!dma->chan_tx) {
-> +			dev_err(dev->dev, "no DMA channel available for tx\n");
-> +			ret = -EBUSY;
-> +			goto error;
-> +		}
-> +		dma->chan_rx = dma_request_channel(mask, filter, sdata);
-> +		if (!dma->chan_rx) {
-> +			dev_err(dev->dev, "no DMA channel available for rx\n");
-> +			ret = -EBUSY;
-> +			goto error;
-> +		}
-> +	} else {
-> +		ret = -EINVAL;
-> +		goto error;
-> +	}
-> +
-> +	slave_config.direction = DMA_MEM_TO_DEV;
-> +	if (dmaengine_slave_config(dma->chan_tx, &slave_config)) {
-> +		dev_err(dev->dev, "failed to configure tx channel\n");
-> +		ret = -EINVAL;
-> +		goto error;
-> +	}
-> +
-> +	slave_config.direction = DMA_DEV_TO_MEM;
-> +	if (dmaengine_slave_config(dma->chan_rx, &slave_config)) {
-> +		dev_err(dev->dev, "failed to configure rx channel\n");
-> +		ret = -EINVAL;
-> +		goto error;
-> +	}
-> +
-> +	sg_init_table(&dma->sg, 1);
-> +	dma->buf_mapped = false;
-> +	dma->xfer_in_progress = false;
-> +
-> +	dev_info(dev->dev, "using %s (tx) and %s (rx) for DMA transfers\n",
-> +		 dma_chan_name(dma->chan_tx), dma_chan_name(dma->chan_rx));
-> +
-> +	return ret;
-> +
-> +error:
-> +	dev_info(dev->dev, "can't use DMA\n");
-> +	if (dma->chan_rx)
-> +		dma_release_channel(dma->chan_rx);
-> +	if (dma->chan_tx)
-> +		dma_release_channel(dma->chan_tx);
-> +	return ret;
-> +}
-> +
->  static struct at91_twi_pdata * __devinit at91_twi_get_driver_data(
->  					struct platform_device *pdev)
->  {
-> @@ -422,6 +705,7 @@ static int __devinit at91_twi_probe(struct platform_device *pdev)
->  	struct at91_twi_dev *dev;
->  	struct resource *mem;
->  	int rc;
-> +	u32 phy_addr;
->  
->  	dev = devm_kzalloc(&pdev->dev, sizeof(*dev), GFP_KERNEL);
->  	if (!dev)
-> @@ -432,6 +716,7 @@ static int __devinit at91_twi_probe(struct platform_device *pdev)
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->  	if (!mem)
->  		return -ENODEV;
-> +	phy_addr = mem->start;
->  
->  	dev->pdata = at91_twi_get_driver_data(pdev);
->  	if (!dev->pdata)
-> @@ -461,6 +746,11 @@ static int __devinit at91_twi_probe(struct platform_device *pdev)
->  	}
->  	clk_prepare_enable(dev->clk);
->  
-> +	if (dev->pdata->has_dma_support) {
-> +		if (at91_twi_configure_dma(dev, phy_addr) == 0)
-> +			dev->use_dma = true;
-> +	}
-> +
->  	at91_calc_twi_clock(dev, TWI_CLK_HZ);
->  	at91_init_twi_bus(dev);
->  
-> 
+--Apple-Mail-4-1007408005
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+	charset=utf-8
+
+timeout is never < 0, so status =3D timeout is never getting run. This patch=
+ delete pointless
+code. Could you show the regression? Thanks.
+
+=E5=9C=A8 2012-11-15=EF=BC=8C17:57=EF=BC=8CSrinidhi Kasagar <srinidhi.kasaga=
+r@stericsson.com> =E5=86=99=E9=81=93=EF=BC=9A
+
+> On Thu, Nov 15, 2012 at 10:29:53 +0100, Wolfram Sang wrote:
+>>=20
+>>>> -       if (timeout < 0) {
+>>>> -               dev_err(&dev->adev->dev,
+>>>> -                       "wait_for_completion_timeout "
+>>>> -                       "returned %d waiting for event\n", timeout);
+>>>> -               status =3D timeout;
+>>>> -       }
+>>>> -
+>>> No, it is wrong. You need to update the status variable in the case of t=
+imeout.
+>>=20
+>> Looking at the patch context, such code comes later.
+> But it causes regressions; without looking at the "later" code, we can't a=
+fford merging
+> this code now.
+>=20
+> regards/srinidhi
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in=
+
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+--Apple-Mail-4-1007408005
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html;
+	charset=utf-8
+
+<html><body bgcolor=3D"#FFFFFF"><div>timeout is never &lt; 0, so&nbsp;<span c=
+lass=3D"Apple-style-span" style=3D"-webkit-tap-highlight-color: rgba(26, 26,=
+ 26, 0.292969); -webkit-composition-fill-color: rgba(175, 192, 227, 0.230469=
+); -webkit-composition-frame-color: rgba(77, 128, 180, 0.230469); color: rgb=
+(148, 0, 14); ">status =3D timeout is never getting run. This patch delete p=
+ointless</span></div><div><font class=3D"Apple-style-span" color=3D"#94000E"=
+><span class=3D"Apple-style-span" style=3D"-webkit-tap-highlight-color: rgba=
+(26, 26, 26, 0.292969); -webkit-composition-fill-color: rgba(175, 192, 227, 0=
+.230469); -webkit-composition-frame-color: rgba(77, 128, 180, 0.230469);">co=
+de. Could you show the regression? Thanks.<br></span></font><br></div><div>=E5=
+=9C=A8 2012-11-15=EF=BC=8C17:57=EF=BC=8CSrinidhi Kasagar &lt;<a href=3D"mail=
+to:srinidhi.kasagar@stericsson.com">srinidhi.kasagar@stericsson.com</a>&gt; =E5=
+=86=99=E9=81=93=EF=BC=9A<br><br></div><div></div><blockquote type=3D"cite"><=
+div><span>On Thu, Nov 15, 2012 at 10:29:53 +0100, Wolfram Sang wrote:</span>=
+<br><blockquote type=3D"cite"><span></span><br></blockquote><blockquote type=
+=3D"cite"><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;=
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if (timeout &lt; 0) {</span><br></blockquote><=
+/blockquote></blockquote><blockquote type=3D"cite"><blockquote type=3D"cite"=
+><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp=
+;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dev_err(&amp;dev-&gt;adev-&gt;dev=
+,</span><br></blockquote></blockquote></blockquote><blockquote type=3D"cite"=
+><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"wait_for_completion_timeout "</spa=
+n><br></blockquote></blockquote></blockquote><blockquote type=3D"cite"><bloc=
+kquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&nbsp;&nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"returned %d waiting for event\n", timeou=
+t);</span><br></blockquote></blockquote></blockquote><blockquote type=3D"cit=
+e"><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nbsp;&nbsp;&=
+nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;statu=
+s =3D timeout;</span><br></blockquote></blockquote></blockquote><blockquote t=
+ype=3D"cite"><blockquote type=3D"cite"><blockquote type=3D"cite"><span>- &nb=
+sp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}</span><br></blockquote></blockquote></blo=
+ckquote><blockquote type=3D"cite"><blockquote type=3D"cite"><blockquote type=
+=3D"cite"><span>-</span><br></blockquote></blockquote></blockquote><blockquo=
+te type=3D"cite"><blockquote type=3D"cite"><span>No, it is wrong. You need t=
+o update the status variable in the case of timeout.</span><br></blockquote>=
+</blockquote><blockquote type=3D"cite"><span></span><br></blockquote><blockq=
+uote type=3D"cite"><span>Looking at the patch context, such code comes later=
+.</span><br></blockquote><span>But it causes regressions; without looking at=
+ the "later" code, we can't afford merging</span><br><span>this code now.</s=
+pan><br><span></span><br><span>regards/srinidhi</span><br><span>--</span><br=
+><span>To unsubscribe from this list: send the line "unsubscribe linux-kerne=
+l" in</span><br><span>the body of a message to <a href=3D"mailto:majordomo@v=
+ger.kernel.org"><a href=3D"mailto:majordomo@vger.kernel.org">majordomo@vger.=
+kernel.org</a></a></span><br><span>More majordomo info at &nbsp;<a href=3D"h=
+ttp://vger.kernel.org/majordomo-info.html"><a href=3D"http://vger.kernel.org=
+/majordomo-info.html">http://vger.kernel.org/majordomo-info.html</a></a></sp=
+an><br><span>Please read the FAQ at &nbsp;<a href=3D"http://www.tux.org/lkml=
+/"><a href=3D"http://www.tux.org/lkml/">http://www.tux.org/lkml/</a></a></sp=
+an><br></div></blockquote></body></html>=
+
+--Apple-Mail-4-1007408005--
 
 
--- 
-Nicolas Ferre
+--===============9221670036613574084==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+linux-arm-kernel mailing list
+linux-arm-kernel@lists.infradead.org
+http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
+
+--===============9221670036613574084==--
