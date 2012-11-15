@@ -1,8 +1,8 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 6/7] decode-dimms: Bad manufacturer page count parity is not
- fatal
-Date: Thu, 15 Nov 2012 12:58:29 +0100
-Message-ID: <20121115125829.28b2580e@endymion.delvare>
+Subject: [PATCH 7/7] decode-dimms: Strip former manufacturer name in
+ side-by-side mode
+Date: Thu, 15 Nov 2012 12:59:21 +0100
+Message-ID: <20121115125921.01795f05@endymion.delvare>
 References: <20121115115231.341ac0c9@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -13,31 +13,22 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If DDR3 manufacturer page count parity is wrong, still print the
-manufacturer name (if valid) but add a question mark.
+Strip former manufacturer name in side-by-side output mode, to avoid
+overly large columns.
 ---
- eeprom/decode-dimms |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ eeprom/decode-dimms |    1 +
+ 1 file changed, 1 insertion(+)
 
---- i2c-tools.orig/eeprom/decode-dimms	2012-11-15 11:45:52.020974740 +0100
-+++ i2c-tools/eeprom/decode-dimms	2012-11-15 11:47:17.878976012 +0100
-@@ -337,10 +337,13 @@ sub parity($)
- sub manufacturer_ddr3($$)
- {
- 	my ($count, $code) = @_;
--	return "Invalid" if parity($count) != 1;
-+	my $manufacturer;
-+
+--- i2c-tools.orig/eeprom/decode-dimms	2012-11-15 11:47:17.878976012 +0100
++++ i2c-tools/eeprom/decode-dimms	2012-11-15 11:47:19.684976039 +0100
+@@ -342,6 +342,7 @@ sub manufacturer_ddr3($$)
  	return "Invalid" if parity($code) != 1;
--	return (($code & 0x7F) - 1 > $vendors[$count & 0x7F]) ? "Unknown" :
--		$vendors[$count & 0x7F][($code & 0x7F) - 1];
-+	return "Unknown" if ($code & 0x7F) - 1 > $vendors[$count & 0x7F];
-+	$manufacturer = $vendors[$count & 0x7F][($code & 0x7F) - 1];
-+	$manufacturer .= "? (Invalid parity)" if parity($count) != 1;
-+	return $manufacturer;
+ 	return "Unknown" if ($code & 0x7F) - 1 > $vendors[$count & 0x7F];
+ 	$manufacturer = $vendors[$count & 0x7F][($code & 0x7F) - 1];
++	$manufacturer =~ s/ \(former .*\)$// if $opt_side_by_side;
+ 	$manufacturer .= "? (Invalid parity)" if parity($count) != 1;
+ 	return $manufacturer;
  }
- 
- sub manufacturer(@)
 
 -- 
 Jean Delvare
