@@ -1,52 +1,64 @@
-From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: Add possibility for user-defined (i2c-)devices
- for bus-drivers.
-Date: Thu, 15 Nov 2012 00:34:41 +0100
-Message-ID: <50A42A91.2000202@ahsoftware.de>
-References: <1352829968-4908-1-git-send-email-holler@ahsoftware.de>  <20121113195533.6db71716@endymion.delvare> <50A2AC28.7050304@ahsoftware.de>  <20121113220835.111a178a@endymion.delvare> <50A2BAA2.6090009@ahsoftware.de>  <20121113224246.768bf734@endymion.delvare> <50A2DA0C.3090507@ahsoftware.de>  <20121114104050.79df8cd9@endymion.delvare>   <50A390CC.9000208@ahsoftware.de> <1352920954.19432.2.camel@Nokia-N900>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH] i2c: mxs: Handle i2c DMA failure properly
+Date: Thu, 15 Nov 2012 05:01:17 +0100
+Message-ID: <201211150501.18009.marex@denx.de>
+References: <1352903508-18113-1-git-send-email-marex@denx.de> <201211141622.22161.marex@denx.de> <CANqk_c-f3+a=f1QqWFxEpGcMQRqMD61eHiXNLyfzciJkzPGMRA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352920954.19432.2.camel@Nokia-N900>
+In-Reply-To: <CANqk_c-f3+a=f1QqWFxEpGcMQRqMD61eHiXNLyfzciJkzPGMRA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org" <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am 14.11.2012 20:22, schrieb till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org:
-> Hi,
+Dear Tim Michals,
+
+> On Wed, Nov 14, 2012 at 9:22 AM, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org> wrote:
+> > Dear Fabio Estevam,
+> > 
+> > > Hi Marek,
+> > > 
+> > > On Wed, Nov 14, 2012 at 12:31 PM, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org> wrote:
+> > > > Properly terminate the DMA transfer in case the DMA PIO transfer
+> > > > or setup fails for any reason. While at it, enable support for
+> > > > SMBUS_QUICK. This essentially fixes i2c-detect on this IP.
+> > > 
+> > > Shouldn't this be split into two patches?
+> > 
+> > It should, but then it fixes one problem, so I stuck it into one ...
+> > 
+> > > Regards,
+> > > 
+> > > Fabio Estevam
+> > 
+> > Best regards,
+> > Marek Vasut
 >
-> i have seen i2c chips going nuts because some probing actually affected the chips state. So i fully agree with Jean here.
+> Dear Marek Vasut,
+> 
+> This patch
+>  @@ -150,8 +150,6 @@ static void mxs_i2c_reset(struct mxs_i2c
+>   writel(i2c->speed->timing2, i2c->regs + MXS_I2C_TIMING2);
+> 
+>   writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
+> -
+> - dmaengine_terminate_all(i2c->dmach);
+>  }
 
-I'm fully aware of that.
+This patch doesn't apply, can you elaborate ?
 
-> I2C just isn't meant to be used for hot plugging. And so isn't the i2c-tiny-usb. It's more a hacking and testing device and is e.g. very convenient to test i2c client drivers or to test some new i2c hardware. But i have never had a need for this before user land was available. And once it is you can really do any magic you want using e.g. udev and sysfs.
+Moreover ... read either RFC1855 properly [1] and/or read the mailing list 
+etiquette please (!). Especially the part about top-posting. Do us a favor.
 
-So I conclude you don't accept my patch too.
+> This patch fixes current DMA requests which time out or error returned by
+> the ISR.
+> 
+> Tim
 
-> Also if you really need some chip to be available at boot time, then usb isn't for you. Usb can take pretty long to enumerate etc and you can never be sure when exactly a device shows up on the usb bus. You'd thus additionally need some means of blocking the entire boot process if you want to enforce that. E.g. the kernel can wait for boot disks to appear for exactly this reason. But it wouldn't make much sense to delay the boot for less cruicial things. Boot time is a critical thing and only the most important things are supposed to have a negative impact on that.
+[1] http://www.ietf.org/rfc/rfc1855.txt
 
-Some people are booting from USB, including the small server this mail 
-goes through. I wonder why you consider the boot time a critical thing. 
-This device isn't meant for some industrial (embedded) application. And 
-most people are booting only seldom their desktop (not to speak about 
-servers).
-
-
-> If you wan't an i2c device to be available at boot time, then you might consider to connect it to some non-volatile i2c bus. I am pretty sure the raspberry pi has one.
-
-I don't have a Rasberry Pi and I don't need one.
-
-Sorry, but think all of you have the impression I'm a dumb kid, playing 
-with some silly hardware. How does that come? I might be even older than 
-you. ;)
-
-Anyway, if someone of you is curious why I've undergone all the pain 
-trying to submit a simple patch, here you can find a first draft:
-
-http://ahsoftware.de/usb-rtc/
-
-Regards,
-
-Alexander
+Best regards,
+Marek Vasut
