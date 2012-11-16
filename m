@@ -1,61 +1,40 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: s3c2410: Add fix for i2c suspend/resume
-Date: Fri, 16 Nov 2012 13:07:03 +0100
-Message-ID: <20121116120703.GH19028@pengutronix.de>
-References: <1352182259-28903-1-git-send-email-a.kesavan@samsung.com>
- <CAM=Q2ctBMmg32-Dd6V5pwEEzxCnATs1se4RD_+zgLLOGohgSzw@mail.gmail.com>
- <CAM4voa=hnKR_ovUu_uzy8o5wQ2WXazKceLTWh=tj02YWRgRbYA@mail.gmail.com>
- <CAM4voa==f81W-pC80Q43NzvF6uXXVZmLH2_Ta4A3x3EuboQWVA@mail.gmail.com>
- <20121116114617.GE19028@pengutronix.de>
+From: willims gebrel <willims.gebrel-ZDRrIK9Sz5o@public.gmane.org>
+Subject: Williams
+Date: Fri, 16 Nov 2012 12:59:21 +0000 (GMT)
+Message-ID: <1353070761.32104.YahooMailClassic@web171705.mail.ir2.yahoo.com>
+Reply-To: williamsgebrel786-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ISKrrfpKsPiF35CV"
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20121116114617.GE19028-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Abhilash Kesavan <kesavan.abhilash-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---ISKrrfpKsPiF35CV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+My Dear,
 
-On Fri, Nov 16, 2012 at 12:46:17PM +0100, Wolfram Sang wrote:
-> On Wed, Nov 14, 2012 at 09:10:33AM +0530, Abhilash Kesavan wrote:
-> > Hi,
-> >=20
-> > Any comments on this fix ?
->=20
-> Yes, I agree with Shubhrajyoti here and the code should be refactored so
-> that gpio initialization is only done once at probe-time unless there is
-> a real reason to do at suspend/resume.
+ 
 
-Note that I just applied a few patches to s3c2410 also touching this
-area. Would be nice if you could wait a bit until I pushed out my
-for-next branch later today and base on that. Or wait for 3.8-rc1.
+I'm happy to inform you about my success in getting those funds transferred under the cooperation of my new partner from Canada based business man; presently I'm in Bahamas for investment projects with my own share of the total sum. Meanwhile, I didn't forget your past efforts and attempts to assist me in transferring those funds despite that it failed us somehow.
 
-Thanks,
+ 
 
-   Wolfram
+Now contact my patina personal adviser in Togo, his name is HON REV.PETER SMITH of church embassy ministry Togo, E-mail: fortbendlawlegal-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+ 
 
---ISKrrfpKsPiF35CV
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Ask him to send you the official Draft check of $500.000.00 or by cash which I gave him as order to kept for your compensation for all the past efforts and attempts to assist me in this matter before. I appreciated your collective efforts at that time, so feel free and get in touch with my patina adviser HON.REV. PETER SMITH and instruct him where to send the amount to you. Please do let me know immediately you receive it so that we can share the joy after all the sufferings at that time.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+ 
 
-iEYEARECAAYFAlCmLGcACgkQD27XaX1/VRv+owCeOVGnPDWTS5uNMu0Ej3rt0+Iu
-cjMAoLk8iyHlF8Pvw+k16uUwt53ftF2V
-=L+ix
------END PGP SIGNATURE-----
+in the moment, I am very busy here In Bahamas because of the investment projects which myself and the new partner are having at hand without confrontations, finally, remember that I had forwarded instruction to the REV.PETER SMITH on your behalf to send you the check or by cash as my patina deposited to him on your name before he left to Canada where he based.
 
---ISKrrfpKsPiF35CV--
+ 
+
+So feel free to get in touch with HON REV.PETER SMITH he will send the amount to you without any delay.
+
+ 
+
+With best regards,
+
+Williams
