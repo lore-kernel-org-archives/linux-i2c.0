@@ -1,34 +1,42 @@
-From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCHv3] i2c: omap: Move the remove constraint
-Date: Sat, 17 Nov 2012 23:15:18 +0530
-Message-ID: <CAM=Q2cuX4j1uELVOurtSuDfN3CtEn3VejYUdMS24yaO7ru=Mdg@mail.gmail.com>
-References: <1352969361-10521-1-git-send-email-shubhrajyoti@ti.com>
-	<20121116142006.GG7313@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: Kconfig: Allow I2C_MXS to be selected by MX23
+Date: Sat, 17 Nov 2012 17:48:54 -0200
+Message-ID: <1353181734-13253-1-git-send-email-festevam@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121116142006.GG7313-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: f.koliqi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 16, 2012 at 7:50 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Thu, Nov 15, 2012 at 02:19:21PM +0530, Shubhrajyoti D wrote:
->> Currently we just queue the transfer and release the
->> qos constraints, however we do not wait for the transfer
->> to complete to release the constraint. Move the remove
->> constraint after the bus busy as we are sure that the
->> transfers are completed by then.
->>
->> Acked-by: Jean Pihet <j-pihet-l0cyMroinI0@public.gmane.org>
->> Signed-off-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
->
-> Applied to for-next. Please let me know if it should go to for-current.
+From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-I feel for-next should be fine.
+With the recent DMA support addition to the i2c-mxs driver, it is now possible 
+to also run it on mx23, so update the Kconfig entry accordingly.
 
->
-> --
-> Pengutronix e.K.                           | Wolfram Sang                |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/i2c/busses/Kconfig |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index e9df461..34f48f3 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -482,12 +482,12 @@ config I2C_MV64XXX
+ 	  will be called i2c-mv64xxx.
+ 
+ config I2C_MXS
+-	tristate "Freescale i.MX28 I2C interface"
+-	depends on SOC_IMX28
++	tristate "Freescale MXS I2C interface"
++	depends on ARCH_MXS
+ 	select STMP_DEVICE
+ 	help
+ 	  Say Y here if you want to use the I2C bus controller on
+-	  the Freescale i.MX28 processors.
++	  the Freescale MXS processors.
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mxs.
+-- 
+1.7.9.5
