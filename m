@@ -1,42 +1,41 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: Kconfig: Allow I2C_MXS to be selected by MX23
-Date: Sat, 17 Nov 2012 17:48:54 -0200
-Message-ID: <1353181734-13253-1-git-send-email-festevam@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: f.koliqi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: Re: [PATCH 0/5] i2c-sh_mobile non-urgent changes
+Date: Sun, 18 Nov 2012 00:27:11 +0100 (CET)
+Message-ID: <Pine.LNX.4.64.1211180022331.30062@axis700.grange>
+References: <5087C93F.6080601@renesas.com> <20121116080704.GC8464@pengutronix.de>
+ <50A5FF0D.4020502@renesas.com>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <50A5FF0D.4020502@renesas.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Shinya Kuribayashi <shinya.kuribayashi.px@renesas.com>
+Cc: w.sang@pengutronix.de, linux-arm-kernel@lists.infradead.org, magnus.damm@gmail.com, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-sh@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+On Fri, 16 Nov 2012, Shinya Kuribayashi wrote:
 
-With the recent DMA support addition to the i2c-mxs driver, it is now possible 
-to also run it on mx23, so update the Kconfig entry accordingly.
+> On 11/16/2012 5:07 PM, Wolfram Sang wrote:
+> > Looks good to me, like the extensive patch descriptions. I am going to
+> > apply it to for-next with patches 2+3 squashed, because after patch 2 we
+> > would have a buggy state otherwise. Let me know if you are not okay with
+> > that.
+> 
+> It's not that buggy as you/we think, in most cases it work without
+> problem.  What's more important for me is to record the issue and
+> how to solve it.  So I'd like to have patch 2 and 3 separately.
 
-Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+I agree with Wolfram. For developers it can be important to know their own 
+development process, that's true. But for upstream it is an absolute 
+preference to avoid breakages. So, we should never commit patches, that 
+are known to contain problems. In this case it means, that patches 2 and 3 
+should be merged. It is good, that the problem has been detected and fixed 
+during development or testing, this gives us a chance to avoid breaking 
+the mainline, which we should certainly use.
+
+Thanks
+Guennadi
 ---
- drivers/i2c/busses/Kconfig |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index e9df461..34f48f3 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -482,12 +482,12 @@ config I2C_MV64XXX
- 	  will be called i2c-mv64xxx.
- 
- config I2C_MXS
--	tristate "Freescale i.MX28 I2C interface"
--	depends on SOC_IMX28
-+	tristate "Freescale MXS I2C interface"
-+	depends on ARCH_MXS
- 	select STMP_DEVICE
- 	help
- 	  Say Y here if you want to use the I2C bus controller on
--	  the Freescale i.MX28 processors.
-+	  the Freescale MXS processors.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mxs.
--- 
-1.7.9.5
+Guennadi Liakhovetski, Ph.D.
+Freelance Open-Source Software Developer
+http://www.open-technology.de/
