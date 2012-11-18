@@ -1,204 +1,534 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: tfp410 and i2c_bus_num
-Date: Sun, 18 Nov 2012 13:34:37 +0200
-Message-ID: <20121118113437.GB30462@arwen.pp.htv.fi>
-References: <1353068553-26897-1-git-send-email-tomi.valkeinen@ti.com>
- <20121116135155.GE18527@arwen.pp.htv.fi>
- <50A64D35.9050109@ti.com>
- <20121116151959.GA19411@arwen.pp.htv.fi>
- <50A65E40.9040208@ti.com>
- <20121116182146.GC20496@arwen.pp.htv.fi>
- <50A72390.3050509@ti.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
+Subject: =?UTF-8?q?=5BPATCH=20v4=201/4=5D=20i2c=3A=20introduce=20i2c-cbus-gpio=20driver?=
+Date: Sun, 18 Nov 2012 18:36:19 +0200
+Message-ID: <1353256582-12166-2-git-send-email-aaro.koskinen@iki.fi>
+References: <1353256582-12166-1-git-send-email-aaro.koskinen@iki.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lEGEL1/lMxI0MVQ2"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <50A72390.3050509-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1353256582-12166-1-git-send-email-aaro.koskinen-X3B1VOXEql0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>
-Cc: balbi-l0cyMroinI0@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---lEGEL1/lMxI0MVQ2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add i2c driver to enable access to devices behind CBUS on Nokia Interne=
+t
+Tablets.
 
-Hi,
+The patch also adds CBUS I2C configuration for N8x0 which is one of the
+users of this driver.
 
-On Sat, Nov 17, 2012 at 07:41:36AM +0200, Tomi Valkeinen wrote:
-> On 2012-11-16 20:21, Felipe Balbi wrote:
-> > Hi,
-> >=20
-> > On Fri, Nov 16, 2012 at 05:39:44PM +0200, Tomi Valkeinen wrote:
-> >>>>> To be fair, the whole i2c_bus_num looks like a big hackery introduc=
-ed by
-> >>>>> the way panel drivers are written for OMAP DSS.
-> >>>>>
-> >>>>> TFP410 is an I2C client, not an OMAPDSS client. After a quick look =
-at
-> >>>>> the driver, there's is no such thing as a DSS bus, so looks like you
-> >>>>> should have an I2C driver for TFP410 and the whole DSS stuff should=
- be
-> >>>>> just a list of clients, but not a struct bus at all.
-> >>>>>
-> >>>>> The fact that you have to pass the I2C bus number down to the panel
-> >>>>> driver is already a big indication of how wrong this is, IMHO.
-> >>>>
-> >>>> Without going deeper in the dss device model problems, I would agree
-> >>>> with you if this was about i2c panel, but this is not quite like tha=
-t.
-> >>>>
-> >>>> A panel controlled via i2c would be an i2c device. But TFP410 is not
-> >>>> controlled via i2c. It's not really controlled at all except via
-> >>>> power-down gpio. TFP410 doesn't need the i2c to be functional at all.
-> >>>
-> >>> then why does it need the i2c adapter ? What is this power-down gpio ?
-> >>> Should that be hidden under gpiolib instead ?
-> >>
-> >> For the i2c, see below. Power-down GPIO is used to power down and up t=
-he
-> >> tfp410 chip.
-> >=20
-> > that much I guessed ;-) Should it be hidden under gpiolib ?
->=20
-> I have to say I have no idea what you mean... Hidden how?
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Acked-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Acked-by: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+---
+ .../devicetree/bindings/i2c/i2c-cbus-gpio.txt      |   27 ++
+ arch/arm/mach-omap2/board-n8x0.c                   |   42 +++
+ drivers/i2c/busses/Kconfig                         |   10 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-cbus-gpio.c                 |  300 ++++++++++++=
+++++++++
+ include/linux/platform_data/i2c-cbus-gpio.h        |   27 ++
+ 6 files changed, 407 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-cbus-gpio=
+=2Etxt
+ create mode 100644 drivers/i2c/busses/i2c-cbus-gpio.c
+ create mode 100644 include/linux/platform_data/i2c-cbus-gpio.h
 
-how are you toggling the gpio ? You said tfp410 isn't controlled at all
-except for the power down gpio. Who provides the gpio ?
-
-> >>>> The i2c lines do not even touch TFP410 chip, so to be precise, the i=
-2c
-> >>>> lines should not be TFP410's concern. The i2c lines come from the
-> >>>> monitor and go to OMAP's i2c pins. But TFP410 driver is a convenient
-> >>>> place to manage them.
-> >>>
-> >>> fair enough... but who's actually using those i2c lines ? OMAP is the
-> >>> I2C master, who's the slave ? It's something in the monitor, I assume=
-=2E..
-> >>>
-> >>> IIUC, this I2C bus goes over the HDMI wire ?
-> >>
-> >> Yes, the i2c goes over HDMI wire. OMAP is the master, monitor is the
-> >> slave. You can see some more info from
-> >> http://en.wikipedia.org/wiki/Display_Data_Channel under DDC2 section.
-> >>
-> >> It is used to read the EDID
-> >> (http://en.wikipedia.org/wiki/Extended_display_identification_data)
-> >> information from the monitor, which tells things like supported video
-> >> timings etc.
-> >>
-> >> As for why the tfp410 driver handles the i2c... We don't have a better
-> >> place. There's no driver for the monitor. Although in the future with
-> >=20
-> > than that's wrong :-) If TFP410 isn't really using I2C it shouldn't need
-> > the whole i2c_bus_num logic. I'm far from fully understanding dss
-> > architecture but it looks like what you want is a generic 'i2c-edid.c'
-> > which just reads the edid structure during probe and caches the values
-> > and exposes them via sysfs ?!? (perhaps you also need a kernel API to
-> > read those values... I don't know; but that's also doable).
->=20
-> Well, it's not that simple. TFP410 manages hot plug detection of the
-> HDMI cable (although not implemented currently), so the we'd need to
-> convey that information to the i2c-edid somehow. Which, of course, is
-> doable, but increases complexity.
-
-I'd say it would decrease it since you would have a single copy of
-i2c-edid.c for DRM or DSS or any other panel/display framework.
-
-> Another thing is that even if in this case the i2c and EDID reading are
-> separate from the actual video path, that may not be the case for other
-> display solutions. We could have a DSI panel which reports its
-> resolution via DSI bus, or we could have an external DSI-to-HDMI chip,
-> which reads the EDID via i2c from the monitor, but reports them back to
-> the SoC via DSI bus.
-
-In this last case we would see just the DSI, not the I2C bus, so it's
-like I2C bus doesn't exist, so in fact we would have two possibilities:
-
-a) read EDID via I2C bus (standard HDMI)
-b) read EDID via DSI.
-
-b) doesn't exist today so we need to care about it until something like
-what you say shows up in the market. Until then, we care for EDID over
-I2C IMHO.
-
-> So we need a generic way to get the resolution information, and it makes
-> sense to have this in the components of the video path, not in a
-> separate driver which is not part of the video path as such.
-
-But the I2C bus isn't part of the video path anyway. It's a completely
-separate path which is dedicated to reading EDID. If you need a generic
-way for that case you wanna cope with other methods for reading EDID,
-then you need a generic layer which doesn't care if it's I2C or DSI.
-Currently implementation is hardcoded to I2C anyway.
-
-In fact current implementation is far worse than having an extra
-i2c-edid.c driver because it doesn't encapsulate EDID implementation
-=66rom tfp410.
-
-Then moment you need to read EDID via DSI, you will likely have to pass
-a DSI handle to e.g. TFP410 so it can read EDID via DSI.
-
-What I'm suggesting, however, is that you have a layer hiding all that.
-Make your i2c-edid.c driver read EDID and report it to this generic
-layer, if some other driver in kernel needs the information, you should
-be calling into this generic edid layer to get the cached values.
-
-If you don't need that data in kernel, then just expose it through a set
-of standard sysfs files and teach Xorg about those.
-
-> And while the above issues could perhaps be solved, all we do is read
-> one or two 128 byte datablocks from the i2c device. I'm not sure if the
-> extra complexity is worth it. At least it's not on the top of my todo
-
-When you have EDID over DSI, what will you do ?
-
-> list as long as the current solution works =3D).
-
-that's your choice.
-
-> > If you have a generic i2c-edid.c simple driver, I guess X could be
-> > changes to read those values from sysfs and take actions based on those.
->=20
-> We handle the EDID inside the kernel, although I'm not sure if drm also
-> exposes the EDID to userspace.
-
-I suppose it does, but haven't looked through the code.
-
-> > Looks like even drm_edid.c should change, btw.
->=20
-> Yes, DRM handles it in somewhat similar way.
-
-another reason to make a generic i2c-edid.c. It make no sense to have
-two pieces of code doing exactly the same thing, which is reading edid
-over an I2C link.
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt b/=
+Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
+new file mode 100644
+index 0000000..8ce9cd2
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-cbus-gpio.txt
+@@ -0,0 +1,27 @@
++Device tree bindings for i2c-cbus-gpio driver
++
++Required properties:
++	- compatible =3D "i2c-cbus-gpio";
++	- gpios: clk, dat, sel
++	- #address-cells =3D <1>;
++	- #size-cells =3D <0>;
++
++Optional properties:
++	- child nodes conforming to i2c bus binding
++
++Example:
++
++i2c@0 {
++	compatible =3D "i2c-cbus-gpio";
++	gpios =3D <&gpio 66 0 /* clk */
++		 &gpio 65 0 /* dat */
++		 &gpio 64 0 /* sel */
++		>;
++	#address-cells =3D <1>;
++	#size-cells =3D <0>;
++
++	retu-mfd: retu@1 {
++		compatible =3D "retu-mfd";
++		reg =3D <0x1>;
++	};
++};
+diff --git a/arch/arm/mach-omap2/board-n8x0.c b/arch/arm/mach-omap2/boa=
+rd-n8x0.c
+index d95f727..bbfd742 100644
+--- a/arch/arm/mach-omap2/board-n8x0.c
++++ b/arch/arm/mach-omap2/board-n8x0.c
+@@ -16,10 +16,12 @@
+ #include <linux/gpio.h>
+ #include <linux/init.h>
+ #include <linux/io.h>
++#include <linux/irq.h>
+ #include <linux/stddef.h>
+ #include <linux/i2c.h>
+ #include <linux/spi/spi.h>
+ #include <linux/usb/musb.h>
++#include <linux/platform_data/i2c-cbus-gpio.h>
+ #include <linux/platform_data/spi-omap2-mcspi.h>
+ #include <linux/platform_data/mtd-onenand-omap2.h>
+ #include <sound/tlv320aic3x.h>
+@@ -39,6 +41,45 @@
+ #define TUSB6010_GPIO_ENABLE	0
+ #define TUSB6010_DMACHAN	0x3f
+=20
++#if defined(CONFIG_I2C_CBUS_GPIO) || defined(CONFIG_I2C_CBUS_GPIO_MODU=
+LE)
++static struct i2c_cbus_platform_data n8x0_cbus_data =3D {
++	.clk_gpio =3D 66,
++	.dat_gpio =3D 65,
++	.sel_gpio =3D 64,
++};
++
++static struct platform_device n8x0_cbus_device =3D {
++	.name	=3D "i2c-cbus-gpio",
++	.id	=3D 3,
++	.dev	=3D {
++		.platform_data =3D &n8x0_cbus_data,
++	},
++};
++
++static struct i2c_board_info n8x0_i2c_board_info_3[] __initdata =3D {
++	{
++		I2C_BOARD_INFO("retu-mfd", 0x01),
++	},
++};
++
++static void __init n8x0_cbus_init(void)
++{
++	const int retu_irq_gpio =3D 108;
++
++	if (gpio_request_one(retu_irq_gpio, GPIOF_IN, "Retu IRQ"))
++		return;
++	irq_set_irq_type(gpio_to_irq(retu_irq_gpio), IRQ_TYPE_EDGE_RISING);
++	n8x0_i2c_board_info_3[0].irq =3D gpio_to_irq(retu_irq_gpio);
++	i2c_register_board_info(3, n8x0_i2c_board_info_3,
++				ARRAY_SIZE(n8x0_i2c_board_info_3));
++	platform_device_register(&n8x0_cbus_device);
++}
++#else /* CONFIG_I2C_CBUS_GPIO */
++static void __init n8x0_cbus_init(void)
++{
++}
++#endif /* CONFIG_I2C_CBUS_GPIO */
++
+ #if defined(CONFIG_USB_MUSB_TUSB6010) || defined(CONFIG_USB_MUSB_TUSB6=
+010_MODULE)
+ /*
+  * Enable or disable power to TUSB6010. When enabling, turn on 3.3 V a=
+nd
+@@ -677,6 +718,7 @@ static void __init n8x0_init_machine(void)
+ 	gpmc_onenand_init(board_onenand_data);
+ 	n8x0_mmc_init();
+ 	n8x0_usb_init();
++	n8x0_cbus_init();
+ }
+=20
+ MACHINE_START(NOKIA_N800, "Nokia N800")
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index e9df461..e949edf 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -337,6 +337,16 @@ config I2C_BLACKFIN_TWI_CLK_KHZ
+ 	help
+ 	  The unit of the TWI clock is kHz.
+=20
++config I2C_CBUS_GPIO
++	tristate "CBUS I2C driver"
++	depends on GENERIC_GPIO
++	help
++	  Support for CBUS access using I2C API. Mostly relevant for Nokia
++	  Internet Tablets (770, N800 and N810).
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-cbus-gpio.
++
+ config I2C_CPM
+ 	tristate "Freescale CPM1 or CPM2 (MPC8xx/826x)"
+ 	depends on (CPM1 || CPM2) && OF_I2C
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 395b516..f9e3e0b 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -31,6 +31,7 @@ obj-$(CONFIG_I2C_POWERMAC)	+=3D i2c-powermac.o
+ obj-$(CONFIG_I2C_AT91)		+=3D i2c-at91.o
+ obj-$(CONFIG_I2C_AU1550)	+=3D i2c-au1550.o
+ obj-$(CONFIG_I2C_BLACKFIN_TWI)	+=3D i2c-bfin-twi.o
++obj-$(CONFIG_I2C_CBUS_GPIO)	+=3D i2c-cbus-gpio.o
+ obj-$(CONFIG_I2C_CPM)		+=3D i2c-cpm.o
+ obj-$(CONFIG_I2C_DAVINCI)	+=3D i2c-davinci.o
+ obj-$(CONFIG_I2C_DESIGNWARE_CORE)	+=3D i2c-designware-core.o
+diff --git a/drivers/i2c/busses/i2c-cbus-gpio.c b/drivers/i2c/busses/i2=
+c-cbus-gpio.c
+new file mode 100644
+index 0000000..98386d6
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-cbus-gpio.c
+@@ -0,0 +1,300 @@
++/*
++ * CBUS I2C driver for Nokia Internet Tablets.
++ *
++ * Copyright (C) 2004-2010 Nokia Corporation
++ *
++ * Based on code written by Juha Yrj=C3=B6l=C3=A4, David Weinehall, Mi=
+kko Ylinen and
++ * Felipe Balbi. Converted to I2C driver by Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of thi=
+s
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/io.h>
++#include <linux/i2c.h>
++#include <linux/gpio.h>
++#include <linux/init.h>
++#include <linux/slab.h>
++#include <linux/delay.h>
++#include <linux/errno.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/of_gpio.h>
++#include <linux/interrupt.h>
++#include <linux/platform_device.h>
++#include <linux/platform_data/i2c-cbus-gpio.h>
++
++/*
++ * Bit counts are derived from Nokia implementation. These should be c=
+hecked
++ * if other CBUS implementations appear.
++ */
++#define CBUS_ADDR_BITS	3
++#define CBUS_REG_BITS	5
++
++struct cbus_host {
++	spinlock_t	lock;		/* host lock */
++	struct device	*dev;
++	int		clk_gpio;
++	int		dat_gpio;
++	int		sel_gpio;
++};
++
++/**
++ * cbus_send_bit - sends one bit over the bus
++ * @host: the host we're using
++ * @bit: one bit of information to send
++ */
++static void cbus_send_bit(struct cbus_host *host, unsigned bit)
++{
++	gpio_set_value(host->dat_gpio, bit ? 1 : 0);
++	gpio_set_value(host->clk_gpio, 1);
++	gpio_set_value(host->clk_gpio, 0);
++}
++
++/**
++ * cbus_send_data - sends @len amount of data over the bus
++ * @host: the host we're using
++ * @data: the data to send
++ * @len: size of the transfer
++ */
++static void cbus_send_data(struct cbus_host *host, unsigned data, unsi=
+gned len)
++{
++	int i;
++
++	for (i =3D len; i > 0; i--)
++		cbus_send_bit(host, data & (1 << (i - 1)));
++}
++
++/**
++ * cbus_receive_bit - receives one bit from the bus
++ * @host: the host we're using
++ */
++static int cbus_receive_bit(struct cbus_host *host)
++{
++	int ret;
++
++	gpio_set_value(host->clk_gpio, 1);
++	ret =3D gpio_get_value(host->dat_gpio);
++	gpio_set_value(host->clk_gpio, 0);
++	return ret;
++}
++
++/**
++ * cbus_receive_word - receives 16-bit word from the bus
++ * @host: the host we're using
++ */
++static int cbus_receive_word(struct cbus_host *host)
++{
++	int ret =3D 0;
++	int i;
++
++	for (i =3D 16; i > 0; i--) {
++		int bit =3D cbus_receive_bit(host);
++
++		if (bit < 0)
++			return bit;
++
++		if (bit)
++			ret |=3D 1 << (i - 1);
++	}
++	return ret;
++}
++
++/**
++ * cbus_transfer - transfers data over the bus
++ * @host: the host we're using
++ * @rw: read/write flag
++ * @dev: device address
++ * @reg: register address
++ * @data: if @rw =3D=3D I2C_SBUS_WRITE data to send otherwise 0
++ */
++static int cbus_transfer(struct cbus_host *host, char rw, unsigned dev=
+,
++			 unsigned reg, unsigned data)
++{
++	unsigned long flags;
++	int ret;
++
++	/* We don't want interrupts disturbing our transfer */
++	spin_lock_irqsave(&host->lock, flags);
++
++	/* Reset state and start of transfer, SEL stays down during transfer =
+*/
++	gpio_set_value(host->sel_gpio, 0);
++
++	/* Set the DAT pin to output */
++	gpio_direction_output(host->dat_gpio, 1);
++
++	/* Send the device address */
++	cbus_send_data(host, dev, CBUS_ADDR_BITS);
++
++	/* Send the rw flag */
++	cbus_send_bit(host, rw =3D=3D I2C_SMBUS_READ);
++
++	/* Send the register address */
++	cbus_send_data(host, reg, CBUS_REG_BITS);
++
++	if (rw =3D=3D I2C_SMBUS_WRITE) {
++		cbus_send_data(host, data, 16);
++		ret =3D 0;
++	} else {
++		ret =3D gpio_direction_input(host->dat_gpio);
++		if (ret) {
++			dev_dbg(host->dev, "failed setting direction\n");
++			goto out;
++		}
++		gpio_set_value(host->clk_gpio, 1);
++
++		ret =3D cbus_receive_word(host);
++		if (ret < 0) {
++			dev_dbg(host->dev, "failed receiving data\n");
++			goto out;
++		}
++	}
++
++	/* Indicate end of transfer, SEL goes up until next transfer */
++	gpio_set_value(host->sel_gpio, 1);
++	gpio_set_value(host->clk_gpio, 1);
++	gpio_set_value(host->clk_gpio, 0);
++
++out:
++	spin_unlock_irqrestore(&host->lock, flags);
++
++	return ret;
++}
++
++static int cbus_i2c_smbus_xfer(struct i2c_adapter	*adapter,
++			       u16			addr,
++			       unsigned short		flags,
++			       char			read_write,
++			       u8			command,
++			       int			size,
++			       union i2c_smbus_data	*data)
++{
++	struct cbus_host *chost =3D i2c_get_adapdata(adapter);
++	int ret;
++
++	if (size !=3D I2C_SMBUS_WORD_DATA)
++		return -EINVAL;
++
++	ret =3D cbus_transfer(chost, read_write =3D=3D I2C_SMBUS_READ, addr,
++			    command, data->word);
++	if (ret < 0)
++		return ret;
++
++	if (read_write =3D=3D I2C_SMBUS_READ)
++		data->word =3D ret;
++
++	return 0;
++}
++
++static u32 cbus_i2c_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_SMBUS_READ_WORD_DATA | I2C_FUNC_SMBUS_WRITE_WORD_DATA=
+;
++}
++
++static const struct i2c_algorithm cbus_i2c_algo =3D {
++	.smbus_xfer	=3D cbus_i2c_smbus_xfer,
++	.functionality	=3D cbus_i2c_func,
++};
++
++static int cbus_i2c_remove(struct platform_device *pdev)
++{
++	struct i2c_adapter *adapter =3D platform_get_drvdata(pdev);
++
++	return i2c_del_adapter(adapter);
++}
++
++static int cbus_i2c_probe(struct platform_device *pdev)
++{
++	struct i2c_adapter *adapter;
++	struct cbus_host *chost;
++	int ret;
++
++	adapter =3D devm_kzalloc(&pdev->dev, sizeof(struct i2c_adapter),
++			       GFP_KERNEL);
++	if (!adapter)
++		return -ENOMEM;
++
++	chost =3D devm_kzalloc(&pdev->dev, sizeof(*chost), GFP_KERNEL);
++	if (!chost)
++		return -ENOMEM;
++
++	if (pdev->dev.of_node) {
++		struct device_node *dnode =3D pdev->dev.of_node;
++		if (of_gpio_count(dnode) !=3D 3)
++			return -ENODEV;
++		chost->clk_gpio =3D of_get_gpio(dnode, 0);
++		chost->dat_gpio =3D of_get_gpio(dnode, 1);
++		chost->sel_gpio =3D of_get_gpio(dnode, 2);
++	} else if (pdev->dev.platform_data) {
++		struct i2c_cbus_platform_data *pdata =3D pdev->dev.platform_data;
++		chost->clk_gpio =3D pdata->clk_gpio;
++		chost->dat_gpio =3D pdata->dat_gpio;
++		chost->sel_gpio =3D pdata->sel_gpio;
++	} else {
++		return -ENODEV;
++	}
++
++	adapter->owner		=3D THIS_MODULE;
++	adapter->class		=3D I2C_CLASS_HWMON;
++	adapter->dev.parent	=3D &pdev->dev;
++	adapter->nr		=3D pdev->id;
++	adapter->timeout	=3D HZ;
++	adapter->algo		=3D &cbus_i2c_algo;
++	strlcpy(adapter->name, "CBUS I2C adapter", sizeof(adapter->name));
++
++	spin_lock_init(&chost->lock);
++	chost->dev =3D &pdev->dev;
++
++	ret =3D devm_gpio_request_one(&pdev->dev, chost->clk_gpio,
++				    GPIOF_OUT_INIT_LOW, "CBUS clk");
++	if (ret)
++		return ret;
++
++	ret =3D devm_gpio_request_one(&pdev->dev, chost->dat_gpio, GPIOF_IN,
++				    "CBUS data");
++	if (ret)
++		return ret;
++
++	ret =3D devm_gpio_request_one(&pdev->dev, chost->sel_gpio,
++				    GPIOF_OUT_INIT_HIGH, "CBUS sel");
++	if (ret)
++		return ret;
++
++	i2c_set_adapdata(adapter, chost);
++	platform_set_drvdata(pdev, adapter);
++
++	return i2c_add_numbered_adapter(adapter);
++}
++
++#if defined(CONFIG_OF)
++static const struct of_device_id i2c_cbus_dt_ids[] =3D {
++	{ .compatible =3D "i2c-cbus-gpio", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, i2c_cbus_dt_ids);
++#endif
++
++static struct platform_driver cbus_i2c_driver =3D {
++	.probe	=3D cbus_i2c_probe,
++	.remove	=3D cbus_i2c_remove,
++	.driver	=3D {
++		.owner	=3D THIS_MODULE,
++		.name	=3D "i2c-cbus-gpio",
++	},
++};
++module_platform_driver(cbus_i2c_driver);
++
++MODULE_ALIAS("platform:i2c-cbus-gpio");
++MODULE_DESCRIPTION("CBUS I2C driver");
++MODULE_AUTHOR("Juha Yrj=C3=B6l=C3=A4");
++MODULE_AUTHOR("David Weinehall");
++MODULE_AUTHOR("Mikko Ylinen");
++MODULE_AUTHOR("Felipe Balbi");
++MODULE_AUTHOR("Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/platform_data/i2c-cbus-gpio.h b/include/linu=
+x/platform_data/i2c-cbus-gpio.h
+new file mode 100644
+index 0000000..6faa992
+--- /dev/null
++++ b/include/linux/platform_data/i2c-cbus-gpio.h
+@@ -0,0 +1,27 @@
++/*
++ * i2c-cbus-gpio.h - CBUS I2C platform_data definition
++ *
++ * Copyright (C) 2004-2009 Nokia Corporation
++ *
++ * Written by Felipe Balbi and Aaro Koskinen.
++ *
++ * This file is subject to the terms and conditions of the GNU General
++ * Public License. See the file "COPYING" in the main directory of thi=
+s
++ * archive for more details.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#ifndef __INCLUDE_LINUX_I2C_CBUS_GPIO_H
++#define __INCLUDE_LINUX_I2C_CBUS_GPIO_H
++
++struct i2c_cbus_platform_data {
++	int dat_gpio;
++	int clk_gpio;
++	int sel_gpio;
++};
++
++#endif /* __INCLUDE_LINUX_I2C_CBUS_GPIO_H */
 --=20
-balbi
-
---lEGEL1/lMxI0MVQ2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQqMfNAAoJEIaOsuA1yqRE6G8P/2Tlw70tFynteEkD66zdif1y
-YEPStKh58+mzza128tnd93Ms+oO1SmLthc8Ybb1PmiTFZEz64qavrP8PegMqlHfi
-eiGbYTvvlkXxc84leX5II8igKFJV3bECNmdfKVJQg624CQUuXhEEDrUl/EGQCUip
-/uB42Y+1virzxPxRIvFjt1PDISUe5kAATAEoVTWHU0++NbIrRcGLIUBx5gMsHSfw
-+OdFFIW4Qlpg378J17XY7tWuz5I40CV8kwJAlxLPFHJE7JFK859Yx8QdNtxT4alq
-8M+7dhtdLVEdi4AiF1PO+GDeTmCqTd5Tf66RhHeev2SdaJPKYoDSJ8/RD4G7NakH
-HpkqWXLAB8CHLhID/eepX9Hx2Oaj6MdUjPTv0okjmzDIKQ+v5YqMyEdlJ9M82IdH
-k0SHuPK6OuLL4GxNiDU3dzUhHy0L2YT+YxFr5FMusU9GjH4Lbv4IGy09bIJOncg4
-FzHLaRU5aTYA0l2f88APnsWO48nHfMGHxD0vuEq/Z/jMFuSWuM2HG/ZM6xKpvyI+
-AAMtFjTXjNXvXAAI/sBatJDgzSq3ob/u8grV5z5JqYF0Wu/ED+HW4bB1t9IarH6v
-8aV23DI+DPqTnR0mYS+wwfkO7o0N/B5L7b8OGut3vwlhNW4NsznqjGE1KIWnYZ1F
-I3MMTqCPsuMxjJOWxyxx
-=2T72
------END PGP SIGNATURE-----
-
---lEGEL1/lMxI0MVQ2--
+1.7.10.4
