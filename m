@@ -1,41 +1,42 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: [PATCH 0/5] i2c-sh_mobile non-urgent changes
-Date: Sun, 18 Nov 2012 00:27:11 +0100 (CET)
-Message-ID: <Pine.LNX.4.64.1211180022331.30062@axis700.grange>
-References: <5087C93F.6080601@renesas.com> <20121116080704.GC8464@pengutronix.de>
- <50A5FF0D.4020502@renesas.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <50A5FF0D.4020502@renesas.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Shinya Kuribayashi <shinya.kuribayashi.px@renesas.com>
-Cc: w.sang@pengutronix.de, linux-arm-kernel@lists.infradead.org, magnus.damm@gmail.com, linux-i2c@vger.kernel.org, ben-linux@fluff.org, linux-sh@vger.kernel.org
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH 1/2] i2c: mxs: Handle i2c DMA failure properly
+Date: Sun, 18 Nov 2012 06:25:07 +0100
+Message-ID: <1353216308-7338-1-git-send-email-marex@denx.de>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 16 Nov 2012, Shinya Kuribayashi wrote:
+Properly terminate the DMA transfer in case the DMA PIO transfer
+or setup fails for any reason.
 
-> On 11/16/2012 5:07 PM, Wolfram Sang wrote:
-> > Looks good to me, like the extensive patch descriptions. I am going to
-> > apply it to for-next with patches 2+3 squashed, because after patch 2 we
-> > would have a buggy state otherwise. Let me know if you are not okay with
-> > that.
-> 
-> It's not that buggy as you/we think, in most cases it work without
-> problem.  What's more important for me is to record the issue and
-> how to solve it.  So I'd like to have patch 2 and 3 separately.
-
-I agree with Wolfram. For developers it can be important to know their own 
-development process, that's true. But for upstream it is an absolute 
-preference to avoid breakages. So, we should never commit patches, that 
-are known to contain problems. In this case it means, that patches 2 and 3 
-should be merged. It is good, that the problem has been detected and fixed 
-during development or testing, this gives us a chance to avoid breaking 
-the mainline, which we should certainly use.
-
-Thanks
-Guennadi
+Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 ---
-Guennadi Liakhovetski, Ph.D.
-Freelance Open-Source Software Developer
-http://www.open-technology.de/
+ drivers/i2c/busses/i2c-mxs.c |    2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 286ca19..0670da7 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -287,12 +287,14 @@ read_init_dma_fail:
+ select_init_dma_fail:
+ 	dma_unmap_sg(i2c->dev, &i2c->sg_io[0], 1, DMA_TO_DEVICE);
+ select_init_pio_fail:
++	dmaengine_terminate_all(i2c->dmach);
+ 	return -EINVAL;
+ 
+ /* Write failpath. */
+ write_init_dma_fail:
+ 	dma_unmap_sg(i2c->dev, i2c->sg_io, 2, DMA_TO_DEVICE);
+ write_init_pio_fail:
++	dmaengine_terminate_all(i2c->dmach);
+ 	return -EINVAL;
+ }
+ 
+-- 
+1.7.10.4
