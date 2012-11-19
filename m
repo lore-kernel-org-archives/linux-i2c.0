@@ -1,50 +1,28 @@
-From: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Subject: [PATCH 002/493] i2c: remove CONFIG_HOTPLUG ifdefs
-Date: Mon, 19 Nov 2012 13:19:11 -0500
-Message-ID: <1353349642-3677-2-git-send-email-wfp5p@virginia.edu>
-References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
+From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-ocores: Move grlib set/get functions into #ifdef CONFIG_OF block
+Date: Mon, 19 Nov 2012 19:44:06 +0100
+Message-ID: <87mwydl9ft.fsf@dell.be.48ers.dk>
+References: <1353327468-9407-1-git-send-email-andreas@gaisler.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1353349642-3677-1-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+In-Reply-To: <1353327468-9407-1-git-send-email-andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> (Andreas
+	Larsson's message of "Mon, 19 Nov 2012 13:17:48 +0100")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks  <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Remove conditional code based on CONFIG_HOTPLUG being false.  It's
-always on now in preparation of it going away as an option.
+>>>>> "Andreas" == Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org> writes:
 
-Signed-off-by: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> 
-Cc: "Ben Dooks " <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org> 
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org 
----
- drivers/i2c/i2c-core.c | 7 -------
- 1 file changed, 7 deletions(-)
+ Andreas> This moves the grlib set and get functions into the #ifdef
+ Andreas> CONFIG_OF block to avoid warnings of unimplemented functions
+ Andreas> when compiling with -Wunused-function when CONFIG_OF is not
+ Andreas> defined.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index a7edf98..9cebac0 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -86,9 +86,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
- 	return 0;
- }
- 
--#ifdef	CONFIG_HOTPLUG
--
--/* uevent helps with hotplug: modprobe -q $(MODALIAS) */
- static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
- {
- 	struct i2c_client	*client = to_i2c_client(dev);
-@@ -100,10 +97,6 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
- 	return 0;
- }
- 
--#else
--#define i2c_device_uevent	NULL
--#endif	/* CONFIG_HOTPLUG */
--
- static int i2c_device_probe(struct device *dev)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
+ Andreas> Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+
+Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+
 -- 
-1.8.0
+Bye, Peter Korsgaard
