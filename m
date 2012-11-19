@@ -1,39 +1,109 @@
-From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: Kconfig: Allow I2C_MXS to be selected by MX23
-Date: Mon, 19 Nov 2012 09:30:22 -0200
-Message-ID: <CAOMZO5Ag_evHUGdFFFccz1Q0Jsqwqd-25h7LcEDGeyQei8r9Rg@mail.gmail.com>
-References: <1353181734-13253-1-git-send-email-festevam@gmail.com>
-	<20121119084958.GB7775@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+From: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] i2c: i2c-ocores: Move grlib set/get functions into #ifdef CONFIG_OF block
+Date: Mon, 19 Nov 2012 13:17:48 +0100
+Message-ID: <1353327468-9407-1-git-send-email-andreas@gaisler.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121119084958.GB7775-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: f.koliqi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, software-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+This moves the grlib set and get functions into the #ifdef CONFIG_OF block to
+avoid warnings of unimplemented functions when compiling with -Wunused-function
+when CONFIG_OF is not defined.
 
-On Mon, Nov 19, 2012 at 6:49 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Sat, Nov 17, 2012 at 05:48:54PM -0200, Fabio Estevam wrote:
->> From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->>
->> With the recent DMA support addition to the i2c-mxs driver, it is now possible
->> to also run it on mx23, so update the Kconfig entry accordingly.
->>
->> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
->
-> Did you test it?
+Signed-off-by: Andreas Larsson <andreas-FkzTOoA/JUlBDgjK7y7TUQ@public.gmane.org>
+---
+To be applied to the for-next tree
 
-I don't have the I2C connector board for mx23-olinuxino, but I have
-been helping Fadil Berisha (on Cc) to get I2C to work on mx23.
+ drivers/i2c/busses/i2c-ocores.c |   68 +++++++++++++++++++-------------------
+ 1 files changed, 34 insertions(+), 34 deletions(-)
 
-He managed to get I2C working on his mx23 board and posted the results at:
-https://www.olimex.com/forum/index.php?topic=283.msg1086#msg1086
-
-He has already sent the dts patches to the ARM kernel list.
-
-Regards,
-
-Fabio Estevam
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 2ef318b..3ea2ee7 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -109,40 +109,6 @@ static inline u8 oc_getreg_32(struct ocores_i2c *i2c, int reg)
+ 	return ioread32(i2c->base + (reg << i2c->reg_shift));
+ }
+ 
+-/* Read and write functions for the GRLIB port of the controller. Registers are
+- * 32-bit big endian and the PRELOW and PREHIGH registers are merged into one
+- * register. The subsequent registers has their offset decreased accordingly. */
+-static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
+-{
+-	u32 rd;
+-	int rreg = reg;
+-	if (reg != OCI2C_PRELOW)
+-		rreg--;
+-	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
+-	if (reg == OCI2C_PREHIGH)
+-		return (u8)(rd >> 8);
+-	else
+-		return (u8)rd;
+-}
+-
+-static void oc_setreg_grlib(struct ocores_i2c *i2c, int reg, u8 value)
+-{
+-	u32 curr, wr;
+-	int rreg = reg;
+-	if (reg != OCI2C_PRELOW)
+-		rreg--;
+-	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
+-		curr = ioread32be(i2c->base + (rreg << i2c->reg_shift));
+-		if (reg == OCI2C_PRELOW)
+-			wr = (curr & 0xff00) | value;
+-		else
+-			wr = (((u32)value) << 8) | (curr & 0xff);
+-	} else {
+-		wr = value;
+-	}
+-	iowrite32be(wr, i2c->base + (rreg << i2c->reg_shift));
+-}
+-
+ static inline void oc_setreg(struct ocores_i2c *i2c, int reg, u8 value)
+ {
+ 	i2c->setreg(i2c, reg, value);
+@@ -303,6 +269,40 @@ static struct of_device_id ocores_i2c_match[] = {
+ MODULE_DEVICE_TABLE(of, ocores_i2c_match);
+ 
+ #ifdef CONFIG_OF
++/* Read and write functions for the GRLIB port of the controller. Registers are
++ * 32-bit big endian and the PRELOW and PREHIGH registers are merged into one
++ * register. The subsequent registers has their offset decreased accordingly. */
++static u8 oc_getreg_grlib(struct ocores_i2c *i2c, int reg)
++{
++	u32 rd;
++	int rreg = reg;
++	if (reg != OCI2C_PRELOW)
++		rreg--;
++	rd = ioread32be(i2c->base + (rreg << i2c->reg_shift));
++	if (reg == OCI2C_PREHIGH)
++		return (u8)(rd >> 8);
++	else
++		return (u8)rd;
++}
++
++static void oc_setreg_grlib(struct ocores_i2c *i2c, int reg, u8 value)
++{
++	u32 curr, wr;
++	int rreg = reg;
++	if (reg != OCI2C_PRELOW)
++		rreg--;
++	if (reg == OCI2C_PRELOW || reg == OCI2C_PREHIGH) {
++		curr = ioread32be(i2c->base + (rreg << i2c->reg_shift));
++		if (reg == OCI2C_PRELOW)
++			wr = (curr & 0xff00) | value;
++		else
++			wr = (((u32)value) << 8) | (curr & 0xff);
++	} else {
++		wr = value;
++	}
++	iowrite32be(wr, i2c->base + (rreg << i2c->reg_shift));
++}
++
+ static int ocores_i2c_of_probe(struct platform_device *pdev,
+ 				struct ocores_i2c *i2c)
+ {
+-- 
+1.7.0.4
