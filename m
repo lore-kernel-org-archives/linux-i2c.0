@@ -1,54 +1,65 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification
- implementation
-Date: Mon, 19 Nov 2012 11:06:49 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1211191106020.20577@pobox.suse.cz>
-References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Abhilash Kesavan <a.kesavan-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v3] i2c: s3c2410: Add fix for i2c suspend/resume
+Date: Mon, 19 Nov 2012 15:47:17 +0530
+Message-ID: <1353320237-11564-1-git-send-email-a.kesavan@samsung.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1352731379-24683-1-git-send-email-benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephane Chatty <chatty-rXV5z7KbLFk@public.gmane.org>, fabien.andre-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, scott.liu-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, JJ Ding <jj_ding-9cfG7bMpBgR9nmWX13WWKA@public.gmane.org>, Jiri Slaby <jslaby-AlSwsSmVLrQ@public.gmane.org>, Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
+The I2C driver makes a gpio_request during initialization. This request
+happens again on resume and fails due to the earlier successful request.
+Re-factor the code to only initialize the gpios during probe.
 
-> Microsoft published the protocol specification of HID over i2c:
-> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
-> 
-> This patch introduces an implementation of this protocol.
-> 
-> This implementation does not includes the ACPI part of the specification.
-> This will come when ACPI 5.0 devices enumeration will be available.
-> 
-> Once the ACPI part is done, OEM will not have to declare HID over I2C
-> devices in their platform specific driver.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
-> 
-> Hi Guys,
-> 
-> here is the v3 of the HID over I2C driver.
-> 
-> Changes in v3:
-> * fix i2c_hid_alloc_buffers when allocation failed
-> * fix error messages to be more "human"
-> * fix i2c_hid_set_report as it didn't followed the protocol
-> * remove i2c_hid_write_out_report (hid-core doesn't present the callback that
-> could use this feature of the protocol)
-> * reject HID_OUTPUT_REPORT in i2c_hid_get_raw_report
-> * fix output report id in i2c_hid_output_raw_report and reject HID_INPUT_REPORT
+Errors on resume without this:
+[   16.020000] s3c-i2c s3c2440-i2c.0: gpio [42] request failed
+[   16.020000] s3c-i2c s3c2440-i2c.1: gpio [44] request failed
+[   16.020000] s3c-i2c s3c2440-i2c.2: gpio [6] request failed
 
-Benjamin,
+Signed-off-by: Abhilash Kesavan <a.kesavan-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+Changes from v1:
+Refactor code to initialize gpios only during probe
+Changes from v2:
+Split an unrelated bug fix
+Removed the new function added in v1
 
-I am now queuing this in for-3.8/i2c-hid branch, so please send any 
-potential followup patches on top of that.
+ drivers/i2c/busses/i2c-s3c2410.c |   16 +++++++++-------
+ 1 files changed, 9 insertions(+), 7 deletions(-)
 
-Thanks a lot for all your work on this so far.
-
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 081e261..dea4cb2 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -907,13 +907,6 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+ 
+ 	pdata = i2c->pdata;
+ 
+-	/* inititalise the gpio */
+-
+-	if (pdata->cfg_gpio)
+-		pdata->cfg_gpio(to_platform_device(i2c->dev));
+-	else if (IS_ERR(i2c->pctrl) && s3c24xx_i2c_parse_dt_gpio(i2c))
+-		return -EINVAL;
+-
+ 	/* write slave address */
+ 
+ 	writeb(pdata->slave_addr, i2c->regs + S3C2410_IICADD);
+@@ -1054,6 +1047,15 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 
+ 	i2c->pctrl = devm_pinctrl_get_select_default(i2c->dev);
+ 
++	/* inititalise the i2c gpio lines */
++
++	if (i2c->pdata->cfg_gpio) {
++		i2c->pdata->cfg_gpio(to_platform_device(i2c->dev));
++	} else if (IS_ERR(i2c->pctrl) && s3c24xx_i2c_parse_dt_gpio(i2c)) {
++		ret = -EINVAL;
++		goto err_clk;
++	}
++
+ 	/* initialise the i2c controller */
+ 
+ 	ret = s3c24xx_i2c_init(i2c);
 -- 
-Jiri Kosina
-SUSE Labs
+1.6.6.1
