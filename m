@@ -1,30 +1,61 @@
-From: Abhilash Kesavan <a.kesavan-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c: s3c2410: Fix code to free gpios
-Date: Mon, 19 Nov 2012 15:48:46 +0530
-Message-ID: <1353320326-11626-1-git-send-email-a.kesavan@samsung.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification implementation
+Date: Mon, 19 Nov 2012 11:23:49 +0100
+Message-ID: <CAN+gG=FurTLa8jJpMti6+cp60RZ6+TB7HxNfQMX1P20cFcGWHA@mail.gmail.com>
+References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1211191106020.20577@pobox.suse.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1211191106020.20577@pobox.suse.cz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Store the requested gpios so that they can be freed on error/removal.
+On Mon, Nov 19, 2012 at 11:06 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+> On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
+>
+>> Microsoft published the protocol specification of HID over i2c:
+>> http://msdn.microsoft.com/en-us/library/windows/hardware/hh852380.aspx
+>>
+>> This patch introduces an implementation of this protocol.
+>>
+>> This implementation does not includes the ACPI part of the specification.
+>> This will come when ACPI 5.0 devices enumeration will be available.
+>>
+>> Once the ACPI part is done, OEM will not have to declare HID over I2C
+>> devices in their platform specific driver.
+>>
+>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+>> ---
+>>
+>> Hi Guys,
+>>
+>> here is the v3 of the HID over I2C driver.
+>>
+>> Changes in v3:
+>> * fix i2c_hid_alloc_buffers when allocation failed
+>> * fix error messages to be more "human"
+>> * fix i2c_hid_set_report as it didn't followed the protocol
+>> * remove i2c_hid_write_out_report (hid-core doesn't present the callback that
+>> could use this feature of the protocol)
+>> * reject HID_OUTPUT_REPORT in i2c_hid_get_raw_report
+>> * fix output report id in i2c_hid_output_raw_report and reject HID_INPUT_REPORT
+>
+> Benjamin,
+>
+> I am now queuing this in for-3.8/i2c-hid branch, so please send any
+> potential followup patches on top of that.
 
-Signed-off-by: Abhilash Kesavan <a.kesavan-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-s3c2410.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+Ok, thanks a lot Jiri.
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index dea4cb2..5d5e9cb 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -856,6 +856,7 @@ static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
- 			dev_err(i2c->dev, "invalid gpio[%d]: %d\n", idx, gpio);
- 			goto free_gpio;
- 		}
-+		i2c->gpios[idx] = gpio;
- 
- 		ret = gpio_request(gpio, "i2c-bus");
- 		if (ret) {
--- 
-1.6.6.1
+Cheers,
+Benjamin
+
+>
+> Thanks a lot for all your work on this so far.
+>
+> --
+> Jiri Kosina
+> SUSE Labs
