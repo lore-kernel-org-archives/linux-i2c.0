@@ -1,206 +1,138 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: tfp410 and i2c_bus_num
-Date: Mon, 19 Nov 2012 14:16:30 +0200
-Message-ID: <20121119121630.GC15540@arwen.pp.htv.fi>
-References: <20121116135155.GE18527@arwen.pp.htv.fi>
- <50A64D35.9050109@ti.com>
- <20121116151959.GA19411@arwen.pp.htv.fi>
- <50A65E40.9040208@ti.com>
- <20121116182146.GC20496@arwen.pp.htv.fi>
- <50A72390.3050509@ti.com>
- <20121118113437.GB30462@arwen.pp.htv.fi>
- <50A9D3DD.6040807@ti.com>
- <20121119092744.GB4211@arwen.pp.htv.fi>
- <50AA1376.6060801@ti.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: Add possibility for user-defined (i2c-)devices
+ for bus-drivers.
+Date: Mon, 19 Nov 2012 14:38:04 +0100
+Message-ID: <20121119133802.GA5030@krabat.ahsoftware>
+References: <1352829968-4908-1-git-send-email-holler@ahsoftware.de>
+ <20121113195533.6db71716@endymion.delvare>
+ <50A2AC28.7050304@ahsoftware.de>
+ <20121113220835.111a178a@endymion.delvare>
+ <50A2BAA2.6090009@ahsoftware.de>
+ <20121113224246.768bf734@endymion.delvare>
+ <50A2DA0C.3090507@ahsoftware.de>
+ <20121114104050.79df8cd9@endymion.delvare>
+ <50A390CC.9000208@ahsoftware.de>
+ <1352920954.19432.2.camel@Nokia-N900>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NKoe5XOeduwbEQHU"
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <50AA1376.6060801-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1352920954.19432.2.camel@Nokia-N900>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>
-Cc: balbi-l0cyMroinI0@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: "till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org" <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---NKoe5XOeduwbEQHU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hello,
 
-Hi,
+after the needed break in the discussion (to calm down), I've decided to make a last try. I don't want to make a thesis about USB RTCs, nor do I want to write a whole new driver (and afterwards trying to get such into the kernel, not to speak about the then necessary explicit device/vendor ID).
 
-On Mon, Nov 19, 2012 at 01:09:42PM +0200, Tomi Valkeinen wrote:
-> On 2012-11-19 11:27, Felipe Balbi wrote:
->=20
-> >> If we had a separate, independent i2c-edid driver, we'd have to somehow
-> >> link the i2c-edid driver and tfp410 (or whatever driver would handle t=
-he
-> >> video link in that particular case) so that the i2c-edid driver would
-> >> know about hotplug events. We would also need to link the drivers so
-> >> that the edid can be associated with the video pipeline the tfp410 chip
-> >> is part of, and to the particular slot in the pipeline where the tfp41=
-0 is.
-> >=20
-> > that should all be doable, just look at how v4l2 handles pipelining the
-> > video data (all in userland though) and you'll see it's definitely
-> > possible.
->=20
-> Afaik, v4l2 handles only the pipeline for video. This i2c-edid would not
-> be part of the video pipeline, so I don't see a connection to v4l2.
+On Wed, Nov 14, 2012 at 08:22:34PM +0100, till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org wrote:
 
-hehe, I was using an example of building a pipeline and adding whatever
-devices you wanted to the pipeline ;-)
+> i have seen i2c chips going nuts because some probing actually affected the chips state. So i fully agree with Jean here.
 
-> And I'm not saying it's not possible, or that the current way is good or
-> correct. I'm saying it's not easy, and definitely more complex than the
-> current tfp410 implementation. The amount of code related to this
-> feature would multiply.
->=20
-> If we had 10 different tfp410 like drivers, then obviously there'd be
-> more pressing reason to clean this up. But currently we have only one
-> place where this code is used.
+I've now changed the device registration from using i2c_new_probed_device() to i2c_new_device(),
+even if that would register non-existent RTCs.
 
-fair enough, but I'd say there are two places: DSS and DRM.
+> I2C just isn't meant to be used for hot plugging. And so isn't the i2c-tiny-usb. It's more a hacking and testing device and is e.g. very convenient to test i2c client drivers or to test some new i2c hardware. But i have never had a need for this before user land was available. And once it is you can really do any magic you want using e.g. udev and sysfs.
 
-> >> I haven't tried writing such a driver, but it sounds much more complex
-> >> to me than doing one or two i2c reads in the tfp410 driver.
-> >=20
-> > until you have e.g. tfp999, tfp534, tfp678 (hypothetical device numbers,
-> > they probably don't exist) which are all SW incompatible and you have to
-> > duplicate i2c reads in all of them. Whereas if you had a dedicated
-> > i2c-edid.c driver, you would only have to tell them where to get EDID
-> > structure from.
-> >=20
-> > Also, if you have systems with different panel interfaces, they will use
-> > the same i2c-edid.c and just instantiate that class multiple times.
->=20
-> Yep. Althought the same could be done with a common edid library,
-> without an i2c-edid driver.
+As you've written yourself, i2c-tiny-usb is more a hacking and testing device, so there's hopefully no real argument left against including the few lines to enable devices through module options or the kernel command line. Someone could like to test such too with the "hacking and testing device".
 
-correct.
+Regards,
 
-> >>>> So we need a generic way to get the resolution information, and it m=
-akes
-> >>>> sense to have this in the components of the video path, not in a
-> >>>> separate driver which is not part of the video path as such.
-> >>>
-> >>> But the I2C bus isn't part of the video path anyway. It's a completely
-> >>> separate path which is dedicated to reading EDID. If you need a gener=
-ic
-> >>
-> >> While reading EDID is totally separate from the video data itself, it =
-is
-> >> not separate from the hotplug status of the cable. And the EDID needs =
-to
-> >> be associated with the video path in question, of course.
-> >=20
-> > yes, but that can't be done in another way right ? Try something like
-> > having a EDID provider and an EDID consumer. The provider will be
-> > i2c-edid.c or dvi-edid.c and the consumer will a generic layer which
-> > tfp410 would use to request certain attributes from the EDID structure.
->=20
-> TFP410 doesn't need the EDID for anything, it just provides it as raw
-> data. Parsing the EDID is done in other layers. But as you said, instead
-> of tfp410 fetching the EDID and providing it, tfp410 could get the EDID
-> from the i2c-edid driver and pass it forward.
+Alexander
 
-Or whatever layer needs EDID would fetch it directly instead of going
-through tfp410.
 
-> > I think that would look a lot nicer as the underlying implementation for
-> > requesting EDID would be completely encapsulated from its users.
->=20
-> If with "users" you mean, for example, tfp410, then true. But tfp410
-> doesn't use EDID for anything, it just provides it. For the actual users
-> of the EDID data reading the EDID is encapsulated already.
+>From 1aa6bbd0a87ce39f9889f835d12127226ffa9403 Mon Sep 17 00:00:00 2001
+From: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+Date: Tue, 13 Nov 2012 16:28:07 +0100
+Subject: [PATCH] i2c: i2c-tiny-usb: Add parameter for optional i2c-devices.
 
-fair enough.
+Make it possible to define i2c-devices at the kernel command line
+or as a module parameter.
 
-> >> No, reading edid is done via generic read_edid call. TFP410 uses i2c to
-> >> read edid, but it could do it in any way it wants.
-> >=20
-> > it's not very well designed, then, if tfp410 still needs to fetch the
-> > i2c adapter. It still has to know about the underlying bus for reading
-> > EDID.
->=20
-> Well, yes. TFP410 is a RGB to DVI chip. It knows that the underlying bus
-> is DVI, and that there are i2c lines to read the EDID. There are no
-> other option what the busses could be. So I don't see any problem with
-> knowing the underlying bus.
+Format is devname1@addr1,devname2@addr2,...
 
-passing i2c_bus_num should be an indicator that something is wrong with
-your design. Note that not only TFP410 knows that it has an underlying
-i2c bus, it needs to know exactly which bus it needs to use. Also keep
-in mind that i2c bus numbers are assigned by the kernel and could be
-anything. Any changes to the order of adding i2c buses, might break your
-i2c_bus_num parameter.
+Example for the kernel command line:
 
-Of course this is all hypothetical, but it shows that current design is
-fragile, IMHO.
+   i2c-tiny-usb.devices=ds1307@0x68,pcf8563@0x51
 
-> >>> In fact current implementation is far worse than having an extra
-> >>> i2c-edid.c driver because it doesn't encapsulate EDID implementation
-> >>> from tfp410.
-> >>>
-> >>> Then moment you need to read EDID via DSI, you will likely have to pa=
-ss
-> >>> a DSI handle to e.g. TFP410 so it can read EDID via DSI.
-> >>
-> >> TFP410 is a parallel RGB to DVI chip. It's not related to DSI. The DSI
-> >> case would be with some other chip.
-> >=20
-> > it doesn't change what I said, however. Another chip will need to be
-> > passed in a DVI handle.
->=20
-> I'm sorry, but I don't understand what you're saying above...
->=20
-> If we have a DSI-2-DVI chip, then reading the EDID would be done by
-> sending a DSI command to the chip, which would return the EDID data.
+The definition of up to 8 devices is allowed.
 
-yeah, nevermind. If it's done by a DSI-2-DVI chip, then it already _has_
-the DSI handle. my bad.
+Cc: Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
+Signed-off-by: Alexander Holler <holler-SXC+2es9fhnfWeYVQQPykw@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-tiny-usb.c |   44 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 44 insertions(+), 0 deletions(-)
 
-> Which would be passed forward when someone requests it. There would not
-> be anything in common with tfp410 and i2c implementation.
->=20
-> >> We could have a library with the code that does the one or two i2c
-> >> reads. And while I think it'd be good, we're talking about one or two
-> >> i2c reads. It wouldn't be a huge improvement.
-> >=20
-> > fair enough... it looks like this is going nowhere, so best we come back
-> > to this later. No reason to block your patch.
->=20
-> Well, the patch is a fix for stable kernels, so even if we had a great
-> idea how to rewrite the dss device handling, it wouldn't affect this
-> patch =3D).
-
-ok good ;-)
-
---=20
-balbi
-
---NKoe5XOeduwbEQHU
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQqiMeAAoJEIaOsuA1yqREPYoP/2uF9hZEWQajqLIArFDT0f2R
-pOk8CbXrnONYZzEdjKiL86rIHpEUYyP7NDDThIKbApDUi9sCXthC553Xqb7rI2OV
-qKPoaoKYwo31NO79cTnrxMUgh+ImMuw5g6oqKw9GhrKDNDWln5YtWGghhbxfhGOC
-tq8IQsZmpXDaSQXIQAMWib/f2hB9Nj2XRh3FMdzXYzS1n9WZc0uUE6xM3iGYeOYG
-DFlKqJY6xtM/aHumm8EQah140ARAjrVH1kRoaRsY1sNbmzJyKa3qRtIMKFTwvnSa
-Jo+BKzX99yLRaxCYB6jQ17fMQQWzaQxUEr6M3JhG4qFwYc0o6sF3u1oap1Ss0+CI
-DU8veIJr2dA41AUNh+pXfLJWHtwMaQNRC4Mtf0B2CSGw2AgBqKLXo5ejaqSU+cZN
-22yC5lEHenJUZrCDJ7V2XPLacSBz7rfLHTGpBq0N+sOu2tgG4ei5uXBxqQEm59Ie
-HaFntAk8VOP/gLThxKfRR+0Q82/IwV1LxY7HTshEXBBW4a/dXUgH286NRYhHO+/K
-wNXE8MWdYwhloy9L2N5IEbtDsX5Xc9JmY70Dhsz2nXVZuI9ruuBV1t4B5r+n6TBR
-996X2rHVfowr0TFh4icaub740jYcjW/bLlrxDCC+qCA+NfPwXm07Qsq/P1J2LnmJ
-haSd7dI9teDFsyG1Z8A1
-=11gf
------END PGP SIGNATURE-----
-
---NKoe5XOeduwbEQHU--
+diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
+index 0510636..a3fc711 100644
+--- a/drivers/i2c/busses/i2c-tiny-usb.c
++++ b/drivers/i2c/busses/i2c-tiny-usb.c
+@@ -40,6 +40,11 @@ module_param(delay, ushort, 0);
+ MODULE_PARM_DESC(delay, "bit delay in microseconds "
+ 		 "(default is 10us for 100kHz max)");
+ 
++#define MAX_OPTIONAL_I2C_DEVICES 8
++static char *opt_devices[MAX_OPTIONAL_I2C_DEVICES];
++module_param_array_named(devices, opt_devices, charp, NULL, 0);
++MODULE_PARM_DESC(devices, "devname1@adr1,devname2@adr2,... (e.g. ds1307@0x68)");
++
+ static int usb_read(struct i2c_adapter *adapter, int cmd,
+ 		    int value, int index, void *data, int len);
+ 
+@@ -184,6 +189,42 @@ static void i2c_tiny_usb_free(struct i2c_tiny_usb *dev)
+ 	kfree(dev);
+ }
+ 
++static void i2c_add_optional_devices(struct i2c_adapter *adapter)
++{
++	int i;
++	struct i2c_board_info i2c_info;
++	uint addr;
++	const char *at;
++
++	for (i = 0; opt_devices[i]; ++i) {
++		at = strchr(opt_devices[i], '@');
++		if (at++ == NULL) {
++			dev_warn(&adapter->dev,
++				"address needed in device definition '%s'\n",
++				opt_devices[i]);
++			continue;
++		}
++		if (kstrtouint(at, 0, &addr) || addr >= I2C_CLIENT_END) {
++			dev_warn(&adapter->dev,
++				"wrong address in device definition '%s'\n",
++				opt_devices[i]);
++			continue;
++		}
++		memset(&i2c_info, 0, sizeof(struct i2c_board_info));
++		strlcpy(i2c_info.type, opt_devices[i],
++			min(I2C_NAME_SIZE, (int)(at-opt_devices[i])));
++		i2c_info.addr = addr;
++		if (i2c_new_device(adapter, &i2c_info) != NULL)
++			dev_info(&adapter->dev,
++				"device %s at address 0x%02x registered\n",
++				i2c_info.type, addr);
++		else
++			dev_warn(&adapter->dev,
++				"device %s at address 0x%02x not found\n",
++				i2c_info.type, addr);
++	}
++}
++
+ static int i2c_tiny_usb_probe(struct usb_interface *interface,
+ 			      const struct usb_device_id *id)
+ {
+@@ -236,6 +277,9 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
+ 	/* inform user about successful attachment to i2c layer */
+ 	dev_info(&dev->adapter.dev, "connected i2c-tiny-usb device\n");
+ 
++	/* add optional devices */
++	i2c_add_optional_devices(&dev->adapter);
++
+ 	return 0;
+ 
+  error:
+-- 
+1.7.8.6
