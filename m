@@ -1,71 +1,20 @@
-From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Subject: [PATCH] i2c: i2c-s3c2410: Remove recently introduced performance overheads
-Date: Tue, 20 Nov 2012 14:57:21 +0900
-Message-ID: <1353391041-28943-1-git-send-email-broonie@opensource.wolfsonmicro.com>
+From: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 065/493] i2c: remove use of __devexit_p
+Date: Tue, 20 Nov 2012 12:29:29 +0530
+Message-ID: <CAM=Q2ct2tzxV70CZ1ua8B-jSPFugDYTQJ3T6z7StKT1m3F-VsA@mail.gmail.com>
+References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
+	<1353349642-3677-65-git-send-email-wfp5p@virginia.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1353349642-3677-65-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Olof Johansson <olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+To: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Barry Song <baohua.song-kQvG35nSl+M@public.gmane.org>, "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The changes in "i2c-s3c2410: use exponential back off while polling for
-bus idle" remove the initial busy wait for I2C transfers to complete and
-replace it with usleep_range() calls which will schedule.
-
-Since for older SoCs I2C transfers would usually complete within an
-extremely small number of CPU cycles there is a win from not having to
-schedule.  This happens because on the older SoCs the cores run at a
-smaller multiple of the speeds that the I2C bus is operating at; on more
-modern SoCs the busy wait is less likely to be effective.
-
-Fix the issue by restoring the busy wait, reducing the number of spins
-from 20 to 3 which covers the overwhelming majority of I2C transfers on
-the SoCs where the busy wait is effective.
-
-Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
----
- drivers/i2c/busses/i2c-s3c2410.c |   21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 31f802b..9050821 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -530,6 +530,7 @@ static void s3c24xx_i2c_wait_idle(struct s3c24xx_i2c *i2c)
- 	unsigned long iicstat;
- 	ktime_t start, now;
- 	unsigned long delay;
-+	int spins;
- 
- 	/* ensure the stop has been through the bus */
- 
-@@ -542,12 +543,22 @@ static void s3c24xx_i2c_wait_idle(struct s3c24xx_i2c *i2c)
- 	 * end of a transaction.  However, really slow i2c devices can stretch
- 	 * the clock, delaying STOP generation.
- 	 *
--	 * As a compromise between idle detection latency for the normal, fast
--	 * case, and system load in the slow device case, use an exponential
--	 * back off in the polling loop, up to 1/10th of the total timeout,
--	 * then continue to poll at a constant rate up to the timeout.
-+	 * On slower SoCs this typically happens within a very small number of
-+	 * instructions so busy wait briefly to avoid scheduling overhead.
-+	 */
-+	spins = 3;
-+	do {
-+		cpu_relax();
-+		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
-+	} while ((iicstat & S3C2410_IICSTAT_START) && --spins);
-+
-+	/*
-+	 * If we do get an appreciable delay as a compromise between idle
-+	 * detection latency for the normal, fast case, and system load in the
-+	 * slow device case, use an exponential back off in the polling loop,
-+	 * up to 1/10th of the total timeout, then continue to poll at a
-+	 * constant rate up to the timeout.
- 	 */
--	iicstat = readl(i2c->regs + S3C2410_IICSTAT);
- 	delay = 1;
- 	while ((iicstat & S3C2410_IICSTAT_START) &&
- 	       ktime_us_delta(now, start) < S3C2410_IDLE_TIMEOUT) {
--- 
-1.7.10.4
+On Mon, Nov 19, 2012 at 11:50 PM, Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org> wrote:
+> CONFIG_HOTPLUG is going away as an option so __devexit_p is no longer
+> needed.
+>
+ Reviewed-by: Shubhrajyoti D <shubhrajyoti-l0cyMroinI0@public.gmane.org>
