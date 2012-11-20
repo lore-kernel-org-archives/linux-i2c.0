@@ -1,55 +1,66 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: mxs: Handle i2c DMA failure properly
-Date: Tue, 20 Nov 2012 09:54:53 +0100
-Message-ID: <20121120085453.GC14722@pengutronix.de>
-References: <1353216308-7338-1-git-send-email-marex@denx.de>
- <201211191500.32205.marex@denx.de>
- <20121120083946.GB14722@pengutronix.de>
- <201211200947.36430.marex@denx.de>
+From: Daniel Kurtz <djkurtz@chromium.org>
+Subject: Re: [PATCH 3/4] i2c-s3c2410: use exponential back off while polling
+ for bus idle
+Date: Tue, 20 Nov 2012 16:57:16 +0800
+Message-ID: <CAGS+omCKm+aN9ZXApmQJh1OrST-t2sA8WP7NyDOzKnv-xqJ5vg@mail.gmail.com>
+References: <1352981613-2098-1-git-send-email-ch.naveen@samsung.com>
+ <1352981613-2098-4-git-send-email-ch.naveen@samsung.com> <20121120044859.GA10154@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hOcCNbCCxyk/YU74"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <201211200947.36430.marex-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20121120044859.GA10154@sirena.org.uk>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>, Ben Dooks <ben-linux@fluff.org>, kgene.kim@samsung.com, Jean Delvare <khali@linux-fr.org>, Wolfram Sang <w.sang@pengutronix.de>, naveenkrishna.ch@gmail.com
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Mark,
 
---hOcCNbCCxyk/YU74
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, Nov 20, 2012 at 12:49 PM, Mark Brown
+<broonie@opensource.wolfsonmicro.com> wrote:
+>
+> On Thu, Nov 15, 2012 at 05:43:32PM +0530, Naveen Krishna Chatradhi wrote:
+>
+> > +     iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> > +     delay = 1;
+> > +     while ((iicstat & S3C2410_IICSTAT_START) &&
+> > +            ktime_us_delta(now, start) < S3C2410_IDLE_TIMEOUT) {
+> > +             usleep_range(delay, 2 * delay);
+> > +             if (delay < S3C2410_IDLE_TIMEOUT / 10)
+> > +                     delay <<= 1;
+> > +             now = ktime_get();
+> > +             iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> > +     }
+>
+> > -     /* first, try busy waiting briefly */
+> > -     do {
+> > -             cpu_relax();
+> > -             iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> > -     } while ((iicstat & S3C2410_IICSTAT_START) && --spins);
+>
+> On the hardware I was using when I wrote the original code here we were
+> hitting 1-2 spins often enough to be interesting - starting off with a
+> direct busy wait was definitely useful when doing large batches of I/O,
+> especially compared to sleeps which might cause us to schedule.
 
+We check the status first to avoid any sleep()/schedule() in the case,
+that the CPU is slower than I2C transaction.
+Remember, this loop only happens after the event_wait loop has been
+woken up by the i2c irq.
+Since you are talking about hitting a tiny window of time at some
+arbitrary point after an irq, the CPU time to this point & I2C
+finishing would have to be very precisely aligned for the 1-2 loops
+(at CPU clock rate) to matter.
 
-> > Since the driver currently advertises properly that it cannot do
-> > SMBUS_QUICK, the addition of that is not a bugfix but a feature
-> > addition, so I'll apply it to for-next.
->=20
-> Actually, I'd say apply the DMA termination fix to stable and the SMBUS_Q=
-UICK=20
-> enabling to -next if you want to be completely correct. You're right, one=
- part=20
-> of the patch is a bugfix, the rest if feature addition.
+HTH,
+-Dan
 
-OK then.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---hOcCNbCCxyk/YU74
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlCrRV0ACgkQD27XaX1/VRvM+QCgq3C1cTHAeA3gTUUWLrngFrHB
-EcIAoKoabI8K5AeNNFLbx8oBTlYPvvrg
-=tOtN
------END PGP SIGNATURE-----
-
---hOcCNbCCxyk/YU74--
+>
+> > -     /* if that timed out sleep */
+> > -     if (!spins) {
+> > -             msleep(1);
+> > -             iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> > -     }
+>
+> It seems like it'd be better to do the exponential backoff bit here
+> instead of removing the busy wait completely.
