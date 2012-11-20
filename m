@@ -1,31 +1,98 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 065/493] i2c: remove use of __devexit_p
-Date: Tue, 20 Nov 2012 14:46:21 +0100
-Message-ID: <20121120144621.5d2c213a@endymion.delvare>
-References: <1353349642-3677-1-git-send-email-wfp5p@virginia.edu>
-	<1353349642-3677-65-git-send-email-wfp5p@virginia.edu>
+From: Ramalingam C <ramalingamc@nvidia.com>
+Subject: RE: [PATCH v3] i2c-hid: introduce HID over i2c specification
+ implementation
+Date: Tue, 20 Nov 2012 19:58:44 +0530
+Message-ID: <EC245B9844DE6242B3F3C3BED1ECD10F6D5A21CAC0@BGMAIL02.nvidia.com>
+References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
+	<alpine.LNX.2.00.1211151450140.15877@pobox.suse.cz>
+	<CAN+gG=FeNBzdbBcH6uSWB_rUOS6PjyjpVSuY3b--g1mXo17fXA@mail.gmail.com>
+ <CAN+gG=Gm2JXur1HsL=-EEpahGZjqG5BQqoR6hpO8Dvsah0XyVg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1353349642-3677-65-git-send-email-wfp5p@virginia.edu>
-Sender: linux-omap-owner@vger.kernel.org
-To: Bill Pemberton <wfp5p@virginia.edu>
-Cc: gregkh@linuxfoundation.org, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks  <ben-linux@fluff.org>, Rudolf Marek <r.marek@assembler.cz>, Jochen Friedrich <jochen@scram.de>, Peter Korsgaard <jacmet@sunsite.dk>, Tony Lindgren <tony@atomide.com>, Olof Johansson <olof@lixom.net>, Vitaly Wool <vitalywool@gmail.com>, Guan Xuetao <gxt@mprc.pku.edu.cn>, Barry Song <baohua.song@csr.com>, "Mark M. Hoffman" <mhoffman@lightlink.com>, linux-i2c@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAN+gG=Gm2JXur1HsL=-EEpahGZjqG5BQqoR6hpO8Dvsah0XyVg@mail.gmail.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Stephane Chatty <chatty@enac.fr>, "fabien.andre@gmail.com" <fabien.andre@gmail.com>, "scott.liu@emc.com.tw" <scott.liu@emc.com.tw>, Jean Delvare <khali@linux-fr.org>, JJ Ding <jj_ding@emc.com.tw>, Jiri Slaby <jslaby@suse.cz>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 19 Nov 2012 13:20:14 -0500, Bill Pemberton wrote:
-> CONFIG_HOTPLUG is going away as an option so __devexit_p is no longer
-> needed.
+Hi,
 
-As mentioned on the lm-sensors list for hwmon patches already, I think
-it would be much clearer to not split __devexit, __devexit_p, __devinit
-etc. removal into separate patches. One patch per subsystem would be
-easier to review and apply. If patches grow too large then you'd rather
-split in a different direction, for example drivers/i2c/muxes vs.
-drivers/i2c/busses or even grouped by related bus drivers (see entries
-"I2C OVER PARALLEL PORT" and "I2C/SMBUS CONTROLLER DRIVERS FOR PC" in
-MAINTAINERS for examples of meaningful groups.)
+> -----Original Message-----
+> From: Benjamin Tissoires [mailto:benjamin.tissoires@gmail.com]
+> Sent: Friday, November 16, 2012 8:26 PM
+> To: Jiri Kosina; Ramalingam C
+> Cc: Dmitry Torokhov; Stephane Chatty; fabien.andre@gmail.com;
+> scott.liu@emc.com.tw; Jean Delvare; JJ Ding; Jiri Slaby; Shubhrajyoti Datta;
+> linux-i2c@vger.kernel.org; linux-input@vger.kernel.org; linux-
+> kernel@vger.kernel.org
+> Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification
+> implementation
+> 
+> On Thu, Nov 15, 2012 at 3:04 PM, Benjamin Tissoires
+> <benjamin.tissoires@gmail.com> wrote:
+> > On Thu, Nov 15, 2012 at 2:51 PM, Jiri Kosina <jkosina@suse.cz> wrote:
+> >> On Mon, 12 Nov 2012, Benjamin Tissoires wrote:
+> >>
+> >>> Microsoft published the protocol specification of HID over i2c:
+> >>> http://msdn.microsoft.com/en-
+> us/library/windows/hardware/hh852380.as
+> >>> px
+> >>>
+> >>> This patch introduces an implementation of this protocol.
+> >>>
+> >>> This implementation does not includes the ACPI part of the specification.
+> >>> This will come when ACPI 5.0 devices enumeration will be available.
+> >>>
+> >>> Once the ACPI part is done, OEM will not have to declare HID over
+> >>> I2C devices in their platform specific driver.
+> >>>
+> >>> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> >>
+> >> Out of curiosity -- has this been tested on a real device (is there
+> >> any such device available anyway?), or is that just the
+> >> implementation of the defined protocol?
+> >
+> > It has been tested on an ELAN microelectronics device (a prototype),
+> > on an odroid-x board. That's how we figure out the bug in the
+> > set_report command.
+> > I think we manage to test all main features of the protocol
+> > (get_report, irqs, hid descriptor, report descriptors, set_report).
+> >
+> > I'm currently waiting for a Synaptics touchpad to check if it's also
+> > working with their devices.
+> >
+> > The thing is that HID over i2c for x86 platform will presumably
+> > require the Haswell platform from Intel (we need ACPI 5 for
+> > enumeration), but it would be very nice to get this in the kernel just
+> > before hardware arrive on the market :) However, I won't be surprise
+> > if android OEMs also start using this specification because it won't
+> > force them to write kernel drivers...
+> 
+> And as a complement, Ramalingam tested it for Nvidia on an early NVIDIA's
+> Tegra reference board for PISMO which is registered at
+> http://www.arm.linux.org.uk/developer/machines/list.php?id=4439 , with a
+> HID over i2c keyboard.
+> He is up to test also his Synaptics touchpad.
 
--- 
-Jean Delvare
+I have tested with Synaptics trackpad. It is working fine. Thank you Benjamin.
+
+Thanks and Regards,
+Ramalingam C
+
+> 
+> Cheers,
+> Benjamin
+> 
+> >
+> > Cheers,
+> > Benjamin
+> >
+> >>
+> >> Thanks,
+> >>
+> >> --
+> >> Jiri Kosina
+> >> SUSE Labs
