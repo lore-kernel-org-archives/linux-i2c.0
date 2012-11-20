@@ -1,39 +1,49 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: mxs: Do not disable the I2C SMBus quick mode
-Date: Mon, 19 Nov 2012 21:02:34 +0100
-Message-ID: <201211192102.35055.marex@denx.de>
-References: <1353216308-7338-1-git-send-email-marex@denx.de> <201211191913.20938.marex@denx.de> <CANqk_c9xk6mtiA5NpvoLy3bSdKPhF7yAUWfe_rRefZLMeOeHNQ@mail.gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 3/4] i2c-s3c2410: use exponential back off while
+ polling for bus idle
+Date: Tue, 20 Nov 2012 04:49:00 +0000
+Message-ID: <20121120044859.GA10154@sirena.org.uk>
+References: <1352981613-2098-1-git-send-email-ch.naveen@samsung.com>
+ <1352981613-2098-4-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANqk_c9xk6mtiA5NpvoLy3bSdKPhF7yAUWfe_rRefZLMeOeHNQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tim Michals <tcmichals-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1352981613-2098-4-git-send-email-ch.naveen@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, kgene.kim@samsung.com, khali@linux-fr.org, w.sang@pengutronix.de, naveenkrishna.ch@gmail.com, djkurtz@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Tim Michals,
+On Thu, Nov 15, 2012 at 05:43:32PM +0530, Naveen Krishna Chatradhi wrote:
 
-[...]
+> +	iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> +	delay = 1;
+> +	while ((iicstat & S3C2410_IICSTAT_START) &&
+> +	       ktime_us_delta(now, start) < S3C2410_IDLE_TIMEOUT) {
+> +		usleep_range(delay, 2 * delay);
+> +		if (delay < S3C2410_IDLE_TIMEOUT / 10)
+> +			delay <<= 1;
+> +		now = ktime_get();
+> +		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> +	}
 
-> > The register layout differs. You might want to check if all the register
-> > programing is correct. Make sure the placement of various bits is
-> > correct. Also
-> > see how the DMA operates with the transfer length on MX23 and MX28 ...
-> > there are
-> > quite a few differences and I didn't test the driver on MX23 like that. I
-> > recall
-> > someone testing it on a different MX23 board but only by some "standard"
-> > usage.
-> 
-> OK, will report back in a couple of weeks due holidays and current
-> assignment load.
+> -	/* first, try busy waiting briefly */
+> -	do {
+> -		cpu_relax();
+> -		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> -	} while ((iicstat & S3C2410_IICSTAT_START) && --spins);
 
-Ok, it might be better to apply these as they actually fix it on MX28 until you 
-have a proper fix ready. We don't officially support MX23 with this driver 
-anyway.
+On the hardware I was using when I wrote the original code here we were
+hitting 1-2 spins often enough to be interesting - starting off with a
+direct busy wait was definitely useful when doing large batches of I/O,
+especially compared to sleeps which might cause us to schedule.
 
-Best regards,
-Marek Vasut
+> -	/* if that timed out sleep */
+> -	if (!spins) {
+> -		msleep(1);
+> -		iicstat = readl(i2c->regs + S3C2410_IICSTAT);
+> -	}
+
+It seems like it'd be better to do the exponential backoff bit here
+instead of removing the busy wait completely.
