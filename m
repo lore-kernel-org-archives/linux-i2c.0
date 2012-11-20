@@ -1,60 +1,44 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: remove CONFIG_HOTPLUG ifdefs
-Date: Tue, 20 Nov 2012 16:46:09 +0100
-Message-ID: <20121120164609.6a7347dc@endymion.delvare>
-References: <1353423481-5163-1-git-send-email-wfp5p@virginia.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1353423481-5163-1-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+From: Doug Anderson <dianders@chromium.org>
+Subject: [PATCH] ARM: exynos: dt: add all i2c busses to auxdata
+Date: Tue, 20 Nov 2012 14:22:35 -0800
+Message-ID: <1353450155-1663-1-git-send-email-dianders@chromium.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-samsung-soc@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Kukjin Kim <kgene.kim@samsung.com>, Doug Anderson <dianders@chromium.org>, Russell King <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 20 Nov 2012 09:58:01 -0500, Bill Pemberton wrote:
-> Remove conditional code based on CONFIG_HOTPLUG being false.  It's
-> always on now in preparation of it going away as an option.
-> 
-> Signed-off-by: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-> ---
-> 
-> The is a resend of patch 002/493 that retains a comment inadvertently
-> removed in the first version.
-> 
-> ---
->  drivers/i2c/i2c-core.c | 6 ------
->  1 file changed, 6 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index a7edf98..ff43d3b 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -86,8 +86,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
->  	return 0;
->  }
->  
-> -#ifdef	CONFIG_HOTPLUG
-> -
->  /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
->  static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
->  {
-> @@ -100,10 +98,6 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
->  	return 0;
->  }
->  
-> -#else
-> -#define i2c_device_uevent	NULL
-> -#endif	/* CONFIG_HOTPLUG */
-> -
->  static int i2c_device_probe(struct device *dev)
->  {
->  	struct i2c_client	*client = i2c_verify_client(dev);
+From: Olof Johansson <olof@lixom.net>
 
-Looks reasonable.
+Needed to match device ids for clocks, etc.
 
-Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Olof Johansson <olof@lixom.net>
+Signed-off-by: Doug Anderson <dianders@chromium.org>
 
+---
+ arch/arm/mach-exynos/mach-exynos5-dt.c |   10 ++++++++++
+ 1 files changed, 10 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-exynos/mach-exynos5-dt.c b/arch/arm/mach-exynos/mach-exynos5-dt.c
+index ed37273..e1491f7 100644
+--- a/arch/arm/mach-exynos/mach-exynos5-dt.c
++++ b/arch/arm/mach-exynos/mach-exynos5-dt.c
+@@ -52,6 +52,16 @@ static const struct of_dev_auxdata exynos5250_auxdata_lookup[] __initconst = {
+ 				"s3c2440-i2c.1", NULL),
+ 	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(2),
+ 				"s3c2440-i2c.2", NULL),
++	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(3),
++				"s3c2440-i2c.3", NULL),
++	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(4),
++				"s3c2440-i2c.4", NULL),
++	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(5),
++				"s3c2440-i2c.5", NULL),
++	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(6),
++				"s3c2440-i2c.6", NULL),
++	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(7),
++				"s3c2440-i2c.7", NULL),
+ 	OF_DEV_AUXDATA("samsung,s3c2440-hdmiphy-i2c", EXYNOS5_PA_IIC(8),
+ 				"s3c2440-hdmiphy-i2c", NULL),
+ 	OF_DEV_AUXDATA("samsung,exynos5250-dw-mshc", EXYNOS5_PA_DWMCI0,
 -- 
-Jean Delvare
+1.7.7.3
