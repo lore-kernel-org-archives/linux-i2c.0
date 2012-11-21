@@ -1,40 +1,33 @@
-From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-s3c2410: Remove recently introduced performance overheads
-Date: Wed, 21 Nov 2012 14:23:09 +0800
-Message-ID: <CAGS+omCMc_kPDYvFOro++-h8nnv_603PtKbv01frki3twHwg8g@mail.gmail.com>
-References: <1353471131-23975-1-git-send-email-broonie@opensource.wolfsonmicro.com>
- <CAOesGMhBZo6gKfzs1A954a_vaAMzy4px3TsgKE2rac_igH3sLw@mail.gmail.com>
+From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Subject: Re: [PATCH 1/2] ARM: EXYNOS: Add aliases for i2c controller for
+ exynos4
+Date: Tue, 20 Nov 2012 23:25:28 -0800
+Message-ID: <20121121072528.GJ7615@quad.lixom.net>
+References: <1353450428-2615-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAOesGMhBZo6gKfzs1A954a_vaAMzy4px3TsgKE2rac_igH3sLw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1353450428-2615-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Olof Johansson <olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Benson Leung <bleung-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 21, 2012 at 1:08 PM, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org> wrote:
-> On Tue, Nov 20, 2012 at 8:12 PM, Mark Brown
-> <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org> wrote:
->> The changes in "i2c-s3c2410: use exponential back off while polling for
->> bus idle" remove the initial busy wait for I2C transfers to complete and
->> replace it with usleep_range() calls which will schedule.
->>
->> Since for older SoCs I2C transfers would usually complete within an
->> extremely small number of CPU cycles there is a win from not having to
->> schedule.  This happens because on the older SoCs the cores run at a
->> smaller multiple of the speeds that the I2C bus is operating at; on more
->> modern SoCs the busy wait is less likely to be effective.
->>
->> Fix the issue by restoring the busy wait, reducing the number of spins
->> from 20 to 3 which covers the overwhelming majority of I2C transfers on
->> the SoCs where the busy wait is effective.
->>
->> Signed-off-by: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
->
-> Acked-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+On Tue, Nov 20, 2012 at 02:27:03PM -0800, Doug Anderson wrote:
+> This is similar to a recent commit for exynos5250 titled:
+>   ARM: EXYNOS: Add aliases for i2c controller
+> 
+> Adding aliases will be useful to prevent warnings in a future
+> change.  See:
+>   i2c: s3c2410: Get the i2c bus number from alias id
+> 
+> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 
-Reviewed-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Acked-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 
->
-> -Olof
+This can go in independently of the pending comment on the i2c driver change
+(that it should be done in the core, which makes sense).
+
+
+-Olof
