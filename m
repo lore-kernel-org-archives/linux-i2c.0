@@ -1,64 +1,61 @@
-From: Kukjin Kim <kgene.kim@samsung.com>
-Subject: RE: [PATCH] ARM: exynos: dt: add all i2c busses to auxdata
-Date: Wed, 21 Nov 2012 18:43:22 +0900
-Message-ID: <0dfe01cdc7cc$a5585da0$f00918e0$%kim@samsung.com>
-References: <1353450155-1663-1-git-send-email-dianders@chromium.org>
+From: ludovic.desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH v3 0/3] i2c: at91: add dma support
+Date: Wed, 21 Nov 2012 10:45:56 +0100
+Message-ID: <50ACA2D4.9040904@atmel.com>
+References: <1352911493-6979-1-git-send-email-ludovic.desroches@atmel.com>
+ <20121116170514.GA21903@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-reply-to: <1353450155-1663-1-git-send-email-dianders@chromium.org>
-Content-language: ko
-Sender: linux-kernel-owner@vger.kernel.org
-To: 'Doug Anderson' <dianders@chromium.org>, linux-samsung-soc@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, 'Olof Johansson' <olof@lixom.net>, 'Thomas Abraham' <thomas.abraham@linaro.org>, 'Russell King' <linux@arm.linux.org.uk>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20121116170514.GA21903@pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: plagnioj@jcrosoft.com, ludovic.desroches@atmel.com, nicolas.ferre@atmel.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Doug Anderson wrote:
-> 
-> From: Olof Johansson <olof@lixom.net>
-> 
-> Needed to match device ids for clocks, etc.
-> 
-> Signed-off-by: Olof Johansson <olof@lixom.net>
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> 
-> ---
->  arch/arm/mach-exynos/mach-exynos5-dt.c |   10 ++++++++++
->  1 files changed, 10 insertions(+), 0 deletions(-)
-> 
-> diff --git a/arch/arm/mach-exynos/mach-exynos5-dt.c b/arch/arm/mach-
-> exynos/mach-exynos5-dt.c
-> index ed37273..e1491f7 100644
-> --- a/arch/arm/mach-exynos/mach-exynos5-dt.c
-> +++ b/arch/arm/mach-exynos/mach-exynos5-dt.c
-> @@ -52,6 +52,16 @@ static const struct of_dev_auxdata
-> exynos5250_auxdata_lookup[] __initconst = {
->  				"s3c2440-i2c.1", NULL),
->  	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(2),
->  				"s3c2440-i2c.2", NULL),
-> +	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(3),
-> +				"s3c2440-i2c.3", NULL),
-> +	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(4),
-> +				"s3c2440-i2c.4", NULL),
-> +	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(5),
-> +				"s3c2440-i2c.5", NULL),
-> +	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(6),
-> +				"s3c2440-i2c.6", NULL),
-> +	OF_DEV_AUXDATA("samsung,s3c2440-i2c", EXYNOS5_PA_IIC(7),
-> +				"s3c2440-i2c.7", NULL),
->  	OF_DEV_AUXDATA("samsung,s3c2440-hdmiphy-i2c", EXYNOS5_PA_IIC(8),
->  				"s3c2440-hdmiphy-i2c", NULL),
->  	OF_DEV_AUXDATA("samsung,exynos5250-dw-mshc", EXYNOS5_PA_DWMCI0,
-> --
-> 1.7.7.3
+Hi Wolfram,
 
-Looks ok to me, applied.
+Sorry for the delay, I have realized that my answer was not sent =
 
-Thanks.
+correctly since I don't see it into the i2c archives.
 
-Best regards,
-Kgene.
---
-Kukjin Kim <kgene.kim@samsung.com>, Senior Engineer,
-SW Solution Development Team, Samsung Electronics Co., Ltd.
+Le 11/16/2012 06:05 PM, Wolfram Sang a =E9crit :
+> Hi Ludovic,
+>
+>> Here is the third version taking into account your feedback.
+>
+> Thanks, looks mostly good. I have problems applying patch 3. What is
+> this series based against?
+>
+
+It was based against v3.7-rc4. Do you want me to rebase it against an
+over version?
+
+>> Patch 1/3 should go into v3.7.
+>
+> No, not necessarily. It is not really a bugfix, and it is probably too
+> late in the cycle for compiler silencing. Ah well, I decide later.
+>
+> BTW if you use --strict with checkpatch, it will tell you about the
+> space after casts :)
+>
+
+Ok, thanks for the tips.
+
+Regards
+
+Ludovic
+
+> Regards,
+>
+>     Wolfram
+>
