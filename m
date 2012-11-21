@@ -1,41 +1,32 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: tfp410 and i2c_bus_num
-Date: Wed, 21 Nov 2012 09:57:47 -0800
-Message-ID: <20121121175747.GV18567@atomide.com>
-References: <50A64D35.9050109@ti.com>
- <20121116151959.GA19411@arwen.pp.htv.fi>
- <50A65E40.9040208@ti.com>
- <20121116182146.GC20496@arwen.pp.htv.fi>
- <50A72390.3050509@ti.com>
- <20121118113437.GB30462@arwen.pp.htv.fi>
- <50A9D3DD.6040807@ti.com>
- <20121119092744.GB4211@arwen.pp.htv.fi>
- <50AA1376.6060801@ti.com>
- <20121119121630.GC15540@arwen.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 0/2] Add automatic bus number support for i2c busses with device tree
+Date: Wed, 21 Nov 2012 10:26:00 -0800
+Message-ID: <1353522362-25519-1-git-send-email-dianders@chromium.org>
+References: <1353450428-2615-2-git-send-email-dianders@chromium.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20121119121630.GC15540-S8G//mZuvNWo5Im9Ml3/Zg@public.gmane.org>
+In-Reply-To: <1353450428-2615-2-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: Tomi Valkeinen <tomi.valkeinen-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Padmavathi Venna <padma.v-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org> [121119 04:25]:
-> On Mon, Nov 19, 2012 at 01:09:42PM +0200, Tomi Valkeinen wrote:
-> > On 2012-11-19 11:27, Felipe Balbi wrote:
-> > > 
-> > > fair enough... it looks like this is going nowhere, so best we come back
-> > > to this later. No reason to block your patch.
-> > 
-> > Well, the patch is a fix for stable kernels, so even if we had a great
-> > idea how to rewrite the dss device handling, it wouldn't affect this
-> > patch =).
-> 
-> ok good ;-)
+This was suggested by Mark Brown in response to a patch for adding
+this functionality only for the s3c2410 bus:
+  https://lkml.org/lkml/2012/11/20/681
 
-FYI I'm assuming Tomi will resend the patch as there were some
-changes requested early on in the thread.
+I have also modified the i2c-pxa driver to use this new functionality
+but have no good way to test that patch.  Hopefully someone else can
+test and ack.  The patch adding the generic functionality could go in
+even if the i2c-pxa patch needs changes.
 
-Tony
+
+Doug Anderson (2):
+  i2c-core: dt: Pick i2c bus number from i2c alias if present
+  i2c: pxa: Use i2c-core to get bus number now
+
+ drivers/i2c/busses/i2c-pxa.c |    8 +---
+ drivers/i2c/i2c-core.c       |  105 ++++++++++++++++++++++++++++++-----------
+ 2 files changed, 78 insertions(+), 35 deletions(-)
+
+-- 
+1.7.7.3
