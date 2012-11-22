@@ -1,101 +1,67 @@
-From: Tomi Valkeinen <tomi.valkeinen@ti.com>
-Subject: Re: tfp410 and i2c_bus_num
-Date: Thu, 22 Nov 2012 10:28:59 +0200
-Message-ID: <50ADE24B.7070006@ti.com>
-References: <50A64D35.9050109@ti.com> <20121116151959.GA19411@arwen.pp.htv.fi>
- <50A65E40.9040208@ti.com> <20121116182146.GC20496@arwen.pp.htv.fi>
- <50A72390.3050509@ti.com> <20121118113437.GB30462@arwen.pp.htv.fi>
- <50A9D3DD.6040807@ti.com> <20121119092744.GB4211@arwen.pp.htv.fi>
- <50AA1376.6060801@ti.com> <20121119121630.GC15540@arwen.pp.htv.fi>
- <20121121175747.GV18567@atomide.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: mxs: Add PIO and mixed-DMA support
+Date: Thu, 22 Nov 2012 12:50:37 +0100
+Message-ID: <20121122115037.GA12080@pengutronix.de>
+References: <1353477088-9660-1-git-send-email-marex@denx.de>
+ <201211220150.37462.marex@denx.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============7891080559491515009=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20121121175747.GV18567@atomide.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Tony Lindgren <tony@atomide.com>
-Cc: Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, Felipe Balbi <balbi@ti.com>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201211220150.37462.marex-ynQEQJNshbs@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---===============7891080559491515009==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature";
-	boundary="------------enig6947E0F39E1B136F74B3014B"
 
---------------enig6947E0F39E1B136F74B3014B
-Content-Type: text/plain; charset=ISO-8859-1
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On 2012-11-21 19:57, Tony Lindgren wrote:
-> * Felipe Balbi <balbi@ti.com> [121119 04:25]:
->> On Mon, Nov 19, 2012 at 01:09:42PM +0200, Tomi Valkeinen wrote:
->>> On 2012-11-19 11:27, Felipe Balbi wrote:
->>>>
->>>> fair enough... it looks like this is going nowhere, so best we come =
-back
->>>> to this later. No reason to block your patch.
->>>
->>> Well, the patch is a fix for stable kernels, so even if we had a grea=
-t
->>> idea how to rewrite the dss device handling, it wouldn't affect this
->>> patch =3D).
->>
->> ok good ;-)
+On Thu, Nov 22, 2012 at 01:50:37AM +0100, Marek Vasut wrote:
+> Dear Marek Vasut,
 >=20
-> FYI I'm assuming Tomi will resend the patch as there were some
-> changes requested early on in the thread.
+> > Add support for the PIO mode and mixed PIO/DMA mode support. The mixed
+> > PIO/DMA is the default mode of operation. This shall leverage overhead
+> > that the driver creates due to setting up DMA descriptors even for very
+> > short transfers.
+> >=20
+> > The current boundary between PIO/DMA 8 bytes, transfers shorter than 8
+> > bytes are transfered by PIO, longer transfers use DMA. The performance
+> > of write transfers remains unchanged, while there is a minor improvement
+> > of read performance. Reading 16KB EEPROM with DMA-only operations gives
+> > a read speed of 39.5KB/s, while with then new mixed-mode the speed is
+> > blazing 40.6KB/s.
+> >=20
+> > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> [...]
+>=20
+> btw. Wolfram, you might want to drop me some credit into the MX28 i2c dri=
+ver, I=20
+> suspect most of the code in there is mine now anyway :-D
 
-Yes, I'll resend.
+It's fine if you do this yourself.
 
- Tomi
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
-
-
-
---------------enig6947E0F39E1B136F74B3014B
+--a8Wt8u1KmwUX3Y2C
 Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.11 (GNU/Linux)
-Comment: Using GnuPG with undefined - http://www.enigmail.net/
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJQreJLAAoJEPo9qoy8lh71jd4P/jSaHrZpjgIh4elE9QO9jQoe
-edhhHOsBH6rGu9wLhvmeZ3rQ7/aoUisIOYdPbxLjp1W6DcxgLqOO6/l0oc6/DDRz
-qT/8pHZmT+A/t0M0E811CYv9J2FvqAa90OthJVY5ZUBt+NjrAboTol6+Qz7B3QWh
-Fjabv4ESHrus+WlhYNT9fJAhq79UW2XVS3iqKUeDqhd8IHRJECyOADX63ADj3KI5
-c3ljNKNVyQ7SPi00fcXx+6GasB4P9R/vCuWJujZaHKg7cOAzkjo5FuQQE+oqInXM
-fZgOxZYQJQzVynYionvq+/0VPQH1Pke63lUo9S0DBFmKvwncSGgQu0q8/E6U+MzG
-ulY0Die7Xo1ERmXR+DRrlW3ImRjEN2Tnb0d/AoaKFjEwkeEFjCbx/oU5rOJ7Cf8h
-Ui66tGadfY7PnPrxNSEOqwc+mbiNT3lJ+yoZLVbECgjzEcKR5crslmNY3BgFKd3z
-GvPbDsOhauiRIozmD2jQ0TzR8ipduw3i8QC4y+ek3rV/JYArTXhKRxO9fL0ZPZOT
-TzLfJQFKMluDnIC1VObqE2jmnPM16FazPh43mKbMNp+bE39bks8UlYJ8VMF+gf5/
-iKgv21oLx9QOYbjM6QWYN/ezAh5CTv7js6MZWEGX291FItfR0S5oZYZEO8kU4yfS
-Mjm+omSdGSGWFDxQ+eHc
-=qZc2
+iEYEARECAAYFAlCuEY0ACgkQD27XaX1/VRtr3ACeOrctJzu8IFrYH3MkhWkRjFDQ
+GmQAn1MiyJA7bs5/Ns3kdEtNo+sCu5/d
+=aomL
 -----END PGP SIGNATURE-----
 
---------------enig6947E0F39E1B136F74B3014B--
-
-
---===============7891080559491515009==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============7891080559491515009==--
+--a8Wt8u1KmwUX3Y2C--
