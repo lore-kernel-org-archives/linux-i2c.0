@@ -1,52 +1,87 @@
-From: Tushar Behera <tushar.behera-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 0/7] i2c: s3c2410: Add devm_* apis and cleanup
-Date: Fri, 23 Nov 2012 12:14:50 +0530
-Message-ID: <50AF1B62.1000209@linaro.org>
-References: <1353650353-17576-1-git-send-email-tushar.behera@linaro.org> <CAM=Q2cs=oYq4e17LXxUEhATiYLAjnzoTH-+nsO5KNQwGj2qSBA@mail.gmail.com>
+From: Vasanth Ananthan <vasanthananthan@gmail.com>
+Subject: Re: [PATCH v2 1/6] ARM: EXYNOS5: Clock settings for SATA and SATA PHY
+Date: Fri, 23 Nov 2012 14:15:27 +0530
+Message-ID: <CAK1UHixL5c5ybWmUH0zU5cs=stx8eH2r-rXuuZMSMcJj=ThDng@mail.gmail.com>
+References: <1351612897-14923-1-git-send-email-vasanthananthan@gmail.com>
+	<1351612897-14923-2-git-send-email-vasanthananthan@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAM=Q2cs=oYq4e17LXxUEhATiYLAjnzoTH-+nsO5KNQwGj2qSBA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shubhrajyoti Datta <omaplinuxkernel-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <1351612897-14923-2-git-send-email-vasanthananthan@gmail.com>
+Sender: linux-ide-owner@vger.kernel.org
+To: ben-linux@fluff.org
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-ide@vger.kernel.org, Thomas Abraham <thomas.abraham@linaro.org>, kgene.kim@samsung.com, jgarzik@pobox.com, linux@arm.linux.org.uk, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 11/23/2012 11:45 AM, Shubhrajyoti Datta wrote:
-> On Fri, Nov 23, 2012 at 11:29 AM, Tushar Behera
-> <tushar.behera-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> This patchset cleans up the probe function of i2c-s3c2410 driver.
->> These have been tested on Exynos4210 based Origen board.
->>
->> Tushar Behera (7):
->>   i2c: s3c2410: Remove unnecessary label err_noclk
->>   i2c: s3c2410: Convert to use devm_clk_get()
->>   i2c: s3c2410: Convert to use devm_request_mem_region()
->>   i2c: s3c2410: Convert to use devm_ioremap()
->>   i2c: s3c2410: Convert to use devm_request_irq()
-> 
-> You may want to consider request_and_ioremap.
-> 
+Hi,
 
-Thanks. I will redo the patchset and submit again.
+Missed to include Ben, for I2C patch, including him and copying others.
 
-> 
->>   i2c: s3c2410: Move location of clk_prepare_enable() call in probe
->>     function
->>   i2c: s3c2410: Remove err_cpufreq label
->>
->>  drivers/i2c/busses/i2c-s3c2410.c |   74 ++++++++++++--------------------------
->>  1 files changed, 23 insertions(+), 51 deletions(-)
->>
->> --
->> 1.7.4.1
->>
->> --
->> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
->> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Thanks,
+Vasanth.
+
+On Tue, Oct 30, 2012 at 9:31 PM, Vasanth Ananthan
+<vasanthananthan@gmail.com> wrote:
+> This patch adds neccessary clock entries for SATA, SATA PHY and
+> I2C_SATAPHY
+>
+> Signed-off-by: Vasanth Ananthan <vasanth.a@samsung.com>
+> ---
+>  arch/arm/mach-exynos/clock-exynos5.c |   21 ++++++++++++++++++---
+>  1 files changed, 18 insertions(+), 3 deletions(-)
+>
+> diff --git a/arch/arm/mach-exynos/clock-exynos5.c b/arch/arm/mach-exynos/clock-exynos5.c
+> index c44ca1e..124c54f 100644
+> --- a/arch/arm/mach-exynos/clock-exynos5.c
+> +++ b/arch/arm/mach-exynos/clock-exynos5.c
+> @@ -651,15 +651,20 @@ static struct clk exynos5_init_clocks_off[] = {
+>                 .ctrlbit        = (1 << 15),
+>         }, {
+>                 .name           = "sata",
+> -               .devname        = "ahci",
+> +               .devname        = "exynos5-sata",
+> +               .parent         = &exynos5_clk_aclk_200.clk,
+>                 .enable         = exynos5_clk_ip_fsys_ctrl,
+>                 .ctrlbit        = (1 << 6),
+>         }, {
+> -               .name           = "sata_phy",
+> +               .name           = "sata-phy",
+> +               .devname        = "exynos5-sata-phy",
+> +               .parent         = &exynos5_clk_aclk_200.clk,
+>                 .enable         = exynos5_clk_ip_fsys_ctrl,
+>                 .ctrlbit        = (1 << 24),
+>         }, {
+> -               .name           = "sata_phy_i2c",
+> +               .name           = "i2c",
+> +               .devname        = "exynos5-sata-phy-i2c",
+> +               .parent         = &exynos5_clk_aclk_200.clk,
+>                 .enable         = exynos5_clk_ip_fsys_ctrl,
+>                 .ctrlbit        = (1 << 25),
+>         }, {
+> @@ -1226,6 +1231,16 @@ static struct clksrc_clk exynos5_clksrcs[] = {
+>                 .reg_div = { .reg = EXYNOS5_CLKDIV_TOP0, .shift = 24, .size = 3 },
+>         }, {
+>                 .clk    = {
+> +                       .name           = "sclk_sata",
+> +                       .devname        = "exynos5-sata",
+> +                       .enable         = exynos5_clksrc_mask_fsys_ctrl,
+> +                       .ctrlbit        = (1 << 24),
+> +               },
+> +               .sources = &exynos5_clkset_aclk,
+> +               .reg_src = { .reg = EXYNOS5_CLKSRC_FSYS, .shift = 24, .size = 1 },
+> +               .reg_div = { .reg = EXYNOS5_CLKDIV_FSYS0, .shift = 20, .size = 4 },
+> +       }, {
+> +               .clk    = {
+>                         .name           = "sclk_gscl_wrap",
+>                         .devname        = "s5p-mipi-csis.0",
+>                         .enable         = exynos5_clksrc_mask_gscl_ctrl,
+> --
+> 1.7.4.1
+>
+
 
 
 -- 
-Tushar Behera
+Regards,
+
+Vasanth K A
