@@ -1,46 +1,38 @@
-From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: =?UTF-8?q?=5BPATCH=201/3=5D=20i2c=3A=20at91=3A=20fix=20compilation=20warning?=
-Date: Fri, 23 Nov 2012 17:03:16 +0100
-Message-ID: <1353686596-28606-1-git-send-email-ludovic.desroches@atmel.com>
-References: <20121123091608.GL5764@n2100.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121123091608.GL5764-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+From: Cesar Eduardo Barros <cesarb@cesarb.net>
+Subject: [PATCH 13/24] MAINTAINERS: fix drivers/i2c/busses/i2c-stub.c
+Date: Fri, 23 Nov 2012 22:26:37 -0200
+Message-ID: <1353716808-16375-14-git-send-email-cesarb@cesarb.net>
+References: <1353716808-16375-1-git-send-email-cesarb@cesarb.net>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1353716808-16375-1-git-send-email-cesarb@cesarb.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Cesar Eduardo Barros <cesarb@cesarb.net>, Jean Delvare <khali@linux-fr.org>, "Mark M. Hoffman" <mhoffman@lightlink.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-=46rom: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+This file was moved to drivers/i2c/i2c-stub.c by commit 31d178b
+(i2c-stub: Move to drivers/i2c).
 
-This patch fixes the following warning:
-drivers/i2c/busses/i2c-at91.c: In function =E2=80=98at91_twi_get_driver=
-_data=E2=80=99:
-drivers/i2c/busses/i2c-at91.c:411:3: warning: return discards =E2=80=98=
-const=E2=80=99 qualifier from pointer target type [enabled by default]
-
-Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Cesar Eduardo Barros <cesarb@cesarb.net>
 ---
- drivers/i2c/busses/i2c-at91.c | 2 +-
+ MAINTAINERS | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at9=
-1.c
-index aa59a25..f222600 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -408,7 +408,7 @@ static struct at91_twi_pdata * __devinit at91_twi_g=
-et_driver_data(
- 		match =3D of_match_node(atmel_twi_dt_ids, pdev->dev.of_node);
- 		if (!match)
- 			return NULL;
--		return match->data;
-+		return (struct at91_twi_pdata *)match->data;
- 	}
- 	return (struct at91_twi_pdata *) platform_get_device_id(pdev)->driver=
-_data;
- }
---=20
-1.7.11.3
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 91feba2..eaf1a59 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3667,7 +3667,7 @@ I2C/SMBUS STUB DRIVER
+ M:	"Mark M. Hoffman" <mhoffman@lightlink.com>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
+-F:	drivers/i2c/busses/i2c-stub.c
++F:	drivers/i2c/i2c-stub.c
+ 
+ I2C SUBSYSTEM
+ M:	Wolfram Sang <w.sang@pengutronix.de>
+-- 
+1.7.11.7
