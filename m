@@ -1,425 +1,240 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH V6 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Sat, 24 Nov 2012 21:59:31 +0100
-Message-ID: <20121124205931.GB3210@pengutronix.de>
+Subject: Re: [PATCH V6 2/2] i2c/designware: Provide i2c bus recovery support
+Date: Sat, 24 Nov 2012 22:03:14 +0100
+Message-ID: <20121124210314.GC3210@pengutronix.de>
 References: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar@linaro.org>
+ <6262d3a8e87858d938362c4aa44caf40938f2be9.1349348405.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FkmkrVfFsRoUs1wW"
+	protocol="application/pgp-signature"; boundary="dkEUBIird37B8yKS"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <9adb13c1a2e35dce401b0a50e455fe1be76285a7.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <6262d3a8e87858d938362c4aa44caf40938f2be9.1349348405.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
+Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---FkmkrVfFsRoUs1wW
+--dkEUBIird37B8yKS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Oct 04, 2012 at 04:34:53PM +0530, Viresh Kumar wrote:
-> Add i2c bus recovery infrastructure to i2c adapters as specified in the i=
-2c
-> protocol Rev. 03 section 3.1.16 titled "Bus clear".
+On Thu, Oct 04, 2012 at 04:34:54PM +0530, Viresh Kumar wrote:
+> Add bus recovery support for designware_i2c controller. It uses generic g=
+pio
+> based i2c_gpio_recover_bus() routine.
 >=20
-> http://www.nxp.com/documents/user_manual/UM10204.pdf
->=20
-> Sometimes during operation i2c bus hangs and we need to give dummy clocks=
- to
-> slave device to start the transfer again. Now we may have capability in t=
-he bus
-> controller to generate these clocks or platform may have gpio pins which =
-can be
-> toggled to generate dummy clocks. This patch supports both.
->=20
-> This patch also adds in generic bus recovery routines gpio or scl line ba=
-sed
-> which can be used by bus controller. In addition controller driver may pr=
-ovide
-> its own version of the bus recovery routine.
->=20
-> This doesn't support multi-master recovery for now.
->=20
+> Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
+> Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
 > Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-
-As mentioned before, I still have issues with the API and have most
-comments to that for now.
-
 > ---
 > V5->V6:
-> - Removed sda_gpio_flags
-> - Make scl_gpio_flags as GPIOF_OPEN_DRAIN | GPIOF_OUT_INIT_HIGH by default
-> - update bri->set_scl and bri->get_sda for gpio recovery case in i2c core
-> - Guaranteed to generate 9 falling-rising edges for bus recovery
+> - removed sda_gpio_flags
 >=20
-> V4->V5:
-> - section name corrected to 3.1.16
-> - merged gpio and non-gpio recovery routines to remove code redundancy
-> - Changed types of gpio and gpio-flags to unsigned and unsigned long
-> - Checking return value of get_gpio() now
-> - using DIV_ROUND_UP for calculating delay, to get more correct value
->=20
->  drivers/i2c/i2c-core.c | 156 +++++++++++++++++++++++++++++++++++++++++++=
+>  drivers/i2c/busses/i2c-designware-core.c    |  7 ++++-
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 38 ++++++++++++++++++++++--
+>  include/linux/i2c/i2c-designware.h          | 46 +++++++++++++++++++++++=
 ++++++
->  include/linux/i2c.h    |  55 +++++++++++++++++
->  2 files changed, 211 insertions(+)
+>  3 files changed, 88 insertions(+), 3 deletions(-)
+>  create mode 100644 include/linux/i2c/i2c-designware.h
 >=20
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index a7edf98..e78033b 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -27,7 +27,9 @@
-> =20
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busse=
+s/i2c-designware-core.c
+> index cbba7db..9b7c9bf 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -538,7 +538,12 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg=
+ msgs[], int num)
+>  	ret =3D wait_for_completion_interruptible_timeout(&dev->cmd_complete, H=
+Z);
+>  	if (ret =3D=3D 0) {
+>  		dev_err(dev->dev, "controller timed out\n");
+> -		i2c_dw_init(dev);
+> +		if (adap->bus_recovery_info &&
+> +				adap->bus_recovery_info->recover_bus) {
+> +			dev_dbg(dev->dev, "try i2c bus recovery\n");
+> +			adap->bus_recovery_info->recover_bus(adap);
+> +		}
+> +
+
+This should be in the core?
+
+>  		ret =3D -ETIMEDOUT;
+>  		goto done;
+>  	} else if (ret < 0)
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
+sses/i2c-designware-platdrv.c
+> index 0506fef..afa0df9 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -29,6 +29,7 @@
 >  #include <linux/module.h>
->  #include <linux/kernel.h>
-> +#include <linux/delay.h>
->  #include <linux/errno.h>
-> +#include <linux/gpio.h>
->  #include <linux/slab.h>
+>  #include <linux/delay.h>
 >  #include <linux/i2c.h>
->  #include <linux/init.h>
-> @@ -104,6 +106,111 @@ static int i2c_device_uevent(struct device *dev, st=
-ruct kobj_uevent_env *env)
->  #define i2c_device_uevent	NULL
->  #endif	/* CONFIG_HOTPLUG */
-> =20
-> +/* i2c bus recovery routines */
-> +static void set_scl_gpio_value(struct i2c_adapter *adap, int val)
-> +{
-> +	gpio_set_value(adap->bus_recovery_info->scl_gpio, val);
-> +}
-> +
-> +static int get_sda_gpio_value(struct i2c_adapter *adap)
-> +{
-> +	return gpio_get_value(adap->bus_recovery_info->sda_gpio);
-> +}
-> +
-> +static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
-> +{
-> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-> +	struct device *dev =3D &adap->dev;
-> +	int ret =3D 0;
-> +
-> +	if (bri->get_gpio) {
-> +		ret =3D bri->get_gpio(bri->scl_gpio);
-> +		if (ret) {
-> +			dev_warn(dev, "scl get_gpio: %d\n", bri->scl_gpio);
-
-This warning is probably not very helpful to a user.
-
-> +			return ret;
-> +		}
-> +	}
-> +
-> +	ret =3D gpio_request_one(bri->scl_gpio, bri->scl_gpio_flags, "i2c-scl");
-> +	if (ret) {
-> +		dev_warn(dev, "gpio request fail: %d\n", bri->scl_gpio);
-> +		goto scl_put_gpio;
-> +	}
-> +
-> +	if (!bri->skip_sda_polling) {
-> +		if (bri->get_gpio)
-> +			ret =3D bri->get_gpio(bri->sda_gpio);
-> +
-> +		if (unlikely(ret ||
-
-Since the unlikely() are not in hot-paths, you probably better skip
-them.
-
-> +			gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda"))) {
-> +			/* work without sda polling */
-> +			dev_warn(dev, "can't get sda: %d. Skip sda polling\n",
-> +					bri->sda_gpio);
-> +			bri->skip_sda_polling =3D true;
-> +			if (!ret && bri->put_gpio)
-> +				bri->put_gpio(bri->sda_gpio);
-> +
-> +			ret =3D 0;
-> +		}
-> +	}
-> +
-> +scl_put_gpio:
-> +	if (bri->put_gpio)
-> +		bri->put_gpio(bri->scl_gpio);
-> +
-> +	return ret;
-> +}
-> +
-> +static void i2c_put_gpios_for_recovery(struct i2c_adapter *adap)
-> +{
-> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-> +
-> +	gpio_free(bri->scl_gpio);
-> +
-> +	if (!bri->skip_sda_polling) {
-> +		gpio_free(bri->sda_gpio);
-> +
-> +		if (bri->put_gpio)
-> +			bri->put_gpio(bri->sda_gpio);
-> +	}
-> +}
-> +
-> +static int i2c_recover_bus(struct i2c_adapter *adap)
-> +{
-> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-> +	unsigned long delay =3D 1000000;
-
-What is this magic value?
-
-> +	int i, ret, val =3D 0;
-> +
-> +	if (bri->is_gpio_recovery) {
-> +		ret =3D i2c_get_gpios_for_recovery(adap);
-> +		if (ret)
-> +			return ret;
-> +	} else {
-> +		bri->set_scl(adap, 1);
-> +	}
-> +
-> +	/*
-> +	 * By this time SCL is high, as we need to give 9 falling-rising edges
-> +	 */
-> +
-> +	delay =3D DIV_ROUND_UP(delay, bri->clock_rate_khz * 2);
-> +
-> +	for (i =3D 0; i < bri->clock_cnt * 2; i++, val =3D !val) {
-> +		bri->set_scl(adap, val);
-> +		ndelay(delay);
-> +
-> +		/* break if sda got high, check only when scl line is high */
-> +		if (!bri->skip_sda_polling && val)
-> +			if (unlikely(bri->get_sda(adap)))
-> +				break;
-> +	}
-> +
-> +	if (bri->is_gpio_recovery)
-> +		i2c_put_gpios_for_recovery(adap);
-> +
-> +	return 0;
-> +}
-> +
->  static int i2c_device_probe(struct device *dev)
->  {
->  	struct i2c_client	*client =3D i2c_verify_client(dev);
-> @@ -896,6 +1003,55 @@ static int i2c_register_adapter(struct i2c_adapter =
-*adap)
->  			 "Failed to create compatibility class link\n");
->  #endif
-> =20
-> +	/* bus recovery specific initialization */
-> +	if (adap->bus_recovery_info) {
-> +		struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-> +
-> +		if (bri->recover_bus) {
-> +			dev_info(&adap->dev,
-> +				"registered for non-generic bus recovery\n");
-> +		} else {
-> +			/* Use generic recovery routines */
-> +			if (!bri->clock_rate_khz) {
-> +				dev_warn(&adap->dev,
-> +					"doesn't have valid recovery clock rate\n");
-> +				goto exit_recovery;
-> +			}
-> +
-> +			/* Most controller need 9 clocks at max */
-> +			if (!bri->clock_cnt)
-> +				bri->clock_cnt =3D 9;
-> +
-> +			bri->recover_bus =3D i2c_recover_bus;
-> +
-> +			if (bri->is_gpio_recovery) {
-> +				if (!bri->scl_gpio_flags)
-> +					bri->scl_gpio_flags =3D GPIOF_OPEN_DRAIN;
-> +
-> +				/* We always start by making GPIO HIGH */
-> +				bri->scl_gpio_flags |=3D GPIOF_OUT_INIT_HIGH;
-> +
-> +				bri->set_scl =3D set_scl_gpio_value;
-> +				bri->get_sda =3D get_sda_gpio_value;
-> +				dev_info(&adap->dev,
-> +					"registered for gpio bus recovery\n");
-> +			} else if (bri->set_scl) {
-> +				if (!bri->skip_sda_polling && !bri->get_sda) {
-> +					dev_warn(&adap->dev,
-> +						"!get_sda. skip sda polling\n");
-> +					bri->skip_sda_polling =3D true;
-> +				}
-> +
-> +				dev_info(&adap->dev,
-> +					"registered for scl bus recovery\n");
-> +			} else {
-> +				dev_warn(&adap->dev,
-> +					"doesn't have valid recovery type\n");
-> +			}
-> +		}
-> +	}
-> +
-> +exit_recovery:
->  	/* create pre-declared device nodes */
->  	if (adap->nr < __i2c_first_dynamic_bus_num)
->  		i2c_scan_static_board_info(adap);
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 5970266..13eeb2e 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -370,6 +370,58 @@ struct i2c_algorithm {
->  	u32 (*functionality) (struct i2c_adapter *);
+> +#include <linux/i2c/i2c-designware.h>
+>  #include <linux/clk.h>
+>  #include <linux/errno.h>
+>  #include <linux/sched.h>
+> @@ -45,6 +46,7 @@ static struct i2c_algorithm i2c_dw_algo =3D {
+>  	.master_xfer	=3D i2c_dw_xfer,
+>  	.functionality	=3D i2c_dw_func,
 >  };
+> +
+>  static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+>  {
+>  	return clk_get_rate(dev->clk)/1000;
+> @@ -55,6 +57,8 @@ static int __devinit dw_i2c_probe(struct platform_devic=
+e *pdev)
+>  	struct dw_i2c_dev *dev;
+>  	struct i2c_adapter *adap;
+>  	struct resource *mem, *ioarea;
+> +	struct i2c_dw_pdata *pdata;
+> +	struct i2c_bus_recovery_info *recovery_info =3D NULL;
+>  	int irq, r;
 > =20
-> +/**
-> + * struct i2c_bus_recovery_info - I2c bus recovery information
-> + * @recover_bus: Recover routine. Either pass driver's recover_bus() rou=
-tine, or
-> + *	pass it NULL to use generic ones, i.e. gpio or scl based.
+>  	/* NOTE: driver uses the static register mapping */
+> @@ -141,17 +145,45 @@ static int __devinit dw_i2c_probe(struct platform_d=
+evice *pdev)
+>  	adap->dev.parent =3D &pdev->dev;
+>  	adap->dev.of_node =3D pdev->dev.of_node;
+> =20
+> +	/* Bus recovery support */
+> +	pdata =3D dev_get_platdata(&pdev->dev);
+> +	if (pdata) {
+> +		recovery_info =3D kzalloc(sizeof(*recovery_info), GFP_KERNEL);
+> +		if (!recovery_info) {
+> +			adap->bus_recovery_info =3D NULL;
+> +			dev_err(&pdev->dev,
+> +				"failure to allocate memory for bus recovery\n");
+> +			goto skip_recovery;
+> +		}
+> +
+> +		recovery_info->is_gpio_recovery =3D true;
+> +		recovery_info->get_gpio =3D pdata->get_gpio;
+> +		recovery_info->put_gpio =3D pdata->put_gpio;
+> +		recovery_info->scl_gpio =3D pdata->scl_gpio;
+> +		recovery_info->scl_gpio_flags =3D pdata->scl_gpio_flags;
+> +		recovery_info->clock_rate_khz =3D clk_get_rate(dev->clk) / 1000;
 
-What about having those options?
+It is probably easier to define the whole bri structure in the platform
+and simply pass it on here? Hmm, now devicetree also comes to my mind.
+Will think about that a little, too, but main implementation should be
+left for someone needing that.
 
-NULL or custom_pointer or i2c_generic_scl_recovery or i2c_generic_gpio_reco=
-very
-
-where i2c_generic_gpio_recovery is probably:
-
-	get_gpios_for_recovery
-	i2c_generic_scl_recovery
-	put_gpios_for_recovery
-
-and i2c_generic_scl_recovery is basically your current
-i2c_generic_recovery. That makes it easier to add other generic routines
-if that should ever become necessary.
-
-
-> + * @skip_sda_polling: if true, bus recovery will not poll sda line to ch=
-eck if
-> + *	it became high or not. Only required if recover_bus =3D=3D NULL.
-
-Does a user really need to set this?
-
-> + * @is_gpio_recovery: true, select gpio type else scl type. Only require=
-d if
-> + *	recover_bus =3D=3D NULL.
-
-This could be dropped in favor of i2c_generic_*_recovery in recover_bus
-
-> + * @clock_rate_khz: clock rate of dummy clock in khz. Required for both =
-gpio and
-> + *	scl type recovery.
-
-Does a user really need this? We could probably use something close to
-100kHz always?
-
-> + * @clock_cnt: count of max clocks to be generated. Required for both gp=
-io and
-> + *	scl type recovery.
-
-Don't think this should be something else than 9. If so, it should be
-increased generally in the core and not inside some platform data.
-
-> + * @set_scl: controller specific routine, if is_gpio_recovery =3D=3D fal=
-se.
-> + *       set_scl_gpio_value otherwise
-> + * @get_sda: controller specific routine, if is_gpio_recovery =3D=3D fal=
-se.
-> + *       get_sda_gpio_value otherwise
-
-Basically OK, documentation should be more user-centric not
-implementation centric :)
-
+> +
+> +		if (!pdata->skip_sda_polling)
+> +			recovery_info->sda_gpio =3D pdata->sda_gpio;
+> +
+> +		adap->bus_recovery_info =3D recovery_info;
+> +	} else {
+> +		adap->bus_recovery_info =3D NULL;
+> +	}
+> +
+> +skip_recovery:
+>  	adap->nr =3D pdev->id;
+>  	r =3D i2c_add_numbered_adapter(adap);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failure adding adapter\n");
+> -		goto err_free_irq;
+> +		goto err_free_recovery_info;
+>  	}
+>  	of_i2c_register_devices(adap);
+> =20
+>  	return 0;
+> =20
+> -err_free_irq:
+> +err_free_recovery_info:
+> +	kfree(recovery_info);
+>  	free_irq(dev->irq, dev);
+>  err_iounmap:
+>  	iounmap(dev->base);
+> @@ -174,6 +206,8 @@ static int __devexit dw_i2c_remove(struct platform_de=
+vice *pdev)
+>  	struct dw_i2c_dev *dev =3D platform_get_drvdata(pdev);
+>  	struct resource *mem;
+> =20
+> +	kfree(dev->adapter.bus_recovery_info);
+> +
+>  	platform_set_drvdata(pdev, NULL);
+>  	i2c_del_adapter(&dev->adapter);
+>  	put_device(&pdev->dev);
+> diff --git a/include/linux/i2c/i2c-designware.h b/include/linux/i2c/i2c-d=
+esignware.h
+> new file mode 100644
+> index 0000000..522dec0
+> --- /dev/null
+> +++ b/include/linux/i2c/i2c-designware.h
+> @@ -0,0 +1,46 @@
+> +/*
+> + * Synopsys DesignWare I2C adapter driver's platform data
+> + *
+> + * Copyright (C) 2012 ST Microelectronics.
+> + * Author: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
+> + *
+> + * This software is licensed under the terms of the GNU General Public
+> + * License version 2, as published by the Free Software Foundation, and
+> + * may be copied, distributed, and modified under those terms.
+> + *
+> + * This program is distributed in the hope that it will be useful,
+> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> + * GNU General Public License for more details.
+> + *
+> + */
+> +#ifndef I2C_DESIGNWARE_H
+> +#define I2C_DESIGNWARE_H
+> +
+> +#include <linux/platform_device.h>
+> +
+> +/*
+> + * struct i2c_dw_pdata - Designware I2c platform data
+> + * @scl_gpio: gpio number of the scl line.
+> + * @scl_gpio_flags: flag for gpio_request_one of scl_gpio. 0 implies
+> + *	GPIOF_OUT_INIT_LOW.
 > + * @get_gpio: called before recover_bus() to get padmux configured for s=
-cl line.
-> + *	as gpio. Only required if is_gpio_recovery =3D=3D true. Return 0 on s=
-uccess.
+cl line
+> + *	as gpio. Only required if is_gpio_recovery =3D=3D true
 > + * @put_gpio: called after recover_bus() to get padmux configured for sc=
 l line
-> + *	as scl. Only required if is_gpio_recovery =3D=3D true.
-
-I wonder if it makes sense to have those more generic like
-prepare_recovery and unprepare_recovery?
-
-> + * @scl_gpio: gpio number of the scl line. Only required if is_gpio_reco=
-very =3D=3D
-> + *	true.
-> + * @sda_gpio: gpio number of the sda line. Only required if is_gpio_reco=
-very =3D=3D
-> + *	true and skip_sda_polling =3D=3D false.
-
-OK.
-
-> + * @scl_gpio_flags: flag for gpio_request_one of scl_gpio. If passed as =
-0,
-> + *      (GPIOF_OPEN_DRAIN | GPIOF_OUT_INIT_HIGH) is used instead. Otherw=
-ise, it
-> + *      is ORRED with GPIOF_OUT_INIT_HIGH.
-
-Is this needed? I'd say we drop it until somebody with a need can add
-something like this.
-
-> + *      These is no need of sda_gpio_flags, as we always read it in inpu=
-t mode.
+> + *	as scl. Only required if is_gpio_recovery =3D=3D true
+> + * @skip_sda_polling: if true, bus recovery will not poll sda line to ch=
+eck if
+> + *	it became high or not. Below are required only if this is false.
+> + * @sda_gpio: gpio number of the sda line.
 > + */
-> +struct i2c_bus_recovery_info {
-> +	int (*recover_bus)(struct i2c_adapter *);
-> +	bool skip_sda_polling;
-> +	bool is_gpio_recovery;
-> +	u32 clock_rate_khz;
-> +	u8 clock_cnt;
-> +
-> +	/*
-> +	 * Fn pointers for recovery, will point either to:
-> +	 * - set_scl_gpio_value and get_sda_gpio_value for gpio recovery
-> +	 * - Controller specific routines, otherwise
-> +	 */
-> +	void (*set_scl)(struct i2c_adapter *, int val);
-> +	int (*get_sda)(struct i2c_adapter *);
-> +
-> +	/* gpio recovery */
+> +struct i2c_dw_pdata {
+> +	int scl_gpio;
+> +	int scl_gpio_flags;
 > +	int (*get_gpio)(unsigned gpio);
 > +	void (*put_gpio)(unsigned gpio);
-> +	unsigned scl_gpio;
-> +	unsigned sda_gpio;
-> +	unsigned long scl_gpio_flags;
+> +
+> +	/* sda polling specific */
+> +	bool skip_sda_polling;
+> +	int sda_gpio;
 > +};
 > +
->  /*
->   * i2c_adapter is the structure used to identify a physical i2c bus along
->   * with the access algorithms necessary to access it.
-> @@ -393,6 +445,9 @@ struct i2c_adapter {
-> =20
->  	struct mutex userspace_clients_lock;
->  	struct list_head userspace_clients;
-> +
-> +	/* Pass valid pointer if recovery infrastructure is required */
-
-This comment can be left out.
-
-> +	struct i2c_bus_recovery_info *bus_recovery_info;
->  };
->  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
-> =20
+> +#endif /* I2C_DESIGNWARE_H */
 > --=20
 > 1.7.12.rc2.18.g61b472e
 >=20
 >=20
 
-See also the next mail...
-
-
 --=20
 Pengutronix e.K.                           | Wolfram Sang                |
 Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
---FkmkrVfFsRoUs1wW
+--dkEUBIird37B8yKS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iEYEARECAAYFAlCxNTMACgkQD27XaX1/VRvDtwCfR1b4rmXSgjBxlwrWtdHd5nxO
-eRUAn3e2eKWLOT65mprRXnUxUqirtun+
-=fVoq
+iEYEARECAAYFAlCxNhIACgkQD27XaX1/VRu7qQCeO1WLpCPF2uakbF1I09mZiCi6
+CH8AoJOYCW+xN1bZdwgo/ldzlDy6eYGF
+=Eqdt
 -----END PGP SIGNATURE-----
 
---FkmkrVfFsRoUs1wW--
+--dkEUBIird37B8yKS--
