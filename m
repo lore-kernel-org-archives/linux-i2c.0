@@ -1,50 +1,48 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 13/24] MAINTAINERS: fix drivers/i2c/busses/i2c-stub.c
-Date: Sat, 24 Nov 2012 09:44:13 +0100
-Message-ID: <20121124094413.35547dab@endymion.delvare>
-References: <1353716808-16375-1-git-send-email-cesarb@cesarb.net>
-	<1353716808-16375-14-git-send-email-cesarb@cesarb.net>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [RESEND PATCH v3 0/3] i2c: at91: add dma support
+Date: Sat, 24 Nov 2012 20:28:42 +0100
+Message-ID: <20121124192842.GA3210@pengutronix.de>
+References: <1353661744-5703-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="PEIAKu/WMn1b1Hv9"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1353716808-16375-14-git-send-email-cesarb-PWySMVKUnqmsTnJN9+BGXg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1353661744-5703-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cesar Eduardo Barros <cesarb-PWySMVKUnqmsTnJN9+BGXg@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Cesar,
 
-On Fri, 23 Nov 2012 22:26:37 -0200, Cesar Eduardo Barros wrote:
-> This file was moved to drivers/i2c/i2c-stub.c by commit 31d178b
-> (i2c-stub: Move to drivers/i2c).
-> 
-> Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> Cc: "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> Signed-off-by: Cesar Eduardo Barros <cesarb-PWySMVKUnqmsTnJN9+BGXg@public.gmane.org>
-> ---
->  MAINTAINERS | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 91feba2..eaf1a59 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -3667,7 +3667,7 @@ I2C/SMBUS STUB DRIVER
->  M:	"Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>
->  L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->  S:	Maintained
-> -F:	drivers/i2c/busses/i2c-stub.c
-> +F:	drivers/i2c/i2c-stub.c
+--PEIAKu/WMn1b1Hv9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Right. I thought I had fixed it meanwhile, but either I forgot or it
-got lost along the way. Applied, thanks.
+On Fri, Nov 23, 2012 at 10:09:01AM +0100, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org wrote:
+> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+>=20
+> Hi Wolfram,
+>=20
+> I've rebased the set of patches on 3.7-rc6. I hope you could apply them.
 
-BTW, Mark has been away from linux kernel development for years now and
-he did even not reply to my latest e-mail, so maybe it would be better
-to drop his entries from MAINTAINERS altogether. Mark, please speak up.
+Yes, applied to for-next, thanks!
 
--- 
-Jean Delvare
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--PEIAKu/WMn1b1Hv9
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlCxH+oACgkQD27XaX1/VRt9PwCeLKA/8GQT3NOG/yrzXdbRepLu
+lFEAoK7xOl05ggafeQJ1YOBYjb96wutR
+=plDd
+-----END PGP SIGNATURE-----
+
+--PEIAKu/WMn1b1Hv9--
