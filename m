@@ -1,102 +1,139 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH V7 2/2] i2c/designware: Provide i2c bus recovery support
-Date: Sun, 25 Nov 2012 12:01:56 +0530
-Message-ID: <953d1cb8469ce19c92da447fd4ffac66e31da705.1353824555.git.viresh.kumar@linaro.org>
+From: Paul Carpenter <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>
+Subject: Re: [PATCH V7 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Sun, 25 Nov 2012 11:52:16 +0000
+Message-ID: <50B20670.5070509@pcserviceselectronics.co.uk>
 References: <71e27515a050a2c7d18272b84ff7ec3ec8b11cae.1353824555.git.viresh.kumar@linaro.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <71e27515a050a2c7d18272b84ff7ec3ec8b11cae.1353824555.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-In-Reply-To: <71e27515a050a2c7d18272b84ff7ec3ec8b11cae.1353824555.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-References: <71e27515a050a2c7d18272b84ff7ec3ec8b11cae.1353824555.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+To: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add bus recovery support for designware_i2c controller. It uses generic gpio
-based i2c_gpio_recover_bus() routine. Platforms need to pass struct
-i2c_bus_recovery_info as platform data designware I2C controller.
+Viresh Kumar wrote:
+ > Add i2c bus recovery infrastructure to i2c adapters as specified in 
+the i2c
+ > protocol Rev. 03 section 3.1.16 titled "Bus clear".
+ >
+ > http://www.nxp.com/documents/user_manual/UM10204.pdf
 
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
-V6->V7:
-- removed include/linux/i2c/i2c-designware.h and use struct
-  i2c_bus_recovery_info as platform data.
-- initialize recover_bus with i2c_generic_gpio_recovery()
+You should also take note of section 3.1.14 and its notes on Software
+Reset -
+     "Precautions must be taken to ensure that a device is not
+      pulling down the SDA or SCL line after applying the supply
+      voltage, since these low levels would block the bus"
 
- drivers/i2c/busses/i2c-designware-core.c    |  6 +++++-
- drivers/i2c/busses/i2c-designware-platdrv.c | 18 ++++++++++++++++--
- 2 files changed, 21 insertions(+), 3 deletions(-)
+ > Sometimes during operation i2c bus hangs and we need to give dummy 
+clocks to
+ > slave device to start the transfer again. Now we may have capability 
+in the bus
+ > controller to generate these clocks or platform may have gpio pins 
+which can be
+ > toggled to generate dummy clocks. This patch supports both.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index cbba7db..24feaaf 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -538,7 +538,11 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
--		i2c_dw_init(dev);
-+		if (adap->bus_recovery_info) {
-+			dev_dbg(dev->dev, "try i2c bus recovery\n");
-+			adap->bus_recovery_info->recover_bus(adap);
-+		}
-+
- 		ret = -ETIMEDOUT;
- 		goto done;
- 	} else if (ret < 0)
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0506fef..c7725b2 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -55,6 +55,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
- 	struct resource *mem, *ioarea;
-+	struct i2c_bus_recovery_info *recovery_info;
- 	int irq, r;
- 
- 	/* NOTE: driver uses the static register mapping */
-@@ -141,17 +142,28 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
- 
-+	/* Bus recovery support */
-+	recovery_info = dev_get_platdata(&pdev->dev);
-+	if (recovery_info) {
-+		recovery_info->recover_bus = i2c_generic_gpio_recovery;
-+		recovery_info->clock_rate_khz = clk_get_rate(dev->clk) / 1000;
-+		adap->bus_recovery_info = recovery_info;
-+	} else {
-+		adap->bus_recovery_info = NULL;
-+	}
-+
- 	adap->nr = pdev->id;
- 	r = i2c_add_numbered_adapter(adap);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure adding adapter\n");
--		goto err_free_irq;
-+		goto err_free_recovery_info;
- 	}
- 	of_i2c_register_devices(adap);
- 
- 	return 0;
- 
--err_free_irq:
-+err_free_recovery_info:
-+	kfree(recovery_info);
- 	free_irq(dev->irq, dev);
- err_iounmap:
- 	iounmap(dev->base);
-@@ -174,6 +186,8 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
- 	struct resource *mem;
- 
-+	kfree(dev->adapter.bus_recovery_info);
-+
- 	platform_set_drvdata(pdev, NULL);
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
+I may have missed it but misses an I2C check step, but that could be
+because I do so much embedded and hardware side as well.
+
+ > This patch also adds in generic bus recovery routines gpio or scl 
+line based
+ > which can be used by bus controller. In addition controller driver 
+may provide
+ > its own version of the bus recovery routine.
+ >
+ > This doesn't support multi-master recovery for now.
+ >
+ > Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+ > ---
+ >
+ > Hi Wolfram,
+ >
+ > I am sending V7 before closing our comments completely on V6 (Very 
+few are left
+ > now :) ), so that you can get an idea of what i am implementing now. It
+ > incorporates all your comments leaving:
+.....
+
+ > +static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+ > +{
+ > +    struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+ > +    struct device *dev = &adap->dev;
+ > +    int ret = 0;
+
+Where is the check that SCL is NOT low (bus fault or device doing clock
+stretching)
+
+ > +    ret = gpio_request_one(bri->scl_gpio, GPIOF_OPEN_DRAIN |
+ > +            GPIOF_OUT_INIT_HIGH, "i2c-scl");
+
+I always get wary of people driving I2C with non-open-drain, especially
+with stuck busses
+
+ > +    if (ret) {
+ > +        dev_warn(dev, "gpio request fail: %d\n", bri->scl_gpio);
+ > +        return ret;
+ > +    }
+ > +
+ > +    if (!bri->skip_sda_polling) {
+ > +        if (gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda")) {
+ > +            /* work without sda polling */
+ > +            dev_warn(dev, "can't get sda: %d. Skip sda polling\n",
+ > +                    bri->sda_gpio);
+ > +            bri->skip_sda_polling = true;
+ > +        }
+ > +    }
+ > +
+ > +    return ret;
+ > +}
+
+.....
+
+
+ > +static int i2c_generic_recovery(struct i2c_adapter *adap)
+ > +{
+ > +    struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+ > +    unsigned long delay = 1000000; /* 106/KHz for delay in ns */
+ > +    int i, val = 0;
+ > +
+ > +    if (bri->prepare_recovery)
+ > +        bri->prepare_recovery(bri);
+ > +
+ > +    /*
+ > +     * By this time SCL is high, as we need to give 9 falling-rising 
+edges
+ > +     */
+
+In my view that needs to be done by an actual check of the real SCL not
+assumption.
+
+ > +    delay = DIV_ROUND_UP(delay, bri->clock_rate_khz * 2);
+ > +
+ > +    for (i = 0; i < RECOVERY_CLK_CNT * 2; i++, val = !val) {
+ > +        bri->set_scl(adap, val);
+ > +        ndelay(delay);
+ > +
+ > +        /* break if sda got high, check only when scl line is high */
+ > +        if (!bri->skip_sda_polling && val)
+
+Dont use 'val' read the actual SCL line which ensures you you are not
+wasting your time because of hardware fault. Possibly saving your GPIO
+from being stuck permanently.
+
+ > +            if (unlikely(bri->get_sda(adap)))
+ > +                break;
+ > +    }
+ > +
+ > +    if (bri->unprepare_recovery)
+ > +        bri->unprepare_recovery(bri);
+ > +
+ > +    return 0;
+ > +}
+
 -- 
-1.7.12.rc2.18.g61b472e
+Paul Carpenter          | paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
+<http://www.pcserviceselectronics.co.uk/>    PC Services
+<http://www.pcserviceselectronics.co.uk/fonts/> Timing Diagram Font
+<http://www.gnuh8.org.uk/>  GNU H8 - compiler & Renesas H8/H8S/H8 Tiny
+<http://www.badweb.org.uk/> For those web sites you hate
