@@ -1,209 +1,106 @@
-From: Shubhrajyoti D <shubhrajyoti@ti.com>
-Subject: [PATCH RFC] i2c: omap: Remove the OMAP_I2C_IP_VERSION_*
-Date: Mon, 26 Nov 2012 17:09:42 +0530
-Message-ID: <1353929982-13984-1-git-send-email-shubhrajyoti@ti.com>
+From: Paul Carpenter <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>
+Subject: Re: [PATCH V7 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Mon, 26 Nov 2012 11:45:06 +0000
+Message-ID: <50B35642.7030104@pcserviceselectronics.co.uk>
+References: <71e27515a050a2c7d18272b84ff7ec3ec8b11cae.1353824555.git.viresh.kumar@linaro.org>	<50B20670.5070509@pcserviceselectronics.co.uk> <CAKohpo=_2xwj+NCpZPB1EsWiGPLafc3XKVbRT+690AkHB76AWw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-Sender: linux-omap-owner@vger.kernel.org
-To: linux-omap@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, balbi@ti.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAKohpo=_2xwj+NCpZPB1EsWiGPLafc3XKVbRT+690AkHB76AWw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The OMAP_I2C_IP_VERSION_1 and OMAP_I2C_IP_VERSION_2 was needed
-as on VER2 we were not reading all the 32-bits. Since now that
-we read the hi register we do not need the OMAP_I2C_IP_VERSION_*.
-Delete the same.
+Viresh Kumar wrote:
+> On 25 November 2012 17:22, Paul Carpenter
+> <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org> wrote:
+>> Viresh Kumar wrote:
+>>> Add i2c bus recovery infrastructure to i2c adapters as specified in the
+>>> i2c
+>>> protocol Rev. 03 section 3.1.16 titled "Bus clear".
+>>>
+>>> http://www.nxp.com/documents/user_manual/UM10204.pdf
+>> You should also take note of section 3.1.14 and its notes on Software
+>> Reset -
+>>     "Precautions must be taken to ensure that a device is not
+>>      pulling down the SDA or SCL line after applying the supply
+>>      voltage, since these low levels would block the bus"
+> 
+> Hmm.. This patch has taken a very long time for being accepted, and the
+> reason for that was, it was generalizing much more than what is required.
+> 
+> And I am not sure, if checking SCL low would be considered like that only. :)
+> 
+> @Wolfram: I would need your point of view on that, before trying it out.
 
-The custom reset is also changed to detect VER2 based on the
-scheme.
+Unless you know why the bus is stuck, how can you reset reminder this
+method ONLY works if SCL is high and SDA probably was low and the slave 
+device is what is stuck in wrong state. NOTE SCL and SDA high can be 
+considered as BUS IDLE or having passed SDA = 1 waiting next clock edge
+or state transition without other state information.
 
-Also move some of the common defines to i2c-omap.h to avoid duplication.
+ From i2c protocol Rev. 03 section 3.1.16 titled "Bus clear" first bit -
 
-Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
----
- arch/arm/mach-omap2/i2c.c                  |   16 +++++++---------
- arch/arm/mach-omap2/omap_hwmod_2420_data.c |    1 -
- arch/arm/mach-omap2/omap_hwmod_2430_data.c |    1 -
- arch/arm/mach-omap2/omap_hwmod_33xx_data.c |    1 -
- arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |    1 -
- arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    1 -
- arch/arm/plat-omap/i2c.c                   |    3 ---
- drivers/i2c/busses/i2c-omap.c              |    5 -----
- include/linux/i2c-omap.h                   |   16 ++++------------
- 9 files changed, 11 insertions(+), 34 deletions(-)
+   "In the unlikely event where the clock (SCL) is stuck LOW, the
+    preferential procedure is to reset the bus using the HW reset signal
+    if your I2C devices have HW reset inputs. If the I2C devices do not
+    have HW reset inputs, cycle power to the devices to activate the
+    mandatory internal Power-On Reset (POR) circuit."
 
-diff --git a/arch/arm/mach-omap2/i2c.c b/arch/arm/mach-omap2/i2c.c
-index fc57e67..6532bc1 100644
---- a/arch/arm/mach-omap2/i2c.c
-+++ b/arch/arm/mach-omap2/i2c.c
-@@ -63,18 +63,16 @@ void __init omap2_i2c_mux_pins(int bus_id)
- int omap_i2c_reset(struct omap_hwmod *oh)
- {
- 	u32 v;
--	u16 i2c_con;
-+	u16 i2c_con, scheme;
- 	int c = 0;
- 
--	if (oh->class->rev == OMAP_I2C_IP_VERSION_2) {
--		i2c_con = OMAP4_I2C_CON_OFFSET;
--	} else if (oh->class->rev == OMAP_I2C_IP_VERSION_1) {
-+	i2c_con = OMAP4_I2C_CON_OFFSET;
-+	v = omap_hwmod_read(oh, 0x4);
-+
-+	scheme = OMAP_I2C_SCHEME(v);
-+
-+	if (scheme == OMAP_I2C_SCHEME_0)
- 		i2c_con = OMAP2_I2C_CON_OFFSET;
--	} else {
--		WARN(1, "Cannot reset I2C block %s: unsupported revision\n",
--		     oh->name);
--		return -EINVAL;
--	}
- 
- 	/* Disable I2C */
- 	v = omap_hwmod_read(oh, i2c_con);
-diff --git a/arch/arm/mach-omap2/omap_hwmod_2420_data.c b/arch/arm/mach-omap2/omap_hwmod_2420_data.c
-index b5db600..51251a9 100644
---- a/arch/arm/mach-omap2/omap_hwmod_2420_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_2420_data.c
-@@ -91,7 +91,6 @@ static struct omap_hwmod_class_sysconfig i2c_sysc = {
- static struct omap_hwmod_class i2c_class = {
- 	.name		= "i2c",
- 	.sysc		= &i2c_sysc,
--	.rev		= OMAP_I2C_IP_VERSION_1,
- 	.reset		= &omap_i2c_reset,
- };
- 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_2430_data.c b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
-index b79ccf6..260b3d1 100644
---- a/arch/arm/mach-omap2/omap_hwmod_2430_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_2430_data.c
-@@ -70,7 +70,6 @@ static struct omap_hwmod_class_sysconfig i2c_sysc = {
- static struct omap_hwmod_class i2c_class = {
- 	.name		= "i2c",
- 	.sysc		= &i2c_sysc,
--	.rev		= OMAP_I2C_IP_VERSION_1,
- 	.reset		= &omap_i2c_reset,
- };
- 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
-index c9a186b..ce1f68e 100644
---- a/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_33xx_data.c
-@@ -1098,7 +1098,6 @@ static struct omap_hwmod_class_sysconfig am33xx_i2c_sysc = {
- static struct omap_hwmod_class i2c_class = {
- 	.name		= "i2c",
- 	.sysc		= &am33xx_i2c_sysc,
--	.rev		= OMAP_I2C_IP_VERSION_2,
- 	.reset		= &omap_i2c_reset,
- };
- 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-index 36270bb..5c1c8e2 100644
---- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
-@@ -612,7 +612,6 @@ static struct omap_hwmod am35xx_uart4_hwmod = {
- static struct omap_hwmod_class i2c_class = {
- 	.name	= "i2c",
- 	.sysc	= &i2c_sysc,
--	.rev	= OMAP_I2C_IP_VERSION_1,
- 	.reset	= &omap_i2c_reset,
- };
- 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-index eb40dbc..d6ef477 100644
---- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
-@@ -1521,7 +1521,6 @@ static struct omap_hwmod_class_sysconfig omap44xx_i2c_sysc = {
- static struct omap_hwmod_class omap44xx_i2c_hwmod_class = {
- 	.name	= "i2c",
- 	.sysc	= &omap44xx_i2c_sysc,
--	.rev	= OMAP_I2C_IP_VERSION_2,
- 	.reset	= &omap_i2c_reset,
- };
- 
-diff --git a/arch/arm/plat-omap/i2c.c b/arch/arm/plat-omap/i2c.c
-index 6013831..d02d4b6 100644
---- a/arch/arm/plat-omap/i2c.c
-+++ b/arch/arm/plat-omap/i2c.c
-@@ -108,9 +108,6 @@ static inline int omap1_i2c_add_bus(int bus_id)
- 	res[1].start = OMAP1_INT_I2C;
- 	pdata = &i2c_pdata[bus_id - 1];
- 
--	/* all OMAP1 have IP version 1 register set */
--	pdata->rev = OMAP_I2C_IP_VERSION_1;
--
- 	/* all OMAP1 I2C are implemented like this */
- 	pdata->flags = OMAP_I2C_FLAG_NO_FIFO |
- 		       OMAP_I2C_FLAG_SIMPLE_CLOCK |
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 815a401..df2aa1b 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1037,12 +1037,10 @@ static const struct i2c_algorithm omap_i2c_algo = {
- 
- #ifdef CONFIG_OF
- static struct omap_i2c_bus_platform_data omap3_pdata = {
--	.rev = OMAP_I2C_IP_VERSION_1,
- 	.flags = OMAP_I2C_FLAG_BUS_SHIFT_2,
- };
- 
- static struct omap_i2c_bus_platform_data omap4_pdata = {
--	.rev = OMAP_I2C_IP_VERSION_2,
- };
- 
- static const struct of_device_id omap_i2c_of_match[] = {
-@@ -1059,15 +1057,12 @@ static const struct of_device_id omap_i2c_of_match[] = {
- MODULE_DEVICE_TABLE(of, omap_i2c_of_match);
- #endif
- 
--#define OMAP_I2C_SCHEME(rev)		((rev & 0xc000) >> 14)
- 
- #define OMAP_I2C_REV_SCHEME_0_MAJOR(rev) (rev >> 4)
- #define OMAP_I2C_REV_SCHEME_0_MINOR(rev) (rev & 0xf)
- 
- #define OMAP_I2C_REV_SCHEME_1_MAJOR(rev) ((rev & 0x0700) >> 7)
- #define OMAP_I2C_REV_SCHEME_1_MINOR(rev) (rev & 0x1f)
--#define OMAP_I2C_SCHEME_0		0
--#define OMAP_I2C_SCHEME_1		1
- 
- static int __devinit
- omap_i2c_probe(struct platform_device *pdev)
-diff --git a/include/linux/i2c-omap.h b/include/linux/i2c-omap.h
-index babe0cf..d66af65 100644
---- a/include/linux/i2c-omap.h
-+++ b/include/linux/i2c-omap.h
-@@ -3,18 +3,6 @@
- 
- #include <linux/platform_device.h>
- 
--/*
-- * Version 2 of the I2C peripheral unit has a different register
-- * layout and extra registers.  The ID register in the V2 peripheral
-- * unit on the OMAP4430 reports the same ID as the V1 peripheral
-- * unit on the OMAP3530, so we must inform the driver which IP
-- * version we know it is running on from platform / cpu-specific
-- * code using these constants in the hwmod class definition.
-- */
--
--#define OMAP_I2C_IP_VERSION_1 1
--#define OMAP_I2C_IP_VERSION_2 2
--
- /* struct omap_i2c_bus_platform_data .flags meanings */
- 
- #define OMAP_I2C_FLAG_NO_FIFO			BIT(0)
-@@ -28,6 +16,10 @@
- #define OMAP_I2C_FLAG_BUS_SHIFT_2		BIT(8)
- #define OMAP_I2C_FLAG_BUS_SHIFT__SHIFT 7
- 
-+#define OMAP_I2C_SCHEME(rev)		((rev & 0xc000) >> 14)
-+#define OMAP_I2C_SCHEME_0		0
-+#define OMAP_I2C_SCHEME_1		1
-+
- struct omap_i2c_bus_platform_data {
- 	u32		clkrate;
- 	u32		rev;
+So if you do not check that SCL is NOT stuck Low the rest will just do
+nothing, it wont clear the bus and the fault will not be reported.
+The open drain nature of the bus means that you may attempt to toggle it
+but if SCL is stuck low nothing will happen on the bus.
+
+Attempting to configure an SCL drive as any form of high driving output
+will create a situation that when the SCL is driven high a high driver
+on the GPIO will be driving into a stuck low situation potentially
+creating a short between a power source and a power sink, that in most
+cases will damage or shorten life of one or both ends.
+
+In over 10 years of using I2C in various forms the only times I have
+seen bus stuck or device in wrong state
+
+1/ Some code changed a bus switch when Bus was NOT idle
+	i.e mid transaction
+2/ Bit-banged I2C software was wrong incomplete transaction
+3/ Short on bus
+4/ Faulty device
+5/ Faulty design so 1 and 0 thresholds were compromised
+
+If you ever support multi-master you need to monitor SCL to ensure your
+clock toggling is doing what you expect.
+
+>>> +static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+>>> +{
+>>> +    struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+>>> +    struct device *dev = &adap->dev;
+>>> +    int ret = 0;
+>> Where is the check that SCL is NOT low (bus fault or device doing clock
+>> stretching)
+> 
+> Pending for Wolfram's point of view :)
+> 
+>>> +static int i2c_generic_recovery(struct i2c_adapter *adap)
+>>> +{
+>>> +    /*
+>>> +     * By this time SCL is high, as we need to give 9 falling-rising
+>>> edges
+>>> +     */
+>> In my view that needs to be done by an actual check of the real SCL not
+>> assumption.
+> 
+> Checking that would be tricky. For GPIO recovery, we have to make it GPIO
+> first in input mode and read its value. Right?
+
+Depends on the GPIO, some even when set as output can still be read as
+that is the way the GPIO registers are constructed in some cases.
+
 -- 
-1.7.5.4
-
+Paul Carpenter          | paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
+<http://www.pcserviceselectronics.co.uk/>    PC Services
+<http://www.pcserviceselectronics.co.uk/fonts/> Timing Diagram Font
+<http://www.gnuh8.org.uk/>  GNU H8 - compiler & Renesas H8/H8S/H8 Tiny
+<http://www.badweb.org.uk/> For those web sites you hate
