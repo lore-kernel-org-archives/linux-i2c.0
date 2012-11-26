@@ -1,44 +1,46 @@
-From: wfp5p-A/mCt7huS1Rvw44tLj6iNJvpjmsXDcsSh13vi7wywA4@public.gmane.org (Bill Pemberton)
-Subject: Re: [PATCH 065/493] i2c: remove use of __devexit_p
-Date: Mon, 26 Nov 2012 08:52:18 -0500
-Message-ID: <20121126135218.45F6780157@viridian.itc.virginia.edu>
-References: <20121122214915.GD14851@pengutronix.de>
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V7 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Mon, 26 Nov 2012 20:21:17 +0530
+Message-ID: <CAKohponsCUuw8v0EUWB8+Ng1PS6cEMvYywgqdcr2fFTbGXOhWg@mail.gmail.com>
+References: <71e27515a050a2c7d18272b84ff7ec3ec8b11cae.1353824555.git.viresh.kumar@linaro.org>
+	<50B20670.5070509@pcserviceselectronics.co.uk>
+	<CAKohpo=_2xwj+NCpZPB1EsWiGPLafc3XKVbRT+690AkHB76AWw@mail.gmail.com>
+	<50B35642.7030104@pcserviceselectronics.co.uk>
+	<CAKohpomNTKFJQCrZdC81OiQpjdtK85XXWfvvB=XYb85e49OBZA@mail.gmail.com>
+	<50B36E76.6010008@pcserviceselectronics.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121122214915.GD14851-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <50B36E76.6010008-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Barry Song <baohua.song-kQvG35nSl+M@public.gmane.org>, "Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Paul Carpenter <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang writes:
-> 
-> 
-> --osDK9TLjxFScVI/L
-> Content-Type: text/plain; charset=us-ascii
-> Content-Disposition: inline
-> Content-Transfer-Encoding: quoted-printable
-> 
-> On Tue, Nov 20, 2012 at 02:46:21PM +0100, Jean Delvare wrote:
-> > On Mon, 19 Nov 2012 13:20:14 -0500, Bill Pemberton wrote:
-> > > CONFIG_HOTPLUG is going away as an option so __devexit_p is no longer
-> > > needed.
-> >=20
-> > As mentioned on the lm-sensors list for hwmon patches already, I think
-> > it would be much clearer to not split __devexit, __devexit_p, __devinit
-> > etc. removal into separate patches. One patch per subsystem would be
-> > easier to review and apply. If patches grow too large then you'd rather
-> > split in a different direction, for example drivers/i2c/muxes vs.
-> > drivers/i2c/busses or even grouped by related bus drivers (see entries
-> > "I2C OVER PARALLEL PORT" and "I2C/SMBUS CONTROLLER DRIVERS FOR PC" in
-> > MAINTAINERS for examples of meaningful groups.)
-> 
-> I agree with Jean here. Is there a V2 planned? With a change like this?
-> 
+On 26 November 2012 18:58, Paul Carpenter
+<paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org> wrote:
+>>> +    ret = gpio_request_one(bri->scl_gpio, GPIOF_OPEN_DRAIN |
+>>> +            GPIOF_OUT_INIT_HIGH, "i2c-scl");
+>>
+>>I always get wary of people driving I2C with non-open-drain, especially
+>>with stuck busses
+>
+> I would want to know what "GPIOF_OUT_INIT_HIGH" did as that is
+> suspiciously driving output high at startup.
 
-Yes, my plan is to redo the patches for the i2c subsystem.
+I didn't get the question correctly. You mean you want me to explain what
+GPIOF_OPEN_DRAIN and GPIOF_OUT_INIT_HIGH will do?
 
--- 
-Bill
+If no, exit();
+
+GPIOF_OPEN_DRAIN: With this flag, all will work normally, leaving
+gpio_set_val(1);
+This will put the GPIO in input mode instead of writing one to it in
+output mode.
+
+GPIOF_OUT_INIT_HIGH: This will set the direction to output first, and then will
+do gpio_set_val(1), which will do what is mentioned in GPIOF_OPEN_DRAIN and
+so this action should be safe enough.
+
+--
+viresh
