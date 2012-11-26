@@ -1,152 +1,70 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: [PATCH RESEND] i2c: Add support for device-tree based chip initialization
-Date: Sun, 25 Nov 2012 20:53:56 -0800
-Message-ID: <1353905636-6697-1-git-send-email-linux@roeck-us.net>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+From: Shubhrajyoti D <shubhrajyoti@ti.com>
+Subject: [PATCH] i2c: omap: Remove the OMAP_I2C_FLAG_RESET_REGS_POSTIDLE flag
+Date: Mon, 26 Nov 2012 14:43:55 +0530
+Message-ID: <1353921235-22408-1-git-send-email-shubhrajyoti@ti.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: linux-omap@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, balbi@ti.com, w.sang@pengutronix.de, Shubhrajyoti D <shubhrajyoti@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Some I2C devices are not or not correctly initialized by the firmware.
-Configuration would be possible via platform data, but that would require
-per-driver platform data and a lot of code, and changing it would not be
-possible without re-compiling the kernel. It is more elegant to do it
-generically via devicetree properties.
+The OMAP_I2C_FLAG_RESET_REGS_POSTIDLE is not used anymore
+in the i2c driver. Remove the flag.
 
-Add a generic I2C devicetree property named "reg-init". This property provides
-a sequence of device initialization commands to be executed prior to calling
-the probe function for a given device.
-
-Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
 ---
-Any comments / feedback ?
+Has dependency on the below patch
+http://git.pengutronix.de/?p=wsa/linux.git;a=commitdiff;h=554c96744afd169886bd6fc2736fb0d9aaf634e8
 
- .../devicetree/bindings/i2c/trivial-devices.txt    |   24 +++++++
- drivers/i2c/i2c-core.c                             |   68 ++++++++++++++++++++
- 2 files changed, 92 insertions(+)
+ arch/arm/mach-omap2/omap_hwmod_3xxx_data.c |    3 +--
+ arch/arm/mach-omap2/omap_hwmod_44xx_data.c |    3 +--
+ drivers/i2c/busses/i2c-omap.c              |    3 +--
+ 3 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/trivial-devices.txt b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-index 2f5322b..33b694e 100644
---- a/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-+++ b/Documentation/devicetree/bindings/i2c/trivial-devices.txt
-@@ -2,6 +2,30 @@ This is a list of trivial i2c devices that have simple device tree
- bindings, consisting only of a compatible field, an address and
- possibly an interrupt line.
+diff --git a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+index 943222c4..3dd9e69 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_3xxx_data.c
+@@ -791,8 +791,7 @@ static struct omap_hwmod omap3xxx_dss_venc_hwmod = {
+ /* I2C1 */
+ static struct omap_i2c_dev_attr i2c1_dev_attr = {
+ 	.fifo_depth	= 8, /* bytes */
+-	.flags		= OMAP_I2C_FLAG_RESET_REGS_POSTIDLE |
+-			  OMAP_I2C_FLAG_BUS_SHIFT_2,
++	.flags		= OMAP_I2C_FLAG_BUS_SHIFT_2,
+ };
  
-+Device initialization is supported with an optional reg-init property.
-+This property contains a sequence of commands to be written into the chip.
-+Each command consists of four values: Register, command type, mask, and data.
-+	Register:
-+		Register or command address
-+	Command type:
-+		0: SMBus write byte
-+		1: SMBus write byte data
-+		2: SMBus write word data
-+	Mask:
-+		If set, the register is read and masked with this value.
-+	Data:
-+		Data to be written (or with original data and mask if set)
-+
-+Example:
-+	max6696@1a {
-+		compatible = "maxim,max6696";
-+		reg = <0x1a>;
-+		reg-init = <
-+			0x09 1 0x00 0x24
-+			0x21 1 0x00 0x05
-+		>;
-+	};
-+
- If a device needs more specific bindings, such as properties to
- describe some aspect of it, there needs to be a specific binding
- document for it just like any other devices.
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index a7edf98..49f8b74 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -104,6 +104,69 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
- #define i2c_device_uevent	NULL
- #endif	/* CONFIG_HOTPLUG */
+ static struct omap_hwmod omap3xxx_i2c1_hwmod = {
+diff --git a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+index 0b1249e..1afab5f 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_44xx_data.c
+@@ -1527,8 +1527,7 @@ static struct omap_hwmod_class omap44xx_i2c_hwmod_class = {
+ };
  
-+static int i2c_dev_of_init(struct i2c_client *client, struct device *dev)
-+{
-+	const u32 *reg_init;
-+	int rlen;
-+	int val;
-+	u32 reg, access, mask, data;
-+
-+	reg_init = of_get_property(dev->of_node, "reg-init", &rlen);
-+	if (!reg_init)
-+		return 0;
-+
-+	if (!rlen || rlen % 4)
-+		return -EINVAL;
-+
-+	while (rlen >= 4) {
-+		reg = reg_init[0];
-+		access = reg_init[1];
-+		mask = reg_init[2];
-+		data = reg_init[3];
-+
-+		if (reg > 0xff)
-+			return -EINVAL;
-+
-+		switch (access) {
-+		default:
-+			return -EINVAL;
-+		case 0:
-+			val = 0;
-+			break;
-+		case 1:
-+			val = mask ? i2c_smbus_read_byte_data(client, reg) : 0;
-+			break;
-+		case 2:
-+			val = mask ? i2c_smbus_read_word_data(client, reg) : 0;
-+			break;
-+		}
-+		if (val < 0)
-+			return val;
-+
-+		val &= mask;
-+		val |= data;
-+
-+		switch (access) {
-+		default:
-+		case 0:
-+			val = i2c_smbus_write_byte(client, reg);
-+			break;
-+		case 1:
-+			val = i2c_smbus_write_byte_data(client, reg, val);
-+			break;
-+		case 2:
-+			val = i2c_smbus_write_word_data(client, reg, val);
-+			break;
-+		}
-+		if (val < 0)
-+			return val;
-+
-+		reg_init += 4;
-+		rlen -= 4 * sizeof(u32);
-+	}
-+	return 0;
-+}
-+
- static int i2c_device_probe(struct device *dev)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
-@@ -122,7 +185,12 @@ static int i2c_device_probe(struct device *dev)
- 					client->flags & I2C_CLIENT_WAKE);
- 	dev_dbg(dev, "probe\n");
+ static struct omap_i2c_dev_attr i2c_dev_attr = {
+-	.flags	= OMAP_I2C_FLAG_BUS_SHIFT_NONE |
+-			OMAP_I2C_FLAG_RESET_REGS_POSTIDLE,
++	.flags	= OMAP_I2C_FLAG_BUS_SHIFT_NONE,
+ };
  
-+	status = i2c_dev_of_init(client, dev);
-+	if (status)
-+		goto error;
-+
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
-+error:
- 	if (status) {
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
+ /* i2c1 */
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 872444a..d3b853b 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1034,8 +1034,7 @@ static const struct i2c_algorithm omap_i2c_algo = {
+ #ifdef CONFIG_OF
+ static struct omap_i2c_bus_platform_data omap3_pdata = {
+ 	.rev = OMAP_I2C_IP_VERSION_1,
+-	.flags = OMAP_I2C_FLAG_RESET_REGS_POSTIDLE |
+-		 OMAP_I2C_FLAG_BUS_SHIFT_2,
++	.flags = OMAP_I2C_FLAG_BUS_SHIFT_2,
+ };
+ 
+ static struct omap_i2c_bus_platform_data omap4_pdata = {
 -- 
-1.7.9.7
+1.7.5.4
+
