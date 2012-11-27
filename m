@@ -1,91 +1,94 @@
 From: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Subject: [PATCH 02/16] i2c: mux-gpio: remove __dev* attributes
-Date: Tue, 27 Nov 2012 15:59:39 -0500
-Message-ID: <1354049993-12718-3-git-send-email-wfp5p@virginia.edu>
-References: <1354049993-12718-1-git-send-email-wfp5p@virginia.edu>
+Subject: [PATCH 00/16] i2c: remove __dev* attributes for retirement of HOTPLUG
+Date: Tue, 27 Nov 2012 15:59:37 -0500
+Message-ID: <1354049993-12718-1-git-send-email-wfp5p@virginia.edu>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1354049993-12718-1-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-CONFIG_HOTPLUG is going away as an option.  As result the __dev*
-markings will be going away.
+This is a respin of the patches to remove the __dev* attributes in the
+i2c subsystem.
 
-Remove use of __devinit, __devexit_p, __devinitdata, __devinitconst,
-and __devexit.
+The attributes __devinit, __devexit_p, __devinitdata, __devinitconst,
+and __devexit are no longer needed since CONFIG_HOTPLUG is being
+removed as an option.
 
-Signed-off-by: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/muxes/i2c-mux-gpio.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 3b7bc06..9f50ef0 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -53,14 +53,14 @@ static int i2c_mux_gpio_deselect(struct i2c_adapter *adap, void *data, u32 chan)
- 	return 0;
- }
- 
--static int __devinit match_gpio_chip_by_label(struct gpio_chip *chip,
-+static int match_gpio_chip_by_label(struct gpio_chip *chip,
- 					      void *data)
- {
- 	return !strcmp(chip->label, data);
- }
- 
- #ifdef CONFIG_OF
--static int __devinit i2c_mux_gpio_probe_dt(struct gpiomux *mux,
-+static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
- 					struct platform_device *pdev)
- {
- 	struct device_node *np = pdev->dev.of_node;
-@@ -125,14 +125,14 @@ static int __devinit i2c_mux_gpio_probe_dt(struct gpiomux *mux,
- 	return 0;
- }
- #else
--static int __devinit i2c_mux_gpio_probe_dt(struct gpiomux *mux,
-+static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
- 					struct platform_device *pdev)
- {
- 	return 0;
- }
- #endif
- 
--static int __devinit i2c_mux_gpio_probe(struct platform_device *pdev)
-+static int i2c_mux_gpio_probe(struct platform_device *pdev)
- {
- 	struct gpiomux *mux;
- 	struct i2c_adapter *parent;
-@@ -239,7 +239,7 @@ alloc_failed:
- 	return ret;
- }
- 
--static int __devexit i2c_mux_gpio_remove(struct platform_device *pdev)
-+static int i2c_mux_gpio_remove(struct platform_device *pdev)
- {
- 	struct gpiomux *mux = platform_get_drvdata(pdev);
- 	int i;
-@@ -256,7 +256,7 @@ static int __devexit i2c_mux_gpio_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--static const struct of_device_id i2c_mux_gpio_of_match[] __devinitconst = {
-+static const struct of_device_id i2c_mux_gpio_of_match[] = {
- 	{ .compatible = "i2c-mux-gpio", },
- 	{},
- };
-@@ -264,7 +264,7 @@ MODULE_DEVICE_TABLE(of, i2c_mux_gpio_of_match);
- 
- static struct platform_driver i2c_mux_gpio_driver = {
- 	.probe	= i2c_mux_gpio_probe,
--	.remove	= __devexit_p(i2c_mux_gpio_remove),
-+	.remove	= i2c_mux_gpio_remove,
- 	.driver	= {
- 		.owner	= THIS_MODULE,
- 		.name	= "i2c-mux-gpio",
+Bill Pemberton (16):
+  i2c/busses: remove __dev* attributes
+  i2c: mux-gpio: remove __dev* attributes
+  i2c: pnx: remove __dev* attributes
+  i2c: scx200_acb: remove __dev* attributes
+  i2c: i2c-cpm: remove __dev* attributes
+  i2c: i2c-gpio: remove __dev* attributes
+  i2c: i2c-parport-light: remove __dev* attributes
+  i2c: ocores: remove __dev* attributes
+  i2c: omap: remove __dev* attributes
+  i2c: pca: remove __dev* attributes
+  i2c: puv3: remove __dev* attributes
+  i2c: i2c-pasemi: remove __dev* attributes
+  i2c: sirf: remove __dev* attributes
+  i2c-ali1563: remove __dev* attributes
+  i2c-sis96x: remove __dev* attributes
+  i2c: SMBus: remove __dev* attributes
+
+ drivers/i2c/busses/i2c-ali1535.c            |  8 +++---
+ drivers/i2c/busses/i2c-ali1563.c            |  8 +++---
+ drivers/i2c/busses/i2c-ali15x3.c            |  8 +++---
+ drivers/i2c/busses/i2c-amd756.c             |  6 ++---
+ drivers/i2c/busses/i2c-amd8111.c            |  6 ++---
+ drivers/i2c/busses/i2c-at91.c               | 14 +++++------
+ drivers/i2c/busses/i2c-au1550.c             |  6 ++---
+ drivers/i2c/busses/i2c-cpm.c                |  8 +++---
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |  6 ++---
+ drivers/i2c/busses/i2c-designware-platdrv.c |  6 ++---
+ drivers/i2c/busses/i2c-eg20t.c              |  6 ++---
+ drivers/i2c/busses/i2c-elektor.c            |  8 +++---
+ drivers/i2c/busses/i2c-gpio.c               |  8 +++---
+ drivers/i2c/busses/i2c-highlander.c         |  6 ++---
+ drivers/i2c/busses/i2c-hydra.c              |  6 ++---
+ drivers/i2c/busses/i2c-i801.c               | 24 +++++++++---------
+ drivers/i2c/busses/i2c-ibm_iic.c            |  8 +++---
+ drivers/i2c/busses/i2c-intel-mid.c          |  6 ++---
+ drivers/i2c/busses/i2c-isch.c               |  6 ++---
+ drivers/i2c/busses/i2c-mpc.c                | 38 ++++++++++++++---------------
+ drivers/i2c/busses/i2c-mv64xxx.c            | 18 +++++++-------
+ drivers/i2c/busses/i2c-mxs.c                |  6 ++---
+ drivers/i2c/busses/i2c-nforce2.c            | 10 ++++----
+ drivers/i2c/busses/i2c-nuc900.c             |  6 ++---
+ drivers/i2c/busses/i2c-ocores.c             |  6 ++---
+ drivers/i2c/busses/i2c-octeon.c             | 10 ++++----
+ drivers/i2c/busses/i2c-omap.c               |  6 ++---
+ drivers/i2c/busses/i2c-parport-light.c      |  6 ++---
+ drivers/i2c/busses/i2c-pasemi.c             |  6 ++---
+ drivers/i2c/busses/i2c-pca-isa.c            |  8 +++---
+ drivers/i2c/busses/i2c-pca-platform.c       |  6 ++---
+ drivers/i2c/busses/i2c-piix4.c              | 20 +++++++--------
+ drivers/i2c/busses/i2c-pmcmsp.c             |  6 ++---
+ drivers/i2c/busses/i2c-pnx.c                |  6 ++---
+ drivers/i2c/busses/i2c-powermac.c           | 16 ++++++------
+ drivers/i2c/busses/i2c-puv3.c               |  6 ++---
+ drivers/i2c/busses/i2c-pxa-pci.c            |  6 ++---
+ drivers/i2c/busses/i2c-rcar.c               |  6 ++---
+ drivers/i2c/busses/i2c-s6000.c              |  8 +++---
+ drivers/i2c/busses/i2c-sh7760.c             |  8 +++---
+ drivers/i2c/busses/i2c-sh_mobile.c          |  2 +-
+ drivers/i2c/busses/i2c-sirf.c               |  8 +++---
+ drivers/i2c/busses/i2c-sis5595.c            |  4 +--
+ drivers/i2c/busses/i2c-sis630.c             |  8 +++---
+ drivers/i2c/busses/i2c-sis96x.c             |  6 ++---
+ drivers/i2c/busses/i2c-tegra.c              |  8 +++---
+ drivers/i2c/busses/i2c-via.c                |  6 ++---
+ drivers/i2c/busses/i2c-viapro.c             |  2 +-
+ drivers/i2c/busses/i2c-viperboard.c         |  6 ++---
+ drivers/i2c/busses/i2c-xiic.c               |  8 +++---
+ drivers/i2c/busses/i2c-xlr.c                |  6 ++---
+ drivers/i2c/busses/scx200_acb.c             | 16 ++++++------
+ drivers/i2c/muxes/i2c-mux-gpio.c            | 14 +++++------
+ drivers/i2c/muxes/i2c-mux-pinctrl.c         |  8 +++---
+ 54 files changed, 232 insertions(+), 232 deletions(-)
+
 -- 
 1.8.0.1
