@@ -1,25 +1,13 @@
-From: Bill Pemberton <wfp5p@virginia.edu>
-Subject: [PATCH 05/16] i2c: i2c-cpm: remove __dev* attributes
-Date: Tue, 27 Nov 2012 15:59:42 -0500
-Message-ID: <1354049993-12718-6-git-send-email-wfp5p@virginia.edu>
+From: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Subject: [PATCH 07/16] i2c: i2c-parport-light: remove __dev* attributes
+Date: Tue, 27 Nov 2012 15:59:44 -0500
+Message-ID: <1354049993-12718-8-git-send-email-wfp5p@virginia.edu>
 References: <1354049993-12718-1-git-send-email-wfp5p@virginia.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <1354049993-12718-1-git-send-email-wfp5p@virginia.edu>
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-To: linux-i2c@vger.kernel.org
-Cc: gregkh@linuxfoundation.org, linuxppc-dev@lists.ozlabs.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1354049993-12718-1-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 CONFIG_HOTPLUG is going away as an option.  As result the __dev*
@@ -28,52 +16,42 @@ markings will be going away.
 Remove use of __devinit, __devexit_p, __devinitdata, __devinitconst,
 and __devexit.
 
-Signed-off-by: Bill Pemberton <wfp5p@virginia.edu>
-Cc: Jochen Friedrich <jochen@scram.de>
-Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-cpm.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-parport-light.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-cpm.c b/drivers/i2c/busses/i2c-cpm.c
-index c1e1096..2e79c10 100644
---- a/drivers/i2c/busses/i2c-cpm.c
-+++ b/drivers/i2c/busses/i2c-cpm.c
-@@ -426,7 +426,7 @@ static const struct i2c_adapter cpm_ops = {
- 	.algo		= &cpm_i2c_algo,
+diff --git a/drivers/i2c/busses/i2c-parport-light.c b/drivers/i2c/busses/i2c-parport-light.c
+index 4b95f7a..aa95778 100644
+--- a/drivers/i2c/busses/i2c-parport-light.c
++++ b/drivers/i2c/busses/i2c-parport-light.c
+@@ -135,7 +135,7 @@ static struct lineop parport_ctrl_irq = {
+ 	.port		= PORT_CTRL,
  };
  
--static int __devinit cpm_i2c_setup(struct cpm_i2c *cpm)
-+static int cpm_i2c_setup(struct cpm_i2c *cpm)
+-static int __devinit i2c_parport_probe(struct platform_device *pdev)
++static int i2c_parport_probe(struct platform_device *pdev)
  {
- 	struct platform_device *ofdev = cpm->ofdev;
- 	const u32 *data;
-@@ -634,7 +634,7 @@ static void cpm_i2c_shutdown(struct cpm_i2c *cpm)
- 		cpm_muram_free(cpm->i2c_addr);
+ 	int err;
+ 
+@@ -169,7 +169,7 @@ static int __devinit i2c_parport_probe(struct platform_device *pdev)
+ 	return 0;
  }
  
--static int __devinit cpm_i2c_probe(struct platform_device *ofdev)
-+static int cpm_i2c_probe(struct platform_device *ofdev)
+-static int __devexit i2c_parport_remove(struct platform_device *pdev)
++static int i2c_parport_remove(struct platform_device *pdev)
  {
- 	int result, len;
- 	struct cpm_i2c *cpm;
-@@ -688,7 +688,7 @@ out_free:
- 	return result;
- }
+ 	if (ara) {
+ 		line_set(0, &parport_ctrl_irq);
+@@ -191,7 +191,7 @@ static struct platform_driver i2c_parport_driver = {
+ 		.name	= DRVNAME,
+ 	},
+ 	.probe		= i2c_parport_probe,
+-	.remove		= __devexit_p(i2c_parport_remove),
++	.remove		= i2c_parport_remove,
+ };
  
--static int __devexit cpm_i2c_remove(struct platform_device *ofdev)
-+static int cpm_i2c_remove(struct platform_device *ofdev)
- {
- 	struct cpm_i2c *cpm = dev_get_drvdata(&ofdev->dev);
- 
-@@ -716,7 +716,7 @@ MODULE_DEVICE_TABLE(of, cpm_i2c_match);
- 
- static struct platform_driver cpm_i2c_driver = {
- 	.probe		= cpm_i2c_probe,
--	.remove		= __devexit_p(cpm_i2c_remove),
-+	.remove		= cpm_i2c_remove,
- 	.driver = {
- 		.name = "fsl-i2c-cpm",
- 		.owner = THIS_MODULE,
+ static int __init i2c_parport_device_add(u16 address)
 -- 
 1.8.0.1
