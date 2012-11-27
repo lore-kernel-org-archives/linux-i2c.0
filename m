@@ -1,28 +1,32 @@
-From: Thomas De Schampheleire <patrickdepinguin+linuxi2c-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: i2c mux: outdated wiki page
-Date: Tue, 27 Nov 2012 10:15:33 +0100
-Message-ID: <CAAXf6LVzLqtUVWRH4aM4rVzqizxbA2Bdk2aO7BspD9S4cc3zbg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Subject: [PATCH 0/3] i2c: Add High speed I2C controller driver for Exynos5
+Date: Tue, 27 Nov 2012 18:30:33 +0530
+Message-ID: <1354021236-28596-1-git-send-email-ch.naveen@samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org
+Cc: naveenkrishna.ch@gmail.com, kgene.kim@samsung.com, grant.likely@secretlab.ca, w.sang@pengutronix.de, linux-kernel@vger.kernel.org, taeggyun.ko@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Exynos5 and latter SoCs from Samsung supports High Speed I2C controller.
+This patch set adds the controller driver, device tree information for Exynos5
+platform and defines gating clocks.
 
-Originally, the introduction of the i2c mux mechanism was described on
-following wiki page:
-https://i2c.wiki.kernel.org/index.php/I2C_bus_multiplexing
+Naveen Krishna Chatradhi (3):
+  i2c: exynos5: add High Speed I2C controller driver
+  ARM: exynos5: Add gate clocks for HS-I2C
+  arm: exynos5: Add HS-I2C device tree platform information
 
-It seems that in the mean time, at least some of this code has been
-introduced in mainline Linux, and the wiki page is hence pretty
-outdated.
+ arch/arm/boot/dts/exynos5250-smdk5250.dts |   16 +
+ arch/arm/boot/dts/exynos5250.dtsi         |   32 ++
+ arch/arm/mach-exynos/clock-exynos5.c      |   20 +
+ drivers/i2c/busses/Kconfig                |    6 +
+ drivers/i2c/busses/Makefile               |    1 +
+ drivers/i2c/busses/i2c-exynos5.c          |  758 +++++++++++++++++++++++++++++
+ drivers/i2c/busses/i2c-exynos5.h          |   80 +++
+ 7 files changed, 913 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-exynos5.c
+ create mode 100644 drivers/i2c/busses/i2c-exynos5.h
 
-Although I understand that a wiki can be edited by anyone, I currently
-don't have the full view on which problems still remain, if any.
-Therefore I'd like to check with you what the high-level status of the
-i2c mux support is.
-
-Thanks,
-Thomas
+-- 
+1.7.9.5
