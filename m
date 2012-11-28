@@ -1,34 +1,28 @@
-From: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Subject: [PATCH 0/2] i2c: remove __dev* attributes
-Date: Wed, 28 Nov 2012 11:15:51 -0500
-Message-ID: <1354119353-7804-1-git-send-email-wfp5p@virginia.edu>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH] of_i2c: Honour "status=disabled" property of device
+Date: Wed, 28 Nov 2012 09:16:12 -0700
+Message-ID: <50B638CC.6070106@wwwdotorg.org>
+References: <50B61DDA.5090109@sysgo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <50B61DDA.5090109-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
+To: Alexander Sverdlin <asv-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
+Cc: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, alexander sverdlin <alexander.sverdlin.ext-OYasijW0DpE@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-These are checkpatch clean replacements for patches 14 and 16 from the
-previous series that removed the __dev* attributes.
+On 11/28/2012 07:21 AM, Alexander Sverdlin wrote:
+> of_i2c: Honour "status=disabled" property of device
+> 
+> Currently of_i2c_register_devices() function registers all i2c devices,
+> independently from their status property in device tree. According to
+> "ePAPR 1.1" spec, device should only be registered if there is no
+> "status" property, or it has "ok" (or "okay") value (see
+> of_device_is_available()). In case of "platform devices",
+> of_platform_device_create_pdata() checks for "status" and ensures
+> that disabled devices are not populated. But such check for i2c buses
+> was missing until now. Fix it.
 
-Bill Pemberton (2):
-  i2c-ali1563: remove __dev* attributes
-  i2c: SMBus: remove __dev* attributes
-
- drivers/i2c/busses/i2c-ali1535.c |  8 ++++----
- drivers/i2c/busses/i2c-ali1563.c | 10 +++++-----
- drivers/i2c/busses/i2c-ali15x3.c |  8 ++++----
- drivers/i2c/busses/i2c-amd756.c  |  7 +++----
- drivers/i2c/busses/i2c-amd8111.c |  7 +++----
- drivers/i2c/busses/i2c-i801.c    | 28 +++++++++++++---------------
- drivers/i2c/busses/i2c-isch.c    |  6 +++---
- drivers/i2c/busses/i2c-nforce2.c | 12 ++++++------
- drivers/i2c/busses/i2c-piix4.c   | 32 +++++++++++++++-----------------
- drivers/i2c/busses/i2c-sis5595.c |  4 ++--
- drivers/i2c/busses/i2c-sis630.c  |  8 ++++----
- drivers/i2c/busses/i2c-via.c     |  6 +++---
- drivers/i2c/busses/i2c-viapro.c  |  4 ++--
- 13 files changed, 67 insertions(+), 73 deletions(-)
-
--- 
-1.8.0.1
+Do SPI and other buses (e.g. MDIO/MDIO mux?) need a similar change?
