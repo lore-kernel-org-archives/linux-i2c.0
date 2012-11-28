@@ -1,41 +1,49 @@
-From: Thomas De Schampheleire <patrickdepinguin+linuxi2c-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c mux: outdated wiki page
-Date: Wed, 28 Nov 2012 11:23:46 +0100
-Message-ID: <CAAXf6LWRfLVs9pHwj736C4hXD-k6K-qK3m+nXkpuk5Ta1o48Lg@mail.gmail.com>
-References: <CAAXf6LVzLqtUVWRH4aM4rVzqizxbA2Bdk2aO7BspD9S4cc3zbg@mail.gmail.com>
-	<20121128100612.GB18521@pengutronix.de>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCHv2] i2c: omap: Remove the
+ OMAP_I2C_FLAG_RESET_REGS_POSTIDLE flag
+Date: Wed, 28 Nov 2012 11:38:49 +0100
+Message-ID: <20121128103849.GA14238@pengutronix.de>
+References: <1353923711-9615-1-git-send-email-shubhrajyoti@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121128100612.GB18521-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1353923711-9615-1-git-send-email-shubhrajyoti@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Shubhrajyoti D <shubhrajyoti@ti.com>
+Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ben-linux@fluff.org, balbi@ti.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Nov 28, 2012 at 11:06 AM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> Hi,
->
->> It seems that in the mean time, at least some of this code has been
->> introduced in mainline Linux, and the wiki page is hence pretty
->> outdated.
->
-> Yes. The I2C subsystem is currently handed over from Jean to me, and I
-> wanted to ask Jean to update it to the best of his knowledge during the
-> transition. Just -EBUSY came along...
->
-> @Jean: Do you have a few minutes to do this in the near future?
->
->> Although I understand that a wiki can be edited by anyone, I currently
->> don't have the full view on which problems still remain, if any.
->> Therefore I'd like to check with you what the high-level status of the
->> i2c mux support is.
->
-> We use it in projects already :)
->
 
-Thanks for the update.
-I may just use it in one of my projects as well :)
+--UlVJffcvxoiEqYs2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Thomas
+On Mon, Nov 26, 2012 at 03:25:11PM +0530, Shubhrajyoti D wrote:
+> The OMAP_I2C_FLAG_RESET_REGS_POSTIDLE is not used anymore
+> in the i2c driver. Remove the flag.
+>=20
+> Signed-off-by: Shubhrajyoti D <shubhrajyoti@ti.com>
+
+Trivial enough to still go into 3.8. Applied to -next, thanks!
+
+--=20
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--UlVJffcvxoiEqYs2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.10 (GNU/Linux)
+
+iEYEARECAAYFAlC16bkACgkQD27XaX1/VRuscQCcC335ehOYDB6RNeCxhKzDKibO
+6D8An1i4KKHlom7bVW/80fijpQHV+pbL
+=okLM
+-----END PGP SIGNATURE-----
+
+--UlVJffcvxoiEqYs2--
