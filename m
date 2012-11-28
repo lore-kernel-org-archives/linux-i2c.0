@@ -1,44 +1,34 @@
-From: "sander van ginkel" <sander@van-ginkel.eu>
-Subject: Re: [PATCH] add hardware I2C support for ARM IMX23
-Date: Wed, 28 Nov 2012 18:34:48 +0100
-Message-ID: <20121128183448.94465bmyj68wqr08@62.129.139.42>
-References: <20121128152403.45224dvyaufb1j7n@62.129.139.42>
-	<20121128150851.GA4659@pengutronix.de>
-	<20121128171039.14705ltphptrp5kv@62.129.139.42>
-	<20121128162452.GB4659@pengutronix.de> <50B63F81.4050008@van-ginkel.eu>
-	<20121128170907.GC4659@pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-ali1563: remove __dev* attributes
+Date: Wed, 28 Nov 2012 19:27:47 +0100
+Message-ID: <20121128192747.381ef90c@endymion.delvare>
+References: <1354119353-7804-1-git-send-email-wfp5p@virginia.edu>
+	<1354119353-7804-2-git-send-email-wfp5p@virginia.edu>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	DelSp="Yes";
-	format="flowed"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121128170907.GC4659@pengutronix.de>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-kernel@vger.kernel.org, kernel@pengutronix.de, shawn.guo@linaro.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1354119353-7804-2-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Citeren "Wolfram Sang" <w.sang@pengutronix.de>:
+On Wed, 28 Nov 2012 11:15:52 -0500, Bill Pemberton wrote:
+> CONFIG_HOTPLUG is going away as an option.  As result the __dev*
+> markings will be going away.
+> 
+> Remove use of __devinit, __devexit_p, __devinitdata, __devinitconst,
+> and __devexit.
+> 
+> Signed-off-by: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+> Cc: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-ali1563.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> (...)
 
->
-> You might want to try my for-next branch or wait for 3.8-rc1, maybe
-the
-> DMA termination patch helps? Also enabling I2C debug messages is
-> probably worth it.
->
-> Regards,
->
->    Wolfram
->
-> --
-> Pengutronix e.K.                           | Wolfram Sang
-      |
-> Industrial Linux Solutions                 |
-http://www.pengutronix.de/  |
->
+Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-Ok I will dig into this, your for-next branch contains the DMA  
-termination patch, I presume?
+-- 
+Jean Delvare
