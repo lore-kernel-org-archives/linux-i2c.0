@@ -1,52 +1,39 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 16/16] i2c: SMBus: remove __dev* attributes
-Date: Wed, 28 Nov 2012 15:07:18 +0100
-Message-ID: <20121128150718.183d7d43@endymion.delvare>
-References: <20121128142349.629db0c0@endymion.delvare>
-	<20121128135448.5319580134@viridian.itc.virginia.edu>
+From: Alexander Sverdlin <asv-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] of_i2c: Honour "status=disabled" property of device
+Date: Wed, 28 Nov 2012 15:21:14 +0100
+Message-ID: <50B61DDA.5090109@sysgo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121128135448.5319580134-A/mCt7huS1Rvw44tLj6iNJvpjmsXDcsSh13vi7wywA4@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bill Pemberton <wfp5p-A/mCt7huS1Rvw44tLj6iNJvpjmsXDcsSh13vi7wywA4@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: alexander sverdlin <alexander.sverdlin.ext-OYasijW0DpE@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 28 Nov 2012 08:54:48 -0500, Bill Pemberton wrote:
-> Jean Delvare writes:
-> > 
-> > Hi Bill,
-> > 
-> > On Tue, 27 Nov 2012 15:59:53 -0500, Bill Pemberton wrote:
-> > > diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> > > index 1e73638..6c5a732 100644
-> > > --- a/drivers/i2c/busses/i2c-i801.c
-> > > +++ b/drivers/i2c/busses/i2c-i801.c
-> > > @@ -841,13 +841,13 @@ struct dmi_onboard_device_info {
-> > >  	const char *i2c_type;
-> > >  };
-> > >  
-> > > -static struct dmi_onboard_device_info __devinitdata dmi_devices[] = {
-> > > +static struct dmi_onboard_device_info dmi_devices[] = {
-> > >  	{ "Syleus", DMI_DEV_TYPE_OTHER, 0x73, "fscsyl" },
-> > >  	{ "Hermes", DMI_DEV_TYPE_OTHER, 0x73, "fscher" },
-> > >  	{ "Hades",  DMI_DEV_TYPE_OTHER, 0x73, "fschds" },
-> > >  };
-> > 
-> > If I remember correctly, the only reason why this wasn't declared const
-> > was because this was not compatible with __devinitdata. Now that
-> > __devinitdata is gone, the leading "static" should become "static
-> > const". Same goes for the 4 other occurrences in this patch, and I
-> > suppose, many other cases in other subsystems.
-> > 
-> 
-> Ok, do you want it resent with that change included? (along with the
-> checkpatch changes, of course).
+From: Alexander Sverdlin <alexander.sverdlin-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
 
-Yes please. 
+of_i2c: Honour "status=disabled" property of device
 
-Thanks,
--- 
-Jean Delvare
+Currently of_i2c_register_devices() function registers all i2c devices,
+independently from their status property in device tree. According to
+"ePAPR 1.1" spec, device should only be registered if there is no
+"status" property, or it has "ok" (or "okay") value (see
+of_device_is_available()). In case of "platform devices",
+of_platform_device_create_pdata() checks for "status" and ensures
+that disabled devices are not populated. But such check for i2c buses
+was missing until now. Fix it.
+
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
+---
+--- linux.orig/drivers/of/of_i2c.c
++++ linux/drivers/of/of_i2c.c
+@@ -29,7 +29,7 @@ void of_i2c_register_devices(struct i2c_
+ 
+ 	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
+ 
+-	for_each_child_of_node(adap->dev.of_node, node) {
++	for_each_available_child_of_node(adap->dev.of_node, node) {
+ 		struct i2c_board_info info = {};
+ 		struct dev_archdata dev_ad = {};
+ 		const __be32 *addr;
