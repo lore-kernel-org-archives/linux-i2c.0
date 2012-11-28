@@ -1,28 +1,41 @@
-From: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-Subject: Re: [PATCH 08/16] i2c: ocores: remove __dev* attributes
-Date: Tue, 27 Nov 2012 14:55:36 -0800
-Message-ID: <87ehje1wrb.fsf@dell.be.48ers.dk>
+From: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>
+Subject: RE: [PATCH 13/16] i2c: sirf: remove __dev* attributes
+Date: Wed, 28 Nov 2012 02:45:18 +0000
+Message-ID: <5EB3BFCD089AD643B9BB63439F5FD5E901229845CE@SHAASIEXM01.ASIA.ROOT.PRI>
 References: <1354049993-12718-1-git-send-email-wfp5p@virginia.edu>
-	<1354049993-12718-9-git-send-email-wfp5p@virginia.edu>
+ <1354049993-12718-14-git-send-email-wfp5p@virginia.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1354049993-12718-9-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org> (Bill
-	Pemberton's message of "Tue, 27 Nov 2012 15:59:45 -0500")
+In-Reply-To: <1354049993-12718-14-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org
+To: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org" <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, DL-SHA-WorkGroupLinux <Workgroup.Linux-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Bill" == Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org> writes:
-
- Bill> CONFIG_HOTPLUG is going away as an option.  As result the __dev*
- Bill> markings will be going away.
-
- Bill> Remove use of __devinit, __devexit_p, __devinitdata, __devinitconst,
- Bill> and __devexit.
-
-Acked-by: Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
-
--- 
-Bye, Peter Korsgaard
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBCaWxsIFBl
+bWJlcnRvbiBbbWFpbHRvOndmcDVwQHZpcmdpbmlhLmVkdV0NCj4gU2VudDog
+V2VkbmVzZGF5LCBOb3ZlbWJlciAyOCwgMjAxMiA1OjAwIEFNDQo+IFRvOiBs
+aW51eC1pMmNAdmdlci5rZXJuZWwub3JnDQo+IENjOiBncmVna2hAbGludXhm
+b3VuZGF0aW9uLm9yZzsgQmFycnkgU29uZw0KPiBTdWJqZWN0OiBbUEFUQ0gg
+MTMvMTZdIGkyYzogc2lyZjogcmVtb3ZlIF9fZGV2KiBhdHRyaWJ1dGVzDQo+
+IA0KPiBDT05GSUdfSE9UUExVRyBpcyBnb2luZyBhd2F5IGFzIGFuIG9wdGlv
+bi4gIEFzIHJlc3VsdCB0aGUgX19kZXYqDQo+IG1hcmtpbmdzIHdpbGwgYmUg
+Z29pbmcgYXdheS4NCj4gDQo+IFJlbW92ZSB1c2Ugb2YgX19kZXZpbml0LCBf
+X2RldmV4aXRfcCwgX19kZXZpbml0ZGF0YSwgX19kZXZpbml0Y29uc3QsDQo+
+IGFuZCBfX2RldmV4aXQuDQo+IA0KPiBTaWduZWQtb2ZmLWJ5OiBCaWxsIFBl
+bWJlcnRvbiA8d2ZwNXBAdmlyZ2luaWEuZWR1Pg0KPiBDYzogQmFycnkgU29u
+ZyA8YmFvaHVhLnNvbmdAY3NyLmNvbT4NCg0KQWNrZWQtYnk6IEJhcnJ5IFNv
+bmcgPGJhb2h1YS5zb25nQGNzci5jb20+DQoNCj4gLS0tDQo+ICBkcml2ZXJz
+L2kyYy9idXNzZXMvaTJjLXNpcmYuYyB8IDggKysrKy0tLS0NCj4gIDEgZmls
+ZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pDQoN
+CgoKTWVtYmVyIG9mIHRoZSBDU1IgcGxjIGdyb3VwIG9mIGNvbXBhbmllcy4g
+Q1NSIHBsYyByZWdpc3RlcmVkIGluIEVuZ2xhbmQgYW5kIFdhbGVzLCByZWdp
+c3RlcmVkIG51bWJlciA0MTg3MzQ2LCByZWdpc3RlcmVkIG9mZmljZSBDaHVy
+Y2hpbGwgSG91c2UsIENhbWJyaWRnZSBCdXNpbmVzcyBQYXJrLCBDb3dsZXkg
+Um9hZCwgQ2FtYnJpZGdlLCBDQjQgMFdaLCBVbml0ZWQgS2luZ2RvbQpNb3Jl
+IGluZm9ybWF0aW9uIGNhbiBiZSBmb3VuZCBhdCB3d3cuY3NyLmNvbS4gRm9s
+bG93IENTUiBvbiBUd2l0dGVyIGF0IGh0dHA6Ly90d2l0dGVyLmNvbS9DU1Jf
+UExDIGFuZCByZWFkIG91ciBibG9nIGF0IHd3dy5jc3IuY29tL2Jsb2cK
