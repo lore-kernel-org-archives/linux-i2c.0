@@ -1,39 +1,68 @@
-From: Alexander Sverdlin <asv-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] of_i2c: Honour "status=disabled" property of device
-Date: Wed, 28 Nov 2012 15:21:14 +0100
-Message-ID: <50B61DDA.5090109@sysgo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Subject: [PATCH 1/2] i2c-ali1563: remove __dev* attributes
+Date: Wed, 28 Nov 2012 11:15:52 -0500
+Message-ID: <1354119353-7804-2-git-send-email-wfp5p@virginia.edu>
+References: <1354119353-7804-1-git-send-email-wfp5p@virginia.edu>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1354119353-7804-1-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: alexander sverdlin <alexander.sverdlin.ext-OYasijW0DpE@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
+CONFIG_HOTPLUG is going away as an option.  As result the __dev*
+markings will be going away.
 
-of_i2c: Honour "status=disabled" property of device
+Remove use of __devinit, __devexit_p, __devinitdata, __devinitconst,
+and __devexit.
 
-Currently of_i2c_register_devices() function registers all i2c devices,
-independently from their status property in device tree. According to
-"ePAPR 1.1" spec, device should only be registered if there is no
-"status" property, or it has "ok" (or "okay") value (see
-of_device_is_available()). In case of "platform devices",
-of_platform_device_create_pdata() checks for "status" and ensures
-that disabled devices are not populated. But such check for i2c buses
-was missing until now. Fix it.
-
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+Cc: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 ---
---- linux.orig/drivers/of/of_i2c.c
-+++ linux/drivers/of/of_i2c.c
-@@ -29,7 +29,7 @@ void of_i2c_register_devices(struct i2c_
+ drivers/i2c/busses/i2c-ali1563.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-ali1563.c b/drivers/i2c/busses/i2c-ali1563.c
+index e02d9f8..84ccd94 100644
+--- a/drivers/i2c/busses/i2c-ali1563.c
++++ b/drivers/i2c/busses/i2c-ali1563.c
+@@ -326,7 +326,7 @@ static u32 ali1563_func(struct i2c_adapter * a)
+ }
  
- 	dev_dbg(&adap->dev, "of_i2c: walking child nodes\n");
  
--	for_each_child_of_node(adap->dev.of_node, node) {
-+	for_each_available_child_of_node(adap->dev.of_node, node) {
- 		struct i2c_board_info info = {};
- 		struct dev_archdata dev_ad = {};
- 		const __be32 *addr;
+-static int __devinit ali1563_setup(struct pci_dev * dev)
++static int ali1563_setup(struct pci_dev *dev)
+ {
+ 	u16 ctrl;
+ 
+@@ -390,8 +390,8 @@ static struct i2c_adapter ali1563_adapter = {
+ 	.algo	= &ali1563_algorithm,
+ };
+ 
+-static int __devinit ali1563_probe(struct pci_dev * dev,
+-				const struct pci_device_id * id_table)
++static int ali1563_probe(struct pci_dev *dev,
++			 const struct pci_device_id *id_table)
+ {
+ 	int error;
+ 
+@@ -411,7 +411,7 @@ exit:
+ 	return error;
+ }
+ 
+-static void __devexit ali1563_remove(struct pci_dev * dev)
++static void ali1563_remove(struct pci_dev *dev)
+ {
+ 	i2c_del_adapter(&ali1563_adapter);
+ 	ali1563_shutdown(dev);
+@@ -428,7 +428,7 @@ static struct pci_driver ali1563_pci_driver = {
+  	.name		= "ali1563_smbus",
+ 	.id_table	= ali1563_id_table,
+  	.probe		= ali1563_probe,
+-	.remove		= __devexit_p(ali1563_remove),
++	.remove		= ali1563_remove,
+ };
+ 
+ module_pci_driver(ali1563_pci_driver);
+-- 
+1.8.0.1
