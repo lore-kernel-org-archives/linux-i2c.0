@@ -1,41 +1,142 @@
-From: Thomas De Schampheleire <patrickdepinguin+linuxi2c-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: i2c mux: outdated wiki page
-Date: Thu, 29 Nov 2012 14:12:13 +0100
-Message-ID: <CAAXf6LVakqtD6creL2Rv+u5mc3sA583DQY69XEPdkUOGVu7vvA@mail.gmail.com>
-References: <CAAXf6LVzLqtUVWRH4aM4rVzqizxbA2Bdk2aO7BspD9S4cc3zbg@mail.gmail.com>
-	<20121128100612.GB18521@pengutronix.de>
-	<20121128230033.351de047@endymion.delvare>
-	<20121129102340.20c2769d@endymion.delvare>
+From: Kyungmin Park <kmpark@infradead.org>
+Subject: Re: [PATCH 1/2] i2c-s3c2410: Leave the bus disabled unless it is in use
+Date: Thu, 29 Nov 2012 23:44:32 +0900
+Message-ID: <CAH9JG2VZAZfpfCjtxgMDsJPNf10FOO_PNV4poVkTgX=2XCoEpQ@mail.gmail.com>
+References: <1354165536-18529-1-git-send-email-ch.naveen@samsung.com>
+	<1354165536-18529-2-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121129102340.20c2769d-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1354165536-18529-2-git-send-email-ch.naveen@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, grundler@chromium.org, sjg@chromium.org, naveen@chromium.org, w.sang@pengutronix.de, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 29, 2012 at 10:23 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> On Wed, 28 Nov 2012 23:00:33 +0100, Jean Delvare wrote:
->> On Wed, 28 Nov 2012 11:06:12 +0100, Wolfram Sang wrote:
->> > Yes. The I2C subsystem is currently handed over from Jean to me, and I
->> > wanted to ask Jean to update it to the best of his knowledge during the
->> > transition. Just -EBUSY came along...
->> >
->> > @Jean: Do you have a few minutes to do this in the near future?
->>
->> Yes, I'm reviewing the wiki right now. Thankfully there's not much
->> content there so it shouldn't take too much time. And I agree it's a
->> task for me to complete before I leave, as a matter of fairness.
->>
->> Wolfram, there's one section for you to update:
->> https://i2c.wiki.kernel.org/index.php/Linux_2.6_I2C_development_FAQ#Where_do_all_the_patches_go.3F
->> I described my work flow there, obviously it's out of date now but only
->> you can tell what it will be from now on.
->>
->> It's a little late now so I won't have the time to finish with the
->> wiki, I'll do the rest (basically the multiplexing page) tomorrow.
->
-> It's done, the wiki is in a good shape again.
+Acked-by: Kyungmin Park <kyungmin.park@samsung.com>
 
-Thanks a lot!
+On Thu, Nov 29, 2012 at 2:05 PM, Naveen Krishna Chatradhi
+<ch.naveen@samsung.com> wrote:
+> From: Simon Glass <sjg@chromium.org>
+>
+> There is a rather odd feature of the exynos i2c controller that if it
+> is left enabled, it can lock itself up with the clk line held low.
+> This makes the bus unusable.
+>
+> Unfortunately, the s3c24xx_i2c_set_master() function does not notice
+> this, and reports a timeout. From then on the bus cannot be used until
+> the AP is rebooted.
+>
+> The problem happens when any sort of interrupt occurs (e.g. due to a
+> bus transition) when we are not in the middle of a transaction. We
+> have seen many instances of this when U-Boot leaves the bus apparently
+> happy, but Linux cannot access it.
+>
+> The current code is therefore pretty fragile.
+>
+> This fixes things by leaving the bus disabled unless we are actually
+> in a transaction. We enable the bus at the start of the transaction and
+> disable it at the end. That way we won't get interrupts and will not
+> lock up the bus.
+>
+> It might be possible to clear pending interrupts on start-up, but this
+> seems to be a more robust solution. We can't service interrupts when
+> we are not in a transaction, and anyway would rather not lock up the
+> bus while we try.
+>
+> Signed-off-by: Simon Glass <sjg@chromium.org>
+> Cc: Grant Grundler <grundler@chromium.org>
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |   37 +++++++++++++++++++++++++++++++++----
+>  1 file changed, 33 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index e93e7d6..2fd346d 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -186,6 +186,31 @@ static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
+>         writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
+>  }
+>
+> +/*
+> + * Disable the bus so that we won't get any interrupts from now on, or try
+> + * to drive any lines. This is the default state when we don't have
+> + * anything to send/receive.
+> + *
+> + * If there is an event on the bus, or we have a pre-existing event at
+> + * kernel boot time, we may not notice the event and the I2C controller
+> + * will lock the bus with the I2C clock line low indefinitely.
+> + */
+> +static inline void s3c24xx_i2c_disable_bus(struct s3c24xx_i2c *i2c)
+> +{
+> +       unsigned long tmp;
+> +
+> +       /* Stop driving the I2C pins */
+> +       tmp = readl(i2c->regs + S3C2410_IICSTAT);
+> +       tmp &= ~S3C2410_IICSTAT_TXRXEN;
+> +       writel(tmp, i2c->regs + S3C2410_IICSTAT);
+> +
+> +       /* We don't expect any interrupts now, and don't want send acks */
+> +       tmp = readl(i2c->regs + S3C2410_IICCON);
+> +       tmp &= ~(S3C2410_IICCON_IRQEN | S3C2410_IICCON_IRQPEND |
+> +               S3C2410_IICCON_ACKEN);
+> +       writel(tmp, i2c->regs + S3C2410_IICCON);
+> +}
+> +
+>
+>  /* s3c24xx_i2c_message_start
+>   *
+> @@ -646,7 +671,11 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
+>
+>         s3c24xx_i2c_wait_idle(i2c);
+>
+> +       s3c24xx_i2c_disable_bus(i2c);
+> +
+>   out:
+> +       i2c->state = STATE_IDLE;
+> +
+>         return ret;
+>  }
+>
+> @@ -912,7 +941,6 @@ static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
+>
+>  static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+>  {
+> -       unsigned long iicon = S3C2410_IICCON_IRQEN | S3C2410_IICCON_ACKEN;
+>         struct s3c2410_platform_i2c *pdata;
+>         unsigned int freq;
+>
+> @@ -926,12 +954,12 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+>
+>         dev_info(i2c->dev, "slave address 0x%02x\n", pdata->slave_addr);
+>
+> -       writel(iicon, i2c->regs + S3C2410_IICCON);
+> +       writel(0, i2c->regs + S3C2410_IICCON);
+> +       writel(0, i2c->regs + S3C2410_IICSTAT);
+>
+>         /* we need to work out the divisors for the clock... */
+>
+>         if (s3c24xx_i2c_clockrate(i2c, &freq) != 0) {
+> -               writel(0, i2c->regs + S3C2410_IICCON);
+>                 dev_err(i2c->dev, "cannot meet bus frequency required\n");
+>                 return -EINVAL;
+>         }
+> @@ -939,7 +967,8 @@ static int s3c24xx_i2c_init(struct s3c24xx_i2c *i2c)
+>         /* todo - check that the i2c lines aren't being dragged anywhere */
+>
+>         dev_info(i2c->dev, "bus frequency set to %d KHz\n", freq);
+> -       dev_dbg(i2c->dev, "S3C2410_IICCON=0x%02lx\n", iicon);
+> +       dev_dbg(i2c->dev, "S3C2410_IICCON=0x%02x\n",
+> +               readl(i2c->regs + S3C2410_IICCON));
+>
+>         return 0;
+>  }
+> --
+> 1.7.9.5
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
