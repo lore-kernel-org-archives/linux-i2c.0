@@ -1,66 +1,61 @@
-From: guanxuetao-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org
-Subject: Re: [PATCH 11/16] i2c: puv3: remove __dev* attributes
-Date: Thu, 29 Nov 2012 09:22:25 +0800 (CST)
-Message-ID: <62280.162.105.80.111.1354152145.squirrel@mprc.pku.edu.cn>
-References: <1354049993-12718-1-git-send-email-wfp5p@virginia.edu>
-    <1354049993-12718-12-git-send-email-wfp5p@virginia.edu>
+From: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>
+Subject: RE: [PATCH] of_i2c: Honour "status=disabled" property of device
+Date: Thu, 29 Nov 2012 03:20:48 +0000
+Message-ID: <5EB3BFCD089AD643B9BB63439F5FD5E90122987C05@SHAASIEXM01.ASIA.ROOT.PRI>
+References: <50B61DDA.5090109@sysgo.com>
 Mime-Version: 1.0
-Content-Type: text/plain;charset=GB2312
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1354049993-12718-12-git-send-email-wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+In-Reply-To: <50B61DDA.5090109-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
+To: Alexander Sverdlin <asv-uSbOeAmDUekAvxtiuMwx3w@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, Jon Smirl <jonsmirl-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Cc: alexander sverdlin <alexander.sverdlin.ext-OYasijW0DpE@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> CONFIG_HOTPLUG is going away as an option.  As result the __dev*
-> markings will be going away.
->
-> Remove use of __devinit, __devexit_p, __devinitdata, __devinitconst,
-> and __devexit.
->
-> Signed-off-by: Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
-> Cc: Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
-
-Acked-by: Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>
-
-> ---
->  drivers/i2c/busses/i2c-puv3.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-puv3.c b/drivers/i2c/busses/i2c-puv3.c
-> index d8515be..d7c512d 100644
-> --- a/drivers/i2c/busses/i2c-puv3.c
-> +++ b/drivers/i2c/busses/i2c-puv3.c
-> @@ -184,7 +184,7 @@ static struct i2c_algorithm puv3_i2c_algorithm = {
->  /*
->   * Main initialization routine.
->   */
-> -static int __devinit puv3_i2c_probe(struct platform_device *pdev)
-> +static int puv3_i2c_probe(struct platform_device *pdev)
->  {
->  	struct i2c_adapter *adapter;
->  	struct resource *mem;
-> @@ -231,7 +231,7 @@ fail_nomem:
->  	return rc;
->  }
->
-> -static int __devexit puv3_i2c_remove(struct platform_device *pdev)
-> +static int puv3_i2c_remove(struct platform_device *pdev)
->  {
->  	struct i2c_adapter *adapter = platform_get_drvdata(pdev);
->  	struct resource *mem;
-> @@ -276,7 +276,7 @@ static SIMPLE_DEV_PM_OPS(puv3_i2c_pm,
-> puv3_i2c_suspend, NULL);
->
->  static struct platform_driver puv3_i2c_driver = {
->  	.probe		= puv3_i2c_probe,
-> -	.remove		= __devexit_p(puv3_i2c_remove),
-> +	.remove		= puv3_i2c_remove,
->  	.driver		= {
->  		.name	= "PKUnity-v3-I2C",
->  		.owner	= THIS_MODULE,
-> --
-> 1.8.0.1
->
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBkZXZpY2V0
+cmVlLWRpc2N1c3MNCj4gW21haWx0bzpkZXZpY2V0cmVlLWRpc2N1c3MtYm91
+bmNlcyticzE0PWNzci5jb21AbGlzdHMub3psYWJzLm9yZ10gT24gQmVoYWxm
+DQo+IE9mIEFsZXhhbmRlciBTdmVyZGxpbg0KPiBTZW50OiBXZWRuZXNkYXks
+IE5vdmVtYmVyIDI4LCAyMDEyIDEwOjIxIFBNDQo+IFRvOiBKb2NoZW4gRnJp
+ZWRyaWNoOyBKb24gU21pcmw7IGxpbnV4LWkyY0B2Z2VyLmtlcm5lbC5vcmc7
+DQo+IGRldmljZXRyZWUtZGlzY3Vzc0BsaXN0cy5vemxhYnMub3JnOyBSb2Ig
+SGVycmluZzsgR3JhbnQgTGlrZWx5DQo+IENjOiBhbGV4YW5kZXIgc3ZlcmRs
+aW4NCj4gU3ViamVjdDogW1BBVENIXSBvZl9pMmM6IEhvbm91ciAic3RhdHVz
+PWRpc2FibGVkIiBwcm9wZXJ0eSBvZiBkZXZpY2UNCj4gDQo+IEZyb206IEFs
+ZXhhbmRlciBTdmVyZGxpbiA8YWxleGFuZGVyLnN2ZXJkbGluQHN5c2dvLmNv
+bT4NCj4gDQo+IG9mX2kyYzogSG9ub3VyICJzdGF0dXM9ZGlzYWJsZWQiIHBy
+b3BlcnR5IG9mIGRldmljZQ0KPiANCj4gQ3VycmVudGx5IG9mX2kyY19yZWdp
+c3Rlcl9kZXZpY2VzKCkgZnVuY3Rpb24gcmVnaXN0ZXJzIGFsbCBpMmMgZGV2
+aWNlcywNCj4gaW5kZXBlbmRlbnRseSBmcm9tIHRoZWlyIHN0YXR1cyBwcm9w
+ZXJ0eSBpbiBkZXZpY2UgdHJlZS4gQWNjb3JkaW5nIHRvDQo+ICJlUEFQUiAx
+LjEiIHNwZWMsIGRldmljZSBzaG91bGQgb25seSBiZSByZWdpc3RlcmVkIGlm
+IHRoZXJlIGlzIG5vDQo+ICJzdGF0dXMiIHByb3BlcnR5LCBvciBpdCBoYXMg
+Im9rIiAob3IgIm9rYXkiKSB2YWx1ZSAoc2VlDQo+IG9mX2RldmljZV9pc19h
+dmFpbGFibGUoKSkuIEluIGNhc2Ugb2YgInBsYXRmb3JtIGRldmljZXMiLA0K
+PiBvZl9wbGF0Zm9ybV9kZXZpY2VfY3JlYXRlX3BkYXRhKCkgY2hlY2tzIGZv
+ciAic3RhdHVzIiBhbmQgZW5zdXJlcw0KPiB0aGF0IGRpc2FibGVkIGRldmlj
+ZXMgYXJlIG5vdCBwb3B1bGF0ZWQuIEJ1dCBzdWNoIGNoZWNrIGZvciBpMmMg
+YnVzZXMNCj4gd2FzIG1pc3NpbmcgdW50aWwgbm93LiBGaXggaXQuDQo+IA0K
+PiBTaWduZWQtb2ZmLWJ5OiBBbGV4YW5kZXIgU3ZlcmRsaW4gPGFsZXhhbmRl
+ci5zdmVyZGxpbkBzeXNnby5jb20+DQo+IC0tLQ0KDQpSZXZpZXdlZC1ieTog
+QmFycnkgU29uZyA8QmFvaHVhLlNvbmdAY3NyLmNvbT4NCg0KPiAtLS0gbGlu
+dXgub3JpZy9kcml2ZXJzL29mL29mX2kyYy5jDQo+ICsrKyBsaW51eC9kcml2
+ZXJzL29mL29mX2kyYy5jDQo+IEBAIC0yOSw3ICsyOSw3IEBAIHZvaWQgb2Zf
+aTJjX3JlZ2lzdGVyX2RldmljZXMoc3RydWN0IGkyY18NCj4gDQo+ICAJZGV2
+X2RiZygmYWRhcC0+ZGV2LCAib2ZfaTJjOiB3YWxraW5nIGNoaWxkIG5vZGVz
+XG4iKTsNCj4gDQo+IC0JZm9yX2VhY2hfY2hpbGRfb2Zfbm9kZShhZGFwLT5k
+ZXYub2Zfbm9kZSwgbm9kZSkgew0KPiArCWZvcl9lYWNoX2F2YWlsYWJsZV9j
+aGlsZF9vZl9ub2RlKGFkYXAtPmRldi5vZl9ub2RlLCBub2RlKSB7DQo+ICAJ
+CXN0cnVjdCBpMmNfYm9hcmRfaW5mbyBpbmZvID0ge307DQo+ICAJCXN0cnVj
+dCBkZXZfYXJjaGRhdGEgZGV2X2FkID0ge307DQo+ICAJCWNvbnN0IF9fYmUz
+MiAqYWRkcjsNCgoKTWVtYmVyIG9mIHRoZSBDU1IgcGxjIGdyb3VwIG9mIGNv
+bXBhbmllcy4gQ1NSIHBsYyByZWdpc3RlcmVkIGluIEVuZ2xhbmQgYW5kIFdh
+bGVzLCByZWdpc3RlcmVkIG51bWJlciA0MTg3MzQ2LCByZWdpc3RlcmVkIG9m
+ZmljZSBDaHVyY2hpbGwgSG91c2UsIENhbWJyaWRnZSBCdXNpbmVzcyBQYXJr
+LCBDb3dsZXkgUm9hZCwgQ2FtYnJpZGdlLCBDQjQgMFdaLCBVbml0ZWQgS2lu
+Z2RvbQpNb3JlIGluZm9ybWF0aW9uIGNhbiBiZSBmb3VuZCBhdCB3d3cuY3Ny
+LmNvbS4gRm9sbG93IENTUiBvbiBUd2l0dGVyIGF0IGh0dHA6Ly90d2l0dGVy
+LmNvbS9DU1JfUExDIGFuZCByZWFkIG91ciBibG9nIGF0IHd3dy5jc3IuY29t
+L2Jsb2cK
