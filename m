@@ -1,187 +1,274 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v3] i2c-hid: introduce HID over i2c specification implementation
-Date: Mon, 3 Dec 2012 14:41:22 +0100
-Message-ID: <CAN+gG=F5jae=UFDR4-zZY-dt6KGE22QgmWiF2RkVvqN0ySX-kQ@mail.gmail.com>
-References: <1352731379-24683-1-git-send-email-benjamin.tissoires@gmail.com>
-	<20121130155650.69407e9f@endymion.delvare>
-	<CAN+gG=FjVswyx1W4y6NtbNnBu2AWgZZfxVr0h00ZYujCOz3v7Q@mail.gmail.com>
-	<20121203140226.0fede51e@endymion.delvare>
+From: Giridhar Maruthy <giridhar.maruthy@linaro.org>
+Subject: Re: [PATCH] I2C: EXYNOS: Add slave support to i2c
+Date: Tue, 4 Dec 2012 07:53:57 +0900
+Message-ID: <CAHuqX+GjysHvd7b8n5vjBHA+HNOY6aeRaKSnH0Jq-0z_vni9Hg@mail.gmail.com>
+References: <1354354961-28833-1-git-send-email-giridhar.maruthy@linaro.org>
+	<CAHuqX+EQ0pZnm27yAVqC=NRX8huQ5EvbC8PGn2G3xYw4D71gQA@mail.gmail.com>
+	<CAH9JG2VU7gLU-tdhUcGYtkn3aE5+CePKZD7U0OhpDMgJjARWyw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20121203140226.0fede51e@endymion.delvare>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Stephane Chatty <chatty@enac.fr>, fabien.andre@gmail.com, scott.liu@emc.com.tw, JJ Ding <jj_ding@emc.com.tw>, Jiri Slaby <jslaby@suse.cz>, Shubhrajyoti Datta <omaplinuxkernel@gmail.com>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <CAH9JG2VU7gLU-tdhUcGYtkn3aE5+CePKZD7U0OhpDMgJjARWyw@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Kyungmin Park <kmpark@infradead.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 3, 2012 at 2:02 PM, Jean Delvare <khali@linux-fr.org> wrote:
-> Hi Benjamin,
->
-> On Mon, 3 Dec 2012 12:32:03 +0100, Benjamin Tissoires wrote:
->> Hi Jean,
->>
->> On Fri, Nov 30, 2012 at 3:56 PM, Jean Delvare <khali@linux-fr.org> wrote:
->> > Hi Benjamin, Jiri,
->> >
->> > Sorry for the late review. But better late than never I guess...
->>
->> Sure! Thanks for the review. As the driver is already in Jiri's tree,
->> I'll do small incremental patches based on this release.
->>
->> I'll try to address all of your comments.
->>
->> I have a few answers to some of your remarks (I fully agree with all
->> of the others):
->>
->> > On Mon, 12 Nov 2012 15:42:59 +0100, Benjamin Tissoires wrote:
->> >> +static int i2c_hid_get_raw_report(struct hid_device *hid,
->> >> +             unsigned char report_number, __u8 *buf, size_t count,
->> >> +             unsigned char report_type)
->> >> +{
->> >> +     struct i2c_client *client = hid->driver_data;
->> >> +     struct i2c_hid *ihid = i2c_get_clientdata(client);
->> >> +     int ret;
->> >> +
->> >> +     if (report_type == HID_OUTPUT_REPORT)
->> >> +             return -EINVAL;
->> >> +
->> >> +     if (count > ihid->bufsize)
->> >> +             count = ihid->bufsize;
->> >> +
->> >> +     ret = i2c_hid_get_report(client,
->> >> +                     report_type == HID_FEATURE_REPORT ? 0x03 : 0x01,
->> >> +                     report_number, ihid->inbuf, count);
->> >> +
->> >> +     if (ret < 0)
->> >> +             return ret;
->> >> +
->> >> +     count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
->> >> +
->> >> +     memcpy(buf, ihid->inbuf + 2, count);
->> >
->> > What guarantee do you have that count is not larger than buf's length?
->> > I hope you don't just count on all hardware out there being nice and
->> > sane, do you? ;)
->>
->> Hehe, this function is never called from the device, but from the user
->> space. It's called by hidraw_get_report in drivers/hid/hidraw.c, and
->> the caller makes the allocation of buf with a size of count.
->> There is an other usage in hid-input.c with "buf, sizeof(buf)," as arguments.
->> So this should never be a problem as long as anybody else call this
->> function without making sure count is the right size.
->
-> Not sure I follow you here.
->
-> There are two flavors of "count" in this function. The first one is
-> passed as a parameter by the caller and used to set the buffer length
-> as passed to i2c_hid_get_report(). This part is fine and I have no
-> problem with it. The second flavor is extracted from ihid->inbuf as
-> provided by i2c_hid_get_report(). As I understand it,
-> i2c_hid_get_report() fills the buffer with data it receives from the
-> hardware, so I fail to see how you can have any guarantee that this
-> second flavor of count is not greater than buf's length.
->
-> In fact I don't think you should reuse "count" in the first place,
-> that's confusing. Then, looking at the code again, I don't think the
-> test "count > ihid->bufsize", and more generally changing the value of
-> "count", makes sense. You don't care about the size of "buf" when
-> calling i2c_hid_get_report(), you care about the size of ihid->inbuf,
-> which should be at least 2 more than the size of "buf". You care about
-> the size of "buf" _after_ the call to i2c_hid_get_report(), as you are
-> copying the data from ihid->bufsize to "buf". This is precisely the
-> check which I claim is missing.
+Thank you Kyungmin Park for the review.
 
-Oops. Really sorry. You are perfectly right.
-This mismatch comes from the reuse of count for 2 different purposes,
-so it was not a good idea at all.
-
-Will fix it. And thanks!
+On 3 December 2012 22:28, Kyungmin Park <kmpark@infradead.org> wrote:
+>
+> Hi,
+>
+> On Mon, Dec 3, 2012 at 9:16 PM, Giridhar Maruthy
+> <giridhar.maruthy@linaro.org> wrote:
+> > This patch adds slave support to i2c. The dt entry i2c-mode
+> > decides at probe time if the controller needs to work in
+> > slave mode and the controller is accordingly programmed.
+> >
+> > Signed-off-by: Giridhar Maruthy <giridhar.maruthy@linaro.org>
+> > ---
+> >  drivers/i2c/busses/i2c-s3c2410.c |  100
+> > ++++++++++++++++++++++++++------------
+> >  1 file changed, 68 insertions(+), 32 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-s3c2410.c
+> > b/drivers/i2c/busses/i2c-s3c2410.c
+> > index e93e7d6..d83a6d7 100644
+> > --- a/drivers/i2c/busses/i2c-s3c2410.c
+> > +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> > @@ -53,6 +53,9 @@
+> >  /* Max time to wait for bus to become idle after a xfer (in us) */
+> >  #define S3C2410_IDLE_TIMEOUT   5000
+> >
+> > +/* To find the master/slave mode of current controller */
+> > +#define is_master(i2c) (!i2c->i2c_mode)
+> > +
+> >  /* i2c controller state */
+> >  enum s3c24xx_i2c_state {
+> >         STATE_IDLE,
+> > @@ -89,6 +92,8 @@ struct s3c24xx_i2c {
+> >  #ifdef CONFIG_CPU_FREQ
+> >         struct notifier_block   freq_transition;
+> >  #endif
+> > +       /* i2c_mode: 0 is for master; and 1 is for slave */
+> > +       unsigned int            i2c_mode;
+> If it's used for master or not, doesn't better to use 'is_master' or
+> 'is_slave'? what's the meaning of 'i2c_mode'?
+> and
+> #define is_master(i2c) (i2c->is_master)
 
 
->
->> >> (...)
->> >> +
->> >> +     hid = ihid->hid;
->> >> +     hid_destroy_device(hid);
->> >> +
->> >> +     free_irq(client->irq, ihid);
->> >> +
->> >
->> > Is there any guarantee that i2c_hid_stop() has been called before
->> > i2c_hid_remove() is? If not, you're missing a call to
->> > i2c_hid_free_buffers() here. BTW I'm not quite sure why
->> > i2c_hid_remove() frees the buffers in the first place, but then again I
->> > don't know a thing about the HID infrastructure.
->>
->> Calling i2c_hid_stop() is the responsibility of the hid driver at his
->> remove. By hid driver, I mean the driver that relies on hid to handle
->> the device (hid-generic in 80% of the cases) So as long as this hid
->> driver is loaded, we can not remove i2c_hid as it is used by the hid
->> driver. So it seems that this guarantees that i2c_hid_stop() has been
->> called before i2c_hid_remove() is.
->>
->> But now that I think of it, there are cases where i2c_hid_stop() is
->> not called: when the hid driver failed to probe. So definitively,
->> there is a mem leak here. Thanks.
->
-> Actually this path was fixed by Jiri already:
-> http://git.kernel.org/?p=linux/kernel/git/jikos/hid.git;a=commitdiff;h=3c62602434c13744df62b3ab0ab7950cd36f24db
-
-Not exactly. This commit fixes the memory leak when i2c_hid_probe
-fails. Not when the hid driver (hid-generic or hid-multitouch in our
-cases) fails.
+I thought mode indicates master mode or slave mode, but I agree
+'is_master' name is better. Will change that.
 
 >
-> My worry was that, when probe succeeds, i2c_hid_start/stop() could
-> never be called if the module was unloaded immediately for example,
-> before user-space has a chance to use the device. But if you are
-> certain it can't happen, then alright.
-
-I made a few tests after sending the mail. Contrary to what I said,
-it's possible to unload the i2c-hid module before the hid module. But
-in this case, the function i2c_hid_stop() is called.
-
-So the only missing case is when no hid driver use the module (either
-because it has failed or because it's not loaded). As
-i2c_hid_alloc_buffer is called in the probe, we should dealloc them in
-.remove.
-
->
->> >> +(...)
->> >> +static const struct i2c_device_id i2c_hid_id_table[] = {
->> >> +     { "i2c_hid", 0 },
->> >
->> > I am just realizing "i2c_hid" is a little redundant as an i2c device
->> > name. Can we make this just "hid"?
->>
->> I know that it already have been used by one Nvidia team and by Elan
->> for internal tests. So I don't know if it's possible to change it now
->> (though it's not a big deal).
->
-> Yes it is possible, as long as the code isn't in Linus' tree (and I'd
-> even say: as long as it is not in any kernel released by Linus.)
-> Whoever is already using your driver will have to adjust their code.
-> They'll certainly want to anyway, in order to get the bug fixes.
->
->> Anyway, "hid" is a little weird to me (but this is because I started
->> hacking the kernel from there), as it's really short and does not
->> contain i2c :)
->
-> This is exactly my point: no other i2c client (to my knowledge) has
-> "i2c" in its name, because it is redundant.
->
-> I would agree that this is kind of a special case as this is a generic
-> driver and not a device-specific driver. I would still prefer "hid" but
-> if you don't feel like changing it, I guess I can live with that.
-
-Ok, I'll change the name.
-My concerns were just because from my point of view, "hid" refers to
-the core implementation. But for OEMs, they need to declare a "hid"
-device, so it makes sense. Anyway, when I'll be able to get my hand on
-an ACPI 5 device with hid over i2c, I'll be able to write the missing
-autoloading code, and this name will be only used by a small part of
-OEMs (I hope).
-
-Cheers,
-Benjamin
+> Thank you,
+> Kyungmin Park
+> >  };
+> >
+> >  static struct platform_device_id s3c24xx_driver_ids[] = {
+> > @@ -202,11 +207,21 @@ static void s3c24xx_i2c_message_start(struct
+> > s3c24xx_i2c *i2c,
+> >         stat = 0;
+> >         stat |=  S3C2410_IICSTAT_TXRXEN;
+> >
+> > -       if (msg->flags & I2C_M_RD) {
+> > -               stat |= S3C2410_IICSTAT_MASTER_RX;
+> > -               addr |= 1;
+> > -       } else
+> > -               stat |= S3C2410_IICSTAT_MASTER_TX;
+> > +       if (is_master(i2c)) {
+> > +               /* Master mode */
+> > +               if (msg->flags & I2C_M_RD) {
+> > +                       stat |= S3C2410_IICSTAT_MASTER_RX;
+> > +                       addr |= 1;
+> > +               } else
+> > +                       stat |= S3C2410_IICSTAT_MASTER_TX;
+> > +       } else {
+> > +               /* Slave mode */
+> > +               if (msg->flags & I2C_M_RD) {
+> > +                       stat |= S3C2410_IICSTAT_SLAVE_RX;
+> > +                       addr |= 1;
+> > +               } else
+> > +                       stat |= S3C2410_IICSTAT_SLAVE_TX;
+> > +       }
+> >
+> >         if (msg->flags & I2C_M_REV_DIR_ADDR)
+> >                 addr ^= 1;
+> > @@ -228,8 +243,10 @@ static void s3c24xx_i2c_message_start(struct
+> > s3c24xx_i2c *i2c,
+> >         dev_dbg(i2c->dev, "iiccon, %08lx\n", iiccon);
+> >         writel(iiccon, i2c->regs + S3C2410_IICCON);
+> >
+> > -       stat |= S3C2410_IICSTAT_START;
+> > -       writel(stat, i2c->regs + S3C2410_IICSTAT);
+> > +       if (is_master(i2c)) {
+> > +               stat |= S3C2410_IICSTAT_START;
+> > +               writel(stat, i2c->regs + S3C2410_IICSTAT);
+> > +       }
+> >  }
+> >
+> >  static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c *i2c, int ret)
+> > @@ -272,14 +289,19 @@ static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c
+> > *i2c, int ret)
+> >          * devices, the host as Master and the HDMIPHY device as the slave.
+> >          * Skipping the STOP condition has been tested on this bus and
+> > works.
+> >          */
+> > -       if (i2c->quirks & QUIRK_HDMIPHY) {
+> > -               /* Stop driving the I2C pins */
+> > -               iicstat &= ~S3C2410_IICSTAT_TXRXEN;
+> > -       } else {
+> > -               /* stop the transfer */
+> > -               iicstat &= ~S3C2410_IICSTAT_START;
+> > +       if (is_master(i2c)) {
+> > +               if (i2c->quirks & QUIRK_HDMIPHY) {
+> > +                       /* Stop driving the I2C pins */
+> > +                       iicstat &= ~S3C2410_IICSTAT_TXRXEN;
+> > +               } else {
+> > +                       /* stop the transfer */
+> > +                       if (is_master(i2c)) {
+> > +                               /* Start/Stop required only for master */
+> > +                               iicstat &= ~S3C2410_IICSTAT_START;
+> > +                       }
+> > +               }
+> > +               writel(iicstat, i2c->regs + S3C2410_IICSTAT);
+> >         }
+> > -       writel(iicstat, i2c->regs + S3C2410_IICSTAT);
+> >
+> >         i2c->state = STATE_STOP;
+> >
+> > @@ -348,7 +370,8 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c,
+> > unsigned long iicstat)
+> >                  */
+> >
+> >                 if (iicstat & S3C2410_IICSTAT_LASTBIT &&
+> > -                   !(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
+> > +                   !(i2c->msg->flags & I2C_M_IGNORE_NAK) &&
+> > +                   is_master(i2c)) {
+> >                         /* ack was not received... */
+> >
+> >                         dev_dbg(i2c->dev, "ack was not received\n");
+> > @@ -380,7 +403,7 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c,
+> > unsigned long iicstat)
+> >                  * end of the message, and if so, work out what to do
+> >                  */
+> >
+> > -               if (!(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
+> > +               if (!(i2c->msg->flags & I2C_M_IGNORE_NAK) && is_master(i2c))
+> > {
+> >                         if (iicstat & S3C2410_IICSTAT_LASTBIT) {
+> >                                 dev_dbg(i2c->dev, "WRITE: No Ack\n");
+> >
+> > @@ -432,7 +455,6 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c,
+> > unsigned long iicstat)
+> >
+> >                 } else {
+> >                         /* send stop */
+> > -
+> >                         s3c24xx_i2c_stop(i2c, 0);
+> >                 }
+> >                 break;
+> > @@ -447,7 +469,7 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c,
+> > unsigned long iicstat)
+> >                 i2c->msg->buf[i2c->msg_ptr++] = byte;
+> >
+> >   prepare_read:
+> > -               if (is_msglast(i2c)) {
+> > +               if (is_msglast(i2c) && is_master(i2c)) {
+> >                         /* last byte of buffer */
+> >
+> >                         if (is_lastmsg(i2c))
+> > @@ -612,11 +634,13 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
+> >         if (i2c->suspended)
+> >                 return -EIO;
+> >
+> > -       ret = s3c24xx_i2c_set_master(i2c);
+> > -       if (ret != 0) {
+> > -               dev_err(i2c->dev, "cannot get bus (error %d)\n", ret);
+> > -               ret = -EAGAIN;
+> > -               goto out;
+> > +       if (is_master(i2c)) {
+> > +               ret = s3c24xx_i2c_set_master(i2c);
+> > +               if (ret != 0) {
+> > +                       dev_err(i2c->dev, "cannot get bus (error %d)\n",
+> > ret);
+> > +                       ret = -EAGAIN;
+> > +                       goto out;
+> > +               }
+> >         }
+> >
+> >         i2c->msg     = msgs;
+> > @@ -628,23 +652,29 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
+> >         s3c24xx_i2c_enable_irq(i2c);
+> >         s3c24xx_i2c_message_start(i2c, msgs);
+> >
+> > -       timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
+> > +       if (is_master(i2c))
+> > +               timeout = wait_event_timeout(i2c->wait,\
+> > +                               i2c->msg_num == 0, HZ * 5);
+> > +       else
+> > +               wait_event_interruptible(i2c->wait, i2c->msg_num == 0);
+> >
+> >         ret = i2c->msg_idx;
+> >
+> >         /* having these next two as dev_err() makes life very
+> >          * noisy when doing an i2cdetect */
+> >
+> > -       if (timeout == 0)
+> > -               dev_dbg(i2c->dev, "timeout\n");
+> > -       else if (ret != num)
+> > -               dev_dbg(i2c->dev, "incomplete xfer (%d)\n", ret);
+> > +       if (is_master(i2c)) {
+> > +               if (timeout == 0)
+> > +                       dev_dbg(i2c->dev, "timeout\n");
+> > +               else if (ret != num)
+> > +                       dev_dbg(i2c->dev, "incomplete xfer (%d)\n", ret);
+> >
+> > -       /* For QUIRK_HDMIPHY, bus is already disabled */
+> > -       if (i2c->quirks & QUIRK_HDMIPHY)
+> > -               goto out;
+> > +               /* For QUIRK_HDMIPHY, bus is already disabled */
+> > +               if (i2c->quirks & QUIRK_HDMIPHY)
+> > +                       goto out;
+> >
+> > -       s3c24xx_i2c_wait_idle(i2c);
+> > +               s3c24xx_i2c_wait_idle(i2c);
+> > +       }
+> >
+> >   out:
+> >         return ret;
+> > @@ -963,6 +993,7 @@ s3c24xx_i2c_parse_dt(struct device_node *np, struct
+> > s3c24xx_i2c *i2c)
+> >         of_property_read_u32(np, "samsung,i2c-slave-addr",
+> > &pdata->slave_addr);
+> >         of_property_read_u32(np, "samsung,i2c-max-bus-freq",
+> >                                 (u32 *)&pdata->frequency);
+> > +       of_property_read_u32(np, "samsung,i2c-mode", &i2c->i2c_mode);
+> >  }
+> >  #else
+> >  static void
+> > @@ -1004,6 +1035,10 @@ static int s3c24xx_i2c_probe(struct platform_device
+> > *pdev)
+> >                 goto err_noclk;
+> >         }
+> >
+> > +       /* By default, i2c works in master mode */
+> > +       /* This currently will be updated using DT */
+> > +       i2c->i2c_mode   = 0;
+> > +
+> >         i2c->quirks = s3c24xx_get_device_quirks(pdev);
+> >         if (pdata)
+> >                 memcpy(i2c->pdata, pdata, sizeof(*pdata));
+> > @@ -1017,6 +1052,7 @@ static int s3c24xx_i2c_probe(struct platform_device
+> > *pdev)
+> >         i2c->adap.class   = I2C_CLASS_HWMON | I2C_CLASS_SPD;
+> >         i2c->tx_setup     = 50;
+> >
+> > +
+> >         init_waitqueue_head(&i2c->wait);
+> >
+> >         /* find the clock and enable it */
+> > --
+> > 1.7.9.5
