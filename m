@@ -1,37 +1,47 @@
-From: Andreas Larsson <andreas@gaisler.com>
-Subject: Re: [PATCH 0/2] sparc: Enable OF functionality for sparc for i2c
- and spi
-Date: Tue, 04 Dec 2012 16:01:51 +0100
-Message-ID: <50BE105F.3080403@gaisler.com>
-References: <1354630178-25387-1-git-send-email-andreas@gaisler.com> <CACxGe6sw0zU0NcXw1gjMZka4WyTZgT4heF3r4k0QPHbfcPzbiw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <sparclinux-owner@vger.kernel.org>
-In-Reply-To: <CACxGe6sw0zU0NcXw1gjMZka4WyTZgT4heF3r4k0QPHbfcPzbiw@mail.gmail.com>
-Sender: sparclinux-owner@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: David Miller <davem@davemloft.net>, Wolfram Sang <w.sang@pengutronix.de>, Sam Ravnborg <sam@ravnborg.org>, sparclinux@vger.kernel.org, devicetree-discuss <devicetree-discuss@lists.ozlabs.org>, spi-devel-general@lists.sourceforge.net, Linux I2C <linux-i2c@vger.kernel.org>, software@gaisler.com
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: [PATCH 00/14] i2c-hid cleanup and bug fixes
+Date: Tue,  4 Dec 2012 16:27:41 +0100
+Message-ID: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jiri Kosina <jkosina@suse.cz>, Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2012-12-04 15:44, Grant Likely wrote:
-> On Tue, Dec 4, 2012 at 2:09 PM, Andreas Larsson <andreas@gaisler.com> wrote:
->> This series removes the dependency on !SPARC for OF_I2C and removes the
->> depencency of !defined(CONFIG_SPARC) for the function
->> of_register_spi_devices. I find no reason for these to be unavailable
->> for sparc.
->>
->> I am not sure if these should go through the sparc tree or the
->> corresponding subsystem trees.
->
-> They should go through the subsystem trees.
->
-> What build testing have you done on these patches?
+Hi guys,
 
-I have built under sparc32 (leon sparc to be specific) and have 
-confirmed that of_register_spi_devices and of_i2c_register_devices works 
-fine.
+Jean made a recent review of i2c-hid, and before this driver goes into
+Linus' tree, here are some cleanups.
+
+Patch 2 has not been detected by Jean, but it appeared while playing with
+buffers allocation. So this is the only change not asked by the previous
+review.
+
+I still need to work on the mutex to protect the potential race on .open and
+.close, but meanwhile, here is a first batch of patches.
 
 Cheers,
-Andreas
+Benjamin
+
+Benjamin Tissoires (14):
+  HID: i2c-hid: change I2C name
+  HID: i2c-hid: fix memory corruption due to missing hid declarations
+  HID: i2c-hid: enhance Kconfig
+  HID: i2c-hid: fix checkpatch.pl warning
+  HID: i2c-hid: fix i2c_hid_dbg macro
+  HID: i2c-hid: remove unused static declarations
+  HID: i2c-hid: fix return paths
+  HID: i2c-hid: fix error messages
+  HID: i2c-hid: i2c_hid_get_report may fail
+  HID: i2c-hid: reorder allocation/free of buffers
+  HID: i2c-hid: remove unneeded test in i2c_hid_remove
+  HID: i2c-hid: remove extra .irq field in struct i2c_hid
+  HID: i2c-hid: also call i2c_hid_free_buffers in i2c_hid_remove
+  HID: i2c-hid: fix i2c_hid_get_raw_report count mismatches
+
+ drivers/hid/i2c-hid/Kconfig   |   7 +-
+ drivers/hid/i2c-hid/i2c-hid.c | 184 ++++++++++++++++++++----------------------
+ 2 files changed, 89 insertions(+), 102 deletions(-)
+
+-- 
+1.8.0.1
 
