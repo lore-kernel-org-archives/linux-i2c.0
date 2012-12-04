@@ -1,42 +1,40 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 04/14] HID: i2c-hid: fix checkpatch.pl warning
-Date: Tue, 4 Dec 2012 22:43:49 +0100
-Message-ID: <20121204224349.2cefa121@endymion.delvare>
-References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1354634875-5182-5-git-send-email-benjamin.tissoires@gmail.com>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH 0/2] sparc: Enable OF functionality for sparc for i2c and spi
+Date: Tue, 4 Dec 2012 21:49:26 +0000
+Message-ID: <CACxGe6t4YcSuh04UjoYqFp355iLa6ECc5G+Y1TP3kxsL48c6jQ@mail.gmail.com>
+References: <1354630178-25387-1-git-send-email-andreas@gaisler.com>
+ <CACxGe6sw0zU0NcXw1gjMZka4WyTZgT4heF3r4k0QPHbfcPzbiw@mail.gmail.com> <20121204.161001.1397661306369063374.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1354634875-5182-5-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <sparclinux-owner@vger.kernel.org>
+In-Reply-To: <20121204.161001.1397661306369063374.davem@davemloft.net>
+Sender: sparclinux-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: Andreas Larsson <andreas@gaisler.com>, Wolfram Sang <w.sang@pengutronix.de>, Sam Ravnborg <sam@ravnborg.org>, sparclinux@vger.kernel.org, devicetree-discuss <devicetree-discuss@lists.ozlabs.org>, spi-devel-general@lists.sourceforge.net, Linux I2C <linux-i2c@vger.kernel.org>, software <software@gaisler.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue,  4 Dec 2012 16:27:45 +0100, Benjamin Tissoires wrote:
-> We should not initialize to 0 static declarations.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-> ---
->  drivers/hid/i2c-hid/i2c-hid.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index ad771a7..9ee6555 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -46,7 +46,7 @@
->  #define I2C_HID_PWR_SLEEP	0x01
->  
->  /* debug option */
-> -static bool debug = false;
-> +static bool debug;
->  module_param(debug, bool, 0444);
->  MODULE_PARM_DESC(debug, "print a lot of debug information");
->  
+On Tue, Dec 4, 2012 at 9:10 PM, David Miller <davem@davemloft.net> wrote:
+> From: Grant Likely <grant.likely@secretlab.ca>
+> Date: Tue, 4 Dec 2012 14:44:57 +0000
+>
+>> On Tue, Dec 4, 2012 at 2:09 PM, Andreas Larsson <andreas@gaisler.com> wrote:
+>>> This series removes the dependency on !SPARC for OF_I2C and removes the
+>>> depencency of !defined(CONFIG_SPARC) for the function
+>>> of_register_spi_devices. I find no reason for these to be unavailable
+>>> for sparc.
+>>>
+>>> I am not sure if these should go through the sparc tree or the
+>>> corresponding subsystem trees.
+>>
+>> They should go through the subsystem trees.
+>
+> I'll take this into the sparc tree after some build testing, thanks.
 
-Reviewed-by: Jean Delvare <khali@linux-fr.org>
+I'd prefer to take the SPI one through my tree, but I won't get my
+knickers in a knot if you insist.
 
--- 
-Jean Delvare
+g.
+
+--
+Grant Likely, B.Sc., P.Eng.
+Secret Lab Technologies Ltd.
