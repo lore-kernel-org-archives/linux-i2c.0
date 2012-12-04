@@ -1,40 +1,64 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 0/2] sparc: Enable OF functionality for sparc for i2c and spi
-Date: Tue, 4 Dec 2012 21:49:26 +0000
-Message-ID: <CACxGe6t4YcSuh04UjoYqFp355iLa6ECc5G+Y1TP3kxsL48c6jQ@mail.gmail.com>
-References: <1354630178-25387-1-git-send-email-andreas@gaisler.com>
- <CACxGe6sw0zU0NcXw1gjMZka4WyTZgT4heF3r4k0QPHbfcPzbiw@mail.gmail.com> <20121204.161001.1397661306369063374.davem@davemloft.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 05/14] HID: i2c-hid: fix i2c_hid_dbg macro
+Date: Tue, 4 Dec 2012 22:49:50 +0100
+Message-ID: <20121204224950.6ebd7346@endymion.delvare>
+References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1354634875-5182-6-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <sparclinux-owner@vger.kernel.org>
-In-Reply-To: <20121204.161001.1397661306369063374.davem@davemloft.net>
-Sender: sparclinux-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: Andreas Larsson <andreas@gaisler.com>, Wolfram Sang <w.sang@pengutronix.de>, Sam Ravnborg <sam@ravnborg.org>, sparclinux@vger.kernel.org, devicetree-discuss <devicetree-discuss@lists.ozlabs.org>, spi-devel-general@lists.sourceforge.net, Linux I2C <linux-i2c@vger.kernel.org>, software <software@gaisler.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1354634875-5182-6-git-send-email-benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Dec 4, 2012 at 9:10 PM, David Miller <davem@davemloft.net> wrote:
-> From: Grant Likely <grant.likely@secretlab.ca>
-> Date: Tue, 4 Dec 2012 14:44:57 +0000
->
->> On Tue, Dec 4, 2012 at 2:09 PM, Andreas Larsson <andreas@gaisler.com> wrote:
->>> This series removes the dependency on !SPARC for OF_I2C and removes the
->>> depencency of !defined(CONFIG_SPARC) for the function
->>> of_register_spi_devices. I find no reason for these to be unavailable
->>> for sparc.
->>>
->>> I am not sure if these should go through the sparc tree or the
->>> corresponding subsystem trees.
->>
->> They should go through the subsystem trees.
->
-> I'll take this into the sparc tree after some build testing, thanks.
+On Tue,  4 Dec 2012 16:27:46 +0100, Benjamin Tissoires wrote:
+> This avoids the problematic case:
+> 
+> if (condition)
+> 	i2c_hid_dbg(ihid, "Blah blah %d\n", i);
+> else
+> 	do_something_very_important();
+> 
+> Which looks correct, however with the previous macro definition,
+> this expands to the unexpected:
+> 
+> if (condition) {
+> 	if (debug)	\
+> 		dev_printk(KERN_DEBUG, &ihid->client->dev,
+> 				"Blah blah %d\n", i);
+> 	else
+> 		do_something_very_important();
+> }
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 8 +++++---
+>  1 file changed, 5 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 9ee6555..54950be 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -50,9 +50,11 @@ static bool debug;
+>  module_param(debug, bool, 0444);
+>  MODULE_PARM_DESC(debug, "print a lot of debug information");
+>  
+> -#define i2c_hid_dbg(ihid, fmt, arg...)	\
+> -	if (debug)			\
+> -		dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg)
+> +#define i2c_hid_dbg(ihid, fmt, arg...)					  \
+> +do {									  \
+> +	if (debug)							  \
+> +		dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg); \
+> +} while (0)
+>  
+>  struct i2c_hid_desc {
+>  	__le16 wHIDDescLength;
 
-I'd prefer to take the SPI one through my tree, but I won't get my
-knickers in a knot if you insist.
+Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-g.
-
---
-Grant Likely, B.Sc., P.Eng.
-Secret Lab Technologies Ltd.
+-- 
+Jean Delvare
