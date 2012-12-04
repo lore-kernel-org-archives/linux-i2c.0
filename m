@@ -1,67 +1,55 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [PATCH 0/2] sparc: Enable OF functionality for sparc for i2c and
- spi
-Date: Tue, 4 Dec 2012 22:28:49 +0100
-Message-ID: <20121204212849.GA28935@pengutronix.de>
-References: <1354630178-25387-1-git-send-email-andreas@gaisler.com>
- <CACxGe6sw0zU0NcXw1gjMZka4WyTZgT4heF3r4k0QPHbfcPzbiw@mail.gmail.com>
- <20121204.161001.1397661306369063374.davem@davemloft.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 02/14] HID: i2c-hid: fix memory corruption due to
+ missing hid declaration
+Date: Tue, 4 Dec 2012 22:42:05 +0100
+Message-ID: <20121204224205.58420e3f@endymion.delvare>
+References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1354634875-5182-3-git-send-email-benjamin.tissoires@gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Return-path: <sparclinux-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20121204.161001.1397661306369063374.davem@davemloft.net>
-Sender: sparclinux-owner@vger.kernel.org
-To: David Miller <davem@davemloft.net>
-Cc: grant.likely@secretlab.ca, andreas@gaisler.com, sam@ravnborg.org, sparclinux@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, spi-devel-general@lists.sourceforge.net, linux-i2c@vger.kernel.org, software@gaisler.com
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1354634875-5182-3-git-send-email-benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue,  4 Dec 2012 16:27:43 +0100, Benjamin Tissoires wrote:
+> HID descriptors contains 4 bytes of reserved field.
+> The previous implementation was overriding the next fields in struct i2c_hid.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> index 0fbb229..ad771a7 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> @@ -68,6 +68,7 @@ struct i2c_hid_desc {
+>  	__le16 wVendorID;
+>  	__le16 wProductID;
+>  	__le16 wVersionID;
+> +	__le32 reserved;
+>  } __packed;
+>  
+>  struct i2c_hid_cmd {
+> @@ -778,7 +779,7 @@ static int __devinit i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+>  	}
+>  
+>  	dsize = le16_to_cpu(hdesc->wHIDDescLength);
+> -	if (!dsize || dsize > HID_MAX_DESCRIPTOR_SIZE) {
+> +	if (!dsize || dsize > sizeof(struct i2c_hid_desc)) {
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Shouldn't !dsize rather be dsize < 4? You're reading hdesc->bcdVersion,
+which is only defined if dsize >= 4 if I understand the code correctly.
 
-On Tue, Dec 04, 2012 at 04:10:01PM -0500, David Miller wrote:
-> From: Grant Likely <grant.likely@secretlab.ca>
-> Date: Tue, 4 Dec 2012 14:44:57 +0000
->=20
-> > On Tue, Dec 4, 2012 at 2:09 PM, Andreas Larsson <andreas@gaisler.com> w=
-rote:
-> >> This series removes the dependency on !SPARC for OF_I2C and removes the
-> >> depencency of !defined(CONFIG_SPARC) for the function
-> >> of_register_spi_devices. I find no reason for these to be unavailable
-> >> for sparc.
-> >>
-> >> I am not sure if these should go through the sparc tree or the
-> >> corresponding subsystem trees.
-> >=20
-> > They should go through the subsystem trees.
->=20
-> I'll take this into the sparc tree after some build testing, thanks.
+>  		dev_err(&client->dev, "weird size of HID descriptor (%u)\n",
+>  			dsize);
+>  		return -ENODEV;
 
-Checking git history, looks like Grant added the OF-I2C helpers in
-2010-06 and some SPARC OF rework was done in 2010-10. Makes sense.
 
-So, if those are going via SPARC tree:
-
-Acked-by: Wolfram Sang <w.sang@pengutronix.de>
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlC+axEACgkQD27XaX1/VRs9cACdEBW0omPfGE3jKC2AlH95DRab
-8Z8An0lcLiSTbgcsHPijMpM9yMRiycN9
-=DbTT
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
+-- 
+Jean Delvare
