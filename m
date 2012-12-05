@@ -1,67 +1,38 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 06/14] HID: i2c-hid: remove unused static declarations
-Date: Tue, 4 Dec 2012 22:51:32 +0100
-Message-ID: <20121204225132.2b7b6f6f@endymion.delvare>
-References: <1354634875-5182-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1354634875-5182-7-git-send-email-benjamin.tissoires@gmail.com>
+From: Haojian Zhuang <haojian.zhuang@gmail.com>
+Subject: Re: [PATCH 1/2] i2c-core: dt: Pick i2c bus number from i2c alias if present
+Date: Wed, 5 Dec 2012 09:45:03 +0800
+Message-ID: <CAN1soZyqWk07dqWUmdoknTjw7co8KJLgkO3RT+YY-4QxPg5zdQ@mail.gmail.com>
+References: <1353450428-2615-2-git-send-email-dianders@chromium.org>
+	<1353522362-25519-1-git-send-email-dianders@chromium.org>
+	<1353522362-25519-2-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <1354634875-5182-7-git-send-email-benjamin.tissoires@gmail.com>
-Sender: linux-input-owner@vger.kernel.org
-To: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Cc: Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1353522362-25519-2-git-send-email-dianders@chromium.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@marvell.com>, Arnd Bergmann <arnd@arndb.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue,  4 Dec 2012 16:27:47 +0100, Benjamin Tissoires wrote:
-> These definitions are not used here, but are defined by the specification.
-> Keeping some of them for documentation purposes.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+On Thu, Nov 22, 2012 at 2:26 AM, Doug Anderson <dianders@chromium.org> wrote:
+> This allows you to get the equivalent functionality of
+> i2c_add_numbered_adapter() with all data in the device tree and no
+> special case code in your driver.  This is a common device tree
+> technique.
+>
+> For quick reference, the FDT syntax for using an alias to provide an
+> ID looks like:
+>   aliases {
+>     i2c0 = &i2c_0;
+>     i2c1 = &i2c_1;
+>   };
+>
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
+> CC: Mark Brown <broonie@opensource.wolfsonmicro.com>
+>
 > ---
->  drivers/hid/i2c-hid/i2c-hid.c | 25 ++++++++++---------------
->  1 file changed, 10 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 54950be..4452611 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -106,22 +106,17 @@ static const struct i2c_hid_cmd hid_reset_cmd =		{ I2C_HID_CMD(0x01),
->  							  .wait = true };
->  static const struct i2c_hid_cmd hid_get_report_cmd =	{ I2C_HID_CMD(0x02) };
->  static const struct i2c_hid_cmd hid_set_report_cmd =	{ I2C_HID_CMD(0x03) };
-> -static const struct i2c_hid_cmd hid_get_idle_cmd =	{ I2C_HID_CMD(0x04) };
-> -static const struct i2c_hid_cmd hid_set_idle_cmd =	{ I2C_HID_CMD(0x05) };
-> -static const struct i2c_hid_cmd hid_get_protocol_cmd =	{ I2C_HID_CMD(0x06) };
-> -static const struct i2c_hid_cmd hid_set_protocol_cmd =	{ I2C_HID_CMD(0x07) };
->  static const struct i2c_hid_cmd hid_set_power_cmd =	{ I2C_HID_CMD(0x08) };
-> -/* read/write data register */
-> -static const struct i2c_hid_cmd hid_data_cmd = {
-> -		.registerIndex = offsetof(struct i2c_hid_desc, wDataRegister),
-> -		.opcode = 0x00,
-> -		.length = 2 };
-> -/* write output reports */
-> -static const struct i2c_hid_cmd hid_out_cmd = {
-> -		.registerIndex = offsetof(struct i2c_hid_desc,
-> -			wOutputRegister),
-> -		.opcode = 0x00,
-> -		.length = 2 };
-> +
-> +/*
-> + * These definitions are not used here, but are defined by the spec.
-> + * Keeping them here for documentation purposes.
-> + *
-> + * static const struct i2c_hid_cmd hid_get_idle_cmd = { I2C_HID_CMD(0x04) };
-> + * static const struct i2c_hid_cmd hid_set_idle_cmd = { I2C_HID_CMD(0x05) };
-> + * static const struct i2c_hid_cmd hid_get_protocol_cmd = { I2C_HID_CMD(0x06) };
-> + * static const struct i2c_hid_cmd hid_set_protocol_cmd = { I2C_HID_CMD(0x07) };
-> + */
->  
->  /* The main device structure */
->  struct i2c_hid {
+>  drivers/i2c/i2c-core.c |  105 +++++++++++++++++++++++++++++++++++-------------
+>  1 files changed, 77 insertions(+), 28 deletions(-)
+>
 
-Reviewed-by: Jean Delvare <khali@linux-fr.org>
-
--- 
-Jean Delvare
+Acked-by: Haojian Zhuang <haojian.zhuang@gmail.com>
