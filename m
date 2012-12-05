@@ -1,40 +1,105 @@
-From: Haojian Zhuang <haojian.zhuang@gmail.com>
-Subject: Re: [PATCH 0/2] Add automatic bus number support for i2c busses with
- device tree
-Date: Wed, 5 Dec 2012 09:48:17 +0800
-Message-ID: <CAN1soZxNgEPjS_=DKjvCBJw9jVbA1=yrkAucpcjjRw7VYCvP2g@mail.gmail.com>
-References: <1353450428-2615-2-git-send-email-dianders@chromium.org>
-	<1353522362-25519-1-git-send-email-dianders@chromium.org>
+From: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
+Subject: Re: [PATCH RFC] misc/at24: distinguish between eeprom and fram chips
+Date: Wed, 5 Dec 2012 10:43:07 +0100
+Message-ID: <201212051043.07460.poeschel@lemonage.de>
+References: <201212041758.38600.poeschel@lemonage.de> <20121204183238.GA15067@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1353522362-25519-1-git-send-email-dianders@chromium.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Kukjin Kim <kgene.kim@samsung.com>, Arnd Bergmann <arnd@arndb.de>, Padmavathi Venna <padma.v@samsung.com>, Wolfram Sang <w.sang@pengutronix.de>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-samsung-soc@vger.kernel.org, Thomas Abraham <thomas.abraham@linaro.org>, Ben Dooks <ben-linux@fluff.org>, Olof Johansson <olof@lixom.net>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20121204183238.GA15067-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Nov 22, 2012 at 2:26 AM, Doug Anderson <dianders@chromium.org> wrote:
-> This was suggested by Mark Brown in response to a patch for adding
-> this functionality only for the s3c2410 bus:
->   https://lkml.org/lkml/2012/11/20/681
->
-> I have also modified the i2c-pxa driver to use this new functionality
-> but have no good way to test that patch.  Hopefully someone else can
-> test and ack.  The patch adding the generic functionality could go in
-> even if the i2c-pxa patch needs changes.
->
->
-> Doug Anderson (2):
->   i2c-core: dt: Pick i2c bus number from i2c alias if present
->   i2c: pxa: Use i2c-core to get bus number now
->
->  drivers/i2c/busses/i2c-pxa.c |    8 +---
->  drivers/i2c/i2c-core.c       |  105 ++++++++++++++++++++++++++++++-----------
->  2 files changed, 78 insertions(+), 35 deletions(-)
->
-> --
-> 1.7.7.3
->
->
-Acked & Tested
+I see there where to much "no"s to get anything in, but thank you for
+your comments and explanations.
+
+> > I wanted to use a fm24c04 i2c fram chip with linux. I grepped the source
+> > and found nothing. I later found that my chip can be handled by at24
+> > eeprom driver. It creates a sysfs file called eeprom to read from and
+> > write to the chip. Userspace has no chance to distinguish if it is
+> > writing an eeprom or a fram chip.
+> 
+> Why should it?
+
+Because writes are much faster and it doesn't have to take care on erase
+cycles. It could use other write strategies on such devices and update
+informations that have to survive power downs more often.
+ 
+> > diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
+> > index c9e695e..55948a5 100644
+> > --- a/drivers/misc/eeprom/Kconfig
+> > +++ b/drivers/misc/eeprom/Kconfig
+> > @@ -12,6 +12,12 @@ config EEPROM_AT24
+> > 
+> >  	     24c00, 24c01, 24c02, spd (readonly 24c02), 24c04, 24c08,
+> >  	     24c16, 24c32, 24c64, 24c128, 24c256, 24c512, 24c1024
+> > 
+> > +	  This driver also supports I2C FRAM chips that are feature
+> > +	  compatible to the 24cxx ones. In your at24_platform_data set
+> > +	  .flags = AT24_FLAG_FRAM. These generic names are supported:
+> > +
+> > +	     fm24c04
+> > +
+> 
+> The method of accessing EEPROMs is used by way more chips than FRAMs.
+> So, I'd prefer to have the text updated more generic like "EEPROMs and
+> similar devices like RAMs, ROMs, etc...". Describing setting .flags in
+> Kconfig is overkill.
+
+A patch updating Kconfig is below.
+ 
+> > -		chip.page_size = 1;
+> > +		if (chip.flags & AT24_FLAG_FRAM)
+> > +			chip.page_size = 128;
+> > +		else
+> > +			chip.page_size = 1;
+> 
+> I'd think most FRAMs can have the chip_size as the page_size since they
+> probably don't do buffering. But do you know for all the chips out
+> there? So, let's still play safe. If you want performance, you need to
+> setup the driver properly.
+
+No one knows all chips out there.
+For the fm24c04 I use page_size != chip_size. It does not buffer but it has 
+two pages, 256 bytes each.
+
+-- >8 --
+>From 82f77ade238755b7a1196b24f41a03a0e7344d89 Mon Sep 17 00:00:00 2001
+From: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
+Date: Wed, 5 Dec 2012 10:08:07 +0100
+Subject: [PATCH] misc/at24: Update Kconfig to mention FRAMs, SRAMs and ROMs
+
+As the at24 driver is able handle a bunch of serial storage chips other than
+EEPROMs this is now mentioned in Kconfig.
+
+Signed-off-by: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
+
+diff --git a/drivers/misc/eeprom/Kconfig b/drivers/misc/eeprom/Kconfig
+index c9e695e..04f2e1f 100644
+--- a/drivers/misc/eeprom/Kconfig
++++ b/drivers/misc/eeprom/Kconfig
+@@ -1,13 +1,14 @@
+ menu "EEPROM support"
+ 
+ config EEPROM_AT24
+-	tristate "I2C EEPROMs from most vendors"
++	tristate "I2C EEPROMs / RAMs / ROMs from most vendors"
+ 	depends on I2C && SYSFS
+ 	help
+-	  Enable this driver to get read/write support to most I2C EEPROMs,
+-	  after you configure the driver to know about each EEPROM on
+-	  your target board.  Use these generic chip names, instead of
+-	  vendor-specific ones like at24c64 or 24lc02:
++	  Enable this driver to get read/write support to most I2C EEPROMs
++	  and compatible devices like FRAMs, SRAMs, ROMs etc. After you
++	  configure the driver to know about each chip on your target
++	  board.  Use these generic chip names, instead of vendor-specific
++	  ones like at24c64, 24lc02 or fm24c04:
+ 
+ 	     24c00, 24c01, 24c02, spd (readonly 24c02), 24c04, 24c08,
+ 	     24c16, 24c32, 24c64, 24c128, 24c256, 24c512, 24c1024
+-- 
+1.7.10.4
