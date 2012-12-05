@@ -1,42 +1,62 @@
-From: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: at91: add of_device_id entry for at91rm9200
-Date: Wed,  5 Dec 2012 22:42:12 +0100
-Message-ID: <1354743732-11581-1-git-send-email-manabian@gmail.com>
+From: Peter Huewe <PeterHuewe-Mmb7MZpHnFY@public.gmane.org>
+Subject: I2C and devicetrees
+Date: Wed, 5 Dec 2012 23:36:24 +0100
+Message-ID: <201212052336.24233.PeterHuewe@gmx.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
 Hi,
 
-AT91RM9200 is gaining DT support now so let's add an id to the i2c driver.
+I have a short question about the relations between i2c and devicetrees.
 
-Tested on custom RM9200 board. Since the driver doesn't support pinctrl
-muxing yet I had to add pinctrl hogs for the i2c pins in my dts for it
-to work.
+I was wondering 
+is the device part of the compatible string of a (trivial) i2c device 
+instanciated via devicetree _always_ identical to name in i2c_client.name ?
+Or can it be somehow different?
 
-regards
-Joachim Eastwood
+Here's a short example:
+device tree:
+test {
+        compatible = "vendor,device1", "vendor,device2";
+        reg = <0x20>;
+}
 
- drivers/i2c/busses/i2c-at91.c | 3 +++
- 1 file changed, 3 insertions(+)
+The driver has in its id table only this entry:
+static const struct i2c_device_id my_i2c_table[] = {
+        {"device2", 0},
+        {},
+};
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index b4575ee..c504aa8 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -584,6 +584,9 @@ static const struct platform_device_id at91_twi_devtypes[] = {
- #if defined(CONFIG_OF)
- static const struct of_device_id atmel_twi_dt_ids[] = {
- 	{
-+		.compatible = "atmel,at91rm9200-i2c",
-+		.data = &at91rm9200_config,
-+	} , {
- 		.compatible = "atmel,at91sam9260-i2c",
- 		.data = &at91sam9260_config,
- 	} , {
--- 
-1.8.0
+-> "vendor,device2" matches and the driver is called.
+--> Is i2c_client.name guaranteed to be "device2" ?
+
+
+
+
+
+
+
+Second question:
+Where would you probably add an i2c tpm? 
+Would you add it to
+ Documentation/devicetree/bindings/i2c/trivial-devices.txt
+or if it's not trivial add it to a new file under
+ Documentation/devicetree/bindings/i2c/
+
+or create a new folder 
+ Documentation/devicetree/bindings/tpm
+as there probably are more i2c tpms to come in the near future.
+
+I'd probably prefer the first one, whereas Google already uses the second 
+option:
+http://git.chromium.org/gitweb/?p=chromiumos/third_party/kernel.git;a=history;f=Documentation/devicetree/bindings/tpm;hb=refs/heads/chromeos-3.4
+
+
+Thanks,
+PeterH
