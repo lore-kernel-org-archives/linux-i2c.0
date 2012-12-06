@@ -1,62 +1,43 @@
-From: Peter Huewe <PeterHuewe-Mmb7MZpHnFY@public.gmane.org>
-Subject: I2C and devicetrees
-Date: Wed, 5 Dec 2012 23:36:24 +0100
-Message-ID: <201212052336.24233.PeterHuewe@gmx.de>
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V8 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Thu, 6 Dec 2012 07:37:22 +0530
+Message-ID: <CAKohpokjxh0DDZVFy1uN7ejdd_=jkbyVvYCy73jJChMy5dKeGA@mail.gmail.com>
+References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On 3 December 2012 08:24, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
+> protocol Rev. 03 section 3.1.16 titled "Bus clear".
+>
+> http://www.nxp.com/documents/user_manual/UM10204.pdf
+>
+> Sometimes during operation i2c bus hangs and we need to give dummy clocks to
+> slave device to start the transfer again. Now we may have capability in the bus
+> controller to generate these clocks or platform may have gpio pins which can be
+> toggled to generate dummy clocks. This patch supports both.
+>
+> This patch also adds in generic bus recovery routines gpio or scl line based
+> which can be used by bus controller. In addition controller driver may provide
+> its own version of the bus recovery routine.
+>
+> This doesn't support multi-master recovery for now.
+>
+> Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+> V7->V8:
+> - Clk rate fixed to 100KHz
+> - Check SCL line to see if it is LOW due to some faults
+> - removed last use of unlikely() in earlier patch
+> - Enhanced comment over skip_sda_polling
 
-I have a short question about the relations between i2c and devicetrees.
+As merge window is shifted for few more days, i am trying another
+time to get this in 3.8 :)
 
-I was wondering 
-is the device part of the compatible string of a (trivial) i2c device 
-instanciated via devicetree _always_ identical to name in i2c_client.name ?
-Or can it be somehow different?
-
-Here's a short example:
-device tree:
-test {
-        compatible = "vendor,device1", "vendor,device2";
-        reg = <0x20>;
-}
-
-The driver has in its id table only this entry:
-static const struct i2c_device_id my_i2c_table[] = {
-        {"device2", 0},
-        {},
-};
-
--> "vendor,device2" matches and the driver is called.
---> Is i2c_client.name guaranteed to be "device2" ?
-
-
-
-
-
-
-
-Second question:
-Where would you probably add an i2c tpm? 
-Would you add it to
- Documentation/devicetree/bindings/i2c/trivial-devices.txt
-or if it's not trivial add it to a new file under
- Documentation/devicetree/bindings/i2c/
-
-or create a new folder 
- Documentation/devicetree/bindings/tpm
-as there probably are more i2c tpms to come in the near future.
-
-I'd probably prefer the first one, whereas Google already uses the second 
-option:
-http://git.chromium.org/gitweb/?p=chromiumos/third_party/kernel.git;a=history;f=Documentation/devicetree/bindings/tpm;hb=refs/heads/chromeos-3.4
-
-
-Thanks,
-PeterH
+@Paul/Wolfram: Any more comments ?
