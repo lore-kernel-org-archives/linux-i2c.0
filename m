@@ -1,43 +1,60 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V8 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Thu, 6 Dec 2012 07:37:22 +0530
-Message-ID: <CAKohpokjxh0DDZVFy1uN7ejdd_=jkbyVvYCy73jJChMy5dKeGA@mail.gmail.com>
-References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
+From: Jiri Kosina <jkosina@suse.cz>
+Subject: Re: [PATCH v2 1/4] HID: i2c-hid: fix memory corruption due to missing
+ hid declaration
+Date: Thu, 6 Dec 2012 10:54:34 +0100 (CET)
+Message-ID: <alpine.LNX.2.00.1212061054270.28002@pobox.suse.cz>
+References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com> <1354716176-12558-2-git-send-email-benjamin.tissoires@gmail.com> <20121205182543.0db92d3e@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121205182543.0db92d3e@endymion.delvare>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 3 December 2012 08:24, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
-> protocol Rev. 03 section 3.1.16 titled "Bus clear".
->
-> http://www.nxp.com/documents/user_manual/UM10204.pdf
->
-> Sometimes during operation i2c bus hangs and we need to give dummy clocks to
-> slave device to start the transfer again. Now we may have capability in the bus
-> controller to generate these clocks or platform may have gpio pins which can be
-> toggled to generate dummy clocks. This patch supports both.
->
-> This patch also adds in generic bus recovery routines gpio or scl line based
-> which can be used by bus controller. In addition controller driver may provide
-> its own version of the bus recovery routine.
->
-> This doesn't support multi-master recovery for now.
->
-> Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
-> V7->V8:
-> - Clk rate fixed to 100KHz
-> - Check SCL line to see if it is LOW due to some faults
-> - removed last use of unlikely() in earlier patch
-> - Enhanced comment over skip_sda_polling
+On Wed, 5 Dec 2012, Jean Delvare wrote:
 
-As merge window is shifted for few more days, i am trying another
-time to get this in 3.8 :)
+> > HID descriptors contains 4 bytes of reserved field.
+> > The previous implementation was overriding the next fields in struct i2c_hid.
+> > 
+> > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+> > ---
+> >  drivers/hid/i2c-hid/i2c-hid.c | 9 ++++++++-
+> >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
+> > index 7062df2..34cca42 100644
+> > --- a/drivers/hid/i2c-hid/i2c-hid.c
+> > +++ b/drivers/hid/i2c-hid/i2c-hid.c
+> > @@ -69,6 +69,7 @@ struct i2c_hid_desc {
+> >  	__le16 wVendorID;
+> >  	__le16 wProductID;
+> >  	__le16 wVersionID;
+> > +	__le32 reserved;
+> >  } __packed;
+> >  
+> >  struct i2c_hid_cmd {
+> > @@ -776,7 +777,13 @@ static int __devinit i2c_hid_fetch_hid_descriptor(struct i2c_hid *ihid)
+> >  	}
+> >  
+> >  	dsize = le16_to_cpu(hdesc->wHIDDescLength);
+> > -	if (!dsize || dsize > HID_MAX_DESCRIPTOR_SIZE) {
+> > +	/*
+> > +	 * the size of the HID descriptor should at least contain
+> > +	 * its size and the bcdVersion (4 bytes), and should not be greater
+> > +	 * than sizeof(struct i2c_hid_desc) as we directly fill this struct
+> > +	 * through i2c_hid_command.
+> > +	 */
+> > +	if (dsize < 4 || dsize > sizeof(struct i2c_hid_desc)) {
+> >  		dev_err(&client->dev, "weird size of HID descriptor (%u)\n",
+> >  			dsize);
+> >  		return -ENODEV;
+> 
+> Reviewed-by: Jean Delvare <khali@linux-fr.org>
 
-@Paul/Wolfram: Any more comments ?
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs
