@@ -1,39 +1,22 @@
-From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
-Subject: Re: [PATCH v2 4/4] HID: i2c-hid: fix i2c_hid_get_raw_report count mismatches
-Date: Fri, 7 Dec 2012 16:13:29 +0100
-Message-ID: <CAN+gG=EWdZcTFNJxhcCB8Lw+mLAgb5NNV6eCb9RpWf+nt+ebzw@mail.gmail.com>
-References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com>
-	<1354716176-12558-5-git-send-email-benjamin.tissoires@gmail.com>
-	<20121205205926.143070ef@endymion.delvare>
-	<alpine.LNX.2.00.1212061101100.28002@pobox.suse.cz>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH 1/2] of_i2c: sparc: Allow OF_I2C for sparc
+Date: Fri, 07 Dec 2012 12:30:45 -0500 (EST)
+Message-ID: <20121207.123045.82278297729205471.davem@davemloft.net>
+References: <1354630178-25387-1-git-send-email-andreas@gaisler.com>
+	<1354630178-25387-2-git-send-email-andreas@gaisler.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-input-owner@vger.kernel.org>
-In-Reply-To: <alpine.LNX.2.00.1212061101100.28002@pobox.suse.cz>
-Sender: linux-input-owner@vger.kernel.org
-To: Jiri Kosina <jkosina@suse.cz>
-Cc: Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <sparclinux-owner@vger.kernel.org>
+In-Reply-To: <1354630178-25387-2-git-send-email-andreas@gaisler.com>
+Sender: sparclinux-owner@vger.kernel.org
+To: andreas@gaisler.com
+Cc: grant.likely@secretlab.ca, w.sang@pengutronix.de, sam@ravnborg.org, sparclinux@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, spi-devel-general@lists.sourceforge.net, linux-i2c@vger.kernel.org, software@gaisler.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Dec 6, 2012 at 11:01 AM, Jiri Kosina <jkosina@suse.cz> wrote:
->> > -   count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
->> > +   ret_count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
->> >
->> > +   if (!ret_count)
->>
->> I'd make this (ret_count <= 2), as this would let you call memcpy with a
->> null or even negative length.
->
-> Good catch, it doesn't account for the 2 bytes needed for storing the
-> reply size.
->
-> I have fixed that and applied the patch, thanks everybody!
->
+From: Andreas Larsson <andreas@gaisler.com>
+Date: Tue,  4 Dec 2012 15:09:37 +0100
 
-Hi Jiri, Jean,
+> Signed-off-by: Andreas Larsson <andreas@gaisler.com>
 
-thank you very much for the work done. I was in a meeting past two
-days, so I was not able to answer sooner.
-
-Cheers,
-Benjamin
+Applied.
