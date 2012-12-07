@@ -1,34 +1,39 @@
-From: Russell King - ARM Linux <linux@arm.linux.org.uk>
-Subject: Re: [PATCH] I2C: EXYNOS: Add slave support to i2c
-Date: Fri, 7 Dec 2012 12:33:43 +0000
-Message-ID: <20121207123343.GU14363@n2100.arm.linux.org.uk>
-References: <1354354961-28833-1-git-send-email-giridhar.maruthy@linaro.org> <CAHuqX+EQ0pZnm27yAVqC=NRX8huQ5EvbC8PGn2G3xYw4D71gQA@mail.gmail.com> <50C1DB05.7090500@linaro.org>
+From: Benjamin Tissoires <benjamin.tissoires@gmail.com>
+Subject: Re: [PATCH v2 4/4] HID: i2c-hid: fix i2c_hid_get_raw_report count mismatches
+Date: Fri, 7 Dec 2012 16:13:29 +0100
+Message-ID: <CAN+gG=EWdZcTFNJxhcCB8Lw+mLAgb5NNV6eCb9RpWf+nt+ebzw@mail.gmail.com>
+References: <1354716176-12558-1-git-send-email-benjamin.tissoires@gmail.com>
+	<1354716176-12558-5-git-send-email-benjamin.tissoires@gmail.com>
+	<20121205205926.143070ef@endymion.delvare>
+	<alpine.LNX.2.00.1212061101100.28002@pobox.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <50C1DB05.7090500@linaro.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Tushar Behera <tushar.behera@linaro.org>
-Cc: Giridhar Maruthy <giridhar.maruthy@linaro.org>, linux-samsung-soc@vger.kernel.org, w.sang@pengutronix.de, linux-kernel@vger.kernel.org, kgene.kim@samsung.com, linux-i2c@vger.kernel.org, ben-linux@fluff.org, khali@linux-fr.org, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-input-owner@vger.kernel.org>
+In-Reply-To: <alpine.LNX.2.00.1212061101100.28002@pobox.suse.cz>
+Sender: linux-input-owner@vger.kernel.org
+To: Jiri Kosina <jkosina@suse.cz>
+Cc: Jean Delvare <khali@linux-fr.org>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Dec 07, 2012 at 05:33:17PM +0530, Tushar Behera wrote:
-> On 12/03/2012 05:46 PM, Giridhar Maruthy wrote:
-> > This patch adds slave support to i2c. The dt entry i2c-mode
-> > decides at probe time if the controller needs to work in
-> > slave mode and the controller is accordingly programmed.
+On Thu, Dec 6, 2012 at 11:01 AM, Jiri Kosina <jkosina@suse.cz> wrote:
+>> > -   count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
+>> > +   ret_count = ihid->inbuf[0] | (ihid->inbuf[1] << 8);
+>> >
+>> > +   if (!ret_count)
+>>
+>> I'd make this (ret_count <= 2), as this would let you call memcpy with a
+>> null or even negative length.
+>
+> Good catch, it doesn't account for the 2 bytes needed for storing the
+> reply size.
+>
+> I have fixed that and applied the patch, thanks everybody!
+>
 
-(I don't have the original patches.)
+Hi Jiri, Jean,
 
-Hmm.  How has slave-mode support been tested?
+thank you very much for the work done. I was in a meeting past two
+days, so I was not able to answer sooner.
 
-Remembering that I2C slave devices do not initiate bus accesses, all
-accesses will be started by some other master.  How are you dealing
-with the bytes received from the master, and how are you returning a
-response to the master in reply to a read request?
-
-We had support for this on PXA I2C through a callback from the driver
-into PXA code (used for the Psion Teklogix Netbook device) and it worked
-really well, but what you can't do is use the standard I2C interfaces
-for slave mode.
+Cheers,
+Benjamin
