@@ -1,7 +1,7 @@
 From: Bill E Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3] i2c: Adding support for Intel iSMT SMBus 2.0 host controller
-Date: Thu,  6 Dec 2012 16:46:32 -0700
-Message-ID: <1354837592-7800-1-git-send-email-bill.e.brown@intel.com>
+Subject: [PATCH v4] i2c: Adding support for Intel iSMT SMBus 2.0 host controller
+Date: Thu,  6 Dec 2012 17:36:44 -0700
+Message-ID: <1354840604-8160-1-git-send-email-bill.e.brown@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
@@ -22,14 +22,14 @@ Signed-off-by: Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
  Documentation/i2c/busses/i2c-ismt |   36 ++
  drivers/i2c/busses/Kconfig        |   10 +
  drivers/i2c/busses/Makefile       |    1 +
- drivers/i2c/busses/i2c-ismt.c     |  909 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 956 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-ismt.c     |  911 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 958 insertions(+), 0 deletions(-)
  create mode 100644 Documentation/i2c/busses/i2c-ismt
  create mode 100644 drivers/i2c/busses/i2c-ismt.c
 
 diff --git a/Documentation/i2c/busses/i2c-ismt b/Documentation/i2c/busses/i2c-ismt
 new file mode 100644
-index 0000000..62f71ba
+index 0000000..ed6375c
 --- /dev/null
 +++ b/Documentation/i2c/busses/i2c-ismt
 @@ -0,0 +1,36 @@
@@ -38,7 +38,7 @@ index 0000000..62f71ba
 +Supported adapters:
 +  * Intel S12xx series SOCs
 +
-+Authors: 
++Authors:
 +	Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 +
 +
@@ -104,10 +104,10 @@ index ce3c2be..527a1f1 100644
  obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
 diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
 new file mode 100644
-index 0000000..6a9d44d
+index 0000000..17b1bdd
 --- /dev/null
 +++ b/drivers/i2c/busses/i2c-ismt.c
-@@ -0,0 +1,909 @@
+@@ -0,0 +1,911 @@
 +/*
 + * This file is provided under a dual BSD/GPLv2 license.  When using or
 + * redistributing this file, you may do so under either license.
@@ -161,7 +161,7 @@ index 0000000..6a9d44d
 + */
 +
 +/*
-+ *  Supports the SMBus Message Transport (SMT) in the Intel Atom Processor 
++ *  Supports the SMBus Message Transport (SMT) in the Intel Atom Processor
 + *  S12xx Product Family.
 + *
 + *  Features supported by this driver:
@@ -186,8 +186,8 @@ index 0000000..6a9d44d
 +#define SMBBAR		0
 +
 +/* PCI DIDs for the Intel SMBus Message Transport (SMT) Devices */
-+#define PCI_DEVICE_ID_INTEL_S1200_SMBUS_SMT0	0x0c59
-+#define PCI_DEVICE_ID_INTEL_S1200_SMBUS_SMT1	0x0c5a
++#define PCI_DEVICE_ID_INTEL_S1200_SMB_SMT0	0x0c59
++#define PCI_DEVICE_ID_INTEL_S1200_SMB_SMT1	0x0c5a
 +
 +#define ISMT_DESC_ENTRIES	32	/* number of descriptor entries */
 +#define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
@@ -239,12 +239,12 @@ index 0000000..6a9d44d
 +/* Master Control Register (MCTRL) bit definitions */
 +#define ISMT_MCTRL_SS	0x01		/* Start/Stop */
 +#define ISMT_MCTRL_MEIE	0x10		/* Master Error Interrupt Enable */
-+#define ISMT_MCTRL_FMHP	0x00ff0000	/* Firmware Master Head Pointer (FMHP) */
++#define ISMT_MCTRL_FMHP	0x00ff0000	/* Firmware Master Head Ptr (FMHP) */
 +
 +/* Master Status Register (MSTS) bit definitions */
 +#define ISMT_MSTS_HMTP	0xff0000	/* HW Master Tail Pointer (HMTP) */
 +#define ISMT_MSTS_MIS	0x20		/* Master Interrupt Status (MIS) */
-+#define ISMT_MSTS_MEIS	0x10		/* Master Error Interrupt Status (MEIS) */
++#define ISMT_MSTS_MEIS	0x10		/* Master Error Int Status (MEIS) */
 +#define ISMT_MSTS_IP	0x01		/* In Progress */
 +
 +/* Master Descriptor Size (MDS) bit definitions */
@@ -291,15 +291,15 @@ index 0000000..6a9d44d
 + * ismt_ids - PCI device IDs supported by this driver
 + */
 +static const DEFINE_PCI_DEVICE_TABLE(ismt_ids) = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMBUS_SMT0) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMBUS_SMT1) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMB_SMT0) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMB_SMT1) },
 +	{ 0, }
 +};
 +
 +MODULE_DEVICE_TABLE(pci, ismt_ids);
 +
 +/* Bus speed control bits for slow debuggers - refer to the docs for usage */
-+static unsigned int bus_speed = 0;
++static unsigned int bus_speed;
 +module_param(bus_speed, uint, S_IRUGO);
 +MODULE_PARM_DESC(bus_speed, "Bus Speed");
 +
@@ -417,7 +417,8 @@ index 0000000..6a9d44d
 + * @dma_buffer: temporary buffer for the DMA engine
 + * @size: SMBus transaction type
 + */
-+static int ismt_process_desc(const struct ismt_desc *desc, union i2c_smbus_data *data,
++static int ismt_process_desc(const struct ismt_desc *desc,
++			     union i2c_smbus_data *data,
 +			     u8 *dma_buffer, int size)
 +{
 +	if (likely(desc->status & ISMT_DESC_SCS)) {
@@ -721,7 +722,7 @@ index 0000000..6a9d44d
 +
 +	/* initialize the Master Descriptor Base Address (MDBA) */
 +	writel(priv->io_rng_dma, priv->smba + ISMT_MSTR_MDBA);
-+	writel(priv->io_rng_dma >> 32, priv->smba + ISMT_MSTR_MDBA +4);
++	writel(priv->io_rng_dma >> 32, priv->smba + ISMT_MSTR_MDBA + 4);
 +
 +	/* initialize the Master Control Register (MCTRL) */
 +	writel(ISMT_MCTRL_MEIE, priv->smba + ISMT_MSTR_MCTRL);
@@ -932,7 +933,8 @@ index 0000000..6a9d44d
 +	    (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(64)) != 0)) {
 +		if ((pci_set_dma_mask(pdev, DMA_BIT_MASK(32)) != 0) ||
 +		   (pci_set_consistent_dma_mask(pdev, DMA_BIT_MASK(32)) != 0)) {
-+			dev_warn(&pdev->dev, "pci_set_dma_mask fail %p\n", pdev);
++			dev_warn(&pdev->dev, "pci_set_dma_mask fail %p\n",
++				 pdev);
 +			goto fail;
 +		}
 +	}
@@ -978,8 +980,8 @@ index 0000000..6a9d44d
 + * @mesg: PM message
 + */
 +#ifdef CONFIG_PM
-+static int ismt_suspend(struct pci_dev *pdev, pm_message_t mesg){
-+
++static int ismt_suspend(struct pci_dev *pdev, pm_message_t mesg)
++{
 +	pci_save_state(pdev);
 +	pci_set_power_state(pdev, pci_choose_state(pdev, mesg));
 +	return 0;
