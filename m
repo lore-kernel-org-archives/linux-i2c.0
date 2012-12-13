@@ -1,105 +1,72 @@
-From: Jiri Kosina <jkosina-AlSwsSmVLrQ@public.gmane.org>
-Subject: Re: [PATCH v2] HID: i2c-hid: add mutex protecting open/close race
-Date: Wed, 12 Dec 2012 18:27:26 +0100 (CET)
-Message-ID: <alpine.LNX.2.00.1212121827200.19767@pobox.suse.cz>
-References: <1355331602-1164-1-git-send-email-benjamin.tissoires@gmail.com>
+From: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-i801: Enable interrupts for all post-ICH5 chips
+Date: Thu, 13 Dec 2012 09:53:10 +0800
+Message-ID: <CAGS+omCzK2mj6EsCQo1q4MRFHghMzWNfHZmn3DjZuPLfDkoZXg@mail.gmail.com>
+References: <20121031120336.3229e1a2@endymion.delvare> <20121106203803.6af84fc8@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1355331602-1164-1-git-send-email-benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20121106203803.6af84fc8-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-input-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 12 Dec 2012, Benjamin Tissoires wrote:
+Hi Jean,
 
-> We should not enter close function while someone else is in open.
-> This mutex prevents this race.
-> 
-> There is also no need to override the ret value with -EIO in case of
-> a failure of i2c_hid_set_power.
-> 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+On Wed, Nov 7, 2012 at 3:38 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
+> I did not receive a single bug report after interrupt support was
+> added for a limited number of chips. So I'd say the code is good and
+> should be enabled for all supported chips, that is: ICH5 and later.
+>
+> Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> Cc: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 > ---
-> 
-> Changes in v2:
-> * add mutex.h
+> I was able to test on Patsburg IDF channels and although I couldn't
+> test all transaction types, interrupts seem to work the same as on the
+> main SMBus channel so let's enable interrupts there too.
 
-Applied, thanks.
 
-> 
-> Cheers,
-> Benjamin
-> 
->  drivers/hid/i2c-hid/i2c-hid.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid.c b/drivers/hid/i2c-hid/i2c-hid.c
-> index 6e1774c..9ef22244 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid.c
-> @@ -33,6 +33,7 @@
->  #include <linux/jiffies.h>
->  #include <linux/kernel.h>
->  #include <linux/hid.h>
-> +#include <linux/mutex.h>
->  
->  #include <linux/i2c/i2c-hid.h>
->  
-> @@ -117,6 +118,8 @@ static const struct i2c_hid_cmd hid_set_power_cmd =	{ I2C_HID_CMD(0x08) };
->   * static const struct i2c_hid_cmd hid_set_protocol_cmd = { I2C_HID_CMD(0x07) };
->   */
->  
-> +static DEFINE_MUTEX(i2c_hid_open_mut);
-> +
->  /* The main device structure */
->  struct i2c_hid {
->  	struct i2c_client	*client;	/* i2c client */
-> @@ -641,17 +644,20 @@ static int i2c_hid_open(struct hid_device *hid)
->  {
->  	struct i2c_client *client = hid->driver_data;
->  	struct i2c_hid *ihid = i2c_get_clientdata(client);
-> -	int ret;
-> +	int ret = 0;
->  
-> +	mutex_lock(&i2c_hid_open_mut);
->  	if (!hid->open++) {
->  		ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
->  		if (ret) {
->  			hid->open--;
-> -			return -EIO;
-> +			goto done;
->  		}
->  		set_bit(I2C_HID_STARTED, &ihid->flags);
->  	}
-> -	return 0;
-> +done:
-> +	mutex_unlock(&i2c_hid_open_mut);
-> +	return ret;
->  }
->  
->  static void i2c_hid_close(struct hid_device *hid)
-> @@ -663,12 +669,14 @@ static void i2c_hid_close(struct hid_device *hid)
->  	 * data acquistion due to a resumption we no longer
->  	 * care about
->  	 */
-> +	mutex_lock(&i2c_hid_open_mut);
->  	if (!--hid->open) {
->  		clear_bit(I2C_HID_STARTED, &ihid->flags);
->  
->  		/* Save some power */
->  		i2c_hid_set_power(client, I2C_HID_PWR_SLEEP);
->  	}
-> +	mutex_unlock(&i2c_hid_open_mut);
->  }
->  
->  static int i2c_hid_power(struct hid_device *hid, int lvl)
-> -- 
-> 1.8.0.2
-> 
+I can confirm that the IRQ works on PantherPoint at least, if enabled
+(by this patch, for example).  However, I don't know anything about
+IDF, so I can't help there.
+Here's an R-B, if you need it:
 
--- 
-Jiri Kosina
-SUSE Labs
+Reviewed-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+
+Are you targeting this for 3.8?
+
+>
+>  drivers/i2c/busses/i2c-i801.c |   11 +----------
+>  1 file changed, 1 insertion(+), 10 deletions(-)
+>
+> --- linux-3.7-rc4.orig/drivers/i2c/busses/i2c-i801.c    2012-11-05 16:55:23.271739149 +0100
+> +++ linux-3.7-rc4/drivers/i2c/busses/i2c-i801.c 2012-11-06 19:26:04.073280924 +0100
+> @@ -1109,6 +1109,7 @@ static int __devinit i801_probe(struct p
+>                 /* fall through */
+>         default:
+>                 priv->features |= FEATURE_I2C_BLOCK_READ;
+> +               priv->features |= FEATURE_IRQ;
+>                 /* fall through */
+>         case PCI_DEVICE_ID_INTEL_82801DB_3:
+>                 priv->features |= FEATURE_SMBUS_PEC;
+> @@ -1121,16 +1122,6 @@ static int __devinit i801_probe(struct p
+>                 break;
+>         }
+>
+> -       /* IRQ processing tested on CougarPoint PCH, ICH5, ICH7-M and ICH10 */
+> -       if (dev->device == PCI_DEVICE_ID_INTEL_COUGARPOINT_SMBUS ||
+> -           dev->device == PCI_DEVICE_ID_INTEL_82801EB_3 ||
+> -           dev->device == PCI_DEVICE_ID_INTEL_ICH7_17 ||
+> -           dev->device == PCI_DEVICE_ID_INTEL_ICH8_5 ||
+> -           dev->device == PCI_DEVICE_ID_INTEL_ICH9_6 ||
+> -           dev->device == PCI_DEVICE_ID_INTEL_ICH10_4 ||
+> -           dev->device == PCI_DEVICE_ID_INTEL_ICH10_5)
+> -               priv->features |= FEATURE_IRQ;
+> -
+>         /* Disable features on user request */
+>         for (i = 0; i < ARRAY_SIZE(i801_feature_names); i++) {
+>                 if (priv->features & disable_features & (1 << i))
+>
+> --
+> Jean Delvare
