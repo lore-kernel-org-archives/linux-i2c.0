@@ -1,36 +1,98 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration implementation
-Date: Fri, 14 Dec 2012 09:06:49 -0700
-Message-ID: <50CB4E99.9060506@wwwdotorg.org>
-References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com> <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: [PATCH REBASE 3/6] i2c: omap: improve 'rev' a little bit
+Date: Fri, 14 Dec 2012 18:34:06 +0200
+Message-ID: <1355502849-9289-4-git-send-email-balbi@ti.com>
+References: <1355502849-9289-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, grundler@chromium.org, devicetree-discuss@lists.ozlabs.org, broonie@opensource.wolfsonmicro.com, w.sang@pengutronix.de, ben-linux@fluff.org, khali@linux-fr.org, naveen@chromium.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <1355502849-9289-1-git-send-email-balbi@ti.com>
+Sender: linux-omap-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Linux ARM Kernel Mailing List <linux-arm-kernel@lists.infradead.org>, Tony Lindgren <tony@atomide.com>, Felipe Balbi <balbi@ti.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 12/13/2012 10:50 PM, Naveen Krishna Chatradhi wrote:
-> The arbitrator is a general purpose function which uses two GPIOs to
-> communicate with another device to claim/release a bus.
+a later patch will use scheme detection at
+another part of the code, but current scheme
+detection implementation relies on the fact that
+we still hold scheme on the first 16 bits of our
+rev variable, which won't be true as soon as
+we move away from probe() because we left shift
+it by 16 in case of newer IP versions in order
+to fit other revision data in the lower 16 bits.
 
-> diff --git a/Documentation/devicetree/bindings/i2c/arbitrator-i2c.txt b/Documentation/devicetree/bindings/i2c/arbitrator-i2c.txt
-> new file mode 100644
-> index 0000000..cb91ea8
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/arbitrator-i2c.txt
-> @@ -0,0 +1,56 @@
-> +Device-Tree bindings for i2c gpio based bus arbitrator
-> +
-> +bus-arbitration-gpios :
-> +	Two GPIOs to use with the GPIO-based bus arbitration protocol
-> +(see below).
-> +The first should be an output, and is used to claim the I2C bus,
-> +the second should be an input, and signals that the other side (Client)
-> +wants to claim the bus. This allows two masters to share the same I2C bus.
+To fix that, we are changing scheme implementation
+to assume scheme is always placed on the top 16
+bits.
 
-I'm confused why this is even needed; the I2C protocol itself defines
-how multi-master is supposed to work, just using the regular SCL/SDA lines.
+While at that, also move those macro definitions
+to the top of the source file, where they should've
+been to start with, because a later patch will use
+them.
+
+Signed-off-by: Felipe Balbi <balbi@ti.com>
+---
+ drivers/i2c/busses/i2c-omap.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index fcecb0b..c93eb17 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -60,6 +60,17 @@
+ /* timeout for pm runtime autosuspend */
+ #define OMAP_I2C_PM_TIMEOUT		1000	/* ms */
+ 
++#define OMAP_I2C_SCHEME(rev)		((rev & 0xc0000000) >> 30)
++
++#define OMAP_I2C_SCHEME_0		0
++#define OMAP_I2C_SCHEME_1		1
++
++#define OMAP_I2C_REV_SCHEME_0_MAJOR(rev) (rev >> 4)
++#define OMAP_I2C_REV_SCHEME_0_MINOR(rev) (rev & 0xf)
++
++#define OMAP_I2C_REV_SCHEME_1_MAJOR(rev) ((rev & 0x0700) >> 7)
++#define OMAP_I2C_REV_SCHEME_1_MINOR(rev) (rev & 0x1f)
++
+ /* For OMAP3 I2C_IV has changed to I2C_WE (wakeup enable) */
+ enum {
+ 	OMAP_I2C_REV_REG = 0,
+@@ -1058,16 +1069,6 @@ static const struct of_device_id omap_i2c_of_match[] = {
+ MODULE_DEVICE_TABLE(of, omap_i2c_of_match);
+ #endif
+ 
+-#define OMAP_I2C_SCHEME(rev)		((rev & 0xc000) >> 14)
+-
+-#define OMAP_I2C_REV_SCHEME_0_MAJOR(rev) (rev >> 4)
+-#define OMAP_I2C_REV_SCHEME_0_MINOR(rev) (rev & 0xf)
+-
+-#define OMAP_I2C_REV_SCHEME_1_MAJOR(rev) ((rev & 0x0700) >> 7)
+-#define OMAP_I2C_REV_SCHEME_1_MINOR(rev) (rev & 0x1f)
+-#define OMAP_I2C_SCHEME_0		0
+-#define OMAP_I2C_SCHEME_1		1
+-
+ static int __devinit
+ omap_i2c_probe(struct platform_device *pdev)
+ {
+@@ -1158,7 +1159,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	 * Also since the omap_i2c_read_reg uses reg_map_ip_* a
+ 	 * raw_readw is done.
+ 	 */
+-	rev = __raw_readw(dev->base + 0x04);
++	rev = __raw_readw(dev->base + 0x04) << 16;
+ 
+ 	scheme = OMAP_I2C_SCHEME(rev);
+ 	switch (scheme) {
+@@ -1172,8 +1173,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		/* FALLTHROUGH */
+ 	default:
+ 		dev->regs = (u8 *)reg_map_ip_v2;
+-		rev = (rev << 16) |
+-			omap_i2c_read_reg(dev, OMAP_I2C_IP_V2_REVNB_LO);
++		rev |= omap_i2c_read_reg(dev, OMAP_I2C_IP_V2_REVNB_LO);
+ 		minor = OMAP_I2C_REV_SCHEME_1_MINOR(rev);
+ 		major = OMAP_I2C_REV_SCHEME_1_MAJOR(rev);
+ 		dev->rev = rev;
+-- 
+1.8.1.rc1.5.g7e0651a
+
