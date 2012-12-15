@@ -1,51 +1,63 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-i801: Enable interrupts for all post-ICH5 chips
-Date: Sat, 15 Dec 2012 14:41:44 +0100
-Message-ID: <20121215144144.0922e012@endymion.delvare>
-References: <20121031120336.3229e1a2@endymion.delvare>
-	<20121106203803.6af84fc8@endymion.delvare>
-	<CAGS+omCzK2mj6EsCQo1q4MRFHghMzWNfHZmn3DjZuPLfDkoZXg@mail.gmail.com>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration
+ implementation
+Date: Sat, 15 Dec 2012 23:21:36 +0900
+Message-ID: <20121215142135.GB22033@opensource.wolfsonmicro.com>
+References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com>
+ <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
+ <50CB4E99.9060506@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGS+omCzK2mj6EsCQo1q4MRFHghMzWNfHZmn3DjZuPLfDkoZXg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <50CB4E99.9060506@wwwdotorg.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Stephen Warren <swarren@wwwdotorg.org>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, grundler@chromium.org, devicetree-discuss@lists.ozlabs.org, w.sang@pengutronix.de, ben-linux@fluff.org, khali@linux-fr.org, naveen@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Daniel,
 
-On Thu, 13 Dec 2012 09:53:10 +0800, Daniel Kurtz wrote:
-> Hi Jean,
-> 
-> On Wed, Nov 7, 2012 at 3:38 AM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> > I did not receive a single bug report after interrupt support was
-> > added for a limited number of chips. So I'd say the code is good and
-> > should be enabled for all supported chips, that is: ICH5 and later.
-> >
-> > Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> > Cc: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> > ---
-> > I was able to test on Patsburg IDF channels and although I couldn't
-> > test all transaction types, interrupts seem to work the same as on the
-> > main SMBus channel so let's enable interrupts there too.
-> 
-> 
-> I can confirm that the IRQ works on PantherPoint at least, if enabled
-> (by this patch, for example).  However, I don't know anything about
-> IDF, so I can't help there.
-> Here's an R-B, if you need it:
-> 
-> Reviewed-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+--neYutvxvOLaeuPCA
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks for the testing and review.
+On Fri, Dec 14, 2012 at 09:06:49AM -0700, Stephen Warren wrote:
+> On 12/13/2012 10:50 PM, Naveen Krishna Chatradhi wrote:
 
-> Are you targeting this for 3.8?
+> > +The first should be an output, and is used to claim the I2C bus,
+> > +the second should be an input, and signals that the other side (Client)
+> > +wants to claim the bus. This allows two masters to share the same I2C bus.
 
-Yes I am. I'll send the remaining patches in my i2c queue to Linus
-later today.
+> I'm confused why this is even needed; the I2C protocol itself defines
+> how multi-master is supposed to work, just using the regular SCL/SDA lines.
 
--- 
-Jean Delvare
+Practically speaking essentially no systems actually do that - mostly
+Linux will treat failure to get the bus as an error for example.  You
+also get things like read operations which appear as multiple
+transactions on the I2C bus so require something higher level than what
+multi-master provides.
+
+--neYutvxvOLaeuPCA
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQzIdaAAoJELSic+t+oim9ziYP/3Xec5OTpdhalJ/3xknDDvHI
+FhaH4Lk8Fdl3pRAuqJFUdR+4feutuVv+Gii95Wde76uw9Kp4/q6PlKCjrBZ+m4Cb
+GXFpODwvHwOdk8f0MqxaL88KBbUBgq6Psl1lOW8xww898r7M/+2auq+QvLM0IpZt
+sgVOD5qUwfpl5jgyNjEdsTtU2XinhputoGj0IFa4Fc3GPmsmC35F/ttiB+QMnHlC
+vO8ucntVom7Y5UecCD4+eh4iR5Xs6s7x7BH7FxeaLCSsEYH1B8EKrn5v3q4hMmjk
+2tKrhXeHtkxO2+Am1WAC95lrutHxYNPnaNJxE114/eba2d2YKqqHd40028V2twsy
+BT9VlaV0IG9bZTPmXnl2dqFSHj7NYZ8s9LcWkS4AEmo7K+wzQRo7SYdfCOZJed80
+8qWRo3zA5umUn0zW6Jy6aWqFH8EhUZWSXOTTDuAAxgpIS/QjQO/evVtHqg4UQy4V
+4jIpK48FWEC411pPVRTKEKo6d0micOv0GoWv8nvRInBGFxB0wXBrJHSLA7TbnT+t
+oiloBdi3uXvmweLRpg8n+4vbsQHgpdHucpai9u3eUQKU6HuRiJREypphUa3o3/uM
+V8XafhCb5RasXaDKkHCYCeolTzWlVMKnV0bgEYMfifbjvnroQTmYHitQsZf4t95f
+fFQiq2aSuoSJdL8oal5/
+=cduo
+-----END PGP SIGNATURE-----
+
+--neYutvxvOLaeuPCA--
