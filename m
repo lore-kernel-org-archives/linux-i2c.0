@@ -1,63 +1,48 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration
- implementation
-Date: Sat, 15 Dec 2012 23:21:36 +0900
-Message-ID: <20121215142135.GB22033@opensource.wolfsonmicro.com>
-References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com>
- <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
- <50CB4E99.9060506@wwwdotorg.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [GIT PULL] i2c updates for Linux 3.8
+Date: Sun, 16 Dec 2012 21:23:18 +0100
+Message-ID: <20121216212318.5b08ee4a@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="neYutvxvOLaeuPCA"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <50CB4E99.9060506@wwwdotorg.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, grundler@chromium.org, devicetree-discuss@lists.ozlabs.org, w.sang@pengutronix.de, ben-linux@fluff.org, khali@linux-fr.org, naveen@chromium.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Linus,
 
---neYutvxvOLaeuPCA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Please pull i2c subsystem updates for Linux 3.8 from:
 
-On Fri, Dec 14, 2012 at 09:06:49AM -0700, Stephen Warren wrote:
-> On 12/13/2012 10:50 PM, Naveen Krishna Chatradhi wrote:
+git://git.kernel.org/pub/scm/linux/kernel/git/jdelvare/staging.git i2c-for-linus
 
-> > +The first should be an output, and is used to claim the I2C bus,
-> > +the second should be an input, and signals that the other side (Client)
-> > +wants to claim the bus. This allows two masters to share the same I2C bus.
+This is my last pull request for the i2c subsystem. It includes all
+the patches I collected between kernel v3.7-rc1 and me passing i2c
+maintenance duties over to Wolfram. Future patches to the many i2c bus
+drivers I still maintain will go through Wolfram's tree.
 
-> I'm confused why this is even needed; the I2C protocol itself defines
-> how multi-master is supposed to work, just using the regular SCL/SDA lines.
+ Documentation/i2c/smbus-protocol |   40 +++++++++++++++++++++++++++++--------
+ MAINTAINERS                      |    2 +-
+ drivers/i2c/busses/i2c-i801.c    |   13 ++---------
+ drivers/i2c/busses/i2c-piix4.c   |    5 +--
+ 4 files changed, 37 insertions(+), 23 deletions(-)
 
-Practically speaking essentially no systems actually do that - mostly
-Linux will treat failure to get the bus as an error for example.  You
-also get things like read operations which appear as multiple
-transactions on the I2C bus so require something higher level than what
-multi-master provides.
+---------------
 
---neYutvxvOLaeuPCA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Cesar Eduardo Barros (1):
+      MAINTAINERS: Fix drivers/i2c/busses/i2c-stub.c
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Jean Delvare (2):
+      i2c-i801: Enable interrupts for all post-ICH5 chips
+      i2c: Mention functionality flags in SMBus protocol documentation
 
-iQIcBAEBAgAGBQJQzIdaAAoJELSic+t+oim9ziYP/3Xec5OTpdhalJ/3xknDDvHI
-FhaH4Lk8Fdl3pRAuqJFUdR+4feutuVv+Gii95Wde76uw9Kp4/q6PlKCjrBZ+m4Cb
-GXFpODwvHwOdk8f0MqxaL88KBbUBgq6Psl1lOW8xww898r7M/+2auq+QvLM0IpZt
-sgVOD5qUwfpl5jgyNjEdsTtU2XinhputoGj0IFa4Fc3GPmsmC35F/ttiB+QMnHlC
-vO8ucntVom7Y5UecCD4+eh4iR5Xs6s7x7BH7FxeaLCSsEYH1B8EKrn5v3q4hMmjk
-2tKrhXeHtkxO2+Am1WAC95lrutHxYNPnaNJxE114/eba2d2YKqqHd40028V2twsy
-BT9VlaV0IG9bZTPmXnl2dqFSHj7NYZ8s9LcWkS4AEmo7K+wzQRo7SYdfCOZJed80
-8qWRo3zA5umUn0zW6Jy6aWqFH8EhUZWSXOTTDuAAxgpIS/QjQO/evVtHqg4UQy4V
-4jIpK48FWEC411pPVRTKEKo6d0micOv0GoWv8nvRInBGFxB0wXBrJHSLA7TbnT+t
-oiloBdi3uXvmweLRpg8n+4vbsQHgpdHucpai9u3eUQKU6HuRiJREypphUa3o3/uM
-V8XafhCb5RasXaDKkHCYCeolTzWlVMKnV0bgEYMfifbjvnroQTmYHitQsZf4t95f
-fFQiq2aSuoSJdL8oal5/
-=cduo
------END PGP SIGNATURE-----
+Joe Perches (1):
+      i2c-piix4: Convert dev_printk(KERN_<LEVEL> to dev_<level>(
 
---neYutvxvOLaeuPCA--
+Thierry Reding (1):
+      i2c-i801: Add device tree support
+
+Thanks,
+-- 
+Jean Delvare
