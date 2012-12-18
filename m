@@ -1,41 +1,30 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] I2C: SiByte: Convert the driver to make use of
- interrupts
-Date: Tue, 18 Dec 2012 13:08:23 +0100
-Message-ID: <20121218130823.183a0322@endymion.delvare>
-References: <1313710991-3596-1-git-send-email-mattst88@gmail.com>
-	<20110903103036.161616a5@endymion.delvare>
-	<20111031105354.4b888e44@endymion.delvare>
-	<20120110153834.531664db@endymion.delvare>
-	<CAEdQ38FpG11m50pwg2=tu1fJRRg=zixFKLsPmVPOzWNBCjbNBg@mail.gmail.com>
-	<20120331082346.26cc95cb@endymion.delvare>
-	<CAEdQ38Ez+8DudAaJY7HZu9jbisk_KMbBO5h=s+P4pjJ0Va-zWw@mail.gmail.com>
-	<CAEdQ38EDKndUcdBu1tZ_dOuhweVRW6aA=YKb6kUE3gUQJiwWoQ@mail.gmail.com>
-	<alpine.LFD.2.00.1207160208570.12288@eddie.linux-mips.org>
+Subject: Re: [PATCH] at24: make module parameters changeable via sysfs
+Date: Tue, 18 Dec 2012 13:10:22 +0100
+Message-ID: <20121218131022.3a216b3b@endymion.delvare>
+References: <1347443012-21302-1-git-send-email-u.kleine-koenig@pengutronix.de>
+	<20120914102536.1ebd248d@endymion.delvare>
+	<20121218125315.5adb1fef@endymion.delvare>
+	<20121218115926.GD2612@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <alpine.LFD.2.00.1207160208570.12288-FBDaDh2CBnQu/uO211tRtWD2FQJk+8+b@public.gmane.org>
+In-Reply-To: <20121218115926.GD2612-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Maciej W. Rozycki" <macro-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Matt Turner <mattst88-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Uwe =?ISO-8859-1?B?S2xlaW5lLUv2bmln?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 19 Jul 2012 22:01:08 +0100 (BST), Maciej W. Rozycki wrote:
-> On Sat, 30 Jun 2012, Matt Turner wrote:
+On Tue, 18 Dec 2012 12:59:26 +0100, Wolfram Sang wrote:
 > 
-> > I'm not going to have time to do this. :(
-> > 
-> > I had another look at the code, and I'm not sure I really understand
-> > it well enough to address your concerns.
+> > I reviewed this patch 3 months ago and did not hear back. Are you going
+> > to update this patch and resubmit, or should I just drop it?
 > 
->  I'll try then, as soon as I can.
+> Uwe is on holiday. I'll take care about it if the need is still there...
 
-I'm giving up on this one, sorry. I've been waiting for an update for
-over a year, this is simply too much. I just don't get why this patch
-was ever submitted if there was no intent to actually get it included.
-This has been a waste of many people's time :(
+The need was Uwe's originally, so we might as well wait for his return.
+Nothing urgent here.
 
 -- 
 Jean Delvare
