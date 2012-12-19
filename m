@@ -1,58 +1,90 @@
-From: Mark Brown <broonie@opensource.wolfsonmicro.com>
-Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration
- implementation
-Date: Wed, 19 Dec 2012 17:14:23 +0000
-Message-ID: <20121219171423.GW4985@opensource.wolfsonmicro.com>
-References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com>
- <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
- <20121219123201.B636A3E0AD7@localhost>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PULL REQUEST] i2c-embedded for 3.8
+Date: Wed, 19 Dec 2012 11:49:21 -0800
+Message-ID: <20121219194920.GQ4989@atomide.com>
+References: <20121218234150.GA32374@pengutronix.de>
+ <CA+55aFyV5ROO-Zy4UxhXx0Lu6biyBzmrre=NY1x0yx7tK+Lz8g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NHfequSh1hmJPP0s"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20121219123201.B636A3E0AD7@localhost>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Grant Likely <grant.likely@secretlab.ca>
-Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, w.sang@pengutronix.de, khali@linux-fr.org, ben-linux@fluff.org, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, grundler@chromium.org, naveen@chromium.org
+In-Reply-To: <CA+55aFyV5ROO-Zy4UxhXx0Lu6biyBzmrre=NY1x0yx7tK+Lz8g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+* Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org> [121218 17:07]:
+> Ugh, guys. Please check this out.
+> 
+> On Tue, Dec 18, 2012 at 3:41 PM, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> >
+> > please pull the i2c-embedded changes for 3.8 which include:
+> >
+> > * CBUS driver (an I2C variant)
+> > * continued rework of the omap driver
+> > * s3c2410 gets lots of fixes and gains pinctrl support
+> > * at91 gains DMA support
+> > * the GPIO muxer gains devicetree probing
+> > * typical fixes and additions all over
+> >
+> > All patches have been in linux-next before. Please pull.
+> 
+> I get a conflict because both sides have this:
+> 
+>    Revert "ARM: OMAP: convert I2C driver to PM QoS for MPU latency constraints"
+> 
+> which re-introduced the omap-specific ->set_mpu_wkup_lat() thing.
+> 
+> But in mainline the only *user* of that has gone away. And the call
+> location where it originally existed has moved.
+> 
+> It originally existed in
+> 
+>   arch/arm/plat-omap/i2c.c
+> 
+> but looking at the history, the omap i2c code first got split into
+> omap1 and omap2, and at that point the call-site got moved to
+> 
+>   arch/arm/mach-omap2/i2c.c
+> 
+> but then the code that the revert re-introduced got lost.
+> 
+> Now, in the merge I just did, I *reinstated* that
+> ->set_mpu_wkup_lat() code that had gotten lost in mainline. But quite
+> frankly, the thing is ugly as heck, and I hope it could just be
+> deleted. Clearly nobody had noticed yet that it got lost in some merge
+> (possibly an earlier one of mine, but considering that I usually
+> notice things like this, I suspect it's one of the internal ARM ones).
 
---NHfequSh1hmJPP0s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Your merge looks good and has zero diff to what I resolved earlier,
+and what Arnd and Olof resolved earlier, and what Stephen resolved
+earlier. It seems that the right thing to do here would have been
+to pull that revert into arm-soc to avoid this.
+ 
+> I'm adding Arnd, Tony and Olof to the participants list, since they
+> are the main suspects.
+> 
+> And guys, if you decide to remove the  ->set_mpu_wkup_lat() from
+> arch/arm/mach-omap2/i2c.c again, please make sure that you remove the
+> whole infrastructure too:
+> 
+>   include/linux/i2c-omap.h
+>   drivers/i2c/busses/i2c-omap.c
 
-On Wed, Dec 19, 2012 at 12:32:01PM +0000, Grant Likely wrote:
+Looks like that's still needed until runtime PM can deal with
+latencies, that's why the revert was needed :(
+ 
+> Hmm? Somebody *really* needs to double-check my merge, it's possibly
+> quite broken, since I have in no way tested it, and I did this by
+> looking at some *very* messy history with code being moved across
+> different files etc etc.
 
-> I'm not convinced on the design of this protocol. It won't scale beyond
-> 2 bus masters and it seems very specific to the design of a specific
-> piece of hardware. I don't think it is mature enough to bake into the
+Yes thanks again. We've now pretty much cut all the remaining nasty
+dependencies between arch/arm/*omap*/ code and drivers and can
+enable multiplatform support for omap2+ for v3.9. So things should
+be a lot easier with merge conflicts as far as omap is concerned.
 
-I ought to point out that the original patch would've baked this into
-the Samsung I2C driver but I asked for it to be split out as it's
-nothing to do with the controller really and I'm sure I've seen it
-before.
+Regards,
 
---NHfequSh1hmJPP0s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQ0fXoAAoJELSic+t+oim9uekP/1gKDaELx3ooIe4UOtlMYrZC
-54DUlf2wnOTNzOnBRWjTk5wmNa+gxQdeCBWWeCVTB7Gbk1SDFU6KkSSl5eek1OXe
-D4wvHV5CQSvJy6A3l+26GPhNWE/fCq6FgMrEYDJqqZKT9q+F5ls4sBD0GLT5a6kA
-DI8q2eByPt/BctDmoGgtYlFtSgwndG0tUND7/wm7BG4B9KpSPmAOsGQA46Pludh2
-EQI89v0gcOdEIGvc+bo0RsZ1ROKYVlXVG1G28zZIt7r80PiVwvqkLtMLR2Yo88Wb
-Z+W0nWPQZ6qKt3eRkTRJUEjKHKsGdrlOokCxZmsZmRVP2o44vOHvlolA5NaaYJGJ
-b64FWDdmIy8YKWD2LkFNwj14YspWPUu982AMJUu5jBIF6MCifaK3oeG30/zIySsT
-dheu+To2FysILsGIx7Rdooo3uZkfiT+TB+11JRFBqblnELNF7XM3vg3NXx1WYpQO
-lPJfRGzsaQY3665WHdvmOzL78f1DUs7LaeTXv8wxpKrZkX+r90jH295/lDZyrtSd
-r+wLoSkrn9Z3pmraQYra6e4A6oRUD07/AnZm+NwkMeY4rHT6cY2NyQV0wbhg6qH5
-pQWugWsRBZBNr5kYEy09y6sbb8gA6FIOfxgPuTvunndZ9m7LPl/yds73Y/h5She7
-FUbvxQYUr7twQthN5kdR
-=cKLv
------END PGP SIGNATURE-----
-
---NHfequSh1hmJPP0s--
+Tony
