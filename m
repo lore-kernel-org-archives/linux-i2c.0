@@ -1,112 +1,58 @@
-From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] at24: extend driver to allow writing via i2c_smbus_write_byte_data
-Date: Wed, 19 Dec 2012 17:07:09 +0100
-Message-ID: <1355933229-25865-1-git-send-email-christian.gmeiner@gmail.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, c.gmeiner-qzos7lGCgFkk+I/owrrOrA@public.gmane.org
-Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Mark Brown <broonie@opensource.wolfsonmicro.com>
+Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration
+ implementation
+Date: Wed, 19 Dec 2012 17:14:23 +0000
+Message-ID: <20121219171423.GW4985@opensource.wolfsonmicro.com>
+References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com>
+ <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
+ <20121219123201.B636A3E0AD7@localhost>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="NHfequSh1hmJPP0s"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20121219123201.B636A3E0AD7@localhost>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Grant Likely <grant.likely@secretlab.ca>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, w.sang@pengutronix.de, khali@linux-fr.org, ben-linux@fluff.org, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, grundler@chromium.org, naveen@chromium.org
 List-Id: linux-i2c@vger.kernel.org
 
-I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
-bus driver. This bus driver does not support
-I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
-to be able to write the eeprom. This patch adds support for
-I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
-It is quite slow, but it works.
 
-Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/misc/eeprom/at24.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+--NHfequSh1hmJPP0s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2baeec5..723b411 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -56,6 +56,7 @@ struct at24_data {
- 	struct at24_platform_data chip;
- 	struct memory_accessor macc;
- 	int use_smbus;
-+	int use_smbuse_write;
- 
- 	/*
- 	 * Lock protects against activities from other Linux tasks,
-@@ -324,7 +325,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- {
- 	struct i2c_client *client;
- 	struct i2c_msg msg;
--	ssize_t status;
-+	ssize_t status = 0;
- 	unsigned long timeout, write_time;
- 	unsigned next_page;
- 
-@@ -365,9 +366,18 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
- 	timeout = jiffies + msecs_to_jiffies(write_timeout);
- 	do {
- 		write_time = jiffies;
--		if (at24->use_smbus) {
--			status = i2c_smbus_write_i2c_block_data(client,
--					offset, count, buf);
-+		if (at24->use_smbuse_write) {
-+			switch (at24->use_smbuse_write) {
-+			case I2C_SMBUS_I2C_BLOCK_DATA:
-+				status = i2c_smbus_write_i2c_block_data(client,
-+						offset, count, buf);
-+				break;
-+			case I2C_SMBUS_BYTE_DATA:
-+				status = i2c_smbus_write_byte_data(client,
-+						offset, buf[0]);
-+				break;
-+			}
-+
- 			if (status == 0)
- 				status = count;
- 		} else {
-@@ -484,6 +494,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	struct at24_platform_data chip;
- 	bool writable;
- 	int use_smbus = 0;
-+	int use_smbus_write = 0;
- 	struct at24_data *at24;
- 	int err;
- 	unsigned i, num_addresses;
-@@ -547,6 +558,18 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		}
- 	}
- 
-+	/* Use I2C operations unless we're stuck with SMBus extensions. */
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		if (!i2c_check_functionality(client->adapter,
-+				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-+			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
-+		} else if (i2c_check_functionality(client->adapter,
-+				I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
-+			use_smbus_write = I2C_SMBUS_BYTE_DATA;
-+			chip.page_size = 1;
-+		}
-+	}
-+
- 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
- 		num_addresses = 8;
- 	else
-@@ -562,6 +585,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	mutex_init(&at24->lock);
- 	at24->use_smbus = use_smbus;
-+	at24->use_smbuse_write = use_smbus_write;
- 	at24->chip = chip;
- 	at24->num_addresses = num_addresses;
- 
-@@ -579,8 +603,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 
- 	writable = !(chip.flags & AT24_FLAG_READONLY);
- 	if (writable) {
--		if (!use_smbus || i2c_check_functionality(client->adapter,
--				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
-+		if (!use_smbus || use_smbus_write) {
- 
- 			unsigned write_max = chip.page_size;
- 
--- 
-1.7.12.2.421.g261b511
+On Wed, Dec 19, 2012 at 12:32:01PM +0000, Grant Likely wrote:
+
+> I'm not convinced on the design of this protocol. It won't scale beyond
+> 2 bus masters and it seems very specific to the design of a specific
+> piece of hardware. I don't think it is mature enough to bake into the
+
+I ought to point out that the original patch would've baked this into
+the Samsung I2C driver but I asked for it to be split out as it's
+nothing to do with the controller really and I'm sure I've seen it
+before.
+
+--NHfequSh1hmJPP0s
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQ0fXoAAoJELSic+t+oim9uekP/1gKDaELx3ooIe4UOtlMYrZC
+54DUlf2wnOTNzOnBRWjTk5wmNa+gxQdeCBWWeCVTB7Gbk1SDFU6KkSSl5eek1OXe
+D4wvHV5CQSvJy6A3l+26GPhNWE/fCq6FgMrEYDJqqZKT9q+F5ls4sBD0GLT5a6kA
+DI8q2eByPt/BctDmoGgtYlFtSgwndG0tUND7/wm7BG4B9KpSPmAOsGQA46Pludh2
+EQI89v0gcOdEIGvc+bo0RsZ1ROKYVlXVG1G28zZIt7r80PiVwvqkLtMLR2Yo88Wb
+Z+W0nWPQZ6qKt3eRkTRJUEjKHKsGdrlOokCxZmsZmRVP2o44vOHvlolA5NaaYJGJ
+b64FWDdmIy8YKWD2LkFNwj14YspWPUu982AMJUu5jBIF6MCifaK3oeG30/zIySsT
+dheu+To2FysILsGIx7Rdooo3uZkfiT+TB+11JRFBqblnELNF7XM3vg3NXx1WYpQO
+lPJfRGzsaQY3665WHdvmOzL78f1DUs7LaeTXv8wxpKrZkX+r90jH295/lDZyrtSd
+r+wLoSkrn9Z3pmraQYra6e4A6oRUD07/AnZm+NwkMeY4rHT6cY2NyQV0wbhg6qH5
+pQWugWsRBZBNr5kYEy09y6sbb8gA6FIOfxgPuTvunndZ9m7LPl/yds73Y/h5She7
+FUbvxQYUr7twQthN5kdR
+=cKLv
+-----END PGP SIGNATURE-----
+
+--NHfequSh1hmJPP0s--
