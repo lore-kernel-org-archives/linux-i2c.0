@@ -1,94 +1,112 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration
- implementation
-Date: Wed, 19 Dec 2012 12:32:01 +0000
-Message-ID: <20121219123201.B636A3E0AD7@localhost>
-References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com>
- <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <1355464254-12768-2-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, naveen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] at24: extend driver to allow writing via i2c_smbus_write_byte_data
+Date: Wed, 19 Dec 2012 17:07:09 +0100
+Message-ID: <1355933229-25865-1-git-send-email-christian.gmeiner@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, c.gmeiner-qzos7lGCgFkk+I/owrrOrA@public.gmane.org
+Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 14 Dec 2012 11:20:53 +0530, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
-> The arbitrator is a general purpose function which uses two GPIOs to
-> communicate with another device to claim/release a bus.
-> 
-> i2c_transfer()
-> 	if adapter->gpio_arbit
-> 		i2c_bus_claim();
-> 			__i2c_transfer();
-> 		i2c_bus_release();
-> 
-> Signed-off-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Cc: Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
+bus driver. This bus driver does not support
+I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
+to be able to write the eeprom. This patch adds support for
+I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
+It is quite slow, but it works.
 
-Hi Naveen,
+Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/misc/eeprom/at24.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
-I'm not convinced on the design of this protocol. It won't scale beyond
-2 bus masters and it seems very specific to the design of a specific
-piece of hardware. I don't think it is mature enough to bake into the
-core i2c infrastructure or bindings. Nor do I think it will handle other
-busses properly.
-
-I can see two alternatives here.
-1) build in hooks for doing i2c bus claim/release, but don't put this
-specific implementation into the core infrastructure
-2) Create an i2c bridge driver. This would kind of be like an i2c
-multiplexer, but it would only have one bus and it would include the
-knowledge of how to use the GPIO lines for bus arbitration.
-
-I think option 2 would be the cleanest option. It would be straight
-forward to design a binding for it by placing a node between the i2c
-bus and all the i2c clients. For example:
-
-i2c@60000000 {
-	compatible = "acme,some-i2c-device";
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	i2c-bridge {
-		#address-cells = <1>;
-		#size-cells = <0>;
-		compatible = "samaung,i2c-gpio-arbitrate";
-
-		bus-arbitration-gpios = <&gpf0 3 1 0 0>, /* AP_CLAIM */
-			<&gpe0 4 0 3 0>; /* EC_CLAIM */
-	
-		bus-arbitration-slew-delay-us = <10>;
-		bus-arbitration-wait-retry-us = <2000>;
-		bus-arbitration-wait-free-us = <50000>;
-
-		i2c@52 {
-			// Normal i2c device
-		};
-	};
-};
-
-I don't know what the state of the i2c subsystem is with regard to
-supporting i2c multiplexer devices, so there might be some changes
-needed there, but I can't see it being particularly complex. It should
-just be a device in the middle. Any i2c device that is a child of the
-bridge would send transfers to the bridge, and the bridge would be
-responsible to claim the bus and then pass the transfer through
-unchanged.
-
-That eliminates the problem of trying to design an arbitration scheme
-that works for all.
-
-g.
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 2baeec5..723b411 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -56,6 +56,7 @@ struct at24_data {
+ 	struct at24_platform_data chip;
+ 	struct memory_accessor macc;
+ 	int use_smbus;
++	int use_smbuse_write;
+ 
+ 	/*
+ 	 * Lock protects against activities from other Linux tasks,
+@@ -324,7 +325,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ {
+ 	struct i2c_client *client;
+ 	struct i2c_msg msg;
+-	ssize_t status;
++	ssize_t status = 0;
+ 	unsigned long timeout, write_time;
+ 	unsigned next_page;
+ 
+@@ -365,9 +366,18 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+ 	timeout = jiffies + msecs_to_jiffies(write_timeout);
+ 	do {
+ 		write_time = jiffies;
+-		if (at24->use_smbus) {
+-			status = i2c_smbus_write_i2c_block_data(client,
+-					offset, count, buf);
++		if (at24->use_smbuse_write) {
++			switch (at24->use_smbuse_write) {
++			case I2C_SMBUS_I2C_BLOCK_DATA:
++				status = i2c_smbus_write_i2c_block_data(client,
++						offset, count, buf);
++				break;
++			case I2C_SMBUS_BYTE_DATA:
++				status = i2c_smbus_write_byte_data(client,
++						offset, buf[0]);
++				break;
++			}
++
+ 			if (status == 0)
+ 				status = count;
+ 		} else {
+@@ -484,6 +494,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	struct at24_platform_data chip;
+ 	bool writable;
+ 	int use_smbus = 0;
++	int use_smbus_write = 0;
+ 	struct at24_data *at24;
+ 	int err;
+ 	unsigned i, num_addresses;
+@@ -547,6 +558,18 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		}
+ 	}
+ 
++	/* Use I2C operations unless we're stuck with SMBus extensions. */
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		if (!i2c_check_functionality(client->adapter,
++				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
++			use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
++		} else if (i2c_check_functionality(client->adapter,
++				I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
++			use_smbus_write = I2C_SMBUS_BYTE_DATA;
++			chip.page_size = 1;
++		}
++	}
++
+ 	if (chip.flags & AT24_FLAG_TAKE8ADDR)
+ 		num_addresses = 8;
+ 	else
+@@ -562,6 +585,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	mutex_init(&at24->lock);
+ 	at24->use_smbus = use_smbus;
++	at24->use_smbuse_write = use_smbus_write;
+ 	at24->chip = chip;
+ 	at24->num_addresses = num_addresses;
+ 
+@@ -579,8 +603,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 
+ 	writable = !(chip.flags & AT24_FLAG_READONLY);
+ 	if (writable) {
+-		if (!use_smbus || i2c_check_functionality(client->adapter,
+-				I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
++		if (!use_smbus || use_smbus_write) {
+ 
+ 			unsigned write_max = chip.page_size;
+ 
+-- 
+1.7.12.2.421.g261b511
