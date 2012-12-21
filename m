@@ -1,65 +1,296 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [lm-sensors] i2c tools build failure with gcc 4.6
-Date: Fri, 21 Dec 2012 09:45:41 +0100
-Message-ID: <20121221094541.5e6125ac@endymion.delvare>
-References: <20121220010733.GA31336@roeck-us.net>
-	<20121220104510.2fa8a0fb@endymion.delvare>
-	<20121220142006.GB32230@roeck-us.net>
-	<20121220153735.2ae73802@endymion.delvare>
-	<20121220155354.3e600483@endymion.delvare>
-	<20121220163945.GB32096@roeck-us.net>
+Subject: Re: [PATCH] drivers: i2c-nforce2: fix coding style issues
+Date: Fri, 21 Dec 2012 11:04:27 +0100
+Message-ID: <20121221110427.6e33bb9d@endymion.delvare>
+References: <1355951171-3230-1-git-send-email-laurent.navet@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20121220163945.GB32096-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <1355951171-3230-1-git-send-email-laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guenter,
+Hi Laurent,
 
-On Thu, 20 Dec 2012 08:39:45 -0800, Guenter Roeck wrote:
-> I found the problem. -li2c must be specified after the .o files.
+On Wed, 19 Dec 2012 22:06:11 +0100, Laurent Navet wrote:
+> avoid these checkpatch.pl issues :
+> - ERROR: "foo * bar" should be "foo *bar"
+> - ERROR: switch and case should be at the same indent
+> - ERROR: "(foo*)" should be "(foo *)"
+> - ERROR: do not use assignment in if condition
+> - ERROR: space required before the open parenthesis '('
+> - WARNING: suspect code indent for conditional statements
+> - WARNING: quoted string split across lines
+> - WARNING: space prohibited between function name and open parenthesis '('
 > 
-> Patch:
+> Signed-off-by: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-nforce2.c |  149 +++++++++++++++++++-------------------
+>  1 file changed, 75 insertions(+), 74 deletions(-)
+
+Thanks for the update. I have a few more comments:
+
 > 
-> diff --git a/tools/Module.mk b/tools/Module.mk
-> index 1979248..bfd3250 100644
-> --- a/tools/Module.mk
-> +++ b/tools/Module.mk
-> @@ -21,16 +21,16 @@ TOOLS_TARGETS	:= i2cdetect i2cdump i2cset i2cget
->  #
+> diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+> index 392303b..03f32c5 100644
+> --- a/drivers/i2c/busses/i2c-nforce2.c
+> +++ b/drivers/i2c/busses/i2c-nforce2.c
+> @@ -60,7 +60,7 @@
+>  #include <linux/io.h>
 >  
->  $(TOOLS_DIR)/i2cdetect: $(TOOLS_DIR)/i2cdetect.o $(TOOLS_DIR)/i2cbusses.o
-> -	$(CC) $(LDFLAGS) $(TOOLS_LDFLAGS) -o $@ $^
-> +	$(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
+>  MODULE_LICENSE("GPL");
+> -MODULE_AUTHOR ("Hans-Frieder Vogt <hfvogt-hi6Y0CQ0nG0@public.gmane.org>");
+> +MODULE_AUTHOR("Hans-Frieder Vogt <hfvogt-hi6Y0CQ0nG0@public.gmane.org>");
+>  MODULE_DESCRIPTION("nForce2/3/4/5xx SMBus driver");
 >  
->  $(TOOLS_DIR)/i2cdump: $(TOOLS_DIR)/i2cdump.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o
-> -	$(CC) $(LDFLAGS) $(TOOLS_LDFLAGS) -o $@ $^
-> +	$(CC) $(LDFLAGS) -o $@ $^  $(TOOLS_LDFLAGS)
 >  
->  $(TOOLS_DIR)/i2cset: $(TOOLS_DIR)/i2cset.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o
-> -	$(CC) $(LDFLAGS) $(TOOLS_LDFLAGS) -o $@ $^
-> +	$(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
+> @@ -188,9 +188,9 @@ static int nforce2_check_status(struct i2c_adapter *adap)
+>  }
 >  
->  $(TOOLS_DIR)/i2cget: $(TOOLS_DIR)/i2cget.o $(TOOLS_DIR)/i2cbusses.o $(TOOLS_DIR)/util.o
-> -	$(CC) $(LDFLAGS) $(TOOLS_LDFLAGS) -o $@ $^
-> +	$(CC) $(LDFLAGS) -o $@ $^ $(TOOLS_LDFLAGS)
+>  /* Return negative errno on error */
+> -static s32 nforce2_access(struct i2c_adapter * adap, u16 addr,
+> +static s32 nforce2_access(struct i2c_adapter *adap, u16 addr,
+>  		unsigned short flags, char read_write,
+> -		u8 command, int size, union i2c_smbus_data * data)
+> +		u8 command, int size, union i2c_smbus_data *data)
+>  {
+>  	struct nforce2_smbus *smbus = adap->algo_data;
+>  	unsigned char protocol, pec;
+> @@ -203,55 +203,54 @@ static s32 nforce2_access(struct i2c_adapter * adap, u16 addr,
 >  
->  #
->  # Objects
+>  	switch (size) {
+>  
 
-Hmm, OK. The gcc manual page is somewhat confusing on this topic but as
-I understand it, when processing a library, it only considers symbols
-which were already referenced but not defined, and discards the rest.
-So object files must indeed come first on the command line.
+While you're here, please drop this useless blank line.
 
-Why it has always worked for me the other way around is a mystery.
+> -		case I2C_SMBUS_QUICK:
+> -			protocol |= NVIDIA_SMB_PRTCL_QUICK;
+> -			read_write = I2C_SMBUS_WRITE;
+> -			break;
+> +	case I2C_SMBUS_QUICK:
+> +		protocol |= NVIDIA_SMB_PRTCL_QUICK;
+> +		read_write = I2C_SMBUS_WRITE;
+> +		break;
+>  
+> -		case I2C_SMBUS_BYTE:
+> -			if (read_write == I2C_SMBUS_WRITE)
+> -				outb_p(command, NVIDIA_SMB_CMD);
+> -			protocol |= NVIDIA_SMB_PRTCL_BYTE;
+> -			break;
+> -
+> -		case I2C_SMBUS_BYTE_DATA:
+> -			outb_p(command, NVIDIA_SMB_CMD);
+> -			if (read_write == I2C_SMBUS_WRITE)
+> -				outb_p(data->byte, NVIDIA_SMB_DATA);
+> -			protocol |= NVIDIA_SMB_PRTCL_BYTE_DATA;
+> -			break;
+> -
+> -		case I2C_SMBUS_WORD_DATA:
+> -			outb_p(command, NVIDIA_SMB_CMD);
+> -			if (read_write == I2C_SMBUS_WRITE) {
+> -				 outb_p(data->word, NVIDIA_SMB_DATA);
+> -				 outb_p(data->word >> 8, NVIDIA_SMB_DATA+1);
+> -			}
+> -			protocol |= NVIDIA_SMB_PRTCL_WORD_DATA | pec;
+> -			break;
+> -
+> -		case I2C_SMBUS_BLOCK_DATA:
+> +	case I2C_SMBUS_BYTE:
+> +		if (read_write == I2C_SMBUS_WRITE)
+>  			outb_p(command, NVIDIA_SMB_CMD);
+> -			if (read_write == I2C_SMBUS_WRITE) {
+> -				len = data->block[0];
+> -				if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
+> -					dev_err(&adap->dev,
+> -						"Transaction failed "
+> -						"(requested block size: %d)\n",
+> -						len);
+> -					return -EINVAL;
+> -				}
+> -				outb_p(len, NVIDIA_SMB_BCNT);
+> -				for (i = 0; i < I2C_SMBUS_BLOCK_MAX; i++)
+> -					outb_p(data->block[i + 1],
+> -					       NVIDIA_SMB_DATA+i);
+> +		protocol |= NVIDIA_SMB_PRTCL_BYTE;
+> +		break;
+> +
+> +	case I2C_SMBUS_BYTE_DATA:
+> +		outb_p(command, NVIDIA_SMB_CMD);
+> +		if (read_write == I2C_SMBUS_WRITE)
+> +			outb_p(data->byte, NVIDIA_SMB_DATA);
+> +		protocol |= NVIDIA_SMB_PRTCL_BYTE_DATA;
+> +		break;
+> +
+> +	case I2C_SMBUS_WORD_DATA:
+> +		outb_p(command, NVIDIA_SMB_CMD);
+> +		if (read_write == I2C_SMBUS_WRITE) {
+> +			outb_p(data->word, NVIDIA_SMB_DATA);
+> +			outb_p(data->word >> 8, NVIDIA_SMB_DATA+1);
 
-You have write permissions to the repository, so please just commit
-this fix, thanks.
+While this isn't reported by checkpatch, I'd appreciate if you could
+add spaces around "+" on lines you're already touching.
+
+> +		}
+> +		protocol |= NVIDIA_SMB_PRTCL_WORD_DATA | pec;
+> +		break;
+> +
+> +	case I2C_SMBUS_BLOCK_DATA:
+> +		outb_p(command, NVIDIA_SMB_CMD);
+> +		if (read_write == I2C_SMBUS_WRITE) {
+> +			len = data->block[0];
+> +			if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
+> +				dev_err(&adap->dev,
+> +				"Transaction failed (requested block size: %d)\n",
+> +				len);
+
+Your indentation is wrong here, the last two lines should be aligned on
+the opening parenthesis of the previous line.
+
+> +				return -EINVAL;
+>  			}
+> -			protocol |= NVIDIA_SMB_PRTCL_BLOCK_DATA | pec;
+> -			break;
+> +			outb_p(len, NVIDIA_SMB_BCNT);
+> +			for (i = 0; i < I2C_SMBUS_BLOCK_MAX; i++)
+> +				outb_p(data->block[i + 1],
+> +				       NVIDIA_SMB_DATA+i);
+> +		}
+> +		protocol |= NVIDIA_SMB_PRTCL_BLOCK_DATA | pec;
+> +		break;
+>  
+> -		default:
+> -			dev_err(&adap->dev, "Unsupported transaction %d\n", size);
+> -			return -EOPNOTSUPP;
+> +	default:
+> +		dev_err(&adap->dev, "Unsupported transaction %d\n", size);
+> +		return -EOPNOTSUPP;
+>  	}
+>  
+>  	outb_p((addr & 0x7f) << 1, NVIDIA_SMB_ADDR);
+> @@ -266,27 +265,28 @@ static s32 nforce2_access(struct i2c_adapter * adap, u16 addr,
+>  
+>  	switch (size) {
+>  
+
+While you're here, please drop this useless blank line.
+
+> -		case I2C_SMBUS_BYTE:
+> -		case I2C_SMBUS_BYTE_DATA:
+> -			data->byte = inb_p(NVIDIA_SMB_DATA);
+> -			break;
+> -
+> -		case I2C_SMBUS_WORD_DATA:
+> -			data->word = inb_p(NVIDIA_SMB_DATA) | (inb_p(NVIDIA_SMB_DATA+1) << 8);
+> -			break;
+> -
+> -		case I2C_SMBUS_BLOCK_DATA:
+> -			len = inb_p(NVIDIA_SMB_BCNT);
+> -			if ((len <= 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
+> -				dev_err(&adap->dev, "Transaction failed "
+> -					"(received block size: 0x%02x)\n",
+> -					len);
+> -				return -EPROTO;
+> -			}
+> -			for (i = 0; i < len; i++)
+> -				data->block[i+1] = inb_p(NVIDIA_SMB_DATA + i);
+> -			data->block[0] = len;
+> -			break;
+> +	case I2C_SMBUS_BYTE:
+> +	case I2C_SMBUS_BYTE_DATA:
+> +		data->byte = inb_p(NVIDIA_SMB_DATA);
+> +		break;
+> +
+> +	case I2C_SMBUS_WORD_DATA:
+> +		data->word = inb_p(NVIDIA_SMB_DATA) |
+> +			(inb_p(NVIDIA_SMB_DATA+1) << 8);
+
+Please add a few spaces to align on the = sign:
+
+		data->word = inb_p(NVIDIA_SMB_DATA) |
+			     (inb_p(NVIDIA_SMB_DATA + 1) << 8);
+
+> +		break;
+> +
+> +	case I2C_SMBUS_BLOCK_DATA:
+> +		len = inb_p(NVIDIA_SMB_BCNT);
+> +		if ((len <= 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
+> +			dev_err(&adap->dev,
+> +			"Transaction failed (received block size: 0x%02x)\n",
+> +			len);
+
+Your indentation is wrong here, the last two lines should be aligned on
+the opening parenthesis of the previous line.
+
+> +			return -EPROTO;
+> +		}
+> +		for (i = 0; i < len; i++)
+> +			data->block[i+1] = inb_p(NVIDIA_SMB_DATA + i);
+> +		data->block[0] = len;
+> +		break;
+>  	}
+>  
+>  	return 0;
+> @@ -299,7 +299,7 @@ static u32 nforce2_func(struct i2c_adapter *adapter)
+>  	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+>  	       I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
+>  	       I2C_FUNC_SMBUS_PEC |
+> -	       (((struct nforce2_smbus*)adapter->algo_data)->blockops ?
+> +	       (((struct nforce2_smbus *)adapter->algo_data)->blockops ?
+>  		I2C_FUNC_SMBUS_BLOCK_DATA : 0);
+>  }
+>  
+> @@ -327,10 +327,10 @@ static DEFINE_PCI_DEVICE_TABLE(nforce2_ids) = {
+>  	{ 0 }
+>  };
+>  
+> -MODULE_DEVICE_TABLE (pci, nforce2_ids);
+> +MODULE_DEVICE_TABLE(pci, nforce2_ids);
+>  
+>  
+> -static int __devinit nforce2_probe_smb (struct pci_dev *dev, int bar,
+> +static int __devinit nforce2_probe_smb(struct pci_dev *dev, int bar,
+>  	int alt_reg, struct nforce2_smbus *smbus, const char *name)
+
+This change causes a reject because __devinit was removed by another
+patch:
+http://git.pengutronix.de/?p=wsa/linux.git;a=commit;h=cda2826abea9a78d21b5e35d71db328657b756e5
+
+The space issue was fixed in that patch too so you can simply omit that
+change from your own patch to avoid the reject.
+
+>  {
+>  	int error;
+> @@ -388,11 +388,12 @@ static int __devinit nforce2_probe(struct pci_dev *dev, const struct pci_device_
+>  	int res1, res2;
+>  
+>  	/* we support 2 SMBus adapters */
+> -	if (!(smbuses = kzalloc(2*sizeof(struct nforce2_smbus), GFP_KERNEL)))
+> +	smbuses = kzalloc(2*sizeof(struct nforce2_smbus), GFP_KERNEL);
+
+Spaces around "*" please.
+
+> +	if (!smbuses)
+>  		return -ENOMEM;
+>  	pci_set_drvdata(dev, smbuses);
+>  
+> -	switch(dev->device) {
+> +	switch (dev->device) {
+>  	case PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS:
+>  	case PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SMBUS:
+>  	case PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS:
+
+Other than these minor details, this looks good. You could fix the
+following warning as well:
+
+WARNING: line over 80 characters
+#380: FILE: i2c/busses/i2c-nforce2.c:380:
++	dev_info(&smbus->adapter.dev, "nForce2 SMBus adapter at %#x\n", smbus->base);
+
+It's an easy one. Please resubmit with the requested changes and then
+Wolfram can apply your patch. Thanks for the good work!
 
 -- 
 Jean Delvare
