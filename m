@@ -1,219 +1,59 @@
-From: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 2/2] i2c-exynos5: add debugfs support for registers
-Date: Tue, 25 Dec 2012 16:55:55 +0530
-Message-ID: <1356434755-13702-2-git-send-email-ch.naveen@samsung.com>
-References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
- <1356434755-13702-1-git-send-email-ch.naveen@samsung.com>
+From: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>
+Subject: [PATCH 1/2] i2c: sirf: register i2c_client from dt child-nodes in probe entry
+Date: Wed, 26 Dec 2012 10:30:16 +0800
+Message-ID: <1356489017-17737-1-git-send-email-Barry.Song@csr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-reply-to: <1356434755-13702-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Cc: kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch replaces the dev_vdbg with debugfs function calls
-in i2c-exynos5.c driver.
+From: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 
-Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+in probe() entry of i2c_driver, set the of node of adapter and
+call of_i2c_register_devices to register all i2c_client from
+dt child-nodes
+
+Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 ---
-Changes since v1:
-The debugfs implementation is a suggestion by Felipe Balbi.
-Its not tested, Implemented only for review purpose..
+ drivers/i2c/busses/i2c-sirf.c |    4 ++++
+ 1 files changed, 4 insertions(+), 0 deletions(-)
 
- drivers/i2c/busses/i2c-exynos5.c |  140 +++++++++++++++++++++++++++++---------
- 1 file changed, 109 insertions(+), 31 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index 7614f60..2d2da22 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
+diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+index 5574a47..181d7c2 100644
+--- a/drivers/i2c/busses/i2c-sirf.c
++++ b/drivers/i2c/busses/i2c-sirf.c
 @@ -12,6 +12,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/debugfs.h>
- 
+ #include <linux/slab.h>
+ #include <linux/platform_device.h>
  #include <linux/i2c.h>
- #include <linux/init.h>
-@@ -55,6 +56,7 @@ struct exynos5_i2c {
++#include <linux/of_i2c.h>
+ #include <linux/clk.h>
+ #include <linux/err.h>
+ #include <linux/io.h>
+@@ -328,6 +329,7 @@ static int __devinit i2c_sirfsoc_probe(struct platform_device *pdev)
+ 	adap->algo = &i2c_sirfsoc_algo;
+ 	adap->algo_data = siic;
  
- 	int			bus_num;
- 	int			speed_mode;
-+	struct dentry		*debugfs_root;
- };
++	adap->dev.of_node = pdev->dev.of_node;
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->nr = pdev->id;
  
- static const struct of_device_id exynos5_i2c_match[] = {
-@@ -63,39 +65,112 @@ static const struct of_device_id exynos5_i2c_match[] = {
- };
- MODULE_DEVICE_TABLE(of, exynos5_i2c_match);
+@@ -371,6 +373,8 @@ static int __devinit i2c_sirfsoc_probe(struct platform_device *pdev)
  
--/* TODO: Should go to debugfs */
--static inline void dump_i2c_register(struct exynos5_i2c *i2c)
-+static int exynos5_i2c_regs_show(struct seq_file *s, void *data)
- {
--	dev_vdbg(i2c->dev, "Register dump(%d) :\n %x\n %x\n %x\n %x\n"
--		" %x\n %x\n %x\n %x\n %x\n"
--		" %x\n %x\n %x\n %x\n %x\n"
--		" %x\n %x\n %x\n %x\n %x\n"
--		" %x\n %x\n %x\n %x\n %x\n",
--		i2c->suspended,
--		readl(i2c->regs + HSI2C_CTL),
--		readl(i2c->regs + HSI2C_FIFO_CTL),
--		readl(i2c->regs + HSI2C_TRAILIG_CTL),
--		readl(i2c->regs + HSI2C_CLK_CTL),
--		readl(i2c->regs + HSI2C_CLK_SLOT),
--		readl(i2c->regs + HSI2C_INT_ENABLE),
--		readl(i2c->regs + HSI2C_INT_STATUS),
--		readl(i2c->regs + HSI2C_ERR_STATUS),
--		readl(i2c->regs + HSI2C_FIFO_STATUS),
--		readl(i2c->regs + HSI2C_TX_DATA),
--		readl(i2c->regs + HSI2C_RX_DATA),
--		readl(i2c->regs + HSI2C_CONF),
--		readl(i2c->regs + HSI2C_AUTO_CONF),
--		readl(i2c->regs + HSI2C_TIMEOUT),
--		readl(i2c->regs + HSI2C_MANUAL_CMD),
--		readl(i2c->regs + HSI2C_TRANS_STATUS),
--		readl(i2c->regs + HSI2C_TIMING_HS1),
--		readl(i2c->regs + HSI2C_TIMING_HS2),
--		readl(i2c->regs + HSI2C_TIMING_HS3),
--		readl(i2c->regs + HSI2C_TIMING_FS1),
--		readl(i2c->regs + HSI2C_TIMING_FS2),
--		readl(i2c->regs + HSI2C_TIMING_FS3),
--		readl(i2c->regs + HSI2C_TIMING_SLA),
-+	struct exynos5_i2c *i2c = (struct exynos5_i2c *)s->private;
-+
-+	if (i2c->suspended) {
-+		seq_printf(s, "i2c suspended, can't read registers\n");
-+		return 0;
-+	}
-+
-+	pm_runtime_get_sync(i2c->dev);
-+
-+	seq_printf(s, "CTL:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_CTL));
-+	seq_printf(s, "FIFO_CTL:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_FIFO_CTL));
-+	seq_printf(s, "TRAILIG_CTL:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TRAILIG_CTL));
-+	seq_printf(s, "CLK_CTL:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_CLK_CTL));
-+	seq_printf(s, "CLK_SLOT:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_CLK_SLOT));
-+	seq_printf(s, "INT_ENABLE:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_INT_ENABLE));
-+	seq_printf(s, "INT_STATUS:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_INT_STATUS));
-+	seq_printf(s, "FIFO_STATUS:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_FIFO_STATUS));
-+	seq_printf(s, "TX_DATA:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TX_DATA));
-+	seq_printf(s, "RX_DATA:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_RX_DATA));
-+	seq_printf(s, "CONF:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_CONF));
-+	seq_printf(s, "AUTO_CONF:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_AUTO_CONF));
-+	seq_printf(s, "TIMEOUT:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMEOUT));
-+	seq_printf(s, "MANUAL_CMD:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_MANUAL_CMD));
-+	seq_printf(s, "TRANS_STATUS:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TRANS_STATUS));
-+	seq_printf(s, "TIMING_HS1:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMING_HS1));
-+	seq_printf(s, "TIMING_HS2:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMING_HS2));
-+	seq_printf(s, "TIMING_HS3:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMING_HS3));
-+	seq_printf(s, "TIMING_FS1:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMING_FS1));
-+	seq_printf(s, "TIMING_FS2:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMING_FS2));
-+	seq_printf(s, "TIMING_FS3:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMING_FS3));
-+	seq_printf(s, "TIMING_SLA:\t\t0x%08x\n",
-+		readl(i2c->regs + HSI2C_TIMING_SLA));
-+	seq_printf(s, "ADDR:\t\t0x%08x\n",
- 		readl(i2c->regs + HSI2C_ADDR));
-+
-+	pm_runtime_mark_last_busy(i2c->dev);
-+	pm_runtime_put_autosuspend(i2c->dev);
-+
-+	return 0;
-+}
-+
-+static int exynos5_i2c_regs_open(struct inode *inode, struct file *file)
-+{
-+	return single_open(file, exynos5_i2c_regs_show, inode->i_private);
-+}
-+
-+static const struct file_operations exynos5_i2c_regs_fops = {
-+	.open           = exynos5_i2c_regs_open,
-+	.read           = seq_read,
-+	.llseek         = seq_lseek,
-+	.release        = single_release,
-+};
-+
-+static void exynos5_i2c_debugfs(struct exynos5_i2c *i2c)
-+{
-+	if (i2c->debugfs_root)
-+		debugfs_create_file("regs", S_IRUSR, i2c->debugfs_root,
-+			i2c, &exynos5_i2c_regs_fops);
-+}
-+
-+static void exynos5_i2c_add_debugfs(struct exynos5_i2c *i2c)
-+{
-+	struct dentry *root;
-+
-+	root = debugfs_create_dir(dev_name(i2c->dev), NULL);
-+	if (IS_ERR(root))
-+		/* Don't complain -- debugfs just isn't enabled */
-+		return;
-+	if (!root)
-+		/* Complain -- debugfs is enabled, but it failed to
-+		 * create the directory. */
-+		goto err_root;
-+
-+	i2c->debugfs_root = root;
-+	return;
-+
-+ err_root:
-+	dev_err(i2c->dev, "failed to initialize debugfs\n");
-+}
-+
-+void exynos5_i2c_remove_debugfs(struct exynos5_i2c *i2c)
-+{
-+	debugfs_remove_recursive(i2c->debugfs_root);
- }
+ 	clk_disable(clk);
  
- static inline void exynos5_i2c_stop(struct exynos5_i2c *i2c, int ret)
-@@ -553,6 +628,8 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
- 	dev_info(&pdev->dev, "%s: Exynos5 HS-I2C adapter\n",
- 		dev_name(&i2c->adap.dev));
- 
-+	exynos5_i2c_add_debugfs(i2c);
-+	exynos5_i2c_debugfs(i2c);
- 	clk_disable_unprepare(i2c->clk);
- 	pm_runtime_mark_last_busy(i2c->dev);
- 	pm_runtime_put_autosuspend(i2c->dev);
-@@ -586,6 +663,7 @@ static int exynos5_i2c_remove(struct platform_device *pdev)
- 
- 	iounmap(i2c->regs);
- 	platform_set_drvdata(pdev, NULL);
-+	exynos5_i2c_remove_debugfs(i2c);
++	of_i2c_register_devices(adap);
++
+ 	dev_info(&pdev->dev, " I2C adapter ready to operate\n");
  
  	return 0;
- }
 -- 
-1.7.9.5
+1.7.5.4
+
+
+
+Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
+More information can be found at www.csr.com. Follow CSR on Twitter at http://twitter.com/CSR_PLC and read our blog at www.csr.com/blog
