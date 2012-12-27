@@ -1,43 +1,35 @@
-From: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>
-Subject: [PATCH 2/2] i2c: sirf: add support for new SiRFmarco SMP SoC
-Date: Wed, 26 Dec 2012 10:30:17 +0800
-Message-ID: <1356489017-17737-2-git-send-email-Barry.Song@csr.com>
-References: <1356489017-17737-1-git-send-email-Barry.Song@csr.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Inderpal Singh <inderpal.singh-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 2/2] i2c: s3c2410: free gpios in suspend function
+Date: Thu, 27 Dec 2012 09:39:44 +0530
+Message-ID: <1356581384-23063-2-git-send-email-inderpal.singh@linaro.org>
+References: <1356581384-23063-1-git-send-email-inderpal.singh@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1356489017-17737-1-git-send-email-Barry.Song-kQvG35nSl+M@public.gmane.org>
+In-Reply-To: <1356581384-23063-1-git-send-email-inderpal.singh-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+While resuming the gpios are being requested again, hence we need
+to free the gpios before going to suspend otherwise it gives
+"gpio request failed" errors while resuming.
 
-the driver is also compatible with SiRFmarco except SiRFprimaII,
-so simply add "sirf,marco-i2c" to OF match table.
-
-Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+Signed-off-by: Inderpal Singh <inderpal.singh-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sirf.c |    1 +
- 1 files changed, 1 insertions(+), 0 deletions(-)
+ drivers/i2c/busses/i2c-s3c2410.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
-index 181d7c2..ed38b16 100644
---- a/drivers/i2c/busses/i2c-sirf.c
-+++ b/drivers/i2c/busses/i2c-sirf.c
-@@ -439,6 +439,7 @@ static const struct dev_pm_ops i2c_sirfsoc_pm_ops = {
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index f1d1f1e..55c1762 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1172,6 +1172,7 @@ static int s3c24xx_i2c_suspend_noirq(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
  
- static const struct of_device_id sirfsoc_i2c_of_match[] __devinitconst = {
- 	{ .compatible = "sirf,prima2-i2c", },
-+	{ .compatible = "sirf,marco-i2c", },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, sirfsoc_i2c_of_match);
++	s3c24xx_i2c_dt_gpio_free(i2c);
+ 	i2c->suspended = 1;
+ 
+ 	return 0;
 -- 
-1.7.5.4
-
-
-
-Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
-More information can be found at www.csr.com. Follow CSR on Twitter at http://twitter.com/CSR_PLC and read our blog at www.csr.com/blog
+1.7.9.5
