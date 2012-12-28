@@ -1,730 +1,488 @@
-From: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
-Subject: [PATCH] i2c: vt8500: Add support for Wondermedia I2C master-mode
-Date: Fri, 28 Dec 2012 14:29:26 +1300
-Message-ID: <1356658166-18688-1-git-send-email-linux@prisktech.co.nz>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: exynos5: add High Speed I2C controller driver
+Date: Fri, 28 Dec 2012 12:12:47 +0530
+Message-ID: <CAHfPSqAUQyyPegXu6ZHDMEwy5F5XQEYhLp5abjV7WaKvex92kg@mail.gmail.com>
+References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
+ <1356434755-13702-1-git-send-email-ch.naveen@samsung.com> <20121227225701.GA12665@arwen.pp.htv.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20121227225701.GA12665@arwen.pp.htv.fi>
+Sender: linux-kernel-owner@vger.kernel.org
+To: balbi@ti.com
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, linux-i2c@vger.kernel.org, kgene.kim@samsung.com, grant.likely@secretlab.ca, w.sang@pengutronix.de, linux-kernel@vger.kernel.org, taeggyun.ko@samsung.com, thomas.abraham@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds support for the I2C controller found on Wondermedia
-SoCs.
+Hello Balbi,
 
-Due to the lack of pinmux support, GPIO pin alternate functions are
-configured by machine's compatible property, as are pullups.
+On 28 December 2012 04:27, Felipe Balbi <balbi@ti.com> wrote:
+> Hi,
+>
+> On Tue, Dec 25, 2012 at 04:55:54PM +0530, Naveen Krishna Chatradhi wrote:
+>> Adds support for High Speed I2C driver found in Exynos5 and later
+>> SoCs from Samsung. This driver currently supports Auto mode.
+>>
+>> Driver only supports Device Tree method.
+>>
+>> Signed-off-by: Taekgyun Ko <taeggyun.ko@samsung.com>
+>> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+>> ---
+>> Changes since v1:
+>> Fixed the comments from Felipe Balbi and Thomas Abraham.
+>>
+>>  drivers/i2c/busses/Kconfig       |    7 +
+>>  drivers/i2c/busses/Makefile      |    1 +
+>>  drivers/i2c/busses/i2c-exynos5.c |  652 ++++++++++++++++++++++++++++++++++++++
+>>  drivers/i2c/busses/i2c-exynos5.h |  102 ++++++
+>>  4 files changed, 762 insertions(+)
+>>  create mode 100644 drivers/i2c/busses/i2c-exynos5.c
+>>  create mode 100644 drivers/i2c/busses/i2c-exynos5.h
+>>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index bdca511..4caea76 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -618,6 +618,13 @@ config I2C_S3C2410
+>>         Say Y here to include support for I2C controller in the
+>>         Samsung SoCs.
+>>
+>> +config I2C_EXYNOS5
+>> +     tristate "Exynos5 high-speed I2C driver"
+>> +     depends on ARCH_EXYNOS5
+>> +     help
+>> +       Say Y here to include support for High-speed I2C controller in the
+>> +       Exynos5 based Samsung SoCs.
+>> +
+>>  config I2C_S6000
+>>       tristate "S6000 I2C support"
+>>       depends on XTENSA_VARIANT_S6000
+>> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+>> index 6181f3f..4b1548c 100644
+>> --- a/drivers/i2c/busses/Makefile
+>> +++ b/drivers/i2c/busses/Makefile
+>> @@ -61,6 +61,7 @@ obj-$(CONFIG_I2C_PUV3)              += i2c-puv3.o
+>>  obj-$(CONFIG_I2C_PXA)                += i2c-pxa.o
+>>  obj-$(CONFIG_I2C_PXA_PCI)    += i2c-pxa-pci.o
+>>  obj-$(CONFIG_I2C_S3C2410)    += i2c-s3c2410.o
+>> +obj-$(CONFIG_I2C_EXYNOS5)    += i2c-exynos5.o
+>>  obj-$(CONFIG_I2C_S6000)              += i2c-s6000.o
+>>  obj-$(CONFIG_I2C_SH7760)     += i2c-sh7760.o
+>>  obj-$(CONFIG_I2C_SH_MOBILE)  += i2c-sh_mobile.o
+>> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+>> new file mode 100644
+>> index 0000000..7614f60
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-exynos5.c
+>> @@ -0,0 +1,652 @@
+>> +/* linux/drivers/i2c/busses/i2c-exynos5.c
+>
+> no need for the full path. Generally this would look like:
+>
+> * i2c-exynos5.c - Samsung Exynos 5 I2C Controller Driver
+>
+> no strong feelings however.
+>
+>> + * Copyright (C) 2012 Samsung Electronics Co., Ltd.
+>> + *
+>> + * High speed I2C controller driver
+>> + * for Exynos5 and later SoCs from Samsung.
+>> + *
+>> + * This program is free software; you can redistribute it and/or modify
+>> + * it under the terms of the GNU General Public License version 2 as
+>> + * published by the Free Software Foundation.
+>> +*/
+>> +
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +
+>> +#include <linux/i2c.h>
+>> +#include <linux/init.h>
+>> +#include <linux/time.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/delay.h>
+>> +#include <linux/errno.h>
+>> +#include <linux/err.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/pm_runtime.h>
+>> +#include <linux/clk.h>
+>> +#include <linux/slab.h>
+>> +#include <linux/io.h>
+>> +#include <linux/of_address.h>
+>> +#include <linux/of_gpio.h>
+>> +#include <linux/of_irq.h>
+>> +#include <linux/of_i2c.h>
+>> +
+>> +#include "i2c-exynos5.h"
+>
+> it doesn't look like this header is even needed. All those macros could
+> be defined here in the C-source file which is the only user.
+>
+>> +#define EXYNOS5_I2C_TIMEOUT (msecs_to_jiffies(1000))
+>> +
+>> +/* timeout for pm runtime autosuspend */
+>> +#define EXYNOS5_I2C_PM_TIMEOUT               1000    /* ms */
+>> +
+>> +struct exynos5_i2c {
+>> +     struct i2c_adapter      adap;
+>> +     unsigned int            suspended:1;
+>> +
+>> +     struct i2c_msg          *msg;
+>> +     unsigned int            msg_idx;
+>> +     struct completion       msg_complete;
+>> +     unsigned int            msg_ptr;
+>> +
+>> +     unsigned int            irq;
+>> +
+>> +     void __iomem            *regs;
+>> +     struct clk              *clk;
+>> +     struct device           *dev;
+>> +     int                     gpios[2];
+>> +
+>> +     int                     bus_num;
+>> +     int                     speed_mode;
+>> +};
+>> +
+>> +static const struct of_device_id exynos5_i2c_match[] = {
+>> +     { .compatible = "samsung,exynos5-hsi2c" },
+>> +     {},
+>> +};
+>> +MODULE_DEVICE_TABLE(of, exynos5_i2c_match);
+>> +
+>> +/* TODO: Should go to debugfs */
+>> +static inline void dump_i2c_register(struct exynos5_i2c *i2c)
+>> +{
+>> +     dev_vdbg(i2c->dev, "Register dump(%d) :\n %x\n %x\n %x\n %x\n"
+>> +             " %x\n %x\n %x\n %x\n %x\n"
+>> +             " %x\n %x\n %x\n %x\n %x\n"
+>> +             " %x\n %x\n %x\n %x\n %x\n"
+>> +             " %x\n %x\n %x\n %x\n %x\n",
+>> +             i2c->suspended,
+>> +             readl(i2c->regs + HSI2C_CTL),
+>> +             readl(i2c->regs + HSI2C_FIFO_CTL),
+>> +             readl(i2c->regs + HSI2C_TRAILIG_CTL),
+>> +             readl(i2c->regs + HSI2C_CLK_CTL),
+>> +             readl(i2c->regs + HSI2C_CLK_SLOT),
+>> +             readl(i2c->regs + HSI2C_INT_ENABLE),
+>> +             readl(i2c->regs + HSI2C_INT_STATUS),
+>> +             readl(i2c->regs + HSI2C_ERR_STATUS),
+>> +             readl(i2c->regs + HSI2C_FIFO_STATUS),
+>> +             readl(i2c->regs + HSI2C_TX_DATA),
+>> +             readl(i2c->regs + HSI2C_RX_DATA),
+>> +             readl(i2c->regs + HSI2C_CONF),
+>> +             readl(i2c->regs + HSI2C_AUTO_CONF),
+>> +             readl(i2c->regs + HSI2C_TIMEOUT),
+>> +             readl(i2c->regs + HSI2C_MANUAL_CMD),
+>> +             readl(i2c->regs + HSI2C_TRANS_STATUS),
+>> +             readl(i2c->regs + HSI2C_TIMING_HS1),
+>> +             readl(i2c->regs + HSI2C_TIMING_HS2),
+>> +             readl(i2c->regs + HSI2C_TIMING_HS3),
+>> +             readl(i2c->regs + HSI2C_TIMING_FS1),
+>> +             readl(i2c->regs + HSI2C_TIMING_FS2),
+>> +             readl(i2c->regs + HSI2C_TIMING_FS3),
+>> +             readl(i2c->regs + HSI2C_TIMING_SLA),
+>> +             readl(i2c->regs + HSI2C_ADDR));
+>> +}
+>
+> NAK, please add debugfs support already. This will be here for a long
+> time otherwise
+Actually patch 2/2 does the same, posted them separately for RFC
+>
+>> +static inline void exynos5_i2c_stop(struct exynos5_i2c *i2c, int ret)
+>
+> no need for inline, GCC will handle that. Also, this prototype looks
+> awkward, you're passing caller's return code to be checked here... it's
+> weird, to say the least.
+>
+>> +{
+>> +     dev_dbg(i2c->dev, "STOP\n");
+>
+> I would call this dev_vdbg()
+>
+>> +
+>> +     i2c->msg_idx++;
+>> +     if (ret)
+>> +             i2c->msg_idx = ret;
+>> +
+>> +     /* Disable interrrupts */
+>> +     writel(0, i2c->regs + HSI2C_INT_ENABLE);
+>> +     complete(&i2c->msg_complete);
+>> +}
+>> +
+>> +static void exynos5_i2c_en_timeout(struct exynos5_i2c *i2c)
+>> +{
+>> +     unsigned long i2c_timeout = readl(i2c->regs + HSI2C_TIMEOUT);
+>> +
+>> +     /* Clear to enable Timeout */
+>> +     i2c_timeout &= ~HSI2C_TIMEOUT_EN;
+>> +     writel(i2c_timeout, i2c->regs + HSI2C_TIMEOUT);
+>> +}
+>> +
+>> +static void exynos5_i2c_master_run(struct exynos5_i2c *i2c)
+>> +{
+>> +     /* Start data transfer in Master mode */
+>> +     u32 i2c_auto_conf = readl(i2c->regs + HSI2C_AUTO_CONF);
+>> +     i2c_auto_conf |= HSI2C_MASTER_RUN;
+>> +     writel(i2c_auto_conf, i2c->regs + HSI2C_AUTO_CONF);
+>> +}
+>> +
+>> +/* exynos5_i2c_set_bus
+>> + *
+>> + * get the i2c bus for a master/slave transaction
+>> + */
+>
+> multiline comment style is wrong.
+>
+>> +static int exynos5_i2c_set_bus(struct exynos5_i2c *i2c, int master)
+>
+> this function is only called with master set to 1, do you even need that
+> argument ? Do you have some out-of-tree code for supporting slave mode ?
+>
+> Please remove 'slave' support completely as that's not supported in
+> mainline as of today, if you need slave support, then add it to the
+> framework first.
+Will remove slave stuff, I don't plans for the as of now.
+>
+>> +{
+>> +     unsigned long t_status;
+>> +     int timeout = 400;
+>> +
+>> +     while (timeout-- > 0) {
+>> +             t_status = readl(i2c->regs + HSI2C_TRANS_STATUS);
+>> +
+>> +             if (master) {
+>> +                     if (!(t_status & HSI2C_MASTER_BUSY))
+>> +                             return 0;
+>> +             } else {
+>> +                     if (!(t_status & HSI2C_SLAVE_BUSY))
+>> +                             return 0;
+>> +             }
+>> +
+>> +             msleep(20);
+>> +     }
+>> +
+>> +     return -ETIMEDOUT;
+>> +}
+>> +
+>> +/* exynos5_i2c_irq
+>> + *
+>> + * top level IRQ servicing routine
+>> + */
+>
+> multiline comment style is wrong.
+>
+>> +static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+>> +{
+>> +     struct exynos5_i2c *i2c = dev_id;
+>> +     unsigned long t_stat;
+>> +     unsigned char byte;
+>> +
+>> +     t_stat = readl(i2c->regs + HSI2C_TRANS_STATUS);
+>> +
+>> +     if (t_stat & HSI2C_TRANS_ABORT) {
+>> +             /* deal with arbitration loss */
+>> +             dev_err(i2c->dev, "deal with arbitration loss\n");
+>> +             goto out;
+>> +     }
+>> +     if (i2c->msg->flags & I2C_M_RD) {
+>> +             if (t_stat & HSI2C_TRANS_DONE) {
+>> +                     dev_dbg(i2c->dev, "Device found.");
+>> +                     while ((readl(i2c->regs + HSI2C_FIFO_STATUS) &
+>> +                                     HSI2C_RX_FIFO_EMPTY) == 0) {
+>> +                             byte = readl(i2c->regs + HSI2C_RX_DATA);
+>> +                             dev_dbg(i2c->dev, "read rx_data = %x", byte);
+>> +                             i2c->msg->buf[i2c->msg_ptr++] = byte;
+>> +                     }
+>> +             } else if (t_stat & HSI2C_NO_DEV) {
+>> +                     dev_dbg(i2c->dev, "No device found.");
+>> +                     exynos5_i2c_stop(i2c, -ENXIO);
+>> +             } else if (t_stat & HSI2C_NO_DEV_ACK &&
+>> +                             !(i2c->msg->flags & I2C_M_IGNORE_NAK)) {
+>> +                     dev_dbg(i2c->dev, "No device Ack.");
+>> +                     exynos5_i2c_stop(i2c, -ENXIO);
+>> +             }
+>> +     } else {
+>> +             byte = i2c->msg->buf[i2c->msg_ptr++];
+>> +             dev_dbg(i2c->dev, "write tx_data = %x ", byte);
+>> +             writel(byte, i2c->regs + HSI2C_TX_DATA);
+>> +     }
+>> +
+>> +     if (i2c->msg_ptr >= i2c->msg->len)
+>> +             exynos5_i2c_stop(i2c, 0);
+>> +
+>> + out:
+>> +     /* Set those bits to clear them */
+>> +     writel(readl(i2c->regs + HSI2C_INT_STATUS),
+>> +                             i2c->regs + HSI2C_INT_STATUS);
+>> +
+>> +     return IRQ_HANDLED;
+>> +}
+>> +
+>> +static void exynos5_i2c_message_start(struct exynos5_i2c *i2c,
+>> +                                   struct i2c_msg *msgs)
+>> +{
+>> +     unsigned long usi_ctl = HSI2C_FUNC_MODE_I2C | HSI2C_MASTER;
+>> +     unsigned long i2c_auto_conf;
+>> +     unsigned long i2c_addr = ((msgs->addr & 0x7f) << 10);
+>> +     unsigned long usi_int_en = 0;
+>> +
+>> +     exynos5_i2c_en_timeout(i2c);
+>> +
+>> +     if (msgs->flags & I2C_M_RD) {
+>> +             usi_ctl &= ~HSI2C_TXCHON;
+>> +             usi_ctl |= HSI2C_RXCHON;
+>> +
+>> +             i2c_auto_conf |= HSI2C_READ_WRITE;
+>> +
+>> +             usi_int_en |= (HSI2C_INT_RX_ALMOSTFULL_EN |
+>> +                     HSI2C_INT_TRAILING_EN);
+>> +     } else {
+>> +             usi_ctl &= ~HSI2C_RXCHON;
+>> +             usi_ctl |= HSI2C_TXCHON;
+>> +
+>> +             i2c_auto_conf &= ~HSI2C_READ_WRITE;
+>> +
+>> +             usi_int_en |= HSI2C_INT_TX_ALMOSTEMPTY_EN;
+>> +     }
+>> +
+>> +     writel(i2c_addr, i2c->regs + HSI2C_ADDR);
+>> +     writel(usi_ctl, i2c->regs + HSI2C_CTL);
+>> +
+>> +     i2c_auto_conf |= i2c->msg->len;
+>> +     i2c_auto_conf |= HSI2C_STOP_AFTER_TRANS;
+>> +     writel(i2c_auto_conf, i2c->regs + HSI2C_AUTO_CONF);
+>> +
+>> +     exynos5_i2c_master_run(i2c);
+>> +
+>> +     /* Enable appropriate interrupts */
+>> +     writel(usi_int_en, i2c->regs + HSI2C_INT_ENABLE);
+>> +}
+>> +
+>> +static int exynos5_i2c_doxfer(struct exynos5_i2c *i2c, struct i2c_msg *msgs)
+>> +{
+>> +     unsigned long timeout;
+>> +
+>> +     if (i2c->suspended) {
+>> +             dev_err(i2c->dev, "HS-I2C is not initialzed.\n");
+>> +             return -EIO;
+>> +     }
+>> +
+>> +     if (exynos5_i2c_set_bus(i2c, 1)) {
+>> +             dev_err(i2c->dev, "cannot get bus, Master busy.\n");
+>> +             return -EAGAIN;
+>> +     }
+>> +
+>> +     i2c->msg = msgs;
+>> +     i2c->msg_ptr = 0;
+>> +     i2c->msg_idx = 0;
+>> +
+>> +     INIT_COMPLETION(i2c->msg_complete);
+>> +
+>> +     exynos5_i2c_message_start(i2c, msgs);
+>> +
+>> +     timeout = wait_for_completion_timeout(&i2c->msg_complete,
+>> +             EXYNOS5_I2C_TIMEOUT);
+>> +
+>> +     if (timeout == 0)
+>> +             dev_dbg(i2c->dev, "timeout\n");
+>> +     else if (i2c->msg_idx != msgs->len)
+>> +             dev_dbg(i2c->dev, "incomplete xfer (%d)\n", i2c->msg_idx);
+>> +
+>> +     return i2c->msg_idx;
+>> +}
+>> +
+>> +static int exynos5_i2c_xfer(struct i2c_adapter *adap,
+>> +                     struct i2c_msg *msgs, int num)
+>> +{
+>> +     struct exynos5_i2c *i2c = (struct exynos5_i2c *)adap->algo_data;
+>> +     int retry, i;
+>> +     int ret;
+>> +
+>> +     ret = pm_runtime_get_sync(i2c->dev);
+>> +     if (IS_ERR_VALUE(ret))
+>> +             goto out;
+>> +
+>> +     clk_prepare_enable(i2c->clk);
+>> +
+>> +     for (retry = 0; retry < adap->retries; retry++) {
+>> +             for (i = 0; i < num; i++) {
+>> +                     ret = exynos5_i2c_doxfer(i2c, msgs);
+>> +                     msgs++;
+>> +
+>> +                     if (ret == -EAGAIN)
+>> +                             break;
+>> +             }
+>> +             if (i == num) {
+>> +                     clk_disable_unprepare(i2c->clk);
+>> +                     ret = i2c->msg_idx;
+>> +                     goto out;
+>> +             }
+>
+> why don't you just move this to the out label ?
+Moving this to label, din't look so clean to me..
+>
+>> +             dev_dbg(i2c->dev, "retrying transfer (%d)\n", retry);
+>> +
+>> +             udelay(100);
+>> +     }
+>> +
+>> +     ret = -EREMOTEIO;
+>> +     clk_disable_unprepare(i2c->clk);
+>> + out:
+>> +     pm_runtime_mark_last_busy(i2c->dev);
+>> +     pm_runtime_put_autosuspend(i2c->dev);
+>> +     return ret;
+>> +}
+>> +
+>> +static u32 exynos5_i2c_func(struct i2c_adapter *adap)
+>> +{
+>> +     return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>> +}
+>> +
+>> +static const struct i2c_algorithm exynos5_i2c_algorithm = {
+>> +     .master_xfer            = exynos5_i2c_xfer,
+>> +     .functionality          = exynos5_i2c_func,
+>> +};
+>> +
+>> +static int exynos5_i2c_set_timing(struct exynos5_i2c *i2c, int speed_mode)
+>> +{
+>> +     unsigned long i2c_timing_s1;
+>> +     unsigned long i2c_timing_s2;
+>> +     unsigned long i2c_timing_s3;
+>> +     unsigned long i2c_timing_sla;
+>> +     unsigned int op_clk;
+>> +     unsigned int clkin = clk_get_rate(i2c->clk);
+>> +     unsigned int n_clkdiv;
+>> +     unsigned int t_start_su, t_start_hd;
+>> +     unsigned int t_stop_su;
+>> +     unsigned int t_data_su, t_data_hd;
+>> +     unsigned int t_scl_l, t_scl_h;
+>> +     unsigned int t_sr_release;
+>> +     unsigned int t_ftl_cycle;
+>> +     unsigned int i = 0, utemp0 = 0, utemp1 = 0, utemp2 = 0;
+>> +
+>> +     if (speed_mode == HSI2C_HIGH_SPD)
+>> +             op_clk = HSI2C_HS_TX_CLOCK;
+>> +     else
+>> +             op_clk = HSI2C_FS_TX_CLOCK;
+>> +
+>> +     /* FPCLK / FI2C =
+>> +      * (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2) + 8 + 2 * FLT_CYCLE
+>> +      * uTemp0 = (CLK_DIV + 1) * (TSCLK_L + TSCLK_H + 2)
+>> +      * uTemp1 = (TSCLK_L + TSCLK_H + 2)
+>> +      * uTemp2 = TSCLK_L + TSCLK_H
+>> +     */
+>
+> wrong indentation
+>
+> (back to my vacations now)
+Thanks for your time. (i was wondering if anyone would care during
+this vacation season.)
+>
+> --
+> balbi
 
-Signed-off-by: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-vt8500.txt         |   24 +
- drivers/i2c/busses/Kconfig                         |    7 +
- drivers/i2c/busses/Makefile                        |    1 +
- drivers/i2c/busses/i2c-wmt.c                       |  636 ++++++++++++++++++++
- 4 files changed, 668 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
- create mode 100644 drivers/i2c/busses/i2c-wmt.c
+Will post the v3, fixing all comments except the (moving to out label) one.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-vt8500.txt b/Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
-new file mode 100644
-index 0000000..94a425e
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
-@@ -0,0 +1,24 @@
-+* Wondermedia I2C Controller
-+
-+Required properties :
-+
-+ - compatible : should be "wm,wm8505-i2c"
-+ - reg : Offset and length of the register set for the device
-+ - interrupts : <IRQ> where IRQ is the interrupt number
-+ - clocks : phandle to the I2C clock source
-+
-+Optional properties :
-+
-+ - clock-frequency : desired I2C bus clock frequency in Hz.
-+	Valid values are 100000 and 400000.
-+	Default to 100000 if not specified, or invalid value.
-+
-+Example :
-+
-+	i2c_0: i2c@d8280000 {
-+		compatible = "wm,wm8505-i2c";
-+		reg = <0xd8280000 0x1000>;
-+		interrupts = <19>;
-+		clocks = <&clki2c0>;
-+		clock-frequency = <400000>;
-+	};
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index bdca511..41270fa 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -700,6 +700,13 @@ config I2C_VERSATILE
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-versatile.
- 
-+config I2C_WMT
-+	tristate "Wondermedia I2C Controller support"
-+	depends on ARCH_VT8500
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  I2C controllers found in Wondermedia SoCs.
-+
- config I2C_OCTEON
- 	tristate "Cavium OCTEON I2C bus support"
- 	depends on CPU_CAVIUM_OCTEON
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 6181f3f..dce6299 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -69,6 +69,7 @@ obj-$(CONFIG_I2C_SIRF)		+= i2c-sirf.o
- obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
- obj-$(CONFIG_I2C_TEGRA)		+= i2c-tegra.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
-+obj-$(CONFIG_I2C_WMT)		+= i2c-wmt.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
- obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
-diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-new file mode 100644
-index 0000000..07d86e3
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-wmt.c
-@@ -0,0 +1,636 @@
-+/*
-+ *  Wondermedia I2C Master Mode Driver
-+ *
-+ *  Copyright (C) 2012 Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
-+ *
-+ *  Derived from GPL licensed source:
-+ *  - Copyright (C) 2008 WonderMedia Technologies, Inc.
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License version 2 as
-+ *  published by the Free Software Foundation
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include <linux/of_i2c.h>
-+#include <linux/of_irq.h>
-+#include <linux/platform_device.h>
-+
-+#define REG_CR		0x00
-+#define REG_TCR		0x02
-+#define REG_CSR		0x04
-+#define REG_ISR		0x06
-+#define REG_IMR		0x08
-+#define REG_CDR		0x0A
-+#define REG_TR		0x0C
-+#define REG_MCR		0x0E
-+#define REG_SLAVE_CR	0x10
-+#define REG_SLAVE_SR	0x12
-+#define REG_SLAVE_ISR	0x14
-+#define REG_SLAVE_IMR	0x16
-+#define REG_SLAVE_DR	0x18
-+#define REG_SLAVE_TR	0x1A
-+
-+/* REG_CR Bit fields */
-+#define CR_TX_NEXT_ACK		0x0000
-+#define CR_ENABLE		0x0001
-+#define CR_TX_NEXT_NO_ACK	0x0002
-+#define CR_TX_END		0x0004
-+#define CR_CPU_RDY		0x0008
-+#define SLAV_MODE_SEL		0x8000
-+
-+/* REG_TCR Bit fields */
-+#define TCR_STANDARD_MODE	0x0000
-+#define TCR_MASTER_WRITE	0x0000
-+#define TCR_HS_MODE		0x2000
-+#define TCR_MASTER_READ		0x4000
-+#define TCR_FAST_MODE		0x8000
-+#define TCR_SLAVE_ADDR_MASK	0x007F
-+
-+/* REG_ISR Bit fields */
-+#define ISR_NACK_ADDR		0x0001
-+#define ISR_BYTE_END		0x0002
-+#define ISR_SCL_TIMEOUT		0x0004
-+#define ISR_WRITE_ALL		0x0007
-+
-+/* REG_IMR Bit fields */
-+#define IMR_ENABLE_ALL		0x0007
-+
-+/* REG_CSR Bit fields */
-+#define CSR_RCV_NOT_ACK		0x0001
-+#define CSR_RCV_ACK_MASK	0x0001
-+#define CSR_READY_MASK		0x0002
-+
-+#define I2C_MODE_STANDARD	0
-+#define I2C_MODE_FAST		1
-+
-+
-+
-+struct wmt_i2c_dev {
-+	struct i2c_adapter	adapter;
-+	struct completion	complete;
-+	struct device		*dev;
-+	void __iomem		*base;
-+	struct clk		*clk;
-+	int			mode;
-+	int			irq;
-+	u16			cmd_status;
-+};
-+
-+static int wmt_i2c_wait_bus_not_busy(struct wmt_i2c_dev *i2c_dev)
-+{
-+	u16 val;
-+	int i;
-+	int ret = 0;
-+
-+	for (i = 0; i < 10000000; i++) {
-+		val = readw(i2c_dev->base + REG_CSR);
-+		if (val & CSR_READY_MASK)
-+			break;
-+
-+		udelay(1);
-+	}
-+	if (i >= 9999999)
-+		ret = -EBUSY;
-+
-+	return ret;
-+}
-+
-+static int wmt_check_status(struct wmt_i2c_dev *i2c_dev)
-+{
-+	int ret = 0;
-+
-+	if (i2c_dev->cmd_status & ISR_NACK_ADDR)
-+		ret = -EIO;
-+
-+	if (i2c_dev->cmd_status & ISR_SCL_TIMEOUT)
-+		ret = -ETIMEDOUT;
-+
-+	return ret;
-+}
-+
-+static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
-+						   int restart, int last)
-+{
-+	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
-+	u16 val;
-+	u16 tcr_val;
-+	int ret;
-+	int wait_result;
-+	u32 xfer_len = 0;
-+
-+	if (pmsg->len < 0)
-+		return -EINVAL;
-+
-+	if (restart == 0) {
-+		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	if (pmsg->len == 0)
-+		writew(0, i2c_dev->base + REG_CDR);
-+	else
-+		writew(pmsg->buf[0] & 0xFF, i2c_dev->base + REG_CDR);
-+
-+	if (restart == 0) {
-+		val = readw(i2c_dev->base + REG_CR);
-+		val &= ~CR_TX_END;
-+		writew(val, i2c_dev->base + REG_CR);
-+
-+		val = readw(i2c_dev->base + REG_CR);
-+		val |= CR_CPU_RDY;
-+		writew(val, i2c_dev->base + REG_CR);
-+	}
-+
-+	init_completion(&i2c_dev->complete);
-+
-+	if (i2c_dev->mode == I2C_MODE_STANDARD)
-+		tcr_val = TCR_STANDARD_MODE;
-+	else
-+		tcr_val = TCR_FAST_MODE;
-+
-+	tcr_val |= (TCR_MASTER_WRITE | (pmsg->addr & TCR_SLAVE_ADDR_MASK));
-+
-+	writew(tcr_val, i2c_dev->base + REG_TCR);
-+
-+	if (restart == 1) {
-+		val = readw(i2c_dev->base + REG_CR);
-+		val |= CR_CPU_RDY;
-+		writew(val, i2c_dev->base + REG_CR);
-+	}
-+
-+	ret = 0;
-+
-+	for (;;) {
-+		wait_result = wait_for_completion_interruptible_timeout(
-+				&i2c_dev->complete, 500 * HZ / 1000);
-+
-+		if (wait_result == 0) {
-+			dev_dbg(i2c_dev->dev, "wait timeout (tx)\n");
-+			ret = -ETIMEDOUT;
-+			break;
-+		}
-+
-+		ret = wmt_check_status(i2c_dev);
-+		if (ret)
-+			break;
-+
-+		xfer_len++;
-+
-+		val = readw(i2c_dev->base + REG_CSR);
-+		if ((val & CSR_RCV_ACK_MASK) == CSR_RCV_NOT_ACK) {
-+			dev_dbg(i2c_dev->dev, "write RCV NACK error\n");
-+			ret = -EIO;
-+			break;
-+		}
-+
-+		if (pmsg->len == 0) {
-+			val = CR_TX_END | CR_CPU_RDY | CR_ENABLE;
-+			writew(val, i2c_dev->base + REG_CR);
-+			break;
-+		}
-+
-+		if (pmsg->len > xfer_len) {
-+			writew(pmsg->buf[xfer_len] & 0xFF, i2c_dev->base +
-+								REG_CDR);
-+			writew(CR_CPU_RDY | CR_ENABLE, i2c_dev->base + REG_CR);
-+		} else if (pmsg->len == xfer_len) {
-+			if (last != 1)
-+				writew(CR_ENABLE, i2c_dev->base + REG_CR);
-+			break;
-+		} else {
-+			dev_dbg(i2c_dev->dev, "unknown error (tx)\n");
-+			ret = -EIO;
-+			break;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
-+static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
-+						  int restart, int last)
-+{
-+	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
-+	u16 val;
-+	u16 tcr_val;
-+	int ret;
-+	int wait_result;
-+	u32 xfer_len = 0;
-+
-+	if (pmsg->len <= 0)
-+		return -EINVAL;
-+
-+	if (restart == 0) {
-+		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	val = readw(i2c_dev->base + REG_CR);
-+	val &= ~CR_TX_END;
-+	writew(val, i2c_dev->base + REG_CR);
-+
-+	val = readw(i2c_dev->base + REG_CR);
-+	val &= ~CR_TX_NEXT_NO_ACK;
-+	writew(val, i2c_dev->base + REG_CR);
-+
-+	if (restart == 0) {
-+		val = readw(i2c_dev->base + REG_CR);
-+		val |= CR_CPU_RDY;
-+		writew(val, i2c_dev->base + REG_CR);
-+	}
-+
-+	if (pmsg->len == 1) {
-+		val = readw(i2c_dev->base + REG_CR);
-+		val |= CR_TX_NEXT_NO_ACK;
-+		writew(val, i2c_dev->base + REG_CR);
-+	}
-+
-+	init_completion(&i2c_dev->complete);
-+
-+	if (i2c_dev->mode == I2C_MODE_STANDARD)
-+		tcr_val = TCR_STANDARD_MODE;
-+	else
-+		tcr_val = TCR_FAST_MODE;
-+
-+	tcr_val |= TCR_MASTER_READ | (pmsg->addr & TCR_SLAVE_ADDR_MASK);
-+
-+	writew(tcr_val, i2c_dev->base + REG_TCR);
-+
-+	if (restart == 1) {
-+		val = readw(i2c_dev->base + REG_CR);
-+		val |= CR_CPU_RDY;
-+		writew(val, i2c_dev->base + REG_CR);
-+	}
-+
-+	ret = 0;
-+
-+	for (;;) {
-+		wait_result = wait_for_completion_interruptible_timeout(
-+				&i2c_dev->complete, 500 * HZ / 1000);
-+
-+		if (wait_result == 0) {
-+			dev_dbg(i2c_dev->dev, "wait timeout (tx)\n");
-+			ret = -ETIMEDOUT;
-+			break;
-+		}
-+
-+		ret = wmt_check_status(i2c_dev);
-+		if (ret)
-+			break;
-+
-+		pmsg->buf[xfer_len] = readw(i2c_dev->base + REG_CDR) >> 8;
-+		xfer_len++;
-+
-+		if (pmsg->len > xfer_len) {
-+			if (pmsg->len - 1 == xfer_len) {
-+				val = readw(i2c_dev->base + REG_CR);
-+				val |= (CR_TX_NEXT_NO_ACK | CR_CPU_RDY);
-+				writew(val, i2c_dev->base + REG_CR);
-+			} else {
-+				val = readw(i2c_dev->base + REG_CR);
-+				val |= CR_CPU_RDY;
-+				writew(val, i2c_dev->base + REG_CR);
-+			}
-+		} else if (pmsg->len == xfer_len) {
-+			break;
-+		} else {
-+			ret = -EIO;
-+			break;
-+		}
-+	}
-+
-+	return ret;
-+}
-+
-+static int wmt_i2c_xfer(struct i2c_adapter *adap,
-+			struct i2c_msg msgs[],
-+			int num)
-+{
-+	struct i2c_msg *pmsg;
-+	int i;
-+	int ret = 0;
-+	int is_last;
-+	int restart;
-+
-+	for (i = 0; ret >= 0 && i < num; i++) {
-+		is_last = ((i + 1) == num);
-+		restart = (i != 0);
-+
-+		pmsg = &msgs[i];
-+		if (pmsg->flags & I2C_M_NOSTART)
-+			restart = 1;
-+		if (pmsg->flags & I2C_M_RD)
-+			ret = wmt_i2c_read(adap, pmsg, restart, is_last);
-+		else
-+			ret = wmt_i2c_write(adap, pmsg, restart, is_last);
-+	}
-+
-+	if (ret < 0)
-+		return ret;
-+	else
-+		return i;
-+}
-+
-+static u32 wmt_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static const struct i2c_algorithm wmt_i2c_algo = {
-+	.master_xfer	= wmt_i2c_xfer,
-+	.functionality	= wmt_i2c_func,
-+};
-+
-+static irqreturn_t wmt_i2c_isr(int irq, void *data)
-+{
-+	struct wmt_i2c_dev *i2c_dev = data;
-+
-+	/* save the status and write-clear it */
-+	i2c_dev->cmd_status = readw(i2c_dev->base + REG_ISR);
-+	writew(i2c_dev->cmd_status, i2c_dev->base + REG_ISR);
-+
-+	complete(&i2c_dev->complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+/*
-+ * Due to a lack of pinmux functionality we need to manually configure
-+ * the GPIO pullup. Once pinmux is implemented, this function should be
-+ * removed. Pullup's are not available on vt8500 or wm8505 so we skip.
-+ */
-+static int wmt_i2c_setup_gpio(struct wmt_i2c_dev *i2c_dev)
-+{
-+	struct device_node *np;
-+	void __iomem *gpio_base;
-+	int nr = i2c_dev->adapter.nr;
-+	u8 val;
-+	u8 mask;
-+
-+	/* VT8500 - has external pullups so no configuration required. */
-+	if (of_machine_is_compatible("via,vt8500"))
-+		return 0;
-+
-+	/*
-+	 * WM8505 - has external pullups but we need to config the alt func
-+	 * WM8650 - has programmable pullups + alt func
-+	 * WM8850 - has programmable pullups + alt func
-+	 */
-+	if (of_machine_is_compatible("wm,wm8505")) {
-+		np = of_find_compatible_node(NULL, NULL, "wm,wm8505-gpio");
-+		if (!np) {
-+			dev_err(i2c_dev->dev, "GPIO required for WM8505 i2c\n");
-+			return -EINVAL;
-+		}
-+	} else if (of_machine_is_compatible("wm,wm8650") ||
-+		   of_machine_is_compatible("wm,wm8850")) {
-+		np = of_find_compatible_node(NULL, NULL, "wm,wm8650-gpio");
-+		if (!np) {
-+			dev_err(i2c_dev->dev, "GPIO required for WM8650 i2c\n");
-+			return -EINVAL;
-+		}
-+	} else {
-+		/* If we don't know what machine, assume its configured */
-+		dev_warn(i2c_dev->dev, "unrecognised machine\n");
-+		return 0;
-+	}
-+
-+	gpio_base = of_iomap(np, 0);
-+	if (!gpio_base) {
-+		dev_err(i2c_dev->dev, "failed to map gpio memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	if (of_machine_is_compatible("wm,wm8505")) {
-+		if (nr == 0) {
-+			/* Set gpio pins to alt function */
-+			val = readb(gpio_base + 0x500);
-+			writeb(val & 0xFC, gpio_base + 0x500);
-+		}
-+	} else if (of_machine_is_compatible("wm,wm8650")) {
-+		if (nr == 0) {
-+			/* set gpio pins to alt function */
-+			val = readb(gpio_base + 0x55);
-+			val &= ~(BIT(0) | BIT(1));
-+			writeb(val, gpio_base + 0x55);
-+
-+			/* enable pull */
-+			val = readb(gpio_base + 0x495);
-+			val |= (BIT(0) | BIT(1));
-+			writeb(val, gpio_base + 0x495);
-+
-+			/* set pulled-up */
-+			val = readb(gpio_base + 0x4D5);
-+			val |= (BIT(0) | BIT(1));
-+			writeb(val, gpio_base + 0x4D5);
-+		} else if (nr == 1) {
-+			/* set gpio pins to alt function */
-+			val = readb(gpio_base + 0x49);
-+			val &= ~(BIT(4) | BIT(5));
-+			writeb(val, gpio_base + 0x49);
-+
-+			/* enable pull */
-+			val = readb(gpio_base + 0x489);
-+			val |= (BIT(4) | BIT(5));
-+			writeb(val, gpio_base + 0x489);
-+
-+			/* set pulled-up */
-+			val = readb(gpio_base + 0x4C9);
-+			val |= (BIT(4) | BIT(5));
-+			writeb(val, gpio_base + 0x4C9);
-+		}
-+	} else if (of_machine_is_compatible("wm,wm8850")) {
-+		if ((nr >= 0) && (nr <= 2)) {
-+			mask = 0x03 << (nr << 1);
-+	
-+			/* set gpio pins to alt function */
-+			val = readb(gpio_base + 0x55);
-+			val &= ~mask;
-+			writeb(val, gpio_base + 0x55);
-+
-+			/* enable pull */
-+			val = readb(gpio_base + 0x495);
-+			val |= mask;
-+			writeb(val, gpio_base + 0x495);
-+
-+			/* set pulled-up */
-+			val = readb(gpio_base + 0x4D5);
-+			val |= mask;
-+			writeb(val, gpio_base + 0x4D5);
-+		}
-+	}
-+
-+
-+	iounmap(gpio_base);
-+
-+	return 0;
-+}
-+
-+static int wmt_i2c_reset_hardware(struct wmt_i2c_dev *i2c_dev)
-+{
-+	int err;
-+
-+	err = clk_prepare_enable(i2c_dev->clk);
-+	if (err) {
-+		dev_err(i2c_dev->dev, "failed to enable clock\n");
-+		return err;
-+	}
-+
-+	err = clk_set_rate(i2c_dev->clk, 20000000);
-+	if (err) {
-+		dev_err(i2c_dev->dev, "failed to set clock = 20Mhz\n");
-+		return err;
-+	}
-+
-+	err = wmt_i2c_setup_gpio(i2c_dev);
-+	if (err)
-+		return err;
-+
-+	writew(0, i2c_dev->base + REG_CR);
-+	writew(12, i2c_dev->base + REG_MCR);
-+	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
-+	writew(IMR_ENABLE_ALL, i2c_dev->base + REG_IMR);
-+	writew(CR_ENABLE, i2c_dev->base + REG_CR);
-+	readw(i2c_dev->base + REG_CSR);		/* read clear */
-+	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
-+
-+	if (i2c_dev->mode == I2C_MODE_STANDARD)
-+		writew(0x8064, i2c_dev->base + REG_TR);
-+	else
-+		writew(0x8019, i2c_dev->base + REG_TR);
-+
-+	return 0;
-+}
-+
-+static int wmt_i2c_probe(struct platform_device *pdev)
-+{
-+	struct device_node	*np = pdev->dev.of_node;
-+	struct wmt_i2c_dev	*i2c_dev;
-+	struct i2c_adapter	*adap;
-+	struct resource		*res;
-+	int err;
-+	u32 clk_rate;
-+
-+	if (!np) {
-+		dev_err(&pdev->dev, "device node not found\n");
-+		return -ENODEV;
-+	}
-+
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		dev_err(&pdev->dev, "no memory resource defined\n");
-+		return -ENODEV;
-+	}
-+
-+	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
-+	if (!i2c_dev) {
-+		dev_err(&pdev->dev, "device memory allocation failed\n");
-+		return -ENOMEM;
-+	}
-+
-+	i2c_dev->base = devm_request_and_ioremap(&pdev->dev, res);
-+	if (!i2c_dev->base) {
-+		dev_err(&pdev->dev, "memory region unavailable\n");
-+		return -ENOMEM;
-+	}
-+
-+	i2c_dev->irq = irq_of_parse_and_map(np, 0);
-+	if (!i2c_dev->irq) {
-+		dev_err(&pdev->dev, "irq missing or invalid\n");
-+		return -EINVAL;
-+	}
-+
-+	i2c_dev->clk = of_clk_get(np, 0);
-+	if (IS_ERR(i2c_dev->clk)) {
-+		dev_err(&pdev->dev, "unable to request clock\n");
-+		return PTR_ERR(i2c_dev->clk);
-+	}
-+
-+	i2c_dev->mode = I2C_MODE_STANDARD;
-+	err = of_property_read_u32(np, "clock-frequency", &clk_rate);
-+	if ((!err) && (clk_rate == 400000))
-+		i2c_dev->mode = I2C_MODE_FAST;
-+
-+	i2c_dev->dev = &pdev->dev;
-+
-+	err = devm_request_irq(&pdev->dev, i2c_dev->irq, wmt_i2c_isr, 0,
-+							"i2c", i2c_dev);
-+	if (err) {
-+		dev_err(&pdev->dev, "failed to request irq %i\n", i2c_dev->irq);
-+		return err;
-+	}
-+
-+	adap = &i2c_dev->adapter;
-+	i2c_set_adapdata(adap, i2c_dev);
-+	strlcpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
-+	adap->owner		= THIS_MODULE;
-+	adap->class		= I2C_CLASS_HWMON;
-+	adap->algo		= &wmt_i2c_algo;
-+	adap->dev.parent	= &pdev->dev;
-+	adap->dev.of_node	= pdev->dev.of_node;
-+	adap->nr		= of_alias_get_id(pdev->dev.of_node, "i2c");
-+
-+	err = wmt_i2c_reset_hardware(i2c_dev);
-+	if (err) {
-+		dev_err(&pdev->dev, "error initializing hardware\n");
-+		return err;
-+	}
-+
-+	if (adap->nr < 0)
-+		err = i2c_add_adapter(adap);
-+	else
-+		err = i2c_add_numbered_adapter(adap);
-+
-+	if (err) {
-+		dev_err(&pdev->dev, "failed to add adapter\n");
-+		return err;
-+	}
-+
-+	platform_set_drvdata(pdev, i2c_dev);
-+
-+	of_i2c_register_devices(adap);
-+
-+	return 0;
-+}
-+
-+static int wmt_i2c_remove(struct platform_device *pdev)
-+{
-+	struct wmt_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&i2c_dev->adapter);
-+
-+	return 0;
-+}
-+
-+static struct of_device_id wmt_i2c_dt_ids[] = {
-+	{ .compatible = "wm,wm8505-i2c" },
-+	{ /* Sentinel */ },
-+};
-+
-+static struct platform_driver wmt_i2c_driver = {
-+	.probe		= wmt_i2c_probe,
-+	.remove		= wmt_i2c_remove,
-+	.driver		= {
-+		.name	= "wmt-i2c",
-+		.owner	= THIS_MODULE,
-+		.of_match_table = wmt_i2c_dt_ids,
-+	},
-+};
-+
-+module_platform_driver(wmt_i2c_driver);
-+
-+MODULE_DESCRIPTION("Wondermedia I2C master-mode bus adapter");
-+MODULE_AUTHOR("Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>");
-+MODULE_LICENSE("GPL v2");
-+MODULE_DEVICE_TABLE(of, wmt_i2c_dt_ids);
 -- 
-1.7.9.5
+Shine bright,
+(: Nav :)
