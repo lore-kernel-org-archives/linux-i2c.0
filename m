@@ -1,53 +1,135 @@
-From: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
-Subject: [PATCH 1/2] drivers/i2c/busses/i2c-sh7760.c: use clk API instead of direct dereferences
-Date: Thu,  3 Jan 2013 11:34:19 +0100
-Message-ID: <1357209260-15412-1-git-send-email-Julia.Lawall@lip6.fr>
+From: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
+Subject: [PATCH] i2c-EEPROM: In kernel memory accessor interface
+Date: Fri,  4 Jan 2013 00:31:47 +0200
+Message-ID: <1357252307-6063-1-git-send-email-panto@antoniou-consulting.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: kernel-janitors-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matt Porter <mporter-l0cyMroinI0@public.gmane.org>, Russ Dill <Russ.Dill-l0cyMroinI0@public.gmane.org>, Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
+In kernel users need to access the EEPROM using the i2c_client
+interface. Extend at24 to use it via the command interface.
 
-A struct clk value is intended to be an abstract pointer, so it should be
-manipulated using the various API functions.
-
-The semantic match that finds this problem is as follows:
-(http://coccinelle.lip6.fr/)
-
-// <smpl>
-@@
-expression e,e1;
-identifier i;
-@@
-
-*e = clk_get(...)
- ... when != e = e1
-     when any
-*e->i
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall-L2FTfq7BK8M@public.gmane.org>
-
+Signed-off-by: Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
 ---
-I am not able to compile this code.  Furthermore, the documentation on
-clk_get_rate says that the result is only valid if the clock has been
-enabled, and I don't know if that is the case here.
+ drivers/misc/eeprom/at24.c | 23 ++++++++++++++++++
+ include/linux/i2c/eeprom.h | 59 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 82 insertions(+)
+ create mode 100644 include/linux/i2c/eeprom.h
 
- drivers/i2c/busses/i2c-sh7760.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
-index 3a2253e..972eafe 100644
---- a/drivers/i2c/busses/i2c-sh7760.c
-+++ b/drivers/i2c/busses/i2c-sh7760.c
-@@ -401,7 +401,7 @@ static int calc_CCR(unsigned long scl_hz)
- 	if (IS_ERR(mclk)) {
- 		return PTR_ERR(mclk);
- 	} else {
--		mck = mclk->rate;
-+		mck = clk_get_rate(mclk);
- 		clk_put(mclk);
- 	}
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 2baeec5..40b1a95 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -23,6 +23,7 @@
+ #include <linux/of.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c/at24.h>
++#include <linux/i2c/eeprom.h>
  
+ /*
+  * I2C EEPROMs from most vendors are inexpensive and mostly interchangeable.
+@@ -672,6 +673,27 @@ static int at24_remove(struct i2c_client *client)
+ 	return 0;
+ }
+ 
++static int at24_command(struct i2c_client *client, unsigned int cmd, void *arg)
++{
++	struct at24_data *at24;
++	const struct memory_accessor **maccp;
++
++	/* only supporting a single command */
++	if (cmd != I2C_EEPROM_GET_MEMORY_ACCESSOR)
++		return -ENOTSUPP;
++
++	/* rudimentary check */
++	if (arg == NULL)
++		return -EINVAL;
++
++	at24 = i2c_get_clientdata(client);
++
++	maccp = arg;
++	*maccp = &at24->macc;
++
++	return 0;
++}
++
+ /*-------------------------------------------------------------------------*/
+ 
+ static struct i2c_driver at24_driver = {
+@@ -682,6 +704,7 @@ static struct i2c_driver at24_driver = {
+ 	.probe = at24_probe,
+ 	.remove = at24_remove,
+ 	.id_table = at24_ids,
++	.command = at24_command,
+ };
+ 
+ static int __init at24_init(void)
+diff --git a/include/linux/i2c/eeprom.h b/include/linux/i2c/eeprom.h
+new file mode 100644
+index 0000000..1393980
+--- /dev/null
++++ b/include/linux/i2c/eeprom.h
+@@ -0,0 +1,59 @@
++/*
++ * i2c/eeprom.h
++ *
++ * In-kernel interface for accessing eeprom memory.
++ *
++ * Copyright (C) 2012 Texas Instruments Inc.
++ *                    Pantelis Antoniou <panto-wVdstyuyKrO8r51toPun2/C9HSW9iNxf@public.gmane.org>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ */
++#ifndef I2C_EEPROM_H
++#define I2C_EEPROM_H
++
++#include <linux/types.h>
++#include <linux/memory.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
++
++/*
++ * The method called in the client is
++ *
++ * int command(struct i2c_client *client, unsigned int cmd, void *arg);
++ *
++ * A single command is supported, which returns a pointer to the memory
++ * accessor already available, but which was only accessible via platform
++ * callbacks. We can't use platform callbacks anymore for device tree
++ * platforms, hence this interface.
++ *
++ */
++
++/* interface commands */
++#define I2C_EEPROM_GET_MEMORY_ACCESSOR	1
++
++static inline struct memory_accessor *
++i2c_eeprom_get_memory_accessor(struct i2c_client *client)
++{
++	int ret;
++	struct memory_accessor *macc;
++
++	/* verify that the i2c client's driver has a command method */
++	if (!client || !client->driver || !client->driver->command)
++		return ERR_PTR(-ENOTSUPP);
++
++	macc = NULL;
++	ret = client->driver->command(client, I2C_EEPROM_GET_MEMORY_ACCESSOR,
++			&macc);
++	if (ret != 0)
++		return ERR_PTR(ret);
++
++	if (macc == NULL)
++		return ERR_PTR(-ENOTSUPP);
++
++	return macc;
++}
++
++#endif
+-- 
+1.7.12
