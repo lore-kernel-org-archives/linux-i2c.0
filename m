@@ -1,199 +1,123 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: add support for Tegra114 SoC
-Date: Sat, 5 Jan 2013 17:34:46 +0530
-Message-ID: <1357387486-25966-1-git-send-email-ldewangan@nvidia.com>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] at24: extend driver to allow writing via i2c_smbus_write_byte_data
+Date: Sun, 6 Jan 2013 19:11:26 +0100
+Message-ID: <CAH9NwWfL9-RVRprmY9p4b+PqmUQNukL9J2Ai6xNF+nL2OmOM5Q@mail.gmail.com>
+References: <1355933229-25865-1-git-send-email-christian.gmeiner@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1355933229-25865-1-git-send-email-christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Christian Gmeiner <c.gmeiner-qzos7lGCgFkk+I/owrrOrA@public.gmane.org>
+Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-NVIDIA's Tegra114 has following enhanced feature in i2c controller:
-- Enable/disable control for per packet transfer complete interrupt.
-  Earlier SoCs could not disable this.
-- Single clock source for standard/fast and HS mode clock speed.
-  The clock divisor for fast/standard mode is added into the i2c
-  controller to meet the HS and standard/fast mode of clock speed
-  from single source.
+ping
+--
+Christian Gmeiner, MSc
 
-Add support for the above feature to make it functional on T114 SOCs.
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-tegra.c |   77 ++++++++++++++++++++++++++++++++-------
- 1 files changed, 63 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 7b38877..2dadb96 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -71,6 +71,8 @@
- #define I2C_INT_TX_FIFO_DATA_REQ		(1<<1)
- #define I2C_INT_RX_FIFO_DATA_REQ		(1<<0)
- #define I2C_CLK_DIVISOR				0x06c
-+#define I2C_CLK_DIVISOR_STD_FAST_MODE_SHIFT	16
-+#define I2C_CLK_MULTIPLIER_STD_FAST_MODE	8
- 
- #define DVC_CTRL_REG1				0x000
- #define DVC_CTRL_REG1_INTR_EN			(1<<10)
-@@ -117,10 +119,23 @@ enum msg_end_type {
- /**
-  * struct tegra_i2c_hw_feature : Different HW support on Tegra
-  * @has_continue_xfer_support: Continue transfer supports.
-+ * @has_per_pkt_xfer_complete_irq: Has enable/disable capability for transfer
-+ *		complete interrupt per packet basis.
-+ * @has_single_clk_source: The i2c controller has single clock source. Tegra30
-+ *		and earlier Socs has two clock sources i.e. div-clk and
-+ *		fast-clk.
-+ * @clk_divisor_hs_mode: Clock divisor in HS mode.
-+ * @clk_divisor_std_fast_mode: Clock divisor in standard/fast mode. It is
-+ *		applicable if there is no fast clock source i.e. single clock
-+ *		source.
-  */
- 
- struct tegra_i2c_hw_feature {
- 	bool has_continue_xfer_support;
-+	bool has_per_pkt_xfer_complete_irq;
-+	bool has_single_clk_source;
-+	int clk_divisor_hs_mode;
-+	int clk_divisor_std_fast_mode;
- };
- 
- /**
-@@ -366,11 +381,13 @@ static void tegra_dvc_init(struct tegra_i2c_dev *i2c_dev)
- static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
- {
- 	int ret;
--	ret = clk_prepare_enable(i2c_dev->fast_clk);
--	if (ret < 0) {
--		dev_err(i2c_dev->dev,
--			"Enabling fast clk failed, err %d\n", ret);
--		return ret;
-+	if (!i2c_dev->hw->has_single_clk_source) {
-+		ret = clk_prepare_enable(i2c_dev->fast_clk);
-+		if (ret < 0) {
-+			dev_err(i2c_dev->dev,
-+				"Enabling fast clk failed, err %d\n", ret);
-+			return ret;
-+		}
- 	}
- 	ret = clk_prepare_enable(i2c_dev->div_clk);
- 	if (ret < 0) {
-@@ -384,13 +401,16 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
- static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
- {
- 	clk_disable_unprepare(i2c_dev->div_clk);
--	clk_disable_unprepare(i2c_dev->fast_clk);
-+	if (!i2c_dev->hw->has_single_clk_source)
-+		clk_disable_unprepare(i2c_dev->fast_clk);
- }
- 
- static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
- 	int err = 0;
-+	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
-+	u32 clk_divisor;
- 
- 	tegra_i2c_clock_enable(i2c_dev);
- 
-@@ -405,7 +425,15 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 		(0x2 << I2C_CNFG_DEBOUNCE_CNT_SHIFT);
- 	i2c_writel(i2c_dev, val, I2C_CNFG);
- 	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
--	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * 8);
-+
-+	clk_multiplier *= (i2c_dev->hw->clk_divisor_std_fast_mode + 1);
-+	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * clk_multiplier);
-+
-+	/* Make sure clock divisor programmed correctly */
-+	clk_divisor = i2c_dev->hw->clk_divisor_hs_mode;
-+	clk_divisor |= i2c_dev->hw->clk_divisor_std_fast_mode <<
-+					I2C_CLK_DIVISOR_STD_FAST_MODE_SHIFT;
-+	i2c_writel(i2c_dev, clk_divisor, I2C_CLK_DIVISOR);
- 
- 	if (!i2c_dev->is_dvc) {
- 		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
-@@ -547,6 +575,8 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		tegra_i2c_fill_tx_fifo(i2c_dev);
- 
- 	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
-+	if (i2c_dev->hw->has_per_pkt_xfer_complete_irq)
-+		int_mask |= I2C_INT_PACKET_XFER_COMPLETE;
- 	if (msg->flags & I2C_M_RD)
- 		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
- 	else if (i2c_dev->msg_buf_remaining)
-@@ -634,15 +664,32 @@ static const struct i2c_algorithm tegra_i2c_algo = {
- 
- static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_continue_xfer_support = false,
-+	.has_per_pkt_xfer_complete_irq = false,
-+	.has_single_clk_source = false,
-+	.clk_divisor_hs_mode = 3,
-+	.clk_divisor_std_fast_mode = 0,
- };
- 
- static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.has_continue_xfer_support = true,
-+	.has_per_pkt_xfer_complete_irq = false,
-+	.has_single_clk_source = false,
-+	.clk_divisor_hs_mode = 3,
-+	.clk_divisor_std_fast_mode = 0,
-+};
-+
-+static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-+	.has_continue_xfer_support = true,
-+	.has_per_pkt_xfer_complete_irq = true,
-+	.has_single_clk_source = true,
-+	.clk_divisor_hs_mode = 1,
-+	.clk_divisor_std_fast_mode = 0x19,
- };
- 
- #if defined(CONFIG_OF)
- /* Match table for of_platform binding */
- static const struct of_device_id tegra_i2c_of_match[] = {
-+	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
- 	{ .compatible = "nvidia,tegra30-i2c", .data = &tegra30_i2c_hw, },
- 	{ .compatible = "nvidia,tegra20-i2c", .data = &tegra20_i2c_hw, },
- 	{ .compatible = "nvidia,tegra20-i2c-dvc", .data = &tegra20_i2c_hw, },
-@@ -688,12 +735,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(div_clk);
- 	}
- 
--	fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
--	if (IS_ERR(fast_clk)) {
--		dev_err(&pdev->dev, "missing bus clock");
--		return PTR_ERR(fast_clk);
--	}
--
- 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev) {
- 		dev_err(&pdev->dev, "Could not allocate struct tegra_i2c_dev");
-@@ -702,7 +743,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 
- 	i2c_dev->base = base;
- 	i2c_dev->div_clk = div_clk;
--	i2c_dev->fast_clk = fast_clk;
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
- 	i2c_dev->irq = irq;
- 	i2c_dev->cont_id = pdev->id;
-@@ -733,6 +773,15 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	}
- 	init_completion(&i2c_dev->msg_complete);
- 
-+	if (!i2c_dev->hw->has_single_clk_source) {
-+		fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
-+		if (IS_ERR(fast_clk)) {
-+			dev_err(&pdev->dev, "missing fast clock");
-+			return PTR_ERR(fast_clk);
-+		}
-+		i2c_dev->fast_clk = fast_clk;
-+	}
-+
- 	platform_set_drvdata(pdev, i2c_dev);
- 
- 	ret = tegra_i2c_init(i2c_dev);
--- 
-1.7.1.1
+2012/12/19 Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
+> bus driver. This bus driver does not support
+> I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
+> to be able to write the eeprom. This patch adds support for
+> I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
+> It is quite slow, but it works.
+>
+> Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/misc/eeprom/at24.c | 35 +++++++++++++++++++++++++++++------
+>  1 file changed, 29 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+> index 2baeec5..723b411 100644
+> --- a/drivers/misc/eeprom/at24.c
+> +++ b/drivers/misc/eeprom/at24.c
+> @@ -56,6 +56,7 @@ struct at24_data {
+>         struct at24_platform_data chip;
+>         struct memory_accessor macc;
+>         int use_smbus;
+> +       int use_smbuse_write;
+>
+>         /*
+>          * Lock protects against activities from other Linux tasks,
+> @@ -324,7 +325,7 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+>  {
+>         struct i2c_client *client;
+>         struct i2c_msg msg;
+> -       ssize_t status;
+> +       ssize_t status = 0;
+>         unsigned long timeout, write_time;
+>         unsigned next_page;
+>
+> @@ -365,9 +366,18 @@ static ssize_t at24_eeprom_write(struct at24_data *at24, const char *buf,
+>         timeout = jiffies + msecs_to_jiffies(write_timeout);
+>         do {
+>                 write_time = jiffies;
+> -               if (at24->use_smbus) {
+> -                       status = i2c_smbus_write_i2c_block_data(client,
+> -                                       offset, count, buf);
+> +               if (at24->use_smbuse_write) {
+> +                       switch (at24->use_smbuse_write) {
+> +                       case I2C_SMBUS_I2C_BLOCK_DATA:
+> +                               status = i2c_smbus_write_i2c_block_data(client,
+> +                                               offset, count, buf);
+> +                               break;
+> +                       case I2C_SMBUS_BYTE_DATA:
+> +                               status = i2c_smbus_write_byte_data(client,
+> +                                               offset, buf[0]);
+> +                               break;
+> +                       }
+> +
+>                         if (status == 0)
+>                                 status = count;
+>                 } else {
+> @@ -484,6 +494,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>         struct at24_platform_data chip;
+>         bool writable;
+>         int use_smbus = 0;
+> +       int use_smbus_write = 0;
+>         struct at24_data *at24;
+>         int err;
+>         unsigned i, num_addresses;
+> @@ -547,6 +558,18 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>                 }
+>         }
+>
+> +       /* Use I2C operations unless we're stuck with SMBus extensions. */
+> +       if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> +               if (!i2c_check_functionality(client->adapter,
+> +                               I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+> +                       use_smbus_write = I2C_SMBUS_I2C_BLOCK_DATA;
+> +               } else if (i2c_check_functionality(client->adapter,
+> +                               I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
+> +                       use_smbus_write = I2C_SMBUS_BYTE_DATA;
+> +                       chip.page_size = 1;
+> +               }
+> +       }
+> +
+>         if (chip.flags & AT24_FLAG_TAKE8ADDR)
+>                 num_addresses = 8;
+>         else
+> @@ -562,6 +585,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>
+>         mutex_init(&at24->lock);
+>         at24->use_smbus = use_smbus;
+> +       at24->use_smbuse_write = use_smbus_write;
+>         at24->chip = chip;
+>         at24->num_addresses = num_addresses;
+>
+> @@ -579,8 +603,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+>
+>         writable = !(chip.flags & AT24_FLAG_READONLY);
+>         if (writable) {
+> -               if (!use_smbus || i2c_check_functionality(client->adapter,
+> -                               I2C_FUNC_SMBUS_WRITE_I2C_BLOCK)) {
+> +               if (!use_smbus || use_smbus_write) {
+>
+>                         unsigned write_max = chip.page_size;
+>
+> --
+> 1.7.12.2.421.g261b511
+>
