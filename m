@@ -1,59 +1,27 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: samsung: resume race fix
-Date: Mon, 7 Jan 2013 13:25:10 +0100
-Message-ID: <20130107132510.7a6ce9ae@endymion.delvare>
-References: <1352284106-24988-1-git-send-email-ch.naveen@samsung.com>
-	<20121107114437.0a563c7e@endymion.delvare>
-	<CAHfPSqCQ9e3VR3En+hQGWVOt0RRGsmHzHTFvBF+h2-rEX5oXhQ@mail.gmail.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: add support for Tegra114 SoC
+Date: Mon, 07 Jan 2013 10:01:36 -0700
+Message-ID: <50EAFF70.70709@wwwdotorg.org>
+References: <1357387486-25966-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAHfPSqCQ9e3VR3En+hQGWVOt0RRGsmHzHTFvBF+h2-rEX5oXhQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Naveen Krishna Ch <naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1357387486-25966-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 7 Jan 2013 17:35:25 +0530, Naveen Krishna Ch wrote:
-> On 7 November 2012 16:14, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrote:
-> > On Wed, 07 Nov 2012 15:58:26 +0530, Naveen Krishna Chatradhi wrote:
-> >> Don't unmark the device as suspended until after it's been re-setup.
-> >>
-> >> The main race would be w.r.t. an i2c driver that gets resumed at the same
-> >> time (asyncronously), that is allowed to do a transfer since suspended
-> >> is set to 0 before reinit, but really should have seen the -EIO return
-> >> instead.
-> >>
-> >> Signed-off-by: Olof Johansson <olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> >> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> >> ---
-> >>  drivers/i2c/busses/i2c-s3c2410.c |    2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >>
-> >> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-> >> index 3e0335f..dbaf920 100644
-> >> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> >> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> >> @@ -1134,10 +1134,10 @@ static int s3c24xx_i2c_resume(struct device *dev)
-> >>       struct platform_device *pdev = to_platform_device(dev);
-> >>       struct s3c24xx_i2c *i2c = platform_get_drvdata(pdev);
-> >>
-> >> -     i2c->suspended = 0;
-> >>       clk_prepare_enable(i2c->clk);
-> >>       s3c24xx_i2c_init(i2c);
-> >>       clk_disable_unprepare(i2c->clk);
-> >> +     i2c->suspended = 0;
-> >>
-> >>       return 0;
-> >>  }
-> >
-> > Acked-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-> I don't see this patch landed any where in linux-i2c tree, Though it was acked.
-> Was it missed or should i be doing something for this to be merged ??
+On 01/05/2013 05:04 AM, Laxman Dewangan wrote:
+> NVIDIA's Tegra114 has following enhanced feature in i2c controller:
+> - Enable/disable control for per packet transfer complete interrupt.
+>   Earlier SoCs could not disable this.
+> - Single clock source for standard/fast and HS mode clock speed.
+>   The clock divisor for fast/standard mode is added into the i2c
+>   controller to meet the HS and standard/fast mode of clock speed
+>   from single source.
+> 
+> Add support for the above feature to make it functional on T114 SOCs.
 
-Nothing needed from your side AFAIK, Wolfram should pick patches when I
-ack them, maybe this one was simply overlooked.
-
--- 
-Jean Delvare
+Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
