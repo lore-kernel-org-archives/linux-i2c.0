@@ -1,65 +1,49 @@
-From: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] drivers: i2c: muxes: fix sizeof(ptr)
-Date: Tue, 8 Jan 2013 15:43:19 +0100
-Message-ID: <CAH7P7Nh2S9pHyKs=eQ-9YRXeGnH6OV+oZDJAAfbC8y+eaQNLnA@mail.gmail.com>
-References: <1357652409-22907-1-git-send-email-laurent.navet@gmail.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH] i2c: mxs: Add PIO and mixed-DMA support
+Date: Tue, 8 Jan 2013 19:11:57 +0100
+Message-ID: <201301081911.57574.marex@denx.de>
+References: <1353477088-9660-1-git-send-email-marex@denx.de> <201211220150.37462.marex@denx.de> <20121122115037.GA12080@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1357652409-22907-1-git-send-email-laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20121122115037.GA12080-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is not really a bug as mux->busses is a multilevel pointer, so
-the result of sizeof(ptr) is the same as sizeof(*ptr).
-But I think this is more logical and according to CodingStyle rules lik=
-e this.
-This is also what is done for mux->states a few lines above.
+Hi Wolfram,
 
-Regards,
+> On Thu, Nov 22, 2012 at 01:50:37AM +0100, Marek Vasut wrote:
+> > Dear Marek Vasut,
+> > 
+> > > Add support for the PIO mode and mixed PIO/DMA mode support. The mixed
+> > > PIO/DMA is the default mode of operation. This shall leverage overhead
+> > > that the driver creates due to setting up DMA descriptors even for very
+> > > short transfers.
+> > > 
+> > > The current boundary between PIO/DMA 8 bytes, transfers shorter than 8
+> > > bytes are transfered by PIO, longer transfers use DMA. The performance
+> > > of write transfers remains unchanged, while there is a minor
+> > > improvement of read performance. Reading 16KB EEPROM with DMA-only
+> > > operations gives a read speed of 39.5KB/s, while with then new
+> > > mixed-mode the speed is blazing 40.6KB/s.
+> > > 
+> > > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > > Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > 
+> > [...]
+> > 
+> > btw. Wolfram, you might want to drop me some credit into the MX28 i2c
+> > driver, I suspect most of the code in there is mine now anyway :-D
+> 
+> It's fine if you do this yourself.
 
+I don't see this patch in -next ... or am I looking wrong?
 
-2013/1/8, Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> sizeof when applied to a pointer typed expression gives the size of
-> the pointer
->
-> The semantic patch that makes this output is available
-> in scripts/coccinelle/misc/noderef.cocci.
->
-> More information about semantic patching is available at
-> http://coccinelle.lip6.fr/
->
-> Signed-off-by: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/muxes/i2c-mux-pinctrl.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-> b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-> index 7fa5b24..f958d0f 100644
-> --- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-> +++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-> @@ -167,7 +167,7 @@ static int __devinit i2c_mux_pinctrl_probe(struct
-> platform_device *pdev)
->  	}
->
->  	mux->busses =3D devm_kzalloc(&pdev->dev,
-> -				   sizeof(mux->busses) * mux->pdata->bus_count,
-> +				   sizeof(*mux->busses) * mux->pdata->bus_count,
->  				   GFP_KERNEL);
->  	if (!mux->busses) {
->  		dev_err(&pdev->dev, "Cannot allocate busses\n");
-> --
-> 1.7.10.4
->
->
-
-
---=20
-=C2=AB On ne r=C3=A9sout pas un probl=C3=A8me avec les modes de pens=C3=
-=A9e qui l=E2=80=99ont engendr=C3=A9. =C2=BB
-=C2=AB You cannot solve current problems with current thinking. Current
-problems are the result of current thinking =C2=BB
+Best regards,
+Marek Vasut
