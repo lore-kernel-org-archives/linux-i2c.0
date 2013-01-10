@@ -1,48 +1,249 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] drivers: i2c-nforce2: fix coding style issues
-Date: Thu, 10 Jan 2013 10:40:06 +0100
-Message-ID: <20130110094006.GA2628@pengutronix.de>
-References: <1357764624-32134-1-git-send-email-laurent.navet@gmail.com>
- <20130110093255.5353fb31@endymion.delvare>
- <CAH7P7NjdKsWjttmWyKxttm=rJDAErZxe7+Zf_oaSCx6Pmc1GWw@mail.gmail.com>
- <20130110102148.3260760e@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8t9RHnE3ZwKMSgU+"
+From: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] drivers: i2c-nforce2: fix coding style issues
+Date: Thu, 10 Jan 2013 15:07:42 +0100
+Message-ID: <1357826862-4975-1-git-send-email-laurent.navet@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130110102148.3260760e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+avoid these checkpatch.pl issues :
+- ERROR: "foo * bar" should be "foo *bar"
+- ERROR: switch and case should be at the same indent
+- ERROR: "(foo*)" should be "(foo *)"
+- ERROR: do not use assignment in if condition
+- ERROR: space required before the open parenthesis '('
+- WARNING: suspect code indent for conditional statements
+- WARNING: quoted string split across lines
+- WARNING: space prohibited between function name and open parenthesis '('
+- WARNING: line over 80 characters
+also add spaces around some "+", "=", "*"
 
---8t9RHnE3ZwKMSgU+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-nforce2.c |  152 +++++++++++++++++++-------------------
+ 1 file changed, 76 insertions(+), 76 deletions(-)
 
-> Wolfram, it would be great if you could update your tree to avoid that
-> kind of issue.
-
-Done now. Sorry for the inconvenience.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---8t9RHnE3ZwKMSgU+
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAlDujHYACgkQD27XaX1/VRtxXQCfQR9wyLOFxeSDeUxnN4jftBxk
-jGgAn1IEo5SyTXx8Sv0z7YgqCLBz/hrV
-=tW/y
------END PGP SIGNATURE-----
-
---8t9RHnE3ZwKMSgU+--
+diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+index adac854..ac88f40 100644
+--- a/drivers/i2c/busses/i2c-nforce2.c
++++ b/drivers/i2c/busses/i2c-nforce2.c
+@@ -60,7 +60,7 @@
+ #include <linux/io.h>
+ 
+ MODULE_LICENSE("GPL");
+-MODULE_AUTHOR ("Hans-Frieder Vogt <hfvogt-hi6Y0CQ0nG0@public.gmane.org>");
++MODULE_AUTHOR("Hans-Frieder Vogt <hfvogt-hi6Y0CQ0nG0@public.gmane.org>");
+ MODULE_DESCRIPTION("nForce2/3/4/5xx SMBus driver");
+ 
+ 
+@@ -188,9 +188,9 @@ static int nforce2_check_status(struct i2c_adapter *adap)
+ }
+ 
+ /* Return negative errno on error */
+-static s32 nforce2_access(struct i2c_adapter * adap, u16 addr,
++static s32 nforce2_access(struct i2c_adapter *adap, u16 addr,
+ 		unsigned short flags, char read_write,
+-		u8 command, int size, union i2c_smbus_data * data)
++		u8 command, int size, union i2c_smbus_data *data)
+ {
+ 	struct nforce2_smbus *smbus = adap->algo_data;
+ 	unsigned char protocol, pec;
+@@ -202,56 +202,54 @@ static s32 nforce2_access(struct i2c_adapter * adap, u16 addr,
+ 	pec = (flags & I2C_CLIENT_PEC) ? NVIDIA_SMB_PRTCL_PEC : 0;
+ 
+ 	switch (size) {
++	case I2C_SMBUS_QUICK:
++		protocol |= NVIDIA_SMB_PRTCL_QUICK;
++		read_write = I2C_SMBUS_WRITE;
++		break;
+ 
+-		case I2C_SMBUS_QUICK:
+-			protocol |= NVIDIA_SMB_PRTCL_QUICK;
+-			read_write = I2C_SMBUS_WRITE;
+-			break;
+-
+-		case I2C_SMBUS_BYTE:
+-			if (read_write == I2C_SMBUS_WRITE)
+-				outb_p(command, NVIDIA_SMB_CMD);
+-			protocol |= NVIDIA_SMB_PRTCL_BYTE;
+-			break;
+-
+-		case I2C_SMBUS_BYTE_DATA:
+-			outb_p(command, NVIDIA_SMB_CMD);
+-			if (read_write == I2C_SMBUS_WRITE)
+-				outb_p(data->byte, NVIDIA_SMB_DATA);
+-			protocol |= NVIDIA_SMB_PRTCL_BYTE_DATA;
+-			break;
+-
+-		case I2C_SMBUS_WORD_DATA:
++	case I2C_SMBUS_BYTE:
++		if (read_write == I2C_SMBUS_WRITE)
+ 			outb_p(command, NVIDIA_SMB_CMD);
+-			if (read_write == I2C_SMBUS_WRITE) {
+-				 outb_p(data->word, NVIDIA_SMB_DATA);
+-				 outb_p(data->word >> 8, NVIDIA_SMB_DATA+1);
+-			}
+-			protocol |= NVIDIA_SMB_PRTCL_WORD_DATA | pec;
+-			break;
+-
+-		case I2C_SMBUS_BLOCK_DATA:
+-			outb_p(command, NVIDIA_SMB_CMD);
+-			if (read_write == I2C_SMBUS_WRITE) {
+-				len = data->block[0];
+-				if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
+-					dev_err(&adap->dev,
+-						"Transaction failed "
+-						"(requested block size: %d)\n",
+-						len);
+-					return -EINVAL;
+-				}
+-				outb_p(len, NVIDIA_SMB_BCNT);
+-				for (i = 0; i < I2C_SMBUS_BLOCK_MAX; i++)
+-					outb_p(data->block[i + 1],
+-					       NVIDIA_SMB_DATA+i);
++		protocol |= NVIDIA_SMB_PRTCL_BYTE;
++		break;
++
++	case I2C_SMBUS_BYTE_DATA:
++		outb_p(command, NVIDIA_SMB_CMD);
++		if (read_write == I2C_SMBUS_WRITE)
++			outb_p(data->byte, NVIDIA_SMB_DATA);
++		protocol |= NVIDIA_SMB_PRTCL_BYTE_DATA;
++		break;
++
++	case I2C_SMBUS_WORD_DATA:
++		outb_p(command, NVIDIA_SMB_CMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			outb_p(data->word, NVIDIA_SMB_DATA);
++			outb_p(data->word >> 8, NVIDIA_SMB_DATA + 1);
++		}
++		protocol |= NVIDIA_SMB_PRTCL_WORD_DATA | pec;
++		break;
++
++	case I2C_SMBUS_BLOCK_DATA:
++		outb_p(command, NVIDIA_SMB_CMD);
++		if (read_write == I2C_SMBUS_WRITE) {
++			len = data->block[0];
++			if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
++				dev_err(&adap->dev,
++					"Transaction failed (requested block size: %d)\n",
++					len);
++				return -EINVAL;
+ 			}
+-			protocol |= NVIDIA_SMB_PRTCL_BLOCK_DATA | pec;
+-			break;
++			outb_p(len, NVIDIA_SMB_BCNT);
++			for (i = 0; i < I2C_SMBUS_BLOCK_MAX; i++)
++				outb_p(data->block[i + 1],
++				       NVIDIA_SMB_DATA + i);
++		}
++		protocol |= NVIDIA_SMB_PRTCL_BLOCK_DATA | pec;
++		break;
+ 
+-		default:
+-			dev_err(&adap->dev, "Unsupported transaction %d\n", size);
+-			return -EOPNOTSUPP;
++	default:
++		dev_err(&adap->dev, "Unsupported transaction %d\n", size);
++		return -EOPNOTSUPP;
+ 	}
+ 
+ 	outb_p((addr & 0x7f) << 1, NVIDIA_SMB_ADDR);
+@@ -265,28 +263,28 @@ static s32 nforce2_access(struct i2c_adapter * adap, u16 addr,
+ 		return 0;
+ 
+ 	switch (size) {
+-
+-		case I2C_SMBUS_BYTE:
+-		case I2C_SMBUS_BYTE_DATA:
+-			data->byte = inb_p(NVIDIA_SMB_DATA);
+-			break;
+-
+-		case I2C_SMBUS_WORD_DATA:
+-			data->word = inb_p(NVIDIA_SMB_DATA) | (inb_p(NVIDIA_SMB_DATA+1) << 8);
+-			break;
+-
+-		case I2C_SMBUS_BLOCK_DATA:
+-			len = inb_p(NVIDIA_SMB_BCNT);
+-			if ((len <= 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
+-				dev_err(&adap->dev, "Transaction failed "
+-					"(received block size: 0x%02x)\n",
+-					len);
+-				return -EPROTO;
+-			}
+-			for (i = 0; i < len; i++)
+-				data->block[i+1] = inb_p(NVIDIA_SMB_DATA + i);
+-			data->block[0] = len;
+-			break;
++	case I2C_SMBUS_BYTE:
++	case I2C_SMBUS_BYTE_DATA:
++		data->byte = inb_p(NVIDIA_SMB_DATA);
++		break;
++
++	case I2C_SMBUS_WORD_DATA:
++		data->word = inb_p(NVIDIA_SMB_DATA) |
++			     (inb_p(NVIDIA_SMB_DATA + 1) << 8);
++		break;
++
++	case I2C_SMBUS_BLOCK_DATA:
++		len = inb_p(NVIDIA_SMB_BCNT);
++		if ((len <= 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
++			dev_err(&adap->dev,
++				"Transaction failed (received block size: 0x%02x)\n",
++				len);
++			return -EPROTO;
++		}
++		for (i = 0; i < len; i++)
++			data->block[i + 1] = inb_p(NVIDIA_SMB_DATA + i);
++		data->block[0] = len;
++		break;
+ 	}
+ 
+ 	return 0;
+@@ -299,7 +297,7 @@ static u32 nforce2_func(struct i2c_adapter *adapter)
+ 	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
+ 	       I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
+ 	       I2C_FUNC_SMBUS_PEC |
+-	       (((struct nforce2_smbus*)adapter->algo_data)->blockops ?
++	       (((struct nforce2_smbus *)adapter->algo_data)->blockops ?
+ 		I2C_FUNC_SMBUS_BLOCK_DATA : 0);
+ }
+ 
+@@ -327,7 +325,7 @@ static DEFINE_PCI_DEVICE_TABLE(nforce2_ids) = {
+ 	{ 0 }
+ };
+ 
+-MODULE_DEVICE_TABLE (pci, nforce2_ids);
++MODULE_DEVICE_TABLE(pci, nforce2_ids);
+ 
+ 
+ static int nforce2_probe_smb(struct pci_dev *dev, int bar, int alt_reg,
+@@ -377,7 +375,8 @@ static int nforce2_probe_smb(struct pci_dev *dev, int bar, int alt_reg,
+ 		release_region(smbus->base, smbus->size);
+ 		return error;
+ 	}
+-	dev_info(&smbus->adapter.dev, "nForce2 SMBus adapter at %#x\n", smbus->base);
++	dev_info(&smbus->adapter.dev, "nForce2 SMBus adapter at %#x\n",
++		smbus->base);
+ 	return 0;
+ }
+ 
+@@ -388,11 +387,12 @@ static int nforce2_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	int res1, res2;
+ 
+ 	/* we support 2 SMBus adapters */
+-	if (!(smbuses = kzalloc(2*sizeof(struct nforce2_smbus), GFP_KERNEL)))
++	smbuses = kzalloc(2 * sizeof(struct nforce2_smbus), GFP_KERNEL);
++	if (!smbuses)
+ 		return -ENOMEM;
+ 	pci_set_drvdata(dev, smbuses);
+ 
+-	switch(dev->device) {
++	switch (dev->device) {
+ 	case PCI_DEVICE_ID_NVIDIA_NFORCE2_SMBUS:
+ 	case PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SMBUS:
+ 	case PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SMBUS:
+-- 
+1.7.10.4
