@@ -1,106 +1,71 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v2] i2c: s3c2410: Use devm_clk_get() and devm_request_irq()
-Date: Thu, 10 Jan 2013 11:03:42 +0900
-Message-ID: <007201cdeed6$b76453b0$262cfb10$%han@samsung.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] drivers: i2c-nforce2: fix coding style issues
+Date: Thu, 10 Jan 2013 09:32:55 +0100
+Message-ID: <20130110093255.5353fb31@endymion.delvare>
+References: <1357764624-32134-1-git-send-email-laurent.navet@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-References: 
-In-reply-to: 
-Content-language: ko
+In-Reply-To: <1357764624-32134-1-git-send-email-laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Use devm_clk_get() and devm_request_irq() rather than clk_get() and
-request_irq() to make cleanup paths more simple.
+Hi Laurent,
 
-Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
-Changes since v1:
-- modified the commit message
+Thanks for the updated patch.
 
- drivers/i2c/busses/i2c-s3c2410.c |   24 +++++++-----------------
- 1 files changed, 7 insertions(+), 17 deletions(-)
+On Wed,  9 Jan 2013 21:50:24 +0100, Laurent Navet wrote:
+> avoid these checkpatch.pl issues :
+> - ERROR: "foo * bar" should be "foo *bar"
+> - ERROR: switch and case should be at the same indent
+> - ERROR: "(foo*)" should be "(foo *)"
+> - ERROR: do not use assignment in if condition
+> - ERROR: space required before the open parenthesis '('
+> - WARNING: suspect code indent for conditional statements
+> - WARNING: quoted string split across lines
+> - WARNING: space prohibited between function name and open parenthesis '('
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index a290d08..f174932 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -999,10 +999,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	}
- 
- 	i2c->pdata = devm_kzalloc(&pdev->dev, sizeof(*pdata), GFP_KERNEL);
--	if (!i2c->pdata) {
--		ret = -ENOMEM;
--		goto err_noclk;
--	}
-+	if (!i2c->pdata)
-+		return -ENOMEM;
- 
- 	i2c->quirks = s3c24xx_get_device_quirks(pdev);
- 	if (pdata)
-@@ -1022,11 +1020,10 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	/* find the clock and enable it */
- 
- 	i2c->dev = &pdev->dev;
--	i2c->clk = clk_get(&pdev->dev, "i2c");
-+	i2c->clk = devm_clk_get(&pdev->dev, "i2c");
- 	if (IS_ERR(i2c->clk)) {
- 		dev_err(&pdev->dev, "cannot get clock\n");
--		ret = -ENOENT;
--		goto err_noclk;
-+		return -ENOENT;
- 	}
- 
- 	dev_dbg(&pdev->dev, "clock source %p\n", i2c->clk);
-@@ -1085,8 +1082,8 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 		goto err_clk;
- 	}
- 
--	ret = request_irq(i2c->irq, s3c24xx_i2c_irq, 0,
--			  dev_name(&pdev->dev), i2c);
-+	ret = devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
-+				dev_name(&pdev->dev), i2c);
- 
- 	if (ret != 0) {
- 		dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
-@@ -1096,7 +1093,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	ret = s3c24xx_i2c_register_cpufreq(i2c);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "failed to register cpufreq notifier\n");
--		goto err_irq;
-+		goto err_clk;
- 	}
- 
- 	/* Note, previous versions of the driver used i2c_add_adapter()
-@@ -1127,14 +1124,9 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
-  err_cpufreq:
- 	s3c24xx_i2c_deregister_cpufreq(i2c);
- 
-- err_irq:
--	free_irq(i2c->irq, i2c);
--
-  err_clk:
- 	clk_disable_unprepare(i2c->clk);
--	clk_put(i2c->clk);
- 
-- err_noclk:
- 	return ret;
- }
- 
-@@ -1153,10 +1145,8 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
- 	s3c24xx_i2c_deregister_cpufreq(i2c);
- 
- 	i2c_del_adapter(&i2c->adap);
--	free_irq(i2c->irq, i2c);
- 
- 	clk_disable_unprepare(i2c->clk);
--	clk_put(i2c->clk);
- 
- 	if (pdev->dev.of_node && IS_ERR(i2c->pctrl))
- 		s3c24xx_i2c_dt_gpio_free(i2c);
+Unfortunately your patch also add one new checkpatch.pl warning:
+
+WARNING: line over 80 characters
+#245: FILE: drivers/i2c/busses/i2c-nforce2.c:272:
++		data->word = inb_p(NVIDIA_SMB_DATA) | (inb_p(NVIDIA_SMB_DATA + 1) << 8);
+
+Please fix.
+
+> 
+> Signed-off-by: Laurent Navet <laurent.navet-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-nforce2.c |  153 +++++++++++++++++++-------------------
+>  1 file changed, 76 insertions(+), 77 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+> index 392303b..90357a2 100644
+> --- a/drivers/i2c/busses/i2c-nforce2.c
+> +++ b/drivers/i2c/busses/i2c-nforce2.c
+> (...)
+> @@ -327,10 +324,10 @@ static DEFINE_PCI_DEVICE_TABLE(nforce2_ids) = {
+>  	{ 0 }
+>  };
+>  
+> -MODULE_DEVICE_TABLE (pci, nforce2_ids);
+> +MODULE_DEVICE_TABLE(pci, nforce2_ids);
+>  
+>  
+> -static int __devinit nforce2_probe_smb (struct pci_dev *dev, int bar,
+> +static int __devinit nforce2_probe_smb(struct pci_dev *dev, int bar,
+>  	int alt_reg, struct nforce2_smbus *smbus, const char *name)
+>  {
+>  	int error;
+
+As mentioned previously, __devinit has been dropped meanwhile, so this
+change doesn't apply cleanly. Please rebase your patch on top of kernel
+3.8-rc3 (or Wolfram's i2c tree) so that Wolfram can apply it.
+
+All the rest looks very good now, thanks for the good work.
+
 -- 
-1.7.2.5
+Jean Delvare
