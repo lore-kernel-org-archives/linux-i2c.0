@@ -1,20 +1,34 @@
-From: "Williams, Arthur (HRSA)" <AWilliams-6XVqx2ps2iA@public.gmane.org>
-Subject: * Message from Hong Kong
-Date: Fri, 11 Jan 2013 05:57:47 -0500
-Message-ID: <7FD9E76AB2416F42BD3D1A999A7E02C1118D0CDF23__41748.5946709805$1357902522$gmane$org@NIHMLBX04.nih.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Language: en-US
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "andrewliu-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org" <andrewliu-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org>
+From: Doug Anderson <dianders@chromium.org>
+Subject: [REPOST PATCH 0/2] Add automatic bus number support for i2c busses with device tree
+Date: Fri, 11 Jan 2013 09:57:05 -0800
+Message-ID: <1357927027-4857-1-git-send-email-dianders@chromium.org>
+References: <1353522362-25519-2-git-send-email-dianders@chromium.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1353522362-25519-2-git-send-email-dianders@chromium.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
+Cc: Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Doug Anderson <dianders@chromium.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Message from Hong Kong
+This was suggested by Mark Brown in response to a patch for adding
+this functionality only for the s3c2410 bus:
+  https://lkml.org/lkml/2012/11/20/681
 
-Hello , I am Mr. Andrew Liu from Hong Kong, I have a business of 44.5Mil USD and
+I have also modified the i2c-pxa driver to use this new functionality.
+As Haojian Zhuang has Acked this patch, I believe that this has now
+been tested.
 
-I want you to be my business partner. Please contact me for more details through my private
+Reposting (with Haojian Zhuang's ack) in the hopes that a maintainer
+will pick it up.  :)
 
-e-mail andrewliu743-/E1597aS9LTXPF5Rlphj1Q@public.gmane.org OR andrewli21-YDxpq3io04c@public.gmane.org thank you Mr. Andrew Liu
+
+Doug Anderson (2):
+  i2c-core: dt: Pick i2c bus number from i2c alias if present
+  i2c: pxa: Use i2c-core to get bus number now
+
+ drivers/i2c/busses/i2c-pxa.c |    8 +---
+ drivers/i2c/i2c-core.c       |  105 ++++++++++++++++++++++++++++++-----------
+ 2 files changed, 78 insertions(+), 35 deletions(-)
+
+-- 
+1.7.7.3
