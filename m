@@ -1,172 +1,76 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH v2 1/2] i2c-core: dt: Pick i2c bus number from i2c alias if present
-Date: Mon, 14 Jan 2013 10:53:21 -0800
-Message-ID: <1358189602-24180-2-git-send-email-dianders@chromium.org>
-References: <1357927027-4857-2-git-send-email-dianders@chromium.org>
- <1358189602-24180-1-git-send-email-dianders@chromium.org>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1358189602-24180-1-git-send-email-dianders@chromium.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>
-Cc: Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, Wolfram Sang <w.sang@pengutronix.de>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Doug Anderson <dianders@chromium.org>, linux-kernel@vger.kernel.org
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH REBASE 0/6] i2c: omap: misc changes
+Date: Mon, 14 Jan 2013 21:16:28 +0200
+Message-ID: <20130114191628.GB9402@arwen.pp.htv.fi>
+References: <1355502849-9289-1-git-send-email-balbi@ti.com>
+Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="K8nIJk4ghYZn606h"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1355502849-9289-1-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This allows you to get the equivalent functionality of
-i2c_add_numbered_adapter() with all data in the device tree and no
-special case code in your driver.  This is a common device tree
-technique.
+--K8nIJk4ghYZn606h
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-For quick reference, the FDT syntax for using an alias to provide an
-ID looks like:
-  aliases {
-    i2c0 = &i2c_0;
-    i2c1 = &i2c_1;
-  };
+Hi,
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
-Acked-by: Haojian Zhuang <haojian.zhuang@gmail.com>
----
-Changes in v2: None
+On Fri, Dec 14, 2012 at 06:34:03PM +0200, Felipe Balbi wrote:
+> this is just a rebase of the previous series adding support
+> for amount of bytes transferred upon NACK.
+>=20
+> Well, actually the patches implementing transferred bytes
+> reporting aren't here because we need to discuss how to move
+> forward.
+>=20
+> This series is just a preparation for that, but it also
+> contains a at least one bugfix.
+>=20
+> Each and every patch has been tested with pandaboard, it
+> would be nice to get Tested-bys from other folks on other
+> platforms before pushing this for v3.9 (there's more than
+> enough time for that).
+>=20
+> Note that we're also dropping b_hw flag since that becomes
+> useless since we'll never set STT and STP together anymore.
+>=20
+> Give it a good round of test, please.
 
- drivers/i2c/i2c-core.c |  105 +++++++++++++++++++++++++++++++++++-------------
- 1 files changed, 77 insertions(+), 28 deletions(-)
+Wolfram, I have these patches rebased on top of v3.8-rc3 if you wish.
+Let me know if I should resend them (again).
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index e388590..a60ed6d 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -921,13 +921,81 @@ out_list:
- }
- 
- /**
-+ * i2c_get_number_from_dt - get the adapter number based on dt alias
-+ * @adap: the adapter to look at
-+ *
-+ * Check whether there's an alias in the FDT that gives an ID for this i2c
-+ * device.  Use an alias like "i2c<nr>", like:
-+ *   aliases {
-+ *     i2c0 = &i2c_0;
-+ *     i2c1 = &i2c_1;
-+ *   };
-+ *
-+ * Returns the ID if found.  If no alias is found returns -1.
-+ */
-+static int i2c_get_number_from_dt(struct i2c_adapter *adap)
-+{
-+	struct device *dev = &adap->dev;
-+	int id;
-+
-+	if (!dev->of_node)
-+		return -1;
-+
-+	id = of_alias_get_id(dev->of_node, "i2c");
-+	if (id < 0)
-+		return -1;
-+	return id;
-+}
-+
-+/**
-+ * _i2c_add_numbered_adapter - i2c_add_numbered_adapter where nr is never -1
-+ * @adap: the adapter to register (with adap->nr initialized)
-+ * Context: can sleep
-+ *
-+ * See i2c_add_numbered_adapter() for details.
-+ */
-+static int _i2c_add_numbered_adapter(struct i2c_adapter *adap)
-+{
-+	int	id;
-+	int	status;
-+
-+	/* Handled by wrappers */
-+	BUG_ON(adap->nr == -1);
-+
-+	if (adap->nr & ~MAX_IDR_MASK)
-+		return -EINVAL;
-+
-+retry:
-+	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
-+		return -ENOMEM;
-+
-+	mutex_lock(&core_lock);
-+	/* "above" here means "above or equal to", sigh;
-+	 * we need the "equal to" result to force the result
-+	 */
-+	status = idr_get_new_above(&i2c_adapter_idr, adap, adap->nr, &id);
-+	if (status == 0 && id != adap->nr) {
-+		status = -EBUSY;
-+		idr_remove(&i2c_adapter_idr, id);
-+	}
-+	mutex_unlock(&core_lock);
-+	if (status == -EAGAIN)
-+		goto retry;
-+
-+	if (status == 0)
-+		status = i2c_register_adapter(adap);
-+	return status;
-+}
-+
-+/**
-  * i2c_add_adapter - declare i2c adapter, use dynamic bus number
-  * @adapter: the adapter to add
-  * Context: can sleep
-  *
-  * This routine is used to declare an I2C adapter when its bus number
-- * doesn't matter.  Examples: for I2C adapters dynamically added by
-- * USB links or PCI plugin cards.
-+ * doesn't matter or when its bus number is specified by an dt alias.
-+ * Examples of bases when the bus number doesn't matter: I2C adapters
-+ * dynamically added by USB links or PCI plugin cards.
-  *
-  * When this returns zero, a new bus number was allocated and stored
-  * in adap->nr, and the specified adapter became available for clients.
-@@ -937,6 +1005,12 @@ int i2c_add_adapter(struct i2c_adapter *adapter)
- {
- 	int	id, res = 0;
- 
-+	id = i2c_get_number_from_dt(adapter);
-+	if (id >= 0) {
-+		adapter->nr = id;
-+		return _i2c_add_numbered_adapter(adapter);
-+	}
-+
- retry:
- 	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
- 		return -ENOMEM;
-@@ -983,34 +1057,9 @@ EXPORT_SYMBOL(i2c_add_adapter);
-  */
- int i2c_add_numbered_adapter(struct i2c_adapter *adap)
- {
--	int	id;
--	int	status;
--
- 	if (adap->nr == -1) /* -1 means dynamically assign bus id */
- 		return i2c_add_adapter(adap);
--	if (adap->nr & ~MAX_IDR_MASK)
--		return -EINVAL;
--
--retry:
--	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
--		return -ENOMEM;
--
--	mutex_lock(&core_lock);
--	/* "above" here means "above or equal to", sigh;
--	 * we need the "equal to" result to force the result
--	 */
--	status = idr_get_new_above(&i2c_adapter_idr, adap, adap->nr, &id);
--	if (status == 0 && id != adap->nr) {
--		status = -EBUSY;
--		idr_remove(&i2c_adapter_idr, id);
--	}
--	mutex_unlock(&core_lock);
--	if (status == -EAGAIN)
--		goto retry;
--
--	if (status == 0)
--		status = i2c_register_adapter(adap);
--	return status;
-+	return _i2c_add_numbered_adapter(adap);
- }
- EXPORT_SYMBOL_GPL(i2c_add_numbered_adapter);
- 
--- 
-1.7.7.3
+cheers
+
+--=20
+balbi
+
+--K8nIJk4ghYZn606h
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQ9FmMAAoJEIaOsuA1yqREhJYQAJkyYLOUaDYySulIZqlKGf/L
+en5xlfVrtkRt7iOiIgukxEfL2kS6ZdesDaIXla7qBQ7SmP+asPxdg1YCWxnwGmUt
+qZKjyyXj7l/0g/OBJ6IxLyXye91W8UKa3GijJKQ4izlOZoq+WOX5odP7ght1CW96
+mNkTb0LLp5tQGuE7CIfuafTpJl1Z4UMcLKyUAGjrQ8zjG3QKLO1yvjURJIt8HKb+
+H0MVTzQMFzDCn3B0d5ZAI/tSML+gNb1JkEUHR7TxY4NQkb7WIeQjMM9N9JfHZsAi
+2MXtRXnc7XXNn2LpIu1i2uHgd+GL6Fzx11bwTn0WBgVA0xKOMG34h2zEcC3I+Nbs
+XdZ4FIS3ilGz1Tfa1TtsxM86D2uKzmd/yD9KeEaMm5oFEzau/dQAQBSeCdkDkhri
+NJ6AtDNvyd8emV0OOC8z/e7cw33z/p+ZuqmRlZ5atT11LTKwUUlujxQIpjKJfIcu
++67vAhNjhH2eRAvBVbgQAAvhZW146J11YMsJLX1JY1OFJ5FyD+zmHJgJUgQF///w
+7yDq1rJisv6j4OUtbcfwhDuBDRbiT8S8LrqalAFLxFknzBgO9vZP/jljE8IEaJdl
+lYYQEOfA4OYCMJxr4OwhYgf4J/CbhR043kU5bGRlPU6+OhXYzbLPDtxQJHI46+Df
++R1I5jAGOr1CLA/iEWYK
+=CDSS
+-----END PGP SIGNATURE-----
+
+--K8nIJk4ghYZn606h--
