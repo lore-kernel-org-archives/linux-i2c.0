@@ -1,41 +1,60 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 1/4] i2c-designware: add missing MODULE_LICENSE
-Date: Thu, 17 Jan 2013 12:31:04 +0200
-Message-ID: <1358418667-4533-2-git-send-email-mika.westerberg@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 2/4] i2c-designware: always set the STOP bit after last byte
+Date: Thu, 17 Jan 2013 12:31:05 +0200
+Message-ID: <1358418667-4533-3-git-send-email-mika.westerberg@linux.intel.com>
 References: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1358418667-4533-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, dirk.brandewie@gmail.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The driver can also be built as a module so add MODULE_LICENSE for it. In
-addition add MODULE_DESCRIPTION as well.
+If IC_EMPTYFIFO_HOLD_MASTER_EN is set to one, the DesignWare I2C controller
+doesn't generate STOP on the bus when the FIFO is empty. This violates the
+rules of Linux I2C stack as it requires that the STOP is issued once the
+i2c_transfer() is finished.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+However, there is no way to detect this from the hardware registers, so we
+must make sure that the STOP bit is always set once the last byte of the
+last message is transferred.
+
+This patch is based on the work of Dirk Brandewie.
+
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/i2c/busses/i2c-designware-core.c |   16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index cbba7db..f5258c2 100644
+index f5258c2..94fd818 100644
 --- a/drivers/i2c/busses/i2c-designware-core.c
 +++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -34,6 +34,7 @@
- #include <linux/io.h>
- #include <linux/pm_runtime.h>
- #include <linux/delay.h>
-+#include <linux/module.h>
- #include "i2c-designware-core.h"
+@@ -413,11 +413,23 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 		rx_limit = dev->rx_fifo_depth - dw_readl(dev, DW_IC_RXFLR);
  
- /*
-@@ -725,3 +726,6 @@ u32 i2c_dw_read_comp_param(struct dw_i2c_dev *dev)
- 	return dw_readl(dev, DW_IC_COMP_PARAM_1);
- }
- EXPORT_SYMBOL_GPL(i2c_dw_read_comp_param);
+ 		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
++			u32 cmd = 0;
 +
-+MODULE_DESCRIPTION("Synopsys DesignWare I2C bus adapter core");
-+MODULE_LICENSE("GPL");
++			/*
++			 * If IC_EMPTYFIFO_HOLD_MASTER_EN is set we must
++			 * manually set the stop bit. However, it cannot be
++			 * detected from the registers so we set it always
++			 * when writing/reading the last byte.
++			 */
++			if (dev->msg_write_idx == dev->msgs_num - 1 &&
++			    buf_len == 1)
++				cmd |= BIT(9);
++
+ 			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
+-				dw_writel(dev, 0x100, DW_IC_DATA_CMD);
++				dw_writel(dev, cmd | 0x100, DW_IC_DATA_CMD);
+ 				rx_limit--;
+ 			} else
+-				dw_writel(dev, *buf++, DW_IC_DATA_CMD);
++				dw_writel(dev, cmd | *buf++, DW_IC_DATA_CMD);
+ 			tx_limit--; buf_len--;
+ 		}
+ 
 -- 
 1.7.10.4
