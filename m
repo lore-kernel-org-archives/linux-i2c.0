@@ -1,39 +1,69 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 0/4] i2c-designware: add Intel Lynxpoint support
-Date: Thu, 17 Jan 2013 12:31:03 +0200
-Message-ID: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 3/4] i2c-designware: add minimal support for runtime PM
+Date: Thu, 17 Jan 2013 12:31:06 +0200
+Message-ID: <1358418667-4533-4-git-send-email-mika.westerberg@linux.intel.com>
+References: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, dirk.brandewie@gmail.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi all,
+In order to save power the device should be put to low power states
+whenever it is not being used. We implement this by enabling minimal
+runtime PM support.
 
-This series adds support for the Intel Lynxpoint Low Power Subsystem I2C
-controllers. They are compatible with the DesignWare I2C controller.
+There isn't much to do for the device itself as it is disabled once the
+last transfer is completed but subsystem/domain runtime PM hooks can save
+more power by power gating the device etc.
 
-Patches [1/4] and [2/4] are fixes that are necessary to get the driver
-working on Lynxpoint.
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Patch [3/4] brings minimal runtime PM support for the designware platform
-driver. This is useful if the PM subsystem/domain implements runtime PM,
-like in case of ACPI.
-
-Patch [4/4] finally implements ACPI enumeration support for the designware
-platform driver and adds Lynxpoint ACPI IDs.
-
-Please review.
-
-Mika Westerberg (4):
-  i2c-designware: add missing MODULE_LICENSE
-  i2c-designware: always set the STOP bit after last byte
-  i2c-designware: add minimal support for runtime PM
-  i2c-designware: add support for Intel Lynxpoint
-
- drivers/i2c/busses/i2c-designware-core.c    |   20 ++++++++-
- drivers/i2c/busses/i2c-designware-platdrv.c |   59 +++++++++++++++++++++++++--
- 2 files changed, 74 insertions(+), 5 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 343357a..d8afc85 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -37,6 +37,7 @@
+ #include <linux/of_i2c.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
++#include <linux/pm_runtime.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
+ #include "i2c-designware-core.h"
+@@ -149,6 +150,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	}
+ 	of_i2c_register_devices(adap);
+ 
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++	pm_runtime_put(&pdev->dev);
++
+ 	return 0;
+ 
+ err_free_irq:
+@@ -175,6 +180,8 @@ static int dw_i2c_remove(struct platform_device *pdev)
+ 	struct resource *mem;
+ 
+ 	platform_set_drvdata(pdev, NULL);
++	pm_runtime_get_sync(&pdev->dev);
++
+ 	i2c_del_adapter(&dev->adapter);
+ 	put_device(&pdev->dev);
+ 
+@@ -186,6 +193,9 @@ static int dw_i2c_remove(struct platform_device *pdev)
+ 	free_irq(dev->irq, dev);
+ 	kfree(dev);
+ 
++	pm_runtime_put(&pdev->dev);
++	pm_runtime_disable(&pdev->dev);
++
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	release_mem_region(mem->start, resource_size(mem));
+ 	return 0;
 -- 
 1.7.10.4
