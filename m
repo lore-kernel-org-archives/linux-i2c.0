@@ -1,69 +1,101 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 3/4] i2c-designware: add minimal support for runtime PM
-Date: Thu, 17 Jan 2013 12:31:06 +0200
-Message-ID: <1358418667-4533-4-git-send-email-mika.westerberg@linux.intel.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 2/4] i2c-designware: always set the STOP bit after last
+ byte
+Date: Thu, 17 Jan 2013 12:32:48 +0200
+Message-ID: <20130117103248.GL10814@arwen.pp.htv.fi>
 References: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1358418667-4533-3-git-send-email-mika.westerberg@linux.intel.com>
+Reply-To: <balbi@ti.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Ll0BBk1HBk/f94B0"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <1358418667-4533-3-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, dirk.brandewie@gmail.com, linux-kernel@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, dirk.brandewie@gmail.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-In order to save power the device should be put to low power states
-whenever it is not being used. We implement this by enabling minimal
-runtime PM support.
+--Ll0BBk1HBk/f94B0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-There isn't much to do for the device itself as it is disabled once the
-last transfer is completed but subsystem/domain runtime PM hooks can save
-more power by power gating the device etc.
+Hi,
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+On Thu, Jan 17, 2013 at 12:31:05PM +0200, Mika Westerberg wrote:
+> If IC_EMPTYFIFO_HOLD_MASTER_EN is set to one, the DesignWare I2C controll=
+er
+> doesn't generate STOP on the bus when the FIFO is empty. This violates the
+> rules of Linux I2C stack as it requires that the STOP is issued once the
+> i2c_transfer() is finished.
+>=20
+> However, there is no way to detect this from the hardware registers, so we
+> must make sure that the STOP bit is always set once the last byte of the
+> last message is transferred.
+>=20
+> This patch is based on the work of Dirk Brandewie.
+>=20
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> ---
+>  drivers/i2c/busses/i2c-designware-core.c |   16 ++++++++++++++--
+>  1 file changed, 14 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busse=
+s/i2c-designware-core.c
+> index f5258c2..94fd818 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -413,11 +413,23 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+>  		rx_limit =3D dev->rx_fifo_depth - dw_readl(dev, DW_IC_RXFLR);
+> =20
+>  		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
+> +			u32 cmd =3D 0;
+> +
+> +			/*
+> +			 * If IC_EMPTYFIFO_HOLD_MASTER_EN is set we must
+> +			 * manually set the stop bit. However, it cannot be
+> +			 * detected from the registers so we set it always
+> +			 * when writing/reading the last byte.
+> +			 */
+> +			if (dev->msg_write_idx =3D=3D dev->msgs_num - 1 &&
+> +			    buf_len =3D=3D 1)
+> +				cmd |=3D BIT(9);
+> +
+>  			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
+> -				dw_writel(dev, 0x100, DW_IC_DATA_CMD);
+> +				dw_writel(dev, cmd | 0x100, DW_IC_DATA_CMD);
+>  				rx_limit--;
+>  			} else
+> -				dw_writel(dev, *buf++, DW_IC_DATA_CMD);
+> +				dw_writel(dev, cmd | *buf++, DW_IC_DATA_CMD);
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 343357a..d8afc85 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -37,6 +37,7 @@
- #include <linux/of_i2c.h>
- #include <linux/platform_device.h>
- #include <linux/pm.h>
-+#include <linux/pm_runtime.h>
- #include <linux/io.h>
- #include <linux/slab.h>
- #include "i2c-designware-core.h"
-@@ -149,6 +150,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	}
- 	of_i2c_register_devices(adap);
- 
-+	pm_runtime_set_active(&pdev->dev);
-+	pm_runtime_enable(&pdev->dev);
-+	pm_runtime_put(&pdev->dev);
-+
- 	return 0;
- 
- err_free_irq:
-@@ -175,6 +180,8 @@ static int dw_i2c_remove(struct platform_device *pdev)
- 	struct resource *mem;
- 
- 	platform_set_drvdata(pdev, NULL);
-+	pm_runtime_get_sync(&pdev->dev);
-+
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
- 
-@@ -186,6 +193,9 @@ static int dw_i2c_remove(struct platform_device *pdev)
- 	free_irq(dev->irq, dev);
- 	kfree(dev);
- 
-+	pm_runtime_put(&pdev->dev);
-+	pm_runtime_disable(&pdev->dev);
-+
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	release_mem_region(mem->start, resource_size(mem));
- 	return 0;
--- 
-1.7.10.4
+also need to send STP bit if I2C_M_STOP is set.
+
+--=20
+balbi
+
+--Ll0BBk1HBk/f94B0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJQ99NQAAoJEIaOsuA1yqRE+ekP/il52M61T5a1iZfps4KYYq52
+PWYtSz1qdI6PH6bqaZaAFtU6luxw3x485nDxscq8X5ybtmmY3i+0JcFm8fgyz0LH
+3aNRq59KAb5c8aOPO/iOc6SrPINCfM2Azy6VkSFLElkntIo36oZcMR33Dq/Y9R1D
+iIOGR9VYTrbh4fROz7xa5Dad6hzjfctKdUuade1bGYPJQw3yPFhB1kL+J1bRIssG
+9uFmqxd9Aj4awM+2lPtuY50U02jrSW8aU9NHfyOyGq3lNfWehdJK6IX3f16MTFKC
+SrcakoZT8cMO3SVUwqfc4OZ8gggf8ncSWUGueeYCKDPF7Rf7bhASPCZItL024wXc
+qGETHojqsHG37kiwNgWYqo7wSlrredzDzw/lMm/7KhkluaFldaSx3Cm0MA8W0Ndu
+yCGtpEVJHGnSizy9RFShiABONkmAvUcvqHLbrmqakKM2nJAQkGK5xOCv+UxH2K9l
+XKxraUYZNwEjxTslmxzSzziYk9qafuh8M2xjwEqvv5OTJMEGm+GhwV0lpWOTJfNi
+GOb1kbRXbSjYhIIa7hPA53yvVEgE4LWsI5ce1s6g7T7RYGstLBDHotRv2zOLpQiH
+6FfGZZ7LF+kVQLbWgCik2C5GHfvzP14IoefVpcz7tlMt78pFPjzf2LOPyNgy9w3B
+VsEKLgJPdlTMGigLj6DR
+=y9jd
+-----END PGP SIGNATURE-----
+
+--Ll0BBk1HBk/f94B0--
