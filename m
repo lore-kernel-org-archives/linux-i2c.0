@@ -1,51 +1,41 @@
-From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Subject: [PATCH 1/4] i2c: i2c-sh_mobile.c: cosmetic: trivially simplify 2 functions
-Date: Thu, 17 Jan 2013 10:45:54 +0100
-Message-ID: <1358415957-8371-2-git-send-email-g.liakhovetski@gmx.de>
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: [PATCH 2/4] i2c: sh_mobile: fix timeout error handling
+Date: Thu, 17 Jan 2013 10:45:55 +0100
+Message-ID: <1358415957-8371-3-git-send-email-g.liakhovetski@gmx.de>
 References: <1358415957-8371-1-git-send-email-g.liakhovetski@gmx.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1358415957-8371-1-git-send-email-g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1358415957-8371-1-git-send-email-g.liakhovetski@gmx.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-sh@vger.kernel.org, Magnus Damm <magnus.damm@gmail.com>, Simon Horman <horms@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
 
-Reduce 2 boolean functions from "if (condition) return 1; return 0;" to
-"return condition;"
+In a timeout case return an error immediately from the driver's
+.master_xfer() method, instead of continuing and letting higher layers
+fail.
 
-Signed-off-by: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Signed-off-by: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c |   14 ++++----------
- 1 files changed, 4 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-sh_mobile.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-index 9411c1b..3b08b4e 100644
+index 3b08b4e..69a1fbe 100644
 --- a/drivers/i2c/busses/i2c-sh_mobile.c
 +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -349,20 +349,14 @@ static unsigned char i2c_op(struct sh_mobile_i2c_data *pd,
- 	return ret;
- }
+@@ -521,8 +521,11 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
+ 		k = wait_event_timeout(pd->wait,
+ 				       pd->sr & (ICSR_TACK | SW_DONE),
+ 				       5 * HZ);
+-		if (!k)
++		if (!k) {
+ 			dev_err(pd->dev, "Transfer request timed out\n");
++			err = -ETIMEDOUT;
++			break;
++		}
  
--static int sh_mobile_i2c_is_first_byte(struct sh_mobile_i2c_data *pd)
-+static bool sh_mobile_i2c_is_first_byte(struct sh_mobile_i2c_data *pd)
- {
--	if (pd->pos == -1)
--		return 1;
--
--	return 0;
-+	return pd->pos == -1;
- }
- 
--static int sh_mobile_i2c_is_last_byte(struct sh_mobile_i2c_data *pd)
-+static bool sh_mobile_i2c_is_last_byte(struct sh_mobile_i2c_data *pd)
- {
--	if (pd->pos == (pd->msg->len - 1))
--		return 1;
--
--	return 0;
-+	return pd->pos == pd->msg->len - 1;
- }
- 
- static void sh_mobile_i2c_get_data(struct sh_mobile_i2c_data *pd,
+ 		retry_count = 1000;
+ again:
 -- 
 1.7.2.5
+
