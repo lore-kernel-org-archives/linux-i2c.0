@@ -1,7 +1,7 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 2/4] i2c-designware: always set the STOP bit after last byte
-Date: Thu, 17 Jan 2013 12:31:05 +0200
-Message-ID: <1358418667-4533-3-git-send-email-mika.westerberg@linux.intel.com>
+Subject: [PATCH 4/4] i2c-designware: add support for Intel Lynxpoint
+Date: Thu, 17 Jan 2013 12:31:07 +0200
+Message-ID: <1358418667-4533-5-git-send-email-mika.westerberg@linux.intel.com>
 References: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
@@ -10,51 +10,121 @@ To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, dirk.brandewie@gmail.com, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-If IC_EMPTYFIFO_HOLD_MASTER_EN is set to one, the DesignWare I2C controller
-doesn't generate STOP on the bus when the FIFO is empty. This violates the
-rules of Linux I2C stack as it requires that the STOP is issued once the
-i2c_transfer() is finished.
+Intel Lynxpoint has two I2C controllers. These controllers are enumerated
+from ACPI namespace with IDs INT33C2 and INT33C3. Add support for these to
+the I2C DesignWare platform driver.
 
-However, there is no way to detect this from the hardware registers, so we
-must make sure that the STOP bit is always set once the last byte of the
-last message is transferred.
-
-This patch is based on the work of Dirk Brandewie.
+This is based on the work of Dirk Brandewie.
 
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c |   16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c |   49 +++++++++++++++++++++++++--
+ 1 file changed, 46 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index f5258c2..94fd818 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -413,11 +413,23 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 		rx_limit = dev->rx_fifo_depth - dw_readl(dev, DW_IC_RXFLR);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index d8afc85..d2a33e9 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -40,6 +40,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/io.h>
+ #include <linux/slab.h>
++#include <linux/acpi.h>
+ #include "i2c-designware-core.h"
  
- 		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
-+			u32 cmd = 0;
-+
-+			/*
-+			 * If IC_EMPTYFIFO_HOLD_MASTER_EN is set we must
-+			 * manually set the stop bit. However, it cannot be
-+			 * detected from the registers so we set it always
-+			 * when writing/reading the last byte.
-+			 */
-+			if (dev->msg_write_idx == dev->msgs_num - 1 &&
-+			    buf_len == 1)
-+				cmd |= BIT(9);
-+
- 			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
--				dw_writel(dev, 0x100, DW_IC_DATA_CMD);
-+				dw_writel(dev, cmd | 0x100, DW_IC_DATA_CMD);
- 				rx_limit--;
- 			} else
--				dw_writel(dev, *buf++, DW_IC_DATA_CMD);
-+				dw_writel(dev, cmd | *buf++, DW_IC_DATA_CMD);
- 			tx_limit--; buf_len--;
- 		}
+ static struct i2c_algorithm i2c_dw_algo = {
+@@ -51,6 +52,42 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ 	return clk_get_rate(dev->clk)/1000;
+ }
  
++#ifdef CONFIG_ACPI
++static int dw_i2c_acpi_configure(struct platform_device *pdev)
++{
++	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
++	struct acpi_device *adev;
++	int busno, ret;
++
++	if (!ACPI_HANDLE(&pdev->dev))
++		return -ENODEV;
++
++	ret = acpi_bus_get_device(ACPI_HANDLE(&pdev->dev), &adev);
++	if (ret)
++		return -ENODEV;
++
++	dev->adapter.nr = -1;
++	if (adev->pnp.unique_id && !kstrtoint(adev->pnp.unique_id, 0, &busno))
++		dev->adapter.nr = busno;
++
++	dev->tx_fifo_depth = 32;
++	dev->rx_fifo_depth = 32;
++	return 0;
++}
++
++static const struct acpi_device_id dw_i2c_acpi_match[] = {
++	{ "INT33C2", 0 },
++	{ "INT33C3", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
++#else
++static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
++{
++	return -ENODEV;
++}
++#endif
++
+ static int dw_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_dev *dev;
+@@ -115,18 +152,22 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		r = -EBUSY;
+ 		goto err_unuse_clocks;
+ 	}
+-	{
++
++	/* Try first if we can configure the device from ACPI */
++	r = dw_i2c_acpi_configure(pdev);
++	if (r) {
+ 		u32 param1 = i2c_dw_read_comp_param(dev);
+ 
+ 		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
+ 		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
++		dev->adapter.nr = pdev->id;
+ 	}
+ 	r = i2c_dw_init(dev);
+ 	if (r)
+ 		goto err_iounmap;
+ 
+ 	i2c_dw_disable_int(dev);
+-	r = request_irq(dev->irq, i2c_dw_isr, IRQF_DISABLED, pdev->name, dev);
++	r = request_irq(dev->irq, i2c_dw_isr, IRQF_SHARED, pdev->name, dev);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+ 		goto err_iounmap;
+@@ -141,14 +182,15 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	adap->algo = &i2c_dw_algo;
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
++	ACPI_HANDLE_SET(&adap->dev, ACPI_HANDLE(&pdev->dev));
+ 
+-	adap->nr = pdev->id;
+ 	r = i2c_add_numbered_adapter(adap);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure adding adapter\n");
+ 		goto err_free_irq;
+ 	}
+ 	of_i2c_register_devices(adap);
++	acpi_i2c_register_devices(adap);
+ 
+ 	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
+@@ -243,6 +285,7 @@ static struct platform_driver dw_i2c_driver = {
+ 		.name	= "i2c_designware",
+ 		.owner	= THIS_MODULE,
+ 		.of_match_table = of_match_ptr(dw_i2c_of_match),
++		.acpi_match_table = ACPI_PTR(dw_i2c_acpi_match),
+ 		.pm	= &dw_i2c_dev_pm_ops,
+ 	},
+ };
 -- 
 1.7.10.4
