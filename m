@@ -1,130 +1,39 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 4/4] i2c-designware: add support for Intel Lynxpoint
-Date: Thu, 17 Jan 2013 12:31:07 +0200
-Message-ID: <1358418667-4533-5-git-send-email-mika.westerberg@linux.intel.com>
-References: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, dirk.brandewie@gmail.com, linux-kernel@vger.kernel.org
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 0/4] i2c-designware: add Intel Lynxpoint support
+Date: Thu, 17 Jan 2013 12:31:03 +0200
+Message-ID: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Intel Lynxpoint has two I2C controllers. These controllers are enumerated
-from ACPI namespace with IDs INT33C2 and INT33C3. Add support for these to
-the I2C DesignWare platform driver.
+Hi all,
 
-This is based on the work of Dirk Brandewie.
+This series adds support for the Intel Lynxpoint Low Power Subsystem I2C
+controllers. They are compatible with the DesignWare I2C controller.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c |   49 +++++++++++++++++++++++++--
- 1 file changed, 46 insertions(+), 3 deletions(-)
+Patches [1/4] and [2/4] are fixes that are necessary to get the driver
+working on Lynxpoint.
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d8afc85..d2a33e9 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -40,6 +40,7 @@
- #include <linux/pm_runtime.h>
- #include <linux/io.h>
- #include <linux/slab.h>
-+#include <linux/acpi.h>
- #include "i2c-designware-core.h"
- 
- static struct i2c_algorithm i2c_dw_algo = {
-@@ -51,6 +52,42 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- 	return clk_get_rate(dev->clk)/1000;
- }
- 
-+#ifdef CONFIG_ACPI
-+static int dw_i2c_acpi_configure(struct platform_device *pdev)
-+{
-+	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
-+	struct acpi_device *adev;
-+	int busno, ret;
-+
-+	if (!ACPI_HANDLE(&pdev->dev))
-+		return -ENODEV;
-+
-+	ret = acpi_bus_get_device(ACPI_HANDLE(&pdev->dev), &adev);
-+	if (ret)
-+		return -ENODEV;
-+
-+	dev->adapter.nr = -1;
-+	if (adev->pnp.unique_id && !kstrtoint(adev->pnp.unique_id, 0, &busno))
-+		dev->adapter.nr = busno;
-+
-+	dev->tx_fifo_depth = 32;
-+	dev->rx_fifo_depth = 32;
-+	return 0;
-+}
-+
-+static const struct acpi_device_id dw_i2c_acpi_match[] = {
-+	{ "INT33C2", 0 },
-+	{ "INT33C3", 0 },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
-+#else
-+static inline int dw_i2c_acpi_configure(struct platform_device *pdev)
-+{
-+	return -ENODEV;
-+}
-+#endif
-+
- static int dw_i2c_probe(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev;
-@@ -115,18 +152,22 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 		r = -EBUSY;
- 		goto err_unuse_clocks;
- 	}
--	{
-+
-+	/* Try first if we can configure the device from ACPI */
-+	r = dw_i2c_acpi_configure(pdev);
-+	if (r) {
- 		u32 param1 = i2c_dw_read_comp_param(dev);
- 
- 		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
- 		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-+		dev->adapter.nr = pdev->id;
- 	}
- 	r = i2c_dw_init(dev);
- 	if (r)
- 		goto err_iounmap;
- 
- 	i2c_dw_disable_int(dev);
--	r = request_irq(dev->irq, i2c_dw_isr, IRQF_DISABLED, pdev->name, dev);
-+	r = request_irq(dev->irq, i2c_dw_isr, IRQF_SHARED, pdev->name, dev);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
- 		goto err_iounmap;
-@@ -141,14 +182,15 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	adap->algo = &i2c_dw_algo;
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
-+	ACPI_HANDLE_SET(&adap->dev, ACPI_HANDLE(&pdev->dev));
- 
--	adap->nr = pdev->id;
- 	r = i2c_add_numbered_adapter(adap);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure adding adapter\n");
- 		goto err_free_irq;
- 	}
- 	of_i2c_register_devices(adap);
-+	acpi_i2c_register_devices(adap);
- 
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
-@@ -243,6 +285,7 @@ static struct platform_driver dw_i2c_driver = {
- 		.name	= "i2c_designware",
- 		.owner	= THIS_MODULE,
- 		.of_match_table = of_match_ptr(dw_i2c_of_match),
-+		.acpi_match_table = ACPI_PTR(dw_i2c_acpi_match),
- 		.pm	= &dw_i2c_dev_pm_ops,
- 	},
- };
+Patch [3/4] brings minimal runtime PM support for the designware platform
+driver. This is useful if the PM subsystem/domain implements runtime PM,
+like in case of ACPI.
+
+Patch [4/4] finally implements ACPI enumeration support for the designware
+platform driver and adds Lynxpoint ACPI IDs.
+
+Please review.
+
+Mika Westerberg (4):
+  i2c-designware: add missing MODULE_LICENSE
+  i2c-designware: always set the STOP bit after last byte
+  i2c-designware: add minimal support for runtime PM
+  i2c-designware: add support for Intel Lynxpoint
+
+ drivers/i2c/busses/i2c-designware-core.c    |   20 ++++++++-
+ drivers/i2c/busses/i2c-designware-platdrv.c |   59 +++++++++++++++++++++++++--
+ 2 files changed, 74 insertions(+), 5 deletions(-)
+
 -- 
 1.7.10.4
