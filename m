@@ -1,114 +1,33 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 2/4] i2c-designware: always set the STOP bit after last
- byte
-Date: Thu, 17 Jan 2013 12:43:57 +0200
-Message-ID: <20130117104356.GM10814@arwen.pp.htv.fi>
-References: <1358418667-4533-1-git-send-email-mika.westerberg@linux.intel.com>
- <1358418667-4533-3-git-send-email-mika.westerberg@linux.intel.com>
- <20130117103248.GL10814@arwen.pp.htv.fi>
- <20130117104247.GU2239@intel.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TYjWXklH5JTzT8n9"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130117104247.GU2239-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: [PATCH] i2c: s3c2410: Add quirk to exclude GPIO config for exynos5440
+Date: Fri, 18 Jan 2013 21:12:03 -0800
+Message-ID: <1358572323-24486-1-git-send-email-kgene.kim@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Giridhar Maruthy <giridhar.m@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
---TYjWXklH5JTzT8n9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+From: Giridhar Maruthy <giridhar.m@samsung.com>
 
-On Thu, Jan 17, 2013 at 12:42:47PM +0200, Mika Westerberg wrote:
-> On Thu, Jan 17, 2013 at 12:32:48PM +0200, Felipe Balbi wrote:
-> > Hi,
-> >=20
-> > On Thu, Jan 17, 2013 at 12:31:05PM +0200, Mika Westerberg wrote:
-> > > If IC_EMPTYFIFO_HOLD_MASTER_EN is set to one, the DesignWare I2C cont=
-roller
-> > > doesn't generate STOP on the bus when the FIFO is empty. This violate=
-s the
-> > > rules of Linux I2C stack as it requires that the STOP is issued once =
-the
-> > > i2c_transfer() is finished.
-> > >=20
-> > > However, there is no way to detect this from the hardware registers, =
-so we
-> > > must make sure that the STOP bit is always set once the last byte of =
-the
-> > > last message is transferred.
-> > >=20
-> > > This patch is based on the work of Dirk Brandewie.
-> > >=20
-> > > Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> > > ---
-> > >  drivers/i2c/busses/i2c-designware-core.c |   16 ++++++++++++++--
-> > >  1 file changed, 14 insertions(+), 2 deletions(-)
-> > >=20
-> > > diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/b=
-usses/i2c-designware-core.c
-> > > index f5258c2..94fd818 100644
-> > > --- a/drivers/i2c/busses/i2c-designware-core.c
-> > > +++ b/drivers/i2c/busses/i2c-designware-core.c
-> > > @@ -413,11 +413,23 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
-> > >  		rx_limit =3D dev->rx_fifo_depth - dw_readl(dev, DW_IC_RXFLR);
-> > > =20
-> > >  		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
-> > > +			u32 cmd =3D 0;
-> > > +
-> > > +			/*
-> > > +			 * If IC_EMPTYFIFO_HOLD_MASTER_EN is set we must
-> > > +			 * manually set the stop bit. However, it cannot be
-> > > +			 * detected from the registers so we set it always
-> > > +			 * when writing/reading the last byte.
-> > > +			 */
-> > > +			if (dev->msg_write_idx =3D=3D dev->msgs_num - 1 &&
-> > > +			    buf_len =3D=3D 1)
-> > > +				cmd |=3D BIT(9);
-> > > +
-> > >  			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
-> > > -				dw_writel(dev, 0x100, DW_IC_DATA_CMD);
-> > > +				dw_writel(dev, cmd | 0x100, DW_IC_DATA_CMD);
-> > >  				rx_limit--;
-> > >  			} else
-> > > -				dw_writel(dev, *buf++, DW_IC_DATA_CMD);
-> > > +				dw_writel(dev, cmd | *buf++, DW_IC_DATA_CMD);
-> >=20
-> > also need to send STP bit if I2C_M_STOP is set.
->=20
-> True but only if the driver exposes I2C_FUNC_PROTOCOL_MANGLING, which is
-> not done in this driver.
+Signed-off-by: Giridhar Maruthy <giridhar.m@samsung.com>
+Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-right, didn't check the driver, my bad.
-
---=20
-balbi
-
---TYjWXklH5JTzT8n9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJQ99XsAAoJEIaOsuA1yqREKV8P/1SuV7Y8uFxyitoaA5dOk5Xj
-SmL3d4LCETwdW44m1Nknaxk2wuvLxUJ9QpCfB8dfMMyiedoA9GMhHSBtQVR2bKgl
-CZqDw2Jp7VGzlY4PWAUCwtayJtPv/qvltg0tuw89Tj76rVL3JQKExi8r180k6zn0
-T5XHGbkUEygFYzF0AWY/7QSrvk/ozHxLyVmXhieiMq8qVrl5KgVh9clNWK9Fs4nS
-regXrYrU1J0L9XHe+l0ILBAMDR/BF3M55pWndWQC2vjZW7L0Q8dUQALkUQgC9nUI
-bxAawggkBUOBfzHNVCrYqh65F7mJjVHCF2U+IEMTG7diPuGyz7Gn/VNoqFZnrTtR
-UFoV6/yufiFJRUz3wLjhuUVnBtNng7nqKTO7bmG0LAkZpOX7Qhq4gZ8kJ9FRF+l+
-+XMJ/oTkSyDM3d804/NK+cVYeaPoHmk8KmhXgthclSarP758Qw5+AYpOBJPX1YAp
-MH3dHxN3B5pwx5oTEsWuSc9qJN45YIeoXjjkgusKSAixpWrfVYVxvst7xRlZUTpg
-hbNCQkoQblYIeAwOM4mQf9NwCfVLAzIw6i8kuOUrmZox8so48Rh9Mcdvlo9PNV60
-q/Ei87k5xeD//IdHavre5zqPwMEiz0G4STZuZfTQf6eIBWM0qdfbCl8GIxfckG0l
-wE4eL15hpP58zJyOf60R
-=lZvB
------END PGP SIGNATURE-----
-
---TYjWXklH5JTzT8n9--
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index a290d08..ec141b4 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -109,6 +109,8 @@ MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
+ static const struct of_device_id s3c24xx_i2c_match[] = {
+ 	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
+ 	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440 },
++	{ .compatible = "samsung,exynos5440-i2c",
++	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
+ 	{ .compatible = "samsung,s3c2440-hdmiphy-i2c",
+ 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
+ 	{},
+-- 
+1.7.10.4
