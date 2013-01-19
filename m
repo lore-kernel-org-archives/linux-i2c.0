@@ -1,33 +1,47 @@
-From: Kukjin Kim <kgene.kim@samsung.com>
-Subject: [PATCH] i2c: s3c2410: Add quirk to exclude GPIO config for exynos5440
-Date: Fri, 18 Jan 2013 21:12:03 -0800
-Message-ID: <1358572323-24486-1-git-send-email-kgene.kim@samsung.com>
+From: Tomasz Figa <tomasz.figa@gmail.com>
+Subject: Re: [PATCH] i2c: s3c2410: Add quirk to exclude GPIO config for exynos5440
+Date: Sat, 19 Jan 2013 11:52:44 +0100
+Message-ID: <1786045.3qNF5pjnvJ@flatron>
+References: <1358572323-24486-1-git-send-email-kgene.kim@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1358572323-24486-1-git-send-email-kgene.kim@samsung.com>
 Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <w.sang@pengutronix.de>, Giridhar Maruthy <giridhar.m@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>
+To: Kukjin Kim <kgene.kim@samsung.com>
+Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Giridhar Maruthy <giridhar.m@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Giridhar Maruthy <giridhar.m@samsung.com>
+Hi Kukjin,
 
-Signed-off-by: Giridhar Maruthy <giridhar.m@samsung.com>
-Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
----
- drivers/i2c/busses/i2c-s3c2410.c |    2 ++
- 1 file changed, 2 insertions(+)
+You should also add the new compatible value to the documentation of 
+device tree bindings for i2c-s3c2410.
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index a290d08..ec141b4 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -109,6 +109,8 @@ MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
- static const struct of_device_id s3c24xx_i2c_match[] = {
- 	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
- 	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440 },
-+	{ .compatible = "samsung,exynos5440-i2c",
-+	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
- 	{ .compatible = "samsung,s3c2440-hdmiphy-i2c",
- 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
- 	{},
--- 
-1.7.10.4
+(Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt)
+
+Best regards,
+Tomasz Figa
+
+On Friday 18 of January 2013 21:12:03 Kukjin Kim wrote:
+> From: Giridhar Maruthy <giridhar.m@samsung.com>
+> 
+> Signed-off-by: Giridhar Maruthy <giridhar.m@samsung.com>
+> Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
+> ---
+>  drivers/i2c/busses/i2c-s3c2410.c |    2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c
+> b/drivers/i2c/busses/i2c-s3c2410.c index a290d08..ec141b4 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -109,6 +109,8 @@ MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
+>  static const struct of_device_id s3c24xx_i2c_match[] = {
+>  	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
+>  	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440
+> }, +	{ .compatible = "samsung,exynos5440-i2c",
+> +	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
+>  	{ .compatible = "samsung,s3c2440-hdmiphy-i2c",
+>  	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
+>  	{},
