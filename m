@@ -1,47 +1,36 @@
-From: Tomasz Figa <tomasz.figa@gmail.com>
-Subject: Re: [PATCH] i2c: s3c2410: Add quirk to exclude GPIO config for exynos5440
-Date: Sat, 19 Jan 2013 11:52:44 +0100
-Message-ID: <1786045.3qNF5pjnvJ@flatron>
-References: <1358572323-24486-1-git-send-email-kgene.kim@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1358572323-24486-1-git-send-email-kgene.kim@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Kukjin Kim <kgene.kim@samsung.com>
-Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Giridhar Maruthy <giridhar.m@samsung.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: [PATCH] i2c: omap: errata i462: fix incorrect ack for arbitration lost interrupt
+Date: Sun, 20 Jan 2013 02:32:58 +0200
+Message-ID: <1358641978-9316-1-git-send-email-aaro.koskinen@iki.fi>
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: w.sang@pengutronix.de, ben-linux@fluff.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, balbi@ti.com
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kukjin,
+The errata handling function acks wrong interrupt in case of "Arbitration
+lost". Fix it.
 
-You should also add the new compatible value to the documentation of 
-device tree bindings for i2c-s3c2410.
+Discovered during code review, the real impact of the bug is unknown.
 
-(Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt)
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+---
+ drivers/i2c/busses/i2c-omap.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Best regards,
-Tomasz Figa
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 20d41bf..832f16e 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -803,7 +803,7 @@ static int errata_omap3_i462(struct omap_i2c_dev *dev)
+ 			if (stat & OMAP_I2C_STAT_AL) {
+ 				dev_err(dev->dev, "Arbitration lost\n");
+ 				dev->cmd_err |= OMAP_I2C_STAT_AL;
+-				omap_i2c_ack_stat(dev, OMAP_I2C_STAT_NACK);
++				omap_i2c_ack_stat(dev, OMAP_I2C_STAT_AL);
+ 			}
+ 
+ 			return -EIO;
+-- 
+1.7.10.4
 
-On Friday 18 of January 2013 21:12:03 Kukjin Kim wrote:
-> From: Giridhar Maruthy <giridhar.m@samsung.com>
-> 
-> Signed-off-by: Giridhar Maruthy <giridhar.m@samsung.com>
-> Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
-> ---
->  drivers/i2c/busses/i2c-s3c2410.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c
-> b/drivers/i2c/busses/i2c-s3c2410.c index a290d08..ec141b4 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -109,6 +109,8 @@ MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
->  static const struct of_device_id s3c24xx_i2c_match[] = {
->  	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
->  	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440
-> }, +	{ .compatible = "samsung,exynos5440-i2c",
-> +	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
->  	{ .compatible = "samsung,s3c2440-hdmiphy-i2c",
->  	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
->  	{},
