@@ -1,236 +1,203 @@
-From: Thierry Reding <thierry.reding@avionic-design.de>
-Subject: [PATCH 10/33] i2c: Convert to devm_ioremap_resource()
-Date: Mon, 21 Jan 2013 11:09:03 +0100
-Message-ID: <1358762966-20791-11-git-send-email-thierry.reding@avionic-design.de>
-References: <1358762966-20791-1-git-send-email-thierry.reding@avionic-design.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1358762966-20791-1-git-send-email-thierry.reding@avionic-design.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH RESEND] i2c: tegra: add support for Tegra114 SoC
+Date: Mon, 21 Jan 2013 19:51:02 +0530
+Message-ID: <1358778062-21600-1-git-send-email-ldewangan@nvidia.com>
+Mime-Version: 1.0
+Content-Type: text/plain
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Convert all uses of devm_request_and_ioremap() to the newly introduced
-devm_ioremap_resource() which provides more consistent error handling.
+NVIDIA's Tegra114 has following enhanced feature in i2c controller:
+- Enable/disable control for per packet transfer complete interrupt.
+  Earlier SoCs could not disable this.
+- Single clock source for standard/fast and HS mode clock speed.
+  The clock divisor for fast/standard mode is added into the i2c
+  controller to meet the HS and standard/fast mode of clock speed
+  from single source.
 
-devm_ioremap_resource() provides its own error messages so all explicit
-error messages can be removed from the failure code paths.
+Add support for the above feature to make it functional on T114 SOCs.
 
-Signed-off-by: Thierry Reding <thierry.reding@avionic-design.de>
-Cc: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Ben Dooks <ben-linux@fluff.org>
-Cc: linux-i2c@vger.kernel.org
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-at91.c    | 6 +++---
- drivers/i2c/busses/i2c-imx.c     | 6 +++---
- drivers/i2c/busses/i2c-ocores.c  | 7 ++++---
- drivers/i2c/busses/i2c-omap.c    | 8 +++-----
- drivers/i2c/busses/i2c-rcar.c    | 8 +++-----
- drivers/i2c/busses/i2c-s3c2410.c | 7 +++----
- drivers/i2c/busses/i2c-sirf.c    | 7 +++----
- drivers/i2c/busses/i2c-stu300.c  | 6 +++---
- drivers/i2c/busses/i2c-tegra.c   | 8 +++-----
- drivers/i2c/busses/i2c-xlr.c     | 9 ++++-----
- 10 files changed, 32 insertions(+), 40 deletions(-)
+Just resending if this is missed in long holiday.
+Adding reviewed-by: Stephen as he has already given his score.
 
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 2bfc04d..ebc2241 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -723,9 +723,9 @@ static int at91_twi_probe(struct platform_device *pdev)
- 	if (!dev->pdata)
- 		return -ENODEV;
- 
--	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
--	if (!dev->base)
--		return -EBUSY;
-+	dev->base = devm_ioremap_resource(&pdev->dev, mem);
-+	if (IS_ERR(dev->base))
-+		return PTR_ERR(dev->base);
- 
- 	dev->irq = platform_get_irq(pdev, 0);
- 	if (dev->irq < 0)
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index b973474..a71ece6 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -511,9 +511,9 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 		return -ENOENT;
- 	}
- 
--	base = devm_request_and_ioremap(&pdev->dev, res);
--	if (!base)
--		return -EBUSY;
-+	base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(base))
-+		return PTR_ERR(base);
- 
- 	i2c_imx = devm_kzalloc(&pdev->dev, sizeof(struct imx_i2c_struct),
- 				GFP_KERNEL);
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index a873d0a..a337d08 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -12,6 +12,7 @@
-  * kind, whether express or implied.
-  */
- 
-+#include <linux/err.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/init.h>
-@@ -364,9 +365,9 @@ static int ocores_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
--	i2c->base = devm_request_and_ioremap(&pdev->dev, res);
--	if (!i2c->base)
--		return -EADDRNOTAVAIL;
-+	i2c->base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(i2c->base))
-+		return PTR_ERR(i2c->base);
- 
- 	pdata = pdev->dev.platform_data;
- 	if (pdata) {
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 20d41bf..a9bf4ca 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1103,11 +1103,9 @@ omap_i2c_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 	}
- 
--	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
--	if (!dev->base) {
--		dev_err(&pdev->dev, "I2C region already claimed\n");
--		return -ENOMEM;
--	}
-+	dev->base = devm_ioremap_resource(&pdev->dev, mem);
-+	if (IS_ERR(dev->base))
-+		return PTR_ERR(dev->base);
- 
- 	match = of_match_device(of_match_ptr(omap_i2c_of_match), &pdev->dev);
- 	if (match) {
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 9bd4d73..4ba4a95 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -642,11 +642,9 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
--	priv->io = devm_request_and_ioremap(dev, res);
--	if (!priv->io) {
--		dev_err(dev, "cannot ioremap\n");
--		return -ENODEV;
--	}
-+	priv->io = devm_ioremap_resource(dev, res);
-+	if (IS_ERR(priv->io))
-+		return PTR_ERR(priv->io);
- 
- 	priv->irq = platform_get_irq(pdev, 0);
- 	init_waitqueue_head(&priv->wait);
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index a290d08..c807a6d 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -1042,11 +1042,10 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 		goto err_clk;
- 	}
- 
--	i2c->regs = devm_request_and_ioremap(&pdev->dev, res);
-+	i2c->regs = devm_ioremap_resource(&pdev->dev, res);
- 
--	if (i2c->regs == NULL) {
--		dev_err(&pdev->dev, "cannot map IO\n");
--		ret = -ENXIO;
-+	if (IS_ERR(i2c->regs)) {
-+		ret = PTR_ERR(i2c->regs);
- 		goto err_clk;
- 	}
- 
-diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
-index 3f1818b..183cf05 100644
---- a/drivers/i2c/busses/i2c-sirf.c
-+++ b/drivers/i2c/busses/i2c-sirf.c
-@@ -308,10 +308,9 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
- 		goto out;
- 	}
- 
--	siic->base = devm_request_and_ioremap(&pdev->dev, mem_res);
--	if (siic->base == NULL) {
--		dev_err(&pdev->dev, "IO remap failed!\n");
--		err = -ENOMEM;
-+	siic->base = devm_ioremap_resource(&pdev->dev, mem_res);
-+	if (IS_ERR(siic->base)) {
-+		err = PTR_ERR(siic->base);
- 		goto out;
- 	}
- 
-diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index 580a0c0..60195b5 100644
---- a/drivers/i2c/busses/i2c-stu300.c
-+++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -888,11 +888,11 @@ stu300_probe(struct platform_device *pdev)
- 	if (!res)
- 		return -ENOENT;
- 
--	dev->virtbase = devm_request_and_ioremap(&pdev->dev, res);
-+	dev->virtbase = devm_ioremap_resource(&pdev->dev, res);
- 	dev_dbg(&pdev->dev, "initialize bus device I2C%d on virtual "
- 		"base %p\n", bus_nr, dev->virtbase);
--	if (!dev->virtbase)
--		return -ENOMEM;
-+	if (IS_ERR(dev->virtbase))
-+		return PTR_ERR(dev->virtbase);
- 
- 	dev->irq = platform_get_irq(pdev, 0);
- 	ret = devm_request_irq(&pdev->dev, dev->irq, stu300_irh, 0, NAME, dev);
+ drivers/i2c/busses/i2c-tegra.c |   77 ++++++++++++++++++++++++++++++++-------
+ 1 files changed, 63 insertions(+), 14 deletions(-)
+
 diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 7b38877..1fb3009 100644
+index 7b38877..2dadb96 100644
 --- a/drivers/i2c/busses/i2c-tegra.c
 +++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -669,11 +669,9 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 	}
+@@ -71,6 +71,8 @@
+ #define I2C_INT_TX_FIFO_DATA_REQ		(1<<1)
+ #define I2C_INT_RX_FIFO_DATA_REQ		(1<<0)
+ #define I2C_CLK_DIVISOR				0x06c
++#define I2C_CLK_DIVISOR_STD_FAST_MODE_SHIFT	16
++#define I2C_CLK_MULTIPLIER_STD_FAST_MODE	8
  
--	base = devm_request_and_ioremap(&pdev->dev, res);
--	if (!base) {
--		dev_err(&pdev->dev, "Cannot request/ioremap I2C registers\n");
--		return -EADDRNOTAVAIL;
--	}
-+	base = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(base))
-+		return PTR_ERR(base);
- 
- 	res = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
- 	if (!res) {
-diff --git a/drivers/i2c/busses/i2c-xlr.c b/drivers/i2c/busses/i2c-xlr.c
-index a005265..93f029e 100644
---- a/drivers/i2c/busses/i2c-xlr.c
-+++ b/drivers/i2c/busses/i2c-xlr.c
-@@ -7,6 +7,7 @@
-  * warranty of any kind, whether express or implied.
+ #define DVC_CTRL_REG1				0x000
+ #define DVC_CTRL_REG1_INTR_EN			(1<<10)
+@@ -117,10 +119,23 @@ enum msg_end_type {
+ /**
+  * struct tegra_i2c_hw_feature : Different HW support on Tegra
+  * @has_continue_xfer_support: Continue transfer supports.
++ * @has_per_pkt_xfer_complete_irq: Has enable/disable capability for transfer
++ *		complete interrupt per packet basis.
++ * @has_single_clk_source: The i2c controller has single clock source. Tegra30
++ *		and earlier Socs has two clock sources i.e. div-clk and
++ *		fast-clk.
++ * @clk_divisor_hs_mode: Clock divisor in HS mode.
++ * @clk_divisor_std_fast_mode: Clock divisor in standard/fast mode. It is
++ *		applicable if there is no fast clock source i.e. single clock
++ *		source.
   */
  
-+#include <linux/err.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/slab.h>
-@@ -225,11 +226,9 @@ static int xlr_i2c_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+ struct tegra_i2c_hw_feature {
+ 	bool has_continue_xfer_support;
++	bool has_per_pkt_xfer_complete_irq;
++	bool has_single_clk_source;
++	int clk_divisor_hs_mode;
++	int clk_divisor_std_fast_mode;
+ };
  
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	priv->iobase = devm_request_and_ioremap(&pdev->dev, res);
--	if (!priv->iobase) {
--		dev_err(&pdev->dev, "devm_request_and_ioremap failed\n");
--		return -EBUSY;
+ /**
+@@ -366,11 +381,13 @@ static void tegra_dvc_init(struct tegra_i2c_dev *i2c_dev)
+ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
+ {
+ 	int ret;
+-	ret = clk_prepare_enable(i2c_dev->fast_clk);
+-	if (ret < 0) {
+-		dev_err(i2c_dev->dev,
+-			"Enabling fast clk failed, err %d\n", ret);
+-		return ret;
++	if (!i2c_dev->hw->has_single_clk_source) {
++		ret = clk_prepare_enable(i2c_dev->fast_clk);
++		if (ret < 0) {
++			dev_err(i2c_dev->dev,
++				"Enabling fast clk failed, err %d\n", ret);
++			return ret;
++		}
+ 	}
+ 	ret = clk_prepare_enable(i2c_dev->div_clk);
+ 	if (ret < 0) {
+@@ -384,13 +401,16 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
+ static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
+ {
+ 	clk_disable_unprepare(i2c_dev->div_clk);
+-	clk_disable_unprepare(i2c_dev->fast_clk);
++	if (!i2c_dev->hw->has_single_clk_source)
++		clk_disable_unprepare(i2c_dev->fast_clk);
+ }
+ 
+ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ {
+ 	u32 val;
+ 	int err = 0;
++	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
++	u32 clk_divisor;
+ 
+ 	tegra_i2c_clock_enable(i2c_dev);
+ 
+@@ -405,7 +425,15 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
+ 		(0x2 << I2C_CNFG_DEBOUNCE_CNT_SHIFT);
+ 	i2c_writel(i2c_dev, val, I2C_CNFG);
+ 	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
+-	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * 8);
++
++	clk_multiplier *= (i2c_dev->hw->clk_divisor_std_fast_mode + 1);
++	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * clk_multiplier);
++
++	/* Make sure clock divisor programmed correctly */
++	clk_divisor = i2c_dev->hw->clk_divisor_hs_mode;
++	clk_divisor |= i2c_dev->hw->clk_divisor_std_fast_mode <<
++					I2C_CLK_DIVISOR_STD_FAST_MODE_SHIFT;
++	i2c_writel(i2c_dev, clk_divisor, I2C_CLK_DIVISOR);
+ 
+ 	if (!i2c_dev->is_dvc) {
+ 		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
+@@ -547,6 +575,8 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 		tegra_i2c_fill_tx_fifo(i2c_dev);
+ 
+ 	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
++	if (i2c_dev->hw->has_per_pkt_xfer_complete_irq)
++		int_mask |= I2C_INT_PACKET_XFER_COMPLETE;
+ 	if (msg->flags & I2C_M_RD)
+ 		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
+ 	else if (i2c_dev->msg_buf_remaining)
+@@ -634,15 +664,32 @@ static const struct i2c_algorithm tegra_i2c_algo = {
+ 
+ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
+ 	.has_continue_xfer_support = false,
++	.has_per_pkt_xfer_complete_irq = false,
++	.has_single_clk_source = false,
++	.clk_divisor_hs_mode = 3,
++	.clk_divisor_std_fast_mode = 0,
+ };
+ 
+ static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
+ 	.has_continue_xfer_support = true,
++	.has_per_pkt_xfer_complete_irq = false,
++	.has_single_clk_source = false,
++	.clk_divisor_hs_mode = 3,
++	.clk_divisor_std_fast_mode = 0,
++};
++
++static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
++	.has_continue_xfer_support = true,
++	.has_per_pkt_xfer_complete_irq = true,
++	.has_single_clk_source = true,
++	.clk_divisor_hs_mode = 1,
++	.clk_divisor_std_fast_mode = 0x19,
+ };
+ 
+ #if defined(CONFIG_OF)
+ /* Match table for of_platform binding */
+ static const struct of_device_id tegra_i2c_of_match[] = {
++	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra30-i2c", .data = &tegra30_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra20-i2c", .data = &tegra20_i2c_hw, },
+ 	{ .compatible = "nvidia,tegra20-i2c-dvc", .data = &tegra20_i2c_hw, },
+@@ -688,12 +735,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(div_clk);
+ 	}
+ 
+-	fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
+-	if (IS_ERR(fast_clk)) {
+-		dev_err(&pdev->dev, "missing bus clock");
+-		return PTR_ERR(fast_clk);
 -	}
-+	priv->iobase = devm_ioremap_resource(&pdev->dev, res);
-+	if (IS_ERR(priv->iobase))
-+		return PTR_ERR(priv->iobase);
+-
+ 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+ 	if (!i2c_dev) {
+ 		dev_err(&pdev->dev, "Could not allocate struct tegra_i2c_dev");
+@@ -702,7 +743,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
  
- 	priv->adap.dev.parent = &pdev->dev;
- 	priv->adap.owner	= THIS_MODULE;
+ 	i2c_dev->base = base;
+ 	i2c_dev->div_clk = div_clk;
+-	i2c_dev->fast_clk = fast_clk;
+ 	i2c_dev->adapter.algo = &tegra_i2c_algo;
+ 	i2c_dev->irq = irq;
+ 	i2c_dev->cont_id = pdev->id;
+@@ -733,6 +773,15 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	}
+ 	init_completion(&i2c_dev->msg_complete);
+ 
++	if (!i2c_dev->hw->has_single_clk_source) {
++		fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
++		if (IS_ERR(fast_clk)) {
++			dev_err(&pdev->dev, "missing fast clock");
++			return PTR_ERR(fast_clk);
++		}
++		i2c_dev->fast_clk = fast_clk;
++	}
++
+ 	platform_set_drvdata(pdev, i2c_dev);
+ 
+ 	ret = tegra_i2c_init(i2c_dev);
 -- 
-1.8.1.1
+1.7.1.1
