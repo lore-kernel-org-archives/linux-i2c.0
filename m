@@ -1,203 +1,66 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH RESEND] i2c: tegra: add support for Tegra114 SoC
-Date: Mon, 21 Jan 2013 19:51:02 +0530
-Message-ID: <1358778062-21600-1-git-send-email-ldewangan@nvidia.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: Re: [PATCH] i2c: omap: fix draining irq handling
+Date: Mon, 21 Jan 2013 20:01:59 +0200
+Message-ID: <20130121180159.GB13174@blackmetal.musicnaut.iki.fi>
+References: <1358707022-26477-1-git-send-email-aaro.koskinen@iki.fi>
+ <20130121084431.GG8777@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130121084431.GG8777@arwen.pp.htv.fi>
+Sender: linux-omap-owner@vger.kernel.org
+To: Felipe Balbi <balbi@ti.com>, Wolfram Sang <w.sang@pengutronix.de>
+Cc: ben-linux@fluff.org, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-NVIDIA's Tegra114 has following enhanced feature in i2c controller:
-- Enable/disable control for per packet transfer complete interrupt.
-  Earlier SoCs could not disable this.
-- Single clock source for standard/fast and HS mode clock speed.
-  The clock divisor for fast/standard mode is added into the i2c
-  controller to meet the HS and standard/fast mode of clock speed
-  from single source.
+Hi,
 
-Add support for the above feature to make it functional on T114 SOCs.
+On Mon, Jan 21, 2013 at 10:44:31AM +0200, Felipe Balbi wrote:
+> On Sun, Jan 20, 2013 at 08:37:02PM +0200, Aaro Koskinen wrote:
+> > Commit 0bdfe0cb803dce699ff337c35d8e97ac355fa417 (i2c: omap: sanitize
+> > exit path) changed the interrupt handler to exit early and complete
+> > the transfer after the draining IRQ is handled. As a result, the ARDY
+> > may not be cleared properly, and it may cause all future I2C transfers
+> > to timeout with "timeout waiting for bus ready". This is reproducible
+> > at least with N900 when twl4030_gpio makes a long write (> FIFO size)
+> > during the probe (http://marc.info/?l=linux-omap&m=135818882610432&w=2).
+> > 
+> > The fix is to continue until we get ARDY interrupt that completes the
+> > transfer. Tested with 3.8-rc4 + N900: 20 boots in a row without errors;
+> > without the patch the problem triggers after few reboots.
+> 
+> fair enough, but ...
+> 
+> > Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+> > ---
+> >  drivers/i2c/busses/i2c-omap.c |    4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+> > index 832f16e..4cc2f05 100644
+> > --- a/drivers/i2c/busses/i2c-omap.c
+> > +++ b/drivers/i2c/busses/i2c-omap.c
+> > @@ -963,7 +963,7 @@ omap_i2c_isr_thread(int this_irq, void *dev_id)
+> >  				i2c_omap_errata_i207(dev, stat);
+> >  
+> >  			omap_i2c_ack_stat(dev, OMAP_I2C_STAT_RDR);
+> > -			break;
+> > +			continue;
+> 
+> ... when we get draining Interrupt, it means we're receiving the last
+> few bytes, meaning that by the time we handle it there's nothing pending
+> to be transferred.
+> 
+> I would rather wait for ARDY before exiting omap_i2c_xfer_msg() rather
+> than here. Specially since that was the programming model suggested by
+> our IP engineers. Such handling is part of my other patchset and can be
+> easily ported.
+> 
+> OTOH, we might decide to go with this during this -rc and fix it all up
+> for v3.9 on my other patchset.
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-Just resending if this is missed in long holiday.
-Adding reviewed-by: Stephen as he has already given his score.
+Completing through ARDY interrupt has been known to work reliably for
+years. So for 3.8-rc I would prefer to just restore the old behaviour.
 
- drivers/i2c/busses/i2c-tegra.c |   77 ++++++++++++++++++++++++++++++++-------
- 1 files changed, 63 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 7b38877..2dadb96 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -71,6 +71,8 @@
- #define I2C_INT_TX_FIFO_DATA_REQ		(1<<1)
- #define I2C_INT_RX_FIFO_DATA_REQ		(1<<0)
- #define I2C_CLK_DIVISOR				0x06c
-+#define I2C_CLK_DIVISOR_STD_FAST_MODE_SHIFT	16
-+#define I2C_CLK_MULTIPLIER_STD_FAST_MODE	8
- 
- #define DVC_CTRL_REG1				0x000
- #define DVC_CTRL_REG1_INTR_EN			(1<<10)
-@@ -117,10 +119,23 @@ enum msg_end_type {
- /**
-  * struct tegra_i2c_hw_feature : Different HW support on Tegra
-  * @has_continue_xfer_support: Continue transfer supports.
-+ * @has_per_pkt_xfer_complete_irq: Has enable/disable capability for transfer
-+ *		complete interrupt per packet basis.
-+ * @has_single_clk_source: The i2c controller has single clock source. Tegra30
-+ *		and earlier Socs has two clock sources i.e. div-clk and
-+ *		fast-clk.
-+ * @clk_divisor_hs_mode: Clock divisor in HS mode.
-+ * @clk_divisor_std_fast_mode: Clock divisor in standard/fast mode. It is
-+ *		applicable if there is no fast clock source i.e. single clock
-+ *		source.
-  */
- 
- struct tegra_i2c_hw_feature {
- 	bool has_continue_xfer_support;
-+	bool has_per_pkt_xfer_complete_irq;
-+	bool has_single_clk_source;
-+	int clk_divisor_hs_mode;
-+	int clk_divisor_std_fast_mode;
- };
- 
- /**
-@@ -366,11 +381,13 @@ static void tegra_dvc_init(struct tegra_i2c_dev *i2c_dev)
- static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
- {
- 	int ret;
--	ret = clk_prepare_enable(i2c_dev->fast_clk);
--	if (ret < 0) {
--		dev_err(i2c_dev->dev,
--			"Enabling fast clk failed, err %d\n", ret);
--		return ret;
-+	if (!i2c_dev->hw->has_single_clk_source) {
-+		ret = clk_prepare_enable(i2c_dev->fast_clk);
-+		if (ret < 0) {
-+			dev_err(i2c_dev->dev,
-+				"Enabling fast clk failed, err %d\n", ret);
-+			return ret;
-+		}
- 	}
- 	ret = clk_prepare_enable(i2c_dev->div_clk);
- 	if (ret < 0) {
-@@ -384,13 +401,16 @@ static inline int tegra_i2c_clock_enable(struct tegra_i2c_dev *i2c_dev)
- static inline void tegra_i2c_clock_disable(struct tegra_i2c_dev *i2c_dev)
- {
- 	clk_disable_unprepare(i2c_dev->div_clk);
--	clk_disable_unprepare(i2c_dev->fast_clk);
-+	if (!i2c_dev->hw->has_single_clk_source)
-+		clk_disable_unprepare(i2c_dev->fast_clk);
- }
- 
- static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- {
- 	u32 val;
- 	int err = 0;
-+	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
-+	u32 clk_divisor;
- 
- 	tegra_i2c_clock_enable(i2c_dev);
- 
-@@ -405,7 +425,15 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 		(0x2 << I2C_CNFG_DEBOUNCE_CNT_SHIFT);
- 	i2c_writel(i2c_dev, val, I2C_CNFG);
- 	i2c_writel(i2c_dev, 0, I2C_INT_MASK);
--	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * 8);
-+
-+	clk_multiplier *= (i2c_dev->hw->clk_divisor_std_fast_mode + 1);
-+	clk_set_rate(i2c_dev->div_clk, i2c_dev->bus_clk_rate * clk_multiplier);
-+
-+	/* Make sure clock divisor programmed correctly */
-+	clk_divisor = i2c_dev->hw->clk_divisor_hs_mode;
-+	clk_divisor |= i2c_dev->hw->clk_divisor_std_fast_mode <<
-+					I2C_CLK_DIVISOR_STD_FAST_MODE_SHIFT;
-+	i2c_writel(i2c_dev, clk_divisor, I2C_CLK_DIVISOR);
- 
- 	if (!i2c_dev->is_dvc) {
- 		u32 sl_cfg = i2c_readl(i2c_dev, I2C_SL_CNFG);
-@@ -547,6 +575,8 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 		tegra_i2c_fill_tx_fifo(i2c_dev);
- 
- 	int_mask = I2C_INT_NO_ACK | I2C_INT_ARBITRATION_LOST;
-+	if (i2c_dev->hw->has_per_pkt_xfer_complete_irq)
-+		int_mask |= I2C_INT_PACKET_XFER_COMPLETE;
- 	if (msg->flags & I2C_M_RD)
- 		int_mask |= I2C_INT_RX_FIFO_DATA_REQ;
- 	else if (i2c_dev->msg_buf_remaining)
-@@ -634,15 +664,32 @@ static const struct i2c_algorithm tegra_i2c_algo = {
- 
- static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
- 	.has_continue_xfer_support = false,
-+	.has_per_pkt_xfer_complete_irq = false,
-+	.has_single_clk_source = false,
-+	.clk_divisor_hs_mode = 3,
-+	.clk_divisor_std_fast_mode = 0,
- };
- 
- static const struct tegra_i2c_hw_feature tegra30_i2c_hw = {
- 	.has_continue_xfer_support = true,
-+	.has_per_pkt_xfer_complete_irq = false,
-+	.has_single_clk_source = false,
-+	.clk_divisor_hs_mode = 3,
-+	.clk_divisor_std_fast_mode = 0,
-+};
-+
-+static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
-+	.has_continue_xfer_support = true,
-+	.has_per_pkt_xfer_complete_irq = true,
-+	.has_single_clk_source = true,
-+	.clk_divisor_hs_mode = 1,
-+	.clk_divisor_std_fast_mode = 0x19,
- };
- 
- #if defined(CONFIG_OF)
- /* Match table for of_platform binding */
- static const struct of_device_id tegra_i2c_of_match[] = {
-+	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
- 	{ .compatible = "nvidia,tegra30-i2c", .data = &tegra30_i2c_hw, },
- 	{ .compatible = "nvidia,tegra20-i2c", .data = &tegra20_i2c_hw, },
- 	{ .compatible = "nvidia,tegra20-i2c-dvc", .data = &tegra20_i2c_hw, },
-@@ -688,12 +735,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(div_clk);
- 	}
- 
--	fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
--	if (IS_ERR(fast_clk)) {
--		dev_err(&pdev->dev, "missing bus clock");
--		return PTR_ERR(fast_clk);
--	}
--
- 	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
- 	if (!i2c_dev) {
- 		dev_err(&pdev->dev, "Could not allocate struct tegra_i2c_dev");
-@@ -702,7 +743,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 
- 	i2c_dev->base = base;
- 	i2c_dev->div_clk = div_clk;
--	i2c_dev->fast_clk = fast_clk;
- 	i2c_dev->adapter.algo = &tegra_i2c_algo;
- 	i2c_dev->irq = irq;
- 	i2c_dev->cont_id = pdev->id;
-@@ -733,6 +773,15 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	}
- 	init_completion(&i2c_dev->msg_complete);
- 
-+	if (!i2c_dev->hw->has_single_clk_source) {
-+		fast_clk = devm_clk_get(&pdev->dev, "fast-clk");
-+		if (IS_ERR(fast_clk)) {
-+			dev_err(&pdev->dev, "missing fast clock");
-+			return PTR_ERR(fast_clk);
-+		}
-+		i2c_dev->fast_clk = fast_clk;
-+	}
-+
- 	platform_set_drvdata(pdev, i2c_dev);
- 
- 	ret = tegra_i2c_init(i2c_dev);
--- 
-1.7.1.1
+A.
