@@ -1,36 +1,45 @@
-From: Kukjin Kim <kgene.kim@samsung.com>
-Subject: RE: [PATCH] i2c: s3c2410: Add quirk to exclude GPIO config for
- exynos5440
-Date: Sun, 20 Jan 2013 15:28:24 -0800
-Message-ID: <030f01cdf765$d98a00b0$8c9e0210$@samsung.com>
-References: <1358572323-24486-1-git-send-email-kgene.kim@samsung.com>
- <1786045.3qNF5pjnvJ@flatron>
+From: Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: mxs: Fix misuse init_completion
+Date: Mon, 21 Jan 2013 04:47:46 +0100
+Message-ID: <201301210447.46939.marek.vasut@gmail.com>
+References: <1353475146-28669-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-reply-to: <1786045.3qNF5pjnvJ@flatron>
-Content-language: en-us
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: 'Tomasz Figa' <tomasz.figa@gmail.com>
-Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, 'Wolfram Sang' <w.sang@pengutronix.de>, 'Giridhar Maruthy' <giridhar.m@samsung.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1353475146-28669-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Tomasz Figa wrote:
-> 
-> Hi Kukjin,
-> 
 Hi,
 
-> You should also add the new compatible value to the documentation of
-> device tree bindings for i2c-s3c2410.
+> The init_completion() call does reinit not only the variable carrying
+> the flag that the completion finished, but also initialized the
+> waitqueue associated with the completion. On the contrary, the
+> INIT_COMPLETION() call only reinits the flag.
 > 
-Yeah, agreed.
-
-> (Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt)
+> In case there was anything still stuck in the waitqueue, subsequent call
+> to init_completion() would be able to create possible race condition. This
+> patch uses the proper function and moves init_completion() into .probe()
+> call of the driver, to be issued only once.
 > 
-Giridhar, please address comments from Tomasz.
+> Note that such scenario is impossible, since two threads can never enter
+> the mxs_i2c_xfer_msg(), since whole this section is protected by mutex in
+> I2C core. This by no means allows this issue to exit though.
+> 
+> Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-Thanks.
+Why is this not applied / not in stable please?
 
-- Kukjin
+Also, what about the other MXS I2C patches?
+
+Thanks!
+
+Best regards,
+Marek Vasut
