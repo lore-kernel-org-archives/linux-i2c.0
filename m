@@ -1,58 +1,73 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: [PATCH 6/6] i2c: omap: get rid of b_hw flag
-Date: Wed, 23 Jan 2013 12:23:08 +0200
-Message-ID: <1358936588-16375-7-git-send-email-balbi@ti.com>
-References: <20130123095813.GG3767@nekote.pengutronix.de>
- <1358936588-16375-1-git-send-email-balbi@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Subject: [PATCH] i2c-isch: Add module parameter for backbone clock rate if divider is unset
+Date: Wed, 23 Jan 2013 11:34:34 +0100
+Message-ID: <1358937274-14908-1-git-send-email-alexander.stein@systec-electronic.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1358936588-16375-1-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, aaro.koskinen-X3B1VOXEql0@public.gmane.org, Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Now that we never set STP and STT together,
-that flag has been rendered useless. Let's
-completely drop it.
+It was observed the Host Clock Divider was not written by the driver. It
+was still set to (default) 0, if not already set by BIOS, which caused
+garbage on SMBus.
+This driver adds a parameters which is used to calculate the divider
+appropriately for a default bitrate of 100 KHz. This new divider is only
+applied if the clock divider is still default 0.
 
-Signed-off-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-omap.c | 7 -------
- 1 file changed, 7 deletions(-)
+This patch supersedes the older patch
+ i2c-isch: Add module parameter which actually set the clock divider
+from 2012. It now has only one parameter to set the backbone clock rate which
+is guessed to 33 MHz which is the maximum for both device the lpc_sch driver
+is for. It registers a single i2c_smbus platform device.
+To my knowledge we can't determine if we have 33 or 25 MHz clock for SMBus,
+so expect 33 MHz and calculate a bus clock of 100 kHz. If we actually run
+at 25 MHz the bus will be run ~75 kHz instead which should do no harm.
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index 4e715c4..96cdfba 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -215,7 +215,6 @@ struct omap_i2c_dev {
- 						 * if set, should be trsh+1
- 						 */
- 	u32			rev;
--	unsigned		b_hw:1;		/* bad h/w fixes */
- 	unsigned		receiver:1;	/* true when we're in receiver mode */
- 	u16			iestate;	/* Saved interrupt register */
- 	u16			pscstate;
-@@ -557,9 +556,6 @@ static void omap_i2c_resize_fifo(struct omap_i2c_dev *dev, u8 size, bool is_rx)
+ drivers/i2c/busses/i2c-isch.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
+index 4099f79..495d28f 100644
+--- a/drivers/i2c/busses/i2c-isch.c
++++ b/drivers/i2c/busses/i2c-isch.c
+@@ -40,6 +40,7 @@
+ /* SCH SMBus address offsets */
+ #define SMBHSTCNT	(0 + sch_smba)
+ #define SMBHSTSTS	(1 + sch_smba)
++#define SMBHSTCLK	(2 + sch_smba)
+ #define SMBHSTADD	(4 + sch_smba) /* TSA */
+ #define SMBHSTCMD	(5 + sch_smba)
+ #define SMBHSTDAT0	(6 + sch_smba)
+@@ -58,6 +59,7 @@
  
- 	omap_i2c_write_reg(dev, OMAP_I2C_BUF_REG, buf);
+ static unsigned short sch_smba;
+ static struct i2c_adapter sch_adapter;
++static int backbone_speed = 33000; /* backbone speed in KHz */
  
--	if (dev->rev < OMAP_I2C_REV_ON_3630)
--		dev->b_hw = 1; /* Enable hardware fixes */
--
- 	/* calculate wakeup latency constraint for MPU */
- 	if (dev->set_mpu_wkup_lat != NULL)
- 		dev->latency = (1000000 * dev->threshold) /
-@@ -1215,9 +1211,6 @@ omap_i2c_probe(struct platform_device *pdev)
- 
- 		dev->fifo_size = (dev->fifo_size / 2);
- 
--		if (dev->rev < OMAP_I2C_REV_ON_3630)
--			dev->b_hw = 1; /* Enable hardware fixes */
--
- 		/* calculate wakeup latency constraint for MPU */
- 		if (dev->set_mpu_wkup_lat != NULL)
- 			dev->latency = (1000000 * dev->fifo_size) /
+ /*
+  * Start the i2c transaction -- the i2c_access will prepare the transaction
+@@ -156,6 +158,14 @@ static s32 sch_access(struct i2c_adapter *adap, u16 addr,
+ 		dev_dbg(&sch_adapter.dev, "SMBus busy (%02x)\n", temp);
+ 		return -EAGAIN;
+ 	}
++	temp = inw(SMBHSTCLK);
++	if (!temp) {
++		int smbus_speed = 100;
++		dev_notice(&sch_adapter.dev, "clock divider unitialized. Setting module defaults\n");
++		dev_dbg(&sch_adapter.dev, "access speed: %d KHz\n", smbus_speed);
++		outw((backbone_speed / 4) / smbus_speed, SMBHSTCLK);
++	}
++
+ 	dev_dbg(&sch_adapter.dev, "access size: %d %s\n", size,
+ 		(read_write)?"READ":"WRITE");
+ 	switch (size) {
+@@ -312,3 +322,4 @@ MODULE_AUTHOR("Jacob Pan <jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>");
+ MODULE_DESCRIPTION("Intel SCH SMBus driver");
+ MODULE_LICENSE("GPL");
+ MODULE_ALIAS("platform:isch_smbus");
++module_param(backbone_speed, int, (S_IRUSR | S_IWUSR));
 -- 
-1.8.1.rc1.5.g7e0651a
+1.8.1.1
