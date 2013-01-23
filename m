@@ -1,128 +1,47 @@
-From: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
-Subject: Re: linux-3.7.[1,4]: kmemleak in i801_probe
-Date: Wed, 23 Jan 2013 18:35:57 +0100
-Message-ID: <51001F7D.6070905@fold.natur.cuni.cz>
-References: <50FFC659.1090402@fold.natur.cuni.cz> <20130123174204.00463f98@endymion.delvare>
+From: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
+Subject: Re: [PATCH 0/6] i2c: deferred STP
+Date: Wed, 23 Jan 2013 22:05:41 +0200
+Message-ID: <20130123200540.GE23057@blackmetal.musicnaut.iki.fi>
+References: <20130123095813.GG3767@nekote.pengutronix.de>
+ <1358936588-16375-1-git-send-email-balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130123174204.00463f98-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1358936588-16375-1-git-send-email-balbi-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Jean,
+Hi,
 
-Jean Delvare wrote:
-> Hi Martin,
+On Wed, Jan 23, 2013 at 12:23:02PM +0200, Felipe Balbi wrote:
+> Hi folks,
 > 
-> On Wed, 23 Jan 2013 12:15:37 +0100, Martin Mokrejs wrote:
->> Hi,
->>   I already reported this to lkml recently with linux-3.7.1 but this is to let you know
->> that with 3.7.4 I am still getting this kmemleak reported by the kernel.
+> it's now rebased on today's i2c-embedded/for-next. I boot tested with my
+> Blaze board.
 > 
-> I don't read LKML.
-> 
->> unreferenced object 0xffff88040b614690 (size 256):
->>   comm "swapper/0", pid 1, jiffies 4294937573 (age 133834.550s)
->>   hex dump (first 32 bytes):
->>     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
->>     ff ff ff ff ff ff ff ff 08 7f 5d 82 ff ff ff ff  ..........].....
->>   backtrace:
->>     [<ffffffff815b4aad>] kmemleak_alloc+0x21/0x3e
->>     [<ffffffff81110352>] slab_post_alloc_hook+0x28/0x2a
->>     [<ffffffff8111288a>] __kmalloc+0xf2/0x104
->>     [<ffffffff81305165>] kzalloc.constprop.14+0xe/0x10
->>     [<ffffffff813055c6>] device_private_init+0x14/0x63
->>     [<ffffffff813076a0>] dev_set_drvdata+0x19/0x2f
->>     [<ffffffff815c4f5e>] i801_probe+0x5e/0x451
->>     [<ffffffff81280e40>] local_pci_probe+0x39/0x61
->>     [<ffffffff81281f53>] pci_device_probe+0xc6/0xf3
->>     [<ffffffff81307c5d>] driver_probe_device+0xa9/0x1c1
->>     [<ffffffff81307dcf>] __driver_attach+0x5a/0x7e
->>     [<ffffffff8130650a>] bus_for_each_dev+0x57/0x83
->>     [<ffffffff81307806>] driver_attach+0x19/0x1b
->>     [<ffffffff813073d8>] bus_add_driver+0xa8/0x1fa
->>     [<ffffffff81308241>] driver_register+0x8c/0x106
->>     [<ffffffff81281b4e>] __pci_register_driver+0x59/0x5d
-> 
-> I am using the i2c-i801 driver, enabled kmemleak, but I don't get this
-> leak. Did you have to do anything special to get it? Didn't you get a
+> Aaro, if you could verify it doesn't break N900, I'd be glad.
 
-Based on the dmesg timestamp I think I just logged in through xdm. Eh.
-Actually, xdm crashes for me, I have to do in the framebuffer VT console:
+It works, but it still introduces a ~4 second delay during the boot:
 
-root # /etc/init.d/xdm stop
-user $ startx
+[    0.180847] usbcore: registered new device driver usb
+[    0.181518] musb-omap2430 musb-omap2430: invalid resource
+[    4.289093] twl 1-0048: PIH (irq 23) chaining IRQs 338..346
+[    4.289276] twl 1-0048: power (irq 343) chaining IRQs 346..353
+[    4.321228] twl4030_gpio twl4030_gpio: gpio (irq 338) chaining IRQs 354..371
+[    4.446655] VUSB1V5: 1500 mV normal standby
 
-and happily use my X. I have a bugreport opened at https://bugs.freedesktop.org/show_bug.cgi?id=56608
-but I doubt it is related to i2c_801 driver. But it is not clear
-why I cannot just use xdm but can always start X11 via startx.
-And actually, rarely, but without reinstalling my kernel or x11
-server or drivers, I sometimes (1/20 attempts?) I can login through xdm. But
-comparing Xorg.log files from successful xdm login against those unsuccessful
-did not help so far. Only reordered items, probably due to autoconfig.
-So, I don't think it helps you with isolating the i2c_801 driver memleak.
+Without these patches, it's:
 
-> similar leak with older kernels? Do you get a similar leak (with
-> reference to dev_set_drvdata)?
+[    0.186798] usbcore: registered new device driver usb
+[    0.187438] musb-omap2430 musb-omap2430: invalid resource
+[    0.213897] twl 1-0048: PIH (irq 23) chaining IRQs 338..346
+[    0.214080] twl 1-0048: power (irq 343) chaining IRQs 346..353
+[    0.215301] twl4030_gpio twl4030_gpio: gpio (irq 338) chaining IRQs 354..371
+[    0.217926] VUSB1V5: 1500 mV normal standby
 
-With 3.7.1 I was getting same stacktrace:
+I'll try to find out what change is causing this.
 
-unreferenced object 0xffff88040b1c5230 (size 256):
-  comm "swapper/0", pid 1, jiffies 4294937570 (age 182492.630s)
-  hex dump (first 32 bytes):
-    00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
-    ff ff ff ff ff ff ff ff 38 3f 5d 82 ff ff ff ff  ........8?].....
-  backtrace:
-    [<ffffffff815b1dbd>] kmemleak_alloc+0x21/0x3e
-    [<ffffffff81110536>] slab_post_alloc_hook+0x28/0x2a
-    [<ffffffff81112a6e>] __kmalloc+0xf2/0x104
-    [<ffffffff81302bd5>] kzalloc.constprop.14+0xe/0x10
-    [<ffffffff81303036>] device_private_init+0x14/0x63
-    [<ffffffff81305110>] dev_set_drvdata+0x19/0x2f
-    [<ffffffff815c1ed4>] i801_probe+0x5e/0x451
-    [<ffffffff81280fb3>] local_pci_probe+0x5b/0xa2
-    [<ffffffff81282074>] pci_device_probe+0xc8/0xf7
-    [<ffffffff813056cd>] driver_probe_device+0xa9/0x1c1
-    [<ffffffff8130583f>] __driver_attach+0x5a/0x7e
-    [<ffffffff81303f7a>] bus_for_each_dev+0x57/0x83
-    [<ffffffff81305276>] driver_attach+0x19/0x1b
-    [<ffffffff81304e48>] bus_add_driver+0xa8/0x1fa
-    [<ffffffff81305cb1>] driver_register+0x8c/0x106
-    [<ffffffff81281c6d>] __pci_register_driver+0x5a/0x5e
-
-Before 3.7.1 I did not use kmemleak detector. while searching my older emails/reports
-I found only that I loaded in the past both drivers (on a 2.6.32.59 kernel):
-
-Mar 26 11:21:55 vostro kernel: i801_smbus 0000:00:1f.3: PCI INT C -> GSI 18 (level, low) -> IRQ 18
-Mar 26 11:21:55 vostro kernel: ACPI: If an ACPI driver is available for this device, you should use it instead of the native driver
-
-
-And here the relevant line from lspci from that time:
-00:1f.3 SMBus: Intel Corporation 6 Series/C200 Series Chipset Family SMBus Controller (rev 05)
-
-00:1f.3 SMBus: Intel Corporation 6 Series/C200 Series Chipset Family SMBus Controller (rev 05)
-        Subsystem: Dell Device 04b3
-        Flags: medium devsel, IRQ 18
-        Memory at f7f05000 (64-bit, non-prefetchable) [size=256]
-        I/O ports at f040 [size=32]
-        Kernel modules: i2c-i801
-
-
-I don't think this will help you now. :(
-
-
-> 
-> I can see that dev_set_drvdata may allocate memory (which I didn't
-> know) and I admit I don't see where it gets released, however this is
-> all happening in the driver core and isn't specific to the i2c-i801
-> driver, so if there really is a leak there, you should see it in all
-> drivers.
-
-I am not a kernel developer at all but maybe that little bit points out that the
-kmemleak was reported when I was pulling in/out my external USB drives?
-
-Martin
+A.
