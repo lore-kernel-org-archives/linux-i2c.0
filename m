@@ -1,86 +1,71 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.8
-Date: Wed, 23 Jan 2013 14:23:01 +0100
-Message-ID: <20130123132301.GA18005@pengutronix.de>
+From: Liu Ying <liu.y.victor@gmail.com>
+Subject: Re: [PATCH 1/2] misc/at24: Add at24c512b eeprom support
+Date: Wed, 23 Jan 2013 21:40:26 +0800
+Message-ID: <CA+8Hj80=Mk1gMSC9gcRT_XPFrEdRxifaB9FNMtkn3BkUkv9bGA@mail.gmail.com>
+References: <1358922764-31654-1-git-send-email-Ying.Liu@freescale.com>
+	<CACRpkdbQcyO82Z7+v61VmJBOHuPVT2ZphQQT7OpZ9edYbho5YQ@mail.gmail.com>
+	<20130123125001.GG16264@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20130123125001.GG16264@pengutronix.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Linus Walleij <linus.walleij@linaro.org>, Liu Ying <Ying.Liu@freescale.com>, Arnd Bergmann <arnd@arndb.de>, grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, shawn.guo@linaro.org, s.hauer@pengutronix.de, linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+2013/1/23 Wolfram Sang <w.sang@pengutronix.de>:
+> On Wed, Jan 23, 2013 at 01:24:52PM +0100, Linus Walleij wrote:
+>> On Wed, Jan 23, 2013 at 7:32 AM, Liu Ying <Ying.Liu@freescale.com> wrote:
+>>
+>> > This patch adds at24c512b eeprom support.
+>> > The datasheet of at24c512b can be found at:
+>> > http://www.alldatasheet.com/datasheet-pdf/pdf/
+>> > 256958/ATMEL/AT24C512B-TH-B.html
+>> >
+>> > Signed-off-by: Liu Ying <Ying.Liu@freescale.com>
+>>
+>> Arnd Bergmann is the misc maintainer, route this by him.
+>
+> I usually take at24 patches via my I2C tree.
+>
+> But not this one, though. The 512b can equally use the 512 entry. The
+> devicetree should contain both entries, the 512 one as a fallback. (And
+> the vendor is not "at24"!)
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+There are some difference between 24c512 and 24c512b about the system
+reset procedure, according to the two devices' spec:
+24c512b:(a) Create a start bit condition, (b)clock 9 cycles, (c)
+create another start bit followed by stop bit condition.
+24c512:(a) Clock up to 9 cycles, (b) look for SDA high in each cycle
+while SCL is high and then, (c) create a start condition as SDA is
+high.
+Could this be a reason to add an entry for 24c512b?
 
-Linus,
+About the vendor name, I took the at24c32 node in
+arch/arm/boot/dts/imx28-evk.dts as a reference:
 
-here are a few, typical driver fixes for the I2C subsystem. Please pull.
+                                at24@51 {
+                                        compatible = "at24,24c32";
+                                        pagesize = <32>;
+                                        reg = <0x51>;
+                                };
 
-Thanks,
+Now, I think the correct vendor name should be "at" or "atmel".
 
-   Wolfram
+Thanks.
+
+>
+> Regards,
+>
+>    Wolfram
+>
+> --
+> Pengutronix e.K.                           | Wolfram Sang                |
+> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
 
 
-The following changes since commit 7d1f9aeff1ee4a20b1aeb377dd0f579fe9647619:
 
-  Linux 3.8-rc4 (2013-01-17 19:25:45 -0800)
-
-are available in the git repository at:
-
-  git://git.pengutronix.de/git/wsa/linux.git i2c-embedded/for-current
-
-for you to fetch changes up to 9dd3162deb67e9d2dc08af8bedea61c41fae85a8:
-
-  i2c-designware: add missing MODULE_LICENSE (2013-01-22 16:43:34 +0100)
-
-----------------------------------------------------------------
-Aaro Koskinen (2):
-      i2c: omap: errata i462: fix incorrect ack for arbitration lost interr=
-upt
-      i2c: omap: fix draining irq handling
-
-Barry Song (1):
-      i2c: sirf: register i2c_client from dt child-nodes in probe entry
-
-Fabio Estevam (1):
-      i2c: mxs: Fix type of error code
-
-Laurent Navet (1):
-      i2c: muxes: fix wrong use of sizeof(ptr)
-
-Marek Vasut (1):
-      i2c: mxs: Fix misuse init_completion
-
-Mika Westerberg (1):
-      i2c-designware: add missing MODULE_LICENSE
-
- drivers/i2c/busses/i2c-designware-core.c |    4 ++++
- drivers/i2c/busses/i2c-mxs.c             |    6 ++++--
- drivers/i2c/busses/i2c-omap.c            |    6 +++---
- drivers/i2c/busses/i2c-sirf.c            |    4 ++++
- drivers/i2c/muxes/i2c-mux-pinctrl.c      |    2 +-
- 5 files changed, 16 insertions(+), 6 deletions(-)
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---7AUc2qLy4jB3hD7Z
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlD/5DUACgkQD27XaX1/VRt5qwCfUisVfXBxKaIby+oc3dSMP+cQ
-NRUAnA03Hta7H07pBdt+x/ZFYMDK3WpB
-=z2vQ
------END PGP SIGNATURE-----
-
---7AUc2qLy4jB3hD7Z--
+-- 
+Best Regards,
+Liu Ying
