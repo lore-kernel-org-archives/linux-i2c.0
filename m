@@ -1,39 +1,60 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V8 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Wed, 23 Jan 2013 21:14:52 +0530
-Message-ID: <CAKohpom6madBtjFeFoTx=+t=DJ4tU2XDyQhidLG+F=CrWmJtNg@mail.gmail.com>
-References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
-	<CAKohpokjxh0DDZVFy1uN7ejdd_=jkbyVvYCy73jJChMy5dKeGA@mail.gmail.com>
-	<50C1005B.7@pcserviceselectronics.co.uk>
-	<CAKohpo=4xDOQMcbraq9Hj1Gq1xOgSoDj9xoYLHcosTyUJkD6fg@mail.gmail.com>
-	<20121219000000.GC19157@pengutronix.de>
-	<CAKohponZSSyAGnayRXLOBRZ+AgfB1ut3MLyvHSOTQMPTeU-uxA@mail.gmail.com>
-	<CAKohpo=1BfLScbqk-Mt_kA62pP1+EKUxCkSRbKvLfiXhGyvz5A@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: linux-3.7.[1,4]: kmemleak in i801_probe
+Date: Wed, 23 Jan 2013 17:42:04 +0100
+Message-ID: <20130123174204.00463f98@endymion.delvare>
+References: <50FFC659.1090402@fold.natur.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKohpo=1BfLScbqk-Mt_kA62pP1+EKUxCkSRbKvLfiXhGyvz5A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <50FFC659.1090402-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Paul Carpenter <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
+To: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 7 January 2013 16:02, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 20 December 2012 14:47, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> On 19 December 2012 05:30, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
->>> Since I missed the things Paul luckily spotted, I think it might make
->>> sense to actually use the framework myself to get me a better feeling
->>> that I have not missed anything else. So, I am going to add support for
->>> another I2C master controller to your framework and see what will happen
->>> when I actually use it. It will be probably the mxs controller, I
->>> collected the hardware for that already...
->>
->> Nothing could be better than that :)
->
-> Hi Wolfram,
->
-> HNY '13.
->
-> You got some chance to test this stuff ?
+Hi Martin,
 
-Ping!!
+On Wed, 23 Jan 2013 12:15:37 +0100, Martin Mokrejs wrote:
+> Hi,
+>   I already reported this to lkml recently with linux-3.7.1 but this is to let you know
+> that with 3.7.4 I am still getting this kmemleak reported by the kernel.
+
+I don't read LKML.
+
+> unreferenced object 0xffff88040b614690 (size 256):
+>   comm "swapper/0", pid 1, jiffies 4294937573 (age 133834.550s)
+>   hex dump (first 32 bytes):
+>     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+>     ff ff ff ff ff ff ff ff 08 7f 5d 82 ff ff ff ff  ..........].....
+>   backtrace:
+>     [<ffffffff815b4aad>] kmemleak_alloc+0x21/0x3e
+>     [<ffffffff81110352>] slab_post_alloc_hook+0x28/0x2a
+>     [<ffffffff8111288a>] __kmalloc+0xf2/0x104
+>     [<ffffffff81305165>] kzalloc.constprop.14+0xe/0x10
+>     [<ffffffff813055c6>] device_private_init+0x14/0x63
+>     [<ffffffff813076a0>] dev_set_drvdata+0x19/0x2f
+>     [<ffffffff815c4f5e>] i801_probe+0x5e/0x451
+>     [<ffffffff81280e40>] local_pci_probe+0x39/0x61
+>     [<ffffffff81281f53>] pci_device_probe+0xc6/0xf3
+>     [<ffffffff81307c5d>] driver_probe_device+0xa9/0x1c1
+>     [<ffffffff81307dcf>] __driver_attach+0x5a/0x7e
+>     [<ffffffff8130650a>] bus_for_each_dev+0x57/0x83
+>     [<ffffffff81307806>] driver_attach+0x19/0x1b
+>     [<ffffffff813073d8>] bus_add_driver+0xa8/0x1fa
+>     [<ffffffff81308241>] driver_register+0x8c/0x106
+>     [<ffffffff81281b4e>] __pci_register_driver+0x59/0x5d
+
+I am using the i2c-i801 driver, enabled kmemleak, but I don't get this
+leak. Did you have to do anything special to get it? Didn't you get a
+similar leak with older kernels? Do you get a similar leak (with
+reference to dev_set_drvdata)?
+
+I can see that dev_set_drvdata may allocate memory (which I didn't
+know) and I admit I don't see where it gets released, however this is
+all happening in the driver core and isn't specific to the i2c-i801
+driver, so if there really is a leak there, you should see it in all
+drivers.
+
+-- 
+Jean Delvare
