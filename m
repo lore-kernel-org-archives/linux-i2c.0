@@ -1,61 +1,39 @@
-From: Liu Ying <liu.y.victor@gmail.com>
-Subject: Re: [PATCH 1/2] misc/at24: Add at24c512b eeprom support
-Date: Wed, 23 Jan 2013 22:23:21 +0800
-Message-ID: <CA+8Hj81NmS5KZp+0NRSgKMHyGueDhQw51DjuA_3s7x50F5GJFg@mail.gmail.com>
-References: <1358922764-31654-1-git-send-email-Ying.Liu@freescale.com>
-	<CACRpkdbQcyO82Z7+v61VmJBOHuPVT2ZphQQT7OpZ9edYbho5YQ@mail.gmail.com>
-	<20130123125001.GG16264@pengutronix.de>
-	<CA+8Hj80=Mk1gMSC9gcRT_XPFrEdRxifaB9FNMtkn3BkUkv9bGA@mail.gmail.com>
-	<20130123134936.GH16264@pengutronix.de>
-	<CA+8Hj83n+pC+a6bYOOH1b61DTqSjpKsxyKDgDL2pCRKxTq4EXg@mail.gmail.com>
-	<20130123141445.GA2758@pengutronix.de>
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V8 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Wed, 23 Jan 2013 21:14:52 +0530
+Message-ID: <CAKohpom6madBtjFeFoTx=+t=DJ4tU2XDyQhidLG+F=CrWmJtNg@mail.gmail.com>
+References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
+	<CAKohpokjxh0DDZVFy1uN7ejdd_=jkbyVvYCy73jJChMy5dKeGA@mail.gmail.com>
+	<50C1005B.7@pcserviceselectronics.co.uk>
+	<CAKohpo=4xDOQMcbraq9Hj1Gq1xOgSoDj9xoYLHcosTyUJkD6fg@mail.gmail.com>
+	<20121219000000.GC19157@pengutronix.de>
+	<CAKohponZSSyAGnayRXLOBRZ+AgfB1ut3MLyvHSOTQMPTeU-uxA@mail.gmail.com>
+	<CAKohpo=1BfLScbqk-Mt_kA62pP1+EKUxCkSRbKvLfiXhGyvz5A@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130123141445.GA2758@pengutronix.de>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Linus Walleij <linus.walleij@linaro.org>, Liu Ying <Ying.Liu@freescale.com>, Arnd Bergmann <arnd@arndb.de>, grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linux@arm.linux.org.uk, shawn.guo@linaro.org, s.hauer@pengutronix.de, linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAKohpo=1BfLScbqk-Mt_kA62pP1+EKUxCkSRbKvLfiXhGyvz5A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Paul Carpenter <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-2013/1/23 Wolfram Sang <w.sang@pengutronix.de>:
+On 7 January 2013 16:02, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On 20 December 2012 14:47, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+>> On 19 December 2012 05:30, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+>>> Since I missed the things Paul luckily spotted, I think it might make
+>>> sense to actually use the framework myself to get me a better feeling
+>>> that I have not missed anything else. So, I am going to add support for
+>>> another I2C master controller to your framework and see what will happen
+>>> when I actually use it. It will be probably the mxs controller, I
+>>> collected the hardware for that already...
+>>
+>> Nothing could be better than that :)
 >
->> The names of the two entries are not the same, one is "24c512", the
->> other is "24c512b".
+> Hi Wolfram,
 >
-> I do understand that. There are TONS of 24c512 variants out there.
+> HNY '13.
 >
->> My original idea to add the new entry is to count on the name
->> difference to do different system reset operations.
->
-> Your devicetree may have both names, but at24 doesn't need it since
-> there is no code involved handling the difference.
->
->> The commit message of the patch which adds 24c32 support for MX28EVK
->> tells that "mx28evk has a free slot U50 that can be used to populate
->> an I2C EEPROM.".
->
-> I do know that, too. You can put other things there, too. But well, not
-> worth the hazzle...
+> You got some chance to test this stuff ?
 
-I accept your comments on this patch. Thanks for your review!
-
->
-> --
-> Pengutronix e.K.                           | Wolfram Sang                |
-> Industrial Linux Solutions                 | http://www.pengutronix.de/  |
->
-> -----BEGIN PGP SIGNATURE-----
-> Version: GnuPG v1.4.10 (GNU/Linux)
->
-> iEYEARECAAYFAlD/8FUACgkQD27XaX1/VRsmGgCeJZCaByj0gw37lr753wxW0npY
-> 06oAn0WAmYiUabRNgQ6eAmcO7Ky3f1U4
-> =JSKP
-> -----END PGP SIGNATURE-----
->
-
-
-
--- 
-Best Regards,
-Liu Ying
+Ping!!
