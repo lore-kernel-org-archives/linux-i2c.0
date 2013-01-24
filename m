@@ -1,71 +1,51 @@
-From: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>
-Subject: Re: [PATCH 0/6] i2c: deferred STP
-Date: Thu, 24 Jan 2013 18:11:21 +0200
-Message-ID: <20130124161121.GD23053@blackmetal.musicnaut.iki.fi>
-References: <20130123095813.GG3767@nekote.pengutronix.de>
- <1358936588-16375-1-git-send-email-balbi@ti.com>
- <20130123200540.GE23057@blackmetal.musicnaut.iki.fi>
+From: Olof Johansson <olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: samsung: resume race fix
+Date: Thu, 24 Jan 2013 08:42:23 -0800
+Message-ID: <CALiw-2GqdmxDAsBCvLUpwXLe9Hf-Qzv4APp86f1dh1MYBqTzdA@mail.gmail.com>
+References: <1352284106-24988-1-git-send-email-ch.naveen@samsung.com>
+	<20121107114437.0a563c7e@endymion.delvare>
+	<20130124132759.GH12933@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130123200540.GE23057-R3WNPi76c83LsdW6vOPryG4HOFkwEHDbMR2xtNvyitY@public.gmane.org>
+In-Reply-To: <20130124132759.GH12933-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux OMAP Mailing List <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jan 23, 2013 at 10:05:41PM +0200, Aaro Koskinen wrote:
-> On Wed, Jan 23, 2013 at 12:23:02PM +0200, Felipe Balbi wrote:
-> > Hi folks,
-> > 
-> > it's now rebased on today's i2c-embedded/for-next. I boot tested with my
-> > Blaze board.
-> > 
-> > Aaro, if you could verify it doesn't break N900, I'd be glad.
-> 
-> It works, but it still introduces a ~4 second delay during the boot:
-> 
-> [    0.180847] usbcore: registered new device driver usb
-> [    0.181518] musb-omap2430 musb-omap2430: invalid resource
-> [    4.289093] twl 1-0048: PIH (irq 23) chaining IRQs 338..346
-> [    4.289276] twl 1-0048: power (irq 343) chaining IRQs 346..353
-> [    4.321228] twl4030_gpio twl4030_gpio: gpio (irq 338) chaining IRQs 354..371
-> [    4.446655] VUSB1V5: 1500 mV normal standby
+[Silly gmail defaulting to html the first time around, sorry for the
+re-send to those not on lists]
 
-This delay is coming from omap_i2c_wait_for_bb(), with ARDY interrupt
-disabled we need to poll for BB bit longer, it seems for every transfer.
+2013/1/24 Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+> On Wed, Nov 07, 2012 at 11:44:37AM +0100, Jean Delvare wrote:
+>> On Wed, 07 Nov 2012 15:58:26 +0530, Naveen Krishna Chatradhi wrote:
+>> > Don't unmark the device as suspended until after it's been re-setup.
+>> >
+>> > The main race would be w.r.t. an i2c driver that gets resumed at the same
+>> > time (asyncronously), that is allowed to do a transfer since suspended
+>> > is set to 0 before reinit, but really should have seen the -EIO return
+>> > instead.
+>>
+>> I thought that the suspend order was children first and the resume
+>> order was parent first?
+>
+> Same here, why does it not work this way?
 
-Replacing msleep(1) with usleep_range(800, 1200) drops it half, and with
-just cpu_relax() the delay is gone - but obviously may increase the CPU
-time usage.
+Sorry for being quiet on this so far, I didn't notice the controversy until now.
 
-BTW, with TWL RTC on OMAP boards you can quickly sanity check I2C
-throughput:
+This is actually about half of what the original fix was (which I
+wrote, thus my signed-off-by). The original one was related to us
+having the GPIO handshake for a shared bus (see separate discussions
+on how that should be upstreamed, and the work on that). For
+reference, that patch is at:
+https://gerrit.chromium.org/gerrit/#/c/28126/1/drivers/i2c/busses/i2c-s3c2410.c.
 
-	while /bin/true; do cat /sys/class/rtc/rtc0/time ; done | uniq -c
+So, I'm not sure that this patch is really needed. The significant
+part of the original one was the move of our internal
+s3c24xx_i2c_dt_gpio_free() below setting suspended = 1. Upstream
+implementation of the same functionality will be implemented
+differently, most likely.
 
-For these patches I get (ignoring the first line of the output):
 
-Before:
-     88 00:13:07
-     89 00:13:08
-     89 00:13:09
-     88 00:13:10
-     89 00:13:11
-
-After:
-     26 00:00:30
-     26 00:00:31
-     26 00:00:32
-     26 00:00:33
-     26 00:00:34
-
-After + omap_i2c_wait_for_bb() msleep() replaced with cpu_relax():
-     91 00:04:59
-     90 00:05:00
-     91 00:05:01
-     90 00:05:02
-     91 00:05:03
-
-A.
+-Olof
