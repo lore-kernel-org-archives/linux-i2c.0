@@ -1,88 +1,55 @@
-From: Felipe Balbi <balbi@ti.com>
-Subject: Re: [PATCH 5/6] i2c: omap: wait for transfer completion before
- sending STP bit
-Date: Thu, 24 Jan 2013 09:35:25 +0200
-Message-ID: <20130124073525.GB27304@arwen.pp.htv.fi>
-References: <20130123095813.GG3767@nekote.pengutronix.de>
- <1358936588-16375-1-git-send-email-balbi@ti.com>
- <1358936588-16375-6-git-send-email-balbi@ti.com>
- <20130123201031.GF23057@blackmetal.musicnaut.iki.fi>
-Reply-To: <balbi@ti.com>
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: sirf: add support for new SiRFmarco SMP SoC
+Date: Thu, 24 Jan 2013 15:38:54 +0800
+Message-ID: <CAGsJ_4wXn8PT4+Ct_qnEXiFEYVAZ8H_AYG=Ojo7Oog9QhZivMw@mail.gmail.com>
+References: <1356489017-17737-1-git-send-email-Barry.Song@csr.com>
+ <1356489017-17737-2-git-send-email-Barry.Song@csr.com> <20130124072736.GJ8364@nekote.pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eJnRUKwClWJh1Khz"
-Return-path: <linux-omap-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130123201031.GF23057@blackmetal.musicnaut.iki.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Felipe Balbi <balbi@ti.com>, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Tony Lindgren <tony@atomide.com>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130124072736.GJ8364-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---eJnRUKwClWJh1Khz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+2013/1/24 Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+> On Wed, Dec 26, 2012 at 10:30:17AM +0800, Barry Song wrote:
+>> From: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+>>
+>> the driver is also compatible with SiRFmarco except SiRFprimaII,
+>> so simply add "sirf,marco-i2c" to OF match table.
+>>
+>> Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+>
+> Why can't you use the existing compatible entry as a fallback like in:
+>
+>         compatible = "sirf,marco-i2c", "sirf,prima2-i2c";
+> ?
 
-HI,
+ok. let's hold on this one.
+i was hoping registers layout/work mode would have some changes in the
+final marco design as marco chip was still a fpga.
+i have been sure spi will have a new high speed mode, for i2c, no
+message for the moment.
 
-On Wed, Jan 23, 2013 at 10:10:31PM +0200, Aaro Koskinen wrote:
-> Hi,
->=20
-> Some minor comments/questions:
->=20
-> On Wed, Jan 23, 2013 at 12:23:07PM +0200, Felipe Balbi wrote:
-> > @@ -639,31 +630,37 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *=
-adap,
-> >  		dev_err(dev->dev, "controller timed out\n");
-> >  		omap_i2c_reset(dev);
-> >  		__omap_i2c_init(dev);
-> > -		return -ETIMEDOUT;
-> > +		ret =3D -ETIMEDOUT;
-> > +		goto out;
-> >  	}
-> > =20
-> > -	if (likely(!dev->cmd_err))
-> > -		return 0;
-> > -
-> >  	/* We have an error */
-> >  	if (dev->cmd_err & (OMAP_I2C_STAT_AL | OMAP_I2C_STAT_ROVR |
-> >  			    OMAP_I2C_STAT_XUDF)) {
-> >  		omap_i2c_reset(dev);
-> >  		__omap_i2c_init(dev);
-> > -		return -EIO;
-> > +		ret =3D -EIO;
-> > +		goto out;
->=20
-> Why change return to goto on these paths? If you reset and re-initialize
-> the controller, I think it's unlikely that omap_i2c_wait_for_ardy()
-> will ever succeed?
+>
+>> ---
+>>  drivers/i2c/busses/i2c-sirf.c |    1 +
+>>  1 files changed, 1 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+>> index 181d7c2..ed38b16 100644
+>> --- a/drivers/i2c/busses/i2c-sirf.c
+>> +++ b/drivers/i2c/busses/i2c-sirf.c
+>> @@ -439,6 +439,7 @@ static const struct dev_pm_ops i2c_sirfsoc_pm_ops = {
+>>
+>>  static const struct of_device_id sirfsoc_i2c_of_match[] __devinitconst = {
+>>       { .compatible = "sirf,prima2-i2c", },
+>> +     { .compatible = "sirf,marco-i2c", },
+>>       {},
+>>  };
+>>  MODULE_DEVICE_TABLE(of, sirfsoc_i2c_of_match);
+>> --
 
-good catch, I'll update.
-
---=20
-balbi
-
---eJnRUKwClWJh1Khz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRAOQ9AAoJEIaOsuA1yqREBm0QAKqVfohm35FxZk28sAb1WVcO
-Xt3BNkryZQMqJeMOSLCUhExkVzFBDzhs5Tkm29kKHuo3fYZvyV+1fuYsHQEl/Q9N
-zSPR3OsRpRPHsoBLMoU43P0m58opkzcpnYwoXGZAkMjvNVUlXzwkTYAyKzaNERq2
-OVXYOvNk2M41E1eUl0oJ3rd6b7sMA2C09a72mtpLxWNdAMSgq5JQa8NfdN2lQ6Ug
-MeDAhKcc02kevRBkdf0wM7oLyVGrtm/gYLc26rXhf+YjmeuTb/LvzUKr1s2qjwUl
-6Xr6lhb6ztczjyi47BRKFO11zgZ/aDlp8S5r83yoW8TolzUeVEWmNZ+SWMISG4bl
-l/7iNofJPvUqyUrPmWnqU3DPE9QKdBLiP84mZX3L28V1hPJ3bPtjRriLU1BpaNZK
-uLioEj4EME3I7SSV2Ybnjq2RJO0ArESVX599y/Vr3ZyQ+s/2xXvz7CDzHmqEqu84
-pRv3sRvmzu/TWuxbEfl/H5Ap/qWZOYkIxi3rKnklXUOKhdvD9mWr8753/QoVwvGa
-9oaemny3A7IbJ5GqEajYA2K/0JuwP6BYYsePtawawtzdbsAgGP74qcKBgkDjHsNw
-AmaRS+2nkb5fFgiDQkoVP4yYjiXlqv0oK1A0rbR+UZdRAvrmsVPe+/fcLvK2nqLd
-GfuA50MT287FU/LoCmVq
-=tCS7
------END PGP SIGNATURE-----
-
---eJnRUKwClWJh1Khz--
+-barry
