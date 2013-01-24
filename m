@@ -1,65 +1,135 @@
-From: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: at91: add of_device_id entry for at91rm9200
-Date: Thu, 24 Jan 2013 09:43:02 +0100
-Message-ID: <CAGhQ9VxRrPOOQKragU=zSW-FPYdsmUEqY7k_fNHZVEM18zXvCg@mail.gmail.com>
-References: <1354743732-11581-1-git-send-email-manabian@gmail.com>
-	<20121218060232.GL23971@game.jcrosoft.org>
-	<20130124072714.GH8364@nekote.pengutronix.de>
-	<5100E9A4.9020804@atmel.com>
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V8 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Thu, 24 Jan 2013 14:17:55 +0530
+Message-ID: <CAKohpo=HhdsVRqzGN87yUSz3rEn-3MHEh3rM0-XJJgcX19kXUg@mail.gmail.com>
+References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
+	<20130124072445.GA8364@nekote.pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5100E9A4.9020804-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20130124072445.GA8364-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "ludovic.desroches" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 24 January 2013 08:58, ludovic.desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org> wrote:
-> Hi,
->
->
-> On 01/24/2013 08:27 AM, Wolfram Sang wrote:
->>
->> On Tue, Dec 18, 2012 at 07:02:32AM +0100, Jean-Christophe PLAGNIOL-VILLARD
->> wrote:
->>>
->>> On 22:42 Wed 05 Dec     , Joachim Eastwood wrote:
->>>>
->>>> Signed-off-by: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->>>> ---
->>>> Hi,
->>>>
->>>> AT91RM9200 is gaining DT support now so let's add an id to the i2c
->>>> driver.
->>>>
->>>> Tested on custom RM9200 board. Since the driver doesn't support pinctrl
->>>> muxing yet I had to add pinctrl hogs for the i2c pins in my dts for it
->>>> to work.
->>>
->>>
->>> IIRC the i2c IP have quite a lots of issue on rm9200 and until sam9g45
->>>
->>> it not recommended to use it instead use i2c-gpio
->>
->>
->> Ludovic, you know the driver best. Does it make sense to add this?
->
->
-> I didn't add this when I did the rework because there was no DT tree support
-> for RM9200. The configuration for RM9200 IP is already in the driver and
-> used for non DT platform so I think it makes sense to add this.
->
-> But as Jean-Christophe said, it's recommended to use the i2c-gpio driver
-> since we know the first versions of the IP have several issues. However if
-> it fits user usage, it is not forbidden to use it.
+On 24 January 2013 12:54, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
+> Hi Viresh,
 
-I assumed the new driver handles the HW quirks better than the old atmel-twi
-driver(?). So the RM9200 i2c HW is at least usable with this driver.
+Hi Wolfram
 
-I didn't encounter any problems during my short testing using a couple of
-different i2c devices. As far as I can remember the old driver didn't even
-handle the devices I tested with the new driver.
+> I think we are getting close.
 
-regards
-Joachim Eastwood
+Wow!!
+
+> On Mon, Dec 03, 2012 at 08:24:04AM +0530, Viresh Kumar wrote:
+>> This doesn't support multi-master recovery for now.
+>
+> Assuming that recover_bus is not called on BUS_BUSY but on TIMEOUTs,,
+> this should work?
+
+@Uwe/Paul: ??
+
+>> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+>> +/* 10^6/KHz for delay in ns */
+>> +unsigned long clk_delay = DIV_ROUND_UP(1000000, DEFAULT_CLK_RATE * 2);
+>
+> no global variable. should go into the function needing it.
+
+I kept it to make sure we don't do this calculation every time... I would like
+to keep it for better performance..
+
+>> +static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
+>> +{
+>> +     struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+>> +     struct device *dev = &adap->dev;
+>> +     int ret = 0;
+>> +
+>> +     ret = gpio_request_one(bri->scl_gpio, GPIOF_OPEN_DRAIN |
+>> +                     GPIOF_OUT_INIT_HIGH, "i2c-scl");
+>> +     if (ret) {
+>> +             dev_warn(dev, "gpio request fail: %d\n", bri->scl_gpio);
+>> +             return ret;
+>> +     }
+>> +
+>> +     if (!bri->skip_sda_polling) {
+>
+> * if (is_valid_gpio(bri->sda_gpio)) ...
+
+Hmm.. looks pretty good and correct. Will buy this one :)
+
+>> +             if (gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda")) {
+>> +                     /* work without sda polling */
+>> +                     dev_warn(dev, "can't get sda: %d. Skip sda polling\n",
+>> +                                     bri->sda_gpio);
+>> +                     bri->skip_sda_polling = true;
+>
+> * Instead of above line:
+>         bri->get_sda = get_sda_gpio_value;
+
+Hmm.. couldn't get this one...
+So, what i understood is, because we don't have skip_sda_polling now, we
+have to choose some other way to say, we don't support sda.. so we can
+mark get_sda as NULL. right?
+
+>> +static int i2c_generic_recovery(struct i2c_adapter *adap)
+>> +{
+>> +     struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
+>> +     int i, val = 0;
+>> +
+>> +     if (bri->prepare_recovery)
+>> +             bri->prepare_recovery(bri);
+>
+> prepare_recovery and unprepare should be in i2c_generic_scl_recovery and
+> i2c_generic_gpio_recovery since they are probably needed to turn SDA/SCL
+> into GPIOs and back. We want that before the gpio_get/put routines.
+
+i2c_generic_recovery() is an local routine called from both scl and
+gpio recovery
+routines. So, keeping a single copy of prepare/unprepare calls makes more sense.
+
+The other point about getting gpios first and then calling prepare..
+I don't think that would be right thing to do. Suppose we call prepare
+first, which would
+update padmux on the board. At this time gpio may be in output mode and my burn
+our boards. So, its better to get gpios in desired modes and then change muxing.
+
+>> +     /* SCL shouldn't be low here */
+>> +     if (!bri->get_scl(adap)) {
+>> +             dev_err(&adap->dev, "SCL is stuck Low, exiting recovery.\n");
+>
+> returning -EBUSY?
+
+Yes. Will recheck on errors returned from the routine.
+
+>> +                     /* Check SCL again to see fault condition */
+>> +                     if (!bri->get_scl(adap)) {
+>> +                             dev_err(&adap->dev, "SCL is stuck Low during recovery, exiting recovery.\n");
+>
+> returning -EBUSY?
+> This scl check should not depend on skip_sda_polling, or?
+
+yes.
+
+>> +                             goto unprepare;
+>> +                     }
+>> +
+>> +                     if (bri->get_sda(adap))
+>> +                             break;
+>
+> Checking SDA should be done before setting SCL? That would
+>
+> a) let us escape early if SDA got HIGH magically somehow until we enter
+>    the for loop for the first time
+> b) breaking out of the for loop after the last pulse is moot
+
+Good one.
+
+>> +                             dev_warn(&adap->dev,
+>> +                                             "!get_sda. skip sda polling\n");
+>
+> That message needs improvement ("!get_sda").
+
++1
+
+All other comments are accepted too.. Hopefully it may get in 3.9 :)
