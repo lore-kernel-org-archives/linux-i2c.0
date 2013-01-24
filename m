@@ -1,49 +1,50 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: samsung: resume race fix
-Date: Thu, 24 Jan 2013 17:44:03 +0100
-Message-ID: <20130124164402.GC2603@pengutronix.de>
-References: <1352284106-24988-1-git-send-email-ch.naveen@samsung.com>
- <20121107114437.0a563c7e@endymion.delvare>
- <20130124132759.GH12933@pengutronix.de>
- <CALiw-2F7tG9ogDHj4Yf47T47rBn6mAiH2XvK8jpWB1a3OhNJBQ@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CALiw-2F7tG9ogDHj4Yf47T47rBn6mAiH2XvK8jpWB1a3OhNJBQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Olof Johansson <olofj-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: [PATCH v2 re-send] i2c: s3c2410: Add quirk to exclude GPIO config for
+ exynos5440
+Date: Thu, 24 Jan 2013 11:27:51 -0800
+Message-ID: <1359055671-4173-1-git-send-email-kgene.kim@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Giridhar Maruthy <giridhar.m@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
+From: Giridhar Maruthy <giridhar.m@samsung.com>
 
---J2SCkAp4GZ/dPZZf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Giridhar Maruthy <giridhar.m@samsung.com>
+Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
+---
+Resending due to line wrapped from e-mail client.
 
+ Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt |    2 ++
+ drivers/i2c/busses/i2c-s3c2410.c                      |    2 ++
+ 2 files changed, 4 insertions(+)
 
->    below setting suspended =3D 1. Upstream implementation of the same
->    functionality will be implemented differently, most likely.
-
-Thanks, so I'll discard this patch.
-
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---J2SCkAp4GZ/dPZZf
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
-
-iEYEARECAAYFAlEBZNIACgkQD27XaX1/VRuMdACfVbOYr7sgitZ3mcmOYuPX4mQP
-gaMAn0u20XAVknNcZobpLBCrMy7TCVmL
-=gktr
------END PGP SIGNATURE-----
-
---J2SCkAp4GZ/dPZZf--
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
+index e9611ac..b92bc14 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
+@@ -8,6 +8,8 @@ Required properties:
+       (b) "samsung, s3c2440-i2c", for i2c compatible with s3c2440 i2c.
+       (c) "samsung, s3c2440-hdmiphy-i2c", for s3c2440-like i2c used
+           inside HDMIPHY block found on several samsung SoCs
++      (d) "samsung, exynos5440-i2c", for s3c2440-like i2c used
++	   on EXYNOS5440 which does not need GPIO configuration.
+   - reg: physical base address of the controller and length of memory mapped
+     region.
+   - interrupts: interrupt number to the cpu.
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index a290d08..17c5c37 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -111,6 +111,8 @@ static const struct of_device_id s3c24xx_i2c_match[] = {
+ 	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440 },
+ 	{ .compatible = "samsung,s3c2440-hdmiphy-i2c",
+ 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
++	{ .compatible = "samsung,exynos5440-i2c",
++	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
+-- 
+1.7.10.4
