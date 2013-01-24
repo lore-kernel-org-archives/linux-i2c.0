@@ -1,84 +1,77 @@
-From: ludovic.desroches <ludovic.desroches@atmel.com>
-Subject: Re: [PATCH] i2c: at91: add of_device_id entry for at91rm9200
-Date: Thu, 24 Jan 2013 10:09:22 +0100
-Message-ID: <5100FA42.7050905@atmel.com>
-References: <1354743732-11581-1-git-send-email-manabian@gmail.com>
- <20121218060232.GL23971@game.jcrosoft.org>
- <20130124072714.GH8364@nekote.pengutronix.de> <5100E9A4.9020804@atmel.com>
- <CAGhQ9VxRrPOOQKragU=zSW-FPYdsmUEqY7k_fNHZVEM18zXvCg@mail.gmail.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH 2/6] i2c: omap: also complete() when stat becomes zero
+Date: Thu, 24 Jan 2013 11:13:39 +0200
+Message-ID: <20130124091339.GF27304@arwen.pp.htv.fi>
+References: <20130123095813.GG3767@nekote.pengutronix.de>
+ <1358936588-16375-1-git-send-email-balbi@ti.com>
+ <1358936588-16375-3-git-send-email-balbi@ti.com>
+ <20130124090511.GB23053@blackmetal.musicnaut.iki.fi>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <CAGhQ9VxRrPOOQKragU=zSW-FPYdsmUEqY7k_fNHZVEM18zXvCg@mail.gmail.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Joachim Eastwood <manabian@gmail.com>
-Cc: nicolas.ferre@atmel.com, Wolfram Sang <w.sang@pengutronix.de>, "ludovic.desroches" <ludovic.desroches@atmel.com>, linux-i2c@vger.kernel.org, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="oPmsXEqKQNHCSXW7"
+Return-path: <linux-omap-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130124090511.GB23053@blackmetal.musicnaut.iki.fi>
+Sender: linux-omap-owner@vger.kernel.org
+To: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Felipe Balbi <balbi@ti.com>, w.sang@pengutronix.de, linux-i2c@vger.kernel.org, Linux OMAP Mailing List <linux-omap@vger.kernel.org>, Tony Lindgren <tony@atomide.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 01/24/2013 09:43 AM, Joachim Eastwood wrote:
-> On 24 January 2013 08:58, ludovic.desroches <ludovic.desroches@atmel.com> wrote:
->> Hi,
->>
->>
->> On 01/24/2013 08:27 AM, Wolfram Sang wrote:
->>>
->>> On Tue, Dec 18, 2012 at 07:02:32AM +0100, Jean-Christophe PLAGNIOL-VILLARD
->>> wrote:
->>>>
->>>> On 22:42 Wed 05 Dec     , Joachim Eastwood wrote:
->>>>>
->>>>> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
->>>>> ---
->>>>> Hi,
->>>>>
->>>>> AT91RM9200 is gaining DT support now so let's add an id to the i2c
->>>>> driver.
->>>>>
->>>>> Tested on custom RM9200 board. Since the driver doesn't support pinctrl
->>>>> muxing yet I had to add pinctrl hogs for the i2c pins in my dts for it
->>>>> to work.
->>>>
->>>>
->>>> IIRC the i2c IP have quite a lots of issue on rm9200 and until sam9g45
->>>>
->>>> it not recommended to use it instead use i2c-gpio
->>>
->>>
->>> Ludovic, you know the driver best. Does it make sense to add this?
->>
->>
->> I didn't add this when I did the rework because there was no DT tree support
->> for RM9200. The configuration for RM9200 IP is already in the driver and
->> used for non DT platform so I think it makes sense to add this.
->>
->> But as Jean-Christophe said, it's recommended to use the i2c-gpio driver
->> since we know the first versions of the IP have several issues. However if
->> it fits user usage, it is not forbidden to use it.
->
-> I assumed the new driver handles the HW quirks better than the old atmel-twi
-> driver(?). So the RM9200 i2c HW is at least usable with this driver.
->
+--oPmsXEqKQNHCSXW7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-No it doesn't handle HW quirks (clock stretching, stop command, etc.) 
-better for old IP versions than the old atmel-twi. Since we have no 
-workarounds for these quirks, it was recommended to use i2c-gpio.
+Hi,
 
-> I didn't encounter any problems during my short testing using a couple of
-> different i2c devices. As far as I can remember the old driver didn't even
-> handle the devices I tested with the new driver.
+On Thu, Jan 24, 2013 at 11:05:11AM +0200, Aaro Koskinen wrote:
+> On Wed, Jan 23, 2013 at 12:23:04PM +0200, Felipe Balbi wrote:
+> > In case we loop on IRQ handler until stat is
+> > finally zero, we would end up in a situation
+> > where all I2C transfers would misteriously
+> > timeout because we were not calling complete()
+> > in that situation.
+>=20
+> This is wrong, you may still have bytes to transfer,
+> but a new interrupt has not arrived yet.
+>=20
+> This patch also breaks bisection; if you just apply patches 1-2 of
+> this series the I2C does not work at all.
 
-I also did some tests on RM9200 with basic i2c devices and everything go 
-well so yes it is usable that's why I think this patch can be applied.
+probably another n900-thing. What I had seen is that we could endup in a
+situation where we wouldn't "break" out of the look, and rather would
+fall in the "goto out" when STAT register is zero. In that case, even if
+we had transferred all bytes, we wouldn't call complete() and, thus, our
+commands would timeout.
 
-Regards
+Care to send console logs of the error you have seen ? I kinda doubt we
+can fall into the situation you described above where IRQ hasn't been
+updated to STAT register.
 
-Ludovic
+--=20
+balbi
+
+--oPmsXEqKQNHCSXW7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRAPtDAAoJEIaOsuA1yqRE0dkP/Rp3FrTjYXbAdOBOxQV+XhTC
+5tduItEq2Mb7IXIgjC/RALkGkJMJMkTa6VBg+/OpsCzuTNEVGANYytHQgzHJ9ow4
+jpTKSlkBB4dsmDKpzrv41oVpaSG4YlABiFvg6tGTUXSgMJbjI3sYNsnJ+e3iNu3f
+pmt19i9M5c2UlF/nIrLoOKdfBhPZUIzrwLqyxyO+Fu2ao2a039pW2aycDVtA5eOh
+WxGTtByuXu4pSDdSci4sT1GWzYbQZNX+7D86Vo8kVnXVcnzzp5gQYxCACkmPSw+S
+L/X0g+Seqwno42IpX5sjbX1bLpCQ69G/uUlfRtJfE9qM8Y7Y1DP6vy1NTzdqKENW
+iYKfaqtzgPEzhiILFT+9nK5ZIRVka9JadLmWF/HiXqSH4mNBf0V8xXuT3jnIJvc5
+LQkyZgGSZDcvtvGm/mmffOy9so+6tH1B4KunrHiPM3V88cvc8+0GnWwvhZxa0alh
+jcaviqfSO/tPtMsV8G2d5jLxew1Tcqy306Ebz7QIejXyrz/YrbZn49PKanekE0og
+PuUElEgGPyhWGozNnjgMfVCvLX/7lu3RoRJd3fSeTtRZUHPIlEi6BTezZHjLLSAb
+7kN6xCnGbBMTlzZmmFRamP/uf2/wvnReRHFIVacRi9hX9h4wvWPjyRb/XdWPd7Lr
+oGV2Ga0T0vTkp0BT3uSa
+=5bbi
+-----END PGP SIGNATURE-----
+
+--oPmsXEqKQNHCSXW7--
