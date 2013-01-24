@@ -1,87 +1,89 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V9 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Thu, 24 Jan 2013 16:47:53 +0530
-Message-ID: <CAKohpo=OwnPcfQxxk22nOWZ1c=Ke4s_i=GN3A6_bo6RAEa6P8w@mail.gmail.com>
-References: <fe4fba74b7bac4fe56e26b2a947280390182c66c.1359023434.git.viresh.kumar@linaro.org>
-	<20130124110643.GC8668@pengutronix.de>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration
+ implementation
+Date: Thu, 24 Jan 2013 19:18:47 +0800
+Message-ID: <20130124111845.GO4955@opensource.wolfsonmicro.com>
+References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com>
+ <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
+ <50CB4E99.9060506@wwwdotorg.org>
+ <20121215142135.GB22033@opensource.wolfsonmicro.com>
+ <20130124111329.GC12933@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130124110643.GC8668-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
+Content-Type: multipart/mixed; boundary="===============2700028684666482072=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <20130124111329.GC12933-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, naveen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 24 January 2013 16:36, Uwe Kleine-K=F6nig
-<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Thu, Jan 24, 2013 at 04:06:37PM +0530, Viresh Kumar wrote:
->> Most number of versions for any patchset i submitted :)
-> So let's see if you do a v10 ... :-)
 
-Haha..
+--===============2700028684666482072==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qse+WBH4guesipZ+"
+Content-Disposition: inline
 
->> +static int i2c_generic_recovery(struct i2c_adapter *adap)
->> +{
->> +     struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
->> +     int i =3D 0, val =3D 1, ret =3D 0;
->> +
->> +     if (bri->prepare_recovery)
->> +             bri->prepare_recovery(bri);
->> +
-> Do we want to break out here if sda is high?
 
-Good point actually. It may happen we are asked to recover already work=
-ing
-system :)
+--qse+WBH4guesipZ+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
->> +     /*
->> +      * By this time SCL is high, as we need to give 9 falling-risi=
-ng edges
->> +      */
->> +     while (i++ < RECOVERY_CLK_CNT * 2) {
->> +             /* SCL shouldn't be low here */
->> +             if (val && !bri->get_scl(adap)) {
->> +                     dev_err(&adap->dev, "SCL is stuck Low exit rec=
-overy\n");
->> +                     ret =3D -EBUSY;
->> +                     goto unprepare;
->> +             }
->> +
->> +             val =3D !val;
->> +             bri->set_scl(adap, val);
->> +             ndelay(clk_delay);
->> +
->> +             /* break if sda got high, check only when scl line is =
-high */
-> Above you wrote "SCL", here "scl". I suggest to use one of them
-> consistently and use the same capitalisation for sda.
+On Thu, Jan 24, 2013 at 12:13:29PM +0100, Wolfram Sang wrote:
+> On Sat, Dec 15, 2012 at 11:21:36PM +0900, Mark Brown wrote:
 
-Sure.
+> > also get things like read operations which appear as multiple
+> > transactions on the I2C bus so require something higher level than what
+> > multi-master provides.
 
->> +             if (bri->get_sda && val)
->> +                     if (bri->get_sda(adap))
->> +                             break;
-> Maybe better:
->                 /* break if sda got high */
->                 if (bri->get_sda && bri->get_sda(adap)) {
->                         /* don't leave with scl low */
->                         if (!val)
->                                 bri->set_scl(adap, 1);
->                         break;
->                 }
+> I don't get what you mean here. Can you elaborate?
 
-So, the whole loop is for 9 pulses at max and it runs 18 times. Twice p=
-er
-clock. With my code, i only check for sda after supplying full clock pu=
-lse,
-and you are asking me to check that in middle of clock. Isn't it wrong?
+A read is typically implemented as a write of the register address
+followed by a read of the value, usually with the ability to free the
+bus in between.  If two devices attempt to access the register map
+simultaneously this results in the address going wrong.
 
->> +int i2c_generic_scl_recovery(struct i2c_adapter *adap)
->> +{
->> +     adap->bus_recovery_info->set_scl(adap, 1);
-> Why this?
+--qse+WBH4guesipZ+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-This came out of some earlier discussion we had. We should start
-with high and then do low-high 9 times.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRARh8AAoJELSic+t+oim9WcYP+wWmw33S4AKN/3CeMXNRjY+s
+CgiNqBwux+fQ1JfAqcTyJOp4pQLJVNewFZIZClvUN3t+7ZkgNnIImo2fEIc2vcol
+AugQkOwVEkeBYKmY5S1R9bYymFyvv7CjdaMNv2w06hjOpwhHHcIpXIOlMi5efIXh
+j58Kdl5VB6YJvyCUJGxywbiHYDTV4rb90fZWLfy7qwm81QoXhIsjc2GF+UX7iHXq
+SSbI1F9r3KazOrxf+pA3Zl76qili06T61TUSrSVpLaYhhPjUwM84qBn4p0724DFT
+tx3Ky5ZXBHYzrnZQpJ7ZERIqECOVd1AvSrwnhPS3l6S3MOxXjWZzG3BBA4H6GfRB
+I01wMCFVZfuiXtcVC6zY5kTqN5aYIVyfX2JR8dKVSHEoi+e7Q2bbjxK0t0CU+s82
+0zGRq+ZqT7KIeePHRTXkR7H3fFUZSgY/6O4BKa+gvoxzXUskmqwKhPYFyvAFrcKm
+0k/4XfXmfXpXri7aiZudwDmH6NhGNJfsIodwY6QyoQBXZulmEGuSzXcSbt0IHTXa
+1guFvK0Dja9GB7Oy6Vi7199qMYgbpOJ27Hu8+MTd6QiVsiVOEmguqWZ2DpM16Cic
+WpZbaKwb3uiqbKo/OpanYHi6rcaJdkdghnWBDnCZXv0N12NHUgQaUpcbX8KORATa
+nEas6DvWliPzPlCjPrNB
+=MQZP
+-----END PGP SIGNATURE-----
+
+--qse+WBH4guesipZ+--
+
+--===============2700028684666482072==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============2700028684666482072==--
