@@ -1,50 +1,33 @@
-From: Kukjin Kim <kgene.kim@samsung.com>
-Subject: [PATCH v2 re-send] i2c: s3c2410: Add quirk to exclude GPIO config for
+From: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: PATCH v2] i2c: s3c2410: Add quirk to exclude GPIO config for
  exynos5440
-Date: Thu, 24 Jan 2013 11:27:51 -0800
-Message-ID: <1359055671-4173-1-git-send-email-kgene.kim@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <w.sang@pengutronix.de>, Giridhar Maruthy <giridhar.m@samsung.com>, Kukjin Kim <kgene.kim@samsung.com>
+Date: Thu, 24 Jan 2013 11:28:47 -0800
+Message-ID: <09af01cdfa69$094be010$1be3a030$@samsung.com>
+References: <069301cdf914$03d16890$0b7439b0$@samsung.com>
+ <20130124122505.GA8627@pengutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <20130124122505.GA8627-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-language: en-us
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: 'Tomasz Figa' <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Giridhar Maruthy' <giridhar.m-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Giridhar Maruthy <giridhar.m@samsung.com>
+Wolfram Sang wrote:
+> 
+> On Tue, Jan 22, 2013 at 06:47:39PM -0800, Kukjin Kim wrote:
+> > From: Giridhar Maruthy <giridhar.m-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >
+> > Signed-off-by: Giridhar Maruthy <giridhar.m-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> > Signed-off-by: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> 
+> Looks OK but is line wrapped, can't apply.
+> 
+Oh, OK. Re-sent it just now. Please take it.
 
-Signed-off-by: Giridhar Maruthy <giridhar.m@samsung.com>
-Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
----
-Resending due to line wrapped from e-mail client.
+Thanks.
 
- Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt |    2 ++
- drivers/i2c/busses/i2c-s3c2410.c                      |    2 ++
- 2 files changed, 4 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-index e9611ac..b92bc14 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-@@ -8,6 +8,8 @@ Required properties:
-       (b) "samsung, s3c2440-i2c", for i2c compatible with s3c2440 i2c.
-       (c) "samsung, s3c2440-hdmiphy-i2c", for s3c2440-like i2c used
-           inside HDMIPHY block found on several samsung SoCs
-+      (d) "samsung, exynos5440-i2c", for s3c2440-like i2c used
-+	   on EXYNOS5440 which does not need GPIO configuration.
-   - reg: physical base address of the controller and length of memory mapped
-     region.
-   - interrupts: interrupt number to the cpu.
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index a290d08..17c5c37 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -111,6 +111,8 @@ static const struct of_device_id s3c24xx_i2c_match[] = {
- 	{ .compatible = "samsung,s3c2440-i2c", .data = (void *)QUIRK_S3C2440 },
- 	{ .compatible = "samsung,s3c2440-hdmiphy-i2c",
- 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
-+	{ .compatible = "samsung,exynos5440-i2c",
-+	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
--- 
-1.7.10.4
+- Kukjin
