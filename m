@@ -1,48 +1,92 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V8 2/2] i2c/designware: Provide i2c bus recovery support
-Date: Thu, 24 Jan 2013 13:25:14 +0530
-Message-ID: <CAKohponfeee+fof4fQ7CH5OYsSSBXOfV3h4GspF1F6Ncz9NnAA@mail.gmail.com>
-References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
-	<7f319334237d8cfad4e6d29499d7424c3e739608.1354502924.git.viresh.kumar@linaro.org>
-	<20130124072456.GB8364@nekote.pengutronix.de>
+From: ludovic.desroches <ludovic.desroches@atmel.com>
+Subject: Re: [PATCH] i2c: at91: add of_device_id entry for at91rm9200
+Date: Thu, 24 Jan 2013 08:58:28 +0100
+Message-ID: <5100E9A4.9020804@atmel.com>
+References: <1354743732-11581-1-git-send-email-manabian@gmail.com>
+ <20121218060232.GL23971@game.jcrosoft.org>
+ <20130124072714.GH8364@nekote.pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130124072456.GB8364-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20130124072714.GH8364@nekote.pengutronix.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: linux-arm-kernel-bounces@lists.infradead.org
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Joachim Eastwood <manabian@gmail.com>, nicolas.ferre@atmel.com, ludovic.desroches@atmel.com, linux-i2c@vger.kernel.org, Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 24 January 2013 12:54, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Mon, Dec 03, 2012 at 08:24:05AM +0530, Viresh Kumar wrote:
->> @@ -538,7 +538,11 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->>       ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
->>       if (ret == 0) {
->>               dev_err(dev->dev, "controller timed out\n");
->> -             i2c_dw_init(dev);
->> +             if (adap->bus_recovery_info) {
->> +                     dev_dbg(dev->dev, "try i2c bus recovery\n");
->> +                     adap->bus_recovery_info->recover_bus(adap);
->> +             }
->> +
->
-> I think we need something like i2c_recover_bus in the core which does
-> the above and also returns the return code from recover_bus. If there is
-> no recover_bus it should return EOPNOTSUPP.
->
-> Then the driver can do
->
->         ret = i2c_recover_bus(adap);
->         if (ret < 0)
->                 i2c_dw_init();
->
-> If not calling i2c_dw_init, you will probably cause a regression.
+Hi,
 
-Fair enough.
+On 01/24/2013 08:27 AM, Wolfram Sang wrote:
+> On Tue, Dec 18, 2012 at 07:02:32AM +0100, Jean-Christophe PLAGNIOL-VILLARD wrote:
+>> On 22:42 Wed 05 Dec     , Joachim Eastwood wrote:
+>>> Signed-off-by: Joachim Eastwood <manabian@gmail.com>
+>>> ---
+>>> Hi,
+>>>
+>>> AT91RM9200 is gaining DT support now so let's add an id to the i2c driver.
+>>>
+>>> Tested on custom RM9200 board. Since the driver doesn't support pinctrl
+>>> muxing yet I had to add pinctrl hogs for the i2c pins in my dts for it
+>>> to work.
+>>
+>> IIRC the i2c IP have quite a lots of issue on rm9200 and until sam9g45
+>>
+>> it not recommended to use it instead use i2c-gpio
+>
+> Ludovic, you know the driver best. Does it make sense to add this?
 
->> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
->> +err_free_recovery_info:
->> +     kfree(recovery_info);
+I didn't add this when I did the rework because there was no DT tree 
+support for RM9200. The configuration for RM9200 IP is already in the 
+driver and used for non DT platform so I think it makes sense to add this.
 
-Leftover of earlier versions, my mistake :(
+But as Jean-Christophe said, it's recommended to use the i2c-gpio driver 
+since we know the first versions of the IP have several issues. However 
+if it fits user usage, it is not forbidden to use it.
+
+Regards
+
+Ludovic
+
+>
+>>
+>> Best Regards,
+>> J.
+>>>
+>>> regards
+>>> Joachim Eastwood
+>>>
+>>>   drivers/i2c/busses/i2c-at91.c | 3 +++
+>>>   1 file changed, 3 insertions(+)
+>>>
+>>> diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+>>> index b4575ee..c504aa8 100644
+>>> --- a/drivers/i2c/busses/i2c-at91.c
+>>> +++ b/drivers/i2c/busses/i2c-at91.c
+>>> @@ -584,6 +584,9 @@ static const struct platform_device_id at91_twi_devtypes[] = {
+>>>   #if defined(CONFIG_OF)
+>>>   static const struct of_device_id atmel_twi_dt_ids[] = {
+>>>   	{
+>>> +		.compatible = "atmel,at91rm9200-i2c",
+>>> +		.data = &at91rm9200_config,
+>>> +	} , {
+>>>   		.compatible = "atmel,at91sam9260-i2c",
+>>>   		.data = &at91sam9260_config,
+>>>   	} , {
+>>> --
+>>> 1.8.0
+>>>
+>> --
+>> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+>> the body of a message to majordomo@vger.kernel.org
+>> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>
+>
