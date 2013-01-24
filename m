@@ -1,135 +1,204 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V8 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Thu, 24 Jan 2013 14:17:55 +0530
-Message-ID: <CAKohpo=HhdsVRqzGN87yUSz3rEn-3MHEh3rM0-XJJgcX19kXUg@mail.gmail.com>
-References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
-	<20130124072445.GA8364@nekote.pengutronix.de>
+From: Linus Walleij <linus.walleij-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Subject: [PATCH v5] i2c: nomadik: adopt pinctrl support
+Date: Thu, 24 Jan 2013 09:47:22 +0100
+Message-ID: <1359017242-13837-1-git-send-email-linus.walleij@stericsson.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130124072445.GA8364-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
+To: Ben Dooks <ben-i2c-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Anmar Oueja <anmar.oueja-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 24 January 2013 12:54, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> Hi Viresh,
+From: Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
 
-Hi Wolfram
+Amend the I2C nomadik pin controller to optionally take a pin control
+handle and set the state of the pins to:
 
-> I think we are getting close.
+- "default" on boot, resume and before performing an i2c transfer
+- "idle" after initial default, after resume default, and after each
+   i2c xfer
+- "sleep" on suspend()
 
-Wow!!
+This should make it possible to optimize energy usage for the pins
+both for the suspend/resume cycle, and for runtime cases inbetween
+I2C transfers.
 
-> On Mon, Dec 03, 2012 at 08:24:04AM +0530, Viresh Kumar wrote:
->> This doesn't support multi-master recovery for now.
->
-> Assuming that recover_bus is not called on BUS_BUSY but on TIMEOUTs,,
-> this should work?
+Signed-off-by: Patrice Chotard <patrice.chotard-0IS4wlFg1OjSUeElwK9/Pw@public.gmane.org>
+Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ChangeLog v4->v5:
+- Fix some coding style issues pointed out by Wolfram.
+ChangeLog v3->v4:
+- Rebase onto v3.8-rc2
+ChangeLog v2->v3:
+- Rebase on top of the patch from Philippe/Ulf.
+ChangeLog v1->v2:
+- We used only two states initially: default and sleep. It turns
+  out you can save some energy when idling (between transfers)
+  and even more when suspending on our platform, so grab all
+  three states and use them as applicable.
+---
+ drivers/i2c/busses/i2c-nomadik.c | 89 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 89 insertions(+)
 
-@Uwe/Paul: ??
-
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> +/* 10^6/KHz for delay in ns */
->> +unsigned long clk_delay = DIV_ROUND_UP(1000000, DEFAULT_CLK_RATE * 2);
->
-> no global variable. should go into the function needing it.
-
-I kept it to make sure we don't do this calculation every time... I would like
-to keep it for better performance..
-
->> +static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
->> +{
->> +     struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
->> +     struct device *dev = &adap->dev;
->> +     int ret = 0;
->> +
->> +     ret = gpio_request_one(bri->scl_gpio, GPIOF_OPEN_DRAIN |
->> +                     GPIOF_OUT_INIT_HIGH, "i2c-scl");
->> +     if (ret) {
->> +             dev_warn(dev, "gpio request fail: %d\n", bri->scl_gpio);
->> +             return ret;
->> +     }
->> +
->> +     if (!bri->skip_sda_polling) {
->
-> * if (is_valid_gpio(bri->sda_gpio)) ...
-
-Hmm.. looks pretty good and correct. Will buy this one :)
-
->> +             if (gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda")) {
->> +                     /* work without sda polling */
->> +                     dev_warn(dev, "can't get sda: %d. Skip sda polling\n",
->> +                                     bri->sda_gpio);
->> +                     bri->skip_sda_polling = true;
->
-> * Instead of above line:
->         bri->get_sda = get_sda_gpio_value;
-
-Hmm.. couldn't get this one...
-So, what i understood is, because we don't have skip_sda_polling now, we
-have to choose some other way to say, we don't support sda.. so we can
-mark get_sda as NULL. right?
-
->> +static int i2c_generic_recovery(struct i2c_adapter *adap)
->> +{
->> +     struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
->> +     int i, val = 0;
->> +
->> +     if (bri->prepare_recovery)
->> +             bri->prepare_recovery(bri);
->
-> prepare_recovery and unprepare should be in i2c_generic_scl_recovery and
-> i2c_generic_gpio_recovery since they are probably needed to turn SDA/SCL
-> into GPIOs and back. We want that before the gpio_get/put routines.
-
-i2c_generic_recovery() is an local routine called from both scl and
-gpio recovery
-routines. So, keeping a single copy of prepare/unprepare calls makes more sense.
-
-The other point about getting gpios first and then calling prepare..
-I don't think that would be right thing to do. Suppose we call prepare
-first, which would
-update padmux on the board. At this time gpio may be in output mode and my burn
-our boards. So, its better to get gpios in desired modes and then change muxing.
-
->> +     /* SCL shouldn't be low here */
->> +     if (!bri->get_scl(adap)) {
->> +             dev_err(&adap->dev, "SCL is stuck Low, exiting recovery.\n");
->
-> returning -EBUSY?
-
-Yes. Will recheck on errors returned from the routine.
-
->> +                     /* Check SCL again to see fault condition */
->> +                     if (!bri->get_scl(adap)) {
->> +                             dev_err(&adap->dev, "SCL is stuck Low during recovery, exiting recovery.\n");
->
-> returning -EBUSY?
-> This scl check should not depend on skip_sda_polling, or?
-
-yes.
-
->> +                             goto unprepare;
->> +                     }
->> +
->> +                     if (bri->get_sda(adap))
->> +                             break;
->
-> Checking SDA should be done before setting SCL? That would
->
-> a) let us escape early if SDA got HIGH magically somehow until we enter
->    the for loop for the first time
-> b) breaking out of the for loop after the last pulse is moot
-
-Good one.
-
->> +                             dev_warn(&adap->dev,
->> +                                             "!get_sda. skip sda polling\n");
->
-> That message needs improvement ("!get_sda").
-
-+1
-
-All other comments are accepted too.. Hopefully it may get in 3.9 :)
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 8b2ffcf..8d330dc 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -26,6 +26,7 @@
+ #include <linux/platform_data/i2c-nomadik.h>
+ #include <linux/of.h>
+ #include <linux/of_i2c.h>
++#include <linux/pinctrl/consumer.h>
+ 
+ #define DRIVER_NAME "nmk-i2c"
+ 
+@@ -147,6 +148,10 @@ struct i2c_nmk_client {
+  * @stop: stop condition.
+  * @xfer_complete: acknowledge completion for a I2C message.
+  * @result: controller propogated result.
++ * @pinctrl: pinctrl handle.
++ * @pins_default: default state for the pins.
++ * @pins_idle: idle state for the pins.
++ * @pins_sleep: sleep state for the pins.
+  * @busy: Busy doing transfer.
+  */
+ struct nmk_i2c_dev {
+@@ -160,6 +165,11 @@ struct nmk_i2c_dev {
+ 	int				stop;
+ 	struct completion		xfer_complete;
+ 	int				result;
++	/* Three pin states - default, idle & sleep */
++	struct pinctrl			*pinctrl;
++	struct pinctrl_state		*pins_default;
++	struct pinctrl_state		*pins_idle;
++	struct pinctrl_state		*pins_sleep;
+ 	bool				busy;
+ };
+ 
+@@ -636,6 +646,15 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ 		goto out_clk;
+ 	}
+ 
++	/* Optionaly enable pins to be muxed in and configured */
++	if (!IS_ERR(dev->pins_default)) {
++		status = pinctrl_select_state(dev->pinctrl,
++				dev->pins_default);
++		if (status)
++			dev_err(&dev->adev->dev,
++				"could not set default pins\n");
++	}
++
+ 	status = init_hw(dev);
+ 	if (status)
+ 		goto out;
+@@ -663,6 +682,15 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
+ out:
+ 	clk_disable_unprepare(dev->clk);
+ out_clk:
++	/* Optionally let pins go into idle state */
++	if (!IS_ERR(dev->pins_idle)) {
++		status = pinctrl_select_state(dev->pinctrl,
++				dev->pins_idle);
++		if (status)
++			dev_err(&dev->adev->dev,
++				"could not set pins to idle state\n");
++	}
++
+ 	pm_runtime_put_sync(&dev->adev->dev);
+ 
+ 	dev->busy = false;
+@@ -857,15 +885,41 @@ static int nmk_i2c_suspend(struct device *dev)
+ {
+ 	struct amba_device *adev = to_amba_device(dev);
+ 	struct nmk_i2c_dev *nmk_i2c = amba_get_drvdata(adev);
++	int ret;
+ 
+ 	if (nmk_i2c->busy)
+ 		return -EBUSY;
+ 
++	if (!IS_ERR(nmk_i2c->pins_sleep)) {
++		ret = pinctrl_select_state(nmk_i2c->pinctrl,
++				nmk_i2c->pins_sleep);
++		if (ret)
++			dev_err(dev, "could not set pins to sleep state\n");
++	}
++
+ 	return 0;
+ }
+ 
+ static int nmk_i2c_resume(struct device *dev)
+ {
++	struct amba_device *adev = to_amba_device(dev);
++	struct nmk_i2c_dev *nmk_i2c = amba_get_drvdata(adev);
++	int ret;
++
++	/* First go to the default state */
++	if (!IS_ERR(nmk_i2c->pins_default)) {
++		ret = pinctrl_select_state(nmk_i2c->pinctrl,
++				nmk_i2c->pins_default);
++		if (ret)
++			dev_err(dev, "could not set pins to default state\n");
++	}
++	/* Then let's idle the pins until the next transfer happens */
++	if (!IS_ERR(nmk_i2c->pins_idle)) {
++		ret = pinctrl_select_state(nmk_i2c->pinctrl,
++				nmk_i2c->pins_idle);
++		if (ret)
++			dev_err(dev, "could not set pins to idle state\n");
++	}
+ 	return 0;
+ }
+ #else
+@@ -953,6 +1007,40 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ 	dev->adev = adev;
+ 	amba_set_drvdata(adev, dev);
+ 
++	dev->pinctrl = devm_pinctrl_get(&adev->dev);
++	if (IS_ERR(dev->pinctrl)) {
++		ret = PTR_ERR(dev->pinctrl);
++		goto err_pinctrl;
++	}
++
++	dev->pins_default = pinctrl_lookup_state(dev->pinctrl,
++						 PINCTRL_STATE_DEFAULT);
++	if (IS_ERR(dev->pins_default))
++		dev_err(&adev->dev, "could not get default pinstate\n");
++	else {
++		ret = pinctrl_select_state(dev->pinctrl,
++					   dev->pins_default);
++		if (ret)
++			dev_dbg(&adev->dev, "could not set default pinstate\n");
++	}
++
++	dev->pins_idle = pinctrl_lookup_state(dev->pinctrl,
++					      PINCTRL_STATE_IDLE);
++	if (IS_ERR(dev->pins_idle)) {
++		dev_dbg(&adev->dev, "could not get idle pinstate\n");
++	} else {
++		/* If possible, let's go to idle until the first transfer */
++		ret = pinctrl_select_state(dev->pinctrl,
++					   dev->pins_idle);
++		if (ret)
++			dev_dbg(&adev->dev, "could not set idle pinstate\n");
++	}
++
++	dev->pins_sleep = pinctrl_lookup_state(dev->pinctrl,
++					       PINCTRL_STATE_SLEEP);
++	if (IS_ERR(dev->pins_sleep))
++		dev_dbg(&adev->dev, "could not get sleep pinstate\n");
++
+ 	dev->virtbase = ioremap(adev->res.start, resource_size(&adev->res));
+ 	if (!dev->virtbase) {
+ 		ret = -ENOMEM;
+@@ -1022,6 +1110,7 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+  err_no_ioremap:
+ 	amba_set_drvdata(adev, NULL);
+ 	kfree(dev);
++ err_pinctrl:
+  err_no_mem:
+ 
+ 	return ret;
+-- 
+1.7.11.3
