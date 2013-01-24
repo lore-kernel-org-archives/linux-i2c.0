@@ -1,54 +1,36 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: at91: add of_device_id entry for at91rm9200
-Date: Thu, 24 Jan 2013 11:13:56 +0100
-Message-ID: <20130124101356.GA12933@pengutronix.de>
-References: <1354743732-11581-1-git-send-email-manabian@gmail.com>
- <20121218060232.GL23971@game.jcrosoft.org>
- <20130124072714.GH8364@nekote.pengutronix.de>
- <5100E9A4.9020804@atmel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+From: Tushar Behera <tushar.behera-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH V3 0/4] i2c: s3c2410: Add devm_* apis and cleanup
+Date: Thu, 24 Jan 2013 15:41:05 +0530
+Message-ID: <1359022269-12593-1-git-send-email-tushar.behera@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <5100E9A4.9020804-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "ludovic.desroches" <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Cc: Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+This patchset cleans up the probe function of i2c-s3c2410 driver.
+These have been tested on Exynos4210 based Origen board.
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Changes since V2:
+  * Rebased to v3.8-rc4.
+  * devm_request_and_ioremap() has already been implemented.
 
-Hi,
+Changes since V1:
+  * devm_request_mem_region and devm_ioremap calls were replaced by
+devm_request_and_ioremap() call.
+  * All devm_* related modifications (earlier patches 2-5) were merged
+to a single patch.
 
-> I didn't add this when I did the rework because there was no DT tree
-> support for RM9200. The configuration for RM9200 IP is already in
-> the driver and used for non DT platform so I think it makes sense to
-> add this.
 
-I agree. If it is usable for non-dt, it should be usable for dt. If it
-makes sense is left to the user.
+Tushar Behera (4):
+  i2c: s3c2410: Remove unnecessary label err_noclk
+  i2c: s3c2410: Convert to use devm_* APIs
+  i2c: s3c2410: Move location of clk_prepare_enable() call in probe
+    function
+  i2c: s3c2410: Remove err_cpufreq label
 
-Interpreted Ludovic's comment as ack and applied to -next, thanks!
+ drivers/i2c/busses/i2c-s3c2410.c |   59 +++++++++++++------------------------
+ 1 files changed, 21 insertions(+), 38 deletions(-)
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlEBCWQACgkQD27XaX1/VRtHEQCggqikj4aOGL9BP2JkO+4Yf/Vu
-Qy8An0GO3R6psfolJb6ZigUy6WK+2Xru
-=YEYd
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
+-- 
+1.7.4.1
