@@ -1,87 +1,78 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH V9 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Thu, 24 Jan 2013 12:06:43 +0100
-Message-ID: <20130124110643.GC8668@pengutronix.de>
-References: <fe4fba74b7bac4fe56e26b2a947280390182c66c.1359023434.git.viresh.kumar@linaro.org>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-core: Add gpio based bus arbitration
+ implementation
+Date: Thu, 24 Jan 2013 12:13:29 +0100
+Message-ID: <20130124111329.GC12933@pengutronix.de>
+References: <1355464254-12768-1-git-send-email-ch.naveen@samsung.com>
+ <1355464254-12768-2-git-send-email-ch.naveen@samsung.com>
+ <50CB4E99.9060506@wwwdotorg.org>
+ <20121215142135.GB22033@opensource.wolfsonmicro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6zdv2QT/q3FMhpsV"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <fe4fba74b7bac4fe56e26b2a947280390182c66c.1359023434.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20121215142135.GB22033-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
+To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, naveen-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
 
-On Thu, Jan 24, 2013 at 04:06:37PM +0530, Viresh Kumar wrote:
-> Most number of versions for any patchset i submitted :)
-So let's see if you do a v10 ... :-)
-=20
-> +static int i2c_generic_recovery(struct i2c_adapter *adap)
-> +{
-> +	struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-> +	int i =3D 0, val =3D 1, ret =3D 0;
-> +
-> +	if (bri->prepare_recovery)
-> +		bri->prepare_recovery(bri);
-> +
-Do we want to break out here if sda is high?
+--6zdv2QT/q3FMhpsV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> +	/*
-> +	 * By this time SCL is high, as we need to give 9 falling-rising ed=
-ges
-> +	 */
-> +	while (i++ < RECOVERY_CLK_CNT * 2) {
-> +		/* SCL shouldn't be low here */
-> +		if (val && !bri->get_scl(adap)) {
-> +			dev_err(&adap->dev, "SCL is stuck Low exit recovery\n");
-> +			ret =3D -EBUSY;
-> +			goto unprepare;
-> +		}
-> +
-> +		val =3D !val;
-> +		bri->set_scl(adap, val);
-> +		ndelay(clk_delay);
-> +
-> +		/* break if sda got high, check only when scl line is high */
-Above you wrote "SCL", here "scl". I suggest to use one of them
-consistently and use the same capitalisation for sda.
+Hi,
 
-> +		if (bri->get_sda && val)
-> +			if (bri->get_sda(adap))
-> +				break;
-Maybe better:
-		/* break if sda got high */
-		if (bri->get_sda && bri->get_sda(adap)) {
-			/* don't leave with scl low */
-			if (!val)
-				bri->set_scl(adap, 1);
-			break;
-		}
+On Sat, Dec 15, 2012 at 11:21:36PM +0900, Mark Brown wrote:
+> On Fri, Dec 14, 2012 at 09:06:49AM -0700, Stephen Warren wrote:
+> > On 12/13/2012 10:50 PM, Naveen Krishna Chatradhi wrote:
+>=20
+> > > +The first should be an output, and is used to claim the I2C bus,
+> > > +the second should be an input, and signals that the other side (Clie=
+nt)
+> > > +wants to claim the bus. This allows two masters to share the same I2=
+C bus.
+>=20
+> > I'm confused why this is even needed; the I2C protocol itself defines
+> > how multi-master is supposed to work, just using the regular SCL/SDA li=
+nes.
+>=20
+> Practically speaking essentially no systems actually do that - mostly
+> Linux will treat failure to get the bus as an error for example.
 
-> +	}
-> +
-> +unprepare:
-> +	if (bri->unprepare_recovery)
-> +		bri->unprepare_recovery(bri);
-> +
-> +	return ret;
-> +}
-> +
-> +int i2c_generic_scl_recovery(struct i2c_adapter *adap)
-> +{
-> +	adap->bus_recovery_info->set_scl(adap, 1);
-Why this?
+It is true that Linux currently does not have proper multi-master
+support. It is worth a look what is missing and how far we can get with
+the I2C specified arbitration IMO.
 
-Best regards
-Uwe
+> also get things like read operations which appear as multiple
+> transactions on the I2C bus so require something higher level than what
+> multi-master provides.
+
+I don't get what you mean here. Can you elaborate?
+
+That being said. Grant's design was the most promising one.
+
+Thanks,
+
+   Wolfram
 
 --=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
-    |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+Pengutronix e.K.                           | Wolfram Sang                |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+
+--6zdv2QT/q3FMhpsV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iEYEARECAAYFAlEBF1kACgkQD27XaX1/VRullQCePgYzSfFOMBAK94oXjHZnLFtt
+TYIAoMQogd0XfDbXQpVnMGySY0AW5KEI
+=Zzsm
+-----END PGP SIGNATURE-----
+
+--6zdv2QT/q3FMhpsV--
