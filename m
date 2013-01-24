@@ -1,127 +1,250 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH V8 2/2] i2c/designware: Provide i2c bus recovery support
-Date: Thu, 24 Jan 2013 08:24:56 +0100
-Message-ID: <20130124072456.GB8364@nekote.pengutronix.de>
-References: <547205b4f54e6b48746efc7c22ccc0a59bd9b659.1354502924.git.viresh.kumar@linaro.org>
- <7f319334237d8cfad4e6d29499d7424c3e739608.1354502924.git.viresh.kumar@linaro.org>
+Subject: Re: [PATCH] i2c: mxs: Add PIO and mixed-DMA support
+Date: Thu, 24 Jan 2013 08:25:19 +0100
+Message-ID: <20130124072519.GC8364@nekote.pengutronix.de>
+References: <1353477088-9660-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <7f319334237d8cfad4e6d29499d7424c3e739608.1354502924.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1353477088-9660-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Dec 03, 2012 at 08:24:05AM +0530, Viresh Kumar wrote:
-> Add bus recovery support for designware_i2c controller. It uses generic gpio
-> based i2c_gpio_recover_bus() routine. Platforms need to pass struct
-> i2c_bus_recovery_info as platform data designware I2C controller.
+Hi Marek,
+
+On Wed, Nov 21, 2012 at 06:51:28AM +0100, Marek Vasut wrote:
+> Add support for the PIO mode and mixed PIO/DMA mode support. The mixed
+> PIO/DMA is the default mode of operation. This shall leverage overhead
+> that the driver creates due to setting up DMA descriptors even for very
+> short transfers.
 > 
-> Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
-> Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
-> Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> The current boundary between PIO/DMA 8 bytes, transfers shorter than 8
+> bytes are transfered by PIO, longer transfers use DMA. The performance
+> of write transfers remains unchanged, while there is a minor improvement
+> of read performance. Reading 16KB EEPROM with DMA-only operations gives
+> a read speed of 39.5KB/s, while with then new mixed-mode the speed is
+> blazing 40.6KB/s.
+> 
+> Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 > ---
-> V7->V8:
-> - Removed setting clock_rate_khz.
+>  drivers/i2c/busses/i2c-mxs.c |  163 ++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 150 insertions(+), 13 deletions(-)
 > 
->  drivers/i2c/busses/i2c-designware-core.c    |  6 +++++-
->  drivers/i2c/busses/i2c-designware-platdrv.c | 17 +++++++++++++++--
->  2 files changed, 20 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index cbba7db..24feaaf 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -538,7 +538,11 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
->  	if (ret == 0) {
->  		dev_err(dev->dev, "controller timed out\n");
-> -		i2c_dw_init(dev);
-> +		if (adap->bus_recovery_info) {
-> +			dev_dbg(dev->dev, "try i2c bus recovery\n");
-> +			adap->bus_recovery_info->recover_bus(adap);
-> +		}
+> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+> index 47d5d53..9048f34 100644
+> --- a/drivers/i2c/busses/i2c-mxs.c
+> +++ b/drivers/i2c/busses/i2c-mxs.c
+> @@ -39,6 +39,7 @@
+>  #define MXS_I2C_CTRL0_SET	(0x04)
+>  
+>  #define MXS_I2C_CTRL0_SFTRST			0x80000000
+> +#define MXS_I2C_CTRL0_RUN			0x20000000
+>  #define MXS_I2C_CTRL0_SEND_NAK_ON_LAST		0x02000000
+>  #define MXS_I2C_CTRL0_RETAIN_CLOCK		0x00200000
+>  #define MXS_I2C_CTRL0_POST_SEND_STOP		0x00100000
+> @@ -64,6 +65,13 @@
+>  #define MXS_I2C_CTRL1_SLAVE_STOP_IRQ		0x02
+>  #define MXS_I2C_CTRL1_SLAVE_IRQ			0x01
+>  
+> +#define MXS_I2C_DATA		(0xa0)
 > +
-
-I think we need something like i2c_recover_bus in the core which does
-the above and also returns the return code from recover_bus. If there is
-no recover_bus it should return EOPNOTSUPP.
-
-Then the driver can do
-
-	ret = i2c_recover_bus(adap);
-	if (ret < 0)
-		i2c_dw_init();
-
-If not calling i2c_dw_init, you will probably cause a regression.
-
->  		ret = -ETIMEDOUT;
->  		goto done;
->  	} else if (ret < 0)
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 0506fef..8c44eb9 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -55,6 +55,7 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
->  	struct dw_i2c_dev *dev;
->  	struct i2c_adapter *adap;
->  	struct resource *mem, *ioarea;
-> +	struct i2c_bus_recovery_info *recovery_info;
->  	int irq, r;
+> +#define MXS_I2C_DEBUG0		(0xb0)
+> +#define MXS_I2C_DEBUG0_CLR	(0xb8)
+> +
+> +#define MXS_I2C_DEBUG0_DMAREQ	0x80000000
+> +
+>  #define MXS_I2C_IRQ_MASK	(MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ | \
+>  				 MXS_I2C_CTRL1_NO_SLAVE_ACK_IRQ | \
+>  				 MXS_I2C_CTRL1_EARLY_TERM_IRQ | \
+> @@ -298,6 +306,128 @@ write_init_pio_fail:
+>  	return -EINVAL;
+>  }
 >  
->  	/* NOTE: driver uses the static register mapping */
-> @@ -141,17 +142,27 @@ static int __devinit dw_i2c_probe(struct platform_device *pdev)
->  	adap->dev.parent = &pdev->dev;
->  	adap->dev.of_node = pdev->dev.of_node;
->  
-> +	/* Bus recovery support */
-> +	recovery_info = dev_get_platdata(&pdev->dev);
-> +	if (recovery_info) {
-> +		recovery_info->recover_bus = i2c_generic_gpio_recovery;
-> +		adap->bus_recovery_info = recovery_info;
-> +	} else {
-> +		adap->bus_recovery_info = NULL;
+> +static int mxs_i2c_pio_wait_dmareq(struct mxs_i2c_dev *i2c)
+> +{
+> +	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+> +
+> +	while (!(readl(i2c->regs + MXS_I2C_DEBUG0) &
+> +		MXS_I2C_DEBUG0_DMAREQ)) {
+> +		if (time_after(jiffies, timeout))
+> +			return -ETIMEDOUT;
+> +		cond_resched();
 > +	}
 > +
-
-Please post the platform patch next time, too. Then I can get a better
-understanding...
-
->  	adap->nr = pdev->id;
->  	r = i2c_add_numbered_adapter(adap);
->  	if (r) {
->  		dev_err(&pdev->dev, "failure adding adapter\n");
-> -		goto err_free_irq;
-> +		goto err_free_recovery_info;
->  	}
->  	of_i2c_register_devices(adap);
->  
->  	return 0;
->  
-> -err_free_irq:
-> +err_free_recovery_info:
-> +	kfree(recovery_info);
-
-... because I am wondering about the kfree here.
-
->  	free_irq(dev->irq, dev);
->  err_iounmap:
->  	iounmap(dev->base);
-> @@ -174,6 +185,8 @@ static int __devexit dw_i2c_remove(struct platform_device *pdev)
->  	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
->  	struct resource *mem;
->  
-> +	kfree(dev->adapter.bus_recovery_info);
+> +	writel(MXS_I2C_DEBUG0_DMAREQ, i2c->regs + MXS_I2C_DEBUG0_CLR);
 > +
->  	platform_set_drvdata(pdev, NULL);
->  	i2c_del_adapter(&dev->adapter);
->  	put_device(&pdev->dev);
-> -- 
-> 1.7.12.rc2.18.g61b472e
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> +	return 0;
+> +}
+> +
+> +static int mxs_i2c_pio_wait_cplt(struct mxs_i2c_dev *i2c)
+> +{
+> +	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+> +
+> +	while (!(readl(i2c->regs + MXS_I2C_CTRL1) &
+> +		MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ)) {
+> +		if (time_after(jiffies, timeout))
+> +			return -ETIMEDOUT;
+> +		cond_resched();
+> +	}
+> +
+> +	writel(MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ,
+> +		i2c->regs + MXS_I2C_CTRL1_CLR);
+> +
+> +	return 0;
+> +}
+
+That's a lot of polling. Didn't interrupts work?
+
+> +static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+> +			struct i2c_msg *msg, uint32_t flags)
+> +{
+> +	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+> +	uint32_t addr_data = msg->addr << 1;
+> +	uint32_t data = 0;
+> +	int i, shifts_left, ret;
+> +
+> +	/* Mute IRQs coming from this block. */
+> +	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_CLR);
+> +
+> +	if (msg->flags & I2C_M_RD) {
+> +		addr_data |= I2C_SMBUS_READ;
+> +
+> +		/* SELECT command. */
+> +		writel(MXS_I2C_CTRL0_RUN | MXS_CMD_I2C_SELECT,
+> +			i2c->regs + MXS_I2C_CTRL0);
+> +
+> +		ret = mxs_i2c_pio_wait_dmareq(i2c);
+> +		if (ret)
+> +			return ret;
+> +
+> +		writel(addr_data, i2c->regs + MXS_I2C_DATA);
+> +
+> +		ret = mxs_i2c_pio_wait_cplt(i2c);
+> +		if (ret)
+> +			return ret;
+> +
+> +		/* READ command. */
+> +		writel(MXS_I2C_CTRL0_RUN | MXS_CMD_I2C_READ | flags |
+> +			MXS_I2C_CTRL0_XFER_COUNT(msg->len),
+> +			i2c->regs + MXS_I2C_CTRL0);
+> +
+> +		for (i = 0; i < msg->len; i++) {
+> +			if ((i & 3) == 0) {
+> +				ret = mxs_i2c_pio_wait_dmareq(i2c);
+> +				if (ret)
+> +					return ret;
+> +				data = readl(i2c->regs + MXS_I2C_DATA);
+> +			}
+> +			msg->buf[i] = data & 0xff;
+> +			data >>= 8;
+> +		}
+> +	} else {
+> +		addr_data |= I2C_SMBUS_WRITE;
+> +
+> +		/* WRITE command. */
+> +		writel(MXS_I2C_CTRL0_RUN | MXS_CMD_I2C_WRITE | flags |
+> +			MXS_I2C_CTRL0_XFER_COUNT(msg->len + 1),
+> +			i2c->regs + MXS_I2C_CTRL0);
+> +
+> +		/*
+> +		 * The LSB of data buffer is the first byte blasted across
+> +		 * the bus. Higher order bytes follow. Thus the following
+> +		 * filling schematic.
+> +		 */
+
+Ah, my old code again :) What was wrong with my comment?
+
+> +		data = addr_data << 24;
+> +		for (i = 0; i < msg->len; i++) {
+> +			data >>= 8;
+> +			data |= (msg->buf[i] << 24);
+> +			if ((i & 3) == 2) {
+> +				ret = mxs_i2c_pio_wait_dmareq(i2c);
+> +				if (ret)
+> +					return ret;
+> +				writel(data, i2c->regs + MXS_I2C_DATA);
+> +			}
+> +		}
+> +
+> +		shifts_left = 24 - (i & 3) * 8;
+> +		if (shifts_left) {
+> +			data >>= shifts_left;
+> +			ret = mxs_i2c_pio_wait_dmareq(i2c);
+> +			if (ret)
+> +				return ret;
+> +			writel(data, i2c->regs + MXS_I2C_DATA);
+> +		}
+> +	}
+> +
+> +	ret = mxs_i2c_pio_wait_cplt(i2c);
+> +	if (ret)
+> +		return ret;
+> +
+> +	/* Clear any dangling IRQs and re-enable interrupts. */
+> +	writel(MXS_I2C_IRQ_MASK, i2c->regs + MXS_I2C_CTRL1_CLR);
+> +	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
+> +
+> +	return 0;
+> +}
+> +
+>  /*
+>   * Low level master read/write transaction.
+>   */
+> @@ -316,24 +446,31 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+>  	if (msg->len == 0)
+>  		return -EINVAL;
+>  
+> -	INIT_COMPLETION(i2c->cmd_complete);
+> -	i2c->cmd_err = 0;
+> -
+> -	ret = mxs_i2c_dma_setup_xfer(adap, msg, flags);
+> -	if (ret)
+> -		return ret;
+> +	if (msg->len < 8) {
+
+Some THRESHOLD define would be nice here.
+
+> +		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
+> +		if (ret)
+> +			mxs_i2c_reset(i2c);
+> +	} else {
+> +		i2c->cmd_err = 0;
+> +		INIT_COMPLETION(i2c->cmd_complete);
+> +		ret = mxs_i2c_dma_setup_xfer(adap, msg, flags);
+> +		if (ret)
+> +			return ret;
+>  
+> -	ret = wait_for_completion_timeout(&i2c->cmd_complete,
+> +		ret = wait_for_completion_timeout(&i2c->cmd_complete,
+>  						msecs_to_jiffies(1000));
+> -	if (ret == 0)
+> -		goto timeout;
+> +		if (ret == 0)
+> +			goto timeout;
+> +
+> +		if (i2c->cmd_err == -ENXIO)
+> +			mxs_i2c_reset(i2c);
+>  
+> -	if (i2c->cmd_err == -ENXIO)
+> -		mxs_i2c_reset(i2c);
+> +		ret = i2c->cmd_err;
+> +	}
+>  
+> -	dev_dbg(i2c->dev, "Done with err=%d\n", i2c->cmd_err);
+> +	dev_dbg(i2c->dev, "Done with err=%d\n", ret);
+>  
+> -	return i2c->cmd_err;
+> +	return ret;
+>  
+>  timeout:
+>  	dev_dbg(i2c->dev, "Timeout!\n");
+
+Regards,
+
+   Wolfram
