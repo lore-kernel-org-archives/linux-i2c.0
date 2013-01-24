@@ -1,68 +1,280 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: question about drivers/i2c/busses/i2c-davinci.c
-Date: Thu, 24 Jan 2013 13:36:15 +0100
-Message-ID: <20130124123615.GG12933@pengutronix.de>
-References: <alpine.DEB.2.02.1301062057260.2029@localhost6.localdomain6>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH] i2c: mxs: Add PIO and mixed-DMA support
+Date: Thu, 24 Jan 2013 13:39:12 +0100
+Message-ID: <201301241339.12940.marex@denx.de>
+References: <1353477088-9660-1-git-send-email-marex@denx.de> <20130124072519.GC8364@nekote.pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MiFvc8Vo6wRSORdP"
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.02.1301062057260.2029-bi+AKbBUZKagILUCTcTcHdKyNwTtLsGr@public.gmane.org>
+In-Reply-To: <20130124072519.GC8364-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Julia Lawall <julia.lawall-L2FTfq7BK8M@public.gmane.org>
-Cc: nsekhar-l0cyMroinI0@public.gmane.org, khilman-l0cyMroinI0@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Dear Wolfram Sang,
 
---MiFvc8Vo6wRSORdP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Hi Marek,
+> 
+> On Wed, Nov 21, 2012 at 06:51:28AM +0100, Marek Vasut wrote:
+> > Add support for the PIO mode and mixed PIO/DMA mode support. The mixed
+> > PIO/DMA is the default mode of operation. This shall leverage overhead
+> > that the driver creates due to setting up DMA descriptors even for very
+> > short transfers.
+> > 
+> > The current boundary between PIO/DMA 8 bytes, transfers shorter than 8
+> > bytes are transfered by PIO, longer transfers use DMA. The performance
+> > of write transfers remains unchanged, while there is a minor improvement
+> > of read performance. Reading 16KB EEPROM with DMA-only operations gives
+> > a read speed of 39.5KB/s, while with then new mixed-mode the speed is
+> > blazing 40.6KB/s.
+> > 
+> > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > ---
+> > 
+> >  drivers/i2c/busses/i2c-mxs.c |  163
+> >  ++++++++++++++++++++++++++++++++++++++---- 1 file changed, 150
+> >  insertions(+), 13 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+> > index 47d5d53..9048f34 100644
+> > --- a/drivers/i2c/busses/i2c-mxs.c
+> > +++ b/drivers/i2c/busses/i2c-mxs.c
+> > @@ -39,6 +39,7 @@
+> > 
+> >  #define MXS_I2C_CTRL0_SET	(0x04)
+> >  
+> >  #define MXS_I2C_CTRL0_SFTRST			0x80000000
+> > 
+> > +#define MXS_I2C_CTRL0_RUN			0x20000000
+> > 
+> >  #define MXS_I2C_CTRL0_SEND_NAK_ON_LAST		0x02000000
+> >  #define MXS_I2C_CTRL0_RETAIN_CLOCK		0x00200000
+> >  #define MXS_I2C_CTRL0_POST_SEND_STOP		0x00100000
+> > 
+> > @@ -64,6 +65,13 @@
+> > 
+> >  #define MXS_I2C_CTRL1_SLAVE_STOP_IRQ		0x02
+> >  #define MXS_I2C_CTRL1_SLAVE_IRQ			0x01
+> > 
+> > +#define MXS_I2C_DATA		(0xa0)
+> > +
+> > +#define MXS_I2C_DEBUG0		(0xb0)
+> > +#define MXS_I2C_DEBUG0_CLR	(0xb8)
+> > +
+> > +#define MXS_I2C_DEBUG0_DMAREQ	0x80000000
+> > +
+> > 
+> >  #define MXS_I2C_IRQ_MASK	(MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ | \
+> >  
+> >  				 MXS_I2C_CTRL1_NO_SLAVE_ACK_IRQ | \
+> >  				 MXS_I2C_CTRL1_EARLY_TERM_IRQ | \
+> > 
+> > @@ -298,6 +306,128 @@ write_init_pio_fail:
+> >  	return -EINVAL;
+> >  
+> >  }
+> > 
+> > +static int mxs_i2c_pio_wait_dmareq(struct mxs_i2c_dev *i2c)
+> > +{
+> > +	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+> > +
+> > +	while (!(readl(i2c->regs + MXS_I2C_DEBUG0) &
+> > +		MXS_I2C_DEBUG0_DMAREQ)) {
+> > +		if (time_after(jiffies, timeout))
+> > +			return -ETIMEDOUT;
+> > +		cond_resched();
+> > +	}
+> > +
+> > +	writel(MXS_I2C_DEBUG0_DMAREQ, i2c->regs + MXS_I2C_DEBUG0_CLR);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > +static int mxs_i2c_pio_wait_cplt(struct mxs_i2c_dev *i2c)
+> > +{
+> > +	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+> > +
+> > +	while (!(readl(i2c->regs + MXS_I2C_CTRL1) &
+> > +		MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ)) {
+> > +		if (time_after(jiffies, timeout))
+> > +			return -ETIMEDOUT;
+> > +		cond_resched();
+> > +	}
+> > +
+> > +	writel(MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ,
+> > +		i2c->regs + MXS_I2C_CTRL1_CLR);
+> > +
+> > +	return 0;
+> > +}
+> 
+> That's a lot of polling. Didn't interrupts work?
 
-On Sun, Jan 06, 2013 at 09:00:59PM +0100, Julia Lawall wrote:
-> The function davinci_i2c_remove in drivers/i2c/busses/i2c-davinci.c
-> contains the following code:
->=20
->         put_device(&pdev->dev);
->=20
->         clk_disable_unprepare(dev->clk);
->         clk_put(dev->clk);
->         dev->clk =3D NULL;
->=20
->         davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
-> 	free_irq(dev->irq, dev);
->=20
-> Is there any danger in putting free_irq(dev->irq, dev); after
-> put_device(&pdev->dev);, because the interrupt handler
-> i2c_davinci_isr can eg refer to dev->dev.
+Oh they do work, but check below, it transfers 8 bytes of data max via PIO. The 
+overhead of interrupt handling would be much larger. Thus, polling.
 
-Not having a clock doesn't sound exactly thrilling either when servicing
-an interrupt. I've seen something like this in the remove path of
-another driver today as well. I assume a lot of drivers might have such
-issues. It is also one of the subtle issues with devm_request_irq. The
-remove path can already render the ISR unusable/oopsable but devm will
-free the interrupt only after remove has finished. Interrupts need to be
-properly masked out before.
+> > +static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+> > +			struct i2c_msg *msg, uint32_t flags)
+> > +{
+> > +	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+> > +	uint32_t addr_data = msg->addr << 1;
+> > +	uint32_t data = 0;
+> > +	int i, shifts_left, ret;
+> > +
+> > +	/* Mute IRQs coming from this block. */
+> > +	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_CLR);
+> > +
+> > +	if (msg->flags & I2C_M_RD) {
+> > +		addr_data |= I2C_SMBUS_READ;
+> > +
+> > +		/* SELECT command. */
+> > +		writel(MXS_I2C_CTRL0_RUN | MXS_CMD_I2C_SELECT,
+> > +			i2c->regs + MXS_I2C_CTRL0);
+> > +
+> > +		ret = mxs_i2c_pio_wait_dmareq(i2c);
+> > +		if (ret)
+> > +			return ret;
+> > +
+> > +		writel(addr_data, i2c->regs + MXS_I2C_DATA);
+> > +
+> > +		ret = mxs_i2c_pio_wait_cplt(i2c);
+> > +		if (ret)
+> > +			return ret;
+> > +
+> > +		/* READ command. */
+> > +		writel(MXS_I2C_CTRL0_RUN | MXS_CMD_I2C_READ | flags |
+> > +			MXS_I2C_CTRL0_XFER_COUNT(msg->len),
+> > +			i2c->regs + MXS_I2C_CTRL0);
+> > +
+> > +		for (i = 0; i < msg->len; i++) {
+> > +			if ((i & 3) == 0) {
+> > +				ret = mxs_i2c_pio_wait_dmareq(i2c);
+> > +				if (ret)
+> > +					return ret;
+> > +				data = readl(i2c->regs + MXS_I2C_DATA);
+> > +			}
+> > +			msg->buf[i] = data & 0xff;
+> > +			data >>= 8;
+> > +		}
+> > +	} else {
+> > +		addr_data |= I2C_SMBUS_WRITE;
+> > +
+> > +		/* WRITE command. */
+> > +		writel(MXS_I2C_CTRL0_RUN | MXS_CMD_I2C_WRITE | flags |
+> > +			MXS_I2C_CTRL0_XFER_COUNT(msg->len + 1),
+> > +			i2c->regs + MXS_I2C_CTRL0);
+> > +
+> > +		/*
+> > +		 * The LSB of data buffer is the first byte blasted across
+> > +		 * the bus. Higher order bytes follow. Thus the following
+> > +		 * filling schematic.
+> > +		 */
+> 
+> Ah, my old code again :) What was wrong with my comment?
 
-Regards,
+You're right, I recycled this portion from somewhere, I think from the old PIOQ 
+code. I just shortened it.
 
-   Wolfram
+> > +		data = addr_data << 24;
+> > +		for (i = 0; i < msg->len; i++) {
+> > +			data >>= 8;
+> > +			data |= (msg->buf[i] << 24);
+> > +			if ((i & 3) == 2) {
+> > +				ret = mxs_i2c_pio_wait_dmareq(i2c);
+> > +				if (ret)
+> > +					return ret;
+> > +				writel(data, i2c->regs + MXS_I2C_DATA);
+> > +			}
+> > +		}
+> > +
+> > +		shifts_left = 24 - (i & 3) * 8;
+> > +		if (shifts_left) {
+> > +			data >>= shifts_left;
+> > +			ret = mxs_i2c_pio_wait_dmareq(i2c);
+> > +			if (ret)
+> > +				return ret;
+> > +			writel(data, i2c->regs + MXS_I2C_DATA);
+> > +		}
+> > +	}
+> > +
+> > +	ret = mxs_i2c_pio_wait_cplt(i2c);
+> > +	if (ret)
+> > +		return ret;
+> > +
+> > +	/* Clear any dangling IRQs and re-enable interrupts. */
+> > +	writel(MXS_I2C_IRQ_MASK, i2c->regs + MXS_I2C_CTRL1_CLR);
+> > +	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
+> > +
+> > +	return 0;
+> > +}
+> > +
+> > 
+> >  /*
+> >  
+> >   * Low level master read/write transaction.
+> >   */
+> > 
+> > @@ -316,24 +446,31 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter
+> > *adap, struct i2c_msg *msg,
+> > 
+> >  	if (msg->len == 0)
+> >  	
+> >  		return -EINVAL;
+> > 
+> > -	INIT_COMPLETION(i2c->cmd_complete);
+> > -	i2c->cmd_err = 0;
+> > -
+> > -	ret = mxs_i2c_dma_setup_xfer(adap, msg, flags);
+> > -	if (ret)
+> > -		return ret;
+> > +	if (msg->len < 8) {
+> 
+> Some THRESHOLD define would be nice here.
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+True, lemme roll out a V2.
 
---MiFvc8Vo6wRSORdP
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlEBKr8ACgkQD27XaX1/VRth+QCgxvSuaCWBWBWEzWAOXdyZXI8d
-VkIAn0YlJWCOCQvrVJThR/16q0+A6B8z
-=yvUF
------END PGP SIGNATURE-----
-
---MiFvc8Vo6wRSORdP--
+> > +		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
+> > +		if (ret)
+> > +			mxs_i2c_reset(i2c);
+> > +	} else {
+> > +		i2c->cmd_err = 0;
+> > +		INIT_COMPLETION(i2c->cmd_complete);
+> > +		ret = mxs_i2c_dma_setup_xfer(adap, msg, flags);
+> > +		if (ret)
+> > +			return ret;
+> > 
+> > -	ret = wait_for_completion_timeout(&i2c->cmd_complete,
+> > +		ret = wait_for_completion_timeout(&i2c->cmd_complete,
+> > 
+> >  						msecs_to_jiffies(1000));
+> > 
+> > -	if (ret == 0)
+> > -		goto timeout;
+> > +		if (ret == 0)
+> > +			goto timeout;
+> > +
+> > +		if (i2c->cmd_err == -ENXIO)
+> > +			mxs_i2c_reset(i2c);
+> > 
+> > -	if (i2c->cmd_err == -ENXIO)
+> > -		mxs_i2c_reset(i2c);
+> > +		ret = i2c->cmd_err;
+> > +	}
+> > 
+> > -	dev_dbg(i2c->dev, "Done with err=%d\n", i2c->cmd_err);
+> > +	dev_dbg(i2c->dev, "Done with err=%d\n", ret);
+> > 
+> > -	return i2c->cmd_err;
+> > +	return ret;
+> > 
+> >  timeout:
+> >  	dev_dbg(i2c->dev, "Timeout!\n");
+> 
+> Regards,
+> 
+>    Wolfram
