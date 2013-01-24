@@ -1,48 +1,74 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: PATCH v2] i2c: s3c2410: Add quirk to exclude GPIO config for
- exynos5440
-Date: Thu, 24 Jan 2013 13:25:05 +0100
-Message-ID: <20130124122505.GA8627@pengutronix.de>
-References: <069301cdf914$03d16890$0b7439b0$@samsung.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [RFC PATCH] mxs: i2c: Implement arbitrary clock speed derivation algorithm
+Date: Thu, 24 Jan 2013 13:21:14 +0100
+Message-ID: <201301241321.15117.marex@denx.de>
+References: <1354297715-12201-1-git-send-email-marex@denx.de> <20130124072555.GD8364@nekote.pengutronix.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <069301cdf914$03d16890$0b7439b0$@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Kukjin Kim <kgene.kim@samsung.com>
-Cc: 'Tomasz Figa' <tomasz.figa@gmail.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, 'Giridhar Maruthy' <giridhar.m@samsung.com>
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130124072555.GD8364-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Dear Wolfram Sang,
 
---u3/rZRmxL6MmkK24
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Hi Marek,
+> 
+> On Fri, Nov 30, 2012 at 06:48:35PM +0100, Marek Vasut wrote:
+> > This patch drops the i2c timing tables from this driver and instead
+> > derives the timing based from the requested clock sleep. The timing
+> > tables were completely wrong anyway when observed on a scope.
+> > 
+> > This new algorithm is also only derived by using a scope, but it seems
+> > to produce much more accurate result.
+> > 
+> > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > ---
+> > 
+> >  drivers/i2c/busses/i2c-mxs.c |   94
+> >  ++++++++++++++++++++++++------------------ 1 file changed, 55
+> >  insertions(+), 39 deletions(-)
+> > 
+> > NOTE: Can someone please test if this patch works for them as well?
+> > 
+> >       I tested this on DENX M28EVK and Freescale MX28EVK.
+> 
+> Second call for testers.
 
-On Tue, Jan 22, 2013 at 06:47:39PM -0800, Kukjin Kim wrote:
-> From: Giridhar Maruthy <giridhar.m@samsung.com>
->=20
-> Signed-off-by: Giridhar Maruthy <giridhar.m@samsung.com>
-> Signed-off-by: Kukjin Kim <kgene.kim@samsung.com>
+[...]
 
-Looks OK but is line wrapped, can't apply.
+> > +static void mxs_i2c_derive_timing(struct mxs_i2c_dev *i2c, int speed)
+> > +{
+> > +	/* The I2C block clock run at 24MHz */
+> > +	const uint32_t clk = 24000000;
+> > +	uint32_t base;
+> > +	uint16_t high_count, low_count, rcv_count, xmit_count;
+> > +	struct device *dev = i2c->dev;
+> > +
+> > +	if (speed > 540000) {
+> > +		dev_err(dev, "Speed too high (%d Hz), using 540 kHz\n", speed);
+> > +		speed = 540000;
+> > +	} else if (speed < 12000) {
+> > +		dev_err(dev, "Speed too low (%d Hz), using 12 kHz\n", speed);
+> > +		speed = 12000;
+> > +	}
+> 
+> I'd think dev_warn would do, since we are able to continue. No need to
+> resend, though.
+> 
+> Rest looks good, thanks!
 
---=20
-Pengutronix e.K.                           | Wolfram Sang                |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Ah, good catch. We can put this one on hold, it's not as important as the 
+PIO/DMA one. I'd like to see the PIO/DMA one hit mainline though.
 
---u3/rZRmxL6MmkK24
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Thanks!
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iEYEARECAAYFAlEBKCEACgkQD27XaX1/VRusXgCeP6kkiKU7yVxsjaih6ZcaOVHO
-RuAAn3JP0fMI7ZaMPPi7v85HnNkgVGYa
-=wxBA
------END PGP SIGNATURE-----
-
---u3/rZRmxL6MmkK24--
+Best regards,
+Marek Vasut
