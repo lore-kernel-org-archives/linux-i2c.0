@@ -1,27 +1,48 @@
-From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH V2 0/4] i2c: s3c2410: Add devm_* apis and cleanup
-Date: Thu, 24 Jan 2013 08:26:47 +0100
-Message-ID: <20130124072647.GF8364@nekote.pengutronix.de>
-References: <1353660115-9710-1-git-send-email-tushar.behera@linaro.org>
+From: Wolfram Sang <w.sang@pengutronix.de>
+Subject: Re: [PATCH RFC] misc/at24: distinguish between eeprom and fram chips
+Date: Thu, 24 Jan 2013 08:27:01 +0100
+Message-ID: <20130124072701.GG8364@nekote.pengutronix.de>
+References: <201212041758.38600.poeschel@lemonage.de>
+ <201212051043.07460.poeschel@lemonage.de>
+ <20121205164153.GA5011@pengutronix.de>
+ <201212071114.29034.poeschel@lemonage.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1353660115-9710-1-git-send-email-tushar.behera-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tushar Behera <tushar.behera-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+In-Reply-To: <201212071114.29034.poeschel@lemonage.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Lars Poeschel <poeschel@lemonage.de>
+Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Nov 23, 2012 at 02:11:51PM +0530, Tushar Behera wrote:
-> This patchset cleans up the probe function of i2c-s3c2410 driver.
-> These have been tested on Exynos4210 based Origen board.
+On Fri, Dec 07, 2012 at 11:14:28AM +0100, Lars Poeschel wrote:
+> > > > > I wanted to use a fm24c04 i2c fram chip with linux. I grepped the
+> > > > > source and found nothing. I later found that my chip can be handled
+> > > > > by at24 eeprom driver. It creates a sysfs file called eeprom to
+> > > > > read from and write to the chip. Userspace has no chance to
+> > > > > distinguish if it is writing an eeprom or a fram chip.
+> > > > 
+> > > > Why should it?
+> > > 
+> > > Because writes are much faster and it doesn't have to take care on erase
+> > > cycles. It could use other write strategies on such devices and update
+> > > informations that have to survive power downs more often.
+> > 
+> > I agree. I think that a seperate attribute named e.g. 'page_size' would
+> > be more helpful than renaming the binary file to fram?
 > 
-> Changes since V1:
->   * devm_request_mem_region and devm_ioremap calls were replaced by
-> devm_request_and_ioremap() call.
->   * All devm_* related modifications (earlier patches 2-5) were merged
-> to a single patch.
-> 
+> Yes, this is a much better solution! Adding a seperate sysfs file page_size 
+> and a file for the type of device which would read eeprom, fram, etc then.
+> If you also think this is the way to go, I would spent one of my next free 
+> timeslots to this.
 
-Patch series looks good. Can you rebase to 3.8-rc4?
+Oops, this mail seems to have dropped off :(
+
+I am all for the 'page_size' attribute, but still not convinced what
+gain the 'type' attribute would allow. For FRAM, the page size will be
+large. Isn't this enough information?
+
+Regards,
+
+   Wolfram
