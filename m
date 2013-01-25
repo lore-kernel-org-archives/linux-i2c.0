@@ -1,33 +1,44 @@
-From: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: PATCH v2] i2c: s3c2410: Add quirk to exclude GPIO config for
- exynos5440
-Date: Thu, 24 Jan 2013 11:28:47 -0800
-Message-ID: <09af01cdfa69$094be010$1be3a030$@samsung.com>
-References: <069301cdf914$03d16890$0b7439b0$@samsung.com>
- <20130124122505.GA8627@pengutronix.de>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC PATCH] mxs: i2c: Implement arbitrary clock speed derivation
+ algorithm
+Date: Fri, 25 Jan 2013 14:33:20 +0800
+Message-ID: <20130125063318.GA2707@S2101-09.ap.freescale.net>
+References: <1354297715-12201-1-git-send-email-marex@denx.de>
+ <20130124072555.GD8364@nekote.pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20130124122505.GA8627-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-language: en-us
+Content-Disposition: inline
+In-Reply-To: <20130124072555.GD8364-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: 'Tomasz Figa' <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Giridhar Maruthy' <giridhar.m-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang wrote:
+On Thu, Jan 24, 2013 at 08:25:56AM +0100, Wolfram Sang wrote:
+> Hi Marek,
 > 
-> On Tue, Jan 22, 2013 at 06:47:39PM -0800, Kukjin Kim wrote:
-> > From: Giridhar Maruthy <giridhar.m-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> >
-> > Signed-off-by: Giridhar Maruthy <giridhar.m-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > Signed-off-by: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> On Fri, Nov 30, 2012 at 06:48:35PM +0100, Marek Vasut wrote:
+> > This patch drops the i2c timing tables from this driver and instead
+> > derives the timing based from the requested clock sleep. The timing
+> > tables were completely wrong anyway when observed on a scope.
+> > 
+> > This new algorithm is also only derived by using a scope, but it seems
+> > to produce much more accurate result.
+> > 
+> > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> > Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-mxs.c |   94 ++++++++++++++++++++++++------------------
+> >  1 file changed, 55 insertions(+), 39 deletions(-)
+> > 
+> > NOTE: Can someone please test if this patch works for them as well?
+> >       I tested this on DENX M28EVK and Freescale MX28EVK.
 > 
-> Looks OK but is line wrapped, can't apply.
-> 
-Oh, OK. Re-sent it just now. Please take it.
+> Second call for testers.
 
-Thanks.
+imx28 still talks good to sgtl5000 over i2c on my board, so
 
-- Kukjin
+Tested-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
