@@ -1,304 +1,246 @@
 From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH V10 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Fri, 25 Jan 2013 15:17:48 +0530
-Message-ID: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar@linaro.org>
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH V10 1/2] i2c/adapter: Add bus recovery infrastructure
+Date: Fri, 25 Jan 2013 15:18:49 +0530
+Message-ID: <CAKohponbsGtXu8FVHNaJdC=N+iqH_xGCXHhwU9VPrkFW8+cxEw@mail.gmail.com>
+References: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary=f46d044480839ae56804d419d526
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
-protocol Rev. 03 section 3.1.16 titled "Bus clear".
+--f46d044480839ae56804d419d526
+Content-Type: text/plain; charset=ISO-8859-1
 
-http://www.nxp.com/documents/user_manual/UM10204.pdf
+On 25 January 2013 15:17, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> Add i2c bus recovery infrastructure to i2c adapters as specified in the i2c
+> protocol Rev. 03 section 3.1.16 titled "Bus clear".
+>
+> http://www.nxp.com/documents/user_manual/UM10204.pdf
+>
+> Sometimes during operation i2c bus hangs and we need to give dummy clocks to
+> slave device to start the transfer again. Now we may have capability in the bus
+> controller to generate these clocks or platform may have gpio pins which can be
+> toggled to generate dummy clocks. This patch supports both.
+>
+> This patch also adds in generic bus recovery routines gpio or SCL line based
+> which can be used by bus controller. In addition controller driver may provide
+> its own version of the bus recovery routine.
 
-Sometimes during operation i2c bus hangs and we need to give dummy clocks t=
-o
-slave device to start the transfer again. Now we may have capability in the=
- bus
-controller to generate these clocks or platform may have gpio pins which ca=
-n be
-toggled to generate dummy clocks. This patch supports both.
+ARM mail servers are still broken. Please apply attached patches.
 
-This patch also adds in generic bus recovery routines gpio or SCL line base=
-d
-which can be used by bus controller. In addition controller driver may prov=
-ide
-its own version of the bus recovery routine.
+--f46d044480839ae56804d419d526
+Content-Type: application/octet-stream;
+	name="0001-i2c-adapter-Add-bus-recovery-infrastructure.patch"
+Content-Disposition: attachment;
+	filename="0001-i2c-adapter-Add-bus-recovery-infrastructure.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hcd5epjf0
 
-This doesn't support multi-master recovery for now.
+RnJvbSA1OWE3M2QxODJiZjFjZTMzMGJlY2YzMmFkNzgwZjM1MDFhNTdhZWQwIE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpNZXNzYWdlLUlkOiA8NTlhNzNkMTgyYmYxY2UzMzBiZWNmMzJhZDc4MGYz
+NTAxYTU3YWVkMC4xMzU5MTA2OTY2LmdpdC52aXJlc2gua3VtYXJAbGluYXJvLm9yZz4KRnJvbTog
+VmlyZXNoIEt1bWFyIDx2aXJlc2gua3VtYXJAbGluYXJvLm9yZz4KRGF0ZTogVHVlLCAyOCBGZWIg
+MjAxMiAxODoyNjozMSArMDUzMApTdWJqZWN0OiBbUEFUQ0ggVjEwIDEvMl0gaTJjL2FkYXB0ZXI6
+IEFkZCBidXMgcmVjb3ZlcnkgaW5mcmFzdHJ1Y3R1cmUKCkFkZCBpMmMgYnVzIHJlY292ZXJ5IGlu
+ZnJhc3RydWN0dXJlIHRvIGkyYyBhZGFwdGVycyBhcyBzcGVjaWZpZWQgaW4gdGhlIGkyYwpwcm90
+b2NvbCBSZXYuIDAzIHNlY3Rpb24gMy4xLjE2IHRpdGxlZCAiQnVzIGNsZWFyIi4KCmh0dHA6Ly93
+d3cubnhwLmNvbS9kb2N1bWVudHMvdXNlcl9tYW51YWwvVU0xMDIwNC5wZGYKClNvbWV0aW1lcyBk
+dXJpbmcgb3BlcmF0aW9uIGkyYyBidXMgaGFuZ3MgYW5kIHdlIG5lZWQgdG8gZ2l2ZSBkdW1teSBj
+bG9ja3MgdG8Kc2xhdmUgZGV2aWNlIHRvIHN0YXJ0IHRoZSB0cmFuc2ZlciBhZ2Fpbi4gTm93IHdl
+IG1heSBoYXZlIGNhcGFiaWxpdHkgaW4gdGhlIGJ1cwpjb250cm9sbGVyIHRvIGdlbmVyYXRlIHRo
+ZXNlIGNsb2NrcyBvciBwbGF0Zm9ybSBtYXkgaGF2ZSBncGlvIHBpbnMgd2hpY2ggY2FuIGJlCnRv
+Z2dsZWQgdG8gZ2VuZXJhdGUgZHVtbXkgY2xvY2tzLiBUaGlzIHBhdGNoIHN1cHBvcnRzIGJvdGgu
+CgpUaGlzIHBhdGNoIGFsc28gYWRkcyBpbiBnZW5lcmljIGJ1cyByZWNvdmVyeSByb3V0aW5lcyBn
+cGlvIG9yIFNDTCBsaW5lIGJhc2VkCndoaWNoIGNhbiBiZSB1c2VkIGJ5IGJ1cyBjb250cm9sbGVy
+LiBJbiBhZGRpdGlvbiBjb250cm9sbGVyIGRyaXZlciBtYXkgcHJvdmlkZQppdHMgb3duIHZlcnNp
+b24gb2YgdGhlIGJ1cyByZWNvdmVyeSByb3V0aW5lLgoKVGhpcyBkb2Vzbid0IHN1cHBvcnQgbXVs
+dGktbWFzdGVyIHJlY292ZXJ5IGZvciBub3cuCgpSZXZpZXdlZC1ieTogUGF1bCBDYXJwZW50ZXIg
+PHBhdWxAcGNzZXJ2aWNlc2VsZWN0cm9uaWNzLmNvLnVrPgpTaWduZWQtb2ZmLWJ5OiBWaXJlc2gg
+S3VtYXIgPHZpcmVzaC5rdW1hckBsaW5hcm8ub3JnPgotLS0KVjktPlYxMDoKLSBDaGVjayBzZGEg
+dmFsdWUgYXQgdGhlIGJlZ2luaW5nIG9mIGxvb3AgdG8gZ3VhcmFudGVlIHRoYXQgd2UgYXJlIG5v
+dCB0cnlpbmcgdG8KICBjbG9jayBhIHdvcmtpbmcgYnVzLgotIFJlbW92ZSBjbGtfZGVsYXkgdmFy
+aWFibGUsIGRvIHRoZSBjYWxjdWxhdGlvbiBpbiBhZHZhbmNlIGFuZCBjcmVhdGUKICBSRUNPVkVS
+WV9OREVMQVkgbWFjcm8gZm9yIGl0Ci0gRml4IGdyYW1tZXIgYW5kIGNhc2luZyBvZiBmZXcgc3Ry
+aW5ncwotIGNoZWNrIGdldF9zY2woKSB0b28gYXQgdGhlIGJlZ2luaW5nIGFzIGl0IHdhcyBtYW5k
+YXRvcnkgZm9yIFNDTCB0eXBlIHJlY292ZXJ5CgogZHJpdmVycy9pMmMvaTJjLWNvcmUuYyB8IDE1
+NiArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCiBpbmNs
+dWRlL2xpbnV4L2kyYy5oICAgIHwgIDQwICsrKysrKysrKysrKysKIDIgZmlsZXMgY2hhbmdlZCwg
+MTk2IGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9pMmMtY29yZS5jIGIv
+ZHJpdmVycy9pMmMvaTJjLWNvcmUuYwppbmRleCBlMzg4NTkwLi4yNGM4YTFlIDEwMDY0NAotLS0g
+YS9kcml2ZXJzL2kyYy9pMmMtY29yZS5jCisrKyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLmMKQEAg
+LTI3LDcgKzI3LDkgQEAKIAogI2luY2x1ZGUgPGxpbnV4L21vZHVsZS5oPgogI2luY2x1ZGUgPGxp
+bnV4L2tlcm5lbC5oPgorI2luY2x1ZGUgPGxpbnV4L2RlbGF5Lmg+CiAjaW5jbHVkZSA8bGludXgv
+ZXJybm8uaD4KKyNpbmNsdWRlIDxsaW51eC9ncGlvLmg+CiAjaW5jbHVkZSA8bGludXgvc2xhYi5o
+PgogI2luY2x1ZGUgPGxpbnV4L2kyYy5oPgogI2luY2x1ZGUgPGxpbnV4L2luaXQuaD4KQEAgLTEw
+OSw2ICsxMTEsMTI4IEBAIHN0YXRpYyBpbnQgaTJjX2RldmljZV91ZXZlbnQoc3RydWN0IGRldmlj
+ZSAqZGV2LCBzdHJ1Y3Qga29ial91ZXZlbnRfZW52ICplbnYpCiAjZGVmaW5lIGkyY19kZXZpY2Vf
+dWV2ZW50CU5VTEwKICNlbmRpZgkvKiBDT05GSUdfSE9UUExVRyAqLwogCisvKiBpMmMgYnVzIHJl
+Y292ZXJ5IHJvdXRpbmVzICovCitzdGF0aWMgaW50IGdldF9zY2xfZ3Bpb192YWx1ZShzdHJ1Y3Qg
+aTJjX2FkYXB0ZXIgKmFkYXApCit7CisJcmV0dXJuIGdwaW9fZ2V0X3ZhbHVlKGFkYXAtPmJ1c19y
+ZWNvdmVyeV9pbmZvLT5zY2xfZ3Bpbyk7Cit9CisKK3N0YXRpYyB2b2lkIHNldF9zY2xfZ3Bpb192
+YWx1ZShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIGludCB2YWwpCit7CisJZ3Bpb19zZXRfdmFs
+dWUoYWRhcC0+YnVzX3JlY292ZXJ5X2luZm8tPnNjbF9ncGlvLCB2YWwpOworfQorCitzdGF0aWMg
+aW50IGdldF9zZGFfZ3Bpb192YWx1ZShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCit7CisJcmV0
+dXJuIGdwaW9fZ2V0X3ZhbHVlKGFkYXAtPmJ1c19yZWNvdmVyeV9pbmZvLT5zZGFfZ3Bpbyk7Cit9
+CisKK3N0YXRpYyBpbnQgaTJjX2dldF9ncGlvc19mb3JfcmVjb3Zlcnkoc3RydWN0IGkyY19hZGFw
+dGVyICphZGFwKQoreworCXN0cnVjdCBpMmNfYnVzX3JlY292ZXJ5X2luZm8gKmJyaSA9IGFkYXAt
+PmJ1c19yZWNvdmVyeV9pbmZvOworCXN0cnVjdCBkZXZpY2UgKmRldiA9ICZhZGFwLT5kZXY7CisJ
+aW50IHJldCA9IDA7CisKKwlyZXQgPSBncGlvX3JlcXVlc3Rfb25lKGJyaS0+c2NsX2dwaW8sIEdQ
+SU9GX09QRU5fRFJBSU4gfAorCQkJR1BJT0ZfT1VUX0lOSVRfSElHSCwgImkyYy1zY2wiKTsKKwlp
+ZiAocmV0KSB7CisJCWRldl93YXJuKGRldiwgImdwaW8gcmVxdWVzdCBmYWlsOiAlZFxuIiwgYnJp
+LT5zY2xfZ3Bpbyk7CisJCXJldHVybiByZXQ7CisJfQorCisJaWYgKGJyaS0+Z2V0X3NkYSkgewor
+CQlpZiAoZ3Bpb19yZXF1ZXN0X29uZShicmktPnNkYV9ncGlvLCBHUElPRl9JTiwgImkyYy1zZGEi
+KSkgeworCQkJLyogd29yayB3aXRob3V0IFNEQSBwb2xsaW5nICovCisJCQlkZXZfd2FybihkZXYs
+ICJjYW4ndCBnZXQgU0RBOiAlZC4gbm90IHVzaW5nIFNEQSBwb2xsaW5nXG4iLAorCQkJCQlicmkt
+PnNkYV9ncGlvKTsKKwkJCWJyaS0+Z2V0X3NkYSA9IE5VTEw7CisJCX0KKwl9CisKKwlyZXR1cm4g
+cmV0OworfQorCitzdGF0aWMgdm9pZCBpMmNfcHV0X2dwaW9zX2Zvcl9yZWNvdmVyeShzdHJ1Y3Qg
+aTJjX2FkYXB0ZXIgKmFkYXApCit7CisJc3RydWN0IGkyY19idXNfcmVjb3ZlcnlfaW5mbyAqYnJp
+ID0gYWRhcC0+YnVzX3JlY292ZXJ5X2luZm87CisKKwlpZiAoYnJpLT5nZXRfc2RhKQorCQlncGlv
+X2ZyZWUoYnJpLT5zZGFfZ3Bpbyk7CisKKwlncGlvX2ZyZWUoYnJpLT5zY2xfZ3Bpbyk7Cit9CisK
+Ky8qCisgKiBXZSBuZWVkIHRvIHByb3ZpZGUgZGVsYXkgYWZ0ZXIgZXZlcnkgaGFsZiBjbG9jayBw
+dWxzZSwKKyAqIGRlbGF5IGluIG5zID0gKDEwXjYvIDEwMCBLSHopLzIKKyAqLworI2RlZmluZSBS
+RUNPVkVSWV9DTEtfQ05UCTkKKyNkZWZpbmUgUkVDT1ZFUllfTkRFTEFZCQk1MDAwCitzdGF0aWMg
+aW50IGkyY19nZW5lcmljX3JlY292ZXJ5KHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCkKK3sKKwlz
+dHJ1Y3QgaTJjX2J1c19yZWNvdmVyeV9pbmZvICpicmkgPSBhZGFwLT5idXNfcmVjb3ZlcnlfaW5m
+bzsKKwlpbnQgaSA9IDAsIHZhbCA9IDEsIHJldCA9IDA7CisKKwlpZiAoYnJpLT5wcmVwYXJlX3Jl
+Y292ZXJ5KQorCQlicmktPnByZXBhcmVfcmVjb3ZlcnkoYnJpKTsKKworCS8qCisJICogQnkgdGhp
+cyB0aW1lIFNDTCBpcyBoaWdoLCBhcyB3ZSBuZWVkIHRvIGdpdmUgOSBmYWxsaW5nLXJpc2luZyBl
+ZGdlcworCSAqLworCXdoaWxlIChpKysgPCBSRUNPVkVSWV9DTEtfQ05UICogMikgeworCQlpZiAo
+dmFsKSB7CisJCQkvKiBicmVhayBpZiBTREEgZ290IGhpZ2ggKi8KKwkJCWlmIChicmktPmdldF9z
+ZGEgJiYgYnJpLT5nZXRfc2RhKGFkYXApKQorCQkJCQlicmVhazsKKwkJCS8qIFNDTCBzaG91bGRu
+J3QgYmUgbG93IGhlcmUgKi8KKwkJCWlmICghYnJpLT5nZXRfc2NsKGFkYXApKSB7CisJCQkJZGV2
+X2VycigmYWRhcC0+ZGV2LAorCQkJCQkiU0NMIGlzIHN0dWNrIGxvdyBleGl0IHJlY292ZXJ5XG4i
+KTsKKwkJCQlyZXQgPSAtRUJVU1k7CisJCQkJYnJlYWs7CisJCQl9CisJCX0KKworCQl2YWwgPSAh
+dmFsOworCQlicmktPnNldF9zY2woYWRhcCwgdmFsKTsKKwkJbmRlbGF5KFJFQ09WRVJZX05ERUxB
+WSk7CisJfQorCisJaWYgKGJyaS0+dW5wcmVwYXJlX3JlY292ZXJ5KQorCQlicmktPnVucHJlcGFy
+ZV9yZWNvdmVyeShicmkpOworCisJcmV0dXJuIHJldDsKK30KKworaW50IGkyY19nZW5lcmljX3Nj
+bF9yZWNvdmVyeShzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCit7CisJYWRhcC0+YnVzX3JlY292
+ZXJ5X2luZm8tPnNldF9zY2woYWRhcCwgMSk7CisJcmV0dXJuIGkyY19nZW5lcmljX3JlY292ZXJ5
+KGFkYXApOworfQorCitpbnQgaTJjX2dlbmVyaWNfZ3Bpb19yZWNvdmVyeShzdHJ1Y3QgaTJjX2Fk
+YXB0ZXIgKmFkYXApCit7CisJaW50IHJldDsKKworCXJldCA9IGkyY19nZXRfZ3Bpb3NfZm9yX3Jl
+Y292ZXJ5KGFkYXApOworCWlmIChyZXQpCisJCXJldHVybiByZXQ7CisKKwlyZXQgPSBpMmNfZ2Vu
+ZXJpY19yZWNvdmVyeShhZGFwKTsKKwlpMmNfcHV0X2dwaW9zX2Zvcl9yZWNvdmVyeShhZGFwKTsK
+KworCXJldHVybiByZXQ7Cit9CisKK2ludCBpMmNfcmVjb3Zlcl9idXMoc3RydWN0IGkyY19hZGFw
+dGVyICphZGFwKQoreworCWlmICghYWRhcC0+YnVzX3JlY292ZXJ5X2luZm8pCisJCXJldHVybiAt
+RU9QTk9UU1VQUDsKKworCWRldl9kYmcoJmFkYXAtPmRldiwgInRyeWluZyBpMmMgYnVzIHJlY292
+ZXJ5XG4iKTsKKwlyZXR1cm4gYWRhcC0+YnVzX3JlY292ZXJ5X2luZm8tPnJlY292ZXJfYnVzKGFk
+YXApOworfQorCiBzdGF0aWMgaW50IGkyY19kZXZpY2VfcHJvYmUoc3RydWN0IGRldmljZSAqZGV2
+KQogewogCXN0cnVjdCBpMmNfY2xpZW50CSpjbGllbnQgPSBpMmNfdmVyaWZ5X2NsaWVudChkZXYp
+OwpAQCAtOTAyLDYgKzEwMjYsMzggQEAgc3RhdGljIGludCBpMmNfcmVnaXN0ZXJfYWRhcHRlcihz
+dHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXApCiAJCQkgIkZhaWxlZCB0byBjcmVhdGUgY29tcGF0aWJp
+bGl0eSBjbGFzcyBsaW5rXG4iKTsKICNlbmRpZgogCisJLyogYnVzIHJlY292ZXJ5IHNwZWNpZmlj
+IGluaXRpYWxpemF0aW9uICovCisJaWYgKGFkYXAtPmJ1c19yZWNvdmVyeV9pbmZvKSB7CisJCXN0
+cnVjdCBpMmNfYnVzX3JlY292ZXJ5X2luZm8gKmJyaSA9IGFkYXAtPmJ1c19yZWNvdmVyeV9pbmZv
+OworCisJCWlmICghYnJpLT5yZWNvdmVyX2J1cykgeworCQkJZGV2X2VycigmYWRhcC0+ZGV2LCAi
+Tm8gcmVjb3Zlcl9idXMoKSwgbm90IHVzaW5nIHJlY292ZXJ5XG4iKTsKKwkJCWFkYXAtPmJ1c19y
+ZWNvdmVyeV9pbmZvID0gTlVMTDsKKwkJCWdvdG8gZXhpdF9yZWNvdmVyeTsKKwkJfQorCisJCS8q
+IEdQSU8gcmVjb3ZlcnkgKi8KKwkJaWYgKGJyaS0+cmVjb3Zlcl9idXMgPT0gaTJjX2dlbmVyaWNf
+Z3Bpb19yZWNvdmVyeSkgeworCQkJaWYgKCFncGlvX2lzX3ZhbGlkKGJyaS0+c2NsX2dwaW8pKSB7
+CisJCQkJZGV2X2VycigmYWRhcC0+ZGV2LCAiSW52YWxpZCBTQ0wgZ3Bpbywgbm90IHVzaW5nIHJl
+Y292ZXJ5XG4iKTsKKwkJCQlhZGFwLT5idXNfcmVjb3ZlcnlfaW5mbyA9IE5VTEw7CisJCQkJZ290
+byBleGl0X3JlY292ZXJ5OworCQkJfQorCisJCQlpZiAoZ3Bpb19pc192YWxpZChicmktPnNkYV9n
+cGlvKSkKKwkJCQlicmktPmdldF9zZGEgPSBnZXRfc2RhX2dwaW9fdmFsdWU7CisJCQllbHNlCisJ
+CQkJYnJpLT5nZXRfc2RhID0gTlVMTDsKKworCQkJYnJpLT5nZXRfc2NsID0gZ2V0X3NjbF9ncGlv
+X3ZhbHVlOworCQkJYnJpLT5zZXRfc2NsID0gc2V0X3NjbF9ncGlvX3ZhbHVlOworCQl9IGVsc2Ug
+aWYgKCFicmktPnNldF9zY2wgfHwgIWJyaS0+Z2V0X3NjbCkgeworCQkJZGV2X3dhcm4oJmFkYXAt
+PmRldiwKKwkJCQkJInNldF9zY2woKSBpcyBtdXN0IGZvciBTQ0wgcmVjb3ZlcnlcbiIpOworCQl9
+CisJfQorCitleGl0X3JlY292ZXJ5OgogCS8qIGNyZWF0ZSBwcmUtZGVjbGFyZWQgZGV2aWNlIG5v
+ZGVzICovCiAJaWYgKGFkYXAtPm5yIDwgX19pMmNfZmlyc3RfZHluYW1pY19idXNfbnVtKQogCQlp
+MmNfc2Nhbl9zdGF0aWNfYm9hcmRfaW5mbyhhZGFwKTsKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGlu
+dXgvaTJjLmggYi9pbmNsdWRlL2xpbnV4L2kyYy5oCmluZGV4IGQwYzRkYjcuLjA1YTE5NjYgMTAw
+NjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgvaTJjLmgKKysrIGIvaW5jbHVkZS9saW51eC9pMmMuaApA
+QCAtMzcwLDYgKzM3MCw0NCBAQCBzdHJ1Y3QgaTJjX2FsZ29yaXRobSB7CiAJdTMyICgqZnVuY3Rp
+b25hbGl0eSkgKHN0cnVjdCBpMmNfYWRhcHRlciAqKTsKIH07CiAKKy8qKgorICogc3RydWN0IGky
+Y19idXNfcmVjb3ZlcnlfaW5mbyAtIEkyQyBidXMgcmVjb3ZlcnkgaW5mb3JtYXRpb24KKyAqIEBy
+ZWNvdmVyX2J1czogUmVjb3ZlciByb3V0aW5lLiBFaXRoZXIgcGFzcyBkcml2ZXIncyByZWNvdmVy
+X2J1cygpIHJvdXRpbmUsIG9yCisgKglpMmNfZ2VuZXJpY19zY2xfcmVjb3ZlcnkoKSBvciBpMmNf
+Z2VuZXJpY19ncGlvX3JlY292ZXJ5KCkuCisgKiBAZ2V0X3NjbDogVGhpcyBnZXRzIGN1cnJlbnQg
+dmFsdWUgb2YgU0NMIGxpbmUuIE1hbmRhdG9yeSBmb3IgZ2VuZXJpYyBTQ0wKKyAqICAgICAgcmVj
+b3ZlcnkuIFVzZWQgaW50ZXJuYWxseSBmb3IgZ2VuZXJpYyBHUElPIHJlY292ZXJ5LgorICogQHNl
+dF9zY2w6IFRoaXMgc2V0cy9jbGVhcnMgU0NMIGxpbmUuIE1hbmRhdG9yeSBmb3IgZ2VuZXJpYyBT
+Q0wgcmVjb3ZlcnkuIFVzZWQKKyAqICAgICAgaW50ZXJuYWxseSBmb3IgZ2VuZXJpYyBHUElPIHJl
+Y292ZXJ5LgorICogQGdldF9zZGE6IFRoaXMgZ2V0cyBjdXJyZW50IHZhbHVlIG9mIFNEQSBsaW5l
+LiBPcHRpb25hbCBmb3IgZ2VuZXJpYyBTQ0wKKyAqICAgICAgcmVjb3ZlcnkuIFVzZWQgaW50ZXJu
+YWxseSwgaWYgc2RhX2dwaW8gaXMgYSB2YWxpZCBHUElPLCBmb3IgZ2VuZXJpYyBHUElPCisgKiAg
+ICAgIHJlY292ZXJ5LgorICogQHByZXBhcmVfcmVjb3Zlcnk6IFRoaXMgd2lsbCBiZSBjYWxsZWQg
+YmVmb3JlIHN0YXJ0aW5nIHJlY292ZXJ5LiBQbGF0Zm9ybSBtYXkKKyAqCWNvbmZpZ3VyZSBwYWRt
+dXggaGVyZSBmb3IgU0RBL1NDTCBsaW5lIG9yIHNvbWV0aGluZyBlbHNlIHRoZXkgd2FudC4KKyAq
+IEB1bnByZXBhcmVfcmVjb3Zlcnk6IFRoaXMgd2lsbCBiZSBjYWxsZWQgYWZ0ZXIgY29tcGxldGlu
+ZyByZWNvdmVyeS4gUGxhdGZvcm0KKyAqCW1heSBjb25maWd1cmUgcGFkbXV4IGhlcmUgZm9yIFNE
+QS9TQ0wgbGluZSBvciBzb21ldGhpbmcgZWxzZSB0aGV5IHdhbnQuCisgKiBAc2NsX2dwaW86IGdw
+aW8gbnVtYmVyIG9mIHRoZSBTQ0wgbGluZS4gT25seSByZXF1aXJlZCBmb3IgR1BJTyByZWNvdmVy
+eS4KKyAqIEBzZGFfZ3BpbzogZ3BpbyBudW1iZXIgb2YgdGhlIFNEQSBsaW5lLiBPbmx5IHJlcXVp
+cmVkIGZvciBHUElPIHJlY292ZXJ5LgorICovCitzdHJ1Y3QgaTJjX2J1c19yZWNvdmVyeV9pbmZv
+IHsKKwlpbnQgKCpyZWNvdmVyX2J1cykoc3RydWN0IGkyY19hZGFwdGVyICopOworCisJaW50ICgq
+Z2V0X3NjbCkoc3RydWN0IGkyY19hZGFwdGVyICopOworCXZvaWQgKCpzZXRfc2NsKShzdHJ1Y3Qg
+aTJjX2FkYXB0ZXIgKiwgaW50IHZhbCk7CisJaW50ICgqZ2V0X3NkYSkoc3RydWN0IGkyY19hZGFw
+dGVyICopOworCisJdm9pZCAoKnByZXBhcmVfcmVjb3ZlcnkpKHN0cnVjdCBpMmNfYnVzX3JlY292
+ZXJ5X2luZm8gKmJyaSk7CisJdm9pZCAoKnVucHJlcGFyZV9yZWNvdmVyeSkoc3RydWN0IGkyY19i
+dXNfcmVjb3ZlcnlfaW5mbyAqYnJpKTsKKworCS8qIGdwaW8gcmVjb3ZlcnkgKi8KKwl1bnNpZ25l
+ZCBzY2xfZ3BpbzsKKwl1bnNpZ25lZCBzZGFfZ3BpbzsKK307CisKKy8qIEdlbmVyaWMgcmVjb3Zl
+cnkgcm91dGluZXMgKi8KK2ludCBpMmNfZ2VuZXJpY19ncGlvX3JlY292ZXJ5KHN0cnVjdCBpMmNf
+YWRhcHRlciAqYWRhcCk7CitpbnQgaTJjX2dlbmVyaWNfc2NsX3JlY292ZXJ5KHN0cnVjdCBpMmNf
+YWRhcHRlciAqYWRhcCk7CitpbnQgaTJjX3JlY292ZXJfYnVzKHN0cnVjdCBpMmNfYWRhcHRlciAq
+YWRhcCk7CisKIC8qCiAgKiBpMmNfYWRhcHRlciBpcyB0aGUgc3RydWN0dXJlIHVzZWQgdG8gaWRl
+bnRpZnkgYSBwaHlzaWNhbCBpMmMgYnVzIGFsb25nCiAgKiB3aXRoIHRoZSBhY2Nlc3MgYWxnb3Jp
+dGhtcyBuZWNlc3NhcnkgdG8gYWNjZXNzIGl0LgpAQCAtMzkzLDYgKzQzMSw4IEBAIHN0cnVjdCBp
+MmNfYWRhcHRlciB7CiAKIAlzdHJ1Y3QgbXV0ZXggdXNlcnNwYWNlX2NsaWVudHNfbG9jazsKIAlz
+dHJ1Y3QgbGlzdF9oZWFkIHVzZXJzcGFjZV9jbGllbnRzOworCisJc3RydWN0IGkyY19idXNfcmVj
+b3ZlcnlfaW5mbyAqYnVzX3JlY292ZXJ5X2luZm87CiB9OwogI2RlZmluZSB0b19pMmNfYWRhcHRl
+cihkKSBjb250YWluZXJfb2YoZCwgc3RydWN0IGkyY19hZGFwdGVyLCBkZXYpCiAKLS0gCjEuNy4x
+Mi5yYzIuMTguZzYxYjQ3MmUKCg==
+--f46d044480839ae56804d419d526
+Content-Type: application/octet-stream;
+	name="0002-i2c-designware-Provide-i2c-bus-recovery-support.patch"
+Content-Disposition: attachment;
+	filename="0002-i2c-designware-Provide-i2c-bus-recovery-support.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hcd5epji1
 
-Reviewed-by: Paul Carpenter <paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org>
-Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
-V9->V10:
-- Check sda value at the begining of loop to guarantee that we are not tryi=
-ng to
-  clock a working bus.
-- Remove clk_delay variable, do the calculation in advance and create
-  RECOVERY_NDELAY macro for it
-- Fix grammer and casing of few strings
-- check get_scl() too at the begining as it was mandatory for SCL type reco=
-very
-
- drivers/i2c/i2c-core.c | 156 +++++++++++++++++++++++++++++++++++++++++++++=
-++++
- include/linux/i2c.h    |  40 +++++++++++++
- 2 files changed, 196 insertions(+)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index e388590..24c8a1e 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -27,7 +27,9 @@
-=20
- #include <linux/module.h>
- #include <linux/kernel.h>
-+#include <linux/delay.h>
- #include <linux/errno.h>
-+#include <linux/gpio.h>
- #include <linux/slab.h>
- #include <linux/i2c.h>
- #include <linux/init.h>
-@@ -109,6 +111,128 @@ static int i2c_device_uevent(struct device *dev, stru=
-ct kobj_uevent_env *env)
- #define i2c_device_uevent=09NULL
- #endif=09/* CONFIG_HOTPLUG */
-=20
-+/* i2c bus recovery routines */
-+static int get_scl_gpio_value(struct i2c_adapter *adap)
-+{
-+=09return gpio_get_value(adap->bus_recovery_info->scl_gpio);
-+}
-+
-+static void set_scl_gpio_value(struct i2c_adapter *adap, int val)
-+{
-+=09gpio_set_value(adap->bus_recovery_info->scl_gpio, val);
-+}
-+
-+static int get_sda_gpio_value(struct i2c_adapter *adap)
-+{
-+=09return gpio_get_value(adap->bus_recovery_info->sda_gpio);
-+}
-+
-+static int i2c_get_gpios_for_recovery(struct i2c_adapter *adap)
-+{
-+=09struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-+=09struct device *dev =3D &adap->dev;
-+=09int ret =3D 0;
-+
-+=09ret =3D gpio_request_one(bri->scl_gpio, GPIOF_OPEN_DRAIN |
-+=09=09=09GPIOF_OUT_INIT_HIGH, "i2c-scl");
-+=09if (ret) {
-+=09=09dev_warn(dev, "gpio request fail: %d\n", bri->scl_gpio);
-+=09=09return ret;
-+=09}
-+
-+=09if (bri->get_sda) {
-+=09=09if (gpio_request_one(bri->sda_gpio, GPIOF_IN, "i2c-sda")) {
-+=09=09=09/* work without SDA polling */
-+=09=09=09dev_warn(dev, "can't get SDA: %d. not using SDA polling\n",
-+=09=09=09=09=09bri->sda_gpio);
-+=09=09=09bri->get_sda =3D NULL;
-+=09=09}
-+=09}
-+
-+=09return ret;
-+}
-+
-+static void i2c_put_gpios_for_recovery(struct i2c_adapter *adap)
-+{
-+=09struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-+
-+=09if (bri->get_sda)
-+=09=09gpio_free(bri->sda_gpio);
-+
-+=09gpio_free(bri->scl_gpio);
-+}
-+
-+/*
-+ * We need to provide delay after every half clock pulse,
-+ * delay in ns =3D (10^6/ 100 KHz)/2
-+ */
-+#define RECOVERY_CLK_CNT=099
-+#define RECOVERY_NDELAY=09=095000
-+static int i2c_generic_recovery(struct i2c_adapter *adap)
-+{
-+=09struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-+=09int i =3D 0, val =3D 1, ret =3D 0;
-+
-+=09if (bri->prepare_recovery)
-+=09=09bri->prepare_recovery(bri);
-+
-+=09/*
-+=09 * By this time SCL is high, as we need to give 9 falling-rising edges
-+=09 */
-+=09while (i++ < RECOVERY_CLK_CNT * 2) {
-+=09=09if (val) {
-+=09=09=09/* break if SDA got high */
-+=09=09=09if (bri->get_sda && bri->get_sda(adap))
-+=09=09=09=09=09break;
-+=09=09=09/* SCL shouldn't be low here */
-+=09=09=09if (!bri->get_scl(adap)) {
-+=09=09=09=09dev_err(&adap->dev,
-+=09=09=09=09=09"SCL is stuck low exit recovery\n");
-+=09=09=09=09ret =3D -EBUSY;
-+=09=09=09=09break;
-+=09=09=09}
-+=09=09}
-+
-+=09=09val =3D !val;
-+=09=09bri->set_scl(adap, val);
-+=09=09ndelay(RECOVERY_NDELAY);
-+=09}
-+
-+=09if (bri->unprepare_recovery)
-+=09=09bri->unprepare_recovery(bri);
-+
-+=09return ret;
-+}
-+
-+int i2c_generic_scl_recovery(struct i2c_adapter *adap)
-+{
-+=09adap->bus_recovery_info->set_scl(adap, 1);
-+=09return i2c_generic_recovery(adap);
-+}
-+
-+int i2c_generic_gpio_recovery(struct i2c_adapter *adap)
-+{
-+=09int ret;
-+
-+=09ret =3D i2c_get_gpios_for_recovery(adap);
-+=09if (ret)
-+=09=09return ret;
-+
-+=09ret =3D i2c_generic_recovery(adap);
-+=09i2c_put_gpios_for_recovery(adap);
-+
-+=09return ret;
-+}
-+
-+int i2c_recover_bus(struct i2c_adapter *adap)
-+{
-+=09if (!adap->bus_recovery_info)
-+=09=09return -EOPNOTSUPP;
-+
-+=09dev_dbg(&adap->dev, "trying i2c bus recovery\n");
-+=09return adap->bus_recovery_info->recover_bus(adap);
-+}
-+
- static int i2c_device_probe(struct device *dev)
- {
- =09struct i2c_client=09*client =3D i2c_verify_client(dev);
-@@ -902,6 +1026,38 @@ static int i2c_register_adapter(struct i2c_adapter *a=
-dap)
- =09=09=09 "Failed to create compatibility class link\n");
- #endif
-=20
-+=09/* bus recovery specific initialization */
-+=09if (adap->bus_recovery_info) {
-+=09=09struct i2c_bus_recovery_info *bri =3D adap->bus_recovery_info;
-+
-+=09=09if (!bri->recover_bus) {
-+=09=09=09dev_err(&adap->dev, "No recover_bus(), not using recovery\n");
-+=09=09=09adap->bus_recovery_info =3D NULL;
-+=09=09=09goto exit_recovery;
-+=09=09}
-+
-+=09=09/* GPIO recovery */
-+=09=09if (bri->recover_bus =3D=3D i2c_generic_gpio_recovery) {
-+=09=09=09if (!gpio_is_valid(bri->scl_gpio)) {
-+=09=09=09=09dev_err(&adap->dev, "Invalid SCL gpio, not using recovery\n");
-+=09=09=09=09adap->bus_recovery_info =3D NULL;
-+=09=09=09=09goto exit_recovery;
-+=09=09=09}
-+
-+=09=09=09if (gpio_is_valid(bri->sda_gpio))
-+=09=09=09=09bri->get_sda =3D get_sda_gpio_value;
-+=09=09=09else
-+=09=09=09=09bri->get_sda =3D NULL;
-+
-+=09=09=09bri->get_scl =3D get_scl_gpio_value;
-+=09=09=09bri->set_scl =3D set_scl_gpio_value;
-+=09=09} else if (!bri->set_scl || !bri->get_scl) {
-+=09=09=09dev_warn(&adap->dev,
-+=09=09=09=09=09"set_scl() is must for SCL recovery\n");
-+=09=09}
-+=09}
-+
-+exit_recovery:
- =09/* create pre-declared device nodes */
- =09if (adap->nr < __i2c_first_dynamic_bus_num)
- =09=09i2c_scan_static_board_info(adap);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index d0c4db7..05a1966 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -370,6 +370,44 @@ struct i2c_algorithm {
- =09u32 (*functionality) (struct i2c_adapter *);
- };
-=20
-+/**
-+ * struct i2c_bus_recovery_info - I2C bus recovery information
-+ * @recover_bus: Recover routine. Either pass driver's recover_bus() routi=
-ne, or
-+ *=09i2c_generic_scl_recovery() or i2c_generic_gpio_recovery().
-+ * @get_scl: This gets current value of SCL line. Mandatory for generic SC=
-L
-+ *      recovery. Used internally for generic GPIO recovery.
-+ * @set_scl: This sets/clears SCL line. Mandatory for generic SCL recovery=
-. Used
-+ *      internally for generic GPIO recovery.
-+ * @get_sda: This gets current value of SDA line. Optional for generic SCL
-+ *      recovery. Used internally, if sda_gpio is a valid GPIO, for generi=
-c GPIO
-+ *      recovery.
-+ * @prepare_recovery: This will be called before starting recovery. Platfo=
-rm may
-+ *=09configure padmux here for SDA/SCL line or something else they want.
-+ * @unprepare_recovery: This will be called after completing recovery. Pla=
-tform
-+ *=09may configure padmux here for SDA/SCL line or something else they wan=
-t.
-+ * @scl_gpio: gpio number of the SCL line. Only required for GPIO recovery=
-.
-+ * @sda_gpio: gpio number of the SDA line. Only required for GPIO recovery=
-.
-+ */
-+struct i2c_bus_recovery_info {
-+=09int (*recover_bus)(struct i2c_adapter *);
-+
-+=09int (*get_scl)(struct i2c_adapter *);
-+=09void (*set_scl)(struct i2c_adapter *, int val);
-+=09int (*get_sda)(struct i2c_adapter *);
-+
-+=09void (*prepare_recovery)(struct i2c_bus_recovery_info *bri);
-+=09void (*unprepare_recovery)(struct i2c_bus_recovery_info *bri);
-+
-+=09/* gpio recovery */
-+=09unsigned scl_gpio;
-+=09unsigned sda_gpio;
-+};
-+
-+/* Generic recovery routines */
-+int i2c_generic_gpio_recovery(struct i2c_adapter *adap);
-+int i2c_generic_scl_recovery(struct i2c_adapter *adap);
-+int i2c_recover_bus(struct i2c_adapter *adap);
-+
- /*
-  * i2c_adapter is the structure used to identify a physical i2c bus along
-  * with the access algorithms necessary to access it.
-@@ -393,6 +431,8 @@ struct i2c_adapter {
-=20
- =09struct mutex userspace_clients_lock;
- =09struct list_head userspace_clients;
-+
-+=09struct i2c_bus_recovery_info *bus_recovery_info;
- };
- #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
-=20
---=20
-1.7.12.rc2.18.g61b472e
+RnJvbSBmN2Q4ZDI5YTMzODcwNGRlYWE3YTU0MmY5YTIxM2ZjNzY5NjYyNWM5IE1vbiBTZXAgMTcg
+MDA6MDA6MDAgMjAwMQpNZXNzYWdlLUlkOiA8ZjdkOGQyOWEzMzg3MDRkZWFhN2E1NDJmOWEyMTNm
+Yzc2OTY2MjVjOS4xMzU5MTA2OTY2LmdpdC52aXJlc2gua3VtYXJAbGluYXJvLm9yZz4KSW4tUmVw
+bHktVG86IDw1OWE3M2QxODJiZjFjZTMzMGJlY2YzMmFkNzgwZjM1MDFhNTdhZWQwLjEzNTkxMDY5
+NjYuZ2l0LnZpcmVzaC5rdW1hckBsaW5hcm8ub3JnPgpSZWZlcmVuY2VzOiA8NTlhNzNkMTgyYmYx
+Y2UzMzBiZWNmMzJhZDc4MGYzNTAxYTU3YWVkMC4xMzU5MTA2OTY2LmdpdC52aXJlc2gua3VtYXJA
+bGluYXJvLm9yZz4KRnJvbTogVmlyZXNoIEt1bWFyIDx2aXJlc2gua3VtYXJAbGluYXJvLm9yZz4K
+RGF0ZTogV2VkLCAyOSBGZWIgMjAxMiAyMzoxNjoxNSArMDUzMApTdWJqZWN0OiBbUEFUQ0ggVjEw
+IDIvMl0gaTJjL2Rlc2lnbndhcmU6IFByb3ZpZGUgaTJjIGJ1cyByZWNvdmVyeSBzdXBwb3J0CgpB
+ZGQgYnVzIHJlY292ZXJ5IHN1cHBvcnQgZm9yIGRlc2lnbndhcmVfaTJjIGNvbnRyb2xsZXIuIEl0
+IHVzZXMgZ2VuZXJpYyBncGlvCmJhc2VkIGkyY19ncGlvX3JlY292ZXJfYnVzKCkgcm91dGluZS4g
+UGxhdGZvcm1zIG5lZWQgdG8gcGFzcyBzdHJ1Y3QKaTJjX2J1c19yZWNvdmVyeV9pbmZvIGFzIHBs
+YXRmb3JtIGRhdGEgdG8gZGVzaWdud2FyZSBJMkMgY29udHJvbGxlci4KClNpZ25lZC1vZmYtYnk6
+IFZpbmNlbnpvIEZyYXNjaW5vIDx2aW5jZW56by5mcmFzY2lub0BzdC5jb20+ClNpZ25lZC1vZmYt
+Ynk6IFNoaXJheiBIYXNoaW0gPHNoaXJhei5oYXNoaW1Ac3QuY29tPgpTaWduZWQtb2ZmLWJ5OiBW
+aXJlc2ggS3VtYXIgPHZpcmVzaC5rdW1hckBsaW5hcm8ub3JnPgotLS0KVjktPlYxMDogTm9uZQoK
+IGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3JlLmMgICAgfCA1ICsrKystCiBk
+cml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxhdGRydi5jIHwgNiArKysrKysKIDIg
+ZmlsZXMgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQoKZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3JlLmMgYi9kcml2ZXJzL2ky
+Yy9idXNzZXMvaTJjLWRlc2lnbndhcmUtY29yZS5jCmluZGV4IGY1MjU4YzIuLmQwNDIzZWYgMTAw
+NjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2FyZS1jb3JlLmMKKysrIGIv
+ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLWNvcmUuYwpAQCAtNTM5LDcgKzUzOSwx
+MCBAQCBpMmNfZHdfeGZlcihzdHJ1Y3QgaTJjX2FkYXB0ZXIgKmFkYXAsIHN0cnVjdCBpMmNfbXNn
+IG1zZ3NbXSwgaW50IG51bSkKIAlyZXQgPSB3YWl0X2Zvcl9jb21wbGV0aW9uX2ludGVycnVwdGli
+bGVfdGltZW91dCgmZGV2LT5jbWRfY29tcGxldGUsIEhaKTsKIAlpZiAocmV0ID09IDApIHsKIAkJ
+ZGV2X2VycihkZXYtPmRldiwgImNvbnRyb2xsZXIgdGltZWQgb3V0XG4iKTsKLQkJaTJjX2R3X2lu
+aXQoZGV2KTsKKworCQlpZiAoaTJjX3JlY292ZXJfYnVzKGFkYXApIDwgMCkKKwkJCWkyY19kd19p
+bml0KGRldik7CisKIAkJcmV0ID0gLUVUSU1FRE9VVDsKIAkJZ290byBkb25lOwogCX0gZWxzZSBp
+ZiAocmV0IDwgMCkKZGlmZiAtLWdpdCBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2Fy
+ZS1wbGF0ZHJ2LmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGxhdGRydi5j
+CmluZGV4IDM0MzM1N2EuLjkxNDJmMGMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaTJjL2J1c3Nlcy9p
+MmMtZGVzaWdud2FyZS1wbGF0ZHJ2LmMKKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNp
+Z253YXJlLXBsYXRkcnYuYwpAQCAtMTQxLDYgKzE0MSwxMiBAQCBzdGF0aWMgaW50IGR3X2kyY19w
+cm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2aWNlICpwZGV2KQogCWFkYXAtPmRldi5wYXJlbnQgPSAm
+cGRldi0+ZGV2OwogCWFkYXAtPmRldi5vZl9ub2RlID0gcGRldi0+ZGV2Lm9mX25vZGU7CiAKKwkv
+KiBCdXMgcmVjb3Zlcnkgc3VwcG9ydCAqLworCWFkYXAtPmJ1c19yZWNvdmVyeV9pbmZvID0gZGV2
+X2dldF9wbGF0ZGF0YSgmcGRldi0+ZGV2KTsKKwlpZiAoYWRhcC0+YnVzX3JlY292ZXJ5X2luZm8p
+CisJCWFkYXAtPmJ1c19yZWNvdmVyeV9pbmZvLT5yZWNvdmVyX2J1cyA9CisJCQlpMmNfZ2VuZXJp
+Y19ncGlvX3JlY292ZXJ5OworCiAJYWRhcC0+bnIgPSBwZGV2LT5pZDsKIAlyID0gaTJjX2FkZF9u
+dW1iZXJlZF9hZGFwdGVyKGFkYXApOwogCWlmIChyKSB7Ci0tIAoxLjcuMTIucmMyLjE4Lmc2MWI0
+NzJlCgo=
+--f46d044480839ae56804d419d526--
