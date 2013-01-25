@@ -1,56 +1,70 @@
 From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V9 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Fri, 25 Jan 2013 15:06:52 +0530
-Message-ID: <CAKohpongZ_C0Ypquxa2fi=X_FXKQeRqCCaDkUSJ+S6o_Ft=Ypw@mail.gmail.com>
-References: <fe4fba74b7bac4fe56e26b2a947280390182c66c.1359023434.git.viresh.kumar@linaro.org>
-	<20130125091512.GE5684@pengutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Subject: [PATCH V10 2/2] i2c/designware: Provide i2c bus recovery support
+Date: Fri, 25 Jan 2013 15:17:49 +0530
+Message-ID: <f7d8d29a338704deaa7a542f9a213fc7696625c9.1359106966.git.viresh.kumar@linaro.org>
+References: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar@linaro.org>
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130125091512.GE5684-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+In-Reply-To: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+References: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 25 January 2013 14:45, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
-> On Thu, Jan 24, 2013 at 04:06:37PM +0530, Viresh Kumar wrote:
->> +static int i2c_generic_recovery(struct i2c_adapter *adap)
->> +{
->> +     struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
->> +     int i = 0, val = 1, ret = 0;
->> +
->> +     if (bri->prepare_recovery)
->> +             bri->prepare_recovery(bri);
->> +
->> +     /*
->> +      * By this time SCL is high, as we need to give 9 falling-rising edges
->> +      */
->> +     while (i++ < RECOVERY_CLK_CNT * 2) {
->> +             /* SCL shouldn't be low here */
->> +             if (val && !bri->get_scl(adap)) {
->> +                     dev_err(&adap->dev, "SCL is stuck Low exit recovery\n");
->> +                     ret = -EBUSY;
->> +                     goto unprepare;
->> +             }
->> +
->> +             val = !val;
->> +             bri->set_scl(adap, val);
->> +             ndelay(clk_delay);
->> +
->> +             /* break if sda got high, check only when scl line is high */
->> +             if (bri->get_sda && val)
->> +                     if (bri->get_sda(adap))
->> +                             break;
->
-> Didn't we agree to move the SDA check before the SCL setting?
+Add bus recovery support for designware_i2c controller. It uses generic gpi=
+o
+based i2c_gpio_recover_bus() routine. Platforms need to pass struct
+i2c_bus_recovery_info as platform data to designware I2C controller.
 
-Yes. There was a check for SCL (separately) before this loop. I got that into
-this loop to save on redundant code. And now, after sending a complete clock,
-we first check sda, then go to next iteration of loop and check scl.
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+V9->V10: None
 
-Over that, this routine is a modified a bit again, due to Uwe's comment.
+ drivers/i2c/busses/i2c-designware-core.c    | 5 ++++-
+ drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
-Wait for v10. You would get that in 2 mins :)
-
-BTW, all other comments are accepted.
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/=
+i2c-designware-core.c
+index f5258c2..d0423ef 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -539,7 +539,10 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg m=
+sgs[], int num)
+ =09ret =3D wait_for_completion_interruptible_timeout(&dev->cmd_complete, H=
+Z);
+ =09if (ret =3D=3D 0) {
+ =09=09dev_err(dev->dev, "controller timed out\n");
+-=09=09i2c_dw_init(dev);
++
++=09=09if (i2c_recover_bus(adap) < 0)
++=09=09=09i2c_dw_init(dev);
++
+ =09=09ret =3D -ETIMEDOUT;
+ =09=09goto done;
+ =09} else if (ret < 0)
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/buss=
+es/i2c-designware-platdrv.c
+index 343357a..9142f0c 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -141,6 +141,12 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ =09adap->dev.parent =3D &pdev->dev;
+ =09adap->dev.of_node =3D pdev->dev.of_node;
+=20
++=09/* Bus recovery support */
++=09adap->bus_recovery_info =3D dev_get_platdata(&pdev->dev);
++=09if (adap->bus_recovery_info)
++=09=09adap->bus_recovery_info->recover_bus =3D
++=09=09=09i2c_generic_gpio_recovery;
++
+ =09adap->nr =3D pdev->id;
+ =09r =3D i2c_add_numbered_adapter(adap);
+ =09if (r) {
+--=20
+1.7.12.rc2.18.g61b472e
