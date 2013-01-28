@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 2/6] Bugfix: clear sticky bits
-Date: Mon, 28 Jan 2013 22:21:06 +0100
-Message-ID: <1359408070-31832-3-git-send-email-amaury.decreme@gmail.com>
+Subject: [PATCH v3 3/6] Bugfix: behavior after collision
+Date: Mon, 28 Jan 2013 22:21:07 +0100
+Message-ID: <1359408070-31832-4-git-send-email-amaury.decreme@gmail.com>
 References: <20130124083043.57f91a3d@endymion.delvare>
  <1359408070-31832-1-git-send-email-amaury.decreme@gmail.com>
 Mime-Version: 1.0
@@ -14,39 +14,39 @@ To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
 Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, nelson-bExrPSV3DA0@public.gmane.org, mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, amalysh-S0/GAf8tV78@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The sticky bits must be cleared at the end of the transaction by writin=
-g
-a 1 to all fields.
+Datasheet on collision:
+	SMBus Collision (SMBCOL_STS)
+	This bit is set when a SMBus Collision condition occurs and
+	SMBus Host loses in the bus arbitration. The software should
+	clear this bit and re-start SMBus operation.
 
-Datasheet:
-	SMBus Status (SMB_STS)
-	The following registers are all sticky bits and only can be
-	cleared by writing a one to their corresponding fields.
+As the status will be cleared in transaction_end, we can remove the
+sis630_write and prepare to return -EAGAIN to retry.
 
 Signed-off-by: Amaury Decr=C3=AAme <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sis630.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-sis630.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-s=
 is630.c
-index df8e20a..3124d80 100644
+index 3124d80..e152d36 100644
 --- a/drivers/i2c/busses/i2c-sis630.c
 +++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -213,10 +213,8 @@ static int sis630_transaction_wait(struct i2c_adap=
+@@ -200,12 +200,7 @@ static int sis630_transaction_wait(struct i2c_adap=
 ter *adap, int size)
 =20
- static void sis630_transaction_end(struct i2c_adapter *adap, u8 oldclo=
-ck)
- {
--	int temp =3D 0;
--
- 	/* clear all status "sticky" bits */
--	sis630_write(SMB_STS, temp);
-+	sis630_write(SMB_STS, 0xFF);
+ 	if (temp & 0x04) {
+ 		dev_err(&adap->dev, "Bus collision!\n");
+-		result =3D -EIO;
+-		/*
+-		  TBD: Datasheet say:
+-		  the software should clear this bit and restart SMBUS operation.
+-		  Should we do it or user start request again?
+-		*/
++		result =3D -EAGAIN;
+ 	}
 =20
- 	dev_dbg(&adap->dev, "SMB_CNT before clock restore 0x%02x\n", sis630_r=
-ead(SMB_CNT));
-=20
+ 	return result;
 --=20
 1.7.12.4
