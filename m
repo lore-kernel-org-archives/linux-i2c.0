@@ -1,53 +1,39 @@
-From: Lars Poeschel <poeschel@lemonage.de>
-Subject: Re: [PATCH RFC] misc/at24: distinguish between eeprom and fram chips
-Date: Mon, 28 Jan 2013 11:40:15 +0100
-Message-ID: <201301281140.15289.poeschel@lemonage.de>
-References: <201212041758.38600.poeschel@lemonage.de> <201212071114.29034.poeschel@lemonage.de> <20130124072701.GG8364@nekote.pengutronix.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-isch: Add module parameter for backbone clock
+ rate if divider is unset
+Date: Mon, 28 Jan 2013 14:17:07 +0100
+Message-ID: <20130128141707.11eb02da@endymion.delvare>
+References: <1359366252-22250-1-git-send-email-alexander.stein@systec-electronic.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130124072701.GG8364@nekote.pengutronix.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1359366252-22250-1-git-send-email-alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday 24 January 2013 at 08:27:01, Wolfram Sang wrote:
-> > > > > > I wanted to use a fm24c04 i2c fram chip with linux. I grepped
-> > > > > > the source and found nothing. I later found that my chip can be
-> > > > > > handled by at24 eeprom driver. It creates a sysfs file called
-> > > > > > eeprom to read from and write to the chip. Userspace has no
-> > > > > > chance to distinguish if it is writing an eeprom or a fram
-> > > > > > chip.
-> > > > > 
-> > > > > Why should it?
-> > > > 
-> > > > Because writes are much faster and it doesn't have to take care on
-> > > > erase cycles. It could use other write strategies on such devices
-> > > > and update informations that have to survive power downs more
-> > > > often.
-> > > 
-> > > I agree. I think that a seperate attribute named e.g. 'page_size'
-> > > would be more helpful than renaming the binary file to fram?
-> > 
-> > Yes, this is a much better solution! Adding a seperate sysfs file
-> > page_size and a file for the type of device which would read eeprom,
-> > fram, etc then. If you also think this is the way to go, I would spent
-> > one of my next free timeslots to this.
+On Mon, 28 Jan 2013 10:44:12 +0100, Alexander Stein wrote:
+> It was observed the Host Clock Divider was not written by the driver. It
+> was still set to (default) 0, if not already set by BIOS, which caused
+> garbage on SMBus.
+> This driver adds a parameters which is used to calculate the divider
+> appropriately for a default bitrate of 100 KHz. This new divider is only
+> applied if the clock divider is still default 0.
 > 
-> Oops, this mail seems to have dropped off :(
+> Signed-off-by: Alexander Stein <alexander.stein-93q1YBGzJSMe9JSWTWOYM3xStJ4P+DSV@public.gmane.org>
+> ---
+> Changes in v2:
+> * Removed useless debug output
+> * Added description comment about calculation into code
+> * Some code organization changes
+> 
+>  drivers/i2c/busses/i2c-isch.c | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+> (...)
 
-Luckily I did not have a free timeslot to invest yet. ;)
+Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-> I am all for the 'page_size' attribute, but still not convinced what
-> gain the 'type' attribute would allow. For FRAM, the page size will be
-> large. Isn't this enough information?
-
-Yes, this would be enough information and I think this is the way we should 
-go.
-I set this on my todo list. Although the change will be quite simple, I think 
-I will not find the time to hit the upcoming merge window.
-
-Lars
+-- 
+Jean Delvare
