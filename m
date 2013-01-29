@@ -1,415 +1,446 @@
-From: =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH v3 6/6] Cleanup
-Date: Mon, 28 Jan 2013 22:21:10 +0100
-Message-ID: <1359408070-31832-7-git-send-email-amaury.decreme@gmail.com>
-References: <20130124083043.57f91a3d@endymion.delvare>
- <1359408070-31832-1-git-send-email-amaury.decreme@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: [PATCH V2 REPOST] i2c: add bcm2835 driver
+Date: Mon, 28 Jan 2013 22:22:56 -0700
+Message-ID: <1359436976-20437-1-git-send-email-swarren@wwwdotorg.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1359408070-31832-1-git-send-email-amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, nelson-bExrPSV3DA0@public.gmane.org, mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, amalysh-S0/GAf8tV78@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, =?UTF-8?q?Amaury=20Decr=C3=AAme?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch corrects checkpatch errors.
+This implements a very basic I2C host driver for the BCM2835 SoC. Missing
+features so far are:
 
-The changes has also been removed as it has less meaning with version
-control tools.
+* 10-bit addressing.
+* DMA.
 
-Signed-off-by: Amaury Decr=C3=AAme <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sis630.c | 210 ++++++++++++++++++++------------=
---------
- 1 file changed, 106 insertions(+), 104 deletions(-)
+v2:
+* Implemented clock divider configuration based on desired bus rate.
+* Make use of module_platform_driver().
+* Removed use of devinit.
+---
+ .../devicetree/bindings/i2c/brcm,bcm2835-i2c.txt   |   20 ++
+ drivers/i2c/busses/Kconfig                         |   12 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-bcm2835.c                   |  346 ++++++++++++++++++++
+ 4 files changed, 379 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+ create mode 100644 drivers/i2c/busses/i2c-bcm2835.c
 
-diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-s=
-is630.c
-index 424545b..0376318 100644
---- a/drivers/i2c/busses/i2c-sis630.c
-+++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -17,25 +17,6 @@
- */
-=20
- /*
--   Changes:
--   24.08.2002
--   	Fixed the typo in sis630_access (Thanks to Mark M. Hoffman)
--	Changed sis630_transaction.(Thanks to Mark M. Hoffman)
--   18.09.2002
--	Added SIS730 as supported.
--   21.09.2002
--	Added high_clock module option.If this option is set
--	used Host Master Clock 56KHz (default 14KHz).For now we save old Host
--	Master Clock and after transaction completed restore (otherwise
--	it's confuse BIOS and hung Machine).
--   24.09.2002
--	Fixed typo in sis630_access
--	Fixed logical error by restoring of Host Master Clock
--   31.07.2003
--   	Added block data read/write support.
--*/
--
--/*
-    Status: beta
-=20
-    Supports:
-@@ -150,9 +131,10 @@ static inline void sis630_write(u8 reg, u8 data)
- 	outb(data, smbus_base + reg);
- }
-=20
--static int sis630_transaction_start(struct i2c_adapter *adap, int size=
-, u8 *oldclock)
-+static int sis630_transaction_start(struct i2c_adapter *adap, int size=
-,
-+								u8 *oldclock)
- {
--        int temp;
-+	int temp;
-=20
- 	/* Make sure the SMBus host is ready to start transmitting. */
- 	temp =3D sis630_read(SMB_CNT);
-@@ -165,17 +147,18 @@ static int sis630_transaction_start(struct i2c_ad=
-apter *adap, int size, u8 *oldc
- 		if (temp & (SMB_PROBE | SMB_HOSTBUSY)) {
- 			dev_dbg(&adap->dev, "Failed! (%02x)\n", temp);
- 			return -EBUSY;
--                } else {
-+		} else {
- 			dev_dbg(&adap->dev, "Successful!\n");
- 		}
--        }
+diff --git a/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+new file mode 100644
+index 0000000..e9de375
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+@@ -0,0 +1,20 @@
++Broadcom BCM2835 I2C controller
++
++Required properties:
++- compatible : Should be "brcm,bcm2835-i2c".
++- reg: Should contain register location and length.
++- interrupts: Should contain interrupt.
++- clocks : The clock feeding the I2C controller.
++
++Recommended properties:
++- clock-frequency : desired I2C bus clock frequency in Hz.
++
++Example:
++
++i2c@20205000 {
++	compatible = "brcm,bcm2835-i2c";
++	reg = <0x7e205000 0x1000>;
++	interrupts = <2 21>;
++	clocks = <&clk_i2c>;
++	clock-frequency = <100000>;
++};
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 8bb810e..3cc40ab 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -319,6 +319,18 @@ config I2C_AU1550
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-au1550.
+ 
++config I2C_BCM2835
++	tristate "Broadcom BCM2835 I2C controller"
++	depends on ARCH_BCM2835
++	help
++	  If you say yes to this option, support will be included for the
++	  BCM2835 I2C controller.
++
++	  If you don't know what to do here, say N.
++
++	  This support is also available as a module.  If so, the module
++	  will be called i2c-bcm2835.
++
+ config I2C_BLACKFIN_TWI
+ 	tristate "Blackfin TWI I2C support"
+ 	depends on BLACKFIN
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 6181f3f..a52a891 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -30,6 +30,7 @@ obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
+ # Embedded system I2C/SMBus host controller drivers
+ obj-$(CONFIG_I2C_AT91)		+= i2c-at91.o
+ obj-$(CONFIG_I2C_AU1550)	+= i2c-au1550.o
++obj-$(CONFIG_I2C_BCM2835)	+= i2c-bcm2835.o
+ obj-$(CONFIG_I2C_BLACKFIN_TWI)	+= i2c-bfin-twi.o
+ obj-$(CONFIG_I2C_CBUS_GPIO)	+= i2c-cbus-gpio.o
+ obj-$(CONFIG_I2C_CPM)		+= i2c-cpm.o
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+new file mode 100644
+index 0000000..22a29de
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -0,0 +1,346 @@
++/*
++ * BCM2835 master mode driver
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++
++#include <linux/clk.h>
++#include <linux/completion.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++
++#define BCM2835_I2C_C		0x0
++#define BCM2835_I2C_S		0x4
++#define BCM2835_I2C_DLEN	0x8
++#define BCM2835_I2C_A		0xc
++#define BCM2835_I2C_FIFO	0x10
++#define BCM2835_I2C_DIV		0x14
++#define BCM2835_I2C_DEL		0x18
++#define BCM2835_I2C_CLKT	0x1c
++
++#define BCM2835_I2C_C_READ	BIT(0)
++#define BCM2835_I2C_C_CLEAR	BIT(4) /* bits 4 and 5 both clear */
++#define BCM2835_I2C_C_ST	BIT(7)
++#define BCM2835_I2C_C_INTD	BIT(8)
++#define BCM2835_I2C_C_INTT	BIT(9)
++#define BCM2835_I2C_C_INTR	BIT(10)
++#define BCM2835_I2C_C_I2CEN	BIT(15)
++
++#define BCM2835_I2C_S_TA	BIT(0)
++#define BCM2835_I2C_S_DONE	BIT(1)
++#define BCM2835_I2C_S_TXW	BIT(2)
++#define BCM2835_I2C_S_RXR	BIT(3)
++#define BCM2835_I2C_S_TXD	BIT(4)
++#define BCM2835_I2C_S_RXD	BIT(5)
++#define BCM2835_I2C_S_TXE	BIT(6)
++#define BCM2835_I2C_S_RXF	BIT(7)
++#define BCM2835_I2C_S_ERR	BIT(8)
++#define BCM2835_I2C_S_CLKT	BIT(9)
++#define BCM2835_I2C_S_LEN	BIT(10) /* Fake bit for SW error reporting */
++
++#define BCM2835_I2C_TIMEOUT (msecs_to_jiffies(1000))
++
++struct bcm2835_i2c_dev {
++	struct device *dev;
++	void __iomem *regs;
++	struct clk *clk;
++	struct i2c_adapter adapter;
++	struct completion completion;
++	u32 msg_err;
++	u8 *msg_buf;
++	size_t msg_buf_remaining;
++};
++
++static inline void bcm2835_i2c_writel(struct bcm2835_i2c_dev *i2c_dev,
++				      u32 reg, u32 val)
++{
++	writel(val, i2c_dev->regs + reg);
++}
++
++static inline u32 bcm2835_i2c_readl(struct bcm2835_i2c_dev *i2c_dev, u32 reg)
++{
++	return readl(i2c_dev->regs + reg);
++}
++
++static void bcm2835_fill_txfifo(struct bcm2835_i2c_dev *i2c_dev)
++{
++	u32 val;
++
++	for (;;) {
++		if (!i2c_dev->msg_buf_remaining)
++			return;
++		val = bcm2835_i2c_readl(i2c_dev, BCM2835_I2C_S);
++		if (!(val & BCM2835_I2C_S_TXD))
++			break;
++		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_FIFO,
++				   *i2c_dev->msg_buf);
++		i2c_dev->msg_buf++;
++		i2c_dev->msg_buf_remaining--;
 +	}
-=20
- 	/* save old clock, so we can prevent machine for hung */
- 	*oldclock =3D sis630_read(SMB_CNT);
-=20
- 	dev_dbg(&adap->dev, "saved clock 0x%02x\n", *oldclock);
-=20
--	/* disable timeout interrupt , set Host Master Clock to 56KHz if requ=
-ested */
-+	/* disable timeout interrupt,
-+	 * set Host Master Clock to 56KHz if requested */
- 	if (high_clock)
- 		sis630_write(SMB_CNT, SMBCLK_SEL);
- 	else
-@@ -228,7 +211,8 @@ static void sis630_transaction_end(struct i2c_adapt=
-er *adap, u8 oldclock)
- 	/* clear all status "sticky" bits */
- 	sis630_write(SMB_STS, 0xFF);
-=20
--	dev_dbg(&adap->dev, "SMB_CNT before clock restore 0x%02x\n", sis630_r=
-ead(SMB_CNT));
-+	dev_dbg(&adap->dev,
-+		"SMB_CNT before clock restore 0x%02x\n", sis630_read(SMB_CNT));
-=20
- 	/*
- 	 * restore old Host Master Clock if high_clock is set
-@@ -237,7 +221,8 @@ static void sis630_transaction_end(struct i2c_adapt=
-er *adap, u8 oldclock)
- 	if (high_clock && !(oldclock & SMBCLK_SEL))
- 		sis630_write(SMB_CNT, sis630_read(SMB_CNT) & ~SMBCLK_SEL);
-=20
--	dev_dbg(&adap->dev, "SMB_CNT after clock restore 0x%02x\n", sis630_re=
-ad(SMB_CNT));
-+	dev_dbg(&adap->dev,
-+		"SMB_CNT after clock restore 0x%02x\n", sis630_read(SMB_CNT));
- }
-=20
- static int sis630_transaction(struct i2c_adapter *adap, int size)
-@@ -254,7 +239,8 @@ static int sis630_transaction(struct i2c_adapter *a=
-dap, int size)
- 	return result;
- }
-=20
--static int sis630_block_data(struct i2c_adapter *adap, union i2c_smbus=
-_data *data, int read_write)
-+static int sis630_block_data(struct i2c_adapter *adap,
-+				union i2c_smbus_data *data, int read_write)
- {
- 	int i, len =3D 0, rc =3D 0;
- 	u8 oldclock =3D 0;
-@@ -266,22 +252,26 @@ static int sis630_block_data(struct i2c_adapter *=
-adap, union i2c_smbus_data *dat
- 		else if (len > 32)
- 			len =3D 32;
- 		sis630_write(SMB_COUNT, len);
--		for (i=3D1; i <=3D len; i++) {
--			dev_dbg(&adap->dev, "set data 0x%02x\n", data->block[i]);
-+		for (i =3D 1; i <=3D len; i++) {
-+			dev_dbg(&adap->dev,
-+					"set data 0x%02x\n", data->block[i]);
- 			/* set data */
--			sis630_write(SMB_BYTE+(i-1)%8, data->block[i]);
--			if (i=3D=3D8 || (len<8 && i=3D=3Dlen)) {
--				dev_dbg(&adap->dev, "start trans len=3D%d i=3D%d\n",len ,i);
-+			sis630_write(SMB_BYTE + (i - 1) % 8, data->block[i]);
-+			if (i =3D=3D 8 || (len < 8 && i =3D=3D len)) {
-+				dev_dbg(&adap->dev,
-+					"start trans len=3D%d i=3D%d\n", len, i);
- 				/* first transaction */
- 				rc =3D sis630_transaction_start(adap,
- 						SIS630_BLOCK_DATA, &oldclock);
- 				if (rc)
- 					return rc;
--			}
--			else if ((i-1)%8 =3D=3D 7 || i=3D=3Dlen) {
--				dev_dbg(&adap->dev, "trans_wait len=3D%d i=3D%d\n",len,i);
--				if (i>8) {
--					dev_dbg(&adap->dev, "clear smbary_sts len=3D%d i=3D%d\n",len,i);
-+			} else if ((i - 1) % 8 =3D=3D 7 || i =3D=3D len) {
-+				dev_dbg(&adap->dev,
-+					"trans_wait len=3D%d i=3D%d\n", len, i);
-+				if (i > 8) {
-+					dev_dbg(&adap->dev,
-+					"clear smbary_sts len=3D%d i=3D%d\n", len,
-+									i);
- 					/*
- 					   If this is not first transaction,
- 					   we must clear sticky bit.
-@@ -292,13 +282,13 @@ static int sis630_block_data(struct i2c_adapter *=
-adap, union i2c_smbus_data *dat
- 				rc =3D sis630_transaction_wait(adap,
- 						SIS630_BLOCK_DATA);
- 				if (rc) {
--					dev_dbg(&adap->dev, "trans_wait failed\n");
-+					dev_dbg(&adap->dev,
-+							"trans_wait failed\n");
- 					break;
- 				}
- 			}
- 		}
--	}
--	else {
++}
++
++static void bcm2835_drain_rxfifo(struct bcm2835_i2c_dev *i2c_dev)
++{
++	u32 val;
++
++	for (;;) {
++		if (!i2c_dev->msg_buf_remaining)
++			return;
++		val = bcm2835_i2c_readl(i2c_dev, BCM2835_I2C_S);
++		if (!(val & BCM2835_I2C_S_RXD))
++			break;
++		*i2c_dev->msg_buf = bcm2835_i2c_readl(i2c_dev,
++						      BCM2835_I2C_FIFO);
++		i2c_dev->msg_buf++;
++		i2c_dev->msg_buf_remaining--;
++	}
++}
++
++static irqreturn_t bcm2835_i2c_isr(int this_irq, void *data)
++{
++	struct bcm2835_i2c_dev *i2c_dev = data;
++	u32 val, err;
++
++	val = bcm2835_i2c_readl(i2c_dev, BCM2835_I2C_S);
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_S, val);
++
++	err = val & (BCM2835_I2C_S_CLKT | BCM2835_I2C_S_ERR);
++	if (err) {
++		i2c_dev->msg_err = err;
++		complete(&i2c_dev->completion);
++		return IRQ_HANDLED;
++	}
++
++	if (val & BCM2835_I2C_S_RXD) {
++		bcm2835_drain_rxfifo(i2c_dev);
++		if (!(val & BCM2835_I2C_S_DONE))
++			return IRQ_HANDLED;
++	}
++
++	if (val & BCM2835_I2C_S_DONE) {
++		if (i2c_dev->msg_buf_remaining)
++			i2c_dev->msg_err = BCM2835_I2C_S_LEN;
++		else
++			i2c_dev->msg_err = 0;
++		complete(&i2c_dev->completion);
++		return IRQ_HANDLED;
++	}
++
++	if (val & BCM2835_I2C_S_TXD) {
++		bcm2835_fill_txfifo(i2c_dev);
++		return IRQ_HANDLED;
++	}
++
++	return IRQ_NONE;
++}
++
++static int bcm2835_i2c_xfer_msg(struct bcm2835_i2c_dev *i2c_dev,
++				struct i2c_msg *msg)
++{
++	u32 c;
++	int ret;
++
++	i2c_dev->msg_buf = msg->buf;
++	i2c_dev->msg_buf_remaining = msg->len;
++	INIT_COMPLETION(i2c_dev->completion);
++
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
++
++	if (msg->flags & I2C_M_RD) {
++		c = BCM2835_I2C_C_READ | BCM2835_I2C_C_INTR;
 +	} else {
- 		/* read request */
- 		data->block[0] =3D len =3D 0;
- 		rc =3D sis630_transaction_start(adap,
-@@ -319,18 +309,22 @@ static int sis630_block_data(struct i2c_adapter *=
-adap, union i2c_smbus_data *dat
- 			if (data->block[0] > 32)
- 				data->block[0] =3D 32;
-=20
--			dev_dbg(&adap->dev, "block data read len=3D0x%x\n", data->block[0])=
-;
-+			dev_dbg(&adap->dev,
-+				"block data read len=3D0x%x\n", data->block[0]);
-=20
--			for (i=3D0; i < 8 && len < data->block[0]; i++,len++) {
--				dev_dbg(&adap->dev, "read i=3D%d len=3D%d\n", i, len);
--				data->block[len+1] =3D sis630_read(SMB_BYTE+i);
-+			for (i =3D 0; i < 8 && len < data->block[0]; i++, len++) {
-+				dev_dbg(&adap->dev,
-+						"read i=3D%d len=3D%d\n", i, len);
-+				data->block[len + 1] =3D
-+						sis630_read(SMB_BYTE + i);
- 			}
-=20
--			dev_dbg(&adap->dev, "clear smbary_sts len=3D%d i=3D%d\n",len,i);
-+			dev_dbg(&adap->dev,
-+				"clear smbary_sts len=3D%d i=3D%d\n", len, i);
-=20
- 			/* clear SMBARY_STS */
- 			sis630_write(SMB_STS, BYTE_DONE_STS);
--		} while(len < data->block[0]);
-+		} while (len < data->block[0]);
- 	}
-=20
- 	sis630_transaction_end(adap, oldclock);
-@@ -346,42 +340,47 @@ static s32 sis630_access(struct i2c_adapter *adap=
-, u16 addr,
- 	int status;
-=20
- 	switch (size) {
--		case I2C_SMBUS_QUICK:
--			sis630_write(SMB_ADDR, ((addr & 0x7f) << 1) | (read_write & 0x01));
--			size =3D SIS630_QUICK;
--			break;
--		case I2C_SMBUS_BYTE:
--			sis630_write(SMB_ADDR, ((addr & 0x7f) << 1) | (read_write & 0x01));
--			if (read_write =3D=3D I2C_SMBUS_WRITE)
--				sis630_write(SMB_CMD, command);
--			size =3D SIS630_BYTE;
--			break;
--		case I2C_SMBUS_BYTE_DATA:
--			sis630_write(SMB_ADDR, ((addr & 0x7f) << 1) | (read_write & 0x01));
--			sis630_write(SMB_CMD, command);
--			if (read_write =3D=3D I2C_SMBUS_WRITE)
--				sis630_write(SMB_BYTE, data->byte);
--			size =3D SIS630_BYTE_DATA;
--			break;
--		case I2C_SMBUS_PROC_CALL:
--		case I2C_SMBUS_WORD_DATA:
--			sis630_write(SMB_ADDR,((addr & 0x7f) << 1) | (read_write & 0x01));
-+	case I2C_SMBUS_QUICK:
-+		sis630_write(SMB_ADDR,
-+				((addr & 0x7f) << 1) | (read_write & 0x01));
-+		size =3D SIS630_QUICK;
-+		break;
-+	case I2C_SMBUS_BYTE:
-+		sis630_write(SMB_ADDR,
-+				((addr & 0x7f) << 1) | (read_write & 0x01));
-+		if (read_write =3D=3D I2C_SMBUS_WRITE)
- 			sis630_write(SMB_CMD, command);
--			if (read_write =3D=3D I2C_SMBUS_WRITE) {
--				sis630_write(SMB_BYTE, data->word & 0xff);
--				sis630_write(SMB_BYTE + 1,(data->word & 0xff00) >> 8);
--			}
--			size =3D (size =3D=3D I2C_SMBUS_PROC_CALL ? SIS630_PCALL : SIS630_W=
-ORD_DATA);
--			break;
--		case I2C_SMBUS_BLOCK_DATA:
--			sis630_write(SMB_ADDR,((addr & 0x7f) << 1) | (read_write & 0x01));
--			sis630_write(SMB_CMD, command);
--			size =3D SIS630_BLOCK_DATA;
--			return sis630_block_data(adap, data, read_write);
--		default:
--			dev_warn(&adap->dev, "Unsupported transaction %d\n",
--				 size);
--			return -EOPNOTSUPP;
-+		size =3D SIS630_BYTE;
-+		break;
-+	case I2C_SMBUS_BYTE_DATA:
-+		sis630_write(SMB_ADDR,
-+				((addr & 0x7f) << 1) | (read_write & 0x01));
-+		sis630_write(SMB_CMD, command);
-+		if (read_write =3D=3D I2C_SMBUS_WRITE)
-+			sis630_write(SMB_BYTE, data->byte);
-+		size =3D SIS630_BYTE_DATA;
-+		break;
-+	case I2C_SMBUS_PROC_CALL:
-+	case I2C_SMBUS_WORD_DATA:
-+		sis630_write(SMB_ADDR,
-+				((addr & 0x7f) << 1) | (read_write & 0x01));
-+		sis630_write(SMB_CMD, command);
-+		if (read_write =3D=3D I2C_SMBUS_WRITE) {
-+			sis630_write(SMB_BYTE, data->word & 0xff);
-+			sis630_write(SMB_BYTE + 1, (data->word & 0xff00) >> 8);
-+		}
-+		size =3D (size =3D=3D I2C_SMBUS_PROC_CALL ? SIS630_PCALL :
-+							SIS630_WORD_DATA);
-+		break;
-+	case I2C_SMBUS_BLOCK_DATA:
-+		sis630_write(SMB_ADDR,
-+				((addr & 0x7f) << 1) | (read_write & 0x01));
-+		sis630_write(SMB_CMD, command);
-+		size =3D SIS630_BLOCK_DATA;
-+		return sis630_block_data(adap, data, read_write);
-+	default:
-+		dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
-+		return -EOPNOTSUPP;
- 	}
-=20
- 	status =3D sis630_transaction(adap, size);
-@@ -393,15 +392,16 @@ static s32 sis630_access(struct i2c_adapter *adap=
-, u16 addr,
- 		return 0;
- 	}
-=20
--	switch(size) {
--		case SIS630_BYTE:
--		case SIS630_BYTE_DATA:
--			data->byte =3D sis630_read(SMB_BYTE);
--			break;
--		case SIS630_PCALL:
--		case SIS630_WORD_DATA:
--			data->word =3D sis630_read(SMB_BYTE) + (sis630_read(SMB_BYTE + 1) <=
-< 8);
--			break;
-+	switch (size) {
-+	case SIS630_BYTE:
-+	case SIS630_BYTE_DATA:
-+		data->byte =3D sis630_read(SMB_BYTE);
-+		break;
-+	case SIS630_PCALL:
-+	case SIS630_WORD_DATA:
-+		data->word =3D sis630_read(SMB_BYTE) +
-+					(sis630_read(SMB_BYTE + 1) << 8);
-+		break;
- 	}
-=20
- 	return 0;
-@@ -409,9 +409,9 @@ static s32 sis630_access(struct i2c_adapter *adap, =
-u16 addr,
-=20
- static u32 sis630_func(struct i2c_adapter *adapter)
- {
--	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE | I2C_FUNC_SMBUS_BY=
-TE_DATA |
--		I2C_FUNC_SMBUS_WORD_DATA | I2C_FUNC_SMBUS_PROC_CALL |
--		I2C_FUNC_SMBUS_BLOCK_DATA;
-+	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
-+		I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
-+		I2C_FUNC_SMBUS_PROC_CALL | I2C_FUNC_SMBUS_BLOCK_DATA;
- }
-=20
- static int sis630_setup(struct pci_dev *sis630_dev)
-@@ -423,19 +423,19 @@ static int sis630_setup(struct pci_dev *sis630_de=
-v)
- 	unsigned short acpi_base;
-=20
- 	/* check for supported SiS devices */
--	for (i=3D0; supported[i] > 0 ; i++) {
--		if ((dummy =3D pci_get_device(PCI_VENDOR_ID_SI, supported[i], dummy)=
-))
-+	for (i =3D 0; supported[i] > 0; i++) {
-+		dummy =3D pci_get_device(PCI_VENDOR_ID_SI, supported[i], dummy);
-+		if (dummy)
- 			break; /* found */
- 	}
-=20
- 	if (dummy) {
- 		pci_dev_put(dummy);
--	}
--        else if (force) {
--		dev_err(&sis630_dev->dev, "WARNING: Can't detect SIS630 compatible d=
-evice, but "
-+	} else if (force) {
-+		dev_err(&sis630_dev->dev,
-+			"WARNING: Can't detect SIS630 compatible device, but "
- 			"loading because of force option enabled\n");
-- 	}
--	else {
-+	} else {
- 		return -ENODEV;
- 	}
-=20
-@@ -443,7 +443,7 @@ static int sis630_setup(struct pci_dev *sis630_dev)
- 	   Enable ACPI first , so we can accsess reg 74-75
- 	   in acpi io space and read acpi base addr
- 	*/
--	if (pci_read_config_byte(sis630_dev, SIS630_BIOS_CTL_REG,&b)) {
-+	if (pci_read_config_byte(sis630_dev, SIS630_BIOS_CTL_REG, &b)) {
- 		dev_err(&sis630_dev->dev, "Error: Can't read bios ctl reg\n");
- 		retval =3D -ENODEV;
- 		goto exit;
-@@ -457,8 +457,10 @@ static int sis630_setup(struct pci_dev *sis630_dev=
-)
- 	}
-=20
- 	/* Determine the ACPI base address */
--	if (pci_read_config_word(sis630_dev,SIS630_ACPI_BASE_REG,&acpi_base))=
- {
--		dev_err(&sis630_dev->dev, "Error: Can't determine ACPI base address\=
-n");
-+	if (pci_read_config_word(sis630_dev,
-+					SIS630_ACPI_BASE_REG, &acpi_base)) {
-+		dev_err(&sis630_dev->dev,
-+				"Error: Can't determine ACPI base address\n");
- 		retval =3D -ENODEV;
- 		goto exit;
- 	}
-@@ -516,7 +518,7 @@ static DEFINE_PCI_DEVICE_TABLE(sis630_ids) =3D {
- 	{ 0, }
- };
-=20
--MODULE_DEVICE_TABLE (pci, sis630_ids);
-+MODULE_DEVICE_TABLE(pci, sis630_ids);
-=20
- static int sis630_probe(struct pci_dev *dev, const struct pci_device_i=
-d *id)
- {
---=20
-1.7.12.4
++		c = BCM2835_I2C_C_INTT;
++		bcm2835_fill_txfifo(i2c_dev);
++	}
++	c |= BCM2835_I2C_C_ST | BCM2835_I2C_C_INTD | BCM2835_I2C_C_I2CEN;
++
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_A, msg->addr);
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DLEN, msg->len);
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, c);
++
++	ret = wait_for_completion_timeout(&i2c_dev->completion,
++					  BCM2835_I2C_TIMEOUT);
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
++	if (WARN_ON(ret == 0)) {
++		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
++		return -ETIMEDOUT;
++	}
++
++	if (likely(!i2c_dev->msg_err))
++		return 0;
++
++	if ((i2c_dev->msg_err & BCM2835_I2C_S_ERR) &&
++	    (msg->flags & I2C_M_IGNORE_NAK))
++		return 0;
++
++	dev_err(i2c_dev->dev, "i2c transfer failed: %x\n", i2c_dev->msg_err);
++
++	if (i2c_dev->msg_err & BCM2835_I2C_S_ERR)
++		return -EREMOTEIO;
++	else
++		return -EIO;
++}
++
++static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
++			    int num)
++{
++	struct bcm2835_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
++	int i;
++	int ret = 0;
++
++	for (i = 0; i < num; i++) {
++		ret = bcm2835_i2c_xfer_msg(i2c_dev, &msgs[i]);
++		if (ret)
++			break;
++	}
++
++	return ret ?: i;
++}
++
++static u32 bcm2835_i2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static const struct i2c_algorithm bcm2835_i2c_algo = {
++	.master_xfer	= bcm2835_i2c_xfer,
++	.functionality	= bcm2835_i2c_func,
++};
++
++static int bcm2835_i2c_probe(struct platform_device *pdev)
++{
++	struct bcm2835_i2c_dev *i2c_dev;
++	struct resource *mem, *requested, *irq;
++	u32 bus_clk_rate, divider;
++	int ret;
++	struct i2c_adapter *adap;
++
++	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
++	if (!i2c_dev) {
++		dev_err(&pdev->dev, "Cannot allocate i2c_dev\n");
++		return -ENOMEM;
++	}
++	platform_set_drvdata(pdev, i2c_dev);
++	i2c_dev->dev = &pdev->dev;
++	init_completion(&i2c_dev->completion);
++
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!mem) {
++		dev_err(&pdev->dev, "No mem resource\n");
++		return -ENODEV;
++	}
++
++	requested = devm_request_mem_region(&pdev->dev, mem->start,
++					    resource_size(mem),
++					    dev_name(&pdev->dev));
++	if (!requested) {
++		dev_err(&pdev->dev, "Could not claim register region\n");
++		return -EBUSY;
++	}
++
++	i2c_dev->regs = devm_ioremap(&pdev->dev, mem->start,
++				     resource_size(mem));
++	if (!i2c_dev->regs) {
++		dev_err(&pdev->dev, "Could not map registers\n");
++		return -ENOMEM;
++	}
++
++	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
++	if (IS_ERR(i2c_dev->clk)) {
++		dev_err(&pdev->dev, "Could not get clock\n");
++		return PTR_ERR(i2c_dev->clk);
++	}
++
++	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
++				   &bus_clk_rate);
++	if (ret < 0) {
++		dev_warn(&pdev->dev,
++			 "Could not read clock-frequency property\n");
++		bus_clk_rate = 100000;
++	}
++
++	divider = DIV_ROUND_UP(clk_get_rate(i2c_dev->clk), bus_clk_rate);
++	/*
++	 * Per the datasheet, the register is always interpreted as an even
++	 * number, by rounding down. In other words, the LSB is ignored. So,
++	 * if the LSB is set, increment the divider to avoid any issue.
++	 */
++	if (divider & 1)
++		divider++;
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_DIV, divider);
++
++	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
++	if (!irq) {
++		dev_err(&pdev->dev, "No IRQ resource\n");
++		return -ENODEV;
++	}
++
++	ret = devm_request_irq(&pdev->dev, irq->start, bcm2835_i2c_isr,
++			       IRQF_SHARED, dev_name(&pdev->dev), i2c_dev);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not request IRQ\n");
++		return -ENODEV;
++	}
++
++	adap = &i2c_dev->adapter;
++	i2c_set_adapdata(adap, i2c_dev);
++	adap->owner = THIS_MODULE;
++	adap->class = I2C_CLASS_HWMON;
++	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
++	adap->algo = &bcm2835_i2c_algo;
++	adap->dev.parent = &pdev->dev;
++	adap->nr = -1;
++
++	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
++
++	ret = i2c_add_numbered_adapter(adap);
++	if (ret) {
++		dev_err(&pdev->dev, "Could not add adapter\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static int bcm2835_i2c_remove(struct platform_device *pdev)
++{
++	struct bcm2835_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
++
++	i2c_del_adapter(&i2c_dev->adapter);
++
++	return 0;
++}
++
++static const struct of_device_id bcm2835_i2c_of_match[] = {
++	{ .compatible = "brcm,bcm2835-i2c" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, bcm2835_i2c_of_match);
++
++static struct platform_driver bcm2835_i2c_driver = {
++	.probe		= bcm2835_i2c_probe,
++	.remove		= bcm2835_i2c_remove,
++	.driver		= {
++		.name	= "i2c-bcm2835",
++		.owner	= THIS_MODULE,
++		.of_match_table = bcm2835_i2c_of_match,
++	},
++};
++module_platform_driver(bcm2835_i2c_driver);
++
++MODULE_AUTHOR("Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>");
++MODULE_DESCRIPTION("BCM2835 I2C bus adapter");
++MODULE_LICENSE("GPL v2");
++MODULE_ALIAS("platform:i2c-bcm2835");
+-- 
+1.7.10.4
