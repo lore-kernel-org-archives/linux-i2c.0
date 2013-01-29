@@ -1,30 +1,43 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v3 4/6] Cosmetics: hex to constants for SMBus commands
-Date: Tue, 29 Jan 2013 10:13:20 +0100
-Message-ID: <20130129101320.40a17f0c@endymion.delvare>
+Subject: Re: [PATCH v3 5/6] Misc: display unsigned hex
+Date: Tue, 29 Jan 2013 10:19:47 +0100
+Message-ID: <20130129101947.26edc86a@endymion.delvare>
 References: <20130124083043.57f91a3d@endymion.delvare>
 	<1359408070-31832-1-git-send-email-amaury.decreme@gmail.com>
-	<1359408070-31832-5-git-send-email-amaury.decreme@gmail.com>
+	<1359408070-31832-6-git-send-email-amaury.decreme@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1359408070-31832-5-git-send-email-amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1359408070-31832-6-git-send-email-amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Amaury =?ISO-8859-1?B?RGVjcuptZQ==?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, nelson-bExrPSV3DA0@public.gmane.org, mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, amalysh-S0/GAf8tV78@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 28 Jan 2013 22:21:08 +0100, Amaury Decr=EAme wrote:
-> This patch replaces hexadecimal values by constants for SMBus command=
-s.
+On Mon, 28 Jan 2013 22:21:09 +0100, Amaury Decr=EAme wrote:
+> This patch corrects the display of the acpi_base unsigned hex value.
 >=20
 > Signed-off-by: Amaury Decr=EAme <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-sis630.c | 45 ++++++++++++++++++++++++++++---=
-----------
->  1 file changed, 31 insertions(+), 14 deletions(-)
-> (...)
+>  drivers/i2c/busses/i2c-sis630.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c=
+-sis630.c
+> index b2fa741..424545b 100644
+> --- a/drivers/i2c/busses/i2c-sis630.c
+> +++ b/drivers/i2c/busses/i2c-sis630.c
+> @@ -463,7 +463,7 @@ static int sis630_setup(struct pci_dev *sis630_de=
+v)
+>  		goto exit;
+>  	}
+> =20
+> -	dev_dbg(&sis630_dev->dev, "ACPI base at 0x%04x\n", acpi_base);
+> +	dev_dbg(&sis630_dev->dev, "ACPI base at 0x%04hx\n", acpi_base);
+> =20
+>  	if (supported[i] =3D=3D PCI_DEVICE_ID_SI_760)
+>  		smbus_base =3D acpi_base + 0xE0;
 
 Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
