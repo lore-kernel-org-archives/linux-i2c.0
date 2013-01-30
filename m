@@ -1,98 +1,37 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v5] i2c: Adding support for Intel iSMT SMBus 2.0 host
- controller
-Date: Tue, 29 Jan 2013 23:10:28 +0100
-Message-ID: <20130129231028.41b04fc9@endymion.delvare>
-References: <20121218150337.5b861ae3@endymion.delvare>
-	<1359402232-21369-1-git-send-email-nhorman@tuxdriver.com>
-	<20130129150551.498b2a9b@endymion.delvare>
-	<20130129153253.GA14044@hmsreliant.think-freely.org>
+Subject: Re: [PATCH v4] Cleanup
+Date: Wed, 30 Jan 2013 10:06:38 +0100
+Message-ID: <20130130100638.43422a3e@endymion.delvare>
+References: <20130129103151.21262d1d@endymion.delvare>
+	<1359490946-24005-1-git-send-email-amaury.decreme@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130129153253.GA14044-B26myB8xz7F8NnZeBjwnZQMhkBWG/bsMQH7oEaQurus@public.gmane.org>
+In-Reply-To: <1359490946-24005-1-git-send-email-amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Amaury =?ISO-8859-1?B?RGVjcuptZQ==?= <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, nelson-bExrPSV3DA0@public.gmane.org, mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org, amalysh-S0/GAf8tV78@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 29 Jan 2013 10:32:53 -0500, Neil Horman wrote:
-> On Tue, Jan 29, 2013 at 03:05:51PM +0100, Jean Delvare wrote:
-> > On Mon, 28 Jan 2013 14:43:52 -0500, Neil Horman wrote:
-> > > +		if (size != I2C_SMBUS_QUICK)
-> > > +			memcpy(data, dma_buffer,
-> > > +			       min(sizeof(*data), (size_t)I2C_SMBUS_BLOCK_MAX));
-> > 
-> > This computation looks wrong. We already know that sizeof(*data) ==
-> > sizeof(union i2c_smbus_data) > I2C_SMBUS_BLOCK_MAX, so the min() above
-> > will always return I2C_SMBUS_BLOCK_MAX. Which may be insufficient as
-> > the first byte holds the length, and at the same time it will be more
-> > than needed in most cases.
-> 
-> Gah!  Sorry, you're right, I wasn't paying attention and though that data was
-> just an allocated buffer, I need to fix that.
-> 
-> > My original suggestion to limit the size of the copy was meant as a
-> > run-time optimization, i.e. copying exactly the number of bytes that
-> > were received from the slave. That would be 1 or 2 for non-block reads,
-> > and the block length for block reads. Unfortunately I'm not sure is the
-> > block length is available. See my comment about this below in
-> > ismt_access().
-> 
-> We don't currently have the dma_size, no, but the only calling function computes
-> it (either from the block header or sets it appropriately for non-block
-> transfers).  We can pass that into the process_desc function and fix this.
+On Tue, 29 Jan 2013 21:22:26 +0100, Amaury Decr=EAme wrote:
+> This patch corrects checkpatch errors.
+>=20
+> The changes has also been removed as it has less meaning with version
+> control tools.
+>=20
+> Signed-off-by: Amaury Decr=EAme <amaury.decreme-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-sis630.c | 214 ++++++++++++++++++++----------=
+----------
+>  1 file changed, 109 insertions(+), 105 deletions(-)
+> (...)
 
-This won't fix it, unless the hardware happens to update dma_size when
-receiving a block from a slave. If not then dma_size will always be
-I2C_SMBUS_BLOCK_MAX, while what we need is the number of bytes actually
-received.
+Yes, that's good enough this time. Thanks!
 
-> > > +static int ismt_access(struct i2c_adapter *adap, u16 addr,
-> > > +		       unsigned short flags, char read_write, u8 command,
-> > > +		       int size, union i2c_smbus_data *data)
-> > > +{
-> > > +	int ret;
-> > > +	dma_addr_t dma_addr = 0; /* address of the data buffer */
-> > > +	u8 dma_size = 0;
-> > > +	enum dma_data_direction dma_direction = 0;
-> > > +	struct ismt_desc *desc;
-> > > +	struct ismt_priv *priv = i2c_get_adapdata(adap);
-> > > +	struct device *dev = &priv->pci_dev->dev;
-> > > +
-> > > +	desc = &priv->hw[priv->head];
-> > > +
-> > > +	/* Initialize the descriptor */
-> > > +	memset(desc, 0, sizeof(struct ismt_desc));
-> > > +	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
-> > > +
-> > > +	/* Create a temporary buffer for the DMA transaction */
-> > > +	/* and insert the command at the beginning of the buffer */
-> > > +	if ((read_write == I2C_SMBUS_WRITE) &&
-> > > +	    (size != I2C_SMBUS_QUICK)) {
-> > 
-> > If I read the code below properly, this can be skipped for size ==
-> > I2C_SMBUS_BYTE too, right?
-> I don't think so.  The command field contains the data, and that is right below
-> the memcpy in that if clause.  We can certainly optimize this however, given
-> that I need to fix the memcpy sizes anyway.
+Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 
-Precisely, I'm not sure the priv->dma_buffer[0] = command is needed in
-this specific case, because later on we have:
+Wolfram, you can apply the full series now.
 
-			desc->control |= ISMT_DESC_CWRL;
-			desc->wr_len_cmd = command;
-
-and dma_size isn't set, which suggests that priv->dma_buffer won't even
-be used. Honestly this "presetting" of priv->dma_buffer causes more
-confusion than it helps, and performance-wise it makes little sense, so
-I wouldn't object to you exploding it to the relevant code paths in the
-switch statement.
-
-I'll take a look at the datasheet tomorrow to check if I got it right
-or you did. Or neither of us ^^ I'll also look for test hardware, I
-don't have that at home obviously, but at work maybe.
-
--- 
+--=20
 Jean Delvare
