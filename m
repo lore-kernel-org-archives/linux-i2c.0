@@ -1,123 +1,50 @@
-From: Olof Johansson <olofj@chromium.org>
-Subject: Re: [PATCH] i2c: samsung: resume race fix
-Date: Thu, 24 Jan 2013 08:41:20 -0800
-Message-ID: <CALiw-2F7tG9ogDHj4Yf47T47rBn6mAiH2XvK8jpWB1a3OhNJBQ@mail.gmail.com>
-References: <1352284106-24988-1-git-send-email-ch.naveen@samsung.com>
- <20121107114437.0a563c7e@endymion.delvare>
- <20130124132759.GH12933@pengutronix.de>
+From: Lars Poeschel <larsi-myOXECIRRCL4ajHJ1XSv27NAH6kLmebB@public.gmane.org>
+Subject: [PATCH RFC 0/1] Convert mcp23s08 to DT usage
+Date: Thu, 31 Jan 2013 16:58:22 +0100
+Message-ID: <1359647903-15801-1-git-send-email-larsi@wh2.tu-dresden.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============6149729957268440774=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20130124132759.GH12933@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, naveenkrishna.ch@gmail.com, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Unsubscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://sourceforge.net/mailarchive/forum.php?forum_name=spi-devel-general>
+List-Post: <mailto:spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>
+List-Help: <mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.sourceforge.net/lists/listinfo/spi-devel-general>,
+	<mailto:spi-devel-general-request-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org?subject=subscribe>
+Errors-To: spi-devel-general-bounces-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+To: poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org
+Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
---===============6149729957268440774==
-Content-Type: multipart/alternative; boundary=bcaec55551200acca204d40b7b96
+From: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
 
---bcaec55551200acca204d40b7b96
-Content-Type: text/plain; charset=ISO-8859-1
+I wanted to use mcp23s08 driver with a device that boots using device tree.
+Therefore I had to modify the driver to be able to take it's platform_data
+from the device tree.
+I am using a mcp23017 (I2C) device successfully with the patch booted over
+device tree. I am not sure if I did this right and I am not able to test the
+SPI part of the driver, so I am requesting for comments.
 
-2013/1/24 Wolfram Sang <w.sang@pengutronix.de>
+Thank you,
+Lars
 
-> On Wed, Nov 07, 2012 at 11:44:37AM +0100, Jean Delvare wrote:
-> > On Wed, 07 Nov 2012 15:58:26 +0530, Naveen Krishna Chatradhi wrote:
-> > > Don't unmark the device as suspended until after it's been re-setup.
-> > >
-> > > The main race would be w.r.t. an i2c driver that gets resumed at the
-> same
-> > > time (asyncronously), that is allowed to do a transfer since suspended
-> > > is set to 0 before reinit, but really should have seen the -EIO return
-> > > instead.
-> >
-> > I thought that the suspend order was children first and the resume
-> > order was parent first?
->
-> Same here, why does it not work this way?
->
+Lars Poeschel (1):
+  gpio: mcp23s08: convert driver to DT
 
-Sorry for being quiet on this so far, I didn't notice the controversy until
-now.
+ .../devicetree/bindings/gpio/gpio-mcp23s08.txt     |   27 ++++++
+ drivers/gpio/gpio-mcp23s08.c                       |   93 +++++++++++++++++++-
+ include/linux/spi/mcp23s08.h                       |    1 +
+ 3 files changed, 117 insertions(+), 4 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-mcp23s08.txt
 
-This is actually about half of what the original fix was (which I wrote,
-thus my signed-off-by). The original one was related to us having the GPIO
-handshake for a shared bus (see separate discussions on how that should be
-upstreamed, and the work on that). For reference, that patch is at:
-https://gerrit.chromium.org/gerrit/#/c/28126/1/drivers/i2c/busses/i2c-s3c2410.c
-.
-
-So, I'm not sure that this patch is really needed. The significant part of
-the original one was the move of our internal s3c24xx_i2c_dt_gpio_free()
-below setting suspended = 1. Upstream implementation of the same
-functionality will be implemented differently, most likely.
+-- 
+1.7.10.4
 
 
--Olof
-
---bcaec55551200acca204d40b7b96
-Content-Type: text/html; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-
-<div class=3D"gmail_quote">2013/1/24 Wolfram Sang <span dir=3D"ltr">&lt;<a =
-href=3D"mailto:w.sang@pengutronix.de" target=3D"_blank">w.sang@pengutronix.=
-de</a>&gt;</span><br><blockquote class=3D"gmail_quote" style=3D"margin:0 0 =
-0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-<div class=3D"im">On Wed, Nov 07, 2012 at 11:44:37AM +0100, Jean Delvare wr=
-ote:<br>
-&gt; On Wed, 07 Nov 2012 15:58:26 +0530, Naveen Krishna Chatradhi wrote:<br=
->
-&gt; &gt; Don&#39;t unmark the device as suspended until after it&#39;s bee=
-n re-setup.<br>
-&gt; &gt;<br>
-&gt; &gt; The main race would be w.r.t. an i2c driver that gets resumed at =
-the same<br>
-&gt; &gt; time (asyncronously), that is allowed to do a transfer since susp=
-ended<br>
-&gt; &gt; is set to 0 before reinit, but really should have seen the -EIO r=
-eturn<br>
-&gt; &gt; instead.<br>
-&gt;<br>
-&gt; I thought that the suspend order was children first and the resume<br>
-&gt; order was parent first?<br>
-<br>
-</div>Same here, why does it not work this way?<br></blockquote><div></div>=
-</div><br><div>Sorry for being quiet on this so far, I didn&#39;t notice th=
-e controversy until now.</div><div><br></div><div>This is actually about ha=
-lf of what the original fix was (which I wrote, thus my signed-off-by). The=
- original one was related to us having the GPIO handshake for a shared bus =
-(see separate discussions on how that should be upstreamed, and the work on=
- that). For reference, that patch is at:=A0<a href=3D"https://gerrit.chromi=
-um.org/gerrit/#/c/28126/1/drivers/i2c/busses/i2c-s3c2410.c">https://gerrit.=
-chromium.org/gerrit/#/c/28126/1/drivers/i2c/busses/i2c-s3c2410.c</a>.</div>
-<div><br></div><div>So, I&#39;m not sure that this patch is really needed. =
-The significant part of the original one was the move of our internal=A0s3c=
-24xx_i2c_dt_gpio_free() below setting suspended =3D 1. Upstream implementat=
-ion of the same functionality will be implemented differently, most likely.=
-</div>
-<div><br></div><div><br></div><div>-Olof</div>
-
---bcaec55551200acca204d40b7b96--
-
-
---===============6149729957268440774==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============6149729957268440774==--
+------------------------------------------------------------------------------
+Everyone hates slow websites. So do we.
+Make your web apps faster with AppDynamics
+Download AppDynamics Lite for free today:
+http://p.sf.net/sfu/appdyn_d2d_jan
