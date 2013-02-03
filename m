@@ -1,49 +1,103 @@
-From: Peter Huewe <peterhuewe@gmx.de>
-Subject: [PATCH] i2c/i2c-mxs: use devm_request_and_ioremap
-Date: Sun,  3 Feb 2013 01:14:57 +0100
-Message-ID: <1359850497-927-1-git-send-email-peterhuewe@gmx.de>
+From: Tejun Heo <tj@kernel.org>
+Subject: [PATCH 21/62] i2c: convert to idr_alloc()
+Date: Sat,  2 Feb 2013 17:20:22 -0800
+Message-ID: <1359854463-2538-22-git-send-email-tj@kernel.org>
+References: <1359854463-2538-1-git-send-email-tj@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1359854463-2538-1-git-send-email-tj@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: ben-linux@fluff.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>
+To: akpm@linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, bfields@fieldses.org, skinsbursky@parallels.com, ebiederm@xmission.com, jmorris@namei.org, axboe@kernel.dk, Tejun Heo <tj@kernel.org>, Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Replace a call to devm_request_mem_region followed by a call to
-dev_ioremap_nocache with devm_request_and_ioremap which does the same.
-And since res_size isn't needed anymore we can remove it as well.
+Convert to the much saner new idr interface.
 
-Found with coccicheck and this semantic patch:
- scripts/coccinelle/api/devm_request_and_ioremap.cocci.
+Only compile tested.
 
-Signed-off-by: Peter Huewe <peterhuewe@gmx.de>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: Jean Delvare <khali@linux-fr.org>
+Cc: linux-i2c@vger.kernel.org
 ---
- drivers/i2c/busses/i2c-mxs.c |    7 +------
- 1 files changed, 1 insertions(+), 6 deletions(-)
+This patch depends on an earlier idr changes and I think it would be
+best to route these together through -mm.  Please holler if there's
+any objection.  Thanks.
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index d6abaf2..4ca92b6 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -439,7 +439,6 @@ static int mxs_i2c_probe(struct platform_device *pdev)
- 	struct i2c_adapter *adap;
- 	struct pinctrl *pinctrl;
- 	struct resource *res;
--	resource_size_t res_size;
- 	int err, irq, dmairq;
- 	dma_cap_mask_t mask;
- 
-@@ -458,11 +457,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
- 	if (!res || irq < 0 || dmairq < 0)
- 		return -ENOENT;
- 
--	res_size = resource_size(res);
--	if (!devm_request_mem_region(dev, res->start, res_size, res->name))
--		return -EBUSY;
+ drivers/i2c/i2c-core.c | 45 ++++++++++-----------------------------------
+ 1 file changed, 10 insertions(+), 35 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index e388590..6868351 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -935,25 +935,16 @@ out_list:
+  */
+ int i2c_add_adapter(struct i2c_adapter *adapter)
+ {
+-	int	id, res = 0;
 -
--	i2c->regs = devm_ioremap_nocache(dev, res->start, res_size);
-+	i2c->regs = devm_request_and_ioremap(dev, res);
- 	if (!i2c->regs)
- 		return -EBUSY;
+-retry:
+-	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
+-		return -ENOMEM;
++	int res;
+ 
+ 	mutex_lock(&core_lock);
+-	/* "above" here means "above or equal to", sigh */
+-	res = idr_get_new_above(&i2c_adapter_idr, adapter,
+-				__i2c_first_dynamic_bus_num, &id);
++	res = idr_alloc(&i2c_adapter_idr, adapter,
++			__i2c_first_dynamic_bus_num, 0, GFP_KERNEL);
+ 	mutex_unlock(&core_lock);
+-
+-	if (res < 0) {
+-		if (res == -EAGAIN)
+-			goto retry;
++	if (res < 0)
+ 		return res;
+-	}
+ 
+-	adapter->nr = id;
++	adapter->nr = res;
+ 	return i2c_register_adapter(adapter);
+ }
+ EXPORT_SYMBOL(i2c_add_adapter);
+@@ -984,33 +975,17 @@ EXPORT_SYMBOL(i2c_add_adapter);
+ int i2c_add_numbered_adapter(struct i2c_adapter *adap)
+ {
+ 	int	id;
+-	int	status;
+ 
+ 	if (adap->nr == -1) /* -1 means dynamically assign bus id */
+ 		return i2c_add_adapter(adap);
+-	if (adap->nr & ~MAX_IDR_MASK)
+-		return -EINVAL;
+-
+-retry:
+-	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
+-		return -ENOMEM;
+ 
+ 	mutex_lock(&core_lock);
+-	/* "above" here means "above or equal to", sigh;
+-	 * we need the "equal to" result to force the result
+-	 */
+-	status = idr_get_new_above(&i2c_adapter_idr, adap, adap->nr, &id);
+-	if (status == 0 && id != adap->nr) {
+-		status = -EBUSY;
+-		idr_remove(&i2c_adapter_idr, id);
+-	}
++	id = idr_alloc(&i2c_adapter_idr, adap, adap->nr, adap->nr + 1,
++		       GFP_KERNEL);
+ 	mutex_unlock(&core_lock);
+-	if (status == -EAGAIN)
+-		goto retry;
+-
+-	if (status == 0)
+-		status = i2c_register_adapter(adap);
+-	return status;
++	if (id < 0)
++		return id == -ENOSPC ? -EBUSY : id;
++	return 0;
+ }
+ EXPORT_SYMBOL_GPL(i2c_add_numbered_adapter);
  
 -- 
-1.7.8.6
+1.8.1
