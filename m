@@ -1,102 +1,122 @@
-From: Yuvaraj Kumar <yuvaraj.cd@gmail.com>
-Subject: Re: [RFC] i2c: Providing hooks for i2c multimaster bus arbitration.
-Date: Mon, 4 Feb 2013 16:43:35 +0530
-Message-ID: <CAKuRcO+DZJU3nB9x_fkxQZBkitKMZE0dzGDNWvboziMVFrwq_g@mail.gmail.com>
-References: <1359968595-21291-1-git-send-email-yuvaraj.cd@samsung.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v6] i2c: Adding support for Intel iSMT SMBus 2.0 host
+ controller
+Date: Mon, 4 Feb 2013 18:19:02 +0100
+Message-ID: <20130204181902.06c247ad@endymion.delvare>
+References: <1359402232-21369-1-git-send-email-nhorman@tuxdriver.com>
+	<1359748083-24423-1-git-send-email-nhorman@tuxdriver.com>
+	<20130204104744.5f83541e@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1359968595-21291-1-git-send-email-yuvaraj.cd@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, w.sang@pengutronix.de
-Cc: broonie@opensource.wolfsonmicro.com, ch.naveen@samsung.com, sjg@chromium.org, grundler@chromium.org, Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130204104744.5f83541e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Below are the links on multi master bus arbitration where it has been
-discussing.
+On Mon, 4 Feb 2013 10:47:44 +0100, Jean Delvare wrote:
+> I have backported your code to kernel 3.0 and I'll get back to you when
+> I finally get a chance to test it.
 
- http://comments.gmane.org/gmane.linux.kernel/1410276
+OK, I am done with the backport and testing. The test system I have
+access to appears to have a single slave on the second iSMT channel, at
+address 0x54. I have no idea what this device is so my testing is
+fairly limited, in particular I can't test writes. But at least I could
+test the quick command and read byte transactions. I believe the
+following fix is needed on top of your patch to make non-quick,
+non-block transactions right:
 
- http://www.kernelhub.org/?msg=179505&p=2
+---
+ i2c-ismt.c |   35 +++++++++++++++++++++++++----------
+ 1 file changed, 25 insertions(+), 10 deletions(-)
 
+--- i2c-ismt.orig/i2c-ismt.c
++++ i2c-ismt/i2c-ismt.c
+@@ -329,10 +329,23 @@ static int ismt_process_desc(const struc
+ 	__ismt_desc_dump(&priv->pci_dev->dev, desc);
+ 
+ 	if (desc->status & ISMT_DESC_SCS) {
+-		if ((size != I2C_SMBUS_QUICK) &&
+-		    (read_write == I2C_SMBUS_READ)) {
++		if (read_write == I2C_SMBUS_WRITE &&
++		    size != I2C_SMBUS_PROC_CALL)
++			return 0;
++
++		switch (size) {
++		case I2C_SMBUS_BYTE:
++		case I2C_SMBUS_BYTE_DATA:
++			data->byte = dma_buffer[0];
++			break;
++		case I2C_SMBUS_WORD_DATA:
++		case I2C_SMBUS_PROC_CALL:
++			data->word = dma_buffer[0] | (dma_buffer[1] << 8);
++			break;
++		case I2C_SMBUS_BLOCK_DATA:
+ 			memcpy(&data->block[1], dma_buffer, desc->rxbytes);
+ 			data->block[0] = desc->rxbytes;
++			break;
+ 		}
+ 		return 0;
+ 	}
+@@ -426,6 +439,8 @@ static int ismt_access(struct i2c_adapte
+ 			desc->wr_len_cmd = 2;
+ 			dma_size = 2;
+ 			dma_direction = DMA_TO_DEVICE;
++			priv->dma_buffer[0] = command;
++			priv->dma_buffer[1] = data->byte;
+ 		} else {
+ 			/* Read Byte */
+ 			dev_dbg(dev, "I2C_SMBUS_BYTE_DATA:  READ\n");
+@@ -444,6 +459,9 @@ static int ismt_access(struct i2c_adapte
+ 			desc->wr_len_cmd = 3;
+ 			dma_size = 3;
+ 			dma_direction = DMA_TO_DEVICE;
++			priv->dma_buffer[0] = command;
++			priv->dma_buffer[1] = data->word & 0xff;
++			priv->dma_buffer[2] = data->word >> 8;
+ 		} else {
+ 			/* Read Word */
+ 			dev_dbg(dev, "I2C_SMBUS_WORD_DATA:  READ\n");
+@@ -461,6 +479,9 @@ static int ismt_access(struct i2c_adapte
+ 		desc->rd_len = 2;
+ 		dma_size = 3;
+ 		dma_direction = DMA_BIDIRECTIONAL;
++		priv->dma_buffer[0] = command;
++		priv->dma_buffer[1] = data->word & 0xff;
++		priv->dma_buffer[2] = data->word >> 8;
+ 		break;
+ 
+ 	case I2C_SMBUS_BLOCK_DATA:
+@@ -471,6 +492,8 @@ static int ismt_access(struct i2c_adapte
+ 			dma_direction = DMA_TO_DEVICE;
+ 			desc->wr_len_cmd = dma_size;
+ 			desc->control |= ISMT_DESC_BLK;
++			priv->dma_buffer[0] = command;
++			memcpy(&priv->dma_buffer[1], &data->block[1], dma_size);
+ 		} else {
+ 			/* Block Read */
+ 			dev_dbg(dev, "I2C_SMBUS_BLOCK_DATA:  READ\n");
+@@ -488,14 +511,6 @@ static int ismt_access(struct i2c_adapte
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	/* Create a temporary buffer for the DMA transaction */
+-	/* and insert the command at the beginning of the buffer */
+-	if ((read_write == I2C_SMBUS_WRITE) &&
+-	    (size > I2C_SMBUS_BYTE)) {
+-		memcpy(&priv->dma_buffer[1], &data->block[1], dma_size);
+-		priv->dma_buffer[0] = command;
+-	}
+-
+ 	/* map the data buffer */
+ 	if (dma_size != 0) {
+ 		dev_dbg(dev, " dev=%p\n", dev);
 
-On Mon, Feb 4, 2013 at 2:33 PM, Yuvaraj Kumar C D <yuvaraj.cd@gmail.com> wrote:
-> This RFC patch is w.r.t multimaster bus arbitration which is already
-> being discussing in the mainline.
-> This patch provides hooks for the i2c multimaster bus arbitration
-> and to have the arbitration parameters.
->
-> Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
-> ---
->  drivers/i2c/i2c-core.c |   13 ++++++++++++-
->  include/linux/i2c.h    |   12 ++++++++++++
->  2 files changed, 24 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index e388590..ed89fc8 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1408,18 +1408,29 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
->                                 (msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
->                 }
->  #endif
-> +               if (adap->mm_arbit_algo) {
-> +                       ret = adap->mm_arbit_algo->i2c_mm_bus_get(adap);
-> +                       if (ret)
-> +                               /* I2C bus under control of another master. */
-> +                               return -EAGAIN;
-> +               }
->
->                 if (in_atomic() || irqs_disabled()) {
->                         ret = i2c_trylock_adapter(adap);
-> -                       if (!ret)
-> +                       if (!ret && adap->mm_arbit_algo) {
-> +                               adap->mm_arbit_algo->i2c_mm_bus_release(adap);
-> +
->                                 /* I2C activity is ongoing. */
->                                 return -EAGAIN;
-> +                       }
->                 } else {
->                         i2c_lock_adapter(adap);
->                 }
->
->                 ret = __i2c_transfer(adap, msgs, num);
->                 i2c_unlock_adapter(adap);
-> +               if (adap->mm_arbit_algo)
-> +                       adap->mm_arbit_algo->i2c_mm_bus_release(adap);
->
->                 return ret;
->         } else {
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index d0c4db7..61fbfe3 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -371,6 +371,17 @@ struct i2c_algorithm {
->  };
->
->  /*
-> + *This struct provides hooks for i2c multi-master arbitration needs.
-> + */
-> +struct i2c_mm_arbitration {
-> +       void *arbitration_data;
-> +
-> +       /* Should return 0 if mastership could be successfully established */
-> +       int (*i2c_mm_bus_get)(struct i2c_adapter *adap);
-> +       void (*i2c_mm_bus_release)(struct i2c_adapter *adap);
-> +};
-> +
-> +/*
->   * i2c_adapter is the structure used to identify a physical i2c bus along
->   * with the access algorithms necessary to access it.
->   */
-> @@ -393,6 +404,7 @@ struct i2c_adapter {
->
->         struct mutex userspace_clients_lock;
->         struct list_head userspace_clients;
-> +       struct i2c_mm_arbitration *mm_arbit_algo;
->  };
->  #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
->
-> --
-> 1.7.9.5
->
+Maybe that's what Seth was missing. Seth, can you please try this patch
+of mine and let us know if it helps? Warning: I was only able to test
+the quick, receive byte and read byte transactions.
+
+-- 
+Jean Delvare
