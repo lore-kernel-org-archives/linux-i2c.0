@@ -1,82 +1,149 @@
-From: Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: busses/i2c-pxa.c: fix potential null pointer
- dereference error
-Date: Tue, 5 Feb 2013 19:27:43 +0800
-Message-ID: <CAN1soZyDLtdjyOFWyVVXN-_ABrChcCR=QbifAo7cz9pYV-nHww@mail.gmail.com>
-References: <1360015899-13706-1-git-send-email-dinggnu@gmail.com>
-	<CAH9JG2XSpFJeUvv7cw-JWadmi=X0-4EsN5FFKuDkwo=-mmzHSQ@mail.gmail.com>
-	<20130205000517.GB9969@gmail.com>
-	<CAN1soZwM6qNTJn3vvMdc6TR1eJHc=K+_c0WuWOBBuFYMWB_oCA@mail.gmail.com>
-	<20130205102540.GC9969@gmail.com>
+From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] i2c: davinci: update to devm_* API
+Date: Tue, 5 Feb 2013 17:17:25 +0530
+Message-ID: <5110F14D.8090005@ti.com>
+References: <1360052699-1985-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130205102540.GC9969-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1360052699-1985-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Cong Ding <dinggnu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Kyungmin Park <kmpark-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Haojian Zhuang <haojian.zhuang-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Feb 5, 2013 at 6:25 PM, Cong Ding <dinggnu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> On Tue, Feb 05, 2013 at 09:14:08AM +0800, Haojian Zhuang wrote:
->> On Tue, Feb 5, 2013 at 8:05 AM, Cong Ding <dinggnu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
->> > If it goes to eclk through line 1107, the variable res would be NULL. It will
->> > cause a null pointer dereference error if we call release_mem_region.
->> >
->> > Signed-off-by: Cong Ding <dinggnu-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> > ---
->> >  drivers/i2c/busses/i2c-pxa.c |    3 ++-
->> >  1 file changed, 2 insertions(+), 1 deletion(-)
->> >
->> > diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
->> > index 1034d93..00df535 100644
->> > --- a/drivers/i2c/busses/i2c-pxa.c
->> > +++ b/drivers/i2c/busses/i2c-pxa.c
->> > @@ -1211,7 +1211,8 @@ eremap:
->> >  eclk:
->> >         kfree(i2c);
->> >  emalloc:
->> > -       release_mem_region(res->start, resource_size(res));
->> > +       if (res)
->> > +               release_mem_region(res->start, resource_size(res));
->> >         return ret;
->> >  }
->> >
->> >
->>
->> No. I don't agree on this. Your fix can't resolve all potential issues.
->>
->>         i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
-devm_kzalloc
->>         if (!i2c) {
->>                 ret = -ENOMEM;
->>                 goto emalloc;
-return -ENOMEM;
->>         }
->>
->>         ret = i2c_pxa_probe_dt(dev, i2c, &i2c_type);
->>         if (ret > 0)
->>                 ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
->>         if (ret < 0)
->>                 goto eclk;
-return ret;
->>
->>         res = platform_get_resource(dev, IORESOURCE_MEM, 0);
->>         irq = platform_get_irq(dev, 0);
->>         if (res == NULL || irq < 0) {
->>                 ret = -ENODEV;
->>                 goto eclk;
-ditto
->>         }
->>
->>         if (!request_mem_region(res->start, resource_size(res), res->name)) {
->>                 ret = -ENOMEM;
->>                 goto eclk;
-ditto
->>         }
->>
->> We shouldn't jump to eclk for these error cases. Then we needn't to add
->> checking on res.
-> So what do you suggest to do for these error cases?
->  - cong
->
+
+
+On 2/5/2013 1:54 PM, Vishwanathrao Badarkhe, Manish wrote:
+> Update the code to use devm_* API so that driver
+> core will manage resources.
+> 
+> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+
+You can use devm_clk_get() as well. We should also move to runtime PM
+but that can be a different patch.
+
+Thanks,
+Sekhar
+
+> ---
+> :100644 100644 6a0a553... f3dfffb... M	drivers/i2c/busses/i2c-davinci.c
+>  drivers/i2c/busses/i2c-davinci.c |   41 +++++++++++--------------------------
+>  1 files changed, 12 insertions(+), 29 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 6a0a553..f3dfffb 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -643,7 +643,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  {
+>  	struct davinci_i2c_dev *dev;
+>  	struct i2c_adapter *adap;
+> -	struct resource *mem, *irq, *ioarea;
+> +	struct resource *mem, *irq;
+>  	int r;
+>  
+>  	/* NOTE: driver uses the static register mapping */
+> @@ -659,17 +659,11 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  		return -ENODEV;
+>  	}
+>  
+> -	ioarea = request_mem_region(mem->start, resource_size(mem),
+> -				    pdev->name);
+> -	if (!ioarea) {
+> -		dev_err(&pdev->dev, "I2C region already claimed\n");
+> -		return -EBUSY;
+> -	}
+> -
+> -	dev = kzalloc(sizeof(struct davinci_i2c_dev), GFP_KERNEL);
+> +	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
+> +			GFP_KERNEL);
+>  	if (!dev) {
+> -		r = -ENOMEM;
+> -		goto err_release_region;
+> +		dev_err(&pdev->dev, "Memory allocation failed\n");
+> +		return -ENOMEM;
+>  	}
+>  
+>  	init_completion(&dev->cmd_complete);
+> @@ -706,15 +700,17 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  	}
+>  	clk_prepare_enable(dev->clk);
+>  
+> -	dev->base = ioremap(mem->start, resource_size(mem));
+> +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
+>  	if (!dev->base) {
+>  		r = -EBUSY;
+> -		goto err_mem_ioremap;
+> +		dev_err(&pdev->dev, "I2C region already claimed\n");
+> +		goto err_unuse_clocks;
+>  	}
+>  
+>  	i2c_davinci_init(dev);
+>  
+> -	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
+> +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_davinci_isr, 0,
+> +			pdev->name, dev);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+>  		goto err_unuse_clocks;
+> @@ -723,7 +719,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  	r = i2c_davinci_cpufreq_register(dev);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failed to register cpufreq\n");
+> -		goto err_free_irq;
+> +		goto err_unuse_clocks;
+>  	}
+>  
+>  	adap = &dev->adapter;
+> @@ -740,26 +736,19 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  	r = i2c_add_numbered_adapter(adap);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failure adding adapter\n");
+> -		goto err_free_irq;
+> +		goto err_unuse_clocks;
+>  	}
+>  	of_i2c_register_devices(adap);
+>  
+>  	return 0;
+>  
+> -err_free_irq:
+> -	free_irq(dev->irq, dev);
+>  err_unuse_clocks:
+> -	iounmap(dev->base);
+> -err_mem_ioremap:
+>  	clk_disable_unprepare(dev->clk);
+>  	clk_put(dev->clk);
+>  	dev->clk = NULL;
+>  err_free_mem:
+>  	platform_set_drvdata(pdev, NULL);
+>  	put_device(&pdev->dev);
+> -	kfree(dev);
+> -err_release_region:
+> -	release_mem_region(mem->start, resource_size(mem));
+>  
+>  	return r;
+>  }
+> @@ -767,7 +756,6 @@ err_release_region:
+>  static int davinci_i2c_remove(struct platform_device *pdev)
+>  {
+>  	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
+> -	struct resource *mem;
+>  
+>  	i2c_davinci_cpufreq_deregister(dev);
+>  
+> @@ -780,12 +768,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
+>  	dev->clk = NULL;
+>  
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
+> -	free_irq(dev->irq, dev);
+> -	iounmap(dev->base);
+> -	kfree(dev);
+>  
+> -	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	release_mem_region(mem->start, resource_size(mem));
+>  	return 0;
+>  }
+>  
+> 
