@@ -1,149 +1,50 @@
-From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: update to devm_* API
-Date: Tue, 5 Feb 2013 17:17:25 +0530
-Message-ID: <5110F14D.8090005@ti.com>
-References: <1360052699-1985-1-git-send-email-manishv.b@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH RFC 1/1] gpio: mcp23s08: convert driver to DT
+Date: Tue, 05 Feb 2013 14:29:09 +0000
+Message-ID: <20130205142909.4F5B83E1265@localhost>
+References: <1359647903-15801-1-git-send-email-larsi@wh2.tu-dresden.de> <1359647903-15801-2-git-send-email-larsi@wh2.tu-dresden.de> <CACRpkda_HjzWNMD1H_a_fsWtbRWuTDsutS8kndb9jY31qf7Yyg@mail.gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1360052699-1985-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <CACRpkda_HjzWNMD1H_a_fsWtbRWuTDsutS8kndb9jY31qf7Yyg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lars Poeschel <larsi-myOXECIRRCL4ajHJ1XSv27NAH6kLmebB@public.gmane.org>
+Cc: poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-
-
-On 2/5/2013 1:54 PM, Vishwanathrao Badarkhe, Manish wrote:
-> Update the code to use devm_* API so that driver
-> core will manage resources.
+On Thu, 31 Jan 2013 21:51:36 +0100, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On Thu, Jan 31, 2013 at 4:58 PM, Lars Poeschel <larsi-myOXECIRRCL4ajHJ1XSv27NAH6kLmebB@public.gmane.org> wrote:
 > 
-> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
-
-You can use devm_clk_get() as well. We should also move to runtime PM
-but that can be a different patch.
-
-Thanks,
-Sekhar
-
-> ---
-> :100644 100644 6a0a553... f3dfffb... M	drivers/i2c/busses/i2c-davinci.c
->  drivers/i2c/busses/i2c-davinci.c |   41 +++++++++++--------------------------
->  1 files changed, 12 insertions(+), 29 deletions(-)
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/gpio/gpio-mcp23s08.txt
+> > @@ -0,0 +1,27 @@
+> > +Microchip MCP2308/MCP23S08/MCP23017/MCP23S17 driver for
+> > +8-/16-bit I/O expander with serial interface (I2C/SPI)
+> > +
+> > +Required properties:
+> > +- compatible : Should be "mcp,mcp23s08-gpio", "mcp,mcp23s17-gpio",
+> > +                       "mcp,mcp23008-gpio" or "mcp,mcp23017-gpio"
+> > +- base : The first gpio number that should be assigned by this chip.
 > 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 6a0a553..f3dfffb 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -643,7 +643,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  {
->  	struct davinci_i2c_dev *dev;
->  	struct i2c_adapter *adap;
-> -	struct resource *mem, *irq, *ioarea;
-> +	struct resource *mem, *irq;
->  	int r;
->  
->  	/* NOTE: driver uses the static register mapping */
-> @@ -659,17 +659,11 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  		return -ENODEV;
->  	}
->  
-> -	ioarea = request_mem_region(mem->start, resource_size(mem),
-> -				    pdev->name);
-> -	if (!ioarea) {
-> -		dev_err(&pdev->dev, "I2C region already claimed\n");
-> -		return -EBUSY;
-> -	}
-> -
-> -	dev = kzalloc(sizeof(struct davinci_i2c_dev), GFP_KERNEL);
-> +	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
-> +			GFP_KERNEL);
->  	if (!dev) {
-> -		r = -ENOMEM;
-> -		goto err_release_region;
-> +		dev_err(&pdev->dev, "Memory allocation failed\n");
-> +		return -ENOMEM;
->  	}
->  
->  	init_completion(&dev->cmd_complete);
-> @@ -706,15 +700,17 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	}
->  	clk_prepare_enable(dev->clk);
->  
-> -	dev->base = ioremap(mem->start, resource_size(mem));
-> +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
->  	if (!dev->base) {
->  		r = -EBUSY;
-> -		goto err_mem_ioremap;
-> +		dev_err(&pdev->dev, "I2C region already claimed\n");
-> +		goto err_unuse_clocks;
->  	}
->  
->  	i2c_davinci_init(dev);
->  
-> -	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
-> +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_davinci_isr, 0,
-> +			pdev->name, dev);
->  	if (r) {
->  		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
->  		goto err_unuse_clocks;
-> @@ -723,7 +719,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	r = i2c_davinci_cpufreq_register(dev);
->  	if (r) {
->  		dev_err(&pdev->dev, "failed to register cpufreq\n");
-> -		goto err_free_irq;
-> +		goto err_unuse_clocks;
->  	}
->  
->  	adap = &dev->adapter;
-> @@ -740,26 +736,19 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	r = i2c_add_numbered_adapter(adap);
->  	if (r) {
->  		dev_err(&pdev->dev, "failure adding adapter\n");
-> -		goto err_free_irq;
-> +		goto err_unuse_clocks;
->  	}
->  	of_i2c_register_devices(adap);
->  
->  	return 0;
->  
-> -err_free_irq:
-> -	free_irq(dev->irq, dev);
->  err_unuse_clocks:
-> -	iounmap(dev->base);
-> -err_mem_ioremap:
->  	clk_disable_unprepare(dev->clk);
->  	clk_put(dev->clk);
->  	dev->clk = NULL;
->  err_free_mem:
->  	platform_set_drvdata(pdev, NULL);
->  	put_device(&pdev->dev);
-> -	kfree(dev);
-> -err_release_region:
-> -	release_mem_region(mem->start, resource_size(mem));
->  
->  	return r;
->  }
-> @@ -767,7 +756,6 @@ err_release_region:
->  static int davinci_i2c_remove(struct platform_device *pdev)
->  {
->  	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
-> -	struct resource *mem;
->  
->  	i2c_davinci_cpufreq_deregister(dev);
->  
-> @@ -780,12 +768,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
->  	dev->clk = NULL;
->  
->  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
-> -	free_irq(dev->irq, dev);
-> -	iounmap(dev->base);
-> -	kfree(dev);
->  
-> -	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> -	release_mem_region(mem->start, resource_size(mem));
->  	return 0;
->  }
->  
+> No. We do not tie the global GPIO numbers into the device tree.
 > 
+> In the DT GPIOs are referenced by ampersand <&gpio0 1 2>
+> notation referring to the instance, so as you realize DT itself
+> has no need for that number.
+> 
+> Further it is not OS-neutral.
+> 
+> You have to find another way to handle this in the driver code.
+> In worst case: use AUXDATA.
+
+Hi Lars,
+
+The trick is to declare the io expander to be a "gpio-controller" and
+use the #gpio-cells property to declare how many cells (32-bit numbers)
+are need to specify a single gpio line. Most gpio controllers use
+"gpio-cells=<2>"; The first cell is the *controller local* gpio
+number, and the second cell is used for flags. That way your gpio
+controller can be referenced by other nodes in the tree with a "gpios"
+property.
+
+You can find lots of examples of this in the tree.
+
+g.
