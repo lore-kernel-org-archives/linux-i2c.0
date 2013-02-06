@@ -1,81 +1,121 @@
-From: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
-Subject: Re: [PATCH RFC 1/1] gpio: mcp23s08: convert driver to DT
-Date: Wed, 6 Feb 2013 10:31:04 +0100
-Message-ID: <201302061031.04264.poeschel@lemonage.de>
-References: <1359647903-15801-1-git-send-email-larsi@wh2.tu-dresden.de> <CACRpkda_HjzWNMD1H_a_fsWtbRWuTDsutS8kndb9jY31qf7Yyg@mail.gmail.com> <20130205142909.4F5B83E1265@localhost>
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH] ARM: davinci: da850: add DT node for I2C0
+Date: Wed, 6 Feb 2013 15:06:22 +0530
+Message-ID: <1360143382-24607-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130205142909.4F5B83E1265@localhost>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Lars Poeschel <larsi-myOXECIRRCL4ajHJ1XSv27NAH6kLmebB@public.gmane.org>, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, manishv.b-l0cyMroinI0@public.gmane.org, hs-ynQEQJNshbs@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday 05 February 2013 at 15:29:09, Grant Likely wrote:
-> On Thu, 31 Jan 2013 21:51:36 +0100, Linus Walleij 
-<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> > On Thu, Jan 31, 2013 at 4:58 PM, Lars Poeschel <larsi-myOXECIRRCL4ajHJ1XSv27NAH6kLmebB@public.gmane.org> 
-wrote:
-> > > --- /dev/null
-> > > +++ b/Documentation/devicetree/bindings/gpio/gpio-mcp23s08.txt
-> > > @@ -0,0 +1,27 @@
-> > > +Microchip MCP2308/MCP23S08/MCP23017/MCP23S17 driver for
-> > > +8-/16-bit I/O expander with serial interface (I2C/SPI)
-> > > +
-> > > +Required properties:
-> > > +- compatible : Should be "mcp,mcp23s08-gpio", "mcp,mcp23s17-gpio",
-> > > +                       "mcp,mcp23008-gpio" or "mcp,mcp23017-gpio"
-> > > +- base : The first gpio number that should be assigned by this chip.
-> > 
-> > No. We do not tie the global GPIO numbers into the device tree.
-> > 
-> > In the DT GPIOs are referenced by ampersand <&gpio0 1 2>
-> > notation referring to the instance, so as you realize DT itself
-> > has no need for that number.
-> > 
-> > Further it is not OS-neutral.
-> > 
-> > You have to find another way to handle this in the driver code.
-> > In worst case: use AUXDATA.
-> 
-> Hi Lars,
-> 
-> The trick is to declare the io expander to be a "gpio-controller" and
-> use the #gpio-cells property to declare how many cells (32-bit numbers)
-> are need to specify a single gpio line. Most gpio controllers use
-> "gpio-cells=<2>"; The first cell is the *controller local* gpio
-> number, and the second cell is used for flags. That way your gpio
-> controller can be referenced by other nodes in the tree with a "gpios"
-> property.
-> 
-> You can find lots of examples of this in the tree.
+Add I2C0 device tree and pin muxing information to da850-evm.
+Also, add OF_DEV_AUXDATA for I2C0 controller driver in da850
+board dt file to use I2C0 clock.
+Verified i2c0 node gets created in sys class interface as
+"/sys/class/i2c-dev/i2c-0/subsystem/i2c-0".
 
-Linus, Grant, thanks for the explanations. I think I have catched where it 
-should go.
-The thing that confused me was, that the platform_data for the chip has a 
-mandatory "base" member, that sets the linux global gpio number at which the 
-chip should appear. A value of -1 for automatic assigning gpio number is not 
-allowed, the chip will not probe.
-I have to change the driver to allow at least this -1 as an additional value.
-As Linus pointed out, it is not desirable to set the global gpio base number 
-from device tree, right ? If I have 3 instances of this chips then, how can 
-userspace sw distinguish then to which one it is talking ?
+Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+---
+Applies on top of v3.8-rc6 of linus tree.
+Depends on
+ - drivers/pinctrl: grab default handles from device core
+   http://www.gossamer-threads.com/lists/linux/kernel/1665411
+ - ARM: davinci: da850: add interrupt-parent property in soc node
+   https://patchwork.kernel.org/patch/2044101/
+ - ARM: davinci: da850: add pinctrl support
+   http://comments.gmane.org/gmane.linux.davinci/25993
 
-This is an example for a DT entry (for i2c version) of the chip as I am 
-targetting it now:
+:100644 100644 433027f... 738d5d4... M	arch/arm/boot/dts/da850-evm.dts
+:100644 100644 4b02167... a0072aa... M	arch/arm/boot/dts/da850.dtsi
+:100644 100644 37c27af... 95ca4e9... M	arch/arm/mach-davinci/da8xx-dt.c
+ arch/arm/boot/dts/da850-evm.dts  |    6 ++++++
+ arch/arm/boot/dts/da850.dtsi     |   14 ++++++++++++++
+ arch/arm/mach-davinci/da8xx-dt.c |    8 +++++++-
+ 3 files changed, 27 insertions(+), 1 deletions(-)
 
-gpiom1: gpio@20 {
-	reg = <0x20>;
-	compatible = "mcp,mcp23017-gpio";
-	gpio-controller;
-	#gpio-cells = <2>;
-};
-
-I am working on this but I have some strange issues with the driver 
-probing/not probing and kernel debug output. I hope I will solve this today. 
-I will send a new patch then.
-
-Lars
+diff --git a/arch/arm/boot/dts/da850-evm.dts b/arch/arm/boot/dts/da850-evm.dts
+index 433027f..738d5d4 100644
+--- a/arch/arm/boot/dts/da850-evm.dts
++++ b/arch/arm/boot/dts/da850-evm.dts
+@@ -27,6 +27,12 @@
+ 		serial2: serial@1d0d000 {
+ 			status = "okay";
+ 		};
++		i2c0: i2c@1c22000 {
++			status = "okay";
++			clock-frequency = <100000>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&i2c0_pins>;
++		};
+ 	};
+ 	nand_cs3@62000000 {
+ 		status = "okay";
+diff --git a/arch/arm/boot/dts/da850.dtsi b/arch/arm/boot/dts/da850.dtsi
+index 4b02167..a0072aa 100644
+--- a/arch/arm/boot/dts/da850.dtsi
++++ b/arch/arm/boot/dts/da850.dtsi
+@@ -56,6 +56,12 @@
+ 					0x30 0x01100000  0x0ff00000
+ 				>;
+ 			};
++			i2c0_pins: pinmux_i2c0_pins {
++				pinctrl-single,bits = <
++					/* I2C0_SDA,I2C0_SCL */
++					0x10 0x00002200 0x0000ff00
++				>;
++			};
+ 		};
+ 		serial0: serial@1c42000 {
+ 			compatible = "ns16550a";
+@@ -81,6 +87,14 @@
+ 			interrupts = <61>;
+ 			status = "disabled";
+ 		};
++		i2c0: i2c@1c22000 {
++			compatible = "ti,davinci-i2c";
++			reg = <0x22000 0x1000>;
++			interrupts = <15>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled";
++		};
+ 	};
+ 	nand_cs3@62000000 {
+ 		compatible = "ti,davinci-nand";
+diff --git a/arch/arm/mach-davinci/da8xx-dt.c b/arch/arm/mach-davinci/da8xx-dt.c
+index 37c27af..95ca4e9 100644
+--- a/arch/arm/mach-davinci/da8xx-dt.c
++++ b/arch/arm/mach-davinci/da8xx-dt.c
+@@ -37,11 +37,17 @@ static void __init da8xx_init_irq(void)
+ 	of_irq_init(da8xx_irq_match);
+ }
+ 
++struct of_dev_auxdata da850_auxdata_lookup[] __initdata = {
++	OF_DEV_AUXDATA("ti,davinci-i2c", 0x01c22000, "i2c_davinci.1", NULL),
++	{}
++};
++
+ #ifdef CONFIG_ARCH_DAVINCI_DA850
+ 
+ static void __init da850_init_machine(void)
+ {
+-	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
++	of_platform_populate(NULL, of_default_bus_match_table,
++				da850_auxdata_lookup, NULL);
+ 
+ 	da8xx_uart_clk_enable();
+ }
+-- 
+1.7.4.1
