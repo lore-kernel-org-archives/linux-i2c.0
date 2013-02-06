@@ -1,166 +1,41 @@
-From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH] i2c: davinci: update to devm_* API
-Date: Wed, 6 Feb 2013 03:53:27 +0000
-Message-ID: <A4887BF146CD57468F700B415D2F47015831BD@DBDE01.ent.ti.com>
-References: <1360052699-1985-1-git-send-email-manishv.b@ti.com>
-	<5110F14D.8090005@ti.com>
+From: Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [RFC] i2c: Providing hooks for i2c multimaster bus arbitration.
+Date: Wed, 6 Feb 2013 10:58:56 +0530
+Message-ID: <CAKuRcOKx4VLcmhwi8VWHKNOizgiVsE5f0v-CGmK5+bH=BjJAPg@mail.gmail.com>
+References: <1359968595-21291-1-git-send-email-yuvaraj.cd@samsung.com>
+	<CAD=FV=VQywwQ3YAFb=1qFmd3UEW39Xu=ok6fdjhvBXdwOQOa1Q@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <5110F14D.8090005-l0cyMroinI0@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: <davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-Errors-To: davinci-linux-open-source-bounces+gld-davinci-linux-open-source=gmane.org-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>
-Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAD=FV=VQywwQ3YAFb=1qFmd3UEW39Xu=ok6fdjhvBXdwOQOa1Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, naveen krishna <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sekhar
+On Wed, Feb 6, 2013 at 5:48 AM, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+> Yavaraj,
+>
+> On Mon, Feb 4, 2013 at 1:03 AM, Yuvaraj Kumar C D <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> wrote:
+>>
+>> This RFC patch is w.r.t multimaster bus arbitration which is already
+>> being discussing in the mainline.
+>> This patch provides hooks for the i2c multimaster bus arbitration
+>> and to have the arbitration parameters.
+>
+>
+> I may have missed something in all the threads, but my recollection was that
+> the request was that this should be implemented without touching the i2c
+> core code.  Your patch modifies the i2c core code.
+   Different i2c devices will directly talk to i2c core using i2c_transfer().
+   If we put this out of the i2c core,the i2c devices like tpsxxxx and etc
+   should be registered through the bridge/mux .
+>
+> My impression was that the best solution was to use the infrastructure in
+> place for i2c multiplexing.  ...but in your case you would only multiplex
+> one thing.  This was suggested by Grant Likely and seems the cleanest...
+   I agree that Grants idea was the cleanest but we may end up in change in
 
-On Tue, Feb 05, 2013 at 17:17:25, Nori, Sekhar wrote:
-> 
-> 
-> On 2/5/2013 1:54 PM, Vishwanathrao Badarkhe, Manish wrote:
-> > Update the code to use devm_* API so that driver core will manage 
-> > resources.
-> > 
-> > Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
-> 
-> You can use devm_clk_get() as well. We should also move to runtime 
-  PM but that can be a different patch.
-
-Sure, I will apply devm operation for clk_get also in next version.
-Ok, will move to runtime PM in a different patch.
-
-
-Thanks, 
-Manish Badarkhe
-> > ---
-> > :100644 100644 6a0a553... f3dfffb... M	drivers/i2c/busses/i2c-davinci.c
-> >  drivers/i2c/busses/i2c-davinci.c |   41 +++++++++++--------------------------
-> >  1 files changed, 12 insertions(+), 29 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-davinci.c 
-> > b/drivers/i2c/busses/i2c-davinci.c
-> > index 6a0a553..f3dfffb 100644
-> > --- a/drivers/i2c/busses/i2c-davinci.c
-> > +++ b/drivers/i2c/busses/i2c-davinci.c
-> > @@ -643,7 +643,7 @@ static int davinci_i2c_probe(struct 
-> > platform_device *pdev)  {
-> >  	struct davinci_i2c_dev *dev;
-> >  	struct i2c_adapter *adap;
-> > -	struct resource *mem, *irq, *ioarea;
-> > +	struct resource *mem, *irq;
-> >  	int r;
-> >  
-> >  	/* NOTE: driver uses the static register mapping */ @@ -659,17 
-> > +659,11 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  		return -ENODEV;
-> >  	}
-> >  
-> > -	ioarea = request_mem_region(mem->start, resource_size(mem),
-> > -				    pdev->name);
-> > -	if (!ioarea) {
-> > -		dev_err(&pdev->dev, "I2C region already claimed\n");
-> > -		return -EBUSY;
-> > -	}
-> > -
-> > -	dev = kzalloc(sizeof(struct davinci_i2c_dev), GFP_KERNEL);
-> > +	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
-> > +			GFP_KERNEL);
-> >  	if (!dev) {
-> > -		r = -ENOMEM;
-> > -		goto err_release_region;
-> > +		dev_err(&pdev->dev, "Memory allocation failed\n");
-> > +		return -ENOMEM;
-> >  	}
-> >  
-> >  	init_completion(&dev->cmd_complete);
-> > @@ -706,15 +700,17 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  	}
-> >  	clk_prepare_enable(dev->clk);
-> >  
-> > -	dev->base = ioremap(mem->start, resource_size(mem));
-> > +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
-> >  	if (!dev->base) {
-> >  		r = -EBUSY;
-> > -		goto err_mem_ioremap;
-> > +		dev_err(&pdev->dev, "I2C region already claimed\n");
-> > +		goto err_unuse_clocks;
-> >  	}
-> >  
-> >  	i2c_davinci_init(dev);
-> >  
-> > -	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
-> > +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_davinci_isr, 0,
-> > +			pdev->name, dev);
-> >  	if (r) {
-> >  		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
-> >  		goto err_unuse_clocks;
-> > @@ -723,7 +719,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  	r = i2c_davinci_cpufreq_register(dev);
-> >  	if (r) {
-> >  		dev_err(&pdev->dev, "failed to register cpufreq\n");
-> > -		goto err_free_irq;
-> > +		goto err_unuse_clocks;
-> >  	}
-> >  
-> >  	adap = &dev->adapter;
-> > @@ -740,26 +736,19 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  	r = i2c_add_numbered_adapter(adap);
-> >  	if (r) {
-> >  		dev_err(&pdev->dev, "failure adding adapter\n");
-> > -		goto err_free_irq;
-> > +		goto err_unuse_clocks;
-> >  	}
-> >  	of_i2c_register_devices(adap);
-> >  
-> >  	return 0;
-> >  
-> > -err_free_irq:
-> > -	free_irq(dev->irq, dev);
-> >  err_unuse_clocks:
-> > -	iounmap(dev->base);
-> > -err_mem_ioremap:
-> >  	clk_disable_unprepare(dev->clk);
-> >  	clk_put(dev->clk);
-> >  	dev->clk = NULL;
-> >  err_free_mem:
-> >  	platform_set_drvdata(pdev, NULL);
-> >  	put_device(&pdev->dev);
-> > -	kfree(dev);
-> > -err_release_region:
-> > -	release_mem_region(mem->start, resource_size(mem));
-> >  
-> >  	return r;
-> >  }
-> > @@ -767,7 +756,6 @@ err_release_region:
-> >  static int davinci_i2c_remove(struct platform_device *pdev)  {
-> >  	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
-> > -	struct resource *mem;
-> >  
-> >  	i2c_davinci_cpufreq_deregister(dev);
-> >  
-> > @@ -780,12 +768,7 @@ static int davinci_i2c_remove(struct platform_device *pdev)
-> >  	dev->clk = NULL;
-> >  
-> >  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
-> > -	free_irq(dev->irq, dev);
-> > -	iounmap(dev->base);
-> > -	kfree(dev);
-> >  
-> > -	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > -	release_mem_region(mem->start, resource_size(mem));
-> >  	return 0;
-> >  }
-> >  
-> > 
-> 
+>
+> -Doug
