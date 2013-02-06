@@ -1,59 +1,33 @@
-From: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH V2] i2c: davinci: update to devm_* API
-Date: Wed, 06 Feb 2013 15:51:36 +0400
-Message-ID: <511243C8.8060400@mvista.com>
-References: <1360149736-32523-1-git-send-email-manishv.b@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1360149736-32523-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+From: Lars Poeschel <larsi@wh2.tu-dresden.de>
+Subject: [PATCH 0/2] Convert mcp23s08 to DT usage
+Date: Wed,  6 Feb 2013 18:01:56 +0100
+Message-ID: <1360170118-11937-1-git-send-email-larsi@wh2.tu-dresden.de>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: poeschel@lemonage.de, grant.likely@secretlab.ca, rob.herring@calxeda.com, rob@landley.net, linus.walleij@linaro.org, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
+Cc: w.sang@pengutronix.de, ben-linux@fluff.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello.
+From: Lars Poeschel <poeschel@lemonage.de>
 
-On 06-02-2013 15:22, Vishwanathrao Badarkhe, Manish wrote:
+I wanted to use mcp23s08 driver with a device that boots using device tree.
+I modified the driver to allow the DT usage and tested with a mcp23017
+which is a i2c device. I could not test the spi path, because I have no
+such device.
 
-> Update the code to use devm_* API so that driver
-> core will manage resources.
+Regards,
+Lars
 
-> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
-> ---
-> Changes since V1:
->    - Rebase on top of v3.8-rc6 of linus tree.
->    - Apply devm operation on clk_get.
+Lars Poeschel (2):
+  gpio: mcp23s08: Allow -1 as a legal value for global gpio base
+  gpio: mcp23s08: convert driver to DT
 
-> :100644 100644 6a0a553... da4e218... M	drivers/i2c/busses/i2c-davinci.c
->   drivers/i2c/busses/i2c-davinci.c |   45 +++++++++++---------------------------
->   1 files changed, 13 insertions(+), 32 deletions(-)
+ .../devicetree/bindings/gpio/gpio-mcp23s08.txt     |   36 ++++++++
+ drivers/gpio/gpio-mcp23s08.c                       |   95 ++++++++++++++++++--
+ include/linux/spi/mcp23s08.h                       |    1 +
+ 3 files changed, 126 insertions(+), 6 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/gpio/gpio-mcp23s08.txt
 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index 6a0a553..da4e218 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-[...]
-> @@ -699,22 +693,24 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->   		dev->pdata = &davinci_i2c_platform_data_default;
->   	}
->
-> -	dev->clk = clk_get(&pdev->dev, NULL);
-> +	dev->clk = devm_clk_get(&pdev->dev, NULL);
->   	if (IS_ERR(dev->clk)) {
->   		r = -ENODEV;
->   		goto err_free_mem;
->   	}
->   	clk_prepare_enable(dev->clk);
->
-> -	dev->base = ioremap(mem->start, resource_size(mem));
-> +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
->   	if (!dev->base) {
->   		r = -EBUSY;
+-- 
+1.7.10.4
 
-    Comment to devm_request_and_ioremap() suggests returning -EADDRNOTAVAIL on 
-failure. -EBUSY wasn't the right code even before this change, should have 
-been -ENOMEM.
-
-WBR, Sergei
