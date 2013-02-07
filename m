@@ -1,99 +1,75 @@
-From: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 37/77] i2c: convert to idr_alloc()
-Date: Wed,  6 Feb 2013 11:40:09 -0800
-Message-ID: <1360179649-22465-38-git-send-email-tj@kernel.org>
-References: <1360179649-22465-1-git-send-email-tj@kernel.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1360179649-22465-1-git-send-email-tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH V2] i2c: davinci: update to devm_* API
+Date: Thu, 7 Feb 2013 03:02:47 +0000
+Message-ID: <A4887BF146CD57468F700B415D2F470158327B@DBDE01.ent.ti.com>
+References: <1360149736-32523-1-git-send-email-manishv.b@ti.com>
+	<511243C8.8060400@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <511243C8.8060400-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
+Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Convert to the much saner new idr interface.
+Hi Sergei,
 
-Only compile tested.
+On Wed, Feb 06, 2013 at 17:21:36, Sergei Shtylyov wrote:
+> Hello.
+> 
+> On 06-02-2013 15:22, Vishwanathrao Badarkhe, Manish wrote:
+> 
+> > Update the code to use devm_* API so that driver core will manage 
+> > resources.
+> 
+> > Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+> > ---
+> > Changes since V1:
+> >    - Rebase on top of v3.8-rc6 of linus tree.
+> >    - Apply devm operation on clk_get.
+> 
+> > :100644 100644 6a0a553... da4e218... M	drivers/i2c/busses/i2c-davinci.c
+> >   drivers/i2c/busses/i2c-davinci.c |   45 +++++++++++---------------------------
+> >   1 files changed, 13 insertions(+), 32 deletions(-)
+> 
+> > diff --git a/drivers/i2c/busses/i2c-davinci.c 
+> > b/drivers/i2c/busses/i2c-davinci.c
+> > index 6a0a553..da4e218 100644
+> > --- a/drivers/i2c/busses/i2c-davinci.c
+> > +++ b/drivers/i2c/busses/i2c-davinci.c
+> [...]
+> > @@ -699,22 +693,24 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+> >   		dev->pdata = &davinci_i2c_platform_data_default;
+> >   	}
+> >
+> > -	dev->clk = clk_get(&pdev->dev, NULL);
+> > +	dev->clk = devm_clk_get(&pdev->dev, NULL);
+> >   	if (IS_ERR(dev->clk)) {
+> >   		r = -ENODEV;
+> >   		goto err_free_mem;
+> >   	}
+> >   	clk_prepare_enable(dev->clk);
+> >
+> > -	dev->base = ioremap(mem->start, resource_size(mem));
+> > +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
+> >   	if (!dev->base) {
+> >   		r = -EBUSY;
+> 
+>     Comment to devm_request_and_ioremap() suggests returning -EADDRNOTAVAIL on failure. -EBUSY wasn't the right code even before this change, should have been -ENOMEM.
 
-Signed-off-by: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
----
- drivers/i2c/i2c-core.c | 45 ++++++++++-----------------------------------
- 1 file changed, 10 insertions(+), 35 deletions(-)
+Oh, you are right. I will change this to -EADDRNOTAVAIL. Thanks for 
+pointing this out.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 66a30f7..795c916 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -935,25 +935,16 @@ out_list:
-  */
- int i2c_add_adapter(struct i2c_adapter *adapter)
- {
--	int	id, res = 0;
--
--retry:
--	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
--		return -ENOMEM;
-+	int res;
- 
- 	mutex_lock(&core_lock);
--	/* "above" here means "above or equal to", sigh */
--	res = idr_get_new_above(&i2c_adapter_idr, adapter,
--				__i2c_first_dynamic_bus_num, &id);
-+	res = idr_alloc(&i2c_adapter_idr, adapter,
-+			__i2c_first_dynamic_bus_num, 0, GFP_KERNEL);
- 	mutex_unlock(&core_lock);
--
--	if (res < 0) {
--		if (res == -EAGAIN)
--			goto retry;
-+	if (res < 0)
- 		return res;
--	}
- 
--	adapter->nr = id;
-+	adapter->nr = res;
- 	return i2c_register_adapter(adapter);
- }
- EXPORT_SYMBOL(i2c_add_adapter);
-@@ -984,33 +975,17 @@ EXPORT_SYMBOL(i2c_add_adapter);
- int i2c_add_numbered_adapter(struct i2c_adapter *adap)
- {
- 	int	id;
--	int	status;
- 
- 	if (adap->nr == -1) /* -1 means dynamically assign bus id */
- 		return i2c_add_adapter(adap);
--	if (adap->nr & ~MAX_IDR_MASK)
--		return -EINVAL;
--
--retry:
--	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
--		return -ENOMEM;
- 
- 	mutex_lock(&core_lock);
--	/* "above" here means "above or equal to", sigh;
--	 * we need the "equal to" result to force the result
--	 */
--	status = idr_get_new_above(&i2c_adapter_idr, adap, adap->nr, &id);
--	if (status == 0 && id != adap->nr) {
--		status = -EBUSY;
--		idr_remove(&i2c_adapter_idr, id);
--	}
-+	id = idr_alloc(&i2c_adapter_idr, adap, adap->nr, adap->nr + 1,
-+		       GFP_KERNEL);
- 	mutex_unlock(&core_lock);
--	if (status == -EAGAIN)
--		goto retry;
--
--	if (status == 0)
--		status = i2c_register_adapter(adap);
--	return status;
-+	if (id < 0)
-+		return id == -ENOSPC ? -EBUSY : id;
-+	return 0;
- }
- EXPORT_SYMBOL_GPL(i2c_add_numbered_adapter);
- 
--- 
-1.8.1
+Thanks, 
+Manish Badarkhe
