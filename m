@@ -1,75 +1,122 @@
-From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH V2] i2c: davinci: update to devm_* API
-Date: Thu, 7 Feb 2013 03:02:47 +0000
-Message-ID: <A4887BF146CD57468F700B415D2F470158327B@DBDE01.ent.ti.com>
-References: <1360149736-32523-1-git-send-email-manishv.b@ti.com>
-	<511243C8.8060400@mvista.com>
+From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] ARM: davinci: da850: add DT node for I2C0
+Date: Thu, 7 Feb 2013 15:21:13 +0530
+Message-ID: <51137911.8080303@ti.com>
+References: <1360143382-24607-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <511243C8.8060400-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Sergei Shtylyov <sshtylyov-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>
-Cc: "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1360143382-24607-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, hs-ynQEQJNshbs@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sergei,
+On 2/6/2013 3:06 PM, Vishwanathrao Badarkhe, Manish wrote:
+> Add I2C0 device tree and pin muxing information to da850-evm.
+> Also, add OF_DEV_AUXDATA for I2C0 controller driver in da850
+> board dt file to use I2C0 clock.
+> Verified i2c0 node gets created in sys class interface as
+> "/sys/class/i2c-dev/i2c-0/subsystem/i2c-0".
 
-On Wed, Feb 06, 2013 at 17:21:36, Sergei Shtylyov wrote:
-> Hello.
-> 
-> On 06-02-2013 15:22, Vishwanathrao Badarkhe, Manish wrote:
-> 
-> > Update the code to use devm_* API so that driver core will manage 
-> > resources.
-> 
-> > Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
-> > ---
-> > Changes since V1:
-> >    - Rebase on top of v3.8-rc6 of linus tree.
-> >    - Apply devm operation on clk_get.
-> 
-> > :100644 100644 6a0a553... da4e218... M	drivers/i2c/busses/i2c-davinci.c
-> >   drivers/i2c/busses/i2c-davinci.c |   45 +++++++++++---------------------------
-> >   1 files changed, 13 insertions(+), 32 deletions(-)
-> 
-> > diff --git a/drivers/i2c/busses/i2c-davinci.c 
-> > b/drivers/i2c/busses/i2c-davinci.c
-> > index 6a0a553..da4e218 100644
-> > --- a/drivers/i2c/busses/i2c-davinci.c
-> > +++ b/drivers/i2c/busses/i2c-davinci.c
-> [...]
-> > @@ -699,22 +693,24 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >   		dev->pdata = &davinci_i2c_platform_data_default;
-> >   	}
-> >
-> > -	dev->clk = clk_get(&pdev->dev, NULL);
-> > +	dev->clk = devm_clk_get(&pdev->dev, NULL);
-> >   	if (IS_ERR(dev->clk)) {
-> >   		r = -ENODEV;
-> >   		goto err_free_mem;
-> >   	}
-> >   	clk_prepare_enable(dev->clk);
-> >
-> > -	dev->base = ioremap(mem->start, resource_size(mem));
-> > +	dev->base = devm_request_and_ioremap(&pdev->dev, mem);
-> >   	if (!dev->base) {
-> >   		r = -EBUSY;
-> 
->     Comment to devm_request_and_ioremap() suggests returning -EADDRNOTAVAIL on failure. -EBUSY wasn't the right code even before this change, should have been -ENOMEM.
+That's not enough testing! (I know this would have gotten more testing
+as part of the bigger series you posted earlier). I tested on da850 evm
+with i2cdetect and i2cdump and it works fine.
 
-Oh, you are right. I will change this to -EADDRNOTAVAIL. Thanks for 
-pointing this out.
+> 
+> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+> ---
+> Applies on top of v3.8-rc6 of linus tree.
+> Depends on
+>  - drivers/pinctrl: grab default handles from device core
+>    http://www.gossamer-threads.com/lists/linux/kernel/1665411
+>  - ARM: davinci: da850: add interrupt-parent property in soc node
+>    https://patchwork.kernel.org/patch/2044101/
+>  - ARM: davinci: da850: add pinctrl support
+>    http://comments.gmane.org/gmane.linux.davinci/25993
+> 
+> :100644 100644 433027f... 738d5d4... M	arch/arm/boot/dts/da850-evm.dts
+> :100644 100644 4b02167... a0072aa... M	arch/arm/boot/dts/da850.dtsi
+> :100644 100644 37c27af... 95ca4e9... M	arch/arm/mach-davinci/da8xx-dt.c
+>  arch/arm/boot/dts/da850-evm.dts  |    6 ++++++
+>  arch/arm/boot/dts/da850.dtsi     |   14 ++++++++++++++
+>  arch/arm/mach-davinci/da8xx-dt.c |    8 +++++++-
+>  3 files changed, 27 insertions(+), 1 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/da850-evm.dts b/arch/arm/boot/dts/da850-evm.dts
+> index 433027f..738d5d4 100644
+> --- a/arch/arm/boot/dts/da850-evm.dts
+> +++ b/arch/arm/boot/dts/da850-evm.dts
+> @@ -27,6 +27,12 @@
+>  		serial2: serial@1d0d000 {
+>  			status = "okay";
+>  		};
+> +		i2c0: i2c@1c22000 {
+> +			status = "okay";
+> +			clock-frequency = <100000>;
+> +			pinctrl-names = "default";
+> +			pinctrl-0 = <&i2c0_pins>;
+> +		};
+>  	};
+>  	nand_cs3@62000000 {
+>  		status = "okay";
+> diff --git a/arch/arm/boot/dts/da850.dtsi b/arch/arm/boot/dts/da850.dtsi
+> index 4b02167..a0072aa 100644
+> --- a/arch/arm/boot/dts/da850.dtsi
+> +++ b/arch/arm/boot/dts/da850.dtsi
+> @@ -56,6 +56,12 @@
+>  					0x30 0x01100000  0x0ff00000
+>  				>;
+>  			};
+> +			i2c0_pins: pinmux_i2c0_pins {
+> +				pinctrl-single,bits = <
+> +					/* I2C0_SDA,I2C0_SCL */
+> +					0x10 0x00002200 0x0000ff00
+> +				>;
+> +			};
+>  		};
+>  		serial0: serial@1c42000 {
+>  			compatible = "ns16550a";
+> @@ -81,6 +87,14 @@
+>  			interrupts = <61>;
+>  			status = "disabled";
+>  		};
+> +		i2c0: i2c@1c22000 {
+> +			compatible = "ti,davinci-i2c";
+> +			reg = <0x22000 0x1000>;
+> +			interrupts = <15>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+>  	};
+>  	nand_cs3@62000000 {
+>  		compatible = "ti,davinci-nand";
+> diff --git a/arch/arm/mach-davinci/da8xx-dt.c b/arch/arm/mach-davinci/da8xx-dt.c
+> index 37c27af..95ca4e9 100644
+> --- a/arch/arm/mach-davinci/da8xx-dt.c
+> +++ b/arch/arm/mach-davinci/da8xx-dt.c
+> @@ -37,11 +37,17 @@ static void __init da8xx_init_irq(void)
+>  	of_irq_init(da8xx_irq_match);
+>  }
+>  
+> +struct of_dev_auxdata da850_auxdata_lookup[] __initdata = {
+> +	OF_DEV_AUXDATA("ti,davinci-i2c", 0x01c22000, "i2c_davinci.1", NULL),
+> +	{}
+> +};
+> +
+>  #ifdef CONFIG_ARCH_DAVINCI_DA850
+>  
+>  static void __init da850_init_machine(void)
+>  {
+> -	of_platform_populate(NULL, of_default_bus_match_table, NULL, NULL);
+> +	of_platform_populate(NULL, of_default_bus_match_table,
+> +				da850_auxdata_lookup, NULL);
 
-Thanks, 
-Manish Badarkhe
+'checkpatch --strict' complains here of improper alignment. I fixed it
+locally. I am planning to send this to upstreams and see if this can
+make it for v3.9, but its pretty late already and it depends..
+
+Thanks,
+Sekhar
