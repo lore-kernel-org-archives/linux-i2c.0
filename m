@@ -1,179 +1,30 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: add bcm2835 driver
-Date: Fri, 08 Feb 2013 21:48:46 +0000
-Message-ID: <20130208214846.35F2D3E2C27@localhost>
-References: <1357191978-11038-1-git-send-email-swarren@wwwdotorg.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1357191978-11038-1-git-send-email-swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+From: "Hefty, Sean" <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: RE: [PATCH 2/6] idr: remove MAX_IDR_MASK and move left MAX_IDR_*
+ into idr.c
+Date: Fri, 8 Feb 2013 22:09:13 +0000
+Message-ID: <1828884A29C6694DAF28B7E6B8A8237357D44677@ORSMSX101.amr.corp.intel.com>
+References: <20130208210050.GA26660@mtj.dyndns.org>
+ <20130208210149.GB26660@mtj.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130208210149.GB26660-9pTldWuhBndy/B6EtB590w@public.gmane.org>
+Content-Language: en-US
+Sender: linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Roland Dreier <roland-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Marciniszyn, Mike" <mike.marciniszyn-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jack Morgenstein <jackm-LDSdmyG8hGV8YrgS2mwiifqBs+8SCbDb@public.gmane.org>, Or Gerlitz <ogerlitz-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, "linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed,  2 Jan 2013 22:46:18 -0700, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
-> This implements a very basic I2C host driver for the BCM2835 SoC. Missing
-> features so far are:
+> * drivers/infiniband/core/cm.c:cm_alloc_id()
+>   drivers/infiniband/hw/mlx4/cm.c:id_map_alloc()
 > 
-> * Clock rate adjustment.
-> * 10-bit addressing.
-> * DMA.
-> 
-> Signed-off-by: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/brcm,bcm2835-i2c.txt   |   20 ++
->  drivers/i2c/busses/Kconfig                         |   12 +
->  drivers/i2c/busses/Makefile                        |    1 +
->  drivers/i2c/busses/i2c-bcm2835.c                   |  331 ++++++++++++++++++++
->  4 files changed, 364 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
->  create mode 100644 drivers/i2c/busses/i2c-bcm2835.c
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
-> new file mode 100644
-> index 0000000..e9de375
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
-> @@ -0,0 +1,20 @@
-> +Broadcom BCM2835 I2C controller
-> +
-> +Required properties:
-> +- compatible : Should be "brcm,bcm2835-i2c".
-> +- reg: Should contain register location and length.
-> +- interrupts: Should contain interrupt.
-> +- clocks : The clock feeding the I2C controller.
-> +
-> +Recommended properties:
-> +- clock-frequency : desired I2C bus clock frequency in Hz.
-> +
-> +Example:
-> +
-> +i2c@20205000 {
-> +	compatible = "brcm,bcm2835-i2c";
-> +	reg = <0x7e205000 0x1000>;
-> +	interrupts = <2 21>;
-> +	clocks = <&clk_i2c>;
-> +	clock-frequency = <100000>;
-> +};
+>   Used to wrap cyclic @start.  Can be replaced with max(next, 0).
+>   Note that this type of cyclic allocation using idr is buggy.  These
+>   are prone to spurious -ENOSPC failure after the first wraparound.
 
-Looks good.
-
-> +static int __devinit bcm2835_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct bcm2835_i2c_dev *i2c_dev;
-> +	struct resource *mem, *requested, *irq;
-> +	int ret;
-> +	struct i2c_adapter *adap;
-> +
-> +	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
-> +	if (!i2c_dev) {
-> +		dev_err(&pdev->dev, "Cannot allocate i2c_dev\n");
-> +		return -ENOMEM;
-> +	}
-> +	platform_set_drvdata(pdev, i2c_dev);
-> +	i2c_dev->dev = &pdev->dev;
-> +	init_completion(&i2c_dev->completion);
-> +
-> +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!mem) {
-> +		dev_err(&pdev->dev, "No mem resource\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	requested = devm_request_mem_region(&pdev->dev, mem->start,
-> +					    resource_size(mem),
-> +					    dev_name(&pdev->dev));
-> +	if (!requested) {
-> +		dev_err(&pdev->dev, "Could not claim register region\n");
-> +		return -EBUSY;
-> +	}
-> +
-> +	i2c_dev->regs = devm_ioremap(&pdev->dev, mem->start,
-> +				     resource_size(mem));
-> +	if (!i2c_dev->regs) {
-> +		dev_err(&pdev->dev, "Could not map registers\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
-> +	if (!irq) {
-> +		dev_err(&pdev->dev, "No IRQ resource\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	ret = devm_request_irq(&pdev->dev, irq->start, bcm2835_i2c_isr,
-> +			       IRQF_SHARED, dev_name(&pdev->dev), i2c_dev);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Could not request IRQ\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	adap = &i2c_dev->adapter;
-> +	i2c_set_adapdata(adap, i2c_dev);
-> +	adap->owner = THIS_MODULE;
-> +	adap->class = I2C_CLASS_HWMON;
-> +	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
-> +	adap->algo = &bcm2835_i2c_algo;
-> +	adap->dev.parent = &pdev->dev;
-> +	adap->nr = -1;
-> +
-> +	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
-> +
-> +	ret = i2c_add_numbered_adapter(adap);
-> +	if (ret) {
-> +		dev_err(&pdev->dev, "Could not add adapter\n");
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-
-The driver core will print a message if things fail here. The above 6
-lines can be replaced with simply:
-
-	return i2c_add_numbered_adapter(adap);
-
-> +}
-> +
-> +static int bcm2835_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct bcm2835_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&i2c_dev->adapter);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct of_device_id bcm2835_i2c_of_match[] = {
-> +	{ .compatible = "brcm,bcm2835-i2c" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, bcm2835_i2c_of_match);
-> +
-> +static struct platform_driver bcm2835_i2c_driver = {
-> +	.probe		= bcm2835_i2c_probe,
-> +	.remove		= bcm2835_i2c_remove,
-> +	.driver		= {
-> +		.name	= "i2c-bcm2835",
-> +		.owner	= THIS_MODULE,
-> +		.of_match_table = bcm2835_i2c_of_match,
-> +	},
-> +};
-> +
-> +static int __init bcm2835_i2c_init_driver(void)
-> +{
-> +	return platform_driver_register(&bcm2835_i2c_driver);
-> +}
-> +module_init(bcm2835_i2c_init_driver);
-> +
-> +static void __exit bcm2835_i2c_exit_driver(void)
-> +{
-> +	platform_driver_unregister(&bcm2835_i2c_driver);
-> +}
-> +module_exit(bcm2835_i2c_exit_driver);
-
-Nit: module_platform_driver()
-
-Otherwise looks pretty tight.
-
-Reviewed-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-
-g.
+The replacement code looks fine, but can you explain why the use is buggy?
+--
+To unsubscribe from this list: send the line "unsubscribe linux-rdma" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
