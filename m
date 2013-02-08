@@ -1,30 +1,42 @@
-From: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-Subject: Re: i2c-ismt driver maintenance
-Date: Fri, 8 Feb 2013 07:15:18 -0500
-Message-ID: <20130208121518.GA8771@hmsreliant.think-freely.org>
-References: <20130208105756.35d00bae@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130208105756.35d00bae-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Grant Likely <grant.likely@secretlab.ca>
+Subject: Re: [PATCH v4] i2c: exynos5: add High Speed I2C controller driver
+Date: Fri, 08 Feb 2013 13:16:08 +0000
+Message-ID: <20130208131608.378063E2B73@localhost>
+References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com> <1359734084-10594-1-git-send-email-ch.naveen@samsung.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1359734084-10594-1-git-send-email-ch.naveen@samsung.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: w.sang@pengutronix.de, khali@linux-fr.org, ben-linux@fluff.org, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, grundler@chromium.org, naveenkrishna.ch@gmail.com, broonie@opensource.wolfsonmicro.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 08, 2013 at 10:57:56AM +0100, Jean Delvare wrote:
-> Hi Neil, Seth,
+On Fri, 01 Feb 2013 21:24:44 +0530, Naveen Krishna Chatradhi <ch.naveen@samsung.com> wrote:
+> Adds support for High Speed I2C driver found in Exynos5 and later
+> SoCs from Samsung. This driver currently supports Auto mode.
 > 
-> Who is going to maintain the i2c-ismt driver? If any of you want to do
-> it, please send a patch adding an entry to the MAINTAINERS file. If
-> not, I can do it and add i2c-ismt to the already long list of SMBus
-> controller drivers I maintain.
+> Driver only supports Device Tree method.
+> Note: Added debugfs support for registers view, not tested.
 > 
-Seth, why don't we both put our names on it, until such time as Bill comes back
-from sabbatical, then he can take it over?  Sound good to you?
-Neil
+> Signed-off-by: Taekgyun Ko <taeggyun.ko@samsung.com>
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+> ---
+> Help please,
+> 
+> Usual reads and writes are happening. But, when i try doing
+> i2cdetect -y 0 0x10 0x59; It throws me continous interrupts at 0x1a
+> i2cdetect -y 0 0x50 0x64; It throws me continous interrupts at 0x63
+> 
+> There are eeproms from 0x50 till 0x58
+> wm8994 codec at 0x1a
+> 
+> Kindly, can anyone explain this behaviour.
+> 
+>  drivers/i2c/busses/Kconfig       |    7 +
+>  drivers/i2c/busses/Makefile      |    1 +
+>  drivers/i2c/busses/i2c-exynos5.c |  754 ++++++++++++++++++++++++++++++++++++++
 
-> -- 
-> Jean Delvare
-> 
+Don't forget you need to document the new compatible string in
+Documentation/devicetree/bindings/i2c. That should be part of this
+patch.
+
+g.
