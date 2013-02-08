@@ -1,65 +1,179 @@
-From: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] MAINTAINERS: change my email and repos
-Date: Fri,  8 Feb 2013 21:34:16 +0100
-Message-ID: <1360355656-25714-1-git-send-email-wolfram@the-dreams.de>
+From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: add bcm2835 driver
+Date: Fri, 08 Feb 2013 21:48:46 +0000
+Message-ID: <20130208214846.35F2D3E2C27@localhost>
+References: <1357191978-11038-1-git-send-email-swarren@wwwdotorg.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1357191978-11038-1-git-send-email-swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Change to my private email, change to my shiny new kernel.org repos,
-and drop outdated entry from the former maintainer. Drop my PCA entry,
-too, since it belongs to the I2C realm anyhow.
+On Wed,  2 Jan 2013 22:46:18 -0700, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
+> This implements a very basic I2C host driver for the BCM2835 SoC. Missing
+> features so far are:
+> 
+> * Clock rate adjustment.
+> * 10-bit addressing.
+> * DMA.
+> 
+> Signed-off-by: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+> ---
+>  .../devicetree/bindings/i2c/brcm,bcm2835-i2c.txt   |   20 ++
+>  drivers/i2c/busses/Kconfig                         |   12 +
+>  drivers/i2c/busses/Makefile                        |    1 +
+>  drivers/i2c/busses/i2c-bcm2835.c                   |  331 ++++++++++++++++++++
+>  4 files changed, 364 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+>  create mode 100644 drivers/i2c/busses/i2c-bcm2835.c
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+> new file mode 100644
+> index 0000000..e9de375
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/brcm,bcm2835-i2c.txt
+> @@ -0,0 +1,20 @@
+> +Broadcom BCM2835 I2C controller
+> +
+> +Required properties:
+> +- compatible : Should be "brcm,bcm2835-i2c".
+> +- reg: Should contain register location and length.
+> +- interrupts: Should contain interrupt.
+> +- clocks : The clock feeding the I2C controller.
+> +
+> +Recommended properties:
+> +- clock-frequency : desired I2C bus clock frequency in Hz.
+> +
+> +Example:
+> +
+> +i2c@20205000 {
+> +	compatible = "brcm,bcm2835-i2c";
+> +	reg = <0x7e205000 0x1000>;
+> +	interrupts = <2 21>;
+> +	clocks = <&clk_i2c>;
+> +	clock-frequency = <100000>;
+> +};
 
-Signed-off-by: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- MAINTAINERS |   16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+Looks good.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8ae709e..8c13cc8 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1303,7 +1303,7 @@ F:	include/linux/dmaengine.h
- F:	include/linux/async_tx.h
- 
- AT24 EEPROM DRIVER
--M:	Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-+M:	Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
- L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- F:	drivers/misc/eeprom/at24.c
-@@ -3757,12 +3757,11 @@ S:	Maintained
- F:	drivers/i2c/i2c-stub.c
- 
- I2C SUBSYSTEM
--M:	Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-+M:	Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
- M:	"Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
- L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- W:	http://i2c.wiki.kernel.org/
--T:	quilt kernel.org/pub/linux/kernel/people/jdelvare/linux-2.6/jdelvare-i2c/
--T:	git git://git.pengutronix.de/git/wsa/linux.git
-+T:	git git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
- S:	Maintained
- F:	Documentation/i2c/
- F:	drivers/i2c/
-@@ -5778,15 +5777,6 @@ L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
- S:	Maintained
- F:	drivers/i2c/muxes/i2c-mux-pca9541.c
- 
--PCA9564/PCA9665 I2C BUS DRIVER
--M:	Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
--L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
--S:	Maintained
--F:	drivers/i2c/algos/i2c-algo-pca.c
--F:	drivers/i2c/busses/i2c-pca-*
--F:	include/linux/i2c-algo-pca.h
--F:	include/linux/i2c-pca-platform.h
--
- PCDP - PRIMARY CONSOLE AND DEBUG PORT
- M:	Khalid Aziz <khalid-21RPF02GE+GXwddmVfQv5g@public.gmane.org>
- S:	Maintained
--- 
-1.7.10.4
+> +static int __devinit bcm2835_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct bcm2835_i2c_dev *i2c_dev;
+> +	struct resource *mem, *requested, *irq;
+> +	int ret;
+> +	struct i2c_adapter *adap;
+> +
+> +	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+> +	if (!i2c_dev) {
+> +		dev_err(&pdev->dev, "Cannot allocate i2c_dev\n");
+> +		return -ENOMEM;
+> +	}
+> +	platform_set_drvdata(pdev, i2c_dev);
+> +	i2c_dev->dev = &pdev->dev;
+> +	init_completion(&i2c_dev->completion);
+> +
+> +	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	if (!mem) {
+> +		dev_err(&pdev->dev, "No mem resource\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	requested = devm_request_mem_region(&pdev->dev, mem->start,
+> +					    resource_size(mem),
+> +					    dev_name(&pdev->dev));
+> +	if (!requested) {
+> +		dev_err(&pdev->dev, "Could not claim register region\n");
+> +		return -EBUSY;
+> +	}
+> +
+> +	i2c_dev->regs = devm_ioremap(&pdev->dev, mem->start,
+> +				     resource_size(mem));
+> +	if (!i2c_dev->regs) {
+> +		dev_err(&pdev->dev, "Could not map registers\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+> +	if (!irq) {
+> +		dev_err(&pdev->dev, "No IRQ resource\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	ret = devm_request_irq(&pdev->dev, irq->start, bcm2835_i2c_isr,
+> +			       IRQF_SHARED, dev_name(&pdev->dev), i2c_dev);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Could not request IRQ\n");
+> +		return -ENODEV;
+> +	}
+> +
+> +	adap = &i2c_dev->adapter;
+> +	i2c_set_adapdata(adap, i2c_dev);
+> +	adap->owner = THIS_MODULE;
+> +	adap->class = I2C_CLASS_HWMON;
+> +	strlcpy(adap->name, "bcm2835 I2C adapter", sizeof(adap->name));
+> +	adap->algo = &bcm2835_i2c_algo;
+> +	adap->dev.parent = &pdev->dev;
+> +	adap->nr = -1;
+> +
+> +	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, 0);
+> +
+> +	ret = i2c_add_numbered_adapter(adap);
+> +	if (ret) {
+> +		dev_err(&pdev->dev, "Could not add adapter\n");
+> +		return ret;
+> +	}
+> +
+> +	return 0;
+
+The driver core will print a message if things fail here. The above 6
+lines can be replaced with simply:
+
+	return i2c_add_numbered_adapter(adap);
+
+> +}
+> +
+> +static int bcm2835_i2c_remove(struct platform_device *pdev)
+> +{
+> +	struct bcm2835_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+> +
+> +	i2c_del_adapter(&i2c_dev->adapter);
+> +
+> +	return 0;
+> +}
+> +
+> +static const struct of_device_id bcm2835_i2c_of_match[] = {
+> +	{ .compatible = "brcm,bcm2835-i2c" },
+> +	{},
+> +};
+> +MODULE_DEVICE_TABLE(of, bcm2835_i2c_of_match);
+> +
+> +static struct platform_driver bcm2835_i2c_driver = {
+> +	.probe		= bcm2835_i2c_probe,
+> +	.remove		= bcm2835_i2c_remove,
+> +	.driver		= {
+> +		.name	= "i2c-bcm2835",
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table = bcm2835_i2c_of_match,
+> +	},
+> +};
+> +
+> +static int __init bcm2835_i2c_init_driver(void)
+> +{
+> +	return platform_driver_register(&bcm2835_i2c_driver);
+> +}
+> +module_init(bcm2835_i2c_init_driver);
+> +
+> +static void __exit bcm2835_i2c_exit_driver(void)
+> +{
+> +	platform_driver_unregister(&bcm2835_i2c_driver);
+> +}
+> +module_exit(bcm2835_i2c_exit_driver);
+
+Nit: module_platform_driver()
+
+Otherwise looks pretty tight.
+
+Reviewed-by: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
+
+g.
