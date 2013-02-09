@@ -1,29 +1,68 @@
-From: Grant Likely <grant.likely@secretlab.ca>
-Subject: Re: [PATCH 2/2] gpio: mcp23s08: convert driver to DT
-Date: Sat, 09 Feb 2013 14:31:20 +0000
-Message-ID: <20130209143120.AA32B3E30EC@localhost>
-References: <1360170118-11937-1-git-send-email-larsi@wh2.tu-dresden.de> <1360170118-11937-3-git-send-email-larsi@wh2.tu-dresden.de>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1360170118-11937-3-git-send-email-larsi@wh2.tu-dresden.de>
-Sender: linux-doc-owner@vger.kernel.org
-To: Lars Poeschel <larsi@wh2.tu-dresden.de>, poeschel@lemonage.de, rob.herring@calxeda.com, rob@landley.net, linus.walleij@linaro.org, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, spi-devel-general@lists.sourceforge.net
-Cc: w.sang@pengutronix.de, ben-linux@fluff.org, linux-i2c@vger.kernel.org
+From: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: at91: fix unsed variable warning when building with !CONFIG_OF
+Date: Sat,  9 Feb 2013 19:14:00 +0100
+Message-ID: <1360433640-30160-1-git-send-email-manabian@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed,  6 Feb 2013 18:01:58 +0100, Lars Poeschel <larsi@wh2.tu-dresden.de> wrote:
-> From: Lars Poeschel <poeschel@lemonage.de>
-> 
-> This converts the mcp23s08 driver to be able to be used with device
-> tree.
-> There is a special "mcp,chips" property, that correspond to the chips
-> member of the struct mcp23s08_platform_data. It can be used for
-> multiple mcp23s08/mc23s17 on the same spi chipselect.
-> 
-> Signed-off-by: Lars Poeschel <poeschel@lemonage.de>
+Commit 70d46a2 "i2c: at91: add dt support to i2c-at91"
+added DT only support for at91sam9x5. Building i2c-at91
+without CONFIG_OF now warns about at91sam9x5_config as
+being unused.
 
-Ah, ignore my previous email. You did convert the driver. I've applied
-the two patches. Actually I squashed them together since they really
-were one logical change.
+  drivers/i2c/busses/i2c-at91.c:556:30: warning: 'at91sam9x5_config' defined but not used [-Wunused-variable]
 
-g.
+Move at91sam9x5_config under the defined(CONFIG_OF)
+guard as new AT91 SoCs will be DT only.
 
+Signed-off-by: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+Hi,
+
+This patch is agains 3.8-rc7 since the warning was
+introduced in the 3.8 merge cycle.
+
+regards
+Joachim Eastwood
+
+
+ drivers/i2c/busses/i2c-at91.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 2bfc04d..708026b 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -553,13 +553,6 @@ static struct at91_twi_pdata at91sam9g10_config = {
+ 	.has_dma_support = false,
+ };
+ 
+-static struct at91_twi_pdata at91sam9x5_config = {
+-	.clk_max_div = 7,
+-	.clk_offset = 4,
+-	.has_unre_flag = false,
+-	.has_dma_support = true,
+-};
+-
+ static const struct platform_device_id at91_twi_devtypes[] = {
+ 	{
+ 		.name = "i2c-at91rm9200",
+@@ -582,6 +575,13 @@ static const struct platform_device_id at91_twi_devtypes[] = {
+ };
+ 
+ #if defined(CONFIG_OF)
++static struct at91_twi_pdata at91sam9x5_config = {
++	.clk_max_div = 7,
++	.clk_offset = 4,
++	.has_unre_flag = false,
++	.has_dma_support = true,
++};
++
+ static const struct of_device_id atmel_twi_dt_ids[] = {
+ 	{
+ 		.compatible = "atmel,at91sam9260-i2c",
+-- 
+1.8.0
