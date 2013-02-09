@@ -1,68 +1,49 @@
-From: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: at91: fix unsed variable warning when building with !CONFIG_OF
-Date: Sat,  9 Feb 2013 19:14:00 +0100
-Message-ID: <1360433640-30160-1-git-send-email-manabian@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 3/5] i2c-i801: Add Device IDs for Intel Wellsburg PCH
+Date: Sat, 9 Feb 2013 20:00:10 +0100
+Message-ID: <20130209200010.1b18fdb3@endymion.delvare>
+References: <1360373535-2055-1-git-send-email-james.d.ralston@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1360373535-2055-1-git-send-email-james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Commit 70d46a2 "i2c: at91: add dt support to i2c-at91"
-added DT only support for at91sam9x5. Building i2c-at91
-without CONFIG_OF now warns about at91sam9x5_config as
-being unused.
+Hi James,
 
-  drivers/i2c/busses/i2c-at91.c:556:30: warning: 'at91sam9x5_config' defined but not used [-Wunused-variable]
+On Fri,  8 Feb 2013 17:32:15 -0800, James Ralston wrote:
+> This patch adds the SMBus Device IDs for the Intel Wellsburg PCH
+> 
+> Signed-off-by: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> ---
+>  Documentation/i2c/busses/i2c-i801 |    1 +
+>  drivers/i2c/busses/Kconfig        |    1 +
+>  drivers/i2c/busses/i2c-i801.c     |    3 +++
+>  3 files changed, 5 insertions(+), 0 deletions(-)
+> (...)
 
-Move at91sam9x5_config under the defined(CONFIG_OF)
-guard as new AT91 SoCs will be DT only.
+Seth recently sent a patch adding IDs for the Avoton:
+http://marc.info/?l=linux-kernel&m=135959209218860&w=2
 
-Signed-off-by: Joachim Eastwood <manabian-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
-Hi,
+Your patch conflicts with his. Please rebase on top of Seth's patch, so
+that both patches can be applied in sequence.
 
-This patch is agains 3.8-rc7 since the warning was
-introduced in the 3.8 merge cycle.
+> (...)
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> (...)
+> @@ -165,6 +166,7 @@
+>  #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
+>  #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+>  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
+> +#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS	0x8d22
+>  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS	0x9c22
 
-regards
-Joachim Eastwood
+Please keep sorted by ID.
 
-
- drivers/i2c/busses/i2c-at91.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
-index 2bfc04d..708026b 100644
---- a/drivers/i2c/busses/i2c-at91.c
-+++ b/drivers/i2c/busses/i2c-at91.c
-@@ -553,13 +553,6 @@ static struct at91_twi_pdata at91sam9g10_config = {
- 	.has_dma_support = false,
- };
- 
--static struct at91_twi_pdata at91sam9x5_config = {
--	.clk_max_div = 7,
--	.clk_offset = 4,
--	.has_unre_flag = false,
--	.has_dma_support = true,
--};
--
- static const struct platform_device_id at91_twi_devtypes[] = {
- 	{
- 		.name = "i2c-at91rm9200",
-@@ -582,6 +575,13 @@ static const struct platform_device_id at91_twi_devtypes[] = {
- };
- 
- #if defined(CONFIG_OF)
-+static struct at91_twi_pdata at91sam9x5_config = {
-+	.clk_max_div = 7,
-+	.clk_offset = 4,
-+	.has_unre_flag = false,
-+	.has_dma_support = true,
-+};
-+
- static const struct of_device_id atmel_twi_dt_ids[] = {
- 	{
- 		.compatible = "atmel,at91sam9260-i2c",
 -- 
-1.8.0
+Jean Delvare
