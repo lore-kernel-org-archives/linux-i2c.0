@@ -1,44 +1,56 @@
-From: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/6] idr: remove MAX_IDR_MASK and move left MAX_IDR_*
- into idr.c
-Date: Sat, 9 Feb 2013 11:00:37 -0800
-Message-ID: <20130209190037.GB2875@htj.dyndns.org>
-References: <20130208210050.GA26660@mtj.dyndns.org>
- <20130208210149.GB26660@mtj.dyndns.org>
- <1828884A29C6694DAF28B7E6B8A8237357D44677@ORSMSX101.amr.corp.intel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2] i2c-ismt: Add Seth and Myself as maintainers
+Date: Sun, 10 Feb 2013 11:10:37 +0100
+Message-ID: <20130210111037.5b831d9b@endymion.delvare>
+References: <20130208105756.35d00bae@endymion.delvare>
+	<1360348061-13153-1-git-send-email-nhorman@tuxdriver.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1828884A29C6694DAF28B7E6B8A8237357D44677-P5GAC/sN6hmkrb+BlOpmy7fspsVTdybXVpNB7YpNyf8@public.gmane.org>
+In-Reply-To: <1360348061-13153-1-git-send-email-nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Hefty, Sean" <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Roland Dreier <roland-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Marciniszyn, Mike" <mike.marciniszyn-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jack Morgenstein <jackm-LDSdmyG8hGV8YrgS2mwiifqBs+8SCbDb@public.gmane.org>, Or Gerlitz <ogerlitz-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, "linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>
+To: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Heasley, Seth" <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Brown, Bill E" <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
-
-On Fri, Feb 08, 2013 at 10:09:13PM +0000, Hefty, Sean wrote:
-> >   Used to wrap cyclic @start.  Can be replaced with max(next, 0).
-> >   Note that this type of cyclic allocation using idr is buggy.  These
-> >   are prone to spurious -ENOSPC failure after the first wraparound.
+On Fri,  8 Feb 2013 13:27:41 -0500, Neil Horman wrote:
+> Adding Seth Heasley and Myself as maintainers for the i2c-ismt drvier
 > 
-> The replacement code looks fine, but can you explain why the use is buggy?
+> Signed-off-by: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+> Signed-off-by: "Heasley, Seth" <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> CC: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+> CC: "Brown, Bill E" <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> ---
+>  MAINTAINERS | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 3105c48..cb50da7 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -3750,6 +3750,13 @@ F:	drivers/i2c/busses/i2c-sis96x.c
+>  F:	drivers/i2c/busses/i2c-via.c
+>  F:	drivers/i2c/busses/i2c-viapro.c
+>  
+> +I2C/SMBUS ISMT Driver
 
-So, if you want a cyclic allocation, the allocation should be tried in
-[start, END) and then [0, start); otherwise, after the allocation
-wraps for the first time, as the closer the starting point gets to
-END, the chance of not finding a vacant slot in [start, END) goes
-higher.  When @start equals END - 1 for the second time, if the first
-END - 1 allocation is still around, you'll get -ENOSPC.
+This should be in uppercase letters. Sorry for missing this during my
+first review.
 
-In practice, I don't think anyone is hitting this.  idr has always
-been horribly broken when it reaches higher range (> 1<<30 on 64bit)
-so things would have broken even before the first wraparound.  It
-still is a theoretical possibility which may trigger if idr is used
-for, say, ipc messages or storage commands.
+After fixing this, you can add:
 
-Thanks.
+Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+
+> +M:	Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> +M:	Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+> +L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> +F:	drivers/i2c/busses/i2c-ismt.c
+> +F:	Documentation/i2c/busses/i2c-ismt
+> +
+>  I2C/SMBUS STUB DRIVER
+>  M:	"Mark M. Hoffman" <mhoffman-xQSgfq/1h4JiLUuM0BA3LQ@public.gmane.org>
+>  L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 
 -- 
-tejun
+Jean Delvare
