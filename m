@@ -1,82 +1,61 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: convert to idr_alloc()
-Date: Sun, 10 Feb 2013 12:47:30 +0100
-Message-ID: <20130210114729.GB5472@nekote.pengutronix.de>
-References: <1360179649-22465-1-git-send-email-tj@kernel.org>
- <1360179649-22465-38-git-send-email-tj@kernel.org>
- <20130207152831.GA14797@sirena.org.uk>
- <20130207163247.GL2875@htj.dyndns.org>
- <20130207163958.GY4720@opensource.wolfsonmicro.com>
- <20130207165547.GO2875@htj.dyndns.org>
+Subject: Re: [PATCH 2/6] idr: remove MAX_IDR_MASK and move left MAX_IDR_*
+ into idr.c
+Date: Sun, 10 Feb 2013 12:52:14 +0100
+Message-ID: <20130210115214.GC5472@nekote.pengutronix.de>
+References: <20130208210050.GA26660@mtj.dyndns.org>
+ <20130208210149.GB26660@mtj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130207165547.GO2875-Gd/HAXX7CRxy/B6EtB590w@public.gmane.org>
+In-Reply-To: <20130208210149.GB26660-9pTldWuhBndy/B6EtB590w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rusty Russell <rusty-8n+1lVoiYb80n/F98K4Iww@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Roland Dreier <roland-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Sean Hefty <sean.hefty-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Hal Rosenstock <hal.rosenstock-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "Marciniszyn, Mike" <mike.marciniszyn-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jack Morgenstein <jackm-LDSdmyG8hGV8YrgS2mwiifqBs+8SCbDb@public.gmane.org>, Or Gerlitz <ogerlitz-VPRAkNaXOzVWk0Htik3J/w@public.gmane.org>, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Fri, Feb 08, 2013 at 01:01:49PM -0800, Tejun Heo wrote:
+> MAX_IDR_MASK is another weirdness in the idr interface.  As idr covers
+> whole positive integer range, it's defined as 0x7fffffff or INT_MAX.
+> 
+> Its usage in idr_find(), idr_replace() and idr_remove() is bizarre.
+> They basically mask off the sign bit and operate on the rest, so if
+> the caller, by accident, passes in a negative number, the sign bit
+> will be masked off and the remaining part will be used as if that was
+> the input, which is worse than crashing.
+> 
+> The constant is visible in idr.h and there are several users in the
+> kernel.
+> 
+> * drivers/i2c/i2c-core.c:i2c_add_numbered_adapter()
+> 
+>   Basically used to test if adap->nr is a negative number which isn't
+>   -1 and returns -EINVAL if so.  idr_alloc() already has negative
+>   @start checking (w/ WARN_ON_ONCE), so this can go away.
+> 
+> * drivers/infiniband/core/cm.c:cm_alloc_id()
+>   drivers/infiniband/hw/mlx4/cm.c:id_map_alloc()
+> 
+>   Used to wrap cyclic @start.  Can be replaced with max(next, 0).
+>   Note that this type of cyclic allocation using idr is buggy.  These
+>   are prone to spurious -ENOSPC failure after the first wraparound.
+> 
+> * fs/super.c:get_anon_bdev()
+> 
+>   The ID allocated from ida is masked off before being tested whether
+>   it's inside valid range.  ida allocated ID can never be a negative
+>   number and the masking is unnecessary.
+> 
+> Update idr_*() functions to fail with -EINVAL when negative @id is
+> specified and update other MAX_IDR_MASK users as described above.
+> 
+> This leaves MAX_IDR_MASK without any user, remove it and relocate
+> other MAX_IDR_* constants to lib/idr.c.
+> 
+> Signed-off-by: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 
-thanks for doing this cleanup series. Looks very worthwhile!
+For the i2c-part:
 
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -935,25 +935,16 @@ out_list:
->   */
->  int i2c_add_adapter(struct i2c_adapter *adapter)
->  {
-> -	int	id, res = 0;
-> -
-> -retry:
-> -	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
-> -		return -ENOMEM;
-> +	int res;
-
-I'd vote for using 'id' as the variable name here. Feels more logical to
-me and you are using 'id' in the other block, too.
-
-> @@ -984,33 +975,19 @@ EXPORT_SYMBOL(i2c_add_adapter);
->  int i2c_add_numbered_adapter(struct i2c_adapter *adap)
->  {
->  	int	id;
-> -	int	status;
->  
->  	if (adap->nr == -1) /* -1 means dynamically assign bus id */
->  		return i2c_add_adapter(adap);
->  	if (adap->nr & ~MAX_IDR_MASK)
->  		return -EINVAL;
->  
-> -retry:
-> -	if (idr_pre_get(&i2c_adapter_idr, GFP_KERNEL) == 0)
-> -		return -ENOMEM;
-> -
->  	mutex_lock(&core_lock);
-> -	/* "above" here means "above or equal to", sigh;
-> -	 * we need the "equal to" result to force the result
-> -	 */
-> -	status = idr_get_new_above(&i2c_adapter_idr, adap, adap->nr, &id);
-> -	if (status == 0 && id != adap->nr) {
-> -		status = -EBUSY;
-> -		idr_remove(&i2c_adapter_idr, id);
-> -	}
-> +	id = idr_alloc(&i2c_adapter_idr, adap, adap->nr, adap->nr + 1,
-> +		       GFP_KERNEL);
->  	mutex_unlock(&core_lock);
-> -	if (status == -EAGAIN)
-> -		goto retry;
-> -
-> -	if (status == 0)
-> -		status = i2c_register_adapter(adap);
-> -	return status;
-> +	if (id < 0)
-> +		return id == -ENOSPC ? -EBUSY : id;
-> +	return i2c_register_adapter(adap);
-
-Add an empty line before the return statement?
-
-Thanks,
-
-   Wolfram
+Acked-by: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
