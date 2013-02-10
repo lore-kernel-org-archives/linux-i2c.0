@@ -1,30 +1,21 @@
 From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v7] i2c: Adding support for Intel iSMT SMBus 2.0 host
- controller
-Date: Sun, 10 Feb 2013 16:02:05 +0100
-Message-ID: <20130210150205.GB6282@nekote.pengutronix.de>
-References: <1359402232-21369-1-git-send-email-nhorman@tuxdriver.com>
- <1360007650-26272-1-git-send-email-nhorman@tuxdriver.com>
+Subject: Re: [PATCH RFC] misc/at24: distinguish between eeprom and fram chips
+Date: Sun, 10 Feb 2013 17:30:47 +0100
+Message-ID: <20130210163047.GA4462@nekote.pengutronix.de>
+References: <201212041758.38600.poeschel@lemonage.de>
+ <201212051043.07460.poeschel@lemonage.de>
+ <20121205164153.GA5011@pengutronix.de>
+ <201302061919.18501.poeschel@lemonage.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1360007650-26272-1-git-send-email-nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+In-Reply-To: <201302061919.18501.poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Lars Poeschel <poeschel-Xtl8qvBWbHwb1SvskN2V4Q@public.gmane.org>
+Cc: gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 04, 2013 at 02:54:10PM -0500, Neil Horman wrote:
-> The iSMT (Intel SMBus Message Transport) supports multi-master I2C/SMBus,
-> as well as IPMI.  It's operation is DMA-based and utilizes descriptors to
-> initiate transactions on the bus.
-> 
-> The iSMT hardware can act as both a master and a target, although this
-> driver only supports being a master.
-> 
-> Signed-off-by: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-> Signed-off-by: Bill Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Tested-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> what happend to this one ? It was a patch updating Kconfig help for at24.
 
-Thanks, applied to for-next!
+Do you know linux-next? Have a look there...
