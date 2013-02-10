@@ -1,28 +1,38 @@
-From: Wolfram Sang <w.sang@pengutronix.de>
-Subject: Re: [RFC] i2c: Providing hooks for i2c multimaster bus arbitration.
-Date: Sun, 10 Feb 2013 19:17:10 +0100
-Message-ID: <20130210181710.GB12760@nekote.pengutronix.de>
-References: <1359968595-21291-1-git-send-email-yuvaraj.cd@samsung.com>
+From: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 3/5] i2c-i801: Add Device IDs for Intel Wellsburg PCH
+Date: Sun, 10 Feb 2013 19:38:45 +0100
+Message-ID: <20130210183845.GC12760@nekote.pengutronix.de>
+References: <1360373535-2055-1-git-send-email-james.d.ralston@intel.com>
+ <20130209200010.1b18fdb3@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1359968595-21291-1-git-send-email-yuvaraj.cd@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Yuvaraj Kumar C D <yuvaraj.cd@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, broonie@opensource.wolfsonmicro.com, ch.naveen@samsung.com, sjg@chromium.org, grundler@chromium.org, Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+In-Reply-To: <20130209200010.1b18fdb3-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Feb 04, 2013 at 02:33:15PM +0530, Yuvaraj Kumar C D wrote:
-> This RFC patch is w.r.t multimaster bus arbitration which is already
-> being discussing in the mainline.
-> This patch provides hooks for the i2c multimaster bus arbitration
-> and to have the arbitration parameters.
 
-I still haven't understood why the arbitration specified in the I2C
-standard is not enough for you. Or what you would need to make use of
-it.
+> Seth recently sent a patch adding IDs for the Avoton:
+> http://marc.info/?l=linux-kernel&m=135959209218860&w=2
+> 
+> Your patch conflicts with his. Please rebase on top of Seth's patch, so
+> that both patches can be applied in sequence.
 
-Thanks,
+Yes, please.
 
-   Wolfram
+> > --- a/drivers/i2c/busses/i2c-i801.c
+> > +++ b/drivers/i2c/busses/i2c-i801.c
+> > (...)
+> > @@ -165,6 +166,7 @@
+> >  #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
+> >  #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+> >  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
+> > +#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS	0x8d22
+> >  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS	0x9c22
+> 
+> Please keep sorted by ID.
+
+Hum? This table looks sorted by numbers to me, so OK.
