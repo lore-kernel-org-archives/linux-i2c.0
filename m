@@ -1,41 +1,33 @@
 From: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC] i2c: Providing hooks for i2c multimaster bus arbitration.
-Date: Tue, 12 Feb 2013 11:03:35 +0100
-Message-ID: <20130212100335.GA5490@nekote.pengutronix.de>
-References: <1359968595-21291-1-git-send-email-yuvaraj.cd@samsung.com>
- <20130210181710.GB12760@nekote.pengutronix.de>
- <CAD=FV=XzfseMEHK4KutgYYoU4kEFPq7qoFoJtaBrh6QJUa1Y_w@mail.gmail.com>
- <CAPnjgZ3HnXDp9ErsbZEfpc-NexuAt1C5cUWbFn=BW2TMGiMJEg@mail.gmail.com>
+Subject: Re: [PATCH V3] i2c: add bcm2835 driver
+Date: Tue, 12 Feb 2013 11:27:44 +0100
+Message-ID: <20130212102743.GB5490@nekote.pengutronix.de>
+References: <1360381978-26092-1-git-send-email-swarren@wwwdotorg.org>
+ <20130211225208.GA9893@nekote.pengutronix.de>
+ <5119A7D0.20000@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAPnjgZ3HnXDp9ErsbZEfpc-NexuAt1C5cUWbFn=BW2TMGiMJEg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <5119A7D0.20000-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Simon Glass <sjg-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Yuvaraj Kumar C D <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, naveen krishna <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
 
-> > At the moment perhaps the strongest argument for why this particular
-> > arbitration scheme is needed is that's what the EC (embedded
-> > controller) on the ARM Chromebook uses.  There have been several
-> > arguments in-house about whether this was the most ideal way to
-> > structure things, but that's what we shipped with.  Thus, if we want
-> > to be able to talk to i2c devices on this bus (contains the keyboard,
-> > battery, and a bunch of power switches) we need something in the
-> > system that implements this arbitration scheme.
-> >
+> >> +	ret = wait_for_completion_timeout(&i2c_dev->completion,
+> >> +					  BCM2835_I2C_TIMEOUT);
+> >> +	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
+> >> +	if (WARN_ON(ret == 0)) {
+> >> +		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
+> >> +		return -ETIMEDOUT;
+> >> +	}
+> > 
+> > I'd suggest to skip the WARN_ON. Timeout is the expected case when you
+> > want to read from an EEPROM which is just in the process of
+> > erasing/writing data from the previous command.
 > 
-> There was some discussion about using the built-in I2C multi-master
-> support but no one had had a good experience getting it to work
-> reliably in a real system so we ended up deciding not to rely on this.
+> I copied that from Tegra. Should that driver be changed too?
 
-So, were there no experiences at all or bad experiences when trying? I
-am interested in hearing what I2C multi master restrictions might exist
-in practice.
-
-Thanks,
-
-   Wolfram
+The suggestion applies to all drivers, yes :)
