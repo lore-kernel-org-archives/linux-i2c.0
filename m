@@ -1,45 +1,86 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH -mm] i2c: style cleanups after idr_alloc() conversion
-Date: Tue, 12 Feb 2013 19:00:58 +0100
-Message-ID: <20130212190058.3d987d85@endymion.delvare>
-References: <1360179649-22465-1-git-send-email-tj@kernel.org>
-	<1360179649-22465-38-git-send-email-tj@kernel.org>
-	<20130207152831.GA14797@sirena.org.uk>
-	<20130207163247.GL2875@htj.dyndns.org>
-	<20130207163958.GY4720@opensource.wolfsonmicro.com>
-	<20130207165547.GO2875@htj.dyndns.org>
-	<20130210114729.GB5472@nekote.pengutronix.de>
-	<20130212173414.GD7348@htj.dyndns.org>
-	<20130212173648.GE7348@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/1] i2c-i801: Add Device IDs for Intel Wellsburg PCH
+Date: Tue, 12 Feb 2013 14:04:02 -0800
+Message-ID: <1360706642-2399-1-git-send-email-james.d.ralston@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130212173648.GE7348-Gd/HAXX7CRxy/B6EtB590w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, 12 Feb 2013 09:36:48 -0800, Tejun Heo wrote:
-> On Tue, Feb 12, 2013 at 09:34:14AM -0800, Tejun Heo wrote:
-> > Style cleanups suggested by Wolfram.
-> > 
-> > * s/res/id/ in i2c_add_numbered_adapter() so that it matches
-> >   i2c_add_adapter().
-> > 
-> > * Add a blank line before return in i2c_add_numbered_adapter().
-> > 
-> > This patch is purely cosmetic.
-> > 
-> > Signed-off-by: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> > Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> 
-> JFYI, got a permanent delivery failure for w.sang-bIcnvbaLZ9NtG/3OEaXNhw@public.gmane.org
-> Does anyone in i2c circle know other contact points?  If so, please
-> ping him about it.
+This patch adds the SMBus Device IDs for the Intel Wellsburg PCH
 
-See the updated Cc list :)
+Signed-off-by: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+Change notes for v2:
+* Rebased on [PATCH v2] i2c-i801: SMBus patch for Intel Avoton DeviceIDs
+* Added 3 Device IDs for additional SMBus Devices
 
+ Documentation/i2c/busses/i2c-i801 |    1 +
+ drivers/i2c/busses/Kconfig        |    1 +
+ drivers/i2c/busses/i2c-i801.c     |   12 ++++++++++++
+ 3 files changed, 14 insertions(+), 0 deletions(-)
+
+diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
+index 8d71d57..d55b8ab 100644
+--- a/Documentation/i2c/busses/i2c-i801
++++ b/Documentation/i2c/busses/i2c-i801
+@@ -23,6 +23,7 @@ Supported adapters:
+   * Intel Lynx Point (PCH)
+   * Intel Lynx Point-LP (PCH)
+   * Intel Avoton (SOC)
++  * Intel Wellsburg (PCH)
+    Datasheets: Publicly available at the Intel website
+ 
+ On Intel Patsburg and later chipsets, both the normal host SMBus controller
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 77d2887..059a481 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -107,6 +107,7 @@ config I2C_I801
+ 	    Lynx Point (PCH)
+ 	    Lynx Point-LP (PCH)
+ 	    Avoton (SOC)
++	    Wellsburg (PCH)
+ 
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-i801.
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index b00c29d..c257a16 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -54,6 +54,10 @@
+   Lynx Point (PCH)      0x8c22     32     hard     yes     yes     yes
+   Lynx Point-LP (PCH)   0x9c22     32     hard     yes     yes     yes
+   Avoton (SOC)          0x1f3c     32     hard     yes     yes     yes
++  Wellsburg (PCH)       0x8d22     32     hard     yes     yes     yes
++  Wellsburg (PCH)       0x8d7d     32     hard     yes     yes     yes
++  Wellsburg (PCH)       0x8d7e     32     hard     yes     yes     yes
++  Wellsburg (PCH)       0x8d7f     32     hard     yes     yes     yes
+ 
+   Features supported by this driver:
+   Software PEC                     no
+@@ -167,6 +171,10 @@
+ #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
+ #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
++#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS0	0x8d22
++#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS1	0x8d7d
++#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS2	0x8d7e
++#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS3	0x8d7f
+ #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS	0x9c22
+ 
+ struct i801_mux_config {
+@@ -801,6 +809,10 @@ static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_AVOTON_SMBUS) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS0) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS1) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS2) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS3) },
+ 	{ 0, }
+ };
+ 
 -- 
-Jean Delvare
+1.7.7.6
