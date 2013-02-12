@@ -1,53 +1,50 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH v3 0/2] Add automatic bus number support for i2c busses with
- device tree
-Date: Mon, 11 Feb 2013 16:48:03 -0800
-Message-ID: <1360630085-26874-1-git-send-email-dianders@chromium.org>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH V3] i2c: add bcm2835 driver
+Date: Mon, 11 Feb 2013 19:24:16 -0700
+Message-ID: <5119A7D0.20000@wwwdotorg.org>
+References: <1360381978-26092-1-git-send-email-swarren@wwwdotorg.org> <20130211225208.GA9893@nekote.pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: linux-arm-kernel-bounces@lists.infradead.org
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>
-Cc: Kukjin Kim <kgene.kim@samsung.com>, Arnd Bergmann <arnd@arndb.de>, Padmavathi Venna <padma.v@samsung.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Doug Anderson <dianders@chromium.org>, Haojian Zhuang <haojian.zhuang@gmail.com>, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Thomas Abraham <thomas.abraham@linaro.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, Ben Dooks <ben-linux@fluff.org>, Olof Johansson <olof@lixom.net>, Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130211225208.GA9893-8EAEigeeuNG034pCzgS/Qg7AFbiQbgqx@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-rpi-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This was suggested by Mark Brown in response to a patch for adding
-this functionality only for the s3c2410 bus:
-  https://lkml.org/lkml/2012/11/20/681
+On 02/11/2013 03:52 PM, Wolfram Sang wrote:
+> Hi Stephen,
+> 
+> On Fri, Feb 08, 2013 at 08:52:58PM -0700, Stephen Warren wrote:
+>> This implements a very basic I2C host driver for the BCM2835 SoC. Missing
+>> features so far are:
+>>
+>> * 10-bit addressing.
+>> * DMA.
+...
+>> +	ret = wait_for_completion_timeout(&i2c_dev->completion,
+>> +					  BCM2835_I2C_TIMEOUT);
+>> +	bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C, BCM2835_I2C_C_CLEAR);
+>> +	if (WARN_ON(ret == 0)) {
+>> +		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
+>> +		return -ETIMEDOUT;
+>> +	}
+> 
+> I'd suggest to skip the WARN_ON. Timeout is the expected case when you
+> want to read from an EEPROM which is just in the process of
+> erasing/writing data from the previous command.
 
-I have also modified the i2c-pxa driver to use this new functionality.
-The i2c-pxa driver changes have only been compile-tested and are just
-for cleanup purposes.
+I copied that from Tegra. Should that driver be changed too?
 
-Changes in v3:
-- Addressed Wolfram's feedback; rebased atop idr-cleanup series.
+>> +	adap = &i2c_dev->adapter;
+>> +	i2c_set_adapdata(adap, i2c_dev);
+>> +	adap->owner = THIS_MODULE;
+>> +	adap->class = I2C_CLASS_HWMON;
+> 
+> Do you really need the class?
 
-Changes in v2:
-- No longer tweak pdev->id as per Sylwester Nawrocki.
-- No longer add the dev ID to the adap.name.  Other drivers don't
-  include the device ID here and it doesn't make sense with
-  dynamically (or automatically) allocated IDs.
-- Use dev_name(&dev->dev) to register for the IRQ; this matches what
-  the i2c-s3c2410.c does and handles dynamically allocated IDs.
-- This change was only compile-tested (corgi_defconfig), since I don't
-  have access to a board that uses this driver.
+If I grep for I2C_CLASS_HWMON, I see a ton of hits. I think I'll keep it
+unless you strongly object, since it seems typical.
 
-Doug Anderson (2):
-  i2c-core: dt: Pick i2c bus number from i2c alias if present
-  i2c: pxa: Use i2c-core to get bus number now
-
- drivers/i2c/busses/i2c-pxa.c | 20 ++++++++--------
- drivers/i2c/i2c-core.c       | 54 ++++++++++++++++++++++++++++++++------------
- 2 files changed, 49 insertions(+), 25 deletions(-)
-
--- 
-1.8.1
+I'll fix up the other points you mentioned.
