@@ -1,563 +1,147 @@
-From: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: vt8500: Add support for Wondermedia I2C master-mode
-Date: Wed, 13 Feb 2013 21:13:07 +0100
-Message-ID: <20130213201307.GA8795@nekote.pengutronix.de>
-References: <1358315546-2201-1-git-send-email-linux@prisktech.co.nz>
- <1358315546-2201-2-git-send-email-linux@prisktech.co.nz>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH v1 4/4] i2c-mux: i2c_add_mux_adapter() should use -1 for
+ auto bus num
+Date: Wed, 13 Feb 2013 12:34:29 -0800
+Message-ID: <20130213203429.GA12948@roeck-us.net>
+References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
+ <1360778532-7480-4-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1358315546-2201-2-git-send-email-linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+In-Reply-To: <1360778532-7480-4-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Prashanth G <prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Barry Song <baohua.song-kQvG35nSl+M@public.gmane.org>, Guan Xuetao <gxt-TG0Ac1+ktVc@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Ho Tony,
-
-here is my review.
-
-On Wed, Jan 16, 2013 at 06:52:26PM +1300, Tony Prisk wrote:
-> This patch adds support for the I2C controller found on Wondermedia
-> SoCs.
+On Wed, Feb 13, 2013 at 10:02:12AM -0800, Doug Anderson wrote:
+> The force_nr parameter to i2c_add_mux_adapter() uses 0 to signify that
+> we don't want to force the bus number of the adapter.  This is
+> non-ideal because:
+> * 0 is actually a valid bus number to request
+> * i2c_add_numbered_adapter() (which i2c_add_mux_adapter() calls) uses
+>   -1 to mean the same thing.  That means extra logic in
+>   i2c_add_mux_adapter().
 > 
-> Due to the lack of pinmux support, GPIO pin alternate functions are
-> configured by machine's compatible property, as are pullups.
+> Fix i2c_add_mux_adapter() to use -1 and update all mux drivers
+> accordingly.
+> 
+> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+> Notes:
+> - If there's a good reason that force_nr uses 0 for auto then feel
+>   free to drop this patch.  I've place it at the end of the series to
+>   make it easy to just drop it.
+> 
+>  drivers/i2c/i2c-mux.c               | 10 +++-------
+>  drivers/i2c/muxes/i2c-arbitrator.c  |  2 +-
+>  drivers/i2c/muxes/i2c-mux-gpio.c    |  2 +-
+>  drivers/i2c/muxes/i2c-mux-pca9541.c |  2 +-
+>  drivers/i2c/muxes/i2c-mux-pca954x.c |  2 +-
+>  drivers/i2c/muxes/i2c-mux-pinctrl.c |  4 ++--
+>  include/linux/i2c-mux.h             |  2 +-
+>  7 files changed, 10 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+> index d94e0ce..8ad1a56 100644
+> --- a/drivers/i2c/i2c-mux.c
+> +++ b/drivers/i2c/i2c-mux.c
+> @@ -103,7 +103,7 @@ static unsigned int i2c_mux_parent_classes(struct i2c_adapter *parent)
+>  
+>  struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+>  				struct device *mux_dev,
+> -				void *mux_priv, u32 force_nr, u32 chan_id,
+> +				void *mux_priv, int force_nr, u32 chan_id,
+>  				unsigned int class,
+>  				int (*select) (struct i2c_adapter *,
+>  					       void *, u32),
+> @@ -168,12 +168,8 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
+>  		}
+>  	}
+>  
+> -	if (force_nr) {
+> -		priv->adap.nr = force_nr;
+> -		ret = i2c_add_numbered_adapter(&priv->adap);
+> -	} else {
+> -		ret = i2c_add_adapter(&priv->adap);
+> -	}
+> +	priv->adap.nr = force_nr;
+> +	ret = i2c_add_numbered_adapter(&priv->adap);
+>  	if (ret < 0) {
+>  		dev_err(&parent->dev,
+>  			"failed to add mux-adapter (error=%d)\n",
+> diff --git a/drivers/i2c/muxes/i2c-arbitrator.c b/drivers/i2c/muxes/i2c-arbitrator.c
+> index c3bbdf7..89d0d06 100644
+> --- a/drivers/i2c/muxes/i2c-arbitrator.c
+> +++ b/drivers/i2c/muxes/i2c-arbitrator.c
+> @@ -173,7 +173,7 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
+>  		arb->wait_free_us = 50000;
+>  
+>  	/* Actually add the mux adapter */
+> -	arb->child = i2c_add_mux_adapter(arb->parent, &pdev->dev, arb, 0, 0, 0,
+> +	arb->child = i2c_add_mux_adapter(arb->parent, &pdev->dev, arb, -1, 0, 0,
+>  					 i2c_arbitrator_select,
+>  					 i2c_arbitrator_deselect);
+>  	if (WARN_ON(!arb->child)) {
+> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+> index 9f50ef0..301ed0b 100644
+> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> @@ -208,7 +208,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	for (i = 0; i < mux->data.n_values; i++) {
+> -		u32 nr = mux->data.base_nr ? (mux->data.base_nr + i) : 0;
+> +		int nr = mux->data.base_nr ? (mux->data.base_nr + i) : -1;
+>  		unsigned int class = mux->data.classes ? mux->data.classes[i] : 0;
+>  
+>  		mux->adap[i] = i2c_add_mux_adapter(parent, &pdev->dev, mux, nr,
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> index f3b8f9a..a58b3c2 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca9541.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+> @@ -350,7 +350,7 @@ static int pca9541_probe(struct i2c_client *client,
+>  
+>  	/* Create mux adapter */
+>  
+> -	force = 0;
+> +	force = -1;
+>  	if (pdata)
+>  		force = pdata->modes[0].adap_id;
+>  	data->mux_adap = i2c_add_mux_adapter(adap, &client->dev, client,
+> diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> index 8e43872..4663ce6 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pca954x.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+> @@ -215,7 +215,7 @@ static int pca954x_probe(struct i2c_client *client,
+>  
+>  	/* Now create an adapter for each channel */
+>  	for (num = 0; num < chips[data->type].nchans; num++) {
+> -		force = 0;			  /* dynamic adap number */
+> +		force = -1;			  /* dynamic adap number */
+>  		class = 0;			  /* no class by default */
+>  		if (pdata) {
+>  			if (num < pdata->num_modes) {
+> diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+> index a43c0ce..401ff5d 100644
+> --- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
+> +++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+> @@ -217,8 +217,8 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	for (i = 0; i < mux->pdata->bus_count; i++) {
+> -		u32 bus = mux->pdata->base_bus_num ?
+> -				(mux->pdata->base_bus_num + i) : 0;
+> +		int bus = mux->pdata->base_bus_num ?
+> +				(mux->pdata->base_bus_num + i) : -1;
 
-Is there pinmux support planned/on its way? Maybe it is worth waiting
-for it? If not, I'd think the setup should be done in mach-code, not the
-driver.
+Maybe this should be:
+		int bus = mux->pdata->base_bus_num >= 0 ?
+				(mux->pdata->base_bus_num + i) : -1;
 
-> diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-> new file mode 100644
-> index 0000000..07d86e3
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-wmt.c
-> @@ -0,0 +1,636 @@
-> +/*
-> + *  Wondermedia I2C Master Mode Driver
-> + *
-> + *  Copyright (C) 2012 Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
-> + *
-> + *  Derived from GPL licensed source:
-> + *  - Copyright (C) 2008 WonderMedia Technologies, Inc.
-> + *
-> + *  This program is free software; you can redistribute it and/or modify
-> + *  it under the terms of the GNU General Public License version 2 as
-> + *  published by the Free Software Foundation
-> + */
-
-Are the sources you derived from also V2 only? Otherwise you might be
-changing other people's license decision.
-
-> +static int wmt_i2c_wait_bus_not_busy(struct wmt_i2c_dev *i2c_dev)
-> +{
-> +	u16 val;
-> +	int i;
-> +	int ret = 0;
-> +
-> +	for (i = 0; i < 10000000; i++) {
-> +		val = readw(i2c_dev->base + REG_CSR);
-> +		if (val & CSR_READY_MASK)
-> +			break;
-> +
-> +		udelay(1);
-> +	}
-> +	if (i >= 9999999)
-> +		ret = -EBUSY;
-> +
-> +	return ret;
-> +}
-
-That's 10 seconds (max) of busy looping? Nah, please don't hog the CPU
-for that.
-
-> +
-> +static int wmt_check_status(struct wmt_i2c_dev *i2c_dev)
-> +{
-> +	int ret = 0;
-> +
-> +	if (i2c_dev->cmd_status & ISR_NACK_ADDR)
-> +		ret = -EIO;
-> +
-> +	if (i2c_dev->cmd_status & ISR_SCL_TIMEOUT)
-> +		ret = -ETIMEDOUT;
-> +
-> +	return ret;
-> +}
-> +
-> +static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
-> +						   int restart, int last)
-> +{
-> +	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
-> +	u16 val;
-> +	u16 tcr_val;
-
-I'd prefer to aggregate the last two lines (here and in general), but no
-strong opinion on that.
-
-> +	int ret;
-> +	int wait_result;
-> +	u32 xfer_len = 0;
-> +
-> +	if (pmsg->len < 0)
-> +		return -EINVAL;
-
-len is a u16.
-
-> +
-> +	if (restart == 0) {
-
-I think '!restart' is a tad more readable, but again, no strong opinion.
-
-> +		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
-> +
-> +	if (pmsg->len == 0)
-> +		writew(0, i2c_dev->base + REG_CDR);
-> +	else
-> +		writew(pmsg->buf[0] & 0xFF, i2c_dev->base + REG_CDR);
-> +
-> +	if (restart == 0) {
-> +		val = readw(i2c_dev->base + REG_CR);
-> +		val &= ~CR_TX_END;
-> +		writew(val, i2c_dev->base + REG_CR);
-> +
-> +		val = readw(i2c_dev->base + REG_CR);
-> +		val |= CR_CPU_RDY;
-> +		writew(val, i2c_dev->base + REG_CR);
-
-Just to make sure: Not possible to do both in one write?
-
-> +	}
-> +
-> +	init_completion(&i2c_dev->complete);
-> +
-> +	if (i2c_dev->mode == I2C_MODE_STANDARD)
-> +		tcr_val = TCR_STANDARD_MODE;
-> +	else
-> +		tcr_val = TCR_FAST_MODE;
-> +
-> +	tcr_val |= (TCR_MASTER_WRITE | (pmsg->addr & TCR_SLAVE_ADDR_MASK));
-> +
-> +	writew(tcr_val, i2c_dev->base + REG_TCR);
-> +
-> +	if (restart == 1) {
-> +		val = readw(i2c_dev->base + REG_CR);
-> +		val |= CR_CPU_RDY;
-> +		writew(val, i2c_dev->base + REG_CR);
-> +	}
-> +
-> +	ret = 0;
-> +
-> +	for (;;) {
-
-Have you tried 'while (xfer_len < pmsg->len) ...' and directly 'return
-err' on errors? Might have potential to be more concise.
-
-> +		wait_result = wait_for_completion_interruptible_timeout(
-> +				&i2c_dev->complete, 500 * HZ / 1000);
-
-Please don't use interruptible here. Most drivers had lots of problems
-with it and it seems you are not checking the signals anyhow.
-
-> +
-> +		if (wait_result == 0) {
-> +			dev_dbg(i2c_dev->dev, "wait timeout (tx)\n");
-> +			ret = -ETIMEDOUT;
-> +			break;
-> +		}
-> +
-> +		ret = wmt_check_status(i2c_dev);
-> +		if (ret)
-> +			break;
-> +
-> +		xfer_len++;
-> +
-> +		val = readw(i2c_dev->base + REG_CSR);
-> +		if ((val & CSR_RCV_ACK_MASK) == CSR_RCV_NOT_ACK) {
-> +			dev_dbg(i2c_dev->dev, "write RCV NACK error\n");
-> +			ret = -EIO;
-> +			break;
-> +		}
-> +
-> +		if (pmsg->len == 0) {
-> +			val = CR_TX_END | CR_CPU_RDY | CR_ENABLE;
-> +			writew(val, i2c_dev->base + REG_CR);
-> +			break;
-> +		}
-> +
-> +		if (pmsg->len > xfer_len) {
-> +			writew(pmsg->buf[xfer_len] & 0xFF, i2c_dev->base +
-> +								REG_CDR);
-> +			writew(CR_CPU_RDY | CR_ENABLE, i2c_dev->base + REG_CR);
-> +		} else if (pmsg->len == xfer_len) {
-> +			if (last != 1)
-> +				writew(CR_ENABLE, i2c_dev->base + REG_CR);
-> +			break;
-> +		} else {
-> +			dev_dbg(i2c_dev->dev, "unknown error (tx)\n");
-> +			ret = -EIO;
-> +			break;
-> +		}
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
-> +						  int restart, int last)
-
-Same comment as for the write function. 
-
-> +{
-> +	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
-> +	u16 val;
-> +	u16 tcr_val;
-> +	int ret;
-> +	int wait_result;
-> +	u32 xfer_len = 0;
-> +
-> +	if (pmsg->len <= 0)
-> +		return -EINVAL;
-> +
-> +	if (restart == 0) {
-> +		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
-> +		if (ret < 0)
-> +			return ret;
-> +	}
-> +
-> +	val = readw(i2c_dev->base + REG_CR);
-> +	val &= ~CR_TX_END;
-> +	writew(val, i2c_dev->base + REG_CR);
-> +
-> +	val = readw(i2c_dev->base + REG_CR);
-> +	val &= ~CR_TX_NEXT_NO_ACK;
-> +	writew(val, i2c_dev->base + REG_CR);
-> +
-> +	if (restart == 0) {
-> +		val = readw(i2c_dev->base + REG_CR);
-> +		val |= CR_CPU_RDY;
-> +		writew(val, i2c_dev->base + REG_CR);
-> +	}
-> +
-> +	if (pmsg->len == 1) {
-> +		val = readw(i2c_dev->base + REG_CR);
-> +		val |= CR_TX_NEXT_NO_ACK;
-> +		writew(val, i2c_dev->base + REG_CR);
-> +	}
-> +
-> +	init_completion(&i2c_dev->complete);
-> +
-> +	if (i2c_dev->mode == I2C_MODE_STANDARD)
-> +		tcr_val = TCR_STANDARD_MODE;
-> +	else
-> +		tcr_val = TCR_FAST_MODE;
-> +
-> +	tcr_val |= TCR_MASTER_READ | (pmsg->addr & TCR_SLAVE_ADDR_MASK);
-> +
-> +	writew(tcr_val, i2c_dev->base + REG_TCR);
-> +
-> +	if (restart == 1) {
-> +		val = readw(i2c_dev->base + REG_CR);
-> +		val |= CR_CPU_RDY;
-> +		writew(val, i2c_dev->base + REG_CR);
-> +	}
-> +
-> +	ret = 0;
-> +
-> +	for (;;) {
-> +		wait_result = wait_for_completion_interruptible_timeout(
-> +				&i2c_dev->complete, 500 * HZ / 1000);
-
-no interruptible
-
-> +
-> +		if (wait_result == 0) {
-> +			dev_dbg(i2c_dev->dev, "wait timeout (tx)\n");
-> +			ret = -ETIMEDOUT;
-> +			break;
-> +		}
-> +
-> +		ret = wmt_check_status(i2c_dev);
-> +		if (ret)
-> +			break;
-> +
-> +		pmsg->buf[xfer_len] = readw(i2c_dev->base + REG_CDR) >> 8;
-> +		xfer_len++;
-> +
-> +		if (pmsg->len > xfer_len) {
-> +			if (pmsg->len - 1 == xfer_len) {
-> +				val = readw(i2c_dev->base + REG_CR);
-> +				val |= (CR_TX_NEXT_NO_ACK | CR_CPU_RDY);
-> +				writew(val, i2c_dev->base + REG_CR);
-> +			} else {
-> +				val = readw(i2c_dev->base + REG_CR);
-> +				val |= CR_CPU_RDY;
-> +				writew(val, i2c_dev->base + REG_CR);
-> +			}
-> +		} else if (pmsg->len == xfer_len) {
-> +			break;
-> +		} else {
-> +			ret = -EIO;
-> +			break;
-> +		}
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static int wmt_i2c_xfer(struct i2c_adapter *adap,
-> +			struct i2c_msg msgs[],
-> +			int num)
-> +{
-> +	struct i2c_msg *pmsg;
-> +	int i;
-> +	int ret = 0;
-> +	int is_last;
-> +	int restart;
-> +
-> +	for (i = 0; ret >= 0 && i < num; i++) {
-> +		is_last = ((i + 1) == num);
-> +		restart = (i != 0);
-> +
-> +		pmsg = &msgs[i];
-> +		if (pmsg->flags & I2C_M_NOSTART)
-> +			restart = 1;
-> +		if (pmsg->flags & I2C_M_RD)
-> +			ret = wmt_i2c_read(adap, pmsg, restart, is_last);
-> +		else
-> +			ret = wmt_i2c_write(adap, pmsg, restart, is_last);
-> +	}
-> +
-> +	if (ret < 0)
-> +		return ret;
-> +	else
-> +		return i;
-> +}
-
-return ret < 0 ? ret : i;
-
-> +
-> +static u32 wmt_i2c_func(struct i2c_adapter *adap)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-
-I2C_FUNC_NOSTART is missing.
-
-> +}
-> +
-> +static const struct i2c_algorithm wmt_i2c_algo = {
-> +	.master_xfer	= wmt_i2c_xfer,
-> +	.functionality	= wmt_i2c_func,
-> +};
-> +
-> +static irqreturn_t wmt_i2c_isr(int irq, void *data)
-> +{
-> +	struct wmt_i2c_dev *i2c_dev = data;
-> +
-> +	/* save the status and write-clear it */
-> +	i2c_dev->cmd_status = readw(i2c_dev->base + REG_ISR);
-> +	writew(i2c_dev->cmd_status, i2c_dev->base + REG_ISR);
-> +
-> +	complete(&i2c_dev->complete);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +/*
-> + * Due to a lack of pinmux functionality we need to manually configure
-> + * the GPIO pullup. Once pinmux is implemented, this function should be
-> + * removed. Pullup's are not available on vt8500 or wm8505 so we skip.
-> + */
-
-As mentioned above, move to mach-code?
-
-...
-
-> +static int wmt_i2c_reset_hardware(struct wmt_i2c_dev *i2c_dev)
-> +{
-> +	int err;
-> +
-> +	err = clk_prepare_enable(i2c_dev->clk);
-> +	if (err) {
-> +		dev_err(i2c_dev->dev, "failed to enable clock\n");
-> +		return err;
-> +	}
-> +
-> +	err = clk_set_rate(i2c_dev->clk, 20000000);
-> +	if (err) {
-> +		dev_err(i2c_dev->dev, "failed to set clock = 20Mhz\n");
-> +		return err;
-> +	}
-> +
-> +	err = wmt_i2c_setup_gpio(i2c_dev);
-> +	if (err)
-> +		return err;
-> +
-> +	writew(0, i2c_dev->base + REG_CR);
-> +	writew(12, i2c_dev->base + REG_MCR);
-> +	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
-> +	writew(IMR_ENABLE_ALL, i2c_dev->base + REG_IMR);
-> +	writew(CR_ENABLE, i2c_dev->base + REG_CR);
-> +	readw(i2c_dev->base + REG_CSR);		/* read clear */
-> +	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
-> +
-> +	if (i2c_dev->mode == I2C_MODE_STANDARD)
-> +		writew(0x8064, i2c_dev->base + REG_TR);
-> +	else
-> +		writew(0x8019, i2c_dev->base + REG_TR);
-> +
-> +	return 0;
-
-Too many magic numbers in this last block.
-
-> +}
-> +
-> +static int wmt_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct device_node	*np = pdev->dev.of_node;
-> +	struct wmt_i2c_dev	*i2c_dev;
-> +	struct i2c_adapter	*adap;
-> +	struct resource		*res;
-
-No special alignment, please.
-
-> +	int err;
-> +	u32 clk_rate;
-> +
-> +	if (!np) {
-> +		dev_err(&pdev->dev, "device node not found\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	if (!res) {
-> +		dev_err(&pdev->dev, "no memory resource defined\n");
-> +		return -ENODEV;
-> +	}
-
-devm_request_and_ioremap will check res for you.
-
-> +
-> +	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
-> +	if (!i2c_dev) {
-> +		dev_err(&pdev->dev, "device memory allocation failed\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	i2c_dev->base = devm_request_and_ioremap(&pdev->dev, res);
-> +	if (!i2c_dev->base) {
-> +		dev_err(&pdev->dev, "memory region unavailable\n");
-> +		return -ENOMEM;
-> +	}
-> +
-> +	i2c_dev->irq = irq_of_parse_and_map(np, 0);
-> +	if (!i2c_dev->irq) {
-> +		dev_err(&pdev->dev, "irq missing or invalid\n");
-> +		return -EINVAL;
-> +	}
-> +
-> +	i2c_dev->clk = of_clk_get(np, 0);
-
-There is also devm_clk_get.
-
-> +	if (IS_ERR(i2c_dev->clk)) {
-> +		dev_err(&pdev->dev, "unable to request clock\n");
-> +		return PTR_ERR(i2c_dev->clk);
-> +	}
-> +
-> +	i2c_dev->mode = I2C_MODE_STANDARD;
-> +	err = of_property_read_u32(np, "clock-frequency", &clk_rate);
-> +	if ((!err) && (clk_rate == 400000))
-> +		i2c_dev->mode = I2C_MODE_FAST;
-> +
-> +	i2c_dev->dev = &pdev->dev;
-> +
-> +	err = devm_request_irq(&pdev->dev, i2c_dev->irq, wmt_i2c_isr, 0,
-> +							"i2c", i2c_dev);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "failed to request irq %i\n", i2c_dev->irq);
-> +		return err;
-> +	}
-> +
-> +	adap = &i2c_dev->adapter;
-> +	i2c_set_adapdata(adap, i2c_dev);
-> +	strlcpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
-> +	adap->owner		= THIS_MODULE;
-> +	adap->class		= I2C_CLASS_HWMON;
-> +	adap->algo		= &wmt_i2c_algo;
-> +	adap->dev.parent	= &pdev->dev;
-> +	adap->dev.of_node	= pdev->dev.of_node;
-> +	adap->nr		= of_alias_get_id(pdev->dev.of_node, "i2c");
-
-No alignment with tabs, please.
-
-> +
-> +	err = wmt_i2c_reset_hardware(i2c_dev);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "error initializing hardware\n");
-> +		return err;
-> +	}
-> +
-> +	if (adap->nr < 0)
-> +		err = i2c_add_adapter(adap);
-> +	else
-> +		err = i2c_add_numbered_adapter(adap);
-> +
-> +	if (err) {
-> +		dev_err(&pdev->dev, "failed to add adapter\n");
-> +		return err;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, i2c_dev);
-> +
-> +	of_i2c_register_devices(adap);
-> +
-> +	return 0;
-> +}
-> +
-> +static int wmt_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct wmt_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&i2c_dev->adapter);
-
-Is it guaranteed that interrupts cannot occur anymore? Otherwise OOPS
-might happen, since the adapter is cleared here already but devm will
-remove the interrupt only a little later.
-
-> +
-> +	return 0;
-> +}
-> +
-> +static struct of_device_id wmt_i2c_dt_ids[] = {
-> +	{ .compatible = "wm,wm8505-i2c" },
-> +	{ /* Sentinel */ },
-> +};
-> +
-> +static struct platform_driver wmt_i2c_driver = {
-> +	.probe		= wmt_i2c_probe,
-> +	.remove		= wmt_i2c_remove,
-> +	.driver		= {
-> +		.name	= "wmt-i2c",
-> +		.owner	= THIS_MODULE,
-> +		.of_match_table = wmt_i2c_dt_ids,
-> +	},
-> +};
-> +
-> +module_platform_driver(wmt_i2c_driver);
-> +
-> +MODULE_DESCRIPTION("Wondermedia I2C master-mode bus adapter");
-> +MODULE_AUTHOR("Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>");
-> +MODULE_LICENSE("GPL v2");
-> +MODULE_DEVICE_TABLE(of, wmt_i2c_dt_ids);
-
-Also, checkpatch found a trailing whitespace somewhere.
+Otherwise you still can not assign bus number 0 as 1st bus. Also, if base_bus_num
+ends up being provided as -1, the result would be pretty much unpredictable.
 
 Thanks,
-
-   Wolfram
+Guenter
