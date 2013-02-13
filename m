@@ -1,45 +1,47 @@
-From: Enrico Scholz <enrico.scholz-wttK6gPy29v+Hn7q9Vec/7NAH6kLmebB@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: mxs: support non-dma mapable buffers
-Date: Wed, 13 Feb 2013 15:26:54 +0100
-Message-ID: <lyzjz8guhd.fsf@ensc-virt.intern.sigma-chemnitz.de>
-References: <1360763336-1931-1-git-send-email-enrico.scholz@sigma-chemnitz.de>
-	<20130213142124.GB17833@n2100.arm.linux.org.uk>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] Congatec CGEB base, i2c and watchdog driver support
+Date: Wed, 13 Feb 2013 15:57:02 +0100
+Message-ID: <CAH9NwWfSQKW2c1LvLQkojPiKA_r7+_6OmgoVHrBNRHUEFNYvJg@mail.gmail.com>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130213142124.GB17833-l+eeeJia6m9vn6HldHNs0ANdhmdF6hFW@public.gmane.org> (Russell King's
-	message of "Wed, 13 Feb 2013 14:21:24 +0000")
+In-Reply-To: <1360663374-30951-1-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org> writes:
-
->> +++ b/drivers/i2c/busses/i2c-mxs.c
->> ...
->> +
->> +	/*
->> +	 * internal buffer for handling non-dma mapable buffers; when message
->> +	 * exceeds the (arbitrary) size of '8', a buffer will be kmalloc()'ed
->> +	 * instead of using this attribute
->> +	 */
->> +	unsigned char			xfer_buf[8];
+2013/2/12 Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+> I'd like to come back to this topic. I have sent patches last year
+> already, changes to the last time I posted this is mainly that
+> I moved the CGEB base support from drivers/mfd/ to arch/x86/platform/
+> like suggested by Samuel Ortiz back then.
 >
-> Beware.  Remember that DMA cache maintanence operates on a granularity of
-> a cache line, and make sure that you're not going to be upset should the
-> cache line be read by accessing the other members of this struct.  It's
-> probably altogether safer if you kmalloc this buffer separately at driver
-> init time, and make it an "unsigned char *xfer_buf".
+> The following series adds support for the Congatec CGEB interface
+> found on some Congatec x86 boards. The CGEB interface is a BIOS
+> interface which provides access to onboard peripherals like I2C
+> busses and watchdogs. It works by mapping BIOS code and searching
+> for magic values which specify the entry points to the CGEB call.
+> The CGEB call is an API provided by the BIOS which provides access
+> to the functions in an ioctl like fashion.
+>
+> For more information about the CGEB API have a look at:
+>
+> http://www.congatec.com/single_news+M5d58c9cd155.html
+>
+> This document only describes the C API, unfortunately not the
+> underlying BIOS interface.
+>
+> Also added are two users of this interface, a i2c master driver
+> and a watchdog driver.
+>
+> Comments very appreciated.
 
-Yes; this is generally true.  But the i2c-mxs.c driver is for the mxs
-where the i2c dma channel supports also only byte aligned addresses.
+Hi Sascha,
 
-Shall I mention this in the comment?
+against what version is this patch set? Would like to try it out but it fails
+to apply to 3.8-rc7.
 
-
-Btw, there is only one patch; the '1/3' in the subject was created by
-mistake.
-
-
-Enrico
+--
+Christian Gmeiner, MSc
