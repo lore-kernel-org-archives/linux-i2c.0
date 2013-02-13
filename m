@@ -1,149 +1,119 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH v1 4/4] i2c-mux: i2c_add_mux_adapter() should use -1 for auto bus num
-Date: Wed, 13 Feb 2013 10:02:12 -0800
-Message-ID: <1360778532-7480-4-git-send-email-dianders@chromium.org>
+From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Subject: Re: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
+Date: Wed, 13 Feb 2013 10:45:59 -0800
+Message-ID: <20130213184559.GA29145@quad.lixom.net>
 References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1360778532-7480-1-git-send-email-dianders@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>
-Cc: Simon Glass <sjg@chromium.org>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, Grant Likely <grant.likely@secretlab.ca>, Yuvaraj Kumar <yuvaraj.cd@gmail.com>, Ben Dooks <ben.dooks@codethink.co.uk>, u.kleine-koenig@pengutronix.de, Mark Brown <broonie@opensource.wolfsonmicro.com>, Girish Shivananjappa <girish.shivananjappa@linaro.org>, bhushan.r@samsung.com, sreekumar.c@samsung.com, Prashanth G <prashanth.g@samsung.com>, Olof Johansson <olof@lixom.net>, Daniel Kurtz <djkurtz@chromium.org>, Grant Grundler <grundler@chromium.org>, Doug Anderson <dianders@chromium.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Peter Korsgaard <peter.korsgaard@barco.com>, Guenter Roeck <linux@roeck-us.net>, Jean Delvare <khali@linux-fr.org>, David Daney <david.daney@cavium.com>, Axel Lin <axel.lin@gmail.com>, Stephen Warren <swarren@nvidia.com>, Barry Song <baohua.son>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1360778532-7480-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Prashanth G <prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc@v
 List-Id: linux-i2c@vger.kernel.org
 
-The force_nr parameter to i2c_add_mux_adapter() uses 0 to signify that
-we don't want to force the bus number of the adapter.  This is
-non-ideal because:
-* 0 is actually a valid bus number to request
-* i2c_add_numbered_adapter() (which i2c_add_mux_adapter() calls) uses
-  -1 to mean the same thing.  That means extra logic in
-  i2c_add_mux_adapter().
+Hi,
 
-Fix i2c_add_mux_adapter() to use -1 and update all mux drivers
-accordingly.
+The driver pieces have been reviewed a bit already, but I have a question on
+the bindings below.
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
----
-Notes:
-- If there's a good reason that force_nr uses 0 for auto then feel
-  free to drop this patch.  I've place it at the end of the series to
-  make it easy to just drop it.
+On Wed, Feb 13, 2013 at 10:02:09AM -0800, Doug Anderson wrote:
+> The i2c-arbitrator driver implements the arbitration scheme that the
+> Embedded Controller (EC) on the ARM Chromebook expects to use for bus
+> multimastering.  This i2c-arbitrator driver could also be used in
+> other places where standard i2c bus arbitration can't be used and two
+> extra GPIOs are available for arbitration.
+> 
+> This driver is based on code that Simon Glass added to the i2c-s3c2410
+> driver in the Chrome OS kernel 3.4 tree.  The current incarnation as a
+> mux driver is as suggested by Grant Likely.  See
+> <https://patchwork.kernel.org/patch/1877311/> for some history.
+> 
+> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> ---
+> Changes in v1: None
+> 
+>  .../devicetree/bindings/i2c/i2c-arbitrator.txt     |  76 +++++++
+>  drivers/i2c/muxes/Kconfig                          |  11 +
+>  drivers/i2c/muxes/Makefile                         |   1 +
+>  drivers/i2c/muxes/i2c-arbitrator.c                 | 242 +++++++++++++++++++++
+>  4 files changed, 330 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt
+>  create mode 100644 drivers/i2c/muxes/i2c-arbitrator.c
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt b/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt
+> new file mode 100644
+> index 0000000..bb9cca7
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt
+> @@ -0,0 +1,76 @@
+> +GPIO-based Arbitration
+> +======================
+> +This uses GPIO lines between the AP (Application Processor) and an attached
+> +EC (Embedded Controller) which both want to talk on the same I2C bus as master.
+> +
+> +The AP and EC each have a 'bus claim' line, which is an output that the
+> +other can see. These are both active low, with pull-ups enabled.
+> +
+> +- AP_CLAIM: output from AP, signalling to the EC that the AP wants the bus
+> +- EC_CLAIM: output from EC, signalling to the AP that the EC wants the bus
+> +
+> +
+> +This mechanism is used instead of standard i2c multimaster to avoid some of the
+> +subtle driver and silicon bugs that are often present with i2c multimaster.
+> +
+> +
+> +Algorithm:
+> +
+> +The basic algorithm is to assert your line when you want the bus, then make
+> +sure that the other side doesn't want it also. A detailed explanation is best
+> +done with an example.
+> +
+> +Let's say the AP wants to claim the bus. It:
+> +1. Asserts AP_CLAIM.
+> +2. Waits a little bit for the other side to notice (slew time, say 10
+> +   microseconds).
+> +3. Checks EC_CLAIM. If this is not asserted then the AP has the bus and we are
+> +   done.
+> +4. Otherwise, wait for a few milliseconds and see if EC_CLAIM is released.
+> +5. If not, back off, release the claim and wait for a few more milliseconds.
+> +6. Go back to 1 (until retry time has expired).
+> +
+> +
+> +Required properties:
+> +- compatible: i2c-arbitrator
+> +- bus-arbitration-gpios: Two GPIOs to use with the GPIO-based bus
+> +    arbitration protocol.  The first should be an output, and is used to
+> +    claim the I2C bus for us (AP_CLAIM).  The second should be an input and
+> +    signals that the other side wants to claim the bus (EC_CLAIM).
+> +- bus-arbitration-slew-delay-us: microseconds to wait for a GPIO to go high.
+> +- bus-arbitration-wait-retry-us: we'll attempt another claim after this many
+> +    microseconds.
+> +- bus-arbitration-wait-free-us: we'll give up after this many microseconds.
+> +- Standard I2C mux properties. See mux.txt in this directory.
+> +- Single I2C child bus node at reg 0. See mux.txt in this directory.
+> +
+> +
+> +Example:
+> +	i2c@12CA0000 {
+> +		compatible = "acme,some-i2c-device";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +	};
+> +
+> +	i2c-arbitrator {
+> +		compatible = "i2c-arbitrator";
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		i2c-parent = <&{/i2c@12CA0000}>;
 
- drivers/i2c/i2c-mux.c               | 10 +++-------
- drivers/i2c/muxes/i2c-arbitrator.c  |  2 +-
- drivers/i2c/muxes/i2c-mux-gpio.c    |  2 +-
- drivers/i2c/muxes/i2c-mux-pca9541.c |  2 +-
- drivers/i2c/muxes/i2c-mux-pca954x.c |  2 +-
- drivers/i2c/muxes/i2c-mux-pinctrl.c |  4 ++--
- include/linux/i2c-mux.h             |  2 +-
- 7 files changed, 10 insertions(+), 14 deletions(-)
+Why use this custom i2c-parent property? The arbitrator should just be
+under the i2c controller in the device tree, and thus parent would be
+derived from the topology there.
 
-diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index d94e0ce..8ad1a56 100644
---- a/drivers/i2c/i2c-mux.c
-+++ b/drivers/i2c/i2c-mux.c
-@@ -103,7 +103,7 @@ static unsigned int i2c_mux_parent_classes(struct i2c_adapter *parent)
- 
- struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 				struct device *mux_dev,
--				void *mux_priv, u32 force_nr, u32 chan_id,
-+				void *mux_priv, int force_nr, u32 chan_id,
- 				unsigned int class,
- 				int (*select) (struct i2c_adapter *,
- 					       void *, u32),
-@@ -168,12 +168,8 @@ struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 		}
- 	}
- 
--	if (force_nr) {
--		priv->adap.nr = force_nr;
--		ret = i2c_add_numbered_adapter(&priv->adap);
--	} else {
--		ret = i2c_add_adapter(&priv->adap);
--	}
-+	priv->adap.nr = force_nr;
-+	ret = i2c_add_numbered_adapter(&priv->adap);
- 	if (ret < 0) {
- 		dev_err(&parent->dev,
- 			"failed to add mux-adapter (error=%d)\n",
-diff --git a/drivers/i2c/muxes/i2c-arbitrator.c b/drivers/i2c/muxes/i2c-arbitrator.c
-index c3bbdf7..89d0d06 100644
---- a/drivers/i2c/muxes/i2c-arbitrator.c
-+++ b/drivers/i2c/muxes/i2c-arbitrator.c
-@@ -173,7 +173,7 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
- 		arb->wait_free_us = 50000;
- 
- 	/* Actually add the mux adapter */
--	arb->child = i2c_add_mux_adapter(arb->parent, &pdev->dev, arb, 0, 0, 0,
-+	arb->child = i2c_add_mux_adapter(arb->parent, &pdev->dev, arb, -1, 0, 0,
- 					 i2c_arbitrator_select,
- 					 i2c_arbitrator_deselect);
- 	if (WARN_ON(!arb->child)) {
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 9f50ef0..301ed0b 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -208,7 +208,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 	}
- 
- 	for (i = 0; i < mux->data.n_values; i++) {
--		u32 nr = mux->data.base_nr ? (mux->data.base_nr + i) : 0;
-+		int nr = mux->data.base_nr ? (mux->data.base_nr + i) : -1;
- 		unsigned int class = mux->data.classes ? mux->data.classes[i] : 0;
- 
- 		mux->adap[i] = i2c_add_mux_adapter(parent, &pdev->dev, mux, nr,
-diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
-index f3b8f9a..a58b3c2 100644
---- a/drivers/i2c/muxes/i2c-mux-pca9541.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
-@@ -350,7 +350,7 @@ static int pca9541_probe(struct i2c_client *client,
- 
- 	/* Create mux adapter */
- 
--	force = 0;
-+	force = -1;
- 	if (pdata)
- 		force = pdata->modes[0].adap_id;
- 	data->mux_adap = i2c_add_mux_adapter(adap, &client->dev, client,
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 8e43872..4663ce6 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -215,7 +215,7 @@ static int pca954x_probe(struct i2c_client *client,
- 
- 	/* Now create an adapter for each channel */
- 	for (num = 0; num < chips[data->type].nchans; num++) {
--		force = 0;			  /* dynamic adap number */
-+		force = -1;			  /* dynamic adap number */
- 		class = 0;			  /* no class by default */
- 		if (pdata) {
- 			if (num < pdata->num_modes) {
-diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-index a43c0ce..401ff5d 100644
---- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
-+++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
-@@ -217,8 +217,8 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
- 	}
- 
- 	for (i = 0; i < mux->pdata->bus_count; i++) {
--		u32 bus = mux->pdata->base_bus_num ?
--				(mux->pdata->base_bus_num + i) : 0;
-+		int bus = mux->pdata->base_bus_num ?
-+				(mux->pdata->base_bus_num + i) : -1;
- 
- 		mux->busses[i] = i2c_add_mux_adapter(mux->parent, &pdev->dev,
- 						     mux, bus, i, 0,
-diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
-index 40cb05a..a7bfb55 100644
---- a/include/linux/i2c-mux.h
-+++ b/include/linux/i2c-mux.h
-@@ -35,7 +35,7 @@
-  */
- struct i2c_adapter *i2c_add_mux_adapter(struct i2c_adapter *parent,
- 				struct device *mux_dev,
--				void *mux_priv, u32 force_nr, u32 chan_id,
-+				void *mux_priv, int force_nr, u32 chan_id,
- 				unsigned int class,
- 				int (*select) (struct i2c_adapter *,
- 					       void *mux_dev, u32 chan_id),
--- 
-1.8.1
+
+-Olof
