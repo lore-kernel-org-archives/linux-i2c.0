@@ -1,127 +1,54 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
-Date: Wed, 13 Feb 2013 14:02:47 -0700
-Message-ID: <511BFF77.2090202@wwwdotorg.org>
-References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH v1 4/4] i2c-mux: i2c_add_mux_adapter() should use -1 for
+ auto bus num
+Date: Wed, 13 Feb 2013 14:09:08 -0700
+Message-ID: <511C00F4.4080708@wwwdotorg.org>
+References: <1360778532-7480-1-git-send-email-dianders@chromium.org> <1360778532-7480-4-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1360778532-7480-1-git-send-email-dianders@chromium.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, Simon Glass <sjg@chromium.org>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, Grant Likely <grant.likely@secretlab.ca>, Yuvaraj Kumar <yuvaraj.cd@gmail.com>, Ben Dooks <ben.dooks@codethink.co.uk>, u.kleine-koenig@pengutronix.de, Mark Brown <broonie@opensource.wolfsonmicro.com>, Girish Shivananjappa <girish.shivananjappa@linaro.org>, bhushan.r@samsung.com, sreekumar.c@samsung.com, Prashanth G <prashanth.g@samsung.com>, Olof Johansson <olof@lixom.net>, Daniel Kurtz <djkurtz@chromium.org>, Grant Grundler <grundler@chromium.org>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, Peter Korsgaard <peter.korsgaard@barco.com>, Stephen Warren <swarren@nvidia.com>, Guenter Roeck <guenter.roeck@ericsson.com>, devicetree-dis
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1360778532-7480-4-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Prashanth G <prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Barry Song <baohua.song>
 List-Id: linux-i2c@vger.kernel.org
 
 On 02/13/2013 11:02 AM, Doug Anderson wrote:
-> The i2c-arbitrator driver implements the arbitration scheme that the
-> Embedded Controller (EC) on the ARM Chromebook expects to use for bus
-> multimastering.  This i2c-arbitrator driver could also be used in
-> other places where standard i2c bus arbitration can't be used and two
-> extra GPIOs are available for arbitration.
+> The force_nr parameter to i2c_add_mux_adapter() uses 0 to signify that
+> we don't want to force the bus number of the adapter.  This is
+> non-ideal because:
+> * 0 is actually a valid bus number to request
+> * i2c_add_numbered_adapter() (which i2c_add_mux_adapter() calls) uses
+>   -1 to mean the same thing.  That means extra logic in
+>   i2c_add_mux_adapter().
 > 
-> This driver is based on code that Simon Glass added to the i2c-s3c2410
-> driver in the Chrome OS kernel 3.4 tree.  The current incarnation as a
-> mux driver is as suggested by Grant Likely.  See
-> <https://patchwork.kernel.org/patch/1877311/> for some history.
+> Fix i2c_add_mux_adapter() to use -1 and update all mux drivers
+> accordingly.
+> 
+> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> ---
+> Notes:
+> - If there's a good reason that force_nr uses 0 for auto then feel
+>   free to drop this patch.  I've place it at the end of the series to
+>   make it easy to just drop it.
 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt b/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt
+IIRC (and I only vaguely do...) it's because:
 
-> +This mechanism is used instead of standard i2c multimaster to avoid some of the
-> +subtle driver and silicon bugs that are often present with i2c multimaster.
+> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+> index 9f50ef0..301ed0b 100644
+> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> @@ -208,7 +208,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+>  	}
+>  
+>  	for (i = 0; i < mux->data.n_values; i++) {
+> -		u32 nr = mux->data.base_nr ? (mux->data.base_nr + i) : 0;
+> +		int nr = mux->data.base_nr ? (mux->data.base_nr + i) : -1;
 
-Being really pick here, but I2C should be capitalized in free-form text.
-There are a few other places where the comment applies.
-
-> +Required properties:
-> +- compatible: i2c-arbitrator
-
-That seems pretty generic. What if there are other arbitration schemes?
-
-> +- bus-arbitration-gpios: Two GPIOs to use with the GPIO-based bus
-> +    arbitration protocol.  The first should be an output, and is used to
-> +    claim the I2C bus for us (AP_CLAIM).  The second should be an input and
-> +    signals that the other side wants to claim the bus (EC_CLAIM).
-
-Is it worth using two separate properties here, so they each get a
-unique name. That way, nobody has the remember which order the two GPIOs
-come in.
-
-> diff --git a/drivers/i2c/muxes/i2c-arbitrator.c b/drivers/i2c/muxes/i2c-arbitrator.c
-
-> +enum {
-> +	I2C_ARB_GPIO_AP,		/* AP claims i2c bus */
-> +	I2C_ARB_GPIO_EC,		/* EC claims i2c bus */
-> +
-> +	I2C_ARB_GPIO_COUNT,
-> +};
-
-Oh, I see from later code that those are indices into the
-bus-arbitration-gpios DT property. I thought they were states in some
-state machine at first. A comment might help here, if you continue to
-use one property.
-
-> +static int i2c_arbitrator_select(struct i2c_adapter *adap, void *data, u32 chan)
-> +{
-> +	const struct i2c_arbitrator_data *arb = data;
-> +	unsigned long stop_retry, stop_time;
-> +
-> +	/* Start a round of trying to claim the bus */
-> +	stop_time = jiffies + usecs_to_jiffies(arb->wait_free_us) + 1;
-> +	do {
-> +		/* Indicate that we want to claim the bus */
-> +		gpio_set_value(arb->ap_gpio, 0);
-
-The GPIO signals appear to be active low in the code. Instead, I think
-it'd make more sense to extract the polarity of the GPIO from DT, using
-of_get_named_gpio_flags().
-
-> +static int i2c_arbitrator_probe(struct platform_device *pdev)
-
-> +	/* Request GPIOs */
-> +	ret = of_get_named_gpio(np, "bus-arbitration-gpios", I2C_ARB_GPIO_AP);
-> +	if (gpio_is_valid(ret)) {
-> +		arb->ap_gpio = ret;
-> +		ret = gpio_request_one(arb->ap_gpio, GPIOF_OUT_INIT_HIGH,
-> +				       "bus-arbitration-ap");
-> +	}
-> +	if (WARN_ON(ret))
-> +		goto ap_request_failed;
-
-you could use devm_gpio_request_one() and save some cleanup logic.
-
-> +	/* Arbitration parameters */
-> +	if (of_property_read_u32(np, "bus-arbitration-slew-delay-us",
-> +				 &arb->slew_delay_us))
-> +		arb->slew_delay_us = 10;
-
-The DT binding document says that property is required. Either the code
-should error out here, or the document updated to indicate that the
-properties are optional, and specify what the defaults are.
-
-> +static int i2c_arbitrator_remove(struct platform_device *pdev)
-
-> +	platform_set_drvdata(pdev, NULL);
-
-You shouldn't have to do that; nothing should care what the pdata value
-is while the device isn't probed anyway.
-
-> +static int __init i2c_arbitrator_init(void)
-> +{
-> +	return platform_driver_register(&i2c_arbitrator_driver);
-> +}
-> +subsys_initcall(i2c_arbitrator_init);
-> +
-> +static void __exit i2c_arbitrator_exit(void)
-> +{
-> +	platform_driver_unregister(&i2c_arbitrator_driver);
-> +}
-> +module_exit(i2c_arbitrator_exit);
-
-You should be able to replace all that with:
-
-module_platform_driver(&i2c_arbitrator_driver);
-
-> +MODULE_LICENSE("GPL");
-
-The header says GPL v2 only, so "GPL v2".
+Here, mux->data.base_nr is platform data (or copied directly from it),
+and any field in a platform data struct stored in a global variable not
+explicitly initialized would be 0, hence 0 would typically mean "no
+explicit bus number desired". Since a mux can't exist without a parent
+I2C bus, it's unlikely anyone would want a mux to be I2C bus 0, but
+rather the parent to have that number.
