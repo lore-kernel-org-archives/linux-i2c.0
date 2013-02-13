@@ -1,104 +1,122 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH 1/1] i2c-i801: Add Device IDs for Intel Wellsburg PCH
-Date: Wed, 13 Feb 2013 22:48:01 +0100
-Message-ID: <20130213224801.570b6a93@endymion.delvare>
-References: <1360706642-2399-1-git-send-email-james.d.ralston@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1360706642-2399-1-git-send-email-james.d.ralston@intel.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: James Ralston <james.d.ralston@intel.com>
-Cc: Wolfram Sang <wolfram@the-dreams.de>, linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, Seth Heasley <seth.heasley@intel.com>
+From: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 0/2] i2c-mux: expose i2c bus topology under sysfs
+Date: Wed, 13 Feb 2013 23:28:30 +0100
+Message-ID: <1360794512-6338-1-git-send-email-gerlando.falauto@keymile.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: giometti-k2GhghHVRtY@public.gmane.org, ml.lawnick-Mmb7MZpHnFY@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, holger.brunck-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org, Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi James,
+Hi everyone,
 
-On Tue, 12 Feb 2013 14:04:02 -0800, James Ralston wrote:
-> This patch adds the SMBus Device IDs for the Intel Wellsburg PCH
-> 
-> Signed-off-by: James Ralston <james.d.ralston@intel.com>
-> ---
-> Change notes for v2:
-> * Rebased on [PATCH v2] i2c-i801: SMBus patch for Intel Avoton DeviceIDs
+I noticed that when you have multiple muxes connected to the same branch, implementation hides some information about the complete i2c topology.
 
-Thanks, this applies fine now.
+So for instance if I have something like (notice there are three PCA9544's "in parallel", each with its own address, which I assume is a bit unusual):
 
-> * Added 3 Device IDs for additional SMBus Devices
-> 
->  Documentation/i2c/busses/i2c-i801 |    1 +
->  drivers/i2c/busses/Kconfig        |    1 +
->  drivers/i2c/busses/i2c-i801.c     |   12 ++++++++++++
->  3 files changed, 14 insertions(+), 0 deletions(-)
-> 
-> diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-> index 8d71d57..d55b8ab 100644
-> --- a/Documentation/i2c/busses/i2c-i801
-> +++ b/Documentation/i2c/busses/i2c-i801
-> @@ -23,6 +23,7 @@ Supported adapters:
->    * Intel Lynx Point (PCH)
->    * Intel Lynx Point-LP (PCH)
->    * Intel Avoton (SOC)
-> +  * Intel Wellsburg (PCH)
->     Datasheets: Publicly available at the Intel website
->  
->  On Intel Patsburg and later chipsets, both the normal host SMBus controller
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 77d2887..059a481 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -107,6 +107,7 @@ config I2C_I801
->  	    Lynx Point (PCH)
->  	    Lynx Point-LP (PCH)
->  	    Avoton (SOC)
-> +	    Wellsburg (PCH)
->  
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-i801.
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index b00c29d..c257a16 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -54,6 +54,10 @@
->    Lynx Point (PCH)      0x8c22     32     hard     yes     yes     yes
->    Lynx Point-LP (PCH)   0x9c22     32     hard     yes     yes     yes
->    Avoton (SOC)          0x1f3c     32     hard     yes     yes     yes
-> +  Wellsburg (PCH)       0x8d22     32     hard     yes     yes     yes
-> +  Wellsburg (PCH)       0x8d7d     32     hard     yes     yes     yes
-> +  Wellsburg (PCH)       0x8d7e     32     hard     yes     yes     yes
-> +  Wellsburg (PCH)       0x8d7f     32     hard     yes     yes     yes
->  
->    Features supported by this driver:
->    Software PEC                     no
-> @@ -167,6 +171,10 @@
->  #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
->  #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
->  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
-> +#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS0	0x8d22
-> +#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS1	0x8d7d
-> +#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS2	0x8d7e
-> +#define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS3	0x8d7f
+#  CPU (i2c-0)
+#  '--I2C Mux0 (PCA9547) @ 0x70
+#      +--Port0 (i2c-1)
+#      +--Port1 (i2c-2)
+#      +--Port2 (i2c-3)
+#      +--Port3 (i2c-4)
+#      +--Port4 (i2c-5)
+#      |   '--- I2C Mux1 (PCA9544) @ 0x74
+#      |   |     +--Port0 (i2c-9)
+#      |   |     +--Port1 (i2c-10)
+#      |   |     +--Port2 (i2c-11)
+#      |   |     '--Port3 (i2c-12)
+#      |   +--- I2C Mux2 (PCA9544) @ 0x71
+#      |   |     +--Port0 (i2c-13)
+#      |   |     +--Port1 (i2c-14)
+#      |   |     +--Port2 (i2c-15)
+#      |   |     '--Port3 (i2c-16)
+#      |   '--- I2C Mux3 (PCA9544) @ 0x72
+#      |         +--Port0 (i2c-17)
+#      |         +--Port1 (i2c-18)
+#      |         +--Port2 (i2c-19)
+#      |         '--Port3 (i2c-20)
+#      +--Port5 (i2c-6)
+#      +--Port6 (i2c-7)
+#      '--Port7 (i2c-8)
 
-Are these 3 extra channels like Patsburg's "IDF" channels? If so, then
-please name them accordingly and make sure to set flag FEATURE_IDF on
-them, as is done for PCI_DEVICE_ID_INTEL_PATSBURG_SMBUS_IDF*.
+under /sys/bus/i2c/devices/ I get:
 
->  #define PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS	0x9c22
->  
->  struct i801_mux_config {
-> @@ -801,6 +809,10 @@ static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_LYNXPOINT_LP_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_AVOTON_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS0) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS1) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS2) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS3) },
->  	{ 0, }
->  };
->  
+0-0010 -> ../../../devices/platform/i2c-gpio/i2c-0/0-0010
+0-0011 -> ../../../devices/platform/i2c-gpio/i2c-0/0-0011
+0-0070 -> ../../../devices/platform/i2c-gpio/i2c-0/0-0070
+5-0071 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/5-0071
+5-0072 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/5-0072
+5-0074 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/5-0074
+|2c-0 -> ../../../devices/platform/i2c-gpio/i2c-0
+i2c-1 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-1
+i2c-2 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-2
+i2c-3 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-3
+i2c-4 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-4
+i2c-5 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5
+i2c-6 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-6
+i2c-7 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-7
+i2c-8 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-8
+i2c-9 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-9
+i2c-10 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-10
+i2c-11 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-11
+i2c-12 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-12
+i2c-13 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-13
+i2c-14 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-14
+i2c-15 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-15
+i2c-16 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-16
+i2c-17 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-17
+i2c-18 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-18
+i2c-19 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-19
+i2c-20 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-20
 
+So I have no way of telling that:
+
+ i2c-{9,10,11,12} are connected to mux1 at address 0x74 of i2c-5
+ i2c-{13,14,15,16} are connected to mux2 at address 0x71 of i2c-5
+ i2c-{17,18,19,20} are connected to mux3 at address 0x72 of i2c-5
+
+because I get:
+
+# cat /sys/bus/i2c/devices/i2c-9/name
+i2c-5-mux (chan_id 0)
+# cat /sys/bus/i2c/devices/i2c-13/name
+i2c-5-mux (chan_id 0)
+
+which only reveals i2c-9 is the bus segment connected to channel 0 of a mux behind i2c-5, but since there's two of them, I have no way to tell which one...
+
+The first patch moves i2c-{n} devices under the mux device, so instead of:
+
+/sys/class/i2c-dev/i2c-0/device/i2c-5/i2c-9
+/sys/class/i2c-dev/i2c-0/device/i2c-5/i2c-10
+/sys/class/i2c-dev/i2c-0/device/i2c-5/i2c-11
+/sys/class/i2c-dev/i2c-0/device/i2c-5/i2c-12
+
+you get:
+
+/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-5/5-0071/i2c-9
+/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-5/5-0071/i2c-10
+/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-5/5-0071/i2c-11
+/sys/class/i2c-dev/i2c-0/device/0-0070/i2c-5/5-0071/i2c-12
+
+The second one creates symlinks like:
+
+/sys/class/i2c-dev/i2c-0/device/0-0070/channel-4 -> i2c-5
+/sys/class/i2c-dev/i2c-0/device/0-0070/channel-4/5-0074/channel-0 -> i2c-9
+/sys/class/i2c-dev/i2c-0/device/0-0070/channel-4/5-0074/channel-1 -> i2c-10
+/sys/class/i2c-dev/i2c-0/device/0-0070/channel-4/5-0074/channel-3 -> i2c-11
+/sys/class/i2c-dev/i2c-0/device/0-0070/channel-4/5-0074/channel-3 -> i2c-12
+
+Gerlando Falauto (2):
+  i2c-mux: create mux busses under a different parent device
+  i2c-mux: create "channel-n" symlinks for child segments
+
+ drivers/i2c/i2c-mux.c           |   20 +++++++++++++++++++-
+ drivers/i2c/muxes/gpio-i2cmux.c |    2 +-
+ drivers/i2c/muxes/pca9541.c     |    2 +-
+ drivers/i2c/muxes/pca954x.c     |    2 +-
+ include/linux/i2c-mux.h         |    1 +
+ 5 files changed, 23 insertions(+), 4 deletions(-)
 
 -- 
-Jean Delvare
+1.7.10.1
