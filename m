@@ -1,129 +1,413 @@
-From: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
-Subject: i2c: Multiplexed I2C bus core support
-Date: Wed, 13 Feb 2013 16:36:24 +0100
-Message-ID: <511BB2F8.9020300@keymile.com>
-References: <4C36E6E2.1070307@gmx.de>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
+Date: Wed, 13 Feb 2013 10:02:09 -0800
+Message-ID: <1360778532-7480-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset=UTF-8;
-	format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <4C36E6E2.1070307-Mmb7MZpHnFY@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Prashanth G <prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi everyone,
+The i2c-arbitrator driver implements the arbitration scheme that the
+Embedded Controller (EC) on the ARM Chromebook expects to use for bus
+multimastering.  This i2c-arbitrator driver could also be used in
+other places where standard i2c bus arbitration can't be used and two
+extra GPIOs are available for arbitration.
 
-On 07/09/2010 11:07 AM, Michael Lawnick wrote:
-> Add multiplexed bus core support. I2C multiplexer and switches
-> like pca954x get instantiated as new adapters per port.
->
-> Signed-off-by: Michael Lawnick<demx1175@wbit01lx.(none)>
-> Cc: Jean Delvare<khali-PUYAD+kWke1g9hUCZPvPmw-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org>
+This driver is based on code that Simon Glass added to the i2c-s3c2410
+driver in the Chrome OS kernel 3.4 tree.  The current incarnation as a
+mux driver is as suggested by Grant Likely.  See
+<https://patchwork.kernel.org/patch/1877311/> for some history.
 
-I noticed that when you have multiple muxes connected to the same 
-branch, implementation hides some information about the complete i2c 
-topology.
+Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+Changes in v1: None
 
-So for instance if I have something like (notice there are three 
-PCA9544's "in parallel", each with its own address, which I assume is a 
-bit unusual):
+ .../devicetree/bindings/i2c/i2c-arbitrator.txt     |  76 +++++++
+ drivers/i2c/muxes/Kconfig                          |  11 +
+ drivers/i2c/muxes/Makefile                         |   1 +
+ drivers/i2c/muxes/i2c-arbitrator.c                 | 242 +++++++++++++++++++++
+ 4 files changed, 330 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt
+ create mode 100644 drivers/i2c/muxes/i2c-arbitrator.c
 
-#  CPU (i2c-0)
-#  '--I2C Mux0 (PCA9547) @ 0x70
-#      +--Port0 (i2c-1)
-#      +--Port1 (i2c-2)
-#      +--Port2 (i2c-3)
-#      +--Port3 (i2c-4)
-#      +--Port4 (i2c-5)
-#      |   '--- I2C Mux1 (PCA9544) @ 0x74
-#      |   |     +--Port0 (i2c-9)
-#      |   |     +--Port1 (i2c-10)
-#      |   |     +--Port2 (i2c-11)
-#      |   |     '--Port3 (i2c-12)
-#      |   +--- I2C Mux2 (PCA9544) @ 0x71
-#      |   |     +--Port0 (i2c-13)
-#      |   |     +--Port1 (i2c-14)
-#      |   |     +--Port2 (i2c-15)
-#      |   |     '--Port3 (i2c-16)
-#      |   '--- I2C Mux3 (PCA9544) @ 0x72
-#      |         +--Port0 (i2c-17)
-#      |         +--Port1 (i2c-18)
-#      |         +--Port2 (i2c-19)
-#      |         '--Port3 (i2c-20)
-#      +--Port5 (i2c-6)
-#      +--Port6 (i2c-7)
-#      '--Port7 (i2c-8)
-
-
-under /sys/bus/i2c/devices/ I get:
-
-0-0010 -> ../../../devices/platform/i2c-gpio/i2c-0/0-0010
-0-0011 -> ../../../devices/platform/i2c-gpio/i2c-0/0-0011
-0-0070 -> ../../../devices/platform/i2c-gpio/i2c-0/0-0070
-5-0071 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/5-0071
-5-0072 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/5-0072
-5-0074 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/5-0074
-|2c-0 -> ../../../devices/platform/i2c-gpio/i2c-0
-i2c-1 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-1
-i2c-2 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-2
-i2c-3 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-3
-i2c-4 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-4
-i2c-5 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5
-i2c-6 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-6
-i2c-7 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-7
-i2c-8 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-8
-i2c-9 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-9
-i2c-10 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-10
-i2c-11 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-11
-i2c-12 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-12
-i2c-13 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-13
-i2c-14 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-14
-i2c-15 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-15
-i2c-16 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-16
-i2c-17 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-17
-i2c-18 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-18
-i2c-19 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-19
-i2c-20 -> ../../../devices/platform/i2c-gpio/i2c-0/i2c-5/i2c-20
-
-So I have no way of telling that:
-
-  i2c-{9,10,11,12} are connected to mux1 at address 0x74 of i2c-5
-  i2c-{13,14,15,16} are connected to mux2 at address 0x71 of i2c-5
-  i2c-{17,18,19,20} are connected to mux3 at address 0x72 of i2c-5
-
-because I get:
-
-# cat /sys/bus/i2c/devices/i2c-9/name
-i2c-5-mux (chan_id 0)
-# cat /sys/bus/i2c/devices/i2c-13/name
-i2c-5-mux (chan_id 0)
-
-which only reveals i2c-9 is the bus segment connected to channel 0 of a 
-mux behind i2c-5, but since there's two of them, I have no way to tell 
-which one...
-
-So I guess the easiest thing to do would be to add this information 
-within the .name attribute, though I fear this may somehow turn out not 
-as trivial at it looks.
-
-What I'd like most though would be to get some hierarchy as follows:
-
-devices/platform/i2c-gpio/i2c-0/0-0070/i2c-5/5-0071/i2c-9
-devices/platform/i2c-gpio/i2c-0/0-0070/i2c-5/5-0071/i2c-10
-devices/platform/i2c-gpio/i2c-0/0-0070/i2c-5/5-0071/i2c-11
-devices/platform/i2c-gpio/i2c-0/0-0070/i2c-5/5-0071/i2c-12
-
-or even something like:
-
-devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-0(=>...i2c-9)
-devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-1(=>...i2c-10)
-devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-2(=>...i2c-11)
-devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-3(=>...i2c-12)
-
-Would the above seem reasonable?
-
-Thanks!
-Gerlando
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt b/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt
+new file mode 100644
+index 0000000..bb9cca7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-arbitrator.txt
+@@ -0,0 +1,76 @@
++GPIO-based Arbitration
++======================
++This uses GPIO lines between the AP (Application Processor) and an attached
++EC (Embedded Controller) which both want to talk on the same I2C bus as master.
++
++The AP and EC each have a 'bus claim' line, which is an output that the
++other can see. These are both active low, with pull-ups enabled.
++
++- AP_CLAIM: output from AP, signalling to the EC that the AP wants the bus
++- EC_CLAIM: output from EC, signalling to the AP that the EC wants the bus
++
++
++This mechanism is used instead of standard i2c multimaster to avoid some of the
++subtle driver and silicon bugs that are often present with i2c multimaster.
++
++
++Algorithm:
++
++The basic algorithm is to assert your line when you want the bus, then make
++sure that the other side doesn't want it also. A detailed explanation is best
++done with an example.
++
++Let's say the AP wants to claim the bus. It:
++1. Asserts AP_CLAIM.
++2. Waits a little bit for the other side to notice (slew time, say 10
++   microseconds).
++3. Checks EC_CLAIM. If this is not asserted then the AP has the bus and we are
++   done.
++4. Otherwise, wait for a few milliseconds and see if EC_CLAIM is released.
++5. If not, back off, release the claim and wait for a few more milliseconds.
++6. Go back to 1 (until retry time has expired).
++
++
++Required properties:
++- compatible: i2c-arbitrator
++- bus-arbitration-gpios: Two GPIOs to use with the GPIO-based bus
++    arbitration protocol.  The first should be an output, and is used to
++    claim the I2C bus for us (AP_CLAIM).  The second should be an input and
++    signals that the other side wants to claim the bus (EC_CLAIM).
++- bus-arbitration-slew-delay-us: microseconds to wait for a GPIO to go high.
++- bus-arbitration-wait-retry-us: we'll attempt another claim after this many
++    microseconds.
++- bus-arbitration-wait-free-us: we'll give up after this many microseconds.
++- Standard I2C mux properties. See mux.txt in this directory.
++- Single I2C child bus node at reg 0. See mux.txt in this directory.
++
++
++Example:
++	i2c@12CA0000 {
++		compatible = "acme,some-i2c-device";
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
++
++	i2c-arbitrator {
++		compatible = "i2c-arbitrator";
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		i2c-parent = <&{/i2c@12CA0000}>;
++
++		bus-arbitration-gpios = <&gpf0 3 1 0 0>, <&gpe0 4 0 3 0>;
++		bus-arbitration-slew-delay-us = <10>;
++		bus-arbitration-wait-retry-us = <3000>;
++		bus-arbitration-wait-free-us = <50000>;
++
++		i2c@0 {
++			reg = <0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			i2c@52 {
++				// Normal i2c device
++			};
++		};
++	};
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 0be5b83..714bf16 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -5,6 +5,17 @@
+ menu "Multiplexer I2C Chip support"
+ 	depends on I2C_MUX
+ 
++config I2C_ARBITRATOR
++	tristate "GPIO-based I2C arbitrator"
++	depends on GENERIC_GPIO && OF
++	help
++	  If you say yes to this option, support will be included for an
++	  i2c multimaster arbitration scheme using GPIOs (as opposed to
++	  using standard i2c multimaster mode).
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-arbitrator.
++
+ config I2C_MUX_GPIO
+ 	tristate "GPIO-based I2C multiplexer"
+ 	depends on GENERIC_GPIO
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index 76da869..adfe147 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -1,6 +1,7 @@
+ #
+ # Makefile for multiplexer I2C chip drivers.
+ 
++obj-$(CONFIG_I2C_ARBITRATOR)	+= i2c-arbitrator.o
+ obj-$(CONFIG_I2C_MUX_GPIO)	+= i2c-mux-gpio.o
+ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+diff --git a/drivers/i2c/muxes/i2c-arbitrator.c b/drivers/i2c/muxes/i2c-arbitrator.c
+new file mode 100644
+index 0000000..c3bbdf7
+--- /dev/null
++++ b/drivers/i2c/muxes/i2c-arbitrator.c
+@@ -0,0 +1,242 @@
++/*
++ * I2C arbitrator using GPIO API
++ *
++ * Copyright (C) 2012 Google, Inc
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++
++#include <linux/delay.h>
++#include <linux/gpio.h>
++#include <linux/kernel.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/of_i2c.h>
++#include <linux/of_gpio.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++
++
++enum {
++	I2C_ARB_GPIO_AP,		/* AP claims i2c bus */
++	I2C_ARB_GPIO_EC,		/* EC claims i2c bus */
++
++	I2C_ARB_GPIO_COUNT,
++};
++
++/**
++ * struct i2c_arbitrator_data - Driver data for i2c arbitrator
++ *
++ * @parent: Parent adapter
++ * @child: Child bus
++ * @ap_gpio: GPIO we'll use to claim.
++ * @ec_gpio: GPIO that the other side will use to claim.
++ * @slew_delay_us: microseconds to wait for a GPIO to go high.
++ * @wait_retry_us: we'll attempt another claim after this many microseconds.
++ * @wait_free_us: we'll give up after this many microseconds.
++ */
++
++struct i2c_arbitrator_data {
++	struct i2c_adapter *parent;
++	struct i2c_adapter *child;
++
++	int		ap_gpio;
++	int		ec_gpio;
++	unsigned int	slew_delay_us;
++	unsigned int	wait_retry_us;
++	unsigned int	wait_free_us;
++};
++
++
++/**
++ * i2c_arbitrator_select - claim the i2c bus
++ *
++ * Use the GPIO-based signalling protocol; return -EBUSY if we fail.
++ */
++static int i2c_arbitrator_select(struct i2c_adapter *adap, void *data, u32 chan)
++{
++	const struct i2c_arbitrator_data *arb = data;
++	unsigned long stop_retry, stop_time;
++
++	/* Start a round of trying to claim the bus */
++	stop_time = jiffies + usecs_to_jiffies(arb->wait_free_us) + 1;
++	do {
++		/* Indicate that we want to claim the bus */
++		gpio_set_value(arb->ap_gpio, 0);
++		udelay(arb->slew_delay_us);
++
++		/* Wait for the EC to release it */
++		stop_retry = jiffies + usecs_to_jiffies(arb->wait_retry_us) + 1;
++		while (time_before(jiffies, stop_retry)) {
++			if (gpio_get_value(arb->ec_gpio)) {
++				/* We got it, so return */
++				return 0;
++			}
++
++			usleep_range(50, 200);
++		}
++
++		/* It didn't release, so give up, wait, and try again */
++		gpio_set_value(arb->ap_gpio, 1);
++
++		usleep_range(arb->wait_retry_us, arb->wait_retry_us * 2);
++	} while (time_before(jiffies, stop_time));
++
++	/* Give up, release our claim */
++	gpio_set_value(arb->ap_gpio, 1);
++	udelay(arb->slew_delay_us);
++	dev_err(&adap->dev, "Could not claim bus, timeout\n");
++	return -EBUSY;
++}
++
++/**
++ * i2c_arbitrator_deselect - release the i2c bus
++ *
++ * Release the i2c bus using the GPIO-based signalling protocol.
++ */
++static int i2c_arbitrator_deselect(struct i2c_adapter *adap, void *data,
++				   u32 chan)
++{
++	const struct i2c_arbitrator_data *arb = data;
++
++	/* Release the bus and wait for the EC to notice */
++	gpio_set_value(arb->ap_gpio, 1);
++	udelay(arb->slew_delay_us);
++
++	return 0;
++}
++
++static int i2c_arbitrator_probe(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	struct device_node *parent_np;
++	struct i2c_arbitrator_data *arb;
++	int ret;
++
++	/* We only support probing from device tree; no platform_data */
++	if (WARN_ON(!np))
++		return -ENODEV;
++	if (WARN_ON(pdev->dev.platform_data))
++		return -EINVAL;
++
++	arb = devm_kzalloc(&pdev->dev, sizeof(*arb), GFP_KERNEL);
++	if (WARN_ON(!arb))
++		return -ENOMEM;
++	platform_set_drvdata(pdev, arb);
++
++	/* Find our parent */
++	parent_np = of_parse_phandle(np, "i2c-parent", 0);
++	if (WARN_ON(!parent_np))
++		return -EINVAL;
++	arb->parent = of_find_i2c_adapter_by_node(parent_np);
++	if (WARN_ON(!arb->parent))
++		return -EINVAL;
++
++	/* Request GPIOs */
++	ret = of_get_named_gpio(np, "bus-arbitration-gpios", I2C_ARB_GPIO_AP);
++	if (gpio_is_valid(ret)) {
++		arb->ap_gpio = ret;
++		ret = gpio_request_one(arb->ap_gpio, GPIOF_OUT_INIT_HIGH,
++				       "bus-arbitration-ap");
++	}
++	if (WARN_ON(ret))
++		goto ap_request_failed;
++
++	ret = of_get_named_gpio(np, "bus-arbitration-gpios", I2C_ARB_GPIO_EC);
++	if (gpio_is_valid(ret)) {
++		arb->ec_gpio = ret;
++		ret = gpio_request_one(arb->ec_gpio, GPIOF_IN,
++				       "bus-arbitration-ec");
++	}
++	if (WARN_ON(ret))
++		goto ec_request_failed;
++
++	/* Arbitration parameters */
++	if (of_property_read_u32(np, "bus-arbitration-slew-delay-us",
++				 &arb->slew_delay_us))
++		arb->slew_delay_us = 10;
++	if (of_property_read_u32(np, "bus-arbitration-wait-retry-us",
++				 &arb->wait_retry_us))
++		arb->wait_retry_us = 3000;
++	if (of_property_read_u32(np, "bus-arbitration-wait-free-us",
++				 &arb->wait_free_us))
++		arb->wait_free_us = 50000;
++
++	/* Actually add the mux adapter */
++	arb->child = i2c_add_mux_adapter(arb->parent, &pdev->dev, arb, 0, 0, 0,
++					 i2c_arbitrator_select,
++					 i2c_arbitrator_deselect);
++	if (WARN_ON(!arb->child)) {
++		ret = -ENODEV;
++		goto add_adapter_failed;
++	}
++
++	return 0;
++
++add_adapter_failed:
++	gpio_free(arb->ec_gpio);
++ec_request_failed:
++	gpio_free(arb->ap_gpio);
++ap_request_failed:
++	i2c_put_adapter(arb->parent);
++
++	return ret;
++}
++
++static int i2c_arbitrator_remove(struct platform_device *pdev)
++{
++	struct i2c_arbitrator_data *arb = platform_get_drvdata(pdev);
++
++	i2c_del_mux_adapter(arb->child);
++
++	gpio_free(arb->ec_gpio);
++	gpio_free(arb->ap_gpio);
++
++	platform_set_drvdata(pdev, NULL);
++	i2c_put_adapter(arb->parent);
++
++	return 0;
++}
++
++static const struct of_device_id i2c_arbitrator_of_match[] = {
++	{ .compatible = "i2c-arbitrator", },
++	{},
++};
++MODULE_DEVICE_TABLE(of, i2c_arbitrator_of_match);
++
++static struct platform_driver i2c_arbitrator_driver = {
++	.probe	= i2c_arbitrator_probe,
++	.remove	= i2c_arbitrator_remove,
++	.driver	= {
++		.owner	= THIS_MODULE,
++		.name	= "i2c-arbitrator",
++		.of_match_table = of_match_ptr(i2c_arbitrator_of_match),
++	},
++};
++
++static int __init i2c_arbitrator_init(void)
++{
++	return platform_driver_register(&i2c_arbitrator_driver);
++}
++subsys_initcall(i2c_arbitrator_init);
++
++static void __exit i2c_arbitrator_exit(void)
++{
++	platform_driver_unregister(&i2c_arbitrator_driver);
++}
++module_exit(i2c_arbitrator_exit);
++
++MODULE_DESCRIPTION("GPIO-based I2C arbitrator driver");
++MODULE_AUTHOR("Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>");
++MODULE_LICENSE("GPL");
++MODULE_ALIAS("platform:i2c-arbitrator");
+-- 
+1.8.1
