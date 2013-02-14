@@ -1,44 +1,48 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: remove warning dump if timeout happen in transfer
-Date: Thu, 14 Feb 2013 18:13:33 +0530
-Message-ID: <1360845813-11334-1-git-send-email-ldewangan@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 10/11] ARM: s3c: i2c: add platform_device forward declaration
+Date: Thu, 14 Feb 2013 14:49:26 +0100
+Message-ID: <1360849767-1463135-11-git-send-email-arnd@arndb.de>
+References: <1360849767-1463135-1-git-send-email-arnd@arndb.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1360849767-1463135-1-git-send-email-arnd@arndb.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: arm@kernel.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Russell King <linux@arm.linux.org.uk>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, Wolfram Sang <w.sang@pengutronix.de>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-If timeout error occurs in the i2c transfer then it was dumping warning
-of call stack.
+A recent cleanup to the mach-osiris.c file is causing build errors
+because the i2c-s3c2410.h header file is included before we see
+the definition for platform_device. The fix is to make the header file
+more robust against inclusion from other places. While this should
+normally go through the i2c tree, the bug only exists in arm-soc
+at the moment, so it's easier to fix it there before it goes upstream.
 
-Remove the warning dump as there is may be possibility that some slave
-devices are busy and not responding the i2c communication.
+Without this patch, building s3c2410_defconfig results in:
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+arch/arm/mach-s3c24xx/mach-osiris.c:34:0:
+include/linux/platform_data/i2c-s3c2410.h:37:26: warning: 'struct platform_device' declared inside parameter list [enabled by default]
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <w.sang@pengutronix.de>
+Cc: Ben Dooks <ben-linux@fluff.org>
+Cc: Kukjin Kim <kgene.kim@samsung.com>
 ---
-The patch is generated based on discussion happen between Stephena and
-Wolfram on the patch:
- i2c: add bcm2835 driver
+ include/linux/platform_data/i2c-s3c2410.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-resending patch as Wolfram's email id has been changed.
-
- drivers/i2c/busses/i2c-tegra.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index ae2e027..36704e3 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -587,7 +587,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
- 	ret = wait_for_completion_timeout(&i2c_dev->msg_complete, TEGRA_I2C_TIMEOUT);
- 	tegra_i2c_mask_irq(i2c_dev, int_mask);
+diff --git a/include/linux/platform_data/i2c-s3c2410.h b/include/linux/platform_data/i2c-s3c2410.h
+index 51d52e7..2a50048 100644
+--- a/include/linux/platform_data/i2c-s3c2410.h
++++ b/include/linux/platform_data/i2c-s3c2410.h
+@@ -15,6 +15,8 @@
  
--	if (WARN_ON(ret == 0)) {
-+	if (ret == 0) {
- 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
+ #define S3C_IICFLG_FILTER	(1<<0)	/* enable s3c2440 filter */
  
- 		tegra_i2c_init(i2c_dev);
++struct platform_device;
++
+ /**
+  *	struct s3c2410_platform_i2c - Platform data for s3c I2C.
+  *	@bus_num: The bus number to use (if possible).
 -- 
-1.7.1.1
+1.8.1.2
