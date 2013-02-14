@@ -1,75 +1,42 @@
-From: Cong Ding <dinggnu@gmail.com>
-Subject: [PATCH v3] i2c: busses/i2c-pxa.c: fix potential null pointer
- dereference error
-Date: Thu, 14 Feb 2013 12:28:18 +0100
-Message-ID: <20130214112818.GA18774@gmail.com>
-References: <1360015899-13706-1-git-send-email-dinggnu@gmail.com>
- <CAH9JG2XSpFJeUvv7cw-JWadmi=X0-4EsN5FFKuDkwo=-mmzHSQ@mail.gmail.com>
- <20130205000517.GB9969@gmail.com>
- <CAN1soZwM6qNTJn3vvMdc6TR1eJHc=K+_c0WuWOBBuFYMWB_oCA@mail.gmail.com>
- <20130205102540.GC9969@gmail.com>
- <CAN1soZyDLtdjyOFWyVVXN-_ABrChcCR=QbifAo7cz9pYV-nHww@mail.gmail.com>
+From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c: tegra: remove warning dump if timeout happen in transfer
+Date: Thu, 14 Feb 2013 18:11:07 +0530
+Message-ID: <1360845667-11276-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAN1soZyDLtdjyOFWyVVXN-_ABrChcCR=QbifAo7cz9pYV-nHww@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Haojian Zhuang <haojian.zhuang@gmail.com>
-Cc: Kyungmin Park <kmpark@infradead.org>, Wolfram Sang <w.sang@pengutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-If it goes to eclk through line 1107, the variable res would be NULL. It will
-cause a null pointer dereference error if we call release_mem_region. The
-correct way should be using devm_kzalloc rather than kzalloc to allocate
-memory.
+If timeout error occurs in the i2c transfer then it was dumping warning
+of call stack.
 
-Signed-off-by: Cong Ding <dinggnu@gmail.com>
+Remove the warning dump as there is may be possibility that some slave
+devices are busy and not responding the i2c communication.
+
+Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-pxa.c |   22 ++++++++--------------
- 1 file changed, 8 insertions(+), 14 deletions(-)
+The patch is generated based on discussion happen between Stephena and
+Wolfram on the patch:
+ i2c: add bcm2835 driver
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 1034d93..dd2d640 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1094,29 +1094,23 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 	struct resource *res = NULL;
- 	int ret, irq;
+ drivers/i2c/busses/i2c-tegra.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index ae2e027..36704e3 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -587,7 +587,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_dev *i2c_dev,
+ 	ret = wait_for_completion_timeout(&i2c_dev->msg_complete, TEGRA_I2C_TIMEOUT);
+ 	tegra_i2c_mask_irq(i2c_dev, int_mask);
  
--	i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
--	if (!i2c) {
--		ret = -ENOMEM;
--		goto emalloc;
--	}
-+	i2c = devm_kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
+-	if (WARN_ON(ret == 0)) {
++	if (ret == 0) {
+ 		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
  
- 	ret = i2c_pxa_probe_dt(dev, i2c, &i2c_type);
- 	if (ret > 0)
- 		ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
- 	if (ret < 0)
--		goto eclk;
-+		return ret;
- 
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
- 	irq = platform_get_irq(dev, 0);
--	if (res == NULL || irq < 0) {
--		ret = -ENODEV;
--		goto eclk;
--	}
-+	if (res == NULL || irq < 0)
-+		return -ENODEV;
- 
--	if (!request_mem_region(res->start, resource_size(res), res->name)) {
--		ret = -ENOMEM;
--		goto eclk;
--	}
-+	if (!request_mem_region(res->start, resource_size(res), res->name))
-+		return -ENOMEM;
- 
- 	i2c->adap.owner   = THIS_MODULE;
- 	i2c->adap.retries = 5;
+ 		tegra_i2c_init(i2c_dev);
 -- 
-1.7.9.5
+1.7.1.1
