@@ -1,69 +1,63 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
-Date: Wed, 13 Feb 2013 16:54:47 -0800
-Message-ID: <CAD=FV=X=BPQo245kAtPvNUgKjypOYnheYJWcBkq6AA19z99V0w@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v1 4/4] i2c-mux: i2c_add_mux_adapter() should use -1 for
+  auto bus num
+Date: Thu, 14 Feb 2013 08:15:58 +0100
+Message-ID: <20130214081558.5e3d636e@endymion.delvare>
 References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
- <511BFF77.2090202@wwwdotorg.org>
- <CAD=FV=XUEcUx3NGCm+KijRGujECVTSJ9X5fY=arq-4U_RUdxCQ@mail.gmail.com>
- <511C32B5.20600@wwwdotorg.org>
+	<1360778532-7480-4-git-send-email-dianders@chromium.org>
+	<511C00F4.4080708@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <511C32B5.20600-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <511C00F4.4080708-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "bhushan.r" <bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "sreekumar.c" <sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Peter Korsgaard <peter.korsgaard>
+Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Prashanth G <prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Barry Song <baohua.>
 List-Id: linux-i2c@vger.kernel.org
 
-Stephen,
+On Wed, 13 Feb 2013 14:09:08 -0700, Stephen Warren wrote:
+> On 02/13/2013 11:02 AM, Doug Anderson wrote:
+> > The force_nr parameter to i2c_add_mux_adapter() uses 0 to signify that
+> > we don't want to force the bus number of the adapter.  This is
+> > non-ideal because:
+> > * 0 is actually a valid bus number to request
+> > * i2c_add_numbered_adapter() (which i2c_add_mux_adapter() calls) uses
+> >   -1 to mean the same thing.  That means extra logic in
+> >   i2c_add_mux_adapter().
+> > 
+> > Fix i2c_add_mux_adapter() to use -1 and update all mux drivers
+> > accordingly.
+> > 
+> > Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> > ---
+> > Notes:
+> > - If there's a good reason that force_nr uses 0 for auto then feel
+> >   free to drop this patch.  I've place it at the end of the series to
+> >   make it easy to just drop it.
+> 
+> IIRC (and I only vaguely do...) it's because:
+> 
+> > diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+> > index 9f50ef0..301ed0b 100644
+> > --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> > +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> > @@ -208,7 +208,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+> >  	}
+> >  
+> >  	for (i = 0; i < mux->data.n_values; i++) {
+> > -		u32 nr = mux->data.base_nr ? (mux->data.base_nr + i) : 0;
+> > +		int nr = mux->data.base_nr ? (mux->data.base_nr + i) : -1;
+> 
+> Here, mux->data.base_nr is platform data (or copied directly from it),
+> and any field in a platform data struct stored in a global variable not
+> explicitly initialized would be 0, hence 0 would typically mean "no
+> explicit bus number desired". Since a mux can't exist without a parent
+> I2C bus, it's unlikely anyone would want a mux to be I2C bus 0, but
+> rather the parent to have that number.
 
-On Wed, Feb 13, 2013 at 4:41 PM, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
->> OK, going to go with i2c-arbitrator-cros-ec.  Hopefully that sounds OK.
->
-> That seems fine. The mechanism seems potentially a little more generic
-> than just for cros-ec though, but I guess there's no harm naming it
-> after the first implementation. That why "compatible" allows multiple
-> entries anyway.
+Yes, as I recall this is exactly the reason why the current code is the
+way it is.
 
-Yup, that was my thought.
-
-
->>> You should be able to replace all that with:
->>>
->>> module_platform_driver(&i2c_arbitrator_driver);
->>
->> Sigh.  Yeah, I had that.  ...but it ends up getting initted
->> significantly later in the init process and that was uncovering bugs
->> in other drivers where they weren't expressing their dependencies
->> properly.  I was going to try to fix those bugs separately but it
->> seemed to make some sense to prioritize this bus a little bit anyway
->> by using subsys_initcall().  ...but maybe that's just wrong.
->>
->> Unless you think it's a bug or terrible form to use subsys_initcall()
->> I'd rather leave that.  Is that OK?
->
-> It's certainly a bug if it doesn't work correctly as
-> module_platform_driver(). It'll have to be fixed sometime.
->
-> I don't think it's a big enough issue for me to object to the patch
-> providing it gets fixed sometime, but I've certainly seem other people
-> push back harder on using subsys_initcall for expressing dependencies;
-> it's not very extensible - what happens if there's another bug in some
-> other driver that requires an even earlier level of initcall?
-
-I don't like it either.  I'll give it a few hours tomorrow and
-hopefully I can track down the problem.  If I can't track it down or
-if I come up with a really good justification for why it's needed I'll
-leave it with subsys_initcall() unless someone gives me a big nak.
-
--Doug
+-- 
+Jean Delvare
