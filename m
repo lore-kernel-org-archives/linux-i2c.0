@@ -1,63 +1,58 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v1 4/4] i2c-mux: i2c_add_mux_adapter() should use -1 for
-  auto bus num
-Date: Thu, 14 Feb 2013 08:15:58 +0100
-Message-ID: <20130214081558.5e3d636e@endymion.delvare>
-References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
-	<1360778532-7480-4-git-send-email-dianders@chromium.org>
-	<511C00F4.4080708@wwwdotorg.org>
+From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH] Congatec CGEB base, i2c and watchdog driver support
+Date: Thu, 14 Feb 2013 09:35:34 +0100
+Message-ID: <20130214083534.GC25672@pengutronix.de>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWfSQKW2c1LvLQkojPiKA_r7+_6OmgoVHrBNRHUEFNYvJg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <511C00F4.4080708-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAH9NwWfSQKW2c1LvLQkojPiKA_r7+_6OmgoVHrBNRHUEFNYvJg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Prashanth G <prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Barry Song <baohua.>
+To: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 13 Feb 2013 14:09:08 -0700, Stephen Warren wrote:
-> On 02/13/2013 11:02 AM, Doug Anderson wrote:
-> > The force_nr parameter to i2c_add_mux_adapter() uses 0 to signify that
-> > we don't want to force the bus number of the adapter.  This is
-> > non-ideal because:
-> > * 0 is actually a valid bus number to request
-> > * i2c_add_numbered_adapter() (which i2c_add_mux_adapter() calls) uses
-> >   -1 to mean the same thing.  That means extra logic in
-> >   i2c_add_mux_adapter().
-> > 
-> > Fix i2c_add_mux_adapter() to use -1 and update all mux drivers
-> > accordingly.
-> > 
-> > Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> > ---
-> > Notes:
-> > - If there's a good reason that force_nr uses 0 for auto then feel
-> >   free to drop this patch.  I've place it at the end of the series to
-> >   make it easy to just drop it.
+On Wed, Feb 13, 2013 at 03:57:02PM +0100, Christian Gmeiner wrote:
+> 2013/2/12 Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+> > I'd like to come back to this topic. I have sent patches last year
+> > already, changes to the last time I posted this is mainly that
+> > I moved the CGEB base support from drivers/mfd/ to arch/x86/platform/
+> > like suggested by Samuel Ortiz back then.
+> >
+> > The following series adds support for the Congatec CGEB interface
+> > found on some Congatec x86 boards. The CGEB interface is a BIOS
+> > interface which provides access to onboard peripherals like I2C
+> > busses and watchdogs. It works by mapping BIOS code and searching
+> > for magic values which specify the entry points to the CGEB call.
+> > The CGEB call is an API provided by the BIOS which provides access
+> > to the functions in an ioctl like fashion.
+> >
+> > For more information about the CGEB API have a look at:
+> >
+> > http://www.congatec.com/single_news+M5d58c9cd155.html
+> >
+> > This document only describes the C API, unfortunately not the
+> > underlying BIOS interface.
+> >
+> > Also added are two users of this interface, a i2c master driver
+> > and a watchdog driver.
+> >
+> > Comments very appreciated.
 > 
-> IIRC (and I only vaguely do...) it's because:
+> Hi Sascha,
 > 
-> > diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-> > index 9f50ef0..301ed0b 100644
-> > --- a/drivers/i2c/muxes/i2c-mux-gpio.c
-> > +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-> > @@ -208,7 +208,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
-> >  	}
-> >  
-> >  	for (i = 0; i < mux->data.n_values; i++) {
-> > -		u32 nr = mux->data.base_nr ? (mux->data.base_nr + i) : 0;
-> > +		int nr = mux->data.base_nr ? (mux->data.base_nr + i) : -1;
-> 
-> Here, mux->data.base_nr is platform data (or copied directly from it),
-> and any field in a platform data struct stored in a global variable not
-> explicitly initialized would be 0, hence 0 would typically mean "no
-> explicit bus number desired". Since a mux can't exist without a parent
-> I2C bus, it's unlikely anyone would want a mux to be I2C bus 0, but
-> rather the parent to have that number.
+> against what version is this patch set? Would like to try it out but it fails
+> to apply to 3.8-rc7.
 
-Yes, as I recall this is exactly the reason why the current code is the
-way it is.
+I made it against 3.8-rc6, but I just checked the patches apply to
+3.8-rc7 aswell
+
+Sascha
 
 -- 
-Jean Delvare
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
