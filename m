@@ -1,17 +1,12 @@
 From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
 Subject: Re: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
-Date: Fri, 15 Feb 2013 10:24:21 +0000
-Message-ID: <20130215102420.GA22283@opensource.wolfsonmicro.com>
-References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
- <511BFF77.2090202@wwwdotorg.org>
- <CAD=FV=XUEcUx3NGCm+KijRGujECVTSJ9X5fY=arq-4U_RUdxCQ@mail.gmail.com>
- <511C32B5.20600@wwwdotorg.org>
- <CAD=FV=X=BPQo245kAtPvNUgKjypOYnheYJWcBkq6AA19z99V0w@mail.gmail.com>
- <CAD=FV=UYEqreNbUAxHydmWH+66pOORMB_uFokivLitsavzTcsQ@mail.gmail.com>
+Date: Fri, 15 Feb 2013 10:26:55 +0000
+Message-ID: <20130215102655.GB22283@opensource.wolfsonmicro.com>
+References: <CAD=FV=USf_YSzW1ZN2NWZKnLk_LPpnFpxRy=AGVyn_YHjRpKyw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5228924042296232678=="
+Content-Type: multipart/mixed; boundary="===============9006810516952537219=="
 Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <CAD=FV=UYEqreNbUAxHydmWH+66pOORMB_uFokivLitsavzTcsQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <CAD=FV=USf_YSzW1ZN2NWZKnLk_LPpnFpxRy=AGVyn_YHjRpKyw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
  <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
@@ -27,57 +22,51 @@ Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============5228924042296232678==
+--===============9006810516952537219==
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+	protocol="application/pgp-signature"; boundary="TakKZr9L6Hm6aLOc"
 Content-Disposition: inline
 
 
---d6Gm4EdcadzBjdND
+--TakKZr9L6Hm6aLOc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Thu, Feb 14, 2013 at 01:40:49PM -0800, Doug Anderson wrote:
-> On Wed, Feb 13, 2013 at 4:54 PM, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
+On Thu, Feb 14, 2013 at 05:14:35PM -0800, Doug Anderson wrote:
 
-> ...but when I moved to module_platform_driver() then things still broke.
+> The regulator_get() calls are before regulator_init_complete() by
+> quite a margin.  The regulator_init_complete() is a late_initcall, so
+> that's not too surprising.  Are we not supposed to access regulators
+> until after late_init()?  That seems like quite a limitation...
 
-> [    1.510000] platform-lcd supply lcd_vdd not found, using dummy regulator
+No, they should work fine at all points (the worst that'll happen is
+that you might get a few extra deferrals).
 
-> I was sorta hoping that there would be some magic where
-> regulator_get() would find the device tree node for the regulator and
-> then resolve the chain.  ...but maybe that's a pipe dream.
-
-You shouldn't have dummy regulators enabled at all, that'll break a
-bunch of stuff including dependency resolution.  They're a crutch to
-help get things booting not something you should be using in production.
-If they're not enabled regulator_get() will defer the probe.
-
---d6Gm4EdcadzBjdND
+--TakKZr9L6Hm6aLOc
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRHgzJAAoJELSic+t+oim96coP+wW2L5skeQe3KWD9LgTbaUdb
-99oC8BR3Dns9JbLL/7wA3psJex1TUvBhGrSXNxxYoPiZjuMMRmwmIG75A88L4XZo
-WwR9adX5EN3EnnvrXWf7Xci3zyyHKnQ+9Ydij9XkPL2+lQvl/cHcoUepxBkVExW/
-j77cDY2SnBUTh6VYjy4scra4X9940rLdtoixQm4WTRAST1frNPvqoRFXLt47xH9z
-qlxOZUrUQ/YrEfxTjKCDUWm4vIHyhNwRdjsep8NvxGrznavXjmYhGNEb7AhGFX3t
-5YkOLxfewjT3t+F6udyCuN5dth4OpjjTq5ZHWnEywlppj4RwYSrXTGFKoczYO9+z
-NBq92W9IIXY/NctGcP2wxbBlt2KEwLkitXNAnDXZEL3a/pfnpcBk79VgtoGU/z5Z
-xe9v8NvdTFUT6j1fSQrA0C13gabojsVrwuSq3OyHo1HJlcVUSmlIbjJcq62Pkt/K
-vwjebmlI9Qzi9q0ojdM2yMlRGuLXVQ7RKL55L0xLzcrJus9EHZr40Y+XUxCQEr6M
-OkHiWFyg9R7EfgOQv8QgPdqL5EJ0/Z1wGUaCUv9xCDoJr15/kc0HkBdwO2SyHhXW
-KS9DzyV+Gljda/66sSxgOLl+6vAvC16LvGr6/ODEEKxf9KcU4JMzy1QmT20Z51az
-yBN4Phq8XD02g7C0UEWS
-=U2FK
+iQIcBAEBAgAGBQJRHg1RAAoJELSic+t+oim9/BoQAIGC528aqY932jSquKnvxZT5
+zJmZhIrlggtR7bRZx4mgtCBEoMM2aDFN/iUzMW5dVi2Ck5Bs3G7QFSAbhDhUHAMV
+9fZ34GkMrf9lveh3xiTUFNvDAAE9O+Wob+ZO3JoldWlMYV/QQvfnZFenyA8ck9go
+A7UIAGh/7UWE8eZ+TYBvAE0KO/jTb1Qq8Tb5JkxT8UTI6gvb/omN5PZXeUmplOex
+uxmKMPIKkVAWpEgJtb52HNzpjJl1t8us3j4CclLMgcvrUfLoysBuXym+qgF1EonH
+WMXgFUf1/ffUj4FsluNsP7XC5g6osU69lbfO/Zmea7ncWp/F55QpUgkOwohiBw0o
+Tfq/U/YnP8EOGShvHFBzRUkr1A3F/3k/f1DjCOakz0n7CDgft3bnhW8qKPKQ9h8x
+/QsoL+T6v2VaHsovOAL25kE3zcbFAoiPyxIXXfvdP+cm5JVzvQwJElcHGZRLYWH+
+FZovd2y9abiuKxVe1hHxulQPPfOhcG9O+S5evRGIgTYUJAYc2qv5aSbkMhJd9fC3
+fSPcNNzgjr1bOSnQXqJNKu8JgiEHTmiNBnEMhZ+DiOfv9RORH1km82ZmELEOqQTa
+eN9THFcVQxZwyPjbYcps5WJSW8FpuwtlOYQsQTuR6TBpVDBsbAmGBUkrRjGHDzo0
+0YErr3rTcZ+icGxKNR3U
+=w9aG
 -----END PGP SIGNATURE-----
 
---d6Gm4EdcadzBjdND--
+--TakKZr9L6Hm6aLOc--
 
---===============5228924042296232678==
+--===============9006810516952537219==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -88,4 +77,4 @@ devicetree-discuss mailing list
 devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 https://lists.ozlabs.org/listinfo/devicetree-discuss
 
---===============5228924042296232678==--
+--===============9006810516952537219==--
