@@ -1,14 +1,17 @@
-From: Alex Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: Active low GPIOs (was [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator
- 'mux' driver)
-Date: Fri, 15 Feb 2013 16:21:42 +0900
-Message-ID: <511DE206.5000506@nvidia.com>
-References: <CAD=FV=W7tBOHzwayT5kgtCGmvvGs8RoX7J3rTf2vHT69b4aj6g@mail.gmail.com>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
+Date: Fri, 15 Feb 2013 10:24:21 +0000
+Message-ID: <20130215102420.GA22283@opensource.wolfsonmicro.com>
+References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
+ <511BFF77.2090202@wwwdotorg.org>
+ <CAD=FV=XUEcUx3NGCm+KijRGujECVTSJ9X5fY=arq-4U_RUdxCQ@mail.gmail.com>
+ <511C32B5.20600@wwwdotorg.org>
+ <CAD=FV=X=BPQo245kAtPvNUgKjypOYnheYJWcBkq6AA19z99V0w@mail.gmail.com>
+ <CAD=FV=UYEqreNbUAxHydmWH+66pOORMB_uFokivLitsavzTcsQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5228924042296232678=="
 Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <CAD=FV=W7tBOHzwayT5kgtCGmvvGs8RoX7J3rTf2vHT69b4aj6g-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <CAD=FV=UYEqreNbUAxHydmWH+66pOORMB_uFokivLitsavzTcsQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
  <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
 List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
@@ -19,64 +22,70 @@ List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
 Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
 Sender: "devicetree-discuss"
  <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Alexandre Courbot <gnurou-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, "u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "bhushan.r" <bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "sreekumar.c" <sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVjdc2367bhdW@public.gmane.org>
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "bhushan.r" <bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "sreekumar.c" <sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> On Thu, Feb 14, 2013 at 2:01 AM, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> On Thu, Feb 14, 2013 at 1:41 AM, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
->>> On 02/13/2013 05:34 PM, Doug Anderson wrote:
->>
->>>> A little torn here.  It adds a bunch of complexity to the code to
->>>> handle this case and there are no known or anticipated users.  I only
->>>> wish that the GPIO polarity could be more hidden from drivers (add
->>>> functions like gpio_assert, gpio_deassert, etc)...
->>>
->>> Yes, that would be nice. Alex, LinusW?
->>
->> OK so good point since Alex is rewriting the way the external
->> API to GPIOs is done.
->>
->> So this is one of the evolutionary artifacts of the GPIO subsystem:
->> that it has this concept of clients having to know if they want to
->> drive the line low or high.
->>
->> Either way somewhere in the system the knowledge of whether
->> the low or high state counts as asserted must be stored.
 
-Interestingly this knowledge is already more or less stored in GPIOlib - 
-all GPIOs descriptors have a FLAG_ACTIVE_LOW, but it can only be set 
-through the sysfs interface does not affect the in-kernel APIs. It does 
-affect what is returned by the "value" sysfs node, though.
+--===============5228924042296232678==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
 
-If we are to introduce something similar for the in-kernel interface, it 
-would be nice to keep it consistent with the sysfs behavior, otherwise 
-it will become a nightmare to maintain two different polarity settings 
-for in-kernel and sysfs interfaces. The introduction of the gpiod 
-interface could be helpful here. Since it would work with descriptors 
-obtained through gpiod_get(device, consumer), the polarity could be set 
-transparently from either the DT or platform data (which would then have 
-a "flags" member). Then gpiod_set_value/get_value would take it into 
-account, and behave just like the sysfs interface.
 
-So, in short:
-- old gpio_* interface would *not* be polarity-aware
-- new gpiod_* interface *would* be polarity-aware (and get the settings 
-from DT/platform data)
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This looks simple but I don't have enough altitude to be sure we won't 
-hit some walls by doing so.
+On Thu, Feb 14, 2013 at 01:40:49PM -0800, Doug Anderson wrote:
+> On Wed, Feb 13, 2013 at 4:54 PM, Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org> wrote:
 
-This would make the new gpiod and legacy gpio interfaces behave 
-differently, but at the same time is a good opportunity to have the 
-behavior as sysfs.
+> ...but when I moved to module_platform_driver() then things still broke.
 
-An undesirable side-effect would be that the legacy gpio interface could 
-not be built as a simple wrapper around gpiod anymore. That's sad, but 
-presenting interfaces that make sense is more important.
+> [    1.510000] platform-lcd supply lcd_vdd not found, using dummy regulator
 
-As a side-note, there is also this gpio_sysfs_set_active_low() public 
-interface that only mach-at91 seems to use (once!). Maybe we could try 
-to get rid of it?
+> I was sorta hoping that there would be some magic where
+> regulator_get() would find the device tree node for the regulator and
+> then resolve the chain.  ...but maybe that's a pipe dream.
 
-Alex.
+You shouldn't have dummy regulators enabled at all, that'll break a
+bunch of stuff including dependency resolution.  They're a crutch to
+help get things booting not something you should be using in production.
+If they're not enabled regulator_get() will defer the probe.
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRHgzJAAoJELSic+t+oim96coP+wW2L5skeQe3KWD9LgTbaUdb
+99oC8BR3Dns9JbLL/7wA3psJex1TUvBhGrSXNxxYoPiZjuMMRmwmIG75A88L4XZo
+WwR9adX5EN3EnnvrXWf7Xci3zyyHKnQ+9Ydij9XkPL2+lQvl/cHcoUepxBkVExW/
+j77cDY2SnBUTh6VYjy4scra4X9940rLdtoixQm4WTRAST1frNPvqoRFXLt47xH9z
+qlxOZUrUQ/YrEfxTjKCDUWm4vIHyhNwRdjsep8NvxGrznavXjmYhGNEb7AhGFX3t
+5YkOLxfewjT3t+F6udyCuN5dth4OpjjTq5ZHWnEywlppj4RwYSrXTGFKoczYO9+z
+NBq92W9IIXY/NctGcP2wxbBlt2KEwLkitXNAnDXZEL3a/pfnpcBk79VgtoGU/z5Z
+xe9v8NvdTFUT6j1fSQrA0C13gabojsVrwuSq3OyHo1HJlcVUSmlIbjJcq62Pkt/K
+vwjebmlI9Qzi9q0ojdM2yMlRGuLXVQ7RKL55L0xLzcrJus9EHZr40Y+XUxCQEr6M
+OkHiWFyg9R7EfgOQv8QgPdqL5EJ0/Z1wGUaCUv9xCDoJr15/kc0HkBdwO2SyHhXW
+KS9DzyV+Gljda/66sSxgOLl+6vAvC16LvGr6/ODEEKxf9KcU4JMzy1QmT20Z51az
+yBN4Phq8XD02g7C0UEWS
+=U2FK
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--
+
+--===============5228924042296232678==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============5228924042296232678==--
