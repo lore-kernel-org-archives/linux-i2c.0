@@ -1,233 +1,113 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH] i2c-designware: Interrupt sharing and SDA hold time
-Date: Fri, 15 Feb 2013 18:49:37 +0200
-Message-ID: <20130215164937.GV20771@intel.com>
-References: <1360923110-21692-1-git-send-email-christian.ruppert@abilis.com>
- <20130215115037.GT20771@intel.com>
- <20130215130509.GA29780@ab42.lan>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v2 1/3] i2c: mux: Add i2c-arbitrator-cros-ec 'mux' driver
+Date: Fri, 15 Feb 2013 09:25:54 -0800
+Message-ID: <CAD=FV=W9WwSsid_KqtDRmAkFXnneRXu5zcakDB3t4hLhOpuCtw@mail.gmail.com>
+References: <1360887677-20758-1-git-send-email-dianders@chromium.org>
+ <511E64C0.9090500@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130215130509.GA29780@ab42.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christian Ruppert <christian.ruppert@abilis.com>
-Cc: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <511E64C0.9090500-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Guenter Roeck <guenter.roeck-IzeFyvvaP7pWk0Htik3J/w@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "bhushan.r" <bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "sreekumar.c" <sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Peter Korsgaard <peter.ko>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 15, 2013 at 02:05:10PM +0100, Christian Ruppert wrote:
-> On Fri, Feb 15, 2013 at 01:50:37PM +0200, Mika Westerberg wrote:
-> > On Fri, Feb 15, 2013 at 11:11:50AM +0100, Christian Ruppert wrote:
-> > > This patch implements interrupt sharing and SDA hold time configuration in
-> > > the designware i2c driver. Both functions are enabled through platform data
-> > > or device tree. Tested with Linux-3.8rc4 (Synopsys ARC port, see
-> > > https://github.com/foss-for-synopsys-dwc-arc-processors/linux/commits/arc-3.8-baseline).
-> > > 
-> > > Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
-> > > Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
-> > > ---
-> > >  .../devicetree/bindings/i2c/i2c-designware.txt     |   18 ++++++++++
-> > >  drivers/i2c/busses/i2c-designware-core.c           |    6 +++
-> > >  drivers/i2c/busses/i2c-designware-core.h           |    2 +
-> > >  drivers/i2c/busses/i2c-designware-platdrv.c        |   34 +++++++++++++++++++-
-> > >  include/linux/i2c/i2c-designware.h                 |   13 +++++++
-> > >  5 files changed, 72 insertions(+), 1 deletions(-)
-> > >  create mode 100644 include/linux/i2c/i2c-designware.h
-> > > 
-> > > diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> > > index e42a2ee..474386b 100644
-> > > --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> > > +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> > > @@ -10,6 +10,12 @@ Recommended properties :
-> > >  
-> > >   - clock-frequency : desired I2C bus clock frequency in Hz.
-> > >  
-> > > +Optional properties :
-> > > + - interrupts-shared : If this property is present, the interrupt line is
-> > > +   considered shared with other devices.
-> > > + - sda-hold-time : If this property is present, the register SDA_HOLD will
-> > > +   be initialised with its value.
-> > > +
-> > >  Example :
-> > >  
-> > >  	i2c@f0000 {
-> > > @@ -20,3 +26,15 @@ Example :
-> > >  		interrupts = <11>;
-> > >  		clock-frequency = <400000>;
-> > >  	};
-> > > +
-> > > +	i2c@1120000 {
-> > > +		#address-cells = <1>;
-> > > +		#size-cells = <0>;
-> > > +		compatible = "snps,designware-i2c";
-> > > +		reg = <0x1120000 0x1000>;
-> > > +		interrupt-parent = <&ictl>;
-> > > +		interrupts = <12 1>;
-> > > +		interrupts-shared;
-> > > +		clock-frequency = <400000>;
-> > > +		sda-hold-time = <0x64>;
-> > > +	};
-> > > diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> > > index cbba7db..36ba0b5 100644
-> > > --- a/drivers/i2c/busses/i2c-designware-core.c
-> > > +++ b/drivers/i2c/busses/i2c-designware-core.c
-> > > @@ -34,6 +34,7 @@
-> > >  #include <linux/io.h>
-> > >  #include <linux/pm_runtime.h>
-> > >  #include <linux/delay.h>
-> > > +#include <linux/i2c/i2c-designware.h>
-> > >  #include "i2c-designware-core.h"
-> > >  
-> > >  /*
-> > > @@ -66,6 +67,7 @@
-> > >  #define DW_IC_STATUS		0x70
-> > >  #define DW_IC_TXFLR		0x74
-> > >  #define DW_IC_RXFLR		0x78
-> > > +#define DW_IC_SDA_HOLD		0x7c
-> > >  #define DW_IC_TX_ABRT_SOURCE	0x80
-> > >  #define DW_IC_COMP_PARAM_1	0xf4
-> > >  #define DW_IC_COMP_TYPE		0xfc
-> > > @@ -309,6 +311,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
-> > >  	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
-> > >  	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
-> > >  
-> > > +	/* Configure SDA Hold Time if required */
-> > > +	if (dev->pdat_flags & I2C_DW_PDAT_FLAGS_SET_HOLDTIME)
-> > > +		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
-> > 
-> > AFAIK, DW_IC_SDA_HOLD minimum value is 1 so you could just do:
-> > 
-> > 	if (dev->sda_hold_time)
-> > 		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
-> 
-> This is correct, I'll modify it.
-> 
-> > Also should this be configurable for standard and fast modes both?
-> > Something like sm_sda_hold_time and fm_sda_hold_time?
-> 
-> AFAIK the requirements for data hold time do not differ between standard
-> and fast mode. The hardware seems to have been designed in the same
-> understanding since it provides two separate register sets for clock
-> timings in standard and fast modes but only one register for data hold
-> time. Am I missing something here?
+Stephen,
 
-No, you are probably right. We can always add support for the other mode in
-the driver if there is need for that.
+New version will come shortly with fixes below...
 
-> > > +
-> > >  	/* Configure Tx/Rx FIFO threshold levels */
-> > >  	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
-> > >  	dw_writel(dev, 0, DW_IC_RX_TL);
-> > > diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> > > index 9c1840e..ef20477 100644
-> > > --- a/drivers/i2c/busses/i2c-designware-core.h
-> > > +++ b/drivers/i2c/busses/i2c-designware-core.h
-> > > @@ -88,6 +88,8 @@ struct dw_i2c_dev {
-> > >  	u32			master_cfg;
-> > >  	unsigned int		tx_fifo_depth;
-> > >  	unsigned int		rx_fifo_depth;
-> > > +	u32			sda_hold_time;
-> > > +	unsigned int		pdat_flags;
-> > >  };
-> > >  
-> > >  #define ACCESS_SWAP		0x00000001
-> > > diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > index 343357a..2ad2da3 100644
-> > > --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> > > @@ -34,11 +34,13 @@
-> > >  #include <linux/sched.h>
-> > >  #include <linux/err.h>
-> > >  #include <linux/interrupt.h>
-> > > +#include <linux/of.h>
-> > >  #include <linux/of_i2c.h>
-> > >  #include <linux/platform_device.h>
-> > >  #include <linux/pm.h>
-> > >  #include <linux/io.h>
-> > >  #include <linux/slab.h>
-> > > +#include <linux/i2c/i2c-designware.h>
-> > >  #include "i2c-designware-core.h"
-> > >  
-> > >  static struct i2c_algorithm i2c_dw_algo = {
-> > > @@ -56,6 +58,28 @@ static int dw_i2c_probe(struct platform_device *pdev)
-> > >  	struct i2c_adapter *adap;
-> > >  	struct resource *mem, *ioarea;
-> > >  	int irq, r;
-> > > +	unsigned long irqf;
-> > > +	struct i2c_designware_platform_data *pdat = pdev->dev.platform_data;
-> > > +
-> > > +	if ((!pdat) && pdev->dev.of_node) {
-> > > +		struct device_node *node = pdev->dev.of_node;
-> > > +
-> > > +		pdat = kmalloc(sizeof(struct i2c_designware_platform_data),
-> > > +				GFP_KERNEL);
-> > > +		if (!pdat)
-> > > +			return -ENOMEM;
-> > > +
-> > > +		pdat->flags = 0;
-> > > +
-> > > +		if (of_get_property(node, "interrupts-shared", NULL))
-> > > +			pdat->flags |= I2C_DW_PDAT_FLAGS_SHARE_IRQ;
-> > > +
-> > > +		if (!of_property_read_u32(node, "sda-hold-time",
-> > > +					&pdat->sda_hold_time))
-> > > +			pdat->flags |= I2C_DW_PDAT_FLAGS_SET_HOLDTIME;
-> > > +
-> > > +		pdev->dev.platform_data = pdat;
-> > 
-> > I do not understand why you need a separate platform data at all? Can't you
-> > do it in a same way than the ACPI code?
-> 
-> I suppose you are referring to dw_i2c_acpi_configure() in i2c/next which
-> directly sets the values dev->... This is perfectly feasible and would
-> greatly simplify the patch. The reason I introduced the platform data
-> indirection layer is compatibility with legacy instantiations and
-> platforms that do not yet support device tree. We do not internally need
-> that backwards compatibility but does anybody else? Otherwise I'll
-> remove it.
 
-Well, there wasn't any platform data before so I'm not sure if it breaks
-anything. And if you only instantiate the new fields once you know that the
-device has been enumerated from DT, you should be fine.
+On Fri, Feb 15, 2013 at 8:39 AM, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
+> On 02/14/2013 05:21 PM, Doug Anderson wrote:
+>> The i2c-arbitrator-cros-ec driver implements the arbitration scheme
+>> that the Embedded Controller (EC) on the ARM Chromebook expects to use
+>> for bus multimastering.  This i2c-arbitrator-cros-ec driver could also
+>> be used in other places where standard I2C bus arbitration can't be
+>> used and two extra GPIOs are available for arbitration.
+>>
+>> This driver is based on code that Simon Glass added to the i2c-s3c2410
+>> driver in the Chrome OS kernel 3.4 tree.  The current incarnation as a
+>> mux driver is as suggested by Grant Likely.  See
+>> <https://patchwork.kernel.org/patch/1877311/> for some history.
+>
+>> diff --git a/drivers/i2c/muxes/i2c-arbitrator-cros-ec.c b/drivers/i2c/muxes/i2c-arbitrator-cros-ec.c
+>
+>> +static int i2c_arbitrator_probe(struct platform_device *pdev)
+>
+>> +     arb->parent = of_find_i2c_adapter_by_node(parent_np);
+>> +     if (WARN_ON(!arb->parent))
+>> +             return -EINVAL;
+>
+> I think for all error paths after this point, a call to
+> i2c_put_adapter() is needed.
 
-> 
-> > And this probably doesn't apply to the i2c/next branch because we added the
-> > ACPI enumeration there.
-> 
-> No problem, I'll check the next patch iteration wrt. i2c/next which I
-> should have probably done in the first place.
+Right.  I messed that up when I reworked.  I'll reorder this one to
+last since it's the only one that needs cleanup.  Thanks for catching!
 
-Cool.
 
-> 
-> > > +	}
-> > >  
-> > >  	/* NOTE: driver uses the static register mapping */
-> > >  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> > > @@ -120,12 +144,20 @@ static int dw_i2c_probe(struct platform_device *pdev)
-> > >  		dev->tx_fifo_depth = ((param1 >> 16) & 0xff) + 1;
-> > >  		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
-> > >  	}
-> > > +	dev->sda_hold_time = pdat->sda_hold_time;
-> > > +	dev->pdat_flags = pdat->flags;
-> > > +
-> > >  	r = i2c_dw_init(dev);
-> > >  	if (r)
-> > >  		goto err_iounmap;
-> > >  
-> > >  	i2c_dw_disable_int(dev);
-> > > -	r = request_irq(dev->irq, i2c_dw_isr, IRQF_DISABLED, pdev->name, dev);
-> > > +
-> > > +	irqf = IRQF_DISABLED;
-> > > +	if (dev->pdat_flags & I2C_DW_PDAT_FLAGS_SHARE_IRQ)
-> > > +		irqf |= IRQF_SHARED;
-> > 
-> > Please check Wolfram's i2c/next. This is set already there.
-> 
-> Perfect. My fault for not looking there first. Thanks for highlighting
-> this.
+>> +     /* Request GPIOs */
+>> +     ret = of_get_named_gpio_flags(np, "ap-claim-gpio", 0, &gpio_flags);
+>> +     if (WARN_ON(!gpio_is_valid(ret)))
+>> +             return ret;
+>
+> You shouldn't warn in all cases; -EPROBE_DEFER can quite legitimately
+> happen and only temporarily prevents probe() - it's retried later.
 
-No problem :)
+Done.
 
-And thanks for adding SDA_HOLD support - we also have need for that on
-Lynxpoint platform.
+
+>> +     arb->ap_gpio = ret;
+>
+> Nit: Perhaps simply assign arb->ap_gpio directly from the
+> of_get_named_gpio_flags call? It would make that call slightly clearer.
+
+With the addition of checks for -EPROBE_DEFER this causes several line
+wraps including the "if" test so not doing.
+
+
+>> +     arb->ap_gpio_release = !!(gpio_flags & OF_GPIO_ACTIVE_LOW);
+>> +     out_init = (gpio_flags & OF_GPIO_ACTIVE_LOW) ?
+>> +             GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW;
+>
+> Nit: I'd be tempted to test arb->ap_gpio_release here, rather than
+> extracting the value from the flags again. Semantically equivalent, but
+> it seems to slightly more directly show why it's being tested.
+
+I wrote it both ways and decided I liked this way better.  IMHO the
+symmetry between the ec_gpio_release code and the ap_gpio_release code
+is worth the extra test.  ...but I can see both sides of the argument
+so will change it if you wish.
+
+
+>> +subsys_initcall(i2c_arbitrator_init);
+>
+> You mentioned that you only saw problems using
+> module_init/module_platform_driver in your downstream tree, so the
+> problem doesn't affect upstream. Presumably those problems would be
+> fixed when upstreaming any other drivers into the mainline kernel. I'd
+> still be tempted to just use module_platform_driver here. But, I guess
+> I'm fine with the patch either way; I'll leave the call to Wolfram.
+
+I take it you thought my "since this provides a bus it should be a
+subsystem" argument was BS?  It seems like the "it needs to be this
+way for correctness" is a pretty weak argument, but even if we fix the
+other problems it still seems like it is more ideal for bus providers
+to be registered as subsystems just to avoid defers (so you get a
+faster boot).
+
+If it will make the patch more palatable I'll move it to
+module_platform_driver() and we'll figure out how to make it work.
+
+
+-Doug
