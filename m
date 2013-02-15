@@ -1,27 +1,37 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: s3c2410: move mach/regs-iic.h into i2c-s3c2410
- device driver
-Date: Fri, 15 Feb 2013 21:00:08 +0100
-Message-ID: <20130215200008.GG4351@the-dreams.de>
-References: <201302080057.00664.heiko@sntech.de>
- <1d3501ce0948$26826c60$73874520$@samsung.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: remove warning dump if timeout happen in
+ transfer
+Date: Fri, 15 Feb 2013 21:10:24 +0100
+Message-ID: <20130215201024.GH4351@the-dreams.de>
+References: <1360845813-11334-1-git-send-email-ldewangan@nvidia.com>
+ <20130215191826.GC4351@the-dreams.de>
+ <511E8F3F.5010202@wwwdotorg.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1d3501ce0948$26826c60$73874520$@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Kukjin Kim <kgene.kim@samsung.com>
-Cc: 'Heiko =?iso-8859-15?Q?St=FCbner'?= <heiko@sntech.de>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <511E8F3F.5010202-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kukjin,
-
-(please don't quote the whole patch for those few lines)
-
-> Looks good to me on this series:
-> Acked-by: Kukjin Kim <kgene.kim@samsung.com>
+On Fri, Feb 15, 2013 at 12:40:47PM -0700, Stephen Warren wrote:
+> On 02/15/2013 12:18 PM, Wolfram Sang wrote:
+> > On Thu, Feb 14, 2013 at 06:13:33PM +0530, Laxman Dewangan wrote:
+> >> If timeout error occurs in the i2c transfer then it was dumping warning
+> >> of call stack.
+> >>
+> >> Remove the warning dump as there is may be possibility that some slave
+> >> devices are busy and not responding the i2c communication.
+> >>
+> >> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> > 
+> > I'd like to have the patch extended. Currently, i2c-tegra is the only
+> > I2C user of BUG and BUG_ON. Could you maybe extend the patch to handle
+> > those situations more gracefully while we are at it? From a glimpse,
+> > these situations don't need a complete halt of the kernel?
 > 
-> Hi Wolfram, if you're ok on this, please pick up into your tree with my ack.
+> While that's probably useful, surely that's a separate patch?
 
-Will do, but not for 3.9 anymore. Thanks!
+Yes, can be argued. Patch applied to for-next, thanks!
