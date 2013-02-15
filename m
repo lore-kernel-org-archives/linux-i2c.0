@@ -1,37 +1,45 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: [PATCH] i2c: mux: Remove unneeded platform_set_drvdata to NULL in remove
-Date: Fri, 15 Feb 2013 10:41:22 -0800
-Message-ID: <1360953682-25066-1-git-send-email-dianders@chromium.org>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: [PATCH -next] i2c: fix i2c-ismt.c printk format warning
+Date: Fri, 15 Feb 2013 10:51:40 -0800
+Message-ID: <511E83BC.3050007@infradead.org>
+References: <20130215184255.5ba8a085004f4aadb9faf82c@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130215184255.5ba8a085004f4aadb9faf82c@canb.auug.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Doug Anderson <dianders@chromium.org>, Peter Korsgaard <peter.korsgaard@barco.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, "Bill E. Brown" <bill.e.brown@intel.com>, Jean Delvare <khali@linux-fr.org>, Seth Heasley <seth.heasley@intel.com>, Neil Horman <nhorman@tuxdriver.com>, Wolfram Sang <w.sang@pengutronix.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Stephen Warren pointed out as part of a code review of another mux
-driver that there should be no need to have
-"platform_set_drvdata(pdev, NULL)" in the remove function.  Get rid of
-it in the i2c-mux-gpio driver.
+From: Randy Dunlap <rdunlap@infradead.org>
 
-See Stephen's comment at:
-  http://www.gossamer-threads.com/lists/linux/kernel/1678627?do=post_view_threaded#1678627
+Fix printk format warning.  dma_addr_t can be 32-bit or 64-bit,
+so cast it to long long for printing.  This also matches the
+printk format specifier that is already used.
 
-Signed-off-by: Doug Anderson <dianders@chromium.org>
+drivers/i2c/busses/i2c-ismt.c:532:3: warning: format '%llX' expects argument of type 'long long unsigned int', but argument 4 has type 'dma_addr_t' [-Wformat]
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc:	Bill E. Brown <bill.e.brown@intel.com>
+Cc:	Jean Delvare <khali@linux-fr.org>
+Cc:	Seth Heasley <seth.heasley@intel.com>
+Cc:	Neil Horman <nhorman@tuxdriver.com>
+Cc:	Wolfram Sang <w.sang@pengutronix.de>
+Cc:	linux-i2c@vger.kernel.org
 ---
- drivers/i2c/muxes/i2c-mux-gpio.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/i2c/busses/i2c-ismt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 9f50ef0..abc2e55a 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -250,7 +250,6 @@ static int i2c_mux_gpio_remove(struct platform_device *pdev)
- 	for (i = 0; i < mux->data.n_gpios; i++)
- 		gpio_free(mux->gpio_base + mux->data.gpios[i]);
+--- linux-next-20130215.orig/drivers/i2c/busses/i2c-ismt.c
++++ linux-next-20130215/drivers/i2c/busses/i2c-ismt.c
+@@ -530,7 +530,7 @@ static int ismt_access(struct i2c_adapte
+ 		}
  
--	platform_set_drvdata(pdev, NULL);
- 	i2c_put_adapter(mux->parent);
+ 		dev_dbg(dev, " dma_addr = 0x%016llX\n",
+-			dma_addr);
++			(unsigned long long)dma_addr);
  
- 	return 0;
--- 
-1.8.1
+ 		desc->dptr_low = lower_32_bits(dma_addr);
+ 		desc->dptr_high = upper_32_bits(dma_addr);
