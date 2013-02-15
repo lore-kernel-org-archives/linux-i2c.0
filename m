@@ -1,154 +1,71 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: [PATCH] i2c: tegra: assume CONFIG_OF, remove platform data
-Date: Fri, 15 Feb 2013 14:56:10 -0700
-Message-ID: <1360965370-14952-1-git-send-email-swarren@wwwdotorg.org>
+From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: mux: Remove unneeded platform_set_drvdata to NULL in remove
+Date: Fri, 15 Feb 2013 15:17:24 -0800
+Message-ID: <CAD=FV=XBcxuC_Se0CHhgCFPDLjqRrK5gB917rTbk4yUPHHTerw@mail.gmail.com>
+References: <1360953682-25066-1-git-send-email-dianders@chromium.org>
+	<20130215193736.GD4351@the-dreams.de>
+	<CAD=FV=VTJN3bU1rpMyjDMvX1SYZJWoJCiNtHNe+nDrtwnXqTXA@mail.gmail.com>
+	<20130215195347.GF4351@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130215195347.GF4351-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "\"Ben Dooks" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Wolfram,
 
-Tegra only supports, and always enables, device tree. Remove all ifdefs
-and runtime checks for DT support from the driver. Platform data is
-therefore no longer required. Delete the header that defines it.
+On Fri, Feb 15, 2013 at 11:53 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>
+>> I'll re-send with I2C subsystem wide.  I probably won't attempt the
+>> whole kernel wide at this point, but would be very happy if someone
+>> else wanted to!  :)
+>
+> Thanks. Please double check that setting NULL is really unneeded for the
+> non-platform-bus variants, too, or skip those if you are unsure. Please
+> also update the commit message to reference a stronger indication than
+> Stephen's "should not be necessary" ;) I do agree but for the commit
+> history, a better reference would be nice to educate readers.
 
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- arch/arm/mach-tegra/board-dt-tegra20.c |    2 --
- drivers/i2c/busses/i2c-tegra.c         |   26 +++++++-------------------
- include/linux/i2c-tegra.h              |   25 -------------------------
- 3 files changed, 7 insertions(+), 46 deletions(-)
- delete mode 100644 include/linux/i2c-tegra.h
+Sounds good.
 
-diff --git a/arch/arm/mach-tegra/board-dt-tegra20.c b/arch/arm/mach-tegra/board-dt-tegra20.c
-index a0edf25..6e1c9a9 100644
---- a/arch/arm/mach-tegra/board-dt-tegra20.c
-+++ b/arch/arm/mach-tegra/board-dt-tegra20.c
-@@ -30,8 +30,6 @@
- #include <linux/pda_power.h>
- #include <linux/platform_data/tegra_usb.h>
- #include <linux/io.h>
--#include <linux/i2c.h>
--#include <linux/i2c-tegra.h>
- #include <linux/usb/tegra_usb_phy.h>
- 
- #include <asm/mach-types.h>
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index ae2e027..587ba7a 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -25,7 +25,6 @@
- #include <linux/interrupt.h>
- #include <linux/delay.h>
- #include <linux/slab.h>
--#include <linux/i2c-tegra.h>
- #include <linux/of_i2c.h>
- #include <linux/of_device.h>
- #include <linux/module.h>
-@@ -172,7 +171,7 @@ struct tegra_i2c_dev {
- 	u8 *msg_buf;
- 	size_t msg_buf_remaining;
- 	int msg_read;
--	unsigned long bus_clk_rate;
-+	u32 bus_clk_rate;
- 	bool is_suspended;
- };
- 
-@@ -685,7 +684,6 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.clk_divisor_std_fast_mode = 0x19,
- };
- 
--#if defined(CONFIG_OF)
- /* Match table for of_platform binding */
- static const struct of_device_id tegra_i2c_of_match[] = {
- 	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
-@@ -695,16 +693,13 @@ static const struct of_device_id tegra_i2c_of_match[] = {
- 	{},
- };
- MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
--#endif
- 
- static int tegra_i2c_probe(struct platform_device *pdev)
- {
- 	struct tegra_i2c_dev *i2c_dev;
--	struct tegra_i2c_platform_data *pdata = pdev->dev.platform_data;
- 	struct resource *res;
- 	struct clk *div_clk;
- 	struct clk *fast_clk;
--	const unsigned int *prop;
- 	void __iomem *base;
- 	int irq;
- 	int ret = 0;
-@@ -745,23 +740,16 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->cont_id = pdev->id;
- 	i2c_dev->dev = &pdev->dev;
- 
--	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
--	if (pdata) {
--		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
--
--	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... */
--		prop = of_get_property(i2c_dev->dev->of_node,
--				"clock-frequency", NULL);
--		if (prop)
--			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
--	}
-+	ret = of_property_read_u32(i2c_dev->dev->of_node, "clock-frequency",
-+					&i2c_dev->bus_clk_rate);
-+	if (ret)
-+		i2c_dev->bus_clk_rate = 100000; /* default clock rate */
- 
- 	i2c_dev->hw = &tegra20_i2c_hw;
- 
- 	if (pdev->dev.of_node) {
- 		const struct of_device_id *match;
--		match = of_match_device(of_match_ptr(tegra_i2c_of_match),
--						&pdev->dev);
-+		match = of_match_device(tegra_i2c_of_match, &pdev->dev);
- 		i2c_dev->hw = match->data;
- 		i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
- 						"nvidia,tegra20-i2c-dvc");
-@@ -867,7 +855,7 @@ static struct platform_driver tegra_i2c_driver = {
- 	.driver  = {
- 		.name  = "tegra-i2c",
- 		.owner = THIS_MODULE,
--		.of_match_table = of_match_ptr(tegra_i2c_of_match),
-+		.of_match_table = tegra_i2c_of_match,
- 		.pm    = TEGRA_I2C_PM,
- 	},
- };
-diff --git a/include/linux/i2c-tegra.h b/include/linux/i2c-tegra.h
-deleted file mode 100644
-index 9c85da4..0000000
---- a/include/linux/i2c-tegra.h
-+++ /dev/null
-@@ -1,25 +0,0 @@
--/*
-- * drivers/i2c/busses/i2c-tegra.c
-- *
-- * Copyright (C) 2010 Google, Inc.
-- * Author: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-- *
-- * This software is licensed under the terms of the GNU General Public
-- * License version 2, as published by the Free Software Foundation, and
-- * may be copied, distributed, and modified under those terms.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- */
--
--#ifndef _LINUX_I2C_TEGRA_H
--#define _LINUX_I2C_TEGRA_H
--
--struct tegra_i2c_platform_data {
--	unsigned long bus_clk_rate;
--};
--
--#endif /* _LINUX_I2C_TEGRA_H */
--- 
-1.7.10.4
+I've it looks like non-platform-bus instances in drivers/i2c break down to:
+* dev_set_drvdata() directly (even though we're a platform device)
+* pci_set_drvdata()
+* amba_set_drvdata()
+* serio_set_drvdata()
+
+I'll go ahead and include those in my patch.  I've looked through the
+code a bit.  While I can't 100% guarantee that there's not some
+strange code path that I'm missing, it all looks pretty
+straightforward.  A few points to be made:
+
+* It would be a bit hard to believe that some higher-level code could
+make any particular assumptions about the value in the pointer (it
+might point to static data, kmalloced data, etc).  ...so if the
+higher-level code is directly looking at this value it'd really could
+only be looking to validate that the driver put NULL here.  I don't
+see that anywhere.
+
+* I've checked all of the calls to xxx_get_drvdata() in the drivers
+touched.  The majority are in remove, suspend, or resume, so we're
+good there.  In other cases I just validated that they aren't checking
+for and relying on a NULL result of xxx_get_drvdata().
+
+* It would be possible that some subsystem tries to be helpful and
+call xxx_get_drvdata() for you and then pass drvdata into a callback
+(so I wouldn't see xxx_get_drvdata()).  I don't see that (it would be
+a strange design anyway IMHO).  Most of the time I2C devices seem to
+get their private data from adap->algo_data anyway (or from the
+pointer passed to IRQ registration) and xxx_set_drvdata() doesn't
+touch those.
+
+* The __device_release_driver() function actually calls the
+"dev_set_drvdata(dev, NULL)" for you anyway.  ...and I that's what's
+running the remove code anyway.  ...so we'd only need to worry about
+code that could show up before that...
+
+
+-Doug
