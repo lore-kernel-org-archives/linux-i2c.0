@@ -1,52 +1,53 @@
-From: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
-Date: Fri, 15 Feb 2013 13:05:45 -0800
-Message-ID: <CAD=FV=Uv-f-p1KfLNkiw1tjF8fzEp+XZvEt5VOYUh+0vPF4tow@mail.gmail.com>
-References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
- <511BFF77.2090202@wwwdotorg.org>
- <CAD=FV=XUEcUx3NGCm+KijRGujECVTSJ9X5fY=arq-4U_RUdxCQ@mail.gmail.com>
- <511C32B5.20600@wwwdotorg.org>
- <CAD=FV=X=BPQo245kAtPvNUgKjypOYnheYJWcBkq6AA19z99V0w@mail.gmail.com>
- <CAD=FV=UYEqreNbUAxHydmWH+66pOORMB_uFokivLitsavzTcsQ@mail.gmail.com>
- <20130215102420.GA22283@opensource.wolfsonmicro.com>
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH v3 1/3] i2c: mux: Add i2c-arbitrator-cros-ec 'mux' driver
+Date: Fri, 15 Feb 2013 14:31:48 -0700
+Message-ID: <511EA944.1090900@wwwdotorg.org>
+References: <1360887677-20758-1-git-send-email-dianders@chromium.org> <1360957573-864-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20130215102420.GA22283-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
-Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "bhushan.r" <bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "sreekumar.c" <sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1360957573-864-1-git-send-email-dianders@chromium.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-doc@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Stephen Warren <swarren@nvidia.com>, Ben Dooks <ben.dooks@codethink.co.uk>, u.kleine-koenig@pengutronix.de, Grant Grundler <grundler@chromium.org>, devicetree-discuss@lists.ozlabs.org, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Girish Shivananjappa <girish.shivananjappa@linaro.org>, bhushan.r@samsung.com, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, sreekumar.c@samsung.com, Mark Brown <broonie@opensource.wolfsonmicro.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Yuvaraj Kumar <yuvaraj.cd@gmail.com>, Prashanth G <prashanth.g@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Mark / Stephen,
+On 02/15/2013 12:46 PM, Doug Anderson wrote:
+> The i2c-arbitrator-cros-ec driver implements the arbitration scheme
+> that the Embedded Controller (EC) on the ARM Chromebook expects to use
+> for bus multimastering.  This i2c-arbitrator-cros-ec driver could also
+> be used in other places where standard I2C bus arbitration can't be
+> used and two extra GPIOs are available for arbitration.
+> 
+> This driver is based on code that Simon Glass added to the i2c-s3c2410
+> driver in the Chrome OS kernel 3.4 tree.  The current incarnation as a
+> mux driver is as suggested by Grant Likely.  See
+> <https://patchwork.kernel.org/patch/1877311/> for some history.
 
-On Fri, Feb 15, 2013 at 2:24 AM, Mark Brown
-<broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org> wrote:
-> You shouldn't have dummy regulators enabled at all, that'll break a
-> bunch of stuff including dependency resolution.  They're a crutch to
-> help get things booting not something you should be using in production.
-> If they're not enabled regulator_get() will defer the probe.
+Reviewed-by: Stephen Warren <swarren@nvidia.com>
 
-Argh, that'll learn me.  :P  The CONFIG_REGULATOR_DUMMY=y was only
-present in the "work in progress" tree that I was using to test
-integration.  It's not present anywhere else.  ...so I guess that
-mystery is solved.
+> diff --git a/drivers/i2c/muxes/i2c-arbitrator-cros-ec.c b/drivers/i2c/muxes/i2c-arbitrator-cros-ec.c
 
-We'll still need to figure out how to plumb EPROBE_DEFER handling into
-a few more places to get the issue fully solved, but at least a bunch
-of mysteries (to me) are solved.
+> +static int i2c_arbitrator_probe(struct platform_device *pdev)
 
-I think v3 of the patch series is in pretty good shape till the next
-person takes a gander at it.  ;)
+> +	/* Request GPIOs */
+> +	ret = of_get_named_gpio_flags(np, "ap-claim-gpio", 0, &gpio_flags);
+> +	if (ret == -EPROBE_DEFER || WARN_ON(!gpio_is_valid(ret)))
+> +		return ret;
 
--Doug
+I think by the time that doesn't return -EPROBE_DEFER ...
+
+> +	arb->ap_gpio = ret;
+> +	arb->ap_gpio_release = !!(gpio_flags & OF_GPIO_ACTIVE_LOW);
+> +	out_init = (gpio_flags & OF_GPIO_ACTIVE_LOW) ?
+> +		GPIOF_OUT_INIT_HIGH : GPIOF_OUT_INIT_LOW;
+> +	ret = devm_gpio_request_one(&pdev->dev, arb->ap_gpio, out_init,
+> +				    "ap-claim-gpio");
+> +	if (ret == -EPROBE_DEFER || WARN_ON(ret))
+> +		return ret;
+
+... that won't either, since of_get_named_gpio_flags()'s implementation
+requires the relevant GPIO driver to be active already.
+
+Still, there's no harm in the code as it stands, so no need to change.
