@@ -1,30 +1,29 @@
-From: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-Subject: Re: [PATCH -next] i2c: fix i2c-ismt.c printk format warning
-Date: Fri, 15 Feb 2013 14:08:21 -0500
-Message-ID: <20130215190821.GA31316@hmsreliant.think-freely.org>
-Reply-To: 511E83BC.3050007-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH V3] i2c: davinci: update to devm_* API
+Date: Fri, 15 Feb 2013 20:09:43 +0100
+Message-ID: <20130215190943.GB4351@the-dreams.de>
+References: <1360241520-11476-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
+In-Reply-To: <1360241520-11476-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
+To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->Fix printk format warning.  dma_addr_t can be 32-bit or 64-bit,
->so cast it to long long for printing.  This also matches the
->printk format specifier that is already used.
->
->drivers/i2c/busses/i2c-ismt.c:532:3: warning: format '%llX' expects argument of type \
->'long long unsigned int', but argument 4 has type 'dma_addr_t' [-Wformat]
->
->Signed-off-by: Randy Dunlap <rdunlap-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
->Cc:	Bill E. Brown <bill.e.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->Cc:	Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->Cc:	Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->Cc:	Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
->Cc:	Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
->Cc:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+On Thu, Feb 07, 2013 at 06:22:00PM +0530, Vishwanathrao Badarkhe, Manish wrote:
+> Update the code to use devm_* API so that driver
+> core will manage resources.
+> Also, if "devm_request_and_ioremap" fails return -EADDRNOTAVAIL
+> instead of -EBUSY.
+> 
+> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
 
-Acked-by: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+Basically OK, please resend when devm_ioremap_resource hits mainline in
+3.9.
+
+Thanks,
+
+   Wolfram
