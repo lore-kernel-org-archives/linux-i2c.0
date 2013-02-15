@@ -1,28 +1,32 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH V3] i2c: davinci: update to devm_* API
-Date: Fri, 15 Feb 2013 20:09:43 +0100
-Message-ID: <20130215190943.GB4351@the-dreams.de>
-References: <1360241520-11476-1-git-send-email-manishv.b@ti.com>
+Subject: Re: [PATCH] i2c: tegra: remove warning dump if timeout happen in
+ transfer
+Date: Fri, 15 Feb 2013 20:18:26 +0100
+Message-ID: <20130215191826.GC4351@the-dreams.de>
+References: <1360845813-11334-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1360241520-11476-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
+In-Reply-To: <1360845813-11334-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 07, 2013 at 06:22:00PM +0530, Vishwanathrao Badarkhe, Manish wrote:
-> Update the code to use devm_* API so that driver
-> core will manage resources.
-> Also, if "devm_request_and_ioremap" fails return -EADDRNOTAVAIL
-> instead of -EBUSY.
+On Thu, Feb 14, 2013 at 06:13:33PM +0530, Laxman Dewangan wrote:
+> If timeout error occurs in the i2c transfer then it was dumping warning
+> of call stack.
 > 
-> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+> Remove the warning dump as there is may be possibility that some slave
+> devices are busy and not responding the i2c communication.
+> 
+> Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Basically OK, please resend when devm_ioremap_resource hits mainline in
-3.9.
+I'd like to have the patch extended. Currently, i2c-tegra is the only
+I2C user of BUG and BUG_ON. Could you maybe extend the patch to handle
+those situations more gracefully while we are at it? From a glimpse,
+these situations don't need a complete halt of the kernel?
 
 Thanks,
 
