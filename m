@@ -1,13 +1,13 @@
 From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: [PATCH] I2C: add i2c_master_send_exact() and friends
-Date: Fri, 15 Feb 2013 18:38:41 -0800
-Message-ID: <20130216023840.GA16084@core.coreip.homeip.net>
+Date: Fri, 15 Feb 2013 18:42:35 -0800
+Message-ID: <20130216024235.GA25913@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+To: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
@@ -21,6 +21,9 @@ it to error code by themselves. So let's add the following new helpers:
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 ---
+
+Resending to Wolfram's new address...
+
  drivers/i2c/i2c-core.c |   69 ++++++++++++++++++++++++++++++++++++++++++++++++
  include/linux/i2c.h    |   11 ++++++++
  2 files changed, 80 insertions(+)
