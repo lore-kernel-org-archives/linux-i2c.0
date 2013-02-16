@@ -1,101 +1,152 @@
-From: Simon Horman <horms-/R6kz+dDXgpPR4JQBCEnsQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
-Date: Sat, 16 Feb 2013 11:26:41 +0900
-Message-ID: <20130216022641.GD11628@verge.net.au>
-References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
+From: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] I2C: add i2c_master_send_exact() and friends
+Date: Fri, 15 Feb 2013 18:38:41 -0800
+Message-ID: <20130216023840.GA16084@core.coreip.homeip.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1360862257-10807-1-git-send-email-hechtb+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bastian Hecht <hechtb+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 14, 2013 at 11:17:37AM -0600, Bastian Hecht wrote:
-> Currently we provoke i2c timeouts by allowing transfers when
-> suspending. This patch adds awareness to suspending and fixes these
-> issues.
-> The patch follows the style used in i2c-tegra.c - thanks.
+Many i2c users consider short transfers to be an error and would prefer
+getting -EIO instead of a positive return value and having to convert
+it to error code by themselves. So let's add the following new helpers:
 
-Hi,
+	i2c_master_send_exact()
+	i2c_master_recv_exact()
+	i2c_transfer_exact()
 
-at this stage I do not expect this code to go through the renesas tree.
-However, in order to provide a basis for work on renesas SoCs I have added
-this patch to the topic/i2c topic branch in the reneas tree on
-kernel.org and merged it into topic/all+next.
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |   69 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/i2c.h    |   11 ++++++++
+ 2 files changed, 80 insertions(+)
 
-In other words, I am not picking this patch up to merge it or add it to
-linux-next, rather I am storing it for reference.
-
-> 
-> Signed-off-by: Bastian Hecht <hechtb+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-sh_mobile.c |   28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index b6e7a83..da28164 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -132,6 +132,7 @@ struct sh_mobile_i2c_data {
->  	struct i2c_msg *msg;
->  	int pos;
->  	int sr;
-> +	bool is_suspended;
->  };
->  
->  #define IIC_FLAG_HAS_ICIC67	(1 << 0)
-> @@ -511,6 +512,9 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
->  	u_int8_t val;
->  	int i, k, retry_count;
->  
-> +	if (pd->is_suspended)
-> +		return -EBUSY;
-> +
->  	activate_ch(pd);
->  
->  	/* Process all messages */
-> @@ -753,9 +757,33 @@ static int sh_mobile_i2c_runtime_nop(struct device *dev)
->  	return 0;
->  }
->  
-> +static int sh_mobile_i2c_suspend(struct device *dev)
-> +{
-> +	struct sh_mobile_i2c_data *pd = dev_get_drvdata(dev);
-> +
-> +	i2c_lock_adapter(&pd->adap);
-> +	pd->is_suspended = true;
-> +	i2c_unlock_adapter(&pd->adap);
-> +
-> +	return 0;
-> +}
-> +
-> +static int sh_mobile_i2c_resume(struct device *dev)
-> +{
-> +	struct sh_mobile_i2c_data *pd = dev_get_drvdata(dev);
-> +
-> +	i2c_lock_adapter(&pd->adap);
-> +	pd->is_suspended = false;
-> +	i2c_unlock_adapter(&pd->adap);
-> +
-> +	return 0;
-> +}
-> +
->  static const struct dev_pm_ops sh_mobile_i2c_dev_pm_ops = {
->  	.runtime_suspend = sh_mobile_i2c_runtime_nop,
->  	.runtime_resume = sh_mobile_i2c_runtime_nop,
-> +	.suspend = sh_mobile_i2c_suspend,
-> +	.resume = sh_mobile_i2c_resume,
->  };
->  
->  static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
-> -- 
-> 1.7.9.5
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index e388590..6cddb5d 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1430,6 +1430,33 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ EXPORT_SYMBOL(i2c_transfer);
+ 
+ /**
++ * i2c_transfer_exact - transfer given number of I2C messages
++ * @adap: Handle to I2C bus
++ * @msgs: One or more messages to execute before STOP is issued to
++ *	terminate the operation; each message begins with a START.
++ * @num: Number of messages to be executed.
++ *
++ * Returns negative errno (including -EIO on short transfer),
++ * or 0 if all messages have been tranferred successfully.
++ *
++ * Note that there is no requirement that each message be sent to
++ * the same slave address, although that is the most common model.
++ */
++int i2c_transfer_exact(struct i2c_adapter *adap,
++		       struct i2c_msg *msgs, int num)
++{
++	int ret;
++
++	ret = i2c_transfer(adap, msgs, num);
++	if (ret == num)
++		return 0;
++
++	return ret < 0 ? ret : -EIO;
++
++}
++EXPORT_SYMBOL(i2c_transfer_exact);
++
++/**
+  * i2c_master_send - issue a single I2C message in master transmit mode
+  * @client: Handle to slave device
+  * @buf: Data that will be written to the slave
+@@ -1459,6 +1486,27 @@ int i2c_master_send(const struct i2c_client *client, const char *buf, int count)
+ EXPORT_SYMBOL(i2c_master_send);
+ 
+ /**
++ * i2c_master_send_exact - send exact number of bytes in master transmit mode
++ * @client: Handle to slave device
++ * @buf: Data that will be written to the slave
++ * @count: How many bytes to write, must be less than 64k since msg.len is u16
++ *
++ * Returns negative errno (including -EIO on short transfer), or 0.
++ */
++int i2c_master_send_exact(const struct i2c_client *client,
++			  const char *buf, int count)
++{
++	int ret;
++
++	ret = i2c_master_send(client, buf, count);
++	if (ret == count)
++		return 0;
++
++	return ret < 0 ? ret : -EIO;
++}
++EXPORT_SYMBOL(i2c_master_send_exact);
++
++/**
+  * i2c_master_recv - issue a single I2C message in master receive mode
+  * @client: Handle to slave device
+  * @buf: Where to store data read from slave
+@@ -1488,6 +1536,27 @@ int i2c_master_recv(const struct i2c_client *client, char *buf, int count)
+ }
+ EXPORT_SYMBOL(i2c_master_recv);
+ 
++/**
++ * i2c_master_recv_exact - read exact number of bytes in master receive mode
++ * @client: Handle to slave device
++ * @buf: Where to store data read from slave
++ * @count: How many bytes to read, must be less than 64k since msg.len is u16
++ *
++ * Returns negative errno (including -EIO on short transfer), or 0.
++ */
++int i2c_master_recv_exact(const struct i2c_client *client,
++			  char *buf, int count)
++{
++	int ret;
++
++	ret = i2c_master_recv(client, buf, count);
++	if (ret == count)
++		return 0;
++
++	return ret < 0 ? ret : -EIO;
++}
++EXPORT_SYMBOL(i2c_master_recv_exact);
++
+ /* ----------------------------------------------------
+  * the i2c address scanning function
+  * Will not work for 10-bit addresses!
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index d0c4db7..3d76059 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -59,13 +59,24 @@ struct module;
+  */
+ extern int i2c_master_send(const struct i2c_client *client, const char *buf,
+ 			   int count);
++
++extern int i2c_master_send_exact(const struct i2c_client *client,
++				 const char *buf, int count);
++
+ extern int i2c_master_recv(const struct i2c_client *client, char *buf,
+ 			   int count);
+ 
++extern int i2c_master_recv_exact(const struct i2c_client *client,
++				 char *buf, int count);
++
+ /* Transfer num messages.
+  */
+ extern int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			int num);
++
++extern int i2c_transfer_exact(struct i2c_adapter *adap,
++			      struct i2c_msg *msgs, int num);
++
+ /* Unlocked flavor */
+ extern int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			  int num);
+-- 
+Dmitry
