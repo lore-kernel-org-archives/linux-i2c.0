@@ -1,82 +1,113 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH] i2c: Remove unneeded xxx_set_drvdata(..., NULL) calls
-Date: Sat, 16 Feb 2013 20:52:20 +0100
-Message-ID: <20130216205220.0a4f871c@endymion.delvare>
-References: <1360953682-25066-1-git-send-email-dianders@chromium.org>
-	<1360970315-32116-1-git-send-email-dianders@chromium.org>
+Subject: Re: [PATCH] I2C: add i2c_master_send_exact() and friends
+Date: Sat, 16 Feb 2013 22:25:24 +0100
+Message-ID: <20130216222524.0980b297@endymion.delvare>
+References: <20130216024235.GA25913@core.coreip.homeip.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <1360970315-32116-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Deepak Sikri <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Havard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Uwe =?UTF-8?B?S2xlaW5l?= =?UTF-8?B?LUvDtm5pZw==?= <u.kleine-koenig>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130216024235.GA25913-WlK9ik9hQGAhIp7JRqBPierSzoNAToWh@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 15 Feb 2013 15:18:35 -0800, Doug Anderson wrote:
-> There is simply no reason to be manually setting the private driver
-> data to NULL in the remove/fail to probe cases.  This is just extra
-> cruft code that can be removed.
-> 
-> A few notes:
-> * Nothing relies on drvdata being set to NULL.
-> * The __device_release_driver() function eventually calls
->   dev_set_drvdata(dev, NULL) anyway, so there's no need to do it
->   twice.
+Hi Dmitry,
 
-I had not noticed this change. Very good news!
+On Fri, 15 Feb 2013 18:42:35 -0800, Dmitry Torokhov wrote:
+> Many i2c users consider short transfers to be an error and would prefer
+> getting -EIO instead of a positive return value and having to convert
+> it to error code by themselves. So let's add the following new helpers:
+> 
+> 	i2c_master_send_exact()
+> 	i2c_master_recv_exact()
+> 	i2c_transfer_exact()
 
-> * I verified that there were no cases where xxx_get_drvdata() was
->   being called in these drivers and checking for / relying on the NULL
->   return value.
-> 
-> This could be cleaned up kernel-wide but for now just take the baby
-> step and remove from the i2c subsystem.
-> 
-> Reported-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Reported-by: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+This is interesting, so far people had been complaining that
+i2c_transfer() wasn't telling enough to the caller on error. You're the
+first one asking for less detail. But in a way this is the same
+request: the current API can't report both errors and number of
+transferred messages/bytes, so the interface ends up being too complex
+for what it can actually do.
+
+There was a proposal to improve that but it required touching struct
+i2c_msg in a way that would break binary compatibility on some
+architectures, so it was rejected.
+
+At this point I can only think of two ways to address the issue
+properly: either introduce a new i2c_msg-like structure, or add an
+optional u16* parameter to i2c_transfer(), pointing to an array with
+the same size as msgs, where the number of transferred bytes for each
+message would be recorded. The latter doesn't look as nice but would be
+better performance-wise (no need to convert between old and new i2c_msg
+structures in compatibility paths.) In both cases, this would have to
+be implemented optionally on a per-driver basis, and user-space
+wouldn't benefit of it unless someone explicitly adds new ioctls to the
+i2c-dev interface.
+
+If this ever happens then your proposal makes sense. Otherwise it might
+actually make more sense to just simplify the current API by only
+returning success (0) or a negative error code, and adding some
+compatibility code into i2c-dev.c so that user-space doesn't see the
+change.
+
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
-> (...)
-
-For i2c-taos-evm:
-
-Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-
-Also a note:
-
-> --- a/drivers/i2c/busses/i2c-octeon.c
-> +++ b/drivers/i2c/busses/i2c-octeon.c
-> @@ -595,7 +595,7 @@ static int octeon_i2c_probe(struct platform_device *pdev)
->  	result = i2c_add_adapter(&i2c->adap);
->  	if (result < 0) {
->  		dev_err(i2c->dev, "failed to add adapter\n");
-> -		goto fail_add;
-> +		goto out;
->  	}
->  	dev_info(i2c->dev, "version %s\n", DRV_VERSION);
+> 
+> Resending to Wolfram's new address...
+> 
+>  drivers/i2c/i2c-core.c |   69 ++++++++++++++++++++++++++++++++++++++++++++++++
+>  include/linux/i2c.h    |   11 ++++++++
+>  2 files changed, 80 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> index e388590..6cddb5d 100644
+> --- a/drivers/i2c/i2c-core.c
+> +++ b/drivers/i2c/i2c-core.c
+> @@ -1430,6 +1430,33 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>  EXPORT_SYMBOL(i2c_transfer);
 >  
-> @@ -603,8 +603,6 @@ static int octeon_i2c_probe(struct platform_device *pdev)
->  
->  	return 0;
->  
-> -fail_add:
-> -	platform_set_drvdata(pdev, NULL);
->  out:
->  	return result;
->  };
+>  /**
+> + * i2c_transfer_exact - transfer given number of I2C messages
+> + * @adap: Handle to I2C bus
+> + * @msgs: One or more messages to execute before STOP is issued to
+> + *	terminate the operation; each message begins with a START.
+> + * @num: Number of messages to be executed.
+> + *
+> + * Returns negative errno (including -EIO on short transfer),
+> + * or 0 if all messages have been tranferred successfully.
+> + *
+> + * Note that there is no requirement that each message be sent to
+> + * the same slave address, although that is the most common model.
+> + */
+> +int i2c_transfer_exact(struct i2c_adapter *adap,
+> +		       struct i2c_msg *msgs, int num)
+> +{
+> +	int ret;
+> +
+> +	ret = i2c_transfer(adap, msgs, num);
+> +	if (ret == num)
+> +		return 0;
+> +
+> +	return ret < 0 ? ret : -EIO;
+> +
+> +}
+> +EXPORT_SYMBOL(i2c_transfer_exact);
 
-There no longer is any point in this error path, all gotos in this
-function could be changed to returns (in a separate patch, obviously.)
+Two questions here which apply to other functions as well:
+* Why don't you use EXPORT_SYMBOL_GPL()?
+* Did you check if an inline function wouldn't be cheaper in practice?
+  i2c_transfer() is already a wrapper around __i2c_transfer(), and
+  i2c_master_send/recv() are wrappers around i2c_transfer(). Adding one
+  more wrapper level is going to do no good to performance and stack
+  usage.
+
+> +
+> +/**
+>   * i2c_master_send - issue a single I2C message in master transmit mode
+>   * @client: Handle to slave device
+>   * @buf: Data that will be written to the slave
 
 -- 
 Jean Delvare
