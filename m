@@ -1,97 +1,82 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
-Date: Sat, 16 Feb 2013 12:54:17 +0900
-Message-ID: <CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
-References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH] i2c: Remove unneeded xxx_set_drvdata(..., NULL) calls
+Date: Sat, 16 Feb 2013 20:52:20 +0100
+Message-ID: <20130216205220.0a4f871c@endymion.delvare>
+References: <1360953682-25066-1-git-send-email-dianders@chromium.org>
+	<1360970315-32116-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Bastian Hecht <hechtb@gmail.com>
-Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org, Bastian Hecht <hechtb+renesas@gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+In-Reply-To: <1360970315-32116-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
+List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
+List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
+	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
+Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
+Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guan Xuetao <gxt-TG0Ac1+ktVePQbnJrJN+5g@public.gmane.org>, Kevin Hilman <khilman-l0cyMroinI0@public.gmane.org>, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>, Vitaly Wool <vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jochen Friedrich <jochen-NIgtFMG+Po8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Deepak Sikri <deepak.sikri-qxv4g6HH51o@public.gmane.org>, Li Yang <leoli-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Havard Skinnemoen <hskinnemoen-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Uwe =?UTF-8?B?S2xlaW5l?= =?UTF-8?B?LUvDtm5pZw==?= <u.kleine-koenig>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Feb 15, 2013 at 2:17 AM, Bastian Hecht <hechtb@gmail.com> wrote:
-> Currently we provoke i2c timeouts by allowing transfers when
-> suspending. This patch adds awareness to suspending and fixes these
-> issues.
-> The patch follows the style used in i2c-tegra.c - thanks.
->
-> Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
+On Fri, 15 Feb 2013 15:18:35 -0800, Doug Anderson wrote:
+> There is simply no reason to be manually setting the private driver
+> data to NULL in the remove/fail to probe cases.  This is just extra
+> cruft code that can be removed.
+> 
+> A few notes:
+> * Nothing relies on drvdata being set to NULL.
+> * The __device_release_driver() function eventually calls
+>   dev_set_drvdata(dev, NULL) anyway, so there's no need to do it
+>   twice.
+
+I had not noticed this change. Very good news!
+
+> * I verified that there were no cases where xxx_get_drvdata() was
+>   being called in these drivers and checking for / relying on the NULL
+>   return value.
+> 
+> This could be cleaned up kernel-wide but for now just take the baby
+> step and remove from the i2c subsystem.
+> 
+> Reported-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Reported-by: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-sh_mobile.c |   28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
-> index b6e7a83..da28164 100644
-> --- a/drivers/i2c/busses/i2c-sh_mobile.c
-> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
-> @@ -132,6 +132,7 @@ struct sh_mobile_i2c_data {
->         struct i2c_msg *msg;
->         int pos;
->         int sr;
-> +       bool is_suspended;
+> (...)
+
+For i2c-taos-evm:
+
+Reviewed-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+
+Also a note:
+
+> --- a/drivers/i2c/busses/i2c-octeon.c
+> +++ b/drivers/i2c/busses/i2c-octeon.c
+> @@ -595,7 +595,7 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+>  	result = i2c_add_adapter(&i2c->adap);
+>  	if (result < 0) {
+>  		dev_err(i2c->dev, "failed to add adapter\n");
+> -		goto fail_add;
+> +		goto out;
+>  	}
+>  	dev_info(i2c->dev, "version %s\n", DRV_VERSION);
+>  
+> @@ -603,8 +603,6 @@ static int octeon_i2c_probe(struct platform_device *pdev)
+>  
+>  	return 0;
+>  
+> -fail_add:
+> -	platform_set_drvdata(pdev, NULL);
+>  out:
+>  	return result;
 >  };
->
->  #define IIC_FLAG_HAS_ICIC67    (1 << 0)
-> @@ -511,6 +512,9 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
->         u_int8_t val;
->         int i, k, retry_count;
->
-> +       if (pd->is_suspended)
-> +               return -EBUSY;
-> +
->         activate_ch(pd);
->
->         /* Process all messages */
-> @@ -753,9 +757,33 @@ static int sh_mobile_i2c_runtime_nop(struct device *dev)
->         return 0;
->  }
->
-> +static int sh_mobile_i2c_suspend(struct device *dev)
-> +{
-> +       struct sh_mobile_i2c_data *pd = dev_get_drvdata(dev);
-> +
-> +       i2c_lock_adapter(&pd->adap);
-> +       pd->is_suspended = true;
-> +       i2c_unlock_adapter(&pd->adap);
-> +
-> +       return 0;
-> +}
-> +
-> +static int sh_mobile_i2c_resume(struct device *dev)
-> +{
-> +       struct sh_mobile_i2c_data *pd = dev_get_drvdata(dev);
-> +
-> +       i2c_lock_adapter(&pd->adap);
-> +       pd->is_suspended = false;
-> +       i2c_unlock_adapter(&pd->adap);
-> +
-> +       return 0;
-> +}
-> +
->  static const struct dev_pm_ops sh_mobile_i2c_dev_pm_ops = {
->         .runtime_suspend = sh_mobile_i2c_runtime_nop,
->         .runtime_resume = sh_mobile_i2c_runtime_nop,
-> +       .suspend = sh_mobile_i2c_suspend,
-> +       .resume = sh_mobile_i2c_resume,
->  };
->
->  static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
-> --
 
-Hi Bastian,
+There no longer is any point in this error path, all gotos in this
+function could be changed to returns (in a separate patch, obviously.)
 
-Thanks for your work on this. Can you tell us a bit more about where
-and when this fix is needed? I am guessing here, but perhaps it only
-triggers on SMP hardware with CONFIG_SMP enabled?
-
-Also, do you know the reason why this isn't handled in the i2c layer
-by default? I ask because your comment mentions that i2c-tegra.c does
-the same thing and I can't see anything in this patch that is actually
-related to our I2C hardware.
-
-Thanks,
-
-/ magnus
+-- 
+Jean Delvare
