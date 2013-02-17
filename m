@@ -1,54 +1,86 @@
-From: Peter Korsgaard <jacmet@sunsite.dk>
-Subject: Re: [PATCH] i2c: Remove unneeded xxx_set_drvdata(..., NULL) calls
-Date: Sun, 17 Feb 2013 16:12:31 +0100
-Message-ID: <87txpboty7.fsf@dell.be.48ers.dk>
-References: <1360953682-25066-1-git-send-email-dianders@chromium.org>
- <1360970315-32116-1-git-send-email-dianders@chromium.org>
+From: Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>
+Subject: Re: [PATCH v1 1/4] i2c: mux: Add i2c-arbitrator 'mux' driver
+Date: Sun, 17 Feb 2013 16:03:40 +0000
+Message-ID: <20130217160338.GA1583@opensource.wolfsonmicro.com>
+References: <1360778532-7480-1-git-send-email-dianders@chromium.org>
+ <511BFF77.2090202@wwwdotorg.org>
+ <CAD=FV=XUEcUx3NGCm+KijRGujECVTSJ9X5fY=arq-4U_RUdxCQ@mail.gmail.com>
+ <511C32B5.20600@wwwdotorg.org>
+ <CAD=FV=X=BPQo245kAtPvNUgKjypOYnheYJWcBkq6AA19z99V0w@mail.gmail.com>
+ <CAD=FV=UYEqreNbUAxHydmWH+66pOORMB_uFokivLitsavzTcsQ@mail.gmail.com>
+ <20130215102420.GA22283@opensource.wolfsonmicro.com>
+ <CACRpkdav8WO5yOSLPLtpUCeM41nttrbspRb7YrsqGXJ01ebMhw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-In-Reply-To: <1360970315-32116-1-git-send-email-dianders@chromium.org> (Doug
- Anderson's message of "Fri, 15 Feb 2013 15:18:35 -0800")
-List-Unsubscribe: <https://lists.ozlabs.org/options/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/linuxppc-dev/>
-List-Post: <mailto:linuxppc-dev@lists.ozlabs.org>
-List-Help: <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/linuxppc-dev>,
- <mailto:linuxppc-dev-request@lists.ozlabs.org?subject=subscribe>
-Errors-To: linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org
-Sender: "Linuxppc-dev"
- <linuxppc-dev-bounces+glppe-linuxppc-embedded-2=m.gmane.org@lists.ozlabs.org>
-To: Doug Anderson <dianders@chromium.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Tony Lindgren <tony@atomide.com>, Linus Walleij <linus.walleij@linaro.org>, Thierry Reding <thierry.reding@avionic-design.de>, Sekhar Nori <nsekhar@ti.com>, linux-i2c@vger.kernel.org, Guan Xuetao <gxt@mprc.pku.edu.cn>, Kevin Hilman <khilman@ti.com>, Sonic Zhang <sonic.zhang@analog.com>, linux-arm-kernel@lists.infradead.org, Deepak Sikri <deepak.sikri@st.com>, Havard Skinnemoen <hskinnemoen@gmail.com>, Marek Vasut <marex@denx.de>, Pawel Moll <pawel.moll@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Sascha Hauer <s.hauer@pengutronix.de>, Uwe =?utf-8?Q?Kleine?= =?utf-8?Q?-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Rob Herring <rob.herring@calxeda.com>, uclinux-dist-devel@blackfin.uclinux.org, Jean Delvare <khali@linux-fr.org>, Lars-Peter Clausen <lars@metafoo.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Barry
+Content-Type: multipart/mixed; boundary="===============2705750534424647607=="
+Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+In-Reply-To: <CACRpkdav8WO5yOSLPLtpUCeM41nttrbspRb7YrsqGXJ01ebMhw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
+List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
+ <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
+Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Sender: "devicetree-discuss"
+ <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Alexandre Courbot <acourbot-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "bhushan.r" <bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "sreekumar.c" <sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "Doug" == Doug Anderson <dianders@chromium.org> writes:
 
- Doug> There is simply no reason to be manually setting the private driver
- Doug> data to NULL in the remove/fail to probe cases.  This is just extra
- Doug> cruft code that can be removed.
+--===============2705750534424647607==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Disposition: inline
 
- Doug> A few notes:
- Doug> * Nothing relies on drvdata being set to NULL.
- Doug> * The __device_release_driver() function eventually calls
- Doug>   dev_set_drvdata(dev, NULL) anyway, so there's no need to do it
- Doug>   twice.
- Doug> * I verified that there were no cases where xxx_get_drvdata() was
- Doug>   being called in these drivers and checking for / relying on the NULL
- Doug>   return value.
 
- Doug> This could be cleaned up kernel-wide but for now just take the baby
- Doug> step and remove from the i2c subsystem.
+--zYM0uCDKw75PZbzx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
- Doug> Reported-by: Wolfram Sang <wsa@the-dreams.de>
- Doug> Reported-by: Stephen Warren <swarren@wwwdotorg.org>
- Doug> Signed-off-by: Doug Anderson <dianders@chromium.org>
+On Fri, Feb 15, 2013 at 08:56:42PM +0100, Linus Walleij wrote:
 
-For i2c-ocores.c + i2c-mux-gpio.c:
+> Hm, totally unrelated but Mark, should we consider marking the
+> kernel tainted when the dummy regulators are in use?
+> (And likewise for the dummy pinctrl I guess.)
 
-Acked-by: Peter Korsgaard <jacmet@sunsite.dk>
+It's not a bad idea, though since it tends not to result in kernel
+crashes we wouldn't see the taint report as often as we'd like.
 
--- 
-Bye, Peter Korsgaard
+--zYM0uCDKw75PZbzx
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRIP9UAAoJELSic+t+oim94UoP/3yq8CkcnDXHN3u/ZZjHBOLO
+Gwm0vvpxgnmm1dxJF6DoBzQbWZ6TRTYnQq06TONH/YSIejnr44ehbgbcG9ZfF8Sm
+qHx1XL0S6KjYkXTbUaq6cGO2RufIiZUD1J5Ps0jHNBRvKJOW+wiVGpB671hc9zQ9
+v6FcK1WbqohsOW8r0fTftSuxlZoTojm0jSLzSR8ZtsM4P02BI5CSuHXkVlXdXlZu
+d0ygFxCr7hGQyKOw3x7PKn9jmrHJzfti4k8T6zIy4GcBpROVwXOLgNk8KxWZ7/TH
+SFF4cLFJfLWJEJ655ZBqw44RdHO9Q68OSUYt36SXHoLNsj9bPO4qLBGZ+v4nlUN9
+MHZ9ex4cWckNsadpMI13Wb72SjISFZWMl+SjfneoyQbIw8l/7fl4sxCZwtjaHIok
+7dy7GYOW18w/3r4kfFbvc1/N5sDf7c3A1D8g16R6ncC+zH4P/6b1+2XT5/GVsLUl
+AD4foxDFrJMeeo/lvho0dgwflO5z5RHr7ZVomKqFF84j+oiUkXk0svwOpUky7dG6
+jsDXt0vPoAlvzDBGyDXHtCz/VaUSHnC1ffsgvVI25WwLl6tna+Yt2oQBlLV0QlMR
+UTy0Btqzyi07mHPzhSmHi/lFGnFvCHBdZ1lc9DlqvXauFLeqPZ6DGmSpdrG43s4F
+vwytciuaunvXz9EfCqiK
+=RzbB
+-----END PGP SIGNATURE-----
+
+--zYM0uCDKw75PZbzx--
+
+--===============2705750534424647607==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+devicetree-discuss mailing list
+devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+https://lists.ozlabs.org/listinfo/devicetree-discuss
+
+--===============2705750534424647607==--
