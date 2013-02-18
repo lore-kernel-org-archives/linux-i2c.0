@@ -1,120 +1,78 @@
-From: Christian Ruppert <christian.ruppert@abilis.com>
-Subject: [PATCH v2] i2c-designware: make SDA hold time configurable
-Date: Mon, 18 Feb 2013 11:14:27 +0100
-Message-ID: <1361182467-19184-1-git-send-email-christian.ruppert@abilis.com>
-References: <20130215164937.GV20771@intel.com>
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130215164937.GV20771@intel.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <w.sang@pengutronix.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>
-Cc: Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+From: Michael Lawnick <ml.lawnick-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: i2c: Multiplexed I2C bus core support
+Date: Mon, 18 Feb 2013 11:19:34 +0100
+Message-ID: <51220036.4030508@gmx.de>
+References: <4C36E6E2.1070307@gmx.de> <511BB2F8.9020300@keymile.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <511BB2F8.9020300-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch makes the SDA hold time configurable through device tree.
-It was tested on a hybrid of i2c/next and arc-3.8-baseline (see
-https://github.com/foss-for-synopsys-dwc-arc-processors/linux/commits/arc-3.8-baseline) since our platform is ARC based and this architecture is not yet
-supported by i2c/next.
+Am 13.02.2013 16:36, schrieb Gerlando Falauto:
+> Hi everyone,
+> 
+> On 07/09/2010 11:07 AM, Michael Lawnick wrote:
+>> Add multiplexed bus core support. I2C multiplexer and switches
+>> like pca954x get instantiated as new adapters per port.
+>>
+>> Signed-off-by: Michael Lawnick<demx1175@wbit01lx.(none)>
+>> Cc: Jean Delvare<khali-PUYAD+kWke1g9hUCZPvPmw-XMD5yJDbdMReXY1tMh2IBg@public.gmane.org>
+> 
+> I noticed that when you have multiple muxes connected to the same 
+> branch, implementation hides some information about the complete i2c 
+> topology.
+> 
+> So for instance if I have something like (notice there are three 
+> PCA9544's "in parallel", each with its own address, which I assume is a 
+> bit unusual):
+> 
+> #  CPU (i2c-0)
+> #  '--I2C Mux0 (PCA9547) @ 0x70
+> #      +--Port0 (i2c-1)
+> #      +--Port1 (i2c-2)
+> #      +--Port2 (i2c-3)
+> #      +--Port3 (i2c-4)
+> #      +--Port4 (i2c-5)
+> #      |   '--- I2C Mux1 (PCA9544) @ 0x74
+> #      |   |     +--Port0 (i2c-9)
+> #      |   |     +--Port1 (i2c-10)
+> #      |   |     +--Port2 (i2c-11)
+> #      |   |     '--Port3 (i2c-12)
+> #      |   +--- I2C Mux2 (PCA9544) @ 0x71
+> #      |   |     +--Port0 (i2c-13)
+> #      |   |     +--Port1 (i2c-14)
+> #      |   |     +--Port2 (i2c-15)
+> #      |   |     '--Port3 (i2c-16)
+...
+> which only reveals i2c-9 is the bus segment connected to channel 0 of a 
+> mux behind i2c-5, but since there's two of them, I have no way to tell 
+> which one...
+> 
+> So I guess the easiest thing to do would be to add this information 
+> within the .name attribute, though I fear this may somehow turn out not 
+> as trivial at it looks.
 
-Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
-Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
----
- .../devicetree/bindings/i2c/i2c-designware.txt     |   15 +++++++++++++++
- drivers/i2c/busses/i2c-designware-core.c           |    5 +++++
- drivers/i2c/busses/i2c-designware-core.h           |    1 +
- drivers/i2c/busses/i2c-designware-platdrv.c        |    8 ++++++++
- 4 files changed, 29 insertions(+), 0 deletions(-)
+Jean already detected this problem when mux code was brought into
+kernel, but solution was postponed until someone gets enough pain ;-)
+On my project I do no automatic i2c detection, but all is controlled via
+user space. So I always know where and which devices and buses get
+connected.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-index e42a2ee..fb2eac8 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -10,6 +10,10 @@ Recommended properties :
- 
-  - clock-frequency : desired I2C bus clock frequency in Hz.
- 
-+Optional properties :
-+ - sda-hold-time : If this property is present, the register SDA_HOLD will
-+   be initialised with its value.
-+
- Example :
- 
- 	i2c@f0000 {
-@@ -20,3 +24,14 @@ Example :
- 		interrupts = <11>;
- 		clock-frequency = <400000>;
- 	};
-+
-+	i2c@1120000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "snps,designware-i2c";
-+		reg = <0x1120000 0x1000>;
-+		interrupt-parent = <&ictl>;
-+		interrupts = <12 1>;
-+		clock-frequency = <400000>;
-+		sda-hold-time = <0x64>;
-+	};
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 94fd818..ba40e14 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -67,6 +67,7 @@
- #define DW_IC_STATUS		0x70
- #define DW_IC_TXFLR		0x74
- #define DW_IC_RXFLR		0x78
-+#define DW_IC_SDA_HOLD		0x7c
- #define DW_IC_TX_ABRT_SOURCE	0x80
- #define DW_IC_COMP_PARAM_1	0xf4
- #define DW_IC_COMP_TYPE		0xfc
-@@ -310,6 +311,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
- 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
- 
-+	/* Configure SDA Hold Time if required */
-+	if (dev->sda_hold_time)
-+		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
-+
- 	/* Configure Tx/Rx FIFO threshold levels */
- 	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
- 	dw_writel(dev, 0, DW_IC_RX_TL);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9c1840e..33dfec3 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -88,6 +88,7 @@ struct dw_i2c_dev {
- 	u32			master_cfg;
- 	unsigned int		tx_fifo_depth;
- 	unsigned int		rx_fifo_depth;
-+	u32			sda_hold_time;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d2a33e9..9cb0100 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -34,6 +34,7 @@
- #include <linux/sched.h>
- #include <linux/err.h>
- #include <linux/interrupt.h>
-+#include <linux/of.h>
- #include <linux/of_i2c.h>
- #include <linux/platform_device.h>
- #include <linux/pm.h>
-@@ -136,6 +137,13 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	}
- 	clk_prepare_enable(dev->clk);
- 
-+	if (pdev->dev.of_node) {
-+		if (of_property_read_u32(pdev->dev.of_node, "sda-hold-time",
-+						&dev->sda_hold_time))
-+			dev->sda_hold_time = 0;
-+	} else
-+		dev->sda_hold_time = 0;
-+
- 	dev->functionality =
- 		I2C_FUNC_I2C |
- 		I2C_FUNC_10BIT_ADDR |
+> 
+> devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-0(=>...i2c-9)
+> devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-1(=>...i2c-10)
+> devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-2(=>...i2c-11)
+> devices/platform/i2c-gpio/i2c-0/0-0070/chan-4(=>...i2c-5)/5-0071/chan-3(=>...i2c-12)
+
+Introducing links to sub-buses, named with respective channel id sounds
+good for me. Beside that your link example does not reflect your ASCII
+graphics of course ;-)
+
 -- 
-1.7.1
-
+KR
+Michael
