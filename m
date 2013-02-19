@@ -1,115 +1,42 @@
-From: Bastian Hecht <hechtb@gmail.com>
-Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
-Date: Mon, 18 Feb 2013 10:03:05 -0600
-Message-ID: <CABYn4szejurs2gBVOx_+geOxw13r9KvoShfRiM7OOF5wVvDPLA@mail.gmail.com>
-References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
-	<CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
+From: "Jayachandran C" <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] i2c: ocores: Fix pointer to integer cast warning
+Date: Tue, 19 Feb 2013 13:03:19 +0530
+Message-ID: <1361259199-24709-1-git-send-email-jchandra@broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
-Sender: linux-sh-owner@vger.kernel.org
-To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-sh@vger.kernel.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>
+Cc: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2013/2/15 Magnus Damm <magnus.damm@gmail.com>:
-> On Fri, Feb 15, 2013 at 2:17 AM, Bastian Hecht <hechtb@gmail.com> wrote:
->> Currently we provoke i2c timeouts by allowing transfers when
->> suspending. This patch adds awareness to suspending and fixes these
->> issues.
->> The patch follows the style used in i2c-tegra.c - thanks.
->>
->> Signed-off-by: Bastian Hecht <hechtb+renesas@gmail.com>
->> ---
->>  drivers/i2c/busses/i2c-sh_mobile.c |   28 ++++++++++++++++++++++++++++
->>  1 file changed, 28 insertions(+)
->>
->> diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
->> index b6e7a83..da28164 100644
->> --- a/drivers/i2c/busses/i2c-sh_mobile.c
->> +++ b/drivers/i2c/busses/i2c-sh_mobile.c
->> @@ -132,6 +132,7 @@ struct sh_mobile_i2c_data {
->>         struct i2c_msg *msg;
->>         int pos;
->>         int sr;
->> +       bool is_suspended;
->>  };
->>
->>  #define IIC_FLAG_HAS_ICIC67    (1 << 0)
->> @@ -511,6 +512,9 @@ static int sh_mobile_i2c_xfer(struct i2c_adapter *adapter,
->>         u_int8_t val;
->>         int i, k, retry_count;
->>
->> +       if (pd->is_suspended)
->> +               return -EBUSY;
->> +
->>         activate_ch(pd);
->>
->>         /* Process all messages */
->> @@ -753,9 +757,33 @@ static int sh_mobile_i2c_runtime_nop(struct device *dev)
->>         return 0;
->>  }
->>
->> +static int sh_mobile_i2c_suspend(struct device *dev)
->> +{
->> +       struct sh_mobile_i2c_data *pd = dev_get_drvdata(dev);
->> +
->> +       i2c_lock_adapter(&pd->adap);
->> +       pd->is_suspended = true;
->> +       i2c_unlock_adapter(&pd->adap);
->> +
->> +       return 0;
->> +}
->> +
->> +static int sh_mobile_i2c_resume(struct device *dev)
->> +{
->> +       struct sh_mobile_i2c_data *pd = dev_get_drvdata(dev);
->> +
->> +       i2c_lock_adapter(&pd->adap);
->> +       pd->is_suspended = false;
->> +       i2c_unlock_adapter(&pd->adap);
->> +
->> +       return 0;
->> +}
->> +
->>  static const struct dev_pm_ops sh_mobile_i2c_dev_pm_ops = {
->>         .runtime_suspend = sh_mobile_i2c_runtime_nop,
->>         .runtime_resume = sh_mobile_i2c_runtime_nop,
->> +       .suspend = sh_mobile_i2c_suspend,
->> +       .resume = sh_mobile_i2c_resume,
->>  };
->>
->>  static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
->> --
->
-> Hi Bastian,
->
-> Thanks for your work on this. Can you tell us a bit more about where
-> and when this fix is needed? I am guessing here, but perhaps it only
-> triggers on SMP hardware with CONFIG_SMP enabled?
+After commit a000b8c1 [i2c: ocores: Add support for the GRLIB port of the
+controller and use function pointers for getreg and setreg function],
+compiling i2c-ocores.c for 64-bit gives the following warning:
 
-It appears on the UP r8a7740 on my Armadillo. I didn't succeed in
-quickly triggering it on the sh73a0.
+  drivers/i2c/busses/i2c-ocores.c: In function 'ocores_i2c_of_probe':
+  drivers/i2c/busses/i2c-ocores.c:334:15: warning: cast from pointer to integer of different size
 
-> Also, do you know the reason why this isn't handled in the i2c layer
-> by default? I ask because your comment mentions that i2c-tegra.c does
-> the same thing and I can't see anything in this patch that is actually
-> related to our I2C hardware.
+Fix it by casting the pointer to long.
 
-Yes, many drivers have a similar scheme and to me it more looked like
-all drivers need to take care about this case unrelated to different
-hardware. So the question arises if this can't be handled in the core
-- or if I get something wrong here. I can have a deeper look later at
-this when the issues in "[PATCH] input: st1232: Add IRQF_NO_SUSPEND
-flag" become more clear and we can work on it without side effects of
-other bugs. So I suppose we should stall this patch until then.
+Signed-off-by: Jayachandran C <jchandra-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-ocores.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-
- Bastian
-
-
-> Thanks,
->
-> / magnus
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index a873d0a..6afa02d 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -331,7 +331,7 @@ static int ocores_i2c_of_probe(struct platform_device *pdev,
+ 				&i2c->reg_io_width);
+ 
+ 	match = of_match_node(ocores_i2c_match, pdev->dev.of_node);
+-	if (match && (int)match->data == TYPE_GRLIB) {
++	if (match && (long)match->data == TYPE_GRLIB) {
+ 		dev_dbg(&pdev->dev, "GRLIB variant of i2c-ocores\n");
+ 		i2c->setreg = oc_setreg_grlib;
+ 		i2c->getreg = oc_getreg_grlib;
+-- 
+1.7.9.5
