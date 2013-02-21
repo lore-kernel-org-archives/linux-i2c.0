@@ -1,25 +1,39 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
-Date: Thu, 21 Feb 2013 15:59:54 +0100
-Message-ID: <20130221145948.GB3171@katana>
-References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
- <CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
- <CABYn4szejurs2gBVOx_+geOxw13r9KvoShfRiM7OOF5wVvDPLA@mail.gmail.com>
- <20130221091434.GA22806@the-dreams.de>
- <CABYn4swuDgTvvyigjnabcg46rcze-DnGhv2Rh7WEFdwkXcHR4Q@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/1] i2c: iSMT SMBus patch for Intel Avoton DeviceIDs
+Date: Thu, 21 Feb 2013 14:30:43 -0800
+Message-ID: <1361485843-13560-1-git-send-email-seth.heasley@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CABYn4swuDgTvvyigjnabcg46rcze-DnGhv2Rh7WEFdwkXcHR4Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+This patch adds the iSMT SMBus Controller DeviceIDs for the Intel Avoton SOC.
 
-> oh yes I can gladly do so. To make a realistic estimation it might
-> take a few weeks until I find time for it though. If we can wait so
-> long, count on me.
+Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-ismt.c |    2 ++
+ 1 files changed, 2 insertions(+), 0 deletions(-)
 
-Totally fine with me.
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 3f7a9cb..45bccf1 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -80,6 +80,7 @@
+ /* PCI DIDs for the Intel SMBus Message Transport (SMT) Devices */
+ #define PCI_DEVICE_ID_INTEL_S1200_SMT0	0x0c59
+ #define PCI_DEVICE_ID_INTEL_S1200_SMT1	0x0c5a
++#define PCI_DEVICE_ID_INTEL_AVOTON_SMT	0x1f15
+ 
+ #define ISMT_DESC_ENTRIES	32	/* number of descriptor entries */
+ #define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
+@@ -185,6 +186,7 @@ struct ismt_priv {
+ static const DEFINE_PCI_DEVICE_TABLE(ismt_ids) = {
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT0) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_S1200_SMT1) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_AVOTON_SMT) },
+ 	{ 0, }
+ };
+ 
+-- 
+1.7.4.4
