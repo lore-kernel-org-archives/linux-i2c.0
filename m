@@ -1,35 +1,36 @@
-From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH V3] i2c: davinci: update to devm_* API
-Date: Thu, 21 Feb 2013 03:25:34 +0000
-Message-ID: <A4887BF146CD57468F700B415D2F4701583A28@DBDE01.ent.ti.com>
-References: <1360241520-11476-1-git-send-email-manishv.b@ti.com>
- <20130215190943.GB4351@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: sh_mobile: Don't start transfers when suspending
+Date: Thu, 21 Feb 2013 10:14:34 +0100
+Message-ID: <20130221091434.GA22806@the-dreams.de>
+References: <1360862257-10807-1-git-send-email-hechtb+renesas@gmail.com>
+ <CANqRtoSzyAj=pDmtDy1gh=Pxrom644tM07z15b4S=DX4Cby=MQ@mail.gmail.com>
+ <CABYn4szejurs2gBVOx_+geOxw13r9KvoShfRiM7OOF5wVvDPLA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130215190943.GB4351-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <CABYn4szejurs2gBVOx_+geOxw13r9KvoShfRiM7OOF5wVvDPLA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org" <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+To: Bastian Hecht <hechtb-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram
+Hi Bastian,
 
-On Sat, Feb 16, 2013 at 00:39:43, Wolfram Sang wrote:
-> On Thu, Feb 07, 2013 at 06:22:00PM +0530, Vishwanathrao Badarkhe, Manish wrote:
-> > Update the code to use devm_* API so that driver core will manage 
-> > resources.
-> > Also, if "devm_request_and_ioremap" fails return -EADDRNOTAVAIL 
-> > instead of -EBUSY.
-> > 
-> > Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+> > Also, do you know the reason why this isn't handled in the i2c layer
+> > by default? I ask because your comment mentions that i2c-tegra.c does
+> > the same thing and I can't see anything in this patch that is actually
+> > related to our I2C hardware.
 > 
-> Basically OK, please resend when devm_ioremap_resource hits mainline in 3.9.
+> Yes, many drivers have a similar scheme and to me it more looked like
+> all drivers need to take care about this case unrelated to different
+> hardware. So the question arises if this can't be handled in the core
+> - or if I get something wrong here.
 
-Thanks for pointing this out. Sure, I will resend this patch once 
-devm_ioremap_resource hits mainline in 3.9.
+I don't see any reason why this couldn't be handled in the core. If you
+want to have a take on this issue (after the other bug is fixed), this
+will be highly appreciated.
 
-Regards, 
-Manish
+Thanks,
+
+   Wolfram
