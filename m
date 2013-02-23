@@ -1,38 +1,35 @@
-From: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: iSMT SMBus patch for Intel Avoton DeviceIDs
-Date: Thu, 21 Feb 2013 18:26:15 -0500
-Message-ID: <20130221232615.GA3046@neilslaptop.think-freely.org>
-References: <1361485843-13560-1-git-send-email-seth.heasley@intel.com>
- <20130221213714.GB32764@hmsreliant.think-freely.org>
- <DEC3922D1904474A8862C7BFF516EA9A7115E094@ORSMSX101.amr.corp.intel.com>
+From: Heiko =?utf-8?q?St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH] pinctrl or i2c-s3c2410: fix pinctrl NULL return values in stubs
+Date: Sat, 23 Feb 2013 18:55:47 +0100
+Message-ID: <201302231855.47560.heiko@sntech.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <DEC3922D1904474A8862C7BFF516EA9A7115E094-P5GAC/sN6hmkrb+BlOpmy7fspsVTdybXVpNB7YpNyf8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Heasley, Seth" <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "Ralston, James D" <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 21, 2013 at 10:19:48PM +0000, Heasley, Seth wrote:
-> Hi Neil,
-> 
-> >> This patch adds the iSMT SMBus Controller DeviceIDs for the Intel Avoton
-> >SOC.
-> >>
-> >> Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> >Is there a part number (I.e. S1200) that we can use in the name, rather than
-> >the project code name?  That would seem to be more in keeping with the
-> >previous naming scheeme directly above it Neil
-> 
-> The difference here is that the S1200 name is already publicly released, whereas the naming for Avoton hasn't been announced.  
-> 
-Do you know when the announcement will be?  Is it sufficiently soon that we can
-just wait for it?
+Hi,
 
-Neil
+while implementing devicetree support for the s3c2416 I noticed a fault
+in the i2c-s3c2410 driver. The s3c2416 does not support pinctrl at the
+moment (and will probably for a while), so the fallback functions in
+pinctrl/consumer.h were used. These functions fail silently and the
+relevant pinctrl_get only returns NULL but the i2c driver only checked
+for real error-pointers. This resulted in the i2c gpios not getting
+configured at all.
 
-> Regards,
-> -Seth
-> 
+There are of course two possible solutions. Check for NULL pinctrl
+handles in the driver or return meaningful error codes in the pinctrl
+stubs. All other pinctrl drivers also only seem to handle real error
+codes and would gladly accept NULL handles, so I'm not sure which is
+the correct fix to not break to much existing code.
+
+Therefore I implemented both variants and you get to pick :-) .
+This of course means from the following patches only one is necessary.
+
+
+Heiko
