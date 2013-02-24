@@ -1,46 +1,62 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH] pinctrl: return real error codes when pinctrl is not included
-Date: Sun, 24 Feb 2013 23:42:32 +0100
-Message-ID: <CACRpkdbKFWcT_Oa00nd_Op5ndOEc-cEkZm6fzHRuxs0Rc+ZOeA@mail.gmail.com>
-References: <201302231855.47560.heiko@sntech.de>
-	<201302231856.35083.heiko@sntech.de>
-	<CACRpkdbA-S7qYHnN72c65Wo_Q7qD3tUxUSNYEXkk4gHbpez4+Q@mail.gmail.com>
-	<201302242334.42408.heiko@sntech.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <201302242334.42408.heiko@sntech.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: =?ISO-8859-1?Q?Heiko_St=FCbner?= <heiko@sntech.de>
-Cc: Tomasz Figa <t.figa@samsung.com>, Prathyush K <prathyush@chromium.org>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Syam Sidhardhan <syamsidhardh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 07/59] i2c/i2c-pxa: Fix possible NULL pointer dereference
+Date: Mon, 25 Feb 2013 04:14:12 +0530
+Message-ID: <1361745852-28629-1-git-send-email-s.syam@samsung.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: syamsidhardh-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Feb 24, 2013 at 11:34 PM, Heiko St=FCbner <heiko@sntech.de> wro=
-te:
+When platform_get_resource() returns NULL, there is a possible
+NULL pointer dereference in release_mem_region(). Rearrange the
+goto lables appropriately.
 
-> [Me]
->> This make me suspect that you have this ugly patch in some
->> private repo and I will be seeing it again and again :-(
->
-> All my s3c24xx work is done is my spare time, so I have to confess I =
-came up
-> with this "ugly patch" all by myself when working on dt support for m=
-y machine
-> and stumbling upon the described problem with the pin configuration.
->
-> So, as it is obviously wrong, I also won't hold onto it.
->
-> In any case, thanks for the thorough explanation, which I probably wo=
-n't
-> forget anytime soon.
+Signed-off-by: Syam Sidhardhan <s.syam-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
 
-Hm, maybe I have come across as too harsh and then I feel bad about
-that :-(
+Only compile tested.
 
-I really want spare-time contributors, they are often more valueable
-in addition to the corporate ones since they provide an outside view
-of things.
+ drivers/i2c/busses/i2c-pxa.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 1034d93..7ddda5c 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1104,18 +1104,18 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	if (ret > 0)
+ 		ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
+ 	if (ret < 0)
+-		goto eclk;
++		goto emalloc;
+ 
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+ 	irq = platform_get_irq(dev, 0);
+ 	if (res == NULL || irq < 0) {
+ 		ret = -ENODEV;
+-		goto eclk;
++		goto emalloc;
+ 	}
+ 
+ 	if (!request_mem_region(res->start, resource_size(res), res->name)) {
+ 		ret = -ENOMEM;
+-		goto eclk;
++		goto emalloc;
+ 	}
+ 
+ 	i2c->adap.owner   = THIS_MODULE;
+@@ -1209,9 +1209,9 @@ ereqirq:
+ eremap:
+ 	clk_put(i2c->clk);
+ eclk:
+-	kfree(i2c);
+-emalloc:
+ 	release_mem_region(res->start, resource_size(res));
++emalloc:
++	kfree(i2c);
+ 	return ret;
+ }
+ 
+-- 
+1.7.9.5
