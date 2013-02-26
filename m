@@ -1,64 +1,53 @@
-From: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
-Subject: Re: I2C: Fix i2c fail problem when a process is terminated by a signal
- on octeon in 3.8
-Date: Tue, 26 Feb 2013 15:07:46 -0800
-Message-ID: <512D4042.7060303@caviumnetworks.com>
-References: <EC.72.13994.FE02D215@epcpsbgx4.samsung.com>
+From: =?euc-kr?B?vNvAurrA?= <eunb.song@samsung.com>
+Subject: Re: Re: I2C: Fix i2c fail problem when a process is terminated by a
+ signal on octeon in 3.8
+Date: Tue, 26 Feb 2013 23:15:42 +0000 (GMT)
+Message-ID: <13700407.150151361920541315.JavaMail.weblogic@epml02>
+Reply-To: eunb.song@samsung.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <EC.72.13994.FE02D215-hl5l+cwj/UQ8ySZrqMDKH/pXobYPEAuW@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org" <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>
+Content-Type: text/plain; charset=euc-kr
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+MIME-version: 1.0
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Daney <ddaney@caviumnetworks.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 02/26/2013 12:54 PM, =BC=DB=C0=BA=BA=C0 wrote:
-> I've been debugging the abnormal operation of i2c on octeon.
-> If a process is terminated by signal in the middle of i2c operation,
-> next i2c read operation which is done by another process was failed.
-> So i changed to ignore signal in the middle of i2c operation.
-> After that the problem was not reproduced.
->=20
-
-This is a known issue.  However I don't think the solution you have is
-correct...
-
-> Signed-off-by: EunBong Song <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org=20
-> <mailto:eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>>
->=20
-> diff -up drivers/i2c/busses/i2c-octeon.c{.orig,}
-> --- drivers/i2c/busses/i2c-octeon.c.orig 2013-02-21 08:09:03.16801884=
-3 -0800
-> +++ drivers/i2c/busses/i2c-octeon.c 2013-02-21 08:09:38.344018898 -08=
-00
-> @@ -183,7 +183,7 @@ static irqreturn_t octeon_i2c_isr(int ir
->    struct octeon_i2c *i2c =3D dev_id;
->=20
->    octeon_i2c_int_disable(i2c);
-> - wake_up_interruptible(&i2c->queue);
-> + wake_up(&i2c->queue);
->=20
->    return IRQ_HANDLED;
->   }
-> @@ -206,7 +206,7 @@ static int octeon_i2c_wait(struct octeon
->=20
->    octeon_i2c_int_enable(i2c);
->=20
-> - result =3D wait_event_interruptible_timeout(i2c->queue,
-> + result =3D wait_event_timeout(i2c->queue,
-
-If the wait is not interruptible, I think you will not be able to 'kill
--9' a userspace process blocked here.
-
->           octeon_i2c_test_iflg(i2c),
->           i2c->adap.timeout);
->=20
-
-The real solution is to move processing of the I2C protocol to a kernel
-thread and communicate between the this thread and userspace via a
-command queue mechanism, much like the way it is done in the mmc/host
-driver infrastructure.
-
-David Daney
+DQo+SWYgdGhlIHdhaXQgaXMgbm90IGludGVycnVwdGlibGUsIEkgdGhpbmsgeW91IHdpbGwgbm90
+IGJlIGFibGUgdG8gJ2tpbGwNCj4tOScgYSB1c2Vyc3BhY2UgcHJvY2VzcyBibG9ja2VkIGhlcmUu
+DQoNCkFzIHlvdXIgd29yZHMuIHRoZSBwcm9jZXNzIHdpbGwgbm90IGJlIGtpbGxlZCBpbW1lZGlh
+dGVseSwgYnV0IGFmdGVyIHRpbWVvdXQoMiBqaWZmaWVzKSBpdCB3aWxsIGJlIGtpbGxlZC4NCkkg
+dGhpbmsgdGhhdCBkZWxheSBpcyBhY2NlcHRhYmxlLiANCg0KDQotLS0tLS0tIE9yaWdpbmFsIE1l
+c3NhZ2UgLS0tLS0tLQ0KU2VuZGVyIDogRGF2aWQgRGFuZXk8ZGRhbmV5QGNhdml1bW5ldHdvcmtz
+LmNvbT4NCkRhdGUgOiAyMDEzLTAyLTI3IDA4OjA3IChHTVQrMDk6MDApDQpUaXRsZSA6IFJlOiBJ
+MkM6IEZpeCBpMmMgZmFpbCBwcm9ibGVtIHdoZW4gYSBwcm9jZXNzIGlzIHRlcm1pbmF0ZWQgYnkg
+YSBzaWduYWwgb24gb2N0ZW9uIGluIDMuOA0KDQpPbiAwMi8yNi8yMDEzIDEyOjU0IFBNLCC828C6
+usAgd3JvdGU6DQo+IEkndmUgYmVlbiBkZWJ1Z2dpbmcgdGhlIGFibm9ybWFsIG9wZXJhdGlvbiBv
+ZiBpMmMgb24gb2N0ZW9uLg0KPiBJZiBhIHByb2Nlc3MgaXMgdGVybWluYXRlZCBieSBzaWduYWwg
+aW4gdGhlIG1pZGRsZSBvZiBpMmMgb3BlcmF0aW9uLA0KPiBuZXh0IGkyYyByZWFkIG9wZXJhdGlv
+biB3aGljaCBpcyBkb25lIGJ5IGFub3RoZXIgcHJvY2VzcyB3YXMgZmFpbGVkLg0KPiBTbyBpIGNo
+YW5nZWQgdG8gaWdub3JlIHNpZ25hbCBpbiB0aGUgbWlkZGxlIG9mIGkyYyBvcGVyYXRpb24uDQo+
+IEFmdGVyIHRoYXQgdGhlIHByb2JsZW0gd2FzIG5vdCByZXByb2R1Y2VkLg0KPiANCg0KVGhpcyBp
+cyBhIGtub3duIGlzc3VlLiAgSG93ZXZlciBJIGRvbid0IHRoaW5rIHRoZSBzb2x1dGlvbiB5b3Ug
+aGF2ZSBpcw0KY29ycmVjdC4uLg0KDQo+IFNpZ25lZC1vZmYtYnk6IEV1bkJvbmcgU29uZyA+ID4N
+Cj4gDQo+IGRpZmYgLXVwIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0ZW9uLmN7Lm9yaWcsfQ0K
+PiAtLS0gZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24uYy5vcmlnIDIwMTMtMDItMjEgMDg6
+MDk6MDMuMTY4MDE4ODQzIC0wODAwDQo+ICsrKyBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVv
+bi5jIDIwMTMtMDItMjEgMDg6MDk6MzguMzQ0MDE4ODk4IC0wODAwDQo+IEBAIC0xODMsNyArMTgz
+LDcgQEAgc3RhdGljIGlycXJldHVybl90IG9jdGVvbl9pMmNfaXNyKGludCBpcg0KPiAgICBzdHJ1
+Y3Qgb2N0ZW9uX2kyYyAqaTJjID0gZGV2X2lkOw0KPiANCj4gICAgb2N0ZW9uX2kyY19pbnRfZGlz
+YWJsZShpMmMpOw0KPiAtIHdha2VfdXBfaW50ZXJydXB0aWJsZSgmaTJjLT5xdWV1ZSk7DQo+ICsg
+d2FrZV91cCgmaTJjLT5xdWV1ZSk7DQo+IA0KPiAgICByZXR1cm4gSVJRX0hBTkRMRUQ7DQo+ICAg
+fQ0KPiBAQCAtMjA2LDcgKzIwNiw3IEBAIHN0YXRpYyBpbnQgb2N0ZW9uX2kyY193YWl0KHN0cnVj
+dCBvY3Rlb24NCj4gDQo+ICAgIG9jdGVvbl9pMmNfaW50X2VuYWJsZShpMmMpOw0KPiANCj4gLSBy
+ZXN1bHQgPSB3YWl0X2V2ZW50X2ludGVycnVwdGlibGVfdGltZW91dChpMmMtPnF1ZXVlLA0KPiAr
+IHJlc3VsdCA9IHdhaXRfZXZlbnRfdGltZW91dChpMmMtPnF1ZXVlLA0KDQpJZiB0aGUgd2FpdCBp
+cyBub3QgaW50ZXJydXB0aWJsZSwgSSB0aGluayB5b3Ugd2lsbCBub3QgYmUgYWJsZSB0byAna2ls
+bA0KLTknIGEgdXNlcnNwYWNlIHByb2Nlc3MgYmxvY2tlZCBoZXJlLg0KDQo+ICAgICAgICAgICBv
+Y3Rlb25faTJjX3Rlc3RfaWZsZyhpMmMpLA0KPiAgICAgICAgICAgaTJjLT5hZGFwLnRpbWVvdXQp
+Ow0KPiANCg0KVGhlIHJlYWwgc29sdXRpb24gaXMgdG8gbW92ZSBwcm9jZXNzaW5nIG9mIHRoZSBJ
+MkMgcHJvdG9jb2wgdG8gYSBrZXJuZWwNCnRocmVhZCBhbmQgY29tbXVuaWNhdGUgYmV0d2VlbiB0
+aGUgdGhpcyB0aHJlYWQgYW5kIHVzZXJzcGFjZSB2aWEgYQ0KY29tbWFuZCBxdWV1ZSBtZWNoYW5p
+c20sIG11Y2ggbGlrZSB0aGUgd2F5IGl0IGlzIGRvbmUgaW4gdGhlIG1tYy9ob3N0DQpkcml2ZXIg
+aW5mcmFzdHJ1Y3R1cmUuDQoNCkRhdmlkIERhbmV5
