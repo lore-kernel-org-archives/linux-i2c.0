@@ -1,62 +1,64 @@
-From: maxin.john-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
-Subject: [PATCH] i2c: busses: i2c-ocores: Fix PM-related warning
-Date: Tue, 26 Feb 2013 23:53:45 +0200
-Message-ID: <1361915625-24294-1-git-send-email-maxin.john@gmail.com>
+From: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Subject: Re: I2C: Fix i2c fail problem when a process is terminated by a signal
+ on octeon in 3.8
+Date: Tue, 26 Feb 2013 15:07:46 -0800
+Message-ID: <512D4042.7060303@caviumnetworks.com>
+References: <EC.72.13994.FE02D215@epcpsbgx4.samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=EUC-KR
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <EC.72.13994.FE02D215-hl5l+cwj/UQ8ySZrqMDKH/pXobYPEAuW@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, "Maxin B. John" <maxin.john-AM1FMPraTHU@public.gmane.org>
+To: eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org" <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: "Maxin B. John" <maxin.john-AM1FMPraTHU@public.gmane.org>
+On 02/26/2013 12:54 PM, =BC=DB=C0=BA=BA=C0 wrote:
+> I've been debugging the abnormal operation of i2c on octeon.
+> If a process is terminated by signal in the middle of i2c operation,
+> next i2c read operation which is done by another process was failed.
+> So i changed to ignore signal in the middle of i2c operation.
+> After that the problem was not reproduced.
+>=20
 
-Fixes this warning:
-  CC      drivers/i2c/busses/i2c-ocores.o
-drivers/i2c/busses/i2c-ocores.c:460:12: warning: 'ocores_i2c_suspend'
- defined but not used [-Wunused-function]
-drivers/i2c/busses/i2c-ocores.c:471:12: warning: 'ocores_i2c_resume'
-defined but not used [-Wunused-function]
+This is a known issue.  However I don't think the solution you have is
+correct...
 
-Signed-off-by: Maxin B. John <maxin.john-AM1FMPraTHU@public.gmane.org>
----
- drivers/i2c/busses/i2c-ocores.c |    9 +++------
- 1 files changed, 3 insertions(+), 6 deletions(-)
+> Signed-off-by: EunBong Song <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org=20
+> <mailto:eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>>
+>=20
+> diff -up drivers/i2c/busses/i2c-octeon.c{.orig,}
+> --- drivers/i2c/busses/i2c-octeon.c.orig 2013-02-21 08:09:03.16801884=
+3 -0800
+> +++ drivers/i2c/busses/i2c-octeon.c 2013-02-21 08:09:38.344018898 -08=
+00
+> @@ -183,7 +183,7 @@ static irqreturn_t octeon_i2c_isr(int ir
+>    struct octeon_i2c *i2c =3D dev_id;
+>=20
+>    octeon_i2c_int_disable(i2c);
+> - wake_up_interruptible(&i2c->queue);
+> + wake_up(&i2c->queue);
+>=20
+>    return IRQ_HANDLED;
+>   }
+> @@ -206,7 +206,7 @@ static int octeon_i2c_wait(struct octeon
+>=20
+>    octeon_i2c_int_enable(i2c);
+>=20
+> - result =3D wait_event_interruptible_timeout(i2c->queue,
+> + result =3D wait_event_timeout(i2c->queue,
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 0e1f824..1ecea5e 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -456,7 +456,7 @@ static int ocores_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
--#ifdef CONFIG_PM
-+#ifdef CONFIG_PM_SLEEP
- static int ocores_i2c_suspend(struct device *dev)
- {
- 	struct ocores_i2c *i2c = dev_get_drvdata(dev);
-@@ -476,12 +476,9 @@ static int ocores_i2c_resume(struct device *dev)
- 
- 	return 0;
- }
-+#endif
- 
- static SIMPLE_DEV_PM_OPS(ocores_i2c_pm, ocores_i2c_suspend, ocores_i2c_resume);
--#define OCORES_I2C_PM	(&ocores_i2c_pm)
--#else
--#define OCORES_I2C_PM	NULL
--#endif
- 
- static struct platform_driver ocores_i2c_driver = {
- 	.probe   = ocores_i2c_probe,
-@@ -490,7 +487,7 @@ static struct platform_driver ocores_i2c_driver = {
- 		.owner = THIS_MODULE,
- 		.name = "ocores-i2c",
- 		.of_match_table = ocores_i2c_match,
--		.pm = OCORES_I2C_PM,
-+		.pm = &ocores_i2c_pm,
- 	},
- };
- 
--- 
-1.7.7
+If the wait is not interruptible, I think you will not be able to 'kill
+-9' a userspace process blocked here.
+
+>           octeon_i2c_test_iflg(i2c),
+>           i2c->adap.timeout);
+>=20
+
+The real solution is to move processing of the I2C protocol to a kernel
+thread and communicate between the this thread and userspace via a
+command queue mechanism, much like the way it is done in the mmc/host
+driver infrastructure.
+
+David Daney
