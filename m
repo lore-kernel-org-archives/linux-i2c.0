@@ -1,55 +1,154 @@
-From: Doug Anderson <dianders@chromium.org>
-Subject: Re: [PATCH v3 0/2] Add automatic bus number support for i2c busses
- with device tree
-Date: Tue, 26 Feb 2013 17:01:51 -0800
-Message-ID: <CAD=FV=WS5Vj74d-FNXCVpNsx6Nf-8+RC-WO29Z1XNmkEOYLxfQ@mail.gmail.com>
-References: <1360630085-26874-1-git-send-email-dianders@chromium.org>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 06/12] i2c: i2c-mxs: move to use generic DMA helper
+Date: Wed, 27 Feb 2013 23:25:42 +0800
+Message-ID: <1361978748-25281-7-git-send-email-shawn.guo@linaro.org>
+References: <1361978748-25281-1-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1360630085-26874-1-git-send-email-dianders@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
-Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Doug Anderson <dianders@chromium.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Haojian Zhuang <haojian.zhuang@marvell.com>, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1361978748-25281-1-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Huang Shijie <b32955-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram,
+With the generic DMA device tree helper supported by mxs-dma driver,
+client devices only need to call dma_request_slave_channel() for
+requesting a DMA channel from dmaengine.
 
-On Mon, Feb 11, 2013 at 4:48 PM, Doug Anderson <dianders@chromium.org> wrote:
-> This was suggested by Mark Brown in response to a patch for adding
-> this functionality only for the s3c2410 bus:
->   https://lkml.org/lkml/2012/11/20/681
->
-> I have also modified the i2c-pxa driver to use this new functionality.
-> The i2c-pxa driver changes have only been compile-tested and are just
-> for cleanup purposes.
->
-> Changes in v3:
-> - Addressed Wolfram's feedback; rebased atop idr-cleanup series.
->
-> Changes in v2:
-> - No longer tweak pdev->id as per Sylwester Nawrocki.
-> - No longer add the dev ID to the adap.name.  Other drivers don't
->   include the device ID here and it doesn't make sense with
->   dynamically (or automatically) allocated IDs.
-> - Use dev_name(&dev->dev) to register for the IRQ; this matches what
->   the i2c-s3c2410.c does and handles dynamically allocated IDs.
-> - This change was only compile-tested (corgi_defconfig), since I don't
->   have access to a board that uses this driver.
->
-> Doug Anderson (2):
->   i2c-core: dt: Pick i2c bus number from i2c alias if present
->   i2c: pxa: Use i2c-core to get bus number now
->
->  drivers/i2c/busses/i2c-pxa.c | 20 ++++++++--------
->  drivers/i2c/i2c-core.c       | 54 ++++++++++++++++++++++++++++++++------------
->  2 files changed, 49 insertions(+), 25 deletions(-)
+Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+---
+ Documentation/devicetree/bindings/i2c/i2c-mxs.txt |   12 ++++---
+ drivers/i2c/busses/i2c-mxs.c                      |   40 ++-------------------
+ 2 files changed, 11 insertions(+), 41 deletions(-)
 
-Is there anything else needed for this patch series?  It's been
-hanging around for quite a while and it would be nice to see it land.
-If you're waiting for additional acks or reviews I'll ask around and
-see if I can get them...
-
-Thanks!  :)
-
--Doug
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mxs.txt b/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
+index 7a3fe9e..c32f4e9 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mxs.txt
+@@ -3,10 +3,13 @@
+ Required properties:
+ - compatible: Should be "fsl,<chip>-i2c"
+ - reg: Should contain registers location and length
+-- interrupts: Should contain ERROR and DMA interrupts
++- interrupts: Should contain ERROR interrupt number
+ - clock-frequency: Desired I2C bus clock frequency in Hz.
+                    Only 100000Hz and 400000Hz modes are supported.
+-- fsl,i2c-dma-channel: APBX DMA channel for the I2C
++- dmas: DMA specifier, consisting of a phandle to DMA controller node
++  and I2C DMA channel ID.
++  Refer to dma.txt and fsl-mxs-dma.txt for details.
++- dma-names: Must be "i2c".
+ 
+ Examples:
+ 
+@@ -15,7 +18,8 @@ i2c0: i2c@80058000 {
+ 	#size-cells = <0>;
+ 	compatible = "fsl,imx28-i2c";
+ 	reg = <0x80058000 2000>;
+-	interrupts = <111 68>;
++	interrupts = <111>;
+ 	clock-frequency = <100000>;
+-	fsl,i2c-dma-channel = <6>;
++	dmas = <&dma_apbx 6>;
++	dma-names = "i2c";
+ };
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 22d8ad3..1f282df 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -31,7 +31,6 @@
+ #include <linux/of_i2c.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/dmaengine.h>
+-#include <linux/fsl/mxs-dma.h>
+ 
+ #define DRIVER_NAME "mxs-i2c"
+ 
+@@ -113,9 +112,7 @@ struct mxs_i2c_dev {
+ 	uint32_t timing1;
+ 
+ 	/* DMA support components */
+-	int				dma_channel;
+ 	struct dma_chan         	*dmach;
+-	struct mxs_dma_data		dma_data;
+ 	uint32_t			pio_data[2];
+ 	uint32_t			addr_data;
+ 	struct scatterlist		sg_io[2];
+@@ -518,21 +515,6 @@ static const struct i2c_algorithm mxs_i2c_algo = {
+ 	.functionality = mxs_i2c_func,
+ };
+ 
+-static bool mxs_i2c_dma_filter(struct dma_chan *chan, void *param)
+-{
+-	struct mxs_i2c_dev *i2c = param;
+-
+-	if (!mxs_dma_is_apbx(chan))
+-		return false;
+-
+-	if (chan->chan_id != i2c->dma_channel)
+-		return false;
+-
+-	chan->private = &i2c->dma_data;
+-
+-	return true;
+-}
+-
+ static void mxs_i2c_derive_timing(struct mxs_i2c_dev *i2c, int speed)
+ {
+ 	/* The I2C block clock run at 24MHz */
+@@ -577,17 +559,6 @@ static int mxs_i2c_get_ofdata(struct mxs_i2c_dev *i2c)
+ 	struct device_node *node = dev->of_node;
+ 	int ret;
+ 
+-	/*
+-	 * TODO: This is a temporary solution and should be changed
+-	 * to use generic DMA binding later when the helpers get in.
+-	 */
+-	ret = of_property_read_u32(node, "fsl,i2c-dma-channel",
+-				   &i2c->dma_channel);
+-	if (ret) {
+-		dev_err(dev, "Failed to get DMA channel!\n");
+-		return -ENODEV;
+-	}
+-
+ 	ret = of_property_read_u32(node, "clock-frequency", &speed);
+ 	if (ret) {
+ 		dev_warn(dev, "No I2C speed selected, using 100kHz\n");
+@@ -607,8 +578,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 	struct pinctrl *pinctrl;
+ 	struct resource *res;
+ 	resource_size_t res_size;
+-	int err, irq, dmairq;
+-	dma_cap_mask_t mask;
++	int err, irq;
+ 
+ 	pinctrl = devm_pinctrl_get_select_default(dev);
+ 	if (IS_ERR(pinctrl))
+@@ -620,9 +590,8 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	irq = platform_get_irq(pdev, 0);
+-	dmairq = platform_get_irq(pdev, 1);
+ 
+-	if (!res || irq < 0 || dmairq < 0)
++	if (!res || irq < 0)
+ 		return -ENOENT;
+ 
+ 	res_size = resource_size(res);
+@@ -648,10 +617,7 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	/* Setup the DMA */
+-	dma_cap_zero(mask);
+-	dma_cap_set(DMA_SLAVE, mask);
+-	i2c->dma_data.chan_irq = dmairq;
+-	i2c->dmach = dma_request_channel(mask, mxs_i2c_dma_filter, i2c);
++	i2c->dmach = dma_request_slave_channel(dev, "i2c");
+ 	if (!i2c->dmach) {
+ 		dev_err(dev, "Failed to request dma\n");
+ 		return -ENODEV;
+-- 
+1.7.9.5
