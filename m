@@ -1,53 +1,55 @@
-From: =?euc-kr?B?vNvAurrA?= <eunb.song@samsung.com>
-Subject: Re: Re: I2C: Fix i2c fail problem when a process is terminated by a
- signal on octeon in 3.8
-Date: Tue, 26 Feb 2013 23:15:42 +0000 (GMT)
-Message-ID: <13700407.150151361920541315.JavaMail.weblogic@epml02>
-Reply-To: eunb.song@samsung.com
+From: Doug Anderson <dianders@chromium.org>
+Subject: Re: [PATCH v3 0/2] Add automatic bus number support for i2c busses
+ with device tree
+Date: Tue, 26 Feb 2013 17:01:51 -0800
+Message-ID: <CAD=FV=WS5Vj74d-FNXCVpNsx6Nf-8+RC-WO29Z1XNmkEOYLxfQ@mail.gmail.com>
+References: <1360630085-26874-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=euc-kr
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-kernel-owner@vger.kernel.org>
-MIME-version: 1.0
+In-Reply-To: <1360630085-26874-1-git-send-email-dianders@chromium.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Daney <ddaney@caviumnetworks.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>, Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Doug Anderson <dianders@chromium.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Haojian Zhuang <haojian.zhuang@marvell.com>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-DQo+SWYgdGhlIHdhaXQgaXMgbm90IGludGVycnVwdGlibGUsIEkgdGhpbmsgeW91IHdpbGwgbm90
-IGJlIGFibGUgdG8gJ2tpbGwNCj4tOScgYSB1c2Vyc3BhY2UgcHJvY2VzcyBibG9ja2VkIGhlcmUu
-DQoNCkFzIHlvdXIgd29yZHMuIHRoZSBwcm9jZXNzIHdpbGwgbm90IGJlIGtpbGxlZCBpbW1lZGlh
-dGVseSwgYnV0IGFmdGVyIHRpbWVvdXQoMiBqaWZmaWVzKSBpdCB3aWxsIGJlIGtpbGxlZC4NCkkg
-dGhpbmsgdGhhdCBkZWxheSBpcyBhY2NlcHRhYmxlLiANCg0KDQotLS0tLS0tIE9yaWdpbmFsIE1l
-c3NhZ2UgLS0tLS0tLQ0KU2VuZGVyIDogRGF2aWQgRGFuZXk8ZGRhbmV5QGNhdml1bW5ldHdvcmtz
-LmNvbT4NCkRhdGUgOiAyMDEzLTAyLTI3IDA4OjA3IChHTVQrMDk6MDApDQpUaXRsZSA6IFJlOiBJ
-MkM6IEZpeCBpMmMgZmFpbCBwcm9ibGVtIHdoZW4gYSBwcm9jZXNzIGlzIHRlcm1pbmF0ZWQgYnkg
-YSBzaWduYWwgb24gb2N0ZW9uIGluIDMuOA0KDQpPbiAwMi8yNi8yMDEzIDEyOjU0IFBNLCC828C6
-usAgd3JvdGU6DQo+IEkndmUgYmVlbiBkZWJ1Z2dpbmcgdGhlIGFibm9ybWFsIG9wZXJhdGlvbiBv
-ZiBpMmMgb24gb2N0ZW9uLg0KPiBJZiBhIHByb2Nlc3MgaXMgdGVybWluYXRlZCBieSBzaWduYWwg
-aW4gdGhlIG1pZGRsZSBvZiBpMmMgb3BlcmF0aW9uLA0KPiBuZXh0IGkyYyByZWFkIG9wZXJhdGlv
-biB3aGljaCBpcyBkb25lIGJ5IGFub3RoZXIgcHJvY2VzcyB3YXMgZmFpbGVkLg0KPiBTbyBpIGNo
-YW5nZWQgdG8gaWdub3JlIHNpZ25hbCBpbiB0aGUgbWlkZGxlIG9mIGkyYyBvcGVyYXRpb24uDQo+
-IEFmdGVyIHRoYXQgdGhlIHByb2JsZW0gd2FzIG5vdCByZXByb2R1Y2VkLg0KPiANCg0KVGhpcyBp
-cyBhIGtub3duIGlzc3VlLiAgSG93ZXZlciBJIGRvbid0IHRoaW5rIHRoZSBzb2x1dGlvbiB5b3Ug
-aGF2ZSBpcw0KY29ycmVjdC4uLg0KDQo+IFNpZ25lZC1vZmYtYnk6IEV1bkJvbmcgU29uZyA+ID4N
-Cj4gDQo+IGRpZmYgLXVwIGRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0ZW9uLmN7Lm9yaWcsfQ0K
-PiAtLS0gZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24uYy5vcmlnIDIwMTMtMDItMjEgMDg6
-MDk6MDMuMTY4MDE4ODQzIC0wODAwDQo+ICsrKyBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVv
-bi5jIDIwMTMtMDItMjEgMDg6MDk6MzguMzQ0MDE4ODk4IC0wODAwDQo+IEBAIC0xODMsNyArMTgz
-LDcgQEAgc3RhdGljIGlycXJldHVybl90IG9jdGVvbl9pMmNfaXNyKGludCBpcg0KPiAgICBzdHJ1
-Y3Qgb2N0ZW9uX2kyYyAqaTJjID0gZGV2X2lkOw0KPiANCj4gICAgb2N0ZW9uX2kyY19pbnRfZGlz
-YWJsZShpMmMpOw0KPiAtIHdha2VfdXBfaW50ZXJydXB0aWJsZSgmaTJjLT5xdWV1ZSk7DQo+ICsg
-d2FrZV91cCgmaTJjLT5xdWV1ZSk7DQo+IA0KPiAgICByZXR1cm4gSVJRX0hBTkRMRUQ7DQo+ICAg
-fQ0KPiBAQCAtMjA2LDcgKzIwNiw3IEBAIHN0YXRpYyBpbnQgb2N0ZW9uX2kyY193YWl0KHN0cnVj
-dCBvY3Rlb24NCj4gDQo+ICAgIG9jdGVvbl9pMmNfaW50X2VuYWJsZShpMmMpOw0KPiANCj4gLSBy
-ZXN1bHQgPSB3YWl0X2V2ZW50X2ludGVycnVwdGlibGVfdGltZW91dChpMmMtPnF1ZXVlLA0KPiAr
-IHJlc3VsdCA9IHdhaXRfZXZlbnRfdGltZW91dChpMmMtPnF1ZXVlLA0KDQpJZiB0aGUgd2FpdCBp
-cyBub3QgaW50ZXJydXB0aWJsZSwgSSB0aGluayB5b3Ugd2lsbCBub3QgYmUgYWJsZSB0byAna2ls
-bA0KLTknIGEgdXNlcnNwYWNlIHByb2Nlc3MgYmxvY2tlZCBoZXJlLg0KDQo+ICAgICAgICAgICBv
-Y3Rlb25faTJjX3Rlc3RfaWZsZyhpMmMpLA0KPiAgICAgICAgICAgaTJjLT5hZGFwLnRpbWVvdXQp
-Ow0KPiANCg0KVGhlIHJlYWwgc29sdXRpb24gaXMgdG8gbW92ZSBwcm9jZXNzaW5nIG9mIHRoZSBJ
-MkMgcHJvdG9jb2wgdG8gYSBrZXJuZWwNCnRocmVhZCBhbmQgY29tbXVuaWNhdGUgYmV0d2VlbiB0
-aGUgdGhpcyB0aHJlYWQgYW5kIHVzZXJzcGFjZSB2aWEgYQ0KY29tbWFuZCBxdWV1ZSBtZWNoYW5p
-c20sIG11Y2ggbGlrZSB0aGUgd2F5IGl0IGlzIGRvbmUgaW4gdGhlIG1tYy9ob3N0DQpkcml2ZXIg
-aW5mcmFzdHJ1Y3R1cmUuDQoNCkRhdmlkIERhbmV5
+Wolfram,
+
+On Mon, Feb 11, 2013 at 4:48 PM, Doug Anderson <dianders@chromium.org> wrote:
+> This was suggested by Mark Brown in response to a patch for adding
+> this functionality only for the s3c2410 bus:
+>   https://lkml.org/lkml/2012/11/20/681
+>
+> I have also modified the i2c-pxa driver to use this new functionality.
+> The i2c-pxa driver changes have only been compile-tested and are just
+> for cleanup purposes.
+>
+> Changes in v3:
+> - Addressed Wolfram's feedback; rebased atop idr-cleanup series.
+>
+> Changes in v2:
+> - No longer tweak pdev->id as per Sylwester Nawrocki.
+> - No longer add the dev ID to the adap.name.  Other drivers don't
+>   include the device ID here and it doesn't make sense with
+>   dynamically (or automatically) allocated IDs.
+> - Use dev_name(&dev->dev) to register for the IRQ; this matches what
+>   the i2c-s3c2410.c does and handles dynamically allocated IDs.
+> - This change was only compile-tested (corgi_defconfig), since I don't
+>   have access to a board that uses this driver.
+>
+> Doug Anderson (2):
+>   i2c-core: dt: Pick i2c bus number from i2c alias if present
+>   i2c: pxa: Use i2c-core to get bus number now
+>
+>  drivers/i2c/busses/i2c-pxa.c | 20 ++++++++--------
+>  drivers/i2c/i2c-core.c       | 54 ++++++++++++++++++++++++++++++++------------
+>  2 files changed, 49 insertions(+), 25 deletions(-)
+
+Is there anything else needed for this patch series?  It's been
+hanging around for quite a while and it would be nice to see it land.
+If you're waiting for additional acks or reviews I'll ask around and
+see if I can get them...
+
+Thanks!  :)
+
+-Doug
