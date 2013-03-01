@@ -1,44 +1,64 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 1/2] i2c-core: dt: Pick i2c bus number from i2c alias
- if present
-Date: Fri, 1 Mar 2013 20:22:13 +0100
-Message-ID: <20130301192212.GA379@the-dreams.de>
-References: <1360630085-26874-1-git-send-email-dianders@chromium.org>
- <1362157052-16738-1-git-send-email-dianders@chromium.org>
- <1362157052-16738-2-git-send-email-dianders@chromium.org>
+From: Thomas De Schampheleire <patrickdepinguin+devicetree-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: I2C and devicetrees
+Date: Fri, 1 Mar 2013 20:56:15 +0100
+Message-ID: <CAAXf6LXW7RXUgqOSwKKDfByK24qNdRGHgkEhN7eVN=BQKbAZmg@mail.gmail.com>
+References: <201212052336.24233.PeterHuewe@gmx.de>
+	<CAOesGMhUVwB4+kuCA8hSmfhoVzkznNbjj6hjngDMaQkB83WqjQ@mail.gmail.com>
+	<50C79DE8.2090201@wwwdotorg.org>
+	<20121214203845.5D7ED3E0BDD@localhost>
+	<511A6F26.20801@keymile.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1362157052-16738-2-git-send-email-dianders@chromium.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <511A6F26.20801-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Gerlando Falauto <gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Peter Huewe <PeterHuewe-Mmb7MZpHnFY@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 01, 2013 at 08:57:31AM -0800, Doug Anderson wrote:
-> This allows you to get the equivalent functionality of
-> i2c_add_numbered_adapter() with all data in the device tree and no
-> special case code in your driver.  This is a common device tree
-> technique.
-> 
-> For quick reference, the FDT syntax for using an alias to provide an
-> ID looks like:
->   aliases {
->     i2c0 = &i2c_0;
->     i2c1 = &i2c_1;
->   };
-> 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
+Hi,
 
-Thanks, applied. I'll try to get it into 3.9.
+On Tue, Feb 12, 2013 at 5:34 PM, Gerlando Falauto
+<gerlando.falauto-SkAbAL50j+5BDgjK7y7TUQ@public.gmane.org> wrote:
+> Hi everyone,
+>
+> I have a similar question.
+> I'd like to "name" i2c devices so that a userspace application can somehow
+> identify those devices with the same function across different boards (which
+> may have different addresses or be connected to a different i2c bus, or be a
+> physically different chip).
+>
+> For instance "hwmon" devices get instantiated within sysfs under
+> /sys/class/hwmon/hwmonX
+>
+> # cat /sys/class/hwmon/hwmon0/device/name
+> lm75
+>
+> which I would like to be identified by the name "switch" (as in "switch
+> temperature"). I was thinking about instantiating it as something like
+> "lm75:switch" within i2c_board_info.type. For device-tree-less
+> architectures, a trivial change within i2c_match_id() so to ignore the part
+> following ":" seems to do the trick. Don't know about devicetree but I guess
+> a similar approach could be imagined.
+>
+> Another example would be given by EEPROMs: all boards are equipped with an
+> EEPROM containing inventory management, which I would like to identify as
+> "ivm". So something like "24c08:ivm".
+> After all, I'd like to be able to achive something like "named MTD
+> partitions" which you can identify by looking at "/proc/mtd".
+>
+> Maybe some other symbol could be used instead of ":", but anyhow, does the
+> above make any sense at all to you?
+>
 
-> +	/* Handled by wrappers */
-> +	if (WARN_ON(adap->nr == -1))
-> +		return -EINVAL;
+I have exactly the same request: I would like to put logical names in
+the device tree for various devices (i2c, spi, ...) which are in some
+way easily retrievable from a userspace application.
+The purpose seems to be the same as Gerlando's: different boards have
+different physical configuration but logically each has the same set
+of devices.
 
-I removed this check, though. We know our callers, all static.
+How can one achieve that?
 
 Thanks,
-
-   Wolfram
+Thomas
