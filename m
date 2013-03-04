@@ -1,66 +1,158 @@
-From: <maxin.john-AM1FMPraTHU@public.gmane.org>
-Subject: [PATCH v2] i2c: busses: i2c-ocores: Fix PM-related warning
-Date: Mon, 4 Mar 2013 13:50:15 +0100
-Message-ID: <1362401415-63119-1-git-send-email-maxin.john@enea.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c: s3c24xx: allow device core to setup default pin
+ configuration
+Date: Mon, 04 Mar 2013 19:12:53 +0530
+Message-ID: <1362404573-30406-1-git-send-email-thomas.abraham@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, "Maxin B. John" <maxin.john-AM1FMPraTHU@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: "Maxin B. John" <maxin.john-AM1FMPraTHU@public.gmane.org>
+With device core now able to setup the default pin configuration,
+the call to devm_pinctrl_get_select_default can be removed. And
+the pin configuration code based on the deprecated Samsung specific
+gpio bindings is also removed.
 
-The suspend/resume callbacks are unused w/o PM_SLEEP
-
-Fixes this warning:
-  CC      drivers/i2c/busses/i2c-ocores.o
-drivers/i2c/busses/i2c-ocores.c:460:12: warning: 'ocores_i2c_suspend'
- defined but not used [-Wunused-function]
-drivers/i2c/busses/i2c-ocores.c:471:12: warning: 'ocores_i2c_resume'
-defined but not used [-Wunused-function]
-
-Signed-off-by: Maxin B. John <maxin.john-AM1FMPraTHU@public.gmane.org>
+Signed-off-by: Thomas Abraham <thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-ocores.c |    9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 0e1f824..1ecea5e 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -456,7 +456,7 @@ static int ocores_i2c_remove(struct platform_device *pdev)
- 	return 0;
+Hi Heiko, Tomasz,
+
+We have to make a choice on the path forward for pinctrl support
+on Samsung platforms. We have three cases to deal with.
+
+A. Samsung platforms without DT support.
+B. Samsung platforms with DT support using old Samsung specific
+   gpio bindings for pin-configuration (s3c24xx and s3x64xx).
+C. Samsung platforms with DT support using using pinctrl based
+   pin-configurations (Exynos4 and Exynos5).
+
+For [A], we just let the platform specific callbacks handle the
+pin setup. For [B] and [C], based on Linus Walleij's pin grab
+by device core patch and subsequent discussions with him on the
+mailing list, would it be acceptable that we discontinue support
+for [B] in Samsung SoC device drivers. This will impact your
+current DT work on s3c24xx and s3c64xx platforms. Pinctrl is
+inevitable and we have to migrate to it. Instead of workarounds
+to maintain support for [B], it might be better that we migrate
+s3c24xx and s3c64xx platforms to pinctrl.
+
+Please do let us know your opinion on this.
+
+Thanks,
+Thomas.
+
+ drivers/i2c/busses/i2c-s3c2410.c |   67 +-------------------------------------
+ 1 files changed, 1 insertions(+), 66 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index f6b880b..703272c 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -37,8 +37,6 @@
+ #include <linux/slab.h>
+ #include <linux/io.h>
+ #include <linux/of_i2c.h>
+-#include <linux/of_gpio.h>
+-#include <linux/pinctrl/consumer.h>
+ 
+ #include <asm/irq.h>
+ 
+@@ -84,8 +82,6 @@ struct s3c24xx_i2c {
+ 	struct i2c_adapter	adap;
+ 
+ 	struct s3c2410_platform_i2c	*pdata;
+-	int			gpios[2];
+-	struct pinctrl          *pctrl;
+ #ifdef CONFIG_CPU_FREQ
+ 	struct notifier_block	freq_transition;
+ #endif
+@@ -856,57 +852,6 @@ static inline void s3c24xx_i2c_deregister_cpufreq(struct s3c24xx_i2c *i2c)
  }
+ #endif
  
--#ifdef CONFIG_PM
-+#ifdef CONFIG_PM_SLEEP
- static int ocores_i2c_suspend(struct device *dev)
- {
- 	struct ocores_i2c *i2c = dev_get_drvdata(dev);
-@@ -476,12 +476,9 @@ static int ocores_i2c_resume(struct device *dev)
- 
- 	return 0;
- }
-+#endif
- 
- static SIMPLE_DEV_PM_OPS(ocores_i2c_pm, ocores_i2c_suspend, ocores_i2c_resume);
--#define OCORES_I2C_PM	(&ocores_i2c_pm)
+-#ifdef CONFIG_OF
+-static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+-{
+-	int idx, gpio, ret;
+-
+-	if (i2c->quirks & QUIRK_NO_GPIO)
+-		return 0;
+-
+-	for (idx = 0; idx < 2; idx++) {
+-		gpio = of_get_gpio(i2c->dev->of_node, idx);
+-		if (!gpio_is_valid(gpio)) {
+-			dev_err(i2c->dev, "invalid gpio[%d]: %d\n", idx, gpio);
+-			goto free_gpio;
+-		}
+-		i2c->gpios[idx] = gpio;
+-
+-		ret = gpio_request(gpio, "i2c-bus");
+-		if (ret) {
+-			dev_err(i2c->dev, "gpio [%d] request failed\n", gpio);
+-			goto free_gpio;
+-		}
+-	}
+-	return 0;
+-
+-free_gpio:
+-	while (--idx >= 0)
+-		gpio_free(i2c->gpios[idx]);
+-	return -EINVAL;
+-}
+-
+-static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
+-{
+-	unsigned int idx;
+-
+-	if (i2c->quirks & QUIRK_NO_GPIO)
+-		return;
+-
+-	for (idx = 0; idx < 2; idx++)
+-		gpio_free(i2c->gpios[idx]);
+-}
 -#else
--#define OCORES_I2C_PM	NULL
+-static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
+-{
+-	return 0;
+-}
+-
+-static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
+-{
+-}
 -#endif
+-
+ /* s3c24xx_i2c_init
+  *
+  * initialise the controller, set the IO lines and frequency
+@@ -1054,15 +999,9 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	i2c->adap.algo_data = i2c;
+ 	i2c->adap.dev.parent = &pdev->dev;
  
- static struct platform_driver ocores_i2c_driver = {
- 	.probe   = ocores_i2c_probe,
-@@ -490,7 +487,7 @@ static struct platform_driver ocores_i2c_driver = {
- 		.owner = THIS_MODULE,
- 		.name = "ocores-i2c",
- 		.of_match_table = ocores_i2c_match,
--		.pm = OCORES_I2C_PM,
-+		.pm = &ocores_i2c_pm,
- 	},
- };
+-	i2c->pctrl = devm_pinctrl_get_select_default(i2c->dev);
+-
+ 	/* inititalise the i2c gpio lines */
+-
+-	if (i2c->pdata->cfg_gpio) {
++	if (i2c->pdata->cfg_gpio)
+ 		i2c->pdata->cfg_gpio(to_platform_device(i2c->dev));
+-	} else if (IS_ERR(i2c->pctrl) && s3c24xx_i2c_parse_dt_gpio(i2c)) {
+-		return -EINVAL;
+-	}
+ 
+ 	/* initialise the i2c controller */
+ 
+@@ -1140,10 +1079,6 @@ static int s3c24xx_i2c_remove(struct platform_device *pdev)
+ 	i2c_del_adapter(&i2c->adap);
+ 
+ 	clk_disable_unprepare(i2c->clk);
+-
+-	if (pdev->dev.of_node && IS_ERR(i2c->pctrl))
+-		s3c24xx_i2c_dt_gpio_free(i2c);
+-
+ 	return 0;
+ }
  
 -- 
-1.7.9.5
+1.6.6.rc2
