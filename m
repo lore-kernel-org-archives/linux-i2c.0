@@ -1,202 +1,161 @@
-From: Thomas Abraham <thomas.abraham@linaro.org>
-Subject: Re: [PATCH] i2c: s3c24xx: allow device core to setup default pin configuration
-Date: Mon, 4 Mar 2013 19:42:11 +0530
-Message-ID: <CAJuYYwQ88Nw02kKf6oxdaDpCtFM0_9JOEECZHNJH9fB2oqwO+g@mail.gmail.com>
-References: <1362404573-30406-1-git-send-email-thomas.abraham@linaro.org>
-	<201303041503.44459.heiko@sntech.de>
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH V4] i2c: davinci: update to devm_* API
+Date: Tue, 5 Mar 2013 17:14:45 +0530
+Message-ID: <1362483885-16561-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <201303041503.44459.heiko@sntech.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: =?ISO-8859-1?Q?Heiko_St=FCbner?= <heiko@sntech.de>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linus.walleij@linaro.org, kgene.kim@samsung.com, ben-linux@fluff.org, t.figa@samsung.com, wsa@the-dreams.de
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: nsekhar-l0cyMroinI0@public.gmane.org, khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, manishv.b-l0cyMroinI0@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 4 March 2013 19:33, Heiko St=FCbner <heiko@sntech.de> wrote:
-> Hi Thomas,
->
-> Am Montag, 4. M=E4rz 2013, 14:42:53 schrieb Thomas Abraham:
->> With device core now able to setup the default pin configuration,
->> the call to devm_pinctrl_get_select_default can be removed. And
->> the pin configuration code based on the deprecated Samsung specific
->> gpio bindings is also removed.
->>
->> Signed-off-by: Thomas Abraham <thomas.abraham@linaro.org>
->> ---
->>
->> Hi Heiko, Tomasz,
->>
->> We have to make a choice on the path forward for pinctrl support
->> on Samsung platforms. We have three cases to deal with.
->>
->> A. Samsung platforms without DT support.
->> B. Samsung platforms with DT support using old Samsung specific
->>    gpio bindings for pin-configuration (s3c24xx and s3x64xx).
->> C. Samsung platforms with DT support using using pinctrl based
->>    pin-configurations (Exynos4 and Exynos5).
->>
->> For [A], we just let the platform specific callbacks handle the
->> pin setup. For [B] and [C], based on Linus Walleij's pin grab
->> by device core patch and subsequent discussions with him on the
->> mailing list, would it be acceptable that we discontinue support
->> for [B] in Samsung SoC device drivers. This will impact your
->> current DT work on s3c24xx and s3c64xx platforms. Pinctrl is
->> inevitable and we have to migrate to it. Instead of workarounds
->> to maintain support for [B], it might be better that we migrate
->> s3c24xx and s3c64xx platforms to pinctrl.
->>
->> Please do let us know your opinion on this.
->
-> As discusses in the other thread, I'm in favor of going forward this =
-way and
-> not to invest unnecessary energy in keeping the non-pinctrl stuff ali=
-ve.
->
-> Pinctrl for at least the s3c2416 [0] is already on my playground-wish=
-list, but
-> I'm still in the process of getting to know it.
->
-> So for this patch:
-> Acked-by: Heiko Stuebner <heiko@sntech.de>
->
->
-> Heiko
->
->
-> [0] in contrast to what the gpio-samsung driver implies, the s3c24xx =
-pin banks
-> are not uniform between SoCs, making this more difficult still :-)
+Update the code to use devm_* API so that driver
+core will manage resources.
 
-Hi Heiko,
+Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+---
+Changes since V3:
+  - Use devm_ioremap_resource API instead of devm_request_and_ioremap.
+  - Update commit message.
+  - Rebase on top of v3.9-rc1 linus tree. 
+Changes since V2:
+  - if "devm_request_and_ioremap" fails return -EADDRNOTAVAIL.
+    instead of -EBUSY.
+Changes since V1:
+  - Rebase on top of v3.8-rc6 of linus tree.
+  - Apply devm operation on clk_get.
 
-Thanks for the Ack. If the common samsung pinctrl support
-(pinctrl-samsung.c) is not well suited for s3c24xx platforms, we could
-write a separate pinctrl driver for s3c24xx platforms. But I guess we
-might be able to support s3c24xx which some changes to existing code.
-If there is anything that I can help with here, please do let me know.
+:100644 100644 7d1e590... 1fb5a22... M	drivers/i2c/busses/i2c-davinci.c
+ drivers/i2c/busses/i2c-davinci.c |   49 +++++++++++--------------------------
+ 1 files changed, 15 insertions(+), 34 deletions(-)
 
-Thanks,
-Thomas.
-
->
->
->>  drivers/i2c/busses/i2c-s3c2410.c |   67
->> +------------------------------------- 1 files changed, 1 insertions=
-(+),
->> 66 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-s3c2410.c
->> b/drivers/i2c/busses/i2c-s3c2410.c index f6b880b..703272c 100644
->> --- a/drivers/i2c/busses/i2c-s3c2410.c
->> +++ b/drivers/i2c/busses/i2c-s3c2410.c
->> @@ -37,8 +37,6 @@
->>  #include <linux/slab.h>
->>  #include <linux/io.h>
->>  #include <linux/of_i2c.h>
->> -#include <linux/of_gpio.h>
->> -#include <linux/pinctrl/consumer.h>
->>
->>  #include <asm/irq.h>
->>
->> @@ -84,8 +82,6 @@ struct s3c24xx_i2c {
->>       struct i2c_adapter      adap;
->>
->>       struct s3c2410_platform_i2c     *pdata;
->> -     int                     gpios[2];
->> -     struct pinctrl          *pctrl;
->>  #ifdef CONFIG_CPU_FREQ
->>       struct notifier_block   freq_transition;
->>  #endif
->> @@ -856,57 +852,6 @@ static inline void
->> s3c24xx_i2c_deregister_cpufreq(struct s3c24xx_i2c *i2c) }
->>  #endif
->>
->> -#ifdef CONFIG_OF
->> -static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
->> -{
->> -     int idx, gpio, ret;
->> -
->> -     if (i2c->quirks & QUIRK_NO_GPIO)
->> -             return 0;
->> -
->> -     for (idx =3D 0; idx < 2; idx++) {
->> -             gpio =3D of_get_gpio(i2c->dev->of_node, idx);
->> -             if (!gpio_is_valid(gpio)) {
->> -                     dev_err(i2c->dev, "invalid gpio[%d]: %d\n", id=
-x, gpio);
->> -                     goto free_gpio;
->> -             }
->> -             i2c->gpios[idx] =3D gpio;
->> -
->> -             ret =3D gpio_request(gpio, "i2c-bus");
->> -             if (ret) {
->> -                     dev_err(i2c->dev, "gpio [%d] request failed\n"=
-, gpio);
->> -                     goto free_gpio;
->> -             }
->> -     }
->> -     return 0;
->> -
->> -free_gpio:
->> -     while (--idx >=3D 0)
->> -             gpio_free(i2c->gpios[idx]);
->> -     return -EINVAL;
->> -}
->> -
->> -static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
->> -{
->> -     unsigned int idx;
->> -
->> -     if (i2c->quirks & QUIRK_NO_GPIO)
->> -             return;
->> -
->> -     for (idx =3D 0; idx < 2; idx++)
->> -             gpio_free(i2c->gpios[idx]);
->> -}
->> -#else
->> -static int s3c24xx_i2c_parse_dt_gpio(struct s3c24xx_i2c *i2c)
->> -{
->> -     return 0;
->> -}
->> -
->> -static void s3c24xx_i2c_dt_gpio_free(struct s3c24xx_i2c *i2c)
->> -{
->> -}
->> -#endif
->> -
->>  /* s3c24xx_i2c_init
->>   *
->>   * initialise the controller, set the IO lines and frequency
->> @@ -1054,15 +999,9 @@ static int s3c24xx_i2c_probe(struct platform_d=
-evice
->> *pdev) i2c->adap.algo_data =3D i2c;
->>       i2c->adap.dev.parent =3D &pdev->dev;
->>
->> -     i2c->pctrl =3D devm_pinctrl_get_select_default(i2c->dev);
->> -
->>       /* inititalise the i2c gpio lines */
->> -
->> -     if (i2c->pdata->cfg_gpio) {
->> +     if (i2c->pdata->cfg_gpio)
->>               i2c->pdata->cfg_gpio(to_platform_device(i2c->dev));
->> -     } else if (IS_ERR(i2c->pctrl) && s3c24xx_i2c_parse_dt_gpio(i2c=
-)) {
->> -             return -EINVAL;
->> -     }
->>
->>       /* initialise the i2c controller */
->>
->> @@ -1140,10 +1079,6 @@ static int s3c24xx_i2c_remove(struct platform=
-_device
->> *pdev) i2c_del_adapter(&i2c->adap);
->>
->>       clk_disable_unprepare(i2c->clk);
->> -
->> -     if (pdev->dev.of_node && IS_ERR(i2c->pctrl))
->> -             s3c24xx_i2c_dt_gpio_free(i2c);
->> -
->>       return 0;
->>  }
->
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 7d1e590..1fb5a22 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -643,7 +643,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct davinci_i2c_dev *dev;
+ 	struct i2c_adapter *adap;
+-	struct resource *mem, *irq, *ioarea;
++	struct resource *mem, *irq;
+ 	int r;
+ 
+ 	/* NOTE: driver uses the static register mapping */
+@@ -659,17 +659,11 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	ioarea = request_mem_region(mem->start, resource_size(mem),
+-				    pdev->name);
+-	if (!ioarea) {
+-		dev_err(&pdev->dev, "I2C region already claimed\n");
+-		return -EBUSY;
+-	}
+-
+-	dev = kzalloc(sizeof(struct davinci_i2c_dev), GFP_KERNEL);
++	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
++			GFP_KERNEL);
+ 	if (!dev) {
+-		r = -ENOMEM;
+-		goto err_release_region;
++		dev_err(&pdev->dev, "Memory allocation failed\n");
++		return -ENOMEM;
+ 	}
+ 
+ 	init_completion(&dev->cmd_complete);
+@@ -699,22 +693,24 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 		dev->pdata = &davinci_i2c_platform_data_default;
+ 	}
+ 
+-	dev->clk = clk_get(&pdev->dev, NULL);
++	dev->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(dev->clk)) {
+ 		r = -ENODEV;
+ 		goto err_free_mem;
+ 	}
+ 	clk_prepare_enable(dev->clk);
+ 
+-	dev->base = ioremap(mem->start, resource_size(mem));
+-	if (!dev->base) {
+-		r = -EBUSY;
+-		goto err_mem_ioremap;
++	dev->base = devm_ioremap_resource(&pdev->dev, mem);
++	if (IS_ERR(dev->base)) {
++		r = PTR_ERR(dev->base);
++		dev_err(&pdev->dev, "I2C region already claimed\n");
++		goto err_unuse_clocks;
+ 	}
+ 
+ 	i2c_davinci_init(dev);
+ 
+-	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
++	r = devm_request_irq(&pdev->dev, dev->irq, i2c_davinci_isr, 0,
++			pdev->name, dev);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+ 		goto err_unuse_clocks;
+@@ -723,7 +719,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 	r = i2c_davinci_cpufreq_register(dev);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failed to register cpufreq\n");
+-		goto err_free_irq;
++		goto err_unuse_clocks;
+ 	}
+ 
+ 	adap = &dev->adapter;
+@@ -740,25 +736,17 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 	r = i2c_add_numbered_adapter(adap);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure adding adapter\n");
+-		goto err_free_irq;
++		goto err_unuse_clocks;
+ 	}
+ 	of_i2c_register_devices(adap);
+ 
+ 	return 0;
+ 
+-err_free_irq:
+-	free_irq(dev->irq, dev);
+ err_unuse_clocks:
+-	iounmap(dev->base);
+-err_mem_ioremap:
+ 	clk_disable_unprepare(dev->clk);
+-	clk_put(dev->clk);
+ 	dev->clk = NULL;
+ err_free_mem:
+ 	put_device(&pdev->dev);
+-	kfree(dev);
+-err_release_region:
+-	release_mem_region(mem->start, resource_size(mem));
+ 
+ 	return r;
+ }
+@@ -766,7 +754,6 @@ err_release_region:
+ static int davinci_i2c_remove(struct platform_device *pdev)
+ {
+ 	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
+-	struct resource *mem;
+ 
+ 	i2c_davinci_cpufreq_deregister(dev);
+ 
+@@ -774,16 +761,10 @@ static int davinci_i2c_remove(struct platform_device *pdev)
+ 	put_device(&pdev->dev);
+ 
+ 	clk_disable_unprepare(dev->clk);
+-	clk_put(dev->clk);
+ 	dev->clk = NULL;
+ 
+ 	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
+-	free_irq(dev->irq, dev);
+-	iounmap(dev->base);
+-	kfree(dev);
+ 
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	release_mem_region(mem->start, resource_size(mem));
+ 	return 0;
+ }
+ 
+-- 
+1.7.4.1
