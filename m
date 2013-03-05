@@ -1,31 +1,26 @@
-From: Michael Powell <mwpowellhtx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Cross compiling I2C code
-Date: Tue, 5 Mar 2013 10:45:20 -0600
-Message-ID: <CAMEoF_Ez25RLAjaPQ3SmCB0BxuO_f5-uaUPp6tjoxudK-vbQ7g@mail.gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH v2 00/12] ARM: mxs: move to generic DMA device tree binding
+Date: Tue, 5 Mar 2013 19:39:00 +0000
+Message-ID: <201303051939.00808.arnd@arndb.de>
+References: <1362486244-24593-1-git-send-email-shawn.guo@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: Text/Plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-serial-owner@vger.kernel.org>
+In-Reply-To: <1362486244-24593-1-git-send-email-shawn.guo@linaro.org>
+Sender: linux-serial-owner@vger.kernel.org
+To: Shawn Guo <shawn.guo@linaro.org>
+Cc: linux-arm-kernel@lists.infradead.org, Vinod Koul <vinod.koul@intel.com>, Marek Vasut <marek.vasut@gmail.com>, Fabio Estevam <fabio.estevam@freescale.com>, Huang Shijie <b32955@freescale.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Artem Bityutskiy <dedekind1@gmail.com>, Wolfram Sang <wsa@the-dreams.de>, Chris Ball <cjb@laptop.org>, alsa-devel@alsa-project.org, linux-serial@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+On Tuesday 05 March 2013, Shawn Guo wrote:
+> The series converts mxs-dma and its clients to generic DMA device tree
+> binding/helper.
+> 
+> I published a branch below to ease people who is willing to help
+> testing the series.
 
-We've got an environment that builds okay where the libi2c-dev
-installed for the x86 tool chain.
+Looks all good, aside from the bug I found in the first patch.
 
-However, now I want to cross compile that for ARM. I've got a
-ready-built cross compiler, however, am failing: can't find the
-i2c_smbus_write_i2c_block_data symbol.
-
-I've read before, this is a common problem, requires libi2c-dev, for
-instance. Okay for x86. Where does libi2c-dev install that we can find
-the headers for *any* tool chain to find?
-
-Or, otherwise, how to locate that?
-
-Thank you...
-
-Regards,
-
-Michael Powell
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
