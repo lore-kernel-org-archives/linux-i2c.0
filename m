@@ -1,7 +1,7 @@
 From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 1/6] i2c: Remove detach_adapter
-Date: Sat,  9 Mar 2013 19:16:44 +0100
-Message-ID: <1362853009-20789-2-git-send-email-lars@metafoo.de>
+Subject: [PATCH 4/6] i2c: Make return type of i2c_del_adapter() void
+Date: Sat,  9 Mar 2013 19:16:47 +0100
+Message-ID: <1362853009-20789-5-git-send-email-lars@metafoo.de>
 References: <1362853009-20789-1-git-send-email-lars@metafoo.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1362853009-20789-1-git-send-email-lars@metafoo.de>
@@ -10,139 +10,76 @@ To: Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-i2c@vger.kernel.org
 
-The detach_adapter callback has been deprecated for quite some time and has no
-user left. Keeping it alive blocks other cleanups, so remove it.
+i2c_del_adapter() is usually called from a drivers remove callback. The Linux
+device driver model does not allow the remove callback to fail and all resources
+allocated in the probe callback need to be freed, as well as all resources which
+have been provided to the rest of the kernel(for example a I2C adapter) need to
+be revoked. So any function revoking such resources isn't allowed to fail
+either. i2c_del_adapter() adheres to this requirement and will never fail. But
+i2c_del_adapter()'s return type is int, which may cause driver authors to think
+that it can fail. This led to code constructs like:
+
+	ret = i2c_del_adapter(...);
+	BUG_ON(ret);
+
+Since i2c_del_adapter() always returns 0 the BUG_ON is never hit and essentially
+becomes dead code, which means it can be removed. Making the return type of
+i2c_del_adapter() void makes it explicit that the function will never fail and
+should prevent constructs like the above from re-appearing in the kernel code.
+
+All callers of i2c_del_adapter() have already been updated in a previous patch
+to ignore the return value, so the conversion of the return type from int to
+void can be done without causing any build failures.
 
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
 ---
- drivers/i2c/i2c-core.c | 33 ++++++++++-----------------------
- include/linux/i2c.h    |  7 ++-----
- 2 files changed, 12 insertions(+), 28 deletions(-)
+ drivers/i2c/i2c-core.c | 6 ++----
+ include/linux/i2c.h    | 2 +-
+ 2 files changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index f7dfe87..a853cb3 100644
+index 7727d33..838d030 100644
 --- a/drivers/i2c/i2c-core.c
 +++ b/drivers/i2c/i2c-core.c
-@@ -47,7 +47,7 @@
- 
- /* core_lock protects i2c_adapter_idr, and guarantees
-    that device detection, deletion of detected devices, and attach_adapter
--   and detach_adapter calls are serialized */
-+   calls are serialized */
- static DEFINE_MUTEX(core_lock);
- static DEFINE_IDR(i2c_adapter_idr);
- 
-@@ -1013,11 +1013,10 @@ int i2c_add_numbered_adapter(struct i2c_adapter *adap)
- }
- EXPORT_SYMBOL_GPL(i2c_add_numbered_adapter);
- 
--static int i2c_do_del_adapter(struct i2c_driver *driver,
-+static void i2c_do_del_adapter(struct i2c_driver *driver,
- 			      struct i2c_adapter *adapter)
- {
- 	struct i2c_client *client, *_n;
--	int res;
- 
- 	/* Remove the devices we created ourselves as the result of hardware
- 	 * probing (using a driver's detect method) */
-@@ -1029,16 +1028,6 @@ static int i2c_do_del_adapter(struct i2c_driver *driver,
- 			i2c_unregister_device(client);
- 		}
- 	}
--
--	if (!driver->detach_adapter)
--		return 0;
--	dev_warn(&adapter->dev, "%s: detach_adapter method is deprecated\n",
--		 driver->driver.name);
--	res = driver->detach_adapter(adapter);
--	if (res)
--		dev_err(&adapter->dev, "detach_adapter failed (%d) "
--			"for driver [%s]\n", res, driver->driver.name);
--	return res;
- }
- 
- static int __unregister_client(struct device *dev, void *dummy)
-@@ -1059,7 +1048,8 @@ static int __unregister_dummy(struct device *dev, void *dummy)
- 
- static int __process_removed_adapter(struct device_driver *d, void *data)
- {
--	return i2c_do_del_adapter(to_i2c_driver(d), data);
-+	i2c_do_del_adapter(to_i2c_driver(d), data);
-+	return 0;
- }
- 
- /**
-@@ -1072,7 +1062,6 @@ static int __process_removed_adapter(struct device_driver *d, void *data)
+@@ -1060,7 +1060,7 @@ static int __process_removed_adapter(struct device_driver *d, void *data)
+  * This unregisters an I2C adapter which was previously registered
+  * by @i2c_add_adapter or @i2c_add_numbered_adapter.
   */
- int i2c_del_adapter(struct i2c_adapter *adap)
+-int i2c_del_adapter(struct i2c_adapter *adap)
++void i2c_del_adapter(struct i2c_adapter *adap)
  {
--	int res = 0;
  	struct i2c_adapter *found;
  	struct i2c_client *client, *next;
- 
-@@ -1088,11 +1077,9 @@ int i2c_del_adapter(struct i2c_adapter *adap)
+@@ -1072,7 +1072,7 @@ int i2c_del_adapter(struct i2c_adapter *adap)
+ 	if (found != adap) {
+ 		pr_debug("i2c-core: attempting to delete unregistered "
+ 			 "adapter [%s]\n", adap->name);
+-		return 0;
++		return;
+ 	}
  
  	/* Tell drivers about this removal */
- 	mutex_lock(&core_lock);
--	res = bus_for_each_drv(&i2c_bus_type, NULL, adap,
-+	bus_for_each_drv(&i2c_bus_type, NULL, adap,
- 			       __process_removed_adapter);
- 	mutex_unlock(&core_lock);
--	if (res)
--		return res;
- 
- 	/* Remove devices instantiated from sysfs */
- 	mutex_lock_nested(&adap->userspace_clients_lock,
-@@ -1111,8 +1098,8 @@ int i2c_del_adapter(struct i2c_adapter *adap)
- 	 * we can't remove the dummy devices during the first pass: they
- 	 * could have been instantiated by real devices wishing to clean
- 	 * them up properly, so we give them a chance to do that first. */
--	res = device_for_each_child(&adap->dev, NULL, __unregister_client);
--	res = device_for_each_child(&adap->dev, NULL, __unregister_dummy);
-+	device_for_each_child(&adap->dev, NULL, __unregister_client);
-+	device_for_each_child(&adap->dev, NULL, __unregister_dummy);
- 
- #ifdef CONFIG_I2C_COMPAT
- 	class_compat_remove_link(i2c_adapter_compat_class, &adap->dev,
-@@ -1208,9 +1195,9 @@ EXPORT_SYMBOL(i2c_register_driver);
- 
- static int __process_removed_driver(struct device *dev, void *data)
- {
--	if (dev->type != &i2c_adapter_type)
--		return 0;
--	return i2c_do_del_adapter(data, to_i2c_adapter(dev));
-+	if (dev->type == &i2c_adapter_type)
-+		i2c_do_del_adapter(data, to_i2c_adapter(dev));
-+	return 0;
+@@ -1124,8 +1124,6 @@ int i2c_del_adapter(struct i2c_adapter *adap)
+ 	/* Clear the device structure in case this adapter is ever going to be
+ 	   added again */
+ 	memset(&adap->dev, 0, sizeof(adap->dev));
+-
+-	return 0;
  }
+ EXPORT_SYMBOL(i2c_del_adapter);
  
- /**
 diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index d0c4db7..8ffab3f 100644
+index 8ffab3f..dec1702 100644
 --- a/include/linux/i2c.h
 +++ b/include/linux/i2c.h
-@@ -125,7 +125,6 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
-  * struct i2c_driver - represent an I2C device driver
-  * @class: What kind of i2c device we instantiate (for detect)
-  * @attach_adapter: Callback for bus addition (deprecated)
-- * @detach_adapter: Callback for bus removal (deprecated)
-  * @probe: Callback for device binding
-  * @remove: Callback for device unbinding
-  * @shutdown: Callback for device shutdown
-@@ -162,12 +161,10 @@ extern s32 i2c_smbus_write_i2c_block_data(const struct i2c_client *client,
- struct i2c_driver {
- 	unsigned int class;
+@@ -447,7 +447,7 @@ void i2c_unlock_adapter(struct i2c_adapter *);
+  */
+ #if defined(CONFIG_I2C) || defined(CONFIG_I2C_MODULE)
+ extern int i2c_add_adapter(struct i2c_adapter *);
+-extern int i2c_del_adapter(struct i2c_adapter *);
++extern void i2c_del_adapter(struct i2c_adapter *);
+ extern int i2c_add_numbered_adapter(struct i2c_adapter *);
  
--	/* Notifies the driver that a new bus has appeared or is about to be
--	 * removed. You should avoid using this, it will be removed in a
--	 * near future.
-+	/* Notifies the driver that a new bus has appeared. You should avoid
-+	 * using this, it will be removed in a near future.
- 	 */
- 	int (*attach_adapter)(struct i2c_adapter *) __deprecated;
--	int (*detach_adapter)(struct i2c_adapter *) __deprecated;
- 
- 	/* Standard driver model interfaces */
- 	int (*probe)(struct i2c_client *, const struct i2c_device_id *);
+ extern int i2c_register_driver(struct module *, struct i2c_driver *);
 -- 
 1.8.0
