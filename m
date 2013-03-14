@@ -1,33 +1,42 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH v4 1/3] i2c: mux: Add i2c-arbitrator-cros-ec 'mux' driver
-Date: Wed, 13 Mar 2013 11:29:28 -0600
-Message-ID: <5140B778.7090401@wwwdotorg.org>
-References: <1360957573-864-1-git-send-email-dianders@chromium.org> <1363192583-26363-1-git-send-email-dianders@chromium.org> <5140AF22.2030809@wwwdotorg.org> <CAD=FV=VOmXW4awSozKaC1GoerEfomVhaJ-j950S1x28Js2oVpg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <CAD=FV=VOmXW4awSozKaC1GoerEfomVhaJ-j950S1x28Js2oVpg@mail.gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene.kim@samsung.com>, linux-doc@vger.kernel.org, Daniel Kurtz <djkurtz@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stephen Warren <swarren@nvidia.com>, Ben Dooks <ben.dooks@codethink.co.uk>, u.kleine-koenig@pengutronix.de, Grant Grundler <grundler@chromium.org>, devicetree-discuss@lists.ozlabs.org, Rob Herring <rob.herring@calxeda.com>, Jean Delvare <khali@linux-fr.org>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Girish Shivananjappa <girish.shivananjappa@linaro.org>, "bhushan.r" <bhushan.r@samsung.com>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, "sreekumar.c" <sreekumar.c@samsung.com>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Yuvaraj Kumar <yuvaraj.cd@gma>
+From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/1] i2c: at91: Use of_match_ptr() macro
+Date: Thu, 14 Mar 2013 15:43:03 +0530
+Message-ID: <1363255983-25407-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/13/2013 10:59 AM, Doug Anderson wrote:
-> Stephen,
-> 
-> On Wed, Mar 13, 2013 at 9:53 AM, Stephen Warren <swarren@wwwdotorg.org> wrote:
->>> Changes in v4: None
->>
->> Isn't this 'PATCH V3 REPOST' then?
-> 
-> In this case part 2 in the patch series changes but not parts 1 and 3.
->  I could have just reposted part 2 with a higher version, but that
-> makes it a little harder to piece together all of the parts of the
-> series so I decided to repost all 3.  I can do differently in the
-> future if you prefer, but my understanding was that it was a matter of
-> preference/judgement call.
+This eliminates having an #ifdef returning NULL for the case
+when OF is disabled.
 
-Oh no you're quite right. I didn't notice it was a 3-part series, since
-I only got patch 1/3 filtered into my inbox; I guess I wasn't CC'd on
-the rest. Sorry for the noise.
+Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-at91.c |    4 +---
+ 1 files changed, 1 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-at91.c b/drivers/i2c/busses/i2c-at91.c
+index 75195e3..23a1c44 100644
+--- a/drivers/i2c/busses/i2c-at91.c
++++ b/drivers/i2c/busses/i2c-at91.c
+@@ -603,8 +603,6 @@ static const struct of_device_id atmel_twi_dt_ids[] = {
+ 	}
+ };
+ MODULE_DEVICE_TABLE(of, atmel_twi_dt_ids);
+-#else
+-#define atmel_twi_dt_ids NULL
+ #endif
+ 
+ static bool filter(struct dma_chan *chan, void *slave)
+@@ -828,7 +826,7 @@ static struct platform_driver at91_twi_driver = {
+ 	.driver		= {
+ 		.name	= "at91_i2c",
+ 		.owner	= THIS_MODULE,
+-		.of_match_table = atmel_twi_dt_ids,
++		.of_match_table = of_match_ptr(atmel_twi_dt_ids),
+ 		.pm	= at91_twi_pm_ops,
+ 	},
+ };
+-- 
+1.7.4.1
