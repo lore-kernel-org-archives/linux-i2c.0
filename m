@@ -1,44 +1,177 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V10 1/2] i2c/adapter: Add bus recovery infrastructure
-Date: Fri, 15 Mar 2013 14:43:52 +0530
-Message-ID: <CAKohpondDBBjTQYgV9XOFMYp_aKO+SdeRR1gjxe1ovTLuOm2Wg@mail.gmail.com>
-References: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar@linaro.org>
-	<20130125111322.GA2649@pengutronix.de>
-	<CAKohpok2arxhsAt3xOxRCZZjvLMTed1EYX3ZRUSQ3733wx2mMw@mail.gmail.com>
-	<CAKohpokNVPOvAc=Gbxn4ZquPnG4huukDmwhOsqaV51p0aRo8xw@mail.gmail.com>
-	<CAKohpokCqe7LHFMn0t7EivTQ7US9Fp=07nowGP2H2ujeDKbHXg@mail.gmail.com>
+From: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH V4] i2c: davinci: update to devm_* API
+Date: Fri, 15 Mar 2013 11:23:52 +0000
+Message-ID: <A4887BF146CD57468F700B415D2F4701585246@DBDE01.ent.ti.com>
+References: <1362483885-16561-1-git-send-email-manishv.b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKohpokCqe7LHFMn0t7EivTQ7US9Fp=07nowGP2H2ujeDKbHXg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1362483885-16561-1-git-send-email-manishv.b-l0cyMroinI0@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+To: "Vishwanathrao Badarkhe, Manish" <manishv.b-l0cyMroinI0@public.gmane.org>, "davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org" <davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org" <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, "ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Fixing Wolfram's email id.
+Hi Wolfram
 
-On 15 March 2013 14:21, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On 31 January 2013 07:58, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> On 26 January 2013 10:43, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->>> I have looked them again and attached are the final patches.
->>> Following are the improvements i have:
->>>
->>> Author: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->>> Date:   Sat Jan 26 10:31:42 2013 +0530
->>>
->>>     fixup! i2c/adapter: Add bus recovery infrastructure
->>
->> Hi Wolfram,
->>
->> Any inputs ?
->
-> Hi Wolfram,
->
-> We have already spent lot of time reviewing this patchset (more than a year),
-> its better we take it now and patch then for any improvements.
->
-> What do you say?
->
+Added your updated mail id in loop.
+Are there any review comments on this patch? Could you please
+accept this patch if there are not any review comments?
+
+Thanks 
+Manish Badarkhe
+
+On Tue, Mar 05, 2013 at 17:14:45, Vishwanathrao Badarkhe, Manish wrote:
+> Update the code to use devm_* API so that driver core will manage resources.
+> 
+> Signed-off-by: Vishwanathrao Badarkhe, Manish <manishv.b-l0cyMroinI0@public.gmane.org>
+> ---
+> Changes since V3:
+>   - Use devm_ioremap_resource API instead of devm_request_and_ioremap.
+>   - Update commit message.
+>   - Rebase on top of v3.9-rc1 linus tree. 
+> Changes since V2:
+>   - if "devm_request_and_ioremap" fails return -EADDRNOTAVAIL.
+>     instead of -EBUSY.
+> Changes since V1:
+>   - Rebase on top of v3.8-rc6 of linus tree.
+>   - Apply devm operation on clk_get.
+> 
+> :100644 100644 7d1e590... 1fb5a22... M	drivers/i2c/busses/i2c-davinci.c
+>  drivers/i2c/busses/i2c-davinci.c |   49 +++++++++++--------------------------
+>  1 files changed, 15 insertions(+), 34 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+> index 7d1e590..1fb5a22 100644
+> --- a/drivers/i2c/busses/i2c-davinci.c
+> +++ b/drivers/i2c/busses/i2c-davinci.c
+> @@ -643,7 +643,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)  {
+>  	struct davinci_i2c_dev *dev;
+>  	struct i2c_adapter *adap;
+> -	struct resource *mem, *irq, *ioarea;
+> +	struct resource *mem, *irq;
+>  	int r;
+>  
+>  	/* NOTE: driver uses the static register mapping */ @@ -659,17 +659,11 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  		return -ENODEV;
+>  	}
+>  
+> -	ioarea = request_mem_region(mem->start, resource_size(mem),
+> -				    pdev->name);
+> -	if (!ioarea) {
+> -		dev_err(&pdev->dev, "I2C region already claimed\n");
+> -		return -EBUSY;
+> -	}
+> -
+> -	dev = kzalloc(sizeof(struct davinci_i2c_dev), GFP_KERNEL);
+> +	dev = devm_kzalloc(&pdev->dev, sizeof(struct davinci_i2c_dev),
+> +			GFP_KERNEL);
+>  	if (!dev) {
+> -		r = -ENOMEM;
+> -		goto err_release_region;
+> +		dev_err(&pdev->dev, "Memory allocation failed\n");
+> +		return -ENOMEM;
+>  	}
+>  
+>  	init_completion(&dev->cmd_complete);
+> @@ -699,22 +693,24 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  		dev->pdata = &davinci_i2c_platform_data_default;
+>  	}
+>  
+> -	dev->clk = clk_get(&pdev->dev, NULL);
+> +	dev->clk = devm_clk_get(&pdev->dev, NULL);
+>  	if (IS_ERR(dev->clk)) {
+>  		r = -ENODEV;
+>  		goto err_free_mem;
+>  	}
+>  	clk_prepare_enable(dev->clk);
+>  
+> -	dev->base = ioremap(mem->start, resource_size(mem));
+> -	if (!dev->base) {
+> -		r = -EBUSY;
+> -		goto err_mem_ioremap;
+> +	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+> +	if (IS_ERR(dev->base)) {
+> +		r = PTR_ERR(dev->base);
+> +		dev_err(&pdev->dev, "I2C region already claimed\n");
+> +		goto err_unuse_clocks;
+>  	}
+>  
+>  	i2c_davinci_init(dev);
+>  
+> -	r = request_irq(dev->irq, i2c_davinci_isr, 0, pdev->name, dev);
+> +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_davinci_isr, 0,
+> +			pdev->name, dev);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+>  		goto err_unuse_clocks;
+> @@ -723,7 +719,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  	r = i2c_davinci_cpufreq_register(dev);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failed to register cpufreq\n");
+> -		goto err_free_irq;
+> +		goto err_unuse_clocks;
+>  	}
+>  
+>  	adap = &dev->adapter;
+> @@ -740,25 +736,17 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+>  	r = i2c_add_numbered_adapter(adap);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failure adding adapter\n");
+> -		goto err_free_irq;
+> +		goto err_unuse_clocks;
+>  	}
+>  	of_i2c_register_devices(adap);
+>  
+>  	return 0;
+>  
+> -err_free_irq:
+> -	free_irq(dev->irq, dev);
+>  err_unuse_clocks:
+> -	iounmap(dev->base);
+> -err_mem_ioremap:
+>  	clk_disable_unprepare(dev->clk);
+> -	clk_put(dev->clk);
+>  	dev->clk = NULL;
+>  err_free_mem:
+>  	put_device(&pdev->dev);
+> -	kfree(dev);
+> -err_release_region:
+> -	release_mem_region(mem->start, resource_size(mem));
+>  
+>  	return r;
+>  }
+> @@ -766,7 +754,6 @@ err_release_region:
+>  static int davinci_i2c_remove(struct platform_device *pdev)  {
+>  	struct davinci_i2c_dev *dev = platform_get_drvdata(pdev);
+> -	struct resource *mem;
+>  
+>  	i2c_davinci_cpufreq_deregister(dev);
+>  
+> @@ -774,16 +761,10 @@ static int davinci_i2c_remove(struct platform_device *pdev)
+>  	put_device(&pdev->dev);
+>  
+>  	clk_disable_unprepare(dev->clk);
+> -	clk_put(dev->clk);
+>  	dev->clk = NULL;
+>  
+>  	davinci_i2c_write_reg(dev, DAVINCI_I2C_MDR_REG, 0);
+> -	free_irq(dev->irq, dev);
+> -	iounmap(dev->base);
+> -	kfree(dev);
+>  
+> -	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	release_mem_region(mem->start, resource_size(mem));
+>  	return 0;
+>  }
+>  
 > --
-> viresh
+> 1.7.4.1
+> 
+> 
+
+
+Regards, 
+Manish
