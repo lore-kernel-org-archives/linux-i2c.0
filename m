@@ -1,59 +1,52 @@
-From: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c: tegra: check the clk_prepare_enable() return value
-Date: Fri, 15 Mar 2013 21:04:08 +0530
-Message-ID: <1363361648-10326-1-git-send-email-ldewangan@nvidia.com>
+From: <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] MAINTAINERS: add maintainer entry for atmel i2c driver
+Date: Fri, 15 Mar 2013 16:32:57 +0100
+Message-ID: <1363361577-7770-1-git-send-email-ludovic.desroches@atmel.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-NVIDIA's Tegra SoC allows read/write of controller register only
-if controller clock is enabled. System hangs if read/write happens
-to registers without enabling clock.
+From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-clk_prepare_enable() can be fail due to unknown reason and hence
-adding check for return value of this function. If this function
-success then only access register otherwise return to caller with
-error.
+Create an entry for atmel i2c driver: i2c-at91.c
 
-Signed-off-by: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-tegra.c |   13 +++++++++++--
- 1 files changed, 11 insertions(+), 2 deletions(-)
+Hello,
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 36704e3..b714776 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -411,7 +411,11 @@ static int tegra_i2c_init(struct tegra_i2c_dev *i2c_dev)
- 	int clk_multiplier = I2C_CLK_MULTIPLIER_STD_FAST_MODE;
- 	u32 clk_divisor;
+If there are no objections, I'll take the maintenance of the at91 i2c driver
+since there is no maintainer.
+
+Wolfram, can you take this patch or do I have to ask someone else?
+
+Regards
+
+Ludovic
+
+
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9561658..d667ecc 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1467,6 +1467,12 @@ F:	drivers/dma/at_hdmac.c
+ F:	drivers/dma/at_hdmac_regs.h
+ F:	include/linux/platform_data/dma-atmel.h
  
--	tegra_i2c_clock_enable(i2c_dev);
-+	err = tegra_i2c_clock_enable(i2c_dev);
-+	if (err < 0) {
-+		dev_err(i2c_dev->dev, "Clock enable failed %d\n", err);
-+		return err;
-+	}
- 
- 	tegra_periph_reset_assert(i2c_dev->div_clk);
- 	udelay(2);
-@@ -628,7 +632,12 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
- 	if (i2c_dev->is_suspended)
- 		return -EBUSY;
- 
--	tegra_i2c_clock_enable(i2c_dev);
-+	ret = tegra_i2c_clock_enable(i2c_dev);
-+	if (ret < 0) {
-+		dev_err(i2c_dev->dev, "Clock enable failed %d\n", ret);
-+		return ret;
-+	}
++ATMEL I2C DRIVER
++M:	Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
++L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
++S:	Supported
++F:	drivers/i2c/busses/i2c-at91.c
 +
- 	for (i = 0; i < num; i++) {
- 		enum msg_end_type end_type = MSG_END_STOP;
- 		if (i < (num - 1)) {
+ ATMEL ISI DRIVER
+ M:	Josh Wu <josh.wu-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+ L:	linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 -- 
-1.7.1.1
+1.7.11.3
