@@ -1,65 +1,30 @@
-From: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] MAINTAINERS: add maintainer entry for atmel i2c driver
-Date: Fri, 15 Mar 2013 17:07:18 +0100
-Message-ID: <51434736.5020004@atmel.com>
-References: <1363361577-7770-1-git-send-email-ludovic.desroches@atmel.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH] i2c: tegra: check the clk_prepare_enable() return value
+Date: Fri, 15 Mar 2013 13:32:49 -0600
+Message-ID: <51437761.6020901@wwwdotorg.org>
+References: <1363361648-10326-1-git-send-email-ldewangan@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1363361577-7770-1-git-send-email-ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1363361648-10326-1-git-send-email-ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Laxman Dewangan <ldewangan-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 03/15/2013 04:32 PM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
-> From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+On 03/15/2013 09:34 AM, Laxman Dewangan wrote:
+> NVIDIA's Tegra SoC allows read/write of controller register only
+> if controller clock is enabled. System hangs if read/write happens
+> to registers without enabling clock.
 > 
-> Create an entry for atmel i2c driver: i2c-at91.c
-> 
-> Signed-off-by: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+> clk_prepare_enable() can be fail due to unknown reason and hence
+> adding check for return value of this function. If this function
+> success then only access register otherwise return to caller with
+> error.
 
-Acked-by: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Wolfram,
 
-> ---
-> Hello,
-> 
-> If there are no objections, I'll take the maintenance of the at91 i2c driver
-> since there is no maintainer.
+Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Sure, no objection ;-)
-Good luck!
-
-> Wolfram, can you take this patch or do I have to ask someone else?
-> 
-> Regards
-> 
-> Ludovic
-> 
-> 
->  MAINTAINERS | 6 ++++++
->  1 file changed, 6 insertions(+)
-> 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 9561658..d667ecc 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -1467,6 +1467,12 @@ F:	drivers/dma/at_hdmac.c
->  F:	drivers/dma/at_hdmac_regs.h
->  F:	include/linux/platform_data/dma-atmel.h
->  
-> +ATMEL I2C DRIVER
-> +M:	Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
-> +L:	linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> +S:	Supported
-> +F:	drivers/i2c/busses/i2c-at91.c
-> +
->  ATMEL ISI DRIVER
->  M:	Josh Wu <josh.wu-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
->  L:	linux-media-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> 
-
-
--- 
-Nicolas Ferre
+This is probably suitable for Cc: stable.
