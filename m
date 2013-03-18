@@ -1,70 +1,85 @@
-From: Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: [PATCH] i2c: sirf: get the i2c pin group by pinctrl api
-Date: Mon, 18 Mar 2013 13:31:10 +0530
-Message-ID: <5146C9C6.2030507@ti.com>
-References: <1363591361-5992-1-git-send-email-Barry.Song@csr.com>
+Date: Mon, 18 Mar 2013 16:23:35 +0800
+Message-ID: <CAGsJ_4yAhUKyH14UEq8WBUmHAq7ZzhNLyX-zcEehR-wr5H6NUA@mail.gmail.com>
+References: <1363591361-5992-1-git-send-email-Barry.Song@csr.com> <5146C9C6.2030507@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1363591361-5992-1-git-send-email-Barry.Song-kQvG35nSl+M@public.gmane.org>
+In-Reply-To: <5146C9C6.2030507-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>
-Cc: w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
-On Monday 18 March 2013 12:52 PM, Barry Song wrote:
-> From: Barry Song<Baohua.Song-kQvG35nSl+M@public.gmane.org>
+2013/3/18 Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>:
+> Hi,
 >
-> hardcode set i2c pin group to i2c function before, here we
-> move to use standard pinctrl API to get pins of the group.
+> On Monday 18 March 2013 12:52 PM, Barry Song wrote:
+>>
+>> From: Barry Song<Baohua.Song-kQvG35nSl+M@public.gmane.org>
+>>
+>> hardcode set i2c pin group to i2c function before, here we
+>> move to use standard pinctrl API to get pins of the group.
+>>
+>> Signed-off-by: Barry Song<Baohua.Song-kQvG35nSl+M@public.gmane.org>
+>> Cc: Linus Walleij<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>> ---
+>>   drivers/i2c/busses/i2c-sirf.c |    9 +++++++++
+>>   1 files changed, 9 insertions(+), 0 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+>> index 5a7ad24..dd4004e 100644
+>> --- a/drivers/i2c/busses/i2c-sirf.c
+>> +++ b/drivers/i2c/busses/i2c-sirf.c
+>> @@ -16,6 +16,7 @@
+>>   #include<linux/clk.h>
+>>   #include<linux/err.h>
+>>   #include<linux/io.h>
+>> +#include<linux/pinctrl/consumer.h>
+>>
+>>   #define SIRFSOC_I2C_CLK_CTRL          0x00
+>>   #define SIRFSOC_I2C_STATUS            0x0C
+>> @@ -265,6 +266,7 @@ static int i2c_sirfsoc_probe(struct platform_device
+>> *pdev)
+>>         struct i2c_adapter *adap;
+>>         struct resource *mem_res;
+>>         struct clk *clk;
+>> +       struct pinctrl *pinctrl;
+>>         int bitrate;
+>>         int ctrl_speed;
+>>         int irq;
+>> @@ -272,6 +274,12 @@ static int i2c_sirfsoc_probe(struct platform_device
+>> *pdev)
+>>         int err;
+>>         u32 regval;
+>>
+>> +       pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
+>> +       if (IS_ERR(pinctrl)) {
+>> +               err = PTR_ERR(pinctrl);
+>> +               goto failed_pin;
+>> +       }
+>> +
 >
-> Signed-off-by: Barry Song<Baohua.Song-kQvG35nSl+M@public.gmane.org>
-> Cc: Linus Walleij<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
->   drivers/i2c/busses/i2c-sirf.c |    9 +++++++++
->   1 files changed, 9 insertions(+), 0 deletions(-)
+> I think,  you should also add an "EPROBE_DEFER" check here ?
+
+why would the driver require a probe retry since getting the pinctrl
+has returned an error? before the driver executes, pinctrl driver has
+run earlier and DT has been extended.
+
+all people are using  IS_ERR(pinctrl) to check the ret of
+devm_pinctrl_get_select_default.
+
 >
-> diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
-> index 5a7ad24..dd4004e 100644
-> --- a/drivers/i2c/busses/i2c-sirf.c
-> +++ b/drivers/i2c/busses/i2c-sirf.c
-> @@ -16,6 +16,7 @@
->   #include<linux/clk.h>
->   #include<linux/err.h>
->   #include<linux/io.h>
-> +#include<linux/pinctrl/consumer.h>
->
->   #define SIRFSOC_I2C_CLK_CTRL		0x00
->   #define SIRFSOC_I2C_STATUS		0x0C
-> @@ -265,6 +266,7 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
->   	struct i2c_adapter *adap;
->   	struct resource *mem_res;
->   	struct clk *clk;
-> +	struct pinctrl *pinctrl;
->   	int bitrate;
->   	int ctrl_speed;
->   	int irq;
-> @@ -272,6 +274,12 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
->   	int err;
->   	u32 regval;
->
-> +	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
-> +	if (IS_ERR(pinctrl)) {
-> +		err = PTR_ERR(pinctrl);
-> +		goto failed_pin;
-> +	}
-> +
-I think,  you should also add an "EPROBE_DEFER" check here ?
->   	clk = clk_get(&pdev->dev, NULL);
->   	if (IS_ERR(clk)) {
->   		err = PTR_ERR(clk);
-> @@ -385,6 +393,7 @@ err_clk_en:
->   err_clk_prep:
->   	clk_put(clk);
->   err_get_clk:
-> +failed_pin:
->   	return err;
->   }
->
+>>         clk = clk_get(&pdev->dev, NULL);
+>>         if (IS_ERR(clk)) {
+>>                 err = PTR_ERR(clk);
+>> @@ -385,6 +393,7 @@ err_clk_en:
+>>   err_clk_prep:
+>>         clk_put(clk);
+>>   err_get_clk:
+>> +failed_pin:
+>>         return err;
+>>   }
+
+-barry
