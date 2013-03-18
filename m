@@ -1,105 +1,90 @@
-From: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
-Subject: [PATCH 1/1] The AT24 driver only uses page size of 1 byte if no platform data is provided to the probe function. When this eeprom is detected via open firmware tree in powerpc architecture the correct chip type is given to the probe function. So the driver can extract the page size for optimal performance out of this chip type.
-Date: Mon, 18 Mar 2013 17:52:13 +0400
-Message-ID: <1363614733-1179-1-git-send-email-Sergey.Gerasimov@astrosoft-development.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
+From: =?utf-8?Q?=C3=89meric?= Vigier
+	<emeric.vigier-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
+Subject: how to gracefully unload an i2c driver if chip not detected?
+Date: Mon, 18 Mar 2013 10:47:26 -0400 (EDT)
+Message-ID: <35709576.270615.1363618046395.JavaMail.root@mail>
+References: <931575758.126890.1363615027376.JavaMail.root@mail>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <931575758.126890.1363615027376.JavaMail.root@mail>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Signed-off-by: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
----
- drivers/misc/eeprom/at24.c | 50 +++++++++++++++++++++++++++++-----------------
- 1 file changed, 32 insertions(+), 18 deletions(-)
+Hi,
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 2baeec5..a467553 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -97,35 +97,39 @@ module_param(write_timeout, uint, 0);
- MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
- 
- #define AT24_SIZE_BYTELEN 5
-+#define AT24_PAGE_SIZE_BYTELEN 4
- #define AT24_SIZE_FLAGS 8
- 
- #define AT24_BITMASK(x) (BIT(x) - 1)
- 
--/* create non-zero magic value for given eeprom parameters */
--#define AT24_DEVICE_MAGIC(_len, _flags) 		\
--	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
--	    << AT24_SIZE_BYTELEN | ilog2(_len))
-+#define AT24_DEVICE_MAGIC(_len, _page_size, _flags)            \
-+	(((1 << AT24_SIZE_FLAGS | (_flags)) << \
-+	(AT24_SIZE_BYTELEN + AT24_PAGE_SIZE_BYTELEN)) | \
-+	(ilog2(_page_size) << AT24_SIZE_BYTELEN) | \
-+	ilog2(_len))
-+
-+
- 
- static const struct i2c_device_id at24_ids[] = {
- 	/* needs 8 addresses as A0-A2 are ignored */
--	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
-+	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, 1, AT24_FLAG_TAKE8ADDR) },
- 	/* old variants can't be handled with this generic entry! */
--	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
--	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
-+	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 1, 0) },
-+	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 1, 0) },
- 	/* spd is a 24c02 in memory DIMMs */
--	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
-+	{ "spd", AT24_DEVICE_MAGIC(2048 / 8, 1,
- 		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
--	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
-+	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 16, 0) },
- 	/* 24rf08 quirk is handled at i2c-core */
--	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
--	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
--	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
--	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
--	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
--	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
--	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
--	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
- 	{ "at24", 0 },
-+	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 16, 0) },
-+	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 16, 0) },
-+	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, 32, AT24_FLAG_ADDR16) },
-+	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, 32, AT24_FLAG_ADDR16) },
-+	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, 64, AT24_FLAG_ADDR16) },
-+	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, 64, AT24_FLAG_ADDR16) },
-+	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, 128, AT24_FLAG_ADDR16) },
-+	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, 256, AT24_FLAG_ADDR16) },
- 	{ /* END OF LIST */ }
- };
- MODULE_DEVICE_TABLE(i2c, at24_ids);
-@@ -499,15 +503,25 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		magic = id->driver_data;
- 		chip.byte_len = BIT(magic & AT24_BITMASK(AT24_SIZE_BYTELEN));
- 		magic >>= AT24_SIZE_BYTELEN;
-+		chip.page_size = BIT(magic
-+			& AT24_BITMASK(AT24_PAGE_SIZE_BYTELEN));
-+		magic >>= AT24_PAGE_SIZE_BYTELEN;
-+
- 		chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
- 		/*
-+		 *If page size is not given in the magic wird,
-+		 take page size 1.*
- 		 * This is slow, but we can't know all eeproms, so we better
- 		 * play safe. Specifying custom eeprom-types via platform_data
- 		 * is recommended anyhow.
- 		 */
--		chip.page_size = 1;
-+
- 
- 		/* update chipdata if OF is present */
-+		if (chip.page_size == 0)
-+			chip.page_size = 1;
-+
-+
- 		at24_get_ofdata(client, &chip);
- 
- 		chip.setup = NULL;
--- 
-1.7.11.7
+I work on an omap platform running linux 3.0.21. The kernel image embeds two built-in i2c drivers for two different proximity sensors.
+The hardware platform embeds only one sensor, so there is a detection mechanism of which chip is present in each driver (code below).
+
+I recently changed the sensor on my board. Leading to kernel crash when entering suspend.
+Thanks to "no_console_suspend" cmdline argument, I found out that the suspend function of the "absent" chip gets called. It tries to take a mutex which has been freed in probe's "device not found" fallback code. Leading to kernel panic.
+
+I naively tried to add "i2c_del_driver(&vcnl4010_driver);" in the driver's probe function.
+But it triggers a null ptr deref in i2c_do_del_adapter().
+
+How can I gracefully unload this i2c driver if chip is not detected, while keeping this driver built-in in the kernel?
+What is the recommended method to do just that?
+
+Thanks,
+Emeric
+
+---------
+
+static struct i2c_driver vcnl4010_driver;
+
+static int __devinit vcnl4010_driver_probe(struct i2c_client *client, const struct i2c_device_id *id)
+{
+    [...]
+
+    if(vcnl4010_read_transfer(data, VCNL4010_PROD_ID_VER, &reg_val, 1) !=0 )
+    {
+        pr_err("vcnl4010: Device not found!");
+        goto nochip;
+    }
+
+    if(reg_val != 0x21)
+    {
+        pr_err("vcnl4010: Found device isn't a vcnl4010, is a vcnl4000 installed?");
+        goto badchip;
+    }
+
+    [...]
+
+badchip:
+nochip:
+    input_unregister_device(data->input_dev);
+dev_register_error:
+    input_free_device(data->input_dev);
+dev_allocate_error:
+    mutex_destroy(&data->lock);
+    kfree(data);
+error:
+    /* i2c_del_driver(&vcnl4010_driver); triggers NULL ptr deref in i2c_do_del_adapter() */
+    return ret;
+}
+
+static int vcnl4010_driver_suspend(struct device *dev)
+{
+    struct platform_device *pdev = to_platform_device(dev);
+    struct vcnl4010_data *data = platform_get_drvdata(pdev);
+    mutex_lock(&data->lock); /* panic kernel if chip is not present */
+    vcnl4010_write(data, VCNL4010_CMD_REG,              0x00);
+    vcnl4010_write(data, VCNL4010_IR_LED_CURR,             0);
+    mutex_unlock(&data->lock);
+
+    return 0;
+}
+
+static struct i2c_driver vcnl4010_driver = {
+    .probe        = vcnl4010_driver_probe,
+    .remove        = vcnl4010_driver_remove,
+    .id_table    = vcnl4010_idtable,
+    .driver = {
+        .name = DRIVER_NAME,
+#ifdef CONFIG_PM
+        .pm = &vcnl4010_pm_ops,
+#endif
+    },
+};
