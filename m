@@ -1,97 +1,105 @@
-From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: sirf: get the i2c pin group by pinctrl api
-Date: Mon, 18 Mar 2013 16:54:11 +0800
-Message-ID: <CAGsJ_4wj_K0Viz0HcyAV7rnV0wuKQezCJOZZiCtc86NMGX6YVg@mail.gmail.com>
-References: <1363591361-5992-1-git-send-email-Barry.Song@csr.com>
- <5146C9C6.2030507@ti.com> <CAGsJ_4yAhUKyH14UEq8WBUmHAq7ZzhNLyX-zcEehR-wr5H6NUA@mail.gmail.com>
- <5146D326.1090409@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5146D326.1090409-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+From: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
+Subject: [PATCH 1/1] The AT24 driver only uses page size of 1 byte if no platform data is provided to the probe function. When this eeprom is detected via open firmware tree in powerpc architecture the correct chip type is given to the probe function. So the driver can extract the page size for optimal performance out of this chip type.
+Date: Mon, 18 Mar 2013 17:52:13 +0400
+Message-ID: <1363614733-1179-1-git-send-email-Sergey.Gerasimov@astrosoft-development.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
 List-Id: linux-i2c@vger.kernel.org
 
-2013/3/18 Sourav Poddar <sourav.poddar-l0cyMroinI0@public.gmane.org>:
-> Hi,
->
-> On Monday 18 March 2013 01:53 PM, Barry Song wrote:
->>
->> 2013/3/18 Sourav Poddar<sourav.poddar-l0cyMroinI0@public.gmane.org>:
->>>
->>> Hi,
->>>
->>> On Monday 18 March 2013 12:52 PM, Barry Song wrote:
->>>>
->>>> From: Barry Song<Baohua.Song-kQvG35nSl+M@public.gmane.org>
->>>>
->>>> hardcode set i2c pin group to i2c function before, here we
->>>> move to use standard pinctrl API to get pins of the group.
->>>>
->>>> Signed-off-by: Barry Song<Baohua.Song-kQvG35nSl+M@public.gmane.org>
->>>> Cc: Linus Walleij<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->>>> ---
->>>>    drivers/i2c/busses/i2c-sirf.c |    9 +++++++++
->>>>    1 files changed, 9 insertions(+), 0 deletions(-)
->>>>
->>>> diff --git a/drivers/i2c/busses/i2c-sirf.c
->>>> b/drivers/i2c/busses/i2c-sirf.c
->>>> index 5a7ad24..dd4004e 100644
->>>> --- a/drivers/i2c/busses/i2c-sirf.c
->>>> +++ b/drivers/i2c/busses/i2c-sirf.c
->>>> @@ -16,6 +16,7 @@
->>>>    #include<linux/clk.h>
->>>>    #include<linux/err.h>
->>>>    #include<linux/io.h>
->>>> +#include<linux/pinctrl/consumer.h>
->>>>
->>>>    #define SIRFSOC_I2C_CLK_CTRL          0x00
->>>>    #define SIRFSOC_I2C_STATUS            0x0C
->>>> @@ -265,6 +266,7 @@ static int i2c_sirfsoc_probe(struct platform_device
->>>> *pdev)
->>>>          struct i2c_adapter *adap;
->>>>          struct resource *mem_res;
->>>>          struct clk *clk;
->>>> +       struct pinctrl *pinctrl;
->>>>          int bitrate;
->>>>          int ctrl_speed;
->>>>          int irq;
->>>> @@ -272,6 +274,12 @@ static int i2c_sirfsoc_probe(struct platform_device
->>>> *pdev)
->>>>          int err;
->>>>          u32 regval;
->>>>
->>>> +       pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
->>>> +       if (IS_ERR(pinctrl)) {
->>>> +               err = PTR_ERR(pinctrl);
->>>> +               goto failed_pin;
->>>> +       }
->>>> +
->>>
->>> I think,  you should also add an "EPROBE_DEFER" check here ?
->>
->> why would the driver require a probe retry since getting the pinctrl
->> has returned an error? before the driver executes, pinctrl driver has
->> run earlier and DT has been extended.
->>
-> There might be modules who need some early pinctrl muxing. Some
-> drivers might also use subsys_initcall instead of module_init. In such
-> cases,
-> "EPROBE_DEFER" might be useful.
+Signed-off-by: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
+---
+ drivers/misc/eeprom/at24.c | 50 +++++++++++++++++++++++++++++-----------------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
 
-yes. that is right. here these is no this issue.
-in my case, sirf pinctrl is initialized by arch_initcall, i2c probing
-is handled by module_init.
-that makes i2c is a later user of pinctrl.
-
->
->> all people are using  IS_ERR(pinctrl) to check the ret of
->> devm_pinctrl_get_select_default.
->>
-> Yes, we will keep using this check. DEFER check will be embedded inside
-> this.
-> Something like below, which has been done for omap i2c..
-
--barry
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 2baeec5..a467553 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -97,35 +97,39 @@ module_param(write_timeout, uint, 0);
+ MODULE_PARM_DESC(write_timeout, "Time (in ms) to try writes (default 25)");
+ 
+ #define AT24_SIZE_BYTELEN 5
++#define AT24_PAGE_SIZE_BYTELEN 4
+ #define AT24_SIZE_FLAGS 8
+ 
+ #define AT24_BITMASK(x) (BIT(x) - 1)
+ 
+-/* create non-zero magic value for given eeprom parameters */
+-#define AT24_DEVICE_MAGIC(_len, _flags) 		\
+-	((1 << AT24_SIZE_FLAGS | (_flags)) 		\
+-	    << AT24_SIZE_BYTELEN | ilog2(_len))
++#define AT24_DEVICE_MAGIC(_len, _page_size, _flags)            \
++	(((1 << AT24_SIZE_FLAGS | (_flags)) << \
++	(AT24_SIZE_BYTELEN + AT24_PAGE_SIZE_BYTELEN)) | \
++	(ilog2(_page_size) << AT24_SIZE_BYTELEN) | \
++	ilog2(_len))
++
++
+ 
+ static const struct i2c_device_id at24_ids[] = {
+ 	/* needs 8 addresses as A0-A2 are ignored */
+-	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, AT24_FLAG_TAKE8ADDR) },
++	{ "24c00", AT24_DEVICE_MAGIC(128 / 8, 1, AT24_FLAG_TAKE8ADDR) },
+ 	/* old variants can't be handled with this generic entry! */
+-	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 0) },
+-	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 0) },
++	{ "24c01", AT24_DEVICE_MAGIC(1024 / 8, 1, 0) },
++	{ "24c02", AT24_DEVICE_MAGIC(2048 / 8, 1, 0) },
+ 	/* spd is a 24c02 in memory DIMMs */
+-	{ "spd", AT24_DEVICE_MAGIC(2048 / 8,
++	{ "spd", AT24_DEVICE_MAGIC(2048 / 8, 1,
+ 		AT24_FLAG_READONLY | AT24_FLAG_IRUGO) },
+-	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 0) },
++	{ "24c04", AT24_DEVICE_MAGIC(4096 / 8, 16, 0) },
+ 	/* 24rf08 quirk is handled at i2c-core */
+-	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 0) },
+-	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 0) },
+-	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, AT24_FLAG_ADDR16) },
+-	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, AT24_FLAG_ADDR16) },
+ 	{ "at24", 0 },
++	{ "24c08", AT24_DEVICE_MAGIC(8192 / 8, 16, 0) },
++	{ "24c16", AT24_DEVICE_MAGIC(16384 / 8, 16, 0) },
++	{ "24c32", AT24_DEVICE_MAGIC(32768 / 8, 32, AT24_FLAG_ADDR16) },
++	{ "24c64", AT24_DEVICE_MAGIC(65536 / 8, 32, AT24_FLAG_ADDR16) },
++	{ "24c128", AT24_DEVICE_MAGIC(131072 / 8, 64, AT24_FLAG_ADDR16) },
++	{ "24c256", AT24_DEVICE_MAGIC(262144 / 8, 64, AT24_FLAG_ADDR16) },
++	{ "24c512", AT24_DEVICE_MAGIC(524288 / 8, 128, AT24_FLAG_ADDR16) },
++	{ "24c1024", AT24_DEVICE_MAGIC(1048576 / 8, 256, AT24_FLAG_ADDR16) },
+ 	{ /* END OF LIST */ }
+ };
+ MODULE_DEVICE_TABLE(i2c, at24_ids);
+@@ -499,15 +503,25 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		magic = id->driver_data;
+ 		chip.byte_len = BIT(magic & AT24_BITMASK(AT24_SIZE_BYTELEN));
+ 		magic >>= AT24_SIZE_BYTELEN;
++		chip.page_size = BIT(magic
++			& AT24_BITMASK(AT24_PAGE_SIZE_BYTELEN));
++		magic >>= AT24_PAGE_SIZE_BYTELEN;
++
+ 		chip.flags = magic & AT24_BITMASK(AT24_SIZE_FLAGS);
+ 		/*
++		 *If page size is not given in the magic wird,
++		 take page size 1.*
+ 		 * This is slow, but we can't know all eeproms, so we better
+ 		 * play safe. Specifying custom eeprom-types via platform_data
+ 		 * is recommended anyhow.
+ 		 */
+-		chip.page_size = 1;
++
+ 
+ 		/* update chipdata if OF is present */
++		if (chip.page_size == 0)
++			chip.page_size = 1;
++
++
+ 		at24_get_ofdata(client, &chip);
+ 
+ 		chip.setup = NULL;
+-- 
+1.7.11.7
