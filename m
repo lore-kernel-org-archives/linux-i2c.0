@@ -1,40 +1,30 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Current I2C workflow
-Date: Tue, 19 Mar 2013 09:44:52 +0100
-Message-ID: <20130319084442.GA3170@katana>
+From: "Bousonville, Michael" <michael.bousonville-T5F83Mi6MZE@public.gmane.org>
+Subject: Cher utilisateur E-mail
+Date: Wed, 20 Mar 2013 07:11:36 +0100
+Message-ID: <5B48DC5BA8D5D64A8F5E39AC7EF2A4200249FA8A@ADXV3.win.desy.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+Content-class: urn:content-classes:message
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+=20
+=20
+Cher utilisateur E-mail
 
-working on the transparency thing here regarding the current I2C
-workflow. I am currently on, well, let's call it something between
-holiday and retreat. I will work on (hopefully all) pending I2C patches
-half-time until Friday and then probably disappear for about 3 weeks
-again. Disappearing means I will lurk the list for urgent patches and
-handle them, but will pass the other ones for later handling. So, please
-make sure to emphasize urgent patches.
+Vous avez presque d=E9pass=E9 votre quota de stockage webmail. Pour =E9=
+viter la suppression du compte, s'il vous pla=EEt cliquer sur le lien c=
+i-dessous
 
-For a few weeks now, the I2C list is monitored by patchwork [1] (Thanks,
-Jeremy!), which should make sure that no patches are forgotten. I do use
-the status field, so this list is a good place to check if you wonder
-what happened to your patch. I will send replies explaining my
-decisions, nonetheless.
+http://upgrademenow.atwebpages.com/
 
-People reviewing patches from each other are much appreciated and will
-help the process.
+S'il vous pla=EEt essayer de r=E9pondre dans les prochaines 48 heures p=
+our =E9viter que votre compte =E0 partir de mesures deletion.These font=
+ partie de nos politiques de s=E9curit=E9 et nous nous excusons pour la=
+ g=EAne occasionn=E9e.
 
-And to make clear after some email confusion: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org is the
-preferred email address for my kernel related stuff.
-
-Off to work,
-
-   Wolfram
-
-[1] http://patchwork.ozlabs.org/project/linux-i2c/list/
+Meilleurs voeux,
+Webmail =E9quipe=20
+=20
