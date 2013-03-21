@@ -1,100 +1,157 @@
-From: Heiko =?utf-8?q?St=C3=BCbner?= <heiko@sntech.de>
-Subject: [PATCH v2 2/2] i2c: s3c2410: fixup the styling of the newly moved register definitions
-Date: Thu, 21 Mar 2013 15:10:13 +0100
-Message-ID: <201303211510.13547.heiko@sntech.de>
-References: <201303211509.25607.heiko@sntech.de>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <201303211509.25607.heiko@sntech.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: [PATCH V2] i2c: tegra: assume CONFIG_OF, remove platform data
+Date: Thu, 21 Mar 2013 12:08:46 -0600
+Message-ID: <1363889326-14728-1-git-send-email-swarren@wwwdotorg.org>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Make them conform more to established standards.
+From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Tegra only supports, and always enables, device tree. Remove all ifdefs
+and runtime checks for DT support from the driver. Platform data is
+therefore no longer required. Delete the header that defines it.
+
+Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 ---
-changes since v1: none
+V2: Rebased onto v3.9-rc1; hopefully this is far easier to apply to the
+I2C tree than the previous version.
 
- drivers/i2c/busses/i2c-s3c2410.c |   50 ++++++++++++++++++-------------------
- 1 files changed, 24 insertions(+), 26 deletions(-)
+ arch/arm/mach-tegra/board-dt-tegra20.c |    2 --
+ drivers/i2c/busses/i2c-tegra.c         |   26 +++++++-------------------
+ include/linux/i2c-tegra.h              |   25 -------------------------
+ 3 files changed, 7 insertions(+), 46 deletions(-)
+ delete mode 100644 include/linux/i2c-tegra.h
 
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 216fea1..0a81f1f 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -46,35 +46,33 @@
+diff --git a/arch/arm/mach-tegra/board-dt-tegra20.c b/arch/arm/mach-tegra/board-dt-tegra20.c
+index a0edf25..6e1c9a9 100644
+--- a/arch/arm/mach-tegra/board-dt-tegra20.c
++++ b/arch/arm/mach-tegra/board-dt-tegra20.c
+@@ -30,8 +30,6 @@
+ #include <linux/pda_power.h>
+ #include <linux/platform_data/tegra_usb.h>
+ #include <linux/io.h>
+-#include <linux/i2c.h>
+-#include <linux/i2c-tegra.h>
+ #include <linux/usb/tegra_usb_phy.h>
  
- /* see s3c2410x user guide, v1.1, section 9 (p447) for more info */
+ #include <asm/mach-types.h>
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 36704e3..865f885 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -25,7 +25,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/delay.h>
+ #include <linux/slab.h>
+-#include <linux/i2c-tegra.h>
+ #include <linux/of_i2c.h>
+ #include <linux/of_device.h>
+ #include <linux/module.h>
+@@ -172,7 +171,7 @@ struct tegra_i2c_dev {
+ 	u8 *msg_buf;
+ 	size_t msg_buf_remaining;
+ 	int msg_read;
+-	unsigned long bus_clk_rate;
++	u32 bus_clk_rate;
+ 	bool is_suspended;
+ };
  
--#define S3C2410_IICREG(x) (x)
+@@ -685,7 +684,6 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
+ 	.clk_divisor_std_fast_mode = 0x19,
+ };
+ 
+-#if defined(CONFIG_OF)
+ /* Match table for of_platform binding */
+ static const struct of_device_id tegra_i2c_of_match[] = {
+ 	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
+@@ -695,16 +693,13 @@ static const struct of_device_id tegra_i2c_of_match[] = {
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
+-#endif
+ 
+ static int tegra_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct tegra_i2c_dev *i2c_dev;
+-	struct tegra_i2c_platform_data *pdata = pdev->dev.platform_data;
+ 	struct resource *res;
+ 	struct clk *div_clk;
+ 	struct clk *fast_clk;
+-	const unsigned int *prop;
+ 	void __iomem *base;
+ 	int irq;
+ 	int ret = 0;
+@@ -745,23 +740,16 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	i2c_dev->cont_id = pdev->id;
+ 	i2c_dev->dev = &pdev->dev;
+ 
+-	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
+-	if (pdata) {
+-		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
 -
--#define S3C2410_IICCON    S3C2410_IICREG(0x00)
--#define S3C2410_IICSTAT   S3C2410_IICREG(0x04)
--#define S3C2410_IICADD    S3C2410_IICREG(0x08)
--#define S3C2410_IICDS     S3C2410_IICREG(0x0C)
--#define S3C2440_IICLC	  S3C2410_IICREG(0x10)
+-	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... */
+-		prop = of_get_property(i2c_dev->dev->of_node,
+-				"clock-frequency", NULL);
+-		if (prop)
+-			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
+-	}
++	ret = of_property_read_u32(i2c_dev->dev->of_node, "clock-frequency",
++					&i2c_dev->bus_clk_rate);
++	if (ret)
++		i2c_dev->bus_clk_rate = 100000; /* default clock rate */
+ 
+ 	i2c_dev->hw = &tegra20_i2c_hw;
+ 
+ 	if (pdev->dev.of_node) {
+ 		const struct of_device_id *match;
+-		match = of_match_device(of_match_ptr(tegra_i2c_of_match),
+-						&pdev->dev);
++		match = of_match_device(tegra_i2c_of_match, &pdev->dev);
+ 		i2c_dev->hw = match->data;
+ 		i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
+ 						"nvidia,tegra20-i2c-dvc");
+@@ -867,7 +855,7 @@ static struct platform_driver tegra_i2c_driver = {
+ 	.driver  = {
+ 		.name  = "tegra-i2c",
+ 		.owner = THIS_MODULE,
+-		.of_match_table = of_match_ptr(tegra_i2c_of_match),
++		.of_match_table = tegra_i2c_of_match,
+ 		.pm    = TEGRA_I2C_PM,
+ 	},
+ };
+diff --git a/include/linux/i2c-tegra.h b/include/linux/i2c-tegra.h
+deleted file mode 100644
+index 9c85da4..0000000
+--- a/include/linux/i2c-tegra.h
++++ /dev/null
+@@ -1,25 +0,0 @@
+-/*
+- * drivers/i2c/busses/i2c-tegra.c
+- *
+- * Copyright (C) 2010 Google, Inc.
+- * Author: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
+- *
+- * This software is licensed under the terms of the GNU General Public
+- * License version 2, as published by the Free Software Foundation, and
+- * may be copied, distributed, and modified under those terms.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- */
 -
--#define S3C2410_IICCON_ACKEN		(1<<7)
--#define S3C2410_IICCON_TXDIV_16		(0<<6)
--#define S3C2410_IICCON_TXDIV_512	(1<<6)
--#define S3C2410_IICCON_IRQEN		(1<<5)
--#define S3C2410_IICCON_IRQPEND		(1<<4)
--#define S3C2410_IICCON_SCALE(x)		((x)&15)
-+#define S3C2410_IICCON			0x00
-+#define S3C2410_IICSTAT			0x04
-+#define S3C2410_IICADD			0x08
-+#define S3C2410_IICDS			0x0C
-+#define S3C2440_IICLC			0x10
-+
-+#define S3C2410_IICCON_ACKEN		(1 << 7)
-+#define S3C2410_IICCON_TXDIV_16		(0 << 6)
-+#define S3C2410_IICCON_TXDIV_512	(1 << 6)
-+#define S3C2410_IICCON_IRQEN		(1 << 5)
-+#define S3C2410_IICCON_IRQPEND		(1 << 4)
-+#define S3C2410_IICCON_SCALE(x)		((x) & 0xf)
- #define S3C2410_IICCON_SCALEMASK	(0xf)
- 
--#define S3C2410_IICSTAT_MASTER_RX	(2<<6)
--#define S3C2410_IICSTAT_MASTER_TX	(3<<6)
--#define S3C2410_IICSTAT_SLAVE_RX	(0<<6)
--#define S3C2410_IICSTAT_SLAVE_TX	(1<<6)
--#define S3C2410_IICSTAT_MODEMASK	(3<<6)
-+#define S3C2410_IICSTAT_MASTER_RX	(2 << 6)
-+#define S3C2410_IICSTAT_MASTER_TX	(3 << 6)
-+#define S3C2410_IICSTAT_SLAVE_RX	(0 << 6)
-+#define S3C2410_IICSTAT_SLAVE_TX	(1 << 6)
-+#define S3C2410_IICSTAT_MODEMASK	(3 << 6)
- 
--#define S3C2410_IICSTAT_START		(1<<5)
--#define S3C2410_IICSTAT_BUSBUSY		(1<<5)
--#define S3C2410_IICSTAT_TXRXEN		(1<<4)
--#define S3C2410_IICSTAT_ARBITR		(1<<3)
--#define S3C2410_IICSTAT_ASSLAVE		(1<<2)
--#define S3C2410_IICSTAT_ADDR0		(1<<1)
--#define S3C2410_IICSTAT_LASTBIT		(1<<0)
-+#define S3C2410_IICSTAT_START		(1 << 5)
-+#define S3C2410_IICSTAT_BUSBUSY		(1 << 5)
-+#define S3C2410_IICSTAT_TXRXEN		(1 << 4)
-+#define S3C2410_IICSTAT_ARBITR		(1 << 3)
-+#define S3C2410_IICSTAT_ASSLAVE		(1 << 2)
-+#define S3C2410_IICSTAT_ADDR0		(1 << 1)
-+#define S3C2410_IICSTAT_LASTBIT		(1 << 0)
- 
- #define S3C2410_IICLC_SDA_DELAY0	(0 << 0)
- #define S3C2410_IICLC_SDA_DELAY5	(1 << 0)
-@@ -82,7 +80,7 @@
- #define S3C2410_IICLC_SDA_DELAY15	(3 << 0)
- #define S3C2410_IICLC_SDA_DELAY_MASK	(3 << 0)
- 
--#define S3C2410_IICLC_FILTER_ON		(1<<2)
-+#define S3C2410_IICLC_FILTER_ON		(1 << 2)
- 
- /* Treat S3C2410 as baseline hardware, anything else is supported via quirks */
- #define QUIRK_S3C2440		(1 << 0)
+-#ifndef _LINUX_I2C_TEGRA_H
+-#define _LINUX_I2C_TEGRA_H
+-
+-struct tegra_i2c_platform_data {
+-	unsigned long bus_clk_rate;
+-};
+-
+-#endif /* _LINUX_I2C_TEGRA_H */
 -- 
-1.7.2.3
+1.7.10.4
