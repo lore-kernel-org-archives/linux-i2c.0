@@ -1,157 +1,33 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: [PATCH V2] i2c: tegra: assume CONFIG_OF, remove platform data
-Date: Thu, 21 Mar 2013 12:08:46 -0600
-Message-ID: <1363889326-14728-1-git-send-email-swarren@wwwdotorg.org>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+From: Jason Baron <jbaron-JqFfY2XvxFXQT0dZR+AlfA@public.gmane.org>
+Subject: i2c_i801: status of use hardware semaphore patch?
+Date: Thu, 21 Mar 2013 18:07:40 -0400
+Message-ID: <514B84AC.6040703@akamai.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: asierra-AQeFf1F/bRxBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Hi,
 
-Tegra only supports, and always enables, device tree. Remove all ifdefs
-and runtime checks for DT support from the driver. Platform data is
-therefore no longer required. Delete the header that defines it.
+I've also hit the i2c_i801 driver conflicts with ACPI region:
 
-Signed-off-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
-V2: Rebased onto v3.9-rc1; hopefully this is far easier to apply to the
-I2C tree than the previous version.
+kernel: [73904.044722] i801_smbus 0000:00:1f.3: PCI INT C -> GSI 18
+(level, low) -> IRQ 18
+kernel: [73904.045573] ACPI: resource 0000:00:1f.3 [io  0xf000-0xf01f]
+conflicts with ACPI region SMBI [io 0xf000-0xf00f]
+kernel: [73904.046461] ACPI: If an ACPI driver is available for this
+device, you should use it instead of the native driver
 
- arch/arm/mach-tegra/board-dt-tegra20.c |    2 --
- drivers/i2c/busses/i2c-tegra.c         |   26 +++++++-------------------
- include/linux/i2c-tegra.h              |   25 -------------------------
- 3 files changed, 7 insertions(+), 46 deletions(-)
- delete mode 100644 include/linux/i2c-tegra.h
+I tested this patch: http://marc.info/?l=linux-i2c&m=135188429220187&w=2
 
-diff --git a/arch/arm/mach-tegra/board-dt-tegra20.c b/arch/arm/mach-tegra/board-dt-tegra20.c
-index a0edf25..6e1c9a9 100644
---- a/arch/arm/mach-tegra/board-dt-tegra20.c
-+++ b/arch/arm/mach-tegra/board-dt-tegra20.c
-@@ -30,8 +30,6 @@
- #include <linux/pda_power.h>
- #include <linux/platform_data/tegra_usb.h>
- #include <linux/io.h>
--#include <linux/i2c.h>
--#include <linux/i2c-tegra.h>
- #include <linux/usb/tegra_usb_phy.h>
- 
- #include <asm/mach-types.h>
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 36704e3..865f885 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -25,7 +25,6 @@
- #include <linux/interrupt.h>
- #include <linux/delay.h>
- #include <linux/slab.h>
--#include <linux/i2c-tegra.h>
- #include <linux/of_i2c.h>
- #include <linux/of_device.h>
- #include <linux/module.h>
-@@ -172,7 +171,7 @@ struct tegra_i2c_dev {
- 	u8 *msg_buf;
- 	size_t msg_buf_remaining;
- 	int msg_read;
--	unsigned long bus_clk_rate;
-+	u32 bus_clk_rate;
- 	bool is_suspended;
- };
- 
-@@ -685,7 +684,6 @@ static const struct tegra_i2c_hw_feature tegra114_i2c_hw = {
- 	.clk_divisor_std_fast_mode = 0x19,
- };
- 
--#if defined(CONFIG_OF)
- /* Match table for of_platform binding */
- static const struct of_device_id tegra_i2c_of_match[] = {
- 	{ .compatible = "nvidia,tegra114-i2c", .data = &tegra114_i2c_hw, },
-@@ -695,16 +693,13 @@ static const struct of_device_id tegra_i2c_of_match[] = {
- 	{},
- };
- MODULE_DEVICE_TABLE(of, tegra_i2c_of_match);
--#endif
- 
- static int tegra_i2c_probe(struct platform_device *pdev)
- {
- 	struct tegra_i2c_dev *i2c_dev;
--	struct tegra_i2c_platform_data *pdata = pdev->dev.platform_data;
- 	struct resource *res;
- 	struct clk *div_clk;
- 	struct clk *fast_clk;
--	const unsigned int *prop;
- 	void __iomem *base;
- 	int irq;
- 	int ret = 0;
-@@ -745,23 +740,16 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	i2c_dev->cont_id = pdev->id;
- 	i2c_dev->dev = &pdev->dev;
- 
--	i2c_dev->bus_clk_rate = 100000; /* default clock rate */
--	if (pdata) {
--		i2c_dev->bus_clk_rate = pdata->bus_clk_rate;
--
--	} else if (i2c_dev->dev->of_node) {    /* if there is a device tree node ... */
--		prop = of_get_property(i2c_dev->dev->of_node,
--				"clock-frequency", NULL);
--		if (prop)
--			i2c_dev->bus_clk_rate = be32_to_cpup(prop);
--	}
-+	ret = of_property_read_u32(i2c_dev->dev->of_node, "clock-frequency",
-+					&i2c_dev->bus_clk_rate);
-+	if (ret)
-+		i2c_dev->bus_clk_rate = 100000; /* default clock rate */
- 
- 	i2c_dev->hw = &tegra20_i2c_hw;
- 
- 	if (pdev->dev.of_node) {
- 		const struct of_device_id *match;
--		match = of_match_device(of_match_ptr(tegra_i2c_of_match),
--						&pdev->dev);
-+		match = of_match_device(tegra_i2c_of_match, &pdev->dev);
- 		i2c_dev->hw = match->data;
- 		i2c_dev->is_dvc = of_device_is_compatible(pdev->dev.of_node,
- 						"nvidia,tegra20-i2c-dvc");
-@@ -867,7 +855,7 @@ static struct platform_driver tegra_i2c_driver = {
- 	.driver  = {
- 		.name  = "tegra-i2c",
- 		.owner = THIS_MODULE,
--		.of_match_table = of_match_ptr(tegra_i2c_of_match),
-+		.of_match_table = tegra_i2c_of_match,
- 		.pm    = TEGRA_I2C_PM,
- 	},
- };
-diff --git a/include/linux/i2c-tegra.h b/include/linux/i2c-tegra.h
-deleted file mode 100644
-index 9c85da4..0000000
---- a/include/linux/i2c-tegra.h
-+++ /dev/null
-@@ -1,25 +0,0 @@
--/*
-- * drivers/i2c/busses/i2c-tegra.c
-- *
-- * Copyright (C) 2010 Google, Inc.
-- * Author: Colin Cross <ccross-z5hGa2qSFaRBDgjK7y7TUQ@public.gmane.org>
-- *
-- * This software is licensed under the terms of the GNU General Public
-- * License version 2, as published by the Free Software Foundation, and
-- * may be copied, distributed, and modified under those terms.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- */
--
--#ifndef _LINUX_I2C_TEGRA_H
--#define _LINUX_I2C_TEGRA_H
--
--struct tegra_i2c_platform_data {
--	unsigned long bus_clk_rate;
--};
--
--#endif /* _LINUX_I2C_TEGRA_H */
--- 
-1.7.10.4
+And it avoids the warning (as we no longer check for acpi conflicts).
+However, I don't see the patch in any trees. Are there
+any reservations in applying it?
+
+Thanks,
+
+-Jason
