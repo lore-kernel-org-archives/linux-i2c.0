@@ -1,50 +1,22 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v3] i2c: busses/i2c-pxa.c: fix potential null pointer
- dereference error
-Date: Thu, 21 Mar 2013 11:54:29 +0100
-Message-ID: <20130321105429.GE19297@the-dreams.de>
-References: <1360015899-13706-1-git-send-email-dinggnu@gmail.com>
- <CAH9JG2XSpFJeUvv7cw-JWadmi=X0-4EsN5FFKuDkwo=-mmzHSQ@mail.gmail.com>
- <20130205000517.GB9969@gmail.com>
- <CAN1soZwM6qNTJn3vvMdc6TR1eJHc=K+_c0WuWOBBuFYMWB_oCA@mail.gmail.com>
- <20130205102540.GC9969@gmail.com>
- <CAN1soZyDLtdjyOFWyVVXN-_ABrChcCR=QbifAo7cz9pYV-nHww@mail.gmail.com>
- <20130214112818.GA18774@gmail.com>
+Subject: Re: [PATCH 1/2] i2c: s3c2410: move mach/regs-iic.h into i2c-s3c2410
+ device driver
+Date: Thu, 21 Mar 2013 11:59:51 +0100
+Message-ID: <20130321105951.GF19297@the-dreams.de>
+References: <201302080057.00664.heiko@sntech.de>
+ <20130321095758.GB19297@the-dreams.de>
+ <201303211151.24997.heiko@sntech.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20130214112818.GA18774@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cong Ding <dinggnu@gmail.com>
-Cc: Haojian Zhuang <haojian.zhuang@gmail.com>, Kyungmin Park <kmpark@infradead.org>, Wolfram Sang <w.sang@pengutronix.de>, Andrew Morton <akpm@linux-foundation.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, Haojian Zhuang <haojian.zhuang@marvell.com>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <201303211151.24997.heiko@sntech.de>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Heiko =?iso-8859-15?Q?St=FCbner?= <heiko@sntech.de>
+Cc: Wolfram Sang <w.sang@pengutronix.de>, Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Feb 14, 2013 at 12:28:18PM +0100, Cong Ding wrote:
-> If it goes to eclk through line 1107, the variable res would be NULL. It will
-> cause a null pointer dereference error if we call release_mem_region. The
-> correct way should be using devm_kzalloc rather than kzalloc to allocate
-> memory.
-> 
-> Signed-off-by: Cong Ding <dinggnu@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-pxa.c |   22 ++++++++--------------
->  1 file changed, 8 insertions(+), 14 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index 1034d93..dd2d640 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -1094,29 +1094,23 @@ static int i2c_pxa_probe(struct platform_device *dev)
->  	struct resource *res = NULL;
->  	int ret, irq;
->  
-> -	i2c = kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
-> -	if (!i2c) {
-> -		ret = -ENOMEM;
-> -		goto emalloc;
-> -	}
-> +	i2c = devm_kzalloc(sizeof(struct pxa_i2c), GFP_KERNEL);
+> I'm not sure anymore ... probably some linux-next. I'll redo them on top of 
+> your (i2c) for-next branch.
 
-You are using devm_kzalloc here but plain kfree is used later. This
-won't work.
+Thanks, but please use 3.9-rc3.
