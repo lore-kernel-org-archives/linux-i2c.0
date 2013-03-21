@@ -1,26 +1,48 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v4 2/2] i2c: pxa: Use i2c-core to get bus number now
-Date: Thu, 21 Mar 2013 12:49:43 +0100
-Message-ID: <20130321114943.GH19297@the-dreams.de>
-References: <1360630085-26874-1-git-send-email-dianders@chromium.org>
- <1362157052-16738-1-git-send-email-dianders@chromium.org>
- <1362157052-16738-3-git-send-email-dianders@chromium.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1362157052-16738-3-git-send-email-dianders@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, linux-kernel@vger.kernel.org
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 2/7] i2c-designware-pci: use dev_err() instead of printk()
+Date: Thu, 21 Mar 2013 14:09:55 +0200
+Message-ID: <1363867800-23861-2-git-send-email-mika.westerberg@linux.intel.com>
+References: <1363867800-23861-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1363867800-23861-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Mar 01, 2013 at 08:57:32AM -0800, Doug Anderson wrote:
-> The commit: "i2c-core: dt: Pick i2c bus number from i2c alias if
-> present" adds support for automatically picking the bus number based
-> on the alias ID.  Remove the now unnecessary code from i2c-pxa that
-> did the same thing.
-> 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Thanks, applied for-next.
+With dev_err() we can get the device instance printed as well and is pretty
+much standard to use dev_* macros in drivers anyway. In addition correct
+indentation of probe() arguments.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 7c5e383..eed149d 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -208,7 +208,7 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ }
+ 
+ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+-const struct pci_device_id *id)
++			    const struct pci_device_id *id)
+ {
+ 	struct dw_i2c_dev *dev;
+ 	struct i2c_adapter *adap;
+@@ -218,7 +218,7 @@ const struct pci_device_id *id)
+ 	struct  dw_pci_controller *controller;
+ 
+ 	if (id->driver_data >= ARRAY_SIZE(dw_pci_controllers)) {
+-		printk(KERN_ERR "dw_i2c_pci_probe: invalid driver data %ld\n",
++		dev_err(&pdev->dev, "%s: invalid driver data %ld\n", __func__,
+ 			id->driver_data);
+ 		return -EINVAL;
+ 	}
+-- 
+1.7.10.4
