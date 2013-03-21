@@ -1,174 +1,172 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 1/7] i2c-designware: move to managed functions (devm_*)
-Date: Thu, 21 Mar 2013 14:09:54 +0200
-Message-ID: <1363867800-23861-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Heiko =?utf-8?q?St=C3=BCbner?= <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Subject: [PATCH v2 1/2] i2c: s3c2410: move mach/regs-iic.h into i2c-s3c2410 device driver
+Date: Thu, 21 Mar 2013 15:09:25 +0100
+Message-ID: <201303211509.25607.heiko@sntech.de>
+Mime-Version: 1.0
+Content-Type: Text/Plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+The register definitions are only used in the driver itself.
+This also removes the last dependency on plat/ includes from the
+i2c driver.
 
-This makes the error handling much more simpler than open-coding everything
-and in addition makes the probe function smaller and tidier.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>
+Acked-by: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c |   73 ++++++++-------------------
- 1 file changed, 20 insertions(+), 53 deletions(-)
+changes since v1: rebased against 3.9-rc3
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 0ceb6e1..c19c4ce 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -92,7 +92,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
--	struct resource *mem, *ioarea;
-+	struct resource *mem;
- 	int irq, r;
+ arch/arm/mach-s3c24xx/mach-rx1950.c           |    1 -
+ arch/arm/plat-samsung/devs.c                  |    1 -
+ arch/arm/plat-samsung/include/plat/regs-iic.h |   56 -------------------------
+ drivers/i2c/busses/i2c-s3c2410.c              |   41 ++++++++++++++++++-
+ 4 files changed, 40 insertions(+), 59 deletions(-)
+ delete mode 100644 arch/arm/plat-samsung/include/plat/regs-iic.h
+
+diff --git a/arch/arm/mach-s3c24xx/mach-rx1950.c b/arch/arm/mach-s3c24xx/mach-rx1950.c
+index 1f9ba2a..43f3ac5 100644
+--- a/arch/arm/mach-s3c24xx/mach-rx1950.c
++++ b/arch/arm/mach-s3c24xx/mach-rx1950.c
+@@ -56,7 +56,6 @@
+ #include <plat/cpu.h>
+ #include <plat/devs.h>
+ #include <plat/pm.h>
+-#include <plat/regs-iic.h>
+ #include <plat/regs-serial.h>
  
- 	/* NOTE: driver uses the static register mapping */
-@@ -108,32 +108,27 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 		return irq; /* -ENXIO */
- 	}
- 
--	ioarea = request_mem_region(mem->start, resource_size(mem),
--			pdev->name);
--	if (!ioarea) {
--		dev_err(&pdev->dev, "I2C region already claimed\n");
--		return -EBUSY;
--	}
-+	dev = devm_kzalloc(&pdev->dev, sizeof(struct dw_i2c_dev), GFP_KERNEL);
-+	if (!dev)
-+		return -ENOMEM;
- 
--	dev = kzalloc(sizeof(struct dw_i2c_dev), GFP_KERNEL);
--	if (!dev) {
--		r = -ENOMEM;
--		goto err_release_region;
-+	dev->base = devm_ioremap_resource(&pdev->dev, mem);
-+	if (IS_ERR(dev->base)) {
-+		dev_err(&pdev->dev, "I2C region already claimed\n");
-+		return PTR_ERR(dev->base);
- 	}
- 
- 	init_completion(&dev->cmd_complete);
- 	mutex_init(&dev->lock);
--	dev->dev = get_device(&pdev->dev);
-+	dev->dev = &pdev->dev;
- 	dev->irq = irq;
- 	platform_set_drvdata(pdev, dev);
- 
--	dev->clk = clk_get(&pdev->dev, NULL);
-+	dev->clk = devm_clk_get(&pdev->dev, NULL);
- 	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
- 
--	if (IS_ERR(dev->clk)) {
--		r = -ENODEV;
--		goto err_free_mem;
--	}
-+	if (IS_ERR(dev->clk))
-+		return PTR_ERR(dev->clk);
- 	clk_prepare_enable(dev->clk);
- 
- 	dev->functionality =
-@@ -146,13 +141,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
- 		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
- 
--	dev->base = ioremap(mem->start, resource_size(mem));
--	if (dev->base == NULL) {
--		dev_err(&pdev->dev, "failure mapping io resources\n");
--		r = -EBUSY;
--		goto err_unuse_clocks;
--	}
+ #include "common.h"
+diff --git a/arch/arm/plat-samsung/devs.c b/arch/arm/plat-samsung/devs.c
+index 51afedd..76209c9 100644
+--- a/arch/arm/plat-samsung/devs.c
++++ b/arch/arm/plat-samsung/devs.c
+@@ -62,7 +62,6 @@
+ #include <linux/platform_data/usb-s3c2410_udc.h>
+ #include <linux/platform_data/usb-ohci-s3c2410.h>
+ #include <plat/usb-phy.h>
+-#include <plat/regs-iic.h>
+ #include <plat/regs-serial.h>
+ #include <plat/regs-spi.h>
+ #include <linux/platform_data/spi-s3c64xx.h>
+diff --git a/arch/arm/plat-samsung/include/plat/regs-iic.h b/arch/arm/plat-samsung/include/plat/regs-iic.h
+deleted file mode 100644
+index 2f7c17d..0000000
+--- a/arch/arm/plat-samsung/include/plat/regs-iic.h
++++ /dev/null
+@@ -1,56 +0,0 @@
+-/* arch/arm/mach-s3c2410/include/mach/regs-iic.h
+- *
+- * Copyright (c) 2004 Simtec Electronics <linux-Y5A6D6n0/KfQXOPxS62xeg@public.gmane.org>
+- *		http://www.simtec.co.uk/products/SWLINUX/
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
+- *
+- * S3C2410 I2C Controller
+-*/
 -
- 	/* Try first if we can configure the device from ACPI */
- 	r = dw_i2c_acpi_configure(pdev);
- 	if (r) {
-@@ -164,13 +152,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	}
- 	r = i2c_dw_init(dev);
- 	if (r)
--		goto err_iounmap;
-+		return r;
+-#ifndef __ASM_ARCH_REGS_IIC_H
+-#define __ASM_ARCH_REGS_IIC_H __FILE__
+-
+-/* see s3c2410x user guide, v1.1, section 9 (p447) for more info */
+-
+-#define S3C2410_IICREG(x) (x)
+-
+-#define S3C2410_IICCON    S3C2410_IICREG(0x00)
+-#define S3C2410_IICSTAT   S3C2410_IICREG(0x04)
+-#define S3C2410_IICADD    S3C2410_IICREG(0x08)
+-#define S3C2410_IICDS     S3C2410_IICREG(0x0C)
+-#define S3C2440_IICLC	  S3C2410_IICREG(0x10)
+-
+-#define S3C2410_IICCON_ACKEN		(1<<7)
+-#define S3C2410_IICCON_TXDIV_16		(0<<6)
+-#define S3C2410_IICCON_TXDIV_512	(1<<6)
+-#define S3C2410_IICCON_IRQEN		(1<<5)
+-#define S3C2410_IICCON_IRQPEND		(1<<4)
+-#define S3C2410_IICCON_SCALE(x)		((x)&15)
+-#define S3C2410_IICCON_SCALEMASK	(0xf)
+-
+-#define S3C2410_IICSTAT_MASTER_RX	(2<<6)
+-#define S3C2410_IICSTAT_MASTER_TX	(3<<6)
+-#define S3C2410_IICSTAT_SLAVE_RX	(0<<6)
+-#define S3C2410_IICSTAT_SLAVE_TX	(1<<6)
+-#define S3C2410_IICSTAT_MODEMASK	(3<<6)
+-
+-#define S3C2410_IICSTAT_START		(1<<5)
+-#define S3C2410_IICSTAT_BUSBUSY		(1<<5)
+-#define S3C2410_IICSTAT_TXRXEN		(1<<4)
+-#define S3C2410_IICSTAT_ARBITR		(1<<3)
+-#define S3C2410_IICSTAT_ASSLAVE		(1<<2)
+-#define S3C2410_IICSTAT_ADDR0		(1<<1)
+-#define S3C2410_IICSTAT_LASTBIT		(1<<0)
+-
+-#define S3C2410_IICLC_SDA_DELAY0	(0 << 0)
+-#define S3C2410_IICLC_SDA_DELAY5	(1 << 0)
+-#define S3C2410_IICLC_SDA_DELAY10	(2 << 0)
+-#define S3C2410_IICLC_SDA_DELAY15	(3 << 0)
+-#define S3C2410_IICLC_SDA_DELAY_MASK	(3 << 0)
+-
+-#define S3C2410_IICLC_FILTER_ON		(1<<2)
+-
+-#endif /* __ASM_ARCH_REGS_IIC_H */
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index f6b880b..216fea1 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -42,9 +42,48 @@
  
- 	i2c_dw_disable_int(dev);
--	r = request_irq(dev->irq, i2c_dw_isr, IRQF_SHARED, pdev->name, dev);
-+	r = devm_request_irq(&pdev->dev, dev->irq, i2c_dw_isr, IRQF_SHARED,
-+			pdev->name, dev);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
--		goto err_iounmap;
-+		return r;
- 	}
+ #include <asm/irq.h>
  
- 	adap = &dev->adapter;
-@@ -187,57 +176,35 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	r = i2c_add_numbered_adapter(adap);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure adding adapter\n");
--		goto err_free_irq;
-+		return r;
- 	}
- 	of_i2c_register_devices(adap);
- 	acpi_i2c_register_devices(adap);
+-#include <plat/regs-iic.h>
+ #include <linux/platform_data/i2c-s3c2410.h>
  
-+	/* Increase reference counter */
-+	get_device(&pdev->dev);
++/* see s3c2410x user guide, v1.1, section 9 (p447) for more info */
 +
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_put(&pdev->dev);
- 
- 	return 0;
--
--err_free_irq:
--	free_irq(dev->irq, dev);
--err_iounmap:
--	iounmap(dev->base);
--err_unuse_clocks:
--	clk_disable_unprepare(dev->clk);
--	clk_put(dev->clk);
--	dev->clk = NULL;
--err_free_mem:
--	put_device(&pdev->dev);
--	kfree(dev);
--err_release_region:
--	release_mem_region(mem->start, resource_size(mem));
--
--	return r;
- }
- 
- static int dw_i2c_remove(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
--	struct resource *mem;
- 
- 	pm_runtime_get_sync(&pdev->dev);
- 
- 	i2c_del_adapter(&dev->adapter);
- 	put_device(&pdev->dev);
- 
--	clk_disable_unprepare(dev->clk);
--	clk_put(dev->clk);
--	dev->clk = NULL;
--
- 	i2c_dw_disable(dev);
--	free_irq(dev->irq, dev);
--	kfree(dev);
- 
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
- 
--	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	release_mem_region(mem->start, resource_size(mem));
- 	return 0;
- }
- 
++#define S3C2410_IICREG(x) (x)
++
++#define S3C2410_IICCON    S3C2410_IICREG(0x00)
++#define S3C2410_IICSTAT   S3C2410_IICREG(0x04)
++#define S3C2410_IICADD    S3C2410_IICREG(0x08)
++#define S3C2410_IICDS     S3C2410_IICREG(0x0C)
++#define S3C2440_IICLC	  S3C2410_IICREG(0x10)
++
++#define S3C2410_IICCON_ACKEN		(1<<7)
++#define S3C2410_IICCON_TXDIV_16		(0<<6)
++#define S3C2410_IICCON_TXDIV_512	(1<<6)
++#define S3C2410_IICCON_IRQEN		(1<<5)
++#define S3C2410_IICCON_IRQPEND		(1<<4)
++#define S3C2410_IICCON_SCALE(x)		((x)&15)
++#define S3C2410_IICCON_SCALEMASK	(0xf)
++
++#define S3C2410_IICSTAT_MASTER_RX	(2<<6)
++#define S3C2410_IICSTAT_MASTER_TX	(3<<6)
++#define S3C2410_IICSTAT_SLAVE_RX	(0<<6)
++#define S3C2410_IICSTAT_SLAVE_TX	(1<<6)
++#define S3C2410_IICSTAT_MODEMASK	(3<<6)
++
++#define S3C2410_IICSTAT_START		(1<<5)
++#define S3C2410_IICSTAT_BUSBUSY		(1<<5)
++#define S3C2410_IICSTAT_TXRXEN		(1<<4)
++#define S3C2410_IICSTAT_ARBITR		(1<<3)
++#define S3C2410_IICSTAT_ASSLAVE		(1<<2)
++#define S3C2410_IICSTAT_ADDR0		(1<<1)
++#define S3C2410_IICSTAT_LASTBIT		(1<<0)
++
++#define S3C2410_IICLC_SDA_DELAY0	(0 << 0)
++#define S3C2410_IICLC_SDA_DELAY5	(1 << 0)
++#define S3C2410_IICLC_SDA_DELAY10	(2 << 0)
++#define S3C2410_IICLC_SDA_DELAY15	(3 << 0)
++#define S3C2410_IICLC_SDA_DELAY_MASK	(3 << 0)
++
++#define S3C2410_IICLC_FILTER_ON		(1<<2)
++
+ /* Treat S3C2410 as baseline hardware, anything else is supported via quirks */
+ #define QUIRK_S3C2440		(1 << 0)
+ #define QUIRK_HDMIPHY		(1 << 1)
 -- 
-1.7.10.4
+1.7.2.3
