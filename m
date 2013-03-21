@@ -1,48 +1,70 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 2/7] i2c-designware-pci: use dev_err() instead of printk()
-Date: Thu, 21 Mar 2013 14:09:55 +0200
-Message-ID: <1363867800-23861-2-git-send-email-mika.westerberg@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 7/7] i2c-designware: switch to use runtime PM autosuspend
+Date: Thu, 21 Mar 2013 14:10:00 +0200
+Message-ID: <1363867800-23861-7-git-send-email-mika.westerberg@linux.intel.com>
 References: <1363867800-23861-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1363867800-23861-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1363867800-23861-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Using autosuspend helps to reduce the resume latency in situations where
+another I2C message is going to be started soon. For example with HID over
+I2C touch panels we get several messages in a short period of time while
+the touch panel is in use.
 
-With dev_err() we can get the device instance printed as well and is pretty
-much standard to use dev_* macros in drivers anyway. In addition correct
-indentation of probe() arguments.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware-core.c    |    3 ++-
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |    3 ++-
+ drivers/i2c/busses/i2c-designware-platdrv.c |    3 ++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 0849648..71d33e6 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -595,7 +595,8 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	ret = -EIO;
+ 
+ done:
+-	pm_runtime_put(dev->dev);
++	pm_runtime_mark_last_busy(dev->dev);
++	pm_runtime_put_autosuspend(dev->dev);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return ret;
 diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 7c5e383..eed149d 100644
+index aacb64e..c8797e2 100644
 --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
 +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -208,7 +208,7 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+@@ -291,7 +291,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	/* Increase reference counter */
+ 	get_device(&pdev->dev);
+ 
+-	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
++	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_allow(&pdev->dev);
+ 
+ 	return 0;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index a22a852..46a25ca 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -175,9 +175,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	/* Increase reference counter */
+ 	get_device(&pdev->dev);
+ 
++	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
++	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_put(&pdev->dev);
+ 
+ 	return 0;
  }
- 
- static int i2c_dw_pci_probe(struct pci_dev *pdev,
--const struct pci_device_id *id)
-+			    const struct pci_device_id *id)
- {
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
-@@ -218,7 +218,7 @@ const struct pci_device_id *id)
- 	struct  dw_pci_controller *controller;
- 
- 	if (id->driver_data >= ARRAY_SIZE(dw_pci_controllers)) {
--		printk(KERN_ERR "dw_i2c_pci_probe: invalid driver data %ld\n",
-+		dev_err(&pdev->dev, "%s: invalid driver data %ld\n", __func__,
- 			id->driver_data);
- 		return -EINVAL;
- 	}
 -- 
 1.7.10.4
