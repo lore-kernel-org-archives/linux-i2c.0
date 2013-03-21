@@ -1,30 +1,26 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 06/12] i2c: i2c-mxs: move to use generic DMA helper
-Date: Thu, 21 Mar 2013 12:07:18 +0100
-Message-ID: <20130321110718.GG19297@the-dreams.de>
-References: <1362486244-24593-1-git-send-email-shawn.guo@linaro.org>
- <1362486244-24593-7-git-send-email-shawn.guo@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v4 2/2] i2c: pxa: Use i2c-core to get bus number now
+Date: Thu, 21 Mar 2013 12:49:43 +0100
+Message-ID: <20130321114943.GH19297@the-dreams.de>
+References: <1360630085-26874-1-git-send-email-dianders@chromium.org>
+ <1362157052-16738-1-git-send-email-dianders@chromium.org>
+ <1362157052-16738-3-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1362486244-24593-7-git-send-email-shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Huang Shijie <b32955-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1362157052-16738-3-git-send-email-dianders@chromium.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Doug Anderson <dianders@chromium.org>
+Cc: linux-i2c@vger.kernel.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Kukjin Kim <kgene.kim@samsung.com>, Olof Johansson <olof@lixom.net>, Thomas Abraham <thomas.abraham@linaro.org>, Padmavathi Venna <padma.v@samsung.com>, Ben Dooks <ben-linux@fluff.org>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, Haojian Zhuang <haojian.zhuang@gmail.com>, Arnd Bergmann <arnd@arndb.de>, Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, Karol Lewandowski <k.lewandowsk@samsung.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Mar 05, 2013 at 08:23:58PM +0800, Shawn Guo wrote:
-> With the generic DMA device tree helper supported by mxs-dma driver,
-> client devices only need to call dma_request_slave_channel() for
-> requesting a DMA channel from dmaengine.
+On Fri, Mar 01, 2013 at 08:57:32AM -0800, Doug Anderson wrote:
+> The commit: "i2c-core: dt: Pick i2c bus number from i2c alias if
+> present" adds support for automatically picking the bus number based
+> on the alias ID.  Remove the now unnecessary code from i2c-pxa that
+> did the same thing.
 > 
-> Signed-off-by: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Doug Anderson <dianders@chromium.org>
 
-Yay, DMA helpers \o/ Assuming the helpers work, for the i2c driver:
-
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-Thanks for doing this!
+Thanks, applied for-next.
