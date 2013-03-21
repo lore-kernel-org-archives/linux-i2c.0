@@ -1,37 +1,37 @@
-From: EUNBONG SONG <eunb.song@samsung.com>
-Subject: Re: Re: I2C: Fix i2c fail problem when a process is terminated by a
- signal on octeon in 3.8
-Date: Fri, 22 Mar 2013 15:03:29 +0000 (GMT)
-Message-ID: <25790716.2181363964608452.JavaMail.weblogic@epml01>
-Reply-To: eunb.song@samsung.com
+From: "WERNER ERICH ZELLER" <e639-aFiDPoud36g@public.gmane.org>
+Subject: ACHTUNG FRIEND!
+Date: Fri, 22 Mar 2013 00:57:10 +0100 (CET)
+Message-ID: <55112.82.128.17.98.1363910230.squirrel__15169.269211083$1363975540$gmane$org@correo.humv.es>
+Reply-To: wernererichzeller-/E1597aS9LQAvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=euc-kr
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-MIME-version: 1.0
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQo+QmFzaWNhbGx5IE9LLCBidXQgeW91IGhhdmUgbG90cyBvZiB3aGl0ZXNwYWNlIGlzc3Vlcywg
-c28gSSBjYW4ndCBhcHBseQ0KPnlvdXIgcGF0Y2guIFBsZWFzZSByZXNlbmQgYW5kIG1ha2Ugc3Vy
-ZSBpdCBhcHBsaWVzLg0KDQpTb3JyeSwgSSByZXdyaXRlIG15IHBhdGNoIGhlcmUuDQoNClNpZ25l
-ZC1vZmYtYnk6IEV1bkJvbmcgU29uZyA8ZXVuYi5zb25nQHNhbXN1bmcuY29tPg0KIC0tLQ0KIGRy
-aXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0ZW9uLmMgfCAgICA4ICsrKystLS0tDQogMSBmaWxlcyBj
-aGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDQgZGVsZXRpb25zKC0pDQoNCmRpZmYgLS1naXQgYS9k
-cml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1v
-Y3Rlb24uYw0KaW5kZXggOTM1NTg1ZS4uYjJlMzI1OSAxMDA2NDQNCi0tLSBhL2RyaXZlcnMvaTJj
-L2J1c3Nlcy9pMmMtb2N0ZW9uLmMNCisrKyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0ZW9u
-LmMNCkBAIC0xODMsNyArMTgzLDcgQEAgc3RhdGljIGlycXJldHVybl90IG9jdGVvbl9pMmNfaXNy
-KGludCBpcnEsIHZvaWQgKmRldl9pZCkNCiAJc3RydWN0IG9jdGVvbl9pMmMgKmkyYyA9IGRldl9p
-ZDsNCiANCiAJb2N0ZW9uX2kyY19pbnRfZGlzYWJsZShpMmMpOw0KLQl3YWtlX3VwX2ludGVycnVw
-dGlibGUoJmkyYy0+cXVldWUpOw0KKwl3YWtlX3VwKCZpMmMtPnF1ZXVlKTsNCiANCiAJcmV0dXJu
-IElSUV9IQU5ETEVEOw0KIH0NCkBAIC0yMDYsOSArMjA2LDkgQEAgc3RhdGljIGludCBvY3Rlb25f
-aTJjX3dhaXQoc3RydWN0IG9jdGVvbl9pMmMgKmkyYykNCiANCiAJb2N0ZW9uX2kyY19pbnRfZW5h
-YmxlKGkyYyk7DQogDQotCXJlc3VsdCA9IHdhaXRfZXZlbnRfaW50ZXJydXB0aWJsZV90aW1lb3V0
-KGkyYy0+cXVldWUsDQotCQkJCQkJICBvY3Rlb25faTJjX3Rlc3RfaWZsZyhpMmMpLA0KLQkJCQkJ
-CSAgaTJjLT5hZGFwLnRpbWVvdXQpOw0KKwlyZXN1bHQgPSB3YWl0X2V2ZW50X3RpbWVvdXQoaTJj
-LT5xdWV1ZSwNCisJCQkJCW9jdGVvbl9pMmNfdGVzdF9pZmxnKGkyYyksDQorCQkJCQlpMmMtPmFk
-YXAudGltZW91dCk7DQogDQogCW9jdGVvbl9pMmNfaW50X2Rpc2FibGUoaTJjKTsNCiANCi0tIA0K
-MS43LjAuMQ0KDQpUaGFua3Mu
+
+
+
+--=20
+Eure Eminenz, das ist das dritte Mal, dass ich schreibe Ihnen bin, ich
+bete nur du es dieses Mal! Ich bin Barrister Werner Erich Zeller des
+Vereinigten K=F6nigreichs und ich schreibe auf Ihre 100% aufrichtiges
+Interesse und Partnerschaft bei der Wiederherstellung der H=F6he von =80=
+ 15
+Mio. (EURO) Privatbank, die fr=FCher zu einem sp=E4ten Kunde von mir, d=
+ie,
+ohne einem bestimmten Nest weitergegeben geh=F6rten zu suchen Angeh=F6r=
+igen
+und Empf=E4nger. Wie f=FCr die Rechtm=E4=DFigkeit und Echtheit, lassen =
+Sie das zu
+mir, ich werde es als Rechtsanwalt rechtlich 100% Griff! Wir stehen bei=
+de
+zu 50% des =80 15 Mio. (EURO) jeweils als Partner profitieren. Schicken=
+ Sie
+mir eine private E-Mail f=FCr die Details: wernererichzeller-/E1597aS9LQAvxtiuMwx3w@public.gmane.org =
+und
+Telefon: +447024090820
+
+Bitte zur=FCck zu mir sofort!
+Werner Erich Zeller (Attorney)
