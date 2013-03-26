@@ -1,65 +1,61 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 5/5] i2c: mpc: add CONFIG_PM_SLEEP to suspend/resume functions
-Date: Tue, 26 Mar 2013 15:57:34 +0900
-Message-ID: <001901ce29ef$31515760$93f40620$%han@samsung.com>
-References: <001501ce29ee$fd997150$f8cc53f0$%han@samsung.com>
+From: Sascha Hauer <s.hauer@pengutronix.de>
+Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS
+ interface
+Date: Tue, 26 Mar 2013 09:54:54 +0100
+Message-ID: <20130326085454.GK1906@pengutronix.de>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <001501ce29ee$fd997150$f8cc53f0$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Content-language: ko
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christian Gmeiner <christian.gmeiner@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Add CONFIG_PM_SLEEP to suspend/resume functions to fix the following
-build warning when CONFIG_PM_SLEEP is not selected. This is because
-sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
-the CONFIG_PM_SLEEP is enabled.
+On Mon, Mar 25, 2013 at 09:31:35AM +0100, Christian Gmeiner wrote:
+> Hi Sascha
+> 
+> 
+> > +struct cgeb_pdata {
+> > +       struct cgeb_board_data          *board;
+> > +       int unit;
+> > +};
+> > +
+> > +#endif /* __CONGATEC_CGEB_H */
+> > diff --git a/arch/x86/platform/Makefile b/arch/x86/platform/Makefile
+> > index 8d87439..9de1789 100644
+> > --- a/arch/x86/platform/Makefile
+> > +++ b/arch/x86/platform/Makefile
+> > @@ -1,5 +1,6 @@
+> >  # Platform specific code goes here
+> >  obj-y  += ce4100/
+> > +obj-y  += congatec/
+> >  obj-y  += efi/
+> >  obj-y  += geode/
+> >  obj-y  += iris/
+> 
+> 
+> Fails to build
 
-drivers/i2c/busses/i2c-mpc.c:724:12: warning: 'mpc_i2c_suspend' defined but not used [-Wunused-function]
-drivers/i2c/busses/i2c-mpc.c:734:12: warning: 'mpc_i2c_resume' defined but not used [-Wunused-function]
+Ups, sorry. It seems I forgot to git add
+arch/x86/platform/congatec/Makefile. It should look like this:
 
-Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-mpc.c |    6 ++----
- 1 files changed, 2 insertions(+), 4 deletions(-)
+obj-$(CONFIG_CONGATEC_CGEB) += congatec-cgeb.o
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index 5e705ee..9c103c2 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -720,7 +720,7 @@ static int fsl_i2c_remove(struct platform_device *op)
- 	return 0;
- };
- 
--#ifdef CONFIG_PM
-+#ifdef CONFIG_PM_SLEEP
- static int mpc_i2c_suspend(struct device *dev)
- {
- 	struct mpc_i2c *i2c = dev_get_drvdata(dev);
-@@ -740,9 +740,9 @@ static int mpc_i2c_resume(struct device *dev)
- 
- 	return 0;
- }
-+#endif
- 
- SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
--#endif
- 
- static const struct mpc_i2c_data mpc_i2c_data_512x = {
- 	.setup = mpc_i2c_setup_512x,
-@@ -788,9 +788,7 @@ static struct platform_driver mpc_i2c_driver = {
- 		.owner = THIS_MODULE,
- 		.name = DRV_NAME,
- 		.of_match_table = mpc_i2c_of_match,
--#ifdef CONFIG_PM
- 		.pm = &mpc_i2c_pm_ops,
--#endif
- 	},
- };
- 
+I will include this next time.
+
+
+Any other comments to this series? Is the base cgeb support ok to
+include?
+
+Sascha
+
 -- 
-1.7.2.5
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
