@@ -1,61 +1,30 @@
-From: Sascha Hauer <s.hauer@pengutronix.de>
-Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS
- interface
-Date: Tue, 26 Mar 2013 09:54:54 +0100
-Message-ID: <20130326085454.GK1906@pengutronix.de>
-References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
- <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
- <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [RFC: PATCH v5] i2c: exynos5: add High Speed I2C controller
+ driver
+Date: Tue, 26 Mar 2013 10:23:07 +0100
+Message-ID: <20130326092306.GA8553@the-dreams.de>
+References: <1363062732-27869-1-git-send-email-ch.naveen@samsung.com>
+ <1363796690-30242-1-git-send-email-ch.naveen@samsung.com>
+ <CA+NduCBFUTW9Pu1k4NyTK+tFUyWUHBbMONO_oAr6PK+y30sYDw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christian Gmeiner <christian.gmeiner@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, x86@kernel.org, linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+In-Reply-To: <CA+NduCBFUTW9Pu1k4NyTK+tFUyWUHBbMONO_oAr6PK+y30sYDw@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Yuvaraj CD <yuvaraj.lkml@gmail.com>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, w.sang@pengutronix.de, khali@linux-fr.org, ben-linux@fluff.org, grant.likely@secretlab.ca, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, grundler@chromium.org, naveenkrishna.ch@gmail.com, broonie@opensource.wolfsonmicro.com
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 25, 2013 at 09:31:35AM +0100, Christian Gmeiner wrote:
-> Hi Sascha
-> 
-> 
-> > +struct cgeb_pdata {
-> > +       struct cgeb_board_data          *board;
-> > +       int unit;
-> > +};
-> > +
-> > +#endif /* __CONGATEC_CGEB_H */
-> > diff --git a/arch/x86/platform/Makefile b/arch/x86/platform/Makefile
-> > index 8d87439..9de1789 100644
-> > --- a/arch/x86/platform/Makefile
-> > +++ b/arch/x86/platform/Makefile
-> > @@ -1,5 +1,6 @@
-> >  # Platform specific code goes here
-> >  obj-y  += ce4100/
-> > +obj-y  += congatec/
-> >  obj-y  += efi/
-> >  obj-y  += geode/
-> >  obj-y  += iris/
-> 
-> 
-> Fails to build
 
-Ups, sorry. It seems I forgot to git add
-arch/x86/platform/congatec/Makefile. It should look like this:
+> > +       /* CLK_DIV max is 256 */
+> > +       for (i = 0; i < 256; i++) {
+> > +               utemp1 = utemp0 / (i + 1);
+> > +               /* SCLK_L/H max is 256 / 2 */
+> > +               if (utemp1 < 128) {
+> I think TSCLK_L and TSCLK_H both can be configured upto 255.Why
+> limiting it to < 128 ?
+> By limiting it to < 128 dont we achieve lesser SCL clock?
 
-obj-$(CONFIG_CONGATEC_CGEB) += congatec-cgeb.o
-
-I will include this next time.
-
-
-Any other comments to this series? Is the base cgeb support ok to
-include?
-
-Sascha
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+Thanks for reviewing but please quote only the relevant part of the
+message (like I did). This improves readability a lot.
