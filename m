@@ -1,30 +1,29 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC: PATCH v5] i2c: exynos5: add High Speed I2C controller
- driver
-Date: Tue, 26 Mar 2013 10:23:07 +0100
-Message-ID: <20130326092306.GA8553@the-dreams.de>
-References: <1363062732-27869-1-git-send-email-ch.naveen@samsung.com>
- <1363796690-30242-1-git-send-email-ch.naveen@samsung.com>
- <CA+NduCBFUTW9Pu1k4NyTK+tFUyWUHBbMONO_oAr6PK+y30sYDw@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS
+ interface
+Date: Tue, 26 Mar 2013 10:24:35 +0100
+Message-ID: <20130326092435.GB8553@the-dreams.de>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
+ <20130326085454.GK1906@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CA+NduCBFUTW9Pu1k4NyTK+tFUyWUHBbMONO_oAr6PK+y30sYDw@mail.gmail.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Yuvaraj CD <yuvaraj.lkml@gmail.com>
-Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, w.sang@pengutronix.de, khali@linux-fr.org, ben-linux@fluff.org, grant.likely@secretlab.ca, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, grundler@chromium.org, naveenkrishna.ch@gmail.com, broonie@opensource.wolfsonmicro.com
+In-Reply-To: <20130326085454.GK1906-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Sascha,
 
-> > +       /* CLK_DIV max is 256 */
-> > +       for (i = 0; i < 256; i++) {
-> > +               utemp1 = utemp0 / (i + 1);
-> > +               /* SCLK_L/H max is 256 / 2 */
-> > +               if (utemp1 < 128) {
-> I think TSCLK_L and TSCLK_H both can be configured upto 255.Why
-> limiting it to < 128 ?
-> By limiting it to < 128 dont we achieve lesser SCL clock?
+> Any other comments to this series? Is the base cgeb support ok to
+> include?
 
-Thanks for reviewing but please quote only the relevant part of the
-message (like I did). This improves readability a lot.
+I had a few comments to the I2C driver.
+
+All the best,
+
+   Wolfram
