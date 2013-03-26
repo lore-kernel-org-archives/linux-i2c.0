@@ -1,250 +1,92 @@
-From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
-Date: Tue, 26 Mar 2013 11:16:35 +0100
-Message-ID: <CAH9NwWd7YdtK0urutisVgKoE7NmPFLpG3wFG5W6P7o45vUqAng@mail.gmail.com>
-References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de> <1360663374-30951-4-git-send-email-s.hauer@pengutronix.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-gpio: Add support for deferred probing
+Date: Tue, 26 Mar 2013 12:09:08 +0100
+Message-ID: <20130326110908.GC8553@the-dreams.de>
+References: <20130228120140.127ebb91@endymion.delvare>
+ <20130322115621.GB24508@the-dreams.de>
+ <20130324114301.4b5efc34@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1360663374-30951-4-git-send-email-s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130324114301.4b5efc34-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Bo Shen <voice.shen-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>, Karol Lewandowski <k.lewandowsk-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Jean-Christophe PLAGNIOL-VILLARD <plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-2013/2/12 Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
-> This driver provides support for the CGEB watchdog found on some
-> Congatec x86 modules.
->
-> Signed-off-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> ---
->  drivers/watchdog/Kconfig                  |   10 ++
->  drivers/watchdog/Makefile                 |    1 +
->  drivers/watchdog/congatec_cgeb_watchdog.c |  161 +++++++++++++++++++++++++++++
->  3 files changed, 172 insertions(+)
->  create mode 100644 drivers/watchdog/congatec_cgeb_watchdog.c
->
-> diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-> index 7f809fd..47138fb 100644
-> --- a/drivers/watchdog/Kconfig
-> +++ b/drivers/watchdog/Kconfig
-> @@ -934,6 +934,16 @@ config SBC_EPX_C3_WATCHDOG
->           To compile this driver as a module, choose M here: the
->           module will be called sbc_epx_c3.
->
-> +config CONGATEC_CGEB_WATCHDOG
-> +       depends on CONGATEC_CGEB
-> +       tristate "Congatec CGEB watchdog"
-> +       ---help---
-> +         This driver provides support for the watchdogs found on Congatec
-> +         modules with the CGEB BIOS interface.
-> +
-> +         To compile this driver as a module, choose M here: the
-> +         module will be called congatec_cgeb_wdt.
-> +
->  # M32R Architecture
->
->  # M68K Architecture
-> diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-> index 97bbdb3a..e67eee5 100644
-> --- a/drivers/watchdog/Makefile
-> +++ b/drivers/watchdog/Makefile
-> @@ -108,6 +108,7 @@ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
->  obj-$(CONFIG_MACHZ_WDT) += machzwd.o
->  obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
->  obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
-> +obj-$(CONFIG_CONGATEC_CGEB_WATCHDOG) += congatec_cgeb_watchdog.o
->
->  # M32R Architecture
->
-> diff --git a/drivers/watchdog/congatec_cgeb_watchdog.c b/drivers/watchdog/congatec_cgeb_watchdog.c
-> new file mode 100644
-> index 0000000..b7b6cf5
-> --- /dev/null
-> +++ b/drivers/watchdog/congatec_cgeb_watchdog.c
-> @@ -0,0 +1,161 @@
-> +/*
-> + * CGEB watchdog driver
-> + *
-> + * (c) 2011 Sascha Hauer, Pengutronix
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License as published by
-> + * the Free Software Foundation; version 2 of the License.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-> + * GNU General Public License for more details.
-> + */
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/watchdog.h>
-> +#include <asm/congatec-cgeb.h>
-> +
-> +#define CGOS_WDOG_MODE_REBOOT_PC    0
-> +#define CGOS_WDOG_MODE_RESTART_OS   1
-> +#define CGOS_WDOG_MODE_STAGED    0x80
-> +
-> +#define CGOS_WDOG_OPMODE_DISABLED      0
-> +#define CGOS_WDOG_OPMODE_ONETIME_TRIG  1
-> +#define CGOS_WDOG_OPMODE_SINGLE_EVENT  2
-> +#define CGOS_WDOG_OPMODE_EVENT_REPEAT  3
-> +
-> +#define CGOS_WDOG_EVENT_INT 0  /* NMI/IRQ */
-> +#define CGOS_WDOG_EVENT_SCI 1  /* SMI/SCI */
-> +#define CGOS_WDOG_EVENT_RST 2  /* system reset */
-> +#define CGOS_WDOG_EVENT_BTN 3  /* power button */
-> +
-> +#define CGOS_WDOG_EVENT_MAX_STAGES 3
-> +
-> +struct cgeb_watchdog_stage {
-> +       unsigned long timeout;
-> +       unsigned long event;
-> +};
-> +
-> +struct cgeb_watchdog_config {
-> +       unsigned long size;
-> +       unsigned long timeout; /* not used in staged mode */
-> +       unsigned long delay;
-> +       unsigned long mode;
-> +       /* optional parameters for staged watchdog */
-> +       unsigned long op_mode;
-> +       unsigned long stage_count;
-> +       struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
-> +};
-> +
-> +struct cgeb_watchdog_priv {
-> +       struct cgeb_board_data  *board;
-> +       struct watchdog_device  wdd;
-> +       int unit;
-> +};
-> +
-> +static struct watchdog_info cgeb_wdd_info = {
-> +       .options = WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-> +       .firmware_version = 0,
-> +       .identity = "cgeb watchdog",
-> +};
-> +
-> +static unsigned int watchdog_set_config(struct cgeb_watchdog_priv *priv,
-> +               unsigned int timeout_s)
-> +{
-> +       struct cgeb_board_data *board = priv->board;
-> +       struct cgeb_watchdog_config wdi;
-> +       struct cgeb_function_parameters fps;
-> +
-> +       memset(&wdi, 0, sizeof(wdi));
-> +       memset(&fps, 0, sizeof(fps));
-> +
-> +       fps.unit = priv->unit;
-> +       fps.iptr = &wdi;
-> +
-> +       wdi.timeout = timeout_s * 1000;
-> +       wdi.delay = 0;
-> +       wdi.size = sizeof(wdi);
-> +       wdi.mode = CGOS_WDOG_MODE_REBOOT_PC;
-> +
-> +       return cgeb_call(board, &fps, CgebWDogSetConfig);
-> +}
-> +
-> +static int cgeb_watchdog_start(struct watchdog_device *wdd)
-> +{
-> +       struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
-> +
-> +       return watchdog_set_config(priv, wdd->timeout);
-> +}
-> +
-> +static int cgeb_watchdog_stop(struct watchdog_device *wdd)
-> +{
-> +       struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
-> +
-> +       return watchdog_set_config(priv, 0);
-> +}
-> +
-> +static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
-> +               unsigned int timeout_s)
-> +{
-> +       return 0;
-> +}
-> +
-> +struct watchdog_ops cgeb_watchdog_ops = {
-> +       .start = cgeb_watchdog_start,
-> +       .stop = cgeb_watchdog_stop,
-> +       .set_timeout = cgeb_watchdog_set_timeout,
-> +};
-> +
-> +static int cgeb_watchdog_probe(struct platform_device *pdev)
-> +{
-> +       struct cgeb_watchdog_priv *priv;
-> +       struct cgeb_pdata *pdata = pdev->dev.platform_data;
-> +       int ret;
-> +
-> +       priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
-> +       if (!priv)
-> +               return -ENOMEM;
-> +
-> +       priv->wdd.ops = &cgeb_watchdog_ops;
-> +       priv->wdd.info = &cgeb_wdd_info;
-> +       priv->wdd.min_timeout = 1;
-> +       priv->wdd.max_timeout = 3600;
-> +       priv->board = pdata->board;
-> +       priv->unit = pdata->unit;
-> +
-> +       watchdog_set_drvdata(&priv->wdd, priv);
-> +       platform_set_drvdata(pdev, priv);
-> +
-> +       ret = watchdog_register_device(&priv->wdd);
-> +       if (ret)
-> +               return ret;
-> +
-> +       dev_info(&pdev->dev, "registered\n");
-> +
-> +       return 0;
-> +}
-> +
-> +static int cgeb_watchdog_remove(struct platform_device *pdev)
-> +{
-> +       struct cgeb_watchdog_priv *priv = platform_get_drvdata(pdev);
-> +
-> +       watchdog_unregister_device(&priv->wdd);
-> +
-> +       return 0;
-> +}
-> +
-> +static struct platform_driver cgeb_watchdog_driver = {
-> +       .probe          = cgeb_watchdog_probe,
-> +       .remove         = cgeb_watchdog_remove,
-> +       .driver = {
-> +               .name   = "cgeb-watchdog",
-> +               .owner  = THIS_MODULE,
-> +       },
-> +};
-> +module_platform_driver(cgeb_watchdog_driver);
-> +
-> +MODULE_AUTHOR("Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
-> +MODULE_DESCRIPTION("cgeb watchdog driver");
-> +MODULE_LICENSE("GPL v2");
-> --
 
-There seems to be a problem:
+> What do you mean? In <linux/gpio.h> I see:
+> 
+> struct gpio {
+> 	unsigned	gpio;
+> (...)
+> 
+> static inline int gpio_get_value(unsigned int gpio)
+> {
+> 	return __gpio_get_value(gpio);
+> }
+> 
+> And in <linux/i2c-gpio.h>:
+> 
+> struct i2c_gpio_platform_data {
+> 	unsigned int    sda_pin;
+> 	unsigned int    scl_pin;
+> (...)
 
-Mar 26 16:11:25 OT kernel: [   80.207514] cgeb-watchdog
-cgeb-watchdog.0: registered
-Mar 26 16:11:38 OT watchdog[2519]: stopping daemon (5.9)
-Mar 26 16:11:43 OT watchdog[2750]: starting daemon (5.9):
-Mar 26 16:11:43 OT watchdog[2750]: int=1s realtime=yes sync=no soft=no
-mla=0 mem=0
-Mar 26 16:11:43 OT watchdog[2750]: ping: no machine to check
-Mar 26 16:11:43 OT watchdog[2750]: file: no file to check
-Mar 26 16:11:43 OT watchdog[2750]: pidfile: no server process to check
-Mar 26 16:11:43 OT watchdog[2750]: interface: no interface to check
-Mar 26 16:11:43 OT watchdog[2750]: test=none(0) repair=none(0)
-alive=/dev/watchdog heartbeat=none temp=none to=root no_act=no
-Mar 26 16:11:43 OT watchdog[2750]: cannot set timeout 60 (errno = 95 =
-'Operation not supported')
-Mar 26 16:11:43 OT watchdog[2750]: hardware wartchdog identity: cgeb watchdog
+I remembered this paragraph from Documentation/gpio.txt:
 
-Will look into it until friday.
+===
 
---
-Christian Gmeiner, MSc
+If you want to initialize a structure with an invalid GPIO number, use
+some negative number (perhaps "-EINVAL"); that will never be valid.  To
+test if such number from such a structure could reference a GPIO, you
+may use this predicate:
+
+        int gpio_is_valid(int number);
+...
+
+===
+
+Confusingly, I know found that the chapter starts with
+
+===
+
+GPIOs are identified by unsigned integers in the range 0..MAX_INT.  That
+reserves "negative" numbers for other purposes like marking signals as
+"not available on this board", or indicating faults.
+
+===
+
+Meh.
+
+> If you still have a concern about the types used, please clarify and
+> let me know what change you expect.
+
+Leave it. I think the fragile part is gpio_is_valid() but this is truly
+outside the scope of this patch.
+
+> > > +	ret = gpio_request(sda_pin, "sda");
+> > > +	if (ret) {
+> > > +		if (ret == -EINVAL)
+> > > +			ret = -EPROBE_DEFER;	/* Try again later */
+> > 
+> > Would gpio_request_array() make the code simpler?
+> 
+> I gave it a try, this indeed makes the code slightly simpler (-4 lines)
+> but the resulting binary slightly larger (+40 bytes on x86-64.) I'd say
+> it's not worth it?
+
+OK. Then leave it.
+
+> Note that my patch doesn't introduce the gpio_request() calls, they
+> were there before, so this decision is actually independent from my
+> patch, and even if we decide to switch to using gpio_request_array(),
+> I'd rather do it in a separate patch for clarity.
+
+I don't fully get it. Do you want to appl gpio_request() to this patch?
+Otherwise, I'd take it as is.
+
+Thanks,
+
+   Wolfram
