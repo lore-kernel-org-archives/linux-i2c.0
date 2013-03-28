@@ -1,16 +1,14 @@
-From: Naveen Krishna Chatradhi <naveenkrishna.ch@gmail.com>
+From: Naveen Krishna Chatradhi <naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: [PATCH v6] i2c: exynos5: add High Speed I2C controller driver
-Date: Thu, 28 Mar 2013 15:01:36 -0700
-Message-ID: <1364508096-6759-1-git-send-email-ch.naveen@samsung.com>
+Date: Thu, 28 Mar 2013 16:40:27 -0700
+Message-ID: <1364514027-19863-1-git-send-email-ch.naveen@samsung.com>
 References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, w.sang@pengutronix.de, grant.likely@secretlab.ca, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, naveenkrishna.ch@gmail.com, broonie@opensource.wolfsonmicro.com
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1354021236-28596-2-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-
-From: Naveen Krishna Chatradhi <naveenkrishna.ch@gmail.com>
 
 Adds support for High Speed I2C driver found in Exynos5 and
 later SoCs from Samsung.
@@ -19,12 +17,13 @@ This driver currently supports Auto mode.
 Driver only supports Device Tree method.
 Note: Added debugfs support for registers view, not tested.
 
-Signed-off-by: Taekgyun Ko <taeggyun.ko@samsung.com>
-Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Signed-off-by: Taekgyun Ko <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
 Changes since v5:
 1. fixed the clock_info function pointed out by Yuvaraj
 2. Clear pending interrupt register before initializing in probe
+3. Implement INIT_COMPLETION call before xfer
 
  .../devicetree/bindings/i2c/i2c-exynos5.txt        |   50 ++
  drivers/i2c/busses/Kconfig                         |    7 +
@@ -637,7 +636,7 @@ index 0000000..a17848f
 +	i2c->msg_ptr = 0;
 +	i2c->msg_len = 0;
 +
-+	INIT_COMPLETION(dev->cmd_complete);
++	INIT_COMPLETION(&i2c->msg_complete);
 +
 +	exynos5_i2c_message_start(i2c, stop);
 +
@@ -997,8 +996,8 @@ index 0000000..a17848f
 +module_exit(i2c_adap_exynos5_exit);
 +
 +MODULE_DESCRIPTION("Exynos5 HS-I2C Bus driver");
-+MODULE_AUTHOR("Naveen Krishna Chatradhi, <ch.naveen@samsung.com>");
-+MODULE_AUTHOR("Taekgyun Ko, <taeggyun.ko@samsung.com>");
++MODULE_AUTHOR("Naveen Krishna Chatradhi, <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>");
++MODULE_AUTHOR("Taekgyun Ko, <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>");
 +MODULE_LICENSE("GPL");
 -- 
 1.7.9.5
