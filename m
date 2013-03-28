@@ -1,37 +1,45 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] i2c: sirf: get the i2c pin group by pinctrl api
-Date: Wed, 27 Mar 2013 16:14:39 +0100
-Message-ID: <CACRpkdb=ku7fEtx7w4uJ4JGHqovVQbBK9yJt=okDXdFUYaKnLQ@mail.gmail.com>
-References: <1363591361-5992-1-git-send-email-Barry.Song@csr.com>
-	<CACRpkdbg=ii1XjUmVd7GOOWF_FAMq_uUcvaGstbWjiGWGEbFLQ@mail.gmail.com>
-	<CAGsJ_4xN6=1myOVyz6wTagd=JCvGgta1q4wwq0RFE0XcDokoSA@mail.gmail.com>
+From: Yijing Wang <wangyijing-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] i2c: remove CONFIG_HOTPLUG ifdefs
+Date: Thu, 28 Mar 2013 10:25:50 +0800
+Message-ID: <1364437550-12200-1-git-send-email-wangyijing@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAGsJ_4xN6=1myOVyz6wTagd=JCvGgta1q4wwq0RFE0XcDokoSA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Barry Song <Barry.Song-kQvG35nSl+M@public.gmane.org>, w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, workgroup.linux-kQvG35nSl+M@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hanjun Guo <guohanjun-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, jiang.liu-hv44wF8Li93QT0dZR+AlfA@public.gmane.org, Yijing Wang <wangyijing-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 27, 2013 at 11:36 AM, Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> 2013/3/27 Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>:
+CONFIG_HOTPLUG is going away as an option, cleanup CONFIG_HOTPLUG
+ifdefs in i2c files.
 
->> You only need to fetch pinctrl handles in drivers if you're
->> using anything else than the default state.
->
-> well. missed this recent commit.
-> it should mean we hould drop all devm_pinctrl_get_select_default() if
-> the driver only takes the default pinctrl?
+Signed-off-by: Yijing Wang <wangyijing-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |    5 -----
+ 1 files changed, 0 insertions(+), 5 deletions(-)
 
-Yes.
-
-> it looks like there are still a lot of drivers doing that. anyway, i
-> will drop them in SiRFsoc drivers. and involve you in the coming
-> patch.
-
-I am meaning to fix that up. Just haven't had time to...
-Prior to that patch it was the right thing to do.
-
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 991d38d..d1db97e 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -91,7 +91,6 @@ static int i2c_device_match(struct device *dev, struct device_driver *drv)
+ 	return 0;
+ }
+ 
+-#ifdef	CONFIG_HOTPLUG
+ 
+ /* uevent helps with hotplug: modprobe -q $(MODALIAS) */
+ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+@@ -105,10 +104,6 @@ static int i2c_device_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	return 0;
+ }
+ 
+-#else
+-#define i2c_device_uevent	NULL
+-#endif	/* CONFIG_HOTPLUG */
+-
+ static int i2c_device_probe(struct device *dev)
+ {
+ 	struct i2c_client	*client = i2c_verify_client(dev);
+-- 
+1.7.1
