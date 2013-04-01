@@ -1,36 +1,32 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] ACPI / I2C: Use parent's ACPI_HANDLE() in
- acpi_i2c_register_devices()
-Date: Mon, 1 Apr 2013 11:28:07 +0300
-Message-ID: <20130401082807.GL21804@intel.com>
-References: <2966020.zlpeyGGUDW@vostro.rjw.lan>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH 2/3] i2c: mxs: remove races in PIO code
+Date: Tue, 2 Apr 2013 00:58:41 +0200
+Message-ID: <201304020058.41519.marex@denx.de>
+References: <1363261750-26645-1-git-send-email-l.stach@pengutronix.de> <1363261750-26645-2-git-send-email-l.stach@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <2966020.zlpeyGGUDW-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
+In-Reply-To: <1363261750-26645-2-git-send-email-l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: ACPI Devel Maling List <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 01, 2013 at 02:25:03AM +0200, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> 
-> The ACPI handle of struct i2c_adapter's dev member should not be
-> set, because this causes that struct i2c_adapter to be associated
-> with the ACPI device node corresponding to its parent as the
-> second "physical_device", which is incorrect (this happens during
-> the registration of struct i2c_adapter).  Consequently,
-> acpi_i2c_register_devices() should use the ACPI handle of the
-> parent of the struct i2c_adapter it is called for rather than the
-> struct i2c_adapter's ACPI handle (which should be NULL).
-> 
-> Make that happen and modify the i2c-designware-platdrv driver,
-> which currently is the only driver for ACPI-enumerated I2C
-> controller chips, not to set the ACPI handle for the
-> struct i2c_adapter it creates.
-> 
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Dear Lucas Stach,
 
-Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+sorry for the delay, I'm totalled ... well, trying to make it through the queue 
+now.
+
+CC Fabio on MXS patches please.
+
+[...]
+
+> -static int mxs_i2c_pio_wait_cplt(struct mxs_i2c_dev *i2c)
+> +static int mxs_i2c_pio_wait_cplt(struct mxs_i2c_dev *i2c, int last)
+
+You can use bool instead of int here and then use "true"/"false" below.
+
+Best regards,
+Marek Vasut
