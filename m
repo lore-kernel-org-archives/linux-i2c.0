@@ -1,67 +1,30 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 0/6]  Make return type of i2c_del_adapter() (and
- i2c_del_mux_adapter()) void
-Date: Tue, 2 Apr 2013 07:09:51 +0200
-Message-ID: <20130402050951.GA11487@the-dreams.de>
-References: <1362853009-20789-1-git-send-email-lars@metafoo.de>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] ARM: mxs: Slow down the I2C clock speed
+Date: Tue, 2 Apr 2013 19:28:52 +0800
+Message-ID: <20130402112850.GD24039@S2101-09.ap.freescale.net>
+References: <1364858969-17745-1-git-send-email-marex@denx.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1362853009-20789-1-git-send-email-lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+In-Reply-To: <1364858969-17745-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
-Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Mar 09, 2013 at 07:16:43PM +0100, Lars-Peter Clausen wrote:
-> Currently i2c_del_adapter() returns 0 on success and potentially an error code
-> on failure. Unfortunately this doesn't mix too well with the Linux device driver
-> model. An i2c_adapter is usually registered in a drivers probe callback and
-> removed in the drivers remove callback. The Linux device driver model assumes
-> that a device may disappear at any time, e.g. because it is on a hot-plug-able
-> bus and the device is physically removed or because it is unbound from it's
-> driver. This means that a driver's remove callback is not allowed to fail. This
-> has lead to code fragments like the following:
-> 
-> 	rc = i2c_del_adapter(&board->i2c_adap);
-> 	BUG_ON(rc);
-> 
-> Currently there are two code paths which can cause to i2c_del_adapter() to
-> return an error code:
-> 1) If the adapter that is passed to i2c_del_adapter() is not registered
-> i2c_del_adapter() returns -EINVAL
-> 2) If an I2C client, which is registered as a child to the adapter, implements
-> the detach_adapter callback and detach_adapter returns an error the removal of
-> the adapter is aborted and i2c_del_adapter() returns the error returned by the
-> clients detach_adapter callback.
-> 
-> The first probably never happens unless there is a serious bug in the driver
-> calling i2c_del_adapter(), but I think even then, for the sake of sanitizing the
-> API we can argue that the purpose of i2c_del_adapter() is to remove the adapter
-> from the system. If the adapter currently isn't registered this becomes a no-op
-> and we can return success, without having to do anything. The second also never
-> happens, since the detach_adapter callback has been deprecated for quite some
-> time now and there are currently no drivers left which implement it.
-> 
-> So realisticly i2c_del_adapter() already always returns 0 and all code checking
-> for errors is more or less dead code. And in fact the majority of the users of
-> i2c_del_adapter() already ignore the return value, but there are still some
-> drivers (both newer and older) which assume that i2c_del_adapter() might fail.
-> This series aims at making it explicit that i2c_del_adapter() can not fail by
-> making its return type void.
-> 
-> The series will start by making i2c_del_adapter() always return success. For
-> this it will update the case, where a non-registered adapter is passed in, to
-> return 0 instead of -EINVAL and remove all code related to the unused
-> detach_adapter callback. Afterward the series will update all users of
-> i2c_del_adapter() to ignore the return value (since it is always 0 now). And
-> finally the series will change the return type of i2c_del_adapter() to void.
-> 
-> The same is true for i2c_del_mux_adapter() which is mostly just a wrapper
-> around i2c_del_adapter(), so it is also updated in this series.
+Marek,
 
-Thanks for doing this and thanks to Jean for the review. I pretty much
-came to the same questions and conclusions.
+On Tue, Apr 02, 2013 at 01:29:29AM +0200, Marek Vasut wrote:
+> Slow down the I2C clock speed on M28 and SPS1 as it turns out the
+> I2C block in i.MX28 can not operate stable enough with the bus
+> running at 400kHz. Note that the driver used by Freescale runs
+> the bus at 250kHz when 400kHz speed is selected, but the mainline
+> Linux kernel runs the bus at actual 400kHz and that's where it is
+> occasionally unstable. Play safe and run the bus at 100kHz.
+> 
+> Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 
-Applied to for-next, thanks!
+You consider it a fix for 3.9 or just material for 3.10?
+
+Shawn
