@@ -1,51 +1,38 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH] ARM: mxs: Slow down the I2C clock speed
-Date: Tue,  2 Apr 2013 01:29:29 +0200
-Message-ID: <1364858969-17745-1-git-send-email-marex@denx.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] ACPI / I2C: Use parent's ACPI_HANDLE() in
+ acpi_i2c_register_devices()
+Date: Tue, 2 Apr 2013 06:52:37 +0200
+Message-ID: <20130402045105.GA17682@the-dreams.de>
+References: <2966020.zlpeyGGUDW@vostro.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <2966020.zlpeyGGUDW-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: ACPI Devel Maling List <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Slow down the I2C clock speed on M28 and SPS1 as it turns out the
-I2C block in i.MX28 can not operate stable enough with the bus
-running at 400kHz. Note that the driver used by Freescale runs
-the bus at 250kHz when 400kHz speed is selected, but the mainline
-Linux kernel runs the bus at actual 400kHz and that's where it is
-occasionally unstable. Play safe and run the bus at 100kHz.
+On Mon, Apr 01, 2013 at 02:25:03AM +0200, Rafael J. Wysocki wrote:
+> From: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> 
+> The ACPI handle of struct i2c_adapter's dev member should not be
+> set, because this causes that struct i2c_adapter to be associated
+> with the ACPI device node corresponding to its parent as the
+> second "physical_device", which is incorrect (this happens during
+> the registration of struct i2c_adapter).  Consequently,
+> acpi_i2c_register_devices() should use the ACPI handle of the
+> parent of the struct i2c_adapter it is called for rather than the
+> struct i2c_adapter's ACPI handle (which should be NULL).
+> 
+> Make that happen and modify the i2c-designware-platdrv driver,
+> which currently is the only driver for ACPI-enumerated I2C
+> controller chips, not to set the ACPI handle for the
+> struct i2c_adapter it creates.
+> 
+> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- arch/arm/boot/dts/imx28-m28evk.dts |    1 -
- arch/arm/boot/dts/imx28-sps1.dts   |    1 -
- 2 files changed, 2 deletions(-)
+Shall this go via the I2C tree? If not, for the I2C part:
 
-diff --git a/arch/arm/boot/dts/imx28-m28evk.dts b/arch/arm/boot/dts/imx28-m28evk.dts
-index 5f0ba99..5aa44e0 100644
---- a/arch/arm/boot/dts/imx28-m28evk.dts
-+++ b/arch/arm/boot/dts/imx28-m28evk.dts
-@@ -177,7 +177,6 @@
- 			i2c0: i2c@80058000 {
- 				pinctrl-names = "default";
- 				pinctrl-0 = <&i2c0_pins_a>;
--				clock-frequency = <400000>;
- 				status = "okay";
- 
- 				sgtl5000: codec@0a {
-diff --git a/arch/arm/boot/dts/imx28-sps1.dts b/arch/arm/boot/dts/imx28-sps1.dts
-index e6cde8a..6c6a544 100644
---- a/arch/arm/boot/dts/imx28-sps1.dts
-+++ b/arch/arm/boot/dts/imx28-sps1.dts
-@@ -70,7 +70,6 @@
- 			i2c0: i2c@80058000 {
- 				pinctrl-names = "default";
- 				pinctrl-0 = <&i2c0_pins_a>;
--				clock-frequency = <400000>;
- 				status = "okay";
- 
- 				rtc: rtc@51 {
--- 
-1.7.10.4
+Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
