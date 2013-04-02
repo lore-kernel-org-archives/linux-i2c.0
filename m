@@ -1,38 +1,67 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] ACPI / I2C: Use parent's ACPI_HANDLE() in
- acpi_i2c_register_devices()
-Date: Tue, 2 Apr 2013 06:52:37 +0200
-Message-ID: <20130402045105.GA17682@the-dreams.de>
-References: <2966020.zlpeyGGUDW@vostro.rjw.lan>
+Subject: Re: [PATCH 0/6]  Make return type of i2c_del_adapter() (and
+ i2c_del_mux_adapter()) void
+Date: Tue, 2 Apr 2013 07:09:51 +0200
+Message-ID: <20130402050951.GA11487@the-dreams.de>
+References: <1362853009-20789-1-git-send-email-lars@metafoo.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <2966020.zlpeyGGUDW-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
+In-Reply-To: <1362853009-20789-1-git-send-email-lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: ACPI Devel Maling List <linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Lars-Peter Clausen <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 01, 2013 at 02:25:03AM +0200, Rafael J. Wysocki wrote:
-> From: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+On Sat, Mar 09, 2013 at 07:16:43PM +0100, Lars-Peter Clausen wrote:
+> Currently i2c_del_adapter() returns 0 on success and potentially an error code
+> on failure. Unfortunately this doesn't mix too well with the Linux device driver
+> model. An i2c_adapter is usually registered in a drivers probe callback and
+> removed in the drivers remove callback. The Linux device driver model assumes
+> that a device may disappear at any time, e.g. because it is on a hot-plug-able
+> bus and the device is physically removed or because it is unbound from it's
+> driver. This means that a driver's remove callback is not allowed to fail. This
+> has lead to code fragments like the following:
 > 
-> The ACPI handle of struct i2c_adapter's dev member should not be
-> set, because this causes that struct i2c_adapter to be associated
-> with the ACPI device node corresponding to its parent as the
-> second "physical_device", which is incorrect (this happens during
-> the registration of struct i2c_adapter).  Consequently,
-> acpi_i2c_register_devices() should use the ACPI handle of the
-> parent of the struct i2c_adapter it is called for rather than the
-> struct i2c_adapter's ACPI handle (which should be NULL).
+> 	rc = i2c_del_adapter(&board->i2c_adap);
+> 	BUG_ON(rc);
 > 
-> Make that happen and modify the i2c-designware-platdrv driver,
-> which currently is the only driver for ACPI-enumerated I2C
-> controller chips, not to set the ACPI handle for the
-> struct i2c_adapter it creates.
+> Currently there are two code paths which can cause to i2c_del_adapter() to
+> return an error code:
+> 1) If the adapter that is passed to i2c_del_adapter() is not registered
+> i2c_del_adapter() returns -EINVAL
+> 2) If an I2C client, which is registered as a child to the adapter, implements
+> the detach_adapter callback and detach_adapter returns an error the removal of
+> the adapter is aborted and i2c_del_adapter() returns the error returned by the
+> clients detach_adapter callback.
 > 
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> The first probably never happens unless there is a serious bug in the driver
+> calling i2c_del_adapter(), but I think even then, for the sake of sanitizing the
+> API we can argue that the purpose of i2c_del_adapter() is to remove the adapter
+> from the system. If the adapter currently isn't registered this becomes a no-op
+> and we can return success, without having to do anything. The second also never
+> happens, since the detach_adapter callback has been deprecated for quite some
+> time now and there are currently no drivers left which implement it.
+> 
+> So realisticly i2c_del_adapter() already always returns 0 and all code checking
+> for errors is more or less dead code. And in fact the majority of the users of
+> i2c_del_adapter() already ignore the return value, but there are still some
+> drivers (both newer and older) which assume that i2c_del_adapter() might fail.
+> This series aims at making it explicit that i2c_del_adapter() can not fail by
+> making its return type void.
+> 
+> The series will start by making i2c_del_adapter() always return success. For
+> this it will update the case, where a non-registered adapter is passed in, to
+> return 0 instead of -EINVAL and remove all code related to the unused
+> detach_adapter callback. Afterward the series will update all users of
+> i2c_del_adapter() to ignore the return value (since it is always 0 now). And
+> finally the series will change the return type of i2c_del_adapter() to void.
+> 
+> The same is true for i2c_del_mux_adapter() which is mostly just a wrapper
+> around i2c_del_adapter(), so it is also updated in this series.
 
-Shall this go via the I2C tree? If not, for the I2C part:
+Thanks for doing this and thanks to Jean for the review. I pretty much
+came to the same questions and conclusions.
 
-Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Applied to for-next, thanks!
