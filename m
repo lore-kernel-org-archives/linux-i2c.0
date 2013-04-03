@@ -1,36 +1,178 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] ARM: mxs: Slow down the I2C clock speed
-Date: Tue, 2 Apr 2013 21:11:05 +0200
-Message-ID: <201304022111.05858.marex@denx.de>
-References: <1364858969-17745-1-git-send-email-marex@denx.de> <20130402112850.GD24039@S2101-09.ap.freescale.net>
+From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
+Date: Wed, 3 Apr 2013 17:09:52 +0200
+Message-ID: <20130403150952.GX1906@pengutronix.de>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <1360663374-30951-4-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWd7YdtK0urutisVgKoE7NmPFLpG3wFG5W6P7o45vUqAng@mail.gmail.com>
+ <20130326143331.GA5529@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130402112850.GD24039-rvtDTF3kK1ictlrPMvKcciBecyulp+rMXqFh9Ls21Oc@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130326143331.GA5529-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Shawn Guo,
-
-> Marek,
+On Tue, Mar 26, 2013 at 07:33:31AM -0700, Guenter Roeck wrote:
+> On Tue, Mar 26, 2013 at 11:16:35AM +0100, Christian Gmeiner wrote:
+> > 2013/2/12 Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+> > > This driver provides support for the CGEB watchdog found on some
+> > > Congatec x86 modules.
+> > >
+> > > Signed-off-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > ---
+> > >  drivers/watchdog/Kconfig                  |   10 ++
+> > >  drivers/watchdog/Makefile                 |    1 +
+> > >  drivers/watchdog/congatec_cgeb_watchdog.c |  161 +++++++++++++++++++++++++++++
+> > >  3 files changed, 172 insertions(+)
+> > >  create mode 100644 drivers/watchdog/congatec_cgeb_watchdog.c
+> > >
+> > > diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+> > > index 7f809fd..47138fb 100644
+> > > --- a/drivers/watchdog/Kconfig
+> > > +++ b/drivers/watchdog/Kconfig
+> > > @@ -934,6 +934,16 @@ config SBC_EPX_C3_WATCHDOG
+> > >           To compile this driver as a module, choose M here: the
+> > >           module will be called sbc_epx_c3.
+> > >
+> > > +config CONGATEC_CGEB_WATCHDOG
+> > > +       depends on CONGATEC_CGEB
+> > > +       tristate "Congatec CGEB watchdog"
+> > > +       ---help---
+> > > +         This driver provides support for the watchdogs found on Congatec
+> > > +         modules with the CGEB BIOS interface.
+> > > +
+> > > +         To compile this driver as a module, choose M here: the
+> > > +         module will be called congatec_cgeb_wdt.
+> > > +
+> > >  # M32R Architecture
+> > >
+> > >  # M68K Architecture
+> > > diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
+> > > index 97bbdb3a..e67eee5 100644
+> > > --- a/drivers/watchdog/Makefile
+> > > +++ b/drivers/watchdog/Makefile
+> > > @@ -108,6 +108,7 @@ obj-$(CONFIG_W83977F_WDT) += w83977f_wdt.o
+> > >  obj-$(CONFIG_MACHZ_WDT) += machzwd.o
+> > >  obj-$(CONFIG_SBC_EPX_C3_WATCHDOG) += sbc_epx_c3.o
+> > >  obj-$(CONFIG_INTEL_SCU_WATCHDOG) += intel_scu_watchdog.o
+> > > +obj-$(CONFIG_CONGATEC_CGEB_WATCHDOG) += congatec_cgeb_watchdog.o
+> > >
+> > >  # M32R Architecture
+> > >
+> > > diff --git a/drivers/watchdog/congatec_cgeb_watchdog.c b/drivers/watchdog/congatec_cgeb_watchdog.c
+> > > new file mode 100644
+> > > index 0000000..b7b6cf5
+> > > --- /dev/null
+> > > +++ b/drivers/watchdog/congatec_cgeb_watchdog.c
+> > > @@ -0,0 +1,161 @@
+> > > +/*
+> > > + * CGEB watchdog driver
+> > > + *
+> > > + * (c) 2011 Sascha Hauer, Pengutronix
+> > > + *
+> > > + * This program is free software; you can redistribute it and/or modify
+> > > + * it under the terms of the GNU General Public License as published by
+> > > + * the Free Software Foundation; version 2 of the License.
+> > > + *
+> > > + * This program is distributed in the hope that it will be useful,
+> > > + * but WITHOUT ANY WARRANTY; without even the implied warranty of
+> > > + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+> > > + * GNU General Public License for more details.
+> > > + */
+> > > +#include <linux/module.h>
+> > > +#include <linux/platform_device.h>
+> > > +#include <linux/watchdog.h>
+> > > +#include <asm/congatec-cgeb.h>
+> > > +
+> > > +#define CGOS_WDOG_MODE_REBOOT_PC    0
+> > > +#define CGOS_WDOG_MODE_RESTART_OS   1
+> > > +#define CGOS_WDOG_MODE_STAGED    0x80
+> > > +
+> > > +#define CGOS_WDOG_OPMODE_DISABLED      0
+> > > +#define CGOS_WDOG_OPMODE_ONETIME_TRIG  1
+> > > +#define CGOS_WDOG_OPMODE_SINGLE_EVENT  2
+> > > +#define CGOS_WDOG_OPMODE_EVENT_REPEAT  3
+> > > +
+> > > +#define CGOS_WDOG_EVENT_INT 0  /* NMI/IRQ */
+> > > +#define CGOS_WDOG_EVENT_SCI 1  /* SMI/SCI */
+> > > +#define CGOS_WDOG_EVENT_RST 2  /* system reset */
+> > > +#define CGOS_WDOG_EVENT_BTN 3  /* power button */
+> > > +
+> > > +#define CGOS_WDOG_EVENT_MAX_STAGES 3
+> > > +
+> > > +struct cgeb_watchdog_stage {
+> > > +       unsigned long timeout;
+> > > +       unsigned long event;
+> > > +};
+> > > +
+> > > +struct cgeb_watchdog_config {
+> > > +       unsigned long size;
+> > > +       unsigned long timeout; /* not used in staged mode */
+> > > +       unsigned long delay;
+> > > +       unsigned long mode;
+> > > +       /* optional parameters for staged watchdog */
+> > > +       unsigned long op_mode;
+> > > +       unsigned long stage_count;
+> > > +       struct cgeb_watchdog_stage stages[CGOS_WDOG_EVENT_MAX_STAGES];
+> > > +};
 > 
-> On Tue, Apr 02, 2013 at 01:29:29AM +0200, Marek Vasut wrote:
-> > Slow down the I2C clock speed on M28 and SPS1 as it turns out the
-> > I2C block in i.MX28 can not operate stable enough with the bus
-> > running at 400kHz. Note that the driver used by Freescale runs
-> > the bus at 250kHz when 400kHz speed is selected, but the mainline
-> > Linux kernel runs the bus at actual 400kHz and that's where it is
-> > occasionally unstable. Play safe and run the bus at 100kHz.
-> > 
-> > Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+> Presumably that is a data structure sent to the board. Just wondering - can the
+> driver ever be build as 64 bit driver ? If so, you might want to use u32 instead
+> of unsigned long.
+
+I don't think that this is used on any 64bit capable hardware. Anyway,
+explicitly using u32 here sounds very good. I'll change it.
+
+> > > +static int cgeb_watchdog_start(struct watchdog_device *wdd)
+> > > +{
+> > > +       struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
+> > > +
+> > > +       return watchdog_set_config(priv, wdd->timeout);
+> > > +}
+> > > +
+> > > +static int cgeb_watchdog_stop(struct watchdog_device *wdd)
+> > > +{
+> > > +       struct cgeb_watchdog_priv *priv = watchdog_get_drvdata(wdd);
+> > > +
+> > > +       return watchdog_set_config(priv, 0);
+> > > +}
+> > > +
+> > > +static int cgeb_watchdog_set_timeout(struct watchdog_device *wdd,
+> > > +               unsigned int timeout_s)
+> > > +{
+> > > +       return 0;
+> > > +}
 > 
-> You consider it a fix for 3.9 or just material for 3.10?
+> That doesn't make any sense - it means wdd->timeout is never set. That also
+> means it is never started.
 
-Fix for 3.9 please.
+Yeah, I just realized that since v3.4 the watchdog core no longer sets
+wdd->timeout, the drivers have to do it themselves. Will fix.
 
-Best regards,
-Marek Vasut
+> > > +       priv->wdd.ops = &cgeb_watchdog_ops;
+> > > +       priv->wdd.info = &cgeb_wdd_info;
+> > > +       priv->wdd.min_timeout = 1;
+> > > +       priv->wdd.max_timeout = 3600;
+> 
+> Might make sense to also set wdd.timeout to a default value, especially since
+> watchdog_init_timeout is not called.
+
+Ok, will do.
+
+> 
+> On a side note, if the driver supports devicetree, it might make sense to call
+> watchdog_init_timeout, since it initializes the timeout from devicetree data.
+
+The driver does not support devicetree.
+
+Sascha
+
+-- 
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
