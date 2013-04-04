@@ -1,44 +1,57 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 3/3] watchdog: Add Congatec CGEB watchdog driver
-Date: Wed, 3 Apr 2013 19:06:30 +0200
-Message-ID: <20130403170630.GZ1906@pengutronix.de>
-References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
- <1360663374-30951-4-git-send-email-s.hauer@pengutronix.de>
- <CAH9NwWd7YdtK0urutisVgKoE7NmPFLpG3wFG5W6P7o45vUqAng@mail.gmail.com>
- <20130326143331.GA5529@roeck-us.net>
- <20130403150952.GX1906@pengutronix.de>
- <20130403153000.GA30641@roeck-us.net>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: [PATCH] i2c: davinci: rename "i2c_recover_bus" function
+Date: Thu, 4 Apr 2013 13:54:29 +0000
+Message-ID: <201304041354.30024.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130403153000.GA30641-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Apr 03, 2013 at 08:30:00AM -0700, Guenter Roeck wrote:
-> On Wed, Apr 03, 2013 at 05:09:52PM +0200, Sascha Hauer wrote:
-> [ ... ]
-> 
-> > > 
-> > > On a side note, if the driver supports devicetree, it might make sense to call
-> > > watchdog_init_timeout, since it initializes the timeout from devicetree data.
-> > 
-> > The driver does not support devicetree.
-> > 
-> I should have said "the system". Calling watchdog_init_timeout is the only thing
-> a watchdog driver has to do to support devicetree.
+As of commit 5f9296ba "i2c: Add bus recovery infrastructure", there
+is now a global function with the same name, which clashes with
+the davinci specific one. The obvious solution is to rename the
+function with a davinci prefix.
 
-The system does not use devicetrees. I'm very familiar with devicetrees
-on ARM, but I have never seen a x86 system with devicetree support
-(although I know they exist)
+Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 
-Sascha
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index 7d1e590..3acc65a 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -155,7 +155,7 @@ static void generic_i2c_clock_pulse(unsigned int scl_pin)
+ /* This routine does i2c bus recovery as specified in the
+  * i2c protocol Rev. 03 section 3.16 titled "Bus clear"
+  */
+-static void i2c_recover_bus(struct davinci_i2c_dev *dev)
++static void i2c_davinci_recover_bus(struct davinci_i2c_dev *dev)
+ {
+ 	u32 flag = 0;
+ 	struct davinci_i2c_platform_data *pdata = dev->pdata;
+@@ -289,7 +289,7 @@ static int i2c_davinci_wait_bus_not_busy(struct davinci_i2c_dev *dev,
+ 				return -ETIMEDOUT;
+ 			} else {
+ 				to_cnt = 0;
+-				i2c_recover_bus(dev);
++				i2c_davinci_recover_bus(dev);
+ 				i2c_davinci_init(dev);
+ 			}
+ 		}
+@@ -379,7 +379,7 @@ i2c_davinci_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg, int stop)
+ 						      dev->adapter.timeout);
+ 	if (r == 0) {
+ 		dev_err(dev->dev, "controller timed out\n");
+-		i2c_recover_bus(dev);
++		i2c_davinci_recover_bus(dev);
+ 		i2c_davinci_init(dev);
+ 		dev->buf_len = 0;
+ 		return -ETIMEDOUT;
