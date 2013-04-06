@@ -1,102 +1,81 @@
-From: Guenter Roeck <linux@roeck-us.net>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH v4 1/3] i2c: mux: Add i2c-arbitrator-cros-ec 'mux' driver
-Date: Sat, 6 Apr 2013 11:30:17 -0700
-Message-ID: <20130406182957.GA11630@roeck-us.net>
+Date: Sat, 6 Apr 2013 22:11:32 +0200
+Message-ID: <20130406201132.GA3936@the-dreams.de>
 References: <1360957573-864-1-git-send-email-dianders@chromium.org>
  <1363192583-26363-1-git-send-email-dianders@chromium.org>
  <CAD=FV=UW4wGFqsg2B3MmC24jhnba5PSvCh8Wck-V6iuYk+Xifw@mail.gmail.com>
  <20130329115821.GC6359@the-dreams.de>
  <515F2E28.2090105@wwwdotorg.org>
+ <20130406182957.GA11630@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <515F2E28.2090105@wwwdotorg.org>
+In-Reply-To: <20130406182957.GA11630@roeck-us.net>
 Sender: linux-doc-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Simon Glass <sjg@chromium.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Simon Glass <sjg@chromium.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 05, 2013 at 02:03:52PM -0600, Stephen Warren wrote:
-> On 04/05/2013 01:37 PM, Simon Glass wrote:
-> > HI Wolfram,
-> > 
-> > On Wed, Apr 3, 2013 at 12:19 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
-> >> Doug,
-> >>
-> >>> Separately from a discussion of the technical merits, I'd say that
-> >>> this patch is needed because the Embedded Controller (EC) on the ARM
-> >>> Chromebook shipped expecting to communicate with this scheme.  While
-> >>
-> >> Uhrm, with all respect, "we already shipped it" is not a convincing
-> >> argument regarding inclusion. Benefit for the kernel is.
+Hi,
+
+> Very interesting discussion, especially the argument that "we already shipped"
+> would not be a convincing argument.
 > 
-> I'm not quite sure why that isn't a convincing argument.
+> I had senior kernel maintainers tell me and the company I work for that we should
+> submit _all_ our platform specific kernel code and drivers for inclusion into
+> the upstream kernel.
+
+Yes, great. Really!
+
+> This exchange suggests that "it is a shipping product" does not count for such
+> submissions, and that "Benefit for the kernel" would be the deciding factor
+> instead. Which of course is a very vague statement - if code supporting
+> Chromebookis is of no benefit for the kernel, support for my company's products
+> for sure is much less so.
+
+First, let me state that I did not intend to say that the arbitrator
+muxer here has NO benefit for the kernel. I was aware there might be
+arguments for that and I wanted some more discussion to make that
+clearer to me. Simon's mail was very helpful in that regard and I will
+comment on that somewhen later.
+
+Still, I do have problems with "we already shipped it". If the driver is
+bad or the underlying concept is fragile, I want the freedom to reject a
+patch, product shipped or not. I will be supportive to find a proper
+solution, promised. If all fails, there is still staging/ or the
+possibility of out-of-tree patches.
+
+> Which kind of leaves me in a bind. On one side I promote that we should submit
+> all our kernel code, on the other side there is a very compelling case to be
+> made that it won't be accepted anyway. That doesn't make my life easier -
+
+Concentrate on argumenting why the driver is useful and it will be fine.
+"we already shipped this" feels a bit like blackmailing to me. And since
+most drivers do have well thought reasons for their existance, I'd
+primarily like to hear about those.
+
+> essentially since it supports those who say that we should not submit anything
+> in the first place. And believe me, there are many of those. 
 > 
-> The hardware has shipped. I don't know whether the EC microcode can be
-> updated in the field; it seems risky to do so even if it's possible. So,
-> it either gets supported or not; the HW/ucode isn't going to change I
-> suspect.
-> 
-> Hence, it seems that the decision would be:
-> 
-> a) Disallow the implementation of the arbitration scheme in the kernel,
-> and hence don't support this board in the kernel. (or at least some very
-> core features of this board)
-> 
-> b) Allow the implementation of the arbitration scheme in the kernel, and
-> hence make possible support this board in the kernel.
-> 
-> From that perspective, the benefit for the kernel question comes down
-> to: do we see a benefit for the kernel to support this board? I can't
-> see why that wouldn't be a benefit.
-> 
-> The only disadvantage would be having to carrying code to support that
-> board. That same argument can be made for any board, and I think
-> typically doesn't cause any issue. The code for this I2C mux seems
-> pretty self-contained, so even if it was absolutely terrible (which I
-> don't think it is), it still wouldn't cause any wide-spread issues, I think.
+> Just to give some examples:
+> - I2C multiplexers. We have a bunch of those. Looking at this exchange,
+>   it doesn't look good to get that code included.
 
-Very interesting discussion, especially the argument that "we already shipped"
-would not be a convincing argument.
+Multiplexers should be easy going, it is the arbitration which is discussed here.
+I am open to consider some generic arbitration schemes. What I am reluctant to
+do is to allow every board to have its own arbitration scheme. This
+would be board support hosted in the I2C directory. Meh.
 
-I had senior kernel maintainers tell me and the company I work for that we should
-submit _all_ our platform specific kernel code and drivers for inclusion into
-the upstream kernel.
+> It would be nice have to get some well defined guidelines for "acceptable"
+> contributions. "Benefit for the kernel" sure isn't one.
 
-This exchange suggests that "it is a shipping product" does not count for such
-submissions, and that "Benefit for the kernel" would be the deciding factor
-instead. Which of course is a very vague statement - if code supporting
-Chromebookis is of no benefit for the kernel, support for my company's products
-for sure is much less so.
+I don't think it is possible to write down concrete guidelines for this.
+"According to rule 4a) of the guidelines you have to accept my patch"?
+That would be a mess, I think.
 
-Which kind of leaves me in a bind. On one side I promote that we should submit
-all our kernel code, on the other side there is a very compelling case to be
-made that it won't be accepted anyway. That doesn't make my life easier -
-essentially since it supports those who say that we should not submit anything
-in the first place. And believe me, there are many of those. 
+Regards,
 
-Just to give some examples:
-- I2C multiplexers. We have a bunch of those. Looking at this exchange,
-  it doesn't look good to get that code included.
-- Custom multi-function FPGAs and CPLDs, amongst others implementing I2C
-  controllers, I2C muxes, GPIO access, Flash access, and other functions. Same
-  as above.
-- Devicetree support for UIO devices (mostly forwarding ASICs), including gpio
-  bindings, interrupt bindings, and clock bindings. Looking at older exchanges,
-  that doesn't look good either. And please dont expect me to implement hacks
-  around a clean solution because any devicetree binding for UIO drivers
-  "does not describe hardware but its use".
+   Wolfram
 
-Now, I can understand that there may be technical or architectural issues
-preventing one driver or another from being accepted. For example, I can
-understand if a driver for an USB-I2C adapder isn't accepted because the adapter
-reports itself to the USB subsystem as serial driver. But "Benefit for the
-kernel" is vague enough to reject anything for no real reason other than
-someone not liking it (or the submitter, or the company the submitter
-works for, or the hardware architecture).
-
-It would be nice have to get some well defined guidelines for "acceptable"
-contributions. "Benefit for the kernel" sure isn't one.
-
-Guenter
