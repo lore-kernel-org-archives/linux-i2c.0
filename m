@@ -1,111 +1,72 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH v4 1/3] i2c: mux: Add i2c-arbitrator-cros-ec 'mux' driver
-Date: Sun, 7 Apr 2013 11:10:28 -0700
-Message-ID: <20130407181028.GA28029@roeck-us.net>
-References: <1360957573-864-1-git-send-email-dianders@chromium.org>
- <1363192583-26363-1-git-send-email-dianders@chromium.org>
- <CAD=FV=UW4wGFqsg2B3MmC24jhnba5PSvCh8Wck-V6iuYk+Xifw@mail.gmail.com>
- <20130329115821.GC6359@the-dreams.de>
- <515F2E28.2090105@wwwdotorg.org>
- <20130406182957.GA11630@roeck-us.net>
- <20130406201132.GA3936@the-dreams.de>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] at24: extend driver to allow writing via i2c_smbus_write_byte_data
+Date: Mon, 8 Apr 2013 08:56:03 +0200
+Message-ID: <CAH9NwWcpXAD7Hm=+ateYXz2bHVbFmJGOH7sRsEh02eeYNyD36w@mail.gmail.com>
+References: <1355933229-25865-1-git-send-email-christian.gmeiner@gmail.com>
+ <20130124140746.GI12933@pengutronix.de> <CAH9NwWeKFaZEWwK9Dio39pkVqcRUfVi=dxvoXT71csJLA13qzQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130406201132.GA3936@the-dreams.de>
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Simon Glass <sjg@chromium.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, Daniel Kurtz <djkurtz@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAH9NwWeKFaZEWwK9Dio39pkVqcRUfVi=dxvoXT71csJLA13qzQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Christian Gmeiner <c.gmeiner-qzos7lGCgFkk+I/owrrOrA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Apr 06, 2013 at 10:11:32PM +0200, Wolfram Sang wrote:
-> Hi,
-> 
-> > Very interesting discussion, especially the argument that "we already shipped"
-> > would not be a convincing argument.
-> > 
-> > I had senior kernel maintainers tell me and the company I work for that we should
-> > submit _all_ our platform specific kernel code and drivers for inclusion into
-> > the upstream kernel.
-> 
-> Yes, great. Really!
-> 
-Yes, though, thinking about it, it was "submit" and didn't say anything
-about potential for acceptance.
+Using the new mail address of wolfram sang - got the following error:
 
-> > This exchange suggests that "it is a shipping product" does not count for such
-> > submissions, and that "Benefit for the kernel" would be the deciding factor
-> > instead. Which of course is a very vague statement - if code supporting
-> > Chromebookis is of no benefit for the kernel, support for my company's products
-> > for sure is much less so.
-> 
-> First, let me state that I did not intend to say that the arbitrator
-> muxer here has NO benefit for the kernel. I was aware there might be
-> arguments for that and I wanted some more discussion to make that
-> clearer to me. Simon's mail was very helpful in that regard and I will
-> comment on that somewhen later.
-> 
-> Still, I do have problems with "we already shipped it". If the driver is
-> bad or the underlying concept is fragile, I want the freedom to reject a
-> patch, product shipped or not. I will be supportive to find a proper
-> solution, promised. If all fails, there is still staging/ or the
-> possibility of out-of-tree patches.
-> 
-I think there is a difference between a bad driver or underlying hardware. To
-me, "shipped" applies to hardware or firmware which can not be upgraded, not to
-the software running on it.
 
-> > Which kind of leaves me in a bind. On one side I promote that we should submit
-> > all our kernel code, on the other side there is a very compelling case to be
-> > made that it won't be accepted anyway. That doesn't make my life easier -
-> 
-> Concentrate on argumenting why the driver is useful and it will be fine.
-> "we already shipped this" feels a bit like blackmailing to me. And since
-> most drivers do have well thought reasons for their existance, I'd
-> primarily like to hear about those.
-> 
-> > essentially since it supports those who say that we should not submit anything
-> > in the first place. And believe me, there are many of those. 
-> > 
-> > Just to give some examples:
-> > - I2C multiplexers. We have a bunch of those. Looking at this exchange,
-> >   it doesn't look good to get that code included.
-> 
-> Multiplexers should be easy going, it is the arbitration which is discussed here.
-> I am open to consider some generic arbitration schemes. What I am reluctant to
-> do is to allow every board to have its own arbitration scheme. This
-> would be board support hosted in the I2C directory. Meh.
-> 
-"board support hosted in the I2C directory". But that is exactly what I am
-talking about, isn't it ? I have board specific multiplexers and a board
-specific I2C controller, and that is just talking about the I2C code.
+Delivery to the following recipient failed permanently:
 
-> > It would be nice have to get some well defined guidelines for "acceptable"
-> > contributions. "Benefit for the kernel" sure isn't one.
-> 
-> I don't think it is possible to write down concrete guidelines for this.
-> "According to rule 4a) of the guidelines you have to accept my patch"?
-> That would be a mess, I think.
-> 
-Looking at it from a maintainer perspective, I agree.
+     w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 
-Where it gets murky is really the hardware part. The (in my opinion)
-philosophical arguments around not permitting device-tree based instantiation
-of uio devices is one example. Another practical example I had to deal with
-in my previous company is VGA memory space. Some hw geniuses decided to re-use
-the VGA memory space in an embedded x86 device for an EEPROM. Guess what -
-the x86 kernel writes into that space no matter what. A patch to address that
-problem was rejected because "you should not re-use VGA memory space".
-As if I had a choice.
+Technical details of permanent failure:
+Google tried to deliver your message, but it was rejected by the
+server for the recipient domainpengutronix.de by mail.pengutronix.de.
+[2001:6f8:1178:4:290:27ff:fe1d:cc33].
 
-A better example might be Kontron board support. They implement gpio, I2C mux,
-and a watchdog in a PLD. They too have an access arbitration scheme where
-one has to acquire a hardware mutex before accessing the pld, if I understand
-correctly because some microcontroller might need to access it as well.
-Leaving the actual code aside, would you reject that too if you don't like
-the arbitration scheme, or because you don't want to have board support
-in the i2c directory ?
+The error that the other server returned was:
+550 Account closed - please contact info-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org instead
 
-Thanks,
-Guenter
+
+2013/3/27 Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> 2013/1/24 Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+>> On Wed, Dec 19, 2012 at 05:07:09PM +0100, Christian Gmeiner wrote:
+>>> I have a at24 EEPROM connected via i2c bus provided by ISCH i2c
+>>> bus driver. This bus driver does not support
+>>> I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and so I was looking for a way
+>>> to be able to write the eeprom. This patch adds support for
+>>> I2C_SMBUS_BYTE_DATA writing via i2c_smbus_write_byte_data.
+>>> It is quite slow, but it works.
+>>>
+>>> Signed-off-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>>> ---
+>>>  drivers/misc/eeprom/at24.c | 35 +++++++++++++++++++++++++++++------
+>>>  1 file changed, 29 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+>>> index 2baeec5..723b411 100644
+>>> --- a/drivers/misc/eeprom/at24.c
+>>> +++ b/drivers/misc/eeprom/at24.c
+>>> @@ -56,6 +56,7 @@ struct at24_data {
+>>>       struct at24_platform_data chip;
+>>>       struct memory_accessor macc;
+>>>       int use_smbus;
+>>> +     int use_smbuse_write;
+>>
+>> Can't you use the same 'use_smbus' variable and do a similar switch-case
+>> as in the read function?
+>>
+>
+> Sorry for the really late answer.
+>
+> I am not sure if there exits some i2c buses which have different
+> access methods for read and write.
+> E.g. I2C_FUNC_SMBUS_WRITE_I2C_BLOCK and I2C_FUNC_SMBUS_READ_BYTE_DATA
+>
+> If there will never be such a combination then I can reuse the same
+> 'use_smbus' variable.
+>
+
+--
+Christian Gmeiner, MSc
