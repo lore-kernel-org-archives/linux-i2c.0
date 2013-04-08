@@ -1,168 +1,186 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 1/3] i2c: mux: Add i2c-arbitrator-cros-ec 'mux' driver
-Date: Mon, 8 Apr 2013 12:26:17 +0200
-Message-ID: <20130408102617.GC3496@the-dreams.de>
-References: <1360957573-864-1-git-send-email-dianders@chromium.org>
- <1363192583-26363-1-git-send-email-dianders@chromium.org>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/7] i2c-designware: move to managed functions (devm_*)
+Date: Mon, 8 Apr 2013 14:04:19 +0300
+Message-ID: <20130408110419.GY21804@intel.com>
+References: <1363867800-23861-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1363192583-26363-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <1363867800-23861-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-Cc: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Prashanth G <prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Grant Grundler <grundler-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Mar 13, 2013 at 09:36:21AM -0700, Doug Anderson wrote:
-> The i2c-arbitrator-cros-ec driver implements the arbitration scheme
-> that the Embedded Controller (EC) on the ARM Chromebook expects to use
-> for bus multimastering.  This i2c-arbitrator-cros-ec driver could also
-> be used in other places where standard I2C bus arbitration can't be
-> used and two extra GPIOs are available for arbitration.
-> 
-> This driver is based on code that Simon Glass added to the i2c-s3c2410
-> driver in the Chrome OS kernel 3.4 tree.  The current incarnation as a
-> mux driver is as suggested by Grant Likely.  See
-> <https://patchwork.kernel.org/patch/1877311/> for some history.
-> 
-> Signed-off-by: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> Reviewed-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> Tested-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Hi Wolfram,
 
-I'd like to have the bindings more generic. They should allow for n
-possible masters IMO. It doesn't need to be implemented right now, but
-it should be possible to add that later.
+Any comments on this series? Could you consider merging these for 3.10?
 
+Thanks.
+
+On Thu, Mar 21, 2013 at 02:09:54PM +0200, Mika Westerberg wrote:
+> From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> 
+> This makes the error handling much more simpler than open-coding everything
+> and in addition makes the probe function smaller and tidier.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 > ---
-> Changes in v4: None
-> Changes in v3:
-> - Handle of_find_i2c_adapter_by_node() failure more properly by
->   changing init order.
-> - Don't warn on -EPROBE_DEFER from calls that could return it.
-> - Move to module_platform_driver().  As we pull in parts of the system
->   that rely on devices under this i2c bus we'll need to make sure they
->   can handle the fact that they'll be initted later now.
+>  drivers/i2c/busses/i2c-designware-platdrv.c |   73 ++++++++-------------------
+>  1 file changed, 20 insertions(+), 53 deletions(-)
 > 
-> Changes in v2:
-> - Renamed to i2c-arbitrator-cros-ec.
-> - Documented "microsecond" properties as optional; removed
->   "bus-arbitration" prefix since it was just extra wordy.
-> - Split GPIOs into two properties to make it cleaner.
-> - Capitalized I2C in freeform text.
-> - Get 'active low' from device tree.
-> 
->  .../bindings/i2c/i2c-arbitrator-cros-ec.txt        |  76 +++++++
-
-I wonder about a more generic name. i2c-arb-gpio-challenge.* maybe?
-
->  drivers/i2c/muxes/Kconfig                          |  11 +
->  drivers/i2c/muxes/Makefile                         |   2 +
->  drivers/i2c/muxes/i2c-arbitrator-cros-ec.c         | 222 +++++++++++++++++++++
->  4 files changed, 311 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-arbitrator-cros-ec.txt
->  create mode 100644 drivers/i2c/muxes/i2c-arbitrator-cros-ec.c
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-arbitrator-cros-ec.txt b/Documentation/devicetree/bindings/i2c/i2c-arbitrator-cros-ec.txt
-> new file mode 100644
-> index 0000000..1f893e7
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-arbitrator-cros-ec.txt
-> @@ -0,0 +1,76 @@
-> +GPIO-based Arbitration used by the ARM Chromebook (exynos5250-snow)
-> +===================================================================
-> +This uses GPIO lines between the AP (Application Processor) and an attached
-> +EC (Embedded Controller) which both want to talk on the same I2C bus as master.
-> +
-> +The AP and EC each have a 'bus claim' line, which is an output that the
-> +other can see. These are both active low, with pull-ups enabled.
-> +
-> +- AP_CLAIM: output from AP, signalling to the EC that the AP wants the bus
-> +- EC_CLAIM: output from EC, signalling to the AP that the EC wants the bus
-
-I'd like to drop the specific terms of AP and EC and just talk about
-multiple masters.
-
-> +This mechanism is used instead of standard I2C multimaster to avoid some of the
-> +subtle driver and silicon bugs that are often present with I2C multimaster.
-> +
-> +
-> +Algorithm:
-> +
-> +The basic algorithm is to assert your line when you want the bus, then make
-> +sure that the other side doesn't want it also. A detailed explanation is best
-> +done with an example.
-> +
-> +Let's say the AP wants to claim the bus. It:
-> +1. Asserts AP_CLAIM.
-> +2. Waits a little bit for the other side to notice (slew time, say 10
-> +   microseconds).
-> +3. Checks EC_CLAIM. If this is not asserted then the AP has the bus and we are
-> +   done.
-> +4. Otherwise, wait for a few milliseconds and see if EC_CLAIM is released.
-> +5. If not, back off, release the claim and wait for a few more milliseconds.
-> +6. Go back to 1 (until retry time has expired).
-> +
-> +
-> +Required properties:
-> +- compatible: i2c-arbitrator-cros-ec
-> +- ap-claim-gpio: The GPIO that we (the AP) use to claim the bus.
-> +- ec-claim-gpio: The GPIO that the other side (the EC) uses the claim the bus.
-
-An array based approach like in the i2c-mux-gpio driver would be more
-generic. Just mention that the driver only supports 2 entries at the
-moment.
-
-> +- Standard I2C mux properties. See mux.txt in this directory.
-> +- Single I2C child bus node at reg 0. See mux.txt in this directory.
-> +
-> +Optional properties:
-> +- slew-delay-us: microseconds to wait for a GPIO to go high. Default is 10 us.
-> +- wait-retry-us: we'll attempt another claim after this many microseconds.
-> +    Default is 3000 us.
-> +- wait-free-us: we'll give up after this many microseconds. Default is 50000 us.
-
-Grant, I assume it is okay to introduce these generic bindings?
-
-> diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-> index 0be5b83..ca19378 100644
-> --- a/drivers/i2c/muxes/Kconfig
-> +++ b/drivers/i2c/muxes/Kconfig
-> @@ -5,6 +5,17 @@
->  menu "Multiplexer I2C Chip support"
->  	depends on I2C_MUX
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 0ceb6e1..c19c4ce 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -92,7 +92,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  {
+>  	struct dw_i2c_dev *dev;
+>  	struct i2c_adapter *adap;
+> -	struct resource *mem, *ioarea;
+> +	struct resource *mem;
+>  	int irq, r;
 >  
-> +config I2C_ARBITRATOR_CROS_EC
-> +	tristate "GPIO-based I2C arbitrator used on exynos5250-snow"
-> +	depends on GENERIC_GPIO && OF
-> +	help
-> +	  If you say yes to this option, support will be included for an
-> +	  I2C multimaster arbitration scheme using GPIOs that is used in
-> +	  the Samsung ARM Chromebook (exynos5250-snow).
+>  	/* NOTE: driver uses the static register mapping */
+> @@ -108,32 +108,27 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  		return irq; /* -ENXIO */
+>  	}
+>  
+> -	ioarea = request_mem_region(mem->start, resource_size(mem),
+> -			pdev->name);
+> -	if (!ioarea) {
+> -		dev_err(&pdev->dev, "I2C region already claimed\n");
+> -		return -EBUSY;
+> -	}
+> +	dev = devm_kzalloc(&pdev->dev, sizeof(struct dw_i2c_dev), GFP_KERNEL);
+> +	if (!dev)
+> +		return -ENOMEM;
+>  
+> -	dev = kzalloc(sizeof(struct dw_i2c_dev), GFP_KERNEL);
+> -	if (!dev) {
+> -		r = -ENOMEM;
+> -		goto err_release_region;
+> +	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+> +	if (IS_ERR(dev->base)) {
+> +		dev_err(&pdev->dev, "I2C region already claimed\n");
+> +		return PTR_ERR(dev->base);
+>  	}
+>  
+>  	init_completion(&dev->cmd_complete);
+>  	mutex_init(&dev->lock);
+> -	dev->dev = get_device(&pdev->dev);
+> +	dev->dev = &pdev->dev;
+>  	dev->irq = irq;
+>  	platform_set_drvdata(pdev, dev);
+>  
+> -	dev->clk = clk_get(&pdev->dev, NULL);
+> +	dev->clk = devm_clk_get(&pdev->dev, NULL);
+>  	dev->get_clk_rate_khz = i2c_dw_get_clk_rate_khz;
+>  
+> -	if (IS_ERR(dev->clk)) {
+> -		r = -ENODEV;
+> -		goto err_free_mem;
+> -	}
+> +	if (IS_ERR(dev->clk))
+> +		return PTR_ERR(dev->clk);
+>  	clk_prepare_enable(dev->clk);
+>  
+>  	dev->functionality =
+> @@ -146,13 +141,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  	dev->master_cfg =  DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+>  		DW_IC_CON_RESTART_EN | DW_IC_CON_SPEED_FAST;
+>  
+> -	dev->base = ioremap(mem->start, resource_size(mem));
+> -	if (dev->base == NULL) {
+> -		dev_err(&pdev->dev, "failure mapping io resources\n");
+> -		r = -EBUSY;
+> -		goto err_unuse_clocks;
+> -	}
+> -
+>  	/* Try first if we can configure the device from ACPI */
+>  	r = dw_i2c_acpi_configure(pdev);
+>  	if (r) {
+> @@ -164,13 +152,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  	}
+>  	r = i2c_dw_init(dev);
+>  	if (r)
+> -		goto err_iounmap;
+> +		return r;
+>  
+>  	i2c_dw_disable_int(dev);
+> -	r = request_irq(dev->irq, i2c_dw_isr, IRQF_SHARED, pdev->name, dev);
+> +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_dw_isr, IRQF_SHARED,
+> +			pdev->name, dev);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failure requesting irq %i\n", dev->irq);
+> -		goto err_iounmap;
+> +		return r;
+>  	}
+>  
+>  	adap = &dev->adapter;
+> @@ -187,57 +176,35 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  	r = i2c_add_numbered_adapter(adap);
+>  	if (r) {
+>  		dev_err(&pdev->dev, "failure adding adapter\n");
+> -		goto err_free_irq;
+> +		return r;
+>  	}
+>  	of_i2c_register_devices(adap);
+>  	acpi_i2c_register_devices(adap);
+>  
+> +	/* Increase reference counter */
+> +	get_device(&pdev->dev);
 > +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called i2c-arbitrator-cros-ec.
-> +
-
-This text could be more generic then, too.
-
-> +static int i2c_arbitrator_probe(struct platform_device *pdev)
-> +{
-> +	struct device_node *np = pdev->dev.of_node;
-> +	struct device_node *parent_np;
-> +	struct i2c_arbitrator_data *arb;
-> +	enum of_gpio_flags gpio_flags;
-> +	unsigned long out_init;
-> +	int ret;
-> +
-> +	/* We only support probing from device tree; no platform_data */
-> +	if (WARN_ON(!np))
-> +		return -ENODEV;
-
-Too much WARN_ON for my taste.
-
-Thanks,
-
-   Wolfram
+>  	pm_runtime_set_active(&pdev->dev);
+>  	pm_runtime_enable(&pdev->dev);
+>  	pm_runtime_put(&pdev->dev);
+>  
+>  	return 0;
+> -
+> -err_free_irq:
+> -	free_irq(dev->irq, dev);
+> -err_iounmap:
+> -	iounmap(dev->base);
+> -err_unuse_clocks:
+> -	clk_disable_unprepare(dev->clk);
+> -	clk_put(dev->clk);
+> -	dev->clk = NULL;
+> -err_free_mem:
+> -	put_device(&pdev->dev);
+> -	kfree(dev);
+> -err_release_region:
+> -	release_mem_region(mem->start, resource_size(mem));
+> -
+> -	return r;
+>  }
+>  
+>  static int dw_i2c_remove(struct platform_device *pdev)
+>  {
+>  	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+> -	struct resource *mem;
+>  
+>  	pm_runtime_get_sync(&pdev->dev);
+>  
+>  	i2c_del_adapter(&dev->adapter);
+>  	put_device(&pdev->dev);
+>  
+> -	clk_disable_unprepare(dev->clk);
+> -	clk_put(dev->clk);
+> -	dev->clk = NULL;
+> -
+>  	i2c_dw_disable(dev);
+> -	free_irq(dev->irq, dev);
+> -	kfree(dev);
+>  
+>  	pm_runtime_put(&pdev->dev);
+>  	pm_runtime_disable(&pdev->dev);
+>  
+> -	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	release_mem_region(mem->start, resource_size(mem));
+>  	return 0;
+>  }
+>  
+> -- 
+> 1.7.10.4
