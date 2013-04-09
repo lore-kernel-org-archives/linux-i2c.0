@@ -1,27 +1,38 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/1] The AT24 driver only uses page size of 1 byte if no
- platform data is provided to the probe function. When this eeprom is
- detected via open firmware tree in powerpc architecture the correct chip
- type is given to the probe function. So the driver can extract the page size
- for optimal performance out of this chip type.
-Date: Tue, 9 Apr 2013 11:35:45 +0200
-Message-ID: <20130409093545.GG3624@the-dreams.de>
-References: <1363614733-1179-1-git-send-email-Sergey.Gerasimov@astrosoft-development.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: s3c2410: Add SMBus emulation for block read
+Date: Tue, 9 Apr 2013 11:37:39 +0200
+Message-ID: <20130409093739.GH3624@the-dreams.de>
+References: <1364308196-10101-1-git-send-email-prasanna.ps@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1363614733-1179-1-git-send-email-Sergey.Gerasimov@astrosoft-development.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1364308196-10101-1-git-send-email-prasanna.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Prasanna Kumar <prasanna.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jaemin Yoo <jmin.yoo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Mar 18, 2013 at 05:52:13PM +0400, Sergey Gerasimov wrote:
-> Signed-off-by: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
+On Tue, Mar 26, 2013 at 07:59:56PM +0530, Prasanna Kumar wrote:
+> From: Jaemin Yoo <jmin.yoo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> 
+> SMBus read and write are supported by the emulation layer of i2c
+> framework if the controller doesn't have SMBus features.
+> 
+> I2C_M_RECV_LEN flag is used to let i2c drivers know rx length is not
+> yet determined but will be read to the first byte in rx buffer.
+> 
+> s3c2410 doesn't handle this flag. So only one byte is read from slave.
+> There fore following two features are added to the driver code.
+> 
+> 1. skip rx length check if I2C_M_RECV_LEN is set and the length is 1.
+> 2. add actual bytes to the rx length after reading first bytes if
+>    I2C_M_RECV_LEN.
+> 
+> I2C_M_RECV_LEN is only set for SMBus command. So this code does not
+> affect legacy codes which only use i2c command for s3c2410.
+> 
+> Signed-off-by: Jaemin Yoo <jmin.yoo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Tested-by: Prasanna Kumar <prasanna.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-NAK. Page size may differ across vendors, so we can't hardcode values in
-that table. There is a "pagesize" property for devicetree.
-
-And please make sure you don't write the whole description in the
-subject.
+Applied to for-next, thanks!
