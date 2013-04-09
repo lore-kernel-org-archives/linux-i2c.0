@@ -1,41 +1,47 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
-Date: Tue, 9 Apr 2013 10:46:15 +0200
-Message-ID: <CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c: designware: add CONFIG_PM_SLEEP to
+ suspend/resume functions
+Date: Tue, 9 Apr 2013 10:50:38 +0200
+Message-ID: <20130409085038.GB3624@the-dreams.de>
+References: <00b901ce26a2$cb3c57d0$61b50770$%han@samsung.com>
+ <20130322114634.GA24508@the-dreams.de>
+ <000b01ce34b6$2e4ec710$8aec5530$%han@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Kevin Strasser <kevin.strasser@linux.intel.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Brunner <michael.brunner@kontron.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Michael Brunner <mibru@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <000b01ce34b6$2e4ec710$8aec5530$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
-<kevin.strasser@linux.intel.com> wrote:
+On Tue, Apr 09, 2013 at 09:07:10AM +0900, Jingoo Han wrote:
+> On Friday, March 22, 2013 8:47 PM, Wolfram Sang wrote:
+> > 
+> > On Fri, Mar 22, 2013 at 11:13:07AM +0900, Jingoo Han wrote:
+> > > Add CONFIG_PM_SLEEP to suspend/resume functions to fix the following
+> > > build warning when CONFIG_PM_SLEEP is not selected. This is because
+> > > sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
+> > > the CONFIG_PM_SLEEP is enabled.
+> > >
+> > > drivers/i2c/busses/i2c-designware-platdrv.c:253:12: warning: 'dw_i2c_suspend' defined but not used [-
+> > Wunused-function]
+> > > drivers/i2c/busses/i2c-designware-platdrv.c:263:12: warning: 'dw_i2c_resume' defined but not used [-
+> > Wunused-function]
+> > >
+> > > Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> > 
+> > What about doing it like the s3c2410 driver which also adds CONFIG_PM
+> > around the whole structure? (comment applies for both patches)
+> 
+> Hi Wolfram Sang,
+> Sorry for being late.
+> 
+> It is similar with s3c2410 driver.
+> However, CONFIG_PM is not necessary, when only SIMPLE_DEV_PM_OPS is
+> used.
 
-> From: Michael Brunner <michael.brunner@kontron.com>
->
-> Add gpio support for the on-board PLD found on some Kontron embedded
-> modules.
->
-> Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
-> Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
-
-This looks very generic, setting and clearing bits in bytesized
-registers.
-
-Can you please attempt to use generic GPIO for this?
-
-drivers/gpio/gpio-generic.c
-<linux/basic_mmio_gpio.h>
-
-See for example:
-gpio-ep93xx.c, gpio-sodaville.c ...
-
-Since you don't even have IRQ support in this it will be even simpler.
-
-Yours,
-Linus Walleij
+Still, you are always creating a dev_pm_ops structure, even if empty in
+case of no CONFIG_PM. The s3c driver skips that and uses NULL for
+setting the pm member of the driver struct then.
