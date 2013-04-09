@@ -1,31 +1,31 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [4/7] i2c-designware: use dynamic adapter numbering on Lynxpoint
-Date: Tue, 9 Apr 2013 12:23:19 +0300
-Message-ID: <20130409092319.GF21818@intel.com>
-References: <1363867800-23861-4-git-send-email-mika.westerberg@linux.intel.com>
- <20130409090605.GC28509@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [1/7] i2c-designware: move to managed functions (devm_*)
+Date: Tue, 9 Apr 2013 11:20:55 +0200
+Message-ID: <20130409092055.GC3624@the-dreams.de>
+References: <1363867800-23861-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20130409090032.GA28509@the-dreams.de>
+ <20130409092212.GE21818@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20130409090605.GC28509@the-dreams.de>
+In-Reply-To: <20130409092212.GE21818@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 09, 2013 at 11:06:05AM +0200, Wolfram Sang wrote:
-> On Thu, Mar 21, 2013 at 02:09:57AM -0000, Mika Westerberg wrote:
-> > It is not good idea to mix static and dynamic I2C adapter numbering. In
-> > this particular case on Lynxpoint we had graphics I2C adapter which took
-> > the first numbers preventing the designware I2C driver from using the
-> > adapter numbers it preferred.
-> > 
-> > Fix this by switching to use dynamic adapter numbering on Intel Lynxpoint.
-> > 
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> 
-> I am fearing regressions here if the bus numbering changes.
 
-There are no users for this dynamic numbering yet since it was introduced
-with the Lynxpoint support.
+> > >  	i2c_dw_disable_int(dev);
+> > > -	r = request_irq(dev->irq, i2c_dw_isr, IRQF_SHARED, pdev->name, dev);
+> > > +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_dw_isr, IRQF_SHARED,
+> > > +			pdev->name, dev);
+> > 
+> > Is it ensured that no interrupts will happen during remove? Because the
+> > adapter will be deleted before devm will free the interrupt.
+> 
+> Both platform and PCI driver disable the controller in their remove
+> function, and interrupts will be disabled as well. Is this enough or should
+> we handle this differently?
+
+That's fine. Thanks!
