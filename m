@@ -1,63 +1,43 @@
-From: Prasanna Kumar <prasanna.ps@samsung.com>
-Subject: [PATCH RESEND] i2c: s3c2410: Add SMBus emulation for block read
-Date: Tue, 09 Apr 2013 10:29:18 +0530
-Message-ID: <1365483558-4054-1-git-send-email-prasanna.ps@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org
-Cc: w.sang@pengutronix.de, khali@linux-fr.org, ben-linux@fluff.org, grant.likely@secretlab.ca, kgene.kim@samsung.com, jmin.yoo@samsung.com
+From: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: mxs: always end a transfer with a proper STOP
+Date: Tue, 09 Apr 2013 09:26:02 +0200
+Message-ID: <1365492362.4131.9.camel@weser.hi.pengutronix.de>
+References: <1363261750-26645-1-git-send-email-l.stach@pengutronix.de>
+	 <20130408172147.GB6865@the-dreams.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130408172147.GB6865-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Jaemin Yoo <jmin.yoo@samsung.com>
+Am Montag, den 08.04.2013, 19:21 +0200 schrieb Wolfram Sang:
+> On Thu, Mar 14, 2013 at 12:49:08PM +0100, Lucas Stach wrote:
+> > Our transfers always start with the device address, so there is never a
+> > situation where we just do a restart transfer. Full blown transfers should
+> > always end with a STOP as per i2c spec.
+> 
+> ? I don't get the description. Does "restart transfer" mean repeated
+> start? What has the device address to do with it?
+> 
 
-SMBus read and write are supported by the emulation layer of i2c
-framework if the controller doesn't have SMBus features.
+A restart transfer is when you just repeat the START condition, without
+putting the device address on the bus again.
 
-I2C_M_RECV_LEN flag is used to let i2c drivers know rx length is not
-yet determined but will be read to the first byte in rx buffer.
+In the MXS driver we put the device address on the bus for every
+transaction we get handed in from the i2c core, so there is never a
+situation where we just repeat the start condition without sending out
+the device address. Before this patch we would not match every
+transaction, but only the last in the list of pending ones, with a STOP
+condition, which is a violation of the spec.
 
-s3c2410 doesn't handle this flag. So only one byte is read from slave.
-There fore following two features are added to the driver code.
-
-1. skip rx length check if I2C_M_RECV_LEN is set and the length is 1.
-2. add actual bytes to the rx length after reading first bytes if
-   I2C_M_RECV_LEN.
-
-I2C_M_RECV_LEN is only set for SMBus command. So this code does not
-affect legacy codes which only use i2c command for s3c2410.
-
-Signed-off-by: Jaemin Yoo <jmin.yoo@samsung.com>
-Signed-off-by: Prasanna Kumar <prasanna.ps@samsung.com>
----
- drivers/i2c/busses/i2c-s3c2410.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 17c5c37..e4ab9ea 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -309,6 +309,12 @@ static inline int is_lastmsg(struct s3c24xx_i2c *i2c)
- 
- static inline int is_msglast(struct s3c24xx_i2c *i2c)
- {
-+	/* msg->len is always 1 for the first byte of smbus block read.
-+	 * Actual length will be read from slave. More bytes will be
-+	 * read according to the length then. */
-+	if (i2c->msg->flags & I2C_M_RECV_LEN && i2c->msg->len == 1)
-+		return 0;
-+
- 	return i2c->msg_ptr == i2c->msg->len-1;
- }
- 
-@@ -448,6 +454,9 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat)
- 		byte = readb(i2c->regs + S3C2410_IICDS);
- 		i2c->msg->buf[i2c->msg_ptr++] = byte;
- 
-+		/* Add actual length to read for smbus block read */
-+		if (i2c->msg->flags & I2C_M_RECV_LEN && i2c->msg->len == 1)
-+			i2c->msg->len += byte;
-  prepare_read:
- 		if (is_msglast(i2c)) {
- 			/* last byte of buffer */
+If there are no other comments, I'll send out a V2 today, to take in
+Marek's remarks.
 -- 
-1.7.10.4
+Pengutronix e.K.                           | Lucas Stach                 |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-5076 |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
