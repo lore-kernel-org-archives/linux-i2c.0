@@ -1,42 +1,41 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: mxs: always end a transfer with a proper STOP
-Date: Tue, 9 Apr 2013 10:32:52 +0200
-Message-ID: <20130409083252.GA3624@the-dreams.de>
-References: <1363261750-26645-1-git-send-email-l.stach@pengutronix.de>
- <20130408172147.GB6865@the-dreams.de>
- <1365492362.4131.9.camel@weser.hi.pengutronix.de>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
+Date: Tue, 9 Apr 2013 10:46:15 +0200
+Message-ID: <CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1365492362.4131.9.camel-WzVe3FnzCwFR6QfukMTsflXZhhPuCNm+@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kevin Strasser <kevin.strasser@linux.intel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Brunner <michael.brunner@kontron.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Michael Brunner <mibru@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
+<kevin.strasser@linux.intel.com> wrote:
 
-> A restart transfer is when you just repeat the START condition, without
-> putting the device address on the bus again.
+> From: Michael Brunner <michael.brunner@kontron.com>
+>
+> Add gpio support for the on-board PLD found on some Kontron embedded
+> modules.
+>
+> Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
+> Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
 
-Well, never heard this term before. Where did you get it from?
+This looks very generic, setting and clearing bits in bytesized
+registers.
 
-> In the MXS driver we put the device address on the bus for every
-> transaction we get handed in from the i2c core, so there is never a
-> situation where we just repeat the start condition without sending out
-> the device address. Before this patch we would not match every
-> transaction, but only the last in the list of pending ones, with a STOP
-> condition, which is a violation of the spec.
+Can you please attempt to use generic GPIO for this?
 
-I still don't get it. You can drop a STOP if you replace it with
-a repeated start. In fact, this is crucial in multi-master setups,
-otherwise another master could break into your transfer containing
-multilple messages. So, if MXS does the right thing on sending START
-(doing a correct start sequence), we should not send STOP. If it needs
-the STOP to create a correct START, then be it. But then, I'd wonder why
-it worked so far...
+drivers/gpio/gpio-generic.c
+<linux/basic_mmio_gpio.h>
 
-Regards,
+See for example:
+gpio-ep93xx.c, gpio-sodaville.c ...
 
-   Wolfram
+Since you don't even have IRQ support in this it will be even simpler.
+
+Yours,
+Linus Walleij
