@@ -1,55 +1,27 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [5/7] i2c-designware: enable/disable the controller properly
-Date: Tue, 9 Apr 2013 12:39:03 +0300
-Message-ID: <20130409093903.GI21818@intel.com>
-References: <1363867800-23861-5-git-send-email-mika.westerberg@linux.intel.com>
- <20130409090914.GD28509@the-dreams.de>
- <20130409092836.GG21818@intel.com>
- <20130409092857.GE3624@the-dreams.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/1] The AT24 driver only uses page size of 1 byte if no
+ platform data is provided to the probe function. When this eeprom is
+ detected via open firmware tree in powerpc architecture the correct chip
+ type is given to the probe function. So the driver can extract the page size
+ for optimal performance out of this chip type.
+Date: Tue, 9 Apr 2013 11:35:45 +0200
+Message-ID: <20130409093545.GG3624@the-dreams.de>
+References: <1363614733-1179-1-git-send-email-Sergey.Gerasimov@astrosoft-development.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20130409092857.GE3624-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1363614733-1179-1-git-send-email-Sergey.Gerasimov@astrosoft-development.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 09, 2013 at 11:28:57AM +0200, Wolfram Sang wrote:
-> On Tue, Apr 09, 2013 at 12:28:36PM +0300, Mika Westerberg wrote:
-> > On Tue, Apr 09, 2013 at 11:09:14AM +0200, Wolfram Sang wrote:
-> > > 
-> > > > +static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
-> > > > +{
-> > > > +	int timeout = 100;
-> > > > +
-> > > > +	do {
-> > > > +		dw_writel(dev, enable, DW_IC_ENABLE);
-> > > > +		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) == enable)
-> > > > +			return;
-> > > > +
-> > > > +		usleep_range(25, 250);
-> > > 
-> > > This would wait 25ms max. Is there a timeout value specified in the docs?
-> > 
-> > The datasheet says something like:
-> > 
-> > 	1. Define a timer interval (t_i2c_poll) equal 10 times the highest
-> > 	signaling period. For 400kHz this is 25us.
-> > 
-> > 	2. Define max timeout parameter, MAX_T_POLL_COUNT, such that if any
-> > 	repeated operation exeeds this maximum, an error is reported.
-> > 
-> > In this case I have:
-> > 
-> > 	t_i2c_poll = 25 (to 250 us)
-> > 	MAX_T_POLL_COUNT = 100
-> 
-> Maybe worth a comment?
+On Mon, Mar 18, 2013 at 05:52:13PM +0400, Sergey Gerasimov wrote:
+> Signed-off-by: Sergey Gerasimov <Sergey.Gerasimov@astrosoft-development.com>
 
-I'll add it in the next revision.
+NAK. Page size may differ across vendors, so we can't hardcode values in
+that table. There is a "pagesize" property for devicetree.
 
-> Other than that, the series looks fine to me.
-
-Thanks!
+And please make sure you don't write the whole description in the
+subject.
