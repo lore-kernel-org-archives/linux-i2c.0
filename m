@@ -1,32 +1,62 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [5/7] i2c-designware: enable/disable the controller properly
-Date: Tue, 9 Apr 2013 11:09:14 +0200
-Message-ID: <20130409090914.GD28509@the-dreams.de>
-References: <1363867800-23861-5-git-send-email-mika.westerberg@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [1/7] i2c-designware: move to managed functions (devm_*)
+Date: Tue, 9 Apr 2013 12:22:12 +0300
+Message-ID: <20130409092212.GE21818@intel.com>
+References: <1363867800-23861-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20130409090032.GA28509@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1363867800-23861-5-git-send-email-mika.westerberg@linux.intel.com>
+In-Reply-To: <20130409090032.GA28509@the-dreams.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Wolfram Sang <wsa@the-dreams.de>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Apr 09, 2013 at 11:00:32AM +0200, Wolfram Sang wrote:
+> 
+> > @@ -108,32 +108,27 @@ static int dw_i2c_probe(struct platform_device *pdev)
+> >  		return irq; /* -ENXIO */
+> >  	}
+> >  
+> > -	ioarea = request_mem_region(mem->start, resource_size(mem),
+> > -			pdev->name);
+> > -	if (!ioarea) {
+> > -		dev_err(&pdev->dev, "I2C region already claimed\n");
+> > -		return -EBUSY;
+> > -	}
+> > +	dev = devm_kzalloc(&pdev->dev, sizeof(struct dw_i2c_dev), GFP_KERNEL);
+> > +	if (!dev)
+> > +		return -ENOMEM;
+> >  
+> > -	dev = kzalloc(sizeof(struct dw_i2c_dev), GFP_KERNEL);
+> > -	if (!dev) {
+> > -		r = -ENOMEM;
+> > -		goto err_release_region;
+> > +	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+> > +	if (IS_ERR(dev->base)) {
+> > +		dev_err(&pdev->dev, "I2C region already claimed\n");
+> 
+> No dev_err here. The devm function will print out errors already.
 
-> +static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
-> +{
-> +	int timeout = 100;
-> +
-> +	do {
-> +		dw_writel(dev, enable, DW_IC_ENABLE);
-> +		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) == enable)
-> +			return;
-> +
-> +		usleep_range(25, 250);
+OK
 
-This would wait 25ms max. Is there a timeout value specified in the docs?
+> > @@ -164,13 +152,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
+> >  	}
+> >  	r = i2c_dw_init(dev);
+> >  	if (r)
+> > -		goto err_iounmap;
+> > +		return r;
+> >  
+> >  	i2c_dw_disable_int(dev);
+> > -	r = request_irq(dev->irq, i2c_dw_isr, IRQF_SHARED, pdev->name, dev);
+> > +	r = devm_request_irq(&pdev->dev, dev->irq, i2c_dw_isr, IRQF_SHARED,
+> > +			pdev->name, dev);
+> 
+> Is it ensured that no interrupts will happen during remove? Because the
+> adapter will be deleted before devm will free the interrupt.
 
-> +	} while (timeout-- > 0);
-
-while (timeout--)?
+Both platform and PCI driver disable the controller in their remove
+function, and interrupts will be disabled as well. Is this enough or should
+we handle this differently?
