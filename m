@@ -1,49 +1,24 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [5/7] i2c-designware: enable/disable the controller properly
-Date: Tue, 9 Apr 2013 12:28:36 +0300
-Message-ID: <20130409092836.GG21818@intel.com>
-References: <1363867800-23861-5-git-send-email-mika.westerberg@linux.intel.com>
- <20130409090914.GD28509@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: how to gracefully unload an i2c driver if chip not detected?
+Date: Tue, 9 Apr 2013 11:26:25 +0200
+Message-ID: <20130409092625.GD3624@the-dreams.de>
+References: <931575758.126890.1363615027376.JavaMail.root@mail>
+ <35709576.270615.1363618046395.JavaMail.root@mail>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130409090914.GD28509@the-dreams.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>
+In-Reply-To: <35709576.270615.1363618046395.JavaMail.root@mail>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: =?iso-8859-15?Q?=C9meric?= Vigier <emeric.vigier-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 09, 2013 at 11:09:14AM +0200, Wolfram Sang wrote:
-> 
-> > +static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
-> > +{
-> > +	int timeout = 100;
-> > +
-> > +	do {
-> > +		dw_writel(dev, enable, DW_IC_ENABLE);
-> > +		if ((dw_readl(dev, DW_IC_ENABLE_STATUS) & 1) == enable)
-> > +			return;
-> > +
-> > +		usleep_range(25, 250);
-> 
-> This would wait 25ms max. Is there a timeout value specified in the docs?
 
-The datasheet says something like:
+> I recently changed the sensor on my board. Leading to kernel crash
+> when entering suspend. Thanks to "no_console_suspend" cmdline
+> argument, I found out that the suspend function of the "absent" chip
+> gets called. It tries to take a mutex which has been freed in probe's
+> "device not found" fallback code. Leading to kernel panic.
 
-	1. Define a timer interval (t_i2c_poll) equal 10 times the highest
-	signaling period. For 400kHz this is 25us.
-
-	2. Define max timeout parameter, MAX_T_POLL_COUNT, such that if any
-	repeated operation exeeds this maximum, an error is reported.
-
-In this case I have:
-
-	t_i2c_poll = 25 (to 250 us)
-	MAX_T_POLL_COUNT = 100
-
-> > +	} while (timeout-- > 0);
-> 
-> while (timeout--)?
-
-OK, thanks.
+Can we have the full driver? The snipplet is not enough.
