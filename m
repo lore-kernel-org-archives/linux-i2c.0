@@ -1,22 +1,66 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: remove CONFIG_HOTPLUG ifdefs
-Date: Tue, 9 Apr 2013 12:17:44 +0200
-Message-ID: <20130409101744.GJ3624@the-dreams.de>
-References: <1365471999-2396-1-git-send-email-wangyijing@huawei.com>
+From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
+	<u.kleine-koenig@pengutronix.de>
+Subject: Re: [PATCH] i2c: s3c2410: Add SMBus emulation for block read
+Date: Tue, 9 Apr 2013 14:23:13 +0200
+Message-ID: <20130409122313.GD4913@pengutronix.de>
+References: <1364308196-10101-1-git-send-email-prasanna.ps@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1365471999-2396-1-git-send-email-wangyijing-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Yijing Wang <wangyijing-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Hanjun Guo <guohanjun-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, jiang.liu-hv44wF8Li93QT0dZR+AlfA@public.gmane.org, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>
+In-Reply-To: <1364308196-10101-1-git-send-email-prasanna.ps@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Prasanna Kumar <prasanna.ps@samsung.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene.kim@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, Jaemin Yoo <jmin.yoo@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 09, 2013 at 09:46:39AM +0800, Yijing Wang wrote:
-> CONFIG_HOTPLUG is going away as an option, cleanup CONFIG_HOTPLUG
-> ifdefs in i2c files.
-> 
-> Signed-off-by: Yijing Wang <wangyijing-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Hello,
 
-Applied to for-next, thanks!
+On Tue, Mar 26, 2013 at 07:59:56PM +0530, Prasanna Kumar wrote:
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2=
+c-s3c2410.c
+> index 17c5c37..e4ab9ea 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -309,6 +309,12 @@ static inline int is_lastmsg(struct s3c24xx_i2c =
+*i2c)
+> =20
+>  static inline int is_msglast(struct s3c24xx_i2c *i2c)
+>  {
+> +	/* msg->len is always 1 for the first byte of smbus block read.
+> +	 * Actual length will be read from slave. More bytes will be
+> +	 * read according to the length then. */
+> +	if (i2c->msg->flags & I2C_M_RECV_LEN && i2c->msg->len =3D=3D 1)
+> +		return 0;
+> +
+>  	return i2c->msg_ptr =3D=3D i2c->msg->len-1;
+>  }
+> =20
+> @@ -448,6 +454,9 @@ static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2=
+c *i2c, unsigned long iicstat)
+>  		byte =3D readb(i2c->regs + S3C2410_IICDS);
+>  		i2c->msg->buf[i2c->msg_ptr++] =3D byte;
+> =20
+> +		/* Add actual length to read for smbus block read */
+> +		if (i2c->msg->flags & I2C_M_RECV_LEN && i2c->msg->len =3D=3D 1)
+> +			i2c->msg->len +=3D byte;
+>   prepare_read:
+>  		if (is_msglast(i2c)) {
+I don't know if that can happen, but if the block has length 0 (that is=
+,
+only consists of a single byte that is read as 0) the is_msglast() test
+returns 0 which might be wrong. Maybe even if it cannot regularily
+happen handle it in a sane way?
+
+Also I wonder if error checking for byte > I2C_SMBUS_BLOCK_MAX would be
+needed to prevent a buffer overrun?
+
+Best regards
+Uwe
+
+--=20
+Pengutronix e.K.                           | Uwe Kleine-K=F6nig        =
+    |
+Industrial Linux Solutions                 | http://www.pengutronix.de/=
+  |
