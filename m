@@ -1,7 +1,7 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2 4/7] i2c-designware: use dynamic adapter numbering on Lynxpoint
-Date: Wed, 10 Apr 2013 13:36:39 +0300
-Message-ID: <1365590202-1623-4-git-send-email-mika.westerberg@linux.intel.com>
+Subject: [PATCH v2 7/7] i2c-designware: switch to use runtime PM autosuspend
+Date: Wed, 10 Apr 2013 13:36:42 +0300
+Message-ID: <1365590202-1623-7-git-send-email-mika.westerberg@linux.intel.com>
 References: <1365590202-1623-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1365590202-1623-1-git-send-email-mika.westerberg@linux.intel.com>
@@ -10,49 +10,61 @@ To: linux-kernel@vger.kernel.org
 Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-It is not good idea to mix static and dynamic I2C adapter numbering. In
-this particular case on Lynxpoint we had graphics I2C adapter which took
-the first numbers preventing the designware I2C driver from using the
-adapter numbers it preferred.
-
-Since Lynxpoint support was just introduced and there is no hardware available
-outside Intel we can fix this by switching to use dynamic adapter numbering
-instead of static.
+Using autosuspend helps to reduce the resume latency in situations where
+another I2C message is going to be started soon. For example with HID over
+I2C touch panels we get several messages in a short period of time while
+the touch panel is in use.
 
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
-Changes to v1:
-	- Updated commit message to mention that this change should not
-	  cause regressions as there are no real users for Lynxpoint
-	  I2C controller driver yet.
+ drivers/i2c/busses/i2c-designware-core.c    |    3 ++-
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |    3 ++-
+ drivers/i2c/busses/i2c-designware-platdrv.c |    3 ++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
- drivers/i2c/busses/i2c-designware-platdrv.c |    9 ---------
- 1 file changed, 9 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 7c10c5b..21fbb34 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -600,7 +600,8 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	ret = -EIO;
+ 
+ done:
+-	pm_runtime_put(dev->dev);
++	pm_runtime_mark_last_busy(dev->dev);
++	pm_runtime_put_autosuspend(dev->dev);
+ 	mutex_unlock(&dev->lock);
+ 
+ 	return ret;
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index aacb64e..c8797e2 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -291,7 +291,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	/* Increase reference counter */
+ 	get_device(&pdev->dev);
+ 
+-	pm_runtime_put_noidle(&pdev->dev);
++	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
++	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_allow(&pdev->dev);
+ 
+ 	return 0;
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 94b3a4d..0735ccf 100644
+index 0735ccf..b47c586 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -56,20 +56,11 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- static int dw_i2c_acpi_configure(struct platform_device *pdev)
- {
- 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
--	struct acpi_device *adev;
--	int busno, ret;
+@@ -172,9 +172,10 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	/* Increase reference counter */
+ 	get_device(&pdev->dev);
  
- 	if (!ACPI_HANDLE(&pdev->dev))
- 		return -ENODEV;
++	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
++	pm_runtime_use_autosuspend(&pdev->dev);
+ 	pm_runtime_set_active(&pdev->dev);
+ 	pm_runtime_enable(&pdev->dev);
+-	pm_runtime_put(&pdev->dev);
  
--	ret = acpi_bus_get_device(ACPI_HANDLE(&pdev->dev), &adev);
--	if (ret)
--		return -ENODEV;
--
- 	dev->adapter.nr = -1;
--	if (adev->pnp.unique_id && !kstrtoint(adev->pnp.unique_id, 0, &busno))
--		dev->adapter.nr = busno;
--
- 	dev->tx_fifo_depth = 32;
- 	dev->rx_fifo_depth = 32;
  	return 0;
+ }
 -- 
 1.7.10.4
