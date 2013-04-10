@@ -1,89 +1,48 @@
-From: Yuvaraj Kumar C D <yuvaraj.cd@gmail.com>
-Subject: [PATCH] I2C: EXYNOS5: Set up the TX FIFO and RX FIFO for HSI2C
-Date: Wed, 10 Apr 2013 16:00:20 +0530
-Message-ID: <1365589820-28440-1-git-send-email-yuvaraj.cd@samsung.com>
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de, ch.naveen@samsung.com, taeggyun.ko@samsung.com
-Cc: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH v2 2/7] i2c-designware-pci: use dev_err() instead of printk()
+Date: Wed, 10 Apr 2013 13:36:37 +0300
+Message-ID: <1365590202-1623-2-git-send-email-mika.westerberg@linux.intel.com>
+References: <1365590202-1623-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1365590202-1623-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch, set up TX FIFO and RX FIFO of HSI2C controller based
-on i2c message length.If we configure TX and RX FIFO for a default
-value,the ALMOST_EMPTY and ALMOST_FULL will rise the interrupts
-unnecessary.
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+With dev_err() we can get the device instance printed as well and is pretty
+much standard to use dev_* macros in the drivers anyway. In addition
+correct the indentation of probe() arguments.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-exynos5.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-designware-pcidrv.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-index a38c616..b25c717 100644
---- a/drivers/i2c/busses/i2c-exynos5.c
-+++ b/drivers/i2c/busses/i2c-exynos5.c
-@@ -77,9 +77,9 @@
- /* I2C_FIFO_CTL Register bits */
- #define HSI2C_RXFIFO_EN				(1u << 0)
- #define HSI2C_TXFIFO_EN				(1u << 1)
--#define HSI2C_TXFIFO_TRIGGER_LEVEL		(0x30 << 16)
--#define HSI2C_RXFIFO_TRIGGER_LEVEL		(0x30 << 4)
--
-+#define HSI2C_FIFO_MAX				(0x40)
-+#define HSI2C_RXFIFO_TRIGGER_LEVEL(x)		((x) << 4)
-+#define HSI2C_TXFIFO_TRIGGER_LEVEL(x)		((x) << 16)
- /* I2C_TRAILING_CTL Register bits */
- #define HSI2C_TRAILING_COUNT			(0xf)
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 7c5e383..eed149d 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -208,7 +208,7 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ }
  
-@@ -400,10 +400,9 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
- 			goto stop;
- 		}
+ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+-const struct pci_device_id *id)
++			    const struct pci_device_id *id)
+ {
+ 	struct dw_i2c_dev *dev;
+ 	struct i2c_adapter *adap;
+@@ -218,7 +218,7 @@ const struct pci_device_id *id)
+ 	struct  dw_pci_controller *controller;
  
--		/* 0x30 is the default trigger level for TX FIFO */
--		len = 48 - fifo_level;
--
--		if (len > i2c->msg->len)
-+		if (i2c->msg->len > HSI2C_FIFO_MAX)
-+			len = HSI2C_FIFO_MAX;
-+		else
- 			len = i2c->msg->len;
- 
- 		i2c->msg_len += len;
-@@ -492,10 +491,11 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 	u32 i2c_auto_conf = 0;
- 	u32 fifo_ctl;
- 
-+	unsigned short len = (i2c->msg->len > HSI2C_FIFO_MAX) ?
-+					HSI2C_FIFO_MAX : i2c->msg->len;
- 	exynos5_i2c_en_timeout(i2c);
- 
--	fifo_ctl = HSI2C_RXFIFO_EN | HSI2C_TXFIFO_EN |
--		HSI2C_TXFIFO_TRIGGER_LEVEL | HSI2C_RXFIFO_TRIGGER_LEVEL;
-+	fifo_ctl = HSI2C_RXFIFO_EN | HSI2C_TXFIFO_EN;
- 	writel(fifo_ctl, i2c->regs + HSI2C_FIFO_CTL);
- 
- 	i2c_ctl = readl(i2c->regs + HSI2C_CTL);
-@@ -506,11 +506,13 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 
- 		i2c_auto_conf |= HSI2C_READ_WRITE;
- 
-+		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(len);
- 		int_en |= (HSI2C_INT_RX_ALMOSTFULL_EN |
- 			HSI2C_INT_TRAILING_EN);
- 	} else {
- 		i2c_ctl |= HSI2C_TXCHON;
- 
-+		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(len);
- 		int_en |= HSI2C_INT_TX_ALMOSTEMPTY_EN;
+ 	if (id->driver_data >= ARRAY_SIZE(dw_pci_controllers)) {
+-		printk(KERN_ERR "dw_i2c_pci_probe: invalid driver data %ld\n",
++		dev_err(&pdev->dev, "%s: invalid driver data %ld\n", __func__,
+ 			id->driver_data);
+ 		return -EINVAL;
  	}
- 
-@@ -519,6 +521,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
- 
- 	writel(HSI2C_SLV_ADDR_MAS(i2c->msg->addr), i2c->regs + HSI2C_ADDR);
- 
-+	writel(fifo_ctl, i2c->regs + HSI2C_FIFO_CTL);
- 	writel(i2c_ctl, i2c->regs + HSI2C_CTL);
- 
- 	/* In auto mode the length of xfer cannot be 0 */
 -- 
-1.7.9.5
+1.7.10.4
