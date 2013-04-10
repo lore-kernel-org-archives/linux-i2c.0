@@ -1,51 +1,27 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
-Date: Wed, 10 Apr 2013 22:06:10 +0200
-Message-ID: <CACRpkdYOoZQP_mc3j0z-qTepN7tvA6rpL9E1rc-4D+AyL9_5XQ@mail.gmail.com>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-	<CACRpkdYrGK_SPbiRssFUrg2vMvWbYO_iXsy+aZr99tyFtk88Uw@mail.gmail.com>
-	<20130409164101.GA20001@roeck-us.net>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 0/6] decode-dimms: Fix and improve DDR3 support
+Date: Wed, 10 Apr 2013 22:13:30 +0200
+Message-ID: <20130410221330.213ca5be@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130409164101.GA20001@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: Kevin Strasser <kevin.strasser@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Brunner <michael.brunner@kontron.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Michael Brunner <mibru@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Apr 9, 2013 at 6:41 PM, Guenter Roeck <linux@roeck-us.net> wrote:
-> On Tue, Apr 09, 2013 at 10:46:15AM +0200, Linus Walleij wrote:
->> On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
->> <kevin.strasser@linux.intel.com> wrote:
->>
->> > From: Michael Brunner <michael.brunner@kontron.com>
->> >
->> > Add gpio support for the on-board PLD found on some Kontron embedded
->> > modules.
->> >
->> > Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
->> > Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
->>
->> This looks very generic, setting and clearing bits in bytesized
->> registers.
->>
->> Can you please attempt to use generic GPIO for this?
->>
-> Linus,
->
-> I looked into it, but for my part I seem to be missing how the generic GPIO code
-> permits locking access to the hardware (PLD) and setting the PLD's page register.
-> In other words, I don't immediately see how to call kempld_get_mutex_set_index()
-> from the generic GPIO code. The other drivers using generic GPIO code don't
-> seem to have that requirement.
+Today I have been working on decode-dimms' DDR3 support and came up
+with 2 fixes and 4 improvements:
 
-Ah yes, I was totally wrong here.
+[1/6] Fix tRAS value
+[2/6] Fix core timings rounding
+[3/6] Store time bases, don't print them
+[4/6] Use fine time base
+[5/6] Repeat core timings as time values
+[6/6] Print core timings at all supported standard speeds
 
-I thought it was MMIO while it is indeed through an MFD proxy.
+Note : if anyone has SPD data for DDR3-1866 or DDR3-2133, please send
+them to me so that I can test my code better.
 
-I'll have a second look then...
-
-Yours,
-Linus Walleij
+-- 
+Jean Delvare
