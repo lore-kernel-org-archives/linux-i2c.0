@@ -1,8 +1,8 @@
 From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Subject: Re: [PATCH 1/2] i2c: designware: add CONFIG_PM_SLEEP to suspend/resume
  functions
-Date: Wed, 10 Apr 2013 09:26:11 +0900
-Message-ID: <002901ce3582$00d43190$027c94b0$%han@samsung.com>
+Date: Wed, 10 Apr 2013 09:31:35 +0900
+Message-ID: <002a01ce3582$c223cdb0$466b6910$%han@samsung.com>
 References: <00b901ce26a2$cb3c57d0$61b50770$%han@samsung.com>
  <20130322114634.GA24508@the-dreams.de>
  <000b01ce34b6$2e4ec710$8aec5530$%han@samsung.com>
@@ -15,10 +15,17 @@ In-reply-to: <20130409085038.GB3624-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "'Rafael J. Wysocki'" <rjw-KKrjLPT3xs0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 On Tuesday, April 09, 2013 5:51 PM, Wolfram Sang wrote:
+> -----Original Message-----
+> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
+> Sent: Tuesday, April 09, 2013 5:51 PM
+> To: Jingoo Han
+> Cc: 'Wolfram Sang'; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; 'Ben Dooks'
+> Subject: Re: [PATCH 1/2] i2c: designware: add CONFIG_PM_SLEEP to suspend/resume functions
+> 
 > On Tue, Apr 09, 2013 at 09:07:10AM +0900, Jingoo Han wrote:
 > > On Friday, March 22, 2013 8:47 PM, Wolfram Sang wrote:
 > > >
@@ -50,6 +57,9 @@ On Tuesday, April 09, 2013 5:51 PM, Wolfram Sang wrote:
 > Still, you are always creating a dev_pm_ops structure, even if empty in
 > case of no CONFIG_PM. The s3c driver skips that and uses NULL for
 > setting the pm member of the driver struct then.
+
+CC'ed Rafael J. Wysocki
+
 
 I know it.
 
