@@ -1,7 +1,8 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 5/6] DDR3: Repeat core timings as time values
-Date: Wed, 10 Apr 2013 22:22:05 +0200
-Message-ID: <20130410222205.7c08cb85@endymion.delvare>
+Subject: [PATCH 6/6] DDR3: Print core timings at all supported standard
+ speeds
+Date: Wed, 10 Apr 2013 22:22:59 +0200
+Message-ID: <20130410222259.297c503d@endymion.delvare>
 References: <20130410221330.213ca5be@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -12,29 +13,44 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-DDR3: Repeat tCK, tAA, tRCD, tRP and tRAS values, so that they show up
-no only as cycle counts but also absolute time values.
+Print timings at standard DDR3 speeds. This makes it easier to figure
+out which memory modules will work well together.
 ---
- eeprom/decode-dimms |    5 +++++
- 1 file changed, 5 insertions(+)
+ eeprom/decode-dimms |   19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
---- i2c-tools.orig/eeprom/decode-dimms	2013-04-10 15:42:32.755478921 +0200
-+++ i2c-tools/eeprom/decode-dimms	2013-04-10 15:52:46.527793347 +0200
-@@ -1424,9 +1424,14 @@ sub decode_ddr3_sdram($)
+Note : if anyone has SPD data for DDR3-1866 or DDR3-2133, please send
+them to me so that I can test my code better.
+
+--- i2c-tools.orig/eeprom/decode-dimms	2013-04-10 17:33:33.755706113 +0200
++++ i2c-tools/eeprom/decode-dimms	2013-04-10 21:53:08.674615604 +0200
+@@ -1421,6 +1421,25 @@ sub decode_ddr3_sdram($)
+ 	}
+ 	printl("Supported CAS Latencies (tCL)", cas_latencies(keys %cas));
+ 
++# standard DDR3 speeds
++	prints("Timings at Standard Speeds");
++	foreach my $ctime_at_speed (7.5/8, 7.5/7, 1.25, 1.5, 1.875, 2.5) {
++		my $best_cas = $highestCAS;
++
++		# Find min CAS latency at this speed
++		for ($ii = 14; $ii >= 0; $ii--) {
++			next unless ($cas_sup & (1 << $ii));
++			if (ceil($taa / $ctime_at_speed) <= $ii + 4) {
++				$best_cas = $ii + 4;
++			}
++		}
++
++		printl_cond($ctime_at_speed >= $ctime,
++			    "tCL-tRCD-tRP-tRAS" . as_ddr(3, $ctime_at_speed),
++			    ddr_core_timings($best_cas, $ctime_at_speed,
++					     $trcd, $trp, $tras));
++	}
++
  # more timing information
  	prints("Timing Parameters");
  
-+	printl("Minimum Cycle Time (tCK)", tns3($ctime));
-+	printl("Minimum CAS Latency Time (tAA)", tns3($taa));
- 	printl("Minimum Write Recovery time (tWR)", tns3($bytes->[17] * $mtb));
-+	printl("Minimum RAS# to CAS# Delay (tRCD)", tns3($trcd));
- 	printl("Minimum Row Active to Row Active Delay (tRRD)",
- 		tns3($bytes->[19] * $mtb));
-+	printl("Minimum Row Precharge Delay (tRP)", tns3($trp));
-+	printl("Minimum Active to Precharge Delay (tRAS)", tns3($tras));
- 	printl("Minimum Active to Auto-Refresh Delay (tRC)",
- 		tns3(ddr3_mtb_ftb((($bytes->[21] & 0xf0) << 4) + $bytes->[23], $bytes->[38], $mtb, $ftb)));
- 	printl("Minimum Recovery Delay (tRFC)",
+
 
 -- 
 Jean Delvare
