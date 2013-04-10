@@ -1,7 +1,7 @@
 From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 2/6] DDR3: Fix core timings rounding
-Date: Wed, 10 Apr 2013 22:18:32 +0200
-Message-ID: <20130410221832.34f38cd2@endymion.delvare>
+Subject: [PATCH 3/6] DDR3: Store time bases, don't print them
+Date: Wed, 10 Apr 2013 22:19:16 +0200
+Message-ID: <20130410221916.68177bc1@endymion.delvare>
 References: <20130410221330.213ca5be@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -12,28 +12,49 @@ Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-DDR3: Round core timings up, not down.
+DDR3: Don't print the medium and fine time bases, they aren't directly
+useful to the user. Simply store them for later use.
 ---
- eeprom/decode-dimms |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ eeprom/decode-dimms |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- i2c-tools.orig/eeprom/decode-dimms	2013-04-10 14:29:35.349802212 +0200
-+++ i2c-tools/eeprom/decode-dimms	2013-04-10 14:30:19.753833437 +0200
-@@ -1390,10 +1390,10 @@ sub decode_ddr3_sdram($)
- 	my $trp;
- 	my $tras;
+--- i2c-tools.orig/eeprom/decode-dimms	2013-04-10 14:30:19.753833437 +0200
++++ i2c-tools/eeprom/decode-dimms	2013-04-10 15:37:24.481817216 +0200
+@@ -1335,6 +1335,7 @@ sub decode_ddr3_sdram($)
+ 	my $bytes = shift;
+ 	my $temp;
+ 	my $ctime;
++	my ($ftb, $mtb);
  
--	$taa  = int($bytes->[16] / $bytes->[12]);
--	$trcd = int($bytes->[18] / $bytes->[12]);
--	$trp  = int($bytes->[20] / $bytes->[12]);
--	$tras = int(((($bytes->[21] & 0x0f) << 8) + $bytes->[22]) / $bytes->[12]);
-+	$taa  = ceil($bytes->[16] / $bytes->[12]);
-+	$trcd = ceil($bytes->[18] / $bytes->[12]);
-+	$trp  = ceil($bytes->[20] / $bytes->[12]);
-+	$tras = ceil(((($bytes->[21] & 0x0f) << 8) + $bytes->[22]) / $bytes->[12]);
+ 	my @module_types = ("Undefined", "RDIMM", "UDIMM", "SO-DIMM",
+ 			    "Micro-DIMM", "Mini-RDIMM", "Mini-UDIMM",
+@@ -1346,18 +1347,17 @@ sub decode_ddr3_sdram($)
+ 					$module_types[$bytes->[3]] :
+ 					sprintf("Reserved (0x%.2X)", $bytes->[3]));
  
- 	printl("tCL-tRCD-tRP-tRAS", join("-", $taa, $trcd, $trp, $tras));
++# time bases
++	if (($bytes->[9] & 0x0f) == 0 || $bytes->[11] == 0) {
++		print STDERR "Invalid time base divisor, can't decode\n";
++		return;
++	}
++	$ftb = ($bytes->[9] >> 4) / ($bytes->[9] & 0x0f);
++	$mtb = $bytes->[10] / $bytes->[11];
++
+ # speed
+ 	prints("Memory Characteristics");
  
+-	my $dividend = ($bytes->[9] >> 4) & 15;
+-	my $divisor  = $bytes->[9] & 15;
+-	printl("Fine time base", sprintf("%.3f", $dividend / $divisor) . " ps");
+-
+-	$dividend = $bytes->[10];
+-	$divisor  = $bytes->[11];
+-	my $mtb = $dividend / $divisor;
+-	printl("Medium time base", tns3($mtb));
+-
+ 	$ctime = $bytes->[12] * $mtb;
+ 	my $ddrclk = 2 * (1000 / $ctime);
+ 	my $tbits = 1 << (($bytes->[8] & 7) + 3);
 
 -- 
 Jean Delvare
