@@ -1,35 +1,58 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v2 6/7] i2c-designware: use usleep_range() in the busy-loop
-Date: Wed, 10 Apr 2013 13:36:41 +0300
-Message-ID: <1365590202-1623-6-git-send-email-mika.westerberg@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH v2 4/7] i2c-designware: use dynamic adapter numbering on Lynxpoint
+Date: Wed, 10 Apr 2013 13:36:39 +0300
+Message-ID: <1365590202-1623-4-git-send-email-mika.westerberg@linux.intel.com>
 References: <1365590202-1623-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1365590202-1623-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1365590202-1623-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, ben-linux@fluff.org, Jean Delvare <khali@linux-fr.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This is not an atomic context so there is no need to use mdelay() but
-instead use usleep_range().
+It is not good idea to mix static and dynamic I2C adapter numbering. In
+this particular case on Lynxpoint we had graphics I2C adapter which took
+the first numbers preventing the designware I2C driver from using the
+adapter numbers it preferred.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Since Lynxpoint support was just introduced and there is no hardware available
+outside Intel we can fix this by switching to use dynamic adapter numbering
+instead of static.
+
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changes to v1:
+	- Updated commit message to mention that this change should not
+	  cause regressions as there are no real users for Lynxpoint
+	  I2C controller driver yet.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 5cc4ebf..7c10c5b 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -355,7 +355,7 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
- 			return -ETIMEDOUT;
- 		}
- 		timeout--;
--		mdelay(1);
-+		usleep_range(1000, 1100);
- 	}
+ drivers/i2c/busses/i2c-designware-platdrv.c |    9 ---------
+ 1 file changed, 9 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 94b3a4d..0735ccf 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -56,20 +56,11 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ {
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+-	struct acpi_device *adev;
+-	int busno, ret;
  
+ 	if (!ACPI_HANDLE(&pdev->dev))
+ 		return -ENODEV;
+ 
+-	ret = acpi_bus_get_device(ACPI_HANDLE(&pdev->dev), &adev);
+-	if (ret)
+-		return -ENODEV;
+-
+ 	dev->adapter.nr = -1;
+-	if (adev->pnp.unique_id && !kstrtoint(adev->pnp.unique_id, 0, &busno))
+-		dev->adapter.nr = busno;
+-
+ 	dev->tx_fifo_depth = 32;
+ 	dev->rx_fifo_depth = 32;
  	return 0;
 -- 
 1.7.10.4
