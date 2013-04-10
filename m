@@ -1,56 +1,168 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: [PATCH 6/6] DDR3: Print core timings at all supported standard
- speeds
-Date: Wed, 10 Apr 2013 22:22:59 +0200
-Message-ID: <20130410222259.297c503d@endymion.delvare>
-References: <20130410221330.213ca5be@endymion.delvare>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
+Date: Wed, 10 Apr 2013 22:45:51 +0200
+Message-ID: <CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130410221330.213ca5be-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kevin Strasser <kevin.strasser@linux.intel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Brunner <michael.brunner@kontron.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Michael Brunner <mibru@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Print timings at standard DDR3 speeds. This makes it easier to figure
-out which memory modules will work well together.
----
- eeprom/decode-dimms |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+On Mon, Apr 8, 2013 at 7:15 PM, Kevin Strasser
+<kevin.strasser@linux.intel.com> wrote:
 
-Note : if anyone has SPD data for DDR3-1866 or DDR3-2133, please send
-them to me so that I can test my code better.
+> From: Michael Brunner <michael.brunner@kontron.com>
+>
+> Add gpio support for the on-board PLD found on some Kontron embedded
+> modules.
+>
+> Signed-off-by: Michael Brunner <michael.brunner@kontron.com>
+> Signed-off-by: Kevin Strasser <kevin.strasser@linux.intel.com>
 
---- i2c-tools.orig/eeprom/decode-dimms	2013-04-10 17:33:33.755706113 +0200
-+++ i2c-tools/eeprom/decode-dimms	2013-04-10 21:53:08.674615604 +0200
-@@ -1421,6 +1421,25 @@ sub decode_ddr3_sdram($)
- 	}
- 	printl("Supported CAS Latencies (tCL)", cas_latencies(keys %cas));
- 
-+# standard DDR3 speeds
-+	prints("Timings at Standard Speeds");
-+	foreach my $ctime_at_speed (7.5/8, 7.5/7, 1.25, 1.5, 1.875, 2.5) {
-+		my $best_cas = $highestCAS;
-+
-+		# Find min CAS latency at this speed
-+		for ($ii = 14; $ii >= 0; $ii--) {
-+			next unless ($cas_sup & (1 << $ii));
-+			if (ceil($taa / $ctime_at_speed) <= $ii + 4) {
-+				$best_cas = $ii + 4;
-+			}
-+		}
-+
-+		printl_cond($ctime_at_speed >= $ctime,
-+			    "tCL-tRCD-tRP-tRAS" . as_ddr(3, $ctime_at_speed),
-+			    ddr_core_timings($best_cas, $ctime_at_speed,
-+					     $trcd, $trp, $tras));
-+	}
-+
- # more timing information
- 	prints("Timing Parameters");
- 
+Trying to do some real review...
+
+(...)
+> +++ b/drivers/gpio/gpio-kempld.c
+> +#include <linux/acpi.h>
+
+Is this used?
+
+> +#include <linux/platform_device.h>
+> +#include <linux/gpio.h>
+> +#include <linux/mfd/kempld.h>
+> +#include <linux/seq_file.h>
+> +
+> +#include "gpio-kempld.h"
+> +
+> +static int gpiobase = -1;
+> +static int gpioien = 0x00;
+> +static int gpioevt_lvl_edge = -1;
+> +static int gpioevt_low_high = -1;
+> +static int gpionmien = 0x00;
+
+(...)
+
++static int kempld_gpio_to_irq(struct gpio_chip *chip, unsigned offset)
++{
++       struct kempld_gpio_data *gpio
++               = container_of(chip, struct kempld_gpio_data, chip);
++       return gpio->irq;
++}
+
+I don't understand this *at all* so help me out here.
+
+.gpio_to_irq() should return a *Linux* IRQ number, usually we take
+the event offset (in this case) and map to a Linux IRQ using the
+irqdomain helper library. Can you explain how we can be sure that
+this number (apparently just a read from a register on the device)
+can be made to correspond to a Linux IRQ?
+
+Also if this thing can generate IRQs, are these one line to the CPU
+per IRQ really? Don't you need to demux the status register and
+create a cascades irqchip?
+
+Maybe it's just me not understanding x86 & ACPI so bear with me...
+
+> +static int kempld_gpio_setup_event(struct kempld_gpio_data *gpio)
+> +{
+> +       struct kempld_device_data *pld = gpio->pld;
+> +       struct gpio_chip *chip = &gpio->chip;
+> +       int irq;
+> +
+> +       irq = gpio->irq;
+> +
+> +       kempld_get_mutex_set_index(pld, KEMPLD_IRQ_GPIO);
+> +       irq = kempld_read8(pld, KEMPLD_IRQ_GPIO);
+> +
+> +       /* Leave if interrupts are not supported by the GPIO core */
+> +       if ((irq & 0xf0) == 0xf0)
+> +               return 0;
+> +
+> +       gpio->irq = irq & 0x0f;
+
+So you read the IRQ from some plug-n-play here, and it's some
+system-wide IRQ number?
+
+(...)
+> +       if (gpio->irq)
+> +               chip->to_irq =          kempld_gpio_to_irq;
+
+So that is this mystery with the IRQs and how they turn into
+Linux IRQs.
+
+> +module_param(gpiobase, int, 0444);
+
+Why do you need to be able to configure this?
+It must be a real usecase, debugging can be done by patching
+the code.
+
+> +module_param(gpioien, int, 0444);
+> +module_param(gpioevt_lvl_edge, int, 0444);
+> +module_param(gpioevt_low_high, int, 0444);
+> +module_param(gpionmien, int, 0444);
+
+Argh how can anyone possibly make this out ... do you really
+need them or can we get rid of some and rely on autodetect?
+
+> +MODULE_DESCRIPTION("KEM PLD GPIO Driver");
+> +MODULE_AUTHOR("Michael Brunner <michael.brunner@kontron.com>");
+> +MODULE_LICENSE("GPL");
+> +MODULE_ALIAS("platform:kempld_gpio");
+> +MODULE_PARM_DESC(gpiobase, "Set GPIO base (default -1=dynamic)");
+> +MODULE_PARM_DESC(gpioien, "Set GPIO IEN register (default 0x00)");
+> +MODULE_PARM_DESC(gpioevt_lvl_edge,
+> +                       "Set GPIO EVT_LVL_EDGE register (default -1=no change)");
+> +MODULE_PARM_DESC(gpioevt_low_high,
+> +                       "Set GPIO EVT_LOW_HIGH register (default -1=no change)");
+> +MODULE_PARM_DESC(gpionmien, "Set GPIO NMIEN register (default 0x00)");
 
 
--- 
-Jean Delvare
+So I don't really like that interrupt enablement and edge and low/high
+is done with module parameters instead of just creating an irqchip and
+have it implement the operations to do exactly these things at runtime
+instead.
+
+Again maybe some x86 thing I don't get...
+
+> diff --git a/drivers/gpio/gpio-kempld.h b/drivers/gpio/gpio-kempld.h
+(...)
+> +struct kempld_gpio_data {
+> +       struct gpio_chip                chip;
+> +       int                             irq;
+> +       struct kempld_device_data       *pld;
+> +       uint16_t                        mask;
+
+Just u16?
+
+> +};
+
+(...)
+> diff --git a/drivers/gpio/gpio-kempld_now1.c b/drivers/gpio/gpio-kempld_now1.c
+> +#include <linux/io.h>
+
+Do you use this?
+
+> +#include <linux/slab.h>
+> +#include <linux/errno.h>
+> +#include <linux/acpi.h>
+
+And this?
+
+> +#include <linux/platform_device.h>
+> +#include <linux/gpio.h>
+> +#include <linux/mfd/kempld.h>
+> +#include <linux/seq_file.h>
+> +
+> +#include "gpio-kempld.h"
+(...)
+> +
+
+Most comments concern the other driver too.
+
+Yours,
+Linus Walleij
