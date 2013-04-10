@@ -1,79 +1,89 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: designware: add CONFIG_PM_SLEEP to suspend/resume
- functions
-Date: Wed, 10 Apr 2013 09:31:35 +0900
-Message-ID: <002a01ce3582$c223cdb0$466b6910$%han@samsung.com>
-References: <00b901ce26a2$cb3c57d0$61b50770$%han@samsung.com>
- <20130322114634.GA24508@the-dreams.de>
- <000b01ce34b6$2e4ec710$8aec5530$%han@samsung.com>
- <20130409085038.GB3624@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20130409085038.GB3624-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Content-language: ko
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "'Rafael J. Wysocki'" <rjw-KKrjLPT3xs0@public.gmane.org>
+From: Yuvaraj Kumar C D <yuvaraj.cd@gmail.com>
+Subject: [PATCH] I2C: EXYNOS5: Set up the TX FIFO and RX FIFO for HSI2C
+Date: Wed, 10 Apr 2013 16:00:20 +0530
+Message-ID: <1365589820-28440-1-git-send-email-yuvaraj.cd@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, wsa@the-dreams.de, ch.naveen@samsung.com, taeggyun.ko@samsung.com
+Cc: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, April 09, 2013 5:51 PM, Wolfram Sang wrote:
-> -----Original Message-----
-> From: Wolfram Sang [mailto:wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
-> Sent: Tuesday, April 09, 2013 5:51 PM
-> To: Jingoo Han
-> Cc: 'Wolfram Sang'; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; 'Ben Dooks'
-> Subject: Re: [PATCH 1/2] i2c: designware: add CONFIG_PM_SLEEP to suspend/resume functions
-> 
-> On Tue, Apr 09, 2013 at 09:07:10AM +0900, Jingoo Han wrote:
-> > On Friday, March 22, 2013 8:47 PM, Wolfram Sang wrote:
-> > >
-> > > On Fri, Mar 22, 2013 at 11:13:07AM +0900, Jingoo Han wrote:
-> > > > Add CONFIG_PM_SLEEP to suspend/resume functions to fix the following
-> > > > build warning when CONFIG_PM_SLEEP is not selected. This is because
-> > > > sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
-> > > > the CONFIG_PM_SLEEP is enabled.
-> > > >
-> > > > drivers/i2c/busses/i2c-designware-platdrv.c:253:12: warning: 'dw_i2c_suspend' defined but not used
-> [-
-> > > Wunused-function]
-> > > > drivers/i2c/busses/i2c-designware-platdrv.c:263:12: warning: 'dw_i2c_resume' defined but not used
-> [-
-> > > Wunused-function]
-> > > >
-> > > > Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > >
-> > > What about doing it like the s3c2410 driver which also adds CONFIG_PM
-> > > around the whole structure? (comment applies for both patches)
-> >
-> > Hi Wolfram Sang,
-> > Sorry for being late.
-> >
-> > It is similar with s3c2410 driver.
-> > However, CONFIG_PM is not necessary, when only SIMPLE_DEV_PM_OPS is
-> > used.
-> 
-> Still, you are always creating a dev_pm_ops structure, even if empty in
-> case of no CONFIG_PM. The s3c driver skips that and uses NULL for
-> setting the pm member of the driver struct then.
+This patch, set up TX FIFO and RX FIFO of HSI2C controller based
+on i2c message length.If we configure TX and RX FIFO for a default
+value,the ALMOST_EMPTY and ALMOST_FULL will rise the interrupts
+unnecessary.
 
-CC'ed Rafael J. Wysocki
+Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+---
+ drivers/i2c/busses/i2c-exynos5.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
-
-I know it.
-
-When SIMPLE_DEV_PM_OPS is used and CONFIG_PM is NOT selected,
-call back functions (suspend, resume) are empty.
-Then it cannot be called by PM framework.
-
-Of course in this case, it requires additional NULL checking by
-PM framework.
-
-However, in my opinion, it would not be critical.
-Now, many drivers are using SIMPLE_DEV_PM_OPS macro in this way,
-not adding CONFIG_PM. There is no side effect.
-
-
-Best regards,
-Jingoo Han
+diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
+index a38c616..b25c717 100644
+--- a/drivers/i2c/busses/i2c-exynos5.c
++++ b/drivers/i2c/busses/i2c-exynos5.c
+@@ -77,9 +77,9 @@
+ /* I2C_FIFO_CTL Register bits */
+ #define HSI2C_RXFIFO_EN				(1u << 0)
+ #define HSI2C_TXFIFO_EN				(1u << 1)
+-#define HSI2C_TXFIFO_TRIGGER_LEVEL		(0x30 << 16)
+-#define HSI2C_RXFIFO_TRIGGER_LEVEL		(0x30 << 4)
+-
++#define HSI2C_FIFO_MAX				(0x40)
++#define HSI2C_RXFIFO_TRIGGER_LEVEL(x)		((x) << 4)
++#define HSI2C_TXFIFO_TRIGGER_LEVEL(x)		((x) << 16)
+ /* I2C_TRAILING_CTL Register bits */
+ #define HSI2C_TRAILING_COUNT			(0xf)
+ 
+@@ -400,10 +400,9 @@ static irqreturn_t exynos5_i2c_irq(int irqno, void *dev_id)
+ 			goto stop;
+ 		}
+ 
+-		/* 0x30 is the default trigger level for TX FIFO */
+-		len = 48 - fifo_level;
+-
+-		if (len > i2c->msg->len)
++		if (i2c->msg->len > HSI2C_FIFO_MAX)
++			len = HSI2C_FIFO_MAX;
++		else
+ 			len = i2c->msg->len;
+ 
+ 		i2c->msg_len += len;
+@@ -492,10 +491,11 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+ 	u32 i2c_auto_conf = 0;
+ 	u32 fifo_ctl;
+ 
++	unsigned short len = (i2c->msg->len > HSI2C_FIFO_MAX) ?
++					HSI2C_FIFO_MAX : i2c->msg->len;
+ 	exynos5_i2c_en_timeout(i2c);
+ 
+-	fifo_ctl = HSI2C_RXFIFO_EN | HSI2C_TXFIFO_EN |
+-		HSI2C_TXFIFO_TRIGGER_LEVEL | HSI2C_RXFIFO_TRIGGER_LEVEL;
++	fifo_ctl = HSI2C_RXFIFO_EN | HSI2C_TXFIFO_EN;
+ 	writel(fifo_ctl, i2c->regs + HSI2C_FIFO_CTL);
+ 
+ 	i2c_ctl = readl(i2c->regs + HSI2C_CTL);
+@@ -506,11 +506,13 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+ 
+ 		i2c_auto_conf |= HSI2C_READ_WRITE;
+ 
++		fifo_ctl |= HSI2C_RXFIFO_TRIGGER_LEVEL(len);
+ 		int_en |= (HSI2C_INT_RX_ALMOSTFULL_EN |
+ 			HSI2C_INT_TRAILING_EN);
+ 	} else {
+ 		i2c_ctl |= HSI2C_TXCHON;
+ 
++		fifo_ctl |= HSI2C_TXFIFO_TRIGGER_LEVEL(len);
+ 		int_en |= HSI2C_INT_TX_ALMOSTEMPTY_EN;
+ 	}
+ 
+@@ -519,6 +521,7 @@ static void exynos5_i2c_message_start(struct exynos5_i2c *i2c, int stop)
+ 
+ 	writel(HSI2C_SLV_ADDR_MAS(i2c->msg->addr), i2c->regs + HSI2C_ADDR);
+ 
++	writel(fifo_ctl, i2c->regs + HSI2C_FIFO_CTL);
+ 	writel(i2c_ctl, i2c->regs + HSI2C_CTL);
+ 
+ 	/* In auto mode the length of xfer cannot be 0 */
+-- 
+1.7.9.5
