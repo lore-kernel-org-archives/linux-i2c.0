@@ -1,85 +1,86 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 08/30] i2c: s3c2410: make header file local
-Date: Thu, 11 Apr 2013 02:04:50 +0200
-Message-ID: <1365638712-1028578-9-git-send-email-arnd@arndb.de>
-References: <1365638712-1028578-1-git-send-email-arnd@arndb.de>
+From: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/3] x86: Add basic support for the Congatec CGEB BIOS interface
+Date: Thu, 11 Apr 2013 09:14:48 +0200
+Message-ID: <CAH9NwWd-UAYG0y2R379hPvntnfPhNEwvXm-f2uO3o1AZZ+OSMw@mail.gmail.com>
+References: <1360663374-30951-1-git-send-email-s.hauer@pengutronix.de>
+ <1360663374-30951-2-git-send-email-s.hauer@pengutronix.de>
+ <CAH9NwWdOCo642KqUXk1y5hbwdtW5RYgQnQfZFUEe4FOJzSiByQ@mail.gmail.com>
+ <20130326085454.GK1906@pengutronix.de> <20130326092435.GB8553@the-dreams.de>
+ <20130326093139.GL1906@pengutronix.de> <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1365638712-1028578-1-git-send-email-arnd@arndb.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: linux-samsung-soc@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAH9NwWdUqH8gF8Vz7K_2UW1X==LWbYEd5dhSTPqqYwEnDuRVuQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-No other file in the kernel besides i2c-s3c2410.c uses the current
-plat/regs-iic.h, so we can simply move the header file to live in the
-same directory as the driver, as a preparation to multiplatform builds.
+2013/3/26 Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> 2013/3/26 Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>:
+>> Hi Wolfram,
+>>
+>> On Tue, Mar 26, 2013 at 10:24:35AM +0100, Wolfram Sang wrote:
+>>> Hi Sascha,
+>>>
+>>> > Any other comments to this series? Is the base cgeb support ok to
+>>> > include?
+>>>
+>>> I had a few comments to the I2C driver.
+>>
+>> Yes, thanks, I have seen this and will address them. Atm I'm more
+>> interested in the base support though, since without it there won't be a
+>> need for the i2c driver ;)
+>>
+>
+> vis@OT:~$ dmesg | grep CGEB
+> [    2.466519] CGEB: Board name: QBRA
+>
+>
+> root@OT:/home/vis# i2cdetect -l
+> i2c-0   i2c             cgeb-i2c                                I2C adapter
+> i2c-1   i2c             Radeon i2c bit bus 0x90                 I2C adapter
+> i2c-2   i2c             Radeon i2c bit bus 0x91                 I2C adapter
+> i2c-3   i2c             Radeon i2c bit bus 0x92                 I2C adapter
+> i2c-4   i2c             Radeon i2c bit bus 0x93                 I2C adapter
+> i2c-5   i2c             Radeon i2c bit bus 0x94                 I2C adapter
+> i2c-6   i2c             Radeon i2c bit bus 0x95                 I2C adapter
+> i2c-7   i2c             Radeon i2c bit bus 0x96                 I2C adapter
+> i2c-8   i2c             Radeon i2c bit bus 0x97                 I2C adapter
+> i2c-9   i2c             Radeon aux bus DP-auxch                 I2C adapter
+> root@OT:/home/vis# i2cdetect 0
+> WARNING! This program can confuse your I2C bus, cause data loss and worse!
+> I will probe file /dev/i2c-0.
+> I will probe address range 0x03-0x77.
+> Continue? [Y/n]
+>      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+> 00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+> 10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 20: -- 21 -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 40: -- -- -- -- -- -- -- -- 48 -- -- -- -- -- -- --
+> 50: 50 51 -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+> 70: -- -- -- -- -- -- -- --
+>
+> I hope to see this patches soon in mainline - I have some Congatec
+> devices where I
+> am using an early version of this patch set.
+>
+> Btw I have a cgeb-backlight driver lying here :)
+>
+>
+> Tested-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> Acked-by: Christian Gmeiner <christian.gmeiner-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+>
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: Ben Dooks <ben-linux@fluff.org>
----
- arch/arm/mach-s3c24xx/mach-rx1950.c                                    | 1 -
- arch/arm/plat-samsung/devs.c                                           | 1 -
- drivers/i2c/busses/i2c-s3c2410.c                                       | 3 ++-
- .../include/plat/regs-iic.h => drivers/i2c/busses/i2c-s3c2410.h        | 0
- 4 files changed, 2 insertions(+), 3 deletions(-)
- rename arch/arm/plat-samsung/include/plat/regs-iic.h => drivers/i2c/busses/i2c-s3c2410.h (100%)
 
-diff --git a/arch/arm/mach-s3c24xx/mach-rx1950.c b/arch/arm/mach-s3c24xx/mach-rx1950.c
-index e4d67a3..44ca018 100644
---- a/arch/arm/mach-s3c24xx/mach-rx1950.c
-+++ b/arch/arm/mach-s3c24xx/mach-rx1950.c
-@@ -56,7 +56,6 @@
- #include <plat/cpu.h>
- #include <plat/devs.h>
- #include <plat/pm.h>
--#include <plat/regs-iic.h>
- #include <plat/regs-serial.h>
- #include <plat/samsung-time.h>
- 
-diff --git a/arch/arm/plat-samsung/devs.c b/arch/arm/plat-samsung/devs.c
-index 4cf660e..78be9c0 100644
---- a/arch/arm/plat-samsung/devs.c
-+++ b/arch/arm/plat-samsung/devs.c
-@@ -62,7 +62,6 @@
- #include <linux/platform_data/usb-s3c2410_udc.h>
- #include <linux/platform_data/usb-ohci-s3c2410.h>
- #include <plat/usb-phy.h>
--#include <plat/regs-iic.h>
- #include <plat/regs-serial.h>
- #include <plat/regs-spi.h>
- #include <linux/platform_data/spi-s3c64xx.h>
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index f6b880b..d042ad0 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -42,9 +42,10 @@
- 
- #include <asm/irq.h>
- 
--#include <plat/regs-iic.h>
- #include <linux/platform_data/i2c-s3c2410.h>
- 
-+#include "i2c-s3c2410.h"
-+
- /* Treat S3C2410 as baseline hardware, anything else is supported via quirks */
- #define QUIRK_S3C2440		(1 << 0)
- #define QUIRK_HDMIPHY		(1 << 1)
-diff --git a/arch/arm/plat-samsung/include/plat/regs-iic.h b/drivers/i2c/busses/i2c-s3c2410.h
-similarity index 100%
-rename from arch/arm/plat-samsung/include/plat/regs-iic.h
-rename to drivers/i2c/busses/i2c-s3c2410.h
--- 
-1.8.1.2
+Hi Wolfram,
+
+any update on your patch series to support CGEB? I have some time to work
+on these patches but I don't want to duplicate the work. I really want
+this watches
+to hit mainline soon.
+
+--
+Christian Gmeiner, MSc
