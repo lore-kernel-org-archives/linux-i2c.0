@@ -1,208 +1,28 @@
-From: Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
-Date: Fri, 12 Apr 2013 13:09:35 +0200
-Message-ID: <20130412130936.3f428cc9@hyperion>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-	<CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: I2C_M_RECV_LEN for i2c-mxs
+Date: Fri, 12 Apr 2013 17:37:57 +0200
+Message-ID: <20130412153757.GA10241@the-dreams.de>
+References: <20130412093003.GE30416@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130412093003.GE30416-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Brunner <michael.brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+Hi Uwe,
 
-As this code is from me I will comment on your review.
+please prefer wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org for kernel stuff.
 
-On Wed, 10 Apr 2013 22:45:51 +0200
-Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-(...)
-> Trying to do some real review...
-> 
-> (...)  
-> > +++ b/drivers/gpio/gpio-kempld.c
-> > +#include <linux/acpi.h>  
-> 
-> Is this used?  
+>  - Is it correct to have I2C_FUNC_SMBUS_EMUL in .functionality without
+>    supporting I2C_M_RECV_LEN?
 
-Actually not, this can be removed.
+Yes. Check the #define and you'll see that it does not contain
+BLOCK_READ and BLOCK_PROC_CALL.
 
-> > +#include <linux/platform_device.h>
-> > +#include <linux/gpio.h>
-> > +#include <linux/mfd/kempld.h>
-> > +#include <linux/seq_file.h>
-> > +
-> > +#include "gpio-kempld.h"
-> > +
-> > +static int gpiobase = -1;
-> > +static int gpioien = 0x00;
-> > +static int gpioevt_lvl_edge = -1;
-> > +static int gpioevt_low_high = -1;
-> > +static int gpionmien = 0x00;  
-> 
-> (...)
-> 
-> +static int kempld_gpio_to_irq(struct gpio_chip *chip, unsigned
-> offset) +{
-> +       struct kempld_gpio_data *gpio
-> +               = container_of(chip, struct kempld_gpio_data, chip);
-> +       return gpio->irq;
-> +}
-> 
-> I don't understand this *at all* so help me out here.
-> 
-> .gpio_to_irq() should return a *Linux* IRQ number, usually we take
-> the event offset (in this case) and map to a Linux IRQ using the
-> irqdomain helper library. Can you explain how we can be sure that
-> this number (apparently just a read from a register on the device)
-> can be made to correspond to a Linux IRQ?
-> 
-> Also if this thing can generate IRQs, are these one line to the CPU
-> per IRQ really? Don't you need to demux the status register and
-> create a cascades irqchip?
-> 
-> Maybe it's just me not understanding x86 & ACPI so bear with me...  
+All the best,
 
-The chip is connected to the CPU through a serial IRQ line and IRQs
-are managed through the (A)PIC which is configured by the
-firmware. I never saw a difference between Linux and HW IRQ numbers
-for the legacy IRQs (0-15) this chip generates. But I will take
-another look at the IRQ handling of this driver.
-
-> > +static int kempld_gpio_setup_event(struct kempld_gpio_data *gpio)
-> > +{
-> > +       struct kempld_device_data *pld = gpio->pld;
-> > +       struct gpio_chip *chip = &gpio->chip;
-> > +       int irq;
-> > +
-> > +       irq = gpio->irq;
-> > +
-> > +       kempld_get_mutex_set_index(pld, KEMPLD_IRQ_GPIO);
-> > +       irq = kempld_read8(pld, KEMPLD_IRQ_GPIO);
-> > +
-> > +       /* Leave if interrupts are not supported by the GPIO core */
-> > +       if ((irq & 0xf0) == 0xf0)
-> > +               return 0;
-> > +
-> > +       gpio->irq = irq & 0x0f;  
-> 
-> So you read the IRQ from some plug-n-play here, and it's some
-> system-wide IRQ number?  
-
-Correct.
-
-> (...)  
-> > +       if (gpio->irq)
-> > +               chip->to_irq =          kempld_gpio_to_irq;  
-> 
-> So that is this mystery with the IRQs and how they turn into
-> Linux IRQs.
->   
-> > +module_param(gpiobase, int, 0444);  
-> 
-> Why do you need to be able to configure this?
-> It must be a real usecase, debugging can be done by patching
-> the code.  
-
-This was intended to help developing userspace applications or scripts.
-For this parameter I had in mind that one configures a static
-GPIO base and then maps the GPIOs with the help of the sysfs interface
-without the need to first find out which is the actual GPIO base. If you think this shouldn't be done this way I won't insist
-to keep this parameter.
-
-> > +module_param(gpioien, int, 0444);
-> > +module_param(gpioevt_lvl_edge, int, 0444);
-> > +module_param(gpioevt_low_high, int, 0444);
-> > +module_param(gpionmien, int, 0444);  
-> 
-> Argh how can anyone possibly make this out ... do you really
-> need them or can we get rid of some and rely on autodetect?  
-
-As the chip sits on a computer module that is usually only configured
-generically, it is not possible to auto detect the needed configuration.
-Those parameters are intended to let the developer configure the chip
-without having to touch the driver code.
-You are right anyway, doing it this way might not be the best way. So if
-there is a good way to configure this stuff at runtime by using a
-generic interface I would also prefer this.
-
-> > +MODULE_DESCRIPTION("KEM PLD GPIO Driver");
-> > +MODULE_AUTHOR("Michael Brunner <michael.brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>");
-> > +MODULE_LICENSE("GPL");
-> > +MODULE_ALIAS("platform:kempld_gpio");
-> > +MODULE_PARM_DESC(gpiobase, "Set GPIO base (default -1=dynamic)");
-> > +MODULE_PARM_DESC(gpioien, "Set GPIO IEN register (default 0x00)");
-> > +MODULE_PARM_DESC(gpioevt_lvl_edge,
-> > +                       "Set GPIO EVT_LVL_EDGE register (default
-> > -1=no change)"); +MODULE_PARM_DESC(gpioevt_low_high,
-> > +                       "Set GPIO EVT_LOW_HIGH register (default
-> > -1=no change)"); +MODULE_PARM_DESC(gpionmien, "Set GPIO NMIEN
-> > register (default 0x00)");  
-> 
-> 
-> So I don't really like that interrupt enablement and edge and low/high
-> is done with module parameters instead of just creating an irqchip and
-> have it implement the operations to do exactly these things at runtime
-> instead.
-> 
-> Again maybe some x86 thing I don't get...  
-
-Possibly not. I am not very familiar with irqchip so far, therefore I
-will have a look at it and check if the whole IRQ handling can be
-ported to this framework.
-
-> > diff --git a/drivers/gpio/gpio-kempld.h
-> > b/drivers/gpio/gpio-kempld.h  
-> (...)  
-> > +struct kempld_gpio_data {
-> > +       struct gpio_chip                chip;
-> > +       int                             irq;
-> > +       struct kempld_device_data       *pld;
-> > +       uint16_t                        mask;  
-> 
-> Just u16?  
-
-The specification allows 16 GPIOs for this device, therefore this seems
-to be the right size. Would it be better to use another type instead?
-
-> > +};  
-> 
-> (...)  
-> > diff --git a/drivers/gpio/gpio-kempld_now1.c
-> > b/drivers/gpio/gpio-kempld_now1.c +#include <linux/io.h>  
-> 
-> Do you use this?  
-
-This can be removed.
-
-> > +#include <linux/slab.h>
-> > +#include <linux/errno.h>
-> > +#include <linux/acpi.h>  
-> 
-> And this?  
-
-linux/slab.h is necessary for kzalloc, but the rest can be removed.
-
-> > +#include <linux/platform_device.h>
-> > +#include <linux/gpio.h>
-> > +#include <linux/mfd/kempld.h>
-> > +#include <linux/seq_file.h>
-> > +
-> > +#include "gpio-kempld.h"  
-> (...)  
-> > +  
-> 
-> Most comments concern the other driver too.
-> 
-> Yours,
-> Linus Walleij  
-
-Thank you for the review!
-
-Best regards,
-  Michael
+   Wolfram
