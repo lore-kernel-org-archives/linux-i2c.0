@@ -1,35 +1,30 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
-Date: Sat, 13 Apr 2013 00:05:03 +0200
-Message-ID: <CACRpkdZJ++E28Z_25SdVOHrvjGwz+HVYsT3pax309gvAtk-_YA@mail.gmail.com>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
-	<CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
-	<20130412130936.3f428cc9@hyperion>
+From: Tony Prisk <linux@prisktech.co.nz>
+Subject: [v3] Support Elan Touchscreen eKTF product.
+Date: Sat, 13 Apr 2013 11:29:02 +1200
+Message-ID: <516898BE.8040209@prisktech.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130412130936.3f428cc9@hyperion>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michael Brunner <mibru@gmx.de>
-Cc: Kevin Strasser <kevin.strasser@linux.intel.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Michael Brunner <michael.brunner@kontron.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Grant Likely <grant.likely@secretlab.ca>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-input-owner@vger.kernel.org>
+Sender: linux-input-owner@vger.kernel.org
+To: scott.liu@emc.com.tw
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Benjamin Tissoires <benjamin.tissoires@gmail.com>, Jesse <jesse@emc.com.tw>, Vincent Wang <vincent.wang@emc.com.tw>, Paul <paul.liang@emc.com.tw>, linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 12, 2013 at 1:09 PM, Michael Brunner <mibru@gmx.de> wrote:
+Hi Scott,
 
->> (...)
->> > +struct kempld_gpio_data {
->> > +       struct gpio_chip                chip;
->> > +       int                             irq;
->> > +       struct kempld_device_data       *pld;
->> > +       uint16_t                        mask;
->>
->> Just u16?
->
-> The specification allows 16 GPIOs for this device, therefore this seems
-> to be the right size. Would it be better to use another type instead?
+Not sure what is happening with the patch - seems to have been sitting 
+for quite a while. Is it still being worked on?
+I integrated it into our arm/arch-vt8500 testing tree (based on 3.9-rc6) 
+as we have tablets with eKTF2127 controllers and noticed a few problems.
 
-Ah, I was just asking you to use "u16" instead of "uint16_t".
+1) __devxxxx attributes cause unused function warnings because they are 
+deprecated.
 
-Yours,
-Linus Walleij
+2) elants_get_power_state() is only called from elants_resume() which is 
+contained within a #ifdef CONFIG_PM_SLEEP. You should also move the 
+elants_get_power_state() inside the #ifdef to remove the unused_function 
+warning when compiled without CONFIG_PM.
+
+Regards
+Tony Prisk
