@@ -1,197 +1,208 @@
-From: Uwe =?iso-8859-1?Q?Kleine-K=F6nig?=
-	<u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: I2C_M_RECV_LEN for i2c-mxs
-Date: Fri, 12 Apr 2013 11:30:03 +0200
-Message-ID: <20130412093003.GE30416@pengutronix.de>
+From: Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH 3/4] gpio: Kontron PLD gpio driver
+Date: Fri, 12 Apr 2013 13:09:35 +0200
+Message-ID: <20130412130936.3f428cc9@hyperion>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+	<1365441321-21952-3-git-send-email-kevin.strasser@linux.intel.com>
+	<CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <CACRpkdaU-QT-VBiG8i5XreEP-DvTosHeptUo+5vdmSyi0=uWTw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Michael Brunner <michael.brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Hi Linus,
 
-I'm currently trying to teach the i2c-mxs driver to handle the
-I2C_M_RECV_LEN flag but failed up to now. Maybe someone has an good ide=
-a
-how to make it running?
+As this code is from me I will comment on your review.
 
-My current patch looks as follows:
+On Wed, 10 Apr 2013 22:45:51 +0200
+Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+(...)
+> Trying to do some real review...
+> 
+> (...)  
+> > +++ b/drivers/gpio/gpio-kempld.c
+> > +#include <linux/acpi.h>  
+> 
+> Is this used?  
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.=
-c
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -1,3 +1,4 @@
-+#define DEBUG
- /*
-  * Freescale MXS I2C bus driver
-  *
-@@ -289,14 +290,23 @@ write_init_pio_fail:
- static int mxs_i2c_pio_wait_dmareq(struct mxs_i2c_dev *i2c)
- {
- 	unsigned long timeout =3D jiffies + msecs_to_jiffies(1000);
-+	u32 reg, reg_old;
-+	int first =3D 1;
-=20
--	while (!(readl(i2c->regs + MXS_I2C_DEBUG0) &
-+	while (!(reg =3D readl(i2c->regs + MXS_I2C_DEBUG0) &
- 		MXS_I2C_DEBUG0_DMAREQ)) {
-+		if (first || reg !=3D reg_old) {
-+			pr_debug("%s: I2C_DEBUG =3D 0x%08x\n", __func__, reg);
-+			first =3D 0;
-+			reg_old =3D reg;
-+		}
- 		if (time_after(jiffies, timeout))
- 			return -ETIMEDOUT;
- 		cond_resched();
- 	}
-=20
-+	pr_debug("%s: I2C_DEBUG =3D 0x%08x\n", __func__, reg);
-+
- 	writel(MXS_I2C_DEBUG0_DMAREQ, i2c->regs + MXS_I2C_DEBUG0_CLR);
-=20
- 	return 0;
-@@ -338,6 +348,9 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapte=
-r *adap,
- 	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_CLR);
-=20
- 	if (msg->flags & I2C_M_RD) {
-+		int readlen =3D msg->len;
-+		size_t buf_offset =3D 0;
-+
- 		addr_data |=3D I2C_SMBUS_READ;
-=20
- 		/* SELECT command. */
-@@ -354,19 +367,39 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adap=
-ter *adap,
- 		if (ret)
- 			return ret;
-=20
-+		if (msg->flags & I2C_M_RECV_LEN) {
-+			pr_debug("read first byte\n");
-+			writel(MXS_I2C_CTRL0_RUN | MXS_I2C_CTRL0_MASTER_MODE |
-+				MXS_I2C_CTRL0_XFER_COUNT(1),
-+				i2c->regs + MXS_I2C_CTRL0);
-+
-+			ret =3D mxs_i2c_pio_wait_dmareq(i2c);
-+			if (ret)
-+				return ret;
-+
-+			data =3D readl(i2c->regs + MXS_I2C_DATA) & 0xff;
-+			if (data > I2C_SMBUS_BLOCK_MAX)
-+				return -EPROTO;
-+
-+			msg->len +=3D data;
-+			readlen +=3D data - 1;
-+		}
-+
-+		pr_debug("%s: data =3D %u, msg->len =3D %u, readlen =3D %u\n", __fun=
-c__, data, msg->len, readlen);
-+
- 		/* READ command. */
- 		writel(MXS_I2C_CTRL0_RUN | MXS_CMD_I2C_READ | flags |
--			MXS_I2C_CTRL0_XFER_COUNT(msg->len),
-+			MXS_I2C_CTRL0_XFER_COUNT(readlen),
- 			i2c->regs + MXS_I2C_CTRL0);
-=20
--		for (i =3D 0; i < msg->len; i++) {
-+		for (i =3D 0; i < readlen; i++) {
- 			if ((i & 3) =3D=3D 0) {
- 				ret =3D mxs_i2c_pio_wait_dmareq(i2c);
- 				if (ret)
- 					return ret;
- 				data =3D readl(i2c->regs + MXS_I2C_DATA);
- 			}
--			msg->buf[i] =3D data & 0xff;
-+			msg->buf[buf_offset + i] =3D data & 0xff;
- 			data >>=3D 8;
- 		}
- 	} else {
-@@ -438,6 +471,9 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *ada=
-p, struct i2c_msg *msg,
- 	 * is set to 8 bytes, transfers shorter than 8 bytes are transfered
- 	 * using PIO mode while longer transfers use DMA. The 8 byte border i=
-s
- 	 * based on this empirical measurement and a lot of previous frobbing=
-=2E
-+	 *
-+	 * Note that only mxs_i2c_pio_setup_xfer has support for I2C_M_RECV_L=
-EN.
-+	 * That is OK as msg->len is <=3D 2 when that flag is set.
- 	 */
- 	if (msg->len < 8) {
- 		ret =3D mxs_i2c_pio_setup_xfer(adap, msg, flags);
-@@ -497,6 +533,8 @@ static irqreturn_t mxs_i2c_isr(int this_irq, void *=
-dev_id)
- 	struct mxs_i2c_dev *i2c =3D dev_id;
- 	u32 stat =3D readl(i2c->regs + MXS_I2C_CTRL1) & MXS_I2C_IRQ_MASK;
-=20
-+	pr_debug("%s: stat =3D 0x%08x\n", __func__, stat);
-+
- 	if (!stat)
- 		return IRQ_NONE;
-=20
-The problem is that mxs_i2c_pio_wait_dmareq that is called in the if
-(msg->flags & I2C_M_RECV_LEN) block times out, i.e. the hardware doesn'=
-t
-set MXS_I2C_DEBUG0_DMAREQ after the read request for the length byte.
-The same problem happens when I use the dma path to implement
-I2C_M_RECV_LEN support. In that case mxs_i2c_isr is called, but the dma
-callback is not.
+Actually not, this can be removed.
 
-On the wire the following happens for a i2c_smbus_read_block_data call
-(from userspace):
+> > +#include <linux/platform_device.h>
+> > +#include <linux/gpio.h>
+> > +#include <linux/mfd/kempld.h>
+> > +#include <linux/seq_file.h>
+> > +
+> > +#include "gpio-kempld.h"
+> > +
+> > +static int gpiobase = -1;
+> > +static int gpioien = 0x00;
+> > +static int gpioevt_lvl_edge = -1;
+> > +static int gpioevt_low_high = -1;
+> > +static int gpionmien = 0x00;  
+> 
+> (...)
+> 
+> +static int kempld_gpio_to_irq(struct gpio_chip *chip, unsigned
+> offset) +{
+> +       struct kempld_gpio_data *gpio
+> +               = container_of(chip, struct kempld_gpio_data, chip);
+> +       return gpio->irq;
+> +}
+> 
+> I don't understand this *at all* so help me out here.
+> 
+> .gpio_to_irq() should return a *Linux* IRQ number, usually we take
+> the event offset (in this case) and map to a Linux IRQ using the
+> irqdomain helper library. Can you explain how we can be sure that
+> this number (apparently just a read from a register on the device)
+> can be made to correspond to a Linux IRQ?
+> 
+> Also if this thing can generate IRQs, are these one line to the CPU
+> per IRQ really? Don't you need to demux the status register and
+> create a cascades irqchip?
+> 
+> Maybe it's just me not understanding x86 & ACPI so bear with me...  
 
-	S $clientaddr W A $command A Sr $clientaddr R A 0x01
+The chip is connected to the CPU through a serial IRQ line and IRQs
+are managed through the (A)PIC which is configured by the
+firmware. I never saw a difference between Linux and HW IRQ numbers
+for the legacy IRQs (0-15) this chip generates. But I will take
+another look at the IRQ handling of this driver.
 
-as expected and then the i.MX28 starts sending an ack:
+> > +static int kempld_gpio_setup_event(struct kempld_gpio_data *gpio)
+> > +{
+> > +       struct kempld_device_data *pld = gpio->pld;
+> > +       struct gpio_chip *chip = &gpio->chip;
+> > +       int irq;
+> > +
+> > +       irq = gpio->irq;
+> > +
+> > +       kempld_get_mutex_set_index(pld, KEMPLD_IRQ_GPIO);
+> > +       irq = kempld_read8(pld, KEMPLD_IRQ_GPIO);
+> > +
+> > +       /* Leave if interrupts are not supported by the GPIO core */
+> > +       if ((irq & 0xf0) == 0xf0)
+> > +               return 0;
+> > +
+> > +       gpio->irq = irq & 0x0f;  
+> 
+> So you read the IRQ from some plug-n-play here, and it's some
+> system-wide IRQ number?  
 
-	SDA ..____________/=C2=AF=C2=AF=C2=AF\____
-	SCL .._/=C2=AF\_/=C2=AF\_/=C2=AF\_/=C2=AF\_/=C2=AF=C2=AF=C2=AF
-	    ..  5   6   7   8   9
-              slave sending   | mxs starts
-	      length byte (1) | to send A
+Correct.
 
-but MXS_I2C_DEBUG0 stays 0 while mxs_i2c_pio_wait_dmareq waits. After
-that a P is put on the wire. That fits to what I see when using dma:
-HW_APBX_CH6_DEBUG1.STATEMACHINE =3D=3D 0x15 meaning:
+> (...)  
+> > +       if (gpio->irq)
+> > +               chip->to_irq =          kempld_gpio_to_irq;  
+> 
+> So that is this mystery with the IRQs and how they turn into
+> Linux IRQs.
+>   
+> > +module_param(gpiobase, int, 0444);  
+> 
+> Why do you need to be able to configure this?
+> It must be a real usecase, debugging can be done by patching
+> the code.  
 
-	WAIT_END =E2=80=94 When the Wait for Command End bit is set, the state
-	machine enters this state until the DMA device indicates that
-	the command is complete.
+This was intended to help developing userspace applications or scripts.
+For this parameter I had in mind that one configures a static
+GPIO base and then maps the GPIOs with the help of the sysfs interface
+without the need to first find out which is the actual GPIO base. If you think this shouldn't be done this way I won't insist
+to keep this parameter.
 
-So the problem seems to be that the i2c core fails to tell the dma core
-that it's done.
+> > +module_param(gpioien, int, 0444);
+> > +module_param(gpioevt_lvl_edge, int, 0444);
+> > +module_param(gpioevt_low_high, int, 0444);
+> > +module_param(gpionmien, int, 0444);  
+> 
+> Argh how can anyone possibly make this out ... do you really
+> need them or can we get rid of some and rely on autodetect?  
 
-Other things I wonder about in the i2c-mxs driver:
+As the chip sits on a computer module that is usually only configured
+generically, it is not possible to auto detect the needed configuration.
+Those parameters are intended to let the developer configure the chip
+without having to touch the driver code.
+You are right anyway, doing it this way might not be the best way. So if
+there is a good way to configure this stuff at runtime by using a
+generic interface I would also prefer this.
 
- - I don't understand why RETAIN_CLOCK is added to MXS_CMD_I2C_SELECT.
-   From my understanding of i2c and the hardware manual I'd say this is
-   only relevant for slave mode? Setting RETAIN_CLOCK for the cycle tha=
-t
-   reads the length byte is broken in a different way. (After reading
-   the 1 the mxs pulls low SDA for acking but doesn't pulse SCL. Then
-   another 9 clock pulses are sent with SDA high. After the 9th falling
-   edge SDA is pulled low by the i.MX28 and then both lines go back to =
-1
-   at the same time. I will debug a bit more here.)
-   So it seems RETAIN_CLOCK has a meaning for master mode, too. If you
-   have a more concrete perception of its meaning it would be great if
-   you could share it.
+> > +MODULE_DESCRIPTION("KEM PLD GPIO Driver");
+> > +MODULE_AUTHOR("Michael Brunner <michael.brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>");
+> > +MODULE_LICENSE("GPL");
+> > +MODULE_ALIAS("platform:kempld_gpio");
+> > +MODULE_PARM_DESC(gpiobase, "Set GPIO base (default -1=dynamic)");
+> > +MODULE_PARM_DESC(gpioien, "Set GPIO IEN register (default 0x00)");
+> > +MODULE_PARM_DESC(gpioevt_lvl_edge,
+> > +                       "Set GPIO EVT_LVL_EDGE register (default
+> > -1=no change)"); +MODULE_PARM_DESC(gpioevt_low_high,
+> > +                       "Set GPIO EVT_LOW_HIGH register (default
+> > -1=no change)"); +MODULE_PARM_DESC(gpionmien, "Set GPIO NMIEN
+> > register (default 0x00)");  
+> 
+> 
+> So I don't really like that interrupt enablement and edge and low/high
+> is done with module parameters instead of just creating an irqchip and
+> have it implement the operations to do exactly these things at runtime
+> instead.
+> 
+> Again maybe some x86 thing I don't get...  
 
- - Is it correct to have I2C_FUNC_SMBUS_EMUL in .functionality without
-   supporting I2C_M_RECV_LEN?
+Possibly not. I am not very familiar with irqchip so far, therefore I
+will have a look at it and check if the whole IRQ handling can be
+ported to this framework.
 
-Best regards
-Uwe
+> > diff --git a/drivers/gpio/gpio-kempld.h
+> > b/drivers/gpio/gpio-kempld.h  
+> (...)  
+> > +struct kempld_gpio_data {
+> > +       struct gpio_chip                chip;
+> > +       int                             irq;
+> > +       struct kempld_device_data       *pld;
+> > +       uint16_t                        mask;  
+> 
+> Just u16?  
 
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=C3=B6nig     =
-       |
-Industrial Linux Solutions                 | http://www.pengutronix.de/=
-  |
+The specification allows 16 GPIOs for this device, therefore this seems
+to be the right size. Would it be better to use another type instead?
+
+> > +};  
+> 
+> (...)  
+> > diff --git a/drivers/gpio/gpio-kempld_now1.c
+> > b/drivers/gpio/gpio-kempld_now1.c +#include <linux/io.h>  
+> 
+> Do you use this?  
+
+This can be removed.
+
+> > +#include <linux/slab.h>
+> > +#include <linux/errno.h>
+> > +#include <linux/acpi.h>  
+> 
+> And this?  
+
+linux/slab.h is necessary for kzalloc, but the rest can be removed.
+
+> > +#include <linux/platform_device.h>
+> > +#include <linux/gpio.h>
+> > +#include <linux/mfd/kempld.h>
+> > +#include <linux/seq_file.h>
+> > +
+> > +#include "gpio-kempld.h"  
+> (...)  
+> > +  
+> 
+> Most comments concern the other driver too.
+> 
+> Yours,
+> Linus Walleij  
+
+Thank you for the review!
+
+Best regards,
+  Michael
