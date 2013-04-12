@@ -1,90 +1,55 @@
-From: Heiko =?iso-8859-15?q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH v3 05/10] i2c: s3c2410: make header file local
-Date: Thu, 11 Apr 2013 23:43:34 +0200
-Message-ID: <201304112343.34534.heiko@sntech.de>
-References: <1365716245-99231-1-git-send-email-arnd@arndb.de> <1365716245-99231-6-git-send-email-arnd@arndb.de>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] i2c: imx: use of_alias_get_id to order i2c devices
+Date: Fri, 12 Apr 2013 09:49:39 +0800
+Message-ID: <20130412014937.GB16970@S2101-09.ap.freescale.net>
+References: <1365527379-17786-1-git-send-email-p.zabel@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1365716245-99231-6-git-send-email-arnd@arndb.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1365527379-17786-1-git-send-email-p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Arnd,
+On Tue, Apr 09, 2013 at 07:09:39PM +0200, Philipp Zabel wrote:
+> This allows to order i2c character devices as they are numbered
+> in the reference manual, instead of ordering them by register
+> base address.
+> 
+> Signed-off-by: Philipp Zabel <p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 
-Am Donnerstag, 11. April 2013, 23:37:20 schrieb Arnd Bergmann:
-> No other file in the kernel besides i2c-s3c2410.c uses the current
-> plat/regs-iic.h, so we can simply move the header file to live in the
-> same directory as the driver, as a preparation to multiplatform builds.
+I'm fine with the patch, but let's see if DT maintainers have an
+opinion.
 
-There is already a patch doing similar changes [0] in the i2c tree for 3.10
+Shawn
 
-
-Heiko
-
-
-[0] 
-https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/commit/?h=i2c/for-
-next&id=e636602ac2613da8c1777cb42443223994be4107
-
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: Ben Dooks <ben-linux@fluff.org>
 > ---
->  arch/arm/mach-s3c24xx/mach-rx1950.c                                    | 1
-> - arch/arm/plat-samsung/devs.c                                           |
-> 1 - drivers/i2c/busses/i2c-s3c2410.c                                      
-> | 3 ++- .../include/plat/regs-iic.h => drivers/i2c/busses/i2c-s3c2410.h   
->     | 0 4 files changed, 2 insertions(+), 3 deletions(-)
->  rename arch/arm/plat-samsung/include/plat/regs-iic.h =>
-> drivers/i2c/busses/i2c-s3c2410.h (100%)
+>  drivers/i2c/busses/i2c-imx.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/arch/arm/mach-s3c24xx/mach-rx1950.c
-> b/arch/arm/mach-s3c24xx/mach-rx1950.c index 1f9ba2a..43f3ac5 100644
-> --- a/arch/arm/mach-s3c24xx/mach-rx1950.c
-> +++ b/arch/arm/mach-s3c24xx/mach-rx1950.c
-> @@ -56,7 +56,6 @@
->  #include <plat/cpu.h>
->  #include <plat/devs.h>
->  #include <plat/pm.h>
-> -#include <plat/regs-iic.h>
->  #include <plat/regs-serial.h>
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 82f20c6..e5a3f08 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -488,6 +488,7 @@ static struct i2c_algorithm i2c_imx_algo = {
+>  
+>  static int __init i2c_imx_probe(struct platform_device *pdev)
+>  {
+> +	struct device_node *np = pdev->dev.of_node;
+>  	const struct of_device_id *of_id = of_match_device(i2c_imx_dt_ids,
+>  							   &pdev->dev);
+>  	struct imx_i2c_struct *i2c_imx;
+> @@ -531,7 +532,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+>  	i2c_imx->adapter.owner		= THIS_MODULE;
+>  	i2c_imx->adapter.algo		= &i2c_imx_algo;
+>  	i2c_imx->adapter.dev.parent	= &pdev->dev;
+> -	i2c_imx->adapter.nr 		= pdev->id;
+> +	i2c_imx->adapter.nr		= (pdev->id < 0) ? of_alias_get_id(np, "i2c") : pdev->id;
+>  	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
+>  	i2c_imx->base			= base;
+>  
+> -- 
+> 1.8.2.rc2
 > 
->  #include "common.h"
-> diff --git a/arch/arm/plat-samsung/devs.c b/arch/arm/plat-samsung/devs.c
-> index de9ad27..5e37051 100644
-> --- a/arch/arm/plat-samsung/devs.c
-> +++ b/arch/arm/plat-samsung/devs.c
-> @@ -62,7 +62,6 @@
->  #include <linux/platform_data/usb-s3c2410_udc.h>
->  #include <linux/platform_data/usb-ohci-s3c2410.h>
->  #include <plat/usb-phy.h>
-> -#include <plat/regs-iic.h>
->  #include <plat/regs-serial.h>
->  #include <plat/regs-spi.h>
->  #include <linux/platform_data/spi-s3c64xx.h>
-> diff --git a/drivers/i2c/busses/i2c-s3c2410.c
-> b/drivers/i2c/busses/i2c-s3c2410.c index f6b880b..d042ad0 100644
-> --- a/drivers/i2c/busses/i2c-s3c2410.c
-> +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> @@ -42,9 +42,10 @@
-> 
->  #include <asm/irq.h>
-> 
-> -#include <plat/regs-iic.h>
->  #include <linux/platform_data/i2c-s3c2410.h>
-> 
-> +#include "i2c-s3c2410.h"
-> +
->  /* Treat S3C2410 as baseline hardware, anything else is supported via
-> quirks */ #define QUIRK_S3C2440		(1 << 0)
->  #define QUIRK_HDMIPHY		(1 << 1)
-> diff --git a/arch/arm/plat-samsung/include/plat/regs-iic.h
-> b/drivers/i2c/busses/i2c-s3c2410.h similarity index 100%
-> rename from arch/arm/plat-samsung/include/plat/regs-iic.h
-> rename to drivers/i2c/busses/i2c-s3c2410.h
