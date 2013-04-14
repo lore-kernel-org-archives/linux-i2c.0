@@ -1,36 +1,34 @@
-From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
-Subject: Re: [PATCH 08/30] i2c: s3c2410: make header file local
-Date: Sun, 14 Apr 2013 19:01:31 +0200
-Message-ID: <201304141901.32286.heiko@sntech.de>
-References: <1365638712-1028578-1-git-send-email-arnd@arndb.de> <1365638712-1028578-9-git-send-email-arnd@arndb.de> <20130414122035.GB9013@the-dreams.de>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: I2C_M_RECV_LEN for i2c-mxs
+Date: Sun, 14 Apr 2013 19:54:38 +0200
+Message-ID: <201304141954.38902.marex@denx.de>
+References: <20130412093003.GE30416@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20130414122035.GB9013@the-dreams.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130412093003.GE30416-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Am Sonntag, 14. April 2013, 14:20:35 schrieb Wolfram Sang:
-> On Thu, Apr 11, 2013 at 02:04:50AM +0200, Arnd Bergmann wrote:
-> > No other file in the kernel besides i2c-s3c2410.c uses the current
-> > plat/regs-iic.h, so we can simply move the header file to live in the
-> > same directory as the driver, as a preparation to multiplatform builds.
+Hi Uwe,
+
+CCing Lucas Stach too, are you two not in the same office now ? ;-)
+
+> Hello,
 > 
-> What about putting the regs in the driver itself?
+> I'm currently trying to teach the i2c-mxs driver to handle the
+> I2C_M_RECV_LEN flag but failed up to now. Maybe someone has an good idea
+> how to make it running?
+> 
+> My current patch looks as follows:
 
-they already are :-) [0] and Arnd will drop this patch in his next iteration 
-[1].
+Try basing your patch on top of Lucas's, they looked very reasonable. I think WS 
+should have applied them by now. Wolfram, what's the status of those three mxs-
+i2c patches from Lucas, can you tell?
 
-
-Heiko
-
-
-[0] 
-https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/commit/?h=i2c/for-
-next&id=e636602ac2613da8c1777cb42443223994be4107
-
-[1] Message-Id: <201304121011.13028.arnd@arndb.de>
+Best regards,
+Marek Vasut
