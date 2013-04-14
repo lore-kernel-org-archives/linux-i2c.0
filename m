@@ -1,39 +1,32 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: I2C_M_RECV_LEN for i2c-mxs
-Date: Sun, 14 Apr 2013 13:57:58 +0200
-Message-ID: <20130414115757.GA9013@the-dreams.de>
-References: <20130412093003.GE30416@pengutronix.de>
- <20130412153757.GA10241@the-dreams.de>
- <20130412182611.GG30416@pengutronix.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 08/30] i2c: s3c2410: make header file local
+Date: Sun, 14 Apr 2013 14:20:35 +0200
+Message-ID: <20130414122035.GB9013@the-dreams.de>
+References: <1365638712-1028578-1-git-send-email-arnd@arndb.de>
+ <1365638712-1028578-9-git-send-email-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20130412182611.GG30416-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1365638712-1028578-9-git-send-email-arnd@arndb.de>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Uwe,
+On Thu, Apr 11, 2013 at 02:04:50AM +0200, Arnd Bergmann wrote:
 
-> The reason I used wolfram@... is probably:
+> No other file in the kernel besides i2c-s3c2410.c uses the current
+> plat/regs-iic.h, so we can simply move the header file to live in the
+> same directory as the driver, as a preparation to multiplatform builds.
 
-Looking up MAINTAINERS would have done it :)
-
-> Ah, ok. But then there is a different problem: Even though "my" driver
-> only advertises I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL calling
-> i2c_smbus_read_block_data in userspace results in .master_xfer being
-> called with I2C_M_RECV_LEN set.
-
->From Documentation/i2c/functionality:
-
-Because not every I2C or SMBus adapter implements everything in the 
-I2C specifications, a client can not trust that everything it needs
-is implemented when it is given the option to attach to an adapter:
-the client needs some way to check whether an adapter has the needed
-functionality...
-
-Regards,
-
-   Wolfram
+What about putting the regs in the driver itself?
