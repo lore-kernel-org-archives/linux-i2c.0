@@ -1,34 +1,36 @@
-From: Michael Powell <mwpowellhtx-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: ArchLinux ARM I2C concurrent support
-Date: Sun, 14 Apr 2013 09:00:42 -0500
-Message-ID: <CAMEoF_Ftj8NZz0cMy8GsHRk8CapYK7H+b7NJyu6cS=HJ9aRWnQ@mail.gmail.com>
+From: Heiko =?iso-8859-1?q?St=FCbner?= <heiko@sntech.de>
+Subject: Re: [PATCH 08/30] i2c: s3c2410: make header file local
+Date: Sun, 14 Apr 2013 19:01:31 +0200
+Message-ID: <201304141901.32286.heiko@sntech.de>
+References: <1365638712-1028578-1-git-send-email-arnd@arndb.de> <1365638712-1028578-9-git-send-email-arnd@arndb.de> <20130414122035.GB9013@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: Text/Plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20130414122035.GB9013@the-dreams.de>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Am Sonntag, 14. April 2013, 14:20:35 schrieb Wolfram Sang:
+> On Thu, Apr 11, 2013 at 02:04:50AM +0200, Arnd Bergmann wrote:
+> > No other file in the kernel besides i2c-s3c2410.c uses the current
+> > plat/regs-iic.h, so we can simply move the header file to live in the
+> > same directory as the driver, as a preparation to multiplatform builds.
+> 
+> What about putting the regs in the driver itself?
 
-I need to know about the I2C device support for ArchLinux ARM.
+they already are :-) [0] and Arnd will drop this patch in his next iteration 
+[1].
 
-* Generally, am somewhat familiar with the Linux everything-is-a-file-
-descriptor approach.
-* Followed by we have an I2C device exposed as a device through /dev/i2c-0 file.
-* No grouping or any other perms going on (yet), all at the root level
-access (for now).
 
-After which, questions about concurrency.
+Heiko
 
-* I gather the usual file handling rules apply using open() and close().
-* For a process (service, utility, whatever) to access the bus, must
-open using open("/dev/i2c-0", O_RDWR).
-* What about for multiple processes (services, utilities, watchdogs,
-etc)? O_RDWR | O_DSYNC?
 
-I assume there needs to be more of a synchronization integrity check going on?
+[0] 
+https://git.kernel.org/cgit/linux/kernel/git/wsa/linux.git/commit/?h=i2c/for-
+next&id=e636602ac2613da8c1777cb42443223994be4107
 
-Regards,
-
-Michael Powell
+[1] Message-Id: <201304121011.13028.arnd@arndb.de>
