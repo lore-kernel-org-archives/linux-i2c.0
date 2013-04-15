@@ -1,60 +1,29 @@
-From: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-Subject: Re: [PATCH 0/3] ARM: at91: move to generic DMA device tree bindings
-Date: Mon, 15 Apr 2013 14:38:34 +0200
-Message-ID: <20130415123834.GA15139@game.jcrosoft.org>
-References: <1366028217-5037-1-git-send-email-ludovic.desroches@atmel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: s3c2410: Add SMBus emulation for block read
+Date: Mon, 15 Apr 2013 18:06:51 +0200
+Message-ID: <20130415160651.GA6286@the-dreams.de>
+References: <1364308196-10101-1-git-send-email-prasanna.ps@samsung.com>
+ <20130409122313.GD4913@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1366028217-5037-1-git-send-email-ludovic.desroches@atmel.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: ludovic.desroches@atmel.com
-Cc: nicolas.ferre@atmel.com, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+In-Reply-To: <20130409122313.GD4913-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Uwe =?iso-8859-15?Q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Prasanna Kumar <prasanna.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jaemin Yoo <jmin.yoo-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 14:16 Mon 15 Apr     , ludovic.desroches@atmel.com wrote:
-> From: Ludovic Desroches <ludovic.desroches@atmel.com>
-> 
-> Hi,
-> 
-> This set of patches introduces DMA device tree bindings support for the atmel
-> DMA controller and first driver conversions.
-> 
-> I'll send an update of dts file in the next version if there is no major issue
-> with the bindings.
-looks fine
 
-Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
+> I don't know if that can happen, but if the block has length 0 (that is,
+> only consists of a single byte that is read as 0) the is_msglast() test
+> returns 0 which might be wrong. Maybe even if it cannot regularily
+> happen handle it in a sane way?
 
-Best Regards,
-J.
-> 
-> Regards
-> 
-> 
-> Ludovic Desroches (3):
->   at_hdmac: move to generic DMA binding
->   i2c: at91: convert to dma_request_slave_channel_compat()
->   mci: at91: convert to dma_request_slave_channel_compat()
-> 
->  .../devicetree/bindings/dma/atmel-dma.txt          | 26 +++++-
->  arch/arm/boot/dts/sama5d3.dtsi                     |  4 +-
->  drivers/dma/at_hdmac.c                             | 93 ++++++++++++++++++++--
->  drivers/dma/at_hdmac_regs.h                        |  4 +
->  drivers/i2c/busses/i2c-at91.c                      | 49 ++++++------
->  drivers/mmc/host/atmel-mci.c                       | 25 +++---
->  6 files changed, 154 insertions(+), 47 deletions(-)
-> 
-> -- 
-> 1.7.11.3
-> 
+Length of 0 is illegal according to the specs, but a check won't hurt.
+
+> Also I wonder if error checking for byte > I2C_SMBUS_BLOCK_MAX would be
+> needed to prevent a buffer overrun?
+
+Yes. Although I have seen devices able to send more than that, yet
+adding support for that is a seperate issue.
