@@ -1,36 +1,24 @@
-From: Olof Johansson <olof@lixom.net>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Subject: Re: [PATCH v6 1/3] i2c: mux: Add i2c-arb-gpio-challenge 'mux' driver
-Date: Tue, 16 Apr 2013 09:34:58 -0700
-Message-ID: <20130416163458.GA4918@quad.lixom.net>
+Date: Tue, 16 Apr 2013 09:45:12 -0700
+Message-ID: <20130416164512.GB27488@roeck-us.net>
 References: <1365543270-10736-1-git-send-email-dianders@chromium.org>
  <1366129742-16048-1-git-send-email-dianders@chromium.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1366129742-16048-1-git-send-email-dianders@chromium.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Doug Anderson <dianders@chromium.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Kukjin Kim <kgene.kim@samsung.com>, Simon Glass <sjg@chromium.org>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, grant.likely@secretlab.ca, yuvaraj.cd@gmail.com, ben.dooks@codethink.co.uk, u.kleine-koenig@pengutronix.de, broonie@opensource.wolfsonmicro.com, girish.shivananjappa@linaro.org, bhushan.r@samsung.com, sreekumar.c@samsung.com, prashanth.g@samsung.com, djkurtz@chromium.org, swarren@wwwdotorg.org, linux@roeck-us.net, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Stephen Warren <swarren@nvidia.com>, Jean Delvare <khali@linux-fr.org>, Peter Korsgaard <peter.korsgaard@barco.com>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+In-Reply-To: <1366129742-16048-1-git-send-email-dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Doug Anderson <dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Simon Glass <sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org, girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, prashanth.g-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org, djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
-
-Overdue, should have added a few iterations ago: :)
 
 On Tue, Apr 16, 2013 at 09:29:00AM -0700, Doug Anderson wrote:
 > The i2c-arb-gpio-challenge driver implements an I2C arbitration scheme
 > where masters need to claim the bus with a GPIO before they can start
 > a transcation.  This should generally only be used when standard I2C
-> multimaster isn't appropriate for some reason (errata/bugs).
-> 
-> This driver is based on code that Simon Glass added to the i2c-s3c2410
-> driver in the Chrome OS kernel 3.4 tree.  The current incarnation as a
-> mux driver is as suggested by Grant Likely.  See
-> <https://patchwork.kernel.org/patch/1877311/> for some history.
-> 
-> Signed-off-by: Doug Anderson <dianders@chromium.org>
-> Signed-off-by: Simon Glass <sjg@chromium.org>
-> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
-> Reviewed-by: Stephen Warren <swarren@nvidia.com>
 
-Acked-by: Olof Johansson <olof@lixom.net>
+I am having fun with spelling today :)
 
+s/transcation/transaction/
