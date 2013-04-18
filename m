@@ -1,48 +1,35 @@
-From: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Subject: Re: [PATCH v6 1/3] i2c: mux: Add i2c-arb-gpio-challenge 'mux' driver
-Date: Wed, 17 Apr 2013 09:35:15 -0700
-Message-ID: <CAOesGMhQ8oCYU3LzCQuFsMr7qYfXF0wsCHOSz=mbp=YhPYgVcA@mail.gmail.com>
-References: <1365543270-10736-1-git-send-email-dianders@chromium.org>
- <1366129742-16048-1-git-send-email-dianders@chromium.org>
- <20130416163458.GA4918@quad.lixom.net>
- <20130417093424.GC4508@the-dreams.de>
+From: Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 1/4] mfd: Kontron PLD mfd driver
+Date: Wed, 17 Apr 2013 21:19:40 -0700
+Message-ID: <20130418041940.GB7535@roeck-us.net>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
+ <alpine.LFD.2.02.1304132152320.21884@ionos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-In-Reply-To: <20130417093424.GC4508-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-List-Unsubscribe: <https://lists.ozlabs.org/options/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.ozlabs.org/pipermail/devicetree-discuss/>
-List-Post: <mailto:devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-List-Help: <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.ozlabs.org/listinfo/devicetree-discuss>,
- <mailto:devicetree-discuss-request-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org?subject=subscribe>
-Errors-To: devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
-Sender: "devicetree-discuss"
- <devicetree-discuss-bounces+gldd-devicetree-discuss=m.gmane.org-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Kukjin Kim <kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, =?ISO-8859-1?Q?Uwe_Kleine=2DK=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Girish Shivananjappa <girish.shivananjappa-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, bhushan.r-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, sreekumar.c-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Yuvaraj Kumar <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Je
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.LFD.2.02.1304132152320.21884@ionos>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Kevin Strasser <kevin.strasser@linux.intel.com>, linux-kernel@vger.kernel.org, Michael Brunner <michael.brunner@kontron.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, Linus Walleij <linus.walleij@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Michael Brunner <mibru@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Joe Perches <joe@perches.com>
 List-Id: linux-i2c@vger.kernel.org
 
-(Resend since I replied from my phone earlier and got list rejects due
-to HTML email)
+On Sat, Apr 13, 2013 at 10:38:07PM +0200, Thomas Gleixner wrote:
 
+[ ... ]
 
-On Wed, Apr 17, 2013 at 2:34 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->
-> On Tue, Apr 16, 2013 at 09:34:58AM -0700, Olof Johansson wrote:
->
-> > Overdue, should have added a few iterations ago: :)
->
-> Why is that? Is the current iteration too generic for your taste?
+> 
+> > +	return kempld_read8(pld, index) | kempld_read8(pld, index+1) << 8;
+> 
+>   	       			 	  		    index + 1)
+> Please
+> 
+Wondering .... why does checkpatch not report those ? I just reviewed another
+driver with the same kind of problem, and checkpatch is just as silent. There
+seems to be a whole class of expressions where it does not complain about
+missing spaces.
 
+Joe, any idea ?
 
-No, nothing like that.
-
-I've been talking to Doug and others offlist (at work) about this but
-never acked the patches on the list. I've been happy with them for a
-while and I'm glad you've reached that point too :)
-
-
--Olof
+Thanks,
+Guenter
