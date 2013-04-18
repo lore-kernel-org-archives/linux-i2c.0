@@ -1,43 +1,41 @@
-From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 1/4] mfd: Kontron PLD mfd driver
-Date: Wed, 17 Apr 2013 21:40:53 -0700
-Message-ID: <1366260053.28609.66.camel@joe-AO722>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
-	 <alpine.LFD.2.02.1304132152320.21884@ionos>
-	 <20130418041940.GB7535@roeck-us.net>
+From: =?euc-kr?B?vNvAurrA?= <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] I2C: Fix i2c fail problem when a process is terminated by a
+ signal on octeon in 3.8
+Date: Thu, 18 Apr 2013 07:40:17 +0000 (GMT)
+Message-ID: <11412343.361631366270816380.JavaMail.weblogic@epv6ml12>
+Reply-To: eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=euc-kr
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130418041940.GB7535-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+MIME-version: 1.0
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Michael Brunner <michael.brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, 2013-04-17 at 21:19 -0700, Guenter Roeck wrote:
-> On Sat, Apr 13, 2013 at 10:38:07PM +0200, Thomas Gleixner wrote:
-> > > + return kempld_read8(pld, index) | kempld_read8(pld, index+1) << 8;
-> >                                                         index + 1)
-> > Please
-> Wondering .... why does checkpatch not report those ?
-
-because checkpatch doesn't care about spacing around
-arithmetic as long as it's consistent.
-
-Documentation/CodingStyle doesn't say anything about
-it either.
-
-Look around checkpatch line 2654
-
-                                } elsif ($op eq '<<' or $op eq '>>' or
-                                         $op eq '&' or $op eq '^' or $op eq '|' or
-                                         $op eq '+' or $op eq '-' or
-                                         $op eq '*' or $op eq '/' or
-                                         $op eq '%')
-                                {
-                                        if ($ctx =~ /Wx[^WCE]|[^WCE]xW/) {
-                                                ERROR("SPACING",
-                                                      "need consistent spacing around '$op' $at\n" .
-                                                        $hereptr);
-                                        }
+DQpJIHJld3JpdGUgbXkgcGF0Y2ggYmVjYXVzZSB0aGUgcGF0Y2ggYmVmb3JlIGkgc2VudCBoYXZl
+IG1hbnkgd2hpdGUgc3BhY2UuDQpUaGFua3MhDQotLS0NCkkndmUgYmVlbiBkZWJ1Z2dpbmcgdGhl
+IGFibm9ybWFsIG9wZXJhdGlvbiBvZiBpMmMgb24gb2N0ZW9uLg0KSWYgYSBwcm9jZXNzIGlzIHRl
+cm1pbmF0ZWQgYnkgc2lnbmFsIGluIHRoZSBtaWRkbGUgb2YgaTJjIG9wZXJhdGlvbiwNCm5leHQg
+aTJjIHJlYWQgb3BlcmF0aW9uIHdoaWNoIGlzIGRvbmUgYnkgYW5vdGhlciBwcm9jZXNzIHdhcyBm
+YWlsZWQuDQpTbyBpIGNoYW5nZWQgdG8gaWdub3JlIHNpZ25hbCBpbiB0aGUgbWlkZGxlIG9mIGky
+YyBvcGVyYXRpb24uDQpBZnRlciB0aGF0IHRoZSBwcm9ibGVtIHdhcyBub3QgcmVwcm9kdWNlZC4N
+Cg0KU2lnbmVkLW9mZi1ieTogRXVuYm9uZyBTb25nIDxldW5iLnNvbmdAc2Ftc3VuZy5jb20+DQot
+LS0NCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi5jIHwgICAgOCArKysrLS0tLQ0KIDEg
+ZmlsZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0t
+Z2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24uYyBiL2RyaXZlcnMvaTJjL2J1c3Nl
+cy9pMmMtb2N0ZW9uLmMNCmluZGV4IDkzNTU4NWUuLmIyZTMyNTkgMTAwNjQ0DQotLS0gYS9kcml2
+ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi5jDQorKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
+LW9jdGVvbi5jDQpAQCAtMTgzLDcgKzE4Myw3IEBAIHN0YXRpYyBpcnFyZXR1cm5fdCBvY3Rlb25f
+aTJjX2lzcihpbnQgaXJxLCB2b2lkICpkZXZfaWQpDQogCXN0cnVjdCBvY3Rlb25faTJjICppMmMg
+PSBkZXZfaWQ7DQogDQogCW9jdGVvbl9pMmNfaW50X2Rpc2FibGUoaTJjKTsNCi0Jd2FrZV91cF9p
+bnRlcnJ1cHRpYmxlKCZpMmMtPnF1ZXVlKTsNCisJd2FrZV91cCgmaTJjLT5xdWV1ZSk7DQogDQog
+CXJldHVybiBJUlFfSEFORExFRDsNCiB9DQpAQCAtMjA2LDkgKzIwNiw5IEBAIHN0YXRpYyBpbnQg
+b2N0ZW9uX2kyY193YWl0KHN0cnVjdCBvY3Rlb25faTJjICppMmMpDQogDQogCW9jdGVvbl9pMmNf
+aW50X2VuYWJsZShpMmMpOw0KIA0KLQlyZXN1bHQgPSB3YWl0X2V2ZW50X2ludGVycnVwdGlibGVf
+dGltZW91dChpMmMtPnF1ZXVlLA0KLQkJCQkJCSAgb2N0ZW9uX2kyY190ZXN0X2lmbGcoaTJjKSwN
+Ci0JCQkJCQkgIGkyYy0+YWRhcC50aW1lb3V0KTsNCisJcmVzdWx0ID0gd2FpdF9ldmVudF90aW1l
+b3V0KGkyYy0+cXVldWUsDQorCQkJCQlvY3Rlb25faTJjX3Rlc3RfaWZsZyhpMmMpLA0KKwkJCQkJ
+aTJjLT5hZGFwLnRpbWVvdXQpOw0KIA0KIAlvY3Rlb25faTJjX2ludF9kaXNhYmxlKGkyYyk7DQog
+DQotLSANCjEuNy4wLjQNCg==
