@@ -1,91 +1,47 @@
-From: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c: davinci: drop superfluous {get|put}_device
-Date: Fri, 19 Apr 2013 17:13:57 +0530
-Message-ID: <51712DFD.8090302@ti.com>
-References: <1366305218-22817-1-git-send-email-wsa@the-dreams.de> <1366305218-22817-2-git-send-email-wsa@the-dreams.de>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: i2c-mxs woes
+Date: Fri, 19 Apr 2013 13:49:05 +0200
+Message-ID: <201304191349.05971.marex@denx.de>
+References: <51712C8B.7070302@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: Text/Plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1366305218-22817-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <51712C8B.7070302-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 4/18/2013 10:43 PM, Wolfram Sang wrote:
-> Driver core already takes care of refcounting, no need to do this on
-> driver level again.
+Dear Alexandre Belloni,
+
+> Hi,
 > 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-
-Tested I2C probe on DA850 EVM.
-
-Tested-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-
-Thanks,
-Sekhar
-
-> ---
->  drivers/i2c/busses/i2c-davinci.c |   19 ++++++-------------
->  1 file changed, 6 insertions(+), 13 deletions(-)
+> I'm having some issues with the i2c-mxs driver in 3.9. Marek already
+> pointed me to the patches from Lucas and that greatly improved the
+> situation.
 > 
-> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> index c01edac..cf20e06 100644
-> --- a/drivers/i2c/busses/i2c-davinci.c
-> +++ b/drivers/i2c/busses/i2c-davinci.c
-> @@ -670,7 +670,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  #ifdef CONFIG_CPU_FREQ
->  	init_completion(&dev->xfr_complete);
->  #endif
-> -	dev->dev = get_device(&pdev->dev);
-> +	dev->dev = &pdev->dev;
->  	dev->irq = irq->start;
->  	dev->pdata = dev->dev->platform_data;
->  	platform_set_drvdata(pdev, dev);
-> @@ -680,10 +680,9 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  
->  		dev->pdata = devm_kzalloc(&pdev->dev,
->  			sizeof(struct davinci_i2c_platform_data), GFP_KERNEL);
-> -		if (!dev->pdata) {
-> -			r = -ENOMEM;
-> -			goto err_free_mem;
-> -		}
-> +		if (!dev->pdata)
-> +			return -ENOMEM;
-> +
->  		memcpy(dev->pdata, &davinci_i2c_platform_data_default,
->  			sizeof(struct davinci_i2c_platform_data));
->  		if (!of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-> @@ -694,10 +693,8 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  	}
->  
->  	dev->clk = devm_clk_get(&pdev->dev, NULL);
-> -	if (IS_ERR(dev->clk)) {
-> -		r = -ENODEV;
-> -		goto err_free_mem;
-> -	}
-> +	if (IS_ERR(dev->clk))
-> +		return -ENODEV;
->  	clk_prepare_enable(dev->clk);
->  
->  	dev->base = devm_ioremap_resource(&pdev->dev, mem);
-> @@ -744,9 +741,6 @@ static int davinci_i2c_probe(struct platform_device *pdev)
->  err_unuse_clocks:
->  	clk_disable_unprepare(dev->clk);
->  	dev->clk = NULL;
-> -err_free_mem:
-> -	put_device(&pdev->dev);
-> -
->  	return r;
->  }
->  
-> @@ -757,7 +751,6 @@ static int davinci_i2c_remove(struct platform_device *pdev)
->  	i2c_davinci_cpufreq_deregister(dev);
->  
->  	i2c_del_adapter(&dev->adapter);
-> -	put_device(&pdev->dev);
->  
->  	clk_disable_unprepare(dev->clk);
->  	dev->clk = NULL;
+> For the context, my board has three nau7802 adcs, connected to a gpio
+> i2c-muxer, connected to i2c1.
 > 
+> Here is what I observe:
+> 
+> On 3.9:
+> 
+> # time cat /sys/bus/iio/devices/iio:device1/in_voltage0_raw
+> 2620
+> real	0m 7.08s
+> user	0m 0.00s
+> sys	0m 0.02s
+> # time cat /sys/bus/iio/devices/iio:device1/in_voltage1_raw
+> 2623
+> real	0m 6.07s
+> user	0m 0.01s
+> sys	0m 0.01s
+> #
+
+Looks like there's a fixes 7-second delay. Like a timeout maybe?
+
+Best regards,
+Marek Vasut
