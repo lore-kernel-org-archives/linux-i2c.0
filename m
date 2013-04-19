@@ -1,54 +1,26 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: Re: [PATCH 1/4] mfd: Kontron PLD mfd driver
-Date: Thu, 18 Apr 2013 11:40:03 -0700
-Message-ID: <20130418184003.GA8251@roeck-us.net>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
- <alpine.LFD.2.02.1304132152320.21884@ionos>
- <20130418041940.GB7535@roeck-us.net>
- <1366260053.28609.66.camel@joe-AO722>
- <20130418133555.GA2767@roeck-us.net>
- <1366303337.2119.22.camel@joe-AO722>
+From: EUNBONG SONG <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH]  I2C: Change the value of octeon i2c adapter timeout value
+Date: Fri, 19 Apr 2013 00:01:05 +0000 (GMT)
+Message-ID: <22387590.3491366329664571.JavaMail.weblogic@epv6ml11>
+Reply-To: eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1366303337.2119.22.camel@joe-AO722>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joe Perches <joe@perches.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Kevin Strasser <kevin.strasser@linux.intel.com>, linux-kernel@vger.kernel.org, Michael Brunner <michael.brunner@kontron.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, linux-i2c@vger.kernel.org, Grant Likely <grant.likely@secretlab.ca>, Linus Walleij <linus.walleij@linaro.org>, Wim Van Sebroeck <wim@iguana.be>, linux-watchdog@vger.kernel.org, Darren Hart <dvhart@linux.intel.com>, Michael Brunner <mibru@gmx.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset=euc-kr
+Content-Transfer-Encoding: base64
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+MIME-version: 1.0
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Apr 18, 2013 at 09:42:17AM -0700, Joe Perches wrote:
-> On Thu, 2013-04-18 at 06:35 -0700, Guenter Roeck wrote:
-> > On Wed, Apr 17, 2013 at 09:40:53PM -0700, Joe Perches wrote:
-> > > On Wed, 2013-04-17 at 21:19 -0700, Guenter Roeck wrote:
-> > > > On Sat, Apr 13, 2013 at 10:38:07PM +0200, Thomas Gleixner wrote:
-> > > > > > + return kempld_read8(pld, index) | kempld_read8(pld, index+1) << 8;
-> > > > >                                                         index + 1)
-> > > > > Please
-> > > > Wondering .... why does checkpatch not report those ?
-> > > 
-> > > because checkpatch doesn't care about spacing around
-> > > arithmetic as long as it's consistent.
-> > > 
-> > > Documentation/CodingStyle doesn't say anything about
-> > > it either.
-> > > 
-> > Hi Joe,
-> > 
-> > "Use one space around (on each side of) most binary and ternary operators"
-> > 
-> > doesn't apply, then ? When does it apply ? I always thought it would apply
-> > to cases such as the above.
-> 
-> There's a _lot_ of code that doesn't follow the
-> "single space around binary operators" style,
-> it's contentious, and was determined when Andy
-> did the original checkpatch implementation to not
-> be a valuable addition or worth the complaint pain.
-> 
-Looks like it is contentious either way.
-
-Thanks a lot for the clarification.
-
-Guenter
+DQpJIHRoaW5rIEhaLzUwIGlzIGJldHRlciB0aGFuIDIgZm9yIGFkYXB0ZXIgdGltZW91dC4NCg0K
+U2lnbmVkLW9mZi1ieTogRXVuYm9uZyBTb25nIDxldW5iLnNvbmdAc2Ftc3VuZy5jb20+DQotLS0N
+CiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi5jIHwgICAgMiArLQ0KIDEgZmlsZXMgY2hh
+bmdlZCwgMSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9ucygtKQ0KDQpkaWZmIC0tZ2l0IGEvZHJp
+dmVycy9pMmMvYnVzc2VzL2kyYy1vY3Rlb24uYyBiL2RyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtb2N0
+ZW9uLmMNCmluZGV4IDkzNTU4NWUuLmNhNDg5ZjMgMTAwNjQ0DQotLS0gYS9kcml2ZXJzL2kyYy9i
+dXNzZXMvaTJjLW9jdGVvbi5jDQorKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLW9jdGVvbi5j
+DQpAQCAtNDQwLDcgKzQ0MCw3IEBAIHN0YXRpYyBzdHJ1Y3QgaTJjX2FkYXB0ZXIgb2N0ZW9uX2ky
+Y19vcHMgPSB7DQogCS5vd25lciA9IFRISVNfTU9EVUxFLA0KIAkubmFtZSA9ICJPQ1RFT04gYWRh
+cHRlciIsDQogCS5hbGdvID0gJm9jdGVvbl9pMmNfYWxnbywNCi0JLnRpbWVvdXQgPSAyLA0KKwku
+dGltZW91dCA9IEhaLzUwLA0KIH07DQogDQogLyoqDQotLSANCjEuNy4wLjENCg==
