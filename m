@@ -1,34 +1,97 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] I2C: EXYNOS: High speed mode clock setting for HSI2C
-Date: Fri, 19 Apr 2013 20:35:08 +0200
-Message-ID: <20130419183508.GC3702@the-dreams.de>
-References: <1366372583-7584-1-git-send-email-yuvaraj.cd@samsung.com>
+From: Josef Ahmad <josef.ahmad@linux.intel.com>
+Subject: [PATCH] i2c-designware: fix RX FIFO overrun
+Date: Fri, 19 Apr 2013 19:05:30 +0100 (IST)
+Message-ID: <alpine.DEB.2.02.1304191859570.17829@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1366372583-7584-1-git-send-email-yuvaraj.cd@samsung.com>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Yuvaraj Kumar C D <yuvaraj.cd@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ch.naveen@samsung.com, Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+Content-Type: TEXT/PLAIN; format=flowed; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Ben Dooks <ben-linux@fluff.org>, Jean Delvare <khali@linux-fr.org>, Stefan Roese <sr@denx.de>, Axel Lin <axel.lin@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Dirk Brandewie <dirk.brandewie@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 19, 2013 at 05:26:23PM +0530, Yuvaraj Kumar C D wrote:
-> This patch configure the High speed mode timing register using the
-> clock speed mentioned in the dts file.Also it configure the MASTER_ID
-> for High speed i2c transfer.
-> For i2c high speed transaction, tarnsaction initially starts with the
-> fast mode i,e 400Kbits/sec and then switches to high speed mode.For this
-> purpose it requires to set up timing value for fast mode and high speed
-> mode.
-> 
-> Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
+>From a969728248c3b439dc97a69e7dac133b5efa34e7 Mon Sep 17 00:00:00 2001
+From: Josef Ahmad <josef.ahmad@linux.intel.com>
+Date: Fri, 19 Apr 2013 17:28:10 +0100
+Subject: [PATCH] i2c-designware: fix RX FIFO overrun
 
-Since the exynos5 driver needs to be resent anyhow, I assume this will
-be included in the next version? Please note that I had comments
-regarding the bindings of the bus speed. We have a generic binding for
-that already.
+i2c_dw_xfer_msg() pushes a number of bytes to transmit/receive
+to/from the bus into the TX FIFO.
+For master-rx transactions, the maximum amount of data that can be
+received is calculated depending solely on TX and RX FIFO load.
 
-Thanks,
+This is racy - TX FIFO may contain master-rx data yet to be
+processed, which will eventually land into the RX FIFO. This
+data is not taken into account and the function may request more
+data than the controller is actually capable of storing.
 
-   Wolfram
+This patch ensures the driver takes into account the outstanding
+master-rx data in TX FIFO to prevent RX FIFO overrun.
+
+Signed-off-by: Josef Ahmad <josef.ahmad@linux.intel.com>
+---
+  drivers/i2c/busses/i2c-designware-core.c |   11 ++++++++++-
+  drivers/i2c/busses/i2c-designware-core.h |    2 ++
+  2 files changed, 12 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index 94fd818..8dbeef1 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -426,8 +426,14 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+  				cmd |= BIT(9);
+
+  			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
++
++				/* avoid rx buffer overrun */
++				if (rx_limit - dev->rx_outstanding <= 0)
++					break;
++
+  				dw_writel(dev, cmd | 0x100, DW_IC_DATA_CMD);
+  				rx_limit--;
++				dev->rx_outstanding++;
+  			} else
+  				dw_writel(dev, cmd | *buf++, DW_IC_DATA_CMD);
+  			tx_limit--; buf_len--;
+@@ -480,8 +486,10 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+
+  		rx_valid = dw_readl(dev, DW_IC_RXFLR);
+
+-		for (; len > 0 && rx_valid > 0; len--, rx_valid--)
++		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
+  			*buf++ = dw_readl(dev, DW_IC_DATA_CMD);
++			dev->rx_outstanding--;
++		}
+
+  		if (len > 0) {
+  			dev->status |= STATUS_READ_IN_PROGRESS;
+@@ -539,6 +547,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+  	dev->msg_err = 0;
+  	dev->status = STATUS_IDLE;
+  	dev->abort_source = 0;
++	dev->rx_outstanding = 0;
+
+  	ret = i2c_dw_wait_bus_not_busy(dev);
+  	if (ret < 0)
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9c1840e..e761ad1 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -60,6 +60,7 @@
+   * @adapter: i2c subsystem adapter node
+   * @tx_fifo_depth: depth of the hardware tx fifo
+   * @rx_fifo_depth: depth of the hardware rx fifo
++ * @rx_outstanding: current master-rx elements in tx fifo
+   */
+  struct dw_i2c_dev {
+  	struct device		*dev;
+@@ -88,6 +89,7 @@ struct dw_i2c_dev {
+  	u32			master_cfg;
+  	unsigned int		tx_fifo_depth;
+  	unsigned int		rx_fifo_depth;
++	int			rx_outstanding;
+  };
+
+  #define ACCESS_SWAP		0x00000001
+-- 
+1.7.0.7
