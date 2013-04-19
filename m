@@ -1,32 +1,34 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: Re: [PATCH]  I2C: Change the value of octeon i2c adapter timeout
- value
-Date: Fri, 19 Apr 2013 20:32:58 +0200
-Message-ID: <20130419183258.GB3702@the-dreams.de>
-References: <33288064.110491366362833968.JavaMail.weblogic@epv6ml06>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] I2C: EXYNOS: High speed mode clock setting for HSI2C
+Date: Fri, 19 Apr 2013 20:35:08 +0200
+Message-ID: <20130419183508.GC3702@the-dreams.de>
+References: <1366372583-7584-1-git-send-email-yuvaraj.cd@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <33288064.110491366362833968.JavaMail.weblogic@epv6ml06>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: EUNBONG SONG <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1366372583-7584-1-git-send-email-yuvaraj.cd@samsung.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Yuvaraj Kumar C D <yuvaraj.cd@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org, ch.naveen@samsung.com, Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Apr 19, 2013 at 09:13:54AM +0000, EUNBONG SONG wrote:
+On Fri, Apr 19, 2013 at 05:26:23PM +0530, Yuvaraj Kumar C D wrote:
+> This patch configure the High speed mode timing register using the
+> clock speed mentioned in the dts file.Also it configure the MASTER_ID
+> for High speed i2c transfer.
+> For i2c high speed transaction, tarnsaction initially starts with the
+> fast mode i,e 400Kbits/sec and then switches to high speed mode.For this
+> purpose it requires to set up timing value for fast mode and high speed
+> mode.
 > 
-> 
-> On Fri, Apr 19, 2013 at 12:01:04AM +0000, EUNBONG SONG wrote:
-> >> 
-> >>  I think HZ/50 is better than 2 for adapter timeout.
-> 
-> > Basically OK. But why HZ/50? Most drivers use HZ.
-> 
-> Actually, I just translated 2 jiffies because HZ is 100 in default cavium config. 
-> You can find that in "arch/mips/configs/cavium_octeon_defconfig". 
-> And i have been using this value over 1 year in octeon board without problem.
+> Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd@samsung.com>
 
-Have you been writing to EEPROMS? Their erase/write cycle might be
-longer. But I am not forcing you to change the value, just giving some
-suggestions.
+Since the exynos5 driver needs to be resent anyhow, I assume this will
+be included in the next version? Please note that I had comments
+regarding the bindings of the bus speed. We have a generic binding for
+that already.
+
+Thanks,
+
+   Wolfram
