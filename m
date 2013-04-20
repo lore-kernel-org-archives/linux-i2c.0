@@ -1,31 +1,38 @@
-From: "Josef Ahmad" <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: fix RX FIFO overrun
-Date: Fri, 19 Apr 2013 14:20:59 -0700 (PDT)
-Message-ID: <54738.10.252.10.81.1366406459.squirrel@linux.intel.com>
-References: <alpine.DEB.2.02.1304191859570.17829@localhost>
-    <5171AC7D.70503@nexus-software.ie>
+From: EUNBONG SONG <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: Re: Re: [PATCH]  I2C: Change the value of octeon i2c adapter
+ timeout value
+Date: Sat, 20 Apr 2013 07:49:29 +0000 (GMT)
+Message-ID: <11281802.80061366444168759.JavaMail.weblogic@epml02>
+Reply-To: eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=euc-kr
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5171AC7D.70503-SyKdqv6vbfZdzvEItQ6vdLNAH6kLmebB@public.gmane.org>
+MIME-version: 1.0
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bryan O'Donoghue <bryan.odonoghue.lkml-SyKdqv6vbfZdzvEItQ6vdLNAH6kLmebB@public.gmane.org>
-Cc: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-It does.
-The bug appears with fairly-sized read transactions (in the order of kB)
-returning corrupted data.
-
-Josef
-
-> Josef.
->
-> This fixes a real bug for us does it not, some failure case with a
-> sustained amount of traffic ?
->
->
-> Bryan
->
->
+DQo+IA0KPiBIYXZlIHlvdSBiZWVuIHdyaXRpbmcgdG8gRUVQUk9NUz8gVGhlaXIgZXJhc2Uvd3Jp
+dGUgY3ljbGUgbWlnaHQgYmUNCj4gbG9uZ2VyLiBCdXQgSSBhbSBub3QgZm9yY2luZyB5b3UgdG8g
+Y2hhbmdlIHRoZSB2YWx1ZSwganVzdCBnaXZpbmcgc29tZQ0KPiBzdWdnZXN0aW9ucy4NCg0KTXkg
+Ym9hcmQgaGFzIGkyYyBtdXgsIHRlbXAgc2Vuc29yLCBlZXByb20uICBBbmQgSSBhZGRlZCBzb21l
+IGRlYnVnZ2luZyBjb2RlIGZvciBtZWFzdXJpbmcgaTJjIHJlc3BvbnNlIHRpbWUgYXMgYmVsb3cg
+IGFuZCANCnJ1biBpMmMgb3BlcmF0aW9uIGZvciBlYWNoIGRldmljZS4gDQpUaGUgbWF4aW11bSBy
+ZXNwZW9uc2UgdGltZSB3YXMgNTAwdXNlYyh1bmRlciAxbXNlYykuIFNvIDIwIG1zZWMgaXMgZW5v
+dWdoIGZvciBhZGFwdGVyIHRpbWVvdXQuIA0KVGhhbmtzLiANCnN0YXRpYyBpbnQgb2N0ZW9uX2ky
+Y193YWl0KHN0cnVjdCBvY3Rlb25faTJjICppMmMpDQp7DQogICAgICAgIGludCByZXN1bHQ7DQor
+ICAgICAgICBzdHJ1Y3QgdGltZXZhbCBzdGFydCwgZW5kOw0KDQogICAgICAgIG9jdGVvbl9pMmNf
+aW50X2VuYWJsZShpMmMpOw0KDQorICAgICAgICBkb19nZXR0aW1lb2ZkYXkoJnN0YXJ0KTsNCiAg
+ICAgICAgcmVzdWx0ID0gd2FpdF9ldmVudF90aW1lb3V0KGkyYy0+cXVldWUsDQogICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBvY3Rlb25faTJjX3Rlc3RfaWZsZyhpMmMp
+LA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaTJjLT5hZGFwLnRp
+bWVvdXQpOw0KDQorICAgICAgICBkb19nZXR0aW1lb2ZkYXkoJmVuZCk7DQoNCisgICAgICAgIGlm
+KGVuZC50dl91c2VjIDwgc3RhcnQudHZfdXNlYyl7DQorICAgICAgICAgICAgICAgZW5kLnR2X3Vz
+ZWMgKz0gMTAwMDAwMDsNCisgICAgICAgICAgICAgICBlbmQudHZfc2VjLS07DQorICAgICAgIH0N
+Cg0KKyAgICAgICAgaWYocmVzdWx0ID4gMCkNCisgICAgICAgICAgICAgICAgcHJpbnRrKCJvY3Rl
+b25faTJjX3dhaXQgZWxhcHNlIHRpbWU6ICVsZCBtc2Vjc1xuIiwgKGVuZC50dl9zZWMgLSBzdGFy
+dC50dl9zZWMpKjEwMDAwMDAgKyAoZW5kLnR2X3VzZWMgLSBzdGFydC50dl91c2VjKSk7DQorICAg
+ICAgICBlbHNlDQorICAgICAgICAgICAgICAgIHByaW50aygib2N0ZW9uX2kyY193YWl0IGZhaWwh
+IVxuIik7DQp9
