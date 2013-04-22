@@ -1,105 +1,86 @@
-From: Thierry Reding <thierry.reding-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
-Subject: Re: [PATCH] i2c: tegra: Retry transfer when no_ack status is detected
-Date: Mon, 22 Apr 2013 09:02:45 +0200
-Message-ID: <20130422070245.GA17002@avionic-0098.mockup.avionic-design.de>
-References: <1366371804-7901-1-git-send-email-hendrik.lippek@avionic-design.de>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: fix RX FIFO overrun
+Date: Mon, 22 Apr 2013 10:19:43 +0300
+Message-ID: <20130422071943.GK1283@intel.com>
+References: <alpine.DEB.2.02.1304191859570.17829@localhost>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1366371804-7901-1-git-send-email-hendrik.lippek-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hendrik Lippek <hendrik.lippek-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
-Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <alpine.DEB.2.02.1304191859570.17829@localhost>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Apr 19, 2013 at 07:05:30PM +0100, Josef Ahmad wrote:
+> >From a969728248c3b439dc97a69e7dac133b5efa34e7 Mon Sep 17 00:00:00 2001
+> From: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Date: Fri, 19 Apr 2013 17:28:10 +0100
+> Subject: [PATCH] i2c-designware: fix RX FIFO overrun
+> 
+> i2c_dw_xfer_msg() pushes a number of bytes to transmit/receive
+> to/from the bus into the TX FIFO.
+> For master-rx transactions, the maximum amount of data that can be
+> received is calculated depending solely on TX and RX FIFO load.
+> 
+> This is racy - TX FIFO may contain master-rx data yet to be
+> processed, which will eventually land into the RX FIFO. This
+> data is not taken into account and the function may request more
+> data than the controller is actually capable of storing.
+> 
+> This patch ensures the driver takes into account the outstanding
+> master-rx data in TX FIFO to prevent RX FIFO overrun.
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Can you add something to the changelog to show what the error looks like
+(a dump from dmesg for example)?
 
-On Fri, Apr 19, 2013 at 01:43:24PM +0200, Hendrik Lippek wrote:
-> In such conditions return -EAGAIN from driver.
-> This will cause the i2c-core to retry
-> the transmission as per the retry count and time-out specified by the
-> platform data of the adapter.
->=20
-> This fix is adapted from chromeos
-> commit:	16d971dd7ee9571746ff1d352fa3c0092a36478d
->=20
-> Signed-off-by: Hendrik Lippek <hendrik.lippek-RM9K5IK7kjKj5M59NBduVrNAH6kLmebB@public.gmane.org>
+> Signed-off-by: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 > ---
->  drivers/i2c/busses/i2c-tegra.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/i2c/busses/i2c-designware-core.c |   11 ++++++++++-
+>  drivers/i2c/busses/i2c-designware-core.h |    2 ++
+>  2 files changed, 12 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+> index 94fd818..8dbeef1 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -426,8 +426,14 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+>  				cmd |= BIT(9);
+> 
+>  			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
+> +
+> +				/* avoid rx buffer overrun */
+> +				if (rx_limit - dev->rx_outstanding <= 0)
+> +					break;
+> +
+>  				dw_writel(dev, cmd | 0x100, DW_IC_DATA_CMD);
+>  				rx_limit--;
+> +				dev->rx_outstanding++;
 
-Patches for I2C driver should go to the respective maintainers, not only
-the Tegra mailing list. You can use scripts/get_maintainer.pl to obtain
-a list of people and mailing lists to Cc (though you may want to apply
-common sense and strip that list down a bit). In this case at least
-Wolfram Sang and the linux-i2c mailing lists should be Cc'ed. I've added
-them now.
+Instead of adding a new variable, is there something preventing a use of
+DW_IC_STATUS bits RFNE and TFNF?
 
-Also it would be useful if you could describe the error case that this
-patch fixes in more detail. That way people know the context and can
-more easily judge whether the fix is appropriate or suggest alternative
-solutions to the problem.
-
-> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegr=
-a.c
-> index c1bd68d..81a6170 100644
-> --- a/drivers/i2c/busses/i2c-tegra.c
-> +++ b/drivers/i2c/busses/i2c-tegra.c
-> @@ -756,7 +756,7 @@ static int tegra_i2c_xfer_msg(struct tegra_i2c_bus *i=
-2c_bus,
->  	if (i2c_dev->msg_err =3D=3D I2C_ERR_NO_ACK) {
->  		if (msg->flags & I2C_M_IGNORE_NAK)
->  			return 0;
-> -		return -EREMOTEIO;
-> +		return -EAGAIN;
->  	}
-> =20
->  	if (i2c_dev->msg_err & I2C_ERR_UNEXPECTED_STATUS)
-
-I've looked a bit at what other drivers do when receiving a NAK, and
-returning -EREMOTEIO is by far the most common way to deal with it.
-Furthermore I'm not sure if repeating a transfer when no ACK is received
-is the right thing to do. After all there's usually a good reason for a
-missing ACK (e.g. slave not present). That also means if this patch is
-applied, every access to a slave that isn't present will be retried
-several times before failing. It also means that if the transfer finally
-fails because the retry count reaches 0, the I2C core will actually
-propagate -EAGAIN and hide the original cause of the error.
-
-Perhaps a better alternative would be to use the I2C_M_IGNORE_NAK flag.
-There is some useful information in Documentation/i2c/i2c-protocol,
-section "Modified transactions". It seems like this isn't a general
-problem with the Tegra I2C controller but rather with the specific chip
-on this hardware. Can you try if adding the I2C_M_IGNORE_NAK flag to the
-transfers makes the problem disappear as well?
-
-Thierry
-
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.19 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRdOCVAAoJEN0jrNd/PrOhifIQALDRrIWs+qvka0etmeTigBsw
-8SGO0Iuax8AZ9lrTALyduNMUWSah3N3KoupzTp615Rl+se6FFVBN3foHblNphjmi
-5dlaTqeh91hSDxeqKwjlQXh9rjL7T5xNEhg7AfwnZocdslLh+3vY5VIUI2vm2zHj
-QQ8gKWqvfA+po8aZu8VS5lL1ZEL+4kfnWlYjZ0A7YZauEJDBiHxvjG0Fo1JdHXuj
-Lgu+u5pdbdtvUSfbKEdGMvBE/vcnaUtisV8nKCzULZfXfXdKAMlwJtzrEenXq1oj
-Yr/yReAWQtbkMcZiCWyOF1HlklkMyuAFyFkurDWT3CClpgM/GE371brOUqimhlV6
-XjUMsMJjujiBHPfdZoboUhpzgOXMezinliI4rP3oqzOJXJWmiBBrHRXRusz775wC
-PpIGNapLVJqC5zbQqc5L9HLuwrdbEbxKNFJ+PEagXntK2JkUUYrjZor4mR1CDrU3
-ILy+ZL7Danavswltb5ohIrzVt7E1rq69pJieWYZjqwF0OOe6km3D5/6qQPwNObxn
-amXqRFVeBoKYVqYC/UHLKZ/nBxIDWAwqvZuwV0AtBnZI6Tsf+0ekfTlyDNru/P9Z
-7C3Mun+AvNMHDmrRcb5klUvLqKtvr9gPnMDr6z815ublh4Q4dDy15tQQxUKmyVgM
-adEUZSqkoyv+X5xv7Zq9
-=zqFO
------END PGP SIGNATURE-----
-
---EeQfGwPcQSOJBaQU--
+>  			} else
+>  				dw_writel(dev, cmd | *buf++, DW_IC_DATA_CMD);
+>  			tx_limit--; buf_len--;
+> @@ -480,8 +486,10 @@ i2c_dw_read(struct dw_i2c_dev *dev)
+> 
+>  		rx_valid = dw_readl(dev, DW_IC_RXFLR);
+> 
+> -		for (; len > 0 && rx_valid > 0; len--, rx_valid--)
+> +		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
+>  			*buf++ = dw_readl(dev, DW_IC_DATA_CMD);
+> +			dev->rx_outstanding--;
+> +		}
+> 
+>  		if (len > 0) {
+>  			dev->status |= STATUS_READ_IN_PROGRESS;
+> @@ -539,6 +547,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>  	dev->msg_err = 0;
+>  	dev->status = STATUS_IDLE;
+>  	dev->abort_source = 0;
+> +	dev->rx_outstanding = 0;
+> 
+>  	ret = i2c_dw_wait_bus_not_busy(dev);
+>  	if (ret < 0)
