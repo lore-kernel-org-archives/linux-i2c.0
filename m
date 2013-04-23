@@ -1,35 +1,24 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: fix RX FIFO overrun
-Date: Tue, 23 Apr 2013 20:27:07 +0200
-Message-ID: <20130423182707.GA3649@the-dreams.de>
-References: <alpine.DEB.2.02.1304191859570.17829@localhost>
- <20130422071943.GK1283@intel.com>
- <53398.163.33.213.79.1366630241.squirrel@linux.intel.com>
- <20130422122808.GO1283@intel.com>
- <alpine.DEB.2.02.1304221508050.31571@localhost>
- <20130423163543.GB3228@the-dreams.de>
- <51465.163.33.213.85.1366739082.squirrel@linux.intel.com>
+From: EUNBONG SONG <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: Re: Re: Re: [PATCH]  I2C: Change the value of octeon i2c adapter
+ timeout value
+Date: Tue, 23 Apr 2013 21:56:40 +0000 (GMT)
+Message-ID: <30335978.78541366754199782.JavaMail.weblogic@epml20>
+Reply-To: eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=euc-kr
+Content-Transfer-Encoding: base64
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <51465.163.33.213.85.1366739082.squirrel-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+MIME-version: 1.0
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-
-> > This driver had a major cleanup meanwhile. Could you rebase your patch
-> > on top of my for-next branch? I guess this version should make it into
-> > stable?
-> >
-> 
-> This patch applies just fine on top of your i2c-embedded/for-next branch.
-
-i2c-embedded? Ah, this one is outdated. Please check
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next.
-
-Thanks,
-
-   Wolfram
+DQoNClNlbmRlciA6IFdvbGZyYW0gU2FuZzx3c2FAdGhlLWRyZWFtcy5kZT4NCkRhdGUgOiAyMDEz
+LTA0LTI0IDAxOjI3IChHTVQrMDk6MDApDQpUaXRsZSA6IFJlOiBSZTogUmU6IFtQQVRDSF0gSTJD
+OiBDaGFuZ2UgdGhlIHZhbHVlIG9mIG9jdGVvbiBpMmMgYWRhcHRlciB0aW1lb3V0IHZhbHVlDQoN
+Cj4gV2VsbCwgT0ssIEkgZG9uJ3QgbWluZC4gV2UgY2FuIGluY3JlYXNlIGl0IGxhdGVyIGlmIG5l
+ZWRlZC4NCg0KPiBBcHBsaWVkIHRvIGZvci1uZXh0LCB0aGFua3MhIFBsZWFzZSBoYXZlIGEgbG9v
+ayBsYXRlciBob3cgSSBjaGFuZ2VkIHlvdXINCj4gY29tbWl0IG1lc3NhZ2VzIHRvIHNlZSB0aGUg
+cHJlZmVycmVkIHN0eWxlLg0KDQpZZXMsIGkgd2lsbCBjaGVjayB5b3VyIGNvbW1pdCBtZXNzYWdl
+IGFuZCB1c2UgZm9yIHJlZmVyZW5jZSBmb3IgdGhlIG5leHQtdGltZS4NClRoYW5rcy4=
