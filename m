@@ -1,49 +1,37 @@
-From: "Steven A. Falco" <sfalco-7/gz0mrWfc7QT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH] i2c-xiic.c must always write 16-bit words to TX_FIFO
-Date: Mon, 22 Apr 2013 15:34:39 -0400
-Message-ID: <517590CF.10609@harris.com>
+From: Vinod Koul <vinod.koul-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v3 1/6] at_hdmac: move to generic DMA binding
+Date: Tue, 23 Apr 2013 09:14:07 +0530
+Message-ID: <20130423034407.GY24632@intel.com>
+References: <1366362683-14496-1-git-send-email-ludovic.desroches@atmel.com>
+ <1366362683-14496-2-git-send-email-ludovic.desroches@atmel.com>
+ <51750F68.4040701@atmel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <51750F68.4040701-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Nicolas Ferre <nicolas.ferre-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
+Cc: ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mmc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, plagnioj-sclMFOaUSTBWk0Htik3J/w@public.gmane.org, Linux Kernel list <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The TX_FIFO register is 10 bits wide.  The lower 8 bits are the data to be
-written, while the upper two bits are flags to indicate stop/start.
+On Mon, Apr 22, 2013 at 12:22:32PM +0200, Nicolas Ferre wrote:
+> On 04/19/2013 11:11 AM, ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org :
+> > From: Ludovic Desroches <ludovic.desroches-AIFe0yeh4nAAvxtiuMwx3w@public.gmane.org>
 
-The driver apparently attempted to optimize write access, by only writing a
-byte in those cases where the stop/start bits are zero.  However, we have
-seen cases where the lower byte is duplicated onto the upper byte by the
-hardware, which causes inadvertent stop/starts.
+> > +#ifdef CONFIG_OF
+> > +static bool at_dma_filter(struct dma_chan *chan, void *slave)
+this is not defined for else case here. Also this could be CONFIG_DMA_OF...?
+> > +{
+> > +	struct at_dma_slave *atslave = slave;
+> > +
+> > +	if (atslave->dma_dev == chan->device->dev) {
+> > +		chan->private = atslave;
+> > +		return true;
+> > +	} else {
+> > +		return false;
+> > +	}
+> > +}
 
-This patch changes the write access to the transmit FIFO to always be 16 bits
-wide.
-
-Signed off by: Steven A. Falco <sfalco-7/gz0mrWfc7QT0dZR+AlfA@public.gmane.org>
-
----
-
-We had the unfortunate case where we were writing a data byte of 0x02, which
-got duplicated onto the upper byte.  Thus, the actual data written was 0x202,
-which set the stop bit, and corrupted the transaction.  By always writing the
-full 16 bits, this is avoided.
-
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 332c720..3d0f052 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -312,10 +312,8 @@ static void xiic_fill_tx_fifo(struct xiic_i2c *i2c)
- 			/* last message in transfer -> STOP */
- 			data |= XIIC_TX_DYN_STOP_MASK;
- 			dev_dbg(i2c->adap.dev.parent, "%s TX STOP\n", __func__);
--
--			xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
--		} else
--			xiic_setreg8(i2c, XIIC_DTR_REG_OFFSET, data);
-+		}
-+		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
- 	}
- }
- 
+--
+~Vinod
