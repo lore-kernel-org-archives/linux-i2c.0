@@ -1,60 +1,50 @@
-From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH 0/2] OMAP: fix boot sequence
-Date: Tue, 23 Apr 2013 10:34:42 -0700
-Message-ID: <20130423173442.GF10155@atomide.com>
-References: <1366723151-23209-1-git-send-email-grygorii.strashko@ti.com>
+From: "Josef Ahmad" <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: fix RX FIFO overrun
+Date: Tue, 23 Apr 2013 10:44:42 -0700 (PDT)
+Message-ID: <51465.163.33.213.85.1366739082.squirrel@linux.intel.com>
+References: <alpine.DEB.2.02.1304191859570.17829@localhost>
+    <20130422071943.GK1283@intel.com>
+    <53398.163.33.213.79.1366630241.squirrel@linux.intel.com>
+    <20130422122808.GO1283@intel.com>
+    <alpine.DEB.2.02.1304221508050.31571@localhost>
+    <20130423163543.GB3228@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1366723151-23209-1-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <20130423163543.GB3228-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-* Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org> [130423 06:25]:
-> Hi
-> 
-> There are two public discussions now related to OMAP boot and drivers
-> initialization issues:
-> "Multiple issues with omap4 panda es in linux next"
->   http://www.spinics.net/lists/linux-omap/msg90241.html
-> "[BUG] omap: mfd/regulator: twl/core: init order"
->   http://www.spinics.net/lists/linux-omap/msg89980.html
-> 
-> In both cases there are pinctrl-single/I2C/MFD/Regulators initailization issue:
-> - regulators are not initialized because of twl,
-> - twl is not initialized because of I2C,
-> - I2C is not initialized because of pinctrl-single,
-> - pinctrl-single is initialized at mudule/device init time.
-> So, most everything will be shifted at late_initcall time. 
-> 
-> This may cause boot delay (more over, it can broken initialization of drivers
-> which are not ready to use deferred probe mechanism yet, for example DSS).
-> 
-> Introduced pathes shift I2C and TWL iniialization to module/device init layer
-> instead of subsys init layer where initialization dependencies resolved
-> indirectly in drivers/Makefile now.
-> 
-> Grygorii Strashko (2):
->   i2c: omap: convert to module_platform_driver()
->   mfd: twl-core: convert to module_i2c_driver()
-> 
->  drivers/i2c/busses/i2c-omap.c |   14 +-------------
->  drivers/mfd/twl-core.c        |   12 +-----------
->  2 files changed, 2 insertions(+), 24 deletions(-)
+> On Mon, Apr 22, 2013 at 03:08:59PM +0100, Josef Ahmad wrote:
+>> From a969728248c3b439dc97a69e7dac133b5efa34e7 Mon Sep 17 00:00:00 2001
+>> From: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>> Date: Fri, 19 Apr 2013 17:28:10 +0100
+>> Subject: [PATCH] i2c-designware: fix RX FIFO overrun
+>>
+>> i2c_dw_xfer_msg() pushes a number of bytes to transmit/receive
+>> to/from the bus into the TX FIFO.
+>> For master-rx transactions, the maximum amount of data that can be
+>> received is calculated depending solely on TX and RX FIFO load.
+>>
+>> This is racy - TX FIFO may contain master-rx data yet to be
+>> processed, which will eventually land into the RX FIFO. This
+>> data is not taken into account and the function may request more
+>> data than the controller is actually capable of storing.
+>>
+>> This patch ensures the driver takes into account the outstanding
+>> master-rx data in TX FIFO to prevent RX FIFO overrun.
+>>
+>> Signed-off-by: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>> Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>
+> This driver had a major cleanup meanwhile. Could you rebase your patch
+> on top of my for-next branch? I guess this version should make it into
+> stable?
+>
 
-Thanks, I have few questions:
+Hi Wolfram
 
-1. It seems that the real fix to the issues we're seeing
-   is to make the broken drivers to support -EPROBE_DEFER?
-
-2. If so, can these be merged later on as clean-up?
-
-3. Can these two patches be merged separately without
-   breaking things?
-
-Regards,
-
-Tony
+This patch applies just fine on top of your i2c-embedded/for-next branch.
