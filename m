@@ -1,28 +1,53 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Status of I2C mac-drivers needing attach_adapter?
-Date: Fri, 26 Apr 2013 17:31:00 +0200
-Message-ID: <20130426153100.GA3104@katana>
+From: Nicolas Ferre <nicolas.ferre@atmel.com>
+Subject: Re: [PATCH v3 1/6] at_hdmac: move to generic DMA binding
+Date: Mon, 29 Apr 2013 15:28:41 +0200
+Message-ID: <517E7589.5030205@atmel.com>
+References: <1366362683-14496-1-git-send-email-ludovic.desroches@atmel.com> <1366362683-14496-2-git-send-email-ludovic.desroches@atmel.com> <51750F68.4040701@atmel.com> <20130423034407.GY24632@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org, benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-mmc-owner@vger.kernel.org>
+In-Reply-To: <20130423034407.GY24632@intel.com>
+Sender: linux-mmc-owner@vger.kernel.org
+To: Vinod Koul <vinod.koul@intel.com>
+Cc: ludovic.desroches@atmel.com, linux-arm-kernel@lists.infradead.org, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, plagnioj@jcrosoft.com, Linux Kernel list <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Ben,
+On 04/23/2013 05:44 AM, Vinod Koul :
+> On Mon, Apr 22, 2013 at 12:22:32PM +0200, Nicolas Ferre wrote:
+>> On 04/19/2013 11:11 AM, ludovic.desroches@atmel.com :
+>>> From: Ludovic Desroches <ludovic.desroches@atmel.com>
+> 
+>>> +#ifdef CONFIG_OF
+>>> +static bool at_dma_filter(struct dma_chan *chan, void *slave)
+> this is not defined for else case here. Also this could be CONFIG_DMA_OF...?
 
-because I will push a patch to get rid of detach_adapter() from the I2C
-core in the next merge window, I was curious to find out about the
-status of attach_adapter().
+in fact, at_dma_filter() is only used in corresponding
+dma_request_channel() in at_dma_xlate() function just below and only in
+case of CONFIG_OF.
+As the at_dma_xlate() is an empty function in !CONFIG_OF case, the
+at_dma_filter() is not needed.
 
-I found commit 6cd3209967469f6e89d329deda6bb0b4700e7b62
-(powerpc/powermac: New windfarm driver for PowerMac G5 (AGP) and Xserve
-G5) which should get rid of therm_pm72 if I understand correctly? Or is
-it still needed? Can you give me an overview if there is/was progress
-regarding the other two drivers therm_windtunnel and sound/ppc/keywest?
+For the use of CONFIG_OF and not CONFIG_OF_DMA, it is simply because it
+it the directive that we currently use in drivers when we have to put
+the device tree condition around a piece of code. It is quite a common
+pattern I think.
+Moreover, it is what is used in dw_dmac.c and mv_xor.c...
 
-Thanks,
+>>> +{
+>>> +	struct at_dma_slave *atslave = slave;
+>>> +
+>>> +	if (atslave->dma_dev == chan->device->dev) {
+>>> +		chan->private = atslave;
+>>> +		return true;
+>>> +	} else {
+>>> +		return false;
+>>> +	}
+>>> +}
+> 
+> --
+> ~Vinod
 
-   Wolfram
+Best regards,
+-- 
+Nicolas Ferre
