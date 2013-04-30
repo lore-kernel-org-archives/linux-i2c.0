@@ -1,53 +1,74 @@
-From: Nicolas Ferre <nicolas.ferre@atmel.com>
-Subject: Re: [PATCH v3 1/6] at_hdmac: move to generic DMA binding
-Date: Mon, 29 Apr 2013 15:28:41 +0200
-Message-ID: <517E7589.5030205@atmel.com>
-References: <1366362683-14496-1-git-send-email-ludovic.desroches@atmel.com> <1366362683-14496-2-git-send-email-ludovic.desroches@atmel.com> <51750F68.4040701@atmel.com> <20130423034407.GY24632@intel.com>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH] PM: Add pm_ops_ptr() macro
+Date: Tue, 30 Apr 2013 10:09:22 +0900
+Message-ID: <000201ce453f$5ce4fc90$16aef5b0$@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <20130423034407.GY24632@intel.com>
-Sender: linux-mmc-owner@vger.kernel.org
-To: Vinod Koul <vinod.koul@intel.com>
-Cc: ludovic.desroches@atmel.com, linux-arm-kernel@lists.infradead.org, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, plagnioj@jcrosoft.com, Linux Kernel list <linux-kernel@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-language: ko
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "'Rafael J. Wysocki'" <rjw-KKrjLPT3xs0@public.gmane.org>
+Cc: linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Len Brown' <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, 'Pavel Machek' <pavel-+ZI9xUNit7I@public.gmane.org>, 'Andrew Morton' <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 04/23/2013 05:44 AM, Vinod Koul :
-> On Mon, Apr 22, 2013 at 12:22:32PM +0200, Nicolas Ferre wrote:
->> On 04/19/2013 11:11 AM, ludovic.desroches@atmel.com :
->>> From: Ludovic Desroches <ludovic.desroches@atmel.com>
-> 
->>> +#ifdef CONFIG_OF
->>> +static bool at_dma_filter(struct dma_chan *chan, void *slave)
-> this is not defined for else case here. Also this could be CONFIG_DMA_OF...?
+Add pm_ops_ptr() macro that allows the .pm entry in the driver structures
+to be assigned without having an #define xxx NULL for the case that PM is
+not enabled.
 
-in fact, at_dma_filter() is only used in corresponding
-dma_request_channel() in at_dma_xlate() function just below and only in
-case of CONFIG_OF.
-As the at_dma_xlate() is an empty function in !CONFIG_OF case, the
-at_dma_filter() is not needed.
+Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    8 +-------
+ include/linux/pm.h               |    2 ++
+ 2 files changed, 3 insertions(+), 7 deletions(-)
 
-For the use of CONFIG_OF and not CONFIG_OF_DMA, it is simply because it
-it the directive that we currently use in drivers when we have to put
-the device tree condition around a piece of code. It is quite a common
-pattern I think.
-Moreover, it is what is used in dw_dmac.c and mv_xor.c...
-
->>> +{
->>> +	struct at_dma_slave *atslave = slave;
->>> +
->>> +	if (atslave->dma_dev == chan->device->dev) {
->>> +		chan->private = atslave;
->>> +		return true;
->>> +	} else {
->>> +		return false;
->>> +	}
->>> +}
-> 
-> --
-> ~Vinod
-
-Best regards,
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 6e8ee92..e7b6639 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1218,7 +1218,6 @@ static int s3c24xx_i2c_resume(struct device *dev)
+ }
+ #endif
+ 
+-#ifdef CONFIG_PM
+ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+ #ifdef CONFIG_PM_SLEEP
+ 	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
+@@ -1226,11 +1225,6 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+ #endif
+ };
+ 
+-#define S3C24XX_DEV_PM_OPS (&s3c24xx_i2c_dev_pm_ops)
+-#else
+-#define S3C24XX_DEV_PM_OPS NULL
+-#endif
+-
+ /* device driver for platform bus bits */
+ 
+ static struct platform_driver s3c24xx_i2c_driver = {
+@@ -1240,7 +1234,7 @@ static struct platform_driver s3c24xx_i2c_driver = {
+ 	.driver		= {
+ 		.owner	= THIS_MODULE,
+ 		.name	= "s3c-i2c",
+-		.pm	= S3C24XX_DEV_PM_OPS,
++		.pm	= pm_ops_ptr(&s3c24xx_i2c_dev_pm_ops),
+ 		.of_match_table = of_match_ptr(s3c24xx_i2c_match),
+ 	},
+ };
+diff --git a/include/linux/pm.h b/include/linux/pm.h
+index a224c7f..bd50d15 100644
+--- a/include/linux/pm.h
++++ b/include/linux/pm.h
+@@ -55,8 +55,10 @@ struct device;
+ 
+ #ifdef CONFIG_PM
+ extern const char power_group_name[];		/* = "power" */
++#define pm_ops_ptr(_ptr)	(_ptr)
+ #else
+ #define power_group_name	NULL
++#define pm_ops_ptr(_ptr)	NULL
+ #endif
+ 
+ typedef struct pm_message {
 -- 
-Nicolas Ferre
+1.7.2.5
