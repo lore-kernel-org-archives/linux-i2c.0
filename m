@@ -1,33 +1,593 @@
-From: Vinod Koul <vinod.koul@intel.com>
-Subject: Re: [PATCH v3 1/6] at_hdmac: move to generic DMA binding
-Date: Tue, 30 Apr 2013 14:18:25 +0530
-Message-ID: <20130430084825.GA1960@intel.com>
-References: <1366362683-14496-1-git-send-email-ludovic.desroches@atmel.com>
- <1366362683-14496-2-git-send-email-ludovic.desroches@atmel.com>
- <51750F68.4040701@atmel.com>
+From: "Jeffrey (Sheng-Hui) Chu" <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Subject: [PATCH] i2c: Add bcm2079x-i2c client driver
+Date: Wed, 1 May 2013 16:38:07 +0000
+Message-ID: <90AC93A0CCA054488FFC508D6F62B6F40FE26890@IRVEXCHMB07.corp.ad.broadcom.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <51750F68.4040701@atmel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nicolas Ferre <nicolas.ferre@atmel.com>
-Cc: ludovic.desroches@atmel.com, linux-arm-kernel@lists.infradead.org, linux-mmc@vger.kernel.org, linux-i2c@vger.kernel.org, plagnioj@jcrosoft.com, Linux Kernel list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Language: en-US
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Apr 22, 2013 at 12:22:32PM +0200, Nicolas Ferre wrote:
-> On 04/19/2013 11:11 AM, ludovic.desroches@atmel.com :
-> > From: Ludovic Desroches <ludovic.desroches@atmel.com>
-> > 
-> > Update at_hdmac driver to support generic DMA device tree binding. Devices
-> > can still request channel with dma_request_channel() then it doesn't break
-> > DMA for non DT boards.
-> > 
-> > Signed-off-by: Ludovic Desroches <ludovic.desroches@atmel.com>
-> > Acked-by: Nicolas Ferre <nicolas.ferre@atmel.com>
-> > Acked-by: Jean-Christophe PLAGNIOL-VILLARD <plagnioj@jcrosoft.com>
-> > Acked-by: Arnd Bergmann <arnd@arndb.de>
-Applied now thanks
+>From e213a725a0df02666a741751db5d5cdaebdfdfb5 Mon Sep 17 00:00:00 2001
+From: Jeffrey Chu <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+Date: Wed, 17 Apr 2013 13:13:33 -0400
+Subject: [PATCH] i2c: Add bcm2079x-i2c client driver
 
---
-~Vinod
+bcm2079x-i2c support communicating with bcm2079x NFC Controller using i2c transport.
+
+Signed-off-by: Sheng-Hui Jeffrey Chu <jeffchu-dY08KVG/lbpWk0Htik3J/w@public.gmane.org>
+---
+ Documentation/nfc/nfc-bcm2079x-i2c.txt |   42 +++
+ drivers/nfc/Kconfig                    |    1 +
+ drivers/nfc/Makefile                   |    1 +
+ drivers/nfc/bcm2079x/Kconfig           |    8 +
+ drivers/nfc/bcm2079x/Makefile          |    4 +
+ drivers/nfc/bcm2079x/bcm2079x-i2c.c    |  414 ++++++++++++++++++++++++++++++++
+ drivers/nfc/bcm2079x/bcm2079x.h        |   34 +++
+ 7 files changed, 504 insertions(+)
+ create mode 100644 Documentation/nfc/nfc-bcm2079x-i2c.txt
+ create mode 100644 drivers/nfc/bcm2079x/Kconfig
+ create mode 100644 drivers/nfc/bcm2079x/Makefile
+ create mode 100755 drivers/nfc/bcm2079x/bcm2079x-i2c.c
+ create mode 100644 drivers/nfc/bcm2079x/bcm2079x.h
+
+diff --git a/Documentation/nfc/nfc-bcm2079x-i2c.txt b/Documentation/nfc/nfc-bcm2079x-i2c.txt
+new file mode 100644
+index 0000000..ced1a0f
+--- /dev/null
++++ b/Documentation/nfc/nfc-bcm2079x-i2c.txt
+@@ -0,0 +1,42 @@
++Kernel driver for the Broadcom bcm2079x Near Field
++Communication controller
++
++General
++-------
++
++The bcm2079x is an integrated controller for contactless communication.
++
++Host Interfaces: I2C, SPI and UART, this driver supports I2C.
++
++The Driver
++----------
++
++The bcm2079x-i2c driver can be found under drivers/nfc/bcm2079x/bcm2079x-i2c.c and
++its header file drivers/nfc/bcm2079x/bcm2079x.h.
++
++The userspace application uses /dev/bcm2079x-i2c device to communicate with the
++NFC Controller using NCI command messages. In a typical scenario application will
++open /dev/bcm2079x-i2c; power up and wake up the controller chip using ioctl().
++write to the controller using write(). poll() the device to check if data is
++available. Use read() to read the data from the controller.
++
++The driver waits for bcm2079x controller interrupt which occurs if there are some
++data to be read.  Then, poll() will indicate that fact to the userspace.
++
++Userspace application may use ioctl() to allow the Controller to enter snooze or
++sleep mode.
++
++Userspace application may use ioctl() to set the client address the driver use to
++communicate with the Controller.  This allows userspace application to change the
++device address of the Controller.
++
++Platform Data
++-------------
++
++The following platform data should be set when configuring board.
++
++struct bcm2079x_platform_data {
++	unsigned int irq_gpio;
++	unsigned int en_gpio;
++	unsigned int wake_gpio;
++};
+diff --git a/drivers/nfc/Kconfig b/drivers/nfc/Kconfig
+index e570349..f9bf203 100644
+--- a/drivers/nfc/Kconfig
++++ b/drivers/nfc/Kconfig
+@@ -28,5 +28,6 @@ config NFC_WILINK
+ 
+ source "drivers/nfc/pn544/Kconfig"
+ source "drivers/nfc/microread/Kconfig"
++source "drivers/nfc/bcm2079x/Kconfig"
+ 
+ endmenu
+diff --git a/drivers/nfc/Makefile b/drivers/nfc/Makefile
+index a189ada0..ee48e07 100644
+--- a/drivers/nfc/Makefile
++++ b/drivers/nfc/Makefile
+@@ -6,5 +6,6 @@ obj-$(CONFIG_NFC_PN544)		+= pn544/
+ obj-$(CONFIG_NFC_MICROREAD)	+= microread/
+ obj-$(CONFIG_NFC_PN533)		+= pn533.o
+ obj-$(CONFIG_NFC_WILINK)	+= nfcwilink.o
++obj-$(CONFIG_NFC_BCM2079X_I2C)	+= bcm2079x/
+ 
+ ccflags-$(CONFIG_NFC_DEBUG) := -DDEBUG
+diff --git a/drivers/nfc/bcm2079x/Kconfig b/drivers/nfc/bcm2079x/Kconfig
+new file mode 100644
+index 0000000..eed3138
+--- /dev/null
++++ b/drivers/nfc/bcm2079x/Kconfig
+@@ -0,0 +1,8 @@
++config NFC_BCM2079X_I2C
++	tristate "NFC BCM2079x i2c support"
++	depends on I2C
++	---help---
++	  This module adds support for the i2c interface of NFC Controller using
++	  Broadcom bcm2079x chip.  Select this if your platform is using
++	  the i2c bus.
++	default n
+diff --git a/drivers/nfc/bcm2079x/Makefile b/drivers/nfc/bcm2079x/Makefile
+new file mode 100644
+index 0000000..be64d35
+--- /dev/null
++++ b/drivers/nfc/bcm2079x/Makefile
+@@ -0,0 +1,4 @@
++#
++# Makefile for bcm2079x NFC driver
++#
++obj-$(CONFIG_NFC_BCM2079X_I2C) += bcm2079x-i2c.o
+diff --git a/drivers/nfc/bcm2079x/bcm2079x-i2c.c b/drivers/nfc/bcm2079x/bcm2079x-i2c.c
+new file mode 100755
+index 0000000..e632380
+--- /dev/null
++++ b/drivers/nfc/bcm2079x/bcm2079x-i2c.c
+@@ -0,0 +1,414 @@
++/*
++ * Copyright (C) 2012 Broadcom Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
++ *
++ */
++
++#include <linux/module.h>
++#include <linux/fs.h>
++#include <linux/slab.h>
++#include <linux/i2c.h>
++#include <linux/irq.h>
++#include <linux/interrupt.h>
++#include <linux/gpio.h>
++#include <linux/miscdevice.h>
++#include <linux/spinlock.h>
++#include <linux/poll.h>
++
++#include "bcm2079x.h"
++
++/* do not change below */
++#define MAX_BUFFER_SIZE		780
++
++/* Read data */
++#define PACKET_HEADER_SIZE_NCI	(4)
++#define PACKET_HEADER_SIZE_HCI	(3)
++#define PACKET_TYPE_NCI		(16)
++#define PACKET_TYPE_HCIEV	(4)
++#define MAX_PACKET_SIZE		(PACKET_HEADER_SIZE_NCI + 255)
++
++struct bcm2079x_dev {
++	wait_queue_head_t read_wq;
++	struct mutex read_mutex;
++	struct i2c_client *client;
++	struct miscdevice bcm2079x_device;
++	unsigned int wake_gpio;
++	unsigned int en_gpio;
++	unsigned int irq_gpio;
++	bool irq_enabled;
++	spinlock_t irq_enabled_lock;
++	unsigned int count_irq;
++};
++
++static void bcm2079x_init_stat(struct bcm2079x_dev *bcm2079x_dev)
++{
++	bcm2079x_dev->count_irq = 0;
++}
++
++static void bcm2079x_disable_irq(struct bcm2079x_dev *bcm2079x_dev)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&bcm2079x_dev->irq_enabled_lock, flags);
++	if (bcm2079x_dev->irq_enabled) {
++		disable_irq_nosync(bcm2079x_dev->client->irq);
++		bcm2079x_dev->irq_enabled = false;
++	}
++	spin_unlock_irqrestore(&bcm2079x_dev->irq_enabled_lock, flags);
++}
++
++static void bcm2079x_enable_irq(struct bcm2079x_dev *bcm2079x_dev)
++{
++	unsigned long flags;
++	spin_lock_irqsave(&bcm2079x_dev->irq_enabled_lock, flags);
++	if (!bcm2079x_dev->irq_enabled) {
++		bcm2079x_dev->irq_enabled = true;
++		enable_irq(bcm2079x_dev->client->irq);
++	}
++	spin_unlock_irqrestore(&bcm2079x_dev->irq_enabled_lock, flags);
++}
++
++static void set_client_addr(struct bcm2079x_dev *bcm2079x_dev, int addr)
++{
++	struct i2c_client *client = bcm2079x_dev->client;
++	dev_info(&client->dev,
++		"Set client device address from 0x%04X flag = "\
++		"%02x, to  0x%04X\n",
++		client->addr, client->flags, addr);
++        client->addr = addr;
++        if (addr < 0x80)
++                client->flags &= ~I2C_CLIENT_TEN;
++        else
++                client->flags |= I2C_CLIENT_TEN;
++}
++
++static irqreturn_t bcm2079x_dev_irq_handler(int irq, void *dev_id)
++{
++	struct bcm2079x_dev *bcm2079x_dev = dev_id;
++	unsigned long flags;
++
++	spin_lock_irqsave(&bcm2079x_dev->irq_enabled_lock, flags);
++	bcm2079x_dev->count_irq++;
++	spin_unlock_irqrestore(&bcm2079x_dev->irq_enabled_lock, flags);
++	wake_up(&bcm2079x_dev->read_wq);
++
++	return IRQ_HANDLED;
++}
++
++static unsigned int bcm2079x_dev_poll(struct file *filp, poll_table *wait)
++{
++	struct bcm2079x_dev *bcm2079x_dev = filp->private_data;
++	unsigned int mask = 0;
++	unsigned long flags;
++
++	poll_wait(filp, &bcm2079x_dev->read_wq, wait);
++
++	spin_lock_irqsave(&bcm2079x_dev->irq_enabled_lock, flags);
++	if (bcm2079x_dev->count_irq > 0) {
++		bcm2079x_dev->count_irq--;
++		mask |= POLLIN | POLLRDNORM;
++	}
++	spin_unlock_irqrestore(&bcm2079x_dev->irq_enabled_lock, flags);
++
++	return mask;
++}
++
++static ssize_t bcm2079x_dev_read(struct file *filp, char __user *buf,
++				  size_t count, loff_t *offset)
++{
++	struct bcm2079x_dev *bcm2079x_dev = filp->private_data;
++	unsigned char tmp[MAX_BUFFER_SIZE];
++	int total, len, ret;
++
++	total = 0;
++	len = 0;
++
++	if (count > MAX_BUFFER_SIZE)
++		count = MAX_BUFFER_SIZE;
++
++	mutex_lock(&bcm2079x_dev->read_mutex);
++
++	/** Read the first 4 bytes to include the length of the NCI or HCI packet.
++	**/
++	ret = i2c_master_recv(bcm2079x_dev->client, tmp, 4);
++	if (ret == 4) {
++		total = ret;
++		/** First byte is the packet type
++		**/
++		switch(tmp[0]) {
++			case PACKET_TYPE_NCI:
++				len = tmp[PACKET_HEADER_SIZE_NCI-1];
++				break;
++
++			case PACKET_TYPE_HCIEV:
++				len = tmp[PACKET_HEADER_SIZE_HCI-1];
++				if (len == 0)
++					total--;/*Since payload is 0, decrement total size (from 4 to 3) */
++				else
++					len--;/*First byte of payload is in tmp[3] already */
++				break;
++
++			default:
++				len = 0;/*Unknown packet byte */
++				break;
++		} /* switch*/
++
++		/** make sure full packet fits in the buffer
++		**/
++		if (len > 0 && (len + total) <= count) {
++			/** read the remainder of the packet.
++			**/
++			ret = i2c_master_recv(bcm2079x_dev->client, tmp+total, len);
++			if (ret == len)
++				total += len;
++		} /* if */
++	} /* if */
++
++	mutex_unlock(&bcm2079x_dev->read_mutex);
++
++	if (total > count || copy_to_user(buf, tmp, total)) {
++		dev_err(&bcm2079x_dev->client->dev,
++			"failed to copy to user space, total = %d\n", total);
++		total = -EFAULT;
++	}
++
++	return total;
++}
++
++static ssize_t bcm2079x_dev_write(struct file *filp, const char __user *buf,
++				   size_t count, loff_t *offset)
++{
++	struct bcm2079x_dev *bcm2079x_dev = filp->private_data;
++	char tmp[MAX_BUFFER_SIZE];
++	int ret;
++
++	if (count > MAX_BUFFER_SIZE) {
++		dev_err(&bcm2079x_dev->client->dev, "out of memory\n");
++		return -ENOMEM;
++	}
++
++	if (copy_from_user(tmp, buf, count)) {
++		dev_err(&bcm2079x_dev->client->dev,
++			"failed to copy from user space\n");
++		return -EFAULT;
++	}
++
++	mutex_lock(&bcm2079x_dev->read_mutex);
++	/* Write data */
++
++	ret = i2c_master_send(bcm2079x_dev->client, tmp, count);
++	if (ret != count) {
++		dev_err(&bcm2079x_dev->client->dev,
++			"failed to write %d\n", ret);
++		ret = -EIO;
++	}
++	mutex_unlock(&bcm2079x_dev->read_mutex);
++
++	return ret;
++}
++
++static int bcm2079x_dev_open(struct inode *inode, struct file *filp)
++{
++	int ret = 0;
++
++	struct bcm2079x_dev *bcm2079x_dev = container_of(filp->private_data,
++							   struct bcm2079x_dev,
++							   bcm2079x_device);
++	filp->private_data = bcm2079x_dev;
++	bcm2079x_init_stat(bcm2079x_dev);
++	bcm2079x_enable_irq(bcm2079x_dev);
++	dev_info(&bcm2079x_dev->client->dev,
++		 "%d,%d\n", imajor(inode), iminor(inode));
++
++	return ret;
++}
++
++static long bcm2079x_dev_unlocked_ioctl(struct file *filp,
++					 unsigned int cmd, unsigned long arg)
++{
++	struct bcm2079x_dev *bcm2079x_dev = filp->private_data;
++
++	switch (cmd) {
++	case BCMNFC_POWER_CTL:
++		gpio_set_value(bcm2079x_dev->en_gpio, arg);
++		break;
++	case BCMNFC_WAKE_CTL:
++		gpio_set_value(bcm2079x_dev->wake_gpio, arg);
++		break;
++	case BCMNFC_SET_ADDR:
++		set_client_addr(bcm2079x_dev, arg);
++                break;
++	default:
++		dev_err(&bcm2079x_dev->client->dev,
++			"%s, unknown cmd (%x, %lx)\n", __func__, cmd, arg);
++		return -ENOSYS;
++	}
++
++	return 0;
++}
++
++static const struct file_operations bcm2079x_dev_fops = {
++	.owner = THIS_MODULE,
++	.llseek = no_llseek,
++	.poll = bcm2079x_dev_poll,
++	.read = bcm2079x_dev_read,
++	.write = bcm2079x_dev_write,
++	.open = bcm2079x_dev_open,
++	.unlocked_ioctl = bcm2079x_dev_unlocked_ioctl
++};
++
++static int bcm2079x_probe(struct i2c_client *client,
++			   const struct i2c_device_id *id)
++{
++	int ret;
++	struct bcm2079x_platform_data *platform_data;
++	struct bcm2079x_dev *bcm2079x_dev;
++
++	platform_data = client->dev.platform_data;
++
++	dev_info(&client->dev, "%s, probing bcm2079x driver flags = %x\n", __func__, client->flags);
++	if (platform_data == NULL) {
++		dev_err(&client->dev, "nfc probe fail\n");
++		return -ENODEV;
++	}
++
++	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
++		dev_err(&client->dev, "need I2C_FUNC_I2C\n");
++		return -ENODEV;
++	}
++
++	ret = gpio_request_one(platform_data->irq_gpio, GPIOF_IN, "nfc_irq");
++	if (ret)
++		return -ENODEV;
++	ret = gpio_request_one(platform_data->en_gpio, GPIOF_OUT_INIT_LOW, "nfc_en");
++	if (ret)
++		goto err_en;
++	ret = gpio_request_one(platform_data->wake_gpio, GPIOF_OUT_INIT_LOW,"nfc_wake");
++	if (ret)
++		goto err_wake;
++
++	gpio_set_value(platform_data->en_gpio, 0);
++	gpio_set_value(platform_data->wake_gpio, 0);
++
++	bcm2079x_dev = kzalloc(sizeof(*bcm2079x_dev), GFP_KERNEL);
++	if (bcm2079x_dev == NULL) {
++		dev_err(&client->dev,
++			"failed to allocate memory for module data\n");
++		ret = -ENOMEM;
++		goto err_exit;
++	}
++
++	bcm2079x_dev->wake_gpio = platform_data->wake_gpio;
++	bcm2079x_dev->irq_gpio = platform_data->irq_gpio;
++	bcm2079x_dev->en_gpio = platform_data->en_gpio;
++	bcm2079x_dev->client = client;
++
++	/* init mutex and queues */
++	init_waitqueue_head(&bcm2079x_dev->read_wq);
++	mutex_init(&bcm2079x_dev->read_mutex);
++	spin_lock_init(&bcm2079x_dev->irq_enabled_lock);
++
++	bcm2079x_dev->bcm2079x_device.minor = MISC_DYNAMIC_MINOR;
++	bcm2079x_dev->bcm2079x_device.name = "bcm2079x-i2c";
++	bcm2079x_dev->bcm2079x_device.fops = &bcm2079x_dev_fops;
++
++	ret = misc_register(&bcm2079x_dev->bcm2079x_device);
++	if (ret) {
++		dev_err(&client->dev, "misc_register failed\n");
++		goto err_misc_register;
++	}
++
++	/* request irq.  the irq is set whenever the chip has data available
++	 * for reading.  it is cleared when all data has been read.
++	 */
++	dev_info(&client->dev, "requesting IRQ %d\n", client->irq);
++	bcm2079x_dev->irq_enabled = true;
++	ret = request_irq(client->irq, bcm2079x_dev_irq_handler,
++			  IRQF_TRIGGER_RISING, client->name, bcm2079x_dev);
++	if (ret) {
++		dev_err(&client->dev, "request_irq failed\n");
++		goto err_request_irq_failed;
++	}
++	bcm2079x_disable_irq(bcm2079x_dev);
++	i2c_set_clientdata(client, bcm2079x_dev);
++	dev_info(&client->dev,
++		 "%s, probing bcm2079x driver exited successfully\n",
++		 __func__);
++	return 0;
++
++err_request_irq_failed:
++	misc_deregister(&bcm2079x_dev->bcm2079x_device);
++err_misc_register:
++	mutex_destroy(&bcm2079x_dev->read_mutex);
++	kfree(bcm2079x_dev);
++err_exit:
++	gpio_free(platform_data->wake_gpio);
++err_wake:
++	gpio_free(platform_data->en_gpio);
++err_en:
++	gpio_free(platform_data->irq_gpio);
++	return ret;
++}
++
++static int bcm2079x_remove(struct i2c_client *client)
++{
++	struct bcm2079x_dev *bcm2079x_dev;
++
++	bcm2079x_dev = i2c_get_clientdata(client);
++	free_irq(client->irq, bcm2079x_dev);
++	misc_deregister(&bcm2079x_dev->bcm2079x_device);
++	mutex_destroy(&bcm2079x_dev->read_mutex);
++	gpio_free(bcm2079x_dev->irq_gpio);
++	gpio_free(bcm2079x_dev->en_gpio);
++	gpio_free(bcm2079x_dev->wake_gpio);
++	kfree(bcm2079x_dev);
++
++	return 0;
++}
++
++static const struct i2c_device_id bcm2079x_id[] = {
++	{"bcm2079x-i2c", 0},
++	{}
++};
++
++static struct i2c_driver bcm2079x_driver = {
++	.id_table = bcm2079x_id,
++	.probe = bcm2079x_probe,
++	.remove = bcm2079x_remove,
++	.driver = {
++		.owner = THIS_MODULE,
++		.name = "bcm2079x-i2c",
++	},
++};
++
++/*
++ * module load/unload record keeping
++ */
++
++static int __init bcm2079x_dev_init(void)
++{
++	return i2c_add_driver(&bcm2079x_driver);
++}
++module_init(bcm2079x_dev_init);
++
++static void __exit bcm2079x_dev_exit(void)
++{
++	i2c_del_driver(&bcm2079x_driver);
++}
++module_exit(bcm2079x_dev_exit);
++
++MODULE_AUTHOR("Broadcom");
++MODULE_DESCRIPTION("NFC bcm2079x driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/nfc/bcm2079x/bcm2079x.h b/drivers/nfc/bcm2079x/bcm2079x.h
+new file mode 100644
+index 0000000..4f1bf7f
+--- /dev/null
++++ b/drivers/nfc/bcm2079x/bcm2079x.h
+@@ -0,0 +1,34 @@
++/*
++ * Copyright (C) 2012 Broadcom Corporation.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ */
++
++#ifndef _BCM2079X_H
++#define _BCM2079X_H
++
++#define BCMNFC_MAGIC	0xFA
++
++#define BCMNFC_POWER_CTL	_IO(BCMNFC_MAGIC, 0x01)
++#define BCMNFC_WAKE_CTL	_IO(BCMNFC_MAGIC, 0x05)
++#define BCMNFC_SET_ADDR	_IO(BCMNFC_MAGIC, 0x07)
++
++struct bcm2079x_platform_data {
++	unsigned int irq_gpio;
++	unsigned int en_gpio;
++	unsigned int wake_gpio;
++};
++
++#endif
+-- 
+1.7.10.4
