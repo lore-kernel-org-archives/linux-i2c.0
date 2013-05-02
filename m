@@ -1,54 +1,71 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 3/5] ARM: sun4i: dt: Add i2c muxing options
-Date: Thu,  2 May 2013 12:45:55 +0200
-Message-ID: <1367491557-6027-4-git-send-email-maxime.ripard@free-electrons.com>
-References: <1367491557-6027-1-git-send-email-maxime.ripard@free-electrons.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1367491557-6027-1-git-send-email-maxime.ripard@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, Wolfram Sang <w.sang@pengutronix.de>
-Cc: Emilio Lopez <emilio@elopez.com.ar>, linux-i2c@vger.kernel.org, Maxime Ripard <maxime.ripard@free-electrons.com>, Russell King <linux@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: Fwd: [PATCH v7] i2c: exynos5: add High Speed I2C controller
+ driver
+Date: Thu, 2 May 2013 13:27:21 +0200
+Message-ID: <20130502112721.GA7309@the-dreams.de>
+References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
+ <1365137521-31187-1-git-send-email-naveenkrishna.ch@gmail.com>
+ <20130416102902.GE16978@the-dreams.de>
+ <CAHfPSqCe_VJMeH3oCDc0CfcmpawMj0hN7_b3ngHDFtDUsPJLsA@mail.gmail.com>
+ <CAHfPSqC0E42+-oRfLoFCEe6CbV08fJQdkagvVYHaer4pJAU6pg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAHfPSqC0E42+-oRfLoFCEe6CbV08fJQdkagvVYHaer4pJAU6pg@mail.gmail.com>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
+Cc: linux-i2c@vger.kernel.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, linux-kernel@vger.kernel.org, grant.likely@secretlab.ca, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, Mark Brown <broonie@opensource.wolfsonmicro.com>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c controller found on the Allwinner A10 has only one muxing option
-available for each controller. Add them to the dtsi
+Hi,
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
----
- arch/arm/boot/dts/sun4i-a10.dtsi | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+> >> +  - Samsung GPIO variant (deprecated):
+> >> +    - gpios: The order of the gpios should be the following: <SDA, SCL>.
+> >> +      The gpio specifier depends on the gpio controller.
+> >
+> > Huh? Why should we support a deprecated method with a new driver?
+> >
 
-diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 311dcd4..63f6716 100644
---- a/arch/arm/boot/dts/sun4i-a10.dtsi
-+++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -199,6 +199,27 @@
- 				allwinner,drive = <0>;
- 				allwinner,pull = <0>;
- 			};
-+
-+			i2c0_pins_a: i2c0@0 {
-+				allwinner,pins = "PB0", "PB1";
-+				allwinner,function = "i2c0";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
-+
-+			i2c1_pins_a: i2c1@0 {
-+				allwinner,pins = "PB18", "PB19";
-+				allwinner,function = "i2c1";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
-+
-+			i2c2_pins_a: i2c2@0 {
-+				allwinner,pins = "PB20", "PB21";
-+				allwinner,function = "i2c2";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
- 		};
- 
- 		timer@01c20c00 {
--- 
-1.8.1.2
+This was left unanswered. I am curious.
+
+> >> +Optional properties:
+> >> +  - samsung,hs-mode: Mode of operation, High speed or Fast speed mode. If not
+> >> +    specified, default value is 0.
+> >> +  - samsung,hs-clock-freq: Desired operating frequency in Hz of the bus.
+> >> +    If not specified, the default value in Hz is 100000.
+> >> +  - samsung,fs-clock-freq: Desired operarting frequency in Hz of the bus.
+> >> +    If not specified, the default value in Hz is 100000.
+> >
+> > NACK! We have a generic binding for defining the bus speed. And
+> > shouldn't hs-mode be set depending on the bus speed?
+
+Please use "clock-frequency" here, like other drivers do.
+
+> >> +     /* In auto mode the length of xfer cannot be 0 */
+> >> +     if (i2c->msg->len == 0)
+> >> +             i2c_auto_conf |= 0x1;
+> >
+> > So you send some byte then? Why not reject the message?
+> This is to support the probing the devices (i2cdetect cases)
+
+No! This is not a proper SMBUS_QUICK if you send a byte! If it doesn't
+work without sending data, then your device does not support it. This is
+not uncommon. Please check the smbus specs if you are unsure.
+
+> >> +     i2c->regs = of_iomap(np, 0);
+> >
+> > devm_ioremap_resource()
+> This was a comment from Thomas on v1.
+> https://lkml.org/lkml/2012/11/27/264
+> 
+> Kindly, suggest me which one is more optimal in this case.
+
+"Optimal" is difficult here, but devm_* has momentum and I prefer
+consistency.
+
+> Thanks for your valuable time and comments
+
+You're welcome! Thanks for the submission.
+
+   Wolfram
