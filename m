@@ -1,54 +1,53 @@
-From: Maxime Ripard <maxime.ripard@free-electrons.com>
-Subject: [PATCH 4/5] ARM: sun5i: dt: Add i2c muxing options
-Date: Fri,  3 May 2013 11:17:48 +0200
-Message-ID: <1367572669-24354-5-git-send-email-maxime.ripard@free-electrons.com>
-References: <1367572669-24354-1-git-send-email-maxime.ripard@free-electrons.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1367572669-24354-1-git-send-email-maxime.ripard@free-electrons.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
-Cc: Emilio Lopez <emilio@elopez.com.ar>, linux-i2c@vger.kernel.org, kevin@allwinnertech.com, sunny@allwinnertech.com, shuge@allwinnertech.com, Maxime Ripard <maxime.ripard@free-electrons.com>, Russell King <linux@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+From: Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH] PM: Add pm_ops_ptr() macro
+Date: Fri, 3 May 2013 11:23:11 +0200
+Message-ID: <20130503092311.GA13832@amd.pavel.ucw.cz>
+References: <000201ce453f$5ce4fc90$16aef5b0$@samsung.com>
+ <1474315.q4folvZv3e@vostro.rjw.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1474315.q4folvZv3e@vostro.rjw.lan>
+Sender: linux-pm-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Jingoo Han <jg1.han@samsung.com>, linux-pm@vger.kernel.org, 'Len Brown' <len.brown@intel.com>, 'Andrew Morton' <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c controller found on the Allwinner A13 has only one muxing option
-available for each controller. Add them to the dtsi
+Hi!
 
-Signed-off-by: Maxime Ripard <maxime.ripard@free-electrons.com>
----
- arch/arm/boot/dts/sun5i-a13.dtsi | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+> > Add pm_ops_ptr() macro that allows the .pm entry in the driver structures
+> > to be assigned without having an #define xxx NULL for the case that PM is
+> > not enabled.
+> > 
+> > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
+> 
+> I've queued this up as v3.11 material.
 
-diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
-index 16df784..450b410 100644
---- a/arch/arm/boot/dts/sun5i-a13.dtsi
-+++ b/arch/arm/boot/dts/sun5i-a13.dtsi
-@@ -182,6 +182,27 @@
- 				allwinner,drive = <0>;
- 				allwinner,pull = <0>;
- 			};
-+
-+			i2c0_pins_a: i2c0@0 {
-+				allwinner,pins = "PB0", "PB1";
-+				allwinner,function = "i2c0";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <0>;
-+			};
-+
-+			i2c1_pins_a: i2c1@0 {
-+				allwinner,pins = "PB15", "PB16";
-+				allwinner,function = "i2c1";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
-+
-+			i2c2_pins_a: i2c2@0 {
-+				allwinner,pins = "PB17", "PB18";
-+				allwinner,function = "i2c2";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
- 		};
- 
- 		timer@01c20c00 {
+> > --- a/drivers/i2c/busses/i2c-s3c2410.c
+> > +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> > @@ -1218,7 +1218,6 @@ static int s3c24xx_i2c_resume(struct device *dev)
+> >  }
+> >  #endif
+> >  
+> > -#ifdef CONFIG_PM
+> >  static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+> >  #ifdef CONFIG_PM_SLEEP
+> >  	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
+> > @@ -1226,11 +1225,6 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
+> >  #endif
+> >  };
+> >  
+> > -#define S3C24XX_DEV_PM_OPS (&s3c24xx_i2c_dev_pm_ops)
+> > -#else
+> > -#define S3C24XX_DEV_PM_OPS NULL
+> > -#endif
+> > -
+> >  /* device driver for platform bus bits */
+
+Will not this enlarge .data by sizeof(struct dev_pm_ops)?
+
+									Pavel
 -- 
-1.8.1.2
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
