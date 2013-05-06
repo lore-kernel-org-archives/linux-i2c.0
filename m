@@ -1,7 +1,7 @@
 From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH 03/13] i2c: i2c-mxs: Let device core handle pinctrl
-Date: Mon, 6 May 2013 15:05:51 -0300
-Message-ID: <1367863561-11534-3-git-send-email-fabio.estevam@freescale.com>
+Subject: [PATCH 02/13] i2c: i2c-imx: Let device core handle pinctrl
+Date: Mon, 6 May 2013 15:05:50 -0300
+Message-ID: <1367863561-11534-2-git-send-email-fabio.estevam@freescale.com>
 References: <1367863561-11534-1-git-send-email-fabio.estevam@freescale.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -21,37 +21,41 @@ Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-mxs.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/i2c/busses/i2c-imx.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 120f246..7f3dced 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -24,7 +24,6 @@
- #include <linux/platform_device.h>
- #include <linux/jiffies.h>
- #include <linux/io.h>
--#include <linux/pinctrl/consumer.h>
- #include <linux/stmp_device.h>
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 82f20c6..8c7526c 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -51,7 +51,6 @@
  #include <linux/of.h>
  #include <linux/of_device.h>
-@@ -604,16 +603,11 @@ static int mxs_i2c_probe(struct platform_device *pdev)
- 	struct device *dev = &pdev->dev;
- 	struct mxs_i2c_dev *i2c;
- 	struct i2c_adapter *adap;
--	struct pinctrl *pinctrl;
- 	struct resource *res;
- 	resource_size_t res_size;
- 	int err, irq, dmairq;
- 	dma_cap_mask_t mask;
+ #include <linux/of_i2c.h>
+-#include <linux/pinctrl/consumer.h>
+ #include <linux/platform_data/i2c-imx.h>
  
--	pinctrl = devm_pinctrl_get_select_default(dev);
--	if (IS_ERR(pinctrl))
+ /** Defines ********************************************************************
+@@ -493,7 +492,6 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 	struct imx_i2c_struct *i2c_imx;
+ 	struct resource *res;
+ 	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
+-	struct pinctrl *pinctrl;
+ 	void __iomem *base;
+ 	int irq, ret;
+ 	u32 bitrate;
+@@ -535,12 +533,6 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
+ 	i2c_imx->base			= base;
+ 
+-	pinctrl = devm_pinctrl_get_select_default(&pdev->dev);
+-	if (IS_ERR(pinctrl)) {
+-		dev_err(&pdev->dev, "can't get/select pinctrl\n");
 -		return PTR_ERR(pinctrl);
+-	}
 -
- 	i2c = devm_kzalloc(dev, sizeof(struct mxs_i2c_dev), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
+ 	/* Get I2C clock */
+ 	i2c_imx->clk = devm_clk_get(&pdev->dev, NULL);
+ 	if (IS_ERR(i2c_imx->clk)) {
 -- 
 1.7.9.5
