@@ -1,7 +1,8 @@
 From: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 0/2]  i2c: fix two wrong mem release
-Date: Mon, 6 May 2013 21:09:48 +0800
-Message-ID: <5187AB9C.5020600@huawei.com>
+Subject: [PATCH 2/2] i2c: pxa: no need release_mem_region before request_mem_region
+ successful
+Date: Mon, 6 May 2013 21:11:21 +0800
+Message-ID: <5187ABF9.4000903@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
@@ -12,13 +13,38 @@ Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-
 List-Id: linux-i2c@vger.kernel.org
 
 
- fix two wrong mem release
+move release_mem_region above kfree(i2c) && below clk_put(i2c->clk)
 
-Libo Chen (2):
-  i2c: i2c-bfin-twi:don`t free peripheral before it`s init successful
-  i2c: pxa: no need release_mem_region before request_mem_region
-    successful
+Signed-off-by: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
 
- drivers/i2c/busses/i2c-bfin-twi.c |    2 +-
- drivers/i2c/busses/i2c-pxa.c      |    5 +++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index ea6d45d..3188cd0 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1129,7 +1129,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	i2c->clk = clk_get(&dev->dev, NULL);
+ 	if (IS_ERR(i2c->clk)) {
+ 		ret = PTR_ERR(i2c->clk);
+-		goto eclk;
++		goto emm;
+ 	}
+
+ 	i2c->reg_base = ioremap(res->start, resource_size(res));
+@@ -1206,10 +1206,11 @@ ereqirq:
+ 	iounmap(i2c->reg_base);
+ eremap:
+ 	clk_put(i2c->clk);
++emm:
++	release_mem_region(res->start, resource_size(res));
+ eclk:
+ 	kfree(i2c);
+ emalloc:
+-	release_mem_region(res->start, resource_size(res));
+ 	return ret;
+ }
+
+-- 
+1.7.1
