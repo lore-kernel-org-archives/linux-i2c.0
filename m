@@ -1,53 +1,24 @@
-From: Pavel Machek <pavel@ucw.cz>
-Subject: Re: [PATCH] PM: Add pm_ops_ptr() macro
-Date: Fri, 3 May 2013 11:23:11 +0200
-Message-ID: <20130503092311.GA13832@amd.pavel.ucw.cz>
-References: <000201ce453f$5ce4fc90$16aef5b0$@samsung.com>
- <1474315.q4folvZv3e@vostro.rjw.lan>
+From: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH 0/2]  i2c: fix two wrong mem release
+Date: Mon, 6 May 2013 21:09:48 +0800
+Message-ID: <5187AB9C.5020600@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1474315.q4folvZv3e@vostro.rjw.lan>
-Sender: linux-pm-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Jingoo Han <jg1.han@samsung.com>, linux-pm@vger.kernel.org, 'Len Brown' <len.brown@intel.com>, 'Andrew Morton' <akpm@linux-foundation.org>, linux-kernel@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Li Zefan <lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi!
 
-> > Add pm_ops_ptr() macro that allows the .pm entry in the driver structures
-> > to be assigned without having an #define xxx NULL for the case that PM is
-> > not enabled.
-> > 
-> > Signed-off-by: Jingoo Han <jg1.han@samsung.com>
-> 
-> I've queued this up as v3.11 material.
+ fix two wrong mem release
 
-> > --- a/drivers/i2c/busses/i2c-s3c2410.c
-> > +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> > @@ -1218,7 +1218,6 @@ static int s3c24xx_i2c_resume(struct device *dev)
-> >  }
-> >  #endif
-> >  
-> > -#ifdef CONFIG_PM
-> >  static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
-> >  #ifdef CONFIG_PM_SLEEP
-> >  	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
-> > @@ -1226,11 +1225,6 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
-> >  #endif
-> >  };
-> >  
-> > -#define S3C24XX_DEV_PM_OPS (&s3c24xx_i2c_dev_pm_ops)
-> > -#else
-> > -#define S3C24XX_DEV_PM_OPS NULL
-> > -#endif
-> > -
-> >  /* device driver for platform bus bits */
+Libo Chen (2):
+  i2c: i2c-bfin-twi:don`t free peripheral before it`s init successful
+  i2c: pxa: no need release_mem_region before request_mem_region
+    successful
 
-Will not this enlarge .data by sizeof(struct dev_pm_ops)?
-
-									Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+ drivers/i2c/busses/i2c-bfin-twi.c |    2 +-
+ drivers/i2c/busses/i2c-pxa.c      |    5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
