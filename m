@@ -1,37 +1,28 @@
-From: "John P. Goldman" <gliceaga-qt6sL2/d1r1YNwQSyfnA9PMsm5hC5i3V@public.gmane.org>
-Subject: dringender Vorschlag
-Date: Wed, 8 May 2013 05:46:28 -0300 (ART)
-Message-ID: <351326728.69416.1368002788604.JavaMail.root__25665.496956981$1368004033$gmane$org@correo.mendoza-conicet.gob.ar>
-Reply-To: "John P. Goldman" <johnp.goldman-/E1597aS9LQAvxtiuMwx3w@public.gmane.org>
+From: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: fix RX FIFO overrun
+Date: Wed, 8 May 2013 14:31:20 +0100 (IST)
+Message-ID: <alpine.DEB.2.02.1305081429300.6985@localhost>
+References: <alpine.DEB.2.02.1304191859570.17829@localhost> <20130422071943.GK1283@intel.com> <53398.163.33.213.79.1366630241.squirrel@linux.intel.com> <20130422122808.GO1283@intel.com> <alpine.DEB.2.02.1304221508050.31571@localhost> <20130423163543.GB3228@the-dreams.de>
+ <51465.163.33.213.85.1366739082.squirrel@linux.intel.com> <20130423182707.GA3649@the-dreams.de> <alpine.DEB.2.02.1304241110480.32505@localhost> <20130425174348.GA3612@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130425174348.GA3612-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
+Sorry for late reply.
+Bad UA configuration. Will resend straight away.
 
-Entschuldigungen f=C3=BCr kommen in Ihre Privatsph=C3=A4re! Ich bin Rec=
-htsanwalt
-Werner Erich Zeller; Ich habe einen meiner einflussreichen und
-wohlhabenden Kunden zum Tode; und er hatte eine sehr geheime und privat=
-e
-Investitionen von =E2=82=AC15,000,000.00 bei einer privaten Bank in Gro=
-=C3=9Fbritannien
-hier zu Lebzeiten. Diese Investition wurde ohne einen deklarierten
-n=C3=A4chsten Angeh=C3=B6rigen und beg=C3=BCnstigte. Jetzt brauche ich =
-Sie arbeiten mit
-mir als mein Partner zu erholen und zu je 50 % Aktienfonds. Alle Dokume=
-nte
-werden rechtlich beantragt und beschafft, und in 5 Werktage, wird diese
-Transaktion auftreten. Aber ich brauche einen ernsten, treuen und
-glaubw=C3=BCrdigen Partner.
+Thanks,
 
-Bitte senden Sie mir eine vertrauliche Antwort, wenn Sie denken, Sie
-vertraut werden k=C3=B6nnen und sind von den Qualit=C3=A4ten! Ich warte=
- auf Ihre
-schnelle Antwort.
+Josef
 
-Werner Erich Zeller (Rechtsanwalt)
-Rufen Sie + 44-702-409-0820 (Office)
+On Thu, 25 Apr 2013, Wolfram Sang wrote:
+
+>
+> Still can't apply :( Whitespace problems in the patch context :(
+>
