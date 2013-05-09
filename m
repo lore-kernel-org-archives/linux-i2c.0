@@ -1,7 +1,7 @@
 From: Libo Chen <libo.chen@huawei.com>
-Subject: [PATCH v2 2/2] i2c: pxa: no need release_mem_region before request_mem_region successful
-Date: Thu, 9 May 2013 16:27:24 +0800
-Message-ID: <1368088044-20408-3-git-send-email-libo.chen@huawei.com>
+Subject: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before it init successful
+Date: Thu, 9 May 2013 16:27:23 +0800
+Message-ID: <1368088044-20408-2-git-send-email-libo.chen@huawei.com>
 References: <1368088044-20408-1-git-send-email-libo.chen@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,55 +12,27 @@ To: Sonic.Zhang@analog.com, wsa@the-dreams.de
 Cc: uclinux-dist-devel@blackfin.uclinux.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, lizefan@huawei.com, Libo Chen <libo.chen@huawei.com>
 List-Id: linux-i2c@vger.kernel.org
 
-When kzalloc fail, there is no reason to release_mem_region
-
-fix confuse tag, add new tag: emem, eirq, edt and make it cleanly
+down out_error_no_irq. When platform_get_irq fail, no need to free peripheral
 
 Signed-off-by: Libo Chen <libo.chen@huawei.com>
 ---
- drivers/i2c/busses/i2c-pxa.c |   13 ++++++++-----
- 1 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-bfin-twi.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index ea6d45d..a9da954 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1104,18 +1104,18 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 	if (ret > 0)
- 		ret = i2c_pxa_probe_pdata(dev, i2c, &i2c_type);
- 	if (ret < 0)
--		goto eclk;
-+		goto edt;
- 
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
- 	irq = platform_get_irq(dev, 0);
- 	if (res == NULL || irq < 0) {
- 		ret = -ENODEV;
--		goto eclk;
-+		goto eirq;
- 	}
- 
- 	if (!request_mem_region(res->start, resource_size(res), res->name)) {
- 		ret = -ENOMEM;
--		goto eclk;
-+		goto emem;
- 	}
- 
- 	i2c->adap.owner   = THIS_MODULE;
-@@ -1207,9 +1207,12 @@ ereqirq:
- eremap:
- 	clk_put(i2c->clk);
- eclk:
--	kfree(i2c);
--emalloc:
- 	release_mem_region(res->start, resource_size(res));
-+emem:
-+eirq:
-+edt:
-+	kfree(i2c);
-+emalloc:	
- 	return ret;
- }
- 
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index 05080c4..6617645 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -709,9 +709,9 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ out_error_add_adapter:
+ 	free_irq(iface->irq, iface);
+ out_error_req_irq:
+-out_error_no_irq:
+ 	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+ out_error_pin_mux:
++out_error_no_irq:
+ 	iounmap(iface->regs_base);
+ out_error_ioremap:
+ out_error_get_res:
 -- 
 1.7.1
