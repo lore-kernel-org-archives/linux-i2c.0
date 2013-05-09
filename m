@@ -1,8 +1,8 @@
 From: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 Subject: RE: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before
  it init successful
-Date: Thu, 9 May 2013 08:31:33 +0000
-Message-ID: <B168F8A49F4BCF4C84FD23DA5F6363EEAD4A@NWD2MBX7.ad.analog.com>
+Date: Thu, 9 May 2013 08:33:17 +0000
+Message-ID: <B168F8A49F4BCF4C84FD23DA5F6363EEAD57@NWD2MBX7.ad.analog.com>
 References: <1368088044-20408-1-git-send-email-libo.chen@huawei.com>
  <1368088044-20408-2-git-send-email-libo.chen@huawei.com>
 Mime-Version: 1.0
@@ -16,7 +16,7 @@ To: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4z
 Cc: "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org" <lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Acked-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Hi Libo,
 
 >-----Original Message-----
 >From: Libo Chen [mailto:libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org]
@@ -50,6 +50,18 @@ Acked-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 > out_error_ioremap:
 > out_error_get_res:
 >--
->1.7.1
->
->
+
+Sorry, but you didn't exchange as I suggested.
+Should be
+
+> out_error_req_irq:
+>-out_error_no_irq:
+>+out_error_pin_mux:
+>       peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+>-out_error_pin_mux:
+>+out_error_no_irq:
+
+
+Regards,
+
+Sonic
