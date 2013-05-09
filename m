@@ -1,99 +1,34 @@
-From: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before
- it init successful
-Date: Fri, 10 May 2013 09:01:36 +0800
-Message-ID: <518C46F0.6060507@huawei.com>
-References: <1368088044-20408-1-git-send-email-libo.chen@huawei.com> <1368088044-20408-2-git-send-email-libo.chen@huawei.com> <B168F8A49F4BCF4C84FD23DA5F6363EEAD57@NWD2MBX7.ad.analog.com>
+From: "Topaz777" <sstreisand-j8V/FP4Q/qDYtjvyW6yDsg@public.gmane.org>
+Subject: =?windows-1251?Q?=C2=FB_=F1=EF=EE=E4=F0=F3=F7=ED=FB_=ED?=
+	=?windows-1251?Q?=E0_=EE=F1=ED=EE=E2=E0=F2=E5=EB=FC=ED=E5?=
+	=?windows-1251?Q?=E9?=
+Date: Fri, 10 May 2013 01:08:32 +0300
+Message-ID: <48CDF49AB0E4400296F012619E5BEEEB@coah>
+Reply-To: "Topaz777" <Topaz777-tPoBCxbIEOw@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=windows-1251
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <B168F8A49F4BCF4C84FD23DA5F6363EEAD57-Nxh9ahLCS6GuVPpjEGsWsTcYPEmu4y7e@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
-Cc: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org" <lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+To: zypxpcyxy5qw-rGr/ch5yHBIN+BqQ9rBEUg@public.gmane.org, natam-VkCGYGw9HjUox3rIn2DAYQ@public.gmane.org, epicentr-FW5iqspSSHk@public.gmane.org, zakaz121-JGs/UdohzUI@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 2013/5/9 16:33, Zhang, Sonic wrote:
-> Hi Libo,
-> 
->> -----Original Message-----
->> From: Libo Chen [mailto:libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org]
->> Sent: Thursday, May 09, 2013 4:27 PM
->> To: Zhang, Sonic; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
->> Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
->> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org; Libo Chen
->> Subject: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before it init
->> successful
->>
->> down out_error_no_irq. When platform_get_irq fail, no need to free peripheral
->>
->> Signed-off-by: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
->> ---
->> drivers/i2c/busses/i2c-bfin-twi.c |    2 +-
->> 1 files changed, 1 insertions(+), 1 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
->> index 05080c4..6617645 100644
->> --- a/drivers/i2c/busses/i2c-bfin-twi.c
->> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
->> @@ -709,9 +709,9 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->> out_error_add_adapter:
->>       free_irq(iface->irq, iface);
->> out_error_req_irq:
->> -out_error_no_irq:
->>       peripheral_free_list((unsigned short *)pdev->dev.platform_data);
->> out_error_pin_mux:
->> +out_error_no_irq:
->>       iounmap(iface->regs_base);
->> out_error_ioremap:
->> out_error_get_res:
->> --
-> 
-> Sorry, but you didn't exchange as I suggested.
-> Should be
-> 
-
-Hi Sonic,
-
-Look at peripheral_request_list()
-{
-	u16 cnt;
-	int ret;
-
-	for (cnt = 0; per[cnt] != 0; cnt++) {
-
-		ret = peripheral_request(per[cnt], label);
-
-		if (ret < 0) {
-			for ( ; cnt > 0; cnt--)
-				peripheral_free(per[cnt - 1]);
-
-			return ret;
-		}
-	}
-
-	return 0;
-}
-
-
-When peripheral_request fail, it had called peripheral_free().
-So there is no reason to call peripheral_free_list again.
-
-Did I miss something else?
-
-
->> out_error_req_irq:
->> -out_error_no_irq:
->> +out_error_pin_mux:
->>       peripheral_free_list((unsigned short *)pdev->dev.platform_data);
->> -out_error_pin_mux:
->> +out_error_no_irq:
-> 
-> 
-> Regards,
-> 
-> Sonic
-> 
-> 
-> 
+=C2=E0=EC =EA=EE=E3=E4=E0 - =ED=E8=E1=F3=E4=FC =E4=EE=F1=F2=E0=E2=E0=EB=
+=EE=F1=FC =EF=F0=E8=F1=F3=F2=F1=F2=E2=EE=E2=E0=F2=FC =E2 =F2=E0=EA=EE=E9=
+ =F1=E8=F2=F3=E0=F6=E8=E8, =EA=EE=E3=E4=E0 =C2=FB =ED=E5 =EC=EE=E3=EB=E8=
+ =F1=F4=EE=EA=F3=F1=E8=F0=EE=E2=E0=F2=FC=F1=FF =ED=E0 =F6=E5=EB=E8, =C2=
+=F1=E5 =F1=E2=EE=E1=EE=E4=ED=EE=E5 =E2=F0=E5=EC=FF =F0=E0=F1=F1=E5=E8=E2=
+=E0=EB=E8=F1=FC =ED=E0 =F0=E0=E7=ED=EE=EE=E1=F0=E0=E7=ED=FB=E5 =E4=E5=F2=
+=E0=EB=E8. =ED=E5 =E7=ED=E0=EB=E8 =EA=E0=EA =F3=E9=F2=E8 =E8=E7 =F2=FF=E6=
+=E5=EB=EE=E9 =F1=E8=F2=F3=E0=F6=E8=E8, =EA=E0=EA =EF=E5=F0=E5=E1=EE=F0=EE=
+=F2=FC =EF=F0=E5=EF=FF=F2=F1=F2=E2=E8=E5. =E7=ED=E0=EB=E8, =F0=EE=E2=ED=
+=EE =ED=E0=E4=EE =DD=F2=EE =FF=E2=ED=EE =F1=E2=E5=F0=F8=E8=F2=FC, =E0 =F3=
+=EB=E5=F2=F3=F7=E8=E2=E0=EB=E0=F1=FC =EC=EE=F2=E8=E2=E0=F6=E8=FF. =CF=EE=
+ =F1=F1=FB=EB=EA=E5: http://tinyurl.com/c2epbkb =CC=FB =E7=ED=E0=E5=EC =
+=EA=E0=EA =EF=EE=F1=EF=EE=F1=EE=E1=F1=F2=E2=EE=E2=E0=F2=FC =C2=E0=EC =E4=
+=EE=F1=F2=E8=F7=FC =F3=F1=EF=E5=F5=E0! =E8 =ED=E5 =E8=EC=E5=E5=F2 =E7=ED=
+=E0=F7=E5=ED=E8=FF, =EA=E0=EA=EE=E2=F3=FE =E7=E0=E4=E0=F7=F3 =C2=FB =EF=
+=E5=F0=E5=E4 =F1=EE=E1=EE=E9 =E4=E5=EB=E0=E5=F2=E5 =96 =E7=E0=EC=E5=ED=E8=
+=F2=FC =F0=E0=E1=EE=F2=F3, =ED=E0=F7=E0=F2=FC =E1=E8=E7=ED=E5=F1 =E0=EB=
+=FC =E8=F1=F5=F3=E4=E0=F2=FC =ED=E0 |0 =EA=E8=EB. =D2=E0=EA=EE=E2=FB =F1=
+=E8=F2=F3=E0=F6=E8=E8 =E2=E5=E4=EE=EC=FB =EB=FE=E1=FB=EC.
