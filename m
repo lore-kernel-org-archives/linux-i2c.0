@@ -1,71 +1,80 @@
-From: "Zhang, Sonic" <Sonic.Zhang@analog.com>
-Subject: RE: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before
- it init successful
-Date: Thu, 9 May 2013 08:34:17 +0000
-Message-ID: <B168F8A49F4BCF4C84FD23DA5F6363EEAD64@NWD2MBX7.ad.analog.com>
-References: <1368088044-20408-1-git-send-email-libo.chen@huawei.com>
- <1368088044-20408-2-git-send-email-libo.chen@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+From: =?iso-8859-1?Q?Jean-Fran=E7ois_Dagenais?= <jeff.dagenais-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [lm-sensors] i2c multimaster and the device driver detect function
+Date: Thu, 9 May 2013 08:38:28 -0400
+Message-ID: <3322BACE-9434-4249-8621-C1AD0D340A8A@gmail.com>
+References: <20130212164811.GV8668@pengutronix.de> <3D8D1B67-2846-4B78-B402-6B9FD1CB10E6@gmail.com> <20130508175417.GB29689@roeck-us.net> <FCF1B5D0-FF63-40D5-B7B4-D5969628AAD3@gmail.com> <20130509035313.GA26817@roeck-us.net>
+Mime-Version: 1.0 (Apple Message framework v1085)
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Zhang, Sonic" <Sonic.Zhang@analog.com>, Libo Chen <libo.chen@huawei.com>, "wsa@the-dreams.de" <wsa@the-dreams.de>
-Cc: "uclinux-dist-devel@blackfin.uclinux.org" <uclinux-dist-devel@blackfin.uclinux.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "lizefan@huawei.com" <lizefan@huawei.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130509035313.GA26817-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Please ignore my Ack.
 
-Sonic
+On 2013-05-08, at 11:53 PM, Guenter Roeck wrote:
 
->-----Original Message-----
->From: Zhang, Sonic
->Sent: Thursday, May 09, 2013 4:31 PM
->To: 'Libo Chen'; wsa@the-dreams.de
->Cc: uclinux-dist-devel@blackfin.uclinux.org; linux-kernel@vger.kernel.org; linux-
->i2c@vger.kernel.org; lizefan@huawei.com
->Subject: RE: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before it init
->successful
->
->Acked-by: Sonic Zhang <sonic.zhang@analog.com>
->
->>-----Original Message-----
->>From: Libo Chen [mailto:libo.chen@huawei.com]
->>Sent: Thursday, May 09, 2013 4:27 PM
->>To: Zhang, Sonic; wsa@the-dreams.de
->>Cc: uclinux-dist-devel@blackfin.uclinux.org;
->>linux-kernel@vger.kernel.org; linux- i2c@vger.kernel.org;
->>lizefan@huawei.com; Libo Chen
->>Subject: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before
->>it init successful
->>
->>down out_error_no_irq. When platform_get_irq fail, no need to free
->>peripheral
->>
->>Signed-off-by: Libo Chen <libo.chen@huawei.com>
->>---
->> drivers/i2c/busses/i2c-bfin-twi.c |    2 +-
->> 1 files changed, 1 insertions(+), 1 deletions(-)
->>
->>diff --git a/drivers/i2c/busses/i2c-bfin-twi.c
->>b/drivers/i2c/busses/i2c-bfin-twi.c
->>index 05080c4..6617645 100644
->>--- a/drivers/i2c/busses/i2c-bfin-twi.c
->>+++ b/drivers/i2c/busses/i2c-bfin-twi.c
->>@@ -709,9 +709,9 @@ static int i2c_bfin_twi_probe(struct
->>platform_device *pdev)
->> out_error_add_adapter:
->>      free_irq(iface->irq, iface);
->> out_error_req_irq:
->>-out_error_no_irq:
->>      peripheral_free_list((unsigned short *)pdev->dev.platform_data);
->> out_error_pin_mux:
->>+out_error_no_irq:
->>      iounmap(iface->regs_base);
->> out_error_ioremap:
->> out_error_get_res:
->>--
->>1.7.1
->>
->>
+> Guess the real conclusion is that one should avoid two active masters
+> in the first place if possible.
+
+I agree, I can't think of any benefits worth the trouble.
+
+> Is one of the I2C adapter drivers your own ? If so, you can disable auto-detection
+> in the adapter code by setting the adapter class to 0 (specifically, don't set it
+> to I2C_CLASS_HWMON). You can do the same in the Kontron driver if you have the
+> source (it is GPL so you should be able to find it). While not perfect, that should
+> be better than disabling auto-detection in the affected chip drivers.
+
+That's great advice!! I will look into this, thanks!
+
+> Note that the Kontron driver also sets I2C_CLASS_SPD, which means EEPROMs are
+> auto-detected on address 0x50.
+
+Funny, I had to explicitly inject "I2C_BOARD_INFO("24c32", 0x50)" to see
+Kontron's JIDA chip.
+
+>> [...] Right now I have a working setup where some slaves are
+>> declared on bus 0 (PLD i2c master) and others on bus 1 (FPGA i2c master). I have
+>> yet to stress test the setup within the next day or so, but so far, it seems to
+>> work ok.
+>> 
+> Sure, it does work, I am just not sure what the benefits are of having two
+> masters in this scenario.
+
+My thoughts exactly. I would have avoided it. Right now I am trying to improve
+and existing design.
+
+>  Guess you are saying that the I2C master in the
+> Kontron PLD can not drive the AD7147 - is that correct ?
+
+Well no, it does drive it, we have it in stable production. It's just that when
+you have your finger on the wheel, CPU usage goes up to 5-15%. More intense
+polling of the sensors also takes a toll on the CPU. For different reasons other
+than the ad714x, the FPGA i2c core option suddenly became attractive.
+
+> If so, and if that
+> means you have to use your own I2C core anyway, why bother using the Kontron
+> PLD's I2C bus to start with ? You could just ignore it (ie not instantiate
+
+> or build it at all) and use your own.
+
+Yeah, we already considered that... our FPGA's reset and flash select are
+controlled by an i2c I/O expander! Hehe, so this I/O expander needs to be
+mastered from the kempld. Reality is a bummer ;)
+
+> 
+> Did you tell Kontron about the problems with their PLD ? Maybe they have a
+> solution.
+
+Yes we did. If I remember correctly, the problem is the absence of an interrupt
+line from the PLD to the CPU, which explains the high CPU since the driver
+sleeps-polls for async PLD completions and statuses. ... I know...
+
+Thanks for the reply!
+Cheers,
+/jfd--
+To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
