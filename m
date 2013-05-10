@@ -1,34 +1,198 @@
-From: "Topaz777" <sstreisand-j8V/FP4Q/qDYtjvyW6yDsg@public.gmane.org>
-Subject: =?windows-1251?Q?=C2=FB_=F1=EF=EE=E4=F0=F3=F7=ED=FB_=ED?=
-	=?windows-1251?Q?=E0_=EE=F1=ED=EE=E2=E0=F2=E5=EB=FC=ED=E5?=
-	=?windows-1251?Q?=E9?=
-Date: Fri, 10 May 2013 01:08:32 +0300
-Message-ID: <48CDF49AB0E4400296F012619E5BEEEB@coah>
-Reply-To: "Topaz777" <Topaz777-tPoBCxbIEOw@public.gmane.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1251
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: zypxpcyxy5qw-rGr/ch5yHBIN+BqQ9rBEUg@public.gmane.org, natam-VkCGYGw9HjUox3rIn2DAYQ@public.gmane.org, epicentr-FW5iqspSSHk@public.gmane.org, zakaz121-JGs/UdohzUI@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [RFC 09/42] drivers/i2c/busses: don't check resource with devm_ioremap_resource
+Date: Fri, 10 May 2013 10:16:54 +0200
+Message-ID: <1368173847-5661-10-git-send-email-wsa@the-dreams.de>
+References: <1368173847-5661-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1368173847-5661-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Sekhar Nori <nsekhar@ti.com>, Kevin Hilman <khilman@deeprootsystems.com>, Tony Lindgren <tony@atomide.com>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Barry Song <baohua.song@csr.com>, Stephen Warren <swarren@wwwdotorg.org>, davinci-linux-open-source@linux.davincidsp.com, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-=C2=E0=EC =EA=EE=E3=E4=E0 - =ED=E8=E1=F3=E4=FC =E4=EE=F1=F2=E0=E2=E0=EB=
-=EE=F1=FC =EF=F0=E8=F1=F3=F2=F1=F2=E2=EE=E2=E0=F2=FC =E2 =F2=E0=EA=EE=E9=
- =F1=E8=F2=F3=E0=F6=E8=E8, =EA=EE=E3=E4=E0 =C2=FB =ED=E5 =EC=EE=E3=EB=E8=
- =F1=F4=EE=EA=F3=F1=E8=F0=EE=E2=E0=F2=FC=F1=FF =ED=E0 =F6=E5=EB=E8, =C2=
-=F1=E5 =F1=E2=EE=E1=EE=E4=ED=EE=E5 =E2=F0=E5=EC=FF =F0=E0=F1=F1=E5=E8=E2=
-=E0=EB=E8=F1=FC =ED=E0 =F0=E0=E7=ED=EE=EE=E1=F0=E0=E7=ED=FB=E5 =E4=E5=F2=
-=E0=EB=E8. =ED=E5 =E7=ED=E0=EB=E8 =EA=E0=EA =F3=E9=F2=E8 =E8=E7 =F2=FF=E6=
-=E5=EB=EE=E9 =F1=E8=F2=F3=E0=F6=E8=E8, =EA=E0=EA =EF=E5=F0=E5=E1=EE=F0=EE=
-=F2=FC =EF=F0=E5=EF=FF=F2=F1=F2=E2=E8=E5. =E7=ED=E0=EB=E8, =F0=EE=E2=ED=
-=EE =ED=E0=E4=EE =DD=F2=EE =FF=E2=ED=EE =F1=E2=E5=F0=F8=E8=F2=FC, =E0 =F3=
-=EB=E5=F2=F3=F7=E8=E2=E0=EB=E0=F1=FC =EC=EE=F2=E8=E2=E0=F6=E8=FF. =CF=EE=
- =F1=F1=FB=EB=EA=E5: http://tinyurl.com/c2epbkb =CC=FB =E7=ED=E0=E5=EC =
-=EA=E0=EA =EF=EE=F1=EF=EE=F1=EE=E1=F1=F2=E2=EE=E2=E0=F2=FC =C2=E0=EC =E4=
-=EE=F1=F2=E8=F7=FC =F3=F1=EF=E5=F5=E0! =E8 =ED=E5 =E8=EC=E5=E5=F2 =E7=ED=
-=E0=F7=E5=ED=E8=FF, =EA=E0=EA=EE=E2=F3=FE =E7=E0=E4=E0=F7=F3 =C2=FB =EF=
-=E5=F0=E5=E4 =F1=EE=E1=EE=E9 =E4=E5=EB=E0=E5=F2=E5 =96 =E7=E0=EC=E5=ED=E8=
-=F2=FC =F0=E0=E1=EE=F2=F3, =ED=E0=F7=E0=F2=FC =E1=E8=E7=ED=E5=F1 =E0=EB=
-=FC =E8=F1=F5=F3=E4=E0=F2=FC =ED=E0 |0 =EA=E8=EB. =D2=E0=EA=EE=E2=FB =F1=
-=E8=F2=F3=E0=F6=E8=E8 =E2=E5=E4=EE=EC=FB =EB=FE=E1=FB=EC.
+devm_ioremap_resource does sanity checks on the given resource. No need to
+duplicate this in the driver.
+
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+ drivers/i2c/busses/i2c-davinci.c            |    6 +-----
+ drivers/i2c/busses/i2c-designware-platdrv.c |    6 +-----
+ drivers/i2c/busses/i2c-imx.c                |    6 +-----
+ drivers/i2c/busses/i2c-omap.c               |    6 +-----
+ drivers/i2c/busses/i2c-rcar.c               |    7 +------
+ drivers/i2c/busses/i2c-s3c2410.c            |    5 -----
+ drivers/i2c/busses/i2c-sirf.c               |    6 ------
+ drivers/i2c/busses/i2c-tegra.c              |    5 -----
+ 8 files changed, 5 insertions(+), 42 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index cf20e06..2ed3e7b 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -647,11 +647,6 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 	int r;
+ 
+ 	/* NOTE: driver uses the static register mapping */
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!mem) {
+-		dev_err(&pdev->dev, "no mem resource?\n");
+-		return -ENODEV;
+-	}
+ 
+ 	irq = platform_get_resource(pdev, IORESOURCE_IRQ, 0);
+ 	if (!irq) {
+@@ -697,6 +692,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 	clk_prepare_enable(dev->clk);
+ 
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+ 	if (IS_ERR(dev->base)) {
+ 		r = PTR_ERR(dev->base);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 8ec9133..6f3c612 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -87,11 +87,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	int irq, r;
+ 
+ 	/* NOTE: driver uses the static register mapping */
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!mem) {
+-		dev_err(&pdev->dev, "no mem resource?\n");
+-		return -EINVAL;
+-	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+@@ -103,6 +98,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+ 	if (IS_ERR(dev->base))
+ 		return PTR_ERR(dev->base);
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 82f20c6..b274ca1 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -500,17 +500,13 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 
+ 	dev_dbg(&pdev->dev, "<%s>\n", __func__);
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "can't get device resources\n");
+-		return -ENOENT;
+-	}
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "can't get irq number\n");
+ 		return -ENOENT;
+ 	}
+ 
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index e02f9e3..8498ab7 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1085,11 +1085,6 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	u16 minor, major, scheme;
+ 
+ 	/* NOTE: driver uses the static register mapping */
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!mem) {
+-		dev_err(&pdev->dev, "no mem resource?\n");
+-		return -ENODEV;
+-	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+@@ -1103,6 +1098,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
+ 
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+ 	if (IS_ERR(dev->base))
+ 		return PTR_ERR(dev->base);
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 4ba4a95..0fc5858 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -623,12 +623,6 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	u32 bus_speed;
+ 	int ret;
+ 
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(dev, "no mmio resources\n");
+-		return -ENODEV;
+-	}
+-
+ 	priv = devm_kzalloc(dev, sizeof(struct rcar_i2c_priv), GFP_KERNEL);
+ 	if (!priv) {
+ 		dev_err(dev, "no mem for private data\n");
+@@ -642,6 +636,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		return ret;
+ 
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	priv->io = devm_ioremap_resource(dev, res);
+ 	if (IS_ERR(priv->io))
+ 		return PTR_ERR(priv->io);
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index 6e8ee92..cab1c91 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1082,11 +1082,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	/* map the registers */
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (res == NULL) {
+-		dev_err(&pdev->dev, "cannot find IO resource\n");
+-		return -ENOENT;
+-	}
+-
+ 	i2c->regs = devm_ioremap_resource(&pdev->dev, res);
+ 
+ 	if (IS_ERR(i2c->regs))
+diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+index 5a7ad24..a63c7d5 100644
+--- a/drivers/i2c/busses/i2c-sirf.c
++++ b/drivers/i2c/busses/i2c-sirf.c
+@@ -303,12 +303,6 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
+ 	adap->class = I2C_CLASS_HWMON;
+ 
+ 	mem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (mem_res == NULL) {
+-		dev_err(&pdev->dev, "Unable to get MEM resource\n");
+-		err = -EINVAL;
+-		goto out;
+-	}
+-
+ 	siic->base = devm_ioremap_resource(&pdev->dev, mem_res);
+ 	if (IS_ERR(siic->base)) {
+ 		err = PTR_ERR(siic->base);
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index b60ff90..9aa1b60 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -714,11 +714,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+ 	int ret = 0;
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res) {
+-		dev_err(&pdev->dev, "no mem resource\n");
+-		return -EINVAL;
+-	}
+-
+ 	base = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(base))
+ 		return PTR_ERR(base);
+-- 
+1.7.10.4
