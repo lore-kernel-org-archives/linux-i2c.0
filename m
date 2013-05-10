@@ -1,120 +1,99 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [lm-sensors] i2c multimaster and the device driver detect
- function
-Date: Thu, 9 May 2013 06:30:03 -0700
-Message-ID: <20130509133003.GA898@roeck-us.net>
-References: <20130212164811.GV8668@pengutronix.de>
- <3D8D1B67-2846-4B78-B402-6B9FD1CB10E6@gmail.com>
- <20130508175417.GB29689@roeck-us.net>
- <FCF1B5D0-FF63-40D5-B7B4-D5969628AAD3@gmail.com>
- <20130509035313.GA26817@roeck-us.net>
- <3322BACE-9434-4249-8621-C1AD0D340A8A@gmail.com>
+From: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before
+ it init successful
+Date: Fri, 10 May 2013 09:01:36 +0800
+Message-ID: <518C46F0.6060507@huawei.com>
+References: <1368088044-20408-1-git-send-email-libo.chen@huawei.com> <1368088044-20408-2-git-send-email-libo.chen@huawei.com> <B168F8A49F4BCF4C84FD23DA5F6363EEAD57@NWD2MBX7.ad.analog.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <3322BACE-9434-4249-8621-C1AD0D340A8A-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <B168F8A49F4BCF4C84FD23DA5F6363EEAD57-Nxh9ahLCS6GuVPpjEGsWsTcYPEmu4y7e@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: =?iso-8859-1?Q?Jean-Fran=E7ois?= Dagenais <jeff.dagenais-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org
+To: "Zhang, Sonic" <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Cc: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org" <uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org" <lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 09, 2013 at 08:38:28AM -0400, Jean-Fran=E7ois Dagenais wrot=
-e:
->=20
-> On 2013-05-08, at 11:53 PM, Guenter Roeck wrote:
->=20
-> > Guess the real conclusion is that one should avoid two active maste=
-rs
-> > in the first place if possible.
->=20
-> I agree, I can't think of any benefits worth the trouble.
->=20
-> > Is one of the I2C adapter drivers your own ? If so, you can disable=
- auto-detection
-> > in the adapter code by setting the adapter class to 0 (specifically=
-, don't set it
-> > to I2C_CLASS_HWMON). You can do the same in the Kontron driver if y=
-ou have the
-> > source (it is GPL so you should be able to find it). While not perf=
-ect, that should
-> > be better than disabling auto-detection in the affected chip driver=
-s.
->=20
-> That's great advice!! I will look into this, thanks!
->=20
-> > Note that the Kontron driver also sets I2C_CLASS_SPD, which means E=
-EPROMs are
-> > auto-detected on address 0x50.
->=20
-> Funny, I had to explicitly inject "I2C_BOARD_INFO("24c32", 0x50)" to =
-see
-> Kontron's JIDA chip.
->=20
-Interesting.
+On 2013/5/9 16:33, Zhang, Sonic wrote:
+> Hi Libo,
+> 
+>> -----Original Message-----
+>> From: Libo Chen [mailto:libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org]
+>> Sent: Thursday, May 09, 2013 4:27 PM
+>> To: Zhang, Sonic; wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+>> Cc: uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-
+>> i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org; Libo Chen
+>> Subject: [PATCH v2 1/2] i2c: i2c-bfin-twi: don`t free peripheral before it init
+>> successful
+>>
+>> down out_error_no_irq. When platform_get_irq fail, no need to free peripheral
+>>
+>> Signed-off-by: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+>> ---
+>> drivers/i2c/busses/i2c-bfin-twi.c |    2 +-
+>> 1 files changed, 1 insertions(+), 1 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+>> index 05080c4..6617645 100644
+>> --- a/drivers/i2c/busses/i2c-bfin-twi.c
+>> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
+>> @@ -709,9 +709,9 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+>> out_error_add_adapter:
+>>       free_irq(iface->irq, iface);
+>> out_error_req_irq:
+>> -out_error_no_irq:
+>>       peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+>> out_error_pin_mux:
+>> +out_error_no_irq:
+>>       iounmap(iface->regs_base);
+>> out_error_ioremap:
+>> out_error_get_res:
+>> --
+> 
+> Sorry, but you didn't exchange as I suggested.
+> Should be
+> 
 
-> >> [...] Right now I have a working setup where some slaves are
-> >> declared on bus 0 (PLD i2c master) and others on bus 1 (FPGA i2c m=
-aster). I have
-> >> yet to stress test the setup within the next day or so, but so far=
-, it seems to
-> >> work ok.
-> >>=20
-> > Sure, it does work, I am just not sure what the benefits are of hav=
-ing two
-> > masters in this scenario.
->=20
-> My thoughts exactly. I would have avoided it. Right now I am trying t=
-o improve
-> and existing design.
->=20
-> >  Guess you are saying that the I2C master in the
-> > Kontron PLD can not drive the AD7147 - is that correct ?
->=20
-> Well no, it does drive it, we have it in stable production. It's just=
- that when
-> you have your finger on the wheel, CPU usage goes up to 5-15%. More i=
-ntense
-> polling of the sensors also takes a toll on the CPU. For different re=
-asons other
-> than the ad714x, the FPGA i2c core option suddenly became attractive.
->=20
-> > If so, and if that
-> > means you have to use your own I2C core anyway, why bother using th=
-e Kontron
-> > PLD's I2C bus to start with ? You could just ignore it (ie not inst=
-antiate
->=20
-> > or build it at all) and use your own.
->=20
-> Yeah, we already considered that... our FPGA's reset and flash select=
- are
-> controlled by an i2c I/O expander! Hehe, so this I/O expander needs t=
-o be
-> mastered from the kempld. Reality is a bummer ;)
->=20
-> >=20
-> > Did you tell Kontron about the problems with their PLD ? Maybe they=
- have a
-> > solution.
->=20
-> Yes we did. If I remember correctly, the problem is the absence of an=
- interrupt
-> line from the PLD to the CPU, which explains the high CPU since the d=
-river
-> sleeps-polls for async PLD completions and statuses. ... I know...
->=20
-Ah, that one. Yes, the higher CPU utilization is an indication that thi=
-s is due
-to polling, not due to power draw on the I2C lines. You might try to in=
-crease
-the usleep_range interval in the Kontron driver to reduce the load a bi=
-t.
+Hi Sonic,
 
-Anyway (kind of) good news - newer Kontron boards do support interrupts=
- and no
-longer have to revert to polling.
+Look at peripheral_request_list()
+{
+	u16 cnt;
+	int ret;
 
-Thanks,
-Guenter
+	for (cnt = 0; per[cnt] != 0; cnt++) {
+
+		ret = peripheral_request(per[cnt], label);
+
+		if (ret < 0) {
+			for ( ; cnt > 0; cnt--)
+				peripheral_free(per[cnt - 1]);
+
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
+
+When peripheral_request fail, it had called peripheral_free().
+So there is no reason to call peripheral_free_list again.
+
+Did I miss something else?
+
+
+>> out_error_req_irq:
+>> -out_error_no_irq:
+>> +out_error_pin_mux:
+>>       peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+>> -out_error_pin_mux:
+>> +out_error_no_irq:
+> 
+> 
+> Regards,
+> 
+> Sonic
+> 
+> 
+> 
