@@ -1,40 +1,34 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 1/2] i2c-designware: always clear interrupts before enabling them
-Date: Mon, 13 May 2013 13:54:30 +0300
-Message-ID: <1368442471-7582-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 2/2] i2c-designware: add Intel BayTrail ACPI ID
+Date: Mon, 13 May 2013 13:54:31 +0300
+Message-ID: <1368442471-7582-2-git-send-email-mika.westerberg@linux.intel.com>
+References: <1368442471-7582-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1368442471-7582-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-If the I2C bus is put to a low power state by an ACPI method it might pull
-the SDA line low (as its power is removed). Once the bus is put to full
-power state again, the SDA line is pulled back to high. This transition
-looks like a STOP condition from the controller point-of-view which sets
-STOP detected bit in its status register causing the driver to fail
-subsequent transfers.
+This is the same controller as on Intel Lynxpoint but the ACPI ID is
+different (8086F41). Add support for this.
 
-Fix this by always clearing all interrupts before we start a transfer.
-
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 21fbb34..7a89ca5 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -383,7 +383,8 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- 	/* Enable the adapter */
- 	__i2c_dw_enable(dev, true);
- 
--	/* Enable interrupts */
-+	/* Clear and enable interrupts */
-+	i2c_dw_clear_int(dev);
- 	dw_writel(dev, DW_IC_INTR_DEFAULT_MASK, DW_IC_INTR_MASK);
- }
- 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 8ec9133..35b70a1 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -69,6 +69,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "INT33C2", 0 },
+ 	{ "INT33C3", 0 },
++	{ "80860F41", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
 -- 
 1.7.10.4
