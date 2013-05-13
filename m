@@ -1,34 +1,64 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 2/2] i2c-designware: add Intel BayTrail ACPI ID
-Date: Mon, 13 May 2013 13:54:31 +0300
-Message-ID: <1368442471-7582-2-git-send-email-mika.westerberg@linux.intel.com>
-References: <1368442471-7582-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1368442471-7582-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-kernel@vger.kernel.org
+From: =?iso-8859-1?Q?Jean-Fran=E7ois_Dagenais?= <jeff.dagenais-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [lm-sensors] i2c multimaster and the device driver detect function
+Date: Mon, 13 May 2013 09:54:47 -0400
+Message-ID: <E43DA0E6-A130-4837-8343-EEC182A12EE6@gmail.com>
+References: <20130212164811.GV8668@pengutronix.de> <3D8D1B67-2846-4B78-B402-6B9FD1CB10E6@gmail.com> <20130508175417.GB29689@roeck-us.net> <FCF1B5D0-FF63-40D5-B7B4-D5969628AAD3@gmail.com> <20130509035313.GA26817@roeck-us.net> <3322BACE-9434-4249-8621-C1AD0D340A8A@gmail.com> <20130513101150.0c9e4d30@endymion.delvare>
+Mime-Version: 1.0 (Apple Message framework v1085)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130513101150.0c9e4d30-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is the same controller as on Intel Lynxpoint but the ACPI ID is
-different (8086F41). Add support for this.
+Salut Jean, merci de participer!
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
- 1 file changed, 1 insertion(+)
+On 2013-05-13, at 4:11 AM, Jean Delvare wrote:
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 8ec9133..35b70a1 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -69,6 +69,7 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
- static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "INT33C2", 0 },
- 	{ "INT33C3", 0 },
-+	{ "80860F41", 0 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
--- 
-1.7.10.4
+> 
+> Guenter is right. You never have to disable auto-detection in the slave
+> drivers (jc42 etc.) All these slave drivers do is claim "I _can_ do
+> auto-detection", not "I _will_ do auto-detection." It's always up to the
+> I2C adapter driver, whether auto-detection will happen or not. And it
+> is disabled by default. So if you don't want it, just do not enable it
+> in the bus driver. You can even set it per adapter, when the driver
+> controls more than one adapter, and per bus segment, when multiplexing
+> is taking place.
+
+I am just wondering where the clean hook is for doing this. From what I can
+gather, the master driver(s I've seen) declare ".class = I2C_CLASS_HWMON |
+I2C_CLASS_SPD," pretty statically. Is it just that they are missing this
+flexibility? Something along the lines of patching the pdata of such a master
+driver to provide a 'class' variable in pdata? If so, one would have to take
+into account the existing users of the master which expect the previous class
+setting which may not be '0', thus requiring patching the existing upstreamed
+users...  Suggestions?
+
+> [...]
+> It might be a little late now, but you may want to look into the
+> PCA9541, for which Guenter has written a driver.
+
+Thanks for that. Unfortunately, I am bound to existing hardware on this
+platform. I will keep it in mind for future designs though.
+
+Since my first post, I have stumbled on more problems with multimaster. Namely,
+the master drivers are not consistent with the way they deal with arbitration
+loss. I've all but re-written i2c-xiic, and dealt with arblost by catching
+BusNotBusy interrupt and retrying the transfer. But the same cannot be said
+about i2c-kempld (Kontron's in-PLD i2c master). Even if I manage to get the
+kempld driver to handle this correctly, xiic still has some issues. The IP core
+seems to enter a state when scanning unpopulated addresses (i2cdetect) for which
+only a soft reset is required to recover, but this means it looses track of the
+peer start-stop sequences and it's detection of the bus being busy or not.
+
+I have decided to abandon the multimaster option for now as the hurdles are too
+great. The only time I need another i2c master is when I need to hot reset the
+fpga which houses the xiic core. (the reset pin is driven from gpo on an i2c i/o
+expander). I will therefore handle this special case in userspace by unloading
+i2c-xiic, then loading i2c-kempld. The slaves are arch declared on hard-coded
+bus 0, so this should just work.
+
+Thanks for all your help!
+/jfd
