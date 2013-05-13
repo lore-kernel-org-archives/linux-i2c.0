@@ -1,86 +1,87 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: core: make it possible to match a pure device tree
- driver
-Date: Mon, 13 May 2013 09:16:37 +0200
-Message-ID: <20130513071637.GD32299@pengutronix.de>
-References: <1368397583-22769-1-git-send-email-linus.walleij@linaro.org>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [lm-sensors] i2c multimaster and the device driver detect
+ function
+Date: Mon, 13 May 2013 10:11:50 +0200
+Message-ID: <20130513101150.0c9e4d30@endymion.delvare>
+References: <20130212164811.GV8668@pengutronix.de>
+	<3D8D1B67-2846-4B78-B402-6B9FD1CB10E6@gmail.com>
+	<20130508175417.GB29689@roeck-us.net>
+	<FCF1B5D0-FF63-40D5-B7B4-D5969628AAD3@gmail.com>
+	<20130509035313.GA26817@roeck-us.net>
+	<3322BACE-9434-4249-8621-C1AD0D340A8A@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1368397583-22769-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <3322BACE-9434-4249-8621-C1AD0D340A8A-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+To: =?UTF-8?B?SmVhbi1GcmFuw6dvaXM=?= Dagenais <jeff.dagenais-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Linus,
+Salut Jean-Fran=C3=A7ois, hi Guenter,
 
-On Mon, May 13, 2013 at 12:26:23AM +0200, Linus Walleij wrote:
-> Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
-> Cc: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> ---
-> I would need some device tree core people to confirm that I am
-> on the right track with this. I was soooo confused when I found
-> that .of_match_table could not be used with I2C devices...
-> ---
->  drivers/i2c/i2c-core.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 6b63cc7..30b5bb2 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -240,7 +240,7 @@ static int i2c_device_probe(struct device *dev)
->  		return 0;
->  
->  	driver = to_i2c_driver(dev->driver);
-> -	if (!driver->probe || !driver->id_table)
-> +	if (!driver->probe || (!driver->id_table && !dev->driver->of_match_table))
->  		return -ENODEV;
->  	client->driver = driver;
->  	if (!device_can_wakeup(&client->dev))
-> @@ -248,7 +248,12 @@ static int i2c_device_probe(struct device *dev)
->  					client->flags & I2C_CLIENT_WAKE);
->  	dev_dbg(dev, "probe\n");
->  
-> -	status = driver->probe(client, i2c_match_id(driver->id_table, client));
-> +	if (dev->driver->of_match_table)
-> +		/* Device tree matching */
-> +		status = driver->probe(client, NULL);
-> +	else
-> +		/* Fall back to matching the id_table */
-> +		status = driver->probe(client, i2c_match_id(driver->id_table, client));
+Sorry for jumping in a little late, I am just back from vacation.
 
-If you correctly register a device with "vendor,product" in the devicetree
-the driver can already fetch the of_device_id using of_match_device(dt_ids, &client->dev)
-just like a platform driver would do aswell.
+On Thu, 9 May 2013 08:38:28 -0400, Jean-Fran=C3=A7ois Dagenais wrote:
+> On 2013-05-08, at 11:53 PM, Guenter Roeck wrote:
+> > Is one of the I2C adapter drivers your own ? If so, you can disable=
+ auto-detection
+> > in the adapter code by setting the adapter class to 0 (specifically=
+, don't set it
+> > to I2C_CLASS_HWMON). You can do the same in the Kontron driver if y=
+ou have the
+> > source (it is GPL so you should be able to find it). While not perf=
+ect, that should
+> > be better than disabling auto-detection in the affected chip driver=
+s.
+>=20
+> That's great advice!! I will look into this, thanks!
 
-i2c_match_id will return a NULL pointer if called with "vendor,product",
-because nothing matches in the drivers id_table, so for this case you
-change nothing.
+Guenter is right. You never have to disable auto-detection in the slave
+drivers (jc42 etc.) All these slave drivers do is claim "I _can_ do
+auto-detection", not "I _will_ do auto-detection." It's always up to th=
+e
+I2C adapter driver, whether auto-detection will happen or not. And it
+is disabled by default. So if you don't want it, just do not enable it
+in the bus driver. You can even set it per adapter, when the driver
+controls more than one adapter, and per bus segment, when multiplexing
+is taking place.
 
-If anything, you introduce the problem that a devicetree capable driver
-no longer gets a i2c_device_id if the device was instantiated with
-i2c_board_info.
+Please also note: the jc42 driver now uses I2C_CLASS_SPD not
+I2C_CLASS_HWMON, because memory modules typically use a single chip for
+SPD EEPROM and JEDEC JC42.2 temperature sensor. Think of I2C_CLASS_SPD
+as "I2C class for memory modules."
 
-See how the mc13xxx driver does it:
+> > Note that the Kontron driver also sets I2C_CLASS_SPD, which means E=
+EPROMs are
+> > auto-detected on address 0x50.
+>=20
+> Funny, I had to explicitly inject "I2C_BOARD_INFO("24c32", 0x50)" to =
+see
+> Kontron's JIDA chip.
 
-	if (client->dev.of_node) {
-		const struct of_device_id *of_id =
-			of_match_device(mc13xxx_dt_ids, &client->dev);
-		mc13xxx->variant = of_id->data;
-	} else {
-		mc13xxx->variant = (void *)id->driver_data;
-	}
+The only EEPROMs which are auto-detected are SPD and EDID EEPROMs. The
+legacy eeprom driver is used for these. The 24C32 is a larger EEPROM,
+you must use the at24 driver for it and it doesn't support
+auto-detection (this is simply not possible.)
 
-This works.
+In the long run, the legacy eeprom driver could be killed, but not
+before someone verifies that the at24 driver can take over completely,
+including the auto-detection feature, performance optimizations and
+corner case coverage.
 
-Sascha
+> > (...)
+> > Sure, it does work, I am just not sure what the benefits are of hav=
+ing two
+> > masters in this scenario.
+>=20
+> My thoughts exactly. I would have avoided it. Right now I am trying t=
+o improve
+> and existing design.
 
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+It might be a little late now, but you may want to look into the
+PCA9541, for which Guenter has written a driver.
+
+--=20
+Jean Delvare
