@@ -1,37 +1,59 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH V10 2/2] i2c/designware: Provide i2c bus recovery support
-Date: Mon, 13 May 2013 14:48:42 +0530
-Message-ID: <CAKohpokAPohg2aAjawLN2t_Jh29CZAuiWqKz2ah-bJP9Dw4YvA@mail.gmail.com>
-References: <59a73d182bf1ce330becf32ad780f3501a57aed0.1359106966.git.viresh.kumar@linaro.org>
-	<f7d8d29a338704deaa7a542f9a213fc7696625c9.1359106966.git.viresh.kumar@linaro.org>
-	<CAKohpom=DQDv6v7xwnCRvtWBxC+a5mGZeOv=ad8AjKwV2yGBow@mail.gmail.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] i2c: core: make it possible to match a pure device tree driver
+Date: Mon, 13 May 2013 11:26:32 +0200
+Message-ID: <CACRpkdawcx-AZhKGWffj0WFAWfbAEAw6XPmJo5Te0NaUcrF79g@mail.gmail.com>
+References: <1368397583-22769-1-git-send-email-linus.walleij@linaro.org>
+	<20130513071637.GD32299@pengutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAKohpom=DQDv6v7xwnCRvtWBxC+a5mGZeOv=ad8AjKwV2yGBow-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20130513071637.GD32299-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, paul-YHLC2tV1sDlxR4N9A70vTlRxknfHcPLb9dF7HbQ/qKg@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 5 April 2013 12:12, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Hi Wolfram,
->
-> On 25 January 2013 15:17, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
->> Add bus recovery support for designware_i2c controller. It uses generic gpio
->> based i2c_gpio_recover_bus() routine. Platforms need to pass struct
->> i2c_bus_recovery_info as platform data to designware I2C controller.
->>
->> Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
->> Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
->> Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
->> ---
->> V9->V10: None
->>
->>  drivers/i2c/busses/i2c-designware-core.c    | 5 ++++-
->>  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
->>  2 files changed, 10 insertions(+), 1 deletion(-)
->
-> Can you apply this one too?
+On Mon, May 13, 2013 at 9:16 AM, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org> wrote:
 
-Ping!!
+>> -     status = driver->probe(client, i2c_match_id(driver->id_table, client));
+>> +     if (dev->driver->of_match_table)
+>> +             /* Device tree matching */
+>> +             status = driver->probe(client, NULL);
+>> +     else
+>> +             /* Fall back to matching the id_table */
+>> +             status = driver->probe(client, i2c_match_id(driver->id_table, client));
+>
+> If you correctly register a device with "vendor,product" in the devicetree
+> the driver can already fetch the of_device_id using of_match_device(dt_ids, &client->dev)
+> just like a platform driver would do aswell.
+
+Yes, this is what I write in the commit message:
+
+  "(...) If the driver wants to deduce secondary info
+  from the struct of_device_id .data field, it has to call
+  of_match_device() on its own match table in the probe function
+  device tree probe path."
+
+> i2c_match_id will return a NULL pointer if called with "vendor,product",
+> because nothing matches in the drivers id_table, so for this case you
+> change nothing.
+>
+> If anything, you introduce the problem that a devicetree capable driver
+> no longer gets a i2c_device_id if the device was instantiated with
+> i2c_board_info.
+
+Hm, you're right there, what about this:
+
++     if (dev->of_node)
++             /* Device tree matching */
++             status = driver->probe(client, NULL);
++     else
++             /* Fall back to matching the id_table */
++             status = driver->probe(client,
+i2c_match_id(driver->id_table, client));
+
+If the device has an of_node it surely should not be using the
+id_table and it'd be correct to pass NULL, right?
+
+Yours,
+Linus Walleij
