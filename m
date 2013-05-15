@@ -1,118 +1,92 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH REBASE] i2c-designware: make SDA hold time configurable
-Date: Tue, 14 May 2013 15:04:02 +0200
-Message-ID: <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
-References: <20130514110745.GA10906@intel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: PROBLEM: modprobe hang at startup (3.8.x, 3.9.x, IBM x3550)
+Date: Wed, 15 May 2013 11:20:44 +0200
+Message-ID: <20130515112044.753bb7bb@endymion.delvare>
+References: <1368408152.29197.140661229821177.2C1CC406@webmail.messagingengine.com>
+	<20130514231626.GA12961@pyro.melbourne.osa>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130514110745.GA10906-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20130514231626.GA12961-IBYGJlK4DBpn1Ubwjl4+/VPmBPO9Xwsk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+To: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch makes the SDA hold time configurable through device tree.
+Hi Robert,
 
-[rebased to i2c-current/i2c-next/mainline-3.10-rc1]
+Adding the linux-i2c list to Cc.
 
-Signed-off-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-designware.txt     |   14 ++++++++++++++
- drivers/i2c/busses/i2c-designware-core.c           |    5 +++++
- drivers/i2c/busses/i2c-designware-core.h           |    1 +
- drivers/i2c/busses/i2c-designware-platdrv.c        |    9 +++++++++
- 4 files changed, 29 insertions(+), 0 deletions(-)
+On Wed, 15 May 2013 09:16:26 +1000, Robert Norris wrote:
+> On Mon, May 13, 2013 at 11:22:32AM +1000, Robert Norris wrote:
+> > We have a number of Intel x3550 servers (Intel 5000-series). They've
+> > been running 3.7.2 fine.
+> > 
+> > In the last week I've run 3.8.11, 3.8.12 and 3.9.2 on them. All have
+> > long hangs at boot, and later hung tasks in modprobe.
+> 
+> I bisected this and tracked it to this commit:
+> 
+>     commit 6676a847d48ac48908cf467b42da9045b5463a6e
+>     Author: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>     Date:   Sun Dec 16 21:11:55 2012 +0100
+> 
+>         i2c-i801: Enable interrupts for all post-ICH5 chips
+>         
+>         I did not receive a single bug report after interrupt support was
+>         added for a limited number of chips. So I'd say the code is good and
+>         should be enabled for all supported chips, that is: ICH5 and later.
+>         
+>         Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+>         Reviewed-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
+> 
+> I've tested by building 3.9.2 with that single commit reverted, and it
+> boots without issue.
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-index e42a2ee..21fabe7 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -10,6 +10,9 @@ Recommended properties :
- 
-  - clock-frequency : desired I2C bus clock frequency in Hz.
- 
-+Optional properties :
-+ - sda-hold-time : should contain the SDA hold time in nanoseconds.
-+
- Example :
- 
- 	i2c@f0000 {
-@@ -20,3 +23,14 @@ Example :
- 		interrupts = <11>;
- 		clock-frequency = <400000>;
- 	};
-+
-+	i2c@1120000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "snps,designware-i2c";
-+		reg = <0x1120000 0x1000>;
-+		interrupt-parent = <&ictl>;
-+		interrupts = <12 1>;
-+		clock-frequency = <400000>;
-+		sda-hold-time = <300>;
-+	};
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 21fbb34..91d422c 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -67,6 +67,7 @@
- #define DW_IC_STATUS		0x70
- #define DW_IC_TXFLR		0x74
- #define DW_IC_RXFLR		0x78
-+#define DW_IC_SDA_HOLD		0x7c
- #define DW_IC_TX_ABRT_SOURCE	0x80
- #define DW_IC_ENABLE_STATUS	0x9c
- #define DW_IC_COMP_PARAM_1	0xf4
-@@ -332,6 +333,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
- 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
- 
-+	/* Configure SDA Hold Time if required */
-+	if (dev->sda_hold_time)
-+		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
-+
- 	/* Configure Tx/Rx FIFO threshold levels */
- 	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
- 	dw_writel(dev, 0, DW_IC_RX_TL);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9c1840e..33dfec3 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -88,6 +88,7 @@ struct dw_i2c_dev {
- 	u32			master_cfg;
- 	unsigned int		tx_fifo_depth;
- 	unsigned int		rx_fifo_depth;
-+	u32			sda_hold_time;
- };
- 
- #define ACCESS_SWAP		0x00000001
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 8ec9133..589f414 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -34,6 +34,7 @@
- #include <linux/sched.h>
- #include <linux/err.h>
- #include <linux/interrupt.h>
-+#include <linux/of.h>
- #include <linux/of_i2c.h>
- #include <linux/platform_device.h>
- #include <linux/pm.h>
-@@ -120,6 +121,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(dev->clk);
- 	clk_prepare_enable(dev->clk);
- 
-+	if (pdev->dev.of_node) {
-+		u32 ht;
-+		u32 ic_clk = dev->get_clk_rate_khz(dev);
-+
-+		of_property_read_u32(pdev->dev.of_node, "sda-hold-time", &ht);
-+		dev->sda_hold_time = ((u64)ic_clk * ht + 500000) / 1000000;
-+	}
-+
- 	dev->functionality =
- 		I2C_FUNC_I2C |
- 		I2C_FUNC_10BIT_ADDR |
+Thanks a lot for reporting and even more for bisecting it, I know it
+takes time. I apologize for the trouble. I suppose I should have been a
+bit more cautious with the 63xxESB chips as they are a different family
+of hardware.
+
+> According to lspci I have:
+> 
+>     00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus Controller (rev 09)
+> 
+> Which has PCI ID 0x269b (ie PCI_DEVICE_ID_INTEL_ESB2_17).
+
+
+Can you share the full output of lspci -s 00:1f.3 -vv?
+
+I'm also curious if the SMBus controller shares its interrupt line with
+another chip. /proc/interrupts should tell but you'll have to make one
+of your systems hang again.
+
+> For now I will either revert this commit in my kernel builds or
+> blacklist the module on these machines (I haven't decided which I prefer
+> yet).
+
+You can also pass parameter disable_features=0x10 to the i2c-i801
+driver, this will disable interrupt support without having to rebuild
+the driver. I suppose this could be documented in more details in
+modinfo, I'll work on that.
+
+> Obviously, I can reproduce this reliably, and am happy to test.
+
+Thanks for the offer. Right now I am stuck in bed and must take some
+rest. When I feel better I'll see if I can gain access to systems with
+Intel 63xxESB chips to try and reproduce the hang you're seeing. I'll
+also take a look at the datasheets again to see if any difference stands
+out.
+
+For the time being I plan to simply disable interrupt support again for
+the ESB chips, until we fully understand what happens on your systems.
+
+As far as debugging goes, please tell me if you have any I2C/SMBus
+slave device driver loaded (check in /sys/bus/i2c/drivers.) Loading the
+i2c-i801 driver doesn't do much on its own if there are no slave device
+drivers using it.
+
+Thanks,
 -- 
-1.7.1
+Jean Delvare
