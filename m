@@ -1,92 +1,115 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+From: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>
 Subject: Re: PROBLEM: modprobe hang at startup (3.8.x, 3.9.x, IBM x3550)
-Date: Wed, 15 May 2013 11:20:44 +0200
-Message-ID: <20130515112044.753bb7bb@endymion.delvare>
+Date: Wed, 15 May 2013 21:27:41 +1000
+Message-ID: <20130515112741.GA23766@pyro.melbourne.osa>
 References: <1368408152.29197.140661229821177.2C1CC406@webmail.messagingengine.com>
-	<20130514231626.GA12961@pyro.melbourne.osa>
+ <20130514231626.GA12961@pyro.melbourne.osa>
+ <20130515112044.753bb7bb@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130514231626.GA12961-IBYGJlK4DBpn1Ubwjl4+/VPmBPO9Xwsk@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130515112044.753bb7bb-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Robert,
+Hi Jean,
 
-Adding the linux-i2c list to Cc.
+On Wed, May 15, 2013 at 11:20:44AM +0200, Jean Delvare wrote:
+> Thanks a lot for reporting and even more for bisecting it, I know it
+> takes time. I apologize for the trouble. I suppose I should have been
+> a bit more cautious with the 63xxESB chips as they are a different
+> family of hardware.
 
-On Wed, 15 May 2013 09:16:26 +1000, Robert Norris wrote:
-> On Mon, May 13, 2013 at 11:22:32AM +1000, Robert Norris wrote:
-> > We have a number of Intel x3550 servers (Intel 5000-series). They've
-> > been running 3.7.2 fine.
-> > 
-> > In the last week I've run 3.8.11, 3.8.12 and 3.9.2 on them. All have
-> > long hangs at boot, and later hung tasks in modprobe.
-> 
-> I bisected this and tracked it to this commit:
-> 
->     commit 6676a847d48ac48908cf467b42da9045b5463a6e
->     Author: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->     Date:   Sun Dec 16 21:11:55 2012 +0100
-> 
->         i2c-i801: Enable interrupts for all post-ICH5 chips
->         
->         I did not receive a single bug report after interrupt support was
->         added for a limited number of chips. So I'd say the code is good and
->         should be enabled for all supported chips, that is: ICH5 and later.
->         
->         Signed-off-by: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
->         Reviewed-by: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>
-> 
-> I've tested by building 3.9.2 with that single commit reverted, and it
-> boots without issue.
+No problem! It was kind of fun actually ;)
 
-Thanks a lot for reporting and even more for bisecting it, I know it
-takes time. I apologize for the trouble. I suppose I should have been a
-bit more cautious with the 63xxESB chips as they are a different family
-of hardware.
+> Can you share the full output of lspci -s 00:1f.3 -vv?
 
-> According to lspci I have:
-> 
->     00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus Controller (rev 09)
-> 
-> Which has PCI ID 0x269b (ie PCI_DEVICE_ID_INTEL_ESB2_17).
+00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus Controller (rev 09)
+    Subsystem: IBM Device 02dd
+    Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx+
+    Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+    Interrupt: pin B routed to IRQ 0
+    Region 4: I/O ports at 0440 [size=32]
 
+> I'm also curious if the SMBus controller shares its interrupt line
+> with another chip. /proc/interrupts should tell but you'll have to
+> make one of your systems hang again.
 
-Can you share the full output of lspci -s 00:1f.3 -vv?
+I'm not sure how to read it, so here it is (3.9.2, immediately after
+boot, no options to i2c_i801):
 
-I'm also curious if the SMBus controller shares its interrupt line with
-another chip. /proc/interrupts should tell but you'll have to make one
-of your systems hang again.
+           CPU0       CPU1       CPU2       CPU3       
+  0:         42          0          0          0   IO-APIC-edge      timer
+  1:          0          0          0          0   IO-APIC-edge      i8042
+  4:          1          1          0          0   IO-APIC-edge    
+  8:          0          1          0          0   IO-APIC-edge      rtc0
+  9:          0          0          0          0   IO-APIC-fasteoi   acpi
+ 14:          0          0          0          0   IO-APIC-edge      ata_piix
+ 15:          0          0          0          0   IO-APIC-edge      ata_piix
+ 17:       1225       1124       1113       1111   IO-APIC-fasteoi   aacraid
+ 20:          0          0          0          0   IO-APIC-fasteoi   i801_smbus
+ 22:          0          0          0          0   IO-APIC-fasteoi   uhci_hcd:usb2, radeon
+ 23:         25         21         27         29   IO-APIC-fasteoi   uhci_hcd:usb1, uhci_hcd:usb3, ehci_hcd:usb4
+ 41:         79          8          5          4   PCI-MSI-edge      eth2
+ 42:          1          2          1          4   PCI-MSI-edge      eth3
+ 43:          0          2          1          1   PCI-MSI-edge      ioat-msi
+ 44:         98        107        111        111   PCI-MSI-edge      eth1
+ 45:       1178       1210       1218       1215   PCI-MSI-edge      eth0
+NMI:          4          5          3          4   Non-maskable interrupts
+LOC:       3685       3953       6895       8014   Local timer interrupts
+SPU:          0          0          0          0   Spurious interrupts
+PMI:          4          5          3          4   Performance monitoring interrupts
+IWI:          0          0          0          0   IRQ work interrupts
+RTR:          0          0          0          0   APIC ICR read retries
+RES:       6352       5546       6942       7790   Rescheduling interrupts
+CAL:        975       1256        973       1488   Function call interrupts
+TLB:        682        964        732       1003   TLB shootdowns
+TRM:          0          0          0          0   Thermal event interrupts
+THR:          0          0          0          0   Threshold APIC interrupts
+MCE:          0          0          0          0   Machine check exceptions
+MCP:          1          1          1          1   Machine check polls
+ERR:          0
+MIS:          0
 
-> For now I will either revert this commit in my kernel builds or
-> blacklist the module on these machines (I haven't decided which I prefer
-> yet).
+> You can also pass parameter disable_features=0x10 to the i2c-i801
+> driver, this will disable interrupt support without having to rebuild
+> the driver. I suppose this could be documented in more details in
+> modinfo, I'll work on that.
 
-You can also pass parameter disable_features=0x10 to the i2c-i801
-driver, this will disable interrupt support without having to rebuild
-the driver. I suppose this could be documented in more details in
-modinfo, I'll work on that.
+I went with blacklisting for now because this driver doesn't appear to
+be doing anything useful for us (sensors etc are working without it).
+I'll confess to not really knowing much about its purpose though.
 
-> Obviously, I can reproduce this reliably, and am happy to test.
+> Thanks for the offer. Right now I am stuck in bed and must take some
+> rest. When I feel better I'll see if I can gain access to systems with
+> Intel 63xxESB chips to try and reproduce the hang you're seeing. I'll
+> also take a look at the datasheets again to see if any difference
+> stands out.
 
-Thanks for the offer. Right now I am stuck in bed and must take some
-rest. When I feel better I'll see if I can gain access to systems with
-Intel 63xxESB chips to try and reproduce the hang you're seeing. I'll
-also take a look at the datasheets again to see if any difference stands
-out.
+We'd be happy to give you access to one of our x3550s if you like (the
+same one I did the bisect on). We'd move it outside our production
+network and reinstall it and you'd be free to poke and prod and crash it
+as much as you like. Let me know when/if you're interested and we'll
+make it happen. No hurry from our end though, its a barely-used machine
+and will happily sit there waiting. Get your rest first!
 
-For the time being I plan to simply disable interrupt support again for
-the ESB chips, until we fully understand what happens on your systems.
+> As far as debugging goes, please tell me if you have any I2C/SMBus
+> slave device driver loaded (check in /sys/bus/i2c/drivers.) Loading the
+> i2c-i801 driver doesn't do much on its own if there are no slave device
+> drivers using it.
 
-As far as debugging goes, please tell me if you have any I2C/SMBus
-slave device driver loaded (check in /sys/bus/i2c/drivers.) Loading the
-i2c-i801 driver doesn't do much on its own if there are no slave device
-drivers using it.
+$ modprobe i2c-i801 disable_features=0x10
+$ dmesg | tail
+...
+[28876.193408] i801_smbus 0000:00:1f.3: Interrupt disabled by user
+[28876.201168] ics932s401 4-0069: ics932s401 chip found
+$ ls /sys/bus/i2c/drivers
+dummy  ics932s401
 
-Thanks,
--- 
-Jean Delvare
+Thanks for your help!
+
+Cheers,
+Rob.
