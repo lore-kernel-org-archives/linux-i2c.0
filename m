@@ -1,71 +1,104 @@
-From: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: [PATCH] I2C-mv64xxx.c: work around signals causing I2C transactions
- to be aborted
-Date: Wed, 15 May 2013 15:33:10 +0100
-Message-ID: <E1UcclS-0001z3-PT@rmk-PC.arm.linux.org.uk>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: PROBLEM: modprobe hang at startup (3.8.x, 3.9.x, IBM x3550)
+Date: Wed, 15 May 2013 21:49:23 +0200
+Message-ID: <20130515214923.036dabdb@endymion.delvare>
+References: <1368408152.29197.140661229821177.2C1CC406@webmail.messagingengine.com>
+	<20130514231626.GA12961@pyro.melbourne.osa>
+	<20130515112044.753bb7bb@endymion.delvare>
+	<20130515112741.GA23766@pyro.melbourne.osa>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130515112741.GA23766-IBYGJlK4DBpn1Ubwjl4+/VPmBPO9Xwsk@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Do not use interruptible waits in an I2C driver; if a process uses
-signals (eg, Xorg uses SIGALRM and SIGPIPE) then these signals can
-cause the I2C driver to abort a transaction in progress by another
-driver, which can cause that driver to fail.  I2C drivers are not
-expected to abort transactions on signals.
+Robert,
 
-Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Signed-off-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Tested-by: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
----
-Mark Greer seems to be unreachable now; the address in this driver no
-longer works, and there is no maintainer entry.  This patch has been
-run on my Cubox (Marvell Dove) for quite a number of months without
-ill effect.
+On Wed, 15 May 2013 21:27:41 +1000, Robert Norris wrote:
+> On Wed, May 15, 2013 at 11:20:44AM +0200, Jean Delvare wrote:
+> > Can you share the full output of lspci -s 00:1f.3 -vv?
+> 
+> 00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus Controller (rev 09)
+>     Subsystem: IBM Device 02dd
+>     Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx+
+>     Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+>     Interrupt: pin B routed to IRQ 0
 
- drivers/i2c/busses/i2c-mv64xxx.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+Hmm, this "IRQ 0" is quite odd. I'm wondering if this could be the
+reason for this hang. Was it with the i2c-i801 driver loaded, or
+blacklisted? Please check if it makes a difference.
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 2e9d567..44d8045 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -252,7 +252,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- 		writel(drv_data->cntl_bits,
- 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
- 		drv_data->block = 0;
--		wake_up_interruptible(&drv_data->waitq);
-+		wake_up(&drv_data->waitq);
- 		break;
- 
- 	case MV64XXX_I2C_ACTION_CONTINUE:
-@@ -300,7 +300,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- 		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
- 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
- 		drv_data->block = 0;
--		wake_up_interruptible(&drv_data->waitq);
-+		wake_up(&drv_data->waitq);
- 		break;
- 
- 	case MV64XXX_I2C_ACTION_INVALID:
-@@ -315,7 +315,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- 		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
- 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
- 		drv_data->block = 0;
--		wake_up_interruptible(&drv_data->waitq);
-+		wake_up(&drv_data->waitq);
- 		break;
- 	}
- }
-@@ -381,7 +381,7 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
- 	unsigned long	flags;
- 	char		abort = 0;
- 
--	time_left = wait_event_interruptible_timeout(drv_data->waitq,
-+	time_left = wait_event_timeout(drv_data->waitq,
- 		!drv_data->block, drv_data->adapter.timeout);
- 
- 	spin_lock_irqsave(&drv_data->lock, flags);
+Do you see the same (and more generally, this issue) on one, some or
+all of your x3550 servers?
+
+Are you using IPMI on these machines?
+
+>     Region 4: I/O ports at 0440 [size=32]
+> 
+> > I'm also curious if the SMBus controller shares its interrupt line
+> > with another chip. /proc/interrupts should tell but you'll have to
+> > make one of your systems hang again.
+> 
+> I'm not sure how to read it, so here it is (3.9.2, immediately after
+> boot, no options to i2c_i801):
+> 
+>            CPU0       CPU1       CPU2       CPU3       
+> (...)
+>  20:          0          0          0          0   IO-APIC-fasteoi   i801_smbus
+
+Here the IRQ looks correct, and it isn't shared. But I am surprised
+that the counters are all 0. If an SMBus transaction had been
+attempted, there should be a 1 somewhere, even if the transaction
+ultimately failed.
+
+> (...)
+> I went with blacklisting for now because this driver doesn't appear to
+> be doing anything useful for us (sensors etc are working without it).
+> I'll confess to not really knowing much about its purpose though.
+
+It all depends on what I2C/SMBus slaves are connected to the SMBus.
+Often there are the SPD EEPROMs from your memory modules, sometimes
+with integrated thermal sensors (on DDR3 only - driver is jc42.) And in
+your case a clock chip as well, for which IBM contributed a driver.
+
+> > (...)
+> > As far as debugging goes, please tell me if you have any I2C/SMBus
+> > slave device driver loaded (check in /sys/bus/i2c/drivers.) Loading the
+> > i2c-i801 driver doesn't do much on its own if there are no slave device
+> > drivers using it.
+> 
+> $ modprobe i2c-i801 disable_features=0x10
+> $ dmesg | tail
+> ...
+> [28876.193408] i801_smbus 0000:00:1f.3: Interrupt disabled by user
+> [28876.201168] ics932s401 4-0069: ics932s401 chip found
+> $ ls /sys/bus/i2c/drivers
+> dummy  ics932s401
+
+The dummy driver is a helper stub for i2c-core, it doesn't actually
+access the SMBus. ics932s401 is for the clock chip, and I know clock
+chips can be tricky and error prone. OTOH I can only guess that IBM had
+a good reason to contribute the driver and make it auto-load on the
+x3550.
+
+I would appreciate if you could test the following:
+* Blacklist i2c-i801 and ics932s401 so that none of them get
+  auto-loaded.
+* Manually load i2c-i801 with interrupts enabled, and see what happens.
+* If no hang happens, load i2c-dev, find the i801 bus number with
+  i2cdetect -l (from the i2c-tools package - it should be 4 according
+  to what you reported so far but there is no guarantee that it won't
+  change across reboots.) Then do a simple read from a random address
+  with:
+  # i2cget 4 0x50 0x00
+  (Adjust the bus number as needed.)
+  I am curious if this will hang as well or only when accessing the
+  clock chip at address 0x69.
+
+Thanks,
 -- 
-1.7.4.4
+Jean Delvare
