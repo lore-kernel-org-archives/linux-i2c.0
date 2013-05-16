@@ -1,158 +1,25 @@
-From: Russell King <rmk+kernel@arm.linux.org.uk>
-Subject: [PATCH 9/9] I2C: mv64xxx: fix race between FSM/interrupt and process
- context
-Date: Thu, 16 May 2013 21:39:12 +0100
-Message-ID: <E1Ud4xE-0004KB-2T@rmk-PC.arm.linux.org.uk>
-References: <20130516202921.GW18614@n2100.arm.linux.org.uk>
+From: Dirk Reske <linux-i2c-fKsByPrBVO2oYr4blSSd5g@public.gmane.org>
+Subject: i2c beginner question
+Date: Thu, 16 May 2013 23:13:39 +0200
+Message-ID: <51954C03.6040808@dirkreske.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20130516202921.GW18614@n2100.arm.linux.org.uk>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-arm-kernel@lists.infradead.org
-Cc: Jason Cooper <jason@lakedaemon.net>, Wolfram Sang <wsa@the-dreams.de>, "Mark A. Greer" <mgreer@animalcreek.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Asking for a multi-part message to be handled by this driver is racy; it
-has been observed that the following sequence is possible with this
-driver:
+Hallo,
 
-	- send start
-	- send address + write
-	- send data
-	- send (repeated) start
-	- send address + write
-	- send (repeated) start
-	- send address + read
-	- unrecoverable bus hang (except by system reset)
+I have to collect data from multiple external i2c devices.
+My question is, what is the correct way?
 
-The problem is that the interrupt handling sees the next event after the
-first repeated start is sent - the IFLG bit is set in the register even
-though INTEN is disabled.
+1: Open i2-device-file, set slave address, read data, close i2c device 
+file and go on with the next one
+2: keep the i2c device file open all the time, and change slave address 
+before every access to device
+3: ???
 
-Let's fix this by moving all of the message processing into interrupt
-context, rather than having it partly in IRQ and partly in process
-context.  This allows us to move immediately to the next message in the
-interrupt handler and get on with the transfer, rather than incuring a
-couple of scheduling switches to get the next message.
-
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
----
- drivers/i2c/busses/i2c-mv64xxx.c |   54 ++++++++++++++++++++++++--------------
- 1 files changed, 34 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 7457ef5..a2e4633 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -86,6 +86,8 @@ enum {
- };
- 
- struct mv64xxx_i2c_data {
-+	struct i2c_msg		*msgs;
-+	int			num_msgs;
- 	int			irq;
- 	u32			state;
- 	u32			action;
-@@ -194,7 +196,7 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
- 		if ((drv_data->bytes_left == 0)
- 				|| (drv_data->aborting
- 					&& (drv_data->byte_posn != 0))) {
--			if (drv_data->send_stop) {
-+			if (drv_data->send_stop || drv_data->aborting) {
- 				drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
- 				drv_data->state = MV64XXX_I2C_STATE_IDLE;
- 			} else {
-@@ -271,12 +273,25 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- {
- 	switch(drv_data->action) {
- 	case MV64XXX_I2C_ACTION_SEND_RESTART:
-+		/* We should only get here if we have further messages */
-+		BUG_ON(drv_data->num_msgs == 0);
-+
- 		drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
--		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
- 		writel(drv_data->cntl_bits,
- 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
--		drv_data->block = 0;
--		wake_up(&drv_data->waitq);
-+
-+		drv_data->msgs++;
-+		drv_data->num_msgs--;
-+
-+		/* Setup for the next message */
-+		mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
-+
-+		/*
-+		 * We're never at the start of the message here, and by this
-+		 * time it's already too late to do any protocol mangling.
-+		 * Thankfully, do not advertise support for that feature.
-+		 */
-+		drv_data->send_stop = drv_data->num_msgs == 1;
- 		break;
- 
- 	case MV64XXX_I2C_ACTION_CONTINUE:
-@@ -412,20 +427,15 @@ mv64xxx_i2c_wait_for_completion(struct mv64xxx_i2c_data *drv_data)
- 
- static int
- mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
--				int is_first, int is_last)
-+				int is_last)
- {
- 	unsigned long	flags;
- 
- 	spin_lock_irqsave(&drv_data->lock, flags);
- 	mv64xxx_i2c_prepare_for_io(drv_data, msg);
- 
--	if (is_first) {
--		drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
--		drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
--	} else {
--		drv_data->action = MV64XXX_I2C_ACTION_SEND_ADDR_1;
--		drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_ADDR_1_ACK;
--	}
-+	drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
-+	drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
- 
- 	drv_data->send_stop = is_last;
- 	drv_data->block = 1;
-@@ -453,16 +463,20 @@ static int
- mv64xxx_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- {
- 	struct mv64xxx_i2c_data *drv_data = i2c_get_adapdata(adap);
--	int	i, rc;
-+	int rc, ret = num;
- 
--	for (i = 0; i < num; i++) {
--		rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[i],
--						i == 0, i + 1 == num);
--		if (rc < 0)
--			return rc;
--	}
-+	BUG_ON(drv_data->msgs != NULL);
-+	drv_data->msgs = msgs;
-+	drv_data->num_msgs = num;
-+
-+	rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[0], num == 1);
-+	if (rc < 0)
-+		ret = rc;
-+
-+	drv_data->num_msgs = 0;
-+	drv_data->msgs = NULL;
- 
--	return num;
-+	return ret;
- }
- 
- static const struct i2c_algorithm mv64xxx_i2c_algo = {
--- 
-1.7.4.4
+greets
+Dirk
