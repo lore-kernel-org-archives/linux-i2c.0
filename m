@@ -1,32 +1,37 @@
-From: Stephen Warren <swarren@wwwdotorg.org>
-Subject: Re: [PATCH 00/33] devm improvement series, part 1, take 2
-Date: Thu, 16 May 2013 12:29:19 -0600
-Message-ID: <5195257F.3060309@wwwdotorg.org>
-References: <1368702961-4325-1-git-send-email-wsa@the-dreams.de>
+From: Russell King - ARM Linux <linux@arm.linux.org.uk>
+Subject: [PATCH 0/9] Fix Marvell mv63xxx I2C driver
+Date: Thu, 16 May 2013 21:29:21 +0100
+Message-ID: <20130516202921.GW18614@n2100.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <devel-bounces@linuxdriverproject.org>
-In-Reply-To: <1368702961-4325-1-git-send-email-wsa@the-dreams.de>
-List-Unsubscribe: <http://driverdev.linuxdriverproject.org/mailman/options/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=unsubscribe>
-List-Archive: <http://driverdev.linuxdriverproject.org/pipermail/devel/>
-List-Post: <mailto:devel@linuxdriverproject.org>
-List-Help: <mailto:devel-request@linuxdriverproject.org?subject=help>
-List-Subscribe: <http://driverdev.linuxdriverproject.org/mailman/listinfo/devel>,
- <mailto:devel-request@linuxdriverproject.org?subject=subscribe>
-Errors-To: devel-bounces@linuxdriverproject.org
-Sender: "devel" <devel-bounces@linuxdriverproject.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-mips@linux-mips.org, alsa-devel@alsa-project.org, linux-usb@vger.kernel.org, Liam Girdwood <lgirdwood@gmail.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, Viresh Kumar <viresh.kumar@linaro.org>, Linus Walleij <linus.walleij@linaro.org>, Matt Mackall <mpm@selenic.com>, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, Jaroslav Kysela <perex@perex.cz>, linux-ide@vger.kernel.org, netdev@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Evgeniy Polyakov <zbr@ioremap.net>, Wan ZongShun <mcuos.com@gmail.com>, ac100@lists.launchpad.net, devel@driverdev.osuosl.org, Kukjin Kim <kgene.kim@samsung.com>, Russell King <linux@arm.linux.org.uk>, Herbert Xu <herbert@gondor.apana.org.au>, Florian Tobias Schandinat <FlorianSchandinat@gmx.de>, "Rafael J. Wysocki" <rjw@sisk.pl>, cpufreq@vger.kernel.org, Eduardo Valentin <eduardo.v>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Disposition: inline
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: linux-arm-kernel@lists.infradead.org
+Cc: Jason Cooper <jason@lakedaemon.net>, Wolfram Sang <wsa@the-dreams.de>, "Mark A. Greer" <mgreer@animalcreek.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/16/2013 05:15 AM, Wolfram Sang wrote:
-> Lately, I have been experimenting how to improve the devm interface to make
-> writing device drivers easier and less error prone while also getting rid of
-> its subtle issues. I think it has more potential but still needs work and
-> definately conistency, especiall in its usage.
-...
+This patch series fixes a whole chunk of problems with this driver,
+discovered with the Marvell Armada 510 chip on the Solid-run cubox.
 
-The Tegra parts in patches 4, 5, 8, 15, 16, 17, 29 all,
-Acked-by: Stephen Warren <swarren@nvidia.com>
+Most notable of these is the I2C driver aborting a transaction
+because a signal is pending - which might be SIGPIPE or SIGALRM
+for the process.  Meanwhile, the calling driver may be in the
+middle of a critical read-modify-write cycle on a device register,
+causing it to fail.
+
+Other problems are race conditions in the handling of multi-part
+messages, where we end up sending multiple start conditions -
+sometimes more times than we have i2c_msg's to send.
+
+Lastly is the rather poor probe error handling, which ranges from
+non-existent to lacking propagating the provided error code.
