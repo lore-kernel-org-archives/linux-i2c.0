@@ -1,104 +1,67 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: PROBLEM: modprobe hang at startup (3.8.x, 3.9.x, IBM x3550)
-Date: Wed, 15 May 2013 21:49:23 +0200
-Message-ID: <20130515214923.036dabdb@endymion.delvare>
-References: <1368408152.29197.140661229821177.2C1CC406@webmail.messagingengine.com>
-	<20130514231626.GA12961@pyro.melbourne.osa>
-	<20130515112044.753bb7bb@endymion.delvare>
-	<20130515112741.GA23766@pyro.melbourne.osa>
+From: Barry Song <Baohua.Song@csr.com>
+Subject: [PATCH] i2c: sirf: move driver init from module_init to
+ subsys_initcall
+Date: Thu, 16 May 2013 10:50:07 +0800
+Message-ID: <1368672607-5536-1-git-send-email-Baohua.Song@csr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130515112741.GA23766-IBYGJlK4DBpn1Ubwjl4+/VPmBPO9Xwsk@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: wsa@the-dreams.de, linux-i2c@vger.kernel.org
+Cc: Barry Song <Baohua.Song@csr.com>, workgroup.linux@csr.com, linux-arm-kernel@lists.infradead.org, Xiaomeng Hou <Xiaomeng.Hou@csr.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Robert,
+From: Xiaomeng Hou <Xiaomeng.Hou@csr.com>
 
-On Wed, 15 May 2013 21:27:41 +1000, Robert Norris wrote:
-> On Wed, May 15, 2013 at 11:20:44AM +0200, Jean Delvare wrote:
-> > Can you share the full output of lspci -s 00:1f.3 -vv?
-> 
-> 00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus Controller (rev 09)
->     Subsystem: IBM Device 02dd
->     Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr+ Stepping- SERR+ FastB2B- DisINTx+
->     Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
->     Interrupt: pin B routed to IRQ 0
+if we initilize i2c bus by module_init, there are some devices which want
+initialization earlier than i2c and could not do that in time, so move i2c
+driver initilization to subsys_initcall and make i2c ready before devices
+init.
 
-Hmm, this "IRQ 0" is quite odd. I'm wondering if this could be the
-reason for this hang. Was it with the i2c-i801 driver loaded, or
-blacklisted? Please check if it makes a difference.
+Signed-off-by: Xiaomeng Hou <Xiaomeng.Hou@csr.com>
+Signed-off-by: Barry Song <Baohua.Song@csr.com>
+---
+ drivers/i2c/busses/i2c-sirf.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-Do you see the same (and more generally, this issue) on one, some or
-all of your x3550 servers?
-
-Are you using IPMI on these machines?
-
->     Region 4: I/O ports at 0440 [size=32]
-> 
-> > I'm also curious if the SMBus controller shares its interrupt line
-> > with another chip. /proc/interrupts should tell but you'll have to
-> > make one of your systems hang again.
-> 
-> I'm not sure how to read it, so here it is (3.9.2, immediately after
-> boot, no options to i2c_i801):
-> 
->            CPU0       CPU1       CPU2       CPU3       
-> (...)
->  20:          0          0          0          0   IO-APIC-fasteoi   i801_smbus
-
-Here the IRQ looks correct, and it isn't shared. But I am surprised
-that the counters are all 0. If an SMBus transaction had been
-attempted, there should be a 1 somewhere, even if the transaction
-ultimately failed.
-
-> (...)
-> I went with blacklisting for now because this driver doesn't appear to
-> be doing anything useful for us (sensors etc are working without it).
-> I'll confess to not really knowing much about its purpose though.
-
-It all depends on what I2C/SMBus slaves are connected to the SMBus.
-Often there are the SPD EEPROMs from your memory modules, sometimes
-with integrated thermal sensors (on DDR3 only - driver is jc42.) And in
-your case a clock chip as well, for which IBM contributed a driver.
-
-> > (...)
-> > As far as debugging goes, please tell me if you have any I2C/SMBus
-> > slave device driver loaded (check in /sys/bus/i2c/drivers.) Loading the
-> > i2c-i801 driver doesn't do much on its own if there are no slave device
-> > drivers using it.
-> 
-> $ modprobe i2c-i801 disable_features=0x10
-> $ dmesg | tail
-> ...
-> [28876.193408] i801_smbus 0000:00:1f.3: Interrupt disabled by user
-> [28876.201168] ics932s401 4-0069: ics932s401 chip found
-> $ ls /sys/bus/i2c/drivers
-> dummy  ics932s401
-
-The dummy driver is a helper stub for i2c-core, it doesn't actually
-access the SMBus. ics932s401 is for the clock chip, and I know clock
-chips can be tricky and error prone. OTOH I can only guess that IBM had
-a good reason to contribute the driver and make it auto-load on the
-x3550.
-
-I would appreciate if you could test the following:
-* Blacklist i2c-i801 and ics932s401 so that none of them get
-  auto-loaded.
-* Manually load i2c-i801 with interrupts enabled, and see what happens.
-* If no hang happens, load i2c-dev, find the i801 bus number with
-  i2cdetect -l (from the i2c-tools package - it should be 4 according
-  to what you reported so far but there is no guarantee that it won't
-  change across reboots.) Then do a simple read from a random address
-  with:
-  # i2cget 4 0x50 0x00
-  (Adjust the bus number as needed.)
-  I am curious if this will hang as well or only when accessing the
-  clock chip at address 0x69.
-
-Thanks,
+diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+index 5a7ad24..e438f48 100644
+--- a/drivers/i2c/busses/i2c-sirf.c
++++ b/drivers/i2c/busses/i2c-sirf.c
+@@ -454,7 +454,19 @@ static struct platform_driver i2c_sirfsoc_driver = {
+ 	.probe = i2c_sirfsoc_probe,
+ 	.remove = i2c_sirfsoc_remove,
+ };
+-module_platform_driver(i2c_sirfsoc_driver);
++
++static __init int i2c_sirfsoc_init(void)
++{
++	return platform_driver_register(&i2c_sirfsoc_driver);
++}
++
++static void __exit i2c_sirfsoc_exit(void)
++{
++	platform_driver_unregister(&i2c_sirfsoc_driver);
++}
++
++subsys_initcall(i2c_sirfsoc_init);
++module_exit(i2c_sirfsoc_exit);
+ 
+ MODULE_DESCRIPTION("SiRF SoC I2C master controller driver");
+ MODULE_AUTHOR("Zhiwu Song <Zhiwu.Song@csr.com>, "
 -- 
-Jean Delvare
+1.8.2.3
+
+
+
+Member of the CSR plc group of companies. CSR plc registered in England and Wales, registered number 4187346, registered office Churchill House, Cambridge Business Park, Cowley Road, Cambridge, CB4 0WZ, United Kingdom
+More information can be found at www.csr.com. Follow CSR on Twitter at http://twitter.com/CSR_PLC and read our blog at www.csr.com/blog
