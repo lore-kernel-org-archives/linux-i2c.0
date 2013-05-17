@@ -1,43 +1,47 @@
-From: Jean-Francois Moine <moinejf-GANU6spQydw@public.gmane.org>
-Subject: Re: [PATCH 1/9] I2C: mv64xxx: work around signals causing I2C
- transactions to be aborted
-Date: Fri, 17 May 2013 08:37:43 +0200
-Message-ID: <20130517083743.31af4eb0@armhf>
-References: <20130516202921.GW18614@n2100.arm.linux.org.uk>
-	<E1Ud4pH-0004JQ-Jq@rmk-PC.arm.linux.org.uk>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: fix RX FIFO overrun
+Date: Fri, 17 May 2013 10:23:40 +0200
+Message-ID: <20130517082321.GA17056@katana>
+References: <20130422071943.GK1283@intel.com>
+ <53398.163.33.213.79.1366630241.squirrel@linux.intel.com>
+ <20130422122808.GO1283@intel.com>
+ <alpine.DEB.2.02.1304221508050.31571@localhost>
+ <20130423163543.GB3228@the-dreams.de>
+ <51465.163.33.213.85.1366739082.squirrel@linux.intel.com>
+ <20130423182707.GA3649@the-dreams.de>
+ <alpine.DEB.2.02.1304241110480.32505@localhost>
+ <20130425174348.GA3612@the-dreams.de>
+ <alpine.DEB.2.02.1305081433430.7163@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <E1Ud4pH-0004JQ-Jq-eh5Bv4kxaXIANfyc6IWni62ZND6+EDdj@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.02.1305081433430.7163@localhost>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Mark A. Greer" <mgreer-luAo+O/VEmrlveNOaEYElw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 16 May 2013 21:30:59 +0100
-Russell King <rmk+kernel-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org> wrote:
+On Wed, May 08, 2013 at 02:34:36PM +0100, Josef Ahmad wrote:
+> From 8a4773d0c0df6fe2e816ad37fde30a2d90a1ad31 Mon Sep 17 00:00:00 2001
+> From: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Date: Fri, 19 Apr 2013 17:28:10 +0100
+> Subject: [PATCH] i2c-designware: fix RX FIFO overrun
+> 
+> i2c_dw_xfer_msg() pushes a number of bytes to transmit/receive
+> to/from the bus into the TX FIFO.
+> For master-rx transactions, the maximum amount of data that can be
+> received is calculated depending solely on TX and RX FIFO load.
+> 
+> This is racy - TX FIFO may contain master-rx data yet to be
+> processed, which will eventually land into the RX FIFO. This
+> data is not taken into account and the function may request more
+> data than the controller is actually capable of storing.
+> 
+> This patch ensures the driver takes into account the outstanding
+> master-rx data in TX FIFO to prevent RX FIFO overrun.
+> 
+> Signed-off-by: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-> Do not use interruptible waits in an I2C driver; if a process uses
-> signals (eg, Xorg uses SIGALRM and SIGPIPE) then these signals can
-> cause the I2C driver to abort a transaction in progress by another
-> driver, which can cause that driver to fail.  I2C drivers are not
-> expected to abort transactions on signals.
-
-Hi Russell,
-
-I had the same problem with my dove drm driver, but I don't fully agree
-with your solution.
-
-Using wait_event_timeout() stops the system, and reading the EDID from
-an external screen may take some time.
-
-Instead, as the problem occurs with the X server on HDMI exchanges,
-I acted on the tda998x driver, simply masking the SIGALRM and SIGPIPE
-signals on each drm driver request.
-
-This mechanism works fine for me. Patch follows.
-
---=20
-Ken ar c'henta=C3=B1	|	      ** Breizh ha Linux atav! **
-Jef		|		http://moinejf.free.fr/
+Applied to for-current, thanks!
