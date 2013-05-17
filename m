@@ -1,43 +1,30 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: PROBLEM: modprobe hang at startup (3.8.x, 3.9.x, IBM x3550)
-Date: Fri, 17 May 2013 10:49:28 +0200
-Message-ID: <20130517104928.5b135a4f@endymion.delvare>
-References: <1368408152.29197.140661229821177.2C1CC406@webmail.messagingengine.com>
-	<20130514231626.GA12961@pyro.melbourne.osa>
-	<20130515112044.753bb7bb@endymion.delvare>
-	<20130515112741.GA23766@pyro.melbourne.osa>
-	<20130515214923.036dabdb@endymion.delvare>
-	<20130516034455.GA19452@pyro.melbourne.osa>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7] i2c-designware: make SDA hold time configurable
+Date: Fri, 17 May 2013 10:56:57 +0200
+Message-ID: <20130517085653.GG17056@katana>
+References: <20130327084158.GB11010@ab42.lan>
+ <1364373760-12469-1-git-send-email-christian.ruppert@abilis.com>
+ <20130514110745.GA10906@intel.com>
+ <20130517082925.GB17056@katana>
+ <20130517084437.GD11878@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130516034455.GA19452-IBYGJlK4DBpn1Ubwjl4+/VPmBPO9Xwsk@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130517084437.GD11878@intel.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Christian Ruppert <christian.ruppert@abilis.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, 16 May 2013 13:44:55 +1000, Robert Norris wrote:
-> > Then do a simple read from a random address
-> >   with:
-> >   # i2cget 4 0x50 0x00
-> >   (Adjust the bus number as needed.)
-> >   I am curious if this will hang as well or only when accessing the
-> >   clock chip at address 0x69.
+
+> > New bindings are complicated. I need to check if there is an
+> > existing/similar one, check if it is generic enough for drivers still to
+> > come, etc. I didn't have the time to do this for 3.10, so it is
+> > 3.11 material.
 > 
-> Yep, that one hangs. The hung task handler picked it up after a few
-> minutes.
+> OK, thanks. I just wanted to be sure this patch wasn't forgotten as it is
+> useful for Haswell/Lynxpoint as well.
 
-Hmm, can you please dump the PCI configuration space of the SMBus
-controller?
+i2c list is monitored by patchwork which is rigorously not forgetting ;)
 
-# /sbin/lspci -s 00:1f.3 -xxx
-
-It might be that you have interrupts routed to SMI# instead of the
-regular IRQ line. The driver is supposed to disable interrupt support
-in that case, but I have never tested it.
-
-Thanks,
--- 
-Jean Delvare
