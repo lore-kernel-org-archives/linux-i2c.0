@@ -1,35 +1,29 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v7] i2c-designware: make SDA hold time configurable
-Date: Fri, 17 May 2013 10:29:28 +0200
-Message-ID: <20130517082925.GB17056@katana>
-References: <20130327084158.GB11010@ab42.lan>
- <1364373760-12469-1-git-send-email-christian.ruppert@abilis.com>
- <20130514110745.GA10906@intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-designware: always clear interrupts before
+ enabling them
+Date: Fri, 17 May 2013 10:31:42 +0200
+Message-ID: <20130517083139.GC17056@katana>
+References: <1368442471-7582-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130514110745.GA10906@intel.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Christian Ruppert <christian.ruppert@abilis.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+In-Reply-To: <1368442471-7582-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, May 14, 2013 at 02:07:45PM +0300, Mika Westerberg wrote:
-> On Tue, Apr 09, 2013 at 12:59:54PM +0200, Christian Ruppert wrote:
-> > This patch makes the SDA hold time configurable through device tree.
-> > 
-> > Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
-> > Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
+On Mon, May 13, 2013 at 01:54:30PM +0300, Mika Westerberg wrote:
+> If the I2C bus is put to a low power state by an ACPI method it might pull
+> the SDA line low (as its power is removed). Once the bus is put to full
+> power state again, the SDA line is pulled back to high. This transition
+> looks like a STOP condition from the controller point-of-view which sets
+> STOP detected bit in its status register causing the driver to fail
+> subsequent transfers.
 > 
-> Hi Wolfram,
+> Fix this by always clearing all interrupts before we start a transfer.
 > 
-> What happened to this patch? I don't see it merged for 3.10.
-> 
-> The reason I'm asking is that I would like to add ACPI support for the SDA
-> hold time parameter analogous to the DT version.
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-New bindings are complicated. I need to check if there is an
-existing/similar one, check if it is generic enough for drivers still to
-come, etc. I didn't have the time to do this for 3.10, so it is
-3.11 material.
+Applied to for-current, thanks! Added stable, too.
