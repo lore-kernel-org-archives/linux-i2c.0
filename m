@@ -1,49 +1,108 @@
-From: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>
-Subject: Re: PROBLEM: modprobe hang at startup (3.8.x, 3.9.x, IBM x3550)
-Date: Fri, 17 May 2013 22:18:19 +1000
-Message-ID: <20130517121819.GA3165@pyro.melbourne.osa>
-References: <1368408152.29197.140661229821177.2C1CC406@webmail.messagingengine.com>
- <20130514231626.GA12961@pyro.melbourne.osa>
- <20130515112044.753bb7bb@endymion.delvare>
- <20130515112741.GA23766@pyro.melbourne.osa>
- <20130515214923.036dabdb@endymion.delvare>
- <20130516034455.GA19452@pyro.melbourne.osa>
- <20130517103622.5000d277@endymion.delvare>
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: [PATCH] i2c: suppress lockdep warning on delete_device
+Date: Fri, 17 May 2013 14:56:35 +0200
+Message-ID: <51962903.9050901@nsn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130517103622.5000d277-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, May 17, 2013 at 10:36:22AM +0200, Jean Delvare wrote:
-> IPMI is still likely to access the SMBus controller. If there's a BMC
-> in the machine, it can also access the SMBus slave with its own
-> controller. It would be good to rule this out by disabling IPMI
-> completely, removing the BMC from the machine if it has one, and
-> checking if it makes the issue go away or not.
+i2c: suppress lockdep warning on delete_device
 
-This ended up being easier than I thought. The BMC can't be physically
-removed, but there is a jumper on the board to disable it. We flipped it
-and got a message during POST about it not being present. Additionally
-all IPMI functions did nothing (hung, but interruptable) which is what
-you'd expect. I think it really is disabled.
+Since commit 846f99749ab68bbc7f75c74fec305de675b1a1bf the following lockdep
+warning is thrown in case i2c device is removed (via delete_device sysfs
+attribute) which contains subdevices (e.g. i2c multiplexer):
 
-In this state, I re-ran the previous tests, with identical results. That
-is:
+=============================================
+[ INFO: possible recursive locking detected ]
+3.8.7-0-sampleversion-fct #8 Tainted: G           O
+---------------------------------------------
+bash/3743 is trying to acquire lock:
+  (s_active#110){++++.+}, at: [<ffffffff802b3048>] sysfs_hash_and_remove+0x58/0xc8
 
-- "modprobe i2c_i801" succeeds
-- "modprobe i2c_i801 disable_features=0x10" succeeds
-- With interrupts disabled, "modprobe ics932s401"
-- With interrupts enabled, "modprobe ics932s401" hangs
-- With interrupts enabled, "i2cget 4 0x50 0x00" hangs
+but task is already holding lock:
+  (s_active#110){++++.+}, at: [<ffffffff802b3cb8>] sysfs_write_file+0xc8/0x208
 
-I'll leave the BMC disabled for now in case that's important for further
-testing. If you need other tests run with the BMC enabled, I'll use a
-differen machine.
+other info that might help us debug this:
+  Possible unsafe locking scenario:
 
-Cheers,
-Rob.
+        CPU0
+        ----
+   lock(s_active#110);
+   lock(s_active#110);
+
+  *** DEADLOCK ***
+
+  May be due to missing lock nesting notation
+
+4 locks held by bash/3743:
+  #0:  (&buffer->mutex){+.+.+.}, at: [<ffffffff802b3c3c>] sysfs_write_file+0x4c/0x208
+  #1:  (s_active#110){++++.+}, at: [<ffffffff802b3cb8>] sysfs_write_file+0xc8/0x208
+  #2:  (&adap->userspace_clients_lock/1){+.+.+.}, at: [<ffffffff80454a18>] i2c_sysfs_delete_device+0x90/0x238
+  #3:  (&__lockdep_no_validate__){......}, at: [<ffffffff803dcc24>] device_release_driver+0x24/0x48
+
+stack backtrace:
+Call Trace:
+[<ffffffff80575cc8>] dump_stack+0x8/0x34
+[<ffffffff801b50fc>] __lock_acquire+0x161c/0x2110
+[<ffffffff801b5c3c>] lock_acquire+0x4c/0x70
+[<ffffffff802b60cc>] sysfs_addrm_finish+0x19c/0x1e0
+[<ffffffff802b3048>] sysfs_hash_and_remove+0x58/0xc8
+[<ffffffff802b7d8c>] sysfs_remove_group+0x64/0x148
+[<ffffffff803d990c>] device_remove_attrs+0x9c/0x1a8
+[<ffffffff803d9b1c>] device_del+0x104/0x1d8
+[<ffffffff803d9c18>] device_unregister+0x28/0x70
+[<ffffffff8045505c>] i2c_del_adapter+0x1cc/0x328
+[<ffffffff8045802c>] i2c_del_mux_adapter+0x14/0x38
+[<ffffffffc025c108>] pca954x_remove+0x90/0xe0 [pca954x]
+[<ffffffff804542f8>] i2c_device_remove+0x80/0xe8
+[<ffffffff803dca9c>] __device_release_driver+0x74/0xf8
+[<ffffffff803dcc2c>] device_release_driver+0x2c/0x48
+[<ffffffff803dbc14>] bus_remove_device+0x13c/0x1d8
+[<ffffffff803d9b24>] device_del+0x10c/0x1d8
+[<ffffffff803d9c18>] device_unregister+0x28/0x70
+[<ffffffff80454b08>] i2c_sysfs_delete_device+0x180/0x238
+[<ffffffff802b3cd4>] sysfs_write_file+0xe4/0x208
+[<ffffffff8023ddc4>] vfs_write+0xbc/0x160
+[<ffffffff8023df6c>] SyS_write+0x54/0xd8
+[<ffffffff8013d424>] handle_sys64+0x44/0x64
+
+The problem is already known for USB and PCI subsystems. The reason is that
+delete_device attribute is defined statically in i2c-core.c and used for all
+devices in i2c subsystem.
+
+Discussion of original USB problem:
+http://lkml.indiana.edu/hypermail/linux/kernel/1204.3/01160.html
+
+Commit 356c05d58af05d582e634b54b40050c73609617b introduced new macro to suppress
+lockdep warnings for this special case and included workaround for USB code.
+
+LKML discussion of the workaround:
+http://lkml.indiana.edu/hypermail/linux/kernel/1205.1/03634.html
+
+As i2c case is in principle the same, the same workaround could be used here.
+
+Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Cc: Eric W. Biederman <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>
+Cc: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Cc: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+---
+
+--- linux-next.orig/drivers/i2c/i2c-core.c
++++ linux-next/drivers/i2c/i2c-core.c
+@@ -892,7 +892,8 @@ i2c_sysfs_delete_device(struct device *d
+  }
+
+  static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
+-static DEVICE_ATTR(delete_device, S_IWUSR, NULL, i2c_sysfs_delete_device);
++static DEVICE_ATTR_IGNORE_LOCKDEP(delete_device, S_IWUSR, NULL,
++                                  i2c_sysfs_delete_device);
+
+  static struct attribute *i2c_adapter_attrs[] = {
+  	&dev_attr_name.attr,
