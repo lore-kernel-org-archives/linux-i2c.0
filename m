@@ -1,30 +1,43 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 0/2] i2c: fix two wrong mem release
-Date: Fri, 17 May 2013 11:43:04 +0200
-Message-ID: <20130517094301.GH17056@katana>
-References: <1368088044-20408-1-git-send-email-libo.chen@huawei.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: PROBLEM: modprobe hang at startup (3.8.x, 3.9.x, IBM x3550)
+Date: Fri, 17 May 2013 11:47:04 +0200
+Message-ID: <20130517114704.442f1368@endymion.delvare>
+References: <1368408152.29197.140661229821177.2C1CC406@webmail.messagingengine.com>
+	<20130514231626.GA12961@pyro.melbourne.osa>
+	<20130515112044.753bb7bb@endymion.delvare>
+	<20130515112741.GA23766@pyro.melbourne.osa>
+	<20130515214923.036dabdb@endymion.delvare>
+	<20130516034455.GA19452@pyro.melbourne.osa>
+	<20130517103622.5000d277@endymion.delvare>
+	<5195F6C9.5050200@fold.natur.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1368088044-20408-1-git-send-email-libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <5195F6C9.5050200-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Cc: Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org
+To: Martin Mokrejs <mmokrejs-08dBlVkRsZWoiTQjSSYKZesEoJ4y9sgM@public.gmane.org>
+Cc: Robert Norris <robn-4vTceeIZeJ0AvxtiuMwx3w@public.gmane.org>, Daniel Kurtz <djkurtz-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, May 09, 2013 at 04:27:22PM +0800, Libo Chen wrote:
-> fix two wrong mem release
-> 
-> * Changelog from v1:
->   * exchange out_error_no_irq and out_error_pin_mux  suggested by Sonic <Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>  
->   * add some new tag , make code cleanly
+On Fri, 17 May 2013 11:22:17 +0200, Martin Mokrejs wrote:
+> Hi,
+>   while you are chasing some problem with i2c_801 I would like to mention
+> that I never got an answer on the thread https://lkml.org/lkml/2013/1/23/405
+> about a kmemleak reported by kernel . Maybe this could give you a hint?
+> If these do not overlap I would be anyways glad to receive an answer via
+> the original thread I have started.
+> Thank you,
+> Martin
 
-Thanks for the submission. I do think the proper solution would be to
-convert the drivers to use the devm_* mechanisms, though. You can check
-commit 857968434bb6dbda0911f38ec46b0c3d0c963771 ("i2c: davinci: update
-to devm_* API") as a reference.
+I have no clue what the problem is nor how to investigate it, and in
+fact I strongly suspect that this is either a false positive or a
+problem in lower layers - driver core, sysfs etc. so nothing I can help
+with.
 
-Thanks,
+So until someone comes with an evidence that there is an actual memory
+leak in the i2c-i801 driver itself I'm not going to pay any attention
+to your report, sorry.
 
-   Wolfram
+-- 
+Jean Delvare
