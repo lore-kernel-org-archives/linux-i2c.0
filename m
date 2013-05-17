@@ -1,58 +1,28 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] i2c: busses: remove superfluous comment
-Date: Fri, 17 May 2013 16:53:14 +0300
-Message-ID: <20130517135314.GI14133@arwen.pp.htv.fi>
-References: <1368784416-15306-1-git-send-email-wsa@the-dreams.de>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
+Subject: Re: [PATCH] i2c: suppress lockdep warning on delete_device
+Date: Fri, 17 May 2013 10:42:44 -0400 (EDT)
+Message-ID: <Pine.LNX.4.44L0.1305171040580.1012-100000@iolanthe.rowland.org>
+References: <51962903.9050901@nsn.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3U8TY7m7wOx7RL1F"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1368784416-15306-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <51962903.9050901-OYasijW0DpE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---3U8TY7m7wOx7RL1F
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, 17 May 2013, Alexander Sverdlin wrote:
 
-On Fri, May 17, 2013 at 11:53:23AM +0200, Wolfram Sang wrote:
-> The comment already got copy&pasted around and is not really useful.
-> Remove it.
->=20
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> i2c: suppress lockdep warning on delete_device
+> 
+> Since commit 846f99749ab68bbc7f75c74fec305de675b1a1bf the following lockdep
+> warning is thrown in case i2c device is removed (via delete_device sysfs
+> attribute) which contains subdevices (e.g. i2c multiplexer):
 
-FWIW on i2c-omap.c:
+Can you explain this in a little more detail?  Exactly what does the 
+delete_device attribute do, when called for device D?
 
-Acked-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+That is, what does a write to /sys/bus/i2c/devices/D/delete_device do?
 
---=20
-balbi
-
---3U8TY7m7wOx7RL1F
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRljZKAAoJEIaOsuA1yqREtOwP/i/KOP75Qj6IKt024obdzDRr
-v9tJZ9X8+M4to1DUWiqlNgi1ea04U6dQgQU0SkhRMaonXpqTo5LeBgKtLf4P2Pw8
-5QZWCxdca46zv0ep8o6Dhm/y/D0wFB9hd/g/QARS9nVNEB195565V31y0heMhcXO
-GJdoGPzlXva34FE7txIG2Y87GCKOvdkQ8i99+IL8Qx6DHwq2y5fTOBIQCJuDQYH7
-SNY+COR7sKAp2frG49tE3/KkX6Ds+x6BUrlK+R9A6NcATmOxASXnNg6X0+ga7xjC
-ckqu41bwYk5ot/RSTAbWMsYVs3lcG4JFJECWOxooKwPRgHh/EXRDHzP/cS+sOxs+
-bUse1EwqFOXQCsAWN/xsFkUZLe0eGijFQYSZzIcHaTqzsXdjJmyyrM44Q9II+rrk
-i8jSQZ4+tvdwR/6AOuEo8JiSOcuXpaM5aIzgjxiVRqCU5wruXJoLVt0zGQuHg4+K
-qYk8wsJqhU7vewYSvMpLBOpo9w6CHnMzH57KEohBr78uOPxOfi8u6LPoe2nAFH+9
-vaGuGyXM8/CBNJe7xNib6DT74fnx7/Q1DvGqXNQxjMGkde1aEHfhKrCCxrN+1sjz
-65COZHN21XC+z8Fgtx39Db5turX7Zy0V1tdUj+H6cyA3Zj9nkZYmzAbGcNf1NA3D
-cbsqA0+6iiJaoFfFYF3q
-=iqJG
------END PGP SIGNATURE-----
-
---3U8TY7m7wOx7RL1F--
+Alan Stern
