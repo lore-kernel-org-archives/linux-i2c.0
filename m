@@ -1,47 +1,35 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: fix RX FIFO overrun
-Date: Fri, 17 May 2013 10:23:40 +0200
-Message-ID: <20130517082321.GA17056@katana>
-References: <20130422071943.GK1283@intel.com>
- <53398.163.33.213.79.1366630241.squirrel@linux.intel.com>
- <20130422122808.GO1283@intel.com>
- <alpine.DEB.2.02.1304221508050.31571@localhost>
- <20130423163543.GB3228@the-dreams.de>
- <51465.163.33.213.85.1366739082.squirrel@linux.intel.com>
- <20130423182707.GA3649@the-dreams.de>
- <alpine.DEB.2.02.1304241110480.32505@localhost>
- <20130425174348.GA3612@the-dreams.de>
- <alpine.DEB.2.02.1305081433430.7163@localhost>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v7] i2c-designware: make SDA hold time configurable
+Date: Fri, 17 May 2013 10:29:28 +0200
+Message-ID: <20130517082925.GB17056@katana>
+References: <20130327084158.GB11010@ab42.lan>
+ <1364373760-12469-1-git-send-email-christian.ruppert@abilis.com>
+ <20130514110745.GA10906@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.02.1305081433430.7163@localhost>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Stefan Roese <sr-ynQEQJNshbs@public.gmane.org>, Axel Lin <axel.lin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dirk Brandewie <dirk.brandewie-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20130514110745.GA10906@intel.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Christian Ruppert <christian.ruppert@abilis.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 08, 2013 at 02:34:36PM +0100, Josef Ahmad wrote:
-> From 8a4773d0c0df6fe2e816ad37fde30a2d90a1ad31 Mon Sep 17 00:00:00 2001
-> From: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Date: Fri, 19 Apr 2013 17:28:10 +0100
-> Subject: [PATCH] i2c-designware: fix RX FIFO overrun
+On Tue, May 14, 2013 at 02:07:45PM +0300, Mika Westerberg wrote:
+> On Tue, Apr 09, 2013 at 12:59:54PM +0200, Christian Ruppert wrote:
+> > This patch makes the SDA hold time configurable through device tree.
+> > 
+> > Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
+> > Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
 > 
-> i2c_dw_xfer_msg() pushes a number of bytes to transmit/receive
-> to/from the bus into the TX FIFO.
-> For master-rx transactions, the maximum amount of data that can be
-> received is calculated depending solely on TX and RX FIFO load.
+> Hi Wolfram,
 > 
-> This is racy - TX FIFO may contain master-rx data yet to be
-> processed, which will eventually land into the RX FIFO. This
-> data is not taken into account and the function may request more
-> data than the controller is actually capable of storing.
+> What happened to this patch? I don't see it merged for 3.10.
 > 
-> This patch ensures the driver takes into account the outstanding
-> master-rx data in TX FIFO to prevent RX FIFO overrun.
-> 
-> Signed-off-by: Josef Ahmad <josef.ahmad-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> The reason I'm asking is that I would like to add ACPI support for the SDA
+> hold time parameter analogous to the DT version.
 
-Applied to for-current, thanks!
+New bindings are complicated. I need to check if there is an
+existing/similar one, check if it is generic enough for drivers still to
+come, etc. I didn't have the time to do this for 3.10, so it is
+3.11 material.
