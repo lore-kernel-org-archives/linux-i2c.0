@@ -1,108 +1,58 @@
-From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Subject: [PATCH] i2c: suppress lockdep warning on delete_device
-Date: Fri, 17 May 2013 14:56:35 +0200
-Message-ID: <51962903.9050901@nsn.com>
+From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] i2c: busses: remove superfluous comment
+Date: Fri, 17 May 2013 16:53:14 +0300
+Message-ID: <20130517135314.GI14133@arwen.pp.htv.fi>
+References: <1368784416-15306-1-git-send-email-wsa@the-dreams.de>
+Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3U8TY7m7wOx7RL1F"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1368784416-15306-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: "Eric W. Biederman" <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>, Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-i2c: suppress lockdep warning on delete_device
+--3U8TY7m7wOx7RL1F
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Since commit 846f99749ab68bbc7f75c74fec305de675b1a1bf the following lockdep
-warning is thrown in case i2c device is removed (via delete_device sysfs
-attribute) which contains subdevices (e.g. i2c multiplexer):
+On Fri, May 17, 2013 at 11:53:23AM +0200, Wolfram Sang wrote:
+> The comment already got copy&pasted around and is not really useful.
+> Remove it.
+>=20
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-=============================================
-[ INFO: possible recursive locking detected ]
-3.8.7-0-sampleversion-fct #8 Tainted: G           O
----------------------------------------------
-bash/3743 is trying to acquire lock:
-  (s_active#110){++++.+}, at: [<ffffffff802b3048>] sysfs_hash_and_remove+0x58/0xc8
+FWIW on i2c-omap.c:
 
-but task is already holding lock:
-  (s_active#110){++++.+}, at: [<ffffffff802b3cb8>] sysfs_write_file+0xc8/0x208
+Acked-by: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
 
-other info that might help us debug this:
-  Possible unsafe locking scenario:
+--=20
+balbi
 
-        CPU0
-        ----
-   lock(s_active#110);
-   lock(s_active#110);
+--3U8TY7m7wOx7RL1F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-  *** DEADLOCK ***
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
 
-  May be due to missing lock nesting notation
+iQIcBAEBAgAGBQJRljZKAAoJEIaOsuA1yqREtOwP/i/KOP75Qj6IKt024obdzDRr
+v9tJZ9X8+M4to1DUWiqlNgi1ea04U6dQgQU0SkhRMaonXpqTo5LeBgKtLf4P2Pw8
+5QZWCxdca46zv0ep8o6Dhm/y/D0wFB9hd/g/QARS9nVNEB195565V31y0heMhcXO
+GJdoGPzlXva34FE7txIG2Y87GCKOvdkQ8i99+IL8Qx6DHwq2y5fTOBIQCJuDQYH7
+SNY+COR7sKAp2frG49tE3/KkX6Ds+x6BUrlK+R9A6NcATmOxASXnNg6X0+ga7xjC
+ckqu41bwYk5ot/RSTAbWMsYVs3lcG4JFJECWOxooKwPRgHh/EXRDHzP/cS+sOxs+
+bUse1EwqFOXQCsAWN/xsFkUZLe0eGijFQYSZzIcHaTqzsXdjJmyyrM44Q9II+rrk
+i8jSQZ4+tvdwR/6AOuEo8JiSOcuXpaM5aIzgjxiVRqCU5wruXJoLVt0zGQuHg4+K
+qYk8wsJqhU7vewYSvMpLBOpo9w6CHnMzH57KEohBr78uOPxOfi8u6LPoe2nAFH+9
+vaGuGyXM8/CBNJe7xNib6DT74fnx7/Q1DvGqXNQxjMGkde1aEHfhKrCCxrN+1sjz
+65COZHN21XC+z8Fgtx39Db5turX7Zy0V1tdUj+H6cyA3Zj9nkZYmzAbGcNf1NA3D
+cbsqA0+6iiJaoFfFYF3q
+=iqJG
+-----END PGP SIGNATURE-----
 
-4 locks held by bash/3743:
-  #0:  (&buffer->mutex){+.+.+.}, at: [<ffffffff802b3c3c>] sysfs_write_file+0x4c/0x208
-  #1:  (s_active#110){++++.+}, at: [<ffffffff802b3cb8>] sysfs_write_file+0xc8/0x208
-  #2:  (&adap->userspace_clients_lock/1){+.+.+.}, at: [<ffffffff80454a18>] i2c_sysfs_delete_device+0x90/0x238
-  #3:  (&__lockdep_no_validate__){......}, at: [<ffffffff803dcc24>] device_release_driver+0x24/0x48
-
-stack backtrace:
-Call Trace:
-[<ffffffff80575cc8>] dump_stack+0x8/0x34
-[<ffffffff801b50fc>] __lock_acquire+0x161c/0x2110
-[<ffffffff801b5c3c>] lock_acquire+0x4c/0x70
-[<ffffffff802b60cc>] sysfs_addrm_finish+0x19c/0x1e0
-[<ffffffff802b3048>] sysfs_hash_and_remove+0x58/0xc8
-[<ffffffff802b7d8c>] sysfs_remove_group+0x64/0x148
-[<ffffffff803d990c>] device_remove_attrs+0x9c/0x1a8
-[<ffffffff803d9b1c>] device_del+0x104/0x1d8
-[<ffffffff803d9c18>] device_unregister+0x28/0x70
-[<ffffffff8045505c>] i2c_del_adapter+0x1cc/0x328
-[<ffffffff8045802c>] i2c_del_mux_adapter+0x14/0x38
-[<ffffffffc025c108>] pca954x_remove+0x90/0xe0 [pca954x]
-[<ffffffff804542f8>] i2c_device_remove+0x80/0xe8
-[<ffffffff803dca9c>] __device_release_driver+0x74/0xf8
-[<ffffffff803dcc2c>] device_release_driver+0x2c/0x48
-[<ffffffff803dbc14>] bus_remove_device+0x13c/0x1d8
-[<ffffffff803d9b24>] device_del+0x10c/0x1d8
-[<ffffffff803d9c18>] device_unregister+0x28/0x70
-[<ffffffff80454b08>] i2c_sysfs_delete_device+0x180/0x238
-[<ffffffff802b3cd4>] sysfs_write_file+0xe4/0x208
-[<ffffffff8023ddc4>] vfs_write+0xbc/0x160
-[<ffffffff8023df6c>] SyS_write+0x54/0xd8
-[<ffffffff8013d424>] handle_sys64+0x44/0x64
-
-The problem is already known for USB and PCI subsystems. The reason is that
-delete_device attribute is defined statically in i2c-core.c and used for all
-devices in i2c subsystem.
-
-Discussion of original USB problem:
-http://lkml.indiana.edu/hypermail/linux/kernel/1204.3/01160.html
-
-Commit 356c05d58af05d582e634b54b40050c73609617b introduced new macro to suppress
-lockdep warnings for this special case and included workaround for USB code.
-
-LKML discussion of the workaround:
-http://lkml.indiana.edu/hypermail/linux/kernel/1205.1/03634.html
-
-As i2c case is in principle the same, the same workaround could be used here.
-
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
-Cc: Eric W. Biederman <ebiederm-aS9lmoZGLiVWk0Htik3J/w@public.gmane.org>
-Cc: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Alan Stern <stern-nwvwT67g6+6dFdvTe/nMLpVzexx5G7lz@public.gmane.org>
-Cc: Peter Zijlstra <peterz-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>
----
-
---- linux-next.orig/drivers/i2c/i2c-core.c
-+++ linux-next/drivers/i2c/i2c-core.c
-@@ -892,7 +892,8 @@ i2c_sysfs_delete_device(struct device *d
-  }
-
-  static DEVICE_ATTR(new_device, S_IWUSR, NULL, i2c_sysfs_new_device);
--static DEVICE_ATTR(delete_device, S_IWUSR, NULL, i2c_sysfs_delete_device);
-+static DEVICE_ATTR_IGNORE_LOCKDEP(delete_device, S_IWUSR, NULL,
-+                                  i2c_sysfs_delete_device);
-
-  static struct attribute *i2c_adapter_attrs[] = {
-  	&dev_attr_name.attr,
+--3U8TY7m7wOx7RL1F--
