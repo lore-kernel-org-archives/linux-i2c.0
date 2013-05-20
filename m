@@ -1,41 +1,21 @@
-From: Libo Chen <chenlibo.3-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 0/2] i2c: fix two wrong mem release
-Date: Sun, 19 May 2013 10:13:06 +0800
-Message-ID: <51983532.7090300@gmail.com>
-References: <1368088044-20408-1-git-send-email-libo.chen@huawei.com> <20130517094301.GH17056@katana>
+From: =?iso-8859-5?Q?=DB=D8=D4=E3=DB=EF?= <kornet-ZWEch9qRx6T6gbPvEgmw2w@public.gmane.org>
+Subject: =?iso-8859-5?Q?=C1=DA=E0=EB=E2=EB=D5_=DC=D0=E2=D5=E0=D8?=	=?iso-8859-5?Q?=D0=DB=EB?=
+Date: Mon, 20 May 2013 08:05:24 +0300
+Message-ID: <5B080E1FF5A14FB9BF87C81ECDBE543F@dapfao>
+Reply-To: =?iso-8859-5?Q?=DB=D8=D4=E3=DB=EF?= <aceton84-2c1mj2i23ijw8q5qbAAWkg@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
-	format=flowed
+Content-Type: text/plain; charset=iso-8859-5
 Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130517094301.GH17056@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org
+To: natprodn-JGs/UdohzUI@public.gmane.org, amaksima-HPQIj1OAFZMvJsYlp49lxw@public.gmane.org, kalatea-CJ+O1SWijXU@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reklama-rrbztONczo4Q00bzW/6cUw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-=E4=BA=8E 2013-5-17 17:43, Wolfram Sang =E5=86=99=E9=81=93:
-> On Thu, May 09, 2013 at 04:27:22PM +0800, Libo Chen wrote:
->> >fix two wrong mem release
->> >
->> >* Changelog from v1:
->> >   * exchange out_error_no_irq and out_error_pin_mux  suggested by =
-Sonic<Sonic.Zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
->> >   * add some new tag , make code cleanly
-> Thanks for the submission. I do think the proper solution would be to
-> convert the drivers to use the devm_* mechanisms, though. You can che=
-ck
-> commit 857968434bb6dbda0911f38ec46b0c3d0c963771 ("i2c: davinci: updat=
-e
-> to devm_* API") as a reference.
->
-> Thanks,
->
->     Wolfram
-
-Hi, Wolfram
-
-    It is a good idea. I will learn about it.
-
-Thanks,
-Libo
+  =C3=D1=EB=E1=E2=E0=D5=DD=DD=DE=D5 =DE=D1=E3=E7=D5=DD=D8=D5. =DF=DE=E1=
+=E2=D8=E7=EC =D1=E0=D8=E2=D0=DD=E1=DA=D8=D9 =EF=D7=EB=DA =E1=D5=D3=DE=D4=
+=DD=EF =DF=DE=DD=EF=E2=DD=DE =DB=EE=D1=DE=DC=E3 . =BF=E0=DE=D4=D5=DB=D0=
+=E2=EC =E1=D2=DE=EE =DF=E0=D0=DA=E2=D8=DA=E3 =DF=DE=E0=D0=D7=DD=DE=DE=D1=
+=E0=D0=D7=DD=D5=D5, =D2=E1=DF=EB=E5=DD=E3=E2=EC =D4=DE=E1=E2=DE=D9=DD=EB=
+=DC =D4=D5=DB=DE=DC. =BA=E3=DF=D8=E2=EC =DC=DE=D6=DD=DE =D7=D4=D5=E1=EC=
+: http://goo.gl/5GUPp .=20
+=20
