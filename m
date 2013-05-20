@@ -1,21 +1,83 @@
-From: =?iso-8859-5?Q?=DB=D8=D4=E3=DB=EF?= <kornet-ZWEch9qRx6T6gbPvEgmw2w@public.gmane.org>
-Subject: =?iso-8859-5?Q?=C1=DA=E0=EB=E2=EB=D5_=DC=D0=E2=D5=E0=D8?=	=?iso-8859-5?Q?=D0=DB=EB?=
-Date: Mon, 20 May 2013 08:05:24 +0300
-Message-ID: <5B080E1FF5A14FB9BF87C81ECDBE543F@dapfao>
-Reply-To: =?iso-8859-5?Q?=DB=D8=D4=E3=DB=EF?= <aceton84-2c1mj2i23ijw8q5qbAAWkg@public.gmane.org>
+From: Kukjin Kim <kgene.kim@samsung.com>
+Subject: Re: [PATCH 08/33] drivers/i2c/busses: don't check resource with devm_ioremap_resource
+Date: Tue, 21 May 2013 01:40:46 +0900
+Message-ID: <519A520E.3060801@samsung.com>
+References: <1368702961-4325-1-git-send-email-wsa@the-dreams.de> <1368702961-4325-9-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-5
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: natprodn-JGs/UdohzUI@public.gmane.org, amaksima-HPQIj1OAFZMvJsYlp49lxw@public.gmane.org, kalatea-CJ+O1SWijXU@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, reklama-rrbztONczo4Q00bzW/6cUw@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <1368702961-4325-9-git-send-email-wsa@the-dreams.de>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-kernel@vger.kernel.org, Kukjin Kim <kgene.kim@samsung.com>, Stephen Warren <swarren@wwwdotorg.org>, linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Barry Song <baohua.song@csr.com>, linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-  =C3=D1=EB=E1=E2=E0=D5=DD=DD=DE=D5 =DE=D1=E3=E7=D5=DD=D8=D5. =DF=DE=E1=
-=E2=D8=E7=EC =D1=E0=D8=E2=D0=DD=E1=DA=D8=D9 =EF=D7=EB=DA =E1=D5=D3=DE=D4=
-=DD=EF =DF=DE=DD=EF=E2=DD=DE =DB=EE=D1=DE=DC=E3 . =BF=E0=DE=D4=D5=DB=D0=
-=E2=EC =E1=D2=DE=EE =DF=E0=D0=DA=E2=D8=DA=E3 =DF=DE=E0=D0=D7=DD=DE=DE=D1=
-=E0=D0=D7=DD=D5=D5, =D2=E1=DF=EB=E5=DD=E3=E2=EC =D4=DE=E1=E2=DE=D9=DD=EB=
-=DC =D4=D5=DB=DE=DC. =BA=E3=DF=D8=E2=EC =DC=DE=D6=DD=DE =D7=D4=D5=E1=EC=
-: http://goo.gl/5GUPp .=20
-=20
+On 05/16/13 20:15, Wolfram Sang wrote:
+> devm_ioremap_resource does sanity checks on the given resource. No need to
+> duplicate this in the driver.
+>
+> Signed-off-by: Wolfram Sang<wsa@the-dreams.de>
+
+For i2c-s3c2410:
+Acked-by: Kukjin Kim <kgene.kim@samsung.com>
+
+Thanks.
+
+- Kukjin
+
+> ---
+>   drivers/i2c/busses/i2c-s3c2410.c |    5 -----
+>   drivers/i2c/busses/i2c-sirf.c    |    6 ------
+>   drivers/i2c/busses/i2c-tegra.c   |    5 -----
+>   3 files changed, 16 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+> index 6e8ee92..cab1c91 100644
+> --- a/drivers/i2c/busses/i2c-s3c2410.c
+> +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> @@ -1082,11 +1082,6 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+>   	/* map the registers */
+>
+>   	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	if (res == NULL) {
+> -		dev_err(&pdev->dev, "cannot find IO resource\n");
+> -		return -ENOENT;
+> -	}
+> -
+>   	i2c->regs = devm_ioremap_resource(&pdev->dev, res);
+>
+>   	if (IS_ERR(i2c->regs))
+> diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
+> index 5a7ad24..a63c7d5 100644
+> --- a/drivers/i2c/busses/i2c-sirf.c
+> +++ b/drivers/i2c/busses/i2c-sirf.c
+> @@ -303,12 +303,6 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
+>   	adap->class = I2C_CLASS_HWMON;
+>
+>   	mem_res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	if (mem_res == NULL) {
+> -		dev_err(&pdev->dev, "Unable to get MEM resource\n");
+> -		err = -EINVAL;
+> -		goto out;
+> -	}
+> -
+>   	siic->base = devm_ioremap_resource(&pdev->dev, mem_res);
+>   	if (IS_ERR(siic->base)) {
+>   		err = PTR_ERR(siic->base);
+> diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+> index b60ff90..9aa1b60 100644
+> --- a/drivers/i2c/busses/i2c-tegra.c
+> +++ b/drivers/i2c/busses/i2c-tegra.c
+> @@ -714,11 +714,6 @@ static int tegra_i2c_probe(struct platform_device *pdev)
+>   	int ret = 0;
+>
+>   	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> -	if (!res) {
+> -		dev_err(&pdev->dev, "no mem resource\n");
+> -		return -EINVAL;
+> -	}
+> -
+>   	base = devm_ioremap_resource(&pdev->dev, res);
+>   	if (IS_ERR(base))
+>   		return PTR_ERR(base);
