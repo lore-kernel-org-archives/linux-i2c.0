@@ -1,41 +1,65 @@
-From: Mauro Carvalho Chehab <mchehab@redhat.com>
-Subject: Re: [PATCH] MIPS: OCTEON: Rename Kconfig
- CAVIUM_OCTEON_REFERENCE_BOARD to CAVIUM_OCTEON_SOC
-Date: Tue, 21 May 2013 07:25:21 -0300
-Message-ID: <20130521072521.0a296a67@redhat.com>
-References: <1369088378-13957-1-git-send-email-ddaney.cavm@gmail.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 3.10
+Date: Tue, 21 May 2013 20:11:20 +0200
+Message-ID: <20130521181117.GA23945@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-ide-owner@vger.kernel.org>
-In-Reply-To: <1369088378-13957-1-git-send-email-ddaney.cavm@gmail.com>
-Sender: linux-ide-owner@vger.kernel.org
-To: David Daney <ddaney.cavm@gmail.com>
-Cc: linux-mips@linux-mips.org, ralf@linux-mips.org, David Daney <david.daney@cavium.com>, linux-ide@vger.kernel.org, linux-edac@vger.kernel.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, spi-devel-general@lists.sourceforge.net, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Em Mon, 20 May 2013 15:19:38 -0700
-David Daney <ddaney.cavm@gmail.com> escreveu:
+Linus,
 
-> From: David Daney <david.daney@cavium.com>
-> 
-> CAVIUM_OCTEON_SOC most place we used to use CPU_CAVIUM_OCTEON.  This
-> allows us to CPU_CAVIUM_OCTEON in places where we have no OCTEON SOC.
-> 
-> Remove CAVIUM_OCTEON_SIMULATOR as it doesn't really do anything, we can
-> get the same configuration with CAVIUM_OCTEON_SOC.
-> 
-> Signed-off-by: David Daney <david.daney@cavium.com>
-> Cc: linux-ide@vger.kernel.org
-> Cc: linux-edac@vger.kernel.org
+please pull the bugfixes for the i2c subsystem. Those should have been
+in rc1 but I missed it due to working on devm longer than expected.
+There is one ID addition, since we are touching the driver anyhow. And
+the feature bit documentation is one outcome of a debug session and will
+make it easier for users to work around problems. The rest is typical
+driver bugfixes.
 
-Acked-by: Mauro Carvalho Chehab <mchehab@redhat.com>
+Please pull.
 
-> Cc: linux-i2c@vger.kernel.org
-> Cc: netdev@vger.kernel.org
-> Cc: spi-devel-general@lists.sourceforge.net
-> Cc: devel@driverdev.osuosl.org
-> Cc: linux-usb@vger.kernel.org
+Thanks,
 
-Regards,
-Mauro
+   Wolfram
+
+
+The following changes since commit f722406faae2d073cc1d01063d1123c35425939e:
+
+  Linux 3.10-rc1 (2013-05-11 17:14:08 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+
+for you to fetch changes up to e9b526fe704812364bca07edd15eadeba163ebfb:
+
+  i2c: suppress lockdep warning on delete_device (2013-05-17 22:49:45 +0200)
+
+----------------------------------------------------------------
+Alexander Sverdlin (1):
+      i2c: suppress lockdep warning on delete_device
+
+Jean Delvare (1):
+      i2c: i801: Document feature bits in modinfo
+
+Josef Ahmad (1):
+      i2c: designware: fix RX FIFO overrun
+
+Mika Westerberg (2):
+      i2c: designware: always clear interrupts before enabling them
+      i2c: designware: add Intel BayTrail ACPI ID
+
+Russell King (1):
+      i2c: mv64xxx: work around signals causing I2C transactions to be aborted
+
+ drivers/i2c/busses/i2c-designware-core.c    |   14 ++++++++++++--
+ drivers/i2c/busses/i2c-designware-core.h    |    2 ++
+ drivers/i2c/busses/i2c-designware-platdrv.c |    1 +
+ drivers/i2c/busses/i2c-i801.c               |    6 +++++-
+ drivers/i2c/busses/i2c-mv64xxx.c            |    8 ++++----
+ drivers/i2c/i2c-core.c                      |    3 ++-
+ 6 files changed, 26 insertions(+), 8 deletions(-)
