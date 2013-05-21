@@ -1,59 +1,51 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH 2/2] drivers/mfd: Remove obsolete cleanup for clientdata
-Date: Tue, 21 May 2013 20:45:41 +0200
-Message-ID: <1369161945-26671-2-git-send-email-wsa@the-dreams.de>
-References: <1369161945-26671-1-git-send-email-wsa@the-dreams.de>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1369161945-26671-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
+Subject: Re: [PATCH] MIPS: OCTEON: Rename Kconfig
+ CAVIUM_OCTEON_REFERENCE_BOARD to CAVIUM_OCTEON_SOC
+Date: Wed, 22 May 2013 01:04:57 +0300
+Message-ID: <20130521220457.GF31836@blackmetal.musicnaut.iki.fi>
+References: <1369088378-13957-1-git-send-email-ddaney.cavm@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-mips-bounce@linux-mips.org>
+Content-Disposition: inline
+In-Reply-To: <1369088378-13957-1-git-send-email-ddaney.cavm@gmail.com>
+Sender: linux-mips-bounce@linux-mips.org
+Errors-to: linux-mips-bounce@linux-mips.org
+List-help: <mailto:ecartis@linux-mips.org?Subject=help>
+List-unsubscribe: <mailto:ecartis@linux-mips.org?subject=unsubscribe%20linux-mips>
+List-software: Ecartis version 1.0.0
+List-subscribe: <mailto:ecartis@linux-mips.org?subject=subscribe%20linux-mips>
+List-owner: <mailto:ralf@linux-mips.org>
+List-post: <mailto:linux-mips@linux-mips.org>
+List-archive: <http://www.linux-mips.org/archives/linux-mips/>
+To: David Daney <ddaney.cavm@gmail.com>
+Cc: linux-mips@linux-mips.org, ralf@linux-mips.org, David Daney <david.daney@cavium.com>, linux-ide@vger.kernel.org, linux-edac@vger.kernel.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, spi-devel-general@lists.sourceforge.net, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-A few new i2c-drivers came into the kernel which clear the clientdata-pointer
-on exit or error. This is obsolete meanwhile, the core will do it.
+Hi,
 
-Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
----
- drivers/mfd/twl6040.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+What about OCTEON_WDT, should it be changed too:
 
-diff --git a/drivers/mfd/twl6040.c b/drivers/mfd/twl6040.c
-index 492ee2c..eec7de2 100644
---- a/drivers/mfd/twl6040.c
-+++ b/drivers/mfd/twl6040.c
-@@ -558,13 +558,13 @@ static int twl6040_probe(struct i2c_client *client,
- 				 twl6040->supplies);
- 	if (ret != 0) {
- 		dev_err(&client->dev, "Failed to get supplies: %d\n", ret);
--		goto regulator_get_err;
-+		goto err;
- 	}
- 
- 	ret = regulator_bulk_enable(TWL6040_NUM_SUPPLIES, twl6040->supplies);
- 	if (ret != 0) {
- 		dev_err(&client->dev, "Failed to enable supplies: %d\n", ret);
--		goto regulator_get_err;
-+		goto err;
- 	}
- 
- 	twl6040->dev = &client->dev;
-@@ -688,8 +688,6 @@ readyirq_err:
- 	regmap_del_irq_chip(twl6040->irq, twl6040->irq_data);
- gpio_err:
- 	regulator_bulk_disable(TWL6040_NUM_SUPPLIES, twl6040->supplies);
--regulator_get_err:
--	i2c_set_clientdata(client, NULL);
- err:
- 	return ret;
- }
-@@ -706,7 +704,6 @@ static int twl6040_remove(struct i2c_client *client)
- 	regmap_del_irq_chip(twl6040->irq, twl6040->irq_data);
- 
- 	mfd_remove_devices(&client->dev);
--	i2c_set_clientdata(client, NULL);
- 
- 	regulator_bulk_disable(TWL6040_NUM_SUPPLIES, twl6040->supplies);
- 
--- 
-1.7.10.4
+        tristate "Cavium OCTEON SOC family Watchdog Timer"
+        depends on CPU_CAVIUM_OCTEON
+
+On Mon, May 20, 2013 at 03:19:38PM -0700, David Daney wrote:
+>  config OCTEON_MGMT_ETHERNET
+>  	tristate "Octeon Management port ethernet driver (CN5XXX, CN6XXX)"
+> -	depends on  CPU_CAVIUM_OCTEON
+> +	depends on  CAVIUM_OCTEON_SOC
+
+>  config MDIO_OCTEON
+>  	tristate "Support for MDIO buses on Octeon SOCs"
+> -	depends on  CPU_CAVIUM_OCTEON
+> +	depends on  CAVIUM_OCTEON_SOC
+
+>  config USB_OCTEON_OHCI
+>  	bool "Octeon on-chip OHCI support"
+> -	depends on CPU_CAVIUM_OCTEON
+> +	depends on  CAVIUM_OCTEON_SOC
+
+Just a minor comment, here the extra whitespace after "depends on"
+could be eliminated.
+
+A.
