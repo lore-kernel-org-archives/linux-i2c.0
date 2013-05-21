@@ -1,33 +1,35 @@
-From: EUNBONG SONG <eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH] i2c: i2c-designware: Fix compilation warning
-Date: Mon, 20 May 2013 23:55:50 +0000 (GMT)
-Message-ID: <2512686.216921369094149829.JavaMail.weblogic@epml25>
-Reply-To: eunb.song-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+From: Tony Prisk <linux@prisktech.co.nz>
+Subject: Re: [PATCH] i2c: vt8500: Add support for I2C bus on Wondermedia SoCs
+Date: Tue, 21 May 2013 18:16:21 +1200
+Message-ID: <519B1135.4060509@prisktech.co.nz>
+References: <1368350634-12654-1-git-send-email-linux@prisktech.co.nz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=euc-kr
-Content-Transfer-Encoding: base64
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-MIME-version: 1.0
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1368350634-12654-1-git-send-email-linux@prisktech.co.nz>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tony Prisk <linux@prisktech.co.nz>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, vt8500-wm8505-linux-kernel@googlegroups.com, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-DQpGaXggdGhlIGZvbGxvd2luZyBjb21waWxhdGlvbiB3YXJuaW5nIHdoZW4gQ09ORklHX1BNX1JV
-TlRJTUUgaXMgbm90IGVuYWJsZWQ6DQoNCmRyaXZlcnMvaTJjL2J1c3Nlcy9pMmMtZGVzaWdud2Fy
-ZS1wY2lkcnYuYzoxODg6IHdhcm5pbmc6ICdpMmNfZHdfcGNpX3J1bnRpbWVfaWRsZScgZGVmaW5l
-ZCBidXQgbm90IHVzZWQNCg0KU2lnbmVkLW9mZi1ieTogRXVuQm9uZyBTb25nIDxldW5iLnNvbmdA
-c2Ftc3VuZy5jb20+DQotLS0NCiBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGNp
-ZHJ2LmMgfCAgICAyICsrDQogMSBmaWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKQ0KDQpkaWZm
-IC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBjaWRydi5jIGIvZHJp
-dmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBjaWRydi5jDQppbmRleCBmNmVkMDZjLi4y
-YjVkM2E2IDEwMDY0NA0KLS0tIGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1kZXNpZ253YXJlLXBj
-aWRydi5jDQorKysgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWRlc2lnbndhcmUtcGNpZHJ2LmMN
-CkBAIC0xODUsNiArMTg1LDcgQEAgc3RhdGljIGludCBpMmNfZHdfcGNpX3Jlc3VtZShzdHJ1Y3Qg
-ZGV2aWNlICpkZXYpDQogCXJldHVybiAwOw0KIH0NCiANCisjaWZkZWYgQ09ORklHX1BNX1JVTlRJ
-TUUNCiBzdGF0aWMgaW50IGkyY19kd19wY2lfcnVudGltZV9pZGxlKHN0cnVjdCBkZXZpY2UgKmRl
-dikNCiB7DQogCWludCBlcnIgPSBwbV9zY2hlZHVsZV9zdXNwZW5kKGRldiwgNTAwKTsNCkBAIC0x
-OTQsNiArMTk1LDcgQEAgc3RhdGljIGludCBpMmNfZHdfcGNpX3J1bnRpbWVfaWRsZShzdHJ1Y3Qg
-ZGV2aWNlICpkZXYpDQogCQlyZXR1cm4gMDsNCiAJcmV0dXJuIC1FQlVTWTsNCiB9DQorI2VuZGlm
-DQogDQogc3RhdGljIGNvbnN0IHN0cnVjdCBkZXZfcG1fb3BzIGkyY19kd19wbV9vcHMgPSB7DQog
-CS5yZXN1bWUgICAgICAgICA9IGkyY19kd19wY2lfcmVzdW1lLA0KLS0gDQoxLjcuMTAuNA0K
+On 12/05/13 21:23, Tony Prisk wrote:
+> This patch adds support for the I2C bus controllers found on Wondermedia
+> 8xxx-series SoCs. Only master-mode is supported.
+>
+> Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
+> ---
+>   .../devicetree/bindings/i2c/i2c-vt8500.txt         |   24 +
+>   MAINTAINERS                                        |    1 +
+>   drivers/i2c/busses/Kconfig                         |   10 +
+>   drivers/i2c/busses/Makefile                        |    1 +
+>   drivers/i2c/busses/i2c-wmt.c                       |  488 ++++++++++++++++++++
+>   5 files changed, 524 insertions(+)
+>   create mode 100644 Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
+>   create mode 100644 drivers/i2c/busses/i2c-wmt.c
+>
+>
+This patch seems to have stalled. Any news?
+
+Regards
+Tony Prisk
