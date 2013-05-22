@@ -1,51 +1,35 @@
-From: David Daney <ddaney@caviumnetworks.com>
-Subject: Re: [PATCH] MIPS: OCTEON: Rename Kconfig CAVIUM_OCTEON_REFERENCE_BOARD
- to CAVIUM_OCTEON_SOC
-Date: Tue, 21 May 2013 15:07:23 -0700
-Message-ID: <519BF01B.1010600@caviumnetworks.com>
-References: <1369088378-13957-1-git-send-email-ddaney.cavm@gmail.com> <20130521220457.GF31836@blackmetal.musicnaut.iki.fi>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
+ tree driver
+Date: Wed, 22 May 2013 09:56:44 +0200
+Message-ID: <CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com>
+References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-ide-owner@vger.kernel.org>
-In-Reply-To: <20130521220457.GF31836@blackmetal.musicnaut.iki.fi>
-Sender: linux-ide-owner@vger.kernel.org
-To: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: David Daney <ddaney.cavm@gmail.com>, linux-mips@linux-mips.org, ralf@linux-mips.org, David Daney <david.daney@cavium.com>, linux-ide@vger.kernel.org, linux-edac@vger.kernel.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, spi-devel-general@lists.sourceforge.net, devel@driverdev.osuosl.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1368476301-10495-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/21/2013 03:04 PM, Aaro Koskinen wrote:
-> Hi,
->
-> What about OCTEON_WDT, should it be changed too:
->
->          tristate "Cavium OCTEON SOC family Watchdog Timer"
->          depends on CPU_CAVIUM_OCTEON
->
-> On Mon, May 20, 2013 at 03:19:38PM -0700, David Daney wrote:
->>   config OCTEON_MGMT_ETHERNET
->>   	tristate "Octeon Management port ethernet driver (CN5XXX, CN6XXX)"
->> -	depends on  CPU_CAVIUM_OCTEON
->> +	depends on  CAVIUM_OCTEON_SOC
->
->>   config MDIO_OCTEON
->>   	tristate "Support for MDIO buses on Octeon SOCs"
->> -	depends on  CPU_CAVIUM_OCTEON
->> +	depends on  CAVIUM_OCTEON_SOC
->
->>   config USB_OCTEON_OHCI
->>   	bool "Octeon on-chip OHCI support"
->> -	depends on CPU_CAVIUM_OCTEON
->> +	depends on  CAVIUM_OCTEON_SOC
->
-> Just a minor comment, here the extra whitespace after "depends on"
-> could be eliminated.
->
+On Mon, May 13, 2013 at 10:18 PM, Linus Walleij
+<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
 
-Good point.  I will regenerate the patch to correct this.
+> This tries to address an issue found when writing an MFD driver
+> for the Nomadik STw481x PMICs: as the platform is using device
+> tree exclusively I want to specify the driver matching like
+> this:
+(...)
+> ---
+> ChangeLog v1->v2:
+> - Use of_match_device() to determine if there is a DT match in
+>   the probe code. If there is a match we pass NULL for the
+>   id_table match parameter.
 
-Thanks,
-David Daney
+Ping on this.
 
+v2 should be doing what Grant suggested...
 
-
+Yours,
+Linus Walleij
