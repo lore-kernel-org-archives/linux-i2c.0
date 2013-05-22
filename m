@@ -1,48 +1,36 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c: designware: prevent signals from aborting I2C transfers
-Date: Wed, 22 May 2013 13:03:11 +0300
-Message-ID: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Ralf Baechle <ralf-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org>
+Subject: Re: [PATCH] MIPS: OCTEON: Rename Kconfig
+ CAVIUM_OCTEON_REFERENCE_BOARD to CAVIUM_OCTEON_SOC
+Date: Wed, 22 May 2013 14:22:32 +0200
+Message-ID: <20130522122232.GD10769@linux-mips.org>
+References: <1369088378-13957-1-git-send-email-ddaney.cavm@gmail.com>
+ <20130521220457.GF31836@blackmetal.musicnaut.iki.fi>
+ <519BF01B.1010600@caviumnetworks.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <519BF01B.1010600-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: David Daney <ddaney-M3mlKVOIwJVv6pq1l3V1OdBPR1lH4CV8@public.gmane.org>
+Cc: Aaro Koskinen <aaro.koskinen-X3B1VOXEql0@public.gmane.org>, David Daney <ddaney.cavm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mips-6z/3iImG2C8G8FEW9MqTrA@public.gmane.org, David Daney <david.daney-YGCgFSpz5w/QT0dZR+AlfA@public.gmane.org>, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-edac-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, netdev-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spi-devel-general-5NWGOfrQmneRv+LV9MX5uipxlwaOVQ5f@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-If a process receives signal while it is waiting for I2C transfer to
-complete, an error is returned to the caller and the transfer is aborted.
-This can cause the driver to fail subsequent transfers. Also according to
-commit d295a86eab2 (i2c: mv64xxx: work around signals causing I2C
-transactions to be aborted) I2C drivers aren't supposed to abort
-transactions on signals.
+On Tue, May 21, 2013 at 03:07:23PM -0700, David Daney wrote:
 
-To prevent this switch to use wait_for_completion_timeout() instead of
-wait_for_completion_interruptible_timeout() in the designware I2C driver.
+> >>  config USB_OCTEON_OHCI
+> >>  	bool "Octeon on-chip OHCI support"
+> >>-	depends on CPU_CAVIUM_OCTEON
+> >>+	depends on  CAVIUM_OCTEON_SOC
+> >
+> >Just a minor comment, here the extra whitespace after "depends on"
+> >could be eliminated.
+> >
+> 
+> Good point.  I will regenerate the patch to correct this.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-core.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+I took care of that and queued the patch.
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index c41ca63..db20a28 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -580,14 +580,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	i2c_dw_xfer_init(dev);
- 
- 	/* wait for tx to complete */
--	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
-+	ret = wait_for_completion_timeout(&dev->cmd_complete, HZ);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
- 		i2c_dw_init(dev);
- 		ret = -ETIMEDOUT;
- 		goto done;
--	} else if (ret < 0)
--		goto done;
-+	}
- 
- 	if (dev->msg_err) {
- 		ret = dev->msg_err;
--- 
-1.7.10.4
+Thanks,
+
+  Ralf
