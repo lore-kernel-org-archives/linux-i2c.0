@@ -1,35 +1,48 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
- tree driver
-Date: Wed, 22 May 2013 09:56:44 +0200
-Message-ID: <CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com>
-References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c: designware: prevent signals from aborting I2C transfers
+Date: Wed, 22 May 2013 13:03:11 +0300
+Message-ID: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1368476301-10495-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, May 13, 2013 at 10:18 PM, Linus Walleij
-<linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+If a process receives signal while it is waiting for I2C transfer to
+complete, an error is returned to the caller and the transfer is aborted.
+This can cause the driver to fail subsequent transfers. Also according to
+commit d295a86eab2 (i2c: mv64xxx: work around signals causing I2C
+transactions to be aborted) I2C drivers aren't supposed to abort
+transactions on signals.
 
-> This tries to address an issue found when writing an MFD driver
-> for the Nomadik STw481x PMICs: as the platform is using device
-> tree exclusively I want to specify the driver matching like
-> this:
-(...)
-> ---
-> ChangeLog v1->v2:
-> - Use of_match_device() to determine if there is a DT match in
->   the probe code. If there is a match we pass NULL for the
->   id_table match parameter.
+To prevent this switch to use wait_for_completion_timeout() instead of
+wait_for_completion_interruptible_timeout() in the designware I2C driver.
 
-Ping on this.
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-core.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-v2 should be doing what Grant suggested...
-
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index c41ca63..db20a28 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -580,14 +580,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	i2c_dw_xfer_init(dev);
+ 
+ 	/* wait for tx to complete */
+-	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
++	ret = wait_for_completion_timeout(&dev->cmd_complete, HZ);
+ 	if (ret == 0) {
+ 		dev_err(dev->dev, "controller timed out\n");
+ 		i2c_dw_init(dev);
+ 		ret = -ETIMEDOUT;
+ 		goto done;
+-	} else if (ret < 0)
+-		goto done;
++	}
+ 
+ 	if (dev->msg_err) {
+ 		ret = dev->msg_err;
+-- 
+1.7.10.4
