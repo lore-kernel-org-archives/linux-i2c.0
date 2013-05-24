@@ -1,40 +1,90 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH RESEND 0/5] Add I2C support for Allwinner SoCs
-Date: Fri, 24 May 2013 11:58:19 +0200
-Message-ID: <20130524095819.GB8785@lukather>
-References: <1367572669-24354-1-git-send-email-maxime.ripard@free-electrons.com>
+From: anish singh <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [I2C] informations + advice about messages handling
+Date: Fri, 24 May 2013 16:29:36 +0530
+Message-ID: <CAK7N6vqqG68c4vx1uBsNLF8zpSRQWwY5jERqjVYKE7NkEEzFSA@mail.gmail.com>
+References: <CA78C307B8F06747967D122FC656B153986448@SERVEUR0.nvp.local>
+	<CAK7N6vpg6QUAKODKO2Msr4+GTASLDpA2cG1teQV3yiwt7D4SSw@mail.gmail.com>
+	<20130524094407.61d0ec42@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1367572669-24354-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <20130524094407.61d0ec42-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Cc: Mylene Josserand <Mylene.Josserand-207QzMZ2trZBDgjK7y7TUQ@public.gmane.org>, kernelnewbies <kernelnewbies-7JyXY6prKcjpASu1u0TL5ti2O/JbrIOy@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-mail <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-On Fri, May 03, 2013 at 11:17:44AM +0200, Maxime Ripard wrote:
-> Hi,
-> 
-> This patchset adds support for the I2C controller found on most of the
-> Allwinner SoCs, especially the already supported A10 and A13, and the
-> yet to come A31.
-> 
-> It has been tested on a A13-Olinuxino.
-> 
-> Thanks,
-> Maxime
-> 
-> Resent to fix Wolfram's email address.
-
-Do you have comments on this driver?
-
-Thanks,
-Maxime
-
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+On Fri, May 24, 2013 at 1:14 PM, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org> wrot=
+e:
+> Hi Anish, Myl=C3=A8ne,
+>
+> On Fri, 24 May 2013 12:52:40 +0530, anish singh wrote:
+>> On Fri, May 24, 2013 at 12:41 PM, Mylene Josserand
+>> <Mylene.Josserand-207QzMZ2trZBDgjK7y7TUQ@public.gmane.org> wrote:
+>> > I have read that this function "i2c_smbus_write_byte_data" uses
+>> > "i2c_smbus_xfer" which uses "i2c_lock_adapter".
+>> > In this function, there is a mutex so I thought that it will handl=
+e it
+>> > but it says "Get exclusive access to an I2C bus segment". What is
+>> > exactly an I2C segment ? Is it the device we are talking about ? O=
+r is
+>> > it the use of the i2c bus ?
+>> Don't know what you are referring here.
+>
+> In the most simple case, your I2C bus has a single segment so "segmen=
+t"
+> or "bus" mean the same thing.
+>
+> It only starts mattering when I2C bus multiplexing comes into play.
+> Then your bus is split into segments, with one segment (trunk) betwee=
+n
+> the master (controller) and the multiplexer, and one or more segments
+> (branches) hanging off the multiplexer.
+>
+> Take look at
+> https://i2c.wiki.kernel.org/index.php/I2C_bus_multiplexing
+> for a sample topology.
+>
+> But anyway the comment in front of i2c_lock_adapter() is somewhat
+> misleading. If you read the code you'll see that it always locks the
+> whole bus tree, because it uses the root segment's mutex.
+>
+>> > I will certainly have to create an i2c driver and I would like to =
+know
+>> > if this "collision" handling (if it is handled) is done in old ker=
+nel
+>> > (2.6.32) or is it handled only in new kernel versions ?
+>> AFAIK collision handling and detection was not supported till now
+>> in linux kernel until recently but I think this patch is doing that.
+>> I may be wrong but I didn't see collision handling in earlier linux
+>> kernels.
+>> http://thread.gmane.org/gmane.linux.kernel/1410276
+>
+> This is for a specific case. The general case is handled by the
+> per-adapter mutex for years now. 2.6.32 should be just fine in this
+> respect.
+I may be mis-understanding here but when two client wants to
+communicate with same master and at the same
+time how does that happen?
+In the thread I mentioned client pulls the line low indicating that
+it wants to own the bus and waits for some time and then checks
+if the line is still low or not.If it is still low then it owns the bus
+and start transaction and if clients see otherwise it releases the
+bus and tries again after some time.How is that handled in the
+previous kernel?
+>
+>> > If you have any documentation on how the i2c messages are handled =
+in
+>> > case of different devices uses, it will help me a lot ! I will sea=
+rch in
+>> > the kernel documentation but there is many files about i2c.
+>> > And if you know a good i2c driver that I can use as an example to =
+design
+>> > mine, it will be great !
+>
+> Best is to look at a driver for a device which is similar in
+> functionality to yours.
+>
+> --
+> Jean Delvare
