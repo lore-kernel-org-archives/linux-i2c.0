@@ -1,76 +1,76 @@
-From: anish singh <anish198519851985@gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [I2C] informations + advice about messages handling
-Date: Fri, 24 May 2013 12:52:40 +0530
-Message-ID: <CAK7N6vpg6QUAKODKO2Msr4+GTASLDpA2cG1teQV3yiwt7D4SSw@mail.gmail.com>
+Date: Fri, 24 May 2013 09:44:07 +0200
+Message-ID: <20130524094407.61d0ec42@endymion.delvare>
 References: <CA78C307B8F06747967D122FC656B153986448@SERVEUR0.nvp.local>
+	<CAK7N6vpg6QUAKODKO2Msr4+GTASLDpA2cG1teQV3yiwt7D4SSw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CA78C307B8F06747967D122FC656B153986448@SERVEUR0.nvp.local>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mylene Josserand <Mylene.Josserand@navocap.com>
-Cc: kernelnewbies <kernelnewbies@kernelnewbies.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-kernel-mail <linux-kernel@vger.kernel.org>, Jean Delvare <khali@linux-fr.org>, Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAK7N6vpg6QUAKODKO2Msr4+GTASLDpA2cG1teQV3yiwt7D4SSw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: anish singh <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Mylene Josserand <Mylene.Josserand-207QzMZ2trZBDgjK7y7TUQ@public.gmane.org>, kernelnewbies <kernelnewbies-7JyXY6prKcjpASu1u0TL5ti2O/JbrIOy@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-mail <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, May 24, 2013 at 12:41 PM, Mylene Josserand
-<Mylene.Josserand@navocap.com> wrote:
-> Hi all,
->
->
-> I am learning how i2c is working and I read that, to write in an i2c
-> register, I need to use the function "i2c_smbus_write_byte_data".
-Only in case your device is smbus compliant.
+Hi Anish, Myl=C3=A8ne,
 
-> I wanted to know how the message are handled by using this function. =
-If
-> I use this function to talk with 2 different i2d devices, how it will
-> handle "message collision" ? should I have to add a kind of mutex on =
-the
-Message collision and detection is the job of i2c controller and if I a=
-m
-not wrong you are writing a chip driver.
-> access of the i2c bus ?
-> Is it possible that the message destined for one device is sent to
-> another one ? Or a "mix" of messages is impossible ?
-It is not possible as the data contains the chip address which is
-unique.7/10 bit mode addressing is used for addresses.
->
-> I have read that this function "i2c_smbus_write_byte_data" uses
-> "i2c_smbus_xfer" which uses "i2c_lock_adapter".
-> In this function, there is a mutex so I thought that it will handle i=
-t
-> but it says "Get exclusive access to an I2C bus segment". What is
-> exactly an I2C segment ? Is it the device we are talking about ? Or i=
-s
-> it the use of the i2c bus ?
-Don't know what you are referring here.
->
-> I will certainly have to create an i2c driver and I would like to kno=
-w
-> if this "collision" handling (if it is handled) is done in old kernel
-> (2.6.32) or is it handled only in new kernel versions ?
-AFAIK collision handling and detection was not supported till now
-in linux kernel until recently but I think this patch is doing that.
-I may be wrong but I didn't see collision handling in earlier linux
-kernels.
-http://thread.gmane.org/gmane.linux.kernel/1410276
->
-> If you have any documentation on how the i2c messages are handled in
-> case of different devices uses, it will help me a lot ! I will search=
- in
-> the kernel documentation but there is many files about i2c.
-> And if you know a good i2c driver that I can use as an example to des=
-ign
-> mine, it will be great !
->
->
-> Thank you in advance,
->
-> --
-> Myl=C3=A8ne JOSSERAND
->
-> _______________________________________________
-> Kernelnewbies mailing list
-> Kernelnewbies@kernelnewbies.org
-> http://lists.kernelnewbies.org/mailman/listinfo/kernelnewbies
+On Fri, 24 May 2013 12:52:40 +0530, anish singh wrote:
+> On Fri, May 24, 2013 at 12:41 PM, Mylene Josserand
+> <Mylene.Josserand-207QzMZ2trZBDgjK7y7TUQ@public.gmane.org> wrote:
+> > I have read that this function "i2c_smbus_write_byte_data" uses
+> > "i2c_smbus_xfer" which uses "i2c_lock_adapter".
+> > In this function, there is a mutex so I thought that it will handle=
+ it
+> > but it says "Get exclusive access to an I2C bus segment". What is
+> > exactly an I2C segment ? Is it the device we are talking about ? Or=
+ is
+> > it the use of the i2c bus ?
+> Don't know what you are referring here.
+
+In the most simple case, your I2C bus has a single segment so "segment"
+or "bus" mean the same thing.
+
+It only starts mattering when I2C bus multiplexing comes into play.
+Then your bus is split into segments, with one segment (trunk) between
+the master (controller) and the multiplexer, and one or more segments
+(branches) hanging off the multiplexer.
+
+Take look at
+https://i2c.wiki.kernel.org/index.php/I2C_bus_multiplexing
+for a sample topology.
+
+But anyway the comment in front of i2c_lock_adapter() is somewhat
+misleading. If you read the code you'll see that it always locks the
+whole bus tree, because it uses the root segment's mutex.
+
+> > I will certainly have to create an i2c driver and I would like to k=
+now
+> > if this "collision" handling (if it is handled) is done in old kern=
+el
+> > (2.6.32) or is it handled only in new kernel versions ?
+> AFAIK collision handling and detection was not supported till now
+> in linux kernel until recently but I think this patch is doing that.
+> I may be wrong but I didn't see collision handling in earlier linux
+> kernels.
+> http://thread.gmane.org/gmane.linux.kernel/1410276
+
+This is for a specific case. The general case is handled by the
+per-adapter mutex for years now. 2.6.32 should be just fine in this
+respect.
+
+> > If you have any documentation on how the i2c messages are handled i=
+n
+> > case of different devices uses, it will help me a lot ! I will sear=
+ch in
+> > the kernel documentation but there is many files about i2c.
+> > And if you know a good i2c driver that I can use as an example to d=
+esign
+> > mine, it will be great !
+
+Best is to look at a driver for a device which is similar in
+functionality to yours.
+
+--=20
+Jean Delvare
