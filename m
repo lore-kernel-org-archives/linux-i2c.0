@@ -1,96 +1,66 @@
-From: "Mylene Josserand" <Mylene.Josserand@navocap.com>
+From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [I2C] informations + advice about messages handling
-Date: Fri, 24 May 2013 10:54:11 +0200
-Message-ID: <CA78C307B8F06747967D122FC656B15398644A@SERVEUR0.nvp.local>
+Date: Fri, 24 May 2013 11:07:06 +0200
+Message-ID: <20130524110706.6052493e@endymion.delvare>
 References: <CA78C307B8F06747967D122FC656B153986448@SERVEUR0.nvp.local>
 	<CAK7N6vpg6QUAKODKO2Msr4+GTASLDpA2cG1teQV3yiwt7D4SSw@mail.gmail.com>
 	<20130524094407.61d0ec42@endymion.delvare>
+	<CA78C307B8F06747967D122FC656B15398644A@SERVEUR0.nvp.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <kernelnewbies-bounces@kernelnewbies.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20130524094407.61d0ec42@endymion.delvare>
-List-Unsubscribe: <http://lists.kernelnewbies.org/mailman/listinfo/kernelnewbies>,
-	<mailto:kernelnewbies-request@kernelnewbies.org?subject=unsubscribe>
-List-Archive: <http://lists.kernelnewbies.org/pipermail/kernelnewbies>
-List-Post: <mailto:kernelnewbies@kernelnewbies.org>
-List-Help: <mailto:kernelnewbies-request@kernelnewbies.org?subject=help>
-List-Subscribe: <http://lists.kernelnewbies.org/mailman/listinfo/kernelnewbies>,
-	<mailto:kernelnewbies-request@kernelnewbies.org?subject=subscribe>
-Sender: kernelnewbies-bounces@kernelnewbies.org
-Errors-To: kernelnewbies-bounces@kernelnewbies.org
-To: Jean Delvare <khali@linux-fr.org>, anish singh <anish198519851985@gmail.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-kernel-mail <linux-kernel@vger.kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, kernelnewbies <kernelnewbies@kernelnewbies.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CA78C307B8F06747967D122FC656B15398644A@SERVEUR0.nvp.local>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mylene Josserand <Mylene.Josserand@navocap.com>
+Cc: anish singh <anish198519851985@gmail.com>, kernelnewbies <kernelnewbies@kernelnewbies.org>, Linux I2C <linux-i2c@vger.kernel.org>, linux-kernel-mail <linux-kernel@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-VGhhbmtzLCBib3RoIG9mIHlvdSwgZm9yIHlvdXIgYW5zd2VycyAhIEl0IGhlbHBzIG1lIGEgbG90
-IHRvIHVuZGVyc3RhbmQgaXQgIQ0KDQpMZSAyNC8wNS8yMDEzIDA5OjIyLCBhbmlzaCBzaW5naCBh
-IMOpY3JpdCA6DQogPiBPbiBGcmksIE1heSAyNCwgMjAxMyBhdCAxMjo0MSBQTSwgTXlsZW5lIEpv
-c3NlcmFuZA0KID4gPE15bGVuZS5Kb3NzZXJhbmRAbmF2b2NhcC5jb20+ICB3cm90ZToNCiA+PiBI
-aSBhbGwsDQogPj4NCiA+Pg0KID4+IEkgYW0gbGVhcm5pbmcgaG93IGkyYyBpcyB3b3JraW5nIGFu
-ZCBJIHJlYWQgdGhhdCwgdG8gd3JpdGUgaW4gYW4gaTJjDQogPj4gcmVnaXN0ZXIsIEkgbmVlZCB0
-byB1c2UgdGhlIGZ1bmN0aW9uICJpMmNfc21idXNfd3JpdGVfYnl0ZV9kYXRhIi4NCiA+IE9ubHkg
-aW4gY2FzZSB5b3VyIGRldmljZSBpcyBzbWJ1cyBjb21wbGlhbnQuDQoNCkFoIG9rYXkgISBBbmQg
-aWYgdGhlcmUgYXJlIG5vdCBTTUJ1cyBjb21wbGlhbnQsIHdoYXQgZnVuY3Rpb24gSSB3aWxsIA0K
-aGF2ZSB0byB1c2UgPw0KV2hhdCBpcyBpdCBkb2luZyBpZiBJIHVzZSB0aGlzIGZ1bmN0aW9uIGFu
-ZCB0aGF0IG15IGRldmljZSBpcyBub3QgU01idXMgDQpjb21wbGlhbnQgPyBJIGhhdmUgc29tZSBk
-aWZmaWN1bHRpZXMgdG8gdW5kZXJzdGFuZCB0aGUgZGlmZmVyZW5jZXMgDQpiZXR3ZWVuIFNNYnVz
-IGFuZCBJMkMgOigNCg0KDQpMZSAyNC8wNS8yMDEzIDA5OjQ0LCBKZWFuIERlbHZhcmUgYSDDqWNy
-aXQgOg0KID4gSGkgQW5pc2gsIE15bMOobmUsDQogPg0KID4gT24gRnJpLCAyNCBNYXkgMjAxMyAx
-Mjo1Mjo0MCArMDUzMCwgYW5pc2ggc2luZ2ggd3JvdGU6DQogPj4gT24gRnJpLCBNYXkgMjQsIDIw
-MTMgYXQgMTI6NDEgUE0sIE15bGVuZSBKb3NzZXJhbmQNCiA+PiA8TXlsZW5lLkpvc3NlcmFuZEBu
-YXZvY2FwLmNvbT4gIHdyb3RlOg0KID4+PiBJIGhhdmUgcmVhZCB0aGF0IHRoaXMgZnVuY3Rpb24g
-ImkyY19zbWJ1c193cml0ZV9ieXRlX2RhdGEiIHVzZXMNCiA+Pj4gImkyY19zbWJ1c194ZmVyIiB3
-aGljaCB1c2VzICJpMmNfbG9ja19hZGFwdGVyIi4NCiA+Pj4gSW4gdGhpcyBmdW5jdGlvbiwgdGhl
-cmUgaXMgYSBtdXRleCBzbyBJIHRob3VnaHQgdGhhdCBpdCB3aWxsIGhhbmRsZSBpdA0KID4+PiBi
-dXQgaXQgc2F5cyAiR2V0IGV4Y2x1c2l2ZSBhY2Nlc3MgdG8gYW4gSTJDIGJ1cyBzZWdtZW50Ii4g
-V2hhdCBpcw0KID4+PiBleGFjdGx5IGFuIEkyQyBzZWdtZW50ID8gSXMgaXQgdGhlIGRldmljZSB3
-ZSBhcmUgdGFsa2luZyBhYm91dCA/IE9yIGlzDQogPj4+IGl0IHRoZSB1c2Ugb2YgdGhlIGkyYyBi
-dXMgPw0KID4+IERvbid0IGtub3cgd2hhdCB5b3UgYXJlIHJlZmVycmluZyBoZXJlLg0KID4NCiA+
-IEluIHRoZSBtb3N0IHNpbXBsZSBjYXNlLCB5b3VyIEkyQyBidXMgaGFzIGEgc2luZ2xlIHNlZ21l
-bnQgc28gInNlZ21lbnQiDQogPiBvciAiYnVzIiBtZWFuIHRoZSBzYW1lIHRoaW5nLg0KID4NCiA+
-IEl0IG9ubHkgc3RhcnRzIG1hdHRlcmluZyB3aGVuIEkyQyBidXMgbXVsdGlwbGV4aW5nIGNvbWVz
-IGludG8gcGxheS4NCiA+IFRoZW4geW91ciBidXMgaXMgc3BsaXQgaW50byBzZWdtZW50cywgd2l0
-aCBvbmUgc2VnbWVudCAodHJ1bmspIGJldHdlZW4NCiA+IHRoZSBtYXN0ZXIgKGNvbnRyb2xsZXIp
-IGFuZCB0aGUgbXVsdGlwbGV4ZXIsIGFuZCBvbmUgb3IgbW9yZSBzZWdtZW50cw0KID4gKGJyYW5j
-aGVzKSBoYW5naW5nIG9mZiB0aGUgbXVsdGlwbGV4ZXIuDQogPg0KID4gVGFrZSBsb29rIGF0DQog
-PiBodHRwczovL2kyYy53aWtpLmtlcm5lbC5vcmcvaW5kZXgucGhwL0kyQ19idXNfbXVsdGlwbGV4
-aW5nDQogPiBmb3IgYSBzYW1wbGUgdG9wb2xvZ3kuDQogPg0KID4gQnV0IGFueXdheSB0aGUgY29t
-bWVudCBpbiBmcm9udCBvZiBpMmNfbG9ja19hZGFwdGVyKCkgaXMgc29tZXdoYXQNCiA+IG1pc2xl
-YWRpbmcuIElmIHlvdSByZWFkIHRoZSBjb2RlIHlvdSdsbCBzZWUgdGhhdCBpdCBhbHdheXMgbG9j
-a3MgdGhlDQogPiB3aG9sZSBidXMgdHJlZSwgYmVjYXVzZSBpdCB1c2VzIHRoZSByb290IHNlZ21l
-bnQncyBtdXRleC4NCg0KDQpUaGFua3MgISBJIHVuZGVyc3RhbmQgbm93Lg0KSW4gbXkgY2FzZSwg
-SSBoYXZlIDIgc2VnbWVudHMgYnV0IGlmIEkgdW5kZXJzdGFuZCwgdGhlIGJ1cyB3aWxsIG5vdCBi
-ZSANCnVzZWQgYXQgdGhlIHNhbWUgdGltZS4NCg0KDQogPj4+IEkgd2lsbCBjZXJ0YWlubHkgaGF2
-ZSB0byBjcmVhdGUgYW4gaTJjIGRyaXZlciBhbmQgSSB3b3VsZCBsaWtlIHRvIGtub3cNCiA+Pj4g
-aWYgdGhpcyAiY29sbGlzaW9uIiBoYW5kbGluZyAoaWYgaXQgaXMgaGFuZGxlZCkgaXMgZG9uZSBp
-biBvbGQga2VybmVsDQogPj4+ICgyLjYuMzIpIG9yIGlzIGl0IGhhbmRsZWQgb25seSBpbiBuZXcg
-a2VybmVsIHZlcnNpb25zID8NCiA+PiBBRkFJSyBjb2xsaXNpb24gaGFuZGxpbmcgYW5kIGRldGVj
-dGlvbiB3YXMgbm90IHN1cHBvcnRlZCB0aWxsIG5vdw0KID4+IGluIGxpbnV4IGtlcm5lbCB1bnRp
-bCByZWNlbnRseSBidXQgSSB0aGluayB0aGlzIHBhdGNoIGlzIGRvaW5nIHRoYXQuDQogPj4gSSBt
-YXkgYmUgd3JvbmcgYnV0IEkgZGlkbid0IHNlZSBjb2xsaXNpb24gaGFuZGxpbmcgaW4gZWFybGll
-ciBsaW51eA0KID4+IGtlcm5lbHMuDQogPj4gaHR0cDovL3RocmVhZC5nbWFuZS5vcmcvZ21hbmUu
-bGludXgua2VybmVsLzE0MTAyNzYNCiA+DQogPiBUaGlzIGlzIGZvciBhIHNwZWNpZmljIGNhc2Uu
-IFRoZSBnZW5lcmFsIGNhc2UgaXMgaGFuZGxlZCBieSB0aGUNCiA+IHBlci1hZGFwdGVyIG11dGV4
-IGZvciB5ZWFycyBub3cuIDIuNi4zMiBzaG91bGQgYmUganVzdCBmaW5lIGluIHRoaXMNCiA+IHJl
-c3BlY3QuDQoNCk9rYXkuIFNvIHRoZSBtdXRleCBibG9ja3MgdGhlIEkyQyBidXMuIEFuZCBpcyBp
-dCBsb2NraW5nIHRoZSBidXMgYXQgdGhlIA0KYmVnaW5uaW5nIG9mIGEgbWVzc2FnZSAoc28gd2hl
-biBhIFNUQVJUIGlzIHNlbmQpIGFuZCB1bmxvY2tpbmcgaXQgYWZ0ZXIgDQp0aGUgU1RPUCA/DQpT
-byBhIGNvbXBsZXRlIG1lc3NhZ2Ugd2lsbCBiZSBzZW50IHRvIGEgc2FtZSBkZXZpY2UgKHRoZSBv
-bmUgd2hpY2ggDQphZGRyZXNzIGlzIGluIHRoZSBkYXRhIGZyYW1lKSA/IEEgZGV2aWNlIGNhbiBu
-b3QgcmVjZWl2ZSBhIGJlZ2lubmluZyBvZiANCm9uZSBtZXNzYWdlIChzbyB3aXRoIGhpcyBhZGRy
-ZXNzKSBhbmQgdGhlIGVuZCBvZiBhbm90aGVyIG1lc3NhZ2UgDQpkZXN0aW5lZCB0byBhbm90aGVy
-IGRldmljZSBbYmVjYXVzZSBvZiAiY29sbGlzaW9uIl0sIGZvciBleGFtcGxlID8NCg0KDQogPj4+
-IElmIHlvdSBoYXZlIGFueSBkb2N1bWVudGF0aW9uIG9uIGhvdyB0aGUgaTJjIG1lc3NhZ2VzIGFy
-ZSBoYW5kbGVkIGluDQogPj4+IGNhc2Ugb2YgZGlmZmVyZW50IGRldmljZXMgdXNlcywgaXQgd2ls
-bCBoZWxwIG1lIGEgbG90ICEgSSB3aWxsIA0Kc2VhcmNoIGluDQogPj4+IHRoZSBrZXJuZWwgZG9j
-dW1lbnRhdGlvbiBidXQgdGhlcmUgaXMgbWFueSBmaWxlcyBhYm91dCBpMmMuDQogPj4+IEFuZCBp
-ZiB5b3Uga25vdyBhIGdvb2QgaTJjIGRyaXZlciB0aGF0IEkgY2FuIHVzZSBhcyBhbiBleGFtcGxl
-IHRvIA0KZGVzaWduDQogPj4+IG1pbmUsIGl0IHdpbGwgYmUgZ3JlYXQgIQ0KID4NCiA+IEJlc3Qg
-aXMgdG8gbG9vayBhdCBhIGRyaXZlciBmb3IgYSBkZXZpY2Ugd2hpY2ggaXMgc2ltaWxhciBpbg0K
-ID4gZnVuY3Rpb25hbGl0eSB0byB5b3Vycy4NCg0KSSB3aWxsIHNlYXJjaCB0aGF0LCB0aGFua3Mg
-Zm9yIHRoZSBhZHZpY2UuDQoNCg0KLS0gDQpNeWzDqG5lIEpPU1NFUkFORA0KX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KS2VybmVsbmV3YmllcyBtYWlsaW5n
-IGxpc3QKS2VybmVsbmV3Ymllc0BrZXJuZWxuZXdiaWVzLm9yZwpodHRwOi8vbGlzdHMua2VybmVs
-bmV3Ymllcy5vcmcvbWFpbG1hbi9saXN0aW5mby9rZXJuZWxuZXdiaWVzCg==
+On Fri, 24 May 2013 10:54:11 +0200, Mylene Josserand wrote:
+> Ah okay ! And if there are not SMBus compliant, what function I will
+> have to use ?
+
+i2c_transfer()
+
+> What is it doing if I use this function and that my device is not SMbus 
+> compliant ?
+
+This would make no sense. Your device understands only specific message
+formats, which should be documented in its datasheet. You have to use
+exactly that in your driver. If the message format matches SMBus, you
+can use the SMBus API, otherwise you must use i2c_transfer() instead.
+
+> I have some difficulties to understand the differences 
+> between SMbus and I2C :(
+
+SMBus is a subset of I2C. With I2C you can have messages of any length
+and any format, with no attached semantics. SMBus restricts the
+possibilities to a few standardized messages formats with semantics. If
+you'd just tell us what your device is, we would be able to tell you if
+SMBus will work or if I2C will be needed.
+
+> (...)
+> In my case, I have 2 segments but if I understand, the bus will not be 
+> used at the same time.
+
+I can't comment on that without knowing the exact topology. In
+particular, do you have two independent segments each with its own
+controller, or are they interconnected in some way? I2C/SMBus is very
+simple with basic topologies but can become difficult with complex ones.
+
+> (...)
+> Okay. So the mutex blocks the I2C bus. And is it locking the bus at the 
+> beginning of a message (so when a START is send) and unlocking it after 
+> the STOP ?
+
+Yes.
+
+> So a complete message will be sent to a same device (the one which 
+> address is in the data frame) ? A device can not receive a beginning of 
+> one message (so with his address) and the end of another message 
+> destined to another device [because of "collision"], for example ?
+
+No, this cannot happen.
+
+-- 
+Jean Delvare
