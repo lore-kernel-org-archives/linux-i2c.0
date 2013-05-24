@@ -1,114 +1,40 @@
-From: "Mylene Josserand" <Mylene.Josserand-207QzMZ2trZBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [I2C] informations + advice about messages handling
-Date: Fri, 24 May 2013 11:52:54 +0200
-Message-ID: <CA78C307B8F06747967D122FC656B15398644B@SERVEUR0.nvp.local>
-References: <CA78C307B8F06747967D122FC656B153986448@SERVEUR0.nvp.local> <CAK7N6vpg6QUAKODKO2Msr4+GTASLDpA2cG1teQV3yiwt7D4SSw@mail.gmail.com> <20130524094407.61d0ec42@endymion.delvare> <CA78C307B8F06747967D122FC656B15398644A@SERVEUR0.nvp.local> <20130524110706.6052493e@endymion.delvare>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH RESEND 0/5] Add I2C support for Allwinner SoCs
+Date: Fri, 24 May 2013 11:58:19 +0200
+Message-ID: <20130524095819.GB8785@lukather>
+References: <1367572669-24354-1-git-send-email-maxime.ripard@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-class: urn:content-classes:message
-In-Reply-To: <20130524110706.6052493e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1367572669-24354-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: anish singh <anish198519851985-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, kernelnewbies <kernelnewbies-7JyXY6prKcjpASu1u0TL5ti2O/JbrIOy@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel-mail <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Le 24/05/2013 11:07, Jean Delvare a =E9crit :
- > On Fri, 24 May 2013 10:54:11 +0200, Mylene Josserand wrote:
- >> Ah okay ! And if there are not SMBus compliant, what function I wil=
-l
- >> have to use ?
- >
- > i2c_transfer()
+Hi Wolfram,
 
+On Fri, May 03, 2013 at 11:17:44AM +0200, Maxime Ripard wrote:
+> Hi,
+> 
+> This patchset adds support for the I2C controller found on most of the
+> Allwinner SoCs, especially the already supported A10 and A13, and the
+> yet to come A31.
+> 
+> It has been tested on a A13-Olinuxino.
+> 
+> Thanks,
+> Maxime
+> 
+> Resent to fix Wolfram's email address.
 
-Okay, logic name ;)
+Do you have comments on this driver?
 
+Thanks,
+Maxime
 
- >> What is it doing if I use this function and that my device is not S=
-Mbus
- >> compliant ?
- >
- > This would make no sense. Your device understands only specific mess=
-age
- > formats, which should be documented in its datasheet. You have to us=
-e
- > exactly that in your driver. If the message format matches SMBus, yo=
-u
- > can use the SMBus API, otherwise you must use i2c_transfer() instead=
-=2E
-
-Very interesting !
-Right now, my company uses the "i2c_smbus_read/write_byte_data"=20
-functions to talk to devices through an application. On the datasheet o=
-f=20
-these devices, I search but did not seem to be SMBus compliant.
-As it was a software which was using these functions, we thought that a=
-=20
-driver (that I would write) should be better. And here I am ! I prefer=20
-to understand well the mechanism before coding anything and it is=20
-interesting !
-
-
- >> I have some difficulties to understand the differences
- >> between SMbus and I2C :(
- >
- > SMBus is a subset of I2C. With I2C you can have messages of any leng=
-th
- > and any format, with no attached semantics. SMBus restricts the
- > possibilities to a few standardized messages formats with semantics.=
- If
- > you'd just tell us what your device is, we would be able to tell you=
- if
- > SMBus will work or if I2C will be needed.
-
-Thanks for the explanation.
-No problem, we have 2 devices used without drivers :
-- an odometer PIC18F24201 : In the datasheet, there is a SMBus select=20
-bit but I don't know if it is SMBus compliant.
-- an audio codec tlv320aic3204 : There is a driver for this device but=20
-for some reasons, we did not use it. Did not find a "SMBus compliant" i=
-n=20
-its datasheet.
-
-
- >> (...)
- >> In my case, I have 2 segments but if I understand, the bus will not=
- be
- >> used at the same time.
- >
- > I can't comment on that without knowing the exact topology. In
- > particular, do you have two independent segments each with its own
- > controller, or are they interconnected in some way? I2C/SMBus is ver=
-y
- > simple with basic topologies but can become difficult with complex o=
-nes.
-
-Yes of course, I understand.
-=46or that, I will ask to our "hardware guy".
-
-
- >> (...)
- >> Okay. So the mutex blocks the I2C bus. And is it locking the bus at=
- the
- >> beginning of a message (so when a START is send) and unlocking it a=
-fter
- >> the STOP ?
- >
- > Yes.
- >
- >> So a complete message will be sent to a same device (the one which
- >> address is in the data frame) ? A device can not receive a beginnin=
-g of
- >> one message (so with his address) and the end of another message
- >> destined to another device [because of "collision"], for example ?
- >
- > No, this cannot happen.
-
-
-Thanks a lot for your help !
-
-
---=20
-Myl=E8ne JOSSERAND
+-- 
+Maxime Ripard, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
