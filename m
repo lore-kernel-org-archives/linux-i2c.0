@@ -1,7 +1,8 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCHv2 3/6] ARM: sun4i: dt: Add i2c muxing options
-Date: Sun, 26 May 2013 12:20:39 +0200
-Message-ID: <1369563642-4390-4-git-send-email-maxime.ripard@free-electrons.com>
+Subject: [PATCHv2 2/6] ARM: sunxi: dt: Add i2c controller nodes
+ to the DTSI
+Date: Sun, 26 May 2013 12:20:38 +0200
+Message-ID: <1369563642-4390-3-git-send-email-maxime.ripard@free-electrons.com>
 References: <1369563642-4390-1-git-send-email-maxime.ripard@free-electrons.com>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
@@ -20,45 +21,88 @@ To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The i2c controller found on the Allwinner A10 has only one muxing option
-available for each controller. Add them to the dtsi
+The Allwinner A10 and A13 both have 3 i2c controller embedded.
+Add those to the common sunxi dtsi.
 
 Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 ---
- arch/arm/boot/dts/sun4i-a10.dtsi | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/arm/boot/dts/sun4i-a10.dtsi | 27 +++++++++++++++++++++++++++
+ arch/arm/boot/dts/sun5i-a13.dtsi | 27 +++++++++++++++++++++++++++
+ 2 files changed, 54 insertions(+)
 
 diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
-index 311dcd4..63f6716 100644
+index e7ef619..311dcd4 100644
 --- a/arch/arm/boot/dts/sun4i-a10.dtsi
 +++ b/arch/arm/boot/dts/sun4i-a10.dtsi
-@@ -199,6 +199,27 @@
- 				allwinner,drive = <0>;
- 				allwinner,pull = <0>;
- 			};
-+
-+			i2c0_pins_a: i2c0@0 {
-+				allwinner,pins = "PB0", "PB1";
-+				allwinner,function = "i2c0";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
-+
-+			i2c1_pins_a: i2c1@0 {
-+				allwinner,pins = "PB18", "PB19";
-+				allwinner,function = "i2c1";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
-+
-+			i2c2_pins_a: i2c2@0 {
-+				allwinner,pins = "PB20", "PB21";
-+				allwinner,function = "i2c2";
-+				allwinner,drive = <0>;
-+				allwinner,pull = <1>;
-+			};
+@@ -292,5 +292,32 @@
+ 			clocks = <&apb1_gates 23>;
+ 			status = "disabled";
  		};
- 
- 		timer@01c20c00 {
++
++		i2c0: i2c@01c2ac00 {
++			compatible = "allwinner,sun4i-i2c";
++			reg = <0x01c2ac00 0x400>;
++			interrupts = <7>;
++			clocks = <&apb1_gates 0>;
++			clock-frequency = <100000>;
++			status = "disabled";
++		};
++
++		i2c1: i2c@01c2b000 {
++			compatible = "allwinner,sun4i-i2c";
++			reg = <0x01c2b000 0x400>;
++			interrupts = <8>;
++			clocks = <&apb1_gates 1>;
++			clock-frequency = <100000>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@01c2b400 {
++			compatible = "allwinner,sun4i-i2c";
++			reg = <0x01c2b400 0x400>;
++			interrupts = <9>;
++			clocks = <&apb1_gates 2>;
++			clock-frequency = <100000>;
++			status = "disabled";
++		};
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/sun5i-a13.dtsi b/arch/arm/boot/dts/sun5i-a13.dtsi
+index 8ba65c1..16df784 100644
+--- a/arch/arm/boot/dts/sun5i-a13.dtsi
++++ b/arch/arm/boot/dts/sun5i-a13.dtsi
+@@ -215,5 +215,32 @@
+ 			clocks = <&apb1_gates 19>;
+ 			status = "disabled";
+ 		};
++
++		i2c0: i2c@01c2ac00 {
++			compatible = "allwinner,sun4i-i2c";
++			reg = <0x01c2ac00 0x400>;
++			interrupts = <7>;
++			clocks = <&apb1_gates 0>;
++			clock-frequency = <100000>;
++			status = "disabled";
++		};
++
++		i2c1: i2c@01c2b000 {
++			compatible = "allwinner,sun4i-i2c";
++			reg = <0x01c2b000 0x400>;
++			interrupts = <8>;
++			clocks = <&apb1_gates 1>;
++			clock-frequency = <100000>;
++			status = "disabled";
++		};
++
++		i2c2: i2c@01c2b400 {
++			compatible = "allwinner,sun4i-i2c";
++			reg = <0x01c2b400 0x400>;
++			interrupts = <9>;
++			clocks = <&apb1_gates 2>;
++			clock-frequency = <100000>;
++			status = "disabled";
++		};
+ 	};
+ };
 -- 
 1.8.2.3
