@@ -1,34 +1,64 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH 1/5] i2c: sunxi: Add Allwinner A1X i2c driver
-Date: Sat, 25 May 2013 17:22:31 +0200
-Message-ID: <20130525152231.GF17847@lukather>
-References: <1367572669-24354-1-git-send-email-maxime.ripard@free-electrons.com>
- <1367572669-24354-2-git-send-email-maxime.ripard@free-electrons.com>
- <2868419.vHvm2rOVdd@flatron>
+Subject: [PATCHv2 3/6] ARM: sun4i: dt: Add i2c muxing options
+Date: Sun, 26 May 2013 12:20:39 +0200
+Message-ID: <1369563642-4390-4-git-send-email-maxime.ripard@free-electrons.com>
+References: <1369563642-4390-1-git-send-email-maxime.ripard@free-electrons.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <2868419.vHvm2rOVdd@flatron>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBA6EQ6GQKGQE5B76KCA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1369563642-4390-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post?hl=en-GB>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/?hl=en-GB>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi?hl=en-GB>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
+ <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
+ <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Tomasz,
+The i2c controller found on the Allwinner A10 has only one muxing option
+available for each controller. Add them to the dtsi
 
-On Sat, May 25, 2013 at 02:06:51PM +0200, Tomasz Figa wrote:
-> Hi Maxime,
-> 
-> Overall the driver looks good, just some minor nitpicks inline.
+Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ arch/arm/boot/dts/sun4i-a10.dtsi | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
-Thanks for the review!
-
-I'll fix the comments you had and send a new version.
-
-Maxime
-
+diff --git a/arch/arm/boot/dts/sun4i-a10.dtsi b/arch/arm/boot/dts/sun4i-a10.dtsi
+index 311dcd4..63f6716 100644
+--- a/arch/arm/boot/dts/sun4i-a10.dtsi
++++ b/arch/arm/boot/dts/sun4i-a10.dtsi
+@@ -199,6 +199,27 @@
+ 				allwinner,drive = <0>;
+ 				allwinner,pull = <0>;
+ 			};
++
++			i2c0_pins_a: i2c0@0 {
++				allwinner,pins = "PB0", "PB1";
++				allwinner,function = "i2c0";
++				allwinner,drive = <0>;
++				allwinner,pull = <1>;
++			};
++
++			i2c1_pins_a: i2c1@0 {
++				allwinner,pins = "PB18", "PB19";
++				allwinner,function = "i2c1";
++				allwinner,drive = <0>;
++				allwinner,pull = <1>;
++			};
++
++			i2c2_pins_a: i2c2@0 {
++				allwinner,pins = "PB20", "PB21";
++				allwinner,function = "i2c2";
++				allwinner,drive = <0>;
++				allwinner,pull = <1>;
++			};
+ 		};
+ 
+ 		timer@01c20c00 {
 -- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.8.2.3
