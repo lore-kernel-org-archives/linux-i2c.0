@@ -1,86 +1,126 @@
-From: Oleksandr Dmytryshyn <oleksandr.dmytryshyn@ti.com>
-Subject: [PATCH 1/1] i2c: omap: correct usage of the interrupt enable register
-Date: Wed, 29 May 2013 10:35:44 +0300
-Message-ID: <1369812944-685-2-git-send-email-oleksandr.dmytryshyn@ti.com>
-References: <1369812944-685-1-git-send-email-oleksandr.dmytryshyn@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Nikolay Balandin <n.a.balandin@gmail.com>
+Subject: [PATCH v3 1/2] drivers/misc: at24: convert to use devm_kzalloc
+Date: Tue, 28 May 2013 13:00:20 -0700
+Message-ID: <1369771220-5492-1-git-send-email-n.a.balandin@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1369812944-685-1-git-send-email-oleksandr.dmytryshyn@ti.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Bill Pemberton <wfp5p@virginia.edu>, Jingoo Han <jg1.han@samsung.com>, Alexandre Pereira da Silva <aletes.xgr@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Nikolay Balandin <nbalandin@dev.rtsoft.ru>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Starting from the OMAP chips with version2 registers scheme there
-are 2 registers (I2C_IRQENABLE_SET and I2C_IRQENABLE_CLR) to manage
-interrupts instead of the older OMAP chips with old scheme which have
-only one register (I2C_IE). Now we should use I2C_IRQENABLE_SET
-register for enabling interrupts and  I2C_IRQENABLE_CLR register
-for disabling interrupts.
+From: Nikolay Balandin <nbalandin@dev.rtsoft.ru>
 
-Because the registers I2C_IRQENABLE_SET and I2C_IE have the same
-addresses, the interrupt enabling procedure is unchanged.
+Use devm_kzalloc to make cleanup paths simpler
 
-Change-Id: Ie49165990a4e7c67a4ccf2e4a66cd3b78f2e2b70
-Signed-off-by: Oleksandr Dmytryshyn <oleksandr.dmytryshyn@ti.com>
+Signed-off-by: Nikolay Balandin <nbalandin@dev.rtsoft.ru>
 ---
- drivers/i2c/busses/i2c-omap.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/misc/eeprom/at24.c |   44 +++++++++++++++-----------------------------
+ 1 file changed, 15 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index e02f9e3..2419899 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -180,6 +180,8 @@ enum {
- #define I2C_OMAP_ERRATA_I207		(1 << 0)
- #define I2C_OMAP_ERRATA_I462		(1 << 1)
- 
-+#define OMAP_I2C_INTERRUPTS_MASK	0x6FFF
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 2baeec5..5d4fd69 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -492,10 +492,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 	if (client->dev.platform_data) {
+ 		chip = *(struct at24_platform_data *)client->dev.platform_data;
+ 	} else {
+-		if (!id->driver_data) {
+-			err = -ENODEV;
+-			goto err_out;
+-		}
++		if (!id->driver_data)
++			return -ENODEV;
 +
- struct omap_i2c_dev {
- 	spinlock_t		lock;		/* IRQ synchronization */
- 	struct device		*dev;
-@@ -193,6 +195,7 @@ struct omap_i2c_dev {
- 						    long latency);
- 	u32			speed;		/* Speed of bus in kHz */
- 	u32			flags;
-+	u16			scheme;
- 	u16			cmd_err;
- 	u8			*buf;
- 	u8			*regs;
-@@ -1082,7 +1085,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	int irq;
- 	int r;
- 	u32 rev;
--	u16 minor, major, scheme;
-+	u16 minor, major;
+ 		magic = id->driver_data;
+ 		chip.byte_len = BIT(magic & AT24_BITMASK(AT24_SIZE_BYTELEN));
+ 		magic >>= AT24_SIZE_BYTELEN;
+@@ -519,8 +518,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			"byte_len looks suspicious (no power of 2)!\n");
+ 	if (!chip.page_size) {
+ 		dev_err(&client->dev, "page_size must not be 0!\n");
+-		err = -EINVAL;
+-		goto err_out;
++		return -EINVAL;
+ 	}
+ 	if (!is_power_of_2(chip.page_size))
+ 		dev_warn(&client->dev,
+@@ -528,10 +526,9 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
  
- 	/* NOTE: driver uses the static register mapping */
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -1159,8 +1162,8 @@ omap_i2c_probe(struct platform_device *pdev)
- 	 */
- 	rev = __raw_readw(dev->base + 0x04);
+ 	/* Use I2C operations unless we're stuck with SMBus extensions. */
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+-		if (chip.flags & AT24_FLAG_ADDR16) {
+-			err = -EPFNOSUPPORT;
+-			goto err_out;
+-		}
++		if (chip.flags & AT24_FLAG_ADDR16)
++			return -EPFNOSUPPORT;
++
+ 		if (i2c_check_functionality(client->adapter,
+ 				I2C_FUNC_SMBUS_READ_I2C_BLOCK)) {
+ 			use_smbus = I2C_SMBUS_I2C_BLOCK_DATA;
+@@ -542,8 +539,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 				I2C_FUNC_SMBUS_READ_BYTE_DATA)) {
+ 			use_smbus = I2C_SMBUS_BYTE_DATA;
+ 		} else {
+-			err = -EPFNOSUPPORT;
+-			goto err_out;
++			return -EPFNOSUPPORT;
+ 		}
+ 	}
  
--	scheme = OMAP_I2C_SCHEME(rev);
--	switch (scheme) {
-+	dev->scheme = OMAP_I2C_SCHEME(rev);
-+	switch (dev->scheme) {
- 	case OMAP_I2C_SCHEME_0:
- 		dev->regs = (u8 *)reg_map_ip_v1;
- 		dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG);
-@@ -1289,7 +1292,11 @@ static int omap_i2c_runtime_suspend(struct device *dev)
+@@ -553,12 +549,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
+ 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
  
- 	_dev->iestate = omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
+-	at24 = kzalloc(sizeof(struct at24_data) +
++	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
+ 		num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);
+-	if (!at24) {
+-		err = -ENOMEM;
+-		goto err_out;
+-	}
++	if (!at24)
++		return -ENOMEM;
  
--	omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
-+	if (_dev->scheme == OMAP_I2C_SCHEME_0)
-+		omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
-+	else
-+		omap_i2c_write_reg(_dev, OMAP_I2C_IP_V2_IRQENABLE_CLR,
-+				   OMAP_I2C_INTERRUPTS_MASK);
+ 	mutex_init(&at24->lock);
+ 	at24->use_smbus = use_smbus;
+@@ -596,11 +590,10 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			at24->write_max = write_max;
  
- 	if (_dev->rev < OMAP_I2C_OMAP1_REV_2) {
- 		omap_i2c_read_reg(_dev, OMAP_I2C_IV_REG); /* Read clears */
+ 			/* buffer (data + address at the beginning) */
+-			at24->writebuf = kmalloc(write_max + 2, GFP_KERNEL);
+-			if (!at24->writebuf) {
+-				err = -ENOMEM;
+-				goto err_struct;
+-			}
++			at24->writebuf = devm_kzalloc(&client->dev,
++				write_max + 2, GFP_KERNEL);
++			if (!at24->writebuf)
++				return -ENOMEM;
+ 		} else {
+ 			dev_warn(&client->dev,
+ 				"cannot write due to controller restrictions.");
+@@ -648,11 +641,6 @@ err_clients:
+ 		if (at24->client[i])
+ 			i2c_unregister_device(at24->client[i]);
+ 
+-	kfree(at24->writebuf);
+-err_struct:
+-	kfree(at24);
+-err_out:
+-	dev_dbg(&client->dev, "probe error %d\n", err);
+ 	return err;
+ }
+ 
+@@ -667,8 +655,6 @@ static int at24_remove(struct i2c_client *client)
+ 	for (i = 1; i < at24->num_addresses; i++)
+ 		i2c_unregister_device(at24->client[i]);
+ 
+-	kfree(at24->writebuf);
+-	kfree(at24);
+ 	return 0;
+ }
+ 
 -- 
-1.8.2.rc2
+1.7.9.5
