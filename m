@@ -1,84 +1,126 @@
-From: Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCHv3 0/6] Add I2C support for Allwinner SoCs
-Date: Mon, 27 May 2013 21:17:27 +0200
-Message-ID: <2987322.J4qAl07e8R@flatron>
-References: <1369648843-1640-1-git-send-email-maxime.ripard@free-electrons.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH RFC v3 1/3] i2c: i2c-bfin-twi: convert to devm_* API
+Date: Tue, 28 May 2013 14:42:22 +0800
+Message-ID: <51A451CE.8070801@huawei.com>
+References: <1369310405-21112-1-git-send-email-libo.chen@huawei.com> <CAK9yfHx7ifnWjKCVc0Oju-28PdosF81OpVC5S5Vdj6hDSnfQfw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-sunxi+bncBCCYVXM26EFRBS7CR2GQKGQEFJTABAA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1369648843-1640-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post?hl=en-GB>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/?hl=en-GB>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi?hl=en-GB>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
- <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
- <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-To: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAK9yfHx7ifnWjKCVc0Oju-28PdosF81OpVC5S5Vdj6hDSnfQfw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org, sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Maxime,
+thanks for your review. I will update later.
 
-On Monday 27 of May 2013 12:00:37 Maxime Ripard wrote:
-> Hi,
->=20
-> This patchset adds support for the I2C controller found on most of the
-> Allwinner SoCs, especially the already supported A10 and A13, and the
-> yet to come A31.
->=20
-> It has been tested on a A13-Olinuxino.
->=20
-> Thanks,
-> Maxime
->=20
-> Changes from v2:
->   * Slightly modified the switch comments again
->   * Removed the of_* calls in favor of platform_get_* functions
->=20
-> Changes from v1:
->   * Added comments to the switch statements to clarify when the fall
-> through to the next case is made on purpose
->   * Use devm_ioremap_resource instead of of_iomap
->   * Moved the reset after enabling the clocks
->   * Added Emilio Lopez' patch to add the available i2c controllers to
-> the cubieboard
->=20
-> Emilio L=F3pez (1):
->   ARM: sun4i: cubieboard: Enable the i2c controllers
->=20
-> Maxime Ripard (5):
->   i2c: sunxi: Add Allwinner A1X i2c driver
->   ARM: sunxi: dt: Add i2c controller nodes to the DTSI
->   ARM: sun4i: dt: Add i2c muxing options
->   ARM: sun5i: dt: Add i2c muxing options
->   ARM: sun5i: olinuxino: Enable the i2c controllers
->=20
->  .../devicetree/bindings/i2c/i2c-sunxi.txt          |  19 +
->  arch/arm/boot/dts/sun4i-a10-cubieboard.dts         |  12 +
->  arch/arm/boot/dts/sun4i-a10.dtsi                   |  48 +++
->  arch/arm/boot/dts/sun5i-a13-olinuxino.dts          |  18 +
->  arch/arm/boot/dts/sun5i-a13.dtsi                   |  48 +++
->  drivers/i2c/busses/Kconfig                         |  10 +
->  drivers/i2c/busses/Makefile                        |   1 +
->  drivers/i2c/busses/i2c-sunxi.c                     | 444
-> +++++++++++++++++++++ 8 files changed, 600 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-sunxi.txt
->  create mode 100644 drivers/i2c/busses/i2c-sunxi.c
+Libo
 
-All the patches look good to me.
-
-Reviewed-by: Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-
-Best regards,
-Tomasz
-
---=20
-You received this message because you are subscribed to the Google Groups "=
-linux-sunxi" group.
-To unsubscribe from this group and stop receiving emails from it, send an e=
-mail to linux-sunxi+unsubscribe-/JYPxA39Uh5TLH3MbocFF+G/Ez6ZCGd0@public.gmane.org
-For more options, visit https://groups.google.com/groups/opt_out.
+On 2013/5/24 11:19, Sachin Kamat wrote:
+> On 23 May 2013 17:30, Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org> wrote:
+>> peripheral_request_list has got free if any one faild, so no need to free again in err case.
+>> aovid this, convert them to devm_* API
+>>
+>> Signed-off-by: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+> 
+> It is a good practice to include changelog while submitting revised
+> versions of the patch.
+> 
+>> ---
+>>  drivers/i2c/busses/i2c-bfin-twi.c |   38 +++++++++---------------------------
+>>  1 files changed, 10 insertions(+), 28 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+>> index 05080c4..2b99c48 100644
+>> --- a/drivers/i2c/busses/i2c-bfin-twi.c
+>> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
+>> @@ -621,35 +621,27 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+>>         int rc;
+>>         unsigned int clkhilow;
+>>
+>> -       iface = kzalloc(sizeof(struct bfin_twi_iface), GFP_KERNEL);
+>> +       iface = devm_kzalloc(&pdev->dev, sizeof(struct bfin_twi_iface),
+>> +                       GFP_KERNEL);
+>>         if (!iface) {
+>>                 dev_err(&pdev->dev, "Cannot allocate memory\n");
+> 
+> This error message is not really required.
+> 
+>> -               rc = -ENOMEM;
+>> -               goto out_error_nomem;
+>> +               return -ENOMEM;
+>>         }
+>>
+>>         spin_lock_init(&(iface->lock));
+>>
+>>         /* Find and map our resources */
+>>         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> -       if (res == NULL) {
+>> -               dev_err(&pdev->dev, "Cannot get IORESOURCE_MEM\n");
+>> -               rc = -ENOENT;
+>> -               goto out_error_get_res;
+>> -       }
+>> -
+>> -       iface->regs_base = ioremap(res->start, resource_size(res));
+>> -       if (iface->regs_base == NULL) {
+>> +       iface->regs_base = devm_ioremap_resource(&pdev->dev, res);
+>> +       if (IS_ERR(iface->regs_base)) {
+>>                 dev_err(&pdev->dev, "Cannot map IO\n");
+> 
+> devm_ioremap_resource prints out the error messages. So the above line
+> is redundant.
+> 
+>> -               rc = -ENXIO;
+>> -               goto out_error_ioremap;
+>> +               return -ENXIO;
+> 
+> Why not return PTR_ERR(iface->regs_base)?
+> 
+>>         }
+>>
+>>         iface->irq = platform_get_irq(pdev, 0);
+>>         if (iface->irq < 0) {
+>>                 dev_err(&pdev->dev, "No IRQ specified\n");
+>> -               rc = -ENOENT;
+>> -               goto out_error_no_irq;
+>> +               return -ENOENT;
+>>         }
+>>
+>>         p_adap = &iface->adap;
+>> @@ -666,10 +658,10 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+>>                                         "i2c-bfin-twi");
+>>         if (rc) {
+>>                 dev_err(&pdev->dev, "Can't setup pin mux!\n");
+>> -               goto out_error_pin_mux;
+>> +               return rc;
+>>         }
+>>
+>> -       rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
+>> +       rc = devm_request_irq(&pdev->dev, iface->irq, bfin_twi_interrupt_entry,
+>>                 0, pdev->name, iface);
+>>         if (rc) {
+>>                 dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
+>> @@ -707,16 +699,9 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+>>         return 0;
+>>
+>>  out_error_add_adapter:
+>> -       free_irq(iface->irq, iface);
+>>  out_error_req_irq:
+>> -out_error_no_irq:
+>>         peripheral_free_list((unsigned short *)pdev->dev.platform_data);
+>> -out_error_pin_mux:
+>> -       iounmap(iface->regs_base);
+>> -out_error_ioremap:
+>> -out_error_get_res:
+>> -       kfree(iface);
+>> -out_error_nomem:
+>> +
+> 
+> Empty line not required.
+> 
+> You could probably combine all the empty labels into one meaningful label above.
+> 
+>>         return rc;
+> 
+> 
