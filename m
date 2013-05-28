@@ -1,126 +1,94 @@
-From: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH RFC v3 1/3] i2c: i2c-bfin-twi: convert to devm_* API
-Date: Tue, 28 May 2013 14:42:22 +0800
-Message-ID: <51A451CE.8070801@huawei.com>
-References: <1369310405-21112-1-git-send-email-libo.chen@huawei.com> <CAK9yfHx7ifnWjKCVc0Oju-28PdosF81OpVC5S5Vdj6hDSnfQfw@mail.gmail.com>
+From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c:i2c-bfin-twi: Read and write the FIFO in loop.
+Date: Tue, 28 May 2013 18:41:09 +0800
+Message-ID: <1369737669-14226-1-git-send-email-sonic.adi@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAK9yfHx7ifnWjKCVc0Oju-28PdosF81OpVC5S5Vdj6hDSnfQfw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org, sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: buildroot-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-thanks for your review. I will update later.
+From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
 
-Libo
+Reported-by: Bob Maris <mail-qjpqXGGzJR7sq35pWSNszA@public.gmane.org>
 
-On 2013/5/24 11:19, Sachin Kamat wrote:
-> On 23 May 2013 17:30, Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org> wrote:
->> peripheral_request_list has got free if any one faild, so no need to free again in err case.
->> aovid this, convert them to devm_* API
->>
->> Signed-off-by: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-> 
-> It is a good practice to include changelog while submitting revised
-> versions of the patch.
-> 
->> ---
->>  drivers/i2c/busses/i2c-bfin-twi.c |   38 +++++++++---------------------------
->>  1 files changed, 10 insertions(+), 28 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
->> index 05080c4..2b99c48 100644
->> --- a/drivers/i2c/busses/i2c-bfin-twi.c
->> +++ b/drivers/i2c/busses/i2c-bfin-twi.c
->> @@ -621,35 +621,27 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->>         int rc;
->>         unsigned int clkhilow;
->>
->> -       iface = kzalloc(sizeof(struct bfin_twi_iface), GFP_KERNEL);
->> +       iface = devm_kzalloc(&pdev->dev, sizeof(struct bfin_twi_iface),
->> +                       GFP_KERNEL);
->>         if (!iface) {
->>                 dev_err(&pdev->dev, "Cannot allocate memory\n");
-> 
-> This error message is not really required.
-> 
->> -               rc = -ENOMEM;
->> -               goto out_error_nomem;
->> +               return -ENOMEM;
->>         }
->>
->>         spin_lock_init(&(iface->lock));
->>
->>         /* Find and map our resources */
->>         res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> -       if (res == NULL) {
->> -               dev_err(&pdev->dev, "Cannot get IORESOURCE_MEM\n");
->> -               rc = -ENOENT;
->> -               goto out_error_get_res;
->> -       }
->> -
->> -       iface->regs_base = ioremap(res->start, resource_size(res));
->> -       if (iface->regs_base == NULL) {
->> +       iface->regs_base = devm_ioremap_resource(&pdev->dev, res);
->> +       if (IS_ERR(iface->regs_base)) {
->>                 dev_err(&pdev->dev, "Cannot map IO\n");
-> 
-> devm_ioremap_resource prints out the error messages. So the above line
-> is redundant.
-> 
->> -               rc = -ENXIO;
->> -               goto out_error_ioremap;
->> +               return -ENXIO;
-> 
-> Why not return PTR_ERR(iface->regs_base)?
-> 
->>         }
->>
->>         iface->irq = platform_get_irq(pdev, 0);
->>         if (iface->irq < 0) {
->>                 dev_err(&pdev->dev, "No IRQ specified\n");
->> -               rc = -ENOENT;
->> -               goto out_error_no_irq;
->> +               return -ENOENT;
->>         }
->>
->>         p_adap = &iface->adap;
->> @@ -666,10 +658,10 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->>                                         "i2c-bfin-twi");
->>         if (rc) {
->>                 dev_err(&pdev->dev, "Can't setup pin mux!\n");
->> -               goto out_error_pin_mux;
->> +               return rc;
->>         }
->>
->> -       rc = request_irq(iface->irq, bfin_twi_interrupt_entry,
->> +       rc = devm_request_irq(&pdev->dev, iface->irq, bfin_twi_interrupt_entry,
->>                 0, pdev->name, iface);
->>         if (rc) {
->>                 dev_err(&pdev->dev, "Can't get IRQ %d !\n", iface->irq);
->> @@ -707,16 +699,9 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
->>         return 0;
->>
->>  out_error_add_adapter:
->> -       free_irq(iface->irq, iface);
->>  out_error_req_irq:
->> -out_error_no_irq:
->>         peripheral_free_list((unsigned short *)pdev->dev.platform_data);
->> -out_error_pin_mux:
->> -       iounmap(iface->regs_base);
->> -out_error_ioremap:
->> -out_error_get_res:
->> -       kfree(iface);
->> -out_error_nomem:
->> +
-> 
-> Empty line not required.
-> 
-> You could probably combine all the empty labels into one meaningful label above.
-> 
->>         return rc;
-> 
-> 
+TWI transfer interrupts may be lost when system is heavily handling other
+interrupts, while current transfer handler depends on each accurate interrupt
+and misses some data in this case. Because there are 2 2-byte FIFOs in blackfin
+TWI controller, the occurrence of the data loss can be reduced by reading till
+the RX FIFO is empty and writing till the TX FIFO is full.
+
+Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-bfin-twi.c | 47 ++++++++++++++++++++++-----------------
+ 1 file changed, 27 insertions(+), 20 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index 05080c4..13ea1c2 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -39,33 +39,40 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
+ 	unsigned short mast_stat = read_MASTER_STAT(iface);
+ 
+ 	if (twi_int_status & XMTSERV) {
++		if (iface->writeNum <= 0) {
++			/* start receive immediately after complete sending in
++			 * combine mode.
++			 */
++			if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
++				write_MASTER_CTL(iface,
++					read_MASTER_CTL(iface) | MDIR);
++			else if (iface->manual_stop)
++				write_MASTER_CTL(iface,
++					read_MASTER_CTL(iface) | STOP);
++			else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
++				iface->cur_msg + 1 < iface->msg_num) {
++				if (iface->pmsg[iface->cur_msg + 1].flags &
++					I2C_M_RD)
++					write_MASTER_CTL(iface,
++						read_MASTER_CTL(iface) |
++						MDIR);
++				else
++					write_MASTER_CTL(iface,
++						read_MASTER_CTL(iface) &
++						~MDIR);
++			}
++		}
+ 		/* Transmit next data */
+-		if (iface->writeNum > 0) {
++		while (iface->writeNum > 0 &&
++			(read_FIFO_STAT(iface) & XMTSTAT) != XMT_FULL) {
+ 			SSYNC();
+ 			write_XMT_DATA8(iface, *(iface->transPtr++));
+ 			iface->writeNum--;
+ 		}
+-		/* start receive immediately after complete sending in
+-		 * combine mode.
+-		 */
+-		else if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
+-			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) | MDIR);
+-		else if (iface->manual_stop)
+-			write_MASTER_CTL(iface,
+-				read_MASTER_CTL(iface) | STOP);
+-		else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
+-		         iface->cur_msg + 1 < iface->msg_num) {
+-			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
+-				write_MASTER_CTL(iface,
+-					read_MASTER_CTL(iface) | MDIR);
+-			else
+-				write_MASTER_CTL(iface,
+-					read_MASTER_CTL(iface) & ~MDIR);
+-		}
+ 	}
+ 	if (twi_int_status & RCVSERV) {
+-		if (iface->readNum > 0) {
++		while (iface->readNum > 0 &&
++			(read_FIFO_STAT(iface) & RCVSTAT)) {
+ 			/* Receive next data */
+ 			*(iface->transPtr) = read_RCV_DATA8(iface);
+ 			if (iface->cur_mode == TWI_I2C_MODE_COMBINED) {
+-- 
+1.8.2.3
