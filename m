@@ -1,94 +1,99 @@
-From: Sonic Zhang <sonic.adi-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c:i2c-bfin-twi: Read and write the FIFO in loop.
-Date: Tue, 28 May 2013 18:41:09 +0800
-Message-ID: <1369737669-14226-1-git-send-email-sonic.adi@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Nikolay Balandin <n.a.balandin-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/1] drivers/misc: at2x: use devm_kzalloc() to make cleanup paths simpler
+Date: Tue, 28 May 2013 17:00:13 +0400
+Message-ID: <1369746013-29162-1-git-send-email-n.a.balandin@gmail.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: buildroot-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Bill Pemberton <wfp5p-4Ng6DfrEGID2fBVCVOL8/A@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nikolay Balandin <nbalandin-jFhMxQ4mL6a2X5qOxWx28w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+From: Nikolay Balandin <nbalandin-jFhMxQ4mL6a2X5qOxWx28w@public.gmane.org>
 
-Reported-by: Bob Maris <mail-qjpqXGGzJR7sq35pWSNszA@public.gmane.org>
-
-TWI transfer interrupts may be lost when system is heavily handling other
-interrupts, while current transfer handler depends on each accurate interrupt
-and misses some data in this case. Because there are 2 2-byte FIFOs in blackfin
-TWI controller, the occurrence of the data loss can be reduced by reading till
-the RX FIFO is empty and writing till the TX FIFO is full.
-
-Signed-off-by: Sonic Zhang <sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Nikolay Balandin <nbalandin-jFhMxQ4mL6a2X5qOxWx28w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c | 47 ++++++++++++++++++++++-----------------
- 1 file changed, 27 insertions(+), 20 deletions(-)
+ drivers/misc/eeprom/at24.c |   15 +++++----------
+ drivers/misc/eeprom/at25.c |    5 ++---
+ 2 files changed, 7 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 05080c4..13ea1c2 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -39,33 +39,40 @@ static void bfin_twi_handle_interrupt(struct bfin_twi_iface *iface,
- 	unsigned short mast_stat = read_MASTER_STAT(iface);
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 2baeec5..e110662 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -553,7 +553,7 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 		num_addresses =	DIV_ROUND_UP(chip.byte_len,
+ 			(chip.flags & AT24_FLAG_ADDR16) ? 65536 : 256);
  
- 	if (twi_int_status & XMTSERV) {
-+		if (iface->writeNum <= 0) {
-+			/* start receive immediately after complete sending in
-+			 * combine mode.
-+			 */
-+			if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
-+				write_MASTER_CTL(iface,
-+					read_MASTER_CTL(iface) | MDIR);
-+			else if (iface->manual_stop)
-+				write_MASTER_CTL(iface,
-+					read_MASTER_CTL(iface) | STOP);
-+			else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
-+				iface->cur_msg + 1 < iface->msg_num) {
-+				if (iface->pmsg[iface->cur_msg + 1].flags &
-+					I2C_M_RD)
-+					write_MASTER_CTL(iface,
-+						read_MASTER_CTL(iface) |
-+						MDIR);
-+				else
-+					write_MASTER_CTL(iface,
-+						read_MASTER_CTL(iface) &
-+						~MDIR);
-+			}
-+		}
- 		/* Transmit next data */
--		if (iface->writeNum > 0) {
-+		while (iface->writeNum > 0 &&
-+			(read_FIFO_STAT(iface) & XMTSTAT) != XMT_FULL) {
- 			SSYNC();
- 			write_XMT_DATA8(iface, *(iface->transPtr++));
- 			iface->writeNum--;
- 		}
--		/* start receive immediately after complete sending in
--		 * combine mode.
--		 */
--		else if (iface->cur_mode == TWI_I2C_MODE_COMBINED)
--			write_MASTER_CTL(iface,
--				read_MASTER_CTL(iface) | MDIR);
--		else if (iface->manual_stop)
--			write_MASTER_CTL(iface,
--				read_MASTER_CTL(iface) | STOP);
--		else if (iface->cur_mode == TWI_I2C_MODE_REPEAT &&
--		         iface->cur_msg + 1 < iface->msg_num) {
--			if (iface->pmsg[iface->cur_msg + 1].flags & I2C_M_RD)
--				write_MASTER_CTL(iface,
--					read_MASTER_CTL(iface) | MDIR);
--			else
--				write_MASTER_CTL(iface,
--					read_MASTER_CTL(iface) & ~MDIR);
--		}
+-	at24 = kzalloc(sizeof(struct at24_data) +
++	at24 = devm_kzalloc(&client->dev, sizeof(struct at24_data) +
+ 		num_addresses * sizeof(struct i2c_client *), GFP_KERNEL);
+ 	if (!at24) {
+ 		err = -ENOMEM;
+@@ -596,10 +596,12 @@ static int at24_probe(struct i2c_client *client, const struct i2c_device_id *id)
+ 			at24->write_max = write_max;
+ 
+ 			/* buffer (data + address at the beginning) */
+-			at24->writebuf = kmalloc(write_max + 2, GFP_KERNEL);
++			at24->writebuf = devm_kzalloc(&client->dev,
++				write_max + 2, GFP_KERNEL);
++
+ 			if (!at24->writebuf) {
+ 				err = -ENOMEM;
+-				goto err_struct;
++				goto err_out;
+ 			}
+ 		} else {
+ 			dev_warn(&client->dev,
+@@ -647,10 +649,6 @@ err_clients:
+ 	for (i = 1; i < num_addresses; i++)
+ 		if (at24->client[i])
+ 			i2c_unregister_device(at24->client[i]);
+-
+-	kfree(at24->writebuf);
+-err_struct:
+-	kfree(at24);
+ err_out:
+ 	dev_dbg(&client->dev, "probe error %d\n", err);
+ 	return err;
+@@ -666,9 +664,6 @@ static int at24_remove(struct i2c_client *client)
+ 
+ 	for (i = 1; i < at24->num_addresses; i++)
+ 		i2c_unregister_device(at24->client[i]);
+-
+-	kfree(at24->writebuf);
+-	kfree(at24);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
+index ad8fd8e..f9d35c9 100644
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -404,7 +404,8 @@ static int at25_probe(struct spi_device *spi)
+ 		goto fail;
  	}
- 	if (twi_int_status & RCVSERV) {
--		if (iface->readNum > 0) {
-+		while (iface->readNum > 0 &&
-+			(read_FIFO_STAT(iface) & RCVSTAT)) {
- 			/* Receive next data */
- 			*(iface->transPtr) = read_RCV_DATA8(iface);
- 			if (iface->cur_mode == TWI_I2C_MODE_COMBINED) {
+ 
+-	if (!(at25 = kzalloc(sizeof *at25, GFP_KERNEL))) {
++	at25 = devm_kzalloc(&spi->dev, sizeof(struct at25_data), GFP_KERNEL);
++	if (!at25) {
+ 		err = -ENOMEM;
+ 		goto fail;
+ 	}
+@@ -455,7 +456,6 @@ static int at25_probe(struct spi_device *spi)
+ 	return 0;
+ fail:
+ 	dev_dbg(&spi->dev, "probe err %d\n", err);
+-	kfree(at25);
+ 	return err;
+ }
+ 
+@@ -465,7 +465,6 @@ static int at25_remove(struct spi_device *spi)
+ 
+ 	at25 = spi_get_drvdata(spi);
+ 	sysfs_remove_bin_file(&spi->dev.kobj, &at25->bin);
+-	kfree(at25);
+ 	return 0;
+ }
+ 
 -- 
-1.8.2.3
+1.7.9.5
