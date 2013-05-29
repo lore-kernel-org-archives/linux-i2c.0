@@ -1,39 +1,31 @@
-From: CF <cfoissac-GANU6spQydw@public.gmane.org>
-Subject: Request for help: accessing i2c from kernel module
-Date: Wed, 29 May 2013 14:56:09 +0200
-Message-ID: <51A5FAE9.2000902@free.fr>
+From: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: omap: correct usage of the interrupt enable register
+Date: Wed, 29 May 2013 10:22:59 -0700
+Message-ID: <878v2x7lak.fsf@linaro.org>
+References: <1369812944-685-1-git-send-email-oleksandr.dmytryshyn@ti.com>
+	<1369812944-685-2-git-send-email-oleksandr.dmytryshyn@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1369812944-685-2-git-send-email-oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
+	(Oleksandr Dmytryshyn's message of "Wed, 29 May 2013 10:35:44 +0300")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hello,
+Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org> writes:
 
-Excuse me if the question have been already answered or is obvious, but 
-i don't know actually how to reach i2c busses from a kernel module (the 
-kernel module is cross compiled).
+> Starting from the OMAP chips with version2 registers scheme there are
+> 2 registers (I2C_IRQENABLE_SET and I2C_IRQENABLE_CLR) to manage
+> interrupts instead of the older OMAP chips with old scheme which have
+> only one register (I2C_IE).  Now we should use I2C_IRQENABLE_SET
+> register for enabling interrupts and I2C_IRQENABLE_CLR register for
+> disabling interrupts.
 
-The user space /dev/i2c-x are not accessibles - or i'm unable to reach 
-them. I suspect i have an issue because if i understand well, /dev/i2c-x 
-is logically only available in user space. The error returned is the 
-following:
-"error: implicit declaration of function 'ioctl'"
-and i fear it could be the same for open(), because if i comment my 
-ioctl calls, it does not issue an error but a warning related to 'open 
-undefined'.
+Why?  (changelogs should always answer the "why" question)
 
-I can successfully write user space librairies, and compile the great 
-i2ctools suite.
-I have actually theses includes:
-#include <linux/kernel.h>
-#include <linux/module.h>
+IOW, what is broken without this change, how does it fail?  And equally
+important, how is it currently working?
 
-#include <linux/i2c-dev.h>
-#include <fcntl.h>
-#include <linux/fs.h>
-
-Thank you very much if you can point me to some documentations where i 
-could use i2c from a kernel module.
+Kevin
