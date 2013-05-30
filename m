@@ -1,61 +1,89 @@
-From: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: omap: correct usage of the interrupt enable
- register
-Date: Thu, 30 May 2013 11:53:09 +0300
-Message-ID: <51A71375.9030100@ti.com>
-References: <1369812944-685-1-git-send-email-oleksandr.dmytryshyn@ti.com> <1369812944-685-2-git-send-email-oleksandr.dmytryshyn@ti.com> <878v2x7lak.fsf@linaro.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] PM: Add pm_ops_ptr() macro
+Date: Thu, 30 May 2013 12:56:45 +0200
+Message-ID: <20130530105644.GA3595@katana>
+References: <000201ce453f$5ce4fc90$16aef5b0$@samsung.com>
+ <1474315.q4folvZv3e@vostro.rjw.lan>
+ <20130503092311.GA13832@amd.pavel.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Qxx1br4bt0+wmkIi"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <878v2x7lak.fsf-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130503092311.GA13832-tWAi6jLit6GreWDznjuHag@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Len Brown' <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, 'Andrew Morton' <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/29/2013 08:22 PM, Kevin Hilman wrote:
-> Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org> writes:
->
->> Starting from the OMAP chips with version2 registers scheme there are
->> 2 registers (I2C_IRQENABLE_SET and I2C_IRQENABLE_CLR) to manage
->> interrupts instead of the older OMAP chips with old scheme which have
->> only one register (I2C_IE).  Now we should use I2C_IRQENABLE_SET
->> register for enabling interrupts and I2C_IRQENABLE_CLR register for
->> disabling interrupts.
-> Why?  (changelogs should always answer the "why" question)
->
-> IOW, what is broken without this change, how does it fail?  And equally
-> important, how is it currently working?
->
-> Kevin
->
->
-Hi, Kevin.
 
-If the i2c controller during suspend will generate an interrupt, it can 
-lead to unpredictable behaviour in the kernel.
+--Qxx1br4bt0+wmkIi
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Based on the logic of the kernel code interrupts from i2c should be 
-prohibited during suspend. Kernel writes 0 to the I2C_IE register in the 
-omap_i2c_runtime_suspend() function. In the other side kernel writes 
-saved interrupt flags to the I2C_IE register in 
-omap_i2c_runtime_resume() function. I.e. interrupts should be disabled 
-during suspend.
+On Fri, May 03, 2013 at 11:23:11AM +0200, Pavel Machek wrote:
+> Hi!
+>=20
+> > > Add pm_ops_ptr() macro that allows the .pm entry in the driver struct=
+ures
+> > > to be assigned without having an #define xxx NULL for the case that P=
+M is
+> > > not enabled.
+> > >=20
+> > > Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >=20
+> > I've queued this up as v3.11 material.
+>=20
+> > > --- a/drivers/i2c/busses/i2c-s3c2410.c
+> > > +++ b/drivers/i2c/busses/i2c-s3c2410.c
+> > > @@ -1218,7 +1218,6 @@ static int s3c24xx_i2c_resume(struct device *de=
+v)
+> > >  }
+> > >  #endif
+> > > =20
+> > > -#ifdef CONFIG_PM
+> > >  static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops =3D {
+> > >  #ifdef CONFIG_PM_SLEEP
+> > >  	.suspend_noirq =3D s3c24xx_i2c_suspend_noirq,
+> > > @@ -1226,11 +1225,6 @@ static const struct dev_pm_ops s3c24xx_i2c_dev=
+_pm_ops =3D {
+> > >  #endif
+> > >  };
+> > > =20
+> > > -#define S3C24XX_DEV_PM_OPS (&s3c24xx_i2c_dev_pm_ops)
+> > > -#else
+> > > -#define S3C24XX_DEV_PM_OPS NULL
+> > > -#endif
+> > > -
+> > >  /* device driver for platform bus bits */
+>=20
+> Will not this enlarge .data by sizeof(struct dev_pm_ops)?
 
-This works for chips with version1 registers scheme. Interrupts are 
-disabled during suspend. For chips with version2 scheme registers 
-writting 0 to the I2C_IE register does nothing (because now the 
-I2C_IRQENABLE_SET register is located at this address ). This register 
-is used to enable interrupts. For disabling interrupts I2C_IRQENABLE_CLR 
-register should be used.
+Same question here. Is it the preferred way now to use this new macro
+although having the cost of having an empty dev_pm_ops?
 
-I've checked that interrupts in the i2c controller are still enabled 
-after writting 0 to the I2C_IE register. But with my patch interrupts 
-are disabled in the omap_i2c_runtime_suspend() function.
 
--- 
+--Qxx1br4bt0+wmkIi
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Best regards,
-Oleksandr Dmytryshyn | OMAP4 Platform
-GlobalLogic Inc. | Innovation by Design
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRpzBsAAoJEBQN5MwUoCm2vmUQAICn0bA747jbp//x5rGrcPtE
+HjKFmCfWKvZNuCrMa3MWo+jXipnDElU/Es0/Cx9jr3C8rlwTsrxsCXTdBcROffj+
+bdc9jOB6sG2MM3eiVaW5kuCQQCTqOtBmWfl463jJKqLCLsrUMTRU+sIQYHbU8i0O
+iaXaGsRBjq9Brhm3Dq9ItVwzMigi3FPgA04rfcC6zdi+ZoZxxO8V8O7h2iVmTHDH
+t5T/qPjFei5TZFlIj1rzDDaQH3b5TfNuAJmzg6wHbSpi8t1n+4Dg6GPsR805VqQO
+obTeicPAauzfnQ1lPDmN8fyGEpkpi4PrIdwdLGL3ySPEPhy4uuIKj3VeAHLwObhB
+YQ7YEZT5uK7PXs54RiE1grdFjUlIv2IzyHTz6gEAS1bLu/JB24kTxwRZybhhsNua
+xJBs1Y3YsvfgtC4AEHlRmhKim1i0JE/XmO+crtm7wFwHWAzy4URh6c/FO91sWc71
+3iwky+Yv8CpRxnY7RYEexUoppuP3RLnjnVLdAiBpDYbMwocYO1TqWFYInp1F+R2z
+Q283CJmwWxSAixOf+TATFf373eGdEeYPa6RuEmJh4JnE7EzPLx+79OQ6EEdelEdE
+B1AFsQLTROupW1HKUSUylj1mxbc7gLndWFFYEEdiz5WS6Z1uif4tIaxSTY/WULlT
+lPOXhX/0T8rla6KQD3yW
+=SLpC
+-----END PGP SIGNATURE-----
+
+--Qxx1br4bt0+wmkIi--
