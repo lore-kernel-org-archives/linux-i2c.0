@@ -1,75 +1,95 @@
 From: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c: omap: correct usage of the interrupt enable
- register
-Date: Thu, 30 May 2013 18:42:50 +0300
-Message-ID: <51A7737A.5000902@ti.com>
-References: <1369812944-685-1-git-send-email-oleksandr.dmytryshyn@ti.com> <1369812944-685-2-git-send-email-oleksandr.dmytryshyn@ti.com> <878v2x7lak.fsf@linaro.org> <51A71375.9030100@ti.com> <87obbsa6vh.fsf@linaro.org>
+Subject: [PATCH v2 1/1] i2c: omap: correct usage of the interrupt enable register
+Date: Thu, 30 May 2013 18:56:19 +0300
+Message-ID: <1369929379-19165-2-git-send-email-oleksandr.dmytryshyn@ti.com>
+References: <1369929379-19165-1-git-send-email-oleksandr.dmytryshyn@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87obbsa6vh.fsf-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1369929379-19165-1-git-send-email-oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/30/2013 05:18 PM, Kevin Hilman wrote:
-> Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org> writes:
->
->> On 05/29/2013 08:22 PM, Kevin Hilman wrote:
->>> Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org> writes:
->>>
->>>> Starting from the OMAP chips with version2 registers scheme there are
->>>> 2 registers (I2C_IRQENABLE_SET and I2C_IRQENABLE_CLR) to manage
->>>> interrupts instead of the older OMAP chips with old scheme which have
->>>> only one register (I2C_IE).  Now we should use I2C_IRQENABLE_SET
->>>> register for enabling interrupts and I2C_IRQENABLE_CLR register for
->>>> disabling interrupts.
->>> Why?  (changelogs should always answer the "why" question)
->>>
->>> IOW, what is broken without this change, how does it fail?  And equally
->>> important, how is it currently working?
->>>
->>> Kevin
->>>
->>>
->> Hi, Kevin.
->>
->> If the i2c controller during suspend will generate an interrupt, it
->> can lead to unpredictable behaviour in the kernel.
->>
->> Based on the logic of the kernel code interrupts from i2c should be
->> prohibited during suspend. Kernel writes 0 to the I2C_IE register in
->> the omap_i2c_runtime_suspend() function. In the other side kernel
->> writes saved interrupt flags to the I2C_IE register in
->> omap_i2c_runtime_resume() function. I.e. interrupts should be disabled
->> during suspend.
->>
->> This works for chips with version1 registers scheme. Interrupts are
->> disabled during suspend. For chips with version2 scheme registers
->> writting 0 to the I2C_IE register does nothing (because now the
->> I2C_IRQENABLE_SET register is located at this address ). This register
->> is used to enable interrupts. For disabling interrupts
->> I2C_IRQENABLE_CLR register should be used.
->>
->> I've checked that interrupts in the i2c controller are still enabled
->> after writting 0 to the I2C_IE register. But with my patch interrupts
->> are disabled in the omap_i2c_runtime_suspend() function.
-> Yes, I understand why your patch works, and it looks correct to me.
->
-> My main concern is that the changelog is missing a detailed description
-> of the problem that is being solved, as well as a summary of why this
-> has ever worked.  I guess we've just been lucky and not seen interrupts
-> during suspend?
->
-> Kevin
-Hi, Kevin.
+If the i2c controller during suspend will generate an interrupt, it
+can lead to unpredictable behaviour in the kernel.
 
-Yes. You are right about the interrupts.
+Based on the logic of the kernel code interrupts from i2c should be
+prohibited during suspend. Kernel writes 0 to the I2C_IE register in
+the omap_i2c_runtime_suspend() function. In the other side kernel
+writes saved interrupt flags to the I2C_IE register in
+omap_i2c_runtime_resume() function. I.e. interrupts should be disabled
+during suspend.
 
+This works for chips with version1 registers scheme. Interrupts are
+disabled during suspend. For chips with version2 scheme registers
+writting 0 to the I2C_IE register does nothing (because now the
+I2C_IRQENABLE_SET register is located at this address). This register
+is used to enable interrupts. For disabling interrupts
+I2C_IRQENABLE_CLR register should be used.
+
+Because the registers I2C_IRQENABLE_SET and I2C_IE have the same
+addresses, the interrupt enabling procedure is unchanged.
+
+Signed-off-by: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-omap.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index e02f9e3..2419899 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -180,6 +180,8 @@ enum {
+ #define I2C_OMAP_ERRATA_I207		(1 << 0)
+ #define I2C_OMAP_ERRATA_I462		(1 << 1)
+ 
++#define OMAP_I2C_INTERRUPTS_MASK	0x6FFF
++
+ struct omap_i2c_dev {
+ 	spinlock_t		lock;		/* IRQ synchronization */
+ 	struct device		*dev;
+@@ -193,6 +195,7 @@ struct omap_i2c_dev {
+ 						    long latency);
+ 	u32			speed;		/* Speed of bus in kHz */
+ 	u32			flags;
++	u16			scheme;
+ 	u16			cmd_err;
+ 	u8			*buf;
+ 	u8			*regs;
+@@ -1082,7 +1085,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	int irq;
+ 	int r;
+ 	u32 rev;
+-	u16 minor, major, scheme;
++	u16 minor, major;
+ 
+ 	/* NOTE: driver uses the static register mapping */
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -1159,8 +1162,8 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	 */
+ 	rev = __raw_readw(dev->base + 0x04);
+ 
+-	scheme = OMAP_I2C_SCHEME(rev);
+-	switch (scheme) {
++	dev->scheme = OMAP_I2C_SCHEME(rev);
++	switch (dev->scheme) {
+ 	case OMAP_I2C_SCHEME_0:
+ 		dev->regs = (u8 *)reg_map_ip_v1;
+ 		dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG);
+@@ -1289,7 +1292,11 @@ static int omap_i2c_runtime_suspend(struct device *dev)
+ 
+ 	_dev->iestate = omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
+ 
+-	omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
++	if (_dev->scheme == OMAP_I2C_SCHEME_0)
++		omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
++	else
++		omap_i2c_write_reg(_dev, OMAP_I2C_IP_V2_IRQENABLE_CLR,
++				   OMAP_I2C_INTERRUPTS_MASK);
+ 
+ 	if (_dev->rev < OMAP_I2C_OMAP1_REV_2) {
+ 		omap_i2c_read_reg(_dev, OMAP_I2C_IV_REG); /* Read clears */
 -- 
-
-Best regards,
-Oleksandr Dmytryshyn | OMAP4 Platform
-GlobalLogic Inc. | Innovation by Design
+1.8.2.rc2
