@@ -1,39 +1,61 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
- tree driver
-Date: Thu, 30 May 2013 10:00:16 +0200
-Message-ID: <CACRpkdY3YrkhK+vziZTO2cGSr0Ywi=y9Hk+nubo3rTTqwqUn6A@mail.gmail.com>
-References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
-	<CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com>
+From: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c: omap: correct usage of the interrupt enable
+ register
+Date: Thu, 30 May 2013 11:53:09 +0300
+Message-ID: <51A71375.9030100@ti.com>
+References: <1369812944-685-1-git-send-email-oleksandr.dmytryshyn@ti.com> <1369812944-685-2-git-send-email-oleksandr.dmytryshyn@ti.com> <878v2x7lak.fsf@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <878v2x7lak.fsf-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 22, 2013 at 9:56 AM, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Mon, May 13, 2013 at 10:18 PM, Linus Walleij
-> <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+On 05/29/2013 08:22 PM, Kevin Hilman wrote:
+> Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org> writes:
 >
->> This tries to address an issue found when writing an MFD driver
->> for the Nomadik STw481x PMICs: as the platform is using device
->> tree exclusively I want to specify the driver matching like
->> this:
-> (...)
->> ---
->> ChangeLog v1->v2:
->> - Use of_match_device() to determine if there is a DT match in
->>   the probe code. If there is a match we pass NULL for the
->>   id_table match parameter.
+>> Starting from the OMAP chips with version2 registers scheme there are
+>> 2 registers (I2C_IRQENABLE_SET and I2C_IRQENABLE_CLR) to manage
+>> interrupts instead of the older OMAP chips with old scheme which have
+>> only one register (I2C_IE).  Now we should use I2C_IRQENABLE_SET
+>> register for enabling interrupts and I2C_IRQENABLE_CLR register for
+>> disabling interrupts.
+> Why?  (changelogs should always answer the "why" question)
 >
-> Ping on this.
+> IOW, what is broken without this change, how does it fail?  And equally
+> important, how is it currently working?
 >
-> v2 should be doing what Grant suggested...
+> Kevin
+>
+>
+Hi, Kevin.
 
-Ping, nocheinmal.
+If the i2c controller during suspend will generate an interrupt, it can 
+lead to unpredictable behaviour in the kernel.
 
-Yours,
-Linus Walleij
+Based on the logic of the kernel code interrupts from i2c should be 
+prohibited during suspend. Kernel writes 0 to the I2C_IE register in the 
+omap_i2c_runtime_suspend() function. In the other side kernel writes 
+saved interrupt flags to the I2C_IE register in 
+omap_i2c_runtime_resume() function. I.e. interrupts should be disabled 
+during suspend.
+
+This works for chips with version1 registers scheme. Interrupts are 
+disabled during suspend. For chips with version2 scheme registers 
+writting 0 to the I2C_IE register does nothing (because now the 
+I2C_IRQENABLE_SET register is located at this address ). This register 
+is used to enable interrupts. For disabling interrupts I2C_IRQENABLE_CLR 
+register should be used.
+
+I've checked that interrupts in the i2c controller are still enabled 
+after writting 0 to the I2C_IE register. But with my patch interrupts 
+are disabled in the omap_i2c_runtime_suspend() function.
+
+-- 
+
+Best regards,
+Oleksandr Dmytryshyn | OMAP4 Platform
+GlobalLogic Inc. | Innovation by Design
