@@ -1,62 +1,67 @@
-From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Subject: Re: [PATCH] PM: Add pm_ops_ptr() macro
-Date: Thu, 30 May 2013 15:54:20 +0200
-Message-ID: <4119506.fLP8mVnrTk@vostro.rjw.lan>
-References: <000201ce453f$5ce4fc90$16aef5b0$@samsung.com> <20130503092311.GA13832@amd.pavel.ucw.cz> <20130530105644.GA3595@katana>
+From: Kevin Hilman <khilman@linaro.org>
+Subject: Re: [PATCH 1/1] i2c: omap: correct usage of the interrupt enable register
+Date: Thu, 30 May 2013 07:18:26 -0700
+Message-ID: <87obbsa6vh.fsf@linaro.org>
+References: <1369812944-685-1-git-send-email-oleksandr.dmytryshyn@ti.com>
+	<1369812944-685-2-git-send-email-oleksandr.dmytryshyn@ti.com>
+	<878v2x7lak.fsf@linaro.org> <51A71375.9030100@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130530105644.GA3595@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Len Brown' <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, 'Andrew Morton' <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <51A71375.9030100@ti.com> (Oleksandr Dmytryshyn's message of
+	"Thu, 30 May 2013 11:53:09 +0300")
+Sender: linux-omap-owner@vger.kernel.org
+To: Oleksandr Dmytryshyn <oleksandr.dmytryshyn@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, May 30, 2013 12:56:45 PM Wolfram Sang wrote:
-> On Fri, May 03, 2013 at 11:23:11AM +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > > > Add pm_ops_ptr() macro that allows the .pm entry in the driver structures
-> > > > to be assigned without having an #define xxx NULL for the case that PM is
-> > > > not enabled.
-> > > > 
-> > > > Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > > 
-> > > I've queued this up as v3.11 material.
-> > 
-> > > > --- a/drivers/i2c/busses/i2c-s3c2410.c
-> > > > +++ b/drivers/i2c/busses/i2c-s3c2410.c
-> > > > @@ -1218,7 +1218,6 @@ static int s3c24xx_i2c_resume(struct device *dev)
-> > > >  }
-> > > >  #endif
-> > > >  
-> > > > -#ifdef CONFIG_PM
-> > > >  static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
-> > > >  #ifdef CONFIG_PM_SLEEP
-> > > >  	.suspend_noirq = s3c24xx_i2c_suspend_noirq,
-> > > > @@ -1226,11 +1225,6 @@ static const struct dev_pm_ops s3c24xx_i2c_dev_pm_ops = {
-> > > >  #endif
-> > > >  };
-> > > >  
-> > > > -#define S3C24XX_DEV_PM_OPS (&s3c24xx_i2c_dev_pm_ops)
-> > > > -#else
-> > > > -#define S3C24XX_DEV_PM_OPS NULL
-> > > > -#endif
-> > > > -
-> > > >  /* device driver for platform bus bits */
-> > 
-> > Will not this enlarge .data by sizeof(struct dev_pm_ops)?
-> 
-> Same question here. Is it the preferred way now to use this new macro
-> although having the cost of having an empty dev_pm_ops?
+Oleksandr Dmytryshyn <oleksandr.dmytryshyn@ti.com> writes:
 
-No, it isn't, but if someone wants to use it, I don't really care that much.
+> On 05/29/2013 08:22 PM, Kevin Hilman wrote:
+>> Oleksandr Dmytryshyn <oleksandr.dmytryshyn@ti.com> writes:
+>>
+>>> Starting from the OMAP chips with version2 registers scheme there are
+>>> 2 registers (I2C_IRQENABLE_SET and I2C_IRQENABLE_CLR) to manage
+>>> interrupts instead of the older OMAP chips with old scheme which have
+>>> only one register (I2C_IE).  Now we should use I2C_IRQENABLE_SET
+>>> register for enabling interrupts and I2C_IRQENABLE_CLR register for
+>>> disabling interrupts.
+>> Why?  (changelogs should always answer the "why" question)
+>>
+>> IOW, what is broken without this change, how does it fail?  And equally
+>> important, how is it currently working?
+>>
+>> Kevin
+>>
+>>
+> Hi, Kevin.
+>
+> If the i2c controller during suspend will generate an interrupt, it
+> can lead to unpredictable behaviour in the kernel.
+>
+> Based on the logic of the kernel code interrupts from i2c should be
+> prohibited during suspend. Kernel writes 0 to the I2C_IE register in
+> the omap_i2c_runtime_suspend() function. In the other side kernel
+> writes saved interrupt flags to the I2C_IE register in
+> omap_i2c_runtime_resume() function. I.e. interrupts should be disabled
+> during suspend.
+>
+> This works for chips with version1 registers scheme. Interrupts are
+> disabled during suspend. For chips with version2 scheme registers
+> writting 0 to the I2C_IE register does nothing (because now the
+> I2C_IRQENABLE_SET register is located at this address ). This register
+> is used to enable interrupts. For disabling interrupts
+> I2C_IRQENABLE_CLR register should be used.
+>
+> I've checked that interrupts in the i2c controller are still enabled
+> after writting 0 to the I2C_IE register. But with my patch interrupts
+> are disabled in the omap_i2c_runtime_suspend() function.
 
-Thanks,
-Rafael
+Yes, I understand why your patch works, and it looks correct to me.  
 
+My main concern is that the changelog is missing a detailed description
+of the problem that is being solved, as well as a summary of why this
+has ever worked.  I guess we've just been lucky and not seen interrupts
+during suspend?
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Kevin
