@@ -1,23 +1,23 @@
-From: Tejun Heo <tj@kernel.org>
+From: Jean Delvare <khali@linux-fr.org>
 Subject: Re: [PATCH 3/3] i2c-piix4: add AMD CZ SMBus device ID
-Date: Fri, 31 May 2013 16:38:32 +0900
-Message-ID: <20130531073832.GB16809@mtj.dyndns.org>
+Date: Fri, 31 May 2013 09:46:43 +0200
+Message-ID: <20130531094643.5b256d2d@endymion.delvare>
 References: <1369999333-2073-1-git-send-email-shane.huang@amd.com>
- <20130531080336.04481330@endymion.delvare>
- <43EB3AB3EEFE8D43B525F4D2EAF507E1085B8CC5@SCYBEXDAG04.amd.com>
- <20130531092846.51f2e202@endymion.delvare>
- <43EB3AB3EEFE8D43B525F4D2EAF507E1085B8D06@SCYBEXDAG04.amd.com>
+	<20130531080336.04481330@endymion.delvare>
+	<43EB3AB3EEFE8D43B525F4D2EAF507E1085B8CC5@SCYBEXDAG04.amd.com>
+	<20130531092846.51f2e202@endymion.delvare>
+	<43EB3AB3EEFE8D43B525F4D2EAF507E1085B8D06@SCYBEXDAG04.amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-ide-owner@vger.kernel.org>
-Content-Disposition: inline
 In-Reply-To: <43EB3AB3EEFE8D43B525F4D2EAF507E1085B8D06@SCYBEXDAG04.amd.com>
 Sender: linux-ide-owner@vger.kernel.org
 To: "Huang, Shane" <Shane.Huang@amd.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Bjorn Helgaas <bhelgaas@google.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: Tejun Heo <tj@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org, linux-ide@vger.kernel.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, May 31, 2013 at 07:33:51AM +0000, Huang, Shane wrote:
+On Fri, 31 May 2013 07:33:51 +0000, Huang, Shane wrote:
 > > Can you show the exact message? checkpatch doesn't complain here, and I
 > > can't think of any reason why it would care about that.
 > 
@@ -28,11 +28,12 @@ On Fri, May 31, 2013 at 07:33:51AM +0000, Huang, Shane wrote:
 > 
 > total: 0 errors, 1 warnings, 39 lines checked
 
-Even if checkpatch complains, there's no point in following it
-religiously.  If addressing the complaint doesn't make the code
-better, there's no point in doing so.
+checkpatch is twice wrong here, firstly because there is no CamelCase
+and secondly because this is a comment and not code (ideally middle
+comment lines would start with "*" to avoid this false positive, but
+that style wasn't yet in use when the i2c-piix4 driver was written.)
 
-Thanks.
+So, just ignore it.
 
 -- 
-tejun
+Jean Delvare
