@@ -1,65 +1,34 @@
-From: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 0/1] i2c: omap: correct usage of the interrupt enable register
-Date: Fri, 31 May 2013 12:23:52 -0700
-Message-ID: <87vc5zymuv.fsf@linaro.org>
-References: <1370007211-9736-1-git-send-email-oleksandr.dmytryshyn@ti.com>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH v2 3/3] i2c-piix4: add AMD CZ SMBus device ID
+Date: Fri, 31 May 2013 13:24:57 -0600
+Message-ID: <CAErSpo4A_tuhsyErPOae5QgBdnUFK4f9kMitH0xUSnV6mYWYrA@mail.gmail.com>
+References: <1369987950-2894-1-git-send-email-shane.huang@amd.com> <20130531081623.GB17241@mtj.dyndns.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1370007211-9736-1-git-send-email-oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-	(Oleksandr Dmytryshyn's message of "Fri, 31 May 2013 16:33:30 +0300")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-ide-owner@vger.kernel.org>
+In-Reply-To: <20130531081623.GB17241@mtj.dyndns.org>
+Sender: linux-ide-owner@vger.kernel.org
+To: Tejun Heo <tj@kernel.org>
+Cc: Shane Huang <shane.huang@amd.com>, Jean Delvare <khali@linux-fr.org>, linux-i2c <linux-i2c@vger.kernel.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, linux-ide@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org> writes:
+On Fri, May 31, 2013 at 2:16 AM, Tejun Heo <tj@kernel.org> wrote:
+> On Fri, May 31, 2013 at 04:12:30PM +0800, Shane Huang wrote:
+>> To add AMD CZ SMBus controller device ID.
+>>
+>> Signed-off-by: Shane Huang <shane.huang@amd.com>
+>
+> All three patches look good to me.
+>
+>  Reviewed-by: Tejun Heo <tj@kernel.org>
+>
+> Both 2 and 3 are dependent on the first patch, so it probably would be
+> a good idea to route them together (probably w/ stable cc'd).  Who
+> wants these?  Bjorn?
 
-> I've just removed unnecessary Change-Id line.
->
-> If the i2c controller during suspend will generate an interrupt, it
-> can lead to unpredictable behaviour in the kernel.
->
-> Based on the logic of the kernel code interrupts from i2c should be
-> prohibited during suspend. Kernel writes 0 to the I2C_IE register in
-> the omap_i2c_runtime_suspend() function. In the other side kernel
-> writes saved interrupt flags to the I2C_IE register in
-> omap_i2c_runtime_resume() function. I.e. interrupts should be disabled
-> during suspend.
->
-> This works for chips with version1 registers scheme. Interrupts are
-> disabled during suspend. For chips with version2 scheme registers
-> writting 0 to the I2C_IE register does nothing (because now the
-> I2C_IRQENABLE_SET register is located at this address). This register
-> is used to enable interrupts. For disabling interrupts
-> I2C_IRQENABLE_CLR register should be used.
->
-> Because the registers I2C_IRQENABLE_SET and I2C_IE have the same
-> addresses, the interrupt enabling procedure is unchanged.
->
-> I've checked that interrupts in the i2c controller are still enabled
-> after writting 0 to the I2C_IE register. But with my patch interrupts
-> are disabled in the omap_i2c_runtime_suspend() function. 
->
-> This has been working up until now because we've just been lucky. 
+The pci_ids.h change is fine with me.  I don't care how they're
+routed.  If you want me to pick them up, maybe Shane could collect up
+the acks & reviewed-bys and add the appropriate stable tags and resend
+the series to me.
 
-This belongs in the changelog of the patch, not the cover letter and
-needs more detail.
-
-Also, you don't need a cover letter on a 1-patch series.
-
-Kevin
-
-> Next patch fixes it.
->
-> Patch is based on:
-> git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git
-> tag: v3.10-rc2
->
-> Verified on OMAP4430.
->
-> Oleksandr Dmytryshyn (1):
->   i2c: omap: correct usage of the interrupt enable register
->
->  drivers/i2c/busses/i2c-omap.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
+Bjorn
