@@ -1,60 +1,41 @@
-From: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 1/1] i2c: omap: correct usage of the interrupt enable register
-Date: Thu, 30 May 2013 09:46:18 -0700
-Message-ID: <87vc604dr9.fsf@linaro.org>
-References: <1369929379-19165-1-git-send-email-oleksandr.dmytryshyn@ti.com>
-	<1369929379-19165-2-git-send-email-oleksandr.dmytryshyn@ti.com>
+From: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+Subject: [PATCH 1/3] pci_ids: put Hudson-2 device IDs together
+Date: Fri, 31 May 2013 19:17:19 +0800
+Message-ID: <1369999039-1983-1-git-send-email-shane.huang@amd.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1369929379-19165-2-git-send-email-oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-	(Oleksandr Dmytryshyn's message of "Thu, 30 May 2013 18:56:19 +0300")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+Cc: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org> writes:
+To put all AMD Hudson-2 device IDs together for better maintenance.
 
-> If the i2c controller during suspend will generate an interrupt, it
-> can lead to unpredictable behaviour in the kernel.
->
-> Based on the logic of the kernel code interrupts from i2c should be
-> prohibited during suspend. Kernel writes 0 to the I2C_IE register in
-> the omap_i2c_runtime_suspend() function. In the other side kernel
-> writes saved interrupt flags to the I2C_IE register in
-> omap_i2c_runtime_resume() function. I.e. interrupts should be disabled
-> during suspend.
->
-> This works for chips with version1 registers scheme. Interrupts are
-> disabled during suspend. For chips with version2 scheme registers
-> writting 0 to the I2C_IE register does nothing (because now the
-> I2C_IRQENABLE_SET register is located at this address). This register
-> is used to enable interrupts. For disabling interrupts
-> I2C_IRQENABLE_CLR register should be used.
->
-> Because the registers I2C_IRQENABLE_SET and I2C_IE have the same
-> addresses, the interrupt enabling procedure is unchanged.
->
-> Signed-off-by: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
+Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
+---
+ include/linux/pci_ids.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Much better, but still doesn't explain how/why this has been working up
-until now.  Have we just been lucky?
-
-> ---
->  drivers/i2c/busses/i2c-omap.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index e02f9e3..2419899 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -180,6 +180,8 @@ enum {
->  #define I2C_OMAP_ERRATA_I207		(1 << 0)
->  #define I2C_OMAP_ERRATA_I462		(1 << 1)
->  
-> +#define OMAP_I2C_INTERRUPTS_MASK	0x6FFF
-
-To be more clear, this should probably have v2 in the name.
-
-Kevin
+diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+index c129162..e0b5623 100644
+--- a/include/linux/pci_ids.h
++++ b/include/linux/pci_ids.h
+@@ -556,7 +556,6 @@
+ #define PCI_DEVICE_ID_AMD_8131_BRIDGE	0x7450
+ #define PCI_DEVICE_ID_AMD_8131_APIC	0x7451
+ #define PCI_DEVICE_ID_AMD_8132_BRIDGE	0x7458
+-#define PCI_DEVICE_ID_AMD_HUDSON2_SMBUS	0x780b
+ #define PCI_DEVICE_ID_AMD_CS5535_IDE    0x208F
+ #define PCI_DEVICE_ID_AMD_CS5536_ISA    0x2090
+ #define PCI_DEVICE_ID_AMD_CS5536_FLASH  0x2091
+@@ -570,6 +569,7 @@
+ #define PCI_DEVICE_ID_AMD_LX_AES    0x2082
+ #define PCI_DEVICE_ID_AMD_HUDSON2_IDE		0x780c
+ #define PCI_DEVICE_ID_AMD_HUDSON2_SATA_IDE	0x7800
++#define PCI_DEVICE_ID_AMD_HUDSON2_SMBUS		0x780b
+ 
+ #define PCI_VENDOR_ID_TRIDENT		0x1023
+ #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
+-- 
+1.8.1.2
