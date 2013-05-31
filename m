@@ -1,103 +1,63 @@
-From: Dan Murphy <dmurphy-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH v3 1/1] i2c: omap: correct usage of the interrupt enable
- register
-Date: Fri, 31 May 2013 07:06:48 -0500
-Message-ID: <51A89258.7050308@ti.com>
-References: <1369988788-23987-1-git-send-email-oleksandr.dmytryshyn@ti.com> <1369988788-23987-2-git-send-email-oleksandr.dmytryshyn@ti.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH 1/2] decode-dimms: Generate HTML 4.01 compliant markup
+Date: Fri, 31 May 2013 14:20:10 +0200
+Message-ID: <20130531142010.48f9f013@endymion.delvare>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1369988788-23987-2-git-send-email-oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/31/2013 03:26 AM, Oleksandr Dmytryshyn wrote:
-> If the i2c controller during suspend will generate an interrupt, it
-> can lead to unpredictable behaviour in the kernel.
->
-> Based on the logic of the kernel code interrupts from i2c should be
-> prohibited during suspend. Kernel writes 0 to the I2C_IE register in
-> the omap_i2c_runtime_suspend() function. In the other side kernel
-> writes saved interrupt flags to the I2C_IE register in
-> omap_i2c_runtime_resume() function. I.e. interrupts should be disabled
-> during suspend.
->
-> This works for chips with version1 registers scheme. Interrupts are
-> disabled during suspend. For chips with version2 scheme registers
-> writting 0 to the I2C_IE register does nothing (because now the
-> I2C_IRQENABLE_SET register is located at this address). This register
-> is used to enable interrupts. For disabling interrupts
-> I2C_IRQENABLE_CLR register should be used.
->
-> Because the registers I2C_IRQENABLE_SET and I2C_IE have the same
-> addresses, the interrupt enabling procedure is unchanged.
->
-> Change-Id: Ie49165990a4e7c67a4ccf2e4a66cd3b78f2e2b70
-Remove this.
-> Signed-off-by: Oleksandr Dmytryshyn <oleksandr.dmytryshyn-l0cyMroinI0@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-omap.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-> index e02f9e3..64c26f9 100644
-> --- a/drivers/i2c/busses/i2c-omap.c
-> +++ b/drivers/i2c/busses/i2c-omap.c
-> @@ -180,6 +180,8 @@ enum {
->  #define I2C_OMAP_ERRATA_I207		(1 << 0)
->  #define I2C_OMAP_ERRATA_I462		(1 << 1)
->  
-> +#define OMAP_I2C_IP_V2_INTERRUPTS_MASK	0x6FFF
-> +
->  struct omap_i2c_dev {
->  	spinlock_t		lock;		/* IRQ synchronization */
->  	struct device		*dev;
-> @@ -193,6 +195,7 @@ struct omap_i2c_dev {
->  						    long latency);
->  	u32			speed;		/* Speed of bus in kHz */
->  	u32			flags;
-> +	u16			scheme;
->  	u16			cmd_err;
->  	u8			*buf;
->  	u8			*regs;
-> @@ -1082,7 +1085,7 @@ omap_i2c_probe(struct platform_device *pdev)
->  	int irq;
->  	int r;
->  	u32 rev;
-> -	u16 minor, major, scheme;
-> +	u16 minor, major;
->  
->  	/* NOTE: driver uses the static register mapping */
->  	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> @@ -1159,8 +1162,8 @@ omap_i2c_probe(struct platform_device *pdev)
->  	 */
->  	rev = __raw_readw(dev->base + 0x04);
->  
-> -	scheme = OMAP_I2C_SCHEME(rev);
-> -	switch (scheme) {
-> +	dev->scheme = OMAP_I2C_SCHEME(rev);
-> +	switch (dev->scheme) {
->  	case OMAP_I2C_SCHEME_0:
->  		dev->regs = (u8 *)reg_map_ip_v1;
->  		dev->rev = omap_i2c_read_reg(dev, OMAP_I2C_REV_REG);
-> @@ -1289,7 +1292,11 @@ static int omap_i2c_runtime_suspend(struct device *dev)
->  
->  	_dev->iestate = omap_i2c_read_reg(_dev, OMAP_I2C_IE_REG);
->  
-> -	omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
-> +	if (_dev->scheme == OMAP_I2C_SCHEME_0)
-> +		omap_i2c_write_reg(_dev, OMAP_I2C_IE_REG, 0);
-> +	else
-> +		omap_i2c_write_reg(_dev, OMAP_I2C_IP_V2_IRQENABLE_CLR,
-> +				   OMAP_I2C_IP_V2_INTERRUPTS_MASK);
->  
->  	if (_dev->rev < OMAP_I2C_OMAP1_REV_2) {
->  		omap_i2c_read_reg(_dev, OMAP_I2C_IV_REG); /* Read clears */
+In HTML output mode, generate HTML 4.01 compliant markup.
+---
+ eeprom/decode-dimms |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+--- i2c-tools.orig/eeprom/decode-dimms	2013-05-31 13:18:17.139571898 +0200
++++ i2c-tools/eeprom/decode-dimms	2013-05-31 13:45:09.704948120 +0200
+@@ -490,14 +490,16 @@ sub real_printl($$) # print a line w/ la
+ 	}
+ }
+ 
+-sub printl2($$) # print a line w/ label and value (outside a table)
++sub printl2 # print a line w/ label and value (outside a table)
+ {
+-	my ($label, $value) = @_;
++	my ($label, $value, $style) = @_;
+ 	if ($opt_html) {
+ 		$label = html_encode($label);
+ 		$value = html_encode($value);
++		print "<p", (defined $style ? " style=\"$style\"" : ""), ">";
+ 	}
+ 	print "$label: $value\n";
++	print "</p>\n" if $opt_html;
+ }
+ 
+ sub real_prints($) # print separator w/ given text
+@@ -2165,7 +2167,7 @@ if (!$opt_igncheck) {
+ 
+ 
+ if ($opt_html && !$opt_bodyonly) {
+-	print "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 3.2 Final//EN\">\n",
++	print "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\">\n",
+ 	      "<html><head>\n",
+ 		  "\t<meta HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=iso-8859-1\">\n",
+ 		  "\t<title>PC DIMM Serial Presence Detect Tester/Decoder Output</title>\n",
+@@ -2350,9 +2352,8 @@ for $current (0 .. $#dimm) {
+ 	if ($opt_side_by_side) {
+ 		print "\n\n";
+ 	} else {
+-		print "<b><u>" if $opt_html;
+-		printl2("\n\nDecoding EEPROM", $dimm[$current]->{file});
+-		print "</u></b>" if $opt_html;
++		printl2("\n\nDecoding EEPROM", $dimm[$current]->{file},
++			"text-decoration: underline; font-weight: bold;");
+ 	}
+ 	print "<table border=1>\n" if $opt_html;
+ 
 
 
 -- 
-------------------
-Dan Murphy
+Jean Delvare
