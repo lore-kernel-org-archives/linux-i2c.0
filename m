@@ -1,89 +1,32 @@
-From: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [PATCH v2 3/3] i2c-piix4: add AMD CZ SMBus device ID
-Date: Fri, 31 May 2013 10:30:43 +0200
-Message-ID: <20130531103043.253a0664@endymion.delvare>
-References: <1369987950-2894-1-git-send-email-shane.huang@amd.com>
+From: CF <cfoissac-GANU6spQydw@public.gmane.org>
+Subject: Newbie: accessing i2c features through kernel functions
+Date: Fri, 31 May 2013 11:49:41 +0200
+Message-ID: <51A87235.2060702@free.fr>
+References: <1369818463.42609.YahooMailNeo@web141202.mail.bf1.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <1369987950-2894-1-git-send-email-shane.huang@amd.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Shane Huang <shane.huang@amd.com>
-Cc: Tejun Heo <tj@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, linux-i2c@vger.kernel.org, linux-pci@vger.kernel.org, linux-ide@vger.kernel.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1369818463.42609.YahooMailNeo-KCWTPBDN160R8UyDmTZ/NZEhsgyP+Z75VpNB7YpNyf8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, 31 May 2013 16:12:30 +0800, Shane Huang wrote:
-> To add AMD CZ SMBus controller device ID.
-> 
-> Signed-off-by: Shane Huang <shane.huang@amd.com>
-> ---
->  Documentation/i2c/busses/i2c-piix4 | 2 +-
->  drivers/i2c/busses/Kconfig         | 1 +
->  drivers/i2c/busses/i2c-piix4.c     | 3 ++-
->  include/linux/pci_ids.h            | 1 +
->  4 files changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/i2c/busses/i2c-piix4 b/Documentation/i2c/busses/i2c-piix4
-> index 1e6634f..a370b20 100644
-> --- a/Documentation/i2c/busses/i2c-piix4
-> +++ b/Documentation/i2c/busses/i2c-piix4
-> @@ -13,7 +13,7 @@ Supported adapters:
->    * AMD SP5100 (SB700 derivative found on some server mainboards)
->      Datasheet: Publicly available at the AMD website
->      http://support.amd.com/us/Embedded_TechDocs/44413.pdf
-> -  * AMD Hudson-2
-> +  * AMD Hudson-2, CZ
->      Datasheet: Not publicly available
->    * Standard Microsystems (SMSC) SLC90E66 (Victory66) southbridge
->      Datasheet: Publicly available at the SMSC website http://www.smsc.com
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 631736e..4faf02b 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -150,6 +150,7 @@ config I2C_PIIX4
->  	    ATI SB700/SP5100
->  	    ATI SB800
->  	    AMD Hudson-2
-> +	    AMD CZ
->  	    Serverworks OSB4
->  	    Serverworks CSB5
->  	    Serverworks CSB6
-> diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
-> index 39ab78c..43c2e11 100644
-> --- a/drivers/i2c/busses/i2c-piix4.c
-> +++ b/drivers/i2c/busses/i2c-piix4.c
-> @@ -22,7 +22,7 @@
->  	Intel PIIX4, 440MX
->  	Serverworks OSB4, CSB5, CSB6, HT-1000, HT-1100
->  	ATI IXP200, IXP300, IXP400, SB600, SB700/SP5100, SB800
-> -	AMD Hudson-2
-> +	AMD Hudson-2, CZ
->  	SMSC Victory66
->  
->     Note: we assume there can only be one device, with one or more
-> @@ -522,6 +522,7 @@ static DEFINE_PCI_DEVICE_TABLE(piix4_ids) = {
->  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_IXP400_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_SBX00_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) },
-> +	{ PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_CZ_SMBUS) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
->  		     PCI_DEVICE_ID_SERVERWORKS_OSB4) },
->  	{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS,
-> diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
-> index 22449c1..b10a5b4 100644
-> --- a/include/linux/pci_ids.h
-> +++ b/include/linux/pci_ids.h
-> @@ -571,6 +571,7 @@
->  #define PCI_DEVICE_ID_AMD_HUDSON2_SATA_IDE	0x7800
->  #define PCI_DEVICE_ID_AMD_HUDSON2_SMBUS		0x780b
->  #define PCI_DEVICE_ID_AMD_CZ_SATA_IDE	0x7900
-> +#define PCI_DEVICE_ID_AMD_CZ_SMBUS	0x790b
->  
->  #define PCI_VENDOR_ID_TRIDENT		0x1023
->  #define PCI_DEVICE_ID_TRIDENT_4DWAVE_DX	0x2000
+Hello,
 
-Reviewed-by: Jean Delvare <khali@linux-fr.org>
+I'm requesting help. I am currently successfully using i2c-dev module.
+But i'm unable to drive i2c busses from kernel space as i'd do from
+userspace (with the use of open, read, write, ioctl functions). I can't
+logically acces glibc.
 
--- 
-Jean Delvare
+Can somebody point me how i could do from kernel space ? Given all is
+actually working (precisely, i can recompile i2c-dev, and i write an
+userspace code to manage my i2c slave device).
+
+My goal is to keep i2c-dev suitable initialisation, then wrap some i2c
+commands into the module to expose userspace a simplified API, with all
+my device commands. I must do this in kernel space, else i'd have done
+what i'm able to do: create an userspace lib relying on /dev/i2c-x.
+
+Thank you. Once again i apologize if this is not the place but i'm
+unable to find suitable ML for this kind of request.
