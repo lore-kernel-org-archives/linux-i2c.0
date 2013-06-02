@@ -1,46 +1,80 @@
-From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v2 3/3] i2c-piix4: add AMD CZ SMBus device ID
-Date: Sun, 2 Jun 2013 10:16:08 +0200
-Message-ID: <20130602101608.37cd1661@endymion.delvare>
-References: <1369987950-2894-1-git-send-email-shane.huang@amd.com>
-	<20130531081623.GB17241@mtj.dyndns.org>
-	<CAErSpo4A_tuhsyErPOae5QgBdnUFK4f9kMitH0xUSnV6mYWYrA@mail.gmail.com>
-	<20130602080232.GC8286@mtj.dyndns.org>
+From: Martin Vogt <mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-tools: NULL in i2c-dev.h
+Date: Sun, 2 Jun 2013 20:01:49 +0200
+Message-ID: <CAOE8yMAkZmNmGpB7ERKYuz5smjX2MNryf4hqvxyr892kwx1bSg@mail.gmail.com>
+Reply-To: mvogt1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary=047d7b677358661d3004de2fa499
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130602080232.GC8286-9pTldWuhBndy/B6EtB590w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Bjorn Helgaas <bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-ide-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, 2 Jun 2013 01:02:32 -0700, Tejun Heo wrote:
-> On Fri, May 31, 2013 at 01:24:57PM -0600, Bjorn Helgaas wrote:
-> > On Fri, May 31, 2013 at 2:16 AM, Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
-> > > On Fri, May 31, 2013 at 04:12:30PM +0800, Shane Huang wrote:
-> > >> To add AMD CZ SMBus controller device ID.
-> > >>
-> > >> Signed-off-by: Shane Huang <shane.huang-5C7GfCeVMHo@public.gmane.org>
-> > >
-> > > All three patches look good to me.
-> > >
-> > >  Reviewed-by: Tejun Heo <tj-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-> > >
-> > > Both 2 and 3 are dependent on the first patch, so it probably would be
-> > > a good idea to route them together (probably w/ stable cc'd).  Who
-> > > wants these?  Bjorn?
-> > 
-> > The pci_ids.h change is fine with me.  I don't care how they're
-> > routed.  If you want me to pick them up, maybe Shane could collect up
-> > the acks & reviewed-bys and add the appropriate stable tags and resend
-> > the series to me.
-> 
-> Yeah, let's go through Bjorn's tree and preferably with stable cc'd
-> and targeted for for-3.10-rcX.  Shane?
+--047d7b677358661d3004de2fa499
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
 
-Fine with me.
+Hello,
 
--- 
-Jean Delvare
+I was trying to write a CMake check for i2c-dev.h.
+This did not work, because "NULL" is used in i2c-dev.h, but NULL is not
+defined, during the check.
+
+>Run Build Command:/usr/bin/gmake "cmTryCompileExec139053135/fast"
+>usr/bin/c++  -DHAS_I2C_MSG  -o
+>CMakeFiles/cmTryCompileExec139053135.dir/src.cxx.o -c
+>In file included from src.cxx:2:0:
+>/usr/include/linux/i2c-dev.h: In function =91__s32
+>/i2c_smbus_write_quick(int,__u8)=92:
+>/usr/include/linux/i2c-dev.h:176:55: error: =91NULL=92 was not declared in=
+ this
+>/scope
+>/usr/include/linux/i2c-dev.h: In function =91__s32
+>/i2c_smbus_write_byte(int,__u8)=92:
+>/usr/include/linux/i2c-dev.h:191:41: error: =91NULL=92 was not declared in=
+ this
+>/scope
+>gmake[1]: *** [CMakeFiles/cmTryCompileExec139053135.dir/src.cxx.o] Error 1
+>Source file was:
+>#include </usr/include/linux/i2c-dev.h>
+>int main() {
+   i2c_msg* tmp;
+   tmp->buf;
+  return 0;
+}
+
+The attached patch replaces NULL with 0x0, but I'm not sure
+if this is a good solution.
+
+The problem is, that on OpenSuSE 12.x i2c-dev.h is in the
+package i2c-tools-3.1.0, and in ubuntu in the package linux-libc-dev.
+Including i2c.h and i2c-dev.h on OpenSuSE result in a compiler error,
+but is needed on ubuntu.
+
+regards,
+
+Martin
+
+--047d7b677358661d3004de2fa499
+Content-Type: application/octet-stream; name="dont_use_NULL.patch"
+Content-Disposition: attachment; filename="dont_use_NULL.patch"
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_hhgiml6g0
+
+ZGlmZiAtcnUgaTJjLXRvb2xzLTMuMS4wLm9yZy9pbmNsdWRlL2xpbnV4L2kyYy1kZXYuaCBpMmMt
+dG9vbHMtMy4xLjAvaW5jbHVkZS9saW51eC9pMmMtZGV2LmgKLS0tIGkyYy10b29scy0zLjEuMC5v
+cmcvaW5jbHVkZS9saW51eC9pMmMtZGV2LmgJMjAxMC0xMi0xMiAxNDoyMjoyOS4wMDAwMDAwMDAg
+KzAxMDAKKysrIGkyYy10b29scy0zLjEuMC9pbmNsdWRlL2xpbnV4L2kyYy1kZXYuaAkyMDEzLTA2
+LTAyIDE5OjE1OjE1LjQyMzQ1NzQ1NiArMDIwMApAQCAtMTczLDcgKzE3Myw3IEBACiAKIHN0YXRp
+YyBpbmxpbmUgX19zMzIgaTJjX3NtYnVzX3dyaXRlX3F1aWNrKGludCBmaWxlLCBfX3U4IHZhbHVl
+KQogewotCXJldHVybiBpMmNfc21idXNfYWNjZXNzKGZpbGUsdmFsdWUsMCxJMkNfU01CVVNfUVVJ
+Q0ssTlVMTCk7CisJcmV0dXJuIGkyY19zbWJ1c19hY2Nlc3MoZmlsZSx2YWx1ZSwwLEkyQ19TTUJV
+U19RVUlDSywweDApOwogfQogCQogc3RhdGljIGlubGluZSBfX3MzMiBpMmNfc21idXNfcmVhZF9i
+eXRlKGludCBmaWxlKQpAQCAtMTg4LDcgKzE4OCw3IEBACiBzdGF0aWMgaW5saW5lIF9fczMyIGky
+Y19zbWJ1c193cml0ZV9ieXRlKGludCBmaWxlLCBfX3U4IHZhbHVlKQogewogCXJldHVybiBpMmNf
+c21idXNfYWNjZXNzKGZpbGUsSTJDX1NNQlVTX1dSSVRFLHZhbHVlLAotCSAgICAgICAgICAgICAg
+ICAgICAgICAgIEkyQ19TTUJVU19CWVRFLE5VTEwpOworCSAgICAgICAgICAgICAgICAgICAgICAg
+IEkyQ19TTUJVU19CWVRFLDB4MCk7CiB9CiAKIHN0YXRpYyBpbmxpbmUgX19zMzIgaTJjX3NtYnVz
+X3JlYWRfYnl0ZV9kYXRhKGludCBmaWxlLCBfX3U4IGNvbW1hbmQpCk9ubHkgaW4gaTJjLXRvb2xz
+LTMuMS4wL2luY2x1ZGUvbGludXg6IGkyYy1kZXYuaH4K
+--047d7b677358661d3004de2fa499--
