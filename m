@@ -1,24 +1,31 @@
-From: Kevin Hilman <khilman@linaro.org>
-Subject: Re: [RFC 09/42] drivers/i2c/busses: don't check resource with devm_ioremap_resource
-Date: Tue, 04 Jun 2013 11:34:15 -0700
-Message-ID: <87txldzpw8.fsf@linaro.org>
-References: <1368173847-5661-1-git-send-email-wsa@the-dreams.de>
-	<1368173847-5661-10-git-send-email-wsa@the-dreams.de>
+From: Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH RESEND 2/3] ahci: add AMD CZ SATA device ID
+Date: Tue, 4 Jun 2013 15:39:47 -0600
+Message-ID: <CAErSpo5omduEpNv-DC31FJYGM=R-QaNYDikcAKHNSHeTEf2YCA@mail.gmail.com>
+References: <1370255050-2358-1-git-send-email-shane.huang@amd.com>
+ <51AC6A14.2040908@cogentembedded.com> <CAErSpo5Jh_znOjr0CRBN=Kay+Y2ZJ2dDfVJdVW7MW9TjFzB6Yg@mail.gmail.com>
+ <43EB3AB3EEFE8D43B525F4D2EAF507E1085B9F73@SCYBEXDAG04.amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <1368173847-5661-10-git-send-email-wsa@the-dreams.de> (Wolfram
-	Sang's message of "Fri, 10 May 2013 10:16:54 +0200")
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-kernel@vger.kernel.org, Sekhar Nori <nsekhar@ti.com>, Tony Lindgren <tony@atomide.com>, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, Barry Song <baohua.song@csr.com>, Stephen Warren <swarren@wwwdotorg.org>, davinci-linux-open-source@linux.davincidsp.com, linux-i2c@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-tegra@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <43EB3AB3EEFE8D43B525F4D2EAF507E1085B9F73@SCYBEXDAG04.amd.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: "Huang, Shane" <Shane.Huang@amd.com>
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Tejun Heo <tj@kernel.org>, Jean Delvare <khali@linux-fr.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Wolfram Sang <wsa@the-dreams.de> writes:
-
-> devm_ioremap_resource does sanity checks on the given resource. No need to
-> duplicate this in the driver.
+On Mon, Jun 3, 2013 at 8:09 PM, Huang, Shane <Shane.Huang@amd.com> wrote:
+> Bjorn,
 >
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+>> Let me know if anybody objects.  Otherwise, I'll merge it into my
+>> -next branch tomorrow.
+>
+> The change is fine with me, thanks to you and Sergei.
 
-Acked-by: Kevin Hilman <khilman@linaro.org>  # for i2c-omap.c
+OK, all three are now in the PCI -next branch, headed for v3.11.
+
+After removing the dependences on pci_ids.h, they could have gone
+individually via i2c and ahci trees, but in the interest of getting on
+with it, I just put them in.
+
+Bjorn
