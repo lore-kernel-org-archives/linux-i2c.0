@@ -1,175 +1,102 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 11/11] i2c: omap: enhance pinctrl support
-Date: Tue, 4 Jun 2013 14:39:36 +0300
-Message-ID: <51ADD1F8.7070405@ti.com>
-References: <1369995191-20855-1-git-send-email-gururaja.hebbar@ti.com>
-	<1369995191-20855-12-git-send-email-gururaja.hebbar@ti.com>
-	<87k3mf2gu4.fsf@linaro.org>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
+Subject: [PATCH] i2c: Let users disable "Probe an I2C bus for certain devices"
+Date: Tue, 4 Jun 2013 20:33:42 +0300
+Message-ID: <1370367222-19353-1-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-In-Reply-To: <87k3mf2gu4.fsf-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <http://linux.davincidsp.com/mailman/options/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://linux.davincidsp.com/pipermail/davinci-linux-open-source>
-List-Post: <mailto:davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-List-Help: <mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=help>
-List-Subscribe: <http://linux.davincidsp.com/mailman/listinfo/davinci-linux-open-source>,
-	<mailto:davinci-linux-open-source-request-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org?subject=subscribe>
-Sender: <davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org>
-Errors-To: davinci-linux-open-source-bounces-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org
-To: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: davinci-linux-open-source-VycZQUHpC/PFrsHnngEfi1aTQe2KTcn/@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Kevin, Gururaja
+Currently the I2C devices instantiation Method 3 "Probe an I2C bus for
+certain devices" (see Documentation/i2c/instantiating-devices) is always
+enabled for all platforms (boards) and can't be disabled.
+This feature introduces a system boot time delay for boards,
+where I2C devices topology is explicitly defined in DT or platform code
+(Method 1 and Method 2 are used only) and especially when i2c-gpio is used.
 
-On 05/31/2013 08:34 PM, Kevin Hilman wrote:
-> Hebbar Gururaja <gururaja.hebbar-l0cyMroinI0@public.gmane.org> writes:
->
->> Amend the I2C omap pin controller to optionally take a pin control
->> handle and set the state of the pins to:
->>
->> - "default" on boot, resume and before performing an i2c transfer
->> - "idle" after initial default, after resume default, and after each
->> i2c xfer
->> - "sleep" on suspend()
->>
->> By optionally putting the pins into sleep state in the suspend callback
->> we can accomplish two things.
->> - One is to minimize current leakage from pins and thus save power,
->> - second, we can prevent the IP from driving pins output in an
->> uncontrolled manner, which may happen if the power domain drops the
->> domain regulator.
->>
->> Note:
->> A .suspend & .resume callback is added which simply puts the pins to sleep
->> state upon suspend & are moved to default & idle state upon resume.
->>
->> If any of the above pin states are missing in dt, a warning message
->> about the missing state is displayed.
->> If certain pin-states are not available, to remove this warning message
->> pass respective state name with null phandler.
->>
->> (Changes based on i2c-nomadik.c)
->>
->> Signed-off-by: Hebbar Gururaja <gururaja.hebbar-l0cyMroinI0@public.gmane.org>
->> Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
->> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
->> Cc: linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> [...]
->
->> @@ -664,7 +673,13 @@ omap_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->>   
->>   out:
->>   	pm_runtime_mark_last_busy(dev->dev);
->> +
->>   	pm_runtime_put_autosuspend(dev->dev);
->> +	/* Optionally let pins go into idle state */
->> +	if (!IS_ERR(dev->pins_idle))
->> +		if (pinctrl_select_state(dev->pinctrl, dev->pins_idle))
->> +			dev_err(dev->dev, "could not set pins to idle state\n");
-> This is wrong.  You're changing the muxing before the device actually
-> goes idle.  Anything you want to happen when the device actually idles
-> for real has to be in runtime PM callbacks.
->
-> Looking below, I see it's already in the callbacks, so why is it here also?
+For example:
+When CONFIG_SENSORS_LM75 option was enabled for omap4-sdp board -
+it introduces 5-6 ms boot delay.
 
-I have two questions regarding this patch & the whole series:
+When CONFIG_SENSORS_LM75 option was enabled for omap5-uevm board,
+where i2c-gpio is used for HDMI edid reading - it introduces up to 5 sec boot
+delay.
 
-1) PM runtime suspend/resume
-Current sequence:
-- resume
-   |- omap_hwmod_enable()
-      |- _enable()
-          |- omap_hwmod_mux(oh->mux, _HWMOD_STATE_ENABLED)
-             |- enable module (sysc&clocks)
-   |- omap_i2c_runtime_resume()
-- suspend
-   |- omap_i2c_runtime_suspend()
-   |- omap_hwmod_idle()
-      |- _idle()
-          |- disbale module (sysc&clocks)
-          |- omap_hwmod_mux(oh->mux, _HWMOD_STATE_IDLE);
+Hence, introduce CONFIG_I2C_DISABLE_DEVICE_DETECTION configuration option
+to allow disabling of I2C devices instantiation Method 3 "Probe an I2C bus
+for certain devices" if it's not needed (usually for embedded systems).
 
-The new order will change this sequence - *Is it safe?*:
-- resume
-   |- omap_hwmod_enable()
-      |- _enable()
-         |- enable module (sysc&clocks) <---- Is it valid to enable 
-module before PINs?
-   |- omap_i2c_runtime_resume()
-      |- PINs state set to DEFAULT
-- suspend
-   |- omap_i2c_runtime_suspend()
-      |- PINs state set to IDLE
-   |- omap_hwmod_idle()
-      |- _idle()
-          |- disbale module (sysc&clocks) <---- Is it valid to disable 
-module after PINs?
+CC: linux-i2c@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
+CC: linux-omap@vger.kernel.org
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+---
+ drivers/i2c/Kconfig    |   10 ++++++++++
+ drivers/i2c/i2c-core.c |    6 ++++++
+ 2 files changed, 16 insertions(+)
 
-2) System suspend (OFF-mode) with assumption that "noirq" stage will be 
-used for PINs cfg
-Current implementation: handled in the same way as PM runtime
+diff --git a/drivers/i2c/Kconfig b/drivers/i2c/Kconfig
+index e380c6e..f7b220b 100644
+--- a/drivers/i2c/Kconfig
++++ b/drivers/i2c/Kconfig
+@@ -124,4 +124,14 @@ config I2C_DEBUG_BUS
+ 	  a problem with I2C support and want to see more of what is going
+ 	  on.
+ 
++config I2C_DISABLE_DEVICE_DETECTION
++	bool "I2C Disable device detection"
++	default n
++	help
++	  Say Y here, if you have explicitly defined I2C device topology in DT
++	  or platform code and don't need to detect presence of supported I2C
++	  devices automatically (Documentation/i2c/instantiating-devices -
++	  Method 1 and Method 2 are used only). Enabling this option allows to
++	  reduce system boot time, especially in case when i2c-gpio driver is used.
++
+ endif # I2C
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 48e31ed..d5ab7a3 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -54,7 +54,9 @@ static DEFINE_MUTEX(core_lock);
+ static DEFINE_IDR(i2c_adapter_idr);
+ 
+ static struct device_type i2c_client_type;
++#ifndef CONFIG_I2C_DISABLE_DEVICE_DETECTION
+ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
++#endif
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+@@ -958,7 +960,9 @@ static int i2c_do_add_adapter(struct i2c_driver *driver,
+ 			      struct i2c_adapter *adap)
+ {
+ 	/* Detect supported devices on that bus, and instantiate them */
++#ifndef CONFIG_I2C_DISABLE_DEVICE_DETECTION
+ 	i2c_detect(adap, driver);
++#endif
+ 
+ 	/* Let legacy drivers scan this bus for matching devices */
+ 	if (driver->attach_adapter) {
+@@ -1672,6 +1676,7 @@ static int i2c_default_probe(struct i2c_adapter *adap, unsigned short addr)
+ 	return err >= 0;
+ }
+ 
++#ifndef CONFIG_I2C_DISABLE_DEVICE_DETECTION
+ static int i2c_detect_address(struct i2c_client *temp_client,
+ 			      struct i2c_driver *driver)
+ {
+@@ -1760,6 +1765,7 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
+ 	kfree(temp_client);
+ 	return err;
+ }
++#endif
+ 
+ int i2c_probe_func_quick_read(struct i2c_adapter *adap, unsigned short addr)
+ {
+-- 
+1.7.9.5
 
-
-The new implementation:   -- total mess is here((:
-- suspend_noirq - I2C device can be still active because of PM auto-suspend
-   |-_od_suspend_noirq
-      |- omap_i2c_suspend_noirq
-         |- PINs state set to SLEEP
-   |- pm_generic_runtime_suspend
-      |- omap_i2c_runtime_suspend()
-         |- PINs state set to IDLE  <--- *oops* PINs state is IDLE and 
-not SLEEP
-   |- omap_device_idle()
-      |- omap_hwmod_idle()
-         |- _idle()
-            |- disbale module (sysc&clocks)
-
-- resume_noirq - I2C was active before suspend
-   |-_od_resume_noirq
-      |- omap_hwmod_enable()
-         |- _enable()
-            |- enable module (sysc&clocks)
-      |- pm_generic_runtime_resume
-         |- omap_i2c_runtime_resume()
-            |- PINs state set to DEFAULT  <--- !!!!
-      |- omap_i2c_resume_noirq
-         |- PINs state set to DEFAULT
-         |- PINs state set to IDLE        <--- *big oops* we have active 
-module and its
-                                               PINs state is IDLE
-
-All mentioned above, applicable for most of all patches in series.
-And It seems, that this functionality can't be implemented in such way (
-- OMAP device FW and Driver core might handle PINs states changing and
-   drivers (DT) should provide set of available states only.
-
-Am I wrong?
-
-Regards,
--grygorii
-
-
->
-> [...]
->
->> @@ -1300,6 +1348,10 @@ static int omap_i2c_runtime_suspend(struct device *dev)
->>   		omap_i2c_read_reg(_dev, OMAP_I2C_STAT_REG);
->>   	}
->>   
->> +	if (!IS_ERR(_dev->pins_idle))
->> +		if (pinctrl_select_state(_dev->pinctrl, _dev->pins_idle))
->> +			dev_err(dev, "could not set pins to idle state\n");
->> +
->>   	return 0;
->>   }
->>   
-> Kevin
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-omap" in
-> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
