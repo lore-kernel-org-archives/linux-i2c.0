@@ -1,26 +1,34 @@
-From: "Huang, Shane" <Shane.Huang@amd.com>
-Subject: RE: [PATCH RESEND 2/3] ahci: add AMD CZ SATA device ID
-Date: Tue, 4 Jun 2013 02:09:01 +0000
-Message-ID: <43EB3AB3EEFE8D43B525F4D2EAF507E1085B9F73@SCYBEXDAG04.amd.com>
-References: <1370255050-2358-1-git-send-email-shane.huang@amd.com>
- <51AC6A14.2040908@cogentembedded.com>
- <CAErSpo5Jh_znOjr0CRBN=Kay+Y2ZJ2dDfVJdVW7MW9TjFzB6Yg@mail.gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 11/11] i2c: omap: enhance pinctrl support
+Date: Tue, 4 Jun 2013 09:23:24 +0200
+Message-ID: <CACRpkdaTHsHzu1dyOBoNn77+U5r5oJ0ueUv=W8g41Nb0X1qtTg@mail.gmail.com>
+References: <1369995191-20855-1-git-send-email-gururaja.hebbar@ti.com>
+	<1369995191-20855-12-git-send-email-gururaja.hebbar@ti.com>
+	<87bo7r10s9.fsf@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <CAErSpo5Jh_znOjr0CRBN=Kay+Y2ZJ2dDfVJdVW7MW9TjFzB6Yg@mail.gmail.com>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Bjorn Helgaas <bhelgaas@google.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Cc: Tejun Heo <tj@kernel.org>, Jean Delvare <khali@linux-fr.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "Huang, Shane" <Shane.Huang@amd.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <87bo7r10s9.fsf@linaro.org>
+Sender: linux-omap-owner@vger.kernel.org
+To: Kevin Hilman <khilman@linaro.org>
+Cc: Hebbar Gururaja <gururaja.hebbar@ti.com>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, "davinci-linux-open-source@linux.davincidsp.com" <davinci-linux-open-source@linux.davincidsp.com>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Russell King - ARM Linux <linux@arm.linux.org.uk>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Vaibhav Bedia <vaibhav.bedia@ti.com>, sudhakar.raj@ti.com, Tony Lindgren <tony@atomide.com>, Wolfram Sang <wsa@the-dreams.de>, Linux-OMAP <linux-omap@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Bjorn,
+On Fri, May 31, 2013 at 8:07 PM, Kevin Hilman <khilman@linaro.org> wrote:
 
-> Let me know if anybody objects.  Otherwise, I'll merge it into my
-> -next branch tomorrow.
+> But that brings up a bigger question about whether or not we should be
+> doing the rest of this (idle/sleep) pin management in the drivers or in
+> the driver core as well.  I would much prefer it be handled by the
+> driver core.
 
-The change is fine with me, thanks to you and Sergei.
+Yes. See my suggestion in 2/11.
 
-Shane
+> In fact, since these are all PM related events, it should probably be
+> handled by the PM core and seems pretty straight forward to do so.
+
+I can see a clean interface with three simple functions toward
+<pinctrl/consumer.h> for switching between the default, idle and
+sleep states, but you may see even further...
+
+Yours,
+Linus Walleij
