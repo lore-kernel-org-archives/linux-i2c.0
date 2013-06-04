@@ -1,55 +1,118 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: Let users disable "Probe an I2C bus for certain
- devices"
-Date: Tue, 4 Jun 2013 19:49:02 +0200
-Message-ID: <20130604174900.GA2992@katana>
-References: <1370367222-19353-1-git-send-email-grygorii.strashko@ti.com>
+From: Kevin Hilman <khilman@linaro.org>
+Subject: Re: [PATCH 1/2] i2c: omap: convert to module_platform_driver()
+Date: Tue, 04 Jun 2013 11:29:34 -0700
+Message-ID: <87zjv5zq41.fsf@linaro.org>
+References: <1366723151-23209-1-git-send-email-grygorii.strashko@ti.com>
+	<1366723151-23209-2-git-send-email-grygorii.strashko@ti.com>
+	<87fvwylxl8.fsf@linaro.org> <51ADD06B.3000201@ti.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1370367222-19353-1-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <51ADD06B.3000201@ti.com> (Grygorii Strashko's message of "Tue, 4
+	Jun 2013 14:32:59 +0300")
+Sender: linux-omap-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Santosh Shilimkar <santosh.shilimkar@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+Grygorii Strashko <grygorii.strashko@ti.com> writes:
 
---HlL+5n6rz5pIUxbD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> Hi Kevin,
+> On 06/03/2013 11:59 PM, Kevin Hilman wrote:
+>> Grygorii Strashko <grygorii.strashko@ti.com> writes:
+>>
+>>> The OMAP I2C driver has a relation to pinctrl-single driver. As result,
+>>> its probe will be deferred during system boot until late init time,
+>>> because the pinctrl-single is initizalized as moudle/device init time.
+>>> This, in turn, will delay initialization of all I2C devices (like mfd,
+>>> I2C regulators and etc.) and cause boot delay (more over, it can broken
+>>> initialization of drivers which are not ready to use deferred probe
+>>> mechanism yet, for example DSS).
+>>>
+>>> There are no sense to keep OMAP I2C initialization on subsys init layer
+>>> any more, hence shift it to module/device layer where the i2c <-->
+>>> pinctrl-single dependency is resolved in drivers/Makefile now.
+>>>
+>>> Cc: Wolfram Sang <wsa@the-dreams.de>
+>>> Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>
+>>> Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
+>>> Cc: linux-omap@vger.kernel.org
+>>> Cc: linux-i2c@vger.kernel.org
+>>> Cc: linux-kernel@vger.kernel.org
+>>>
+>>> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+>> Testing this patch with PATCH 1/2, the twl_rtc driver fails to correctly
+>> initialize on OMAP3:
+>>
+>>           twl_rtc rtc.22: hctosys: invalid date/time
+>>
+>> instead of the expected result:
+>>
+>>            twl_rtc rtc.22: setting system clock to 2000-01-01 00:00:00 UTC (946684800)
+>>
+>> so something is still not right for the init sequence.
+>>
+>> Kevin
+> I think, the root cause of the problem isn't this patch - it's just
+> yet another side effect
+> of using deferred probes :). I've taken a look on twl-rtc code and
+> found possible error place
+> static int __init twl_rtc_init(void)
+> {
+>     if (twl_class_is_4030()) <------ here,
+>         rtc_reg_map = (u8 *) twl4030_rtc_reg_map;
+>     else
+>         rtc_reg_map = (u8 *) twl6030_rtc_reg_map;
+>
+>     return platform_driver_register(&twl4030rtc_driver);
+> }
+> In drivers/Makefile:
+> obj-$(CONFIG_RTC_LIB)        += rtc/  <------ RTC is placed before I2C
+> obj-y                += i2c/ media/ <----- and only here I2C bus
+> instantiates TWL-core device
+> and configures twl_priv->twl_id
+>
+> Thats why it's working on my OMAP4/twl6030 board. Could you check if
+> below fix will work on OMAP3:
 
-On Tue, Jun 04, 2013 at 08:33:42PM +0300, Grygorii Strashko wrote:
+Yes, your fix works.  Thanks for digging into it.
 
-> Currently the I2C devices instantiation Method 3 "Probe an I2C bus for
-> certain devices" (see Documentation/i2c/instantiating-devices) is always
-> enabled for all platforms (boards) and can't be disabled.
+Care to send a proper patch?  Please be sure to send to Andrew Morton
+also, since he'll be the one to queue the RTC patch.
 
-Not true. Set .class = 0 for your adapter. I always ask authors of new
-drivers if they really need to set .class to something.
+> diff --git a/drivers/rtc/rtc-twl.c b/drivers/rtc/rtc-twl.c
+> index 8751a52..aaa5015 100644
+> --- a/drivers/rtc/rtc-twl.c
+> +++ b/drivers/rtc/rtc-twl.c
+> @@ -469,6 +469,11 @@ static int twl_rtc_probe(struct platform_device *pdev)
+>         if (irq <= 0)
+>                 goto out1;
+>
+> +       if (twl_class_is_4030())
+> +               rtc_reg_map = (u8 *) twl4030_rtc_reg_map;
+> +       else
+> +               rtc_reg_map = (u8 *) twl6030_rtc_reg_map;
+> +
+>         ret = twl_rtc_read_u8(&rd_reg, REG_RTC_STATUS_REG);
+>         if (ret < 0)
+>                 goto out1;
+> @@ -610,11 +615,6 @@ static struct platform_driver twl4030rtc_driver = {
+>
+>  static int __init twl_rtc_init(void)
+>  {
+> -       if (twl_class_is_4030())
+> -               rtc_reg_map = (u8 *) twl4030_rtc_reg_map;
+> -       else
+> -               rtc_reg_map = (u8 *) twl6030_rtc_reg_map;
+> -
+>         return platform_driver_register(&twl4030rtc_driver);
+>  }
+>  module_init(twl_rtc_init);
+>
+> Unfortunately, I have no OMAP3 HW and can't check it.
 
+I suggest you find a Beagle or Gumstix/Overo type board someplace.
+There is an abundance of cheap OMAP3 hardware available.
 
---HlL+5n6rz5pIUxbD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Kevin
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRriiMAAoJEBQN5MwUoCm2UO4P/RZGhzuhHA6Ps/hZg45o5Ura
-DsENTFBlJNLg7hbHssv0jNkyw8RUR6S/8CY8hhHli6BwVoVd7+2WBxIAkSImmmE6
-Yx88+RvBH8nBspR4YUqqrh0XIcTVtrfjV2XM17Cb6AKFoI6mBbVw1R1iOPZbg2XU
-R0tT9P0PtE4H6lyOa2UEZv3LqBi7ywuDcwU6uaXAOeF2cKZl1/PFXEinMcJO8zXK
-B1UkWGk1z6woPIYbk6lsTGripqMDe/B7zXlJFFN/JY74rmo8q1PMJEnPGmI9bAzc
-gOHtDfiwOi59GSHJPBnJxQNNPcCIBFfME1JgQQoOuJBDMAk0U4fCmLJx7XAinzKx
-Ih1KovGz2uqdUVU2nL20nXsErvPLKKp5g8f436pIUGEi/qGmF0YoSH4eahRcLZoE
-8eihODJAhBP/gY4xB1vmO8vKSayIbFkTvN9zOcVTtTBTmSQ5vkzkvWOkVJFgj9kj
-zxq+YsYCCigr3QBJLfVtauvcZcN6+QPpuw7REbgPmn5Hv9vy9Poo+3UsS7AVhvDB
-ZYIHHVM5kSDlD+Ym0FMjlVpCYMZGlBZNcntQGP5y9cQng9xDNFoY4pZno0hUkX6C
-5CusnbUw6SYmd2BPHaSBPq7kzdRUK1eZmLVumUrJD/edjtSGYlG4glKjV6GcdgIO
-bTWtMOUM4AH6eQXIh2tK
-=dmQs
------END PGP SIGNATURE-----
-
---HlL+5n6rz5pIUxbD--
