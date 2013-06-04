@@ -1,51 +1,26 @@
-From: Kevin Hilman <khilman@linaro.org>
-Subject: Re: [PATCH 1/2] i2c: omap: convert to module_platform_driver()
-Date: Mon, 03 Jun 2013 13:59:31 -0700
-Message-ID: <87fvwylxl8.fsf@linaro.org>
-References: <1366723151-23209-1-git-send-email-grygorii.strashko@ti.com>
-	<1366723151-23209-2-git-send-email-grygorii.strashko@ti.com>
+From: "Huang, Shane" <Shane.Huang@amd.com>
+Subject: RE: [PATCH RESEND 2/3] ahci: add AMD CZ SATA device ID
+Date: Tue, 4 Jun 2013 02:09:01 +0000
+Message-ID: <43EB3AB3EEFE8D43B525F4D2EAF507E1085B9F73@SCYBEXDAG04.amd.com>
+References: <1370255050-2358-1-git-send-email-shane.huang@amd.com>
+ <51AC6A14.2040908@cogentembedded.com>
+ <CAErSpo5Jh_znOjr0CRBN=Kay+Y2ZJ2dDfVJdVW7MW9TjFzB6Yg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <1366723151-23209-2-git-send-email-grygorii.strashko@ti.com>
-	(Grygorii Strashko's message of "Tue, 23 Apr 2013 16:19:09 +0300")
-Sender: linux-omap-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, Samuel Ortiz <sameo@linux.intel.com>, Wolfram Sang <wsa@the-dreams.de>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Santosh Shilimkar <santosh.shilimkar@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <CAErSpo5Jh_znOjr0CRBN=Kay+Y2ZJ2dDfVJdVW7MW9TjFzB6Yg@mail.gmail.com>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: Bjorn Helgaas <bhelgaas@google.com>, Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: Tejun Heo <tj@kernel.org>, Jean Delvare <khali@linux-fr.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>, linux-i2c <linux-i2c@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "Huang, Shane" <Shane.Huang@amd.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Grygorii Strashko <grygorii.strashko@ti.com> writes:
+Bjorn,
 
-> The OMAP I2C driver has a relation to pinctrl-single driver. As result,
-> its probe will be deferred during system boot until late init time,
-> because the pinctrl-single is initizalized as moudle/device init time.
-> This, in turn, will delay initialization of all I2C devices (like mfd,
-> I2C regulators and etc.) and cause boot delay (more over, it can broken
-> initialization of drivers which are not ready to use deferred probe
-> mechanism yet, for example DSS).
->
-> There are no sense to keep OMAP I2C initialization on subsys init layer
-> any more, hence shift it to module/device layer where the i2c <-->
-> pinctrl-single dependency is resolved in drivers/Makefile now.
->
-> Cc: Wolfram Sang <wsa@the-dreams.de>
-> Cc: "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>
-> Cc: Santosh Shilimkar <santosh.shilimkar@ti.com>
-> Cc: linux-omap@vger.kernel.org
-> Cc: linux-i2c@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
->
-> Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+> Let me know if anybody objects.  Otherwise, I'll merge it into my
+> -next branch tomorrow.
 
-Testing this patch with PATCH 1/2, the twl_rtc driver fails to correctly
-initialize on OMAP3:
+The change is fine with me, thanks to you and Sergei.
 
-         twl_rtc rtc.22: hctosys: invalid date/time
-
-instead of the expected result:
-
-          twl_rtc rtc.22: setting system clock to 2000-01-01 00:00:00 UTC (946684800)
-
-so something is still not right for the init sequence.
-
-Kevin
+Shane
