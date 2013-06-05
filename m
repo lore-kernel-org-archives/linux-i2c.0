@@ -1,68 +1,85 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH] i2c: Let users disable "Probe an I2C bus for certain
- devices"
-Date: Wed, 5 Jun 2013 19:13:59 +0300
-Message-ID: <51AF63C7.9070007@ti.com>
-References: <1370367222-19353-1-git-send-email-grygorii.strashko@ti.com> <20130604174900.GA2992@katana>
+From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCHv3 1/6] i2c: sunxi: Add Allwinner A1X i2c driver
+Date: Wed, 5 Jun 2013 23:31:44 +0200
+Message-ID: <20130605213144.GB14209@lukather>
+References: <1369648843-1640-1-git-send-email-maxime.ripard@free-electrons.com>
+ <1369648843-1640-2-git-send-email-maxime.ripard@free-electrons.com>
+ <20130605133945.GA2934@katana>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130604174900.GA2992@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBP65X2GQKGQEZKWXQNA-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <20130605133945.GA2934@katana>
+List-Post: <http://groups.google.com/group/linux-sunxi/post?hl=en-GB>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/?hl=en-GB>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi?hl=en-GB>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
+ <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
+ <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+Content-Disposition: inline
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi
-On 06/04/2013 08:49 PM, Wolfram Sang wrote:
-> On Tue, Jun 04, 2013 at 08:33:42PM +0300, Grygorii Strashko wrote:
->
->> Currently the I2C devices instantiation Method 3 "Probe an I2C bus for
->> certain devices" (see Documentation/i2c/instantiating-devices) is always
->> enabled for all platforms (boards) and can't be disabled.
-> Not true. Set .class = 0 for your adapter. I always ask authors of new
-> drivers if they really need to set .class to something.
->
-Agree, sorry, my statement is wrong. it would be right to say
-"..can't be disabled without kernel code modification".
+Hi Wolfram,
 
-Few notes here:
-1) boot delay issue isn't related to new drivers. There are
-hwmon/lm75.c, i2c/busses/i2c-gpio.c and i2c/busses/i2c-omap.c
+On Wed, Jun 05, 2013 at 03:39:47PM +0200, Wolfram Sang wrote:
+> 
+> > +#define SUNXI_I2C_ADDR_REG		(0x00)
+> > +#define SUNXI_I2C_ADDR_ADDR(v)			((v & 0x7f) << 1)
+> > +#define SUNXI_I2C_XADDR_REG		(0x04)
+> > +#define SUNXI_I2C_DATA_REG		(0x08)
+> > +#define SUNXI_I2C_CNTR_REG		(0x0c)
+> > +#define SUNXI_I2C_CNTR_ASSERT_ACK		BIT(2)
+> > +#define SUNXI_I2C_CNTR_INT_FLAG			BIT(3)
+> > +#define SUNXI_I2C_CNTR_MASTER_STOP		BIT(4)
+> > +#define SUNXI_I2C_CNTR_MASTER_START		BIT(5)
+> > +#define SUNXI_I2C_CNTR_BUS_ENABLE		BIT(6)
+> > +#define SUNXI_I2C_CNTR_INT_ENABLE		BIT(7)
+> > +#define SUNXI_I2C_STA_REG		(0x10)
+> > +#define SUNXI_I2C_STA_BUS_ERROR			(0x00)
+> > +#define SUNXI_I2C_STA_START			(0x08)
+> > +#define SUNXI_I2C_STA_START_REPEAT		(0x10)
+> > +#define SUNXI_I2C_STA_MASTER_WADDR_ACK		(0x18)
+> > +#define SUNXI_I2C_STA_MASTER_WADDR_NAK		(0x20)
+> > +#define SUNXI_I2C_STA_MASTER_DATA_SENT_ACK	(0x28)
+> > +#define SUNXI_I2C_STA_MASTER_DATA_SENT_NAK	(0x30)
+> > +#define SUNXI_I2C_STA_MASTER_RADDR_ACK		(0x40)
+> > +#define SUNXI_I2C_STA_MASTER_RADDR_NAK		(0x48)
+> > +#define SUNXI_I2C_STA_MASTER_DATA_RECV_ACK	(0x50)
+> > +#define SUNXI_I2C_STA_MASTER_DATA_RECV_NAK	(0x58)
+> > +#define SUNXI_I2C_CCR_REG		(0x14)
+> > +#define SUNXI_I2C_CCR_DIV_N(val)		(val & 0x3)
+> > +#define SUNXI_I2C_CCR_DIV_M(val)		((val & 0xf) << 3)
+> > +#define SUNXI_I2C_SRST_REG		(0x18)
+> > +#define SUNXI_I2C_SRST_RESET			BIT(0)
+> > +#define SUNXI_I2C_EFR_REG		(0x1c)
+> > +#define SUNXI_I2C_LCR_REG		(0x20)
+> > +
+> > +#define SUNXI_I2C_DONE			BIT(0)
+> > +#define SUNXI_I2C_ERROR			BIT(1)
+> > +#define SUNXI_I2C_NAK			BIT(2)
+> > +#define SUNXI_I2C_BUS_ERROR		BIT(3)
+> 
+> The register set looks similar to i2c-mv64xxx.c. Has it been considered
+> to merge the two drivers?
 
-2) Initially, I've fighted with it on TI K3.4 product kernel where
-DT isn't supported yet. And first thing, which I've tried to do is to 
-correct
-.class parameter for adapter, but with assumption:
-"Default behavior shouldn't be changed as I2C detection might be used by 
-some
-of OMAP boards".
+Hmm, right, the logic seems surprisingly similar. I wasn't aware of such
+a driver, so I didn't put much thought into merging them :)
 
-I've started from i2c-omap.c and OMAP4/5 (my target). As result, I was 
-need to make
-changes in *7* files to set and pass platform parameter to i2c-omap.c 
-driver which
-will allow to change .class to 0 on demand.
+However, the register layout is quite different enough to be quite
+painful to support: the XADDR register here seems to be equivalent to
+the Marvell's EXT_SLAVE_ADDR register, yet in the allwinner case, the
+offset is 0x4, while it's 0x1c in Marvell's case, which offsets all the
+other registers obviously. The status and clock registers in marvell
+case looks to be merged together, while they are separate registers
+here, etc.
 
-At this point, I've realized that i still need to deal with i2c-gpio.c - 
-which
-is generic driver.
+I guess it would make the code much more complicated for such simple
+drivers, so I wouldn't push too much for merging, but I guess it's your
+call.
 
-3) Thinking about Mainline: To reach the same target - no I2C detection 
-- and taking
-into account above assumption "No changes in default behavior"
-the following will need to be done:
-- change i2c-omap/i2c-gpio DT bindings and add parameter which will 
-allow to change
-   .class value for adapter. Not sure, it's possible because this parameter
-   will be Linux and not HW specific (smth. like "i2c_disable_detection")
-- update drivers i2c-omap/i2c-gpio to use "i2c_disable_detection"
-- update OMAP4/5 DTS files
-
-So, It seemed a good solution for me to add 6 lines of code in i2c-core.c
-instead of doing all that stuff.
-
-Thanks/sorry for your time.
-
-- grygorii
+Thanks!
+Maxime
