@@ -1,56 +1,68 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-intel-mid: remove obsolete driver
-Date: Wed, 5 Jun 2013 16:06:34 +0200
-Message-ID: <20130605140633.GD2934@katana>
-References: <1370250303-17414-1-git-send-email-andriy.shevchenko@linux.intel.com>
+From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Subject: Re: [PATCH] i2c: Let users disable "Probe an I2C bus for certain
+ devices"
+Date: Wed, 5 Jun 2013 19:13:59 +0300
+Message-ID: <51AF63C7.9070007@ti.com>
+References: <1370367222-19353-1-git-send-email-grygorii.strashko@ti.com> <20130604174900.GA2992@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IMjqdzrDRly81ofr"
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1370250303-17414-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <20130604174900.GA2992@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi
+On 06/04/2013 08:49 PM, Wolfram Sang wrote:
+> On Tue, Jun 04, 2013 at 08:33:42PM +0300, Grygorii Strashko wrote:
+>
+>> Currently the I2C devices instantiation Method 3 "Probe an I2C bus for
+>> certain devices" (see Documentation/i2c/instantiating-devices) is always
+>> enabled for all platforms (boards) and can't be disabled.
+> Not true. Set .class = 0 for your adapter. I always ask authors of new
+> drivers if they really need to set .class to something.
+>
+Agree, sorry, my statement is wrong. it would be right to say
+"..can't be disabled without kernel code modification".
 
---IMjqdzrDRly81ofr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Few notes here:
+1) boot delay issue isn't related to new drivers. There are
+hwmon/lm75.c, i2c/busses/i2c-gpio.c and i2c/busses/i2c-omap.c
 
-On Mon, Jun 03, 2013 at 12:05:03PM +0300, Andy Shevchenko wrote:
-> Moorestown support is removed from kernel and Medfield is supported by
-> i2c-designware-pci. But i2c-intel-mid is still in upstream and community
-> resources are wasted to maintain it.
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+2) Initially, I've fighted with it on TI K3.4 product kernel where
+DT isn't supported yet. And first thing, which I've tried to do is to 
+correct
+.class parameter for adapter, but with assumption:
+"Default behavior shouldn't be changed as I2C detection might be used by 
+some
+of OMAP boards".
 
-Happily applied to for-next, thanks! I guess your previous attempt was
-probably overlooked. BTW, designware-pci still supports Moorestown.
+I've started from i2c-omap.c and OMAP4/5 (my target). As result, I was 
+need to make
+changes in *7* files to set and pass platform parameter to i2c-omap.c 
+driver which
+will allow to change .class to 0 on demand.
 
+At this point, I've realized that i still need to deal with i2c-gpio.c - 
+which
+is generic driver.
 
---IMjqdzrDRly81ofr
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+3) Thinking about Mainline: To reach the same target - no I2C detection 
+- and taking
+into account above assumption "No changes in default behavior"
+the following will need to be done:
+- change i2c-omap/i2c-gpio DT bindings and add parameter which will 
+allow to change
+   .class value for adapter. Not sure, it's possible because this parameter
+   will be Linux and not HW specific (smth. like "i2c_disable_detection")
+- update drivers i2c-omap/i2c-gpio to use "i2c_disable_detection"
+- update OMAP4/5 DTS files
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+So, It seemed a good solution for me to add 6 lines of code in i2c-core.c
+instead of doing all that stuff.
 
-iQIcBAEBAgAGBQJRr0XpAAoJEBQN5MwUoCm2og4P/2WuCs27ANI7ts8lu9pFAZx+
-JvZbBu03jLTElVdQA2GrBk5LDsNDedtmw+RlEhuyijXMni7LT73XepzrNNpQ3Irg
-VcS+zu5yp9eIiYX2Op2psTD61zmjT5S0raM3Z+AzOKUekLajhfrR9OTpTE9xBJiF
-QC1R/F+PoMKT+F/wlsPa1o31li8hDwN85vmsmnmaflo5ylcjo4pbZmPyNlU/tEIQ
-ryAvHWqNZoS9pz5fpa9g0CskrziXdlK/IR3db3tLz4GIkG+CauuctQ5iBwAMv9Cg
-hT+fAUOMbd/mzbo2ZH4obGx4JZDQrWlXfT4uHjN5XyjIK29VBhjF2tkvLOsqZZbe
-HyMXABZ6WJ13KeyxMWJXtgEeD6DnBHMF56mPex5e0Yr0MrYkIsjt2MDGkkEZ+N4R
-e8CVJha/KT0fv3qOYty45H4ol6+BKBnK7fh40qi8kkmpaFbRDMjnxbGuuMn6SyDm
-0z2XNTYlIRhiXXQUTlcuEEhNA2YeSwbBR15ZpBa8EHVLhtBfxGRgkZ6r6eW7QlQl
-3iDJ23l2UmEFXFKkcA98erR8X49wCbWi2JgScycOn/mQ2yHqO4CtLv1w3wmE/MiO
-CvCAOAPJdw3gIYIkDtjQZ2uYT5Ga+L/DHLFBHT28moKzh/Ala1TScYDQQp+ZGxuQ
-Lpf0YsA2F7EHOVeB1pLl
-=RB4e
------END PGP SIGNATURE-----
+Thanks/sorry for your time.
 
---IMjqdzrDRly81ofr--
+- grygorii
