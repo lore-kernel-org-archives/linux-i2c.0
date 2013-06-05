@@ -1,60 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/2] i2c: omap: convert to module_platform_driver()
-Date: Wed, 5 Jun 2013 15:50:48 +0200
-Message-ID: <20130605135048.GB2934@katana>
-References: <1366723151-23209-1-git-send-email-grygorii.strashko@ti.com>
- <1366723151-23209-2-git-send-email-grygorii.strashko@ti.com>
- <87fvwylxl8.fsf@linaro.org>
- <51ADD06B.3000201@ti.com>
- <87zjv5zq41.fsf@linaro.org>
- <51AF20F0.30000@ti.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-intel-mid: remove obsolete driver
+Date: Wed, 5 Jun 2013 16:06:34 +0200
+Message-ID: <20130605140633.GD2934@katana>
+References: <1370250303-17414-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
-Return-path: <linux-omap-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="IMjqdzrDRly81ofr"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <51AF20F0.30000@ti.com>
-Sender: linux-omap-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Kevin Hilman <khilman@linaro.org>, Tony Lindgren <tony@atomide.com>, Samuel Ortiz <sameo@linux.intel.com>, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Santosh Shilimkar <santosh.shilimkar@ti.com>, linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1370250303-17414-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---wq9mPyueHGvFACwf
+--IMjqdzrDRly81ofr
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jun 03, 2013 at 12:05:03PM +0300, Andy Shevchenko wrote:
+> Moorestown support is removed from kernel and Medfield is supported by
+> i2c-designware-pci. But i2c-intel-mid is still in upstream and community
+> resources are wasted to maintain it.
+>=20
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+
+Happily applied to for-next, thanks! I guess your previous attempt was
+probably overlooked. BTW, designware-pci still supports Moorestown.
 
 
-> The similar patch already exists:
-> https://patchwork.kernel.org/patch/2448251/ - [v2,1/2] RTC: rtc-twl:
-> Fix rtc_reg_map initialization
-> from Peter Ujfalusi
-
-So, I think it is best if you resend this patch after all the fixes it
-needs are applied or you resend the series with all patches it depends
-on. Which should then probably go via arm-soc. Or?
-
-
---wq9mPyueHGvFACwf
+--IMjqdzrDRly81ofr
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRr0I4AAoJEBQN5MwUoCm2P/AQAJMIs20ZMapwSiHTjbxmTwnC
-g37LT4J/myLchAXowmI0H0CnDO5mppUkKGsWyeVnIBJt1kkQMY735sdnf2KRNqJ2
-muEgy/cx1AQad+S3kRE/Z/ni6KaPk2t1hw6nbpP3Ah7mdWJJjeG54ifGt4GGp3fE
-dFzB+s++HAaiUPPNqMaaIMFiaX1NmcWkrIEOGxaF0y3QCkPlyFXFulCgejJwkfle
-8JDXwWVfRms7DXp6LqhzSr8CiONRhtqmHYzgnVb1Hr+DD0q32ZCZWGocb/NJYLim
-gauYXT70+JAatBW0FOJsZSnrkmPgVt6WgZlv2aKsHnQ6DoGeJ/fmnhjSYBc3Itk1
-aPbvwSYD/jYeeJeelw4AOeNs7HfMMLsmvgiJxWXwwia96yhJk5Bp0nUQlykgG89o
-gAiwwe2PUONu8ZuwVCGGkcpHCzJeN/lMmuBc9npZ/MctsY4tI2RT4dCjQy2SXxt1
-Uy2Aqy554qvG1g1y28qvXOy+ZZcaBBj/Oag43Rqkt1XNy+rW+mfPKp6HXy1mKYYo
-HohvFD88GpHoeO/ZgsuhEnJNu5SR0Pw2UKibdf3x9frhqP3PFqRB/Z6yvECFsfGr
-FqQToex2i1v9aqbS2yIPOlXrYKYAdjwlh7TXixghTTNYLLoJ1J4/OGSmLRE7+7fd
-tQrHnQuEOZJszHdMFR3z
-=IztA
+iQIcBAEBAgAGBQJRr0XpAAoJEBQN5MwUoCm2og4P/2WuCs27ANI7ts8lu9pFAZx+
+JvZbBu03jLTElVdQA2GrBk5LDsNDedtmw+RlEhuyijXMni7LT73XepzrNNpQ3Irg
+VcS+zu5yp9eIiYX2Op2psTD61zmjT5S0raM3Z+AzOKUekLajhfrR9OTpTE9xBJiF
+QC1R/F+PoMKT+F/wlsPa1o31li8hDwN85vmsmnmaflo5ylcjo4pbZmPyNlU/tEIQ
+ryAvHWqNZoS9pz5fpa9g0CskrziXdlK/IR3db3tLz4GIkG+CauuctQ5iBwAMv9Cg
+hT+fAUOMbd/mzbo2ZH4obGx4JZDQrWlXfT4uHjN5XyjIK29VBhjF2tkvLOsqZZbe
+HyMXABZ6WJ13KeyxMWJXtgEeD6DnBHMF56mPex5e0Yr0MrYkIsjt2MDGkkEZ+N4R
+e8CVJha/KT0fv3qOYty45H4ol6+BKBnK7fh40qi8kkmpaFbRDMjnxbGuuMn6SyDm
+0z2XNTYlIRhiXXQUTlcuEEhNA2YeSwbBR15ZpBa8EHVLhtBfxGRgkZ6r6eW7QlQl
+3iDJ23l2UmEFXFKkcA98erR8X49wCbWi2JgScycOn/mQ2yHqO4CtLv1w3wmE/MiO
+CvCAOAPJdw3gIYIkDtjQZ2uYT5Ga+L/DHLFBHT28moKzh/Ala1TScYDQQp+ZGxuQ
+Lpf0YsA2F7EHOVeB1pLl
+=RB4e
 -----END PGP SIGNATURE-----
 
---wq9mPyueHGvFACwf--
+--IMjqdzrDRly81ofr--
