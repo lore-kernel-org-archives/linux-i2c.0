@@ -1,27 +1,73 @@
-From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: omap: convert to module_platform_driver()
-Date: Thu, 6 Jun 2013 17:58:24 +0300
-Message-ID: <51B0A390.1030807@ti.com>
-References: <1366723151-23209-1-git-send-email-grygorii.strashko@ti.com> <1366723151-23209-2-git-send-email-grygorii.strashko@ti.com> <87fvwylxl8.fsf@linaro.org> <51ADD06B.3000201@ti.com> <87zjv5zq41.fsf@linaro.org> <51AF20F0.30000@ti.com> <20130605135048.GB2934@katana>
+From: Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: i2c: introduce i2c helper i2c_find_client_by_name()
+Date: Thu, 6 Jun 2013 11:33:46 -0700
+Message-ID: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130605135048.GB2934@katana>
+Content-Disposition: inline
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/05/2013 04:50 PM, Wolfram Sang wrote:
->> The similar patch already exists:
->> https://patchwork.kernel.org/patch/2448251/ - [v2,1/2] RTC: rtc-twl:
->> Fix rtc_reg_map initialization
->> from Peter Ujfalusi
-> So, I think it is best if you resend this patch after all the fixes it
-> needs are applied or you resend the series with all patches it depends
-> on. Which should then probably go via arm-soc. Or?
->
-It can wait - I'll track and resend after twl-rtc patches.
+i2c: introduce i2c helper i2c_find_client_by_name()
 
--grygorii
+There is a requirement to get the i2c_client pointer dynamically without
+knowing the bus and slave address. But we do know the client name,
+i.e. the name in the i2c_board_info. This patch is to fit this requirement.
+
+A good example is that an ISP(Imaging Signal Processor) driver needs
+register i2c camera sensor devices via v4l2, so it has to unregister
+all i2c clients that were previously registered by calling
+i2c_register_board_info(), and then re-register. For this case we
+can use this helper to get i2c_client by passing the client name.
+
+Signed-off-by: Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/i2c-core.c |   17 +++++++++++++++++
+ include/linux/i2c.h    |    1 +
+ 2 files changed, 18 insertions(+), 0 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 48e31ed..17683de6 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -2326,6 +2326,23 @@ s32 i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr, unsigned short flags,
+ }
+ EXPORT_SYMBOL(i2c_smbus_xfer);
+ 
++static int match_name(struct device *dev, void *data)
++{
++	const char *name = data;
++	struct i2c_client *client = to_i2c_client(dev);
++
++	return !strncmp(client->name, name, strlen(client->name));
++}
++
++struct i2c_client *i2c_find_client_by_name(char *name)
++{
++	struct device *dev;
++
++	dev = bus_find_device(&i2c_bus_type, NULL, name, match_name);
++	return dev ? to_i2c_client(dev) : NULL;
++}
++EXPORT_SYMBOL_GPL(i2c_find_client_by_name);
++
+ MODULE_AUTHOR("Simon G. Vogl <simon-nD9nYVNVf00W+b/DJNNodF6hYfS7NtTn@public.gmane.org>");
+ MODULE_DESCRIPTION("I2C-Bus main module");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index e988fa9..7d8bf02 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -509,6 +509,7 @@ extern void i2c_clients_command(struct i2c_adapter *adap,
+ extern struct i2c_adapter *i2c_get_adapter(int nr);
+ extern void i2c_put_adapter(struct i2c_adapter *adap);
+ 
++extern struct i2c_client *i2c_find_client_by_name(char *name);
+ 
+ /* Return the functionality mask */
+ static inline u32 i2c_get_functionality(struct i2c_adapter *adap)
+-- 
+1.7.4.4
