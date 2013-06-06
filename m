@@ -1,33 +1,49 @@
-From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Subject: Re: i2c: introduce i2c helper i2c_find_client_by_name()
-Date: Thu, 6 Jun 2013 23:32:06 +0300
-Message-ID: <CAHp75VcYgpUVpOnKOzkYoZXbEPO_0QG7=WUXza55wpOyRwcKCA@mail.gmail.com>
+Date: Thu, 6 Jun 2013 14:26:20 -0700
+Message-ID: <20130606212620.GA13620@bingao-desk1.fm.intel.com>
 References: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
+ <CAHp75VcYgpUVpOnKOzkYoZXbEPO_0QG7=WUXza55wpOyRwcKCA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130606183346.GA13259-VlzZ4XCc4GmWDyPblzj0aa2pdiUAq4bhAL8bYrjMMd8@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAHp75VcYgpUVpOnKOzkYoZXbEPO_0QG7=WUXza55wpOyRwcKCA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jun 6, 2013 at 9:33 PM, Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> There is a requirement to get the i2c_client pointer dynamically without
-> knowing the bus and slave address. But we do know the client name,
-> i.e. the name in the i2c_board_info. This patch is to fit this requirement.
->
-> A good example is that an ISP(Imaging Signal Processor) driver needs
-> register i2c camera sensor devices via v4l2, so it has to unregister
-> all i2c clients that were previously registered by calling
-> i2c_register_board_info(), and then re-register. For this case we
-> can use this helper to get i2c_client by passing the client name.
+With v4l2, the camera sensor i2c devices are taken over by v4l2 master
+driver, i.e. ISP driver, and are not expected to be accessed from
+user sapce by ioctl. So ISP driver has to register them by itself to
+get all related information for further communication. Please check
+v4l2_i2c_new_subdev_board() in drivers/media/video/v4l2-common.c for details.
 
-Why ISP driver would like to register sensor drivers in the first place?
-That seems the task of platform code, or DT, or ACPI5
+The platform code can definitely disallow calling i2c_register_board_info()
+to register them but keep the i2c devices list and then let ISP driver register
+them. But, problems come when a single kernel is going to run on two platforms
+- one platform has ACPI5 and the other has SFI. The dynamic unregister and then
+register based on this new helper will not have dependency on firmware interface -
+the same platform code will work for all platforms.
 
-Why do you need to re-register them at run time?
-
---
-With Best Regards,
-Andy Shevchenko
+On Thu, Jun 06, 2013 at 11:32:06PM +0300, Andy Shevchenko wrote:
+> On Thu, Jun 6, 2013 at 9:33 PM, Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
+> > There is a requirement to get the i2c_client pointer dynamically without
+> > knowing the bus and slave address. But we do know the client name,
+> > i.e. the name in the i2c_board_info. This patch is to fit this requirement.
+> >
+> > A good example is that an ISP(Imaging Signal Processor) driver needs
+> > register i2c camera sensor devices via v4l2, so it has to unregister
+> > all i2c clients that were previously registered by calling
+> > i2c_register_board_info(), and then re-register. For this case we
+> > can use this helper to get i2c_client by passing the client name.
+> 
+> Why ISP driver would like to register sensor drivers in the first place?
+> That seems the task of platform code, or DT, or ACPI5
+> 
+> Why do you need to re-register them at run time?
+> 
+> --
+> With Best Regards,
+> Andy Shevchenko
