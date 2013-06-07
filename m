@@ -1,33 +1,208 @@
 From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH 2/2] ARM: dts: mvebu: Add the i2c-bridge capability to
-	the mv64xxx-i2c
-Date: Fri, 7 Jun 2013 20:52:34 +0100
-Message-ID: <20130607195234.GZ18614@n2100.arm.linux.org.uk>
-References: <1370619743-15245-1-git-send-email-gregory.clement@free-electrons.com> <1370619743-15245-3-git-send-email-gregory.clement@free-electrons.com>
+Subject: Re: [PATCH 1/2] i2c-mv64xxx: Add I2C Transaction Generator support
+Date: Fri, 7 Jun 2013 20:57:54 +0100
+Message-ID: <20130607195754.GA18614@n2100.arm.linux.org.uk>
+References: <1370619743-15245-1-git-send-email-gregory.clement@free-electrons.com> <1370619743-15245-2-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1370619743-15245-3-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1370619743-15245-2-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maen
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 07, 2013 at 05:42:23PM +0200, Gregory CLEMENT wrote:
-> The mv64xxx-i2c embedded in the Armada XP have a new feature called
-> i2c-bridge. This commit split the i2c information into armada-370.dtsi
-> and armada-xp.dtsi. Most of the data remains the same and stay in the
-> common file Armada-370-xp.dtsi. With this new feature the size of the
-> registers are bigger for Armada XP and for this SoCs we add a new flag
-> for the i2c-bridge capability.
+On Fri, Jun 07, 2013 at 05:42:22PM +0200, Gregory CLEMENT wrote:
+> From: Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+> 
+> The I2C Transaction Generator offloads CPU from managing I2C
+> transfer step by step.
+> 
+> This feature is currently only available on Armada XP, so usage of
+> this mechanism is activated through device tree.
+> 
+> [gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Rewrite some part to be applied
+> on the the code modified by Russell King's fixes]
+> [gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Merge and split the commits to
+> push them to the accurate maintainer i2c and of]]
+> [gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Reword the commit log]
+> 
+> Signed-off-by: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-mv64xxx.c | 143 +++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 139 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index 6356439..5376dc3 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -24,7 +24,7 @@
+>  #include <linux/clk.h>
+>  #include <linux/err.h>
+>  
+> -/* Register defines */
+> +/* Register defines (I2C port) */
+>  #define	MV64XXX_I2C_REG_SLAVE_ADDR			0x00
+>  #define	MV64XXX_I2C_REG_DATA				0x04
+>  #define	MV64XXX_I2C_REG_CONTROL				0x08
+> @@ -59,6 +59,29 @@
+>  #define	MV64XXX_I2C_STATUS_MAST_RD_ADDR_2_NO_ACK	0xe8
+>  #define	MV64XXX_I2C_STATUS_NO_STATUS			0xf8
+>  
+> +/* Register defines (I2C bridge) */
+> +#define	MV64XXX_I2C_REG_TX_DATA_LO			0xC0
+> +#define	MV64XXX_I2C_REG_TX_DATA_HI			0xC4
+> +#define	MV64XXX_I2C_REG_RX_DATA_LO			0xC8
+> +#define	MV64XXX_I2C_REG_RX_DATA_HI			0xCC
+> +#define	MV64XXX_I2C_REG_BRIDGE_CONTROL			0xD0
+> +#define	MV64XXX_I2C_REG_BRIDGE_STATUS			0xD4
+> +#define	MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE		0xD8
+> +#define	MV64XXX_I2C_REG_BRIDGE_INTR_MASK		0xDC
+> +#define	MV64XXX_I2C_REG_BRIDGE_TIMING			0xE0
+> +
+> +/* Bridge Control values */
+> +#define	MV64XXX_I2C_BRIDGE_CONTROL_WR			0x00000001
+> +#define	MV64XXX_I2C_BRIDGE_CONTROL_RD			0x00000002
+> +#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT		2
+> +#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT		0x00001000
+> +#define	MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT	13
+> +#define	MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT	16
+> +#define	MV64XXX_I2C_BRIDGE_CONTROL_ENABLE		0x00080000
+> +
+> +/* Bridge Status values */
+> +#define	MV64XXX_I2C_BRIDGE_STATUS_ERROR			0x00000001
+> +
+>  /* Driver states */
+>  enum {
+>  	MV64XXX_I2C_STATE_INVALID,
+> @@ -110,6 +133,7 @@ struct mv64xxx_i2c_data {
+>  	spinlock_t		lock;
+>  	struct i2c_msg		*msg;
+>  	struct i2c_adapter	adapter;
+> +	int			bridge_enabled;
+>  };
+>  
+>  static void
+> @@ -157,6 +181,16 @@ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
+>  	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_EXT_SLAVE_ADDR);
+>  	writel(MV64XXX_I2C_REG_CONTROL_TWSIEN | MV64XXX_I2C_REG_CONTROL_STOP,
+>  		drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +
+> +	if (drv_data->bridge_enabled) {
+> +		writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
+> +		writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_TIMING);
+> +		writel(0, drv_data->reg_base +
+> +			MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
+> +		writel(0, drv_data->reg_base +
+> +			MV64XXX_I2C_REG_BRIDGE_INTR_MASK);
+> +	}
+> +
+>  	drv_data->state = MV64XXX_I2C_STATE_IDLE;
+>  }
+>  
+> @@ -368,6 +402,19 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
+>  	irqreturn_t	rc = IRQ_NONE;
+>  
+>  	spin_lock_irqsave(&drv_data->lock, flags);
+> +
+> +	if (drv_data->bridge_enabled) {
+> +		if (readl(drv_data->reg_base +
+> +				MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE)) {
+> +			writel(0, drv_data->reg_base +
+> +				MV64XXX_I2C_REG_BRIDGE_CONTROL);
+> +			writel(0, drv_data->reg_base +
+> +				MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
+> +			drv_data->block = 0;
+> +			wake_up(&drv_data->waitq);
+> +			rc = IRQ_HANDLED;
+> +		}
+> +	}
+>  	while (readl(drv_data->reg_base + MV64XXX_I2C_REG_CONTROL) &
+>  						MV64XXX_I2C_REG_CONTROL_IFLG) {
+>  		status = readl(drv_data->reg_base + MV64XXX_I2C_REG_STATUS);
+> @@ -446,6 +493,81 @@ mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
+>  	return drv_data->rc;
+>  }
+>  
+> +static int
+> +mv64xxx_i2c_offload_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg)
+> +{
+> +	unsigned long data_reg_hi = 0;
+> +	unsigned long data_reg_lo = 0;
+> +	unsigned long status_reg;
+> +	unsigned long ctrl_reg;
+> +	unsigned long flags;
+> +	unsigned int i;
+> +
+> +	/* Only regular transactions can be offloaded */
+> +	if ((msg->flags & ~(I2C_M_TEN | I2C_M_RD)) != 0)
+> +		return 1;
+> +
+> +	/* Only 1-8 byte transfers can be offloaded */
+> +	if (msg->len < 1 || msg->len > 8)
+> +		return 1;
+> +
+> +	/* Build transaction */
+> +	ctrl_reg = MV64XXX_I2C_BRIDGE_CONTROL_ENABLE |
+> +		   (msg->addr << MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT);
+> +
+> +	if ((msg->flags & I2C_M_TEN) != 0)
+> +		ctrl_reg |=  MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT;
+> +
+> +	if ((msg->flags & I2C_M_RD) == 0) {
+> +		for (i = 0; i < 4 && i < msg->len; i++)
+> +			data_reg_lo = data_reg_lo |
+> +					(msg->buf[i] << ((i & 0x3) * 8));
+> +
+> +		for (i = 4; i < 8 && i < msg->len; i++)
+> +			data_reg_hi = data_reg_hi |
+> +					(msg->buf[i] << ((i & 0x3) * 8));
+> +
+> +		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_WR |
+> +		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT;
+> +	} else {
+> +		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_RD |
+> +		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT;
+> +	}
+> +
+> +	/* Execute transaction */
+> +	spin_lock_irqsave(&drv_data->lock, flags);
+> +	drv_data->block = 1;
+> +	writel(data_reg_lo, drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_LO);
+> +	writel(data_reg_hi, drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_HI);
 
-Personally, I don't like this "i2c-bridge" flag either, but for a different
-reason - i2c-bridge makes it sound like it's doing something it's not.
+You can use writel_relaxed with the above two writes - you don't need any
+synchronization with memory as you aren't doing DMA.
 
-What it is doing is as you stated in the cover - it's an offload mechanism,
-just like if it were possible to use DMA to supply the data to the I2C
-interface.
+> +	writel(ctrl_reg, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
+> +	spin_unlock_irqrestore(&drv_data->lock, flags);
 
-I think Maxime is correct - this should be identified by a variation in
-the compatible string, not by a flag in DT.
+You can also probably dispense with the spinlock too - the interface should
+be idle before you start writing to these registers, and nothing should start
+happening until after this last write.  Moreover, the I2C core layer will
+ensure that there can't be two concurrent transactions.
+
+> +
+> +	mv64xxx_i2c_wait_for_completion(drv_data);
+> +
+> +	spin_lock_irqsave(&drv_data->lock, flags);
+> +	status_reg = readl(drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_STATUS);
+> +	data_reg_lo = readl(drv_data->reg_base + MV64XXX_I2C_REG_RX_DATA_LO);
+> +	data_reg_hi = readl(drv_data->reg_base + MV64XXX_I2C_REG_RX_DATA_HI);
+> +	spin_unlock_irqrestore(&drv_data->lock, flags);
+
+And same here - after the completion returns, the interface should now be
+idle again, so there should be no concurrency.
+
+> -
+> -	rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[0], num == 1);
+> +	if (drv_data->bridge_enabled)
+> +		rc = mv64xxx_i2c_offload_msg(drv_data, &msgs[0]);
+
+Note that you're only dealing with the first message, so this is buggy.
+mv64xxx_i2c_execute_msg() below now deals with the entire transaction
+(so all the i2c_msg structures) in one go from interrupt context,
+unlike prior to my patch where messages were dealt with one at a time
+(and thereby buggily too!)
