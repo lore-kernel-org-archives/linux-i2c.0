@@ -1,103 +1,46 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [RFC PATCH] i2c-designware-core: disable adapter before fill dev
- structure
-Date: Fri, 7 Jun 2013 15:01:34 +0200
-Message-ID: <20130607130133.GH11875@ab42.lan>
-References: <CAHp75VfwSTO7UoEGVpd7qdFVSFNYrBG6aXx1Oj8UAkgbmi=1XQ@mail.gmail.com>
- <1370597401-22501-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH] i2c-designware-platform: don't check resource with devm_ioremap_resource
+Date: Fri,  7 Jun 2013 16:57:29 +0300
+Message-ID: <1370613449-29719-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1370597401-22501-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Andy,
+devm_ioremap_resource does sanity checks on the given resource. No need to
+duplicate this in the driver.
 
-I like your patch and I just did some testing on it. Unluckily, it
-doesn't solve the lock-up problem.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-I haven't investigated any further but I suspect that on top of the
-cases I observed when debugging this (interrupts after initialisation o=
-f
-dev, easy to prove) there are more obscure cases in which interrupts ar=
-e
-generated in an unexpected manner after errors. The interrupt-driven
-transfer state machine of the driver implicitly relies on the fact that
-all updates of dev which are related to the same transfer are performed
-between the mutex_lock and mutex_unlock calls in i2c_dw_xfer. Thus, I
-decided it was safer to disable the block before releasing the mutex
-when I wrote my patch.
-
-That said, I think the sequencing at transfer initialisation is more
-logical with your patch and I wonder if it is still worth applying. Any
-other opinions on this?
-
-Greetings,
-  Christian
-
-On Fri, Jun 07, 2013 at 12:30:01PM +0300, Andy Shevchenko wrote:
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-designware-core.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/b=
-usses/i2c-designware-core.c
-> index c41ca63..a1d3d95 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -366,9 +366,6 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *d=
-ev)
->  	struct i2c_msg *msgs =3D dev->msgs;
->  	u32 ic_con;
-> =20
-> -	/* Disable the adapter */
-> -	__i2c_dw_enable(dev, false);
-> -
->  	/* set the slave (target) address */
->  	dw_writel(dev, msgs[dev->msg_write_idx].addr, DW_IC_TAR);
-> =20
-> @@ -561,6 +558,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c=
-_msg msgs[], int num)
->  	mutex_lock(&dev->lock);
->  	pm_runtime_get_sync(dev->dev);
-> =20
-> +	ret =3D i2c_dw_wait_bus_not_busy(dev);
-> +	if (ret < 0)
-> +		goto done;
-> +
-> +	/* Disable the adapter */
-> +	__i2c_dw_enable(dev, false);
-> +
->  	INIT_COMPLETION(dev->cmd_complete);
->  	dev->msgs =3D msgs;
->  	dev->msgs_num =3D num;
-> @@ -572,10 +576,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c=
-_msg msgs[], int num)
->  	dev->abort_source =3D 0;
->  	dev->rx_outstanding =3D 0;
-> =20
-> -	ret =3D i2c_dw_wait_bus_not_busy(dev);
-> -	if (ret < 0)
-> -		goto done;
-> -
->  	/* start the transfers */
->  	i2c_dw_xfer_init(dev);
-> =20
-> --=20
-> 1.8.2.rc0.22.gb3600c3
->=20
-
---=20
-  Christian Ruppert              ,          <christian.ruppert@abilis.c=
-om>
-                                /|
-  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
-leuri
-                             _// | bilis Systems   CH-1228 Plan-les-Oua=
-tes
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 35b70a1..ee46c92 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -87,13 +87,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	struct resource *mem;
+ 	int irq, r;
+ 
+-	/* NOTE: driver uses the static register mapping */
+-	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!mem) {
+-		dev_err(&pdev->dev, "no mem resource?\n");
+-		return -EINVAL;
+-	}
+-
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "no irq resource?\n");
+@@ -104,6 +97,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	if (!dev)
+ 		return -ENOMEM;
+ 
++	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	dev->base = devm_ioremap_resource(&pdev->dev, mem);
+ 	if (IS_ERR(dev->base))
+ 		return PTR_ERR(dev->base);
+-- 
+1.8.2.rc0.22.gb3600c3
