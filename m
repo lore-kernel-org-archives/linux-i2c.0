@@ -1,7 +1,7 @@
 From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH 0/2] i2c-mv64xxx: Add I2C Transaction Generator support
-Date: Fri,  7 Jun 2013 17:42:21 +0200
-Message-ID: <1370619743-15245-1-git-send-email-gregory.clement@free-electrons.com>
+Subject: [PATCH 0/2] i2c-mv64xxx: Various fixes
+Date: Fri,  7 Jun 2013 17:44:58 +0200
+Message-ID: <1370619900-15963-1-git-send-email-gregory.clement@free-electrons.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
@@ -10,40 +10,28 @@ List-Id: linux-i2c@vger.kernel.org
 
 Hello,
 
-this patch set adds support for the I2C Transaction Generator which
-offloads CPU from managing I2C transfer step by step. This feature is
-currently only available on the I2C controller IP embedded in the
-Armada XP SoC. That's why usage of this mechanism is optional and
-activated through device tree.
+This series contains a real fix for the I2C controller of the Armada
+XP SoC and a patch closer to a improvement than a fix.
 
-The first patch modifies the driver itself and should go through i2c
-subsystem.
+They are independent and are only in the same series because they are
+kind of fixes.
 
-Due to the recent changes in i2c-mv64xxx.c file caused by Russell
-King's fixes, I based this patch on the for-next branch of the i2c git
-repository.
+They are based on 3.10-rc4, and they will be small conflicts if they
+are applied on top of i2c/for-next branch and on top of the series I
+have just sent to add I2C Transaction Generator support. You can have
+a look on the branch i2c-mv64xxx-fixes-bridge to get an idea on how to
+resolve it. This branch is located at
+https://github.com/MISL-EBU-System-SW/mainline-public.git
 
-The second patch updates the device tree to be able to use this new
-feature and should go through mvebu subsystem.
+Thanks,
 
-The 2 patches are independents for building or even at runtime, but of
-course we need both of them to be able to use the I2C Transaction
-Generator on the Armada XP SoC.
+Zbigniew Bodek (2):
+  i2c-mv64xxx: Fix timing issue on Armada XP (errata FE-8471889)
+  i2c-mv64xxx: Abort the mv64xxx_of_config if clock-frequency is not
+    provided
 
-Thanks
-
-Gregory CLEMENT (1):
-  ARM: dts: mvebu: Add the i2c-bridge capability to the mv64xxx-i2c
-
-Zbigniew Bodek (1):
-  i2c-mv64xxx: Add I2C Transaction Generator support
-
- .../devicetree/bindings/i2c/i2c-mv64xxx.txt        |   6 +
- arch/arm/boot/dts/armada-370-xp.dtsi               |   2 -
- arch/arm/boot/dts/armada-370.dtsi                  |   8 ++
- arch/arm/boot/dts/armada-xp.dtsi                   |  10 ++
- drivers/i2c/busses/i2c-mv64xxx.c                   | 143 ++++++++++++++++++++-
- 5 files changed, 163 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-mv64xxx.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
 -- 
 1.8.1.2
