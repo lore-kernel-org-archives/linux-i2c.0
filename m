@@ -1,65 +1,71 @@
-From: Christian Ruppert <christian.ruppert@abilis.com>
-Subject: [PATCH V2] i2c: designware: fix race between subsequent xfers
-Date: Fri,  7 Jun 2013 10:51:23 +0200
-Message-ID: <1370595083-801-1-git-send-email-christian.ruppert@abilis.com>
-References: <1370526216-10060-1-git-send-email-christian.ruppert@abilis.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1370526216-10060-1-git-send-email-christian.ruppert@abilis.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Jean Delvare <khali@linux-fr.org>, Pierrick Hascoet <pierrick.hascoet@abilis.com>, Christian Ruppert <christian.ruppert@abilis.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: i2c: designware: prevent signals from aborting I2C transfers
+Date: Fri, 7 Jun 2013 10:53:39 +0200
+Message-ID: <20130607085327.GA570@ab42.lan>
+References: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1369216991-13334-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The designware block is not always properly disabled in the case of
-transfer errors. Interrupts from aborted transfers might be handled
-after the data structures for the following transfer are initialised but
-before the hardware is set up. This can corrupt the data structures to
-the point that the system is stuck in an infinite interrupt loop (where
-FIFOs are never emptied because dev->msg_read_idx == dev->msgs_num).
+On Wed, May 22, 2013 at 10:03:11AM -0000, Mika Westerberg wrote:
+> If a process receives signal while it is waiting for I2C transfer to
+> complete, an error is returned to the caller and the transfer is abor=
+ted.
+> This can cause the driver to fail subsequent transfers. Also accordin=
+g to
+> commit d295a86eab2 (i2c: mv64xxx: work around signals causing I2C
+> transactions to be aborted) I2C drivers aren't supposed to abort
+> transactions on signals.
+>=20
+> To prevent this switch to use wait_for_completion_timeout() instead o=
+f
+> wait_for_completion_interruptible_timeout() in the designware I2C dri=
+ver.
+>=20
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Reviewed-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+>=20
+> ---
+> drivers/i2c/busses/i2c-designware-core.c |    5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/b=
+usses/i2c-designware-core.c
+> index c41ca63..db20a28 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -580,14 +580,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2=
+c_msg msgs[], int num)
+>  	i2c_dw_xfer_init(dev);
+> =20
+>  	/* wait for tx to complete */
+> -	ret =3D wait_for_completion_interruptible_timeout(&dev->cmd_complet=
+e, HZ);
+> +	ret =3D wait_for_completion_timeout(&dev->cmd_complete, HZ);
+>  	if (ret =3D=3D 0) {
+>  		dev_err(dev->dev, "controller timed out\n");
+>  		i2c_dw_init(dev);
+>  		ret =3D -ETIMEDOUT;
+>  		goto done;
+> -	} else if (ret < 0)
+> -		goto done;
+> +	}
+> =20
+>  	if (dev->msg_err) {
+>  		ret =3D dev->msg_err;
 
-This patch cleanly disables the designware-i2c hardware at the end of
-every transfer, be it successful or not.
-
-This patch requires https://patchwork.kernel.org/patch/2601241/ to be
-applied first.
-
-Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
----
- drivers/i2c/busses/i2c-designware-core.c |   10 ++++++++--
- 1 files changed, 8 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index b75d292..55a9991 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -588,11 +588,19 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	ret = wait_for_completion_timeout(&dev->cmd_complete, HZ);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
-+		/* i2c_dw_init implicitly disables the adapter */
- 		i2c_dw_init(dev);
- 		ret = -ETIMEDOUT;
- 		goto done;
- 	}
- 
-+	/*
-+	 * We must disable the adapter before unlocking the &dev->lock mutex
-+	 * below. Otherwise the hardware might continue generating interrupts
-+	 * which in turn causes a race condition with the following transfer.
-+	 */
-+	__i2c_dw_enable(dev, false);
-+
- 	if (dev->msg_err) {
- 		ret = dev->msg_err;
- 		goto done;
-@@ -600,8 +608,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- 	/* no error */
- 	if (likely(!dev->cmd_err)) {
--		/* Disable the adapter */
--		__i2c_dw_enable(dev, false);
- 		ret = num;
- 		goto done;
- 	}
--- 
-1.7.1
+--=20
+  Christian Ruppert              ,          <christian.ruppert@abilis.c=
+om>
+                                /|
+  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
+leuri
+                             _// | bilis Systems   CH-1228 Plan-les-Oua=
+tes
