@@ -1,71 +1,72 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: i2c: designware: prevent signals from aborting I2C transfers
-Date: Fri, 7 Jun 2013 10:53:39 +0200
-Message-ID: <20130607085327.GA570@ab42.lan>
-References: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: Let users disable "Probe an I2C bus for certain
+ devices"
+Date: Fri, 7 Jun 2013 11:06:23 +0200
+Message-ID: <20130607090623.GC3428@katana>
+References: <1370367222-19353-1-git-send-email-grygorii.strashko@ti.com>
+ <20130604174900.GA2992@katana>
+ <51AF63C7.9070007@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Sr1nOIr3CvdE5hEN"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1369216991-13334-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <51AF63C7.9070007@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, May 22, 2013 at 10:03:11AM -0000, Mika Westerberg wrote:
-> If a process receives signal while it is waiting for I2C transfer to
-> complete, an error is returned to the caller and the transfer is abor=
-ted.
-> This can cause the driver to fail subsequent transfers. Also accordin=
-g to
-> commit d295a86eab2 (i2c: mv64xxx: work around signals causing I2C
-> transactions to be aborted) I2C drivers aren't supposed to abort
-> transactions on signals.
->=20
-> To prevent this switch to use wait_for_completion_timeout() instead o=
-f
-> wait_for_completion_interruptible_timeout() in the designware I2C dri=
-ver.
->=20
-> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Reviewed-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
->=20
-> ---
-> drivers/i2c/busses/i2c-designware-core.c |    5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/b=
-usses/i2c-designware-core.c
-> index c41ca63..db20a28 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -580,14 +580,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2=
-c_msg msgs[], int num)
->  	i2c_dw_xfer_init(dev);
-> =20
->  	/* wait for tx to complete */
-> -	ret =3D wait_for_completion_interruptible_timeout(&dev->cmd_complet=
-e, HZ);
-> +	ret =3D wait_for_completion_timeout(&dev->cmd_complete, HZ);
->  	if (ret =3D=3D 0) {
->  		dev_err(dev->dev, "controller timed out\n");
->  		i2c_dw_init(dev);
->  		ret =3D -ETIMEDOUT;
->  		goto done;
-> -	} else if (ret < 0)
-> -		goto done;
-> +	}
-> =20
->  	if (dev->msg_err) {
->  		ret =3D dev->msg_err;
 
---=20
-  Christian Ruppert              ,          <christian.ruppert@abilis.c=
-om>
-                                /|
-  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
-leuri
-                             _// | bilis Systems   CH-1228 Plan-les-Oua=
-tes
+--Sr1nOIr3CvdE5hEN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+
+> 3) Thinking about Mainline: To reach the same target - no I2C
+> detection - and taking
+> into account above assumption "No changes in default behavior"
+> the following will need to be done:
+> - change i2c-omap/i2c-gpio DT bindings and add parameter which will
+> allow to change
+>   .class value for adapter. Not sure, it's possible because this parameter
+>   will be Linux and not HW specific (smth. like "i2c_disable_detection")
+> - update drivers i2c-omap/i2c-gpio to use "i2c_disable_detection"
+> - update OMAP4/5 DTS files
+>=20
+> So, It seemed a good solution for me to add 6 lines of code in i2c-core.c
+> instead of doing all that stuff.
+
+Well... I understand the "default behaviour" issue, yet I still think
+that setting class to 0 is the right thing to do. OMAP is an embedded
+SoC which always had i2c_board_info or devictree which are the preferred
+ways of instantiating. Given that, I would accept a patch setting it to
+0. The more user friendly way might be to introduce a new class which
+makes users aware of the issue. Proof of concept follows, only compile
+tested.
+
+
+--Sr1nOIr3CvdE5hEN
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRsaKPAAoJEBQN5MwUoCm2QpYP/jD5ltUb6TztwZcMtJ6k7kRc
+7RQN+trAbEhD7YmiwOa/6Ud24ea9wuC8oFW7Cg8U5sGlehBe728T8Zo84gz5Qecn
+SdYv5Xw7FXJhmEA2mK/WAtsdLC8hgACaduDtMAhYO9DQ7xWlxuuQP/RKjm/AYp64
+LOeKVUPuLF07e4yiXl/KuIDczYwzdl8l81VPLhmQdnF+OyHgJ5o1yGGYBQ6Kk22I
+Dp2CeNNHIFlEIzE9aOikzfv/lGdbLTwmJURzNAEMHKMEZFWYPknb/DUxzp74xJLW
+Xwmbg2uf4hV3msTeWIvIbZV5XMI5D9nHoJYvvPEQoTIsyiUO4jODQq1rq0v55Ya0
+d1gGWwfvEjWq0UOzyMGkDPgM7P767xn8rzMuzN2uUqx2Y3uye7XyARDVzwg2fCiH
+nIC7+4DD+JQMB0bR1VYVcJnlfWY9cvk/acweQYTgUz4BDn++gpqf/26VC0296Iz+
+ZayUNBMKBp7mCOPu0uHgltVujnILBPVbd11CzjUdIZN899xPGWQTZlDi8cpWxxXb
+N8ZBBnC2LBYnCxmJHurdP3lHazcDiU4EKcRecSx9sNhknALIvtdk51wWT67Fa2pi
+P1+lXbjh+tMqSEw2iIHfqDCWSQG2hrUcqGJBxv22DiMPm/UrqTkdzfXMovhwVbY9
+7qHgRyfWKX+A1nfTWowk
+=wYPj
+-----END PGP SIGNATURE-----
+
+--Sr1nOIr3CvdE5hEN--
