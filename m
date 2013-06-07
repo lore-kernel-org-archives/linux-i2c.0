@@ -1,208 +1,101 @@
-From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-mv64xxx: Add I2C Transaction Generator support
-Date: Fri, 7 Jun 2013 20:57:54 +0100
-Message-ID: <20130607195754.GA18614@n2100.arm.linux.org.uk>
-References: <1370619743-15245-1-git-send-email-gregory.clement@free-electrons.com> <1370619743-15245-2-git-send-email-gregory.clement@free-electrons.com>
+From: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/5] i2c: omap: fix spurious IRQs: disable/enable IRQ at INTC when idle
+Date: Fri, 07 Jun 2013 13:51:27 -0700
+Message-ID: <87li6llk4w.fsf@linaro.org>
+References: <1370630768-4077-1-git-send-email-grygorii.strashko@ti.com>
+	<1370630768-4077-2-git-send-email-grygorii.strashko@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1370619743-15245-2-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1370630768-4077-2-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
+	(Grygorii Strashko's message of "Fri, 7 Jun 2013 21:46:04 +0300")
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maen
+To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 07, 2013 at 05:42:22PM +0200, Gregory CLEMENT wrote:
-> From: Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
-> 
-> The I2C Transaction Generator offloads CPU from managing I2C
-> transfer step by step.
-> 
-> This feature is currently only available on Armada XP, so usage of
-> this mechanism is activated through device tree.
-> 
-> [gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Rewrite some part to be applied
-> on the the code modified by Russell King's fixes]
-> [gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Merge and split the commits to
-> push them to the accurate maintainer i2c and of]]
-> [gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Reword the commit log]
-> 
-> Signed-off-by: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
-> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-mv64xxx.c | 143 +++++++++++++++++++++++++++++++++++++--
->  1 file changed, 139 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> index 6356439..5376dc3 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -24,7 +24,7 @@
->  #include <linux/clk.h>
->  #include <linux/err.h>
->  
-> -/* Register defines */
-> +/* Register defines (I2C port) */
->  #define	MV64XXX_I2C_REG_SLAVE_ADDR			0x00
->  #define	MV64XXX_I2C_REG_DATA				0x04
->  #define	MV64XXX_I2C_REG_CONTROL				0x08
-> @@ -59,6 +59,29 @@
->  #define	MV64XXX_I2C_STATUS_MAST_RD_ADDR_2_NO_ACK	0xe8
->  #define	MV64XXX_I2C_STATUS_NO_STATUS			0xf8
->  
-> +/* Register defines (I2C bridge) */
-> +#define	MV64XXX_I2C_REG_TX_DATA_LO			0xC0
-> +#define	MV64XXX_I2C_REG_TX_DATA_HI			0xC4
-> +#define	MV64XXX_I2C_REG_RX_DATA_LO			0xC8
-> +#define	MV64XXX_I2C_REG_RX_DATA_HI			0xCC
-> +#define	MV64XXX_I2C_REG_BRIDGE_CONTROL			0xD0
-> +#define	MV64XXX_I2C_REG_BRIDGE_STATUS			0xD4
-> +#define	MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE		0xD8
-> +#define	MV64XXX_I2C_REG_BRIDGE_INTR_MASK		0xDC
-> +#define	MV64XXX_I2C_REG_BRIDGE_TIMING			0xE0
-> +
-> +/* Bridge Control values */
-> +#define	MV64XXX_I2C_BRIDGE_CONTROL_WR			0x00000001
-> +#define	MV64XXX_I2C_BRIDGE_CONTROL_RD			0x00000002
-> +#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT		2
-> +#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT		0x00001000
-> +#define	MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT	13
-> +#define	MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT	16
-> +#define	MV64XXX_I2C_BRIDGE_CONTROL_ENABLE		0x00080000
-> +
-> +/* Bridge Status values */
-> +#define	MV64XXX_I2C_BRIDGE_STATUS_ERROR			0x00000001
-> +
->  /* Driver states */
->  enum {
->  	MV64XXX_I2C_STATE_INVALID,
-> @@ -110,6 +133,7 @@ struct mv64xxx_i2c_data {
->  	spinlock_t		lock;
->  	struct i2c_msg		*msg;
->  	struct i2c_adapter	adapter;
-> +	int			bridge_enabled;
->  };
->  
->  static void
-> @@ -157,6 +181,16 @@ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
->  	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_EXT_SLAVE_ADDR);
->  	writel(MV64XXX_I2C_REG_CONTROL_TWSIEN | MV64XXX_I2C_REG_CONTROL_STOP,
->  		drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +
-> +	if (drv_data->bridge_enabled) {
-> +		writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
-> +		writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_TIMING);
-> +		writel(0, drv_data->reg_base +
-> +			MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
-> +		writel(0, drv_data->reg_base +
-> +			MV64XXX_I2C_REG_BRIDGE_INTR_MASK);
-> +	}
-> +
->  	drv_data->state = MV64XXX_I2C_STATE_IDLE;
->  }
->  
-> @@ -368,6 +402,19 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
->  	irqreturn_t	rc = IRQ_NONE;
->  
->  	spin_lock_irqsave(&drv_data->lock, flags);
-> +
-> +	if (drv_data->bridge_enabled) {
-> +		if (readl(drv_data->reg_base +
-> +				MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE)) {
-> +			writel(0, drv_data->reg_base +
-> +				MV64XXX_I2C_REG_BRIDGE_CONTROL);
-> +			writel(0, drv_data->reg_base +
-> +				MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
-> +			drv_data->block = 0;
-> +			wake_up(&drv_data->waitq);
-> +			rc = IRQ_HANDLED;
-> +		}
-> +	}
->  	while (readl(drv_data->reg_base + MV64XXX_I2C_REG_CONTROL) &
->  						MV64XXX_I2C_REG_CONTROL_IFLG) {
->  		status = readl(drv_data->reg_base + MV64XXX_I2C_REG_STATUS);
-> @@ -446,6 +493,81 @@ mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
->  	return drv_data->rc;
->  }
->  
-> +static int
-> +mv64xxx_i2c_offload_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg)
-> +{
-> +	unsigned long data_reg_hi = 0;
-> +	unsigned long data_reg_lo = 0;
-> +	unsigned long status_reg;
-> +	unsigned long ctrl_reg;
-> +	unsigned long flags;
-> +	unsigned int i;
-> +
-> +	/* Only regular transactions can be offloaded */
-> +	if ((msg->flags & ~(I2C_M_TEN | I2C_M_RD)) != 0)
-> +		return 1;
-> +
-> +	/* Only 1-8 byte transfers can be offloaded */
-> +	if (msg->len < 1 || msg->len > 8)
-> +		return 1;
-> +
-> +	/* Build transaction */
-> +	ctrl_reg = MV64XXX_I2C_BRIDGE_CONTROL_ENABLE |
-> +		   (msg->addr << MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT);
-> +
-> +	if ((msg->flags & I2C_M_TEN) != 0)
-> +		ctrl_reg |=  MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT;
-> +
-> +	if ((msg->flags & I2C_M_RD) == 0) {
-> +		for (i = 0; i < 4 && i < msg->len; i++)
-> +			data_reg_lo = data_reg_lo |
-> +					(msg->buf[i] << ((i & 0x3) * 8));
-> +
-> +		for (i = 4; i < 8 && i < msg->len; i++)
-> +			data_reg_hi = data_reg_hi |
-> +					(msg->buf[i] << ((i & 0x3) * 8));
-> +
-> +		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_WR |
-> +		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT;
-> +	} else {
-> +		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_RD |
-> +		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT;
-> +	}
-> +
-> +	/* Execute transaction */
-> +	spin_lock_irqsave(&drv_data->lock, flags);
-> +	drv_data->block = 1;
-> +	writel(data_reg_lo, drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_LO);
-> +	writel(data_reg_hi, drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_HI);
+Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org> writes:
 
-You can use writel_relaxed with the above two writes - you don't need any
-synchronization with memory as you aren't doing DMA.
+> From: Kevin Hilman <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>
+>
+> Currently, runtime PM is used to keep the device enabled only during
+> active transfers and for a configurable runtime PM autosuspend timout
+> after an xfer.
+>
+> In addition to idling the device, driver's ->runtime_suspend() method
+> currently disables device interrupts when idle.  However, on some SoCs
+> (notably OMAP4+), the I2C hardware may shared with other coprocessors.
+> This means that the MPU will still recieve interrupts if a coprocessor
+> is using the I2C device.  To avoid this, also disable interrupts at
+> the MPU INTC when idling the device in ->runtime_suspend() (and
+> re-enable them in ->runtime_resume().)  This part based on an original
+> patch from Shubhrajyoti Datta.  NOTE: for proper sharing the I2C with
+> a coprocessor, this driver still needs hwspinlock support added.
+>
+> More over, this patch fixes the kernel boot failure which happens when
+> CONFIG_SENSORS_LM75=y:
+>
+> [    2.251220] WARNING: at drivers/bus/omap_l3_noc.c:113 l3_interrupt_handler+0x140/0x184()
+> [    2.257781] L3 custom error: MASTER:MPU TARGET:L4 PER2
+> [    2.264373] Modules linked in:
+> [    2.268463] CPU: 0 PID: 2 Comm: kthreadd Not tainted 3.10.0-rc4-00034-g042dd60-dirty #64
+> [    2.270385] [<c001a80c>] (unwind_backtrace+0x0/0xf0) from [<c0017238>] (show_stack+0x10/0x14)
+> [    2.286102] [<c0017238>] (show_stack+0x10/0x14) from [<c0040fd0>] (warn_slowpath_common+0x4c/0x68)
+> [    2.295593] [<c0040fd0>] (warn_slowpath_common+0x4c/0x68) from [<c0041080>] (warn_slowpath_fmt+0x30/0x40)
+> [    2.299987] [<c0041080>] (warn_slowpath_fmt+0x30/0x40) from [<c02c5ed0>] (l3_interrupt_handler+0x140/0x184)
+> [    2.315582] [<c02c5ed0>] (l3_interrupt_handler+0x140/0x184) from [<c009ffb8>] (handle_irq_event_percpu+0x58/0x258)
+> [    2.323364] [<c009ffb8>] (handle_irq_event_percpu+0x58/0x258) from [<c00a01f4>] (handle_irq_event+0x3c/0x5c)
+> [    2.327819] [<c00a01f4>] (handle_irq_event+0x3c/0x5c) from [<c00a2f7c>] (handle_fasteoi_irq+0xbc/0x164)
+> [    2.337829] [<c00a2f7c>] (handle_fasteoi_irq+0xbc/0x164) from [<c009f978>] (generic_handle_irq+0x20/0x30)
+> [    2.357513] [<c009f978>] (generic_handle_irq+0x20/0x30) from [<c0014168>] (handle_IRQ+0x4c/0xac)
+> [    2.366821] [<c0014168>] (handle_IRQ+0x4c/0xac) from [<c00085b4>] (gic_handle_irq+0x28/0x5c)
+> [    2.375762] [<c00085b4>] (gic_handle_irq+0x28/0x5c) from [<c04f08a4>] (__irq_svc+0x44/0x5c)
+> [    2.379821] Exception stack(0xdb085ec0 to 0xdb085f08)
+> [    2.389953] 5ec0: 00000001 00000001 00000000 db07ea00 40000113 db2317a8 db084000 000002f1
+> [    2.389953] 5ee0: db07ea00 00000000 00000000 00000000 c04fd990 db085f08 c009170c c04f03e8
+> [    2.405609] 5f00: 20000113 ffffffff
+> [    2.408355] [<c04f08a4>] (__irq_svc+0x44/0x5c) from [<c04f03e8>] (_raw_spin_unlock_irqrestore+0x34/0x44)
+> [    2.418304] [<c04f03e8>] (_raw_spin_unlock_irqrestore+0x34/0x44) from [<c00403c0>] (do_fork+0xa4/0x2d4)
+> [    2.427795] [<c00403c0>] (do_fork+0xa4/0x2d4) from [<c0040620>] (kernel_thread+0x30/0x38)
+> [    2.437805] [<c0040620>] (kernel_thread+0x30/0x38) from [<c0063888>] (kthreadd+0xd4/0x13c)
+> [    2.448364] [<c0063888>] (kthreadd+0xd4/0x13c) from [<c0013308>] (ret_from_fork+0x14/0x2c)
+> [    2.448364] ---[ end trace da8cf92c433d1616 ]---
+>
+> The root casue of crash is race between omap_i2c_runtime_suspend()
+>  and omap_i2c_isr_thread()
 
-> +	writel(ctrl_reg, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
-> +	spin_unlock_irqrestore(&drv_data->lock, flags);
+If there's a race here, then it's not the same problem which is
+described above, unless the CPU2 IRQ is happening because of a shared
+user of I2C, in which case it doesn't need any additional explanation.
 
-You can also probably dispense with the spinlock too - the interface should
-be idle before you start writing to these registers, and nothing should start
-happening until after this last write.  Moreover, the I2C core layer will
-ensure that there can't be two concurrent transactions.
+>
+> CPU1:                                   CPU2:
+> |-omap_i2c_xfer                         |
+>   |- pm_runtime_put_autosuspend()       |
+>      |-timeout                          |-omap_i2c_isr()
+>                                           |-return IRQ_WAKE_THREAD;
+>      |-omap_i2c_runtime_suspend()       |
+>                                         |-omap_i2c_isr_thread()
+>                                           |- oops is here - I2C module is in idle state
 
-> +
-> +	mv64xxx_i2c_wait_for_completion(drv_data);
-> +
-> +	spin_lock_irqsave(&drv_data->lock, flags);
-> +	status_reg = readl(drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_STATUS);
-> +	data_reg_lo = readl(drv_data->reg_base + MV64XXX_I2C_REG_RX_DATA_LO);
-> +	data_reg_hi = readl(drv_data->reg_base + MV64XXX_I2C_REG_RX_DATA_HI);
-> +	spin_unlock_irqrestore(&drv_data->lock, flags);
+If this is happening, I don't think it's related to $SUBJECT patch (but
+is probably hidden by it.)
 
-And same here - after the completion returns, the interface should now be
-idle again, so there should be no concurrency.
+Instead, what probably needs to happen in this is case is that
+omap_i2c_isr() should be doing a "mark last busy" to reset the
+autosuspend timeout.  And, that should be done in a separate patch.
 
-> -
-> -	rc = mv64xxx_i2c_execute_msg(drv_data, &msgs[0], num == 1);
-> +	if (drv_data->bridge_enabled)
-> +		rc = mv64xxx_i2c_offload_msg(drv_data, &msgs[0]);
+> Cc: Nishanth Menon <nm-l0cyMroinI0@public.gmane.org>
+> Signed-off-by: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Note that you're only dealing with the first message, so this is buggy.
-mv64xxx_i2c_execute_msg() below now deals with the entire transaction
-(so all the i2c_msg structures) in one go from interrupt context,
-unlike prior to my patch where messages were dealt with one at a time
-(and thereby buggily too!)
+Both the From: and Signed-off should be from my TI address since the
+work was done while I was working for TI.
+
+Also, if you change the original patch/changelog, you should add a line
+here like:
+
+[grygorii.strashko-l0cyMroinI0@public.gmane.org]: updated changlog
+
+> Signed-off-by: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+
+Kevin
