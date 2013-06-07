@@ -1,46 +1,108 @@
-From: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH] i2c-designware-platform: don't check resource with devm_ioremap_resource
-Date: Fri,  7 Jun 2013 16:57:29 +0300
-Message-ID: <1370613449-29719-1-git-send-email-andriy.shevchenko@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Gregory CLEMENT <gregory.clement@free-electrons.com>
+Subject: [PATCH 2/2] ARM: dts: mvebu: Add the i2c-bridge capability to the mv64xxx-i2c
+Date: Fri,  7 Jun 2013 17:42:23 +0200
+Message-ID: <1370619743-15245-3-git-send-email-gregory.clement@free-electrons.com>
+References: <1370619743-15245-1-git-send-email-gregory.clement@free-electrons.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1370619743-15245-1-git-send-email-gregory.clement@free-electrons.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
+Cc: Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, linux-arm-kernel@lists.infradead.org, Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>, Gregory CLEMENT <gregory.clement@free-electrons.com>, Nicolas Pitre <nico@fluxnic.net>, Lior Amsalem <alior@marvell.com>, Maen Suleiman <maen@marvell.com>, Tawfik Bayouk <tawfik@marvell.com>, Shadi Ammouri <shadi@marvell.com>, Eran Ben-Avi <benavi@marvell.com>, Yehuda Yitschak <yehuday@marvell.com>, Nadav Haklai <nadavh@marvell.com>, Ike Pan <ike.pan@canonical.com>, Chris Van Hoof <vanhoof@canonical.com>, Dan Frazier <dann.frazier@canonical.com>, Leif Lindholm <leif.lindholm@arm.com>, Jon Masters <jcm@redhat.com>, David Marlin <dmarlin@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-devm_ioremap_resource does sanity checks on the given resource. No need to
-duplicate this in the driver.
+The mv64xxx-i2c embedded in the Armada XP have a new feature called
+i2c-bridge. This commit split the i2c information into armada-370.dtsi
+and armada-xp.dtsi. Most of the data remains the same and stay in the
+common file Armada-370-xp.dtsi. With this new feature the size of the
+registers are bigger for Armada XP and for this SoCs we add a new flag
+for the i2c-bridge capability.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+The Device Tree binding documentation is updated accordingly.
+
+Signed-off-by: Gregory CLEMENT <gregory.clement@free-electrons.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt |  6 ++++++
+ arch/arm/boot/dts/armada-370-xp.dtsi                  |  2 --
+ arch/arm/boot/dts/armada-370.dtsi                     |  8 ++++++++
+ arch/arm/boot/dts/armada-xp.dtsi                      | 10 ++++++++++
+ 4 files changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 35b70a1..ee46c92 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -87,13 +87,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	struct resource *mem;
- 	int irq, r;
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+index f46d928..8ede3e7 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+@@ -8,6 +8,12 @@ Required properties :
+  - interrupts      : The interrupt number
+  - clock-frequency : Desired I2C bus clock frequency in Hz.
  
--	/* NOTE: driver uses the static register mapping */
--	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
--	if (!mem) {
--		dev_err(&pdev->dev, "no mem resource?\n");
--		return -EINVAL;
--	}
--
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq < 0) {
- 		dev_err(&pdev->dev, "no irq resource?\n");
-@@ -104,6 +97,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	if (!dev)
- 		return -ENOMEM;
++Optional  properties :
++
++- i2c,i2c-bridge : This flag indicate that the i2c controller have the
++  Transaction Generator support and we want to use it. Not all the
++  mv64xxx controller have this feature.
++
+ Examples:
  
-+	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	dev->base = devm_ioremap_resource(&pdev->dev, mem);
- 	if (IS_ERR(dev->base))
- 		return PTR_ERR(dev->base);
+ 	i2c@11000 {
+diff --git a/arch/arm/boot/dts/armada-370-xp.dtsi b/arch/arm/boot/dts/armada-370-xp.dtsi
+index 550eb77..b6f475c 100644
+--- a/arch/arm/boot/dts/armada-370-xp.dtsi
++++ b/arch/arm/boot/dts/armada-370-xp.dtsi
+@@ -112,7 +112,6 @@
+ 
+ 			i2c0: i2c@11000 {
+ 				compatible = "marvell,mv64xxx-i2c";
+-				reg = <0x11000 0x20>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				interrupts = <31>;
+@@ -123,7 +122,6 @@
+ 
+ 			i2c1: i2c@11100 {
+ 				compatible = "marvell,mv64xxx-i2c";
+-				reg = <0x11100 0x20>;
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+ 				interrupts = <32>;
+diff --git a/arch/arm/boot/dts/armada-370.dtsi b/arch/arm/boot/dts/armada-370.dtsi
+index aee2b18..39b26d6 100644
+--- a/arch/arm/boot/dts/armada-370.dtsi
++++ b/arch/arm/boot/dts/armada-370.dtsi
+@@ -155,6 +155,14 @@
+ 				};
+ 			};
+ 
++			i2c0: i2c@11000 {
++				reg = <0x11000 0x20>;
++			};
++
++			i2c1: i2c@11100 {
++				reg = <0x11100 0x20>;
++			};
++
+ 			usb@50000 {
+ 				clocks = <&coreclk 0>;
+ 			};
+diff --git a/arch/arm/boot/dts/armada-xp.dtsi b/arch/arm/boot/dts/armada-xp.dtsi
+index 5b902f9..db36bfb 100644
+--- a/arch/arm/boot/dts/armada-xp.dtsi
++++ b/arch/arm/boot/dts/armada-xp.dtsi
+@@ -134,6 +134,16 @@
+ 				};
+ 			};
+ 
++			i2c0: i2c@11000 {
++				reg = <0x11000 0x100>;
++				i2c,i2c-bridge;
++			};
++
++			i2c1: i2c@11100 {
++				reg = <0x11100 0x100>;
++				i2c,i2c-bridge;
++			};
++
+ 			usb@50000 {
+ 				clocks = <&gateclk 18>;
+ 			};
 -- 
-1.8.2.rc0.22.gb3600c3
+1.8.1.2
