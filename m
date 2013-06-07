@@ -1,64 +1,33 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 5/5] i2c: omap: remove omap_i2c_isr() hw irq handler
-Date: Fri, 7 Jun 2013 22:07:50 +0300
-Message-ID: <20130607190750.GF15295@arwen.pp.htv.fi>
-References: <1370630768-4077-1-git-send-email-grygorii.strashko@ti.com>
- <1370630768-4077-6-git-send-email-grygorii.strashko@ti.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCH 2/2] ARM: dts: mvebu: Add the i2c-bridge capability to
+	the mv64xxx-i2c
+Date: Fri, 7 Jun 2013 20:52:34 +0100
+Message-ID: <20130607195234.GZ18614@n2100.arm.linux.org.uk>
+References: <1370619743-15245-1-git-send-email-gregory.clement@free-electrons.com> <1370619743-15245-3-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FoLtEtfbNGMjfgrs"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1370630768-4077-6-git-send-email-grygorii.strashko-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <1370619743-15245-3-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
---FoLtEtfbNGMjfgrs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Jun 07, 2013 at 05:42:23PM +0200, Gregory CLEMENT wrote:
+> The mv64xxx-i2c embedded in the Armada XP have a new feature called
+> i2c-bridge. This commit split the i2c information into armada-370.dtsi
+> and armada-xp.dtsi. Most of the data remains the same and stay in the
+> common file Armada-370-xp.dtsi. With this new feature the size of the
+> registers are bigger for Armada XP and for this SoCs we add a new flag
+> for the i2c-bridge capability.
 
-Hi,
+Personally, I don't like this "i2c-bridge" flag either, but for a different
+reason - i2c-bridge makes it sound like it's doing something it's not.
 
-On Fri, Jun 07, 2013 at 09:46:08PM +0300, Grygorii Strashko wrote:
-> The omap_i2c_isr() does the irq check and schedules threaded handler if a=
-ny of
-> enabled IRQs is active, but currently the I2C IRQs are enabled just once,
-> when I2C IP is enabling (transfer started) and they aren't changed after =
-that.
-> More over, now the I2C INTC IRQ is disabled when I2C IP is idled.
-> Thus, I2C IRQs will start coming only when we want that, and there is
-> no sense to have omap_i2c_isr() anymore:
+What it is doing is as you stated in the cover - it's an offload mechanism,
+just like if it were possible to use DMA to supply the data to the I2C
+interface.
 
-so ? we still want to check if this device generated IRQs in hardirq
-context. What if the IRQ line is shared ?
-
---=20
-balbi
-
---FoLtEtfbNGMjfgrs
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRsi+GAAoJEIaOsuA1yqREpYgP/3XNmQGoJARh4ov+ef+mEJji
-amADqN8daH+YN2dS++G5abnuDnitSFou4jj/wV2/0N/y+I4I8EFkzDwHgURNI0xe
-HtKCPxQMPakJuIbWb0Iroug+DnwvUNhdKJgz7ISnjZD4JeriG1B6Xb8cQDtlJEtC
-cfLf21nmyOTuVqJbXBZd51rF2uBfXssD2pySVMKAxh9uS9liSDiyW5q8pr15drAR
-9krIjH+VzQxO0ZdbYKfFk0jn7oNYHKOrZq65I01A4KYkWJzFxA3Ez8+T0T2u9Dpm
-vOaOy7eovdB9HsZuBiC+nxEZOVVn7iq7J+kAjm1hBLyM0DEboycNHTcu/ui2kwfP
-HU1nG2f76Hcfv0blysJxUvhKQzUkXTolBR5TBeHm+WT043uZ2RZ9gCzQnMeda25I
-XSZClGHOhGuQmM56IPPxxrOuFB1LYvLux0Qvnci+SF4psoU979KqyrRoxcMmEkzC
-ZnzvIrzWMjoRQ7J9kOwFAmkdTp+CfIFKNZxgamsu5lOQKHOZVidKwFj4fplNqI57
-kKpbsMWm/LtU53Chy38x6VfUubIMdMvktJ/sXYv2dMgD6RUZIW4urw9uOpiun92X
-g5VpdvKHR/XqByM23v2fPDMf9GOpFk3RNeRlM8smcOBvcKop+t0ZbjXDB1CRiPfB
-0Aix1zMwG3w89uftoU1l
-=eUX/
------END PGP SIGNATURE-----
-
---FoLtEtfbNGMjfgrs--
+I think Maxime is correct - this should be identified by a variation in
+the compatible string, not by a flag in DT.
