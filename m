@@ -1,55 +1,103 @@
-From: Grygorii Strashko <grygorii.strashko@ti.com>
-Subject: Re: [PATCH] i2c: Let users disable "Probe an I2C bus for certain
- devices"
-Date: Fri, 7 Jun 2013 13:10:38 +0300
-Message-ID: <51B1B19E.1050200@ti.com>
-References: <1370367222-19353-1-git-send-email-grygorii.strashko@ti.com> <20130604174900.GA2992@katana> <51AF63C7.9070007@ti.com> <20130607090623.GC3428@katana>
+From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [RFC PATCH] i2c-designware-core: disable adapter before fill dev
+ structure
+Date: Fri, 7 Jun 2013 15:01:34 +0200
+Message-ID: <20130607130133.GH11875@ab42.lan>
+References: <CAHp75VfwSTO7UoEGVpd7qdFVSFNYrBG6aXx1Oj8UAkgbmi=1XQ@mail.gmail.com>
+ <1370597401-22501-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130607090623.GC3428@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1370597401-22501-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-On 06/07/2013 12:06 PM, Wolfram Sang wrote:
->> 3) Thinking about Mainline: To reach the same target - no I2C
->> detection - and taking
->> into account above assumption "No changes in default behavior"
->> the following will need to be done:
->> - change i2c-omap/i2c-gpio DT bindings and add parameter which will
->> allow to change
->>    .class value for adapter. Not sure, it's possible because this parameter
->>    will be Linux and not HW specific (smth. like "i2c_disable_detection")
->> - update drivers i2c-omap/i2c-gpio to use "i2c_disable_detection"
->> - update OMAP4/5 DTS files
->>
->> So, It seemed a good solution for me to add 6 lines of code in i2c-core.c
->> instead of doing all that stuff.
-> Well... I understand the "default behaviour" issue, yet I still think
-> that setting class to 0 is the right thing to do. OMAP is an embedded
-> SoC which always had i2c_board_info or devictree which are the preferred
-> ways of instantiating. Given that, I would accept a patch setting it to
-> 0. The more user friendly way might be to introduce a new class which
-> makes users aware of the issue. Proof of concept follows, only compile
-> tested.
->
-That sounds good to me - I can prepare patch for i2c-omap.c.
-But, there is still an open question regarding *i2c-gpio.c* which,
-actually, a source of biggest part of delay.
+Hi Andy,
 
-Potentially, it can be tunned using "timeout" value. But, again, this
-is additional work/patches to workaround unneeded system feature:
-- "timeout" should not break interaction with I2C devices on i2c-gpio
-bus and, at same time, speed up boot;
-- DTS/board files need to be updated.
+I like your patch and I just did some testing on it. Unluckily, it
+doesn't solve the lock-up problem.
 
-May be, just may be), we can continue with 
-CONFIG_I2C_DISABLE_DEVICE_DETECTION,
-and print deprecation warning for each registered adapter
-if this config option is defined.
+I haven't investigated any further but I suspect that on top of the
+cases I observed when debugging this (interrupts after initialisation o=
+f
+dev, easy to prove) there are more obscure cases in which interrupts ar=
+e
+generated in an unexpected manner after errors. The interrupt-driven
+transfer state machine of the driver implicitly relies on the fact that
+all updates of dev which are related to the same transfer are performed
+between the mutex_lock and mutex_unlock calls in i2c_dw_xfer. Thus, I
+decided it was safer to disable the block before releasing the mutex
+when I wrote my patch.
 
-- grygorii
+That said, I think the sequencing at transfer initialisation is more
+logical with your patch and I wonder if it is still worth applying. Any
+other opinions on this?
+
+Greetings,
+  Christian
+
+On Fri, Jun 07, 2013 at 12:30:01PM +0300, Andy Shevchenko wrote:
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-designware-core.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/b=
+usses/i2c-designware-core.c
+> index c41ca63..a1d3d95 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -366,9 +366,6 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *d=
+ev)
+>  	struct i2c_msg *msgs =3D dev->msgs;
+>  	u32 ic_con;
+> =20
+> -	/* Disable the adapter */
+> -	__i2c_dw_enable(dev, false);
+> -
+>  	/* set the slave (target) address */
+>  	dw_writel(dev, msgs[dev->msg_write_idx].addr, DW_IC_TAR);
+> =20
+> @@ -561,6 +558,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c=
+_msg msgs[], int num)
+>  	mutex_lock(&dev->lock);
+>  	pm_runtime_get_sync(dev->dev);
+> =20
+> +	ret =3D i2c_dw_wait_bus_not_busy(dev);
+> +	if (ret < 0)
+> +		goto done;
+> +
+> +	/* Disable the adapter */
+> +	__i2c_dw_enable(dev, false);
+> +
+>  	INIT_COMPLETION(dev->cmd_complete);
+>  	dev->msgs =3D msgs;
+>  	dev->msgs_num =3D num;
+> @@ -572,10 +576,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c=
+_msg msgs[], int num)
+>  	dev->abort_source =3D 0;
+>  	dev->rx_outstanding =3D 0;
+> =20
+> -	ret =3D i2c_dw_wait_bus_not_busy(dev);
+> -	if (ret < 0)
+> -		goto done;
+> -
+>  	/* start the transfers */
+>  	i2c_dw_xfer_init(dev);
+> =20
+> --=20
+> 1.8.2.rc0.22.gb3600c3
+>=20
+
+--=20
+  Christian Ruppert              ,          <christian.ruppert@abilis.c=
+om>
+                                /|
+  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
+leuri
+                             _// | bilis Systems   CH-1228 Plan-les-Oua=
+tes
