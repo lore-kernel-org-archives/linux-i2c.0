@@ -1,71 +1,37 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [RFC] i2c: add deprecation warning for class based instantiation
-Date: Fri,  7 Jun 2013 11:09:26 +0200
-Message-ID: <1370596166-12404-1-git-send-email-wsa@the-dreams.de>
-References: <20130607090623.GC3428@katana>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130607090623.GC3428@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+From: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH V2] i2c: designware: fix race between subsequent xfers
+Date: Fri, 7 Jun 2013 12:19:05 +0300
+Message-ID: <CAHp75VfwSTO7UoEGVpd7qdFVSFNYrBG6aXx1Oj8UAkgbmi=1XQ@mail.gmail.com>
+References: <1370526216-10060-1-git-send-email-christian.ruppert@abilis.com>
+	<1370595083-801-1-git-send-email-christian.ruppert@abilis.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1370595083-801-1-git-send-email-christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Class based instantiation can cause huge delays when booting. This
-mechanism was used when it was not possible to describe slaves on I2C
-busses. We now have other mechanisms, so most embedded I2C will not need
-classes and it was explicitly not recommended to use them. Add a
-deprecation warning for drivers who want to disable class based in the
-near future to gain boot-up time, so users relying on this technique can
-switch to something better. They really should.
+On Fri, Jun 7, 2013 at 11:51 AM, Christian Ruppert
+<christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org> wrote:
+> The designware block is not always properly disabled in the case of
+> transfer errors. Interrupts from aborted transfers might be handled
+> after the data structures for the following transfer are initialised but
+> before the hardware is set up. This can corrupt the data structures to
+> the point that the system is stuck in an infinite interrupt loop (where
+> FIFOs are never emptied because dev->msg_read_idx == dev->msgs_num).
+>
+> This patch cleanly disables the designware-i2c hardware at the end of
+> every transfer, be it successful or not.
+>
+> This patch requires https://patchwork.kernel.org/patch/2601241/ to be
+> applied first.
 
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/busses/i2c-omap.c |    2 +-
- drivers/i2c/i2c-core.c        |    6 ++++++
- include/linux/i2c.h           |    1 +
- 3 files changed, 8 insertions(+), 1 deletion(-)
+What if you just move disabling code from i2c_dw_xfer_init() to the
+top of i2c_dw_xfer() ?
+Will it help?
 
-diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
-index e02f9e3..f06109f 100644
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -1231,7 +1231,7 @@ omap_i2c_probe(struct platform_device *pdev)
- 	adap = &dev->adapter;
- 	i2c_set_adapdata(adap, dev);
- 	adap->owner = THIS_MODULE;
--	adap->class = I2C_CLASS_HWMON;
-+	adap->class = I2C_CLASS_HWMON | I2C_CLASS_DEPRECATED;
- 	strlcpy(adap->name, "OMAP I2C adapter", sizeof(adap->name));
- 	adap->algo = &omap_i2c_algo;
- 	adap->dev.parent = &pdev->dev;
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 48e31ed..47ea1f0 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -999,6 +999,12 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 		return -EINVAL;
- 	}
- 
-+	if (adap->class & I2C_CLASS_DEPRECATED)
-+		dev_warn(&adap->dev, "This adapter will soon drop class based "
-+			"instantiation of slaves\nPlease make sure all its I2C "
-+			"devices are instantiated by other means.\nCheck "
-+			"'Documentation/i2c/instantiating-devices' for details\n");
-+
- 	rt_mutex_init(&adap->bus_lock);
- 	mutex_init(&adap->userspace_clients_lock);
- 	INIT_LIST_HEAD(&adap->userspace_clients);
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index e988fa9..ffab838 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -473,6 +473,7 @@ void i2c_unlock_adapter(struct i2c_adapter *);
- #define I2C_CLASS_HWMON		(1<<0)	/* lm_sensors, ... */
- #define I2C_CLASS_DDC		(1<<3)	/* DDC bus on graphics adapters */
- #define I2C_CLASS_SPD		(1<<7)	/* Memory modules */
-+#define I2C_CLASS_DEPRECATED	(1<<8)	/* Warn users that adapter will stop using classes */
- 
- /* Internal numbers to terminate lists */
- #define I2C_CLIENT_END		0xfffeU
--- 
-1.7.10.4
+--
+With Best Regards,
+Andy Shevchenko
