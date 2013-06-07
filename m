@@ -1,7 +1,7 @@
 From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Subject: [PATCH 0/2] i2c-mv64xxx: Various fixes
-Date: Fri,  7 Jun 2013 17:44:58 +0200
-Message-ID: <1370619900-15963-1-git-send-email-gregory.clement@free-electrons.com>
+Date: Fri,  7 Jun 2013 17:48:58 +0200
+Message-ID: <1370620140-17177-1-git-send-email-gregory.clement@free-electrons.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
