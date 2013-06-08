@@ -1,59 +1,71 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
- tree driver
-Date: Fri, 7 Jun 2013 23:32:42 +0200
-Message-ID: <20130607213241.GB3047@katana>
-References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH 03/13] i2c: i2c-mxs: Let device core handle pinctrl
+Date: Sat, 8 Jun 2013 09:15:21 +0200
+Message-ID: <20130608071521.GA3052@katana>
+References: <1367863561-11534-1-git-send-email-fabio.estevam@freescale.com>
+ <1367863561-11534-3-git-send-email-fabio.estevam@freescale.com>
+ <CAOMZO5Bju3v4gXayzZ6vMjr9WrSqcYWN+6fnyKMc3AaoYt44Gg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="XF85m9dhOBO43t/C"
+	protocol="application/pgp-signature"; boundary="OgqxwSJOaUobr8KG"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1368476301-10495-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <CAOMZO5Bju3v4gXayzZ6vMjr9WrSqcYWN+6fnyKMc3AaoYt44Gg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---XF85m9dhOBO43t/C
+--OgqxwSJOaUobr8KG
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-...
-> I2C devices probed from device tree should subsequently be
-> fixed to handle the case where of_match_table() is
-> used (I think none of them do that today), and platforms should
-> fix their device trees to use compatible strings for I2C devices
-> instead of setting the name to Linux device driver names as is
-> done in multiple cases today.
+On Sun, May 26, 2013 at 05:58:31PM -0300, Fabio Estevam wrote:
+> Hi Wolfram,
+>=20
+> On Mon, May 6, 2013 at 3:05 PM, Fabio Estevam
+> <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org> wrote:
+> > Since commit ab78029 (drivers/pinctrl: grab default handles from device=
+ core),
+> > we can rely on device core for handling pinctrl.
+> >
+> > So remove devm_pinctrl_get_select_default() from the driver.
+> >
+> > Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> > Cc: <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+> > Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+>=20
+> Any comments on this one?
 
-I guess your solution is the least intrusive one. Still, it could happen
-that of_match_table is scanned three times (by driver core, i2c layer,
-and i2c driver) which is IMO an indication to look for a more elegant
-solution tp find out what really matched?
+Yes, with series like this, you really need a cover-letter and CC it to
+all people involved. And mention there if you want these patches go via
+a specific tree or each patch via the corresponding subsystem tree. And
+mention if the patches are depending on each other. Otherwise I don't
+really know what to do with these patches.
 
 
---XF85m9dhOBO43t/C
+--OgqxwSJOaUobr8KG
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRslF5AAoJEBQN5MwUoCm2xCwP/304DMmpz8mhczpruALsrPDO
-LH799vE0eiZPeH8Zj6gj+6lzYiFedbZZqm1MwQBUzdrQGFO8+XouIXxPFJKAqOPC
-vVt2VOxp3IVtGQDB4Ceh0/ZP8Dh11J+/Fs86k/gwo6mQo1nAzw2I6aUbZ6E7d77X
-qGtY6ESfCFJGib55FJTQZH/dQ4XgoBgXMEPhgPhU0KxyTI4ktHsV91lHJRj6ln/r
-2SC1wVG+/ad+eofPD5aTSli+4JNs6VQyHSXIm6mhkvHaHIygA6JNe7+EmGyjhEiA
-+4z1zvbebuuchOSRl+b1sEzpUo2BqEXuY9SU1/UXxi6saY+g2/BXaLUlvmuYo5zf
-Lhi0oLd4mqAc+9+ENDZ3I+/OjggHZG/CPwaBwq7tpsmowx2qNZVO0ST75GGb/w2Z
-7k1E02TyInhN0mnFNCHaZ1t4wOL4JzvaOlJF5I0ZaP38u2CjzWVu3I856d+Cem34
-1ZSUQYjWd6V26w1BTM5yhjv64Cugd2sg4pOjyMWnEWzcjwuF3UcusETZt63Dk6vr
-xMcvRru1gN+PqUuVJVotSGwCHP5SVatO+mbyDx6fz+qd3WxspH7JxSHplofX5841
-K1ZK+GAfVixD88tliZhFNRZhhsJ1S9Rq/xIDzaG8Odl+TlI8JQAUMNDoXgCuEp5O
-c5G5u2BHVTRucH+xiSnH
-=VNEL
+iQIcBAEBAgAGBQJRstoJAAoJEBQN5MwUoCm2CSkP/027B4onX0IaN1Ed1mUHtXKq
+J0AYF9w7mgvrIXyZWd5js3Gish+FYQvDVVFOGtP6o4gG52pyDNQA+Y5TJTlIW+G8
+XyYAH9wBCOvj0agYYk6IOohf2PdGva802XSGOMZ4dUGhPU5KpIm88qKz1LrviP5Y
+2aRtfuvnCMLWyXSpPciY/0aSGVWVanPF3eB5bMmIMiXTK/cZx/jC6LVeiDBTQ0//
+tIwRHYtnhljP8vhlGjffLS2ASRpV16+Wbrakr7WkuP22uxXRWWyUMCF/rzNEuDXP
+UBJ2UFyuEnNUl99sPSrUYVM0Wc+Fv9lZYAFnqTKa+AghfaF4jUmbzkuz+6I6L4qE
+zwk4u+G6bIbXo8h1SuUUpOvpPGS43s55C0JMG/uHzXvQt2uzfPx8tbfJwmKEh7FZ
+pEKaRhKSCx8d00Q8dNdCcemyYPqaaJl3mLq2B8Y7gi9kVBw9ZC+u2gWhuYA+zjjW
+8V1W5x0NlGqpjpgJ0B2LJBUBFCtJpExHJo9yZPMa/+0HXk1ZLkRmpxSxMocQmbUQ
+En86dsPAVpappel1PoaY3fNvt6IMIRof8hwgIDDNPDxPKIbxLu0LslGmfoEXp2L5
+Fg8DlzQEcZr8zSNUKoXKGiiHIe50BD4k1zvPPoYzBAn6cy652TVWrLzKeu0nrJ32
+4v8ru867JviQEwMCRgBM
+=hxaU
 -----END PGP SIGNATURE-----
 
---XF85m9dhOBO43t/C--
+--OgqxwSJOaUobr8KG--
