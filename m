@@ -1,64 +1,351 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH REBASE] i2c-designware: make SDA hold time configurable
-Date: Mon, 10 Jun 2013 17:29:55 +0200
-Message-ID: <20130610152954.GE2987@katana>
-References: <20130514110745.GA10906@intel.com>
- <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: vt8500: Add support for I2C bus on Wondermedia SoCs
+Date: Mon, 10 Jun 2013 18:03:29 +0200
+Message-ID: <20130610160328.GG2987@katana>
+References: <1368350634-12654-1-git-send-email-linux@prisktech.co.nz>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IU5/I01NYhRvwH70"
-Return-path: <linux-doc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="L1c6L/cjZjI9d0Eq"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Christian Ruppert <christian.ruppert@abilis.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+In-Reply-To: <1368350634-12654-1-git-send-email-linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, vt8500-wm8505-linux-kernel-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---IU5/I01NYhRvwH70
+--L1c6L/cjZjI9d0Eq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 14, 2013 at 03:04:02PM +0200, Christian Ruppert wrote:
-> This patch makes the SDA hold time configurable through device tree.
->=20
-> [rebased to i2c-current/i2c-next/mainline-3.10-rc1]
->=20
-> Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
-> Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
+Hi Tony,
 
-Hmm, I really have problems adding a generic property. I need to better
-understand why this is needed? What is the usecase? Can't a safe value
-be calculated depending on the bus-speed? Is there a public datasheet
-available somewhere?
+> +static int wmt_i2c_wait_bus_not_busy(struct wmt_i2c_dev *i2c_dev)
+> diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
+> new file mode 100644
+> index 0000000..5cebb29
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-wmt.c
+
+...
+
+> +{
+> +	u16 val;
+> +	int i;
+> +	int ret = 0;
+> +
+> +	for (i = 0; i < 100000; i++) {
+> +		val = readw(i2c_dev->base + REG_CSR);
+> +		if (val & CSR_READY_MASK)
+> +			break;
+> +
+> +		udelay(1);
+> +	}
+> +	if (i >= 9999999)
+> +		ret = -EBUSY;
+
+What about using time_after and usleep_range?
+
+> +
+> +	return ret;
+> +}
+> +static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+> +						   int restart, int last)
+> +{
+> +	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+> +	u16 val, tcr_val;
+> +	int ret, wait_result;
+> +	int xfer_len = 0;
+> +
+> +	if (!restart) {
+> +		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
+> +		if (ret < 0)
+> +			return ret;
+> +	}
+> +
+> +	if (pmsg->len == 0) {
+> +		/*
+> +		 * We still need to run through the while (..) once, so
+> +		 * start at -1 and break out early from the loop
+> +		 */
+> +		xfer_len = -1;
+> +		writew(0, i2c_dev->base + REG_CDR);
+> +	} else {
+> +		writew(pmsg->buf[0] & 0xFF, i2c_dev->base + REG_CDR);
+> +	}
+> +
+> +	if (!restart) {
+> +		val = readw(i2c_dev->base + REG_CR);
+> +		val &= ~CR_TX_END;
+> +		writew(val, i2c_dev->base + REG_CR);
+> +
+> +		val = readw(i2c_dev->base + REG_CR);
+> +		val |= CR_CPU_RDY;
+> +		writew(val, i2c_dev->base + REG_CR);
+> +	}
+> +
+> +	init_completion(&i2c_dev->complete);
+
+INIT_COMPLETION (and init_completion in probe)
+
+> +static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+> +						  int restart, int last)
+> +{
+> +	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+> +	u16 val, tcr_val;
+> +	int ret, wait_result;
+> +	u32 xfer_len = 0;
+> +
+> +	if (!restart) {
+> +		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
+> +		if (ret < 0)
+> +			return ret;
+> +	}
+> +
+> +	val = readw(i2c_dev->base + REG_CR);
+> +	val &= ~CR_TX_END;
+> +	writew(val, i2c_dev->base + REG_CR);
+> +
+> +	val = readw(i2c_dev->base + REG_CR);
+> +	val &= ~CR_TX_NEXT_NO_ACK;
+> +	writew(val, i2c_dev->base + REG_CR);
+> +
+> +	if (!restart) {
+> +		val = readw(i2c_dev->base + REG_CR);
+> +		val |= CR_CPU_RDY;
+> +		writew(val, i2c_dev->base + REG_CR);
+> +	}
+> +
+> +	if (pmsg->len == 1) {
+> +		val = readw(i2c_dev->base + REG_CR);
+> +		val |= CR_TX_NEXT_NO_ACK;
+> +		writew(val, i2c_dev->base + REG_CR);
+> +	}
+> +
+> +	init_completion(&i2c_dev->complete);
+
+ditto
+
+> +static int wmt_i2c_xfer(struct i2c_adapter *adap,
+> +			struct i2c_msg msgs[],
+> +			int num)
+> +{
+> +	struct i2c_msg *pmsg;
+> +	int i, is_last, restart;
+> +	int ret = 0;
+> +
+> +	for (i = 0; ret >= 0 && i < num; i++) {
+> +		is_last = ((i + 1) == num);
+> +		restart = (i != 0);
+> +
+> +		pmsg = &msgs[i];
+> +		if (pmsg->flags & I2C_M_NOSTART)
+> +			restart = 1;
+
+NOSTART is not restart!? Either your variable is misnamed or check
+Documentation/i2c/i2c-protocol what it is about.
+
+> +		if (pmsg->flags & I2C_M_RD)
+> +			ret = wmt_i2c_read(adap, pmsg, restart, is_last);
+> +		else
+> +			ret = wmt_i2c_write(adap, pmsg, restart, is_last);
+> +	}
+> +
+> +	return (ret < 0) ? ret : i;
+> +}
+> +
+> +static int wmt_i2c_reset_hardware(struct wmt_i2c_dev *i2c_dev)
+> +{
+> +	int err;
+> +
+> +	err = clk_prepare_enable(i2c_dev->clk);
+> +	if (err) {
+> +		dev_err(i2c_dev->dev, "failed to enable clock\n");
+> +		return err;
+> +	}
+> +
+> +	err = clk_set_rate(i2c_dev->clk, 20000000);
+> +	if (err) {
+> +		dev_err(i2c_dev->dev, "failed to set clock = 20Mhz\n");
+> +		return err;
+> +	}
+> +
+> +	writew(0, i2c_dev->base + REG_CR);
+> +	writew(12, i2c_dev->base + REG_MCR);
+
+What are those magic values?
+
+> +	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
+> +	writew(IMR_ENABLE_ALL, i2c_dev->base + REG_IMR);
+> +	writew(CR_ENABLE, i2c_dev->base + REG_CR);
+> +	readw(i2c_dev->base + REG_CSR);		/* read clear */
+> +	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
+> +
+> +	if (i2c_dev->mode == I2C_MODE_STANDARD)
+> +		writew(SCL_TIMEOUT(128) | TR_STD, i2c_dev->base + REG_TR);
+> +	else
+> +		writew(SCL_TIMEOUT(128) | TR_HS, i2c_dev->base + REG_TR);
+> +
+> +	return 0;
+> +}
+> +
+> +static int wmt_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct device_node *np = pdev->dev.of_node;
+> +	struct wmt_i2c_dev *i2c_dev;
+> +	struct i2c_adapter *adap;
+> +	struct resource *res;
+> +	int err;
+> +	u32 clk_rate;
+> +
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "device node not found\n");
+> +		return -ENODEV;
+> +	}
+
+This can't happen since we were matched by the driver core.
+
+> +
+> +	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
+> +	if (!i2c_dev) {
+> +		dev_err(&pdev->dev, "device memory allocation failed\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +	i2c_dev->base = devm_ioremap_resource(&pdev->dev, res);
+> +	if (IS_ERR(i2c_dev->base))
+> +		return PTR_ERR(i2c_dev->base);
+> +
+> +	i2c_dev->irq = irq_of_parse_and_map(np, 0);
+> +	if (!i2c_dev->irq) {
+> +		dev_err(&pdev->dev, "irq missing or invalid\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	i2c_dev->clk = of_clk_get(np, 0);
+> +	if (IS_ERR(i2c_dev->clk)) {
+> +		dev_err(&pdev->dev, "unable to request clock\n");
+> +		return PTR_ERR(i2c_dev->clk);
+> +	}
+> +
+> +	i2c_dev->mode = I2C_MODE_STANDARD;
+> +	err = of_property_read_u32(np, "clock-frequency", &clk_rate);
+> +	if ((!err) && (clk_rate == 400000))
+> +		i2c_dev->mode = I2C_MODE_FAST;
+> +
+> +	i2c_dev->dev = &pdev->dev;
+> +
+> +	err = devm_request_irq(&pdev->dev, i2c_dev->irq, wmt_i2c_isr, 0,
+> +							"i2c", i2c_dev);
+> +	if (err) {
+> +		dev_err(&pdev->dev, "failed to request irq %i\n", i2c_dev->irq);
+> +		return err;
+> +	}
+> +
+> +	adap = &i2c_dev->adapter;
+> +	i2c_set_adapdata(adap, i2c_dev);
+> +	strlcpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
+> +	adap->owner = THIS_MODULE;
+> +	adap->class = I2C_CLASS_HWMON;
+
+Don't use .class unless you have an explicit reason to do so. It may
+cost boot-time.
+
+> +	adap->algo = &wmt_i2c_algo;
+> +	adap->dev.parent = &pdev->dev;
+> +	adap->dev.of_node = pdev->dev.of_node;
+> +	adap->nr = of_alias_get_id(pdev->dev.of_node, "i2c");
+> +
+> +	err = wmt_i2c_reset_hardware(i2c_dev);
+> +	if (err) {
+> +		dev_err(&pdev->dev, "error initializing hardware\n");
+> +		return err;
+> +	}
+> +
+> +	if (adap->nr < 0)
+> +		err = i2c_add_adapter(adap);
+> +	else
+> +		err = i2c_add_numbered_adapter(adap);
+
+add_numbered_adapter does handle this case internally.
+
+> +
+> +	if (err) {
+> +		dev_err(&pdev->dev, "failed to add adapter\n");
+> +		return err;
+> +	}
+> +
+> +	platform_set_drvdata(pdev, i2c_dev);
+> +
+> +	of_i2c_register_devices(adap);
+> +
+> +	return 0;
+> +}
+> +
+> +static int wmt_i2c_remove(struct platform_device *pdev)
+> +{
+> +	struct wmt_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
+> +
+> +	/* Disable interrupts, clock and delete adapter */
+> +	writew(0, i2c_dev->base + REG_IMR);
+> +	clk_disable_unprepare(i2c_dev->clk);
+> +	i2c_del_adapter(&i2c_dev->adapter);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct of_device_id wmt_i2c_dt_ids[] = {
+> +	{ .compatible = "wm,wm8505-i2c" },
+> +	{ /* Sentinel */ },
+> +};
+> +
+> +static struct platform_driver wmt_i2c_driver = {
+> +	.probe		= wmt_i2c_probe,
+> +	.remove		= wmt_i2c_remove,
+> +	.driver		= {
+> +		.name	= "wmt-i2c",
+> +		.owner	= THIS_MODULE,
+> +		.of_match_table = wmt_i2c_dt_ids,
+> +	},
+> +};
+> +
+> +module_platform_driver(wmt_i2c_driver);
+> +
+> +MODULE_DESCRIPTION("Wondermedia I2C master-mode bus adapter");
+> +MODULE_AUTHOR("Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>");
+> +MODULE_LICENSE("GPL v2");
+
+Header says GPLv2+
+
+> +MODULE_DEVICE_TABLE(of, wmt_i2c_dt_ids);
 
 Thanks,
 
    Wolfram
 
 
---IU5/I01NYhRvwH70
+--L1c6L/cjZjI9d0Eq
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRtfDyAAoJEBQN5MwUoCm224EP/Rf3V7bWv+RErWc9/UrPKlvS
-fkwU6fckWq2DVPn7L85VcqBIshBoNa37KlXX/R8ldTXe5w17LdrJB9RGyitDRUGn
-d7TfRO4f9pUrn+eNbTxMoFMh0nh6nVzI2LARyWTDcI4qfP3DN4JvFpI/CaXRQBpW
-lud+Mt9xB/fNvTP19pjFWHqslRoIFTk4NUOqWFaOJ3n6mzh9t8udsTZ8Yqk19bWC
-CEWTuR2MQkWK1DGjYhSaBcQcIankCDv40m5700DQ1AdG7OfILSDrD9eO+P2BmS52
-i80TvqcFpADIo1ccZKI3AmqjrbjRU8Dew/9Z6qsPX1D86Ee30Ou/FhuiUAE6uY1T
-6sDLUOr7BJueEeRNoBv29kY6NHB3kVw9ghNynr+xrC3fVhgFnyE/TIfP/eX8bF6P
-Y8eyakaOocbScfm/WePz2yLGzTVrkyPYHIagPMiEtY0CsuWkq51VfUGm3Qf1M5rT
-DeAFfdZghKpWzTTmCZvH+HwTSMym07AJK3khrvs+IKtptSH0MwefOcu7XKyLDkTH
-pSoJfSSGMjGUP1LbsDY0xAHcOjQ2fod3dhghJdE0khGdBt8lvDohLnnZ6NUWa28H
-3FFsOkDS+3iJsrbNADinPn8WIa6W3A+080CSpWsoubE1Z6OJAw/vmV5q+jtnpQ66
-/fOtoxe6eXcSTm5cfjFK
-=3Uig
+iQIcBAEBAgAGBQJRtfjQAAoJEBQN5MwUoCm2XjUQAIQ+EF1B1S97rmMsm10YqRrJ
+Ggu/SMGRThok7ZpuwPQYjO+4hl1v+ip+hDTPav4RpFdGSicGELxUxZ5JbVZSw3gI
+7Raiq1PrU0Ib+Ooao74kEevxamnc3cey77nhIn/hkhUecQSKelWfk4MuV5okEblA
+QY103pGVcgMQ05SmQWF9JRABi1QbuAeCIreIKnygsSpQihajwv2h8gW9AJkQmCWf
+42LxUnDuw/JlKLR2nScg1bDTLrkpeUxgrn1rBKD2xzzXObzTZU+97q1IHQGpL7pi
+xqqs4jPHk7RH4F6wD1lR8SeojKIeBvSgHfxEgE21sSJclYMvYrloi7L4Zhx9dD+g
+LfrN/GLZaH0wQDcUh6XiA+t+HyQk2BrBFFxHZbKz09RC4uX0zjPXkfMkfO2mPi/V
+dN5D+cwg4tUSzyWoj8PjBri9hNc+/xj0wIerWnYcZnCrFehWkd/hzCESaTF6IFQz
+jo37Qm8QQRL9YiC6tn+t8lOgI/BrZ5F9pgcNR2va6vN49aG4mf7spWFJGIZD8aKI
+aaPvRrvtguipEMB8UgKnES0ui0QCw2dxHINYErxbOIXSGP9XRgCVz4qQkQ9pjFQ7
+RbUgTy4zBZNO6PpSBYeHRwgOEtcVsmR8K6Fo92mLVvySiscNXJiYNafZ2OvEhWUe
+nHypuvHDt2O5jLouDarH
+=4S8Y
 -----END PGP SIGNATURE-----
 
---IU5/I01NYhRvwH70--
+--L1c6L/cjZjI9d0Eq--
