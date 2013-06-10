@@ -1,42 +1,48 @@
-From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCHv3 1/6] i2c: sunxi: Add Allwinner A1X i2c driver
-Date: Mon, 10 Jun 2013 12:08:47 +0200
-Message-ID: <20130610100847.GG2748@lukather>
-References: <1369648843-1640-1-git-send-email-maxime.ripard@free-electrons.com>
- <1369648843-1640-2-git-send-email-maxime.ripard@free-electrons.com>
- <20130605133945.GA2934@katana>
- <20130605213144.GB14209@lukather>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
+ tree driver
+Date: Mon, 10 Jun 2013 14:18:17 +0200
+Message-ID: <CACRpkdbBsXB+9wN0oshfZB8Xady9G_wu9d8UkgA-bYqQe=8Mpw@mail.gmail.com>
+References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
+	<20130607213241.GB3047@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBMOL22GQKGQEZYJ5ENI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <20130605213144.GB14209@lukather>
-List-Post: <http://groups.google.com/group/linux-sunxi/post?hl=en-GB>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/?hl=en-GB>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi?hl=en-GB>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
- <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
- <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130607213241.GB3047@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+On Fri, Jun 7, 2013 at 11:32 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+> ...
+>> I2C devices probed from device tree should subsequently be
+>> fixed to handle the case where of_match_table() is
+>> used (I think none of them do that today), and platforms should
+>> fix their device trees to use compatible strings for I2C devices
+>> instead of setting the name to Linux device driver names as is
+>> done in multiple cases today.
+>
+> I guess your solution is the least intrusive one. Still, it could happen
+> that of_match_table is scanned three times (by driver core, i2c layer,
+> and i2c driver) which is IMO an indication to look for a more elegant
+> solution tp find out what really matched?
 
-On Wed, Jun 05, 2013 at 11:31:44PM +0200, Maxime Ripard wrote:
-> I guess it would make the code much more complicated for such simple
-> drivers, so I wouldn't push too much for merging, but I guess it's your
-> call.
+I think that is a generic problem with the device tree
+being completely stateless, and rather a comment on the
+of_match_device() intrinsics being inelegant than on this
+patch?
 
-I'd like this to be in 3.11, would merging the driver separately for
-this release and merging it with mv64xxx for 3.12 be acceptable to you ?
+Do you see it as a blocker for the patch?
 
-Maxime
+What happens before this patch is that instead of looping
+over the of_match_table, the id_table is always iterated
+to the end also in the DT case, yielding NULL as the last
+argument to driver->probe() anyway.
 
--- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+Maybe the OF people have some comments on this...
+I cannot really see how it could be any different given
+the way the FDT works :-/
+
+Yours,
+Linus Walleij
