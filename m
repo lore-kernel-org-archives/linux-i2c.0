@@ -1,75 +1,78 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] i2c: sirf: move driver init from module_init to
- subsys_initcall
-Date: Tue, 11 Jun 2013 13:10:03 +0100
-Message-ID: <20130611121003.GC1403@sirena.org.uk>
-References: <20130516093846.GA2927@katana>
- <CAGsJ_4zVOF8-g=emEGgP3atxkWdxMaQQiVZrZkht_WueTriSnw@mail.gmail.com>
- <20130525201032.GD32043@sirena.org.uk>
- <CAGsJ_4y6SY6nNkbW+Yh8jx0WB4Pi9MO1W3xVZcrQcedGeD5ogQ@mail.gmail.com>
- <20130527121658.GA3660@sirena.org.uk>
- <CAGsJ_4w867BhFvVze5BNaYheW75pMcOGhscz3wSZiia-neP59w@mail.gmail.com>
- <20130610134535.GB2987@katana>
- <CAGsJ_4y4svi0TbUKK1aAW1McM5rFoo5Vb9rGPweq-sHJ2NN5cQ@mail.gmail.com>
- <20130611084827.GS1403@sirena.org.uk>
- <CAGsJ_4wH=mNxBTqizKjJR2YhmVQa=iprfUmVYy8oz7MZeLfkqg@mail.gmail.com>
+From: Bin Gao <bin.gao@linux.intel.com>
+Subject: Re: i2c: introduce i2c helper i2c_find_client_by_name()
+Date: Tue, 11 Jun 2013 10:11:19 -0700
+Message-ID: <20130611171119.GA35135@bingao-desk1.fm.intel.com>
+References: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
+ <CAHp75VcYgpUVpOnKOzkYoZXbEPO_0QG7=WUXza55wpOyRwcKCA@mail.gmail.com>
+ <20130606212620.GA13620@bingao-desk1.fm.intel.com>
+ <CAHp75VcGUtWyPHrvYDW59-4g8F2m58-Us3CrbJ2bnYJdxnd1Sg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+RqgOR8y65RRYhVY"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAGsJ_4wH=mNxBTqizKjJR2YhmVQa=iprfUmVYy8oz7MZeLfkqg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, workgroup.linux-kQvG35nSl+M@public.gmane.org, Xiaomeng Hou <Xiaomeng.Hou-kQvG35nSl+M@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+In-Reply-To: <CAHp75VcGUtWyPHrvYDW59-4g8F2m58-Us3CrbJ2bnYJdxnd1Sg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Sun, Jun 09, 2013 at 10:53:35PM +0300, Andy Shevchenko wrote:
+> Please, try to avoid top posting in the future emails.
+> 
+> On Fri, Jun 7, 2013 at 12:26 AM, Bin Gao <bin.gao@linux.intel.com> wrote:
+> > With v4l2, the camera sensor i2c devices are taken over by v4l2 master
+> > driver, i.e. ISP driver, and are not expected to be accessed from
+> > user sapce by ioctl. So ISP driver has to register them by itself to
+> > get all related information for further communication. Please check
+> > v4l2_i2c_new_subdev_board() in drivers/media/video/v4l2-common.c for details.
+> 
+> Yes, this is legacy approach for non-DT/non-ACPI5 platforms.
 
---+RqgOR8y65RRYhVY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+So what's the new approach for DT/ACPI5 platforms?
 
-On Tue, Jun 11, 2013 at 07:13:33PM +0800, Barry Song wrote:
-> 2013/6/11 Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>:
+> 
+> > The platform code can definitely disallow calling i2c_register_board_info()
+> > to register them but keep the i2c devices list and then let ISP driver register
+> > them. But, problems come when a single kernel is going to run on two platforms
+> > - one platform has ACPI5 and the other has SFI.
+> 
+> You have to forget about SFI. Your ISP subdevices use plain platform
+> data anyway.
 
-> > It's not that people don't care about these users, it's that people
-> > don't care too much about out of tree users.  Part of the goal here is
-> > to convince people working on such applications that they should make
-> > mainline better for everyone so that you don't need external code to
-> > make the kernel useful.
+Why have to forget about SFI which is supported by upstream kernel?
 
-> Mark, then this is really confusing me.
-> for this reason, the target should be making this out-of-tree stuff be
-> inside the tree. to make i2c-sirf "mainline better and not need
-> external code", the target should be making this external code not
-> external but become internal. otherwise, my mainline users will always
-> need this external code.
+> In ACPI 5 case v4l2 framework must be extended to cover that case.
 
-It's not just this one bit of code that they're relying on, this also
-gets built on with other things that are also out of tree.  The thing
-we need to do is figure out what problem the solution as a whole is
-fixing and then make sure that mainline can deal with that.
+To extend v4l2 framework is one of the options, but this helper is also one
+option.
 
---+RqgOR8y65RRYhVY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+> > The dynamic unregister and then
+> > register based on this new helper will not have dependency on firmware interface -
+> > the same platform code will work for all platforms.
+> 
+> It's not a care of the ISP driver. I think you have to talk to Sakari
+> about your issues.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
+We have to do it in the ISP driver if we want one binary kernel
+supporting multiple platforms.
 
-iQIcBAEBAgAGBQJRtxOYAAoJELSic+t+oim9LXsP/jPGtv5uF3jUpN7Cr+e/Z7WX
-YKX7EoNrOzakgdEwaLVfIvoKz/wfqBQk9sCwyqSPY9OhDSLH7jg19K2JtkIXEX7L
-vB7m2BITXr+TWGC3aEzsElrDZYQYITKWRxLAowMbEPaTALDFoyAChN/1/6SdDUV7
-bUuyATuZbtIK5zvIDnZuT2qHYZz9oKIuwjOZQ0UHpN4MVF7wYouvQ+LMU58X28fE
-+Bi78RbhM/NghH8rsQUWwXS78ZlXX4mAxpV8peQDLeLrsndfnmZqRUAqnxKF2dFk
-DDchhcayvwxzapCyylaPRuBzIQMmVc4QzTjBX0QyVL5mojBWyPGtX6t2Bfu+37dw
-9iq75snIbDUE4kl7ryw9kOhd66VS+B0PDJX8czc+BgPj1+cQH1mgdFkesFTGD922
-ujeydRnlrR15z7B+ikqXFAyPXUgT6aQVznedFtsVB3cScWKZVVFDR5GMD91TQ4Pw
-+w1ko6YemLV6krtsA9I+iuvaAesEOq+pdRGtSNRe5Xzcm0YNSkbqDQnPsqOBIZSr
-Wj/exbaoUdY8mPgThDYqKx5Tfr65bcmXH7D0ZdDE6xYI6s1ks+R/AdczMJUNF1bk
-AjCXHdQpykRwZsFWDunDDd/y9hDvc9g+5BHpDQ8SEOmCe4BclKJrP5gH5gCfhFYx
-rKhjBrSEUdHMC5V7L+Bl
-=wBuR
------END PGP SIGNATURE-----
-
---+RqgOR8y65RRYhVY--
+> > On Thu, Jun 06, 2013 at 11:32:06PM +0300, Andy Shevchenko wrote:
+> >> On Thu, Jun 6, 2013 at 9:33 PM, Bin Gao <bin.gao@linux.intel.com> wrote:
+> >> > There is a requirement to get the i2c_client pointer dynamically without
+> >> > knowing the bus and slave address. But we do know the client name,
+> >> > i.e. the name in the i2c_board_info. This patch is to fit this requirement.
+> >> >
+> >> > A good example is that an ISP(Imaging Signal Processor) driver needs
+> >> > register i2c camera sensor devices via v4l2, so it has to unregister
+> >> > all i2c clients that were previously registered by calling
+> >> > i2c_register_board_info(), and then re-register. For this case we
+> >> > can use this helper to get i2c_client by passing the client name.
+> >>
+> >> Why ISP driver would like to register sensor drivers in the first place?
+> >> That seems the task of platform code, or DT, or ACPI5
+> >>
+> >> Why do you need to re-register them at run time?
+> 
+> --
+> With Best Regards,
+> Andy Shevchenko
