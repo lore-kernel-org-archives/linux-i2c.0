@@ -1,64 +1,62 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCHv3 1/6] i2c: sunxi: Add Allwinner A1X i2c driver
-Date: Tue, 11 Jun 2013 20:22:51 +0200
-Message-ID: <20130611182250.GB3376@katana>
-References: <1369648843-1640-1-git-send-email-maxime.ripard@free-electrons.com>
- <1369648843-1640-2-git-send-email-maxime.ripard@free-electrons.com>
- <20130605133945.GA2934@katana>
- <20130605213144.GB14209@lukather>
- <20130610100847.GG2748@lukather>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: designware: prevent signals from aborting I2C
+ transfers
+Date: Tue, 11 Jun 2013 20:35:03 +0200
+Message-ID: <20130611183503.GC3376@katana>
+References: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="8P1HSweYDcXXzwPJ"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="UPT3ojh+0CqEDtpF"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20130610100847.GG2748@lukather>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+In-Reply-To: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---8P1HSweYDcXXzwPJ
+--UPT3ojh+0CqEDtpF
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 10, 2013 at 12:08:47PM +0200, Maxime Ripard wrote:
-> Hi Wolfram,
+On Wed, May 22, 2013 at 01:03:11PM +0300, Mika Westerberg wrote:
+> If a process receives signal while it is waiting for I2C transfer to
+> complete, an error is returned to the caller and the transfer is aborted.
+> This can cause the driver to fail subsequent transfers. Also according to
+> commit d295a86eab2 (i2c: mv64xxx: work around signals causing I2C
+> transactions to be aborted) I2C drivers aren't supposed to abort
+> transactions on signals.
 >=20
-> On Wed, Jun 05, 2013 at 11:31:44PM +0200, Maxime Ripard wrote:
-> > I guess it would make the code much more complicated for such simple
-> > drivers, so I wouldn't push too much for merging, but I guess it's your
-> > call.
+> To prevent this switch to use wait_for_completion_timeout() instead of
+> wait_for_completion_interruptible_timeout() in the designware I2C driver.
 >=20
-> I'd like this to be in 3.11, would merging the driver separately for
-> this release and merging it with mv64xxx for 3.12 be acceptable to you ?
+> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Thanks for the offer, but the chance of a regression is too high when
-switching drivers. Also, configs would need updates then, etc...
+Applied to for-next, thanks!
 
 
---8P1HSweYDcXXzwPJ
+--UPT3ojh+0CqEDtpF
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRt2r6AAoJEBQN5MwUoCm2SR4P/0Ey9H9DLttLFHD78ShtK9IU
-Qj16/RARx+Pg8NNeT0zQ/l+TzG8QBcoTP+zUVdeBUzeBghxKiUsfuSB99wq7UGlF
-n1/ljxZDvR9u+o7qzze4CjnedrpASrjpcAc3VTzM6WylUV91mjsiN4en+UNE/RlQ
-aSNQ5Sr87g32ZakRsth+9Y43tYf5uFHlIA1b0tKfNDeipTA5BhErrRNmWC1iSqqY
-ShqEMZ3v1dYPTnbEZVn8B1pYfJM0H/l/N8efsvxJvFVByxixEIbPJ8t9zI4QMB+6
-1wAdd4wmiCxLkhmQ4YquGrHG3XEQDZi4K8+Fs3/Dj2uw5AiRGuQdXYNK+8EdMwhD
-K7toKYpgBJykqs7cPSXFcnAdTyPlWBbzXKATrbVC6bptQA2JzwJZWYAjDVW6VlRr
-hq54D4QcoaGfcwC0KYV8ngD4inOdxxzCB7VXqaBW8+Eb8tTpuZfAyjcruIsmZGjX
-V1wouaWvGtBO+REOJtgMZmixWe3V4Ash8DuQQqzlL/LSSR3KkcYrhl9q3UmJkGAO
-nBUFcEtKKrQTNV95MijNGS6YYHQXm3k3T9uv8KvDz+DVhIH4idBYyUgrBD7hqltv
-JciOSUnszsYRxwbbIk0J6lpg/APFFfP/XGgVnuq1Yy73Aj4KITbJTKn85PbZpiZw
-pNzst3SuRUEhgs8M4OCB
-=B0yN
+iQIcBAEBAgAGBQJRt23WAAoJEBQN5MwUoCm2NcoP/268JKibt4ys1HTORIykAIrB
+CuOHwqQmcpZaEoMzB00lhC6brqDZZODTADoWKx3i0rgEUKxvPDVx3d7JBJed8zl1
+xZSqN0I135LOS4sPi85fejLqJ1J6hpqW5hyhGeMgdK3AIccIM7PPCLdJhecefERa
+6S9G6PUPEqwafNiuZnqYYY06tw4tqsBVkCjPSlzx/rg2VUPu95p9cDEptWcfOGBz
+IPWRCVZ1+HDKBbsk7eAc6zPp+caGq4QkGZceIFW2gZYdZ/+H/fMdTEQi55QRchM9
+2Yy61IVHXGm6raQqQqgLTHhAzQcpH2ekcPEpDkkSxVGPLjSaWLIkGWrT5INaZUNV
+U+HmD+2O3K7gwkoar1UMj9u+GOjvOOts2PGlNjM/aE8OZ5DLVWvkHXT+YVdJUnqf
+/LwXTEkeGregRMQrsp303qg9OczLQvI5bPk5jH3zevMa819ypIaN6obEM/F3me6S
+Fz95NYh/LihuVW7JTI2tk0GunUunC3Cfjj/FBxDfltw+SzAhX5EH05tMf6XwEjmm
+U44uvOOaaD0MIdTC+hA6DhhmL337MwflfR/dAuqq8M/w51WjHeWEhnjqiaAXp0tR
+JyNM6FcuEMUsXmIB1yQ8jgTnZ+3um+k2lCJ2jAdI2vJcbpUNxfB4upJ3j6Hy4x1K
+xTSYuDONtz8WJ9XAcuVv
+=chgU
 -----END PGP SIGNATURE-----
 
---8P1HSweYDcXXzwPJ--
+--UPT3ojh+0CqEDtpF--
