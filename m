@@ -1,56 +1,56 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware-platform: don't check resource with
- devm_ioremap_resource
-Date: Tue, 11 Jun 2013 20:58:55 +0200
-Message-ID: <20130611185854.GE3376@katana>
-References: <1370613449-29719-1-git-send-email-andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: i2c-mpc: make mpc_i2c_pm_ops static
+Date: Tue, 11 Jun 2013 21:29:57 +0200
+Message-ID: <20130611192956.GF3376@katana>
+References: <006601ce243e$200a47c0$601ed740$%han@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="idY8LE8SD6/8DnRI"
+	protocol="application/pgp-signature"; boundary="GV0iVqYguTV4Q9ER"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1370613449-29719-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <006601ce243e$200a47c0$601ed740$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Ben Dooks' <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---idY8LE8SD6/8DnRI
+--GV0iVqYguTV4Q9ER
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 07, 2013 at 04:57:29PM +0300, Andy Shevchenko wrote:
-> devm_ioremap_resource does sanity checks on the given resource. No need to
-> duplicate this in the driver.
->=20
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+On Tue, Mar 19, 2013 at 10:07:28AM +0900, Jingoo Han wrote:
+> mpc_i2c_pm_ops is not exported. Also, CONFIG_PM_SLEEP is used to
+> remove unnecessary ifdefs.
 
-Thanks, yet I applied my original patch which removes this pattern from
-the whole subsystem.
+I guess we should use the new pm_ops_ptr macro which is scheduled for
+3.11.
+
+Thanks,
+
+   Wolfram
 
 
---idY8LE8SD6/8DnRI
+--GV0iVqYguTV4Q9ER
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRt3NuAAoJEBQN5MwUoCm2dMIP/09mOdXCoMGsC4mz7VyAm9xN
-X6hOqQv/A54h2AVvI/pw3jcbHzXRs1WDw787+TduQCrZZNvPhpgfsBdG+TfIgZxt
-9Ev7RudNl6+n0OtUaJR0EUV6fPSFc+AySL5pM1RDIksKxcBWHbXgJS//nQDZ9yL0
-Km+8V6wlN9fB0EoRw0siRL8B714x2C1XHX47XmUbvk0PeQvLusYz6fjsjmI8K+dn
-akLqFdXfN21HUVIHe2Nmh592EnuTeU/nWZyozBfl6QVQhiH1TKg62/NYuVQ5dMvy
-TcKWziuOtvrMEU87ejrzNGCuZhuUZ6S3/OxYfJZD7fDnXgPjwSvOiYFzyMkES6xq
-6OGvJx7yS6ew9YphveR7FSKNxKMB1u5foowFrBziiFgaYluu7QNS09QE5yVq35JF
-f0b2N6jtZU8SK0sxYhdq//OEu/YdMLwhYA19nUWKRJ7Wy+7v90VQFQKB6zWXAy5V
-bj9n7KIslsr4AWNFEFFA2uNI786RYGCHCQYvvIsgYmw8T20b7pbFtgfrdpAVnmP3
-hdUZ/Y62iB8xJ6ZeKDJzx17jw3ftT1a4XMRZDL4hxyNUqy3UIgpHfGBwv9gpl2+6
-YanPQmSOTBAiDpgOD3ACr2Zck5G0dYGpYp/whL7Sk2dJ3BSR7UQFW2PyQj/GEAej
-HcRWdtM/LvErP06ZUG6M
-=TNAW
+iQIcBAEBAgAGBQJRt3q0AAoJEBQN5MwUoCm22PYQAJJy25NbGDSYfHpLdEFobSY3
+1qq5b6gGJ22VmYG/8pyhpntziA64PSAUXBPUmTMaqLZljKQcvQm1vbU9WVUh+Wca
+4y2207+SB128F2KTsv46lRVUd59ut10kbOICXtSLO3SP0XAt3WgT4yBAagkVEkz6
+xeWSALwtiklfE/yJRW4Ln98H9MY/OwA8xRf5MO+KOyZ+xYGFk40LSvPadYrXFyS8
+3gamUgVoArIIjgfhiUwWhvyGGmYn/74v15UGrH0TzyGCHGBdYPAUitidCIZRj7i1
+pvS6EacAZxGFL6v09FiekV5l1yyil345S23gVssosmw2sHaBIT4g5MhrG/aqq5gp
+Ues3tS5b5H7aEXnOdxAhNEu152jowZlxdsK8ODiw8lN6vIX9n//adErgOlKEV6Dk
+YxFOorzkU2YHgl/G9J52bZi/XTihriFgsH4TnAqMjy9OZdPhKKYbUixiHKhlE3T1
+RqMVQ+uIcwngb0aGu+Ybt0fUfDVKYxbRGIh1maCsLE6ihKvxNMPdomayzJshLlG0
+DDcvDU1jQCOGVN3vl3NlF/NNFgLGDJfLMBo+umAY4rMUGNSxOGEr5XLU0/dMIMlE
+pGPfa+4Cou/mu89WfSNNW3uYTLwfxqUFC6C6hsuWa+zYI6WwCvjoMYowUW2yIqYV
+zlqxyY4pDyeUs8fDOfDv
+=+p5i
 -----END PGP SIGNATURE-----
 
---idY8LE8SD6/8DnRI--
+--GV0iVqYguTV4Q9ER--
