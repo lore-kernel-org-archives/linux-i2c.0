@@ -1,76 +1,56 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [RFC PATCH] i2c-designware-core: disable adapter before fill dev
- structure
-Date: Tue, 11 Jun 2013 20:40:37 +0200
-Message-ID: <20130611184036.GD3376@katana>
-References: <CAHp75VfwSTO7UoEGVpd7qdFVSFNYrBG6aXx1Oj8UAkgbmi=1XQ@mail.gmail.com>
- <1370597401-22501-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <20130607130133.GH11875@ab42.lan>
+Subject: Re: [PATCH] i2c-designware-platform: don't check resource with
+ devm_ioremap_resource
+Date: Tue, 11 Jun 2013 20:58:55 +0200
+Message-ID: <20130611185854.GE3376@katana>
+References: <1370613449-29719-1-git-send-email-andriy.shevchenko@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TybLhxa8M7aNoW+V"
+	protocol="application/pgp-signature"; boundary="idY8LE8SD6/8DnRI"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130607130133.GH11875-7oYq3qWSd+k@public.gmane.org>
+In-Reply-To: <1370613449-29719-1-git-send-email-andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---TybLhxa8M7aNoW+V
+--idY8LE8SD6/8DnRI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 07, 2013 at 03:01:34PM +0200, Christian Ruppert wrote:
-> Hi Andy,
+On Fri, Jun 07, 2013 at 04:57:29PM +0300, Andy Shevchenko wrote:
+> devm_ioremap_resource does sanity checks on the given resource. No need to
+> duplicate this in the driver.
 >=20
-> I like your patch and I just did some testing on it. Unluckily, it
-> doesn't solve the lock-up problem.
->=20
-> I haven't investigated any further but I suspect that on top of the
-> cases I observed when debugging this (interrupts after initialisation of
-> dev, easy to prove) there are more obscure cases in which interrupts are
-> generated in an unexpected manner after errors. The interrupt-driven
-> transfer state machine of the driver implicitly relies on the fact that
-> all updates of dev which are related to the same transfer are performed
-> between the mutex_lock and mutex_unlock calls in i2c_dw_xfer. Thus, I
-> decided it was safer to disable the block before releasing the mutex
-> when I wrote my patch.
->=20
-> That said, I think the sequencing at transfer initialisation is more
-> logical with your patch and I wonder if it is still worth applying. Any
-> other opinions on this?
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Ping. There are:
-
-[V2] i2c: designware: fix race between subsequent xfers
-[RFC] i2c-designware-core: disable adapter before fill dev structure
-
-What is the consensus of those two patches?
+Thanks, yet I applied my original patch which removes this pattern from
+the whole subsystem.
 
 
---TybLhxa8M7aNoW+V
+--idY8LE8SD6/8DnRI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRt28kAAoJEBQN5MwUoCm2i54P/Rp003B0Dv5XeKGnpUAmsPN7
-CmX5iuHlcc3ICkHaLebjG/KvtCHbZvHHHvboBOZXm3iSkjINjfeX8fR43bO/Jw8Q
-PxwOth8nVrWHZwTpUe5C0JpfISCA2mbHrRc2ersL+OFbk9ymS3nwtxwri3etsWJP
-9X7jLYpOC/zsMXdFLjSui8wA9hM3UI+wiVyI2WLobeOW3igrFUecHZars6zlkIL8
-wDDfpWrvkgNV6J5l3nqr0uYQIRgrGqyWzLy0XN23bcfH4FBxH7mNe+r2fcn5OMcv
-3G8v921RX4jvqQhGPyHAnFFuwN1vsnzDxwSocdHfcUdQm5HCG3XQfU/t/Vw517Cv
-kn1AioH4zIvnOKXY2me730mQ2ur8JBS21WmvFwFoSh1pVuPdn6CyKgYklLxbcE4o
-5m5AgDM72MKyFrzh328RN7WO/JuqqJdgP80NeBayUfq3z5zyyeGoPzkUYTNDWp0R
-g0tlNXEZZMUYClcxBrS2Jh3kqCind179k+c9huSq/kbQFCiN9lYKu+S+ig+Qm9L7
-Z6jnmOIWkiF2YNTb+0esLV7Sa+a/OjXLEGUfNf+VYYBP/aTbuQ4SkYpLjTQR6iaE
-n1duJAv6bspIXBCjYQkxqKJ+OzqkVGvfgiFA23Qbo/wmP6+TnWm3oeWJdDwtDjfx
-QdSQped5JXSMEmUh/Sqk
-=e1rs
+iQIcBAEBAgAGBQJRt3NuAAoJEBQN5MwUoCm2dMIP/09mOdXCoMGsC4mz7VyAm9xN
+X6hOqQv/A54h2AVvI/pw3jcbHzXRs1WDw787+TduQCrZZNvPhpgfsBdG+TfIgZxt
+9Ev7RudNl6+n0OtUaJR0EUV6fPSFc+AySL5pM1RDIksKxcBWHbXgJS//nQDZ9yL0
+Km+8V6wlN9fB0EoRw0siRL8B714x2C1XHX47XmUbvk0PeQvLusYz6fjsjmI8K+dn
+akLqFdXfN21HUVIHe2Nmh592EnuTeU/nWZyozBfl6QVQhiH1TKg62/NYuVQ5dMvy
+TcKWziuOtvrMEU87ejrzNGCuZhuUZ6S3/OxYfJZD7fDnXgPjwSvOiYFzyMkES6xq
+6OGvJx7yS6ew9YphveR7FSKNxKMB1u5foowFrBziiFgaYluu7QNS09QE5yVq35JF
+f0b2N6jtZU8SK0sxYhdq//OEu/YdMLwhYA19nUWKRJ7Wy+7v90VQFQKB6zWXAy5V
+bj9n7KIslsr4AWNFEFFA2uNI786RYGCHCQYvvIsgYmw8T20b7pbFtgfrdpAVnmP3
+hdUZ/Y62iB8xJ6ZeKDJzx17jw3ftT1a4XMRZDL4hxyNUqy3UIgpHfGBwv9gpl2+6
+YanPQmSOTBAiDpgOD3ACr2Zck5G0dYGpYp/whL7Sk2dJ3BSR7UQFW2PyQj/GEAej
+HcRWdtM/LvErP06ZUG6M
+=TNAW
 -----END PGP SIGNATURE-----
 
---TybLhxa8M7aNoW+V--
+--idY8LE8SD6/8DnRI--
