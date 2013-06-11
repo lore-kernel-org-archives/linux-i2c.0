@@ -1,62 +1,76 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: designware: prevent signals from aborting I2C
- transfers
-Date: Tue, 11 Jun 2013 20:35:03 +0200
-Message-ID: <20130611183503.GC3376@katana>
-References: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [RFC PATCH] i2c-designware-core: disable adapter before fill dev
+ structure
+Date: Tue, 11 Jun 2013 20:40:37 +0200
+Message-ID: <20130611184036.GD3376@katana>
+References: <CAHp75VfwSTO7UoEGVpd7qdFVSFNYrBG6aXx1Oj8UAkgbmi=1XQ@mail.gmail.com>
+ <1370597401-22501-1-git-send-email-andriy.shevchenko@linux.intel.com>
+ <20130607130133.GH11875@ab42.lan>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UPT3ojh+0CqEDtpF"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="TybLhxa8M7aNoW+V"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1369216991-13334-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, linux-i2c@vger.kernel.org
+In-Reply-To: <20130607130133.GH11875-7oYq3qWSd+k@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---UPT3ojh+0CqEDtpF
+--TybLhxa8M7aNoW+V
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 22, 2013 at 01:03:11PM +0300, Mika Westerberg wrote:
-> If a process receives signal while it is waiting for I2C transfer to
-> complete, an error is returned to the caller and the transfer is aborted.
-> This can cause the driver to fail subsequent transfers. Also according to
-> commit d295a86eab2 (i2c: mv64xxx: work around signals causing I2C
-> transactions to be aborted) I2C drivers aren't supposed to abort
-> transactions on signals.
+On Fri, Jun 07, 2013 at 03:01:34PM +0200, Christian Ruppert wrote:
+> Hi Andy,
 >=20
-> To prevent this switch to use wait_for_completion_timeout() instead of
-> wait_for_completion_interruptible_timeout() in the designware I2C driver.
+> I like your patch and I just did some testing on it. Unluckily, it
+> doesn't solve the lock-up problem.
 >=20
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> I haven't investigated any further but I suspect that on top of the
+> cases I observed when debugging this (interrupts after initialisation of
+> dev, easy to prove) there are more obscure cases in which interrupts are
+> generated in an unexpected manner after errors. The interrupt-driven
+> transfer state machine of the driver implicitly relies on the fact that
+> all updates of dev which are related to the same transfer are performed
+> between the mutex_lock and mutex_unlock calls in i2c_dw_xfer. Thus, I
+> decided it was safer to disable the block before releasing the mutex
+> when I wrote my patch.
+>=20
+> That said, I think the sequencing at transfer initialisation is more
+> logical with your patch and I wonder if it is still worth applying. Any
+> other opinions on this?
 
-Applied to for-next, thanks!
+Ping. There are:
+
+[V2] i2c: designware: fix race between subsequent xfers
+[RFC] i2c-designware-core: disable adapter before fill dev structure
+
+What is the consensus of those two patches?
 
 
---UPT3ojh+0CqEDtpF
+--TybLhxa8M7aNoW+V
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRt23WAAoJEBQN5MwUoCm2NcoP/268JKibt4ys1HTORIykAIrB
-CuOHwqQmcpZaEoMzB00lhC6brqDZZODTADoWKx3i0rgEUKxvPDVx3d7JBJed8zl1
-xZSqN0I135LOS4sPi85fejLqJ1J6hpqW5hyhGeMgdK3AIccIM7PPCLdJhecefERa
-6S9G6PUPEqwafNiuZnqYYY06tw4tqsBVkCjPSlzx/rg2VUPu95p9cDEptWcfOGBz
-IPWRCVZ1+HDKBbsk7eAc6zPp+caGq4QkGZceIFW2gZYdZ/+H/fMdTEQi55QRchM9
-2Yy61IVHXGm6raQqQqgLTHhAzQcpH2ekcPEpDkkSxVGPLjSaWLIkGWrT5INaZUNV
-U+HmD+2O3K7gwkoar1UMj9u+GOjvOOts2PGlNjM/aE8OZ5DLVWvkHXT+YVdJUnqf
-/LwXTEkeGregRMQrsp303qg9OczLQvI5bPk5jH3zevMa819ypIaN6obEM/F3me6S
-Fz95NYh/LihuVW7JTI2tk0GunUunC3Cfjj/FBxDfltw+SzAhX5EH05tMf6XwEjmm
-U44uvOOaaD0MIdTC+hA6DhhmL337MwflfR/dAuqq8M/w51WjHeWEhnjqiaAXp0tR
-JyNM6FcuEMUsXmIB1yQ8jgTnZ+3um+k2lCJ2jAdI2vJcbpUNxfB4upJ3j6Hy4x1K
-xTSYuDONtz8WJ9XAcuVv
-=chgU
+iQIcBAEBAgAGBQJRt28kAAoJEBQN5MwUoCm2i54P/Rp003B0Dv5XeKGnpUAmsPN7
+CmX5iuHlcc3ICkHaLebjG/KvtCHbZvHHHvboBOZXm3iSkjINjfeX8fR43bO/Jw8Q
+PxwOth8nVrWHZwTpUe5C0JpfISCA2mbHrRc2ersL+OFbk9ymS3nwtxwri3etsWJP
+9X7jLYpOC/zsMXdFLjSui8wA9hM3UI+wiVyI2WLobeOW3igrFUecHZars6zlkIL8
+wDDfpWrvkgNV6J5l3nqr0uYQIRgrGqyWzLy0XN23bcfH4FBxH7mNe+r2fcn5OMcv
+3G8v921RX4jvqQhGPyHAnFFuwN1vsnzDxwSocdHfcUdQm5HCG3XQfU/t/Vw517Cv
+kn1AioH4zIvnOKXY2me730mQ2ur8JBS21WmvFwFoSh1pVuPdn6CyKgYklLxbcE4o
+5m5AgDM72MKyFrzh328RN7WO/JuqqJdgP80NeBayUfq3z5zyyeGoPzkUYTNDWp0R
+g0tlNXEZZMUYClcxBrS2Jh3kqCind179k+c9huSq/kbQFCiN9lYKu+S+ig+Qm9L7
+Z6jnmOIWkiF2YNTb+0esLV7Sa+a/OjXLEGUfNf+VYYBP/aTbuQ4SkYpLjTQR6iaE
+n1duJAv6bspIXBCjYQkxqKJ+OzqkVGvfgiFA23Qbo/wmP6+TnWm3oeWJdDwtDjfx
+QdSQped5JXSMEmUh/Sqk
+=e1rs
 -----END PGP SIGNATURE-----
 
---UPT3ojh+0CqEDtpF--
+--TybLhxa8M7aNoW+V--
