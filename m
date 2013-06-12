@@ -1,48 +1,69 @@
-From: Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device tree driver
-Date: Wed, 12 Jun 2013 14:22:02 +0100
-Message-ID: <20130612132202.7E6AB3E0A56@localhost>
-References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org> <20130607213241.GB3047@katana> <CACRpkdbBsXB+9wN0oshfZB8Xady9G_wu9d8UkgA-bYqQe=8Mpw@mail.gmail.com> <20130610134013.GA2987@katana>
+From: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>
+Subject: Re: [PATCHv4 2/9] i2c: mv64xxx: make the registers offset
+	configurable
+Date: Wed, 12 Jun 2013 14:57:35 +0100
+Message-ID: <20130612135735.GR18614@n2100.arm.linux.org.uk>
+References: <1371024438-16631-1-git-send-email-maxime.ripard@free-electrons.com> <1371024438-16631-3-git-send-email-maxime.ripard@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130610134013.GA2987@katana>
+Content-Disposition: inline
+In-Reply-To: <1371024438-16631-3-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, 10 Jun 2013 15:40:14 +0200, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Mon, Jun 10, 2013 at 02:18:17PM +0200, Linus Walleij wrote:
-> > On Fri, Jun 7, 2013 at 11:32 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> > > ...
-> > >> I2C devices probed from device tree should subsequently be
-> > >> fixed to handle the case where of_match_table() is
-> > >> used (I think none of them do that today), and platforms should
-> > >> fix their device trees to use compatible strings for I2C devices
-> > >> instead of setting the name to Linux device driver names as is
-> > >> done in multiple cases today.
-> > >
-> > > I guess your solution is the least intrusive one. Still, it could happen
-> > > that of_match_table is scanned three times (by driver core, i2c layer,
-> > > and i2c driver) which is IMO an indication to look for a more elegant
-> > > solution tp find out what really matched?
-> > 
-> > I think that is a generic problem with the device tree
-> > being completely stateless, and rather a comment on the
-> > of_match_device() intrinsics being inelegant than on this
-> > patch?
+On Wed, Jun 12, 2013 at 10:07:11AM +0200, Maxime Ripard wrote:
+> The Allwinner i2c controller uses the same logic as the Marvell one, but
+> with slightly different register offsets.
 > 
-> Yes.
-> 
-> > Do you see it as a blocker for the patch?
-> 
-> No blocker. Yet, I was hoping for somebody perhaps having a good idea.
-> Platform devices have 'id_entry', for example. Sadly, I don't have the
-> resources to pick up a similar idea.
-> 
+> Introduce a structure that will be passed by either the pdata or
+> associated to the compatible strings, and that holds the various
+> registers that might be needed.
 
-I did at one time have a patch that kept the pointer around in the
-struct device if an of_match_table succeeded, but it caused subtle race
-conditions that weren't easy to solve. I reverted back to just calling
-of_match_table() several times because it was easy.
+I don't like this change.  It introduces further indirection where it's
+not really necessary, and it's also using platform data to specify this
+which is in the opposite direction to what's required for moving towards
+DT.
 
-g.
+> @@ -154,13 +147,13 @@ mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
+>  static void
+>  mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
+>  {
+> -	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_SOFT_RESET);
+> +	writel(0, drv_data->reg_base + drv_data->regs->soft_reset);
+
+It'd be much better to copy the offsets themselves in drv_data.  You're
+only talking about 7 bytes here, so there's no worry about bloating the
+drv_data structure.
+
+> @@ -611,8 +619,9 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+>  		drv_data->freq_n = pdata->freq_n;
+>  		drv_data->irq = platform_get_irq(pd, 0);
+>  		drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
+> +		drv_data->regs = pdata->regs;
+>  	} else if (pd->dev.of_node) {
+> -		rc = mv64xxx_of_config(drv_data, pd->dev.of_node);
+> +		rc = mv64xxx_of_config(drv_data, &pd->dev);
+
+I'd suggest making the default register offsets be the drivers existing
+offsets, and allowing it to be overriden.  That nicely sorts out the
+next comment below, and also gets rid of it in platform data.  Moreover,
+if you're going to re-use this driver, you should do it via a different
+"compatible" name in DT, which the driver can then use to identify the
+different register set layout.
+
+> +struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
+> +	.addr		= 0x00,
+> +	.ext_addr	= 0x10,
+> +	.data		= 0x04,
+> +	.control	= 0x08,
+> +	.status		= 0x0c,
+> +	.clock		= 0x0c,
+> +	.soft_reset	= 0x1c,
+> +};
+
+No, this means every file which includes this header ends up defining
+this structure, which is globally visiable, and therefore its a recipe
+for link failures.
