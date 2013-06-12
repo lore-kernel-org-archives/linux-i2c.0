@@ -1,80 +1,52 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [RFC PATCH] i2c-designware-core: disable adapter before fill dev
- structure
-Date: Wed, 12 Jun 2013 11:41:49 +0200
-Message-ID: <20130612094148.GF31524@ab42.lan>
-References: <CAHp75VfwSTO7UoEGVpd7qdFVSFNYrBG6aXx1Oj8UAkgbmi=1XQ@mail.gmail.com>
- <1370597401-22501-1-git-send-email-andriy.shevchenko@linux.intel.com>
- <20130607130133.GH11875@ab42.lan>
- <20130611184036.GD3376@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH RFC v3 1/3] i2c: i2c-bfin-twi: convert to devm_* API
+Date: Wed, 12 Jun 2013 11:55:32 +0200
+Message-ID: <20130612095531.GA3008@katana>
+References: <1369310405-21112-1-git-send-email-libo.chen@huawei.com>
+ <CAK9yfHx7ifnWjKCVc0Oju-28PdosF81OpVC5S5Vdj6hDSnfQfw@mail.gmail.com>
+ <51A451CE.8070801@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130611184036.GD3376@katana>
+In-Reply-To: <51A451CE.8070801-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Andy Shevchenko <andriy.shevchenko-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Cc: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org, sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jun 11, 2013 at 08:40:37PM +0200, Wolfram Sang wrote:
-> On Fri, Jun 07, 2013 at 03:01:34PM +0200, Christian Ruppert wrote:
-> > Hi Andy,
-> >=20
-> > I like your patch and I just did some testing on it. Unluckily, it
-> > doesn't solve the lock-up problem.
-> >=20
-> > I haven't investigated any further but I suspect that on top of the
-> > cases I observed when debugging this (interrupts after initialisati=
-on of
-> > dev, easy to prove) there are more obscure cases in which interrupt=
-s are
-> > generated in an unexpected manner after errors. The interrupt-drive=
-n
-> > transfer state machine of the driver implicitly relies on the fact =
-that
-> > all updates of dev which are related to the same transfer are perfo=
-rmed
-> > between the mutex_lock and mutex_unlock calls in i2c_dw_xfer. Thus,=
- I
-> > decided it was safer to disable the block before releasing the mute=
-x
-> > when I wrote my patch.
-> >=20
-> > That said, I think the sequencing at transfer initialisation is mor=
-e
-> > logical with your patch and I wonder if it is still worth applying.=
- Any
-> > other opinions on this?
->=20
-> Ping. There are:
->=20
-> [V2] i2c: designware: fix race between subsequent xfers
-> [RFC] i2c-designware-core: disable adapter before fill dev structure
->=20
-> What is the consensus of those two patches?
 
-Although I almost like Andy's code better than my own it doesn't seem t=
-o
-fix the issue we're aiming at (system lock ups due to undesired
-interrupts) in all cases. The "[V2] i2c: designware: fix race between
-subsequent xfers" is currently the only patch preventing those lock ups
-in our tests.
+--17pEHd4RhPHOinZp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-That said, IMHO Andy's patch seems to be a valuable code clean up
-nevertheless and could be applied in addition to the other. I suggest I
-give the combination of both patches some additional testing on the
-occasion and tag Andy's RFC with tested-by me in case it's stable.
+On Tue, May 28, 2013 at 02:42:22PM +0800, Libo Chen wrote:
+> thanks for your review. I will update later.
 
-Greetings,
-  Christian
+I agree with the remarks from Sachin.
 
---=20
-  Christian Ruppert              ,          <christian.ruppert@abilis.c=
-om>
-                                /|
-  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
-leuri
-                             _// | bilis Systems   CH-1228 Plan-les-Oua=
-tes
+
+--17pEHd4RhPHOinZp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRuEWTAAoJEBQN5MwUoCm2p6IQAJYwgJ1Ggw/roCY3YcxMu6pn
+rJzcMS+6MHITIKc1WqH4fOVvrRpyIOmTMPj9Bp+zfXmSy3B38ynHxV0XVkNVyHbS
+wIfBeHKfo9CsS3Qdz7gs+9Nt+5J1+j0DA6712yXDzoLyqWtXokd0B3MIgqzKVXgU
+dW7k1w/55YkZrvcB1adgCrJMUWynsQj+MHIVhwd9re6Jpf9/neuaSzr+YpfsuJ2n
+EDo1Jsc6aZ1eDHY6xQ0Cyasb7gAWWybAkemMVaJEH+GMdxBwqWqwvf1G0D1ZlqOI
+wokgZS34L5MT33Wg+GzCofVZMBA4cbynImayNKJT1JtiwKcZvlYLGsoxvZrmCYBR
+MmCOf5PIO9dhLWWHi/2yickQJhgF/LGy2tg/+nN8Vdm8vc7fF90ofVBT7LE5WQea
+6tEu27bPjg5AceMkOLtQpIOZeWuyKFU2M5JhZrZYxgnpFhibB/LzppbbuMDKbENN
+tRyEAdGUUJT595700vMJqca1gafA+paO9hp6rZOZBBISdptHOXEiQt8mZFu93HPt
+sM48VVy9NCMNLp234x5l9KR+cgc4A4ohycOIyeMmBsBPWXa/55q6vIZamo5UCtaW
+mPp3zrTx/MiDRYV9u9cOrZ8WB2f01P+i4p3HAuK7bOW3YDgMT4IvfhYrVuq284uK
+aSGEQjO6PEFeMecE0xF/
+=Wxk8
+-----END PGP SIGNATURE-----
+
+--17pEHd4RhPHOinZp--
