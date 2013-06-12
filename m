@@ -1,52 +1,95 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH RFC v3 1/3] i2c: i2c-bfin-twi: convert to devm_* API
-Date: Wed, 12 Jun 2013 11:55:32 +0200
-Message-ID: <20130612095531.GA3008@katana>
-References: <1369310405-21112-1-git-send-email-libo.chen@huawei.com>
- <CAK9yfHx7ifnWjKCVc0Oju-28PdosF81OpVC5S5Vdj6hDSnfQfw@mail.gmail.com>
- <51A451CE.8070801@huawei.com>
+Subject: Re: [PATCH RFC v3 2/3] i2c: pxa: convert to devm_* API
+Date: Wed, 12 Jun 2013 12:02:33 +0200
+Message-ID: <20130612100232.GB3008@katana>
+References: <1369310408-10348-1-git-send-email-libo.chen@huawei.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="17pEHd4RhPHOinZp"
+	protocol="application/pgp-signature"; boundary="K8nIJk4ghYZn606h"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <51A451CE.8070801-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1369310408-10348-1-git-send-email-libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Libo Chen <clbchenlibo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
-Cc: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org, sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, uclinux-dist-devel-ZG0+EudsQA8dtHy/vicBwGD2FQJk+8+b@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org
+To: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
+Cc: guz.fnst-BthXqXjhjHXQFUHtdCDX3A@public.gmane.org, sonic.zhang-OyLXuOCK7orQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, lizefan-hv44wF8Li93QT0dZR+AlfA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---17pEHd4RhPHOinZp
+--K8nIJk4ghYZn606h
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 28, 2013 at 02:42:22PM +0800, Libo Chen wrote:
-> thanks for your review. I will update later.
+On Thu, May 23, 2013 at 08:00:08PM +0800, Libo Chen wrote:
+> when i2c malloc faild, we should not try to call release_mem_region.
+> aovid this, convert them to devm_* API.
+>=20
+> Signed-off-by: Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>
 
-I agree with the remarks from Sachin.
+First, you did it right. This patch should not be combined with 1/3. It
+is not a trivial cleanup, so I prefer to keep them seperated.
+
+BTW did you test these patches on real hardware?
+
+> @@ -1198,19 +1187,6 @@ static int i2c_pxa_probe(struct platform_device *d=
+ev)
+>  #endif
+>  	return 0;
+> =20
+> -eadapt:
+> -	if (!i2c->use_pio)
+> -		free_irq(irq, i2c);
+> -ereqirq:
+> -	clk_disable(i2c->clk);
+> -	iounmap(i2c->reg_base);
+> -eremap:
+> -	clk_put(i2c->clk);
+> -eclk:
+> -	kfree(i2c);
+> -emalloc:
+> -	release_mem_region(res->start, resource_size(res));
+> -	return ret;
+>  }
+> =20
+>  static int i2c_pxa_remove(struct platform_device *dev)
+> @@ -1218,15 +1194,6 @@ static int i2c_pxa_remove(struct platform_device *=
+dev)
+>  	struct pxa_i2c *i2c =3D platform_get_drvdata(dev);
+> =20
+>  	i2c_del_adapter(&i2c->adap);
+> -	if (!i2c->use_pio)
+> -		free_irq(i2c->irq, i2c);
+> -
+> -	clk_disable(i2c->clk);
+> -	clk_put(i2c->clk);
+> -
+> -	iounmap(i2c->reg_base);
+> -	release_mem_region(i2c->iobase, i2c->iosize);
+> -	kfree(i2c);
+
+You remove too much. Who disables the clock now?
 
 
---17pEHd4RhPHOinZp
+--K8nIJk4ghYZn606h
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRuEWTAAoJEBQN5MwUoCm2p6IQAJYwgJ1Ggw/roCY3YcxMu6pn
-rJzcMS+6MHITIKc1WqH4fOVvrRpyIOmTMPj9Bp+zfXmSy3B38ynHxV0XVkNVyHbS
-wIfBeHKfo9CsS3Qdz7gs+9Nt+5J1+j0DA6712yXDzoLyqWtXokd0B3MIgqzKVXgU
-dW7k1w/55YkZrvcB1adgCrJMUWynsQj+MHIVhwd9re6Jpf9/neuaSzr+YpfsuJ2n
-EDo1Jsc6aZ1eDHY6xQ0Cyasb7gAWWybAkemMVaJEH+GMdxBwqWqwvf1G0D1ZlqOI
-wokgZS34L5MT33Wg+GzCofVZMBA4cbynImayNKJT1JtiwKcZvlYLGsoxvZrmCYBR
-MmCOf5PIO9dhLWWHi/2yickQJhgF/LGy2tg/+nN8Vdm8vc7fF90ofVBT7LE5WQea
-6tEu27bPjg5AceMkOLtQpIOZeWuyKFU2M5JhZrZYxgnpFhibB/LzppbbuMDKbENN
-tRyEAdGUUJT595700vMJqca1gafA+paO9hp6rZOZBBISdptHOXEiQt8mZFu93HPt
-sM48VVy9NCMNLp234x5l9KR+cgc4A4ohycOIyeMmBsBPWXa/55q6vIZamo5UCtaW
-mPp3zrTx/MiDRYV9u9cOrZ8WB2f01P+i4p3HAuK7bOW3YDgMT4IvfhYrVuq284uK
-aSGEQjO6PEFeMecE0xF/
-=Wxk8
+iQIcBAEBAgAGBQJRuEc4AAoJEBQN5MwUoCm2mGkP/iItUVeJjl4zftnUr9O5u0Jk
+6f0d5H41XJKgpJJYhdHiaYMCVL2rgvBtzkG4jARI+5tJS3m+mY+j2aTWvCbVM720
+hoSq4tNNWJnwpCNy9M6Pk6CZYOuXvRr3B0amWqyqeLHeYTejNihhSr5EDUAzRgpm
+E0II/9+wsHkWWG5enopNPOERiTEwtntgMxNgtIiFZDGQg7Lj+d2oxHCU2xKTsz6Q
+q0x8quIUshDscpZKfU8pjv+5iElNjgWcHUFAyTBXClE5VPKDIqjfyGztjiaGaYMI
+oSCxVjsxAiRUAExC2GZaipUtrF20iEJl0avMKiCIGVcWcwtTb4FEFCiNy6OO9ORn
+uRDS7cvKWAXmseOU/cQKvjXAzuv9PIFHYq+ltjp8nHPuFfGpywy3QKxp4ojaO9Di
+0yRunCX4TzFB1+OuErInXzcs9yWYbs84gg3qCmEKGw/NUSnUEgECZyAbrFymnwc1
+aUNIOHIASNlZYLR9nBWbPCAOOu0inOlbJJe6KuXNV0XkLq4r81yx3FskIdmOqIgW
+GedIXhTNQA9F6INouK4trgW6iuWMyCOw+n0R6W+tF6pQJJag6kq+3RQfc/qF7HHZ
+9c+XWkn7OmyBf4YlZtZrZJXfoHImUyCcADLpfdhcDECglfMJc6fCkDAxZ/i6jjic
+Cz75FWT5b5ZJmBqIbfFT
+=LaEb
 -----END PGP SIGNATURE-----
 
---17pEHd4RhPHOinZp--
+--K8nIJk4ghYZn606h--
