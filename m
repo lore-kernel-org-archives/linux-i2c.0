@@ -1,18 +1,14 @@
 From: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCHv4 2/9] i2c: mv64xxx: make the registers
- offset configurable
-Date: Wed, 12 Jun 2013 17:37:36 +0200
-Message-ID: <20130612153736.GL16699@lukather>
-References: <1371024438-16631-1-git-send-email-maxime.ripard@free-electrons.com>
- <1371024438-16631-3-git-send-email-maxime.ripard@free-electrons.com>
- <20130612135735.GR18614@n2100.arm.linux.org.uk>
- <20130612144447.GI16699@lukather>
- <51B88DB0.90302@gmail.com>
+Subject: [PATCHv5 1/8] i2c: mv64xxx: Add macros to access parts
+ of registers
+Date: Wed, 12 Jun 2013 18:53:30 +0200
+Message-ID: <1371056017-8166-2-git-send-email-maxime.ripard@free-electrons.com>
+References: <1371056017-8166-1-git-send-email-maxime.ripard@free-electrons.com>
 Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBRFL4KGQKGQERZXFI3A-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <51B88DB0.90302-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Return-path: <linux-sunxi+bncBD2ZNBF5VYJRBG6P4KGQKGQEF5JS7JQ-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1371056017-8166-1-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Post: <http://groups.google.com/group/linux-sunxi/post?hl=en-GB>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Help: <http://groups.google.com/support/?hl=en-GB>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Archive: <http://groups.google.com/group/linux-sunxi?hl=en-GB>
@@ -21,103 +17,50 @@ List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
  <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe?hl=en-GB>,
  <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Russell King - ARM Linux <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Sebastian,
+These macros make it more comprehensive to access to useful masked and
+shifted area of the various registers used.
 
-On Wed, Jun 12, 2013 at 05:03:12PM +0200, Sebastian Hesselbarth wrote:
-> On 06/12/13 16:44, Maxime Ripard wrote:
-> >Hi Russel,
-> >
-> >On Wed, Jun 12, 2013 at 02:57:35PM +0100, Russell King - ARM Linux wrote:
-> >>On Wed, Jun 12, 2013 at 10:07:11AM +0200, Maxime Ripard wrote:
-> >>>The Allwinner i2c controller uses the same logic as the Marvell one, but
-> >>>with slightly different register offsets.
-> >>>
-> >>>Introduce a structure that will be passed by either the pdata or
-> >>>associated to the compatible strings, and that holds the various
-> >>>registers that might be needed.
-> >>
-> >>I don't like this change.  It introduces further indirection where it's
-> >>not really necessary, and it's also using platform data to specify this
-> >>which is in the opposite direction to what's required for moving towards
-> >>DT.
-> >
-> >Well, some users of this aren't converted to DT, hence why I made the
-> >changes to the platform_data.
-> 
-> Actually, this is not quite true. Yes of course, there are still users
-> of non-DT Marvell SoCs and it is still in the progress of full-DT. But
-> also ppc is using DT, except that they parse it and put in in
-> platform_data. Reasonable since back then, there was no global DT API
-> available.
+Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Ah, I see, thanks for the insight. I was here referring more
-specifically to Orion that seems to be still stuck with !DT at the
-moment, at least partially.
-
-> IMHO for the time in between (i.e. now) check for pdev->dev.of_node
-> and !pdev->dev.platform_data will allow you to distinguish all users
-> perfectly:
-> 
-> - non-DT has platform_data set only
-> - ppc DT has of_node and platform_data set
-> - pure DT has of_node set only
-> 
-> This will allow you to limit your register offset modifications to
-> Allwinner exclusively and for pure DT (if that is what you want for
-> Allwinner).
-> 
-> Checkout mv643xx_eth in net-next where the above discrimination
-> strategy was chosen.
-> 
-> [...]
-> >>I'd suggest making the default register offsets be the drivers existing
-> >>offsets, and allowing it to be overriden.  That nicely sorts out the
-> >>next comment below, and also gets rid of it in platform data.  Moreover,
-> >>if you're going to re-use this driver, you should do it via a different
-> >>"compatible" name in DT, which the driver can then use to identify the
-> >>different register set layout.
-> >
-> >The logic here will change quite a bit in the next iteration thanks to
-> >the comments I received.
-> >
-> >I'm now using a platform_device_id structure to match the name of the
-> >driver just like what was done with the DT in that patchset. This also
-> >removes the need to add the regs field to the platform data and ...
-> 
-> Also here, if Allwinner is pure DT, you can call some
-> mv643xx_i2c_of_probe() for pure DT only with the above discrimination.
-
-Unless I'm missing something, isn't it what's already in place here?
-
-We have:
-
-if (pdata) {
-    /* Fill in the driver data structure from pdata */
-} else if (pd->dev.of_node) {
-    /* Fill in the driver data structure from dt */
-} else {
-    return -EFAIL;
-}
-
-I guess that should cover all the cases you mentionned, even the PPC
-one, right?
-
-Now, the question about what content do we find in these platform_data
-is actually a different one. This patch passed the regs offset as a
-member of those. We all agreed that it was not the most elegant solution
-(and like you mentionned, I will never use this pdata structure anyway
-for the Allwinner stuff).
-
-I guess we could just take the marvell offsets when using pdata, and use
-different register offsets based on the compatibles when loading from
-dt?
-
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 6356439..d70a2fda 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -33,6 +33,10 @@
+ #define	MV64XXX_I2C_REG_EXT_SLAVE_ADDR			0x10
+ #define	MV64XXX_I2C_REG_SOFT_RESET			0x1c
+ 
++#define MV64XXX_I2C_ADDR_ADDR(val)			((val & 0x7f) << 1)
++#define MV64XXX_I2C_BAUD_DIV_N(val)			(val & 0x7)
++#define MV64XXX_I2C_BAUD_DIV_M(val)			((val & 0xf) << 3)
++
+ #define	MV64XXX_I2C_REG_CONTROL_ACK			0x00000004
+ #define	MV64XXX_I2C_REG_CONTROL_IFLG			0x00000008
+ #define	MV64XXX_I2C_REG_CONTROL_STOP			0x00000010
+@@ -133,7 +137,7 @@ mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
+ 		drv_data->addr1 = 0xf0 | (((u32)msg->addr & 0x300) >> 7) | dir;
+ 		drv_data->addr2 = (u32)msg->addr & 0xff;
+ 	} else {
+-		drv_data->addr1 = ((u32)msg->addr & 0x7f) << 1 | dir;
++		drv_data->addr1 = MV64XXX_I2C_ADDR_ADDR((u32)msg->addr) | dir;
+ 		drv_data->addr2 = 0;
+ 	}
+ }
+@@ -151,7 +155,7 @@ static void
+ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
+ {
+ 	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_SOFT_RESET);
+-	writel((((drv_data->freq_m & 0xf) << 3) | (drv_data->freq_n & 0x7)),
++	writel(MV64XXX_I2C_BAUD_DIV_M(drv_data->freq_m) | MV64XXX_I2C_BAUD_DIV_N(drv_data->freq_n),
+ 		drv_data->reg_base + MV64XXX_I2C_REG_BAUD);
+ 	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_SLAVE_ADDR);
+ 	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_EXT_SLAVE_ADDR);
 -- 
-Maxime Ripard, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+1.8.3
