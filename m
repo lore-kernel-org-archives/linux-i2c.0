@@ -1,34 +1,36 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
- tree driver
-Date: Thu, 13 Jun 2013 11:02:36 +0200
-Message-ID: <CACRpkdZjb0prsORdkn6GQUL0LM38VYCQ-STXnHgOtF1oCAWrwg@mail.gmail.com>
-References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
-	<20130607213241.GB3047@katana>
-	<20130612132022.39F0C3E0A56@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c-pxa: prepare clock before use
+Date: Thu, 13 Jun 2013 15:24:57 -0400 (EDT)
+Message-ID: <20130613192457.51006FAACE@dev.laptop.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130612132022.39F0C3E0A56@localhost>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 12, 2013 at 3:20 PM, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> On Fri, 7 Jun 2013 23:32:42 +0200, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+On OLPC XO-1.75 (MMP2), a WARN_ON() was occurring during boot
+since the clock being enabled by i2c-pxa had not been prepared.
 
->> I guess your solution is the least intrusive one. Still, it could happen
->> that of_match_table is scanned three times (by driver core, i2c layer,
->> and i2c driver) which is IMO an indication to look for a more elegant
->> solution tp find out what really matched?
->
-> It's what we do on platform_devices. It really isn't an expensive
-> operation so I haven't pushed anyone to go optimize it.
+Use clk_prepare_enable() to ensure that the prepare operation
+has taken place.
 
-I tried to think of something and it ended up with ideas like
-decorating the device tree representation and it was just ...
-ouch.
+Signed-off-by: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index ea6d45d..ef307ea 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1160,7 +1160,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 		i2c->adap.class = plat->class;
+ 	}
+ 
+-	clk_enable(i2c->clk);
++	clk_prepare_enable(i2c->clk);
+ 
+ 	if (i2c->use_pio) {
+ 		i2c->adap.algo = &i2c_pxa_pio_algorithm;
+-- 
+1.8.1.4
