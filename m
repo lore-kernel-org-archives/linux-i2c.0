@@ -1,119 +1,296 @@
-From: Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: i2c: introduce i2c helper i2c_find_client_by_name()
-Date: Fri, 14 Jun 2013 12:00:03 -0700
-Message-ID: <20130614190003.GA19617@bingao-desk1.fm.intel.com>
-References: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
- <CAHp75VcYgpUVpOnKOzkYoZXbEPO_0QG7=WUXza55wpOyRwcKCA@mail.gmail.com>
- <20130606212620.GA13620@bingao-desk1.fm.intel.com>
- <CAHp75VcGUtWyPHrvYDW59-4g8F2m58-Us3CrbJ2bnYJdxnd1Sg@mail.gmail.com>
- <20130611171119.GA35135@bingao-desk1.fm.intel.com>
- <CAHp75VdZA_gouZohD1J+o9ybpXVLLQH=D7QDo9OznW93iBDZpQ@mail.gmail.com>
+From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+Subject: Re: [PATCHv5,2/8] i2c: mv64xxx: make the registers
+ offset configurable
+Date: Fri, 14 Jun 2013 21:36:53 +0200
+Message-ID: <20130614193653.GA25947@lunn.ch>
+References: <1371056017-8166-3-git-send-email-maxime.ripard@free-electrons.com>
+Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-sunxi+bncBDJNHL5JSEOBBCXC5WGQKGQE2Z3KGCI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+In-Reply-To: <1371056017-8166-3-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Archive: <http://groups.google.com/group/linux-sunxi>
+Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
+List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
+List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAHp75VdZA_gouZohD1J+o9ybpXVLLQH=D7QDo9OznW93iBDZpQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 14, 2013 at 10:29:09AM +0300, Andy Shevchenko wrote:
-> On Tue, Jun 11, 2013 at 8:11 PM, Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> > On Sun, Jun 09, 2013 at 10:53:35PM +0300, Andy Shevchenko wrote:
-> >> Please, try to avoid top posting in the future emails.
-> >>
-> >> On Fri, Jun 7, 2013 at 12:26 AM, Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> wrote:
-> >> > With v4l2, the camera sensor i2c devices are taken over by v4l2 master
-> >> > driver, i.e. ISP driver, and are not expected to be accessed from
-> >> > user sapce by ioctl. So ISP driver has to register them by itself to
-> >> > get all related information for further communication. Please check
-> >> > v4l2_i2c_new_subdev_board() in drivers/media/video/v4l2-common.c for details.
-> >>
-> >> Yes, this is legacy approach for non-DT/non-ACPI5 platforms.
-> >
-> > So what's the new approach for DT/ACPI5 platforms?
+On Wed, Jun 12, 2013 at 06:53:31PM +0200, Maxime Ripard wrote:
+> The Allwinner i2c controller uses the same logic as the Marvell one, but
+> with slightly different register offsets.
 > 
-> When DT or ACPI5 is enabled and used the devices are enumerated
-> through corresponding frameworks in the kernel automatically. So, you
-> get them initialized just after i2c host.
+> Introduce a structure that will be passed by either the pdata or
+> associated to the compatible strings, and that holds the various
+> registers that might be needed.
+> 
+> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 
-This is also true for SFI.
- 
-> >> > The platform code can definitely disallow calling i2c_register_board_info()
-> >> > to register them but keep the i2c devices list and then let ISP driver register
-> >> > them. But, problems come when a single kernel is going to run on two platforms
-> >> > - one platform has ACPI5 and the other has SFI.
-> >>
-> >> You have to forget about SFI. Your ISP subdevices use plain platform
-> >> data anyway.
-> >
-> > Why have to forget about SFI which is supported by upstream kernel?
-> 
-> It doesn't matter. Second sentence above is explained why. SFI,
-> unfortunately, has few design flaws, that's why the information
-> located there is not much useful in ISP case.
+Hi Maxime
 
-No, from device enumeration point of view, SFI is doing the same thing
-as DT and ACPI5. I didn't see any flaws here.
+I tested on a Kirkwood QNAP. It has an RTC on the i2c bus. It still
+gives the correct time with your patches applied.
 
+Tested-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
 
-> >> In ACPI 5 case v4l2 framework must be extended to cover that case.
-> > To extend v4l2 framework is one of the options,
-> 
-> That is proper option.
-> 
-> > but this helper is also one
-> > option.
-> 
-> I think this helper doesn't align to the current workflow.
+      Andrew
 
-Even you prefer to extend v4l2, you still need this helper.
-The idea is just to move the unregister/register from a specific ISP driver
-to v4l2.
-
-I think you misunderstood my pionts somehow. Let me clarfiy a little bit:
-
-Current solution:
-1. Platform codes(on top of DT/ACPI5/SFI) don't call i2c_register_board_info(),
-instead, prepare a table(kind of platform data) that has all camera i2c device information.
-2. ISP driver registers devices listed in the table to i2c core - this makes sure
-v4l2 takes over these devices.
-The problem with this solution is that when a camera device runs on both ACPI5 and
-SFI, the platform codes will get a bit complicated and it's difficult to ensure one
-binary kernel runs on both platforms(ACPI5 and SFI).
-(To extend v4l2 with this solution doen't resolve my problem)
-
-Solution I'm suggesting:
-1. Let the platform codes call i2c_register_board_info() anyway.
-2. Since ISP driver knows which camera devices it supports, so it simply unregisters
-those devices (get the client by the introduced helper), then register it within v4l2.
-This solution ensure one binary kernel can run on both platforms.
-(To extend v4l2 with this solution could not be feasible, the device table is
-ISP driver specific, not v4l2 specific)
-
-> >> > The dynamic unregister and then
-> >> > register based on this new helper will not have dependency on firmware interface -
-> >> > the same platform code will work for all platforms.
-> >>
-> >> It's not a care of the ISP driver. I think you have to talk to Sakari
-> >> about your issues.
-> >
-> > We have to do it in the ISP driver if we want one binary kernel
-> > supporting multiple platforms.
 > 
-> What I'm talking about is not contradicting with that.
+> ---
+> drivers/i2c/busses/i2c-mv64xxx.c | 101 ++++++++++++++++++++++++---------------
+>  1 file changed, 62 insertions(+), 39 deletions(-)
 > 
-> >> >> > A good example is that an ISP(Imaging Signal Processor) driver needs
-> >> >> > register i2c camera sensor devices via v4l2, so it has to unregister
-> >> >> > all i2c clients that were previously registered by calling
-> >> >> > i2c_register_board_info(), and then re-register.
-> 
-> >> >> Why do you need to re-register them at run time?
-> 
-> Still this question is not answered.
-> 
-> 
-> --
-> With Best Regards,
-> Andy Shevchenko
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> index d70a2fda..7ba9bac 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -19,20 +19,12 @@
+>  #include <linux/platform_device.h>
+>  #include <linux/io.h>
+>  #include <linux/of.h>
+> +#include <linux/of_device.h>
+>  #include <linux/of_irq.h>
+>  #include <linux/of_i2c.h>
+>  #include <linux/clk.h>
+>  #include <linux/err.h>
+>  
+> -/* Register defines */
+> -#define	MV64XXX_I2C_REG_SLAVE_ADDR			0x00
+> -#define	MV64XXX_I2C_REG_DATA				0x04
+> -#define	MV64XXX_I2C_REG_CONTROL				0x08
+> -#define	MV64XXX_I2C_REG_STATUS				0x0c
+> -#define	MV64XXX_I2C_REG_BAUD				0x0c
+> -#define	MV64XXX_I2C_REG_EXT_SLAVE_ADDR			0x10
+> -#define	MV64XXX_I2C_REG_SOFT_RESET			0x1c
+> -
+>  #define MV64XXX_I2C_ADDR_ADDR(val)			((val & 0x7f) << 1)
+>  #define MV64XXX_I2C_BAUD_DIV_N(val)			(val & 0x7)
+>  #define MV64XXX_I2C_BAUD_DIV_M(val)			((val & 0xf) << 3)
+> @@ -89,6 +81,16 @@ enum {
+>  	MV64XXX_I2C_ACTION_SEND_STOP,
+>  };
+>  
+> +struct mv64xxx_i2c_regs {
+> +	u8	addr;
+> +	u8	ext_addr;
+> +	u8	data;
+> +	u8	control;
+> +	u8	status;
+> +	u8	clock;
+> +	u8	soft_reset;
+> +};
+> +
+>  struct mv64xxx_i2c_data {
+>  	struct i2c_msg		*msgs;
+>  	int			num_msgs;
+> @@ -98,6 +100,7 @@ struct mv64xxx_i2c_data {
+>  	u32			aborting;
+>  	u32			cntl_bits;
+>  	void __iomem		*reg_base;
+> +	struct mv64xxx_i2c_regs	reg_offsets;
+>  	u32			addr1;
+>  	u32			addr2;
+>  	u32			bytes_left;
+> @@ -116,6 +119,16 @@ struct mv64xxx_i2c_data {
+>  	struct i2c_adapter	adapter;
+>  };
+>  
+> +static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
+> +	.addr		= 0x00,
+> +	.ext_addr	= 0x10,
+> +	.data		= 0x04,
+> +	.control	= 0x08,
+> +	.status		= 0x0c,
+> +	.clock		= 0x0c,
+> +	.soft_reset	= 0x1c,
+> +};
+> +
+>  static void
+>  mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
+>  	struct i2c_msg *msg)
+> @@ -154,13 +167,13 @@ mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
+>  static void
+>  mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
+>  {
+> -	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_SOFT_RESET);
+> +	writel(0, drv_data->reg_base + drv_data->reg_offsets.soft_reset);
+>  	writel(MV64XXX_I2C_BAUD_DIV_M(drv_data->freq_m) | MV64XXX_I2C_BAUD_DIV_N(drv_data->freq_n),
+> -		drv_data->reg_base + MV64XXX_I2C_REG_BAUD);
+> -	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_SLAVE_ADDR);
+> -	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_EXT_SLAVE_ADDR);
+> +		drv_data->reg_base + drv_data->reg_offsets.clock);
+> +	writel(0, drv_data->reg_base + drv_data->reg_offsets.addr);
+> +	writel(0, drv_data->reg_base + drv_data->reg_offsets.ext_addr);
+>  	writel(MV64XXX_I2C_REG_CONTROL_TWSIEN | MV64XXX_I2C_REG_CONTROL_STOP,
+> -		drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +		drv_data->reg_base + drv_data->reg_offsets.control);
+>  	drv_data->state = MV64XXX_I2C_STATE_IDLE;
+>  }
+>  
+> @@ -282,7 +295,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+>  
+>  		drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
+>  		writel(drv_data->cntl_bits,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  
+>  		drv_data->msgs++;
+>  		drv_data->num_msgs--;
+> @@ -300,48 +313,48 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+>  
+>  	case MV64XXX_I2C_ACTION_CONTINUE:
+>  		writel(drv_data->cntl_bits,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		break;
+>  
+>  	case MV64XXX_I2C_ACTION_SEND_START:
+>  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_START,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		break;
+>  
+>  	case MV64XXX_I2C_ACTION_SEND_ADDR_1:
+>  		writel(drv_data->addr1,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_DATA);
+> +			drv_data->reg_base + drv_data->reg_offsets.data);
+>  		writel(drv_data->cntl_bits,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		break;
+>  
+>  	case MV64XXX_I2C_ACTION_SEND_ADDR_2:
+>  		writel(drv_data->addr2,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_DATA);
+> +			drv_data->reg_base + drv_data->reg_offsets.data);
+>  		writel(drv_data->cntl_bits,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		break;
+>  
+>  	case MV64XXX_I2C_ACTION_SEND_DATA:
+>  		writel(drv_data->msg->buf[drv_data->byte_posn++],
+> -			drv_data->reg_base + MV64XXX_I2C_REG_DATA);
+> +			drv_data->reg_base + drv_data->reg_offsets.data);
+>  		writel(drv_data->cntl_bits,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		break;
+>  
+>  	case MV64XXX_I2C_ACTION_RCV_DATA:
+>  		drv_data->msg->buf[drv_data->byte_posn++] =
+> -			readl(drv_data->reg_base + MV64XXX_I2C_REG_DATA);
+> +			readl(drv_data->reg_base + drv_data->reg_offsets.data);
+>  		writel(drv_data->cntl_bits,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		break;
+>  
+>  	case MV64XXX_I2C_ACTION_RCV_DATA_STOP:
+>  		drv_data->msg->buf[drv_data->byte_posn++] =
+> -			readl(drv_data->reg_base + MV64XXX_I2C_REG_DATA);
+> +			readl(drv_data->reg_base + drv_data->reg_offsets.data);
+>  		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
+>  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		drv_data->block = 0;
+>  		wake_up(&drv_data->waitq);
+>  		break;
+> @@ -356,7 +369,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+>  	case MV64XXX_I2C_ACTION_SEND_STOP:
+>  		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
+>  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
+> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+> +			drv_data->reg_base + drv_data->reg_offsets.control);
+>  		drv_data->block = 0;
+>  		wake_up(&drv_data->waitq);
+>  		break;
+> @@ -372,9 +385,9 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
+>  	irqreturn_t	rc = IRQ_NONE;
+>  
+>  	spin_lock_irqsave(&drv_data->lock, flags);
+> -	while (readl(drv_data->reg_base + MV64XXX_I2C_REG_CONTROL) &
+> +	while (readl(drv_data->reg_base + drv_data->reg_offsets.control) &
+>  						MV64XXX_I2C_REG_CONTROL_IFLG) {
+> -		status = readl(drv_data->reg_base + MV64XXX_I2C_REG_STATUS);
+> +		status = readl(drv_data->reg_base + drv_data->reg_offsets.status);
+>  		mv64xxx_i2c_fsm(drv_data, status);
+>  		mv64xxx_i2c_do_action(drv_data);
+>  		rc = IRQ_HANDLED;
+> @@ -495,6 +508,12 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
+>   *
+>   *****************************************************************************
+>   */
+> +static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
+> +	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+> +	{}
+> +};
+> +MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
+> +
+>  #ifdef CONFIG_OF
+>  static int
+>  mv64xxx_calc_freq(const int tclk, const int n, const int m)
+> @@ -528,8 +547,10 @@ mv64xxx_find_baud_factors(const u32 req_freq, const u32 tclk, u32 *best_n,
+>  
+>  static int
+>  mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+> -		  struct device_node *np)
+> +		  struct device *dev)
+>  {
+> +	const struct of_device_id *device;
+> +	struct device_node *np = dev->of_node;
+>  	u32 bus_freq, tclk;
+>  	int rc = 0;
+>  
+> @@ -558,6 +579,13 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+>  	 * So hard code the value to 1 second.
+>  	 */
+>  	drv_data->adapter.timeout = HZ;
+> +
+> +	device = of_match_device(mv64xxx_i2c_of_match_table, dev);
+> +	if (!device)
+> +		return -ENODEV;
+> +
+> +	memcpy(&drv_data->reg_offsets, device->data, sizeof(drv_data->reg_offsets));
+> +
+>  out:
+>  	return rc;
+>  #endif
+> @@ -565,7 +593,7 @@ out:
+>  #else /* CONFIG_OF */
+>  static int
+>  mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+> -		  struct device_node *np)
+> +		  struct device *dev)
+>  {
+>  	return -ENODEV;
+>  }
+> @@ -611,8 +639,9 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+>  		drv_data->freq_n = pdata->freq_n;
+>  		drv_data->irq = platform_get_irq(pd, 0);
+>  		drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
+> +		memcpy(&drv_data->reg_offsets, &mv64xxx_i2c_regs_mv64xxx, sizeof(drv_data->reg_offsets));
+>  	} else if (pd->dev.of_node) {
+> -		rc = mv64xxx_of_config(drv_data, pd->dev.of_node);
+> +		rc = mv64xxx_of_config(drv_data, &pd->dev);
+>  		if (rc)
+>  			goto exit_clk;
+>  	}
+> @@ -680,12 +709,6 @@ mv64xxx_i2c_remove(struct platform_device *dev)
+>  	return 0;
+>  }
+>  
+> -static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
+> -	{ .compatible = "marvell,mv64xxx-i2c", },
+> -	{}
+> -};
+> -MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
+> -
+>  static struct platform_driver mv64xxx_i2c_driver = {
+>  	.probe	= mv64xxx_i2c_probe,
+>  	.remove	= mv64xxx_i2c_remove,
