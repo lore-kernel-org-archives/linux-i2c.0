@@ -1,296 +1,599 @@
-From: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
-Subject: Re: [PATCHv5,2/8] i2c: mv64xxx: make the registers
- offset configurable
-Date: Fri, 14 Jun 2013 21:36:53 +0200
-Message-ID: <20130614193653.GA25947@lunn.ch>
-References: <1371056017-8166-3-git-send-email-maxime.ripard@free-electrons.com>
-Reply-To: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sunxi+bncBDJNHL5JSEOBBCXC5WGQKGQE2Z3KGCI-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-In-Reply-To: <1371056017-8166-3-git-send-email-maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-List-Post: <http://groups.google.com/group/linux-sunxi/post>, <mailto:linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Help: <http://groups.google.com/support/>, <mailto:linux-sunxi+help-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Archive: <http://groups.google.com/group/linux-sunxi>
-Sender: linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org
-List-Subscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:linux-sunxi+subscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-List-Unsubscribe: <http://groups.google.com/group/linux-sunxi/subscribe>, <mailto:googlegroups-manage+1076902468213+unsubscribe-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org>
-Content-Disposition: inline
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+From: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+Subject: [PATCH v3] i2c: vt8500: Add support for I2C bus on Wondermedia SoCs
+Date: Sat, 15 Jun 2013 09:52:16 +1200
+Message-ID: <1371246736-5460-1-git-send-email-linux@prisktech.co.nz>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: vt8500-wm8505-linux-kernel-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jun 12, 2013 at 06:53:31PM +0200, Maxime Ripard wrote:
-> The Allwinner i2c controller uses the same logic as the Marvell one, but
-> with slightly different register offsets.
-> 
-> Introduce a structure that will be passed by either the pdata or
-> associated to the compatible strings, and that holds the various
-> registers that might be needed.
-> 
-> Signed-off-by: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+This patch adds support for the I2C bus controllers found on Wondermedia
+8xxx-series SoCs. Only master-mode is supported.
 
-Hi Maxime
+Signed-off-by: Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
+---
+v3 changes:
+Included the v2 changes for clarity.
+Tidy up the I2C_NO_START code properly.
+Remove the alias handling and allow the core to do it.
+Change MODULE_LICENSE to "GPL" as per module.h comments.
 
-I tested on a Kirkwood QNAP. It has an RTC on the i2c bus. It still
-gives the correct time with your patches applied.
+v2 changes:
+Rewrite wmt_i2c_wait_bus_not_busy() as per Wolfram/Russell.
+Fix init_completion and INIT_COMPLETION usages.
+Remove magic value in wmt_i2c_reset_hardware().
+Remove test for (!np) in wmt_i2c_probe() as we only support devicetree anyway.
+Remove reference to ->class = I2C_CLASS_HWMON.
 
-Tested-by: Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>
+ .../devicetree/bindings/i2c/i2c-vt8500.txt         |   24 +
+ MAINTAINERS                                        |    1 +
+ drivers/i2c/busses/Kconfig                         |   10 +
+ drivers/i2c/busses/Makefile                        |    1 +
+ drivers/i2c/busses/i2c-wmt.c                       |  479 ++++++++++++++++++++
+ 5 files changed, 515 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
+ create mode 100644 drivers/i2c/busses/i2c-wmt.c
 
-      Andrew
-
-> 
-> ---
-> drivers/i2c/busses/i2c-mv64xxx.c | 101 ++++++++++++++++++++++++---------------
->  1 file changed, 62 insertions(+), 39 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-> index d70a2fda..7ba9bac 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -19,20 +19,12 @@
->  #include <linux/platform_device.h>
->  #include <linux/io.h>
->  #include <linux/of.h>
-> +#include <linux/of_device.h>
->  #include <linux/of_irq.h>
->  #include <linux/of_i2c.h>
->  #include <linux/clk.h>
->  #include <linux/err.h>
->  
-> -/* Register defines */
-> -#define	MV64XXX_I2C_REG_SLAVE_ADDR			0x00
-> -#define	MV64XXX_I2C_REG_DATA				0x04
-> -#define	MV64XXX_I2C_REG_CONTROL				0x08
-> -#define	MV64XXX_I2C_REG_STATUS				0x0c
-> -#define	MV64XXX_I2C_REG_BAUD				0x0c
-> -#define	MV64XXX_I2C_REG_EXT_SLAVE_ADDR			0x10
-> -#define	MV64XXX_I2C_REG_SOFT_RESET			0x1c
-> -
->  #define MV64XXX_I2C_ADDR_ADDR(val)			((val & 0x7f) << 1)
->  #define MV64XXX_I2C_BAUD_DIV_N(val)			(val & 0x7)
->  #define MV64XXX_I2C_BAUD_DIV_M(val)			((val & 0xf) << 3)
-> @@ -89,6 +81,16 @@ enum {
->  	MV64XXX_I2C_ACTION_SEND_STOP,
->  };
->  
-> +struct mv64xxx_i2c_regs {
-> +	u8	addr;
-> +	u8	ext_addr;
-> +	u8	data;
-> +	u8	control;
-> +	u8	status;
-> +	u8	clock;
-> +	u8	soft_reset;
-> +};
-> +
->  struct mv64xxx_i2c_data {
->  	struct i2c_msg		*msgs;
->  	int			num_msgs;
-> @@ -98,6 +100,7 @@ struct mv64xxx_i2c_data {
->  	u32			aborting;
->  	u32			cntl_bits;
->  	void __iomem		*reg_base;
-> +	struct mv64xxx_i2c_regs	reg_offsets;
->  	u32			addr1;
->  	u32			addr2;
->  	u32			bytes_left;
-> @@ -116,6 +119,16 @@ struct mv64xxx_i2c_data {
->  	struct i2c_adapter	adapter;
->  };
->  
-> +static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
-> +	.addr		= 0x00,
-> +	.ext_addr	= 0x10,
-> +	.data		= 0x04,
-> +	.control	= 0x08,
-> +	.status		= 0x0c,
-> +	.clock		= 0x0c,
-> +	.soft_reset	= 0x1c,
-> +};
-> +
->  static void
->  mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
->  	struct i2c_msg *msg)
-> @@ -154,13 +167,13 @@ mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
->  static void
->  mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
->  {
-> -	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_SOFT_RESET);
-> +	writel(0, drv_data->reg_base + drv_data->reg_offsets.soft_reset);
->  	writel(MV64XXX_I2C_BAUD_DIV_M(drv_data->freq_m) | MV64XXX_I2C_BAUD_DIV_N(drv_data->freq_n),
-> -		drv_data->reg_base + MV64XXX_I2C_REG_BAUD);
-> -	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_SLAVE_ADDR);
-> -	writel(0, drv_data->reg_base + MV64XXX_I2C_REG_EXT_SLAVE_ADDR);
-> +		drv_data->reg_base + drv_data->reg_offsets.clock);
-> +	writel(0, drv_data->reg_base + drv_data->reg_offsets.addr);
-> +	writel(0, drv_data->reg_base + drv_data->reg_offsets.ext_addr);
->  	writel(MV64XXX_I2C_REG_CONTROL_TWSIEN | MV64XXX_I2C_REG_CONTROL_STOP,
-> -		drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +		drv_data->reg_base + drv_data->reg_offsets.control);
->  	drv_data->state = MV64XXX_I2C_STATE_IDLE;
->  }
->  
-> @@ -282,7 +295,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
->  
->  		drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
->  		writel(drv_data->cntl_bits,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  
->  		drv_data->msgs++;
->  		drv_data->num_msgs--;
-> @@ -300,48 +313,48 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
->  
->  	case MV64XXX_I2C_ACTION_CONTINUE:
->  		writel(drv_data->cntl_bits,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_SEND_START:
->  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_START,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_SEND_ADDR_1:
->  		writel(drv_data->addr1,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_DATA);
-> +			drv_data->reg_base + drv_data->reg_offsets.data);
->  		writel(drv_data->cntl_bits,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_SEND_ADDR_2:
->  		writel(drv_data->addr2,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_DATA);
-> +			drv_data->reg_base + drv_data->reg_offsets.data);
->  		writel(drv_data->cntl_bits,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_SEND_DATA:
->  		writel(drv_data->msg->buf[drv_data->byte_posn++],
-> -			drv_data->reg_base + MV64XXX_I2C_REG_DATA);
-> +			drv_data->reg_base + drv_data->reg_offsets.data);
->  		writel(drv_data->cntl_bits,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_RCV_DATA:
->  		drv_data->msg->buf[drv_data->byte_posn++] =
-> -			readl(drv_data->reg_base + MV64XXX_I2C_REG_DATA);
-> +			readl(drv_data->reg_base + drv_data->reg_offsets.data);
->  		writel(drv_data->cntl_bits,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		break;
->  
->  	case MV64XXX_I2C_ACTION_RCV_DATA_STOP:
->  		drv_data->msg->buf[drv_data->byte_posn++] =
-> -			readl(drv_data->reg_base + MV64XXX_I2C_REG_DATA);
-> +			readl(drv_data->reg_base + drv_data->reg_offsets.data);
->  		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
->  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		drv_data->block = 0;
->  		wake_up(&drv_data->waitq);
->  		break;
-> @@ -356,7 +369,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
->  	case MV64XXX_I2C_ACTION_SEND_STOP:
->  		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
->  		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
-> -			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
-> +			drv_data->reg_base + drv_data->reg_offsets.control);
->  		drv_data->block = 0;
->  		wake_up(&drv_data->waitq);
->  		break;
-> @@ -372,9 +385,9 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
->  	irqreturn_t	rc = IRQ_NONE;
->  
->  	spin_lock_irqsave(&drv_data->lock, flags);
-> -	while (readl(drv_data->reg_base + MV64XXX_I2C_REG_CONTROL) &
-> +	while (readl(drv_data->reg_base + drv_data->reg_offsets.control) &
->  						MV64XXX_I2C_REG_CONTROL_IFLG) {
-> -		status = readl(drv_data->reg_base + MV64XXX_I2C_REG_STATUS);
-> +		status = readl(drv_data->reg_base + drv_data->reg_offsets.status);
->  		mv64xxx_i2c_fsm(drv_data, status);
->  		mv64xxx_i2c_do_action(drv_data);
->  		rc = IRQ_HANDLED;
-> @@ -495,6 +508,12 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
->   *
->   *****************************************************************************
->   */
-> +static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
-> +	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
-> +
->  #ifdef CONFIG_OF
->  static int
->  mv64xxx_calc_freq(const int tclk, const int n, const int m)
-> @@ -528,8 +547,10 @@ mv64xxx_find_baud_factors(const u32 req_freq, const u32 tclk, u32 *best_n,
->  
->  static int
->  mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
-> -		  struct device_node *np)
-> +		  struct device *dev)
->  {
-> +	const struct of_device_id *device;
-> +	struct device_node *np = dev->of_node;
->  	u32 bus_freq, tclk;
->  	int rc = 0;
->  
-> @@ -558,6 +579,13 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
->  	 * So hard code the value to 1 second.
->  	 */
->  	drv_data->adapter.timeout = HZ;
-> +
-> +	device = of_match_device(mv64xxx_i2c_of_match_table, dev);
-> +	if (!device)
-> +		return -ENODEV;
-> +
-> +	memcpy(&drv_data->reg_offsets, device->data, sizeof(drv_data->reg_offsets));
-> +
->  out:
->  	return rc;
->  #endif
-> @@ -565,7 +593,7 @@ out:
->  #else /* CONFIG_OF */
->  static int
->  mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
-> -		  struct device_node *np)
-> +		  struct device *dev)
->  {
->  	return -ENODEV;
->  }
-> @@ -611,8 +639,9 @@ mv64xxx_i2c_probe(struct platform_device *pd)
->  		drv_data->freq_n = pdata->freq_n;
->  		drv_data->irq = platform_get_irq(pd, 0);
->  		drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
-> +		memcpy(&drv_data->reg_offsets, &mv64xxx_i2c_regs_mv64xxx, sizeof(drv_data->reg_offsets));
->  	} else if (pd->dev.of_node) {
-> -		rc = mv64xxx_of_config(drv_data, pd->dev.of_node);
-> +		rc = mv64xxx_of_config(drv_data, &pd->dev);
->  		if (rc)
->  			goto exit_clk;
->  	}
-> @@ -680,12 +709,6 @@ mv64xxx_i2c_remove(struct platform_device *dev)
->  	return 0;
->  }
->  
-> -static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
-> -	{ .compatible = "marvell,mv64xxx-i2c", },
-> -	{}
-> -};
-> -MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
-> -
->  static struct platform_driver mv64xxx_i2c_driver = {
->  	.probe	= mv64xxx_i2c_probe,
->  	.remove	= mv64xxx_i2c_remove,
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-vt8500.txt b/Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
+new file mode 100644
+index 0000000..94a425e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
+@@ -0,0 +1,24 @@
++* Wondermedia I2C Controller
++
++Required properties :
++
++ - compatible : should be "wm,wm8505-i2c"
++ - reg : Offset and length of the register set for the device
++ - interrupts : <IRQ> where IRQ is the interrupt number
++ - clocks : phandle to the I2C clock source
++
++Optional properties :
++
++ - clock-frequency : desired I2C bus clock frequency in Hz.
++	Valid values are 100000 and 400000.
++	Default to 100000 if not specified, or invalid value.
++
++Example :
++
++	i2c_0: i2c@d8280000 {
++		compatible = "wm,wm8505-i2c";
++		reg = <0xd8280000 0x1000>;
++		interrupts = <19>;
++		clocks = <&clki2c0>;
++		clock-frequency = <400000>;
++	};
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 3d7782b..44ea994 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1285,6 +1285,7 @@ S:	Maintained
+ F:	arch/arm/mach-vt8500/
+ F:	drivers/clocksource/vt8500_timer.c
+ F:	drivers/gpio/gpio-vt8500.c
++F:	drivers/i2c/busses/i2c-wmt.c
+ F:	drivers/mmc/host/wmt-sdmmc.c
+ F:	drivers/pwm/pwm-vt8500.c
+ F:	drivers/rtc/rtc-vt8500.c
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 631736e..89e7ec2 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -724,6 +724,16 @@ config I2C_VERSATILE
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-versatile.
+ 
++config I2C_WMT
++	tristate "Wondermedia WM8xxx SoC I2C bus support"
++	depends on ARCH_VT8500
++	help
++	  Say yes if you want to support the I2C bus on Wondermedia 8xxx-series
++	  SoCs.
++
++	  This driver can also be built as a module. If so, the module will be
++	  called i2c-wmt.
++
+ config I2C_OCTEON
+ 	tristate "Cavium OCTEON I2C bus support"
+ 	depends on CPU_CAVIUM_OCTEON
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 8f4fc23..3ba94a9 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -71,6 +71,7 @@ obj-$(CONFIG_I2C_SIRF)		+= i2c-sirf.o
+ obj-$(CONFIG_I2C_STU300)	+= i2c-stu300.o
+ obj-$(CONFIG_I2C_TEGRA)		+= i2c-tegra.o
+ obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
++obj-$(CONFIG_I2C_WMT)		+= i2c-wmt.o
+ obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
+ obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
+ obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
+diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
+new file mode 100644
+index 0000000..19f6f35
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-wmt.c
+@@ -0,0 +1,479 @@
++/*
++ *  Wondermedia I2C Master Mode Driver
++ *
++ *  Copyright (C) 2012 Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>
++ *
++ *  Derived from GPLv2+ licensed source:
++ *  - Copyright (C) 2008 WonderMedia Technologies, Inc.
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License version 2, or
++ *  (at your option) any later version. as published by the Free Software
++ *  Foundation
++ */
++
++#include <linux/clk.h>
++#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/i2c.h>
++#include <linux/interrupt.h>
++#include <linux/io.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/of_address.h>
++#include <linux/of_i2c.h>
++#include <linux/of_irq.h>
++#include <linux/platform_device.h>
++
++#define REG_CR		0x00
++#define REG_TCR		0x02
++#define REG_CSR		0x04
++#define REG_ISR		0x06
++#define REG_IMR		0x08
++#define REG_CDR		0x0A
++#define REG_TR		0x0C
++#define REG_MCR		0x0E
++#define REG_SLAVE_CR	0x10
++#define REG_SLAVE_SR	0x12
++#define REG_SLAVE_ISR	0x14
++#define REG_SLAVE_IMR	0x16
++#define REG_SLAVE_DR	0x18
++#define REG_SLAVE_TR	0x1A
++
++/* REG_CR Bit fields */
++#define CR_TX_NEXT_ACK		0x0000
++#define CR_ENABLE		0x0001
++#define CR_TX_NEXT_NO_ACK	0x0002
++#define CR_TX_END		0x0004
++#define CR_CPU_RDY		0x0008
++#define SLAV_MODE_SEL		0x8000
++
++/* REG_TCR Bit fields */
++#define TCR_STANDARD_MODE	0x0000
++#define TCR_MASTER_WRITE	0x0000
++#define TCR_HS_MODE		0x2000
++#define TCR_MASTER_READ		0x4000
++#define TCR_FAST_MODE		0x8000
++#define TCR_SLAVE_ADDR_MASK	0x007F
++
++/* REG_ISR Bit fields */
++#define ISR_NACK_ADDR		0x0001
++#define ISR_BYTE_END		0x0002
++#define ISR_SCL_TIMEOUT		0x0004
++#define ISR_WRITE_ALL		0x0007
++
++/* REG_IMR Bit fields */
++#define IMR_ENABLE_ALL		0x0007
++
++/* REG_CSR Bit fields */
++#define CSR_RCV_NOT_ACK		0x0001
++#define CSR_RCV_ACK_MASK	0x0001
++#define CSR_READY_MASK		0x0002
++
++/* REG_TR */
++#define SCL_TIMEOUT(x)		(((x) & 0xFF) << 16)
++#define TR_STD			0x0064
++#define TR_HS			0x0019
++
++/* REG_MCR */
++#define MCR_APB_96M		7
++#define MCR_APB_166M		12
++
++#define I2C_MODE_STANDARD	0
++#define I2C_MODE_FAST		1
++
++#define WMT_I2C_TIMEOUT		(msecs_to_jiffies(1000))
++
++struct wmt_i2c_dev {
++	struct i2c_adapter	adapter;
++	struct completion	complete;
++	struct device		*dev;
++	void __iomem		*base;
++	struct clk		*clk;
++	int			mode;
++	int			irq;
++	u16			cmd_status;
++};
++
++static int wmt_i2c_wait_bus_not_busy(struct wmt_i2c_dev *i2c_dev)
++{
++	unsigned long timeout;
++
++	timeout = jiffies + WMT_I2C_TIMEOUT;
++	while (!(readw(i2c_dev->base + REG_CSR) & CSR_READY_MASK)) {
++		if (time_after(jiffies, timeout)) {
++			dev_warn(i2c_dev->dev, "timeout waiting for bus ready\n");
++			return -EBUSY;
++		}
++		msleep(20);
++	}
++
++	return 0;
++}
++
++static int wmt_check_status(struct wmt_i2c_dev *i2c_dev)
++{
++	int ret = 0;
++
++	if (i2c_dev->cmd_status & ISR_NACK_ADDR)
++		ret = -EIO;
++
++	if (i2c_dev->cmd_status & ISR_SCL_TIMEOUT)
++		ret = -ETIMEDOUT;
++
++	return ret;
++}
++
++static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
++			 int last)
++{
++	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
++	u16 val, tcr_val;
++	int ret, wait_result;
++	int xfer_len = 0;
++
++	if (!(pmsg->flags & I2C_M_NOSTART)) {
++		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
++		if (ret < 0)
++			return ret;
++	}
++
++	if (pmsg->len == 0) {
++		/*
++		 * We still need to run through the while (..) once, so
++		 * start at -1 and break out early from the loop
++		 */
++		xfer_len = -1;
++		writew(0, i2c_dev->base + REG_CDR);
++	} else {
++		writew(pmsg->buf[0] & 0xFF, i2c_dev->base + REG_CDR);
++	}
++
++	if (!(pmsg->flags & I2C_M_NOSTART)) {
++		val = readw(i2c_dev->base + REG_CR);
++		val &= ~CR_TX_END;
++		writew(val, i2c_dev->base + REG_CR);
++
++		val = readw(i2c_dev->base + REG_CR);
++		val |= CR_CPU_RDY;
++		writew(val, i2c_dev->base + REG_CR);
++	}
++
++	INIT_COMPLETION(i2c_dev->complete);
++
++	if (i2c_dev->mode == I2C_MODE_STANDARD)
++		tcr_val = TCR_STANDARD_MODE;
++	else
++		tcr_val = TCR_FAST_MODE;
++
++	tcr_val |= (TCR_MASTER_WRITE | (pmsg->addr & TCR_SLAVE_ADDR_MASK));
++
++	writew(tcr_val, i2c_dev->base + REG_TCR);
++
++	if (pmsg->flags & I2C_M_NOSTART) {
++		val = readw(i2c_dev->base + REG_CR);
++		val |= CR_CPU_RDY;
++		writew(val, i2c_dev->base + REG_CR);
++	}
++
++	while (xfer_len < pmsg->len) {
++		wait_result = wait_for_completion_timeout(&i2c_dev->complete,
++							  500 * HZ / 1000);
++
++		if (wait_result == 0)
++			return -ETIMEDOUT;
++
++		ret = wmt_check_status(i2c_dev);
++		if (ret)
++			return ret;
++
++		xfer_len++;
++
++		val = readw(i2c_dev->base + REG_CSR);
++		if ((val & CSR_RCV_ACK_MASK) == CSR_RCV_NOT_ACK) {
++			dev_dbg(i2c_dev->dev, "write RCV NACK error\n");
++			return -EIO;
++		}
++
++		if (pmsg->len == 0) {
++			val = CR_TX_END | CR_CPU_RDY | CR_ENABLE;
++			writew(val, i2c_dev->base + REG_CR);
++			break;
++		}
++
++		if (xfer_len == pmsg->len) {
++			if (last != 1)
++				writew(CR_ENABLE, i2c_dev->base + REG_CR);
++		} else {
++			writew(pmsg->buf[xfer_len] & 0xFF, i2c_dev->base +
++								REG_CDR);
++			writew(CR_CPU_RDY | CR_ENABLE, i2c_dev->base + REG_CR);
++		}
++	}
++
++	return 0;
++}
++
++static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
++			int last)
++{
++	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
++	u16 val, tcr_val;
++	int ret, wait_result;
++	u32 xfer_len = 0;
++
++	if (!(pmsg->flags & I2C_M_NOSTART)) {
++		ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
++		if (ret < 0)
++			return ret;
++	}
++
++	val = readw(i2c_dev->base + REG_CR);
++	val &= ~CR_TX_END;
++	writew(val, i2c_dev->base + REG_CR);
++
++	val = readw(i2c_dev->base + REG_CR);
++	val &= ~CR_TX_NEXT_NO_ACK;
++	writew(val, i2c_dev->base + REG_CR);
++
++	if (!(pmsg->flags & I2C_M_NOSTART)) {
++		val = readw(i2c_dev->base + REG_CR);
++		val |= CR_CPU_RDY;
++		writew(val, i2c_dev->base + REG_CR);
++	}
++
++	if (pmsg->len == 1) {
++		val = readw(i2c_dev->base + REG_CR);
++		val |= CR_TX_NEXT_NO_ACK;
++		writew(val, i2c_dev->base + REG_CR);
++	}
++
++	INIT_COMPLETION(i2c_dev->complete);
++
++	if (i2c_dev->mode == I2C_MODE_STANDARD)
++		tcr_val = TCR_STANDARD_MODE;
++	else
++		tcr_val = TCR_FAST_MODE;
++
++	tcr_val |= TCR_MASTER_READ | (pmsg->addr & TCR_SLAVE_ADDR_MASK);
++
++	writew(tcr_val, i2c_dev->base + REG_TCR);
++
++	if (pmsg->flags & I2C_M_NOSTART) {
++		val = readw(i2c_dev->base + REG_CR);
++		val |= CR_CPU_RDY;
++		writew(val, i2c_dev->base + REG_CR);
++	}
++
++	while (xfer_len < pmsg->len) {
++		wait_result = wait_for_completion_timeout(&i2c_dev->complete,
++							  500 * HZ / 1000);
++
++		if (!wait_result)
++			return -ETIMEDOUT;
++
++		ret = wmt_check_status(i2c_dev);
++		if (ret)
++			return ret;
++
++		pmsg->buf[xfer_len] = readw(i2c_dev->base + REG_CDR) >> 8;
++		xfer_len++;
++
++		if (xfer_len == pmsg->len - 1) {
++			val = readw(i2c_dev->base + REG_CR);
++			val |= (CR_TX_NEXT_NO_ACK | CR_CPU_RDY);
++			writew(val, i2c_dev->base + REG_CR);
++		} else {
++			val = readw(i2c_dev->base + REG_CR);
++			val |= CR_CPU_RDY;
++			writew(val, i2c_dev->base + REG_CR);
++		}
++	}
++
++	return 0;
++}
++
++static int wmt_i2c_xfer(struct i2c_adapter *adap,
++			struct i2c_msg msgs[],
++			int num)
++{
++	struct i2c_msg *pmsg;
++	int i, is_last;
++	int ret = 0;
++
++	for (i = 0; ret >= 0 && i < num; i++) {
++		is_last = ((i + 1) == num);
++
++		pmsg = &msgs[i];
++		if (pmsg->flags & I2C_M_RD)
++			ret = wmt_i2c_read(adap, pmsg, is_last);
++		else
++			ret = wmt_i2c_write(adap, pmsg, is_last);
++	}
++
++	return (ret < 0) ? ret : i;
++}
++
++static u32 wmt_i2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART;
++}
++
++static const struct i2c_algorithm wmt_i2c_algo = {
++	.master_xfer	= wmt_i2c_xfer,
++	.functionality	= wmt_i2c_func,
++};
++
++static irqreturn_t wmt_i2c_isr(int irq, void *data)
++{
++	struct wmt_i2c_dev *i2c_dev = data;
++
++	/* save the status and write-clear it */
++	i2c_dev->cmd_status = readw(i2c_dev->base + REG_ISR);
++	writew(i2c_dev->cmd_status, i2c_dev->base + REG_ISR);
++
++	complete(&i2c_dev->complete);
++
++	return IRQ_HANDLED;
++}
++
++static int wmt_i2c_reset_hardware(struct wmt_i2c_dev *i2c_dev)
++{
++	int err;
++
++	err = clk_prepare_enable(i2c_dev->clk);
++	if (err) {
++		dev_err(i2c_dev->dev, "failed to enable clock\n");
++		return err;
++	}
++
++	err = clk_set_rate(i2c_dev->clk, 20000000);
++	if (err) {
++		dev_err(i2c_dev->dev, "failed to set clock = 20Mhz\n");
++		return err;
++	}
++
++	writew(0, i2c_dev->base + REG_CR);
++	writew(MCR_APB_166M, i2c_dev->base + REG_MCR);
++	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
++	writew(IMR_ENABLE_ALL, i2c_dev->base + REG_IMR);
++	writew(CR_ENABLE, i2c_dev->base + REG_CR);
++	readw(i2c_dev->base + REG_CSR);		/* read clear */
++	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
++
++	if (i2c_dev->mode == I2C_MODE_STANDARD)
++		writew(SCL_TIMEOUT(128) | TR_STD, i2c_dev->base + REG_TR);
++	else
++		writew(SCL_TIMEOUT(128) | TR_HS, i2c_dev->base + REG_TR);
++
++	return 0;
++}
++
++static int wmt_i2c_probe(struct platform_device *pdev)
++{
++	struct device_node *np = pdev->dev.of_node;
++	struct wmt_i2c_dev *i2c_dev;
++	struct i2c_adapter *adap;
++	struct resource *res;
++	int err;
++	u32 clk_rate;
++
++	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
++	if (!i2c_dev) {
++		dev_err(&pdev->dev, "device memory allocation failed\n");
++		return -ENOMEM;
++	}
++
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	i2c_dev->base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(i2c_dev->base))
++		return PTR_ERR(i2c_dev->base);
++
++	i2c_dev->irq = irq_of_parse_and_map(np, 0);
++	if (!i2c_dev->irq) {
++		dev_err(&pdev->dev, "irq missing or invalid\n");
++		return -EINVAL;
++	}
++
++	i2c_dev->clk = of_clk_get(np, 0);
++	if (IS_ERR(i2c_dev->clk)) {
++		dev_err(&pdev->dev, "unable to request clock\n");
++		return PTR_ERR(i2c_dev->clk);
++	}
++
++	i2c_dev->mode = I2C_MODE_STANDARD;
++	err = of_property_read_u32(np, "clock-frequency", &clk_rate);
++	if ((!err) && (clk_rate == 400000))
++		i2c_dev->mode = I2C_MODE_FAST;
++
++	i2c_dev->dev = &pdev->dev;
++
++	err = devm_request_irq(&pdev->dev, i2c_dev->irq, wmt_i2c_isr, 0,
++							"i2c", i2c_dev);
++	if (err) {
++		dev_err(&pdev->dev, "failed to request irq %i\n", i2c_dev->irq);
++		return err;
++	}
++
++	adap = &i2c_dev->adapter;
++	i2c_set_adapdata(adap, i2c_dev);
++	strlcpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
++	adap->owner = THIS_MODULE;
++	adap->algo = &wmt_i2c_algo;
++	adap->dev.parent = &pdev->dev;
++	adap->dev.of_node = pdev->dev.of_node;
++
++	init_completion(&i2c_dev->complete);
++
++	err = wmt_i2c_reset_hardware(i2c_dev);
++	if (err) {
++		dev_err(&pdev->dev, "error initializing hardware\n");
++		return err;
++	}
++
++	err = i2c_add_adapter(adap);
++	if (err) {
++		dev_err(&pdev->dev, "failed to add adapter\n");
++		return err;
++	}
++
++	platform_set_drvdata(pdev, i2c_dev);
++
++	of_i2c_register_devices(adap);
++
++	return 0;
++}
++
++static int wmt_i2c_remove(struct platform_device *pdev)
++{
++	struct wmt_i2c_dev *i2c_dev = platform_get_drvdata(pdev);
++
++	/* Disable interrupts, clock and delete adapter */
++	writew(0, i2c_dev->base + REG_IMR);
++	clk_disable_unprepare(i2c_dev->clk);
++	i2c_del_adapter(&i2c_dev->adapter);
++
++	return 0;
++}
++
++static struct of_device_id wmt_i2c_dt_ids[] = {
++	{ .compatible = "wm,wm8505-i2c" },
++	{ /* Sentinel */ },
++};
++
++static struct platform_driver wmt_i2c_driver = {
++	.probe		= wmt_i2c_probe,
++	.remove		= wmt_i2c_remove,
++	.driver		= {
++		.name	= "wmt-i2c",
++		.owner	= THIS_MODULE,
++		.of_match_table = wmt_i2c_dt_ids,
++	},
++};
++
++module_platform_driver(wmt_i2c_driver);
++
++MODULE_DESCRIPTION("Wondermedia I2C master-mode bus adapter");
++MODULE_AUTHOR("Tony Prisk <linux-ci5G2KO2hbZ+pU9mqzGVBQ@public.gmane.org>");
++MODULE_LICENSE("GPL");
++MODULE_DEVICE_TABLE(of, wmt_i2c_dt_ids);
+-- 
+1.7.9.5
