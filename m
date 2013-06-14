@@ -1,168 +1,59 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: vt8500: Add support for I2C bus on Wondermedia
- SoCs
-Date: Fri, 14 Jun 2013 15:58:59 +0200
-Message-ID: <20130614135857.GA2929@katana>
-References: <1371023785-3132-1-git-send-email-linux@prisktech.co.nz>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCHv4 0/9] Add I2C support for Allwinner SoCs
+Date: Fri, 14 Jun 2013 16:01:40 +0200
+Message-ID: <20130614140140.GB2929@katana>
+References: <1371024438-16631-1-git-send-email-maxime.ripard@free-electrons.com>
+ <3315236.ZNXhyxmCRd@wuerfel>
+ <20130612113849.GG16699@lukather>
+ <201306121438.12549.arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============2435557405027616759=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1371023785-3132-1-git-send-email-linux@prisktech.co.nz>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Tony Prisk <linux@prisktech.co.nz>
-Cc: vt8500-wm8505-linux-kernel@googlegroups.com, linux@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="7iMSBzlTiPOCCT2k"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <201306121438.12549.arnd-r2nGTMty4D4@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Emilio Lopez <emilio-0Z03zUJReD5OxF6Tv1QG9Q@public.gmane.org>, Tomasz Figa <tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sunxi-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, sunny-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, shuge-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org, kevin-0TFLnhJekD6UEPyfVivIlAC/G2K4zDHf@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---===============2435557405027616759==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FCuugMFkClbJLl1L"
-Content-Disposition: inline
-
-
---FCuugMFkClbJLl1L
+--7iMSBzlTiPOCCT2k
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 12, 2013 at 07:56:25PM +1200, Tony Prisk wrote:
-> This patch adds support for the I2C bus controllers found on Wondermedia
-> 8xxx-series SoCs. Only master-mode is supported.
+
+> > The weird thing is that the only difference between the two controllers
+> > is the register offsets, and that's it. The state numbers, bit index,
+> > etc, are exactly the same.
 >=20
-> Signed-off-by: Tony Prisk <linux@prisktech.co.nz>
-> ---
+> Ok, cool. Great someone noticed!
 
-Please describe here what changed since the last version. It's a lot
-easier and faster to review then.
-
-> +static int wmt_i2c_xfer(struct i2c_adapter *adap,
-> +			struct i2c_msg msgs[],
-> +			int num)
-> +{
-> +	struct i2c_msg *pmsg;
-> +	int i, is_last, no_start;
-> +	int ret =3D 0;
-> +
-> +	for (i =3D 0; ret >=3D 0 && i < num; i++) {
-> +		is_last =3D ((i + 1) =3D=3D num);
-> +		no_start =3D (i !=3D 0);
-
-(i !=3D 0) is a restart condition (start instead of stop)...
-
-> +
-> +		pmsg =3D &msgs[i];
-> +		if (pmsg->flags & I2C_M_NOSTART)
-> +			no_start =3D 1;
-
-=2E..and this is a no_start (concatenating messages). I do have the
-impression you are mixing those two?
-
-> +		if (pmsg->flags & I2C_M_RD)
-> +			ret =3D wmt_i2c_read(adap, pmsg, no_start, is_last);
-> +		else
-> +			ret =3D wmt_i2c_write(adap, pmsg, no_start, is_last);
-> +	}
-> +
-> +	return (ret < 0) ? ret : i;
-> +}
-> +	adap =3D &i2c_dev->adapter;
-> +	i2c_set_adapdata(adap, i2c_dev);
-> +	strlcpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
-> +	adap->owner =3D THIS_MODULE;
-> +	adap->algo =3D &wmt_i2c_algo;
-> +	adap->dev.parent =3D &pdev->dev;
-> +	adap->dev.of_node =3D pdev->dev.of_node;
-> +	adap->nr =3D of_alias_get_id(pdev->dev.of_node, "i2c");
-
-Drop this line...
-
-> +
-> +	init_completion(&i2c_dev->complete);
-> +
-> +	err =3D wmt_i2c_reset_hardware(i2c_dev);
-> +	if (err) {
-> +		dev_err(&pdev->dev, "error initializing hardware\n");
-> +		return err;
-> +	}
-> +
-> +	err =3D i2c_add_numbered_adapter(adap);
-
-=2E.. and use i2c_add_adpter here. Since recently the core checks the
-ofnode for an alias. Sorry, forgot to mention this last time.
-
-> +	if (err) {
-> +		dev_err(&pdev->dev, "failed to add adapter\n");
-> +		return err;
-> +	}
-> +
-> +	platform_set_drvdata(pdev, i2c_dev);
-> +
-> +	of_i2c_register_devices(adap);
-> +
-> +	return 0;
-> +}
-> +
-> +module_platform_driver(wmt_i2c_driver);
-> +
-> +MODULE_DESCRIPTION("Wondermedia I2C master-mode bus adapter");
-> +MODULE_AUTHOR("Tony Prisk <linux@prisktech.co.nz>");
-> +MODULE_LICENSE("GPL and additional rights");
-
-I see no additional rights mentioned. According to the header "GPL"
-should do, but you know the original sources better.
-
-> +MODULE_DEVICE_TABLE(of, wmt_i2c_dt_ids);
-> --=20
-> 1.7.9.5
->=20
-
-Regards,
-
-   Wolfram
+:) First thing I do when reviewing new drivers is a manual fuzzy search
+for already known register sets.
 
 
---FCuugMFkClbJLl1L
+--7iMSBzlTiPOCCT2k
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRuyGhAAoJEBQN5MwUoCm26LQP/AsVG+oJWCMo+gKx8QDemxWV
-hysBgpjZ2Io2o3sekpMfQW7Z6fjapzxaY4fXO8TCib6XjPsOlRgZoqaQ2hAIVDQS
-eLSrjUSzqWYupUbqFyYfOlMK9G+1vU9EZmIFAno4plsSkZKf2ICEkUNpXa3wSYcC
-6mDCpbyVcPAICzbUgILPrjeVrNxEoriUl6pxfK454/cIwnFl/Cu7o0DpHnGzc1sQ
-1G2gdQyAO7FXbNazRM7w8mTwxwgFdD76PU+w7/tt+vt9jNVfistycHHVx4G+h9th
-4/Z92KFfP4zVZrQIU5PneYcRyLQgFzMu9Y8md0PYjVslX3dOlXpmlPP/f8hc8m35
-MuF6jRlfKMDHjlgm3oOaBK/nhN9cxXa7o2LY22kjKQshJ7Ah+tp2O/xUSvMK9Age
-i7TRh5BKXx+wn7hlfxagIMiWudF5JKQHFy/yLLB3TzF8qI1F92CE8M9YIqPT3glK
-BOGLo2Z/2bTgrZ+AZqCLYeBk82ytypVrQOy7MD627OzPIGFxULcXobBCGv8HGpJv
-LwbZNdXyiLg5GyaH4CbSqDN9C9YiMpM903dxakiFbV52d2AxJIzYCcSQzfwbbvHB
-QUkXDjig6OY9I+qIpePxXMU9dl3e9cLkqP44ITJ0FYDuW8QboLwBm6dt9Pc6ym2N
-tJ/QLfZwyf60UaX6InzM
-=w/qj
+iQIcBAEBAgAGBQJRuyJEAAoJEBQN5MwUoCm20+IP/31917+CLHnLb64vVj8F95/O
+NCd6eygPfnzjQEkWcQ89lh1FdIsMqrOZgSKXY/OqdoJaYW0clsDY7OZzWthjOHNI
+2OVye6SeG0fYrNzOXN2JkdjlVcFfz+eABawBoMREFktw7Fy7jFKxGE/fPGDOUOBg
+oX7+ls4anDkKXxYM78QA/7ck2ObTSnutnImD5YnaMWBmwMSHmJETBbB/Dfv1X1eS
+1z2hbT64zE0ITQv2OGNKfiCdg/Vnw7u24CyfCNebc3cU7ByrcGXWM2odTTD5bBDS
+NYoizMIbM+fkztKlaO8Sk8liLAeqkN9rueBBzwmLnNz+hev2Cc9fVIKVztNfOuAW
+fdUwLzwBgSR/SU5lKooNO+YC/H531Q0U+Wstw738Yu87fo0qiDsdk0H5BzvJq6Jm
+Pd00x6RXTaN9ZMogH3n4m6h9Kd26k/46w2eo0ug49qu7Q1G2UROFAbzOk08InuLo
+8seCQHUdhDyGhbKFXv0Lh3W4yg7Vs6jH5YzmN1Yd6OqtmfBMK4xLueHvMaY2WLZl
+AO98vONYYaN63wFMRe/+lmjVOlwjzKXr9QAc/h/UE0ggpfxnMZQsWUyXMf0ozpWb
+0Y3ADzo8tygYwCme3eLT3BlqOrpO7VApHcoMk5ag9e/v9Gf0Tz3BgbKB0ldv7LJw
+4aTu2s+8SDN9xYY+tN/J
+=npl8
 -----END PGP SIGNATURE-----
 
---FCuugMFkClbJLl1L--
-
-
---===============2435557405027616759==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============2435557405027616759==--
+--7iMSBzlTiPOCCT2k--
