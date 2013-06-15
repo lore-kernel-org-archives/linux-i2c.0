@@ -1,119 +1,78 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: nomadik: allocate adapter number dynamically
-Date: Sat, 15 Jun 2013 16:20:59 +0200
-Message-ID: <20130615142058.GB2923@katana>
-References: <1370816153-9838-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH] i2c-pxa: prepare clock before use
+Date: Sat, 15 Jun 2013 16:23:27 +0200
+Message-ID: <20130615142327.GC2923@katana>
+References: <20130613192457.51006FAACE@dev.laptop.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
+	protocol="application/pgp-signature"; boundary="Fig2xvG2VGoz8o/s"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1370816153-9838-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20130613192457.51006FAACE-2+9YHz4BXxlLDiiyqF6/jw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---NDin8bjvE/0mNLFQ
+--Fig2xvG2VGoz8o/s
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 10, 2013 at 12:15:53AM +0200, Linus Walleij wrote:
-> The Nomadik I2C was using a local atomic counter to number
-> the I2C adapters. This does not work on configurations where
-> you also add, say a GPIO bit-banged adapter to the system.
-> They will start to conflict about being adapter 0.
+On Thu, Jun 13, 2013 at 03:24:57PM -0400, Daniel Drake wrote:
+> On OLPC XO-1.75 (MMP2), a WARN_ON() was occurring during boot
+> since the clock being enabled by i2c-pxa had not been prepared.
 >=20
-> There is no reason to use the numbered adapter function, and
-> the semantic effect on systems with only Nomadik I2C blocks
-> will be none - instead of increasing the number atomically
-> in the driver itself, it is done in the I2C core.
+> Use clk_prepare_enable() to ensure that the prepare operation
+> has taken place.
 >=20
-> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
 
-Basically fine...
+The other half of the pair is missing.
 
 > ---
->  drivers/i2c/busses/i2c-nomadik.c | 10 +++-------
->  1 file changed, 3 insertions(+), 7 deletions(-)
+>  drivers/i2c/busses/i2c-pxa.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >=20
-> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-no=
-madik.c
-> index 9f1423a..96c8515 100644
-> --- a/drivers/i2c/busses/i2c-nomadik.c
-> +++ b/drivers/i2c/busses/i2c-nomadik.c
-> @@ -15,7 +15,6 @@
->  #include <linux/init.h>
->  #include <linux/module.h>
->  #include <linux/amba/bus.h>
-> -#include <linux/atomic.h>
->  #include <linux/slab.h>
->  #include <linux/interrupt.h>
->  #include <linux/i2c.h>
-> @@ -981,8 +980,6 @@ static void nmk_i2c_of_probe(struct device_node *np,
->  		pdata->sm =3D I2C_FREQ_MODE_FAST;
->  }
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> index ea6d45d..ef307ea 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -1160,7 +1160,7 @@ static int i2c_pxa_probe(struct platform_device *de=
+v)
+>  		i2c->adap.class =3D plat->class;
+>  	}
 > =20
-> -static atomic_t adapter_id =3D ATOMIC_INIT(0);
-> -
->  static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id =
-*id)
->  {
->  	int ret =3D 0;
-> @@ -1095,10 +1092,9 @@ static int nmk_i2c_probe(struct amba_device *adev,=
- const struct amba_id *id)
->  	adap->class	=3D I2C_CLASS_HWMON | I2C_CLASS_SPD;
->  	adap->algo	=3D &nmk_i2c_algo;
->  	adap->timeout	=3D msecs_to_jiffies(pdata->timeout);
-> -	adap->nr =3D atomic_read(&adapter_id);
-> +	adap->nr =3D -1;
-
-=2E.. only that line can be removed since you now use i2c_add_adapter
-instead of i2c_add_numbered_adapter.
-
->  	snprintf(adap->name, sizeof(adap->name),
-> -		 "Nomadik I2C%d at %pR", adap->nr, &adev->res);
-> -	atomic_inc(&adapter_id);
-> +		 "Nomadik I2C at %pR", &adev->res);
+> -	clk_enable(i2c->clk);
+> +	clk_prepare_enable(i2c->clk);
 > =20
->  	/* fetch the controller configuration from machine */
->  	dev->cfg.clk_freq =3D pdata->clk_freq;
-> @@ -1113,7 +1109,7 @@ static int nmk_i2c_probe(struct amba_device *adev, =
-const struct amba_id *id)
->  		 "initialize %s on virtual base %p\n",
->  		 adap->name, dev->virtbase);
-> =20
-> -	ret =3D i2c_add_numbered_adapter(adap);
-> +	ret =3D i2c_add_adapter(adap);
->  	if (ret) {
->  		dev_err(&adev->dev, "failed to add adapter\n");
->  		goto err_add_adap;
+>  	if (i2c->use_pio) {
+>  		i2c->adap.algo =3D &i2c_pxa_pio_algorithm;
 > --=20
 > 1.8.1.4
 >=20
 
---NDin8bjvE/0mNLFQ
+--Fig2xvG2VGoz8o/s
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRvHhJAAoJEBQN5MwUoCm2XUUP/ifRYzIiko65vUOhCVKB2xF8
-2MYKTjELwSyt6NVTmvVWy6HmgNFkGosMFkQtPLotTaKLyS0vGtgMrhw4o+95jv/d
-TnoPLw5eIb0+OgLvXGkyvRGq6dOl+wZr4nxI8pY4o1KjYUqfWic5cI2g8bUkKxni
-YVKPPR4vbGepB3ed21QmMIxQyhJhphJugW64hF6tAmK7SgNSjm5eH1rYiyFTAId3
-YgprLCe0FX/deVF1LuveU+k9gefQJu3lrZbrH0WCSLWUFcv4Y8Bbrcp4bW9OR5oO
-IhLyAOrs3VG7t1OVzIsiW/RSVmjJ9pq4QVVQKtnrPe8vQSYTq2IlS3C2FutX3GmQ
-JmZqWreI24M7HZ7bDoObcZh2kgDUqN4fjtYcaOVQnfX5yqM+JqdengaXmfb97MLz
-e4mSvW7+9vgLUEmC2vEuZzQVZasV05BqdQ/APPA4+K3GrVuNEa9cBOo1ktwrhAtL
-jCALHw21FEHtn1KRlaZvRza9BCnOhCmPpvVjUc+Q77ZVL7Ft9cDytNQ76zanJRE/
-NPqm6oI2YU3eHOC9EIZd6Ohmu6UyoJLT0qK8wEfw8P7M2bt5nGRZS1XvKI4Yc7p0
-JFNPBRffzDs/4W2WXwhLNiK0OxLvgPEfAyYg5sx+N2Nrpcz+Aeufj6of48AH9R8P
-LBr+hsu0+CiLRnRZS5cD
-=nEP+
+iQIcBAEBAgAGBQJRvHjfAAoJEBQN5MwUoCm2rPgP/ibnRgLa+sPqFyXFNJpPHOcu
+ZYcMf5HRRJ5aDMsAWln0tZODLNJwMxVLltz/cuoOl34Ae7xkWX5iVWT6/RPWFyLg
+9nFO1thwjuWpPR8gD3oxfW0ZGhR977r6cH3kIsIRfY6Nd6cpIBhvcEi9jyz0IPJN
+YbrUM1YJy+/Mw7fMIeCgKHh9H6HzWYeGmZJpHXihhO1Fxe3ZEH9hTg2Kaxof88Xv
+gYPz7kRK9vQ8mz70+l3ZPyvkJqQkBaFun3EdB0jmH/AdjD+L1nFS2r6BBPqV9pKW
+oVIHy3ba82k4f37KBgr/qymDdI6Fw7Hb4Q8eQvm1ZXvug9NmzEXmwXDWsu7b6d2v
+esmwX2i9J4O6S/Dccs2mWiiUiMpPyhkzRs4zytOq2qcMr5OPCXVWT6cH0Rinijor
+dlCk2BDr0ynyU1VkMhxIG8ZTtAnT7q0iWZthg2nEOYAitylDkFZUeqvWyqswScOE
+0Xy62xgVUtOdmDeNBvUBbYVhWr2JwX4v2Yi+zyroTYsPNjGfFKoCS1vZL22Sexdm
+FnYCiC4fQ1fWIEWry/ZWETeb+W5nW7/Jm8qWadbzGM9bM+SnRomxHrAs5TCM6s+j
+7RKUDQADN7ILopGi9+RhQ2QDT+2PK1i8ngTTece+6WKtIMSok/RKIieoYMJAhTsy
+uei1W1qiAQYxX0+1ah+k
+=uBZ3
 -----END PGP SIGNATURE-----
 
---NDin8bjvE/0mNLFQ--
+--Fig2xvG2VGoz8o/s--
