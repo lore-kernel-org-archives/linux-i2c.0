@@ -1,73 +1,61 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2] i2c: nomadik: allocate adapter number dynamically
-Date: Sat, 15 Jun 2013 22:38:14 +0200
-Message-ID: <1371328694-2073-1-git-send-email-linus.walleij@linaro.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: nomadik: allocate adapter number dynamically
+Date: Sat, 15 Jun 2013 23:16:56 +0200
+Message-ID: <20130615211656.GA3194@katana>
+References: <1371328694-2073-1-git-send-email-linus.walleij@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1371328694-2073-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The Nomadik I2C was using a local atomic counter to number
-the I2C adapters. This does not work on configurations where
-you also add, say a GPIO bit-banged adapter to the system.
-They will start to conflict about being adapter 0.
 
-There is no reason to use the numbered adapter function, and
-the semantic effect on systems with only Nomadik I2C blocks
-will be none - instead of increasing the number atomically
-in the driver itself, it is done in the I2C core.
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
-ChangeLog v1->v2:
-- Drop the default assignment if -1 to adap->nt as we're now
-  using i2c_add_adapter().
----
- drivers/i2c/busses/i2c-nomadik.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+On Sat, Jun 15, 2013 at 10:38:14PM +0200, Linus Walleij wrote:
+> The Nomadik I2C was using a local atomic counter to number
+> the I2C adapters. This does not work on configurations where
+> you also add, say a GPIO bit-banged adapter to the system.
+> They will start to conflict about being adapter 0.
+>=20
+> There is no reason to use the numbered adapter function, and
+> the semantic effect on systems with only Nomadik I2C blocks
+> will be none - instead of increasing the number atomically
+> in the driver itself, it is done in the I2C core.
+>=20
+> Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index 9f1423a..063e726 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -15,7 +15,6 @@
- #include <linux/init.h>
- #include <linux/module.h>
- #include <linux/amba/bus.h>
--#include <linux/atomic.h>
- #include <linux/slab.h>
- #include <linux/interrupt.h>
- #include <linux/i2c.h>
-@@ -981,8 +980,6 @@ static void nmk_i2c_of_probe(struct device_node *np,
- 		pdata->sm = I2C_FREQ_MODE_FAST;
- }
- 
--static atomic_t adapter_id = ATOMIC_INIT(0);
--
- static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- {
- 	int ret = 0;
-@@ -1095,10 +1092,8 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 	adap->class	= I2C_CLASS_HWMON | I2C_CLASS_SPD;
- 	adap->algo	= &nmk_i2c_algo;
- 	adap->timeout	= msecs_to_jiffies(pdata->timeout);
--	adap->nr = atomic_read(&adapter_id);
- 	snprintf(adap->name, sizeof(adap->name),
--		 "Nomadik I2C%d at %pR", adap->nr, &adev->res);
--	atomic_inc(&adapter_id);
-+		 "Nomadik I2C at %pR", &adev->res);
- 
- 	/* fetch the controller configuration from machine */
- 	dev->cfg.clk_freq = pdata->clk_freq;
-@@ -1113,7 +1108,7 @@ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
- 		 "initialize %s on virtual base %p\n",
- 		 adap->name, dev->virtbase);
- 
--	ret = i2c_add_numbered_adapter(adap);
-+	ret = i2c_add_adapter(adap);
- 	if (ret) {
- 		dev_err(&adev->dev, "failed to add adapter\n");
- 		goto err_add_adap;
--- 
-1.8.1.4
+Applied to for-next, thanks!
+
+
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRvNnIAAoJEBQN5MwUoCm2f+oP/RlYPPoiZoA8X9F67MYzqNZg
+BAHSL2MtUhTgv1n5aeNZsfA/UtDxPgmC8zlojwdewNFE2pAV6TqZj0cKTRyVBN9O
+AljAsTeMKSjqArnUnw9JKvhO4RI/6IwZt0URmBgcZWAcby5my9f1qPX8HO0LOj/G
+8+OoIlhihHvYaX5LlEl86uj0IQPfzIkQTRpSNaE/06euV/pSYeiPIh3EfKLreA6D
+aGMnQwIaVK3syx4rcmKfvJuonncbMRrZj7k5YjKpoTegamMcZ8N5t2NQmOYLBoft
+azuNuyHvKd1mrz0V+Cgzrv886v9CCJgD5QzmmCIPj2EP8trSmepaqphs6eMh20OH
+GhnHPqKT87R+hlSZv9XYYE0x35uK/7vhNhl17c5+2MpXLxYF2akG5BShccU0vm+W
+XS10qn9+bkM9s6EmLSh0oDSnvKt9BbXNIi2Wv92TWfKr4OV8ECqCYxJMVKTGU2HP
+tzJjVSu88FGlXBGzwmwhoWOc5D86vt5rwpToN06hWmGuU6pfX+CkegJt2wJfYq1f
+64sYO+Lm+Vms+8fKp/l0Akbpn5eZcVhDxdFheg3xhfzsBU8Vq+FbYv0hgLyIdZbM
+n1sMr0X7mlkPv5xy8vsV3ZoGdb9r6bL7SrfkLRFpAJULtnIXa9Jei5qRuWuLI+17
+zheUMA/bofnkUeSQldqt
+=dBR6
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--
