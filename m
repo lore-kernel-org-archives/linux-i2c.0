@@ -1,63 +1,119 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: nomadik: support elder Nomadiks
-Date: Sat, 15 Jun 2013 16:19:46 +0200
-Message-ID: <20130615141946.GA2923@katana>
-References: <1370815258-1351-1-git-send-email-linus.walleij@linaro.org>
+Subject: Re: [PATCH] i2c: nomadik: allocate adapter number dynamically
+Date: Sat, 15 Jun 2013 16:20:59 +0200
+Message-ID: <20130615142058.GB2923@katana>
+References: <1370816153-9838-1-git-send-email-linus.walleij@linaro.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
+	protocol="application/pgp-signature"; boundary="NDin8bjvE/0mNLFQ"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1370815258-1351-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1370816153-9838-1-git-send-email-linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---4Ckj6UjgE2iN1+kY
+--NDin8bjvE/0mNLFQ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 10, 2013 at 12:00:58AM +0200, Linus Walleij wrote:
-> The Nomadik I2C block was introduced with the Nomadik STn8815
-> SoC (the STn8810 incidentally is identical to the one named
-> i2c-stu300.c). However as developments have only been tested
-> on the DB8500 family, it was not properly working with the
-> STn8815 anymore.
+On Mon, Jun 10, 2013 at 12:15:53AM +0200, Linus Walleij wrote:
+> The Nomadik I2C was using a local atomic counter to number
+> the I2C adapters. This does not work on configurations where
+> you also add, say a GPIO bit-banged adapter to the system.
+> They will start to conflict about being adapter 0.
 >=20
-> Rectify this by adding some vendor variant data in the same
-> manner as other PrimeCells, and switch code path depending
-> on version.
->=20
-> Tested on the S8815 Nomadik dongle.
+> There is no reason to use the numbered adapter function, and
+> the semantic effect on systems with only Nomadik I2C blocks
+> will be none - instead of increasing the number atomically
+> in the driver itself, it is done in the I2C core.
 >=20
 > Signed-off-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-Applied to for-next, thanks!
+Basically fine...
 
+> ---
+>  drivers/i2c/busses/i2c-nomadik.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-no=
+madik.c
+> index 9f1423a..96c8515 100644
+> --- a/drivers/i2c/busses/i2c-nomadik.c
+> +++ b/drivers/i2c/busses/i2c-nomadik.c
+> @@ -15,7 +15,6 @@
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+>  #include <linux/amba/bus.h>
+> -#include <linux/atomic.h>
+>  #include <linux/slab.h>
+>  #include <linux/interrupt.h>
+>  #include <linux/i2c.h>
+> @@ -981,8 +980,6 @@ static void nmk_i2c_of_probe(struct device_node *np,
+>  		pdata->sm =3D I2C_FREQ_MODE_FAST;
+>  }
+> =20
+> -static atomic_t adapter_id =3D ATOMIC_INIT(0);
+> -
+>  static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id =
+*id)
+>  {
+>  	int ret =3D 0;
+> @@ -1095,10 +1092,9 @@ static int nmk_i2c_probe(struct amba_device *adev,=
+ const struct amba_id *id)
+>  	adap->class	=3D I2C_CLASS_HWMON | I2C_CLASS_SPD;
+>  	adap->algo	=3D &nmk_i2c_algo;
+>  	adap->timeout	=3D msecs_to_jiffies(pdata->timeout);
+> -	adap->nr =3D atomic_read(&adapter_id);
+> +	adap->nr =3D -1;
 
---4Ckj6UjgE2iN1+kY
+=2E.. only that line can be removed since you now use i2c_add_adapter
+instead of i2c_add_numbered_adapter.
+
+>  	snprintf(adap->name, sizeof(adap->name),
+> -		 "Nomadik I2C%d at %pR", adap->nr, &adev->res);
+> -	atomic_inc(&adapter_id);
+> +		 "Nomadik I2C at %pR", &adev->res);
+> =20
+>  	/* fetch the controller configuration from machine */
+>  	dev->cfg.clk_freq =3D pdata->clk_freq;
+> @@ -1113,7 +1109,7 @@ static int nmk_i2c_probe(struct amba_device *adev, =
+const struct amba_id *id)
+>  		 "initialize %s on virtual base %p\n",
+>  		 adap->name, dev->virtbase);
+> =20
+> -	ret =3D i2c_add_numbered_adapter(adap);
+> +	ret =3D i2c_add_adapter(adap);
+>  	if (ret) {
+>  		dev_err(&adev->dev, "failed to add adapter\n");
+>  		goto err_add_adap;
+> --=20
+> 1.8.1.4
+>=20
+
+--NDin8bjvE/0mNLFQ
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRvHgCAAoJEBQN5MwUoCm26eIP/0vSKTcdWCO08hXP8fOv17gc
-FnL3zs/5s8pIF91z+jS8ovG5tuV8ud1ZBhU66vC/KLYvpgtpOl7/ujqinveFJ+5S
-8WBV4/7qSBsuLGoYB3ULGsLxE3WmrIwOxyLwFRkazPyQuq/p+jn0Sb4JsDC7ZhbD
-s9KVdrc7W1lN5JAM/VZqkSLNeEEXPSRKtNprZ5Ce8ddfhDF6FqPAhZInvFX01QH1
-jxL2rBGur4llP6emLm21+++A5dm/RHan/ccm2s011Ggt/QoEM9UKlDqZTi4YwCz1
-FbhDRKFuKaIxrEXR8UStL0IObRztnWwekJmLBvZCaKPMxXdEtsNhqUsFNMMNM0u3
-ri7FHoahPdjMI+ot/NSrBx1wL43E3meSJp8pMuv7UyaseNmU8M8JyOsAu7hrQxut
-Gqvndx4towziyMvMpGu44B7JC+/q9bwljwIhvF+wyBvDxKMJwDaeHdZsE6Fhshdp
-liA/E2Fqv6qaxvty7U6KIG+YzwLdpA9W10v06SA6E3i3MrKfaDwXae8Ug7f5MGj2
-AKhWDUNuxzNbSi3SOuKy2DWAPxHnmscRg8bV0x/ePd1VIyf4q9091c48kysbdyPn
-tqU304RQBklmtlS3DHWjlNjH4RA0uemwOMYfXdKzCDhwnbgWTCicqZ1WFu15B3gP
-wQm2LPzJlB4M/qmHMIKx
-=bdi1
+iQIcBAEBAgAGBQJRvHhJAAoJEBQN5MwUoCm2XUUP/ifRYzIiko65vUOhCVKB2xF8
+2MYKTjELwSyt6NVTmvVWy6HmgNFkGosMFkQtPLotTaKLyS0vGtgMrhw4o+95jv/d
+TnoPLw5eIb0+OgLvXGkyvRGq6dOl+wZr4nxI8pY4o1KjYUqfWic5cI2g8bUkKxni
+YVKPPR4vbGepB3ed21QmMIxQyhJhphJugW64hF6tAmK7SgNSjm5eH1rYiyFTAId3
+YgprLCe0FX/deVF1LuveU+k9gefQJu3lrZbrH0WCSLWUFcv4Y8Bbrcp4bW9OR5oO
+IhLyAOrs3VG7t1OVzIsiW/RSVmjJ9pq4QVVQKtnrPe8vQSYTq2IlS3C2FutX3GmQ
+JmZqWreI24M7HZ7bDoObcZh2kgDUqN4fjtYcaOVQnfX5yqM+JqdengaXmfb97MLz
+e4mSvW7+9vgLUEmC2vEuZzQVZasV05BqdQ/APPA4+K3GrVuNEa9cBOo1ktwrhAtL
+jCALHw21FEHtn1KRlaZvRza9BCnOhCmPpvVjUc+Q77ZVL7Ft9cDytNQ76zanJRE/
+NPqm6oI2YU3eHOC9EIZd6Ohmu6UyoJLT0qK8wEfw8P7M2bt5nGRZS1XvKI4Yc7p0
+JFNPBRffzDs/4W2WXwhLNiK0OxLvgPEfAyYg5sx+N2Nrpcz+Aeufj6of48AH9R8P
+LBr+hsu0+CiLRnRZS5cD
+=nEP+
 -----END PGP SIGNATURE-----
 
---4Ckj6UjgE2iN1+kY--
+--NDin8bjvE/0mNLFQ--
