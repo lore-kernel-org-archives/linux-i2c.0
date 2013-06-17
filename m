@@ -1,60 +1,57 @@
-From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH V10 Resend] i2c/designware: Provide i2c bus recovery support
-Date: Mon, 17 Jun 2013 18:46:45 +0530
-Message-ID: <70c7ee79478cc2b89ad876d814207c6433e26a59.1371474881.git.viresh.kumar@linaro.org>
+From: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2] i2c-pxa: prepare clock before use
+Date: Mon, 17 Jun 2013 11:30:36 -0400 (EDT)
+Message-ID: <20130617153036.67CC84375@dev.laptop.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add bus recovery support for designware_i2c controller. It uses generic gpio
-based i2c_gpio_recover_bus() routine. Platforms need to pass struct
-i2c_bus_recovery_info as platform data to designware I2C controller.
+On OLPC XO-1.75 (MMP2), a WARN_ON() was occurring during boot
+since the clock being enabled by i2c-pxa had not been prepared.
 
-Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
-Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Use clk_prepare_enable() to ensure that the prepare operation
+has taken place, and use clk_disable_unprepare() in the matching
+shutdown paths.
+
+Signed-off-by: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
 ---
+ drivers/i2c/busses/i2c-pxa.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-This patch isn't drawing attention since sometime, so sending it again.
+v2: add the "other half" - thanks Wolfram!
 
- drivers/i2c/busses/i2c-designware-core.c    | 5 ++++-
- drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
- 2 files changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index c41ca63..5ecb2f0 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -583,7 +583,10 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
- 	if (ret == 0) {
- 		dev_err(dev->dev, "controller timed out\n");
--		i2c_dw_init(dev);
-+
-+		if (i2c_recover_bus(adap) < 0)
-+			i2c_dw_init(dev);
-+
- 		ret = -ETIMEDOUT;
- 		goto done;
- 	} else if (ret < 0)
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 35b70a1..c3ada3e 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -162,6 +162,12 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index ea6d45d..fbafed2 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1160,7 +1160,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 		i2c->adap.class = plat->class;
+ 	}
  
-+	/* Bus recovery support */
-+	adap->bus_recovery_info = dev_get_platdata(&pdev->dev);
-+	if (adap->bus_recovery_info)
-+		adap->bus_recovery_info->recover_bus =
-+			i2c_generic_gpio_recovery;
-+
- 	r = i2c_add_numbered_adapter(adap);
- 	if (r) {
- 		dev_err(&pdev->dev, "failure adding adapter\n");
+-	clk_enable(i2c->clk);
++	clk_prepare_enable(i2c->clk);
+ 
+ 	if (i2c->use_pio) {
+ 		i2c->adap.algo = &i2c_pxa_pio_algorithm;
+@@ -1202,7 +1202,7 @@ eadapt:
+ 	if (!i2c->use_pio)
+ 		free_irq(irq, i2c);
+ ereqirq:
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	iounmap(i2c->reg_base);
+ eremap:
+ 	clk_put(i2c->clk);
+@@ -1221,7 +1221,7 @@ static int i2c_pxa_remove(struct platform_device *dev)
+ 	if (!i2c->use_pio)
+ 		free_irq(i2c->irq, i2c);
+ 
+-	clk_disable(i2c->clk);
++	clk_disable_unprepare(i2c->clk);
+ 	clk_put(i2c->clk);
+ 
+ 	iounmap(i2c->reg_base);
 -- 
-1.7.12.rc2.18.g61b472e
+1.8.1.4
