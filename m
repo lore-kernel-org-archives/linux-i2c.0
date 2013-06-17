@@ -1,57 +1,49 @@
-From: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2] i2c-pxa: prepare clock before use
-Date: Mon, 17 Jun 2013 11:30:36 -0400 (EDT)
-Message-ID: <20130617153036.67CC84375@dev.laptop.org>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Stephen Warren <swarren@wwwdotorg.org>
+Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
+ tree driver
+Date: Mon, 17 Jun 2013 09:48:21 -0600
+Message-ID: <51BF2FC5.40207@wwwdotorg.org>
+References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org> <CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-next-owner@vger.kernel.org>
+In-Reply-To: <CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com>
+Sender: linux-next-owner@vger.kernel.org
+To: Linus Walleij <linus.walleij@linaro.org>, Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree-discuss@lists.ozlabs.org" <devicetree-discuss@lists.ozlabs.org>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, "linux-next@vger.kernel.org" <linux-next@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On OLPC XO-1.75 (MMP2), a WARN_ON() was occurring during boot
-since the clock being enabled by i2c-pxa had not been prepared.
+On 05/22/2013 01:56 AM, Linus Walleij wrote:
+> On Mon, May 13, 2013 at 10:18 PM, Linus Walleij
+> <linus.walleij@linaro.org> wrote:
+> 
+>> This tries to address an issue found when writing an MFD driver
+>> for the Nomadik STw481x PMICs: as the platform is using device
+>> tree exclusively I want to specify the driver matching like
+>> this:
+> (...)
+>> ---
+>> ChangeLog v1->v2:
+>> - Use of_match_device() to determine if there is a DT match in
+>>   the probe code. If there is a match we pass NULL for the
+>>   id_table match parameter.
+> 
+> Ping on this.
+> 
+> v2 should be doing what Grant suggested...
 
-Use clk_prepare_enable() to ensure that the prepare operation
-has taken place, and use clk_disable_unprepare() in the matching
-shutdown paths.
+This has just shown up in next-20130617, and breaks at least the
+TPS65910 and TPS62360 drivers, since they assume that the id parameter
+passed to probe is non-NULL. However, now the parameter is NULL since
+these drivers have both an ID table and an OF match table.
 
-Signed-off-by: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/busses/i2c-pxa.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+I'd like to suggest this patch be reverted an re-introduced immediately
+after the merge window. That should give enough time for everyone to get
+a heads-up on fixing any drivers with a similar problem, rather than
+trying to cram all that in immediately before the merge window. I'd also
+suggest that this patch should be accompanied by fixes for any similarly
+broken drivers, based on code inspection.
 
-v2: add the "other half" - thanks Wolfram!
-
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index ea6d45d..fbafed2 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1160,7 +1160,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 		i2c->adap.class = plat->class;
- 	}
- 
--	clk_enable(i2c->clk);
-+	clk_prepare_enable(i2c->clk);
- 
- 	if (i2c->use_pio) {
- 		i2c->adap.algo = &i2c_pxa_pio_algorithm;
-@@ -1202,7 +1202,7 @@ eadapt:
- 	if (!i2c->use_pio)
- 		free_irq(irq, i2c);
- ereqirq:
--	clk_disable(i2c->clk);
-+	clk_disable_unprepare(i2c->clk);
- 	iounmap(i2c->reg_base);
- eremap:
- 	clk_put(i2c->clk);
-@@ -1221,7 +1221,7 @@ static int i2c_pxa_remove(struct platform_device *dev)
- 	if (!i2c->use_pio)
- 		free_irq(i2c->irq, i2c);
- 
--	clk_disable(i2c->clk);
-+	clk_disable_unprepare(i2c->clk);
- 	clk_put(i2c->clk);
- 
- 	iounmap(i2c->reg_base);
--- 
-1.8.1.4
+Do people agree? If not, please let us know ASAP so we can post patches
+to fix this.
