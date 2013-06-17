@@ -1,25 +1,134 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH 1/2] mfd: tps65910: Fix crash in i2c_driver .probe
-Date: Mon, 17 Jun 2013 12:16:33 -0600
-Message-ID: <51BF5281.2030105@wwwdotorg.org>
-References: <1371491257-23791-1-git-send-email-ttynkkynen@nvidia.com> <1371491257-23791-2-git-send-email-ttynkkynen@nvidia.com>
+From: Rob Herring <robherring2@gmail.com>
+Subject: Re: [PATCH REBASE] i2c-designware: make SDA hold time configurable
+Date: Mon, 17 Jun 2013 15:55:30 -0500
+Message-ID: <51BF77C2.70004@gmail.com>
+References: <20130514110745.GA10906@intel.com> <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1371491257-23791-2-git-send-email-ttynkkynen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tuomas Tynkkynen <ttynkkynen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mark Brown <broonie-yzvPICuk2AATkU/dhu1WVueM+bqZidxxQQ4Iyu8u01E@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Christian Ruppert <christian.ruppert@abilis.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/17/2013 11:47 AM, Tuomas Tynkkynen wrote:
-> Commit "i2c: core: make it possible to match a pure device tree driver"
-> changed semantics of the i2c probing for device tree devices.
-> Device tree probed devices now get a NULL i2c_device_id pointer.
-> This caused kernel panics due to NULL dereference.
+On 05/14/2013 08:04 AM, Christian Ruppert wrote:
+> This patch makes the SDA hold time configurable through device tree.
+> 
+> [rebased to i2c-current/i2c-next/mainline-3.10-rc1]
+> 
+> Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
+> Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
+> ---
+>  .../devicetree/bindings/i2c/i2c-designware.txt     |   14 ++++++++++++++
+>  drivers/i2c/busses/i2c-designware-core.c           |    5 +++++
+>  drivers/i2c/busses/i2c-designware-core.h           |    1 +
+>  drivers/i2c/busses/i2c-designware-platdrv.c        |    9 +++++++++
+>  4 files changed, 29 insertions(+), 0 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> index e42a2ee..21fabe7 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+> @@ -10,6 +10,9 @@ Recommended properties :
+>  
+>   - clock-frequency : desired I2C bus clock frequency in Hz.
+>  
+> +Optional properties :
+> + - sda-hold-time : should contain the SDA hold time in nanoseconds.
 
-Tested-by: Stephen Warren <swarren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Please specify time units in the property name. Perhaps
+i2c-sda-hold-time-ns.
 
-(although I imagine I'd need to retest if there was a v2 to address my
-previous comments)
+Based on reading the discussion, there is one similar property I have
+found: "samsung,i2c-sda-delay = <100>". I wouldn't copy it as it doesn't
+tell the units or what the delay is.
+
+Otherwise, looks fine to me.
+
+Rob
+
+> +
+>  Example :
+>  
+>  	i2c@f0000 {
+> @@ -20,3 +23,14 @@ Example :
+>  		interrupts = <11>;
+>  		clock-frequency = <400000>;
+>  	};
+> +
+> +	i2c@1120000 {
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +		compatible = "snps,designware-i2c";
+> +		reg = <0x1120000 0x1000>;
+> +		interrupt-parent = <&ictl>;
+> +		interrupts = <12 1>;
+> +		clock-frequency = <400000>;
+> +		sda-hold-time = <300>;
+> +	};
+> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+> index 21fbb34..91d422c 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.c
+> +++ b/drivers/i2c/busses/i2c-designware-core.c
+> @@ -67,6 +67,7 @@
+>  #define DW_IC_STATUS		0x70
+>  #define DW_IC_TXFLR		0x74
+>  #define DW_IC_RXFLR		0x78
+> +#define DW_IC_SDA_HOLD		0x7c
+>  #define DW_IC_TX_ABRT_SOURCE	0x80
+>  #define DW_IC_ENABLE_STATUS	0x9c
+>  #define DW_IC_COMP_PARAM_1	0xf4
+> @@ -332,6 +333,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+>  	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
+>  	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
+>  
+> +	/* Configure SDA Hold Time if required */
+> +	if (dev->sda_hold_time)
+> +		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
+> +
+>  	/* Configure Tx/Rx FIFO threshold levels */
+>  	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
+>  	dw_writel(dev, 0, DW_IC_RX_TL);
+> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+> index 9c1840e..33dfec3 100644
+> --- a/drivers/i2c/busses/i2c-designware-core.h
+> +++ b/drivers/i2c/busses/i2c-designware-core.h
+> @@ -88,6 +88,7 @@ struct dw_i2c_dev {
+>  	u32			master_cfg;
+>  	unsigned int		tx_fifo_depth;
+>  	unsigned int		rx_fifo_depth;
+> +	u32			sda_hold_time;
+>  };
+>  
+>  #define ACCESS_SWAP		0x00000001
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index 8ec9133..589f414 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/sched.h>
+>  #include <linux/err.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/of.h>
+>  #include <linux/of_i2c.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pm.h>
+> @@ -120,6 +121,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  		return PTR_ERR(dev->clk);
+>  	clk_prepare_enable(dev->clk);
+>  
+> +	if (pdev->dev.of_node) {
+> +		u32 ht;
+> +		u32 ic_clk = dev->get_clk_rate_khz(dev);
+> +
+> +		of_property_read_u32(pdev->dev.of_node, "sda-hold-time", &ht);
+> +		dev->sda_hold_time = ((u64)ic_clk * ht + 500000) / 1000000;
+> +	}
+> +
+>  	dev->functionality =
+>  		I2C_FUNC_I2C |
+>  		I2C_FUNC_10BIT_ADDR |
+> 
+
