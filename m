@@ -1,134 +1,149 @@
-From: Rob Herring <robherring2@gmail.com>
-Subject: Re: [PATCH REBASE] i2c-designware: make SDA hold time configurable
-Date: Mon, 17 Jun 2013 15:55:30 -0500
-Message-ID: <51BF77C2.70004@gmail.com>
-References: <20130514110745.GA10906@intel.com> <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
+From: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+Subject: Re: [PATCH] i2c-piix4 - Add support for secondary SMBus on AMD SB800
+ and AMD FCH chipsets
+Date: Mon, 17 Jun 2013 23:37:08 +0200
+Message-ID: <51BF8184.8090807@assembler.cz>
+References: <5196B32D.7060501@assembler.cz> <1369294522.12648.11.camel@mattotaupa> <20130611193539.GG3376@katana> <51B77EC0.2020204@assembler.cz> <20130617071615.GB2957@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Christian Ruppert <christian.ruppert@abilis.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+Content-Type: multipart/mixed;
+ boundary="------------060005030906020507000702"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130617071615.GB2957@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 05/14/2013 08:04 AM, Christian Ruppert wrote:
-> This patch makes the SDA hold time configurable through device tree.
-> 
-> [rebased to i2c-current/i2c-next/mainline-3.10-rc1]
-> 
-> Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
-> Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
-> ---
->  .../devicetree/bindings/i2c/i2c-designware.txt     |   14 ++++++++++++++
->  drivers/i2c/busses/i2c-designware-core.c           |    5 +++++
->  drivers/i2c/busses/i2c-designware-core.h           |    1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c        |    9 +++++++++
->  4 files changed, 29 insertions(+), 0 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> index e42a2ee..21fabe7 100644
-> --- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-> @@ -10,6 +10,9 @@ Recommended properties :
->  
->   - clock-frequency : desired I2C bus clock frequency in Hz.
->  
-> +Optional properties :
-> + - sda-hold-time : should contain the SDA hold time in nanoseconds.
+This is a multi-part message in MIME format.
+--------------060005030906020507000702
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Please specify time units in the property name. Perhaps
-i2c-sda-hold-time-ns.
+Hi all,
 
-Based on reading the discussion, there is one similar property I have
-found: "samsung,i2c-sda-delay = <100>". I wouldn't copy it as it doesn't
-tell the units or what the delay is.
+I added just a few lines to the documentation file, the code part of the patch 
+in unchanged.
 
-Otherwise, looks fine to me.
+Signed-off-by: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 
-Rob
+Attached patch adds support for secondary SMBus of AMD SB800 and new AMD FCH 
+Hudson chipsets. The base address of secondary SMBus is different from SB700 and 
+it is stored on similar place as SB800 primary SMBus.
 
-> +
->  Example :
->  
->  	i2c@f0000 {
-> @@ -20,3 +23,14 @@ Example :
->  		interrupts = <11>;
->  		clock-frequency = <400000>;
->  	};
-> +
-> +	i2c@1120000 {
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +		compatible = "snps,designware-i2c";
-> +		reg = <0x1120000 0x1000>;
-> +		interrupt-parent = <&ictl>;
-> +		interrupts = <12 1>;
-> +		clock-frequency = <400000>;
-> +		sda-hold-time = <300>;
-> +	};
-> diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> index 21fbb34..91d422c 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.c
-> +++ b/drivers/i2c/busses/i2c-designware-core.c
-> @@ -67,6 +67,7 @@
->  #define DW_IC_STATUS		0x70
->  #define DW_IC_TXFLR		0x74
->  #define DW_IC_RXFLR		0x78
-> +#define DW_IC_SDA_HOLD		0x7c
->  #define DW_IC_TX_ABRT_SOURCE	0x80
->  #define DW_IC_ENABLE_STATUS	0x9c
->  #define DW_IC_COMP_PARAM_1	0xf4
-> @@ -332,6 +333,10 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
->  	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
->  	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
->  
-> +	/* Configure SDA Hold Time if required */
-> +	if (dev->sda_hold_time)
-> +		dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
-> +
->  	/* Configure Tx/Rx FIFO threshold levels */
->  	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
->  	dw_writel(dev, 0, DW_IC_RX_TL);
-> diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-> index 9c1840e..33dfec3 100644
-> --- a/drivers/i2c/busses/i2c-designware-core.h
-> +++ b/drivers/i2c/busses/i2c-designware-core.h
-> @@ -88,6 +88,7 @@ struct dw_i2c_dev {
->  	u32			master_cfg;
->  	unsigned int		tx_fifo_depth;
->  	unsigned int		rx_fifo_depth;
-> +	u32			sda_hold_time;
->  };
->  
->  #define ACCESS_SWAP		0x00000001
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 8ec9133..589f414 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -34,6 +34,7 @@
->  #include <linux/sched.h>
->  #include <linux/err.h>
->  #include <linux/interrupt.h>
-> +#include <linux/of.h>
->  #include <linux/of_i2c.h>
->  #include <linux/platform_device.h>
->  #include <linux/pm.h>
-> @@ -120,6 +121,14 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		return PTR_ERR(dev->clk);
->  	clk_prepare_enable(dev->clk);
->  
-> +	if (pdev->dev.of_node) {
-> +		u32 ht;
-> +		u32 ic_clk = dev->get_clk_rate_khz(dev);
-> +
-> +		of_property_read_u32(pdev->dev.of_node, "sda-hold-time", &ht);
-> +		dev->sda_hold_time = ((u64)ic_clk * ht + 500000) / 1000000;
-> +	}
-> +
->  	dev->functionality =
->  		I2C_FUNC_I2C |
->  		I2C_FUNC_10BIT_ADDR |
-> 
+Thanks
+Rudolf
 
+--------------060005030906020507000702
+Content-Type: text/x-diff;
+ name="i2c-piix4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="i2c-piix4.patch"
+
+Index: linux-3.10-rc6/drivers/i2c/busses/i2c-piix4.c
+===================================================================
+--- linux-3.10-rc6.orig/drivers/i2c/busses/i2c-piix4.c	2013-06-15 23:51:07.000000000 +0200
++++ linux-3.10-rc6/drivers/i2c/busses/i2c-piix4.c	2013-06-17 23:30:48.198871798 +0200
+@@ -231,11 +231,11 @@
+ }
+ 
+ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+-			     const struct pci_device_id *id)
++			     const struct pci_device_id *id, u8 aux)
+ {
+ 	unsigned short piix4_smba;
+ 	unsigned short smba_idx = 0xcd6;
+-	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en = 0x2c;
++	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en;
+ 
+ 	/* SB800 and later SMBus does not support forcing address */
+ 	if (force || force_addr) {
+@@ -245,6 +245,8 @@
+ 	}
+ 
+ 	/* Determine the address of the SMBus areas */
++	smb_en = (aux) ? 0x28 : 0x2c;
++
+ 	if (!request_region(smba_idx, 2, "smba_idx")) {
+ 		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
+ 			"0x%x already in use!\n", smba_idx);
+@@ -272,6 +274,13 @@
+ 		return -EBUSY;
+ 	}
+ 
++	/* Aux SMBus does not support IRQ information */
++	if (aux) {
++		dev_info(&PIIX4_dev->dev,
++			 "SMBus Host Controller at 0x%x\n", piix4_smba);
++		return piix4_smba;
++	}
++
+ 	/* Request the SMBus I2C bus config region */
+ 	if (!request_region(piix4_smba + i2ccfg_offset, 1, "i2ccfg")) {
+ 		dev_err(&PIIX4_dev->dev, "SMBus I2C bus config region "
+@@ -596,7 +605,7 @@
+ 	     dev->revision >= 0x40) ||
+ 	    dev->vendor == PCI_VENDOR_ID_AMD)
+ 		/* base address location etc changed in SB800 */
+-		retval = piix4_setup_sb800(dev, id);
++		retval = piix4_setup_sb800(dev, id, 0);
+ 	else
+ 		retval = piix4_setup(dev, id);
+ 
+@@ -610,17 +619,29 @@
+ 		return retval;
+ 
+ 	/* Check for auxiliary SMBus on some AMD chipsets */
++	retval = -ENODEV;
++
+ 	if (dev->vendor == PCI_VENDOR_ID_ATI &&
+-	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+-	    dev->revision < 0x40) {
+-		retval = piix4_setup_aux(dev, id, 0x58);
+-		if (retval > 0) {
+-			/* Try to add the aux adapter if it exists,
+-			 * piix4_add_adapter will clean up if this fails */
+-			piix4_add_adapter(dev, retval, &piix4_aux_adapter);
++	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) {
++		if (dev->revision < 0x40) {
++			retval = piix4_setup_aux(dev, id, 0x58);
++		} else {
++			/* SB800 added aux bus too */
++			retval = piix4_setup_sb800(dev, id, 1);
+ 		}
+ 	}
+ 
++	if (dev->vendor == PCI_VENDOR_ID_AMD &&
++	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
++		retval = piix4_setup_sb800(dev, id, 1);
++	}
++
++	if (retval > 0) {
++		/* Try to add the aux adapter if it exists,
++		 * piix4_add_adapter will clean up if this fails */
++		piix4_add_adapter(dev, retval, &piix4_aux_adapter);
++	}
++
+ 	return 0;
+ }
+ 
+Index: linux-3.10-rc6/Documentation/i2c/busses/i2c-piix4
+===================================================================
+--- linux-3.10-rc6.orig/Documentation/i2c/busses/i2c-piix4	2013-06-15 23:51:07.000000000 +0200
++++ linux-3.10-rc6/Documentation/i2c/busses/i2c-piix4	2013-06-17 23:33:23.024925371 +0200
+@@ -73,9 +73,10 @@
+ The ServerWorks Southbridges, the Intel 440MX, and the Victory66 are
+ identical to the PIIX4 in I2C/SMBus support.
+ 
+-The AMD SB700 and SP5100 chipsets implement two PIIX4-compatible SMBus
+-controllers. If your BIOS initializes the secondary controller, it will
+-be detected by this driver as an "Auxiliary SMBus Host Controller".
++The AMD SB700, SB800, SP5100 and Hudson-2 chipsets implement two
++PIIX4-compatible SMBus controllers. If your BIOS initializes the
++secondary controller, it will be detected by this driver as
++an "Auxiliary SMBus Host Controller".
+ 
+ If you own Force CPCI735 motherboard or other OSB4 based systems you may need
+ to change the SMBus Interrupt Select register so the SMBus controller uses
+
+--------------060005030906020507000702--
