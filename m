@@ -1,149 +1,41 @@
-From: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
-Subject: Re: [PATCH] i2c-piix4 - Add support for secondary SMBus on AMD SB800
- and AMD FCH chipsets
-Date: Mon, 17 Jun 2013 23:37:08 +0200
-Message-ID: <51BF8184.8090807@assembler.cz>
-References: <5196B32D.7060501@assembler.cz> <1369294522.12648.11.camel@mattotaupa> <20130611193539.GG3376@katana> <51B77EC0.2020204@assembler.cz> <20130617071615.GB2957@katana>
+From: Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
+ tree driver
+Date: Mon, 17 Jun 2013 23:15:30 +0100
+Message-ID: <CACxGe6sTq=h9jjqesjvUA4Bweh7zgE4VOLoOTgGPC_D_v+8NtA@mail.gmail.com>
+References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
+ <CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com>
+ <51BF2FC5.40207@wwwdotorg.org> <CACRpkdbjy+PcpNkSg4PuuP2Z9RyrnqSW0uchHFHVZ8VYPeoDyA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------060005030906020507000702"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130617071615.GB2957@katana>
+In-Reply-To: <CACRpkdbjy+PcpNkSg4PuuP2Z9RyrnqSW0uchHFHVZ8VYPeoDyA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060005030906020507000702
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, Jun 17, 2013 at 5:33 PM, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On Mon, Jun 17, 2013 at 5:48 PM, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
+>
+>> This has just shown up in next-20130617, and breaks at least the
+>> TPS65910 and TPS62360 drivers, since they assume that the id parameter
+>> passed to probe is non-NULL. However, now the parameter is NULL since
+>> these drivers have both an ID table and an OF match table.
+>
+> So you mean they come in through the DT boot path and assume
+> that parameter is non-null even though they should not make use of
+> it?
+>
+>> I'd like to suggest this patch be reverted an re-introduced immediately
+>> after the merge window. That should give enough time for everyone to get
+>> a heads-up on fixing any drivers with a similar problem, rather than
+>> trying to cram all that in immediately before the merge window.
+>
+> OK that works for me, I'm not in any hurry.
 
-Hi all,
+Deferring by a merge window isn't going to make it any less painful.
+Do your best to find all the users that need to be changed. Use a
+coccinelle search perhaps, but I think it should be merged anyway.
 
-I added just a few lines to the documentation file, the code part of the patch 
-in unchanged.
-
-Signed-off-by: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
-
-Attached patch adds support for secondary SMBus of AMD SB800 and new AMD FCH 
-Hudson chipsets. The base address of secondary SMBus is different from SB700 and 
-it is stored on similar place as SB800 primary SMBus.
-
-Thanks
-Rudolf
-
---------------060005030906020507000702
-Content-Type: text/x-diff;
- name="i2c-piix4.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="i2c-piix4.patch"
-
-Index: linux-3.10-rc6/drivers/i2c/busses/i2c-piix4.c
-===================================================================
---- linux-3.10-rc6.orig/drivers/i2c/busses/i2c-piix4.c	2013-06-15 23:51:07.000000000 +0200
-+++ linux-3.10-rc6/drivers/i2c/busses/i2c-piix4.c	2013-06-17 23:30:48.198871798 +0200
-@@ -231,11 +231,11 @@
- }
- 
- static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
--			     const struct pci_device_id *id)
-+			     const struct pci_device_id *id, u8 aux)
- {
- 	unsigned short piix4_smba;
- 	unsigned short smba_idx = 0xcd6;
--	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en = 0x2c;
-+	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en;
- 
- 	/* SB800 and later SMBus does not support forcing address */
- 	if (force || force_addr) {
-@@ -245,6 +245,8 @@
- 	}
- 
- 	/* Determine the address of the SMBus areas */
-+	smb_en = (aux) ? 0x28 : 0x2c;
-+
- 	if (!request_region(smba_idx, 2, "smba_idx")) {
- 		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
- 			"0x%x already in use!\n", smba_idx);
-@@ -272,6 +274,13 @@
- 		return -EBUSY;
- 	}
- 
-+	/* Aux SMBus does not support IRQ information */
-+	if (aux) {
-+		dev_info(&PIIX4_dev->dev,
-+			 "SMBus Host Controller at 0x%x\n", piix4_smba);
-+		return piix4_smba;
-+	}
-+
- 	/* Request the SMBus I2C bus config region */
- 	if (!request_region(piix4_smba + i2ccfg_offset, 1, "i2ccfg")) {
- 		dev_err(&PIIX4_dev->dev, "SMBus I2C bus config region "
-@@ -596,7 +605,7 @@
- 	     dev->revision >= 0x40) ||
- 	    dev->vendor == PCI_VENDOR_ID_AMD)
- 		/* base address location etc changed in SB800 */
--		retval = piix4_setup_sb800(dev, id);
-+		retval = piix4_setup_sb800(dev, id, 0);
- 	else
- 		retval = piix4_setup(dev, id);
- 
-@@ -610,17 +619,29 @@
- 		return retval;
- 
- 	/* Check for auxiliary SMBus on some AMD chipsets */
-+	retval = -ENODEV;
-+
- 	if (dev->vendor == PCI_VENDOR_ID_ATI &&
--	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
--	    dev->revision < 0x40) {
--		retval = piix4_setup_aux(dev, id, 0x58);
--		if (retval > 0) {
--			/* Try to add the aux adapter if it exists,
--			 * piix4_add_adapter will clean up if this fails */
--			piix4_add_adapter(dev, retval, &piix4_aux_adapter);
-+	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) {
-+		if (dev->revision < 0x40) {
-+			retval = piix4_setup_aux(dev, id, 0x58);
-+		} else {
-+			/* SB800 added aux bus too */
-+			retval = piix4_setup_sb800(dev, id, 1);
- 		}
- 	}
- 
-+	if (dev->vendor == PCI_VENDOR_ID_AMD &&
-+	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
-+		retval = piix4_setup_sb800(dev, id, 1);
-+	}
-+
-+	if (retval > 0) {
-+		/* Try to add the aux adapter if it exists,
-+		 * piix4_add_adapter will clean up if this fails */
-+		piix4_add_adapter(dev, retval, &piix4_aux_adapter);
-+	}
-+
- 	return 0;
- }
- 
-Index: linux-3.10-rc6/Documentation/i2c/busses/i2c-piix4
-===================================================================
---- linux-3.10-rc6.orig/Documentation/i2c/busses/i2c-piix4	2013-06-15 23:51:07.000000000 +0200
-+++ linux-3.10-rc6/Documentation/i2c/busses/i2c-piix4	2013-06-17 23:33:23.024925371 +0200
-@@ -73,9 +73,10 @@
- The ServerWorks Southbridges, the Intel 440MX, and the Victory66 are
- identical to the PIIX4 in I2C/SMBus support.
- 
--The AMD SB700 and SP5100 chipsets implement two PIIX4-compatible SMBus
--controllers. If your BIOS initializes the secondary controller, it will
--be detected by this driver as an "Auxiliary SMBus Host Controller".
-+The AMD SB700, SB800, SP5100 and Hudson-2 chipsets implement two
-+PIIX4-compatible SMBus controllers. If your BIOS initializes the
-+secondary controller, it will be detected by this driver as
-+an "Auxiliary SMBus Host Controller".
- 
- If you own Force CPCI735 motherboard or other OSB4 based systems you may need
- to change the SMBus Interrupt Select register so the SMBus controller uses
-
---------------060005030906020507000702--
+g.
