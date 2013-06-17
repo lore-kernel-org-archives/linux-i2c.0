@@ -1,61 +1,60 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH V2] i2c: designware: fix race between subsequent xfers
-Date: Mon, 17 Jun 2013 11:01:33 +0200
-Message-ID: <20130617090131.GC19380@ab42.lan>
-References: <1370526216-10060-1-git-send-email-christian.ruppert@abilis.com>
- <1370595083-801-1-git-send-email-christian.ruppert@abilis.com>
- <20130614143740.GD2929@katana>
- <20130617081931.GB19380@ab42.lan>
- <20130617103336.354022c2@endymion.delvare>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH V10 Resend] i2c/designware: Provide i2c bus recovery support
+Date: Mon, 17 Jun 2013 18:46:45 +0530
+Message-ID: <70c7ee79478cc2b89ad876d814207c6433e26a59.1371474881.git.viresh.kumar@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130617103336.354022c2-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 17, 2013 at 10:33:36AM +0200, Jean Delvare wrote:
-> On Mon, 17 Jun 2013 10:19:33 +0200, Christian Ruppert wrote:
-> > On Fri, Jun 14, 2013 at 04:37:41PM +0200, Wolfram Sang wrote:
-> > > BTW since I am currently here: i2c-designware-core should be in t=
-he
-> > > 'algos' directory, no?
-> >=20
-> > At the risk of passing for a complete moron: What exactly is the
-> > difference between I2C algos and I2C bus drivers?
->=20
-> The i2c/algos directory contains abstracted code which is common to
-> multiple hardware implementations. The most popular of these is
-> i2c-algo-bit which implements software-only I2C over virtually any pa=
-ir
-> of controllable pins (parallel port, GPIOs, etc.)
->=20
-> As a general rule, i2c/algos should only contain reusable, architectu=
-re
-> and platform independent code. All the actual hardware access should =
-be
-> delegated to the bus drivers, through callbacks. If this can't be don=
-e
-> easily then i2c/algos is not the right place.
+Add bus recovery support for designware_i2c controller. It uses generic gpio
+based i2c_gpio_recover_bus() routine. Platforms need to pass struct
+i2c_bus_recovery_info as platform data to designware I2C controller.
 
-In this case, busses is the right place for the i2c-designware-core. Th=
-is
-file contains the actual driver implementation (i.e. register access,
-interrupt handling etc.) for a dedicated I2C bus driver hardware block
-used in SOCs.
+Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
 
-Greetings,
-  Christian
+This patch isn't drawing attention since sometime, so sending it again.
 
---=20
-  Christian Ruppert              ,          <christian.ruppert@abilis.c=
-om>
-                                /|
-  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
-leuri
-                             _// | bilis Systems   CH-1228 Plan-les-Oua=
-tes
+ drivers/i2c/busses/i2c-designware-core.c    | 5 ++++-
+ drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
+ 2 files changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index c41ca63..5ecb2f0 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -583,7 +583,10 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	ret = wait_for_completion_interruptible_timeout(&dev->cmd_complete, HZ);
+ 	if (ret == 0) {
+ 		dev_err(dev->dev, "controller timed out\n");
+-		i2c_dw_init(dev);
++
++		if (i2c_recover_bus(adap) < 0)
++			i2c_dw_init(dev);
++
+ 		ret = -ETIMEDOUT;
+ 		goto done;
+ 	} else if (ret < 0)
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 35b70a1..c3ada3e 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -162,6 +162,12 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 	adap->dev.parent = &pdev->dev;
+ 	adap->dev.of_node = pdev->dev.of_node;
+ 
++	/* Bus recovery support */
++	adap->bus_recovery_info = dev_get_platdata(&pdev->dev);
++	if (adap->bus_recovery_info)
++		adap->bus_recovery_info->recover_bus =
++			i2c_generic_gpio_recovery;
++
+ 	r = i2c_add_numbered_adapter(adap);
+ 	if (r) {
+ 		dev_err(&pdev->dev, "failure adding adapter\n");
+-- 
+1.7.12.rc2.18.g61b472e
