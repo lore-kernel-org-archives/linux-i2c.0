@@ -1,67 +1,38 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
 Subject: Re: [PATCH V2] i2c: designware: fix race between subsequent xfers
-Date: Mon, 17 Jun 2013 11:34:20 +0300
-Message-ID: <20130617083420.GK11878@intel.com>
+Date: Mon, 17 Jun 2013 10:33:36 +0200
+Message-ID: <20130617103336.354022c2@endymion.delvare>
 References: <1370526216-10060-1-git-send-email-christian.ruppert@abilis.com>
- <1370595083-801-1-git-send-email-christian.ruppert@abilis.com>
- <20130614143740.GD2929@katana>
+	<1370595083-801-1-git-send-email-christian.ruppert@abilis.com>
+	<20130614143740.GD2929@katana>
+	<20130617081931.GB19380@ab42.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130614143740.GD2929@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Christian Ruppert <christian.ruppert@abilis.com>, Jean Delvare <khali@linux-fr.org>, Pierrick Hascoet <pierrick.hascoet@abilis.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130617081931.GB19380-7oYq3qWSd+k@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jun 14, 2013 at 04:37:41PM +0200, Wolfram Sang wrote:
-> On Fri, Jun 07, 2013 at 10:51:23AM +0200, Christian Ruppert wrote:
-> > The designware block is not always properly disabled in the case of
-> > transfer errors. Interrupts from aborted transfers might be handled
-> > after the data structures for the following transfer are initialised but
-> > before the hardware is set up. This can corrupt the data structures to
-> > the point that the system is stuck in an infinite interrupt loop (where
-> > FIFOs are never emptied because dev->msg_read_idx == dev->msgs_num).
-> > 
-> > This patch cleanly disables the designware-i2c hardware at the end of
-> > every transfer, be it successful or not.
-> > 
-> > This patch requires https://patchwork.kernel.org/patch/2601241/ to be
-> > applied first.
+On Mon, 17 Jun 2013 10:19:33 +0200, Christian Ruppert wrote:
+> On Fri, Jun 14, 2013 at 04:37:41PM +0200, Wolfram Sang wrote:
+> > BTW since I am currently here: i2c-designware-core should be in the
+> > 'algos' directory, no?
 > 
-> These last two lines should be below "---".
-> 
-> > 
-> > Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
-> > ---
-> >  drivers/i2c/busses/i2c-designware-core.c |   10 ++++++++--
-> >  1 files changed, 8 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-> > index b75d292..55a9991 100644
-> > --- a/drivers/i2c/busses/i2c-designware-core.c
-> > +++ b/drivers/i2c/busses/i2c-designware-core.c
-> > @@ -588,11 +588,19 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
-> >  	ret = wait_for_completion_timeout(&dev->cmd_complete, HZ);
-> >  	if (ret == 0) {
-> >  		dev_err(dev->dev, "controller timed out\n");
-> > +		/* i2c_dw_init implicitly disables the adapter */
-> >  		i2c_dw_init(dev);
-> >  		ret = -ETIMEDOUT;
-> >  		goto done;
-> >  	}
-> >  
-> > +	/*
-> > +	 * We must disable the adapter before unlocking the &dev->lock mutex
-> > +	 * below. Otherwise the hardware might continue generating interrupts
-> > +	 * which in turn causes a race condition with the following transfer.
-> 
-> I added "Needs some more investigation if the additional interrupts are
-> a hardware bug or this driver doesn't handle them correctly yet." to the
-> comment and
-> 
-> Applied to for-next, thanks!
+> At the risk of passing for a complete moron: What exactly is the
+> difference between I2C algos and I2C bus drivers?
 
-Sorry for the late response (was on vacation). This patch looks good to me
-as well. Thanks for applying it!
+The i2c/algos directory contains abstracted code which is common to
+multiple hardware implementations. The most popular of these is
+i2c-algo-bit which implements software-only I2C over virtually any pair
+of controllable pins (parallel port, GPIOs, etc.)
+
+As a general rule, i2c/algos should only contain reusable, architecture
+and platform independent code. All the actual hardware access should be
+delegated to the bus drivers, through callbacks. If this can't be done
+easily then i2c/algos is not the right place.
+
+-- 
+Jean Delvare
