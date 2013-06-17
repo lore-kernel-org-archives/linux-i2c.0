@@ -1,66 +1,89 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-piix4 - Add support for secondary SMBus on AMD SB800
- and AMD FCH chipsets
-Date: Mon, 17 Jun 2013 09:16:15 +0200
-Message-ID: <20130617071615.GB2957@katana>
-References: <5196B32D.7060501@assembler.cz>
- <1369294522.12648.11.camel@mattotaupa>
- <20130611193539.GG3376@katana>
- <51B77EC0.2020204@assembler.cz>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH REBASE] i2c-designware: make SDA hold time configurable
+Date: Mon, 17 Jun 2013 11:23:31 +0300
+Message-ID: <20130617082331.GG11878@intel.com>
+References: <20130514110745.GA10906@intel.com>
+ <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
+ <20130610152954.GE2987@katana>
+ <20130612144743.GB8102@ab42.lan>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5I6of5zJg18YgZEa"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <51B77EC0.2020204-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
-Cc: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <20130612144743.GB8102@ab42.lan>
+Sender: linux-doc-owner@vger.kernel.org
+To: Christian Ruppert <christian.ruppert@abilis.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-
---5I6of5zJg18YgZEa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jun 11, 2013 at 09:47:12PM +0200, Rudolf Marek wrote:
-> >Do you know if there should be something connected?
+On Wed, Jun 12, 2013 at 04:47:45PM +0200, Christian Ruppert wrote:
+> On Mon, Jun 10, 2013 at 05:29:55PM +0200, Wolfram Sang wrote:
+> > On Tue, May 14, 2013 at 03:04:02PM +0200, Christian Ruppert wrote:
+> > > This patch makes the SDA hold time configurable through device tr=
+ee.
+> > >=20
+> > > [rebased to i2c-current/i2c-next/mainline-3.10-rc1]
+> > >=20
+> > > Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
+> > > Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
+> >=20
+> > Hmm, I really have problems adding a generic property. I need to be=
+tter
+> > understand why this is needed? What is the usecase? Can't a safe va=
+lue
+> > be calculated depending on the bus-speed? Is there a public datashe=
+et
+> > available somewhere?
 >=20
-> In Paul case, most likely not. In my case there is a voltage
-> controller for the DDR3 voltage regulator. I asked Paul test it on
-> his SB800 system, I have the Hudson successor..
+> I checked with our PCB/Applications team and the data sheets for the
+> peripherals in question (DVB demodulator front ends) are under NDA.
+> Mika, you seem to be interested in this patch as well. Do you know of
+> any publicly available data sheets for hardware requiring this
+> adjustment?
+
+Sorry for the delay, I was on vacation.
+
+I'm not aware of any publicly available datasheets for this block,
+unfortunately.
+
+> In the case of the Designware block, the parameter both changes SDA a=
+nd
+> START hold times, however, and you'll find lots of data sheets for
+> hardware with START hold time requirements on the net, e.g.
+> http://ww1.microchip.com/downloads/en/DeviceDoc/21805B.pdf
 >=20
-> >>Rudolf, it looks like your patch could also update the i2c files under
-> >>`Documentation`. At least there are some patches doing that.
-> >
-> >Do you mean 'busses/i2c-piix4'?
+> The empirical solution in the function i2c_dw_scl_hcnt does not seem =
+to
+> work in all cases: Our lab guys confirmed that we have several PCB
+> designs which do not work without adjusting the sda-hold-time paramet=
+er
+> to an appropriate value. The value seems to be different for differen=
+t
+> PCBs.
+
+Yeah, we see the same problem. Our platform guys have solved this so th=
+at
+they made the SDA hold time available from ACPI to the device driver.
+
+> I suspect that this kind of configurability is not the same for all i=
+2c
+> bus master hardware. If you don't want to add a generic property, wou=
+ld
+> you accept the patch with the property renamed to dwi2c,sda-hold-time=
+?
 >=20
-> Yes he means that. I will add documentation to the patch.
+> Greetings,
+>   Christian
+>=20
+>=20
+> --=20
+>   Christian Ruppert              ,          <christian.ruppert@abilis=
+=2Ecom>
+>                                 /|
+>   Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9=
+-Fleuri
+>                              _// | bilis Systems   CH-1228 Plan-les-O=
+uates
 
-OK, so I will wait for V2. Thanks!
 
-
---5I6of5zJg18YgZEa
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRvre/AAoJEBQN5MwUoCm2k0YP/RiYvHIpRwVKsF0aN9IplhZR
-OiPc/22zfQGr9CGMs2u1PkNVhy+Zil6aHCb4aXRjqK5+qr6mAOLVAXT+1RhFWO+e
-dexlgMdX62iMAQYPwVvDOkzCLPaQkrAsFIqfHnMs4nWqsrOHOO2hc+TPp00NaepN
-M7xQY2ARxHTHE9xaLPpOCZL4C8y1ESD17d+uWf7BCwu3xFLfWuCG1mdx/RqIixsT
-r9Rswn9g2T75yww75itN2Ob5smXCkmzI6UH/A5KYQRTzl4pbfZGJ0+teDIjxnjPh
-q7RRF1DmzkQY1ZAiCKrbxEU3YGHBXQEZDztNIRv23Kt4Tz8EEUtHn4fxt6juXHCP
-aJ3PnS6zmU5mBtSbbRW7DcNjGv8GDdLLEb8Q1f3H5jJECJ89u0BCIYwCGN3yeghf
-MdycoNx+6FTKmD4gxUOt+/vtjUBGv/x7J7uy/aUDXLzoQu9QkNG226SrLwKJmekv
-8dObv2JDDAZik7xIxzaCziESJDrmM9t+feJ6KCImhJFkGczAG/XWYirW/PMxYt+B
-lF0uOLJDw6oJ12oq+fxxBs7vo17A3xRWdaP20g/GbOpDah8IvUwvJMa6pwZpy3Ko
-eTIYV10oiN5MRVMgKkOZqz2cSNRynQPj5lk6g230OaVGBDEyahNMgkGMAhS+OVia
-15xmms1B1pbCwpqp5XdG
-=MdRS
------END PGP SIGNATURE-----
-
---5I6of5zJg18YgZEa--
