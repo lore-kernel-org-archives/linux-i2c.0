@@ -1,39 +1,30 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
 Subject: Re: [PATCH v2] i2c: core: make it possible to match a pure device
  tree driver
-Date: Mon, 17 Jun 2013 18:33:41 +0200
-Message-ID: <CACRpkdbjy+PcpNkSg4PuuP2Z9RyrnqSW0uchHFHVZ8VYPeoDyA@mail.gmail.com>
-References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org>
-	<CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com>
-	<51BF2FC5.40207@wwwdotorg.org>
+Date: Mon, 17 Jun 2013 10:49:16 -0600
+Message-ID: <51BF3E0C.6050009@wwwdotorg.org>
+References: <1368476301-10495-1-git-send-email-linus.walleij@linaro.org> <CACRpkdae1chj9ZKuQV5MuiaicLUTKr4hZqr8rtjbB3Yjt+U_fg@mail.gmail.com> <51BF2FC5.40207@wwwdotorg.org> <CACRpkdbjy+PcpNkSg4PuuP2Z9RyrnqSW0uchHFHVZ8VYPeoDyA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51BF2FC5.40207-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+In-Reply-To: <CACRpkdbjy+PcpNkSg4PuuP2Z9RyrnqSW0uchHFHVZ8VYPeoDyA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org" <devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-next-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 17, 2013 at 5:48 PM, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
+On 06/17/2013 10:33 AM, Linus Walleij wrote:
+> On Mon, Jun 17, 2013 at 5:48 PM, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org> wrote:
+> 
+>> This has just shown up in next-20130617, and breaks at least the
+>> TPS65910 and TPS62360 drivers, since they assume that the id parameter
+>> passed to probe is non-NULL. However, now the parameter is NULL since
+>> these drivers have both an ID table and an OF match table.
+> 
+> So you mean they come in through the DT boot path and assume
+> that parameter is non-null even though they should not make use of
+> it?
 
-> This has just shown up in next-20130617, and breaks at least the
-> TPS65910 and TPS62360 drivers, since they assume that the id parameter
-> passed to probe is non-NULL. However, now the parameter is NULL since
-> these drivers have both an ID table and an OF match table.
-
-So you mean they come in through the DT boot path and assume
-that parameter is non-null even though they should not make use of
-it?
-
-> I'd like to suggest this patch be reverted an re-introduced immediately
-> after the merge window. That should give enough time for everyone to get
-> a heads-up on fixing any drivers with a similar problem, rather than
-> trying to cram all that in immediately before the merge window.
-
-OK that works for me, I'm not in any hurry.
-
-Wolfram get to decide how to handle this...
-
-Yours,
-Linus Walleij
+Yes. Since this wasn't true/enforced before, it probably wasn't clear
+that rule existed.
