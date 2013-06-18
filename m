@@ -1,37 +1,38 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH REBASE] i2c-designware: make SDA hold time configurable
-Date: Tue, 18 Jun 2013 13:32:23 +0300
-Message-ID: <CAHp75VfgJ805yaM6mOf-H3tA5jNhKpe4C1SxL2yrvoe_h6jKzw@mail.gmail.com>
-References: <20130514110745.GA10906@intel.com>
-	<1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
-	<51BF77C2.70004@gmail.com>
+From: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH] regulator: tps51632: Get regulator name from i2c_client
+Date: Tue, 18 Jun 2013 13:30:13 +0300
+Message-ID: <1371551413-12346-1-git-send-email-mperttunen@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <51BF77C2.70004@gmail.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Rob Herring <robherring2@gmail.com>
-Cc: Christian Ruppert <christian.ruppert@abilis.com>, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Landley <rob@landley.net>, Devicetree Discuss <devicetree-discuss@lists.ozlabs.org>, Linux Documentation List <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Jun 17, 2013 at 11:55 PM, Rob Herring <robherring2@gmail.com> wrote:
+Commit "i2c: core: make it possible to match a pure device tree driver"
+changed semantics of the i2c probing for device tree devices.
+Device tree probed devices now get a NULL i2c_device_id pointer.
+This causes the regulator name to be set to NULL and the regulator
+registration to fail.
 
->> +Optional properties :
->> + - sda-hold-time : should contain the SDA hold time in nanoseconds.
->
-> Please specify time units in the property name. Perhaps
-> i2c-sda-hold-time-ns.
->
-> Based on reading the discussion, there is one similar property I have
-> found: "samsung,i2c-sda-delay = <100>". I wouldn't copy it as it doesn't
-> tell the units or what the delay is.
+Signed-off-by: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/regulator/tps51632-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Often on of the painful issues with DT models is the absence of the properties.
-Should someone create the property definition first under
-Documentation and _then_ patch everything around?
-(Though I think better to think and create documents first and after
-program accordingly)
-
---
-With Best Regards,
-Andy Shevchenko
+diff --git a/drivers/regulator/tps51632-regulator.c b/drivers/regulator/tps51632-regulator.c
+index 6e67be7..87c37f8 100644
+--- a/drivers/regulator/tps51632-regulator.c
++++ b/drivers/regulator/tps51632-regulator.c
+@@ -305,7 +305,7 @@ static int tps51632_probe(struct i2c_client *client,
+ 	}
+ 
+ 	tps->dev = &client->dev;
+-	tps->desc.name = id->name;
++	tps->desc.name = client->name;
+ 	tps->desc.id = 0;
+ 	tps->desc.ramp_delay = TPS51632_DEFAULT_RAMP_DELAY;
+ 	tps->desc.min_uV = TPS51632_MIN_VOLATGE;
+-- 
+1.8.1.5
