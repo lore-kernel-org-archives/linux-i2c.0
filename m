@@ -1,30 +1,90 @@
-From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Subject: Re: [PATCH v2 1/2] mfd: tps65910: Fix crash in i2c_driver .probe
-Date: Tue, 18 Jun 2013 09:39:33 -0600
-Message-ID: <51C07F35.8070805@wwwdotorg.org>
-References: <1371550481-28126-1-git-send-email-ttynkkynen@nvidia.com> <1371550481-28126-2-git-send-email-ttynkkynen@nvidia.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: [PATCH v2 1/2] i2c-mv64xxx: Fix timing issue on Armada XP (errata FE-8471889)
+Date: Tue, 18 Jun 2013 17:40:23 +0200
+Message-ID: <1371570024-11613-2-git-send-email-gregory.clement@free-electrons.com>
+References: <1371570024-11613-1-git-send-email-gregory.clement@free-electrons.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1371550481-28126-2-git-send-email-ttynkkynen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+In-Reply-To: <1371570024-11613-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tuomas Tynkkynen <ttynkkynen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/18/2013 04:14 AM, Tuomas Tynkkynen wrote:
-> Commit "i2c: core: make it possible to match a pure device tree driver"
-> changed semantics of the i2c probing for device tree devices.
-> Device tree probed devices now get a NULL i2c_device_id pointer.
-> This caused kernel panics due to NULL dereference.
-> 
-> Moves the of_match_device call from tps65910_parse_dt to .probe to
-> allow the chip type to be detected from device tree but with the
-> device parameters coming from platform data.
+From: Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 
-Reviewed-by: Stephen Warren <swaren-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+All the Armada XP (mv78230, mv78260 and mv78460) have a silicon issue
+in the I2C controller which violate the i2c repeated start
+timing. The I2C standard requires a minimum of 4.7us for the repeated
+start condition whereas the I2C controller of the Armada XP this time
+is 2.9us.
 
-It's a pity that every driver that supports DT is going to need this
-boiler-plate though. Perhaps the I2C core can acquire a follow-on patch
-that does this for drivers in the future.
+So this patch adds a 5us delay for the start case only if the
+mv64xxx_i2c_errata_delay flag is set.
+
+[gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Use the delay flasg as per-I2C
+controller variable]
+[gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Merge the incoming commits into
+this single one]
+[gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org: Reword the commit log]
+
+Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Signed-off-by: Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index 1a3abd6..74f8fcb 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -23,6 +23,7 @@
+ #include <linux/of_i2c.h>
+ #include <linux/clk.h>
+ #include <linux/err.h>
++#include <linux/delay.h>
+ 
+ /* Register defines */
+ #define	MV64XXX_I2C_REG_SLAVE_ADDR			0x00
+@@ -103,6 +104,10 @@ struct mv64xxx_i2c_data {
+ 	int			rc;
+ 	u32			freq_m;
+ 	u32			freq_n;
++
++/* 5us delay in order to avoid repeated start timing violation */
++	bool mv64xxx_i2c_errata_delay;
++
+ #if defined(CONFIG_HAVE_CLK)
+ 	struct clk              *clk;
+ #endif
+@@ -252,6 +257,9 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+ 		writel(drv_data->cntl_bits,
+ 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+ 		drv_data->block = 0;
++		if (drv_data->mv64xxx_i2c_errata_delay)
++			udelay(5);
++
+ 		wake_up(&drv_data->waitq);
+ 		break;
+ 
+@@ -300,6 +308,9 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+ 		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
+ 			drv_data->reg_base + MV64XXX_I2C_REG_CONTROL);
+ 		drv_data->block = 0;
++		if (drv_data->mv64xxx_i2c_errata_delay)
++			udelay(5);
++
+ 		wake_up(&drv_data->waitq);
+ 		break;
+ 
+@@ -592,6 +603,9 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 	 * So hard code the value to 1 second.
+ 	 */
+ 	drv_data->adapter.timeout = HZ;
++
++	if (of_machine_is_compatible("marvell,armadaxp"))
++		drv_data->mv64xxx_i2c_errata_delay = 1;
+ out:
+ 	return rc;
+ #endif
+-- 
+1.8.1.2
