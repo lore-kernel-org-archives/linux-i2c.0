@@ -1,54 +1,136 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH] regulator: tps51632: Get regulator name from i2c_client
-Date: Tue, 18 Jun 2013 12:44:36 +0100
-Message-ID: <20130618114436.GM1403@sirena.org.uk>
-References: <1371551413-12346-1-git-send-email-mperttunen@nvidia.com>
+From: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: i2c core: issue in of_i2c_register_devices()
+Date: Tue, 18 Jun 2013 16:52:16 +0200
+Message-ID: <51C07420.1010306@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="xluWKNDh2/FEVhBx"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1371551413-12346-1-git-send-email-mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mikko Perttunen <mperttunen-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+To: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
---xluWKNDh2/FEVhBx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+I think I have a corner case and I don't immediately see how to solve
+the issue.
 
-On Tue, Jun 18, 2013 at 01:30:13PM +0300, Mikko Perttunen wrote:
-> Commit "i2c: core: make it possible to match a pure device tree driver"
-> changed semantics of the i2c probing for device tree devices.
-> Device tree probed devices now get a NULL i2c_device_id pointer.
-> This causes the regulator name to be set to NULL and the regulator
-> registration to fail.
+On the cfa-10049, we have 3 nau7802 ADCs. As they are sharing the same
+address,  they are behind a gpio based i2c muxer.
 
-Applied, thanks.  Though it does seem like we should just be hard coding
-this string anyway...
+Those ADCs are able to send interrupts. So, the interrupts lines are
+connected to a pca9555 which is behind the same i2c muxer.
 
---xluWKNDh2/FEVhBx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
+                                           +--------------+
+                                           |              |<-------+ V1
+                                       +---+ nau7802      |
+            +-----------------+        |   |             
++---IRQ--------------+
+     i2c0+--+                 |        |  
++--------------+                    |
+            |                 |       
+|                                       |
+            |  gpio i2c muxer +--i2c---+  
++--------------+                    |
+     gpios+-+                 |        |   |              |<-------+
+V2        |
+            |                 |        +---+ nau7802     
+|                    |
+            +-----------------+        |   |             
++---IRQ----------+   |
+                                       |  
++--------------+                |   |
+                                      
+|                                   |   |
+                                       |  
++--------------+                |   |
+                                       |   |              |<-------+
+V3    |   |
+                                       +---+ nau7802     
+|                |   |
+                                       |   |             
++---IRQ-------+  |   |
+                                       |   +--------------+            
+|  |   |
+                                       |                               
+|  |   |
+                                       |   +--------------+            
+|  |   |
+                                       |   |             
+|<------------+  |   |
+                                       +---|             
+|                |   |
+                                           | pca9555     
+|<---------------+   |
+                 IRQ   <-------------------+             
+|                    |
+                                           |             
+|<-------------------+
+                                           +--------------+
 
-iQIcBAEBAgAGBQJRwEghAAoJELSic+t+oim9AIcP/jhoJ+Y5sS9W6S4Q+fmhHNCS
-0vNN2LyEVmu9ktoWdQRbB9AV4tdbxPfRdOLgYbHLlef2NyliIYPexY+mOO5lL1gA
-UQfr9i5HMFcriaTsAQlM81ySY5yis5L6GuP6iNwTLoCt8ozzcX91tj5B29WN+Gi5
-Ta85fOG4TgtmqUVtp8wgqIfPh08JvEfZYUzh2mINt4F+BdHVt6P65FR6Mj1BtXU2
-DvjEKAgPqxWZTDBIcOuLRms2D20Y1qkdBw5WK/iF0MgmTYWj8RkGAZkqsK19D8Yp
-Zugrq4fx29+NsTfcnVJQ/wfpu/ZhPhhLy2Ix3cBGLZzx3pG1h+UkP5Uz6VVq6amM
-L1IsrY/UR7KnU3abAg02ULUWZqseYF46qXf+7jSwANCM9KvrOshGo1g+GqyMB1rP
-jc+OBFF0pNxCQ1ZBeoRh/9sKpKUAE+AD5p2gpEBnIWPeygRom1FIld3lBRgmbOot
-Vv81xemhvpJxamSV8Xe1zm1vbptbJXKOJMKHriVFf1N28y3Dgmnikmcc5L3PjJlk
-7pYfNE3t8kUpPG07O4gbT5sotnEGPtHcxbA7S8QTH+9n4xnBdgG92lv8wVnWmXRO
-eMfBMuEIeDcPSWNT3PjPp+geUXGFytpLKzVY9NPkRwPGBanKWUPyInX8nHDjVcUR
-WTkQr+ul/PJPWv4iCM0R
-=iqjm
------END PGP SIGNATURE-----
 
---xluWKNDh2/FEVhBx--
+So, the relevant bits of the DT are:
+
+i2cmux {
+        compatible = "i2c-mux-gpio";
+        #address-cells = <1>;
+        #size-cells = <0>;
+        mux-gpios = <&gpio1 22 0 &gpio1 23 0>;
+        i2c-parent = <&i2c1gpio>;
+
+        i2c@0 {
+            reg = <0>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            adc0: nau7802@2a {
+                compatible = "nuvoton,nau7802";
+                reg = <0x2a>;
+                nuvoton,vldo = <3000>;
+                interrupt-parent = <&pca9555>;
+                interrupts = <8 0x2>;
+            };
+        };
+
+[...]
+
+        i2c@3 {
+            reg = <3>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            pca9555: pca9555@20 {
+                compatible = "nxp,pca9555";
+                interrupt-parent = <&gpio2>;
+                interrupts = <19 0x2>;
+                gpio-controller;
+                #gpio-cells = <2>;
+                interrupt-controller;
+                #interrupt-cells = <2>;
+                reg = <0x20>;
+            };
+        };
+    };
+
+Now, for the issue, at the time we are registering the ADCs in
+of_i2c_register_devices(), using info.irq = irq_of_parse_and_map(node,
+0) results in :
+
+irq: no irq domain found for /i2cmux/i2c@3/pca9555@20 !
+
+as the pca9555 is not yet registered. But, it is not possible to move
+the pca9555 definition upper in the DT be cause the order seems to be
+significant for i2c-mux-gpio. Obviously, if I use irq_of_parse_and_map()
+in the probe of the nau7802 driver, it is working fine but that is not a
+future proof solution.
+
+How would you suggest to solve that ?
+
+regards,
+
+-- 
+Alexandre Belloni, Free Electrons
+Embedded Linux, Kernel and Android engineering
+http://free-electrons.com
