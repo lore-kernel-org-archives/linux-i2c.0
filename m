@@ -1,58 +1,98 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c-pxa: prepare clock before use
-Date: Tue, 18 Jun 2013 18:12:49 +0200
-Message-ID: <20130618161249.GE7718@katana>
-References: <20130617153036.67CC84375@dev.laptop.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ILuaRSyQpoVaJ1HG"
+From: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH v2 0/4] Kontron PLD drivers
+Date: Tue, 18 Jun 2013 14:04:25 -0700
+Message-ID: <1371589469-32700-1-git-send-email-kevin.strasser@linux.intel.com>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130617153036.67CC84375-2+9YHz4BXxlLDiiyqF6/jw@public.gmane.org>
+In-Reply-To: <1365441321-21952-1-git-send-email-kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Michael Brunner <Michael.Brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>, Chris Healy <chealy-KRR2zmvM+DFWk0Htik3J/w@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Hohndel <Dirk.Hohndel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+mfd changes since v1:
+- Use a mutex instead of spinlock
+- Poll for hardware mutex without timeout
+- Restructure mfd cell structs, only call mfd_add_devices once
+- Drop pointless BUG_ONs
+- EXPORT_SYMBOL -> EXPORT_SYMBOL_GPL
+- kempld_*_mutex_set_index -> kempld_*_mutex
+- Removed kempld_try_get_mutex
+- Drop last_index
+- Remove EFT code
+- Drop unused includes
+- Use devm_ioport_map
+- Restructure to get rid of forward function prototypes
+- Renamed module parameter force_ident -> force_device_id
+- Dropped force_unlock module parameter
+- Formatting fixes
 
---ILuaRSyQpoVaJ1HG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+i2c changes since v1:
+- Always disable bus during suspend,
+- Detect was_active in probe
+- Remove i2c-kempld.h
+- Clean up register definitions
+- Use the correct device for printing
+- Set default bus frequency to 100kHz
+- Drop irq support
+- Drop now1 driver
+- Remove i2c-mux code
+- Clean up includes
+- Use devm_kzalloc
+- Formatting fixes
 
-On Mon, Jun 17, 2013 at 11:30:36AM -0400, Daniel Drake wrote:
-> On OLPC XO-1.75 (MMP2), a WARN_ON() was occurring during boot
-> since the clock being enabled by i2c-pxa had not been prepared.
->=20
-> Use clk_prepare_enable() to ensure that the prepare operation
-> has taken place, and use clk_disable_unprepare() in the matching
-> shutdown paths.
->=20
-> Signed-off-by: Daniel Drake <dsd-2X9k7bc8m7Mdnm+yROfE0A@public.gmane.org>
+gpio changes since v1:
+- Change label from kempld-gpio -> gpio-kempld
+- Drop unnecessary include seq_file.h
+- Register and value parameters to kempld_get_bit and kempld_bitop are now u8
+- Status variable in kempld_bitop is now u8
+- Fix kempld_gpio_pincount(). hweight16 doesn't work, but __ffs does
+- Drop interrupt support
+- Drop gpio-kempld.h
+- Use helper functions for bit and read operations
+- Use generic DEBUG_FS code
+- Use devm_kzalloc
+- Get gpio_base from platform data
+- Drop all module parameters
+- Use module_platform_driver
+- Drop unused includes
+- Include device.h instead of slab.h for devm_kzalloc
+- Some cleanup here and there
 
-Applied to for-next, thanks!
+watchdog changes since v1:
+- Use watchdog framework
+- Allocate stages statically
+- Drop now1 driver
+- Use devm_kzalloc
+- Change default timeout to 30 seconds
+- Drop unused includes
+- General formatting cleanup
 
+Kevin Strasser (4):
+  mfd: Kontron PLD mfd driver
+  i2c: Kontron PLD i2c bus driver
+  gpio: Kontron PLD gpio driver
+  watchdog: Kontron PLD watchdog timer driver
 
---ILuaRSyQpoVaJ1HG
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+ drivers/gpio/Kconfig            |   12 +
+ drivers/gpio/Makefile           |    1 +
+ drivers/gpio/gpio-kempld.c      |  225 ++++++++++++++
+ drivers/i2c/busses/Kconfig      |   10 +
+ drivers/i2c/busses/Makefile     |    1 +
+ drivers/i2c/busses/i2c-kempld.c |  410 +++++++++++++++++++++++++
+ drivers/mfd/Kconfig             |   21 ++
+ drivers/mfd/Makefile            |    1 +
+ drivers/mfd/kempld-core.c       |  642 +++++++++++++++++++++++++++++++++++++++
+ drivers/watchdog/Kconfig        |   11 +
+ drivers/watchdog/Makefile       |    1 +
+ drivers/watchdog/kempld_wdt.c   |  580 +++++++++++++++++++++++++++++++++++
+ include/linux/mfd/kempld.h      |  125 ++++++++
+ 13 files changed, 2040 insertions(+)
+ create mode 100644 drivers/gpio/gpio-kempld.c
+ create mode 100644 drivers/i2c/busses/i2c-kempld.c
+ create mode 100644 drivers/mfd/kempld-core.c
+ create mode 100644 drivers/watchdog/kempld_wdt.c
+ create mode 100644 include/linux/mfd/kempld.h
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRwIcAAAoJEBQN5MwUoCm24W8P/A61wfP4p+JXh9ihN9tu2k0T
-KcsjaVTxtFOo8tYmHKkx3AW3xJFgbuevEKnBlKRe+R01UJMGfQloLnzX3Hb3jE84
-6vPjTSx91Pet4njPP8IrkLaHbysXmQvHAtgnLI0DV+5ETlRXerw5cHBdigYdv+oE
-a5YCqBfTGq8HQzoHSpZfbMjmAMj1mjrelAD/qw7ZAuPUIKmLZlnRR5UNkXzBFKOe
-x9Vsz/BLtmGAlvRQ2niXj16xkCFz0thBpEdJQbT78lEvYFyZq8K+eRf5Si4XIyPI
-bfnJtPdF7xgnQvxUZcyFYtPFp42H/hJB0omhnF3PVnlmdxHOzoI/z7ZUpVGWBY3x
-Ebc17qee+4H46XEZ3LNVtQ90D5eDTRvK6SzIAgdK2NghBdYXVAtNOwCWtLolocb3
-q0zeG9SC2kdpuULrowUq88ilqxIP+0nQitU3MpJlO/mW9q1Xrgc7woSk7EZXXctD
-kubHtSix+IWFb0Z5WMh5gl90IEbningkozLhatIZUZhqxnkw8E20DrpME88YAj3d
-37/7v3wjOSlRCltlyXct7LWhE1JihQfgxCK5rruCdtW7h1+tDD4p/Z3PWZ+kHdAh
-B3FAHWdH4aaXn/6Zc3RtHLuOJyAjDvA90CVIowrtN0pTJ1+seWvgvnXsTfhzKIlJ
-+eOHIAdGZQe9svfMnWKz
-=Yz0S
------END PGP SIGNATURE-----
-
---ILuaRSyQpoVaJ1HG--
+-- 
+1.7.9.5
