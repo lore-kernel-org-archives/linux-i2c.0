@@ -1,159 +1,125 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH REBASE] i2c-designware: make SDA hold time configurable
-Date: Wed, 19 Jun 2013 17:20:59 +0200
-Message-ID: <20130619152058.GA2951@katana>
-References: <20130514110745.GA10906@intel.com>
- <1368536642-7158-1-git-send-email-christian.ruppert@abilis.com>
- <20130610152954.GE2987@katana>
- <20130612144743.GB8102@ab42.lan>
- <20130619094540.GA2950@katana>
- <20130619135855.GB16483@ab42.lan>
+From: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
+Subject: Re: [RFC] i2c: add deprecation warning for class based instantiation
+Date: Wed, 19 Jun 2013 21:21:51 +0300
+Message-ID: <51C1F6BF.4030200@ti.com>
+References: <20130607090623.GC3428@katana> <1370596166-12404-1-git-send-email-wsa@the-dreams.de> <20130619101526.GF2950@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130619135855.GB16483@ab42.lan>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christian Ruppert <christian.ruppert@abilis.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Herring <rob.herring@calxeda.com>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130619101526.GF2950@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Wolfram,
 
---mP3DRpeJDSE+ciuQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 06/19/2013 01:15 PM, Wolfram Sang wrote:
+> On Fri, Jun 07, 2013 at 11:09:26AM +0200, Wolfram Sang wrote:
+>> Class based instantiation can cause huge delays when booting. This
+>> mechanism was used when it was not possible to describe slaves on I2C
+>> busses. We now have other mechanisms, so most embedded I2C will not need
+>> classes and it was explicitly not recommended to use them. Add a
+>> deprecation warning for drivers who want to disable class based in the
+>> near future to gain boot-up time, so users relying on this technique can
+>> switch to something better. They really should.
+>>
+>> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> No reactions on this, pity. Deferring.
+>
+Sorry, for delayed reply - I've had problems with my e-mail.
 
-Hi Christian,
+I've tested this patch on our TI K3.4 product kernel with additional 
+change below:
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index c0330a4..442101d 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -186,7 +186,7 @@ static int __devinit i2c_gpio_probe(struct 
+platform_device *pdev)
+         adap->owner = THIS_MODULE;
+         snprintf(adap->name, sizeof(adap->name), "i2c-gpio%d", pdev->id);
+         adap->algo_data = bit_data;
+-       adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++       adap->class = I2C_CLASS_HWMON | I2C_CLASS_SPD | 
+I2C_CLASS_DEPRECATED;
+         adap->dev.parent = &pdev->dev;
+         adap->dev.of_node = pdev->dev.of_node;
 
-> > So, I looked around and found:
-> > http://www.maximintegrated.com/app-notes/index.mvp/id/3268
-> >=20
-> > which after thinking further about it gives me the following
-> > conclusions:
-> >=20
-> > - sda-hold-time is a property/requirement of a device not following
-> >   the I2C spec. It is not a property of the master!
->=20
-> Actually, in a protocol like I2C, every device on the bus must respect
-> timing constraints like hold time etc. These parameters apply at the
-> same time to the master and to all slaves.
+It works fine, in general - see my minor comment inline.
+[    0.662536] omap_i2c omap_i2c.2: bus 2 rev2.4.0 at 400 kHz
+[    0.662567]  (null): This adapter will soon drop class based 
+instantiation of slaves
+                 ^^^^^ invalid adapter device name here
+[    0.662567] Please make sure all its I2C devices are instantiated by 
+other means.
+[    0.662567] Check 'Documentation/i2c/instantiating-devices' for details
 
-Yes. What I meant is: the flaw of one a specific device on the bus
-imposes the timing on the whole bus.
+Also tested on Linux master - OMAP4 SDP board.
 
->=20
-> > - It should not be encoded in the devicetree, since the flaw is implicit
-> >   to the device, so only the driver needs to know about it. I wonder
-> >   about something like this in the i2c slave driver:
-> >=20
-> > 	ret =3D i2c_request_sda_hold_time(client);
-> >=20
-> >   The core then can collect the requests and forward them to the host
-> >   driver. This driver then can set up the hardware or return -EOPNOTSUPP
-> >   and we can even warn the user that there might be problems ahead.
->=20
-> This might be a solution but given that many I2C drivers are written as
-> an afterthought by device manufacturers and are released under more or
-> less open terms of licensing into the wild I doubt this would work very
-> well in practise.
+In addition, I've found the following users of *i2c-gpio* (just FYI):
+./arch/powerpc/boot/dts/wii.dts:                    compatible = "i2c-gpio";
+./arch/mips/alchemy/board-gpr.c:    .name            = "i2c-gpio",
+./arch/mips/ath79/mach-pb44.c:    .name        = "i2c-gpio",
+./arch/avr32/boards/merisc/setup.c:    .name    = "i2c-gpio",
+./arch/avr32/boards/atngw100/setup.c:    .name        = "i2c-gpio",
+./arch/avr32/boards/hammerhead/setup.c:    .name        = "i2c-gpio",
+./arch/avr32/boards/mimc200/setup.c:    .name        = "i2c-gpio",
+./arch/blackfin/mach-bf533/boards/blackstamp.c:    .name        = 
+"i2c-gpio",
+./arch/blackfin/mach-bf533/boards/ezkit.c:    .name        = "i2c-gpio",
+./arch/blackfin/mach-bf533/boards/stamp.c:    .name        = "i2c-gpio",
+./arch/blackfin/mach-bf561/boards/ezkit.c:    .name        = "i2c-gpio",
+./arch/arm/mach-ep93xx/core.c:    .name        = "i2c-gpio",
+./arch/arm/mach-shmobile/board-armadillo800eva.c:    .name = "i2c-gpio",
+./arch/arm/mach-pxa/viper.c:    .name        = "i2c-gpio",
+./arch/arm/mach-pxa/viper.c:    tpm_device = 
+platform_device_alloc("i2c-gpio", 2);
+./arch/arm/mach-pxa/palmz72.c:    .name        = "i2c-gpio",
+./arch/arm/boot/dts/at91sam9g45.dtsi:        compatible = "i2c-gpio";
+./arch/arm/boot/dts/at91sam9263.dtsi:        compatible = "i2c-gpio";
+./arch/arm/boot/dts/at91sam9x5.dtsi:        compatible = "i2c-gpio";
+./arch/arm/boot/dts/at91sam9x5.dtsi:        compatible = "i2c-gpio";
+./arch/arm/boot/dts/at91sam9x5.dtsi:        compatible = "i2c-gpio";
+./arch/arm/boot/dts/usb_a9g20-dab-mmx.dtsi:    i2c-gpio@0 {
+./arch/arm/boot/dts/ste-nomadik-stn8815.dtsi:        compatible = 
+"i2c-gpio";
+./arch/arm/boot/dts/ste-nomadik-stn8815.dtsi:        compatible = 
+"i2c-gpio";
+./arch/arm/boot/dts/ste-nomadik-stn8815.dtsi:        compatible = 
+"i2c-gpio";
+./arch/arm/boot/dts/at91sam9260.dtsi:        compatible = "i2c-gpio";
+./arch/arm/boot/dts/at91rm9200.dtsi:        compatible = "i2c-gpio";
+./arch/arm/boot/dts/at91sam9n12.dtsi:        compatible = "i2c-gpio";
+./arch/arm/mach-ks8695/board-acs5k.c:    .name        = "i2c-gpio",
+./arch/arm/mach-s5pv210/mach-goni.c:    .name        = "i2c-gpio",
+./arch/arm/mach-s5pv210/mach-goni.c:    .name        = "i2c-gpio",
+./arch/arm/mach-s5pv210/mach-aquila.c:    .name        = "i2c-gpio",
+./arch/arm/mach-s5pv210/mach-aquila.c:    .name        = "i2c-gpio",
+./arch/arm/mach-sa1100/simpad.c:    .name = "i2c-gpio",
+./arch/arm/mach-exynos/mach-universal_c210.c:    .name        = "i2c-gpio",
+./arch/arm/mach-exynos/mach-nuri.c:    .name            = "i2c-gpio",
+./arch/arm/mach-at91/at91sam9263_devices.c:    .name            = 
+"i2c-gpio",
+./arch/arm/mach-at91/at91sam9261_devices.c:    .name            = 
+"i2c-gpio",
+./arch/arm/mach-at91/at91sam9g45_devices.c:    .name            = 
+"i2c-gpio",
+./arch/arm/mach-at91/at91sam9g45_devices.c:    .name            = 
+"i2c-gpio",
+./arch/arm/mach-at91/at91rm9200_devices.c:    .name            = "i2c-gpio",
+./arch/arm/mach-at91/at91sam9260_devices.c:    .name            = 
+"i2c-gpio",
+./arch/arm/mach-at91/at91sam9rl_devices.c:    .name            = "i2c-gpio",
+./arch/arm/mach-imx/mach-cpuimx51sd.c:    .name            = "i2c-gpio",
+./arch/arm/mach-ixp4xx/nslu2-setup.c:    .name            = "i2c-gpio",
+./arch/arm/mach-ixp4xx/nas100d-setup.c:    .name            = "i2c-gpio",
+./arch/arm/mach-ixp4xx/goramo_mlr.c:    .name        = "i2c-gpio",
+./arch/arm/mach-ixp4xx/ixdp425-setup.c:    .name        = "i2c-gpio",
+./arch/arm/mach-ixp4xx/fsg-setup.c:    .name            = "i2c-gpio",
+./arch/arm/mach-ixp4xx/dsmg600-setup.c:    .name            = "i2c-gpio",
+./arch/arm/mach-ixp4xx/avila-setup.c:    .name        = "i2c-gpio",
+./drivers/mfd/sm501.c:    pdev = sm501_create_subdev(sm, "i2c-gpio", 0,
 
-Hrmgl, the design looks much better to me, though. Once a driver is
-identified to need this, the core is able to report this requirement to
-a user who might even be unaware of the issue. The dt property has a bit
-of "try this if things don't work, you may be lucky" taste to it. Need
-to think about it. If PCB design also has an influence, then my idea
-won't work, though.
-
-> > - I wonder if we really need to have a parameter time-in-ns? The
-> >   specs cleary say 300ns, so I'd think this is the value we should
-> >   always use. This is from a theorhetical pov though, maybe your
-> >   practical experience is different. What values do you need?
->=20
-> In reality, the I2C specification is more subtle than that: The "data
-> hold time" is specified as 0ns with a footnote [3] stating that devices
-> "must internally provide a hold time of at least 300ns for the SDA
-> signal...".
->=20
-> Revision 5 contains a relatively understandable explanation about how to
-> interpret this but earlier versions are less helpful. I think this
-> confusion is at the root of many timing issues encountered with I2C (and
-> the reason why Synopsys made this configurable). In fact, especially
-> earlier specs are _all but_ clear in this point and we cannot assume
-> that all peripherals were designed after Revision 5 was released in
-> October 2012.
-
-OK, agreed. Still surprised that I never encountered such a device,
-probably I was just lucky.
-
->=20
-> > > In the case of the Designware block, the parameter both changes SDA a=
-nd
-> > > START hold times, however, and you'll find lots of data sheets for
-> > > hardware with START hold time requirements on the net, e.g.
-> > > http://ww1.microchip.com/downloads/en/DeviceDoc/21805B.pdf
-> >=20
-> > What I couldn't find is a reference manual for a designware IP that
-> > supports sda hold time? I found some spear SoC which do not have that
-> > register, so that should surely be reflected in the patchset, too.
->=20
-> If you have access to DesignWare documentation, check out the
-> "DesignWare DW_apb_i2c Databook" Version 1.17a from March 2012.
-
-I don't have, and I do have a hard time finding information about it
-otherwise :(
-
-> Unluckily, I clearly don't have the right to share this document with
-> you. Do you know the version of the blocks in the spear SoC which do not
-> support this register?
-
-ST Spear300 and 600 have 0x3130352a in the version reg according to the
-refman.
-
-> > > The empirical solution in the function i2c_dw_scl_hcnt does not seem =
-to
-> > > work in all cases: Our lab guys confirmed that we have several PCB
-> > > designs which do not work without adjusting the sda-hold-time paramet=
-er
-> > > to an appropriate value. The value seems to be different for different
-> > > PCBs.
-> >=20
-> > I'd hope that 300ns is a safe value for all PCBs?
->=20
-> Not according to our PCB guys. The highest value I have found in a quick
-> check of our device trees is 650ns with others being just slightly above
-> 300ns.
-
-Thanks for sharing your results \o/ This helps me a lot. Can you find
-out/guess if this value is solely dependend on a slave or is it also
-dependend on PCB layout?
-
-Thanks,
-
-   Wolfram
-
-
---mP3DRpeJDSE+ciuQ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRwcxaAAoJEBQN5MwUoCm2DqIP/i/vrvj5slD/kitSZypJZFDa
-VzLHi964145JwqWLGHWoNHxGVkMBjOmPDXcz4VH7CWEhsS/zz9L7Bn/2vXTdVmqd
-SSqV5k6qFnV1XQUZ6V8XhT/KNDSXBPg/yQLWvaM+PP69JBF1Ow2rSOFKR3h5GXmJ
-nKs1LOh45uwr1IOSD8SsxQTA7eHoZ0ZoYBfE3KkPJqwsEpRpzcJ0kDzpQ0Ea5BQK
-PCa1zJdQopSDB39XLhVoiISETEeBRIGnjVwlyH2rpgm0onBPt43DNCXCmk9AAg7i
-xWpXL7kSus9OWQRyEZc3rnSx+KkKV2vUPzJO/nNN9z7BiHI3ETcP6jHMHXuVh80k
-EzGQOd50xtIG8GXFWJh/c2fZEGX+QNR7f1B4mWam5l95EW6k9dglh+YTBB0i4fOv
-c4JHMI8BS0Dy3Jp626ZPcYUUcq6fI7DBWvCr7ZaDl3R88KZn1d9D0NSBI1F1hjub
-dhWrR3TAYtyoocQOnanRNQT0wGpi0dWu373VfULkmZPXiYl3jA0SZphAX/DzEdUR
-ESTHhozlR19DhUiPSbp0JAwCHwnFKK8sPvDT4VNlo2L0tnZaQrJaIh/nbJKbGPYG
-qjRx/WqrjwrC94YTSvOrU0bNqxqo+TiKiHzywqQbBn28oS6UbeC1BzVtQn4kwzMm
-xmbMFnS4Iwrl30gaViBB
-=p/CI
------END PGP SIGNATURE-----
-
---mP3DRpeJDSE+ciuQ--
+- grygorii
