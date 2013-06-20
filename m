@@ -1,73 +1,81 @@
-From: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 3/4] i2c-i801: SMBus patch for Intel Coleto Creek DeviceIDs
-Date: Wed, 19 Jun 2013 16:59:57 -0700
-Message-ID: <1371686397-6532-1-git-send-email-seth.heasley@intel.com>
+From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] i2c: imx: Add Vybrid VF610 I2C controller support
+Date: Thu, 20 Jun 2013 10:04:06 +0200
+Message-ID: <20130620080406.GD14308@pengutronix.de>
+References: <1371545327-12481-1-git-send-email-b35083@freescale.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1371545327-12481-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jason Jin <Jason.jin-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Xiaochun Li <b41219-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch adds the i801 SMBus Controller DeviceIDs for the Intel Coleto Creek PCH.
+On Tue, Jun 18, 2013 at 04:48:47PM +0800, Jingchang Lu wrote:
+> +static u16 imx_i2c_clk_div[50][2] = {
+>  	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
+>  	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
+>  	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
+> @@ -112,11 +107,67 @@ static u16 __initdata i2c_clk_div[50][2] = {
+>  	{ 3072,	0x1E }, { 3840,	0x1F }
+>  };
+>  
+> +/* Vybrid VF610 clock divider, register value pairs */
+> +static u16 vf610_i2c_clk_div[60][2] = {
+> +	{ 20,   0x00 }, { 22,   0x01 }, { 24,   0x02 }, { 26,   0x03 },
+> +	{ 28,   0x04 }, { 30,   0x05 }, { 32,   0x09 }, { 34,   0x06 },
+> +	{ 36,   0x0A }, { 40,   0x07 }, { 44,   0x0C }, { 48,   0x0D },
+> +	{ 52,   0x43 }, { 56,   0x0E }, { 60,   0x45 }, { 64,   0x12 },
+> +	{ 68,   0x0F }, { 72,   0x13 }, { 80,   0x14 }, { 88,   0x15 },
+> +	{ 96,   0x19 }, { 104,  0x16 }, { 112,  0x1A }, { 128,  0x17 },
+> +	{ 136,  0x4F }, { 144,  0x1C }, { 160,  0x1D }, { 176,  0x55 },
+> +	{ 192,  0x1E }, { 208,  0x56 }, { 224,  0x22 }, { 228,  0x24 },
+> +	{ 240,  0x1F }, { 256,  0x23 }, { 288,  0x5C }, { 320,  0x25 },
+> +	{ 384,  0x26 }, { 448,  0x2A }, { 480,  0x27 }, { 512,  0x2B },
+> +	{ 576,  0x2C }, { 640,  0x2D }, { 768,  0x31 }, { 896,  0x32 },
+> +	{ 960,  0x2F }, { 1024, 0x33 }, { 1152, 0x34 }, { 1280, 0x35 },
+> +	{ 1536, 0x36 }, { 1792, 0x3A }, { 1920, 0x37 }, { 2048, 0x3B },
+> +	{ 2304, 0x3C }, { 2560, 0x3D }, { 3072, 0x3E }, { 3584, 0x7A },
+> +	{ 3840, 0x3F }, { 4096, 0x7B }, { 5120, 0x7D }, { 6144, 0x7E },
+> +};
 
-Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
----
- Documentation/i2c/busses/i2c-i801 |    1 +
- drivers/i2c/busses/Kconfig        |    1 +
- drivers/i2c/busses/i2c-i801.c     |    3 +++
- 3 files changed, 5 insertions(+), 0 deletions(-)
+...
 
-diff --git a/Documentation/i2c/busses/i2c-i801 b/Documentation/i2c/busses/i2c-i801
-index d55b8ab..d29dea0 100644
---- a/Documentation/i2c/busses/i2c-i801
-+++ b/Documentation/i2c/busses/i2c-i801
-@@ -24,6 +24,7 @@ Supported adapters:
-   * Intel Lynx Point-LP (PCH)
-   * Intel Avoton (SOC)
-   * Intel Wellsburg (PCH)
-+  * Intel Coleto Creek (PCH)
-    Datasheets: Publicly available at the Intel website
- 
- On Intel Patsburg and later chipsets, both the normal host SMBus controller
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 631736e..da3af83 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -108,6 +108,7 @@ config I2C_I801
- 	    Lynx Point-LP (PCH)
- 	    Avoton (SOC)
- 	    Wellsburg (PCH)
-+	    Coleto Creek (PCH)
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-i801.
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 3a6903f..4ebceed 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -58,6 +58,7 @@
-   Wellsburg (PCH) MS    0x8d7d     32     hard     yes     yes     yes
-   Wellsburg (PCH) MS    0x8d7e     32     hard     yes     yes     yes
-   Wellsburg (PCH) MS    0x8d7f     32     hard     yes     yes     yes
-+  Coleto Creek (PCH)    0x23b0     32     hard     yes     yes     yes
- 
-   Features supported by this driver:
-   Software PEC                     no
-@@ -169,6 +170,7 @@
- #define PCI_DEVICE_ID_INTEL_PANTHERPOINT_SMBUS	0x1e22
- #define PCI_DEVICE_ID_INTEL_AVOTON_SMBUS	0x1f3c
- #define PCI_DEVICE_ID_INTEL_DH89XXCC_SMBUS	0x2330
-+#define PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS	0x23b0
- #define PCI_DEVICE_ID_INTEL_5_3400_SERIES_SMBUS	0x3b30
- #define PCI_DEVICE_ID_INTEL_LYNXPOINT_SMBUS	0x8c22
- #define PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS	0x8d22
-@@ -817,6 +819,7 @@ static DEFINE_PCI_DEVICE_TABLE(i801_ids) = {
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS0) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS1) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_WELLSBURG_SMBUS_MS2) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_COLETOCREEK_SMBUS) },
- 	{ 0, }
- };
- 
+> +static struct imx_i2c_hwdata imx_i2c_hwdata = {
+> +	.addr_reg		= 0x00,
+> +	.freq_reg		= 0x04,
+> +	.ctrl_reg		= 0x08,
+> +	.status_reg		= 0x0c,
+> +	.data_reg		= 0x10,
+> +	.clk_div		= imx_i2c_clk_div,
+> +	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+> +	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+> +	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+> +
+> +};
+> +
+> +static struct imx_i2c_hwdata vf610_i2c_hwdata = {
+> +	.addr_reg		= 0x00,
+> +	.freq_reg		= 0x01,
+> +	.ctrl_reg		= 0x02,
+> +	.status_reg		= 0x03,
+> +	.data_reg		= 0x04,
+> +	.clk_div		= vf610_i2c_clk_div,
+> +	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
+> +	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
+> +	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
+> +
+> +};
+
+Wow. The i2c unit remained unchanged since the i.MX21 days. Shuffling
+some registers or divider values was long overdue...
+
+Sascha
+
 -- 
-1.7.4.4
+Pengutronix e.K.                           |                             |
+Industrial Linux Solutions                 | http://www.pengutronix.de/  |
+Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
