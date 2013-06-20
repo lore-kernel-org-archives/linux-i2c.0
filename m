@@ -1,78 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: Fix transfer error code
-Date: Thu, 20 Jun 2013 21:23:37 +0200
-Message-ID: <20130620192337.GB2961@katana>
-References: <1371678832-26889-1-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCH 3/4] i2c-i801: SMBus patch for Intel Coleto Creek
+ DeviceIDs
+Date: Thu, 20 Jun 2013 21:32:56 +0200
+Message-ID: <20130620193256.GC2961@katana>
+References: <1371686397-6532-1-git-send-email-seth.heasley@intel.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
+	protocol="application/pgp-signature"; boundary="32u276st3Jlj2kUU"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1371678832-26889-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <1371686397-6532-1-git-send-email-seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---f2QGlHpHGjS2mn6Y
+--32u276st3Jlj2kUU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 19, 2013 at 02:53:52PM -0700, Guenter Roeck wrote:
-> The driver returns -ENODEV as error code if it did not get an ACK
-> from the device. Per Documentation/i2c/fault-codes, it should
-> return -ENXIO.
+On Wed, Jun 19, 2013 at 04:59:57PM -0700, Seth Heasley wrote:
+> This patch adds the i801 SMBus Controller DeviceIDs for the Intel Coleto =
+Creek PCH.
 >=20
-> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Thanks, have you checked the other error codes as well while you were
-there?
+Applied to for-next, thanks!
 
-> ---
->  drivers/i2c/busses/i2c-mv64xxx.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv=
-64xxx.c
-> index 1a3abd6..6972032 100644
-> --- a/drivers/i2c/busses/i2c-mv64xxx.c
-> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-> @@ -227,7 +227,7 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u3=
-2 status)
->  		/* Doesn't seem to be a device at other end */
->  		drv_data->action =3D MV64XXX_I2C_ACTION_SEND_STOP;
->  		drv_data->state =3D MV64XXX_I2C_STATE_IDLE;
-> -		drv_data->rc =3D -ENODEV;
-> +		drv_data->rc =3D -ENXIO;
->  		break;
-> =20
->  	default:
-> --=20
-> 1.7.9.7
->=20
 
---f2QGlHpHGjS2mn6Y
+--32u276st3Jlj2kUU
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRw1a5AAoJEBQN5MwUoCm2ee8P/j9VxfXxhzIHlI0IpCtQdOYA
-fyHdjmdtpwfC+76X3OoV2zB1NZYynlSJ/xuH4Gp3ABYKJvl2eJ8KLokNTfkHtpS3
-VlYP7+fEEJLByUVhbixzGMqjslk8ntlXwbhxf3176eJ5reMtZ30jF04sJPGSmSbG
-eWMJtUOdJiqwM73mrrXJ/pGW9qubD/aDEzPm7aLARJzCOfnmp2F5nsMI1yImw4tX
-MgAbp1r5iklDmcHqlKfHIfpoq9gdYgyRdhfEHRen7DyN3ZFw6FB0CPlvHijEb93Z
-OhjYEsZ+rfAF97yABpNfuu+ZgxUnDX/sM9pPQK0bx4gZS0o+1+WGz7QnvZXf5+nQ
-NGtPLzY7GI6lIRXJzC7XpFXX0MK6X+AV1AiaV2Bi9MKDXHKt6kACjDRy4qrXEy93
-/T10E1Rpy3x/zS41GM+BCCOsz7E0RrGfmawP3tSK+lfr/FMpQOrQM/lThWlCmDBo
-rnEiY0+pbWxBMAkm2dCPG9lR2ax2TiMCHYrBnupoLuAewJWszV+zAXNGXFqA/Jry
-fzwCQpB6Jsw/CvIqXw78op2CDvmoQUo9byYDtX8Dvxko0TXiQUFTV1MnNi6StVV9
-tbaTz5NrezXWGYTNqJN6doHX6i36PXbXE/4zcTorOcdvQ1GwV0vOk1HGk+wuKuiU
-J+07v+YZ3mGrViBGPQP9
-=283O
+iQIcBAEBAgAGBQJRw1joAAoJEBQN5MwUoCm2AnYP/3rW0yuHOJFb3xKFBSKbMoAg
+si4J38n9r2KKraurY5+Ttds6OUTze76kDv4qfV9eej7XiJg7M/OdjwqIxuFFV2Li
+7izN9UGmbIIFRZiG6nPIVQ+9pOquU3WYY+ne4uwIAMD/dN3NKsniYuulGJjQN06L
+Z3wwQWkmisd9aGet9/cL8V97vI7WgQ9Hg99P/ekFoEf9SqVm7bnW2tJgS3x267pj
+CAD+bwaEGVTlB1Ana0Pw1PZ6k+8GR0CKgQ6nrMyB8i/IBSYBvHxjk6GJKV7DLsWU
+lqOiDpqwNaQET1zCDcliomQwm5rWC0Q/7EG3uPbHR1EAUSKTVUWPwdrArOTVqcc9
+TpZFcE3xtj+bWyvn2n7EYFO1Nf7NDImd9PCC1HXKzAapb0Fc84wW1fcptB+ubO5z
+GbMUBKGBw6u1qCdhu2hDvaqBE2HTuZyNStuLE3NcBQmWOBHxiwvxbSt5NQiNZMRx
+QfQgvoZwjcOt1TCjLKXbXz5DKyUMf5Agsry1NWNEEjIPbdpaPD9i81UgjlLOWHxQ
+BjYWFmmz/ojR84OJQin9Bfym0ceO8qRVofkaKND4thm213mEaqIf+z7eRQnI/+65
+t4y46KbasmE9F9s+FPQC/9/5O9J1GZ426PLZ3mznXq+LyERMvoaJ1GRFV4XQkY1L
+n5cFm1D+ZVme4ZH72Wz1
+=Xypk
 -----END PGP SIGNATURE-----
 
---f2QGlHpHGjS2mn6Y--
+--32u276st3Jlj2kUU--
