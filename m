@@ -1,73 +1,78 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [RFC] i2c: add deprecation warning for class based instantiation
-Date: Thu, 20 Jun 2013 20:37:46 +0200
-Message-ID: <20130620183745.GA2961@katana>
-References: <20130607090623.GC3428@katana>
- <1370596166-12404-1-git-send-email-wsa@the-dreams.de>
- <20130619101526.GF2950@katana>
- <51C1F6BF.4030200@ti.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix transfer error code
+Date: Thu, 20 Jun 2013 21:23:37 +0200
+Message-ID: <20130620192337.GB2961@katana>
+References: <1371678832-26889-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="pWyiEgJYm5f9v55/"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="f2QGlHpHGjS2mn6Y"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <51C1F6BF.4030200@ti.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org
+In-Reply-To: <1371678832-26889-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---pWyiEgJYm5f9v55/
+--f2QGlHpHGjS2mn6Y
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Wed, Jun 19, 2013 at 02:53:52PM -0700, Guenter Roeck wrote:
+> The driver returns -ENODEV as error code if it did not get an ACK
+> from the device. Per Documentation/i2c/fault-codes, it should
+> return -ENXIO.
+>=20
+> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 
-> Sorry, for delayed reply - I've had problems with my e-mail.
+Thanks, have you checked the other error codes as well while you were
+there?
 
-You still have. This message has unwanted linebreaks.
+> ---
+>  drivers/i2c/busses/i2c-mv64xxx.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv=
+64xxx.c
+> index 1a3abd6..6972032 100644
+> --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> @@ -227,7 +227,7 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u3=
+2 status)
+>  		/* Doesn't seem to be a device at other end */
+>  		drv_data->action =3D MV64XXX_I2C_ACTION_SEND_STOP;
+>  		drv_data->state =3D MV64XXX_I2C_STATE_IDLE;
+> -		drv_data->rc =3D -ENODEV;
+> +		drv_data->rc =3D -ENXIO;
+>  		break;
+> =20
+>  	default:
+> --=20
+> 1.7.9.7
+>=20
 
-> I've tested this patch on our TI K3.4 product kernel with additional
-> change below:
-
-Thanks.
-
-> [    0.662567]  (null): This adapter will soon drop class based
-> instantiation of slaves
->                 ^^^^^ invalid adapter device name here
-
-Good point, thanks! Will send an updated patch in a minute.
-
-> In addition, I've found the following users of *i2c-gpio* (just FYI):
-
-Ehrm, okay, and why exactly did you post it? :)
-
-Regards,
-
-   Wolfram
-
-
---pWyiEgJYm5f9v55/
+--f2QGlHpHGjS2mn6Y
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRw0v5AAoJEBQN5MwUoCm21HUQAKIJDSWJxSTcYBvXihSEXNlp
-qF/TM0jQGvuWhKBLMuQW4z0HVFTfuxzCa9pvXwRkROfA5o464txZ4H7lqsmkEuTy
-PgKiUpNbqdSwt3s6dP8LwI4l5PQqcYYOd87iD8NYZXNoDOoPvHxtAjjFb+OlQj9e
-YjbQYpPw2bfuPyXCpQfMh0WwjgtjXfmBOA34UvBbwFZt+hH+bqXIIMKk9uwpeFRF
-YX2GOTZON+EoDEAGXeC+XFrgSC40mtX4X62Bnqw9SQKxvAe0DnWJbdcSAol3tOys
-q5EJH7kC2kmkC9XSEsBMaSqCOXwtbRhlQVEQJ8nkXk98FbzY17Cm6QICPJ1o+24B
-1cbmQ5u3qAHb0+2FZqM03G2HquoPWk/xP9Qoy5TYg80xVHKaQgo7R1l7gHtA8otM
-AIbxOMm0uIH0ta4JHxCchML5c4KnTXkAz9VD3+kSLEzO66xQoMSiQFAnQH+4mQMS
-FiPTUg2/g/r6o/qNZpzoq9pC5+Otq+BJofq+G68Euqdkpxl8fm5eGyW74cBYXxpA
-+1NYLyYbVBYPdcRbTKq3j/vA0Nqvrwde79x0in90KVglUioRn2qP5bubcTosBbOF
-R9TjasqqlPPnn/1ltPd0fatDMWKEOLr8Xy5Xhsli3ztFiNbcXWN0rrDt2ugYqPG8
-Eb8hD6DcZPeQj68094cA
-=Egiz
+iQIcBAEBAgAGBQJRw1a5AAoJEBQN5MwUoCm2ee8P/j9VxfXxhzIHlI0IpCtQdOYA
+fyHdjmdtpwfC+76X3OoV2zB1NZYynlSJ/xuH4Gp3ABYKJvl2eJ8KLokNTfkHtpS3
+VlYP7+fEEJLByUVhbixzGMqjslk8ntlXwbhxf3176eJ5reMtZ30jF04sJPGSmSbG
+eWMJtUOdJiqwM73mrrXJ/pGW9qubD/aDEzPm7aLARJzCOfnmp2F5nsMI1yImw4tX
+MgAbp1r5iklDmcHqlKfHIfpoq9gdYgyRdhfEHRen7DyN3ZFw6FB0CPlvHijEb93Z
+OhjYEsZ+rfAF97yABpNfuu+ZgxUnDX/sM9pPQK0bx4gZS0o+1+WGz7QnvZXf5+nQ
+NGtPLzY7GI6lIRXJzC7XpFXX0MK6X+AV1AiaV2Bi9MKDXHKt6kACjDRy4qrXEy93
+/T10E1Rpy3x/zS41GM+BCCOsz7E0RrGfmawP3tSK+lfr/FMpQOrQM/lThWlCmDBo
+rnEiY0+pbWxBMAkm2dCPG9lR2ax2TiMCHYrBnupoLuAewJWszV+zAXNGXFqA/Jry
+fzwCQpB6Jsw/CvIqXw78op2CDvmoQUo9byYDtX8Dvxko0TXiQUFTV1MnNi6StVV9
+tbaTz5NrezXWGYTNqJN6doHX6i36PXbXE/4zcTorOcdvQ1GwV0vOk1HGk+wuKuiU
+J+07v+YZ3mGrViBGPQP9
+=283O
 -----END PGP SIGNATURE-----
 
---pWyiEgJYm5f9v55/--
+--f2QGlHpHGjS2mn6Y--
