@@ -1,55 +1,84 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 3/4] i2c-i801: SMBus patch for Intel Coleto Creek
- DeviceIDs
-Date: Thu, 20 Jun 2013 21:32:56 +0200
-Message-ID: <20130620193256.GC2961@katana>
-References: <1371686397-6532-1-git-send-email-seth.heasley@intel.com>
+Subject: Re: [PATCH] i2c-gpio: added support for I2C_M_STOP flag
+Date: Thu, 20 Jun 2013 21:39:16 +0200
+Message-ID: <20130620193915.GD2961@katana>
+References: <1371731837-1476-1-git-send-email-r.cerrato@til-technologies.fr>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="32u276st3Jlj2kUU"
+	protocol="application/pgp-signature"; boundary="2Z2K0IlrPCVsbNpk"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1371686397-6532-1-git-send-email-seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <1371731837-1476-1-git-send-email-r.cerrato-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Renaud Cerrato <r.cerrato-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---32u276st3Jlj2kUU
+--2Z2K0IlrPCVsbNpk
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jun 19, 2013 at 04:59:57PM -0700, Seth Heasley wrote:
-> This patch adds the i801 SMBus Controller DeviceIDs for the Intel Coleto =
-Creek PCH.
+On Thu, Jun 20, 2013 at 02:37:17PM +0200, Renaud Cerrato wrote:
+> Current i2c bit algo implementation doesn't actually support I2C_M_STOP f=
+lag despite I2C_FUNC_PROTOCOL_MANGLING functionnality.
+
+Signed-Off is missing :( Please run checkpatch.pl before sending
+patches!
+
+What was your testcase?
+
+> ---
+>  drivers/i2c/algos/i2c-algo-bit.c |    6 ++++++
+>  1 files changed, 6 insertions(+), 0 deletions(-)
 >=20
-> Signed-off-by: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-alg=
+o-bit.c
+> index fad22b0..00446a6 100644
+> --- a/drivers/i2c/algos/i2c-algo-bit.c
+> +++ b/drivers/i2c/algos/i2c-algo-bit.c
+> @@ -557,6 +557,12 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
+>  	for (i =3D 0; i < num; i++) {
+>  		pmsg =3D &msgs[i];
+>  		nak_ok =3D pmsg->flags & I2C_M_IGNORE_NAK;
+> +		if (pmsg->flags & I2C_M_STOP) {
+> +			if (i) {
 
-Applied to for-next, thanks!
+Why 'if (i)'?
 
+> +				bit_dbg(3, &i2c_adap->dev, "emitting stop condition\n");
+> +				i2c_stop(adap);
+> +			}
+> +		}
+>  		if (!(pmsg->flags & I2C_M_NOSTART)) {
+>  			if (i) {
+>  				bit_dbg(3, &i2c_adap->dev, "emitting "
+> --=20
+> 1.7.2.5
+>=20
+>=20
 
---32u276st3Jlj2kUU
+--2Z2K0IlrPCVsbNpk
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRw1joAAoJEBQN5MwUoCm2AnYP/3rW0yuHOJFb3xKFBSKbMoAg
-si4J38n9r2KKraurY5+Ttds6OUTze76kDv4qfV9eej7XiJg7M/OdjwqIxuFFV2Li
-7izN9UGmbIIFRZiG6nPIVQ+9pOquU3WYY+ne4uwIAMD/dN3NKsniYuulGJjQN06L
-Z3wwQWkmisd9aGet9/cL8V97vI7WgQ9Hg99P/ekFoEf9SqVm7bnW2tJgS3x267pj
-CAD+bwaEGVTlB1Ana0Pw1PZ6k+8GR0CKgQ6nrMyB8i/IBSYBvHxjk6GJKV7DLsWU
-lqOiDpqwNaQET1zCDcliomQwm5rWC0Q/7EG3uPbHR1EAUSKTVUWPwdrArOTVqcc9
-TpZFcE3xtj+bWyvn2n7EYFO1Nf7NDImd9PCC1HXKzAapb0Fc84wW1fcptB+ubO5z
-GbMUBKGBw6u1qCdhu2hDvaqBE2HTuZyNStuLE3NcBQmWOBHxiwvxbSt5NQiNZMRx
-QfQgvoZwjcOt1TCjLKXbXz5DKyUMf5Agsry1NWNEEjIPbdpaPD9i81UgjlLOWHxQ
-BjYWFmmz/ojR84OJQin9Bfym0ceO8qRVofkaKND4thm213mEaqIf+z7eRQnI/+65
-t4y46KbasmE9F9s+FPQC/9/5O9J1GZ426PLZ3mznXq+LyERMvoaJ1GRFV4XQkY1L
-n5cFm1D+ZVme4ZH72Wz1
-=Xypk
+iQIcBAEBAgAGBQJRw1pjAAoJEBQN5MwUoCm2xfgP/Rn9y9Fg/wShnqmhtA8swWfr
+WW7R2NK5+nfUPCuoBQD2WXg3mOAfofDhRa/CVmX3lXl7B4spxQmBOMrkEzoOxAym
+y8ERSkRTDQzoGiBGm4cblig6i/3mr2h9YEdlOeTojXL1zrmVC/itt4+mpoPyqsN+
+L0xoilvgsSTg2IfKRJIekS4Br+7s5ELC5/TV2o+Q5J1QXVYSLUeDRWB+VbFjfhv0
+p2ez0IfX9rT5D2o3uQY2poUTyLTGYHkSJXCQqxrtOCneCFe6PyNN7Ch3xTMJguvj
+dRTx9245mzvIV+UfiIUXkv2M6xZwIymxzynyy/TGcDWLE4v1puuBjSlgtNEuMKdJ
+rhR4JqnoC6FIAXbQHUOI/lSVnV5b5h+YEGv4MjFff5KF1Ok71AYgHRqt+iUsG6cS
+LiBot+bJcSykCx6LyjtoY5t/5hGmL8grE7tQVJZRFFzX35mpkAPSKZplmB1gEDUK
+LFgcRm2kkKoEa9jro6QOpQHIOIAhjG/6gVv42kdU+eFHiva+wTbCwAbT/jjs7H/v
+tDluAYUryQAoPDgCVEsHh6F1YNxdrJIcVbtK6TMIl5Oqv8AD6eTYCT8BvYWCFtNd
+h0FAfILzkbWODtm7U82an1JFAikBMpv2OHJACVPDkfDIZC86PqgQcuuwbk/rXrWk
+k5hdgpe37/Ql37vZcheh
+=/BCB
 -----END PGP SIGNATURE-----
 
---32u276st3Jlj2kUU--
+--2Z2K0IlrPCVsbNpk--
