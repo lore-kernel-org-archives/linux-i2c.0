@@ -1,61 +1,53 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v8] i2c-designware: make SDA hold time configurable
-Date: Thu, 20 Jun 2013 22:37:17 +0200
-Message-ID: <20130620203716.GF2961@katana>
-References: <51BF77C2.70004@gmail.com>
- <1371541469-20623-1-git-send-email-christian.ruppert@abilis.com>
- <20130620200454.GE2961@katana>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix transfer error code
+Date: Thu, 20 Jun 2013 14:12:53 -0700
+Message-ID: <20130620211253.GA23115@roeck-us.net>
+References: <1371678832-26889-1-git-send-email-linux@roeck-us.net>
+ <20130620192337.GB2961@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="p8PhoBjPxaQXD0vg"
-Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130620200454.GE2961@katana>
-Sender: linux-doc-owner@vger.kernel.org
-To: Christian Ruppert <christian.ruppert@abilis.com>
-Cc: Rob Herring <robherring2@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
+In-Reply-To: <20130620192337.GB2961@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, Jun 20, 2013 at 09:23:37PM +0200, Wolfram Sang wrote:
+> On Wed, Jun 19, 2013 at 02:53:52PM -0700, Guenter Roeck wrote:
+> > The driver returns -ENODEV as error code if it did not get an ACK
+> > from the device. Per Documentation/i2c/fault-codes, it should
+> > return -ENXIO.
+> > 
+> > Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> 
+> Thanks, have you checked the other error codes as well while you were
+> there?
+> 
+No; this is one that was discovered while testing a driver connected to the
+controller. I'll check the others and let you know if I find any other problems.
 
---p8PhoBjPxaQXD0vg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks,
+Guenter
 
-On Thu, Jun 20, 2013 at 10:04:54PM +0200, Wolfram Sang wrote:
-> On Tue, Jun 18, 2013 at 09:44:29AM +0200, Christian Ruppert wrote:
-> > This patch makes the SDA hold time configurable through device tree.
-> >=20
-> > Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
-> > Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
->=20
-> Okay, I am convinced of the property now...
-
-and the version check is missing since older revisions do not support
-sda-hold-time.
-
-
-
---p8PhoBjPxaQXD0vg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRw2f8AAoJEBQN5MwUoCm2I+4QALVjgDcgCz7SJB8UJVeVQObn
-zBacERHocK5BF4D7lTmTs54B2uo2LnNYM2MGzexoPKb5yNPSJYEn7pJc68Vx7HVU
-ipkDwN521MKLQEguc7KvaeV8ar814uBLsSIeUpQeB2OVuA0AjaPNNVB/KRQfhlCD
-1eGyWiqohi7BEcl1ANghrkf208Yn4MBTv0qAL5ufwQrm8rourf+x+SxNy6hCVyad
-jQnhh/LDaDk3y3/kbaPcfykl3jIXt+X5VSTXhmwi0fpTS17t6pon1ZJxcO6kwqvL
-4JBrjCUhHhfOfWJtw4hYpy+B4A9plggGUXCKfblMyJmlmic8/ee07pRSpoVe+K8Z
-jYN4hTxEVjZlyVt4EoiNhA3SV5HZB3olCUF9E/bgjOJcT2igMTTwdCpkxhyf1LY0
-BRf9t/aggkG+rfKb3mU7/xCKEUvurvla2Ozvdk4YlKuCh6hBvL7W7X7m1+gWA/zx
-p2/4xGHmeuP5gPkhWseIl7PGna+sJMo9GzNfjJ3ypB6vc3NPvUYQ8Hx6zSrZrk7w
-E+XPyuoyIr8DPxaD0hOV6Tg8vSZLiSXz/siVr2OiytKew4sw4umAdFyLcsz9e4CD
-drjirj26GqsDyimok4/yt/oM6jVLOI8lcVFRwIwIRLLUSzM8VkhcHOO2G2w5hSAE
-axZCSiV9wwBpnwsaq1Gm
-=uTow
------END PGP SIGNATURE-----
-
---p8PhoBjPxaQXD0vg--
+> > ---
+> >  drivers/i2c/busses/i2c-mv64xxx.c |    2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+> > index 1a3abd6..6972032 100644
+> > --- a/drivers/i2c/busses/i2c-mv64xxx.c
+> > +++ b/drivers/i2c/busses/i2c-mv64xxx.c
+> > @@ -227,7 +227,7 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
+> >  		/* Doesn't seem to be a device at other end */
+> >  		drv_data->action = MV64XXX_I2C_ACTION_SEND_STOP;
+> >  		drv_data->state = MV64XXX_I2C_STATE_IDLE;
+> > -		drv_data->rc = -ENODEV;
+> > +		drv_data->rc = -ENXIO;
+> >  		break;
+> >  
+> >  	default:
+> > -- 
+> > 1.7.9.7
+> > 
