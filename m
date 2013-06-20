@@ -1,84 +1,87 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-gpio: added support for I2C_M_STOP flag
-Date: Thu, 20 Jun 2013 21:39:16 +0200
-Message-ID: <20130620193915.GD2961@katana>
-References: <1371731837-1476-1-git-send-email-r.cerrato@til-technologies.fr>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v8] i2c-designware: make SDA hold time configurable
+Date: Thu, 20 Jun 2013 22:04:54 +0200
+Message-ID: <20130620200454.GE2961@katana>
+References: <51BF77C2.70004@gmail.com>
+ <1371541469-20623-1-git-send-email-christian.ruppert@abilis.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="2Z2K0IlrPCVsbNpk"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="FEz7ebHBGB6b2e8X"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1371731837-1476-1-git-send-email-r.cerrato-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Renaud Cerrato <r.cerrato-6YL8BHNr0ZqHdZQakrT3ElaPQRlvutdw@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1371541469-20623-1-git-send-email-christian.ruppert@abilis.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Christian Ruppert <christian.ruppert@abilis.com>
+Cc: Rob Herring <robherring2@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
---2Z2K0IlrPCVsbNpk
+--FEz7ebHBGB6b2e8X
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 20, 2013 at 02:37:17PM +0200, Renaud Cerrato wrote:
-> Current i2c bit algo implementation doesn't actually support I2C_M_STOP f=
-lag despite I2C_FUNC_PROTOCOL_MANGLING functionnality.
-
-Signed-Off is missing :( Please run checkpatch.pl before sending
-patches!
-
-What was your testcase?
-
-> ---
->  drivers/i2c/algos/i2c-algo-bit.c |    6 ++++++
->  1 files changed, 6 insertions(+), 0 deletions(-)
+On Tue, Jun 18, 2013 at 09:44:29AM +0200, Christian Ruppert wrote:
+> This patch makes the SDA hold time configurable through device tree.
 >=20
-> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-alg=
-o-bit.c
-> index fad22b0..00446a6 100644
-> --- a/drivers/i2c/algos/i2c-algo-bit.c
-> +++ b/drivers/i2c/algos/i2c-algo-bit.c
-> @@ -557,6 +557,12 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
->  	for (i =3D 0; i < num; i++) {
->  		pmsg =3D &msgs[i];
->  		nak_ok =3D pmsg->flags & I2C_M_IGNORE_NAK;
-> +		if (pmsg->flags & I2C_M_STOP) {
-> +			if (i) {
+> Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
+> Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
 
-Why 'if (i)'?
+Okay, I am convinced of the property now...
 
-> +				bit_dbg(3, &i2c_adap->dev, "emitting stop condition\n");
-> +				i2c_stop(adap);
-> +			}
-> +		}
->  		if (!(pmsg->flags & I2C_M_NOSTART)) {
->  			if (i) {
->  				bit_dbg(3, &i2c_adap->dev, "emitting "
-> --=20
-> 1.7.2.5
->=20
->=20
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
+sses/i2c-designware-platdrv.c
+> index 35b70a1..81362e5 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -34,6 +34,7 @@
+>  #include <linux/sched.h>
+>  #include <linux/err.h>
+>  #include <linux/interrupt.h>
+> +#include <linux/of.h>
+>  #include <linux/of_i2c.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/pm.h>
+> @@ -121,6 +122,15 @@ static int dw_i2c_probe(struct platform_device *pdev)
+>  		return PTR_ERR(dev->clk);
+>  	clk_prepare_enable(dev->clk);
+> =20
+> +	if (pdev->dev.of_node) {
+> +		u32 ht;
+> +		u32 ic_clk =3D dev->get_clk_rate_khz(dev);
+> +
+> +		of_property_read_u32(pdev->dev.of_node,
+> +					"i2c-sda-hold-time-ns", &ht);
+> +		dev->sda_holdO_time =3D ((u64)ic_clk * ht + 500000) / 1000000;
 
---2Z2K0IlrPCVsbNpk
+=2E.. but is this correct even if the property is not defined?
+
+> +	}
+> +
+
+Thanks for all the input so far!
+
+
+--FEz7ebHBGB6b2e8X
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRw1pjAAoJEBQN5MwUoCm2xfgP/Rn9y9Fg/wShnqmhtA8swWfr
-WW7R2NK5+nfUPCuoBQD2WXg3mOAfofDhRa/CVmX3lXl7B4spxQmBOMrkEzoOxAym
-y8ERSkRTDQzoGiBGm4cblig6i/3mr2h9YEdlOeTojXL1zrmVC/itt4+mpoPyqsN+
-L0xoilvgsSTg2IfKRJIekS4Br+7s5ELC5/TV2o+Q5J1QXVYSLUeDRWB+VbFjfhv0
-p2ez0IfX9rT5D2o3uQY2poUTyLTGYHkSJXCQqxrtOCneCFe6PyNN7Ch3xTMJguvj
-dRTx9245mzvIV+UfiIUXkv2M6xZwIymxzynyy/TGcDWLE4v1puuBjSlgtNEuMKdJ
-rhR4JqnoC6FIAXbQHUOI/lSVnV5b5h+YEGv4MjFff5KF1Ok71AYgHRqt+iUsG6cS
-LiBot+bJcSykCx6LyjtoY5t/5hGmL8grE7tQVJZRFFzX35mpkAPSKZplmB1gEDUK
-LFgcRm2kkKoEa9jro6QOpQHIOIAhjG/6gVv42kdU+eFHiva+wTbCwAbT/jjs7H/v
-tDluAYUryQAoPDgCVEsHh6F1YNxdrJIcVbtK6TMIl5Oqv8AD6eTYCT8BvYWCFtNd
-h0FAfILzkbWODtm7U82an1JFAikBMpv2OHJACVPDkfDIZC86PqgQcuuwbk/rXrWk
-k5hdgpe37/Ql37vZcheh
-=/BCB
+iQIcBAEBAgAGBQJRw2BmAAoJEBQN5MwUoCm2J9oP/iejXcptCupmvxhKbsEKhyKv
+SLgnaiIbiOrjhXNILTBNA5RALnISWVED/ONFa85kN4ERCRD9zDzyBykcpMiN5cFu
+XqvVYrLOxp5IOqxG8M+KJlVlEpf08tcWPUVsIIMRy+g11okFVqmS6h/I3RWciq/X
+1EoKu7BkMtsKOncBhjuloLOqDyl7PViZnEW44pDFzVPR9ZAQ6z8aOQPNeUqckpd3
+GgX+ZiSdihNkkzH5g63oTgqKgd4v/fi7rTgB5uxavrv4IwPnrRiZLNVtPjf+5oG+
+DpFNUgamNP9X5ZPd/Md94Q0ZXXjtzCa8QKD2QM6+zYodvCbguSXJdTgHkCwiGbe/
+DAjgAcd0ccvcxW86k0MxY1q4KNWJUELNcI6Fg9IDP+cLqsNyrsc7o53Jng92QHOA
+ehGjTZ37MsNoPyVFRIpPwI/Fglp0guufCZyZcE7XJjbi4add0hfezBpcPSx0AJC4
+aMnfIM48MiMobqdPr9CDl7dsuEfslEg76cDijKd1Qp+KB1aTa+rBnf+bYhVpr3uN
+/L0DE+oq6wyIOkTAQHrQ8nx+KcoVSgEpzMV6ibKky2/H4MvkC/PoF/q8DKHA3ybI
+WKjIRSt6fM6+nYPxfuHuOoZTUuL2Ql6ZC9yPmkGfITYUX1+HskzjPdnVq/1fDAGe
+1cneuCzaOS53a9f9ECEu
+=1HG3
 -----END PGP SIGNATURE-----
 
---2Z2K0IlrPCVsbNpk--
+--FEz7ebHBGB6b2e8X--
