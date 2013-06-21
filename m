@@ -1,7 +1,7 @@
 From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Subject: Re: [PATCH] i2c: mv64xxx: Fix transfer error code
-Date: Thu, 20 Jun 2013 14:12:53 -0700
-Message-ID: <20130620211253.GA23115@roeck-us.net>
+Date: Thu, 20 Jun 2013 17:16:27 -0700
+Message-ID: <20130621001627.GA25889@roeck-us.net>
 References: <1371678832-26889-1-git-send-email-linux@roeck-us.net>
  <20130620192337.GB2961@katana>
 Mime-Version: 1.0
@@ -25,10 +25,8 @@ On Thu, Jun 20, 2013 at 09:23:37PM +0200, Wolfram Sang wrote:
 > Thanks, have you checked the other error codes as well while you were
 > there?
 > 
-No; this is one that was discovered while testing a driver connected to the
-controller. I'll check the others and let you know if I find any other problems.
+Other error codes are ok as far as I can see.
 
-Thanks,
 Guenter
 
 > > ---
