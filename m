@@ -1,65 +1,189 @@
-From: Chew Chiau Ee <chiaue.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c-designware: Manually set RESTART bit between messages
-Date: Fri, 21 Jun 2013 15:05:28 +0800
-Message-ID: <1371798328-31931-1-git-send-email-chiaue.ee.chew@intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Christian Ruppert <christian.ruppert@abilis.com>
+Subject: [PATCH v9] i2c-designware: make SDA hold time configurable
+Date: Fri, 21 Jun 2013 11:53:42 +0200
+Message-ID: <1371808422-27742-1-git-send-email-christian.ruppert@abilis.com>
+References: <20130620203716.GF2961@katana>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20130620203716.GF2961@katana>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Rob Herring <robherring2@gmail.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, "Ben Dooks (embedded platforms)" <ben-linux@fluff.org>, Grant Likely <grant.likely@secretlab.ca>, Rob Landley <rob@landley.net>, devicetree-discuss@lists.ozlabs.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, Vineet Gupta <Vineet.Gupta1@synopsys.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>, Christian Ruppert <christian.ruppert@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+This patch makes the SDA hold time configurable through device tree.
 
-If both IC_EMPTYFIFO_HOLD_MASTER_EN and IC_RESTART_EN are set to 1, the
-Designware I2C controller doesn't generate RESTART unless user specifically
-requests it by setting RESTART bit in IC_DATA_CMD register.
-
-Since IC_EMPTYFIFO_HOLD_MASTER_EN setting can't be detected from hardware
-register, we must always manually set the restart bit between messages.
-
-Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Signed-off-by: Christian Ruppert <christian.ruppert@abilis.com>
+Signed-off-by: Pierrick Hascoet <pierrick.hascoet@abilis.com>
 ---
- drivers/i2c/busses/i2c-designware-core.c |   14 ++++++++++++++
- 1 files changed, 14 insertions(+), 0 deletions(-)
+ .../devicetree/bindings/i2c/i2c-designware.txt     |   14 ++++++++++++++
+ arch/arc/boot/dts/abilis_tb100_dvk.dts             |   10 +++++-----
+ arch/arc/boot/dts/abilis_tb101_dvk.dts             |   10 +++++-----
+ drivers/i2c/busses/i2c-designware-core.c           |   13 +++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h           |    1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c        |   10 ++++++++++
+ 6 files changed, 48 insertions(+), 10 deletions(-)
 
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+index e42a2ee..3266cc7 100644
+--- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
++++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
+@@ -10,6 +10,9 @@ Recommended properties :
+ 
+  - clock-frequency : desired I2C bus clock frequency in Hz.
+ 
++Optional properties :
++ - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
++
+ Example :
+ 
+ 	i2c@f0000 {
+@@ -20,3 +23,14 @@ Example :
+ 		interrupts = <11>;
+ 		clock-frequency = <400000>;
+ 	};
++
++	i2c@1120000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "snps,designware-i2c";
++		reg = <0x1120000 0x1000>;
++		interrupt-parent = <&ictl>;
++		interrupts = <12 1>;
++		clock-frequency = <400000>;
++		i2c-sda-hold-time-ns = <300>;
++	};
+diff --git a/arch/arc/boot/dts/abilis_tb100_dvk.dts b/arch/arc/boot/dts/abilis_tb100_dvk.dts
+index 0fa0d4a..ebc313a 100644
+--- a/arch/arc/boot/dts/abilis_tb100_dvk.dts
++++ b/arch/arc/boot/dts/abilis_tb100_dvk.dts
+@@ -45,19 +45,19 @@
+ 		};
+ 
+ 		i2c0: i2c@FF120000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c1: i2c@FF121000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c2: i2c@FF122000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c3: i2c@FF123000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c4: i2c@FF124000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 
+ 		leds {
+diff --git a/arch/arc/boot/dts/abilis_tb101_dvk.dts b/arch/arc/boot/dts/abilis_tb101_dvk.dts
+index a4d80ce..b204657 100644
+--- a/arch/arc/boot/dts/abilis_tb101_dvk.dts
++++ b/arch/arc/boot/dts/abilis_tb101_dvk.dts
+@@ -45,19 +45,19 @@
+ 		};
+ 
+ 		i2c0: i2c@FF120000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c1: i2c@FF121000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c2: i2c@FF122000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c3: i2c@FF123000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 		i2c4: i2c@FF124000 {
+-			sda-hold-time = <432>;
++			i2c-sda-hold-time-ns = <432>;
+ 		};
+ 
+ 		leds {
 diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 3de5494..9348439 100644
+index c41ca63..66119e2 100644
 --- a/drivers/i2c/busses/i2c-designware-core.c
 +++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -403,6 +403,7 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 	u32 addr = msgs[dev->msg_write_idx].addr;
- 	u32 buf_len = dev->tx_buf_len;
- 	u8 *buf = dev->tx_buf;
-+	bool need_restart = false;
+@@ -67,9 +67,12 @@
+ #define DW_IC_STATUS		0x70
+ #define DW_IC_TXFLR		0x74
+ #define DW_IC_RXFLR		0x78
++#define DW_IC_SDA_HOLD		0x7c
+ #define DW_IC_TX_ABRT_SOURCE	0x80
+ #define DW_IC_ENABLE_STATUS	0x9c
+ #define DW_IC_COMP_PARAM_1	0xf4
++#define DW_IC_COMP_VERSION	0xf8
++#define DW_IC_SDA_HOLD_MIN_VERS	0x3131312A
+ #define DW_IC_COMP_TYPE		0xfc
+ #define DW_IC_COMP_TYPE_VALUE	0x44570140
  
- 	intr_mask = DW_IC_INTR_DEFAULT_MASK;
+@@ -332,6 +335,16 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+ 	dw_writel(dev, lcnt, DW_IC_FS_SCL_LCNT);
+ 	dev_dbg(dev->dev, "Fast-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
  
-@@ -430,6 +431,14 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 			/* new i2c_msg */
- 			buf = msgs[dev->msg_write_idx].buf;
- 			buf_len = msgs[dev->msg_write_idx].len;
++	/* Configure SDA Hold Time if required */
++	reg = dw_readl(dev, DW_IC_COMP_VERSION);
++	if (dev->sda_hold_time) {
++		if (reg >= DW_IC_SDA_HOLD_MIN_VERS)
++			dw_writel(dev, dev->sda_hold_time, DW_IC_SDA_HOLD);
++		else
++			dev_warn(dev->dev,
++				"Hardware too old to adjust SDA hold time.");
++	}
 +
-+			/* If both IC_EMPTYFIFO_HOLD_MASTER_EN and
-+			 * IC_RESTART_EN are set, we must manually
-+			 * set restart bit between messages.
-+			 */
-+			if ((dev->master_cfg & DW_IC_CON_RESTART_EN) &&
-+					(dev->msg_write_idx > 0))
-+				need_restart = true;
- 		}
+ 	/* Configure Tx/Rx FIFO threshold levels */
+ 	dw_writel(dev, dev->tx_fifo_depth - 1, DW_IC_TX_TL);
+ 	dw_writel(dev, 0, DW_IC_RX_TL);
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index e761ad1..912aa22 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -90,6 +90,7 @@ struct dw_i2c_dev {
+ 	unsigned int		tx_fifo_depth;
+ 	unsigned int		rx_fifo_depth;
+ 	int			rx_outstanding;
++	u32			sda_hold_time;
+ };
  
- 		tx_limit = dev->tx_fifo_depth - dw_readl(dev, DW_IC_TXFLR);
-@@ -448,6 +457,11 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 			    buf_len == 1)
- 				cmd |= BIT(9);
+ #define ACCESS_SWAP		0x00000001
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 35b70a1..8b9d3f1 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -34,6 +34,7 @@
+ #include <linux/sched.h>
+ #include <linux/err.h>
+ #include <linux/interrupt.h>
++#include <linux/of.h>
+ #include <linux/of_i2c.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm.h>
+@@ -121,6 +122,15 @@ static int dw_i2c_probe(struct platform_device *pdev)
+ 		return PTR_ERR(dev->clk);
+ 	clk_prepare_enable(dev->clk);
  
-+			if (need_restart) {
-+				cmd |= BIT(10);
-+				need_restart = false;
-+			}
++	if (pdev->dev.of_node) {
++		u32 ht = 0;
++		u32 ic_clk = dev->get_clk_rate_khz(dev);
 +
- 			if (msgs[dev->msg_write_idx].flags & I2C_M_RD) {
- 
- 				/* avoid rx buffer overrun */
++		of_property_read_u32(pdev->dev.of_node,
++					"i2c-sda-hold-time-ns", &ht);
++		dev->sda_hold_time = ((u64)ic_clk * ht + 500000) / 1000000;
++	}
++
+ 	dev->functionality =
+ 		I2C_FUNC_I2C |
+ 		I2C_FUNC_10BIT_ADDR |
 -- 
-1.7.4.4
+1.7.1
+
