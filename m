@@ -1,54 +1,65 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v3 0/4] Kontron PLD drivers
-Date: Mon, 24 Jun 2013 18:09:56 +0200
-Message-ID: <20130624160955.GA4651@katana>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
- <1372046406-3127-1-git-send-email-kevin.strasser@linux.intel.com>
- <20130624120650.GC30838@zurbaran>
+Subject: Re: [BUG] mv64xxx i2c bus lock w/ commit eda6bee6c7
+Date: Mon, 24 Jun 2013 20:30:07 +0200
+Message-ID: <20130624183006.GA3129@katana>
+References: <87a9mkttxr.fsf@natisbad.org>
+ <20130623153931.GD7626@kw.sim.vm.gnt>
+ <20130623160659.GB17536@roeck-us.net>
+ <87fvw8ehne.fsf@natisbad.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+	protocol="application/pgp-signature"; boundary="UlVJffcvxoiEqYs2"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130624120650.GC30838@zurbaran>
+In-Reply-To: <87fvw8ehne.fsf-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Strasser <strassek-29tvszzbzErpgkiH4x7ZXw@public.gmane.org>, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Michael Brunner <Michael.Brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>, Chris Healy <chealy-KRR2zmvM+DFWk0Htik3J/w@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Hohndel <Dirk.Hohndel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnaud Ebalard <arno-LkuqDEemtHBg9hUCZPvPmw@public.gmane.org>
+Cc: Rodolfo Giometti <giometti-k2GhghHVRtY@public.gmane.org>, "Mark A. Greer" <mgreer-Igf4POYTYCDQT0dZR+AlfA@public.gmane.org>, Mauro Barella <mbarella-RSoB1PSltFvQT0dZR+AlfA@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Simon Guinot <simon.guinot-jKBdWWKqtFpg9hUCZPvPmw@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Linux ARM Kernel Mailing List <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---BXVAT5kNtrzKuDFl
+--UlVJffcvxoiEqYs2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-> I am happy to take the sub devices driver as well, although the
-> respective maintainers can safely carry them as they all have a Kconfig
-> dependency on MFD_KEMPLD. So it's up to them.
+> does nothing fancy either. While debugging I ended up on Debian bug
+> #622325 (http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D622325) which
+> made the driver a little less suspect when a revert of commit eda6bee6c7
+> fixed the issue for me.
 
-I'd like to push it via the i2c tree. Thanks!
+Either wait for 3.11 or pick 4243fa0bad551b8c8d4ff7104e8fd557ae848845
+"(I2C: mv64xxx: fix race between FSM/interrupt and process context")
+=66rom my for-next branch. (Note the other patches from Russell, probably
+all worth to pick). Would be nice if you could pass the info to the
+Debian bug as well.
+
+Thanks,
+
+   Wolfram
 
 
---BXVAT5kNtrzKuDFl
+--UlVJffcvxoiEqYs2
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRyG9TAAoJEBQN5MwUoCm2zTsQAI1WHc9L5jnOLbkPsNkuC77+
-NxdPa+Wlu8gZ2jawddMbAxBXmNXAku/7gyN3ExTJT3ShLrSOpbRjT0KRg8mCpFC8
-mfzAEdYj+JxwDEhZgCgYZQCoSPaQjrtgE3BmwHdOfYBEebjuEhjVCNndkk30t9BZ
-SEoJMeIItRfBDOYB0EMBGmXM6kg7i+KsryzCCrC3B1riv0f6cDFy82PxKF+OpyL/
-qCD9oTWb4cILEl1Jk5XWROdgR6b0xhTLPC1/NTNwNSaha2dL8o2Opg5KyaXYpCji
-5d6Tn3nqAM5kHG96g4SjwR6rDUpFWkrMpYiBNzU99ScD9ob+rWbuHAUop0Hxpe6t
-KN5xA1ijpaIdCxDzMgXFTuZyo0jJpBxfp2anpUHwJUhCqmBEW1F9H+nyov+T58yb
-08yWctfnmdFL50AgYp27HTdx91Fzvl+r2qTuj00GgSKiP/hWiQ2OqJIoy/yQn1CK
-qWoPSg47aoSUQNmK0jy5qucu7B66+BJdmCu7V6+it55aKLCxhV4k3Og9LTuPZm6N
-iOVt/ccwglhjNYu46Uz9dO30CMXx13v1X/0geKhN1S1LYCUwZTJmUj2bHC1LtOuT
-ehhWYjJbNKZkbQ5Gc9pvzmqkG/06MYXJOh3feTj+5XNPiJOUeyHd6KwXAecAO3wV
-psmoF8hx9JEaasMKPot4
-=ZVKM
+iQIcBAEBAgAGBQJRyJAuAAoJEBQN5MwUoCm2eOsQAKjCn6CFcfK9E9sIVe8d3OOg
+1rCM2ifERrcG5GjntXmQNRClZWAAOZngRl57KVOIX/3fSTlRRyMuvXR4ttQbs0fT
+gr4DP9kcmk4/BPbh7KHN+aC15oJ0tH9c+iJ3TKhtdg2MaD9R5kF844Pr8NjKzZKe
+MBkixVYmTV2DWHmhN86dv3ll9AfjYPxCnDr+2IW8tKKEs5VU2ZBuUaFGE+TcpYfq
+psX6NalSBVqd9Ef123atmVkpqa7VIYzLvZuo/xRCfOetbgzH6BIQCAdvdkUQqR3j
+Sdz3KOo+ERRxxpe4ob5jDNVRP57CCZfRvh2hF4h/1+jEnaGQpvnsh6eymhEGmSvN
+PMUKlTok9ShH/70fB6uk/JTRgLuXEpIbs/V30IH2LuUYWY6EEnKNjiceYjab69xJ
+AdFyQ21n0Rf5acjBKECHEmk5ysZiWTiWXcS3UZ7ej1/aYCjm6JkdptFpW6zK/Z7V
+F03Edlru7FXddPRrGCPyjZbTUUKVf1fmdnjvBR5alLAtr2BEZSeAsOGLtCHdPqoD
+EWFpt58NG2CERBBhqLZ7Ix9kr1yLbjp9dC5W0wKM17TscJtVi4YE4nc9SkLXzW2l
+6h9TwJ4+0fO42z6UEgxHO1p4fnvSr7ilYEhKxcM7l+rTynXIw2YVNNYLolMXKgk2
+mPxnUXYoctPYiJLLFmbu
+=62WN
 -----END PGP SIGNATURE-----
 
---BXVAT5kNtrzKuDFl--
+--UlVJffcvxoiEqYs2--
