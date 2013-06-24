@@ -1,76 +1,46 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: i2c: introduce i2c helper i2c_find_client_by_name()
-Date: Sun, 23 Jun 2013 14:43:18 +0200
-Message-ID: <20130623124316.GA3025@katana>
-References: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
- <CAHp75VcYgpUVpOnKOzkYoZXbEPO_0QG7=WUXza55wpOyRwcKCA@mail.gmail.com>
- <20130606212620.GA13620@bingao-desk1.fm.intel.com>
- <CAHp75VcGUtWyPHrvYDW59-4g8F2m58-Us3CrbJ2bnYJdxnd1Sg@mail.gmail.com>
- <20130611171119.GA35135@bingao-desk1.fm.intel.com>
- <CAHp75VdZA_gouZohD1J+o9ybpXVLLQH=D7QDo9OznW93iBDZpQ@mail.gmail.com>
- <20130614190003.GA19617@bingao-desk1.fm.intel.com>
- <20130619101348.GE2950@katana>
- <51C4EF85.7010607@linux.intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
+From: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH v3 0/4] Kontron PLD drivers
+Date: Sun, 23 Jun 2013 21:00:02 -0700
+Message-ID: <1372046406-3127-1-git-send-email-kevin.strasser@linux.intel.com>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <51C4EF85.7010607-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+In-Reply-To: <1365441321-21952-1-git-send-email-kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Bin Gao <bin_gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Bin Gao <bin.gao-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Shevchenko <andy.shevchenko-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Kevin Strasser <strassek-29tvszzbzErpgkiH4x7ZXw@public.gmane.org>, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Michael Brunner <Michael.Brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>, Chris Healy <chealy-KRR2zmvM+DFWk0Htik3J/w@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Hohndel <Dirk.Hohndel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Changes since v2:
+-Change Michael's "Signed-off-by" to "Originally-From" in all patches
+-Add "From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>" to gpio patch
 
---gKMricLos+KVdGMg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Guenter Roeck (1):
+  gpio: Kontron PLD gpio driver
 
+Kevin Strasser (3):
+  mfd: Kontron PLD mfd driver
+  i2c: Kontron PLD i2c bus driver
+  watchdog: Kontron PLD watchdog timer driver
 
-> >I also wonder about the need to unregister. I have to admit I don't know
-> >much about I2C handling in v4l2. But if it requires unregistering from
-> >i2c core and registering to v4l2 core, then it sounds to me like we
-> >could check if there is a more fundamential cleanup needed? Deferring
-> >for now, looks like an issue worth looking at, yet there are other
-> >things in the queue first.
-> >
->=20
-> Platform codes are supposed to call i2c_register_board_info() or
-> i2c_new_device() to register devices, we don't want to change this.
+ drivers/gpio/Kconfig            |   12 +
+ drivers/gpio/Makefile           |    1 +
+ drivers/gpio/gpio-kempld.c      |  225 ++++++++++++++
+ drivers/i2c/busses/Kconfig      |   10 +
+ drivers/i2c/busses/Makefile     |    1 +
+ drivers/i2c/busses/i2c-kempld.c |  410 +++++++++++++++++++++++++
+ drivers/mfd/Kconfig             |   21 ++
+ drivers/mfd/Makefile            |    1 +
+ drivers/mfd/kempld-core.c       |  642 +++++++++++++++++++++++++++++++++++++++
+ drivers/watchdog/Kconfig        |   11 +
+ drivers/watchdog/Makefile       |    1 +
+ drivers/watchdog/kempld_wdt.c   |  580 +++++++++++++++++++++++++++++++++++
+ include/linux/mfd/kempld.h      |  125 ++++++++
+ 13 files changed, 2040 insertions(+)
+ create mode 100644 drivers/gpio/gpio-kempld.c
+ create mode 100644 drivers/i2c/busses/i2c-kempld.c
+ create mode 100644 drivers/mfd/kempld-core.c
+ create mode 100644 drivers/watchdog/kempld_wdt.c
+ create mode 100644 include/linux/mfd/kempld.h
 
-Exactly.
-
-> Not sure v4l2 can still take over the devices without
-> unregistering/registering. Need look deeply into the v4l2 code...
-
-That would help, I currently don't have time for that.
-
-Thanks,
-
-   Wolfram
-
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJRxu1kAAoJEBQN5MwUoCm21S8P/2T2mBgsZrfKaki7bZaOrlWV
-oC+mr/hD3yQMjeDvMgASxNr9e3JclzDNISNNu3YXmXGmzEBP+YcgmT4prgnU/C20
-M6fe2Bx2XYplp3AuoQF7LCC0351vobhquT6Jx/NTcR2jHzCCd8wtpsO2QaW3pKS2
-74nVQ9iLdOV2PNrxNE4P8agZomhWTCyRX3dloZWifhJik5sLJSpqgSBdAouFM2at
-5Upy+9Q6aIeQEX6kwkulDYTpiHDBqafgOqG/Lo9Cn4Op4qBJ7mDmYxqhhG+rAe9X
-uZJ0mMzSpnMFG04onwvZ+514hJb5VIpdv8TNb1KXY8GQk0pUHyrJs44KnrRLEovb
-rDe/IjsRcTjQ+B1Vfdx3zqqGNh+rekcOGOiwpuUwDRhPQePtpYK4BOamjKc3xQXD
-zoxh7ed7m+b4lts6VuHCse/4qhQ3OveDp1zZY7nmAzxC/iSroWa8thlHkKQgYvnE
-4D7EOtTkl2xscHikLK3Vb1EmT/sd0Ozxae+b7lbXgp11v/qci3Bqqs9YuXeVvEry
-Wmq3RTOPb7P+ww31FYu/RTRhotRmT7Mky0MzafdtcxpIPd7vGVL7422k6SO23qgA
-TuVN/kD494GdCgCW/gk+rT9QH9z/JkndPse4bBpUnQ6wvvH4hObum5BxsQRxgAA1
-/aZYATxbebTZd4CroAMH
-=4OBp
------END PGP SIGNATURE-----
-
---gKMricLos+KVdGMg--
+-- 
+1.7.9.5
