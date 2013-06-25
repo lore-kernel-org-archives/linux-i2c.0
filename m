@@ -1,63 +1,53 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mv64xxx: Fix transfer error code
-Date: Tue, 25 Jun 2013 18:42:58 +0200
-Message-ID: <20130625164258.GB2973@katana>
-References: <1371678832-26889-1-git-send-email-linux@roeck-us.net>
- <20130620192337.GB2961@katana>
- <20130621001627.GA25889@roeck-us.net>
+Subject: Re: [patch 1/1] i2c-imx: allow autoloading on according to dt ids
+Date: Tue, 25 Jun 2013 18:51:09 +0200
+Message-ID: <20130625165109.GC2973@katana>
+References: <20130620210716.729401533@rtp-net.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="z6Eq5LdranGa6ru8"
+	protocol="application/pgp-signature"; boundary="L6iaP+gRLNZHKoI4"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130621001627.GA25889-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <20130620210716.729401533-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---z6Eq5LdranGa6ru8
+--L6iaP+gRLNZHKoI4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 20, 2013 at 05:16:27PM -0700, Guenter Roeck wrote:
-> On Thu, Jun 20, 2013 at 09:23:37PM +0200, Wolfram Sang wrote:
-> > On Wed, Jun 19, 2013 at 02:53:52PM -0700, Guenter Roeck wrote:
-> > > The driver returns -ENODEV as error code if it did not get an ACK
-> > > from the device. Per Documentation/i2c/fault-codes, it should
-> > > return -ENXIO.
-> > >=20
-> > > Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-> >=20
-> > Thanks, have you checked the other error codes as well while you were
-> > there?
-> >=20
-> Other error codes are ok as far as I can see.
+On Thu, Jun 20, 2013 at 11:07:06PM +0200, Arnaud Patard wrote:
+> Allow udev to autoload the module when booting with device-tree
+>=20
+> Signed-off-by: Arnaud Patard <arnaud.patard-dQbF7i+pzddAfugRpC6u6w@public.gmane.org>
 
-Applied to for-next, thanks for double checking!
+Applied to for-next, thanks!
 
---z6Eq5LdranGa6ru8
+
+--L6iaP+gRLNZHKoI4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRyciSAAoJEBQN5MwUoCm2+ZwP/2K07aMaVm1nWQJoXImQOJ28
-+Je8ECVstU6CnlTjlKq1WmzdXNY3foEu1XNGEa73IGR+ijK1yz5N3ed//rAjQbH9
-crvO+TtCiBBe+SuXRnq1fTPK/JiEf+ihS+KiBNLDCEMT4ESqLPoNPGjC70ZkPDmD
-biXeq4gmP/TvCnFsij866daSs5sTWwMDeLtckTc78fQW0GehaBR5lC/k4dvK0tQv
-IR3XBLYWhwIczypcdSfDeM/hslQ+IWoT3wPDWrwGdk/WH1EhJtnvcGW7njtvxvD0
-V/Xsfoi4x9dkcdjeQOfs8Q7+4puYD3kqbPpRFhfckxX10dTMuZcUoOXuoQ2nmCSF
-r5SJ+yLeIFYQ54yr7P0/FbF22PAIEoA2nN5KIkmB9aH5BSuzPG72xGbECzy2sTL3
-8Zv6sp9olBASBPaL7v0Xq2XoVk6X6ju898utQiJ6Twadrpy2YPUeG4gtZuJTQfYZ
-fxEU7kRjcMibLVY6oAWdL/E7BNewquROr1G/57tAu0Gux+T8EybQpnNy5Q4YOA7T
-CkAD+w7sw2DMiiGzSxEUCgKMgWb766b6cpX9BQT98QUebGwOxeBemjbqLMSHV9p9
-MaCeipLeZvOFiSj3HnpoVyoKpLQzCkMFhXO8TAlevGEQepLz2yTLXs7mrTY/7AsM
-b5RxCsMPg2poFSaBUnFJ
-=aVkS
+iQIcBAEBAgAGBQJRycp9AAoJEBQN5MwUoCm2fqwP/RHHryacke5w364YC/CnPPmM
+Kk7m7s81z6UlaFwPRZix5vE+2ZfzF6ovxygDsYaXA7bZcdHseGkfVG7zO8we//rr
+3jlTuJod4rjwGNVQg2atqM2hQD6Qhi0K5pQgm2crx3OV6kI/xcRu8VorMOz5yDB6
+6p+nLlKFUje+DzwR+F/YzIWJrySEAxyNUjZPhgYU3w+re4anp7kRzMXE7R2kW/Hx
+/qKwaByDkHfaneH9iWaSMr8OEpIfO97AUSSoDMzITv1bQOH/OV0t3MtXC3gqT8f4
+cc6uvymWyDAoTrDwFmBhKC8dV4H6ZWizOKWgSJlJcu9l8/Hx/jWqKotF9K6NUoMf
+RAj75JHnt8UnXHPRZZtepDEFi1LpDAL/tyzA4E99My3MwZhVEPuk0jnu4LHgjW8q
+wxxsSE7WnCDePSpaKllpCmnD5WlWovYAR5Gj0YMJVfalXPJyHe5Wog3N6Y6AeRuY
+DxBiA9bCDPAufM0/MbaN9H/MGUbIeTVfrAkFm9nUHsChJ+JaIXn9JrjJbgmPFdcN
+Y7WbMLlbXNXpZtcuBnuZ98E2FxOcLA4zZqLYLCWHlJU9g/cnReweEzN1dNPwldcA
+NT3JhArBYu/jCJdEEyuZZB7fCc7ClrD/+FbC8vh361tkPUbqP4rKP7g4qCxwM/Y8
+sTIb1hRaCMpQUxbFjvAO
+=+yTy
 -----END PGP SIGNATURE-----
 
---z6Eq5LdranGa6ru8--
+--L6iaP+gRLNZHKoI4--
