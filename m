@@ -1,32 +1,55 @@
-From: Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>
-Subject: Re: [PATCH v10] i2c-designware: make SDA hold time configurable
-Date: Wed, 26 Jun 2013 14:27:42 +0530
-Message-ID: <51CAAD06.5080800@synopsys.com>
-References: <20130625163902.GA2973@katana> <1372236906-6933-1-git-send-email-christian.ruppert@abilis.com>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH v3 1/4] i2c-mv64xxx: Set bus frequency to 100kHz if
+ clock-frequency is not provided
+Date: Wed, 26 Jun 2013 15:41:08 +0200
+Message-ID: <20130626134107.GA3119@katana>
+References: <1371821529-13791-1-git-send-email-gregory.clement@free-electrons.com>
+ <1371821529-13791-2-git-send-email-gregory.clement@free-electrons.com>
+ <20130625214446.GA2951@katana>
+ <51CA9E62.6090203@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1372236906-6933-1-git-send-email-christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <51CA9E62.6090203-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 06/26/2013 02:25 PM, Christian Ruppert wrote:
-> This patch makes the SDA hold time configurable through device tree.
->
-> Signed-off-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-> Signed-off-by: Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-> ---
->  .../devicetree/bindings/i2c/i2c-designware.txt     |   15 +++++++++++++++
->  arch/arc/boot/dts/abilis_tb100_dvk.dts             |   10 +++++-----
->  arch/arc/boot/dts/abilis_tb101_dvk.dts             |   10 +++++-----
->  drivers/i2c/busses/i2c-designware-core.c           |   13 +++++++++++++
->  drivers/i2c/busses/i2c-designware-core.h           |    1 +
->  drivers/i2c/busses/i2c-designware-platdrv.c        |   10 ++++++++++
->  6 files changed, 49 insertions(+), 10 deletions(-)
 
-Acked-by: Vineet Gupta <vgupta-HKixBCOQz3hWk0Htik3J/w@public.gmane.org> for arch/arc bits
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--Vineet
+
+> For the rest of the series, does it mean that you agree with it, or
+> that you didn't review it yet?
+
+Didn't review. So, other people can still join in ;)
+
+
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRyu9zAAoJEBQN5MwUoCm2zJEP/iLvsWLgbQ8a6kLf0FdxRY/C
+r+NFbo61lalHwN65lYlLYWikR2dIIeoKh4Q5IBQ+gubWrYFJ8tr4bQxEWkkpxQUC
+vZiw3lnJ5ImyZQ6R5QlvDM3vmntldikL+y9TOHTcxZQMYQOcYZh5C05STWNzej1x
+BAdbVwobBDS6mBbPIOPI4M6IsNnIy80+RM1E2ACV9XlsQAQj0rklpsOFZDnh252+
+J+L73npdxULEv+4ww6uSB26YBXj3hi/+txyRhat/Bd4pW15qNjXrnuCkf54ZriP1
+5r5P4JiQ/eAMyaWrn0OKQr6t/2tTFgeYmj45pEFy78+v8pBQKQ28IoZJ5Nxv1l8K
+pAhYy1vFSiHY5jRB/iPbFfnJzwVF5Z0LBmYtsXGSHEkWokUo7+vCYC8gSECIXbla
+VP7Z4PbW+lmhidUHn2f2u+NQlNmQITnOyyMvihl+Banu9IeBAlg4jqe7pfxnR72F
+v4j4W3NFkLGt8VmM6uY7HCfpa3v4PQ46RXec7KRVE3tnn/hK9rcLSIITAIAM5QEN
+UthLUfAednx2tJKBllfbVp2BWFLooJGpN5xG2z+pOgafpRdcvOU1duCkmRR5xu6f
+phWH9Uw5DlTR4hze0Zuii8ZsPNlpo0IQ2kclQjASgfxtIm8MGQ/l57SDh3zS1UBO
+iaQM+Y+wmzWp3eIj0ZCD
+=y3jd
+-----END PGP SIGNATURE-----
+
+--T4sUOijqQbZv57TR--
