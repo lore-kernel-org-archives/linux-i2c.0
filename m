@@ -1,60 +1,42 @@
-From: =?UTF-8?B?Um9iaW4gTcO8bGxlci1CYWR5?= <mueller-bady-vYTEC60ixJUAvxtiuMwx3w@public.gmane.org>
-Subject: Writing I2C Sensor Kernel Modules
-Date: Thu, 27 Jun 2013 20:12:57 +0200
-Message-ID: <CACRdhnBAMzjATrftkD4a8LoUfx6quUifTP2R_QHCwcmN1b8e-w@mail.gmail.com>
-References: <CACRdhnDOKdfFSPKmBZ=BoEfp4Tk3dur539b+eHw_bxm23H0rsQ@mail.gmail.com>
- <51CC52BB.5000302@samsung.com>
+From: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
+Subject: Re: [PATCH v3 0/4] Kontron PLD drivers
+Date: Thu, 27 Jun 2013 22:34:36 +0200
+Message-ID: <20130627203436.GB30950@spo001.leaseweb.com>
+References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com> <1372046406-3127-1-git-send-email-kevin.strasser@linux.intel.com> <20130624120650.GC30838@zurbaran>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51CC52BB.5000302-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130624120650.GC30838@zurbaran>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Strasser <strassek-29tvszzbzErpgkiH4x7ZXw@public.gmane.org>, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Michael Brunner <Michael.Brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>, Chris Healy <chealy-KRR2zmvM+DFWk0Htik3J/w@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Hohndel <Dirk.Hohndel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Hi All,
 
-this iio subsystem is a good hint.
-Thank you both very much!
+> > Changes since v2:
+> > -Change Michael's "Signed-off-by" to "Originally-From" in all patches
+> > -Add "From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>" to gpio patch
+> > 
+> > Guenter Roeck (1):
+> >   gpio: Kontron PLD gpio driver
+> > 
+> > Kevin Strasser (3):
+> >   mfd: Kontron PLD mfd driver
+> >   i2c: Kontron PLD i2c bus driver
+> >   watchdog: Kontron PLD watchdog timer driver
+> I just applied (after a warning fix) and pushed the MFD driver, thanks.
+> 
+> I am happy to take the sub devices driver as well, although the
+> respective maintainers can safely carry them as they all have a Kconfig
+> dependency on MFD_KEMPLD. So it's up to them.
+> If I have to take them, I'd need Wolfram's ACK for the i2c one and Wim's
+> for the watchdog one. Linus already ACKed the GPIO one.
 
-Regards,
-Robin
+Acked-by: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
 
-Am 27.06.2013 16:57 schrieb "Sylwester Nawrocki" <s.nawrocki-Sze3O3UU22KIwRZHo2/mJg@public.gmane.org=
-m>:
->
-> Hi,
->
-> On 06/27/2013 04:33 PM, Robin M=C3=BCller-Bady wrote:
-> > I have a (architectural design) question about I2C drivers in kerne=
-l space.
-> > Currently, I'm writing userspace software for using external sensor=
-s
-> > on an raspberry pi via bcm2835's I2C bus with the help of
-> > wiringPi/ioctl, e.g. the barometric pressure with the MPL115A2 sens=
-or.
->
-> AFAIK the IIO framework should be use nowadays sensors like this one.
-> Unfortunately I'm not aware of any detailed documentation of this
-> subsystem. This presentation [1] might be helpful.
->
-> I think you could get some help asking on linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-> mailing list.
->
-> > I now had the idea to write the software directly in kernel space,
-> > providing a device, e.g. /dev/mpl115a2, for polling the sensor data=
-=2E
-> > Does this idea fit into the architectural design of the I2C subsyst=
-em
-> > / the sensors ? Or should code for handling I2C clients stay in
-> > userspace?
-> > Is there any good documentation for writing such drivers except the
-> > kernel Documentation? I found some information in the kernel wiki
-> > which is unfortunately not that detailed.
->
-> [1] http://tinyurl.com/o6yxwrm
->
-> Regards,
-> Sylwester
->
+I'm OK that itgoes via the MFD tree.
+
+Kind regards,
+Wim.
