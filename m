@@ -1,118 +1,49 @@
-From: Elyas Razzaghi <elyas.r-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: Add I2C with PCA9665
-Date: Fri, 28 Jun 2013 22:47:26 +0300
-Message-ID: <CANUwh5TuqK8G_H2HJ3RLBJqvCLvtL0oasbfHvDYJhAMJVgy6yw@mail.gmail.com>
-References: <51CD64D5.60907@gmail.com>
-	<20130628104516.GC2948@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+From: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] i2c: iop3xxx: fix build failure after waitqueue changes
+Date: Fri, 28 Jun 2013 14:35:52 -0700
+Message-ID: <1372455352-26260-1-git-send-email-khilman@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130628104516.GC2948@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linaro-kernel-cunTk1MwBs8s++Sfvej+rw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+There has long been a syntax problem in iop3xx_i2c_wait_event() which
+has been somehow hidden by the macros in <linux/wait.h>.  After some
+recent cleanup/rework of the wait_event_* helpers, the bug has come
+out from hiding and now results in build failure:
 
-Thanks a lot Wolfram for the hint. I have added the mapping configs:
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c: In function 'iop3xx_i2c_wait_event':
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:143: error: expected ')' before ';' token
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:157: error: expected ')' before ';' token
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:213: error: expected ')' before ';' token
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:291: warning: ISO C90 forbids mixed declarations and code [-Wdeclaration-after-statement]
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:551: error: expected ')' before ';' token
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:565: error: expected ')' before ';' token
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:764: error: expected ')' before ';' token
+/work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:778: error: expected ')' b
 
-#if defined (CONFIG_I2C_PCA_PLATFORM) || defined(CONFIG_I2C_ALGOPCA)
+Fix by removing stray ';'
 
+Signed-off-by: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+Discovered in new build failure of iop32xx_defconfig with next-20130628
 
-static struct resource i2c_resources[] = {
-    [0] = {
-        .start    = AT91_CHIPSELECT_2,    /* 0x30000000 */
-        .end    = AT91_CHIPSELECT_2 + SZ_16K - 1,
-        .flags    = IORESOURCE_MEM | IORESOURCE_MEM_8BIT,
+ drivers/i2c/busses/i2c-iop3xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    },
-    [1] = {
-        .start    = AT91RM9200_ID_IRQ0,
-        .end    = AT91RM9200_ID_IRQ0,
-        .flags    = IORESOURCE_IRQ,
-    },
-};
-
-static struct i2c_pca9564_pf_platform_data pca9665_platform_data = {
-    .gpio        = AT91_PIN_PB27,
-    .i2c_clock_speed= 400000,
-
-    .timeout    = HZ,        /* timeout in jiffies */
-};
-
-static struct platform_device pca9665_twi_device = {
-    .name        = "i2c-pca-platform",
-    .id        = -1,
-    .dev        = {
-                .platform_data = &pca9665_platform_data,
-            },
-    .num_resources    = ARRAY_SIZE(i2c_resources),
-    .resource    = i2c_resources,
-};
-
-static struct i2c_board_info __initdata ek_i2c_devices[] = {
-    {
-        I2C_BOARD_INFO("lm75", 0x48),
-    },
-    {
-        I2C_BOARD_INFO("pcf8523", 0x68),
-    },
-};
-
-void __init at91_add_device_i2c_pca(struct i2c_board_info *devices,
-int nr_devices)
-
-{
-    at91_set_A_periph(AT91_PIN_PB29, 1);        /* IRQ0 interrupt pin */
-
-    /* Initialization of the Static Memory Controller for Chip Select 2 */
-    at91_ramc_write(0, AT91_SMC_CSR(2), AT91_SMC_ACSS_STD
-        | AT91_SMC_DBW_8    /* 8 bit */
-        | AT91_SMC_WSEN        /* Wait State Enable */
-    );
-
-    i2c_register_board_info(0, devices, nr_devices);
-    platform_device_register(&pca9665_twi_device);
-}
-
-#endif
-
- And now the correct controller is detected:
-
-# dmesg | grep PCA
-PCA9564/PCA9665 at 0x30000000: PCA9665 detected.
-PCA9564/PCA9665 at 0x30000000: Clock frequency is 400000Hz
-PCA9564/PCA9665 at 0x30000000 registered.
-
-The i2c devices are also detected:
-
-# i2cdetect -y 0
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:          -- -- -- -- -- -- -- -- -- -- -- -- --
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-40: -- -- -- -- -- -- -- -- UU -- -- -- -- -- -- --
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
-60: -- -- -- -- -- -- -- -- UU -- -- -- -- -- -- --
-70: -- -- -- -- -- -- -- --
-
-Best regards,
-Elyas
-
-On Fri, Jun 28, 2013 at 1:45 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
->> static struct resource i2c_resources[] = {
->>     [0] = {
->>         .start    = AT91_CHIPSELECT_2,    /* 0x30000000 */
->>         .end    = AT91_CHIPSELECT_2 + SZ_16K - 1,
->>         .flags    = IORESOURCE_MEM,
->
-> Unless reading 0x30000000 does not return something like 0xf8, you have
-> a problem with mapping in the register range. Make sure the, 8 bit bus
-> width works.
->
-> Regards,
->
->    Wolfram
->
+diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
+index bc99333..dd24aa0 100644
+--- a/drivers/i2c/busses/i2c-iop3xx.c
++++ b/drivers/i2c/busses/i2c-iop3xx.c
+@@ -176,7 +176,7 @@ iop3xx_i2c_wait_event(struct i2c_algo_iop3xx_data *iop3xx_adap,
+ 		interrupted = wait_event_interruptible_timeout (
+ 			iop3xx_adap->waitq,
+ 			(done = compare( sr = iop3xx_i2c_get_srstat(iop3xx_adap) ,flags )),
+-			1 * HZ;
++			1 * HZ
+ 			);
+ 		if ((rc = iop3xx_i2c_error(sr)) < 0) {
+ 			*status = sr;
+-- 
+1.8.3
