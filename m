@@ -1,53 +1,92 @@
-From: Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v3 0/4] Kontron PLD drivers
-Date: Thu, 27 Jun 2013 23:48:08 +0200
-Message-ID: <20130627214808.GB26192@zurbaran>
-References: <1365441321-21952-1-git-send-email-kevin.strasser@linux.intel.com>
- <1372046406-3127-1-git-send-email-kevin.strasser@linux.intel.com>
- <20130624120650.GC30838@zurbaran>
- <20130627203436.GB30950@spo001.leaseweb.com>
+From: Lu Jingchang-B35083 <B35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH v2 2/2] i2c: imx: Add Vybrid VF610 I2C controller support
+Date: Fri, 28 Jun 2013 08:49:41 +0000
+Message-ID: <B56CDBE15CE27145A4B77D2D24263E851E39D8@039-SN1MPN1-005.039d.mgd.msft.net>
+References: <1371545327-12481-1-git-send-email-b35083@freescale.com>
+ <20130620080406.GD14308@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130627203436.GB30950-1F/o1hAF34+bEvaWgpTR7kEOCMrvLtNR@public.gmane.org>
+In-Reply-To: <20130620080406.GD14308-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
-Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Strasser <strassek-29tvszzbzErpgkiH4x7ZXw@public.gmane.org>, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Michael Brunner <Michael.Brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>, Chris Healy <chealy-KRR2zmvM+DFWk0Htik3J/w@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, Dirk Hohndel <Dirk.Hohndel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-watchdog-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Jin Zhengxiong-R64188 <R64188-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Xiaochun-B41219 <B41219-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wim,
+>-----Original Message-----
+>From: Sascha Hauer [mailto:s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
+>Sent: Thursday, June 20, 2013 4:04 PM
+>To: Lu Jingchang-B35083
+>Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Estevam Fabio-R49496; linux-
+>i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; Jin Zhengxiong-
+>R64188; Li Xiaochun-B41219
+>Subject: Re: [PATCH v2 2/2] i2c: imx: Add Vybrid VF610 I2C controller
+>support
+>
+>On Tue, Jun 18, 2013 at 04:48:47PM +0800, Jingchang Lu wrote:
+>> +static u16 imx_i2c_clk_div[50][2] = {
+>>  	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
+>>  	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
+>>  	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
+>> @@ -112,11 +107,67 @@ static u16 __initdata i2c_clk_div[50][2] = {
+>>  	{ 3072,	0x1E }, { 3840,	0x1F }
+>>  };
+>>
+>> +/* Vybrid VF610 clock divider, register value pairs */
+>> +static u16 vf610_i2c_clk_div[60][2] = {
+>> +	{ 20,   0x00 }, { 22,   0x01 }, { 24,   0x02 }, { 26,   0x03 },
+>> +	{ 28,   0x04 }, { 30,   0x05 }, { 32,   0x09 }, { 34,   0x06 },
+>> +	{ 36,   0x0A }, { 40,   0x07 }, { 44,   0x0C }, { 48,   0x0D },
+>> +	{ 52,   0x43 }, { 56,   0x0E }, { 60,   0x45 }, { 64,   0x12 },
+>> +	{ 68,   0x0F }, { 72,   0x13 }, { 80,   0x14 }, { 88,   0x15 },
+>> +	{ 96,   0x19 }, { 104,  0x16 }, { 112,  0x1A }, { 128,  0x17 },
+>> +	{ 136,  0x4F }, { 144,  0x1C }, { 160,  0x1D }, { 176,  0x55 },
+>> +	{ 192,  0x1E }, { 208,  0x56 }, { 224,  0x22 }, { 228,  0x24 },
+>> +	{ 240,  0x1F }, { 256,  0x23 }, { 288,  0x5C }, { 320,  0x25 },
+>> +	{ 384,  0x26 }, { 448,  0x2A }, { 480,  0x27 }, { 512,  0x2B },
+>> +	{ 576,  0x2C }, { 640,  0x2D }, { 768,  0x31 }, { 896,  0x32 },
+>> +	{ 960,  0x2F }, { 1024, 0x33 }, { 1152, 0x34 }, { 1280, 0x35 },
+>> +	{ 1536, 0x36 }, { 1792, 0x3A }, { 1920, 0x37 }, { 2048, 0x3B },
+>> +	{ 2304, 0x3C }, { 2560, 0x3D }, { 3072, 0x3E }, { 3584, 0x7A },
+>> +	{ 3840, 0x3F }, { 4096, 0x7B }, { 5120, 0x7D }, { 6144, 0x7E },
+>> +};
+>
+>...
+>
+>> +static struct imx_i2c_hwdata imx_i2c_hwdata = {
+>> +	.addr_reg		= 0x00,
+>> +	.freq_reg		= 0x04,
+>> +	.ctrl_reg		= 0x08,
+>> +	.status_reg		= 0x0c,
+>> +	.data_reg		= 0x10,
+>> +	.clk_div		= imx_i2c_clk_div,
+>> +	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
+>> +	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
+>> +	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
+>> +
+>> +};
+>> +
+>> +static struct imx_i2c_hwdata vf610_i2c_hwdata = {
+>> +	.addr_reg		= 0x00,
+>> +	.freq_reg		= 0x01,
+>> +	.ctrl_reg		= 0x02,
+>> +	.status_reg		= 0x03,
+>> +	.data_reg		= 0x04,
+>> +	.clk_div		= vf610_i2c_clk_div,
+>> +	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
+>> +	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
+>> +	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
+>> +
+>> +};
+>
+>Wow. The i2c unit remained unchanged since the i.MX21 days. Shuffling
+>some registers or divider values was long overdue...
+>
+[Lu Jingchang-B35083] 
+ Could I understand that you are OK for the patch? If yes, Could you please ACKed it? Thanks.
 
-On Thu, Jun 27, 2013 at 10:34:36PM +0200, Wim Van Sebroeck wrote:
-> Hi All,
-> 
-> > > Changes since v2:
-> > > -Change Michael's "Signed-off-by" to "Originally-From" in all patches
-> > > -Add "From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>" to gpio patch
-> > > 
-> > > Guenter Roeck (1):
-> > >   gpio: Kontron PLD gpio driver
-> > > 
-> > > Kevin Strasser (3):
-> > >   mfd: Kontron PLD mfd driver
-> > >   i2c: Kontron PLD i2c bus driver
-> > >   watchdog: Kontron PLD watchdog timer driver
-> > I just applied (after a warning fix) and pushed the MFD driver, thanks.
-> > 
-> > I am happy to take the sub devices driver as well, although the
-> > respective maintainers can safely carry them as they all have a Kconfig
-> > dependency on MFD_KEMPLD. So it's up to them.
-> > If I have to take them, I'd need Wolfram's ACK for the i2c one and Wim's
-> > for the watchdog one. Linus already ACKed the GPIO one.
-> 
-> Acked-by: Wim Van Sebroeck <wim-IQzOog9fTRqzQB+pC5nmwQ@public.gmane.org>
-> 
-> I'm OK that itgoes via the MFD tree.
-I took it, thanks for your ACK.
 
-Cheers,
-Samuel.
-
--- 
-Intel Open Source Technology Centre
-http://oss.intel.com/
+Best Regards,
+Jingchang
