@@ -1,59 +1,118 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+From: Elyas Razzaghi <elyas.r-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Subject: Re: Add I2C with PCA9665
-Date: Fri, 28 Jun 2013 12:45:17 +0200
-Message-ID: <20130628104516.GC2948@katana>
+Date: Fri, 28 Jun 2013 22:47:26 +0300
+Message-ID: <CANUwh5TuqK8G_H2HJ3RLBJqvCLvtL0oasbfHvDYJhAMJVgy6yw@mail.gmail.com>
 References: <51CD64D5.60907@gmail.com>
+	<20130628104516.GC2948@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+xNpyl7Qekk2NvDX"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <51CD64D5.60907-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20130628104516.GC2948@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Elyas Razzaghi <elyas.r-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
---+xNpyl7Qekk2NvDX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Thanks a lot Wolfram for the hint. I have added the mapping configs:
 
-> static struct resource i2c_resources[] = {
->     [0] = {
->         .start    = AT91_CHIPSELECT_2,    /* 0x30000000 */
->         .end    = AT91_CHIPSELECT_2 + SZ_16K - 1,
->         .flags    = IORESOURCE_MEM,
-
-Unless reading 0x30000000 does not return something like 0xf8, you have
-a problem with mapping in the register range. Make sure the, 8 bit bus
-width works.
-
-Regards,
-
-   Wolfram
+#if defined (CONFIG_I2C_PCA_PLATFORM) || defined(CONFIG_I2C_ALGOPCA)
 
 
---+xNpyl7Qekk2NvDX
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+static struct resource i2c_resources[] = {
+    [0] = {
+        .start    = AT91_CHIPSELECT_2,    /* 0x30000000 */
+        .end    = AT91_CHIPSELECT_2 + SZ_16K - 1,
+        .flags    = IORESOURCE_MEM | IORESOURCE_MEM_8BIT,
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+    },
+    [1] = {
+        .start    = AT91RM9200_ID_IRQ0,
+        .end    = AT91RM9200_ID_IRQ0,
+        .flags    = IORESOURCE_IRQ,
+    },
+};
 
-iQIbBAEBAgAGBQJRzWk8AAoJEBQN5MwUoCm2lXgP+NQnXDMgKswittyzG9pPzL5C
-AG1W6huXPBR2uB9Hr6pIL/4/pkb5YKSJubSn502eVaNJBX1OrHl4d0K/rh4S/LXq
-akAkCc4wTK5+5qwtDTkktIhYPnrb+vq0E3jSfjnyW46Pvdyd9ws2wm03EyuusfVw
-zeJQt4CVdMbly3AhfWc7Sr5xD8JRJxv5xnQuYbIEl4QFonDrWh80bbxYZemZpC+7
-RqfsjxUv/hxuX0lT7cu1bj0nm3LzV053mTVbDGNiZL138BdXc6tkcrZ+AuxYvX3y
-+4pQS/rE6WH0ihAszGnoqtIo7TOPs28EhldNLiHtC0zD7yy/i9LNxd30BRRPL8Qr
-tzv9Pd40zfL4dl5Rq9eLcywVrLfOBOb/Mzjp8GUZnPb3SucAgc9hluVbi1erXpoW
-Es4lMp6VbKBvTqjl4eVbU6HO2XBaiS2HKN//yoWE9cdDNbcpc/hMSP2wduBFk6qp
-Fb8KqXnIwoUIXXemJvcg4CIqKTxQ+zoIOfenRWPAbayuN57gNo1eZvJdnLtNYkV6
-EGmlW4t5BnQyT3SasqTyyI0vVRraGCk7ZNOG8806J34tCGnrxxTvXeRxkb3zXeMZ
-HfBEOJQxiAhmGDcLJJCsUwUPKEE29+lFDZ772pMiS9VV09g7T1aGWoQVFm/NsdTi
-9VWT/9aPBS1jXdOcYBU=
-=2WA9
------END PGP SIGNATURE-----
+static struct i2c_pca9564_pf_platform_data pca9665_platform_data = {
+    .gpio        = AT91_PIN_PB27,
+    .i2c_clock_speed= 400000,
 
---+xNpyl7Qekk2NvDX--
+    .timeout    = HZ,        /* timeout in jiffies */
+};
+
+static struct platform_device pca9665_twi_device = {
+    .name        = "i2c-pca-platform",
+    .id        = -1,
+    .dev        = {
+                .platform_data = &pca9665_platform_data,
+            },
+    .num_resources    = ARRAY_SIZE(i2c_resources),
+    .resource    = i2c_resources,
+};
+
+static struct i2c_board_info __initdata ek_i2c_devices[] = {
+    {
+        I2C_BOARD_INFO("lm75", 0x48),
+    },
+    {
+        I2C_BOARD_INFO("pcf8523", 0x68),
+    },
+};
+
+void __init at91_add_device_i2c_pca(struct i2c_board_info *devices,
+int nr_devices)
+
+{
+    at91_set_A_periph(AT91_PIN_PB29, 1);        /* IRQ0 interrupt pin */
+
+    /* Initialization of the Static Memory Controller for Chip Select 2 */
+    at91_ramc_write(0, AT91_SMC_CSR(2), AT91_SMC_ACSS_STD
+        | AT91_SMC_DBW_8    /* 8 bit */
+        | AT91_SMC_WSEN        /* Wait State Enable */
+    );
+
+    i2c_register_board_info(0, devices, nr_devices);
+    platform_device_register(&pca9665_twi_device);
+}
+
+#endif
+
+ And now the correct controller is detected:
+
+# dmesg | grep PCA
+PCA9564/PCA9665 at 0x30000000: PCA9665 detected.
+PCA9564/PCA9665 at 0x30000000: Clock frequency is 400000Hz
+PCA9564/PCA9665 at 0x30000000 registered.
+
+The i2c devices are also detected:
+
+# i2cdetect -y 0
+     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:          -- -- -- -- -- -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- UU -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- UU -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
+
+Best regards,
+Elyas
+
+On Fri, Jun 28, 2013 at 1:45 PM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>> static struct resource i2c_resources[] = {
+>>     [0] = {
+>>         .start    = AT91_CHIPSELECT_2,    /* 0x30000000 */
+>>         .end    = AT91_CHIPSELECT_2 + SZ_16K - 1,
+>>         .flags    = IORESOURCE_MEM,
+>
+> Unless reading 0x30000000 does not return something like 0xf8, you have
+> a problem with mapping in the register range. Make sure the, 8 bit bus
+> width works.
+>
+> Regards,
+>
+>    Wolfram
+>
