@@ -1,92 +1,96 @@
-From: Lu Jingchang-B35083 <B35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: RE: [PATCH v2 2/2] i2c: imx: Add Vybrid VF610 I2C controller support
-Date: Fri, 28 Jun 2013 08:49:41 +0000
-Message-ID: <B56CDBE15CE27145A4B77D2D24263E851E39D8@039-SN1MPN1-005.039d.mgd.msft.net>
-References: <1371545327-12481-1-git-send-email-b35083@freescale.com>
- <20130620080406.GD14308@pengutronix.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: i2c-mxs: Problems with PIO mode on iMX28
+Date: Fri, 28 Jun 2013 11:13:33 +0200
+Message-ID: <20130628091332.GA2948@katana>
+References: <19340213.PSZe5UysTs@linux-1fbo.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wRRV7LY7NUeQGEoC"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130620080406.GD14308-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <19340213.PSZe5UysTs-BVXpyJtzy6LO1Ldfs0Uenw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Jin Zhengxiong-R64188 <R64188-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Xiaochun-B41219 <B41219-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Marek Vasut <marek.vasut-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->-----Original Message-----
->From: Sascha Hauer [mailto:s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org]
->Sent: Thursday, June 20, 2013 4:04 PM
->To: Lu Jingchang-B35083
->Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; Estevam Fabio-R49496; linux-
->i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org; Jin Zhengxiong-
->R64188; Li Xiaochun-B41219
->Subject: Re: [PATCH v2 2/2] i2c: imx: Add Vybrid VF610 I2C controller
->support
->
->On Tue, Jun 18, 2013 at 04:48:47PM +0800, Jingchang Lu wrote:
->> +static u16 imx_i2c_clk_div[50][2] = {
->>  	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
->>  	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
->>  	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
->> @@ -112,11 +107,67 @@ static u16 __initdata i2c_clk_div[50][2] = {
->>  	{ 3072,	0x1E }, { 3840,	0x1F }
->>  };
->>
->> +/* Vybrid VF610 clock divider, register value pairs */
->> +static u16 vf610_i2c_clk_div[60][2] = {
->> +	{ 20,   0x00 }, { 22,   0x01 }, { 24,   0x02 }, { 26,   0x03 },
->> +	{ 28,   0x04 }, { 30,   0x05 }, { 32,   0x09 }, { 34,   0x06 },
->> +	{ 36,   0x0A }, { 40,   0x07 }, { 44,   0x0C }, { 48,   0x0D },
->> +	{ 52,   0x43 }, { 56,   0x0E }, { 60,   0x45 }, { 64,   0x12 },
->> +	{ 68,   0x0F }, { 72,   0x13 }, { 80,   0x14 }, { 88,   0x15 },
->> +	{ 96,   0x19 }, { 104,  0x16 }, { 112,  0x1A }, { 128,  0x17 },
->> +	{ 136,  0x4F }, { 144,  0x1C }, { 160,  0x1D }, { 176,  0x55 },
->> +	{ 192,  0x1E }, { 208,  0x56 }, { 224,  0x22 }, { 228,  0x24 },
->> +	{ 240,  0x1F }, { 256,  0x23 }, { 288,  0x5C }, { 320,  0x25 },
->> +	{ 384,  0x26 }, { 448,  0x2A }, { 480,  0x27 }, { 512,  0x2B },
->> +	{ 576,  0x2C }, { 640,  0x2D }, { 768,  0x31 }, { 896,  0x32 },
->> +	{ 960,  0x2F }, { 1024, 0x33 }, { 1152, 0x34 }, { 1280, 0x35 },
->> +	{ 1536, 0x36 }, { 1792, 0x3A }, { 1920, 0x37 }, { 2048, 0x3B },
->> +	{ 2304, 0x3C }, { 2560, 0x3D }, { 3072, 0x3E }, { 3584, 0x7A },
->> +	{ 3840, 0x3F }, { 4096, 0x7B }, { 5120, 0x7D }, { 6144, 0x7E },
->> +};
->
->...
->
->> +static struct imx_i2c_hwdata imx_i2c_hwdata = {
->> +	.addr_reg		= 0x00,
->> +	.freq_reg		= 0x04,
->> +	.ctrl_reg		= 0x08,
->> +	.status_reg		= 0x0c,
->> +	.data_reg		= 0x10,
->> +	.clk_div		= imx_i2c_clk_div,
->> +	.ndivs			= ARRAY_SIZE(imx_i2c_clk_div),
->> +	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W0C,
->> +	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_1,
->> +
->> +};
->> +
->> +static struct imx_i2c_hwdata vf610_i2c_hwdata = {
->> +	.addr_reg		= 0x00,
->> +	.freq_reg		= 0x01,
->> +	.ctrl_reg		= 0x02,
->> +	.status_reg		= 0x03,
->> +	.data_reg		= 0x04,
->> +	.clk_div		= vf610_i2c_clk_div,
->> +	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
->> +	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
->> +	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
->> +
->> +};
->
->Wow. The i2c unit remained unchanged since the i.MX21 days. Shuffling
->some registers or divider values was long overdue...
->
-[Lu Jingchang-B35083] 
- Could I understand that you are OK for the patch? If yes, Could you please ACKed it? Thanks.
+
+--wRRV7LY7NUeQGEoC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 
-Best Regards,
-Jingchang
+CCing Marek Vasut and Pengutronix...
+
+On Thu, Jun 27, 2013 at 07:39:45PM +0200, Torsten Fleischer wrote:
+> Hi,
+>=20
+> on my board there is a temperature sensor TCN75A (compatible to LM75)=20
+> connected to the iMX283.
+> In the user space the temperature is periodically polled by reading the f=
+ile=20
+> /sys/bus/i2c/devices/0-0048/temp1_input.
+> When triggering this file the LM75 driver consecutively reads 3 registers=
+ from=20
+> the sensor and outputs the current temperature read from register 0.
+>=20
+> With linux 3.9.7 I sometimes get a communication timeout when reading the=
+=20
+> sensor.
+>=20
+> Since several patches have been added to the driver, I tried linux 3.10-r=
+c7.=20
+> With this version no timeout will be reported, but sometimes the value=20
+> returned seems to be wrong. Normally I get a value of round about 30000. =
+But=20
+> sometimes it takes some seconds to read the temperature and the returned =
+value=20
+> is 75000. This value is not the current temperature but the temperature=
+=20
+> hysteresis that is the content of register 2 of the sensor.=20
+>=20
+> After some investigation I found that the i2c-mxs driver sometimes times =
+out=20
+> while waiting for the MXS_I2C_DEBUG0_DMAREQ bit when writing data (the=20
+> I2C_M_RD flag is not set).
+> Unfortunately this error is never reported to the I2C core and thus to th=
+e=20
+> LM75 driver. So the LM75 driver assumes that it has received the correct=
+=20
+> values.
+>=20
+> This problem seems to be only in the PIO mode. After changing the driver =
+so=20
+> that the DMA is always used it works as expected.
+>=20
+> Best regards,
+> Torsten Fleischer
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+--wRRV7LY7NUeQGEoC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJRzVO8AAoJEBQN5MwUoCm2hzEP/RxRvAjrfEKsBr7emTgG6sNw
+8VtDDO1NaOVfv/QlIaCD69kDEWaoYFTMD6IS8EqkYDOFUBlFlme2z8kBK5FZQD+o
+BVOCpwD3GMecXd6Yd53yY8XaRHw4yumIEMrVhSezWBAeLzU+o8QeMxFrlR22Yb5t
+/hpdobmv5OsbJYnv1xkWm30+Lxw/YRjR3E3OmSE/n6X74qfomnUM1njyHqHv+o/D
+kRODBcMJ6ev+jCSKzaeWu7D8ECKbJvNKuc574LRTcVjG/MTfYlN11jN3OWQAhsn6
+DOG0HPmBCxoMeeEXxLf1DKI1EjTvZvVgSyVkS0xniVmwT0GKE/4NTD6PT6OXa/UJ
+KBQTrsuD0YW/qUxY6p4C59BI+iQSJ76vH1wVeWX23jiAvyte0Xdx/3b1+15ne9x/
+ISn5JC3f3Gk4zQ+Oki0dkcZ0DiiDPewHUgkuRByXRdoaQ8c+A3AnR+0fqhIrXrj6
+NLvVD5XIA8lufxMZKAVAxHhzNqT5wxwpwP5pBxIYDRitotn3r1EynCfiEsdNH1ge
+1+G7nGqIHKlA8vRfZaQPyn3Z9J7uMvMMkO09DKnIC+0c2Qjm9GENZHXBurY/tuQy
+mg6INXLmenNRcQCr0+qSLBRYnzc/QAHU5gRBAcKKXQO+VhLtbMWiHL5DarNiKE4M
+fqr6lcTLXpe1ZMdyWqg+
+=k74w
+-----END PGP SIGNATURE-----
+
+--wRRV7LY7NUeQGEoC--
