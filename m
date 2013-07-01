@@ -1,77 +1,146 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: iop3xxx: fix build failure after waitqueue changes
-Date: Mon, 1 Jul 2013 07:50:51 +0200
-Message-ID: <20130701055051.GA2976@katana>
-References: <1372455352-26260-1-git-send-email-khilman@linaro.org>
+Subject: Re: [PATCH v10] i2c: exynos5: add High Speed I2C controller driver
+Date: Mon, 1 Jul 2013 08:17:22 +0200
+Message-ID: <20130701061722.GB2976@katana>
+References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
+ <1371638905-30633-1-git-send-email-ch.naveen@samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="PNTmBPCT7hxwcZjr"
+	protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1372455352-26260-1-git-send-email-khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <1371638905-30633-1-git-send-email-ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>, linaro-kernel-cunTk1MwBs8s++Sfvej+rw@public.gmane.org
+To: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, balbi-l0cyMroinI0@public.gmane.org, thomas.abraham-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---PNTmBPCT7hxwcZjr
-Content-Type: text/plain; charset=us-ascii
+--kORqDWCi7qDJ0mEj
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 28, 2013 at 02:35:52PM -0700, Kevin Hilman wrote:
-> There has long been a syntax problem in iop3xx_i2c_wait_event() which
-> has been somehow hidden by the macros in <linux/wait.h>.  After some
-> recent cleanup/rework of the wait_event_* helpers, the bug has come
-> out from hiding and now results in build failure:
+On Wed, Jun 19, 2013 at 04:18:25PM +0530, Naveen Krishna Chatradhi wrote:
+> Adds support for High Speed I2C driver found in Exynos5 and
+> later SoCs from Samsung.
 >=20
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c: In function 'iop3xx_i2=
-c_wait_event':
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:143: error: expecte=
-d ')' before ';' token
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:157: error: expecte=
-d ')' before ';' token
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:213: error: expecte=
-d ')' before ';' token
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:291: warning: ISO C=
-90 forbids mixed declarations and code [-Wdeclaration-after-statement]
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:551: error: expecte=
-d ')' before ';' token
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:565: error: expecte=
-d ')' before ';' token
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:764: error: expecte=
-d ')' before ';' token
-> /work/kernel/next/drivers/i2c/busses/i2c-iop3xx.c:176:778: error: expecte=
-d ')' b
+> Driver only supports Device Tree method.
 >=20
-> Fix by removing stray ';'
+> Changes since v1:
+> 1. Added FIFO functionality
+> 2. Added High speed mode functionality
+> 3. Remove SMBUS_QUICK
+> 4. Remove the debugfs functionality
+> 5. Use devm_* functions where ever possible
+> 6. Driver is free from GPIO configs
+> 7. Use OF data string "clock-frequency" to get the bus operating frequenc=
+ies
+> 8. Split the clock divisor calculation function
+> 9. Add resets for the failed transacton cases
+> 10. Removed retries as core does retries if -EAGAIN is returned
+> 11. Removed mode from device tree info (use speed to distinguish
+>     the mode of operation)
+> 12. Use wait_for_completion_timeout as the interruptible case is not test=
+ed well
+> 13. few other bug fixes and cosmetic changes
 >=20
-> Signed-off-by: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> Signed-off-by: Taekgyun Ko <taeggyun.ko-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Reviewed-by: Simon Glass <sjg-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+> Tested-by: Andrew Bresticker <abrestic-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Andrew Bresticker <abrestic-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
+> ---
+>=20
+> +Optional properties:
+> +  - clock-frequency: Desired operating frequency in Hz of the bus.
+> +    -> If not specified, the default value is 100khz in fast-speed mode =
+and
+> +       1Mhz in high-speed mode.
 
-Applied to for-next, thanks! (Geez, that original code looks ugly...)
+? If not specified, the default is 100kHz. There is no way to get 1MHz,
+or?
 
+=2E..
 
---PNTmBPCT7hxwcZjr
+> +static int exynos5_i2c_probe(struct platform_device *pdev)
+> +{
+> +	struct device_node *np =3D pdev->dev.of_node;
+> +	struct exynos5_i2c *i2c;
+> +	struct resource *mem;
+> +	unsigned int op_clock;
+
+My compiler says:
+
+drivers/i2c/busses/i2c-exynos5.c: In function =E2=80=98exynos5_i2c_probe=E2=
+=80=99:
+drivers/i2c/busses/i2c-exynos5.c:687:5: warning: =E2=80=98op_clock=E2=80=99=
+ may be used uninitialized in this function [-Wuninitialized]
+
+so...
+
+> +	int ret;
+> +
+> +	if (!np) {
+> +		dev_err(&pdev->dev, "no device node\n");
+> +		return -ENOENT;
+> +	}
+> +
+> +	i2c =3D devm_kzalloc(&pdev->dev, sizeof(struct exynos5_i2c), GFP_KERNEL=
+);
+> +	if (!i2c) {
+> +		dev_err(&pdev->dev, "no memory for state\n");
+> +		return -ENOMEM;
+> +	}
+> +
+> +	if (of_property_read_u32(np, "clock-frequency", &op_clock)) {
+> +		i2c->speed_mode =3D HSI2C_FAST_SPD;
+> +		i2c->fs_clock =3D HSI2C_FS_TX_CLOCK;
+> +	}
+> +
+> +	if (op_clock >=3D HSI2C_HS_TX_CLOCK) {
+
+=2E.. this should be 'else if'
+
+> +		i2c->speed_mode =3D HSI2C_HIGH_SPD;
+> +		i2c->fs_clock =3D HSI2C_FS_TX_CLOCK;
+> +		i2c->hs_clock =3D op_clock;
+> +	} else {
+> +		i2c->speed_mode =3D HSI2C_FAST_SPD;
+> +		i2c->fs_clock =3D op_clock;
+> +	}
+
+=2E..
+
+> +	i2c->bus_id =3D of_alias_get_id(i2c->adap.dev.of_node, "hsi2c");
+
+Huh, the core already gets an alias for you. Can't you use 'adap.nr'?
+
+Rest looks good.
+
+Thanks!
+
+--kORqDWCi7qDJ0mEj
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJR0Ri7AAoJEBQN5MwUoCm292IP/3f3VJBVZNALyp721qkjwNe7
-KX5B06cxNK1WS34YT2u1XKXuPIh0aaxVRYaqnk1/ELktxg3VGdWh22vjLj85C+LP
-/XuC24zZLzHzmZ20B486ODPntJNctFm9FZsR4r8p3Itl92O72Pb0HGMwX9YuWGpk
-AS2QZe61FbPBrhzJy0Fke1XbqcPd/7RsA6zHplT5B6awt06qe5GJctBGz3e8n4vk
-UDi6AslEqnFrQycr9DBA4fDFq/gifD5UIMhXe5NDmLQUNeHg0wAYYOR999KFFORI
-YzDCdOtZzVKpYX3ubFwRwJjSoCy052bWAATwVpX2Wdaor7j5uvoOoYT1vEX2J1nH
-Pi5Ht/eGVF/LGcJxuic204jKmL/mrEgvAJVzwfRq96v2gD7GPL73k6gqHEytAPuh
-F8MlwLG77YrlKRNam73HPGHld62yJXpueXgLr9xE0ITlXLUuo716XBTehYzYuVuL
-GdI7sEP2MkotMlL73oXo9Ro6c44N2T+8oXYnoAgwZOq5rlVazWKNtmbG3isS3ZWn
-FG0u4ELaQB0AiISg1OMqJeBAmL/k/WPAsNQM4I6r9k5OML6jy7xvDdgcWuMGsJ7U
-R/w9cfAb1qFl9KDE1uQjmwb9Q0KVLliKdI3Huw1WNoPY3p/QsgSg7Mjd7Aax5pC5
-aB4hF4JnfpR9ZnrP5NKM
-=B37V
+iQIcBAEBAgAGBQJR0R7yAAoJEBQN5MwUoCm2PxgP/Rx/YuLk8HofVWX1RIHerQ6v
+Tp3Lx4H1OTBSMkXGKViz6mBtj7aOoBh5GiXC/tUgsInuMngU7q+ldZ0utYcR80Xo
+Oewjzxh4qjjdOM7Ga+sH8u/SLRHU6gSSW//MS2911MoVe4qPgLpS7ACz9sgjlIeX
+j4bBU3liKaJcm6VDTx0O6jeqcE2M4dzCsoFnBJmwnkpx0lmqbf6/XDS9aip4zA7Q
+FscfNie9H8zVywJJb65YgjK5yniGS6H2wRPCxopx5mkl5zACIOOXYWaozz2G2svd
+6Uv3YWe1OkzOrLaAWxU4Yu2uLzPH90E14DOyMfBqYMRAljOc66vgcA7yJGsTxF/p
+ZUoufxo1iiX+myOywzytaxslLitVTD9DwHVHCAJcoM22dSMAGvPLxbivkdLAQywM
+FSZQyLMc6EXjgDiWx8DGKMW7UmtyG64RcdwksWBeXs8/U4AR7Q7kUZcGZT7bh7cm
+mZ8cXJuXWNLtfShIweJwNYW4og62tlcQPMJ/RGE/1RaYI2tlqyXlJi0ox9HIvaes
+hvnrk5hNpXC26k2SjpjUArlBiSehuqHq1Wb63mFjBB/z0QSdhFB2kLg7XylM0wFc
+SAqgmSLb01qGl6/aKSQyNndX2sRzmypXGXSAw7n69+1546wKA8CeeKnuzKvP+lRY
+H1ep49GncAJ6epQOJUvO
+=aJgi
 -----END PGP SIGNATURE-----
 
---PNTmBPCT7hxwcZjr--
+--kORqDWCi7qDJ0mEj--
