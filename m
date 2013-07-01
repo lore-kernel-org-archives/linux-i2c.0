@@ -1,54 +1,47 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH v2] i2c: i2c-mxs: Use DMA mode even for small transfers
-Date: Mon,  1 Jul 2013 18:14:21 -0300
-Message-ID: <1372713261-20551-1-git-send-email-festevam@gmail.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: wsa@the-dreams.de
-Cc: marex@denx.de, shawn.guo@linaro.org, kernel@pengutronix.de, linux-i2c@vger.kernel.org, alexandre.belloni@free-electrons.com, to-fleischer@t-online.de, Fabio Estevam <fabio.estevam@freescale.com>, stable@vger.kernel.org
+From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Subject: [RFC 1/2] i2c: Allow SPD probing with READ_BYTE_DATA and improve logging
+Date: Mon,  1 Jul 2013 16:30:07 -0700
+Message-ID: <2bb2489068b9d6e0833ed1d3f79a2a0c302b8c2f.1372720609.git.luto@amacapital.net>
+References: <cover.1372720609.git.luto@amacapital.net>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <cover.1372720609.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+In-Reply-To: <cover.1372720609.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+References: <cover.1372720609.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Rui Wang <rui.y.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Chen Gong <gong.chen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Mauro Carvalho Chehab <mchehab-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@freescale.com>
+The Intel iMC SMBUS controller can't READ_BYTE.  (This seems odd to me
+-- it supports WRITE_BYTE.)  SPD EEPROMs are safe to probe with
+READ_BYTE_DATA, so fall back to that.
 
-Recently we have been seing some reports about PIO mode not working properly.
+While I'm in here, also show the address that had no probing method for
+easier debugging.
 
-- http://www.spinics.net/lists/linux-i2c/msg11985.html
-- http://marc.info/?l=linux-i2c&m=137235593101385&w=2
-- https://lkml.org/lkml/2013/6/24/430
-
-Let's use DMA mode even for small transfers.
-
-Without this patch, i2c reads the incorrect sgtl5000 version on a mx28evk when
-touchscreen is enabled:
-                                           
-[    5.856270] sgtl5000 0-000a: Device with ID register 0 is not a sgtl5000     
-[    9.877307] sgtl5000 0-000a: ASoC: failed to probe CODEC -19                 
-[    9.883528] mxs-sgtl5000 sound.12: ASoC: failed to instantiate card -19      
-[    9.892955] mxs-sgtl5000 sound.12: snd_soc_register_card failed (-19)  
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+Signed-off-by: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 ---
-Applies against 3.10
+ drivers/i2c/i2c-core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Changes since v1:
-- Keep the PIO code
-
- drivers/i2c/busses/i2c-mxs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 2039f23..6d8094d 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -494,7 +494,7 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
- 	 * based on this empirical measurement and a lot of previous frobbing.
- 	 */
- 	i2c->cmd_err = 0;
--	if (msg->len < 8) {
-+	if (0) {	/* disable PIO mode until a proper fix is made */
- 		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
- 		if (ret)
- 			mxs_i2c_reset(i2c);
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 991d38d..ea88fc0 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -1501,8 +1501,13 @@ static int i2c_default_probe(struct i2c_adapter *adap, unsigned short addr)
+ 	else if (i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_BYTE))
+ 		err = i2c_smbus_xfer(adap, addr, 0, I2C_SMBUS_READ, 0,
+ 				     I2C_SMBUS_BYTE, &dummy);
++	else if ((addr & ~0x0f) == 0x50
++	 && i2c_check_functionality(adap, I2C_FUNC_SMBUS_READ_BYTE_DATA))
++		err = i2c_smbus_xfer(adap, addr, 0, I2C_SMBUS_READ, 0,
++				     I2C_SMBUS_BYTE_DATA, &dummy);
+ 	else {
+-		dev_warn(&adap->dev, "No suitable probing method supported\n");
++		dev_warn(&adap->dev, "No suitable probing method supported for address 0x%02X\n",
++			 addr);
+ 		err = -EOPNOTSUPP;
+ 	}
+ 
 -- 
-1.8.1.2
+1.8.1.4
