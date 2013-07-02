@@ -1,67 +1,65 @@
-From: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: i2c-mxs: Use DMA mode even for small transfers
-Date: Tue, 02 Jul 2013 10:16:09 +0200
-Message-ID: <1372752969.4277.8.camel@weser.hi.pengutronix.de>
-References: <1372713261-20551-1-git-send-email-festevam@gmail.com>
+From: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@freescale.com>
+Subject: [PATCH linux-next] i2c-designware: use div_u64 to fix link
+Date: Tue, 2 Jul 2013 11:46:54 +0200
+Message-ID: <1372758414-21513-1-git-send-email-vincent.stehle@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1372713261-20551-1-git-send-email-festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-next-owner@vger.kernel.org>
+Sender: linux-next-owner@vger.kernel.org
+To: linux-next@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@freescale.com>, Wolfram Sang <wsa@the-dreams.de>, Christian Ruppert <christian.ruppert@abilis.com>, Pierrick Hascoet <pierrick.hascoet@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Am Montag, den 01.07.2013, 18:14 -0300 schrieb Fabio Estevam:
-> From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> 
-> Recently we have been seing some reports about PIO mode not working properly.
-> 
-> - http://www.spinics.net/lists/linux-i2c/msg11985.html
-> - http://marc.info/?l=linux-i2c&m=137235593101385&w=2
-> - https://lkml.org/lkml/2013/6/24/430
-> 
-> Let's use DMA mode even for small transfers.
-> 
-> Without this patch, i2c reads the incorrect sgtl5000 version on a mx28evk when
-> touchscreen is enabled:
->                                            
-> [    5.856270] sgtl5000 0-000a: Device with ID register 0 is not a sgtl5000     
-> [    9.877307] sgtl5000 0-000a: ASoC: failed to probe CODEC -19                 
-> [    9.883528] mxs-sgtl5000 sound.12: ASoC: failed to instantiate card -19      
-> [    9.892955] mxs-sgtl5000 sound.12: snd_soc_register_card failed (-19)  
-> 
-> Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
-> Applies against 3.10
-> 
-> Changes since v1:
-> - Keep the PIO code
-> 
->  drivers/i2c/busses/i2c-mxs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-> index 2039f23..6d8094d 100644
-> --- a/drivers/i2c/busses/i2c-mxs.c
-> +++ b/drivers/i2c/busses/i2c-mxs.c
-> @@ -494,7 +494,7 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
->  	 * based on this empirical measurement and a lot of previous frobbing.
->  	 */
->  	i2c->cmd_err = 0;
-> -	if (msg->len < 8) {
-> +	if (0) {	/* disable PIO mode until a proper fix is made */
->  		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
->  		if (ret)
->  			mxs_i2c_reset(i2c);
+This fixes the following link error:
 
-I still plan to take another look at the PIO mode, but higher priority
-things keep popping up in front of me. So this patch is:
-Acked-by: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
--- 
-Pengutronix e.K.                           | Lucas Stach                 |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-5076 |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
+  drivers/built-in.o: In function `dw_i2c_probe':
+  of_iommu.c:(.text+0x18c8f0): undefined reference to `__aeabi_uldivmod=
+'
+  make: *** [vmlinux] Error 1
+
+Signed-off-by: Vincent Stehl=C3=A9 <vincent.stehle@freescale.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Christian Ruppert <christian.ruppert@abilis.com>
+Cc: Pierrick Hascoet <pierrick.hascoet@abilis.com>
+---
+
+
+Hi,
+
+Linux next-20130702 link broke for ARM config multi_v7_defconfig. This =
+is with
+gcc 4.7.2 but I am not sure it matters much here.
+
+This patch repairs the link.
+
+It did not break anything for me on i.MX6 sabre sd, but it does'nt have=
+ a
+designware i2c, so more reviewing/testing is welcome.
+
+Best regards,
+
+V.
+
+
+ drivers/i2c/busses/i2c-designware-platdrv.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/=
+busses/i2c-designware-platdrv.c
+index def79b5..4c5fada 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -122,7 +122,8 @@ static int dw_i2c_probe(struct platform_device *pde=
+v)
+=20
+ 		of_property_read_u32(pdev->dev.of_node,
+ 					"i2c-sda-hold-time-ns", &ht);
+-		dev->sda_hold_time =3D ((u64)ic_clk * ht + 500000) / 1000000;
++		dev->sda_hold_time =3D div_u64((u64)ic_clk * ht + 500000,
++					     1000000);
+ 	}
+=20
+ 	dev->functionality =3D
+--=20
+1.7.10.4
