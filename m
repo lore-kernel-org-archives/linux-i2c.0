@@ -1,55 +1,128 @@
-From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-Subject: Re: [PATCH v10] i2c-designware: make SDA hold time configurable
-Date: Wed, 3 Jul 2013 13:43:11 +0200
-Message-ID: <201307031343.11647.arnd@arndb.de>
-References: <20130625163902.GA2973@katana> <1372236906-6933-1-git-send-email-christian.ruppert@abilis.com> <20130626140713.GB3119@katana>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH v2] i2c: i2c-mxs: Use DMA mode even for small transfers
+Date: Wed, 3 Jul 2013 13:39:58 +0200
+Message-ID: <201307031339.59073.marex@denx.de>
+References: <1372713261-20551-1-git-send-email-festevam@gmail.com> <201307030637.05324.marex@denx.de> <1372842695.4440.3.camel@weser.hi.pengutronix.de>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
-  charset="iso-8859-15"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130626140713.GB3119@katana>
+In-Reply-To: <1372842695.4440.3.camel-WzVe3FnzCwFR6QfukMTsflXZhhPuCNm+@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "Ben Dooks (embedded platforms)" <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, Grant Likely <grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, devicetree-discuss-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Vineet Gupta <Vineet.Gupta1-HKixBCOQz3hWk0Htik3J/w@public.gmane.org>, Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+To: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday 26 June 2013, Wolfram Sang wrote:
->   On Wed, Jun 26, 2013 at 10:55:06AM +0200, Christian Ruppert wrote:
-> > This patch makes the SDA hold time configurable through device tree.
+Dear Lucas Stach,
+
+> Am Mittwoch, den 03.07.2013, 06:37 +0200 schrieb Marek Vasut:
+> > Hi,
 > > 
-> > Signed-off-by: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-> > Signed-off-by: Pierrick Hascoet <pierrick.hascoet-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+> > > Dear Lucas Stach,
+> > > 
+> > > > Am Montag, den 01.07.2013, 18:14 -0300 schrieb Fabio Estevam:
+> > > > > From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > > > 
+> > > > > Recently we have been seing some reports about PIO mode not working
+> > > > > properly.
+> > > > > 
+> > > > > - http://www.spinics.net/lists/linux-i2c/msg11985.html
+> > > > > - http://marc.info/?l=linux-i2c&m=137235593101385&w=2
+> > > > > - https://lkml.org/lkml/2013/6/24/430
+> > > > > 
+> > > > > Let's use DMA mode even for small transfers.
+> > > > > 
+> > > > > Without this patch, i2c reads the incorrect sgtl5000 version on a
+> > > > > mx28evk when touchscreen is enabled:
+> > > > > 
+> > > > > [    5.856270] sgtl5000 0-000a: Device with ID register 0 is not a
+> > > > > sgtl5000 [    9.877307] sgtl5000 0-000a: ASoC: failed to probe
+> > > > > CODEC -19 [    9.883528] mxs-sgtl5000 sound.12: ASoC: failed to
+> > > > > instantiate card -19 [    9.892955] mxs-sgtl5000 sound.12:
+> > > > > snd_soc_register_card failed (-19)
+> > > > > 
+> > > > > Cc: <stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+> > > > > Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> > > > > ---
+> > > > > Applies against 3.10
+> > > > > 
+> > > > > Changes since v1:
+> > > > > - Keep the PIO code
+> > > > > 
+> > > > >  drivers/i2c/busses/i2c-mxs.c | 2 +-
+> > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > 
+> > > > > diff --git a/drivers/i2c/busses/i2c-mxs.c
+> > > > > b/drivers/i2c/busses/i2c-mxs.c index 2039f23..6d8094d 100644
+> > > > > --- a/drivers/i2c/busses/i2c-mxs.c
+> > > > > +++ b/drivers/i2c/busses/i2c-mxs.c
+> > > > > @@ -494,7 +494,7 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter
+> > > > > *adap, struct i2c_msg *msg,
+> > > > > 
+> > > > >  	 * based on this empirical measurement and a lot of previous
+> > > > >  	 frobbing. */
+> > > > >  	
+> > > > >  	i2c->cmd_err = 0;
+> > > > > 
+> > > > > -	if (msg->len < 8) {
+> > > > > +	if (0) {	/* disable PIO mode until a proper fix is made 
+*/
+> > > > > 
+> > > > >  		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
+> > > > >  		if (ret)
+> > > > >  		
+> > > > >  			mxs_i2c_reset(i2c);
+> > > > 
+> > > > I still plan to take another look at the PIO mode, but higher
+> > > > priority things keep popping up in front of me. So this patch is:
+> > > > Acked-by: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+> > > 
+> > > Ok, update. So far I arrived at a point where I can avoid the PIO
+> > > trouble.
+> > > 
+> > > If I only do transfers shorter or equal in length to 3 bytes via PIO,
+> > > it works as expected. If the transfer is longer, the LA shows very
+> > > long transfer happening actually. Therefore, the pumping of data in
+> > > loop to/from PIO via the DATA register doesn't work.
+> > > 
+> > > I will update you more later, once I figure out something else. Now I
+> > > need some sleep.
+> > 
+> > I'm attaching a patch. Alex, please give it a go and see if it fixes your
+> > issue. It is _VERY_ ugly.
+> > 
+> > The basic idea behind the the patch is that, as (attempted to be)
+> > explained above, subsequent writes to DATA register in PIO mode cause
+> > constant generation of clock on the bus and therefore a very long
+> > transfer of zero data. This confuses the I2C peripherals of course.
+> > 
+> > The patch implements clock stretching for PIO writes (maybe we need this
+> > for reads too) by making the controller blast out only 4 (or less) bytes
+> > of data in each write into the DATA register. To prevent interruption of
+> > the transfer between writes into the DATA register, the SCK is held low
+> > using the RETAIN_CLOCK bit.
+> > 
+> > But (!) here comes the caveat. The PIO was introduced to speed up small
+> > transfers. Introducing clock stretching into PIO mode operation might
+> > completely remove this advantage. This has to be measured again.
+> > 
+> > I will continue once I sleep a little. Pardon my {language, code}, it's
+> > too early in the morning already.
 > 
-> Applied to for-next, thanks for keeping at it and providing lots of
-> useful information. Much appreciated!
+> Ok, so if this patch works, we may just want to restrict PIO mode to 4
+> or 3 Byte transfers
 
-Sorry, but I got a regression that I didn't find reported elsewhere
-so far, even though it breaks a lot of the ARM defconfig builds:
+But then we will end up with pretty useless PIO implementation, since most of 
+the register IO is around 4-bytes long ;-)
 
-drivers/built-in.o: In function `dw_i2c_probe':
-/git/arm-soc/drivers/i2c/busses/i2c-designware-platdrv.c:125: undefined reference to `__udivdi3'
+> where we don't need to use this ugly clock
+> stretching. This way we may gain the PIO speedup for single register
+> reads/writes, which is a pretty common operation, but fall back to the
+> more reliable DMA mode for bigger transfers.
 
-I suspect you want something like the change below.
+I will need to check some more and especially do some profiling and timing, 
+otherwise further discussion here is moot .
 
-Signed-off-by: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
-
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index def79b5..57e3a07 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -119,10 +119,13 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	if (pdev->dev.of_node) {
- 		u32 ht = 0;
- 		u32 ic_clk = dev->get_clk_rate_khz(dev);
-+		u64 hold_time;
- 
- 		of_property_read_u32(pdev->dev.of_node,
- 					"i2c-sda-hold-time-ns", &ht);
--		dev->sda_hold_time = ((u64)ic_clk * ht + 500000) / 1000000;
-+		hold_time = (u64)ic_clk * ht + 500000;
-+		do_div(hold_time, 1000000);
-+		dev->sda_hold_time = hold_time;
- 	}
- 
- 	dev->functionality =
+Best regards,
+Marek Vasut
