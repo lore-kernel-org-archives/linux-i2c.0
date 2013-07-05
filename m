@@ -1,194 +1,89 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.11
-Date: Thu, 4 Jul 2013 22:32:40 +0200
-Message-ID: <20130704203209.GA4196@katana>
+From: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: pxa: enable high speed mode for i2c bus
+Date: Fri, 5 Jul 2013 09:53:25 +0800
+Message-ID: <CAOng1WSNDQMrce6CSN9Zh-FHJgoC6+SbOioYTyuoiAFTBdPYbA@mail.gmail.com>
+References: <1370587097-21006-1-git-send-email-shangll@marvell.com>
+	<20130615144812.GD2923@katana>
+	<CAOng1WTa0c2Jb9yPeynKXQ0K4-bPhrcGPsKd-AP-MuxQPH80Jg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0OAP2g/MAC+5xKAE"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <CAOng1WTa0c2Jb9yPeynKXQ0K4-bPhrcGPsKd-AP-MuxQPH80Jg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi guys,
 
---0OAP2g/MAC+5xKAE
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+        Any comments?
 
-Linus,
-
-here are the updates for the I2C subsystem for 3.11:
-
-* new drivers: Kontron PLD, Wondermedia VT
-* mv64xxx driver gained sun4i support and a bigger cleanup
-* duplicate driver 'intel-mid' removed
-* added generic device tree binding for sda holding time
-  (and designware driver already uses it)
-* we tried to allow driver probing with only device tree and no i2c ids,
-  but I had to revert it because of side effects. Needs some rethinking.
-* driver bugfixes, cleanups...
-
-Sorry, the base should have been "3.10-rc4", but I accidently picked the
-wrong commit and didn't want to rebase my public tree, so it is a few
-merges after rc4.
-
-Please pull.
-
-Thanks,
-
-   Wolfram
-
-
-The following changes since commit aa4f608478acb7ed69dfcff4f3c404100b78ac49:
-
-  Merge branch 'for-linus' of git://git.kernel.org/pub/scm/linux/kernel/git=
-/geert/linux-m68k (2013-06-03 18:09:42 +0900)
-
-are available in the git repository at:
-
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-
-for you to fetch changes up to 97191d734f6ac028e5e6dcd574378c1544a16c0b:
-
-  i2c-designware: use div_u64 to fix link (2013-07-03 22:07:51 +0200)
-
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      i2c: intel-mid: remove obsolete driver
-
-Arnaud Patard (1):
-      i2c: imx: allow autoloading on dt ids
-
-Christian Ruppert (2):
-      i2c: designware: fix race between subsequent xfers
-      i2c-designware: make SDA hold time configurable
-
-Daniel Drake (1):
-      i2c-pxa: prepare clock before use
-
-Fabio Estevam (2):
-      i2c: imx: Let device core handle pinctrl
-      i2c: mxs: Let device core handle pinctrl
-
-Gregory CLEMENT (1):
-      i2c: mv64xxx: Set bus frequency to 100kHz if clock-frequency is not p=
-rovided
-
-Guenter Roeck (1):
-      i2c: mv64xxx: Fix transfer error code
-
-Jingoo Han (1):
-      i2c: use platform_{get,set}_drvdata()
-
-Kevin Hilman (1):
-      i2c: iop3xxx: fix build failure after waitqueue changes
-
-Kevin Strasser (1):
-      i2c: Kontron PLD i2c bus driver
-
-Linus Walleij (3):
-      i2c: core: make it possible to match a pure device tree driver
-      i2c: nomadik: support elder Nomadiks
-      i2c: nomadik: allocate adapter number dynamically
-
-Maxime Ripard (3):
-      i2c: mv64xxx: Add macros to access parts of registers
-      i2c: mv64xxx: make the registers offset configurable
-      i2c: mv64xxx: Add Allwinner sun4i compatible
-
-Mika Westerberg (1):
-      i2c: designware: prevent signals from aborting I2C transfers
-
-Oleksandr Dmytryshyn (1):
-      i2c: omap: correct usage of the interrupt enable register
-
-Russell King (8):
-      I2C: mv64xxx: use return value from mv64xxx_i2c_map_regs()
-      I2C: mv64xxx: use devm_ioremap_resource()
-      I2C: mv64xxx: use devm_clk_get() to avoid missing clk_put()
-      I2C: mv64xxx: use devm_kzalloc()
-      I2C: mv64xxx: fix error handling for request_irq()
-      I2C: mv64xxx: remove I2C_M_NOSTART code
-      I2C: mv64xxx: move mv64xxx_i2c_prepare_for_io()
-      I2C: mv64xxx: fix race between FSM/interrupt and process context
-
-Seth Heasley (1):
-      i2c: i801: SMBus patch for Intel Coleto Creek DeviceIDs
-
-Sonic Zhang (1):
-      i2c: bfin-twi: Read and write the FIFO in loop
-
-Tony Prisk (1):
-      i2c: vt8500: Add support for I2C bus on Wondermedia SoCs
-
-Vincent Stehl=E9 (1):
-      i2c-designware: use div_u64 to fix link
-
-Wolfram Sang (2):
-      drivers/i2c/busses: don't check resource with devm_ioremap_resource
-      Revert "i2c: core: make it possible to match a pure device tree drive=
-r"
-
- .../devicetree/bindings/i2c/i2c-designware.txt     |   15 +
- .../devicetree/bindings/i2c/i2c-mv64xxx.txt        |    6 +-
- .../devicetree/bindings/i2c/i2c-vt8500.txt         |   24 +
- Documentation/i2c/busses/i2c-i801                  |    1 +
- MAINTAINERS                                        |    1 +
- arch/arc/boot/dts/abilis_tb100_dvk.dts             |   10 +-
- arch/arc/boot/dts/abilis_tb101_dvk.dts             |   10 +-
- drivers/i2c/busses/Kconfig                         |   34 +-
- drivers/i2c/busses/Makefile                        |    3 +-
- drivers/i2c/busses/i2c-bfin-twi.c                  |   47 +-
- drivers/i2c/busses/i2c-cpm.c                       |    4 +-
- drivers/i2c/busses/i2c-davinci.c                   |    8 +-
- drivers/i2c/busses/i2c-designware-core.c           |   30 +-
- drivers/i2c/busses/i2c-designware-core.h           |    1 +
- drivers/i2c/busses/i2c-designware-platdrv.c        |   19 +-
- drivers/i2c/busses/i2c-i801.c                      |    3 +
- drivers/i2c/busses/i2c-ibm_iic.c                   |    4 +-
- drivers/i2c/busses/i2c-imx.c                       |   15 +-
- drivers/i2c/busses/i2c-intel-mid.c                 | 1121 ----------------=
-----
- drivers/i2c/busses/i2c-iop3xx.c                    |    2 +-
- drivers/i2c/busses/i2c-kempld.c                    |  410 +++++++
- drivers/i2c/busses/i2c-mpc.c                       |    4 +-
- drivers/i2c/busses/i2c-mv64xxx.c                   |  321 +++---
- drivers/i2c/busses/i2c-mxs.c                       |    6 -
- drivers/i2c/busses/i2c-nomadik.c                   |   52 +-
- drivers/i2c/busses/i2c-omap.c                      |   23 +-
- drivers/i2c/busses/i2c-pxa.c                       |    6 +-
- drivers/i2c/busses/i2c-rcar.c                      |    7 +-
- drivers/i2c/busses/i2c-wmt.c                       |  479 +++++++++
- 29 files changed, 1268 insertions(+), 1398 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-vt8500.txt
- delete mode 100644 drivers/i2c/busses/i2c-intel-mid.c
- create mode 100644 drivers/i2c/busses/i2c-kempld.c
- create mode 100644 drivers/i2c/busses/i2c-wmt.c
-
---0OAP2g/MAC+5xKAE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJR1dvJAAoJEBQN5MwUoCm2vz8QAKYgd1fH8jCM4Vdk/Ou4t8QN
-9mNJUc2QcJ7t91/asobzt9Jy5cU5gSW3qTRc2WBzN+eKLlJr0bHycMgqRjsDKKBA
-9khnDB4INVcRnIb2Wpx/fN5cIhjBhSn8hHr58vNiAR0IU0S6VwEW1BRrcXYj3NK/
-uE3jeriL5DBXMOGH/AxtPLupQk1tFE+tL9r1Y7cTQ2BKDZceFG5evpU+sSzaSq89
-65ar9HHZISdVTfgYlqkyz3E2hYQp7cVoDOZyEda5Y47RxYanSkrbolrpTfkbK8sp
-G32OK0ysSsWwC7s+Bg5mSFndRkecTNozlRWyUK86WBG+Sj1OPKnia3NO8zSuNnwq
-IRp99w4G5WrvdlA0DgMIqHi5yRi9XrxrstvGE3/vy9j+XdI+J2G8DEZjFk0gi4OX
-hr7FtBvx0IZ7Dc5SGyaRqNL+Qy+MHeZ6Jap337bs7A1dgWxHdmKda7TKJgsWhAjq
-UPr42EOQPCK28vrJSae4J5vwX05iioUzPf2mw35m4Bj2fPd+ZCWIf19Qlv5ia1W5
-roNgJNONBrJP701J88mcRclT4W4mQ4wtKqP2c2xwmc76ltj8xqTPuVjY82OxbTBZ
-u5qZdwfdZ9c1z0cz02qONfXO/jzkrNoILaXrgUNKeJsohOk/TNYcJ4RNbGfxvg6+
-I4iYG19rWOYe1W/JTDXe
-=DSrh
------END PGP SIGNATURE-----
-
---0OAP2g/MAC+5xKAE--
+2013/7/2 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> Hi Wolfram
+>
+>     Have you finished reading datasheet?
+>
+> 2013/6/15 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
+>> Hi,
+>>
+>> On Fri, Jun 07, 2013 at 02:38:17PM +0800, Leilei Shang wrote:
+>>> To enter high speed mode, following steps should be done:
+>>> 1. When running in high speed mode, i2c clock rate is different
+>>> from standard mode. Clock rate must be set according to
+>>> specification first.
+>>> 2. When i2c controller sends a master code and wins arbitration,
+>>> high speed mode is entered.
+>>>
+>>> If you want to enable high speed mode, the following members of
+>>> platform data should be set to proper value:
+>>
+>> I couldn't find any support for hs-mode in pxa2xx and pxa3xx. So it
+>> shouldn't be set in platform data, but depending on checks if this is
+>> supported on this device at all. And why don't simply switch to it if
+>> rate is bigger than what is supported without hs-mode?
+>>
+>
+> 1. High speed mode is hardware feature, you can't read it from
+> software. It's similar to fast mode, and fast mode is set in platform
+> data.
+>
+>     The only method I can think of is to add a platform, like pxa910.
+> And if you enable hs mode and platform is not pxa910, we'll set it to
+> normal mode. Is this OK?
+>
+> 2. About hs mode clock setting. We don't know whether currently hs
+> mode clock will be changed in future. Do you think below code is OK?
+>
+> if (i2c->rate)
+>             clk_set_rate(i2c->clk, i2c->rate);
+> else
+>             clk_set_rate(i2c->clk, 62400000);
+>
+>             pr_info("i2c: <%s> set rate to %ld\n",
+>                 i2c->adap.name, clk_get_rate(i2c->clk));
+>
+>>> 1. "high_mode" should be set to "1".
+>>> 2. "master_code" should be set to "8'b 0000_1xxx"(x is 0 or 1).
+>>>    If no master_code is set, set to default value 0xe.
+>>> 3. "rate" should be set according to specification.
+>>
+>> Note that you should fall back to full-speed mode after sending the stop
+>> bit in high-speed mode. I can't find this in the code?
+>>
+>
+> 3. Will fall back to normal mode when stop bit is sent.
+>
+>>>
+>>> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>>
+>> Which SoC supports this? I'd like to have a look at the datasheet.
+>>
+>> Thanks,
+>>
+>>    Wolfram
+>>
+>
+> Hope you can reply soon!
+>
+> Best regards
+> Leilei
