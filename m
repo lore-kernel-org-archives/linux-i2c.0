@@ -1,79 +1,57 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: fix broken timing calculation
-Date: Fri, 5 Jul 2013 19:37:10 +0200
-Message-ID: <201307051937.10975.marex@denx.de>
-References: <1373041680-26939-1-git-send-email-LW@KARO-electronics.de> <201307051853.45786.marex@denx.de> <20951.550.818976.677404@ipc1.ka-ro>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: i2c: introduce i2c helper i2c_find_client_by_name()
+Date: Fri, 5 Jul 2013 20:55:12 +0100
+Message-ID: <20130705195512.GJ27646@sirena.org.uk>
+References: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20951.550.818976.677404-VjFSrY7JcPWvSplVBqRQBQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lothar =?iso-8859-1?q?Wa=DFmann?= <LW-AvR2QvxeiV7DiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UFi9av0ukRdmw+ig"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Bin Gao <bin.gao@linux.intel.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Lothar Wa=DFmann,
 
-> Hi,
->=20
-> Marek Vasut writes:
-> > Hi Lothar,
-> >=20
-> > > The timing calculation is rather bogus and gives extremely wrong
-> > > results for higher frequencies (on an i.MX28). E.g. instead of 40=
-0 kHz
-> > > I measured 770 kHz.
-> > >=20
-> > > Implement a calculation that adheres to the I2C spec and gives ex=
-act
-> > > results for I2C frequencies from 12.56 kHz to 960 kHz.
-> > >=20
-> > > Also the bus_free and leadin parameters are programmed according =
-to
-> > > the I2C spec for standard and fast mode.
-> >=20
-> > I suspect the resulting speed is heavily dependent on hardware prop=
-erties
-> > of the bus. Did you have a chance to check it with a scope? I will =
-try
-> > to recheck on other boards next week.
->=20
-> Of course I did! I found the DS1339 RTC not working on our hardware
-> with the I2C clock frequency set to 400kHz and then checked the bus
-> timing. I found the SCL frequency to be 770kHz instead of 400kHz and
-> 113kHz instead of 100kHz.
-> On what hardware did you do your measurements?
+--UFi9av0ukRdmw+ig
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-MX28EVK and M28EVK.
+On Thu, Jun 06, 2013 at 11:33:46AM -0700, Bin Gao wrote:
 
-> The fancy constants -2 and -7 in the calculation were derived from
-> measuring the clock low and high time with low_count and high_count
-> set to 1 and measuring the actual timing of the signal.
-> The clock frequeny in this setup is 2.18 MHz corresponding to 11 cloc=
-k
-> cycles of the 24MHz clock. The LOW time was about 140ns and the HIGH
-> time 318ns corresponding to 3 and 8 (instead of 1) clock cycles.
->=20
-> These constants could be different for different SoCs (i.MX23).
-> But I don't have any hardware to verify that.
+> A good example is that an ISP(Imaging Signal Processor) driver needs
+> register i2c camera sensor devices via v4l2, so it has to unregister
+> all i2c clients that were previously registered by calling
+> i2c_register_board_info(), and then re-register. For this case we
+> can use this helper to get i2c_client by passing the client name.
 
-I can check it for you on MX23 next week, I have two boards with that c=
-hip with=20
-well accessible I2C. I am not in the office now, so this will have to w=
-ait until=20
-next week.
+Please look at the work that IIRC Laurent Pichart (CCed) was doing on
+developing generic DT bindings for v4l in embedded systems, it sounds
+like you're working on similar hardware here.  The general ideas should
+apply to any enumeration mechanism, not just DT.
 
-btw offtopic, I will at least try to fix the PIO in the meantime.
+--UFi9av0ukRdmw+ig
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-> Maybe some guru from Freescale can comment on this and perhaps
-> document the relationship between the register contents and the actua=
-l
-> timing.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.20 (GNU/Linux)
 
-Ok, you're taking a third stab at getting FSL to explain how to configu=
-re=20
-arbitrary clock speeds on the MXS I2C. Good luck ;-D
+iQIcBAEBAgAGBQJR1ySdAAoJELSic+t+oim9a6kP/29Q1GxQGBt3MEdD0V1Czybn
+UAxzHzwoXqWae+KcvY0hXMD1G29IYnFE2SsB9VETAgsGJZH+ETTWV8FacCsLZ1EG
+QRquUEoJfAl1hANEbnCyZ9+8wOhdPpctVd3jZTFl58pHdD4YAxXsyD82Ah6TnGxp
+Iy/nuYYNyu6OZfpBXpDR1ofo+AQM7poXrlueITDZosP530LirBQ/JsPbdh8Y1WkX
+lBIqkq6ggfCmTVH0QNhl/puNTp8hPNgcW2kGPwH5oRNrf7rgEkdBmAu6Gfo7byVW
+JvE/flIq/f/YtyoHox990ei04frv9sPgG6EZTp0UdlIact8ucCEolYvoROfw16SI
+AFNn4tQ2TPrutGiz5Y+oQJRzGtOX6W1hKGBlauy4dFZC1LrN/uXO0yheZPfTVSjE
+IT3h2Qk9BRVngrSowcOPshSmUuipV/r0sKu/qNOdbTqKCQ4PWjpjgMmcTpbNhY43
+H+j1QkooRhmsy9eSsGKOHH7/OXk2EZhFUW1JM27htK8o3taPWkR3bTh8g7k81ucy
+rFziwv+ZONrLJ/uOLF2xcHBU2cAXfHXkrN1l0/qXZ+NSRSkeP3v3MQTL5gQWfS37
+KN8WYSJz5WOHn2CsiOH7eoc3G/WirHku2aazx77GH0HrNkpk3LEakBYO9Uc7U9Yz
+00vY3YR7P4M/e5Mtrzvu
+=AER7
+-----END PGP SIGNATURE-----
 
-Best regards,
-Marek Vasut
+--UFi9av0ukRdmw+ig--
