@@ -1,57 +1,70 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: i2c: introduce i2c helper i2c_find_client_by_name()
-Date: Fri, 5 Jul 2013 20:55:12 +0100
-Message-ID: <20130705195512.GJ27646@sirena.org.uk>
-References: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
+From: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>
+Subject: Re: MTD EEPROM support and driver integration
+Date: Sat, 06 Jul 2013 21:06:49 +0200
+Message-ID: <8997501.Dchyii8uWX@wuerfel>
+References: <20130705201118.GM2959@lukather> <5811519.oHVuMujf0I@wuerfel> <20130706120112.GA11069@lukather>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="UFi9av0ukRdmw+ig"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130606183346.GA13259@bingao-desk1.fm.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bin Gao <bin.gao@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130706120112.GA11069@lukather>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Artem Bityutskiy <dedekind1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oliver-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Saturday 06 July 2013 14:01:12 Maxime Ripard wrote:
+> I'm not exactly sure on what happened to the previous mail that has been
+> sent empty, but anyway:
+> 
+> On Sat, Jul 06, 2013 at 11:18:00AM +0200, Arnd Bergmann wrote:
+> > On Saturday 06 July 2013 10:28:04 Maxime Ripard wrote:
+> > > > a) like interrupts, regs, dmas, clocks, pinctrl, reset, pwm: fixed property names
+> > > > 
+> > > >       regmap = <&at25 0xstart 0xlen>;
+> > > >       regmap-names = "mac-address";
+> > > > 
+> > > > b) like gpio, regulator: variable property names
+> > > > 
+> > > >       mac-storage = <&at25 0xstart 0xlen>;
+> > > > 
+> > > > It's unfortunate that we already have examples of both. They are largely
+> > > > equivalent, but the tendency is towards the first.
+> > > 
+> > > I don't have a strong feeling for one against another, so whatever works
+> > > best. Both solutions will be a huge improvement anyway 
+> > > 
+> > > Just out of curiosity, is there any advantages besides having a fixed
+> > > property name to the first solution?
+> > 
+> > I think it's mostly for consistency: trying to get most subsystems to
+> > do it the same way to make it easier for people to write dts files.
+> > 
+> > A lesser point is that it simplifies the driver code if you don't
+> > have to pass a name.
+> 
+> So that leave us with mainly one path to achieve this goal:
+>   - Add a regmap-mtd backend
+>   - Add DT parsing code for regmap
+>   - Move the EEPROM drivers from misc to mtd
 
---UFi9av0ukRdmw+ig
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Yes, I think that would be good. For the last step, we definitely need
+buy-in from Wolfgand and Jean, as they are maintaining the current eeprom
+drivers.
 
-On Thu, Jun 06, 2013 at 11:33:46AM -0700, Bin Gao wrote:
+> What other option would we have?
+> 
+> I also thought about writing an EEPROM framework of its own, but the
+> line is really thin between a large EEPROM and say a small SPI
+> dataflash, which would make it pretty hard to choose between such a
+> framework and MTD.
 
-> A good example is that an ISP(Imaging Signal Processor) driver needs
-> register i2c camera sensor devices via v4l2, so it has to unregister
-> all i2c clients that were previously registered by calling
-> i2c_register_board_info(), and then re-register. For this case we
-> can use this helper to get i2c_client by passing the client name.
+Isn't flash by definition block based, while EEPROM can be written
+in byte or word units? I think that is a significant difference, although
+it doesn't necessarily mean that we can't use MTD for both.
 
-Please look at the work that IIRC Laurent Pichart (CCed) was doing on
-developing generic DT bindings for v4l in embedded systems, it sounds
-like you're working on similar hardware here.  The general ideas should
-apply to any enumeration mechanism, not just DT.
+We also have a bunch of OTP drivers spread around the kernel, it probably
+makes sense to consolidate them at the same time, at least on the DT binding
+side if not the device drivers.
 
---UFi9av0ukRdmw+ig
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
-
-iQIcBAEBAgAGBQJR1ySdAAoJELSic+t+oim9a6kP/29Q1GxQGBt3MEdD0V1Czybn
-UAxzHzwoXqWae+KcvY0hXMD1G29IYnFE2SsB9VETAgsGJZH+ETTWV8FacCsLZ1EG
-QRquUEoJfAl1hANEbnCyZ9+8wOhdPpctVd3jZTFl58pHdD4YAxXsyD82Ah6TnGxp
-Iy/nuYYNyu6OZfpBXpDR1ofo+AQM7poXrlueITDZosP530LirBQ/JsPbdh8Y1WkX
-lBIqkq6ggfCmTVH0QNhl/puNTp8hPNgcW2kGPwH5oRNrf7rgEkdBmAu6Gfo7byVW
-JvE/flIq/f/YtyoHox990ei04frv9sPgG6EZTp0UdlIact8ucCEolYvoROfw16SI
-AFNn4tQ2TPrutGiz5Y+oQJRzGtOX6W1hKGBlauy4dFZC1LrN/uXO0yheZPfTVSjE
-IT3h2Qk9BRVngrSowcOPshSmUuipV/r0sKu/qNOdbTqKCQ4PWjpjgMmcTpbNhY43
-H+j1QkooRhmsy9eSsGKOHH7/OXk2EZhFUW1JM27htK8o3taPWkR3bTh8g7k81ucy
-rFziwv+ZONrLJ/uOLF2xcHBU2cAXfHXkrN1l0/qXZ+NSRSkeP3v3MQTL5gQWfS37
-KN8WYSJz5WOHn2CsiOH7eoc3G/WirHku2aazx77GH0HrNkpk3LEakBYO9Uc7U9Yz
-00vY3YR7P4M/e5Mtrzvu
-=AER7
------END PGP SIGNATURE-----
-
---UFi9av0ukRdmw+ig--
+	Arnd
