@@ -1,76 +1,79 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: MTD EEPROM support and driver integration
-Date: Mon, 8 Jul 2013 09:36:14 +0100
-Message-ID: <20130708083614.GP27646@sirena.org.uk>
-References: <20130705201118.GM2959@lukather>
- <5811519.oHVuMujf0I@wuerfel>
- <20130706120112.GA11069@lukather>
- <8997501.Dchyii8uWX@wuerfel>
- <20130707071501.GD11243@lukather>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gsdzuQCfFBG/nQPC"
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: [PATCH 2/2] i2c-designware: configure *CNT values from ACPI
+Date: Mon,  8 Jul 2013 14:45:27 +0300
+Message-ID: <1373283927-21677-2-git-send-email-mika.westerberg@linux.intel.com>
+References: <1373283927-21677-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130707071501.GD11243@lukather>
+In-Reply-To: <1373283927-21677-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Artem Bityutskiy <dedekind1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, oliver-dxLnbx3+1qmEVqv0pETR8A@public.gmane.org, linux-mtd-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Some Intel LPSS I2C devices make the *CNT values available from ACPI
+namespace in similar way than the SDA hold value. These values allow
+platform/BIOS to specify the most accurate *CNT values for the device
+driver to use.
 
---gsdzuQCfFBG/nQPC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+So change the ACPI part of the driver to use these values if they exists
+and otherwise use the default method based solely on the input clock speed.
 
-On Sun, Jul 07, 2013 at 09:15:01AM +0200, Maxime Ripard wrote:
-> On Sat, Jul 06, 2013 at 09:06:49PM +0200, Arnd Bergmann wrote:
+Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+This applies on top of following patch which is not yet in i2c tree:
 
-> > We also have a bunch of OTP drivers spread around the kernel, it probably
-> > makes sense to consolidate them at the same time, at least on the DT binding
-> > side if not the device drivers.
+http://permalink.gmane.org/gmane.linux.drivers.i2c/15754
 
-> From a quick grep, the only one I've seen so far are:
->   - imx6q, that has a hook at machine start to poke into its OCOTP to
->     retrieve some frequency scaling parameters it seems. I'm not sure
->     how the current solution could improve the situation for this
->     use-case, but the DT bindings of the OCOTP is just a DT node, with
->     no clients, so we have nothing to worry about here.
->   - imx28, that has a hook at machine start to look up the MAC address
->     values and patch the ethernet controller nodes to add the right
->     local-mac-address property. This one could benefit from the new
->     bindings, but we already mentionned it, and I intended to develop
->     with an imx28 board anyway.
->   - picoxcell-pc3x3 DTSI has a node for a OTP device, but they don't
->     seem to be doing anything with it, nor do they seem to have a driver
->     for it. So I guess we don't care about migrating for this one
->     either.
+ drivers/i2c/busses/i2c-designware-platdrv.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-> Did you have other cases in mind?
-
-We have some OTP support in the ab8500 and wm831x MFD drivers too but
-they just expose the data.
-
---gsdzuQCfFBG/nQPC
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
-
-iQIcBAEBAgAGBQJR2nn7AAoJELSic+t+oim9dVMP/1u9HxMIB1lyxHbpK5BGT3JR
-QXNAmhkmBwdSe2A6iltqMo1KYCCwdscUdoZh3uXZTulTuDSnsd3e/A54K8dble9Q
-vII/2Io5lscjwWH9SEoDUIxdhwZlOKiUE6m6JumvgxP91wqTk+dzE74Byk+ht0Xn
-+NPiKm+ImJ4GX2Wj+KM/LyVGqNEp37UWCjOtF6+howwRoBmTPJ3gErAYfbi//53J
-1XetR1n6RiJT/lRlSPTObITE4IZOqBvWW9Ed0CIAYsrtBmX5xyqDRLtAxmEartV6
-KAha5z6X/+wVAZM2U/o460MgUoidV1ePsoHO29G/96TPkX2inL4RKlWXGnkWoY2S
-anyDMFHQAGnBCA4DN4pqjF/k2L7GDxUDSByT5cf3tVhWO43jj/tMYBhYA9tQHmgk
-+8jET6xQ9mDUTOH+oFKMlj34ChnU8EQow4vHQuh4jDnbk7WmymtkwNHzWPD6C0LP
-5Ao3zuQzkPU8yaFIaOvdVddL+ZF0TX9XPIdSFIxy44vIAmzqz7C2V0Opj8aDgr8C
-pakvtPersXcY6pf3kML3LblELr1wj3LUV2WcQINhAxpU/lucvrAzBffAW0d7Apf1
-EvTN/gfL/Vwvtk0N08f6dXNb/wMZJsKHFGqPwkvOkQu+3lvtn4BnrbN8LYTIxIS7
-olPWUCbSLresgTAhzPjI
-=GqC4
------END PGP SIGNATURE-----
-
---gsdzuQCfFBG/nQPC--
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index c7cfdac..a1488df 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -59,7 +59,6 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+ 	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER };
+ 	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
+-	acpi_string name;
+ 
+ 	if (!handle)
+ 		return -ENODEV;
+@@ -68,14 +67,32 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+ 	dev->tx_fifo_depth = 32;
+ 	dev->rx_fifo_depth = 32;
+ 
+-	name = dev->master_cfg & DW_IC_CON_SPEED_FAST ? "FMCN" : "SSCN";
+-	if (ACPI_SUCCESS(acpi_evaluate_object(handle, name, NULL, &buf))) {
++	/* Standard speed configuration */
++	if (ACPI_SUCCESS(acpi_evaluate_object(handle, "SSCN", NULL, &buf))) {
+ 		union acpi_object *obj = (union acpi_object *)buf.pointer;
+ 
+ 		if (obj->type == ACPI_TYPE_PACKAGE && obj->package.count == 3) {
+ 			const union acpi_object *objs = obj->package.elements;
+ 
+-			dev->sda_hold_time = (u32)objs[2].integer.value;
++			dev->ss_hcnt = (u16)objs[0].integer.value;
++			dev->ss_lcnt = (u16)objs[1].integer.value;
++			if (!(dev->master_cfg & DW_IC_CON_SPEED_FAST))
++				dev->sda_hold_time = (u32)objs[2].integer.value;
++		}
++
++		kfree(buf.pointer);
++	}
++	/* Fast speed configuration */
++	if (ACPI_SUCCESS(acpi_evaluate_object(handle, "FMCN", NULL, &buf))) {
++		union acpi_object *obj = (union acpi_object *)buf.pointer;
++
++		if (obj->type == ACPI_TYPE_PACKAGE && obj->package.count == 3) {
++			const union acpi_object *objs = obj->package.elements;
++
++			dev->fs_hcnt = (u16)objs[0].integer.value;
++			dev->fs_lcnt = (u16)objs[1].integer.value;
++			if (dev->master_cfg & DW_IC_CON_SPEED_FAST)
++				dev->sda_hold_time = (u32)objs[2].integer.value;
+ 		}
+ 
+ 		kfree(buf.pointer);
+-- 
+1.8.3.2
