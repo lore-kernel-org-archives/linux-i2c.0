@@ -1,109 +1,133 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: MTD EEPROM support and driver integration
-Date: Tue, 9 Jul 2013 15:55:10 +0100
-Message-ID: <20130709145510.GZ27646@sirena.org.uk>
-References: <20130705201118.GM2959@lukather> <5811519.oHVuMujf0I@wuerfel>
- <20130706120112.GA11069@lukather> <8997501.Dchyii8uWX@wuerfel>
- <20130708083426.GO27646@sirena.org.uk>
- <20130708202538.GK11243@lukather>
+From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
+Date: Tue, 9 Jul 2013 18:19:28 +0200
+Message-ID: <20130709161927.GC30236@ab42.lan>
+References: <1373283927-21677-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20130708134216.GB6402@ab42.lan>
+ <20130709084402.GF4898@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============5621913671310221085=="
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20130708202538.GK11243@lukather>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Maxime Ripard <maxime.ripard@free-electrons.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Artem Bityutskiy <dedekind1@gmail.com>, oliver@schinagl.nl, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Wolfram Sang <wsa@the-dreams.de>, linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, Jean Delvare <khali@linux-fr.org>, Shawn Guo <shawn.guo@linaro.org>, David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130709084402.GF4898-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Jul 09, 2013 at 11:44:02AM +0300, Mika Westerberg wrote:
+> On Mon, Jul 08, 2013 at 03:42:17PM +0200, Christian Ruppert wrote:
+> > On Mon, Jul 08, 2013 at 02:45:26PM +0300, Mika Westerberg wrote:
+> > > The DesignWare I2C controller has high count (HCNT) and low count=
+ (LCNT)
+> > > registers for each of the I2C speed modes (standard and fast). Th=
+ese
+> > > registers are programmed based on the input clock speed in the dr=
+iver.
+> > >=20
+> > > However, that is not always the most accurate way. For example on=
+ Intel
+> > > BayTrail we have 100MHz input clock and calculated *CNT values re=
+sult as
+> > > measured by one of our team:
+> > >=20
+> > >  Standard mode: 100.25kHz
+> > >  Fast mode    : 315.41kHZ
+> > >=20
+> > > The fast mode speed is over 20% lower than what is expected.
+> >=20
+> > We have observed similar issues and I am wondering if this effect i=
+s due
+> > to the overly-pessimistic formulas in i2c_dw_scl_lcnt and
+> > i2c_dw_scl_hcnt. The comments in these functions are a bit confusin=
+g and
+> > I don't pretend having fully understood what the intention is. I'm
+> > having the impression that defining the arguments tf in function of=
+ the
+> > hardware would be the "correct" way to achieve better clock accurac=
+y.
+>=20
+> Well, that's not the only timing parameter specified in the I2C spec.=
+ We
+> also have tr among other things (even though the dw driver doesn't us=
+e it).
 
---===============5621913671310221085==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3aDtFGIaURYlkDgg"
-Content-Disposition: inline
+Exactly. Ant T_HD;STA which is mentioned somewhere in the comment and
+one of the reasons why I never dared touching these functions. The fact
+that the designware IP doesn't seem to manage all timings makes this
+function quite difficult to understand.
 
+> > > It might be
+> > > that there are things like strenght of the pull-up resistors, bus
+> > > capacitance etc. that are very platform specific and have an effe=
+ct on the
+> > > clock signal.
+> >=20
+> > I believe tf is supposed to model these things. I just haven't clea=
+rly
+> > understood how. In my understanding, transition times should be
+> > subtracted rather than added to cycle times or am I getting somethi=
+ng
+> > fundamentally wrong here?
+>=20
+> I'm not sure, honestly :-) I believe tf is the same tf that is in the=
+ I2C
+> spec, meaning fall time of both SCL and SDA signals and the spec meas=
+ures
+> one clock cycle to be from end of the first tf to the end of the seco=
+nd
+> (fig. 27 in the I2C spec). If I'm reading it right then it means addi=
+ng
+> instead of substracting.
+> Do you have any suggestions how we could use tf here?
 
---3aDtFGIaURYlkDgg
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+What I meant is the following: The clock cycle time Tc is composed of
+the four components
 
-On Mon, Jul 08, 2013 at 10:25:38PM +0200, Maxime Ripard wrote:
-> On Mon, Jul 08, 2013 at 09:34:26AM +0100, Mark Brown wrote:
+  Tc =3D Th + Tf + Tl + Tr
 
-> > I'd really like to see more discussion of this "DT parsing code for
-> > regmap" idea...  I've missed almost all the context here.
+where
+  Th: Time during which the signal is high
+  Tf: Falling edge transition time
+  Tl: Time during which the signal is low
+  Tr: Rising edge transition time
 
-> The context was that I found we lack a way to simply express the need
-> for one driver to get a value from an EEPROM-like device, for example to
-> get a MAC Address, or a serial number, in a generic way, without having
-> to poke directly with some custom function that would be exported by the
-> EEPROM driver.
+The I2C specification specifies a minimum for Tl and Th and a range (or
+maximum) for Tr and Tf. A maximum frequency is specified as the
+frequency obtained by adding the minima for Th and Tl to the maxima of
+Tr ant Tf.
+Since as you said, transition times are very much PCB dependent, one wa=
+y
+to guarantee the max. frequency constraint (and to achieve a constant
+frequency at its max) is to define the constants
+Th' =3D Th + Tf :=3D Th_min + Tf_max
+Tl' =3D Tl + Tr :=3D Tl_min + Tr_max
 
-This sort of information is often stored in places like flash partitions
-too.  Are we sure that regmap is a good place to be hooking in here?
-The use case is sane, and being able to use regmap to do some of it
-seems sensible (I've seen people use OTP in PMICs for similar purposes)
-but perhaps an additional layer of abstraction on top makes sense.
+and to calculate the variables
+Th =3D Th' - Tf
+Tl =3D Tl' - Tr
+in function of Tf and Tr of the given PCB.
 
-> What we've been discussing so far is that:
->   - To have a common framework we could base our work on, we could move
->     the EEPROM drivers from drivers/misc/eeprom to MTD
->   - To declare the ranges that needed to be used by a driver that was
->     needing a value from one of those MTD drivers, we would use regmap
->     with a MTD backend
->   - And since we actually need to declare which ranges and in which
->     device one driver would have to retrieve this value from, we were
->     actually in need of DT bindings.
+> At least on Intel
+> hardware we have an ACPI method that returns directly the optimum *CN=
+T
+> values.
 
-> This is pretty much the only context involved, and we are at the early
-> stage of the discussion, so any comment is very welcome :)
+I don't know ACPI very well and if it deals with register values
+directly your patch is probably the right thing. The timing calculation
+in the driver seems a bit strange to me, however (see above), but I
+never dared touching it because I never had time to dive into the code
+deep enough and I was just wondering if it was possible to fix it at th=
+e
+same time. If ACPI bypasses the function alltogether this is probably
+not applicable.
 
-If this stuff is being represented in MTD doesn't MTD already have
-adequate abstractions for saying "this region in flash".  But otherwise
-this seems fine, it's not a generic regmap DT binding but instead rather
-more specific than that.
-
---3aDtFGIaURYlkDgg
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.20 (GNU/Linux)
-
-iQIcBAEBAgAGBQJR3CRLAAoJELSic+t+oim9/fkQAIfgoN5SRhyj8ZAbGa4b4Ulm
-JzOoeIMuSKHxri5+dpG4mpCtORIrDq+dThd+c6plhBVBLZlJ2UoCT7NatfGB6jqM
-PFmZQ43nOZVcWwR291arCyG8b6gpd2c1AzrO3Ofufw0dlm3GgPKs4EuEZszPunoy
-Mkad+y8z0iGOvHEzXm0fAs4zC5tjHEVkgLToHxogZ6McF9OrIMrLey2BeUwvQJIY
-GQppcVJagLrRAROKECWfmdjlJSmkr3QqyZMMG/uaQovSVuJOPyDOBysE5i8XsBWY
-7nnH14YXykmw6oUzH45E9ZBpI0R51VVhvMIdvIJMxqsclTd6M1y2JJxJV8AxhnJt
-odb7sMGEbEV2yUO7sSBFPLoAuPrT8GIO5IvNuJE0JP9b04O2Dvq/NDl8puhVw5Jo
-o+k3+y5WI3+PJDVrxKlp+w7Vuu6C0EOomQHYaEq8xhhkwwehIdtUMHXiPPU06ztm
-vXfzCVWWbaiEDHXX14tGP4Y+s14+3Tv/R6X+1+uyCyDflCJ+gIDq87uLLB9wnfpL
-V02xc/brP8Hu+cnedVgnzPx4NlzqHDhgNFifwpejx72zBJHDtW4w3TrxjaPvLw5a
-WVirvW65t8rHgxgA4Nw+p3ven3rEKfkW7Cn9mMVnJycFcrDO/NunI71tu1Oxr18A
-Q9Xq6ZRpziwfbvLdqhBj
-=OEHm
------END PGP SIGNATURE-----
-
---3aDtFGIaURYlkDgg--
-
-
---===============5621913671310221085==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-linux-arm-kernel mailing list
-linux-arm-kernel@lists.infradead.org
-http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-
---===============5621913671310221085==--
+--=20
+  Christian Ruppert              ,          <christian.ruppert@abilis.c=
+om>
+                                /|
+  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
+leuri
+                             _// | bilis Systems   CH-1228 Plan-les-Oua=
+tes
