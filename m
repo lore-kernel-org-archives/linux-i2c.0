@@ -1,90 +1,74 @@
-From: Nguyen Viet Dung <user-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Subject: [PATCH v2 1/1] i2c: rcar: modify I2C driver
-Date: Wed, 10 Jul 2013 18:15:18 +0900
-Message-ID: <1373447718-19382-2-git-send-email-user@jinso.co.jp>
-References: <1373447718-19382-1-git-send-email-user@jinso.co.jp>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
+Date: Wed, 10 Jul 2013 13:52:15 +0300
+Message-ID: <20130710105215.GY4898@intel.com>
+References: <1373283927-21677-1-git-send-email-mika.westerberg@linux.intel.com>
+ <20130708134216.GB6402@ab42.lan>
+ <20130709084402.GF4898@intel.com>
+ <20130709161927.GC30236@ab42.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1373447718-19382-1-git-send-email-user-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130709161927.GC30236-7oYq3qWSd+k@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
+To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+On Tue, Jul 09, 2013 at 06:19:28PM +0200, Christian Ruppert wrote:
+> What I meant is the following: The clock cycle time Tc is composed of
+> the four components
+> 
+>   Tc = Th + Tf + Tl + Tr
+> 
+> where
+>   Th: Time during which the signal is high
+>   Tf: Falling edge transition time
+>   Tl: Time during which the signal is low
+>   Tr: Rising edge transition time
+> 
+> The I2C specification specifies a minimum for Tl and Th and a range (or
+> maximum) for Tr and Tf. A maximum frequency is specified as the
+> frequency obtained by adding the minima for Th and Tl to the maxima of
+> Tr ant Tf.
+> Since as you said, transition times are very much PCB dependent, one way
+> to guarantee the max. frequency constraint (and to achieve a constant
+> frequency at its max) is to define the constants
+> Th' = Th + Tf := Th_min + Tf_max
+> Tl' = Tl + Tr := Tl_min + Tr_max
+> 
+> and to calculate the variables
+> Th = Th' - Tf
+> Tl = Tl' - Tr
+> in function of Tf and Tr of the given PCB.
 
-This patch modify calculate for clock in I2C driver.
+If I understand the above, it leaves Tf and Tr to be PCB specific and then
+these values are passed to the core driver from platform data, right?
 
-Signed-off-by: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
----
- drivers/i2c/busses/i2c-rcar.c |   17 +++++++++++++++--
- include/linux/i2c/i2c-rcar.h  |    4 ++++
- 2 files changed, 19 insertions(+), 2 deletions(-)
+I'm thinking that passing directly the "measured" *CNT values from the
+platform data makes this even more accurate (given that information is
+available). And if you only have the Tf and Tr for your board, you can have
+custom calculation done in the platform part of the driver that takes them
+into account, and then passes these custom *CNT values to the core.
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 4ba4a95..85987c1 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -221,15 +221,28 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 				    struct device *dev)
- {
- 	struct clk *clkp = clk_get(NULL, "peripheral_clk");
-+	struct i2c_rcar_platform_data *pdata = dev->platform_data;
- 	u32 scgd, cdf;
- 	u32 round, ick;
- 	u32 scl;
-+	u32 cdf_width;
-+	u32 flags = pdata ? pdata->flags : 0;
- 
- 	if (!clkp) {
- 		dev_err(dev, "there is no peripheral_clk\n");
- 		return -EIO;
- 	}
- 
-+	switch (flags & I2C_RCAR_FLAGS_ICCCR_MASK) {
-+	default:
-+	case I2C_RCAR_FLAGS_ICCCR_IS_2BIT:
-+		cdf_width = 2;
-+		break;
-+	case I2C_RCAR_FLAGS_ICCCR_IS_3BIT:
-+		cdf_width = 3;
-+		break;
-+	}
-+
- 	/*
- 	 * calculate SCL clock
- 	 * see
-@@ -245,7 +258,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
- 	 */
--	for (cdf = 0; cdf < 4; cdf++) {
-+	for (cdf = 0; cdf < (1 << cdf_width); cdf++) {
- 		ick = clk_get_rate(clkp) / (1 + cdf);
- 		if (ick < 20000000)
- 			goto ick_find;
-@@ -287,7 +300,7 @@ scgd_find:
- 	/*
- 	 * keep icccr value
- 	 */
--	priv->icccr = (scgd << 2 | cdf);
-+	priv->icccr = (scgd << (cdf_width) | cdf);
- 
- 	return 0;
- }
-diff --git a/include/linux/i2c/i2c-rcar.h b/include/linux/i2c/i2c-rcar.h
-index 496f5c2..572a6e5 100644
---- a/include/linux/i2c/i2c-rcar.h
-+++ b/include/linux/i2c/i2c-rcar.h
-@@ -5,6 +5,10 @@
- 
- struct i2c_rcar_platform_data {
- 	u32 bus_speed;
-+	u32 flags;
-+#define I2C_RCAR_FLAGS_ICCCR_MASK	(0xF << 0)
-+#define I2C_RCAR_FLAGS_ICCCR_IS_2BIT	(0 << 0) /* default */
-+#define I2C_RCAR_FLAGS_ICCCR_IS_3BIT	(1 << 0)
- };
- 
- #endif /* __I2C_R_CAR_H__ */
--- 
-1.7.9.5
+> > At least on Intel
+> > hardware we have an ACPI method that returns directly the optimum *CNT
+> > values.
+> 
+> I don't know ACPI very well and if it deals with register values
+> directly your patch is probably the right thing.
+
+Our FW people decided to have a custom ACPI method that returns the correct
+values to be used in the Windows I2C driver. It returns direct *CNT
+register values that have been measured to be good for a given PCB.
+
+> The timing calculation in the driver seems a bit strange to me, however
+> (see above), but I never dared touching it because I never had time to
+> dive into the code deep enough and I was just wondering if it was
+> possible to fix it at the same time.
+
+It would be good if we can fix this for non-ACPI devices as well. Is it
+hard to add similar properties to the driver specific Device Tree bindings?
+
+Wolfram, do you have any input on this?
