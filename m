@@ -1,74 +1,88 @@
 From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
-Date: Wed, 10 Jul 2013 13:52:15 +0300
-Message-ID: <20130710105215.GY4898@intel.com>
+Subject: Re: [PATCH 2/2] i2c-designware: configure *CNT values from ACPI
+Date: Wed, 10 Jul 2013 16:01:16 +0300
+Message-ID: <20130710130116.GC4898@intel.com>
 References: <1373283927-21677-1-git-send-email-mika.westerberg@linux.intel.com>
- <20130708134216.GB6402@ab42.lan>
- <20130709084402.GF4898@intel.com>
- <20130709161927.GC30236@ab42.lan>
+ <1373283927-21677-2-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130709161927.GC30236-7oYq3qWSd+k@public.gmane.org>
+In-Reply-To: <1373283927-21677-2-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Jul 09, 2013 at 06:19:28PM +0200, Christian Ruppert wrote:
-> What I meant is the following: The clock cycle time Tc is composed of
-> the four components
+On Mon, Jul 08, 2013 at 02:45:27PM +0300, Mika Westerberg wrote:
+> Some Intel LPSS I2C devices make the *CNT values available from ACPI
+> namespace in similar way than the SDA hold value. These values allow
+> platform/BIOS to specify the most accurate *CNT values for the device
+> driver to use.
 > 
->   Tc = Th + Tf + Tl + Tr
+> So change the ACPI part of the driver to use these values if they exists
+> and otherwise use the default method based solely on the input clock speed.
 > 
-> where
->   Th: Time during which the signal is high
->   Tf: Falling edge transition time
->   Tl: Time during which the signal is low
->   Tr: Rising edge transition time
+> Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> ---
+> This applies on top of following patch which is not yet in i2c tree:
 > 
-> The I2C specification specifies a minimum for Tl and Th and a range (or
-> maximum) for Tr and Tf. A maximum frequency is specified as the
-> frequency obtained by adding the minima for Th and Tl to the maxima of
-> Tr ant Tf.
-> Since as you said, transition times are very much PCB dependent, one way
-> to guarantee the max. frequency constraint (and to achieve a constant
-> frequency at its max) is to define the constants
-> Th' = Th + Tf := Th_min + Tf_max
-> Tl' = Tl + Tr := Tl_min + Tr_max
+> http://permalink.gmane.org/gmane.linux.drivers.i2c/15754
 > 
-> and to calculate the variables
-> Th = Th' - Tf
-> Tl = Tl' - Tr
-> in function of Tf and Tr of the given PCB.
-
-If I understand the above, it leaves Tf and Tr to be PCB specific and then
-these values are passed to the core driver from platform data, right?
-
-I'm thinking that passing directly the "measured" *CNT values from the
-platform data makes this even more accurate (given that information is
-available). And if you only have the Tf and Tr for your board, you can have
-custom calculation done in the platform part of the driver that takes them
-into account, and then passes these custom *CNT values to the core.
-
-> > At least on Intel
-> > hardware we have an ACPI method that returns directly the optimum *CNT
-> > values.
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 25 +++++++++++++++++++++----
+>  1 file changed, 21 insertions(+), 4 deletions(-)
 > 
-> I don't know ACPI very well and if it deals with register values
-> directly your patch is probably the right thing.
+> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+> index c7cfdac..a1488df 100644
+> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+> @@ -59,7 +59,6 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+>  	struct dw_i2c_dev *dev = platform_get_drvdata(pdev);
+>  	struct acpi_buffer buf = { ACPI_ALLOCATE_BUFFER };
+>  	acpi_handle handle = ACPI_HANDLE(&pdev->dev);
+> -	acpi_string name;
+>  
+>  	if (!handle)
+>  		return -ENODEV;
+> @@ -68,14 +67,32 @@ static int dw_i2c_acpi_configure(struct platform_device *pdev)
+>  	dev->tx_fifo_depth = 32;
+>  	dev->rx_fifo_depth = 32;
+>  
+> -	name = dev->master_cfg & DW_IC_CON_SPEED_FAST ? "FMCN" : "SSCN";
+> -	if (ACPI_SUCCESS(acpi_evaluate_object(handle, name, NULL, &buf))) {
+> +	/* Standard speed configuration */
+> +	if (ACPI_SUCCESS(acpi_evaluate_object(handle, "SSCN", NULL, &buf))) {
+>  		union acpi_object *obj = (union acpi_object *)buf.pointer;
+>  
+>  		if (obj->type == ACPI_TYPE_PACKAGE && obj->package.count == 3) {
+>  			const union acpi_object *objs = obj->package.elements;
+>  
+> -			dev->sda_hold_time = (u32)objs[2].integer.value;
+> +			dev->ss_hcnt = (u16)objs[0].integer.value;
+> +			dev->ss_lcnt = (u16)objs[1].integer.value;
+> +			if (!(dev->master_cfg & DW_IC_CON_SPEED_FAST))
+> +				dev->sda_hold_time = (u32)objs[2].integer.value;
+> +		}
+> +
+> +		kfree(buf.pointer);
+> +	}
+> +	/* Fast speed configuration */
+> +	if (ACPI_SUCCESS(acpi_evaluate_object(handle, "FMCN", NULL, &buf))) {
 
-Our FW people decided to have a custom ACPI method that returns the correct
-values to be used in the Windows I2C driver. It returns direct *CNT
-register values that have been measured to be good for a given PCB.
+There is a problem with the above as it reuses buf from the previous call.
+I'll post a new revision of the patches with this fixed.
 
-> The timing calculation in the driver seems a bit strange to me, however
-> (see above), but I never dared touching it because I never had time to
-> dive into the code deep enough and I was just wondering if it was
-> possible to fix it at the same time.
-
-It would be good if we can fix this for non-ACPI devices as well. Is it
-hard to add similar properties to the driver specific Device Tree bindings?
-
-Wolfram, do you have any input on this?
+> +		union acpi_object *obj = (union acpi_object *)buf.pointer;
+> +
+> +		if (obj->type == ACPI_TYPE_PACKAGE && obj->package.count == 3) {
+> +			const union acpi_object *objs = obj->package.elements;
+> +
+> +			dev->fs_hcnt = (u16)objs[0].integer.value;
+> +			dev->fs_lcnt = (u16)objs[1].integer.value;
+> +			if (dev->master_cfg & DW_IC_CON_SPEED_FAST)
+> +				dev->sda_hold_time = (u32)objs[2].integer.value;
+>  		}
+>  
+>  		kfree(buf.pointer);
+> -- 
+> 1.8.3.2
