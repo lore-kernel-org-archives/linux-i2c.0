@@ -1,136 +1,95 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
-Date: Thu, 11 Jul 2013 10:36:00 +0300
-Message-ID: <20130711073600.GG4898@intel.com>
-References: <1373283927-21677-1-git-send-email-mika.westerberg@linux.intel.com>
- <20130708134216.GB6402@ab42.lan>
- <20130709084402.GF4898@intel.com>
- <20130709161927.GC30236@ab42.lan>
- <20130710105215.GY4898@intel.com>
- <20130710165634.GA30693@ab42.lan>
+From: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: pxa: enable high speed mode for i2c bus
+Date: Thu, 11 Jul 2013 16:00:03 +0800
+Message-ID: <CAOng1WRu8yjVQ2jhm7fnPcG6ts+fBSxpn-D1ZCcLQvSVBfmF3A@mail.gmail.com>
+References: <1370587097-21006-1-git-send-email-shangll@marvell.com>
+	<20130615144812.GD2923@katana>
+	<CAOng1WTa0c2Jb9yPeynKXQ0K4-bPhrcGPsKd-AP-MuxQPH80Jg@mail.gmail.com>
+	<CAOng1WSNDQMrce6CSN9Zh-FHJgoC6+SbOioYTyuoiAFTBdPYbA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130710165634.GA30693-7oYq3qWSd+k@public.gmane.org>
+In-Reply-To: <CAOng1WSNDQMrce6CSN9Zh-FHJgoC6+SbOioYTyuoiAFTBdPYbA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 10, 2013 at 06:56:35PM +0200, Christian Ruppert wrote:
-> On Wed, Jul 10, 2013 at 01:52:15PM +0300, Mika Westerberg wrote:
-> > On Tue, Jul 09, 2013 at 06:19:28PM +0200, Christian Ruppert wrote:
-> > > What I meant is the following: The clock cycle time Tc is composed of
-> > > the four components
-> > > 
-> > >   Tc = Th + Tf + Tl + Tr
-> > > 
-> > > where
-> > >   Th: Time during which the signal is high
-> > >   Tf: Falling edge transition time
-> > >   Tl: Time during which the signal is low
-> > >   Tr: Rising edge transition time
-> > > 
-> > > The I2C specification specifies a minimum for Tl and Th and a range (or
-> > > maximum) for Tr and Tf. A maximum frequency is specified as the
-> > > frequency obtained by adding the minima for Th and Tl to the maxima of
-> > > Tr ant Tf.
-> > > Since as you said, transition times are very much PCB dependent, one way
-> > > to guarantee the max. frequency constraint (and to achieve a constant
-> > > frequency at its max) is to define the constants
-> > > Th' = Th + Tf := Th_min + Tf_max
-> > > Tl' = Tl + Tr := Tl_min + Tr_max
-> > > 
-> > > and to calculate the variables
-> > > Th = Th' - Tf
-> > > Tl = Tl' - Tr
-> > > in function of Tf and Tr of the given PCB.
-> > 
-> > If I understand the above, it leaves Tf and Tr to be PCB specific and then
-> > these values are passed to the core driver from platform data, right?
-> 
-> That would be the idea: Calculate Th' and Tl' in function of the desired
-> clock frequency and duty cycle and then adapt these values using
-> measured transition times. What prevented me from implementing this
-> rather academic approach are the following comments in
-> i2c-designware-core.c:
-> 
-> /*
->  * DesignWare I2C core doesn't seem to have solid strategy to meet
->  * the tHD;STA timing spec.  Configuring _HCNT based on tHIGH spec
->  * will result in violation of the tHD;STA spec.
->  */
-> 
-> /* ...
->  * This is just experimental rule; the tHD;STA period
->  * turned out to be proportinal to (_HCNT + 3).  With this setting,
->  * we could meet both tHIGH and tHD;STA timing specs.
->  * ...
->  */
-> 
-> If I interpret this right, the slow down of the clock is intentional to
-> meet tHD;STA timing constraints.
+Hi all
 
-Yeah, looks like so. tHD;STA is the SDA hold time. I wonder if the above
-comments apply to some earlier version of the IP that didn't have the SDA
-hold register?
+      I am still waiting for your response.....
 
-> > I'm thinking that passing directly the "measured" *CNT values from the
-> > platform data makes this even more accurate (given that information is
-> > available). And if you only have the Tf and Tr for your board, you can have
-> > custom calculation done in the platform part of the driver that takes them
-> > into account, and then passes these custom *CNT values to the core.
-> 
-> Well, as in the previous discussion on SDA hold time, Tf and Tr are
-> physical values whereas the register values are clock dependent and
-> probably not appropriate at least for device tree usage (or cases where
-> the clock speed might change). If I understand you correctly, ACPI is
-> more register oriented and able to cope with this outside of the OS?
-
-Well, ACPI doesn't care what its methods return (unless the methods are
-specfied in the ACPI spec). In this case it just returns a package of three
-values: HCNT, LCNT and SDA hold time.
-
-I guess it is supposed to work like this:
-
- * If there is no vendor specific SSCN/FMCN methods for the device we can
-   just use the default and calculate *CNT from the clock speed.
- * If there exists a method, we use the values there instead.
-
-I think the Windows driver does something like above. IMHO we should to the
-same in Linux driver to be able to take advantage of the measured *CNT
-values.
-
-> > > > At least on Intel
-> > > > hardware we have an ACPI method that returns directly the optimum *CNT
-> > > > values.
-> > > 
-> > > I don't know ACPI very well and if it deals with register values
-> > > directly your patch is probably the right thing.
-> > 
-> > Our FW people decided to have a custom ACPI method that returns the correct
-> > values to be used in the Windows I2C driver. It returns direct *CNT
-> > register values that have been measured to be good for a given PCB.
-> > 
-> > > The timing calculation in the driver seems a bit strange to me, however
-> > > (see above), but I never dared touching it because I never had time to
-> > > dive into the code deep enough and I was just wondering if it was
-> > > possible to fix it at the same time.
-> > 
-> > It would be good if we can fix this for non-ACPI devices as well. Is it
-> > hard to add similar properties to the driver specific Device Tree bindings?
-> 
-> I think it would be quite trivial to add properties for either the
-> register values or the transition time values. For SDA hold time we
-> concluded that time values would be more adequate which brings us to the
-> question of better understanding the hack for tHD;SDA. Otherwise we
-> might break something. Do you think your team which determines the
-> tHD;SDA values could give us some guidance on that?
-
-I2C spec says following about the tHD;STA:
-
- Standard mode	: min 4.0 us
- Fast mode	: min 0.6 us
-
-But I can try to ask from our HW guys for an answer.
+2013/7/5 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+> Hi guys,
+>
+>         Any comments?
+>
+> 2013/7/2 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
+>> Hi Wolfram
+>>
+>>     Have you finished reading datasheet?
+>>
+>> 2013/6/15 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
+>>> Hi,
+>>>
+>>> On Fri, Jun 07, 2013 at 02:38:17PM +0800, Leilei Shang wrote:
+>>>> To enter high speed mode, following steps should be done:
+>>>> 1. When running in high speed mode, i2c clock rate is different
+>>>> from standard mode. Clock rate must be set according to
+>>>> specification first.
+>>>> 2. When i2c controller sends a master code and wins arbitration,
+>>>> high speed mode is entered.
+>>>>
+>>>> If you want to enable high speed mode, the following members of
+>>>> platform data should be set to proper value:
+>>>
+>>> I couldn't find any support for hs-mode in pxa2xx and pxa3xx. So it
+>>> shouldn't be set in platform data, but depending on checks if this is
+>>> supported on this device at all. And why don't simply switch to it if
+>>> rate is bigger than what is supported without hs-mode?
+>>>
+>>
+>> 1. High speed mode is hardware feature, you can't read it from
+>> software. It's similar to fast mode, and fast mode is set in platform
+>> data.
+>>
+>>     The only method I can think of is to add a platform, like pxa910.
+>> And if you enable hs mode and platform is not pxa910, we'll set it to
+>> normal mode. Is this OK?
+>>
+>> 2. About hs mode clock setting. We don't know whether currently hs
+>> mode clock will be changed in future. Do you think below code is OK?
+>>
+>> if (i2c->rate)
+>>             clk_set_rate(i2c->clk, i2c->rate);
+>> else
+>>             clk_set_rate(i2c->clk, 62400000);
+>>
+>>             pr_info("i2c: <%s> set rate to %ld\n",
+>>                 i2c->adap.name, clk_get_rate(i2c->clk));
+>>
+>>>> 1. "high_mode" should be set to "1".
+>>>> 2. "master_code" should be set to "8'b 0000_1xxx"(x is 0 or 1).
+>>>>    If no master_code is set, set to default value 0xe.
+>>>> 3. "rate" should be set according to specification.
+>>>
+>>> Note that you should fall back to full-speed mode after sending the stop
+>>> bit in high-speed mode. I can't find this in the code?
+>>>
+>>
+>> 3. Will fall back to normal mode when stop bit is sent.
+>>
+>>>>
+>>>> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>>>
+>>> Which SoC supports this? I'd like to have a look at the datasheet.
+>>>
+>>> Thanks,
+>>>
+>>>    Wolfram
+>>>
+>>
+>> Hope you can reply soon!
+>>
+>> Best regards
+>> Leilei
