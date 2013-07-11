@@ -1,31 +1,60 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: Temporarily disabling SNB package C-states?
-Date: Wed, 10 Jul 2013 14:03:20 -0700
-Message-ID: <CALCETrWFVbTDy1u6bpe6h6fGMZHpOvKa3VmzmJ7cej9WOqFiWg@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-pm-owner@vger.kernel.org>
-Sender: linux-pm-owner@vger.kernel.org
-To: x86@kernel.org, linux-pm@vger.kernel.org, Len Brown <lenb@kernel.org>, linux-i2c@vger.kernel.org
+From: Fabio Estevam <festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c: i2c-mxs: Check the return value from stmp_reset_block()
+Date: Wed, 10 Jul 2013 22:07:23 -0300
+Message-ID: <1373504843-15259-1-git-send-email-festevam@gmail.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: marex-ynQEQJNshbs@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-I wrote a driver for the SNB Xeon iMC SMBUS adapter, but it doesn't
-work right due to erratum BT109 (I think).  To work around it, I need
-to keep a particular cpu package awake for a few ms when my driver is
-in use.  Is there a good way to do this?  So far I've thought of:
+From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
- - pm_qos.  This seems hacky and it will keep a lot more of the system
-awake than I need.
+stmp_reset_block() may fail, so let's check its return value and propagate it in
+the case of error.
 
- - Hook into cpuidle to keep a single core awake.
+Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mxs.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
- - Actually run on the target package, possibly in a kthread or
-workqueue, and stay busy.  Ugh.
-
- - Fiddle with the package c-state limit (in
-MSR_PKG_CST_CONFIG_CONTROL) directly.  This seems like it's asking for
-trouble.  I'd have to coordinate with intel_idle, presumably.
-
-Any ideas/suggestions?
-
---Andy
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index df8ff5a..1891ae7 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -123,9 +123,11 @@ struct mxs_i2c_dev {
+ 	bool				dma_read;
+ };
+ 
+-static void mxs_i2c_reset(struct mxs_i2c_dev *i2c)
++static int mxs_i2c_reset(struct mxs_i2c_dev *i2c)
+ {
+-	stmp_reset_block(i2c->regs);
++	int ret = stmp_reset_block(i2c->regs);
++	if (ret)
++		return ret;
+ 
+ 	/*
+ 	 * Configure timing for the I2C block. The I2C TIMING2 register has to
+@@ -139,6 +141,8 @@ static void mxs_i2c_reset(struct mxs_i2c_dev *i2c)
+ 	writel(0x00300030, i2c->regs + MXS_I2C_TIMING2);
+ 
+ 	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
++
++	return 0;
+ }
+ 
+ static void mxs_i2c_dma_finish(struct mxs_i2c_dev *i2c)
+@@ -683,7 +687,9 @@ static int mxs_i2c_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, i2c);
+ 
+ 	/* Do reset to enforce correct startup after pinmuxing */
+-	mxs_i2c_reset(i2c);
++	err = mxs_i2c_reset(i2c);
++	if (err)
++		return err;
+ 
+ 	adap = &i2c->adapter;
+ 	strlcpy(adap->name, "MXS I2C adapter", sizeof(adap->name));
+-- 
+1.8.1.2
