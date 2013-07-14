@@ -1,116 +1,147 @@
-From: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
-Date: Sat, 13 Jul 2013 14:36:43 +0900
-Message-ID: <51E0E76B.1040304@pobox.com>
-References: <1373283927-21677-1-git-send-email-mika.westerberg@linux.intel.com> <20130708134216.GB6402@ab42.lan> <20130709084402.GF4898@intel.com> <20130709161927.GC30236@ab42.lan> <20130710105215.GY4898@intel.com> <20130710165634.GA30693@ab42.lan> <20130711073600.GG4898@intel.com> <20130711101330.GP4898@intel.com> <51DFB6C1.4040001@pobox.com> <20130712085140.GY4898@intel.com>
+From: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c-piix4: Add support for secondary SMBus on AMD
+ SB800 and AMD FCH chipsets
+Date: Sun, 14 Jul 2013 23:17:26 +0200
+Message-ID: <51E31566.2070509@assembler.cz>
+References: <5196B32D.7060501@assembler.cz> <1369294522.12648.11.camel@mattotaupa> <20130611193539.GG3376@katana> <51B77EC0.2020204@assembler.cz> <20130617071615.GB2957@katana> <51BF8184.8090807@assembler.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed;
+ boundary="------------040607050603070907050006"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130712085140.GY4898-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <51BF8184.8090807-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
-Cc: christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------040607050603070907050006
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Now I've had a look at the whole discussion.
+From: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 
-Basically, DW I2C core provides a good enough (and quite direct) way
-to control tHIGH and tLOW timing specs, *HCNT and *LCNT registers.
+Add support for the secondary SMBus controller on the AMD SB800 and AMD FCH 
+chipsets.
 
-But from my experience (with a slightly old version of DW I2C core
-around 2005, version 1.06a or so), DW I2C core was apparently lacking
-in an appropriate hardware mechanism to meet tHD;STA timing spec.  We
-then found that we could meet tHD;STA by increasing *HCNT values, so
-that's what currently we have in i2c-designware.c  I know with that
-workaround applied, tHIGH is to be configured with a larger value
-than necessary, but we have no choice.  For I2C bus systems, we must
-meet every timing constraint strictly as required.  If DW I2C core
-cannot meet tHD;STA without the sacrifice of tHIGH, and I would call
-it a hardware bug.
+Signed-off-by: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
 
-On Wed, Jul 10, 2013 at 06:56:35PM +0200, Christian Ruppert wrote:
->> If I understand the above, it leaves Tf and Tr to be PCB specific and then
->> these values are passed to the core driver from platform data, right?
->
-> That would be the idea: Calculate Th' and Tl' in function of the desired
-> clock frequency and duty cycle and then adapt these values using
-> measured transition times.
+---
 
-I think this would be a good solution.
+Thanks
+Rudolf
 
-On 7/8/13 10:42 PM, Christian Ruppert wrote:
-> Anyway, the HCNT, LCNT and SDA hold time values we get from ACPI SSCN/FMCN
-> methods are measured by our HW guys on a certain board and they have
-> verified that using those we meet all the I2C timing specs.
->
-> In order to take advantage of those we need some way to pass those values
-> to the i2c designware core. I have two suggestions:
->
->    - Use the method outlined in this patch and let the interface driver
->      override *CNT values.
+--------------040607050603070907050006
+Content-Type: text/x-diff;
+ name="i2c-piix4.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+ filename="i2c-piix4.patch"
 
-With *HCNT and *LCNT registers, we can control tHIGH, tLOW, tHD;STA
-quite accurately.  On the other hand, what we can't control with DW
-I2C core is tr and tf.  I assumed that it could never be longer than
-300nsec (it's defined as a max. in the I2C specification), so I used
-it for calculation.
-
-I agree that tr and tf are PCB specific, and it would a good first
-step toward timing optimization to make them configurable through
-platform data.
-
-Second step is that if current i2c_dw_scl_hcnt and i2c_dw_scl_lcnt
-calculations don't suit with later DW I2C cores, then it would be
-nice for someone who can access to the data book to update formulas,
-or provide alternative formulas and make them selectable depending
-on DW core versions.
-
-It always helps us to have a way to calculate *HCNT and *LCNT values
-automatically.  As said above, DW I2C core can control tHIGH, tLOW,
-tHD;STA, etc. quite _accurate_, if HCNT/LCNT values were calculated
-with proper formulas.  It also helps hardware people as well to
-provide reference HCNT/LCNT values.
-
-And as a third step, if we want to use optimized HCNT/LCNT values
-which can not be obtained from proper formulas + user-requested
-tf/tr, or if we want to use HCNT/LCNT settings verified by vendors
-or provided from hardware team, then I'm fine with having a way to
-_override_ HCNT/LCNT values.  Such direct way might be useful.
-
->    - Allow interface drivers to override the function that does calculations
->      for these values like:
->
-> 	if (dev->std_scl_cnt)
-> 		dev->std_scl_cnt(dev, &hcnt, &lcnt);
-> 	else
-> 		/* Fallback to the calculation based solely on iclk */
-
-To make the code having less indentations and be more clear that *CNT
-values are being overridden, something like this would be nice (leave
-more good comments if necessary I'll leave it to you):
-
-  	/* set standard and fast speed deviders for high/low periods */
-  
-  	/* Standard-mode */
-  	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
-  				40,	/* tHD;STA = tHIGH = 4.0 us */
-  				3,	/* tf = 0.3 us */
-  				0,	/* 0: DW default, 1: Ideal */
-  				0);	/* No offset */
-  	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
-  				47,	/* tLOW = 4.7 us */
-  				3,	/* tf = 0.3 us */
-  				0);	/* No offset */
-+	if (dev->ss_hcnt && dev->ss_lcnt) {
-+		/* give preference to immediate values over optimal ones */
-+		hcnt = dev->ss_hcnt;
-+		lcnt = dev->ss_lcnt;
+Index: linux-3.10-rc6/drivers/i2c/busses/i2c-piix4.c
+===================================================================
+--- linux-3.10-rc6.orig/drivers/i2c/busses/i2c-piix4.c	2013-06-15 23:51:07.000000000 +0200
++++ linux-3.10-rc6/drivers/i2c/busses/i2c-piix4.c	2013-06-17 23:30:48.198871798 +0200
+@@ -231,11 +231,11 @@
+ }
+ 
+ static int piix4_setup_sb800(struct pci_dev *PIIX4_dev,
+-			     const struct pci_device_id *id)
++			     const struct pci_device_id *id, u8 aux)
+ {
+ 	unsigned short piix4_smba;
+ 	unsigned short smba_idx = 0xcd6;
+-	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en = 0x2c;
++	u8 smba_en_lo, smba_en_hi, i2ccfg, i2ccfg_offset = 0x10, smb_en;
+ 
+ 	/* SB800 and later SMBus does not support forcing address */
+ 	if (force || force_addr) {
+@@ -245,6 +245,8 @@
+ 	}
+ 
+ 	/* Determine the address of the SMBus areas */
++	smb_en = (aux) ? 0x28 : 0x2c;
++
+ 	if (!request_region(smba_idx, 2, "smba_idx")) {
+ 		dev_err(&PIIX4_dev->dev, "SMBus base address index region "
+ 			"0x%x already in use!\n", smba_idx);
+@@ -272,6 +274,13 @@
+ 		return -EBUSY;
+ 	}
+ 
++	/* Aux SMBus does not support IRQ information */
++	if (aux) {
++		dev_info(&PIIX4_dev->dev,
++			 "SMBus Host Controller at 0x%x\n", piix4_smba);
++		return piix4_smba;
 +	}
-  	dw_writel(dev, hcnt, DW_IC_SS_SCL_HCNT);
-  	dw_writel(dev, lcnt, DW_IC_SS_SCL_LCNT);
-  	dev_dbg(dev->dev, "Standard-mode HCNT:LCNT = %d:%d\n", hcnt, lcnt);
++
+ 	/* Request the SMBus I2C bus config region */
+ 	if (!request_region(piix4_smba + i2ccfg_offset, 1, "i2ccfg")) {
+ 		dev_err(&PIIX4_dev->dev, "SMBus I2C bus config region "
+@@ -596,7 +605,7 @@
+ 	     dev->revision >= 0x40) ||
+ 	    dev->vendor == PCI_VENDOR_ID_AMD)
+ 		/* base address location etc changed in SB800 */
+-		retval = piix4_setup_sb800(dev, id);
++		retval = piix4_setup_sb800(dev, id, 0);
+ 	else
+ 		retval = piix4_setup(dev, id);
+ 
+@@ -610,17 +619,29 @@
+ 		return retval;
+ 
+ 	/* Check for auxiliary SMBus on some AMD chipsets */
++	retval = -ENODEV;
++
+ 	if (dev->vendor == PCI_VENDOR_ID_ATI &&
+-	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS &&
+-	    dev->revision < 0x40) {
+-		retval = piix4_setup_aux(dev, id, 0x58);
+-		if (retval > 0) {
+-			/* Try to add the aux adapter if it exists,
+-			 * piix4_add_adapter will clean up if this fails */
+-			piix4_add_adapter(dev, retval, &piix4_aux_adapter);
++	    dev->device == PCI_DEVICE_ID_ATI_SBX00_SMBUS) {
++		if (dev->revision < 0x40) {
++			retval = piix4_setup_aux(dev, id, 0x58);
++		} else {
++			/* SB800 added aux bus too */
++			retval = piix4_setup_sb800(dev, id, 1);
+ 		}
+ 	}
+ 
++	if (dev->vendor == PCI_VENDOR_ID_AMD &&
++	    dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS) {
++		retval = piix4_setup_sb800(dev, id, 1);
++	}
++
++	if (retval > 0) {
++		/* Try to add the aux adapter if it exists,
++		 * piix4_add_adapter will clean up if this fails */
++		piix4_add_adapter(dev, retval, &piix4_aux_adapter);
++	}
++
+ 	return 0;
+ }
+ 
+Index: linux-3.10-rc6/Documentation/i2c/busses/i2c-piix4
+===================================================================
+--- linux-3.10-rc6.orig/Documentation/i2c/busses/i2c-piix4	2013-06-15 23:51:07.000000000 +0200
++++ linux-3.10-rc6/Documentation/i2c/busses/i2c-piix4	2013-06-17 23:33:23.024925371 +0200
+@@ -73,9 +73,10 @@
+ The ServerWorks Southbridges, the Intel 440MX, and the Victory66 are
+ identical to the PIIX4 in I2C/SMBus support.
+ 
+-The AMD SB700 and SP5100 chipsets implement two PIIX4-compatible SMBus
+-controllers. If your BIOS initializes the secondary controller, it will
+-be detected by this driver as an "Auxiliary SMBus Host Controller".
++The AMD SB700, SB800, SP5100 and Hudson-2 chipsets implement two
++PIIX4-compatible SMBus controllers. If your BIOS initializes the
++secondary controller, it will be detected by this driver as
++an "Auxiliary SMBus Host Controller".
+ 
+ If you own Force CPCI735 motherboard or other OSB4 based systems you may need
+ to change the SMBus Interrupt Select register so the SMBus controller uses
 
-   Shinya
+--------------040607050603070907050006--
