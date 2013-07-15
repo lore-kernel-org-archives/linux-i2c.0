@@ -1,55 +1,78 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: Rework the PIO mode operation
-Date: Mon, 15 Jul 2013 04:05:52 +0200
-Message-ID: <201307150405.53110.marex@denx.de>
-References: <1373312807-13227-1-git-send-email-marex@denx.de>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH V2 1/7] i2c: i2c-mpc: add CONFIG_PM_SLEEP to suspend/resume
+ functions
+Date: Mon, 15 Jul 2013 11:28:23 +0900
+Message-ID: <005501ce8102$faa66690$eff333b0$@samsung.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1373312807-13227-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
+Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org
+To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+Add CONFIG_PM_SLEEP to suspend/resume functions to fix the following
+build warning when CONFIG_PM_SLEEP is not selected. This is because
+sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
+the CONFIG_PM_SLEEP is enabled.
 
-> Analyze and rework the PIO mode operation. The PIO mode operation
-> was unreliable on MX28, by analyzing the bus with LA, the checks
-> for when data were available or were to be sent were wrong.
-> 
-> The PIO WRITE has to be completely reworked as it multiple problems.
-> The MX23 datasheet helped here, see comments in the code for details.
-> The problems boil down to:
-> - RUN bit in CTRL0 must be set after DATA register was written
-> - The PIO transfer must be 4 bytes long tops, otherwise use
->   clock stretching.
-> Both of these fixes are implemented.
-> 
-> The PIO READ operation can only be done for up to four bytes as
-> we are unable to read out the data from the DATA register fast
-> enough.
-> 
-> This patch also tries to document the investigation within the
-> code.
-> 
-> Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-> Cc: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-> Cc: Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> Cc: Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-> Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
+drivers/i2c/busses/i2c-mpc.c:724:12: warning: 'mpc_i2c_suspend' defined but not used [-Wunused-function]
+drivers/i2c/busses/i2c-mpc.c:734:12: warning: 'mpc_i2c_resume' defined but not used [-Wunused-function]
 
-I so far got confirmation from ALexandre this patch works. Can someone else test 
-it please? I'd like to roll out a final version to close this issue.
+Also, this patch makes mpc_i2c_pm_ops static, because mpc_i2c_pm_ops
+is not exported.
 
-One question remain though -- shall we have the PIO as an experimental feature 
-and disable it by default OR not ?
+Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mpc.c |   13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-Thanks!
-
-Best regards,
-Marek Vasut
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 7607dc0..e902e62 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -64,7 +64,7 @@ struct mpc_i2c {
+ 	struct i2c_adapter adap;
+ 	int irq;
+ 	u32 real_clk;
+-#ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
+ 	u8 fdr, dfsrr;
+ #endif
+ };
+@@ -720,7 +720,7 @@ static int fsl_i2c_remove(struct platform_device *op)
+ 	return 0;
+ };
+ 
+-#ifdef CONFIG_PM
++#ifdef CONFIG_PM_SLEEP
+ static int mpc_i2c_suspend(struct device *dev)
+ {
+ 	struct mpc_i2c *i2c = dev_get_drvdata(dev);
+@@ -741,7 +741,10 @@ static int mpc_i2c_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
++static SIMPLE_DEV_PM_OPS(mpc_i2c_pm_ops, mpc_i2c_suspend, mpc_i2c_resume);
++#define MPC_I2C_PM_OPS	(&mpc_i2c_pm_ops)
++#else
++#define MPC_I2C_PM_OPS	NULL
+ #endif
+ 
+ static const struct mpc_i2c_data mpc_i2c_data_512x = {
+@@ -788,9 +791,7 @@ static struct platform_driver mpc_i2c_driver = {
+ 		.owner = THIS_MODULE,
+ 		.name = DRV_NAME,
+ 		.of_match_table = mpc_i2c_of_match,
+-#ifdef CONFIG_PM
+-		.pm = &mpc_i2c_pm_ops,
+-#endif
++		.pm = MPC_I2C_PM_OPS,
+ 	},
+ };
+ 
+-- 
+1.7.10.4
