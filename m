@@ -1,8 +1,8 @@
 From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH V2 4/7] i2c: stu300: add CONFIG_PM_SLEEP to suspend/resume
+Subject: [PATCH V2 5/7] i2c: pnx: add CONFIG_PM_SLEEP to suspend/resume
  functions
-Date: Mon, 15 Jul 2013 11:29:56 +0900
-Message-ID: <005801ce8103$325d66b0$97183410$@samsung.com>
+Date: Mon, 15 Jul 2013 11:30:17 +0900
+Message-ID: <005901ce8103$3ec78070$bc568150$@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
@@ -18,26 +18,26 @@ build warning when CONFIG_PM_SLEEP is not selected. This is because
 sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
 the CONFIG_PM_SLEEP is enabled.
 
-drivers/i2c/busses/i2c-stu300.c:945:12: warning: 'stu300_suspend' defined but not used [-Wunused-function]
-drivers/i2c/busses/i2c-stu300.c:954:12: warning: 'stu300_resume' defined but not used [-Wunused-function]
+drivers/i2c/busses/i2c-pnx.c:599:12: warning: 'i2c_pnx_controller_suspend' defined but not used [-Wunused-function]
+drivers/i2c/busses/i2c-pnx.c:608:12: warning: 'i2c_pnx_controller_resume' defined but not used [-Wunused-function]
 
 Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-stu300.c |    2 +-
+ drivers/i2c/busses/i2c-pnx.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index d1a6b20..3d4d8b6 100644
---- a/drivers/i2c/busses/i2c-stu300.c
-+++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -941,7 +941,7 @@ stu300_probe(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+index 5f39c6d..1713b3e 100644
+--- a/drivers/i2c/busses/i2c-pnx.c
++++ b/drivers/i2c/busses/i2c-pnx.c
+@@ -595,7 +595,7 @@ static struct i2c_algorithm pnx_algorithm = {
+ 	.functionality = i2c_pnx_func,
+ };
  
 -#ifdef CONFIG_PM
 +#ifdef CONFIG_PM_SLEEP
- static int stu300_suspend(struct device *device)
+ static int i2c_pnx_controller_suspend(struct device *dev)
  {
- 	struct stu300_dev *dev = dev_get_drvdata(device);
+ 	struct i2c_pnx_algo_data *alg_data = dev_get_drvdata(dev);
 -- 
 1.7.10.4
