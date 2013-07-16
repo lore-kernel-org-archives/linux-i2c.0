@@ -1,105 +1,72 @@
-From: Felipe Balbi <balbi-l0cyMroinI0@public.gmane.org>
+From: Hein Tibosch <hein_tibosch@yahoo.es>
 Subject: Re: [PATCH] i2c-omap: always send stop after nack
-Date: Tue, 16 Jul 2013 16:00:58 +0300
-Message-ID: <20130716130058.GD15036@arwen.pp.htv.fi>
-References: <51E50217.1000507@yahoo.es>
- <20130716090300.GG8880@arwen.pp.htv.fi>
- <51E5137B.7000302@yahoo.es>
- <20130716094212.GL8880@arwen.pp.htv.fi>
- <51E527F7.4080007@ti.com>
- <20130716112746.GN8880@arwen.pp.htv.fi>
- <51E537A4.40300@ti.com>
-Reply-To: <balbi-l0cyMroinI0@public.gmane.org>
+Date: Wed, 17 Jul 2013 00:17:21 +0800
+Message-ID: <51E57211.2040001@yahoo.es>
+References: <51E50217.1000507@yahoo.es> <20130716090300.GG8880@arwen.pp.htv.fi> <51E5137B.7000302@yahoo.es> <20130716094212.GL8880@arwen.pp.htv.fi> <51E527F7.4080007@ti.com> <20130716112746.GN8880@arwen.pp.htv.fi> <51E537A4.40300@ti.com> <20130716130058.GD15036@arwen.pp.htv.fi>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d9ADC0YsG2v16Js0"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <51E537A4.40300-l0cyMroinI0@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>
-Cc: balbi-l0cyMroinI0@public.gmane.org, Hein Tibosch <hein_tibosch-mRCrAkd8dF0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-omap-owner@vger.kernel.org>
+In-Reply-To: <20130716130058.GD15036@arwen.pp.htv.fi>
+Sender: linux-omap-owner@vger.kernel.org
+To: balbi@ti.com, Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Tony Lindgren <tony@atomide.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-omap <linux-omap@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
---d9ADC0YsG2v16Js0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi Grygorii, Filipe,
 
-Hi,
+On 7/16/2013 9:00 PM, Felipe Balbi wrote:
+> On Tue, Jul 16, 2013 at 03:08:04PM +0300, Grygorii Strashko wrote:
+>> Hi Felipe,
+>> On 07/16/2013 02:27 PM, Felipe Balbi wrote:
+>>> Hi,
+>>>
+>>> On Tue, Jul 16, 2013 at 02:01:11PM +0300, Grygorii Strashko wrote:
+>>>>>>>> On a OMAP4460, i2c-bus-3:
+>>>>>>>>
+>>>>>>>> A driver (lm75) is causing many 'timeout waiting for bus ready' errors.
+>>>>>>>> SDA remains high (as it should), but SCL remains low after a NACK.
+>>>>>>>> The bus becomes _unusable for other clients_.
+>>>>>>>>
+>>>>>>>> While probing, "lm75" writes a command, followed by a read + stop,
+>>>>>>>> but the write command is NACK'd. The chip does accept other writes/reads,
+>>>>>>>> it just refuses to ack invalid commands.
 
-(when replying, can you add some blank lines around your reply and the
-previous mail, it's quite difficult to find your replies with so many
-quote marks (>) around)
+In case the NACK may not be ignored, I believe it is correct
+to break out of the loop and send a stop for 2 reasons:
 
-On Tue, Jul 16, 2013 at 03:08:04PM +0300, Grygorii Strashko wrote:
-> Hi Felipe,
-> On 07/16/2013 02:27 PM, Felipe Balbi wrote:
-> >Hi,
-> >
-> >On Tue, Jul 16, 2013 at 02:01:11PM +0300, Grygorii Strashko wrote:
-> >>>>>>On a OMAP4460, i2c-bus-3:
-> >>>>>>
-> >>>>>>A driver (lm75) is causing many 'timeout waiting for bus ready' err=
-ors.
-> >>>>>>SDA remains high (as it should), but SCL remains low after a NACK.
-> >>>>>>The bus becomes _unusable for other clients_.
-> >>>>>>
-> >>>>>>While probing, "lm75" writes a command, followed by a read + stop,
-> >>>>>>but the write command is NACK'd. The chip does accept other writes/=
-reads,
-> >>>>>>it just refuses to ack invalid commands.
-> >>>>>>
-> >>>>>>Can you tell me if the patch below would make any sense? Or is it t=
-he
-> >>>>>>responsibility of the client to reset the i2c_smbus?
-> >>>>>patch below breaks repeated start.
-> >>Felipe, I'd very appreciate if you'd be able to provide the use case
-> >>which will fail with such solution?
-> >
-> >can't you see how this would fail ?
-> >
-> >assume omap_i2c_xfer() is called with its last argument (num) being
-> >greater than one and you get the NAK before the last transfer.
-> That's our case - NACK from slave before last transfer
+1. all chips, including the target chip, will know that the
+   current transaction is finished
 
-with one difference, your device requires a STP condition because it's
-SMBus, right ? Not all devices act like that :-)
+2. to set CLK high again, which prevents numerous timeouts
+   on subsequent transactions
 
-But now I noticed, because of your reply, something I have been
-overlooking for quite some time. As you said below, in case of NAK we
-break out of the loop and don't even try the following messages.
+As a test I've set 'I2C_M_IGNORE_NAK' for all .detect messages
+sent by the lm75 driver.
+Now the chip (tmp105) will provide read data as expected
+after the _repeated start_, even though it NACK'd the preceding
+WR command.
+And also the detection trick does work now, addresses 4,5,6,7 return
+the same read data as was returned from the last valid address 2.
 
-Which means your original patch starts to make a lot more sense. I
-wonder is this is really what we should be doing though - breaking out
-of the loop, I mean.
+Felipe:
+> Which means your original patch starts to make a lot more sense. I
+> wonder is this is really what we should be doing though - breaking out
+> of the loop, I mean.
 
-It'd be cool to get an answer from I2C maintainers if we're doing the
-right thing here.
+So yes, we have to break the loop as the caller is not interested
+in processing any further commands.
 
---=20
-balbi
+In i2c/algos/i2c-algo-bit.c, bit_xfer() works exactly the same way:
+break the loop (unless IGNORE_NAK) and call unconditionally i2c_stop().
 
---d9ADC0YsG2v16Js0
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+It looks like TI's i2c-davinci will have the same problem as i2c-omap,
+and will need the same change.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
+Grygorii, if you submit the patch, please add my
 
-iQIcBAEBAgAGBQJR5UQKAAoJEIaOsuA1yqREBIwP+wVCJ64Ql/JvPR+EF74Bacn/
-5Y36cStTBebsy/F2shSslrHroQJ3/JHlvG1Y464FykzSMTruj4yYcm8yo8XXh1sd
-Rr+eSfGSAklfwLXdZ8MFX/LaFzPQTs3J5M0Kb8NaGpLetHcEL6wCXFlxwYySq4zh
-NvCp2J9iXTlR4jLaR2qwJUU0LWfyKsY1Lsfx3cnP6Cv2tzwespNVUZrWi8fBfZqy
-846gS5cPSs0lnsDGFzCYNiYikKyH4HMCl34M0bN70mzA0SmIwwNd4z9jL8bxkymG
-OMkvrAi6x6gTV+n0C0RHB6Zl9GoISNsI/5sTuYhg1sD7We24mI1nYc6SoAYk/gJp
-l9zQq4FfiTIF6kLbs8EDeWxuE9ukr/g14Ft8NIU0qkdVpBrz7Q2AQ5RbPNBysgr0
-waljATqZjJSzpLB8wkPPIHuvdPlNz/bEMRhY66a3KhZd/SQgiezEZT8JJThj9GgS
-OxAuuJfTgx+/isoffr3vC1JEECSZ7r6TPJdEBLJ22pIlGLW+t+DKJ8fuWkNKm8om
-q4YSjYXKB/JtL/RPjCrSBwpxTuiCNehA4KkemxlOgS1ti/5AYfx6Z7XXrsvYjK4q
-ZOvksdJcWbomikWl0HMznmvwOX4xKqKOj9byKaSP8XrXki7lXjTDwnrhM1NUYWHF
-VhP/C/sQssvQOH7tHczT
-=cn8R
------END PGP SIGNATURE-----
+Signed-off-by: Hein Tibosch <hein_tibosch@yahoo.es>
 
---d9ADC0YsG2v16Js0--
+cause you were earlier to notice and fix this problem.
+
+Hein
