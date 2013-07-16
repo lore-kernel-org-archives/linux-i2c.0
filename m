@@ -1,124 +1,175 @@
-From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
-Date: Tue, 16 Jul 2013 13:16:18 +0200
-Message-ID: <20130716111616.GA25835@ab42.lan>
-References: <20130708134216.GB6402@ab42.lan>
- <20130709084402.GF4898@intel.com>
- <20130709161927.GC30236@ab42.lan>
- <20130710105215.GY4898@intel.com>
- <20130710165634.GA30693@ab42.lan>
- <20130711073600.GG4898@intel.com>
- <20130711101330.GP4898@intel.com>
- <51DFB6C1.4040001@pobox.com>
- <20130712085140.GY4898@intel.com>
- <51E0E76B.1040304@pobox.com>
+From: Felipe Balbi <balbi@ti.com>
+Subject: Re: [PATCH] i2c-omap: always send stop after nack
+Date: Tue, 16 Jul 2013 14:27:46 +0300
+Message-ID: <20130716112746.GN8880@arwen.pp.htv.fi>
+References: <51E50217.1000507@yahoo.es>
+ <20130716090300.GG8880@arwen.pp.htv.fi>
+ <51E5137B.7000302@yahoo.es>
+ <20130716094212.GL8880@arwen.pp.htv.fi>
+ <51E527F7.4080007@ti.com>
+Reply-To: <balbi@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KM+e2hnYAO+MCJ5e"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <51E0E76B.1040304-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
-Cc: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <51E527F7.4080007@ti.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: balbi@ti.com, Hein Tibosch <hein_tibosch@yahoo.es>, Tony Lindgren <tony@atomide.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-omap <linux-omap@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sat, Jul 13, 2013 at 02:36:43PM +0900, Shinya Kuribayashi wrote:
-> Hi,
-> 
-> Now I've had a look at the whole discussion.
-> 
-> Basically, DW I2C core provides a good enough (and quite direct) way
-> to control tHIGH and tLOW timing specs, *HCNT and *LCNT registers.
-> 
-> But from my experience (with a slightly old version of DW I2C core
-> around 2005, version 1.06a or so), DW I2C core was apparently lacking
-> in an appropriate hardware mechanism to meet tHD;STA timing spec.  We
-> then found that we could meet tHD;STA by increasing *HCNT values, so
-> that's what currently we have in i2c-designware.c  I know with that
-> workaround applied, tHIGH is to be configured with a larger value
-> than necessary, but we have no choice.  For I2C bus systems, we must
-> meet every timing constraint strictly as required.  If DW I2C core
-> cannot meet tHD;STA without the sacrifice of tHIGH, and I would call
-> it a hardware bug.
+--KM+e2hnYAO+MCJ5e
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I agree. However, tHD;STA [min] is defined to the same value as tHIGH
-[min] for all modes in the I2C specification. Do I understand you
-correctly that the SCL_HCNT parameters control at the same time tHIGH
-and tHD;STA?
+Hi,
 
-Concerning SDA_HOLD_TIME, we have done a few measurements in our lab and
-it looks like the delay between the falling edge clock of the start
-condition and the rising edge of the first data bit of the start byte is
-controlled by this parameter. I conclude that in the drawing below (1)
-is controlled by SCL_HCNT whereas (2) is controlled by SDA_HOLD_TIME.
+On Tue, Jul 16, 2013 at 02:01:11PM +0300, Grygorii Strashko wrote:
+> >>>>On a OMAP4460, i2c-bus-3:
+> >>>>
+> >>>>A driver (lm75) is causing many 'timeout waiting for bus ready' error=
+s.
+> >>>>SDA remains high (as it should), but SCL remains low after a NACK.
+> >>>>The bus becomes _unusable for other clients_.
+> >>>>
+> >>>>While probing, "lm75" writes a command, followed by a read + stop,
+> >>>>but the write command is NACK'd. The chip does accept other writes/re=
+ads,
+> >>>>it just refuses to ack invalid commands.
+> >>>>
+> >>>>Can you tell me if the patch below would make any sense? Or is it the
+> >>>>responsibility of the client to reset the i2c_smbus?
+> >>>patch below breaks repeated start.
+> Felipe, I'd very appreciate if you'd be able to provide the use case
+> which will fail with such solution?
 
-     _________
-scl           \__________ ...
-     ___           ______
-sda     \_________/       ...
+can't you see how this would fail ?
 
-        |-----|---|
-          (1)  (2)
+assume omap_i2c_xfer() is called with its last argument (num) being
+greater than one and you get the NAK before the last transfer.
 
-> On Wed, Jul 10, 2013 at 06:56:35PM +0200, Christian Ruppert wrote:
-> >>If I understand the above, it leaves Tf and Tr to be PCB specific and then
-> >>these values are passed to the core driver from platform data, right?
+Will you not be breaking a possible repeated start for the following
+transfer ?
+
+> >>No, after the NACK, no more commands are being processed,
+> >>including a repeated start. omap_i2c_xfer() returns -EREMOTEIO
+> >>without ever freeing the bus.
+> >>
+> >>The bus is left in an impossible state with SCL constantly low
+> >>and all next commands (to different chips) will therefore get
+> >>a -ETIMEDOUT
+> >>
+> >>With this patch, the bus will become idle again and new commands
+> >>can be processed normally
+> I think, this is valid fix, but it was done here already:)
+> http://patchwork.ozlabs.org/patch/249790/
+> "i2c: omap: query STP always when NACK is received"
+>=20
+> And nacked in the same way :(
+> But! I've back-ported my patch on TI Android product kernel 3.4, did
+> sanity test and I didn't see any issues with my patch :))
+
+that's because you don't care about repeated start, but that's a valid
+bus signal which needs to be supported.
+
+> >but you mentioned that if you have IGNORE_NAK set, everything is fine,
+> >since lm75 will get a return value of 0 and things will work just fine,
+> >right ?
 > >
-> >That would be the idea: Calculate Th' and Tl' in function of the desired
-> >clock frequency and duty cycle and then adapt these values using
-> >measured transition times.
-> 
-> I think this would be a good solution.
-> 
-> On 7/8/13 10:42 PM, Christian Ruppert wrote:
-> >Anyway, the HCNT, LCNT and SDA hold time values we get from ACPI SSCN/FMCN
-> >methods are measured by our HW guys on a certain board and they have
-> >verified that using those we meet all the I2C timing specs.
+> >Also, you also said that the chip 'refuses to ack invalid commands', why
+> >are you sending invalid commands to start with ? This could be a bug in
+> >i2c-omap.c, sure, but let's try to figure out why IGNORE_NAK helps and
+> >why is lm75 driver sending invalid commands.
 > >
-> >In order to take advantage of those we need some way to pass those values
-> >to the i2c designware core. I have two suggestions:
-> >
-> >   - Use the method outlined in this patch and let the interface driver
-> >     override *CNT values.
-> 
-> With *HCNT and *LCNT registers, we can control tHIGH, tLOW, tHD;STA
-> quite accurately.  On the other hand, what we can't control with DW
-> I2C core is tr and tf.  I assumed that it could never be longer than
-> 300nsec (it's defined as a max. in the I2C specification), so I used
-> it for calculation.
-> 
-> I agree that tr and tf are PCB specific, and it would a good first
-> step toward timing optimization to make them configurable through
-> platform data.
-> 
-> Second step is that if current i2c_dw_scl_hcnt and i2c_dw_scl_lcnt
-> calculations don't suit with later DW I2C cores, then it would be
-> nice for someone who can access to the data book to update formulas,
-> or provide alternative formulas and make them selectable depending
-> on DW core versions.
+>=20
+> The problem is, that lm75 device is SmBus compatible and its driver has
+> .detect() function implemented. During detection it tries to scan some
+> registers which might be not present in current device - in my case
+> it's tmp105.
+>=20
+> For example to read regA in tmp105 following is done:
+> 1) do write in "Index" register (val RegA index) (I2C 1st message)
+> 2) do read (I2C 2d message)
+> the message 1 is Nacked by device in case if register index is wrong,
+> but i2c-omap don't send NACK (or STP). As result, bus stack in Bus
+> Busy state.
 
-I'm not having the impression there is a huge difference between the
-different generations of DW blocks. Probably we can find one formula
-that suits all blocks. We just have to be careful (in doubt rather
-conservative) with the transition times. This seems to be currently
-the case and if I understand Mika correctly, his objective is to remove
-some of this conservatism.
+wait a minute, it's not i2c-omap which needs to send NAK, it's LM75,
+and it does the NAK. The handling for NAK in the i2c framework is to
+return -EREMOTEIO as we do. If our last message got a NAK, we send STOP
+because there will be no other transfers following this one, namely, the
+for loop in omap_i2c_xfer() will be finished.
 
-> It always helps us to have a way to calculate *HCNT and *LCNT values
-> automatically.  As said above, DW I2C core can control tHIGH, tLOW,
-> tHD;STA, etc. quite _accurate_, if HCNT/LCNT values were calculated
-> with proper formulas.  It also helps hardware people as well to
-> provide reference HCNT/LCNT values.
-> 
-> And as a third step, if we want to use optimized HCNT/LCNT values
-> which can not be obtained from proper formulas + user-requested
-> tf/tr, or if we want to use HCNT/LCNT settings verified by vendors
-> or provided from hardware team, then I'm fine with having a way to
-> _override_ HCNT/LCNT values.  Such direct way might be useful.
+> For SMBus devices the specification states (http://smbus.org/specs/)
+> "4.2.Acknowledge (ACK) and not acknowledge (NACK)":
+> - "The slave device detects an invalid command or invalid data. In this
+> case the slave device must not acknowledge the received byte. The
+> master upon detection of this condition must generate a STOP condition
+> and retry the transaction"
 
-I agree. Probably it is best to have both, a default method based on
-formulas and timing parameters (the formulas are quite simple anyway)
-which works with device tree and such and a second method based on
-register values which works with mechanisms like ACPI.
+hmm, but that's something that the OMAP I2C controller doesn't support
+and is emulated by the i2c framework, right ?
 
-Christian
+If you look into the I2C specification, the one the OMAP controller is
+compliant to, you'll see e.g. in Figure 13 that a repeated start is a
+valid condition after a NAK.
+
+Also it states that:
+
+"This is indicated by the slave generating the not-acknowledge on the
+first byte to follow. The slave leaves the data line HIGH and the master
+generates a STOP or a repeated START condition."
+
+Because the OMAP I2C controller is compliant to the I2C specification,
+not the SMBus specification, we must follow through with the loop and
+let the next message try to send a repeated start.
+
+What you need here is a way to discriminate between SMBus message and
+normal I2C message, that way you could have something like:
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 142b694d..571b160 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -618,7 +618,7 @@ static int omap_i2c_xfer_msg(struct i2c_adapter *adap,
+        if (dev->cmd_err & OMAP_I2C_STAT_NACK) {
+                if (msg->flags & I2C_M_IGNORE_NAK)
+                        return 0;
+-               if (stop) {
++               if (stop || is_smbus) {
+                        w =3D omap_i2c_read_reg(dev, OMAP_I2C_CON_REG);
+                        w |=3D OMAP_I2C_CON_STP;
+                        omap_i2c_write_reg(dev, OMAP_I2C_CON_REG, w);
+
+and, btw, this also means that I2C_M_IGNORE_NAK is invalid during SMBus
+transfers, so you might want to patch the framework to prevent that case
+altogether.
+
+--=20
+balbi
+
+--KM+e2hnYAO+MCJ5e
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJR5S4yAAoJEIaOsuA1yqREVHAP/As7J/3TuiTkiJyTbzTATXDi
+yFpYLEu3Qqe4iJC+dbihg9W2uVWgYer1nOCe/ILthyHwx+31IXFoz7cYYwwFVRAy
+OHPQJPFFjTN1pEx6MemhHj7HRTRhGSi12Owxei6Rzs0MWN0dxT5B4q7KRq8ivJwx
+K2Iqv/nctwHYnIOD3qWsYF21Tl0mqkhpge3DzUZpwHx35JFlPplJfzODz/Rw/+rO
+S1bxHY13RkQ1tW1OODRNJCzPWIHkHDGkpXNz2rz0NvK2cgrC2P+uX0b6/UNiQuEI
+094Ew6H5n4uf5eaChECL1fXz/+9bcmw1EhW70klhsN7X4sLERYWZimWiseRzFNxs
+e2V2rzmgVVpB+/CLsZeSIj9DugDa+UOdVBpBXhdDL/GkBYWtdRzyZAaL9k0Qry+/
+AGxmhs4wCZPmZIf135s/6fr9kJpK2duPIdNlYC+ACm774u6bahHvhVKxFc+JOt+A
+NleoaI4ya1f/oHg7OGYtc3lbMlBHsvhvJeuf9zx332obiv4hS9MNK4q2uAjtJw7T
+YkG5Bei+UvB4q5sJ5mFrWDMQ9A40z/b0Q2pKe7d49EKj94kJyKPvHpOFolEFA8/s
+oKzpvg6nFQPDmWaBW0m62LBRzC8hD3n/VsSxcbbLFVhPxUQ8nrL34UN7CCLwFGXQ
+zr5Xoq+lj9g2vZvLrACm
+=+Zrq
+-----END PGP SIGNATURE-----
+
+--KM+e2hnYAO+MCJ5e--
