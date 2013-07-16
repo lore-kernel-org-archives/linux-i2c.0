@@ -1,72 +1,34 @@
-From: Hein Tibosch <hein_tibosch@yahoo.es>
-Subject: Re: [PATCH] i2c-omap: always send stop after nack
-Date: Wed, 17 Jul 2013 00:17:21 +0800
-Message-ID: <51E57211.2040001@yahoo.es>
-References: <51E50217.1000507@yahoo.es> <20130716090300.GG8880@arwen.pp.htv.fi> <51E5137B.7000302@yahoo.es> <20130716094212.GL8880@arwen.pp.htv.fi> <51E527F7.4080007@ti.com> <20130716112746.GN8880@arwen.pp.htv.fi> <51E537A4.40300@ti.com> <20130716130058.GD15036@arwen.pp.htv.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-omap-owner@vger.kernel.org>
-In-Reply-To: <20130716130058.GD15036@arwen.pp.htv.fi>
-Sender: linux-omap-owner@vger.kernel.org
-To: balbi@ti.com, Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Tony Lindgren <tony@atomide.com>, linux-i2c <linux-i2c@vger.kernel.org>, linux-omap <linux-omap@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>
+From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Subject: [PATCH v2 0/2] New driver: i2c_imc (Intel LGA2011 iMC SMBUS)
+Date: Tue, 16 Jul 2013 15:23:25 -0700
+Message-ID: <cover.1374012684.git.luto@amacapital.net>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Grygorii, Filipe,
+Intel's LGA2011 chips (Core i7 Extreme and Xeon E5) have two SMBUS
+controllers per package, addressing up to 16 DIMM slots per package.
+This is a driver for those SMBUS channels.
 
-On 7/16/2013 9:00 PM, Felipe Balbi wrote:
-> On Tue, Jul 16, 2013 at 03:08:04PM +0300, Grygorii Strashko wrote:
->> Hi Felipe,
->> On 07/16/2013 02:27 PM, Felipe Balbi wrote:
->>> Hi,
->>>
->>> On Tue, Jul 16, 2013 at 02:01:11PM +0300, Grygorii Strashko wrote:
->>>>>>>> On a OMAP4460, i2c-bus-3:
->>>>>>>>
->>>>>>>> A driver (lm75) is causing many 'timeout waiting for bus ready' errors.
->>>>>>>> SDA remains high (as it should), but SCL remains low after a NACK.
->>>>>>>> The bus becomes _unusable for other clients_.
->>>>>>>>
->>>>>>>> While probing, "lm75" writes a command, followed by a read + stop,
->>>>>>>> but the write command is NACK'd. The chip does accept other writes/reads,
->>>>>>>> it just refuses to ack invalid commands.
+The first patch is a minor change to the i2c core to make it work
+better with extremely limited hardware like this.  The second patch is
+the driver.
 
-In case the NACK may not be ignored, I believe it is correct
-to break out of the loop and send a stop for 2 reasons:
+Changes from the RFC / v1: Work around an erratum that gave random
+incorrect reads on multi-socket systems.
 
-1. all chips, including the target chip, will know that the
-   current transaction is finished
+Andy Lutomirski (2):
+  i2c: Allow SPD probing with READ_BYTE_DATA and improve logging
+  i2c_imc: New driver for Intel's iMC, found on LGA2011 chips
 
-2. to set CLK high again, which prevents numerous timeouts
-   on subsequent transactions
+ drivers/i2c/busses/Kconfig   |  14 ++
+ drivers/i2c/busses/Makefile  |   1 +
+ drivers/i2c/busses/i2c-imc.c | 546 +++++++++++++++++++++++++++++++++++++++++++
+ drivers/i2c/i2c-core.c       |   7 +-
+ 4 files changed, 567 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/i2c/busses/i2c-imc.c
 
-As a test I've set 'I2C_M_IGNORE_NAK' for all .detect messages
-sent by the lm75 driver.
-Now the chip (tmp105) will provide read data as expected
-after the _repeated start_, even though it NACK'd the preceding
-WR command.
-And also the detection trick does work now, addresses 4,5,6,7 return
-the same read data as was returned from the last valid address 2.
-
-Felipe:
-> Which means your original patch starts to make a lot more sense. I
-> wonder is this is really what we should be doing though - breaking out
-> of the loop, I mean.
-
-So yes, we have to break the loop as the caller is not interested
-in processing any further commands.
-
-In i2c/algos/i2c-algo-bit.c, bit_xfer() works exactly the same way:
-break the loop (unless IGNORE_NAK) and call unconditionally i2c_stop().
-
-It looks like TI's i2c-davinci will have the same problem as i2c-omap,
-and will need the same change.
-
-Grygorii, if you submit the patch, please add my
-
-Signed-off-by: Hein Tibosch <hein_tibosch@yahoo.es>
-
-cause you were earlier to notice and fix this problem.
-
-Hein
+-- 
+1.8.1.4
