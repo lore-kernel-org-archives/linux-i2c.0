@@ -1,48 +1,65 @@
 From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Subject: Re: [PATCH v3 3/4] tsod: New hwmon driver for Temperature Sensors on DIMM
-Date: Wed, 17 Jul 2013 15:49:24 -0700
-Message-ID: <CALCETrWQF6p+DveuOxfMhp0r_CrvF=+FOmvfkF-TQ2NVgJ_2aA@mail.gmail.com>
-References: <cover.1374093761.git.luto@amacapital.net> <f358329ff1dd3c3c272cadb4a358a5587cb28e18.1374093761.git.luto@amacapital.net>
- <20130717221902.GC990@roeck-us.net>
+Subject: Re: [PATCH v3 1/4] i2c: Add DIMM bus code
+Date: Wed, 17 Jul 2013 16:04:37 -0700
+Message-ID: <CALCETrVCotmG2PCQUF1BaAcbvnysMbS-kE4SJHoSokgzaML0jg@mail.gmail.com>
+References: <cover.1374093761.git.luto@amacapital.net> <b8e50b55358b4f0cd1db96174a9e6a2e69780359.1374093761.git.luto@amacapital.net>
+ <20130717222349.GD990@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130717221902.GC990-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <20130717222349.GD990-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andras BALI <drewie-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 17, 2013 at 3:19 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
-> On Wed, Jul 17, 2013 at 01:53:07PM -0700, Andy Lutomirski wrote:
->> Signed-off-by: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
->> ---
->
-> Why don't you just use the existing jc42 driver ?
+On Wed, Jul 17, 2013 at 3:23 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
+> On Wed, Jul 17, 2013 at 01:53:05PM -0700, Andy Lutomirski wrote:
+>> Add i2c_scan_dimm_bus to declare that a particular i2c_adapter
+>> contains DIMMs.  This will probe (and autoload modules!) for useful
+>> SMBUS devices that live on DIMMs.
+>>
+>> As more SMBUS-addressable DIMM components become supported, this
+>> code can be extended to probe for them.
+>>
+> I don't think this code is necessary. The temperature sensor would be
+> auto-detected if you mark the bus driver as I2C_CLASS_HWMON, and DIM eeprom
+> auto-detection should not be needed.
 
-Failure to notice it.  *sigh*.  I assumed that any driver for this
-device would have "tsod" or "TSOD" somewhere greppable.  I'll at least
-send a patch to improve the description.
+I'm not at all sure I want to mark this thing I2C_CLASS_HWMON.  I
+don't want random hwmon drivers probing the bus.  (Although I wouldn't
+need to -- jc42 is looking for I2C_CLASS_SPD.)
 
-That being said, the jc42 driver *writes*.  The iMC controller
-(AFAICS) uses the data from the TSOD for things like dynamically
-adjusting the DRAM refresh interval and IMO the kernel has no business
-at all writing to any registers on the TSOD on this platform.  (FWIW,
-I tried fiddling with the critical threshold and my box didn't blow up
-or report thermal trip events.  But still, this scares me a bit.)
+Also, my code is IMO better than the i2c core probing code for several reasons:
 
-If I modify the i2c_imc driver to add .class = I2C_CLASS_SPD and get
-rid of the TSOD probing and load the jc42 module, then it can't
-actually find my TSODs (because the i2c core isn't capable of probing
-on the iMC bus).  If I manually add the device, it works.
+ - i2c_imc is incompatible with the i2c core class-based detection
+code because it can't do a read byte operation.  I believe that,
+because of exactly this limitation, devices soldered onto DIMMs are
+unlikely to ever require this operation.  (LGA2011 is the premier
+platform for interesting DIMM-like devices right now.)  So I'd have to
+modify the i2c core with more nasty hard-coded lists of what can be
+safely probed how, and ISTM that kind of thing is better handled in
+code that runs on busses that are really known to contain DIMMs (and
+not, say, i2c-gpio).
 
-But I'd like to keep the enumeration code I wrote around, since the
-main point of this exercise is to enumerate things that aren't
-actually hwmon devices.  But I don't want random sensors scripts
-reprogramming the hardware.  Is the some magic I can work (or should
-add) with i2c_board_info to force the jc42 driver into a read-only
-mode?
+ - The eventual goal is to write a driver for NVDIMMs, which will also
+appear on this bus, and I want them to pull in the right drivers via
+modalias and udev, which the i2c core code can't do.  To do this well,
+I'll want the SMBUS driver to pass in (via platform-data) information
+on which DIMM channel is which, and I don't know any way to do
+anything like that without using i2c_new_device.
 
-In any case, am I doing the right thing by not setting I2C_CLASS_SPD on my bus?
+ - Busses like i2c_i801 may or may not contain DIMMs.  They do on some
+machines I have.  But on my Core i7 Extreme box, there are no DIMMs on
+that bus, and there are no SPDs on that bus (i.e. addresses 0x50
+through 0x57 don't answer), but there is an unknown device at address
+0x19.  I don't really want to think about whether it's safe to probe
+by, say, read_word_data(0).  When NVDIMMs show up, even more bizarre
+addresses may be populated.  My code can probe *carefully* by looking
+for SPDs first, whereas the i2c-core code is not nearly as careful.
+
+One option would be to move code like this into the core and replace
+I2C_CLASS_SPD with something like it.  That way everything could get
+the benefit of DIMM-specific probing.
 
 --Andy
