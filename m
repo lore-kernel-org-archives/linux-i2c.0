@@ -1,7 +1,7 @@
 From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Subject: [PATCH v3 2/4] i2c_imc: New driver for Intel's iMC, found on LGA2011 chips
-Date: Wed, 17 Jul 2013 13:53:06 -0700
-Message-ID: <7ee1fe68b1d07621a34a5bff618add8a521d54fb.1374093761.git.luto@amacapital.net>
+Subject: [PATCH v3 3/4] tsod: New hwmon driver for Temperature Sensors on DIMM
+Date: Wed, 17 Jul 2013 13:53:07 -0700
+Message-ID: <f358329ff1dd3c3c272cadb4a358a5587cb28e18.1374093761.git.luto@amacapital.net>
 References: <cover.1374093761.git.luto@amacapital.net>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <cover.1374093761.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
@@ -12,609 +12,247 @@ To: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z
 Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Sandy Bridge Xeon and Extreme chips have integrated memory controllers
-with (rather limited) onboard SMBUS masters.  This driver gives access
-to the bus.
-
 Signed-off-by: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 ---
- drivers/i2c/busses/Kconfig   |  15 ++
- drivers/i2c/busses/Makefile  |   1 +
- drivers/i2c/busses/i2c-imc.c | 548 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 564 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-imc.c
+ drivers/hwmon/Kconfig  |  10 +++
+ drivers/hwmon/Makefile |   1 +
+ drivers/hwmon/tsod.c   | 195 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 206 insertions(+)
+ create mode 100644 drivers/hwmon/tsod.c
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index e837f0e..7636782 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -137,6 +137,21 @@ config I2C_DIMM_BUS
-        tristate
-        default n
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index 89ac1cb..96edb87 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -1462,6 +1462,16 @@ config SENSORS_MC13783_ADC
+         help
+           Support for the A/D converter on MC13783 and MC13892 PMIC.
  
-+config I2C_IMC
-+	tristate "Intel iMC (LGA 2011) SMBus Controller"
-+	depends on PCI && X86
-+	select I2C_DIMM_BUS
++config SENSORS_TSOD
++	tristate "Temperature Sensor On DIMM (TSOD)"
++	depends on I2C
 +	help
-+	  If you say yes to this option, support will be included for the Intel
-+	  Integrated Memory Controller SMBus host controller interface.  This
-+	  controller is found on LGA 2011 Xeons and Core i7 Extremes.
++	  If you say yes here you get support for the integrated temperature
++	  sensors on newer DIMMs that comply with JESD21-C.
 +
-+	  It is possibly, although unlikely, that the use of this driver will
-+	  interfere with your platform's RAM thermal management.
++	  This driver can also be built as a module.  If so, the module
++	  will be called tsod.
 +
-+	  This driver can also be built as a module.  If so, the module will be
-+	  called i2c-imc.
-+
- config I2C_PIIX4
- 	tristate "Intel PIIX4 and compatible (ATI/AMD/Serverworks/Broadcom/SMSC)"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 226bb2e..790b63d 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -15,6 +15,7 @@ obj-$(CONFIG_I2C_AMD8111)	+= i2c-amd8111.o
- obj-$(CONFIG_I2C_I801)		+= i2c-i801.o
- obj-$(CONFIG_I2C_ISCH)		+= i2c-isch.o
- obj-$(CONFIG_I2C_ISMT)		+= i2c-ismt.o
-+obj-$(CONFIG_I2C_IMC)		+= i2c-imc.o
- obj-$(CONFIG_I2C_NFORCE2)	+= i2c-nforce2.o
- obj-$(CONFIG_I2C_NFORCE2_S4985)	+= i2c-nforce2-s4985.o
- obj-$(CONFIG_I2C_PIIX4)		+= i2c-piix4.o
-diff --git a/drivers/i2c/busses/i2c-imc.c b/drivers/i2c/busses/i2c-imc.c
+ if ACPI
+ 
+ comment "ACPI drivers"
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index 8d6d97e..439ef1f 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -134,6 +134,7 @@ obj-$(CONFIG_SENSORS_W83L785TS)	+= w83l785ts.o
+ obj-$(CONFIG_SENSORS_W83L786NG)	+= w83l786ng.o
+ obj-$(CONFIG_SENSORS_WM831X)	+= wm831x-hwmon.o
+ obj-$(CONFIG_SENSORS_WM8350)	+= wm8350-hwmon.o
++obj-$(CONFIG_SENSORS_TSOD)	+= tsod.o
+ 
+ obj-$(CONFIG_PMBUS)		+= pmbus/
+ 
+diff --git a/drivers/hwmon/tsod.c b/drivers/hwmon/tsod.c
 new file mode 100644
-index 0000000..9643aeb
+index 0000000..f7bb070
 --- /dev/null
-+++ b/drivers/i2c/busses/i2c-imc.c
-@@ -0,0 +1,548 @@
++++ b/drivers/hwmon/tsod.c
+@@ -0,0 +1,195 @@
 +/*
-+ * Copyright (c) 2013 Andrew Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
++ * drivers/hwmon/tsod.c - Temperaure Sensor On DIMM
 + *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation.
++ * Copyright (C) 2013 Andrew Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 + *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
++ * This program is free software; you can redistribute it and/or modify it
++ * under the terms of the GNU General Public License v2 as published by the
++ * Free Software Foundation.
 + *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * This program is distributed in the hope that it will be useful, but WITHOUT
++ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
++ * more details.
++ *
++ * You should have received a copy of the GNU General Public License along with
++ * this program; if not, write to the Free Software Foundation, Inc.,
++ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
++ *
++ * The official reference for these devices is JEDEC Standard No. 21-C,
++ * which is available for free from www.jedec.org.
 + */
 +
-+#include <linux/i2c/dimm-bus.h>
-+#include <linux/module.h>
 +#include <linux/kernel.h>
-+#include <linux/pm_qos.h>
-+#include <linux/delay.h>
-+#include <linux/pci.h>
++#include <linux/module.h>
++#include <linux/err.h>
 +#include <linux/i2c.h>
++#include <linux/hwmon.h>
++#include <linux/hwmon-sysfs.h>
++#include <linux/slab.h>
++
++/* Registers */
++#define TSOD_CURRENT_TEMP	5
++#define TSOD_VENDOR		6
++#define TSOD_DEVICE		7
 +
 +/*
-+ * The datasheet can be found here, for example:
-+ * http://www.intel.com/content/dam/www/public/us/en/documents/datasheets/xeon-e5-1600-2600-vol-2-datasheet.pdf
-+ *
-+ * There seem to be quite a few bugs or spec errors, though:
-+ *
-+ *  - A successful transaction sets WOD and RDO.
-+ *
-+ *  - The docs for TSOD_POLL_EN make no sense (see imc_channel_claim)
-+ *
-+ *  - Erratum BT109, which says:
-+ *
-+ *      The processor may not complete SMBus (System Management Bus)
-+ *      transactions targeting the TSOD (Temperature Sensor On DIMM)
-+ *      when Package C-States are enabled. Due to this erratum, if the
-+ *      processor transitions into a Package C-State while an SMBus
-+ *      transaction with the TSOD is in process, the processor will
-+ *      suspend receipt of the transaction. The transaction completes
-+ *      while the processor is in a Package C-State.  Upon exiting
-+ *      Package C-State, the processor will attempt to resume the
-+ *      SMBus transaction, detect a protocol violation, and log an
-+ *      error.
-+ *
-+ *   That description seems to be wrong.  If the package enters a
-+ *   C-State while a software-initiated SMBUS transaction is running,
-+ *   then the result of the transaction seems to be wrong, but no
-+ *   error is signaled.  It does not seem to matter whether the
-+ *   transaction is targeting a TSOD.
-+ *
-+ *   For added fun, the relevant bits in MSR_PKG_CST_CONFIG_CONTROL
-+ *   are lockable, so we can't just disable package C-States.
-+ *
-+ *   The upshot is that we need to use a hack to keep a package awake
-+ *   while we're using its SMBUS master.  pm_qos is the easiest, so we
-+ *   use it for now.  It has the unfortunate side-effect that each
-+ *   claim and each release will result in an IPI to all CPUs and
-+ *   that, while any SMBUS transaction is running, the whole system
-+ *   will be forced to a high-power state.
++ * This driver does not program the trip points, etc. -- this is done by
++ * firmware, and the memory controller probably wants the defaults preserved.
 + */
 +
-+/* Register offsets (in PCI configuration space) */
-+#define SMBSTAT(i)			(0x180 + 0x10*i)
-+#define SMBCMD(i)			(0x184 + 0x10*i)
-+#define SMBCNTL(i)			(0x188 + 0x10*i)
-+#define SMB_TSOD_POLL_RATE_CNTR(i)	(0x18C + 0x10*i)
-+#define SMB_TSOD_POLL_RATE		(0x1A8)
-+
-+/* SMBSTAT fields */
-+#define SMBSTAT_RDO		(1U << 31)	/* Read Data Valid */
-+#define SMBSTAT_WOD		(1U << 30)	/* Write Operation Done */
-+#define SMBSTAT_SBE		(1U << 29)	/* SMBus Error */
-+#define SMBSTAT_SMB_BUSY	(1U << 28)	/* SMBus Busy State */
-+/* 26:24 is the last automatically polled TSOD address */
-+#define SMBSTAT_RDATA_MASK	0xffff		/* result of a read */
-+
-+/* SMBCMD fields */
-+#define SMBCMD_TRIGGER		(1U << 31)	/* CMD Trigger */
-+#define SMBCMD_PNTR_SEL		(1U << 30)	/* HW polls TSOD with pointer */
-+#define SMBCMD_WORD_ACCESS	(1U << 29)	/* word (vs byte) access */
-+#define SMBCMD_TYPE_MASK	(3U << 27)	/* Mask for access type */
-+#define  SMBCMD_TYPE_READ	(0U << 27)	/* Read */
-+#define  SMBCMD_TYPE_WRITE	(1U << 27)	/* Write */
-+#define  SMBCMD_TYPE_PNTR_WRITE	(3U << 27)	/* Write to pointer */
-+#define SMBCMD_SA_MASK		(7U << 24)	/* Slave Address high bits */
-+#define SMBCMD_SA_SHIFT		24
-+#define SMBCMD_BA_MASK		0xff0000	/* Bus Txn address */
-+#define SMBCMD_BA_SHIFT		16
-+#define SMBCMD_WDATA_MASK	0xffff		/* data to write */
-+
-+/* SMBCNTL fields */
-+#define SMBCNTL_DTI_MASK	0xf0000000	/* Slave Address low bits */
-+#define SMBCNTL_DTI_SHIFT	28		/* Slave Address low bits */
-+#define SMBCNTL_CKOVRD		(1U << 27)	/* # Clock Override */
-+#define SMBCNTL_DIS_WRT		(1U << 26)	/* Disable Write (sadly) */
-+#define SMBCNTL_SOFT_RST	(1U << 10)	/* Soft Reset */
-+#define SMBCNTL_TSOD_POLL_EN	(1U << 8)	/* TSOD Polling Enable */
-+/* Bits 0-3 and 4-6 indicate TSOD presence in various slots */
-+
-+/* System Address Controller, PCI dev 13 fn 6, 8086.3cf5 */
-+#define SAD_CONTROL 0xf4
-+
-+/*
-+ * The clock is around 100kHz, and transactions are nine cycles per byte
-+ * plus a few start/stop cycles, plus whatever clock streching is involved.
-+ * This is a guess at the polling interval.
-+ */
-+
-+#define TXN_LEN_US (20 * 10)
-+
-+#define PCI_DEVICE_ID_INTEL_SBRIDGE_BR          0x3cf5  /* 13.6 */
-+#define PCI_DEVICE_ID_INTEL_SBRIDGE_IMC_TA      0x3ca8  /* 15.0 */
-+
-+struct imc_channel {
-+	struct i2c_adapter adapter;
-+	struct mutex mutex;
-+	bool can_write, suspended;
++struct tsod_priv {
++	struct i2c_client *client;
++	struct device *hwmondev;
 +};
 +
-+struct imc_priv {
-+	struct pci_dev *pci_dev;
-+	struct imc_channel channels[2];
-+};
-+
-+/*
-+ * There's some cost to just having a pm_qos request installed, so we
-+ * just use one globally instead of one per device.
-+ */
-+static struct pm_qos_request imc_pm_qos;
-+static int imc_pm_qos_count;
-+static DEFINE_MUTEX(imc_pm_qos_mutex);
-+
-+static void imc_pmqos_get(void)
++static ssize_t show_name(struct device *dev,
++			 struct device_attribute *attr, char *buf)
 +{
-+	mutex_lock(&imc_pm_qos_mutex);
-+	if (++imc_pm_qos_count == 1)
-+		pm_qos_update_request(&imc_pm_qos, 5);
-+	mutex_unlock(&imc_pm_qos_mutex);
++	return sprintf(buf, "TSOD\n");
 +}
 +
-+static void imc_pmqos_put(void)
++static ssize_t show_label(struct device *dev,
++			  struct device_attribute *attr, char *buf)
 +{
-+	mutex_lock(&imc_pm_qos_mutex);
-+	if (--imc_pm_qos_count == 0)
-+		pm_qos_update_request(&imc_pm_qos, PM_QOS_DEFAULT_VALUE);
-+	mutex_unlock(&imc_pm_qos_mutex);
++	return sprintf(buf, "DIMM Temperature\n");
 +}
 +
-+static void imc_channel_release(struct imc_priv *priv, int chan)
++static ssize_t show_temperature(struct device *dev,
++				struct device_attribute *attr, char *buf)
 +{
-+	/* Return to HW control. */
-+	u32 cntl;
-+	pci_read_config_dword(priv->pci_dev, SMBCNTL(chan), &cntl);
-+	cntl |= SMBCNTL_TSOD_POLL_EN;
-+	pci_write_config_dword(priv->pci_dev, SMBCNTL(chan), cntl);
-+	imc_pmqos_put();
-+}
++	struct tsod_priv *priv = dev_get_drvdata(dev->parent);
++	int temp, raw;
 +
-+static int imc_channel_claim(struct imc_priv *priv, int chan)
-+{
++	raw = i2c_smbus_read_word_swapped(priv->client, TSOD_CURRENT_TEMP);
++	if (raw < 0)
++		return raw;
++
 +	/*
-+	 * The docs are a bit confused here.  We're supposed to disable TSOD
-+	 * polling, then wait for busy to be cleared, then set
-+	 * SMBCNTL_TSOD_POLL_EN to zero to switch to software control.  But
-+	 * SMBCNTL_TSOD_POLL_EN is the only documented way to turn off polling.
++	 * The three high bits are undefined and the rest is twos-complement.
++	 * Use a sign-extending right shift to propagate the sign bit.
 +	 */
++	temp = ((s16)((s16)raw << 3) >> 3);
 +
-+	u32 cntl, stat;
-+	int i;
-+
-+	if (priv->channels[chan].suspended)
-+		return -EIO;
-+
-+	imc_pmqos_get();
-+
-+	pci_read_config_dword(priv->pci_dev, SMBCNTL(chan), &cntl);
-+	cntl &= ~SMBCNTL_TSOD_POLL_EN;
-+	pci_write_config_dword(priv->pci_dev, SMBCNTL(chan), cntl);
-+
-+	for (i = 0; i < 20; i++) {
-+		pci_read_config_dword(priv->pci_dev, SMBSTAT(chan), &stat);
-+		if (!(stat & SMBSTAT_SMB_BUSY))
-+			return 0;  /* The channel is ours. */
-+		usleep_range(TXN_LEN_US, 3*TXN_LEN_US);
-+	}
-+
-+	/* We failed to take control of the channel.  Return to HW control. */
-+	imc_channel_release(priv, chan);
-+	imc_pmqos_put();
-+	return -EBUSY;
++	/*
++	 * The value is in units of 0.0625 degrees, but we want it in
++	 * units of 0.001 degrees.
++	 */
++	return sprintf(buf, "%d\n", DIV_ROUND_CLOSEST(temp * 625, 10));
 +}
 +
-+/*
-+ * The iMC supports five access types.  The terminology is rather
-+ * inconsistent.  These are the types:
-+ *
-+ * "Write to pointer register SMBus": I2C_SMBUS_WRITE, I2C_SMBUS_BYTE
-+ *
-+ * Read byte/word: I2C_SMBUS_READ, I2C_SMBUS_{BYTE|WORD}_DATA
-+ *
-+ * Write byte/word: I2C_SMBUS_WRITE, I2C_SMBUS_{BYTE|WORD}_DATA
-+ *
-+ * The pointer write operations is AFAICT completely useless for
-+ * software control, for two reasons.  First, HW periodically polls any
-+ * TSODs on the bus, so it will corrupt the pointer in between SW
-+ * transactions.  More importantly, the matching "read byte"/"receive
-+ * byte" (the address-less single-byte read) is not available for SW
-+ * control.  Therefore, this driver doesn't implement pointer writes
-+ *
-+ * There is no PEC support.
-+ */
++static DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
++static SENSOR_DEVICE_ATTR(temp1_input, S_IRUGO, show_temperature, NULL, 0);
++static SENSOR_DEVICE_ATTR(temp1_label, S_IRUGO, show_label, NULL, 0);
 +
-+static u32 imc_func(struct i2c_adapter *adapter)
++static struct attribute *tsod_hwmon_attributes[] = {
++	&dev_attr_name.attr,
++	&sensor_dev_attr_temp1_input.dev_attr.attr,
++	&sensor_dev_attr_temp1_label.dev_attr.attr,
++
++	NULL,
++};
++
++static const struct attribute_group tsod_hwmon_attr_group = {
++	.attrs	= tsod_hwmon_attributes,
++};
++
++static int tsod_detect(struct i2c_client *client, struct i2c_board_info *info)
 +{
-+	int chan;
-+	struct imc_channel *ch;
-+	struct imc_priv *priv = i2c_get_adapdata(adapter);
++	struct i2c_adapter *adapter = client->adapter;
 +
-+	chan = (adapter == &priv->channels[0].adapter ? 0 : 1);
-+	ch = &priv->channels[chan];
++	if (!i2c_check_functionality(adapter, I2C_FUNC_SMBUS_READ_WORD_DATA))
++		return -ENODEV;
 +
-+	if (ch->can_write)
-+		return I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA;
-+	else
-+		return I2C_FUNC_SMBUS_READ_BYTE_DATA |
-+			I2C_FUNC_SMBUS_READ_WORD_DATA;
++	strlcpy(info->type, "tsod", I2C_NAME_SIZE);
++	return 0;
 +}
 +
-+static s32 imc_smbus_xfer(struct i2c_adapter *adap, u16 addr,
-+			  unsigned short flags, char read_write, u8 command,
-+			  int size, union i2c_smbus_data *data)
++static int tsod_probe(struct i2c_client *client,
++		      const struct i2c_device_id *id)
 +{
-+	int i, ret, chan;
-+	u32 tmp, cmdbits = 0, cntlbits = 0, stat;
-+	struct imc_channel *ch;
-+	struct imc_priv *priv = i2c_get_adapdata(adap);
++	int ret;
++	struct tsod_priv *priv;
 +
-+	chan = (adap == &priv->channels[0].adapter ? 0 : 1);
-+	ch = &priv->channels[chan];
++	/* Sanity check the address */
++	if ((client->addr & 0x78) != 0x18)
++		return -ENODEV;
 +
-+	if (addr > 0x7f)
-+		return -EOPNOTSUPP;  /* No large address support */
-+	if (flags)
-+		return -EOPNOTSUPP;  /* No PEC */
++	/* Sanity check: make sure we can read the temperature. */
++	ret = i2c_smbus_read_word_swapped(client, TSOD_CURRENT_TEMP);
++	if (ret < 0)
++		return -ENODEV;
 +
-+	cmdbits  |= ((u32)addr & 0x7) << SMBCMD_SA_SHIFT;
-+	cntlbits |= ((u32)addr >> 3) << SMBCNTL_DTI_SHIFT;
++	priv = kzalloc(sizeof(struct tsod_priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
 +
-+	switch (size) {
-+	case I2C_SMBUS_BYTE_DATA:
-+		cmdbits |= ((u32)command) << SMBCMD_BA_SHIFT;
-+		if (read_write == I2C_SMBUS_READ)
-+			cmdbits |= SMBCMD_TYPE_READ;
-+		else
-+			cmdbits |= SMBCMD_TYPE_WRITE | data->byte;
-+		break;
-+	case I2C_SMBUS_WORD_DATA:
-+		cmdbits |= ((u32)command) << SMBCMD_BA_SHIFT;
-+		cmdbits |= SMBCMD_WORD_ACCESS;
-+		if (read_write == I2C_SMBUS_READ)
-+			cmdbits |= SMBCMD_TYPE_READ;
-+		else
-+			cmdbits |= SMBCMD_TYPE_WRITE | swab16(data->word);
-+		break;
-+	default:
-+		return -EOPNOTSUPP;
++	priv->client = client;
++
++	priv->hwmondev = hwmon_device_register(&client->dev);
++	if (IS_ERR(priv->hwmondev)) {
++		ret = PTR_ERR(priv->hwmondev);
++		goto err_free;
 +	}
 +
-+	mutex_lock(&ch->mutex);
++	i2c_set_clientdata(client, priv);
 +
-+	ret = imc_channel_claim(priv, chan);
++	ret = sysfs_create_group(&priv->hwmondev->kobj, &tsod_hwmon_attr_group);
 +	if (ret)
-+		goto out_unlock;
++		goto err_unreg;
 +
-+	pci_read_config_dword(priv->pci_dev, SMBCNTL(chan), &tmp);
-+	tmp &= ~SMBCNTL_DTI_MASK;
-+	tmp |= cntlbits;
-+	pci_write_config_dword(priv->pci_dev, SMBCNTL(chan), tmp);
++	return 0;
 +
-+	/*
-+	 * This clears SMBCMD_PNTR_SEL.  We leave it cleared so that we don't
-+	 * need to think about keeping the TSOD pointer state consistent with
-+	 * the hardware's expectation.  This probably has some miniscule
-+	 * power cost, as TSOD polls will take 9 extra cycles.
-+	 */
-+	cmdbits |= SMBCMD_TRIGGER;
-+	pci_write_config_dword(priv->pci_dev, SMBCMD(chan), cmdbits);
++err_unreg:
++	hwmon_device_unregister(&client->dev);
 +
-+	for (i = 0; ; i++) {
-+		pci_read_config_dword(priv->pci_dev, SMBSTAT(chan), &stat);
-+		if (!(stat & SMBSTAT_SMB_BUSY))
-+			break;
-+		if (i < 50) {
-+			usleep_range(TXN_LEN_US, 3*TXN_LEN_US);
-+			continue;
-+		}
-+
-+		/* Timeout.  TODO: Reset the controller? */
-+		ret = -EIO;
-+		dev_err(&priv->pci_dev->dev, "controller is wedged\n");
-+		goto out_release;
-+	}
-+
-+	if (stat & SMBSTAT_SBE) {
-+		/*
-+		 * Clear the error to re-enable TSOD polling.  The docs say
-+		 * that, as long as SBE is set, TSOD polling won't happen.
-+		 * The docs also say that writing zero to this bit (which is
-+		 * the only writable bit in the whole register) will clear
-+		 * the error.  Empirically, writing 0 does not clear SBE, but
-+		 * it's probably still good to do the write in compliance with
-+		 * the spec.  (TSOD polling still happens and seems to
-+		 * clear SBE on its own.)
-+		 */
-+		pci_write_config_dword(priv->pci_dev, SMBSTAT(chan), 0);
-+		ret = -ENXIO;
-+		goto out_release;
-+	}
-+
-+	if (read_write == I2C_SMBUS_READ) {
-+		if (stat & SMBSTAT_RDO) {
-+			/*
-+			 * The iMC SMBUS controller thinks of SMBUS
-+			 * words as being big-endian (MSB first).
-+			 * Linux treats them as little-endian, we need
-+			 * to swap them.
-+			 *
-+			 * Note: the controller will often (always?) set
-+			 * WOD here.  This is probably a bug.
-+			 */
-+			if (size == I2C_SMBUS_WORD_DATA)
-+				data->word = swab16(stat & SMBSTAT_RDATA_MASK);
-+			else
-+				data->byte = stat & 0xFF;
-+			ret = 0;
-+		} else {
-+			dev_err(&priv->pci_dev->dev,
-+				"Unexpected read status 0x%08X\n", stat);
-+			ret = -EIO;
-+		}
-+	} else {
-+		if (stat & SMBSTAT_WOD) {
-+			/* Same bug (?) as in the read case. */
-+			ret = 0;
-+		} else {
-+			dev_err(&priv->pci_dev->dev,
-+				"Unexpected write status 0x%08X\n", stat);
-+			ret = -EIO;
-+		}
-+	}
-+
-+out_release:
-+	imc_channel_release(priv, chan);
-+
-+out_unlock:
-+	mutex_unlock(&ch->mutex);
-+
++err_free:
++	kfree(priv);
++	i2c_set_clientdata(client, 0);
 +	return ret;
 +}
 +
-+static const struct i2c_algorithm imc_smbus_algorithm = {
-+	.smbus_xfer	= imc_smbus_xfer,
-+	.functionality	= imc_func,
++static int tsod_remove(struct i2c_client *client)
++{
++	struct tsod_priv *priv = i2c_get_clientdata(client);
++
++	sysfs_remove_group(&priv->hwmondev->kobj, &tsod_hwmon_attr_group);
++	hwmon_device_unregister(priv->hwmondev);
++	kfree(priv);
++	return 0;
++}
++
++static const unsigned short tsod_addresses[] = {
++	0x18, 0x19, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, I2C_CLIENT_END
 +};
 +
-+static int imc_init_channel(struct imc_priv *priv, int i, int socket)
-+{
-+	int err;
-+	u32 val;
-+	struct imc_channel *ch = &priv->channels[i];
++static const struct i2c_device_id tsod_id[] = {
++	{ "tsod", 0 },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, tsod_id);
 +
-+	i2c_set_adapdata(&ch->adapter, priv);
-+	ch->adapter.owner = THIS_MODULE;
-+	ch->adapter.algo = &imc_smbus_algorithm;
-+	ch->adapter.dev.parent = &priv->pci_dev->dev;
-+
-+	pci_read_config_dword(priv->pci_dev, SMBCNTL(i), &val);
-+	ch->can_write = !(val & SMBCNTL_DIS_WRT);
++static struct i2c_driver tsod_driver = {
++	.driver = {
++		.name	= "tsod",
++		.owner	= THIS_MODULE,
++	},
++	.probe		= tsod_probe,
++	.remove		= tsod_remove,
++	.id_table	= tsod_id,
 +
 +	/*
-+	 * i2c_add_addapter can call imc_smbus_xfer, so we need to be
-+	 * ready immediately.
++	 * We do not claim I2C_CLASS_SPD -- there are other devices
++	 * on, e.g., the i2c_i801 bus that have these addresses.
++	 * Instead we let the dimm-bus code instantiate us.
 +	 */
-+	mutex_init(&ch->mutex);
 +
-+	snprintf(ch->adapter.name, sizeof(ch->adapter.name),
-+		 "iMC socket %d channel %d", socket, i);
-+	err = i2c_add_adapter(&ch->adapter);
-+	if (err) {
-+		mutex_destroy(&ch->mutex);
-+		return err;
-+	}
-+
-+	i2c_scan_dimm_bus(&ch->adapter);
-+
-+	return 0;
-+}
-+
-+static void imc_free_channel(struct imc_priv *priv, int i)
-+{
-+	struct imc_channel *ch = &priv->channels[i];
-+
-+	mutex_lock(&ch->mutex);
-+	i2c_del_adapter(&ch->adapter);
-+	mutex_unlock(&ch->mutex);
-+	mutex_destroy(&ch->mutex);
-+}
-+
-+static int imc_probe(struct pci_dev *dev, const struct pci_device_id *id)
-+{
-+	int i, err;
-+	struct imc_priv *priv;
-+	struct pci_dev *sad;  /* System Address Decoder */
-+	u32 sad_control;
-+
-+	/* Paranoia: the datasheet says this is always at 15.0 */
-+	if (dev->devfn != PCI_DEVFN(15, 0))
-+		return -ENODEV;
-+
-+	/*
-+	 * The socket number is hidden away on a different PCI device.
-+	 * There's another copy at devfn 11.0 offset 0x40, and an even
-+	 * less convincing copy at 5.0 0x140.  The actual APICID register
-+	 * is "not used ... and is still implemented in hardware because
-+	 * of FUD".
-+	 *
-+	 * In principle we could double-check that the socket matches
-+	 * the numa_node from SRAT, but this is probably not worth it.
-+	 */
-+	sad = pci_get_slot(dev->bus, PCI_DEVFN(13, 6));
-+	if (!sad)
-+		return -ENODEV;
-+	if (sad->vendor != PCI_VENDOR_ID_INTEL ||
-+	    sad->device != PCI_DEVICE_ID_INTEL_SBRIDGE_BR) {
-+		pci_dev_put(sad);
-+		return -ENODEV;
-+	}
-+	pci_read_config_dword(sad, SAD_CONTROL, &sad_control);
-+	pci_dev_put(sad);
-+
-+	priv = kzalloc(sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+	priv->pci_dev = dev;
-+
-+	pci_set_drvdata(dev, priv);
-+
-+	for (i = 0; i < 2; i++) {
-+		int j;
-+		err = imc_init_channel(priv, i, sad_control & 0x7);
-+		if (err) {
-+			for (j = 0; j < i; j++)
-+				imc_free_channel(priv, j);
-+			goto exit_free;
-+		}
-+	}
-+
-+	return 0;
-+
-+exit_free:
-+	kfree(priv);
-+	return err;
-+}
-+
-+static void imc_remove(struct pci_dev *dev)
-+{
-+	int i;
-+	struct imc_priv *priv = pci_get_drvdata(dev);
-+
-+	for (i = 0; i < 2; i++)
-+		imc_free_channel(priv, i);
-+
-+	kfree(priv);
-+}
-+
-+static int imc_suspend(struct pci_dev *dev, pm_message_t mesg)
-+{
-+	int i;
-+	struct imc_priv *priv = pci_get_drvdata(dev);
-+
-+	/* BIOS is in charge.  We should finish any pending transaction */
-+	for (i = 0; i < 2; i++) {
-+		mutex_lock(&priv->channels[i].mutex);
-+		priv->channels[i].suspended = true;
-+		mutex_unlock(&priv->channels[i].mutex);
-+	}
-+
-+	return 0;
-+}
-+
-+static int imc_resume(struct pci_dev *dev)
-+{
-+	int i;
-+	struct imc_priv *priv = pci_get_drvdata(dev);
-+
-+	for (i = 0; i < 2; i++) {
-+		mutex_lock(&priv->channels[i].mutex);
-+		priv->channels[i].suspended = false;
-+		mutex_unlock(&priv->channels[i].mutex);
-+	}
-+
-+	return 0;
-+}
-+
-+static DEFINE_PCI_DEVICE_TABLE(imc_ids) = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_SBRIDGE_IMC_TA) },
-+	{ 0, }
++	.detect		= tsod_detect,
++	.address_list	= tsod_addresses,
 +};
 +
-+MODULE_DEVICE_TABLE(pci, imc_ids);
-+
-+static struct pci_driver imc_pci_driver = {
-+	.name		= "imc_smbus",
-+	.id_table	= imc_ids,
-+	.probe		= imc_probe,
-+	.remove		= imc_remove,
-+	.suspend	= imc_suspend,
-+	.resume		= imc_resume,
-+};
-+
-+static int __init imc_init(void)
-+{
-+	int err;
-+
-+	pm_qos_add_request(&imc_pm_qos,
-+			   PM_QOS_CPU_DMA_LATENCY, PM_QOS_DEFAULT_VALUE);
-+	err = pci_register_driver(&imc_pci_driver);
-+	if (err)
-+		pm_qos_remove_request(&imc_pm_qos);
-+	return err;
-+}
-+
-+static void __exit imc_exit(void)
-+{
-+	pci_unregister_driver(&imc_pci_driver);
-+	pm_qos_remove_request(&imc_pm_qos);
-+}
-+
-+module_init(imc_init);
-+module_exit(imc_exit);
++module_i2c_driver(tsod_driver);
 +
 +MODULE_AUTHOR("Andrew Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>");
-+MODULE_DESCRIPTION("iMC SMBus driver");
++MODULE_DESCRIPTION("Temperaure Sensor On DIMM");
 +MODULE_LICENSE("GPL");
 -- 
 1.8.1.4
