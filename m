@@ -1,29 +1,48 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: Add DIMM bus code
-Date: Wed, 17 Jul 2013 15:23:49 -0700
-Message-ID: <20130717222349.GD990@roeck-us.net>
-References: <cover.1374093761.git.luto@amacapital.net>
- <b8e50b55358b4f0cd1db96174a9e6a2e69780359.1374093761.git.luto@amacapital.net>
+From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Subject: Re: [PATCH v3 3/4] tsod: New hwmon driver for Temperature Sensors on DIMM
+Date: Wed, 17 Jul 2013 15:49:24 -0700
+Message-ID: <CALCETrWQF6p+DveuOxfMhp0r_CrvF=+FOmvfkF-TQ2NVgJ_2aA@mail.gmail.com>
+References: <cover.1374093761.git.luto@amacapital.net> <f358329ff1dd3c3c272cadb4a358a5587cb28e18.1374093761.git.luto@amacapital.net>
+ <20130717221902.GC990@roeck-us.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <b8e50b55358b4f0cd1db96174a9e6a2e69780359.1374093761.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+In-Reply-To: <20130717221902.GC990-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Andras BALI <drewie-Y8qEzhMunLyT9ig0jae3mg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Jul 17, 2013 at 01:53:05PM -0700, Andy Lutomirski wrote:
-> Add i2c_scan_dimm_bus to declare that a particular i2c_adapter
-> contains DIMMs.  This will probe (and autoload modules!) for useful
-> SMBUS devices that live on DIMMs.
-> 
-> As more SMBUS-addressable DIMM components become supported, this
-> code can be extended to probe for them.
-> 
-I don't think this code is necessary. The temperature sensor would be
-auto-detected if you mark the bus driver as I2C_CLASS_HWMON, and DIM eeprom
-auto-detection should not be needed.
+On Wed, Jul 17, 2013 at 3:19 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
+> On Wed, Jul 17, 2013 at 01:53:07PM -0700, Andy Lutomirski wrote:
+>> Signed-off-by: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+>> ---
+>
+> Why don't you just use the existing jc42 driver ?
 
-Guenter
+Failure to notice it.  *sigh*.  I assumed that any driver for this
+device would have "tsod" or "TSOD" somewhere greppable.  I'll at least
+send a patch to improve the description.
+
+That being said, the jc42 driver *writes*.  The iMC controller
+(AFAICS) uses the data from the TSOD for things like dynamically
+adjusting the DRAM refresh interval and IMO the kernel has no business
+at all writing to any registers on the TSOD on this platform.  (FWIW,
+I tried fiddling with the critical threshold and my box didn't blow up
+or report thermal trip events.  But still, this scares me a bit.)
+
+If I modify the i2c_imc driver to add .class = I2C_CLASS_SPD and get
+rid of the TSOD probing and load the jc42 module, then it can't
+actually find my TSODs (because the i2c core isn't capable of probing
+on the iMC bus).  If I manually add the device, it works.
+
+But I'd like to keep the enumeration code I wrote around, since the
+main point of this exercise is to enumerate things that aren't
+actually hwmon devices.  But I don't want random sensors scripts
+reprogramming the hardware.  Is the some magic I can work (or should
+add) with i2c_board_info to force the jc42 driver into a read-only
+mode?
+
+In any case, am I doing the right thing by not setting I2C_CLASS_SPD on my bus?
+
+--Andy
