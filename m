@@ -1,7 +1,7 @@
 From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 Subject: Re: [PATCH] i2c: mxs: Rework the PIO mode operation
-Date: Wed, 17 Jul 2013 18:23:12 +0200
-Message-ID: <201307171823.12411.marex@denx.de>
+Date: Wed, 17 Jul 2013 19:04:00 +0200
+Message-ID: <201307171904.00784.marex@denx.de>
 References: <201307150405.53110.marex@denx.de> <1UzQet-1Vf4pE0@fwd17.aul.t-online.de>
 Mime-Version: 1.0
 Content-Type: Text/Plain;
@@ -14,7 +14,7 @@ To: "to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org" <to-fleischer-zqRNUXu
 Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Torsten,
+Dear to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org,
 
 > Hi,
 > 
@@ -49,21 +49,12 @@ Hi Torsten,
 > > this issue.
 > 
 > sorry, I couldn't  test the patch until today on my iMX283 board.
-
-No problem, I was busy too.
-
 > It works when reading the registers from the temperature sensor TCN75A.
-
-OK
-
 > But it fails when writing less than 7 bytes to the EEPROM (24LC32). Then
 > I always get a 'Connection timed out' error in the user space.
 
-This works just fine for me, even the LA shows no weird stuff on the I2C, would 
-you be able to trace where this comes from please?
-
-> Best regards
-> Torsten Fleischer
+Thinking about this, did you correctly configure the EEPROM write sector size? I 
+think it's 32 bytes for this device.
 
 Best regards,
 Marek Vasut
