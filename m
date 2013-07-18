@@ -1,56 +1,62 @@
-From: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: Rework the PIO mode operation
-Date: Thu, 18 Jul 2013 21:12:15 +0200
-Message-ID: <3767128.gOKkIqK4p5@linux-1fbo.site>
-References: <201307150405.53110.marex@denx.de> <1UzQet-1Vf4pE0@fwd17.aul.t-online.de> <201307171904.00784.marex@denx.de>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v3 4/4] eeprom: Add a MODULE_DEVICE_TABLE
+Date: Thu, 18 Jul 2013 22:31:25 +0200
+Message-ID: <20130718223125.63e03635@endymion.delvare>
+References: <cover.1374093761.git.luto@amacapital.net>
+	<5661ebb4676a4d20678f369df3a2da5d587e9100.1374093761.git.luto@amacapital.net>
+	<20130718091116.6757e088@endymion.delvare>
+	<CALCETrX9Et-D+C9qJ9Ou46UyuWdqD6SN+PSu6RKDwnVogE=jZQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201307171904.00784.marex-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <CALCETrX9Et-D+C9qJ9Ou46UyuWdqD6SN+PSu6RKDwnVogE=jZQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Marek,
+Hi Andy,
 
-> 
-> Thinking about this, did you correctly configure the EEPROM write sector
-> size? I think it's 32 bytes for this device.
-> 
+On Thu, 18 Jul 2013 09:15:47 -0700, Andy Lutomirski wrote:
+> at24 doesn't have .class=I2C_CLASS_SPD (and I still am not really a
+> fan of the i2c class mechanism).
 
-The EEPROM is correctly configured, i.e. page size is set to 32.
+The class-based auto-detection has its merits but it's not the solution
+to all problems.
 
-I made a test by writing one byte (0x01) to the address 0x0100 of the EEPROM. 
-The EEPROM's I2C bus address is 0x54.
-The test has only one transfer with a message length of 3 bytes.
+.class=I2C_CLASS_SPD could be added to the at24 driver. If we ever want
+to kill the legacy eeprom driver, we will have to do exactly that.
 
-I figured out that the value written to the MXS_I2C_DATA register should be 
-0x010001a8. But instead of that a value of 0x00000000 is written to the 
-register.
+That being said this won't help in your case, as your bus driver does
+not support the SMBus transaction (Receive Byte) used to probe for
+EEPROM chips in address range 0x50-0x57.
 
-I think that the reason for that can be found in the following code section:
+> Shall I play with ways to get known
+> DIMM-only busses to probe these things directly and instantiate with
+> i2c_new_device(..., .type="spd")?  Do you have other plans for how
+> probing should work?
 
-if (i + 1 == msg->len) {
-	/* This is the last transfer. */
-	start |= flags;
-	start &= ~MXS_I2C_CTRL0_RETAIN_CLOCK;
-	xlen = (i + 2) % 4;
-	data >>= (4 - xlen) * 8;
-} else if ((i & 3) == 2) {
-	/* Regular transfer. */
-	xlen = 4;
-} else {
-	/* Just stuff data. */
-	continue;
-}
+You could indeed call i2c_new_probed_device() on addresses 0x50-0x57
+at the end of your new i2c bus driver's probe function, in order to
+instantiate spd devices. This function takes a probe function as a
+parameter so you could use a transaction type supported (Read Byte.)
 
-After the last byte is stuffed into the variable data (i = 2) xlen is 
-calculated (with xlen = (i + 2) % 4) to zero. Thus the following shift 
-operation (data >>= (4 - xlen) * 8) shifts all the bits out of data that 
-already contains 0x010001a8.
+> (For background in case you haven't been following the rest of the
+> thread: the Intel iMC (integrated memory controller) bus appears to
+> have only DIMMs attached, so everything on the bus is either the host
+> or is something attached to a DIMM.  The latter devices have
+> well-defined addresses: four bits of type and three bits of slot
+> number.  This makes it easy to probe accurately.  I'm not sure that
+> the i2c core class mechanism is well-suited to this, it's easy to do
+> manually.)
 
+Ideally the BIOS/firmware/whatever would tell the OS which memory slots
+are used so that the kernel can instantiate all I2C/SMBus slave devices
+without even probing for them. I really wonder how many decades it will
+take to Intel and co to come up with a complete device typology
+description on the PC/x86_64 platfor, so that probing is finally
+history.
 
-Best regards
-Torsten Fleischer
+-- 
+Jean Delvare
