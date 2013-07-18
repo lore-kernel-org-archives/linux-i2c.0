@@ -1,21 +1,21 @@
 From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH 1/3] i2c: mxs: distinguish i.MX23 and i.MX28 based I2C controller
-Date: Thu, 18 Jul 2013 02:46:39 +0200
-Message-ID: <1374108401-7439-1-git-send-email-marex@denx.de>
+Subject: [PATCH 3/3] i2c: mxs: Fix PIO mode on i.MX23
+Date: Thu, 18 Jul 2013 02:46:41 +0200
+Message-ID: <1374108401-7439-3-git-send-email-marex@denx.de>
+References: <1374108401-7439-1-git-send-email-marex@denx.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1374108401-7439-1-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <sb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <sb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+The i.MX23 I2C controller is also capable of PIO, but needs a little harder
+push to behave. The controller needs to be reset after every PIO/DMA operation
+for some reason, otherwise in rare cases, the controller can hang or emit
+bytes onto the bus.
 
-It seems the PIO mode does not work, or at least not like it works
-on a i.MX28. Each short transfer needs about one second (without an
-error message) but does not send anything on the I2C lines.
-
-From: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Signed-off-by: Juergen Beisert <jbe-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
 Cc: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Cc: Christoph Baumann <sb-/RsSufbtIHM@public.gmane.org>
 Cc: Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
@@ -23,112 +23,120 @@ Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Cc: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
 Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-mxs.c |   42 +++++++++++++++++++++++++++++++++++-------
- 1 file changed, 35 insertions(+), 7 deletions(-)
-
-NOTE: I picked this patch from [1], the patch is made by Juergen,
-      I only added some text into the commit message so it's not
-      wholy empty. Juergen, if you have a better version, please
-      feel free to submit a better one or ramble this one is not
-      good. Thanks!
-
-[1] http://www.spinics.net/lists/arm-kernel/msg245016.html
+ drivers/i2c/busses/i2c-mxs.c |   40 +++++++++++++++++++++++++++++-----------
+ 1 file changed, 29 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index df8ff5a..ca54ac4 100644
+index 86913d9..fb6f110 100644
 --- a/drivers/i2c/busses/i2c-mxs.c
 +++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -96,10 +96,17 @@
- #define MXS_CMD_I2C_READ	(MXS_I2C_CTRL0_SEND_NAK_ON_LAST | \
- 				 MXS_I2C_CTRL0_MASTER_MODE)
+@@ -37,10 +37,12 @@
  
-+enum mxs_i2c_devtype {
-+	MXS_I2C_UNKNOWN = 0,
-+	MXS_I2C_V1,
-+	MXS_I2C_V2,
-+};
-+
- /**
-  * struct mxs_i2c_dev - per device, private MXS-I2C data
-  *
-  * @dev: driver model device node
-+ * @dev_type: distinguish i.MX23/i.MX28 features
-  * @regs: IO registers pointer
-  * @cmd_complete: completion object for transaction wait
-  * @cmd_err: error code for last transaction
-@@ -107,6 +114,7 @@
-  */
- struct mxs_i2c_dev {
- 	struct device *dev;
-+	enum mxs_i2c_devtype dev_type;
- 	void __iomem *regs;
- 	struct completion cmd_complete;
- 	int cmd_err;
-@@ -491,9 +499,10 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
- 	 * is set to 8 bytes, transfers shorter than 8 bytes are transfered
- 	 * using PIO mode while longer transfers use DMA. The 8 byte border is
- 	 * based on this empirical measurement and a lot of previous frobbing.
-+	 * Note: this special feature only works on i.MX28 SoC
- 	 */
- 	i2c->cmd_err = 0;
--	if (msg->len < 8) {
-+	if (i2c->dev_type == MXS_I2C_V2 && msg->len < 8) {
- 		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
- 		if (ret)
- 			mxs_i2c_reset(i2c);
-@@ -632,8 +641,28 @@ static int mxs_i2c_get_ofdata(struct mxs_i2c_dev *i2c)
- 	return 0;
- }
+ #define MXS_I2C_CTRL0		(0x00)
+ #define MXS_I2C_CTRL0_SET	(0x04)
++#define MXS_I2C_CTRL0_CLR	(0x08)
  
-+static struct platform_device_id mxs_i2c_devtype[] = {
-+	{
-+		.name = "imx23-i2c",
-+		.driver_data = MXS_I2C_V1,
-+	}, {
-+		.name = "imx28-i2c",
-+		.driver_data = MXS_I2C_V2,
-+	}, { /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(platform, mxs_i2c_devtype);
-+
-+static const struct of_device_id mxs_i2c_dt_ids[] = {
-+	{ .compatible = "fsl,imx23-i2c", .data = &mxs_i2c_devtype[0], },
-+	{ .compatible = "fsl,imx28-i2c", .data = &mxs_i2c_devtype[1], },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, mxs_i2c_dt_ids);
-+
- static int mxs_i2c_probe(struct platform_device *pdev)
+ #define MXS_I2C_CTRL0_SFTRST			0x80000000
+ #define MXS_I2C_CTRL0_RUN			0x20000000
+ #define MXS_I2C_CTRL0_SEND_NAK_ON_LAST		0x02000000
++#define MXS_I2C_CTRL0_PIO_MODE			0x01000000
+ #define MXS_I2C_CTRL0_RETAIN_CLOCK		0x00200000
+ #define MXS_I2C_CTRL0_POST_SEND_STOP		0x00100000
+ #define MXS_I2C_CTRL0_PRE_SEND_START		0x00080000
+@@ -70,10 +72,9 @@
+ #define MXS_I2C_STAT_BUS_BUSY			0x00000800
+ #define MXS_I2C_STAT_CLK_GEN_BUSY		0x00000400
+ 
+-#define MXS_I2C_DATA		(0xa0)
++#define MXS_I2C_DATA(i2c)	((i2c->dev_type == MXS_I2C_V1) ? 0x60 : 0xa0)
+ 
+-#define MXS_I2C_DEBUG0		(0xb0)
+-#define MXS_I2C_DEBUG0_CLR	(0xb8)
++#define MXS_I2C_DEBUG0_CLR(i2c)	((i2c->dev_type == MXS_I2C_V1) ? 0x78 : 0xb8)
+ 
+ #define MXS_I2C_DEBUG0_DMAREQ	0x80000000
+ 
+@@ -351,7 +352,11 @@ static void mxs_i2c_pio_trigger_write_cmd(struct mxs_i2c_dev *i2c, u32 cmd,
+ 					  u32 data)
  {
-+	const struct of_device_id *of_id =
-+				of_match_device(mxs_i2c_dt_ids, &pdev->dev);
- 	struct device *dev = &pdev->dev;
- 	struct mxs_i2c_dev *i2c;
- 	struct i2c_adapter *adap;
-@@ -645,6 +674,11 @@ static int mxs_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
-+	if (of_id) {
-+		const struct platform_device_id *device_id = of_id->data;
-+		i2c->dev_type = device_id->driver_data;
-+	}
+ 	writel(cmd, i2c->regs + MXS_I2C_CTRL0);
+-	writel(data, i2c->regs + MXS_I2C_DATA);
 +
- 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	irq = platform_get_irq(pdev, 0);
- 
-@@ -720,12 +754,6 @@ static int mxs_i2c_remove(struct platform_device *pdev)
- 	return 0;
++	if (i2c->dev_type == MXS_I2C_V1)
++		writel(MXS_I2C_CTRL0_PIO_MODE, i2c->regs + MXS_I2C_CTRL0_SET);
++
++	writel(data, i2c->regs + MXS_I2C_DATA(i2c));
+ 	writel(MXS_I2C_CTRL0_RUN, i2c->regs + MXS_I2C_CTRL0_SET);
  }
  
--static const struct of_device_id mxs_i2c_dt_ids[] = {
--	{ .compatible = "fsl,imx28-i2c", },
--	{ /* sentinel */ }
--};
--MODULE_DEVICE_TABLE(of, mxs_i2c_dt_ids);
+@@ -384,7 +389,6 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+ 	 * NOTE: The CTRL0::PIO_MODE description is important, since
+ 	 * it outlines how the PIO mode is really supposed to work.
+ 	 */
 -
- static struct platform_driver mxs_i2c_driver = {
- 	.driver = {
- 		   .name = DRIVER_NAME,
+ 	if (msg->flags & I2C_M_RD) {
+ 		/*
+ 		 * PIO READ transfer:
+@@ -424,7 +428,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+ 			goto cleanup;
+ 		}
+ 
+-		data = readl(i2c->regs + MXS_I2C_DATA);
++		data = readl(i2c->regs + MXS_I2C_DATA(i2c));
+ 		for (i = 0; i < msg->len; i++) {
+ 			msg->buf[i] = data & 0xff;
+ 			data >>= 8;
+@@ -481,7 +485,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+ 				start & MXS_I2C_CTRL0_RETAIN_CLOCK ? "C": "");
+ 
+ 			writel(MXS_I2C_DEBUG0_DMAREQ,
+-			       i2c->regs + MXS_I2C_DEBUG0_CLR);
++			       i2c->regs + MXS_I2C_DEBUG0_CLR(i2c));
+ 
+ 			mxs_i2c_pio_trigger_write_cmd(i2c,
+ 				start | MXS_I2C_CTRL0_MASTER_MODE |
+@@ -511,6 +515,10 @@ cleanup:
+ 	writel(MXS_I2C_IRQ_MASK, i2c->regs + MXS_I2C_CTRL1_CLR);
+ 	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
+ 
++	/* Clear the PIO_MODE on i.MX23 */
++	if (i2c->dev_type == MXS_I2C_V1)
++		writel(MXS_I2C_CTRL0_PIO_MODE, i2c->regs + MXS_I2C_CTRL0_CLR);
++
+ 	return ret;
+ }
+ 
+@@ -543,10 +551,6 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 	if (!(msg->flags & I2C_M_RD) && (msg->len < 7))
+ 		use_pio = 1;
+ 
+-	/* Disable PIO on MX23. */
+-	if (i2c->dev_type == MXS_I2C_V1)
+-		use_pio = 0;
+-
+ 	i2c->cmd_err = 0;
+ 	if (use_pio) {
+ 		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
+@@ -576,6 +580,20 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 		       i2c->regs + MXS_I2C_CTRL1_SET);
+ 	}
+ 
++	/*
++	 * WARNING!
++	 * The i.MX23 is strange. After each and every operation, it's I2C IP
++	 * block must be reset, otherwise the IP block will misbehave. This can
++	 * be observed on the bus by the block sending out one single byte onto
++	 * the bus. In case such an error happens, bit 27 will be set in the
++	 * DEBUG0 register. This bit is not documented in the i.MX23 datasheet
++	 * and is marked as "TBD" instead. To reset this bit to a correct state,
++	 * reset the whole block. Since the block reset does not take long, do
++	 * reset the block after every transfer to play safe.
++	 */
++	if (i2c->dev_type == MXS_I2C_V1)
++		mxs_i2c_reset(i2c);
++
+ 	dev_dbg(i2c->dev, "Done with err=%d\n", ret);
+ 
+ 	return ret;
 -- 
 1.7.10.4
