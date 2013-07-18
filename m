@@ -1,93 +1,47 @@
-From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Subject: Re: [PATCH v3 1/4] i2c: Add DIMM bus code
-Date: Wed, 17 Jul 2013 17:57:44 -0700
-Message-ID: <CALCETrW5vVMxzERAj9+vQnmmq2L0xZgmG5tqQeG4oi9qzdCP7g@mail.gmail.com>
-References: <cover.1374093761.git.luto@amacapital.net> <b8e50b55358b4f0cd1db96174a9e6a2e69780359.1374093761.git.luto@amacapital.net>
- <20130717222349.GD990@roeck-us.net> <CALCETrVCotmG2PCQUF1BaAcbvnysMbS-kE4SJHoSokgzaML0jg@mail.gmail.com>
+From: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH v3 4/4] eeprom: Add a MODULE_DEVICE_TABLE
+Date: Thu, 18 Jul 2013 09:11:16 +0200
+Message-ID: <20130718091116.6757e088@endymion.delvare>
+References: <cover.1374093761.git.luto@amacapital.net>
+	<5661ebb4676a4d20678f369df3a2da5d587e9100.1374093761.git.luto@amacapital.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CALCETrVCotmG2PCQUF1BaAcbvnysMbS-kE4SJHoSokgzaML0jg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <5661ebb4676a4d20678f369df3a2da5d587e9100.1374093761.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Some thoughts on an alternative solution below:
+Hi Andy,
 
-On Wed, Jul 17, 2013 at 4:04 PM, Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org> wrote:
-> On Wed, Jul 17, 2013 at 3:23 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
->> On Wed, Jul 17, 2013 at 01:53:05PM -0700, Andy Lutomirski wrote:
->>> Add i2c_scan_dimm_bus to declare that a particular i2c_adapter
->>> contains DIMMs.  This will probe (and autoload modules!) for useful
->>> SMBUS devices that live on DIMMs.
->>>
->>> As more SMBUS-addressable DIMM components become supported, this
->>> code can be extended to probe for them.
->>>
->> I don't think this code is necessary. The temperature sensor would be
->> auto-detected if you mark the bus driver as I2C_CLASS_HWMON, and DIM eeprom
->> auto-detection should not be needed.
->
-> I'm not at all sure I want to mark this thing I2C_CLASS_HWMON.  I
-> don't want random hwmon drivers probing the bus.  (Although I wouldn't
-> need to -- jc42 is looking for I2C_CLASS_SPD.)
->
-> Also, my code is IMO better than the i2c core probing code for several reasons:
->
->  - i2c_imc is incompatible with the i2c core class-based detection
-> code because it can't do a read byte operation.  I believe that,
-> because of exactly this limitation, devices soldered onto DIMMs are
-> unlikely to ever require this operation.  (LGA2011 is the premier
-> platform for interesting DIMM-like devices right now.)  So I'd have to
-> modify the i2c core with more nasty hard-coded lists of what can be
-> safely probed how, and ISTM that kind of thing is better handled in
-> code that runs on busses that are really known to contain DIMMs (and
-> not, say, i2c-gpio).
->
->  - The eventual goal is to write a driver for NVDIMMs, which will also
-> appear on this bus, and I want them to pull in the right drivers via
-> modalias and udev, which the i2c core code can't do.  To do this well,
-> I'll want the SMBUS driver to pass in (via platform-data) information
-> on which DIMM channel is which, and I don't know any way to do
-> anything like that without using i2c_new_device.
+On Wed, 17 Jul 2013 13:53:08 -0700, Andy Lutomirski wrote:
+> The new DIMM-bus code can detect eeproms, so give the eeprom driver
+> an appropriate modalias.
+> 
+> Signed-off-by: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+> ---
+>  drivers/misc/eeprom/eeprom.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/misc/eeprom/eeprom.c b/drivers/misc/eeprom/eeprom.c
+> index c169e07..1ec85b8 100644
+> --- a/drivers/misc/eeprom/eeprom.c
+> +++ b/drivers/misc/eeprom/eeprom.c
+> @@ -215,6 +215,7 @@ static const struct i2c_device_id eeprom_id[] = {
+>  	{ "eeprom", 0 },
+>  	{ }
+>  };
+> +MODULE_DEVICE_TABLE(i2c, eeprom_id);
+>  
+>  static struct i2c_driver eeprom_driver = {
+>  	.driver = {
 
-Perhaps i2c_adapter could have a new field for this purpose.  For DIMM
-busses it could store topology information.  Then any clients
-instantiated on the bus could read it to figure out where they are.
+Nack. The eeprom driver will eventually die, I don't want to see
+anything like that added to it. Please use the at24 driver for anything
+new.
 
->
->  - Busses like i2c_i801 may or may not contain DIMMs.  They do on some
-> machines I have.  But on my Core i7 Extreme box, there are no DIMMs on
-> that bus, and there are no SPDs on that bus (i.e. addresses 0x50
-> through 0x57 don't answer), but there is an unknown device at address
-> 0x19.  I don't really want to think about whether it's safe to probe
-> by, say, read_word_data(0).  When NVDIMMs show up, even more bizarre
-> addresses may be populated.  My code can probe *carefully* by looking
-> for SPDs first, whereas the i2c-core code is not nearly as careful.
->
-> One option would be to move code like this into the core and replace
-> I2C_CLASS_SPD with something like it.  That way everything could get
-> the benefit of DIMM-specific probing.
-
-What if the core code got a little smarter than just matching
-arbitrary bits in the class?  For example, if the adapter is
-I2C_CLASS_SPD, then the core could look for eeproms (and optionally
-instantiate them itself instead of relying on the eeprom driver being
-loaded).  Or, more generally, adapters could have a list of named
-classes, and there could be a module or something for each class that
-knows how to probe and instantiate devices of that class.  So the
-class "nvdimm" could instantiate whatever it needs to instantiate, the
-class "tsod" could instantiate jc42 instances, etc.  (I'm pretty sure
-I'll eventually want nvdimm to be autoloaded, it may want to depend on
-the eeprom driver somehow in case I need to read the SPD data -- I'm
-not sure yet.)
-
-I guess the logic of "probe 0x50, then, if there's an eeprom there,
-probe 0x18 for jc42" isn't perfect.  For example, lm90 can live at
-0x18 or 0x19, and if there are DIMMs on the same segment as an lm90,
-then it's possible for a jc42 and an lm90 to collide.  So if my bus
-were I2C_CLASS_SPD | I2C_CLASS_DIMM, then perhaps the jc42 (and core)
-code could probe more aggressively.
-
---Andy
+Thanks,
+-- 
+Jean Delvare
