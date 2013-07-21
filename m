@@ -1,108 +1,127 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH v4 2/2] i2c_imc: New driver for Intel's iMC, found on
- LGA2011 chips
-Date: Thu, 18 Jul 2013 15:40:08 -0700
-Message-ID: <20130718224008.GA7314@roeck-us.net>
-References: <cover.1374171757.git.luto@amacapital.net>
- <c4bb014e8793e8d0059ecf5633f01ab9e15409d2.1374171757.git.luto@amacapital.net>
- <20130718213331.GA6237@roeck-us.net>
- <CALCETrUUkSenOD1KS7rrVV1czjhTJ-c1sFebrDygcCB+5Y2upA@mail.gmail.com>
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: Re: [PATCH] i2c: mxs: Rework the PIO mode operation
+Date: Sun, 21 Jul 2013 23:21:22 +0200
+Message-ID: <201307212321.22207.marex@denx.de>
+References: <201307150405.53110.marex@denx.de> <201307171904.00784.marex@denx.de> <3767128.gOKkIqK4p5@linux-1fbo.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CALCETrUUkSenOD1KS7rrVV1czjhTJ-c1sFebrDygcCB+5Y2upA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <3767128.gOKkIqK4p5-BVXpyJtzy6LO1Ldfs0Uenw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Jul 18, 2013 at 02:37:40PM -0700, Andy Lutomirski wrote:
-> On Thu, Jul 18, 2013 at 2:33 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
-> > On Thu, Jul 18, 2013 at 11:36:54AM -0700, Andy Lutomirski wrote:
-> >> Sandy Bridge Xeon and Extreme chips have integrated memory controllers
-> >> with (rather limited) onboard SMBUS masters.  This driver gives access
-> >> to the bus.
-> >>
-> >> Signed-off-by: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-> >> ---
-> >>  drivers/i2c/busses/Kconfig   |  15 ++
-> >>  drivers/i2c/busses/Makefile  |   1 +
-> >>  drivers/i2c/busses/i2c-imc.c | 548 +++++++++++++++++++++++++++++++++++++++++++
-> >>  3 files changed, 564 insertions(+)
-> >>  create mode 100644 drivers/i2c/busses/i2c-imc.c
-> >>
-> >> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> >> index e837f0e..7636782 100644
-> >> --- a/drivers/i2c/busses/Kconfig
-> >> +++ b/drivers/i2c/busses/Kconfig
-> >> @@ -137,6 +137,21 @@ config I2C_DIMM_BUS
-> >>         tristate
-> >>         default n
-> >>
-> >> +config I2C_IMC
-> >> +     tristate "Intel iMC (LGA 2011) SMBus Controller"
-> >> +     depends on PCI && X86
-> >> +     select I2C_DIMM_BUS
-> >> +     help
-> >> +       If you say yes to this option, support will be included for the Intel
-> >> +       Integrated Memory Controller SMBus host controller interface.  This
-> >> +       controller is found on LGA 2011 Xeons and Core i7 Extremes.
-> >> +
-> >> +       It is possibly, although unlikely, that the use of this driver will
-> >> +       interfere with your platform's RAM thermal management.
-> >> +
-> >> +       This driver can also be built as a module.  If so, the module will be
-> >> +       called i2c-imc.
-> >> +
-> >>  config I2C_PIIX4
-> >>       tristate "Intel PIIX4 and compatible (ATI/AMD/Serverworks/Broadcom/SMSC)"
-> >>       depends on PCI
-> >> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> >> index 226bb2e..790b63d 100644
-> >> --- a/drivers/i2c/busses/Makefile
-> >> +++ b/drivers/i2c/busses/Makefile
-> >> @@ -15,6 +15,7 @@ obj-$(CONFIG_I2C_AMD8111)   += i2c-amd8111.o
-> >>  obj-$(CONFIG_I2C_I801)               += i2c-i801.o
-> >>  obj-$(CONFIG_I2C_ISCH)               += i2c-isch.o
-> >>  obj-$(CONFIG_I2C_ISMT)               += i2c-ismt.o
-> >> +obj-$(CONFIG_I2C_IMC)                += i2c-imc.o
-> >>  obj-$(CONFIG_I2C_NFORCE2)    += i2c-nforce2.o
-> >>  obj-$(CONFIG_I2C_NFORCE2_S4985)      += i2c-nforce2-s4985.o
-> >>  obj-$(CONFIG_I2C_PIIX4)              += i2c-piix4.o
-> >> diff --git a/drivers/i2c/busses/i2c-imc.c b/drivers/i2c/busses/i2c-imc.c
-> >> new file mode 100644
-> >> index 0000000..9643aeb
-> >> --- /dev/null
-> >> +++ b/drivers/i2c/busses/i2c-imc.c
-> >
-> > [ ... ]
-> >
-> >> +
-> >> +     i2c_scan_dimm_bus(&ch->adapter);
-> >> +
-> > Wonder if this should (can) be part of the infrastructure, eg by introducing
-> > I2C_CLASS_DIMM.
+Hi Torsten,
+
+> Hi Marek,
 > 
-> If so, it'll have to work differently than the current class bits.
-> All they do is determine which drivers get detected, and that
-> detection happens by completely generic means that's not really
-> applicable to DIMMs (and doesn't work on this bus).
+> > Thinking about this, did you correctly configure the EEPROM write sector
+> > size? I think it's 32 bytes for this device.
 > 
-In i2c_detect_address:
+> The EEPROM is correctly configured, i.e. page size is set to 32.
+> 
+> I made a test by writing one byte (0x01) to the address 0x0100 of the
+> EEPROM. The EEPROM's I2C bus address is 0x54.
+> The test has only one transfer with a message length of 3 bytes.
+> 
+> I figured out that the value written to the MXS_I2C_DATA register should be
+> 0x010001a8. But instead of that a value of 0x00000000 is written to the
+> register.
+> 
+> I think that the reason for that can be found in the following code
+> section:
+> 
+> if (i + 1 == msg->len) {
+> 	/* This is the last transfer. */
+> 	start |= flags;
+> 	start &= ~MXS_I2C_CTRL0_RETAIN_CLOCK;
+> 	xlen = (i + 2) % 4;
+> 	data >>= (4 - xlen) * 8;
+> } else if ((i & 3) == 2) {
+> 	/* Regular transfer. */
+> 	xlen = 4;
+> } else {
+> 	/* Just stuff data. */
+> 	continue;
+> }
+> 
+> After the last byte is stuffed into the variable data (i = 2) xlen is
+> calculated (with xlen = (i + 2) % 4) to zero. Thus the following shift
+> operation (data >>= (4 - xlen) * 8) shifts all the bits out of data that
+> already contains 0x010001a8.
 
-	if (adap->class & I2C_CLASS_DIMM)
-		return i2c_detect_dimm();
+You're right, thanks for finding this! Does the following fix look OK ? I added 
+some more comments and "decompressed" the code some more.
 
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index fb6f110..ee17b6a 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -366,7 +366,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+        struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+        uint32_t addr_data = msg->addr << 1;
+        uint32_t data = 0;
+-       int i, ret, xlen = 0;
++       int i, ret, xlen = 0, xmit = 0;
+        uint32_t start;
+ 
+        /* Mute IRQs coming from this block. */
+@@ -463,20 +463,42 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter 
+*adap,
+                        data >>= 8;
+                        data |= (msg->buf[i] << 24);
+ 
++                       xmit = 0;
++
++                       /* This is the last transfer of the message. */
+                        if (i + 1 == msg->len) {
+-                               /* This is the last transfer. */
++                               /* Add optional STOP flag. */
+                                start |= flags;
++                               /* Remove RETAIN_CLOCK bit. */
+                                start &= ~MXS_I2C_CTRL0_RETAIN_CLOCK;
+-                               xlen = (i + 2) % 4;
+-                               data >>= (4 - xlen) * 8;
+-                       } else if ((i & 3) == 2) {
+-                               /* Regular transfer. */
+-                               xlen = 4;
+-                       } else {
+-                               /* Just stuff data. */
+-                               continue;
++                               xmit = 1;
+                        }
+ 
++                       /* Four bytes are ready in the "data" variable. */
++                       if ((i & 3) == 2)
++                               xmit = 1;
++
++                       /* Nothing interesting happened, continue stuffing. */
++                       if (!xmit)
++                               continue;
++
++                       /*
++                        * Compute the size of the transfer and shift the
++                        * data accordingly.
++                        *
++                        * i = (4k + 0) .... xlen = 2
++                        * i = (4k + 1) .... xlen = 3
++                        * i = (4k + 2) .... xlen = 4
++                        * i = (4k + 3) .... xlen = 1
++                        */
++
++                       if ((i % 4) == 3)
++                               xlen = 1;
++                       else
++                               xlen = (i % 4) + 2;
++
++                       data >>= (4 - xlen) * 8;
++
+                        dev_dbg(i2c->dev,
+                                "PIO: len=%i pos=%i total=%i [W%s%s%s]\n",
+                                xlen, i, msg->len,
 
-or in i2c_default_probe, call a dimm specific probe function and then
-depend on the device detect functions (if that is possible).
-
-Sure, the i2c core code would have to change a bit to accomodate the new
-I2C_CLASS_DIMM, but I personally would prefer that to calling
-the detect function from the adapter driver.
-
-Personal preference, though; this ultimately depends on the i2c maintainers.
-
-Thanks,
-Guenter
+Best regards,
+Marek Vasut
