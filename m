@@ -1,101 +1,37 @@
-From: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: pxa: enable high speed mode for i2c bus
-Date: Mon, 22 Jul 2013 14:39:34 +0800
-Message-ID: <CAOng1WR+QVTZs9Zi=aKKsy_f=3R7=bB1PPWvuH2KtLaK+6rVBw@mail.gmail.com>
-References: <1370587097-21006-1-git-send-email-shangll@marvell.com>
-	<20130615144812.GD2923@katana>
-	<CAOng1WTa0c2Jb9yPeynKXQ0K4-bPhrcGPsKd-AP-MuxQPH80Jg@mail.gmail.com>
-	<CAOng1WSNDQMrce6CSN9Zh-FHJgoC6+SbOioYTyuoiAFTBdPYbA@mail.gmail.com>
-	<CAOng1WRu8yjVQ2jhm7fnPcG6ts+fBSxpn-D1ZCcLQvSVBfmF3A@mail.gmail.com>
+From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+Subject: Re: [PATCH v2 1/1] i2c: rcar: modify I2C driver
+Date: Mon, 22 Jul 2013 20:41:57 +0900
+Message-ID: <51ED1A85.6090009@jinso.co.jp>
+References: <1373447718-19382-1-git-send-email-user@jinso.co.jp> <1373447718-19382-2-git-send-email-user@jinso.co.jp> <8761whfoy1.wl%kuninori.morimoto.gx@renesas.com> <51ECCA19.7030904@jinso.co.jp>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAOng1WRu8yjVQ2jhm7fnPcG6ts+fBSxpn-D1ZCcLQvSVBfmF3A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <51ECCA19.7030904-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Guys
+Hi Wolfram, Morimoto-san
 
-      Any comments?
+On 07/11/2013 06:03 PM, Kuninori Morimoto wrote:
+> Hi Wolfram, Dung-san
+>
+> # I added Wolfram's email address
+>
+>> From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+>>
+>> This patch modify calculate for clock in I2C driver.
+>>
+>> Signed-off-by: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+>> ---
+> You forgot to add Wolfram's email address on this patch
+>
+> Acked-by: Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>
+I am sorry, I have forgot  to add Wolfram's email address on the patch.
 
-2013/7/11 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> Hi all
->
->       I am still waiting for your response.....
->
-> 2013/7/5 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->> Hi guys,
->>
->>         Any comments?
->>
->> 2013/7/2 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->>> Hi Wolfram
->>>
->>>     Have you finished reading datasheet?
->>>
->>> 2013/6/15 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
->>>> Hi,
->>>>
->>>> On Fri, Jun 07, 2013 at 02:38:17PM +0800, Leilei Shang wrote:
->>>>> To enter high speed mode, following steps should be done:
->>>>> 1. When running in high speed mode, i2c clock rate is different
->>>>> from standard mode. Clock rate must be set according to
->>>>> specification first.
->>>>> 2. When i2c controller sends a master code and wins arbitration,
->>>>> high speed mode is entered.
->>>>>
->>>>> If you want to enable high speed mode, the following members of
->>>>> platform data should be set to proper value:
->>>>
->>>> I couldn't find any support for hs-mode in pxa2xx and pxa3xx. So it
->>>> shouldn't be set in platform data, but depending on checks if this is
->>>> supported on this device at all. And why don't simply switch to it if
->>>> rate is bigger than what is supported without hs-mode?
->>>>
->>>
->>> 1. High speed mode is hardware feature, you can't read it from
->>> software. It's similar to fast mode, and fast mode is set in platform
->>> data.
->>>
->>>     The only method I can think of is to add a platform, like pxa910.
->>> And if you enable hs mode and platform is not pxa910, we'll set it to
->>> normal mode. Is this OK?
->>>
->>> 2. About hs mode clock setting. We don't know whether currently hs
->>> mode clock will be changed in future. Do you think below code is OK?
->>>
->>> if (i2c->rate)
->>>             clk_set_rate(i2c->clk, i2c->rate);
->>> else
->>>             clk_set_rate(i2c->clk, 62400000);
->>>
->>>             pr_info("i2c: <%s> set rate to %ld\n",
->>>                 i2c->adap.name, clk_get_rate(i2c->clk));
->>>
->>>>> 1. "high_mode" should be set to "1".
->>>>> 2. "master_code" should be set to "8'b 0000_1xxx"(x is 0 or 1).
->>>>>    If no master_code is set, set to default value 0xe.
->>>>> 3. "rate" should be set according to specification.
->>>>
->>>> Note that you should fall back to full-speed mode after sending the stop
->>>> bit in high-speed mode. I can't find this in the code?
->>>>
->>>
->>> 3. Will fall back to normal mode when stop bit is sent.
->>>
->>>>>
->>>>> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->>>>
->>>> Which SoC supports this? I'd like to have a look at the datasheet.
->>>>
->>>> Thanks,
->>>>
->>>>    Wolfram
->>>>
->>>
->>> Hope you can reply soon!
->>>
->>> Best regards
->>> Leilei
+Wolfram,please consider this patch.
+It have tested on Lager board (R8A7790 soc) and it seen like goood.
+
+Thanks you,
