@@ -1,23 +1,38 @@
-From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Subject: Re: [PATCH v2 1/1] i2c: rcar: modify I2C driver
-Date: Tue, 23 Jul 2013 15:28:00 +0900
-Message-ID: <51EE2270.9030505@jinso.co.jp>
-References: <1373447718-19382-1-git-send-email-user@jinso.co.jp> <1373447718-19382-2-git-send-email-user@jinso.co.jp> <8761whfoy1.wl%kuninori.morimoto.gx@renesas.com> <51ECCA19.7030904@jinso.co.jp> <51ED1A85.6090009@jinso.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51ED1A85.6090009-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>, Kuninori Morimoto <kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 06/27] drivers/i2c/busses: don't check resource with devm_ioremap_resource
+Date: Tue, 23 Jul 2013 20:01:39 +0200
+Message-ID: <1374602524-3398-7-git-send-email-wsa@the-dreams.de>
+References: <1374602524-3398-1-git-send-email-wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1374602524-3398-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Linus Walleij <linus.walleij@linaro.org>, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+devm_ioremap_resource does sanity checks on the given resource. No need to
+duplicate this in the driver.
 
-I'm sorry ,I had mistake for your'address.
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+---
+Please apply via the subsystem-tree.
 
-Please consider this patch.
-It have tested on Lager board (R8A7790 soc) and it seen like goood.
+ drivers/i2c/busses/i2c-stu300.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-Thanks you,
+diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
+index d1a6b20..ded21cf 100644
+--- a/drivers/i2c/busses/i2c-stu300.c
++++ b/drivers/i2c/busses/i2c-stu300.c
+@@ -884,9 +884,6 @@ stu300_probe(struct platform_device *pdev)
+ 
+ 	dev->pdev = pdev;
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	if (!res)
+-		return -ENOENT;
+-
+ 	dev->virtbase = devm_ioremap_resource(&pdev->dev, res);
+ 	dev_dbg(&pdev->dev, "initialize bus device I2C%d on virtual "
+ 		"base %p\n", bus_nr, dev->virtbase);
+-- 
+1.7.10.4
