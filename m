@@ -1,39 +1,31 @@
-From: Fabio Estevam <festevam@gmail.com>
-Subject: Re: [PATCH v2] i2c: i2c-mxs: Use DMA mode even for small transfers
-Date: Wed, 24 Jul 2013 00:09:30 -0300
-Message-ID: <CAOMZO5DqeMGgM9uTM5jZ_96_T2dWGBLDUfVf9JNqo2gypLDgvA@mail.gmail.com>
-References: <1372713261-20551-1-git-send-email-festevam@gmail.com>
-	<CAOMZO5Dyk_5CzcXvG7eJ3h07i=So0DS7MjtMQVHfpfx9Se_Teg@mail.gmail.com>
-	<CAOMZO5A8E54i+hKo5VFWmtuntDHH7O+z6Wb1NL0EkYJ=EQnj5w@mail.gmail.com>
-	<201307240502.36129.marex@denx.de>
+From: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH V10 Resend] i2c/designware: Provide i2c bus recovery support
+Date: Wed, 24 Jul 2013 14:46:55 +0530
+Message-ID: <CAKohpokWrC3Zp6vmtOXoGDaD_GkDV6cLwTVAoDUcLSLb6tjAxw@mail.gmail.com>
+References: <70c7ee79478cc2b89ad876d814207c6433e26a59.1371474881.git.viresh.kumar@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <201307240502.36129.marex@denx.de>
-Sender: stable-owner@vger.kernel.org
-To: Marek Vasut <marex@denx.de>
-Cc: Shawn Guo <shawn.guo@linaro.org>, wsa@the-dreams.de, kernel@pengutronix.de, linux-i2c@vger.kernel.org, alexandre.belloni@free-electrons.com, to-fleischer@t-online.de, Fabio Estevam <fabio.estevam@freescale.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <70c7ee79478cc2b89ad876d814207c6433e26a59.1371474881.git.viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, spear-devel-nkJGhpqTU55BDgjK7y7TUQ@public.gmane.org, u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>, Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Marek,
+On 17 June 2013 18:46, Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> Add bus recovery support for designware_i2c controller. It uses generic gpio
+> based i2c_gpio_recover_bus() routine. Platforms need to pass struct
+> i2c_bus_recovery_info as platform data to designware I2C controller.
+>
+> Signed-off-by: Vincenzo Frascino <vincenzo.frascino-qxv4g6HH51o@public.gmane.org>
+> Signed-off-by: Shiraz Hashim <shiraz.hashim-qxv4g6HH51o@public.gmane.org>
+> Signed-off-by: Viresh Kumar <viresh.kumar-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> ---
+>
+> This patch isn't drawing attention since sometime, so sending it again.
+>
+>  drivers/i2c/busses/i2c-designware-core.c    | 5 ++++-
+>  drivers/i2c/busses/i2c-designware-platdrv.c | 6 ++++++
+>  2 files changed, 10 insertions(+), 1 deletion(-)
 
-On Wed, Jul 24, 2013 at 12:02 AM, Marek Vasut <marex@denx.de> wrote:
-
-> Yes, the big question is if we want to use this patch or fix the PIO. I think
-> this one is much less intrusive, so I'd vouch for yours for 3.10 .
-
-Correct. Also according to Documentation/stable_kernel_rules.txt :
-
-"Rules on what kind of patches are accepted, and which ones are not, into the
-"-stable" tree:
-
-....
- - It cannot be bigger than 100 lines, with context."
-
-Your PIO fix is really appreciated, but it surpasses 100 lines, so it
-would be better if we go with this one first so that it can reach
-3.10, and then we can use your PIO fix later.
-
-Regards,
-
-Fabio Estevam
+Ping!!
