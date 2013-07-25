@@ -1,50 +1,29 @@
-From: Santosh Shilimkar <santosh.shilimkar@ti.com>
-Subject: [PATCH 2/2] i2c: davinci: Allow i2c driver available for keystone
- platforms
-Date: Wed, 24 Jul 2013 20:28:19 -0400
-Message-ID: <1374712099-32095-3-git-send-email-santosh.shilimkar@ti.com>
-References: <1374712099-32095-1-git-send-email-santosh.shilimkar@ti.com>
+From: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Subject: [PATCH 0/2] i2c: davinci: Couple of patches to make i2c usable on Keystone SOCs
+Date: Wed, 24 Jul 2013 20:28:17 -0400
+Message-ID: <1374712099-32095-1-git-send-email-santosh.shilimkar@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1374712099-32095-1-git-send-email-santosh.shilimkar@ti.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: linux-i2c@vger.kernel.org
-Cc: Sekhar Nori <nsekhar@ti.com>, Santosh Shilimkar <santosh.shilimkar@ti.com>, linux-arm-kernel@lists.infradead.org, Wolfram Sang <wsa@the-dreams.de>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Keystone SOCs uses the same I2C IP as available on DaVinci SOCs.
-Update the config so that ARCH_KEYSTONE can use it.
+Keystone SOCs uses the same I2C IP as available on DaVinci SOCs. These
+couple of patches makes it possible to select the I2C_DAVINCI on
+Keystone SOCs.
 
-Cc: Sekhar Nori <nsekhar@ti.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-Signed-off-by: Santosh Shilimkar <santosh.shilimkar@ti.com>
----
- drivers/i2c/busses/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Santosh Shilimkar (2):
+  i2c: davinci: remove useless mach/hardware include
+  i2c: davinci: Allow i2c driver available for keystone platforms
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index dc6dea6..fcdd321 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -385,7 +385,7 @@ config I2C_CPM
- 
- config I2C_DAVINCI
- 	tristate "DaVinci I2C driver"
--	depends on ARCH_DAVINCI
-+	depends on ARCH_DAVINCI || ARCH_KEYSTONE
- 	help
- 	  Support for TI DaVinci I2C controller driver.
- 
+ drivers/i2c/busses/Kconfig       |    2 +-
+ drivers/i2c/busses/i2c-davinci.c |    1 -
+ 2 files changed, 1 insertion(+), 2 deletions(-)
+
 -- 
 1.7.9.5
