@@ -1,37 +1,30 @@
-From: Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>
-Subject: [PATCH] i2c: Fix Kontron PLD prescaler calculation
-Date: Fri, 26 Jul 2013 14:04:55 +0200
-Message-ID: <20130726140455.40b4b86b@hyperion>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v4 0/2] support hisilicon i2c
+Date: Fri, 26 Jul 2013 21:22:16 +0800
+Message-ID: <1374844938-25505-1-git-send-email-zhangfei.gao@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Kevin Strasser <strassek-29tvszzbzErpgkiH4x7ZXw@public.gmane.org>, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, Michael Brunner <Michael.Brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Chris Healy <chealy-KRR2zmvM+DFWk0Htik3J/w@public.gmane.org>, Dirk Hohndel <Dirk.Hohndel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Add some necessary braces that have been removed during driver cleanup.
-This fixes the I2C prescaler calculation.
+V4:
+resend for 3.11
 
-Signed-off-by: Michael Brunner <michael.brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>
----
- drivers/i2c/busses/i2c-kempld.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+v3:
+patch 02, use size instead of threshold
 
-diff --git a/drivers/i2c/busses/i2c-kempld.c b/drivers/i2c/busses/i2c-kempld.c
-index ccec916..af8f65f 100644
---- a/drivers/i2c/busses/i2c-kempld.c
-+++ b/drivers/i2c/busses/i2c-kempld.c
-@@ -246,9 +246,9 @@ static void kempld_i2c_device_init(struct kempld_i2c_data *i2c)
- 		bus_frequency = KEMPLD_I2C_FREQ_MAX;
- 
- 	if (pld->info.spec_major == 1)
--		prescale = pld->pld_clock / bus_frequency * 5 - 1000;
-+		prescale = pld->pld_clock / (bus_frequency * 5) - 1000;
- 	else
--		prescale = pld->pld_clock / bus_frequency * 4 - 3000;
-+		prescale = pld->pld_clock / (bus_frequency * 4) - 3000;
- 
- 	if (prescale < 0)
- 		prescale = 0;
+v2:
+Suggested by Baruch
+Support hisilicon i2c in i2c-designware-platdrv.c, and adding two optional properties
+
+Zhangfei Gao (2):
+  i2c: designware: use module_platform_driver
+  i2c: designware: add two optional property tx/rx-fifo-size
+
+ .../devicetree/bindings/i2c/i2c-designware.txt     |    7 +++++++
+ drivers/i2c/busses/i2c-designware-platdrv.c        |   17 +++++------------
+ 2 files changed, 12 insertions(+), 12 deletions(-)
+
+-- 
+1.7.9.5
