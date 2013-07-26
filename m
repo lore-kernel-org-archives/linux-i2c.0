@@ -1,46 +1,88 @@
-From: Marek Vasut <marex@denx.de>
-Subject: Re: [PATCH v2] i2c: i2c-mxs: Use DMA mode even for small transfers
-Date: Fri, 26 Jul 2013 06:20:17 +0200
-Message-ID: <201307260620.17711.marex@denx.de>
-References: <1372713261-20551-1-git-send-email-festevam@gmail.com> <CAOMZO5DqeMGgM9uTM5jZ_96_T2dWGBLDUfVf9JNqo2gypLDgvA@mail.gmail.com> <1374799579.2480.1.camel@deadeye.wl.decadent.org.uk>
-Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <1374799579.2480.1.camel@deadeye.wl.decadent.org.uk>
-Sender: stable-owner@vger.kernel.org
-To: Ben Hutchings <ben@decadent.org.uk>
-Cc: Fabio Estevam <festevam@gmail.com>, Shawn Guo <shawn.guo@linaro.org>, wsa@the-dreams.de, kernel@pengutronix.de, linux-i2c@vger.kernel.org, alexandre.belloni@free-electrons.com, to-fleischer@t-online.de, Fabio Estevam <fabio.estevam@freescale.com>, stable@vger.kernel.org
+From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+Subject: [PATCH v2 1/1 resend] i2c: rcar: modify I2C driver
+Date: Fri, 26 Jul 2013 19:33:39 +0900
+Message-ID: <1374834819-319-2-git-send-email-nv-dung@jinso.co.jp>
+References: <1374834819-319-1-git-send-email-nv-dung@jinso.co.jp>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1374834819-319-1-git-send-email-nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Ben Hutchings,
+This patch modify calculate for clock in I2C driver.
 
-> On Wed, 2013-07-24 at 00:09 -0300, Fabio Estevam wrote:
-> > Hi Marek,
-> > 
-> > On Wed, Jul 24, 2013 at 12:02 AM, Marek Vasut <marex@denx.de> wrote:
-> > > Yes, the big question is if we want to use this patch or fix the PIO. I
-> > > think this one is much less intrusive, so I'd vouch for yours for 3.10
-> > > .
-> > 
-> > Correct. Also according to Documentation/stable_kernel_rules.txt :
-> > 
-> > "Rules on what kind of patches are accepted, and which ones are not, into
-> > the "-stable" tree:
-> > 
-> > ....
-> > 
-> >  - It cannot be bigger than 100 lines, with context."
-> > 
-> > Your PIO fix is really appreciated, but it surpasses 100 lines, so it
-> > would be better if we go with this one first so that it can reach
-> > 3.10, and then we can use your PIO fix later.
-> 
-> That one is not a hard and fast rule, but small localised fixes are
-> preferred if possible.
+Signed-off-by: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-rcar.c |   17 +++++++++++++++--
+ include/linux/i2c/i2c-rcar.h  |    4 ++++
+ 2 files changed, 19 insertions(+), 2 deletions(-)
 
-Full agreement on this one, let's apply this patch.
-
-Best regards,
-Marek Vasut
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 4ba4a95..85987c1 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -221,15 +221,28 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+ 				    struct device *dev)
+ {
+ 	struct clk *clkp = clk_get(NULL, "peripheral_clk");
++	struct i2c_rcar_platform_data *pdata = dev->platform_data;
+ 	u32 scgd, cdf;
+ 	u32 round, ick;
+ 	u32 scl;
++	u32 cdf_width;
++	u32 flags = pdata ? pdata->flags : 0;
+ 
+ 	if (!clkp) {
+ 		dev_err(dev, "there is no peripheral_clk\n");
+ 		return -EIO;
+ 	}
+ 
++	switch (flags & I2C_RCAR_FLAGS_ICCCR_MASK) {
++	default:
++	case I2C_RCAR_FLAGS_ICCCR_IS_2BIT:
++		cdf_width = 2;
++		break;
++	case I2C_RCAR_FLAGS_ICCCR_IS_3BIT:
++		cdf_width = 3;
++		break;
++	}
++
+ 	/*
+ 	 * calculate SCL clock
+ 	 * see
+@@ -245,7 +258,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+ 	 * clkp : peripheral_clk
+ 	 * F[]  : integer up-valuation
+ 	 */
+-	for (cdf = 0; cdf < 4; cdf++) {
++	for (cdf = 0; cdf < (1 << cdf_width); cdf++) {
+ 		ick = clk_get_rate(clkp) / (1 + cdf);
+ 		if (ick < 20000000)
+ 			goto ick_find;
+@@ -287,7 +300,7 @@ scgd_find:
+ 	/*
+ 	 * keep icccr value
+ 	 */
+-	priv->icccr = (scgd << 2 | cdf);
++	priv->icccr = (scgd << (cdf_width) | cdf);
+ 
+ 	return 0;
+ }
+diff --git a/include/linux/i2c/i2c-rcar.h b/include/linux/i2c/i2c-rcar.h
+index 496f5c2..572a6e5 100644
+--- a/include/linux/i2c/i2c-rcar.h
++++ b/include/linux/i2c/i2c-rcar.h
+@@ -5,6 +5,10 @@
+ 
+ struct i2c_rcar_platform_data {
+ 	u32 bus_speed;
++	u32 flags;
++#define I2C_RCAR_FLAGS_ICCCR_MASK	(0xF << 0)
++#define I2C_RCAR_FLAGS_ICCCR_IS_2BIT	(0 << 0) /* default */
++#define I2C_RCAR_FLAGS_ICCCR_IS_3BIT	(1 << 0)
+ };
+ 
+ #endif /* __I2C_R_CAR_H__ */
+-- 
+1.7.9.5
