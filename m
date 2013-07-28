@@ -1,70 +1,95 @@
-From: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v4 2/2] i2c: designware: add two optional property tx/rx-fifo-size
-Date: Fri, 26 Jul 2013 21:22:18 +0800
-Message-ID: <1374844938-25505-3-git-send-email-zhangfei.gao@linaro.org>
-References: <1374844938-25505-1-git-send-email-zhangfei.gao@linaro.org>
+From: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
+Subject: Re: [PATCH] i2c: mxs: Rework the PIO mode operation
+Date: Sun, 28 Jul 2013 11:47:18 +0200
+Message-ID: <17189813.oQSHU6hvqA@linux-1fbo.site>
+References: <201307150405.53110.marex@denx.de> <3767128.gOKkIqK4p5@linux-1fbo.site> <201307212321.22207.marex@denx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1374844938-25505-1-git-send-email-zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+In-Reply-To: <201307212321.22207.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Lucas Stach <l.stach-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Some platform can not get fifo-size info form register DW_IC_COMP_PARAM_1.
-Give chance to update rx-fifo-size and tx-fifo-size if provided in dts.
+Hi Marek,
 
-Signed-off-by: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Acked-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-designware.txt     |    7 +++++++
- drivers/i2c/busses/i2c-designware-platdrv.c        |    3 +++
- 2 files changed, 10 insertions(+)
+> Hi Torsten,
+> 
+> 
+> You're right, thanks for finding this! Does the following fix look OK ? I
+> added some more comments and "decompressed" the code some more.
+> 
+> diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+> index fb6f110..ee17b6a 100644
+> --- a/drivers/i2c/busses/i2c-mxs.c
+> +++ b/drivers/i2c/busses/i2c-mxs.c
+> @@ -366,7 +366,7 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter
+> *adap, struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+>         uint32_t addr_data = msg->addr << 1;
+>         uint32_t data = 0;
+> -       int i, ret, xlen = 0;
+> +       int i, ret, xlen = 0, xmit = 0;
+>         uint32_t start;
+> 
+>         /* Mute IRQs coming from this block. */
+> @@ -463,20 +463,42 @@ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter
+> *adap,
+>                         data >>= 8;
+>                         data |= (msg->buf[i] << 24);
+> 
+> +                       xmit = 0;
+> +
+> +                       /* This is the last transfer of the message. */
+>                         if (i + 1 == msg->len) {
+> -                               /* This is the last transfer. */
+> +                               /* Add optional STOP flag. */
+>                                 start |= flags;
+> +                               /* Remove RETAIN_CLOCK bit. */
+>                                 start &= ~MXS_I2C_CTRL0_RETAIN_CLOCK;
+> -                               xlen = (i + 2) % 4;
+> -                               data >>= (4 - xlen) * 8;
+> -                       } else if ((i & 3) == 2) {
+> -                               /* Regular transfer. */
+> -                               xlen = 4;
+> -                       } else {
+> -                               /* Just stuff data. */
+> -                               continue;
+> +                               xmit = 1;
+>                         }
+> 
+> +                       /* Four bytes are ready in the "data" variable. */
+> +                       if ((i & 3) == 2)
+> +                               xmit = 1;
+> +
+> +                       /* Nothing interesting happened, continue stuffing.
+> */ +                       if (!xmit)
+> +                               continue;
+> +
+> +                       /*
+> +                        * Compute the size of the transfer and shift the
+> +                        * data accordingly.
+> +                        *
+> +                        * i = (4k + 0) .... xlen = 2
+> +                        * i = (4k + 1) .... xlen = 3
+> +                        * i = (4k + 2) .... xlen = 4
+> +                        * i = (4k + 3) .... xlen = 1
+> +                        */
+> +
+> +                       if ((i % 4) == 3)
+> +                               xlen = 1;
+> +                       else
+> +                               xlen = (i % 4) + 2;
+> +
+> +                       data >>= (4 - xlen) * 8;
+> +
+>                         dev_dbg(i2c->dev,
+>                                 "PIO: len=%i pos=%i total=%i [W%s%s%s]\n",
+>                                 xlen, i, msg->len,
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-index 7fd7fa2..af0bf8f 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -6,6 +6,11 @@ Required properties :
-  - reg : Offset and length of the register set for the device
-  - interrupts : <IRQ> where IRQ is the interrupt number.
- 
-+Optional properties:
-+
-+ - rx-fifo-size : 1 cell, Rx fifo size
-+ - tx-fifo-size : 1 cell, Tx fifo size
-+
- Recommended properties :
- 
-  - clock-frequency : desired I2C bus clock frequency in Hz.
-@@ -22,6 +27,8 @@ Example :
- 		compatible = "snps,designware-i2c";
- 		reg = <0xf0000 0x1000>;
- 		interrupts = <11>;
-+		rx-fifo-size = <16>;
-+		tx-fifo-size = <16>;
- 		clock-frequency = <400000>;
- 	};
- 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 36ceebc..f657e65 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -86,6 +86,7 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev;
- 	struct i2c_adapter *adap;
- 	struct resource *mem;
-+	struct device_node *np = pdev->dev.of_node;
- 	int irq, r;
- 
- 	irq = platform_get_irq(pdev, 0);
-@@ -145,6 +146,8 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 		dev->rx_fifo_depth = ((param1 >> 8)  & 0xff) + 1;
- 		dev->adapter.nr = pdev->id;
- 	}
-+	of_property_read_u32(np, "rx-fifo-size", &dev->rx_fifo_depth);
-+	of_property_read_u32(np, "tx-fifo-size", &dev->tx_fifo_depth);
- 	r = i2c_dw_init(dev);
- 	if (r)
- 		return r;
--- 
-1.7.9.5
+The patch looks OK. I will test it when I'm back in the office. But this is 
+not before August 12.
+
+Best regards,
+Torsten Fleischer
