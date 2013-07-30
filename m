@@ -1,109 +1,430 @@
-From: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: pxa: enable high speed mode for i2c bus
-Date: Tue, 30 Jul 2013 09:34:01 +0800
-Message-ID: <CAOng1WTQP9XuPNDtiECZVOsCkowU1iyoq7C-h=Na7zspjFrjKA@mail.gmail.com>
-References: <1370587097-21006-1-git-send-email-shangll@marvell.com>
-	<20130615144812.GD2923@katana>
-	<CAOng1WTa0c2Jb9yPeynKXQ0K4-bPhrcGPsKd-AP-MuxQPH80Jg@mail.gmail.com>
-	<CAOng1WSNDQMrce6CSN9Zh-FHJgoC6+SbOioYTyuoiAFTBdPYbA@mail.gmail.com>
-	<CAOng1WRu8yjVQ2jhm7fnPcG6ts+fBSxpn-D1ZCcLQvSVBfmF3A@mail.gmail.com>
-	<CAOng1WR+QVTZs9Zi=aKKsy_f=3R7=bB1PPWvuH2KtLaK+6rVBw@mail.gmail.com>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH 05/35] i2c: use dev_get_platdata()
+Date: Tue, 30 Jul 2013 16:59:33 +0900
+Message-ID: <003701ce8cfa$ba3fd060$2ebf7120$@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAOng1WR+QVTZs9Zi=aKKsy_f=3R7=bB1PPWvuH2KtLaK+6rVBw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi All
+Use the wrapper function for retrieving the platform data instead of
+accessing dev->platform_data directly.
 
-Would you please help to look at this patch?
+Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-bfin-twi.c          |    9 +++++----
+ drivers/i2c/busses/i2c-cbus-gpio.c         |    5 +++--
+ drivers/i2c/busses/i2c-davinci.c           |    2 +-
+ drivers/i2c/busses/i2c-gpio.c              |    6 +++---
+ drivers/i2c/busses/i2c-imx.c               |    2 +-
+ drivers/i2c/busses/i2c-mv64xxx.c           |    2 +-
+ drivers/i2c/busses/i2c-nomadik.c           |    2 +-
+ drivers/i2c/busses/i2c-nuc900.c            |    2 +-
+ drivers/i2c/busses/i2c-ocores.c            |    2 +-
+ drivers/i2c/busses/i2c-omap.c              |    2 +-
+ drivers/i2c/busses/i2c-pca-platform.c      |    2 +-
+ drivers/i2c/busses/i2c-powermac.c          |    2 +-
+ drivers/i2c/busses/i2c-pxa.c               |    4 ++--
+ drivers/i2c/busses/i2c-rcar.c              |    2 +-
+ drivers/i2c/busses/i2c-s3c2410.c           |    2 +-
+ drivers/i2c/busses/i2c-s6000.c             |    5 +++--
+ drivers/i2c/busses/i2c-sh7760.c            |    2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c         |    2 +-
+ drivers/i2c/busses/i2c-xiic.c              |    2 +-
+ drivers/i2c/i2c-smbus.c                    |    2 +-
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c |    2 +-
+ drivers/i2c/muxes/i2c-mux-gpio.c           |    8 +++++---
+ drivers/i2c/muxes/i2c-mux-pca9541.c        |    2 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c        |    2 +-
+ drivers/i2c/muxes/i2c-mux-pinctrl.c        |    2 +-
+ 25 files changed, 40 insertions(+), 35 deletions(-)
 
-Thanks!
-
-2013/7/22 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
-> Hi Guys
->
->       Any comments?
->
-> 2013/7/11 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->> Hi all
->>
->>       I am still waiting for your response.....
->>
->> 2013/7/5 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->>> Hi guys,
->>>
->>>         Any comments?
->>>
->>> 2013/7/2 James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>:
->>>> Hi Wolfram
->>>>
->>>>     Have you finished reading datasheet?
->>>>
->>>> 2013/6/15 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
->>>>> Hi,
->>>>>
->>>>> On Fri, Jun 07, 2013 at 02:38:17PM +0800, Leilei Shang wrote:
->>>>>> To enter high speed mode, following steps should be done:
->>>>>> 1. When running in high speed mode, i2c clock rate is different
->>>>>> from standard mode. Clock rate must be set according to
->>>>>> specification first.
->>>>>> 2. When i2c controller sends a master code and wins arbitration,
->>>>>> high speed mode is entered.
->>>>>>
->>>>>> If you want to enable high speed mode, the following members of
->>>>>> platform data should be set to proper value:
->>>>>
->>>>> I couldn't find any support for hs-mode in pxa2xx and pxa3xx. So it
->>>>> shouldn't be set in platform data, but depending on checks if this is
->>>>> supported on this device at all. And why don't simply switch to it if
->>>>> rate is bigger than what is supported without hs-mode?
->>>>>
->>>>
->>>> 1. High speed mode is hardware feature, you can't read it from
->>>> software. It's similar to fast mode, and fast mode is set in platform
->>>> data.
->>>>
->>>>     The only method I can think of is to add a platform, like pxa910.
->>>> And if you enable hs mode and platform is not pxa910, we'll set it to
->>>> normal mode. Is this OK?
->>>>
->>>> 2. About hs mode clock setting. We don't know whether currently hs
->>>> mode clock will be changed in future. Do you think below code is OK?
->>>>
->>>> if (i2c->rate)
->>>>             clk_set_rate(i2c->clk, i2c->rate);
->>>> else
->>>>             clk_set_rate(i2c->clk, 62400000);
->>>>
->>>>             pr_info("i2c: <%s> set rate to %ld\n",
->>>>                 i2c->adap.name, clk_get_rate(i2c->clk));
->>>>
->>>>>> 1. "high_mode" should be set to "1".
->>>>>> 2. "master_code" should be set to "8'b 0000_1xxx"(x is 0 or 1).
->>>>>>    If no master_code is set, set to default value 0xe.
->>>>>> 3. "rate" should be set according to specification.
->>>>>
->>>>> Note that you should fall back to full-speed mode after sending the stop
->>>>> bit in high-speed mode. I can't find this in the code?
->>>>>
->>>>
->>>> 3. Will fall back to normal mode when stop bit is sent.
->>>>
->>>>>>
->>>>>> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
->>>>>
->>>>> Which SoC supports this? I'd like to have a look at the datasheet.
->>>>>
->>>>> Thanks,
->>>>>
->>>>>    Wolfram
->>>>>
->>>>
->>>> Hope you can reply soon!
->>>>
->>>> Best regards
->>>> Leilei
+diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
+index 13ea1c2..32b9a5e 100644
+--- a/drivers/i2c/busses/i2c-bfin-twi.c
++++ b/drivers/i2c/busses/i2c-bfin-twi.c
+@@ -669,8 +669,9 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
+ 	p_adap->timeout = 5 * HZ;
+ 	p_adap->retries = 3;
+ 
+-	rc = peripheral_request_list((unsigned short *)pdev->dev.platform_data,
+-					"i2c-bfin-twi");
++	rc = peripheral_request_list(
++			(unsigned short *)dev_get_platdata(&pdev->dev),
++			"i2c-bfin-twi");
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "Can't setup pin mux!\n");
+ 		goto out_error_pin_mux;
+@@ -717,7 +718,7 @@ out_error_add_adapter:
+ 	free_irq(iface->irq, iface);
+ out_error_req_irq:
+ out_error_no_irq:
+-	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
++	peripheral_free_list((unsigned short *)dev_get_platdata(&pdev->dev));
+ out_error_pin_mux:
+ 	iounmap(iface->regs_base);
+ out_error_ioremap:
+@@ -733,7 +734,7 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
+ 
+ 	i2c_del_adapter(&(iface->adap));
+ 	free_irq(iface->irq, iface);
+-	peripheral_free_list((unsigned short *)pdev->dev.platform_data);
++	peripheral_free_list((unsigned short *)dev_get_platdata(&pdev->dev));
+ 	iounmap(iface->regs_base);
+ 	kfree(iface);
+ 
+diff --git a/drivers/i2c/busses/i2c-cbus-gpio.c b/drivers/i2c/busses/i2c-cbus-gpio.c
+index 1be13ac..2d46f13 100644
+--- a/drivers/i2c/busses/i2c-cbus-gpio.c
++++ b/drivers/i2c/busses/i2c-cbus-gpio.c
+@@ -233,8 +233,9 @@ static int cbus_i2c_probe(struct platform_device *pdev)
+ 		chost->clk_gpio = of_get_gpio(dnode, 0);
+ 		chost->dat_gpio = of_get_gpio(dnode, 1);
+ 		chost->sel_gpio = of_get_gpio(dnode, 2);
+-	} else if (pdev->dev.platform_data) {
+-		struct i2c_cbus_platform_data *pdata = pdev->dev.platform_data;
++	} else if (dev_get_platdata(&pdev->dev)) {
++		struct i2c_cbus_platform_data *pdata =
++			dev_get_platdata(&pdev->dev);
+ 		chost->clk_gpio = pdata->clk_gpio;
+ 		chost->dat_gpio = pdata->dat_gpio;
+ 		chost->sel_gpio = pdata->sel_gpio;
+diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
+index fa55605..14c53cc 100644
+--- a/drivers/i2c/busses/i2c-davinci.c
++++ b/drivers/i2c/busses/i2c-davinci.c
+@@ -665,7 +665,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
+ #endif
+ 	dev->dev = &pdev->dev;
+ 	dev->irq = irq->start;
+-	dev->pdata = dev->dev->platform_data;
++	dev->pdata = dev_get_platdata(&dev->dev);
+ 	platform_set_drvdata(pdev, dev);
+ 
+ 	if (!dev->pdata && pdev->dev.of_node) {
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index bc6e139..8cdb4f7 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -137,9 +137,9 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 		if (ret)
+ 			return ret;
+ 	} else {
+-		if (!pdev->dev.platform_data)
++		if (!dev_get_platdata(&pdev->dev))
+ 			return -ENXIO;
+-		pdata = pdev->dev.platform_data;
++		pdata = dev_get_platdata(&pdev->dev);
+ 		sda_pin = pdata->sda_pin;
+ 		scl_pin = pdata->scl_pin;
+ 	}
+@@ -171,7 +171,7 @@ static int i2c_gpio_probe(struct platform_device *pdev)
+ 		pdata->scl_pin = scl_pin;
+ 		of_i2c_gpio_get_props(pdev->dev.of_node, pdata);
+ 	} else {
+-		memcpy(pdata, pdev->dev.platform_data, sizeof(*pdata));
++		memcpy(pdata, dev_get_platdata(&pdev->dev), sizeof(*pdata));
+ 	}
+ 
+ 	if (pdata->sda_is_open_drain) {
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index e242797..8bd1d4f 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -492,7 +492,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 							   &pdev->dev);
+ 	struct imx_i2c_struct *i2c_imx;
+ 	struct resource *res;
+-	struct imxi2c_platform_data *pdata = pdev->dev.platform_data;
++	struct imxi2c_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	void __iomem *base;
+ 	int irq, ret;
+ 	u32 bitrate;
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index b1f42bf..9cc361d 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -618,7 +618,7 @@ static int
+ mv64xxx_i2c_probe(struct platform_device *pd)
+ {
+ 	struct mv64xxx_i2c_data		*drv_data;
+-	struct mv64xxx_i2c_pdata	*pdata = pd->dev.platform_data;
++	struct mv64xxx_i2c_pdata	*pdata = dev_get_platdata(&pd->dev);
+ 	struct resource	*r;
+ 	int	rc;
+ 
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 512dfe6..1909e80 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -943,7 +943,7 @@ static void nmk_i2c_of_probe(struct device_node *np,
+ static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+ {
+ 	int ret = 0;
+-	struct nmk_i2c_controller *pdata = adev->dev.platform_data;
++	struct nmk_i2c_controller *pdata = dev_get_platdata(&adev->dev);
+ 	struct device_node *np = adev->dev.of_node;
+ 	struct nmk_i2c_dev	*dev;
+ 	struct i2c_adapter *adap;
+diff --git a/drivers/i2c/busses/i2c-nuc900.c b/drivers/i2c/busses/i2c-nuc900.c
+index 865ee35..36394d7 100644
+--- a/drivers/i2c/busses/i2c-nuc900.c
++++ b/drivers/i2c/busses/i2c-nuc900.c
+@@ -525,7 +525,7 @@ static int nuc900_i2c_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int ret;
+ 
+-	pdata = pdev->dev.platform_data;
++	pdata = dev_get_platdata(&pdev->dev);
+ 	if (!pdata) {
+ 		dev_err(&pdev->dev, "no platform data\n");
+ 		return -EINVAL;
+diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+index 0e1f824..2899608 100644
+--- a/drivers/i2c/busses/i2c-ocores.c
++++ b/drivers/i2c/busses/i2c-ocores.c
+@@ -369,7 +369,7 @@ static int ocores_i2c_probe(struct platform_device *pdev)
+ 	if (IS_ERR(i2c->base))
+ 		return PTR_ERR(i2c->base);
+ 
+-	pdata = pdev->dev.platform_data;
++	pdata = dev_get_platdata(&pdev->dev);
+ 	if (pdata) {
+ 		i2c->reg_shift = pdata->reg_shift;
+ 		i2c->reg_io_width = pdata->reg_io_width;
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 142b694d..49b3910 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1079,7 +1079,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 	struct i2c_adapter	*adap;
+ 	struct resource		*mem;
+ 	const struct omap_i2c_bus_platform_data *pdata =
+-		pdev->dev.platform_data;
++		dev_get_platdata(&pdev->dev);
+ 	struct device_node	*node = pdev->dev.of_node;
+ 	const struct of_device_id *match;
+ 	int irq;
+diff --git a/drivers/i2c/busses/i2c-pca-platform.c b/drivers/i2c/busses/i2c-pca-platform.c
+index aa00df1..39e2755 100644
+--- a/drivers/i2c/busses/i2c-pca-platform.c
++++ b/drivers/i2c/busses/i2c-pca-platform.c
+@@ -136,7 +136,7 @@ static int i2c_pca_pf_probe(struct platform_device *pdev)
+ 	struct i2c_pca_pf_data *i2c;
+ 	struct resource *res;
+ 	struct i2c_pca9564_pf_platform_data *platform_data =
+-				pdev->dev.platform_data;
++				dev_get_platdata(&pdev->dev);
+ 	int ret = 0;
+ 	int irq;
+ 
+diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
+index 8dc90da..5a88364 100644
+--- a/drivers/i2c/busses/i2c-powermac.c
++++ b/drivers/i2c/busses/i2c-powermac.c
+@@ -398,7 +398,7 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
+ 
+ static int i2c_powermac_probe(struct platform_device *dev)
+ {
+-	struct pmac_i2c_bus *bus = dev->dev.platform_data;
++	struct pmac_i2c_bus *bus = dev_get_platdata(&dev->dev);
+ 	struct device_node *parent = NULL;
+ 	struct i2c_adapter *adapter;
+ 	const char *basename;
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index fbafed2..a445d4f 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -1072,7 +1072,7 @@ static int i2c_pxa_probe_pdata(struct platform_device *pdev,
+ 			       struct pxa_i2c *i2c,
+ 			       enum pxa_i2c_types *i2c_types)
+ {
+-	struct i2c_pxa_platform_data *plat = pdev->dev.platform_data;
++	struct i2c_pxa_platform_data *plat = dev_get_platdata(&pdev->dev);
+ 	const struct platform_device_id *id = platform_get_device_id(pdev);
+ 
+ 	*i2c_types = id->driver_data;
+@@ -1085,7 +1085,7 @@ static int i2c_pxa_probe_pdata(struct platform_device *pdev,
+ 
+ static int i2c_pxa_probe(struct platform_device *dev)
+ {
+-	struct i2c_pxa_platform_data *plat = dev->dev.platform_data;
++	struct i2c_pxa_platform_data *plat = dev_get_platdata(&dev->dev);
+ 	enum pxa_i2c_types i2c_type;
+ 	struct pxa_i2c *i2c;
+ 	struct resource *res = NULL;
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 0fc5858..e59c3f6 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -615,7 +615,7 @@ static const struct i2c_algorithm rcar_i2c_algo = {
+ 
+ static int rcar_i2c_probe(struct platform_device *pdev)
+ {
+-	struct i2c_rcar_platform_data *pdata = pdev->dev.platform_data;
++	struct i2c_rcar_platform_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct rcar_i2c_priv *priv;
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index cab1c91..0a077b1 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -1033,7 +1033,7 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
+ 	int ret;
+ 
+ 	if (!pdev->dev.of_node) {
+-		pdata = pdev->dev.platform_data;
++		pdata = dev_get_platdata(&pdev->dev);
+ 		if (!pdata) {
+ 			dev_err(&pdev->dev, "no platform data\n");
+ 			return -EINVAL;
+diff --git a/drivers/i2c/busses/i2c-s6000.c b/drivers/i2c/busses/i2c-s6000.c
+index 7c1ca5a..dd186a0 100644
+--- a/drivers/i2c/busses/i2c-s6000.c
++++ b/drivers/i2c/busses/i2c-s6000.c
+@@ -290,8 +290,9 @@ static int s6i2c_probe(struct platform_device *dev)
+ 
+ 	clock = 0;
+ 	bus_num = -1;
+-	if (dev->dev.platform_data) {
+-		struct s6_i2c_platform_data *pdata = dev->dev.platform_data;
++	if (dev_get_platdata(&dev->dev)) {
++		struct s6_i2c_platform_data *pdata =
++			dev_get_platdata(&dev->dev);
+ 		bus_num = pdata->bus_num;
+ 		clock = pdata->clock;
+ 	}
+diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
+index 5351a2f..5e8f136 100644
+--- a/drivers/i2c/busses/i2c-sh7760.c
++++ b/drivers/i2c/busses/i2c-sh7760.c
+@@ -437,7 +437,7 @@ static int sh7760_i2c_probe(struct platform_device *pdev)
+ 	struct cami2c *id;
+ 	int ret;
+ 
+-	pd = pdev->dev.platform_data;
++	pd = dev_get_platdata(&pdev->dev);
+ 	if (!pd) {
+ 		dev_err(&pdev->dev, "no platform_data!\n");
+ 		ret = -ENODEV;
+diff --git a/drivers/i2c/busses/i2c-sh_mobile.c b/drivers/i2c/busses/i2c-sh_mobile.c
+index debf745..4e86a31 100644
+--- a/drivers/i2c/busses/i2c-sh_mobile.c
++++ b/drivers/i2c/busses/i2c-sh_mobile.c
+@@ -658,7 +658,7 @@ static int sh_mobile_i2c_hook_irqs(struct platform_device *dev, int hook)
+ 
+ static int sh_mobile_i2c_probe(struct platform_device *dev)
+ {
+-	struct i2c_sh_mobile_platform_data *pdata = dev->dev.platform_data;
++	struct i2c_sh_mobile_platform_data *pdata = dev_get_platdata(&dev->dev);
+ 	struct sh_mobile_i2c_data *pd;
+ 	struct i2c_adapter *adap;
+ 	struct resource *res;
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 3d0f052..433f377 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -703,7 +703,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	if (irq < 0)
+ 		goto resource_missing;
+ 
+-	pdata = (struct xiic_i2c_platform_data *) pdev->dev.platform_data;
++	pdata = (struct xiic_i2c_platform_data *)dev_get_platdata(&pdev->dev);
+ 
+ 	i2c = kzalloc(sizeof(*i2c), GFP_KERNEL);
+ 	if (!i2c)
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index 92cdd23..44d4c60 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -137,7 +137,7 @@ static irqreturn_t smbalert_irq(int irq, void *d)
+ static int smbalert_probe(struct i2c_client *ara,
+ 			  const struct i2c_device_id *id)
+ {
+-	struct i2c_smbus_alert_setup *setup = ara->dev.platform_data;
++	struct i2c_smbus_alert_setup *setup = dev_get_platdata(&ara->dev);
+ 	struct i2c_smbus_alert *alert;
+ 	struct i2c_adapter *adapter = ara->adapter;
+ 	int res;
+diff --git a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+index 210b6f7..f7bf243 100644
+--- a/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
++++ b/drivers/i2c/muxes/i2c-arb-gpio-challenge.c
+@@ -131,7 +131,7 @@ static int i2c_arbitrator_probe(struct platform_device *pdev)
+ 		dev_err(dev, "Cannot find device tree node\n");
+ 		return -ENODEV;
+ 	}
+-	if (dev->platform_data) {
++	if (dev_get_platdata(dev)) {
+ 		dev_err(dev, "Platform data is not supported\n");
+ 		return -EINVAL;
+ 	}
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index 5a0ce00..6a206e8 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -148,12 +148,14 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 
+ 	platform_set_drvdata(pdev, mux);
+ 
+-	if (!pdev->dev.platform_data) {
++	if (!dev_get_platdata(&pdev->dev)) {
+ 		ret = i2c_mux_gpio_probe_dt(mux, pdev);
+ 		if (ret < 0)
+ 			return ret;
+-	} else
+-		memcpy(&mux->data, pdev->dev.platform_data, sizeof(mux->data));
++	} else {
++		memcpy(&mux->data, dev_get_platdata(&pdev->dev),
++			sizeof(mux->data));
++	}
+ 
+ 	/*
+ 	 * If a GPIO chip name is provided, the GPIO pin numbers provided are
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 966a18a..c4f08ad 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -324,7 +324,7 @@ static int pca9541_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adap = client->adapter;
+-	struct pca954x_platform_data *pdata = client->dev.platform_data;
++	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	struct pca9541 *data;
+ 	int force;
+ 	int ret = -ENODEV;
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index a531d80..bad5b84 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -185,7 +185,7 @@ static int pca954x_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+ 	struct i2c_adapter *adap = to_i2c_adapter(client->dev.parent);
+-	struct pca954x_platform_data *pdata = client->dev.platform_data;
++	struct pca954x_platform_data *pdata = dev_get_platdata(&client->dev);
+ 	int num, force, class;
+ 	struct pca954x *data;
+ 	int ret = -ENODEV;
+diff --git a/drivers/i2c/muxes/i2c-mux-pinctrl.c b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+index a43c0ce..0d08202 100644
+--- a/drivers/i2c/muxes/i2c-mux-pinctrl.c
++++ b/drivers/i2c/muxes/i2c-mux-pinctrl.c
+@@ -145,7 +145,7 @@ static int i2c_mux_pinctrl_probe(struct platform_device *pdev)
+ 
+ 	mux->dev = &pdev->dev;
+ 
+-	mux->pdata = pdev->dev.platform_data;
++	mux->pdata = dev_get_platdata(&pdev->dev);
+ 	if (!mux->pdata) {
+ 		ret = i2c_mux_pinctrl_parse_dt(mux, pdev);
+ 		if (ret < 0)
+-- 
+1.7.10.4
