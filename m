@@ -1,25 +1,34 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: Fix Kontron PLD prescaler calculation
-Date: Thu, 1 Aug 2013 20:48:30 -0700
-Message-ID: <20130802034829.GA26898@roeck-us.net>
-References: <20130726140455.40b4b86b@hyperion>
+From: Lu Jingchang-B35083 <B35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH v2 2/2] i2c: imx: Add Vybrid VF610 I2C controller support
+Date: Fri, 2 Aug 2013 05:19:21 +0000
+Message-ID: <B56CDBE15CE27145A4B77D2D24263E851FBA70@039-SN1MPN1-004.039d.mgd.msft.net>
+References: <1371545327-12481-1-git-send-email-b35083@freescale.com>
+ <20130801203301.GB5117@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130726140455.40b4b86b@hyperion>
+In-Reply-To: <20130801203301.GB5117-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michael Brunner <mibru-Mmb7MZpHnFY@public.gmane.org>
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kevin Strasser <kevin.strasser-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Kevin Strasser <strassek-29tvszzbzErpgkiH4x7ZXw@public.gmane.org>, Darren Hart <dvhart-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Michael Brunner <Michael.Brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>, Chris Healy <chealy-KRR2zmvM+DFWk0Htik3J/w@public.gmane.org>, Dirk Hohndel <Dirk.Hohndel-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Jin Zhengxiong-R64188 <R64188-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Xiaochun-B41219 <B41219-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Jul 26, 2013 at 02:04:55PM +0200, Michael Brunner wrote:
-> Add some necessary braces that have been removed during driver cleanup.
-> This fixes the I2C prescaler calculation.
+
+
+> Using a struct type with a div and regval member would make the code
+> surrounding this array more obviously correct. Would be nice to
+> straighten this first before adding another array.
 > 
-> Signed-off-by: Michael Brunner <michael.brunner-2UyDCMiLNfhBDgjK7y7TUQ@public.gmane.org>
+> How about adding a regshift member instead? It seems shifting the vybrid
+> registers by two bits is the imx registers.
 
-Tested-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Reviewed-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+ [Lu Jingchang-B35083] 
+  Yes, using a struct for the i2c clock {div, regval} pairs would be more readable,
+and the registers indeed have the same address offset.  I'll make some change and send
+the v3 patch. Thanks!
 
-Guenter
+
+Best Regards,
+Jingchang
