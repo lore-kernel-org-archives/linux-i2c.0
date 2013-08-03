@@ -1,79 +1,60 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: mpc: Define unique I2C adapter names
-Date: Sat, 03 Aug 2013 07:31:30 -0700
-Message-ID: <51FD1442.2020706@roeck-us.net>
-References: <1373483001-24951-1-git-send-email-linux@roeck-us.net>
+From: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+Subject: Re: [PATCH 3/3] ARM: dts: mvebu: Introduce a new compatible string
+ for mv64xxx-i2c
+Date: Sat, 3 Aug 2013 13:36:40 -0400
+Message-ID: <20130803173640.GA13555@titan.lakedaemon.net>
+References: <1373898278-4805-1-git-send-email-gregory.clement@free-electrons.com>
+ <1373898278-4805-4-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1373483001-24951-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1373898278-4805-4-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-ping ... any comments/feedback on this patch ?
-
-Thanks,
-Guenter
-
-On 07/10/2013 12:03 PM, Guenter Roeck wrote:
-> The I2C adapters on Freescale MPC107/824x/85xx/512x/52xx/83xx/86xx all
-> have the same name "MPC adapter". Since I2C adapter numbers can change
-> across reboots and even after loading/unloading an I2C bus master driver,
-> adapter names have to be used to identify adapters and thus should be
-> unique and well defined. Since this is not the case with this driver,
-> it is difficult if not impossible to identify a specific adapter from
-> user space on affected platforms.
->
-> To remedy the problem, use the adapter memory address as part of the
-> adapter name.
->
-> With this patch, adapter names are:
-> On P2020:
-> MPC adapter at 0xfff703000
-> MPC adapter at 0xfff703100
->
-> On P5040:
-> MPC adapter at 0xffe118000
-> MPC adapter at 0xffe118100
-> MPC adapter at 0xffe119000
-> MPC adapter at 0xffe119100
->
-> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+On Mon, Jul 15, 2013 at 04:24:38PM +0200, Gregory CLEMENT wrote:
+> The mv64xxx-i2c embedded in the Armada XP have a new feature to
+> offload i2c transaction. This new version of the IP come also with
+> some errata. This lead to the introduction to a another compatible
+> string.
+> 
+> This commit split the i2c information into armada-370.dtsi and
+> armada-xp.dtsi. Most of the data remains the same and stay in the
+> common file Armada-370-xp.dtsi. With this new feature the size of the
+> registers are bigger for Armada XP and the new compatible string is
+> used.
+> 
+> The Device Tree binding documentation is updated accordingly.
+> 
+> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 > ---
->   drivers/i2c/busses/i2c-mpc.c |    5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-> index 7607dc0..99acf63 100644
-> --- a/drivers/i2c/busses/i2c-mpc.c
-> +++ b/drivers/i2c/busses/i2c-mpc.c
-> @@ -609,7 +609,6 @@ static const struct i2c_algorithm mpc_algo = {
->
->   static struct i2c_adapter mpc_ops = {
->   	.owner = THIS_MODULE,
-> -	.name = "MPC adapter",
->   	.algo = &mpc_algo,
->   	.timeout = HZ,
->   };
-> @@ -623,6 +622,7 @@ static int fsl_i2c_probe(struct platform_device *op)
->   	u32 clock = MPC_I2C_CLOCK_LEGACY;
->   	int result = 0;
->   	int plen;
-> +	struct resource res;
->
->   	match = of_match_device(mpc_i2c_of_match, &op->dev);
->   	if (!match)
-> @@ -682,6 +682,9 @@ static int fsl_i2c_probe(struct platform_device *op)
->   	platform_set_drvdata(op, i2c);
->
->   	i2c->adap = mpc_ops;
-> +	of_address_to_resource(op->dev.of_node, 0, &res);
-> +	scnprintf(i2c->adap.name, sizeof(i2c->adap.name),
-> +		  "MPC adapter at 0x%llx", (unsigned long long)res.start);
->   	i2c_set_adapdata(&i2c->adap, i2c);
->   	i2c->adap.dev.parent = &op->dev;
->   	i2c->adap.dev.of_node = of_node_get(op->dev.of_node);
->
+>  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 13 ++++++++++++-
+>  arch/arm/boot/dts/armada-370-xp.dtsi                  |  2 --
+>  arch/arm/boot/dts/armada-370.dtsi                     |  8 ++++++++
+>  arch/arm/boot/dts/armada-xp.dtsi                      | 10 ++++++++++
+>  4 files changed, 30 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> index a1ee681..c5dd952 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> @@ -4,7 +4,8 @@
+>  Required properties :
+>  
+>   - reg             : Offset and length of the register set for the device
+> - - compatible      : Should be "marvell,mv64xxx-i2c"
+> + - compatible      : Should be "marvell,mv64xxx-i2c" and "marvell,mv7230-i2c"
+> +for controller which support the I2C Transaction Generator
+>   - interrupts      : The interrupt number
+
+As you've preserved backwards compatibility with the original compat
+string,
+
+Applied to mvebu/dt
+
+thx,
+
+Jason.
