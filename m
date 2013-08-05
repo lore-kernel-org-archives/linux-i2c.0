@@ -1,88 +1,76 @@
-From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Subject: [PATCH v2 1/1 resend] i2c: rcar: modify I2C driver
-Date: Mon,  5 Aug 2013 16:19:34 +0900
-Message-ID: <1375687174-577-2-git-send-email-nv-dung@jinso.co.jp>
-References: <1375687174-577-1-git-send-email-nv-dung@jinso.co.jp>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1375687174-577-1-git-send-email-nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v2] i2c: i2c-mxs: Use DMA mode even for small transfers
+Date: Mon, 5 Aug 2013 10:11:32 +0200
+Message-ID: <20130805081132.GA2980@katana>
+References: <1372713261-20551-1-git-send-email-festevam@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="+QahgC5+KEYLbs62"
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1372713261-20551-1-git-send-email-festevam@gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Fabio Estevam <festevam@gmail.com>
+Cc: marex@denx.de, shawn.guo@linaro.org, kernel@pengutronix.de, linux-i2c@vger.kernel.org, alexandre.belloni@free-electrons.com, to-fleischer@t-online.de, Fabio Estevam <fabio.estevam@freescale.com>, stable@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch modify I2C driver of rcar-H1 to usable on both rcar-H1 and rcar-H2.
 
-Signed-off-by: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
----
- drivers/i2c/busses/i2c-rcar.c |   17 +++++++++++++++--
- include/linux/i2c/i2c-rcar.h  |    4 ++++
- 2 files changed, 19 insertions(+), 2 deletions(-)
+--+QahgC5+KEYLbs62
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 4ba4a95..85987c1 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -221,15 +221,28 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 				    struct device *dev)
- {
- 	struct clk *clkp = clk_get(NULL, "peripheral_clk");
-+	struct i2c_rcar_platform_data *pdata = dev->platform_data;
- 	u32 scgd, cdf;
- 	u32 round, ick;
- 	u32 scl;
-+	u32 cdf_width;
-+	u32 flags = pdata ? pdata->flags : 0;
- 
- 	if (!clkp) {
- 		dev_err(dev, "there is no peripheral_clk\n");
- 		return -EIO;
- 	}
- 
-+	switch (flags & I2C_RCAR_FLAGS_ICCCR_MASK) {
-+	default:
-+	case I2C_RCAR_FLAGS_ICCCR_IS_2BIT:
-+		cdf_width = 2;
-+		break;
-+	case I2C_RCAR_FLAGS_ICCCR_IS_3BIT:
-+		cdf_width = 3;
-+		break;
-+	}
-+
- 	/*
- 	 * calculate SCL clock
- 	 * see
-@@ -245,7 +258,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
- 	 */
--	for (cdf = 0; cdf < 4; cdf++) {
-+	for (cdf = 0; cdf < (1 << cdf_width); cdf++) {
- 		ick = clk_get_rate(clkp) / (1 + cdf);
- 		if (ick < 20000000)
- 			goto ick_find;
-@@ -287,7 +300,7 @@ scgd_find:
- 	/*
- 	 * keep icccr value
- 	 */
--	priv->icccr = (scgd << 2 | cdf);
-+	priv->icccr = (scgd << (cdf_width) | cdf);
- 
- 	return 0;
- }
-diff --git a/include/linux/i2c/i2c-rcar.h b/include/linux/i2c/i2c-rcar.h
-index 496f5c2..572a6e5 100644
---- a/include/linux/i2c/i2c-rcar.h
-+++ b/include/linux/i2c/i2c-rcar.h
-@@ -5,6 +5,10 @@
- 
- struct i2c_rcar_platform_data {
- 	u32 bus_speed;
-+	u32 flags;
-+#define I2C_RCAR_FLAGS_ICCCR_MASK	(0xF << 0)
-+#define I2C_RCAR_FLAGS_ICCCR_IS_2BIT	(0 << 0) /* default */
-+#define I2C_RCAR_FLAGS_ICCCR_IS_3BIT	(1 << 0)
- };
- 
- #endif /* __I2C_R_CAR_H__ */
--- 
-1.7.9.5
+On Mon, Jul 01, 2013 at 06:14:21PM -0300, Fabio Estevam wrote:
+> From: Fabio Estevam <fabio.estevam@freescale.com>
+>=20
+> Recently we have been seing some reports about PIO mode not working prope=
+rly.
+>=20
+> - http://www.spinics.net/lists/linux-i2c/msg11985.html
+> - http://marc.info/?l=3Dlinux-i2c&m=3D137235593101385&w=3D2
+> - https://lkml.org/lkml/2013/6/24/430
+>=20
+> Let's use DMA mode even for small transfers.
+>=20
+> Without this patch, i2c reads the incorrect sgtl5000 version on a mx28evk=
+ when
+> touchscreen is enabled:
+>                                           =20
+> [    5.856270] sgtl5000 0-000a: Device with ID register 0 is not a sgtl50=
+00    =20
+> [    9.877307] sgtl5000 0-000a: ASoC: failed to probe CODEC -19          =
+      =20
+> [    9.883528] mxs-sgtl5000 sound.12: ASoC: failed to instantiate card -1=
+9     =20
+> [    9.892955] mxs-sgtl5000 sound.12: snd_soc_register_card failed (-19) =
+=20
+>=20
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Fabio Estevam <fabio.estevam@freescale.com>
+
+Applied to for-current, thanks!
+
+
+--+QahgC5+KEYLbs62
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJR/14zAAoJEBQN5MwUoCm2u3oP+gPk9Qr78oueEiPgJbyPXGpc
+Y4ylku5qfZJEGSMe1yBwzODHvhogBhngVduHu4qRpaZVBedSnsBLO1oPUq9DsZa2
+idu+DbSPbbzHeH0jqKdHDfMzgxecr1XEg2yE8yr630+Sd7FLrYfmNRRLQCw8hgkO
+UFUyUi7IMBW5c1XRyLEIQ4hVhgaCwj6yBfH8z2sqBSOcoy6SUE6WfsKQ0s4xyHrA
+I0c+KpzpwQkxBciTUB3F+mkCagBMGUUFT2Yc5/A7qUykD4lK5k/+mpH5iftnQUrU
+dolcjXygUIHRXAVerObyxXQ/HoOQEVnbFYDwuJj9PXlXnu7b7UZC7Ft8axit+4uY
+tJfLF3kRzsae9gE5qSuyl5wr/+u71o7Wl1HA3ut9ANFbaTTosRmV512k+t6VMjmF
+yd5VGvKJWt6BDTGWkObZd0DOrkJF5UHw/ooqLrMoOj1HkOetbtuEc7YLIZ/oMzIs
+9v9qaPBBDDE6WewcwRxVXiJPySInLISMMnd8b9t2RqRWJvgtHCBSoKNhCBmUSF+m
+BnQz/rZLl7IDs0+lAXnsE5Mqf24IcMEwcUPsrsyTUlYW+An7+lzZl6xQVSrp2qUZ
+Ksilz9JSAzkWdDV+AOUC+xtf9dfITDWOzi/YfQhvPUNM/5SlhCwwOeA52kVIAgKf
+4m7L795Gy/yVcvguyVcA
+=6vh6
+-----END PGP SIGNATURE-----
+
+--+QahgC5+KEYLbs62--
