@@ -1,51 +1,44 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH RESEND 1/2] ARM: dts: vf610-twr: enable i2c0 device
-Date: Sun, 4 Aug 2013 21:30:47 +0800
-Message-ID: <20130804133045.GG18119@S2101-09.ap.freescale.net>
-References: <1375418648-22760-1-git-send-email-b35083@freescale.com>
+From: zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v4 0/2] support hisilicon i2c
+Date: Mon, 5 Aug 2013 10:13:14 +0800
+Message-ID: <CAMj5BkjMw2oxWy5+fgT9hoHLT-DiSv6u7zSzAhi8B_d-=-v8Vw@mail.gmail.com>
+References: <1374844938-25505-1-git-send-email-zhangfei.gao@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1375418648-22760-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <1374844938-25505-1-git-send-email-zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 02, 2013 at 12:44:07PM +0800, Jingchang Lu wrote:
-> enable i2c0 device on Vybrid VF610 Tower Board
-> 
-> Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+On Fri, Jul 26, 2013 at 9:22 PM, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> V4:
+> rebase on 3.11
+>
+> v3:
+> patch 02, use size instead of threshold
+>
+> v2:
+> Suggested by Baruch
+> Support hisilicon i2c in i2c-designware-platdrv.c, and adding two optional properties
+>
+> Zhangfei Gao (2):
+>   i2c: designware: use module_platform_driver
+>   i2c: designware: add two optional property tx/rx-fifo-size
+>
+>  .../devicetree/bindings/i2c/i2c-designware.txt     |    7 +++++++
+>  drivers/i2c/busses/i2c-designware-platdrv.c        |   17 +++++------------
+>  2 files changed, 12 insertions(+), 12 deletions(-)
+>
 
-I suggest you send me the patch after the driver part gets accepted by
-subsystem maintainer.
+"Basically OK, but please resend for 3.12, so we get enough testing
+before entering mainline. I am a bit anxious of side
+effects and 3.11 is too near."
 
-Shawn
+Dear Wolfram
 
-> ---
->  arch/arm/boot/dts/vf610-twr.dts | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/vf610-twr.dts b/arch/arm/boot/dts/vf610-twr.dts
-> index b3905f5..1a58678 100644
-> --- a/arch/arm/boot/dts/vf610-twr.dts
-> +++ b/arch/arm/boot/dts/vf610-twr.dts
-> @@ -50,6 +50,13 @@
->  	status = "okay";
->  };
->  
-> +&i2c0 {
-> +	clock-frequency = <100000>;
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_i2c0_1>;
-> +	status = "okay";
-> +};
-> +
->  &uart1 {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_uart1_1>;
-> -- 
-> 1.8.0
-> 
-> 
+The patches are rebased on 3.11 rc2 as your suggestion,
+Do you have any other suggestion?
+
+Thanks
