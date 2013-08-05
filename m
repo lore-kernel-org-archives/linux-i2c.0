@@ -1,63 +1,69 @@
-From: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: add sanity check to i2c_put_adapter
-Date: Mon, 05 Aug 2013 11:31:42 +0200
-Message-ID: <51FF70FE.1090804@gmail.com>
-References: <1375359046-17472-1-git-send-email-sebastian.hesselbarth@gmail.com> <20130805090030.GC2980@katana>
+From: Lu Jingchang-B35083 <B35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: RE: [PATCH v3 2/2] i2c: imx: Add Vybrid VF610 I2C controller support
+Date: Mon, 5 Aug 2013 09:32:11 +0000
+Message-ID: <B56CDBE15CE27145A4B77D2D24263E851FC075@039-SN1MPN1-004.039d.mgd.msft.net>
+References: <1375418648-22760-1-git-send-email-b35083@freescale.com>
+ <1375418648-22760-2-git-send-email-b35083@freescale.com>
+ <20130805083050.GN26614@pengutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130805090030.GC2980@katana>
+In-Reply-To: <20130805083050.GN26614-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Jin Zhengxiong-R64188 <R64188-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Xiaochun-B41219 <B41219-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/05/13 11:00, Wolfram Sang wrote:
-> On Thu, Aug 01, 2013 at 02:10:46PM +0200, Sebastian Hesselbarth wrote:
->> i2c_put_adapter dereferences i2c_adapter pointer passed without check
->> for NULL. This adds a check for non-NULL pointer to allow i2c_put_adapter
->> called with NULL and behave the same way i2c_release_client does already.
->
-> What about using WARN for the NULL case to point out the ref-counting
-> imbalance?
+> Subject: Re: [PATCH v3 2/2] i2c: imx: Add Vybrid VF610 I2C controller
+> > +struct imx_i2c_clk_pair {
+> > +	u16	div;
+> > +	u16	regval;
+> > +}i;
+> 
+> Converting this to a struct should be a separate patch. This is an
+> obvious cleanup which makes maintainers happy and more willing to take
+> the features you are adding later.
+> 
+[Lu Jingchang-B35083] 
+Do you mean all changes to i.MX common should be a separate patch including the clk div pair, and 
+the struct imx_i2c_hwdata, struct imx_i2c_drvdata and other things changed to be easier to
+use adding other SoCs support later. Thanks.
+> >
+> > +#define IMX_I2C_IADR	(0x00 << i2c_imx->i2c_hwdata->regshift)
+> > +#define IMX_I2C_IFDR	(0x01 << i2c_imx->i2c_hwdata->regshift)
+> > +#define IMX_I2C_I2CR	(0x02 << i2c_imx->i2c_hwdata->regshift)
+> > +#define IMX_I2C_I2SR	(0x03 << i2c_imx->i2c_hwdata->regshift)
+> > +#define IMX_I2C_I2DR	(0x04 << i2c_imx->i2c_hwdata->regshift)
+> 
+> Macros should not assume there is a i2c_imx variable present in a
+> function. Instead, add static inline accessor functions.
+[Lu Jingchang-B35083] 
+Ok, I will add inline functions instead. Thanks.
+> 
+> 
+> > +	[VF610_I2C] = {
+> > +		.devtype = VF610_I2C,
+> > +		.hwdata = &vf610_i2c_hwdata
+> > +	},
+> >  };
+> 
+> Why add this array?
+> You should reference imx_i2c_hwdata/vf610_i2c_hwdata directly here.
+[Lu Jingchang-B35083] 
+The "is_imx1_i2c()"function need the devtype variable the test the arch, so the devtype is out of the
+imx_i2c_hwdata struct to let all other i.MX i2c device can sharing the same imx_i2c_hwdata setting. Thanks.
+> 
+> >
+> >  	if (of_id)
+> >  		pdev->id_entry = of_id->data;
+> 
+> This is wrong in the original driver code. This field should be changed
+> in a driver.
+[Lu Jingchang-B35083] 
+Could you please give some more comments on this? Thanks.
 
-Wolfram,
 
-I was just adding this to (a) make it consistent with i2c_release_client
-and (b) it allows to simplify drivers where you need to release the
-adapter during probe failures. But that patch is so small, feel free to
-squash in anything you like.
 
-For a more sophisticated (WARN_ON) approach, I suggest to also put one
-into i2c_release_client then.
-
-Sebastian
-
->>
->> Signed-off-by: Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
->> ---
->> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
->> Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
->> ---
->>   drivers/i2c/i2c-core.c |    3 ++-
->>   1 file changed, 2 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
->> index f32ca29..d075df6 100644
->> --- a/drivers/i2c/i2c-core.c
->> +++ b/drivers/i2c/i2c-core.c
->> @@ -1825,7 +1825,8 @@ EXPORT_SYMBOL(i2c_get_adapter);
->>
->>   void i2c_put_adapter(struct i2c_adapter *adap)
->>   {
->> -	module_put(adap->owner);
->> +	if (adap)
->> +		module_put(adap->owner);
->>   }
->>   EXPORT_SYMBOL(i2c_put_adapter);
->>
->> --
->> 1.7.10.4
->>
+Best Regards
