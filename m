@@ -1,125 +1,58 @@
-From: Jussi Kivilinna <jussi.kivilinna-X3B1VOXEql0@public.gmane.org>
-Subject: [PATCH] i2c-tiny-usb: do not use stack as URB transfer_buffer
-Date: Tue, 06 Aug 2013 14:17:42 +0300
-Message-ID: <20130806111742.25265.94046.stgit@localhost6.localdomain6>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c-mv64xxx: Add I2C Transaction Generator support
+Date: Tue, 06 Aug 2013 14:05:24 +0200
+Message-ID: <5200E684.5080003@free-electrons.com>
+References: <1373898278-4805-1-git-send-email-gregory.clement@free-electrons.com> <1373898278-4805-2-git-send-email-gregory.clement@free-electrons.com> <20130716080503.GA3125@lukather>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: linux-usb-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130716080503.GA3125@lukather>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Patch fixes i2c-tiny-usb not to use stack as URB transfer_buffer. URB buffers
-need to be DMA-able, which stack is not.
+On 16/07/2013 10:05, Maxime Ripard wrote:
+> Hi Gregory,
+> 
+> On Mon, Jul 15, 2013 at 04:24:36PM +0200, Gregory CLEMENT wrote:
+>> The I2C Transaction Generator offloads CPU from managing I2C transfer step by step.
+>> 
+>> This feature is currently only available on Armada XP, so usage of this mechanism is activated through device tree.
+>> 
+>> Based on the work of Piotr Ziecik and rewrote to use the new way of handling multiples i2c messages.
+>> 
+>> Signed-off-by: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org> --- drivers/i2c/busses/i2c-mv64xxx.c | 207
+>> ++++++++++++++++++++++++++++++++++++--- 1 file changed, 196 insertions(+), 11 deletions(-)
+> 
+> [...]
+> 
+>> +	/* +	 * For controllers embedded in new SoCs activate the +	 * Transaction Generator support. +	 */ +	if (of_device_is_compatible(np, "marvell,mv78230-i2c")) +
+>> drv_data->offload_enabled = true; +
+> 
+> Do you have a reason for not adding it to the match table? I mean, you will introduce a new compatible here, but if that compatible is used alone, won't probe the driver? That doesn't
+> seem very right to me.
 
-Patch is only compile tested.
+But we shouldn't use it alone: we should always use:
+compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
 
-Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Signed-off-by: Jussi Kivilinna <jussi.kivilinna-X3B1VOXEql0@public.gmane.org>
----
- drivers/i2c/busses/i2c-tiny-usb.c |   49 ++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 15 deletions(-)
+>From my point of view using  "marvell,mv78230-i2c" alone is an error.
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 0510636..e7d3b75 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -54,12 +54,16 @@ static int usb_write(struct i2c_adapter *adapter, int cmd,
- 
- static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
- {
--	unsigned char status;
-+	unsigned char *pstatus;
- 	struct i2c_msg *pmsg;
--	int i;
-+	int i, ret;
- 
- 	dev_dbg(&adapter->dev, "master xfer %d messages:\n", num);
- 
-+	pstatus = kmalloc(sizeof(*pstatus), GFP_KERNEL);
-+	if (!pstatus)
-+		return -ENOMEM;
-+
- 	for (i = 0 ; i < num ; i++) {
- 		int cmd = CMD_I2C_IO;
- 
-@@ -84,7 +88,8 @@ static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
- 				     pmsg->buf, pmsg->len) != pmsg->len) {
- 				dev_err(&adapter->dev,
- 					"failure reading data\n");
--				return -EREMOTEIO;
-+				ret = -EREMOTEIO;
-+				goto out;
- 			}
- 		} else {
- 			/* write data */
-@@ -93,36 +98,50 @@ static int usb_xfer(struct i2c_adapter *adapter, struct i2c_msg *msgs, int num)
- 				      pmsg->buf, pmsg->len) != pmsg->len) {
- 				dev_err(&adapter->dev,
- 					"failure writing data\n");
--				return -EREMOTEIO;
-+				ret = -EREMOTEIO;
-+				goto out;
- 			}
- 		}
- 
- 		/* read status */
--		if (usb_read(adapter, CMD_GET_STATUS, 0, 0, &status, 1) != 1) {
-+		if (usb_read(adapter, CMD_GET_STATUS, 0, 0, pstatus, 1) != 1) {
- 			dev_err(&adapter->dev, "failure reading status\n");
--			return -EREMOTEIO;
-+			ret = -EREMOTEIO;
-+			goto out;
- 		}
- 
--		dev_dbg(&adapter->dev, "  status = %d\n", status);
--		if (status == STATUS_ADDRESS_NAK)
--			return -EREMOTEIO;
-+		dev_dbg(&adapter->dev, "  status = %d\n", *pstatus);
-+		if (*pstatus == STATUS_ADDRESS_NAK) {
-+			ret = -EREMOTEIO;
-+			goto out;
-+		}
- 	}
- 
--	return i;
-+	ret = i;
-+out:
-+	kfree(pstatus);
-+	return ret;
- }
- 
- static u32 usb_func(struct i2c_adapter *adapter)
- {
--	__le32 func;
-+	__le32 *pfunc;
-+	u32 ret;
-+
-+	pfunc = kmalloc(sizeof(*pfunc), GFP_KERNEL);
- 
- 	/* get functionality from adapter */
--	if (usb_read(adapter, CMD_GET_FUNC, 0, 0, &func, sizeof(func)) !=
--	    sizeof(func)) {
-+	if (!pfunc || usb_read(adapter, CMD_GET_FUNC, 0, 0, pfunc,
-+			       sizeof(*pfunc)) != sizeof(*pfunc)) {
- 		dev_err(&adapter->dev, "failure reading functionality\n");
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
- 
--	return le32_to_cpu(func);
-+	ret = le32_to_cpup(pfunc);
-+out:
-+	kfree(pfunc);
-+	return ret;
- }
- 
- /* This is the actual algorithm we define */
+Wolfram what is your opinion on it?
 
---
-To unsubscribe from this list: send the line "unsubscribe linux-usb" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+
+> 
+> Also, you should probably add it to the bindings documentation.
+See the patch 3 for the bindings documentation.
+
+> 
+> Maxime
+> 
+
+
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
