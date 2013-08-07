@@ -1,28 +1,61 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH V2 2/3] i2c: mxs: Rework the PIO mode operation
-Date: Wed, 7 Aug 2013 16:15:42 +0200
-Message-ID: <201308071615.42513.marex@denx.de>
-References: <1375219237-9594-1-git-send-email-marex@denx.de> <201308070018.12773.marex@denx.de> <20130807141433.GB2978@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: Manually set RESTART bit between messages
+Date: Wed, 7 Aug 2013 16:28:47 +0200
+Message-ID: <20130807142847.GC2978@katana>
+References: <1371798328-31931-1-git-send-email-chiaue.ee.chew@intel.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="UFHRwCdBEJvubb2X"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130807141433.GB2978@katana>
+Content-Disposition: inline
+In-Reply-To: <1371798328-31931-1-git-send-email-chiaue.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
+To: Chew Chiau Ee <chiaue.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Wolfram Sang,
 
-> > Thinking about it harder, WARN might be more appropriate. Maybe I'll just
-> > remove it altogether, I'll think about it some more.
-> 
-> And when resending, please rebase on top of "i2c: i2c-mxs: Use DMA
-> mode even for small transfers" which I pushed out a few minutes ago.
+--UFHRwCdBEJvubb2X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-OK, thanks for the heads up.
+On Fri, Jun 21, 2013 at 03:05:28PM +0800, Chew Chiau Ee wrote:
+> From: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+>=20
+> If both IC_EMPTYFIFO_HOLD_MASTER_EN and IC_RESTART_EN are set to 1, the
+> Designware I2C controller doesn't generate RESTART unless user specifical=
+ly
+> requests it by setting RESTART bit in IC_DATA_CMD register.
+>=20
+> Since IC_EMPTYFIFO_HOLD_MASTER_EN setting can't be detected from hardware
+> register, we must always manually set the restart bit between messages.
+>=20
+> Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Best regards,
-Marek Vasut
+Applied to for-next, thanks!
+
+
+--UFHRwCdBEJvubb2X
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSAlmfAAoJEBQN5MwUoCm2VD4P/1WNmrgJ9RqvcZu0RC1ywyw9
+ipBaT8CluIEtTBza02a32/52FnTR1wzIphc/+CK7qgv8OQtrqPBWDsu97vvtSoav
+z043GFsm087eF0yYHwJAh8s59vfdGJKq5khh/BFbkrvyEko7xeOfTdFyXfKnD0wr
+/G9MATLHoL3X/cLtY4qMkFUvGfgk2yOudyda1k+/eaEpXIp4wtQBnIsuVbqekZZh
+rL5NvjBrZFWDmeoQqNmvCZYHQBqbIB+TCNezkEpryxn6H+IyHSgVUWz3LGB5QHJ9
+KoQCVQ5giO9mf3J1AaNHRxjgGWBWYdL1ur2FtsxmvO87Na7ShK7iILkVFAEfAlSN
+oagyVgy7nzmtXe1TCXftG89R5gXgRQilC0p0R2dNrmQVqONrfDueW+5weCZVNqED
+WQtayIeHukUuBJ8fMJ+EYsJ9283WoBdBLIxP7JwBAU3ImK2jTrZQqh+S75qiPR/C
+FAm8b57CiXGMaVBq62r9mUJlyyGAnT5jIsgBjIe3aNnba0I62D28QIAOPT03/OVM
+mKNaFCOWnvlplpZgosjCJMo81/NV+tdvTwfNrH35ds3iXK34JWfz4s+1DCeQV530
+nTgmajCbiIrnyd6Y6BERmjHUdJh5GA2gs8QoD2zDriU78QJtN1e149dzdChr7KLo
+KKyyTemXS3jsxPGe5BVa
+=1orb
+-----END PGP SIGNATURE-----
+
+--UFHRwCdBEJvubb2X--
