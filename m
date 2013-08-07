@@ -1,92 +1,33 @@
-From: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [PATCH 8/8] i2c: imx: Add Vybrid VF610 I2C controller support
-Date: Wed, 7 Aug 2013 17:05:43 +0800
-Message-ID: <1375866343-2074-8-git-send-email-b35083@freescale.com>
-References: <1375866343-2074-1-git-send-email-b35083@freescale.com>
-Mime-Version: 1.0
-Content-Type: text/plain
+From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 1/1] i2c: imx: Fix incorrect placement of __initdata
+Date: Wed,  7 Aug 2013 15:48:23 +0530
+Message-ID: <1375870703-16878-1-git-send-email-sachin.kamat@linaro.org>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1375866343-2074-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Jason Jin <Jason.jin-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add Freescale Vybrid VF610 I2C controller support to
-imx I2C driver framework.
+__initdata should be placed between the variable name and equal
+sign for the variable to be placed in the intended section.
 
-Signed-off-by: Jason Jin <Jason.jin-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ drivers/i2c/busses/i2c-imx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index ce31196..9c0f8bd 100644
+index e242797..5253c04 100644
 --- a/drivers/i2c/busses/i2c-imx.c
 +++ b/drivers/i2c/busses/i2c-imx.c
-@@ -79,6 +79,7 @@
- #define IMX_I2C_I2DR	0x04	/* i2c transfer data */
+@@ -96,7 +96,7 @@
+  * Duplicated divider values removed from list
+  */
  
- #define IMX_I2C_REGSHIFT	2
-+#define VF610_I2C_REGSHIFT	0
- 
- /* Bits of IMX I2C registers */
- #define I2SR_RXAK	0x01
-@@ -140,9 +141,29 @@ static struct imx_i2c_clk_pair imx_i2c_clk_div[] = {
- 	{ 3072,	0x1E }, { 3840,	0x1F }
- };
- 
-+/* Vybrid VF610 clock divider, register value pairs */
-+static struct imx_i2c_clk_pair vf610_i2c_clk_div[] = {
-+	{ 20,   0x00 }, { 22,   0x01 }, { 24,   0x02 }, { 26,   0x03 },
-+	{ 28,   0x04 }, { 30,   0x05 }, { 32,   0x09 }, { 34,   0x06 },
-+	{ 36,   0x0A }, { 40,   0x07 }, { 44,   0x0C }, { 48,   0x0D },
-+	{ 52,   0x43 }, { 56,   0x0E }, { 60,   0x45 }, { 64,   0x12 },
-+	{ 68,   0x0F }, { 72,   0x13 }, { 80,   0x14 }, { 88,   0x15 },
-+	{ 96,   0x19 }, { 104,  0x16 }, { 112,  0x1A }, { 128,  0x17 },
-+	{ 136,  0x4F }, { 144,  0x1C }, { 160,  0x1D }, { 176,  0x55 },
-+	{ 192,  0x1E }, { 208,  0x56 }, { 224,  0x22 }, { 228,  0x24 },
-+	{ 240,  0x1F }, { 256,  0x23 }, { 288,  0x5C }, { 320,  0x25 },
-+	{ 384,  0x26 }, { 448,  0x2A }, { 480,  0x27 }, { 512,  0x2B },
-+	{ 576,  0x2C }, { 640,  0x2D }, { 768,  0x31 }, { 896,  0x32 },
-+	{ 960,  0x2F }, { 1024, 0x33 }, { 1152, 0x34 }, { 1280, 0x35 },
-+	{ 1536, 0x36 }, { 1792, 0x3A }, { 1920, 0x37 }, { 2048, 0x3B },
-+	{ 2304, 0x3C }, { 2560, 0x3D }, { 3072, 0x3E }, { 3584, 0x7A },
-+	{ 3840, 0x3F }, { 4096, 0x7B }, { 5120, 0x7D }, { 6144, 0x7E },
-+};
-+
- enum imx_i2c_type {
- 	IMX1_I2C,
- 	IMX21_I2C,
-+	VF610_I2C,
- };
- 
- struct imx_i2c_hwdata {
-@@ -186,6 +207,16 @@ static const struct imx_i2c_hwdata imx21_i2c_hwdata  = {
- 
- };
- 
-+static struct imx_i2c_hwdata vf610_i2c_hwdata = {
-+	.devtype		= VF610_I2C,
-+	.regshift		= VF610_I2C_REGSHIFT,
-+	.clk_div		= vf610_i2c_clk_div,
-+	.ndivs			= ARRAY_SIZE(vf610_i2c_clk_div),
-+	.i2sr_clr_opcode	= I2SR_CLR_OPCODE_W1C,
-+	.i2cr_ien_opcode	= I2CR_IEN_OPCODE_0,
-+
-+};
-+
- static struct platform_device_id imx_i2c_devtype[] = {
- 	{
- 		.name = "imx1-i2c",
-@@ -202,6 +233,7 @@ MODULE_DEVICE_TABLE(platform, imx_i2c_devtype);
- static const struct of_device_id i2c_imx_dt_ids[] = {
- 	{ .compatible = "fsl,imx1-i2c", .data = &imx1_i2c_hwdata, },
- 	{ .compatible = "fsl,imx21-i2c", .data = &imx21_i2c_hwdata, },
-+	{ .compatible = "fsl,vf610-i2c", .data = &vf610_i2c_hwdata, },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, i2c_imx_dt_ids);
+-static u16 __initdata i2c_clk_div[50][2] = {
++static u16 i2c_clk_div[50][2] __initdata = {
+ 	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
+ 	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
+ 	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
 -- 
-1.8.0
+1.7.9.5
