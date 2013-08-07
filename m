@@ -1,63 +1,86 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/3] i2c-mv64xxx: Add I2C Transaction Generator support
-Date: Wed, 7 Aug 2013 16:35:46 +0200
-Message-ID: <20130807143546.GD2978@katana>
-References: <1373898278-4805-1-git-send-email-gregory.clement@free-electrons.com>
- <1373898278-4805-2-git-send-email-gregory.clement@free-electrons.com>
- <20130716080503.GA3125@lukather>
- <5200E684.5080003@free-electrons.com>
+Subject: Re: [PATCH] i2c: reduce parent checking to a NOOP in non-I2C_MUX case
+Date: Wed, 7 Aug 2013 16:54:36 +0200
+Message-ID: <20130807145436.GE2978@katana>
+References: <1372233395-13663-1-git-send-email-phil.carmody@partner.samsung.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="0IvGJv3f9h+YhkrH"
+	protocol="application/pgp-signature"; boundary="jTMWTj4UTAEmbWeb"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5200E684.5080003-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1372233395-13663-1-git-send-email-phil.carmody-GrGkmOP51GdLN7c7dRTbYkEOCMrvLtNR@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebastian.hesselbarth@gm>
+To: Phil Carmody <phil.carmody-GrGkmOP51GdLN7c7dRTbYkEOCMrvLtNR@public.gmane.org>
+Cc: ml.lawnick-Mmb7MZpHnFY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---0IvGJv3f9h+YhkrH
+--jTMWTj4UTAEmbWeb
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-
-> But we shouldn't use it alone: we should always use:
-> compatible =3D "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
+On Wed, Jun 26, 2013 at 10:56:35AM +0300, Phil Carmody wrote:
+> In 0826374 - i2c: Multiplexed I2C bus core support
+> core i2c code increased in size and complexity even when I2C_MUX
+> wasn't selected.
 >=20
-> From my point of view using  "marvell,mv78230-i2c" alone is an error.
+> Turning this check into a constant NULL in the n case lets the
+> client functions in be simplified too, not needing to include
+> never-called calls to the mux-specific helpers.
 >=20
-> Wolfram what is your opinion on it?
+> Signed-off-by: Phil Carmody <phil.carmody-GrGkmOP51GdLN7c7dRTbYkEOCMrvLtNR@public.gmane.org>
 
-It is not strictly an error, but risky. If you use an older Kernel
-version (or other OS) which only offers "mv64xxx" you will have no
-match. Although the driver theoretically could have basic support for
-all mv64xxx variants skipping all additional features of later IP
-revisions.
+Not my favourite style to have #endif in the code block, but good
+enough. Applied to for-next, thanks!
 
+> ---
+>  include/linux/i2c.h |    2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+> index e988fa9..b3c4b8d 100644
+> --- a/include/linux/i2c.h
+> +++ b/include/linux/i2c.h
+> @@ -447,11 +447,13 @@ static inline void i2c_set_adapdata(struct i2c_adap=
+ter *dev, void *data)
+>  static inline struct i2c_adapter *
+>  i2c_parent_is_i2c_adapter(const struct i2c_adapter *adapter)
+>  {
+> +#if IS_ENABLED(I2C_MUX)
+>  	struct device *parent =3D adapter->dev.parent;
+> =20
+>  	if (parent !=3D NULL && parent->type =3D=3D &i2c_adapter_type)
+>  		return to_i2c_adapter(parent);
+>  	else
+> +#endif
+>  		return NULL;
+>  }
+> =20
+> --=20
+> 1.7.9.5
+>=20
 
---0IvGJv3f9h+YhkrH
+--jTMWTj4UTAEmbWeb
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSAltBAAoJEBQN5MwUoCm23P8P/0Cr0Ez2zMh6nN1gyuR0XjG6
-LE57iUNOiqVTH7P7h7pvBqK7c9lqsoN5loeCBDzGalBsgsGbE0dPRn8j7DL7U1CT
-F9XqGZpiPxrExxZnapwXXM0uKbknZOcWiUqUvks42EwtfFAiAirj/1t7TkBV/1Rf
-hJKIZFfKEAD4jK1bP8HRGj9gK1FS+TfRWd8WggDL2fSYbuClhP8hp88WK4HAp1a2
-85/E4QzbzrhKeQlb128qEM1y/o+HHdPkGb86D6Dxnh6cfJADoKMMSCxsGcfO6sBw
-VS74QoMO/MT2SPVYIKf5OcUSR/oLBJn3Mv8ot/n9EgeXnS4DYyhKXIyvptkMdqRM
-zbPNHKC1ZWXuDXnS5P9UYcqhkycKix+g+WVP/bGeBcx9oven9dGeTiIJUt6SYzl4
-Q8PlfxXJn5PikqjAxS17xvhu65bSmVMYOOoOS4GSd0Z4R5jrxOqnp8shSctgkcYR
-31N08j3NxyuiPWJGNt7AuFBN82m8SnHXDWRyde5SAJAvDQ+tasbqSnzC2ysmaaYE
-LIUdipGM1wmsUKBfSXYLw4nvwgx+0P3HeFM3HP8JS9VMgsH2F6J8VsTC300dSuow
-QEHTyaWEXUHcI2/TGs2Bj9QQ/TNpzlT4K8SSWGQyjxW764tl0SYfgZhSAOye/nqp
-c5noxxvpkVctmWPA8WYt
-=c0Tj
+iQIcBAEBAgAGBQJSAl+sAAoJEBQN5MwUoCm2tPkP/jv2q5LIg0HNnEaIeLVpky4X
+3vKRq5c3b392/HzgmYqgpXyfDJ0gy+uZM/I3PouVAwRsWdNH1Io2cAquthl8vgIo
+wBayGOcoybhbTnTSvDmgWbe8CaZmmrL/6GaIr/EDn5Ge4bLTQ/28gvJEUtbq+MIN
+8ZomzceFIQY4fiqTWQwtFpDL7M/QBrANUqamUwgJYIwKDX2val4RULFQlSsC2vL+
+9rFnzecOP56hLcs2aUqyLBfpkV7hNd3LQ3Gp/OOFh+pcHzJ8WnHKKbe3CKDInW/t
+th9C5zww9ZqY9wjdrcftwyJlw9yKZ7An5SVUN/5i5R6fpcTMW/uLQpLQKY/wIFQK
+LnQzRs16JKNjYn6bY4nbn5XAo10rS9wD0qLxHrDB62iH7knKc/o96kFs43eGDkT/
+aTQ4ZHI39KCEdNLHRYWpyLRVsBnSmCfrw/hmoCOIiwkORf/9kRrUroZsgMjMO+3u
+EBaOoN5IcdDxeotkWd8S8iJqmcXs5nvlwUs/R7vGdLwGMGe0QwDLcOgLT/ZdG+AO
+cbwWY0jvfy6OZvV9e8wr57x5/Sq0NuSwzgwPwc++vYIfno/zjlDjdwLBzEl15b3Q
+RhtdCg9A6fooUadou7w5hlx2208SJWL54gUJ6+C86nkzQQm7WYCdLdjwQj/NZt5K
+mLUKC42biibPvv9+eSqz
+=mCaB
 -----END PGP SIGNATURE-----
 
---0IvGJv3f9h+YhkrH--
+--jTMWTj4UTAEmbWeb--
