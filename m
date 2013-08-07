@@ -1,110 +1,127 @@
-From: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Subject: Re: [PATCH 1/8] i2c: imx: use struct representing i2c clk{div,
- val} pair
-Date: Wed, 7 Aug 2013 19:53:37 +0200
-Message-ID: <20130807175337.GQ26614@pengutronix.de>
-References: <1375866343-2074-1-git-send-email-b35083@freescale.com>
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: i2c-i801 driver quit working in 3.8.11 (was: adt7475 driver quit
+ working)
+Date: Wed, 7 Aug 2013 12:25:56 -0700
+Message-ID: <20130807192556.GA31395@roeck-us.net>
+References: <CANQojO4jbSM=03WfJtw-iSNfexBNSt6GwRLpVSmBx_KrAa0bWQ@mail.gmail.com>
+ <20130806192228.GB8246@roeck-us.net>
+ <CANQojO74882h+oFJDrq2dsSC71NZHuyf2sjTzCr4a+VmPMLyVA@mail.gmail.com>
+ <52026530.2080301@roeck-us.net>
+ <CANQojO5B+7c+J=fxV-_mT=Y19Uy=4cW-83vnrphPkN5pmgc2YQ@mail.gmail.com>
+ <20130807174801.GB1862@roeck-us.net>
+ <CANQojO5QuoGSmmNYxxZ=0MhbZt0mEW-8n6kTxVSWuZ4p6NFw5Q@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1375866343-2074-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <CANQojO5QuoGSmmNYxxZ=0MhbZt0mEW-8n6kTxVSWuZ4p6NFw5Q-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Soren Harward <stharward-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Nice improvement of this series.
-
-There are some unnecessary blank lines in the definitions in 7/8 and
-8/8, but otherwise:
-
-reviewed-by: Sascha Hauer <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-
-Sascha
-
-On Wed, Aug 07, 2013 at 05:05:36PM +0800, Jingchang Lu wrote:
-> using struct representing the i2c clk{div, val} pair would
-> make the i2c_clk_div array more clear.
+On Wed, Aug 07, 2013 at 02:19:42PM -0400, Soren Harward wrote:
+> Yeah, that fixed it.  Sensors are working properly now.
 > 
-> Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-imx.c | 20 +++++++++++++-------
->  1 file changed, 13 insertions(+), 7 deletions(-)
+> My computer is a Lenovo D10, which uses the Intel 5400 chipset.
+> Here's the lspci dump for the SMBus controller:
 > 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index e242797..9167d43 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -30,6 +30,8 @@
->   *	Copyright (C) 2007 RightHand Technologies, Inc.
->   *	Copyright (C) 2008 Darius Augulis <darius.augulis at teltonika.lt>
->   *
-> + *	Copyright 2013 Freescale Semiconductor, Inc.
-> + *
->   */
->  
->  /** Includes *******************************************************************
-> @@ -95,8 +97,12 @@
->   *
->   * Duplicated divider values removed from list
->   */
-> +struct imx_i2c_clk_pair {
-> +	u16	div;
-> +	u16	val;
-> +};
->  
-> -static u16 __initdata i2c_clk_div[50][2] = {
-> +static struct imx_i2c_clk_pair __initdata i2c_clk_div[] = {
->  	{ 22,	0x20 }, { 24,	0x21 }, { 26,	0x22 }, { 28,	0x23 },
->  	{ 30,	0x00 },	{ 32,	0x24 }, { 36,	0x25 }, { 40,	0x26 },
->  	{ 42,	0x03 }, { 44,	0x27 },	{ 48,	0x28 }, { 52,	0x05 },
-> @@ -274,15 +280,15 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
->  	/* Divider value calculation */
->  	i2c_clk_rate = clk_get_rate(i2c_imx->clk);
->  	div = (i2c_clk_rate + rate - 1) / rate;
-> -	if (div < i2c_clk_div[0][0])
-> +	if (div < i2c_clk_div[0].div)
->  		i = 0;
-> -	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1][0])
-> +	else if (div > i2c_clk_div[ARRAY_SIZE(i2c_clk_div) - 1].div)
->  		i = ARRAY_SIZE(i2c_clk_div) - 1;
->  	else
-> -		for (i = 0; i2c_clk_div[i][0] < div; i++);
-> +		for (i = 0; i2c_clk_div[i].div < div; i++);
->  
->  	/* Store divider value */
-> -	i2c_imx->ifdr = i2c_clk_div[i][1];
-> +	i2c_imx->ifdr = i2c_clk_div[i].val;
->  
->  	/*
->  	 * There dummy delay is calculated.
-> @@ -290,7 +296,7 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
->  	 * This delay is used in I2C bus disable function
->  	 * to fix chip hardware bug.
->  	 */
-> -	i2c_imx->disable_delay = (500000U * i2c_clk_div[i][0]
-> +	i2c_imx->disable_delay = (500000U * i2c_clk_div[i].div
->  		+ (i2c_clk_rate / 2) - 1) / (i2c_clk_rate / 2);
->  
->  	/* dev_dbg() can't be used, because adapter is not yet registered */
-> @@ -298,7 +304,7 @@ static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
->  	dev_dbg(&i2c_imx->adapter.dev, "<%s> I2C_CLK=%d, REQ DIV=%d\n",
->  		__func__, i2c_clk_rate, div);
->  	dev_dbg(&i2c_imx->adapter.dev, "<%s> IFDR[IC]=0x%x, REAL DIV=%d\n",
-> -		__func__, i2c_clk_div[i][1], i2c_clk_div[i][0]);
-> +		__func__, i2c_clk_div[i].val, i2c_clk_div[i].div);
->  #endif
->  }
->  
+> root@jens:~# lspci -vv -s 0000:00:1f.3
+> 00:1f.3 SMBus: Intel Corporation 631xESB/632xESB/3100 Chipset SMBus
+> Controller (rev 09)
+>         Subsystem: Lenovo Device 101d
+>         Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop-
+> ParErr- Stepping- SERR- FastB2B- DisINTx-
+>         Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium
+> >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
+>         Interrupt: pin B routed to IRQ 23
+>         Region 4: I/O ports at 1100 [size=32]
+>         Kernel driver in use: i801_smbus
+> 
+> So what else can I do to help debug this?
+> 
+I copied the i2c mailing list and the i2c maintainer, and also changed the
+subject to reflect the real problem. I don't really know what else you can do.
+Maybe Jean has an idea, or someone else on the list.
+
+One possibility is that the driver doesn't enable/use MSI interrupts.
+Maybe that is causing trouble with your chipset. Another option might be
+that there are subtle differences with this chipset, and the interrupt code
+simply does not work with it.
+
+Guenter
+
+> 
+> On Wed, Aug 7, 2013 at 1:48 PM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
+> > Can you try reverting commit 6676a847d48ac48908cf467b42da9045b5463a6e ?
+> >
+> > [ Unless you are using an ASUS Z8 board, then it's more complicated ]
+> >
+> > Guenter
+> >
+> > On Wed, Aug 07, 2013 at 01:38:15PM -0400, Soren Harward wrote:
+> >> The module is i2c-i801, so I guess that's the i801_smbus driver.
+> >>
+> >> On Wed, Aug 7, 2013 at 11:18 AM, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org> wrote:
+> >> > Thought so. What is the driver ?
+> >> >
+> >> > Thanks,
+> >> > Guenter
+> >> >
+> >> >
+> >> > On 08/07/2013 05:08 AM, Soren Harward wrote:
+> >> >>
+> >> >> Oops, I swapped kernel numbers. 3.6.11 was good, 3.8.13 is broken.
+> >> >>
+> >> >> It looks like a problem with i2c bus driver because i2cdetect also locks
+> >> >> up when trying to read from the bus.  I'll go pester one of the I2C
+> >> >> developers.
+> >> >>
+> >> >> --
+> >> >> Soren Harward
+> >> >>
+> >> >> On Aug 6, 2013 3:22 PM, "Guenter Roeck" <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org
+> >> >> <mailto:linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>> wrote:
+> >> >>
+> >> >>     On Tue, Aug 06, 2013 at 02:30:47PM -0400, Soren Harward wrote:
+> >> >>      > When I upgraded from 3.6.13 to kernel 3.8.11 (I know it's old; I'm
+> >> >>      > limited by some binary drivers that don't work in >=3.9), hardware
+> >> >>      > monitoring thru my ADT7475 quit working.  The chip is still
+> >> >>      > recognized, the driver creates the sysfs entries in
+> >> >>      > /sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002e, but if I try to
+> >> >>      > read any of the files (eg, "cat fan1_input"), the process just gets
+> >> >>      > stuck in "disk wait" status forever.
+> >> >>      >
+> >> >>      > Is this a known bug that has since been fixed?  If not, what can I
+> >> >> do
+> >> >>      > to help fix it?
+> >> >>      >
+> >> >>
+> >> >>     Problem is that v3.6.13 does not exist in mainline. Are you sure this
+> >> >> is your
+> >> >>     version ? Assuming it is 3.6.11 vs. 3.8.13, the only difference in the
+> >> >> driver is
+> >> >>     an added include of linux/jiffies.h, which should not cause any
+> >> >> problems. It is
+> >> >>     more likely a problem with the i2c bus driver. Can you let us know
+> >> >> what driver
+> >> >>     that is, and check if you have the same problem with another chip on
+> >> >> the same bus
+> >> >>     (eg an eeprom if there is one) ?
+> >> >>
+> >> >>     Thanks,
+> >> >>     Guenter
+> >> >>
+> >> >
+> >>
+> >>
+> >>
+> >> --
+> >> Soren Harward
+> >>
+> 
+> 
+> 
 > -- 
-> 1.8.0
+> Soren Harward
 > 
-> 
-> 
-
--- 
-Pengutronix e.K.                           |                             |
-Industrial Linux Solutions                 | http://www.pengutronix.de/  |
-Peiner Str. 6-8, 31137 Hildesheim, Germany | Phone: +49-5121-206917-0    |
-Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
