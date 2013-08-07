@@ -1,56 +1,40 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 06/27] drivers/i2c/busses: don't check resource with
- devm_ioremap_resource
-Date: Wed, 7 Aug 2013 17:38:36 +0200
-Message-ID: <20130807153836.GK2978@katana>
-References: <1374602524-3398-1-git-send-email-wsa@the-dreams.de>
- <1374602524-3398-7-git-send-email-wsa@the-dreams.de>
+From: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c-mv64xxx: Add I2C Transaction Generator support
+Date: Wed, 7 Aug 2013 11:57:00 -0400
+Message-ID: <20130807155700.GE19280@titan.lakedaemon.net>
+References: <1373898278-4805-1-git-send-email-gregory.clement@free-electrons.com>
+ <1373898278-4805-2-git-send-email-gregory.clement@free-electrons.com>
+ <20130716080503.GA3125@lukather>
+ <5200E684.5080003@free-electrons.com>
+ <20130807143546.GD2978@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="d6d1KVhp94hk3Jrm"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1374602524-3398-7-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+In-Reply-To: <20130807143546.GD2978@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Maxime Ripard <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sebastian Hesselbarth <sebasti>
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, Aug 07, 2013 at 04:35:46PM +0200, Wolfram Sang wrote:
+> 
+> > But we shouldn't use it alone: we should always use:
+> > compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
+> > 
+> > From my point of view using  "marvell,mv78230-i2c" alone is an error.
+> > 
+> > Wolfram what is your opinion on it?
+> 
+> It is not strictly an error, but risky. If you use an older Kernel
+> version (or other OS) which only offers "mv64xxx" you will have no
+> match. Although the driver theoretically could have basic support for
+> all mv64xxx variants skipping all additional features of later IP
+> revisions.
 
---d6d1KVhp94hk3Jrm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I agree here.  The driver is advertising what IP blocks it can handle,
+so it makes sense to add both strings since it can handle both.
 
-On Tue, Jul 23, 2013 at 08:01:39PM +0200, Wolfram Sang wrote:
-> devm_ioremap_resource does sanity checks on the given resource. No need to
-> duplicate this in the driver.
->=20
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+thx,
 
-Applied to for-next, thanks!
-
-
---d6d1KVhp94hk3Jrm
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSAmn8AAoJEBQN5MwUoCm2NxEP/0CkvKIYCGUeE9P4/9xEFmOp
-0/ikYXrmHNBX1VBfYs8Li3ZPLSg0KRgdosZ+E4tMH5sRaoLzUSB8JVYcgeWv+dbk
-tR++xlBBJiIbvrbQdpjBhDLsmu+0/7S6UCkRm9DLseeIKvkqu/c0NnpcJzEsGDM/
-tFGvMY8OKvQyouJu8c9Zv8pu67uN6Ub+zLfI0MlzvFuVivntHNVan5SzIrBkKsA6
-rGeTRTfGQDhKtm7yevib0wJEVX4jGk6rhIhsvgyCltZrC8ugHI2I0Oxp1b1V8rHp
-9ooivvfWfaDfMT4Gyvp6E0J8MH45mHvD32h0LKZ6kDH1InWySp9hBMxuy+t+l9Bx
-yqYWFjBbHSVSonYvJx48tKictoT0j0rkWsq8Ho0Q5UbgiYGpEh7lflzd9YzrAWgk
-oahS+B5e9hVwTWoGxjzLAhBrxLDvDPNww75gIECejNcqsv7ecxD+/u3kCLhj6WLx
-YWkd4J1FBf49aLoFkuJtjpx6G65z5KNWfycvzevp+lNORZlgmbg/HXQHJ3IciKEH
-d6a/+YOsCCOQBsQPhW7h4FORyqIQJIhTCPPogtBk7klrLOfS6xSbpCY+4egTCYJG
-HmvZqg8mq4ZPZEDqt+m71aAZYX/FncQnak9zeTx4wQRTBmsqeQ2qIVJH/mWHw8qz
-hpRGMi3em7iLItD8m8zq
-=un3P
------END PGP SIGNATURE-----
-
---d6d1KVhp94hk3Jrm--
+Jason.
