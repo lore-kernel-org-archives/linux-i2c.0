@@ -1,73 +1,59 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mpc: Define unique I2C adapter names
-Date: Wed, 7 Aug 2013 17:34:44 +0200
-Message-ID: <20130807153444.GI2978@katana>
-References: <1373483001-24951-1-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCH 02/12] drivers/i2c/busses: don't use
+ devm_pinctrl_get_select_default() in probe
+Date: Wed, 7 Aug 2013 17:37:09 +0200
+Message-ID: <20130807153708.GJ2978@katana>
+References: <1373471889-18107-1-git-send-email-wsa@the-dreams.de>
+ <1373471889-18107-2-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TKDEsImF70pdVIl+"
+	protocol="application/pgp-signature"; boundary="tAmVnWIZ6lqEAvSf"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1373483001-24951-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <1373471889-18107-2-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---TKDEsImF70pdVIl+
+--tAmVnWIZ6lqEAvSf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 10, 2013 at 12:03:21PM -0700, Guenter Roeck wrote:
-> The I2C adapters on Freescale MPC107/824x/85xx/512x/52xx/83xx/86xx all
-> have the same name "MPC adapter". Since I2C adapter numbers can change
-> across reboots and even after loading/unloading an I2C bus master driver,
-> adapter names have to be used to identify adapters and thus should be
-> unique and well defined. Since this is not the case with this driver,
-> it is difficult if not impossible to identify a specific adapter from
-> user space on affected platforms.
+On Wed, Jul 10, 2013 at 04:57:37PM +0100, Wolfram Sang wrote:
+> Since commit ab78029 (drivers/pinctrl: grab default handles from device c=
+ore),
+> we can rely on device core for setting the default pins. Compile tested o=
+nly.
 >=20
-> To remedy the problem, use the adapter memory address as part of the
-> adapter name.
->=20
-> With this patch, adapter names are:
-> On P2020:
-> MPC adapter at 0xfff703000
-> MPC adapter at 0xfff703100
->=20
-> On P5040:
-> MPC adapter at 0xffe118000
-> MPC adapter at 0xffe118100
-> MPC adapter at 0xffe119000
-> MPC adapter at 0xffe119100
->=20
-> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> Acked-by: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> (personally at LCE13)
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
 Applied to for-next, thanks!
 
 
---TKDEsImF70pdVIl+
+--tAmVnWIZ6lqEAvSf
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSAmkUAAoJEBQN5MwUoCm2xpAP/0v+nUVmhR1OHei0GrWgHCVQ
-iy5QxPp7++4iMG7/Wxy3VvhKCLGysU2q1k466J6kGncd9bDte5YyOROmCm7Jy3I6
-mUB/UO7LI47HxCXdBZPTYmsdPXbA2V7D5bKyOye9MFPZivxFUSX/UYA+qXe1r0ML
-Uqtqq4r7R2YXwp9HpTBTtX4UAUlOJxEmvlk+F+Mt7lDnSVF2SHkkTQUgfvMk9vD3
-JQfT06RhO0a5NBm13YG2kR8TE5IaNYCeA6Y6h74jpgKEa1ZlzNhoScKOV8zvj/w4
-OBYMiARpl295xlQBvzl6SN8xTaJmT1CXRMRQxczpy93VFMW3d/8nVtDLt36Rzf1X
-MUo8FbOTeU5S6JWpi06I6Xa/T9MSjQTPntrCP9+9f4cZW5n2wHzaTKZavl/ErVgJ
-O5pAqYpdcNu2wUAo1/0F5QF17U1HIq+PmfyAQ9+ZjsgRhkscjTbrd2+QGRN69u0I
-SgGOwDjZ7CyWX5jUegsNBW0UhuXvki3CGSgJb5VLyHu77KriMwkKpvnHyx+dM2b8
-+5FMme8Ni7nm9EH3m7Eq2TZsyoSRcmCpojDqd6QqHwauXyk92moTcNWv6wtT75Sw
-0+DBp9a/SwQ9mB0Mv0tQppWgppxUddb8m/f2N8bxCRJUXx9qKwtxf1iU8rbSiZRj
-ViV3BBmqserbo6g2nFH3
-=ca0u
+iQIcBAEBAgAGBQJSAmmkAAoJEBQN5MwUoCm2bHoP/iNtk37KWc2nWQT+dGhISokW
+xdgW6SKAkGMd+8RNb8l+HHeaOsbRvGIYwvHvJMt1p0lLIVIcI/HfFdE+2wfD3ACd
+5Cx0Mq9UJQdctFefyEBwjhCQCkUsKQnLjlj/Q52FWpmBTQDBmMA8lpCG/S9FrLji
+gupFMxxTulPVZaf9EYxzWt/M28SOOgpoJdCkeR6g6eYaqG4NSiRRAfQl++oNb7CO
+CM8e/g84LD7wdA5n9vEeg2nudUiPZ0z+R77PmGxM815SsA8dYx1cbFECtCy3vybz
+Y1/7jY4OlexBlG0qsXcqpF3QMIGiI+eYflqSb37bz3yARYmRr44R6Ti0rX2hF0aq
+qYfcbyEEkX9Ilv3jsA/E2kQy3xbPSFgHN/v64MiIHVmwyEn11uz0vuSJgrarJs5k
+h6ftDt4PUN57xkuGrMuoux/A9LaWPkSZ8jqYkZd+ezvBr6uz4ukXEie2zg6bxhJ6
+nv/vO/zibdq0gz3i00TKXlcZRqnioef9IcoeSf9lSvP2M/Jb5gMJ97wxuEIOCW1t
+MO4tW6w5MJ5CW7i3MzCyDu4nJwZtVzBDJ/NeLQDaC44U2gxIJwPkdYxF4i0Hk7+X
+BFaGMlzzKkDsYMygsGftl0m0iJELFjOTRLKBG53KfFixLQ+N/FGnfiMQWjkIBZD4
+bvNdL3UBgFXN8mn9c2NK
+=zKOz
 -----END PGP SIGNATURE-----
 
---TKDEsImF70pdVIl+--
+--tAmVnWIZ6lqEAvSf--
