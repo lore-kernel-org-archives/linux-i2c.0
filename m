@@ -1,70 +1,58 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: pxa: enable high speed mode for i2c bus
-Date: Wed, 7 Aug 2013 15:55:39 +0200
-Message-ID: <20130807135538.GA2978@katana>
-References: <1370587097-21006-1-git-send-email-shangll@marvell.com>
- <20130615144812.GD2923@katana>
- <CAOng1WTa0c2Jb9yPeynKXQ0K4-bPhrcGPsKd-AP-MuxQPH80Jg@mail.gmail.com>
+Subject: Re: [PATCH V2 2/3] i2c: mxs: Rework the PIO mode operation
+Date: Wed, 7 Aug 2013 16:14:34 +0200
+Message-ID: <20130807141433.GB2978@katana>
+References: <1375219237-9594-1-git-send-email-marex@denx.de>
+ <201308061535.50470.marex@denx.de>
+ <20130806211348.GA3429@katana>
+ <201308070018.12773.marex@denx.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
+	protocol="application/pgp-signature"; boundary="cmJC7u66zC7hs+87"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAOng1WTa0c2Jb9yPeynKXQ0K4-bPhrcGPsKd-AP-MuxQPH80Jg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <201308070018.12773.marex-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---HlL+5n6rz5pIUxbD
+--cmJC7u66zC7hs+87
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 02, 2013 at 10:10:29AM +0800, James Lebron wrote:
-> Hi Wolfram
->=20
->     Have you finished reading datasheet?
 
-Sadly not. I couldn't find the reference manual freely available. That
-was a problem when reviewing this patch.
+> Thinking about it harder, WARN might be more appropriate. Maybe I'll just=
+ remove=20
+> it altogether, I'll think about it some more.
 
-> 1. High speed mode is hardware feature, you can't read it from
-> software. It's similar to fast mode, and fast mode is set in platform
-> data.
+And when resending, please rebase on top of "i2c: i2c-mxs: Use DMA
+mode even for small transfers" which I pushed out a few minutes ago.
 
-Yes, setting fast mode in platform_data is troublesome, too. Better
-would be to introduce a new platform_id (say, pxa910-i2c) and to deduce
-=66rom that id that only this version has high speed mode. I am accepting
-the current solution since it is consistent with fast mode, but all this
-needs to be fixed if pxa is going devicetree.
+Thanks.
 
-Thanks,
-
-   Wolfram
-
-
---HlL+5n6rz5pIUxbD
+--cmJC7u66zC7hs+87
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSAlHaAAoJEBQN5MwUoCm2maEP/21Gpr61nax+5HZUxDfNRTkm
-QmUQXl1P3QA89QLmAqRhGKLRr67emi/dMDp8ZTPQhYDYjaEggQt78GqHS19LMeS1
-CfDZ0AxptgiqqSo+0SO6EQFWuBwDM0Nivy0m4E+O+5ESICZBbiRSuoLu7VtGB7Xd
-c43LxnaKzbva6Xifsior9mt1qu45J1Igd+nb58R3jLlExTwyJ12JllCg+SvucHcQ
-YfPaerfhUcBEA6p8y3TNTgErKhUB77YK5SUeQcvy+YgZ9t61VP0wCCeMEVR33BCj
-tID6Sy0l/Rg75n96LyYiXgYSOpuVleGCr43dxJZdLnMf8gasLos6L8ub9PH9Oygp
-qKMlBVis8etJC4e7fxGMlbD/V8qcjlYI2Vgllj4EN3Lw4q/QPMarnT0/4c6D22Qz
-0Xcy0p7hRv+K0yaWWQ7MQuTFOdYUkH93JRp+aDPFzIxhmxMzCKWYkUIjamvyBLAn
-14KPOa1qjluBGeZZfPBqUgPoJliP1jQ2w/Rh8zSAMnTaXGbEyiG9UxBzEbFjgg+p
-BL4tQ4Tob2FvUQOLgb5cYsdRBlaijbVY8EQ7lGuN2Tf/rfMDrviyHVJCMqBlptUU
-XTNc1/VYcaYIBWV6O/zHnJ9NRu062a/dqIMiOcok7OtLki8apXOnFvyuijFgpVZY
-UoZ84VeeyLLoY3gZ/L54
-=EwqL
+iQIcBAEBAgAGBQJSAlZJAAoJEBQN5MwUoCm2t7IQALWHJsMWxaEOGP4jmlC/XEzl
+Uj6wx9mREJe0U+papDfnxuP7c+KJfOgVoLTe2/Z9no9o6fPSemGgLrDxR4dmv7K7
+x2GdtcygRgKxbt66jQyM8h4f3jW5fBBVexs8M+iS6rAya+H6r1XMizR+LLjexpIb
+knk/AwQVaPuSeDQBCEz7UZ2x5Tw3vjTeU12/rSmxAS9uVFA+c4As/y8wGJnXB1eD
+0xoD4jh+xr4Xm3KXWJeowk5SebR/Uckyekpbo5u6XTuf9Y/gnhx6upMz2ByN91p7
+4brkckl+gRVIaEQ6M1yEQg+upTHzxhuZE9k+YWppVldXTFQKeZex/dTqSHX0k+Da
+4d48WhdIVSwJOJhch2Kvf0y/X687EXuvGwDIgAdLPJIxvP9MdAKWuw0rIBuGn10I
+YqcneNJmoMTVbYluBZ04CAeNIu9ax4wX1pkKso68TleYM0j0i1Gx4qmqima/ij5+
+Ob2J3Bf3U/O7XI2tNPMaFSCcQP2Q0hr9aLCcYS3xIX/cqZMMr+A/XROn4GNndRXr
+nhSvZaUR6CSOEaMbPqevtayxJhhq0Xw078vbsNtO44eMh88/L5PBzLL//LORlbAE
+2rjuxRichnbj8bADdjD2QBRq8cXRXD+tpJMpu/J46C3ZbyO2sTY9U4boRhrbdICr
+Ans3h70KMSE3W8Cwrg+G
+=AdGV
 -----END PGP SIGNATURE-----
 
---HlL+5n6rz5pIUxbD--
+--cmJC7u66zC7hs+87--
