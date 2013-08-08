@@ -1,34 +1,34 @@
-From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Subject: Re: [PATCH v2 1/1 resend] i2c: rcar: modify I2C driver
-Date: Thu, 08 Aug 2013 10:13:16 +0900
-Message-ID: <5202F0AC.4070609@jinso.co.jp>
-References: <1375687174-577-1-git-send-email-nv-dung@jinso.co.jp> <1375687174-577-2-git-send-email-nv-dung@jinso.co.jp> <20130807151234.GH2978@katana>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130807151234.GH2978@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
+From: Sachin Kamat <sachin.kamat@linaro.org>
+Subject: [PATCH 1/1] Documentation: i2c: Fix example in instantiating-devices
+Date: Thu,  8 Aug 2013 10:55:11 +0530
+Message-ID: <1375939511-7590-1-git-send-email-sachin.kamat@linaro.org>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org
+Cc: wsa@the-dreams.de, rob@landley.net, sachin.kamat@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
-Difference between H2 and H1 in hardware is only CDF bit of ICCCR register.
-So, by using the flag variable in pdata, it is possible to distinguish 
-H2 and H1.
+__initdata should be placed between the variable name and equal
+sign for the variable to be placed in the intended section.
 
-If this method is not a common method, please tell me about common method.
+Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+---
+ Documentation/i2c/instantiating-devices |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-Dung
-On 08/08/2013 12:12 AM, Wolfram Sang wrote:
-> On Mon, Aug 05, 2013 at 04:19:34PM +0900, Nguyen Viet Dung wrote:
->> This patch modify I2C driver of rcar-H1 to usable on both rcar-H1 and rcar-H2.
->>
->> Signed-off-by: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-> Isn't it possible to distinguish between H1 and H2 somewhere in
-> hardware? Then we could skip the 'flags' variable in pdata.
->
-> Thanks,
->
->     Wolfram
+diff --git a/Documentation/i2c/instantiating-devices b/Documentation/i2c/instantiating-devices
+index 2218266..c70e7a7 100644
+--- a/Documentation/i2c/instantiating-devices
++++ b/Documentation/i2c/instantiating-devices
+@@ -19,7 +19,7 @@ i2c_board_info which is registered by calling i2c_register_board_info().
+ 
+ Example (from omap2 h4):
+ 
+-static struct i2c_board_info __initdata h4_i2c_board_info[] = {
++static struct i2c_board_info h4_i2c_board_info[] __initdata = {
+ 	{
+ 		I2C_BOARD_INFO("isp1301_omap", 0x2d),
+ 		.irq		= OMAP_GPIO_IRQ(125),
+-- 
+1.7.9.5
+
