@@ -1,7 +1,7 @@
 From: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH v2 2/2] i2c: pxa: enable high speed mode for i2c bus
-Date: Fri, 9 Aug 2013 10:43:24 +0800
-Message-ID: <1376016204-31328-1-git-send-email-shangll@marvell.com>
+Subject: [PATCH v2 1/2] i2c: pxa: add pxa910 platform for i2c bus
+Date: Fri, 9 Aug 2013 10:43:16 +0800
+Message-ID: <1376016196-31292-1-git-send-email-shangll@marvell.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
@@ -12,178 +12,45 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
-To enter high speed mode, following steps should be done:
-1. When running in high speed mode, i2c clock rate is different
-from standard mode. Clock rate must be set according to
-specification first.
-2. When I2C controller sends a master code and wins arbitration,
-high speed mode is entered.
-
-If you want to enable high speed mode, the following members of
-platform data should be set to proper value:
-1. "high_mode" should be set to "1".
-2. "master_code" should be set to "8'b 0000_1xxx"(x is 0 or 1).
-If no master_code is set, set to default value 0xe.
-3. "rate" should be set according to specification.
+Support pxa910 i2c bus.
 
 Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-pxa.c |   68 +++++++++++++++++++++++++++++++++++++++++-
- include/linux/i2c/pxa-i2c.h  |    3 ++
- 2 files changed, 70 insertions(+), 1 deletions(-)
+ drivers/i2c/busses/i2c-pxa.c |    9 +++++++++
+ 1 files changed, 9 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 3a5c477..da7b9ae 100644
+index ea6d45d..6b84f16 100644
 --- a/drivers/i2c/busses/i2c-pxa.c
 +++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -119,6 +119,8 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
- #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
- #define ICR_UR		(1 << 14)	   /* unit reset */
- #define ICR_FM		(1 << 15)	   /* fast mode */
-+#define ICR_HS		(1 << 16)	   /* High Speed mode */
-+#define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
- 
- #define ISR_RWM		(1 << 0)	   /* read/write mode */
- #define ISR_ACKNAK	(1 << 1)	   /* ack/nak status */
-@@ -164,6 +166,10 @@ struct pxa_i2c {
- 	int			irq;
- 	unsigned int		use_pio :1;
- 	unsigned int		fast_mode :1;
-+	unsigned int		high_mode:1;
-+	unsigned char		master_code;
-+	unsigned long		rate;
-+	bool			highmode_enter;
+@@ -53,6 +53,7 @@ enum pxa_i2c_types {
+ 	REGS_PXA2XX,
+ 	REGS_PXA3XX,
+ 	REGS_CE4100,
++	REGS_PXA910,
  };
  
- #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -468,6 +474,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
- 
- 	/* set control register values */
- 	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
-+	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
- 
- #ifdef CONFIG_I2C_PXA_SLAVE
- 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
-@@ -689,6 +696,34 @@ static int i2c_pxa_pio_set_master(struct pxa_i2c *i2c)
- 	return 0;
- }
- 
-+/*
-+ * PXA I2C send master code
-+ * 1. Load master code to IDBR and send it.
-+ *    Note for HS mode, set ICR [GPIOEN].
-+ * 2. Wait until win arbitration.
-+ */
-+static int i2c_pxa_send_mastercode(struct pxa_i2c *i2c)
-+{
-+	u32 icr;
-+	long timeout;
-+
-+	spin_lock_irq(&i2c->lock);
-+	i2c->highmode_enter = true;
-+	writel(i2c->master_code, _IDBR(i2c));
-+
-+	icr = readl(_ICR(i2c)) & ~(ICR_STOP | ICR_ALDIE);
-+	icr |= ICR_GPIOEN | ICR_START | ICR_TB | ICR_ITEIE;
-+	writel(icr, _ICR(i2c));
-+
-+	spin_unlock_irq(&i2c->lock);
-+	timeout = wait_event_timeout(i2c->wait,
-+			i2c->highmode_enter == false, HZ * 1);
-+
-+	i2c->highmode_enter = false;
-+
-+	return (timeout == 0) ? I2C_RETRY : 0;
-+}
-+
- static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
- 			       struct i2c_msg *msg, int num)
- {
-@@ -752,6 +787,14 @@ static int i2c_pxa_do_xfer(struct pxa_i2c *i2c, struct i2c_msg *msg, int num)
- 		goto out;
- 	}
- 
-+	if (i2c->high_mode) {
-+		ret = i2c_pxa_send_mastercode(i2c);
-+		if (ret) {
-+			dev_err(&i2c->adap.dev, "i2c_pxa_send_mastercode timeout\n");
-+			goto out;
-+			}
-+	}
-+
- 	spin_lock_irq(&i2c->lock);
- 
- 	i2c->msg = msg;
-@@ -999,11 +1042,14 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
- 			i2c_pxa_slave_txempty(i2c, isr);
- 		if (isr & ISR_IRF)
- 			i2c_pxa_slave_rxfull(i2c, isr);
--	} else if (i2c->msg) {
-+	} else if (i2c->msg && (!i2c->highmode_enter)) {
- 		if (isr & ISR_ITE)
- 			i2c_pxa_irq_txempty(i2c, isr);
- 		if (isr & ISR_IRF)
- 			i2c_pxa_irq_rxfull(i2c, isr);
-+	} else if ((isr & ISR_ITE) && i2c->highmode_enter) {
-+		i2c->highmode_enter = false;
-+		wake_up(&i2c->wait);
- 	} else {
- 		i2c_pxa_scream_blue_murder(i2c, "spurious irq");
- 	}
-@@ -1088,6 +1134,11 @@ static int i2c_pxa_probe_pdata(struct platform_device *pdev,
- 	if (plat) {
- 		i2c->use_pio = plat->use_pio;
- 		i2c->fast_mode = plat->fast_mode;
-+		i2c->high_mode = plat->high_mode;
-+		i2c->master_code = plat->master_code;
-+		if (!i2c->master_code)
-+			i2c->master_code = 0xe;
-+		i2c->rate = plat->rate;
- 	}
- 	return 0;
- }
-@@ -1160,6 +1211,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 	i2c->irq = irq;
- 
- 	i2c->slave_addr = I2C_PXA_SLAVE_ADDR;
-+	i2c->highmode_enter = false;
- 
- 	if (plat) {
- #ifdef CONFIG_I2C_PXA_SLAVE
-@@ -1169,6 +1221,20 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 		i2c->adap.class = plat->class;
- 	}
- 
-+	if (i2c->high_mode) {
-+		if (i2c_type != REGS_PXA910) {
-+			pr_warn("i2c: <%s> do not support HS mode\n",
-+				i2c->adap.name);
-+			i2c->high_mode = 0;
-+		} else if (i2c->rate) {
-+			clk_set_rate(i2c->clk, i2c->rate);
-+			pr_info("i2c: <%s> set rate to %ld\n",
-+				i2c->adap.name, clk_get_rate(i2c->clk));
-+		} else
-+			pr_warn("i2c: <%s> clock rate not set\n",
-+				i2c->adap.name);
-+	}
-+
- 	clk_prepare_enable(i2c->clk);
- 
- 	if (i2c->use_pio) {
-diff --git a/include/linux/i2c/pxa-i2c.h b/include/linux/i2c/pxa-i2c.h
-index 1a9f65e..53aab24 100644
---- a/include/linux/i2c/pxa-i2c.h
-+++ b/include/linux/i2c/pxa-i2c.h
-@@ -67,6 +67,9 @@ struct i2c_pxa_platform_data {
- 	unsigned int		class;
- 	unsigned int		use_pio :1;
- 	unsigned int		fast_mode :1;
-+	unsigned int		high_mode:1;
-+	unsigned char		master_code;
-+	unsigned long		rate;
+ /*
+@@ -80,12 +81,20 @@ static struct pxa_reg_layout pxa_reg_layout[] = {
+ 		.isr =	0x04,
+ 		/* no isar register */
+ 	},
++	[REGS_PXA910] = {
++		.ibmr =	0x00,
++		.idbr =	0x08,
++		.icr =	0x10,
++		.isr =	0x18,
++		.isar =	0x20,
++	},
  };
  
- extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
+ static const struct platform_device_id i2c_pxa_id_table[] = {
+ 	{ "pxa2xx-i2c",		REGS_PXA2XX },
+ 	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
+ 	{ "ce4100-i2c",		REGS_CE4100 },
++	{ "pxa910-i2c",		REGS_PXA910 },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
 -- 
 1.7.4.1
