@@ -1,94 +1,189 @@
-From: Jason Cooper <jason@lakedaemon.net>
-Subject: Re: [PATCH 1/3] i2c-mv64xxx: Add I2C Transaction Generator support
-Date: Thu, 8 Aug 2013 13:17:34 -0400
-Message-ID: <20130808171734.GL8204@titan.lakedaemon.net>
-References: <1373898278-4805-1-git-send-email-gregory.clement@free-electrons.com>
- <1373898278-4805-2-git-send-email-gregory.clement@free-electrons.com>
- <20130716080503.GA3125@lukather>
- <5200E684.5080003@free-electrons.com>
- <20130807143546.GD2978@katana>
- <20130807155700.GE19280@titan.lakedaemon.net>
- <5203B97A.8060605@free-electrons.com>
- <20130808164323.GD27325@e106331-lin.cambridge.arm.com>
- <20130808170238.GK8204@titan.lakedaemon.net>
- <20130808170901.GG27325@e106331-lin.cambridge.arm.com>
+From: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v2 2/2] i2c: pxa: enable high speed mode for i2c bus
+Date: Fri, 9 Aug 2013 10:43:24 +0800
+Message-ID: <1376016204-31328-1-git-send-email-shangll@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20130808170901.GG27325@e106331-lin.cambridge.arm.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: Lior Amsalem <alior@marvell.com>, Andrew Lunn <andrew@lunn.ch>, Ike Pan <ike.pan@canonical.com>, Wolfram Sang <wsa@the-dreams.de>, Nadav Haklai <nadavh@marvell.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, David Marlin <dmarlin@redhat.com>, Yehuda Yitschak <yehuday@marvell.com>, Tawfik Bayouk <tawfik@marvell.com>, "dann.frazier@canonical.com" <dann.frazier@canonical.com>, Eran Ben-Avi <benavi@marvell.com>, Ezequiel Garcia <ezequiel.garcia@free-electrons.com>, Leif Lindholm <Leif.Lindholm@arm.com>, Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, "jcm@redhat.com" <jcm@redhat.com>, Gregory CLEMENT <gregory.clement@free-electrons.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, Thomas Petazzoni <thomas.petazzoni@free-electrons.com>, "vanhoof@canonical.com" <vanhoof@canonical.com>, Piotr Ziecik <kosmo@semihalf.c>
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 08, 2013 at 06:09:01PM +0100, Mark Rutland wrote:
-> On Thu, Aug 08, 2013 at 06:02:38PM +0100, Jason Cooper wrote:
-> > On Thu, Aug 08, 2013 at 05:43:23PM +0100, Mark Rutland wrote:
-> > > On Thu, Aug 08, 2013 at 04:30:02PM +0100, Gregory CLEMENT wrote:
-> > > > On 07/08/2013 17:57, Jason Cooper wrote:
-> > > > > On Wed, Aug 07, 2013 at 04:35:46PM +0200, Wolfram Sang wrote:
-> > > > >>
-> > > > >>> But we shouldn't use it alone: we should always use:
-> > > > >>> compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
-> > > > >>>
-> > > > >>> From my point of view using  "marvell,mv78230-i2c" alone is an error.
-> > > > >>>
-> > > > >>> Wolfram what is your opinion on it?
-> > > > >>
-> > > > >> It is not strictly an error, but risky. If you use an older Kernel
-> > > > >> version (or other OS) which only offers "mv64xxx" you will have no
-> > > > >> match. Although the driver theoretically could have basic support for
-> > > > >> all mv64xxx variants skipping all additional features of later IP
-> > > > >> revisions.
-> > > > > 
-> > > > > I agree here.  The driver is advertising what IP blocks it can handle,
-> > > > > so it makes sense to add both strings since it can handle both.
-> > > > 
-> > > > Wolfram,
-> > > > so beside remarks about the compatibility strings. I didn't any other
-> > > > comment since the v3 which was 7 weeks ago.
-> > > > 
-> > > > Does it mean that once I will have added the handle of this string,
-> > > > you will be able to take the series for the 3.12 kernel?
-> > > 
-> > > Please could you also ensure the new string is documented in
-> > > Documentation/devicetree, with a brief description of what it implies
-> > > about the hardware beyond the exiting "marvell,mv64xxx-i2c" string.
-> > 
-> > That was in patch 3/3:
-> > 
-> >   ARM: dts: mvebu: Introduce a new compatible string for mv64xxx-i2c
-> > 
-> > Which I've applied here:
-> > 
-> >   http://git.infradead.org/linux-mvebu.git/commitdiff/e7c4a1e9f937453a32a5119868cac49de098640a
-> > 
-> > And my reasoning for taking it:
-> > 
-> >   http://marc.info/?l=linux-arm-kernel&m=137555145730141&w=2
-> 
-> My bad, I missed that.
+From: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 
-No problem, I know you guys are drinking from a fire hose. :)
+To enter high speed mode, following steps should be done:
+1. When running in high speed mode, i2c clock rate is different
+from standard mode. Clock rate must be set according to
+specification first.
+2. When I2C controller sends a master code and wins arbitration,
+high speed mode is entered.
 
-> > I haven't sent a PR to arm-soc yet (I like to let things gel in -next
-> > for a few days), so if there's something wrong with it, please let me
-> > know.
-> 
-> It looks fine to me. :)
+If you want to enable high speed mode, the following members of
+platform data should be set to proper value:
+1. "high_mode" should be set to "1".
+2. "master_code" should be set to "8'b 0000_1xxx"(x is 0 or 1).
+If no master_code is set, set to default value 0xe.
+3. "rate" should be set according to specification.
 
-Great!
+Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pxa.c |   68 +++++++++++++++++++++++++++++++++++++++++-
+ include/linux/i2c/pxa-i2c.h  |    3 ++
+ 2 files changed, 70 insertions(+), 1 deletions(-)
 
-thx,
-
-Jason.
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 3a5c477..da7b9ae 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -119,6 +119,8 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+ #define ICR_SADIE	(1 << 13)	   /* slave address detected int enable */
+ #define ICR_UR		(1 << 14)	   /* unit reset */
+ #define ICR_FM		(1 << 15)	   /* fast mode */
++#define ICR_HS		(1 << 16)	   /* High Speed mode */
++#define ICR_GPIOEN	(1 << 19)	   /* enable GPIO mode for SCL in HS */
+ 
+ #define ISR_RWM		(1 << 0)	   /* read/write mode */
+ #define ISR_ACKNAK	(1 << 1)	   /* ack/nak status */
+@@ -164,6 +166,10 @@ struct pxa_i2c {
+ 	int			irq;
+ 	unsigned int		use_pio :1;
+ 	unsigned int		fast_mode :1;
++	unsigned int		high_mode:1;
++	unsigned char		master_code;
++	unsigned long		rate;
++	bool			highmode_enter;
+ };
+ 
+ #define _IBMR(i2c)	((i2c)->reg_ibmr)
+@@ -468,6 +474,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+ 
+ 	/* set control register values */
+ 	writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
++	writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
+ 
+ #ifdef CONFIG_I2C_PXA_SLAVE
+ 	dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+@@ -689,6 +696,34 @@ static int i2c_pxa_pio_set_master(struct pxa_i2c *i2c)
+ 	return 0;
+ }
+ 
++/*
++ * PXA I2C send master code
++ * 1. Load master code to IDBR and send it.
++ *    Note for HS mode, set ICR [GPIOEN].
++ * 2. Wait until win arbitration.
++ */
++static int i2c_pxa_send_mastercode(struct pxa_i2c *i2c)
++{
++	u32 icr;
++	long timeout;
++
++	spin_lock_irq(&i2c->lock);
++	i2c->highmode_enter = true;
++	writel(i2c->master_code, _IDBR(i2c));
++
++	icr = readl(_ICR(i2c)) & ~(ICR_STOP | ICR_ALDIE);
++	icr |= ICR_GPIOEN | ICR_START | ICR_TB | ICR_ITEIE;
++	writel(icr, _ICR(i2c));
++
++	spin_unlock_irq(&i2c->lock);
++	timeout = wait_event_timeout(i2c->wait,
++			i2c->highmode_enter == false, HZ * 1);
++
++	i2c->highmode_enter = false;
++
++	return (timeout == 0) ? I2C_RETRY : 0;
++}
++
+ static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
+ 			       struct i2c_msg *msg, int num)
+ {
+@@ -752,6 +787,14 @@ static int i2c_pxa_do_xfer(struct pxa_i2c *i2c, struct i2c_msg *msg, int num)
+ 		goto out;
+ 	}
+ 
++	if (i2c->high_mode) {
++		ret = i2c_pxa_send_mastercode(i2c);
++		if (ret) {
++			dev_err(&i2c->adap.dev, "i2c_pxa_send_mastercode timeout\n");
++			goto out;
++			}
++	}
++
+ 	spin_lock_irq(&i2c->lock);
+ 
+ 	i2c->msg = msg;
+@@ -999,11 +1042,14 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
+ 			i2c_pxa_slave_txempty(i2c, isr);
+ 		if (isr & ISR_IRF)
+ 			i2c_pxa_slave_rxfull(i2c, isr);
+-	} else if (i2c->msg) {
++	} else if (i2c->msg && (!i2c->highmode_enter)) {
+ 		if (isr & ISR_ITE)
+ 			i2c_pxa_irq_txempty(i2c, isr);
+ 		if (isr & ISR_IRF)
+ 			i2c_pxa_irq_rxfull(i2c, isr);
++	} else if ((isr & ISR_ITE) && i2c->highmode_enter) {
++		i2c->highmode_enter = false;
++		wake_up(&i2c->wait);
+ 	} else {
+ 		i2c_pxa_scream_blue_murder(i2c, "spurious irq");
+ 	}
+@@ -1088,6 +1134,11 @@ static int i2c_pxa_probe_pdata(struct platform_device *pdev,
+ 	if (plat) {
+ 		i2c->use_pio = plat->use_pio;
+ 		i2c->fast_mode = plat->fast_mode;
++		i2c->high_mode = plat->high_mode;
++		i2c->master_code = plat->master_code;
++		if (!i2c->master_code)
++			i2c->master_code = 0xe;
++		i2c->rate = plat->rate;
+ 	}
+ 	return 0;
+ }
+@@ -1160,6 +1211,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 	i2c->irq = irq;
+ 
+ 	i2c->slave_addr = I2C_PXA_SLAVE_ADDR;
++	i2c->highmode_enter = false;
+ 
+ 	if (plat) {
+ #ifdef CONFIG_I2C_PXA_SLAVE
+@@ -1169,6 +1221,20 @@ static int i2c_pxa_probe(struct platform_device *dev)
+ 		i2c->adap.class = plat->class;
+ 	}
+ 
++	if (i2c->high_mode) {
++		if (i2c_type != REGS_PXA910) {
++			pr_warn("i2c: <%s> do not support HS mode\n",
++				i2c->adap.name);
++			i2c->high_mode = 0;
++		} else if (i2c->rate) {
++			clk_set_rate(i2c->clk, i2c->rate);
++			pr_info("i2c: <%s> set rate to %ld\n",
++				i2c->adap.name, clk_get_rate(i2c->clk));
++		} else
++			pr_warn("i2c: <%s> clock rate not set\n",
++				i2c->adap.name);
++	}
++
+ 	clk_prepare_enable(i2c->clk);
+ 
+ 	if (i2c->use_pio) {
+diff --git a/include/linux/i2c/pxa-i2c.h b/include/linux/i2c/pxa-i2c.h
+index 1a9f65e..53aab24 100644
+--- a/include/linux/i2c/pxa-i2c.h
++++ b/include/linux/i2c/pxa-i2c.h
+@@ -67,6 +67,9 @@ struct i2c_pxa_platform_data {
+ 	unsigned int		class;
+ 	unsigned int		use_pio :1;
+ 	unsigned int		fast_mode :1;
++	unsigned int		high_mode:1;
++	unsigned char		master_code;
++	unsigned long		rate;
+ };
+ 
+ extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
+-- 
+1.7.4.1
