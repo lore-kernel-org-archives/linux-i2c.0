@@ -1,49 +1,75 @@
-From: "Shilimkar, Santosh" <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Subject: RE: [PATCH 0/2] i2c: davinci: Couple of patches to make i2c usable
- on Keystone SOCs
-Date: Mon, 12 Aug 2013 00:26:49 +0000
-Message-ID: <448912EABC71F84BBCADFD3C67C4BE5285C5D1@DBDE04.ent.ti.com>
-References: <1374712099-32095-1-git-send-email-santosh.shilimkar@ti.com>
- <52054C7E.70108@ti.com>,<20130811095337.GA3796@the-dreams.de>
+From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
+Date: Mon, 12 Aug 2013 09:48:00 +0200
+Message-ID: <20130812074800.GA23792@ab42.lan>
+References: <20130711101330.GP4898@intel.com>
+ <51DFB6C1.4040001@pobox.com>
+ <20130712085140.GY4898@intel.com>
+ <51E0E76B.1040304@pobox.com>
+ <20130716111616.GA25835@ab42.lan>
+ <51E6ACBE.7000509@pobox.com>
+ <20130722131706.GA24081@ab42.lan>
+ <51EFE550.1000507@pobox.com>
+ <20130805093126.GE20936@ab42.lan>
+ <20130805100225.GA9694@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="HlL+5n6rz5pIUxbD"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130811095337.GA3796-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20130805100225.GA9694@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Cc: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-(Sorry for top posting ..)
 
-No dependency so feel free to pick and merge them appropriately.
+--HlL+5n6rz5pIUxbD
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
-Santosh
-________________________________________
-From: Wolfram Sang [wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
-Sent: Sunday, August 11, 2013 5:53 AM
-To: Shilimkar, Santosh
-Cc: Nori, Sekhar; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-Subject: Re: [PATCH 0/2] i2c: davinci: Couple of patches to make i2c usable on Keystone SOCs
+On Mon, Aug 05, 2013 at 12:02:26PM +0200, Wolfram Sang wrote:
+>=20
+> > > >Would it make sense to add generic I2C device tree properties for th=
+ose
+> > > >parameters? These parameters are independent of the actual bus drive=
+r,
+> > > >rather a PCB property... And as such the correct place would be devi=
+ce
+> > > >tree or ACPI or similar.
+> > >=20
+> > > If there are other bus drivers that make use of tr/tf transition
+> > > times, I think it makes sense.
+> >=20
+> > Wolfram, what's your opinion on this?
+>=20
+> If it is a PCB property, it makes sense to have generic bindings for
+> it. Can they have very-safe defaults and thus be optional?
 
-On Fri, Aug 09, 2013 at 04:09:34PM -0400, Santosh Shilimkar wrote:
-> Wolfram, Sekhar,
->
-> On Wednesday 24 July 2013 08:28 PM, Santosh Shilimkar wrote:
-> > Keystone SOCs uses the same I2C IP as available on DaVinci SOCs. These
-> > couple of patches makes it possible to select the I2C_DAVINCI on
-> > Keystone SOCs.
-> >
-> > Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> > Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> >
-> > Santosh Shilimkar (2):
-> >   i2c: davinci: remove useless mach/hardware include
-> >   i2c: davinci: Allow i2c driver available for keystone platforms
-> >
-> Who is queuing up these patches ?
+We can definitely have safe defaults that work for a given
+driver/hardware. I don't think the same defaults would be safe for all
+drivers/hardware: The timing strategies of different I2C hardware seems
+to vary widely (which edges of the clock are sampled, how does different
+hardware deal with hold times etc) and depending on which parameters are
+available to the driver to control these timings, the safe values would
+either have to be the minimum or the maximum in the range allowed by the
+I2C specification.
+Every driver would thus have to implement its own defaults in case the
+properties are not defined.
 
-I can pick them. Do they depend on something?
+  Christian
+
+--HlL+5n6rz5pIUxbD
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.14 (GNU/Linux)
+
+iEYEARECAAYFAlIIkzAACgkQbI8SbDT4m4/F5gCgqWnchQJiBmeIDuhHZ8TL6RPB
+K0QAnjR/hDxVcDa3oJ95d1XkmSk4SHpC
+=kkYe
+-----END PGP SIGNATURE-----
+
+--HlL+5n6rz5pIUxbD--
