@@ -1,30 +1,72 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
-Date: Mon, 12 Aug 2013 13:09:54 +0200
-Message-ID: <20130812110954.GA3776@the-dreams.de>
-References: <51DFB6C1.4040001@pobox.com>
- <20130712085140.GY4898@intel.com>
- <51E0E76B.1040304@pobox.com>
- <20130716111616.GA25835@ab42.lan>
- <51E6ACBE.7000509@pobox.com>
- <20130722131706.GA24081@ab42.lan>
- <51EFE550.1000507@pobox.com>
- <20130805093126.GE20936@ab42.lan>
- <20130805100225.GA9694@katana>
- <20130812074800.GA23792@ab42.lan>
+From: Lu Jingchang-B35083 <B35083@freescale.com>
+Subject: =?gb2312?B?tPC4tDogW1BBVENIIHYzIDIvMl0gaTJjOiBpbXg6IEFkZCBWeWJyaWQgVkY2?=
+ =?gb2312?Q?10_I2C_controller_support?=
+Date: Mon, 12 Aug 2013 12:56:07 +0000
+Message-ID: <B56CDBE15CE27145A4B77D2D24263E851FE7AC@039-SN1MPN1-004.039d.mgd.msft.net>
+References: <1375418648-22760-1-git-send-email-b35083@freescale.com>
+ <1375418648-22760-2-git-send-email-b35083@freescale.com>,
+ <20130810140827.GC18085@e106331-lin.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130812074800.GA23792-7oYq3qWSd+k@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>, mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+In-Reply-To: <20130810140827.GC18085@e106331-lin.cambridge.arm.com>
+Content-Language: zh-CN
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Mark Rutland <mark.rutland@arm.com>
+Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, Li Xiaochun-B41219 <B41219@freescale.com>, Estevam Fabio-R49496 <r49496@freescale.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jin Zhengxiong-R64188 <R64188@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> Every driver would thus have to implement its own defaults in case the
-> properties are not defined.
-
-Placing the defaults at driver level sounds fine to me.
-
-Thanks!
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPreivP7IyzogTWFyayBS
+dXRsYW5kIFttYXJrLnJ1dGxhbmRAYXJtLmNvbV0KPreiy83KsbzkOiAyMDEzxOo41MIxMMjVIDIy
+OjA4Cj7K1bz+yMs6IEx1IEppbmdjaGFuZy1CMzUwODMKPrOty806IHdzYUB0aGUtZHJlYW1zLmRl
+OyBFc3RldmFtIEZhYmlvLVI0OTQ5NjsgTGkgWGlhb2NodW4tQjQxMjE5OyBzLmhhdWVyQHBlbmd1
+dHJvbml4LmRlOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBKaW4gWmhlbmd4aW9uZy1SNjQx
+ODg7IHNoYXduLmd1b0BsaW5hcm8ub3JnOyBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVh
+ZC5vcmcKPtb3zOI6IFJlOiBbUEFUQ0ggdjMgMi8yXSBpMmM6IGlteDogQWRkIFZ5YnJpZCBWRjYx
+MCBJMkMgY29udHJvbGxlciBzdXBwb3J0Cgo+T24gRnJpLCBBdWcgMDIsIDIwMTMgYXQgMDU6NDQ6
+MDhBTSArMDEwMCwgSmluZ2NoYW5nIEx1IHdyb3RlOgo+PiAgIEFkZCBGcmVlc2NhbGUgVnlicmlk
+IFZGNjEwIEkyQyBjb250cm9sbGVyIHN1cHBvcnQgdG8KPj4gaW14IEkyQyBkcml2ZXIgZnJhbWV3
+b3JrLgo+PiAgIFNvbWUgb3BlcmF0aW9uIGlzIGRpZmZlcmVudCBmcm9tIGlteCBJMkMgY29udHJv
+bGxlci4KPj4gVGhlIHJlZ2lzdGVyIG9mZnNldCwgdGhlIGkyYyBjbG9jayBkaXZpZGVyIHZhbHVl
+IHRhYmxlLAo+PiB0aGUgbW9kdWxlIGVuYWJsaW5nKEkyQ1JfSUVOKSB3aGljaCBpcyBqdXN0IGlu
+dmVydCB3aXRoIGlteCwKPj4gYW5kIHRoZSBpbnRlcnJ1cHQgZmxhZyhJMlNSKSBjbGVhcmluZyBv
+cGNvZGUgaXMgdzFjIG9uIFZGNjEwCj4+IGJ1dCB3MGMgb24gaW14Lgo+Pgo+PiBTaWduZWQtb2Zm
+LWJ5OiBKYXNvbiBKaW4gPEphc29uLmppbkBmcmVlc2NhbGUuY29tPgo+PiBTaWduZWQtb2ZmLWJ5
+OiBYaWFvY2h1biBMaSA8YjQxMjE5QGZyZWVzY2FsZS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IEpp
+bmdjaGFuZyBMdSA8YjM1MDgzQGZyZWVzY2FsZS5jb20+Cj4+IC0tLQo+PiBjaGFuZ2VzIGluIHYz
+Ogo+PiAgIFVzaW5nIHN0cnVjdCBuYW1pbmcgdGhlIGkyYyBjbG9jayB7ZGl2LCByZWd2YWx9IHBh
+aXIuCj4+ICBVc2luZyBhZGRyZXNzIHNoaWZ0IGhhbmRsaW5nIHJlZ2lzdGVycyBhZGRyZXNzIGRp
+ZmZlcmVuY2UuCj4+Cj4+IGNoYW5nZXMgaW4gdjI6Cj4+ICAgRml4IGJ1aWxkaW5nIHNlY3Rpb24g
+bWlzbWF0Y2goZXMpIHdhcm5pbmcuCj4+Cj4+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5j
+IHwgMTQ2ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPj4gIDEg
+ZmlsZSBjaGFuZ2VkLCAxMjIgaW5zZXJ0aW9ucygrKSwgMjQgZGVsZXRpb25zKC0pCgo+Wy4uLl0K
+Cj4+IEBAIC0xNDUsNiArMjMzLDcgQEAgTU9EVUxFX0RFVklDRV9UQUJMRShwbGF0Zm9ybSwgaW14
+X2kyY19kZXZ0eXBlKTsKPj4gIHN0YXRpYyBjb25zdCBzdHJ1Y3Qgb2ZfZGV2aWNlX2lkIGkyY19p
+bXhfZHRfaWRzW10gPSB7Cj4+ICAgICAgICAgeyAuY29tcGF0aWJsZSA9ICJmc2wsaW14MS1pMmMi
+LCAuZGF0YSA9ICZpbXhfaTJjX2RldnR5cGVbSU1YMV9JMkNdLCB9LAo+PiAgICAgICAgIHsgLmNv
+bXBhdGlibGUgPSAiZnNsLGlteDIxLWkyYyIsIC5kYXRhID0gJmlteF9pMmNfZGV2dHlwZVtJTVgy
+MV9JMkNdLCB9LAo+PiArICAgICAgIHsgLmNvbXBhdGlibGUgPSAiZnNsLHZmNjEwLWkyYyIsIC5k
+YXRhID0gJmlteF9pMmNfZGV2dHlwZVtWRjYxMF9JMkNdLCB9LAo+PiAgICAgICAgIHsgLyogc2Vu
+dGluZWwgKi8gfQo+PiAgfTsKCgo+VGhhdCBzdHJpbmcgZG9lc24ndCBzZWVtIHRvIGJlIGRvY3Vt
+ZW50ZWQgYW55d2hlcmUgKGZyb20gYSBxdWljayBncmVwIG9mCj5Eb2N1bWVudGF0aW9uL2Rldmlj
+ZXRyZWUpLCBhbmQgdGhlcmUncyBubyBiaW5kaW5nIHVwZGF0ZSBpbmNsdWRlZAo+aGVyZS4gSXQg
+d291bGQgYmUgbmljZSBmb3IgdGhhdCB0byBiZSBmaXhlZCA6KQpbTHUgSmluZ2NoYW5nXQpUaGUg
+YmluZGluZyBzdHJpbmcgZm9yIGkyYy1pbXggZHJpdmVyIGluIERvY3VtZW50YXRpb24vZGV2aWNl
+dHJlZS9iaW5kaW5ncy9pMmMvaTJjLWlteC50eHQgdXNlIGEgd2lsZGNhcmQgZm9ybWF0Cm9mICIt
+IGNvbXBhdGlibGUgOiBTaG91bGQgYmUgImZzbCw8Y2hpcD4taTJjIiAiIGZvciBkZXZpY2UgdXNp
+bmcgdGhpcyBkcml2ZXIuIE5laXRoZXIgZnNsLGlteDEtaTJjIG5vciBmc2wsaW14MjEtaTJjCmlz
+IGRlc2NyaWJlZCBpbiB0aGUgYmluZGluZyBkb2N1bWVudC4gU28gSSBqdXN0IGxlYXZlIHRoZSB2
+ZjYxMCBpMmMgY29tcGF0aWJsZSB3aXRoIHRoaXMuIApUaGFua3MuCgoKQmVzdCBSZWdhcmRzLApK
+aW5nY2hhbmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+CmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5m
+cmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xp
+bnV4LWFybS1rZXJuZWwK
