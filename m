@@ -1,48 +1,49 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.11
-Date: Sun, 11 Aug 2013 11:55:25 +0200
-Message-ID: <20130811095525.GA7926@the-dreams.de>
+From: "Shilimkar, Santosh" <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Subject: RE: [PATCH 0/2] i2c: davinci: Couple of patches to make i2c usable
+ on Keystone SOCs
+Date: Mon, 12 Aug 2013 00:26:49 +0000
+Message-ID: <448912EABC71F84BBCADFD3C67C4BE5285C5D1@DBDE04.ent.ti.com>
+References: <1374712099-32095-1-git-send-email-santosh.shilimkar@ti.com>
+ <52054C7E.70108@ti.com>,<20130811095337.GA3796@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <20130811095337.GA3796-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Language: en-US
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: "Nori, Sekhar" <nsekhar-l0cyMroinI0@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Linus,
+(Sorry for top posting ..)
 
-here are some driver bugfixes for the I2C subsystem. Please pull.
+No dependency so feel free to pick and merge them appropriately.
 
-Thanks,
+Regards,
+Santosh
+________________________________________
+From: Wolfram Sang [wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org]
+Sent: Sunday, August 11, 2013 5:53 AM
+To: Shilimkar, Santosh
+Cc: Nori, Sekhar; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Subject: Re: [PATCH 0/2] i2c: davinci: Couple of patches to make i2c usable on Keystone SOCs
 
-   Wolfram
+On Fri, Aug 09, 2013 at 04:09:34PM -0400, Santosh Shilimkar wrote:
+> Wolfram, Sekhar,
+>
+> On Wednesday 24 July 2013 08:28 PM, Santosh Shilimkar wrote:
+> > Keystone SOCs uses the same I2C IP as available on DaVinci SOCs. These
+> > couple of patches makes it possible to select the I2C_DAVINCI on
+> > Keystone SOCs.
+> >
+> > Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+> > Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> >
+> > Santosh Shilimkar (2):
+> >   i2c: davinci: remove useless mach/hardware include
+> >   i2c: davinci: Allow i2c driver available for keystone platforms
+> >
+> Who is queuing up these patches ?
 
-
-The following changes since commit c095ba7224d8edc71dcef0d655911399a8bd4a3f:
-
-  Linux 3.11-rc4 (2013-08-04 13:46:46 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to f480adaf1b7130ad43760f627b762f771fcfc5f5:
-
-  i2c: mv64xxx: Document the newly introduced allwinner compatible (2013-08-07 16:57:53 +0200)
-
-----------------------------------------------------------------
-Fabio Estevam (1):
-      i2c: i2c-mxs: Use DMA mode even for small transfers
-
-Maxime Ripard (1):
-      i2c: mv64xxx: Document the newly introduced allwinner compatible
-
-Michael Brunner (1):
-      i2c: Fix Kontron PLD prescaler calculation
-
- Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt |    2 +-
- drivers/i2c/busses/i2c-kempld.c                       |    4 ++--
- drivers/i2c/busses/i2c-mxs.c                          |    2 +-
- 3 files changed, 4 insertions(+), 4 deletions(-)
+I can pick them. Do they depend on something?
