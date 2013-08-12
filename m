@@ -1,72 +1,100 @@
-From: Lu Jingchang-B35083 <B35083@freescale.com>
-Subject: =?gb2312?B?tPC4tDogW1BBVENIIHYzIDIvMl0gaTJjOiBpbXg6IEFkZCBWeWJyaWQgVkY2?=
- =?gb2312?Q?10_I2C_controller_support?=
-Date: Mon, 12 Aug 2013 12:56:07 +0000
-Message-ID: <B56CDBE15CE27145A4B77D2D24263E851FE7AC@039-SN1MPN1-004.039d.mgd.msft.net>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: =?utf-8?B?562U5aSNOiBbUEFUQw==?=
+	=?utf-8?Q?H?= v3 2/2] i2c: imx: Add Vybrid VF610 I2C controller
+ support
+Date: Mon, 12 Aug 2013 17:43:54 +0100
+Message-ID: <20130812164354.GF27165@e106331-lin.cambridge.arm.com>
 References: <1375418648-22760-1-git-send-email-b35083@freescale.com>
- <1375418648-22760-2-git-send-email-b35083@freescale.com>,
+ <1375418648-22760-2-git-send-email-b35083@freescale.com>
  <20130810140827.GC18085@e106331-lin.cambridge.arm.com>
+ <B56CDBE15CE27145A4B77D2D24263E851FE7AC@039-SN1MPN1-004.039d.mgd.msft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="gb2312"
-Content-Transfer-Encoding: base64
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <20130810140827.GC18085@e106331-lin.cambridge.arm.com>
-Content-Language: zh-CN
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Mark Rutland <mark.rutland@arm.com>
-Cc: "wsa@the-dreams.de" <wsa@the-dreams.de>, Li Xiaochun-B41219 <B41219@freescale.com>, Estevam Fabio-R49496 <r49496@freescale.com>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Jin Zhengxiong-R64188 <R64188@freescale.com>, "shawn.guo@linaro.org" <shawn.guo@linaro.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <B56CDBE15CE27145A4B77D2D24263E851FE7AC-TcFNo7jSaXM0vywKSws3iq4g8xLGJsHaLnY5E4hWTkheoWH0uzbU5w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Lu Jingchang-B35083 <B35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: "wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org" <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Estevam Fabio-R49496 <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Li Xiaochun-B41219 <B41219-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org" <s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jin Zhengxiong-R64188 <R64188-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, "shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, pawel.moll-5wv7dgnIgG8@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, tomasz.figa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPreivP7IyzogTWFyayBS
-dXRsYW5kIFttYXJrLnJ1dGxhbmRAYXJtLmNvbV0KPreiy83KsbzkOiAyMDEzxOo41MIxMMjVIDIy
-OjA4Cj7K1bz+yMs6IEx1IEppbmdjaGFuZy1CMzUwODMKPrOty806IHdzYUB0aGUtZHJlYW1zLmRl
-OyBFc3RldmFtIEZhYmlvLVI0OTQ5NjsgTGkgWGlhb2NodW4tQjQxMjE5OyBzLmhhdWVyQHBlbmd1
-dHJvbml4LmRlOyBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnOyBKaW4gWmhlbmd4aW9uZy1SNjQx
-ODg7IHNoYXduLmd1b0BsaW5hcm8ub3JnOyBsaW51eC1hcm0ta2VybmVsQGxpc3RzLmluZnJhZGVh
-ZC5vcmcKPtb3zOI6IFJlOiBbUEFUQ0ggdjMgMi8yXSBpMmM6IGlteDogQWRkIFZ5YnJpZCBWRjYx
-MCBJMkMgY29udHJvbGxlciBzdXBwb3J0Cgo+T24gRnJpLCBBdWcgMDIsIDIwMTMgYXQgMDU6NDQ6
-MDhBTSArMDEwMCwgSmluZ2NoYW5nIEx1IHdyb3RlOgo+PiAgIEFkZCBGcmVlc2NhbGUgVnlicmlk
-IFZGNjEwIEkyQyBjb250cm9sbGVyIHN1cHBvcnQgdG8KPj4gaW14IEkyQyBkcml2ZXIgZnJhbWV3
-b3JrLgo+PiAgIFNvbWUgb3BlcmF0aW9uIGlzIGRpZmZlcmVudCBmcm9tIGlteCBJMkMgY29udHJv
-bGxlci4KPj4gVGhlIHJlZ2lzdGVyIG9mZnNldCwgdGhlIGkyYyBjbG9jayBkaXZpZGVyIHZhbHVl
-IHRhYmxlLAo+PiB0aGUgbW9kdWxlIGVuYWJsaW5nKEkyQ1JfSUVOKSB3aGljaCBpcyBqdXN0IGlu
-dmVydCB3aXRoIGlteCwKPj4gYW5kIHRoZSBpbnRlcnJ1cHQgZmxhZyhJMlNSKSBjbGVhcmluZyBv
-cGNvZGUgaXMgdzFjIG9uIFZGNjEwCj4+IGJ1dCB3MGMgb24gaW14Lgo+Pgo+PiBTaWduZWQtb2Zm
-LWJ5OiBKYXNvbiBKaW4gPEphc29uLmppbkBmcmVlc2NhbGUuY29tPgo+PiBTaWduZWQtb2ZmLWJ5
-OiBYaWFvY2h1biBMaSA8YjQxMjE5QGZyZWVzY2FsZS5jb20+Cj4+IFNpZ25lZC1vZmYtYnk6IEpp
-bmdjaGFuZyBMdSA8YjM1MDgzQGZyZWVzY2FsZS5jb20+Cj4+IC0tLQo+PiBjaGFuZ2VzIGluIHYz
-Ogo+PiAgIFVzaW5nIHN0cnVjdCBuYW1pbmcgdGhlIGkyYyBjbG9jayB7ZGl2LCByZWd2YWx9IHBh
-aXIuCj4+ICBVc2luZyBhZGRyZXNzIHNoaWZ0IGhhbmRsaW5nIHJlZ2lzdGVycyBhZGRyZXNzIGRp
-ZmZlcmVuY2UuCj4+Cj4+IGNoYW5nZXMgaW4gdjI6Cj4+ICAgRml4IGJ1aWxkaW5nIHNlY3Rpb24g
-bWlzbWF0Y2goZXMpIHdhcm5pbmcuCj4+Cj4+ICBkcml2ZXJzL2kyYy9idXNzZXMvaTJjLWlteC5j
-IHwgMTQ2ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPj4gIDEg
-ZmlsZSBjaGFuZ2VkLCAxMjIgaW5zZXJ0aW9ucygrKSwgMjQgZGVsZXRpb25zKC0pCgo+Wy4uLl0K
-Cj4+IEBAIC0xNDUsNiArMjMzLDcgQEAgTU9EVUxFX0RFVklDRV9UQUJMRShwbGF0Zm9ybSwgaW14
-X2kyY19kZXZ0eXBlKTsKPj4gIHN0YXRpYyBjb25zdCBzdHJ1Y3Qgb2ZfZGV2aWNlX2lkIGkyY19p
-bXhfZHRfaWRzW10gPSB7Cj4+ICAgICAgICAgeyAuY29tcGF0aWJsZSA9ICJmc2wsaW14MS1pMmMi
-LCAuZGF0YSA9ICZpbXhfaTJjX2RldnR5cGVbSU1YMV9JMkNdLCB9LAo+PiAgICAgICAgIHsgLmNv
-bXBhdGlibGUgPSAiZnNsLGlteDIxLWkyYyIsIC5kYXRhID0gJmlteF9pMmNfZGV2dHlwZVtJTVgy
-MV9JMkNdLCB9LAo+PiArICAgICAgIHsgLmNvbXBhdGlibGUgPSAiZnNsLHZmNjEwLWkyYyIsIC5k
-YXRhID0gJmlteF9pMmNfZGV2dHlwZVtWRjYxMF9JMkNdLCB9LAo+PiAgICAgICAgIHsgLyogc2Vu
-dGluZWwgKi8gfQo+PiAgfTsKCgo+VGhhdCBzdHJpbmcgZG9lc24ndCBzZWVtIHRvIGJlIGRvY3Vt
-ZW50ZWQgYW55d2hlcmUgKGZyb20gYSBxdWljayBncmVwIG9mCj5Eb2N1bWVudGF0aW9uL2Rldmlj
-ZXRyZWUpLCBhbmQgdGhlcmUncyBubyBiaW5kaW5nIHVwZGF0ZSBpbmNsdWRlZAo+aGVyZS4gSXQg
-d291bGQgYmUgbmljZSBmb3IgdGhhdCB0byBiZSBmaXhlZCA6KQpbTHUgSmluZ2NoYW5nXQpUaGUg
-YmluZGluZyBzdHJpbmcgZm9yIGkyYy1pbXggZHJpdmVyIGluIERvY3VtZW50YXRpb24vZGV2aWNl
-dHJlZS9iaW5kaW5ncy9pMmMvaTJjLWlteC50eHQgdXNlIGEgd2lsZGNhcmQgZm9ybWF0Cm9mICIt
-IGNvbXBhdGlibGUgOiBTaG91bGQgYmUgImZzbCw8Y2hpcD4taTJjIiAiIGZvciBkZXZpY2UgdXNp
-bmcgdGhpcyBkcml2ZXIuIE5laXRoZXIgZnNsLGlteDEtaTJjIG5vciBmc2wsaW14MjEtaTJjCmlz
-IGRlc2NyaWJlZCBpbiB0aGUgYmluZGluZyBkb2N1bWVudC4gU28gSSBqdXN0IGxlYXZlIHRoZSB2
-ZjYxMCBpMmMgY29tcGF0aWJsZSB3aXRoIHRoaXMuIApUaGFua3MuCgoKQmVzdCBSZWdhcmRzLApK
-aW5nY2hhbmcKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-CmxpbnV4LWFybS1rZXJuZWwgbWFpbGluZyBsaXN0CmxpbnV4LWFybS1rZXJuZWxAbGlzdHMuaW5m
-cmFkZWFkLm9yZwpodHRwOi8vbGlzdHMuaW5mcmFkZWFkLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2xp
-bnV4LWFybS1rZXJuZWwK
+[Adding other devicetree maintainers to Cc]
+
+On Mon, Aug 12, 2013 at 01:56:07PM +0100, Lu Jingchang-B35083 wrote:
+>=20
+> ________________________________________
+> >=E5=8F=91=E4=BB=B6=E4=BA=BA: Mark Rutland [mark.rutland-5wv7dgnIgG8@public.gmane.org]
+> >=E5=8F=91=E9=80=81=E6=97=B6=E9=97=B4: 2013=E5=B9=B48=E6=9C=8810=E6=97=
+=A5 22:08
+> >=E6=94=B6=E4=BB=B6=E4=BA=BA: Lu Jingchang-B35083
+> >=E6=8A=84=E9=80=81: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org; Estevam Fabio-R49496; Li Xiao=
+chun-B41219; s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org; linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; Jin Zhe=
+ngxiong-R64188; shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; linux-arm-kernel-IAPFreCvJWM7uuMidbF8XQ@public.gmane.org=
+org
+> >=E4=B8=BB=E9=A2=98: Re: [PATCH v3 2/2] i2c: imx: Add Vybrid VF610 I2=
+C controller support
+>=20
+> >On Fri, Aug 02, 2013 at 05:44:08AM +0100, Jingchang Lu wrote:
+> >>   Add Freescale Vybrid VF610 I2C controller support to
+> >> imx I2C driver framework.
+> >>   Some operation is different from imx I2C controller.
+> >> The register offset, the i2c clock divider value table,
+> >> the module enabling(I2CR_IEN) which is just invert with imx,
+> >> and the interrupt flag(I2SR) clearing opcode is w1c on VF610
+> >> but w0c on imx.
+> >>
+> >> Signed-off-by: Jason Jin <Jason.jin-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> >> Signed-off-by: Xiaochun Li <b41219-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> >> Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> >> ---
+> >> changes in v3:
+> >>   Using struct naming the i2c clock {div, regval} pair.
+> >>  Using address shift handling registers address difference.
+> >>
+> >> changes in v2:
+> >>   Fix building section mismatch(es) warning.
+> >>
+> >>  drivers/i2c/busses/i2c-imx.c | 146 ++++++++++++++++++++++++++++++=
+++++++-------
+> >>  1 file changed, 122 insertions(+), 24 deletions(-)
+>=20
+> >[...]
+>=20
+> >> @@ -145,6 +233,7 @@ MODULE_DEVICE_TABLE(platform, imx_i2c_devtype)=
+;
+> >>  static const struct of_device_id i2c_imx_dt_ids[] =3D {
+> >>         { .compatible =3D "fsl,imx1-i2c", .data =3D &imx_i2c_devty=
+pe[IMX1_I2C], },
+> >>         { .compatible =3D "fsl,imx21-i2c", .data =3D &imx_i2c_devt=
+ype[IMX21_I2C], },
+> >> +       { .compatible =3D "fsl,vf610-i2c", .data =3D &imx_i2c_devt=
+ype[VF610_I2C], },
+> >>         { /* sentinel */ }
+> >>  };
+>=20
+>=20
+> >That string doesn't seem to be documented anywhere (from a quick gre=
+p of
+> >Documentation/devicetree), and there's no binding update included
+> >here. It would be nice for that to be fixed :)
+> [Lu Jingchang]
+> The binding string for i2c-imx driver in Documentation/devicetree/bin=
+dings/i2c/i2c-imx.txt use a wildcard format
+> of "- compatible : Should be "fsl,<chip>-i2c" " for device using this=
+ driver. Neither fsl,imx1-i2c nor fsl,imx21-i2c
+> is described in the binding document. So I just leave the vf610 i2c c=
+ompatible with this.=20
+
+I'm not a big fan on wildcards in bindings, as it leaves people free to
+put anything in and claim it's a documented binding, and makes it far
+harder for an os to actually implement drivers for said binding, as
+there's no canonical reference for the set of valid variations.
+
+Obviously there is some precedent, but I'm not sure it's something we
+want to stick with, and we can prevent it my updating the documentation
+now.
+
+Does anyone else have an opinion?
+
+Mark.
