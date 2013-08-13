@@ -1,7 +1,7 @@
 From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/5] i2c: sirf: we need to wait I2C_RESET status in resume
-Date: Tue, 13 Aug 2013 17:11:28 +0800
-Message-ID: <1376385091-30597-3-git-send-email-Baohua.Song@csr.com>
+Subject: [PATCH 3/5] i2c: sirf: fix the typo for setting bitrate to less than 100k
+Date: Tue, 13 Aug 2013 17:11:29 +0800
+Message-ID: <1376385091-30597-4-git-send-email-Baohua.Song@csr.com>
 References: <1376385091-30597-1-git-send-email-Baohua.Song@csr.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <1376385091-30597-1-git-send-email-Baohua.Song-kQvG35nSl+M@public.gmane.org>
@@ -12,26 +12,27 @@ List-Id: linux-i2c@vger.kernel.org
 
 From: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
 
-this fixes the issue that we lost to wait the i2c reset finished.
+there is a typo before, it makes the final bitrate wrong, this patch fixes
+it.
 
 Signed-off-by: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
 Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-sirf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-sirf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-sirf.c b/drivers/i2c/busses/i2c-sirf.c
-index 055210e..45a8881 100644
+index 45a8881..746388f 100644
 --- a/drivers/i2c/busses/i2c-sirf.c
 +++ b/drivers/i2c/busses/i2c-sirf.c
-@@ -425,6 +425,8 @@ static int i2c_sirfsoc_resume(struct device *dev)
+@@ -357,7 +357,7 @@ static int i2c_sirfsoc_probe(struct platform_device *pdev)
  
- 	clk_enable(siic->clk);
- 	writel(SIRFSOC_I2C_RESET, siic->base + SIRFSOC_I2C_CTRL);
-+	while (readl(siic->base + SIRFSOC_I2C_CTRL) & SIRFSOC_I2C_RESET)
-+		cpu_relax();
- 	writel(SIRFSOC_I2C_CORE_EN | SIRFSOC_I2C_MASTER_MODE,
- 		siic->base + SIRFSOC_I2C_CTRL);
- 	writel(siic->clk_div, siic->base + SIRFSOC_I2C_CLK_CTRL);
+ 	if (bitrate < 100000)
+ 		regval =
+-			(2 * ctrl_speed) / (2 * bitrate * 11);
++			(2 * ctrl_speed) / (bitrate * 11);
+ 	else
+ 		regval = ctrl_speed / (bitrate * 5);
+ 
 -- 
 1.8.2.3
