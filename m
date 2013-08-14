@@ -1,42 +1,54 @@
-From: Shawn Guo <shawn.guo@linaro.org>
-Subject: Re: =?utf-8?B?562U5aSNOiBbUEFUQw==?= =?utf-8?Q?H?= v3 2/2] i2c: imx:
- Add Vybrid VF610 I2C controller support
-Date: Wed, 14 Aug 2013 11:29:21 +0800
-Message-ID: <20130814032812.GB16915@S2101-09.ap.freescale.net>
-References: <1375418648-22760-1-git-send-email-b35083@freescale.com>
- <1375418648-22760-2-git-send-email-b35083@freescale.com>
- <20130810140827.GC18085@e106331-lin.cambridge.arm.com>
- <B56CDBE15CE27145A4B77D2D24263E851FE7AC@039-SN1MPN1-004.039d.mgd.msft.net>
- <20130812164354.GF27165@e106331-lin.cambridge.arm.com>
- <52096E77.4040003@wwwdotorg.org>
- <20130813074620.GR26614@pengutronix.de>
- <520A5558.708@wwwdotorg.org>
- <20130813161214.GV26614@pengutronix.de>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
+Subject: [PATCH 0/29] simplify use of devm_ioremap_resource
+Date: Wed, 14 Aug 2013 11:11:04 +0200
+Message-ID: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-Content-Disposition: inline
-In-Reply-To: <20130813161214.GV26614@pengutronix.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, ian.campbell@citrix.com, pawel.moll@arm.com, "wsa@the-dreams.de" <wsa@the-dreams.de>, Estevam Fabio-R49496 <r49496@freescale.com>, Stephen Warren <swarren@wwwdotorg.org>, tomasz.figa@gmail.com, rob.herring@calxeda.com, Jin Zhengxiong-R64188 <R64188@freescale.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, galak@codeaurora.org, Lu Jingchang-B35083 <B35083@freescale.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, grant.likely@linaro.org
+Return-path: <alsa-devel-bounces@alsa-project.org>
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
+To: dri-devel@lists.freedesktop.org
+Cc: alsa-devel@alsa-project.org, kernel-janitors@vger.kernel.org, linux-fbdev@vger.kernel.org, linux-ide@vger.kernel.org, linux-mtd@lists.infradead.org, linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-scsi@vger.kernel.org, linux-serial@vger.kernel.org, linux-input@vger.kernel.org, linux-media@vger.kernel.org, linux-pwm@vger.kernel.org, linux-watchdog@vger.kernel.org, rtc-linux@googlegroups.com, linux-pm@vger.kernel.org, linux-gpio@vger.kernel.org, linux-tegra@vger.kernel.org, linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, linux-spi@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Aug 13, 2013 at 06:12:14PM +0200, s.hauer@pengutronix.de wrote:
-> I vote for having the exact SoC revision in the binding documentation
-> rather than wildcards or references to the list of i.MX SoCs. Otherwise
-> only the driver code gives a clue that the i2c driver matches imx1-i2c,
-> imx21-i2c and vf610-i2c, but not imx31-i2c.
+devm_ioremap_resource often uses the result of a call to
+platform_get_resource as its last argument.  devm_ioremap_resource does
+appropriate error handling on this argument, so error handling can be
+removed from the call site.  To make the connection between the call to
+platform_get_resource and the call to devm_ioremap_resource more clear, the
+former is also moved down to be adjacent to the latter.
 
-+1
+In many cases, this patch changes the specific error value that is
+returned on failure of platform_get_resource.
 
-Shawn
+The semantic patch that makes this change is as follows:
+(http://coccinelle.lip6.fr/)
+
+// <smpl>
+@@
+expression pdev,res,n,e,e1;
+expression ret != 0;
+identifier l;
+@@
+
+(
+  res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  e = devm_ioremap_resource(e1, res);
+|
+- res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  ... when != res
+- if (res == NULL) { ... \(goto l;\|return ret;\) }
+  ... when != res
++ res = platform_get_resource(pdev, IORESOURCE_MEM, n);
+  e = devm_ioremap_resource(e1, res);
+)
+// </smpl>
