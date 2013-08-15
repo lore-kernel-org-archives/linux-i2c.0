@@ -1,59 +1,201 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: fix broken timing calculation
-Date: Thu, 15 Aug 2013 12:13:29 +0200
-Message-ID: <20130815101329.GG2987@katana>
-References: <1373041680-26939-1-git-send-email-LW@KARO-electronics.de>
- <201307151424.32248.marex@denx.de>
- <20965.3.293494.346855@ipc1.ka-ro>
- <201307171954.59556.marex@denx.de>
- <20967.53016.902909.282346@ipc1.ka-ro>
- <20130815101252.GF2987@katana>
+From: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] i2c: pxa: enable high speed mode for i2c bus
+Date: Thu, 15 Aug 2013 18:48:28 +0800
+Message-ID: <CAOng1WTAemGWLVw0naPyDt4kjvu5N0mx9vucytrj2Cr7X_46VQ@mail.gmail.com>
+References: <1376016204-31328-1-git-send-email-shangll@marvell.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OFj+1YLvsEfSXdCH"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130815101252.GF2987@katana>
+In-Reply-To: <1376016204-31328-1-git-send-email-shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Lothar =?iso-8859-15?Q?Wa=DFmann?= <LW-bxm8fMRDkQLDiMYJYoSAnRvVK+yQ3ZXh@public.gmane.org>
-Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Hi Guys
 
---OFj+1YLvsEfSXdCH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Any comments?
 
-
-> Haven't checked in detail if it is a similar issue, yet the designware
-> people had some in-depth discussions about I2C timings and PCB
-> influences...
-
-the discussion is here:
-
-http://thread.gmane.org/gmane.linux.drivers.i2c/15785
-
-
---OFj+1YLvsEfSXdCH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSDKnJAAoJEBQN5MwUoCm20yMP/juxjytmjQPLqvfPmIkGCHIL
-F/DU27WEsU8SdyCiPaWnTPUSi2jMZ6qYr1WlrHmsG4LPdJ0l8b/IsiMi2llkcX22
-jTWckkApRRl3pxYLNMLsdAprfACvEwyj+X3Tml4ahmixmfWvDjfCrsvxGIc0eu0t
-qlgcBXqZXzz6wI78XRVFDwAIJVdGhROh9vnobZ5VFxFSwcT0TmHC7W6SVt0S0NFH
-652lagRT7VxPta0j4+g0sfKVc2CTuLstgLBPQ8ZM8uttvjSD3P5gE9pHXiqMXQoQ
-HzoFENsXg83GgtH4eH1wwxjvP40/KORqmASq+V3ynQXSu/6S0TllpSU84w4LwF89
-O+vMx1/QqMUk81N670XQN9YWZw3rAREm1YELRD4DMwePaWC5aAu01e6NFHGSO/2n
-hOHfFVjEV9MbdtcL3JfUsopPS28jkiNLl2UQ/D41BTnQOp4YydzBSXZ1YuoFYs1y
-GO80qmJNwKa2tj5+7XZorS1l3XWwFX3jpsLkYd1h4OxJbAqG7yyyajd2wGocOmZk
-yjNB0llfH7TrwtwcshLNz9HaTsAJk+SiSyb52A35rPXlOgfBSsz6c4T74VBGZkyU
-FRLjKOG25TdhPvCqJhaAwn+ADy9XofP6InwxRPBrlZ7P697EhxW0FZq6OQCIAlo5
-C5/6BbQp9ocL44529+Hu
-=B+yc
------END PGP SIGNATURE-----
-
---OFj+1YLvsEfSXdCH--
+2013/8/9 Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>:
+> From: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+>
+> To enter high speed mode, following steps should be done:
+> 1. When running in high speed mode, i2c clock rate is different
+> from standard mode. Clock rate must be set according to
+> specification first.
+> 2. When I2C controller sends a master code and wins arbitration,
+> high speed mode is entered.
+>
+> If you want to enable high speed mode, the following members of
+> platform data should be set to proper value:
+> 1. "high_mode" should be set to "1".
+> 2. "master_code" should be set to "8'b 0000_1xxx"(x is 0 or 1).
+> If no master_code is set, set to default value 0xe.
+> 3. "rate" should be set according to specification.
+>
+> Signed-off-by: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-pxa.c |   68 +++++++++++++++++++++++++++++++++++++++++-
+>  include/linux/i2c/pxa-i2c.h  |    3 ++
+>  2 files changed, 70 insertions(+), 1 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+> index 3a5c477..da7b9ae 100644
+> --- a/drivers/i2c/busses/i2c-pxa.c
+> +++ b/drivers/i2c/busses/i2c-pxa.c
+> @@ -119,6 +119,8 @@ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+>  #define ICR_SADIE      (1 << 13)          /* slave address detected int enable */
+>  #define ICR_UR         (1 << 14)          /* unit reset */
+>  #define ICR_FM         (1 << 15)          /* fast mode */
+> +#define ICR_HS         (1 << 16)          /* High Speed mode */
+> +#define ICR_GPIOEN     (1 << 19)          /* enable GPIO mode for SCL in HS */
+>
+>  #define ISR_RWM                (1 << 0)           /* read/write mode */
+>  #define ISR_ACKNAK     (1 << 1)           /* ack/nak status */
+> @@ -164,6 +166,10 @@ struct pxa_i2c {
+>         int                     irq;
+>         unsigned int            use_pio :1;
+>         unsigned int            fast_mode :1;
+> +       unsigned int            high_mode:1;
+> +       unsigned char           master_code;
+> +       unsigned long           rate;
+> +       bool                    highmode_enter;
+>  };
+>
+>  #define _IBMR(i2c)     ((i2c)->reg_ibmr)
+> @@ -468,6 +474,7 @@ static void i2c_pxa_reset(struct pxa_i2c *i2c)
+>
+>         /* set control register values */
+>         writel(I2C_ICR_INIT | (i2c->fast_mode ? ICR_FM : 0), _ICR(i2c));
+> +       writel(readl(_ICR(i2c)) | (i2c->high_mode ? ICR_HS : 0), _ICR(i2c));
+>
+>  #ifdef CONFIG_I2C_PXA_SLAVE
+>         dev_info(&i2c->adap.dev, "Enabling slave mode\n");
+> @@ -689,6 +696,34 @@ static int i2c_pxa_pio_set_master(struct pxa_i2c *i2c)
+>         return 0;
+>  }
+>
+> +/*
+> + * PXA I2C send master code
+> + * 1. Load master code to IDBR and send it.
+> + *    Note for HS mode, set ICR [GPIOEN].
+> + * 2. Wait until win arbitration.
+> + */
+> +static int i2c_pxa_send_mastercode(struct pxa_i2c *i2c)
+> +{
+> +       u32 icr;
+> +       long timeout;
+> +
+> +       spin_lock_irq(&i2c->lock);
+> +       i2c->highmode_enter = true;
+> +       writel(i2c->master_code, _IDBR(i2c));
+> +
+> +       icr = readl(_ICR(i2c)) & ~(ICR_STOP | ICR_ALDIE);
+> +       icr |= ICR_GPIOEN | ICR_START | ICR_TB | ICR_ITEIE;
+> +       writel(icr, _ICR(i2c));
+> +
+> +       spin_unlock_irq(&i2c->lock);
+> +       timeout = wait_event_timeout(i2c->wait,
+> +                       i2c->highmode_enter == false, HZ * 1);
+> +
+> +       i2c->highmode_enter = false;
+> +
+> +       return (timeout == 0) ? I2C_RETRY : 0;
+> +}
+> +
+>  static int i2c_pxa_do_pio_xfer(struct pxa_i2c *i2c,
+>                                struct i2c_msg *msg, int num)
+>  {
+> @@ -752,6 +787,14 @@ static int i2c_pxa_do_xfer(struct pxa_i2c *i2c, struct i2c_msg *msg, int num)
+>                 goto out;
+>         }
+>
+> +       if (i2c->high_mode) {
+> +               ret = i2c_pxa_send_mastercode(i2c);
+> +               if (ret) {
+> +                       dev_err(&i2c->adap.dev, "i2c_pxa_send_mastercode timeout\n");
+> +                       goto out;
+> +                       }
+> +       }
+> +
+>         spin_lock_irq(&i2c->lock);
+>
+>         i2c->msg = msg;
+> @@ -999,11 +1042,14 @@ static irqreturn_t i2c_pxa_handler(int this_irq, void *dev_id)
+>                         i2c_pxa_slave_txempty(i2c, isr);
+>                 if (isr & ISR_IRF)
+>                         i2c_pxa_slave_rxfull(i2c, isr);
+> -       } else if (i2c->msg) {
+> +       } else if (i2c->msg && (!i2c->highmode_enter)) {
+>                 if (isr & ISR_ITE)
+>                         i2c_pxa_irq_txempty(i2c, isr);
+>                 if (isr & ISR_IRF)
+>                         i2c_pxa_irq_rxfull(i2c, isr);
+> +       } else if ((isr & ISR_ITE) && i2c->highmode_enter) {
+> +               i2c->highmode_enter = false;
+> +               wake_up(&i2c->wait);
+>         } else {
+>                 i2c_pxa_scream_blue_murder(i2c, "spurious irq");
+>         }
+> @@ -1088,6 +1134,11 @@ static int i2c_pxa_probe_pdata(struct platform_device *pdev,
+>         if (plat) {
+>                 i2c->use_pio = plat->use_pio;
+>                 i2c->fast_mode = plat->fast_mode;
+> +               i2c->high_mode = plat->high_mode;
+> +               i2c->master_code = plat->master_code;
+> +               if (!i2c->master_code)
+> +                       i2c->master_code = 0xe;
+> +               i2c->rate = plat->rate;
+>         }
+>         return 0;
+>  }
+> @@ -1160,6 +1211,7 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>         i2c->irq = irq;
+>
+>         i2c->slave_addr = I2C_PXA_SLAVE_ADDR;
+> +       i2c->highmode_enter = false;
+>
+>         if (plat) {
+>  #ifdef CONFIG_I2C_PXA_SLAVE
+> @@ -1169,6 +1221,20 @@ static int i2c_pxa_probe(struct platform_device *dev)
+>                 i2c->adap.class = plat->class;
+>         }
+>
+> +       if (i2c->high_mode) {
+> +               if (i2c_type != REGS_PXA910) {
+> +                       pr_warn("i2c: <%s> do not support HS mode\n",
+> +                               i2c->adap.name);
+> +                       i2c->high_mode = 0;
+> +               } else if (i2c->rate) {
+> +                       clk_set_rate(i2c->clk, i2c->rate);
+> +                       pr_info("i2c: <%s> set rate to %ld\n",
+> +                               i2c->adap.name, clk_get_rate(i2c->clk));
+> +               } else
+> +                       pr_warn("i2c: <%s> clock rate not set\n",
+> +                               i2c->adap.name);
+> +       }
+> +
+>         clk_prepare_enable(i2c->clk);
+>
+>         if (i2c->use_pio) {
+> diff --git a/include/linux/i2c/pxa-i2c.h b/include/linux/i2c/pxa-i2c.h
+> index 1a9f65e..53aab24 100644
+> --- a/include/linux/i2c/pxa-i2c.h
+> +++ b/include/linux/i2c/pxa-i2c.h
+> @@ -67,6 +67,9 @@ struct i2c_pxa_platform_data {
+>         unsigned int            class;
+>         unsigned int            use_pio :1;
+>         unsigned int            fast_mode :1;
+> +       unsigned int            high_mode:1;
+> +       unsigned char           master_code;
+> +       unsigned long           rate;
+>  };
+>
+>  extern void pxa_set_i2c_info(struct i2c_pxa_platform_data *info);
+> --
+> 1.7.4.1
+>
+> --
+> To unsubscribe from this list: send the line "unsubscribe linux-i2c" in
+> the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
