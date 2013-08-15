@@ -1,55 +1,79 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/8] i2c: imx: use struct representing i2c clk{div, val}
- pair
-Date: Thu, 15 Aug 2013 16:15:54 +0200
-Message-ID: <20130815141554.GL17155@katana>
-References: <1375866343-2074-1-git-send-email-b35083@freescale.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 23/29] drivers/i2c/busses/i2c-ocores.c: simplify use of
+ devm_ioremap_resource
+Date: Thu, 15 Aug 2013 16:18:58 +0200
+Message-ID: <20130815141858.GM17155@katana>
+References: <1376471493-22215-1-git-send-email-Julia.Lawall@lip6.fr>
+ <1376471493-22215-24-git-send-email-Julia.Lawall@lip6.fr>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5VuzLDXibKSJvVYD"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="oiL9LJXJsdjS5rzq"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1375866343-2074-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+In-Reply-To: <1376471493-22215-24-git-send-email-Julia.Lawall@lip6.fr>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Julia Lawall <Julia.Lawall@lip6.fr>
+Cc: Peter Korsgaard <jacmet@sunsite.dk>, kernel-janitors@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---5VuzLDXibKSJvVYD
+--oiL9LJXJsdjS5rzq
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 07, 2013 at 05:05:36PM +0800, Jingchang Lu wrote:
-> using struct representing the i2c clk{div, val} pair would
-> make the i2c_clk_div array more clear.
+On Wed, Aug 14, 2013 at 11:11:27AM +0200, Julia Lawall wrote:
+> From: Julia Lawall <Julia.Lawall@lip6.fr>
 >=20
-> Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+> Remove unneeded error handling on the result of a call to
+> platform_get_resource when the value is passed to devm_ioremap_resource.
+>=20
+> Move the call to platform_get_resource adjacent to the call to
+> devm_ioremap_resource to make the connection between them more clear.
+>=20
+> A simplified version of the semantic patch that makes this change is as
+> follows: (http://coccinelle.lip6.fr/)
+>=20
+> // <smpl>
+> @@
+> expression pdev,res,n,e,e1;
+> expression ret !=3D 0;
+> identifier l;
+> @@
+>=20
+> - res =3D platform_get_resource(pdev, IORESOURCE_MEM, n);
+>   ... when !=3D res
+> - if (res =3D=3D NULL) { ... \(goto l;\|return ret;\) }
+>   ... when !=3D res
+> + res =3D platform_get_resource(pdev, IORESOURCE_MEM, n);
+>   e =3D devm_ioremap_resource(e1, res);
+> // </smpl>
+>=20
+> Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
 
-Applied series to for-next, thanks! Please use --cover-letter next time.
+Applied to for-next, thanks!
 
 
---5VuzLDXibKSJvVYD
+--oiL9LJXJsdjS5rzq
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSDOKaAAoJEBQN5MwUoCm2gH0P/3VsXwl9ZIWkkzJRC13mEDsG
-0GDxSvbjDWiTWAZ93jdgXJ8yUqzxLMCDiJzG6xT5nS7wMBHBGu0x+jyrFJtLS56h
-a1LcEdORf4mjYwKb9D9S0zJi/Nw5QXtUUaVOXyFCcWgmdi87F36HuGuM84Hiwh/l
-Dd3sW/rcpZGa+rb0QDlSz1qDTr0/u2IPd9+mh/EQq9cqjwdzt/et0+sfJOAUxl4I
-4XR0g4l24YOtZ8vGC5ZCFe3qFvxTjpTQ70ItwAPi35go9hKVntlXEdIr34JBBpBu
-J1csIFB8etIsoGlf8809kJmNfpQiYcSr8COrVUtUh/2NiSEU2QAfYuVVyYMb7hMB
-mvYi+6ztYFkpdP9wJGyYxDBCfgk+m41tYZpxcUrwvgCwF3Edo63oCSplfOXKr5JN
-TYgNJjCW5cui0Bp5FpYtV1T6cRKH9eBjeEPqq30yYsN8zh/yIvehnh4fi/n9E4bW
-+XzH4F8tqDBIuO5uFnxAXKbX9Irtadh/kwjP+l517wys6pJ4Kcr0qgGopvpb9GOR
-lCFKv0Hcx49xjsWYkLCPzftAZPTTboNEvZ2eFMOcrX4hUKvRD5f6fUtN/YCbiJpr
-q9xPhudzyzkAZs4sV3ptQctfVXA4PACy/Mm/yXdlsb7dQH5kEyrBCxiuOX0/YK5N
-Ee3Ls/C4ENBw9an4aERM
-=vnJ4
+iQIcBAEBAgAGBQJSDONSAAoJEBQN5MwUoCm2f2QP/3b/muogXYR6bmM/kN7nK5I2
+SCEcRiQ+whckMtGORckIOFopERCqtc/mB0sWiSOmZYbA4BsU17yj75lUCd7QB7Nq
+zU/x2NgDGf4+5cINbhDxeUv+gCKhbcMB2BeW2GW/Z/rYIEFWki7+boqmXV1y2NtS
+BF0rDiFCF3uzEiFAggc4luBNXRDawhAF9N6Q6B1m6p4F/omh1ecGTy/3pUwyipQt
+mLnPYZH2DJB5TQdscZflf9+vudiwY86VssbhUa4+c1XgEMks/a60pOMNtwCXBxRz
+qOUa1HsT/wzCued9zE4h2xO4FxeKWyO5khDXLgK29VyEZnPKXqXhL4MzO4vV7xY0
+5nlnkq+n2Dpm+SXqMiyiHNuIaAGxeGcpd7BH5BCKAs+RZc5E82wY1+JTOiLqe1WR
+/9B/U0X32XKWxfq9cD7dLBOUyXn9r8BiNosLhCVdvx7sB5WpYk4pC3ABqWrDLDIC
+6IJ8oREuyd+YIpLFVQdIVrMsPqv2vmbWkVxR7jfs3NAK2PfVc2B1n/EBtUUFylDn
+Bi9MaunDvbl8XKR47x4KYC6z1o/JUBIrQsrDLfGthcCXdc1h1uUVZNGP/oWR9+F0
+kqQPua4WZUMNTRzUsWjWN0jEcstpmCl3CiF03riZKHB0dbBThk5VMGa0jMs6M96P
+lqpC6T8MxKs6KvtIa1OY
+=meFS
 -----END PGP SIGNATURE-----
 
---5VuzLDXibKSJvVYD--
+--oiL9LJXJsdjS5rzq--
