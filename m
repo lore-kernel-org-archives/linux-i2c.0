@@ -1,65 +1,75 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mxs: Better error handling
-Date: Thu, 15 Aug 2013 12:03:31 +0200
-Message-ID: <20130815100331.GD2987@katana>
-References: <1372841962-26310-1-git-send-email-alexandre.belloni@free-electrons.com>
+Subject: Re: [PATCH] i2c: i2c_mxs: Set ACK_MODE bit
+Date: Thu, 15 Aug 2013 12:08:09 +0200
+Message-ID: <20130815100809.GE2987@katana>
+References: <1372780860-12972-1-git-send-email-fabio.estevam@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="76DTJ5CE0DCVQemd"
+	protocol="application/pgp-signature"; boundary="KlAEzMkarCnErv5Q"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1372841962-26310-1-git-send-email-alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <1372780860-12972-1-git-send-email-fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, marex-ynQEQJNshbs@public.gmane.org
+To: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: marex-ynQEQJNshbs@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, cb-/RsSufbtIHM@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---76DTJ5CE0DCVQemd
+--KlAEzMkarCnErv5Q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 03, 2013 at 10:59:22AM +0200, Alexandre Belloni wrote:
-> This patch fixes two error handling cases in mxs_i2c_xfer_msg():
+On Tue, Jul 02, 2013 at 01:01:00PM -0300, Fabio Estevam wrote:
+> According to mx23 erratum 2727:
 >=20
->  - in PIO mode, mxs_i2c_pio_setup_xfer() may return an error but i2c->cmd=
-_err
->  will not be set so mxs_i2c_xfer_msg() fails silently.
+> "2727 : I2C 9th Clock Pulse (ACK) not generated when RETAIN_CLOCK set.
 >=20
->  - in DMA mode, mxs_i2c_dma_setup_xfer() may return an error and have
->  i2c->cmd_err set to -ENXIO. In that case, we want to go through the
->  MXS_I2C_CTRL1_CLR_GOT_A_NAK before returning.
-
-A short explanation why we want that would be perfect.
-
+> Description:
 >=20
-> Signed-off-by: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> When RETAIN_CLOCK is set, the ninth clock pulse (ACK) is not generated.=
+=20
+> However, the SDA line is read at the proper timing interval. If=20
+> RETAIN_CLOCK is cleared, the ninth clock pulse is generated.
+> Also, the HW_I2C_VERSION register incorrectly states the version is 1.2.=
+=20
+> It should be 1.3.
+>=20
+> Workaround:
+> HW_I2C_CTRL1[ACK_MODE] has default value of 0. It should be set to 1 to=
+=20
+> enable the fix for this issue."
+>=20
+> It has also been noticed that mx28 needs to implement this fix in order t=
+o have
+> SMBus to work properly.
+>=20
+> Reported-by: Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>
+> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-I'd like to postpone this until I applied Marek's PIO rework. Could you
-respin after that?
+What's with this one? Bogus? Needed? Still needed after PIO rework?
 
 
---76DTJ5CE0DCVQemd
+--KlAEzMkarCnErv5Q
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSDKdyAAoJEBQN5MwUoCm2jJsP/2Br1B/TWYafPoG8xjTMEJkb
-YsfBsueRVDja+6zFL/AnuTwv6JoY6prxLQly/Av+Adx/rkDaZj0RFmVrdjB//iOm
-LuiRL8+Lfkg2CKTVyLnVdOvJ9LRSVDNscCSbE7AvEk9uBDfwHk8dR7i4GqUojE2Q
-uTC+9+W2BMAjrGMpOivFlRRsHHmpxAkmBOi3Rs3Cm0wV2smu2jhSYSnSlvKnAQvK
-X8Ll5X98jcPbTuYct4Qo7wXMJzeTkT7zEqKDVv3W5AE1seozM5wH9DPJN7peiSe0
-Aivz0NqOvD2n3ILw7byV77cAAM+4Zfmu+GifKIghfgRVmPZz/ohpAJx9CPn87aao
-iO1xsExDT72WBzXUKMVaia3/wbkBQiU8M11L72RYnXNT198PVxjuDfhMmaOjevEY
-kUN6YakaT4gMkq7+SNAEOqEpaDuXKDFM4zKX8pSLyJShpo9eUt8YDttXjXJfI4sW
-Z8h2gnLgeOzfZ+ha1zoSesL4taq2AKyYKCBO7ea0it83Apkin4W5UJTi62A2ebHS
-q6sbBvpSnxlDDpcP6w5WsLwj59Y2gEySrFXYvnlHiSlcaCpY7Q02OwmWiJBrtS19
-4jvoHDu+LRM9M5PB1cLJz4iFgh/znDejjAn4N/T+7bMKT1p3fXZ2A3SA48tD8f2N
-Ud3gCcfRtoz1IWTphNFW
-=vMYL
+iQIcBAEBAgAGBQJSDKiIAAoJEBQN5MwUoCm2298P/jNuGvCvriH2ci8DgI81NbNq
+JByIN08Ai2d4QPwDyg2ruerg1s1M4EEpW+hMKJRex/2viYBUQ72kuT+nxfRvMpaL
+GD4fcNP5/C4wcDAjnLrfz4k849mG1VV+P3G30vXsXUJhdn6mAPkQCB0qUiyfu3dR
+vCeSJbalYfI0O9+R80woxNYDuEqLINXkugm7an4KxABYTt83ieT2dP1tAUuV9Cke
+fE0U1G8B1EZitT8DYcQMweuVs8fpH+99iOO1bdqG+Ka5LQK49erHcxrtGXxN9+Ff
+U6OK/Sg+KVnKQqAL61z7nGt9GUrU2Vwnp8tRHysui4wWRVth7phoo6xlH+xEMGTM
+3yikrtmdUk22FVZQTq7Zh80aoH4mVHPZjYM+et6rJhSEC9CDSrmjzB8E/O1v/LwZ
+QefhYOrdMmyrKPscTbSpxRuj6QaxGPgpP281MHBjn559CRPd6Mh9CJT7WwTiwc1c
+g1jwbtvtED2sTj2xDIObfhev29uxKlQY2njYKhT+/YOUJubwcQTZ7xYFbkKlrfhC
+Y5/diZOjf9vy1RYzYd1k3WSql/Hqy2/NkzMJpGa4kGYDPdNKWHUxPMZN+u2ujMfB
+ORh8zXVJ94/rUnKprKLPpeYfra5rc3yQ8KAIzFKHpQiJVisOmnypK3oIkhz91LsK
+8O+E5OQ9XRALlPQsIWge
+=mSsb
 -----END PGP SIGNATURE-----
 
---76DTJ5CE0DCVQemd--
+--KlAEzMkarCnErv5Q--
