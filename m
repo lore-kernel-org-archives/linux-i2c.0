@@ -1,58 +1,57 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2 2/2] i2c: pxa: enable high speed mode for i2c bus
-Date: Thu, 15 Aug 2013 14:39:15 +0200
-Message-ID: <20130815123915.GE17155@katana>
-References: <1376016204-31328-1-git-send-email-shangll@marvell.com>
- <CAOng1WTAemGWLVw0naPyDt4kjvu5N0mx9vucytrj2Cr7X_46VQ@mail.gmail.com>
+Subject: Re: [PATCH v4 0/2] iMC SMBUS and DIMM bus probing
+Date: Thu, 15 Aug 2013 14:50:47 +0200
+Message-ID: <20130815125047.GF17155@katana>
+References: <cover.1374171757.git.luto@amacapital.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SNIs70sCzqvszXB4"
+	protocol="application/pgp-signature"; boundary="2FkSFaIQeDFoAt0B"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAOng1WTAemGWLVw0naPyDt4kjvu5N0mx9vucytrj2Cr7X_46VQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <cover.1374171757.git.luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
+Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---SNIs70sCzqvszXB4
+--2FkSFaIQeDFoAt0B
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 15, 2013 at 06:48:28PM +0800, James Lebron wrote:
-> Hi Guys
->=20
-> Any comments?
+On Thu, Jul 18, 2013 at 11:36:52AM -0700, Andy Lutomirski wrote:
+> Intel LGA2011 machines have dedicated SMBUS controllers for DIMM
+> sockets.  Because they're dedicated, they can be safely and accurately
+> probed, since all devices on them are known to be attached to DIMMs.
+> The devices found are:
+>  - SPD EEPROMs
+>  - TSODs (Temperature Sensor on DIMMs)
+>  - Other interesting things, with drivers hopefully to follow...
 
-As I wrote on August, 7th, I accepted the last version already; it is
-also in linux-next since then. So, this series is not needed if the only
-thing changed was the addition of the PXA910 register set. Since you
-didn't write a changelog (please always do) I assume there are no
-further changes.
+Just to let you know, I keep thinking about it now and then but have not
+made up my mind yet... still at it.
 
 
---SNIs70sCzqvszXB4
+--2FkSFaIQeDFoAt0B
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSDMvzAAoJEBQN5MwUoCm2eWkP/j4OgvP390mDacPjDzOl68TZ
-OJu/9pymu40cw48w9wRUF4Evp9inAPWs4f+TvOwOA+DWge/eM5FB1XqTF7YnlflC
-ZueSV0bVKvk4ftdEZv94F4WT6BDlOg0W0qoLyPEgNu56RyT9bz/VJMcvWmAkA6Wu
-2thawhzntbAJo0qe9w3XFp9yb+hwCsLDp06sUwGAjvNylbvoXiQZD4NLBKEMhkrj
-rtbjNHUYHberek4L4/jH7pTLOjvp158oTdWaRp1xZqeOpDJM2+h4KPhHj2GWniyU
-vAuqhmUHdZQesc17BbmJ5BCL328q4yj0/ZgtuBEIeIcmrGxNY+bLwO+Ycaz5kr91
-SyZ/lEz50xJbSMAiHC+nbssLgCcnia7IOyRSRGmcI9bKf0hYl/nR+7l0P/eynXiL
-Vdh7T6KazylH4roE7c4ygdYVt86s759xYKxok8lxJ8fHYKVCTN2C9vd6tD/Fm5F1
-ngVRnY8gMisqTHTL5jhLaa+WXJjujIRwzxrZCJms0koFBSDwPL8JXjeky2klxs0o
-/xvUhrtymQ1Ve6qmb8JMwtCK26UMDEZz7tTjCD+7ROrUoVsC2K19avUGKKZkRQXf
-SZ6muLUXWQjAJBsatPqJv1t/srx1vjqmKH4c6UV1TUrk+V3+ISG69BMDXzcs3Ju/
-TcMo7wjHC90srsRfcfwz
-=m91u
+iQIcBAEBAgAGBQJSDM6nAAoJEBQN5MwUoCm2ugIP/29+5hGyz5IHf/UNK0u/duRr
+40b1uhxMgh24QLyUBq+hnMcedwFx9W/+JiNPP9To0acjViTcqpu0OAZGchqSNF93
+bF7yTswp4TSC35kTwSqjkkwMr8liN0+fy6RTc4WOHRDFAmKYhFyHMMiOv5UVyVe4
+AAYLA/jlFZfkiew15NLxd6Q6iNnhI80SwivM/JChgcTORlUhgI3LdBwc3glTszV6
+tVc8ibiSgwCk1e9MshvFAGu0lYyfbG2jYA/v5E2hbzxFuFfixRVl2cXcgqvxLohA
+wqhgBSAod+SdK9nytWoKhZXVGr/iUE9SabhhIUUjGyzoE1fqEPzn69ebcYScWkl7
+Kg1jnzVREndiqieDLxUkCTEA48z75feWEtdkARManShFQs9yTr90lwYALAhL4EQL
+tyvWnaMW+vuP8qYVLQT3SQ9kPflq3rUw5LNu4pnLP53QQBxRbprzUEMKpaWZ08NQ
+wALcE0ACk6h+0v0fy+YYvB18+REZhuQYoNB/bnSzZUQcMVvFSf9WeE2Brymaee2Y
+VGmRMwqheoDBgL3D2dL5hkp8zP2kBRuOIXqPlaAYfnBimurQxLdtD7SpyQnfsucQ
+BYUMyUUv/uPhDTVwkV8+FeevTPQMUtGREnndyxdNAR+zqw53iefkv4uO4vT+TgrU
+KIq2D0TpMcoz5ZvljZRh
+=gwc8
 -----END PGP SIGNATURE-----
 
---SNIs70sCzqvszXB4--
+--2FkSFaIQeDFoAt0B--
