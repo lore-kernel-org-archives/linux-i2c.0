@@ -1,63 +1,55 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c-piix4: Add support for secondary SMBus on AMD
- SB800 and AMD FCH chipsets
-Date: Thu, 15 Aug 2013 15:19:02 +0200
-Message-ID: <20130815131902.GJ17155@katana>
-References: <5196B32D.7060501@assembler.cz>
- <1369294522.12648.11.camel@mattotaupa>
- <20130611193539.GG3376@katana>
- <51B77EC0.2020204@assembler.cz>
- <20130617071615.GB2957@katana>
- <51BF8184.8090807@assembler.cz>
- <51E31566.2070509@assembler.cz>
+Subject: Re: [PATCH 1/8] i2c: imx: use struct representing i2c clk{div, val}
+ pair
+Date: Thu, 15 Aug 2013 16:15:54 +0200
+Message-ID: <20130815141554.GL17155@katana>
+References: <1375866343-2074-1-git-send-email-b35083@freescale.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="9aCKuHbn5v2q3RVc"
+	protocol="application/pgp-signature"; boundary="5VuzLDXibKSJvVYD"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <51E31566.2070509-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+In-Reply-To: <1375866343-2074-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
-Cc: Paul Menzel <paulepanter-Rn4VEauK+AKRv+LV9MX5uipxlwaOVQ5f@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---9aCKuHbn5v2q3RVc
+--5VuzLDXibKSJvVYD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jul 14, 2013 at 11:17:26PM +0200, Rudolf Marek wrote:
-> From: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+On Wed, Aug 07, 2013 at 05:05:36PM +0800, Jingchang Lu wrote:
+> using struct representing the i2c clk{div, val} pair would
+> make the i2c_clk_div array more clear.
 >=20
-> Add support for the secondary SMBus controller on the AMD SB800 and
-> AMD FCH chipsets.
->=20
-> Signed-off-by: Rudolf Marek <r.marek-/xGekIyIa4Ap1Coe8Ar9gA@public.gmane.org>
+> Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
-Applied to for-next, thanks!
+Applied series to for-next, thanks! Please use --cover-letter next time.
 
 
---9aCKuHbn5v2q3RVc
+--5VuzLDXibKSJvVYD
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSDNVGAAoJEBQN5MwUoCm2JSQP/1TcjRNM9RX8xv7P3y+oRR/n
-VI1KOf4Kw92AmsswXQK1DDRlsRlb9Wqq8R7dU9qfl5JUNQDXl0O0rcVJGD5nrPC/
-FUvQBse5XbdWyVmvetmkt3kNWvZkhyywEL5Zl6JRHGghNRf2567XK6RE2+mtQCtZ
-eqmEjvUkbcWgjZFp5bjlY25tSP62Qv327RX5/cPBgsRS+d4w48WO16gsmVIe4gUE
-R0ViPF/MCy5TJLe6RIQzdqDGQuneHURaW4r1XhhXviH/99Yyi2WGWmvrnhoOVwh3
-Uy4HOWoxAHK/dYtBkgakOAhRlMOViPUK/EBM9gGY8RPAb7GytBF5aug1frWqL8Do
-qUGVemB8+pf0M8sxeTQjRs32F6TQevNM5tl/dvw5keb/t8iqt062Oy4AvsL41SbG
-WAzitdmuaTE3SbAmbwgWqZSOPnsvFiQPfGRU94e+gZgnyfzVuuMGmPjhh3l2/WpX
-cPwr888R0wMlLSMLuImyS5p+IS6CunUu3RlWumHKv790IhVoNVqW+tFQ+HNgwvX8
-h1A+v2fyR9xLFG+u5yIIkgcH9fZO35s+HT2ND08osWGfq/NB7f2nT2ACQDB5LXdA
-j1gjKOktTKXq7r3HZ4B4RfBC6ynXGr1F5/8iTWM0jbXGyTnn3pTMtUxai4DUoZJp
-tZ9C49iCQn3GF5gLFHAX
-=9byA
+iQIcBAEBAgAGBQJSDOKaAAoJEBQN5MwUoCm2gH0P/3VsXwl9ZIWkkzJRC13mEDsG
+0GDxSvbjDWiTWAZ93jdgXJ8yUqzxLMCDiJzG6xT5nS7wMBHBGu0x+jyrFJtLS56h
+a1LcEdORf4mjYwKb9D9S0zJi/Nw5QXtUUaVOXyFCcWgmdi87F36HuGuM84Hiwh/l
+Dd3sW/rcpZGa+rb0QDlSz1qDTr0/u2IPd9+mh/EQq9cqjwdzt/et0+sfJOAUxl4I
+4XR0g4l24YOtZ8vGC5ZCFe3qFvxTjpTQ70ItwAPi35go9hKVntlXEdIr34JBBpBu
+J1csIFB8etIsoGlf8809kJmNfpQiYcSr8COrVUtUh/2NiSEU2QAfYuVVyYMb7hMB
+mvYi+6ztYFkpdP9wJGyYxDBCfgk+m41tYZpxcUrwvgCwF3Edo63oCSplfOXKr5JN
+TYgNJjCW5cui0Bp5FpYtV1T6cRKH9eBjeEPqq30yYsN8zh/yIvehnh4fi/n9E4bW
++XzH4F8tqDBIuO5uFnxAXKbX9Irtadh/kwjP+l517wys6pJ4Kcr0qgGopvpb9GOR
+lCFKv0Hcx49xjsWYkLCPzftAZPTTboNEvZ2eFMOcrX4hUKvRD5f6fUtN/YCbiJpr
+q9xPhudzyzkAZs4sV3ptQctfVXA4PACy/Mm/yXdlsb7dQH5kEyrBCxiuOX0/YK5N
+Ee3Ls/C4ENBw9an4aERM
+=vnJ4
 -----END PGP SIGNATURE-----
 
---9aCKuHbn5v2q3RVc--
+--5VuzLDXibKSJvVYD--
