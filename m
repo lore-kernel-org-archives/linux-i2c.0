@@ -1,66 +1,67 @@
-From: Alexandre Belloni <alexandre.belloni@free-electrons.com>
-Subject: Re: [PATCH] i2c: mxs: Better error handling
-Date: Thu, 15 Aug 2013 13:09:41 +0200
-Message-ID: <520CB6F5.1040309@free-electrons.com>
-References: <1372841962-26310-1-git-send-email-alexandre.belloni@free-electrons.com> <20130815100331.GD2987@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH V2 1/7] i2c: i2c-mpc: add CONFIG_PM_SLEEP to
+ suspend/resume functions
+Date: Thu, 15 Aug 2013 14:07:42 +0200
+Message-ID: <20130815120742.GA17155@katana>
+References: <005501ce8102$faa66690$eff333b0$@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130815100331.GD2987@katana>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, marex@denx.de
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fHTh5uZTiUOsy+g"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <005501ce8102$faa66690$eff333b0$@samsung.com>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA256
+--2fHTh5uZTiUOsy+g
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi Wolfram,
+On Mon, Jul 15, 2013 at 11:28:23AM +0900, Jingoo Han wrote:
+> Add CONFIG_PM_SLEEP to suspend/resume functions to fix the following
+> build warning when CONFIG_PM_SLEEP is not selected. This is because
+> sleep PM callbacks defined by SIMPLE_DEV_PM_OPS are only used when
+> the CONFIG_PM_SLEEP is enabled.
+>=20
+> drivers/i2c/busses/i2c-mpc.c:724:12: warning: 'mpc_i2c_suspend' defined b=
+ut not used [-Wunused-function]
+> drivers/i2c/busses/i2c-mpc.c:734:12: warning: 'mpc_i2c_resume' defined bu=
+t not used [-Wunused-function]
+>=20
+> Also, this patch makes mpc_i2c_pm_ops static, because mpc_i2c_pm_ops
+> is not exported.
+>=20
+> Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 
-On 15/08/2013 12:03, Wolfram Sang wrote:
-> On Wed, Jul 03, 2013 at 10:59:22AM +0200, Alexandre Belloni wrote:
->> This patch fixes two error handling cases in mxs_i2c_xfer_msg():
->>
->>  - in PIO mode, mxs_i2c_pio_setup_xfer() may return an error but
-i2c->cmd_err
->>  will not be set so mxs_i2c_xfer_msg() fails silently.
->>
->>  - in DMA mode, mxs_i2c_dma_setup_xfer() may return an error and have
->>  i2c->cmd_err set to -ENXIO. In that case, we want to go through the
->>  MXS_I2C_CTRL1_CLR_GOT_A_NAK before returning.
->
-> A short explanation why we want that would be perfect.
->
->>
->> Signed-off-by: Alexandre Belloni <alexandre.belloni@free-electrons.com>
->
-> I'd like to postpone this until I applied Marek's PIO rework. Could you
-> respin after that?
->
+Applied the series to for-next, thanks!
 
-Actually, this patch won't be needed after Marek's PIO rework. You can
-drop it now.
+Consider using --cover-letter next time for a series.
 
-- -- 
-Alexandre Belloni, Free Electrons
-Embedded Linux, Kernel and Android engineering
-http://free-electrons.com
+
+--2fHTh5uZTiUOsy+g
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBCAAGBQJSDLb1AAoJEKbNnwlvZCyzBOoQAL5NbGfmv2toVVcOHIkGpe0X
-L+4NqviBObeP2Kh/JWPm8zfuLhIHTU+MNGxFpL5JLzGh+5NVqEA5M7bQjwxmZxPS
-OCEgzKwMzrTbxM3mOAxALO3LtEOUa6xBzzcKbaeWq48m2yA2KRt9niEqvN+cAHVl
-rqFyrcv54AUOfdMS923bBNqMpTdpCmdy164msFV+yQqljd4Igg0T54KqmHmw2+4m
-asfJtDAa674sGizZdB0bSZTo0pGhD2TJEdqU17rsDa/PruFgI8/lw4LOXtpL017M
-zwx7miO6gkUymEiyOtfufOBkEUSfPmOPd/BcasgAs8loo01IPttn2vMWAV+Pku+D
-XzbvFvSrlHiMQze6GCejv3W5dMySyDMnWma5ZGJ9DXkzE677UK7i7ehZSxn4huVn
-w5JNgXfCsOexjTRmtoUad652kQl/GKDL5DdJr75wcZzp/6RfyGz3fu4mfUYiqFue
-vW/Xbkswc334v2ueuQsdzlEEFfGaiddlsyHHfEEOsdO7djoGRXBoUxI+S1bDFdLO
-WXCLRO11Ju0IXiTQ9uBBSibP0nSmu9W6/s1Ufp1F3OWqAj+H7CEZpqjg4hQkMIh+
-997svOMknIuJzLhvBQbGj8FJ1FQhNDRaF49tFrpBhZaXp3a+a1rS31kZaoTx2etT
-35VZG9zLAOGkfCPU3JEu
-=bjCC
+iQIcBAEBAgAGBQJSDMSNAAoJEBQN5MwUoCm2P3YP/1AXel9bd6UNMOrpyzfWtNHK
+1FFcWQ96pA/kzBF8GBk6tskgtxRLSV50WXftQjAJ1RcIIk3gjUeLY8tIomdgj4Zo
+xpWBw+wC3vJYs5ERafl3YtLbdMq3EeB3jFV3J6CO3AAK9aop7h8bN0kKAYTOev8E
+xfI8kQIzwDdbJ0NLnpjh/1Fh3NHM7ZB95u7U9DEJIaWVDO+DAhbm+OOPEDSLZk0y
+dk6lGey3tIF14q8LwqCq+0Nq5xIJKdNmAS89ajKr1t4EOjL6R28GqGAy2ebLYCa1
+bo6CyTpnL3h2Be/6OntDJPm2R1/RM1wHJM0c4+BthoViFE0NdunTQHem5VwPlsan
+7do6olgQEQuAK5PecleYCfIf/8W9VK35LVwJHDBmdkb415SzuGBA/qzQpKh6E49K
+MQGO4zbvL5OAH/HeFIofDqiNfs2bpj8QXFHLAzF+bjtZmlD4MORggDTx8Z8ygC/y
+6lbGa52IBz2kgSkzYcvpTwuu6WmB/OORIa5Y7tBTawgalcm5hR1R/ambHqfPjkLS
+SBdjUK1jjorv0mflyFhOeasGWWI4OwcBeEcCPp/NkocN+2COx2M0SeEbaKNPN4iC
+upvZLn3b6JfuHzWbeqshNcWedvx+uHZPMw32XuibrViPsQ1Hd3fzYBo4FOs38EX8
+YVjShg1VxXW0leVXjMn3
+=GqQD
 -----END PGP SIGNATURE-----
+
+--2fHTh5uZTiUOsy+g--
