@@ -1,55 +1,55 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 1/1] Documentation: i2c: Fix example in
- instantiating-devices
-Date: Thu, 15 Aug 2013 15:03:33 +0200
-Message-ID: <20130815130333.GH17155@katana>
-References: <1375939511-7590-1-git-send-email-sachin.kamat@linaro.org>
+Subject: Re: [PATCH v10] i2c: exynos5: add High Speed I2C controller driver
+Date: Thu, 15 Aug 2013 15:12:26 +0200
+Message-ID: <20130815131226.GI17155@katana>
+References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
+ <1371638905-30633-1-git-send-email-ch.naveen@samsung.com>
+ <3925484.kHD24rQYyy@amdc1227>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="4LFBTxd4L5NLO6ly"
-Return-path: <linux-doc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="CD/aTaZybdUisKIc"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1375939511-7590-1-git-send-email-sachin.kamat@linaro.org>
-Sender: linux-doc-owner@vger.kernel.org
-To: Sachin Kamat <sachin.kamat@linaro.org>
-Cc: linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, rob@landley.net
+In-Reply-To: <3925484.kHD24rQYyy@amdc1227>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tomasz Figa <t.figa@samsung.com>
+Cc: Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, devicetree-discuss@lists.ozlabs.org, naveenkrishna.ch@gmail.com, kgene.kim@samsung.com, grant.likely@secretlab.ca, linux-kernel@vger.kernel.org, taeggyun.ko@samsung.com, balbi@ti.com, thomas.abraham@linaro.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---4LFBTxd4L5NLO6ly
+--CD/aTaZybdUisKIc
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 08, 2013 at 10:55:11AM +0530, Sachin Kamat wrote:
-> __initdata should be placed between the variable name and equal
-> sign for the variable to be placed in the intended section.
+On Mon, Jul 01, 2013 at 12:25:19PM +0200, Tomasz Figa wrote:
+> Hi Naveen,
 >=20
-> Signed-off-by: Sachin Kamat <sachin.kamat@linaro.org>
+> Looks mostly good, but see some comments inline.
 
-Did this become a rule? Where? When?
+Ping?
 
 
---4LFBTxd4L5NLO6ly
+--CD/aTaZybdUisKIc
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSDNGlAAoJEBQN5MwUoCm2duwP+wTKFaQ44pTROVIBDxn1KSZl
-WmWYATbSQgEwWjANsD2GsVVK0ek68gR1OvRz4aSznd+gzYNVTdsf8pBZPIk/ZnzW
-1SG7yC4Jo7gNim89dz0CvDqJpqkZ4wiqGlyfZPkNYF5Y9Hn0XT34TB+tFzQh5Rjo
-kZajch6VQZBbdjk939mfOxFL27mNJ73ifC8GYnjdWbgfuKJ/nu2jYkXJpKTRDQLU
-fEbzNkkAohtOLnVL3UjG/YUsi/mc1zX77PmymZB9uAh5QuV3ePwWgbSVU7U/jkCD
-mCW2H05+jBkoaPYq+pxbJTDSdFhCnvZaeQ3xI3VrVpMr8blMAChFVkLaNoU+bdHr
-PPHaH8ORzKYGaygVUyi4nukJ0lW0Gqgt6r2zRzk7QUAQSa2MG1eiyPkqyZR/fHiJ
-5QWlYKUlLz7qt3M4ekvIKltG2/RyX3a1wR5/g7qxR7/HhEouORGQOOTqc1Oo3LCd
-5wp4s6WCY7ySrJNYP//fTEtMNtvz+y41wm0d6Gh3+6XjqfwyDmUnCUjsc6Z+OJhC
-nICSntpWluVVT8JxmI6rwaxpe9TO5O1gOezxhGvlKbGJPrqGQHoaOg5+GHR0efdY
-dmYLyUuUMwQLpF551xHCGq6Dw7k6hre6rpLxn6di0Kt4pUK60Gw6fYjG8gaHYgsD
-v+NjLtcOOJJllDrx3v45
-=0NZn
+iQIcBAEBAgAGBQJSDNO5AAoJEBQN5MwUoCm2EMkQAK9DlXI0LeKYmHLIM1Hq7sN3
+pUrztsLfAWW8z366FWVGn0WGQltfkal5m2cLsARjRA64q9MVsap82G5FQ24xsMOp
+cZQz9wo3m6SpfKlOjHoiPqmdoHTJ7wElewUt49dv2kVLdT3KHdRVLf+QZMhmVIjW
+3+MwKCjem+5d340MNMw4a6D4hEHF9J5nbITfkXCpjG+Ek/CBnvZxqQjci1C6JQjt
+BpvyWVta+36xKuuwfvqx2QYjWAaiypHGU6gNOJEPbsaiPGBoewk+ycDvWhzQi8U1
+TpxPzP9lOWkZECSWS1z+5yHEG3uZeQk4ifyeQpVMMjpqIH9OsuTbVAGq3szch/mY
+GomZMnQ6ZUCt2N78SCc5fnFRxesGVKK77KoJE/gOptWURJiu5XUICa6p0cgsNwnp
+gBioQAgoPc/aShpHZWO3GB0sB4yOLbk5QQntL6ClocHx94h8We0j+M7w7sSf8d/I
+wHOIp9P1mA4timswcodzLyd82dgo14bna9utmlOZiP63aoQayz/fmBF8lmJpCBWt
+GtYR3ph2rAiQjFmI6GWX5tZqqWEBl3ZuZKKaBJYt/vDB6XXVKWg68P/iOSe+hrNe
+ueHusK6Rf4VWztprdkpZvPyUPrAfpt2WTs7w4n5UdEi+TlFEkwzTv36AOQat03tG
+4Rvvhst6WrcObAL2h92o
+=QJEZ
 -----END PGP SIGNATURE-----
 
---4LFBTxd4L5NLO6ly--
+--CD/aTaZybdUisKIc--
