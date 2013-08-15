@@ -1,52 +1,58 @@
-From: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
-Subject: Re: [PATCH V2 2/3] i2c: mxs: Rework the PIO mode operation
-Date: Thu, 15 Aug 2013 19:08:49 +0200
-Message-ID: <8771910.JgfUXiMKri@linux-1fbo.site>
-References: <1375219237-9594-1-git-send-email-marex@denx.de> <1375219237-9594-2-git-send-email-marex@denx.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-tiny-usb: do not use stack as URB transfer_buffer
+Date: Thu, 15 Aug 2013 19:55:50 +0200
+Message-ID: <20130815175550.GA5934@katana>
+References: <20130806111742.25265.94046.stgit@localhost6.localdomain6>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="XsQoSWH+UP9D9v3l"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1375219237-9594-2-git-send-email-marex-ynQEQJNshbs@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130806111742.25265.94046.stgit-bi+AKbBUZKagILUCTcTcHdKyNwTtLsGr@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Jussi Kivilinna <jussi.kivilinna-X3B1VOXEql0@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Till Harbaum <till-RcHadlBFbzVAfugRpC6u6w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Marek,
-> +
-> +			mxs_i2c_pio_trigger_write_cmd(i2c,
-> +				start | MXS_I2C_CTRL0_MASTER_MODE |
-> +				MXS_I2C_CTRL0_DIRECTION |
-> +				MXS_I2C_CTRL0_XFER_COUNT(xlen), data);
-> +
-> +			/* The START condition is sent only once. */
-> +			start &= ~MXS_I2C_CTRL0_PRE_SEND_START;
-> +
-> +			/* Wait for the end of the transfer. */
-> +			ret = mxs_i2c_pio_wait_xfer_end(i2c);
-> +			if (ret) {
-> +				dev_err(i2c->dev,
-> +					"PIO: Failed to finish WRITE cmd!\n");
-> +				break;
-> +			}
-> +
-> +			/* Check NAK here ? */
 
-checking for the NAK at this point is really necessary.
+--XsQoSWH+UP9D9v3l
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I've tested the patches by writing to the EEPROM using the at24 driver.
-If the data to write cross the EEPROM's page boundary then the at24 driver 
-splits the I2C write commands.
+On Tue, Aug 06, 2013 at 02:17:42PM +0300, Jussi Kivilinna wrote:
+> Patch fixes i2c-tiny-usb not to use stack as URB transfer_buffer. URB buf=
+fers
+> need to be DMA-able, which stack is not.
+>=20
+> Patch is only compile tested.
+>=20
+> Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+> Signed-off-by: Jussi Kivilinna <jussi.kivilinna-X3B1VOXEql0@public.gmane.org>
 
-After the first I2C write command is done the at24 driver immediately tries to 
-send the next I2C write command. Normally the EEPROM signals a NAK, because 
-the previous write operation is internally still in progress. The NAK will be 
-handled by the at24 driver. It later retries the I2C write command.
+Looks OK to me. Till, are you there?
 
-But if the the EEPROM signals a NAK and the I2C write command has more than 3 
-and less than 7 bytes then the error "PIO: Failed to finish WRITE cmd!" 
-appears, because the loop is not exited due to the NAK.
 
-Best regards,
-Torsten Fleischer
+--XsQoSWH+UP9D9v3l
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSDRYmAAoJEBQN5MwUoCm2/pAP/1j8As96YQ39VGHZlf6vjv3I
+MMpaWfpixtND/JVIJkCzEIjiuSM4WJ1tXUGfkvZCgPPzWjrKlfs4EM5eo2XfTvd4
+AAEALH5s5XwVlwhHeQIL04lCzijf0/E868bb2FvREi/++q1XxrByRmQn9Qtfk5X/
+Fj/sxO2vyd4fVq+Sig0qUO/8Ayr1uibu2R0Qlrrmo8G1QvQa49E56tPvvZtukA2P
+h6kJ67R6THoME8BaT9z/YOMqO4VfB0wUvYksxwZBlG2jEwK2C2xyzqIg4vcMjPwK
+bObgcG26Zvh/HaoFyZAWDwFCH/B7X1j/fMCN9388lZ3zsAxq/q9v9uOnxSkz142c
+T5t46p7c/nNNHKxwXCjBk/kdkRrNBAhFPi7eGfwO0JJEFiQNNCyJTBEf3xkRrAIt
+iooPmjAjp87kO3eXv3Iylx+cVRS1wxDXzwO9K7AxnoJBytgs3txNXBA8bBmb1g+G
+KXtwvg3bMxes1kFNQV5rfioF9aoqrZCETs6BYibrt2PIkYMhn21tIlTNlUSnnem2
+DR86s91dL/10dJJC3hGm+8aATUThxlR89Qea1bidPFi2l01v/F5DS/s0yzTcZWGv
+2nK0Rc45X/cT7QhKqQGgaZejoDZ6dMJojcbaeXxOk4xTSaZylT4tGav38d/LUBPf
+D3vw1o15eNHaDbVQksRU
+=c5EO
+-----END PGP SIGNATURE-----
+
+--XsQoSWH+UP9D9v3l--
