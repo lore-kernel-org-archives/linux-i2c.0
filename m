@@ -1,59 +1,58 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 2/2] i2c: davinci: Allow i2c driver available for
- keystone platforms
-Date: Thu, 15 Aug 2013 14:31:53 +0200
-Message-ID: <20130815123153.GD17155@katana>
-References: <1374712099-32095-1-git-send-email-santosh.shilimkar@ti.com>
- <1374712099-32095-3-git-send-email-santosh.shilimkar@ti.com>
+Subject: Re: [PATCH v2 2/2] i2c: pxa: enable high speed mode for i2c bus
+Date: Thu, 15 Aug 2013 14:39:15 +0200
+Message-ID: <20130815123915.GE17155@katana>
+References: <1376016204-31328-1-git-send-email-shangll@marvell.com>
+ <CAOng1WTAemGWLVw0naPyDt4kjvu5N0mx9vucytrj2Cr7X_46VQ@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DiL7RhKs8rK9YGuF"
+	protocol="application/pgp-signature"; boundary="SNIs70sCzqvszXB4"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1374712099-32095-3-git-send-email-santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+In-Reply-To: <CAOng1WTAemGWLVw0naPyDt4kjvu5N0mx9vucytrj2Cr7X_46VQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+To: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---DiL7RhKs8rK9YGuF
+--SNIs70sCzqvszXB4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 24, 2013 at 08:28:19PM -0400, Santosh Shilimkar wrote:
-> Keystone SOCs uses the same I2C IP as available on DaVinci SOCs.
-> Update the config so that ARCH_KEYSTONE can use it.
+On Thu, Aug 15, 2013 at 06:48:28PM +0800, James Lebron wrote:
+> Hi Guys
 >=20
-> Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
->=20
-> Signed-off-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+> Any comments?
 
-Applied to for-next, thanks!
+As I wrote on August, 7th, I accepted the last version already; it is
+also in linux-next since then. So, this series is not needed if the only
+thing changed was the addition of the PXA910 register set. Since you
+didn't write a changelog (please always do) I assume there are no
+further changes.
 
 
---DiL7RhKs8rK9YGuF
+--SNIs70sCzqvszXB4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSDMo5AAoJEBQN5MwUoCm2R8oP/jCJXIup//UlGMxVfZJ9ZJsp
-WsZrFmS8Xb0nmBpwX6o3JZbTX9Lt9Zwkryyjrg5aASNNtisAm3tFZOX3lJ0Pzsjc
-HJQzkEQ3qRZTLwvZp35uaakkEvCLUF/aLtMmeLc5g5pum37lCoBTkddQ0OiPM+Bl
-qB6lELygLEofIK90LtLSO9UQVJIMzvOWDCBmEcVfLVRy2W//OI21M2u0wX9WIm9J
-4T4+f0wPXUdPQPDF276vXTor5E10Mgu6jRpdIDGwgxUdbJJNLf3TVgt4f/pt3mIx
-vOvU7eKXPoUh/BSGsK9zYs03DI0uQqXXpUMGkqZppQQlvMuSNPqJcpp+2HhbnS/Z
-gWUopUooD7AUbqZhluW2UqklchFdV/PI3fqSXrRDoUVLeGLkEKzaWTXn3qtZX0lL
-sEi51v14sz+dTUpL/WifQlEJfkIKX/rjSaDmp3nQYVXoSLss71dJBVGbgy849gsY
-scjtq8LuFc5j5X+ZKPoVL1bL/X7QxMaIlYzTAtveP+0JpsQmBWucN16Vly7hBuym
-ldiIFb44Nmb5Lm2/fzNI4uPI8Vd4lF/wQoun7kBnuiSA0s03EPkRdLysCNeXNLgh
-gN2SeGBJrsHpceWVr+yYSZ2HJPzY+lztC3YJJu4zfY8CdJ8yQxqksg0acrrJlNGg
-vgRbJLD6nM7jDBM+5eeU
-=OeJP
+iQIcBAEBAgAGBQJSDMvzAAoJEBQN5MwUoCm2eWkP/j4OgvP390mDacPjDzOl68TZ
+OJu/9pymu40cw48w9wRUF4Evp9inAPWs4f+TvOwOA+DWge/eM5FB1XqTF7YnlflC
+ZueSV0bVKvk4ftdEZv94F4WT6BDlOg0W0qoLyPEgNu56RyT9bz/VJMcvWmAkA6Wu
+2thawhzntbAJo0qe9w3XFp9yb+hwCsLDp06sUwGAjvNylbvoXiQZD4NLBKEMhkrj
+rtbjNHUYHberek4L4/jH7pTLOjvp158oTdWaRp1xZqeOpDJM2+h4KPhHj2GWniyU
+vAuqhmUHdZQesc17BbmJ5BCL328q4yj0/ZgtuBEIeIcmrGxNY+bLwO+Ycaz5kr91
+SyZ/lEz50xJbSMAiHC+nbssLgCcnia7IOyRSRGmcI9bKf0hYl/nR+7l0P/eynXiL
+Vdh7T6KazylH4roE7c4ygdYVt86s759xYKxok8lxJ8fHYKVCTN2C9vd6tD/Fm5F1
+ngVRnY8gMisqTHTL5jhLaa+WXJjujIRwzxrZCJms0koFBSDwPL8JXjeky2klxs0o
+/xvUhrtymQ1Ve6qmb8JMwtCK26UMDEZz7tTjCD+7ROrUoVsC2K19avUGKKZkRQXf
+SZ6muLUXWQjAJBsatPqJv1t/srx1vjqmKH4c6UV1TUrk+V3+ISG69BMDXzcs3Ju/
+TcMo7wjHC90srsRfcfwz
+=m91u
 -----END PGP SIGNATURE-----
 
---DiL7RhKs8rK9YGuF--
+--SNIs70sCzqvszXB4--
