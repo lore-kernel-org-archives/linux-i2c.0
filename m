@@ -1,59 +1,101 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v5 1/3] i2c-mv64xxx: Add I2C Transaction Generator support
-Date: Thu, 15 Aug 2013 14:13:40 +0200
-Message-ID: <20130815121340.GB17155@katana>
-References: <1376039158-1896-1-git-send-email-gregory.clement@free-electrons.com>
- <1376039158-1896-2-git-send-email-gregory.clement@free-electrons.com>
+Subject: Re: [PATCH 1/2] i2c: davinci: remove useless mach/hardware include
+Date: Thu, 15 Aug 2013 14:31:37 +0200
+Message-ID: <20130815123137.GC17155@katana>
+References: <1374712099-32095-1-git-send-email-santosh.shilimkar@ti.com>
+ <1374712099-32095-2-git-send-email-santosh.shilimkar@ti.com>
+ <51F0F283.5080900@ti.com>
+ <51F191AD.9020108@ti.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="s/l3CgOIzMHHjg/5"
+	protocol="application/pgp-signature"; boundary="E/DnYTRukya0zdZ1"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1376039158-1896-2-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+In-Reply-To: <51F191AD.9020108-l0cyMroinI0@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+To: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---s/l3CgOIzMHHjg/5
+--E/DnYTRukya0zdZ1
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, Jul 25, 2013 at 04:59:25PM -0400, Santosh Shilimkar wrote:
+> On Thursday 25 July 2013 05:40 AM, Sekhar Nori wrote:
+> > On Thursday 25 July 2013 05:58 AM, Santosh Shilimkar wrote:
+> >> This driver no longer uses definitions from mach/hardware.h.
+> >> On the other hand, including this header breaks this driver
+> >> on non-davinci platforms which don't have such a header.
+> >>
+> >> Fix it.
+> >>
+> >> Cc: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+> >> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> >>
+> >> Signed-off-by: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+> >=20
+> > Acked-by: Sekhar Nori <nsekhar-l0cyMroinI0@public.gmane.org>
+> >=20
+> > One minor nit:
+> >=20
+> >> ---
+> >>  drivers/i2c/busses/i2c-davinci.c |    1 -
+> >>  1 file changed, 1 deletion(-)
+> >>
+> >> diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c=
+-davinci.c
+> >> index fa55605..ddaa2a3 100644
+> >> --- a/drivers/i2c/busses/i2c-davinci.c
+> >> +++ b/drivers/i2c/busses/i2c-davinci.c
+> >> @@ -41,7 +41,6 @@
+> >>  #include <linux/of_i2c.h>
+> >>  #include <linux/of_device.h>
+> >> =20
+> >=20
+> > You can now remove this empty line too.
+> >=20
+> Yes. Updated patch below with your ack added.
+>=20
+> Regards,
+> Santosh
+>=20
+> From d7ae1c488ebae19028f33abff76c4d684271a7fb Mon Sep 17 00:00:00 2001
+> From: Santosh Shilimkar <santosh.shilimkar-l0cyMroinI0@public.gmane.org>
+> Date: Tue, 23 Jul 2013 15:40:46 -0400
+> Subject: [PATCH 1/2] i2c: davinci: remove useless mach/hardware include
+>=20
+> This driver no longer uses definitions from mach/hardware.h.
+> On the other hand, including this header breaks this driver
+> on non-davinci platforms which don't have such a header.
+>=20
+> Fix it.
 
-> +	if ((msg->flags & I2C_M_RD) == 0) {
-> +		for (i = 0; i < 4 && i < msg->len; i++)
-> +			data_reg_lo = data_reg_lo |
-> +					(msg->buf[i] << ((i & 0x3) * 8));
-> +
-> +		for (i = 4; i < 8 && i < msg->len; i++)
-> +			data_reg_hi = data_reg_hi |
-> +					(msg->buf[i] << ((i & 0x3) * 8));
+Applied to for-next, thanks! Please send a proper V2 in a seperate
+message next time.
 
-Same comment as in the last version: What about be32_to_cpu and friends
-instead of the loops (here and later)?
-
-
---s/l3CgOIzMHHjg/5
+--E/DnYTRukya0zdZ1
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSDMX0AAoJEBQN5MwUoCm2bDMQAIEIC47HsTU2net7t8EWhOx/
-7SVsAwNrmNUWNvgn29A8wM+AWIDmp6sZLEoRD70zRQQq4MTtiANQ/shsp5CCRik2
-KyOiCG16e06/j0wE9QrQNz+97rOFqUMDl8tJbGkDaz3/BWHF0uTh12Skkj37g9TC
-FWlIo9QgFI/r8HApcGjuFqiiw3El6SqGvPoLkBnzHoJ1dj1TiLG4Y+4QCkxrUOFc
-PofWqYA+0wiXCnb2FZmF5NJwKPA//txVpQd976TrRpifZ4AJNXREYrQu/fiEdSBr
-DyNhiEvbDvzuP2MRD7Uk8Uh7CGeOzUynGnWKDV2mxTY0TX3SkShEze6lBoC7Ekc0
-pnfBW0ECCMLfLvJeFwrXl7UtI2z7ehCxLE5/43sCNCQ80BOcQ0cZlr4z84dBy4Dk
-/LYO+VPoBNF87folXzp9CmGgQG0jqFaRgVh2VMEXbpZBwT6Nm4doJhQ2leSTxSwm
-JWHxeskO7dn9rxGeXaScClt44ClS7mudj8CJ05Jv/Ymjs3DNMUruBWQDEBLXvRw5
-CDGWSBcmskgf97f+TYnxQy2G6kR+hi3gkaSSHCZwRt9As6c71qQeozbWehVoZmkm
-Q/ImCBzEx2usyf7jIYW7vxFYOexwF6P0BVCzsexT8mAUhy12/bAUR1xrXPUlo44+
-jzQlu7jItYTFH7Byc2lb
-=7oqp
+iQIcBAEBAgAGBQJSDMopAAoJEBQN5MwUoCm2efYP/1xfUHLuKrZizeT7mnroEK0q
+qT2Uw1HchxNkv4sAWF2s3LcEonxDctYzE+u9H6tuWpmfMH03p8M0MTsGV3ElCsWo
+ugqmVcOI3zPgImapSIt285px4MLCwcb+jvqbhUYx4hdBoYdJU5IFTnhyXcy6McZn
+3X6YiPPxsXZd+0lMf0zMxgr4+AzEP3hCUQF4AGqXoZN6q2a82XfkeidGhsiS+iUi
+9PC77LJsh1Cfv6Y1mMkkm2WdCXPgXfsnd8dTW//vH3pYLCh/ip4Lj1xzI0fLEadq
+17MaMy8XLDy4SvqoFQSmvrE+QYOEOoKNTW+fuQPvMoNol45KoDvo0d/s7k0Du6Rp
+v8LkiCp9cChKFHND2UDf6N0SuW4s9gsA6l671EvbPuLJ00daIT9GoHWVWPDGHJ/i
+fRZA4exJQfqEdvldJrVD8JcT8EFf2juyVRWOnafXW+9iU0LJKfePKx9w54WVqFGw
+mycPwTKQKlwLQDOud8etg2CdbceI59ZegbNltqP/nu6f3jIfpiLwguS7h7XsgFob
+w78XiEb0cX235zztFrjEp6l3RomLVQZg01tje5zLnwQsvCtPf5UD6TieKAjIgkYn
+1rfKr1c6yMY3pClXVwvESJfcb6nPy3nVPNOQtjiiWMVpKuMnZAmEKouhJxZmoKUi
+py5Di3G3lU/VYlTaM0JG
+=NIhm
 -----END PGP SIGNATURE-----
 
---s/l3CgOIzMHHjg/5--
+--E/DnYTRukya0zdZ1--
