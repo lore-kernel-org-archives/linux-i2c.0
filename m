@@ -1,50 +1,41 @@
-From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH RESEND] ARM: dts: vf610-twr: enable i2c0 device
-Date: Fri, 16 Aug 2013 15:25:38 +0800
-Message-ID: <20130816072536.GA16889@S2101-09.ap.freescale.net>
-References: <1376629339-4647-1-git-send-email-b35083@freescale.com>
+From: James Lebron <leileishangchina-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH v2 2/2] i2c: pxa: enable high speed mode for i2c bus
+Date: Fri, 16 Aug 2013 15:27:42 +0800
+Message-ID: <CAOng1WTiWCaF_LNtRnK4MsCF77pf9J689FaFf-sZ4ZJ9mj+oYw@mail.gmail.com>
+References: <1376016204-31328-1-git-send-email-shangll@marvell.com>
+	<CAOng1WTAemGWLVw0naPyDt4kjvu5N0mx9vucytrj2Cr7X_46VQ@mail.gmail.com>
+	<20130815123915.GE17155@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1376629339-4647-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <20130815123915.GE17155@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: Leilei Shang <shangll-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Aug 16, 2013 at 01:02:19PM +0800, Jingchang Lu wrote:
-> enable i2c0 device on Vybrid VF610 Tower Board
-> 
-> Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Hi Wolfram,
 
-Applied, thanks.
+Thanks for your quick response!
 
-Shawn
+Do you mean my initial patch has already been accept and I don't need
+to push patch v2?
+If yes, do I need to rebase the patch?
 
-> ---
->  arch/arm/boot/dts/vf610-twr.dts | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/arch/arm/boot/dts/vf610-twr.dts b/arch/arm/boot/dts/vf610-twr.dts
-> index b3905f5..1a58678 100644
-> --- a/arch/arm/boot/dts/vf610-twr.dts
-> +++ b/arch/arm/boot/dts/vf610-twr.dts
-> @@ -50,6 +50,13 @@
->  	status = "okay";
->  };
->  
-> +&i2c0 {
-> +	clock-frequency = <100000>;
-> +	pinctrl-names = "default";
-> +	pinctrl-0 = <&pinctrl_i2c0_1>;
-> +	status = "okay";
-> +};
-> +
->  &uart1 {
->  	pinctrl-names = "default";
->  	pinctrl-0 = <&pinctrl_uart1_1>;
-> -- 
-> 1.8.0
-> 
-> 
+And sorry for don't write changelog.
+
+Best regards,
+Leilei
+
+2013/8/15 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
+> On Thu, Aug 15, 2013 at 06:48:28PM +0800, James Lebron wrote:
+>> Hi Guys
+>>
+>> Any comments?
+>
+> As I wrote on August, 7th, I accepted the last version already; it is
+> also in linux-next since then. So, this series is not needed if the only
+> thing changed was the addition of the PXA910 register set. Since you
+> didn't write a changelog (please always do) I assume there are no
+> further changes.
+>
