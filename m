@@ -1,46 +1,39 @@
-From: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
-Subject: Re: [PATCH v10] i2c: exynos5: add High Speed I2C controller driver
-Date: Fri, 16 Aug 2013 10:28:23 +0530
-Message-ID: <CAHfPSqBnj2OTHdbnW3SCRf7SL1maMsWau1+9DWFLYRBM+1HOJQ@mail.gmail.com>
-References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
- <1371638905-30633-1-git-send-email-ch.naveen@samsung.com> <3925484.kHD24rQYyy@amdc1227>
- <20130815131226.GI17155@katana>
+From: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [PATCH RESEND] ARM: dts: vf610-twr: enable i2c0 device
+Date: Fri, 16 Aug 2013 13:02:19 +0800
+Message-ID: <1376629339-4647-1-git-send-email-b35083@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-In-Reply-To: <20130815131226.GI17155@katana>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Tomasz Figa <t.figa@samsung.com>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, devicetree-discuss@lists.ozlabs.org, Kukjin Kim <kgene.kim@samsung.com>, grant.likely@secretlab.ca, linux-kernel@vger.kernel.org, taeggyun.ko@samsung.com, balbi@ti.com, thomas.abraham@linaro.org
+Content-Type: text/plain
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 15 August 2013 18:42, Wolfram Sang <wsa@the-dreams.de> wrote:
-> On Mon, Jul 01, 2013 at 12:25:19PM +0200, Tomasz Figa wrote:
->> Hi Naveen,
->>
->> Looks mostly good, but see some comments inline.
->
-> Ping?
-Hello Wolfram,
+enable i2c0 device on Vybrid VF610 Tower Board
 
-I made a patch fixing your comments and from Thomas Figa as well.
+Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+ arch/arm/boot/dts/vf610-twr.dts | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Meanwhile, we hit a random crash in exynos5_i2c_irq function.
-The "len" variable being is still being near the FIFO_MAX after this condition
- len = HSI2C_FIFO_MAX - fifo_level;
- +             if (len > i2c->msg->len)
- +                     len = i2c->msg->len;
-
-Once, we fix this problem. i planned to rebase and submit.
-
-Is it okey with you?
-
-Thanks,
-Naveen
->
-
-
-
+diff --git a/arch/arm/boot/dts/vf610-twr.dts b/arch/arm/boot/dts/vf610-twr.dts
+index b3905f5..1a58678 100644
+--- a/arch/arm/boot/dts/vf610-twr.dts
++++ b/arch/arm/boot/dts/vf610-twr.dts
+@@ -50,6 +50,13 @@
+ 	status = "okay";
+ };
+ 
++&i2c0 {
++	clock-frequency = <100000>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_i2c0_1>;
++	status = "okay";
++};
++
+ &uart1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_uart1_1>;
 -- 
-Shine bright,
-(: Nav :)
+1.8.0
