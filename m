@@ -1,57 +1,50 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v10] i2c: exynos5: add High Speed I2C controller driver
-Date: Fri, 16 Aug 2013 09:05:00 +0200
-Message-ID: <20130816070500.GA3046@katana>
-References: <1354021236-28596-2-git-send-email-ch.naveen@samsung.com>
- <1371638905-30633-1-git-send-email-ch.naveen@samsung.com>
- <3925484.kHD24rQYyy@amdc1227>
- <20130815131226.GI17155@katana>
- <CAHfPSqBnj2OTHdbnW3SCRf7SL1maMsWau1+9DWFLYRBM+1HOJQ@mail.gmail.com>
+From: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH RESEND] ARM: dts: vf610-twr: enable i2c0 device
+Date: Fri, 16 Aug 2013 15:25:38 +0800
+Message-ID: <20130816072536.GA16889@S2101-09.ap.freescale.net>
+References: <1376629339-4647-1-git-send-email-b35083@freescale.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BOKacYhQ+x31HxR3"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAHfPSqBnj2OTHdbnW3SCRf7SL1maMsWau1+9DWFLYRBM+1HOJQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Naveen Krishna Ch <naveenkrishna.ch@gmail.com>
-Cc: Tomasz Figa <t.figa@samsung.com>, Naveen Krishna Chatradhi <ch.naveen@samsung.com>, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, "linux-samsung-soc@vger.kernel.org" <linux-samsung-soc@vger.kernel.org>, devicetree-discuss@lists.ozlabs.org, Kukjin Kim <kgene.kim@samsung.com>, grant.likely@secretlab.ca, linux-kernel@vger.kernel.org, taeggyun.ko@samsung.com, balbi@ti.com, thomas.abraham@linaro.org
+In-Reply-To: <1376629339-4647-1-git-send-email-b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Fri, Aug 16, 2013 at 01:02:19PM +0800, Jingchang Lu wrote:
+> enable i2c0 device on Vybrid VF610 Tower Board
+> 
+> Signed-off-by: Jingchang Lu <b35083-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
 
---BOKacYhQ+x31HxR3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applied, thanks.
 
+Shawn
 
-> Once, we fix this problem. i planned to rebase and submit.
->=20
-> Is it okey with you?
-
-Perfectly fine. Thanks for the heads up.
-
-
---BOKacYhQ+x31HxR3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSDc8cAAoJEBQN5MwUoCm25cIP/22yNBOO1nSiKedOZMw4S5EI
-hsywrjpoLQXfJXswRER+c1RSBya7S9JVahPxlJ0dIJXdTi+WYLaVBsZEzLsup6zh
-tJIydVzskt3aHozFIr77byir3xEtilZBnJ2RsUnjp+hOJteAb00x4CXm13fA3J6e
-StzvjnZ+C14kxbUbv7inuj2ARg6BON3FV3YNHKBJx1y4vPCfvAmBnL1L0c9UFTvi
-U5+Vg1LRqdhPh3V549yrS5tP4Lv8NdSYpVs8fKHuDvyKLG49D56lw+Jl51lkkeKb
-v6I3zB++1DL/zp/Bvx6f6HkWduytqbHU38sDGDxcmiY5C6DlGees5590vkkBP1Qv
-veM53ULgiDjWDOPBGXZWXf9JTzTSmFVUQVL9ajNGyP8b3JCCuBj4pMXTtoZkFY7e
-hCzoD5hqOa5wl60qJYhi4bQ/uJ8uBjbbOjYpcBkshEnsNlYMTDJvULLORU5lMywh
-ukOLwOMH7fZC0GjTBKaboz87JNX+iE2YZ9POzVWlDHwcDWXMVrMRTo+uQIfT1lnd
-Ql0ReWOAvfqm5HMcoKVHhVn+tH5uqipJVLeScDBIpwIhXOK3SzkWKYBsdPdC5RuA
-spD7ez64NgxHpN7sWlxExygec1q06CTf+tvy6TVMxLQrJR8OCWPmzwrbXau+kDqh
-5YgQuxeg+avitKCNkpnh
-=Oa2x
------END PGP SIGNATURE-----
-
---BOKacYhQ+x31HxR3--
+> ---
+>  arch/arm/boot/dts/vf610-twr.dts | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/arch/arm/boot/dts/vf610-twr.dts b/arch/arm/boot/dts/vf610-twr.dts
+> index b3905f5..1a58678 100644
+> --- a/arch/arm/boot/dts/vf610-twr.dts
+> +++ b/arch/arm/boot/dts/vf610-twr.dts
+> @@ -50,6 +50,13 @@
+>  	status = "okay";
+>  };
+>  
+> +&i2c0 {
+> +	clock-frequency = <100000>;
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&pinctrl_i2c0_1>;
+> +	status = "okay";
+> +};
+> +
+>  &uart1 {
+>  	pinctrl-names = "default";
+>  	pinctrl-0 = <&pinctrl_uart1_1>;
+> -- 
+> 1.8.0
+> 
+> 
