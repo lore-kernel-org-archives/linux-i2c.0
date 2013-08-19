@@ -1,67 +1,46 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-omap: always send stop after nack
-Date: Mon, 19 Aug 2013 14:11:23 +0200
-Message-ID: <20130819121123.GA4540@katana>
-References: <51E50217.1000507@yahoo.es>
- <20130716090300.GG8880@arwen.pp.htv.fi>
- <51E5137B.7000302@yahoo.es>
- <20130716094212.GL8880@arwen.pp.htv.fi>
- <51E527F7.4080007@ti.com>
- <20130716112746.GN8880@arwen.pp.htv.fi>
- <51E537A4.40300@ti.com>
- <20130716130058.GD15036@arwen.pp.htv.fi>
- <51E57211.2040001@yahoo.es>
+From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: Re: [PATCH] i2c: i2c_mxs: Set ACK_MODE bit
+Date: Mon, 19 Aug 2013 09:19:01 -0300
+Message-ID: <52120D35.707@freescale.com>
+References: <1372780860-12972-1-git-send-email-fabio.estevam@freescale.com> <20130815100809.GE2987@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <51E57211.2040001-mRCrAkd8dF0@public.gmane.org>
+In-Reply-To: <20130815100809.GE2987@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hein Tibosch <hein_tibosch-mRCrAkd8dF0@public.gmane.org>
-Cc: balbi-l0cyMroinI0@public.gmane.org, Grygorii Strashko <grygorii.strashko-l0cyMroinI0@public.gmane.org>, Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>, linux-i2c <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-omap <linux-omap-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-kernel <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: marex-ynQEQJNshbs@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, cb-/RsSufbtIHM@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 08/15/2013 07:08 AM, Wolfram Sang wrote:
+> On Tue, Jul 02, 2013 at 01:01:00PM -0300, Fabio Estevam wrote:
+>> According to mx23 erratum 2727:
+>>
+>> "2727 : I2C 9th Clock Pulse (ACK) not generated when RETAIN_CLOCK set.
+>>
+>> Description:
+>>
+>> When RETAIN_CLOCK is set, the ninth clock pulse (ACK) is not generated.
+>> However, the SDA line is read at the proper timing interval. If
+>> RETAIN_CLOCK is cleared, the ninth clock pulse is generated.
+>> Also, the HW_I2C_VERSION register incorrectly states the version is 1.2.
+>> It should be 1.3.
+>>
+>> Workaround:
+>> HW_I2C_CTRL1[ACK_MODE] has default value of 0. It should be set to 1 to
+>> enable the fix for this issue."
+>>
+>> It has also been noticed that mx28 needs to implement this fix in order to have
+>> SMBus to work properly.
+>>
+>> Reported-by: Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>
+>> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+>
+> What's with this one? Bogus? Needed? Still needed after PIO rework?
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+According to the mx23 erratum 2727 this patch is needed.
 
-Hi,
+Regards,
 
-> > Which means your original patch starts to make a lot more sense. I
-> > wonder is this is really what we should be doing though - breaking out
-> > of the loop, I mean.
-
-Yup, that is fine. I applied the old patch with Acks from Hein and
-Felipe to -next. Thanks!
-
-> It looks like TI's i2c-davinci will have the same problem as i2c-omap,
-> and will need the same change.
-
-Somebody up for this?
-
-
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSEgtrAAoJEBQN5MwUoCm2ttcP/0+JcvKzt55RYxT/w4U3NKq5
-IiJ+pQjIKyf//T1FQO2dAdiSq4Z2hXU0Z7+7ZNFkTHLhkXOvSoSDZnRBn3fNJKq3
-Z5UfyOu5kIz+DbtoK1X3hXeGGlVoasEihw8Ptq0V3xZu6TpRf779JOlPNDBAZswY
-Lg1R3KB/BU4vJ1Gi4w3LYSu0RaFCC4CHwhKT/+ZdSTUuIyWP4tZy8peDH09XWYRi
-ZCKo0AdlasaPfRayOWZvcHDr+wdTChIdY+UyMPYgYtqTqTjDCCddgDK+yWPH8Lwi
-OiVXxneAFnKRjpGCOsWIu7LSMlcRAkb2uk5BRV07VJxFSkm10fMy/WiGq2wubiqu
-B620bTOWRVCjFYMoOvKR2rcGFh9umV42MLqbhBdZVSms2cG6+fkWD8g/LmUMCVc3
-kOJkuLiop8k1142vjcMWEqVbhN7SoshP9nYGvRf3MLT/ctM00lRSjeg+kP63F65v
-03X0PBF0+pEeXuc07hi5BylUtBE+MpBtMtC5fXnj41KhlzSE0ZBqRk+1EjEzC9uy
-VBqK8cOSfoExTSPRp3Xu5C22FmTJwDq2EJEHxAJ3s3GGBIi5c/pYdBW8xbXSOJSG
-28uSDL2sFMs99qrCEJQycCJ1p10OQ9RXfXP1KpJXDLszpS7Fesps4gExlo/kpRMs
-ssP6gFzfWtigXYEoe0LR
-=PZST
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
+Fabio Estevam
