@@ -1,46 +1,46 @@
-From: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c_mxs: Set ACK_MODE bit
-Date: Mon, 19 Aug 2013 09:19:01 -0300
-Message-ID: <52120D35.707@freescale.com>
-References: <1372780860-12972-1-git-send-email-fabio.estevam@freescale.com> <20130815100809.GE2987@katana>
+From: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
+Date: Mon, 19 Aug 2013 21:22:46 +0900
+Message-ID: <52120E16.8010503@pobox.com>
+References: <20130711101330.GP4898@intel.com> <51DFB6C1.4040001@pobox.com> <20130712085140.GY4898@intel.com> <51E0E76B.1040304@pobox.com> <20130716111616.GA25835@ab42.lan> <51E6ACBE.7000509@pobox.com> <20130722131706.GA24081@ab42.lan> <51EFE550.1000507@pobox.com> <20130805093126.GE20936@ab42.lan> <520D8B30.9000602@pobox.com> <20130819113604.GN4898@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130815100809.GE2987@katana>
+In-Reply-To: <20130819113604.GN4898-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: marex-ynQEQJNshbs@public.gmane.org, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, cb-/RsSufbtIHM@public.gmane.org
+To: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org
+Cc: christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 08/15/2013 07:08 AM, Wolfram Sang wrote:
-> On Tue, Jul 02, 2013 at 01:01:00PM -0300, Fabio Estevam wrote:
->> According to mx23 erratum 2727:
+Hi,
+
+On 8/19/13 8:36 PM, Mika Westerberg wrote:
+> On Fri, Aug 16, 2013 at 11:15:12AM +0900, Shinya Kuribayashi wrote:
+>>> Actually, the I2C specification clearly defines f_SCL;max (and thus
+>>> implies t_SCL;min), both in the tables and the timing diagrams. Why can
+>>> we ignore this constraint while having to meet all the others?
 >>
->> "2727 : I2C 9th Clock Pulse (ACK) not generated when RETAIN_CLOCK set.
->>
->> Description:
->>
->> When RETAIN_CLOCK is set, the ninth clock pulse (ACK) is not generated.
->> However, the SDA line is read at the proper timing interval. If
->> RETAIN_CLOCK is cleared, the ninth clock pulse is generated.
->> Also, the HW_I2C_VERSION register incorrectly states the version is 1.2.
->> It should be 1.3.
->>
->> Workaround:
->> HW_I2C_CTRL1[ACK_MODE] has default value of 0. It should be set to 1 to
->> enable the fix for this issue."
->>
->> It has also been noticed that mx28 needs to implement this fix in order to have
->> SMBus to work properly.
->>
->> Reported-by: Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>
->> Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+>> If we meet t_r, t_f, t_HIGH, t_LOW (and t_HIGH in this DW case),
+>> f_SCL;max will be met by itself.  And again, all I2C master and
+>> slave devices in the bus don't care about f_SCL; what they do care
+>> are t_f, t_r, t_HIGH, t_LOW, and so on.  That's why I'm saying
+>> f_SCL is pointless and has no value for HCNT/LCNT calculations.
 >
-> What's with this one? Bogus? Needed? Still needed after PIO rework?
+> One thing that comes to mind regarding the bus speed is that even if we
+> have all the minimal timing requirements met we still prefer resulting bus
+> speeds closer to 400kHz than 315.41kHz for the reasons that we get more
+> data transferred that way, no?
 
-According to the mx23 erratum 2727 this patch is needed.
+That depends I2C slave devices in the bus in your target systems.
+As long as your slave devices can detect START/STOP conditions and
+recognize SDA/SCL transitions properly, that should be Ok (you can
+use HCNT/LCNT settings for 400 kHz without having all the minimal
+timing requirements met).
 
-Regards,
+My comments above was a reply to Christian's snippet code and how to
+treat f_SCL;mas constraints, and unrelated to your case in question.
+I'm for having a way to override HCNT/LCNT values as said before, and
+that should nicely work for you.
 
-Fabio Estevam
+   Shinya
