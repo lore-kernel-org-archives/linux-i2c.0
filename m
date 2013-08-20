@@ -1,34 +1,39 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] i2c: move of helpers into the core
-Date: Tue, 20 Aug 2013 01:25:27 +0200
-Message-ID: <3721030.UJAkTdQrEC@vostro.rjw.lan>
-References: <1376918361-7014-1-git-send-email-wsa@the-dreams.de> <3792014.HtzPVmLjnf@vostro.rjw.lan> <5212A293.2030903@wwwdotorg.org>
+From: Barry Song <21cnbao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 4/5] i2c: sirfsoc: support reverse direction of address
+Date: Tue, 20 Aug 2013 10:30:34 +0800
+Message-ID: <CAGsJ_4xoPCJyWZ=_nN6wZBAy2qMER=cKOqY_t8K_jAX8fZWGmA@mail.gmail.com>
+References: <1376385091-30597-1-git-send-email-Baohua.Song@csr.com>
+ <1376385091-30597-5-git-send-email-Baohua.Song@csr.com> <20130819180654.GE8626@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <5212A293.2030903@wwwdotorg.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=UTF-8
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130819180654.GE8626@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, DL-SHA-WorkGroupLinux <workgroup.linux-kQvG35nSl+M@public.gmane.org>, Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>, Rongjun Ying <rongjun.ying-kQvG35nSl+M@public.gmane.org>, Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, August 19, 2013 04:56:19 PM Stephen Warren wrote:
-> On 08/19/2013 05:04 PM, Rafael J. Wysocki wrote:
-> > On Monday, August 19, 2013 03:19:18 PM Wolfram Sang wrote:
-> >> I2C of helpers used to live in of_i2c.c but experience (from SPI) shows
-> >> that it is much cleaner to have this in the core. This also removes a
-> >> circular dependency between the helpers and the core, and so we can
-> >> finally register child nodes in the core instead of doing this manually
-> >> in each driver. So, fix the drivers and documentation, too.
-> > 
-> > Perhaps we should do the analogous for ACPI then?
-> > 
-> > Rafael
-> 
-> Aargh. Why quote the entire patch just to say one line?
+2013/8/20 Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>:
+> On Tue, Aug 13, 2013 at 05:11:30PM +0800, Barry Song wrote:
+>> From: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+>>
+>> if users set I2C_M_REV_DIR_ADDR, revert the direction of address.
+>>
+>> Signed-off-by: Zhiwu Song <Zhiwu.Song-kQvG35nSl+M@public.gmane.org>
+>> Signed-off-by: Rongjun Ying <rongjun.ying-kQvG35nSl+M@public.gmane.org>
+>> Signed-off-by: Barry Song <Baohua.Song-kQvG35nSl+M@public.gmane.org>
+>
+> Hmm, you are not advertising I2C_FUNC_PROTOCOL_MANGLING so users should
+> not use it.
 
-Because I didn't think I could just skip the patch? ;-)
+Wolfram, good comments. the old codes did miss
+I2C_FUNC_PROTOCOL_MANGLING which i will fix in v2.
 
-Also I could trim the CC list quite a bit (done now).
+> Does the master allow to implement the rest of mangling,
+> too?
+>
 
+i think only I2C_M_REV_DIR_ADDR. i didn't hear I2C_M_NOSTART,
+I2C_M_IGNORE_NAK from hardware guys.
+
+-barry
