@@ -1,95 +1,39 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: move of helpers into the core
-Date: Tue, 20 Aug 2013 16:30:43 +0200
-Message-ID: <20130820143043.GA2993@katana>
-References: <1376918361-7014-1-git-send-email-wsa@the-dreams.de>
- <3792014.HtzPVmLjnf@vostro.rjw.lan>
- <5212A293.2030903@wwwdotorg.org>
- <3721030.UJAkTdQrEC@vostro.rjw.lan>
- <20130820092813.GW4898@intel.com>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v5 1/3] i2c-mv64xxx: Add I2C Transaction Generator support
+Date: Tue, 20 Aug 2013 17:56:02 +0200
+Message-ID: <52139192.5070507@free-electrons.com>
+References: <1376039158-1896-1-git-send-email-gregory.clement@free-electrons.com> <1376039158-1896-2-git-send-email-gregory.clement@free-electrons.com> <20130815121340.GB17155@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="envbJBWh7q8WU6mo"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130820092813.GW4898@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Stephen Warren <swarren@wwwdotorg.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Jerry Snitselaar <jerry.snitselaar@oracle.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130815121340.GB17155@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On 15/08/2013 14:13, Wolfram Sang wrote:
+> 
+>> +	if ((msg->flags & I2C_M_RD) == 0) { +		for (i = 0; i < 4 && i < msg->len; i++) +			data_reg_lo = data_reg_lo | +					(msg->buf[i] << ((i & 0x3) * 8)); + +		for (i = 4; i < 8 && i <
+>> msg->len; i++) +			data_reg_hi = data_reg_hi | +					(msg->buf[i] << ((i & 0x3) * 8));
+> 
+> Same comment as in the last version: What about be32_to_cpu and friends instead of the loops (here and later)?
+> 
 
---envbJBWh7q8WU6mo
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We can't use be32_to_cpu and friends, because one of the stop condition of this
+loop is the length of the msg.
 
-On Tue, Aug 20, 2013 at 12:28:13PM +0300, Mika Westerberg wrote:
-> [Added Jerry as he found out a problem when acpi_i2c is being build as a
-> module, this should solve it as well.]
->=20
-> On Tue, Aug 20, 2013 at 01:25:27AM +0200, Rafael J. Wysocki wrote:
-> > On Monday, August 19, 2013 04:56:19 PM Stephen Warren wrote:
-> > > On 08/19/2013 05:04 PM, Rafael J. Wysocki wrote:
-> > > > On Monday, August 19, 2013 03:19:18 PM Wolfram Sang wrote:
-> > > >> I2C of helpers used to live in of_i2c.c but experience (from SPI) =
-shows
-> > > >> that it is much cleaner to have this in the core. This also remove=
-s a
-> > > >> circular dependency between the helpers and the core, and so we can
-> > > >> finally register child nodes in the core instead of doing this man=
-ually
-> > > >> in each driver. So, fix the drivers and documentation, too.
-> > > >=20
-> > > > Perhaps we should do the analogous for ACPI then?
->=20
-> Here is the ACPI version based on the current patch from Wolfram (there is
-> a compile error because of missing dummy implementation of
-> of_i2c_register_devices())
->=20
-> From: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Subject: [PATCH] i2c: move ACPI helpers into the core
->=20
-> This follows what has already been done for the DeviceTree helpers. Move
-> the ACPI helpers from drivers/acpi/acpi_i2c.c to the I2C core and update
-> documentation accordingly.
->=20
-> This also solves a problem reported by Jerry Snitselaar that we can't bui=
-ld
-> the ACPI I2C helpers as a module.
->=20
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+For reading from msg->buf we could consider to mask the irrelevant part.But for
+writing to msg->buf it would imply to write outside of the allocated buffer!
 
-Nice, one thing, though:
+Do you agree to not change anything on this patch?
 
->  	/* create pre-declared device nodes */
->  	of_i2c_register_devices(adap);
-> +	acpi_i2c_register_devices(adap);
-
-I prefer the if (IS_ENABLED()) solution and will use this in my V2 as
-well.
+Thanks,
 
 
---envbJBWh7q8WU6mo
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSE32TAAoJEBQN5MwUoCm2EYAP/0dkhCPPhe1WQe8ruo9GZv/M
-ie2yM4x2+IXNurZGc8JnxgtBH9D2I39ZEatRsBFJy6ISOCNqb5okdEMPmbAL37gk
-iOUZH3KUqvlgaADNd/sQHH13xlZzi/0Rjb8695QhMGwSqljZFEoMw8BpvKc5wQtG
-d1n4t56XDPjtYCbc5pStllBQiqKiu69eqjg7QjZVD+ZgUMbjTebuqsRcAxi0JLO7
-Ieb69s4B4OlgYjgal4zyFX2v/JIJkI5f8KKxNr4DA6JzHR1lDKqmxMRlWGDCcr8O
-JukFzU+f3hqfIcDaQcvfjdGflk3/ekroR9F2GPLFvPN4YRUb3SY5O65KoPzvfD4h
-Ovu0GBANclvhwOd7kGvrL3/nON0X9Bb5aFCa5cb1JxzU1XrMNya+OuGZosCAxKs5
-FEBQ67x+4BJgy5ITBnJgu7AC9E+JPMvtehGwPOHdTlkR7fxrC9Pf7ItA+vDaaNbx
-G/HvV51hLhj2iI3rWwu31ijcX0T++IbtgHAL1UVHNuu64wQtrUOeVz7zPsGNf0BG
-cw0ZQDr+QKbWlUeWqd0neMz4+zXFpUJoD+zHhrg8fX32c9dTVjYA/rAnIypk9aoU
-1+9JnGj9y6gu1CNA7YC2vKGCBBCJqk6bFtbwRFuQZSfNkbKl92H5S/kt64QBvi4M
-CxBJ76FB8B0RW9r8kUn7
-=vcrl
------END PGP SIGNATURE-----
-
---envbJBWh7q8WU6mo--
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
