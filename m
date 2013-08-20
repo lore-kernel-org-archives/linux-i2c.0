@@ -1,364 +1,159 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH] i2c: move of helpers into the core
-Date: Tue, 20 Aug 2013 14:31:15 +0200
-Message-ID: <6907174.7edssUaWxD@vostro.rjw.lan>
-References: <1376918361-7014-1-git-send-email-wsa@the-dreams.de> <3721030.UJAkTdQrEC@vostro.rjw.lan> <20130820092813.GW4898@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [RFC PATCH 1/2] i2c: prepare runtime PM support for I2C client devices
+Date: Tue, 20 Aug 2013 17:03:35 +0300
+Message-ID: <1377007416-13851-2-git-send-email-mika.westerberg@linux.intel.com>
+References: <1377007416-13851-1-git-send-email-mika.westerberg@linux.intel.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130820092813.GW4898@intel.com>
+In-Reply-To: <1377007416-13851-1-git-send-email-mika.westerberg@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Jerry Snitselaar <jerry.snitselaar@oracle.com>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, August 20, 2013 12:28:13 PM Mika Westerberg wrote:
-> [Added Jerry as he found out a problem when acpi_i2c is being build as a
-> module, this should solve it as well.]
-> 
-> On Tue, Aug 20, 2013 at 01:25:27AM +0200, Rafael J. Wysocki wrote:
-> > On Monday, August 19, 2013 04:56:19 PM Stephen Warren wrote:
-> > > On 08/19/2013 05:04 PM, Rafael J. Wysocki wrote:
-> > > > On Monday, August 19, 2013 03:19:18 PM Wolfram Sang wrote:
-> > > >> I2C of helpers used to live in of_i2c.c but experience (from SPI) shows
-> > > >> that it is much cleaner to have this in the core. This also removes a
-> > > >> circular dependency between the helpers and the core, and so we can
-> > > >> finally register child nodes in the core instead of doing this manually
-> > > >> in each driver. So, fix the drivers and documentation, too.
-> > > > 
-> > > > Perhaps we should do the analogous for ACPI then?
-> 
-> Here is the ACPI version based on the current patch from Wolfram (there is
-> a compile error because of missing dummy implementation of
-> of_i2c_register_devices())
-> 
-> From: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Subject: [PATCH] i2c: move ACPI helpers into the core
-> 
-> This follows what has already been done for the DeviceTree helpers. Move
-> the ACPI helpers from drivers/acpi/acpi_i2c.c to the I2C core and update
-> documentation accordingly.
-> 
-> This also solves a problem reported by Jerry Snitselaar that we can't build
-> the ACPI I2C helpers as a module.
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Aaron Lu <aaron.lu@intel.com>
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This patch adds runtime PM support for the I2C bus in a similar way that
+has been done for PCI bus already. This means that the I2C bus core
+prepares runtime PM for a client device just before a driver is about to be
+bound to it. Devices that are not bound to any driver are not prepared for
+runtime PM.
 
-> ---
->  Documentation/acpi/enumeration.txt          |  15 +---
->  drivers/acpi/Kconfig                        |   6 --
->  drivers/acpi/Makefile                       |   1 -
->  drivers/acpi/acpi_i2c.c                     | 103 ----------------------------
->  drivers/i2c/busses/i2c-designware-platdrv.c |   1 -
->  drivers/i2c/i2c-core.c                      |  91 ++++++++++++++++++++++++
->  include/linux/i2c.h                         |   6 --
->  7 files changed, 94 insertions(+), 129 deletions(-)
->  delete mode 100644 drivers/acpi/acpi_i2c.c
-> 
-> diff --git a/Documentation/acpi/enumeration.txt b/Documentation/acpi/enumeration.txt
-> index 958266e..d977778 100644
-> --- a/Documentation/acpi/enumeration.txt
-> +++ b/Documentation/acpi/enumeration.txt
-> @@ -228,18 +228,9 @@ ACPI handle like:
->  I2C serial bus support
->  ~~~~~~~~~~~~~~~~~~~~~~
->  The slaves behind I2C bus controller only need to add the ACPI IDs like
-> -with the platform and SPI drivers. However the I2C bus controller driver
-> -needs to call acpi_i2c_register_devices() after it has added the adapter.
-> -
-> -An I2C bus (controller) driver does:
-> -
-> -	...
-> -	ret = i2c_add_numbered_adapter(adapter);
-> -	if (ret)
-> -		/* handle error */
-> -
-> -	/* Enumerate the slave devices behind this bus via ACPI */
-> -	acpi_i2c_register_devices(adapter);
-> +with the platform and SPI drivers. The I2C core automatically enumerates
-> +any slave devices behind the controller device once the adapter is
-> +registered.
->  
->  Below is an example of how to add ACPI support to the existing mpu3050
->  input driver:
-> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
-> index 100bd72..4e0162f 100644
-> --- a/drivers/acpi/Kconfig
-> +++ b/drivers/acpi/Kconfig
-> @@ -180,12 +180,6 @@ config ACPI_DOCK
->  	  This driver supports ACPI-controlled docking stations and removable
->  	  drive bays such as the IBM Ultrabay and the Dell Module Bay.
->  
-> -config ACPI_I2C
-> -	def_tristate I2C
-> -	depends on I2C
-> -	help
-> -	  ACPI I2C enumeration support.
-> -
->  config ACPI_PROCESSOR
->  	tristate "Processor"
->  	select THERMAL
-> diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
-> index 81dbeb8..cdaf68b 100644
-> --- a/drivers/acpi/Makefile
-> +++ b/drivers/acpi/Makefile
-> @@ -73,7 +73,6 @@ obj-$(CONFIG_ACPI_HED)		+= hed.o
->  obj-$(CONFIG_ACPI_EC_DEBUGFS)	+= ec_sys.o
->  obj-$(CONFIG_ACPI_CUSTOM_METHOD)+= custom_method.o
->  obj-$(CONFIG_ACPI_BGRT)		+= bgrt.o
-> -obj-$(CONFIG_ACPI_I2C)		+= acpi_i2c.o
->  
->  # processor has its own "processor." module_param namespace
->  processor-y			:= processor_driver.o processor_throttling.o
-> diff --git a/drivers/acpi/acpi_i2c.c b/drivers/acpi/acpi_i2c.c
-> deleted file mode 100644
-> index a82c762..0000000
-> --- a/drivers/acpi/acpi_i2c.c
-> +++ /dev/null
-> @@ -1,103 +0,0 @@
-> -/*
-> - * ACPI I2C enumeration support
-> - *
-> - * Copyright (C) 2012, Intel Corporation
-> - * Author: Mika Westerberg <mika.westerberg@linux.intel.com>
-> - *
-> - * This program is free software; you can redistribute it and/or modify
-> - * it under the terms of the GNU General Public License version 2 as
-> - * published by the Free Software Foundation.
-> - */
-> -
-> -#include <linux/acpi.h>
-> -#include <linux/device.h>
-> -#include <linux/export.h>
-> -#include <linux/i2c.h>
-> -#include <linux/ioport.h>
-> -
-> -ACPI_MODULE_NAME("i2c");
-> -
-> -static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
-> -{
-> -	struct i2c_board_info *info = data;
-> -
-> -	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
-> -		struct acpi_resource_i2c_serialbus *sb;
-> -
-> -		sb = &ares->data.i2c_serial_bus;
-> -		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-> -			info->addr = sb->slave_address;
-> -			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
-> -				info->flags |= I2C_CLIENT_TEN;
-> -		}
-> -	} else if (info->irq < 0) {
-> -		struct resource r;
-> -
-> -		if (acpi_dev_resource_interrupt(ares, 0, &r))
-> -			info->irq = r.start;
-> -	}
-> -
-> -	/* Tell the ACPI core to skip this resource */
-> -	return 1;
-> -}
-> -
-> -static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
-> -				       void *data, void **return_value)
-> -{
-> -	struct i2c_adapter *adapter = data;
-> -	struct list_head resource_list;
-> -	struct i2c_board_info info;
-> -	struct acpi_device *adev;
-> -	int ret;
-> -
-> -	if (acpi_bus_get_device(handle, &adev))
-> -		return AE_OK;
-> -	if (acpi_bus_get_status(adev) || !adev->status.present)
-> -		return AE_OK;
-> -
-> -	memset(&info, 0, sizeof(info));
-> -	info.acpi_node.handle = handle;
-> -	info.irq = -1;
-> -
-> -	INIT_LIST_HEAD(&resource_list);
-> -	ret = acpi_dev_get_resources(adev, &resource_list,
-> -				     acpi_i2c_add_resource, &info);
-> -	acpi_dev_free_resource_list(&resource_list);
-> -
-> -	if (ret < 0 || !info.addr)
-> -		return AE_OK;
-> -
-> -	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
-> -	if (!i2c_new_device(adapter, &info)) {
-> -		dev_err(&adapter->dev,
-> -			"failed to add I2C device %s from ACPI\n",
-> -			dev_name(&adev->dev));
-> -	}
-> -
-> -	return AE_OK;
-> -}
-> -
-> -/**
-> - * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
-> - * @adapter: pointer to adapter
-> - *
-> - * Enumerate all I2C slave devices behind this adapter by walking the ACPI
-> - * namespace. When a device is found it will be added to the Linux device
-> - * model and bound to the corresponding ACPI handle.
-> - */
-> -void acpi_i2c_register_devices(struct i2c_adapter *adapter)
-> -{
-> -	acpi_handle handle;
-> -	acpi_status status;
-> -
-> -	handle = ACPI_HANDLE(adapter->dev.parent);
-> -	if (!handle)
-> -		return;
-> -
-> -	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-> -				     acpi_i2c_add_device, NULL,
-> -				     adapter, NULL);
-> -	if (ACPI_FAILURE(status))
-> -		dev_warn(&adapter->dev, "failed to enumerate I2C slaves\n");
-> -}
-> -EXPORT_SYMBOL_GPL(acpi_i2c_register_devices);
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-> index 27ea436..1240fd6 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -171,7 +171,6 @@ static int dw_i2c_probe(struct platform_device *pdev)
->  		dev_err(&pdev->dev, "failure adding adapter\n");
->  		return r;
->  	}
-> -	acpi_i2c_register_devices(adap);
->  
->  	pm_runtime_set_autosuspend_delay(&pdev->dev, 1000);
->  	pm_runtime_use_autosuspend(&pdev->dev);
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 321b7ca..cc80432 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -1056,6 +1056,96 @@ struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node *node)
->  EXPORT_SYMBOL(of_find_i2c_device_by_node);
->  #endif /* CONFIG_OF */
->  
-> +/* ACPI support code */
-> +
-> +#ifdef CONFIG_ACPI
-> +static int acpi_i2c_add_resource(struct acpi_resource *ares, void *data)
-> +{
-> +	struct i2c_board_info *info = data;
-> +
-> +	if (ares->type == ACPI_RESOURCE_TYPE_SERIAL_BUS) {
-> +		struct acpi_resource_i2c_serialbus *sb;
-> +
-> +		sb = &ares->data.i2c_serial_bus;
-> +		if (sb->type == ACPI_RESOURCE_SERIAL_TYPE_I2C) {
-> +			info->addr = sb->slave_address;
-> +			if (sb->access_mode == ACPI_I2C_10BIT_MODE)
-> +				info->flags |= I2C_CLIENT_TEN;
-> +		}
-> +	} else if (info->irq < 0) {
-> +		struct resource r;
-> +
-> +		if (acpi_dev_resource_interrupt(ares, 0, &r))
-> +			info->irq = r.start;
-> +	}
-> +
-> +	/* Tell the ACPI core to skip this resource */
-> +	return 1;
-> +}
-> +
-> +static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
-> +				       void *data, void **return_value)
-> +{
-> +	struct i2c_adapter *adapter = data;
-> +	struct list_head resource_list;
-> +	struct i2c_board_info info;
-> +	struct acpi_device *adev;
-> +	int ret;
-> +
-> +	if (acpi_bus_get_device(handle, &adev))
-> +		return AE_OK;
-> +	if (acpi_bus_get_status(adev) || !adev->status.present)
-> +		return AE_OK;
-> +
-> +	memset(&info, 0, sizeof(info));
-> +	info.acpi_node.handle = handle;
-> +	info.irq = -1;
-> +
-> +	INIT_LIST_HEAD(&resource_list);
-> +	ret = acpi_dev_get_resources(adev, &resource_list,
-> +				     acpi_i2c_add_resource, &info);
-> +	acpi_dev_free_resource_list(&resource_list);
-> +
-> +	if (ret < 0 || !info.addr)
-> +		return AE_OK;
-> +
-> +	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
-> +	if (!i2c_new_device(adapter, &info)) {
-> +		dev_err(&adapter->dev,
-> +			"failed to add I2C device %s from ACPI\n",
-> +			dev_name(&adev->dev));
-> +	}
-> +
-> +	return AE_OK;
-> +}
-> +
-> +/**
-> + * acpi_i2c_register_devices - enumerate I2C slave devices behind adapter
-> + * @adapter: pointer to adapter
-> + *
-> + * Enumerate all I2C slave devices behind this adapter by walking the ACPI
-> + * namespace. When a device is found it will be added to the Linux device
-> + * model and bound to the corresponding ACPI handle.
-> + */
-> +static void acpi_i2c_register_devices(struct i2c_adapter *adapter)
-> +{
-> +	acpi_handle handle;
-> +	acpi_status status;
-> +
-> +	handle = ACPI_HANDLE(adapter->dev.parent);
-> +	if (!handle)
-> +		return;
-> +
-> +	status = acpi_walk_namespace(ACPI_TYPE_DEVICE, handle, 1,
-> +				     acpi_i2c_add_device, NULL,
-> +				     adapter, NULL);
-> +	if (ACPI_FAILURE(status))
-> +		dev_warn(&adapter->dev, "failed to enumerate I2C slaves\n");
-> +}
-> +#else
-> +static inline void acpi_i2c_register_devices(struct i2c_adapter *adapter) {}
-> +#endif /* CONFIG_ACPI */
-> +
->  static int i2c_do_add_adapter(struct i2c_driver *driver,
->  			      struct i2c_adapter *adap)
->  {
-> @@ -1161,6 +1251,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
->  exit_recovery:
->  	/* create pre-declared device nodes */
->  	of_i2c_register_devices(adap);
-> +	acpi_i2c_register_devices(adap);
->  
->  	if (adap->nr < __i2c_first_dynamic_bus_num)
->  		i2c_scan_static_board_info(adap);
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 2189189..7670d99 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -562,10 +562,4 @@ static inline struct i2c_adapter *of_find_i2c_adapter_by_node(struct device_node
->  }
->  #endif /* CONFIG_OF */
->  
-> -#if IS_ENABLED(CONFIG_ACPI_I2C)
-> -extern void acpi_i2c_register_devices(struct i2c_adapter *adap);
-> -#else
-> -static inline void acpi_i2c_register_devices(struct i2c_adapter *adap) {}
-> -#endif
-> -
->  #endif /* _LINUX_I2C_H */
-> 
+In order to take advantage of this runtime PM support, the client device
+driver needs drop the device runtime PM reference count by calling
+pm_runtime_put() in its ->probe() callback and possibly implement rest of
+the runtime PM callbacks.
+
+However, this does not yet make runtime PM happen for the device, it has to
+be explicitly allowed from userspace per each I2C client device. The
+reason for this is that things like HID over I2C might not work as smoothly
+when runtime PM is active. So we leave it to the user to balance between
+performance and power efficiency.
+
+User can allow runtime PM for the client device by running:
+
+	# echo auto > /sys/bus/i2c/devices/<device>/power/control
+
+and it can be forbidden again by:
+
+	# echo on > /sys/bus/i2c/devices/<device>/power/control
+
+Status of the device can be monitored by reading files under the device
+power directory.
+
+If the driver doesn't support runtime PM (like most of the existing I2C
+client drivers), the device in question is regarded as being runtime PM
+active and powered on.
+
+The patch adds also runtime PM support for the adapter device because it is
+needed to be able to runtime power manage the I2C controller device. The
+adapter device is handled along with the I2C controller device (it uses
+pm_runtime_no_callbacks()).
+
+Signed-off-by: Aaron Lu <aaron.lu@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/i2c/i2c-core.c | 48 +++++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 47 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 3d44292..8fad5ac 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -254,11 +254,34 @@ static int i2c_device_probe(struct device *dev)
+ 					client->flags & I2C_CLIENT_WAKE);
+ 	dev_dbg(dev, "probe\n");
+ 
++	/* Make sure the adapter is active */
++	pm_runtime_get_sync(&client->adapter->dev);
++
++	/*
++	 * Enable runtime PM for the client device. If the client wants to
++	 * participate on runtime PM it should call pm_runtime_put() in its
++	 * probe() callback.
++	 *
++	 * User still needs to allow the PM runtime before it can actually
++	 * happen.
++	 */
++	pm_runtime_forbid(&client->dev);
++	pm_runtime_get_noresume(&client->dev);
++	pm_runtime_set_active(&client->dev);
++	pm_runtime_enable(&client->dev);
++
+ 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
+ 	if (status) {
+ 		client->driver = NULL;
+ 		i2c_set_clientdata(client, NULL);
++
++		pm_runtime_disable(&client->dev);
++		pm_runtime_set_suspended(&client->dev);
++		pm_runtime_put_noidle(&client->dev);
+ 	}
++
++	pm_runtime_put(&client->adapter->dev);
++
+ 	return status;
+ }
+ 
+@@ -271,6 +294,8 @@ static int i2c_device_remove(struct device *dev)
+ 	if (!client || !dev->driver)
+ 		return 0;
+ 
++	pm_runtime_get_sync(&client->adapter->dev);
++
+ 	driver = to_i2c_driver(dev->driver);
+ 	if (driver->remove) {
+ 		dev_dbg(dev, "remove\n");
+@@ -283,6 +308,13 @@ static int i2c_device_remove(struct device *dev)
+ 		client->driver = NULL;
+ 		i2c_set_clientdata(client, NULL);
+ 	}
++
++	/* Undo the runtime PM done in i2c_probe() */
++	pm_runtime_disable(&client->dev);
++	pm_runtime_set_suspended(&client->dev);
++	pm_runtime_put_noidle(&client->dev);
++
++	pm_runtime_put(&client->adapter->dev);
+ 	return status;
+ }
+ 
+@@ -294,8 +326,11 @@ static void i2c_device_shutdown(struct device *dev)
+ 	if (!client || !dev->driver)
+ 		return;
+ 	driver = to_i2c_driver(dev->driver);
+-	if (driver->shutdown)
++	if (driver->shutdown) {
++		pm_runtime_get_sync(&client->adapter->dev);
+ 		driver->shutdown(client);
++		pm_runtime_put(&client->adapter->dev);
++	}
+ }
+ 
+ #ifdef CONFIG_PM_SLEEP
+@@ -1263,6 +1298,15 @@ exit_recovery:
+ 	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
+ 	mutex_unlock(&core_lock);
+ 
++	/*
++	 * Make sure the adapter runtime PM follows the parent device (the
++	 * host controller) so that we can suspend it once there aren't any
++	 * active clients anymore.
++	 */
++	pm_runtime_set_active(&adap->dev);
++	pm_runtime_no_callbacks(&adap->dev);
++	pm_runtime_enable(&adap->dev);
++
+ 	return 0;
+ 
+ out_list:
+@@ -1427,6 +1471,8 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+ 		return;
+ 	}
+ 
++	pm_runtime_disable(&adap->dev);
++
+ 	/* Tell drivers about this removal */
+ 	mutex_lock(&core_lock);
+ 	bus_for_each_drv(&i2c_bus_type, NULL, adap,
 -- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+1.8.4.rc2
