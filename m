@@ -1,46 +1,58 @@
-From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: Re: [PATCH v5 0/3] i2c-mv64xxx: Fixes and new feature for controlers
- embedded in Aramda XP
-Date: Wed, 21 Aug 2013 12:44:18 +0200
-Message-ID: <52149A02.1000504@free-electrons.com>
-References: <1376039158-1896-1-git-send-email-gregory.clement@free-electrons.com> <5213979B.4050306@free-electrons.com> <20130820190714.GB24466@katana>
+From: Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: passing two interrupts two an I2C driver
+Date: Wed, 21 Aug 2013 13:37:04 +0100
+Message-ID: <1377088624.10707.23.camel@hornet>
+References: <520E3B8F.9010800@samsung.com> <520E7417.3090606@wwwdotorg.org>
+	 <20130819084227.GC3719@e106331-lin.cambridge.arm.com>
+	 <5214AA52.2060209@samsung.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130820190714.GB24466@katana>
+In-Reply-To: <5214AA52.2060209-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+To: Jacek Anaszewski <j.anaszewski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Mark Rutland <Mark.Rutland-5wv7dgnIgG8@public.gmane.org>, "swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org" <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-iio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jonathan Cameron <jic23-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org" <maxime.ripard-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, "lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org" <lars-Qo5EllUWu/uELgA04lAiVw@public.gmane.org>, "l.czerwinski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org" <l.czerwinski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, "ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org" <ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>, "s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org" <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 20/08/2013 21:07, Wolfram Sang wrote:
-> 
->> Jason Cooper drooped the third patch as it conflicted with a patch from Maxime Ripard which adds the AllWinner support. Olof also asked a formal acked-by from a device tree maintainer
->> even if we already answer to Mark Rutland request.
->> 
->> Olof also requested that you take the binding update, so I am going to send a new version of this patch set with the last patch split in two parts.
-> 
-> Yeah, I wondered about the binding already being accepted when the driver review was not done.
+[resending, this time really copying Wolfram and linux-i2c...]
 
-As there will be a conflict for the
-Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt file with the
-commit "i2c: mv64xxx: Document the newly introduced allwinner
-compatible", do you want that I rebase my patch set on your
-i2c/for-current branch, or do you prefer to take care of the merge
-conflict yourself?
-
+On Wed, 2013-08-21 at 12:53 +0100, Jacek Anaszewski wrote:
+>  From what I've figured out in order to obtain the interrupt id
+> by name the function
 > 
->> As explained earlier today, unless you really want I use be32_to_cpu in the mv64xxx_i2c_offload_msg() I won't change anything else.
+> platform_get_irq_by_name(struct platform_device *dev, const char *name)
 > 
-> I found some more (minor) issues. Expect a review by tomorrow evening.
-> 
+> has to be exploited. Unfortunately required platform_device structure
+> is not available in the struct i2c_client
 
-Ok I will wait for your review to send the new version
+Well, platform devices belong to platform bus, nothing to do with I2C.
+Platform devices are associated with an array of named resources and the
+code creating such devices from the DT nodes (of_device_alloc()) do the
+necessary magic.
 
-Thanks,
--- 
-Gregory Clement, Free Electrons
-Kernel, drivers, real-time and embedded Linux
-development, consulting, training and support.
-http://free-electrons.com
+>  that is passed to the
+> probe function of an i2c driver. Is there some different way to parse
+> the interrupt-names property from the I2C driver?
+
+Interesting. Very interesting indeed. It seems (at least at the first
+sight) that I2C framework assumes that only one interrupt can be
+generated by a I2C device:
+
+struct i2c_client {                                                                         
+[...]
+        int irq;                        /* irq issued by device         */                  
+[...]
+};                                                                               
+
+So let me ask such question... If Device Tree didn't exist, how would
+you make drive such device? I guess it would require some custom code,
+as struct i2c_board_info has single int irq as well... If this is the
+case, you could parse the irq properties in a similar way as done in
+of_irq_to_resource() in drivers/of/irq.c. Doesn't like the optimal
+solution, though...
+
+I've copied Wolfram and the I2C mailing list in hope of them shedding
+some light at the matter.
+
+Pawel
