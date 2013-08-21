@@ -1,124 +1,46 @@
-From: Nguyen Viet Dung <nv-dung@jinso.co.jp>
-Subject: [PATCH v3 1/1 ] i2c: rcar: modify I2C driver
-Date: Wed, 21 Aug 2013 19:03:38 +0900
-Message-ID: <1377079418-9260-2-git-send-email-nv-dung@jinso.co.jp>
-References: <1377079418-9260-1-git-send-email-nv-dung@jinso.co.jp>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1377079418-9260-1-git-send-email-nv-dung@jinso.co.jp>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, wsa@the-dreams.de
-Cc: linux-kernel@vger.kernel.org, kuninori.morimoto.gx@renesas.com
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v5 0/3] i2c-mv64xxx: Fixes and new feature for controlers
+ embedded in Aramda XP
+Date: Wed, 21 Aug 2013 12:44:18 +0200
+Message-ID: <52149A02.1000504@free-electrons.com>
+References: <1376039158-1896-1-git-send-email-gregory.clement@free-electrons.com> <5213979B.4050306@free-electrons.com> <20130820190714.GB24466@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130820190714.GB24466@katana>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch modify I2C driver of rcar-H1 to usable on both rcar-H1 and rcar-H2.
+On 20/08/2013 21:07, Wolfram Sang wrote:
+> 
+>> Jason Cooper drooped the third patch as it conflicted with a patch from Maxime Ripard which adds the AllWinner support. Olof also asked a formal acked-by from a device tree maintainer
+>> even if we already answer to Mark Rutland request.
+>> 
+>> Olof also requested that you take the binding update, so I am going to send a new version of this patch set with the last patch split in two parts.
+> 
+> Yeah, I wondered about the binding already being accepted when the driver review was not done.
 
-Signed-off-by: Nguyen Viet Dung <nv-dung@jinso.co.jp>
----
- drivers/i2c/busses/i2c-rcar.c |   37 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 35 insertions(+), 2 deletions(-)
+As there will be a conflict for the
+Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt file with the
+commit "i2c: mv64xxx: Document the newly introduced allwinner
+compatible", do you want that I rebase my patch set on your
+i2c/for-current branch, or do you prefer to take care of the merge
+conflict yourself?
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 0fc5858..e08ef28 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -101,6 +101,11 @@ enum {
- #define ID_ARBLOST	(1 << 3)
- #define ID_NACK		(1 << 4)
- 
-+enum rcar_i2c_type {
-+	I2C_RCAR_H1,
-+	I2C_RCAR_H2,
-+};
-+
- struct rcar_i2c_priv {
- 	void __iomem *io;
- 	struct i2c_adapter adap;
-@@ -113,6 +118,7 @@ struct rcar_i2c_priv {
- 	int irq;
- 	u32 icccr;
- 	u32 flags;
-+	enum rcar_i2c_type	devtype;
- };
- 
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -224,12 +230,23 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 	u32 scgd, cdf;
- 	u32 round, ick;
- 	u32 scl;
-+	u32 cdf_width;
- 
- 	if (!clkp) {
- 		dev_err(dev, "there is no peripheral_clk\n");
- 		return -EIO;
- 	}
- 
-+	switch (priv->devtype) {
-+	default:
-+	case I2C_RCAR_H1:
-+		cdf_width = 2;
-+		break;
-+	case I2C_RCAR_H2:
-+		cdf_width = 3;
-+		break;
-+	}
-+
- 	/*
- 	 * calculate SCL clock
- 	 * see
-@@ -245,7 +262,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
- 	 */
--	for (cdf = 0; cdf < 4; cdf++) {
-+	for (cdf = 0; cdf < (1 << cdf_width); cdf++) {
- 		ick = clk_get_rate(clkp) / (1 + cdf);
- 		if (ick < 20000000)
- 			goto ick_find;
-@@ -287,7 +304,7 @@ scgd_find:
- 	/*
- 	 * keep icccr value
- 	 */
--	priv->icccr = (scgd << 2 | cdf);
-+	priv->icccr = (scgd << (cdf_width) | cdf);
- 
- 	return 0;
- }
-@@ -632,6 +649,13 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	bus_speed = 100000; /* default 100 kHz */
- 	if (pdata && pdata->bus_speed)
- 		bus_speed = pdata->bus_speed;
-+
-+	if (!pdev->id_entry) {
-+		dev_err(&pdev->dev, "no entry\n");
-+		return -ENODEV;
-+	}
-+	priv->devtype = pdev->id_entry->driver_data;
-+
- 	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
- 	if (ret < 0)
- 		return ret;
-@@ -686,6 +710,14 @@ static int rcar_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static struct platform_device_id rcar_i2c_id_table[] = {
-+	{ "i2c-rcar",		I2C_RCAR_H1 },
-+	{ "i2c-rcar_h1",	I2C_RCAR_H1 },
-+	{ "i2c-rcar_h2",	I2C_RCAR_H2},
-+	{},
-+};
-+MODULE_DEVICE_TABLE(platform, rcar_i2c_id_table);
-+
- static struct platform_driver rcar_i2c_driver = {
- 	.driver	= {
- 		.name	= "i2c-rcar",
-@@ -693,6 +725,7 @@ static struct platform_driver rcar_i2c_driver = {
- 	},
- 	.probe		= rcar_i2c_probe,
- 	.remove		= rcar_i2c_remove,
-+	.id_table	= rcar_i2c_id_table,
- };
- 
- module_platform_driver(rcar_i2c_driver);
+> 
+>> As explained earlier today, unless you really want I use be32_to_cpu in the mv64xxx_i2c_offload_msg() I won't change anything else.
+> 
+> I found some more (minor) issues. Expect a review by tomorrow evening.
+> 
+
+Ok I will wait for your review to send the new version
+
+Thanks,
 -- 
-1.7.9.5
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
