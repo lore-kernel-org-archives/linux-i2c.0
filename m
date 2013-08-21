@@ -1,82 +1,65 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH] i2c: i2c_mxs: Set ACK_MODE bit
-Date: Wed, 21 Aug 2013 05:18:56 +0200
-Message-ID: <201308210518.56575.marex@denx.de>
-References: <1372780860-12972-1-git-send-email-fabio.estevam@freescale.com> <52120D35.707@freescale.com> <20130820185227.GO30496@pengutronix.de>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH] i2c: move of helpers into the core
+Date: Wed, 21 Aug 2013 10:54:18 +0300
+Message-ID: <20130821075417.GC4898@intel.com>
+References: <1376918361-7014-1-git-send-email-wsa@the-dreams.de>
+ <3792014.HtzPVmLjnf@vostro.rjw.lan>
+ <5212A293.2030903@wwwdotorg.org>
+ <3721030.UJAkTdQrEC@vostro.rjw.lan>
+ <20130820092813.GW4898@intel.com>
+ <20130820143043.GA2993@katana>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-8859-1
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130820185227.GO30496-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Uwe =?iso-8859-1?q?Kleine-K=F6nig?= <u.kleine-koenig-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>
-Cc: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org, cb-/RsSufbtIHM@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130820143043.GA2993@katana>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Stephen Warren <swarren@wwwdotorg.org>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Jerry Snitselaar <jerry.snitselaar@oracle.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Uwe Kleine-K=F6nig,
+On Tue, Aug 20, 2013 at 04:30:43PM +0200, Wolfram Sang wrote:
+> On Tue, Aug 20, 2013 at 12:28:13PM +0300, Mika Westerberg wrote:
+> > [Added Jerry as he found out a problem when acpi_i2c is being build as a
+> > module, this should solve it as well.]
+> > 
+> > On Tue, Aug 20, 2013 at 01:25:27AM +0200, Rafael J. Wysocki wrote:
+> > > On Monday, August 19, 2013 04:56:19 PM Stephen Warren wrote:
+> > > > On 08/19/2013 05:04 PM, Rafael J. Wysocki wrote:
+> > > > > On Monday, August 19, 2013 03:19:18 PM Wolfram Sang wrote:
+> > > > >> I2C of helpers used to live in of_i2c.c but experience (from SPI) shows
+> > > > >> that it is much cleaner to have this in the core. This also removes a
+> > > > >> circular dependency between the helpers and the core, and so we can
+> > > > >> finally register child nodes in the core instead of doing this manually
+> > > > >> in each driver. So, fix the drivers and documentation, too.
+> > > > > 
+> > > > > Perhaps we should do the analogous for ACPI then?
+> > 
+> > Here is the ACPI version based on the current patch from Wolfram (there is
+> > a compile error because of missing dummy implementation of
+> > of_i2c_register_devices())
+> > 
+> > From: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Subject: [PATCH] i2c: move ACPI helpers into the core
+> > 
+> > This follows what has already been done for the DeviceTree helpers. Move
+> > the ACPI helpers from drivers/acpi/acpi_i2c.c to the I2C core and update
+> > documentation accordingly.
+> > 
+> > This also solves a problem reported by Jerry Snitselaar that we can't build
+> > the ACPI I2C helpers as a module.
+> > 
+> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> 
+> Nice, one thing, though:
+> 
+> >  	/* create pre-declared device nodes */
+> >  	of_i2c_register_devices(adap);
+> > +	acpi_i2c_register_devices(adap);
+> 
+> I prefer the if (IS_ENABLED()) solution and will use this in my V2 as
+> well.
 
-> Hello,
->=20
-> On Mon, Aug 19, 2013 at 09:19:01AM -0300, Fabio Estevam wrote:
-> > On 08/15/2013 07:08 AM, Wolfram Sang wrote:
-> > >On Tue, Jul 02, 2013 at 01:01:00PM -0300, Fabio Estevam wrote:
-> > >>According to mx23 erratum 2727:
-> > >>
-> > >>"2727 : I2C 9th Clock Pulse (ACK) not generated when RETAIN_CLOCK=
- set.
-> > >>
-> > >>Description:
-> > >>
-> > >>When RETAIN_CLOCK is set, the ninth clock pulse (ACK) is not gene=
-rated.
-> > >>However, the SDA line is read at the proper timing interval. If
-> > >>RETAIN_CLOCK is cleared, the ninth clock pulse is generated.
-> > >>Also, the HW_I2C_VERSION register incorrectly states the version =
-is
-> > >>1.2. It should be 1.3.
-> > >>
-> > >>Workaround:
-> > >>HW_I2C_CTRL1[ACK_MODE] has default value of 0. It should be set t=
-o 1 to
-> > >>enable the fix for this issue."
-> > >>
-> > >>It has also been noticed that mx28 needs to implement this fix in=
- order
-> > >>to have SMBus to work properly.
-> > >>
-> > >>Reported-by: Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>
-> > >>Signed-off-by: Fabio Estevam <fabio.estevam-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> > >
-> > >What's with this one? Bogus? Needed? Still needed after PIO rework=
-?
-> >=20
-> > According to the mx23 erratum 2727 this patch is needed.
->=20
-> Last time I worked with i2c stuff on mxs my impression was the mx23
-> erratum 2727 is non-sense. Having HW_I2C_CTRL1[ACK_MODE] set or not
-> didn't made any difference in my tests.
-
-Yeah, I can confirm this one.
-
-> I suspect that the description isn't complete. So the driver does
-> already use RETAIN_CLOCK (for the select phase) which up to know didn=
-'t
-> made any problems on mx23 even without having ACK_MODE=3D1.
->=20
-> The statement about the HW_I2C_VERSION register appears just misplace=
-d
-> there.
->=20
-> So I'd vote for not taking this patch until there is a better
-> understanding of the eventual problem.
-
-I was doing some pretty thorough test when doing the PIO rework and wat=
-ched the=20
-bus with LA, but didn't notice any difference whether the bit was or wa=
-snt set.=20
-So either way WFM. On MX28 though, the bit is set after the I2C block i=
-s reset,=20
-on MX23 it is unset, that's the only thing I observed.
-
-Best regards,
-Marek Vasut
+For the ACPI part we need to have the dummy stub because CONFIG_ACPI is
+needed in order to be able to call the ACPI APIs -- there are still
+functions that are only available when CONFIG_ACPI is enabled.
