@@ -1,87 +1,345 @@
 From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Subject: [PATCH v6 2/4] i2c-mv64xxx: Fix timing issue on Armada XP (errata FE-8471889)
-Date: Thu, 22 Aug 2013 16:19:06 +0200
-Message-ID: <1377181146-17341-2-git-send-email-gregory.clement@free-electrons.com>
-References: <1377181146-17341-1-git-send-email-gregory.clement@free-electrons.com>
+Subject: [PATCH v6 1/4] i2c-mv64xxx: Add I2C Transaction Generator support
+Date: Thu, 22 Aug 2013 16:19:05 +0200
+Message-ID: <1377181146-17341-1-git-send-email-gregory.clement@free-electrons.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1377181146-17341-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
+Cc: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-All the Armada XP (mv78230, mv78260 and mv78460) have a silicon issue
-in the I2C controller which violate the i2c repeated start
-timing. The I2C standard requires a minimum of 4.7us for the repeated
-start condition whereas the I2C controller of the Armada XP this time
-is 2.9us.
+The I2C Transaction Generator offloads CPU from managing I2C
+transfer step by step.
 
-So this patch adds a 5us delay for the start case only if the
-the compatible i2c-mv78230 is set.
+This feature is currently only available on Armada XP, so usage of
+this mechanism is activated through device tree.
 
-Based on the initals patches from Zbigniew Bodek
+Based on the work of Piotr Ziecik and rewrote to use the new way of
+handling multiples i2c messages.
 
+Signed-off-by: Piotr Ziecik <kosmo-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
-Signed-off-by: Zbigniew Bodek <zbb-nYOzD4b6Jr9Wk0Htik3J/w@public.gmane.org>
 ---
- drivers/i2c/busses/i2c-mv64xxx.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-mv64xxx.c | 193 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 182 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 2404c4e..bc60f9a 100644
+index 9cc361d..2404c4e 100644
 --- a/drivers/i2c/busses/i2c-mv64xxx.c
 +++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -24,6 +24,7 @@
- #include <linux/of_i2c.h>
- #include <linux/clk.h>
- #include <linux/err.h>
-+#include <linux/delay.h>
+@@ -55,6 +55,32 @@
+ #define	MV64XXX_I2C_STATUS_MAST_RD_ADDR_2_NO_ACK	0xe8
+ #define	MV64XXX_I2C_STATUS_NO_STATUS			0xf8
  
- #define MV64XXX_I2C_ADDR_ADDR(val)			((val & 0x7f) << 1)
- #define MV64XXX_I2C_BAUD_DIV_N(val)			(val & 0x7)
-@@ -147,6 +148,8 @@ struct mv64xxx_i2c_data {
++/* Register defines (I2C bridge) */
++#define	MV64XXX_I2C_REG_TX_DATA_LO			0xc0
++#define	MV64XXX_I2C_REG_TX_DATA_HI			0xc4
++#define	MV64XXX_I2C_REG_RX_DATA_LO			0xc8
++#define	MV64XXX_I2C_REG_RX_DATA_HI			0xcc
++#define	MV64XXX_I2C_REG_BRIDGE_CONTROL			0xd0
++#define	MV64XXX_I2C_REG_BRIDGE_STATUS			0xd4
++#define	MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE		0xd8
++#define	MV64XXX_I2C_REG_BRIDGE_INTR_MASK		0xdC
++#define	MV64XXX_I2C_REG_BRIDGE_TIMING			0xe0
++
++/* Bridge Control values */
++#define	MV64XXX_I2C_BRIDGE_CONTROL_WR			0x00000001
++#define	MV64XXX_I2C_BRIDGE_CONTROL_RD			0x00000002
++#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT		2
++#define	MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT		0x00001000
++#define	MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT	13
++#define	MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT	16
++#define	MV64XXX_I2C_BRIDGE_CONTROL_ENABLE		0x00080000
++
++/* Bridge Status values */
++#define	MV64XXX_I2C_BRIDGE_STATUS_ERROR			0x00000001
++#define	MV64XXX_I2C_STATUS_OFFLOAD_ERROR		0xf0000001
++#define	MV64XXX_I2C_STATUS_OFFLOAD_OK			0xf0000000
++
++
+ /* Driver states */
+ enum {
+ 	MV64XXX_I2C_STATE_INVALID,
+@@ -71,14 +97,17 @@ enum {
+ enum {
+ 	MV64XXX_I2C_ACTION_INVALID,
+ 	MV64XXX_I2C_ACTION_CONTINUE,
++	MV64XXX_I2C_ACTION_OFFLOAD_SEND_START,
+ 	MV64XXX_I2C_ACTION_SEND_START,
+ 	MV64XXX_I2C_ACTION_SEND_RESTART,
++	MV64XXX_I2C_ACTION_OFFLOAD_RESTART,
+ 	MV64XXX_I2C_ACTION_SEND_ADDR_1,
+ 	MV64XXX_I2C_ACTION_SEND_ADDR_2,
+ 	MV64XXX_I2C_ACTION_SEND_DATA,
+ 	MV64XXX_I2C_ACTION_RCV_DATA,
+ 	MV64XXX_I2C_ACTION_RCV_DATA_STOP,
+ 	MV64XXX_I2C_ACTION_SEND_STOP,
++	MV64XXX_I2C_ACTION_OFFLOAD_SEND_STOP,
+ };
+ 
+ struct mv64xxx_i2c_regs {
+@@ -117,6 +146,7 @@ struct mv64xxx_i2c_data {
+ 	spinlock_t		lock;
  	struct i2c_msg		*msg;
  	struct i2c_adapter	adapter;
- 	bool			offload_enabled;
-+/* 5us delay in order to avoid repeated start timing violation */
-+	bool			errata_delay;
++	bool			offload_enabled;
  };
  
  static struct mv64xxx_i2c_regs mv64xxx_i2c_regs_mv64xxx = {
-@@ -440,6 +443,9 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- 			/* Setup for the next message */
- 			mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
- 		}
-+		if (drv_data->errata_delay)
-+			udelay(5);
+@@ -165,6 +195,77 @@ mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
+ 	}
+ }
+ 
++static int mv64xxx_i2c_offload_msg(struct mv64xxx_i2c_data *drv_data)
++{
++	unsigned long data_reg_hi = 0;
++	unsigned long data_reg_lo = 0;
++	unsigned long ctrl_reg;
++	struct i2c_msg *msg = drv_data->msgs;
 +
++	drv_data->msg = msg;
++	drv_data->byte_posn = 0;
++	drv_data->bytes_left = msg->len;
++	drv_data->aborting = 0;
++	drv_data->rc = 0;
++	/* Only regular transactions can be offloaded */
++	if ((msg->flags & ~(I2C_M_TEN | I2C_M_RD)) != 0)
++		return -EINVAL;
++
++	/* Only 1-8 byte transfers can be offloaded */
++	if (msg->len < 1 || msg->len > 8)
++		return -EINVAL;
++
++	/* Build transaction */
++	ctrl_reg = MV64XXX_I2C_BRIDGE_CONTROL_ENABLE |
++		   (msg->addr << MV64XXX_I2C_BRIDGE_CONTROL_ADDR_SHIFT);
++
++	if ((msg->flags & I2C_M_TEN) != 0)
++		ctrl_reg |=  MV64XXX_I2C_BRIDGE_CONTROL_ADDR_EXT;
++
++	if ((msg->flags & I2C_M_RD) == 0) {
++		u8 local_buf[8] = { 0 };
++
++		memcpy(local_buf, msg->buf, msg->len);
++		data_reg_lo = cpu_to_le32(*((u32 *)local_buf));
++		data_reg_hi = cpu_to_le32(*((u32 *)(local_buf+4)));
++
++		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_WR |
++		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_TX_SIZE_SHIFT;
++
++		writel_relaxed(data_reg_lo,
++			drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_LO);
++		writel_relaxed(data_reg_hi,
++			drv_data->reg_base + MV64XXX_I2C_REG_TX_DATA_HI);
++
++	} else {
++		ctrl_reg |= MV64XXX_I2C_BRIDGE_CONTROL_RD |
++		    (msg->len - 1) << MV64XXX_I2C_BRIDGE_CONTROL_RX_SIZE_SHIFT;
++	}
++
++	/* Execute transaction */
++	writel(ctrl_reg, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
++
++	return 0;
++}
++
++static void
++mv64xxx_i2c_update_offload_data(struct mv64xxx_i2c_data *drv_data)
++{
++	struct i2c_msg *msg = drv_data->msg;
++
++	if (msg->flags & I2C_M_RD) {
++		u32 data_reg_lo = readl(drv_data->reg_base +
++				MV64XXX_I2C_REG_RX_DATA_LO);
++		u32 data_reg_hi = readl(drv_data->reg_base +
++				MV64XXX_I2C_REG_RX_DATA_HI);
++		u8 local_buf[8] = { 0 };
++
++		*((u32 *)local_buf) = le32_to_cpu(data_reg_lo);
++		*((u32 *)(local_buf+4)) = le32_to_cpu(data_reg_hi);
++		memcpy(msg->buf, local_buf, msg->len);
++	}
++
++}
+ /*
+  *****************************************************************************
+  *
+@@ -177,6 +278,15 @@ mv64xxx_i2c_prepare_for_io(struct mv64xxx_i2c_data *drv_data,
+ static void
+ mv64xxx_i2c_hw_init(struct mv64xxx_i2c_data *drv_data)
+ {
++	if (drv_data->offload_enabled) {
++		writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_CONTROL);
++		writel(0, drv_data->reg_base + MV64XXX_I2C_REG_BRIDGE_TIMING);
++		writel(0, drv_data->reg_base +
++			MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
++		writel(0, drv_data->reg_base +
++			MV64XXX_I2C_REG_BRIDGE_INTR_MASK);
++	}
++
+ 	writel(0, drv_data->reg_base + drv_data->reg_offsets.soft_reset);
+ 	writel(MV64XXX_I2C_BAUD_DIV_M(drv_data->freq_m) | MV64XXX_I2C_BAUD_DIV_N(drv_data->freq_n),
+ 		drv_data->reg_base + drv_data->reg_offsets.clock);
+@@ -283,6 +393,16 @@ mv64xxx_i2c_fsm(struct mv64xxx_i2c_data *drv_data, u32 status)
+ 		drv_data->rc = -ENXIO;
+ 		break;
+ 
++	case MV64XXX_I2C_STATUS_OFFLOAD_OK:
++		if (drv_data->send_stop || drv_data->aborting) {
++			drv_data->action = MV64XXX_I2C_ACTION_OFFLOAD_SEND_STOP;
++			drv_data->state = MV64XXX_I2C_STATE_IDLE;
++		} else {
++			drv_data->action = MV64XXX_I2C_ACTION_OFFLOAD_RESTART;
++			drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_RESTART;
++		}
++		break;
++
+ 	default:
+ 		dev_err(&drv_data->adapter.dev,
+ 			"mv64xxx_i2c_fsm: Ctlr Error -- state: 0x%x, "
+@@ -299,20 +419,27 @@ static void
+ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+ {
+ 	switch(drv_data->action) {
++	case MV64XXX_I2C_ACTION_OFFLOAD_RESTART:
++		mv64xxx_i2c_update_offload_data(drv_data);
++		writel(0, drv_data->reg_base +	MV64XXX_I2C_REG_BRIDGE_CONTROL);
++		writel(0, drv_data->reg_base +
++			MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
++		/* FALLTHRU */
+ 	case MV64XXX_I2C_ACTION_SEND_RESTART:
+ 		/* We should only get here if we have further messages */
+ 		BUG_ON(drv_data->num_msgs == 0);
+ 
+-		drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
+-		writel(drv_data->cntl_bits,
+-			drv_data->reg_base + drv_data->reg_offsets.control);
+-
+ 		drv_data->msgs++;
+ 		drv_data->num_msgs--;
++		if (!(drv_data->offload_enabled &&
++				mv64xxx_i2c_offload_msg(drv_data))) {
++			drv_data->cntl_bits |= MV64XXX_I2C_REG_CONTROL_START;
++			writel(drv_data->cntl_bits,
++			drv_data->reg_base + drv_data->reg_offsets.control);
+ 
+-		/* Setup for the next message */
+-		mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
+-
++			/* Setup for the next message */
++			mv64xxx_i2c_prepare_for_io(drv_data, drv_data->msgs);
++		}
  		/*
  		 * We're never at the start of the message here, and by this
  		 * time it's already too late to do any protocol mangling.
-@@ -499,6 +505,9 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
- 		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_STOP,
+@@ -326,6 +453,12 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
  			drv_data->reg_base + drv_data->reg_offsets.control);
- 		drv_data->block = 0;
-+		if (drv_data->errata_delay)
-+			udelay(5);
-+
- 		wake_up(&drv_data->waitq);
  		break;
  
-@@ -766,10 +775,12 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
++	case MV64XXX_I2C_ACTION_OFFLOAD_SEND_START:
++		if (!mv64xxx_i2c_offload_msg(drv_data))
++			break;
++		else
++			drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
++		/* FALLTHRU */
+ 	case MV64XXX_I2C_ACTION_SEND_START:
+ 		writel(drv_data->cntl_bits | MV64XXX_I2C_REG_CONTROL_START,
+ 			drv_data->reg_base + drv_data->reg_offsets.control);
+@@ -375,6 +508,7 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+ 			"mv64xxx_i2c_do_action: Invalid action: %d\n",
+ 			drv_data->action);
+ 		drv_data->rc = -EIO;
++
+ 		/* FALLTHRU */
+ 	case MV64XXX_I2C_ACTION_SEND_STOP:
+ 		drv_data->cntl_bits &= ~MV64XXX_I2C_REG_CONTROL_INTEN;
+@@ -383,6 +517,15 @@ mv64xxx_i2c_do_action(struct mv64xxx_i2c_data *drv_data)
+ 		drv_data->block = 0;
+ 		wake_up(&drv_data->waitq);
+ 		break;
++
++	case MV64XXX_I2C_ACTION_OFFLOAD_SEND_STOP:
++		mv64xxx_i2c_update_offload_data(drv_data);
++		writel(0, drv_data->reg_base +	MV64XXX_I2C_REG_BRIDGE_CONTROL);
++		writel(0, drv_data->reg_base +
++			MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE);
++		drv_data->block = 0;
++		wake_up(&drv_data->waitq);
++		break;
+ 	}
+ }
  
- 	/*
- 	 * For controllers embedded in new SoCs activate the
--	 * Transaction Generator support.
-+	 * Transaction Generator support and the errata fix.
- 	 */
--	if (of_device_is_compatible(np, "marvell,mv78230-i2c"))
-+	if (of_device_is_compatible(np, "marvell,mv78230-i2c")) {
- 		drv_data->offload_enabled = true;
-+		drv_data->errata_delay = true;
+@@ -395,6 +538,21 @@ mv64xxx_i2c_intr(int irq, void *dev_id)
+ 	irqreturn_t	rc = IRQ_NONE;
+ 
+ 	spin_lock_irqsave(&drv_data->lock, flags);
++
++	if (drv_data->offload_enabled) {
++		while (readl(drv_data->reg_base +
++				MV64XXX_I2C_REG_BRIDGE_INTR_CAUSE)) {
++			int reg_status = readl(drv_data->reg_base +
++					MV64XXX_I2C_REG_BRIDGE_STATUS);
++			if (reg_status & MV64XXX_I2C_BRIDGE_STATUS_ERROR)
++				status = MV64XXX_I2C_STATUS_OFFLOAD_ERROR;
++			else
++				status = MV64XXX_I2C_STATUS_OFFLOAD_OK;
++			mv64xxx_i2c_fsm(drv_data, status);
++			mv64xxx_i2c_do_action(drv_data);
++			rc = IRQ_HANDLED;
++		}
 +	}
+ 	while (readl(drv_data->reg_base + drv_data->reg_offsets.control) &
+ 						MV64XXX_I2C_REG_CONTROL_IFLG) {
+ 		status = readl(drv_data->reg_base + drv_data->reg_offsets.status);
+@@ -459,11 +617,15 @@ mv64xxx_i2c_execute_msg(struct mv64xxx_i2c_data *drv_data, struct i2c_msg *msg,
+ 	unsigned long	flags;
  
+ 	spin_lock_irqsave(&drv_data->lock, flags);
+-	mv64xxx_i2c_prepare_for_io(drv_data, msg);
+-
+-	drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
+-	drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
++	if (drv_data->offload_enabled) {
++		drv_data->action = MV64XXX_I2C_ACTION_OFFLOAD_SEND_START;
++		drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
++	} else {
++		mv64xxx_i2c_prepare_for_io(drv_data, msg);
+ 
++		drv_data->action = MV64XXX_I2C_ACTION_SEND_START;
++		drv_data->state = MV64XXX_I2C_STATE_WAITING_FOR_START_COND;
++	}
+ 	drv_data->send_stop = is_last;
+ 	drv_data->block = 1;
+ 	mv64xxx_i2c_do_action(drv_data);
+@@ -521,6 +683,7 @@ static const struct i2c_algorithm mv64xxx_i2c_algo = {
+ static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
+ 	{ .compatible = "allwinner,sun4i-i2c", .data = &mv64xxx_i2c_regs_sun4i},
+ 	{ .compatible = "marvell,mv64xxx-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
++	{ .compatible = "marvell,mv78230-i2c", .data = &mv64xxx_i2c_regs_mv64xxx},
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
+@@ -601,6 +764,13 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
+ 
+ 	memcpy(&drv_data->reg_offsets, device->data, sizeof(drv_data->reg_offsets));
+ 
++	/*
++	 * For controllers embedded in new SoCs activate the
++	 * Transaction Generator support.
++	 */
++	if (of_device_is_compatible(np, "marvell,mv78230-i2c"))
++		drv_data->offload_enabled = true;
++
  out:
  	return rc;
+ #endif
+@@ -654,6 +824,7 @@ mv64xxx_i2c_probe(struct platform_device *pd)
+ 		drv_data->freq_n = pdata->freq_n;
+ 		drv_data->irq = platform_get_irq(pd, 0);
+ 		drv_data->adapter.timeout = msecs_to_jiffies(pdata->timeout);
++		drv_data->offload_enabled = false;
+ 		memcpy(&drv_data->reg_offsets, &mv64xxx_i2c_regs_mv64xxx, sizeof(drv_data->reg_offsets));
+ 	} else if (pd->dev.of_node) {
+ 		rc = mv64xxx_of_config(drv_data, &pd->dev);
 -- 
 1.8.1.2
