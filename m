@@ -1,34 +1,64 @@
-From: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c-pnx: fix error return code in i2c_pnx_probe()
-Date: Fri, 23 Aug 2013 10:55:51 +0800
-Message-ID: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg@mail.gmail.com>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v6 3/4] ARM: dts: mvebu: Introduce a new compatible string
+ for mv64xxx-i2c
+Date: Fri, 23 Aug 2013 09:07:49 +0200
+Message-ID: <52170A45.9050006@free-electrons.com>
+References: <1377181169-17483-1-git-send-email-gregory.clement@free-electrons.com> <20130822162241.GC31704@katana>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130822162241.GC31704@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org
-Cc: yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+On 22/08/2013 18:22, Wolfram Sang wrote:
+> 
+>> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+>> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+>> @@ -5,6 +5,8 @@ Required properties :
+>>  
+>>   - reg             : Offset and length of the register set for the device
+>>   - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-i2c"
+>> +                     or for controller which support the I2C Transaction
+>> +                     Generator "marvell,mv64xxx-i2c","marvell,mv7230-i2c"
+> 
+> Too complicated IMO:
+> +			or "marvell,mv7230-i2c".
+> 
+> DT creators don't need to know about transaction generators. They just
+> supply the compatible string and the driver knows the details.
+> 
+>> +For a controller which support the I2C Transaction Generator:
+> 
+> "For the Armada XP" - there might be later IP cores on later SoC with
+> transaction generators and different errata. They will just get a new
+> compatible and the driver know the details.
 
-Fix to return a negative error code in the irq get error handling
-case instead of 0, as done elsewhere in this function.
+You're right, I remained to close to my first version when it was a flag
+and not a compatible name.
 
-Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
----
- drivers/i2c/busses/i2c-pnx.c | 1 +
- 1 file changed, 1 insertion(+)
+I will follow all your suggestions. A new version is coming soon.
 
-diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-index 5f39c6d..d2f02b3 100644
---- a/drivers/i2c/busses/i2c-pnx.c
-+++ b/drivers/i2c/busses/i2c-pnx.c
-@@ -727,6 +727,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
- 	alg_data->irq = platform_get_irq(pdev, 0);
- 	if (alg_data->irq < 0) {
- 		dev_err(&pdev->dev, "Failed to get IRQ from platform resource\n");
-+		ret = alg_data->irq;
- 		goto out_irq;
- 	}
- 	ret = request_irq(alg_data->irq, i2c_pnx_interrupt,
+Thanks,
+
+> 
+>> +
+>> +	i2c@11000 {
+>> +		compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
+>> +		reg = <0x11000 0x100>;
+>> +		interrupts = <29>;
+>> +		clock-frequency = <100000>;
+>> +	};
+>> -- 
+>> 1.8.1.2
+>>
+
+
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
