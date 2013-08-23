@@ -1,41 +1,34 @@
-From: Andy Lutomirski <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>
-Subject: Re: [PATCH v4 0/2] iMC SMBUS and DIMM bus probing
-Date: Thu, 22 Aug 2013 17:30:59 -0700
-Message-ID: <CALCETrWyr4s-nGtwNRxOicZfwisr4G3fUVj8u_g3c_gy8=ygfg@mail.gmail.com>
-References: <cover.1374171757.git.luto@amacapital.net> <20130815125047.GF17155@katana>
+From: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-pnx: fix error return code in i2c_pnx_probe()
+Date: Fri, 23 Aug 2013 10:55:51 +0800
+Message-ID: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130815125047.GF17155@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: lm-sensors-GZX6beZjE8VD60Wz+7aTrA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+To: vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org
+Cc: yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Aug 15, 2013 at 5:50 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
-> On Thu, Jul 18, 2013 at 11:36:52AM -0700, Andy Lutomirski wrote:
->> Intel LGA2011 machines have dedicated SMBUS controllers for DIMM
->> sockets.  Because they're dedicated, they can be safely and accurately
->> probed, since all devices on them are known to be attached to DIMMs.
->> The devices found are:
->>  - SPD EEPROMs
->>  - TSODs (Temperature Sensor on DIMMs)
->>  - Other interesting things, with drivers hopefully to follow...
->
-> Just to let you know, I keep thinking about it now and then but have not
-> made up my mind yet... still at it.
->
+From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
 
-I've written the updated version of the driver.  Can you give me an
-opinion on the dimm bus stuff so I can minimize the number of times I
-have to ask for permission to send the driver?
+Fix to return a negative error code in the irq get error handling
+case instead of 0, as done elsewhere in this function.
 
-(There aren't any huge changes -- the main thing is that it will now
-refuse to run on some systems.)
+Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-pnx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks,
-Andy
-
--- 
-Andy Lutomirski
-AMA Capital Management, LLC
+diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+index 5f39c6d..d2f02b3 100644
+--- a/drivers/i2c/busses/i2c-pnx.c
++++ b/drivers/i2c/busses/i2c-pnx.c
+@@ -727,6 +727,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+ 	alg_data->irq = platform_get_irq(pdev, 0);
+ 	if (alg_data->irq < 0) {
+ 		dev_err(&pdev->dev, "Failed to get IRQ from platform resource\n");
++		ret = alg_data->irq;
+ 		goto out_irq;
+ 	}
+ 	ret = request_irq(alg_data->irq, i2c_pnx_interrupt,
