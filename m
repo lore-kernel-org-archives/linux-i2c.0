@@ -1,100 +1,69 @@
-From: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
-Subject: [PATCH] i2c: mpc: cleanup clock API use
-Date: Fri, 23 Aug 2013 18:01:44 +0200
-Message-ID: <1377273704-7474-1-git-send-email-agust@denx.de>
+From: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>
+Subject: Re: [PATCH v7] ARM: dts: mvebu: Introduce a new compatible string
+ for mv64xxx-i2c
+Date: Fri, 23 Aug 2013 18:04:11 +0100
+Message-ID: <20130823170411.GE7015@e106331-lin.cambridge.arm.com>
+References: <1377243174-15877-1-git-send-email-gregory.clement@free-electrons.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1377243174-15877-1-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, "vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org" <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, "dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org" <dann.frazier@canon>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
+On Fri, Aug 23, 2013 at 08:32:54AM +0100, Gregory CLEMENT wrote:
+> The mv64xxx-i2c embedded in the Armada XP have a new feature to
+> offload i2c transaction. This new version of the IP come also with
+> some errata. This lead to the introduction to a another compatible
+> string.
+> 
+> This commit updates the Device Tree binding documentation accordingly.
+> 
+> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+> Changelog v6 -> v7:
+> 
+> - only keep "marvell,mv7230-i2c" for compatible name
+> 
+> - replace "For a controller which support the I2C Transaction
+>   Generator" by "For the Armada XP" in the examples
+> 
+>  Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> index 6113f92..73cdc03 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mv64xxx.txt
+> @@ -5,6 +5,7 @@ Required properties :
+>  
+>   - reg             : Offset and length of the register set for the device
+>   - compatible      : Should be "marvell,mv64xxx-i2c" or "allwinner,sun4i-i2c"
+> +                     or "marvell,mv7230-i2c"
 
-make the MPC I2C driver get, prepare and enable the gated clock item for
-register access during probe; disable and unprepare the clock upon
-remove(), put is done by the devm approach; hold a reference to the
-clock over the period of use
+Ok, the new string looks sane, so I'm not opposed to that.
 
-clock lookup is non-fatal in this implementation as not all platforms
-may provide clock specs in their device tree, but failure to enable a
-clock when specified is considered fatal
+>   - interrupts      : The interrupt number
+>  
+>  Optional properties :
+> @@ -20,3 +21,12 @@ Examples:
+>  		interrupts = <29>;
+>  		clock-frequency = <100000>;
+>  	};
+> +
+> +For the Armada XP:
+> +
+> +	i2c@11000 {
+> +		compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
+                                         ^ That '8' shouldn't be there.
 
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Signed-off-by: Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
-Signed-off-by: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
----
- drivers/i2c/busses/i2c-mpc.c |   24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+> +		reg = <0x11000 0x100>;
+> +		interrupts = <29>;
+> +		clock-frequency = <100000>;
+> +	};
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index ffac214..50da3b2 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -21,6 +21,7 @@
- #include <linux/of_i2c.h>
- #include <linux/slab.h>
- 
-+#include <linux/clk.h>
- #include <linux/io.h>
- #include <linux/fsl_devices.h>
- #include <linux/i2c.h>
-@@ -67,6 +68,7 @@ struct mpc_i2c {
- #ifdef CONFIG_PM_SLEEP
- 	u8 fdr, dfsrr;
- #endif
-+	struct clk *clk_per;
- };
- 
- struct mpc_i2c_divider {
-@@ -623,6 +625,8 @@ static int fsl_i2c_probe(struct platform_device *op)
- 	int result = 0;
- 	int plen;
- 	struct resource res;
-+	struct clk *clk;
-+	int err;
- 
- 	match = of_match_device(mpc_i2c_of_match, &op->dev);
- 	if (!match)
-@@ -653,6 +657,21 @@ static int fsl_i2c_probe(struct platform_device *op)
- 		}
- 	}
- 
-+	/*
-+	 * enable clock for the I2C peripheral (non fatal),
-+	 * keep a reference upon successful allocation
-+	 */
-+	clk = devm_clk_get(&op->dev, NULL);
-+	if (!IS_ERR(clk)) {
-+		err = clk_prepare_enable(clk);
-+		if (err) {
-+			dev_err(&op->dev, "failed to enable clock\n");
-+			goto fail_request;
-+		} else {
-+			i2c->clk_per = clk;
-+		}
-+	}
-+
- 	if (of_get_property(op->dev.of_node, "fsl,preserve-clocking", NULL)) {
- 		clock = MPC_I2C_CLOCK_PRESERVE;
- 	} else {
-@@ -699,6 +718,8 @@ static int fsl_i2c_probe(struct platform_device *op)
- 	return result;
- 
-  fail_add:
-+	if (i2c->clk_per)
-+		clk_disable_unprepare(i2c->clk_per);
- 	free_irq(i2c->irq, i2c);
-  fail_request:
- 	irq_dispose_mapping(i2c->irq);
-@@ -714,6 +735,9 @@ static int fsl_i2c_remove(struct platform_device *op)
- 
- 	i2c_del_adapter(&i2c->adap);
- 
-+	if (i2c->clk_per)
-+		clk_disable_unprepare(i2c->clk_per);
-+
- 	if (i2c->irq)
- 		free_irq(i2c->irq, i2c);
- 
--- 
-1.7.9.5
+Thanks,
+Mark.
