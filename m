@@ -1,60 +1,60 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2] i2c: move ACPI helpers into the core
-Date: Fri, 23 Aug 2013 10:51:33 +0200
-Message-ID: <20130823085133.GB3035@katana>
-References: <1377095303-19330-1-git-send-email-mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH V3] i2c: move of helpers into the core
+Date: Fri, 23 Aug 2013 10:52:03 +0200
+Message-ID: <20130823085203.GC3035@katana>
+References: <1377187217-31820-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jho1yZJdad60DJr+"
-Return-path: <linux-acpi-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="bAmEntskrkuBymla"
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1377095303-19330-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, Jerry Snitselaar <jerry.snitselaar@oracle.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1377187217-31820-1-git-send-email-wsa@the-dreams.de>
+Sender: linux-doc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org, devel@driverdev.osuosl.org, alsa-devel@alsa-project.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---jho1yZJdad60DJr+
+--bAmEntskrkuBymla
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Aug 21, 2013 at 05:28:23PM +0300, Mika Westerberg wrote:
-> This follows what has already been done for the DeviceTree helpers. Move
-> the ACPI helpers from drivers/acpi/acpi_i2c.c to the I2C core and update
-> documentation accordingly.
+On Thu, Aug 22, 2013 at 06:00:14PM +0200, Wolfram Sang wrote:
+> I2C of helpers used to live in of_i2c.c but experience (from SPI) shows
+> that it is much cleaner to have this in the core. This also removes a
+> circular dependency between the helpers and the core, and so we can
+> finally register child nodes in the core instead of doing this manually
+> in each driver. So, fix the drivers and documentation, too.
 >=20
-> This also solves a problem reported by Jerry Snitselaar that we can't bui=
-ld
-> the ACPI I2C helpers as a module.
->=20
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Acked-by: Rob Herring <rob.herring@calxeda.com>
+> Reviewed-by: Felipe Balbi <balbi@ti.com>
 > Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> Tested-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 
-Applied to for-next, thanks!
+Applied to for-next!
 
-
---jho1yZJdad60DJr+
+--bAmEntskrkuBymla
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSFyKVAAoJEBQN5MwUoCm2RXkQAJv2lbEjHhujuArKKwHkFUwe
-0U8a58jPYH7SUVbq3xJsf5jb9jtm5OJz0ZjG9PsQ8F4ZucNHTOPHkA3j/jnp72mG
-y6ajjjWcw5WbMSAbbSpWIi9nVD+3E7+lZ1N2BC41OcieRNzfv12PCWBpcuWNZ+p0
-iyO2HxPcrAU0ARV0irrNjBp8uoqhn7AjwgFGxnCbmjG40whRzQnlhIoOWuLGpelV
-j+R/Fn+g0uWMHbYwoff+B1o348ZevStQ5oIdKtEz31wFH5G6tWflcQgqyBKta1wL
-eXge6UURtVPTkEZWUeosvlWJM5UcmuT/2P5DGxkuhXqNeP7ZaNyLRwCxa2y5WJy5
-4OSt+9fiG0eiWTpUj8+tVewTvSmsFJlqPrEWzSwiyB5UocG+Ld/dHil10gfMMOE2
-tXgfW5MoyWxarfRGck5K7kgsX39URks/d6ALEtrBpCBDaRJNyrwONnYrv9jWXDed
-8bp2qw+boLQqr0TONKD2Y2XDrDKzFL6We3qtJagedTx0jQy1T+Y8yCsD7GWXdI2B
-78nQ3JMhETAVE8D7Aqh93XN12o9vJC26REzncOAADrVIGNAaXifd2k7Ys7mRvJv8
-prxgkwKOYzB3VAf5ju0Xwm6sxds2uyuZ6wBvzWNoYvBt4yYttCeC1219aRJMP2Wg
-XHXlmSzK864oliNzI1kT
-=8RI2
+iQIcBAEBAgAGBQJSFyKzAAoJEBQN5MwUoCm2bI0QAK5awQ507hl+3+q76tlv3bM/
++m1YNlqdEye7K3+XmB48MpCUi65bGtoITuOg+DaWYxw3+A7RhoJgwkFyMZ0gpesj
+aHkFe51yVYiU4Zx1MVSpIDo5ufAmp+8FRM3TF++IgAq62/7fLtwhTJlU2qgzShzs
+rw8UbmXg9+VjWFRfw1tAl+Vz3sWb9+vH2fmNiwXyPMglOdpClKe28rXrABJ78Gqc
+cxqgatPqfBCxyob57z/hGShtPUZkRWdpMU/hjbfemsPrysbLQzmqVyVS2idFP1ad
+T3mJ3xbKXcyJNO4NjGWazxPnpZ74RfNIJQ5nerZfqralO2gdVW8EFwCYaEy9k8YF
+/EpBpMQkHz3Pb3eb4tZJa50cVCygjuikpPoxq9Mtao6T8VG0aVNj8NuE9ros2WS8
+YWkRaVRDN8fjW98vuw7HmNuHCfFZV7QQ8uCcDtrl9k7X+fLQIvxPAVgrDs7Qmugm
+9nzR9AchLDuHuBNRM42bz/t+cILX2ExwIMC5k1YouF0Inuvfrh3LSrEyaJSD8IEF
+VeRGJPNSEP+Ww2+bGexV56ziz8JeMNLaj5rghDw9h9Jz5D4nMRjqhsRAbSfjrlMb
+YfyMTzS/tmJgt2NPj2bc2DvK4JLfrS/SR5YsdWSgR6VQ0WUvPSLJL/rY8Gn/UJ2j
+gfliuM4Sj6/OhS+bbMX3
+=pGc6
 -----END PGP SIGNATURE-----
 
---jho1yZJdad60DJr+--
+--bAmEntskrkuBymla--
