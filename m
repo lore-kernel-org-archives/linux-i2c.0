@@ -1,60 +1,56 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH V3] i2c: move of helpers into the core
-Date: Fri, 23 Aug 2013 10:52:03 +0200
-Message-ID: <20130823085203.GC3035@katana>
-References: <1377187217-31820-1-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-pnx: fix error return code in i2c_pnx_probe()
+Date: Fri, 23 Aug 2013 11:02:42 +0200
+Message-ID: <20130823090242.GD3035@katana>
+References: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="bAmEntskrkuBymla"
-Return-path: <linux-doc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="7DO5AaGCk89r4vaK"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1377187217-31820-1-git-send-email-wsa@the-dreams.de>
-Sender: linux-doc-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org, davinci-linux-open-source@linux.davincidsp.com, linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-media@vger.kernel.org, devicetree@vger.kernel.org, devel@driverdev.osuosl.org, alsa-devel@alsa-project.org
+In-Reply-To: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---bAmEntskrkuBymla
+--7DO5AaGCk89r4vaK
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Aug 22, 2013 at 06:00:14PM +0200, Wolfram Sang wrote:
-> I2C of helpers used to live in of_i2c.c but experience (from SPI) shows
-> that it is much cleaner to have this in the core. This also removes a
-> circular dependency between the helpers and the core, and so we can
-> finally register child nodes in the core instead of doing this manually
-> in each driver. So, fix the drivers and documentation, too.
+On Fri, Aug 23, 2013 at 10:55:51AM +0800, Wei Yongjun wrote:
+> From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
 >=20
-> Acked-by: Rob Herring <rob.herring@calxeda.com>
-> Reviewed-by: Felipe Balbi <balbi@ti.com>
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Tested-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Fix to return a negative error code in the irq get error handling
+> case instead of 0, as done elsewhere in this function.
+>=20
+> Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
 
-Applied to for-next!
+Applied to for-current, thanks!
 
---bAmEntskrkuBymla
+
+--7DO5AaGCk89r4vaK
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSFyKzAAoJEBQN5MwUoCm2bI0QAK5awQ507hl+3+q76tlv3bM/
-+m1YNlqdEye7K3+XmB48MpCUi65bGtoITuOg+DaWYxw3+A7RhoJgwkFyMZ0gpesj
-aHkFe51yVYiU4Zx1MVSpIDo5ufAmp+8FRM3TF++IgAq62/7fLtwhTJlU2qgzShzs
-rw8UbmXg9+VjWFRfw1tAl+Vz3sWb9+vH2fmNiwXyPMglOdpClKe28rXrABJ78Gqc
-cxqgatPqfBCxyob57z/hGShtPUZkRWdpMU/hjbfemsPrysbLQzmqVyVS2idFP1ad
-T3mJ3xbKXcyJNO4NjGWazxPnpZ74RfNIJQ5nerZfqralO2gdVW8EFwCYaEy9k8YF
-/EpBpMQkHz3Pb3eb4tZJa50cVCygjuikpPoxq9Mtao6T8VG0aVNj8NuE9ros2WS8
-YWkRaVRDN8fjW98vuw7HmNuHCfFZV7QQ8uCcDtrl9k7X+fLQIvxPAVgrDs7Qmugm
-9nzR9AchLDuHuBNRM42bz/t+cILX2ExwIMC5k1YouF0Inuvfrh3LSrEyaJSD8IEF
-VeRGJPNSEP+Ww2+bGexV56ziz8JeMNLaj5rghDw9h9Jz5D4nMRjqhsRAbSfjrlMb
-YfyMTzS/tmJgt2NPj2bc2DvK4JLfrS/SR5YsdWSgR6VQ0WUvPSLJL/rY8Gn/UJ2j
-gfliuM4Sj6/OhS+bbMX3
-=pGc6
+iQIcBAEBAgAGBQJSFyUxAAoJEBQN5MwUoCm2VUkP/Ap9ztEqqwsI/fDBznabGQQe
+RNUG0ikCgKIsxlPpCvmUApPM0oYk6oMvnXRsXdnm01JS3ytzVtONnzF7faEoyV8h
+RsKWtX/Ose3HsXrbBWog/cdmZISwpFzDbHUYOoXsBlLQN0/aAuHGiOpahu6ChlK0
+QoaseG+AO70ijUKvRLfLMDDMVCv10n6xkDQyf0ostwc+yyjo88LMOrTNeGimtriH
+XU0hOvAU0bnMqrD/uyYgjOHFQiI0oUgm4s8va2YsZJFYIWEmDjZdGs7FqZ/STFEL
+sJ4Ggdsp1GZEFuW+LNWjteGQ/1j8hK2CcD0jx+3cZTzsCQt4PWDdN4AB1FN5wntQ
+mbrSf3GdNthbaI9GyYAIBtAP0iO7CR7T0SXsGJvvY0OuzZGIzMEE3e/ZRbFfp5WN
+NnVKo0WHaSynuWqze70nRmvoNmJlFwnCcQmo7Km1QVunY4trvM/QuKTkralhQH+7
+v86IfW/zCuxXq875ql8UnKCDjph48+jmA6EbSSfwkAmZAbsfPMTV2NrY/driXtuv
+EALPvX+3Jm4CGVzHFvVvvqglFsLvr5Hc+8cKU/bmApcLCuhuAn0t6d4Q1pJgWIg9
+8e15TYcfBtI4tbeDlLH2knHD/Wyw4kpUP5CeUBHQMi0UYF0PSlgnMh/45NvYdw+M
+8ed5EDfk047xbgK5tLdz
+=SiPh
 -----END PGP SIGNATURE-----
 
---bAmEntskrkuBymla--
+--7DO5AaGCk89r4vaK--
