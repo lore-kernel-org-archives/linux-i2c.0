@@ -1,44 +1,29 @@
-From: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
-Subject: =?UTF-8?B?UmU6IFtQQVRDSF0gbWlzYzogKGF0MjQpIG1vdmUgaGVhZGVyIHRvIGxpbnV4?=
- =?UTF-8?B?L3BsYXRmb3JtX2RhdGEv?=
-Date: Fri, 23 Aug 2013 23:26:36 +0400
-Message-ID: <1377285996.620418788@f48.i.mail.ru>
-References: <20130823190247.GA3821@katana>
- <1033284781.908504.1377285587778.JavaMail.root@mail>
-Reply-To: =?UTF-8?B?QWxleGFuZGVyIFNoaXlhbg==?= <shc_work@mail.ru>
+From: Vivien Didelot <vivien.didelot@savoirfairelinux.com>
+Subject: Re: [PATCH] misc: (at24) move header to linux/platform_data/
+Date: Fri, 23 Aug 2013 15:40:18 -0400 (EDT)
+Message-ID: <276016030.909379.1377286818459.JavaMail.root@mail>
+References: <1377285996.620418788@f48.i.mail.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1033284781.908504.1377285587778.JavaMail.root@mail>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: =?UTF-8?B?Vml2aWVuIERpZGVsb3Q=?= <vivien.didelot@savoirfairelinux.com>
-Cc: linux-kernel@vger.kernel.org, kernel@savoirfairelinux.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, =?UTF-8?B?V29sZnJhbSBTYW5n?= <wsa@the-dreams.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1377285996.620418788@f48.i.mail.ru>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Alexander Shiyan <shc_work@mail.ru>
+Cc: Wolfram Sang <wsa@the-dreams.de>, kernel@savoirfairelinux.com, linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-> Wolfram wrote:
-> 
-> > On Fri, Aug 23, 2013 at 02:38:20PM -0400, Vivien Didelot wrote:
-> > > This patch moves the at24.h header from include/linux/i2c to
-> > > include/linux/platform_data and updates existing support
-> > > accordingly.
-> > 
-> > This message explains what the patch does but not why the change is
-> > wanted. I'd be surprised if we really want *all* platform_data in one
-> > single directory?
-> 
-> IMHO it makes sense. Why wouldn't we want all platform_data in
-> include/linux/platform_data/?
+Hi,
 
-Can this file be additionally renamed to misc-at24.h to reflect belongs
-to a particular subsystem?
+Alexander wrote:
+> Can this file be additionally renamed to misc-at24.h to reflect
+> belongs to a particular subsystem?
 
----
+I'm not sure about that. Having the subsystem name at the beginning of
+the file doesn't seem to be a convention for all subsystems. For
+instance, this is true for gpio, spi or leds, but not for hwmon.
+Actually, I would stick with the corresponding subsystem naming, here:
+at24.c -> at24.h.
+
+Regards,
+Vivien
