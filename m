@@ -1,52 +1,47 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH V2 2/3] i2c: mxs: Rework the PIO mode operation
-Date: Mon, 26 Aug 2013 20:51:42 +0200
-Message-ID: <201308262051.43123.marex@denx.de>
-References: <1375219237-9594-1-git-send-email-marex@denx.de> <201308251819.57351.marex@denx.de> <11990305.k2WdFfCnhA@linux-1fbo.site>
+From: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+Subject: Re: [PATCH] i2c: powermac: fix return path on error
+Date: Tue, 27 Aug 2013 17:42:05 +1000
+Message-ID: <1377589325.3819.118.camel@pasglop>
+References: <1376918295-6961-1-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <11990305.k2WdFfCnhA-BVXpyJtzy6LO1Ldfs0Uenw@public.gmane.org>
+In-Reply-To: <1376918295-6961-1-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linuxppc-dev-mnsaURCQ41sdnm+yROfE0A@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Torsten Fleischer,
-
-> Hi Marek,
+On Mon, 2013-08-19 at 15:18 +0200, Wolfram Sang wrote:
+> We want to bail out immediately if i2c_add_adapter failed and not try to
+> register child nodes with a nilled adapter structure.
 > 
-> > > > +
-> > > > +			/* Check NAK here ? */
-> > > 
-> > > checking for the NAK at this point is really necessary.
-> > > 
-> > > I've tested the patches by writing to the EEPROM using the at24 driver.
-> > > If the data to write cross the EEPROM's page boundary then the at24
-> > > driver splits the I2C write commands.
-> > > 
-> > > After the first I2C write command is done the at24 driver immediately
-> > > tries
-> > > to send the next I2C write command. Normally the EEPROM signals a NAK,
-> > > because the previous write operation is internally still in progress.
-> > > The NAK will be handled by the at24 driver. It later retries the I2C
-> > > write command.
-> > > 
-> > > But if the the EEPROM signals a NAK and the I2C write command has more
-> > > than
-> > > 3 and less than 7 bytes then the error "PIO: Failed to finish WRITE
-> > > cmd!" appears, because the loop is not exited due to the NAK.
-> > 
-> > Ok, so we check
-> > 
-> > HW_I2C_STAT :: GOT_A_NAK bit at the end of the loop and if it's set, we
-> > "goto cleanup" with ret = -ENXIO . How does it sound to you?
+> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+
+Acked-by: Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>
+> ---
+>  drivers/i2c/busses/i2c-powermac.c |    3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> this sounds good to me.
-
-Does it fix your EEPROM issue then ?
-
-Best regards,
-Marek Vasut
+> diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
+> index 8dc90da..bb81773 100644
+> --- a/drivers/i2c/busses/i2c-powermac.c
+> +++ b/drivers/i2c/busses/i2c-powermac.c
+> @@ -446,6 +446,7 @@ static int i2c_powermac_probe(struct platform_device *dev)
+>  		printk(KERN_ERR "i2c-powermac: Adapter %s registration "
+>  		       "failed\n", adapter->name);
+>  		memset(adapter, 0, sizeof(*adapter));
+> +		return rc;
+>  	}
+>  
+>  	printk(KERN_INFO "PowerMac i2c bus %s registered\n", adapter->name);
+> @@ -455,7 +456,7 @@ static int i2c_powermac_probe(struct platform_device *dev)
+>  	 */
+>  	i2c_powermac_register_devices(adapter, bus);
+>  
+> -	return rc;
+> +	return 0;
+>  }
+>  
+>  static struct platform_driver i2c_powermac_driver = {
