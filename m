@@ -1,597 +1,193 @@
-From: y@snark.codethink.co.uk
-Subject: [PATCH] EMMA: Add em i2c driver
-Date: Wed, 28 Aug 2013 15:04:24 +0100
-Message-ID: <2010.46381048418$1377699148@news.gmane.org>
+From: Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-designware: make *CNT values configurable
+Date: Wed, 28 Aug 2013 17:34:31 +0200
+Message-ID: <20130828153429.GB7066@ab42.lan>
+References: <20130712085140.GY4898@intel.com>
+ <51E0E76B.1040304@pobox.com>
+ <20130716111616.GA25835@ab42.lan>
+ <51E6ACBE.7000509@pobox.com>
+ <20130722131706.GA24081@ab42.lan>
+ <51EFE550.1000507@pobox.com>
+ <20130805093126.GE20936@ab42.lan>
+ <520D8B30.9000602@pobox.com>
+ <20130821143915.GA3046@ab42.lan>
+ <52183D87.40703@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52183D87.40703-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org, Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+To: Shinya Kuribayashi <skuribay-e+AXbWqSrlAAvxtiuMwx3w@public.gmane.org>
+Cc: mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+On Sat, Aug 24, 2013 at 01:58:47PM +0900, Shinya Kuribayashi wrote:
+> On 8/21/13 11:39 PM, Christian Ruppert wrote:
+> >On Fri, Aug 16, 2013 at 11:15:12AM +0900, Shinya Kuribayashi wrote:
+> >>On 8/5/13 6:31 PM, Christian Ruppert wrote:
+> >>>On Wed, Jul 24, 2013 at 11:31:44PM +0900, Shinya Kuribayashi wrote=
+:
+> >>>>As said before, all t_SCL things should go away.  Please forget
+> >>>>about 100kbps, 400kbps, and so on.  Bus/clock speed is totally
+> >>>>pointless concept for the I2C bus systems.  For example, as long
+> >>>>as tr/tf, tHIGH/tLOW, tHD;STA, etc. are met by _all_ devices in a
+> >>>>certain I2C bus, it doesn't matter that the resulting clock speed
+> >>>>is, say 120 kbps with Standard-mode, or even 800 kbps for Fast-mo=
+de.
+> >>>>Nobody in the I2C bus doesn't care about actual bus/clock speed.
+> >>>>
+> >>>>We don't have to care about the resulting bus speed, or rather
+> >>>>we should/must not check to see if it's within the proper range.
+> >>>
+> >>>Actually, the I2C specification clearly defines f_SCL;max (and thu=
+s
+> >>>implies t_SCL;min), both in the tables and the timing diagrams. Wh=
+y can
+> >>>we ignore this constraint while having to meet all the others?
+> >>
+> >>If we meet t_r, t_f, t_HIGH, t_LOW (and t_HIGH in this DW case),
+> >>f_SCL;max will be met by itself.
+> >
+> >I'm not sure if I agree with this:
+> >
+> >Standard mode:
+> >        t_r;min          0ns
+> >        t_f;min     +    0ns
+> >        t_HIGH;min  + 4000ns
+> >        t_LOW;min   + 4700ns
+> >        1/f_SCL     =3D 8700ns
+> >    =3D=3D> f_SCL       =3D 115kHz    =3D=3D>    violation of f_SCL;=
+max=3D100kHz
+> >
+> >Fast mode (let's assume V_DD =3D 5.5V):
+> >        t_r;min         20ns
+> >        t_f;min     +   20ns
+> >        t_HIGH;min  +  600ns
+> >        t_LIW;min   + 1300ns
+> >        1/f_SCL     =3D 1940ns
+> >    =3D=3D> f_SCL       =3D 515kHz    =3D=3D>    violation of f_SCL;=
+max=3D400kHz
+>=20
+> It's more realistic to calculate with say 50ns < tr,tf < 300ns,
+> than with tt =3D tf =3D 0ns or <20ns.  Even if with such real tf/tr
+> times, there is cases where f_SCL can be greater than 100/400Hz.
 
-Signed-off-by: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
----
- drivers/i2c/busses/Kconfig  |   10 +
- drivers/i2c/busses/Makefile |    1 +
- drivers/i2c/busses/i2c-em.c |  536 +++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 547 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-em.c
+I agree. I just used these values to illustrate my point.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index dc6dea6..e5cda34 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -777,6 +777,16 @@ config I2C_RCAR
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-rcar.
- 
-+config I2C_EM
-+	tristate "EMMA Mobile series I2C adapter"
-+	depends on I2C && HAVE_CLK
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  I2C interface on the Renesas Electronics EM/EV of processors.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-em
-+
- comment "External I2C/SMBus adapter drivers"
- 
- config I2C_DIOLAN_U2C
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index d00997f..f7022ab 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -76,6 +76,7 @@ obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- obj-$(CONFIG_I2C_XILINX)	+= i2c-xiic.o
- obj-$(CONFIG_I2C_XLR)		+= i2c-xlr.o
- obj-$(CONFIG_I2C_RCAR)		+= i2c-rcar.o
-+obj-$(CONFIG_I2C_EM)            += i2c-em.o
- 
- # External I2C/SMBus adapter drivers
- obj-$(CONFIG_I2C_DIOLAN_U2C)	+= i2c-diolan-u2c.o
-diff --git a/drivers/i2c/busses/i2c-em.c b/drivers/i2c/busses/i2c-em.c
-new file mode 100644
-index 0000000..b54a983
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-em.c
-@@ -0,0 +1,536 @@
-+/*
-+ *  Release Date	: 2010/05/24
-+ *
-+ * (c) Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-+ * Parts (c) 2010 Renesas Electronics Corporation
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software Foundation,
-+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/of_i2c.h>
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/sched.h>
-+
-+#include <linux/interrupt.h>
-+#include <linux/device.h>
-+#include <linux/of_device.h>
-+#include <linux/platform_device.h>
-+
-+/* INT Reg */
-+#define EMXX_I2C_INT_RAW	(IO_ADDRESS(EMXX_INTA_D_BASE) + 0x014)
-+#define EMXX_I2C_INT_IIR	(IO_ADDRESS(EMXX_INTA_D_BASE) + 0x024)
-+
-+/* INT Reg bit */
-+#define EMXX_I2C0_INTC_MST	(1 << 0)
-+#define EMXX_I2C1_INTC_MST	(1 << 1)
-+#define EMXX_I2C0_INTC_IIR	(1 << 16)
-+#define EMXX_I2C1_INTC_IIR	(1 << 17)
-+
-+/* I2C Registers */
-+
-+#define I2C_OFS_IICACT0		0x00	/* start */
-+#define I2C_OFS_IIC0		0x04	/* shift */
-+#define I2C_OFS_IICC0		0x08	/* control */
-+#define I2C_OFS_SVA0		0x0c	/* slave address */
-+#define I2C_OFS_IICCL0		0x10	/* clock select */
-+#define I2C_OFS_IICX0		0x14	/* extention */
-+#define I2C_OFS_IICS0		0x18	/* status */
-+#define I2C_OFS_IICSE0		0x1c	/* status For emulation */
-+#define I2C_OFS_IICF0		0x20	/* IIC flag */
-+
-+
-+/* I2C IICACT0 Masks */
-+#define I2C_BIT_IICE0		0x0001
-+
-+/* I2C IICC0 Masks */
-+#define I2C_BIT_LREL0		0x0040
-+#define I2C_BIT_WREL0		0x0020
-+#define I2C_BIT_SPIE0		0x0010
-+#define I2C_BIT_WTIM0		0x0008
-+#define I2C_BIT_ACKE0		0x0004
-+#define I2C_BIT_STT0		0x0002
-+#define I2C_BIT_SPT0		0x0001
-+
-+/* I2C IICCL0 Masks */
-+#define I2C_BIT_CLD0		0x0020
-+#define I2C_BIT_DAD0		0x0010
-+#define I2C_BIT_SMC0		0x0008
-+#define I2C_BIT_DFC0		0x0004
-+#define I2C_BIT_CLO1		0x0002
-+#define I2C_BIT_CLO0		0x0001
-+
-+/* I2C IICSE0 Masks */
-+#define I2C_BIT_MSTS0		0x0080
-+#define I2C_BIT_ALD0		0x0040
-+#define I2C_BIT_EXC0		0x0020
-+#define I2C_BIT_COI0		0x0010
-+#define I2C_BIT_TRC0		0x0008
-+#define I2C_BIT_ACKD0		0x0004
-+#define I2C_BIT_STD0		0x0002
-+#define I2C_BIT_SPD0		0x0001
-+
-+/* I2C IICF0 Masks */
-+#define I2C_BIT_STCF		0x0080
-+#define I2C_BIT_IICBSY		0x0040
-+#define I2C_BIT_STCEN		0x0002
-+#define I2C_BIT_IICRSV		0x0001
-+
-+/* For setting of sending and receiving */
-+#define I2C_DIR_R		0x01
-+
-+static int em_i2c_xfer(struct i2c_adapter *, struct i2c_msg[], int);
-+
-+struct em_i2c_device {
-+	struct i2c_adapter	adap;
-+	wait_queue_head_t	i2c_wait;
-+	void __iomem		*membase;
-+	struct clk              *clk;
-+	struct clk              *sclk;
-+	int			irq;
-+	int			flags;
-+	int			pending;
-+	spinlock_t              irq_lock;
-+};
-+
-+static u32 em_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static struct i2c_algorithm em_i2c_algo = {
-+	.master_xfer = em_i2c_xfer,
-+	.smbus_xfer = NULL,
-+	.functionality = em_i2c_func,
-+};
-+
-+static void em_i2c_enable_clock(struct em_i2c_device *i2c_dev)
-+{
-+	clk_enable(i2c_dev->clk);
-+	clk_enable(i2c_dev->sclk);
-+}
-+
-+static void em_i2c_disable_clock(struct em_i2c_device *i2c_dev)
-+{
-+	clk_disable(i2c_dev->sclk);
-+	clk_disable(i2c_dev->clk);
-+}
-+
-+static int em_i2c_wait_for_event(struct em_i2c_device *i2c_dev, u16 *status)
-+{
-+	int interrupted;
-+
-+	do {
-+		interrupted = wait_event_interruptible_timeout(
-+				i2c_dev->i2c_wait, i2c_dev->pending,
-+				i2c_dev->adap.timeout);
-+
-+		if (i2c_dev->pending) {
-+			spin_lock_irq(&i2c_dev->irq_lock);
-+			i2c_dev->pending = 0;
-+			spin_unlock_irq(&i2c_dev->irq_lock);
-+			*status = readl(i2c_dev->membase + I2C_OFS_IICSE0);
-+			return 0;
-+		}
-+
-+	} while (interrupted);
-+
-+	*status = 0;
-+
-+	return -ETIMEDOUT;
-+}
-+
-+static int em_i2c_stop(struct em_i2c_device *i2c_dev)
-+{
-+	u16 status;
-+
-+	/* Send Stop condition */
-+	writel((readl(i2c_dev->membase + I2C_OFS_IICC0) | I2C_BIT_SPT0 |
-+		I2C_BIT_SPIE0), i2c_dev->membase + I2C_OFS_IICC0);
-+
-+	/* Wait for stop condition */
-+	em_i2c_wait_for_event(i2c_dev, &status);
-+	/* FIXME - check status? */
-+
-+	if ((readl(i2c_dev->membase + I2C_OFS_IICSE0) & I2C_BIT_SPD0) != 0)
-+		return 0;
-+
-+	return -EBUSY;
-+}
-+
-+static int em_i2c_start(struct em_i2c_device *i2c_dev)
-+{
-+	/* Send start condition */
-+	writel((readl(i2c_dev->membase + I2C_OFS_IICC0)) | I2C_BIT_ACKE0 |
-+		I2C_BIT_WTIM0, i2c_dev->membase + I2C_OFS_IICC0);
-+
-+	writel((readl(i2c_dev->membase + I2C_OFS_IICC0) | I2C_BIT_STT0),
-+		i2c_dev->membase + I2C_OFS_IICC0);
-+
-+	return -EBUSY;
-+}
-+
-+static void em_i2c_reset(struct i2c_adapter *adap)
-+{
-+	struct em_i2c_device *i2c_dev =
-+		(struct em_i2c_device *)(i2c_get_adapdata(adap));
-+
-+	/* If I2C active */
-+	if (readl(i2c_dev->membase + I2C_OFS_IICACT0) & I2C_BIT_IICE0) {
-+
-+		/* Disable I2C operation */
-+		writel(0, i2c_dev->membase + I2C_OFS_IICACT0);
-+
-+		while (readl(i2c_dev->membase + I2C_OFS_IICACT0) == 1)
-+			;
-+	}
-+
-+	/* Transfer mode set */
-+	writel(i2c_dev->flags, i2c_dev->membase + I2C_OFS_IICCL0);
-+
-+	/* Can Issue start without detecting a stop, Reservation disabled. */
-+	writel(I2C_BIT_STCEN | I2C_BIT_IICRSV,
-+		i2c_dev->membase + I2C_OFS_IICF0);
-+
-+	/* I2C enable, 9 bit interrupt mode */
-+	writel(I2C_BIT_WTIM0, i2c_dev->membase + I2C_OFS_IICC0);
-+
-+	/* Enable I2C operation */
-+	writel(I2C_BIT_IICE0, i2c_dev->membase + I2C_OFS_IICACT0);
-+
-+	while (readl(i2c_dev->membase + I2C_OFS_IICACT0) == 0)
-+		;
-+}
-+
-+static int __em_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msg,
-+				int stop)
-+{
-+	struct em_i2c_device *i2c_dev =
-+		(struct em_i2c_device *)i2c_get_adapdata(adap);
-+	int count = 0;
-+	u16 status;
-+
-+	/* Start transfer */
-+	em_i2c_start(i2c_dev);
-+
-+	/* Send slave address and R/W type */
-+	writel((msg->addr << 1) | ((msg->flags & I2C_M_RD) ? 1 : 0),
-+		i2c_dev->membase + I2C_OFS_IIC0);
-+
-+	/* Wait for transaction */
-+	if (em_i2c_wait_for_event(i2c_dev, &status))
-+		goto out_reset;
-+
-+	/* Arbitration, Extension mode or Slave mode are all errors */
-+	if (status & (I2C_BIT_EXC0 | I2C_BIT_COI0 | I2C_BIT_ALD0)
-+			|| !(status & I2C_BIT_MSTS0))
-+		goto out_reset;
-+
-+	/* Extra setup for read transactions */
-+	if (!(status & I2C_BIT_TRC0)) {
-+
-+		/* msg->flags is Write type */
-+		if (!(msg->flags & I2C_M_RD))
-+			goto out_reset;
-+
-+		/* Recieved No ACK (result of setting slave address and R/W) */
-+		if (!(status & I2C_BIT_ACKD0)) {
-+			em_i2c_stop(i2c_dev);
-+			goto out;
-+		}
-+
-+		/* 8 bit interrupt mode */
-+		writel((readl(i2c_dev->membase + I2C_OFS_IICC0)
-+				& ~I2C_BIT_WTIM0) | I2C_BIT_ACKE0,
-+				i2c_dev->membase + I2C_OFS_IICC0);
-+		writel((readl(i2c_dev->membase + I2C_OFS_IICC0)
-+				& ~I2C_BIT_WTIM0) | I2C_BIT_WREL0,
-+				i2c_dev->membase + I2C_OFS_IICC0);
-+
-+		/* Wait for transaction */
-+		if (em_i2c_wait_for_event(i2c_dev, &status))
-+			goto out_reset;
-+	}
-+
-+	/* Send / receive data */
-+	do {
-+		/* Arbitration, Extension mode or Slave mode are errors*/
-+		if (status & (I2C_BIT_EXC0 | I2C_BIT_COI0 | I2C_BIT_ALD0)
-+				|| !(status & I2C_BIT_MSTS0))
-+			goto out_reset;
-+
-+		if (!(status & I2C_BIT_TRC0)) { /* Read transaction */
-+
-+			/* msg->flags is Write type */
-+			if (!(msg->flags & I2C_M_RD))
-+				goto out_reset;
-+
-+			if (count == msg->len)
-+				break;
-+
-+			msg->buf[count++] =
-+				readl(i2c_dev->membase + I2C_OFS_IIC0);
-+
-+
-+			writel((readl(i2c_dev->membase + I2C_OFS_IICC0)
-+				| I2C_BIT_WREL0),
-+				i2c_dev->membase + I2C_OFS_IICC0);
-+
-+		} else { /* Write transaction */
-+
-+			/* msg->flags is Read type */
-+			if ((msg->flags & I2C_M_RD))
-+				goto out_reset;
-+
-+			/* Recieved No ACK */
-+			if (!(status & I2C_BIT_ACKD0)) {
-+				em_i2c_stop(i2c_dev);
-+				goto out;
-+			}
-+
-+			if (count == msg->len)
-+				break;
-+
-+			/* Write data */
-+			writel(msg->buf[count++], i2c_dev->membase
-+				+ I2C_OFS_IIC0);
-+		}
-+
-+		/* Wait for R/W transaction */
-+		if (em_i2c_wait_for_event(i2c_dev, &status))
-+			goto out_reset;
-+
-+	} while (1);
-+
-+	if (stop)
-+		em_i2c_stop(i2c_dev);
-+
-+	return count;
-+
-+out_reset:
-+	em_i2c_reset(adap);
-+out:
-+	return -EREMOTEIO;
-+}
-+
-+static int em_i2c_wait_free(struct i2c_adapter *adap)
-+{
-+	struct em_i2c_device *i2c_dev;
-+	int status;
-+	int timeout = adap->timeout;
-+
-+	i2c_dev = (struct em_i2c_device *)(i2c_get_adapdata(adap));
-+
-+	/* wait until I2C bus free */
-+	while ((readl(i2c_dev->membase + I2C_OFS_IICF0) & I2C_BIT_IICBSY)
-+			&& timeout--) {
-+		schedule_timeout_uninterruptible(1);
-+	}
-+
-+	status = (timeout <= 0);
-+
-+	if (status)
-+		dev_info(&adap->dev, "I2C bus is busy\n");
-+
-+	return status;
-+}
-+
-+static int em_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-+	int num)
-+{
-+	struct em_i2c_device *i2c_dev =
-+		(struct em_i2c_device *)(i2c_get_adapdata(adap));
-+	int ret = 0;
-+	int i;
-+
-+	if (msgs == NULL)
-+		return -EINVAL;
-+
-+	for (i = 0; i < num; i++)
-+		if (msgs[i].buf == NULL)
-+			return -EINVAL;
-+
-+	em_i2c_enable_clock(i2c_dev);
-+	em_i2c_reset(adap);
-+
-+	/* Attempt to gain control of the adapter */
-+	i = 0;
-+	while (em_i2c_wait_free(adap)) {
-+		switch (i) {
-+		case 0:
-+			if (!(readl(i2c_dev->membase + I2C_OFS_IICSE0)
-+					& I2C_BIT_MSTS0)) {
-+				/* Slave mode -> Error */
-+				ret = -EBUSY;
-+				goto out;
-+			}
-+
-+			em_i2c_stop(i2c_dev);
-+			break;
-+		case 1:
-+			em_i2c_reset(adap);
-+			break;
-+		case 2:
-+			ret = -EREMOTEIO;
-+			goto out;
-+		}
-+		i++;
-+	}
-+
-+	/* Send messages */
-+	for (i = 0; i < num; i++) {
-+		ret = __em_i2c_xfer(adap, &msgs[i], (i == (num - 1)));
-+		if (ret < 0)
-+			goto out;
-+	}
-+
-+	/* I2C transfer completed */
-+	ret = i;
-+
-+out:
-+	em_i2c_disable_clock(i2c_dev);
-+
-+	return ret;
-+}
-+
-+static irqreturn_t em_i2c_irq_handler(int this_irq, void *dev_id)
-+{
-+	struct em_i2c_device *i2c_dev = dev_id;
-+
-+	i2c_dev->pending = 1;
-+
-+	wake_up_interruptible(&i2c_dev->i2c_wait);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int em_i2c_probe(struct platform_device *pdev)
-+{
-+	struct em_i2c_device *i2c_dev;
-+	struct resource *r;
-+	int ret;
-+
-+	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(struct em_i2c_device),
-+				GFP_KERNEL);
-+
-+	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	i2c_dev->membase = devm_ioremap_resource(&pdev->dev, r);
-+	if (IS_ERR(i2c_dev->membase))
-+		return PTR_ERR(i2c_dev->membase);
-+
-+	strlcpy(i2c_dev->adap.name, "em_i2c", sizeof(i2c_dev->adap.name));
-+
-+	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
-+	if (!IS_ERR(i2c_dev->clk))
-+		clk_prepare(i2c_dev->clk);
-+
-+	i2c_dev->sclk = devm_clk_get(&pdev->dev, "sclk");
-+	if (!IS_ERR(i2c_dev->sclk))
-+		clk_prepare(i2c_dev->sclk);
-+
-+	i2c_dev->irq = platform_get_irq(pdev, 0);
-+	i2c_dev->adap.timeout = msecs_to_jiffies(100);
-+	i2c_dev->adap.dev.parent = &pdev->dev;
-+	i2c_dev->adap.algo = &em_i2c_algo;
-+	i2c_dev->adap.owner = THIS_MODULE;
-+	i2c_dev->adap.nr = pdev->id;
-+	i2c_dev->adap.dev.of_node = pdev->dev.of_node;
-+
-+	init_waitqueue_head(&i2c_dev->i2c_wait);
-+
-+	spin_lock_init(&i2c_dev->irq_lock);
-+
-+	i2c_dev->flags = I2C_BIT_DFC0;
-+#ifdef CONFIG_I2C_EMXX_SMC
-+	i2c_dev->flags |= I2C_BIT_SMC0;
-+#endif
-+
-+	platform_set_drvdata(pdev, i2c_dev);
-+	i2c_set_adapdata(&i2c_dev->adap, i2c_dev);
-+
-+	em_i2c_enable_clock(i2c_dev);
-+	em_i2c_reset(&i2c_dev->adap);
-+	em_i2c_disable_clock(i2c_dev);
-+
-+	ret = devm_request_irq(&pdev->dev, i2c_dev->irq, em_i2c_irq_handler, 0,
-+				"em_i2c", i2c_dev);
-+
-+	if (ret)
-+		goto exit_clk;
-+
-+	ret = i2c_add_numbered_adapter(&i2c_dev->adap);
-+
-+	if (ret != 0)
-+		goto exit_clk;
-+
-+	of_i2c_register_devices(&i2c_dev->adap);
-+
-+	dev_info(&pdev->dev, "Added i2c controller %d irq %d @ 0x%p\n",
-+		i2c_dev->adap.nr, i2c_dev->irq, i2c_dev->membase);
-+
-+	return 0;
-+
-+exit_clk:
-+	clk_disable(i2c_dev->clk);
-+	clk_unprepare(i2c_dev->clk);
-+	return ret;
-+}
-+
-+static int em_i2c_remove(struct platform_device *dev)
-+{
-+	struct em_i2c_device *i2c_dev = platform_get_drvdata(dev);
-+
-+	i2c_del_adapter(&i2c_dev->adap);
-+
-+	clk_disable(i2c_dev->clk);
-+	clk_unprepare(i2c_dev->clk);
-+
-+	return 0;
-+}
-+
-+static struct of_device_id em_i2c_ids[] = {
-+	{ .compatible = "renesas,em-i2c", },
-+	{ }
-+};
-+
-+static struct platform_driver em_i2c_driver = {
-+	.probe = em_i2c_probe,
-+	.remove = em_i2c_remove,
-+	.driver = {
-+		.name = "em-i2c",
-+		.owner = THIS_MODULE,
-+		.of_match_table = em_i2c_ids,
-+	}
-+};
-+
-+
-+static int __init em_i2c_init(void)
-+{
-+	return platform_driver_register(&em_i2c_driver);
-+}
-+
-+static void __exit em_i2c_exit(void)
-+{
-+	platform_driver_unregister(&em_i2c_driver);
-+}
-+
-+MODULE_LICENSE("GPLv2");
-+
-+module_init(em_i2c_init);
-+module_exit(em_i2c_exit);
-+
--- 
-1.7.10.4
+> I understand what you mean, but that was not my point.  See below.
+>=20
+> >>And again, all I2C master and
+> >>slave devices in the bus don't care about f_SCL; what they do care
+> >>are t_f, t_r, t_HIGH, t_LOW, and so on.  That's why I'm saying
+> >>f_SCL is pointless and has no value for HCNT/LCNT calculations.
+> >
+> >I partially agree: If I2C devices don't care about f_SCL but only ab=
+out
+> >t_r, t_f, t_HIGH and t_LOW there's no need to respect the f_SCL;max
+> >constraint. If this is the case, I'm wondering why it is part of the
+> >specification, though.
+>=20
+> With t_r;max and t_f;max,
+>=20
+> Standard mode:
+>         t_r;max       1000ns (max time applied)
+>         t_f;max     +  300ns (max time applied)
+>         t_HIGH;min  + 4000ns
+>         t_LOW;min   + 4700ns
+>         1/f_SCL     =3D10000ns
+>     =3D=3D> f_SCL       =3D 100kHz    =3D=3D> f_SCL;max for Standard-=
+mode
+>=20
+> Fast mode:
+>         t_r;max        300ns (max time applied)
+>         t_f;max     +  300ns (max time applied)
+>         t_HIGH;min  +  600ns
+>         t_LIW;min   + 1300ns
+>         1/f_SCL     =3D 2500ns
+>     =3D=3D> f_SCL       =3D 400kHz    =3D=3D> f_SCL;max for Fast-mode
+>=20
+> f_SCL;max is defined as a resulting clock frequency with the
+> combination of:
+>=20
+> (1) the max. conditions of t_r and t_f
+> (2) the min. conditions of t_HIGH and t_LOW
+>=20
+> We can try to meet t_HIGH;min and t_LOW;min, but we can't meet
+> t_r;min nor t_f;min in the actual systems.  The t_r and t_f are
+> _minimum requisites_ for the I/O buffer characteristic of the
+> master and the board designs, hence necessarily contain some
+> time margin.
+
+I agree.
+
+> f_SCL is anything more than the resulting speed of (1) + (2),
+> so I don't think we need to adjust HCNT/LCNT values at all.
+> If with t_r < t_r;max and t_f < t_f;max, and you've got a faster
+> clock speed than f_SCL;max, then it's a bonus and we can accept
+> it gratefully.
+
+Here I'm not sure: The I2C specification clearly states f_SCL min/max
+requirements in table 10. I'm feeling a bit uneasy patching a driver
+with (to date) rather pessimistic bus timings to something which might
+be over-optimistic. If I submit a patch for this I would like to be sur=
+e
+not to break existing systems. How do other drivers manage this?
+
+> >>I'd make a compromise proposal; it's fine to make sure whether the
+> >>resulting f_SCL is within a supported range, but should not make a
+> >>correction of HCNT/LCNT values.  Just report warning messages that
+> >>some parameters/calculations might be mis-configured an/or wrong.
+> >
+> >Not sure if this is a good idea: If f_SCL is met by design I'm perfe=
+ctly
+> >happy with dropping the t_HIGH/t_LOW adjustment code, no need to blo=
+at
+> >the kernel with confusing warnings. If f_SCL is not automatically me=
+t we
+> >must either make sure t_HIGH/t_LOW are adjusted or we must take the
+> >decision to ignore that constraint and document the reasons behind t=
+hat
+> >decision accordingly.
+>=20
+> I tried to write my thought down, not sure well-explained, though.
+>=20
+> Notes:
+>=20
+> * As long as tHD;SDA issue remains in the DW I2C core, we need to
+>   have t_HIGH with a relatively lager value than necessary.  In
+>   such a case, the resulting f_SCL can never exceed f_SCL;max.
+
+Not in my calculations (Let's assume fast mode with all rise and fall
+times being 50ns as you say above and f_sys =3D 50MHz):
+HCNT =3D f_SYS * (t_HD;STA + t_f;SDA) - 3
+-> t_HIGH =3D t_HD_STA + t_f;SDA + 4 / f_sys
+          =3D 0.6us + 0.05 us + 0.08 us =3D 0.73us
+LCNT =3D f_SYS * (t_f;SCL + t_LOW)
+-> t_LOW  =3D 0.05us + 1.3us =3D 1.35us
+
+-> f_SCL =3D 1 / (t_HIGH + t_LOW + t_r;SCL + t_f;SCL)
+         =3D 1 / (0.73us + 1.35 us + 0.05 us + 0.05us) =3D 458MHz  > 40=
+0MHz
+
+> * I also wonder which values do you think should be adjusted to meet
+>   f_SCL;max, HCNT or LCNT, and why is that?  I think it's hard to
+>   explain, isn't it?
+
+Originally I thought it would be best to adjust both in the same way.
+Thinking about your question I guess it might be more in the spirit of
+I2C to only adjust LCNT. The specification (table 10) allows for both,
+there are no max values specified for either.
+
+Greetings,
+  Christian
+
+--=20
+  Christian Ruppert              ,          <christian.ruppert@abilis.c=
+om>
+                                /|
+  Tel: +41/(0)22 816 19-42     //|                 3, Chemin du Pr=E9-F=
+leuri
+                             _// | bilis Systems   CH-1228 Plan-les-Oua=
+tes
