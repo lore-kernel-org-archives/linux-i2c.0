@@ -1,124 +1,77 @@
-From: Nguyen Viet Dung <nv-dung@jinso.co.jp>
-Subject: [PATCH v3 1/1 resend] i2c: rcar: modify I2C driver
-Date: Tue, 27 Aug 2013 16:55:22 +0900
-Message-ID: <1377590122-9309-2-git-send-email-nv-dung@jinso.co.jp>
-References: <1377590122-9309-1-git-send-email-nv-dung@jinso.co.jp>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1377590122-9309-1-git-send-email-nv-dung@jinso.co.jp>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org, wsa@the-dreams.de
-Cc: linux-kernel@vger.kernel.org, kuninori.morimoto.gx@renesas.com
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-pnx: fix error return code in i2c_pnx_probe()
+Date: Wed, 28 Aug 2013 10:30:12 +0200
+Message-ID: <20130828083012.GA4086@katana>
+References: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This patch modify I2C driver of rcar-H1 to usable on both rcar-H1 and rcar-H2.
 
-Signed-off-by: Nguyen Viet Dung <nv-dung@jinso.co.jp>
----
- drivers/i2c/busses/i2c-rcar.c |   37 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 35 insertions(+), 2 deletions(-)
+--SUOF0GtieIMvvwua
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 0fc5858..e08ef28 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -101,6 +101,11 @@ enum {
- #define ID_ARBLOST	(1 << 3)
- #define ID_NACK		(1 << 4)
- 
-+enum rcar_i2c_type {
-+	I2C_RCAR_H1,
-+	I2C_RCAR_H2,
-+};
-+
- struct rcar_i2c_priv {
- 	void __iomem *io;
- 	struct i2c_adapter adap;
-@@ -113,6 +118,7 @@ struct rcar_i2c_priv {
- 	int irq;
- 	u32 icccr;
- 	u32 flags;
-+	enum rcar_i2c_type	devtype;
- };
- 
- #define rcar_i2c_priv_to_dev(p)		((p)->adap.dev.parent)
-@@ -224,12 +230,23 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 	u32 scgd, cdf;
- 	u32 round, ick;
- 	u32 scl;
-+	u32 cdf_width;
- 
- 	if (!clkp) {
- 		dev_err(dev, "there is no peripheral_clk\n");
- 		return -EIO;
- 	}
- 
-+	switch (priv->devtype) {
-+	default:
-+	case I2C_RCAR_H1:
-+		cdf_width = 2;
-+		break;
-+	case I2C_RCAR_H2:
-+		cdf_width = 3;
-+		break;
-+	}
-+
- 	/*
- 	 * calculate SCL clock
- 	 * see
-@@ -245,7 +262,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
- 	 * clkp : peripheral_clk
- 	 * F[]  : integer up-valuation
- 	 */
--	for (cdf = 0; cdf < 4; cdf++) {
-+	for (cdf = 0; cdf < (1 << cdf_width); cdf++) {
- 		ick = clk_get_rate(clkp) / (1 + cdf);
- 		if (ick < 20000000)
- 			goto ick_find;
-@@ -287,7 +304,7 @@ scgd_find:
- 	/*
- 	 * keep icccr value
- 	 */
--	priv->icccr = (scgd << 2 | cdf);
-+	priv->icccr = (scgd << (cdf_width) | cdf);
- 
- 	return 0;
- }
-@@ -632,6 +649,13 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 	bus_speed = 100000; /* default 100 kHz */
- 	if (pdata && pdata->bus_speed)
- 		bus_speed = pdata->bus_speed;
-+
-+	if (!pdev->id_entry) {
-+		dev_err(&pdev->dev, "no entry\n");
-+		return -ENODEV;
-+	}
-+	priv->devtype = pdev->id_entry->driver_data;
-+
- 	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
- 	if (ret < 0)
- 		return ret;
-@@ -686,6 +710,14 @@ static int rcar_i2c_remove(struct platform_device *pdev)
- 	return 0;
- }
- 
-+static struct platform_device_id rcar_i2c_id_table[] = {
-+	{ "i2c-rcar",		I2C_RCAR_H1 },
-+	{ "i2c-rcar_h1",	I2C_RCAR_H1 },
-+	{ "i2c-rcar_h2",	I2C_RCAR_H2 },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(platform, rcar_i2c_id_table);
-+
- static struct platform_driver rcar_i2c_driver = {
- 	.driver	= {
- 		.name	= "i2c-rcar",
-@@ -693,6 +725,7 @@ static struct platform_driver rcar_i2c_driver = {
- 	},
- 	.probe		= rcar_i2c_probe,
- 	.remove		= rcar_i2c_remove,
-+	.id_table	= rcar_i2c_id_table,
- };
- 
- module_platform_driver(rcar_i2c_driver);
--- 
-1.7.9.5
+On Fri, Aug 23, 2013 at 10:55:51AM +0800, Wei Yongjun wrote:
+> From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+>=20
+> Fix to return a negative error code in the irq get error handling
+> case instead of 0, as done elsewhere in this function.
+>=20
+> Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+
+Moved it to for-next, since...
+
+> ---
+>  drivers/i2c/busses/i2c-pnx.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+> index 5f39c6d..d2f02b3 100644
+> --- a/drivers/i2c/busses/i2c-pnx.c
+> +++ b/drivers/i2c/busses/i2c-pnx.c
+> @@ -727,6 +727,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
+>  	alg_data->irq =3D platform_get_irq(pdev, 0);
+>  	if (alg_data->irq < 0) {
+>  		dev_err(&pdev->dev, "Failed to get IRQ from platform resource\n");
+> +		ret =3D alg_data->irq;
+>  		goto out_irq;
+
+=2E.. this surely needs to beu 'out_clock'. Fixed it here. If somebody
+wants to convert it to devm_*, much appreciated.
+
+>  	}
+>  	ret =3D request_irq(alg_data->irq, i2c_pnx_interrupt,
+>=20
+
+--SUOF0GtieIMvvwua
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSHbUUAAoJEBQN5MwUoCm233YP/008xwEXxCcb1+rMQLyYQGtG
+3anhmCF5HuzcirtRCUGPtDz+cALr5hI69CldPe6nc+KbiEEfW2QKex58v2Nn9WUr
+O5h8DK6v97AmiRIdQKB6mIAMb4/4eTBYJ0EvAHE6BvfUZf5erFHLtcQTmIals1q7
+DTFEWQav571Pdqd5k1n/+37A6is9ojWTYX5uVpQoyDHqQJuO8WtmoFUEyo3e8AqS
+RksLWSzBAmjmDvD7zx6k4CDgebBZcJZE1fMOmM06eKcTgAQ3h76dIhO+SuPXixIi
+9rZ01o6zdENUcBuiOb5pX909GiTGLo5ad61ZMy2hLwJg55wCEk2mtS3vr/Y6P494
+p+LWhLbX/KmTIb3f00ZEIlqLd060yMJv7e4ZmZFGPFvpAt6x72PlwvYgEhYSJcRb
+JHM//3jU4MrxTHmXr3WvKu/zrZAOwk46UCrEJSpPrzmRo6egAkc7NzbAmXtOlAeF
+eDUHIoAUacZOyKrSR5FNZoFh3dgM6UQgS0vtcihpCQRFt5bX650HFY+msU5qBHjG
+uq9LevElvASR+kUtESwRN+fVzQZVo2tsgplHKM2PR8Vpr6Supd5r56nIRtsDdEvL
+ppwC4RTqDNx2vAV112b7S5qHhpIef7da6pvGGfNnKAeIJLyuelwMWCtiyaizCyvO
+oZX9qs/L9lYAoCEgc6Kh
+=bwrl
+-----END PGP SIGNATURE-----
+
+--SUOF0GtieIMvvwua--
