@@ -1,64 +1,95 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c: mpc: cleanup clock API use
-Date: Wed, 28 Aug 2013 10:47:42 +0200
-Message-ID: <20130828084742.GB4086@katana>
-References: <1377273704-7474-1-git-send-email-agust@denx.de>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH v3 1/1 resend] i2c: rcar: modify I2C driver
+Date: Wed, 28 Aug 2013 11:02:47 +0200
+Message-ID: <20130828090246.GC4086@katana>
+References: <1377590122-9309-1-git-send-email-nv-dung@jinso.co.jp>
+ <1377590122-9309-2-git-send-email-nv-dung@jinso.co.jp>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nVMJ2NtxeReIH9PS"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="f0KYrhQ4vYSV2aJu"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1377273704-7474-1-git-send-email-agust-ynQEQJNshbs@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
+In-Reply-To: <1377590122-9309-2-git-send-email-nv-dung@jinso.co.jp>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nguyen Viet Dung <nv-dung@jinso.co.jp>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, kuninori.morimoto.gx@renesas.com
 List-Id: linux-i2c@vger.kernel.org
 
 
---nVMJ2NtxeReIH9PS
+--f0KYrhQ4vYSV2aJu
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 23, 2013 at 06:01:44PM +0200, Anatolij Gustschin wrote:
-> From: Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
+On Tue, Aug 27, 2013 at 04:55:22PM +0900, Nguyen Viet Dung wrote:
+> This patch modify I2C driver of rcar-H1 to usable on both rcar-H1 and rca=
+r-H2.
 >=20
-> make the MPC I2C driver get, prepare and enable the gated clock item for
-> register access during probe; disable and unprepare the clock upon
-> remove(), put is done by the devm approach; hold a reference to the
-> clock over the period of use
->=20
-> clock lookup is non-fatal in this implementation as not all platforms
-> may provide clock specs in their device tree, but failure to enable a
-> clock when specified is considered fatal
->=20
-> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Signed-off-by: Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
-> Signed-off-by: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
+> Signed-off-by: Nguyen Viet Dung <nv-dung@jinso.co.jp>
 
-Applied to for-next, thanks!
+Yes, this is much better. Only minor things...
+
+> +	switch (priv->devtype) {
+> +	default:
+> +	case I2C_RCAR_H1:
+> +		cdf_width =3D 2;
+> +		break;
+> +	case I2C_RCAR_H2:
+> +		cdf_width =3D 3;
+> +		break;
+> +	}
+> +
+
+Please put the default case block at the end.
+
+> @@ -632,6 +649,13 @@ static int rcar_i2c_probe(struct platform_device *pd=
+ev)
+>  	bus_speed =3D 100000; /* default 100 kHz */
+>  	if (pdata && pdata->bus_speed)
+>  		bus_speed =3D pdata->bus_speed;
+> +
+> +	if (!pdev->id_entry) {
+> +		dev_err(&pdev->dev, "no entry\n");
+> +		return -ENODEV;
+> +	}
+
+This cannot happen. Since you have 'i2c-rcar' in the id_table, the
+driver core will always match against the id_table and there is always a
+driver_data defined.
 
 
---nVMJ2NtxeReIH9PS
+> +	priv->devtype =3D pdev->id_entry->driver_data;
+
+Basically the same, but please use
+
+	platform_get_device_id(pdev)->driver_data;
+
+Otherwise good!
+
+Thanks,
+
+   Wolfram
+
+--f0KYrhQ4vYSV2aJu
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSHbkuAAoJEBQN5MwUoCm2T/8P/RdKHY3Bm7fXfBhFMHc+qzv0
-FV77VNw819p5vi9xfbKvXwHWrf6f4GOQJ2eWjcizDU/Bl+lLnrnZsBbt+vpqawCH
-YyODyrDZ38TZFLajqiZeb3ApDK3zrhUa1dLvsLV1ZL6N0EvS2AHnNIByd8WveLlR
-LZlIw3lULnLVihGUfHkwPk0+MGODzPASmgjtLHo+VlcLeSHtnENqBuLhc7sK9l8R
-5AkgqYZPGurvGAZDaTa/p/g12GQZOW57FPhWpfMubRd3+qUWsiTJ82FzPc3Jra6A
-ts3R/uGm28nFGVA3wBkfONjDyjjwpvhlEba2QNFDXfGv5MN8/H2E8Ks1eHCs2FO7
-pUQZ5m5toIOfYR1FjTR5RXW/XjHaJunpcl62LmMkSStPUbabIuEUnMZC4U8dh4cd
-9jOyD42/6QStsLC0JLIQ9romUdrRavtWSzZjw5EYTT5vtcQQAMHMxTmeKIJ9Dufl
-k8wmUHa0pdrdz7+AKUu9wR2T8vjWCYIn3o6l1yH8qKrebAzEwFnOxcUuZMeAlGoA
-jwMHFxkmidY43k02Pn//Fcj3WVJ4TucbOHpUJHxB7eGjMSMRK7K3F0Uyk6kM4bq4
-kiQR3SfqrTULCb6HWB0AlK2Kc3XcC6+THZ6zGCiP0ywGaVeog53b7cYPeB4LKdRA
-pTBZrUoOIiE9SWvN+CiN
-=4vYB
+iQIbBAEBAgAGBQJSHby2AAoJEBQN5MwUoCm2KX8P93f1WROjUS/YNFIPT0cw+hzX
+kmmGON7OfypE7IixQe6WCoTlMRPW16gWUwVuErITDYOCTdkX+CDoLrvxspPMrRaT
+FMbOoDyfFF56YhHO4NhG3xSBwKDPkycVWmI0B9QtOHuES4aFiTzQ6YbHPa2uavn6
+ODDc3UBdYgU0jxTsW71oi7CM0q4LoHnrTGmFn2YgXZApRpHSSyCRB7EpBaZqQXNa
+AWtGPhMRwaduGdQfUMTnjY1W3P6VMrnTAn0O78ed5kjRf8QzkenFjm6hLoCOMX+d
+ffq87PvdCo5yxi+xFzNe6dYcFykSyzebUUXTEueuCcdZVB1QS3yJo7JK3v9nuu86
+oHyV0WG5iGY9+B+IEmDC9z+O04AYZbFm0vHN0KmkhTbXiyMGS0Q6tmGiV10FSRb9
+vp630WmiSbalZ4zWaEdk/6uxt95qhYHlRgBzjdMSEu7TGmzPoJ5Cwaw+/N2HMndC
+0eBQ4372ViO/tX+Y5ZuOC1JSZHW21R2BYZf4rNLlKKm8yor+tW2gIsSQfHzbnrzN
+oUCmg2ID4YsE4WGiqIglq+2xEd5+CaVhxr530pan7hkM+BnX2ICdWLMKFmcsxqCw
+X1aDwBySim+q6RhD8dfeP4qN6js3SfrvWvrR10Y7dks73LRGGoyYDIljuWEkfF5y
+f2q8r/basaGgtAWth3k=
+=n6kQ
 -----END PGP SIGNATURE-----
 
---nVMJ2NtxeReIH9PS--
+--f0KYrhQ4vYSV2aJu--
