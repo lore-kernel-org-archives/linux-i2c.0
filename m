@@ -1,77 +1,64 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-pnx: fix error return code in i2c_pnx_probe()
-Date: Wed, 28 Aug 2013 10:30:12 +0200
-Message-ID: <20130828083012.GA4086@katana>
-References: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg@mail.gmail.com>
+Subject: Re: [PATCH] i2c: mpc: cleanup clock API use
+Date: Wed, 28 Aug 2013 10:47:42 +0200
+Message-ID: <20130828084742.GB4086@katana>
+References: <1377273704-7474-1-git-send-email-agust@denx.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SUOF0GtieIMvvwua"
+	protocol="application/pgp-signature"; boundary="nVMJ2NtxeReIH9PS"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <CAPgLHd9W5GtFtt6yCHRJ2mmuy2ha2u_utF9jR3yLY5O_oYpLWg-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <1377273704-7474-1-git-send-email-agust-ynQEQJNshbs@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wei Yongjun <weiyj.lk-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: vitalywool-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---SUOF0GtieIMvvwua
+--nVMJ2NtxeReIH9PS
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Aug 23, 2013 at 10:55:51AM +0800, Wei Yongjun wrote:
-> From: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
+On Fri, Aug 23, 2013 at 06:01:44PM +0200, Anatolij Gustschin wrote:
+> From: Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
 >=20
-> Fix to return a negative error code in the irq get error handling
-> case instead of 0, as done elsewhere in this function.
+> make the MPC I2C driver get, prepare and enable the gated clock item for
+> register access during probe; disable and unprepare the clock upon
+> remove(), put is done by the devm approach; hold a reference to the
+> clock over the period of use
 >=20
-> Signed-off-by: Wei Yongjun <yongjun_wei-zrsr2BFq86L20UzCJQGyNP8+0UxHXcjY@public.gmane.org>
-
-Moved it to for-next, since...
-
-> ---
->  drivers/i2c/busses/i2c-pnx.c | 1 +
->  1 file changed, 1 insertion(+)
+> clock lookup is non-fatal in this implementation as not all platforms
+> may provide clock specs in their device tree, but failure to enable a
+> clock when specified is considered fatal
 >=20
-> diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
-> index 5f39c6d..d2f02b3 100644
-> --- a/drivers/i2c/busses/i2c-pnx.c
-> +++ b/drivers/i2c/busses/i2c-pnx.c
-> @@ -727,6 +727,7 @@ static int i2c_pnx_probe(struct platform_device *pdev)
->  	alg_data->irq =3D platform_get_irq(pdev, 0);
->  	if (alg_data->irq < 0) {
->  		dev_err(&pdev->dev, "Failed to get IRQ from platform resource\n");
-> +		ret =3D alg_data->irq;
->  		goto out_irq;
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Signed-off-by: Gerhard Sittig <gsi-ynQEQJNshbs@public.gmane.org>
+> Signed-off-by: Anatolij Gustschin <agust-ynQEQJNshbs@public.gmane.org>
 
-=2E.. this surely needs to beu 'out_clock'. Fixed it here. If somebody
-wants to convert it to devm_*, much appreciated.
+Applied to for-next, thanks!
 
->  	}
->  	ret =3D request_irq(alg_data->irq, i2c_pnx_interrupt,
->=20
 
---SUOF0GtieIMvvwua
+--nVMJ2NtxeReIH9PS
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSHbUUAAoJEBQN5MwUoCm233YP/008xwEXxCcb1+rMQLyYQGtG
-3anhmCF5HuzcirtRCUGPtDz+cALr5hI69CldPe6nc+KbiEEfW2QKex58v2Nn9WUr
-O5h8DK6v97AmiRIdQKB6mIAMb4/4eTBYJ0EvAHE6BvfUZf5erFHLtcQTmIals1q7
-DTFEWQav571Pdqd5k1n/+37A6is9ojWTYX5uVpQoyDHqQJuO8WtmoFUEyo3e8AqS
-RksLWSzBAmjmDvD7zx6k4CDgebBZcJZE1fMOmM06eKcTgAQ3h76dIhO+SuPXixIi
-9rZ01o6zdENUcBuiOb5pX909GiTGLo5ad61ZMy2hLwJg55wCEk2mtS3vr/Y6P494
-p+LWhLbX/KmTIb3f00ZEIlqLd060yMJv7e4ZmZFGPFvpAt6x72PlwvYgEhYSJcRb
-JHM//3jU4MrxTHmXr3WvKu/zrZAOwk46UCrEJSpPrzmRo6egAkc7NzbAmXtOlAeF
-eDUHIoAUacZOyKrSR5FNZoFh3dgM6UQgS0vtcihpCQRFt5bX650HFY+msU5qBHjG
-uq9LevElvASR+kUtESwRN+fVzQZVo2tsgplHKM2PR8Vpr6Supd5r56nIRtsDdEvL
-ppwC4RTqDNx2vAV112b7S5qHhpIef7da6pvGGfNnKAeIJLyuelwMWCtiyaizCyvO
-oZX9qs/L9lYAoCEgc6Kh
-=bwrl
+iQIcBAEBAgAGBQJSHbkuAAoJEBQN5MwUoCm2T/8P/RdKHY3Bm7fXfBhFMHc+qzv0
+FV77VNw819p5vi9xfbKvXwHWrf6f4GOQJ2eWjcizDU/Bl+lLnrnZsBbt+vpqawCH
+YyODyrDZ38TZFLajqiZeb3ApDK3zrhUa1dLvsLV1ZL6N0EvS2AHnNIByd8WveLlR
+LZlIw3lULnLVihGUfHkwPk0+MGODzPASmgjtLHo+VlcLeSHtnENqBuLhc7sK9l8R
+5AkgqYZPGurvGAZDaTa/p/g12GQZOW57FPhWpfMubRd3+qUWsiTJ82FzPc3Jra6A
+ts3R/uGm28nFGVA3wBkfONjDyjjwpvhlEba2QNFDXfGv5MN8/H2E8Ks1eHCs2FO7
+pUQZ5m5toIOfYR1FjTR5RXW/XjHaJunpcl62LmMkSStPUbabIuEUnMZC4U8dh4cd
+9jOyD42/6QStsLC0JLIQ9romUdrRavtWSzZjw5EYTT5vtcQQAMHMxTmeKIJ9Dufl
+k8wmUHa0pdrdz7+AKUu9wR2T8vjWCYIn3o6l1yH8qKrebAzEwFnOxcUuZMeAlGoA
+jwMHFxkmidY43k02Pn//Fcj3WVJ4TucbOHpUJHxB7eGjMSMRK7K3F0Uyk6kM4bq4
+kiQR3SfqrTULCb6HWB0AlK2Kc3XcC6+THZ6zGCiP0ywGaVeog53b7cYPeB4LKdRA
+pTBZrUoOIiE9SWvN+CiN
+=4vYB
 -----END PGP SIGNATURE-----
 
---SUOF0GtieIMvvwua--
+--nVMJ2NtxeReIH9PS--
