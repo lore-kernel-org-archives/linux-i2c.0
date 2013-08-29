@@ -1,41 +1,33 @@
-From: Ian Molton <ian.molton@codethink.co.uk>
-Subject: Re: [PATCH] EMMA: Add em i2c driver
-Date: Thu, 29 Aug 2013 14:35:35 +0100
-Message-ID: <521F4E27.1070800@codethink.co.uk>
-References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk> <CANqRtoRK+Ur=87-me7CpP+s9SO5g0ZVZSEOrqwDf4HFfjZZmZA@mail.gmail.com> <521F2156.6040506@codethink.co.uk>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: getting rid of subsys_initcall usage? (was: Re: [PATCH RESEND]
+ i2c: designware: use module_platform_driver)
+Date: Thu, 29 Aug 2013 19:11:48 +0200
+Message-ID: <CACRpkdZKV_7QaK6dg5LkbSXrTRoPUr-oT0NXVbwhEw0DBMawPw@mail.gmail.com>
+References: <1376987548-12366-1-git-send-email-zhangfei.gao@linaro.org>
+	<20130828095706.GH4086@katana>
+	<CACRpkdb1p1=3a0PM+r2ZrMN+ECv5BAZFdv2omDK5npaer4ddcw@mail.gmail.com>
+	<CAMj5BkhQkwb+T9VepN7UrWNRSgtv=Dw-Sa-gv0orOANo55iqNw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <521F2156.6040506@codethink.co.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Magnus Damm <magnus.damm@gmail.com>, linux-i2c@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, SH-Linux <linux-sh@vger.kernel.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CAMj5BkhQkwb+T9VepN7UrWNRSgtv=Dw-Sa-gv0orOANo55iqNw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 29/08/13 11:24, Ben Dooks wrote:
-> On 29/08/13 06:33, Magnus Damm wrote:
->> Hi Ian,
->>
->> Thanks for submitting this patch. I have one comment only, please see 
->> below.
->>> +#ifdef CONFIG_I2C_EMXX_SMC
->>> +       i2c_dev->flags |= I2C_BIT_SMC0;
->>> +#endif
->>
->> I think CONFIG_I2C_EMXX_SMC probably want to be reworked somehow. I
->> assume it's an old left over in this particular case. But if you need
->> to have some special configuration method then please consider some
->> other way than CONFIG_ variables that are not very compatible with
->> future multi-platform kernel images.
->
-> Is it something that needs to be passed through the device tree binding
-> or something we can detect from the SoC itself?
->
+On Thu, Aug 29, 2013 at 12:55 PM, zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
 
-Probably. Its the switch to select between 100 and 400kHz modes.
+> Besides, also find platform_driver_probe is used in
+> drivers/i2c/busses/i2c-imx.c and drivers/i2c/busses/i2c-stu300.c.
 
-I wonder if theres a standard binding for it?
+The platform_driver_probe() is basically a footprint
+optimization (more code can be discarded after boot)
+and I'm happy to patch it if it disturbs anything, it is
+*really* not important for this driver.
 
+Do you guys need a low footprint? Else there is no
+use to have platform_driver_probe() in there.
 
--Ian
+Yours,
+Linus Walleij
