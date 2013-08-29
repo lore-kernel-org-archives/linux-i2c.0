@@ -1,70 +1,121 @@
-From: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Subject: Re: [PATCH v3 1/1 resend] i2c: rcar: modify I2C driver
-Date: Thu, 29 Aug 2013 18:46:17 +0900
-Message-ID: <521F1869.1090408@jinso.co.jp>
-References: <1377590122-9309-1-git-send-email-nv-dung@jinso.co.jp> <1377590122-9309-2-git-send-email-nv-dung@jinso.co.jp> <20130828090246.GC4086@katana>
+From: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Subject: Re: [PATCH] EMMA: Add em i2c driver
+Date: Thu, 29 Aug 2013 11:24:22 +0100
+Message-ID: <521F2156.6040506@codethink.co.uk>
+References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk> <CANqRtoRK+Ur=87-me7CpP+s9SO5g0ZVZSEOrqwDf4HFfjZZmZA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130828090246.GC4086@katana>
+In-Reply-To: <CANqRtoRK+Ur=87-me7CpP+s9SO5g0ZVZSEOrqwDf4HFfjZZmZA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
+To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
-
-Thank your for the guide.
-
-I have understood your guide.
-And I have released version 4 of I2C patch.
-
-Please check it for me.
-
-Thanks,
-Nguyen Viet Dung
-
-On 08/28/2013 06:02 PM, Wolfram Sang wrote:
-> On Tue, Aug 27, 2013 at 04:55:22PM +0900, Nguyen Viet Dung wrote:
->> This patch modify I2C driver of rcar-H1 to usable on both rcar-H1 and rcar-H2.
+On 29/08/13 06:33, Magnus Damm wrote:
+> Hi Ian,
+>
+> Thanks for submitting this patch. I have one comment only, please see below.
+>
+> On Wed, Aug 28, 2013 at 8:21 PM, Ian Molton<ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>  wrote:
+>> Signed-off-by: Ian Molton<ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+>> ---
+>>   drivers/i2c/busses/Kconfig  |   10 +
+>>   drivers/i2c/busses/Makefile |    1 +
+>>   drivers/i2c/busses/i2c-em.c |  536 +++++++++++++++++++++++++++++++++++++++++++
+>>   3 files changed, 547 insertions(+)
+>>   create mode 100644 drivers/i2c/busses/i2c-em.c
 >>
->> Signed-off-by: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-> Yes, this is much better. Only minor things...
->
->> +	switch (priv->devtype) {
->> +	default:
->> +	case I2C_RCAR_H1:
->> +		cdf_width = 2;
->> +		break;
->> +	case I2C_RCAR_H2:
->> +		cdf_width = 3;
->> +		break;
->> +	}
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index dc6dea6..e5cda34 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -777,6 +777,16 @@ config I2C_RCAR
+>>            This driver can also be built as a module.  If so, the module
+>>            will be called i2c-rcar.
+>>
+>> +config I2C_EM
+>> +       tristate "EMMA Mobile series I2C adapter"
+>> +       depends on I2C&&  HAVE_CLK
+>> +       help
+>> +         If you say yes to this option, support will be included for the
+>> +         I2C interface on the Renesas Electronics EM/EV of processors.
 >> +
-> Please put the default case block at the end.
->
->> @@ -632,6 +649,13 @@ static int rcar_i2c_probe(struct platform_device *pdev)
->>   	bus_speed = 100000; /* default 100 kHz */
->>   	if (pdata && pdata->bus_speed)
->>   		bus_speed = pdata->bus_speed;
+>> +         This driver can also be built as a module.  If so, the module
+>> +         will be called i2c-em
 >> +
->> +	if (!pdev->id_entry) {
->> +		dev_err(&pdev->dev, "no entry\n");
->> +		return -ENODEV;
->> +	}
-> This cannot happen. Since you have 'i2c-rcar' in the id_table, the
-> driver core will always match against the id_table and there is always a
-> driver_data defined.
+>>   comment "External I2C/SMBus adapter drivers"
+>>
+>>   config I2C_DIOLAN_U2C
+>> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+>> index d00997f..f7022ab 100644
+>> --- a/drivers/i2c/busses/Makefile
+>> +++ b/drivers/i2c/busses/Makefile
+>> @@ -76,6 +76,7 @@ obj-$(CONFIG_I2C_OCTEON)      += i2c-octeon.o
+>>   obj-$(CONFIG_I2C_XILINX)       += i2c-xiic.o
+>>   obj-$(CONFIG_I2C_XLR)          += i2c-xlr.o
+>>   obj-$(CONFIG_I2C_RCAR)         += i2c-rcar.o
+>> +obj-$(CONFIG_I2C_EM)            += i2c-em.o
+>>
+>>   # External I2C/SMBus adapter drivers
+>>   obj-$(CONFIG_I2C_DIOLAN_U2C)   += i2c-diolan-u2c.o
+>> diff --git a/drivers/i2c/busses/i2c-em.c b/drivers/i2c/busses/i2c-em.c
+>> new file mode 100644
+>> index 0000000..b54a983
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-em.c
 >
+>> +static int em_i2c_probe(struct platform_device *pdev)
+>> +{
+>> +       struct em_i2c_device *i2c_dev;
+>> +       struct resource *r;
+>> +       int ret;
+>> +
+>> +       i2c_dev = devm_kzalloc(&pdev->dev, sizeof(struct em_i2c_device),
+>> +                               GFP_KERNEL);
+>> +
+>> +       r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+>> +       i2c_dev->membase = devm_ioremap_resource(&pdev->dev, r);
+>> +       if (IS_ERR(i2c_dev->membase))
+>> +               return PTR_ERR(i2c_dev->membase);
+>> +
+>> +       strlcpy(i2c_dev->adap.name, "em_i2c", sizeof(i2c_dev->adap.name));
+>> +
+>> +       i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
+>> +       if (!IS_ERR(i2c_dev->clk))
+>> +               clk_prepare(i2c_dev->clk);
+>> +
+>> +       i2c_dev->sclk = devm_clk_get(&pdev->dev, "sclk");
+>> +       if (!IS_ERR(i2c_dev->sclk))
+>> +               clk_prepare(i2c_dev->sclk);
+>> +
+>> +       i2c_dev->irq = platform_get_irq(pdev, 0);
+>> +       i2c_dev->adap.timeout = msecs_to_jiffies(100);
+>> +       i2c_dev->adap.dev.parent =&pdev->dev;
+>> +       i2c_dev->adap.algo =&em_i2c_algo;
+>> +       i2c_dev->adap.owner = THIS_MODULE;
+>> +       i2c_dev->adap.nr = pdev->id;
+>> +       i2c_dev->adap.dev.of_node = pdev->dev.of_node;
+>> +
+>> +       init_waitqueue_head(&i2c_dev->i2c_wait);
+>> +
+>> +       spin_lock_init(&i2c_dev->irq_lock);
+>> +
+>> +       i2c_dev->flags = I2C_BIT_DFC0;
+>> +#ifdef CONFIG_I2C_EMXX_SMC
+>> +       i2c_dev->flags |= I2C_BIT_SMC0;
+>> +#endif
 >
->> +	priv->devtype = pdev->id_entry->driver_data;
-> Basically the same, but please use
->
-> 	platform_get_device_id(pdev)->driver_data;
->
-> Otherwise good!
->
-> Thanks,
->
->     Wolfram
+> I think CONFIG_I2C_EMXX_SMC probably want to be reworked somehow. I
+> assume it's an old left over in this particular case. But if you need
+> to have some special configuration method then please consider some
+> other way than CONFIG_ variables that are not very compatible with
+> future multi-platform kernel images.
+
+Is it something that needs to be passed through the device tree binding
+or something we can detect from the SoC itself?
+
+-- 
+Ben Dooks				http://www.codethink.co.uk/
+Senior Engineer				Codethink - Providing Genius
