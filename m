@@ -1,121 +1,73 @@
-From: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
-Subject: Re: [PATCH] EMMA: Add em i2c driver
-Date: Thu, 29 Aug 2013 11:24:22 +0100
-Message-ID: <521F2156.6040506@codethink.co.uk>
-References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk> <CANqRtoRK+Ur=87-me7CpP+s9SO5g0ZVZSEOrqwDf4HFfjZZmZA@mail.gmail.com>
+From: zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: getting rid of subsys_initcall usage? (was: Re: [PATCH RESEND]
+ i2c: designware: use module_platform_driver)
+Date: Thu, 29 Aug 2013 18:55:40 +0800
+Message-ID: <CAMj5BkhQkwb+T9VepN7UrWNRSgtv=Dw-Sa-gv0orOANo55iqNw@mail.gmail.com>
+References: <1376987548-12366-1-git-send-email-zhangfei.gao@linaro.org>
+	<20130828095706.GH4086@katana>
+	<CACRpkdb1p1=3a0PM+r2ZrMN+ECv5BAZFdv2omDK5npaer4ddcw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANqRtoRK+Ur=87-me7CpP+s9SO5g0ZVZSEOrqwDf4HFfjZZmZA-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <CACRpkdb1p1=3a0PM+r2ZrMN+ECv5BAZFdv2omDK5npaer4ddcw-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 29/08/13 06:33, Magnus Damm wrote:
-> Hi Ian,
+On Thu, Aug 29, 2013 at 4:58 PM, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
+> On Wed, Aug 28, 2013 at 11:57 AM, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> wrote:
+>> On Tue, Aug 20, 2013 at 04:32:28PM +0800, Zhangfei Gao wrote:
 >
-> Thanks for submitting this patch. I have one comment only, please see below.
+>>> Instead of use platform_driver_probe, use module_platform_driver
+>>> To support deferred probing
+>>> Also subsys_initcall may too early to auto set pinctl
+>>>
+>>> Signed-off-by: Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+>>> Acked-by: Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>
+>>
+>> This patch is tougher than it looks. You need it, because
+>> subsys_initcall may be too early for pinctrl.
 >
-> On Wed, Aug 28, 2013 at 8:21 PM, Ian Molton<ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>  wrote:
->> Signed-off-by: Ian Molton<ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
->> ---
->>   drivers/i2c/busses/Kconfig  |   10 +
->>   drivers/i2c/busses/Makefile |    1 +
->>   drivers/i2c/busses/i2c-em.c |  536 +++++++++++++++++++++++++++++++++++++++++++
->>   3 files changed, 547 insertions(+)
->>   create mode 100644 drivers/i2c/busses/i2c-em.c
->>
->> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
->> index dc6dea6..e5cda34 100644
->> --- a/drivers/i2c/busses/Kconfig
->> +++ b/drivers/i2c/busses/Kconfig
->> @@ -777,6 +777,16 @@ config I2C_RCAR
->>            This driver can also be built as a module.  If so, the module
->>            will be called i2c-rcar.
->>
->> +config I2C_EM
->> +       tristate "EMMA Mobile series I2C adapter"
->> +       depends on I2C&&  HAVE_CLK
->> +       help
->> +         If you say yes to this option, support will be included for the
->> +         I2C interface on the Renesas Electronics EM/EV of processors.
->> +
->> +         This driver can also be built as a module.  If so, the module
->> +         will be called i2c-em
->> +
->>   comment "External I2C/SMBus adapter drivers"
->>
->>   config I2C_DIOLAN_U2C
->> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
->> index d00997f..f7022ab 100644
->> --- a/drivers/i2c/busses/Makefile
->> +++ b/drivers/i2c/busses/Makefile
->> @@ -76,6 +76,7 @@ obj-$(CONFIG_I2C_OCTEON)      += i2c-octeon.o
->>   obj-$(CONFIG_I2C_XILINX)       += i2c-xiic.o
->>   obj-$(CONFIG_I2C_XLR)          += i2c-xlr.o
->>   obj-$(CONFIG_I2C_RCAR)         += i2c-rcar.o
->> +obj-$(CONFIG_I2C_EM)            += i2c-em.o
->>
->>   # External I2C/SMBus adapter drivers
->>   obj-$(CONFIG_I2C_DIOLAN_U2C)   += i2c-diolan-u2c.o
->> diff --git a/drivers/i2c/busses/i2c-em.c b/drivers/i2c/busses/i2c-em.c
->> new file mode 100644
->> index 0000000..b54a983
->> --- /dev/null
->> +++ b/drivers/i2c/busses/i2c-em.c
+> pinctrl is initialized very early, core_initcall().
 >
->> +static int em_i2c_probe(struct platform_device *pdev)
->> +{
->> +       struct em_i2c_device *i2c_dev;
->> +       struct resource *r;
->> +       int ret;
->> +
->> +       i2c_dev = devm_kzalloc(&pdev->dev, sizeof(struct em_i2c_device),
->> +                               GFP_KERNEL);
->> +
->> +       r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
->> +       i2c_dev->membase = devm_ioremap_resource(&pdev->dev, r);
->> +       if (IS_ERR(i2c_dev->membase))
->> +               return PTR_ERR(i2c_dev->membase);
->> +
->> +       strlcpy(i2c_dev->adap.name, "em_i2c", sizeof(i2c_dev->adap.name));
->> +
->> +       i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
->> +       if (!IS_ERR(i2c_dev->clk))
->> +               clk_prepare(i2c_dev->clk);
->> +
->> +       i2c_dev->sclk = devm_clk_get(&pdev->dev, "sclk");
->> +       if (!IS_ERR(i2c_dev->sclk))
->> +               clk_prepare(i2c_dev->sclk);
->> +
->> +       i2c_dev->irq = platform_get_irq(pdev, 0);
->> +       i2c_dev->adap.timeout = msecs_to_jiffies(100);
->> +       i2c_dev->adap.dev.parent =&pdev->dev;
->> +       i2c_dev->adap.algo =&em_i2c_algo;
->> +       i2c_dev->adap.owner = THIS_MODULE;
->> +       i2c_dev->adap.nr = pdev->id;
->> +       i2c_dev->adap.dev.of_node = pdev->dev.of_node;
->> +
->> +       init_waitqueue_head(&i2c_dev->i2c_wait);
->> +
->> +       spin_lock_init(&i2c_dev->irq_lock);
->> +
->> +       i2c_dev->flags = I2C_BIT_DFC0;
->> +#ifdef CONFIG_I2C_EMXX_SMC
->> +       i2c_dev->flags |= I2C_BIT_SMC0;
->> +#endif
->
-> I think CONFIG_I2C_EMXX_SMC probably want to be reworked somehow. I
-> assume it's an old left over in this particular case. But if you need
-> to have some special configuration method then please consider some
-> other way than CONFIG_ variables that are not very compatible with
-> future multi-platform kernel images.
+> This is more a question of individual pin control drivers
+> and when they probe, and dependencies trying to take
+> a pinctrl handle before the pin controller is available
+> will be deferred. Even by those grabbed in the core
+> by drivers/base/pinctrl.c.
 
-Is it something that needs to be passed through the device tree binding
-or something we can detect from the SoC itself?
+Thanks Linus.
+Your explanation is really make sense.
 
--- 
-Ben Dooks				http://www.codethink.co.uk/
-Senior Engineer				Codethink - Providing Genius
+We use drivers/pinctrl/pinctrl-single.c, if subsys_initcall for
+pinctrl-single, no issue at all.
+
+Checked in 3.11-rc4, there is really deferring probe happen.
+i2c_designware fcb08000.i2c: could not find pctldev for node
+/amba/pinmux@fc803000/i2c0
+_pmx_func, deferring probe
+
+However, bus_probe_device failed, since the drv name list does not
+have i2c_designware.
+deferred_probe_work_func -> bus_probe_device -> device_attach ->
+bus_for_each_drv -> __device_attach
+
+It can be solved change
+return platform_driver_probe(&dw_i2c_driver, dw_i2c_probe);
+to
+return platform_driver_register(&dw_i2c_driver);
+static struct platform_driver dw_i2c_driver = {
+        .probe          = dw_i2c_probe,
+~
+
+Dear Wolfram
+
+Thanks for telling me the dependency about subsys_initcall.
+Should I resubmit one patch using platform_driver_register while
+keeping subsys_initcall?
+
+Besides, also find platform_driver_probe is used in
+drivers/i2c/busses/i2c-imx.c and drivers/i2c/busses/i2c-stu300.c.
+
+Thanks
