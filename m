@@ -1,68 +1,112 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [RFC PATCH 1/2] i2c: prepare runtime PM support for I2C client
- devices
-Date: Mon, 2 Sep 2013 13:56:15 +0300
-Message-ID: <20130902105615.GR7393@intel.com>
-References: <1377007416-13851-1-git-send-email-mika.westerberg@linux.intel.com>
- <1377007416-13851-2-git-send-email-mika.westerberg@linux.intel.com>
- <20130828093858.GF4086@katana>
+From: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH v6 4/4] ARM: dts: mvebu: Update with the new compatible
+ string for mv64xxx-i2c
+Date: Mon, 02 Sep 2013 13:44:45 +0200
+Message-ID: <52247A2D.9090400@free-electrons.com>
+References: <1377181169-17483-1-git-send-email-gregory.clement@free-electrons.com> <1377181169-17483-2-git-send-email-gregory.clement@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130828093858.GF4086@katana>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1377181169-17483-2-git-send-email-gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+Cc: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm@redhat.c>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Aug 28, 2013 at 11:38:58AM +0200, Wolfram Sang wrote:
-> On Tue, Aug 20, 2013 at 05:03:35PM +0300, Mika Westerberg wrote:
-> > From: Aaron Lu <aaron.lu@intel.com>
-> > 
-> > This patch adds runtime PM support for the I2C bus in a similar way that
-> > has been done for PCI bus already. This means that the I2C bus core
-> > prepares runtime PM for a client device just before a driver is about to be
-> > bound to it. Devices that are not bound to any driver are not prepared for
-> > runtime PM.
-> > 
-> > In order to take advantage of this runtime PM support, the client device
-> > driver needs drop the device runtime PM reference count by calling
-> > pm_runtime_put() in its ->probe() callback and possibly implement rest of
-> > the runtime PM callbacks.
-> > 
-> > However, this does not yet make runtime PM happen for the device, it has to
-> > be explicitly allowed from userspace per each I2C client device. The
-> > reason for this is that things like HID over I2C might not work as smoothly
-> > when runtime PM is active. So we leave it to the user to balance between
-> > performance and power efficiency.
-> > 
-> > User can allow runtime PM for the client device by running:
-> > 
-> > 	# echo auto > /sys/bus/i2c/devices/<device>/power/control
-> > 
-> > and it can be forbidden again by:
-> > 
-> > 	# echo on > /sys/bus/i2c/devices/<device>/power/control
-> > 
-> > Status of the device can be monitored by reading files under the device
-> > power directory.
-> > 
-> > If the driver doesn't support runtime PM (like most of the existing I2C
-> > client drivers), the device in question is regarded as being runtime PM
-> > active and powered on.
-> > 
-> > The patch adds also runtime PM support for the adapter device because it is
-> > needed to be able to runtime power manage the I2C controller device. The
-> > adapter device is handled along with the I2C controller device (it uses
-> > pm_runtime_no_callbacks()).
-> > 
-> > Signed-off-by: Aaron Lu <aaron.lu@intel.com>
-> > Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Hi Jason,
+
+Unless I missed it I didn't see this patch in your last pull request.
+Wolfram took the 3 others patches and Mark Rutland agreed with the binding
+introduced in the patch 3. So I think we are fine to take this patch
+in mvebu.
+
+Thanks,
+
+On 22/08/2013 16:19, Gregory CLEMENT wrote:
+> The mv64xxx-i2c embedded in the Armada XP have a new feature to
+> offload i2c transaction. This new version of the IP come also with
+> some errata. This lead to the introduction to a another compatible
+> string.
 > 
-> CCing ALKML. Would appreciate comments/tags from the runtime-PM users of
-> the ARM world.
+> This commit split the i2c information into armada-370.dtsi and
+> armada-xp.dtsi. Most of the data remains the same and stay in the
+> common file Armada-370-xp.dtsi. With this new feature the size of the
+> registers are bigger for Armada XP and the new compatible string is
+> used.
+> 
+> Signed-off-by: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+> ---
+>  arch/arm/boot/dts/armada-370-xp.dtsi |  2 --
+>  arch/arm/boot/dts/armada-370.dtsi    |  8 ++++++++
+>  arch/arm/boot/dts/armada-xp.dtsi     | 10 ++++++++++
+>  3 files changed, 18 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm/boot/dts/armada-370-xp.dtsi b/arch/arm/boot/dts/armada-370-xp.dtsi
+> index 90b1176..d8b24c9 100644
+> --- a/arch/arm/boot/dts/armada-370-xp.dtsi
+> +++ b/arch/arm/boot/dts/armada-370-xp.dtsi
+> @@ -121,7 +121,6 @@
+>  
+>  			i2c0: i2c@11000 {
+>  				compatible = "marvell,mv64xxx-i2c";
+> -				reg = <0x11000 0x20>;
+>  				#address-cells = <1>;
+>  				#size-cells = <0>;
+>  				interrupts = <31>;
+> @@ -132,7 +131,6 @@
+>  
+>  			i2c1: i2c@11100 {
+>  				compatible = "marvell,mv64xxx-i2c";
+> -				reg = <0x11100 0x20>;
+>  				#address-cells = <1>;
+>  				#size-cells = <0>;
+>  				interrupts = <32>;
+> diff --git a/arch/arm/boot/dts/armada-370.dtsi b/arch/arm/boot/dts/armada-370.dtsi
+> index fa3dfc6..0e2eefa 100644
+> --- a/arch/arm/boot/dts/armada-370.dtsi
+> +++ b/arch/arm/boot/dts/armada-370.dtsi
+> @@ -155,6 +155,14 @@
+>  				};
+>  			};
+>  
+> +			i2c0: i2c@11000 {
+> +				reg = <0x11000 0x20>;
+> +			};
+> +
+> +			i2c1: i2c@11100 {
+> +				reg = <0x11100 0x20>;
+> +			};
+> +
+>  			usb@50000 {
+>  				clocks = <&coreclk 0>;
+>  			};
+> diff --git a/arch/arm/boot/dts/armada-xp.dtsi b/arch/arm/boot/dts/armada-xp.dtsi
+> index 416eb94..e1f2547 100644
+> --- a/arch/arm/boot/dts/armada-xp.dtsi
+> +++ b/arch/arm/boot/dts/armada-xp.dtsi
+> @@ -138,6 +138,16 @@
+>  				};
+>  			};
+>  
+> +			i2c0: i2c@11000 {
+> +				compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
+> +				reg = <0x11000 0x100>;
+> +			};
+> +
+> +			i2c1: i2c@11100 {
+> +				compatible = "marvell,mv78230-i2c", "marvell,mv64xxx-i2c";
+> +				reg = <0x11100 0x100>;
+> +			};
+> +
+>  			usb@50000 {
+>  				clocks = <&gateclk 18>;
+>  			};
+> 
 
-Any comments on this?
 
-I can resend the whole series with ALKML included if that helps.
+-- 
+Gregory Clement, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
