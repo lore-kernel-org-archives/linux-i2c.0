@@ -1,52 +1,33 @@
-From: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
-Subject: Re: [PATCH V2 2/3] i2c: mxs: Rework the PIO mode operation
-Date: Mon, 02 Sep 2013 19:00:20 +0200
-Message-ID: <4461654.HjuBxnyHTp@linux-1fbo.site>
-References: <1375219237-9594-1-git-send-email-marex@denx.de> <11990305.k2WdFfCnhA@linux-1fbo.site> <201308262051.43123.marex@denx.de>
+From: Jason Cooper <jason-NLaQJdtUoK4Be96aLqz0jA@public.gmane.org>
+Subject: Re: [PATCH v6 4/4] ARM: dts: mvebu: Update with the new compatible
+ string for mv64xxx-i2c
+Date: Mon, 2 Sep 2013 13:25:48 -0400
+Message-ID: <20130902172548.GD19598@titan.lakedaemon.net>
+References: <1377181169-17483-1-git-send-email-gregory.clement@free-electrons.com>
+ <1377181169-17483-2-git-send-email-gregory.clement@free-electrons.com>
+ <52247A2D.9090400@free-electrons.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <201308262051.43123.marex-ynQEQJNshbs@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52247A2D.9090400-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+To: Gregory CLEMENT <gregory.clement-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Andrew Lunn <andrew-g2DYL2Zd6BY@public.gmane.org>, Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Ezequiel Garcia <ezequiel.garcia-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Sebastian Hesselbarth <sebastian.hesselbarth-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Nicolas Pitre <nico-vtqb6HGKxmzR7s880joybQ@public.gmane.org>, Lior Amsalem <alior-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Maen Suleiman <maen-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Tawfik Bayouk <tawfik-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Shadi Ammouri <shadi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Eran Ben-Avi <benavi-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Yehuda Yitschak <yehuday-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Nadav Haklai <nadavh-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>, Ike Pan <ike.pan-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Chris Van Hoof <vanhoof-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Dan Frazier <dann.frazier-Z7WLFzj8eWMS+FvcfC7Uqw@public.gmane.org>, Leif Lindholm <leif.lindholm-5wv7dgnIgG8@public.gmane.org>, Jon Masters <jcm-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Marlin <dmarlin-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Marek,
-> > 
-> > > > > +
-> > > > > +			/* Check NAK here ? */
-> > > > 
-> > > > checking for the NAK at this point is really necessary.
-> > > > 
-> > > > I've tested the patches by writing to the EEPROM using the at24
-> > > > driver.
-> > > > If the data to write cross the EEPROM's page boundary then the at24
-> > > > driver splits the I2C write commands.
-> > > > 
-> > > > After the first I2C write command is done the at24 driver immediately
-> > > > tries
-> > > > to send the next I2C write command. Normally the EEPROM signals a NAK,
-> > > > because the previous write operation is internally still in progress.
-> > > > The NAK will be handled by the at24 driver. It later retries the I2C
-> > > > write command.
-> > > > 
-> > > > But if the the EEPROM signals a NAK and the I2C write command has more
-> > > > than
-> > > > 3 and less than 7 bytes then the error "PIO: Failed to finish WRITE
-> > > > cmd!" appears, because the loop is not exited due to the NAK.
-> > > 
-> > > Ok, so we check
-> > > 
-> > > HW_I2C_STAT :: GOT_A_NAK bit at the end of the loop and if it's set, we
-> > > "goto cleanup" with ret = -ENXIO . How does it sound to you?
-> > 
-> > this sounds good to me.
+On Mon, Sep 02, 2013 at 01:44:45PM +0200, Gregory CLEMENT wrote:
+> Hi Jason,
 > 
-> Does it fix your EEPROM issue then ?
+> Unless I missed it I didn't see this patch in your last pull request.
+> Wolfram took the 3 others patches and Mark Rutland agreed with the binding
+> introduced in the patch 3. So I think we are fine to take this patch
+> in mvebu.
 
-yes, this fix solves the EEPROM issue. I have tested it.
+Ahh, good.  Thanks for keeping an eye on this.  I'll submit a PR tonight
+or tomorrow.  And for the couple of patches remaining in
+mvebu/fixes-non-critical...
 
-Best regards
-Torsten Fleischer
+thx,
+
+Jason.
