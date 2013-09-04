@@ -1,55 +1,45 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v4 1/1 resend] i2c: rcar: modify I2C driver
-Date: Wed, 4 Sep 2013 11:49:49 +0100
-Message-ID: <20130904104948.GA3551@katana>
-References: <1378166965-3343-1-git-send-email-nv-dung@jinso.co.jp>
- <1378166965-3343-2-git-send-email-nv-dung@jinso.co.jp>
+From: Thomas Petazzoni <thomas.petazzoni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Subject: Re: [PATCH] EMMA: Add em i2c driver
+Date: Wed, 4 Sep 2013 14:06:13 +0200
+Message-ID: <20130904140613.2b47e4a7@skate>
+References: <CANqRtoRK+Ur=87-me7CpP+s9SO5g0ZVZSEOrqwDf4HFfjZZmZA@mail.gmail.com>
+	<1378207832-3412-1-git-send-email-ian.molton@codethink.co.uk>
+	<1378207832-3412-2-git-send-email-ian.molton@codethink.co.uk>
+	<5225DC8E.7070001@codethink.co.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+HP7ph2BbKc20aGI"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1378166965-3343-2-git-send-email-nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+In-Reply-To: <5225DC8E.7070001-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kuninori.morimoto.gx-zM6kxYcvzFBBDgjK7y7TUQ@public.gmane.org
+To: Ben Dooks <ben.dooks-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>
+Cc: Ian Molton <ian.molton-4yDnlxn2s6sWdaTGBSpHTA@public.gmane.org>, magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+Dear Ben Dooks,
 
---+HP7ph2BbKc20aGI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Tue, 03 Sep 2013 13:56:46 +0100, Ben Dooks wrote:
 
-On Tue, Sep 03, 2013 at 09:09:25AM +0900, Nguyen Viet Dung wrote:
-> This patch modify I2C driver of rcar-H1 to usable on both rcar-H1 and rca=
-r-H2.
->=20
-> Signed-off-by: Nguyen Viet Dung <nv-dung-HEF513clHfp3+QwDJ9on6Q@public.gmane.org>
+> > +static int em_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+> > +	int num)
+> > +{
+> > +	struct em_i2c_device *i2c_dev =
+> > +		(struct em_i2c_device *)(i2c_get_adapdata(adap));
+> 
+> if this is used enough it may have been easier to add an to_em_i2c()
+> macro.
 
-Applied to for-next, thanks!
+Or simply realize that i2c_get_adapdata() returns a 'void *' and that
+therefore the cast is unnecessary, which makes a to_em_i2c() macro
+useless, no?
 
+I.e, you should be able to write:
 
---+HP7ph2BbKc20aGI
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+	struct em_i2c_device *i2c_dev = i2c_get_adapdata(adap);
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSJxBMAAoJEBQN5MwUoCm2VgcP/AxGhQ6voubFNv6qkUEmziSo
-jWYxG+KYgo8fWld41Pz7rbY3FV0UPutUVJW2UebjX8umPFazX1+auj+XKziujrqV
-UmQ1A2RzIl6xMJ7LSuAaFmOMUhWcKVg0zGrcGBZi4BBJdoliw7/FgnSBwTpdumkR
-+JU6DRuwzjxchU1k0b6DR0gvKb1bjX+DHjsm5Frui1bp5PPoWfzQOAw60cVOI0qw
-mSGJr9IKB+ICOo/lT0yBDip3u6qLB70wGe30/JUwD/+dLnQZysRLL5L2f4QMQ88P
-kquX95xg8qctkdYZBwZgLzAGgxVejroZBUZuAEbNAT+gnyxlyHuzL0JSKJkFH2hR
-hE4p7YylFkKmPDZXmwk0Q2anraF4WbexK/ANp2s64utPJe4tOh4HiEgjmvXuKlgY
-3KX7QywmKgibRAVSaCDyGRRIJfY/9RzoU7MBMFZvU5Ynsby1XOSmR4PgZzpY/wen
-4q/JusM3qZ1PmoiwN9Lbe4CHYyHpYI0ajDqab1gKw7EzFxfxqiugklWcE4iM5KWY
-YjbSLzGzP8XocjHJAw15LxeEVGmNYu19lBhdsSFtKV70xLjPmdcY4jzC5yFuLfix
-Mqrf2EaG8S/FB+/tp8mkjLhqcQ/C2kOHryp3jLa+wi58l2QZ0AnGXh2AszkRCY/f
-/iJwxL/EDGx2gCv/31qq
-=n3ew
------END PGP SIGNATURE-----
-
---+HP7ph2BbKc20aGI--
+Thomas
+-- 
+Thomas Petazzoni, Free Electrons
+Kernel, drivers, real-time and embedded Linux
+development, consulting, training and support.
+http://free-electrons.com
