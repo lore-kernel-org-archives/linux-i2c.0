@@ -1,581 +1,262 @@
-From: Simon Horman <horms@verge.net.au>
-Subject: Re: [PATCH 1/2] I2C: EMMA Mobile I2C master driver
-Date: Thu, 5 Sep 2013 15:04:29 +0900
-Message-ID: <20130905060429.GJ14960@verge.net.au>
-References: <1377688911-10911-1-git-send-email-ian.molton@codethink.co.uk>
- <1378226969-18722-1-git-send-email-ian.molton@codethink.co.uk>
- <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: [PULL REQUEST] i2c for 3.12
+Date: Thu, 5 Sep 2013 11:03:41 +0200
+Message-ID: <20130905090322.GA3429@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-sh-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1378226969-18722-2-git-send-email-ian.molton@codethink.co.uk>
-Sender: linux-sh-owner@vger.kernel.org
-To: Ian Molton <ian.molton@codethink.co.uk>
-Cc: magnus.damm@gmail.com, grant.likely@linaro.org, rob.herring@calxeda.com, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, linux-sh@vger.kernel.org, ben.dooks@codethink.co.uk
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
+Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 03, 2013 at 05:49:29PM +0100, Ian Molton wrote:
-> Add a driver for the EMMA mobile I2C block.
-> 
-> The driver supports low and high-speed interrupt driven PIO transfers.
-> 
-> Signed-off-by: Ian Molton <ian.molton@codethink.co.uk>
 
-Magnus, could you find some time to review this?
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
->  drivers/i2c/busses/Kconfig  |   10 +
->  drivers/i2c/busses/Makefile |    1 +
->  drivers/i2c/busses/i2c-em.c |  501 +++++++++++++++++++++++++++++++++++++++++++
->  3 files changed, 512 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-em.c
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index dc6dea6..d66d4b4 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -777,6 +777,16 @@ config I2C_RCAR
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-rcar.
->  
-> +config I2C_EM
-> +	tristate "EMMA Mobile series I2C adapter"
-> +	depends on I2C && HAVE_CLK
-> +	help
-> +	  If you say yes to this option, support will be included for the
-> +	  I2C interface on the Renesas Electronics EM/EV family of processors.
-> +
-> +	  This driver can also be built as a module.  If so, the module
-> +	  will be called i2c-em
-> +
->  comment "External I2C/SMBus adapter drivers"
->  
->  config I2C_DIOLAN_U2C
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index d00997f..d330706 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -42,6 +42,7 @@ i2c-designware-platform-objs := i2c-designware-platdrv.o
->  obj-$(CONFIG_I2C_DESIGNWARE_PCI)	+= i2c-designware-pci.o
->  i2c-designware-pci-objs := i2c-designware-pcidrv.o
->  obj-$(CONFIG_I2C_EG20T)		+= i2c-eg20t.o
-> +obj-$(CONFIG_I2C_EM)            += i2c-em.o
->  obj-$(CONFIG_I2C_GPIO)		+= i2c-gpio.o
->  obj-$(CONFIG_I2C_HIGHLANDER)	+= i2c-highlander.o
->  obj-$(CONFIG_I2C_IBM_IIC)	+= i2c-ibm_iic.o
-> diff --git a/drivers/i2c/busses/i2c-em.c b/drivers/i2c/busses/i2c-em.c
-> new file mode 100644
-> index 0000000..d7e91b4
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-em.c
-> @@ -0,0 +1,501 @@
-> +/*
-> + * Copyright 2013 Codethink Ltd.
-> + * Parts Copyright 2010 Renesas Electronics Corporation
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2
-> + * as published by the Free Software Foundation.
-> + *
-> + * This program is distributed in the hope that it will be useful,
-> + * but WITHOUT ANY WARRANTY; without even the implied warranty of
-> + * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-> + * GNU General Public License for more details.
-> + *
-> + * You should have received a copy of the GNU General Public License
-> + * along with this program; if not, write to the Free Software Foundation,
-> + * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA.
-> + */
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/delay.h>
-> +#include <linux/of_i2c.h>
-> +#include <linux/clk.h>
-> +#include <linux/io.h>
-> +#include <linux/sched.h>
-> +
-> +#include <linux/interrupt.h>
-> +#include <linux/device.h>
-> +#include <linux/of_device.h>
-> +#include <linux/platform_device.h>
-> +
-> +/* I2C Registers */
-> +#define I2C_OFS_IICACT0		0x00	/* start */
-> +#define I2C_OFS_IIC0		0x04	/* shift */
-> +#define I2C_OFS_IICC0		0x08	/* control */
-> +#define I2C_OFS_SVA0		0x0c	/* slave address */
-> +#define I2C_OFS_IICCL0		0x10	/* clock select */
-> +#define I2C_OFS_IICX0		0x14	/* extention */
-> +#define I2C_OFS_IICS0		0x18	/* status */
-> +#define I2C_OFS_IICSE0		0x1c	/* status For emulation */
-> +#define I2C_OFS_IICF0		0x20	/* IIC flag */
-> +
-> +/* I2C IICACT0 Masks */
-> +#define I2C_BIT_IICE0		0x0001
-> +
-> +/* I2C IICC0 Masks */
-> +#define I2C_BIT_LREL0		0x0040
-> +#define I2C_BIT_WREL0		0x0020
-> +#define I2C_BIT_SPIE0		0x0010
-> +#define I2C_BIT_WTIM0		0x0008
-> +#define I2C_BIT_ACKE0		0x0004
-> +#define I2C_BIT_STT0		0x0002
-> +#define I2C_BIT_SPT0		0x0001
-> +
-> +/* I2C IICCL0 Masks */
-> +#define I2C_BIT_SMC0		0x0008
-> +#define I2C_BIT_DFC0		0x0004
-> +
-> +/* I2C IICSE0 Masks */
-> +#define I2C_BIT_MSTS0		0x0080
-> +#define I2C_BIT_ALD0		0x0040
-> +#define I2C_BIT_EXC0		0x0020
-> +#define I2C_BIT_COI0		0x0010
-> +#define I2C_BIT_TRC0		0x0008
-> +#define I2C_BIT_ACKD0		0x0004
-> +#define I2C_BIT_STD0		0x0002
-> +#define I2C_BIT_SPD0		0x0001
-> +
-> +/* I2C IICF0 Masks */
-> +#define I2C_BIT_STCF		0x0080
-> +#define I2C_BIT_IICBSY		0x0040
-> +#define I2C_BIT_STCEN		0x0002
-> +#define I2C_BIT_IICRSV		0x0001
-> +
-> +static int em_i2c_xfer(struct i2c_adapter *, struct i2c_msg[], int);
-> +
-> +struct em_i2c_device {
-> +	struct i2c_adapter	adap;
-> +	wait_queue_head_t	i2c_wait;
-> +	void __iomem		*membase;
-> +	struct clk              *clk;
-> +	struct clk              *sclk;
-> +	int			irq;
-> +	int			flags;
-> +	int			pending;
-> +	spinlock_t              irq_lock;
-> +};
-> +
-> +#define to_em_i2c(adap) (struct em_i2c_device *)i2c_get_adapdata(adap)
-> +
-> +static u32 em_i2c_func(struct i2c_adapter *adap)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> +}
-> +
-> +static struct i2c_algorithm em_i2c_algo = {
-> +	.master_xfer = em_i2c_xfer,
-> +	.smbus_xfer = NULL,
-> +	.functionality = em_i2c_func,
-> +};
-> +
-> +static void em_i2c_enable_clock(struct em_i2c_device *i2c_dev)
-> +{
-> +	clk_enable(i2c_dev->clk);
-> +	clk_enable(i2c_dev->sclk);
-> +}
-> +
-> +static void em_i2c_disable_clock(struct em_i2c_device *i2c_dev)
-> +{
-> +	clk_disable(i2c_dev->sclk);
-> +	clk_disable(i2c_dev->clk);
-> +}
-> +
-> +static int em_i2c_wait_for_event(struct em_i2c_device *i2c_dev, u16 *status)
-> +{
-> +	int interrupted;
-> +
-> +	do {
-> +		interrupted = wait_event_interruptible_timeout(
-> +				i2c_dev->i2c_wait, i2c_dev->pending,
-> +				i2c_dev->adap.timeout);
-> +
-> +		if (i2c_dev->pending) {
-> +			spin_lock_irq(&i2c_dev->irq_lock);
-> +			i2c_dev->pending = 0;
-> +			spin_unlock_irq(&i2c_dev->irq_lock);
-> +			*status = readl(i2c_dev->membase + I2C_OFS_IICSE0);
-> +			return 0;
-> +		}
-> +
-> +	} while (interrupted);
-> +
-> +	*status = 0;
-> +
-> +	return -ETIMEDOUT;
-> +}
-> +
-> +static int em_i2c_stop(struct em_i2c_device *i2c_dev)
-> +{
-> +	u16 status;
-> +
-> +	/* Send Stop condition */
-> +	writel((readl(i2c_dev->membase + I2C_OFS_IICC0) | I2C_BIT_SPT0 |
-> +		I2C_BIT_SPIE0), i2c_dev->membase + I2C_OFS_IICC0);
-> +
-> +	/* Wait for stop condition */
-> +	em_i2c_wait_for_event(i2c_dev, &status);
-> +	/* FIXME - check status? */
-> +
-> +	if ((readl(i2c_dev->membase + I2C_OFS_IICSE0) & I2C_BIT_SPD0) != 0)
-> +		return 0;
-> +
-> +	return -EBUSY;
-> +}
-> +
-> +static int em_i2c_start(struct em_i2c_device *i2c_dev)
-> +{
-> +	/* Send start condition */
-> +	writel((readl(i2c_dev->membase + I2C_OFS_IICC0)) | I2C_BIT_ACKE0 |
-> +		I2C_BIT_WTIM0, i2c_dev->membase + I2C_OFS_IICC0);
-> +
-> +	writel((readl(i2c_dev->membase + I2C_OFS_IICC0) | I2C_BIT_STT0),
-> +		i2c_dev->membase + I2C_OFS_IICC0);
-> +
-> +	return -EBUSY;
-> +}
-> +
-> +static void em_i2c_reset(struct i2c_adapter *adap)
-> +{
-> +	struct em_i2c_device *i2c_dev = to_em_i2c(adap);
-> +	int retr;
-> +
-> +	/* If I2C active */
-> +	if (readl(i2c_dev->membase + I2C_OFS_IICACT0) & I2C_BIT_IICE0) {
-> +
-> +		/* Disable I2C operation */
-> +		writel(0, i2c_dev->membase + I2C_OFS_IICACT0);
-> +
-> +		retr = 1000;
-> +		while (readl(i2c_dev->membase + I2C_OFS_IICACT0) == 1 && retr)
-> +			retr--;
-> +		WARN_ON(retr == 0);
-> +	}
-> +
-> +	/* Transfer mode set */
-> +	writel(i2c_dev->flags, i2c_dev->membase + I2C_OFS_IICCL0);
-> +
-> +	/* Can Issue start without detecting a stop, Reservation disabled. */
-> +	writel(I2C_BIT_STCEN | I2C_BIT_IICRSV,
-> +		i2c_dev->membase + I2C_OFS_IICF0);
-> +
-> +	/* I2C enable, 9 bit interrupt mode */
-> +	writel(I2C_BIT_WTIM0, i2c_dev->membase + I2C_OFS_IICC0);
-> +
-> +	/* Enable I2C operation */
-> +	writel(I2C_BIT_IICE0, i2c_dev->membase + I2C_OFS_IICACT0);
-> +
-> +	retr = 1000;
-> +	while (readl(i2c_dev->membase + I2C_OFS_IICACT0) == 0 && retr)
-> +		retr--;
-> +	WARN_ON(retr == 0);
-> +}
-> +
-> +static int __em_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msg,
-> +				int stop)
-> +{
-> +	struct em_i2c_device *i2c_dev = to_em_i2c(adap);
-> +	int count = 0;
-> +	u16 status;
-> +
-> +	/* Start transfer */
-> +	em_i2c_start(i2c_dev);
-> +
-> +	/* Send slave address and R/W type */
-> +	writel((msg->addr << 1) | ((msg->flags & I2C_M_RD) ? 1 : 0),
-> +		i2c_dev->membase + I2C_OFS_IIC0);
-> +
-> +	/* Wait for transaction */
-> +	if (em_i2c_wait_for_event(i2c_dev, &status))
-> +		goto out_reset;
-> +
-> +	/* Arbitration, Extension mode or Slave mode are all errors */
-> +	if (status & (I2C_BIT_EXC0 | I2C_BIT_COI0 | I2C_BIT_ALD0)
-> +			|| !(status & I2C_BIT_MSTS0))
-> +		goto out_reset;
-> +
-> +	/* Extra setup for read transactions */
-> +	if (!(status & I2C_BIT_TRC0)) {
-> +
-> +		/* msg->flags is Write type */
-> +		if (!(msg->flags & I2C_M_RD))
-> +			goto out_reset;
-> +
-> +		/* Recieved No ACK (result of setting slave address and R/W) */
-> +		if (!(status & I2C_BIT_ACKD0)) {
-> +			em_i2c_stop(i2c_dev);
-> +			goto out;
-> +		}
-> +
-> +		/* 8 bit interrupt mode */
-> +		writel((readl(i2c_dev->membase + I2C_OFS_IICC0)
-> +				& ~I2C_BIT_WTIM0) | I2C_BIT_ACKE0,
-> +				i2c_dev->membase + I2C_OFS_IICC0);
-> +		writel((readl(i2c_dev->membase + I2C_OFS_IICC0)
-> +				& ~I2C_BIT_WTIM0) | I2C_BIT_WREL0,
-> +				i2c_dev->membase + I2C_OFS_IICC0);
-> +
-> +		/* Wait for transaction */
-> +		if (em_i2c_wait_for_event(i2c_dev, &status))
-> +			goto out_reset;
-> +	}
-> +
-> +	/* Send / receive data */
-> +	do {
-> +		/* Arbitration, Extension mode or Slave mode are errors*/
-> +		if (status & (I2C_BIT_EXC0 | I2C_BIT_COI0 | I2C_BIT_ALD0)
-> +				|| !(status & I2C_BIT_MSTS0))
-> +			goto out_reset;
-> +
-> +		if (!(status & I2C_BIT_TRC0)) { /* Read transaction */
-> +
-> +			/* msg->flags is Write type */
-> +			if (!(msg->flags & I2C_M_RD))
-> +				goto out_reset;
-> +
-> +			if (count == msg->len)
-> +				break;
-> +
-> +			msg->buf[count++] =
-> +				readl(i2c_dev->membase + I2C_OFS_IIC0);
-> +
-> +
-> +			writel((readl(i2c_dev->membase + I2C_OFS_IICC0)
-> +				| I2C_BIT_WREL0),
-> +				i2c_dev->membase + I2C_OFS_IICC0);
-> +
-> +		} else { /* Write transaction */
-> +
-> +			/* msg->flags is Read type */
-> +			if ((msg->flags & I2C_M_RD))
-> +				goto out_reset;
-> +
-> +			/* Recieved No ACK */
-> +			if (!(status & I2C_BIT_ACKD0)) {
-> +				em_i2c_stop(i2c_dev);
-> +				goto out;
-> +			}
-> +
-> +			if (count == msg->len)
-> +				break;
-> +
-> +			/* Write data */
-> +			writel(msg->buf[count++], i2c_dev->membase
-> +				+ I2C_OFS_IIC0);
-> +		}
-> +
-> +		/* Wait for R/W transaction */
-> +		if (em_i2c_wait_for_event(i2c_dev, &status))
-> +			goto out_reset;
-> +
-> +	} while (1);
-> +
-> +	if (stop)
-> +		em_i2c_stop(i2c_dev);
-> +
-> +	return count;
-> +
-> +out_reset:
-> +	em_i2c_reset(adap);
-> +out:
-> +	return -EREMOTEIO;
-> +}
-> +
-> +static int em_i2c_wait_free(struct i2c_adapter *adap)
-> +{
-> +	struct em_i2c_device *i2c_dev = to_em_i2c(adap);
-> +	int timeout = adap->timeout;
-> +	int status;
-> +
-> +	/* wait until I2C bus free */
-> +	while ((readl(i2c_dev->membase + I2C_OFS_IICF0) & I2C_BIT_IICBSY)
-> +			&& timeout--) {
-> +		schedule_timeout_uninterruptible(1);
-> +	}
-> +
-> +	status = (timeout <= 0);
-> +
-> +	if (status)
-> +		dev_info(&adap->dev, "I2C bus is busy\n");
-> +
-> +	return status;
-> +}
-> +
-> +static int em_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> +	int num)
-> +{
-> +	struct em_i2c_device *i2c_dev = to_em_i2c(adap);
-> +	int ret = 0;
-> +	int i;
-> +
-> +	em_i2c_enable_clock(i2c_dev);
-> +	em_i2c_reset(adap);
-> +
-> +	/* Attempt to gain control of the adapter */
-> +	i = 0;
-> +	while (em_i2c_wait_free(adap)) {
-> +		switch (i) {
-> +		case 0:
-> +			if (!(readl(i2c_dev->membase + I2C_OFS_IICSE0)
-> +					& I2C_BIT_MSTS0)) {
-> +				/* Slave mode -> Error */
-> +				ret = -EBUSY;
-> +				goto out;
-> +			}
-> +
-> +			em_i2c_stop(i2c_dev);
-> +			break;
-> +		case 1:
-> +			em_i2c_reset(adap);
-> +			break;
-> +		case 2:
-> +			ret = -EREMOTEIO;
-> +			goto out;
-> +		}
-> +		i++;
-> +	}
-> +
-> +	/* Send messages */
-> +	for (i = 0; i < num; i++) {
-> +		ret = __em_i2c_xfer(adap, &msgs[i], (i == (num - 1)));
-> +		if (ret < 0)
-> +			goto out;
-> +	}
-> +
-> +	/* I2C transfer completed */
-> +	ret = i;
-> +
-> +out:
-> +	em_i2c_disable_clock(i2c_dev);
-> +
-> +	return ret;
-> +}
-> +
-> +static irqreturn_t em_i2c_irq_handler(int this_irq, void *dev_id)
-> +{
-> +	struct em_i2c_device *i2c_dev = dev_id;
-> +
-> +	i2c_dev->pending = 1;
-> +
-> +	wake_up_interruptible(&i2c_dev->i2c_wait);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
-> +static int em_i2c_probe(struct platform_device *pdev)
-> +{
-> +	struct em_i2c_device *i2c_dev;
-> +	struct resource *r;
-> +	int ret;
-> +
-> +	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(struct em_i2c_device),
-> +				GFP_KERNEL);
-> +
-> +	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-> +	i2c_dev->membase = devm_ioremap_resource(&pdev->dev, r);
-> +	if (IS_ERR(i2c_dev->membase))
-> +		return PTR_ERR(i2c_dev->membase);
-> +
-> +	strlcpy(i2c_dev->adap.name, "em_i2c", sizeof(i2c_dev->adap.name));
-> +
-> +	i2c_dev->clk = devm_clk_get(&pdev->dev, NULL);
-> +	if (!IS_ERR(i2c_dev->clk))
-> +		clk_prepare(i2c_dev->clk);
-> +
-> +	i2c_dev->sclk = devm_clk_get(&pdev->dev, "sclk");
-> +	if (!IS_ERR(i2c_dev->sclk))
-> +		clk_prepare(i2c_dev->sclk);
-> +
-> +	i2c_dev->irq = platform_get_irq(pdev, 0);
-> +	i2c_dev->adap.timeout = msecs_to_jiffies(100);
-> +	i2c_dev->adap.dev.parent = &pdev->dev;
-> +	i2c_dev->adap.algo = &em_i2c_algo;
-> +	i2c_dev->adap.owner = THIS_MODULE;
-> +	i2c_dev->adap.nr = pdev->id;
-> +	i2c_dev->adap.dev.of_node = pdev->dev.of_node;
-> +
-> +	init_waitqueue_head(&i2c_dev->i2c_wait);
-> +
-> +	spin_lock_init(&i2c_dev->irq_lock);
-> +
-> +	i2c_dev->flags = I2C_BIT_DFC0;
-> +
-> +	if (of_find_property(pdev->dev.of_node, "high-speed", NULL))
-> +		i2c_dev->flags |= I2C_BIT_SMC0;
-> +
-> +	platform_set_drvdata(pdev, i2c_dev);
-> +	i2c_set_adapdata(&i2c_dev->adap, i2c_dev);
-> +
-> +	em_i2c_enable_clock(i2c_dev);
-> +	em_i2c_reset(&i2c_dev->adap);
-> +	em_i2c_disable_clock(i2c_dev);
-> +
-> +	ret = devm_request_irq(&pdev->dev, i2c_dev->irq, em_i2c_irq_handler, 0,
-> +				"em_i2c", i2c_dev);
-> +
-> +	if (ret)
-> +		goto exit_clk;
-> +
-> +	ret = i2c_add_numbered_adapter(&i2c_dev->adap);
-> +
-> +	if (ret != 0)
-> +		goto exit_clk;
-> +
-> +	of_i2c_register_devices(&i2c_dev->adap);
-> +
-> +	dev_info(&pdev->dev, "Added i2c controller %d irq %d @ 0x%p\n",
-> +		i2c_dev->adap.nr, i2c_dev->irq, i2c_dev->membase);
-> +
-> +	return 0;
-> +
-> +exit_clk:
-> +	clk_disable(i2c_dev->clk);
-> +	clk_unprepare(i2c_dev->clk);
-> +	return ret;
-> +}
-> +
-> +static int em_i2c_remove(struct platform_device *dev)
-> +{
-> +	struct em_i2c_device *i2c_dev = platform_get_drvdata(dev);
-> +
-> +	i2c_del_adapter(&i2c_dev->adap);
-> +
-> +	clk_disable(i2c_dev->clk);
-> +	clk_unprepare(i2c_dev->clk);
-> +
-> +	return 0;
-> +}
-> +
-> +static struct of_device_id em_i2c_ids[] = {
-> +	{ .compatible = "renesas,em-i2c", },
-> +	{ }
-> +};
-> +
-> +static struct platform_driver em_i2c_driver = {
-> +	.probe = em_i2c_probe,
-> +	.remove = em_i2c_remove,
-> +	.driver = {
-> +		.name = "em-i2c",
-> +		.owner = THIS_MODULE,
-> +		.of_match_table = em_i2c_ids,
-> +	}
-> +};
-> +
-> +module_platform_driver(em_i2c_driver);
-> +MODULE_DEVICE_TABLE(of, em_i2c_ids);
-> +
-> +MODULE_LICENSE("GPLv2");
-> +MODULE_DESCRIPTION("EMEV2 I2C bus driver");
-> +MODULE_AUTHOR("Ian Molton");
-> +
-> -- 
-> 1.7.10.4
-> 
-> --
-> To unsubscribe from this list: send the line "unsubscribe linux-sh" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+Linus,
+
+please pull the changes from the I2C subsystem for the 3.12 release. Highli=
+ghts:
+
+* OF and ACPI helpers are now included in the core, and not in external fil=
+es anymore.
+  This removes dependency problems for modules and is cleaner, in general.
+* mv64xxx-driver gains fifo usage to support mv78230
+* imx-driver overhaul to support VF610
+* various cleanups, most notably related to devm_* and CONFIG_PM usage
+* driver bugfixes and smaller feature additions
+
+Thanks,
+
+   Wolfram
+
+
+The following changes since commit c095ba7224d8edc71dcef0d655911399a8bd4a3f:
+
+  Linux 3.11-rc4 (2013-08-04 13:46:46 -0700)
+
+are available in the git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+
+for you to fetch changes up to b720423a2627f045133bec39a31fe2bc0dab86f3:
+
+  i2c: rcar: add rcar-H2 support (2013-09-04 11:49:16 +0100)
+
+----------------------------------------------------------------
+Andy Lutomirski (1):
+      i2c: Improve logging on failure to probe for ->class devices
+
+Chew, Chiau Ee (1):
+      i2c: designware: Manually set RESTART bit between messages
+
+Fabio Estevam (2):
+      i2c: i2c-mxs: Use DMA mode even for small transfers
+      i2c: mxs: Check the return value from stmp_reset_block()
+
+Gerhard Sittig (1):
+      i2c: mpc: cleanup clock API use
+
+Gregory CLEMENT (2):
+      i2c: mv64xxx: Add I2C Transaction Generator support
+      i2c: mv64xxx: Fix timing issue on Armada XP (errata FE-8471889)
+
+Grygorii Strashko (1):
+      i2c: omap: query STP always when NACK is received
+
+Guenter Roeck (1):
+      i2c: mpc: Define unique I2C adapter names
+
+Jingchang Lu (9):
+      i2c: imx: use struct representing i2c clk{div, val} pair
+      i2c: imx: enable clk before write to registers
+      i2c: imx: don't change platform device id_entry directly
+      i2c: imx: wrap registers read/write to inline function
+      i2c: imx: change register offset representation
+      i2c: imx: add INT flag and IEN bit operatation codes
+      i2c: imx: add struct to hold more configurable quirks
+      i2c: imx: Add Vybrid VF610 I2C controller support
+      i2c: imx: use exact SoC revision to document binding
+
+Jingoo Han (8):
+      i2c: i2c-mpc: add CONFIG_PM_SLEEP to suspend/resume functions
+      i2c: designware: add CONFIG_PM_SLEEP to suspend/resume functions
+      i2c: ocores: add CONFIG_PM_SLEEP to suspend/resume functions
+      i2c: stu300: add CONFIG_PM_SLEEP to suspend/resume functions
+      i2c: pnx: add CONFIG_PM_SLEEP to suspend/resume functions
+      i2c: puv3: add CONFIG_PM_SLEEP to suspend function
+      i2c: i2c-bfin-twi: add CONFIG_PM_SLEEP to suspend/resume functions
+      i2c: use dev_get_platdata()
+
+Julia Lawall (1):
+      drivers/i2c/busses/i2c-ocores.c: simplify use of devm_ioremap_resource
+
+Jussi Kivilinna (1):
+      i2c: tiny-usb: do not use stack as URB transfer_buffer
+
+Leilei Shang (1):
+      i2c: pxa: enable high speed mode for i2c bus
+
+Lothar Wa=DFmann (1):
+      i2c: mxs: fix broken timing calculation
+
+Maxime Ripard (1):
+      i2c: mv64xxx: Document the newly introduced allwinner compatible
+
+Michael Brunner (1):
+      i2c: Fix Kontron PLD prescaler calculation
+
+Mika Westerberg (3):
+      i2c: move ACPI helpers into the core
+      i2c: designware: make HCNT/LCNT values configurable
+      i2c: designware: get SDA hold time, HCNT and LCNT configuration from =
+ACPI
+
+Nguyen Viet Dung (1):
+      i2c: rcar: add rcar-H2 support
+
+Phil Carmody (1):
+      i2c: reduce parent checking to a NOOP in non-I2C_MUX case
+
+Rudolf Marek (1):
+      i2c: piix4: Add support for secondary SMBus on AMD SB800 and AMD FCH =
+chipsets
+
+Sachin Kamat (1):
+      Documentation: i2c: Fix example in instantiating-devices
+
+Santosh Shilimkar (2):
+      i2c: davinci: remove useless mach/hardware include
+      i2c: davinci: Allow i2c driver available for keystone platforms
+
+Sebastian Hesselbarth (1):
+      i2c: add sanity check to i2c_put_adapter
+
+Wei Yongjun (1):
+      i2c: pnx: fix error return code in i2c_pnx_probe()
+
+Wolfram Sang (6):
+      drivers/i2c/busses: don't use devm_pinctrl_get_select_default() in pr=
+obe
+      drivers/i2c/busses: don't check resource with devm_ioremap_resource
+      i2c: powermac: fix return path on error
+      i2c: move OF helpers into the core
+      i2c: mv64xxx: fix typo in binding documentation
+      i2c: ismt: add error return code in probe()
+
+Zhiwu Song (5):
+      i2c: sirf: reset i2c controller early after we get a noack
+      i2c: sirf: we need to wait I2C_RESET status in resume
+      i2c: sirf: fix the typo for setting bitrate to less than 100k
+      i2c: sirf: support reverse direction of address
+      i2c: sirf: retry 3 times as sometimes we get random noack and timeout
+
+ Documentation/acpi/enumeration.txt                 |   16 +-
+ Documentation/devicetree/bindings/i2c/i2c-imx.txt  |    5 +-
+ .../devicetree/bindings/i2c/i2c-mv64xxx.txt        |   12 +-
+ Documentation/i2c/busses/i2c-piix4                 |    7 +-
+ Documentation/i2c/instantiating-devices            |    2 +-
+ arch/powerpc/platforms/44x/warp.c                  |    1 -
+ drivers/acpi/Kconfig                               |    6 -
+ drivers/acpi/Makefile                              |    1 -
+ drivers/acpi/acpi_i2c.c                            |  103 ---------
+ drivers/gpu/drm/tilcdc/tilcdc_slave.c              |    1 -
+ drivers/gpu/drm/tilcdc/tilcdc_tfp410.c             |    1 -
+ drivers/gpu/host1x/drm/output.c                    |    2 +-
+ drivers/i2c/busses/Kconfig                         |    2 +-
+ drivers/i2c/busses/i2c-at91.c                      |    3 -
+ drivers/i2c/busses/i2c-bfin-twi.c                  |   16 +-
+ drivers/i2c/busses/i2c-cbus-gpio.c                 |    5 +-
+ drivers/i2c/busses/i2c-cpm.c                       |    6 -
+ drivers/i2c/busses/i2c-davinci.c                   |    6 +-
+ drivers/i2c/busses/i2c-designware-core.c           |   25 +++
+ drivers/i2c/busses/i2c-designware-core.h           |   12 ++
+ drivers/i2c/busses/i2c-designware-platdrv.c        |   46 +++-
+ drivers/i2c/busses/i2c-gpio.c                      |    9 +-
+ drivers/i2c/busses/i2c-i801.c                      |    2 -
+ drivers/i2c/busses/i2c-ibm_iic.c                   |    4 -
+ drivers/i2c/busses/i2c-imx.c                       |  228 +++++++++++++++-=
+----
+ drivers/i2c/busses/i2c-ismt.c                      |    1 +
+ drivers/i2c/busses/i2c-kempld.c                    |    4 +-
+ drivers/i2c/busses/i2c-mpc.c                       |   44 +++-
+ drivers/i2c/busses/i2c-mv64xxx.c                   |  207 ++++++++++++++++=
+--
+ drivers/i2c/busses/i2c-mxs.c                       |  118 +++++++---
+ drivers/i2c/busses/i2c-nomadik.c                   |    5 +-
+ drivers/i2c/busses/i2c-nuc900.c                    |    2 +-
+ drivers/i2c/busses/i2c-ocores.c                    |   12 +-
+ drivers/i2c/busses/i2c-octeon.c                    |    3 -
+ drivers/i2c/busses/i2c-omap.c                      |   27 +--
+ drivers/i2c/busses/i2c-pca-platform.c              |    2 +-
+ drivers/i2c/busses/i2c-piix4.c                     |   41 +++-
+ drivers/i2c/busses/i2c-pnx.c                       |    8 +-
+ drivers/i2c/busses/i2c-powermac.c                  |   14 +-
+ drivers/i2c/busses/i2c-puv3.c                      |    2 +-
+ drivers/i2c/busses/i2c-pxa.c                       |   70 +++++-
+ drivers/i2c/busses/i2c-rcar.c                      |   37 +++-
+ drivers/i2c/busses/i2c-s3c2410.c                   |    4 +-
+ drivers/i2c/busses/i2c-s6000.c                     |    5 +-
+ drivers/i2c/busses/i2c-sh7760.c                    |    2 +-
+ drivers/i2c/busses/i2c-sh_mobile.c                 |    4 +-
+ drivers/i2c/busses/i2c-sirf.c                      |   39 ++--
+ drivers/i2c/busses/i2c-stu300.c                    |    7 +-
+ drivers/i2c/busses/i2c-tegra.c                     |    3 -
+ drivers/i2c/busses/i2c-tiny-usb.c                  |   49 +++--
+ drivers/i2c/busses/i2c-versatile.c                 |    2 -
+ drivers/i2c/busses/i2c-wmt.c                       |    3 -
+ drivers/i2c/busses/i2c-xiic.c                      |    5 +-
+ drivers/i2c/i2c-core.c                             |  206 ++++++++++++++++=
++-
+ drivers/i2c/i2c-mux.c                              |    3 -
+ drivers/i2c/i2c-smbus.c                            |    2 +-
+ drivers/i2c/muxes/i2c-arb-gpio-challenge.c         |    3 +-
+ drivers/i2c/muxes/i2c-mux-gpio.c                   |    9 +-
+ drivers/i2c/muxes/i2c-mux-pca9541.c                |    2 +-
+ drivers/i2c/muxes/i2c-mux-pca954x.c                |    2 +-
+ drivers/i2c/muxes/i2c-mux-pinctrl.c                |    3 +-
+ drivers/media/platform/exynos4-is/fimc-is-i2c.c    |    4 +-
+ drivers/media/platform/exynos4-is/fimc-is.c        |    2 +-
+ drivers/media/platform/exynos4-is/media-dev.c      |    1 -
+ drivers/of/Kconfig                                 |    6 -
+ drivers/of/Makefile                                |    1 -
+ drivers/of/of_i2c.c                                |  114 ----------
+ drivers/staging/imx-drm/imx-tve.c                  |    2 +-
+ include/linux/i2c.h                                |   24 ++-
+ include/linux/i2c/pxa-i2c.h                        |    3 +
+ include/linux/of_i2c.h                             |   46 ----
+ sound/soc/fsl/imx-sgtl5000.c                       |    2 +-
+ sound/soc/fsl/imx-wm8962.c                         |    2 +-
+ 73 files changed, 1064 insertions(+), 614 deletions(-)
+ delete mode 100644 drivers/acpi/acpi_i2c.c
+ delete mode 100644 drivers/of/of_i2c.c
+ delete mode 100644 include/linux/of_i2c.h
+
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSKEjaAAoJEBQN5MwUoCm2yQ0QAImVdC+8pRNBRlj5iL5aJske
+9bodzWs+7mgpmsbr9xpW6ZLT+jlFTyIUfQ1beWgv5tmlfl2JAqW5tzppUW3plzdu
+Hmjte1vurtTtberLIa0rFyb4O+rOJZpS9zKK1LcW4UHuVHw+UWP+LqNqEfw9CuLN
+7aoP18E/dn6LCL7loTjnUI6QkIJHHH6twYWIcWCDgAnfyLh55kC3XhHOp2J52bxf
+uACXDszhOgWF8sPR3UrL//Z29rQUSGUwRyMXofFI7QKtOODR8Y4JLiWZHOrM753o
+Hxnopih0R/OB0i0WN95bO5Cypp0GowP54ipPem8PHjcGrqK1O+qdU43zsrMCO46u
+pf3DN3vuL+ZAnuH2ieEpZAb7vmbUAiW9fUrGorPk852apwnfeE3UJxq7ZDJ9TIHF
+FWeThs0U3/jMJTXiogA22hdpMvbi4+OE1PorJeEW9scUZzVUyVKUIYj0AQapMnE0
+RlKdk1D5hqbg1R/yZsewdVp1zGZhbmRsmTyQ0OVNd4EZqxZcWuJKtG9sm1oqChmU
+axO443oM20Rylh5cP5p5oRtSNE5o4MabH8C4QIUlw4aPRGJRdWSVASFzTlNyxpjM
+K/YrIRz0SD5ZdaZ2RTzst1O05ZRfznFdJ/oLaxEoO8Rpr833L+XaShSatw0scQw8
+aRn1JnN9Xff00UYeE/qh
+=j4S3
+-----END PGP SIGNATURE-----
+
+--tThc/1wpZn/ma/RB--
