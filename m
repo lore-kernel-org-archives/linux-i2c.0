@@ -1,59 +1,68 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: [PATCH 2/2] i2c: bfin-twi: Remove casting the return value which is a
- void pointer
-Date: Mon, 09 Sep 2013 14:32:25 +0900
-Message-ID: <005101cead1d$f7411ee0$e5c35ca0$%han@samsung.com>
-References: <005001cead1d$d68d3bc0$83a7b340$%han@samsung.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <005001cead1d$d68d3bc0$83a7b340$%han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Content-language: ko
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: 'Wolfram Sang' <wolfram-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH RESEND 2/2] i2c: attach/detach I2C client device to the ACPI power domain
+Date: Mon,  9 Sep 2013 16:34:39 +0300
+Message-ID: <1378733679-19500-3-git-send-email-mika.westerberg@linux.intel.com>
+References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Casting the return value which is a void pointer is redundant.
-The conversion from void pointer to any other pointer type is
-guaranteed by the C programming language.
+From: Lv Zheng <lv.zheng@intel.com>
 
-Signed-off-by: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+If the I2C client device is enumerated from ACPI namespace it might have
+ACPI methods that needs to be called in order to transition the device to
+a different power states (such as _PSx).
+
+Implement this for I2C client devices by checking if the device has an ACPI
+handle and if that's the case, attach it to the ACPI power domain. In
+addition we make sure that the device is fully powered when its ->probe()
+function gets called.
+
+For non-ACPI devices this patch is a no-op.
+
+Signed-off-by: Lv Zheng <lv.zheng@intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- drivers/i2c/busses/i2c-bfin-twi.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/i2c-core.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-bfin-twi.c b/drivers/i2c/busses/i2c-bfin-twi.c
-index 35a473b..3b9bd9a 100644
---- a/drivers/i2c/busses/i2c-bfin-twi.c
-+++ b/drivers/i2c/busses/i2c-bfin-twi.c
-@@ -675,7 +675,7 @@ static int i2c_bfin_twi_probe(struct platform_device *pdev)
- 	p_adap->retries = 3;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 8fad5ac..fdf086b 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -257,6 +257,9 @@ static int i2c_device_probe(struct device *dev)
+ 	/* Make sure the adapter is active */
+ 	pm_runtime_get_sync(&client->adapter->dev);
  
- 	rc = peripheral_request_list(
--			(unsigned short *)dev_get_platdata(&pdev->dev),
-+			dev_get_platdata(&pdev->dev),
- 			"i2c-bfin-twi");
- 	if (rc) {
- 		dev_err(&pdev->dev, "Can't setup pin mux!\n");
-@@ -723,7 +723,7 @@ out_error_add_adapter:
- 	free_irq(iface->irq, iface);
- out_error_req_irq:
- out_error_no_irq:
--	peripheral_free_list((unsigned short *)dev_get_platdata(&pdev->dev));
-+	peripheral_free_list(dev_get_platdata(&pdev->dev));
- out_error_pin_mux:
- 	iounmap(iface->regs_base);
- out_error_ioremap:
-@@ -739,7 +739,7 @@ static int i2c_bfin_twi_remove(struct platform_device *pdev)
++	if (ACPI_HANDLE(&client->dev))
++		acpi_dev_pm_attach(&client->dev, true);
++
+ 	/*
+ 	 * Enable runtime PM for the client device. If the client wants to
+ 	 * participate on runtime PM it should call pm_runtime_put() in its
+@@ -278,6 +281,9 @@ static int i2c_device_probe(struct device *dev)
+ 		pm_runtime_disable(&client->dev);
+ 		pm_runtime_set_suspended(&client->dev);
+ 		pm_runtime_put_noidle(&client->dev);
++
++		if (ACPI_HANDLE(&client->dev))
++			acpi_dev_pm_detach(&client->dev, true);
+ 	}
  
- 	i2c_del_adapter(&(iface->adap));
- 	free_irq(iface->irq, iface);
--	peripheral_free_list((unsigned short *)dev_get_platdata(&pdev->dev));
-+	peripheral_free_list(dev_get_platdata(&pdev->dev));
- 	iounmap(iface->regs_base);
- 	kfree(iface);
+ 	pm_runtime_put(&client->adapter->dev);
+@@ -314,6 +320,9 @@ static int i2c_device_remove(struct device *dev)
+ 	pm_runtime_set_suspended(&client->dev);
+ 	pm_runtime_put_noidle(&client->dev);
  
++	if (ACPI_HANDLE(&client->dev))
++		acpi_dev_pm_detach(&client->dev, true);
++
+ 	pm_runtime_put(&client->adapter->dev);
+ 	return status;
+ }
 -- 
-1.7.10.4
+1.8.4.rc2
