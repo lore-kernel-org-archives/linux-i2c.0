@@ -1,160 +1,70 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C client devices
-Date: Mon,  9 Sep 2013 16:34:38 +0300
-Message-ID: <1378733679-19500-2-git-send-email-mika.westerberg@linux.intel.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C
+ client devices
+Date: Mon, 9 Sep 2013 16:40:28 +0100
+Message-ID: <20130909154028.GP29403@sirena.org.uk>
 References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mika Westerberg <mika.westerberg@linux.intel.com>
+ <1378733679-19500-2-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gAsw9DVneI/FTEJd"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1378733679-19500-2-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Aaron Lu <aaron.lu@intel.com>
 
-This patch adds runtime PM support for the I2C bus in a similar way that
-has been done for PCI bus already. This means that the I2C bus core
-prepares runtime PM for a client device just before a driver is about to be
-bound to it. Devices that are not bound to any driver are not prepared for
-runtime PM.
+--gAsw9DVneI/FTEJd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In order to take advantage of this runtime PM support, the client device
-driver needs drop the device runtime PM reference count by calling
-pm_runtime_put() in its ->probe() callback and possibly implement rest of
-the runtime PM callbacks.
+On Mon, Sep 09, 2013 at 04:34:38PM +0300, Mika Westerberg wrote:
 
-However, this does not yet make runtime PM happen for the device, it has to
-be explicitly allowed from userspace per each I2C client device. The
-reason for this is that things like HID over I2C might not work as smoothly
-when runtime PM is active. So we leave it to the user to balance between
-performance and power efficiency.
+> +	/*
+> +	 * Enable runtime PM for the client device. If the client wants to
+> +	 * participate on runtime PM it should call pm_runtime_put() in its
+> +	 * probe() callback.
+> +	 *
+> +	 * User still needs to allow the PM runtime before it can actually
+> +	 * happen.
+> +	 */
+> +	pm_runtime_forbid(&client->dev);
+> +	pm_runtime_get_noresume(&client->dev);
+> +	pm_runtime_set_active(&client->dev);
+> +	pm_runtime_enable(&client->dev);
 
-User can allow runtime PM for the client device by running:
+How is this going to interact with client devices which are already
+enabling runtime PM for themselves, and what are the advantages of doing
+this over having the client device enable runtime PM for itself (given
+that the client still needs an explicit put() adding)?
 
-	# echo auto > /sys/bus/i2c/devices/<device>/power/control
+Given that it's relatively common for devices to have both I2C and SPI
+control it seems like it'd be sensible to keep the policy common between
+the two buses to simplify driver implementation.
 
-and it can be forbidden again by:
+--gAsw9DVneI/FTEJd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-	# echo on > /sys/bus/i2c/devices/<device>/power/control
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
 
-Status of the device can be monitored by reading files under the device
-power directory.
+iQIcBAEBAgAGBQJSLevpAAoJELSic+t+oim9s3IP/iZpmbUH+6uxtJTlHnrHrQJW
+HqP9yX7CyAfxdna0s/v5Oy8jqZzpHrBPSuBf/6NQcex94W8d7ZCM2a66rOO1Qpl+
+BgBHTG4Ttl9hzqjiAwkebG25fPUiRyacF2Btwx6kTeibKi2kvxtg8c388kN8gO/5
+RLJg2/t9daiI/jeaJmtDlCaPlO1wvHfJl/CYw8OoikewvGzaP3bdNE/5mYWmNHom
+CI9IE/NeDaP82Q5FCV260OMG2sEFo9tPgBRe0eVx9piUsQ126ZnBxLxnoBFNwWau
+aONZrMNeaqwaZNCakGslCmyY7w8JRPvUlJ6YmH3cor4AEs5EfZaCGHMcsus1i0Zh
+1bPTYFJNWAkZD0ZE8/4XIa9Omqdf9M8Sl4ZezLbWY5VIUc9qxVasxHdfJEBOLTui
+kJGPRaHueaKyNVKFEAb4LFzXNATRR9WYAS17kwrGIBF6Y2xem88g27lyHB85BjzE
+hs1Dl1SRcIFKkvZLT31W8JFZcMZt190g7FNA+5wN81eIjEmde4CP0PVIAIDSaN2e
+i7ADjXa0U9Ro2QN8+zJLRNvXYzq+TpZrOYXiaiawea3PDnfaFtafyhw2QBD+qHJq
+us10IO56AgPQDyLCRfB1mnYRF3/d+MwLqBMcwjmqPl8RjSu1dAv8jg7CYFhU8F7z
+T/TGDS2HJJck+nQ/P7QQ
+=rXnG
+-----END PGP SIGNATURE-----
 
-If the driver doesn't support runtime PM (like most of the existing I2C
-client drivers), the device in question is regarded as being runtime PM
-active and powered on.
-
-The patch adds also runtime PM support for the adapter device because it is
-needed to be able to runtime power manage the I2C controller device. The
-adapter device is handled along with the I2C controller device (it uses
-pm_runtime_no_callbacks()).
-
-Signed-off-by: Aaron Lu <aaron.lu@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
----
- drivers/i2c/i2c-core.c | 48 +++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 47 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 3d44292..8fad5ac 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -254,11 +254,34 @@ static int i2c_device_probe(struct device *dev)
- 					client->flags & I2C_CLIENT_WAKE);
- 	dev_dbg(dev, "probe\n");
- 
-+	/* Make sure the adapter is active */
-+	pm_runtime_get_sync(&client->adapter->dev);
-+
-+	/*
-+	 * Enable runtime PM for the client device. If the client wants to
-+	 * participate on runtime PM it should call pm_runtime_put() in its
-+	 * probe() callback.
-+	 *
-+	 * User still needs to allow the PM runtime before it can actually
-+	 * happen.
-+	 */
-+	pm_runtime_forbid(&client->dev);
-+	pm_runtime_get_noresume(&client->dev);
-+	pm_runtime_set_active(&client->dev);
-+	pm_runtime_enable(&client->dev);
-+
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
- 	if (status) {
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
-+
-+		pm_runtime_disable(&client->dev);
-+		pm_runtime_set_suspended(&client->dev);
-+		pm_runtime_put_noidle(&client->dev);
- 	}
-+
-+	pm_runtime_put(&client->adapter->dev);
-+
- 	return status;
- }
- 
-@@ -271,6 +294,8 @@ static int i2c_device_remove(struct device *dev)
- 	if (!client || !dev->driver)
- 		return 0;
- 
-+	pm_runtime_get_sync(&client->adapter->dev);
-+
- 	driver = to_i2c_driver(dev->driver);
- 	if (driver->remove) {
- 		dev_dbg(dev, "remove\n");
-@@ -283,6 +308,13 @@ static int i2c_device_remove(struct device *dev)
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
- 	}
-+
-+	/* Undo the runtime PM done in i2c_probe() */
-+	pm_runtime_disable(&client->dev);
-+	pm_runtime_set_suspended(&client->dev);
-+	pm_runtime_put_noidle(&client->dev);
-+
-+	pm_runtime_put(&client->adapter->dev);
- 	return status;
- }
- 
-@@ -294,8 +326,11 @@ static void i2c_device_shutdown(struct device *dev)
- 	if (!client || !dev->driver)
- 		return;
- 	driver = to_i2c_driver(dev->driver);
--	if (driver->shutdown)
-+	if (driver->shutdown) {
-+		pm_runtime_get_sync(&client->adapter->dev);
- 		driver->shutdown(client);
-+		pm_runtime_put(&client->adapter->dev);
-+	}
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -1263,6 +1298,15 @@ exit_recovery:
- 	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
- 	mutex_unlock(&core_lock);
- 
-+	/*
-+	 * Make sure the adapter runtime PM follows the parent device (the
-+	 * host controller) so that we can suspend it once there aren't any
-+	 * active clients anymore.
-+	 */
-+	pm_runtime_set_active(&adap->dev);
-+	pm_runtime_no_callbacks(&adap->dev);
-+	pm_runtime_enable(&adap->dev);
-+
- 	return 0;
- 
- out_list:
-@@ -1427,6 +1471,8 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- 		return;
- 	}
- 
-+	pm_runtime_disable(&adap->dev);
-+
- 	/* Tell drivers about this removal */
- 	mutex_lock(&core_lock);
- 	bus_for_each_drv(&i2c_bus_type, NULL, adap,
--- 
-1.8.4.rc2
+--gAsw9DVneI/FTEJd--
