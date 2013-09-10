@@ -1,63 +1,72 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: Fix bad dev_get_platdata() conversion
-Date: Tue, 10 Sep 2013 18:25:13 +0900
-Message-ID: <007401ceae07$a70b41e0$f521c5a0$%han@samsung.com>
-References: <1378409024-13432-1-git-send-email-olof@lixom.net>
- <20130910092001.GB4625@katana>
+From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
+Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C client devices
+Date: Tue, 10 Sep 2013 13:38:14 +0200
+Message-ID: <1713872.SpMsCYYTas@vostro.rjw.lan>
+References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com> <20130909154028.GP29403@sirena.org.uk> <20130910075100.GK7393@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <20130910092001.GB4625@katana>
-Content-language: ko
+In-Reply-To: <20130910075100.GK7393-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, 'Olof Johansson' <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Cc: 'Sekhar Nori' <nsekhar-l0cyMroinI0@public.gmane.org>, 'Kevin Hilman' <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, September 10, 2013 6:20 PM, Wolfram Sang wrote:
-> On Thu, Sep 05, 2013 at 12:23:44PM -0700, Olof Johansson wrote:
-> > commit 6d4028c644e (i2c: use dev_get_platdata()) did a bad conversion
-> > of this one case:
-> >
-> > drivers/i2c/busses/i2c-davinci.c: In function 'davinci_i2c_probe':
-> > drivers/i2c/busses/i2c-davinci.c:665:2: warning: passing argument 1 of
-> > 	'dev_get_platdata' from incompatible pointer type [enabled by default]
-> >
-> > Cc: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> > Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+On Tuesday, September 10, 2013 10:51:00 AM Mika Westerberg wrote:
+> On Mon, Sep 09, 2013 at 04:40:28PM +0100, Mark Brown wrote:
+> > On Mon, Sep 09, 2013 at 04:34:38PM +0300, Mika Westerberg wrote:
+> > 
+> > > +	/*
+> > > +	 * Enable runtime PM for the client device. If the client wants to
+> > > +	 * participate on runtime PM it should call pm_runtime_put() in its
+> > > +	 * probe() callback.
+> > > +	 *
+> > > +	 * User still needs to allow the PM runtime before it can actually
+> > > +	 * happen.
+> > > +	 */
+> > > +	pm_runtime_forbid(&client->dev);
+> > > +	pm_runtime_get_noresume(&client->dev);
+> > > +	pm_runtime_set_active(&client->dev);
+> > > +	pm_runtime_enable(&client->dev);
+> > 
+> > How is this going to interact with client devices which are already
+> > enabling runtime PM for themselves, and what are the advantages of doing
+> > this over having the client device enable runtime PM for itself (given
+> > that the client still needs an explicit put() adding)?
 > 
-> Gosh, need to find out why my build-tests failed on that. Thanks!
-> 
-> Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> 
-> Jingoo Han: Did you buildtest?
+> My understanding is that you can call pm_runtime_enable() several times
+> (provided that pm_runtime_disable() is called as many times). So that
+> should have no effect on the current drivers that already take advantage of
+> runtime PM.
 
-I always did builtest for the patch.
-However, I cannot know why it makes build error.
-Anyway, sorry for making this build error.
+That's correct.
 
-Best regards,
-Jingoo Han
-
+> There is one difference though -- runtime PM is now blocked by default and
+> it needs to be unblocked from the userspace per each device.
 > 
-> > ---
-> >  drivers/i2c/busses/i2c-davinci.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-> > index 5747341..132369f 100644
-> > --- a/drivers/i2c/busses/i2c-davinci.c
-> > +++ b/drivers/i2c/busses/i2c-davinci.c
-> > @@ -662,7 +662,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
-> >  #endif
-> >  	dev->dev = &pdev->dev;
-> >  	dev->irq = irq->start;
-> > -	dev->pdata = dev_get_platdata(&dev->dev);
-> > +	dev->pdata = dev_get_platdata(&pdev->dev);
-> >  	platform_set_drvdata(pdev, dev);
-> >
-> >  	if (!dev->pdata && pdev->dev.of_node) {
-> > --
-> > 1.7.10.4
-> >
+> For the advantages compared to each driver handling it completely
+> themselves:
+> 
+> 	- Few lines less as you only need to call _put().
+> 	- It follows what is already been done for other buses, like PCI
+> 	  and AMBA .
+> 	- The I2C core makes sure that the device is available (from bus
+> 	  point of view) when the driver ->probe() is called.
+> 
+> > Given that it's relatively common for devices to have both I2C and SPI
+> > control it seems like it'd be sensible to keep the policy common between
+> > the two buses to simplify driver implementation.
+> 
+> Yes and IMHO if I2C and SPI follows what has already been done for other
+> buses it should make the driver writer's job easier as the usage is similar
+> from one bus to another.
+
+I agree here, FWIW.
+
+Thanks!
+
+
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
