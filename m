@@ -1,92 +1,111 @@
-From: Josh Cartwright <joshc@codeaurora.org>
-Subject: Re: [PATCH 1/2] i2c: qup: Add device tree bindings information
-Date: Tue, 10 Sep 2013 08:59:07 -0500
-Message-ID: <20130910135907.GP808@joshc.qualcomm.com>
-References: <1377782873-31931-1-git-send-email-iivanov@mm-sol.com>
- <3A0F4153-1C55-4008-8EB1-D6FA60D87CEA@codeaurora.org>
- <1377797186.30358.14.camel@localhost>
- <767E9FBB-2975-4795-9C7E-69E302511FF2@codeaurora.org>
- <1378814937.960.37.camel@iivanov-dev.int.mm-sol.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C
+ client devices
+Date: Tue, 10 Sep 2013 17:26:31 +0300
+Message-ID: <20130910142631.GL7393@intel.com>
+References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1378733679-19500-2-git-send-email-mika.westerberg@linux.intel.com>
+ <20130909154028.GP29403@sirena.org.uk>
+ <20130910075100.GK7393@intel.com>
+ <20130910122754.GK29403@sirena.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1378814937.960.37.camel@iivanov-dev.int.mm-sol.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Cc: Kumar Gala <galak@codeaurora.org>, wsa@the-dreams.de, rob.herring@calxeda.com, pawel.moll@arm.com, mark.rutland@arm.com, swarren@wwwdotorg.org, ian.campbell@citrix.com, rob@landley.net, grant.likely@linaro.org, gavidov@codeaurora.org, sdharia@codeaurora.org, alokc@codeaurora.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
+In-Reply-To: <20130910122754.GK29403-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-[Hmm.  Fixing b0rked LKML address; that might explain why I am not
-seeing Kumar's replies.]
-
-On Tue, Sep 10, 2013 at 03:08:57PM +0300, Ivan T. Ivanov wrote:
-> Hi Kumar,
+On Tue, Sep 10, 2013 at 01:27:54PM +0100, Mark Brown wrote:
+> On Tue, Sep 10, 2013 at 10:51:00AM +0300, Mika Westerberg wrote:
+> > On Mon, Sep 09, 2013 at 04:40:28PM +0100, Mark Brown wrote:
 > 
-> On Fri, 2013-08-30 at 10:21 -0500, Kumar Gala wrote: 
-> > On Aug 29, 2013, at 12:26 PM, Ivan T. Ivanov wrote:
-> > >>> +
-> > >>> +Optional properties :
-> > >>> + - Child nodes conforming to i2c bus binding
-> > >>> + - clock-frequency : Desired I2C bus clock frequency in Hz. If
-> > >>> +		not set thedefault frequency is 100kHz
-> > >>> + - qcom,src-freq : Frequency of the source clocking this bus in Hz.
-> > >>> +		Divider value is set based on soruce-frequency and
-> > >>> +		desired I2C bus frequency. If this value is not
-> > >>> +		provided, the source clock is assumed to be running
-> > >>> +		at 19.2 MHz.
-> > >> 
-> > >> I'd spell out frequency instead of 'freq' to be consistent with 'clock-frequency'
-> > > 
-> > > ok.
-> > > 
-> > >> 
-> > >> Is the frequency of the 'iface' clock?  Can we not use clk_get_rate?
-> > > 
-> > > It is for 'core' clock. I think that for higher I2C bus frequencies,
-> > > 'core' clock have to be higher, but I am not sure what is relation.
-> > 
-> > Ok, can we use clk_get_rate on the 'core' clk to get its frequency instead of needing a DT prop for it?
+> > > How is this going to interact with client devices which are already
+> > > enabling runtime PM for themselves, and what are the advantages of doing
+> > > this over having the client device enable runtime PM for itself (given
+> > > that the client still needs an explicit put() adding)?
 > 
-> Probably I didn't explain it well. The 'core' clock have to be
-> accelerated before higher bus frequencies could be achieved.
-
-I think what Kumar is suggesting is that the QUP driver not do an
-explicit clk_set_rate() at all (which AFAICT is what's currently being
-done to set the consuming clock to the rate specified in
-'qcom,src-freq'), but instead assume that the consuming clock has
-already been setup properly.  Then the driver just uses clk_get_rate()
-and clock-frequency to calculate how to setup any internal dividers.
-
-> > >>> +Aliases: An alias may optionally be used to bind the I2C controller
-> > >>> +to bus number. Aliases are of the form i2c<n> where <n> is an integer
-> > >>> +representing the bus number to use.
-> > >>> +
-> > >>> +Example:
-> > >>> +
-> > >>> + aliases {
-> > >>> +		i2c0 = &i2c_A;
-> > >>> +		i2c1 = &i2c_B;
-> > >>> +		i2c2 = &i2c_C;
-> > >>> + };
-> > >> 
-> > >> What is the purpose here?
-> > > 
-> > > Define on which I2C bus this controller operate. I2C client 
-> > > drivers usually do i2c_get_adapter(bus_number) before its
-> > > registration. This is for drivers before invention of
-> > > of_i2c_register_devices(), I believe.
-> > 
-> > Since this is for upstream why dont we use of_i2c_register_devices() and remove this stuff related to aliases.
+> > My understanding is that you can call pm_runtime_enable() several times
+> > (provided that pm_runtime_disable() is called as many times). So that
+> > should have no effect on the current drivers that already take advantage of
+> > runtime PM.
 > 
-> Adapter driver already is using of_i2c_register_devices(). Also OF
-> helper function will/or is already part of i2c_register_adapter().
-> Attempt here was to make it compatible with older i2c client drivers.
+> Not quite...
+> 
+> > There is one difference though -- runtime PM is now blocked by default and
+> > it needs to be unblocked from the userspace per each device.
+> 
+> ...as you say.
+> 
+> This seems crazy, why on earth would we want to have userspace be forced
+> to manually go through every single device and manually enable power
+> saving?  I can't see anyone finding that helpful and it's going to be a
+> pain to deploy.
 
-I agree with Kumar on removing this.  If we decide it is something worth
-keeping, logic to support it doesn't belong in the QUP driver, but in
-the i2c core.
+There are things like HID over I2C devices (e.g touch screen) where going
+to lower power states too aggressively makes the touch experience really
+sluggish. However, other HID over I2C devices like sensor hubs it doesn't
+matter that much. In order to get the best performance we have runtime PM
+blocked by default (and leave it up to the user to unblock to get power
+savings).
 
--- 
-Qualcomm Innovation Center, Inc. is a member of Code Aurora Forum,
-hosted by The Linux Foundation
+That's basically what PCI drivers currently do.
+
+> However I had thought it was just a case of the drivers doing a put()
+> instead of their current code to enable runtime PM (you mention that
+> later on)?
+
+User still needs to unblock runtime PM for the device. The driver can call
+the runtime PM functions but they don't have any effect until runtime PM is
+unblocked by the user.
+
+However, I don't have problems dropping the call to pm_runtime_forbid() in
+this patch and leave it up to the user to decide whether runtime PM should
+be blocked for the device.
+
+> That seems both sensible and doable, though it would need
+> doing as part of the conversion to avoid regressions and I'd expect it
+> does mean that SPI needs to be converted at the same time.
+
+OK.
+
+> > For the advantages compared to each driver handling it completely
+> > themselves:
+> 
+> > 	- Few lines less as you only need to call _put().
+> > 	- It follows what is already been done for other buses, like PCI
+> > 	  and AMBA .
+> > 	- The I2C core makes sure that the device is available (from bus
+> > 	  point of view) when the driver ->probe() is called.
+> 
+> I can't understand your last point here at all, sorry.  Can you expand
+> please?
+
+Sorry about that.
+
+At least with ACPI enumerated I2C client devices, they might be powered off
+by the BIOS (there are power resources attached to the devices). So when
+the driver ->probe() is called we can't access the device's registers etc.
+
+So we bind the device to the ACPI power domain (the second patch in this
+series) and then call pm_runtime_get() for the device. That makes sure that
+the device is accessible when ->probe() is called.
+
+> 
+> > > Given that it's relatively common for devices to have both I2C and SPI
+> > > control it seems like it'd be sensible to keep the policy common between
+> > > the two buses to simplify driver implementation.
+> 
+> > Yes and IMHO if I2C and SPI follows what has already been done for other
+> > buses it should make the driver writer's job easier as the usage is similar
+> > from one bus to another.
+> 
+> So then the obvious followup question is why this is even something that
+> needs to be implemented per bus?  Shouldn't we be enhancing the driver
+> core to do this, or is that the long term plan and this is a step on the
+> road to doing that?
+
+If we end up all buses implementing the same mechanism, I think it makes
+sense to move it to the driver core.
