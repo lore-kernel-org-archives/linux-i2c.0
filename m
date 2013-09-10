@@ -1,51 +1,55 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 3/5] i2c: rcar: add Device Tree support
-Date: Wed, 11 Sep 2013 07:40:54 +0900
-Message-ID: <CANqRtoTrCwd=+m6SPO2TqvvSjEO-m4uMrChxSYs_ZxniA-7dwQ@mail.gmail.com>
+From: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 5/5] i2c: rcar: use per-device clock
+Date: Wed, 11 Sep 2013 07:44:09 +0900
+Message-ID: <CANqRtoSKOOLs1KiOx1gYU9LAH=K9hzZP8xTkgCF8s1=R0Vm3Yg@mail.gmail.com>
 References: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
-	<1378742120-11135-4-git-send-email-g.liakhovetski@gmx.de>
+	<1378742120-11135-6-git-send-email-g.liakhovetski@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1378742120-11135-4-git-send-email-g.liakhovetski@gmx.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, "Simon Horman [Horms]" <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1378742120-11135-6-git-send-email-g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Guennadi,
 
-[CC Simon, Laurent]
-
 On Tue, Sep 10, 2013 at 12:55 AM, Guennadi Liakhovetski
-<g.liakhovetski@gmx.de> wrote:
-> This patch adds Device Tree support to the i2c-rcar driver and respective
-> documentation.
+<g.liakhovetski-Mmb7MZpHnFY@public.gmane.org> wrote:
+> Using the same clock for all device instances is non-portable and obtaining
+> clock references by an ID without using a device pointer is discouraged.
+> This is also not needed, because on platforms, where this driver is used,
+> suitable clocks are available for the I2C controllers, that are children of
+> the peripheral clock and just pass its rate 1-to-1 to controllers. This
+> patch switches the driver to obtain references to correct clocks.
 >
-> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+> Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > ---
->  Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   22 ++++++++++++++++++++
->  drivers/i2c/busses/i2c-rcar.c                      |   20 ++++++++++++++++-
->  2 files changed, 40 insertions(+), 2 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+>  drivers/i2c/busses/i2c-rcar.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
 >
-> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-> new file mode 100644
-> index 0000000..b3c030b
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
-> @@ -0,0 +1,22 @@
-> +I2C for R-Car platforms
-> +
-> +Required properties:
-> +- compatible: Must be one of
-> +       "renesas,i2c-rcar"
-> +       "renesas,i2c-rcar-h1"
-> +       "renesas,i2c-rcar-h2"
+> diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> index 7e71cf4..7b986cb 100644
+> --- a/drivers/i2c/busses/i2c-rcar.c
+> +++ b/drivers/i2c/busses/i2c-rcar.c
+> @@ -227,7 +227,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+>                                     u32 bus_speed,
+>                                     struct device *dev)
+>  {
+> -       struct clk *clkp = clk_get(NULL, "peripheral_clk");
+> +       struct clk *clkp = clk_get(dev, NULL);
+>         u32 scgd, cdf;
+>         u32 round, ick;
+>         u32 scl;
 
-Is this following the same style as other DT patches? It looks to me
-that you may want to use r8a7779 and r8a7790 instead of h1 and h2.
+I agree that passing struct device to clk_get() is a good idea. Thanks
+for spotting this.
 
-Simon, Laurent, what do you think about this?
+What are the run-time dependencies for this patch? Do all affected I2C
+controllers have MSTP bits with proper parents already, or will this
+patch cause breakage for some SoCs?
+
+Thanks,
 
 / magnus
