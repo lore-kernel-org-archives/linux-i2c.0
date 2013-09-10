@@ -1,66 +1,51 @@
-From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 3/5] i2c: rcar: add Device Tree support
-Date: Wed, 11 Sep 2013 07:49:49 +0900
-Message-ID: <CANqRtoRXByHeJP==qbk-VH7HgGBN9MWE1eE1nL88jfYhF1uOXg@mail.gmail.com>
-References: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
-	<1378742120-11135-4-git-send-email-g.liakhovetski@gmx.de>
-	<CANqRtoTrCwd=+m6SPO2TqvvSjEO-m4uMrChxSYs_ZxniA-7dwQ@mail.gmail.com>
-	<1460028.QECHppQ2H2@avalon>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1460028.QECHppQ2H2@avalon>
-Sender: linux-sh-owner@vger.kernel.org
-To: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>, linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, "Simon Horman [Horms]" <horms@verge.net.au>
+From: Luka Perkov <luka-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
+Subject: [PATCH] i2c: imx: retry on NAK
+Date: Wed, 11 Sep 2013 01:58:10 +0200
+Message-ID: <1378857490-30968-1-git-send-email-luka@openwrt.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Luka Perkov <luka-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>, Tim Harvey <tharvey-UMMOYl/HMS+akBO8gow8eQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Laurent,
+From: Tim Harvey <tharvey-UMMOYl/HMS+akBO8gow8eQ@public.gmane.org>
 
-On Wed, Sep 11, 2013 at 7:46 AM, Laurent Pinchart
-<laurent.pinchart@ideasonboard.com> wrote:
-> Hi Magnus,
->
-> On Wednesday 11 September 2013 07:40:54 Magnus Damm wrote:
->> Hi Guennadi,
->>
->> [CC Simon, Laurent]
->>
->> On Tue, Sep 10, 2013 at 12:55 AM, Guennadi Liakhovetski wrote:
->> > This patch adds Device Tree support to the i2c-rcar driver and respective
->> > documentation.
->> >
->> > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
->> > ---
->> >
->> >  Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   22 +++++++++++++++
->> >  drivers/i2c/busses/i2c-rcar.c                      |   20 ++++++++++++++-
->> >  2 files changed, 40 insertions(+), 2 deletions(-)
->> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-rcar.txt
->> >
->> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
->> > b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt new file mode 100644
->> > index 0000000..b3c030b
->> > --- /dev/null
->> > +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
->> > @@ -0,0 +1,22 @@
->> > +I2C for R-Car platforms
->> > +
->> > +Required properties:
->> > +- compatible: Must be one of
->> > +       "renesas,i2c-rcar"
->> > +       "renesas,i2c-rcar-h1"
->> > +       "renesas,i2c-rcar-h2"
->>
->> Is this following the same style as other DT patches? It looks to me
->> that you may want to use r8a7779 and r8a7790 instead of h1 and h2.
->>
->> Simon, Laurent, what do you think about this?
->
-> I think that should be "renesas,i2c-r8a7779" and "renesas,i2c-r8a7790", yes.
+In case of busy i2c try again to get ACK.
 
-Thanks for your comments. I recall that r8a7790 has a bunch of
-channels and at least two types of i2c controllers. I wonder what the
-proper naming would be then...
+Signed-off-by: Tim Harvey <tharvey-UMMOYl/HMS+akBO8gow8eQ@public.gmane.org>
+Tested-by: Luka Perkov <luka-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-imx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-/ magnus
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index ccf4665..c64afe6 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -62,6 +62,7 @@
+ 
+ /* Default value */
+ #define IMX_I2C_BIT_RATE	100000	/* 100kHz */
++#define IMX_I2C_MAX_RETRIES	3	/* number of retries to attempt */
+ 
+ /* IMX I2C registers:
+  * the I2C register offset is different between SoCs,
+@@ -298,7 +299,7 @@ static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
+ {
+ 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
+ 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
+-		return -EIO;  /* No ACK */
++		return -EAGAIN; /* try again */
+ 	}
+ 
+ 	dev_dbg(&i2c_imx->adapter.dev, "<%s> ACK received\n", __func__);
+@@ -633,6 +634,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 	i2c_imx->adapter.dev.parent	= &pdev->dev;
+ 	i2c_imx->adapter.nr 		= pdev->id;
+ 	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
++	i2c_imx->adapter.retries	= IMX_I2C_MAX_RETRIES;
+ 	i2c_imx->base			= base;
+ 
+ 	/* Get I2C clock */
+-- 
+1.8.4
