@@ -1,37 +1,51 @@
 From: Magnus Damm <magnus.damm@gmail.com>
-Subject: Re: [PATCH 2/5] i2c: rcar: get clock rate only once and simplify calculation
-Date: Wed, 11 Sep 2013 07:37:37 +0900
-Message-ID: <CANqRtoRF8CD4hO4m23dqAtNCKvAqHo-+JhZud43SYePB4w5Ong@mail.gmail.com>
+Subject: Re: [PATCH 3/5] i2c: rcar: add Device Tree support
+Date: Wed, 11 Sep 2013 07:40:54 +0900
+Message-ID: <CANqRtoTrCwd=+m6SPO2TqvvSjEO-m4uMrChxSYs_ZxniA-7dwQ@mail.gmail.com>
 References: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
-	<1378742120-11135-3-git-send-email-g.liakhovetski@gmx.de>
+	<1378742120-11135-4-git-send-email-g.liakhovetski@gmx.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1378742120-11135-3-git-send-email-g.liakhovetski@gmx.de>
+In-Reply-To: <1378742120-11135-4-git-send-email-g.liakhovetski@gmx.de>
 Sender: linux-sh-owner@vger.kernel.org
 To: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Cc: linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+Cc: linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>, "Simon Horman [Horms]" <horms@verge.net.au>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 List-Id: linux-i2c@vger.kernel.org
 
 Hi Guennadi,
 
+[CC Simon, Laurent]
+
 On Tue, Sep 10, 2013 at 12:55 AM, Guennadi Liakhovetski
 <g.liakhovetski@gmx.de> wrote:
-> There is no need to repeatedly query clock frequency, where it is not
-> expected to change. The complete loop can also trivially be replaced with
-> a simple division. A further loop below the one, being simplified, could
-> also be replaced, but that would get more complicated.
+> This patch adds Device Tree support to the i2c-rcar driver and respective
+> documentation.
 >
 > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+> ---
+>  Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   22 ++++++++++++++++++++
+>  drivers/i2c/busses/i2c-rcar.c                      |   20 ++++++++++++++++-
+>  2 files changed, 40 insertions(+), 2 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> new file mode 100644
+> index 0000000..b3c030b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> @@ -0,0 +1,22 @@
+> +I2C for R-Car platforms
+> +
+> +Required properties:
+> +- compatible: Must be one of
+> +       "renesas,i2c-rcar"
+> +       "renesas,i2c-rcar-h1"
+> +       "renesas,i2c-rcar-h2"
 
-Thanks for your efforts. What makes you think that you should assume
-that the clock frequency doesn't change?
+Is this following the same style as other DT patches? It looks to me
+that you may want to use r8a7779 and r8a7790 instead of h1 and h2.
 
-As you already know, we want drivers to be reusable across multiple
-SoCs. Assuming it that it would be fixed based on one particular SoC
-doesn't guarantee that that's the case on other SoCs. Which SoCs did
-you take into consideration?
-
-Thanks,
+Simon, Laurent, what do you think about this?
 
 / magnus
