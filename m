@@ -1,36 +1,63 @@
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: [PATCH 1/5] i2c: rcar: (cosmetic) remove superfluous parenthesis
-Date: Mon,  9 Sep 2013 17:55:16 +0200
-Message-ID: <1378742120-11135-2-git-send-email-g.liakhovetski@gmx.de>
-References: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
-Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
-Sender: linux-sh-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C
+ client devices
+Date: Tue, 10 Sep 2013 10:51:00 +0300
+Message-ID: <20130910075100.GK7393@intel.com>
+References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1378733679-19500-2-git-send-email-mika.westerberg@linux.intel.com>
+ <20130909154028.GP29403@sirena.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20130909154028.GP29403@sirena.org.uk>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mark Brown <broonie@kernel.org>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-A recent patch added even more superfluous parenthesis to those, which
-already were there. Remove them again.
+On Mon, Sep 09, 2013 at 04:40:28PM +0100, Mark Brown wrote:
+> On Mon, Sep 09, 2013 at 04:34:38PM +0300, Mika Westerberg wrote:
+> 
+> > +	/*
+> > +	 * Enable runtime PM for the client device. If the client wants to
+> > +	 * participate on runtime PM it should call pm_runtime_put() in its
+> > +	 * probe() callback.
+> > +	 *
+> > +	 * User still needs to allow the PM runtime before it can actually
+> > +	 * happen.
+> > +	 */
+> > +	pm_runtime_forbid(&client->dev);
+> > +	pm_runtime_get_noresume(&client->dev);
+> > +	pm_runtime_set_active(&client->dev);
+> > +	pm_runtime_enable(&client->dev);
+> 
+> How is this going to interact with client devices which are already
+> enabling runtime PM for themselves, and what are the advantages of doing
+> this over having the client device enable runtime PM for itself (given
+> that the client still needs an explicit put() adding)?
 
-Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
----
- drivers/i2c/busses/i2c-rcar.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
+My understanding is that you can call pm_runtime_enable() several times
+(provided that pm_runtime_disable() is called as many times). So that
+should have no effect on the current drivers that already take advantage of
+runtime PM.
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index d2fe11d..15eef94 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -306,7 +306,7 @@ scgd_find:
- 	/*
- 	 * keep icccr value
- 	 */
--	priv->icccr = (scgd << (cdf_width) | cdf);
-+	priv->icccr = scgd << cdf_width | cdf;
- 
- 	return 0;
- }
--- 
-1.7.2.5
+There is one difference though -- runtime PM is now blocked by default and
+it needs to be unblocked from the userspace per each device.
 
+For the advantages compared to each driver handling it completely
+themselves:
+
+	- Few lines less as you only need to call _put().
+	- It follows what is already been done for other buses, like PCI
+	  and AMBA .
+	- The I2C core makes sure that the device is available (from bus
+	  point of view) when the driver ->probe() is called.
+
+> Given that it's relatively common for devices to have both I2C and SPI
+> control it seems like it'd be sensible to keep the policy common between
+> the two buses to simplify driver implementation.
+
+Yes and IMHO if I2C and SPI follows what has already been done for other
+buses it should make the driver writer's job easier as the usage is similar
+from one bus to another.
