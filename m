@@ -1,73 +1,62 @@
-From: Aaron Lu <aaron.lu@intel.com>
-Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C client
- devices
-Date: Wed, 11 Sep 2013 09:01:16 +0800
-Message-ID: <522FC0DC.9030708@intel.com>
-References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com> <3397524.g9aUWuArnm@vostro.rjw.lan> <20130910213522.GG29403@sirena.org.uk> <2029393.u6DaKBPszu@vostro.rjw.lan>
+From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [PATCH 2/5] i2c: rcar: get clock rate only once and simplify
+ calculation
+Date: Wed, 11 Sep 2013 09:03:27 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1309110854200.26942@axis700.grange>
+References: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
+ <1378742120-11135-3-git-send-email-g.liakhovetski@gmx.de>
+ <CANqRtoRF8CD4hO4m23dqAtNCKvAqHo-+JhZud43SYePB4w5Ong@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <2029393.u6DaKBPszu@vostro.rjw.lan>
-Sender: linux-acpi-owner@vger.kernel.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Mark Brown <broonie@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, linux-arm-kernel@lists.infradead.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <CANqRtoRF8CD4hO4m23dqAtNCKvAqHo-+JhZud43SYePB4w5Ong-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/11/2013 06:32 AM, Rafael J. Wysocki wrote:
-> On Tuesday, September 10, 2013 10:35:22 PM Mark Brown wrote:
->> On Tue, Sep 10, 2013 at 10:04:21PM +0200, Rafael J. Wysocki wrote:
->>> On Tuesday, September 10, 2013 05:13:21 PM Mark Brown wrote:
->>
->>>> OK, that is very much not the model which embedded systems follow, in
->>>> embedded systems the driver for the device is fully in control of its
->>>> own power.  It gets resources like GPIOs and regulators which allow it
->>>> to make fine grained decisions.
->>
->>> There are platforms where those resources are simply not available for
->>> direct manipulation and we need to use ACPI methods for power management.
->>
->>> Now, since those methods are used in pretty much the same way for all I2C
->>> devices, we add a PM domain for that to avoid duplicating the same code in
->>> all of the drivers in question (patch [2/2]).  Does that make sense to you?
->>
->> It doesn't seem like a particular problem, but the existing usage does
->> need to be preserved for the systems that use it so things like having
->> auto as the default and updating the drivers seem like they're needed.
->>
->>>> If we're starting to get a reasonable number of buses following the same
->>>> pattern it seems like we're in a position to start 
->>
->>> We need that for exactly 3 buses: platform (already done), I2C and SPI.
->>
->>> No other bus types are going to use ACPI this way for PM, at least for the
->>> time being, simply because PCI, USB and SATA/IDE have their own ways of doing
->>> this (which are bus-specific) and the spec doesn't cover other bus types
->>> directly (it defines support for UART, but we don't have a UART bus type).
->>
->>> Moreover, because PCI and USB use ACPI for PM in their own ways, moving that
->>> thing up to the driver core would be rather inconvenient.
->>
->> That only applies to the power domains though, what Mika was saying was
->> that the process for enabling runtime PM (just drop a reference) also
->> becomes easier with this method regardless of anything else - that makes
->> sense to me as something we might want to end up with so do we want to
->> just move towards making that a default?
+Hi Magnus
+
+Thanks for your comments
+
+On Wed, 11 Sep 2013, Magnus Damm wrote:
+
+> Hi Guennadi,
 > 
-> Possibly. :-)
+> On Tue, Sep 10, 2013 at 12:55 AM, Guennadi Liakhovetski
+> <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org> wrote:
+> > There is no need to repeatedly query clock frequency, where it is not
+> > expected to change. The complete loop can also trivially be replaced with
+> > a simple division. A further loop below the one, being simplified, could
+> > also be replaced, but that would get more complicated.
+> >
+> > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 > 
-> At least I don't see any fundamental obstacles ...
+> Thanks for your efforts. What makes you think that you should assume
+> that the clock frequency doesn't change?
 
-Looks like, it all boils down to how many I2C devices should be allowed
-for runtime PM by default and how many I2C devices should be forbidden.
-, and then we allow/forbid runtime PM for the majority case in I2C core
-while individual driver can still forbid/allow it in their own code.
+Sorry, maybe I didn't explain well enough in the patch description. 
+Please, have a look at the patch. It removes repeated clock rate readings 
+inside a tight loop. I'm aware that the clock rate can change, but there 
+should be a way to make sure, that beginning now and until a certain later 
+point of time the rate doesn't change. Presumably this should be done by 
+locking the clock. I'm not sure this is currently supported by the clock 
+API. Neither clk_get(), nor clk_prepare() nor clk_enable() seem to have 
+the semantics of locking the clock's frequency. Maybe the one who actually 
+prepared the clock should become its owner, but I don't think this is 
+currently the expected behaviour. In either case, I don't think calling 
+clk_get_rate() repeatedly inside _that_ loop makes sense - the rate can 
+anyway be changed after the loop, so, it doesn't add any security.
 
-So if the majority case is runtime PM should be allowed by default, I'm
-also OK to not forbid runtime PM for I2C client device in I2C core. My
-original intention to forbid runtime PM by default is to make sure no
-adverse effect would occur to some I2C devices that used to work well
-before runtime PM.
+Thanks
+Guennadi
 
-Thanks,
-Aaron
+> As you already know, we want drivers to be reusable across multiple
+> SoCs. Assuming it that it would be fixed based on one particular SoC
+> doesn't guarantee that that's the case on other SoCs. Which SoCs did
+> you take into consideration?
+
+---
+Guennadi Liakhovetski, Ph.D.
+Freelance Open-Source Software Developer
+http://www.open-technology.de/
