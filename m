@@ -1,67 +1,89 @@
 From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-Subject: Re: [PATCH 5/5] i2c: rcar: use per-device clock
-Date: Wed, 11 Sep 2013 09:20:21 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1309110908570.26942@axis700.grange>
+Subject: Re: [PATCH 3/5] i2c: rcar: add Device Tree support
+Date: Wed, 11 Sep 2013 09:37:52 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1309110921270.26942@axis700.grange>
 References: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
- <1378742120-11135-6-git-send-email-g.liakhovetski@gmx.de>
- <CANqRtoSKOOLs1KiOx1gYU9LAH=K9hzZP8xTkgCF8s1=R0Vm3Yg@mail.gmail.com>
+ <1378742120-11135-4-git-send-email-g.liakhovetski@gmx.de>
+ <CANqRtoTrCwd=+m6SPO2TqvvSjEO-m4uMrChxSYs_ZxniA-7dwQ@mail.gmail.com>
+ <1460028.QECHppQ2H2@avalon> <CANqRtoRXByHeJP==qbk-VH7HgGBN9MWE1eE1nL88jfYhF1uOXg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Return-path: <linux-sh-owner@vger.kernel.org>
-In-Reply-To: <CANqRtoSKOOLs1KiOx1gYU9LAH=K9hzZP8xTkgCF8s1=R0Vm3Yg@mail.gmail.com>
+In-Reply-To: <CANqRtoRXByHeJP==qbk-VH7HgGBN9MWE1eE1nL88jfYhF1uOXg@mail.gmail.com>
 Sender: linux-sh-owner@vger.kernel.org
 To: Magnus Damm <magnus.damm@gmail.com>
-Cc: linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>, linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, "Simon Horman [Horms]" <horms@verge.net.au>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Magnus,
+Hi Magnus, Laurent
 
 On Wed, 11 Sep 2013, Magnus Damm wrote:
 
-> Hi Guennadi,
+> Hi Laurent,
 > 
-> On Tue, Sep 10, 2013 at 12:55 AM, Guennadi Liakhovetski
-> <g.liakhovetski@gmx.de> wrote:
-> > Using the same clock for all device instances is non-portable and obtaining
-> > clock references by an ID without using a device pointer is discouraged.
-> > This is also not needed, because on platforms, where this driver is used,
-> > suitable clocks are available for the I2C controllers, that are children of
-> > the peripheral clock and just pass its rate 1-to-1 to controllers. This
-> > patch switches the driver to obtain references to correct clocks.
+> On Wed, Sep 11, 2013 at 7:46 AM, Laurent Pinchart
+> <laurent.pinchart@ideasonboard.com> wrote:
+> > Hi Magnus,
 > >
-> > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
-> > ---
-> >  drivers/i2c/busses/i2c-rcar.c |    2 +-
-> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> > On Wednesday 11 September 2013 07:40:54 Magnus Damm wrote:
+> >> Hi Guennadi,
+> >>
+> >> [CC Simon, Laurent]
+> >>
+> >> On Tue, Sep 10, 2013 at 12:55 AM, Guennadi Liakhovetski wrote:
+> >> > This patch adds Device Tree support to the i2c-rcar driver and respective
+> >> > documentation.
+> >> >
+> >> > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+> >> > ---
+> >> >
+> >> >  Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   22 +++++++++++++++
+> >> >  drivers/i2c/busses/i2c-rcar.c                      |   20 ++++++++++++++-
+> >> >  2 files changed, 40 insertions(+), 2 deletions(-)
+> >> >  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> >> >
+> >> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> >> > b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt new file mode 100644
+> >> > index 0000000..b3c030b
+> >> > --- /dev/null
+> >> > +++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+> >> > @@ -0,0 +1,22 @@
+> >> > +I2C for R-Car platforms
+> >> > +
+> >> > +Required properties:
+> >> > +- compatible: Must be one of
+> >> > +       "renesas,i2c-rcar"
+> >> > +       "renesas,i2c-rcar-h1"
+> >> > +       "renesas,i2c-rcar-h2"
+> >>
+> >> Is this following the same style as other DT patches? It looks to me
+> >> that you may want to use r8a7779 and r8a7790 instead of h1 and h2.
+> >>
+> >> Simon, Laurent, what do you think about this?
 > >
-> > diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-> > index 7e71cf4..7b986cb 100644
-> > --- a/drivers/i2c/busses/i2c-rcar.c
-> > +++ b/drivers/i2c/busses/i2c-rcar.c
-> > @@ -227,7 +227,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
-> >                                     u32 bus_speed,
-> >                                     struct device *dev)
-> >  {
-> > -       struct clk *clkp = clk_get(NULL, "peripheral_clk");
-> > +       struct clk *clkp = clk_get(dev, NULL);
-> >         u32 scgd, cdf;
-> >         u32 round, ick;
-> >         u32 scl;
-> 
-> I agree that passing struct device to clk_get() is a good idea. Thanks
-> for spotting this.
-> 
-> What are the run-time dependencies for this patch? Do all affected I2C
-> controllers have MSTP bits with proper parents already, or will this
-> patch cause breakage for some SoCs?
+> > I think that should be "renesas,i2c-r8a7779" and "renesas,i2c-r8a7790", yes.
 
-Currently (Simon's devel branch of 5 days ago as of commit 5cbe867) I only 
-see r8a7778 and r8a7779 using i2c-rcar. They both define clocks like
+Yes, agree, those names look better. I modelled my names after the 
+respective strings in the struct platform_device_id table in the driver, 
+looks like that wasn't a very good idea. Yes, I realise that those 
+platform device ID don't matter much - they aren't a part of any ABI 
+(fortunately), can freely be changed at any time, but maybe it would be 
+good to also try to create them according to a certain pattern... But yes, 
+that's unrelated.
 
-	CLKDEV_DEV_ID("i2c-rcar.0", &mstp_clks[MSTP030]), /* I2C0 */
+> Thanks for your comments. I recall that r8a7790 has a bunch of
+> channels and at least two types of i2c controllers. I wonder what the
+> proper naming would be then...
 
-and similarly for I2C1 - I2C3. So, it looks like it should work, but would 
-be nice to test.
+You're right. r8a7790 has 4 I2C interfaces, each of them can be used with 
+either an i2c-sh_mobile - compatible or an i2c-rcar - compatible 
+controller instance. Some of those interfaces can also be configured to 
+use one of several pin groups.
+
+The i2c-sh_mobile driver already has DT support and it's compatibility 
+string, as added by your patch "i2c: sh_mobile: add device tree support" 
+of almost 1.5 years ago, is "renesas,rmobile-iic", so, it wouldn't clash 
+with the proposed "renesas,i2c-<soc>" naming scheme for i2c-rcar.
 
 Thanks
 Guennadi
