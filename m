@@ -1,62 +1,73 @@
-From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Subject: Re: [PATCH] i2c: davinci: Fix bad dev_get_platdata() conversion
-Date: Wed, 11 Sep 2013 09:27:54 +0900
-Message-ID: <002801ceae85$c1c13070$45439150$%han@samsung.com>
-References: <1378409024-13432-1-git-send-email-olof@lixom.net>
- <20130910092001.GB4625@katana>
- <007401ceae07$a70b41e0$f521c5a0$%han@samsung.com>
- <CAOesGMiNaQyLz3bOQzu4bQ_jJBh=g8uLZxLtHvDEAxefEZYAVQ@mail.gmail.com>
+From: Aaron Lu <aaron.lu@intel.com>
+Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C client
+ devices
+Date: Wed, 11 Sep 2013 09:01:16 +0800
+Message-ID: <522FC0DC.9030708@intel.com>
+References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com> <3397524.g9aUWuArnm@vostro.rjw.lan> <20130910213522.GG29403@sirena.org.uk> <2029393.u6DaKBPszu@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-reply-to: <CAOesGMiNaQyLz3bOQzu4bQ_jJBh=g8uLZxLtHvDEAxefEZYAVQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Content-language: ko
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: 'Olof Johansson' <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, 'Sekhar Nori' <nsekhar-l0cyMroinI0@public.gmane.org>, 'Kevin Hilman' <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <2029393.u6DaKBPszu@vostro.rjw.lan>
+Sender: linux-acpi-owner@vger.kernel.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Mark Brown <broonie@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Wednesday, September 11, 2013 6:27 AM, Olof Johansson wrote:
-> On Tue, Sep 10, 2013 at 2:25 AM, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
-> > On Tuesday, September 10, 2013 6:20 PM, Wolfram Sang wrote:
-> >> On Thu, Sep 05, 2013 at 12:23:44PM -0700, Olof Johansson wrote:
-> >> > commit 6d4028c644e (i2c: use dev_get_platdata()) did a bad conversion
-> >> > of this one case:
-> >> >
-> >> > drivers/i2c/busses/i2c-davinci.c: In function 'davinci_i2c_probe':
-> >> > drivers/i2c/busses/i2c-davinci.c:665:2: warning: passing argument 1 of
-> >> >     'dev_get_platdata' from incompatible pointer type [enabled by default]
-> >> >
-> >> > Cc: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-> >> > Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
-> >>
-> >> Gosh, need to find out why my build-tests failed on that. Thanks!
-> >>
-> >> Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+On 09/11/2013 06:32 AM, Rafael J. Wysocki wrote:
+> On Tuesday, September 10, 2013 10:35:22 PM Mark Brown wrote:
+>> On Tue, Sep 10, 2013 at 10:04:21PM +0200, Rafael J. Wysocki wrote:
+>>> On Tuesday, September 10, 2013 05:13:21 PM Mark Brown wrote:
+>>
+>>>> OK, that is very much not the model which embedded systems follow, in
+>>>> embedded systems the driver for the device is fully in control of its
+>>>> own power.  It gets resources like GPIOs and regulators which allow it
+>>>> to make fine grained decisions.
+>>
+>>> There are platforms where those resources are simply not available for
+>>> direct manipulation and we need to use ACPI methods for power management.
+>>
+>>> Now, since those methods are used in pretty much the same way for all I2C
+>>> devices, we add a PM domain for that to avoid duplicating the same code in
+>>> all of the drivers in question (patch [2/2]).  Does that make sense to you?
+>>
+>> It doesn't seem like a particular problem, but the existing usage does
+>> need to be preserved for the systems that use it so things like having
+>> auto as the default and updating the drivers seem like they're needed.
+>>
+>>>> If we're starting to get a reasonable number of buses following the same
+>>>> pattern it seems like we're in a position to start 
+>>
+>>> We need that for exactly 3 buses: platform (already done), I2C and SPI.
+>>
+>>> No other bus types are going to use ACPI this way for PM, at least for the
+>>> time being, simply because PCI, USB and SATA/IDE have their own ways of doing
+>>> this (which are bus-specific) and the spec doesn't cover other bus types
+>>> directly (it defines support for UART, but we don't have a UART bus type).
+>>
+>>> Moreover, because PCI and USB use ACPI for PM in their own ways, moving that
+>>> thing up to the driver core would be rather inconvenient.
+>>
+>> That only applies to the power domains though, what Mika was saying was
+>> that the process for enabling runtime PM (just drop a reference) also
+>> becomes easier with this method regardless of anything else - that makes
+>> sense to me as something we might want to end up with so do we want to
+>> just move towards making that a default?
 > 
-> Thanks, applied to arm-soc fixes branch.
-
-Thank you very much! :-)
-
+> Possibly. :-)
 > 
-> >>
-> >> Jingoo Han: Did you buildtest?
-> >
-> > I always did builtest for the patch.
-> > However, I cannot know why it makes build error.
-> > Anyway, sorry for making this build error.
-> 
-> No worries, it happens. There was plenty of time to find it in
-> linux-next, the warning started showing up there on 08/22. I should
-> have been faster at noticing.
-> 
+> At least I don't see any fundamental obstacles ...
 
-Hi Olof,
+Looks like, it all boils down to how many I2C devices should be allowed
+for runtime PM by default and how many I2C devices should be forbidden.
+, and then we allow/forbid runtime PM for the majority case in I2C core
+while individual driver can still forbid/allow it in their own code.
 
-I really appreciate your caring.
-I will be more careful next time.
-Thank you. :)
+So if the majority case is runtime PM should be allowed by default, I'm
+also OK to not forbid runtime PM for I2C client device in I2C core. My
+original intention to forbid runtime PM by default is to make sure no
+adverse effect would occur to some I2C devices that used to work well
+before runtime PM.
 
-Best regards,
-Jingoo Han
+Thanks,
+Aaron
