@@ -1,88 +1,68 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2 4/9] [media] s5p-tv: convert to use I2C core runtime PM
-Date: Wed, 11 Sep 2013 18:32:35 +0300
-Message-ID: <1378913560-2752-5-git-send-email-mika.westerberg@linux.intel.com>
+Subject: [PATCH v2 2/9] i2c: attach/detach I2C client device to the ACPI power domain
+Date: Wed, 11 Sep 2013 18:32:33 +0300
+Message-ID: <1378913560-2752-3-git-send-email-mika.westerberg@linux.intel.com>
 References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-The I2C core now prepares runtime PM on behalf of the I2C client device, so
-only thing the driver needs to do is to call pm_runtime_put() at the end of
-its ->probe().
+From: Lv Zheng <lv.zheng@intel.com>
 
-This patch converts s5p-tv driver to use this model.
+If the I2C client device is enumerated from ACPI namespace it might have
+ACPI methods that needs to be called in order to transition the device to
+different power states (such as _PSx).
 
+Implement this for I2C client devices by checking if the device has an ACPI
+handle and if that's the case, attach it to the ACPI power domain. In
+addition we make sure that the device is fully powered when its ->probe()
+function gets called.
+
+For non-ACPI devices this patch is a no-op.
+
+Signed-off-by: Lv Zheng <lv.zheng@intel.com>
 Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 ---
- drivers/media/platform/s5p-tv/sii9234_drv.c | 30 ++++++-----------------------
- 1 file changed, 6 insertions(+), 24 deletions(-)
+ drivers/i2c/i2c-core.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/media/platform/s5p-tv/sii9234_drv.c b/drivers/media/platform/s5p-tv/sii9234_drv.c
-index 3dd762e..c0e8d42 100644
---- a/drivers/media/platform/s5p-tv/sii9234_drv.c
-+++ b/drivers/media/platform/s5p-tv/sii9234_drv.c
-@@ -325,8 +325,7 @@ static int sii9234_probe(struct i2c_client *client,
- 	ctx = devm_kzalloc(&client->dev, sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx) {
- 		dev_err(dev, "out of memory\n");
--		ret = -ENOMEM;
--		goto fail;
-+		return -ENOMEM;
+diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+index 44374b4..ac4ea1f 100644
+--- a/drivers/i2c/i2c-core.c
++++ b/drivers/i2c/i2c-core.c
+@@ -251,6 +251,9 @@ static int i2c_device_probe(struct device *dev)
+ 	/* Make sure the adapter is active */
+ 	pm_runtime_get_sync(&client->adapter->dev);
+ 
++	if (ACPI_HANDLE(&client->dev))
++		acpi_dev_pm_attach(&client->dev, true);
++
+ 	/*
+ 	 * Enable runtime PM for the client device. If the client wants to
+ 	 * participate on runtime PM it should call pm_runtime_put() in its
+@@ -268,6 +271,9 @@ static int i2c_device_probe(struct device *dev)
+ 		pm_runtime_disable(&client->dev);
+ 		pm_runtime_set_suspended(&client->dev);
+ 		pm_runtime_put_noidle(&client->dev);
++
++		if (ACPI_HANDLE(&client->dev))
++			acpi_dev_pm_detach(&client->dev, true);
  	}
- 	ctx->client = client;
  
-@@ -345,42 +344,25 @@ static int sii9234_probe(struct i2c_client *client,
+ 	pm_runtime_put(&client->adapter->dev);
+@@ -304,6 +310,9 @@ static int i2c_device_remove(struct device *dev)
+ 	pm_runtime_set_suspended(&client->dev);
+ 	pm_runtime_put_noidle(&client->dev);
  
- 	v4l2_i2c_subdev_init(&ctx->sd, client, &sii9234_ops);
- 
--	pm_runtime_enable(dev);
--
--	/* enable device */
--	ret = pm_runtime_get_sync(dev);
--	if (ret)
--		goto fail_pm;
--
- 	/* verify chip version */
- 	ret = sii9234_verify_version(client);
--	if (ret)
--		goto fail_pm_get;
-+	if (ret) {
-+		dev_err(dev, "failed to verify chip version\n");
-+		return ret;
-+	}
- 
--	/* stop processing */
- 	pm_runtime_put(dev);
- 
- 	dev_info(dev, "probe successful\n");
- 
- 	return 0;
--
--fail_pm_get:
--	pm_runtime_put_sync(dev);
--
--fail_pm:
--	pm_runtime_disable(dev);
--
--fail:
--	dev_err(dev, "probe failed\n");
--
--	return ret;
++	if (ACPI_HANDLE(&client->dev))
++		acpi_dev_pm_detach(&client->dev, true);
++
+ 	pm_runtime_put(&client->adapter->dev);
+ 	return status;
  }
- 
- static int sii9234_remove(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
- 
--	pm_runtime_disable(dev);
-+	pm_runtime_get(dev);
- 
- 	dev_info(dev, "remove successful\n");
- 
 -- 
 1.8.4.rc3
-
