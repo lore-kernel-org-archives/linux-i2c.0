@@ -1,113 +1,58 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2 3/9] Input: misc - convert existing I2C client drivers to use I2C core runtime PM
-Date: Wed, 11 Sep 2013 18:32:34 +0300
-Message-ID: <1378913560-2752-4-git-send-email-mika.westerberg@linux.intel.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 7/9] ASoC: codecs: convert existing I2C client drivers
+ to use I2C core runtime PM
+Date: Wed, 11 Sep 2013 16:44:33 +0100
+Message-ID: <20130911154433.GV29403@sirena.org.uk>
 References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+ <1378913560-2752-8-git-send-email-mika.westerberg@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="RdaJseOINYw+elgq"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1378913560-2752-8-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The I2C core now prepares runtime PM on behalf of the I2C client device, so
-only thing the driver needs to do is to call pm_runtime_put() at the end of
-->probe().
 
-This patch converts bma150 and mpu3050 input drivers to use this model.
+--RdaJseOINYw+elgq
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-While we are there remove call to pm_runtime_set_autosuspend_delay() in
-mpu3050 driver because the driver doesn't seem to use autosuspend anyway.
+On Wed, Sep 11, 2013 at 06:32:38PM +0300, Mika Westerberg wrote:
+> The I2C core now prepares runtime PM on behalf of the I2C client device, =
+so
+> only thing the driver needs to do is to call pm_runtime_put() at the end =
+of
+> its ->probe().
+>=20
+> This patch converts ASoC codec drivers to use this model.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/input/misc/bma150.c  |  4 ++--
- drivers/input/misc/mpu3050.c | 16 ++++------------
- 2 files changed, 6 insertions(+), 14 deletions(-)
+Acked-by: Mark Brown <broonie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 
-diff --git a/drivers/input/misc/bma150.c b/drivers/input/misc/bma150.c
-index 865c2f9..f1bf5e9 100644
---- a/drivers/input/misc/bma150.c
-+++ b/drivers/input/misc/bma150.c
-@@ -592,7 +592,7 @@ static int bma150_probe(struct i2c_client *client,
- 
- 	i2c_set_clientdata(client, bma150);
- 
--	pm_runtime_enable(&client->dev);
-+	pm_runtime_put(&client->dev);
- 
- 	return 0;
- 
-@@ -605,7 +605,7 @@ static int bma150_remove(struct i2c_client *client)
- {
- 	struct bma150_data *bma150 = i2c_get_clientdata(client);
- 
--	pm_runtime_disable(&client->dev);
-+	pm_runtime_get(&client->dev);
- 
- 	if (client->irq > 0) {
- 		free_irq(client->irq, bma150);
-diff --git a/drivers/input/misc/mpu3050.c b/drivers/input/misc/mpu3050.c
-index dce0d95..9f2ead5 100644
---- a/drivers/input/misc/mpu3050.c
-+++ b/drivers/input/misc/mpu3050.c
-@@ -43,8 +43,6 @@
- 
- #define MPU3050_CHIP_ID		0x69
- 
--#define MPU3050_AUTO_DELAY	1000
--
- #define MPU3050_MIN_VALUE	-32768
- #define MPU3050_MAX_VALUE	32767
- 
-@@ -359,11 +357,9 @@ static int mpu3050_probe(struct i2c_client *client,
- 
- 	input_set_drvdata(idev, sensor);
- 
--	pm_runtime_set_active(&client->dev);
--
- 	error = mpu3050_hw_init(sensor);
- 	if (error)
--		goto err_pm_set_suspended;
-+		goto err_free_mem;
- 
- 	error = request_threaded_irq(client->irq,
- 				     NULL, mpu3050_interrupt_thread,
-@@ -372,7 +368,7 @@ static int mpu3050_probe(struct i2c_client *client,
- 	if (error) {
- 		dev_err(&client->dev,
- 			"can't get IRQ %d, error %d\n", client->irq, error);
--		goto err_pm_set_suspended;
-+		goto err_free_mem;
- 	}
- 
- 	error = input_register_device(idev);
-@@ -381,15 +377,12 @@ static int mpu3050_probe(struct i2c_client *client,
- 		goto err_free_irq;
- 	}
- 
--	pm_runtime_enable(&client->dev);
--	pm_runtime_set_autosuspend_delay(&client->dev, MPU3050_AUTO_DELAY);
-+	pm_runtime_put(&client->dev);
- 
- 	return 0;
- 
- err_free_irq:
- 	free_irq(client->irq, sensor);
--err_pm_set_suspended:
--	pm_runtime_set_suspended(&client->dev);
- err_free_mem:
- 	input_free_device(idev);
- 	kfree(sensor);
-@@ -406,8 +399,7 @@ static int mpu3050_remove(struct i2c_client *client)
- {
- 	struct mpu3050_sensor *sensor = i2c_get_clientdata(client);
- 
--	pm_runtime_disable(&client->dev);
--	pm_runtime_set_suspended(&client->dev);
-+	pm_runtime_get(&client->dev);
- 
- 	free_irq(client->irq, sensor);
- 	input_unregister_device(sensor->idev);
--- 
-1.8.4.rc3
+--RdaJseOINYw+elgq
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSMI/eAAoJELSic+t+oim9z/0P/A6ZGNTBUHEx8uhzDYehvFEG
+LKwfSnTJIOe9460TdRdjMEVDf6cZH49dkt7NiVelLPjcBowzTQTGz87bMcWKsp5J
+29dTzMQEAGCRiFMA6jRMOHmXCqoAKcSOuuCDsOaM5kz2uU3PcJzcsr0XQ/1d2MoI
+54Qajk4sXf8foANj9xEGj5lwfw4Si6sn2zrLQfF2JL1TF1V5Ds8GqlVCL3gghkrc
+svrP+xILdfYwNQr+uoZlrTratsuQ6IRsEFjbxy/xXXbmmJb2OQvhXn87WpoIix8i
+fay+ltNl7l5ZiINiRvdR0VmYraVq0vepq17y0SVkDD1I2vCUGy2PiUhTt1DXSIed
+rj124eW1YJ63Lj2iT58GNJAnDIjjmNSZnvHINs2ob/hRD/NZIg1SZaty7O1Zkav6
+IoaRXgrp9c11E6kCmBoSpkl1ITdRXqMnuEetQxC/SEqXCoRfMTiaAQJWQ7lEdFel
+VwLZzNtp52Ljtz6V571+3ivX+8jeixKmFoBkHmMuI3k/7wWsEzcUcEk4DPcdMhwi
+wCfmpuJqcvfXxfgE647Gy+WFEztNF4N7WGurE2EpGPkRWG7dhto27CjOlsm6SlLm
+wFi7pu94nF+IcJi6rC6uBYrXQr9/ZGs0Ajy/tDvwHb5aW1GSIYtlD6TS9rvMR7z0
+knBHPZK6h5fO7T9wXRH6
+=FjZF
+-----END PGP SIGNATURE-----
+
+--RdaJseOINYw+elgq--
