@@ -1,57 +1,69 @@
-From: "Ivan T. Ivanov" <iivanov@mm-sol.com>
-Subject: Re: [PATCH 2/2] i2c: New bus driver for the QUP I2C controller
-Date: Wed, 11 Sep 2013 10:46:35 +0300
-Message-ID: <1378885595.960.54.camel@iivanov-dev.int.mm-sol.com>
-References: <1377782873-31931-1-git-send-email-iivanov@mm-sol.com>
-	 <1377782873-31931-2-git-send-email-iivanov@mm-sol.com>
-	 <20130910134650.GO808@joshc.qualcomm.com>
-	 <1378825856.960.47.camel@iivanov-dev.int.mm-sol.com>
-	 <20130910153612.GQ808@joshc.qualcomm.com>
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C
+ client devices
+Date: Wed, 11 Sep 2013 10:55:52 +0100
+Message-ID: <20130911095552.GI29403@sirena.org.uk>
+References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
+ <3397524.g9aUWuArnm@vostro.rjw.lan>
+ <20130910213522.GG29403@sirena.org.uk>
+ <2029393.u6DaKBPszu@vostro.rjw.lan>
+ <522FC0DC.9030708@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <20130910153612.GQ808@joshc.qualcomm.com>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Josh Cartwright <joshc@codeaurora.org>
-Cc: wsa@the-dreams.de, rob.herring@calxeda.com, pawel.moll@arm.com, mark.rutland@arm.com, swarren@wwwdotorg.org, ian.campbell@citrix.com, rob@landley.net, grant.likely@linaro.org, gavidov@codeaurora.org, sdharia@codeaurora.org, alokc@codeaurora.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel, linux-arm-msm@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="A1AeHK3WkQzeMGLU"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <522FC0DC.9030708@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Aaron Lu <aaron.lu@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, linux-arm-kernel@lists.infradead.org
 List-Id: linux-i2c@vger.kernel.org
 
-Hi, 
 
-On Tue, 2013-09-10 at 10:36 -0500, Josh Cartwright wrote: 
-> On Tue, Sep 10, 2013 at 06:10:56PM +0300, Ivan T. Ivanov wrote:
-> > On Tue, 2013-09-10 at 08:46 -0500, Josh Cartwright wrote: 
-> > > Hey Ivan-
-> > > 
-> > > Some nits below.
-> > > 
-> > > On Thu, Aug 29, 2013 at 04:27:53PM +0300, Ivan T. Ivanov wrote:
-> [..]
-> > > > +static int qup_i2c_probe(struct platform_device *pdev)
-> > > > +{
-> > > [..]
-> > > > +
-> > > > +	ret = devm_request_irq(qup->dev, qup->irq, qup_i2c_interrupt,
-> > > > +			       IRQF_TRIGGER_HIGH, "i2c_qup", qup);
-> > > > +	if (ret) {
-> > > > +		dev_err(qup->dev, "Request %d IRQ failed\n", qup->irq);
-> > > > +		return ret;
-> > > > +	}
-> > > > +
-> > > > +	disable_irq(qup->irq);
-> > > 
-> > > How is this not racy, in the case where a pending interrupt is left from
-> > > the bootloader (which seems to be possible based on the comments below)?
-> > 
-> > Yes it looks weird. Interrupt handler will check and exit if there
-> > is no message for transfer. I am looking for better way to handle this.
-> 
-> Below in probe() it looks like a controller reset is issued.  I'm
-> wondering if the best way to fix this is to move that up so it happens
-> sooner (so we can assume here that the controller is in a
-> non-interrupting state).
+--A1AeHK3WkQzeMGLU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Thanks, sound reasonable.
+On Wed, Sep 11, 2013 at 09:01:16AM +0800, Aaron Lu wrote:
 
-Ivan
+> Looks like, it all boils down to how many I2C devices should be allowed
+> for runtime PM by default and how many I2C devices should be forbidden.
+> , and then we allow/forbid runtime PM for the majority case in I2C core
+> while individual driver can still forbid/allow it in their own code.
+
+> So if the majority case is runtime PM should be allowed by default, I'm
+> also OK to not forbid runtime PM for I2C client device in I2C core. My
+> original intention to forbid runtime PM by default is to make sure no
+> adverse effect would occur to some I2C devices that used to work well
+> before runtime PM.
+
+The really big problem here is that there are I2C devices currently
+using runtime PM quite happily and forbidding it by default will break
+them.
+
+In general though requiring userspace to manually activate power saving
+features isn't going to make people happy.
+
+--A1AeHK3WkQzeMGLU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSMD4lAAoJELSic+t+oim9MKAP/jfLtDWtc+xh1vePSJpB1iDP
+6FDiNmIpxf9Sa4o7J614lrEwB8FkBH2fhWkJXZVPsZZ0tI3n75uXfasJmwxDH9Cm
+mfPK+Xl7gxss+qiHL/vhlGe2k+ti1bE7wprEE1MXZpGbgCuXPgvRyaZvpzMabqyF
+DHiRqr/dVwaBIwNveMaaiwTLvbT83V+/MWMYCzVUl2xQ1LoDx52JsnyBDy4oLAWV
+SimlDwDY4kHZP+mRoR5kZlAkNeKpHkGktJBQHvt3oyrXn9MzMQ98LlzXhL9X6jW/
+2sP2t5pDf24Ch8WISUOHsO27Jybjdy2ZbRfhugLsGG5mMRjuqxliU0sHfrT5TIDU
+nzXgIeIwPueLNiw5soFmbnr4X2wa8N/EoIxrkdS34lS3Zd45n3tXDOW/UsCKP2lZ
+CZHcJqCbwxGGmBpwtqvs9OYC6bTtUUFzan2Dj7lZfmFSa2HtjZzHvVVXkBOQUFF9
+8SMvjjZhFspxYP7vGGPdotxIoakWMwkkUTBZ9JiKTwyqC79f3a+TJW7UCCdj4Qwf
+WzHASdUMu/sI8WburE/aUufuysVKWACcdzFkgX91u/b3Wn9NYdz5sAhm+rxWgmMu
+xdq1sl7+hEuKTHO3og6mryoKDI80EgZXCsM1MBQe32cvhyuehCdAeG88q95XiGS6
+WB1/8/y8XSVVUebhafYX
+=SvlW
+-----END PGP SIGNATURE-----
+
+--A1AeHK3WkQzeMGLU--
