@@ -1,61 +1,70 @@
-From: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [PATCH 2/5] i2c: rcar: get clock rate only once and simplify
- calculation
-Date: Wed, 11 Sep 2013 09:03:27 +0200 (CEST)
-Message-ID: <Pine.LNX.4.64.1309110854200.26942@axis700.grange>
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: Re: [PATCH 5/5] i2c: rcar: use per-device clock
+Date: Wed, 11 Sep 2013 09:20:21 +0200 (CEST)
+Message-ID: <Pine.LNX.4.64.1309110908570.26942@axis700.grange>
 References: <1378742120-11135-1-git-send-email-g.liakhovetski@gmx.de>
- <1378742120-11135-3-git-send-email-g.liakhovetski@gmx.de>
- <CANqRtoRF8CD4hO4m23dqAtNCKvAqHo-+JhZud43SYePB4w5Ong@mail.gmail.com>
+ <1378742120-11135-6-git-send-email-g.liakhovetski@gmx.de>
+ <CANqRtoSKOOLs1KiOx1gYU9LAH=K9hzZP8xTkgCF8s1=R0Vm3Yg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CANqRtoRF8CD4hO4m23dqAtNCKvAqHo-+JhZud43SYePB4w5Ong-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, SH-Linux <linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <CANqRtoSKOOLs1KiOx1gYU9LAH=K9hzZP8xTkgCF8s1=R0Vm3Yg@mail.gmail.com>
+Sender: linux-sh-owner@vger.kernel.org
+To: Magnus Damm <magnus.damm@gmail.com>
+Cc: linux-i2c@vger.kernel.org, SH-Linux <linux-sh@vger.kernel.org>, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Magnus
-
-Thanks for your comments
+Hi Magnus,
 
 On Wed, 11 Sep 2013, Magnus Damm wrote:
 
 > Hi Guennadi,
 > 
 > On Tue, Sep 10, 2013 at 12:55 AM, Guennadi Liakhovetski
-> <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org> wrote:
-> > There is no need to repeatedly query clock frequency, where it is not
-> > expected to change. The complete loop can also trivially be replaced with
-> > a simple division. A further loop below the one, being simplified, could
-> > also be replaced, but that would get more complicated.
+> <g.liakhovetski@gmx.de> wrote:
+> > Using the same clock for all device instances is non-portable and obtaining
+> > clock references by an ID without using a device pointer is discouraged.
+> > This is also not needed, because on platforms, where this driver is used,
+> > suitable clocks are available for the I2C controllers, that are children of
+> > the peripheral clock and just pass its rate 1-to-1 to controllers. This
+> > patch switches the driver to obtain references to correct clocks.
 > >
-> > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+> > Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+> > ---
+> >  drivers/i2c/busses/i2c-rcar.c |    2 +-
+> >  1 files changed, 1 insertions(+), 1 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+> > index 7e71cf4..7b986cb 100644
+> > --- a/drivers/i2c/busses/i2c-rcar.c
+> > +++ b/drivers/i2c/busses/i2c-rcar.c
+> > @@ -227,7 +227,7 @@ static int rcar_i2c_clock_calculate(struct rcar_i2c_priv *priv,
+> >                                     u32 bus_speed,
+> >                                     struct device *dev)
+> >  {
+> > -       struct clk *clkp = clk_get(NULL, "peripheral_clk");
+> > +       struct clk *clkp = clk_get(dev, NULL);
+> >         u32 scgd, cdf;
+> >         u32 round, ick;
+> >         u32 scl;
 > 
-> Thanks for your efforts. What makes you think that you should assume
-> that the clock frequency doesn't change?
+> I agree that passing struct device to clk_get() is a good idea. Thanks
+> for spotting this.
+> 
+> What are the run-time dependencies for this patch? Do all affected I2C
+> controllers have MSTP bits with proper parents already, or will this
+> patch cause breakage for some SoCs?
 
-Sorry, maybe I didn't explain well enough in the patch description. 
-Please, have a look at the patch. It removes repeated clock rate readings 
-inside a tight loop. I'm aware that the clock rate can change, but there 
-should be a way to make sure, that beginning now and until a certain later 
-point of time the rate doesn't change. Presumably this should be done by 
-locking the clock. I'm not sure this is currently supported by the clock 
-API. Neither clk_get(), nor clk_prepare() nor clk_enable() seem to have 
-the semantics of locking the clock's frequency. Maybe the one who actually 
-prepared the clock should become its owner, but I don't think this is 
-currently the expected behaviour. In either case, I don't think calling 
-clk_get_rate() repeatedly inside _that_ loop makes sense - the rate can 
-anyway be changed after the loop, so, it doesn't add any security.
+Currently (Simon's devel branch of 5 days ago as of commit 5cbe867) I only 
+see r8a7778 and r8a7779 using i2c-rcar. They both define clocks like
+
+	CLKDEV_DEV_ID("i2c-rcar.0", &mstp_clks[MSTP030]), /* I2C0 */
+
+and similarly for I2C1 - I2C3. So, it looks like it should work, but would 
+be nice to test.
 
 Thanks
 Guennadi
-
-> As you already know, we want drivers to be reusable across multiple
-> SoCs. Assuming it that it would be fixed based on one particular SoC
-> doesn't guarantee that that's the case on other SoCs. Which SoCs did
-> you take into consideration?
-
 ---
 Guennadi Liakhovetski, Ph.D.
 Freelance Open-Source Software Developer
