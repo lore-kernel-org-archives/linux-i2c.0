@@ -1,41 +1,88 @@
 From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C
- client devices
-Date: Wed, 11 Sep 2013 14:24:06 +0300
-Message-ID: <20130911112406.GB7393@intel.com>
-References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
- <3397524.g9aUWuArnm@vostro.rjw.lan>
- <20130910213522.GG29403@sirena.org.uk>
- <2029393.u6DaKBPszu@vostro.rjw.lan>
- <522FC0DC.9030708@intel.com>
- <20130911095552.GI29403@sirena.org.uk>
- <20130911110543.GA7393@intel.com>
- <20130911111409.GO29403@sirena.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130911111409.GO29403@sirena.org.uk>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: Aaron Lu <aaron.lu@intel.com>, "Rafael J. Wysocki" <rjw@sisk.pl>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH v2 4/9] [media] s5p-tv: convert to use I2C core runtime PM
+Date: Wed, 11 Sep 2013 18:32:35 +0300
+Message-ID: <1378913560-2752-5-git-send-email-mika.westerberg@linux.intel.com>
+References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Sep 11, 2013 at 12:14:09PM +0100, Mark Brown wrote:
-> On Wed, Sep 11, 2013 at 02:05:43PM +0300, Mika Westerberg wrote:
-> 
-> > I'll also look into converting the existing I2C client drivers to use this
-> > method. One question, though, is it better to have the conversion in the
-> > same patch that introduces the I2C core runtime PM change or as a separate
-> > patch?
-> 
-> In theory it ought to be part of the same patch but in practice a brief
-> bit of bisection breakage on a single branch is probably worth the ease
-> of review from my point of view, others may disagree though.
+The I2C core now prepares runtime PM on behalf of the I2C client device, so
+only thing the driver needs to do is to call pm_runtime_put() at the end of
+its ->probe().
 
-OK, I'll keep them separate, unless there are objections.
+This patch converts s5p-tv driver to use this model.
 
-> Like I say I think you'll need to convert SPI at the same time due to the
-> devices with both buses sharing code.
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+---
+ drivers/media/platform/s5p-tv/sii9234_drv.c | 30 ++++++-----------------------
+ 1 file changed, 6 insertions(+), 24 deletions(-)
 
-Yes, I'm looking into that :)
+diff --git a/drivers/media/platform/s5p-tv/sii9234_drv.c b/drivers/media/platform/s5p-tv/sii9234_drv.c
+index 3dd762e..c0e8d42 100644
+--- a/drivers/media/platform/s5p-tv/sii9234_drv.c
++++ b/drivers/media/platform/s5p-tv/sii9234_drv.c
+@@ -325,8 +325,7 @@ static int sii9234_probe(struct i2c_client *client,
+ 	ctx = devm_kzalloc(&client->dev, sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx) {
+ 		dev_err(dev, "out of memory\n");
+-		ret = -ENOMEM;
+-		goto fail;
++		return -ENOMEM;
+ 	}
+ 	ctx->client = client;
+ 
+@@ -345,42 +344,25 @@ static int sii9234_probe(struct i2c_client *client,
+ 
+ 	v4l2_i2c_subdev_init(&ctx->sd, client, &sii9234_ops);
+ 
+-	pm_runtime_enable(dev);
+-
+-	/* enable device */
+-	ret = pm_runtime_get_sync(dev);
+-	if (ret)
+-		goto fail_pm;
+-
+ 	/* verify chip version */
+ 	ret = sii9234_verify_version(client);
+-	if (ret)
+-		goto fail_pm_get;
++	if (ret) {
++		dev_err(dev, "failed to verify chip version\n");
++		return ret;
++	}
+ 
+-	/* stop processing */
+ 	pm_runtime_put(dev);
+ 
+ 	dev_info(dev, "probe successful\n");
+ 
+ 	return 0;
+-
+-fail_pm_get:
+-	pm_runtime_put_sync(dev);
+-
+-fail_pm:
+-	pm_runtime_disable(dev);
+-
+-fail:
+-	dev_err(dev, "probe failed\n");
+-
+-	return ret;
+ }
+ 
+ static int sii9234_remove(struct i2c_client *client)
+ {
+ 	struct device *dev = &client->dev;
+ 
+-	pm_runtime_disable(dev);
++	pm_runtime_get(dev);
+ 
+ 	dev_info(dev, "remove successful\n");
+ 
+-- 
+1.8.4.rc3
+
