@@ -1,51 +1,62 @@
-From: Luka Perkov <luka-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
-Subject: [PATCH] i2c: imx: retry on NAK
-Date: Wed, 11 Sep 2013 01:58:10 +0200
-Message-ID: <1378857490-30968-1-git-send-email-luka@openwrt.org>
+From: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH] i2c: davinci: Fix bad dev_get_platdata() conversion
+Date: Wed, 11 Sep 2013 09:27:54 +0900
+Message-ID: <002801ceae85$c1c13070$45439150$%han@samsung.com>
+References: <1378409024-13432-1-git-send-email-olof@lixom.net>
+ <20130910092001.GB4625@katana>
+ <007401ceae07$a70b41e0$f521c5a0$%han@samsung.com>
+ <CAOesGMiNaQyLz3bOQzu4bQ_jJBh=g8uLZxLtHvDEAxefEZYAVQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-reply-to: <CAOesGMiNaQyLz3bOQzu4bQ_jJBh=g8uLZxLtHvDEAxefEZYAVQ-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-language: ko
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Luka Perkov <luka-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>, Tim Harvey <tharvey-UMMOYl/HMS+akBO8gow8eQ@public.gmane.org>
+To: 'Olof Johansson' <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+Cc: 'Wolfram Sang' <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, 'Sekhar Nori' <nsekhar-l0cyMroinI0@public.gmane.org>, 'Kevin Hilman' <khilman-1D3HCaltpLuhEniVeURVKkEOCMrvLtNR@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, 'Jingoo Han' <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Tim Harvey <tharvey-UMMOYl/HMS+akBO8gow8eQ@public.gmane.org>
+On Wednesday, September 11, 2013 6:27 AM, Olof Johansson wrote:
+> On Tue, Sep 10, 2013 at 2:25 AM, Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
+> > On Tuesday, September 10, 2013 6:20 PM, Wolfram Sang wrote:
+> >> On Thu, Sep 05, 2013 at 12:23:44PM -0700, Olof Johansson wrote:
+> >> > commit 6d4028c644e (i2c: use dev_get_platdata()) did a bad conversion
+> >> > of this one case:
+> >> >
+> >> > drivers/i2c/busses/i2c-davinci.c: In function 'davinci_i2c_probe':
+> >> > drivers/i2c/busses/i2c-davinci.c:665:2: warning: passing argument 1 of
+> >> >     'dev_get_platdata' from incompatible pointer type [enabled by default]
+> >> >
+> >> > Cc: Jingoo Han <jg1.han-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+> >> > Signed-off-by: Olof Johansson <olof-nZhT3qVonbNeoWH0uzbU5w@public.gmane.org>
+> >>
+> >> Gosh, need to find out why my build-tests failed on that. Thanks!
+> >>
+> >> Acked-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> 
+> Thanks, applied to arm-soc fixes branch.
 
-In case of busy i2c try again to get ACK.
+Thank you very much! :-)
 
-Signed-off-by: Tim Harvey <tharvey-UMMOYl/HMS+akBO8gow8eQ@public.gmane.org>
-Tested-by: Luka Perkov <luka-p3rKhJxN3npAfugRpC6u6w@public.gmane.org>
----
- drivers/i2c/busses/i2c-imx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> >>
+> >> Jingoo Han: Did you buildtest?
+> >
+> > I always did builtest for the patch.
+> > However, I cannot know why it makes build error.
+> > Anyway, sorry for making this build error.
+> 
+> No worries, it happens. There was plenty of time to find it in
+> linux-next, the warning started showing up there on 08/22. I should
+> have been faster at noticing.
+> 
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index ccf4665..c64afe6 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -62,6 +62,7 @@
- 
- /* Default value */
- #define IMX_I2C_BIT_RATE	100000	/* 100kHz */
-+#define IMX_I2C_MAX_RETRIES	3	/* number of retries to attempt */
- 
- /* IMX I2C registers:
-  * the I2C register offset is different between SoCs,
-@@ -298,7 +299,7 @@ static int i2c_imx_acked(struct imx_i2c_struct *i2c_imx)
- {
- 	if (imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR) & I2SR_RXAK) {
- 		dev_dbg(&i2c_imx->adapter.dev, "<%s> No ACK\n", __func__);
--		return -EIO;  /* No ACK */
-+		return -EAGAIN; /* try again */
- 	}
- 
- 	dev_dbg(&i2c_imx->adapter.dev, "<%s> ACK received\n", __func__);
-@@ -633,6 +634,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
- 	i2c_imx->adapter.dev.parent	= &pdev->dev;
- 	i2c_imx->adapter.nr 		= pdev->id;
- 	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
-+	i2c_imx->adapter.retries	= IMX_I2C_MAX_RETRIES;
- 	i2c_imx->base			= base;
- 
- 	/* Get I2C clock */
--- 
-1.8.4
+Hi Olof,
+
+I really appreciate your caring.
+I will be more careful next time.
+Thank you. :)
+
+Best regards,
+Jingoo Han
