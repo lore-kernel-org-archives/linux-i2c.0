@@ -1,46 +1,65 @@
-From: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client devices
-Date: Thu, 12 Sep 2013 14:40:15 -0700
-Message-ID: <CAGa+x85vxX8dbmk-8mOEQ03q6Ud1a-OfnV7t5-rNtu06vn_cSQ@mail.gmail.com>
-References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
-	<1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
-	<87vc25pvvm.fsf@linaro.org>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH RESEND 1/2] i2c: prepare runtime PM support for I2C
+ client devices
+Date: Thu, 12 Sep 2013 23:01:38 +0100
+Message-ID: <20130912220138.GY29403@sirena.org.uk>
+References: <1378733679-19500-1-git-send-email-mika.westerberg@linux.intel.com>
+ <3397524.g9aUWuArnm@vostro.rjw.lan>
+ <20130910213522.GG29403@sirena.org.uk>
+ <2029393.u6DaKBPszu@vostro.rjw.lan>
+ <522FC0DC.9030708@intel.com>
+ <87eh8trbob.fsf@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="579wq2TFqgNMeWbK"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <87vc25pvvm.fsf-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <87eh8trbob.fsf-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, LKML <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 12, 2013 at 2:34 PM, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org> wrote:
-> Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> writes:
->
->> From: Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
->>
->> This patch adds runtime PM support for the I2C bus in a similar way that
->> has been done for PCI bus already. This means that the I2C bus core
->> prepares runtime PM for a client device just before a driver is about to be
->> bound to it. Devices that are not bound to any driver are not prepared for
->> runtime PM.
->>
->> In order to take advantage of this runtime PM support, the client device
->> driver needs drop the device runtime PM reference count by calling
->> pm_runtime_put() in its ->probe() callback and possibly implement rest of
->> the runtime PM callbacks.
->>
->> If the driver doesn't support runtime PM (like most of the existing I2C
->> client drivers), the device in question is regarded as being runtime PM
->> active and powered on.
->
-> But for existing drivers which already support runtime PM (at least 7 by
-> a quick grep), they will be stuck runtime enabled and stop hitting
-> low-power states after this patch.
 
-Oops, nevermind.  I was mixing this up with runtime PM on the i2c
-adapter but this is for the i2c client.
+--579wq2TFqgNMeWbK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Sorry for the noise.
+On Thu, Sep 12, 2013 at 02:07:48PM -0700, Kevin Hilman wrote:
 
-Kevin
+> IMO, this decision belongs to the PM domain, not to the core.  We have
+> an established legacy with the current core default (auto) and changing
+> that means lots of breakage.
+
+Yup.
+
+> The "forbid by default" can just as easily be handled in the PM domain
+> for the group of devices that need it, so why not do it there?
+
+Or at the device level - I'd guess most I2C devices won't end up in a
+domain outside of ACPI.  Mika's latest version of the patches address
+this issue, the default is left alone.
+
+--579wq2TFqgNMeWbK
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSMjm/AAoJELSic+t+oim9+QEP/0k8z1eX7gkWT8LZAirKrNCV
+bIrjbPcaafu6bZZWM3jZYmM6Lv7/OzHDoPlBIBzYVUfmqnAavjt/XGIrUV1DEmN3
+RCTYLDOIVvci7CAt94kOcNlcEQymU3iLbPFYaMNFKUQMl2VE96S23MVbZQBuY/21
+2g0kjU/dE05/k6fwe0kH43FnQSrMg3pZ6iQjpEC4HvwPLReJwvDoMylJEX+dUCrY
+nDhrhG+G3/pJA6dJ1FlHatuaDybQEDO9B4rhGratsRfCro8I74ETKdnaOJL0ls7r
+mbNb7cWJ88G4Xfn68P8kkyI9ZsbvBrcjFUXHIaxMxFZD/EKiE66+0ZuCC5D5MPmT
+fvwruMvzAIfXqYIhquazx183VipEVfZYNMUh35Q/0XTx2d+lUcB3dYMmmsl/r+1C
+n38IXGiv+vOrXpt6AREcJj6Kdsy2atqNyl7a2/y6/mhW9ZEbsHykgm4tSobLo+6v
++plONpdkTuQ7rEPnk7moqw7k0UKaIgzpDgGCA06/XIa3CAbcw8t9NY8gsiQ5cyr0
+88lsjorpVi1OmpJT/uyNVefIF4n9JAYkuh9Uc4NheCCwKsMB4K1H/zLxGCav9eYJ
+m1zgZXkcY/TcE3g9KWn5cD0G2ZIDd7oQpXKdZ7YBAgyZox1mq6obVwIffO3Gt5+X
+H6/TyjtLAcnfR+JgGHlX
+=W0wz
+-----END PGP SIGNATURE-----
+
+--579wq2TFqgNMeWbK--
