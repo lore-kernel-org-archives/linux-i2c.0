@@ -1,43 +1,119 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 8/9] spi: prepare runtime PM support for SPI devices
-Date: Thu, 12 Sep 2013 15:25:03 +0300
-Message-ID: <20130912122503.GS7393@intel.com>
-References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
- <20130912093145.GA29403@sirena.org.uk>
- <20130912094302.GM7393@intel.com>
- <14222641.vVF4lKBqCB@vostro.rjw.lan>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <14222641.vVF4lKBqCB-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
+Subject: [PATCH v2 3/5] i2c: rcar: add Device Tree support
+Date: Thu, 12 Sep 2013 14:36:46 +0200
+Message-ID: <1378989408-10618-4-git-send-email-g.liakhovetski@gmx.de>
+References: <1378989408-10618-1-git-send-email-g.liakhovetski@gmx.de>
+Return-path: <linux-sh-owner@vger.kernel.org>
+In-Reply-To: <1378989408-10618-1-git-send-email-g.liakhovetski@gmx.de>
+Sender: linux-sh-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org
+Cc: Magnus Damm <magnus.damm@gmail.com>, linux-sh@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, devicetree@vger.kernel.org, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 12, 2013 at 01:04:55PM +0200, Rafael J. Wysocki wrote:
-> On Thursday, September 12, 2013 12:43:02 PM Mika Westerberg wrote:
-> > On Thu, Sep 12, 2013 at 10:31:45AM +0100, Mark Brown wrote:
-> > > On Thu, Sep 12, 2013 at 12:27:43PM +0300, Mika Westerberg wrote:
-> > > > On Wed, Sep 11, 2013 at 04:51:20PM +0100, Mark Brown wrote:
-> > > 
-> > > > > I would be able to have this and the other patch in the SPI tree in case
-> > > > > it overlaps with other work - I'm not sure what the plan will be for
-> > > > > merging this stuff but if there were a branch which I could merge into
-> > > > > the SPI tree that'd be good.
-> > > 
-> > > > I think these two can go via your SPI tree as they shouldn't have
-> > > > dependencies to the I2C tree.
-> > > 
-> > > There's all the driver changes though - it seems best to push the whole
-> > > series through one branch so there's fewer bisection problems.
-> > 
-> > Ah, right. Then I suppose the right tree would be the I2C tree (as majority
-> > of the patches are I2C related)?
-> > 
-> > Wolfram, are you OK with this?
-> 
-> Alternatively, I can apply them too if everyone is OK with that.
+This patch adds Device Tree support to the i2c-rcar driver and respective
+documentation.
 
-Sounds good to me, thanks!
+Signed-off-by: Guennadi Liakhovetski <g.liakhovetski+renesas@gmail.com>
+---
+
+v2: change compatibility string to the common <unit>-<soc> format
+
+ Documentation/devicetree/bindings/i2c/i2c-rcar.txt |   22 ++++++++++++++++++++
+ drivers/i2c/busses/i2c-rcar.c                      |   21 +++++++++++++++++-
+ 2 files changed, 41 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-rcar.txt b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+new file mode 100644
+index 0000000..b3c030b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/i2c-rcar.txt
+@@ -0,0 +1,23 @@
++I2C for R-Car platforms
++
++Required properties:
++- compatible: Must be one of
++	"renesas,i2c-rcar"
++	"renesas,i2c-r8a7778"
++	"renesas,i2c-r8a7779"
++	"renesas,i2c-r8a7790"
++- reg: physical base address of the controller and length of memory mapped
++  region.
++- interrupts: interrupt specifier.
++
++Optional properties:
++- clock-frequency: desired I2C bus clock frequency in Hz. The absence of this
++  propoerty indicates the default frequency 100 kHz.
++
++Examples :
++
++i2c0: i2c@e6500000 {
++	compatible = "renesas,i2c-rcar-h2";
++	reg = <0 0xe6500000 0 0x428>;
++	interrupts = <0 174 0x4>;
++};
+diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
+index 9325db4..1f285a3 100644
+--- a/drivers/i2c/busses/i2c-rcar.c
++++ b/drivers/i2c/busses/i2c-rcar.c
+@@ -33,6 +33,7 @@
+ #include <linux/i2c/i2c-rcar.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+@@ -638,6 +639,15 @@ static const struct i2c_algorithm rcar_i2c_algo = {
+ 	.functionality	= rcar_i2c_func,
+ };
+ 
++static const struct of_device_id rcar_i2c_dt_ids[] = {
++	{ .compatible = "renesas,i2c-rcar", .data = (void *)I2C_RCAR_H1 },
++	{ .compatible = "renesas,i2c-r8a7778", .data = (void *)I2C_RCAR_H1 },
++	{ .compatible = "renesas,i2c-r8a7779", .data = (void *)I2C_RCAR_H1 },
++	{ .compatible = "renesas,i2c-r8a7790", .data = (void *)I2C_RCAR_H2 },
++	{},
++};
++MODULE_DEVICE_TABLE(of, rcar_i2c_dt_ids);
++
+ static int rcar_i2c_probe(struct platform_device *pdev)
+ {
+ 	struct i2c_rcar_platform_data *pdata = dev_get_platdata(&pdev->dev);
+@@ -655,10 +665,15 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	bus_speed = 100000; /* default 100 kHz */
+-	if (pdata && pdata->bus_speed)
++	ret = of_property_read_u32(dev->of_node, "clock-frequency", &bus_speed);
++	if (ret < 0 && pdata && pdata->bus_speed)
+ 		bus_speed = pdata->bus_speed;
+ 
+-	priv->devtype = platform_get_device_id(pdev)->driver_data;
++	if (pdev->dev.of_node)
++		priv->devtype = (long)of_match_device(rcar_i2c_dt_ids,
++						      dev)->data;
++	else
++		priv->devtype = platform_get_device_id(pdev)->driver_data;
+ 
+ 	ret = rcar_i2c_clock_calculate(priv, bus_speed, dev);
+ 	if (ret < 0)
+@@ -679,6 +694,7 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 	adap->class		= I2C_CLASS_HWMON | I2C_CLASS_SPD;
+ 	adap->retries		= 3;
+ 	adap->dev.parent	= dev;
++	adap->dev.of_node	= dev->of_node;
+ 	i2c_set_adapdata(adap, priv);
+ 	strlcpy(adap->name, pdev->name, sizeof(adap->name));
+ 
+@@ -726,6 +742,7 @@ static struct platform_driver rcar_i2c_driver = {
+ 	.driver	= {
+ 		.name	= "i2c-rcar",
+ 		.owner	= THIS_MODULE,
++		.of_match_table = rcar_i2c_dt_ids,
+ 	},
+ 	.probe		= rcar_i2c_probe,
+ 	.remove		= rcar_i2c_remove,
+-- 
+1.7.2.5
+
