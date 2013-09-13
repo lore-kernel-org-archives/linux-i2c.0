@@ -1,38 +1,64 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Mark Brown <broonie@kernel.org>
 Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
  devices
-Date: Fri, 13 Sep 2013 13:16:11 +0300
-Message-ID: <20130913101611.GA7393@intel.com>
+Date: Fri, 13 Sep 2013 11:31:52 +0100
+Message-ID: <20130913103152.GE29403@sirena.org.uk>
 References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
  <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
  <87vc25pvvm.fsf@linaro.org>
  <20130913065434.GZ7393@intel.com>
  <20130913095950.GA29403@sirena.org.uk>
+ <20130913101611.GA7393@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="jNrv5tQKhTiGHXva"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20130913095950.GA29403-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20130913101611.GA7393@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Kevin Hilman <khilman@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 13, 2013 at 10:59:50AM +0100, Mark Brown wrote:
-> On Fri, Sep 13, 2013 at 09:54:34AM +0300, Mika Westerberg wrote:
-> > On Thu, Sep 12, 2013 at 02:34:21PM -0700, Kevin Hilman wrote:
-> 
-> > > For hardware that is disabled/powered-off on startup, there will now be
-> > > a mismatch between the hardware state an the RPM core state.
-> 
-> > The call to pm_runtime_get_noresume() should make sure that the device is
-> > in active state (at least in state where it can access the bus) if I'm
-> > understanding this right.
-> 
-> Accessing the bus isn't an issue for I2C outside of ACPI, the power
-> management of the device is totally disassociated from the bus and the
-> controller is responsible for ensuring it is available during transfers.
 
-Yes, but since we want to support ACPI as well, we must make sure that the
-adapter (and the associated controller) is available when client ->probe()
-is called.
+--jNrv5tQKhTiGHXva
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Fri, Sep 13, 2013 at 01:16:11PM +0300, Mika Westerberg wrote:
+> On Fri, Sep 13, 2013 at 10:59:50AM +0100, Mark Brown wrote:
+
+> > Accessing the bus isn't an issue for I2C outside of ACPI, the power
+> > management of the device is totally disassociated from the bus and the
+> > controller is responsible for ensuring it is available during transfers.
+
+> Yes, but since we want to support ACPI as well, we must make sure that the
+> adapter (and the associated controller) is available when client ->probe()
+> is called.
+
+Right, but this probably needs to be highlighted more since it's a very
+surprising thing for I2C and is causing confusion.
+
+--jNrv5tQKhTiGHXva
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSMumVAAoJELSic+t+oim9U/QP/jBIbZVAuivQa9jwZnFzNXzp
+pNBC0SovLUakD81SnMLL/M56s1Do4S8W25VPU9xMnFIga2Wfj62KjBbk2sfCmU7M
+PoQfTbxGuqwc8M4NzS4kQ5DI5x0uXlFqRC6/yG4bsU/HWzYO07askYd81u9GBkvw
+CRzF5z45M+aJko3FEpg23tBaASlMkCDPipuUFwqwE1WV3LFAgBGQNbYfLQN5qJru
+AeWTgUOWcArPshJtKuYZi8wbjek0Qs438pU0uc/LGEc+e1vz7ybxPnalfwyeEmKd
+LkIrNOPPBkJDLdxjfwYslzyg/WTpkhTSO1I8ICs2lvTw+nIJaveZYTvRi+t7bkjC
+sqy8NVD1fMUuqjx6PsSoBTo0htJK07Cs7qiItDdC5vgYx0Sqy4Uw7rZzGqnFDJqx
+wak1/LnZWcC5yd7JLjcpCyk43Cr64gsEnP4ZSEvYW/GE6IRWkeA2q1nT2qlzWThm
+cODhK3rST029z0SVhYd2nEQ7c4W97gzdoVXLpdO2ibD09GzlEeoIm+pWq/nUF2X4
+iWEADrxmkrd+FMGpeXwAqvi/fpXMnTPrI9STxPWV/MBlPtkE7JXkk9BOPWL7n/qN
+l7IczQmL90MpqKIBJYo6GHuw/esSja7rOH+F+C5h8oVt7B/5XoMqtzPmDLGbWFcr
+6nBTfGdUiy7oS4eYhikh
+=OceB
+-----END PGP SIGNATURE-----
+
+--jNrv5tQKhTiGHXva--
