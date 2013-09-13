@@ -1,100 +1,118 @@
 From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
  devices
-Date: Fri, 13 Sep 2013 18:40:13 +0300
-Message-ID: <20130913154013.GD7393@intel.com>
+Date: Fri, 13 Sep 2013 20:31:49 +0300
+Message-ID: <20130913173149.GE7393@intel.com>
 References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
  <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
  <87vc25pvvm.fsf@linaro.org>
  <20130913065434.GZ7393@intel.com>
- <52332BF0.4060605@samsung.com>
+ <87bo3whjz4.fsf@linaro.org>
+ <20130913145022.GC7393@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52332BF0.4060605-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20130913145022.GC7393-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+To: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 13, 2013 at 05:14:56PM +0200, Sylwester Nawrocki wrote:
-> On 09/13/2013 08:54 AM, Mika Westerberg wrote:
-> > On Thu, Sep 12, 2013 at 02:34:21PM -0700, Kevin Hilman wrote:
-> >>> > > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> >>> > > index f32ca29..44374b4 100644
-> >>> > > --- a/drivers/i2c/i2c-core.c
-> >>> > > +++ b/drivers/i2c/i2c-core.c
-> >>> > > @@ -248,11 +248,30 @@ static int i2c_device_probe(struct device *dev)
-> >>> > >  					client->flags & I2C_CLIENT_WAKE);
-> >>> > >  	dev_dbg(dev, "probe\n");
-> >>> > >  
-> >>> > > +	/* Make sure the adapter is active */
-> >>> > > +	pm_runtime_get_sync(&client->adapter->dev);
-> >>> > > +
-> >>> > > +	/*
-> >>> > > +	 * Enable runtime PM for the client device. If the client wants to
-> >>> > > +	 * participate on runtime PM it should call pm_runtime_put() in its
-> >>> > > +	 * probe() callback.
-> >>> > > +	 */
-> >>> > > +	pm_runtime_get_noresume(&client->dev);
-> >>> > > +	pm_runtime_set_active(&client->dev);
-> >> > 
-> >> > Why the set_active here?
-> >> > 
-> >> > For hardware that is disabled/powered-off on startup, there will now be
-> >> > a mismatch between the hardware state an the RPM core state.
-> >
-> > The call to pm_runtime_get_noresume() should make sure that the device is
-> > in active state (at least in state where it can access the bus) if I'm
-> > understanding this right.
+On Fri, Sep 13, 2013 at 05:50:22PM +0300, Mika Westerberg wrote:
+> On Fri, Sep 13, 2013 at 07:30:55AM -0700, Kevin Hilman wrote:
+> > Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org> writes:
+> > 
+> > > On Thu, Sep 12, 2013 at 02:34:21PM -0700, Kevin Hilman wrote:
+> > >> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+> > >> > index f32ca29..44374b4 100644
+> > >> > --- a/drivers/i2c/i2c-core.c
+> > >> > +++ b/drivers/i2c/i2c-core.c
+> > >> > @@ -248,11 +248,30 @@ static int i2c_device_probe(struct device *dev)
+> > >> >  					client->flags & I2C_CLIENT_WAKE);
+> > >> >  	dev_dbg(dev, "probe\n");
+> > >> >  
+> > >> > +	/* Make sure the adapter is active */
+> > >> > +	pm_runtime_get_sync(&client->adapter->dev);
+> > >> > +
+> > >> > +	/*
+> > >> > +	 * Enable runtime PM for the client device. If the client wants to
+> > >> > +	 * participate on runtime PM it should call pm_runtime_put() in its
+> > >> > +	 * probe() callback.
+> > >> > +	 */
+> > >> > +	pm_runtime_get_noresume(&client->dev);
+> > >> > +	pm_runtime_set_active(&client->dev);
+> > >> 
+> > >> Why the set_active here?
+> > >> 
+> > >> For hardware that is disabled/powered-off on startup, there will now be
+> > >> a mismatch between the hardware state an the RPM core state.
+> > >
+> > > The call to pm_runtime_get_noresume() should make sure that the device is
+> > > in active state (at least in state where it can access the bus) if I'm
+> > > understanding this right.
+> > 
+> > No, after _get_noresume(), nothing happens to the hardware.  It simply
+> > increments the usecount.  From pm_runtime.h:
+> > 
+> > static inline void pm_runtime_get_noresume(struct device *dev)
+> > {
+> > 	atomic_inc(&dev->power.usage_count);
+> > }
+> > 
+> > So after the _get_noresume() and _set_active() you're very likely to
+> > have a disconnect between the hardware state and what state RPM thinks
+> > the hardware is in.
 > 
-> I can't see how this would happen. How runtime_resume/runtime_suspend
-> callbacks would get invoked with this code, if, e.g. originally driver called 
-> pm_runtime_enable(), pm_runtime_get_sync(), pm_runtime_put_sync() in probe() ? 
+> Good point.
+> 
+> I suppose calling pm_runtime_get() here would work (and make the state
+> active in all case)? I used _noresume() here because at this point the
+> driver itself hasn't had change to install it's RPM hooks.
 
-The driver callbacks are not called but if the device has been attached to
-a power domain (like we do with ACPI) the power domain callbacks get called
-and it brings the "bus" to such state that we are able to access the
-device. That also was the reason I used _noresume() but didn't look too
-close the implementation.
+I take that back.
 
-> pm_runtime_get_noresume() merely increments usage counter of a device. 
-> It seems that these changes will break the s5p-tv driver. I might be missing 
-> something though.
+[ It has been some time since this code was originally written so I can't
+remember all the details :-/ ]
 
-You are right and Kevin also mentioned this. It should be pm_runtime_get(),
-if I'm not mistaken.
+The pm_runtime_get_noresume() is there just to increment the refcount. It
+has nothing to do to "activate" the device in question. Sorry about the
+confusion from my part.
 
-> As Mark pointed out this is currently unwanted behaviour to runtime PM
-> activate a bus controller device manually in the core for when the client's
-> probe() is executed, since i2c core will activate the bus controller for when 
-> transfer is being carried out.  
->
-> But I can understand this is needed for ACPI and it shouldn't break existing
-> drivers, that do runtime PM activate the client device in probe().
+This is what happens in case the device is enumerated from ACPI:
 
-Indeed, we don't want to break anything (and we still need something like
-this for ACPI).
+	// This makes sure that the controller itself is powered on
+	// (adapter device follows its parent which is the controller). The
+	// controller is attached to the ACPI power domain so it is
+	// brought to D0 now.
+	pm_runtime_get_sync(&client->adapter->dev);
 
-> Now I'm sure this will break power management of the drivers/media/exynos4-is
-> driver, due to incorrect power sequence (power domain and clocks handling).
-> I'll try to take care of it in separate patch, as I have some patches pending,
-> that move most of code from drivers/media/exynos4-is/fimc-is-sensor.c to 
-> drivers/media/i2c/s5k6a3.c.
+	// This binds the client device to the ACPI power domain, and in
+	// addition to that brings the client device to D0.
+	if (ACPI_HANDLE(&client->dev))
+		acpi_dev_pm_attach(&client->dev, true);
 
-I missed that code when I converted existing users to this method. Sorry
-about that (I can handle that in the next version).
+	// Increase the refcount so that client can start runtime PM
+	// transitions when it calls _put().
+	pm_runtime_get_noresume(&client->dev);
 
-I quickly looked at it and I don't see anything that could break (once
-converted). What it does is this:
+	// Mark the device being active as
+	//  1) In ACPI case we know that is true as we just powered the
+	//     device on.
+	//  2) We treat the device by default to be runtime PM active and
+	//     powered on (that's in the changelog and should follow what
+	//     the PCI bus did).
+	pm_runtime_set_active(&client->dev);
 
-	pm_runtime_no_callbacks(dev);
-	pm_runtime_enable(dev);
+	// Enable runtime PM but nothing happens yet as long as the client
+	// driver doesn't call _put().
+	pm_runtime_enable(&client->dev);
 
-changing that to:
+So, yes there might be a disconnect between the runtime PM state and the
+device HW state now (same is with default to suspended).
 
-	pm_runtime_no_callbacks(dev);
-	pm_runtime_put(dev);
-
-shouldn't cause problems AFAICT.
+When the driver ->probe() is called, it needs to power on the device (which
+it probably needs to do anyway to be able to talk to the device and probe
+its registers, etc.). Once the driver calls _put() the device is eventually
+moved to suspended state (and its RPM hooks are called). I might be missing
+something but is there a case where this is not beneficial?
