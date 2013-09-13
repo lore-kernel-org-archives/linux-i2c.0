@@ -1,64 +1,61 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
- devices
-Date: Fri, 13 Sep 2013 13:10:59 +0100
-Message-ID: <20130913121059.GL29403@sirena.org.uk>
+From: Kevin Hilman <khilman@linaro.org>
+Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client devices
+Date: Fri, 13 Sep 2013 07:30:55 -0700
+Message-ID: <87bo3whjz4.fsf@linaro.org>
 References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
- <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
- <87vc25pvvm.fsf@linaro.org>
- <20130913065434.GZ7393@intel.com>
- <20130913095950.GA29403@sirena.org.uk>
- <20130913101611.GA7393@intel.com>
- <20130913103152.GE29403@sirena.org.uk>
- <20130913115035.GB7393@intel.com>
+	<1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
+	<87vc25pvvm.fsf@linaro.org> <20130913065434.GZ7393@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="27NCtaTw21bcrDcq"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130913115035.GB7393-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20130913065434.GZ7393@intel.com> (Mika Westerberg's message of
+	"Fri, 13 Sep 2013 09:54:34 +0300")
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
+Mika Westerberg <mika.westerberg@linux.intel.com> writes:
 
---27NCtaTw21bcrDcq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Thu, Sep 12, 2013 at 02:34:21PM -0700, Kevin Hilman wrote:
+>> > diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+>> > index f32ca29..44374b4 100644
+>> > --- a/drivers/i2c/i2c-core.c
+>> > +++ b/drivers/i2c/i2c-core.c
+>> > @@ -248,11 +248,30 @@ static int i2c_device_probe(struct device *dev)
+>> >  					client->flags & I2C_CLIENT_WAKE);
+>> >  	dev_dbg(dev, "probe\n");
+>> >  
+>> > +	/* Make sure the adapter is active */
+>> > +	pm_runtime_get_sync(&client->adapter->dev);
+>> > +
+>> > +	/*
+>> > +	 * Enable runtime PM for the client device. If the client wants to
+>> > +	 * participate on runtime PM it should call pm_runtime_put() in its
+>> > +	 * probe() callback.
+>> > +	 */
+>> > +	pm_runtime_get_noresume(&client->dev);
+>> > +	pm_runtime_set_active(&client->dev);
+>> 
+>> Why the set_active here?
+>> 
+>> For hardware that is disabled/powered-off on startup, there will now be
+>> a mismatch between the hardware state an the RPM core state.
+>
+> The call to pm_runtime_get_noresume() should make sure that the device is
+> in active state (at least in state where it can access the bus) if I'm
+> understanding this right.
 
-On Fri, Sep 13, 2013 at 02:50:35PM +0300, Mika Westerberg wrote:
-> On Fri, Sep 13, 2013 at 11:31:52AM +0100, Mark Brown wrote:
+No, after _get_noresume(), nothing happens to the hardware.  It simply
+increments the usecount.  From pm_runtime.h:
 
-> > Right, but this probably needs to be highlighted more since it's a very
-> > surprising thing for I2C and is causing confusion.
+static inline void pm_runtime_get_noresume(struct device *dev)
+{
+	atomic_inc(&dev->power.usage_count);
+}
 
-> By highlighted more, do you mean something like adding a comment in the
-> code about this or?
+So after the _get_noresume() and _set_active() you're very likely to
+have a disconnect between the hardware state and what state RPM thinks
+the hardware is in.
 
-Perhaps, yes.  Or possibly the commit log is going to be enough going
-forwards.
-
---27NCtaTw21bcrDcq
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.21 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSMwDPAAoJELSic+t+oim9KGgP/2LD68umUpEP+9jo0+S+6JeB
-ZXaQamFK1V+u5dBPrfr55gnm3cgg9AJqUCE2iURJpl9JHhFK1GaBTNFG4VV9VVA2
-2oH0du0z66UY5tg2m41e1DE7AtZbPb5vVe1PB3NlRArwU0k7/MIZY5uXz++3DwP4
-PYv8rBbx8XKWmACPNKh8rtY9k3woVRm5fDwUeiJUru6OX8QILBrfFDVZoEy3TSz5
-D3PE9lK6jqJCA0SHipn61qWQuuMLnkuYmnvhcK2B2/nUvPLKF/HuNhJMyFMkKzfW
-Huz6uC8am5EQF+MinDpsNwd21C3TS81oN/86LKJ5LwJYznwSoR0FAVseKYUg59eJ
-CUaTBqmTkVsw9R9CyEE3PRlUFAFA10fZ3E5yADEp2EY1KHluCWS1k0Z3u+TqP3Lc
-/7FY1ITcthLOAolO5bHsm5egbXxqb4KI0XRLxaze2ztrLuGebwlPFpOsWjCiRDud
-7T/pxb/86xrVLnLK7bRriVBQrlob/lFgyey7vTCKhqj3GdjJ92x/o4eKvOdDzaWB
-p3O1WYPh5di3p0nWkYSM/LAU3dUx+Ot565VGxCDx6SKBW64torbFV4wZkLfrIggf
-tQmSAE8YLQuqrYm95IT4FXZlsZOPpHOMDuzJrI6p3/YYwXUrgYvPplkm8VqWyyBF
-E25+zh/+e7ZKcgGyhFRP
-=U4cS
------END PGP SIGNATURE-----
-
---27NCtaTw21bcrDcq--
+Kevin
