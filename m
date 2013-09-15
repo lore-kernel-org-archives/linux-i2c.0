@@ -1,8 +1,8 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Mark Brown <broonie@kernel.org>
 Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
  devices
-Date: Sun, 15 Sep 2013 09:41:39 +0300
-Message-ID: <20130915064139.GJ7393@intel.com>
+Date: Sun, 15 Sep 2013 13:47:44 +0100
+Message-ID: <20130915124744.GW29403@sirena.org.uk>
 References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
  <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
  <87vc25pvvm.fsf@linaro.org>
@@ -11,85 +11,75 @@ References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
  <20130913145022.GC7393@intel.com>
  <20130913173149.GE7393@intel.com>
  <87ioy4e8bw.fsf@linaro.org>
+ <20130915064139.GJ7393@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="6lwf1fPv9TmaSLgy"
 Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <87ioy4e8bw.fsf@linaro.org>
+In-Reply-To: <20130915064139.GJ7393@intel.com>
 Sender: linux-acpi-owner@vger.kernel.org
-To: Kevin Hilman <khilman@linaro.org>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Kevin Hilman <khilman@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Fri, Sep 13, 2013 at 02:10:43PM -0700, Kevin Hilman wrote:
-> >
-> > 	// This makes sure that the controller itself is powered on
-> > 	// (adapter device follows its parent which is the controller). The
-> > 	// controller is attached to the ACPI power domain so it is
-> > 	// brought to D0 now.
-> > 	pm_runtime_get_sync(&client->adapter->dev);
-> >
-> > 	// This binds the client device to the ACPI power domain, and in
-> > 	// addition to that brings the client device to D0.
-> 
-> OK, then here is where the problem is, because you're building ACPI
-> assumptions into the core. For non-ACPI devices, this part is a nop, so
-> the client device is still powered off, which breaks the assumptions
-> below.
 
-We expect that once the driver ->probe() is called, and it doesn't
-participate the runtime PM prepared here, the device is regarded as powered
-on, runtime PM active.
+--6lwf1fPv9TmaSLgy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-If the driver participates in runtime PM, it needs to power on the device
-and then call pm_runtime_put() to suspend the device.
+On Sun, Sep 15, 2013 at 09:41:39AM +0300, Mika Westerberg wrote:
 
-> > 	if (ACPI_HANDLE(&client->dev))
-> > 		acpi_dev_pm_attach(&client->dev, true);
-> >
-> > 	// Increase the refcount so that client can start runtime PM
-> > 	// transitions when it calls _put().
-> > 	pm_runtime_get_noresume(&client->dev);
-> 
-> > 	// Mark the device being active as
-> > 	//  1) In ACPI case we know that is true as we just powered the
-> > 	//     device on.
-> > 	//  2) We treat the device by default to be runtime PM active and
-> > 	//     powered on (that's in the changelog and should follow what
-> > 	//     the PCI bus did).
-> > 	pm_runtime_set_active(&client->dev);
-> >
-> > 	// Enable runtime PM but nothing happens yet as long as the client
-> > 	// driver doesn't call _put().
-> > 	pm_runtime_enable(&client->dev);
-> >
-> > So, yes there might be a disconnect between the runtime PM state and the
-> > device HW state now (same is with default to suspended).
-> 
-> Yes, but until now, default to suspended has been assumed, so any
-> changes to that will likely require more thorough auditing of other drivers.
+> There's also a less intrusive way of fixing the problem we see with ACPI
+> enabled I2C devices:
 
-I agree. And it looks like I missed few existing drivers as well. I'm going
-to update them in the next version of the series.
+> 	1. In I2C core i2c_device_probe() we power on the I2C controller
+> 	and attach the client device to the ACPI power domain. Just like in
+> 	this patch but we don't touch the I2C client device runtime PM.
 
-There's also a less intrusive way of fixing the problem we see with ACPI
-enabled I2C devices:
+> 	-> This should allow the existing drivers to keep using whatever
+> 	runtime PM strategy they have chosen.
 
-	1. In I2C core i2c_device_probe() we power on the I2C controller
-	and attach the client device to the ACPI power domain. Just like in
-	this patch but we don't touch the I2C client device runtime PM.
+There should be no explicit need to power on the I2C controller if it's
+implemented the same way the existing ones are - just have it power
+itself on when it is doing a transfer.
 
-	-> This should allow the existing drivers to keep using whatever
-	runtime PM strategy they have chosen.
+> 	2. For ACPI enumerated I2C client devices drivers we need to
+> 	implement the runtime PM in order to save power (otherwise the
+> 	devices will be left powered on).
 
-	2. For ACPI enumerated I2C client devices drivers we need to
-	implement the runtime PM in order to save power (otherwise the
-	devices will be left powered on).
+> and do the same for SPI devices as well.
 
-and do the same for SPI devices as well.
+> Then only thing that changes for non-ACPI devices is that the controller
+> will be powered on during the client device probe (well, and during
+> remove).
 
-Then only thing that changes for non-ACPI devices is that the controller
-will be powered on during the client device probe (well, and during
-remove).
+> Thoughts?
 
-Thoughts?
+This is definitely less intrusive than the current proposal, there's one
+ACPI I2C device binding queued for -next after the merge window (rt5640)
+which will need an update.
+
+--6lwf1fPv9TmaSLgy
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSNaxtAAoJELSic+t+oim9iGIP+gJNvCGQL2nGQa0PWny5Bj4Z
+omeCY4D3U/+1ClYHr5UfzoOMRhzlCsYwkLSYMz2Q8U+ce9zQq7SZjGxDdp6wKwfD
+NdtU6RUMoF/uQ31A20bhjnDIAjLi45ZHXICRnlzmlTCopD7bqhyvyaglKOQlJLp7
+Xm4Yt8+j5GlLbDLNZXxqoS6rRDUzYFuuF77RBibI8e38iJi6IKCIQFTvlHWO1nI/
+dbQJPjXBStreCcF74o8mBWxO9advbVZ3VBcsNiSkHJmnLJovcJbDNWC8Y4RebPL6
+UDUj+jxPPVHRCCDBdNWKoSXl6yspTI30hKfO/RhwrbL0k+31Elx7orwwuYlf1715
+LPGooEkJgjWANsZ3cqbm7fvVr7COC6ITBdErM78VKx6FkMJmMP2BeKV41o8FYpyh
+P0kt8IskoM/3HPOQFYR1Bpi4z6IEJkKLJ0hleclG9YFb4HHRAw99C5ITJz93wtpw
+kU7cyucXdhmH7IQFw2/3cwMnFYmcdOYKnneynMzi5wSe8sCx46ymgGiRkuf9yflW
+zNsDomePdmFNMGQ3uJCsRYjeFQkV0+2kl4J4KwQtV8SnZeukrokjZEQrbPm0Ckqt
+8luGt9Kv6GoIhaLuwFGZd+0KyDyAYtZwUQA7GtWDDNs0Eb5rwLv+z9LlNC24cTZj
+jXKX948f8uDI8ctALQ0O
+=drge
+-----END PGP SIGNATURE-----
+
+--6lwf1fPv9TmaSLgy--
