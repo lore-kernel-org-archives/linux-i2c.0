@@ -1,83 +1,61 @@
-From: Mark Brown <broonie@kernel.org>
-Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
- devices
-Date: Mon, 16 Sep 2013 11:12:49 +0100
-Message-ID: <20130916101249.GX29403@sirena.org.uk>
-References: <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
- <87vc25pvvm.fsf@linaro.org>
- <20130913065434.GZ7393@intel.com>
- <87bo3whjz4.fsf@linaro.org>
- <20130913145022.GC7393@intel.com>
- <20130913173149.GE7393@intel.com>
- <87ioy4e8bw.fsf@linaro.org>
- <20130915064139.GJ7393@intel.com>
- <20130915124744.GW29403@sirena.org.uk>
- <20130915132823.GL7393@intel.com>
+From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/4 v2] mfd: add STw481x driver
+Date: Mon, 16 Sep 2013 14:44:35 +0200
+Message-ID: <CACRpkdatiELF3WK9qE_Mgcq3iCgv5w3X22xp1=232JJq9sWggQ@mail.gmail.com>
+References: <1379094851-26385-1-git-send-email-linus.walleij@linaro.org>
+	<20130916091956.GF3999@lee--X1>
+	<20130916104009.GA29403@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="AUFJoFQLqfvosQXp"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130915132823.GL7393@intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Kevin Hilman <khilman@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20130916104009.GA29403-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wang Shilong <wangshilong1991-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+On Mon, Sep 16, 2013 at 12:40 PM, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
+> On Mon, Sep 16, 2013 at 10:19:56AM +0100, Lee Jones wrote:
+>
+>> Can't you just NULL .id_table?
 
---AUFJoFQLqfvosQXp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+No. That is not OK with the I2C core. It's
+not easy to get rid of the requirement for .id_table
+not to be NULL either.
 
-On Sun, Sep 15, 2013 at 04:28:24PM +0300, Mika Westerberg wrote:
-> On Sun, Sep 15, 2013 at 01:47:44PM +0100, Mark Brown wrote:
-> > On Sun, Sep 15, 2013 at 09:41:39AM +0300, Mika Westerberg wrote:
+>> Here's the code which would use it:
+>> > /* match on an id table if there is one */
+>> > if (driver->id_table)
+>> >         return i2c_match_id(driver->id_table, client) != NULL;
+>
+>> Matching for "dummy" will just waste cycles.
+>
+> i2c_device_probe() will return -ENODEV if id_table is NULL before we get
+> to actually matching.  We could remove that check though...
 
-> > > 	1. In I2C core i2c_device_probe() we power on the I2C controller
-> > > 	and attach the client device to the ACPI power domain. Just like in
-> > > 	this patch but we don't touch the I2C client device runtime PM.
+Copy+pasting from my own reply earlier:
 
-> > > 	-> This should allow the existing drivers to keep using whatever
-> > > 	runtime PM strategy they have chosen.
+I've tried to fix this for DT-only I2C devices
+and this very driver was the reason.
 
-> > There should be no explicit need to power on the I2C controller if it's
-> > implemented the same way the existing ones are - just have it power
-> > itself on when it is doing a transfer.
+But a tiresome regression due to drivers relying on this
+i2c_device_id not being NULL and inability to remove it from the I2C
+core without refactoring the world ensued, see:
+commit c80f52847c50109ca248c22efbf71ff10553dca4
 
-> The problem is that the ACPI child device can't be in higher power state
-> than its parent (and this is also what the runtime PM expects). If we don't
-> power the I2C controller device before we power on the I2C client device
-> that rule is violated and we get an complaint to the console.
+Reverted in:
+commit 661f6c1cd926c6c973e03c6b5151d161f3a666ed
 
-That's definitely an ACPI specific (probably x86 specific ACPI?)
-requirement not a generic one, on some systems it would increase power
-consumption since the controller will need to sit on while the device is
-functioning autonomously.  Even though the controller power consumption
-is going to be minimal the power domain it is in may be relatively
-large.  Can't the power domains for ACPI deal with this requirement, for
-example by making the I2C slave power domains children of the controller
-power domain?
+For this reason I think:
+http://marc.info/?l=linux-next&m=137148411231784&w=2
 
---AUFJoFQLqfvosQXp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+I have tentatively given up getting pure DT I2C drivers
+to probe, I don't think I have the whole picture, but
+Wolfram has serious doubts about this and say we have
+to be careful ....
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.21 (GNU/Linux)
+Wolfram, do you have some ideas on how we should
+proceed or ar you happy with merging this as-is?
 
-iQIcBAEBAgAGBQJSNtmeAAoJELSic+t+oim9ibgP/1XbgRoewTbRWjwDer80m+JP
-E4wVyN9NnxjbIYLozbpm3zGgQvD24Uz0TXZUB4NZKehZH9CI8IDZxXYnpKiu8zVC
-osb++hB66BgHNJxn1WjXPPWiLYqsj0SLpFMSQMqFKS0o/J63d38GdhFIyQEbUN8U
-VNRWw8KiDfANWjYXtGCd4TImOw4Z9dLiH54UhpeOXSofZl5fqL/PoSUqdxUYlnM4
-GXRF8IET70rBnv2mQJu6OMvrYXc0i8KV1xY651LaVSGpdF3yWBVkDYL+lsMrD59a
-BERUq7SaRgHJv3gMhoLa1HT03Wv0tv+g5PFEg3pcgCvkKYlctPj4qCBt38WAkoYE
-QTIgTXiKNTbFgGtpw5kTxjN9gwVvWGJ7VBPPtzIEMRYxrXCHi12qS1J+zMuJjlVh
-AmIaHJVFsXp2q0JLw5N6Hpcltq1FM2wnN3bPVto9lqT3ZKV4CZxnwMdnW9WXATv6
-HgoL5GrjBjFcOLqKYz4xnNeCak+y7rfVGnXNJjVgiH/RTwmC8SmBPmoY7VbIqdHm
-FVaS1WS/FfA5OeCEx6XM8pCd7Eqk+aHmfgu5XTh3xNmd8gP2poNay3lkmplDzgn7
-1Inlz9DT/55O7fHNmM01yb3pmi6zNzgf7D3L89WE3Kk8YBR+z1IyTjgTcO+54vUE
-F8IzpQCjjfxpNjNq9Eyl
-=XVEx
------END PGP SIGNATURE-----
-
---AUFJoFQLqfvosQXp--
+Yours,
+Linus Walleij
