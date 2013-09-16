@@ -1,67 +1,61 @@
-From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: [Patch v2] power/mpc85xx: Add delay after enabling I2C master
-Date: Mon, 16 Sep 2013 15:06:25 -0700
-Message-ID: <1379369185-14590-1-git-send-email-yorksun@freescale.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
+ devices
+Date: Tue, 17 Sep 2013 00:31:11 +0100
+Message-ID: <20130916233111.GB21013@sirena.org.uk>
+References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
+ <5235BA9C.1090509@gmail.com>
+ <20130916084708.GN7393@intel.com>
+ <1861747.RtS0ZLgUUN@vostro.rjw.lan>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="St7VIuEGZ6dlpu13"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1861747.RtS0ZLgUUN-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Erratum A-006037 indicates I2C controller executes the write to I2CCR only
-after it sees SCL idle for 64K cycle of internal I2C controller clocks. If
-during this waiting period, I2C controller is disabled (I2CCR[MEN] set to
-0), then the controller could end in bad state, and hang the future access
-to I2C register.
 
-The mpc_i2c_fixup() function tries to recover the bus from a stalled state
-where the 9th clock pulse wasn't generated. However, this workaround
-disables and enables I2C controller without meeting waiting requirement of
-this erratum.
+--St7VIuEGZ6dlpu13
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This erratum applies to some 85xx SoCs. It is safe to apply to all of them
-for mpc_i2c_fixup().
+On Mon, Sep 16, 2013 at 09:07:07PM +0200, Rafael J. Wysocki wrote:
 
-Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
----
-Change log:
- v2: remote reviewed-by and tested-by lines added by gerrit
-     send to proper mailing list
+> That may be left to the client driver altogether.  I mean, if the client wants
+> the controller to be powered up, it should just call
+> pm_runtime_get_sync(controller device) at a suitable place (and then do the
+> corresponding _put when the controller is not necessary anu more) from its
+> ->probe() callback.
 
- drivers/i2c/busses/i2c-mpc.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+It shouldn't even need to do that, it should just be able to rely on the
+controller to power itself up when asked to do work.   This is how the
+existing implementations are done - the controller power management is
+totally transparent to the slave.
 
-diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
-index b80c768..55dce43 100644
---- a/drivers/i2c/busses/i2c-mpc.c
-+++ b/drivers/i2c/busses/i2c-mpc.c
-@@ -106,7 +106,12 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
- static void mpc_i2c_fixup(struct mpc_i2c *i2c)
- {
- 	int k;
--	u32 delay_val = 1000000 / i2c->real_clk + 1;
-+	u32 delay_val;
-+#ifdef CONFIG_PPC_85xx
-+	delay_val = 65536 / (fsl_get_sys_freq() / 2000000);	/* 64K cycle */
-+#else
-+	delay_val = 1000000 / i2c->real_clk + 1;
-+#endif
- 
- 	if (delay_val < 2)
- 		delay_val = 2;
-@@ -116,7 +121,11 @@ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
- 		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
- 		udelay(delay_val);
- 		writeccr(i2c, CCR_MEN);
-+#ifdef CONFIG_PPC_85xx
-+		udelay(delay_val);
-+#else
- 		udelay(delay_val << 1);
-+#endif
- 	}
- }
- 
--- 
-1.7.9.5
+--St7VIuEGZ6dlpu13
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSN5S8AAoJELSic+t+oim94uwP/jx69z1Q6v47hnnPe96VbjT3
+EnKgxbDsp7+Kf746Wk/4N2NJFH8BjlmoURBIKCAEaBkvbjNpU1MMYj3R/hyr8KNY
+Noc5qU1N0C+a+of3hrAN1mEPy8GF+fsRbcdVTKwvljaVW+dzDld9KJBoBhaQABms
+LJK9cAmv+usvMHTRnqjbd66CR7pV1uu7yXOb+iMOAaypAIE7ws5vGlCf6risl5fW
+1aaWEBLJCuoVNG6dY4tOMlWf0C/PWyqqFzwUWtRyHAnG99ZOoBqupMXtDe+OpU8Z
+PK+qLKJfk+9vqIw3TnG3lIrDUmTCdKBE0TupAQETSxU6aHT9u6rnLvcaLqMEICRF
+qpjG0gRe/XY28K1MwlZH+AWXYdh16OdkgDfEL72mJaznx06Z4oi4OR4Am0vFZSwt
+jtSf8G9PnFbbjpFY5wMaSpXUQLHZShUkB2Hnjq25rvAAPeUr02Iv9WybbFyrHnJ3
+XKFU7w5IsUlwIWvSEaMeTlqIwoG0zJqkcnVBGHaVQwqVTlHreq9GlF9dwRTpZcZl
+J8btH2M1/nyezwPOoTDmQeJpiY/tvK4S++0Z9Xfg/Yxy8a/Km76PEQWf2FqhmcxB
+PhAQz5iPvW0r8zVr/05R/Bwd4Zl0PwpBtzH9WxaSo/gbMpRsUiOPEZZm1w0y2q+G
+aHTR4zk6jgEdn60R8zZQ
+=CLGD
+-----END PGP SIGNATURE-----
+
+--St7VIuEGZ6dlpu13--
