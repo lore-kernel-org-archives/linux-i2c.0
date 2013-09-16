@@ -1,7 +1,7 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 Subject: Re: [PATCH 1/4 v2] mfd: add STw481x driver
-Date: Mon, 16 Sep 2013 17:05:37 +0100
-Message-ID: <20130916160537.GO16984@lee--X1>
+Date: Mon, 16 Sep 2013 17:24:28 +0100
+Message-ID: <20130916162428.GE29403@sirena.org.uk>
 References: <1379094851-26385-1-git-send-email-linus.walleij@linaro.org>
  <20130916091956.GF3999@lee--X1>
  <20130916104009.GA29403@sirena.org.uk>
@@ -10,27 +10,55 @@ References: <1379094851-26385-1-git-send-email-linus.walleij@linaro.org>
  <20130916152104.GA3909@katana>
  <20130916153414.GN16984@lee--X1>
  <20130916160001.GC3909@katana>
+ <20130916160537.GO16984@lee--X1>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="LJYYZogMzwQTNNqC"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130916160001.GC3909@katana>
+In-Reply-To: <20130916160537.GO16984@lee--X1>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wang Shilong <wangshilong1991-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+To: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wang Shilong <wangshilong1991-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-> > So in the mean time are you happy with this "dummy" approach?
->=20
-> No. "dummy" is reserved for a dummy device in case an i2c slave needs
-> more than one address. The proper solution would be if
-> i2c_sysfs_new_device() could recognize the of_device_ids.
 
-Okay, thanks for clarifying.
+--LJYYZogMzwQTNNqC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
+On Mon, Sep 16, 2013 at 05:05:37PM +0100, Lee Jones wrote:
+> > > So in the mean time are you happy with this "dummy" approach?
+
+> > No. "dummy" is reserved for a dummy device in case an i2c slave needs
+> > more than one address. The proper solution would be if
+> > i2c_sysfs_new_device() could recognize the of_device_ids.
+
+> Okay, thanks for clarifying.
+
+Or for now to use something like stw481x (even if it's never expected to
+actually make a difference).
+
+--LJYYZogMzwQTNNqC
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSNzC5AAoJELSic+t+oim9HRYQAJ16Q1v8fjVDnyNQs480KQN0
+HJKAi6qUUQh3JziwFpgAf+YbTsXpbGsky27jwDLvtzjdvFymlvOi2BC1a37MzYSB
+SHUp3G+Bp2Op5ljSasDukazIswmSNsc5N0GbyHFWism/XjlAZ/k6SsY9/Eni3QVL
+T3yZkytMOU8EUzO2tSMM/Pz5zei9kd3UPI0IoCtr/+SvbacIOsljG4gZI02YTfsR
+apa1neZhLA9gi8FObCQmKHFMyQNKiwt/FFn8SHd2BZojp5vqhlwZXlAN1QrcuCMH
+CtyGd96/ftXC4OXXsWpr6Sh25rdPQhscpN3xwY69QYYCtbujBbC4TI693dinhqGA
+sXDLafzfOmM41fHv1Adv8YuldCK7h77zrHQCvTWPNQz8wWgkzWU0g4lBe7weWUvt
+711YrGlCPikbV/kLyGMNlwZLVT8R0WSBgelUPVX8YS3BydQFGpXYKyRa3tKS882z
+iMpe/hphW425eN7yyFE+kRfC+27CjG5DwvVL8bYYZPV8MSMKexog6sfgfqu40Yq+
+04t+W0woxm7TkAVWW0vDbOvl9NbvycfF3Rc2SzWoerdrHcqhF/0UNqBEeSSKu7zZ
+ugLSZKdx8nxoXlInzoUUAEFFSIiPoV54gZpUp3AuUBr1AiINGL5kHkJkdydqELSF
+7/fuNmV6dild11cYFr41
+=TO9M
+-----END PGP SIGNATURE-----
+
+--LJYYZogMzwQTNNqC--
