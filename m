@@ -1,108 +1,44 @@
-From: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
- devices
-Date: Sun, 15 Sep 2013 15:48:12 +0200
-Message-ID: <5235BA9C.1090509@gmail.com>
-References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com> <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com> <87vc25pvvm.fsf@linaro.org> <20130913065434.GZ7393@intel.com> <52332BF0.4060605@samsung.com> <20130913154013.GD7393@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130913154013.GD7393-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/9] of/irq: Rework of_irq_count()
+Date: Mon, 16 Sep 2013 10:31:58 +0200
+Message-ID: <1379320326-13241-2-git-send-email-treding@nvidia.com>
+References: <1379320326-13241-1-git-send-email-treding@nvidia.com>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1379320326-13241-1-git-send-email-treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/13/2013 05:40 PM, Mika Westerberg wrote:
-[...]
->>> The call to pm_runtime_get_noresume() should make sure that the device is
->>> in active state (at least in state where it can access the bus) if I'm
->>> understanding this right.
->>
->> I can't see how this would happen. How runtime_resume/runtime_suspend
->> callbacks would get invoked with this code, if, e.g. originally driver called
->> pm_runtime_enable(), pm_runtime_get_sync(), pm_runtime_put_sync() in probe() ?
->
-> The driver callbacks are not called but if the device has been attached to
-> a power domain (like we do with ACPI) the power domain callbacks get called
-> and it brings the "bus" to such state that we are able to access the
-> device. That also was the reason I used _noresume() but didn't look too
-> close the implementation.
+The of_irq_to_resource() helper that is used to implement of_irq_count()
+tries to resolve interrupts and in fact creates a mapping for resolved
+interrupts. That's pretty heavy lifting for something that claims to
+just return the number of interrupts requested by a given device node.
 
-OK, but if a client driver assumes default inactive power state it will 
-expect
-its callbacks to get called. Otherwise exisiting code might break. So, e.g.
-in case of s5p-tv it would rather need to be something like:
+Instead, use the more lightweight of_irq_map_one(), which, despite the
+name, doesn't create an actual mapping. Perhaps a better name would be
+of_irq_translate_one().
 
-	pm_runtime_put()
+Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/of/irq.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-	pm_runtime_get_sync()
-  	sii9234_verify_version()
-  	pm_runtime_put(dev)
-
->> pm_runtime_get_noresume() merely increments usage counter of a device.
->> It seems that these changes will break the s5p-tv driver. I might be missing
->> something though.
->
-> You are right and Kevin also mentioned this. It should be pm_runtime_get(),
-> if I'm not mistaken.
-
-Note that client drivers usually call pm_runtime_enable() only when it 
-is safe
-to call their driver's runtime PM callbacks. By enabling runtime PM 
-before the
-client's driver has completely initialized we may risk that the 
-callbacks are
-executed with uninitialized data, if I understand things correctly.
-
->> As Mark pointed out this is currently unwanted behaviour to runtime PM
->> activate a bus controller device manually in the core for when the client's
->> probe() is executed, since i2c core will activate the bus controller for when
->> transfer is being carried out.
->>
->> But I can understand this is needed for ACPI and it shouldn't break existing
->> drivers, that do runtime PM activate the client device in probe().
->
-> Indeed, we don't want to break anything (and we still need something like
-> this for ACPI).
->
->> Now I'm sure this will break power management of the drivers/media/exynos4-is
->> driver, due to incorrect power sequence (power domain and clocks handling).
->> I'll try to take care of it in separate patch, as I have some patches pending,
->> that move most of code from drivers/media/exynos4-is/fimc-is-sensor.c to
->> drivers/media/i2c/s5k6a3.c.
->
-> I missed that code when I converted existing users to this method. Sorry
-> about that (I can handle that in the next version).
->
-> I quickly looked at it and I don't see anything that could break (once
-> converted). What it does is this:
->
-> 	pm_runtime_no_callbacks(dev);
-> 	pm_runtime_enable(dev);
->
-> changing that to:
->
-> 	pm_runtime_no_callbacks(dev);
-> 	pm_runtime_put(dev);
->
-> shouldn't cause problems AFAICT.
-
-Yes, considering this driver in isolation it should be fine.
-
-However, I observed system suspend issues when the I2C bus controller was
-being activated (which would happen in the I2C core after your changes)
-before some other driver has initialized.
-
-So to ensure things continue to work the "fimc-isp-i2c" driver would need
-to be registered after the "exynos4-fimc-is" driver has initialized. Or the
-"exynos4-fimc-is" would need to call of_platform_populate() to instantiate
-its all children devices as specified in device tree (see arch/arm/boot/dts/
-exynos4x12.dtsi in -next). "simple-bus" would then have to be not listed in
-the compatible property of that top level device. So to avoid regressions
-some additional changes would be needed, outside of this particular I2C
-client driver. I guess this could be avoided by better design of the
-exynos4-is driver right from the beginning. But it's all some times tricky
-when there is some many IP blocks involved and the hardware behaviour/device
-interactions are not always well documented.
+diff --git a/drivers/of/irq.c b/drivers/of/irq.c
+index 1752988..5f44388 100644
+--- a/drivers/of/irq.c
++++ b/drivers/of/irq.c
+@@ -368,9 +368,10 @@ EXPORT_SYMBOL_GPL(of_irq_to_resource);
+  */
+ int of_irq_count(struct device_node *dev)
+ {
++	struct of_irq irq;
+ 	int nr = 0;
+ 
+-	while (of_irq_to_resource(dev, nr, NULL))
++	while (of_irq_map_one(dev, nr, &irq) == 0)
+ 		nr++;
+ 
+ 	return nr;
+-- 
+1.8.4
