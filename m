@@ -1,138 +1,83 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Mark Brown <broonie@kernel.org>
 Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
  devices
-Date: Mon, 16 Sep 2013 11:47:08 +0300
-Message-ID: <20130916084708.GN7393@intel.com>
-References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
- <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
+Date: Mon, 16 Sep 2013 11:12:49 +0100
+Message-ID: <20130916101249.GX29403@sirena.org.uk>
+References: <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
  <87vc25pvvm.fsf@linaro.org>
  <20130913065434.GZ7393@intel.com>
- <52332BF0.4060605@samsung.com>
- <20130913154013.GD7393@intel.com>
- <5235BA9C.1090509@gmail.com>
+ <87bo3whjz4.fsf@linaro.org>
+ <20130913145022.GC7393@intel.com>
+ <20130913173149.GE7393@intel.com>
+ <87ioy4e8bw.fsf@linaro.org>
+ <20130915064139.GJ7393@intel.com>
+ <20130915124744.GW29403@sirena.org.uk>
+ <20130915132823.GL7393@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AUFJoFQLqfvosQXp"
+Return-path: <linux-acpi-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <5235BA9C.1090509-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+In-Reply-To: <20130915132823.GL7393@intel.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Kevin Hilman <khilman@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Sun, Sep 15, 2013 at 03:48:12PM +0200, Sylwester Nawrocki wrote:
-> On 09/13/2013 05:40 PM, Mika Westerberg wrote:
-> [...]
-> >>>The call to pm_runtime_get_noresume() should make sure that the device is
-> >>>in active state (at least in state where it can access the bus) if I'm
-> >>>understanding this right.
-> >>
-> >>I can't see how this would happen. How runtime_resume/runtime_suspend
-> >>callbacks would get invoked with this code, if, e.g. originally driver called
-> >>pm_runtime_enable(), pm_runtime_get_sync(), pm_runtime_put_sync() in probe() ?
-> >
-> >The driver callbacks are not called but if the device has been attached to
-> >a power domain (like we do with ACPI) the power domain callbacks get called
-> >and it brings the "bus" to such state that we are able to access the
-> >device. That also was the reason I used _noresume() but didn't look too
-> >close the implementation.
-> 
-> OK, but if a client driver assumes default inactive power state it
-> will expect
-> its callbacks to get called. Otherwise exisiting code might break. So, e.g.
-> in case of s5p-tv it would rather need to be something like:
-> 
-> 	pm_runtime_put()
-> 
-> 	pm_runtime_get_sync()
->  	sii9234_verify_version()
->  	pm_runtime_put(dev)
 
-Yes, or even call directly its runtime_resume callback to bring the device
-to the active state.
+--AUFJoFQLqfvosQXp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> >>pm_runtime_get_noresume() merely increments usage counter of a device.
-> >>It seems that these changes will break the s5p-tv driver. I might be missing
-> >>something though.
-> >
-> >You are right and Kevin also mentioned this. It should be pm_runtime_get(),
-> >if I'm not mistaken.
-> 
-> Note that client drivers usually call pm_runtime_enable() only when
-> it is safe
-> to call their driver's runtime PM callbacks. By enabling runtime PM
-> before the
-> client's driver has completely initialized we may risk that the
-> callbacks are
-> executed with uninitialized data, if I understand things correctly.
+On Sun, Sep 15, 2013 at 04:28:24PM +0300, Mika Westerberg wrote:
+> On Sun, Sep 15, 2013 at 01:47:44PM +0100, Mark Brown wrote:
+> > On Sun, Sep 15, 2013 at 09:41:39AM +0300, Mika Westerberg wrote:
 
-I think that calling pm_runtime_enable() on behalf of the client driver
-shouldn't cause any problems. There is no PM events queued for that device
-yet (and we have prevented that from happening when we called
-_get_noresume() for the device).
+> > > 	1. In I2C core i2c_device_probe() we power on the I2C controller
+> > > 	and attach the client device to the ACPI power domain. Just like in
+> > > 	this patch but we don't touch the I2C client device runtime PM.
 
-Only when the client driver calls _put() things start to happen and at that
-phase the runtime PM hooks should be usable.
+> > > 	-> This should allow the existing drivers to keep using whatever
+> > > 	runtime PM strategy they have chosen.
 
-> >>As Mark pointed out this is currently unwanted behaviour to runtime PM
-> >>activate a bus controller device manually in the core for when the client's
-> >>probe() is executed, since i2c core will activate the bus controller for when
-> >>transfer is being carried out.
-> >>
-> >>But I can understand this is needed for ACPI and it shouldn't break existing
-> >>drivers, that do runtime PM activate the client device in probe().
-> >
-> >Indeed, we don't want to break anything (and we still need something like
-> >this for ACPI).
-> >
-> >>Now I'm sure this will break power management of the drivers/media/exynos4-is
-> >>driver, due to incorrect power sequence (power domain and clocks handling).
-> >>I'll try to take care of it in separate patch, as I have some patches pending,
-> >>that move most of code from drivers/media/exynos4-is/fimc-is-sensor.c to
-> >>drivers/media/i2c/s5k6a3.c.
-> >
-> >I missed that code when I converted existing users to this method. Sorry
-> >about that (I can handle that in the next version).
-> >
-> >I quickly looked at it and I don't see anything that could break (once
-> >converted). What it does is this:
-> >
-> >	pm_runtime_no_callbacks(dev);
-> >	pm_runtime_enable(dev);
-> >
-> >changing that to:
-> >
-> >	pm_runtime_no_callbacks(dev);
-> >	pm_runtime_put(dev);
-> >
-> >shouldn't cause problems AFAICT.
-> 
-> Yes, considering this driver in isolation it should be fine.
-> 
-> However, I observed system suspend issues when the I2C bus controller was
-> being activated (which would happen in the I2C core after your changes)
-> before some other driver has initialized.
-> 
-> So to ensure things continue to work the "fimc-isp-i2c" driver would need
-> to be registered after the "exynos4-fimc-is" driver has initialized. Or the
-> "exynos4-fimc-is" would need to call of_platform_populate() to instantiate
-> its all children devices as specified in device tree (see arch/arm/boot/dts/
-> exynos4x12.dtsi in -next). "simple-bus" would then have to be not listed in
-> the compatible property of that top level device. So to avoid regressions
-> some additional changes would be needed, outside of this particular I2C
-> client driver. I guess this could be avoided by better design of the
-> exynos4-is driver right from the beginning. But it's all some times tricky
-> when there is some many IP blocks involved and the hardware behaviour/device
-> interactions are not always well documented.
+> > There should be no explicit need to power on the I2C controller if it's
+> > implemented the same way the existing ones are - just have it power
+> > itself on when it is doing a transfer.
 
-OK.
+> The problem is that the ACPI child device can't be in higher power state
+> than its parent (and this is also what the runtime PM expects). If we don't
+> power the I2C controller device before we power on the I2C client device
+> that rule is violated and we get an complaint to the console.
 
-I'm actually thinking that it is probably better now if we don't touch the
-client runtime PM at all in the I2C core.
+That's definitely an ACPI specific (probably x86 specific ACPI?)
+requirement not a generic one, on some systems it would increase power
+consumption since the controller will need to sit on while the device is
+functioning autonomously.  Even though the controller power consumption
+is going to be minimal the power domain it is in may be relatively
+large.  Can't the power domains for ACPI deal with this requirement, for
+example by making the I2C slave power domains children of the controller
+power domain?
 
-I proposed a less intrusive solution in this same thread where we power the
-I2C controller briefly at the client ->probe() (In order to have all the
-ACPI power resources etc. and the controller on) and let the client driver
-handle their own runtime PM as they do currently.
+--AUFJoFQLqfvosQXp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Do you think that would work better wrt. fimc-isp-i2c driver?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSNtmeAAoJELSic+t+oim9ibgP/1XbgRoewTbRWjwDer80m+JP
+E4wVyN9NnxjbIYLozbpm3zGgQvD24Uz0TXZUB4NZKehZH9CI8IDZxXYnpKiu8zVC
+osb++hB66BgHNJxn1WjXPPWiLYqsj0SLpFMSQMqFKS0o/J63d38GdhFIyQEbUN8U
+VNRWw8KiDfANWjYXtGCd4TImOw4Z9dLiH54UhpeOXSofZl5fqL/PoSUqdxUYlnM4
+GXRF8IET70rBnv2mQJu6OMvrYXc0i8KV1xY651LaVSGpdF3yWBVkDYL+lsMrD59a
+BERUq7SaRgHJv3gMhoLa1HT03Wv0tv+g5PFEg3pcgCvkKYlctPj4qCBt38WAkoYE
+QTIgTXiKNTbFgGtpw5kTxjN9gwVvWGJ7VBPPtzIEMRYxrXCHi12qS1J+zMuJjlVh
+AmIaHJVFsXp2q0JLw5N6Hpcltq1FM2wnN3bPVto9lqT3ZKV4CZxnwMdnW9WXATv6
+HgoL5GrjBjFcOLqKYz4xnNeCak+y7rfVGnXNJjVgiH/RTwmC8SmBPmoY7VbIqdHm
+FVaS1WS/FfA5OeCEx6XM8pCd7Eqk+aHmfgu5XTh3xNmd8gP2poNay3lkmplDzgn7
+1Inlz9DT/55O7fHNmM01yb3pmi6zNzgf7D3L89WE3Kk8YBR+z1IyTjgTcO+54vUE
+F8IzpQCjjfxpNjNq9Eyl
+=XVEx
+-----END PGP SIGNATURE-----
+
+--AUFJoFQLqfvosQXp--
