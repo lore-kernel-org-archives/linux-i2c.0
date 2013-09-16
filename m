@@ -1,149 +1,128 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client devices
-Date: Mon, 16 Sep 2013 21:07:07 +0200
-Message-ID: <1861747.RtS0ZLgUUN@vostro.rjw.lan>
-References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com> <5235BA9C.1090509@gmail.com> <20130916084708.GN7393@intel.com>
+From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 3/9] irqdomain: Introduce __irq_create_of_mapping()
+Date: Mon, 16 Sep 2013 16:17:28 -0500
+Message-ID: <52377568.6010204@gmail.com>
+References: <1379320326-13241-1-git-send-email-treding@nvidia.com> <1379320326-13241-4-git-send-email-treding@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20130916084708.GN7393@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, Kevin Hilman <khilman@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1379320326-13241-4-git-send-email-treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Monday, September 16, 2013 11:47:08 AM Mika Westerberg wrote:
-> On Sun, Sep 15, 2013 at 03:48:12PM +0200, Sylwester Nawrocki wrote:
-> > On 09/13/2013 05:40 PM, Mika Westerberg wrote:
-> > [...]
-> > >>>The call to pm_runtime_get_noresume() should make sure that the device is
-> > >>>in active state (at least in state where it can access the bus) if I'm
-> > >>>understanding this right.
-> > >>
-> > >>I can't see how this would happen. How runtime_resume/runtime_suspend
-> > >>callbacks would get invoked with this code, if, e.g. originally driver called
-> > >>pm_runtime_enable(), pm_runtime_get_sync(), pm_runtime_put_sync() in probe() ?
-> > >
-> > >The driver callbacks are not called but if the device has been attached to
-> > >a power domain (like we do with ACPI) the power domain callbacks get called
-> > >and it brings the "bus" to such state that we are able to access the
-> > >device. That also was the reason I used _noresume() but didn't look too
-> > >close the implementation.
-> > 
-> > OK, but if a client driver assumes default inactive power state it
-> > will expect
-> > its callbacks to get called. Otherwise exisiting code might break. So, e.g.
-> > in case of s5p-tv it would rather need to be something like:
-> > 
-> > 	pm_runtime_put()
-> > 
-> > 	pm_runtime_get_sync()
-> >  	sii9234_verify_version()
-> >  	pm_runtime_put(dev)
+On 09/16/2013 03:32 AM, Thierry Reding wrote:
+> This is a version of irq_create_of_mapping() that propagates the precise
+> error code instead of returning 0 for all errors. It will be used in
+> subsequent patches to allow further propagation of error codes.
 > 
-> Yes, or even call directly its runtime_resume callback to bring the device
-> to the active state.
-> 
-> > >>pm_runtime_get_noresume() merely increments usage counter of a device.
-> > >>It seems that these changes will break the s5p-tv driver. I might be missing
-> > >>something though.
-> > >
-> > >You are right and Kevin also mentioned this. It should be pm_runtime_get(),
-> > >if I'm not mistaken.
-> > 
-> > Note that client drivers usually call pm_runtime_enable() only when
-> > it is safe
-> > to call their driver's runtime PM callbacks. By enabling runtime PM
-> > before the
-> > client's driver has completely initialized we may risk that the
-> > callbacks are
-> > executed with uninitialized data, if I understand things correctly.
-> 
-> I think that calling pm_runtime_enable() on behalf of the client driver
-> shouldn't cause any problems. There is no PM events queued for that device
-> yet (and we have prevented that from happening when we called
-> _get_noresume() for the device).
+> To avoid code duplication, implement irq_create_of_mapping() as a
+> wrapper around the new __irq_create_of_mapping().
 
-That only is the case if the device in RPM_ACTIVE when we enable runtime PM for
-it.  If it is RPM_SUSPENDED at that point, it still is possible that the resume
-callback will be executed then.
+This function is a manageable number of callers that the callers should
+just be updated and avoid the wrapper.
 
-> Only when the client driver calls _put() things start to happen and at that
-> phase the runtime PM hooks should be usable.
-> 
-> > >>As Mark pointed out this is currently unwanted behaviour to runtime PM
-> > >>activate a bus controller device manually in the core for when the client's
-> > >>probe() is executed, since i2c core will activate the bus controller for when
-> > >>transfer is being carried out.
-> > >>
-> > >>But I can understand this is needed for ACPI and it shouldn't break existing
-> > >>drivers, that do runtime PM activate the client device in probe().
-> > >
-> > >Indeed, we don't want to break anything (and we still need something like
-> > >this for ACPI).
-> > >
-> > >>Now I'm sure this will break power management of the drivers/media/exynos4-is
-> > >>driver, due to incorrect power sequence (power domain and clocks handling).
-> > >>I'll try to take care of it in separate patch, as I have some patches pending,
-> > >>that move most of code from drivers/media/exynos4-is/fimc-is-sensor.c to
-> > >>drivers/media/i2c/s5k6a3.c.
-> > >
-> > >I missed that code when I converted existing users to this method. Sorry
-> > >about that (I can handle that in the next version).
-> > >
-> > >I quickly looked at it and I don't see anything that could break (once
-> > >converted). What it does is this:
-> > >
-> > >	pm_runtime_no_callbacks(dev);
-> > >	pm_runtime_enable(dev);
-> > >
-> > >changing that to:
-> > >
-> > >	pm_runtime_no_callbacks(dev);
-> > >	pm_runtime_put(dev);
-> > >
-> > >shouldn't cause problems AFAICT.
-> > 
-> > Yes, considering this driver in isolation it should be fine.
-> > 
-> > However, I observed system suspend issues when the I2C bus controller was
-> > being activated (which would happen in the I2C core after your changes)
-> > before some other driver has initialized.
-> > 
-> > So to ensure things continue to work the "fimc-isp-i2c" driver would need
-> > to be registered after the "exynos4-fimc-is" driver has initialized. Or the
-> > "exynos4-fimc-is" would need to call of_platform_populate() to instantiate
-> > its all children devices as specified in device tree (see arch/arm/boot/dts/
-> > exynos4x12.dtsi in -next). "simple-bus" would then have to be not listed in
-> > the compatible property of that top level device. So to avoid regressions
-> > some additional changes would be needed, outside of this particular I2C
-> > client driver. I guess this could be avoided by better design of the
-> > exynos4-is driver right from the beginning. But it's all some times tricky
-> > when there is some many IP blocks involved and the hardware behaviour/device
-> > interactions are not always well documented.
-> 
-> OK.
-> 
-> I'm actually thinking that it is probably better now if we don't touch the
-> client runtime PM at all in the I2C core.
-> 
-> I proposed a less intrusive solution in this same thread where we power the
-> I2C controller briefly at the client ->probe() (In order to have all the
-> ACPI power resources etc. and the controller on) and let the client driver
-> handle their own runtime PM as they do currently.
+Rob
 
-I'm not sure if the I2C core needs to power up the controller at the probe time.
-That may be left to the client driver altogether.  I mean, if the client wants
-the controller to be powered up, it should just call
-pm_runtime_get_sync(controller device) at a suitable place (and then do the
-corresponding _put when the controller is not necessary anu more) from its
-->probe() callback.
+> 
+> Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+> ---
+>  include/linux/of_irq.h |  3 +++
+>  kernel/irq/irqdomain.c | 39 +++++++++++++++++++++++++++++----------
+>  2 files changed, 32 insertions(+), 10 deletions(-)
+> 
+> diff --git a/include/linux/of_irq.h b/include/linux/of_irq.h
+> index 535cecf..c383dd1 100644
+> --- a/include/linux/of_irq.h
+> +++ b/include/linux/of_irq.h
+> @@ -63,6 +63,9 @@ extern int of_irq_map_raw(struct device_node *parent, const __be32 *intspec,
+>  			  struct of_irq *out_irq);
+>  extern int of_irq_map_one(struct device_node *device, int index,
+>  			  struct of_irq *out_irq);
+> +extern int __irq_create_of_mapping(struct device_node *controller,
+> +				   const u32 *intspec, unsigned int intsize,
+> +				   unsigned int *virqp);
+>  extern unsigned int irq_create_of_mapping(struct device_node *controller,
+>  					  const u32 *intspec,
+>  					  unsigned int intsize);
+> diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
+> index d2a3b01..9867616 100644
+> --- a/kernel/irq/irqdomain.c
+> +++ b/kernel/irq/irqdomain.c
+> @@ -484,39 +484,58 @@ int irq_create_strict_mappings(struct irq_domain *domain, unsigned int irq_base,
+>  }
+>  EXPORT_SYMBOL_GPL(irq_create_strict_mappings);
+>  
+> -unsigned int irq_create_of_mapping(struct device_node *controller,
+> -				   const u32 *intspec, unsigned int intsize)
+> +int __irq_create_of_mapping(struct device_node *controller, const u32 *intspec,
+> +			    unsigned int intsize, unsigned int *virqp)
+>  {
+> +	unsigned int type = IRQ_TYPE_NONE;
+>  	struct irq_domain *domain;
+>  	irq_hw_number_t hwirq;
+> -	unsigned int type = IRQ_TYPE_NONE;
+>  	unsigned int virq;
+> +	int ret;
+>  
+>  	domain = controller ? irq_find_host(controller) : irq_default_domain;
+>  	if (!domain) {
+>  		pr_warn("no irq domain found for %s !\n",
+>  			of_node_full_name(controller));
+> -		return 0;
+> +		return -EPROBE_DEFER;
+>  	}
+>  
+>  	/* If domain has no translation, then we assume interrupt line */
+>  	if (domain->ops->xlate == NULL)
+>  		hwirq = intspec[0];
+>  	else {
+> -		if (domain->ops->xlate(domain, controller, intspec, intsize,
+> -				     &hwirq, &type))
+> -			return 0;
+> +		ret = domain->ops->xlate(domain, controller, intspec, intsize,
+> +					 &hwirq, &type);
+> +		if (ret)
+> +			return ret;
+>  	}
+>  
+>  	/* Create mapping */
+> -	virq = irq_create_mapping(domain, hwirq);
+> -	if (!virq)
+> -		return virq;
+> +	ret = __irq_create_mapping(domain, hwirq, &virq);
+> +	if (ret)
+> +		return ret;
+>  
+>  	/* Set type if specified and different than the current one */
+>  	if (type != IRQ_TYPE_NONE &&
+>  	    type != irq_get_trigger_type(virq))
+>  		irq_set_irq_type(virq, type);
+> +
+> +	if (virqp)
+> +		*virqp = virq;
+> +
+> +	return 0;
+> +}
+> +
+> +unsigned int irq_create_of_mapping(struct device_node *controller,
+> +				   const u32 *intspec, unsigned int intsize)
+> +{
+> +	unsigned int virq;
+> +	int ret;
+> +
+> +	ret = __irq_create_of_mapping(controller, intspec, intsize, &virq);
+> +	if (ret)
+> +		return 0;
+> +
+>  	return virq;
+>  }
+>  EXPORT_SYMBOL_GPL(irq_create_of_mapping);
+> 
 
-Or the core can just check if the device is in the ACPI PM domain and power up
-the controller if that's the case.  However, that may not match the case when
-the I2C client is not a direct descendant of the controller (it may just use
-an I2C resource pointing to the controller via a namespace path).
-
-Thanks,
-Rafael
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
