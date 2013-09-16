@@ -1,88 +1,67 @@
-From: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 5/9] of/irq: Introduce __of_irq_to_resource()
-Date: Mon, 16 Sep 2013 16:29:15 -0500
-Message-ID: <5237782B.3030804@gmail.com>
-References: <1379320326-13241-1-git-send-email-treding@nvidia.com> <1379320326-13241-6-git-send-email-treding@nvidia.com>
+From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Subject: [Patch v2] power/mpc85xx: Add delay after enabling I2C master
+Date: Mon, 16 Sep 2013 15:06:25 -0700
+Message-ID: <1379369185-14590-1-git-send-email-yorksun@freescale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1379320326-13241-6-git-send-email-treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/16/2013 03:32 AM, Thierry Reding wrote:
-> This is a version of of_irq_to_resource() that propagates the precise
-> error code instead of returning 0 for all errors. It will be used in
-> subsequent patches to allow further propagation of error codes.
-> 
-> To avoid code duplication, implement of_irq_to_resource() as a wrapper
-> around the new __of_irq_to_resource().
+Erratum A-006037 indicates I2C controller executes the write to I2CCR only
+after it sees SCL idle for 64K cycle of internal I2C controller clocks. If
+during this waiting period, I2C controller is disabled (I2CCR[MEN] set to
+0), then the controller could end in bad state, and hang the future access
+to I2C register.
 
-I think the callers in this case are manageable to update as well.
-Several cases could simply use irq_of_parse_and_map instead as they just
-pass in a NULL resource.
+The mpc_i2c_fixup() function tries to recover the bus from a stalled state
+where the 9th clock pulse wasn't generated. However, this workaround
+disables and enables I2C controller without meeting waiting requirement of
+this erratum.
 
-Rob
+This erratum applies to some 85xx SoCs. It is safe to apply to all of them
+for mpc_i2c_fixup().
 
-> 
-> Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
-> ---
->  drivers/of/irq.c | 33 +++++++++++++++++++++++++--------
->  1 file changed, 25 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/of/irq.c b/drivers/of/irq.c
-> index 8225289..57396fd 100644
-> --- a/drivers/of/irq.c
-> +++ b/drivers/of/irq.c
-> @@ -343,15 +343,15 @@ int of_irq_map_one(struct device_node *device, int index, struct of_irq *out_irq
->  }
->  EXPORT_SYMBOL_GPL(of_irq_map_one);
->  
-> -/**
-> - * of_irq_to_resource - Decode a node's IRQ and return it as a resource
-> - * @dev: pointer to device tree node
-> - * @index: zero-based index of the irq
-> - * @r: pointer to resource structure to return result into.
-> - */
-> -int of_irq_to_resource(struct device_node *dev, int index, struct resource *r)
-> +static int __of_irq_to_resource(struct device_node *dev, unsigned int index,
-> +				struct resource *r)
->  {
-> -	int irq = irq_of_parse_and_map(dev, index);
-> +	unsigned int irq;
-> +	int ret;
-> +
-> +	ret = of_irq_get(dev, index, &irq);
-> +	if (ret)
-> +		return ret;
->  
->  	/* Only dereference the resource if both the
->  	 * resource and the irq are valid. */
-> @@ -373,6 +373,23 @@ int of_irq_to_resource(struct device_node *dev, int index, struct resource *r)
->  
->  	return irq;
->  }
-> +
-> +/**
-> + * of_irq_to_resource - Decode a node's IRQ and return it as a resource
-> + * @dev: pointer to device tree node
-> + * @index: zero-based index of the irq
-> + * @r: pointer to resource structure to return result into.
-> + */
-> +int of_irq_to_resource(struct device_node *dev, int index, struct resource *r)
-> +{
-> +	int ret;
-> +
-> +	ret = __of_irq_to_resource(dev, index, r);
-> +	if (ret < 0)
-> +		return 0;
-> +
-> +	return ret;
-> +}
->  EXPORT_SYMBOL_GPL(of_irq_to_resource);
->  
->  /**
-> 
+Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+---
+Change log:
+ v2: remote reviewed-by and tested-by lines added by gerrit
+     send to proper mailing list
+
+ drivers/i2c/busses/i2c-mpc.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index b80c768..55dce43 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -106,7 +106,12 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ {
+ 	int k;
+-	u32 delay_val = 1000000 / i2c->real_clk + 1;
++	u32 delay_val;
++#ifdef CONFIG_PPC_85xx
++	delay_val = 65536 / (fsl_get_sys_freq() / 2000000);	/* 64K cycle */
++#else
++	delay_val = 1000000 / i2c->real_clk + 1;
++#endif
+ 
+ 	if (delay_val < 2)
+ 		delay_val = 2;
+@@ -116,7 +121,11 @@ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ 		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
+ 		udelay(delay_val);
+ 		writeccr(i2c, CCR_MEN);
++#ifdef CONFIG_PPC_85xx
++		udelay(delay_val);
++#else
+ 		udelay(delay_val << 1);
++#endif
+ 	}
+ }
+ 
+-- 
+1.7.9.5
