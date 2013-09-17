@@ -1,67 +1,66 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 3/9] irqdomain: Introduce __irq_create_of_mapping()
-Date: Tue, 17 Sep 2013 10:21:15 +0200
-Message-ID: <20130917082114.GA6757@ulmo>
-References: <1379320326-13241-1-git-send-email-treding@nvidia.com>
- <1379320326-13241-4-git-send-email-treding@nvidia.com>
- <52377568.6010204@gmail.com>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
+ devices
+Date: Tue, 17 Sep 2013 11:48:52 +0100
+Message-ID: <20130917104852.GN21013@sirena.org.uk>
+References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1861747.RtS0ZLgUUN@vostro.rjw.lan>
+ <20130916233111.GB21013@sirena.org.uk>
+ <1820315.QOOAzSjac3@vostro.rjw.lan>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gKMricLos+KVdGMg"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="GOzekVbrLdOLv44p"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52377568.6010204-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Rob Herring <robherring2-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1820315.QOOAzSjac3-sKB8Sp2ER+y1GS7QM15AGw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---gKMricLos+KVdGMg
+--GOzekVbrLdOLv44p
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 16, 2013 at 04:17:28PM -0500, Rob Herring wrote:
-> On 09/16/2013 03:32 AM, Thierry Reding wrote:
-> > This is a version of irq_create_of_mapping() that propagates the precise
-> > error code instead of returning 0 for all errors. It will be used in
-> > subsequent patches to allow further propagation of error codes.
-> >=20
-> > To avoid code duplication, implement irq_create_of_mapping() as a
-> > wrapper around the new __irq_create_of_mapping().
->=20
-> This function is a manageable number of callers that the callers should
-> just be updated and avoid the wrapper.
+On Tue, Sep 17, 2013 at 03:25:25AM +0200, Rafael J. Wysocki wrote:
+> On Tuesday, September 17, 2013 12:31:11 AM Mark Brown wrote:
 
-Okay, I can do that. Can I take this as a sign that you're generally
-okay with the idea behind the series?
+> > It shouldn't even need to do that, it should just be able to rely on the
+> > controller to power itself up when asked to do work.   This is how the
+> > existing implementations are done - the controller power management is
+> > totally transparent to the slave.
 
-Thierry
+> If both the I2C client and I2C controller have corresponding objects in the
+> ACPI namespace and the client's object is a child of the controller's object,
+> then in order to power up the client we need to power up the controller even
+> if no transactions are going to be carried out.  That's what the spec simply
+> requires us to do in that case.
 
---gKMricLos+KVdGMg
-Content-Type: application/pgp-signature
+Like I said I think this should be handled by the power domains (or
+otherwise in the ACPI specific code) - we shouldn't be needing to modify
+individual drivers to work around thoughtlessness in the ACPI spec.
+
+--GOzekVbrLdOLv44p
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v2.0.21 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSOBD6AAoJEN0jrNd/PrOhuOQP/37S/PM7W23HJoJ7QkQeRCJs
-b8M0CB2JbOH3epRGHenbu0X6JgYshmZoNpcw5S4G4z7Qh7LH3kbCpL6GTXyRu1Jl
-zpz2Bo4WcCjyVyT7JRYOtenzbejiuFvirOwsJb12cxDXrgF/1brj2CQXBKYLFHce
-/X/5YHuTmubpTcXAvl5DShcKafQ9s26ldc9jLCEZsbxLpRtNHvE5QORRg/04FWk6
-KzId+yDIM+ob0URvBaq/9OygxjfL7XZoFBK4HGDX8qwRd0ONN03Gd0RnIaLtCP45
-dh3EGklJnlxOw+cvpENV/I+fwzbP71bk072xmq4M/DBnyVO7HZ6gGBr82Y3SbGZ4
-b1iptU4ewmh3MkntLVzuYZvOiXH3seX+BWdiw5TGeASY17NkFJAphfBPrnjY+6vP
-bDlD8APgdvQ0r3iU92CAC/xjJtF76BAQEVPz63DL1f46bZN+oCTzGlKjg5VEPjAK
-7/cJJSlWR+oq2QH8w6mkzzsHbLsF6nEbPdXjZmi/QDw1qV/M6+dwND8LM/2iB9rr
-J8BHX0/B7D6hah7l8wiaqSzpYjbgy5LfMuiKPgN7TYhkTvQ14En8Ml8Vxg8R3h0S
-2convQV5s9OBoh+/MwAF4PT6mp/m5lr/BAFn1t+fgiwLspVrNGPlDwjYpGLZgwGh
-8VqtwbJJDwKuK2pA9xiz
-=5oTC
+iQIcBAEBAgAGBQJSODORAAoJELSic+t+oim90iEP/jU3tnrrfTERoFK9K9fLZegB
+LjrFc+cOXOE7/J+FOckwqDiSV/xgmyvP59+XTdI/62Cx0+oc9XeAz5Y7k7DaIHws
+bHGcen9K9SjQPlajRodHZR1VE7PB6Wp4yfm/wMInvl0k8gC6M0NUuz22VKP2UQVk
+UsUT6K/Dx7eA2OtAKCId70rwQwUVhDW4UGwlSSMcwAY/+k0X1U2aB5C2OXZXH5Qs
+xMYHJa+6eJ3Gsgf+uSL02+RiPbYy2MXgwTRTI874Fh54yy6RxFc8SyuMveBfCxwI
+Nq0KuDdZ52KOIhWrM9orPEQXXNIjtnboH9zNlOQAqDeWOZ94nDYLyvQk5QHeNoUs
+q2Db3eC7kQ109u1CkQOB294BxyAl8EHKYKV3BoQTy0YS39ZTh75F8BL6t3Dscc0I
+UjcKH9hrIk2eLgGsaAwePbrrTTcqybQrNT9FCiSTJHeuzN/9/APEZ2nisC3oaeaz
+gDX59vyoT38AhrLcvlYQr2uh0ZwbYFsfmt1P4KwncLzYsSQP07zJS9riL5983gg6
+8EL0WAv4mHjW4bvyEIMQZfATfL20ydi0fnfbtH+AYQK7/58GEnHWkc/Wtthr2vLt
+Fwhdmjh3HiZIGs7Y9eKsHCWRMPtoDaoTBO3H3qoPGU+qF0EM+966g/7e9YYdGFPo
+996UUDK4oT2TID4tAOLS
+=UP9s
 -----END PGP SIGNATURE-----
 
---gKMricLos+KVdGMg--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--GOzekVbrLdOLv44p--
