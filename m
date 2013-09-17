@@ -1,40 +1,42 @@
-From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [linuxppc-release] [Patch v2] power/mpc85xx: Add delay after
- enabling I2C master
-Date: Mon, 16 Sep 2013 16:40:03 -0700
-Message-ID: <523796D3.7040105@freescale.com>
-References: <1379369185-14590-1-git-send-email-yorksun@freescale.com>
+From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client devices
+Date: Tue, 17 Sep 2013 03:25:25 +0200
+Message-ID: <1820315.QOOAzSjac3@vostro.rjw.lan>
+References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com> <1861747.RtS0ZLgUUN@vostro.rjw.lan> <20130916233111.GB21013@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1379369185-14590-1-git-send-email-yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+In-Reply-To: <20130916233111.GB21013-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/16/2013 03:06 PM, York Sun wrote:
-> Erratum A-006037 indicates I2C controller executes the write to I2CCR only
-> after it sees SCL idle for 64K cycle of internal I2C controller clocks. If
-> during this waiting period, I2C controller is disabled (I2CCR[MEN] set to
-> 0), then the controller could end in bad state, and hang the future access
-> to I2C register.
+On Tuesday, September 17, 2013 12:31:11 AM Mark Brown wrote:
+> On Mon, Sep 16, 2013 at 09:07:07PM +0200, Rafael J. Wysocki wrote:
 > 
-> The mpc_i2c_fixup() function tries to recover the bus from a stalled state
-> where the 9th clock pulse wasn't generated. However, this workaround
-> disables and enables I2C controller without meeting waiting requirement of
-> this erratum.
+> > That may be left to the client driver altogether.  I mean, if the client wants
+> > the controller to be powered up, it should just call
+> > pm_runtime_get_sync(controller device) at a suitable place (and then do the
+> > corresponding _put when the controller is not necessary anu more) from its
+> > ->probe() callback.
 > 
-> This erratum applies to some 85xx SoCs. It is safe to apply to all of them
-> for mpc_i2c_fixup().
-> 
-> Signed-off-by: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-> ---
-> Change log:
->  v2: remote reviewed-by and tested-by lines added by gerrit
->      send to proper mailing list
+> It shouldn't even need to do that, it should just be able to rely on the
+> controller to power itself up when asked to do work.   This is how the
+> existing implementations are done - the controller power management is
+> totally transparent to the slave.
 
-Pardon my typo. I meant to type "remove", instead of "remote".
+If both the I2C client and I2C controller have corresponding objects in the
+ACPI namespace and the client's object is a child of the controller's object,
+then in order to power up the client we need to power up the controller even
+if no transactions are going to be carried out.  That's what the spec simply
+requires us to do in that case.
 
-York
+Thanks,
+Rafael
+
+
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
