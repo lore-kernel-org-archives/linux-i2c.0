@@ -1,69 +1,48 @@
-From: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
-Subject: Re: [RFC] binding for nvec mfd device
-Date: Tue, 17 Sep 2013 09:53:02 +0200
-Message-ID: <17687182.lGWlO75r41@fb07-iapwap2.physik.uni-giessen.de>
-References: <1416005.VvfEeGuSWa@ax5200p> <2910047.nJ4yDntMXS@ax5200p> <51F97B92.1040707@wwwdotorg.org>
+From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/4 v2] mfd: add STw481x driver
+Date: Tue, 17 Sep 2013 09:06:29 +0100
+Message-ID: <20130917080629.GT16984@lee--X1>
+References: <1379094851-26385-1-git-send-email-linus.walleij@linaro.org>
+ <20130916091956.GF3999@lee--X1>
+ <20130916104009.GA29403@sirena.org.uk>
+ <CACRpkdatiELF3WK9qE_Mgcq3iCgv5w3X22xp1=232JJq9sWggQ@mail.gmail.com>
+ <20130916135118.GD29403@sirena.org.uk>
+ <20130916152104.GA3909@katana>
+ <20130916153414.GN16984@lee--X1>
+ <20130916160001.GC3909@katana>
+ <20130916160537.GO16984@lee--X1>
+ <20130916162428.GE29403@sirena.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <51F97B92.1040707-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130916162428.GE29403-GFdadSzt00ze9xe1eoZjHA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
-Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Ian Campbell <ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wang Shilong <wangshilong1991-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Stephen,
+On Mon, 16 Sep 2013, Mark Brown wrote:
 
-Am Mittwoch, 31. Juli 2013, 15:03:14 schrieb Stephen Warren:
-> The generic I2C bindings already define that the other chips on the I2C
-> bus appear directly underneath the I2C controller's DT node. Perhaps it
-> isn't a big issue to change that, since each I2C controller can define
-> the layout of its own node?
-> 
-> Anyway, we can probably get away without introducing multiple levels by
-> adding some more bits or cells into the reg address for I2C child nodes:
-> 
-> i2c@xxxxxxxx {
-> 	compatible = "nvidia,tegra20-i2c";
-> 	... resources
-> 	#address-cells = <2>;
-> 
-> 	codec {
-> 		// 0 means external slave, 0x1c is slave's address
-> 		reg = <0 0x1c>;
-> 		...
-> 	};
-> 
-> 	tegraslave {
-> 		// 0 means internal slave, 0x80 is controller's address
-> 		reg = <1 0x80>;
-> 		...
-> 	};
-> };
-> 
-> ... where each of those child nodes could be repeated N times. We could
-> also or in 0x80000000 to the reg values in the child nodes rather than
-> using a separate cell if we wanted.
+> On Mon, Sep 16, 2013 at 05:05:37PM +0100, Lee Jones wrote:
+> > > > So in the mean time are you happy with this "dummy" approach?
+>=20
+> > > No. "dummy" is reserved for a dummy device in case an i2c slave n=
+eeds
+> > > more than one address. The proper solution would be if
+> > > i2c_sysfs_new_device() could recognize the of_device_ids.
+>=20
+> > Okay, thanks for clarifying.
+>=20
+> Or for now to use something like stw481x (even if it's never expected=
+ to
+> actually make a difference).
 
-thinking a little more about this, this is way to complicated. "Master" and 
-"Slave" functions are properties of the same i2c controller. Therefore, just 
-adding a small property to the i2c controller node saying "enable slave 
-support" is sufficient, as all the resources are shared (which is another good 
-argument that it is the same device, hence same node). I would just add the 
-slave i2c address, which is all the slave driver needs, e.g.
-"slave-address = <8c>;" to enable slave mode operation. Both modes can be 
-enabled at the same time (for loopback comm). AFAIK, if only the slave part is 
-used, the master part shouldn't hurt if programmed (same as other way around).
+If Linus wants to resubmit, I'm happy with that.
 
-The difficult part is how to specify the master if only the slave is used. As 
-the master is naturally on the same bus as the slave, it should be a child 
-node of the controller. Therefore it needs a special i2c address, maybe 
-0x80000000 as you mentioned above, but this will be rejected by the i2c core. 
-Instantiating the nvec as an i2c client could be another problem.
-
-It looks like that the i2c subsystem needs some modifications to allow to 
-specify a master device which is attached to a slave controller. Maybe someone 
-from the i2c folks (cc'ed) can comment on this?
-
-Marc
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
