@@ -1,202 +1,93 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client devices
-Date: Tue, 17 Sep 2013 23:38:44 +0200
-Message-ID: <4065873.t6fMJPXtCW@vostro.rjw.lan>
-References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com> <1861747.RtS0ZLgUUN@vostro.rjw.lan> <20130917110021.GU7393@intel.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [RFC] binding for nvec mfd device
+Date: Tue, 17 Sep 2013 15:48:12 -0600
+Message-ID: <5238CE1C.3050107@wwwdotorg.org>
+References: <1416005.VvfEeGuSWa@ax5200p> <2910047.nJ4yDntMXS@ax5200p> <51F97B92.1040707@wwwdotorg.org> <17687182.lGWlO75r41@fb07-iapwap2.physik.uni-giessen.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130917110021.GU7393-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Sylwester Nawrocki <sylvester.nawrocki-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dmitry Torokhov <dmitry.torokhov-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Mauro Carvalho Chehab <m.chehab-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Arnd Bergmann <arnd-r2nGTMty4D4@public.gmane.org>, Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Liam Girdwood <lgirdwood-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Kyungmin Park <kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <17687182.lGWlO75r41-D3pzGp0ZKuDWZbiwp4sFPyrtisivX6KghOMvlBiLbJSELgA04lAiVw@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Ian Campbell <ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, September 17, 2013 02:00:22 PM Mika Westerberg wrote:
-> On Mon, Sep 16, 2013 at 09:07:07PM +0200, Rafael J. Wysocki wrote:
-> > On Monday, September 16, 2013 11:47:08 AM Mika Westerberg wrote:
-> > > On Sun, Sep 15, 2013 at 03:48:12PM +0200, Sylwester Nawrocki wrote:
-> > > > On 09/13/2013 05:40 PM, Mika Westerberg wrote:
-> > > > [...]
-> > > > >>>The call to pm_runtime_get_noresume() should make sure that the device is
-> > > > >>>in active state (at least in state where it can access the bus) if I'm
-> > > > >>>understanding this right.
-> > > > >>
-> > > > >>I can't see how this would happen. How runtime_resume/runtime_suspend
-> > > > >>callbacks would get invoked with this code, if, e.g. originally driver called
-> > > > >>pm_runtime_enable(), pm_runtime_get_sync(), pm_runtime_put_sync() in probe() ?
-> > > > >
-> > > > >The driver callbacks are not called but if the device has been attached to
-> > > > >a power domain (like we do with ACPI) the power domain callbacks get called
-> > > > >and it brings the "bus" to such state that we are able to access the
-> > > > >device. That also was the reason I used _noresume() but didn't look too
-> > > > >close the implementation.
-> > > > 
-> > > > OK, but if a client driver assumes default inactive power state it
-> > > > will expect
-> > > > its callbacks to get called. Otherwise exisiting code might break. So, e.g.
-> > > > in case of s5p-tv it would rather need to be something like:
-> > > > 
-> > > > 	pm_runtime_put()
-> > > > 
-> > > > 	pm_runtime_get_sync()
-> > > >  	sii9234_verify_version()
-> > > >  	pm_runtime_put(dev)
-> > > 
-> > > Yes, or even call directly its runtime_resume callback to bring the device
-> > > to the active state.
-> > > 
-> > > > >>pm_runtime_get_noresume() merely increments usage counter of a device.
-> > > > >>It seems that these changes will break the s5p-tv driver. I might be missing
-> > > > >>something though.
-> > > > >
-> > > > >You are right and Kevin also mentioned this. It should be pm_runtime_get(),
-> > > > >if I'm not mistaken.
-> > > > 
-> > > > Note that client drivers usually call pm_runtime_enable() only when
-> > > > it is safe
-> > > > to call their driver's runtime PM callbacks. By enabling runtime PM
-> > > > before the
-> > > > client's driver has completely initialized we may risk that the
-> > > > callbacks are
-> > > > executed with uninitialized data, if I understand things correctly.
-> > > 
-> > > I think that calling pm_runtime_enable() on behalf of the client driver
-> > > shouldn't cause any problems. There is no PM events queued for that device
-> > > yet (and we have prevented that from happening when we called
-> > > _get_noresume() for the device).
-> > 
-> > That only is the case if the device in RPM_ACTIVE when we enable runtime PM for
-> > it.  If it is RPM_SUSPENDED at that point, it still is possible that the resume
-> > callback will be executed then.
+On 09/17/2013 01:53 AM, Marc Dietrich wrote:
+> Hi Stephen,
 > 
-> OK, thanks for the clarification.
+> Am Mittwoch, 31. Juli 2013, 15:03:14 schrieb Stephen Warren:
+>> The generic I2C bindings already define that the other chips on the I2C
+>> bus appear directly underneath the I2C controller's DT node. Perhaps it
+>> isn't a big issue to change that, since each I2C controller can define
+>> the layout of its own node?
+>>
+>> Anyway, we can probably get away without introducing multiple levels by
+>> adding some more bits or cells into the reg address for I2C child nodes:
+>>
+>> i2c@xxxxxxxx {
+>> 	compatible = "nvidia,tegra20-i2c";
+>> 	... resources
+>> 	#address-cells = <2>;
+>>
+>> 	codec {
+>> 		// 0 means external slave, 0x1c is slave's address
+>> 		reg = <0 0x1c>;
+>> 		...
+>> 	};
+>>
+>> 	tegraslave {
+>> 		// 0 means internal slave, 0x80 is controller's address
+>> 		reg = <1 0x80>;
+>> 		...
+>> 	};
+>> };
+>>
+>> ... where each of those child nodes could be repeated N times. We could
+>> also or in 0x80000000 to the reg values in the child nodes rather than
+>> using a separate cell if we wanted.
 > 
-> > > Only when the client driver calls _put() things start to happen and at that
-> > > phase the runtime PM hooks should be usable.
-> > > 
-> > > > >>As Mark pointed out this is currently unwanted behaviour to runtime PM
-> > > > >>activate a bus controller device manually in the core for when the client's
-> > > > >>probe() is executed, since i2c core will activate the bus controller for when
-> > > > >>transfer is being carried out.
-> > > > >>
-> > > > >>But I can understand this is needed for ACPI and it shouldn't break existing
-> > > > >>drivers, that do runtime PM activate the client device in probe().
-> > > > >
-> > > > >Indeed, we don't want to break anything (and we still need something like
-> > > > >this for ACPI).
-> > > > >
-> > > > >>Now I'm sure this will break power management of the drivers/media/exynos4-is
-> > > > >>driver, due to incorrect power sequence (power domain and clocks handling).
-> > > > >>I'll try to take care of it in separate patch, as I have some patches pending,
-> > > > >>that move most of code from drivers/media/exynos4-is/fimc-is-sensor.c to
-> > > > >>drivers/media/i2c/s5k6a3.c.
-> > > > >
-> > > > >I missed that code when I converted existing users to this method. Sorry
-> > > > >about that (I can handle that in the next version).
-> > > > >
-> > > > >I quickly looked at it and I don't see anything that could break (once
-> > > > >converted). What it does is this:
-> > > > >
-> > > > >	pm_runtime_no_callbacks(dev);
-> > > > >	pm_runtime_enable(dev);
-> > > > >
-> > > > >changing that to:
-> > > > >
-> > > > >	pm_runtime_no_callbacks(dev);
-> > > > >	pm_runtime_put(dev);
-> > > > >
-> > > > >shouldn't cause problems AFAICT.
-> > > > 
-> > > > Yes, considering this driver in isolation it should be fine.
-> > > > 
-> > > > However, I observed system suspend issues when the I2C bus controller was
-> > > > being activated (which would happen in the I2C core after your changes)
-> > > > before some other driver has initialized.
-> > > > 
-> > > > So to ensure things continue to work the "fimc-isp-i2c" driver would need
-> > > > to be registered after the "exynos4-fimc-is" driver has initialized. Or the
-> > > > "exynos4-fimc-is" would need to call of_platform_populate() to instantiate
-> > > > its all children devices as specified in device tree (see arch/arm/boot/dts/
-> > > > exynos4x12.dtsi in -next). "simple-bus" would then have to be not listed in
-> > > > the compatible property of that top level device. So to avoid regressions
-> > > > some additional changes would be needed, outside of this particular I2C
-> > > > client driver. I guess this could be avoided by better design of the
-> > > > exynos4-is driver right from the beginning. But it's all some times tricky
-> > > > when there is some many IP blocks involved and the hardware behaviour/device
-> > > > interactions are not always well documented.
-> > > 
-> > > OK.
-> > > 
-> > > I'm actually thinking that it is probably better now if we don't touch the
-> > > client runtime PM at all in the I2C core.
-> > > 
-> > > I proposed a less intrusive solution in this same thread where we power the
-> > > I2C controller briefly at the client ->probe() (In order to have all the
-> > > ACPI power resources etc. and the controller on) and let the client driver
-> > > handle their own runtime PM as they do currently.
-> > 
-> > I'm not sure if the I2C core needs to power up the controller at the probe time.
-> > That may be left to the client driver altogether.  I mean, if the client wants
-> > the controller to be powered up, it should just call
-> > pm_runtime_get_sync(controller device) at a suitable place (and then do the
-> > corresponding _put when the controller is not necessary anu more) from its
-> > ->probe() callback.
-> > 
-> > Or the core can just check if the device is in the ACPI PM domain and power up
-> > the controller if that's the case.  However, that may not match the case when
-> > the I2C client is not a direct descendant of the controller (it may just use
-> > an I2C resource pointing to the controller via a namespace path).
+> thinking a little more about this, this is way to complicated.
+
+Really, this seems extremely simple to me.
+
+> "Master" and 
+> "Slave" functions are properties of the same i2c controller. Therefore, just 
+> adding a small property to the i2c controller node saying "enable slave 
+> support" is sufficient, as all the resources are shared (which is another good 
+> argument that it is the same device, hence same node). I would just add the 
+> slave i2c address, which is all the slave driver needs, e.g.
+
+Perhaps so for this one controller, but we should strive to create a
+binding style that can work with any I2C controller that can be master
+or slave. For a general binding, I think we need to support multiple
+slave addresses. The style above seems to support that with little
+complexity.
+
+> "slave-address = <8c>;" to enable slave mode operation. Both modes can be 
+> enabled at the same time (for loopback comm). AFAIK, if only the slave part is 
+> used, the master part shouldn't hurt if programmed (same as other way around).
 > 
-> I sure hope we don't have to deal with such devices.
-> 
-> What if we make runtime PM enabled for the I2C adapter device only in case
-> of ACPI enumerated devices? That way runtime PM itself keeps the adapter
-> powered on when it has any active kids so we don't violate the ACPI spec,
-> and still let non-ACPI systems to use I2C as they do today.
-> 
-> Then we could do something like:
-> 
-> static int i2c_device_probe(struct device *dev)
-> {
-> 	...
-> 	/*
-> 	 * Make sure that the adapter is powered on when the client is
-> 	 * probed.
-> 	 *
-> 	 * Note that this is no-op on non-ACPI systems as runtime PM for
-> 	 * the adapter is not enabled.
-> 	 */
-> 	pm_runtime_get_sync(&client->adapter->dev);
->         acpi_dev_pm_attach(&client->dev, true);
+> The difficult part is how to specify the master if only the slave is used. As 
+> the master is naturally on the same bus as the slave, it should be a child 
+> node of the controller. Therefore it needs a special i2c address, maybe 
 
-I would make the code indicate the ACPI special case, like:
+Why would the external I2C master be represented in the DT bindings at
+all? It's not really a SW-accessible entity; its presence is only
+observable not something you can initiate interaction with.
 
-	if (ACPI_HANDLE(&client->dev)) {
-		/* Power up the controller, if necessary, to follow the ACPI spec. */
-		pm_runtime_get_sync(&client->adapter->dev);
-		acpi_dev_pm_attach(&client->dev, true);
-	}
+I assume you're not talking about the Tegra I2C controller when you say
+"master" above; that is already represented in the DT as the top-level
+I2C node.
 
-> 
->         status = driver->probe(client, i2c_match_id(driver->id_table, client));
-> 	if (status) {
-> 		...
-> 
+> 0x80000000 as you mentioned above, but this will be rejected by the i2c core. 
+> Instantiating the nvec as an i2c client could be another problem.
+...
+> It looks like that the i2c subsystem needs some modifications to allow to 
+> specify a master device which is attached to a slave controller. Maybe someone 
+> from the i2c folks (cc'ed) can comment on this?
 
-and of course you need to do the corresponding pm_runtime_put() for the
-controller somewhere.
-
-And because ACPI_HANDLE() is simply false for CONFIG_ACPI unset, that would
-cover that case too.
-
-> and enable runtime PM only when we find that there are ACPI I2C devices
-> behind the controller and they are power manageable.
-
-We need to power up the controller regardless of whether or not the child
-devices are power manageable.  If a client device we want to access has an
-ACPI handle, the controller has to be in D0 at that point.
-
-Thanks,
-Rafael
+Yes, you certainly will need some enhancements to the I2C core to
+support slave mode. I suggest that I2C drivers gain an .of_xlate
+callback which translates child node DT reg values (addresses) into the
+(master-vs-slave, I2C address) pair.
