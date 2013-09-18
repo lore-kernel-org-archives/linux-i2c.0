@@ -1,63 +1,61 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: mv64xxx: Fix some build warnings
-Date: Wed, 18 Sep 2013 14:50:52 +0200
-Message-ID: <1379508652-30348-1-git-send-email-treding@nvidia.com>
+From: Srinivas KANDAGATLA <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH 2/4] ARM: STi: Supply I2C configuration to STiH416 SoC
+Date: Wed, 18 Sep 2013 13:57:06 +0100
+Message-ID: <5239A322.5010004@st.com>
+References: <1379498483-4236-1-git-send-email-maxime.coquelin@st.com> <1379498483-4236-3-git-send-email-maxime.coquelin@st.com> <20130918120340.GF16984@lee--X1> <84625B87D65BCF478CC1E9C886A4C314DEF1BD9578@SAFEX1MAIL4.st.com>
+Reply-To: srinivas.kandagatla-qxv4g6HH51o@public.gmane.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <84625B87D65BCF478CC1E9C886A4C314DEF1BD9578-+EwDPpWUVoSs+H57zxxw29BPR1lH4CV8@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Cc: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen GALLIMORE <stephen.gallimore-qxv4g6HH51o@public.gmane.org>, Stuart MENEFY <stuart.menefy-qxv4g6HH51o@public.gmane.org>, Gabriel FERNANDEZ <gabriel.fernandez-qxv4g6HH51o@public.gmane.org>, Olivier CLERGEAUD <olivier.clergeaud-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Some functions and variables are only used if the configuration selects
-HAVE_CLK. Protect them with a corresponding #ifdef CONFIG_HAVE_CLK block
-to avoid compiler warnings.
+On 18/09/13 13:46, Maxime COQUELIN wrote:
+> On 09/18/2013 02:03 PM, Lee Jones wrote:
+>>> >> This patch supplies I2C configuration to STiH416 SoC.
+>>> >>
+>>> >> Cc: Srinivas Kandagatla <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>
+>>> >> Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+>>> >> ---
+>>> >>  arch/arm/boot/dts/stih416-pinctrl.dtsi |   35 ++++++++++++++++++++
+>>> >>  arch/arm/boot/dts/stih416.dtsi         |   57 ++++++++++++++++++++++++++++++++
+>>> >>  2 files changed, 92 insertions(+)
+>>> >>
+>>> >> diff --git a/arch/arm/boot/dts/stih416-pinctrl.dtsi b/arch/arm/boot/dts/stih416-pinctrl.dtsi
+>> > I genuinely don't know the answer to this question, but are these
+>> > nodes identical to the ones you've just put in the stih415 DTSI file?
+>> > If so, I think it will be worth creating a stih41x DTSI rather than
+>> > duplicating lots of stuff unnecessarily.
+> There are close to be identical indeed.
+> For the clocks and pinctrl, the references names are the same, but they are
+> pointing on different nodes, as STiH415 and STiH416 have their own
+> clocks and pinctrl dtsi files.
+> 
+> Srini, what is opinion about this?
 
-Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-mv64xxx.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+There is already a stih41x.dtsi file, but I don't think it is the right
+place for the pinctrl nodes there.
 
-diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
-index 5aead74..bfd870c 100644
---- a/drivers/i2c/busses/i2c-mv64xxx.c
-+++ b/drivers/i2c/busses/i2c-mv64xxx.c
-@@ -697,6 +697,7 @@ static const struct of_device_id mv64xxx_i2c_of_match_table[] = {
- MODULE_DEVICE_TABLE(of, mv64xxx_i2c_of_match_table);
- 
- #ifdef CONFIG_OF
-+#ifdef CONFIG_HAVE_CLK
- static int
- mv64xxx_calc_freq(const int tclk, const int n, const int m)
- {
-@@ -726,16 +727,12 @@ mv64xxx_find_baud_factors(const u32 req_freq, const u32 tclk, u32 *best_n,
- 		return false;
- 	return true;
- }
-+#endif
- 
- static int
- mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 		  struct device *dev)
- {
--	const struct of_device_id *device;
--	struct device_node *np = dev->of_node;
--	u32 bus_freq, tclk;
--	int rc = 0;
--
- 	/* CLK is mandatory when using DT to describe the i2c bus. We
- 	 * need to know tclk in order to calculate bus clock
- 	 * factors.
-@@ -744,6 +741,11 @@ mv64xxx_of_config(struct mv64xxx_i2c_data *drv_data,
- 	/* Have OF but no CLK */
- 	return -ENODEV;
- #else
-+	const struct of_device_id *device;
-+	struct device_node *np = dev->of_node;
-+	u32 bus_freq, tclk;
-+	int rc = 0;
-+
- 	if (IS_ERR(drv_data->clk)) {
- 		rc = -ENODEV;
- 		goto out;
--- 
-1.8.4
+Am not OK with the idea of common pinctrl nodes for STiH415 and STiH416
+for two reasons.
+
+1> If we common up the pinctrl nodes, it will be very difficult to
+accommodate new pinctrls layout which is not guaranteed to be in same
+layout in future SOCs.
+
+2> The retiming values in the pinctrl nodes tend to change as per SOC,
+so it will be difficult to manage it if we common it up.
+
+Am sure we can come up with a dt layout which can reduce duplication,
+but we have to be careful here not to lose the flexiblity to accommodate
+new picntrl layouts, new retimings values based on SOC.
+
+
+thanks,
+srini
+
+>> >
