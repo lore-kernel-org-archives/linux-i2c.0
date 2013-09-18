@@ -1,138 +1,108 @@
-From: Thierry Reding <thierry.reding@gmail.com>
-Subject: Re: [PATCH 7/9] of/platform: Resolve interrupt references at probe
- time
-Date: Wed, 18 Sep 2013 12:43:36 +0200
-Message-ID: <20130918104335.GA8256@ulmo>
-References: <1379320326-13241-1-git-send-email-treding@nvidia.com>
- <1379320326-13241-8-git-send-email-treding@nvidia.com>
- <902E09E6452B0E43903E4F2D568737AB363BD3@DNCE04.ent.ti.com>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 4/4] ARM: STi: Add I2C config to B2000 and B2020 boards
+Date: Wed, 18 Sep 2013 12:40:32 +0100
+Message-ID: <20130918114032.GD16984@lee--X1>
+References: <1379498483-4236-1-git-send-email-maxime.coquelin@st.com>
+ <1379498483-4236-5-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EeQfGwPcQSOJBaQU"
-Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <902E09E6452B0E43903E4F2D568737AB363BD3@DNCE04.ent.ti.com>
-Sender: linux-gpio-owner@vger.kernel.org
-To: "Strashko, Grygorii" <grygorii.strashko@ti.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+In-Reply-To: <1379498483-4236-5-git-send-email-maxime.coquelin@st.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Maxime COQUELIN <maxime.coquelin@st.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, stephen.gallimore@st.com, stuart.menefy@st.com, gabriel.fernandez@st.com, olivier.clergeaud@st.com
 List-Id: linux-i2c@vger.kernel.org
 
+On Wed, 18 Sep 2013, Maxime COQUELIN wrote:
 
---EeQfGwPcQSOJBaQU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Sep 17, 2013 at 01:04:06PM +0000, Strashko, Grygorii wrote:
-> Hi Thierry,
+> This patch supplies I2C configuration to B2000 and B2020
+> based on either STiH415 or STiH416 SoCs.
 >=20
-> On 09/16/2013 11:32 AM, Thierry Reding wrote:> Interrupt references are c=
-urrently resolved very early (when a device is
-> > created). This has the disadvantage that it will fail in cases where the
-> > interrupt parent hasn't been probed and no IRQ domain for it has been
-> > registered yet. To work around that various drivers use explicit
-> > initcall ordering to force interrupt parents to be probed before devices
-> > that need them are created. That's error prone and doesn't always work.
-> > If a platform device uses an interrupt line connected to a different
-> > platform device (such as a GPIO controller), both will be created in the
-> > same batch, and the GPIO controller won't have been probed by its driver
-> > when the depending platform device is created. Interrupt resolution will
-> > fail in that case.
-> >=20
-> > Another common workaround is for drivers to explicitly resolve interrupt
-> > references at probe time. This is suboptimal, however, because it will
-> > require every driver to duplicate the code.
-> >=20
-> > This patch adds support for late interrupt resolution to the platform
-> > driver core, by resolving the references right before a device driver's
-> > .probe() function will be called. This not only delays the resolution
-> > until a much later time (giving interrupt parents a better chance of
-> > being probed in the meantime), but it also allows the platform driver
-> > core to queue the device for deferred probing if the interrupt parent
-> > hasn't registered its IRQ domain yet.
-> >=20
-> > Signed-off-by: Thierry Reding <treding@nvidia.com>
-> > ---
-> >   drivers/base/platform.c     |  4 ++++
-> >   drivers/of/platform.c       | 43 ++++++++++++++++++++++++++++++++++++=
-+------
-> >   include/linux/of_platform.h |  7 +++++++
-> >   3 files changed, 48 insertions(+), 6 deletions(-)
-> >=20
-> > diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-> > index 4f8bef3..8dcf835 100644
-> > --- a/drivers/base/platform.c
-> > +++ b/drivers/base/platform.c
-> > @@ -481,6 +481,10 @@ static int platform_drv_probe(struct device *_dev)
+> Cc: Srinivas Kandagatla <srinivas.kandagatla@st.com>
+> Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
+> ---
+>  arch/arm/boot/dts/stih41x-b2000.dtsi |    7 +++++++
+>  arch/arm/boot/dts/stih41x-b2020.dtsi |   20 ++++++++++++++++++++
+>  2 files changed, 27 insertions(+)
 >=20
-> Should it be the part of really_probe()? Isn't it?
+> diff --git a/arch/arm/boot/dts/stih41x-b2000.dtsi b/arch/arm/boot/dts=
+/stih41x-b2000.dtsi
+> index 8e694d2..346cc4bc 100644
+> --- a/arch/arm/boot/dts/stih41x-b2000.dtsi
+> +++ b/arch/arm/boot/dts/stih41x-b2000.dtsi
+> @@ -37,5 +37,12 @@
+>  			};
+>  		};
+> =20
+> +		/* HDMI Tx I2C */
+> +		i2c1: i2c@fed41000{
 
-really_probe() takes a struct device and is in fact called by all types
-of devices. This code, however, is highly platform_device specific, so I
-don't think we can do it in really_probe().
+nit: Space before the '{'
 
-Unfortunately every device type has its own way of storing interrupts.
-Platform devices store them as resources, I2C clients store them as a
-separate field in struct i2c_client, etc.
+> +			status =3D "okay";
 
-> > +int of_platform_probe(struct platform_device *pdev)
-> > +{
-> > +	struct device_node *np =3D pdev->dev.of_node;
-> > +	int num_irq, ret =3D 0;
-> > +
-> > +	if (!pdev->dev.of_node)
-> > +		return 0;
-> > +
-> > +	num_irq =3D of_irq_count(pdev->dev.of_node);
-> > +	if (num_irq > 0) {
-> > +		struct resource *res =3D pdev->resource;
-> > +		int num_reg =3D pdev->num_resources;
-> > +		int num =3D num_reg + num_irq;
-> > +
-> > +		res =3D krealloc(res, num * sizeof(*res), GFP_KERNEL);
-> > +		if (!res)
-> > +			return -ENOMEM;
-> > +
-> > +		pdev->num_resources =3D num;
-> > +		pdev->resource =3D res;
-> > +		res +=3D num_reg;
->=20
-> What will happen if Driver probe is failed or deferred?
-> Seems resource table size will grow each time the Driver probe is
-> deferred or failed.
+Consider enabling the node at the bottom.
 
-That's a very good point. I think what we can do is check whether the
-total number of resources that the device has (pdev->num_resources)
-corresponds to num_reg + num_irq and skip in that case. That and...
+> +
+> +			/* HDMI V1.3a supports Standard mode only */
+> +			clock-frequency =3D <100000>;
+> +		};
+>  	};
+>  };
+> diff --git a/arch/arm/boot/dts/stih41x-b2020.dtsi b/arch/arm/boot/dts=
+/stih41x-b2020.dtsi
+> index 133e181..10b98da 100644
+> --- a/arch/arm/boot/dts/stih41x-b2020.dtsi
+> +++ b/arch/arm/boot/dts/stih41x-b2020.dtsi
+> @@ -38,5 +38,25 @@
+>  				default-state =3D "off";
+>  			};
+>  		};
+> +
+> +		i2c0: i2c@fed40000{
 
-> > +		ret =3D of_irq_to_resource_table(np, res, num_irq);
-> > +		if (ret < 0)
-> > +			return ret;
+As above.
 
-=2E.. updating pdev->num_resources after this point should cover all
-cases. Do you see any other potential problems?
+> +			status =3D "okay";
+> +		};
+> +
+> +		/* HDMI Tx I2C */
+> +		i2c1: i2c@fed41000{
 
-Thierry
+As above.
 
---EeQfGwPcQSOJBaQU
-Content-Type: application/pgp-signature
+> +			status =3D "okay";
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.21 (GNU/Linux)
+As above.
 
-iQIcBAEBAgAGBQJSOYPXAAoJEN0jrNd/PrOhm8sP/1+E0NleY5/Ys4U7+yA5qzXg
-DO7FbP9HEW6PXSif+yezB1lVV/aQ+ot9Ftqy470yi05pe/Spg/7ZKMnWGPAQoNWO
-/P7KkE//ckcPaGKr+DWNa4k8MN4BrmLP2enbLZI5XV5Xjz8CBIFe1q5e0Uz6wwGu
-tEgU0pNZnpcX5yTYwa8a/Pk7MkoeDH8xn6wjUzUgQW41x0Nz3+u4NKncewT4ykBO
-N8etJ98CnzsPv9bS6CZUvq4JTvvKGn7sXnWPc+EfZvWCBuQRjZJEHILAMWBDeLia
-e1vv6oBUz6himHcWFMI5xh9BtshB6240wTPDQgIkcTDNnbQz3b//VYUaT/M0ArBm
-8FX9UadaY/b8altwFq/JcfkM+YSDEcKXSwdeNs1oEVVUo7UeCjFBRPf8mqc42vx7
-Eaqt+gNfvGjPCNuXAT24rNkcz4++YX9Wn4ZqKRM5kdE/Y9Kc3uspHrn3FkVJtecg
-qGePbOpWndysAwXlzMVYHvdqFoLD9Slpwk9T/5ZlWK1knTMjU0T4HknJdXelAp60
-3JUeL73iS5JvCLUklXo9iiBSe1qEdnNit+6JjvY1BX8XLaXMrloMjRDRhb8fK+cb
-bNYKCYojY4UeAEjCFiTT2oDTtLoP28tgJodK01v0gzXR/MQ4hKGiasV9kTOM7cuI
-YoypuRCIojTA8q8ZNJQW
-=Plej
------END PGP SIGNATURE-----
+> +			/* HDMI V1.3a supports Standard mode only */
+> +			clock-frequency =3D <100000>;
+> +		};
+> +
+> +		sbc_i2c0: i2c@fe540000{
 
---EeQfGwPcQSOJBaQU--
+As above.
+
+> +			status =3D "okay";
+> +		};
+> +
+> +		sbc_i2c1: i2c@fe541000{
+
+Are these nodes referenced by phandle at all?
+
+If not, consider dropping the <lable>:s
+
+> +			status =3D "okay";
+> +		};
+>  	};
+>  };
+
+Odd tabbing here.
+
+--=20
+Lee Jones
+Linaro STMicroelectronics Landing Team Lead
+Linaro.org =E2=94=82 Open source software for ARM SoCs
+=46ollow Linaro: Facebook | Twitter | Blog
