@@ -1,45 +1,46 @@
 From: Maxime COQUELIN <maxime.coquelin@st.com>
-Subject: Re: [PATCH 3/4] ARM: STi: Supply I2C configuration to STiH415 SoC
-Date: Wed, 18 Sep 2013 14:38:21 +0200
-Message-ID: <84625B87D65BCF478CC1E9C886A4C314DEF1BD9577@SAFEX1MAIL4.st.com>
+Subject: Re: [PATCH 2/4] ARM: STi: Supply I2C configuration to STiH416 SoC
+Date: Wed, 18 Sep 2013 14:46:01 +0200
+Message-ID: <84625B87D65BCF478CC1E9C886A4C314DEF1BD9578@SAFEX1MAIL4.st.com>
 References: <1379498483-4236-1-git-send-email-maxime.coquelin@st.com>
- <1379498483-4236-4-git-send-email-maxime.coquelin@st.com>
- <20130918120012.GE16984@lee--X1>
+ <1379498483-4236-3-git-send-email-maxime.coquelin@st.com>
+ <20130918120340.GF16984@lee--X1>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
 Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-doc-owner@vger.kernel.org
 To: Lee Jones <lee.jones@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Russell King <linux@arm.linux.org.uk>, Pawel Moll <pawel.moll@arm.com>, Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Wolfram Sang <wsa@the-dreams.de>, Stephen Warren <swarren@wwwdotorg.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, Olivier CLERGEAUD <olivier.clergeaud@st.com>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, Olivier CLERGEAUD <olivier.clergeaud@st.co>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/18/2013 02:00 PM, Lee Jones wrote:
-> On Wed, 18 Sep 2013, Maxime COQUELIN wrote:
->
->> This patch supplies I2C configuration to STiH415 SoC.
+On 09/18/2013 02:03 PM, Lee Jones wrote:
+>> This patch supplies I2C configuration to STiH416 SoC.
 >>
 >> Cc: Srinivas Kandagatla <srinivas.kandagatla@st.com>
 >> Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
 >> ---
->>  arch/arm/boot/dts/stih415-pinctrl.dtsi |   36 ++++++++++++++++++++
->>  arch/arm/boot/dts/stih415.dtsi         |   57 ++++++++++++++++++++++++++++++++
->>  2 files changed, 93 insertions(+)
+>>  arch/arm/boot/dts/stih416-pinctrl.dtsi |   35 ++++++++++++++++++++
+>>  arch/arm/boot/dts/stih416.dtsi         |   57 ++++++++++++++++++++++++++++++++
+>>  2 files changed, 92 insertions(+)
 >>
->> diff --git a/arch/arm/boot/dts/stih415-pinctrl.dtsi b/arch/arm/boot/dts/stih415-pinctrl.dtsi
->> index 1d322b2..e56449d 100644
->> --- a/arch/arm/boot/dts/stih415-pinctrl.dtsi
->> +++ b/arch/arm/boot/dts/stih415-pinctrl.dtsi
->> @@ -86,6 +86,24 @@
+>> diff --git a/arch/arm/boot/dts/stih416-pinctrl.dtsi b/arch/arm/boot/dts/stih416-pinctrl.dtsi
+> I genuinely don't know the answer to this question, but are these
+> nodes identical to the ones you've just put in the stih415 DTSI file?
+> If so, I think it will be worth creating a stih41x DTSI rather than
+> duplicating lots of stuff unnecessarily.
+There are close to be identical indeed.
+For the clocks and pinctrl, the references names are the same, but they are
+pointing on different nodes, as STiH415 and STiH416 have their own
+clocks and pinctrl dtsi files.
+
+Srini, what is opinion about this?
+>
+>> index 0f246c9..b29ff4b 100644
+>> --- a/arch/arm/boot/dts/stih416-pinctrl.dtsi
+>> +++ b/arch/arm/boot/dts/stih416-pinctrl.dtsi
+>> @@ -97,6 +97,24 @@
 >>  					};
 >>  				};
 >>  			};
@@ -64,11 +65,10 @@ On 09/18/2013 02:00 PM, Lee Jones wrote:
 >>  		};
 >>  
 >>  		pin-controller-front {
->> @@ -143,6 +161,24 @@
->>  				reg		= <0x7000 0x100>;
->>  				st,bank-name	= "PIO12";
+>> @@ -175,6 +193,23 @@
+>>  				};
 >>  			};
->> +
+>>  
 >> +			i2c0 {
 >> +				pinctrl_i2c0_default: i2c0-default {
 >> +					st,pins {
@@ -89,35 +89,32 @@ On 09/18/2013 02:00 PM, Lee Jones wrote:
 >>  		};
 >>  
 >>  		pin-controller-rear {
->> diff --git a/arch/arm/boot/dts/stih415.dtsi b/arch/arm/boot/dts/stih415.dtsi
->> index 74ab8de..643ae1c 100644
->> --- a/arch/arm/boot/dts/stih415.dtsi
->> +++ b/arch/arm/boot/dts/stih415.dtsi
+>> diff --git a/arch/arm/boot/dts/stih416.dtsi b/arch/arm/boot/dts/stih416.dtsi
+>> index 1a0326e..8856470 100644
+>> --- a/arch/arm/boot/dts/stih416.dtsi
+>> +++ b/arch/arm/boot/dts/stih416.dtsi
 >> @@ -9,6 +9,7 @@
 >>  #include "stih41x.dtsi"
->>  #include "stih415-clock.dtsi"
->>  #include "stih415-pinctrl.dtsi"
+>>  #include "stih416-clock.dtsi"
+>>  #include "stih416-pinctrl.dtsi"
 >> +#include <dt-bindings/interrupt-controller/arm-gic.h>
 >>  / {
->>  
 >>  	L2: cache-controller {
->> @@ -83,5 +84,61 @@
->>  			pinctrl-names 	= "default";
->>  			pinctrl-0	= <&pinctrl_sbc_serial1>;
+>>  		compatible = "arm,pl310-cache";
+>> @@ -92,5 +93,61 @@
+>>  			pinctrl-0 	= <&pinctrl_sbc_serial1>;
+>>  			clocks          = <&CLK_SYSIN>;
 >>  		};
 >> +
 >> +		i2c0: i2c@fed40000{
-> Space before the '{'.
-It will be fixed in next series
+> Same issues here. I assume most of this is copy paste.
+Yes indeed. This will be fixed in next version.
 >
 >> +			compatible	= "st,comms-i2c";
 >> +			status		= "disabled";
-> Consider putting the node status at the bottom.
-Ok.
->
 >> +			reg		= <0xfed40000 0x110>;
 >> +			interrupts	=  <GIC_SPI 187 IRQ_TYPE_EDGE_RISING>;
->> +			clocks		= <&CLKS_ICN_REG_0>;
+>> +			clocks		= <&CLK_S_ICN_REG_0>;
 >> +			clock-frequency = <400000>;
 >> +			pinctrl-names	= "default";
 >> +			pinctrl-0	= <&pinctrl_i2c0_default>;
@@ -127,17 +124,11 @@ Ok.
 >> +		};
 >> +
 >> +		i2c1: i2c@fed41000{
-> Same here and throughout.
-Ok.
->
 >> +			compatible	= "st,comms-i2c";
 >> +			status		= "disabled";
-> Same here and throughout.
-Ok.
->
 >> +			reg		= <0xfed41000 0x110>;
 >> +			interrupts	=  <GIC_SPI 188 IRQ_TYPE_EDGE_RISING>;
->> +			clocks		= <&CLKS_ICN_REG_0>;
+>> +			clocks		= <&CLK_S_ICN_REG_0>;
 >> +			clock-frequency = <400000>;
 >> +			pinctrl-names	= "default";
 >> +			pinctrl-0	= <&pinctrl_i2c1_default>;
@@ -175,8 +166,6 @@ Ok.
 >> +		};
 >>  	};
 >>  };
-> Is this odd tabbing just the result of the patch format?
-This is just the result of the patch format.
-
-Regards,
+Thanks,
 Maxime
+
