@@ -1,75 +1,53 @@
-From: Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/4] ARM: STi: Supply I2C configuration to STiH416 SoC
-Date: Thu, 19 Sep 2013 16:32:37 +0100
-Message-ID: <20130919153237.GA7071@lee--X1>
-References: <1379498483-4236-1-git-send-email-maxime.coquelin@st.com>
- <1379498483-4236-3-git-send-email-maxime.coquelin@st.com>
- <20130918120340.GF16984@lee--X1>
- <84625B87D65BCF478CC1E9C886A4C314DEF1BD9578@SAFEX1MAIL4.st.com>
- <5239A322.5010004@st.com>
- <84625B87D65BCF478CC1E9C886A4C314DEF1BD9579@SAFEX1MAIL4.st.com>
- <523AF548.30400@st.com>
- <84625B87D65BCF478CC1E9C886A4C314DEF1BD957D@SAFEX1MAIL4.st.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH] i2c: s3c2410: fix clk_disable/clk_unprepare warnings
+Date: Mon, 23 Sep 2013 08:48:16 +0200
+Message-ID: <20130923064816.GA3051@katana>
+References: <20130917113153.41b0305d6892170ba8e1ecf7@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <84625B87D65BCF478CC1E9C886A4C314DEF1BD957D-+EwDPpWUVoSs+H57zxxw29BPR1lH4CV8@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
-Cc: Srinivas KANDAGATLA <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen GALLIMORE <stephen.gallimore-qxv4g6HH51o@public.gmane.org>, Stuart MENEFY <stuart.menefy-qxv4g6HH51o@public.gmane.org>, Gabriel FERNANDEZ <gabriel.fernandez-qxv4g6HH51o@public.gmane.org>, Olivier CLERGEAUD <olivier.clergeaud-lpHj6iFQ3dU@public.gmane.org>
+In-Reply-To: <20130917113153.41b0305d6892170ba8e1ecf7@linaro.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Kim Phillips <kim.phillips@linaro.org>
+Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-> > Am not very comfortable with this idea.
-> >
-> > As there is no guarantee that the interrupt number/memory map and t=
-he
-> > i2c numbering will be same in future SOCs or other IPs.
-> >
-> > You might be already aware that the number of i2cs on each SOC are
-> > different as example on STiH415 we have 10 SSCs and on STiH416 we h=
-ave
-> > 11 SSCs. So, At what point you decide that which devices/IPs should=
- be
-> > in stih41x and which should in stih415/Stih416?
-> Yes, I know there is one more SSC on STiH416.
->=20
-> On one hand, this could add some confusion. But on the other hand,
-> someone who will need to activate a SSP will know which one he has
-> to activate.
->=20
-> > Each i2c node will save around 5 lines if we common it up, but if t=
-he
-> > interrupt number or map changes this difference will be negligible.
-> >
-> > Common up at this level and mixing un-common ones in stih415.dtsi o=
-r
-> > stih416.dtsi will add confusion to readers as the information is sp=
-lit
-> > at multiple places.
-> I agree it will be messy if one part of the node declared at one plac=
-e,
-> and the rest at another place.
-> >
-> > IMO the common up idea sounds good but reduces the readability and =
-has
-> > no effect on final dtb size.
->=20
-> Fair enough. Lee, are you ok with keeping it as is?
 
-To be honest I haven't taken a look at the layout of the dts[i] files
-yet, so I can't really comment. Srini knows then better than anyone,
-so if he says it doesn't make sense, then I'm happy to take his word
-for it.
+--J2SCkAp4GZ/dPZZf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---=20
-Lee Jones
-Linaro STMicroelectronics Landing Team Lead
-Linaro.org =E2=94=82 Open source software for ARM SoCs
-=46ollow Linaro: Facebook | Twitter | Blog
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" i=
-n
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+On Tue, Sep 17, 2013 at 11:31:53AM -0500, Kim Phillips wrote:
+> commit d16933b33914a6dff38a4ecbe8edce44a17898e8 "i2c: s3c2410: Move
+> location of clk_prepare_enable() call in probe function" refactored
+> clk_enable and clk_disable calls yet neglected to remove the
+> clk_disable_unprepare call in the module's remove().
+
+Applied to for-current, thanks!
+
+
+--J2SCkAp4GZ/dPZZf
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSP+QwAAoJEBQN5MwUoCm2mEsQAKEpcOn4TWEgAqqmdZfmoerp
+W4j7k2MyF/JtFz9f2ynwtjdslutSIwHVrPv0eS6xxclIzhuEupOQ+yBSd4wQbogU
+9KpZlds621VEpGT15DDlbjkF2Dgr0BHvaHWl7Efu5R61KNLFsdnf8QIElTfDJvXx
+OLoXFnLqhNC+wpAwZgrPYGYi3lUyrf73k8eY1ofe2oMe3bTFzMSewE9+5MivgNkG
+wEuJ063QZqlULIBEGUZOggQQ03YGjfxbGsDTGo+hOeWGgHu92Zu3IMm+omc4KbEz
+4CYyyS96OW9aQbQPaS2jVevnHkjtxkyjk36oCkwFbQpYSqhZWGkzqgzBB6K+QQhf
+yYCLZicrQgPXkfaB33W+2yRR4dBoob/xiHLn9C0hJSpxsrqViOWTN3HmnkTiFHpx
+HS0mlkkfE45x08i1nWam+7ylWjZAFkGHiLBoAj5aC4CBR+XMU1aE/XwJboY9kUOT
+AXliVuF/RQHNbT7zROXHNkftvOaAqcYzGqjR21aZZZJB/Qu+zTZrpTKDSilejECf
+rEw5f1Gc2BOoxAQAikN3VCVkJHe2lKjVoe2k7GMchWMfJD+6gjn/eC3ox7Q2FIdv
+BOSJS1FdkYkcfHijJBWHod2HNFw4ZrU/EeltBpsnFzhLnPECmaIjH/jaXDvDMmcV
+RZkipqux0nM4s62DVb8n
+=CgPl
+-----END PGP SIGNATURE-----
+
+--J2SCkAp4GZ/dPZZf--
