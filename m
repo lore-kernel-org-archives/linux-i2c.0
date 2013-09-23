@@ -1,73 +1,137 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 8/9] of/i2c: Resolve interrupt references at probe time
-Date: Mon, 23 Sep 2013 10:35:09 +0200
-Message-ID: <20130923083509.GF3051@katana>
-References: <1379320326-13241-1-git-send-email-treding@nvidia.com>
- <1379320326-13241-9-git-send-email-treding@nvidia.com>
- <20130923073451.GE3051@katana>
- <20130923080230.GA11881@ulmo>
+From: Marc Dietrich <marvin24-Mmb7MZpHnFY@public.gmane.org>
+Subject: Re: [RFC] binding for nvec mfd device
+Date: Mon, 23 Sep 2013 16:52:46 +0200
+Message-ID: <2112732.zfJtNyCk0i@fb07-iapwap2.physik.uni-giessen.de>
+References: <1416005.VvfEeGuSWa@ax5200p> <17687182.lGWlO75r41@fb07-iapwap2.physik.uni-giessen.de> <5238CE1C.3050107@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="JcvBIhDvR6w3jUPA"
-Return-path: <linux-gpio-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20130923080230.GA11881@ulmo>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Linus Walleij <linus.walleij@linaro.org>, Stephen Warren <swarren@wwwdotorg.org>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, linux-tegra@vger.kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7Bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5238CE1C.3050107-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Andrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>, Ian Campbell <ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org>, "rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org" <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <Pawel.Moll-5wv7dgnIgG8@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.orgAndrey Danin <danindrey-JGs/UdohzUI@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Am Dienstag, 17. September 2013, 15:48:12 schrieb Stephen Warren:
+> On 09/17/2013 01:53 AM, Marc Dietrich wrote:
+> > Hi Stephen,
+> > 
+> > Am Mittwoch, 31. Juli 2013, 15:03:14 schrieb Stephen Warren:
+> >> The generic I2C bindings already define that the other chips on the I2C
+> >> bus appear directly underneath the I2C controller's DT node. Perhaps it
+> >> isn't a big issue to change that, since each I2C controller can define
+> >> the layout of its own node?
+> >> 
+> >> Anyway, we can probably get away without introducing multiple levels by
+> >> adding some more bits or cells into the reg address for I2C child nodes:
+> >> 
+> >> i2c@xxxxxxxx {
+> >> 
+> >> 	compatible = "nvidia,tegra20-i2c";
+> >> 	... resources
+> >> 	#address-cells = <2>;
+> >> 	
+> >> 	codec {
+> >> 	
+> >> 		// 0 means external slave, 0x1c is slave's address
+> >> 		reg = <0 0x1c>;
+> >> 		...
+> >> 	
+> >> 	};
+> >> 	
+> >> 	tegraslave {
+> >> 	
+> >> 		// 0 means internal slave, 0x80 is controller's address
+> >> 		reg = <1 0x80>;
+> >> 		...
+> >> 	
+> >> 	};
+> >> 
+> >> };
+> >> 
+> >> ... where each of those child nodes could be repeated N times. We could
+> >> also or in 0x80000000 to the reg values in the child nodes rather than
+> >> using a separate cell if we wanted.
+> > 
+> > thinking a little more about this, this is way to complicated.
+> 
+> Really, this seems extremely simple to me.
+> 
+> > "Master" and
+> > "Slave" functions are properties of the same i2c controller. Therefore,
+> > just adding a small property to the i2c controller node saying "enable
+> > slave support" is sufficient, as all the resources are shared (which is
+> > another good argument that it is the same device, hence same node). I
+> > would just add the slave i2c address, which is all the slave driver
+> > needs, e.g.
+> 
+> Perhaps so for this one controller, but we should strive to create a
+> binding style that can work with any I2C controller that can be master
+> or slave. For a general binding, I think we need to support multiple
+> slave addresses. The style above seems to support that with little
+> complexity.
 
---JcvBIhDvR6w3jUPA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I have no idea how other implementations may look like. The downstream kernel 
+seems to program the slave address in a secondary step after the controller is 
+initialized [1]. So every "client" which binds to the slave driver can use its 
+own address, but only one client at the same time is allowed. As said before, 
+the may also exist devices (!tegra) with multiple slave addresses at the same 
+time.
+
+Your approach above seems fulfill these properties (what about a single slave 
+controller without a master?), but it will be tricky for the slave to find the 
+controller resources it needs. I'm thinking of an insane (but valid) 
+configuration where all i2c ports of the SoC are connected together and one 
+port plays the master and all others are slaves. In this case we need to add a 
+property to the slave node which points to his controller instance.
+
+> > "slave-address = <8c>;" to enable slave mode operation. Both modes can be
+> > enabled at the same time (for loopback comm). AFAIK, if only the slave
+> > part is used, the master part shouldn't hurt if programmed (same as other
+> > way around).
+> > 
+> > The difficult part is how to specify the master if only the slave is used.
+> > As the master is naturally on the same bus as the slave, it should be a
+> > child node of the controller. Therefore it needs a special i2c address,
+> > maybe
+> Why would the external I2C master be represented in the DT bindings at
+> all? It's not really a SW-accessible entity; its presence is only
+> observable not something you can initiate interaction with.
+
+No, we can and nvec does it regulary using a "side"-channel (a tegra gpio 
+connected to a master irq input). This side-channel is non standard and each 
+vendor may do it differently. But you are right, we don't need an entry for 
+the master, but an entry for the driver (the other side of the communication) 
+which binds to the slave controller.
+
+> I assume you're not talking about the Tegra I2C controller when you say
+> "master" above; that is already represented in the DT as the top-level
+> I2C node.
+> 
+> > 0x80000000 as you mentioned above, but this will be rejected by the i2c
+> > core. Instantiating the nvec as an i2c client could be another problem.
+> 
+> ...
+> 
+> > It looks like that the i2c subsystem needs some modifications to allow to
+> > specify a master device which is attached to a slave controller. Maybe
+> > someone from the i2c folks (cc'ed) can comment on this?
+> 
+> Yes, you certainly will need some enhancements to the I2C core to
+> support slave mode. I suggest that I2C drivers gain an .of_xlate
+> callback which translates child node DT reg values (addresses) into the
+> (master-vs-slave, I2C address) pair.
+
+I somehow feared that :-( Now my free time became rather limited recently and 
+I don't feel that I'm the best person to solve these problem(s). Andrey said 
+that he may be interested finishing at least a proper device tree 
+representation (especially to get his great nvec uboot support upstreamed). 
+Kernel support is a different beast and I really hope that the code which 
+lives in staging area currently is not doomed because integration with the i2c 
+subsystem is too complex.
+
+Marc
 
 
-> > This function should be in the CONFIG_OF block.
->=20
-> I'll argue the other way. I think that the whole CONFIG_OF block should
-> be remove, or at least be confined to public functions. The reason that
-> I've chosen to do it this way is that the i2c_device_probe() uses an
-> IS_ENABLED(CONFIG_OF), which will evaluate to 0 if OF isn't selected
-> which in turn will cause the compiler to throw away of_i2c_probe()
-> because it is static and never used.
->=20
-> The big advantage of this is that we get compile coverage for these
-> functions independent of what configuration is built. The same could
-> probably be done for the whole CONFIG_ACPI block. In fact I volunteer to
-> provide that patch if I've convinced you that this is actually better
-> than sprinking the code with the #ifdef blocks that make it harder than
-> necessary to verify that the code builds in all configurations.
-
-Yes, you (easily) did :) Still, I'd like the of_i2c_probe function
-near the other of_* functions.
-
-Thanks,
-
-   Wolfram
-
-
---JcvBIhDvR6w3jUPA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSP/09AAoJEBQN5MwUoCm2GHIP/Rhq+fgMMs0+9m7uXuoeEaO9
-GCTFoirPnLRiofGgNSrMjCIxiGJ7zFNaRMdieA//chsY1342PuSLfuu0PQRB7V2s
-XWjj/XiJSMvPT1JNv+b2GTxq5QQOcRDe72ucCFR2Qziq4qp2lAs5Rn54W84sB7tV
-/DHa7vjfqf87HebvQDbilHWH60rn5Jyxf0uCY/hUKjd0kwYPAff4OlaaCsrT91Zx
-7ydlgVflCzouIoRMWr2uYFQy/jXeptw5YogFnMghc/f0UN1kbaN6bxUVfUxb2Apj
-QW+6TllRVOl+bug8Veuj16nYPrVN2AHEYo/l0HWxBWWxsGS0oPN7qaBXim+UZy65
-5kdy1G50J+bWIpKOuicL96/lWyGR9CqpB1UDbT+X1Nbt3ahRJtUTk67vqBHc0aDF
-MIdjbGdOqvXVOJwwJ4axYTK/sEIimMC9hyXEokRDTrmqmsXztKCtwbjhqmNnd4Rq
-pahY0/vwIrCdZLhPjCEA1Q2J0vosBfMCo+c/Q3F85r7huKTU1Cz8ntJs60LU6jqX
-2yS36m3vv0amhpBbubds7KI+3n+sZ15S+gP+PxMDf3F9e+ucNFHDb+HaTbcrG3jR
-zI1vtkMW+DCgIMy1Gwd2UnVNuHvSHNjsy3VhVwBf79hb0WT3uog4LNz4BBUhLozt
-U52AUCw08/dP31WArXz3
-=PD8g
------END PGP SIGNATURE-----
-
---JcvBIhDvR6w3jUPA--
+[1] http://nv-tegra.nvidia.com/gitweb/?p=linux-2.6.git;a=blob;f=drivers/i2c/i2c-slave.c;h=280a860cd2e84e15b2c1aef0e938d750f56863dd;hb=rel-roth-ota-1#l120
