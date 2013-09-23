@@ -1,53 +1,55 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH] i2c: s3c2410: fix clk_disable/clk_unprepare warnings
-Date: Mon, 23 Sep 2013 08:48:16 +0200
-Message-ID: <20130923064816.GA3051@katana>
-References: <20130917113153.41b0305d6892170ba8e1ecf7@linaro.org>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c: mv64xxx: Fix some build warnings
+Date: Mon, 23 Sep 2013 08:59:22 +0200
+Message-ID: <20130923065922.GB3051@katana>
+References: <1379508652-30348-1-git-send-email-treding@nvidia.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="J2SCkAp4GZ/dPZZf"
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="/WwmFnJnmDyWGHa4"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20130917113153.41b0305d6892170ba8e1ecf7@linaro.org>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Kim Phillips <kim.phillips@linaro.org>
-Cc: linux-samsung-soc@vger.kernel.org, linux-i2c@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>, Kukjin Kim <kgene.kim@samsung.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+In-Reply-To: <1379508652-30348-1-git-send-email-treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---J2SCkAp4GZ/dPZZf
+--/WwmFnJnmDyWGHa4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 17, 2013 at 11:31:53AM -0500, Kim Phillips wrote:
-> commit d16933b33914a6dff38a4ecbe8edce44a17898e8 "i2c: s3c2410: Move
-> location of clk_prepare_enable() call in probe function" refactored
-> clk_enable and clk_disable calls yet neglected to remove the
-> clk_disable_unprepare call in the module's remove().
+On Wed, Sep 18, 2013 at 02:50:52PM +0200, Thierry Reding wrote:
+> Some functions and variables are only used if the configuration selects
+> HAVE_CLK. Protect them with a corresponding #ifdef CONFIG_HAVE_CLK block
+> to avoid compiler warnings.
+>=20
+> Signed-off-by: Thierry Reding <treding-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>
 
-Applied to for-current, thanks!
+Added marker to #endif and applied to for-current, thanks!
 
 
---J2SCkAp4GZ/dPZZf
+--/WwmFnJnmDyWGHa4
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSP+QwAAoJEBQN5MwUoCm2mEsQAKEpcOn4TWEgAqqmdZfmoerp
-W4j7k2MyF/JtFz9f2ynwtjdslutSIwHVrPv0eS6xxclIzhuEupOQ+yBSd4wQbogU
-9KpZlds621VEpGT15DDlbjkF2Dgr0BHvaHWl7Efu5R61KNLFsdnf8QIElTfDJvXx
-OLoXFnLqhNC+wpAwZgrPYGYi3lUyrf73k8eY1ofe2oMe3bTFzMSewE9+5MivgNkG
-wEuJ063QZqlULIBEGUZOggQQ03YGjfxbGsDTGo+hOeWGgHu92Zu3IMm+omc4KbEz
-4CYyyS96OW9aQbQPaS2jVevnHkjtxkyjk36oCkwFbQpYSqhZWGkzqgzBB6K+QQhf
-yYCLZicrQgPXkfaB33W+2yRR4dBoob/xiHLn9C0hJSpxsrqViOWTN3HmnkTiFHpx
-HS0mlkkfE45x08i1nWam+7ylWjZAFkGHiLBoAj5aC4CBR+XMU1aE/XwJboY9kUOT
-AXliVuF/RQHNbT7zROXHNkftvOaAqcYzGqjR21aZZZJB/Qu+zTZrpTKDSilejECf
-rEw5f1Gc2BOoxAQAikN3VCVkJHe2lKjVoe2k7GMchWMfJD+6gjn/eC3ox7Q2FIdv
-BOSJS1FdkYkcfHijJBWHod2HNFw4ZrU/EeltBpsnFzhLnPECmaIjH/jaXDvDMmcV
-RZkipqux0nM4s62DVb8n
-=CgPl
+iQIcBAEBAgAGBQJSP+bKAAoJEBQN5MwUoCm2rrIP/0/mRceblc3ey/BupYlirqEN
+WdpeRmJw9tp+QHDNsh0QvPNkeVMSiyOgo1XBitPrxBg4Hs4Ldd9jnFtW89JHJvqg
+Y09zw3390nzlr0dQ4juwydcl61VQg6bH8PUtaQSsv8gFQdwIhv4XPKECy8oSIVjr
+45xbSu6JHTZ9H1EQkX730GFM7LzW0FI/FIY5QoV81S/TNqLh/GWNAFYtud9dF+z5
+x8vOuNX7zpreY6/gZERy0PtlWlREQqUp1eBOJ+DpC/TCQLfggD2l7SrNsOLEoG6W
+lYP005l+wURKY+UK2oSvsD7XFkJ7yKnfOAS9yYYcBeZgsnkxM+qKQMiScIP0oRIC
+XdUFGGR1xw5tTG26wFDw++wOO9RKOvNzUQqFRQnc/KJiMUezuS6xA6nM1TGIQWf4
+KQbquQBnNqjzkas0uV0BzOUymADQj8dPqHNo5Rh0H7F0erd1XeLZL6f1W5HELFbo
+e9ZXIwZCoNbQGjCSMqr4KLXaCGjoh8pWPcKI702CjVdjVPfhyIQxuiVhk2JftFit
+yu+Rjkzd1MMrTN+R+WUwniLKdnxmTtfWWJVwpqR1WKiThZJbHGychulVMj5s9Kgd
+hlIDSkjiwwUI8yPs5CUO0arzNfXOOeYahYgu8BqWSR/M+jlUZm3GvcbLIknbntls
+NmKt/5FvqUy2LZEcWViU
+=ZJMT
 -----END PGP SIGNATURE-----
 
---J2SCkAp4GZ/dPZZf--
+--/WwmFnJnmDyWGHa4--
