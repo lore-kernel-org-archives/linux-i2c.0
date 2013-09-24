@@ -1,36 +1,51 @@
-From: York Sun <yorksun-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
-Subject: Re: [Patch v2] power/mpc85xx: Add delay after enabling I2C master
-Date: Mon, 23 Sep 2013 15:38:20 -0700
-Message-ID: <5240C2DC.3010004@freescale.com>
-References: <1379369185-14590-1-git-send-email-yorksun@freescale.com> <20130923071012.GD3051@katana> <5240B626.9050904@freescale.com> <20130923220921.GA3244@katana> <5240BDDA.3050206@freescale.com> <20130923223200.GB3244@katana>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: Re: [PATCH v2 1/9] i2c: prepare runtime PM support for I2C client
+ devices
+Date: Tue, 24 Sep 2013 08:18:56 +0300
+Message-ID: <20130924051856.GG28875@intel.com>
+References: <1378913560-2752-1-git-send-email-mika.westerberg@linux.intel.com>
+ <1378913560-2752-2-git-send-email-mika.westerberg@linux.intel.com>
+ <87vc25pvvm.fsf@linaro.org>
+ <20130913065434.GZ7393@intel.com>
+ <52332BF0.4060605@samsung.com>
+ <20130913154013.GD7393@intel.com>
+ <5235BA9C.1090509@gmail.com>
+ <20130916084708.GN7393@intel.com>
+ <523837F9.1020204@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130923223200.GB3244@katana>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-acpi-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <523837F9.1020204@samsung.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Cc: Sylwester Nawrocki <sylvester.nawrocki@gmail.com>, Kevin Hilman <khilman@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, Lv Zheng <lv.zheng@intel.com>, Aaron Lu <aaron.lu@intel.com>, linux-arm-kernel@lists.infradead.org, Mark Brown <broonie@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Samuel Ortiz <sameo@linux.intel.com>, Lee Jones <lee.jones@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Liam Girdwood <lgirdwood@gmail.com>, Kyungmin Park <kyungmin.park@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On 09/23/2013 03:32 PM, Wolfram Sang wrote:
+On Tue, Sep 17, 2013 at 01:07:37PM +0200, Sylwester Nawrocki wrote:
+> On 09/16/2013 10:47 AM, Mika Westerberg wrote:
+> > I'm actually thinking that it is probably better now if we don't touch the
+> > client runtime PM at all in the I2C core.
+> > 
+> > I proposed a less intrusive solution in this same thread where we power the
+> > I2C controller briefly at the client ->probe() (In order to have all the
+> > ACPI power resources etc. and the controller on) and let the client driver
+> > handle their own runtime PM as they do currently.
+> > 
+> > Do you think that would work better wrt. fimc-isp-i2c driver?
 > 
->> I see. It is using device tree to match. But the device tree doesn't
->> have enough information. Many platforms don't specifiy if compatible
->> with mpc85xx, so they fall into .compatible = "fsl-i2c". 
-> 
-> :( Can those be fixed to use proper "fsl,mpc8544-i2c"?
-> 
->> Please advise.
-> 
-> My PPC knowledge is a bit dusty: What about SVR/PVR to detect the 8544
-> at runtime?
-> 
-Wolfram,
+> That would be no different for this particular driver, as long as the 
+> I2C bus controller is activated right before the I2C client's probe().
 
-It is not only about 8544. I wrote this patch to address a timing issue
-when a workaround is applied. This timing issue applies to many mpc85xx
-parts, but not all of them. But it is safe to all. So checking one
-SVR/PVR doesn't work.
+Rafael pointed out that we can use ->ignore_children for the I2C adapter
+device for everything else than ACPI devices. That should keep the existing
+behavior.
 
-York
+For ACPI devices we don't set that flag and the runtime PM core will
+activate the adapter whenever we try to power on I2C client device. This
+will make ACPI happy as well.
+
+If there are no objections, I'm going to send a new version based on the
+above.
+
+Thanks everyone for valuable input :)
