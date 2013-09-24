@@ -1,63 +1,110 @@
-From: Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH 2/9] irqdomain: Introduce __irq_create_mapping()
-Date: Tue, 24 Sep 2013 14:20:44 +0200
-Message-ID: <CACRpkdZMM9RUkRCWG0mYbF9PL-fOdDncpY05xG3F5BF55hn5ug@mail.gmail.com>
-References: <1379320326-13241-1-git-send-email-treding@nvidia.com>
-	<1379320326-13241-3-git-send-email-treding@nvidia.com>
-	<CACRpkdYo8knzZ+Z-tc7fyEGwX5bt4RvMU3TR3k3UrOj0KRJocw@mail.gmail.com>
-	<20130923202935.GA5216@ulmo>
+From: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c: busses: i2c-st: Add ST I2C controller
+Date: Tue, 24 Sep 2013 17:38:34 +0200
+Message-ID: <5241B1FA.6020500@st.com>
+References: <1379498483-4236-1-git-send-email-maxime.coquelin@st.com>
+ <1379498483-4236-2-git-send-email-maxime.coquelin@st.com>
+ <5240AD6E.4090905@wwwdotorg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20130923202935.GA5216@ulmo>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Thierry Reding <thierry.reding@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Stephen Warren <swarren@wwwdotorg.org>, Wolfram Sang <wsa@the-dreams.de>, Grant Likely <grant.likely@linaro.org>, Rob Herring <rob.herring@calxeda.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Thomas Gleixner <tglx@linutronix.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>, "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <5240AD6E.4090905-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Content-Language: en-US
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Srinivas KANDAGATLA <srinivas.kandagatla-qxv4g6HH51o@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Stephen GALLIMORE <stephen.gallimore-qxv4g6HH51o@public.gmane.org>, Stuart MENEFY <stuart.menefy-qxv4g6HH51o@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Gabriel FERNANDEZ <gabriel.fernandez-qxv4g6HH51o@public.gmane.org>, Olivier CLERGEAUD <olivier.clergeaud-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Sep 23, 2013 at 10:29 PM, Thierry Reding
-<thierry.reding@gmail.com> wrote:
-> On Mon, Sep 23, 2013 at 09:14:30PM +0200, Linus Walleij wrote:
 
->> I think it is better to first go over the call sites and make them
->> all handle negative return numbers rather than pushing the
->> obscure __interface.
-(...)
+On 09/23/2013 11:06 PM, Stephen Warren wrote:
+> On 09/18/2013 04:01 AM, Maxime COQUELIN wrote:
+>> This patch adds support to SSC (Synchronous Serial Controller)
+>> I2C driver. This IP also supports SPI protocol, but this is not
+>> the aim of this driver.
+>>
+>> This IP is embedded in all ST SoCs for Set-top box platorms, and
+>> supports I2C Standard and Fast modes.
+>> diff --git a/Documentation/devicetree/bindings/i2c/i2c-st.txt b/Documentation/devicetree/bindings/i2c/i2c-st.txt
+>> +I2C for ST platforms
+> If the HW block supports both I2C and SPI, the DT binding ought to
+> support that too. It's be best to create a single DT binding that
+> represents the IP block, and include a property that indicates whether
+> the device should operate in I2C or SPI mode.
 >
-> Well, the problem is that the current patch changes the signature of the
-> function as well, therefore the call sites will have to be updated all
-> at once in a single patch to avoid build breakage.
+> I suppose you could reasonably define different compatible values for
+> those two cases. However, the binding should be titled something more
+> like "ST SSC binding, for I2C mode operation" and "ST SSC binding, for
+> SPI mode operation", rather than "I2C for ST platforms", since the HW
+> includes an SSC block, not an I2C block.
+You are right Stephen.
+I will rename the title and change the compatible value as per your 
+recommendation.
 
-Hm yeah OK I see the problem, but can we atleast avoid the
-__thing? Like calling the new function irq_create_mapping_strict()
-or whatever.
+>> +Required properties :
+>> +- compatible : Must be "st,comms-i2c"
+>> +- reg : Offset and length of the register set for the device
+>> +- interrupts : the interrupt number
+> It's an interrupt specifier, not an interrupt number. The format is
+> defined by the interrupt controller, not this binding.
+Ok. I will change to "the interrupt specifier".
+>> +- clocks : phandle to the I2C clock source
+> What about clock-names?
+It will be added in next revision. It will be named "ssc"
+>> +Recommended (non-standard) properties :
+> Usually you'd just say "Optional properties:", or perhaps "Recommended
+> properties:". I don't think adding "(non-standard)" serves any purpose.
+Ok. then I will remove all the "non-standard" occurences.
+>> +- clock-frequency : Desired I2C bus clock frequency in Hz. Otherwise
+>> +  the default 100 kHz frequency will be used. As only Normal and Fast modes
+>> +  are supported, possible values are 100000 and 400000.
+>> +
+>> +Optional (non-standard) properties:
+> Same here.
+>
+>> +- st,glitches : Enable timing glitch suppression support.
+> That property name doesn't really convey the "enables" that appears in
+> the property description to me...
+>
+>> +- st,glitch-clk : SCL line timinig glitch suppression value in ns.
+>> +- st,glitch-dat : SDA line timinig glitch suppression value in ns.
+> s/timinig/timing/
+>
+>> +- st,hw-glitches : Enable filter glitch suppression support.
+>> +- st,hw-glitch-clk : SCL line filter glitch suppression value in us.
+>> +- st,hw-glitch-dat : SDA line filter glitch suppression value in us.
+> Those sound more like runtime configuration rather than HW description.
+> Can you rephrase the descriptions (and property names) more along the
+> lines of HW properties? Perhaps e.g.:
+>
+> st,needs-glitch-suppression: The board design needs timing glitch
+> suppression enabled to operate reliably.
+>
+> st,min-scl-pulse-width: The minimum valid SCL pulse width that is
+> allowed through the deglitch circuit. In units of ns.
+>
+> (I just made up those descriptions to give a feel for the flavor of
+> description that I expect. They likely need some adjustment to reflect
+> whatever they're actually intended to represent in HW).
+>
+> What is the difference between "glitch" and "hw-glitch"?
+"hw-glitch" is used to configure the anti-glitch filters.
+It suppresses the pulses with a width lower than x microseconds.
 
-> Another alternative could be to change the signature in a way that does
-> not break compatibility. For instance I think it could work out if we
-> change this function to return int instead of unsigned int but keep the
-> same semantics to begin with (return 0 on failure). Then update all call
-> sites to handle potential negative errors and after that return negative
-> error codes.
+"glitch" is is used to tune the I2C timing requirements, and has a 
+nanosecond granularity.
+These values are added to default timing values.
+I'm not 100% sure, but it looks like the "samsung,i2c-sda-delay" in the 
+i2c-s3c2410 driver.
 
-Hm that sounds like an attractive solution to me actually.
+I agree the names and descriptions are not clear, and even misleading.
+I will come with a clearer implementation, as soon as I get 
+clarification from HW team.
 
-> That still wouldn't catch any callers introduced between
-> the patch creation and application.
+Thanks for the review,
+Maxime
 
-Such things happen all the time, just have to be attentive in
-what goes into linux-next...
-
-Another minor thing:
-
-+static int __irq_create_mapping(struct irq_domain *domain,
-+                               irq_hw_number_t hwirq, unsigned int *virqp)
-
-Unless you can make a very good case for why there should
-be a "v" in the beginning of virqp, then remove it and call it
-"irqp" simply.
-
-All Linux IRQs are virtual and we're already clearly separating
-out those that are not by calling them "hwirq".
-
-Yours,
-Linus Walleij
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
