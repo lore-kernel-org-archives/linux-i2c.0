@@ -1,39 +1,33 @@
-From: "webmail update" <info-O5WfVfzUwx8@public.gmane.org>
-Subject: =?UTF-8?Q?V=C3=A1=C5=BEen=C3=AD_E-mail_u=C5=BE=C3=ADvate=C4=BEa;?=
-Date: Wed, 25 Sep 2013 00:40:53 +0200
-Message-ID: <cdaec6870667ec3ec21eb0ce0ea84c8f.squirrel@webmail.polytech.unice.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+From: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH 1/1] i2c-ismt: add Initialize DMA buffer code ismt_access()
+Date: Tue, 24 Sep 2013 16:47:55 -0700
+Message-ID: <1380066475-2119-1-git-send-email-james.d.ralston@intel.com>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+Cc: Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+This patch adds code to Initialize the DMA buffer to compensate for possible hardware data corruption.
 
+Signed-off-by: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-ismt.c |    3 +++
+ 1 files changed, 3 insertions(+), 0 deletions(-)
 
-
-V=C3=A1=C5=BEen=C3=AD E-mail u=C5=BE=C3=ADvate=C4=BEa;
-
-Prekro=C4=8Dili ste 23432 boxy nastavi=C5=A5 svoje
-Webov=C3=A1 slu=C5=BEba / Administr=C3=A1tor, a budete ma=C5=A5 probl=C3=
-=A9my pri odosielan=C3=AD a
-prij=C3=ADma=C5=A5 e-maily, k=C3=BDm znova overi=C5=A5. Mus=C3=ADte akt=
-ualizova=C5=A5 kliknut=C3=ADm na
-odkaz ni=C5=BE=C5=A1ie a vypl=C5=88te =C3=BAdaje pre overenie v=C3=A1=C5=
-=A1ho =C3=BA=C4=8Dtu
-Pros=C3=ADm,  kliknite na odkaz ni=C5=BE=C5=A1ie alebo skop=C3=ADrova=C5=
-=A5 vlo=C5=BEi=C5=A5 do
-e-prehliada=C4=8D pre overenie Schr=C3=A1nky.
-
-http://webmailupdate2034.jimdo.com/
-
-Pozor!
-Ak tak neurob=C3=ADte, bud=C3=BA ma=C5=A5 obmedzen=C3=BD pr=C3=ADstup k=
- e-mailu schr=C3=A1nky. Ak
-sa
-nepodar=C3=AD aktualizova=C5=A5 svoj =E2=80=8B=E2=80=8B=C3=BA=C4=8Det d=
-o troch dn=C3=AD od aktualiz=C3=A1cie
-ozn=C3=A1menia,
-bude v=C3=A1=C5=A1 =C3=BA=C4=8Det natrvalo uzavret=C3=A1.
-S pozdravom,
-System Administrator =C2=AE
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index 8ed79a0..d3f30ea 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -393,6 +393,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 
+ 	desc = &priv->hw[priv->head];
+ 
++	/* Initialize the DMA buffer */
++	memset(priv->dma_buffer, 0, (I2C_SMBUS_BLOCK_MAX+1));
++
+ 	/* Initialize the descriptor */
+ 	memset(desc, 0, sizeof(struct ismt_desc));
+ 	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+-- 
+1.7.7.6
