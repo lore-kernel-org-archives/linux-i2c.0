@@ -1,118 +1,39 @@
-From: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 2/9] irqdomain: Introduce __irq_create_mapping()
-Date: Tue, 24 Sep 2013 20:28:21 +0200
-Message-ID: <20130924182820.GA9911@mithrandir>
-References: <1379320326-13241-1-git-send-email-treding@nvidia.com>
- <1379320326-13241-3-git-send-email-treding@nvidia.com>
- <CACRpkdYo8knzZ+Z-tc7fyEGwX5bt4RvMU3TR3k3UrOj0KRJocw@mail.gmail.com>
- <20130923202935.GA5216@ulmo>
- <CACRpkdZMM9RUkRCWG0mYbF9PL-fOdDncpY05xG3F5BF55hn5ug@mail.gmail.com>
+From: "webmail update" <info-O5WfVfzUwx8@public.gmane.org>
+Subject: =?UTF-8?Q?V=C3=A1=C5=BEen=C3=AD_E-mail_u=C5=BE=C3=ADvate=C4=BEa;?=
+Date: Wed, 25 Sep 2013 00:40:53 +0200
+Message-ID: <cdaec6870667ec3ec21eb0ce0ea84c8f.squirrel@webmail.polytech.unice.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x+6KMIRAuhnl3hBn"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <CACRpkdZMM9RUkRCWG0mYbF9PL-fOdDncpY05xG3F5BF55hn5ug-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---x+6KMIRAuhnl3hBn
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Sep 24, 2013 at 02:20:44PM +0200, Linus Walleij wrote:
-> On Mon, Sep 23, 2013 at 10:29 PM, Thierry Reding
-> <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
-> > On Mon, Sep 23, 2013 at 09:14:30PM +0200, Linus Walleij wrote:
->=20
-> >> I think it is better to first go over the call sites and make them
-> >> all handle negative return numbers rather than pushing the
-> >> obscure __interface.
-> (...)
-> >
-> > Well, the problem is that the current patch changes the signature of the
-> > function as well, therefore the call sites will have to be updated all
-> > at once in a single patch to avoid build breakage.
->=20
-> Hm yeah OK I see the problem, but can we atleast avoid the
-> __thing? Like calling the new function irq_create_mapping_strict()
-> or whatever.
 
-_strict sort of implies that it does something more than the non-strict
-irq_create_mapping() while it really doesn't. Perhaps the alternative
-proposed below would indeed be a better solution.
+V=C3=A1=C5=BEen=C3=AD E-mail u=C5=BE=C3=ADvate=C4=BEa;
 
-> > Another alternative could be to change the signature in a way that does
-> > not break compatibility. For instance I think it could work out if we
-> > change this function to return int instead of unsigned int but keep the
-> > same semantics to begin with (return 0 on failure). Then update all call
-> > sites to handle potential negative errors and after that return negative
-> > error codes.
->=20
-> Hm that sounds like an attractive solution to me actually.
+Prekro=C4=8Dili ste 23432 boxy nastavi=C5=A5 svoje
+Webov=C3=A1 slu=C5=BEba / Administr=C3=A1tor, a budete ma=C5=A5 probl=C3=
+=A9my pri odosielan=C3=AD a
+prij=C3=ADma=C5=A5 e-maily, k=C3=BDm znova overi=C5=A5. Mus=C3=ADte akt=
+ualizova=C5=A5 kliknut=C3=ADm na
+odkaz ni=C5=BE=C5=A1ie a vypl=C5=88te =C3=BAdaje pre overenie v=C3=A1=C5=
+=A1ho =C3=BA=C4=8Dtu
+Pros=C3=ADm,  kliknite na odkaz ni=C5=BE=C5=A1ie alebo skop=C3=ADrova=C5=
+=A5 vlo=C5=BEi=C5=A5 do
+e-prehliada=C4=8D pre overenie Schr=C3=A1nky.
 
-The only thing we'd loose is the additional bit, but given that most (if
-not all) platforms that use DT are 32-bit (do we actually support any
-platforms that don't have 32-bit integers?) that should not matter at
-all. We're not very likely to get anywhere near that number of
-interrupts in the system.
+http://webmailupdate2034.jimdo.com/
 
-> > That still wouldn't catch any callers introduced between
-> > the patch creation and application.
->=20
-> Such things happen all the time, just have to be attentive in
-> what goes into linux-next...
-
-Given that linux-next might not be with us for much longer before the
-3.12 release, I'm thinking of deferring the series until then. Or at
-least trying to get it merged. Otherwise we'll probably have to deal
-with a lot of fall out during the merge window.
-
-In any case, it'd be nice to get some feedback on the general idea of
-the patch series from other people involved. I'd hate to do all the
-conversions just to have it NAKed at the last minute.
-
-> Another minor thing:
->=20
-> +static int __irq_create_mapping(struct irq_domain *domain,
-> +                               irq_hw_number_t hwirq, unsigned int *virq=
-p)
->=20
-> Unless you can make a very good case for why there should
-> be a "v" in the beginning of virqp, then remove it and call it
-> "irqp" simply.
->=20
-> All Linux IRQs are virtual and we're already clearly separating
-> out those that are not by calling them "hwirq".
-
-Yeah, I was just trying to adapt to what was already there. But with the
-alternative proposal that'll go away anyway.
-
-Thierry
-
---x+6KMIRAuhnl3hBn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.21 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSQdnEAAoJEN0jrNd/PrOhJn8P/3TBPXWjbLi5m7KaRXlga4UE
-K3Ny6iA37CXlF+yLzqlpZz6UvKJvvTqXwv0Vt/nwMHvZ+/hnyWefdxDeAnGioz9Q
-Xv35ArYyVpnXDLidl34Cer+KodQyfq9bNfBynn69ioEzSu3pa1iCzMsufoc7qYv2
-iQoOFbSFHDIO7kWiX8IWnrObr7HWg6+64Za4tPQm+9tH2wHs3p5rG5QzY/qPtBUX
-UqqE9WiC6olA8ANasEpO/LeP3+73vFF57q45dI2tTrrPYej5Ea/n87CIPGY4mj4P
-MsqS1XwBXZR8hHP+kL6DruxTC3lXW5xs3xVW7Qp5ErazD7I5DAz7V35FqR70rlE6
-LaCxaiwjGL3dMVVbH/3rExquKzLcp5Qb+9pguqz4hnZ2rDPEswLEZwJxRfhxN4hj
-0l7NFVN2AfSD7RHdujXo5cqv6N/PHq/IbBX/ZGMqfj63E8oyong/d+Ejf34SWjID
-qJmWcaPvxOq6/Wn5RYiPAf1ukqDQXQJPfOeMYhfMZCq5dwufxeI6kqHaUn5ngQ95
-3Mad+lpjP2zvWsDCyevKJvZT6xOmiKDH8hoi9mk0t3YmLtQsPGU0M2wKpKhaxEkE
-5RDuwDO2NnwIohRiNhBV5etxQ8DX+6AfOd6scZ0hJymX0sjgeTla5EWCXXaMKinZ
-2h9exIOdxzKJAO1B8A+O
-=0ZXR
------END PGP SIGNATURE-----
-
---x+6KMIRAuhnl3hBn--
+Pozor!
+Ak tak neurob=C3=ADte, bud=C3=BA ma=C5=A5 obmedzen=C3=BD pr=C3=ADstup k=
+ e-mailu schr=C3=A1nky. Ak
+sa
+nepodar=C3=AD aktualizova=C5=A5 svoj =E2=80=8B=E2=80=8B=C3=BA=C4=8Det d=
+o troch dn=C3=AD od aktualiz=C3=A1cie
+ozn=C3=A1menia,
+bude v=C3=A1=C5=A1 =C3=BA=C4=8Det natrvalo uzavret=C3=A1.
+S pozdravom,
+System Administrator =C2=AE
