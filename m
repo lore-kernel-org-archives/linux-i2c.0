@@ -1,67 +1,97 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c: qup: Add device tree bindings information
-Date: Wed, 25 Sep 2013 18:06:06 +0200
-Message-ID: <20130925160606.GA3377@katana>
-References: <1377782873-31931-1-git-send-email-iivanov@mm-sol.com>
- <3A0F4153-1C55-4008-8EB1-D6FA60D87CEA@codeaurora.org>
- <1377797186.30358.14.camel@localhost>
- <767E9FBB-2975-4795-9C7E-69E302511FF2@codeaurora.org>
- <1378814937.960.37.camel@iivanov-dev.int.mm-sol.com>
- <20130910135907.GP808@joshc.qualcomm.com>
- <1378824205.960.41.camel@iivanov-dev.int.mm-sol.com>
+Subject: Re: [PATCH] i2c: i2c-dev: Create 'name' attribute automatically
+Date: Wed, 25 Sep 2013 22:20:35 +0200
+Message-ID: <20130925202035.GB4290@katana>
+References: <1377966619-20197-1-git-send-email-linux@roeck-us.net>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="X1bOJ3K7DJ5YkBrT"
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="oLBj+sq0vYjzfsbl"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1378824205.960.41.camel-yvhxILDKWb8ylMT5ByZ5bDRGLm/uyL/D0E9HWUfgJXw@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Ivan T. Ivanov" <iivanov-NEYub+7Iv8PQT0dZR+AlfA@public.gmane.org>
-Cc: Josh Cartwright <joshc-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, Kumar Gala <galak-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org>, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, ian.campbell-Sxgqhf6Nn4DQT0dZR+AlfA@public.gmane.org, rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org, grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, gavidov-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, sdharia-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, alokc-sgV2jX0FEOL9JmXXK+q4OQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+In-Reply-To: <1377966619-20197-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---X1bOJ3K7DJ5YkBrT
+--oLBj+sq0vYjzfsbl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
+On Sat, Aug 31, 2013 at 09:30:19AM -0700, Guenter Roeck wrote:
+> The 'name' attribute is needed for all i2c-dev class devices, meaning
+> it can be created automatically by pointing to it in the class data
+> structure. This simplifies the code and reduces the probability for race
+> conditions.
 
-> > I agree with Kumar on removing this.  If we decide it is something worth
-> > keeping, logic to support it doesn't belong in the QUP driver, but in
-> > the i2c core.
+What race condition?
+
 >=20
-> I don't have strong objection here, will remove aliases support.
+> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> ---
+>  drivers/i2c/i2c-dev.c |   32 ++++++++++++++++----------------
+>  1 file changed, 16 insertions(+), 16 deletions(-)
+>=20
+> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+> index c3ccdea..46eea02 100644
+> --- a/drivers/i2c/i2c-dev.c
+> +++ b/drivers/i2c/i2c-dev.c
+> @@ -111,7 +111,11 @@ static ssize_t show_adapter_name(struct device *dev,
+>  		return -ENODEV;
+>  	return sprintf(buf, "%s\n", i2c_dev->adap->name);
+>  }
+> -static DEVICE_ATTR(name, S_IRUGO, show_adapter_name, NULL);
+> +
+> +static struct device_attribute i2c_dev_attributes[] =3D {
+> +	__ATTR(name, S_IRUGO, show_adapter_name, NULL),
+> +	{ }
+> +};
+> =20
+>  /* ---------------------------------------------------------------------=
+---- */
+> =20
+> @@ -538,7 +542,11 @@ static const struct file_operations i2cdev_fops =3D {
+> =20
+>  /* ---------------------------------------------------------------------=
+---- */
+> =20
+> -static struct class *i2c_dev_class;
+> +static struct class i2c_dev_class =3D {
+> +	.owner =3D THIS_MODULE,
+> +	.name =3D "i2c-dev",
+> +	.dev_attrs =3D i2c_dev_attributes,
+> +};
 
-When resubmitting, please test against v3.12-rcX.
-of_i2c_register_devices() is in the core meanwhile and alias support for
-of is in the core for a while, too. Check i2c_add_adapter().
+Have you tried this with two instances? I don't think it will work since
+class_register modifies the class struct.
+
+Regards,
+
+   Wolfram
 
 
---X1bOJ3K7DJ5YkBrT
+--oLBj+sq0vYjzfsbl
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSQwnuAAoJEBQN5MwUoCm2pZkP/jsr5BMM4uEXwLkMnbkIdV4F
-ZhuY/Tha/5qPspuBWnKX7zERtQSwbIoIaZjebZaxdO4Dro2h1NGMLdDfD2asl0uK
-sNYx6cJzipaHYY1QY4AYbvMwbTd6mh/ZHs1qvVxXdD4aiBwYuZVDwTLh9Q0F0EZe
-vvRKiOy9V6vAhwMlj2Qznj65weSsxX2qvtqTLULSQiSCf/lfDPkk2959VcWrXOBU
-tWJ2T2Hjf3xmEVjWpkS2ud/Wvh/NEcdcGtQ2KFkMUAplvCVDOIXPqgDyZ8dfxNGs
-Y4kI+8lyv3zXeHp21HPq4eBGjPJO7UeScBb8Jb0NWE1KDamaMW0QIiymbRXjeU3D
-nqwRSHsih7sz54gbGQTI9ZYg+/CZJWtOrE2ZfnuJfvIcJ6pBpad0/LuJ4hhF1kqv
-pB7b1jqolc6sKRKSTwN6adBF8NTsnArfJKiIcBlNRZwjWZwVtpMpztmOOwvmfqfE
-ZYdoXaxGlEfvNW9DpDccT6StjvYqShU4YBrnMeP+RtbKKgMsJuqIIiCWil4vBKC+
-ggQor9vty73/4LAeuprKACJKRI7ExrH4tNctkYqsS/c+gy8ojPQrx7dtdK63zUJx
-pJy7zdmRjoYovYGcdDkRV5+4V2kgBH9/Jvgf9E23qpeENs+hrPAjW3xxgdBiYOYU
-rQ10o1EFUiJ0qstTjyD2
-=bROv
+iQIcBAEBAgAGBQJSQ0WTAAoJEBQN5MwUoCm2/84P/jJ8iX4BwcdXvshkpfzA25ks
+TXXb2uK7KGnIqoJaVzGs8gY1mUDufZ+eDv5AWdcWTJ+zRer0fFqM7PxVNItmzNPd
+9XqNNe32Fkl9cjtxwFqgKQyaa6TnZemSUseQL2KxAq+InfXV1B6Rt2Nx0+XA7vVZ
+kzVE0z4yUMKgl5FZW20NSSyAsijy08/Q1/0EAz4BXWP6bVxQI7nDKPJLLEhOm+qE
+E9eeE/jyUuxjNPB14jNh9MwJF8Rc2BAiGMf9Apf/LvjpNW6LoskmuPrDlt0e1DNN
+f3gjOUnrwXn8sKJUIqkd2xVBOkBwK31xxluo4vthCoxaIlpuuRtQ+YzPQoGJ+juj
+8LsNau0ZJfWF96j5phoKvNaM7HAZ/HfEtHdwuLJl3X+4F24x5jLjk2kqLdUjougT
+Wriz94eDoQJ9T4M92/Juw9aP66u/cFyKUXUTAXcc85jcw+xUgBQ8nEBbLiDP5lyq
++uxXK57U7IoQ/R1vIagXF7ZlVsJxT0b+HJhyr/1hYd93lXnjEd/NG2AquFgv2Bmw
+FcjmgQVl4iqEC5Pb4hIe9D1+qYvArngIslb4gMw0WeibkafU0Kr6mLFtKdH0ZLTr
+2LQ8ql8i74+/Y6Pkz0ii0a256TvU3zPkKhbiGdI6Af6xeppxzb10sDQDLIQzklGg
+0UHOHkY/XqAqRq/q/0G+
+=2/rz
 -----END PGP SIGNATURE-----
 
---X1bOJ3K7DJ5YkBrT--
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+--oLBj+sq0vYjzfsbl--
