@@ -1,42 +1,62 @@
-From: Maxime COQUELIN <maxime.coquelin@st.com>
-Subject: Re: [PATCH 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Thu, 26 Sep 2013 11:30:23 +0200
-Message-ID: <5243FEAF.4090506@st.com>
-References: <1379498483-4236-1-git-send-email-maxime.coquelin@st.com>
- <1379498483-4236-2-git-send-email-maxime.coquelin@st.com>
- <5240AD6E.4090905@wwwdotorg.org> <5241B1FA.6020500@st.com>
- <20130924155925.GA2995@katana>
+From: Alexandre TORGUE <alexandre.torgue@st.com>
+Subject: [PATCH v2 0/4] Add I2C support to ST SoCs
+Date: Thu, 26 Sep 2013 11:51:12 +0200
+Message-ID: <1380189072-5551-1-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130924155925.GA2995@katana>
-Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Stephen Warren <swarren@wwwdotorg.org>, Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, Lee Jones <lee.jones@linaro.org>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, Olivier CLERGEAUD <olivier.clergeaud@st.co>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
+List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
+List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
+ <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
+Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
+Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+To: Wolfram Sang <wsa@the-dreams.de>, srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: kernel@stlinux.com, stephen.gallimore@st.com, stuart.menefy@st.com, Lee Jones <lee.jones@linaro.org>, gabriel.fernandez@st.com, Maxime Coquelin <maxime.coquelin@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
+The goal of this series is to add I2C support to ST SoCs.
+The DT definition is added for STiH415 and STiH416 SoCs on
+B2000 and B2020 boards.
 
-On 09/24/2013 05:59 PM, Wolfram Sang wrote:
->> "glitch" is is used to tune the I2C timing requirements, and has a
->> nanosecond granularity.
->> These values are added to default timing values.
->> I'm not 100% sure, but it looks like the "samsung,i2c-sda-delay" in the
->> i2c-s3c2410 driver.
-> For that, we have the generic "i2c-sda-hold-time-ns" property. The s3c
-> driver hasn't been converted to use it, sadly.
->
-Ok, thank you for pointing this out.
-After some checks, this property doesn't match with what is done in this 
-driver.
+The series has been tested working on STiH416-B2020 board.
+It applies on top of v3.12-rc1.
 
-In the v2 series I am sending, I removed the I2C timing tuning as it 
-works on all
-the boards I have tested with.
-I will only keep the anti-glitch filtering, using private properties as 
-I didn't find any generic
-ones that could fit.
+Changes since v1:
+  - Anti-glitch filtering simplified (Only HW Anti-glitch is kept)
+  - Update I2C timings to comply with I2C specification
+  - Handle spurious interrupts properly
+  - DT binding updates taking into account Stephen's comments
+  - Use "clock-names" property to comply with GCF
+  - DT cosmetic changes reported by Lee and Gabriel 
 
-Regards,
-Maxime
+Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
+
+Maxime Coquelin (4):
+  i2c: busses: i2c-st: Add ST I2C controller
+  ARM: STi: Supply I2C configuration to STiH416 SoC
+  ARM: STi: Supply I2C configuration to STiH415 SoC
+  ARM: STi: Add I2C config to B2000 and B2020 boards
+
+ Documentation/devicetree/bindings/i2c/i2c-st.txt |   37 ++
+ arch/arm/boot/dts/stih415-pinctrl.dtsi           |   36 ++
+ arch/arm/boot/dts/stih415.dtsi                   |   65 ++
+ arch/arm/boot/dts/stih416-pinctrl.dtsi           |   35 ++
+ arch/arm/boot/dts/stih416.dtsi                   |   65 ++
+ arch/arm/boot/dts/stih41x-b2000.dtsi             |    7 +
+ arch/arm/boot/dts/stih41x-b2020.dtsi             |   20 +
+ drivers/i2c/busses/Kconfig                       |   10 +
+ drivers/i2c/busses/Makefile                      |    1 +
+ drivers/i2c/busses/i2c-st.c                      |  691 ++++++++++++++++++++++
+ drivers/i2c/busses/i2c-st.h                      |  208 +++++++
+ 11 files changed, 1175 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-st.txt
+ create mode 100644 drivers/i2c/busses/i2c-st.c
+ create mode 100644 drivers/i2c/busses/i2c-st.h
+
+-- 
+1.7.9.5
