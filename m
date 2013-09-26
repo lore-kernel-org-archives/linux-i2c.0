@@ -1,51 +1,35 @@
-From: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c-ismt: add Initialize DMA buffer code
- ismt_access()
-Date: Thu, 26 Sep 2013 10:41:15 -0400
-Message-ID: <20130926144115.GB12301@hmsreliant.think-freely.org>
-References: <1380066475-2119-1-git-send-email-james.d.ralston@intel.com>
- <20130926084032.GB3057@katana>
+From: Vivien Didelot <vivien.didelot-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
+Subject: Re: [PATCH] misc: (at24) move header to linux/platform_data/
+Date: Thu, 26 Sep 2013 16:09:12 -0400 (EDT)
+Message-ID: <1414767040.1054326.1380226152008.JavaMail.root@mail>
+References: <169123028.921974.1377290733515.JavaMail.root@mail>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20130926084032.GB3057@katana>
+In-Reply-To: <169123028.921974.1377290733515.JavaMail.root@mail>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Thu, Sep 26, 2013 at 10:40:32AM +0200, Wolfram Sang wrote:
-> On Tue, Sep 24, 2013 at 04:47:55PM -0700, James Ralston wrote:
-> > This patch adds code to Initialize the DMA buffer to compensate for possible hardware data corruption.
-> 
-> Take care of the line width here.
-> 
-> > Signed-off-by: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > ---
-> >  drivers/i2c/busses/i2c-ismt.c |    3 +++
-> >  1 files changed, 3 insertions(+), 0 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-> > index 8ed79a0..d3f30ea 100644
-> > --- a/drivers/i2c/busses/i2c-ismt.c
-> > +++ b/drivers/i2c/busses/i2c-ismt.c
-> > @@ -393,6 +393,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
-> >  
-> >  	desc = &priv->hw[priv->head];
-> >  
-> > +	/* Initialize the DMA buffer */
-> > +	memset(priv->dma_buffer, 0, (I2C_SMBUS_BLOCK_MAX+1));
-> 
-> sizeof()?
-> 
-Agreed.
-Neil
+Hi Wolfram,
 
-> > +
-> >  	/* Initialize the descriptor */
-> >  	memset(desc, 0, sizeof(struct ismt_desc));
-> >  	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
-> > -- 
-> > 1.7.7.6
+> Wolfram wrote:
+> 
+> > > IMHO it makes sense. Why wouldn't we want all platform_data in
+> > > include/linux/platform_data/?
 > > 
+> > For the same reason we don't want all driver source files in one
+> > directory? It's a mess.
+> 
+> Well, that's different. Not all drivers expose platform data, but
+> many subsystems have drivers with platform data. A common include
+> directory for the *_platform_data structure definitions makes sense.
+
+Also IMO having such header file in include/linux/i2c/ for a driver
+declared in drivers/misc/eeprom/ is not very consistent.
+So this is the purpose of this include directory. What do you think?
+
+Best,
+Vivien
