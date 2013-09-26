@@ -1,79 +1,42 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/1] i2c-ismt: add Initialize DMA buffer code
- ismt_access()
-Date: Thu, 26 Sep 2013 10:40:32 +0200
-Message-ID: <20130926084032.GB3057@katana>
-References: <1380066475-2119-1-git-send-email-james.d.ralston@intel.com>
+From: Maxime COQUELIN <maxime.coquelin@st.com>
+Subject: Re: [PATCH 1/4] i2c: busses: i2c-st: Add ST I2C controller
+Date: Thu, 26 Sep 2013 11:30:23 +0200
+Message-ID: <5243FEAF.4090506@st.com>
+References: <1379498483-4236-1-git-send-email-maxime.coquelin@st.com>
+ <1379498483-4236-2-git-send-email-maxime.coquelin@st.com>
+ <5240AD6E.4090905@wwwdotorg.org> <5241B1FA.6020500@st.com>
+ <20130924155925.GA2995@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1380066475-2119-1-git-send-email-james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20130924155925.GA2995@katana>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, Lee Jones <lee.jones@linaro.org>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, Olivier CLERGEAUD <olivier.clergeaud@st.co>
 List-Id: linux-i2c@vger.kernel.org
 
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 09/24/2013 05:59 PM, Wolfram Sang wrote:
+>> "glitch" is is used to tune the I2C timing requirements, and has a
+>> nanosecond granularity.
+>> These values are added to default timing values.
+>> I'm not 100% sure, but it looks like the "samsung,i2c-sda-delay" in the
+>> i2c-s3c2410 driver.
+> For that, we have the generic "i2c-sda-hold-time-ns" property. The s3c
+> driver hasn't been converted to use it, sadly.
+>
+Ok, thank you for pointing this out.
+After some checks, this property doesn't match with what is done in this 
+driver.
 
-On Tue, Sep 24, 2013 at 04:47:55PM -0700, James Ralston wrote:
-> This patch adds code to Initialize the DMA buffer to compensate for possi=
-ble hardware data corruption.
+In the v2 series I am sending, I removed the I2C timing tuning as it 
+works on all
+the boards I have tested with.
+I will only keep the anti-glitch filtering, using private properties as 
+I didn't find any generic
+ones that could fit.
 
-Take care of the line width here.
-
-> Signed-off-by: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> ---
->  drivers/i2c/busses/i2c-ismt.c |    3 +++
->  1 files changed, 3 insertions(+), 0 deletions(-)
->=20
-> diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
-> index 8ed79a0..d3f30ea 100644
-> --- a/drivers/i2c/busses/i2c-ismt.c
-> +++ b/drivers/i2c/busses/i2c-ismt.c
-> @@ -393,6 +393,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 =
-addr,
-> =20
->  	desc =3D &priv->hw[priv->head];
-> =20
-> +	/* Initialize the DMA buffer */
-> +	memset(priv->dma_buffer, 0, (I2C_SMBUS_BLOCK_MAX+1));
-
-sizeof()?
-
-> +
->  	/* Initialize the descriptor */
->  	memset(desc, 0, sizeof(struct ismt_desc));
->  	desc->tgtaddr_rw =3D ISMT_DESC_ADDR_RW(addr, read_write);
-> --=20
-> 1.7.7.6
->=20
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSQ/MAAAoJEBQN5MwUoCm2k6gQAJ40U4RR8yZ0F8b362yqX4Ga
-p+qVShXggMsDAD6kvdaz5AEgbCZqbSLthCeAgHH1LTnHyZPAEeBnaPe/Q9ZkoedK
-RtvuJR84fd0jOjCTejKXW21at2tUyrW5a1OUYBH01ng8VVvLzC2M6EZLnslB3qRn
-9oBfTiPp0Hc/pAuTFWmRJwMfCUv1yuhbW48ibqGcnt9WPPn+NhfgUTB5tb6TkMiM
-p1ZqMTDtZckNMWyDG+RDOq/i7w499AnWEifryK26GYtkpVpm0O0AAHtmw+3iR6ue
-LuKwq+XK4MBkDsny0vlTaQNuzOBnccTdrV1TLTNikgQlPfQbQwiZvDw/6b/cLTQ9
-9Kwgw5Jol3zggqx3pkKo8JbkGDL5co38Z5lP88g5WNRdGGv+T8Ie3gcbUAjHy1em
-G768eTr9fzyXNhVekrPaKXHa/kXVh+1pwGYgn7QGSvfdF5favzLniWBl+R8sHB55
-+eP6/XSSsT/k7HByjOK+tHIYPyLNQyJJFl5qo+XJZu1j958XFIc/WuK1k+Lj3gNt
-S8LmgEtgFbqOYcKQFJ4IMfOvu4iyFS0AARwoNHo5zafaeS4I05+48BJgTlrERukG
-3A5FKqlYFu1/G4W5KlooonafSPTnZoJ1HUwWa7MiQ8mk+2Bx9TOSNhXiCZKuv0r5
-xCt2qIpT+7kdWfmDWRY8
-=1GxT
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
+Regards,
+Maxime
