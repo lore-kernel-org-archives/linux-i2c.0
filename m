@@ -1,35 +1,53 @@
-From: Vivien Didelot <vivien.didelot-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
-Subject: Re: [PATCH] misc: (at24) move header to linux/platform_data/
-Date: Thu, 26 Sep 2013 16:09:12 -0400 (EDT)
-Message-ID: <1414767040.1054326.1380226152008.JavaMail.root@mail>
-References: <169123028.921974.1377290733515.JavaMail.root@mail>
+From: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+Subject: [PATCH] i2c-designware: define i2c_dw_pci_runtime_idle only with runtime pm
+Date: Fri, 27 Sep 2013 00:24:03 +0200
+Message-ID: <1380234243-23787-1-git-send-email-vincent.stehle@laposte.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <169123028.921974.1377290733515.JavaMail.root@mail>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi Wolfram,
+Make sure i2c_dw_pci_runtime_idle() is defined only when actually used,=
+ when
+CONFIG_PM_RUNTIME is defined.
 
-> Wolfram wrote:
-> 
-> > > IMHO it makes sense. Why wouldn't we want all platform_data in
-> > > include/linux/platform_data/?
-> > 
-> > For the same reason we don't want all driver source files in one
-> > directory? It's a mess.
-> 
-> Well, that's different. Not all drivers expose platform data, but
-> many subsystems have drivers with platform data. A common include
-> directory for the *_platform_data structure definitions makes sense.
+This fixes the following compilation warning:
 
-Also IMO having such header file in include/linux/i2c/ for a driver
-declared in drivers/misc/eeprom/ is not very consistent.
-So this is the purpose of this include directory. What do you think?
+ drivers/i2c/busses/i2c-designware-pcidrv.c:188:12: warning: =E2=80=98i=
+2c_dw_pci_runtime_idle=E2=80=99 defined but not used [-Wunused-function=
+]
 
-Best,
-Vivien
+Signed-off-by: Vincent Stehl=C3=A9 <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/b=
+usses/i2c-designware-pcidrv.c
+index f6ed06c..2b5d3a6 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -185,6 +185,7 @@ static int i2c_dw_pci_resume(struct device *dev)
+ 	return 0;
+ }
+=20
++#ifdef CONFIG_PM_RUNTIME
+ static int i2c_dw_pci_runtime_idle(struct device *dev)
+ {
+ 	int err =3D pm_schedule_suspend(dev, 500);
+@@ -194,6 +195,7 @@ static int i2c_dw_pci_runtime_idle(struct device *d=
+ev)
+ 		return 0;
+ 	return -EBUSY;
+ }
++#endif
+=20
+ static const struct dev_pm_ops i2c_dw_pm_ops =3D {
+ 	.resume         =3D i2c_dw_pci_resume,
+--=20
+1.8.4.rc3
