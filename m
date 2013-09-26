@@ -1,80 +1,51 @@
-From: "Chew, Chiau Ee" <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c-designware: 10-bit addressing mode enabling if I2C_DYNAMIC_TAR_UPDATE is set.
-Date: Fri, 27 Sep 2013 02:57:35 +0800
-Message-ID: <1380221855-14150-1-git-send-email-chiau.ee.chew@intel.com>
+From: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c-ismt: add Initialize DMA buffer code
+ ismt_access()
+Date: Thu, 26 Sep 2013 10:41:15 -0400
+Message-ID: <20130926144115.GB12301@hmsreliant.think-freely.org>
+References: <1380066475-2119-1-git-send-email-james.d.ralston@intel.com>
+ <20130926084032.GB3057@katana>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130926084032.GB3057@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-According to Designware I2C spec, if I2C_DYNAMIC_TAR_UPDATE is set to 1,
-the 10-bit addressing mode is controlled by IC_10BITADDR_MASTER bit of
-IC_TAR register instead of IC_CON register. The IC_10BITADDR_MASTER
-in IC_CON register becomes read-only copy. Since I2C_DYNAMIC_TAR_UPDATE
-value can't be detected from hardware register, so we will always set the
-IC_10BITADDR_MASTER bit in both IC_CON and IC_TAR register whenever 10-bit
-addresing mode is requested by user application.
+On Thu, Sep 26, 2013 at 10:40:32AM +0200, Wolfram Sang wrote:
+> On Tue, Sep 24, 2013 at 04:47:55PM -0700, James Ralston wrote:
+> > This patch adds code to Initialize the DMA buffer to compensate for possible hardware data corruption.
+> 
+> Take care of the line width here.
+> 
+> > Signed-off-by: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > ---
+> >  drivers/i2c/busses/i2c-ismt.c |    3 +++
+> >  1 files changed, 3 insertions(+), 0 deletions(-)
+> > 
+> > diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+> > index 8ed79a0..d3f30ea 100644
+> > --- a/drivers/i2c/busses/i2c-ismt.c
+> > +++ b/drivers/i2c/busses/i2c-ismt.c
+> > @@ -393,6 +393,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+> >  
+> >  	desc = &priv->hw[priv->head];
+> >  
+> > +	/* Initialize the DMA buffer */
+> > +	memset(priv->dma_buffer, 0, (I2C_SMBUS_BLOCK_MAX+1));
+> 
+> sizeof()?
+> 
+Agreed.
+Neil
 
-Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
- drivers/i2c/busses/i2c-designware-core.c |   26 ++++++++++++++++++++------
- 1 files changed, 20 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index dbecf08..5888fee 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -98,6 +98,8 @@
- 
- #define DW_IC_ERR_TX_ABRT	0x1
- 
-+#define DW_IC_TAR_10BITADDR_MASTER BIT(12)
-+
- /*
-  * status codes
-  */
-@@ -388,22 +390,34 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
- static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
- {
- 	struct i2c_msg *msgs = dev->msgs;
--	u32 ic_con;
-+	u32 ic_con, ic_tar = 0;
- 
- 	/* Disable the adapter */
- 	__i2c_dw_enable(dev, false);
- 
--	/* set the slave (target) address */
--	dw_writel(dev, msgs[dev->msg_write_idx].addr, DW_IC_TAR);
--
- 	/* if the slave address is ten bit address, enable 10BITADDR */
- 	ic_con = dw_readl(dev, DW_IC_CON);
--	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
-+	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN) {
- 		ic_con |= DW_IC_CON_10BITADDR_MASTER;
--	else
-+		/*
-+		 * If I2C_DYNAMIC_TAR_UPDATE is set, the 10-bit addressing
-+		 * mode has to be enabled via bit 12 of IC_TAR register.
-+		 * We set it always as I2C_DYNAMIC_TAR_UPDATE can't be
-+		 * detected from registers.
-+		 */
-+		ic_tar = DW_IC_TAR_10BITADDR_MASTER;
-+	} else {
- 		ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
-+	}
-+
- 	dw_writel(dev, ic_con, DW_IC_CON);
- 
-+	/*
-+	 * Set the slave (target) address and enable 10-bit addressing mode
-+	 * if applicable.
-+	 */
-+	dw_writel(dev, msgs[dev->msg_write_idx].addr | ic_tar, DW_IC_TAR);
-+
- 	/* Enable the adapter */
- 	__i2c_dw_enable(dev, true);
- 
--- 
-1.7.4.4
+> > +
+> >  	/* Initialize the descriptor */
+> >  	memset(desc, 0, sizeof(struct ismt_desc));
+> >  	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+> > -- 
+> > 1.7.7.6
+> > 
