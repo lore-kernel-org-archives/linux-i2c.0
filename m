@@ -1,43 +1,80 @@
-From: Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 2/9] irqdomain: Introduce __irq_create_mapping()
-Date: Thu, 26 Sep 2013 12:57:25 +0200
-Message-ID: <CACRpkdYzcb1F1-YK5ivxGpskZyVxN3qfUGn8sqq9RnfOU-EzEQ@mail.gmail.com>
-References: <1379320326-13241-1-git-send-email-treding@nvidia.com>
-	<1379320326-13241-3-git-send-email-treding@nvidia.com>
-	<CACRpkdYo8knzZ+Z-tc7fyEGwX5bt4RvMU3TR3k3UrOj0KRJocw@mail.gmail.com>
-	<20130923202935.GA5216@ulmo>
-	<CACRpkdZMM9RUkRCWG0mYbF9PL-fOdDncpY05xG3F5BF55hn5ug@mail.gmail.com>
-	<20130924182820.GA9911@mithrandir>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130924182820.GA9911@mithrandir>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Thomas Gleixner <tglx-hfZtesqFncYOwBW4kG4KsQ@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-gpio-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+From: "Chew, Chiau Ee" <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: [PATCH] i2c-designware: 10-bit addressing mode enabling if I2C_DYNAMIC_TAR_UPDATE is set.
+Date: Fri, 27 Sep 2013 02:57:35 +0800
+Message-ID: <1380221855-14150-1-git-send-email-chiau.ee.chew@intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Sep 24, 2013 at 8:28 PM, Thierry Reding
-<thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> wrote:
+According to Designware I2C spec, if I2C_DYNAMIC_TAR_UPDATE is set to 1,
+the 10-bit addressing mode is controlled by IC_10BITADDR_MASTER bit of
+IC_TAR register instead of IC_CON register. The IC_10BITADDR_MASTER
+in IC_CON register becomes read-only copy. Since I2C_DYNAMIC_TAR_UPDATE
+value can't be detected from hardware register, so we will always set the
+IC_10BITADDR_MASTER bit in both IC_CON and IC_TAR register whenever 10-bit
+addresing mode is requested by user application.
 
-> Given that linux-next might not be with us for much longer before the
-> 3.12 release, I'm thinking of deferring the series until then. Or at
-> least trying to get it merged. Otherwise we'll probably have to deal
-> with a lot of fall out during the merge window.
+Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-designware-core.c |   26 ++++++++++++++++++++------
+ 1 files changed, 20 insertions(+), 6 deletions(-)
 
-Hm, how unfortunate. Typically this is the kind of topic branch
-that should go in separately to linux-next.
-
-> In any case, it'd be nice to get some feedback on the general idea of
-> the patch series from other people involved. I'd hate to do all the
-> conversions just to have it NAKed at the last minute.
-
-With the direction we've discussed here atleast I won't be
-doing any NACKing if it's of any help...
-
-Yours,
-Linus Walleij
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
+diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
+index dbecf08..5888fee 100644
+--- a/drivers/i2c/busses/i2c-designware-core.c
++++ b/drivers/i2c/busses/i2c-designware-core.c
+@@ -98,6 +98,8 @@
+ 
+ #define DW_IC_ERR_TX_ABRT	0x1
+ 
++#define DW_IC_TAR_10BITADDR_MASTER BIT(12)
++
+ /*
+  * status codes
+  */
+@@ -388,22 +390,34 @@ static int i2c_dw_wait_bus_not_busy(struct dw_i2c_dev *dev)
+ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ {
+ 	struct i2c_msg *msgs = dev->msgs;
+-	u32 ic_con;
++	u32 ic_con, ic_tar = 0;
+ 
+ 	/* Disable the adapter */
+ 	__i2c_dw_enable(dev, false);
+ 
+-	/* set the slave (target) address */
+-	dw_writel(dev, msgs[dev->msg_write_idx].addr, DW_IC_TAR);
+-
+ 	/* if the slave address is ten bit address, enable 10BITADDR */
+ 	ic_con = dw_readl(dev, DW_IC_CON);
+-	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN)
++	if (msgs[dev->msg_write_idx].flags & I2C_M_TEN) {
+ 		ic_con |= DW_IC_CON_10BITADDR_MASTER;
+-	else
++		/*
++		 * If I2C_DYNAMIC_TAR_UPDATE is set, the 10-bit addressing
++		 * mode has to be enabled via bit 12 of IC_TAR register.
++		 * We set it always as I2C_DYNAMIC_TAR_UPDATE can't be
++		 * detected from registers.
++		 */
++		ic_tar = DW_IC_TAR_10BITADDR_MASTER;
++	} else {
+ 		ic_con &= ~DW_IC_CON_10BITADDR_MASTER;
++	}
++
+ 	dw_writel(dev, ic_con, DW_IC_CON);
+ 
++	/*
++	 * Set the slave (target) address and enable 10-bit addressing mode
++	 * if applicable.
++	 */
++	dw_writel(dev, msgs[dev->msg_write_idx].addr | ic_tar, DW_IC_TAR);
++
+ 	/* Enable the adapter */
+ 	__i2c_dw_enable(dev, true);
+ 
+-- 
+1.7.4.4
