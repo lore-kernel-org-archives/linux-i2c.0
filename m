@@ -1,57 +1,75 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH v2] i2c: i2c-dev: Create 'name' attribute automatically
-Date: Fri, 27 Sep 2013 18:22:12 +0200
-Message-ID: <20130927162212.GA3094@katana>
-References: <1380249371-32430-1-git-send-email-linux@roeck-us.net>
+Subject: Re: [PATCH] misc: (at24) move header to linux/platform_data/
+Date: Fri, 27 Sep 2013 18:32:42 +0200
+Message-ID: <20130927163242.GB3094@katana>
+References: <169123028.921974.1377290733515.JavaMail.root@mail>
+ <1414767040.1054326.1380226152008.JavaMail.root@mail>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Nq2Wo0NMKNjxTN9z"
+	protocol="application/pgp-signature"; boundary="DKU6Jbt7q3WqK7+M"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1380249371-32430-1-git-send-email-linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+In-Reply-To: <1414767040.1054326.1380226152008.JavaMail.root@mail>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Vivien Didelot <vivien.didelot-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---Nq2Wo0NMKNjxTN9z
+--DKU6Jbt7q3WqK7+M
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 26, 2013 at 07:36:11PM -0700, Guenter Roeck wrote:
-> The 'name' attribute is needed for all i2c-dev class devices, meaning
-> it can be created automatically by pointing to it in the class data
-> structure. This simplifies the code and reduces the probability for race
-> conditions (the name attribute should exist by the time the device is
-> announced to user space).
+On Thu, Sep 26, 2013 at 04:09:12PM -0400, Vivien Didelot wrote:
+> Hi Wolfram,
 >=20
-> Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+> > Wolfram wrote:
+> >=20
+> > > > IMHO it makes sense. Why wouldn't we want all platform_data in
+> > > > include/linux/platform_data/?
+> > >=20
+> > > For the same reason we don't want all driver source files in one
+> > > directory? It's a mess.
+> >=20
+> > Well, that's different. Not all drivers expose platform data, but
+> > many subsystems have drivers with platform data. A common include
+> > directory for the *_platform_data structure definitions makes sense.
+>=20
+> Also IMO having such header file in include/linux/i2c/ for a driver
+> declared in drivers/misc/eeprom/ is not very consistent.
+> So this is the purpose of this include directory. What do you think?
 
-Applied to for-next, thanks!
+Well, yes, I will apply it if you could rebase it onto v3.12-rc2. I am
+unsure about the platform_data dir in general, though. For example, I'd
+prefer to have the i2c-* files in the i2c-dir, but this is another
+question.
+
+Thanks,
+
+   Wolfram
 
 
---Nq2Wo0NMKNjxTN9z
+--DKU6Jbt7q3WqK7+M
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSRbC0AAoJEBQN5MwUoCm2vy4QAJx7ILRZ8udDN7DE3IzilGTJ
-4PdDFojjBYh+2uwv2Eih3YKQZ+x5zQ8OrP3y8PznAmdOR5TABI5lubOk3e1QAATB
-6hMXLryYe27q4WPRjiCw1PWHbxx0cD29XOfVEQu6q3Lz92QKiiKUXdikpii6+eXs
-fC5ThyXxdUdwmjm4CNWGu5usDGRrYi0eO4jklM1O1jkKHJAnkXxDfRSBt+ZHMAnL
-CBTPsRgcA9WBKllGRYLoVNejzp00vE0Nt+LpkTXTe0oBujiBxf0ElKRYJi3pdrbe
-SoupflZcmv2//E5FTyPNWygyNTTD95W8e9Q44oVt6NA1djehp9r+FMYmL5CzCNnP
-8gaQWcUby0LaY+Wj+GnwU75hUbazrBUBAn8+u6x+JCHGWeUXFHs3ioZBigsI/iCO
-N6OQic8+RP+P1wm6MKsS+gaswgg1dNKQtS3ou3HJXcWXsaTZwYap/CxyXdp63138
-8J/w4+dezRmUjl39GVl+3V1aEgMqd+IraOr1Vn3YBup1l9vP4N8/qNWELebktyp5
-nIHqxM+6l80Qb0CCwORO71mn6Lv8+UHMbZfNhMmoEcla76UvxeIYkO9QHA35i2Fb
-bQm0GvaHD9SGCAo+T8yxUz2n5TBdobzcfB01itzoZCNkzhsbJd95pykZpO+W1wTl
-Pn2rndRX+XQxOfgDctsK
-=EEFQ
+iQIcBAEBAgAGBQJSRbMqAAoJEBQN5MwUoCm2moAP/RGKnijixsOQcvVnXc/JfH6h
+XZzn98hoRxTKAPeGzN7bXqdvtWMjgsIhHo0QSk/EtTKlXmXWKKEIJeH3/8Ukdksc
++f9yC09sjZLmkf1q3XsjfX9Sy92DqYF8Q7jtDRk0lSWLJjR5JYlbZRobQNRlXGUF
+XLI9BzIj1709vnwyIw8u2HexnsXdzuv6fHlbqsr8Q+hwAVv8VLxRpQ4oXdUhayI/
+yo3avlK4PBBsCYYyb7MGztxJu2f4IMM0NjugKhCrQbaEtoUBt+t/MuESGQvHxJOV
+GiXM5N93iqC8uDVuQ2ToCrVnF5YJnTQO6x6y8qqccqHbpLPW8z2zG8B/YdCNYS2t
+tmFw86slTnQGuVumvz7RA7bbXZwaQHwTArYAjYIKDo1eVp4N33Mg0C8inWE98RHF
+Un0W9EYMwuMLBSb4BTzvBr5jW/jeZe1QXsYabty5IFBdd680TOxVNMvv2rWIl0tL
+xctXoaM9ZT/FeRDW9C8QWPATOhYk/uhx1WzHjTXvEOwpOPAwAkDC5my3xguK1uFA
+MJXncYysSSlA8g8sH6/0oLb4GurW1ywFq94y9OkrjLDDpJxtQzdB3TqPOvrVAmzM
+qy47t2/5bYTAorqj+U5WEXiLEVqI6UFSn+jqS54C3QzFR/M3tQjZPslpXNoYilDc
+Cre+bI8LStPv7By6uZYu
+=DxcC
 -----END PGP SIGNATURE-----
 
---Nq2Wo0NMKNjxTN9z--
+--DKU6Jbt7q3WqK7+M--
