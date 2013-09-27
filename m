@@ -1,104 +1,94 @@
-From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
-Subject: [PATCH v2] i2c: i2c-dev: Create 'name' attribute automatically
-Date: Thu, 26 Sep 2013 19:36:11 -0700
-Message-ID: <1380249371-32430-1-git-send-email-linux@roeck-us.net>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH] i2c-designware: define i2c_dw_pci_runtime_idle only with
+ runtime pm
+Date: Fri, 27 Sep 2013 04:43:13 +0200
+Message-ID: <20130927024313.GB3159@katana>
+References: <1380234243-23787-1-git-send-email-vincent.stehle@laposte.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="8GpibOaaTibBMecb"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1380234243-23787-1-git-send-email-vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+To: Vincent =?iso-8859-15?Q?Stehl=E9?= <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-The 'name' attribute is needed for all i2c-dev class devices, meaning
-it can be created automatically by pointing to it in the class data
-structure. This simplifies the code and reduces the probability for race
-conditions (the name attribute should exist by the time the device is
-announced to user space).
 
-Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
----
-v2: Use class->dev_groups instead of class->dev_attrs
-    Better use of device macros
-    Simplify changes: there is no need to declare i2c_dev_class statically,
-    so revert to use class_create/class_destroy.
+--8GpibOaaTibBMecb
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Test results:
+On Fri, Sep 27, 2013 at 12:24:03AM +0200, Vincent Stehl=C3=A9 wrote:
+> Make sure i2c_dw_pci_runtime_idle() is defined only when actually used, w=
+hen
+> CONFIG_PM_RUNTIME is defined.
+>=20
+> This fixes the following compilation warning:
+>=20
+>  drivers/i2c/busses/i2c-designware-pcidrv.c:188:12: warning: =E2=80=98i2c=
+_dw_pci_runtime_idle=E2=80=99 defined but not used [-Wunused-function]
+>=20
+> Signed-off-by: Vincent Stehl=C3=A9 <vincent.stehle-QFKgK+z4sOrR7s880joybQ@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 
-$ grep . /sys/class/i2c-dev/*/name
-/sys/class/i2c-dev/i2c-0/name:i915 gmbus ssc
-/sys/class/i2c-dev/i2c-1/name:i915 gmbus vga
-/sys/class/i2c-dev/i2c-2/name:i915 gmbus panel
-/sys/class/i2c-dev/i2c-3/name:i915 gmbus dpc
-/sys/class/i2c-dev/i2c-4/name:i915 gmbus dpb
-/sys/class/i2c-dev/i2c-5/name:i915 gmbus dpd
-/sys/class/i2c-dev/i2c-6/name:DPDDC-B
-/sys/class/i2c-dev/i2c-7/name:DPDDC-C
-/sys/class/i2c-dev/i2c-8/name:DPDDC-D
-/sys/class/i2c-dev/i2c-9/name:SMBus I801 adapter at f040
+I wonder if this fix is complete? Mika?
 
- drivers/i2c/i2c-dev.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+> ---
+>  drivers/i2c/busses/i2c-designware-pcidrv.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/bus=
+ses/i2c-designware-pcidrv.c
+> index f6ed06c..2b5d3a6 100644
+> --- a/drivers/i2c/busses/i2c-designware-pcidrv.c
+> +++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+> @@ -185,6 +185,7 @@ static int i2c_dw_pci_resume(struct device *dev)
+>  	return 0;
+>  }
+> =20
+> +#ifdef CONFIG_PM_RUNTIME
+>  static int i2c_dw_pci_runtime_idle(struct device *dev)
+>  {
+>  	int err =3D pm_schedule_suspend(dev, 500);
+> @@ -194,6 +195,7 @@ static int i2c_dw_pci_runtime_idle(struct device *dev)
+>  		return 0;
+>  	return -EBUSY;
+>  }
+> +#endif
+> =20
+>  static const struct dev_pm_ops i2c_dw_pm_ops =3D {
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index c3ccdea..80b47e8 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -102,8 +102,8 @@ static void return_i2c_dev(struct i2c_dev *i2c_dev)
- 	kfree(i2c_dev);
- }
- 
--static ssize_t show_adapter_name(struct device *dev,
--				 struct device_attribute *attr, char *buf)
-+static ssize_t name_show(struct device *dev,
-+			 struct device_attribute *attr, char *buf)
- {
- 	struct i2c_dev *i2c_dev = i2c_dev_get_by_minor(MINOR(dev->devt));
- 
-@@ -111,7 +111,13 @@ static ssize_t show_adapter_name(struct device *dev,
- 		return -ENODEV;
- 	return sprintf(buf, "%s\n", i2c_dev->adap->name);
- }
--static DEVICE_ATTR(name, S_IRUGO, show_adapter_name, NULL);
-+static DEVICE_ATTR_RO(name);
-+
-+static struct attribute *i2c_attrs[] = {
-+	&dev_attr_name.attr,
-+	NULL,
-+};
-+ATTRIBUTE_GROUPS(i2c);
- 
- /* ------------------------------------------------------------------------- */
- 
-@@ -562,15 +568,10 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
- 		res = PTR_ERR(i2c_dev->dev);
- 		goto error;
- 	}
--	res = device_create_file(i2c_dev->dev, &dev_attr_name);
--	if (res)
--		goto error_destroy;
- 
- 	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
- 		 adap->name, adap->nr);
- 	return 0;
--error_destroy:
--	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
- error:
- 	return_i2c_dev(i2c_dev);
- 	return res;
-@@ -589,7 +590,6 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
- 	if (!i2c_dev) /* attach_adapter must have failed */
- 		return 0;
- 
--	device_remove_file(i2c_dev->dev, &dev_attr_name);
- 	return_i2c_dev(i2c_dev);
- 	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
- 
-@@ -637,6 +637,7 @@ static int __init i2c_dev_init(void)
- 		res = PTR_ERR(i2c_dev_class);
- 		goto out_unreg_chrdev;
- 	}
-+	i2c_dev_class->dev_groups = i2c_groups;
- 
- 	/* Keep track of adapters which will be added or removed later */
- 	res = bus_register_notifier(&i2c_bus_type, &i2cdev_notifier);
--- 
-1.7.9.7
+Shouldn't this be using UNIVERSAL_DEV_PM_OPS with the suspend and resume
+function #ifdeffed by CONFIG_PM_SLEEP?
+
+>  	.resume         =3D i2c_dw_pci_resume,
+> --=20
+> 1.8.4.rc3
+>=20
+
+--8GpibOaaTibBMecb
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSRPDBAAoJEBQN5MwUoCm2dyEP/3fZKZNT2R4+dDONc0Sj1VVS
+aZaJ8MpVjXQYMkp9W3Q1LsRzy/3o5uZrUOVQRE3s8tF3WHGk1JNzxSJfZUMfaqmm
+uN1Wd2yTxDLkb+fRkTC6AAYeIECGKxdVmesQ8ZwDlT/aZr7JQV1DLufH/cYM2Xe7
+QmAG/L0pWl97gP3FFpxzrd2yzKMZZQFqfpopUR1lmbFdktCBKY1H38cSNeZ13oAu
+p9r16xVbO9I1AK7FR3GauG6wbNfmpBJ5T9wRkxnBxvxjxy4PJ/Hv/ps80UrdO/LE
+VTnuII9HSZ1IsT6U5HLA1cZU0tLIwc439WTJcpGG6V/9DgYbE0ypSIjLXPrkUJQ9
+g6W8ZvbY/n3z2QU/K8xA67UqADFK4iU7euY21+73mDupjDJ+9VQWSJYE+Zri0EKS
+qvfv9c1h0QjlXGutemRmgxSC2M6EFCerYUYHP2YV1ZQPYlHt6fy9TjxWIkCCtP3d
+AeSDGiqKOB8mQBZf5utTnNGMILiVeW4VQDYBqTj6piZ8Cram/69UnfiIbyEwmrUh
+XzAycRDOjObmGtJZrdq6FhaE+ks3abnpqYh2YTWSYU8agAo6mX21BV+DOxzXzrb7
+yY51cEt4xgewFPIFnIHDxrw92vNFO9aoHIZ2GQe6rIZU7FGcOl1k0+6E76rOvRsx
+ZPX/FcuseLUs7U1B0Qvg
+=VmUk
+-----END PGP SIGNATURE-----
+
+--8GpibOaaTibBMecb--
