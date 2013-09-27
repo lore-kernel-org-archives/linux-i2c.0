@@ -1,61 +1,104 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] i2c-designware: 10-bit addressing mode enabling if
- I2C_DYNAMIC_TAR_UPDATE is set.
-Date: Fri, 27 Sep 2013 04:22:35 +0200
-Message-ID: <20130927022234.GA3159@katana>
-References: <1380221855-14150-1-git-send-email-chiau.ee.chew@intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="nFreZHaLTZJo0R7j"
+From: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+Subject: [PATCH v2] i2c: i2c-dev: Create 'name' attribute automatically
+Date: Thu, 26 Sep 2013 19:36:11 -0700
+Message-ID: <1380249371-32430-1-git-send-email-linux@roeck-us.net>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1380221855-14150-1-git-send-email-chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Chew, Chiau Ee" <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Christian Ruppert <christian.ruppert-ux6zf3SgZrrQT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+The 'name' attribute is needed for all i2c-dev class devices, meaning
+it can be created automatically by pointing to it in the class data
+structure. This simplifies the code and reduces the probability for race
+conditions (the name attribute should exist by the time the device is
+announced to user space).
 
---nFreZHaLTZJo0R7j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Guenter Roeck <linux-0h96xk9xTtrk1uMJSBkQmQ@public.gmane.org>
+---
+v2: Use class->dev_groups instead of class->dev_attrs
+    Better use of device macros
+    Simplify changes: there is no need to declare i2c_dev_class statically,
+    so revert to use class_create/class_destroy.
 
-On Fri, Sep 27, 2013 at 02:57:35AM +0800, Chew, Chiau Ee wrote:
-> According to Designware I2C spec, if I2C_DYNAMIC_TAR_UPDATE is set to 1,
-> the 10-bit addressing mode is controlled by IC_10BITADDR_MASTER bit of
-> IC_TAR register instead of IC_CON register. The IC_10BITADDR_MASTER
-> in IC_CON register becomes read-only copy. Since I2C_DYNAMIC_TAR_UPDATE
-> value can't be detected from hardware register, so we will always set the
-> IC_10BITADDR_MASTER bit in both IC_CON and IC_TAR register whenever 10-bit
-> addresing mode is requested by user application.
->=20
-> Signed-off-by: Chew, Chiau Ee <chiau.ee.chew-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Reviewed-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Test results:
 
-Applied to for-current, thanks!
+$ grep . /sys/class/i2c-dev/*/name
+/sys/class/i2c-dev/i2c-0/name:i915 gmbus ssc
+/sys/class/i2c-dev/i2c-1/name:i915 gmbus vga
+/sys/class/i2c-dev/i2c-2/name:i915 gmbus panel
+/sys/class/i2c-dev/i2c-3/name:i915 gmbus dpc
+/sys/class/i2c-dev/i2c-4/name:i915 gmbus dpb
+/sys/class/i2c-dev/i2c-5/name:i915 gmbus dpd
+/sys/class/i2c-dev/i2c-6/name:DPDDC-B
+/sys/class/i2c-dev/i2c-7/name:DPDDC-C
+/sys/class/i2c-dev/i2c-8/name:DPDDC-D
+/sys/class/i2c-dev/i2c-9/name:SMBus I801 adapter at f040
 
+ drivers/i2c/i2c-dev.c |   19 ++++++++++---------
+ 1 file changed, 10 insertions(+), 9 deletions(-)
 
---nFreZHaLTZJo0R7j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSROvqAAoJEBQN5MwUoCm2sUQP/2L7DmE4BzPRPoyOcXsLWYvO
-JnkfKc9ngGu3Up/GWe/asNG3qghyY40yoGEBfdfPrAsUkSHK4V7aTqrOgeeNJfCd
-JuU7mlKGOr7nosdTI6el/RJptaq5BLBKkeF29dNLrRVwappK0714T1Y1QaVnf5TA
-m5Z1XudPHCfGjSEqP1jMWsnYcQ7X+Lz5jWyFyKZhpiS08sV0qQkxGDzoc4ZWqehR
-voPMDL3q9g1Y/LBpgM0YWJ24kxM88ZsfwjsRvke0Aytfb48OEcGy/ljGzlJm4p6L
-zSyOWPoysChh7IlUsR9RphccVhUEFdHPwqSGH/uptwqLT4dpz2JmXlNmZ56TMssg
-UFNkoFQLjO31oDKNTETurSb3l9LaisuCkDJUu58Zd1a0MYu2KdEZFD5T16mV2X/G
-pSO96SaBhmdCw4BZUlX5QHyc4ZKevngc0Na9SFYuFll+lSKgWvEeDQugNmxaAaNH
-4tAprIu86rXxJ1BRZ5yxPhFgUnoog8oVjo5XaR3G+I5xVqe264to/JXQ4eKafSe1
-2rSGNBJvNG5PcRQ3pfBIpFebADqDckhMch16eEMsc+iptJlRpHpNAIzTJwLCV1fT
-dQgPvVG1m8U095PA3BaeHyLHUd49DpHmG5oGF6vC2YEIPTqqzL4n9NUnnxhngI4V
-gkdue3DmtbfX6NFOMSfp
-=Vw8D
------END PGP SIGNATURE-----
-
---nFreZHaLTZJo0R7j--
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index c3ccdea..80b47e8 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -102,8 +102,8 @@ static void return_i2c_dev(struct i2c_dev *i2c_dev)
+ 	kfree(i2c_dev);
+ }
+ 
+-static ssize_t show_adapter_name(struct device *dev,
+-				 struct device_attribute *attr, char *buf)
++static ssize_t name_show(struct device *dev,
++			 struct device_attribute *attr, char *buf)
+ {
+ 	struct i2c_dev *i2c_dev = i2c_dev_get_by_minor(MINOR(dev->devt));
+ 
+@@ -111,7 +111,13 @@ static ssize_t show_adapter_name(struct device *dev,
+ 		return -ENODEV;
+ 	return sprintf(buf, "%s\n", i2c_dev->adap->name);
+ }
+-static DEVICE_ATTR(name, S_IRUGO, show_adapter_name, NULL);
++static DEVICE_ATTR_RO(name);
++
++static struct attribute *i2c_attrs[] = {
++	&dev_attr_name.attr,
++	NULL,
++};
++ATTRIBUTE_GROUPS(i2c);
+ 
+ /* ------------------------------------------------------------------------- */
+ 
+@@ -562,15 +568,10 @@ static int i2cdev_attach_adapter(struct device *dev, void *dummy)
+ 		res = PTR_ERR(i2c_dev->dev);
+ 		goto error;
+ 	}
+-	res = device_create_file(i2c_dev->dev, &dev_attr_name);
+-	if (res)
+-		goto error_destroy;
+ 
+ 	pr_debug("i2c-dev: adapter [%s] registered as minor %d\n",
+ 		 adap->name, adap->nr);
+ 	return 0;
+-error_destroy:
+-	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
+ error:
+ 	return_i2c_dev(i2c_dev);
+ 	return res;
+@@ -589,7 +590,6 @@ static int i2cdev_detach_adapter(struct device *dev, void *dummy)
+ 	if (!i2c_dev) /* attach_adapter must have failed */
+ 		return 0;
+ 
+-	device_remove_file(i2c_dev->dev, &dev_attr_name);
+ 	return_i2c_dev(i2c_dev);
+ 	device_destroy(i2c_dev_class, MKDEV(I2C_MAJOR, adap->nr));
+ 
+@@ -637,6 +637,7 @@ static int __init i2c_dev_init(void)
+ 		res = PTR_ERR(i2c_dev_class);
+ 		goto out_unreg_chrdev;
+ 	}
++	i2c_dev_class->dev_groups = i2c_groups;
+ 
+ 	/* Keep track of adapters which will be added or removed later */
+ 	res = bus_register_notifier(&i2c_bus_type, &i2cdev_notifier);
+-- 
+1.7.9.7
