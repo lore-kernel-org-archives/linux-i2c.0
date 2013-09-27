@@ -1,75 +1,58 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH] misc: (at24) move header to linux/platform_data/
-Date: Fri, 27 Sep 2013 18:32:42 +0200
-Message-ID: <20130927163242.GB3094@katana>
-References: <169123028.921974.1377290733515.JavaMail.root@mail>
- <1414767040.1054326.1380226152008.JavaMail.root@mail>
+Subject: Re: [PATCH v2 0/5] i2c: rcar: Device Tree support and clock
+ improvements
+Date: Fri, 27 Sep 2013 18:42:14 +0200
+Message-ID: <20130927164214.GC3094@katana>
+References: <1378989408-10618-1-git-send-email-g.liakhovetski@gmx.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="DKU6Jbt7q3WqK7+M"
+	protocol="application/pgp-signature"; boundary="bKyqfOwhbdpXa4YI"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <1414767040.1054326.1380226152008.JavaMail.root@mail>
+In-Reply-To: <1378989408-10618-1-git-send-email-g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Vivien Didelot <vivien.didelot-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org>
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kernel-4ysUXcep3aM1wj+D4I0NRVaTQe2KTcn/@public.gmane.org
+To: Guennadi Liakhovetski <g.liakhovetski-Mmb7MZpHnFY@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Magnus Damm <magnus.damm-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-sh-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Guennadi Liakhovetski <g.liakhovetski+renesas-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 
---DKU6Jbt7q3WqK7+M
+--bKyqfOwhbdpXa4YI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Sep 26, 2013 at 04:09:12PM -0400, Vivien Didelot wrote:
-> Hi Wolfram,
+On Thu, Sep 12, 2013 at 02:36:43PM +0200, Guennadi Liakhovetski wrote:
+> Device Tree support for i2c-rcar isn't too complex, only usual or standard
+> properties are used. Apart from it several clock handling improvements are
+> included in this patch series.
 >=20
-> > Wolfram wrote:
-> >=20
-> > > > IMHO it makes sense. Why wouldn't we want all platform_data in
-> > > > include/linux/platform_data/?
-> > >=20
-> > > For the same reason we don't want all driver source files in one
-> > > directory? It's a mess.
-> >=20
-> > Well, that's different. Not all drivers expose platform data, but
-> > many subsystems have drivers with platform data. A common include
-> > directory for the *_platform_data structure definitions makes sense.
+> Developed on top of -next of 12.09.2013
 >=20
-> Also IMO having such header file in include/linux/i2c/ for a driver
-> declared in drivers/misc/eeprom/ is not very consistent.
-> So this is the purpose of this include directory. What do you think?
+> v2: only DT compatibility strings have been changed.
 
-Well, yes, I will apply it if you could rebase it onto v3.12-rc2. I am
-unsure about the platform_data dir in general, though. For example, I'd
-prefer to have the i2c-* files in the i2c-dir, but this is another
-question.
-
-Thanks,
-
-   Wolfram
+Applied to for-next, thanks!
 
 
---DKU6Jbt7q3WqK7+M
+--bKyqfOwhbdpXa4YI
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSRbMqAAoJEBQN5MwUoCm2moAP/RGKnijixsOQcvVnXc/JfH6h
-XZzn98hoRxTKAPeGzN7bXqdvtWMjgsIhHo0QSk/EtTKlXmXWKKEIJeH3/8Ukdksc
-+f9yC09sjZLmkf1q3XsjfX9Sy92DqYF8Q7jtDRk0lSWLJjR5JYlbZRobQNRlXGUF
-XLI9BzIj1709vnwyIw8u2HexnsXdzuv6fHlbqsr8Q+hwAVv8VLxRpQ4oXdUhayI/
-yo3avlK4PBBsCYYyb7MGztxJu2f4IMM0NjugKhCrQbaEtoUBt+t/MuESGQvHxJOV
-GiXM5N93iqC8uDVuQ2ToCrVnF5YJnTQO6x6y8qqccqHbpLPW8z2zG8B/YdCNYS2t
-tmFw86slTnQGuVumvz7RA7bbXZwaQHwTArYAjYIKDo1eVp4N33Mg0C8inWE98RHF
-Un0W9EYMwuMLBSb4BTzvBr5jW/jeZe1QXsYabty5IFBdd680TOxVNMvv2rWIl0tL
-xctXoaM9ZT/FeRDW9C8QWPATOhYk/uhx1WzHjTXvEOwpOPAwAkDC5my3xguK1uFA
-MJXncYysSSlA8g8sH6/0oLb4GurW1ywFq94y9OkrjLDDpJxtQzdB3TqPOvrVAmzM
-qy47t2/5bYTAorqj+U5WEXiLEVqI6UFSn+jqS54C3QzFR/M3tQjZPslpXNoYilDc
-Cre+bI8LStPv7By6uZYu
-=DxcC
+iQIcBAEBAgAGBQJSRbVmAAoJEBQN5MwUoCm2ejEP/RassIuK50Y+aqIIUY8xxqF+
+fKQhVUm4SVuzrd2muvx+U7xRfNOZ//w2wYyOJpgIBW+CYTDDq5TvLVw3ZhtfE0VU
+1Oby/NuBfLO7coEqtCP7tLqhYyR20M66rOUP4Ar90eCIKOq1TIavdobk7IaeahbR
+/OYl7Tu0KBnS42mERXO5lxPN3ODw0zxjrucpJC8ntkGsMmzUcF7NaQwuELTa23QY
+0d6+7StwkNpj9ZXEM1979qDqtHyatx4uaXa6iiXSu8MUgozryqzABbJesRmb8vHL
+GlwogyeHVEFYhPYp3mNuio5bpgzzOLOue3OWtkB1qTDgA4IOB51Lc7KCg20OtxiE
+81QKIhDEtfDALYUWeIYd1FVChjJGD1anOlex+P2bYB2PKvh1/3EoJCjQIeWKjcJ7
+p/1oeaAZZPKUG23OYxSRk1r51rUf8BVcrskrqIjUn+m5fGxvz539gor9/EyM4v4+
+pbhmdZSwL9KE0sGdbZGvMQ6BAPTta9HxMlrA2wsJjbtQGJfJpx6Used0LZjBJIvv
+8kzU2RHlGfJ92fiIKxCNkJRKMZqK/iu2U39IAmLNK9QuklAF2MgreaPKI37ClYN5
+xwKt4OcsqmHI6E6zMxz3R3H63UovJkhMNHIRsRqOusPkbLkqkjyyuSWR4DVqBEnL
+4HlhIibGZ2E3pg6N/tbk
+=PBwo
 -----END PGP SIGNATURE-----
 
---DKU6Jbt7q3WqK7+M--
+--bKyqfOwhbdpXa4YI--
