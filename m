@@ -1,218 +1,81 @@
-From: Andy Lutomirski <luto@amacapital.net>
-Subject: [PATCH v5 4/4] i2c, i2c_imc: Add DIMM bus code
-Date: Fri, 27 Sep 2013 18:02:43 -0700
-Message-ID: <bfd9313f9957e095b060bb93fbac9373ee77f784.1380315959.git.luto@amacapital.net>
-References: <cover.1380315959.git.luto@amacapital.net>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <cover.1380315959.git.luto@amacapital.net>
-In-Reply-To: <cover.1380315959.git.luto@amacapital.net>
-References: <cover.1380315959.git.luto@amacapital.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>, linux-i2c@vger.kernel.org
-Cc: Jean Delvare <khali@linux-fr.org>, Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org, Mauro Carvalho Chehab <m.chehab@samsung.com>, Rui Wang <ruiv.wang@gmail.com>, Andy Lutomirski <luto@amacapital.net>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/1] i2c-ismt: add Initialize DMA buffer code
+ ismt_access()
+Date: Sat, 28 Sep 2013 15:10:04 +0200
+Message-ID: <20130928131004.GA3049@katana>
+References: <1380066475-2119-1-git-send-email-james.d.ralston@intel.com>
+ <20130926084032.GB3057@katana>
+ <20130926144115.GB12301@hmsreliant.think-freely.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="u3/rZRmxL6MmkK24"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20130926144115.GB12301-B26myB8xz7F8NnZeBjwnZQMhkBWG/bsMQH7oEaQurus@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Neil Horman <nhorman-2XuSBdqkA4R54TAoqtyWWQ@public.gmane.org>
+Cc: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Seth Heasley <seth.heasley-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Add i2c_scan_dimm_bus to declare that a particular i2c_adapter
-contains DIMMs.  This will probe (and autoload modules!) for useful
-SMBUS devices that live on DIMMs.  i2c_imc calls it.
 
-As more SMBUS-addressable DIMM components become supported, this
-code can be extended to probe for them.
+--u3/rZRmxL6MmkK24
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Andy Lutomirski <luto@amacapital.net>
----
- drivers/i2c/busses/Kconfig    |  4 ++
- drivers/i2c/busses/Makefile   |  4 ++
- drivers/i2c/busses/dimm-bus.c | 97 +++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-imc.c  |  3 ++
- include/linux/i2c/dimm-bus.h  | 24 +++++++++++
- 5 files changed, 132 insertions(+)
- create mode 100644 drivers/i2c/busses/dimm-bus.c
- create mode 100644 include/linux/i2c/dimm-bus.h
+On Thu, Sep 26, 2013 at 10:41:15AM -0400, Neil Horman wrote:
+> On Thu, Sep 26, 2013 at 10:40:32AM +0200, Wolfram Sang wrote:
+> > On Tue, Sep 24, 2013 at 04:47:55PM -0700, James Ralston wrote:
+> > > This patch adds code to Initialize the DMA buffer to compensate for p=
+ossible hardware data corruption.
+> >=20
+> > Take care of the line width here.
+> >=20
+> > > Signed-off-by: James Ralston <james.d.ralston-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+> > > ---
+> > >  drivers/i2c/busses/i2c-ismt.c |    3 +++
+> > >  1 files changed, 3 insertions(+), 0 deletions(-)
+> > >=20
+> > > diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-i=
+smt.c
+> > > index 8ed79a0..d3f30ea 100644
+> > > --- a/drivers/i2c/busses/i2c-ismt.c
+> > > +++ b/drivers/i2c/busses/i2c-ismt.c
+> > > @@ -393,6 +393,9 @@ static int ismt_access(struct i2c_adapter *adap, =
+u16 addr,
+> > > =20
+> > >  	desc =3D &priv->hw[priv->head];
+> > > =20
+> > > +	/* Initialize the DMA buffer */
+> > > +	memset(priv->dma_buffer, 0, (I2C_SMBUS_BLOCK_MAX+1));
+> >=20
+> > sizeof()?
+> >=20
+> Agreed.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 3709540..3eca819 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -134,6 +134,10 @@ config I2C_ISMT
- 	  This driver can also be built as a module.  If so, the module will be
- 	  called i2c-ismt.
- 
-+config I2C_DIMM_BUS
-+       tristate
-+       default n
-+
- config I2C_IMC
- 	tristate "Intel iMC (LGA 2011) SMBus Controller"
- 	depends on PCI && X86
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index d37340a..d4c0e02 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -25,6 +25,10 @@ obj-$(CONFIG_I2C_SIS96X)	+= i2c-sis96x.o
- obj-$(CONFIG_I2C_VIA)		+= i2c-via.o
- obj-$(CONFIG_I2C_VIAPRO)	+= i2c-viapro.o
- 
-+# DIMM busses
-+obj-$(CONFIG_I2C_DIMM_BUS)	+= dimm-bus.o
-+obj-$(CONFIG_I2C_IMC)		+= i2c-imc.o
-+
- # Mac SMBus host controller drivers
- obj-$(CONFIG_I2C_HYDRA)		+= i2c-hydra.o
- obj-$(CONFIG_I2C_POWERMAC)	+= i2c-powermac.o
-diff --git a/drivers/i2c/busses/dimm-bus.c b/drivers/i2c/busses/dimm-bus.c
-new file mode 100644
-index 0000000..0968428
---- /dev/null
-+++ b/drivers/i2c/busses/dimm-bus.c
-@@ -0,0 +1,97 @@
-+/*
-+ * Copyright (c) 2013 Andrew Lutomirski <luto@amacapital.net>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/i2c.h>
-+#include <linux/bug.h>
-+#include <linux/module.h>
-+#include <linux/i2c/dimm-bus.h>
-+
-+static bool probe_addr(struct i2c_adapter *adapter, int addr)
-+{
-+	/*
-+	 * So far, all known devices that live on DIMMs can be safely
-+	 * and reliably detected by trying to read a byte at address
-+	 * zero.  (The exception is the SPD write protection control,
-+	 * which can't be probed and requires special hardware and/or
-+	 * quick writes to access, and has no driver.)
-+	 */
-+	union i2c_smbus_data dummy;
-+	return i2c_smbus_xfer(adapter, addr, 0, I2C_SMBUS_READ, 0,
-+			      I2C_SMBUS_BYTE_DATA, &dummy) >= 0;
-+}
-+
-+/**
-+ * i2c_scan_dimm_bus() - Scans an SMBUS segment known to contain DIMMs
-+ * @adapter: The SMBUS adapter to scan
-+ *
-+ * This function tells the DIMM-bus code that the adapter is known to
-+ * contain DIMMs.  i2c_scan_dimm_bus will probe for devices known to
-+ * live on DIMMs.
-+ *
-+ * Do NOT call this function on general-purpose system SMBUS segments
-+ * unless you know that the only things on the bus are DIMMs.
-+ * Otherwise is it very likely to mis-identify other things on the
-+ * bus.
-+ *
-+ * Callers are advised not to set adapter->class = I2C_CLASS_SPD.
-+ */
-+void i2c_scan_dimm_bus(struct i2c_adapter *adapter)
-+{
-+	struct i2c_board_info info = {};
-+	int slot;
-+
-+	/*
-+	 * We probe with "read byte data".  If any DIMM SMBUS driver can't
-+	 * support that access type, this function should be updated.
-+	 */
-+	if (WARN_ON(!i2c_check_functionality(adapter,
-+					  I2C_FUNC_SMBUS_READ_BYTE_DATA)))
-+		return;
-+
-+	/*
-+	 * Addresses on DIMMs use the three low bits to identify the slot
-+	 * and the four high bits to identify the device type.  Known
-+	 * devices are:
-+	 *
-+	 *  - 0x50 - 0x57: SPD (Serial Presence Detect) EEPROM
-+	 *  - 0x30 - 0x37: SPD WP control -- not worth trying to probe
-+	 *  - 0x18 - 0x1f: TSOD (Temperature Sensor on DIMM)
-+	 *
-+	 * There may be more some day.
-+	 */
-+	for (slot = 0; slot < 8; slot++) {
-+		/* If there's no SPD, then assume there's no DIMM here. */
-+		if (!probe_addr(adapter, 0x50 | slot))
-+			continue;
-+
-+		strcpy(info.type, "spd");
-+		info.addr = 0x50 | slot;
-+		i2c_new_device(adapter, &info);
-+
-+		if (probe_addr(adapter, 0x18 | slot)) {
-+			/* This is a temperature sensor. */
-+			strcpy(info.type, "jc42");
-+			info.addr = 0x18 | slot;
-+			i2c_new_device(adapter, &info);
-+		}
-+	}
-+}
-+EXPORT_SYMBOL(i2c_scan_dimm_bus);
-+
-+MODULE_AUTHOR("Andrew Lutomirski <luto@amacapital.net>");
-+MODULE_DESCRIPTION("i2c DIMM bus support");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/i2c/busses/i2c-imc.c b/drivers/i2c/busses/i2c-imc.c
-index c846077..437d8d8 100644
---- a/drivers/i2c/busses/i2c-imc.c
-+++ b/drivers/i2c/busses/i2c-imc.c
-@@ -15,6 +15,7 @@
-  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
- 
-+#include <linux/i2c/dimm-bus.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/delay.h>
-@@ -421,6 +422,8 @@ static int imc_init_channel(struct imc_priv *priv, int i, int socket)
- 		return err;
- 	}
- 
-+	i2c_scan_dimm_bus(&ch->adapter);
-+
- 	return 0;
- }
- 
-diff --git a/include/linux/i2c/dimm-bus.h b/include/linux/i2c/dimm-bus.h
-new file mode 100644
-index 0000000..3d44df4
---- /dev/null
-+++ b/include/linux/i2c/dimm-bus.h
-@@ -0,0 +1,24 @@
-+/*
-+ * Copyright (c) 2013 Andrew Lutomirski <luto@amacapital.net>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License version 2
-+ * as published by the Free Software Foundation.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef _I2C_DIMM_BUS
-+#define _I2C_DIMM_BUS
-+
-+struct i2c_adapter;
-+void i2c_scan_dimm_bus(struct i2c_adapter *adapter);
-+
-+#endif /* _I2C_DIMM_BUS */
--- 
-1.8.3.1
+Fixed that myself so it can be in my pull-request to Linus today.
+
+
+--u3/rZRmxL6MmkK24
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSRtUsAAoJEBQN5MwUoCm2lTUQAInbRADI3C15To6jX3TM0wYt
+krS584YDSCDOBqeqJfKjq6GRnq32e5PTCDZREOVqchbMnqNA/jVVwNL5PXKc4hXF
+Iq0x98ALP9HzqbE/Rouebh+ak6703pMOHnNKmqfJn9kCHcjVtDv3YEHAI4QUTZl/
+dMcr4V0F8J304fbK8oPIlhvsNpikk6iVWNtRe3/uXpdo50cuoQ4ITbJwnow3cNU5
+R4gEWmP1zXj2PD6u4Bi385n77goIQ+VzXVA+ajAhUgmexoxn5L1w8WFnpN4R/ADj
+9b6EAnipCqbU9+IkM4ZS9iAQrZ66guMnRSNK8Ny3Y39GPwFHqrFPpdNdf5m6td8q
+vMTS1yIOSw06Na98pYNbyFYkIyNk0oxtfhvFSPTrrxrkmHOVKF/JjOgFO1bIFarl
+2w5ZPdViotDeoNtYHT8Vk21nuQKrLKIXLslnCaaGt6/uXr8Qc7WfRWkpjCGHbenM
+4PxSwSPiQa1l7GVsLT6qUxg0tZcyQ68IWX2h0sOJ5+HmRFw+mmj18mAe46urBn/f
+m4ayQ4t2N+JvISnFkKeZdxCVYZEeABa99yRpz5ePJpFADTL8cG6FI6QrDMwWD4FU
+aYmY+KutA5O3qyoVxJdrKdF+M824P5ksuC7dFaYuKxbkWZijmvoCUgNSHnfq4PP9
+rCQze3AOeB+LlQ9Cl4Ok
+=3KCm
+-----END PGP SIGNATURE-----
+
+--u3/rZRmxL6MmkK24--
