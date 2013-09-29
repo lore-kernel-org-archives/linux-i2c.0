@@ -1,62 +1,50 @@
 From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 4/8] drm: encoder_slave: Don't use i2c_client->driver
-Date: Sun, 29 Sep 2013 10:51:02 +0200
-Message-ID: <1380444666-12019-5-git-send-email-lars@metafoo.de>
+Subject: [PATCH 2/8] [media] exynos4-is: Don't use i2c_client->driver
+Date: Sun, 29 Sep 2013 10:51:00 +0200
+Message-ID: <1380444666-12019-3-git-send-email-lars@metafoo.de>
 References: <1380444666-12019-1-git-send-email-lars@metafoo.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1380444666-12019-1-git-send-email-lars@metafoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>, Kyungmin Park <kyungmin.park@samsung.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>
 List-Id: linux-i2c@vger.kernel.org
 
 The 'driver' field of the i2c_client struct is redundant and is going to be
 removed. The results of the expressions 'client->driver.driver->field' and
 'client->dev.driver->field' are identical, so replace all occurrences of the
-former with the later. To get direct access to the i2c_driver struct use
-'to_i2c_driver(client->dev.driver)'.
+former with the later.
 
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Sylwester Nawrocki <s.nawrocki@samsung.com>
 ---
- drivers/gpu/drm/drm_encoder_slave.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/exynos4-is/media-dev.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_encoder_slave.c b/drivers/gpu/drm/drm_encoder_slave.c
-index 0cfb60f..d18b88b 100644
---- a/drivers/gpu/drm/drm_encoder_slave.c
-+++ b/drivers/gpu/drm/drm_encoder_slave.c
-@@ -67,12 +67,12 @@ int drm_i2c_encoder_init(struct drm_device *dev,
- 		goto fail;
- 	}
+diff --git a/drivers/media/platform/exynos4-is/media-dev.c b/drivers/media/platform/exynos4-is/media-dev.c
+index a835112..7a4ee4c 100644
+--- a/drivers/media/platform/exynos4-is/media-dev.c
++++ b/drivers/media/platform/exynos4-is/media-dev.c
+@@ -411,8 +411,8 @@ static int fimc_md_of_add_sensor(struct fimc_md *fmd,
  
--	if (!client->driver) {
-+	if (!client->dev.driver) {
- 		err = -ENODEV;
- 		goto fail_unregister;
- 	}
+ 	device_lock(&client->dev);
  
--	module = client->driver->driver.owner;
-+	module = client->dev.driver->owner;
- 	if (!try_module_get(module)) {
- 		err = -ENODEV;
- 		goto fail_unregister;
-@@ -80,7 +80,7 @@ int drm_i2c_encoder_init(struct drm_device *dev,
+-	if (!client->driver ||
+-	    !try_module_get(client->driver->driver.owner)) {
++	if (!client->dev.driver ||
++	    !try_module_get(client->dev.driver->owner)) {
+ 		ret = -EPROBE_DEFER;
+ 		v4l2_info(&fmd->v4l2_dev, "No driver found for %s\n",
+ 						node->full_name);
+@@ -442,7 +442,7 @@ static int fimc_md_of_add_sensor(struct fimc_md *fmd,
+ 	fmd->num_sensors++;
  
- 	encoder->bus_priv = client;
- 
--	encoder_drv = to_drm_i2c_encoder_driver(client->driver);
-+	encoder_drv = to_drm_i2c_encoder_driver(to_i2c_driver(client->dev.driver));
- 
- 	err = encoder_drv->encoder_init(client, dev, encoder);
- 	if (err)
-@@ -111,7 +111,7 @@ void drm_i2c_encoder_destroy(struct drm_encoder *drm_encoder)
- {
- 	struct drm_encoder_slave *encoder = to_encoder_slave(drm_encoder);
- 	struct i2c_client *client = drm_i2c_encoder_get_client(drm_encoder);
--	struct module *module = client->driver->driver.owner;
-+	struct module *module = client->dev.driver->owner;
- 
- 	i2c_unregister_device(client);
- 	encoder->bus_priv = NULL;
+ mod_put:
+-	module_put(client->driver->driver.owner);
++	module_put(client->dev.driver->owner);
+ dev_put:
+ 	device_unlock(&client->dev);
+ 	put_device(&client->dev);
 -- 
 1.8.0
