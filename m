@@ -1,153 +1,51 @@
 From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 8/8] i2c: Remove redundant 'driver' field from the i2c_client struct
-Date: Sun, 29 Sep 2013 10:51:06 +0200
-Message-ID: <1380444666-12019-9-git-send-email-lars@metafoo.de>
+Subject: [PATCH 1/8] [media] s5c73m3: Don't use
+	i2c_client->driver
+Date: Sun, 29 Sep 2013 10:50:59 +0200
+Message-ID: <1380444666-12019-2-git-send-email-lars@metafoo.de>
 References: <1380444666-12019-1-git-send-email-lars@metafoo.de>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <alsa-devel-bounces@alsa-project.org>
 In-Reply-To: <1380444666-12019-1-git-send-email-lars@metafoo.de>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <http://mailman.alsa-project.org/mailman/options/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=unsubscribe>
+List-Archive: <http://mailman.alsa-project.org/pipermail/alsa-devel/>
+List-Post: <mailto:alsa-devel@alsa-project.org>
+List-Help: <mailto:alsa-devel-request@alsa-project.org?subject=help>
+List-Subscribe: <http://mailman.alsa-project.org/mailman/listinfo/alsa-devel>,
+ <mailto:alsa-devel-request@alsa-project.org?subject=subscribe>
+Errors-To: alsa-devel-bounces@alsa-project.org
+Sender: alsa-devel-bounces@alsa-project.org
 To: Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>
+Cc: alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, Andrzej Hajda <a.hajda@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, linux-i2c@vger.kernel.org, linux-media@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-The 'driver' field of the i2c_client struct is redundant. The same data can be
-accessed through to_i2c_driver(client->dev.driver). The generated code for both
-approaches in more or less the same.
-
-E.g. on ARM the expression client->driver->command(...) generates
-
-		...
-		ldr     r3, [r0, #28]
-		ldr     r3, [r3, #32]
-		blx     r3
-		...
-
-and the expression to_i2c_driver(client->dev.driver)->command(...) generates
-
-		...
-		ldr     r3, [r0, #160]
-    	ldr     r3, [r3, #-4]
-    	blx     r3
-		...
-
-Other architectures will generate similar code.
-
-All users of the 'driver' field outside of the I2C core have already been
-converted. So this only leaves the core itself. This patch converts the
-remaining few users in the I2C core and then removes the 'driver' field from the
-i2c_client struct.
+The 'driver' field of the i2c_client struct is redundant and is going to be
+removed. The results of the expressions 'client->driver.driver->field' and
+'client->dev.driver->field' are identical, so replace all occurrences of the
+former with the later.
 
 Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Kyungmin Park <kyungmin.park@samsung.com>
+Cc: Andrzej Hajda <a.hajda@samsung.com>
 ---
- drivers/i2c/i2c-core.c  | 21 ++++++++++++---------
- drivers/i2c/i2c-smbus.c | 10 ++++++----
- include/linux/i2c.h     |  2 --
- 3 files changed, 18 insertions(+), 15 deletions(-)
+ drivers/media/i2c/s5c73m3/s5c73m3-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 29d3f04..430c001 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -248,17 +248,16 @@ static int i2c_device_probe(struct device *dev)
- 	driver = to_i2c_driver(dev->driver);
- 	if (!driver->probe || !driver->id_table)
- 		return -ENODEV;
--	client->driver = driver;
-+
- 	if (!device_can_wakeup(&client->dev))
- 		device_init_wakeup(&client->dev,
- 					client->flags & I2C_CLIENT_WAKE);
- 	dev_dbg(dev, "probe\n");
+diff --git a/drivers/media/i2c/s5c73m3/s5c73m3-core.c b/drivers/media/i2c/s5c73m3/s5c73m3-core.c
+index b76ec0e..1083890 100644
+--- a/drivers/media/i2c/s5c73m3/s5c73m3-core.c
++++ b/drivers/media/i2c/s5c73m3/s5c73m3-core.c
+@@ -1581,7 +1581,7 @@ static int s5c73m3_probe(struct i2c_client *client,
+ 	oif_sd = &state->oif_sd;
  
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
--	if (status) {
--		client->driver = NULL;
-+	if (status)
- 		i2c_set_clientdata(client, NULL);
--	}
-+
- 	return status;
- }
+ 	v4l2_subdev_init(sd, &s5c73m3_subdev_ops);
+-	sd->owner = client->driver->driver.owner;
++	sd->owner = client->dev.driver->owner;
+ 	v4l2_set_subdevdata(sd, state);
+ 	strlcpy(sd->name, "S5C73M3", sizeof(sd->name));
  
-@@ -279,10 +278,9 @@ static int i2c_device_remove(struct device *dev)
- 		dev->driver = NULL;
- 		status = 0;
- 	}
--	if (status == 0) {
--		client->driver = NULL;
-+	if (status == 0)
- 		i2c_set_clientdata(client, NULL);
--	}
-+
- 	return status;
- }
- 
-@@ -1606,9 +1604,14 @@ static int i2c_cmd(struct device *dev, void *_arg)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
- 	struct i2c_cmd_arg	*arg = _arg;
-+	struct i2c_driver	*driver;
-+
-+	if (!client || !client->dev.driver)
-+		return 0;
- 
--	if (client && client->driver && client->driver->command)
--		client->driver->command(client, arg->cmd, arg->arg);
-+	driver = to_i2c_driver(client->dev.driver);
-+	if (driver->command)
-+		driver->command(client, arg->cmd, arg->arg);
- 	return 0;
- }
- 
-diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
-index 44d4c60..c99b229 100644
---- a/drivers/i2c/i2c-smbus.c
-+++ b/drivers/i2c/i2c-smbus.c
-@@ -46,6 +46,7 @@ static int smbus_do_alert(struct device *dev, void *addrp)
- {
- 	struct i2c_client *client = i2c_verify_client(dev);
- 	struct alert_data *data = addrp;
-+	struct i2c_driver *driver;
- 
- 	if (!client || client->addr != data->addr)
- 		return 0;
-@@ -54,12 +55,13 @@ static int smbus_do_alert(struct device *dev, void *addrp)
- 
- 	/*
- 	 * Drivers should either disable alerts, or provide at least
--	 * a minimal handler.  Lock so client->driver won't change.
-+	 * a minimal handler.  Lock so the driver won't change.
- 	 */
- 	device_lock(dev);
--	if (client->driver) {
--		if (client->driver->alert)
--			client->driver->alert(client, data->flag);
-+	if (client->dev.driver) {
-+		driver = to_i2c_driver(client->dev.driver);
-+		if (driver->alert)
-+			driver->alert(client, data->flag);
- 		else
- 			dev_warn(&client->dev, "no driver alert()!\n");
- 	} else
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 2ab11dc..eff50e0 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -205,7 +205,6 @@ struct i2c_driver {
-  * @name: Indicates the type of the device, usually a chip name that's
-  *	generic enough to hide second-sourcing and compatible revisions.
-  * @adapter: manages the bus segment hosting this I2C device
-- * @driver: device's driver, hence pointer to access routines
-  * @dev: Driver model device node for the slave.
-  * @irq: indicates the IRQ generated by this device (if any)
-  * @detected: member of an i2c_driver.clients list or i2c-core's
-@@ -222,7 +221,6 @@ struct i2c_client {
- 					/* _LOWER_ 7 bits		*/
- 	char name[I2C_NAME_SIZE];
- 	struct i2c_adapter *adapter;	/* the adapter we sit on	*/
--	struct i2c_driver *driver;	/* and our access routines	*/
- 	struct device dev;		/* the device structure		*/
- 	int irq;			/* irq issued by device		*/
- 	struct list_head detected;
 -- 
 1.8.0
