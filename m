@@ -1,97 +1,62 @@
 From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 0/8] i2c: Remove redundant driver field from the i2c_client struct
-Date: Sun, 29 Sep 2013 10:50:58 +0200
-Message-ID: <1380444666-12019-1-git-send-email-lars@metafoo.de>
+Subject: [PATCH 4/8] drm: encoder_slave: Don't use i2c_client->driver
+Date: Sun, 29 Sep 2013 10:51:02 +0200
+Message-ID: <1380444666-12019-5-git-send-email-lars@metafoo.de>
+References: <1380444666-12019-1-git-send-email-lars@metafoo.de>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1380444666-12019-1-git-send-email-lars@metafoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-i2c@vger.kernel.org
 
-Hi,
+The 'driver' field of the i2c_client struct is redundant and is going to be
+removed. The results of the expressions 'client->driver.driver->field' and
+'client->dev.driver->field' are identical, so replace all occurrences of the
+former with the later. To get direct access to the i2c_driver struct use
+'to_i2c_driver(client->dev.driver)'.
 
-This series removes the redundant driver field from the i2c_client struct. The
-field is redundant since the same pointer can be accessed through
-to_i2c_driver(client->dev.driver). The commit log suggests that the field has
-been around since forever (since before v2.6.12-rc2) and it looks as if it was
-simply forgotten to remove it during the conversion of the i2c framework to the
-generic device driver model.
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+---
+ drivers/gpu/drm/drm_encoder_slave.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-Nevertheless there are a still a few users of the field around. This series
-first updates all users to use an alternative method of accessing the same data
-and then the last patch removes the driver field from the i2c_client struct.
-
-Note that due to this changes on most architectures neither the code size nor
-the type of generated instructions will change. This is due to the fact that we
-aren't really interested in the pointer value itself, but rather want to
-dereference it to access one of the fields of the struct. offset_of() (and hence
-to_i2c_driver) works by subtracting a offset from the pointer, so the compiler
-can internally create the sum of these two offsets and use that to access the
-field.
-
-E.g. on ARM the expression client->driver->command(...) generates
-
-		...
-		ldr     r3, [r0, #28]
-		ldr     r3, [r3, #32]
-		blx     r3
-		...
-
-and the expression to_i2c_driver(client->dev.driver)->command(...) generates
-
-		...
-		ldr     r3, [r0, #160]
-    	ldr     r3, [r3, #-4]
-    	blx     r3
-		...
-
-Other architectures will generate similar code.
-
-The most common pattern is to use the i2c_driver to get to the device_driver
-struct embedded in it. The same struct can easily be accessed through the device
-struct embedded in the i2c_client struct.  E.g. client->driver->driver.field can
-be replaced by client->dev.driver->field. Here again the generated code is
-almost identical and only the offsets differ.
-
-E.g. on ARM the expression 'client->driver->driver.owner' generates
-
-		ldr     r3, [r0, #28]
-		ldr     r0, [r3, #44]
-
-and 'client->dev.driver->owner' generates
-
-		ldr     r3, [r0, #160]
-		ldr     r0, [r3, #8]
-
-The kernel overall code size is slightly reduced since the code that manages the
-driver field is removed and of course also the runtime memory footprint of the
-i2c_client struct is reduced.
-
-- Lars
-
-Lars-Peter Clausen (8):
-  [media] s5c73m3: Don't use i2c_client->driver
-  [media] exynos4-is: Don't use i2c_client->driver
-  [media] core: Don't use i2c_client->driver
-  drm: encoder_slave: Don't use i2c_client->driver
-  drm: nouveau: Don't use i2c_client->driver
-  ALSA: ppc: keywest: Don't use i2c_client->driver
-  ASoC: imx-wm8962: Don't use i2c_client->driver
-  i2c: Remove redundant 'driver' field from the i2c_client struct
-
- drivers/gpu/drm/drm_encoder_slave.c            |  8 ++++----
- drivers/gpu/drm/nouveau/core/subdev/therm/ic.c |  3 ++-
- drivers/i2c/i2c-core.c                         | 21 ++++++++++++---------
- drivers/i2c/i2c-smbus.c                        | 10 ++++++----
- drivers/media/i2c/s5c73m3/s5c73m3-core.c       |  2 +-
- drivers/media/platform/exynos4-is/media-dev.c  |  6 +++---
- drivers/media/v4l2-core/tuner-core.c           |  6 +++---
- drivers/media/v4l2-core/v4l2-common.c          | 10 +++++-----
- include/linux/i2c.h                            |  2 --
- include/media/v4l2-common.h                    |  2 +-
- sound/ppc/keywest.c                            |  4 ++--
- sound/soc/fsl/imx-wm8962.c                     |  2 +-
- 12 files changed, 40 insertions(+), 36 deletions(-)
-
+diff --git a/drivers/gpu/drm/drm_encoder_slave.c b/drivers/gpu/drm/drm_encoder_slave.c
+index 0cfb60f..d18b88b 100644
+--- a/drivers/gpu/drm/drm_encoder_slave.c
++++ b/drivers/gpu/drm/drm_encoder_slave.c
+@@ -67,12 +67,12 @@ int drm_i2c_encoder_init(struct drm_device *dev,
+ 		goto fail;
+ 	}
+ 
+-	if (!client->driver) {
++	if (!client->dev.driver) {
+ 		err = -ENODEV;
+ 		goto fail_unregister;
+ 	}
+ 
+-	module = client->driver->driver.owner;
++	module = client->dev.driver->owner;
+ 	if (!try_module_get(module)) {
+ 		err = -ENODEV;
+ 		goto fail_unregister;
+@@ -80,7 +80,7 @@ int drm_i2c_encoder_init(struct drm_device *dev,
+ 
+ 	encoder->bus_priv = client;
+ 
+-	encoder_drv = to_drm_i2c_encoder_driver(client->driver);
++	encoder_drv = to_drm_i2c_encoder_driver(to_i2c_driver(client->dev.driver));
+ 
+ 	err = encoder_drv->encoder_init(client, dev, encoder);
+ 	if (err)
+@@ -111,7 +111,7 @@ void drm_i2c_encoder_destroy(struct drm_encoder *drm_encoder)
+ {
+ 	struct drm_encoder_slave *encoder = to_encoder_slave(drm_encoder);
+ 	struct i2c_client *client = drm_i2c_encoder_get_client(drm_encoder);
+-	struct module *module = client->driver->driver.owner;
++	struct module *module = client->dev.driver->owner;
+ 
+ 	i2c_unregister_device(client);
+ 	encoder->bus_priv = NULL;
 -- 
 1.8.0
