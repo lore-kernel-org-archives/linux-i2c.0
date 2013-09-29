@@ -1,83 +1,97 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.12
-Date: Sat, 28 Sep 2013 16:37:35 +0200
-Message-ID: <20130928143729.GA8755@katana>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Lars-Peter Clausen <lars@metafoo.de>
+Subject: [PATCH 0/8] i2c: Remove redundant driver field from the i2c_client struct
+Date: Sun, 29 Sep 2013 10:50:58 +0200
+Message-ID: <1380444666-12019-1-git-send-email-lars@metafoo.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, David Airlie <airlied@linux.ie>, Mauro Carvalho Chehab <m.chehab@samsung.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>, Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org, alsa-devel@alsa-project.org, Lars-Peter Clausen <lars@metafoo.de>
 List-Id: linux-i2c@vger.kernel.org
 
+Hi,
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+This series removes the redundant driver field from the i2c_client struct. The
+field is redundant since the same pointer can be accessed through
+to_i2c_driver(client->dev.driver). The commit log suggests that the field has
+been around since forever (since before v2.6.12-rc2) and it looks as if it was
+simply forgotten to remove it during the conversion of the i2c framework to the
+generic device driver model.
 
-Linus,
+Nevertheless there are a still a few users of the field around. This series
+first updates all users to use an alternative method of accessing the same data
+and then the last patch removes the driver field from the i2c_client struct.
 
-here are some driver bugfixes for the I2C subsystem. Please pull.
+Note that due to this changes on most architectures neither the code size nor
+the type of generated instructions will change. This is due to the fact that we
+aren't really interested in the pointer value itself, but rather want to
+dereference it to access one of the fields of the struct. offset_of() (and hence
+to_i2c_driver) works by subtracting a offset from the pointer, so the compiler
+can internally create the sum of these two offsets and use that to access the
+field.
 
-Thanks,
+E.g. on ARM the expression client->driver->command(...) generates
 
-   Wolfram
+		...
+		ldr     r3, [r0, #28]
+		ldr     r3, [r3, #32]
+		blx     r3
+		...
 
+and the expression to_i2c_driver(client->dev.driver)->command(...) generates
 
-The following changes since commit 4a10c2ac2f368583138b774ca41fac4207911983:
+		...
+		ldr     r3, [r0, #160]
+    	ldr     r3, [r3, #-4]
+    	blx     r3
+		...
 
-  Linux 3.12-rc2 (2013-09-23 15:41:09 -0700)
+Other architectures will generate similar code.
 
-are available in the git repository at:
+The most common pattern is to use the i2c_driver to get to the device_driver
+struct embedded in it. The same struct can easily be accessed through the device
+struct embedded in the i2c_client struct.  E.g. client->driver->driver.field can
+be replaced by client->dev.driver->field. Here again the generated code is
+almost identical and only the offsets differ.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
+E.g. on ARM the expression 'client->driver->driver.owner' generates
 
-for you to fetch changes up to bf4169100c909667ede6af67668b3ecce6928343:
+		ldr     r3, [r0, #28]
+		ldr     r0, [r3, #44]
 
-  i2c: ismt: initialize DMA buffer (2013-09-28 16:32:12 +0200)
+and 'client->dev.driver->owner' generates
 
-----------------------------------------------------------------
-Chew, Chiau Ee (1):
-      i2c: designware: 10-bit addressing mode enabling if I2C_DYNAMIC_TAR_UPDATE is set
+		ldr     r3, [r0, #160]
+		ldr     r0, [r3, #8]
 
-James Ralston (1):
-      i2c: ismt: initialize DMA buffer
+The kernel overall code size is slightly reduced since the code that manages the
+driver field is removed and of course also the runtime memory footprint of the
+i2c_client struct is reduced.
 
-Kim Phillips (1):
-      i2c: s3c2410: fix clk_disable/clk_unprepare WARNings
+- Lars
 
-Thierry Reding (2):
-      i2c: mv64xxx: Fix some build warnings
-      i2c: mv64xxx: Do not use writel_relaxed()
+Lars-Peter Clausen (8):
+  [media] s5c73m3: Don't use i2c_client->driver
+  [media] exynos4-is: Don't use i2c_client->driver
+  [media] core: Don't use i2c_client->driver
+  drm: encoder_slave: Don't use i2c_client->driver
+  drm: nouveau: Don't use i2c_client->driver
+  ALSA: ppc: keywest: Don't use i2c_client->driver
+  ASoC: imx-wm8962: Don't use i2c_client->driver
+  i2c: Remove redundant 'driver' field from the i2c_client struct
 
- drivers/i2c/busses/i2c-designware-core.c |   26 ++++++++++++++++++++------
- drivers/i2c/busses/i2c-ismt.c            |    3 +++
- drivers/i2c/busses/i2c-mv64xxx.c         |   16 +++++++++-------
- drivers/i2c/busses/i2c-s3c2410.c         |    2 --
- 4 files changed, 32 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/drm_encoder_slave.c            |  8 ++++----
+ drivers/gpu/drm/nouveau/core/subdev/therm/ic.c |  3 ++-
+ drivers/i2c/i2c-core.c                         | 21 ++++++++++++---------
+ drivers/i2c/i2c-smbus.c                        | 10 ++++++----
+ drivers/media/i2c/s5c73m3/s5c73m3-core.c       |  2 +-
+ drivers/media/platform/exynos4-is/media-dev.c  |  6 +++---
+ drivers/media/v4l2-core/tuner-core.c           |  6 +++---
+ drivers/media/v4l2-core/v4l2-common.c          | 10 +++++-----
+ include/linux/i2c.h                            |  2 --
+ include/media/v4l2-common.h                    |  2 +-
+ sound/ppc/keywest.c                            |  4 ++--
+ sound/soc/fsl/imx-wm8962.c                     |  2 +-
+ 12 files changed, 40 insertions(+), 36 deletions(-)
 
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSRumpAAoJEBQN5MwUoCm2odEP/3GxqD0Uoni9dPI3uSex+rsb
-AqAyUeua6RcjTe2WMRc0JoxglmcTfaqy1g8jw6gN0U00OS3cDGBUGZn64Dv9TPH5
-5dpjYG5LJj3NM/yDzxiGYwqj0SY4AeryteZ/43EF22gegMC7kZLcoplGoB2wW4xa
-r+PnSLVGDcy3m8+AQ63k0KvygiipHAXjgPc3uP2bQ9HtgIByQxYbIAt42LH6yTKD
-aPxP8vJULWI3BebyBhzM03BXFtT5IzEzOfzeTy9l3AfwtUIe3YPYxVRFmzr3oy/K
-27f/iq+w89zMLRGewBLWqhyCi4sJ2RQZCqYXmaUT6MoXqhoYWXBHM4BEMjojtJYN
-4vbsDA/j5X9ib1oih1wUCCjydlEuuR87M2p0jKcD7SLM8MCnz9smr5zJEkJEYGB4
-4G+9vPNz9D0N82Oqhh2HAxlR891mnSI1+7zkWtVUDYJPT/UMEbHDHXILTPhs6mjM
-tlQ+qb48PcHJ9X0zpcZS6NG/I1bmiTqJiFotMzIjzabJD2HS7ko3LhlWmSI0uwxt
-NLZmPe0IKZ+wuYB+nUQAT3xIjN/3/hrA76RF/NaPpt2xwI/rabWqjiMAT9f8mzCF
-yMHPiptHt1LdV7lx95AEvsVnYB+CvY2ng++cJS/jXZ/URz9YCFAbR+wZ/xdOBqT9
-bx13WuOwJOdn4pi9d7jF
-=B09b
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--
+-- 
+1.8.0
