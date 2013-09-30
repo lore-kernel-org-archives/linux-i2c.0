@@ -1,92 +1,58 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH 2/3] i2c: xilinx: Set tx direction in write operation
-Date: Mon, 30 Sep 2013 12:22:42 +0200
-Message-ID: <20130930102242.GB3222@katana>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/3] i2c: xilinx: Fix i2c sparse warnings
+Date: Mon, 30 Sep 2013 12:23:42 +0200
+Message-ID: <20130930102342.GC3222@katana>
 References: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek@xilinx.com>
- <5d234cfc8d23cfc7e8d750f103344cf4e8e398d4.1380532113.git.michal.simek@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+	protocol="application/pgp-signature"; boundary="S1BNGpv0yoYahz37"
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <5d234cfc8d23cfc7e8d750f103344cf4e8e398d4.1380532113.git.michal.simek@xilinx.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, Kedareswara rao Appana <appana.durga.rao@xilinx.com>, Kedareswara rao Appana <appanad@xilinx.com>, Jean Delvare <khali@linux-fr.org>, Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org
+In-Reply-To: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Cc: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Kedareswara rao Appana <appanad-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---61jdw2sOBCFtR2d/
+--S1BNGpv0yoYahz37
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 30, 2013 at 11:08:51AM +0200, Michal Simek wrote:
-> From: Kedareswara rao Appana <appana.durga.rao@xilinx.com>
+On Mon, Sep 30, 2013 at 11:08:50AM +0200, Michal Simek wrote:
+> From: Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 >=20
-> In write operation, after filling address byte to tx fifo,
-> set the direction of transfer to tx using control register.
+> code changes to fix sparse warnings
 
-You describe WHAT you do, yet you should describe WHY the change is
-needed. For example, I can't tell if this is an urgent bugfix or not.
-Please rephrase.
+Would be nice to either have them listed here or at least shortly
+described.
 
 >=20
-> Signed-off-by: Kedareswara rao Appana <appanad@xilinx.com>
-> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
-> ---
->  drivers/i2c/busses/i2c-xiic.c | 5 +++++
->  1 file changed, 5 insertions(+)
->=20
-> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-> index 5eb0a8b..44e6ae7 100644
-> --- a/drivers/i2c/busses/i2c-xiic.c
-> +++ b/drivers/i2c/busses/i2c-xiic.c
-> @@ -536,6 +536,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
->  static void xiic_start_send(struct xiic_i2c *i2c)
->  {
->  	struct i2c_msg *msg =3D i2c->tx_msg;
-> +	u32 cr;
->=20
->  	xiic_irq_clr(i2c, XIIC_INTR_TX_ERROR_MASK);
->=20
-> @@ -556,6 +557,10 @@ static void xiic_start_send(struct xiic_i2c *i2c)
->  		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
->  	}
->=20
-> +	cr =3D xiic_getreg32(i2c, XIIC_CR_REG_OFFSET);
-> +	cr |=3D XIIC_CR_DIR_IS_TX_MASK;
-> +	xiic_setreg32(i2c, XIIC_CR_REG_OFFSET, cr);
-> +
->  	xiic_fill_tx_fifo(i2c);
->=20
->  	/* Clear any pending Tx empty, Tx Error and then enable them. */
-> --
-> 1.8.2.3
->=20
+> Signed-off-by: Kedareswara rao Appana <appanad-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+> Signed-off-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
 
-
---61jdw2sOBCFtR2d/
+--S1BNGpv0yoYahz37
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSSVDyAAoJEBQN5MwUoCm2AsQP/3XNI4au5zxLKhGvQgqkkfbY
-x2a3wNr+VmKnFz4FOjDLcMJ8ms3j2hmDZEHYE45Q7tKcJtaf6z9HcnsheV00Hvl4
-v7jXj0LwosaJFQXFiI9AJuLU4RipTr9oE5WZHszfvwikYVIVR/7FsbbuEjoxXLGj
-EMdEO90FB0mVOuVO2wDnYXvbsFdl5bCuOLVQrmRwa2sdBZBoX793WlwpgqnEtfDw
-6bpca1LrDN/GBtawm1z2/JxGuR2FP0pzSHZNmSuVo1owFjtLliRRdS7sUKSqwICl
-nDyrug81U7p/Znoj2lEqSbN6kQ0SFCO05Iu3tsYkfIVdsyDDZHPaVbyBCYbXHFmd
-Z336Oav5XoBk3gIAQRtyaEDb7ul/Gp3BATnGaUKGil6X+usBzJ2PWL9iZl54k3Lh
-6UXid8xbmOggtFNhgOxjLBNJcTKhRyRUkKkHErlD6xU1a8KYT7SYrr//9F+RQ6M0
-2q42NABjNiWOYg1/372KLjTv67abcrb421FYBam1nBcoGcjJXmM0Ft6d7p+9FxZa
-eleiMOFAC4zabXTQWrUuW9l/LnlZgjS8HdQ7hxUqP1zUNk98CZldBiuevwgfwuva
-0diSynsTRugnMs8D47DzLFYaoQAmp1Vq3hd8aJR6SnZ2D8JO3K6wd+SNkJsSN2zv
-Gm1GJnlqAECO2FnCpPFB
-=GoIN
+iQIcBAEBAgAGBQJSSVEuAAoJEBQN5MwUoCm2BfsP/3nUETZuoj746f4rc73i7lSj
+NRE4WYXiqiq0J83guuV0XH0yHw1dtHw6xI91Zb7GE2eO3ZBa6cRw5vaSGr6FKo2A
+YDlLi5yhPKiF4yTV+RX8idLcy2hQ6IUllqTUt+omCOis7AcXUB3U/2KS/3gVuUb4
+QPjdjF4Bq1/GyzxTA2oFKGoy610OTy9BwzyFTdyYXo0M/ZytCuncZEW5zkqoL9U/
+cmizFvfQKaTvyOulLjZDenVBUoHwlNv5hptYJFuPaHYJJrDYAmocleDbYdmzzpFB
+nzCeEXvGQn1o5LgQXSEpl+ZwEm+TSt/zlXkNthjE4rP5ZTyKJedRoKeJ+bDLFplH
+nokgCzxRGKIHnchs1KlmZmIgq4rlbCmYjly/Z2J0mBy40aXNd2P84R/84WKW2v/j
+7qMlrjMgq7LQITmejaE5qexs/eRXfI4CJ6mJ4SLbvl76TDUb2ViPR1gbo3r5Vce4
+UJf2rXlqfgH+XkLqgUvOBytbKXPyPcKKb30IMhGANSrsAYzrkG3M3dMKJKELI0Ur
+Al02UDJrQpPz8po4/APcno3s0XgqpKTyTOxQmAnlcsgfvwQ39lBW4k68acUTPrCx
+JoTX3Tl047kJjEbsaA/39r9V0GM8ooQrSmcggHVsaevfFGZazqtusM4JpvW55+Xu
+33I5OM2TDuN/C6wF1SzW
+=1jnd
 -----END PGP SIGNATURE-----
 
---61jdw2sOBCFtR2d/--
+--S1BNGpv0yoYahz37--
