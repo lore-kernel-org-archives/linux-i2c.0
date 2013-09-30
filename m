@@ -1,64 +1,113 @@
-From: Michal Simek <monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org>
-Subject: Re: [PATCH 2/3] i2c: xilinx: Set tx direction in write operation
-Date: Mon, 30 Sep 2013 15:25:10 +0200
-Message-ID: <52497BB6.9010506@monstr.eu>
-References: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek@xilinx.com> <5d234cfc8d23cfc7e8d750f103344cf4e8e398d4.1380532113.git.michal.simek@xilinx.com> <20130930102242.GB3222@katana>
-Reply-To: monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="LVMft17i8cMTajOqF02djctOrwOs5Prkj"
+From: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Subject: [PATCH v2 1/3] i2c: xilinx: Fix i2c checkpatch warnings
+Date: Mon, 30 Sep 2013 16:15:13 +0200
+Message-ID: <f3fd6f38d2553e59b077edff1969f4d07f8aa811.1380550490.git.michal.simek@xilinx.com>
+Content-Type: multipart/signed;
+    boundary="=_mimegpg-monstr-desktop-15269-1380550515-0001";
+    micalg=pgp-sha1; protocol="application/pgp-signature"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20130930102242.GB3222@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Kedareswara rao Appana <appanad-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
+Cc: Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Kedareswara rao Appana <appanad-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---LVMft17i8cMTajOqF02djctOrwOs5Prkj
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+This is a MIME GnuPG-signed message.  If you see this text, it means that
+your E-mail or Usenet software does not support MIME signed messages.
+The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
+To open this message correctly you will need to install E-mail or Usenet
+software that supports modern Internet standards.
 
-On 09/30/2013 12:22 PM, Wolfram Sang wrote:
-> On Mon, Sep 30, 2013 at 11:08:51AM +0200, Michal Simek wrote:
->> From: Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
->>
->> In write operation, after filling address byte to tx fifo,
->> set the direction of transfer to tx using control register.
->=20
-> You describe WHAT you do, yet you should describe WHY the change is
-> needed. For example, I can't tell if this is an urgent bugfix or not.
-> Please rephrase.
->=20
+--=_mimegpg-monstr-desktop-15269-1380550515-0001
 
-Will do.
+From: Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
 
-Thanks,
-Michal
+Code changes to fix checkpatch warnings listed below.
+- WARNING: please, no space before tabs
+- WARNING: quoted string split across lines
+
+Signed-off-by: Kedareswara rao Appana <appanad-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Signed-off-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+---
+Changes in v2:
+- It is checkpatch warnings not sparse
+- Extend patch description with checkpatch warnings
+
+Tested by:
+./scripts/checkpatch.pl -f drivers/i2c/busses/i2c-xiic.c
+
+---
+ drivers/i2c/busses/i2c-xiic.c | 23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 4c8b368..5eb0a8b 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -68,7 +68,7 @@ struct xiic_i2c {
+ 	struct i2c_adapter	adap;
+ 	struct i2c_msg		*tx_msg;
+ 	spinlock_t		lock;
+-	unsigned int 		tx_pos;
++	unsigned int		tx_pos;
+ 	unsigned int		nmsgs;
+ 	enum xilinx_i2c_state	state;
+ 	struct i2c_msg		*rx_msg;
+@@ -271,11 +271,8 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
+
+ 	bytes_in_fifo = xiic_getreg8(i2c, XIIC_RFO_REG_OFFSET) + 1;
+
+-	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d"
+-		", SR: 0x%x, CR: 0x%x\n",
+-		__func__, bytes_in_fifo, xiic_rx_space(i2c),
+-		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+-		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
++	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d",
++		__func__, bytes_in_fifo, xiic_rx_space(i2c));
+
+ 	if (bytes_in_fifo > xiic_rx_space(i2c))
+ 		bytes_in_fifo = xiic_rx_space(i2c);
+@@ -339,9 +336,10 @@ static void xiic_process(struct xiic_i2c *i2c)
+ 	ier = xiic_getreg32(i2c, XIIC_IIER_OFFSET);
+ 	pend = isr & ier;
+
+-	dev_dbg(i2c->adap.dev.parent, "%s entry, IER: 0x%x, ISR: 0x%x, "
+-		"pend: 0x%x, SR: 0x%x, msg: %p, nmsgs: %d\n",
+-		__func__, ier, isr, pend, xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
++	dev_dbg(i2c->adap.dev.parent, "%s: IER: 0x%x, ISR: 0x%x, pend: 0x%x\n",
++		__func__, ier, isr, pend);
++	dev_dbg(i2c->adap.dev.parent, "%s: SR: 0x%x, msg: %p, nmsgs: %d\n",
++		__func__, xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+ 		i2c->tx_msg, i2c->nmsgs);
+
+ 	/* Do not processes a devices interrupts if the device has no
+@@ -541,9 +539,10 @@ static void xiic_start_send(struct xiic_i2c *i2c)
+
+ 	xiic_irq_clr(i2c, XIIC_INTR_TX_ERROR_MASK);
+
+-	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, len: %d, "
+-		"ISR: 0x%x, CR: 0x%x\n",
+-		__func__, msg, msg->len, xiic_getreg32(i2c, XIIC_IISR_OFFSET),
++	dev_dbg(i2c->adap.dev.parent, "%s entry, msg: %p, len: %d",
++		__func__, msg, msg->len);
++	dev_dbg(i2c->adap.dev.parent, "%s entry, ISR: 0x%x, CR: 0x%x\n",
++		__func__, xiic_getreg32(i2c, XIIC_IISR_OFFSET),
+ 		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
+
+ 	if (!(msg->flags & I2C_M_NOSTART)) {
+--
+1.8.2.3
 
 
---=20
-Michal Simek, Ing. (M.Eng), OpenPGP -> KeyID: FE3D1F91
-w: www.monstr.eu p: +42-0-721842854
-Maintainer of Linux kernel - Microblaze cpu - http://www.monstr.eu/fdt/
-Maintainer of Linux kernel - Xilinx Zynq ARM architecture
-Microblaze U-BOOT custodian and responsible for u-boot arm zynq platform
-
-
-
---LVMft17i8cMTajOqF02djctOrwOs5Prkj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+--=_mimegpg-monstr-desktop-15269-1380550515-0001
+Content-Type: application/pgp-signature
+Content-Transfer-Encoding: 7bit
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.10 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://www.enigmail.net/
 
-iEYEARECAAYFAlJJe7YACgkQykllyylKDCEx4QCeIMn0WEw5corMbnGHz0yzDoEJ
-6L0AoJ34XT7biL3MKJnCXpqdtyh+IRdJ
-=Hsaf
+iEYEABECAAYFAlJJh3MACgkQykllyylKDCEhgwCfSaLKNvI4eG4iFImRO4IZgnYd
+U50AmQFMiKF26Ss5BdMMPmUaBHwAI1eT
+=X4B2
 -----END PGP SIGNATURE-----
 
---LVMft17i8cMTajOqF02djctOrwOs5Prkj--
+--=_mimegpg-monstr-desktop-15269-1380550515-0001--
