@@ -1,69 +1,92 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/4] driver core: introduce helper macro initcall_driver()
-Date: Mon, 30 Sep 2013 12:15:00 +0200
-Message-ID: <20130930101500.GA3222@katana>
-References: <1380518035-5319-1-git-send-email-hanjun.guo@linaro.org>
- <1380518035-5319-2-git-send-email-hanjun.guo@linaro.org>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 2/3] i2c: xilinx: Set tx direction in write operation
+Date: Mon, 30 Sep 2013 12:22:42 +0200
+Message-ID: <20130930102242.GB3222@katana>
+References: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek@xilinx.com>
+ <5d234cfc8d23cfc7e8d750f103344cf4e8e398d4.1380532113.git.michal.simek@xilinx.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+	protocol="application/pgp-signature"; boundary="61jdw2sOBCFtR2d/"
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1380518035-5319-2-git-send-email-hanjun.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Hanjun Guo <hanjun.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Fabio Porcedda <fabio.porcedda-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linaro-kernel-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, linaro-acpi-cunTk1MwBs8s++Sfvej+rw@public.gmane.org
+In-Reply-To: <5d234cfc8d23cfc7e8d750f103344cf4e8e398d4.1380532113.git.michal.simek@xilinx.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, Kedareswara rao Appana <appana.durga.rao@xilinx.com>, Kedareswara rao Appana <appanad@xilinx.com>, Jean Delvare <khali@linux-fr.org>, Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 
---EVF5PPMfhYS0aIcm
+--61jdw2sOBCFtR2d/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 30, 2013 at 01:13:52PM +0800, Hanjun Guo wrote:
-> For some devices especially on platform/I2C/SPI bus, they want to
-> be initialized earlier than other devices, so the driver use initcall
-> such as subsys_initcall to make this device initialize earlier.
+On Mon, Sep 30, 2013 at 11:08:51AM +0200, Michal Simek wrote:
+> From: Kedareswara rao Appana <appana.durga.rao@xilinx.com>
+>=20
+> In write operation, after filling address byte to tx fifo,
+> set the direction of transfer to tx using control register.
 
-And this is something we want to get rid of in favor of deferred
-probing.
+You describe WHAT you do, yet you should describe WHY the change is
+needed. For example, I can't tell if this is an urgent bugfix or not.
+Please rephrase.
 
 >=20
-> But for those drivers, lots of them just do nothing special in
-> xxx_initcall/exit, so introduce a helper macro initcall_driver() to
-> eliminate lots of boilerplate just like module_driver() did.
+> Signed-off-by: Kedareswara rao Appana <appanad@xilinx.com>
+> Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+> ---
+>  drivers/i2c/busses/i2c-xiic.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 >=20
-> Signed-off-by: Hanjun Guo <hanjun.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> index 5eb0a8b..44e6ae7 100644
+> --- a/drivers/i2c/busses/i2c-xiic.c
+> +++ b/drivers/i2c/busses/i2c-xiic.c
+> @@ -536,6 +536,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
+>  static void xiic_start_send(struct xiic_i2c *i2c)
+>  {
+>  	struct i2c_msg *msg =3D i2c->tx_msg;
+> +	u32 cr;
+>=20
+>  	xiic_irq_clr(i2c, XIIC_INTR_TX_ERROR_MASK);
+>=20
+> @@ -556,6 +557,10 @@ static void xiic_start_send(struct xiic_i2c *i2c)
+>  		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
+>  	}
+>=20
+> +	cr =3D xiic_getreg32(i2c, XIIC_CR_REG_OFFSET);
+> +	cr |=3D XIIC_CR_DIR_IS_TX_MASK;
+> +	xiic_setreg32(i2c, XIIC_CR_REG_OFFSET, cr);
+> +
+>  	xiic_fill_tx_fifo(i2c);
+>=20
+>  	/* Clear any pending Tx empty, Tx Error and then enable them. */
+> --
+> 1.8.2.3
+>=20
 
-So, NACK because using some *_initcall in drivers should not be
-encouraged.
-
-Thanks,
-
-   Wolfram
 
 
---EVF5PPMfhYS0aIcm
+--61jdw2sOBCFtR2d/
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJSSU8kAAoJEBQN5MwUoCm22lYP/1yp8oyuansz0qy9vW/oUeHa
-dBr2w1JH66nXyVx46p3kfnMaYfLvw7WxmiMQLm5lse1uObAKH+xXC9dZCG2VCdLu
-MTokQFYi0ueejnAr61FrDX5hUGx6hfkbSN5XO5ftHeOnNiSuCNwBRf5gekx4wABC
-kR9+DyB41dxy7dRI046aNYY4dXsMwyAlU0lsAOeVJniNWFqftmpx91ETmvqMIUsn
-/V7D0qRV+EwIllnc4t4p5CXxvW2saQVEcT3wag8LCM/ylk3QcOPODMtKtaUa9Hms
-LB9VHEIAxsezzgbTP//xrkcksHX9KvkSG/4H0D4FmhjgvzrbGFSRLltGkdkieiv/
-Uh9/mmv+3CDjsQwiyjMqtapugZWfyfQ667cwUTbLepSdvb22WfvRVrBGBi9JnAgQ
-368WlzedAF7+x12zoT/ZRF9F2LDIu05JaYOZpL+hoQpX7zZ7U7nrM3u14tXPnf5V
-M1it6tKbymxI9+OZEV7zjJpKPXkagVSn9I4z9bJidtwj415aQ3Q30d8CS6OAnMvv
-6a6+YOztmhNj2JX9IWq2K6n6kgdp9n46aOrbBcaFIGGYg+1vj1YAivJ6uHWjEo70
-0Vo0m4EzAPNblDAmp12ZAhG0BdKbZrudA0IyBhq8UvInJ9Jgp6zLJNn87tgAZq6Y
-XDXXVodMXz+STDPOl3xb
-=FBar
+iQIcBAEBAgAGBQJSSVDyAAoJEBQN5MwUoCm2AsQP/3XNI4au5zxLKhGvQgqkkfbY
+x2a3wNr+VmKnFz4FOjDLcMJ8ms3j2hmDZEHYE45Q7tKcJtaf6z9HcnsheV00Hvl4
+v7jXj0LwosaJFQXFiI9AJuLU4RipTr9oE5WZHszfvwikYVIVR/7FsbbuEjoxXLGj
+EMdEO90FB0mVOuVO2wDnYXvbsFdl5bCuOLVQrmRwa2sdBZBoX793WlwpgqnEtfDw
+6bpca1LrDN/GBtawm1z2/JxGuR2FP0pzSHZNmSuVo1owFjtLliRRdS7sUKSqwICl
+nDyrug81U7p/Znoj2lEqSbN6kQ0SFCO05Iu3tsYkfIVdsyDDZHPaVbyBCYbXHFmd
+Z336Oav5XoBk3gIAQRtyaEDb7ul/Gp3BATnGaUKGil6X+usBzJ2PWL9iZl54k3Lh
+6UXid8xbmOggtFNhgOxjLBNJcTKhRyRUkKkHErlD6xU1a8KYT7SYrr//9F+RQ6M0
+2q42NABjNiWOYg1/372KLjTv67abcrb421FYBam1nBcoGcjJXmM0Ft6d7p+9FxZa
+eleiMOFAC4zabXTQWrUuW9l/LnlZgjS8HdQ7hxUqP1zUNk98CZldBiuevwgfwuva
+0diSynsTRugnMs8D47DzLFYaoQAmp1Vq3hd8aJR6SnZ2D8JO3K6wd+SNkJsSN2zv
+Gm1GJnlqAECO2FnCpPFB
+=GoIN
 -----END PGP SIGNATURE-----
 
---EVF5PPMfhYS0aIcm--
+--61jdw2sOBCFtR2d/--
