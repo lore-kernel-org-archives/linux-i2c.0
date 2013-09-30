@@ -1,76 +1,54 @@
-From: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Subject: [PATCH 2/3] i2c: xilinx: Set tx direction in write operation
-Date: Mon, 30 Sep 2013 11:08:51 +0200
-Message-ID: <5d234cfc8d23cfc7e8d750f103344cf4e8e398d4.1380532113.git.michal.simek@xilinx.com>
-References: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek@xilinx.com>
-Content-Type: multipart/signed;
-    boundary="=_mimegpg-monstr-desktop-3913-1380532145-0001";
-    micalg=pgp-sha1; protocol="application/pgp-signature"
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 1/4] driver core: introduce helper macro initcall_driver()
+Date: Mon, 30 Sep 2013 10:16:23 +0100
+Message-ID: <20130930091622.GW19304@sirena.org.uk>
+References: <1380518035-5319-1-git-send-email-hanjun.guo@linaro.org>
+ <1380518035-5319-2-git-send-email-hanjun.guo@linaro.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="DLfA7Wi+Vmsdqq5j"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-In-Reply-To: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-References: <c122ad49b27406ee495ef0d6cac191968d64f09f.1380532113.git.michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1380518035-5319-2-git-send-email-hanjun.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, monstr-pSz03upnqPeHXe+LvDLADg@public.gmane.org
-Cc: Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kedareswara rao Appana <appanad-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>, Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, Peter Korsgaard <jacmet-OfajU3CKLf1/SzgSGea1oA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Hanjun Guo <hanjun.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Fabio Porcedda <fabio.porcedda-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Libo Chen <libo.chen-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-spi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, patches-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, linaro-kernel-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, linaro-acpi-cunTk1MwBs8s++Sfvej+rw@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-This is a MIME GnuPG-signed message.  If you see this text, it means that
-your E-mail or Usenet software does not support MIME signed messages.
-The Internet standard for MIME PGP messages, RFC 2015, was published in 1996.
-To open this message correctly you will need to install E-mail or Usenet
-software that supports modern Internet standards.
 
---=_mimegpg-monstr-desktop-3913-1380532145-0001
+--DLfA7Wi+Vmsdqq5j
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Kedareswara rao Appana <appana.durga.rao-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
+On Mon, Sep 30, 2013 at 01:13:52PM +0800, Hanjun Guo wrote:
+> For some devices especially on platform/I2C/SPI bus, they want to
+> be initialized earlier than other devices, so the driver use initcall
+> such as subsys_initcall to make this device initialize earlier.
 
-In write operation, after filling address byte to tx fifo,
-set the direction of transfer to tx using control register.
+We're trying to move away from needing to do this and to using deferred
+probing to resolve init ordering issues.  Should we not be able to
+convert the drivers to module_X_driver()?
 
-Signed-off-by: Kedareswara rao Appana <appanad-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Michal Simek <michal.simek-gjFFaj9aHVfQT0dZR+AlfA@public.gmane.org>
----
- drivers/i2c/busses/i2c-xiic.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 5eb0a8b..44e6ae7 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -536,6 +536,7 @@ static void xiic_start_recv(struct xiic_i2c *i2c)
- static void xiic_start_send(struct xiic_i2c *i2c)
- {
- 	struct i2c_msg *msg = i2c->tx_msg;
-+	u32 cr;
-
- 	xiic_irq_clr(i2c, XIIC_INTR_TX_ERROR_MASK);
-
-@@ -556,6 +557,10 @@ static void xiic_start_send(struct xiic_i2c *i2c)
- 		xiic_setreg16(i2c, XIIC_DTR_REG_OFFSET, data);
- 	}
-
-+	cr = xiic_getreg32(i2c, XIIC_CR_REG_OFFSET);
-+	cr |= XIIC_CR_DIR_IS_TX_MASK;
-+	xiic_setreg32(i2c, XIIC_CR_REG_OFFSET, cr);
-+
- 	xiic_fill_tx_fifo(i2c);
-
- 	/* Clear any pending Tx empty, Tx Error and then enable them. */
---
-1.8.2.3
-
-
---=_mimegpg-monstr-desktop-3913-1380532145-0001
-Content-Type: application/pgp-signature
-Content-Transfer-Encoding: 7bit
+--DLfA7Wi+Vmsdqq5j
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.10 (GNU/Linux)
+Version: GnuPG v2.0.21 (GNU/Linux)
 
-iEYEABECAAYFAlJJP7EACgkQykllyylKDCEoKwCfcjw9Jl03yRApgAfZlmsPShI6
-qMMAnR0xGKhgpuJq8IkUXeRujgstbuIv
-=cklk
+iQIcBAEBAgAGBQJSSUFjAAoJELSic+t+oim9+lMP/3nb/zrTbqdioZC48mvq2kO+
+4EwbBpjnMjB0JrbnIM6J/h5I6HGKz9P+1wxYsv5Nu2Teh12cyx12PO27RJSesGHf
+d+R9EEdmqy0ytwkEydJGjksSJ0P52l7TimRhOeCcJCzDxojTqyii2ZJVLgDFvzqS
+JpsItNUBVa0mI+DNG1fK9b2f8Wfo0vIJ3UTooykynOglvB65uTu1+YtEDOoN6Z+F
+5l8NcbotLAuP+hRZsksK9CSyegtuaWb8iSAnsa/84AqxsNLElNRt12q7V7BN6JuM
+HQvUAj9XRz3P7ZhsJ1RWrl5H/htZAOXynwCLDlK8LoniXUBBLKpUVVAGpI343/RK
+jSsGYaLSHA0CVHEDsBqxaXLNBBSlCqNblGroeUUsSi6dYBDuIv6UcXixvYNirDw1
+ljF/PhZTW82mW43S+ZfYF8GQxYpEOd8zHHykdqzEWIrXFlNqTILlkKADzGxpN+Ap
+twtw0MpcFGRJQACc1Ri2YF/5XoadC11auHN540snLJial7e9czEx+Sd7SERNQ4Ic
+IWXiPbf0l+1vxh52SWG4h+jPM9iU5SBeBdVn9HPQEi/hBpA2KK6mZPo5nWgEtnrv
+H4tWehrnxea2s2L0VT73EjDCSUNUPvmJxju+JAXnFdHc0rdnTfM+Oa4siDE0oBbr
+d7r9quujl2EJoGRuOPLI
+=togJ
 -----END PGP SIGNATURE-----
 
---=_mimegpg-monstr-desktop-3913-1380532145-0001--
+--DLfA7Wi+Vmsdqq5j--
