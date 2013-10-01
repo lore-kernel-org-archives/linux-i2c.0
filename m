@@ -1,185 +1,61 @@
-From: Yuvaraj Kumar C D <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH] i2c: s3c2410 : Add polling mode support
-Date: Tue,  1 Oct 2013 16:03:40 +0530
-Message-ID: <1380623620-31901-1-git-send-email-yuvaraj.cd@samsung.com>
-Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: ks.giri-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, aditya.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Vasanth Ananthan <vasanthananthan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Vasanth Ananthan <vasanth.a-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+From: Maxime COQUELIN <maxime.coquelin@st.com>
+Subject: [PATCH v3 0/4] Add I2C support to ST SoCs
+Date: Tue,  1 Oct 2013 12:39:08 +0200
+Message-ID: <1380623952-4252-1-git-send-email-maxime.coquelin@st.com>
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>, srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: stephen.gallimore@st.com, stuart.menefy@st.com, Lee Jones <lee.jones@linaro.org>, gabriel.fernandez@st.com, kernel@stlinux.com, Maxime Coquelin <maxime.coquelin@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-From: Vasanth Ananthan <vasanthananthan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+The goal of this series is to add I2C support to ST SoCs.
+The DT definition is added for STiH415 and STiH416 SoCs on
+B2000 and B2020 boards.
 
-This patch adds polling mode support for i2c-s3c2410 driver.The
-SATA PHY controller's CMU and TRSV block's are of I2C register
-map in exynos5250.These blocks can be configured using i2c.
+The series has been tested working on STiH416-B2020 board.
+It applies on top of v3.12-rc3.
 
-But i2c controller instance on which these block's sits lacks an
-interrupt line.Also the current i2c-s3c2410 driver is only interrupt
-driven, thus a polling mode support is required in the driver for
-supporting this controller. This patch adds this support to the driver.
+Changes since v2:
+  - Create generic DT property for Anti-glitch filtering configuration
+  - Sort i2c-st entries in Makefile and Kconfig
+  - Various cosmetics changes
+  - Return IRQ_NONE in case of spurious interrupt
+  - Use INIT_COMPLETION instead of init_completion in st_i2c_xfer_msg
+  - Simplify st_i2c_xfer as proposed by Wolfram
+  - Fix PM ops issues
+  - Change author name to myself and fix license to GPL v2
+  - Include .h file content into the .c file
 
-Signed-off-by: Vasanth Ananthan <vasanth.a-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
----
- .../devicetree/bindings/i2c/i2c-s3c2410.txt        |    2 +
- drivers/i2c/busses/i2c-s3c2410.c                   |   68 ++++++++++++++++----
- 2 files changed, 59 insertions(+), 11 deletions(-)
+Changes since v1:
+  - Anti-glitch filtering simplified (Only HW Anti-glitch is kept)
+  - Update I2C timings to comply with I2C specification
+  - Handle spurious interrupts properly
+  - DT binding updates taking into account Stephen's comments
+  - Use "clock-names" property to comply with GCF
+  - DT cosmetic changes reported by Lee and Gabriel 
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-index 296eb45..bc928a0 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-s3c2410.txt
-@@ -10,6 +10,8 @@ Required properties:
-           inside HDMIPHY block found on several samsung SoCs
-       (d) "samsung, exynos5440-i2c", for s3c2440-like i2c used
- 	   on EXYNOS5440 which does not need GPIO configuration.
-+      (e) "samsung,exynos5-sata-phy-i2c", for s3c2440-like i2c used as
-+	   a host to SATA PHY controller on an internal bus.
-   - reg: physical base address of the controller and length of memory mapped
-     region.
-   - interrupts: interrupt number to the cpu.
-diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
-index 3535f3c..2b279d0 100644
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -85,6 +85,7 @@
- #define QUIRK_S3C2440		(1 << 0)
- #define QUIRK_HDMIPHY		(1 << 1)
- #define QUIRK_NO_GPIO		(1 << 2)
-+#define QUIRK_POLL		(1 << 3)
- 
- /* Max time to wait for bus to become idle after a xfer (in us) */
- #define S3C2410_IDLE_TIMEOUT	5000
-@@ -141,6 +142,8 @@ static struct platform_device_id s3c24xx_driver_ids[] = {
- };
- MODULE_DEVICE_TABLE(platform, s3c24xx_driver_ids);
- 
-+static int i2c_s3c_irq_nextbyte(struct s3c24xx_i2c *i2c, unsigned long iicstat);
-+
- #ifdef CONFIG_OF
- static const struct of_device_id s3c24xx_i2c_match[] = {
- 	{ .compatible = "samsung,s3c2410-i2c", .data = (void *)0 },
-@@ -149,6 +152,8 @@ static const struct of_device_id s3c24xx_i2c_match[] = {
- 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_HDMIPHY | QUIRK_NO_GPIO) },
- 	{ .compatible = "samsung,exynos5440-i2c",
- 	  .data = (void *)(QUIRK_S3C2440 | QUIRK_NO_GPIO) },
-+	{ .compatible = "samsung,exynos5-sata-phy-i2c",
-+	  .data = (void *)(QUIRK_S3C2440 | QUIRK_POLL | QUIRK_NO_GPIO) },
- 	{},
- };
- MODULE_DEVICE_TABLE(of, s3c24xx_i2c_match);
-@@ -187,7 +192,8 @@ static inline void s3c24xx_i2c_master_complete(struct s3c24xx_i2c *i2c, int ret)
- 	if (ret)
- 		i2c->msg_idx = ret;
- 
--	wake_up(&i2c->wait);
-+	if (!(i2c->quirks & QUIRK_POLL))
-+		wake_up(&i2c->wait);
- }
- 
- static inline void s3c24xx_i2c_disable_ack(struct s3c24xx_i2c *i2c)
-@@ -224,6 +230,22 @@ static inline void s3c24xx_i2c_enable_irq(struct s3c24xx_i2c *i2c)
- 	writel(tmp | S3C2410_IICCON_IRQEN, i2c->regs + S3C2410_IICCON);
- }
- 
-+static bool is_ack(struct s3c24xx_i2c *i2c)
-+{
-+	u32 time_out = i2c->tx_setup;
-+
-+	while (--time_out) {
-+		if (readl(i2c->regs + S3C2410_IICCON)
-+			& S3C2410_IICCON_IRQPEND) {
-+			if (!(readl(i2c->regs + S3C2410_IICSTAT)
-+				& S3C2410_IICSTAT_LASTBIT))
-+				return true;
-+		}
-+		udelay(time_out);
-+	}
-+
-+	return false;
-+}
- 
- /* s3c24xx_i2c_message_start
-  *
-@@ -268,6 +290,16 @@ static void s3c24xx_i2c_message_start(struct s3c24xx_i2c *i2c,
- 
- 	stat |= S3C2410_IICSTAT_START;
- 	writel(stat, i2c->regs + S3C2410_IICSTAT);
-+
-+	if (i2c->quirks & QUIRK_POLL) {
-+		while ((i2c->msg_num != 0) && is_ack(i2c)) {
-+			i2c_s3c_irq_nextbyte(i2c, stat);
-+			stat = readl(i2c->regs + S3C2410_IICSTAT);
-+
-+			if (stat & S3C2410_IICSTAT_ARBITR)
-+				dev_err(i2c->dev, "deal with arbitration loss\n");
-+		}
-+	}
- }
- 
- static inline void s3c24xx_i2c_stop(struct s3c24xx_i2c *i2c, int ret)
-@@ -675,6 +707,15 @@ static int s3c24xx_i2c_doxfer(struct s3c24xx_i2c *i2c,
- 	s3c24xx_i2c_enable_irq(i2c);
- 	s3c24xx_i2c_message_start(i2c, msgs);
- 
-+	if (i2c->quirks & QUIRK_POLL) {
-+		ret = i2c->msg_idx;
-+
-+		if (ret != num)
-+			dev_dbg(i2c->dev, "incomplete xfer (%d)\n", ret);
-+
-+		goto out;
-+	}
-+
- 	timeout = wait_event_timeout(i2c->wait, i2c->msg_num == 0, HZ * 5);
- 
- 	ret = i2c->msg_idx;
-@@ -820,6 +861,9 @@ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
- 	if (div1 == 512)
- 		iiccon |= S3C2410_IICCON_TXDIV_512;
- 
-+	if (i2c->quirks & QUIRK_POLL)
-+		iiccon |= S3C2410_IICCON_SCALE(2);
-+
- 	writel(iiccon, i2c->regs + S3C2410_IICCON);
- 
- 	if (i2c->quirks & QUIRK_S3C2440) {
-@@ -1117,18 +1161,20 @@ static int s3c24xx_i2c_probe(struct platform_device *pdev)
- 	 * ensure no current IRQs pending
- 	 */
- 
--	i2c->irq = ret = platform_get_irq(pdev, 0);
--	if (ret <= 0) {
--		dev_err(&pdev->dev, "cannot find IRQ\n");
--		return ret;
--	}
-+	if (!(i2c->quirks & QUIRK_POLL)) {
-+		i2c->irq = ret = platform_get_irq(pdev, 0);
-+		if (ret <= 0) {
-+			dev_err(&pdev->dev, "cannot find IRQ\n");
-+			return ret;
-+		}
- 
--	ret = devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
--			       dev_name(&pdev->dev), i2c);
-+		ret = devm_request_irq(&pdev->dev, i2c->irq, s3c24xx_i2c_irq, 0,
-+				dev_name(&pdev->dev), i2c);
- 
--	if (ret != 0) {
--		dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
--		return ret;
-+		if (ret != 0) {
-+			dev_err(&pdev->dev, "cannot claim IRQ %d\n", i2c->irq);
-+			return ret;
-+		}
- 	}
- 
- 	ret = s3c24xx_i2c_register_cpufreq(i2c);
+Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
+
+Maxime Coquelin (4):
+  i2c: busses: i2c-st: Add ST I2C controller
+  ARM: STi: Supply I2C configuration to STiH416 SoC
+  ARM: STi: Supply I2C configuration to STiH415 SoC
+  ARM: STi: Add I2C config to B2000 and B2020 boards
+
+ Documentation/devicetree/bindings/i2c/i2c-st.txt |   34 +
+ arch/arm/boot/dts/stih415-pinctrl.dtsi           |   36 +
+ arch/arm/boot/dts/stih415.dtsi                   |   53 ++
+ arch/arm/boot/dts/stih416-pinctrl.dtsi           |   35 +
+ arch/arm/boot/dts/stih416.dtsi                   |   53 ++
+ arch/arm/boot/dts/stih41x-b2000.dtsi             |    9 +
+ arch/arm/boot/dts/stih41x-b2020.dtsi             |   22 +
+ drivers/i2c/busses/Kconfig                       |   10 +
+ drivers/i2c/busses/Makefile                      |    1 +
+ drivers/i2c/busses/i2c-st.c                      |  867 ++++++++++++++++++++++
+ 10 files changed, 1120 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/i2c-st.txt
+ create mode 100644 drivers/i2c/busses/i2c-st.c
+
 -- 
 1.7.9.5
 
---
-To unsubscribe from this list: send the line "unsubscribe devicetree" in
-the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
