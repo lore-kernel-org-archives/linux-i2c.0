@@ -1,150 +1,75 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH v4] i2c: enable runtime PM for I2C adapter devices enumerated from ACPI
-Date: Tue,  1 Oct 2013 16:09:42 +0300
-Message-ID: <1380632982-10709-1-git-send-email-mika.westerberg@linux.intel.com>
-References: <1380552228-23329-2-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1380552228-23329-2-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] i2c: s3c2410 : Add polling mode support
+Date: Tue, 1 Oct 2013 15:24:56 +0100
+Message-ID: <20131001142456.GP19304@sirena.org.uk>
+References: <1380623620-31901-1-git-send-email-yuvaraj.cd@samsung.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="hwMNHYNcH9aNQF1X"
+Return-path: <devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <1380623620-31901-1-git-send-email-yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: devicetree-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Yuvaraj Kumar C D <yuvaraj.cd-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, pawel.moll-5wv7dgnIgG8@public.gmane.org, mark.rutland-5wv7dgnIgG8@public.gmane.org, ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org, ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org, kgene.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org, rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ks.giri-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, aditya.ps-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, Vasanth Ananthan <vasanthananthan-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Vasanth Ananthan <vasanth.a-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Yuvaraj Kumar C D <yuvaraj.cd-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The ACPI specification requires the parent device to be powered on before
-any of its children. It can be only powered off when all the children are
-already off.
 
-Currently whenever there is no I2C traffic going on, the I2C controller
-driver can put the device into low power state transparently to its
-children (the I2C client devices). This violates the ACPI specification
-because now the parent device is in lower power state than its children.
+--hwMNHYNcH9aNQF1X
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-In order to keep ACPI happy we enable runtime PM for the I2C adapter device
-if we find out that the I2C controller was in fact an ACPI device. In
-addition to that we attach the I2C client devices to the ACPI power domain
-and make sure that they are powered on when the driver ->probe() is called.
+On Tue, Oct 01, 2013 at 04:03:40PM +0530, Yuvaraj Kumar C D wrote:
 
-Non-ACPI devices are not affected by this change.
+> +static bool is_ack(struct s3c24xx_i2c *i2c)
+> +{
+> +	u32 time_out = i2c->tx_setup;
+> +
+> +	while (--time_out) {
+> +		if (readl(i2c->regs + S3C2410_IICCON)
+> +			& S3C2410_IICCON_IRQPEND) {
+> +			if (!(readl(i2c->regs + S3C2410_IICSTAT)
+> +				& S3C2410_IICSTAT_LASTBIT))
+> +				return true;
+> +		}
+> +		udelay(time_out);
+> +	}
+> +
+> +	return false;
 
-This patch is based on the work by Aaron Lu and Lv Zheng.
+This is a bit weird - the amount of time the driver waits between polls
+shrinks as the timeout approaches.  It'd be more normal to see either an
+even period between polls or (ideally if the delay is non-trivial) a
+dead reckoning sleep based on the expected time to complete followed by
+polling at even intervals.
 
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
----
-Changes to v3:
- * Check only client ACPI_HANDLE().
- * Fixed bug where we attach the device to ACPI power domain multiple
-   times.
- * Functions are renamed to _get_attach/_put_attach to make it clear that
-   we do attach/detach as well.
+Also consider usleep_range() for the delay, it's a bit nicer to the rest
+of the system than udelay().
 
- drivers/i2c/i2c-core.c | 47 ++++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 46 insertions(+), 1 deletion(-)
+--hwMNHYNcH9aNQF1X
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 29d3f04..e289b1d 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -236,6 +236,27 @@ int i2c_recover_bus(struct i2c_adapter *adap)
- 	return adap->bus_recovery_info->recover_bus(adap);
- }
- 
-+static void acpi_i2c_device_pm_get_attach(struct i2c_client *client,
-+					  bool attach)
-+{
-+	if (ACPI_HANDLE(&client->dev)) {
-+		/* Make sure the adapter is active */
-+		pm_runtime_get_sync(&client->adapter->dev);
-+		if (attach)
-+			acpi_dev_pm_attach(&client->dev, true);
-+	}
-+}
-+
-+static void acpi_i2c_device_pm_put_detach(struct i2c_client *client,
-+					  bool detach)
-+{
-+	if (ACPI_HANDLE(&client->dev)) {
-+		if (detach)
-+			acpi_dev_pm_detach(&client->dev, true);
-+		pm_runtime_put(&client->adapter->dev);
-+	}
-+}
-+
- static int i2c_device_probe(struct device *dev)
- {
- 	struct i2c_client	*client = i2c_verify_client(dev);
-@@ -254,11 +275,15 @@ static int i2c_device_probe(struct device *dev)
- 					client->flags & I2C_CLIENT_WAKE);
- 	dev_dbg(dev, "probe\n");
- 
-+	acpi_i2c_device_pm_get_attach(client, true);
-+
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
- 	if (status) {
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
- 	}
-+
-+	acpi_i2c_device_pm_put_detach(client, !!status);
- 	return status;
- }
- 
-@@ -271,6 +296,8 @@ static int i2c_device_remove(struct device *dev)
- 	if (!client || !dev->driver)
- 		return 0;
- 
-+	acpi_i2c_device_pm_get_attach(client, false);
-+
- 	driver = to_i2c_driver(dev->driver);
- 	if (driver->remove) {
- 		dev_dbg(dev, "remove\n");
-@@ -283,6 +310,8 @@ static int i2c_device_remove(struct device *dev)
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
- 	}
-+
-+	acpi_i2c_device_pm_put_detach(client, true);
- 	return status;
- }
- 
-@@ -294,8 +323,11 @@ static void i2c_device_shutdown(struct device *dev)
- 	if (!client || !dev->driver)
- 		return;
- 	driver = to_i2c_driver(dev->driver);
--	if (driver->shutdown)
-+	if (driver->shutdown) {
-+		acpi_i2c_device_pm_get_attach(client, false);
- 		driver->shutdown(client);
-+		acpi_i2c_device_pm_put_detach(client, false);
-+	}
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -1263,6 +1295,16 @@ exit_recovery:
- 	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
- 	mutex_unlock(&core_lock);
- 
-+	/*
-+	 * For ACPI enumerated controllers we must make sure that the
-+	 * controller is powered on before its children. Runtime PM handles
-+	 * this for us once we have enabled it for the adapter device.
-+	 */
-+	if (ACPI_HANDLE(adap->dev.parent)) {
-+		pm_runtime_no_callbacks(&adap->dev);
-+		pm_runtime_enable(&adap->dev);
-+	}
-+
- 	return 0;
- 
- out_list:
-@@ -1427,6 +1469,9 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- 		return;
- 	}
- 
-+	if (ACPI_HANDLE(adap->dev.parent))
-+		pm_runtime_disable(&adap->dev);
-+
- 	/* Tell drivers about this removal */
- 	mutex_lock(&core_lock);
- 	bus_for_each_drv(&i2c_bus_type, NULL, adap,
--- 
-1.8.4.rc3
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.21 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSSts1AAoJELSic+t+oim9ukIQAJaq+7j4ymv+9MKuN894887r
+vGxECx6BjtK1qN6FOrJGKhtnM24sEqdaIsq1q5+KbtkpGFQz/H39LcR691b0BEP0
+K1EUNG2mWnZMaoxPvf8kja8wzrYitKBcEMYeyX95zdtpnSCNEWyUOYhB0U/0DJek
+C0qrfsfKyqU4pw7AEMGaeWOUo6iE/UvPoaRljggijIJhQP6ok0dPrQkX4G9ecDpZ
+aRAu4jj2DSc2Wnl2X0hI+XLgs/eIm8xd7HC0HV8FA8sqvZgCbkfJPnP7IIjd+suV
+cG4Ix8Yvlqc0qYlz7LRILQfgO1VQJDChJlQJTT2kW43zviXDWd2b8n5bWBNeWK4x
+IpkPkVwMcsU5mI3jPp+WsHFTA0oK37vDJNYdlZoSjjNacTYZEfjrXYg3C/Buy8fz
+gvLwEIwMJVctQd7sNE8sPLDIMYvcZtI1KZXFKLjrnM8OddeK2uF2WcYpP3u1MW2X
+xnUWP18oNwx7rTri7/7J897qfWgvLUnYW1CaTiHm5c8O1LJZoZog30zkx9eoR7bn
+XxJWAMlrPZiwfUVhuWEjFlPIeYhteUo1WlWpI9sUMqhmuIx4KWOo13ulL68yGk5F
+Hid0EtO7GtE6XJpe6NncZN4N/diw5+1r1ZFof8uzhLhLqe3YNzWeYcbIqglOrvn9
+oKtms5R28dYrbPxv6pDL
+=flPm
+-----END PGP SIGNATURE-----
+
+--hwMNHYNcH9aNQF1X--
+--
+To unsubscribe from this list: send the line "unsubscribe devicetree" in
+the body of a message to majordomo-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
