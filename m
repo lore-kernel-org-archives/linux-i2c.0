@@ -1,159 +1,80 @@
-From: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Subject: Re: [PATCH v4] i2c: enable runtime PM for I2C adapter devices enumerated from ACPI
-Date: Tue, 01 Oct 2013 18:24:07 +0200
-Message-ID: <8760212.nXgBqaRVWQ@vostro.rjw.lan>
-References: <1380552228-23329-2-git-send-email-mika.westerberg@linux.intel.com> <1380632982-10709-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>
+Subject: Re: [PATCH 1/4] i2c: busses: i2c-st: Add ST I2C controller
+Date: Tue, 01 Oct 2013 14:45:32 -0600
+Message-ID: <524B346C.8070607@wwwdotorg.org>
+References: <1380623952-4252-1-git-send-email-maxime.coquelin@st.com> <1380623952-4252-2-git-send-email-maxime.coquelin@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <1380632982-10709-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Aaron Lu <aaron.lu@intel.com>, Lv Zheng <lv.zheng@intel.com>, Mark Brown <broonie@kernel.org>, Kevin Hilman <khilman@linaro.org>, Sylwester Nawrocki <s.nawrocki@samsung.com>, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-acpi@vger.kernel.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1380623952-4252-2-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srinivas.kandagatla-qxv4g6HH51o@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stephen.gallimore-qxv4g6HH51o@public.gmane.org, stuart.menefy-qxv4g6HH51o@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, gabriel.fernandez-qxv4g6HH51o@public.gmane.org, kernel-F5mvAk5X5gdBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tuesday, October 01, 2013 04:09:42 PM Mika Westerberg wrote:
-> The ACPI specification requires the parent device to be powered on before
-> any of its children. It can be only powered off when all the children are
-> already off.
+On 10/01/2013 04:39 AM, Maxime COQUELIN wrote:
+> This patch adds support to SSC (Synchronous Serial Controller)
+> I2C driver. This IP also supports SPI protocol, but this is not
+> the aim of this driver.
 > 
-> Currently whenever there is no I2C traffic going on, the I2C controller
-> driver can put the device into low power state transparently to its
-> children (the I2C client devices). This violates the ACPI specification
-> because now the parent device is in lower power state than its children.
-> 
-> In order to keep ACPI happy we enable runtime PM for the I2C adapter device
-> if we find out that the I2C controller was in fact an ACPI device. In
-> addition to that we attach the I2C client devices to the ACPI power domain
-> and make sure that they are powered on when the driver ->probe() is called.
-> 
-> Non-ACPI devices are not affected by this change.
-> 
-> This patch is based on the work by Aaron Lu and Lv Zheng.
-> 
-> Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> This IP is embedded in all ST SoCs for Set-top box platorms, and
+> supports I2C Standard and Fast modes.
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-st.txt b/Documentation/devicetree/bindings/i2c/i2c-st.txt
 
-> ---
-> Changes to v3:
->  * Check only client ACPI_HANDLE().
->  * Fixed bug where we attach the device to ACPI power domain multiple
->    times.
->  * Functions are renamed to _get_attach/_put_attach to make it clear that
->    we do attach/detach as well.
-> 
->  drivers/i2c/i2c-core.c | 47 ++++++++++++++++++++++++++++++++++++++++++++++-
->  1 file changed, 46 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-> index 29d3f04..e289b1d 100644
-> --- a/drivers/i2c/i2c-core.c
-> +++ b/drivers/i2c/i2c-core.c
-> @@ -236,6 +236,27 @@ int i2c_recover_bus(struct i2c_adapter *adap)
->  	return adap->bus_recovery_info->recover_bus(adap);
->  }
->  
-> +static void acpi_i2c_device_pm_get_attach(struct i2c_client *client,
-> +					  bool attach)
-> +{
-> +	if (ACPI_HANDLE(&client->dev)) {
-> +		/* Make sure the adapter is active */
-> +		pm_runtime_get_sync(&client->adapter->dev);
-> +		if (attach)
-> +			acpi_dev_pm_attach(&client->dev, true);
-> +	}
-> +}
-> +
-> +static void acpi_i2c_device_pm_put_detach(struct i2c_client *client,
-> +					  bool detach)
-> +{
-> +	if (ACPI_HANDLE(&client->dev)) {
-> +		if (detach)
-> +			acpi_dev_pm_detach(&client->dev, true);
-> +		pm_runtime_put(&client->adapter->dev);
-> +	}
-> +}
-> +
->  static int i2c_device_probe(struct device *dev)
->  {
->  	struct i2c_client	*client = i2c_verify_client(dev);
-> @@ -254,11 +275,15 @@ static int i2c_device_probe(struct device *dev)
->  					client->flags & I2C_CLIENT_WAKE);
->  	dev_dbg(dev, "probe\n");
->  
-> +	acpi_i2c_device_pm_get_attach(client, true);
-> +
->  	status = driver->probe(client, i2c_match_id(driver->id_table, client));
->  	if (status) {
->  		client->driver = NULL;
->  		i2c_set_clientdata(client, NULL);
->  	}
-> +
-> +	acpi_i2c_device_pm_put_detach(client, !!status);
->  	return status;
->  }
->  
-> @@ -271,6 +296,8 @@ static int i2c_device_remove(struct device *dev)
->  	if (!client || !dev->driver)
->  		return 0;
->  
-> +	acpi_i2c_device_pm_get_attach(client, false);
-> +
->  	driver = to_i2c_driver(dev->driver);
->  	if (driver->remove) {
->  		dev_dbg(dev, "remove\n");
-> @@ -283,6 +310,8 @@ static int i2c_device_remove(struct device *dev)
->  		client->driver = NULL;
->  		i2c_set_clientdata(client, NULL);
->  	}
-> +
-> +	acpi_i2c_device_pm_put_detach(client, true);
->  	return status;
->  }
->  
-> @@ -294,8 +323,11 @@ static void i2c_device_shutdown(struct device *dev)
->  	if (!client || !dev->driver)
->  		return;
->  	driver = to_i2c_driver(dev->driver);
-> -	if (driver->shutdown)
-> +	if (driver->shutdown) {
-> +		acpi_i2c_device_pm_get_attach(client, false);
->  		driver->shutdown(client);
-> +		acpi_i2c_device_pm_put_detach(client, false);
-> +	}
->  }
->  
->  #ifdef CONFIG_PM_SLEEP
-> @@ -1263,6 +1295,16 @@ exit_recovery:
->  	bus_for_each_drv(&i2c_bus_type, NULL, adap, __process_new_adapter);
->  	mutex_unlock(&core_lock);
->  
-> +	/*
-> +	 * For ACPI enumerated controllers we must make sure that the
-> +	 * controller is powered on before its children. Runtime PM handles
-> +	 * this for us once we have enabled it for the adapter device.
-> +	 */
-> +	if (ACPI_HANDLE(adap->dev.parent)) {
-> +		pm_runtime_no_callbacks(&adap->dev);
-> +		pm_runtime_enable(&adap->dev);
-> +	}
-> +
->  	return 0;
->  
->  out_list:
-> @@ -1427,6 +1469,9 @@ void i2c_del_adapter(struct i2c_adapter *adap)
->  		return;
->  	}
->  
-> +	if (ACPI_HANDLE(adap->dev.parent))
-> +		pm_runtime_disable(&adap->dev);
-> +
->  	/* Tell drivers about this removal */
->  	mutex_lock(&core_lock);
->  	bus_for_each_drv(&i2c_bus_type, NULL, adap,
-> 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+> +Required properties :
+
+> +- clocks : phandle to the I2C clock source
+> +- clock-names : from common clock binding: Shall be "ssc"
+
+I'd prefer to define that as:
+
+clock-names: Must contain "ssc".
+clocks: Must contain an entry for each name in clock-names. See the
+common clock bindings.
+
+That way, it makes it clear that clock-names is the primary lookup
+mechanism, rather than some auxiliary documentation.
+
+> +Recommended properties :
+> +- clock-frequency : Desired I2C bus clock frequency in Hz. Otherwise
+
+s/Otherwise/If not specified,/
+
+> +  the default 100 kHz frequency will be used. As only Normal and Fast modes
+> +  are supported, possible values are 100000 and 400000.
+
+I think that's just optional. Since there's a well-defined sensible
+default, there's no need to recommend it.
+
+> +Optional properties :
+> +- i2c-min-scl-pulse-width-us : The minimum valid SCL pulse width that is allowed
+> +  through the deglitch circuit. In units of us.
+> +- i2c-min-sda-pulse-width-us : The minimum valid SDA pulse width that is allowed
+> +  through the deglitch circuit. In units of us.
+
+Are those properties specific to this binding, or intended to be
+generic? If specific to this binding, a vendor prefix should be present
+in the property name. If not, you probably want to document the
+properties in some common file.
+
+> +Examples :
+
+s/Examples/Example/ since there's just one.
+
+> +i2c0: i2c@fed40000 {
+> +	compatible	= "st,comms-ssc-i2c";
+> +	reg		= <0xfed40000 0x110>;
+> +	interrupts	=  <GIC_SPI 187 IRQ_TYPE_EDGE_RISING>;
+> +	clocks		= <&CLK_S_ICN_REG_0>;
+> +	clock-names	= "ssc";
+> +	clock-frequency = <400000>;
+> +	pinctrl-names	= "default";
+> +	pinctrl-0	= <&pinctrl_i2c0_default>;
+
+That wasn't mentioned in the binding definition. You'd probably want to
+document the requirement for those two properties by saying something like:
+
+A pinctrl state named "default" must be defined, using the bindings in
+../pinctrl/pinctrl-binding.txt.
