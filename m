@@ -1,104 +1,87 @@
-From: Maxime COQUELIN <maxime.coquelin@st.com>
+From: Wolfram Sang <wsa@the-dreams.de>
 Subject: Re: [PATCH 1/4] i2c: busses: i2c-st: Add ST I2C controller
-Date: Wed, 2 Oct 2013 10:36:16 +0200
-Message-ID: <524BDB00.3010508@st.com>
+Date: Wed, 2 Oct 2013 11:02:57 +0200
+Message-ID: <20131002090257.GA3059@katana>
 References: <1380623952-4252-1-git-send-email-maxime.coquelin@st.com>
  <1380623952-4252-2-git-send-email-maxime.coquelin@st.com>
  <524B346C.8070607@wwwdotorg.org>
+ <524BDB00.3010508@st.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <524B346C.8070607@wwwdotorg.org>
-Content-Language: en-US
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Stephen Warren <swarren@wwwdotorg.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, Russell King <linux@arm.linux.org.uk>, "kernel@stlinux.com" <kernel@stlinux.com>, Pawel Moll <pawel.moll@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Wolfram Sang <wsa@the-dreams.de>, Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Rob Herring <rob.herring@calxeda.com>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Rob Landley <rob@landley.net>, Grant Likely <grant.likely@linaro.org>, Lee Jones <lee.jones@linaro.org>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ReaqsoxgOBHFXBhH"
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <524BDB00.3010508@st.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Maxime COQUELIN <maxime.coquelin@st.com>
+Cc: Stephen Warren <swarren@wwwdotorg.org>, Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, Lee Jones <lee.jones@linaro.org>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>, "kernel@stlinux.com" <kernel@stlinux.com>
 List-Id: linux-i2c@vger.kernel.org
 
 
-On 10/01/2013 10:45 PM, Stephen Warren wrote:
-> On 10/01/2013 04:39 AM, Maxime COQUELIN wrote:
->> This patch adds support to SSC (Synchronous Serial Controller)
->> I2C driver. This IP also supports SPI protocol, but this is not
->> the aim of this driver.
->>
->> This IP is embedded in all ST SoCs for Set-top box platorms, and
->> supports I2C Standard and Fast modes.
->> diff --git a/Documentation/devicetree/bindings/i2c/i2c-st.txt b/Documentation/devicetree/bindings/i2c/i2c-st.txt
->> +Required properties :
->> +- clocks : phandle to the I2C clock source
->> +- clock-names : from common clock binding: Shall be "ssc"
-> I'd prefer to define that as:
->
-> clock-names: Must contain "ssc".
-> clocks: Must contain an entry for each name in clock-names. See the
-> common clock bindings.
->
-> That way, it makes it clear that clock-names is the primary lookup
-> mechanism, rather than some auxiliary documentation.
-OK. This will be done in next series.
+--ReaqsoxgOBHFXBhH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->
->> +Recommended properties :
->> +- clock-frequency : Desired I2C bus clock frequency in Hz. Otherwise
-> s/Otherwise/If not specified,/
-Done.
->
->> +  the default 100 kHz frequency will be used. As only Normal and Fast modes
->> +  are supported, possible values are 100000 and 400000.
-> I think that's just optional. Since there's a well-defined sensible
-> default, there's no need to recommend it.
-OK, I move it to optional.
->> +Optional properties :
->> +- i2c-min-scl-pulse-width-us : The minimum valid SCL pulse width that is allowed
->> +  through the deglitch circuit. In units of us.
->> +- i2c-min-sda-pulse-width-us : The minimum valid SDA pulse width that is allowed
->> +  through the deglitch circuit. In units of us.
-> Are those properties specific to this binding, or intended to be
-> generic? If specific to this binding, a vendor prefix should be present
-> in the property name. If not, you probably want to document the
-> properties in some common file.
-Ok.
-In last revision, I put this properties as specific to this binding.
-Wolfram proposed to make this generic, but it looks like this IP is the 
-only one
-needing such properties.
 
-Wolfram, what would you advise?
-If you still prefer to make this properties generics, in which file should I
-document it? I don't see any common i2c binding document for now.
+> >> +Optional properties :
+> >> +- i2c-min-scl-pulse-width-us : The minimum valid SCL pulse width that=
+ is allowed
+> >> +  through the deglitch circuit. In units of us.
+> >> +- i2c-min-sda-pulse-width-us : The minimum valid SDA pulse width that=
+ is allowed
+> >> +  through the deglitch circuit. In units of us.
+> > Are those properties specific to this binding, or intended to be
+> > generic? If specific to this binding, a vendor prefix should be present
+> > in the property name. If not, you probably want to document the
+> > properties in some common file.
+> Ok.
+> In last revision, I put this properties as specific to this binding.
+> Wolfram proposed to make this generic, but it looks like this IP is the=
+=20
+> only one
+> needing such properties.
+>=20
+> Wolfram, what would you advise?
 
->
->> +Examples :
-> s/Examples/Example/ since there's just one.
-Ok.
->
->> +i2c0: i2c@fed40000 {
->> +	compatible	= "st,comms-ssc-i2c";
->> +	reg		= <0xfed40000 0x110>;
->> +	interrupts	=  <GIC_SPI 187 IRQ_TYPE_EDGE_RISING>;
->> +	clocks		= <&CLK_S_ICN_REG_0>;
->> +	clock-names	= "ssc";
->> +	clock-frequency = <400000>;
->> +	pinctrl-names	= "default";
->> +	pinctrl-0	= <&pinctrl_i2c0_default>;
-> That wasn't mentioned in the binding definition. You'd probably want to
-> document the requirement for those two properties by saying something like:
->
-> A pinctrl state named "default" must be defined, using the bindings in
-> ../pinctrl/pinctrl-binding.txt.
-Ok. I will also add the "sleep" state in the optional definitions.
+It might be the only SoC now, but I could imagine that other will have
+something similar in the future. I am not perfectly sure, though. So, I
+asked for opinions from DT experts when I suggested those bindings. We
+could start with vendor specific bindings and generalize them later if
+similar ones appear. Yet my experience is that old drivers rarely get
+converted to the new bindings.
 
-Thanks for the review Stephen.
+> If you still prefer to make this properties generics, in which file shoul=
+d I
+> document it? I don't see any common i2c binding document for now.
+
+Yeah, it is missing sadly. That's on my todo-list, like many other
+things...
 
 Regards,
-Maxime
+
+   Wolfram
+
+--ReaqsoxgOBHFXBhH
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.12 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSS+FBAAoJEBQN5MwUoCm2/scP/1bT7YqvhOtcIKhtOTu1pgXT
+NFSg8K2wWjukKx3QdrRsg5TvjHqjLJnOoS/H9nOWods1reZp4tVqH1EvemCh5koF
++1F/PCCGm6vI9eiqBd0c2RTN4xPgZAyaXNnPVneDn91SCQY5ZizqFYHDN+PfmLtg
+XR5/g6FjxnPv05ifxKpprR9LCHFUd3r76GVGSp2fm+LiPxv135IaO2i5aUegu1Ht
+Bkq3UatMoteCD4C1kkW1V+f1RQ94r5JzKWfMRuGKMRATOpnxs4+Ipdt7nRqTbxVL
+ytHRxZxz/hE8Ia1CAhgsGynz8SmQxfHTZXhVEYeuFHbIQs+dlauMFC1XiE718jux
+5+VTDOdrvbicC8gzn8erYf/348vSPFN3tNyZep5CbRBZrxi4DmwiRUr6MjpXyX8D
+293XfEax0zw2E9w8jDKGDoCBVtaXTqINFpDwOP10YuF0DCK+2B6QNJrboD4zRo3R
+0jfEvJrtfQPDwgu+RSH0jJxlRmWMC9y1EkytoWHu5TzlMm4wQe8zp9gzam8zT86K
+mAaeXx5F1OO1RwKdW16v5NbIaziE9hlgwCMwRAV0iQW3apTk/mwtddP2tTzyHtL/
+Nc6mIHTN3tv8M6S39TUMGVBAwAJrDYIRnv7qjfUwEspdcMy2VuwAoofsc3w8dA6+
+aZcGCNVQSAx8fzQU4/G8
+=LuFj
+-----END PGP SIGNATURE-----
+
+--ReaqsoxgOBHFXBhH--
