@@ -1,33 +1,24 @@
-From: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 1/1] i2c: mux-gpio: Remove redundant of_match_ptr
-Date: Wed,  2 Oct 2013 22:21:19 +0530
-Message-ID: <1380732680-2408-1-git-send-email-sachin.kamat@linaro.org>
+From: Aijaz Lending <yin01-3M0T/LkHzJdO0n7uQEQMm4CZgX+1HZI1@public.gmane.org>
+Subject: looking for loan
+Date: Fri, 4 Oct 2013 01:34:39 +0530
+Message-ID: <1b41f7e3-1b05-4c8c-9211-dd64b4641219@HKXPR02MB213.apcprd02.prod.outlook.com>
+Reply-To: <sg.loan.sg-1ViLX0X+lBJBDgjK7y7TUQ@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Description: Mail message body
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org, sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
+To: Recipients <yin01-3M0T/LkHzJdO0n7uQEQMm4CZgX+1HZI1@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-The data structure of_match_ptr() protects is always compiled in.
-Hence of_match_ptr() is not needed.
+Do you have a firm or company that need loan to start up a business or need,personal loan, Debt consolidation? For more information,Contact us now for a guarantee loan with low interest rate. We will provide you with loan to meet your needs. For more information contact us with the following information's.
+Full name:
+country:
+Address:
+Phone Number:
+Amount needed:
+Duration of loan:
 
-Signed-off-by: Sachin Kamat <sachin.kamat-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
----
- drivers/i2c/muxes/i2c-mux-gpio.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 5d4a99b..927a7de 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -279,7 +279,7 @@ static struct platform_driver i2c_mux_gpio_driver = {
- 	.driver	= {
- 		.owner	= THIS_MODULE,
- 		.name	= "i2c-mux-gpio",
--		.of_match_table = of_match_ptr(i2c_mux_gpio_of_match),
-+		.of_match_table = i2c_mux_gpio_of_match,
- 	},
- };
- 
--- 
-1.7.4.1
+sg.loan.sg-1ViLX0X+lBJBDgjK7y7TUQ@public.gmane.org
+Kind regards
