@@ -1,61 +1,40 @@
-From: Wolfram Sang <wsa@the-dreams.de>
-Subject: Re: [PATCH v2 3/3] i2c: xilinx: Use devm_* functions
-Date: Sat, 5 Oct 2013 07:59:03 +0200
-Message-ID: <20131005055903.GA3008@katana>
-References: <f3fd6f38d2553e59b077edff1969f4d07f8aa811.1380550490.git.michal.simek@xilinx.com>
- <83ec9558211389896f21d9682e9824cd7979466c.1380550490.git.michal.simek@xilinx.com>
- <20131004053323.GB3194@katana>
- <524E8764.4030704@monstr.eu>
- <20131004115840.GB2994@katana>
- <9b5a6672-2fd9-4900-b018-f044dee60646@VA3EHSMHS021.ehs.local>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH v4] i2c: enable runtime PM for I2C adapter devices
+ enumerated from ACPI
+Date: Sat, 5 Oct 2013 11:09:01 +0300
+Message-ID: <20131005080901.GQ28875@intel.com>
+References: <1380552228-23329-2-git-send-email-mika.westerberg@linux.intel.com>
+ <1380632982-10709-1-git-send-email-mika.westerberg@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="IJpNTDwzlM2Ie8A6"
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <9b5a6672-2fd9-4900-b018-f044dee60646@VA3EHSMHS021.ehs.local>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Simek <michal.simek@xilinx.com>
-Cc: Michal Simek <monstr@monstr.eu>, linux-kernel@vger.kernel.org, Kedareswara rao Appana <appana.durga.rao@xilinx.com>, Kedareswara rao Appana <appanad@xilinx.com>, Jean Delvare <khali@linux-fr.org>, Peter Korsgaard <jacmet@sunsite.dk>, linux-i2c@vger.kernel.org
+In-Reply-To: <1380632982-10709-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Tue, Oct 01, 2013 at 04:09:42PM +0300, Mika Westerberg wrote:
+> The ACPI specification requires the parent device to be powered on before
+> any of its children. It can be only powered off when all the children are
+> already off.
+> 
+> Currently whenever there is no I2C traffic going on, the I2C controller
+> driver can put the device into low power state transparently to its
+> children (the I2C client devices). This violates the ACPI specification
+> because now the parent device is in lower power state than its children.
+> 
+> In order to keep ACPI happy we enable runtime PM for the I2C adapter device
+> if we find out that the I2C controller was in fact an ACPI device. In
+> addition to that we attach the I2C client devices to the ACPI power domain
+> and make sure that they are powered on when the driver ->probe() is called.
 
---IJpNTDwzlM2Ie8A6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It looks like Windows actually powers the I2C controller off independently
+of the I2C client power state. We should probably do the same in Linux even
+though it is not following what the ACPI spec says (but makes sense with
+serial buses like I2C and SPI).
 
-
-> > First register the handler, then activate interrupts. You are right,
-> > this needs to be fixed, too.
->=20
-> Do you want me to create separate patch just about moving request irq in =
-front of
-> xiic_reinit()? And then devm_ conversion?
-
-Yes, seperate, please.
-
-
---IJpNTDwzlM2Ie8A6
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.12 (GNU/Linux)
-
-iQIcBAEBAgAGBQJST6qnAAoJEBQN5MwUoCm21XkP/1oiKL5TXbOqK5pUQUPx6SzZ
-flhC+GtWZKw682ar5/odGe74L049mOul47pm8MqlwDmh5MEXw1wyIEBSNGS/+KSn
-wyV1FkA+PkwWuQQeNENwLp+CsfWDABm2j1c//TKpnwU56ZS6rePUH8yjLUCHLUiB
-dEKC12ZZ5F5x1jLlVaoFiFXEZPEgMTNVUkycZup4O4CBitsOYKuUjWeKn/evt1lM
-wGqBVPqjw0mSNfDWyoSpz3EmUK/Ap+6IDmh0MLlMQpb9/NEH0+p4VtJ+0Eu7z7gX
-2NvGGldms8g2j6V/Hx89n2ne8QhL0LCTrt2x+0gdJY0r0rjCGeXTnjASQEKZFQ6s
-t/PeCKUhoBxnV9Q8Sg5Llm7zUCW49Em+7Wes+y3YJm3p8BEzZP1eB1AeMJjIo40s
-8Q6bC1x4hBIPdu1n44e3soPNG3yw2og3awAXHcMYcHjdg1BKxm6simxVZqpmD2GL
-HR+7v4yUcZj4dbLVsnevSWfTmFd9VgXcD4zgu/oAr5yyH4CZ+1pY6IuYi4m/1ADL
-H2qWkF2OXFW2QNHNnsj1zEpPhrpAbxvSC266VmF9q1eUrr5Cz0WODMzC47M302eK
-mE/NRdtBUR6t5YokvTSE9mwQJDf/CCP6XgL6AAyXHkXhWdgRoHXqjAZOcC8ptIo6
-gaqVz2QmcO2EyznTHCN8
-=61ae
------END PGP SIGNATURE-----
-
---IJpNTDwzlM2Ie8A6--
+Wolfram, please don't apply this patch - we are going to do one more
+iteration but this time we only attach devices to the ACPI power domain and
+leave runtime PM alone.
