@@ -1,57 +1,462 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4] i2c: enable runtime PM for I2C adapter devices
- enumerated from ACPI
-Date: Sat, 5 Oct 2013 11:31:06 +0100
-Message-ID: <20131005103106.GX27287@sirena.org.uk>
-References: <1380552228-23329-2-git-send-email-mika.westerberg@linux.intel.com>
- <1380632982-10709-1-git-send-email-mika.westerberg@linux.intel.com>
- <20131005080901.GQ28875@intel.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TbvQLmyOl28t66Jz"
+From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Subject: [PATCH 2/3 V4] i2c: mxs: Rework the PIO mode operation
+Date: Sun,  6 Oct 2013 14:02:13 +0200
+Message-ID: <1381060933-11111-1-git-send-email-marex@denx.de>
+References: <20131004052052.GA3194@katana>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20131005080901.GQ28875-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+In-Reply-To: <20131004052052.GA3194@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Kevin Hilman <khilman-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sylwester Nawrocki <s.nawrocki-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>, Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>, Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>, Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>, Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+Analyze and rework the PIO mode operation. The PIO mode operation
+was unreliable on MX28, by analyzing the bus with LA, the checks
+for when data were available or were to be sent were wrong.
 
---TbvQLmyOl28t66Jz
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The PIO WRITE has to be completely reworked as it multiple problems.
+The MX23 datasheet helped here, see comments in the code for details.
+The problems boil down to:
+- RUN bit in CTRL0 must be set after DATA register was written
+- The PIO transfer must be 4 bytes long tops, otherwise use
+  clock stretching.
+Both of these fixes are implemented.
 
-On Sat, Oct 05, 2013 at 11:09:01AM +0300, Mika Westerberg wrote:
+The PIO READ operation can only be done for up to four bytes as
+we are unable to read out the data from the DATA register fast
+enough.
 
-> It looks like Windows actually powers the I2C controller off independently
-> of the I2C client power state. We should probably do the same in Linux even
-> though it is not following what the ACPI spec says (but makes sense with
-> serial buses like I2C and SPI).
+This patch also tries to document the investigation within the
+code.
 
-Sounds like it's probably worth going to the effort of getting the spec
-amended...
+Signed-off-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Cc: Alexandre Belloni <alexandre.belloni-wi1+55ScJUtKEb57/3fJTNBPR1lH4CV8@public.gmane.org>
+Cc: Christoph Baumann <cb-/RsSufbtIHM@public.gmane.org>
+Cc: Fabio Estevam <r49496-KZfg59tc24xl57MIdRCFDg@public.gmane.org>
+Cc: Shawn Guo <shawn.guo-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: Torsten Fleischer <to-fleischer-zqRNUXuvxA0b1SvskN2V4Q@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+---
+ drivers/i2c/busses/i2c-mxs.c | 278 +++++++++++++++++++++++++++----------------
+ 1 file changed, 176 insertions(+), 102 deletions(-)
 
---TbvQLmyOl28t66Jz
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+V2: - Fix the data register shift computation algorithm and document that
+      some more. The original algo failed for short 1-byte writes as seen
+      in http://www.mail-archive.com/linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org/msg12812.html
+    - Add me a copyright/authorship line, since according to git blame, I
+      have quite a lot of authored lines in the driver. Wolfram, I brought
+      this up some time ago already, but finally got to it. You're OK with
+      this, right?
+V3: - Remove BUG_ON()
+    - Check for NAK at the end of transmission, fixes EEPROM issue
+V4: - Remove unused err variable
+    - Fix checkpatch issue (and fixed my local pre-commit hook)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.21 (GNU/Linux)
-
-iQIcBAEBAgAGBQJST+pnAAoJELSic+t+oim9w9UP/RVUc3CNBP4r86nPFZL1CuW0
-PQQp7vxoQM6jJJvaNRMiMMhgI43FKj2XdhwuLiQpDuIAy0kU2j8LorgYi3/JgWgy
-Zr7uzbQY2s/3KolUd1TySw2Gxe3CNdDuN8fytTYBKW+U6l6vcAjw5s+xUSyXveXB
-SY2diiAtXpbXFADR+JhjvIHviDGSsQ0NyFYDismzWTiwLA5oRaT81/hVvkNnrxxD
-/glj2ZYzrVxL6cASA94b8JlZfOCl8WSAIvX42V3VbATc62lMUqTQosfSXj0wGBDF
-9KbbvRNfQr9ilKCoBhxX0hPXH6mmqvbX2yDkVxEKc9DitAhBtZ8Ba6zgBc2A7iWO
-v7i98Dxny8t/VWF18q5rjs/CZG52JC7zmxpwJ9r1YNSTHVRkllfHx4GZMT6JQNao
-HjdCg79PgUPTS7EdaOb+i6ircogOSjOxEBnMpmorvRlvKpOzp3AMe/cicWPc9Viz
-oJV9eN0sLrLony07/7v/3cOqNGrSiGxPVdnima1Yeghql4l8GjsFe3UFHZk1IUSi
-6vhLsSofftqFeKLOmY32ADhj1CjzhS8xy2mr0NPI+L5D6JmLeIuBsIdlt5YhKdbm
-6HCq+/zTW10fWkaUpFoPD87Ss4qRPXLea0ujBZsXytEmnNsRT5JI9uJgJZQa7nXt
-ZYKoX/zcDbJmNwEAj5dv
-=EfJ0
------END PGP SIGNATURE-----
-
---TbvQLmyOl28t66Jz--
+diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
+index 2cb0317..5deb88b 100644
+--- a/drivers/i2c/busses/i2c-mxs.c
++++ b/drivers/i2c/busses/i2c-mxs.c
+@@ -1,6 +1,7 @@
+ /*
+  * Freescale MXS I2C bus driver
+  *
++ * Copyright (C) 2012-2013 Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+  * Copyright (C) 2011-2012 Wolfram Sang, Pengutronix e.K.
+  *
+  * based on a (non-working) driver which was:
+@@ -64,6 +65,7 @@
+ #define MXS_I2C_CTRL1_SLAVE_IRQ			0x01
+ 
+ #define MXS_I2C_STAT		(0x50)
++#define MXS_I2C_STAT_GOT_A_NAK			0x10000000
+ #define MXS_I2C_STAT_BUS_BUSY			0x00000800
+ #define MXS_I2C_STAT_CLK_GEN_BUSY		0x00000400
+ 
+@@ -299,48 +301,11 @@ write_init_pio_fail:
+ 	return -EINVAL;
+ }
+ 
+-static int mxs_i2c_pio_wait_dmareq(struct mxs_i2c_dev *i2c)
++static int mxs_i2c_pio_wait_xfer_end(struct mxs_i2c_dev *i2c)
+ {
+ 	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+ 
+-	while (!(readl(i2c->regs + MXS_I2C_DEBUG0) &
+-		MXS_I2C_DEBUG0_DMAREQ)) {
+-		if (time_after(jiffies, timeout))
+-			return -ETIMEDOUT;
+-		cond_resched();
+-	}
+-
+-	return 0;
+-}
+-
+-static int mxs_i2c_pio_wait_cplt(struct mxs_i2c_dev *i2c, int last)
+-{
+-	unsigned long timeout = jiffies + msecs_to_jiffies(1000);
+-
+-	/*
+-	 * We do not use interrupts in the PIO mode. Due to the
+-	 * maximum transfer length being 8 bytes in PIO mode, the
+-	 * overhead of interrupt would be too large and this would
+-	 * neglect the gain from using the PIO mode.
+-	 */
+-
+-	while (!(readl(i2c->regs + MXS_I2C_CTRL1) &
+-		MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ)) {
+-		if (time_after(jiffies, timeout))
+-			return -ETIMEDOUT;
+-		cond_resched();
+-	}
+-
+-	writel(MXS_I2C_CTRL1_DATA_ENGINE_CMPLT_IRQ,
+-		i2c->regs + MXS_I2C_CTRL1_CLR);
+-
+-	/*
+-	 * When ending a transfer with a stop, we have to wait for the bus to
+-	 * go idle before we report the transfer as completed. Otherwise the
+-	 * start of the next transfer may race with the end of the current one.
+-	 */
+-	while (last && (readl(i2c->regs + MXS_I2C_STAT) &
+-			(MXS_I2C_STAT_BUS_BUSY | MXS_I2C_STAT_CLK_GEN_BUSY))) {
++	while (readl(i2c->regs + MXS_I2C_CTRL0) & MXS_I2C_CTRL0_RUN) {
+ 		if (time_after(jiffies, timeout))
+ 			return -ETIMEDOUT;
+ 		cond_resched();
+@@ -378,106 +343,208 @@ static void mxs_i2c_pio_trigger_cmd(struct mxs_i2c_dev *i2c, u32 cmd)
+ 	writel(reg, i2c->regs + MXS_I2C_CTRL0);
+ }
+ 
++/*
++ * Start WRITE transaction on the I2C bus. By studying i.MX23 datasheet,
++ * CTRL0::PIO_MODE bit description clarifies the order in which the registers
++ * must be written during PIO mode operation. First, the CTRL0 register has
++ * to be programmed with all the necessary bits but the RUN bit. Then the
++ * payload has to be written into the DATA register. Finally, the transmission
++ * is executed by setting the RUN bit in CTRL0.
++ */
++static void mxs_i2c_pio_trigger_write_cmd(struct mxs_i2c_dev *i2c, u32 cmd,
++					  u32 data)
++{
++	writel(cmd, i2c->regs + MXS_I2C_CTRL0);
++	writel(data, i2c->regs + MXS_I2C_DATA);
++	writel(MXS_I2C_CTRL0_RUN, i2c->regs + MXS_I2C_CTRL0_SET);
++}
++
+ static int mxs_i2c_pio_setup_xfer(struct i2c_adapter *adap,
+ 			struct i2c_msg *msg, uint32_t flags)
+ {
+ 	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+ 	uint32_t addr_data = msg->addr << 1;
+ 	uint32_t data = 0;
+-	int i, shifts_left, ret;
++	int i, ret, xlen = 0, xmit = 0;
++	uint32_t start;
+ 
+ 	/* Mute IRQs coming from this block. */
+ 	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_CLR);
+ 
++	/*
++	 * MX23 idea:
++	 * - Enable CTRL0::PIO_MODE (1 << 24)
++	 * - Enable CTRL1::ACK_MODE (1 << 27)
++	 *
++	 * WARNING! The MX23 is broken in some way, even if it claims
++	 * to support PIO, when we try to transfer any amount of data
++	 * that is not aligned to 4 bytes, the DMA engine will have
++	 * bits in DEBUG1::DMA_BYTES_ENABLES still set even after the
++	 * transfer. This in turn will mess up the next transfer as
++	 * the block it emit one byte write onto the bus terminated
++	 * with a NAK+STOP. A possible workaround is to reset the IP
++	 * block after every PIO transmission, which might just work.
++	 *
++	 * NOTE: The CTRL0::PIO_MODE description is important, since
++	 * it outlines how the PIO mode is really supposed to work.
++	 */
++
+ 	if (msg->flags & I2C_M_RD) {
++		/*
++		 * PIO READ transfer:
++		 *
++		 * This transfer MUST be limited to 4 bytes maximum. It is not
++		 * possible to transfer more than four bytes via PIO, since we
++		 * can not in any way make sure we can read the data from the
++		 * DATA register fast enough. Besides, the RX FIFO is only four
++		 * bytes deep, thus we can only really read up to four bytes at
++		 * time. Finally, there is no bit indicating us that new data
++		 * arrived at the FIFO and can thus be fetched from the DATA
++		 * register.
++		 */
++		BUG_ON(msg->len > 4);
++
+ 		addr_data |= I2C_SMBUS_READ;
+ 
+ 		/* SELECT command. */
+-		mxs_i2c_pio_trigger_cmd(i2c, MXS_CMD_I2C_SELECT);
+-
+-		ret = mxs_i2c_pio_wait_dmareq(i2c);
+-		if (ret)
+-			return ret;
+-
+-		writel(addr_data, i2c->regs + MXS_I2C_DATA);
+-		writel(MXS_I2C_DEBUG0_DMAREQ, i2c->regs + MXS_I2C_DEBUG0_CLR);
+-
+-		ret = mxs_i2c_pio_wait_cplt(i2c, 0);
+-		if (ret)
+-			return ret;
++		mxs_i2c_pio_trigger_write_cmd(i2c, MXS_CMD_I2C_SELECT,
++					      addr_data);
+ 
+-		if (mxs_i2c_pio_check_error_state(i2c))
++		ret = mxs_i2c_pio_wait_xfer_end(i2c);
++		if (ret) {
++			dev_err(i2c->dev,
++				"PIO: Failed to send SELECT command!\n");
+ 			goto cleanup;
++		}
+ 
+ 		/* READ command. */
+ 		mxs_i2c_pio_trigger_cmd(i2c,
+ 					MXS_CMD_I2C_READ | flags |
+ 					MXS_I2C_CTRL0_XFER_COUNT(msg->len));
+ 
++		ret = mxs_i2c_pio_wait_xfer_end(i2c);
++		if (ret) {
++			dev_err(i2c->dev,
++				"PIO: Failed to send SELECT command!\n");
++			goto cleanup;
++		}
++
++		data = readl(i2c->regs + MXS_I2C_DATA);
+ 		for (i = 0; i < msg->len; i++) {
+-			if ((i & 3) == 0) {
+-				ret = mxs_i2c_pio_wait_dmareq(i2c);
+-				if (ret)
+-					return ret;
+-				data = readl(i2c->regs + MXS_I2C_DATA);
+-				writel(MXS_I2C_DEBUG0_DMAREQ,
+-				       i2c->regs + MXS_I2C_DEBUG0_CLR);
+-			}
+ 			msg->buf[i] = data & 0xff;
+ 			data >>= 8;
+ 		}
+ 	} else {
++		/*
++		 * PIO WRITE transfer:
++		 *
++		 * The code below implements clock stretching to circumvent
++		 * the possibility of kernel not being able to supply data
++		 * fast enough. It is possible to transfer arbitrary amount
++		 * of data using PIO write.
++		 */
+ 		addr_data |= I2C_SMBUS_WRITE;
+ 
+-		/* WRITE command. */
+-		mxs_i2c_pio_trigger_cmd(i2c,
+-					MXS_CMD_I2C_WRITE | flags |
+-					MXS_I2C_CTRL0_XFER_COUNT(msg->len + 1));
+-
+ 		/*
+ 		 * The LSB of data buffer is the first byte blasted across
+ 		 * the bus. Higher order bytes follow. Thus the following
+ 		 * filling schematic.
+ 		 */
++
+ 		data = addr_data << 24;
++
++		/* Start the transfer with START condition. */
++		start = MXS_I2C_CTRL0_PRE_SEND_START;
++
++		/* If the transfer is long, use clock stretching. */
++		if (msg->len > 3)
++			start |= MXS_I2C_CTRL0_RETAIN_CLOCK;
++
+ 		for (i = 0; i < msg->len; i++) {
+ 			data >>= 8;
+ 			data |= (msg->buf[i] << 24);
+-			if ((i & 3) == 2) {
+-				ret = mxs_i2c_pio_wait_dmareq(i2c);
+-				if (ret)
+-					return ret;
+-				writel(data, i2c->regs + MXS_I2C_DATA);
+-				writel(MXS_I2C_DEBUG0_DMAREQ,
+-				       i2c->regs + MXS_I2C_DEBUG0_CLR);
++
++			xmit = 0;
++
++			/* This is the last transfer of the message. */
++			if (i + 1 == msg->len) {
++				/* Add optional STOP flag. */
++				start |= flags;
++				/* Remove RETAIN_CLOCK bit. */
++				start &= ~MXS_I2C_CTRL0_RETAIN_CLOCK;
++				xmit = 1;
+ 			}
+-		}
+ 
+-		shifts_left = 24 - (i & 3) * 8;
+-		if (shifts_left) {
+-			data >>= shifts_left;
+-			ret = mxs_i2c_pio_wait_dmareq(i2c);
+-			if (ret)
+-				return ret;
+-			writel(data, i2c->regs + MXS_I2C_DATA);
++			/* Four bytes are ready in the "data" variable. */
++			if ((i & 3) == 2)
++				xmit = 1;
++
++			/* Nothing interesting happened, continue stuffing. */
++			if (!xmit)
++				continue;
++
++			/*
++			 * Compute the size of the transfer and shift the
++			 * data accordingly.
++			 *
++			 * i = (4k + 0) .... xlen = 2
++			 * i = (4k + 1) .... xlen = 3
++			 * i = (4k + 2) .... xlen = 4
++			 * i = (4k + 3) .... xlen = 1
++			 */
++
++			if ((i % 4) == 3)
++				xlen = 1;
++			else
++				xlen = (i % 4) + 2;
++
++			data >>= (4 - xlen) * 8;
++
++			dev_dbg(i2c->dev,
++				"PIO: len=%i pos=%i total=%i [W%s%s%s]\n",
++				xlen, i, msg->len,
++				start & MXS_I2C_CTRL0_PRE_SEND_START ? "S" : "",
++				start & MXS_I2C_CTRL0_POST_SEND_STOP ? "E" : "",
++				start & MXS_I2C_CTRL0_RETAIN_CLOCK ? "C" : "");
++
+ 			writel(MXS_I2C_DEBUG0_DMAREQ,
+ 			       i2c->regs + MXS_I2C_DEBUG0_CLR);
++
++			mxs_i2c_pio_trigger_write_cmd(i2c,
++				start | MXS_I2C_CTRL0_MASTER_MODE |
++				MXS_I2C_CTRL0_DIRECTION |
++				MXS_I2C_CTRL0_XFER_COUNT(xlen), data);
++
++			/* The START condition is sent only once. */
++			start &= ~MXS_I2C_CTRL0_PRE_SEND_START;
++
++			/* Wait for the end of the transfer. */
++			ret = mxs_i2c_pio_wait_xfer_end(i2c);
++			if (ret) {
++				dev_err(i2c->dev,
++					"PIO: Failed to finish WRITE cmd!\n");
++				break;
++			}
++
++			/* Check NAK here. */
++			ret = readl(i2c->regs + MXS_I2C_STAT) &
++				    MXS_I2C_STAT_GOT_A_NAK;
++			if (ret) {
++				ret = -ENXIO;
++				goto cleanup;
++			}
+ 		}
+ 	}
+ 
+-	ret = mxs_i2c_pio_wait_cplt(i2c, flags & MXS_I2C_CTRL0_POST_SEND_STOP);
+-	if (ret)
+-		return ret;
+-
+ 	/* make sure we capture any occurred error into cmd_err */
+-	mxs_i2c_pio_check_error_state(i2c);
++	ret = mxs_i2c_pio_check_error_state(i2c);
+ 
+ cleanup:
+ 	/* Clear any dangling IRQs and re-enable interrupts. */
+ 	writel(MXS_I2C_IRQ_MASK, i2c->regs + MXS_I2C_CTRL1_CLR);
+ 	writel(MXS_I2C_IRQ_MASK << 8, i2c->regs + MXS_I2C_CTRL1_SET);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /*
+@@ -487,8 +554,9 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 				int stop)
+ {
+ 	struct mxs_i2c_dev *i2c = i2c_get_adapdata(adap);
+-	int ret, err;
++	int ret;
+ 	int flags;
++	int use_pio = 0;
+ 
+ 	flags = stop ? MXS_I2C_CTRL0_POST_SEND_STOP : 0;
+ 
+@@ -499,20 +567,25 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 		return -EINVAL;
+ 
+ 	/*
+-	 * The current boundary to select between PIO/DMA transfer method
+-	 * is set to 8 bytes, transfers shorter than 8 bytes are transfered
+-	 * using PIO mode while longer transfers use DMA. The 8 byte border is
+-	 * based on this empirical measurement and a lot of previous frobbing.
+-	 * Note: this special feature only works on i.MX28 SoC
++	 * The MX28 I2C IP block can only do PIO READ for transfer of to up
++	 * 4 bytes of length. The write transfer is not limited as it can use
++	 * clock stretching to avoid FIFO underruns.
+ 	 */
++	if ((msg->flags & I2C_M_RD) && (msg->len <= 4))
++		use_pio = 1;
++	if (!(msg->flags & I2C_M_RD) && (msg->len < 7))
++		use_pio = 1;
++
++	/* Disable PIO on MX23. */
++	if (i2c->dev_type == MXS_I2C_V1)
++		use_pio = 0;
++
+ 	i2c->cmd_err = 0;
+-	if (0) {	/* disable PIO mode until a proper fix is made */
++	if (use_pio) {
+ 		ret = mxs_i2c_pio_setup_xfer(adap, msg, flags);
+-		if (ret) {
+-			err = mxs_i2c_reset(i2c);
+-			if (err)
+-				return err;
+-		}
++		/* No need to reset the block if NAK was received. */
++		if (ret && (ret != -ENXIO))
++			mxs_i2c_reset(i2c);
+ 	} else {
+ 		INIT_COMPLETION(i2c->cmd_complete);
+ 		ret = mxs_i2c_dma_setup_xfer(adap, msg, flags);
+@@ -523,9 +596,11 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 						msecs_to_jiffies(1000));
+ 		if (ret == 0)
+ 			goto timeout;
++
++		ret = i2c->cmd_err;
+ 	}
+ 
+-	if (i2c->cmd_err == -ENXIO) {
++	if (ret == -ENXIO) {
+ 		/*
+ 		 * If the transfer fails with a NAK from the slave the
+ 		 * controller halts until it gets told to return to idle state.
+@@ -534,8 +609,6 @@ static int mxs_i2c_xfer_msg(struct i2c_adapter *adap, struct i2c_msg *msg,
+ 		       i2c->regs + MXS_I2C_CTRL1_SET);
+ 	}
+ 
+-	ret = i2c->cmd_err;
+-
+ 	dev_dbg(i2c->dev, "Done with err=%d\n", ret);
+ 
+ 	return ret;
+@@ -823,6 +896,7 @@ static void __exit mxs_i2c_exit(void)
+ }
+ module_exit(mxs_i2c_exit);
+ 
++MODULE_AUTHOR("Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>");
+ MODULE_AUTHOR("Wolfram Sang <w.sang-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org>");
+ MODULE_DESCRIPTION("MXS I2C Bus Driver");
+ MODULE_LICENSE("GPL");
+-- 
+1.8.4.rc3
