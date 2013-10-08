@@ -1,177 +1,75 @@
-From: Romain Baeriswyl <Romain.Baeriswyl@abilis.com>
-Subject: [PATCH 1/2] i2c designware make SCL and SDA falling time configurable
-Date: Tue,  8 Oct 2013 17:00:54 +0200
-Message-ID: <1381244455-3836-1-git-send-email-romainba@abilis.com>
-References: <20130828153429.GB7066@ab42.lan>
+From: Maxime COQUELIN <maxime.coquelin@st.com>
+Subject: [PATCH v4 4/4] ARM: STi: Add I2C config to B2000 and B2020 boards
+Date: Tue,  8 Oct 2013 18:42:56 +0200
+Message-ID: <1381250576-7916-5-git-send-email-maxime.coquelin@st.com>
+References: <1381250576-7916-1-git-send-email-maxime.coquelin@st.com>
 Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20130828153429.GB7066@ab42.lan>
+In-Reply-To: <1381250576-7916-1-git-send-email-maxime.coquelin@st.com>
 Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Pierrick Hascoet <pierrick.hascoet@abilis.com>, Vineet Gupta <vgupta@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, Chiau Ee Chew <chiau.ee.chew@intel.com>, Shinya Kuribayashi <skuribay@pobox.com>, Jean Delvare <khali@linux-fr.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Romain Baeriswyl <romainba@abilis.com>
+To: Wolfram Sang <wsa@the-dreams.de>, srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Cc: stephen.gallimore@st.com, stuart.menefy@st.com, Lee Jones <lee.jones@linaro.org>, gabriel.fernandez@st.com, Maxime Coquelin <maxime.coquelin@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch allows to set independantly SCL and SDA falling times. 
-The tLOW period is computed by taking into account the SCL falling time.
-The tHIGH period is computed by taking into account the SDA falling time.
+This patch supplies I2C configuration to B2000 and B2020
+based on either STiH415 or STiH416 SoCs.
 
-For instance in case the margin on tLOW is considered too small, it can 
-be increased by increasing the SCL falling time which is by default set 
-at 300ns.
-
-The same applies for tHIGH period with the help of SDA falling time.
-
-Signed-off-by: Romain Baeriswyl <romainba@abilis.com>
-Reviewed-by: Christian Ruppert <christian.ruppert@abilis.com>
+Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
 ---
- .../devicetree/bindings/i2c/i2c-designware.txt     |    8 +++++
- drivers/i2c/busses/i2c-designware-core.c           |   34 +++++++++++++------
- drivers/i2c/busses/i2c-designware-core.h           |    2 +
- drivers/i2c/busses/i2c-designware-platdrv.c        |    7 ++++
- 4 files changed, 40 insertions(+), 11 deletions(-)
+ arch/arm/boot/dts/stih41x-b2000.dtsi |    9 +++++++++
+ arch/arm/boot/dts/stih41x-b2020.dtsi |   22 ++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-designware.txt b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-index 7fd7fa2..5199b0c 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-+++ b/Documentation/devicetree/bindings/i2c/i2c-designware.txt
-@@ -14,6 +14,12 @@ Optional properties :
-  - i2c-sda-hold-time-ns : should contain the SDA hold time in nanoseconds.
-    This option is only supported in hardware blocks version 1.11a or newer.
+diff --git a/arch/arm/boot/dts/stih41x-b2000.dtsi b/arch/arm/boot/dts/stih41x-b2000.dtsi
+index 8e694d2..333f5fc 100644
+--- a/arch/arm/boot/dts/stih41x-b2000.dtsi
++++ b/arch/arm/boot/dts/stih41x-b2000.dtsi
+@@ -37,5 +37,14 @@
+ 			};
+ 		};
  
-+ - i2c-scl-falling-time : should contain the SCL falling time in nanoseconds.
-+   This value which is by default 300ns is used to compute the tLOW period.
++		/* HDMI Tx I2C */
++		i2c@fed41000 {
++			/* HDMI V1.3a supports Standard mode only */
++			clock-frequency = <100000>;
++			st,i2c-min-scl-pulse-width-us = <0>;
++			st,i2c-min-sda-pulse-width-us = <5>;
 +
-+ - i2c-sda-falling-time : should contain the SDA falling time in nanoseconds.
-+   This value which is by default 300ns is used to compute the tHIGH period.
-+
- Example :
- 
- 	i2c@f0000 {
-@@ -34,4 +40,6 @@ Example :
- 		interrupts = <12 1>;
- 		clock-frequency = <400000>;
- 		i2c-sda-hold-time-ns = <300>;
-+		i2c-sda-falling-time-ns = <300>;
-+		i2c-scl-falling-time-ns = <300>;
++			status = "okay";
++		};
  	};
-diff --git a/drivers/i2c/busses/i2c-designware-core.c b/drivers/i2c/busses/i2c-designware-core.c
-index 3525fc7..50c35f9 100644
---- a/drivers/i2c/busses/i2c-designware-core.c
-+++ b/drivers/i2c/busses/i2c-designware-core.c
-@@ -217,7 +217,7 @@ i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- 		 *
- 		 * If your hardware is free from tHD;STA issue, try this one.
- 		 */
--		return (ic_clk * tSYMBOL + 5000) / 10000 - 8 + offset;
-+		return (ic_clk * tSYMBOL + 500000) / 1000000 - 8 + offset;
- 	else
- 		/*
- 		 * Conditional expression:
-@@ -233,7 +233,8 @@ i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
- 		 * The reason why we need to take into account "tf" here,
- 		 * is the same as described in i2c_dw_scl_lcnt().
- 		 */
--		return (ic_clk * (tSYMBOL + tf) + 5000) / 10000 - 3 + offset;
-+		return (ic_clk * (tSYMBOL + tf) + 500000) / 1000000
-+			- 3 + offset;
- }
- 
- static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
-@@ -249,7 +250,7 @@ static u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
- 	 * account the fall time of SCL signal (tf).  Default tf value
- 	 * should be 0.3 us, for safety.
- 	 */
--	return ((ic_clk * (tLOW + tf) + 5000) / 10000) - 1 + offset;
-+	return ((ic_clk * (tLOW + tf) + 500000) / 1000000) - 1 + offset;
- }
- 
- static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
-@@ -286,6 +287,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 	u32 input_clock_khz;
- 	u32 hcnt, lcnt;
- 	u32 reg;
-+	u32 sda_falling_time, scl_falling_time;
- 
- 	input_clock_khz = dev->get_clk_rate_khz(dev);
- 
-@@ -307,15 +309,25 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 
- 	/* set standard and fast speed deviders for high/low periods */
- 
-+	if (dev->sda_falling_time)
-+		sda_falling_time = dev->sda_falling_time;
-+	else
-+		sda_falling_time = 300; /* ns */
+ };
+diff --git a/arch/arm/boot/dts/stih41x-b2020.dtsi b/arch/arm/boot/dts/stih41x-b2020.dtsi
+index 133e181..834bd87 100644
+--- a/arch/arm/boot/dts/stih41x-b2020.dtsi
++++ b/arch/arm/boot/dts/stih41x-b2020.dtsi
+@@ -38,5 +38,27 @@
+ 				default-state = "off";
+ 			};
+ 		};
 +
-+	if (dev->scl_falling_time)
-+		scl_falling_time = dev->scl_falling_time;
-+	else
-+		scl_falling_time = 300; /* ns */
++		i2c@fed40000 {
++			status = "okay";
++		};
 +
- 	/* Standard-mode */
- 	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
--				40,	/* tHD;STA = tHIGH = 4.0 us */
--				3,	/* tf = 0.3 us */
-+				4000,	/* tHD;STA = tHIGH = 4.0 us */
-+				sda_falling_time,
- 				0,	/* 0: DW default, 1: Ideal */
- 				0);	/* No offset */
- 	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
--				47,	/* tLOW = 4.7 us */
--				3,	/* tf = 0.3 us */
-+				4700,	/* tLOW = 4.7 us */
-+				scl_falling_time,
- 				0);	/* No offset */
- 
- 	/* Allow platforms to specify the ideal HCNT and LCNT values */
-@@ -323,13 +335,13 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
- 
- 	/* Fast-mode */
- 	hcnt = i2c_dw_scl_hcnt(input_clock_khz,
--				6,	/* tHD;STA = tHIGH = 0.6 us */
--				3,	/* tf = 0.3 us */
-+				600,	/* tHD;STA = tHIGH = 0.6 us */
-+				sda_falling_time,
- 				0,	/* 0: DW default, 1: Ideal */
- 				0);	/* No offset */
- 	lcnt = i2c_dw_scl_lcnt(input_clock_khz,
--				13,	/* tLOW = 1.3 us */
--				3,	/* tf = 0.3 us */
-+				1300,	/* tLOW = 1.3 us */
-+				scl_falling_time,
- 				0);	/* No offset */
- 
- 	if (dev->fs_hcnt && dev->fs_lcnt) {
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 912aa22..8b9397e 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -91,6 +91,8 @@ struct dw_i2c_dev {
- 	unsigned int		rx_fifo_depth;
- 	int			rx_outstanding;
- 	u32			sda_hold_time;
-+	u32			sda_falling_time;
-+	u32			scl_falling_time;
- 	u16			ss_hcnt;
- 	u16			ss_lcnt;
- 	u16			fs_hcnt;
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 8b9d3f1..0d6fe47 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -129,6 +129,13 @@ static int dw_i2c_probe(struct platform_device *pdev)
- 					"i2c-sda-hold-time-ns", &ht);
- 		dev->sda_hold_time = div_u64((u64)ic_clk * ht + 500000,
- 					     1000000);
++		/* HDMI Tx I2C */
++		i2c@fed41000 {
++			/* HDMI V1.3a supports Standard mode only */
++			clock-frequency = <100000>;
++			st,i2c-min-scl-pulse-width-us = <0>;
++			st,i2c-min-sda-pulse-width-us = <5>;
 +
-+		of_property_read_u32(pdev->dev.of_node,
-+				     "i2c-sda-falling-time-ns",
-+				     &dev->sda_falling_time);
-+		of_property_read_u32(pdev->dev.of_node,
-+				     "i2c-scl-falling-time-ns",
-+				     &dev->scl_falling_time);
- 	}
- 
- 	dev->functionality =
++			status = "okay";
++		};
++
++		i2c@fe540000 {
++			status = "okay";
++		};
++
++		i2c@fe541000 {
++			status = "okay";
++		};
+ 	};
+ };
 -- 
-1.7.1
+1.7.9.5
 
