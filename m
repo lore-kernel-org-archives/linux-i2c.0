@@ -1,25 +1,13 @@
 From: Wolfram Sang <wsa@the-dreams.de>
-Subject: [PATCH 4/9] i2c: i2c-stu300: replace platform_driver_probe to support
- deferred probing
-Date: Tue,  8 Oct 2013 22:35:36 +0200
-Message-ID: <1381264542-29396-5-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH 2/9] i2c: i2c-imx: replace platform_driver_probe to support deferred probing
+Date: Tue,  8 Oct 2013 22:35:34 +0200
+Message-ID: <1381264542-29396-3-git-send-email-wsa@the-dreams.de>
 References: <1381264542-29396-1-git-send-email-wsa@the-dreams.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <1381264542-29396-1-git-send-email-wsa@the-dreams.de>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+Cc: Wolfram Sang <wsa@the-dreams.de>, kernel@pengutronix.de, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
 Subsystems like pinctrl and gpio rightfully make use of deferred probing at
@@ -28,51 +16,60 @@ function specified in the driver struct. Fix this driver to have that, so the
 devices it supports won't get lost in a deferred probe.
 
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: kernel@pengutronix.de
 ---
- drivers/i2c/busses/i2c-stu300.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-imx.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stu300.c b/drivers/i2c/busses/i2c-stu300.c
-index f8f6f2e..04a17b9 100644
---- a/drivers/i2c/busses/i2c-stu300.c
-+++ b/drivers/i2c/busses/i2c-stu300.c
-@@ -859,8 +859,7 @@ static const struct i2c_algorithm stu300_algo = {
- 	.functionality	= stu300_func,
- };
- 
--static int __init
--stu300_probe(struct platform_device *pdev)
-+static int stu300_probe(struct platform_device *pdev)
- {
- 	struct stu300_dev *dev;
- 	struct i2c_adapter *adap;
-@@ -966,8 +965,7 @@ static SIMPLE_DEV_PM_OPS(stu300_pm, stu300_suspend, stu300_resume);
- #define STU300_I2C_PM	NULL
- #endif
- 
--static int __exit
--stu300_remove(struct platform_device *pdev)
-+static int stu300_remove(struct platform_device *pdev)
- {
- 	struct stu300_dev *dev = platform_get_drvdata(pdev);
- 
-@@ -989,13 +987,14 @@ static struct platform_driver stu300_i2c_driver = {
- 		.pm	= STU300_I2C_PM,
- 		.of_match_table = stu300_dt_match,
- 	},
--	.remove		= __exit_p(stu300_remove),
-+	.probe = stu300_probe,
-+	.remove = stu300_remove,
- 
- };
- 
- static int __init stu300_init(void)
- {
--	return platform_driver_probe(&stu300_i2c_driver, stu300_probe);
-+	return platform_driver_register(&stu300_i2c_driver);
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index ccf4665..1d7efa3 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -365,7 +365,7 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx)
+ 	clk_disable_unprepare(i2c_imx->clk);
  }
  
- static void __exit stu300_exit(void)
+-static void __init i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
++static void i2c_imx_set_clk(struct imx_i2c_struct *i2c_imx,
+ 							unsigned int rate)
+ {
+ 	struct imx_i2c_clk_pair *i2c_clk_div = i2c_imx->hwdata->clk_div;
+@@ -589,7 +589,7 @@ static struct i2c_algorithm i2c_imx_algo = {
+ 	.functionality	= i2c_imx_func,
+ };
+ 
+-static int __init i2c_imx_probe(struct platform_device *pdev)
++static int i2c_imx_probe(struct platform_device *pdev)
+ {
+ 	const struct of_device_id *of_id = of_match_device(i2c_imx_dt_ids,
+ 							   &pdev->dev);
+@@ -697,7 +697,7 @@ static int __init i2c_imx_probe(struct platform_device *pdev)
+ 	return 0;   /* Return OK */
+ }
+ 
+-static int __exit i2c_imx_remove(struct platform_device *pdev)
++static int i2c_imx_remove(struct platform_device *pdev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = platform_get_drvdata(pdev);
+ 
+@@ -715,7 +715,8 @@ static int __exit i2c_imx_remove(struct platform_device *pdev)
+ }
+ 
+ static struct platform_driver i2c_imx_driver = {
+-	.remove		= __exit_p(i2c_imx_remove),
++	.probe = i2c_imx_probe,
++	.remove = i2c_imx_remove,
+ 	.driver	= {
+ 		.name	= DRIVER_NAME,
+ 		.owner	= THIS_MODULE,
+@@ -726,7 +727,7 @@ static struct platform_driver i2c_imx_driver = {
+ 
+ static int __init i2c_adap_imx_init(void)
+ {
+-	return platform_driver_probe(&i2c_imx_driver, i2c_imx_probe);
++	return platform_driver_register(&i2c_imx_driver);
+ }
+ subsys_initcall(i2c_adap_imx_init);
+ 
 -- 
 1.8.4.rc3
