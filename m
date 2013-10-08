@@ -1,34 +1,76 @@
-From: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
-Subject: Re: [PATCH 3/9] i2c: i2c-mxs: replace platform_driver_probe to support deferred probing
-Date: Tue, 8 Oct 2013 22:58:57 +0200
-Message-ID: <201310082258.57659.marex@denx.de>
-References: <1381264542-29396-1-git-send-email-wsa@the-dreams.de> <1381264542-29396-4-git-send-email-wsa@the-dreams.de>
+From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-mux-gpio: use deferred probing with the device
+ tree
+Date: Tue, 8 Oct 2013 23:36:43 +0200
+Message-ID: <20131008213642.GB29121@katana>
+References: <52540DF6.6050407@nsn.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="lEGEL1/lMxI0MVQ2"
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1381264542-29396-4-git-send-email-wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <52540DF6.6050407-OYasijW0DpE@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Cc: linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
+Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-Dear Wolfram Sang,
 
-> Subsystems like pinctrl and gpio rightfully make use of deferred probing at
-> core level. Now, deferred drivers won't be retried if they don't have a
-> .probe function specified in the driver struct. Fix this driver to have
-> that, so the devices it supports won't get lost in a deferred probe.
-> 
-> Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-> Cc: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+--lEGEL1/lMxI0MVQ2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Certainly makes sense,
+On Tue, Oct 08, 2013 at 03:51:50PM +0200, Ionut Nicu wrote:
+> If the i2c-parent bus driver is not loaded, returning
+> -EINVAL will force people to unload and then reload the
+> module again to get it working.
+>=20
+> Signed-off-by: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
 
-Acked-by: Marek Vasut <marex-ynQEQJNshbs@public.gmane.org>
+Doesn't the non-DT case need fixing, too?
 
-Thanks!
+> ---
+>  drivers/i2c/muxes/i2c-mux-gpio.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+>=20
+> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux=
+-gpio.c
+> index 5d4a99b..eb99f04 100644
+> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> @@ -79,7 +79,7 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
+>  	adapter =3D of_find_i2c_adapter_by_node(adapter_np);
+>  	if (!adapter) {
+>  		dev_err(&pdev->dev, "Cannot find parent bus\n");
+> -		return -ENODEV;
+> +		return -EPROBE_DEFER;
+>  	}
+>  	mux->data.parent =3D i2c_adapter_id(adapter);
+>  	put_device(&adapter->dev);
+> --=20
+> 1.7.1
 
-Best regards,
-Marek Vasut
+--lEGEL1/lMxI0MVQ2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSVHrqAAoJEBQN5MwUoCm2looP/1jWphyrf9kBIJBmyc95SNHl
+XkqHvWpkXMBnIYMSYxej/cXoq5wgq339rkmfk9lVJajj+/c0IuRDXVfR59eIO747
+WX1qRyd0gc8G4zgg2mNNJl/2xrjqg1SPJq2GlcO5vA9DegnA+kiLIBWl9uJZqfLM
+zyYlmPMW/VeY9ZfJ26b8tj56iywVmNKpypdcW6TCMivR5V/DGqG52SxdshysTxAz
+U9KYx0cBwCBuwKUc+1eno4jqn1S0LlOs6S8iAnV+69CXygJr9AFScgf1PdLxfkx9
+dbz1Tonys80AtaiV/0mQjiS8chIaKAuc+4GREP364X1kVUkuibjKRCeG315iWHve
+k3DMsq9pJSfOQbGBruQyQfCrOFp58vYyldBTDSt5OrpvT6FnZ5SumtvCEMhwNQ3m
+FhSDa4ZqnAirhICyKCHysVq6KjbAbFZDOi60LFEIFBsZ+/JM7R31bBxcEX+jdJwH
+PMsTsWhvOJPedj0HFWJPObxvvlyQ6UOYVwTS+OJyHVvRzNrrBwlE1a+4/nI372z4
+STItz3Qn5sgQUGXUxlrdMnJu4DBGFVJ41vM1htpisTRX8Smgax7tgVFbbunnf9kn
+9j9twMqdmtheXDT3fdNvoUUFu05vKzCELi1Rz45VMLci6noUtzqeHOYyYhrIDE8v
+cmlf+Q6dO5kNwbPXhfoV
+=mZJQ
+-----END PGP SIGNATURE-----
+
+--lEGEL1/lMxI0MVQ2--
