@@ -1,76 +1,75 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-mux-gpio: use deferred probing with the device
- tree
-Date: Tue, 8 Oct 2013 23:36:43 +0200
-Message-ID: <20131008213642.GB29121@katana>
-References: <52540DF6.6050407@nsn.com>
+From: Tony Lindgren <tony-4v6yS6AI5VpBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: getting rid of subsys_initcall usage? (was: Re: [PATCH RESEND]
+ i2c: designware: use module_platform_driver)
+Date: Tue, 8 Oct 2013 15:10:56 -0700
+Message-ID: <20131008221056.GW8313@atomide.com>
+References: <1376987548-12366-1-git-send-email-zhangfei.gao@linaro.org>
+ <20130828095706.GH4086@katana>
+ <CACRpkdb1p1=3a0PM+r2ZrMN+ECv5BAZFdv2omDK5npaer4ddcw@mail.gmail.com>
+ <CAMj5BkhQkwb+T9VepN7UrWNRSgtv=Dw-Sa-gv0orOANo55iqNw@mail.gmail.com>
+ <20130830054858.GR7656@atomide.com>
+ <CAMj5BkiDExikXi3JcVhO7RN8_82eGYhq3i6oPf5Wbipy=N+iHQ@mail.gmail.com>
+ <20130830082712.GT7656@atomide.com>
+ <20131008205304.GA29121@katana>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="lEGEL1/lMxI0MVQ2"
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <52540DF6.6050407-OYasijW0DpE@public.gmane.org>
+In-Reply-To: <20131008205304.GA29121@katana>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
-Cc: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+Cc: zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Linus Walleij <linus.walleij-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Zhangfei Gao <zhangfei.gao-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Baruch Siach <baruch-NswTu9S1W3P6gbPvEgmw2w@public.gmane.org>, "linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org" <linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>, Haojian Zhuang <haojian.zhuang-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
+* Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> [131008 14:01]:
+> On Fri, Aug 30, 2013 at 01:27:13AM -0700, Tony Lindgren wrote:
+> > * zhangfei gao <zhangfei.gao-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org> [130829 23:36]:
+> > > What about concerns from Wolfram:
+> > > " Other people might be
+> > > depending on subsys_initcall to get I2C active before they want to
+> > > activate, say, PMICs. So, I fear regressions, since deferred probing
+> > > might not be available in the needed places to avoid these regressions."
+> > 
+> > There should not be any reason to get a PMIC activated
+> > early on. The system should be booting already at that point,
+> > and the PMIC related init can be done later on.
+> 
+> Okay, here is a more concrete example:
+> 
+> Consider the amplifier driver 'sound/soc/codecs/max9768.c'. Back then, unaware
+> of deferred probing, I wrote the following code to get the GPIOs (which are
+> optional):
+> 
+> 	err = gpio_request_one(pdata->mute_gpio, GPIOF_INIT_HIGH, "MAX9768 Mute");
+> 	max9768->mute_gpio = err ?: pdata->mute_gpio;
+> 
+> And later in the process:
+> 
+>         if (gpio_is_valid(max9768->mute_gpio)) {
+>                 ret = snd_soc_add_codec_controls(codec, max9768_mute,
+>                                 ARRAY_SIZE(max9768_mute));
+>                 if (ret)
+>                         return ret;
+>         }
+> 
+> So, the mute control will only be added if the gpio_request succeeded. On that
+> particular board, the mute GPIO was wired to an I2C GPIO controller. If I now
+> change the I2C (or GPIO) driver from subsys_initcall to module_init, then the
+> gpio_request in the amplifier driver could hit -EPROBE_DEFER and the mute
+> control will then disappear. Yes, the driver can be fixed easily, yet I fear a
+> number of regressions like this. Instead of people digging into why things
+> disappear after a kernel update, I wonder if there is a way to guide users if
+> this happens. I didn't have time for that, though, sadly. Still, it makes me
+> wonder how easily we could shift from subsys_initcall to module_init, although
+> I'd really love to get away from subsys_initcall in device drivers.
 
---lEGEL1/lMxI0MVQ2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Well it should be pretty trivial to update drivers to use deferred
+probing. Maybe some spatch to check for that in driver probes would
+help getting an idea how many might be affected?
 
-On Tue, Oct 08, 2013 at 03:51:50PM +0200, Ionut Nicu wrote:
-> If the i2c-parent bus driver is not loaded, returning
-> -EINVAL will force people to unload and then reload the
-> module again to get it working.
->=20
-> Signed-off-by: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
+Anyways, it should be fixed as otherwise we'll just dig ourselves
+deeper into the mess of things not working as loadable modules.
 
-Doesn't the non-DT case need fixing, too?
+Regards,
 
-> ---
->  drivers/i2c/muxes/i2c-mux-gpio.c |    2 +-
->  1 files changed, 1 insertions(+), 1 deletions(-)
->=20
-> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux=
--gpio.c
-> index 5d4a99b..eb99f04 100644
-> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
-> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-> @@ -79,7 +79,7 @@ static int i2c_mux_gpio_probe_dt(struct gpiomux *mux,
->  	adapter =3D of_find_i2c_adapter_by_node(adapter_np);
->  	if (!adapter) {
->  		dev_err(&pdev->dev, "Cannot find parent bus\n");
-> -		return -ENODEV;
-> +		return -EPROBE_DEFER;
->  	}
->  	mux->data.parent =3D i2c_adapter_id(adapter);
->  	put_device(&adapter->dev);
-> --=20
-> 1.7.1
-
---lEGEL1/lMxI0MVQ2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSVHrqAAoJEBQN5MwUoCm2looP/1jWphyrf9kBIJBmyc95SNHl
-XkqHvWpkXMBnIYMSYxej/cXoq5wgq339rkmfk9lVJajj+/c0IuRDXVfR59eIO747
-WX1qRyd0gc8G4zgg2mNNJl/2xrjqg1SPJq2GlcO5vA9DegnA+kiLIBWl9uJZqfLM
-zyYlmPMW/VeY9ZfJ26b8tj56iywVmNKpypdcW6TCMivR5V/DGqG52SxdshysTxAz
-U9KYx0cBwCBuwKUc+1eno4jqn1S0LlOs6S8iAnV+69CXygJr9AFScgf1PdLxfkx9
-dbz1Tonys80AtaiV/0mQjiS8chIaKAuc+4GREP364X1kVUkuibjKRCeG315iWHve
-k3DMsq9pJSfOQbGBruQyQfCrOFp58vYyldBTDSt5OrpvT6FnZ5SumtvCEMhwNQ3m
-FhSDa4ZqnAirhICyKCHysVq6KjbAbFZDOi60LFEIFBsZ+/JM7R31bBxcEX+jdJwH
-PMsTsWhvOJPedj0HFWJPObxvvlyQ6UOYVwTS+OJyHVvRzNrrBwlE1a+4/nI372z4
-STItz3Qn5sgQUGXUxlrdMnJu4DBGFVJ41vM1htpisTRX8Smgax7tgVFbbunnf9kn
-9j9twMqdmtheXDT3fdNvoUUFu05vKzCELi1Rz45VMLci6noUtzqeHOYyYhrIDE8v
-cmlf+Q6dO5kNwbPXhfoV
-=mZJQ
------END PGP SIGNATURE-----
-
---lEGEL1/lMxI0MVQ2--
+Tony
