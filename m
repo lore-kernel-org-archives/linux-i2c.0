@@ -1,30 +1,30 @@
-From: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-mux-gpio: use deferred probing
-Date: Wed, 9 Oct 2013 12:14:13 +0200
-Message-ID: <87mwmilpje.fsf@thor.barco.com>
-References: <525526F5.5030107@nsn.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Subject: Re: [PATCH 4/9] i2c: i2c-stu300: replace platform_driver_probe to
+ support deferred probing
+Date: Wed, 9 Oct 2013 15:37:57 +0200
+Message-ID: <CACRpkdZ-UjuyybwyJpoO358raqyHe-p46REqPsYMwLZFHrQPoQ@mail.gmail.com>
+References: <1381264542-29396-1-git-send-email-wsa@the-dreams.de>
+	<1381264542-29396-5-git-send-email-wsa@the-dreams.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <525526F5.5030107-OYasijW0DpE@public.gmane.org> (Ionut Nicu's message of "Wed, 9 Oct
-	2013 11:50:45 +0200")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1381264542-29396-5-git-send-email-wsa@the-dreams.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "IN" == Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org> writes:
+On Tue, Oct 8, 2013 at 10:35 PM, Wolfram Sang <wsa@the-dreams.de> wrote:
 
-IN> If the i2c-parent bus driver is not loaded, returning
-IN> -ENODEV will force people to unload and then reload the
-IN> module again to get it working.
+> Subsystems like pinctrl and gpio rightfully make use of deferred probing at
+> core level. Now, deferred drivers won't be retried if they don't have a .probe
+> function specified in the driver struct. Fix this driver to have that, so the
+> devices it supports won't get lost in a deferred probe.
+>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Cc: Linus Walleij <linus.walleij@linaro.org>
 
-IN> Signed-off-by: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 
-Acked-by: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-
---
-Sorry about disclaimer - It's out of my control.
-Bye, Peter Korsgaard
-This message is subject to the following terms and conditions: MAIL DISCLAIMER<http://www.barco.com/en/maildisclaimer>
+Yours,
+Linus Walleij
