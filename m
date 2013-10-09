@@ -1,74 +1,73 @@
-From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: [PATCH 2/3] i2c: attach/detach I2C client device to the ACPI power domain
-Date: Wed,  9 Oct 2013 17:04:20 +0300
-Message-ID: <1381327461-10562-3-git-send-email-mika.westerberg@linux.intel.com>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 1/3] ACPI / PM: allow child devices to ignore parent power state
+Date: Wed,  9 Oct 2013 17:04:19 +0300
+Message-ID: <1381327461-10562-2-git-send-email-mika.westerberg@linux.intel.com>
 References: <1381327461-10562-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1381327461-10562-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1381327461-10562-1-git-send-email-mika.westerberg@linux.intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-acpi@vger.kernel.org
+Cc: Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Aaron Lu <aaron.lu@intel.com>, Lv Zheng <lv.zheng@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Some serial buses like I2C and SPI don't require that the parent device is
+in D0 before any of its children transitions to D0, but instead the parent
+device can control its own power independently from the children.
 
-If the I2C client device is enumerated from ACPI namespace it might have
-ACPI methods that needs to be called in order to transition the device to
-different power states (such as _PSx).
+This does not follow the ACPI specification as it requires the parent to be
+powered on before its children. However, Windows seems to ignore this
+requirement so I think we can do the same in Linux.
 
-Implement this for I2C client devices by checking if the device has an ACPI
-handle and if that's the case, attach it to the ACPI power domain. In
-addition we make sure that the device is fully powered when its ->probe()
-function gets called.
+Implement this by adding a new power flag 'ignore_parent' to struct
+acpi_device.  If this flag is set the ACPI core ignores checking of the
+parent device power state when the device is powered on/off.
 
-For non-ACPI devices this patch is a no-op.
-
-Signed-off-by: Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Signed-off-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 ---
- drivers/i2c/i2c-core.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/acpi/device_pm.c | 8 +++++---
+ include/acpi/acpi_bus.h  | 3 ++-
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 29d3f04..f25dee3 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -254,10 +254,16 @@ static int i2c_device_probe(struct device *dev)
- 					client->flags & I2C_CLIENT_WAKE);
- 	dev_dbg(dev, "probe\n");
+diff --git a/drivers/acpi/device_pm.c b/drivers/acpi/device_pm.c
+index 59d3202..ca723a4 100644
+--- a/drivers/acpi/device_pm.c
++++ b/drivers/acpi/device_pm.c
+@@ -118,9 +118,10 @@ int acpi_device_get_power(struct acpi_device *device, int *state)
+ 	/*
+ 	 * If we were unsure about the device parent's power state up to this
+ 	 * point, the fact that the device is in D0 implies that the parent has
+-	 * to be in D0 too.
++	 * to be in D0 too, except if ignore_parent is set.
+ 	 */
+-	if (device->parent && device->parent->power.state == ACPI_STATE_UNKNOWN
++	if (!device->power.flags.ignore_parent && device->parent
++	    && device->parent->power.state == ACPI_STATE_UNKNOWN
+ 	    && result == ACPI_STATE_D0)
+ 		device->parent->power.state = ACPI_STATE_D0;
  
-+	if (ACPI_HANDLE(&client->dev))
-+		acpi_dev_pm_attach(&client->dev, true);
-+
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
- 	if (status) {
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
-+
-+		if (ACPI_HANDLE(&client->dev))
-+			acpi_dev_pm_detach(&client->dev, true);
+@@ -177,7 +178,8 @@ int acpi_device_set_power(struct acpi_device *device, int state)
+ 			 acpi_power_state_string(state));
+ 		return -ENODEV;
  	}
- 	return status;
- }
-@@ -283,6 +289,8 @@ static int i2c_device_remove(struct device *dev)
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
- 	}
-+	if (ACPI_HANDLE(&client->dev))
-+		acpi_dev_pm_detach(&client->dev, true);
- 	return status;
- }
+-	if (device->parent && (state < device->parent->power.state)) {
++	if (!device->power.flags.ignore_parent &&
++	    device->parent && (state < device->parent->power.state)) {
+ 		dev_warn(&device->dev,
+ 			 "Cannot transition to power state %s for parent in %s\n",
+ 			 acpi_power_state_string(state),
+diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
+index 02e113b..e830ab0 100644
+--- a/include/acpi/acpi_bus.h
++++ b/include/acpi/acpi_bus.h
+@@ -222,7 +222,8 @@ struct acpi_device_power_flags {
+ 	u32 power_resources:1;	/* Power resources */
+ 	u32 inrush_current:1;	/* Serialize Dx->D0 */
+ 	u32 power_removed:1;	/* Optimize Dx->D0 */
+-	u32 reserved:28;
++	u32 ignore_parent:1;	/* Power is independent of parent power state */
++	u32 reserved:27;
+ };
  
-@@ -1111,8 +1119,10 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	if (ret < 0 || !info.addr)
- 		return AE_OK;
- 
-+	adev->power.flags.ignore_parent = true;
- 	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
- 	if (!i2c_new_device(adapter, &info)) {
-+		adev->power.flags.ignore_parent = false;
- 		dev_err(&adapter->dev,
- 			"failed to add I2C device %s from ACPI\n",
- 			dev_name(&adev->dev));
+ struct acpi_device_power_state {
 -- 
 1.8.4.rc3
