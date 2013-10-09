@@ -1,28 +1,33 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 2/2] i2c designware add support of I2C standard mode
-Date: Wed, 9 Oct 2013 10:56:33 +0300
-Message-ID: <20131009075632.GR3521@intel.com>
-References: <20130828153429.GB7066@ab42.lan>
- <1381244455-3836-2-git-send-email-romainba@abilis.com>
+From: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
+Subject: Re: [PATCH 1/2] i2c-mux-gpio: use deferred probing with the device
+ tree
+Date: Wed, 09 Oct 2013 10:30:57 +0200
+Message-ID: <52551441.4090503@nsn.com>
+References: <52540DF6.6050407@nsn.com> <20131008213642.GB29121@katana> <87vc17km2m.fsf@thor.barco.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-doc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <1381244455-3836-2-git-send-email-romainba@abilis.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: Romain Baeriswyl <Romain.Baeriswyl@abilis.com>
-Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Pierrick Hascoet <pierrick.hascoet@abilis.com>, Vineet Gupta <vgupta@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Chiau Ee Chew <chiau.ee.chew@intel.com>, Shinya Kuribayashi <skuribay@pobox.com>, Jean Delvare <khali@linux-fr.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Romain Baeriswyl <romainba@abilis.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <87vc17km2m.fsf-1Ae4nN3xCbAluPl5bxqUMw@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-On Tue, Oct 08, 2013 at 05:00:55PM +0200, Romain Baeriswyl wrote:
-> Some legacy devices support ony I2C standard mode at 100kHz. 
-> This patch allows to select the standard mode through the DTS 
-> with the use of the existing clock-frequency parameter.
+On 09.10.2013 08:14, ext Peter Korsgaard wrote:
+>>>>>> "WS" == Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org> writes:
 > 
-> When clock-frequency parameter is not set, the fast mode is selected.
-> Only when the parameter is set at 100000, the standard mode is selected.
+> WS> On Tue, Oct 08, 2013 at 03:51:50PM +0200, Ionut Nicu wrote:
+>>> If the i2c-parent bus driver is not loaded, returning
+>>> -EINVAL will force people to unload and then reload the
+>>> module again to get it working.
+>>>
+>>> Signed-off-by: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
 > 
-> Signed-off-by: Romain Baeriswyl <romainba@abilis.com>
-> Reviewed-by: Christian Ruppert <christian.ruppert@abilis.com>
+> WS> Doesn't the non-DT case need fixing, too?
+> 
+> Arguably yes.
+> 
 
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Yes, and it's also a one line fix. Should I do it in a separate
+patch or should I change this one and resubmit?
