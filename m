@@ -1,41 +1,53 @@
-From: Maxime COQUELIN <maxime.coquelin@st.com>
-Subject: Re: [PATCH v4 0/4] Add I2C support to ST SoCs
-Date: Thu, 10 Oct 2013 15:33:43 +0200
-Message-ID: <5256ACB7.7050302@st.com>
-References: <1381250576-7916-1-git-send-email-maxime.coquelin@st.com>
- <525675B6.4080404@st.com> <20131010100354.GE2638@katana>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v3 1/3] i2c: xilinx: Fix i2c checkpatch warnings
+Date: Thu, 10 Oct 2013 07:01:23 -0700
+Message-ID: <1381413683.14017.9.camel@joe-AO722>
+References: <f3fd6f38d2553e59b077edff1969f4d07f8aa811.1381401561.git.michal.simek@xilinx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20131010100354.GE2638@katana>
-Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, Lee Jones <lee.jones@linaro.org>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <f3fd6f38d2553e59b077edff1969f4d07f8aa811.1381401561.git.michal.simek@xilinx.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Michal Simek <michal.simek@xilinx.com>
+Cc: linux-kernel@vger.kernel.org, monstr@monstr.eu, wsa@the-dreams.de, Kedareswara rao Appana <appana.durga.rao@xilinx.com>, Jean Delvare <khali@linux-fr.org>, Peter Korsgaard <jacmet@sunsite.dk>, Kedareswara rao Appana <appanad@xilinx.com>, linux-i2c@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
+On Thu, 2013-10-10 at 12:39 +0200, Michal Simek wrote:
+> Code changes to fix checkpatch warnings listed below.
+> - WARNING: quoted string split across lines
+[]
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+[]
+> @@ -271,11 +271,8 @@ static void xiic_read_rx(struct xiic_i2c *i2c)
+> 
+>  	bytes_in_fifo = xiic_getreg8(i2c, XIIC_RFO_REG_OFFSET) + 1;
+> 
+> -	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d"
+> -		", SR: 0x%x, CR: 0x%x\n",
+> -		__func__, bytes_in_fifo, xiic_rx_space(i2c),
+> -		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+> -		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
+> +	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d",
+> +		__func__, bytes_in_fifo, xiic_rx_space(i2c));
 
-On 10/10/2013 12:03 PM, Wolfram Sang wrote:
->>> Changes since v3:
->>>     - Switch back to vendor specific DT properties regarding the anti-glitch
->>>       filter configuration, as this IP is the only one having such a filter.
->> Do you agree to keep these properties vendor-specifics?
-> My preference is generic bindings. There are no other users right now,
-> yet there might be in the future. At least with something similar enough
-> that the bindings will apply. Was hoping for some additional input,
-> though, but I am not depending on it.
-I have to push another revision to change the IRQ flags as reported by 
-Stephen G.
-I will also revert to generic bindings in this revision.
-For their documentation, I will add it as soon as you will have created 
-the DT binding documentation of I2C.
+This is a pretty odd way of silencing checkpatch
+by eliminating content.  Aren't the register values
+useful information?
 
-Is it okay for you?
->
->> If so, could you take this series for v3.13?
-> Sure, if it passes the second review...
-For sure!
+You've also removed the terminating newline.
+It's necessary to avoid possible dmesg output log
+message interleaving.  Please put it back.
 
-Regards,
-Maxime
+A more normal style fix would be to coalesce the
+format.  checkpatch will ignore lines exceeding
+80 columns for these formats.
+
+	dev_dbg(i2c->adap.dev.parent, "%s entry, bytes in fifo: %d, msg: %d, SR: 0x%x, CR: 0x%x\n",
+		__func__, bytes_in_fifo, xiic_rx_space(i2c),
+		xiic_getreg8(i2c, XIIC_SR_REG_OFFSET),
+		xiic_getreg8(i2c, XIIC_CR_REG_OFFSET));
+
+This passes checkpatch cleanly.
+
+etc...
