@@ -1,71 +1,97 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH v2 2/3] i2c: attach/detach I2C client device to the ACPI power domain
-Date: Thu, 10 Oct 2013 13:28:47 +0300
-Message-ID: <1381400928-2689-3-git-send-email-mika.westerberg@linux.intel.com>
-References: <1381327461-10562-1-git-send-email-mika.westerberg@linux.intel.com>
- <1381400928-2689-1-git-send-email-mika.westerberg@linux.intel.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1381400928-2689-1-git-send-email-mika.westerberg@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-acpi@vger.kernel.org
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, Wolfram Sang <wsa@the-dreams.de>, Mark Brown <broonie@kernel.org>, Aaron Lu <aaron.lu@intel.com>, Lv Zheng <lv.zheng@intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c-mux-gpio: eliminate i2c channel order assumptions
+Date: Thu, 10 Oct 2013 12:34:29 +0200
+Message-ID: <525682B5.20102@nsn.com>
+References: <525667CA.3030504@nsn.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <525667CA.3030504-OYasijW0DpE@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>, Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
-From: Lv Zheng <lv.zheng@intel.com>
+Hi!
 
-If the I2C client device is enumerated from ACPI namespace it might have
-ACPI methods that needs to be called in order to transition the device to
-different power states (such as _PSx).
+On 10/10/2013 10:39 AM, Ionut Nicu wrote:
+> The i2c-mux driver uses the chan_id parameter provided
+> in i2c_add_mux_adapter as a parameter to the select
+> and deselect callbacks while the i2c-mux-gpio driver
+> uses the chan_id as an index in the mux->data.values
+> array.
+> 
+> A simple example of where this doesn't work is when we
+> have a device tree like this:
+> 
+> i2cmux {
+> 	i2c@1 {
+> 		reg = <1>;
+> 		...
+> 	};
+> 
+> 	i2c@0 {
+> 		reg = <0>;
+> 		...
+> 	};
+> };
+> 
+> The mux->data.values array will be { 1, 0 }, but when
+> the i2-mux driver will try to select channel 0, the
+> i2c-mux-gpio driver will actually use values[0], hence 1
+> as the gpio selection value.
 
-Implement this for I2C client devices by checking if the device has an ACPI
-handle and if that's the case, attach it to the ACPI power domain. In
-addition we make sure that the device is fully powered when its ->probe()
-function gets called.
+The patch itself is correct, but the description is not precise,
+I suppose... i2c-mux-gpio is consistent inside itself, it will
+receive for every child adapter the value it has configured.
+The problem happens inside i2c-mux.c, i2c_add_mux_adapter():
 
-For non-ACPI devices this patch is a no-op.
+               	for_each_child_of_node(mux_dev->of_node, child) {
+                       	ret = of_property_read_u32(child, "reg", &reg);
+                       	if (ret)
+                               	continue;
+                       	if (chan_id == reg) {
+                               	priv->adap.dev.of_node = child;
 
-Signed-off-by: Lv Zheng <lv.zheng@intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Wolfram Sang <wsa@the-dreams.de>
----
- drivers/i2c/i2c-core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+Which means, i2c-mux-gpio MUST pass reg, not its logical index inside
+array. Otherwise node will not be correctly assigned and i2c-mux will
+have problems selecting right adapter for the multiplexed devices.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 29d3f04..03a8ae6 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -254,10 +254,12 @@ static int i2c_device_probe(struct device *dev)
- 					client->flags & I2C_CLIENT_WAKE);
- 	dev_dbg(dev, "probe\n");
- 
-+	acpi_dev_pm_attach(&client->dev, true);
- 	status = driver->probe(client, i2c_match_id(driver->id_table, client));
- 	if (status) {
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
-+		acpi_dev_pm_detach(&client->dev, true);
- 	}
- 	return status;
- }
-@@ -283,6 +285,7 @@ static int i2c_device_remove(struct device *dev)
- 		client->driver = NULL;
- 		i2c_set_clientdata(client, NULL);
- 	}
-+	acpi_dev_pm_detach(&client->dev, true);
- 	return status;
- }
- 
-@@ -1111,8 +1114,10 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	if (ret < 0 || !info.addr)
- 		return AE_OK;
- 
-+	adev->power.flags.ignore_parent = true;
- 	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
- 	if (!i2c_new_device(adapter, &info)) {
-+		adev->power.flags.ignore_parent = false;
- 		dev_err(&adapter->dev,
- 			"failed to add I2C device %s from ACPI\n",
- 			dev_name(&adev->dev));
+> Signed-off-by: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
+
+So, for the code itself
+
+Acked-by: Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>
+
+> ---
+>  drivers/i2c/muxes/i2c-mux-gpio.c |    4 ++--
+>  1 files changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+> index b5f17ef..3505d0e 100644
+> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
+> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+> @@ -43,7 +43,7 @@ static int i2c_mux_gpio_select(struct i2c_adapter *adap, void *data, u32 chan)
+>  {
+>  	struct gpiomux *mux = data;
+>  
+> -	i2c_mux_gpio_set(mux, mux->data.values[chan]);
+> +	i2c_mux_gpio_set(mux, chan);
+>  
+>  	return 0;
+>  }
+> @@ -233,7 +233,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+>  		unsigned int class = mux->data.classes ? mux->data.classes[i] : 0;
+>  
+>  		mux->adap[i] = i2c_add_mux_adapter(parent, &pdev->dev, mux, nr,
+> -						   i, class,
+> +						   mux->data.values[i], class,
+>  						   i2c_mux_gpio_select, deselect);
+>  		if (!mux->adap[i]) {
+>  			ret = -ENODEV;
+> 
+
 -- 
-1.8.4.rc3
+Best regards,
+Alexander Sverdlin.
