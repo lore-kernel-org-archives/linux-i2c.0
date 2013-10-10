@@ -1,60 +1,45 @@
-From: Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH 3/3] spi: attach/detach SPI device to the ACPI power
- domain
-Date: Wed, 9 Oct 2013 18:55:28 +0100
-Message-ID: <20131009175528.GV21581@sirena.org.uk>
-References: <1381327461-10562-1-git-send-email-mika.westerberg@linux.intel.com>
- <1381327461-10562-4-git-send-email-mika.westerberg@linux.intel.com>
+From: Ryan Mallon <rmallon@gmail.com>
+Subject: Re: [PATCH 1/2] i2c designware make SCL and SDA falling time configurable
+Date: Thu, 10 Oct 2013 11:54:13 +1100
+Message-ID: <5255FAB5.7080803@gmail.com>
+References: <20130828153429.GB7066@ab42.lan> <1381244455-3836-1-git-send-email-romainba@abilis.com> <20131009075538.GQ3521@intel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="OxWh+UR3R7TveXYN"
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1381327461-10562-4-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20131009075538.GQ3521@intel.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Mika Westerberg <mika.westerberg@linux.intel.com>, Romain Baeriswyl <Romain.Baeriswyl@abilis.com>
+Cc: Wolfram Sang <wsa@the-dreams.de>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Pierrick Hascoet <pierrick.hascoet@abilis.com>, Vineet Gupta <vgupta@synopsys.com>, Christian Ruppert <christian.ruppert@abilis.com>, Chiau Ee Chew <chiau.ee.chew@intel.com>, Shinya Kuribayashi <skuribay@pobox.com>, Jean Delvare <khali@linux-fr.org>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, Romain Baeriswyl <romainba@abilis.com>
 List-Id: linux-i2c@vger.kernel.org
 
+On 09/10/13 18:55, Mika Westerberg wrote:
+> On Tue, Oct 08, 2013 at 05:00:54PM +0200, Romain Baeriswyl wrote:
+>>  static void __i2c_dw_enable(struct dw_i2c_dev *dev, bool enable)
+>> @@ -286,6 +287,7 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+>>  	u32 input_clock_khz;
+>>  	u32 hcnt, lcnt;
+>>  	u32 reg;
+>> +	u32 sda_falling_time, scl_falling_time;
+>>  
+>>  	input_clock_khz = dev->get_clk_rate_khz(dev);
+>>  
+>> @@ -307,15 +309,25 @@ int i2c_dw_init(struct dw_i2c_dev *dev)
+>>  
+>>  	/* set standard and fast speed deviders for high/low periods */
+>>  
+>> +	if (dev->sda_falling_time)
+>> +		sda_falling_time = dev->sda_falling_time;
+>> +	else
+>> +		sda_falling_time = 300; /* ns */
+> 
+> I think this looks better:
+> 
+> 	sda_falling_time = dev->sda_falling_time ? dev->sda_falling_time : 300;
 
---OxWh+UR3R7TveXYN
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+You can also use the gcc-ism, which is a bit more concise:
 
-On Wed, Oct 09, 2013 at 05:04:21PM +0300, Mika Westerberg wrote:
-> If the SPI device is enumerated from ACPI namespace (it has an ACPI handle)
-> it might have ACPI methods that needs to be called in order to transition
-> the device to different power states (such as _PSx).
+	sda_falling_time = dev->sda_falling_time ?: 300;
 
-Acked-by: Mark Brown <broonie-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+~Ryan
 
-> +	if (ACPI_HANDLE(&spi->dev))
-> +		acpi_dev_pm_attach(&spi->dev, true);
-
-Though I do wonder if it wouldn't be sensible to push the if () here
-inside acpi_dev_pm_attach() and similarly for _detach().  Terribly
-trivial either way.
-
---OxWh+UR3R7TveXYN
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v2.0.22 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSVZiNAAoJELSic+t+oim9YlYP/0gXTLvice4UKl4gaWNo7EQX
-OrQHKw5iUy0ZEOymDlYdZ+f2rtJcUTmp/tW5SEYX7Fc93wQZGbcc9qdhKbECTPt8
-y+lYBS64fEp9kQf2sZ5GZ6psODV5w/8Z1lmTaPG9w95w1K/SVwty1KdXYBdxOlyR
-fXk0rZgGchKCQlqjxJi6N0tqpZWIHT/y1fjidgjSL4+3s6ctwYSJQlhsMa0rrMe8
-QdYUFmG7QZo5y6LQrj/M41naN4oXtuF6GGqRkSya5hD1wY8HgMhpKPxkmS+DBXoA
-I4u11dtwB7a3VcOy8a0yzMzGKWshGIPrOu5k7YbrZU3wlz1ejpL9Bg4XBHyfeFK0
-87xANoSG6Ob9B9gYOJRF3bK/eFtuq9bY811f8/x+zbMcTEI3B3NspDQpKkFWJHmG
-N5Kfp7quQJb44ldR0iChEu+6hxzH+ASDYpfSR1lxZY/EkbY911Q6GgDtCo3c0hAi
-aQVm6nV22csj70rFsfrrZMRr+UMEsgM6I1iiSf6zOVhu7xaERWZ/xljqT/fJul/8
-5rjVbrfsLEEkJh3EskWzbMNyHDt7o5a3MJ6/tCeF+ONpCMSYVnMjwFu2wGaQWPTJ
-Eliz8gINjcuyAE57rqh+XNWwSu/dHvD66UDP9QtmXzRemR9QxMDrW6LZGw4RZP9q
-dEayJ46LEmrlEYUS00Rw
-=rrml
------END PGP SIGNATURE-----
-
---OxWh+UR3R7TveXYN--
