@@ -1,44 +1,68 @@
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Subject: [PATCH] i2c: Fix modalias for ACPI enumerated I2C devices
-Date: Thu, 10 Oct 2013 17:17:49 +0300
-Message-ID: <1381414669-26115-1-git-send-email-jarkko.nikula@linux.intel.com>
-Return-path: <linux-acpi-owner@vger.kernel.org>
-Sender: linux-acpi-owner@vger.kernel.org
-To: linux-i2c@vger.kernel.org
-Cc: linux-acpi@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Wolfram Sang <wsa@the-dreams.de>
+Subject: Re: [PATCH 1/2] i2c-mux-gpio: test if the gpio can sleep
+Date: Thu, 10 Oct 2013 21:43:54 +0200
+Message-ID: <20131010194354.GC23512@katana>
+References: <525667C4.3080309@nsn.com>
+ <52566971.5020700@metafoo.de>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="nmemrqcdn5VTmUEE"
+Return-path: <linux-gpio-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <52566971.5020700@metafoo.de>
+Sender: linux-gpio-owner@vger.kernel.org
+To: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Ionut Nicu <ioan.nicu.ext@nsn.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Alexander Sverdlin <alexander.sverdlin@nsn.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 List-Id: linux-i2c@vger.kernel.org
 
-There is a minor fault about ACPI enumerated I2C devices with their modalias
-attribute. Now modalias is set by device instance not by hardware ID.
-For example "i2c:INTABCD:00", "i2c:INTABCD:01" etc.
 
-This means each device instance gets different modalias which does match
-with generated modules.alias. Currently this is not problem as matching can
-happen also with "acpi:INTABCD" modalias.
+--nmemrqcdn5VTmUEE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fix this by using ACPI hardware ID.
+On Thu, Oct 10, 2013 at 10:46:41AM +0200, Lars-Peter Clausen wrote:
 
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
----
-Generated on top of v3.12-rc4-29-g0e7a3ed.
----
- drivers/i2c/i2c-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> > +		if (gpio_cansleep(gpio))
+> > +			gpio_set_value_cansleep(gpio, val & (1 << i));
+> > +		else
+> > +			gpio_set_value(gpio, val & (1 << i));
+>=20
+> The proper way to do this is just always use the _cansleep() version.
+> gpio_set_value() only works for chips which do not sleep,
+> gpio_set_value_cansleep() works for both those who do sleep and those who=
+ do
+> not.
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index 29d3f04..6dd0c53 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -1111,7 +1111,7 @@ static acpi_status acpi_i2c_add_device(acpi_handle handle, u32 level,
- 	if (ret < 0 || !info.addr)
- 		return AE_OK;
- 
--	strlcpy(info.type, dev_name(&adev->dev), sizeof(info.type));
-+	strlcpy(info.type, acpi_device_hid(adev), sizeof(info.type));
- 	if (!i2c_new_device(adapter, &info)) {
- 		dev_err(&adapter->dev,
- 			"failed to add I2C device %s from ACPI\n",
--- 
-1.8.4.rc3
+To the gpio-list: Has it been considered to have sth. like
+gpio_set_value and gpio_set_value_nosleep? I'd think it makes more sense
+to have the specific function have the specific name.
 
+Regards,
+
+   Wolfram
+
+
+--nmemrqcdn5VTmUEE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.14 (GNU/Linux)
+
+iQIcBAEBAgAGBQJSVwN6AAoJEBQN5MwUoCm2MuMQAJfpsgqRQ4QYK+J5fzp7Lgot
+kr41uwk7mRrX5hT/GlNBatG9PESrnTb6Baxf1wBAQMbSyBUzeJhrlDeISPuISXgf
+FX8qVLsCVIZj/aK/KzERLsRK9AUxKyFcGMFqW4MDYD/FlsWufyraPBsNrtIG6ict
+zzhGd6zIdWnmgwoUm5D0vPpOziBuEx1ltmQ0AsTf2qR7IvKCWTOqUlErCPnnYL8r
+7kPqM97wJ16sxg1DQcvL41AnEa/Qae8sRIpbwqP4ycRyCVVINmiaHiDY3GkbltEC
+iUUC95qSWscmi1klGoykZ9yrWHGWUlvpLZb2B7xBvz9J4P4Z+NhctkOD3Pn43lpK
+nKCEcGHyNuab5voxxEBwC9/WklnglhnEn87j9IcFXKbj2tcj33xXYIek3a9E0uOf
+ifKySkbv5rWRYYcOXQO4DnZQhYNbTA0akDLxp/Wr53oqUtFfCuRgoRVZMGppDJfB
+rJN4VmIKsDnYrpiLPqbuBWg3D3MNPnTTejfKie03mTyExEuyDAwzaQjXquKMCRJN
+7EQiBR5OoBfzyrwlToE/aISupn5+TncpdjVC27wlbhXVYhI46PFbLzwbQQirDsor
+vqrBMkyPzzz/3DJ36JDdlTgF/j+shznI0rGMzLRDOjm57PirrlOT3YMHJLUcSoGG
+0xydpcb2o6/86Cgt2F8k
+=ybw7
+-----END PGP SIGNATURE-----
+
+--nmemrqcdn5VTmUEE--
