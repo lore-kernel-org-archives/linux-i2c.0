@@ -1,40 +1,31 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: Re: [PATCH 3/3] spi: attach/detach SPI device to the ACPI power
- domain
-Date: Thu, 10 Oct 2013 09:12:56 +0300
-Message-ID: <20131010061256.GB3521@intel.com>
-References: <1381327461-10562-1-git-send-email-mika.westerberg@linux.intel.com>
- <1381327461-10562-4-git-send-email-mika.westerberg@linux.intel.com>
- <20131009175528.GV21581@sirena.org.uk>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH] i2c: Not all adapters have a parent
+Date: Thu, 10 Oct 2013 09:15:34 +0300
+Message-ID: <20131010061534.GC3521@intel.com>
+References: <20131010080406.3e0fd78e@endymion.delvare>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20131009175528.GV21581@sirena.org.uk>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Mark Brown <broonie@kernel.org>
-Cc: linux-acpi@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Aaron Lu <aaron.lu@intel.com>, Lv Zheng <lv.zheng@intel.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20131010080406.3e0fd78e-R0o5gVi9kd7kN2dkZ6Wm7A@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+Cc: Linux I2C <linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Wed, Oct 09, 2013 at 06:55:28PM +0100, Mark Brown wrote:
-> On Wed, Oct 09, 2013 at 05:04:21PM +0300, Mika Westerberg wrote:
-> > If the SPI device is enumerated from ACPI namespace (it has an ACPI handle)
-> > it might have ACPI methods that needs to be called in order to transition
-> > the device to different power states (such as _PSx).
+On Thu, Oct 10, 2013 at 08:04:06AM +0200, Jean Delvare wrote:
+> The code in acpi_i2c_register_devices() assumes that all i2c adapters
+> have a parent. This is not necessarily the case, for example the
+> i2c-stub driver instantiate a virtual i2c adapter without a parent.
+> Check for this to avoid a NULL pointer deference.
 > 
-> Acked-by: Mark Brown <broonie@linaro.org>
+> Signed-off-by: Jean Delvare <jdelvare-l3A5Bk7waGM@public.gmane.org>
+> Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
+> Cc: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+> Cc: "Rafael J. Wysocki" <rafael.j.wysocki-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
-Thanks!
+Oh, I didn't know that. Thanks for the information.
 
-> > +	if (ACPI_HANDLE(&spi->dev))
-> > +		acpi_dev_pm_attach(&spi->dev, true);
-> 
-> Though I do wonder if it wouldn't be sensible to push the if () here
-> inside acpi_dev_pm_attach() and similarly for _detach().  Terribly
-> trivial either way.
+Acked-by: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 
-Actually, the check is already there in acpi_dev_pm_attach()/detach(). The
-above code follows what Rafael did for platform bus previously. I think the
-idea is to have visual hint that this is only for ACPI enumerated devices.
-
-If preferred, I can drop the if() checks, though.
+Probably should go to stable as well.
