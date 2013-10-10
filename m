@@ -1,31 +1,41 @@
-From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
-Subject: Re: [PATCH v2 0/3] ACPI power management support for I2C and SPI devices
-Date: Thu, 10 Oct 2013 15:02:17 +0200
-Message-ID: <2209223.2krlQWGy9Q@vostro.rjw.lan>
-References: <1381327461-10562-1-git-send-email-mika.westerberg@linux.intel.com> <1381400928-2689-1-git-send-email-mika.westerberg@linux.intel.com>
+From: Maxime COQUELIN <maxime.coquelin@st.com>
+Subject: Re: [PATCH v4 0/4] Add I2C support to ST SoCs
+Date: Thu, 10 Oct 2013 15:33:43 +0200
+Message-ID: <5256ACB7.7050302@st.com>
+References: <1381250576-7916-1-git-send-email-maxime.coquelin@st.com>
+ <525675B6.4080404@st.com> <20131010100354.GE2638@katana>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7Bit
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <1381400928-2689-1-git-send-email-mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Cc: linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mark Brown <broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Aaron Lu <aaron.lu-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Lv Zheng <lv.zheng-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20131010100354.GE2638@katana>
+Content-Language: en-US
+Sender: linux-doc-owner@vger.kernel.org
+To: Wolfram Sang <wsa@the-dreams.de>
+Cc: Srinivas KANDAGATLA <srinivas.kandagatla@st.com>, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>, "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Stephen GALLIMORE <stephen.gallimore@st.com>, Stuart MENEFY <stuart.menefy@st.com>, Lee Jones <lee.jones@linaro.org>, Gabriel FERNANDEZ <gabriel.fernandez@st.com>
 List-Id: linux-i2c@vger.kernel.org
 
-On Thursday, October 10, 2013 01:28:45 PM Mika Westerberg wrote:
-> Here is an updated version. I added acks from Mark and Wolfram and dropped
-> if (ACPI_HANDLE()) checks as requested. This is already handled by
-> acpi_dev_pm_attach()/detach().
-> 
-> Rafael,
-> 
-> If you are OK with these, could you merge the series to your ACPI tree?
-> 
-> Thanks!
 
-I will, thanks!
+On 10/10/2013 12:03 PM, Wolfram Sang wrote:
+>>> Changes since v3:
+>>>     - Switch back to vendor specific DT properties regarding the anti-glitch
+>>>       filter configuration, as this IP is the only one having such a filter.
+>> Do you agree to keep these properties vendor-specifics?
+> My preference is generic bindings. There are no other users right now,
+> yet there might be in the future. At least with something similar enough
+> that the bindings will apply. Was hoping for some additional input,
+> though, but I am not depending on it.
+I have to push another revision to change the IRQ flags as reported by 
+Stephen G.
+I will also revert to generic bindings in this revision.
+For their documentation, I will add it as soon as you will have created 
+the DT binding documentation of I2C.
 
--- 
-I speak only for myself.
-Rafael J. Wysocki, Intel Open Source Technology Center.
+Is it okay for you?
+>
+>> If so, could you take this series for v3.13?
+> Sure, if it passes the second review...
+For sure!
+
+Regards,
+Maxime
