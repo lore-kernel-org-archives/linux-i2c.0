@@ -1,52 +1,49 @@
-From: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 1/2] i2c-mux-gpio: use gpio_set_value_cansleep()
-Date: Fri, 11 Oct 2013 13:21:19 +0200
-Message-ID: <87wqlkgij4.fsf@thor.barco.com>
-References: <5257CE71.5060408@nsn.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5257CE71.5060408-OYasijW0DpE@public.gmane.org> (Ionut Nicu's message of "Fri, 11 Oct
-	2013 12:09:53 +0200")
-Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Alexander Sverdlin <alexander.sverdlin-OYasijW0DpE@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+From: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+Subject: [PATCH] i2c: s3c2410: dont need CPU_FREQ transitions for exynos series
+Date: Fri, 11 Oct 2013 16:56:54 +0530
+Message-ID: <1381490814-20890-1-git-send-email-ch.naveen@samsung.com>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org
+Cc: wsa@the-dreams.de, khali@linux-fr.org, ben-linux@fluff.org, grant.likely@secretlab.ca, devicetree-discuss@lists.ozlabs.org, sjg@chromium.org, naveenkrishna.ch@gmail.com, broonie@opensource.wolfsonmicro.com, diander@google.com, cpgs@samsung.com
 List-Id: linux-i2c@vger.kernel.org
 
->>>>> "IN" == Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org> writes:
+The exynos5 i2c clock is based on a fixed 66 MHz peripheral clock, and
+therefore is completely independent of the cpu frequency.
+Thus, registering for a CPU freq notifier is very wasteful.
 
-IN> Some gpio chips may have get/set operations that
-IN> can sleep. gpio_set_value() only works for chips
-IN> which do not sleep, for the others we will get a
-IN> kernel warning. Using gpio_set_value_cansleep()
-IN> will work for both chips that do sleep and those
-IN> who don't.
+This patch modifes the code such that, i2c bus registers to
+cpu_freq_transition only for non Exynos SoCs.
 
-IN> Signed-off-by: Ionut Nicu <ioan.nicu.ext-OYasijW0DpE@public.gmane.org>
-IN> ---
-IN>  drivers/i2c/muxes/i2c-mux-gpio.c |    4 ++--
-IN>  1 files changed, 2 insertions(+), 2 deletions(-)
+This change should save a bunch of cpufreq transitions calls
+which does not apply to exynos SoCs.
 
-IN> diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-IN> index a764da7..550e094 100644
-IN> --- a/drivers/i2c/muxes/i2c-mux-gpio.c
-IN> +++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-IN> @@ -30,8 +30,8 @@ static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
-IN>     int i;
+Signed-off-by: Naveen Krishna Chatradhi <ch.naveen@samsung.com>
+---
+ drivers/i2c/busses/i2c-s3c2410.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-IN>     for (i = 0; i < mux->data.n_gpios; i++)
-IN> -           gpio_set_value(mux->gpio_base + mux->data.gpios[i],
-IN> -                          val & (1 << i));
-IN> +           gpio_set_value_cansleep(mux->gpio_base + mux->data.gpios[i],
-IN> +                           val & (1 << i));
-
-The indentation of the 2nd line seems wrong (should match
-mux->gpio_base), otherwise it looks good:
-
-Acked-by: Peter Korsgaard <peter.korsgaard-ob4gmnvZ1/cAvxtiuMwx3w@public.gmane.org>
-
---
-Sorry about disclaimer - It's out of my control.
-Bye, Peter Korsgaard
-This message is subject to the following terms and conditions: MAIL DISCLAIMER<http://www.barco.com/en/maildisclaimer>
+diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+index cab1c91..d062fa7 100644
+--- a/drivers/i2c/busses/i2c-s3c2410.c
++++ b/drivers/i2c/busses/i2c-s3c2410.c
+@@ -123,7 +123,7 @@ struct s3c24xx_i2c {
+ 	struct s3c2410_platform_i2c	*pdata;
+ 	int			gpios[2];
+ 	struct pinctrl          *pctrl;
+-#ifdef CONFIG_CPU_FREQ
++#if defined(CONFIG_CPU_FREQ) && !defined(CONFIG_ARCH_EXYNOS)
+ 	struct notifier_block	freq_transition;
+ #endif
+ };
+@@ -843,7 +843,7 @@ static int s3c24xx_i2c_clockrate(struct s3c24xx_i2c *i2c, unsigned int *got)
+ 	return 0;
+ }
+ 
+-#ifdef CONFIG_CPU_FREQ
++#if defined(CONFIG_CPU_FREQ) && !defined(CONFIG_ARCH_EXYNOS)
+ 
+ #define freq_to_i2c(_n) container_of(_n, struct s3c24xx_i2c, freq_transition)
+ 
+-- 
+1.7.9.5
