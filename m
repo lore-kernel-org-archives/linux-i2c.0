@@ -1,38 +1,24 @@
-From: Lars-Peter Clausen <lars@metafoo.de>
-Subject: Re: [PATCH 1/2] i2c-mux-gpio: test if the gpio can sleep
-Date: Thu, 10 Oct 2013 21:51:08 +0200
-Message-ID: <5257052C.4050206@metafoo.de>
-References: <525667C4.3080309@nsn.com> <52566971.5020700@metafoo.de> <20131010194354.GC23512@katana>
+From: "Dr. Mack Nellie" <notiffication-14/PbEeleRTF/N4+cTNsU07Sfu5ARAybgJmBf7UdkjU@public.gmane.org>
+Subject: I am expecting your urgent response
+Date: Fri, 11 Oct 2013 11:46:09 +0530
+Message-ID: <dc21709b-6486-49b7-8969-5d522cb1f11f@SIXPR01MB112.apcprd01.prod.exchangelabs.com>
+Reply-To: <dr.macknellie-pveGkIeVMScAvxtiuMwx3w@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-gpio-owner@vger.kernel.org>
-In-Reply-To: <20131010194354.GC23512@katana>
-Sender: linux-gpio-owner@vger.kernel.org
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: Ionut Nicu <ioan.nicu.ext@nsn.com>, Peter Korsgaard <peter.korsgaard@barco.com>, Alexander Sverdlin <alexander.sverdlin@nsn.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Description: Mail message body
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Recipients <notiffication-14/PbEeleRTF/N4+cTNsU07Sfu5ARAybgJmBf7UdkjU@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 10/10/2013 09:43 PM, Wolfram Sang wrote:
-> On Thu, Oct 10, 2013 at 10:46:41AM +0200, Lars-Peter Clausen wrote:
->
->>> +		if (gpio_cansleep(gpio))
->>> +			gpio_set_value_cansleep(gpio, val & (1 << i));
->>> +		else
->>> +			gpio_set_value(gpio, val & (1 << i));
->>
->> The proper way to do this is just always use the _cansleep() version.
->> gpio_set_value() only works for chips which do not sleep,
->> gpio_set_value_cansleep() works for both those who do sleep and those who do
->> not.
->
-> To the gpio-list: Has it been considered to have sth. like
-> gpio_set_value and gpio_set_value_nosleep? I'd think it makes more sense
-> to have the specific function have the specific name.
+Compliment of the day.
+ 
+I am Dr. Mack Nellie. I am looking for a reliable Indian partner that understands the India local language and English as well; I have a business proposal that will benefit both of us outside our individual professions.
+Kindly contact me for the supply details on my personal email address;  dr.macknellie-pveGkIeVMScAvxtiuMwx3w@public.gmane.org  I will furnish you with more details as soon as I receive your mail.
+I am expecting your urgent response   
 
-It has been a few times, but I think the conclusion has always been that it is 
-now too late to invert the semantics of gpio_set_value(). If you want to look 
-up the discussions the keyword is gpio_set_value_atomic().
-
-- Lars
-
+Regards 
+Dr. Mack Nellie
+Tel: +447014245023 
+E-Mail(dr.macknellie-pveGkIeVMScAvxtiuMwx3w@public.gmane.org)
