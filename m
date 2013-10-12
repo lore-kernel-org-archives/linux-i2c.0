@@ -1,96 +1,73 @@
-From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PULL REQUEST] i2c for 3.12
-Date: Sat, 12 Oct 2013 08:20:51 +0200
-Message-ID: <20131012062046.GA3227@katana>
+From: Naveen Krishna Ch <naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH] i2c: s3c2410: dont need CPU_FREQ transitions for exynos series
+Date: Sat, 12 Oct 2013 12:06:34 +0530
+Message-ID: <CAHfPSqCHUAccv4Usd1XcZ8MzD+Jf=jHSWWQ0m1Mj64nKCN7_jw@mail.gmail.com>
+References: <1381490814-20890-1-git-send-email-ch.naveen@samsung.com>
+ <3245175.os31ym2KFi@amdn883> <2030813.WOPcW68yit@amdn883> <5982877.kDV2Xg8Ocr@amdn883>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+Content-Type: text/plain; charset=ISO-8859-1
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
+In-Reply-To: <5982877.kDV2Xg8Ocr@amdn883>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jean Delvare <khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
+On 12 October 2013 11:12, Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
+> On Saturday 12 of October 2013 04:28:51 Tomasz Figa wrote:
+>> [Fixing incorrent mail addresses and dropping the old DT ML.]
+>>
+>> On Saturday 12 of October 2013 04:22:04 Tomasz Figa wrote:
+>> > Hi Naveen,
+>> >
+>> > On Friday 11 of October 2013 16:56:54 Naveen Krishna Chatradhi wrote:
+>> > > The exynos5 i2c clock is based on a fixed 66 MHz peripheral clock, and
+>> > > therefore is completely independent of the cpu frequency.
+>> > > Thus, registering for a CPU freq notifier is very wasteful.
+>> > >
+>> > > This patch modifes the code such that, i2c bus registers to
+>> > > cpu_freq_transition only for non Exynos SoCs.
+>> > >
+>> > > This change should save a bunch of cpufreq transitions calls
+>> > > which does not apply to exynos SoCs.
+>> >
+>> > The idea is fine, although...
+>> >
+>> > > Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+>> > > ---
+>> > >  drivers/i2c/busses/i2c-s3c2410.c |    4 ++--
+>> > >  1 file changed, 2 insertions(+), 2 deletions(-)
+>> > >
+>> > > diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
+>> > > index cab1c91..d062fa7 100644
+>> > > --- a/drivers/i2c/busses/i2c-s3c2410.c
+>> > > +++ b/drivers/i2c/busses/i2c-s3c2410.c
+>> > > @@ -123,7 +123,7 @@ struct s3c24xx_i2c {
+>> > >   struct s3c2410_platform_i2c     *pdata;
+>> > >   int                     gpios[2];
+>> > >   struct pinctrl          *pctrl;
+>> > > -#ifdef CONFIG_CPU_FREQ
+>> > > +#if defined(CONFIG_CPU_FREQ) && !defined(CONFIG_ARCH_EXYNOS)
+>> >
+>> > ...this is not a good coding practice, especially when already having
+>> > multiplatform kernels in sight.
+>> >
+>> > The best way would be to check on which SoC we are running at runtime,
+>> > but since this might need changing a lot of code, then at least I would
+>> > change this from !defined(EXYNOS) to defined(S3C24XX), so it is not being
+>> > compiled in when S3C24XX support is not enabled and if it's enabled then
+>> > the notifier will be registered as a safe fallback that will run correctly
+>> > on all platforms.
+>
+> Actually you can simply check for CONFIG_CPU_FREQ_S3C24XX here.
+sure, this makes it more meaningful. will make the modifications and resubmit.
+>
+> Best regards,
+> Tomasz
+>
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Linus,
-
-we had various reports of problems with deferred probing in the I2C
-subsystem, so this pull requst is a little bigger than usual. Most
-issues should be addressed now so devices will be found correctly. A few
-ususal driver bugfixes are in here, too. Please pull.
-
-Thanks,
-
-   Wolfram
 
 
-The following changes since commit d0e639c9e06d44e713170031fe05fb60ebe680af:
-
-  Linux 3.12-rc4 (2013-10-06 14:00:20 -0700)
-
-are available in the git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-current
-
-for you to fetch changes up to 2737de460e33df89461a59b247d3bfd477101785:
-
-  i2c: i2c-mux-pinctrl: use deferred probe when adapter not found (2013-10-10 10:22:35 +0200)
-
-----------------------------------------------------------------
-Ionut Nicu (2):
-      i2c: i2c-mux-gpio: don't ignore of_get_named_gpio errors
-      i2c: i2c-mux-gpio: use deferred probing
-
-Jean Delvare (1):
-      i2c: Not all adapters have a parent
-
-Taras Kondratiuk (1):
-      i2c: omap: Clear ARDY bit twice
-
-Wolfram Sang (6):
-      i2c: i2c-designware-platdrv: replace platform_driver_probe to support deferred probing
-      i2c: i2c-imx: replace platform_driver_probe to support deferred probing
-      i2c: i2c-mxs: replace platform_driver_probe to support deferred probing
-      i2c: i2c-stu300: replace platform_driver_probe to support deferred probing
-      i2c: i2c-arb-gpio-challenge: use deferred probe when adapter not found
-      i2c: i2c-mux-pinctrl: use deferred probe when adapter not found
-
- drivers/i2c/busses/i2c-designware-platdrv.c |  5 +++--
- drivers/i2c/busses/i2c-imx.c                | 11 ++++++-----
- drivers/i2c/busses/i2c-mxs.c                |  3 ++-
- drivers/i2c/busses/i2c-omap.c               |  3 +++
- drivers/i2c/busses/i2c-stu300.c             | 11 +++++------
- drivers/i2c/i2c-core.c                      |  3 +++
- drivers/i2c/muxes/i2c-arb-gpio-challenge.c  |  2 +-
- drivers/i2c/muxes/i2c-mux-gpio.c            | 14 +++++++++-----
- drivers/i2c/muxes/i2c-mux-pinctrl.c         |  4 ++--
- 9 files changed, 34 insertions(+), 22 deletions(-)
-
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.14 (GNU/Linux)
-
-iQIcBAEBAgAGBQJSWOo+AAoJEBQN5MwUoCm2ifIP/1gWndg2dEeoCTARCrcK8Iyc
-z4YP0FFtNOw766LH8I3geP35ZwelBzjZX2C6natHIFWJvh7KitOf/5NYrz6fxErl
-RZZmTEkso7jA4K1S1tkHZmEW1stfeYW4pd2bUfkVZzbbrVUIM14/7+hvJ54WOwGf
-Vj9sFpBAwfpmeN0o9tQNrU9MXURjIvqmu9jY7mx4+VX9O+vEkbK3xMaWjBC4Z4s4
-fGon7Wa3FnfoNQqtF3KSkgKqc0RMYIUkgxisIbKaFCCbu+yo1NgkiJw4eFmOpul7
-9ShOG61GUZY5A0wKdrmD5Nxb3rV7NUs9wmzSySPZxasU0DgIYoDYnUwz3r7Kj1eL
-1MXkHnQGiv5Dqzc9PyV+AQndVZv3ZoRpMFuPFZ4YZJ1/yemLDv75jHXfL9deBWeu
-mnTiYGqiFLEi06Cw8SjFUs8tJMSlgWE/29y4264OYeqaWmiJQgCowyS/sycoRNrB
-P/HjUJjpCcBlPoIi0dqtEzkj6hBFGL8rFjCEhXQp57f7f+pbdx/ntHPqvd7BNues
-MxrstH93X4L5BVNzEwwvH4biLpaVAIoOWEGjuHMpYdH+mL7AgYdlgfdZ/8UMp289
-xqGGGdrSfPweWh5upY6cdWxYcP+xPfZYnxeAlEKEbBWGVcXyu7GNnLIvzfuphMl7
-e8z7kwuD7nk4BeDp59Id
-=Toxc
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
+-- 
+Shine bright,
+(: Nav :)
