@@ -1,73 +1,37 @@
-From: Naveen Krishna Ch <naveenkrishna.ch-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH] i2c: s3c2410: dont need CPU_FREQ transitions for exynos series
-Date: Sat, 12 Oct 2013 12:06:34 +0530
-Message-ID: <CAHfPSqCHUAccv4Usd1XcZ8MzD+Jf=jHSWWQ0m1Mj64nKCN7_jw@mail.gmail.com>
-References: <1381490814-20890-1-git-send-email-ch.naveen@samsung.com>
- <3245175.os31ym2KFi@amdn883> <2030813.WOPcW68yit@amdn883> <5982877.kDV2Xg8Ocr@amdn883>
+From: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>
+Subject: Re: [PATCH] i2c: Fix modalias for ACPI enumerated I2C devices
+Date: Sat, 12 Oct 2013 15:45:15 +0200
+Message-ID: <2878883.SYGmCkS5Bt@vostro.rjw.lan>
+References: <1381414669-26115-1-git-send-email-jarkko.nikula@linux.intel.com> <2393462.4JRAMNeigd@vostro.rjw.lan> <20131012050413.GY3521@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7Bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <5982877.kDV2Xg8Ocr@amdn883>
+In-Reply-To: <20131012050413.GY3521-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Cc: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, sjg-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, "linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, khali-PUYAD+kWke1g9hUCZPvPmw@public.gmane.org, Ben Dooks <ben-linux-elnMNo+KYs3YtjvyW6yDsg@public.gmane.org>, grant.likely-s3s/WqlpOiPyB63q8FvJNQ@public.gmane.org, broonie-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, dianders-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org, cpgs-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org
+To: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On 12 October 2013 11:12, Tomasz Figa <t.figa-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org> wrote:
-> On Saturday 12 of October 2013 04:28:51 Tomasz Figa wrote:
->> [Fixing incorrent mail addresses and dropping the old DT ML.]
->>
->> On Saturday 12 of October 2013 04:22:04 Tomasz Figa wrote:
->> > Hi Naveen,
->> >
->> > On Friday 11 of October 2013 16:56:54 Naveen Krishna Chatradhi wrote:
->> > > The exynos5 i2c clock is based on a fixed 66 MHz peripheral clock, and
->> > > therefore is completely independent of the cpu frequency.
->> > > Thus, registering for a CPU freq notifier is very wasteful.
->> > >
->> > > This patch modifes the code such that, i2c bus registers to
->> > > cpu_freq_transition only for non Exynos SoCs.
->> > >
->> > > This change should save a bunch of cpufreq transitions calls
->> > > which does not apply to exynos SoCs.
->> >
->> > The idea is fine, although...
->> >
->> > > Signed-off-by: Naveen Krishna Chatradhi <ch.naveen-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
->> > > ---
->> > >  drivers/i2c/busses/i2c-s3c2410.c |    4 ++--
->> > >  1 file changed, 2 insertions(+), 2 deletions(-)
->> > >
->> > > diff --git a/drivers/i2c/busses/i2c-s3c2410.c b/drivers/i2c/busses/i2c-s3c2410.c
->> > > index cab1c91..d062fa7 100644
->> > > --- a/drivers/i2c/busses/i2c-s3c2410.c
->> > > +++ b/drivers/i2c/busses/i2c-s3c2410.c
->> > > @@ -123,7 +123,7 @@ struct s3c24xx_i2c {
->> > >   struct s3c2410_platform_i2c     *pdata;
->> > >   int                     gpios[2];
->> > >   struct pinctrl          *pctrl;
->> > > -#ifdef CONFIG_CPU_FREQ
->> > > +#if defined(CONFIG_CPU_FREQ) && !defined(CONFIG_ARCH_EXYNOS)
->> >
->> > ...this is not a good coding practice, especially when already having
->> > multiplatform kernels in sight.
->> >
->> > The best way would be to check on which SoC we are running at runtime,
->> > but since this might need changing a lot of code, then at least I would
->> > change this from !defined(EXYNOS) to defined(S3C24XX), so it is not being
->> > compiled in when S3C24XX support is not enabled and if it's enabled then
->> > the notifier will be registered as a safe fallback that will run correctly
->> > on all platforms.
->
-> Actually you can simply check for CONFIG_CPU_FREQ_S3C24XX here.
-sure, this makes it more meaningful. will make the modifications and resubmit.
->
-> Best regards,
-> Tomasz
->
+On Saturday, October 12, 2013 08:04:13 AM Mika Westerberg wrote:
+> On Sat, Oct 12, 2013 at 12:16:02AM +0200, Rafael J. Wysocki wrote:
+> > > I think that this is intentional. We don't want that the i2c modalias
+> > > matches with the ACPI device (like with the i2c:INTABCD). Instead use ACPI
+> > > IDs that are added to the driver to match with the ACPI device.
+> > 
+> > Well, I'm not really sure this was intentional, but I wonder how other bus
+> > types work in that respect?
+> 
+> We have the same for platform bus, if that's what you are asking.
+> 
+> It probably doesn't hurt to have this patch applied but it might cause
+> inadvertent match if for some reason there is an I2C client driver that
+> happens to have INTABCD I2C id in its list.
 
-
+Well, if they have that id in their lists, they are supposed to be able to
+handle this device, aren't they?  What other reason may be there for them
+to put that id into their lists?
 
 -- 
-Shine bright,
-(: Nav :)
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
