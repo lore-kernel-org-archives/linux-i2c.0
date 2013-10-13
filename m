@@ -1,158 +1,65 @@
-From: RAGHAVENDRA GANIGA <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Subject: [PATCH 2/2] i2c: i2c-core: fix coding style issues in i2c-core.c
-Date: Mon, 14 Oct 2013 00:43:49 +0530
-Message-ID: <525AF0ED.7050209@gmail.com>
+From: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+Subject: Re: [PATCH 2/2] i2c: i2c-core: fix coding style issues in i2c-core.c
+Date: Sun, 13 Oct 2013 12:29:59 -0700
+Message-ID: <1381692599.25528.5.camel@joe-AO722>
+References: <525AF0ED.7050209@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset="ISO-8859-1"
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <525AF0ED.7050209-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org
-Cc: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
+To: RAGHAVENDRA GANIGA <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: linux-i2c@vger.kernel.org
 
->From b21e6a52aa9c36e8c01173cff13bbfd2a380d0bd Mon Sep 17 00:00:00 2001
-From: Raghavendra Ganiga <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
-Date: Mon, 14 Oct 2013 00:29:08 +0530
-Subject: [PATCH 2/2] i2c: i2c-core: fix coding style issues in i2c-core.c
+On Mon, 2013-10-14 at 00:43 +0530, RAGHAVENDRA GANIGA wrote:
+[]
+> diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
+[]
+> @@ -1737,9 +1735,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>  	if (adap->algo->master_xfer) {
+>  #ifdef DEBUG
+>  		for (ret = 0; ret < num; ret++) {
+> -			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, "
+> -				"len=%d%s\n", ret, (msgs[ret].flags & I2C_M_RD)
+> -				? 'R' : 'W', msgs[ret].addr, msgs[ret].len,
+> +			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, len=%d%s\n",
+> +				ret,
+> +				((msgs[ret].flags & I2C_M_RD) ? 'R' : 'W'),
+> +				msgs[ret].addr, msgs[ret].len,
+>  				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
+>  		}
 
-This is a patch to the i2c-core.c file that fixes up warnings and
-the code indent error reported by the checkpatch.pl tool
+You added an unnecessary set of parentheses here and
+you made it different from the similar line below.
 
-Signed-off-by: Raghavendra Chandra Ganiga <ravi23ganiga-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
----
- drivers/i2c/i2c-core.c |   48 +++++++++++++++++++++++++-----------------------
- 1 file changed, 25 insertions(+), 23 deletions(-)
+Neither test really needs any parenthesis and this
+could be written as:
 
-diff --git a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
-index b1197bb..66e38a9 100644
---- a/drivers/i2c/i2c-core.c
-+++ b/drivers/i2c/i2c-core.c
-@@ -48,7 +48,7 @@
- #include <linux/rwsem.h>
- #include <linux/pm_runtime.h>
- #include <linux/acpi.h>
--#include <asm/uaccess.h>
-+#include <linux/uaccess.h>
- 
- #include "i2c-core.h"
- 
-@@ -687,8 +687,8 @@ i2c_new_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- 	return client;
- 
- out_err:
--	dev_err(&adap->dev, "Failed to register i2c client %s at 0x%02x "
--		"(%d)\n", client->name, client->addr, status);
-+	dev_err(&adap->dev, "Failed to register i2c client %s at 0x%02x (%d)\n",
-+		 client->name, client->addr, status);
- out_err_silent:
- 	kfree(client);
- 	return NULL;
-@@ -1158,8 +1158,7 @@ static int i2c_do_add_adapter(struct i2c_driver *driver,
- 	if (driver->attach_adapter) {
- 		dev_warn(&adap->dev, "%s: attach_adapter method is deprecated\n",
- 			 driver->driver.name);
--		dev_warn(&adap->dev, "Please use another way to instantiate "
--			 "your i2c_client\n");
-+		dev_warn(&adap->dev, "Please use another way to instantiate your i2c_client\n");
- 		/* We ignore the return code; if it fails, too bad */
- 		driver->attach_adapter(adap);
- 	}
-@@ -1183,13 +1182,12 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 
- 	/* Sanity checks */
- 	if (unlikely(adap->name[0] == '\0')) {
--		pr_err("i2c-core: Attempt to register an adapter with "
--		       "no name!\n");
-+		pr_err("i2c-core: Attempt to register an adapter with no name!\n");
- 		return -EINVAL;
- 	}
- 	if (unlikely(!adap->algo)) {
--		pr_err("i2c-core: Attempt to register adapter '%s' with "
--		       "no algo!\n", adap->name);
-+		pr_err("i2c-core: Attempt to register adapter '%s' with no algo!\n",
-+			 adap->name);
- 		return -EINVAL;
- 	}
- 
-@@ -1422,8 +1420,8 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- 	found = idr_find(&i2c_adapter_idr, adap->nr);
- 	mutex_unlock(&core_lock);
- 	if (found != adap) {
--		pr_debug("i2c-core: attempting to delete unregistered "
--			 "adapter [%s]\n", adap->name);
-+		pr_debug("i2c-core: attempting to delete unregistered adapter [%s]\n",
-+				adap->name);
- 		return;
- 	}
- 
-@@ -1737,9 +1735,10 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
- 	if (adap->algo->master_xfer) {
- #ifdef DEBUG
- 		for (ret = 0; ret < num; ret++) {
--			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, "
--				"len=%d%s\n", ret, (msgs[ret].flags & I2C_M_RD)
--				? 'R' : 'W', msgs[ret].addr, msgs[ret].len,
-+			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, len=%d%s\n",
-+				ret,
-+				((msgs[ret].flags & I2C_M_RD) ? 'R' : 'W'),
-+				msgs[ret].addr, msgs[ret].len,
- 				(msgs[ret].flags & I2C_M_RECV_LEN) ? "+" : "");
- 		}
- #endif
-@@ -1905,8 +1904,9 @@ static int i2c_detect_address(struct i2c_client *temp_client,
- 
- 	/* Consistency check */
- 	if (info.type[0] == '\0') {
--		dev_err(&adapter->dev, "%s detection function provided "
--			"no name for 0x%x\n", driver->driver.name,
-+		dev_err(&adapter->dev,
-+			"%s detection function provided no name for 0x%x\n",
-+			driver->driver.name,
- 			addr);
- 	} else {
- 		struct i2c_client *client;
-@@ -1946,8 +1946,9 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver)
- 	temp_client->adapter = adapter;
- 
- 	for (i = 0; address_list[i] != I2C_CLIENT_END; i += 1) {
--		dev_dbg(&adapter->dev, "found normal entry for adapter %d, "
--			"addr 0x%02x\n", adap_id, address_list[i]);
-+		dev_dbg(&adapter->dev,
-+			"found normal entry for adapter %d, addr 0x%02x\n",
-+			adap_id, address_list[i]);
- 		temp_client->addr = address_list[i];
- 		err = i2c_detect_address(temp_client, driver);
- 		if (unlikely(err))
-@@ -1979,15 +1980,16 @@ i2c_new_probed_device(struct i2c_adapter *adap,
- 	for (i = 0; addr_list[i] != I2C_CLIENT_END; i++) {
- 		/* Check address validity */
- 		if (i2c_check_addr_validity(addr_list[i]) < 0) {
--			dev_warn(&adap->dev, "Invalid 7-bit address "
--				 "0x%02x\n", addr_list[i]);
-+			dev_warn(&adap->dev, "Invalid 7-bit address 0x%02x\n",
-+				addr_list[i]);
- 			continue;
- 		}
- 
- 		/* Check address availability */
- 		if (i2c_check_addr_busy(adap, addr_list[i])) {
--			dev_dbg(&adap->dev, "Address 0x%02x already in "
--				"use, not probing\n", addr_list[i]);
-+			dev_dbg(&adap->dev,
-+				"Address 0x%02x already in use, not probing\n",
-+				addr_list[i]);
- 			continue;
- 		}
- 
-@@ -2118,7 +2120,7 @@ EXPORT_SYMBOL(i2c_smbus_read_byte);
- s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value)
- {
- 	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
--	                      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
-+				I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
- }
- EXPORT_SYMBOL(i2c_smbus_write_byte);
- 
--- 
-1.7.10.4
+			dev_dbg(&adap->dev, "master_xfer[%d] %c, addr=0x%02x, len=%d%s\n",
+				ret,
+				msgs[ret].flags & I2C_M_RD ? 'R' : 'W',
+				msgs[ret].addr, msgs[ret].len,
+				msgs[ret].flags & I2C_M_RECV_LEN ? "+" : "";
+
+> @@ -2118,7 +2120,7 @@ EXPORT_SYMBOL(i2c_smbus_read_byte);
+>  s32 i2c_smbus_write_byte(const struct i2c_client *client, u8 value)
+>  {
+>  	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+> -	                      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
+> +				I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
+
+Not an improvement.
+
+Yes, the deleted line should use tabs but
+the alignment of the new line is not correct.
+Please align the indentation to the open parenthesis
+
+	return i2c_smbus_xfer(client->adapter, client->addr, client->flags,
+			      I2C_SMBUS_WRITE, value, I2C_SMBUS_BYTE, NULL);
+
+Using maximal tabs at start of line, and up to 7 spaces
+to align properly.
+
+(using 3 tabs, 6 spaces)
