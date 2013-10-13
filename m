@@ -1,11 +1,11 @@
 From: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
-Subject: [PATCH] arch/powerpc/platforms/83xx: Remove obsolete cleanup for clientdata
-Date: Sun, 13 Oct 2013 18:05:38 +0200
-Message-ID: <1381680348-5298-1-git-send-email-wsa@the-dreams.de>
+Subject: [PATCH] drivers/mfd: Remove obsolete cleanup for clientdata
+Date: Sun, 13 Oct 2013 18:06:12 +0200
+Message-ID: <1381680392-5380-1-git-send-email-wsa@the-dreams.de>
 Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Kumar Gala <galak-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Benjamin Herrenschmidt <benh-XVmvHMARGAS8U2dJNN8I7kB+6BGkLq7r@public.gmane.org>, Paul Mackerras <paulus-eUNUBHrolfbYtjvyW6yDsg@public.gmane.org>, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org
+Cc: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Samuel Ortiz <sameo-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Peter Ujfalusi <peter.ujfalusi-l0cyMroinI0@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 A few new i2c-drivers came into the kernel which clear the clientdata-pointer
@@ -13,20 +13,46 @@ on exit or error. This is obsolete meanwhile, the core will do it.
 
 Signed-off-by: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 ---
- arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/mfd/twl6040.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c b/arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c
-index 7bc3158..fd71cfd 100644
---- a/arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c
-+++ b/arch/powerpc/platforms/83xx/mcu_mpc8349emitx.c
-@@ -204,7 +204,6 @@ static int mcu_remove(struct i2c_client *client)
- 	ret = mcu_gpiochip_remove(mcu);
- 	if (ret)
- 		return ret;
+diff --git a/drivers/mfd/twl6040.c b/drivers/mfd/twl6040.c
+index daf6694..9d948af 100644
+--- a/drivers/mfd/twl6040.c
++++ b/drivers/mfd/twl6040.c
+@@ -565,13 +565,13 @@ static int twl6040_probe(struct i2c_client *client,
+ 				      twl6040->supplies);
+ 	if (ret != 0) {
+ 		dev_err(&client->dev, "Failed to get supplies: %d\n", ret);
+-		goto regulator_get_err;
++		return ret;
+ 	}
+ 
+ 	ret = regulator_bulk_enable(TWL6040_NUM_SUPPLIES, twl6040->supplies);
+ 	if (ret != 0) {
+ 		dev_err(&client->dev, "Failed to enable supplies: %d\n", ret);
+-		goto regulator_get_err;
++		return ret;
+ 	}
+ 
+ 	twl6040->dev = &client->dev;
+@@ -671,9 +671,6 @@ readyirq_err:
+ 	regmap_del_irq_chip(twl6040->irq, twl6040->irq_data);
+ gpio_err:
+ 	regulator_bulk_disable(TWL6040_NUM_SUPPLIES, twl6040->supplies);
+-regulator_get_err:
 -	i2c_set_clientdata(client, NULL);
- 	kfree(mcu);
- 	return 0;
+-
+ 	return ret;
  }
+ 
+@@ -689,7 +686,6 @@ static int twl6040_remove(struct i2c_client *client)
+ 	regmap_del_irq_chip(twl6040->irq, twl6040->irq_data);
+ 
+ 	mfd_remove_devices(&client->dev);
+-	i2c_set_clientdata(client, NULL);
+ 
+ 	regulator_bulk_disable(TWL6040_NUM_SUPPLIES, twl6040->supplies);
+ 
 -- 
 1.8.4.rc3
