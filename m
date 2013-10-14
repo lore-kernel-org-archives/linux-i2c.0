@@ -1,39 +1,28 @@
-From: Maxime COQUELIN <maxime.coquelin@st.com>
-Subject: [PATCH v5 3/4] ARM: STi: Supply I2C configuration to STiH415 SoC
-Date: Mon, 14 Oct 2013 14:46:51 +0200
-Message-ID: <1381754813-4679-4-git-send-email-maxime.coquelin@st.com>
+From: Maxime COQUELIN <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Subject: [PATCH v5 2/4] ARM: STi: Supply I2C configuration to STiH416 SoC
+Date: Mon, 14 Oct 2013 14:46:50 +0200
+Message-ID: <1381754813-4679-3-git-send-email-maxime.coquelin@st.com>
 References: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org>
-In-Reply-To: <1381754813-4679-1-git-send-email-maxime.coquelin@st.com>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-arm-kernel/>
-List-Post: <mailto:linux-arm-kernel@lists.infradead.org>
-List-Help: <mailto:linux-arm-kernel-request@lists.infradead.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-arm-kernel>,
- <mailto:linux-arm-kernel-request@lists.infradead.org?subject=subscribe>
-Sender: "linux-arm-kernel" <linux-arm-kernel-bounces@lists.infradead.org>
-Errors-To: linux-arm-kernel-bounces+linux-arm-kernel=m.gmane.org@lists.infradead.org
-To: Wolfram Sang <wsa@the-dreams.de>, srinivas.kandagatla@st.com, Rob Herring <rob.herring@calxeda.com>, Pawel Moll <pawel.moll@arm.com>, Mark Rutland <mark.rutland@arm.com>, Stephen Warren <swarren@wwwdotorg.org>, Ian Campbell <ijc+devicetree@hellion.org.uk>, Rob Landley <rob@landley.net>, Russell King <linux@arm.linux.org.uk>, Grant Likely <grant.likely@linaro.org>, devicetree@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
-Cc: stuart.menefy@st.com, Maxime Coquelin <maxime.coquelin@st.com>, Lee Jones <lee.jones@linaro.org>, stephen.gallimore@st.com, gabriel.fernandez@st.com
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <1381754813-4679-1-git-send-email-maxime.coquelin-qxv4g6HH51o@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, srinivas.kandagatla-qxv4g6HH51o@public.gmane.org, Rob Herring <rob.herring-bsGFqQB8/DxBDgjK7y7TUQ@public.gmane.org>, Pawel Moll <pawel.moll-5wv7dgnIgG8@public.gmane.org>, Mark Rutland <mark.rutland-5wv7dgnIgG8@public.gmane.org>, Stephen Warren <swarren-3lzwWm7+Weoh9ZMKESR00Q@public.gmane.org>, Ian Campbell <ijc+devicetree-KcIKpvwj1kUDXYZnReoRVg@public.gmane.org>, Rob Landley <rob-VoJi6FS/r0vR7s880joybQ@public.gmane.org>, Russell King <linux-lFZ/pmaqli7XmaaqVzeoHQ@public.gmane.org>, Grant Likely <grant.likely-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, devicetree-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-doc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: stephen.gallimore-qxv4g6HH51o@public.gmane.org, stuart.menefy-qxv4g6HH51o@public.gmane.org, Lee Jones <lee.jones-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, gabriel.fernandez-qxv4g6HH51o@public.gmane.org, Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-This patch supplies I2C configuration to STiH415 SoC.
+This patch supplies I2C configuration to STiH416 SoC.
 
-Signed-off-by: Maxime Coquelin <maxime.coquelin@st.com>
+Signed-off-by: Maxime Coquelin <maxime.coquelin-qxv4g6HH51o@public.gmane.org>
 ---
- arch/arm/boot/dts/stih415-pinctrl.dtsi |   36 ++++++++++++++++++++++
- arch/arm/boot/dts/stih415.dtsi         |   53 ++++++++++++++++++++++++++++++++
- 2 files changed, 89 insertions(+)
+ arch/arm/boot/dts/stih416-pinctrl.dtsi |   35 +++++++++++++++++++++
+ arch/arm/boot/dts/stih416.dtsi         |   53 ++++++++++++++++++++++++++++++++
+ 2 files changed, 88 insertions(+)
 
-diff --git a/arch/arm/boot/dts/stih415-pinctrl.dtsi b/arch/arm/boot/dts/stih415-pinctrl.dtsi
-index 1d322b2..e56449d 100644
---- a/arch/arm/boot/dts/stih415-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/stih415-pinctrl.dtsi
-@@ -86,6 +86,24 @@
+diff --git a/arch/arm/boot/dts/stih416-pinctrl.dtsi b/arch/arm/boot/dts/stih416-pinctrl.dtsi
+index 0f246c9..b29ff4b 100644
+--- a/arch/arm/boot/dts/stih416-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stih416-pinctrl.dtsi
+@@ -97,6 +97,24 @@
  					};
  				};
  			};
@@ -58,11 +47,10 @@ index 1d322b2..e56449d 100644
  		};
  
  		pin-controller-front {
-@@ -143,6 +161,24 @@
- 				reg		= <0x7000 0x100>;
- 				st,bank-name	= "PIO12";
+@@ -175,6 +193,23 @@
+ 				};
  			};
-+
+ 
 +			i2c0 {
 +				pinctrl_i2c0_default: i2c0-default {
 +					st,pins {
@@ -83,28 +71,28 @@ index 1d322b2..e56449d 100644
  		};
  
  		pin-controller-rear {
-diff --git a/arch/arm/boot/dts/stih415.dtsi b/arch/arm/boot/dts/stih415.dtsi
-index 74ab8de..a85fbf1 100644
---- a/arch/arm/boot/dts/stih415.dtsi
-+++ b/arch/arm/boot/dts/stih415.dtsi
+diff --git a/arch/arm/boot/dts/stih416.dtsi b/arch/arm/boot/dts/stih416.dtsi
+index 1a0326e..04afd1e 100644
+--- a/arch/arm/boot/dts/stih416.dtsi
++++ b/arch/arm/boot/dts/stih416.dtsi
 @@ -9,6 +9,7 @@
  #include "stih41x.dtsi"
- #include "stih415-clock.dtsi"
- #include "stih415-pinctrl.dtsi"
+ #include "stih416-clock.dtsi"
+ #include "stih416-pinctrl.dtsi"
 +#include <dt-bindings/interrupt-controller/arm-gic.h>
  / {
- 
  	L2: cache-controller {
-@@ -83,5 +84,57 @@
- 			pinctrl-names 	= "default";
- 			pinctrl-0	= <&pinctrl_sbc_serial1>;
+ 		compatible = "arm,pl310-cache";
+@@ -92,5 +93,57 @@
+ 			pinctrl-0 	= <&pinctrl_sbc_serial1>;
+ 			clocks          = <&CLK_SYSIN>;
  		};
 +
 +		i2c@fed40000 {
 +			compatible	= "st,comms-ssc-i2c";
 +			reg		= <0xfed40000 0x110>;
 +			interrupts	=  <GIC_SPI 187 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks		= <&CLKS_ICN_REG_0>;
++			clocks		= <&CLK_S_ICN_REG_0>;
 +			clock-names	= "ssc";
 +			clock-frequency = <400000>;
 +			pinctrl-names	= "default";
@@ -117,7 +105,7 @@ index 74ab8de..a85fbf1 100644
 +			compatible	= "st,comms-ssc-i2c";
 +			reg		= <0xfed41000 0x110>;
 +			interrupts	=  <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks		= <&CLKS_ICN_REG_0>;
++			clocks		= <&CLK_S_ICN_REG_0>;
 +			clock-names	= "ssc";
 +			clock-frequency = <400000>;
 +			pinctrl-names	= "default";
