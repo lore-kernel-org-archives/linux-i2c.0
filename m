@@ -1,47 +1,55 @@
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Subject: Re: [PATCH] i2c: Fix modalias for ACPI enumerated I2C devices
-Date: Mon, 14 Oct 2013 11:13:17 +0300
-Message-ID: <20131014081317.GC3521@intel.com>
+Date: Mon, 14 Oct 2013 11:16:22 +0300
+Message-ID: <20131014081622.GD3521@intel.com>
 References: <1381414669-26115-1-git-send-email-jarkko.nikula@linux.intel.com>
- <20131011144946.GS3521@intel.com>
  <2393462.4JRAMNeigd@vostro.rjw.lan>
  <20131012050413.GY3521@intel.com>
- <525B907F.1020203@linux.intel.com>
+ <2878883.SYGmCkS5Bt@vostro.rjw.lan>
+ <20131012161805.GB3521@intel.com>
+ <525B9321.5000906@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-acpi-owner@vger.kernel.org>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <525B907F.1020203@linux.intel.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>
+In-Reply-To: <525B9321.5000906-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: "Rafael J. Wysocki" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
-On Mon, Oct 14, 2013 at 09:34:39AM +0300, Jarkko Nikula wrote:
-> On 10/12/2013 08:04 AM, Mika Westerberg wrote:
-> >On Sat, Oct 12, 2013 at 12:16:02AM +0200, Rafael J. Wysocki wrote:
-> >>>I think that this is intentional. We don't want that the i2c modalias
-> >>>matches with the ACPI device (like with the i2c:INTABCD). Instead use ACPI
-> >>>IDs that are added to the driver to match with the ACPI device.
-> >>Well, I'm not really sure this was intentional, but I wonder how other bus
-> >>types work in that respect?
-> >We have the same for platform bus, if that's what you are asking.
+On Mon, Oct 14, 2013 at 09:45:53AM +0300, Jarkko Nikula wrote:
+> On 10/12/2013 07:18 PM, Mika Westerberg wrote:
+> >If we have two ACPI enumerated devices, they have following modalias:
 > >
-> Do we? I don't recall seeing per device modaliases on other
-> platforms on their platform buses.
-
-I mean for platform devices enumerated from ACPI.
-
-> And actually I don't see that happening in drivers/base/platform.c:
-> platform_uevent() either where just pdev->name is used but not
-> pdev->id (which is used with pdev->name for dev_set_name()).
+> >   i2c-device0:	i2c:INTABCD:00
+> >		acpi:INTABCD
+> >
+> >   i2c-device1:	i2c:INTABCD:01
+> >   		acpi:INTABCD
+> >
+> >Likelihood that some random I2C driver has INTABCD:00 or INTABCD:01 ids in
+> >their list is minimal. However, when you turn it to this:
+> >
+> >
+> >   i2c-device0:	i2c:INTABCD
+> >		acpi:INTABCD
+> >
+> >   i2c-device1:	i2c:INTABCD
+> >   		acpi:INTABCD
+> >
+> >It might be possible that we get a match that isn't supposed to happen.
+> >Well, OK it is pretty remote but anyway :-)
+> Well, name conflicts could occur of course but still I don't think
+> we should generate illegal or wrong modaliases. I'm not an udev
+> expert but I suppose trying to load nonexisting drivers
+> (i2c_INTABCD:xy) could slow booting a little and perhaps pollute
+> needlessly error log compared to if it can see that driver is
+> already loaded or tries to load the same driver again.
 > 
-> This makes me thinking that perhaps "pdevinfo.name =
-> dev_name(&adev->dev);" in drivers/acpi/acpi_platform.c:
-> acpi_create_platform_device() should be fixed too as now modalias
-> for ACPI registered platform devices differ from platform devices
-> that are registered in other subsystems (e.g. regulatory, pcspkr,
-> alarmtimer, etc devices)?
+> I don't think name conflicts can pose too big risk as they are
+> trivial to fix in sources and can be queued to stable too.
 
-Well, if you think that it doesn't hit us back later if we get a match that
-isn't supposed to happen.
+OK, you got me convinced :-)
+
+No further objections from me.
