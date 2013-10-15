@@ -1,16 +1,16 @@
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+From: "Rafael J. Wysocki" <rjw-KKrjLPT3xs0@public.gmane.org>
 Subject: Re: [PATCH] i2c: Fix modalias for ACPI enumerated I2C devices
-Date: Tue, 15 Oct 2013 23:24:01 +0200
-Message-ID: <3125784.Lc8ATpWH6J@vostro.rjw.lan>
+Date: Tue, 15 Oct 2013 23:40:15 +0200
+Message-ID: <7300432.I1QNJoGHGD@vostro.rjw.lan>
 References: <1381414669-26115-1-git-send-email-jarkko.nikula@linux.intel.com> <12043671.FjbAvIiH5B@vostro.rjw.lan> <20131015204829.GA5212@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7Bit
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20131015204829.GA5212@kroah.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Zhang Rui <rui.zhang@intel.com>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org, Wolfram Sang <wsa@the-dreams.de>, Mika Westerberg <mika.westerberg@linux.intel.com>
+Return-path: <linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20131015204829.GA5212-U8xfFu+wG4EAvxtiuMwx3w@public.gmane.org>
+Sender: linux-i2c-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Greg Kroah-Hartman <gregkh-hQyY1W1yCW8ekmWlsbkhG0B+6BGkLq7r@public.gmane.org>, Zhang Rui <rui.zhang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Cc: Jarkko Nikula <jarkko.nikula-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, linux-i2c-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-acpi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Wolfram Sang <wsa-z923LK4zBo2bacvFa/9K2g@public.gmane.org>, Mika Westerberg <mika.westerberg-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 List-Id: linux-i2c@vger.kernel.org
 
 On Tuesday, October 15, 2013 01:48:29 PM Greg Kroah-Hartman wrote:
@@ -98,7 +98,10 @@ On Tuesday, October 15, 2013 01:48:29 PM Greg Kroah-Hartman wrote:
 > 
 > So go ask the OF maintainers/developers, this is their domain :)
 
-Well, OK.  Whom in particular?
+So Rui, let's consider that as a bug and please prepare a patch to fix it.
 
-Rafael
+Thanks!
 
+-- 
+I speak only for myself.
+Rafael J. Wysocki, Intel Open Source Technology Center.
